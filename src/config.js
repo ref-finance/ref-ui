@@ -1,4 +1,4 @@
-const CONTRACT_NAME = process.env.CONTRACT_NAME ||'ref-ui'
+const CONTRACT_NAME = process.env.CONTRACT_NAME ||'ref-ui-new'
 
 function getConfig(env) {
   switch (env) {
