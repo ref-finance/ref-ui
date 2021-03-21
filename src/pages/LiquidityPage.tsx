@@ -1,6 +1,5 @@
 import React from "react";
 import FullCard from "~components/layout/FullCard";
-import { DEFAULT_COIN_LIST } from "~consts/DefaultSupportedCoins";
 
 interface LiquidityTokenRowProps {
   coin: CoinForSwap;
@@ -11,9 +10,9 @@ interface LiquidityPageProps {
 }
 
 function LiquidityTokenRow({ coin }: LiquidityTokenRowProps) {
-  const { SVG, name, acronym, tokenId } = coin;
+  const { icon, name, symbol, id } = coin;
 
-  const href = `/liquidity/${tokenId}`;
+  const href = `/liquidity/${encodeURIComponent(id)}`;
   // TODO: get price and liquidity
   return (
     <tr className="h-12 border-separate  border-b border-t border-borderGray">
@@ -22,18 +21,18 @@ function LiquidityTokenRow({ coin }: LiquidityTokenRowProps) {
           href={href}
           className="flex flex-row items-center text-blue-400 hover:text-blue-300"
         >
-          <SVG height="30" width="30" />
+          <img className="object-cover" src={icon} height={30} width={30} />
           <p className="ml-4">{name}</p>
         </a>
       </td>
       <td>
-        <a href={href}>{acronym}</a>
+        <a href={href}>{symbol}</a>
       </td>
       <td>
-        <h1>$0</h1>
+        <h1>N/A</h1>
       </td>
       <td>
-        <h1>$0</h1>
+        <h1>N/A</h1>
       </td>
     </tr>
   );
@@ -44,7 +43,7 @@ function LiquidityPage() {
     <th className="text-left font-light text-sm py-4">{children}</th>
   );
 
-  const liquidityTokens = DEFAULT_COIN_LIST;
+  const liquidityTokens = Object.values(window.tokenMap);
   return (
     <FullCard>
       <div>
@@ -59,7 +58,7 @@ function LiquidityPage() {
             </tr>
           </thead>
           <tbody>
-            {liquidityTokens.map((liquidityToken) => (
+            {liquidityTokens.map((liquidityToken: CoinForSwap) => (
               <LiquidityTokenRow
                 coin={liquidityToken}
                 key={liquidityToken.id}

@@ -11,10 +11,10 @@
     "deploy:contract": "near deploy",
     "deploy:pages": "gh-pages -d dist/",
     "deploy": "npm run build && npm run deploy:contract && npm run deploy:pages",
-    "prestart": "npm run build:contract:debug && npm run dev:deploy:contract",
+    "prestart": "npm run build:contract && npm run dev:deploy:contract",
     "start": "echo The app is starting! It will automatically open in your browser when ready && env-cmd -f ./neardev/dev-account.env parcel src/index.html --open",
     "dev": "nodemon --watch contract -e ts --exec \"npm run start\"",
-    "test": "npm run build:contract:debug && cd contract && npm run test && cd .. && jest test --runInBand"
+    "test": "npm run build:contract && cd contract && npm run test && cd .. && jest test --runInBand"
   },
   "devDependencies": {
     "@babel/core": "~7.12.3",
@@ -47,6 +47,7 @@
     "react-dom": "~17.0.1",
     "react-micro-modal": "^2.0.2",
     "react-router-dom": "^5.2.0",
+    "react-toastify": "^7.0.3",
     "regenerator-runtime": "~0.13.5",
     "typescript": "^4.2.3"
   },

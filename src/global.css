@@ -28,14 +28,13 @@ main {
   margin: 0 auto;
 }
 
-
 input {
   margin: 0;
   background-color: transparent;
-  display:block; 
-  width:100%;
-  padding:0;
-  border-width:0;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border-width: 0;
 }
 
 input:focus {
@@ -45,14 +44,18 @@ input:focus {
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;  
+  -webkit-appearance: none;
+  margin: 0;
 }
 
-input[type=number] {
-    -moz-appearance:textfield; /* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
 }
 
 button:focus {
   outline: none;
+}
+
+button {
+  display: flex;
 }

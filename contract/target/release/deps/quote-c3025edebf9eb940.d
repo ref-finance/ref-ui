@@ -1,0 +1,13 @@
+/Users/pedro/Code/Near/ref-ui/contract/target/release/deps/quote-c3025edebf9eb940.rmeta: /Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/lib.rs /Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/ext.rs /Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/format.rs /Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/ident_fragment.rs /Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/to_tokens.rs /Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/runtime.rs /Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/spanned.rs
+
+/Users/pedro/Code/Near/ref-ui/contract/target/release/deps/libquote-c3025edebf9eb940.rlib: /Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/lib.rs /Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/ext.rs /Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/format.rs /Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/ident_fragment.rs /Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/to_tokens.rs /Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/runtime.rs /Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/spanned.rs
+
+/Users/pedro/Code/Near/ref-ui/contract/target/release/deps/quote-c3025edebf9eb940.d: /Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/lib.rs /Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/ext.rs /Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/format.rs /Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/ident_fragment.rs /Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/to_tokens.rs /Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/runtime.rs /Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/spanned.rs
+
+/Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/lib.rs:
+/Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/ext.rs:
+/Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/format.rs:
+/Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/ident_fragment.rs:
+/Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/to_tokens.rs:
+/Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/runtime.rs:
+/Users/pedro/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.9/src/spanned.rs:

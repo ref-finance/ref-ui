@@ -1,7 +1,6 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import SelectCurrencyModal from "~components/swap/SelectCurrencyModal";
 import PlusSVG from "~assets/misc/plus.svg";
-import { NEAR_COIN } from "~consts/DefaultSupportedCoins";
 import SubmitButton from "~components/general/SubmitButton";
 
 interface LiquidityContainerProps {

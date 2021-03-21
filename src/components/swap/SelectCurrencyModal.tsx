@@ -3,21 +3,19 @@ import React from "react";
 import MicroModal from "react-micro-modal";
 
 import SelectArrow from "~assets/misc/select-arrow.svg";
-import NEAR from "../../assets/coins/near.svg";
 
 import "react-micro-modal/dist/index.css";
-import { DEFAULT_COIN_LIST } from "~consts/DefaultSupportedCoins";
 
 interface SelectedCoinProps {
   coin: CoinForSwap;
 }
 
 function SelectedCoin({ coin }: SelectedCoinProps) {
-  const { SVG, acronym } = coin;
+  const { icon, symbol } = coin;
   return (
     <>
-      <SVG height="25" width="25" />
-      <p>{acronym}</p>
+      <img className="object-cover" src={icon} height={25} width={25} />
+      <p>{symbol}</p>
     </>
   );
 }
@@ -63,7 +61,7 @@ function SelectButton({ handleOpen, coin }) {
 }
 
 function CoinRow({ coin, onClick }) {
-  const { SVG, acronym } = coin;
+  const { icon, symbol } = coin;
   return (
     <button
       onClick={() => onClick(coin)}
@@ -71,15 +69,15 @@ function CoinRow({ coin, onClick }) {
       className="flex flex-row w-full items-center justify-between py-4 px-6 hover:bg-backgroundGray"
     >
       <div className="flex flex-row items-center ">
-        <SVG height="22.5" width="22.5" />
-        <p className="ml-2 font-light ">{acronym}</p>
+        <img className="object-cover" src={icon} height={22.5} width={22.5} />
+        <p className="ml-2 font-light ">{symbol}</p>
       </div>
       <p className="font-inter">0</p>
     </button>
   );
 }
 
-function CoinList({ handleClose, setCoin }) {
+function CoinList({ handleClose, setCoin, suppportedCoins }) {
   const onClick = (coin) => {
     setCoin(coin);
     handleClose();
@@ -89,7 +87,7 @@ function CoinList({ handleClose, setCoin }) {
       <h1 className="text-md font-light text-gray-400 mb-1 p-6">
         Select a token
       </h1>
-      {DEFAULT_COIN_LIST.map((coin) => (
+      {suppportedCoins.map((coin) => (
         <CoinRow coin={coin} key={coin.id} onClick={onClick} />
       ))}
     </div>
@@ -97,6 +95,7 @@ function CoinList({ handleClose, setCoin }) {
 }
 
 function SelectCurrencyModal({ selectedCoin, setCoin }) {
+  const suppportedCoins = Object.values(window.tokenMap);
   return (
     <Modal
       trigger={(handleOpen: () => void) => (
@@ -104,7 +103,11 @@ function SelectCurrencyModal({ selectedCoin, setCoin }) {
       )}
     >
       {(handleClose: () => void) => (
-        <CoinList handleClose={handleClose} setCoin={setCoin} />
+        <CoinList
+          handleClose={handleClose}
+          setCoin={setCoin}
+          suppportedCoins={suppportedCoins}
+        />
       )}
     </Modal>
   );

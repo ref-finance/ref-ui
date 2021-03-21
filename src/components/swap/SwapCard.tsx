@@ -2,7 +2,7 @@ import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 import SelectCurrencyModal from "./SelectCurrencyModal";
 import DownArrowSVG from "~assets/misc/down-arrow.svg";
-import { NEAR_COIN } from "~consts/DefaultSupportedCoins";
+
 import SubmitButton from "~components/general/SubmitButton";
 
 interface SwapContainerProps {
@@ -83,7 +83,8 @@ function useAvoidDuplicateCoins(
 }
 
 function SwapCard() {
-  const [selectedCoinOne, setCoinOne] = useState<CoinForSwap>(NEAR_COIN);
+  const defaultCoin = window.tokenMap[window.tokenList[0]];
+  const [selectedCoinOne, setCoinOne] = useState<CoinForSwap>(defaultCoin);
   const [selectedCoinTwo, setCoinTwo] = useState<CoinForSwap>();
 
   useAvoidDuplicateCoins(selectedCoinOne, selectedCoinTwo, setCoinTwo);

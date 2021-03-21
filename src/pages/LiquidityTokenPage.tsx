@@ -3,8 +3,9 @@ import { useParams } from "react-router";
 
 import FullCard from "~components/layout/FullCard";
 import RightArrowSVG from "~assets/misc/right-arrow.svg";
-import getTokenFromTokenId from "~api/getTokenFromTokenId";
+
 import LiquidityCard from "~components/liquidity/LiquidityCard";
+import { getTokenFromTokenId } from "~utils";
 
 interface ParamTypes {
   tokenId: string;
@@ -33,7 +34,7 @@ function Header({ token }: TokenProps) {
       <RightArrowSVG />
       {token && (
         <p className="text-gray-500 font-light font-inter text-sm">
-          {token.acronym} ({token.tokenId})
+          {token.symbol} ({token.id})
         </p>
       )}
     </div>
@@ -58,10 +59,10 @@ function DeltaText({ delta }: DeltaText) {
 }
 
 function TokenAbout({ token }: TokenProps) {
-  const { SVG, name } = token;
+  const { icon, name } = token;
   return (
     <div className="flex flex-row items-center lg:pl-7">
-      <SVG height="40" width="40" />
+      <img className="object-cover" src={icon} height={40} width={40} />
       <h1 className="font-bold font-inter text-2xl ml-4 mr-2">{name}</h1>
       <DeltaText delta={0} />
     </div>
@@ -89,11 +90,21 @@ function TokenDetails({ token }: TokenProps) {
     <div className="flex flex-col lg:pl-6 mt-8 mb-14">
       <h1 className=" font-normal text-xl pb-4">Token Details</h1>
       <div className="flex flex-row lg:space-x-24 flex-wrap">
-        <TokenDetailColumn title="Total Liquidity" value={"$0"} delta={0} />
-        <TokenDetailColumn title="Volume (24hrs)" value={"$0"} delta={0} />
+        <TokenDetailColumn
+          title="Total Liquidity"
+          // value={"$0"}
+          value="N/A"
+          delta={0}
+        />
+        <TokenDetailColumn
+          title="Volume (24hrs)"
+          //value={"$0"}
+          value="N/A"
+          delta={0}
+        />
         <TokenDetailColumn
           title="Transactions (24hrs)"
-          value={9288}
+          value={"N/A"}
           delta={0}
         />
       </div>
@@ -102,10 +113,13 @@ function TokenDetails({ token }: TokenProps) {
 }
 
 function LiquidityTokenPage() {
-  const { tokenId } = useParams<ParamTypes>();
+  const { tokenId: rawTokenId } = useParams<ParamTypes>();
+  const tokenId = decodeURIComponent(rawTokenId);
   const [token, setToken] = useState<CoinForSwap>(null);
   useEffect(() => {
-    getTokenFromTokenId(tokenId).then((tokenFromAPI) => setToken(tokenFromAPI));
+    getTokenFromTokenId(tokenId).then((tokenFromAPI) => {
+      setToken(tokenFromAPI);
+    });
   }, []);
 
   return (
