@@ -7,6 +7,10 @@ const nearConfig = getConfig(env);
 
 // Initialize contract & set global variables
 import QuestionMark from "~assets/images/question.png";
+import {
+  formatNearAmount,
+  parseNearAmount,
+} from "near-api-js/lib/utils/format";
 
 export async function getTokenFromTokenId(tokenId: string) {
   try {
@@ -60,6 +64,42 @@ async function getDefaultTokenLists() {
 //   await newContract.mint({ account_id: window.accountId, amount: "10000" });
 // }
 
+export async function depositToken(tokenId, amount) {
+  const tokenContract = await new Contract(
+    window.walletConnection.account(),
+    tokenId,
+    {
+      changeMethods: ["ft_transfer_call"],
+    }
+  );
+  await tokenContract.ft_transfer_call(
+    {
+      receiver_id: window.contractName,
+      amount: amount.toString(),
+      msg: "",
+    },
+    "30000000000000",
+    "1"
+  );
+  // todo: for registering an accont.
+  // await window.contract.storage_deposit(
+  //   {
+  //     account_id: window.accountId,
+  //     registration_only: true,
+  //   },
+  //   null,
+  //   parseNearAmount("1")
+  // );
+}
+
+export async function getDeposits() {
+  const deposits = await window.contract.get_deposits({
+    account_id: window.accountId,
+  });
+
+  return deposits;
+}
+
 export async function initContract() {
   // Initialize connection to the NEAR testnet
   const near = await connect(
@@ -76,13 +116,13 @@ export async function initContract() {
   // Getting the Account ID. If still unauthorized, it's just empty string
   window.accountId = window.walletConnection.getAccountId();
 
-  const contractName =
+  window.contractName =
     env === "development" ? "ref-finance.testnet" : '"ref-finance.near"';
   // Initializing our contract APIs by contract name and configuration
 
   window.contract = await new Contract(
     window.walletConnection.account(),
-    contractName,
+    window.contractName,
     {
       // View methods are read only. They don't modify the state, but usually return some value.
       viewMethods: [
@@ -92,7 +132,7 @@ export async function initContract() {
         "get_deposits",
       ],
       // Change methods can modify the state. But you don't receive the returned value when called.
-      changeMethods: ["new"],
+      changeMethods: ["new", "storage_deposit"],
     }
   );
 

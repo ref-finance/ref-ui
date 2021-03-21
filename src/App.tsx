@@ -1,4 +1,6 @@
 import "regenerator-runtime/runtime";
+import "react-toastify/dist/ReactToastify.css";
+
 import React from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import NavigationBar from "./components/layout/NavigationBar";

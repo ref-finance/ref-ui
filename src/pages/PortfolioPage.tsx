@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Portfolio from "~components/portfolio/Portfolio";
 import PriceTicker from "~components/portfolio/PriceTicker";
 import FullCard from "~components/layout/FullCard";
+import { getDeposits } from "~utils";
 
 function PortfolioPage() {
   const [tokensInContract, setTokensInContract] = useState([]);
@@ -11,6 +12,9 @@ function PortfolioPage() {
       .then((tokens: string[]) => setTokensInContract(tokens));
   }, []);
 
+  useEffect(() => {
+    getDeposits().then((dep) => console.log("deposits", dep));
+  }, []);
   return (
     <FullCard>
       <PriceTicker />
