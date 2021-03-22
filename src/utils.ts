@@ -89,7 +89,7 @@ export async function initContract() {
         "get_pools",
       ],
       // Change methods can modify the state. But you don't receive the returned value when called.
-      changeMethods: ["new", "storage_deposit"],
+      changeMethods: ["new", "storage_deposit", "withdraw"],
     }
   );
 

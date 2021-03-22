@@ -53,7 +53,31 @@ export async function getDeposits() {
   return deposits;
 }
 
-export async function depositToken(tokenId, amount) {
+export async function withdrawToken(tokenId: string, amount: number) {
+  await window.contract.withdraw(
+    {
+      token_id: tokenId,
+      amount: amount.toString(),
+    },
+    "50000000000000",
+    "1"
+  );
+}
+
+async function addToPool() {
+  const poolContract = await new Contract(
+    window.walletConnection.account(),
+    window.contractName,
+    {
+      viewMethods: ["storage_available"],
+      changeMethods: ["ft_transfer_call", "storage_deposit"],
+    }
+  );
+
+  poolContract.storage_deposit({}, null, parseNearAmount("5"));
+}
+
+export async function depositToken(tokenId: string, amount: number) {
   checkIsSignedIn();
   const tokenContract = await new Contract(
     window.walletConnection.account(),
@@ -63,17 +87,6 @@ export async function depositToken(tokenId, amount) {
       changeMethods: ["ft_transfer_call"],
     }
   );
-
-  // const  poolContract = await new Contract(
-  //   window.walletConnection.account(),
-  //   window.contractName,
-  //   {
-  //     viewMethods: ["storage_available"],
-  //     changeMethods: ["ft_transfer_call", "storage_deposit"],
-  //   }
-  // );
-
-  // poolContract.storage_deposit({}, null, parseNearAmount("5"));
 
   await tokenContract.ft_transfer_call(
     {

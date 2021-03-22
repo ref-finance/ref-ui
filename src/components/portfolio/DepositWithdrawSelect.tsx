@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import SelectCurrencyModal from "~components/swap/SelectCurrencyModal";
 
 import { ToastContainer, toast } from "react-toastify";
-import { depositToken } from "~utils/ContractUtils";
+import { depositToken, withdrawToken } from "~utils/ContractUtils";
 
 interface SelectProps {
   title: string;
   onClick: (selectedCoin: CoinForSwap, amount: number) => void;
 }
 
-function deposit(selectedCoin: CoinForSwap, amount: number) {
+function checkError(selectedCoin: CoinForSwap, amount: number) {
   try {
     if (!window.accountId) {
       throw new Error("NO_ACCOUNT_ID");
@@ -17,12 +17,11 @@ function deposit(selectedCoin: CoinForSwap, amount: number) {
     if (!selectedCoin) {
       throw new Error("NO_COIN_SELECTED");
     }
-    if (!amount) {
+    if (amount <= 0) {
       throw new Error("NO_AMOUNT");
     }
-    depositToken(selectedCoin.id, amount);
+    return false;
   } catch ({ message: error }) {
-    console.log("error", error);
     let errorMsg = "An error occured. Please try again later.";
     if (error === "NO_ACCOUNT_ID") {
       errorMsg = "Please sign in first to swap.";
@@ -42,7 +41,23 @@ function deposit(selectedCoin: CoinForSwap, amount: number) {
       draggable: true,
       progress: undefined,
     });
+    return true;
   }
+}
+
+function withdraw(selectedCoin: CoinForSwap, amount: number) {
+  const didError = checkError(selectedCoin, amount);
+  if (didError) {
+    return;
+  }
+  withdrawToken(selectedCoin.id, amount);
+}
+function deposit(selectedCoin: CoinForSwap, amount: number) {
+  const didError = checkError(selectedCoin, amount);
+  if (didError) {
+    return;
+  }
+  depositToken(selectedCoin.id, amount);
 }
 
 function Select({ title, onClick }: SelectProps) {
@@ -74,7 +89,7 @@ function DepositWithdrawSelect() {
   return (
     <div className="mt-6 flex flex-col space-y-4 lg:space-x-4 lg:space-y-0 lg:flex-row ">
       <Select title="Deposit" onClick={deposit} />
-      <Select title="Withdraw" onClick={deposit} />
+      <Select title="Withdraw" onClick={withdraw} />
       <ToastContainer />
     </div>
   );
