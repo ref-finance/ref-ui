@@ -79,7 +79,7 @@ function Select({ title, onClick }: SelectProps) {
         />
       </div>
       <button type="button" onClick={() => onClick(selectedCoin, amount)}>
-        <h2>Deposit</h2>
+        <h2>{title}</h2>
       </button>
     </div>
   );

@@ -61,7 +61,7 @@ function SelectButton({ handleOpen, coin }) {
 }
 
 function CoinRow({ coin, onClick }) {
-  const { icon, symbol } = coin;
+  const { icon, symbol, id } = coin;
   return (
     <button
       onClick={() => onClick(coin)}
@@ -72,7 +72,7 @@ function CoinRow({ coin, onClick }) {
         <img className="object-cover" src={icon} height={22.5} width={22.5} />
         <p className="ml-2 font-light ">{symbol}</p>
       </div>
-      <p className="font-inter">0</p>
+      <p className="font-inter">{window.deposits[id] || 0}</p>
     </button>
   );
 }

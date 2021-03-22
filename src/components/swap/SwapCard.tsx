@@ -164,7 +164,7 @@ function SwapCard() {
       <SwapContainer
         title="From"
         showMax
-        balance={0.0}
+        balance={parseFloat(window.deposits[selectedCoinOne?.id] || 0.0)}
         selectedCoin={selectedCoinOne}
         setCoin={setCoinOne}
         value={amount}

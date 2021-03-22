@@ -11,7 +11,11 @@ import {
   formatNearAmount,
   parseNearAmount,
 } from "near-api-js/lib/utils/format";
-import { getPools, getTokenFromTokenId } from "~utils/ContractUtils";
+import {
+  getDeposits,
+  getPools,
+  getTokenFromTokenId,
+} from "~utils/ContractUtils";
 
 async function getDefaultTokenLists() {
   const tokens = await window.contract.get_whitelisted_tokens();
@@ -96,7 +100,9 @@ export async function initContract() {
   // await mintCoins();
   await getDefaultTokenLists();
   const pools = await getPools();
+  const deposits = await getDeposits();
   window.pools = pools;
+  window.deposits = deposits;
 }
 
 // ref-finance.testnet
