@@ -151,6 +151,11 @@ function SwapCard() {
       ).then((returnAmt) => setToAmount(returnAmt));
     }
   }, [poolId, amount]);
+
+  useEffect(() => {
+    setAmount(0);
+    setToAmount(0);
+  }, [selectedCoinOne, selectedCoinTwo]);
   useAvoidDuplicateCoins(selectedCoinOne, selectedCoinTwo, setCoinTwo);
 
   return (

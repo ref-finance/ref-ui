@@ -59,9 +59,21 @@ export async function depositToken(tokenId, amount) {
     window.walletConnection.account(),
     tokenId,
     {
-      changeMethods: ["ft_transfer_call", "storage_deposit"],
+      viewMethods: [],
+      changeMethods: ["ft_transfer_call"],
     }
   );
+
+  // const  poolContract = await new Contract(
+  //   window.walletConnection.account(),
+  //   window.contractName,
+  //   {
+  //     viewMethods: ["storage_available"],
+  //     changeMethods: ["ft_transfer_call", "storage_deposit"],
+  //   }
+  // );
+
+  // poolContract.storage_deposit({}, null, parseNearAmount("5"));
 
   await tokenContract.ft_transfer_call(
     {
@@ -69,7 +81,7 @@ export async function depositToken(tokenId, amount) {
       amount: amount.toString(),
       msg: "",
     },
-    "30000000000000",
+    "50000000000000",
     "1"
   );
 }

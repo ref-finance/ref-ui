@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import SelectCurrencyModal from "~components/swap/SelectCurrencyModal";
 
 import { ToastContainer, toast } from "react-toastify";
-import { depositToken } from "~utils";
+import { depositToken } from "~utils/ContractUtils";
 
 interface SelectProps {
   title: string;
@@ -22,6 +22,7 @@ function deposit(selectedCoin: CoinForSwap, amount: number) {
     }
     depositToken(selectedCoin.id, amount);
   } catch ({ message: error }) {
+    console.log("error", error);
     let errorMsg = "An error occured. Please try again later.";
     if (error === "NO_ACCOUNT_ID") {
       errorMsg = "Please sign in first to swap.";

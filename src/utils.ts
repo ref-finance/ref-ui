@@ -30,10 +30,10 @@ async function getDefaultTokenLists() {
 // async function mintCoins() {
 //   const newContract = await new Contract(
 //     window.walletConnection.account(),
-//     "token1.ref-finance.testnet",
+//     "token2.ref-finance.testnet",
 //     { changeMethods: ["mint"] }
 //   );
-//   await newContract.mint({ account_id: window.accountId, amount: "10000" });
+//   await newContract.mint({ account_id: window.accountId, amount: "12500000" });
 // }
 
 // todo: for registering an accont.

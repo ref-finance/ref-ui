@@ -1,17 +1,19 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Portfolio from "~components/portfolio/Portfolio";
 import PriceTicker from "~components/portfolio/PriceTicker";
 import FullCard from "~components/layout/FullCard";
 import { getDeposits } from "~utils/ContractUtils";
 
 function PortfolioPage() {
+  const [deposits, setDeposits] = useState([]);
   useEffect(() => {
-    getDeposits().then((dep) => console.log("deposits", dep));
+    getDeposits().then((newDeposits) => setDeposits(newDeposits));
   }, []);
+
   return (
     <FullCard>
       <PriceTicker />
-      <Portfolio />
+      <Portfolio deposits={deposits} />
     </FullCard>
   );
 }
