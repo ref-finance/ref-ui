@@ -17,6 +17,11 @@ interface SwapContainerProps {
   onChange?: (value: SetStateAction<number>) => void;
 }
 
+interface SwapButtonProps {
+  amount: number;
+  pool: PoolInfo;
+  coinsSelected: boolean;
+}
 const SwapHeader = () => (
   <div className="flex flex-row pt-6 mb-6 space-x-4 border-b border-borderGray">
     <div className="pb-3 border-b border-black ">
@@ -109,6 +114,25 @@ const getPool = (idOne: string, idTwo: string) => {
   return { pool, poolId };
 };
 
+function SwapButton({ amount, pool, coinsSelected }: SwapButtonProps) {
+  const notLoggedIn = !window.accountId;
+  const disabled = notLoggedIn || !pool || !amount || !coinsSelected;
+
+  let text = "Swap";
+
+  if (!pool && coinsSelected) {
+    text = "No pool available";
+  }
+  if (!amount) {
+    text = "Enter an amount";
+  }
+  if (notLoggedIn) {
+    text = '"Connect your wallet" ';
+  }
+
+  return <SubmitButton onClick={() => {}} disabled={disabled} text={text} />;
+}
+
 function SwapCard() {
   const defaultCoin = window.tokenMap[window.tokenList[0]];
   const [amount, setAmount] = useState<number>(0);
@@ -129,7 +153,6 @@ function SwapCard() {
   }, [poolId, amount]);
   useAvoidDuplicateCoins(selectedCoinOne, selectedCoinTwo, setCoinTwo);
 
-  const disabled = !window.accountId || !pool || !amount;
   return (
     <div className="px-6">
       <SwapHeader />
@@ -151,8 +174,7 @@ function SwapCard() {
         setCoin={setCoinTwo}
         disabled
       />
-      <SubmitButton
-        disabled={disabled}
+      <SwapButton
         amount={amount}
         pool={pool}
         coinsSelected={!!(selectedCoinOne && selectedCoinTwo)}

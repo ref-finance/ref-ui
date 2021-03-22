@@ -17,7 +17,7 @@ function LiquidityContainer({
   setCoin,
 }: LiquidityContainerProps) {
   return (
-    <div className="flex flex-col p-3  mx-6 bg-backgroundGray space-y-2">
+    <div className="flex flex-col p-3 bg-backgroundGray space-y-2">
       <div className="flex flex-row justify-between items-center w-full">
         <p className="text-sm font-light text-gray-400">Input</p>
       </div>
@@ -64,15 +64,19 @@ function LiquidityCard({ defaultToken }: LiquidityCardProps) {
   ]);
 
   return (
-    <div className="flex flex-col  items-center lg:w-1/3 lg:min-w-25 mt-4 lg:mx-6 rounded-lg border-2 border-black shadow-xl">
-      <h1 className="text-left w-full p-6">+ Liquidity </h1>
+    <div className="flex flex-col  items-center lg:w-1/3 lg:min-w-25 mt-4 px-3 lg:px-6 rounded-lg border-2 border-black shadow-xl">
+      <h1 className="text-left w-full py-6">+ Liquidity </h1>
       <LiquidityContainer selectedCoin={selectedCoinOne} setCoin={setCoinOne} />
       <div className="my-6">
         <PlusSVG />
       </div>
       <LiquidityContainer selectedCoin={selectedCoinTwo} setCoin={setCoinTwo} />
       <div className="w-full">
-        <SubmitButton />
+        <SubmitButton
+          text="Provide Liquidity"
+          disabled={false}
+          onClick={() => {}}
+        />
       </div>
     </div>
   );
