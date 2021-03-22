@@ -8,10 +8,6 @@ interface CoinBalanceProps {
   balance: number;
 }
 
-interface PortfolioProps {
-  tokensInContract: string[];
-}
-
 function CoinBalance({ coin, balance, price, delta }: CoinBalanceProps) {
   const { symbol, icon } = coin;
   const pct = (delta * 100).toFixed(2);
@@ -53,7 +49,7 @@ function CoinPortfolio() {
   );
 }
 
-function Portfolio({ tokensInContract }: PortfolioProps) {
+function Portfolio() {
   return (
     <div>
       <h1 className=" font-semibold font-inter ">Portfolio</h1>

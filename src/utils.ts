@@ -6,40 +6,12 @@ const env = process.env.NODE_ENV || "development";
 const nearConfig = getConfig(env);
 
 // Initialize contract & set global variables
-import QuestionMark from "~assets/images/question.png";
+
 import {
   formatNearAmount,
   parseNearAmount,
 } from "near-api-js/lib/utils/format";
-
-export async function getTokenFromTokenId(tokenId: string) {
-  try {
-    const newContract = await new Contract(
-      window.walletConnection.account(),
-      tokenId,
-      { viewMethods: ["ft_metadata"] }
-    );
-    const resp = await newContract.ft_metadata();
-    resp.id = tokenId;
-    return resp;
-  } catch {
-    if (env === "development") {
-      // In case ft_metadata not implemented, like the test tokens.
-      const resp = {
-        id: tokenId,
-        version: "",
-        name: tokenId,
-        symbol: tokenId,
-        icon: QuestionMark,
-        reference: "",
-        reference_hash: "",
-        decimals: 6,
-      };
-      return resp;
-    }
-    return null;
-  }
-}
+import { getPools, getTokenFromTokenId } from "~utils/ContractUtils";
 
 async function getDefaultTokenLists() {
   const tokens = await window.contract.get_whitelisted_tokens();
@@ -64,41 +36,24 @@ async function getDefaultTokenLists() {
 //   await newContract.mint({ account_id: window.accountId, amount: "10000" });
 // }
 
-export async function depositToken(tokenId, amount) {
-  const tokenContract = await new Contract(
-    window.walletConnection.account(),
-    tokenId,
-    {
-      changeMethods: ["ft_transfer_call"],
-    }
-  );
-  await tokenContract.ft_transfer_call(
-    {
-      receiver_id: window.contractName,
-      amount: amount.toString(),
-      msg: "",
-    },
-    "30000000000000",
-    "1"
-  );
-  // todo: for registering an accont.
-  // await window.contract.storage_deposit(
-  //   {
-  //     account_id: window.accountId,
-  //     registration_only: true,
-  //   },
-  //   null,
-  //   parseNearAmount("1")
-  // );
-}
+// todo: for registering an accont.
+// await window.contract.storage_deposit(
+//   {
+//     account_id: window.accountId,
+//     registration_only: true,
+//   },
+//   null,
+//   parseNearAmount("1")
+// );
 
-export async function getDeposits() {
-  const deposits = await window.contract.get_deposits({
-    account_id: window.accountId,
-  });
-
-  return deposits;
-}
+//   await tokenContract.storage_deposit(
+//     {
+//       account_id: window.accountId,
+//       registration_only: true,
+//     },
+//     null,
+//     parseNearAmount("1")
+//   );
 
 export async function initContract() {
   // Initialize connection to the NEAR testnet
@@ -130,6 +85,8 @@ export async function initContract() {
         "get_number_of_pools",
         "get_owner",
         "get_deposits",
+        "get_return",
+        "get_pools",
       ],
       // Change methods can modify the state. But you don't receive the returned value when called.
       changeMethods: ["new", "storage_deposit"],
@@ -138,6 +95,8 @@ export async function initContract() {
 
   // await mintCoins();
   await getDefaultTokenLists();
+  const pools = await getPools();
+  window.pools = pools;
 }
 
 // ref-finance.testnet

@@ -5,7 +5,7 @@ import FullCard from "~components/layout/FullCard";
 import RightArrowSVG from "~assets/misc/right-arrow.svg";
 
 import LiquidityCard from "~components/liquidity/LiquidityCard";
-import { getTokenFromTokenId } from "~utils";
+import { getTokenFromTokenId } from "~utils/ContractUtils";
 
 interface ParamTypes {
   tokenId: string;

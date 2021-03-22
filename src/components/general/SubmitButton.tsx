@@ -1,15 +1,39 @@
 import React from "react";
 
-function SubmitButton() {
+interface SubmitButtonProps {
+  amount: number;
+  pool: PoolInfo;
+  coinsSelected: boolean;
+}
+
+function SubmitButton({ amount, pool, coinsSelected }: SubmitButtonProps) {
+  const notLoggedIn = !window.accountId;
+  const disabled = notLoggedIn || !pool || !amount || !coinsSelected;
+
+  let text = "Swap";
+
+  if (!pool && coinsSelected) {
+    text = "No pool available";
+  }
+  if (!amount) {
+    text = "Enter an amount";
+  }
+  if (notLoggedIn) {
+    text = '"Connect your wallet" ';
+  }
+
   return (
-    <div
-      className="flex flex-row justify-center py-4 mt-10 mb-16 items-center mx-6 rounded-md "
-      style={{ backgroundColor: "#e5e7eb" }}
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={() => {
+        //
+      }}
+      className="flex flex-row justify-center py-4 mt-10 mb-16 items-center rounded-md w-full bg-black  text-white disabled:text-gray-400  disabled:bg-gray-100"
+      // style={{ backgroundColor: "#e5e7eb" }}
     >
-      <h1 className=" text-xl font-inter font-medium text-gray-400">
-        Enter an amount
-      </h1>
-    </div>
+      <h1 className=" text-xl font-inter font-medium ">{text}</h1>
+    </button>
   );
 }
 

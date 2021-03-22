@@ -8,3 +8,10 @@ interface CoinForSwap {
   reference_hash: string | null;
   decimals: number;
 }
+
+interface PoolInfo {
+  token_account_ids: string[];
+  amounts: number[];
+  total_fee: number;
+  shares_total_supply: number;
+}
