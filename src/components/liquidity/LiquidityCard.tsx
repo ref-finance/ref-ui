@@ -65,6 +65,7 @@ function useEnsureSelectedIsValid(
 function LiquidityCard({ defaultToken }: LiquidityCardProps) {
   const [selectedCoinOne, setCoinOne] = useState<CoinForSwap>(defaultToken);
   const [selectedCoinTwo, setCoinTwo] = useState<CoinForSwap>();
+  const [isAddingLiquidity, setIsAddingLiquidity] = useState<boolean>(true);
 
   const [amountOne, setAmountOne] = useState<number>(0);
   const [amountTwo, setAmountTwo] = useState<number>(0);
@@ -78,7 +79,26 @@ function LiquidityCard({ defaultToken }: LiquidityCardProps) {
 
   return (
     <div className="flex flex-col  items-center lg:w-1/3 lg:min-w-25 mt-4 px-3 lg:px-6 rounded-lg border-2 border-black shadow-xl">
-      <h1 className="text-left w-full py-6">+ Liquidity </h1>
+      <div className="flex flex-row align-center w-full space-x-2  ">
+        <button
+          type="button"
+          onClick={() => setIsAddingLiquidity(true)}
+          className={`text-left w-full py-6 ${
+            isAddingLiquidity ? "text-black" : "text-gray-400"
+          }`}
+        >
+          + Liquidity
+        </button>
+        <button
+          type="button"
+          onClick={() => setIsAddingLiquidity(false)}
+          className={`text-left w-full py-6 ${
+            !isAddingLiquidity ? "text-black" : "text-gray-400"
+          }`}
+        >
+          - Liquidity
+        </button>
+      </div>
       <LiquidityContainer
         selectedCoin={selectedCoinOne}
         setCoin={setCoinOne}
@@ -104,7 +124,11 @@ function LiquidityCard({ defaultToken }: LiquidityCardProps) {
             !selectedCoinTwo ||
             !pool
           }
-          onClick={() => addLiquidity(poolId, [amountOne, amountTwo])}
+          onClick={
+            isAddingLiquidity
+              ? () => addLiquidity(poolId, [amountOne, amountTwo])
+              : () => {}
+          }
         />
       </div>
     </div>
