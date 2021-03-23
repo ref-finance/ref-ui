@@ -4,7 +4,7 @@ import SelectCurrencyModal from "./SelectCurrencyModal";
 import DownArrowSVG from "~assets/misc/down-arrow.svg";
 
 import SubmitButton from "~components/general/SubmitButton";
-import { getReturn } from "~utils/ContractUtils";
+import { getReturn, swapToken } from "~utils/ContractUtils";
 
 interface SwapContainerProps {
   title: string;
@@ -19,9 +19,14 @@ interface SwapContainerProps {
 
 interface SwapButtonProps {
   amount: number;
+  minAmount: number;
+  userBalance: number;
   pool: PoolInfo;
-  coinsSelected: boolean;
+  selectedCoinOne: CoinForSwap;
+  selectedCoinTwo: CoinForSwap;
+  poolId: number;
 }
+
 const SwapHeader = () => (
   <div className="flex flex-row pt-6 mb-6 space-x-4 border-b border-borderGray">
     <div className="pb-3 border-b border-black ">
@@ -114,14 +119,29 @@ const getPool = (idOne: string, idTwo: string) => {
   return { pool, poolId };
 };
 
-function SwapButton({ amount, pool, coinsSelected }: SwapButtonProps) {
+function SwapButton({
+  amount,
+  minAmount,
+  pool,
+  selectedCoinOne,
+  selectedCoinTwo,
+  userBalance,
+  poolId,
+}: SwapButtonProps) {
+  const coinsSelected = !!(selectedCoinOne && selectedCoinTwo);
   const notLoggedIn = !window.accountId;
-  const disabled = notLoggedIn || !pool || !amount || !coinsSelected;
+  const notEnoughBalance = amount > userBalance;
+  const disabled =
+    notEnoughBalance || notLoggedIn || !pool || !amount || !coinsSelected;
 
   let text = "Swap";
 
   if (!pool && coinsSelected) {
     text = "No pool available";
+  }
+
+  if (notEnoughBalance) {
+    text = "Not enough balance";
   }
   if (!amount) {
     text = "Enter an amount";
@@ -130,7 +150,21 @@ function SwapButton({ amount, pool, coinsSelected }: SwapButtonProps) {
     text = '"Connect your wallet" ';
   }
 
-  return <SubmitButton onClick={() => {}} disabled={disabled} text={text} />;
+  return (
+    <SubmitButton
+      onClick={() => {
+        swapToken(
+          poolId,
+          selectedCoinOne.id,
+          amount,
+          selectedCoinTwo.id,
+          minAmount
+        );
+      }}
+      disabled={disabled}
+      text={text}
+    />
+  );
 }
 
 function SwapCard() {
@@ -141,14 +175,18 @@ function SwapCard() {
   const [toAmount, setToAmount] = useState<number>(0);
   const { pool, poolId } = getPool(selectedCoinOne?.id, selectedCoinTwo?.id);
 
+  const userBalance = parseFloat(window.deposits[selectedCoinOne?.id] || 0.0);
   useEffect(() => {
-    if (poolId > -1 && amount) {
+    if (poolId > -1) {
       getReturn(
         poolId,
         selectedCoinOne.id,
         selectedCoinTwo.id,
-        amount
+        amount || 0
       ).then((returnAmt) => setToAmount(returnAmt));
+    }
+    if (!amount) {
+      setToAmount(0);
     }
   }, [poolId, amount]);
 
@@ -164,7 +202,7 @@ function SwapCard() {
       <SwapContainer
         title="From"
         showMax
-        balance={parseFloat(window.deposits[selectedCoinOne?.id] || 0.0)}
+        balance={userBalance}
         selectedCoin={selectedCoinOne}
         setCoin={setCoinOne}
         value={amount}
@@ -181,8 +219,12 @@ function SwapCard() {
       />
       <SwapButton
         amount={amount}
+        minAmount={toAmount}
         pool={pool}
-        coinsSelected={!!(selectedCoinOne && selectedCoinTwo)}
+        poolId={poolId}
+        userBalance={userBalance}
+        selectedCoinOne={selectedCoinOne}
+        selectedCoinTwo={selectedCoinTwo}
       />
     </div>
   );

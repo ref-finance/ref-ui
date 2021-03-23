@@ -99,6 +99,32 @@ export async function depositToken(tokenId: string, amount: number) {
   );
 }
 
+export async function swapToken(
+  pool_id: number,
+  token_in: string,
+  amount_in: number,
+  token_out: string,
+  min_amount_out: number
+) {
+  checkIsSignedIn();
+
+  const swapAction = {
+    pool_id,
+    token_in,
+    amount_in,
+    token_out,
+    min_amount_out,
+  };
+
+  await window.contract.swap(
+    {
+      actions: [swapAction],
+    },
+    "50000000000000",
+    "1"
+  );
+}
+
 export async function getReturn(
   pool_id: number,
   token_in: string,
