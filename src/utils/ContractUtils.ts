@@ -99,6 +99,17 @@ export async function depositToken(tokenId: string, amount: number) {
   );
 }
 
+export async function addLiquidity(pool_id, amounts) {
+  await window.contract.add_liquidity(
+    {
+      pool_id,
+      amounts,
+    },
+    "50000000000000",
+    "1"
+  );
+}
+
 export async function swapToken(
   pool_id: number,
   token_in: string,

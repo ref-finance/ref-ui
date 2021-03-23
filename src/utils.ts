@@ -93,7 +93,13 @@ export async function initContract() {
         "get_pools",
       ],
       // Change methods can modify the state. But you don't receive the returned value when called.
-      changeMethods: ["new", "storage_deposit", "withdraw", "swap"],
+      changeMethods: [
+        "new",
+        "storage_deposit",
+        "withdraw",
+        "swap",
+        "add_liquidity",
+      ],
     }
   );
 
@@ -105,7 +111,22 @@ export async function initContract() {
   window.deposits = deposits;
 }
 
-// ref-finance.testnet
+export function getPool(idOne: string, idTwo: string) {
+  let poolId = 0;
+  const pool = window.pools.find((p: PoolInfo) => {
+    const { token_account_ids } = p;
+    const [t1, t2] = token_account_ids;
+    if ((idOne === t1 && idTwo === t2) || (idOne === t2 && idTwo === t1)) {
+      return p;
+    }
+    poolId += 1;
+  });
+  if (!pool) {
+    poolId = -1;
+  }
+
+  return { pool, poolId };
+}
 
 export function logout() {
   window.walletConnection.signOut();

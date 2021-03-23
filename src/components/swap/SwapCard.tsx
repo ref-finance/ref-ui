@@ -5,6 +5,7 @@ import DownArrowSVG from "~assets/misc/down-arrow.svg";
 
 import SubmitButton from "~components/general/SubmitButton";
 import { getReturn, swapToken } from "~utils/ContractUtils";
+import { getPool } from "~utils";
 
 interface SwapContainerProps {
   title: string;
@@ -102,23 +103,6 @@ function useAvoidDuplicateCoins(
   }, [coinOne, coinTwo]);
 }
 
-const getPool = (idOne: string, idTwo: string) => {
-  let poolId = 0;
-  const pool = window.pools.find((p: PoolInfo) => {
-    const { token_account_ids } = p;
-    const [t1, t2] = token_account_ids;
-    if ((idOne === t1 && idTwo === t2) || (idOne === t2 && idTwo === t1)) {
-      return p;
-    }
-    poolId += 1;
-  });
-  if (!pool) {
-    poolId = -1;
-  }
-
-  return { pool, poolId };
-};
-
 function SwapButton({
   amount,
   minAmount,
@@ -132,7 +116,7 @@ function SwapButton({
   const notLoggedIn = !window.accountId;
   const notEnoughBalance = amount > userBalance;
   const disabled =
-    notEnoughBalance || notLoggedIn || !pool || !amount || !coinsSelected;
+    notEnoughBalance || notLoggedIn || !pool || amount <= 0 || !coinsSelected;
 
   let text = "Swap";
 
