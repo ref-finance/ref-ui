@@ -75,8 +75,10 @@ export async function initContract() {
   // Getting the Account ID. If still unauthorized, it's just empty string
   window.accountId = window.walletConnection.getAccountId();
 
-  window.contractName =
-    env === "development" ? "ref-finance.testnet" : '"ref-finance.near"';
+  // window.contractName =
+  //   env === "development" ? "ref-finance.testnet" : "ref-finance.near";
+  window.contractName = "ref-finance.testnet";
+
   // Initializing our contract APIs by contract name and configuration
 
   window.contract = await new Contract(
