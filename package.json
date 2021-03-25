@@ -1,20 +1,15 @@
 {
-  "name": "ref-ui-new",
+  "name": "ref-ui",
   "version": "0.1.0",
-  "license": "UNLICENSED",
+  "license": "MIT & APACHE2",
   "scripts": {
-    "build": "npm run build:contract && npm run build:web",
-    "build:contract": "node contract/compile.js",
-    "build:contract:debug": "node contract/compile.js --debug",
+    "build": "npm run build:web",
     "build:web": "parcel build src/index.html --public-url ./",
-    "dev:deploy:contract": "near dev-deploy",
-    "deploy:contract": "near deploy",
     "deploy:pages": "gh-pages -d dist/",
-    "deploy": "npm run build && npm run deploy:contract && npm run deploy:pages",
-    "prestart": "npm run build:contract && npm run dev:deploy:contract",
+    "deploy": "npm run build && npm run deploy:pages",
     "start": "echo The app is starting! It will automatically open in your browser when ready && env-cmd -f ./neardev/dev-account.env parcel src/index.html --open",
-    "dev": "nodemon --watch contract -e ts --exec \"npm run start\"",
-    "test": "npm run build:contract && cd contract && npm run test && cd .. && jest test --runInBand"
+    "dev": "nodemon --watch src -e ts --exec \"npm run start\"",
+    "test": "jest test --runInBand"
   },
   "devDependencies": {
     "@babel/core": "~7.12.3",
