@@ -15,7 +15,6 @@ function checkIsSignedIn() {
 }
 
 export async function getTokenFromTokenId(tokenId: string) {
-  checkIsSignedIn();
   try {
     const newContract = await new Contract(
       window.walletConnection.account(),
@@ -45,7 +44,6 @@ export async function getTokenFromTokenId(tokenId: string) {
 }
 
 export async function getDeposits() {
-  checkIsSignedIn();
   const deposits = await window.contract.get_deposits({
     account_id: window.accountId,
   });
@@ -142,7 +140,6 @@ export async function getReturn(
   token_out: string,
   amount_in: number
 ) {
-  checkIsSignedIn();
   const returnAmt = await window.contract.get_return({
     pool_id,
     token_in,
@@ -153,7 +150,6 @@ export async function getReturn(
 }
 
 export async function getPools() {
-  checkIsSignedIn();
   const pools = await window.contract.get_pools({
     from_index: 0,
     limit: 200,

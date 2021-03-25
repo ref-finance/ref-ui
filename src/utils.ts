@@ -108,7 +108,7 @@ export async function initContract() {
   // await mintCoins();
   await getDefaultTokenLists();
   const pools = await getPools();
-  const deposits = await getDeposits();
+  const deposits = window.accountId ? await getDeposits() : {};
   window.pools = pools;
   window.deposits = deposits;
 }
