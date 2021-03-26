@@ -17,18 +17,25 @@ import {
   getTokenFromTokenId,
 } from "~utils/ContractUtils";
 
-async function getDefaultTokenLists() {
-  const tokens = await window.contract.get_whitelisted_tokens();
+import DefaultSupportedCoinsMetadataDev from "~consts/DefaultSupportCoinsMetadataDev";
+import DefaultSupportedCoinsMetadataProd from "~consts/DefaultSupportCoinsMetadataProd";
 
-  const tokenMap = {};
-  const tokenList = [];
-  for (const token of tokens) {
-    const resp = await getTokenFromTokenId(token);
-    tokenMap[token] = resp;
-    tokenList.push(token);
-  }
-  global.tokenList = tokenList;
+async function getDefaultTokenLists() {
+  const tokenMap =
+    env === "development"
+      ? DefaultSupportedCoinsMetadataDev
+      : DefaultSupportedCoinsMetadataProd;
   global.tokenMap = tokenMap;
+  global.tokenList = Object.values(tokenMap);
+  // const tokenMap = {};
+  // const tokenList = [];
+  // for (const token of tokens) {
+  //   const resp = await getTokenFromTokenId(token);
+  //   tokenMap[token] = resp;
+  //   tokenList.push(token);
+  // }
+  // global.tokenList = tokenList;
+  // global.tokenMap = tokenMap;
 }
 
 // async function mintCoins() {
