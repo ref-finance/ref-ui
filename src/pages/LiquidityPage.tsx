@@ -2,34 +2,55 @@ import React from "react";
 import FullCard from "~components/layout/FullCard";
 
 interface LiquidityTokenRowProps {
-  coin: CoinForSwap;
+  pair: PoolInfo;
+  poodId: number;
 }
 
 interface LiquidityPageProps {
   children: string;
 }
 
-function LiquidityTokenRow({ coin }: LiquidityTokenRowProps) {
-  const { icon, name, symbol, id } = coin;
+function LiquidityTokenRow({ pair }: LiquidityTokenRowProps) {
+  const { token_account_ids } = pair;
+  const [coinOneSymbol, coinTwoSymbol] = token_account_ids;
+  const coinOne = window.tokenMap[coinOneSymbol];
+  const coinTwo = window.tokenMap[coinTwoSymbol];
 
-  const href = `/liquidity/${encodeURIComponent(id)}`;
+  const { icon, name, symbol, id } = coinOne;
+  const {
+    icon: iconTwo,
+    name: nameTwo,
+    symbol: symbolTwo,
+    id: idTwo,
+  } = coinTwo;
+
+  const href = `/liquidity/${id}`;
+  const hrefTwo = `/liquidity/${idTwo}`;
   // TODO: get price and liquidity
   return (
     <tr className="h-12 border-separate  border-b border-t border-borderGray">
       <td>
-        <a
-          href={href}
-          className="flex flex-row items-center text-blue-400 hover:text-blue-300"
-        >
+        <div className="flex flex-row items-center text-blue-400 ">
           <img className="object-cover" src={icon} height={30} width={30} />
-          <p className="ml-4">{name}</p>
+          <img
+            className="object-cover ml-4"
+            src={iconTwo}
+            height={30}
+            width={30}
+          />
+          <a href={href} className="hover:text-blue-300">
+            <p className="ml-4">{name}</p>
+          </a>
+          <p className="mx-2 text-black">/</p>
+          <a href={hrefTwo} className="hover:text-blue-300">
+            <p>{nameTwo}</p>
+          </a>
+        </div>
+      </td>
+      <td>
+        <a href={href}>
+          {symbol} / {symbolTwo}
         </a>
-      </td>
-      <td>
-        <a href={href}>{symbol}</a>
-      </td>
-      <td>
-        <h1>N/A</h1>
       </td>
       <td>
         <h1>N/A</h1>
@@ -43,7 +64,7 @@ function LiquidityPage() {
     <th className="text-left font-light text-sm py-4">{children}</th>
   );
 
-  const liquidityTokens = Object.values(window.tokenMap);
+  const liquidityPairs = window.pools;
   return (
     <FullCard>
       <div>
@@ -52,16 +73,18 @@ function LiquidityPage() {
           <thead>
             <tr>
               <TableHeader>Name</TableHeader>
-              <TableHeader>Symbol</TableHeader>
+              <TableHeader>Symbols</TableHeader>
               <TableHeader>Liquidity</TableHeader>
-              <TableHeader>Price</TableHeader>
             </tr>
           </thead>
           <tbody>
-            {liquidityTokens.map((liquidityToken: CoinForSwap) => (
+            {liquidityPairs.map((pair: PoolInfo, poodId: number) => (
               <LiquidityTokenRow
-                coin={liquidityToken}
-                key={liquidityToken.id}
+                pair={pair}
+                poodId={poodId}
+                key={
+                  pair.token_account_ids[0] + pair.token_account_ids[1] + poodId
+                }
               />
             ))}
           </tbody>

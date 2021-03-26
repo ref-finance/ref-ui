@@ -3,7 +3,7 @@ import SelectCurrencyModal from "~components/swap/SelectCurrencyModal";
 import PlusSVG from "~assets/misc/plus.svg";
 import SubmitButton from "~components/general/SubmitButton";
 import { getPool } from "~utils";
-import { addLiquidity } from "~utils/ContractUtils";
+import { addLiquidity, getPoolShares } from "~utils/ContractUtils";
 
 interface LiquidityContainerProps {
   selectedCoin: CoinForSwap;
@@ -69,6 +69,7 @@ function LiquidityCard({ defaultToken }: LiquidityCardProps) {
 
   const [amountOne, setAmountOne] = useState<number>(0);
   const [amountTwo, setAmountTwo] = useState<number>(0);
+  const [userShares, setUserShares] = useState<number>(0);
 
   useEnsureSelectedIsValid(defaultToken, selectedCoinOne, selectedCoinTwo, [
     setCoinOne,
@@ -77,6 +78,13 @@ function LiquidityCard({ defaultToken }: LiquidityCardProps) {
 
   const { pool, poolId } = getPool(selectedCoinOne?.id, selectedCoinTwo?.id);
 
+  useEffect(() => {
+    if (poolId > -1) {
+      getPoolShares(poolId).then((shares) => setUserShares(shares));
+    } else {
+      setUserShares(0);
+    }
+  }, [poolId]);
   return (
     <div className="flex flex-col  items-center lg:w-1/3 lg:min-w-25 mt-4 px-3 lg:px-6 rounded-lg border-2 border-black shadow-xl">
       <div className="flex flex-row align-center w-full space-x-2  ">
@@ -130,6 +138,11 @@ function LiquidityCard({ defaultToken }: LiquidityCardProps) {
               : () => {}
           }
         />
+      </div>
+      <div className="w-full justify-center items-center pb-12">
+        <h2 className="text-center text-lg ">
+          Your shares in pool: {userShares}
+        </h2>
       </div>
     </div>
   );

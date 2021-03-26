@@ -27,6 +27,8 @@ async function getDefaultTokenLists() {
       : DefaultSupportedCoinsMetadataProd;
   global.tokenMap = tokenMap;
   global.tokenList = Object.values(tokenMap);
+
+  // To get coin list from contracts
   // const tokenMap = {};
   // const tokenList = [];
   // for (const token of tokens) {
@@ -34,18 +36,7 @@ async function getDefaultTokenLists() {
   //   tokenMap[token] = resp;
   //   tokenList.push(token);
   // }
-  // global.tokenList = tokenList;
-  // global.tokenMap = tokenMap;
 }
-
-// async function mintCoins() {
-//   const newContract = await new Contract(
-//     window.walletConnection.account(),
-//     "token2.ref-finance.testnet",
-//     { changeMethods: ["mint"] }
-//   );
-//   await newContract.mint({ account_id: window.accountId, amount: "12500000" });
-// }
 
 // todo: for registering an accont.
 // await window.contract.storage_deposit(
@@ -100,6 +91,7 @@ export async function initContract() {
         "get_deposits",
         "get_return",
         "get_pools",
+        "get_pool_shares",
       ],
       // Change methods can modify the state. But you don't receive the returned value when called.
       changeMethods: [

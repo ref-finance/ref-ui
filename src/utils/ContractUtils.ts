@@ -156,3 +156,15 @@ export async function getPools() {
   });
   return pools;
 }
+
+export async function getPoolShares(pool_id: number) {
+  if (!window.accountId) {
+    return 0;
+  }
+
+  const poolShares = await window.contract.get_pool_shares({
+    pool_id,
+    account_id: window.accountId,
+  });
+  return poolShares;
+}
