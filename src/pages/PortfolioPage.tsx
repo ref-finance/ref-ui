@@ -6,7 +6,7 @@ import FullCard from "~components/layout/FullCard";
 function PortfolioPage() {
   return (
     <FullCard>
-      <PriceTicker />
+      {/* <PriceTicker /> */}
       <Portfolio deposits={window.deposits} />
     </FullCard>
   );

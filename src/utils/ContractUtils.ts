@@ -14,6 +14,18 @@ function checkIsSignedIn() {
   }
 }
 
+export async function getStorageBalance() {
+  if (!window.accountId) {
+    return { total: 0, available: 0 };
+  }
+
+  const storageBalance = await window.contract.storage_balance_of({
+    account_id: window.accountId,
+  });
+
+  return storageBalance;
+}
+
 export async function getTokenFromTokenId(tokenId: string) {
   try {
     const newContract = await new Contract(
@@ -102,6 +114,18 @@ export async function addLiquidity(pool_id, amounts) {
     {
       pool_id,
       amounts,
+    },
+    "50000000000000",
+    "1"
+  );
+}
+
+export async function removeLiquidity(pool_id: number, shares: number) {
+  await window.contract.remove_liquidity(
+    {
+      pool_id,
+      shares,
+      min_amounts: [shares],
     },
     "50000000000000",
     "1"

@@ -3,7 +3,11 @@ import SelectCurrencyModal from "~components/swap/SelectCurrencyModal";
 import PlusSVG from "~assets/misc/plus.svg";
 import SubmitButton from "~components/general/SubmitButton";
 import { getPool } from "~utils";
-import { addLiquidity, getPoolShares } from "~utils/ContractUtils";
+import {
+  addLiquidity,
+  getPoolShares,
+  removeLiquidity,
+} from "~utils/ContractUtils";
 
 interface LiquidityContainerProps {
   selectedCoin: CoinForSwap;
@@ -97,15 +101,17 @@ function LiquidityCard({ defaultToken }: LiquidityCardProps) {
         >
           + Liquidity
         </button>
-        <button
-          type="button"
-          onClick={() => setIsAddingLiquidity(false)}
-          className={`text-left w-full py-6 ${
-            !isAddingLiquidity ? "text-black" : "text-gray-400"
-          }`}
-        >
-          - Liquidity
-        </button>
+        {userShares && (
+          <button
+            type="button"
+            onClick={() => setIsAddingLiquidity(false)}
+            className={`text-left w-full py-6 ${
+              !isAddingLiquidity ? "text-black" : "text-gray-400"
+            }`}
+          >
+            - Liquidity
+          </button>
+        )}
       </div>
       <LiquidityContainer
         selectedCoin={selectedCoinOne}
@@ -132,6 +138,7 @@ function LiquidityCard({ defaultToken }: LiquidityCardProps) {
             !selectedCoinTwo ||
             !pool
           }
+          // todo: wire removeLiquidity
           onClick={
             isAddingLiquidity
               ? () => addLiquidity(poolId, [amountOne, amountTwo])

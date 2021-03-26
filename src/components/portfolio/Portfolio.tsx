@@ -22,12 +22,8 @@ function CoinBalance({ coinName, balance }: CoinBalanceProps) {
   //   color = "text-black";
   // }
 
-  const href = `/liquidity/${encodeURIComponent(coinName)}`;
   return (
-    <a
-      href={href}
-      className=" overflow-hidden transition-all hover:border-black border border-borderGray rounded-md w-44 p-4 h-40 flex flex-col justify-between transform hover:-translate-y-1 hover:scale-102 mr-4 mb-4 lg:m-0"
-    >
+    <div className=" overflow-hidden transition-all hover:border-black border border-borderGray rounded-md w-44 p-4 h-40 flex flex-col justify-between transform hover:-translate-y-1 hover:scale-102 mr-4 mb-4 lg:m-0">
       <div>
         <h2 className=" text-xl  w-max font-bold">
           {balance} {symbol}
@@ -41,7 +37,7 @@ function CoinBalance({ coinName, balance }: CoinBalanceProps) {
         </div> */}
         <img className="object-cover" src={icon} height={40} width={40} />
       </div>
-    </a>
+    </div>
   );
 }
 

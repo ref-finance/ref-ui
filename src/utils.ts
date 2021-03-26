@@ -14,6 +14,7 @@ import {
 import {
   getDeposits,
   getPools,
+  getStorageBalance,
   getTokenFromTokenId,
 } from "~utils/ContractUtils";
 
@@ -92,6 +93,7 @@ export async function initContract() {
         "get_return",
         "get_pools",
         "get_pool_shares",
+        "storage_balance_of",
       ],
       // Change methods can modify the state. But you don't receive the returned value when called.
       changeMethods: [
@@ -100,6 +102,7 @@ export async function initContract() {
         "withdraw",
         "swap",
         "add_liquidity",
+        "remove_liquidity",
       ],
     }
   );
