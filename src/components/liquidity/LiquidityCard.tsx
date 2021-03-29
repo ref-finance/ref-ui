@@ -101,7 +101,7 @@ function LiquidityCard({ defaultToken }: LiquidityCardProps) {
         >
           + Liquidity
         </button>
-        {userShares && (
+        {!!userShares && (
           <button
             type="button"
             onClick={() => setIsAddingLiquidity(false)}

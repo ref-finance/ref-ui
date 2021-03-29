@@ -5,7 +5,7 @@ function AuthButton() {
   const isSignedIn = window.walletConnection.isSignedIn();
   const text = isSignedIn
     ? `Signed in as ${window.accountId}`
-    : "Connect to Wallet";
+    : "Login with NEAR";
 
   const onClick = () => {
     if (isSignedIn) {
@@ -21,7 +21,7 @@ function AuthButton() {
       type="button"
       className=" my-4 h-10 w-56  border border-black flex-row-centered shadow-lg hover:bg-disabledGray rounded-lg transition-colors"
     >
-      <h1 className="font-inter text-xs ">{text}</h1>
+      <h1 className="font-inter text-xs">{text}</h1>
     </button>
   );
 }

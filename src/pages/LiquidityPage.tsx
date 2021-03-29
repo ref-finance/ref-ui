@@ -8,6 +8,7 @@ interface LiquidityTokenRowProps {
 
 interface LiquidityPageProps {
   children: string;
+  hideMobile?: boolean;
 }
 
 function LiquidityTokenRow({ pair }: LiquidityTokenRowProps) {
@@ -47,12 +48,12 @@ function LiquidityTokenRow({ pair }: LiquidityTokenRowProps) {
           </a>
         </div>
       </td>
-      <td>
+      <td className=" hidden lg:flex">
         <a href={href}>
           {symbol} / {symbolTwo}
         </a>
       </td>
-      <td>
+      <td className=" hidden lg:flex">
         <h1>N/A</h1>
       </td>
     </tr>
@@ -60,21 +61,27 @@ function LiquidityTokenRow({ pair }: LiquidityTokenRowProps) {
 }
 
 function LiquidityPage() {
-  const TableHeader = ({ children }: LiquidityPageProps) => (
-    <th className="text-left font-light text-sm py-4">{children}</th>
+  const TableHeader = ({ children, hideMobile }: LiquidityPageProps) => (
+    <th
+      className={`text-left font-light text-sm py-4 ${
+        hideMobile && "hidden"
+      } lg:flex`}
+    >
+      {children}
+    </th>
   );
 
   const liquidityPairs = window.pools;
   return (
     <FullCard>
       <div>
-        <h1 className="text-lg font-medium pt-8">Popular Liquidity Pairs</h1>
+        <h1 className="text-lg font-medium pt-8">Pools</h1>
         <table className="w-full">
           <thead>
             <tr>
               <TableHeader>Name</TableHeader>
-              <TableHeader>Symbols</TableHeader>
-              <TableHeader>Liquidity</TableHeader>
+              <TableHeader hideMobile>Symbols</TableHeader>
+              <TableHeader hideMobile>Liquidity</TableHeader>
             </tr>
           </thead>
           <tbody>

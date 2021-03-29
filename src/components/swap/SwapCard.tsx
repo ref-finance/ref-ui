@@ -15,9 +15,13 @@ interface SwapContainerProps {
   setCoin: Dispatch<SetStateAction<CoinForSwap>>;
   value: number;
   disabled?: boolean;
+  onMaxClick?: () => void;
   onChange?: (value: SetStateAction<number>) => void;
 }
 
+interface MaxButtonProps {
+  onMaxClick?: () => void;
+}
 interface SwapButtonProps {
   amount: number;
   minAmount: number;
@@ -36,9 +40,10 @@ const SwapHeader = () => (
   </div>
 );
 
-function MaxButton() {
+function MaxButton({ onMaxClick }: MaxButtonProps) {
   return (
     <button
+      onClick={onMaxClick}
       className="bg-disabledGray px-2 py-1 pt-1.5 rounded-md hover:border-black border transition-colors"
       type="button"
     >
@@ -54,6 +59,7 @@ function SwapContainer({
   selectedCoin,
   setCoin,
   value,
+  onMaxClick,
   onChange,
   disabled = false,
 }: SwapContainerProps) {
@@ -75,7 +81,7 @@ function SwapContainer({
           className="text-2xl font-inter"
         />
         <div className="flex flex-row items-center space-x-2.5">
-          {showMax && <MaxButton />}
+          {showMax && <MaxButton onMaxClick={onMaxClick} />}
           <SelectCurrencyModal selectedCoin={selectedCoin} setCoin={setCoin} />
         </div>
       </div>
@@ -130,6 +136,11 @@ function SwapButton({
   if (!amount) {
     text = "Enter an amount";
   }
+
+  if (!selectedCoinTwo) {
+    text = "Select a token";
+  }
+
   if (notLoggedIn) {
     text = '"Connect your wallet" ';
   }
@@ -186,6 +197,9 @@ function SwapCard() {
       <SwapContainer
         title="From"
         showMax
+        onMaxClick={() => {
+          setAmount(userBalance);
+        }}
         balance={userBalance}
         selectedCoin={selectedCoinOne}
         setCoin={setCoinOne}
