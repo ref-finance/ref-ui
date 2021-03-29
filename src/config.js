@@ -1,4 +1,4 @@
-const CONTRACT_NAME = process.env.CONTRACT_NAME ||'ref-ui-new'
+const CONTRACT_NAME = process.env.CONTRACT_NAME || 'ref-finance.testnet'
 
 function getConfig(env) {
   switch (env) {
@@ -8,7 +8,7 @@ function getConfig(env) {
     return {
       networkId: 'mainnet',
       nodeUrl: 'https://rpc.mainnet.near.org',
-      contractName: CONTRACT_NAME,
+      contractName: 'ref-finance.near',
       walletUrl: 'https://wallet.near.org',
       helperUrl: 'https://helper.mainnet.near.org',
       explorerUrl: 'https://explorer.mainnet.near.org',
