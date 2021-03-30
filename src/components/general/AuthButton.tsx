@@ -1,29 +1,42 @@
 import React from "react";
-import { login, logout } from "../../utils";
+import { useHistory } from "react-router-dom";
+import { REF_FI_CONTRACT_ID, wallet } from "../../services/near";
 
 function AuthButton() {
-  const isSignedIn = window.walletConnection.isSignedIn();
-  const text = isSignedIn
-    ? `Signed in as ${window.accountId}`
-    : "Login with NEAR";
-
-  const onClick = () => {
-    if (isSignedIn) {
-      logout();
-    } else {
-      login();
-    }
+  const history = useHistory();
+  const signIn = () => {
+    wallet.requestSignIn(REF_FI_CONTRACT_ID, 'ref-finance');
   };
 
-  return (
-    <button
-      onClick={onClick}
-      type="button"
-      className=" my-4 h-10 w-56  border border-black flex-row-centered shadow-lg hover:bg-disabledGray rounded-lg transition-colors"
-    >
-      <h1 className="font-inter text-xs">{text}</h1>
-    </button>
-  );
-}
+  const signOut = () => {
+    wallet.signOut();
+    // reload page
+    history.replace('/');
+  }
+
+    return (
+      <>
+        {
+          wallet.isSignedIn()
+          ? <>
+              <button
+                onClick={signOut}
+                type="button"
+                className=" my-4 h-10 w-40  border border-black flex-row-centered shadow-lg hover:bg-disabledGray rounded-lg transition-colors"
+              > SIGN OUT
+              </button>
+              <h1>Welcome {wallet.getAccountId()}!</h1>
+            </>
+          : 
+            <button 
+              onClick={signIn}
+              type="button"
+              className=" my-4 h-10 w-40  border border-black flex-row-centered shadow-lg hover:bg-disabledGray rounded-lg transition-colors"
+            > Sign In with NEAR
+            </button>
+        }
+      </>
+    );
+  };
 
 export default AuthButton;
