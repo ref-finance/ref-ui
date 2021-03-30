@@ -1,7 +1,7 @@
-import { connect, Contract, keyStores, WalletConnection } from "near-api-js";
-import getConfig from "./config";
+import { connect, Contract, keyStores, WalletConnection } from 'near-api-js';
+import getConfig from './config.ts';
 
-const env = process.env.NODE_ENV || "development";
+const env = process.env.NODE_ENV || 'development';
 
 const nearConfig = getConfig(env);
 
@@ -10,20 +10,20 @@ const nearConfig = getConfig(env);
 import {
   formatNearAmount,
   parseNearAmount,
-} from "near-api-js/lib/utils/format";
+} from 'near-api-js/lib/utils/format';
 import {
   getDeposits,
   getPools,
   getStorageBalance,
   getTokenFromTokenId,
-} from "~utils/ContractUtils";
+} from '~utils/ContractUtils';
 
-import DefaultSupportedCoinsMetadataDev from "~consts/DefaultSupportCoinsMetadataDev";
-import DefaultSupportedCoinsMetadataProd from "~consts/DefaultSupportCoinsMetadataProd";
+import DefaultSupportedCoinsMetadataDev from '~consts/DefaultSupportCoinsMetadataDev';
+import DefaultSupportedCoinsMetadataProd from '~consts/DefaultSupportCoinsMetadataProd';
 
 async function getDefaultTokenLists() {
   const tokenMap =
-    env === "development"
+    env === 'development'
       ? DefaultSupportedCoinsMetadataDev
       : DefaultSupportedCoinsMetadataProd;
   global.tokenMap = tokenMap;
@@ -76,7 +76,7 @@ export async function initContract() {
 
   // window.contractName =
   //   env === "development" ? "ref-finance.testnet" : "ref-finance.near";
-  window.contractName = "ref-finance.testnet";
+  window.contractName = 'ref-finance.testnet';
 
   // Initializing our contract APIs by contract name and configuration
 
@@ -86,23 +86,23 @@ export async function initContract() {
     {
       // View methods are read only. They don't modify the state, but usually return some value.
       viewMethods: [
-        "get_whitelisted_tokens",
-        "get_number_of_pools",
-        "get_owner",
-        "get_deposits",
-        "get_return",
-        "get_pools",
-        "get_pool_shares",
-        "storage_balance_of",
+        'get_whitelisted_tokens',
+        'get_number_of_pools',
+        'get_owner',
+        'get_deposits',
+        'get_return',
+        'get_pools',
+        'get_pool_shares',
+        'storage_balance_of',
       ],
       // Change methods can modify the state. But you don't receive the returned value when called.
       changeMethods: [
-        "new",
-        "storage_deposit",
-        "withdraw",
-        "swap",
-        "add_liquidity",
-        "remove_liquidity",
+        'new',
+        'storage_deposit',
+        'withdraw',
+        'swap',
+        'add_liquidity',
+        'remove_liquidity',
       ],
     }
   );

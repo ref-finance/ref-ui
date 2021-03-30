@@ -1,9 +1,9 @@
-import React from "react";
-import FullCard from "~components/layout/FullCard";
+import React, { useEffect, useState } from 'react';
+import FullCard from '~components/layout/FullCard';
+import { getPools, PoolDetails } from '../services/pool';
 
 interface LiquidityTokenRowProps {
-  pair: PoolInfo;
-  poodId: number;
+  pool: PoolDetails;
 }
 
 interface LiquidityPageProps {
@@ -11,67 +11,30 @@ interface LiquidityPageProps {
   hideMobile?: boolean;
 }
 
-function LiquidityTokenRow({ pair }: LiquidityTokenRowProps) {
-  const { token_account_ids } = pair;
-  const [coinOneSymbol, coinTwoSymbol] = token_account_ids;
-  const coinOne = window.tokenMap[coinOneSymbol];
-  const coinTwo = window.tokenMap[coinTwoSymbol];
-
-  const { icon, name, symbol, id } = coinOne;
-  const {
-    icon: iconTwo,
-    name: nameTwo,
-    symbol: symbolTwo,
-    id: idTwo,
-  } = coinTwo;
-
-  const href = `/liquidity/${id}`;
-  const hrefTwo = `/liquidity/${idTwo}`;
-  // TODO: get price and liquidity
+function LiquidityTokenRow({ pool }: LiquidityTokenRowProps) {
   return (
     <tr className="h-12 border-separate  border-b border-t border-borderGray">
-      <td>
-        <div className="flex flex-row items-center text-blue-400 ">
-          <img className="object-cover" src={icon} height={30} width={30} />
-          <img
-            className="object-cover ml-4"
-            src={iconTwo}
-            height={30}
-            width={30}
-          />
-          <a href={href} className="hover:text-blue-300">
-            <p className="ml-4">{name}</p>
-          </a>
-          <p className="mx-2 text-black">/</p>
-          <a href={hrefTwo} className="hover:text-blue-300">
-            <p>{nameTwo}</p>
-          </a>
-        </div>
-      </td>
-      <td className=" hidden lg:flex">
-        <a href={href}>
-          {symbol} / {symbolTwo}
-        </a>
-      </td>
-      <td className=" hidden lg:flex">
-        <h1>N/A</h1>
-      </td>
+      <td>{pool.id}</td>
     </tr>
   );
 }
 
 function LiquidityPage() {
+  const [pools, setPools] = useState<PoolDetails[]>([]);
+  useEffect(() => {
+    getPools().then(setPools);
+  }, []);
+
   const TableHeader = ({ children, hideMobile }: LiquidityPageProps) => (
     <th
       className={`text-left font-light text-sm py-4 ${
-        hideMobile && "hidden"
+        hideMobile && 'hidden'
       } lg:flex`}
     >
       {children}
     </th>
   );
 
-  const liquidityPairs = window.pools;
   return (
     <FullCard>
       <div>
@@ -85,14 +48,8 @@ function LiquidityPage() {
             </tr>
           </thead>
           <tbody>
-            {liquidityPairs.map((pair: PoolInfo, poodId: number) => (
-              <LiquidityTokenRow
-                pair={pair}
-                poodId={poodId}
-                key={
-                  pair.token_account_ids[0] + pair.token_account_ids[1] + poodId
-                }
-              />
+            {pools.map((pool) => (
+              <LiquidityTokenRow pool={pool} />
             ))}
           </tbody>
         </table>
