@@ -10,11 +10,19 @@ interface SelectedCoinProps {
   coin: CoinForSwap;
 }
 
+function CoinIcon(icon : String) {
+  return (
+    <>
+      { icon.startsWith('http') ? <img className="object-cover" src={icon} height={25} width={25} /> : <p>{icon}</p>}
+    </>
+  );
+}
+
 function SelectedCoin({ coin }: SelectedCoinProps) {
   const { icon, symbol } = coin;
   return (
     <>
-      <img className="object-cover" src={icon} height={25} width={25} />
+      { CoinIcon(icon) }
       <p>{symbol}</p>
     </>
   );
@@ -69,7 +77,7 @@ function CoinRow({ coin, onClick }) {
       className="flex flex-row w-full items-center justify-between py-4 px-6 hover:bg-backgroundGray"
     >
       <div className="flex flex-row items-center ">
-        <img className="object-cover" src={icon} height={22.5} width={22.5} />
+        { CoinIcon(icon) }
         <p className="ml-2 font-light ">{symbol}</p>
       </div>
       <p className="font-inter">{window.deposits[id] || 0}</p>
@@ -77,25 +85,28 @@ function CoinRow({ coin, onClick }) {
   );
 }
 
-function CoinList({ handleClose, setCoin, suppportedCoins }) {
+function CoinList({ handleClose, setCoin, supportedCoins, showAll }) {
   const onClick = (coin) => {
     setCoin(coin);
     handleClose();
   };
+  console.log(showAll);
   return (
     <div className="flex flex-col w-80 pb-8">
       <h1 className="text-md font-light text-gray-400 mb-1 p-6">
         Select a token
       </h1>
-      {suppportedCoins.map((coin) => (
-        <CoinRow coin={coin} key={coin.id} onClick={onClick} />
-      ))}
+      {supportedCoins.map((coin) => {
+        if ((window.deposits[coin.id] || 0) > 0 || showAll) {
+          return (<CoinRow coin={coin} key={coin.id} onClick={onClick} />)
+        }
+      })}
     </div>
   );
 }
 
-function SelectCurrencyModal({ selectedCoin, setCoin }) {
-  const suppportedCoins = Object.values(window.tokenMap);
+function SelectCurrencyModal({ selectedCoin, setCoin, showAll }) {
+  const supportedCoins = Object.values(window.tokenMap);
   return (
     <Modal
       trigger={(handleOpen: () => void) => (
@@ -106,7 +117,8 @@ function SelectCurrencyModal({ selectedCoin, setCoin }) {
         <CoinList
           handleClose={handleClose}
           setCoin={setCoin}
-          suppportedCoins={suppportedCoins}
+          supportedCoins={supportedCoins}
+          showAll={showAll}
         />
       )}
     </Modal>

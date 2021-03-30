@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import SubmitButton from "~components/general/SubmitButton";
 import SelectCurrencyModal from "~components/swap/SelectCurrencyModal";
 
 import { ToastContainer, toast } from "react-toastify";
@@ -7,6 +8,7 @@ import { depositToken, withdrawToken } from "~utils/ContractUtils";
 interface SelectProps {
   title: string;
   onClick: (selectedCoin: CoinForSwap, amount: number) => void;
+  showAll: boolean;
 }
 
 function checkError(selectedCoin: CoinForSwap, amount: number) {
@@ -52,6 +54,7 @@ function withdraw(selectedCoin: CoinForSwap, amount: number) {
   }
   withdrawToken(selectedCoin.id, amount);
 }
+
 function deposit(selectedCoin: CoinForSwap, amount: number) {
   const didError = checkError(selectedCoin, amount);
   if (didError) {
@@ -60,13 +63,15 @@ function deposit(selectedCoin: CoinForSwap, amount: number) {
   depositToken(selectedCoin.id, amount);
 }
 
-function Select({ title, onClick }: SelectProps) {
+function Select({ title, onClick, showAll }: SelectProps) {
   const [selectedCoin, setCoin] = useState(null);
   const [amount, setAmount] = useState(0);
+  const disabled = false;
+  console.log(title, showAll);
   return (
     <div className="flex flex-col space-y-4 border-black rounded border p-6">
       <h1 className="text-xl font-inter font-semibold">{title}</h1>
-      <SelectCurrencyModal selectedCoin={selectedCoin} setCoin={setCoin} />
+      <SelectCurrencyModal selectedCoin={selectedCoin} setCoin={setCoin} showAll={showAll} />
 
       <div className="flex flex-col p-1">
         <h2>Amount</h2>
@@ -78,9 +83,7 @@ function Select({ title, onClick }: SelectProps) {
           className="text-2xl font-inter"
         />
       </div>
-      <button type="button" onClick={() => onClick(selectedCoin, amount)}>
-        <h2 className="font-bold">{title}</h2>
-      </button>
+      <SubmitButton onClick={() => onClick(selectedCoin, amount)} text={title} disabled={disabled} />
     </div>
   );
 }
@@ -88,8 +91,8 @@ function Select({ title, onClick }: SelectProps) {
 function DepositWithdrawSelect() {
   return (
     <div className="mt-6 flex flex-col space-y-4 lg:space-x-4 lg:space-y-0 lg:flex-row ">
-      <Select title="Deposit" onClick={deposit} />
-      <Select title="Withdraw" onClick={withdraw} />
+      <Select title="Deposit" onClick={deposit} showAll={true} />
+      <Select title="Withdraw" onClick={withdraw} showAll={false} />
       <ToastContainer />
     </div>
   );

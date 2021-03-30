@@ -8,6 +8,7 @@
     "deploy:pages": "gh-pages -d dist/",
     "deploy": "npm run build && npm run deploy:pages",
     "start": "parcel src/index.html --open",
+    "dev": "nodemon --watch 'src/**' --ext 'tsx,ts,json' --ignore 'src/**/*.spec.ts' -e ts --exec \"npm run start\"",
     "test": "jest test --runInBand"
   },
   "devDependencies": {
