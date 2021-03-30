@@ -1,5 +1,5 @@
 import { refFiFunctionCall, refFiViewFunction, wallet } from './near';
-import { depositStorageToCoverToken } from './storage';
+import { depositStorageToCoverToken } from './account';
 
 export const registerToken = async (tokenId: string) => {
   // TODO: maybe check if there is enough storage already

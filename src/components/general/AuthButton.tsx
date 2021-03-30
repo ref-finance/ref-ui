@@ -1,5 +1,6 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
+import { getRegisteredTokens } from "../../services/token";
 import { REF_FI_CONTRACT_ID, wallet } from "../../services/near";
 
 function AuthButton() {
