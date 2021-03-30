@@ -1,5 +1,5 @@
 import { refFiFunctionCall, refFiViewFunction, wallet } from './near';
-import { depositStorageToCoverToken } from './storage';
+import { depositStorageToCoverToken } from './account';
 
 export const registerToken = async (tokenId: string) => {
   // TODO: maybe check if there is enough storage already
@@ -53,4 +53,13 @@ export const getRegisteredTokens = async () => {
   ]);
 
   return [...globalWhitelist, ...userWhitelist];
+};
+
+export interface TokenMetadata {
+  name: string;
+  symbol: string;
+  icon: string;
+}
+export const getTokenMetadata = async (id: string): Promise<TokenMetadata> => {
+  return wallet.account().viewFunction(id, 'ft_metadata', {});
 };

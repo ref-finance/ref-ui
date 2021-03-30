@@ -11,7 +11,7 @@ interface PoolRPCView {
   shares_total_supply: string;
 }
 
-export interface PoolDetails {
+export interface Pool {
   id: number;
   tokenIds: string[];
   supplies: { [key: string]: string };
@@ -19,7 +19,7 @@ export interface PoolDetails {
   shareSupply: string;
 }
 
-const parsePool = (pool: PoolRPCView, id: number): PoolDetails => ({
+const parsePool = (pool: PoolRPCView, id: number): Pool => ({
   id,
   tokenIds: pool.token_account_ids,
   supplies: pool.amounts.reduce(
@@ -36,7 +36,7 @@ const parsePool = (pool: PoolRPCView, id: number): PoolDetails => ({
 export const getPools = async (
   page: number = 1,
   perPage: number = DEFAULT_PAGE_LIMIT
-): Promise<PoolDetails[]> => {
+): Promise<Pool[]> => {
   const index = (page - 1) * perPage;
   const poolData = await refFiViewFunction({
     methodName: 'get_pools',
@@ -56,7 +56,7 @@ export const getPoolsByTokens = async ({
   tokenInId,
   tokenOutId,
   amountIn,
-}: GetPoolOptions): Promise<PoolDetails[]> => {
+}: GetPoolOptions): Promise<Pool[]> => {
   const amountToTrade = new BN(amountIn);
 
   // TODO: Check if there can be a better way. If not need to iterate through all pages to find pools
@@ -75,7 +75,7 @@ export const getIdealSwapPool = async ({
   return pool.sort((a, b) => a.fee - b.fee)[0] ?? null;
 };
 
-export const getPool = async (id: number): Promise<PoolDetails> => {
+export const getPool = async (id: number): Promise<Pool> => {
   return refFiViewFunction({
     methodName: 'get_pool',
     args: { pool_id: id },
@@ -86,7 +86,9 @@ interface PoolVolumes {
   [tokenId: string]: { input: string; output: string };
 }
 
-export const getPoolVolumes = async (id: number): Promise<PoolVolumes> => {
+export type PoolDetails = Pool & { volumes: PoolVolumes };
+
+export const getPoolDetails = async (id: number): Promise<PoolDetails> => {
   const [pool, volumes] = await Promise.all([
     getPool(id),
     refFiViewFunction({
@@ -95,14 +97,21 @@ export const getPoolVolumes = async (id: number): Promise<PoolVolumes> => {
     }),
   ]);
 
-  return pool.tokenIds.reduce((acc, tokenId, i) => {
-    acc[tokenId] = volumes[i];
-    return acc;
-  }, {});
+  return {
+    ...pool,
+    volumes: pool.tokenIds.reduce((acc: PoolVolumes, tokenId, i) => {
+      acc[tokenId] = volumes[i];
+      return acc;
+    }, {}),
+  };
+};
+
+export const getPoolVolumes = async (id: number): Promise<PoolVolumes> => {
+  return (await getPoolDetails(id)).volumes;
 };
 
 export const getSharesInPool = (id: string): Promise<string> => {
-  return refFiViewFunction<string>({
+  return refFiViewFunction({
     methodName: 'get_pool_shares',
     args: { pool_id: id, account_id: wallet.getAccountId() },
   });

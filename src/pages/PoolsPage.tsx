@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import FullCard from '~components/layout/FullCard';
 import { getPools, PoolDetails } from '../services/pool';
 
@@ -14,7 +15,10 @@ interface LiquidityPageProps {
 function LiquidityTokenRow({ pool }: LiquidityTokenRowProps) {
   return (
     <tr className="h-12 border-separate  border-b border-t border-borderGray">
-      <td>{pool.id}</td>
+      <td>
+        <Link to={`/pools/${pool.id}`}>{pool.id}</Link>
+      </td>
+      <td>{pool.tokenIds.join(' / ')}</td>
     </tr>
   );
 }

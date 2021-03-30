@@ -1,15 +1,15 @@
-import "regenerator-runtime/runtime";
-import "react-toastify/dist/ReactToastify.css";
+import 'regenerator-runtime/runtime';
+import 'react-toastify/dist/ReactToastify.css';
 
-import React from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import NavigationBar from "./components/layout/NavigationBar";
+import React from 'react';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import NavigationBar from './components/layout/NavigationBar';
 // import { login, logout } from "./utils";
-import "./global.css";
-import HomePage from "~pages/PortfolioPage";
-import SwapPage from "~pages/SwapPage";
-import LiquidityPage from "~pages/LiquidityPage";
-import LiquidityTokenPage from "~pages/LiquidityTokenPage";
+import './global.css';
+import PoolsPage from './pages/PoolsPage';
+import PoolPage from './pages/PoolPage';
+import SwapPage from './pages/SwapPage';
+import PortfolioPage from './pages/PortfolioPage';
 
 // import getConfig from "./config";
 // const { networkId } = getConfig(process.env.NODE_ENV || "development");
@@ -24,14 +24,14 @@ function App() {
             <Route path="/swap">
               <SwapPage />
             </Route>
-            <Route path="/liquidity/:tokenId">
-              <LiquidityTokenPage />
+            <Route path="/pools/:poolId">
+              <PoolPage />
             </Route>
-            <Route path="/liquidity">
-              <LiquidityPage />
+            <Route path="/pools">
+              <PoolsPage />
             </Route>
             <Route path="/">
-              <HomePage />
+              <PortfolioPage />
             </Route>
           </Switch>
         </main>
