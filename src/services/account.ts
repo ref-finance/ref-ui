@@ -19,14 +19,6 @@ export const depositStorage = ({
   });
 };
 
-export const initializeExchangeAccount = () => {
-  // check if already exists
-  // if not make account
-  return depositStorage({
-    accountId: wallet.getAccountId(),
-  });
-};
-
 export const depositStorageToCoverToken = () => {
   return depositStorage({
     accountId: wallet.getAccountId(),
@@ -39,5 +31,14 @@ export const currentStorageBalance = (accountId: string) => {
   return refFiViewFunction({
     methodName: 'storage_balance_of',
     args: { accountId },
+  });
+};
+
+export const initializeAccount = async () => {
+  const balances = await currentStorageBalance(wallet.getAccountId());
+  if (balances) return balances;
+
+  return depositStorage({
+    accountId: wallet.getAccountId(),
   });
 };
