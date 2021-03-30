@@ -43,7 +43,7 @@ export const getTokenBalances = () => {
   });
 };
 
-export const getRegisteredTokens = async () => {
+export const getRegisteredTokens = async (): Promise<string[]> => {
   const [globalWhitelist, userWhitelist] = await Promise.all([
     refFiViewFunction({ methodName: 'get_whitelisted_tokens' }),
     refFiViewFunction({
