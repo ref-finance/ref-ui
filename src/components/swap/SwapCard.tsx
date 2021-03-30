@@ -142,7 +142,7 @@ function SwapButton({
   }
 
   if (notLoggedIn) {
-    text = '"Connect your wallet" ';
+    text = "Connect your wallet";
   }
 
   return (
