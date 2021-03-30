@@ -7,8 +7,7 @@
     "build:web": "parcel build src/index.html --public-url ./",
     "deploy:pages": "gh-pages -d dist/",
     "deploy": "npm run build && npm run deploy:pages",
-    "start": "echo The app is starting! It will automatically open in your browser when ready && env-cmd -f ./neardev/dev-account.env parcel src/index.html --open",
-    "dev": "nodemon --watch src -e ts --exec \"npm run start\"",
+    "start": "parcel src/index.html --open",
     "test": "jest test --runInBand"
   },
   "devDependencies": {
