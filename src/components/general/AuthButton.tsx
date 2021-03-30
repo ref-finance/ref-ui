@@ -1,10 +1,19 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { getRegisteredTokens } from "../../services/token";
 import { REF_FI_CONTRACT_ID, wallet } from "../../services/near";
 
 function AuthButton() {
   const history = useHistory();
+  const [authorizedTokens, setAuthorizedTokens] = useState([]);
+  const accountId = wallet.getAccountId();
+
+  useEffect(() => {
+    if(accountId) getRegisteredTokens()
+    .then(res => setAuthorizedTokens(res));
+  }, [accountId]);
+  console.log(authorizedTokens);
+
   const signIn = () => {
     wallet.requestSignIn(REF_FI_CONTRACT_ID, 'ref-finance');
   };

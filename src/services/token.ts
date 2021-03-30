@@ -43,23 +43,14 @@ export const getTokenBalances = () => {
   });
 };
 
-export const getRegisteredTokens = async (): Promise<string[]> => {
+export const getRegisteredTokens = async () => {
   const [globalWhitelist, userWhitelist] = await Promise.all([
     refFiViewFunction({ methodName: 'get_whitelisted_tokens' }),
     refFiViewFunction({
       methodName: 'get_user_whitelisted_tokens',
-      args: { accountId: wallet.getAccountId() },
+      args: { account_id: wallet.getAccountId() },
     }),
   ]);
 
   return [...globalWhitelist, ...userWhitelist];
-};
-
-export interface TokenMetadata {
-  name: string;
-  symbol: string;
-  icon: string;
-}
-export const getTokenMetadata = async (id: string): Promise<TokenMetadata> => {
-  return wallet.account().viewFunction(id, 'ft_metadata', {});
 };
