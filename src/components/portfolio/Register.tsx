@@ -9,7 +9,14 @@ export default function Register({ tokens }: { tokens: TokenMetadata[] }) {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    registerToken(selectedToken.name);
+    if(selectedToken) {
+      getUserRegisteredTokens().then(tokens => {
+        const match = tokens.find(token => token === selectedToken.id)
+        if(match){
+          window.alert("token already registered")
+        } else registerToken(selectedToken.name)
+      })
+    } else window.alert("Token not selected")
   };
 
   return (
