@@ -26,8 +26,8 @@ export default function TokenAmount({
       <InputAmount
         className="col-span-11"
         name={selectedToken?.id}
+        max={max}
         value={amount}
-        onMax={max ? (input) => (input.value = max) : null}
         onChange={({ target }) => onChangeAmount(target.value)}
       />
       <SelectToken
