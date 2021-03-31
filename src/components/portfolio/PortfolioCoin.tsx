@@ -8,7 +8,7 @@ interface PortfolioCoinProps {
 }
 
 export function PortfolioCoin({ coinName, balance }: PortfolioCoinProps) {
-  const coin = window.tokenMap[coinName];
+  const coin = window.tokenMap?.[coinName] ?? {};
   const { symbol, icon } = coin;
 
   return (

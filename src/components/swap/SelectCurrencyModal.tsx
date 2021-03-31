@@ -1,19 +1,23 @@
-import React from "react";
+import React from 'react';
 
-import MicroModal from "react-micro-modal";
+import MicroModal from 'react-micro-modal';
 
-import SelectArrow from "~assets/misc/select-arrow.svg";
+import SelectArrow from '~assets/misc/select-arrow.svg';
 
-import "react-micro-modal/dist/index.css";
+import 'react-micro-modal/dist/index.css';
 
 interface SelectedCoinProps {
   coin: CoinForSwap;
 }
 
-function CoinIcon(icon : String) {
+function CoinIcon(icon: String) {
   return (
     <>
-      { icon.startsWith('http') ? <img className="object-cover" src={icon} height={25} width={25} /> : <p>{icon}</p>}
+      {icon.startsWith('http') ? (
+        <img className="object-cover" src={icon} height={25} width={25} />
+      ) : (
+        <p>{icon}</p>
+      )}
     </>
   );
 }
@@ -22,7 +26,7 @@ function SelectedCoin({ coin }: SelectedCoinProps) {
   const { icon, symbol } = coin;
   return (
     <>
-      { CoinIcon(icon) }
+      {CoinIcon(icon)}
       <p>{symbol}</p>
     </>
   );
@@ -36,8 +40,8 @@ function Modal({ trigger, children }) {
       overrides={{
         Overlay: {
           style: {
-            background: "rgba(0, 0, 0, 0.3)",
-            maxWidth: "100%",
+            background: 'rgba(0, 0, 0, 0.3)',
+            maxWidth: '100%',
           },
         },
         Dialog: {
@@ -77,7 +81,7 @@ function CoinRow({ coin, onClick }) {
       className="flex flex-row w-full items-center justify-between py-4 px-6 hover:bg-backgroundGray"
     >
       <div className="flex flex-row items-center ">
-        { CoinIcon(icon) }
+        {CoinIcon(icon)}
         <p className="ml-2 font-light ">{symbol}</p>
       </div>
       <p className="font-inter">{window.deposits[id] || 0}</p>
@@ -98,7 +102,7 @@ function CoinList({ handleClose, setCoin, supportedCoins, showAll }) {
       </h1>
       {supportedCoins.map((coin) => {
         if ((window.deposits[coin.id] || 0) > 0 || showAll) {
-          return (<CoinRow coin={coin} key={coin.id} onClick={onClick} />)
+          return <CoinRow coin={coin} key={coin.id} onClick={onClick} />;
         }
       })}
     </div>
@@ -106,7 +110,7 @@ function CoinList({ handleClose, setCoin, supportedCoins, showAll }) {
 }
 
 function SelectCurrencyModal({ selectedCoin, setCoin, showAll }) {
-  const supportedCoins = Object.values(window.tokenMap);
+  const supportedCoins = Object.values({});
   return (
     <Modal
       trigger={(handleOpen: () => void) => (

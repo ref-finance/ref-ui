@@ -5,11 +5,11 @@ import { getTokenBalances } from '~services/token';
 import { wallet } from '~services/near';
 
 function Portfolio() {
-  const [balances, setBalances] = useState();
+  const [balances, setBalances] = useState({});
   useEffect(() => {
-    getTokenBalances().then(res => setBalances(res))
-  }, [])
-  console.log('balances??', balances)
+    getTokenBalances().then((res) => setBalances(res));
+  }, []);
+  console.log('balances??', balances);
   console.log('wallet???', wallet.isSignedIn());
   return (
     <div>
