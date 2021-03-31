@@ -1,8 +1,8 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
+import React from 'react';
+import { useLocation } from 'react-router-dom';
 
-import AuthButton from "~components/general/AuthButton";
-import RefLogo from "~assets/reffi-logo.svg";
+import AuthButton from '~components/general/AuthButton';
+import RefLogo from '~assets/reffi-logo.svg';
 
 interface AnchorProps {
   href: string;
@@ -28,7 +28,7 @@ function BottomBar() {
 }
 
 function Anchor({ href, name }: AnchorProps) {
-  const routes = ["swap", "liquidity", ""];
+  const routes = ['swap', 'liquidity', ''];
   const location = useLocation();
 
   const selectedRoute = routes.find((route) =>
@@ -38,7 +38,7 @@ function Anchor({ href, name }: AnchorProps) {
   const isSelected = href === `/${selectedRoute}`;
   return (
     <a href={href}>
-      <h2 className={`hover:text-gray-600 ${isSelected ? "font-bold" : ""}`}>
+      <h2 className={`hover:text-gray-600 ${isSelected ? 'font-bold' : ''}`}>
         {name}
       </h2>
     </a>
@@ -53,7 +53,7 @@ function SideBar() {
       <div className="flex flex-col space-y-6 mt-8">
         <Anchor href="/" name="Portfolio" />
         <Anchor href="/swap" name="Swap" />
-        <Anchor href="/liquidity" name="Pools" />
+        <Anchor href="/pools" name="Pools" />
       </div>
     </nav>
   );

@@ -1,18 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import { getTokenMetadata, TokenMetadata } from '../../services/token';
+import React from 'react';
+import { TokenMetadata } from '~services/token';
+import { useToken } from '~state/token';
+import Icon from './Icon';
 
-export default function Token({ id }: { id: string }) {
-  const [metadata, setMetadata] = useState<TokenMetadata>();
-  useEffect(() => {
-    getTokenMetadata(id).then(setMetadata);
-  }, []);
+interface TokenProps {
+  id: string;
+  render?: (token: TokenMetadata) => React.ReactElement;
+}
+
+export default function Token({ id, render }: TokenProps) {
+  const token = useToken(id);
+  // TODO: loading screen
+  if (!token) return null;
 
   return (
-    <tr className="h-12 border-separate  border-b border-t border-borderGray">
-      <td>
-        <Link to={`/pools/${pool.id}`}>{pool.id}</Link>
-      </td>
-      <td>{pool.tokenIds.join(' / ')}</td>
-    </tr>
+    <section className="max-w-sm leading-loose rounded overflow-hidden shadow-lg px-12 py-3">
+      <Icon className="align-center m-auto" token={token} size="12" />
+      <p>
+        <span className="font-black">Name:</span> {token.name}
+      </p>
+      <p>
+        <span className="font-black">Symbol:</span> {token.symbol}
+      </p>
+      {render && render(token)}
+    </section>
   );
 }

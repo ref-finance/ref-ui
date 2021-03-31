@@ -43,17 +43,46 @@ export const getTokenBalances = () => {
   });
 };
 
-export const getUserRegisteredTokens = async () => {
-  const userWhitelist = await refFiViewFunction({
-      methodName: 'get_user_whitelisted_tokens',
-      args: { account_id: wallet.getAccountId() },
-    })
-  return userWhitelist;
+export const getUserRegisteredTokens = (): Promise<string> => {
+  return refFiViewFunction({
+    methodName: 'get_user_whitelisted_tokens',
+    args: { account_id: wallet.getAccountId() },
+  });
 };
 
-export const getGlobalRegisteredTokens = async () => {
-  const globalWhitelist = await refFiViewFunction({ 
-    methodName: 'get_whitelisted_tokens' 
-  });
-  return globalWhitelist;
+export const getRegisteredTokens = async (): Promise<string[]> => {
+  const [globalWhitelist, userWhitelist] = await Promise.all([
+    refFiViewFunction({ methodName: 'get_whitelisted_tokens' }),
+    refFiViewFunction({
+      methodName: 'get_user_whitelisted_tokens',
+      args: { account_id: wallet.getAccountId() },
+    }),
+  ]);
+
+  return [...globalWhitelist, ...userWhitelist];
+};
+
+export interface TokenMetadata {
+  id: string;
+  name: string;
+  symbol: string;
+  icon: string;
 }
+
+export const getTokenMetadata = async (id: string): Promise<TokenMetadata> => {
+  try {
+    const metadata = await wallet.account().viewFunction(id, 'ft_metadata', {});
+    return {
+      id,
+      ...metadata,
+    };
+  } catch {
+    return {
+      id,
+      name: id,
+      symbol: id.split('.')[0].slice(0, 8),
+      icon:
+        'https://fluxprotocol.eth.link/static/media/wrapped-near.8b3a5e4b.svg',
+    };
+  }
+};
