@@ -55,7 +55,7 @@ export const useTokenBalances = () => {
 };
 
 export const useDepositableBalance = (tokenId: string) => {
-  const [depositable, setDepositable] = useState<string>(0);
+  const [depositable, setDepositable] = useState<string>('');
 
   useEffect(() => {
     if (tokenId) getDepositableBalance(tokenId).then(setDepositable);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getUserRegisteredTokens } from '../../services/token';
 import { wallet } from '../../services/near';
-import { initializeAccount, signIn, signOut } from '~services/account';
+import { initializeAccount, signIn, signOut } from '../../services/account';
 
 function AuthButton() {
   const [authorizedTokens, setAuthorizedTokens] = useState([]);

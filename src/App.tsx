@@ -7,9 +7,6 @@ import PoolPage from '~pages/PoolPage';
 import SwapPage from '~pages/SwapPage';
 import PortfolioPage from '~pages/PortfolioPage';
 
-// import getConfig from "./config";
-// const { networkId } = getConfig(process.env.NODE_ENV || "development");
-
 function App() {
   return (
     <Router>
@@ -17,8 +14,8 @@ function App() {
         <NavigationBar />
         <main className="min-h-screen p-4  lg:pl-8 lg:ml-80  pb-32 lg:pb-0  flex-grow">
           <Switch>
-            <Route path="/swap">
-              <SwapPage />
+            <Route path="/portfolio">
+            <PortfolioPage />
             </Route>
             <Route path="/pools/:poolId">
               <PoolPage />
@@ -27,7 +24,7 @@ function App() {
               <PoolsPage />
             </Route>
             <Route path="/">
-              <PortfolioPage />
+              <SwapPage />  
             </Route>
           </Switch>
         </main>
