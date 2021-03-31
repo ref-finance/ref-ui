@@ -13,7 +13,6 @@
     "esModuleInterop": true,
     "jsx": "react",
     "moduleResolution": "Node",
-    "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true /* Skip type checking of declaration files. */
