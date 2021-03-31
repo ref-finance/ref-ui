@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
 import { getUserRegisteredTokens } from '../../services/token';
-import { REF_FI_CONTRACT_ID, wallet } from '../../services/near';
+import { wallet } from '../../services/near';
 import { initializeAccount, signIn, signOut } from '~services/account';
 
 function AuthButton() {
-  const history = useHistory();
   const [authorizedTokens, setAuthorizedTokens] = useState([]);
   const accountId = wallet.getAccountId();
 
@@ -28,7 +26,7 @@ function AuthButton() {
             {' '}
             SIGN OUT
           </button>
-          <h1>Welcome {wallet.getAccountId()}!</h1>
+          <h1>{wallet.getAccountId()}</h1>
         </>
       ) : (
         <button

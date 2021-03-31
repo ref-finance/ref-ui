@@ -27,7 +27,7 @@ function SubmitButton({ text, disabled, onClick }: SubmitButtonProps) {
           className="my-4 h-10 w-40 border border-black flex-row-centered shadow-lg hover:bg-disabledGray rounded-lg transition-colors"
         >
           {' '}
-          Sign In with NEAR
+          Sign in to continue
         </button>
       )}
     </>

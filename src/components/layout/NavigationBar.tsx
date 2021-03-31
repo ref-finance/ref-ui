@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 
-import AuthButton from '~components/general/AuthButton';
+import AuthButton from '~components/forms/AuthButton';
 import RefLogo from '~assets/reffi-logo.svg';
 
 interface AnchorProps {
