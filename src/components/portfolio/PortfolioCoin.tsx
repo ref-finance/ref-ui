@@ -1,4 +1,5 @@
 import React from 'react';
+import DefaultSupportedCoinsMetadataDev from '~consts/DefaultSupportCoinsMetadataDev';
 
 interface PortfolioCoinProps {
   // price: number;
@@ -8,7 +9,8 @@ interface PortfolioCoinProps {
 }
 
 export function PortfolioCoin({ coinName, balance }: PortfolioCoinProps) {
-  const coin = window.tokenMap?.[coinName] ?? {};
+  const tokenMap = DefaultSupportedCoinsMetadataDev;
+  const coin = tokenMap.[coinName] ?? {};
   const { symbol, icon } = coin;
 
   return (

@@ -6,6 +6,8 @@ import DownArrowSVG from "~assets/misc/down-arrow.svg";
 import SubmitButton from "~components/general/SubmitButton";
 import { getReturn, swapToken } from "~utils/ContractUtils";
 import { getPool } from "~utils";
+import { wallet } from "~services/near";
+import DefaultSupportedCoinsMetadataDev from "~consts/DefaultSupportCoinsMetadataDev";
 
 interface SwapContainerProps {
   title: string;
@@ -119,7 +121,7 @@ function SwapButton({
   poolId,
 }: SwapButtonProps) {
   const coinsSelected = !!(selectedCoinOne && selectedCoinTwo);
-  const notLoggedIn = !window.accountId;
+  const notLoggedIn = !wallet.isSignedIn();
   const notEnoughBalance = amount > userBalance;
   const disabled =
     notEnoughBalance || notLoggedIn || !pool || amount <= 0 || !coinsSelected;
@@ -163,7 +165,10 @@ function SwapButton({
 }
 
 function SwapCard() {
-  const defaultCoin = window.tokenMap[window.tokenList[0]];
+  //TODO: fix these two lines :)
+  const tokenMap = DefaultSupportedCoinsMetadataDev;
+  const defaultCoin = tokenMap[Object.values(tokenMap)[0]];
+
   const [amount, setAmount] = useState<number>(0);
   const [selectedCoinOne, setCoinOne] = useState<CoinForSwap>(defaultCoin);
   const [selectedCoinTwo, setCoinTwo] = useState<CoinForSwap>();

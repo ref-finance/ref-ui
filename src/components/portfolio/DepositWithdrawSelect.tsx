@@ -4,6 +4,7 @@ import SelectCurrencyModal from "~components/swap/SelectCurrencyModal";
 
 import { ToastContainer, toast } from "react-toastify";
 import { depositToken, withdrawToken } from "~utils/ContractUtils";
+import { wallet } from "~services/near";
 
 interface SelectProps {
   title: string;
@@ -13,7 +14,7 @@ interface SelectProps {
 
 function checkError(selectedCoin: CoinForSwap, amount: number) {
   try {
-    if (!window.accountId) {
+    if (!wallet.isSignedIn()) {
       throw new Error("NO_ACCOUNT_ID");
     }
     if (!selectedCoin) {
