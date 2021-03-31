@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import SubmitButton from "~components/general/SubmitButton";
+import SubmitButton from "~components/forms/SubmitButton";
 import SelectCurrencyModal from "~components/swap/SelectCurrencyModal";
 
 import { ToastContainer, toast } from "react-toastify";
