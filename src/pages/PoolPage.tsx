@@ -114,7 +114,6 @@ export default function PoolPage() {
   const [pool, setPool] = useState<PoolDetails>();
   const [shares, setShares] = useState<string>();
   const tokens = useTokens(pool?.tokenIds);
-  console.log(tokens);
 
   useEffect(() => {
     getPoolDetails(Number(poolId)).then(setPool);

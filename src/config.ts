@@ -1,4 +1,4 @@
-const CONTRACT_NAME = process.env.CONTRACT_NAME || 'ref-finance.testnet';
+const CONTRACT_NAME = process.env.CONTRACT_NAME || 'dev-1617199123305-1287489';
 
 export default function getConfig(env: string) {
   switch (env) {

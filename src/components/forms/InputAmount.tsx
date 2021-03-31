@@ -10,7 +10,6 @@ export default function InputAmount({
   ...rest
 }: InputAmountProps) {
   const ref = useRef();
-  const v = { value: 'hi' };
   return (
     <fieldset className={`relative flex align-center my-4 ${className}`}>
       <input
