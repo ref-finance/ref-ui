@@ -6,10 +6,15 @@ import SelectToken from '../components/forms/SelectToken';
 import InputAmount from '../components/forms/InputAmount';
 import FormWrap from '../components/forms/FormWrap';
 import { usePool } from '../state/pool';
-import { addLiquidityToPool, Pool, PoolDetails } from '~services/pool';
+import {
+  addLiquidityToPool,
+  Pool,
+  PoolDetails,
+  removeLiquidityFromPool,
+} from '~services/pool';
 import { sumBN } from '~utils/numbers';
 import { TokenMetadata } from '~services/token';
-import { useTokens } from '~state/token';
+import { useTokenBalances, useTokens } from '~state/token';
 import TokenAmount from '~components/forms/TokenAmount';
 
 interface ParamTypes {
@@ -61,7 +66,14 @@ function PoolHeader({ pool, shares }: { pool: PoolDetails; shares: string }) {
   );
 }
 
-function Form({ pool, tokens }: { pool: Pool; tokens: TokenMetadata[] }) {
+function AddLiquidity({
+  pool,
+  tokens,
+}: {
+  pool: Pool;
+  tokens: TokenMetadata[];
+}) {
+  const balances = useTokenBalances();
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const fd = new FormData(event.target as HTMLFormElement);
@@ -84,11 +96,36 @@ function Form({ pool, tokens }: { pool: Pool; tokens: TokenMetadata[] }) {
     <FormWrap title="Add Liquidity" onSubmit={handleSubmit}>
       {Object.entries(pool.supplies).map(([tokenId, max]) => (
         <TokenAmount
-          max={max}
+          max={balances?.[tokenId]}
           tokens={tokens}
           selectedToken={tokens.find((t) => t.id === tokenId)}
         />
       ))}
+    </FormWrap>
+  );
+}
+
+function RemoveLiquidity({ pool, shares }: { pool: Pool; shares: string }) {
+  const [amount, setAmount] = useState<string>();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    await removeLiquidityFromPool({
+      id: pool.id,
+      shares: amount,
+      minimumAmounts: pool.tokenIds.reduce<{ [id: string]: string }>(
+        (acc, id) => {
+          acc[id] = '0';
+          return acc;
+        },
+        {}
+      ),
+    });
+  };
+
+  return (
+    <FormWrap title="Remove Liquidity" onSubmit={handleSubmit}>
+      <InputAmount value={amount} max={shares} onChangeAmount={setAmount} />
     </FormWrap>
   );
 }
@@ -113,7 +150,8 @@ export default function PoolPage() {
   return (
     <FullCard>
       <PoolHeader pool={pool} shares={shares} />
-      <Form pool={pool} tokens={tokens} />
+      <AddLiquidity pool={pool} tokens={tokens} />
+      <RemoveLiquidity pool={pool} tokens={tokens} />
       <TokenList tokens={tokens} render={render} />
     </FullCard>
   );
