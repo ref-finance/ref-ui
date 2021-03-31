@@ -1,5 +1,13 @@
-import { refFiFunctionCall, refFiViewFunction, wallet } from './near';
+import BN from 'bn.js';
+import {
+  refFiFunctionCall,
+  refFiViewFunction,
+  REF_FI_CONTRACT_ID,
+  wallet,
+} from './near';
 import { depositStorageToCoverToken } from './account';
+import { sumBN } from '~utils/numbers';
+import { utils } from 'near-api-js';
 
 export const registerToken = async (tokenId: string) => {
   // TODO: maybe check if there is enough storage already
@@ -18,12 +26,34 @@ export const unregisterToken = (tokenId: string) => {
   });
 };
 
+interface DepositOptions {
+  tokenId: string;
+  amount: string;
+  msg?: string;
+}
+export const deposit = async ({
+  tokenId,
+  amount,
+  msg = '',
+}: DepositOptions) => {
+  return wallet.account().functionCall(
+    tokenId,
+    'ft_transfer_call',
+    {
+      receiver_id: REF_FI_CONTRACT_ID,
+      amount,
+      msg,
+    },
+    new BN('100000000000000'),
+    new BN(utils.format.parseNearAmount('0.000000000000000000000001'))
+  );
+};
+
 interface WithdrawOptions {
   tokenId: string;
   amount: string;
   unregister?: boolean;
 }
-
 export const withdraw = ({
   tokenId,
   amount,
@@ -36,10 +66,19 @@ export const withdraw = ({
   });
 };
 
-export const getTokenBalances = () => {
+export interface TokenBalancesView {
+  [tokenId: string]: string;
+}
+export const getTokenBalances = (): Promise<TokenBalancesView> => {
   return refFiViewFunction({
     methodName: 'get_deposits',
     args: { account_id: wallet.getAccountId() },
+  });
+};
+
+export const getDepositableBalance = (tokenId: string): Promise<string> => {
+  return wallet.account().viewFunction(tokenId, 'ft_balance_of', {
+    account_id: wallet.getAccountId(),
   });
 };
 
