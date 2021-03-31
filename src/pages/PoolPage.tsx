@@ -5,16 +5,12 @@ import TokenList from '../components/tokens/TokenList';
 import SelectToken from '../components/forms/SelectToken';
 import InputAmount from '../components/forms/InputAmount';
 import FormWrap from '../components/forms/FormWrap';
-import {
-  addLiquidityToPool,
-  getPoolDetails,
-  getSharesInPool,
-  Pool,
-  PoolDetails,
-} from '~services/pool';
+import { usePool } from '../state/pool';
+import { addLiquidityToPool, Pool, PoolDetails } from '~services/pool';
 import { sumBN } from '~utils/numbers';
 import { TokenMetadata } from '~services/token';
 import { useTokens } from '~state/token';
+import TokenAmount from '~components/forms/TokenAmount';
 
 interface ParamTypes {
   poolId: string;
@@ -87,17 +83,11 @@ function Form({ pool, tokens }: { pool: Pool; tokens: TokenMetadata[] }) {
   return (
     <FormWrap title="Add Liquidity" onSubmit={handleSubmit}>
       {Object.entries(pool.supplies).map(([tokenId, max]) => (
-        <fieldset className="relative grid grid-cols-4 align-center">
-          <InputAmount
-            className="col-span-3"
-            name={tokenId}
-            onMax={(input) => (input.value = max)}
-          />
-          <SelectToken
-            tokens={tokens}
-            selected={tokens.find((t) => t.id === tokenId)?.symbol}
-          />
-        </fieldset>
+        <TokenAmount
+          max={max}
+          tokens={tokens}
+          selectedToken={tokens.find((t) => t.id === tokenId)}
+        />
       ))}
     </FormWrap>
   );
@@ -105,14 +95,8 @@ function Form({ pool, tokens }: { pool: Pool; tokens: TokenMetadata[] }) {
 
 export default function PoolPage() {
   const { poolId } = useParams<ParamTypes>();
-  const [pool, setPool] = useState<PoolDetails>();
-  const [shares, setShares] = useState<string>();
+  const { pool, shares } = usePool(poolId);
   const tokens = useTokens(pool?.tokenIds);
-
-  useEffect(() => {
-    getPoolDetails(Number(poolId)).then(setPool);
-    getSharesInPool(Number(poolId)).then(setShares);
-  }, []);
 
   const render = (token: TokenMetadata) => {
     return (

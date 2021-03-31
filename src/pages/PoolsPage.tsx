@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import FullCard from '../components/layout/FullCard';
 import Icon from '~/components/tokens/Icon';
 import { useTokens } from '~/state/token';
-import { getPools, Pool } from '~/services/pool';
+import { Pool } from '~/services/pool';
+import { usePools } from '~state/pool';
 
 function PoolRow({ pool }: { pool: Pool }) {
   const tokens = useTokens(pool.tokenIds);
@@ -24,11 +25,7 @@ function PoolRow({ pool }: { pool: Pool }) {
 }
 
 export default function PoolsPage() {
-  const [pools, setPools] = useState<Pool[]>([]);
-
-  useEffect(() => {
-    getPools().then(setPools);
-  }, []);
+  const pools = usePools();
 
   return (
     <FullCard>

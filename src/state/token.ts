@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
-import { getTokenMetadata, TokenMetadata } from '~services/token';
+import {
+  getRegisteredTokens,
+  getTokenBalances,
+  getTokenMetadata,
+  TokenMetadata,
+} from '~services/token';
 
 export const useToken = (id: string) => {
   const [token, setToken] = useState<TokenMetadata>();
@@ -21,4 +26,28 @@ export const useTokens = (ids: string[] = []) => {
   }, [ids.join('')]);
 
   return tokens;
+};
+
+export const useRegisteredTokens = () => {
+  const [tokens, setTokens] = useState<TokenMetadata[]>();
+
+  useEffect(() => {
+    getRegisteredTokens()
+      .then((tokenIds) =>
+        Promise.all(tokenIds.map((tokenId) => getTokenMetadata(tokenId)))
+      )
+      .then(setTokens);
+  }, []);
+
+  return tokens;
+};
+
+export const useTokenBalances = () => {
+  const [balances, setBalances] = useState({});
+
+  useEffect(() => {
+    getTokenBalances().then(setBalances);
+  }, []);
+
+  return balances;
 };
