@@ -20,23 +20,6 @@ import {
 import DefaultSupportedCoinsMetadataDev from '~consts/DefaultSupportCoinsMetadataDev';
 import DefaultSupportedCoinsMetadataProd from '~consts/DefaultSupportCoinsMetadataProd';
 
-async function getDefaultTokenLists() {
-  const tokenMap =
-    env === 'development'
-      ? DefaultSupportedCoinsMetadataDev
-      : DefaultSupportedCoinsMetadataProd;
-  global.tokenMap = tokenMap;
-  global.tokenList = Object.values(tokenMap);
-
-  // To get coin list from contracts
-  // const tokenMap = {};
-  // const tokenList = [];
-  // for (const token of tokens) {
-  //   const resp = await getTokenFromTokenId(token);
-  //   tokenMap[token] = resp;
-  //   tokenList.push(token);
-  // }
-}
 
 // todo: for registering an accont.
 // await window.contract.storage_deposit(
