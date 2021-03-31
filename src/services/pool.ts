@@ -1,4 +1,4 @@
-import { refFiViewFunction, wallet } from './near';
+import { refFiFunctionCall, refFiViewFunction, wallet } from './near';
 import BN from 'bn.js';
 import { idText } from 'typescript';
 
@@ -130,9 +130,10 @@ export const addLiquidityToPool = async ({
 
   const amounts = pool.tokenIds.map((tokenId) => tokenAmounts[tokenId]);
 
-  return refFiViewFunction({
+  return refFiFunctionCall({
     methodName: 'add_liquidity',
     args: { pool_id: id, amounts },
+    amount: '0.000000000000000000000001',
   });
 };
 

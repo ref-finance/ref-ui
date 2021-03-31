@@ -2,12 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import FullCard from '~components/layout/FullCard';
 import TokenList from '../components/tokens/TokenList';
-import { getPoolDetails, getSharesInPool, PoolDetails } from '~services/pool';
-import { getRegisteredTokens, getTokenBalances } from '~services/token';
+import SelectToken from '../components/forms/SelectToken';
+import InputAmount from '../components/forms/InputAmount';
+import {
+  addLiquidityToPool,
+  getPoolDetails,
+  getSharesInPool,
+  Pool,
+  PoolDetails,
+} from '~services/pool';
 import { sumBN } from '~utils/numbers';
 import { TokenMetadata } from '~services/token';
-import MicroModal from 'react-micro-modal';
-import { estimateSwap } from '~services/swap';
 
 interface ParamTypes {
   poolId: string;
@@ -58,82 +63,34 @@ function PoolHeader({ pool, shares }: { pool: PoolDetails; shares: string }) {
   );
 }
 
-function SelectToken({
-  selected,
-  tokenIds,
-  onSelect,
-}: {
-  selected: string;
-  tokenIds: string[];
-  onSelect: (id: string) => void;
-}) {
+function Form({ pool }: { pool: Pool }) {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const fd = new FormData(event.target as HTMLFormElement);
+
+    const amounts = pool.tokenIds.reduce<{ [key: string]: string }>(
+      (acc, tokenId) => {
+        acc[tokenId] = fd.get(tokenId).toString();
+        return acc;
+      },
+      {}
+    );
+
+    await addLiquidityToPool({
+      id: pool.id,
+      tokenAmounts: amounts,
+    });
+  };
+
   return (
-    <MicroModal
-      trigger={(open) => (
-        <button type="button" onClick={open}>
-          {selected || 'Open'}
-        </button>
-      )}
-    >
-      {(close) => (
+    <form onSubmit={handleSubmit}>
+      {Object.entries(pool.supplies).map(([tokenId, max]) => (
         <>
-          <h2>Select Token</h2>
-          <TokenList
-            tokenIds={tokenIds}
-            onClick={(id) => {
-              onSelect(id);
-              close();
-            }}
-          />
+          <InputAmount name={tokenId} onMax={(input) => (input.value = max)} />
+          <SelectToken selected={tokenId} />
         </>
-      )}
-    </MicroModal>
-  );
-}
-
-function Form() {
-  const [tokenInId, setTokenInId] = useState<string>();
-  const [tokenInAmount, setTokenInAmount] = useState<string>();
-  const [tokenOutId, setTokenOutId] = useState<string>();
-  const [tokenOutAmount, setTokenOutAmount] = useState<string>();
-  const [tokenIds, setTokenIds] = useState<string[]>([]);
-
-  useEffect(() => {
-    getRegisteredTokens().then(setTokenIds);
-    getTokenBalances().then(console.log);
-  }, []);
-
-  useEffect(() => {
-    if (tokenInId && tokenOutId && tokenInAmount) {
-      estimateSwap({
-        poolId: 0,
-        tokenInId,
-        tokenOutId,
-        amountIn: tokenInAmount,
-      }).then(setTokenOutAmount);
-    }
-  }, [tokenInId, tokenOutId, tokenInAmount]);
-
-  return (
-    <form onSubmit={}>
-      <input
-        type="number"
-        placeholder="0.0"
-        value={tokenInAmount}
-        onChange={({ target }) => setTokenInAmount(target.value)}
-      />
-      <SelectToken
-        selected={tokenInId}
-        tokenIds={tokenIds}
-        onSelect={(tokenId) => setTokenInId(tokenId)}
-      />
-      <input type="number" placeholder="0.0" value={tokenOutAmount} />
-      <SelectToken
-        selected={tokenOutId}
-        tokenIds={tokenIds}
-        onSelect={(tokenId) => setTokenOutId(tokenId)}
-      />
-      <button></button>
+      ))}
+      <button>Add Liquidity</button>
     </form>
   );
 }
@@ -159,11 +116,12 @@ export default function PoolPage() {
 
   // TODO: loading
   if (!pool) return null;
+  console.log(pool);
 
   return (
     <FullCard>
       <PoolHeader pool={pool} shares={shares} />
-      <Form></Form>
+      <Form pool={pool} />
       <TokenList tokenIds={pool.tokenIds} render={render} />
     </FullCard>
   );
