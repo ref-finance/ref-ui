@@ -13,6 +13,7 @@ import {
 } from '~services/pool';
 import { sumBN } from '~utils/numbers';
 import { TokenMetadata } from '~services/token';
+import { useTokens } from '~state/token';
 
 interface ParamTypes {
   poolId: string;
@@ -51,7 +52,7 @@ function PoolHeader({ pool, shares }: { pool: PoolDetails; shares: string }) {
   );
   return (
     <div className="flex flex-col lg:pl-6 mt-8 mb-14">
-      <h1 className=" font-normal text-xl pb-2">Pool Details</h1>
+      <h1 className="font-normal text-xl pb-2">Pool Details</h1>
       <Shares shares={shares} />
       <div className="grid grid-cols-2 gap-10">
         <DetailColumn title="Total Shares" value={pool.shareSupply} />
@@ -63,7 +64,7 @@ function PoolHeader({ pool, shares }: { pool: PoolDetails; shares: string }) {
   );
 }
 
-function Form({ pool }: { pool: Pool }) {
+function Form({ pool, tokens }: { pool: Pool; tokens: TokenMetadata[] }) {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const fd = new FormData(event.target as HTMLFormElement);
@@ -83,15 +84,30 @@ function Form({ pool }: { pool: Pool }) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      {Object.entries(pool.supplies).map(([tokenId, max]) => (
-        <>
-          <InputAmount name={tokenId} onMax={(input) => (input.value = max)} />
-          <SelectToken selected={tokenId} />
-        </>
-      ))}
-      <button>Add Liquidity</button>
-    </form>
+    <>
+      <form
+        className="bg-white shadow-md rounded px-8 pt-6 pb-1 mb-4 max-w-md"
+        onSubmit={handleSubmit}
+      >
+        <h2 className="font-normal text-lg pb-2">Add Liquidity</h2>
+        {Object.entries(pool.supplies).map(([tokenId, max]) => (
+          <fieldset className="relative grid grid-cols-4 align-center">
+            <InputAmount
+              className="col-span-3"
+              name={tokenId}
+              onMax={(input) => (input.value = max)}
+            />
+            <SelectToken
+              tokens={tokens}
+              selected={tokens.find((t) => t.id === tokenId)?.symbol}
+            />
+          </fieldset>
+        ))}
+        <button className="my-8 h-10 w-full border border-black flex-row-centered shadow-lg hover:bg-disabledGray rounded-lg transition-colors">
+          Add Liquidity
+        </button>
+      </form>
+    </>
   );
 }
 
@@ -99,6 +115,8 @@ export default function PoolPage() {
   const { poolId } = useParams<ParamTypes>();
   const [pool, setPool] = useState<PoolDetails>();
   const [shares, setShares] = useState<string>();
+  const tokens = useTokens(pool?.tokenIds);
+  console.log(tokens);
 
   useEffect(() => {
     getPoolDetails(Number(poolId)).then(setPool);
@@ -116,13 +134,12 @@ export default function PoolPage() {
 
   // TODO: loading
   if (!pool) return null;
-  console.log(pool);
 
   return (
     <FullCard>
       <PoolHeader pool={pool} shares={shares} />
-      <Form pool={pool} />
-      <TokenList tokenIds={pool.tokenIds} render={render} />
+      <Form pool={pool} tokens={tokens} />
+      <TokenList tokens={tokens} render={render} />
     </FullCard>
   );
 }

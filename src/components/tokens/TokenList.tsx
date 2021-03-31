@@ -3,19 +3,15 @@ import { TokenMetadata } from '~services/token';
 import Token from './Token';
 
 interface TokenListProps {
-  tokenIds: string[];
-  onClick?: (id: string) => void;
+  tokens: TokenMetadata[];
+  onClick?: (token: TokenMetadata) => void;
   render?: (token: TokenMetadata) => React.ReactElement;
 }
 
-export default function TokenList({
-  tokenIds,
-  onClick,
-  render,
-}: TokenListProps) {
-  const tokenElements = tokenIds.map((id) => (
-    <li key={id}>
-      <Token id={id} onClick={onClick} render={render} />
+export default function TokenList({ tokens, onClick, render }: TokenListProps) {
+  const tokenElements = tokens.map((token) => (
+    <li key={token.id}>
+      <Token token={token} onClick={onClick} render={render} />
     </li>
   ));
 

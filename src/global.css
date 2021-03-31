@@ -52,18 +52,6 @@ input[disabled] {
   color: black;
   opacity: 1 !important;
 }
-input[type="number"] {
+input[type='number'] {
   -moz-appearance: textfield; /* Firefox */
-}
-
-button:focus {
-  outline: none;
-}
-
-button {
-  display: flex;
-}
-
-button:disabled {
-  cursor: default;
 }

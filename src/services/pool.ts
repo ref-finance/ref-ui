@@ -1,6 +1,6 @@
 import { refFiFunctionCall, refFiViewFunction, wallet } from './near';
 import BN from 'bn.js';
-import { idText } from 'typescript';
+import { utils } from 'near-api-js';
 
 const DEFAULT_PAGE_LIMIT = 10;
 
@@ -30,7 +30,7 @@ const parsePool = (pool: PoolRPCView, id: number): Pool => ({
     {}
   ),
   fee: pool.total_fee,
-  shareSupply: pool.shares_total_supply,
+  shareSupply: utils.format.formatNearAmount(pool.shares_total_supply),
 });
 
 export const getPools = async (
@@ -114,7 +114,7 @@ export const getSharesInPool = (id: number): Promise<string> => {
   return refFiViewFunction({
     methodName: 'get_pool_shares',
     args: { pool_id: id, account_id: wallet.getAccountId() },
-  });
+  }).then((shares) => utils.format.formatNearAmount(shares));
 };
 
 interface AddLiquidityToPoolOptions {

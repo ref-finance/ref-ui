@@ -1,23 +1,18 @@
 import React from 'react';
 import { TokenMetadata } from '~services/token';
-import { useToken } from '~state/token';
 import Icon from './Icon';
 
 interface TokenProps {
-  id: string;
-  onClick: (id: string) => void;
+  token: TokenMetadata;
+  onClick: (token: TokenMetadata) => void;
   render?: (token: TokenMetadata) => React.ReactElement;
 }
 
-export default function Token({ id, onClick, render }: TokenProps) {
-  const token = useToken(id);
-  // TODO: loading screen
-  if (!token) return null;
-
+export default function Token({ token, onClick, render }: TokenProps) {
   return (
     <section
       className="grid grid-cols-3 align-center py-2"
-      onClick={() => onClick(id)}
+      onClick={() => onClick(token)}
     >
       <Icon token={token} />
       <p>{token.symbol}</p>
