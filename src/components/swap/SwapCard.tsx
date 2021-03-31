@@ -5,7 +5,7 @@ import InputAmount from '~components/forms/InputAmount';
 import SelectToken from '~components/forms/SelectToken';
 import Icon from '~components/tokens/Icon';
 import { TokenMetadata } from '~services/token';
-import { useRegisteredTokens } from '~state/token';
+import { useRegisteredTokens, useTokenBalances } from '~state/token';
 import { useSwap } from '../../state/swap';
 
 export default function SwapCard() {
@@ -14,6 +14,7 @@ export default function SwapCard() {
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
 
   const tokens = useRegisteredTokens();
+  const balances = useTokenBalances();
 
   const { tokenOutAmount, makeSwap } = useSwap({
     tokenInId: tokenIn?.id,
@@ -30,6 +31,7 @@ export default function SwapCard() {
     <FormWrap title="Swap" onSubmit={handleSubmit}>
       <TokenAmount
         amount={tokenInAmount}
+        max={balances?.[tokenIn?.id]}
         tokens={tokens}
         selectedToken={tokenIn}
         onSelectToken={(token) => setTokenIn(token)}

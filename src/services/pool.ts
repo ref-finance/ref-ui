@@ -137,4 +137,27 @@ export const addLiquidityToPool = async ({
   });
 };
 
-export const removeLiquidityFromPool = async () => {};
+interface RemoveLiquidityOptions {
+  id: number;
+  shares: string;
+  minimumAmounts: { [tokenId: string]: string };
+}
+export const removeLiquidityFromPool = async ({
+  id,
+  shares,
+  minimumAmounts,
+}: RemoveLiquidityOptions) => {
+  const pool = await getPool(id);
+
+  const amounts = pool.tokenIds.map((tokenId) => minimumAmounts[tokenId]);
+
+  return refFiFunctionCall({
+    methodName: 'remove_liquidity',
+    args: {
+      pool_id: id,
+      shares: utils.format.parseNearAmount(shares),
+      min_amounts: amounts,
+    },
+    amount: '0.000000000000000000000001',
+  });
+};

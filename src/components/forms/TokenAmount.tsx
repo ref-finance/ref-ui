@@ -9,6 +9,7 @@ interface TokenAmountProps {
   max?: string;
   tokens: TokenMetadata[];
   selectedToken: TokenMetadata;
+  onMax?: (input: HTMLInputElement) => void;
   onSelectToken?: (token: TokenMetadata) => void;
   onChangeAmount?: (amount: string) => void;
 }
@@ -28,7 +29,7 @@ export default function TokenAmount({
         name={selectedToken?.id}
         max={max}
         value={amount}
-        onChange={({ target }) => onChangeAmount(target.value)}
+        onChangeAmount={onChangeAmount}
       />
       <SelectToken
         tokens={tokens}
