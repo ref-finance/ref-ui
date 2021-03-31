@@ -12,12 +12,12 @@ export function PortfolioCoin({ coinName, balance }: PortfolioCoinProps) {
   const { symbol, icon } = coin;
 
   return (
-        <tr>
-          <td>
-            <img className="h-6 w-6 mr-2" src={icon} />
-          </td>
-          <td>{symbol}</td>
-          <td className="h-1">{balance}</td>
-        </tr>
+    <tr>
+      <td>
+        <img className="h-6 w-6 mr-2" src={icon} />
+      </td>
+      <td>{symbol}</td>
+      <td className="h-1">{balance}</td>
+    </tr>
   );
 }

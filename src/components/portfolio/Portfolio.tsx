@@ -12,7 +12,7 @@ function Portfolio({ deposits }: DepositProps) {
     <div>
       <h1 className="font-semibold font-inter pt-8">Portfolio</h1>
       <tbody>
-        <PortfolioCoinList deposits={deposits}/>
+        <PortfolioCoinList deposits={deposits} />
       </tbody>
       <DepositWithdrawSelect />
     </div>
