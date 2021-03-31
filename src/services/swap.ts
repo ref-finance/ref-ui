@@ -46,7 +46,7 @@ export const swap = async ({
   minAmountOut,
 }: SwapOptions) => {
   const swapAction = {
-    pool_id: pool.id,
+    pool_id: poolId,
     token_in: tokenInId,
     token_out: tokenOutId,
     amount_in: amountIn,
@@ -55,5 +55,6 @@ export const swap = async ({
   return refFiFunctionCall({
     methodName: 'swap',
     args: { actions: [swapAction] },
+    amount: '0.000000000000000000000001',
   });
 };

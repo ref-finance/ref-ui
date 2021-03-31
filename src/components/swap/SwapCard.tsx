@@ -1,236 +1,67 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
+import InputAmount from '~components/forms/InputAmount';
+import SelectToken from '~components/forms/SelectToken';
+import Icon from '~components/tokens/Icon';
+import {
+  getRegisteredTokens,
+  getTokenMetadata,
+  TokenMetadata,
+} from '~services/token';
+import { useSwap } from '../../state/swap';
 
-import SelectCurrencyModal from "./SelectCurrencyModal";
-import DownArrowSVG from "~assets/misc/down-arrow.svg";
+export default function SwapCard() {
+  const [tokens, setTokens] = useState<TokenMetadata[]>();
+  const [tokenIn, setTokenIn] = useState<TokenMetadata>();
+  const [tokenInAmount, setTokenInAmount] = useState<string>();
+  const [tokenOut, setTokenOut] = useState<TokenMetadata>();
 
-import SubmitButton from "~components/general/SubmitButton";
-import { getReturn, swapToken } from "~utils/ContractUtils";
-import { getPool } from "~utils";
-import { wallet } from "~services/near";
-import DefaultSupportedCoinsMetadataDev from "~consts/DefaultSupportCoinsMetadataDev";
+  const { tokenOutAmount, makeSwap } = useSwap({
+    tokenInId: tokenIn?.id,
+    tokenInAmount,
+    tokenOutId: tokenOut?.id,
+  });
 
-interface SwapContainerProps {
-  title: string;
-  balance: number;
-  showMax?: boolean;
-  selectedCoin: CoinForSwap;
-  setCoin: Dispatch<SetStateAction<CoinForSwap>>;
-  value: number;
-  disabled?: boolean;
-  onMaxClick?: () => void;
-  onChange?: (value: SetStateAction<number>) => void;
-}
+  useEffect(() => {
+    getRegisteredTokens()
+      .then((tokenIds) =>
+        Promise.all(tokenIds.map((tokenId) => getTokenMetadata(tokenId)))
+      )
+      .then(setTokens);
+  }, []);
 
-interface MaxButtonProps {
-  onMaxClick?: () => void;
-}
-interface SwapButtonProps {
-  amount: number;
-  minAmount: number;
-  userBalance: number;
-  pool: PoolInfo;
-  selectedCoinOne: CoinForSwap;
-  selectedCoinTwo: CoinForSwap;
-  poolId: number;
-}
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    makeSwap();
+  };
 
-const SwapHeader = () => (
-  <div className="flex flex-row pt-6 mb-6 space-x-4 border-b border-borderGray">
-    <div className="pb-3 border-b border-black ">
-      <h2 className="font-inter font-medium text-sm">Swap</h2>
-    </div>
-  </div>
-);
-
-function MaxButton({ onMaxClick }: MaxButtonProps) {
   return (
-    <button
-      onClick={onMaxClick}
-      className="bg-disabledGray px-2 py-1 pt-1.5 rounded-md hover:border-black border transition-colors"
-      type="button"
+    <form
+      className="bg-white shadow-md rounded px-8 pt-6 pb-1 mb-4 max-w-md"
+      onSubmit={handleSubmit}
     >
-      MAX
-    </button>
-  );
-}
-
-function SwapContainer({
-  title,
-  balance,
-  showMax,
-  selectedCoin,
-  setCoin,
-  value,
-  onMaxClick,
-  onChange,
-  disabled = false,
-}: SwapContainerProps) {
-  return (
-    <div className="flex flex-col p-3 bg-backgroundGray space-y-2">
-      <div className="flex flex-row justify-between items-center w-full">
-        <p className="text-sm font-light text-gray-400">{title}</p>
-        <p className="text-sm font-light text-gray-400">
-          Balance: {balance.toFixed(1)}
-        </p>
-      </div>
-      <div className="flex flex-row justify-between items-center w-full">
-        <input
-          type="number"
-          placeholder="0.0"
-          value={value}
-          disabled={disabled}
-          onChange={(e) => onChange(e.target.value)}
-          className="text-2xl font-inter"
+      <fieldset className="relative grid grid-cols-12 align-center">
+        <InputAmount
+          className="col-span-11"
+          value={tokenInAmount}
+          onChange={({ target }) => setTokenInAmount(target.value)}
         />
-        <div className="flex flex-row items-center space-x-2.5">
-          {showMax && <MaxButton onMaxClick={onMaxClick} />}
-          <SelectCurrencyModal selectedCoin={selectedCoin} setCoin={setCoin} />
-        </div>
-      </div>
-    </div>
+        <SelectToken
+          tokens={tokens}
+          selected={tokenIn && <Icon token={tokenIn} />}
+          onSelect={(token) => setTokenIn(token)}
+        />
+      </fieldset>
+      <fieldset className="relative grid grid-cols-12 align-center">
+        <InputAmount className="col-span-11" value={tokenOutAmount} />
+        <SelectToken
+          tokens={tokens}
+          selected={tokenOut && <Icon token={tokenOut} />}
+          onSelect={(token) => setTokenOut(token)}
+        />
+      </fieldset>
+      <button className="my-8 h-10 w-full border border-black flex-row-centered shadow-lg hover:bg-disabledGray rounded-lg transition-colors">
+        Swap
+      </button>
+    </form>
   );
 }
-
-function DownArrow() {
-  return (
-    <div className="flex flex-row justify-center max-w my-3">
-      <DownArrowSVG />
-    </div>
-  );
-}
-
-function useAvoidDuplicateCoins(
-  coinOne: CoinForSwap,
-  coinTwo: CoinForSwap,
-  setCoinTwo: Dispatch<SetStateAction<CoinForSwap>>
-) {
-  useEffect(() => {
-    if (coinTwo && coinOne.id === coinTwo.id) {
-      setCoinTwo(null);
-    }
-  }, [coinOne, coinTwo]);
-}
-
-function SwapButton({
-  amount,
-  minAmount,
-  pool,
-  selectedCoinOne,
-  selectedCoinTwo,
-  userBalance,
-  poolId,
-}: SwapButtonProps) {
-  const coinsSelected = !!(selectedCoinOne && selectedCoinTwo);
-  const notLoggedIn = !wallet.isSignedIn();
-  const notEnoughBalance = amount > userBalance;
-  const disabled =
-    notEnoughBalance || notLoggedIn || !pool || amount <= 0 || !coinsSelected;
-
-  let text = "Swap";
-
-  if (!pool && coinsSelected) {
-    text = "No pool available";
-  }
-
-  if (notEnoughBalance) {
-    text = "Not enough balance";
-  }
-  if (!amount) {
-    text = "Enter an amount";
-  }
-
-  if (!selectedCoinTwo) {
-    text = "Select a token";
-  }
-
-  if (notLoggedIn) {
-    text = "Connect your wallet";
-  }
-
-  return (
-    <SubmitButton
-      onClick={() => {
-        swapToken(
-          poolId,
-          selectedCoinOne.id,
-          amount,
-          selectedCoinTwo.id,
-          minAmount
-        );
-      }}
-      disabled={disabled}
-      text={text}
-    />
-  );
-}
-
-function SwapCard() {
-  //TODO: fix these two lines :)
-  const tokenMap = DefaultSupportedCoinsMetadataDev;
-  const defaultCoin = tokenMap[Object.values(tokenMap)[0]];
-
-  const [amount, setAmount] = useState<number>(0);
-  const [selectedCoinOne, setCoinOne] = useState<CoinForSwap>(defaultCoin);
-  const [selectedCoinTwo, setCoinTwo] = useState<CoinForSwap>();
-  const [toAmount, setToAmount] = useState<number>(0);
-  const { pool, poolId } = getPool(selectedCoinOne?.id, selectedCoinTwo?.id);
-
-  const userBalance = parseFloat(window.deposits[selectedCoinOne?.id] || 0.0);
-  useEffect(() => {
-    if (poolId > -1) {
-      getReturn(
-        poolId,
-        selectedCoinOne.id,
-        selectedCoinTwo.id,
-        amount || 0
-      ).then((returnAmt) => setToAmount(returnAmt));
-    }
-    if (!amount) {
-      setToAmount(0);
-    }
-  }, [poolId, amount]);
-
-  useEffect(() => {
-    setAmount(0);
-    setToAmount(0);
-  }, [selectedCoinOne, selectedCoinTwo]);
-  useAvoidDuplicateCoins(selectedCoinOne, selectedCoinTwo, setCoinTwo);
-
-  return (
-    <div className="px-6">
-      <SwapHeader />
-      <SwapContainer
-        title="From"
-        showMax
-        onMaxClick={() => {
-          setAmount(userBalance);
-        }}
-        balance={userBalance}
-        selectedCoin={selectedCoinOne}
-        setCoin={setCoinOne}
-        value={amount}
-        onChange={setAmount}
-      />
-      <DownArrow />
-      <SwapContainer
-        title="To"
-        balance={0.0}
-        value={toAmount}
-        selectedCoin={selectedCoinTwo}
-        setCoin={setCoinTwo}
-        disabled
-      />
-      <SwapButton
-        amount={amount}
-        minAmount={toAmount}
-        pool={pool}
-        poolId={poolId}
-        userBalance={userBalance}
-        selectedCoinOne={selectedCoinOne}
-        selectedCoinTwo={selectedCoinTwo}
-      />
-    </div>
-  );
-}
-
-export default SwapCard;

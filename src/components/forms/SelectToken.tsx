@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import MicroModal from 'react-micro-modal';
 import TokenList from '../tokens/TokenList';
 import { TokenMetadata } from '../../services/token';
+import DownArrow from '../../assets/misc/select-arrow.svg';
 
 export default function SelectToken({
   tokens,
@@ -9,14 +10,14 @@ export default function SelectToken({
   onSelect,
 }: {
   tokens: TokenMetadata[];
-  selected: string;
+  selected: string | React.ReactElement;
   onSelect?: (token: TokenMetadata) => void;
 }) {
   return (
     <MicroModal
       trigger={(open) => (
-        <button type="button" onClick={open}>
-          {selected || 'Open'}
+        <button className="p-1" type="button" onClick={open}>
+          {selected || <DownArrow />}
         </button>
       )}
     >

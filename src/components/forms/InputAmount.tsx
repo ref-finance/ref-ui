@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 
 interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  onMax: (input: HTMLInputElement) => void;
+  onMax?: (input: HTMLInputElement) => void;
 }
 
 export default function InputAmount({
@@ -20,13 +20,15 @@ export default function InputAmount({
         type="number"
         placeholder="0.0"
       />
-      <button
-        className="absolute inset-y-0 right-0 items-center pr-2"
-        type="button"
-        onClick={() => onMax(ref.current)}
-      >
-        MAX
-      </button>
+      {onMax && (
+        <button
+          className="absolute inset-y-0 right-0 items-center pr-2"
+          type="button"
+          onClick={() => onMax(ref.current)}
+        >
+          MAX
+        </button>
+      )}
     </fieldset>
   );
 }
