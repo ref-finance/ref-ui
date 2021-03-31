@@ -10,7 +10,7 @@ interface TokenAmountProps {
   tokens: TokenMetadata[];
   selectedToken: TokenMetadata;
   onSelectToken?: (token: TokenMetadata) => void;
-  onChangeAmount?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChangeAmount?: (amount: string) => void;
 }
 
 export default function TokenAmount({
@@ -28,7 +28,7 @@ export default function TokenAmount({
         name={selectedToken?.id}
         value={amount}
         onMax={max ? (input) => (input.value = max) : null}
-        onChange={onChangeAmount}
+        onChange={({ target }) => onChangeAmount(target.value)}
       />
       <SelectToken
         tokens={tokens}

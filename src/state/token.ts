@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   getRegisteredTokens,
+  getTokenBalances,
   getTokenMetadata,
   TokenMetadata,
 } from '~services/token';
@@ -39,4 +40,14 @@ export const useRegisteredTokens = () => {
   }, []);
 
   return tokens;
+};
+
+export const useTokenBalances = () => {
+  const [balances, setBalances] = useState({});
+
+  useEffect(() => {
+    getTokenBalances().then(setBalances);
+  }, []);
+
+  return balances;
 };

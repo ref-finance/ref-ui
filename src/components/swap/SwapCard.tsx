@@ -33,7 +33,7 @@ export default function SwapCard() {
         tokens={tokens}
         selectedToken={tokenIn}
         onSelectToken={(token) => setTokenIn(token)}
-        onChangeAmount={({ target }) => setTokenInAmount(target.value)}
+        onChangeAmount={setTokenInAmount}
       />
       <TokenAmount
         amount={tokenOutAmount}
