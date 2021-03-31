@@ -5,6 +5,7 @@ import TokenList from '../components/tokens/TokenList';
 import { getPoolDetails, PoolDetails } from '~services/pool';
 import { sumBN } from '~utils/numbers';
 import { TokenMetadata } from '~services/token';
+import { getPoolShares } from '~utils/ContractUtils';
 
 interface ParamTypes {
   poolId: string;
@@ -15,7 +16,7 @@ interface TokenDetailColumnProps {
   value: string | number;
 }
 
-function TokenDetailColumn({ title, value }: TokenDetailColumnProps) {
+function DetailColumn({ title, value }: TokenDetailColumnProps) {
   return (
     <div className="flex flex-col mr-8 mb-8 lg:m-0 text-center">
       <h2 className="text-gray-500 pb-1">{title}</h2>
@@ -26,7 +27,13 @@ function TokenDetailColumn({ title, value }: TokenDetailColumnProps) {
   );
 }
 
-function PoolHeader({ pool }: { pool: PoolDetails }) {
+function Shares({ shares }: { shares: string }) {
+  if (!shares) return null;
+
+  return <span> - My Shares: {shares}</span>;
+}
+
+function PoolHeader({ pool, shares }: { pool: PoolDetails; shares: string }) {
   const total = Object.values(pool.supplies).reduce(
     (acc, amount) => sumBN(acc, amount),
     ''
@@ -39,10 +46,10 @@ function PoolHeader({ pool }: { pool: PoolDetails }) {
     <div className="flex flex-col lg:pl-6 mt-8 mb-14">
       <h1 className=" font-normal text-xl pb-4">Pool Details</h1>
       <div className="grid grid-cols-2 gap-10">
-        <TokenDetailColumn title="Total Shares" value={pool.shareSupply} />
-        <TokenDetailColumn title="Fee" value={pool.fee} />
-        <TokenDetailColumn title="Total Liquidity" value={total} />
-        <TokenDetailColumn title="Accumulated Volume" value={volume} />
+        <DetailColumn title="Total Shares" value={pool.shareSupply} />
+        <DetailColumn title="Fee" value={pool.fee} />
+        <DetailColumn title="Total Liquidity" value={total} />
+        <DetailColumn title="Accumulated Volume" value={volume} />
       </div>
     </div>
   );
@@ -51,8 +58,11 @@ function PoolHeader({ pool }: { pool: PoolDetails }) {
 export default function PoolPage() {
   const { poolId } = useParams<ParamTypes>();
   const [pool, setPool] = useState<PoolDetails>();
+  const [shares, setShares] = useState<string>();
+
   useEffect(() => {
     getPoolDetails(Number(poolId)).then(setPool);
+    getPoolShares(Number(poolId)).then(setShares);
   }, []);
 
   const render = (token: TokenMetadata) => {
@@ -69,7 +79,7 @@ export default function PoolPage() {
 
   return (
     <FullCard>
-      <PoolHeader pool={pool} />
+      <PoolHeader pool={pool} shares={shares} />
       <TokenList tokenIds={pool.tokenIds} render={render} />
     </FullCard>
   );

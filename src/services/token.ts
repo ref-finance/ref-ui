@@ -43,12 +43,19 @@ export const getTokenBalances = () => {
   });
 };
 
+export const getUserRegisteredTokens = (): Promise<string> => {
+  return refFiViewFunction({
+    methodName: 'get_user_whitelisted_tokens',
+    args: { account_id: wallet.getAccountId() },
+  });
+};
+
 export const getRegisteredTokens = async (): Promise<string[]> => {
   const [globalWhitelist, userWhitelist] = await Promise.all([
     refFiViewFunction({ methodName: 'get_whitelisted_tokens' }),
     refFiViewFunction({
       methodName: 'get_user_whitelisted_tokens',
-      args: { accountId: wallet.getAccountId() },
+      args: { account_id: wallet.getAccountId() },
     }),
   ]);
 
