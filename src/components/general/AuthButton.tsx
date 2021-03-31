@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { getUserRegisteredTokens } from '../../services/token';
 import { REF_FI_CONTRACT_ID, wallet } from '../../services/near';
+import { initializeAccount } from '~services/account';
 
 function AuthButton() {
   const history = useHistory();
@@ -9,8 +10,10 @@ function AuthButton() {
   const accountId = wallet.getAccountId();
 
   useEffect(() => {
-    if (accountId)
+    if (accountId) {
       getUserRegisteredTokens().then((res) => setAuthorizedTokens(res));
+      initializeAccount().then((res) => console.log(res));
+    }
   }, [accountId]);
 
   const signIn = () => {

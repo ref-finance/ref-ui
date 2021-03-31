@@ -14,12 +14,13 @@ export const depositStorage = ({
 }: DepositStorageOptions) => {
   return refFiFunctionCall({
     methodName: 'storage_deposit',
-    args: { accountId, registrationOnly },
+    args: { account_id: accountId, registrationOnly },
     amount,
   });
 };
 
 export const depositStorageToCoverToken = () => {
+  console.log('depositing...')
   return depositStorage({
     accountId: wallet.getAccountId(),
     registrationOnly: false,
@@ -30,7 +31,7 @@ export const depositStorageToCoverToken = () => {
 export const currentStorageBalance = (accountId: string) => {
   return refFiViewFunction({
     methodName: 'storage_balance_of',
-    args: { accountId },
+    args: { account_id: accountId },
   });
 };
 
