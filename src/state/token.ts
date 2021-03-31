@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
+  getDepositableBalance,
   getRegisteredTokens,
   getTokenBalances,
   getTokenMetadata,
@@ -30,7 +31,7 @@ export const useTokens = (ids: string[] = []) => {
 };
 
 export const useRegisteredTokens = () => {
-  const [tokens, setTokens] = useState<TokenMetadata[]>();
+  const [tokens, setTokens] = useState<TokenMetadata[]>([]);
 
   useEffect(() => {
     getRegisteredTokens()
@@ -51,4 +52,14 @@ export const useTokenBalances = () => {
   }, []);
 
   return balances;
+};
+
+export const useDepositableBalance = (tokenId: string) => {
+  const [depositable, setDepositable] = useState<string>(0);
+
+  useEffect(() => {
+    if (tokenId) getDepositableBalance(tokenId).then(setDepositable);
+  }, [tokenId]);
+
+  return depositable;
 };

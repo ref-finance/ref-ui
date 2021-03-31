@@ -1,5 +1,4 @@
 import React from 'react';
-import QuarterCard from '~components/layout/QuarterCard';
 import BackgroundSVG from '~assets/images/background.svg';
 import SwapCard from '~components/swap/SwapCard';
 
