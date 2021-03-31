@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams } from 'react-router';
 import FullCard from '~components/layout/FullCard';
 import TokenList from '../components/tokens/TokenList';

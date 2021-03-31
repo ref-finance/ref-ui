@@ -19,7 +19,6 @@ export const depositStorage = ({
 };
 
 export const depositStorageToCoverToken = () => {
-  console.log('depositing...')
   return depositStorage({
     accountId: wallet.getAccountId(),
     registrationOnly: false,
