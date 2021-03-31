@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { getUserRegisteredTokens } from '../../services/token';
 import { REF_FI_CONTRACT_ID, wallet } from '../../services/near';
-import { initializeAccount } from '~services/account';
+import { initializeAccount, signIn, signOut } from '~services/account';
 
 function AuthButton() {
   const history = useHistory();
@@ -15,16 +15,6 @@ function AuthButton() {
       initializeAccount().then((res) => console.log(res));
     }
   }, [accountId]);
-
-  const signIn = () => {
-    wallet.requestSignIn(REF_FI_CONTRACT_ID, 'ref-finance');
-  };
-
-  const signOut = () => {
-    wallet.signOut();
-    // reload page
-    history.go(0);
-  };
 
   return (
     <>

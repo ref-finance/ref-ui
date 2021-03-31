@@ -1,5 +1,5 @@
 import BN from 'bn.js';
-import { refFiFunctionCall, refFiViewFunction, wallet } from './near';
+import { refFiFunctionCall, refFiViewFunction, REF_FI_CONTRACT_ID, wallet } from './near';
 
 interface DepositStorageOptions {
   accountId?: string;
@@ -42,4 +42,14 @@ export const initializeAccount = async () => {
   return depositStorage({
     accountId: wallet.getAccountId(),
   });
+};
+
+export const signIn = () => {
+  wallet.requestSignIn(REF_FI_CONTRACT_ID, 'ref-finance');
+};
+
+export const signOut = () => {
+  wallet.signOut();
+  // reload page
+  history.go(0);
 };

@@ -18,7 +18,7 @@ const DefaultSupportedCoinsMetadataDev = {
     name: 'token2.ref-finance.testnet',
     symbol: 'TKN2',
     icon:
-      'https://fluxprotocol.eth.link/static/media/wrapped-near.8b3a5e4b.svg',
+      'https://i.ibb.co/VgPDzFL/wraped-near.png',
     reference: '',
     reference_hash: '',
     decimals: 6,
