@@ -36,7 +36,10 @@ export const withdraw = ({
   });
 };
 
-export const getTokenBalances = () => {
+export interface TokenBalancesView {
+  [tokenId: string]: string;
+}
+export const getTokenBalances = (): Promise<TokenBalancesView> => {
   return refFiViewFunction({
     methodName: 'get_deposits',
     args: { account_id: wallet.getAccountId() },

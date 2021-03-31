@@ -16,12 +16,11 @@ function Portfolio() {
   return (
     <>
       <h1 className="font-semibold font-inter pt-8">Portfolio</h1>
-      <tbody>
-        <PortfolioCoinList deposits={balances} />
-      </tbody>
+      <tbody>{/* <PortfolioCoinList deposits={balances} /> */}</tbody>
       <FormWrap title="Deposit" onSubmit={() => {}}>
         <TokenAmount
           amount={amount}
+          max={balances?.[selectedToken?.id]}
           tokens={tokens}
           selectedToken={selectedToken}
           onSelectToken={setSelectedToken}

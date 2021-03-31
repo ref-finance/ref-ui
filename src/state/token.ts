@@ -3,6 +3,7 @@ import {
   getRegisteredTokens,
   getTokenBalances,
   getTokenMetadata,
+  TokenBalancesView,
   TokenMetadata,
 } from '~services/token';
 
@@ -43,7 +44,7 @@ export const useRegisteredTokens = () => {
 };
 
 export const useTokenBalances = () => {
-  const [balances, setBalances] = useState({});
+  const [balances, setBalances] = useState<TokenBalancesView>();
 
   useEffect(() => {
     getTokenBalances().then(setBalances);

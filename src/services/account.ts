@@ -1,4 +1,3 @@
-import BN from 'bn.js';
 import { refFiFunctionCall, refFiViewFunction, REF_FI_CONTRACT_ID, wallet } from './near';
 
 interface DepositStorageOptions {
