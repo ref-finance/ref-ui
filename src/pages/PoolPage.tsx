@@ -4,6 +4,7 @@ import FullCard from '~components/layout/FullCard';
 import TokenList from '../components/tokens/TokenList';
 import SelectToken from '../components/forms/SelectToken';
 import InputAmount from '../components/forms/InputAmount';
+import FormWrap from '../components/forms/FormWrap';
 import {
   addLiquidityToPool,
   getPoolDetails,
@@ -84,11 +85,8 @@ function Form({ pool, tokens }: { pool: Pool; tokens: TokenMetadata[] }) {
   };
 
   return (
-    <form
-      className="bg-white shadow-md rounded px-8 pt-6 pb-1 mb-4 max-w-md"
-      onSubmit={handleSubmit}
-    >
-      <h2 className="font-normal text-lg pb-2">Add Liquidity</h2>
+    <FormWrap title="Add Liquidity" onSubmit={handleSubmit}>
+  
       {Object.entries(pool.supplies).map(([tokenId, max]) => (
         <fieldset className="relative grid grid-cols-4 align-center">
           <InputAmount
@@ -105,7 +103,7 @@ function Form({ pool, tokens }: { pool: Pool; tokens: TokenMetadata[] }) {
       <button className="my-8 h-10 w-full border border-black flex-row-centered shadow-lg hover:bg-disabledGray rounded-lg transition-colors">
         Add Liquidity
       </button>
-    </form>
+    </FormWrap>
   );
 }
 

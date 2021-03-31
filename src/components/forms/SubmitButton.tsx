@@ -1,15 +1,15 @@
-import React from "react";
+import React from 'react';
 
 interface SubmitButtonProps {
-  disabled: boolean;
   text: string;
-  onClick: () => void;
+  disabled?: boolean;
+  onClick?: (event: React.MouseEvent) => void;
 }
 
-function SubmitButton({ onClick, disabled, text }: SubmitButtonProps) {
+function SubmitButton({ text, disabled, onClick }: SubmitButtonProps) {
   return (
     <button
-      type="button"
+      type={onClick ? 'button' : 'submit'}
       disabled={disabled}
       onClick={onClick}
       className="flex flex-row justify-center py-4 mt-10 mb-16 items-center rounded-md w-full bg-black  text-white disabled:text-gray-400  disabled:bg-gray-100"

@@ -3,7 +3,7 @@ import BN from 'bn.js';
 import getConfig from '../config';
 
 export const REF_FI_CONTRACT_ID =
-  process.env.REF_FI_CONTRACT_ID || 'dev-1617199123305-1287489';
+  process.env.REF_FI_CONTRACT_ID || 'ref-finance.testnet';
 
 export const near = new Near({
   keyStore: new keyStores.BrowserLocalStorageKeyStore(),
