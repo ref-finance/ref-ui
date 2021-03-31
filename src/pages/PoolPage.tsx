@@ -86,7 +86,6 @@ function Form({ pool, tokens }: { pool: Pool; tokens: TokenMetadata[] }) {
 
   return (
     <FormWrap title="Add Liquidity" onSubmit={handleSubmit}>
-  
       {Object.entries(pool.supplies).map(([tokenId, max]) => (
         <fieldset className="relative grid grid-cols-4 align-center">
           <InputAmount
@@ -100,9 +99,6 @@ function Form({ pool, tokens }: { pool: Pool; tokens: TokenMetadata[] }) {
           />
         </fieldset>
       ))}
-      <button className="my-8 h-10 w-full border border-black flex-row-centered shadow-lg hover:bg-disabledGray rounded-lg transition-colors">
-        Add Liquidity
-      </button>
     </FormWrap>
   );
 }
