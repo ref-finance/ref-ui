@@ -4,15 +4,20 @@ import Token from './Token';
 
 interface TokenListProps {
   tokenIds: string[];
+  onClick?: (id: string) => void;
   render?: (token: TokenMetadata) => React.ReactElement;
 }
 
-export default function TokenList({ tokenIds, render }: TokenListProps) {
+export default function TokenList({
+  tokenIds,
+  onClick,
+  render,
+}: TokenListProps) {
   const tokenElements = tokenIds.map((id) => (
     <li key={id}>
-      <Token id={id} render={render} />
+      <Token id={id} onClick={onClick} render={render} />
     </li>
   ));
 
-  return <ul className="grid grid-cols-2">{tokenElements}</ul>;
+  return <ul>{tokenElements}</ul>;
 }

@@ -1,34 +1,44 @@
 import { refFiFunctionCall, refFiViewFunction } from './near';
+import { getIdealSwapPool } from './pool';
 
 interface EstimateSwapOptions {
-  poolId: string;
   tokenInId: string;
   tokenOutId: string;
   amountIn: string;
 }
 
-export const estimateSwap = ({
-  poolId,
+export interface EstimateSwapView {
+  estimate: string;
+  poolId: number;
+}
+export const estimateSwap = async ({
   tokenInId,
   tokenOutId,
   amountIn,
-}: EstimateSwapOptions) => {
-  return refFiViewFunction({
+}: EstimateSwapOptions): Promise<EstimateSwapView> => {
+  const pool = await getIdealSwapPool({ tokenInId, tokenOutId, amountIn });
+  const estimate = await refFiViewFunction({
     methodName: 'get_return',
     args: {
-      pool_id: poolId,
+      pool_id: pool.id,
       token_in: tokenInId,
       token_out: tokenOutId,
       amount_in: amountIn,
     },
   });
+
+  return {
+    estimate,
+    poolId: pool.id,
+  };
 };
 
 interface SwapOptions extends EstimateSwapOptions {
+  poolId: number;
   minAmountOut: string;
 }
 
-export const swap = ({
+export const swap = async ({
   poolId,
   tokenInId,
   tokenOutId,
@@ -36,7 +46,7 @@ export const swap = ({
   minAmountOut,
 }: SwapOptions) => {
   const swapAction = {
-    pool_id: poolId,
+    pool_id: pool.id,
     token_in: tokenInId,
     token_out: tokenOutId,
     amount_in: amountIn,

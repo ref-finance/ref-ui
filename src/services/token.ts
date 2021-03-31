@@ -39,7 +39,7 @@ export const withdraw = ({
 export const getTokenBalances = () => {
   return refFiViewFunction({
     methodName: 'get_deposits',
-    args: { accountId: wallet.getAccountId() },
+    args: { account_id: wallet.getAccountId() },
   });
 };
 
@@ -59,7 +59,7 @@ export const getRegisteredTokens = async (): Promise<string[]> => {
     }),
   ]);
 
-  return [...globalWhitelist, ...userWhitelist];
+  return [...new Set<string>([...globalWhitelist, ...userWhitelist])];
 };
 
 export interface TokenMetadata {

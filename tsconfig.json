@@ -15,6 +15,7 @@
     "moduleResolution": "Node",
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
+    "downlevelIteration": true,
     "skipLibCheck": true /* Skip type checking of declaration files. */
   },
   "include": ["src/", "ts/"],

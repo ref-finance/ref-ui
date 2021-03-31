@@ -5,23 +5,22 @@ import Icon from './Icon';
 
 interface TokenProps {
   id: string;
+  onClick: (id: string) => void;
   render?: (token: TokenMetadata) => React.ReactElement;
 }
 
-export default function Token({ id, render }: TokenProps) {
+export default function Token({ id, onClick, render }: TokenProps) {
   const token = useToken(id);
   // TODO: loading screen
   if (!token) return null;
 
   return (
-    <section className="max-w-sm leading-loose rounded overflow-hidden shadow-lg px-12 py-3">
-      <Icon className="align-center m-auto" token={token} size="12" />
-      <p>
-        <span className="font-black">Name:</span> {token.name}
-      </p>
-      <p>
-        <span className="font-black">Symbol:</span> {token.symbol}
-      </p>
+    <section
+      className="grid grid-cols-3 align-center py-2"
+      onClick={() => onClick(id)}
+    >
+      <Icon token={token} />
+      <p>{token.symbol}</p>
       {render && render(token)}
     </section>
   );

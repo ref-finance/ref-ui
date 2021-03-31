@@ -110,7 +110,7 @@ export const getPoolVolumes = async (id: number): Promise<PoolVolumes> => {
   return (await getPoolDetails(id)).volumes;
 };
 
-export const getSharesInPool = (id: string): Promise<string> => {
+export const getSharesInPool = (id: number): Promise<string> => {
   return refFiViewFunction({
     methodName: 'get_pool_shares',
     args: { pool_id: id, account_id: wallet.getAccountId() },
