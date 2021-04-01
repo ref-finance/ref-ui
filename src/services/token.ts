@@ -1,24 +1,28 @@
 import BN from 'bn.js';
 import {
+  ONE_YOCTO_NEAR,
   refFiFunctionCall,
+  refFiManyFunctionCalls,
   refFiViewFunction,
   REF_FI_CONTRACT_ID,
   wallet,
 } from './near';
-import { depositStorageToCoverToken } from './account';
-import { sumBN } from '~utils/numbers';
 import { utils } from 'near-api-js';
+import { functionCall } from 'near-api-js/lib/transaction';
 
 export const registerToken = async (tokenId: string) => {
   // TODO: maybe check if there is enough storage already
-  wallet._keyStore.getKey;
-  console.log('registering token: ', tokenId);
-  await depositStorageToCoverToken();
-
-  return refFiFunctionCall({
-    methodName: 'register_tokens',
-    args: { token_ids: [tokenId] },
-  });
+  return refFiManyFunctionCalls([
+    {
+      methodName: 'storage_deposit',
+      args: { account_id: wallet.getAccountId(), registration_only: false },
+      amount: '0.00125',
+    },
+    {
+      methodName: 'register_tokens',
+      args: { token_ids: [tokenId] },
+    },
+  ]);
 };
 
 export const unregisterToken = (tokenId: string) => {
@@ -47,7 +51,7 @@ export const deposit = async ({
       msg,
     },
     new BN('100000000000000'),
-    new BN(utils.format.parseNearAmount('0.000000000000000000000001'))
+    new BN(utils.format.parseNearAmount(ONE_YOCTO_NEAR))
   );
 };
 
@@ -64,7 +68,7 @@ export const withdraw = ({
   return refFiFunctionCall({
     methodName: 'withdraw',
     args: { token_id: tokenId, amount, unregister },
-    amount: '0.000000000000000000000001',
+    amount: ONE_YOCTO_NEAR,
   });
 };
 
@@ -84,7 +88,7 @@ export const getDepositableBalance = (tokenId: string): Promise<string> => {
   });
 };
 
-export const getUserRegisteredTokens = (): Promise<string> => {
+export const getUserRegisteredTokens = (): Promise<string[]> => {
   return refFiViewFunction({
     methodName: 'get_user_whitelisted_tokens',
     args: { account_id: wallet.getAccountId() },

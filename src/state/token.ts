@@ -79,15 +79,19 @@ export const useDepositableBalance = (tokenId: string) => {
   return depositable;
 };
 
-export const useGetUnregisteredTokens = () => {
-  const [unregisteredTokens, setUnregisteredTokens] = useState([]);
+export const useUnregisteredTokens = () => {
+  const [unregisteredTokenIds, setUnregisteredTokenIds] = useState<string[]>(
+    []
+  );
+  const tokens = useTokens(unregisteredTokenIds);
 
   useEffect(() => {
     Promise.all([getRegisteredTokens(), getUserRegisteredTokens()])
-      .then((results) => {
-        return results[0].filter((item) => !results[1].includes(item));
+      .then(([globalTokens, userTokens]) => {
+        return globalTokens.filter((token) => !userTokens.includes(token));
       })
-      .then(setUnregisteredTokens);
+      .then(setUnregisteredTokenIds);
   }, []);
-  return unregisteredTokens;
+
+  return tokens;
 };

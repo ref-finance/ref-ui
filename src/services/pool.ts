@@ -1,4 +1,9 @@
-import { refFiFunctionCall, refFiViewFunction, wallet } from './near';
+import {
+  ONE_YOCTO_NEAR,
+  refFiFunctionCall,
+  refFiViewFunction,
+  wallet,
+} from './near';
 import BN from 'bn.js';
 import { utils } from 'near-api-js';
 
@@ -133,7 +138,7 @@ export const addLiquidityToPool = async ({
   return refFiFunctionCall({
     methodName: 'add_liquidity',
     args: { pool_id: id, amounts },
-    amount: '0.000000000000000000000001',
+    amount: ONE_YOCTO_NEAR,
   });
 };
 
@@ -158,6 +163,6 @@ export const removeLiquidityFromPool = async ({
       shares,
       min_amounts: amounts,
     },
-    amount: '0.000000000000000000000001',
+    amount: ONE_YOCTO_NEAR,
   });
 };
