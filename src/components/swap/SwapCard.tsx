@@ -151,7 +151,8 @@ export default function SwapCard() {
     slippageTolerance,
   });
 
-  if (!balances) return <Redirect to="/portfolio" />;
+  if (balances && Object.keys(balances).length === 0)
+    return <Redirect to="/portfolio" />;
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
