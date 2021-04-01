@@ -8,17 +8,41 @@ import {
 import { depositStorageToCoverToken } from './account';
 import { sumBN } from '~utils/numbers';
 import { utils } from 'near-api-js';
+import { functionCall } from 'near-api-js/lib/transaction';
 
 export const registerToken = async (tokenId: string) => {
   // TODO: maybe check if there is enough storage already
-  wallet._keyStore.getKey;
-  console.log('registering token: ', tokenId);
-  await depositStorageToCoverToken();
+  const depositAction = functionCall(
+    'storage_deposit',
+    {
+      account_id: wallet.getAccountId(),
+      registration_only: false,
+    },
+    new BN('30000000000000'),
+    new BN(utils.format.parseNearAmount('0.00125'))
+  );
 
-  return refFiFunctionCall({
-    methodName: 'register_tokens',
-    args: { token_ids: [tokenId] },
-  });
+  const registerTokenAction = functionCall(
+    'register_tokens',
+    {
+      token_ids: [tokenId],
+    },
+    new BN('30000000000000'),
+    new BN('0')
+  );
+
+  return wallet
+    .account()
+    .sendTransactionWithActions(REF_FI_CONTRACT_ID, [
+      depositAction,
+      registerTokenAction,
+    ]);
+  // await depositStorageToCoverToken();
+
+  // return refFiFunctionCall({
+  //   methodName: 'register_tokens',
+  //   args: { token_ids: [tokenId] },
+  // });
 };
 
 export const unregisterToken = (tokenId: string) => {
@@ -84,7 +108,7 @@ export const getDepositableBalance = (tokenId: string): Promise<string> => {
   });
 };
 
-export const getUserRegisteredTokens = (): Promise<string> => {
+export const getUserRegisteredTokens = (): Promise<string[]> => {
   return refFiViewFunction({
     methodName: 'get_user_whitelisted_tokens',
     args: { account_id: wallet.getAccountId() },

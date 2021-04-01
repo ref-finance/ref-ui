@@ -1,6 +1,7 @@
 import { Near, WalletConnection, keyStores, utils } from 'near-api-js';
 import BN from 'bn.js';
 import getConfig from './config';
+import SpecialWallet from './SpecialWallet';
 
 export const REF_FI_CONTRACT_ID =
   process.env.REF_FI_CONTRACT_ID || 'dev-1617199123305-1287489';
@@ -9,7 +10,7 @@ export const near = new Near({
   keyStore: new keyStores.BrowserLocalStorageKeyStore(),
   ...getConfig(process.env.NODE_ENV || 'testnet'),
 });
-export const wallet = new WalletConnection(near, 'ref-fi');
+export const wallet = new SpecialWallet(near, 'ref-fi');
 
 export interface RefFiViewFunctionOptions {
   methodName: string;

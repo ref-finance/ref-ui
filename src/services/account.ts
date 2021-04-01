@@ -1,4 +1,9 @@
-import { refFiFunctionCall, refFiViewFunction, REF_FI_CONTRACT_ID, wallet } from './near';
+import {
+  refFiFunctionCall,
+  refFiViewFunction,
+  REF_FI_CONTRACT_ID,
+  wallet,
+} from './near';
 
 interface DepositStorageOptions {
   accountId?: string;
@@ -13,7 +18,7 @@ export const depositStorage = ({
 }: DepositStorageOptions) => {
   return refFiFunctionCall({
     methodName: 'storage_deposit',
-    args: { account_id: accountId, registrationOnly },
+    args: { account_id: accountId, registration_only: registrationOnly },
     amount,
   });
 };
