@@ -1,29 +1,26 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import FormWrap from '../forms/FormWrap';
-import { getUserRegisteredTokens, registerToken, TokenMetadata } from '../../services/token';
+import { registerToken, TokenMetadata } from '../../services/token';
 import SelectToken from '~components/forms/SelectToken';
 import Icon from '~components/tokens/Icon';
+import { useGetUnregisteredTokens, useTokens } from '~state/token';
 
 export default function Register({ tokens }: { tokens: TokenMetadata[] }) {
   const [selectedToken, setSelectedToken] = useState<TokenMetadata>();
+  const unRegisteredTokens = useTokens(useGetUnregisteredTokens());
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if(selectedToken) {
-      getUserRegisteredTokens().then(tokens => {
-        const match = tokens.find(token => token === selectedToken.id)
-        if(match){
-          window.alert("token already registered")
-        } else registerToken(selectedToken.name)
-      })
-    } else window.alert("Token not selected")
+      registerToken(selectedToken.id);
+      } else window.alert("Token not selected")
   };
 
   return (
     <FormWrap title="Register" onSubmit={handleSubmit}>
       <h1>Select Token to Register </h1>
       <SelectToken
-        tokens={tokens}
+        tokens={unRegisteredTokens}
         selected={selectedToken && <Icon token={selectedToken} />}
         onSelect={setSelectedToken}
       />
