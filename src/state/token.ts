@@ -45,6 +45,20 @@ export const useRegisteredTokens = () => {
   return tokens;
 };
 
+export const useUserRegisteredTokens = () => {
+  const [tokens, setTokens] = useState<TokenMetadata[]>([]);
+
+  useEffect(() => {
+    getUserRegisteredTokens()
+      .then((tokenIds) =>
+        Promise.all(tokenIds.map((tokenId) => getTokenMetadata(tokenId)))
+      )
+      .then(setTokens);
+  }, []);
+
+  return tokens;
+};
+
 export const useTokenBalances = () => {
   const [balances, setBalances] = useState<TokenBalancesView>();
 

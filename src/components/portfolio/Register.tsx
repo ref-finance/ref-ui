@@ -5,7 +5,7 @@ import SelectToken from '~components/forms/SelectToken';
 import Icon from '~components/tokens/Icon';
 import { useGetUnregisteredTokens, useTokens } from '~state/token';
 
-export default function Register({ tokens }: { tokens: TokenMetadata[] }) {
+export default function Register() {
   const [selectedToken, setSelectedToken] = useState<TokenMetadata>();
   const unRegisteredTokens = useTokens(useGetUnregisteredTokens());
 
@@ -17,8 +17,8 @@ export default function Register({ tokens }: { tokens: TokenMetadata[] }) {
   };
 
   return (
-    <FormWrap title="Register" onSubmit={handleSubmit}>
-      <h1>Select Token to Register </h1>
+    <FormWrap buttonText="Register" onSubmit={handleSubmit}>
+      <h1>Select token to register</h1>
       <SelectToken
         tokens={unRegisteredTokens}
         selected={selectedToken && <Icon token={selectedToken} />}

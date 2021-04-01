@@ -10,7 +10,7 @@ interface TokenListProps {
 
 export default function TokenList({ tokens, onClick, render }: TokenListProps) {
   const tokenElements = tokens.map((token) => (
-    <li key={token.id}>
+    <li className="text-lg"key={token.id}>
       <Token token={token} onClick={onClick} render={render} />
     </li>
   ));

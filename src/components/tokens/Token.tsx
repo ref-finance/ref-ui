@@ -11,7 +11,7 @@ interface TokenProps {
 export default function Token({ token, onClick, render }: TokenProps) {
   return (
     <section
-      className="grid grid-cols-3 align-center py-2"
+      className="grid grid-cols-3 align-center py-2 w-40 text-center"
       onClick={() => onClick(token)}
     >
       <Icon token={token} />

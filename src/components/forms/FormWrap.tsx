@@ -17,7 +17,7 @@ export default function FormWrap({
 }: React.PropsWithChildren<FormWrapProps>) {
   return (
     <form
-      className="bg-white shadow-md rounded px-8 pt-6 pb-1 mb-4 max-w-md"
+      className=" bg-white shadow-2xl rounded px-8 pt-6 pb-1 mb-4 max-w-md"
       onSubmit={onSubmit}
     >
       {title && <h2 className="formTitle font-normal text-lg pb-2">{title}</h2>}
