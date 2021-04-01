@@ -2,27 +2,45 @@ import BN from 'bn.js';
 import {
   ONE_YOCTO_NEAR,
   refFiFunctionCall,
+  RefFiFunctionCallOptions,
   refFiManyFunctionCalls,
   refFiViewFunction,
   REF_FI_CONTRACT_ID,
   wallet,
 } from './near';
 import { utils } from 'near-api-js';
-import { functionCall } from 'near-api-js/lib/transaction';
+import { currentStorageBalance, MIN_DEPOSIT_PER_TOKEN } from './account';
+
+export const checkTokenNeedsStorageDeposit = async (tokenId: string) => {
+  const [registeredTokens, { available }] = await Promise.all([
+    getUserRegisteredTokens(),
+    currentStorageBalance(wallet.getAccountId()),
+  ]);
+
+  return (
+    MIN_DEPOSIT_PER_TOKEN.gt(new BN(available)) &&
+    !registeredTokens.includes(tokenId)
+  );
+};
 
 export const registerToken = async (tokenId: string) => {
-  // TODO: maybe check if there is enough storage already
-  return refFiManyFunctionCalls([
-    {
-      methodName: 'storage_deposit',
-      args: { account_id: wallet.getAccountId(), registration_only: false },
-      amount: '0.00125',
-    },
+  const actions: RefFiFunctionCallOptions[] = [
     {
       methodName: 'register_tokens',
       args: { token_ids: [tokenId] },
     },
-  ]);
+  ];
+
+  const needsStorageDeposit = await checkTokenNeedsStorageDeposit(tokenId);
+  if (needsStorageDeposit) {
+    actions.unshift({
+      methodName: 'storage_deposit',
+      args: { account_id: wallet.getAccountId(), registration_only: false },
+      amount: '0.00125',
+    });
+  }
+
+  return refFiManyFunctionCalls(actions);
 };
 
 export const unregisterToken = (tokenId: string) => {
@@ -95,7 +113,7 @@ export const getUserRegisteredTokens = (): Promise<string[]> => {
   });
 };
 
-export const getRegisteredTokens = async (): Promise<string[]> => {
+export const getWhitelistedTokens = async (): Promise<string[]> => {
   const [globalWhitelist, userWhitelist] = await Promise.all([
     refFiViewFunction({ methodName: 'get_whitelisted_tokens' }),
     refFiViewFunction({

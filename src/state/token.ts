@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   getDepositableBalance,
-  getRegisteredTokens,
+  getWhitelistedTokens,
   getTokenBalances,
   getTokenMetadata,
   getUserRegisteredTokens,
@@ -31,11 +31,11 @@ export const useTokens = (ids: string[] = []) => {
   return tokens;
 };
 
-export const useRegisteredTokens = () => {
+export const useWhitelistTokens = () => {
   const [tokens, setTokens] = useState<TokenMetadata[]>([]);
 
   useEffect(() => {
-    getRegisteredTokens()
+    getWhitelistedTokens()
       .then((tokenIds) =>
         Promise.all(tokenIds.map((tokenId) => getTokenMetadata(tokenId)))
       )
@@ -86,7 +86,7 @@ export const useUnregisteredTokens = () => {
   const tokens = useTokens(unregisteredTokenIds);
 
   useEffect(() => {
-    Promise.all([getRegisteredTokens(), getUserRegisteredTokens()])
+    Promise.all([getWhitelistedTokens(), getUserRegisteredTokens()])
       .then(([globalTokens, userTokens]) => {
         return globalTokens.filter((token) => !userTokens.includes(token));
       })

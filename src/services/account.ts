@@ -1,9 +1,12 @@
+import BN from 'bn.js';
 import {
   refFiFunctionCall,
   refFiViewFunction,
   REF_FI_CONTRACT_ID,
   wallet,
 } from './near';
+
+export const MIN_DEPOSIT_PER_TOKEN = new BN('1250000000000000000000');
 
 interface DepositStorageOptions {
   accountId?: string;
@@ -31,6 +34,10 @@ export const depositStorageToCoverToken = () => {
   });
 };
 
+export interface AccountStorageView {
+  total: string;
+  available: string;
+}
 export const currentStorageBalance = (accountId: string) => {
   return refFiViewFunction({
     methodName: 'storage_balance_of',

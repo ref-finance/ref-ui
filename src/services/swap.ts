@@ -1,7 +1,19 @@
+import BN from 'bn.js';
 import { toNonDivisibleNumber, toReadableNumber } from '~utils/numbers';
-import { ONE_YOCTO_NEAR, refFiFunctionCall, refFiViewFunction } from './near';
+import { currentStorageBalance, MIN_DEPOSIT_PER_TOKEN } from './account';
+import {
+  ONE_YOCTO_NEAR,
+  RefFiFunctionCallOptions,
+  refFiManyFunctionCalls,
+  refFiViewFunction,
+  wallet,
+} from './near';
 import { getIdealSwapPool, Pool } from './pool';
-import { TokenMetadata } from './token';
+import {
+  getUserRegisteredTokens,
+  TokenMetadata,
+  checkTokenNeedsStorageDeposit,
+} from './token';
 
 interface EstimateSwapOptions {
   tokenIn: TokenMetadata;
@@ -66,9 +78,23 @@ export const swap = async ({
     amount_in: toNonDivisibleNumber(tokenIn.decimals, amountIn),
     min_amount_out: toNonDivisibleNumber(tokenOut.decimals, minAmountOut),
   };
-  return refFiFunctionCall({
-    methodName: 'swap',
-    args: { actions: [swapAction] },
-    amount: ONE_YOCTO_NEAR,
-  });
+
+  const actions: RefFiFunctionCallOptions[] = [
+    {
+      methodName: 'swap',
+      args: { actions: [swapAction] },
+      amount: ONE_YOCTO_NEAR,
+    },
+  ];
+
+  const needsStorageDeposit = await checkTokenNeedsStorageDeposit(tokenIn.id);
+  if (needsStorageDeposit) {
+    actions.unshift({
+      methodName: 'storage_deposit',
+      args: { account_id: wallet.getAccountId(), registration_only: false },
+      amount: '0.00125',
+    });
+  }
+
+  return refFiManyFunctionCalls(actions);
 };

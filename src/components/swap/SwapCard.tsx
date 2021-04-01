@@ -4,7 +4,7 @@ import { Pool } from '~services/pool';
 import FormWrap from '~components/forms/FormWrap';
 import TokenAmount from '~components/forms/TokenAmount';
 import Alert from '~components/alert/Alert';
-import { useRegisteredTokens, useTokenBalances } from '~state/token';
+import { useWhitelistTokens, useTokenBalances } from '~state/token';
 import { useSwap } from '../../state/swap';
 import * as math from 'mathjs';
 import {
@@ -13,6 +13,7 @@ import {
   calculateFeePercent,
 } from '~utils/numbers';
 import Icon from '~components/tokens/Icon';
+import { Redirect } from 'react-router';
 
 function DetailView({
   pool,
@@ -100,7 +101,7 @@ function SlippageView({
   onChange,
 }: {
   slippageTolerance: number;
-  minAmountOut: number;
+  minAmountOut: string;
   onChange: (slippage: number) => void;
 }) {
   const validSlippages = [0.1, 0.5, 1];
@@ -133,7 +134,7 @@ export default function SwapCard() {
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
 
-  const tokens = useRegisteredTokens();
+  const allTokens = useWhitelistTokens();
   const balances = useTokenBalances();
 
   const {
@@ -150,6 +151,8 @@ export default function SwapCard() {
     slippageTolerance,
   });
 
+  if (!balances) return <Redirect to="/portfolio" />;
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     makeSwap();
@@ -162,7 +165,7 @@ export default function SwapCard() {
       <TokenAmount
         amount={tokenInAmount}
         max={balances?.[tokenIn?.id]}
-        tokens={tokens}
+        tokens={allTokens.filter((token) => balances[token.id])}
         selectedToken={tokenIn}
         balances={balances}
         onSelectToken={(token) => setTokenIn(token)}
@@ -170,7 +173,7 @@ export default function SwapCard() {
       />
       <TokenAmount
         amount={tokenOutAmount}
-        tokens={tokens}
+        tokens={allTokens}
         selectedToken={tokenOut}
         balances={balances}
         onSelectToken={(token) => setTokenOut(token)}
