@@ -6,10 +6,6 @@ export default function TabFormWrap({
 }: React.PropsWithChildren<{ titles: string[] }>) {
   const [active, setActive] = useState<number>(0);
 
-  React.Children.forEach(children, (child) => {
-    console.log(child);
-  });
-
   return (
     <section className="bg-white">
       <nav className="flex flex-col sm:flex-row">
