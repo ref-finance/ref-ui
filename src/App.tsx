@@ -11,8 +11,7 @@ function App() {
   return (
     <Router>
       <div className="bg-gray-600 min-h-screen ">
-        <div>
-            <NavigationBar />
+        <NavigationBar />
           <div>
             <Switch>
               <Route path="/portfolio">
@@ -29,7 +28,6 @@ function App() {
               </Route>
             </Switch>
           </div>
-        </div>
       </div>
     </Router>
   );

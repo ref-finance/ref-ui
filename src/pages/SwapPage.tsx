@@ -4,7 +4,7 @@ import SwapCard from '~components/swap/SwapCard';
 
 function SwapPage() {
   return (
-    <div className="bg-gray-600">
+    <div className="flex justify-center">
       <SwapCard />
     </div>
   );

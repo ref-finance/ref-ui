@@ -63,7 +63,9 @@ export const useTokenBalances = () => {
   const [balances, setBalances] = useState<TokenBalancesView>();
 
   useEffect(() => {
-    getTokenBalances().then(setBalances);
+    getTokenBalances()
+      .then(setBalances)
+      .catch(() => setBalances({}));
   }, []);
 
   return balances;

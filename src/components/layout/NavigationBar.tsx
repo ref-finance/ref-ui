@@ -52,7 +52,7 @@ function SideBar() {
       <AuthButton />
       <Anchor href="/portfolio" name="Portfolio" />
       <Anchor href="/" name="Swap" />
-      <Anchor href="/pools" name="Pools" />
+      {/* <Anchor href="/pools" name="Pools" /> */}
     </nav>
   );
 }

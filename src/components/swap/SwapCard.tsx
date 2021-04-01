@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TokenMetadata } from '~services/token';
 import { Pool } from '~services/pool';
 import FormWrap from '~components/forms/FormWrap';
+import TabFormWrap from '~components/forms/TabFormWrap';
 import TokenAmount from '~components/forms/TokenAmount';
 import Alert from '~components/alert/Alert';
 import { useWhitelistTokens, useTokenBalances } from '~state/token';
@@ -151,22 +152,19 @@ export default function SwapCard() {
     slippageTolerance,
   });
 
-  if (balances && Object.keys(balances).length === 0)
-    return <Redirect to="/portfolio" />;
-
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     makeSwap();
   };
 
   return (
-    <FormWrap title="Swap" canSubmit={canSwap} onSubmit={handleSubmit}>
+    <FormWrap buttonText="Swap" canSubmit={canSwap} onSubmit={handleSubmit}>
       {swapError && <Alert level="error" message={swapError.message} />}
       <FeeView pool={pool} amount={tokenInAmount} token={tokenIn} />
       <TokenAmount
         amount={tokenInAmount}
         max={balances?.[tokenIn?.id]}
-        tokens={allTokens.filter((token) => balances[token.id])}
+        tokens={allTokens.filter((token) => balances?.[token.id])}
         selectedToken={tokenIn}
         balances={balances}
         onSelectToken={(token) => setTokenIn(token)}
