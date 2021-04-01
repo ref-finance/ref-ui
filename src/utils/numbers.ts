@@ -1,4 +1,7 @@
 import BN from 'bn.js';
+import * as math from 'mathjs';
+
+const BPS_CONVERSION = 10000;
 
 export const sumBN = (...args: string[]): string => {
   return args
@@ -30,4 +33,34 @@ export const toNonDivisibleNumber = (
   const [left, right = ''] = number.split('.');
 
   return `${left}${right.slice(0, decimals).padEnd(decimals, '0')}`;
+};
+
+export const convertToPercentDecimal = (percent: number) => {
+  return math.divide(percent, 100);
+};
+
+export const calculateFeeCharge = (fee: number, total: string) => {
+  return math.round(
+    math.evaluate(`(${fee} / ${BPS_CONVERSION}) * ${total}`),
+    2
+  );
+};
+
+export const calculateExchangeRate = (
+  fee: number,
+  from: string,
+  to: string
+) => {
+  return math.round(
+    math.evaluate(`${to} / (${from} - ${calculateFeeCharge(fee, from)})`),
+    4
+  );
+};
+
+export const percentOf = (percent: number, num: number | string) => {
+  return math.evaluate(`${convertToPercentDecimal(percent)} * ${num}`);
+};
+
+export const percentLess = (percent: number, num: number | string) => {
+  return math.evaluate(`${num} - ${percentOf(percent, num)}`);
 };

@@ -1,19 +1,29 @@
 import { useEffect, useState } from 'react';
 import { Pool } from '~services/pool';
 import { TokenMetadata } from '~services/token';
+import { percentLess } from '~utils/numbers';
 import { estimateSwap, swap } from '../services/swap';
 
 interface SwapOptions {
   tokenIn: TokenMetadata;
   tokenInAmount: string;
   tokenOut: TokenMetadata;
+  slippageTolerance: number;
 }
 
-export const useSwap = ({ tokenIn, tokenInAmount, tokenOut }: SwapOptions) => {
+export const useSwap = ({
+  tokenIn,
+  tokenInAmount,
+  tokenOut,
+  slippageTolerance,
+}: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
   const [swapError, setSwapError] = useState<Error>();
+  const minAmountOut = tokenOutAmount
+    ? percentLess(slippageTolerance, tokenOutAmount)
+    : null;
 
   useEffect(() => {
     if (tokenIn && tokenOut && tokenInAmount) {
@@ -43,15 +53,16 @@ export const useSwap = ({ tokenIn, tokenInAmount, tokenOut }: SwapOptions) => {
       tokenIn,
       amountIn: tokenInAmount,
       tokenOut,
-      minAmountOut: tokenOutAmount,
+      minAmountOut,
     });
   };
 
-  if (pool) {
-    console.log('OUT', tokenOutAmount);
-    console.log('TO FEES', (pool.fee / 10000) * Number(tokenInAmount));
-    console.log('MIN', Number(tokenOutAmount) * 0.001);
-  }
-
-  return { canSwap, tokenOutAmount, swapError, makeSwap };
+  return {
+    canSwap,
+    tokenOutAmount,
+    minAmountOut,
+    pool,
+    swapError,
+    makeSwap,
+  };
 };
