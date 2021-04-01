@@ -20,7 +20,7 @@ export default function Withdraw({ tokens }: { tokens: TokenMetadata[] }) {
   };
 
   return (
-    <FormWrap title="Withdraw" onSubmit={handleSubmit}>
+    <FormWrap buttonText="Withdraw" onSubmit={handleSubmit}>
       <TokenAmount
         amount={amount}
         max={balances?.[selectedToken?.id]}

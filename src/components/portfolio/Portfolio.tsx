@@ -1,6 +1,7 @@
 import React from 'react';
 import { useRegisteredTokens, useTokenBalances } from '~state/token';
 import TokenList from '~components/tokens/TokenList';
+import TabFormWrap from '~/components/forms/TabFormWrap';
 import Deposit from './Deposit';
 import Withdraw from './Withdraw';
 
@@ -15,8 +16,10 @@ function Portfolio() {
         tokens={tokens}
         render={(token) => <p>{balances[token.id]}</p>}
       />
-      <Deposit tokens={tokens} />
-      <Withdraw tokens={tokens} />
+      <TabFormWrap titles={['Deposits', 'Withdraws']}>
+        <Deposit tokens={tokens} />
+        <Withdraw tokens={tokens} />
+      </TabFormWrap>
     </>
   );
 }

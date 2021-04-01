@@ -20,7 +20,7 @@ export default function FormWrap({
       className="bg-white shadow-md rounded px-8 pt-6 pb-1 mb-4 max-w-md"
       onSubmit={onSubmit}
     >
-      {title && <h2 className="font-normal text-lg pb-2">{title}</h2>}
+      {title && <h2 className="formTitle font-normal text-lg pb-2">{title}</h2>}
       {children}
       <SubmitButton disabled={!canSubmit} text={buttonText || title} />
     </form>
