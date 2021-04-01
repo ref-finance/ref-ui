@@ -11,6 +11,8 @@ import { utils } from 'near-api-js';
 
 export const registerToken = async (tokenId: string) => {
   // TODO: maybe check if there is enough storage already
+  wallet._keyStore.getKey
+  console.log('registering token: ', tokenId)
   await depositStorageToCoverToken();
 
   return refFiFunctionCall({

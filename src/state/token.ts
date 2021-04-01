@@ -4,6 +4,7 @@ import {
   getRegisteredTokens,
   getTokenBalances,
   getTokenMetadata,
+  getUserRegisteredTokens,
   TokenBalancesView,
   TokenMetadata,
 } from '~services/token';
@@ -62,4 +63,17 @@ export const useDepositableBalance = (tokenId: string) => {
   }, [tokenId]);
 
   return depositable;
+};
+
+export const useGetUnregisteredTokens = () => {
+  const [unregisteredTokens, setUnregisteredTokens] = useState([]);
+
+  useEffect(() => {
+    Promise.all([getRegisteredTokens(), getUserRegisteredTokens()])
+      .then((results) => {
+        return results[0].filter((item) => !results[1].includes(item));
+      })
+      .then(setUnregisteredTokens);
+  }, []);
+  return unregisteredTokens;
 };
