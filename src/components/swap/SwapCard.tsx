@@ -6,20 +6,72 @@ import TokenAmount from '~components/forms/TokenAmount';
 import Alert from '~components/alert/Alert';
 import { useRegisteredTokens, useTokenBalances } from '~state/token';
 import { useSwap } from '../../state/swap';
+import * as math from 'mathjs';
 import {
   calculateExchangeRate,
   calculateFeeCharge,
-  convertToPercentDecimal,
+  calculateFeePercent,
 } from '~utils/numbers';
+import Icon from '~components/tokens/Icon';
 
-function FeeChargeView({ pool, amount }: { pool?: Pool; amount: string }) {
+function DetailView({
+  pool,
+  from,
+  to,
+}: {
+  pool: Pool;
+  from: string;
+  to: string;
+}) {
+  const [show, setShow] = useState<boolean>(false);
+  if (!pool) return null;
+
+  const feeCharge = calculateFeeCharge(pool.fee, from);
+  const afterFeeCharge = math.evaluate(`${from} - ${feeCharge}`);
+
+  if (!show)
+    return (
+      <>
+        <a href="#" onClick={() => setShow(true)}>
+          Details
+        </a>
+      </>
+    );
+
+  return (
+    <>
+      <a href="#" onClick={() => setShow(false)}>
+        Close Details
+      </a>
+      <RateView pool={pool} from={from} to={to} />
+      <p>Initial Trade Amount: {from}</p>
+      <p>
+        Trade Amount After fees: {afterFeeCharge} ({from} - {feeCharge})
+      </p>
+      <p>
+        Estimated Trade Result: {to} ({afterFeeCharge} *{' '}
+        {calculateExchangeRate(pool.fee, from, to)})
+      </p>
+    </>
+  );
+}
+
+function FeeView({
+  pool,
+  amount,
+  token,
+}: {
+  pool?: Pool;
+  amount: string;
+  token: TokenMetadata;
+}) {
   if (!pool) return null;
 
   return (
     <p>
-      - {calculateFeeCharge(pool.fee, amount)} (at{' '}
-      {convertToPercentDecimal(pool.fee)}
-      %)
+      <span className="font-semibold">Pool Fee: </span>
+      {calculateFeePercent(pool.fee)}% ({calculateFeeCharge(pool.fee, amount)}{' '}
+      <Icon className="inline" token={token} size="3" />)
     </p>
   );
 }
@@ -33,8 +85,13 @@ function RateView({
   from: string;
   to: string;
 }) {
-  if (!pool) return null;
-  return <p>{calculateExchangeRate(pool.fee, from, to)}</p>;
+  if (!pool || !to) return null;
+  return (
+    <p>
+      <span className="font-semibold">Swap Rate:</span>{' '}
+      {calculateExchangeRate(pool.fee, from, to)}
+    </p>
+  );
 }
 
 function SlippageView({
@@ -54,7 +111,7 @@ function SlippageView({
         <label className="font-semibold">Slippage Tolerance: </label>
         {validSlippages.map((slippage) => (
           <button
-            className={`hover:bg-black hover:text-white rounded p-2 ${
+            className={`hover:bg-black hover:text-white rounded w-20 p-2 mx-2 ${
               slippage === slippageTolerance &&
               'bg-black text-white font-semibold'
             }`}
@@ -101,27 +158,29 @@ export default function SwapCard() {
   return (
     <FormWrap title="Swap" canSubmit={canSwap} onSubmit={handleSubmit}>
       {swapError && <Alert level="error" message={swapError.message} />}
+      <FeeView pool={pool} amount={tokenInAmount} token={tokenIn} />
       <TokenAmount
         amount={tokenInAmount}
         max={balances?.[tokenIn?.id]}
         tokens={tokens}
         selectedToken={tokenIn}
+        balances={balances}
         onSelectToken={(token) => setTokenIn(token)}
         onChangeAmount={setTokenInAmount}
       />
-      <FeeChargeView pool={pool} amount={tokenInAmount} />
       <TokenAmount
         amount={tokenOutAmount}
         tokens={tokens}
         selectedToken={tokenOut}
+        balances={balances}
         onSelectToken={(token) => setTokenOut(token)}
       />
-      <RateView pool={pool} from={tokenInAmount} to={tokenOutAmount} />
       <SlippageView
         slippageTolerance={slippageTolerance}
         minAmountOut={minAmountOut}
         onChange={setSlippageTolerance}
       />
+      <DetailView pool={pool} from={tokenInAmount} to={tokenOutAmount} />
     </FormWrap>
   );
 }

@@ -1,5 +1,7 @@
 import React from 'react';
-import { TokenMetadata } from '../../services/token';
+import { useTokenBalances } from '~state/token';
+import { toReadableNumber } from '~utils/numbers';
+import { TokenBalancesView, TokenMetadata } from '../../services/token';
 import Icon from '../tokens/Icon';
 import InputAmount from './InputAmount';
 import SelectToken from './SelectToken';
@@ -9,6 +11,7 @@ interface TokenAmountProps {
   max?: string;
   tokens: TokenMetadata[];
   selectedToken: TokenMetadata;
+  balances?: TokenBalancesView;
   onMax?: (input: HTMLInputElement) => void;
   onSelectToken?: (token: TokenMetadata) => void;
   onChangeAmount?: (amount: string) => void;
@@ -19,9 +22,14 @@ export default function TokenAmount({
   max,
   tokens,
   selectedToken,
+  balances,
   onSelectToken,
   onChangeAmount,
 }: TokenAmountProps) {
+  const render = (token: TokenMetadata) => (
+    <p>{toReadableNumber(token.decimals, balances[token.id])}</p>
+  );
+
   return (
     <fieldset className="relative grid grid-cols-12 align-center">
       <InputAmount
@@ -33,6 +41,7 @@ export default function TokenAmount({
       />
       <SelectToken
         tokens={tokens}
+        render={balances ? render : null}
         selected={selectedToken && <Icon token={selectedToken} />}
         onSelect={onSelectToken}
       />

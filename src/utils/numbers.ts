@@ -39,6 +39,10 @@ export const convertToPercentDecimal = (percent: number) => {
   return math.divide(percent, 100);
 };
 
+export const calculateFeePercent = (fee: number) => {
+  return math.divide(fee, 100);
+};
+
 export const calculateFeeCharge = (fee: number, total: string) => {
   return math.round(
     math.evaluate(`(${fee} / ${BPS_CONVERSION}) * ${total}`),

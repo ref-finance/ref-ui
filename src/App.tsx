@@ -15,7 +15,7 @@ function App() {
         <main className="min-h-screen p-4  lg:pl-8 lg:ml-80  pb-32 lg:pb-0  flex-grow">
           <Switch>
             <Route path="/portfolio">
-            <PortfolioPage />
+              <PortfolioPage />
             </Route>
             <Route path="/pools/:poolId">
               <PoolPage />
@@ -24,7 +24,7 @@ function App() {
               <PoolsPage />
             </Route>
             <Route path="/">
-              <SwapPage />  
+              <SwapPage />
             </Route>
           </Switch>
         </main>

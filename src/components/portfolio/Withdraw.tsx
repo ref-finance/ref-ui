@@ -26,6 +26,7 @@ export default function Withdraw({ tokens }: { tokens: TokenMetadata[] }) {
         max={balances?.[selectedToken?.id]}
         tokens={tokens}
         selectedToken={selectedToken}
+        balances={balances}
         onSelectToken={setSelectedToken}
         onChangeAmount={setAmount}
       />
