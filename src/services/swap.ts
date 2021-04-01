@@ -1,35 +1,50 @@
+import { toNonDivisibleNumber, toReadableNumber } from '~utils/numbers';
 import { refFiFunctionCall, refFiViewFunction } from './near';
-import { getIdealSwapPool } from './pool';
+import { getIdealSwapPool, Pool } from './pool';
+import { TokenMetadata } from './token';
 
 interface EstimateSwapOptions {
-  tokenInId: string;
-  tokenOutId: string;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
   amountIn: string;
 }
 
 export interface EstimateSwapView {
   estimate: string;
-  poolId: number;
+  pool: Pool;
 }
 export const estimateSwap = async ({
-  tokenInId,
-  tokenOutId,
+  tokenIn,
+  tokenOut,
   amountIn,
 }: EstimateSwapOptions): Promise<EstimateSwapView> => {
-  const pool = await getIdealSwapPool({ tokenInId, tokenOutId, amountIn });
+  const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
+  console.log(parsedAmountIn);
+
+  const pool = await getIdealSwapPool({
+    tokenInId: tokenIn.id,
+    tokenOutId: tokenOut.id,
+    amountIn: parsedAmountIn,
+  });
+
+  if (!pool)
+    throw new Error(
+      `No pool available to make a swap from ${tokenIn.symbol} -> ${tokenOut.symbol} for the amount ${amountIn}`
+    );
+
   const estimate = await refFiViewFunction({
     methodName: 'get_return',
     args: {
       pool_id: pool.id,
-      token_in: tokenInId,
-      token_out: tokenOutId,
-      amount_in: amountIn,
+      token_in: tokenIn.id,
+      token_out: tokenOut.id,
+      amount_in: parsedAmountIn,
     },
   });
 
   return {
-    estimate,
-    poolId: pool.id,
+    estimate: toReadableNumber(tokenOut.decimals, estimate),
+    pool,
   };
 };
 

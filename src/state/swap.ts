@@ -1,46 +1,57 @@
 import { useEffect, useState } from 'react';
+import { Pool } from '~services/pool';
+import { TokenMetadata } from '~services/token';
 import { estimateSwap, swap } from '../services/swap';
 
 interface SwapOptions {
-  tokenInId: string;
+  tokenIn: TokenMetadata;
   tokenInAmount: string;
-  tokenOutId: string;
+  tokenOut: TokenMetadata;
 }
 
-export const useSwap = ({
-  tokenInId,
-  tokenInAmount,
-  tokenOutId,
-}: SwapOptions) => {
-  const [poolId, setPoolId] = useState<number>();
+export const useSwap = ({ tokenIn, tokenInAmount, tokenOut }: SwapOptions) => {
+  const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
-  const [tokenOutAmount, setTokenOutAmount] = useState<string>();
+  const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
+  const [swapError, setSwapError] = useState<Error>();
 
   useEffect(() => {
-    if (tokenInId && tokenOutId && tokenInAmount) {
+    if (tokenIn && tokenOut && tokenInAmount) {
+      setSwapError(null);
       estimateSwap({
-        tokenInId,
-        tokenOutId,
+        tokenIn,
+        tokenOut,
         amountIn: tokenInAmount,
       })
-        .then(({ estimate, poolId }) => {
+        .then(({ estimate, pool }) => {
+          if (!estimate || !pool) throw '';
           setCanSwap(true);
           setTokenOutAmount(estimate);
-          setPoolId(poolId);
+          setPool(pool);
         })
-        .catch(() => setCanSwap(false));
+        .catch((err) => {
+          setCanSwap(false);
+          setTokenOutAmount('');
+          setSwapError(err);
+        });
     }
-  }, [tokenInId, tokenOutId, tokenInAmount]);
+  }, [tokenIn, tokenOut, tokenInAmount]);
 
   const makeSwap = () => {
     swap({
-      poolId,
-      tokenInId,
+      poolId: pool.id,
+      tokenIn,
       amountIn: tokenInAmount,
-      tokenOutId,
+      tokenOut,
       minAmountOut: tokenOutAmount,
     });
   };
 
-  return { canSwap, tokenOutAmount, makeSwap };
+  if (pool) {
+    console.log('OUT', tokenOutAmount);
+    console.log('TO FEES', (pool.fee / 10000) * Number(tokenInAmount));
+    console.log('MIN', Number(tokenOutAmount) * 0.001);
+  }
+
+  return { canSwap, tokenOutAmount, swapError, makeSwap };
 };

@@ -11,8 +11,8 @@ import { utils } from 'near-api-js';
 
 export const registerToken = async (tokenId: string) => {
   // TODO: maybe check if there is enough storage already
-  wallet._keyStore.getKey
-  console.log('registering token: ', tokenId)
+  wallet._keyStore.getKey;
+  console.log('registering token: ', tokenId);
   await depositStorageToCoverToken();
 
   return refFiFunctionCall({
@@ -107,7 +107,7 @@ export interface TokenMetadata {
   id: string;
   name: string;
   symbol: string;
-  decimal: number;
+  decimals: number;
   icon: string;
 }
 
@@ -123,7 +123,7 @@ export const getTokenMetadata = async (id: string): Promise<TokenMetadata> => {
       id,
       name: id,
       symbol: id.split('.')[0].slice(0, 8),
-      decimal: 6,
+      decimals: 6,
       icon:
         'https://fluxprotocol.eth.link/static/media/wrapped-near.8b3a5e4b.svg',
     };
