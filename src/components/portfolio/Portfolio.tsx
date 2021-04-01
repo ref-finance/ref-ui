@@ -3,8 +3,6 @@ import { useRegisteredTokens, useTokenBalances } from '~state/token';
 import TokenList from '~components/tokens/TokenList';
 import Deposit from './Deposit';
 import Withdraw from './Withdraw';
-import Register from './Register';
-import { getRegisteredTokens } from '~services/token';
 
 function Portfolio() {
   const balances = useTokenBalances();
@@ -19,7 +17,6 @@ function Portfolio() {
       />
       <Deposit tokens={tokens} />
       <Withdraw tokens={tokens} />
-      <Register tokens={tokens} />
     </>
   );
 }

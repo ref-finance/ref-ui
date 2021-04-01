@@ -151,7 +151,7 @@ export default function PoolPage() {
     <FullCard>
       <PoolHeader pool={pool} shares={shares} />
       <AddLiquidity pool={pool} tokens={tokens} />
-      <RemoveLiquidity pool={pool} tokens={tokens} />
+      <RemoveLiquidity pool={pool} shares={shares} />
       <TokenList tokens={tokens} render={render} />
     </FullCard>
   );
