@@ -7,7 +7,7 @@ export default function TabFormWrap({
   const [active, setActive] = useState<number>(0);
 
   return (
-    <section className="m-8 absolute">
+    <section className="m-8">
       <nav className="flex flex-col sm:flex-row">
         {titles.map((title, i) => (
           <button
