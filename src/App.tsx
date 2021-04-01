@@ -11,23 +11,25 @@ function App() {
   return (
     <Router>
       <div className="bg-gray-600 min-h-screen ">
-        <NavigationBar />
-        <main className="bg-gray-600 min-h-screen p-4  lg:pl-8 lg:ml-80  pb-32 lg:pb-0  flex-grow">
-          <Switch>
-            <Route path="/portfolio">
-              <PortfolioPage />
-            </Route>
-            <Route path="/pools/:poolId">
-              <PoolPage />
-            </Route>
-            <Route path="/pools">
-              <PoolsPage />
-            </Route>
-            <Route path="/">
-              <SwapPage />
-            </Route>
-          </Switch>
-        </main>
+        <div>
+            <NavigationBar />
+          <div>
+            <Switch>
+              <Route path="/portfolio">
+                <PortfolioPage />
+              </Route>
+              <Route path="/pools/:poolId">
+                <PoolPage />
+              </Route>
+              <Route path="/pools">
+                <PoolsPage />
+              </Route>
+              <Route path="/">
+                <SwapPage />
+              </Route>
+            </Switch>
+          </div>
+        </div>
       </div>
     </Router>
   );

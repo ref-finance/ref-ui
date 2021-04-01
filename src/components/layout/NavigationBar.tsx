@@ -47,14 +47,12 @@ function Anchor({ href, name }: AnchorProps) {
 
 function SideBar() {
   return (
-    <nav className="fixed w-60 pl-3 pt-6 hidden lg:block ">
+    <nav>
       <RefLogo height="25" />
       <AuthButton />
-      <div className="flex flex-col space-y-6 mt-8">
-        <Anchor href="/portfolio" name="Portfolio" />
-        <Anchor href="/" name="Swap" />
-        <Anchor href="/pools" name="Pools" />
-      </div>
+      <Anchor href="/portfolio" name="Portfolio" />
+      <Anchor href="/" name="Swap" />
+      <Anchor href="/pools" name="Pools" />
     </nav>
   );
 }
