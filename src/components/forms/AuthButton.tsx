@@ -10,7 +10,7 @@ function AuthButton() {
   useEffect(() => {
     if (accountId) {
       getUserRegisteredTokens().then((res) => setAuthorizedTokens(res));
-      initializeAccount().then((res) => console.log(res));
+      initializeAccount();
     }
   }, [accountId]);
 

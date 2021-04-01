@@ -23,6 +23,7 @@ export default function InputAmount({
       <input
         ref={ref}
         {...rest}
+        step="any"
         min="0"
         max={max}
         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"

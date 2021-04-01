@@ -1,5 +1,5 @@
 import { toNonDivisibleNumber, toReadableNumber } from '~utils/numbers';
-import { refFiFunctionCall, refFiViewFunction } from './near';
+import { ONE_YOCTO_NEAR, refFiFunctionCall, refFiViewFunction } from './near';
 import { getIdealSwapPool, Pool } from './pool';
 import { TokenMetadata } from './token';
 
@@ -19,7 +19,6 @@ export const estimateSwap = async ({
   amountIn,
 }: EstimateSwapOptions): Promise<EstimateSwapView> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
-  console.log(parsedAmountIn);
 
   const pool = await getIdealSwapPool({
     tokenInId: tokenIn.id,
@@ -49,27 +48,27 @@ export const estimateSwap = async ({
 };
 
 interface SwapOptions extends EstimateSwapOptions {
-  poolId: number;
+  pool: Pool;
   minAmountOut: string;
 }
 
 export const swap = async ({
-  poolId,
-  tokenInId,
-  tokenOutId,
+  pool,
+  tokenIn,
+  tokenOut,
   amountIn,
   minAmountOut,
 }: SwapOptions) => {
   const swapAction = {
-    pool_id: poolId,
-    token_in: tokenInId,
-    token_out: tokenOutId,
-    amount_in: amountIn,
-    min_amount_out: minAmountOut,
+    pool_id: pool.id,
+    token_in: tokenIn.id,
+    token_out: tokenOut.id,
+    amount_in: toNonDivisibleNumber(tokenIn.decimals, amountIn),
+    min_amount_out: toNonDivisibleNumber(tokenOut.decimals, minAmountOut),
   };
   return refFiFunctionCall({
     methodName: 'swap',
     args: { actions: [swapAction] },
-    amount: '0.000000000000000000000001',
+    amount: ONE_YOCTO_NEAR,
   });
 };
