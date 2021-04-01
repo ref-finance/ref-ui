@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router';
 import FullCard from '~components/layout/FullCard';
 import TokenList from '../components/tokens/TokenList';
@@ -16,6 +16,7 @@ import { sumBN } from '~utils/numbers';
 import { TokenMetadata } from '~services/token';
 import { useTokenBalances, useTokens } from '~state/token';
 import TokenAmount from '~components/forms/TokenAmount';
+import TabFormWrap from '~components/forms/TabFormWrap';
 
 interface ParamTypes {
   poolId: string;
@@ -93,7 +94,7 @@ function AddLiquidity({
   };
 
   return (
-    <FormWrap title="Add Liquidity" onSubmit={handleSubmit}>
+    <FormWrap buttonText="Add Liquidity" onSubmit={handleSubmit}>
       {Object.entries(pool.supplies).map(([tokenId, max]) => (
         <TokenAmount
           max={balances?.[tokenId]}
@@ -124,7 +125,7 @@ function RemoveLiquidity({ pool, shares }: { pool: Pool; shares: string }) {
   };
 
   return (
-    <FormWrap title="Remove Liquidity" onSubmit={handleSubmit}>
+    <FormWrap buttonText="Remove Liquidity" onSubmit={handleSubmit}>
       <InputAmount value={amount} max={shares} onChangeAmount={setAmount} />
     </FormWrap>
   );
@@ -150,8 +151,10 @@ export default function PoolPage() {
   return (
     <FullCard>
       <PoolHeader pool={pool} shares={shares} />
-      <AddLiquidity pool={pool} tokens={tokens} />
-      <RemoveLiquidity pool={pool} tokens={tokens} />
+      <TabFormWrap titles={['Add Liquidity', 'Remove Liquidity']}>
+        <AddLiquidity pool={pool} tokens={tokens} />
+        <RemoveLiquidity pool={pool} shares={shares} />
+      </TabFormWrap>
       <TokenList tokens={tokens} render={render} />
     </FullCard>
   );

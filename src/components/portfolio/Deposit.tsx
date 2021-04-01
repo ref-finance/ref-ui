@@ -20,7 +20,7 @@ export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
   };
 
   return (
-    <FormWrap title="Deposit" onSubmit={handleSubmit}>
+    <FormWrap buttonText="Deposit" onSubmit={handleSubmit}>
       <TokenAmount
         amount={amount}
         max={depositable}

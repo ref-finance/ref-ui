@@ -107,6 +107,7 @@ export interface TokenMetadata {
   id: string;
   name: string;
   symbol: string;
+  decimal: number;
   icon: string;
 }
 
@@ -122,6 +123,7 @@ export const getTokenMetadata = async (id: string): Promise<TokenMetadata> => {
       id,
       name: id,
       symbol: id.split('.')[0].slice(0, 8),
+      decimal: 6,
       icon:
         'https://fluxprotocol.eth.link/static/media/wrapped-near.8b3a5e4b.svg',
     };

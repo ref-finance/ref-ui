@@ -13,6 +13,7 @@ export const useSwap = ({
   tokenOutId,
 }: SwapOptions) => {
   const [poolId, setPoolId] = useState<number>();
+  const [canSwap, setCanSwap] = useState<boolean>();
   const [tokenOutAmount, setTokenOutAmount] = useState<string>();
 
   useEffect(() => {
@@ -21,10 +22,13 @@ export const useSwap = ({
         tokenInId,
         tokenOutId,
         amountIn: tokenInAmount,
-      }).then(({ estimate, poolId }) => {
-        setTokenOutAmount(estimate);
-        setPoolId(poolId);
-      });
+      })
+        .then(({ estimate, poolId }) => {
+          setCanSwap(true);
+          setTokenOutAmount(estimate);
+          setPoolId(poolId);
+        })
+        .catch(() => setCanSwap(false));
     }
   }, [tokenInId, tokenOutId, tokenInAmount]);
 
@@ -38,5 +42,5 @@ export const useSwap = ({
     });
   };
 
-  return { tokenOutAmount, makeSwap };
+  return { canSwap, tokenOutAmount, makeSwap };
 };

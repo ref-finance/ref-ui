@@ -16,7 +16,7 @@ export default function SwapCard() {
   const tokens = useRegisteredTokens();
   const balances = useTokenBalances();
 
-  const { tokenOutAmount, makeSwap } = useSwap({
+  const { canSwap, tokenOutAmount, makeSwap } = useSwap({
     tokenInId: tokenIn?.id,
     tokenInAmount,
     tokenOutId: tokenOut?.id,
@@ -28,7 +28,7 @@ export default function SwapCard() {
   };
 
   return (
-    <FormWrap title="Swap" onSubmit={handleSubmit}>
+    <FormWrap title="Swap" canSubmit={canSwap} onSubmit={handleSubmit}>
       <TokenAmount
         amount={tokenInAmount}
         max={balances?.[tokenIn?.id]}

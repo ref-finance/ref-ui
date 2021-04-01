@@ -114,7 +114,7 @@ export const getSharesInPool = (id: number): Promise<string> => {
   return refFiViewFunction({
     methodName: 'get_pool_shares',
     args: { pool_id: id, account_id: wallet.getAccountId() },
-  }).then((shares) => utils.format.formatNearAmount(shares));
+  }).then((shares) => shares);
 };
 
 interface AddLiquidityToPoolOptions {
@@ -155,7 +155,7 @@ export const removeLiquidityFromPool = async ({
     methodName: 'remove_liquidity',
     args: {
       pool_id: id,
-      shares: utils.format.parseNearAmount(shares),
+      shares,
       min_amounts: amounts,
     },
     amount: '0.000000000000000000000001',
