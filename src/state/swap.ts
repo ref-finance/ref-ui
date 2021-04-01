@@ -22,7 +22,7 @@ export const useSwap = ({
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
   const [swapError, setSwapError] = useState<Error>();
   const minAmountOut = tokenOutAmount
-    ? percentLess(slippageTolerance, tokenOutAmount)
+    ? String(percentLess(slippageTolerance, tokenOutAmount))
     : null;
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export const useSwap = ({
 
   const makeSwap = () => {
     swap({
-      poolId: pool.id,
+      pool,
       tokenIn,
       amountIn: tokenInAmount,
       tokenOut,
