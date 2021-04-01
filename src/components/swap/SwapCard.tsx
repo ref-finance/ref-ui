@@ -24,7 +24,7 @@ function DetailView({
   to: string;
 }) {
   const [show, setShow] = useState<boolean>(false);
-  if (!pool) return null;
+  if (!pool || !to || !from) return null;
 
   const feeCharge = calculateFeeCharge(pool.fee, from);
   const afterFeeCharge = math.evaluate(`${from} - ${feeCharge}`);
@@ -65,7 +65,7 @@ function FeeView({
   amount: string;
   token: TokenMetadata;
 }) {
-  if (!pool) return null;
+  if (!pool || !amount) return null;
 
   return (
     <p>
