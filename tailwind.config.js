@@ -29,7 +29,7 @@ module.exports = {
   },
   variants: {
     extend: {
-      backgroundColor: ["disabled"],
+      backgroundColor: ["#F4F5F7"],
       textColor: ["disabled"],
     },
   },

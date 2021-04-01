@@ -10,9 +10,9 @@ import PortfolioPage from '~pages/PortfolioPage';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen ">
+      <div className="bg-gray-600 min-h-screen ">
         <NavigationBar />
-        <main className="min-h-screen p-4  lg:pl-8 lg:ml-80  pb-32 lg:pb-0  flex-grow">
+        <main className="bg-gray-600 min-h-screen p-4  lg:pl-8 lg:ml-80  pb-32 lg:pb-0  flex-grow">
           <Switch>
             <Route path="/portfolio">
               <PortfolioPage />

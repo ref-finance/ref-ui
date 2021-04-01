@@ -25,7 +25,7 @@ export default function InputAmount({
         {...rest}
         min="0"
         max={max}
-        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        className="focus:outline-none shadow bg-gray-500 appearance-none border rounded border-opacity-30 w-full py-2 px-3 text-3xl text-white leading-tight"
         type="number"
         placeholder="0.0"
         onChange={({ target }) => handleChange(target.value)}

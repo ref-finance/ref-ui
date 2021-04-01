@@ -4,11 +4,8 @@ import SwapCard from '~components/swap/SwapCard';
 
 function SwapPage() {
   return (
-    <div>
+    <div className="bg-gray-600">
       <SwapCard />
-      <div className="absolute top-0 -right-64 h-3/6 w-3/6 pt-20 animate-float hidden lg:block">
-        <BackgroundSVG />
-      </div>
     </div>
   );
 }
