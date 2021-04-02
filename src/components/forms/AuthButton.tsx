@@ -18,7 +18,7 @@ function AuthButton() {
           <button
             onClick={signOut}
             type="button"
-            className="bg-red-500 hover:bg-red-600 text-white flex flex-col my-4 py-1 h-15 w-40 border border-black shadow-lg hover:bg-disabled rounded-lg transition-colors"
+            className="bg-red-600 hover:bg-red-500 text-white flex flex-col my-4 py-1 h-15 w-40 border border-black shadow-lg hover:bg-disabled rounded-lg transition-colors"
           >
             {' '}
             <p className="w-full">SIGN OUT</p>
@@ -36,7 +36,7 @@ function AuthButton() {
         </button>
       )}
     </>
-  );
-}
+  );}
+
 
 export default AuthButton;
