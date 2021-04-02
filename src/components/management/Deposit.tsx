@@ -10,12 +10,13 @@ export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
   const [selectedToken, setSelectedToken] = useState<TokenMetadata>();
 
   const depositable = useDepositableBalance(selectedToken?.id);
+  const max = toReadableNumber(selectedToken?.decimals, depositable) || 0;
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
     deposit({
-      tokenId: selectedToken.id,
+      token: selectedToken,
       amount,
     });
   };
@@ -24,14 +25,12 @@ export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
     <FormWrap buttonText="Deposit" onSubmit={handleSubmit}>
       {selectedToken && (
         <h2>
-          You can deposit up to{' '}
-          {toReadableNumber(selectedToken.decimals, depositable) || 0}{' '}
-          {selectedToken.symbol}
+          You can deposit up to {max} {selectedToken.symbol}
         </h2>
       )}
       <TokenAmount
         amount={amount}
-        max={depositable}
+        max={String(max)}
         tokens={tokens}
         selectedToken={selectedToken}
         onSelectToken={setSelectedToken}

@@ -12,6 +12,7 @@ import {
   calculateExchangeRate,
   calculateFeeCharge,
   calculateFeePercent,
+  toReadableNumber,
 } from '~utils/numbers';
 import Icon from '~components/tokens/Icon';
 import { Redirect } from 'react-router';
@@ -163,7 +164,9 @@ export default function SwapCard() {
       <FeeView pool={pool} amount={tokenInAmount} token={tokenIn} />
       <TokenAmount
         amount={tokenInAmount}
-        max={balances?.[tokenIn?.id]}
+        max={
+          toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0'
+        }
         tokens={allTokens.filter((token) => balances?.[token.id])}
         selectedToken={tokenIn}
         balances={balances}

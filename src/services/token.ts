@@ -10,6 +10,7 @@ import {
 } from './near';
 import { utils } from 'near-api-js';
 import { currentStorageBalance, MIN_DEPOSIT_PER_TOKEN } from './account';
+import { toNonDivisibleNumber } from '~utils/numbers';
 
 export const checkTokenNeedsStorageDeposit = async (tokenId: string) => {
   const [registeredTokens, { available }] = await Promise.all([
@@ -17,8 +18,10 @@ export const checkTokenNeedsStorageDeposit = async (tokenId: string) => {
     currentStorageBalance(wallet.getAccountId()),
   ]);
 
+  console.log(available, registeredTokens, tokenId);
+
   return (
-    MIN_DEPOSIT_PER_TOKEN.gt(new BN(available)) &&
+    new BN(available).lt(MIN_DEPOSIT_PER_TOKEN) &&
     !registeredTokens.includes(tokenId)
   );
 };
@@ -51,21 +54,17 @@ export const unregisterToken = (tokenId: string) => {
 };
 
 interface DepositOptions {
-  tokenId: string;
+  token: TokenMetadata;
   amount: string;
   msg?: string;
 }
-export const deposit = async ({
-  tokenId,
-  amount,
-  msg = '',
-}: DepositOptions) => {
+export const deposit = async ({ token, amount, msg = '' }: DepositOptions) => {
   return wallet.account().functionCall(
-    tokenId,
+    token.id,
     'ft_transfer_call',
     {
       receiver_id: REF_FI_CONTRACT_ID,
-      amount,
+      amount: toNonDivisibleNumber(token.decimals, amount),
       msg,
     },
     new BN('100000000000000'),

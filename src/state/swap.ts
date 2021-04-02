@@ -26,7 +26,8 @@ export const useSwap = ({
     : null;
 
   useEffect(() => {
-    if (tokenIn && tokenOut && tokenInAmount) {
+    setCanSwap(false);
+    if (tokenIn && tokenOut && tokenInAmount && tokenIn.id !== tokenOut.id) {
       setSwapError(null);
       estimateSwap({
         tokenIn,
