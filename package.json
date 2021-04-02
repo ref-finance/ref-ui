@@ -1,7 +1,7 @@
 {
   "name": "ref-ui",
   "version": "0.1.0",
-  "license": "MIT & APACHE-2",
+  "license": "MIT OR Apache-2.0",
   "scripts": {
     "build": "parcel build src/index.html --public-url ./",
     "start": "parcel src/index.html --open",
