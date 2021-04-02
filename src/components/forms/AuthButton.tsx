@@ -29,7 +29,7 @@ function AuthButton() {
         <button
           onClick={signIn}
           type="button"
-          className="bg-blue-500 hover:bg-blue-600 text-white my-4 h-10 w-40 border border-black flex-row-centered shadow-lg hover:bg-disabled rounded-lg transition-colors focus:outline-none"
+          className="bg-blue-500 hover:bg-white hover:text-blue-500 hover:border-2 hover:border-blue-500 text-white my-4 h-10 w-40 border-2 flex-row-centered shadow-lg hover:bg-disabled rounded-lg transition-colors focus:outline-none"
         >
           {' '}
           Sign In with NEAR
