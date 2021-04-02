@@ -29,6 +29,7 @@
   "dependencies": {
     "@svgr/parcel-plugin-svgr": "^5.5.0",
     "@types/mathjs": "^6.0.11",
+    "@types/react-burger-menu": "^2.8.0",
     "bn.js": "^5.2.0",
     "mathjs": "^9.3.0",
     "near-api-js": "^0.39.0",

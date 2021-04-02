@@ -4,7 +4,6 @@ import { slide as Menu } from 'react-burger-menu';
 import AuthButton from '~components/forms/AuthButton';
 import RefLogo from '~assets/reffi-logo.svg';
 import { wallet } from '~services/near';
-import { null } from 'mathjs';
 
 function MobileBar() {
   return (
@@ -58,7 +57,7 @@ function MobileBar() {
 function Anchor({ to, name }: { to: string; name: string }) {
   const location = useLocation();
   const isSelected = to === location.pathname;
-  if(!wallet.isSignedIn()) return null;
+  if (!wallet.isSignedIn()) return <p></p>;
 
   return (
     <Link to={to}>
