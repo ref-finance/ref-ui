@@ -1,13 +1,14 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { slide as Menu } from 'react-burger-menu';
-
 import AuthButton from '~components/forms/AuthButton';
 import RefLogo from '~assets/reffi-logo.svg';
+import { wallet } from '~services/near';
+import { null } from 'mathjs';
 
 function MobileBar() {
   return (
-    <section className="md:hidden w-full bg-white">
+    <section className="md:hidden w-full bg-secondary">
       <RefLogo className="m-auto w-40" height="70" />
       <Menu
         styles={{
@@ -48,6 +49,7 @@ function MobileBar() {
         <Anchor to="/portfolio" name="Portfolio" />
         <Anchor to="/" name="Swap" />
         <Anchor to="/management" name="Token Management" />
+        <AuthButton />
       </Menu>
     </section>
   );
@@ -56,11 +58,12 @@ function MobileBar() {
 function Anchor({ to, name }: { to: string; name: string }) {
   const location = useLocation();
   const isSelected = to === location.pathname;
+  if(!wallet.isSignedIn()) return null;
 
   return (
     <Link to={to}>
       <h2
-        className={`hover:text-gray-600 p-5 ${isSelected ? 'font-bold' : ''}`}
+        className={`hover:text-darkText p-5 ${isSelected ? 'font-bold' : ''}`}
       >
         {name}
       </h2>
@@ -70,7 +73,7 @@ function Anchor({ to, name }: { to: string; name: string }) {
 
 function DesktopBar() {
   return (
-    <nav className="hidden grid-cols-5 items-center text-center bg-white md:grid">
+    <nav className="hidden grid-cols-5 items-center text-center bg-secondary md:grid">
       <section className="my-5 mx-3">
         <RefLogo className="w-44" height="45" />
       </section>
@@ -80,7 +83,6 @@ function DesktopBar() {
       <section className="place-self-end mr-3">
         <AuthButton />
       </section>
-      {/* <Anchor href="/pools" name="Pools" /> */}
     </nav>
   );
 }

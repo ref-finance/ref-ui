@@ -27,14 +27,14 @@ export default function InputAmount({
         step="any"
         min="0"
         max={max}
-        className="focus:outline-none shadow bg-gray-500 appearance-none border rounded border-opacity-30 w-full py-2 px-3 text-3xl text-white leading-tight"
+        className="focus:outline-none shadow bg-inputBg appearance-none border rounded border-opacity-30 w-full py-2 px-3 text-3xl text-inputText leading-tight"
         type="number"
         placeholder="0.0"
         onChange={({ target }) => handleChange(target.value)}
       />
       {max ? (
         <button
-          className="absolute inset-y-0 right-0 items-center pr-2"
+          className="absolute inset-y-0 right-0 items-center p-4 hover:bg-hoverGray"
           type="button"
           onClick={() => handleChange(max)}
         >

@@ -19,7 +19,7 @@ export default function SelectToken({
     <MicroModal
       trigger={(open) => (
         <button className="focus:outline-none p-1" type="button" onClick={open}>
-          {selected || <DownArrow />}
+          {selected || <DownArrow className="stroke-current text-inputText" />}
         </button>
       )}
       overrides={{

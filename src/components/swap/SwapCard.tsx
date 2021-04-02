@@ -115,9 +115,9 @@ function SlippageView({
         <label className="font-semibold">Slippage Tolerance: </label>
         {validSlippages.map((slippage) => (
           <button
-            className={`hover:bg-black hover:text-white rounded w-20 p-2 mx-2 ${
+            className={`hover:bg-buttonBg hover:text-buttonText rounded w-20 p-2 mx-2 ${
               slippage === slippageTolerance &&
-              'bg-black text-white font-semibold'
+              'bg-buttonBg text-buttonText font-semibold'
             }`}
             type="button"
             onClick={() => onChange(slippage)}
@@ -170,7 +170,7 @@ export default function SwapCard() {
         max={
           toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0'
         }
-        tokens={allTokens.filter((token) => balances?.[token.id])}
+        tokens={allTokens}
         selectedToken={tokenIn}
         balances={balances}
         onSelectToken={(token) => setTokenIn(token)}

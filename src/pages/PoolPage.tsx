@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router';
-import FullCard from '~components/layout/FullCard';
 import TokenList from '../components/tokens/TokenList';
 import InputAmount from '../components/forms/InputAmount';
 import FormWrap from '../components/forms/FormWrap';

@@ -22,7 +22,7 @@ export default function Register() {
       canSubmit={!!selectedToken}
       onSubmit={handleSubmit}
     >
-      <h1 className="text-white text-2xl">Select token to register</h1>
+      <h1 className="text-darkText text-2xl">Select token to register</h1>
       <section className="text-center ">
         <SelectToken
           tokens={unRegisteredTokens}

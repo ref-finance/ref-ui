@@ -6,12 +6,24 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        backgroundGray: '#F4F5F7',
-        disabled: '#E6E7EB',
         primary: '#10B981',
-        secondary: colors.green,
+        primaryScale: colors.green,
+        secondary: '#F9FAFB',
+        secondaryScale: colors.gray,
+        darkText: colors.gray['600'],
+        inputBg: '#F9FAFB',
+        inputText: '#374151',
+        hoverGray: '#F3F4F6',
+        buttonBg: '#10B981',
+        buttonText: '#F9FAFB',
       },
     },
     plugins: [],
+  },
+  variants: {
+    extend: {
+      opacity: ['disabled'],
+      borderWidth: ['hover'],
+    },
   },
 };

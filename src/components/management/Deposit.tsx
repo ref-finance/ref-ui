@@ -22,7 +22,11 @@ export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
   };
 
   return (
-    <FormWrap buttonText="Deposit" onSubmit={handleSubmit}>
+    <FormWrap
+      buttonText="Deposit"
+      canSubmit={!!amount && !!selectedToken}
+      onSubmit={handleSubmit}
+    >
       {selectedToken && (
         <h2>
           You can deposit up to {max} {selectedToken.symbol}
