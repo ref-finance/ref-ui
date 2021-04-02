@@ -2,12 +2,10 @@ import React, { useState } from 'react';
 import { TokenMetadata } from '~services/token';
 import { Pool } from '~services/pool';
 import FormWrap from '~components/forms/FormWrap';
-import TabFormWrap from '~components/forms/TabFormWrap';
 import TokenAmount from '~components/forms/TokenAmount';
 import Alert from '~components/alert/Alert';
 import { useWhitelistTokens, useTokenBalances } from '~state/token';
 import { useSwap } from '../../state/swap';
-import * as math from 'mathjs';
 import {
   calculateExchangeRate,
   calculateFeeCharge,
@@ -15,48 +13,38 @@ import {
   toReadableNumber,
 } from '~utils/numbers';
 import Icon from '~components/tokens/Icon';
-import { Redirect } from 'react-router';
 import Loading from '~components/layout/Loading';
 import { wallet } from '~services/near';
+
+function SwapDetail({ title, value }: { title: string; value: string }) {
+  return (
+    <section className="grid grid-cols-2 py-1">
+      <p className="opacity-80">{title}</p>
+      <p className="text-right font-semibold">{value}</p>
+    </section>
+  );
+}
 
 function DetailView({
   pool,
   from,
   to,
+  minAmountOut,
 }: {
   pool: Pool;
   from: string;
   to: string;
+  minAmountOut: string;
 }) {
-  const [show, setShow] = useState<boolean>(false);
-  if (!pool || !to || !from) return null;
-
-  const feeCharge = calculateFeeCharge(pool.fee, from);
-  const afterFeeCharge = math.evaluate(`${from} - ${feeCharge}`);
-
-  if (!show)
-    return (
-      <>
-        <a href="#" onClick={() => setShow(true)}>
-          Details
-        </a>
-      </>
-    );
+  if(!pool) return null;
 
   return (
     <>
-      <a href="#" onClick={() => setShow(false)}>
-        Close Details
-      </a>
-      <RateView pool={pool} from={from} to={to} />
-      <p>Initial Trade Amount: {from}</p>
-      <p>
-        Trade Amount After fees: {afterFeeCharge} ({from} - {feeCharge})
-      </p>
-      <p>
-        Estimated Trade Result: {to} ({afterFeeCharge} *{' '}
-        {calculateExchangeRate(pool.fee, from, to)})
-      </p>
+      <SwapDetail title="Minimum received" value={minAmountOut} />
+      <SwapDetail
+        title="Swap Rate"
+        value={calculateExchangeRate(pool.fee, from, to)}
+      />
     </>
   );
 }
@@ -81,25 +69,7 @@ function FeeView({
   );
 }
 
-function RateView({
-  pool,
-  from,
-  to,
-}: {
-  pool?: Pool;
-  from: string;
-  to: string;
-}) {
-  if (!pool || !to) return null;
-  return (
-    <p>
-      <span className="font-semibold">Swap Rate:</span>{' '}
-      {calculateExchangeRate(pool.fee, from, to)}
-    </p>
-  );
-}
-
-function SlippageView({
+function SlippageSelector({
   slippageTolerance,
   minAmountOut,
   onChange,
@@ -112,7 +82,7 @@ function SlippageView({
 
   return (
     <>
-      <fieldset className="flex items-center">
+      <fieldset className="flex items-center mb-4">
         <label className="font-semibold">Slippage Tolerance: </label>
         {validSlippages.map((slippage) => (
           <button
@@ -127,7 +97,6 @@ function SlippageView({
           </button>
         ))}
       </fieldset>
-      {minAmountOut ? <p>{minAmountOut}</p> : null}
     </>
   );
 }
@@ -157,7 +126,6 @@ export default function SwapCard() {
 
   if (!allTokens) return <Loading />;
 
-  console.log(wallet.isSignedIn(), tokenIn, balances?.[tokenIn?.id]);
   const title =
     wallet.isSignedIn() &&
     tokenIn &&
@@ -192,12 +160,17 @@ export default function SwapCard() {
         balances={balances}
         onSelectToken={(token) => setTokenOut(token)}
       />
-      <SlippageView
+      <SlippageSelector
         slippageTolerance={slippageTolerance}
         minAmountOut={minAmountOut}
         onChange={setSlippageTolerance}
       />
-      <DetailView pool={pool} from={tokenInAmount} to={tokenOutAmount} />
+      <DetailView
+        pool={pool}
+        from={tokenInAmount}
+        to={tokenOutAmount}
+        minAmountOut={minAmountOut}
+      />
     </FormWrap>
   );
 }
