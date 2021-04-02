@@ -92,7 +92,7 @@ export const swap = async ({
     actions.unshift({
       methodName: 'storage_deposit',
       args: { account_id: wallet.getAccountId(), registration_only: false },
-      amount: '0.00125',
+      amount: '0.00084',
     });
   }
 
