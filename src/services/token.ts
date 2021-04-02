@@ -1,22 +1,17 @@
 import BN from 'bn.js';
 import {
-  near,
   ONE_YOCTO_NEAR,
   refFiFunctionCall,
   RefFiFunctionCallOptions,
   refFiManyFunctionCalls,
   refFiViewFunction,
+  Transaction,
   REF_FI_CONTRACT_ID,
   wallet,
+  executeMultipleTransactions,
 } from './near';
-import { KeyPair, utils } from 'near-api-js';
 import { currentStorageBalance, MIN_DEPOSIT_PER_TOKEN } from './account';
 import { toNonDivisibleNumber } from '~utils/numbers';
-import {
-  createTransaction,
-  functionCall,
-  Transaction,
-} from 'near-api-js/lib/transaction';
 
 export const checkTokenNeedsStorageDeposit = async (tokenId: string) => {
   const [registeredTokens, { available }] = await Promise.all([
@@ -64,45 +59,40 @@ interface DepositOptions {
 }
 export const deposit = async ({ token, amount, msg = '' }: DepositOptions) => {
   const transactions: Transaction[] = [
-    await wallet.createTransaction({
+    {
       receiverId: token.id,
-      actions: [
-        functionCall(
-          'ft_transfer_call',
-          {
+      functionCalls: [
+        {
+          methodName: 'ft_transfer_call',
+          args: {
             receiver_id: REF_FI_CONTRACT_ID,
             amount: toNonDivisibleNumber(token.decimals, amount),
             msg,
           },
-          new BN('100000000000000'),
-          new BN(utils.format.parseNearAmount(ONE_YOCTO_NEAR))
-        ),
+          amount: ONE_YOCTO_NEAR,
+        },
       ],
-    }),
+    },
   ];
 
   const needsStorage = await checkTokenNeedsStorageDeposit(token.id);
   if (needsStorage) {
-    transactions.unshift(
-      await wallet.createTransaction({
-        receiverId: REF_FI_CONTRACT_ID,
-        nonceOffset: 2,
-        actions: [
-          functionCall(
-            'storage_deposit',
-            {
-              account_id: wallet.getAccountId(),
-              registration_only: false,
-            },
-            new BN('30000000000000'),
-            new BN(utils.format.parseNearAmount('0.00125'))
-          ),
-        ],
-      })
-    );
+    transactions.unshift({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'storage_deposit',
+          args: {
+            account_id: wallet.getAccountId(),
+            registration_only: false,
+          },
+          amount: '0.00125',
+        },
+      ],
+    });
   }
 
-  return wallet.requestSignTransactions(transactions);
+  return executeMultipleTransactions(transactions);
 };
 
 interface WithdrawOptions {
