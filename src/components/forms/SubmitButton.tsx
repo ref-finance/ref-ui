@@ -24,7 +24,7 @@ function SubmitButton({ text, disabled, onClick }: SubmitButtonProps) {
         <button
           onClick={signIn}
           type="button"
-          className="bg-blue-500 hover:bg-blue-600 text-white py-4 mt-5 mb-5 items-center rounded-md w-full border border-black shadow-lg hover:bg-disabled rounded-lg transition-colors focus:outline-none"
+          className="bg-blue-500 hover:bg-white hover:text-blue-500 hover:border-2 hover:border-blue-500 border-2 text-white py-4 mt-5 mb-5 items-center rounded-md w-full shadow-lg hover:bg-disabled rounded-lg transition-colors focus:outline-none"
         >
           {' '}
           CONNECT WALLET
