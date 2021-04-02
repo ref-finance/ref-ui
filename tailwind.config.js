@@ -9,7 +9,7 @@ module.exports = {
         backgroundGray: '#F4F5F7',
         disabled: '#E6E7EB',
         primary: '#10B981',
-        secondary: '#0072CE',
+        secondary: colors.green,
       },
     },
     plugins: [],

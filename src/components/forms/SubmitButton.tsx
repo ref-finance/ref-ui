@@ -16,7 +16,7 @@ function SubmitButton({ text, disabled, onClick }: SubmitButtonProps) {
           type={onClick ? 'button' : 'submit'}
           disabled={disabled}
           onClick={onClick}
-          className="flex flex-row justify-center py-4 mt-5 mb-5 items-center rounded-md w-full bg-green-500 text-white hover:bg-green-300 hover:text-gray-800 disabled:text-gray-400  disabled:bg-gray-100"
+          className="flex flex-row justify-center py-4 mt-5 mb-5 items-center rounded-md w-full bg-secondary text-white hover:bg-green-300 hover:text-gray-800 disabled:text-gray-400  disabled:bg-gray-100"
         >
           <h1 className=" text-xl font-inter font-medium ">{text}</h1>
         </button>
