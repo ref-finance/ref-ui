@@ -20,7 +20,7 @@ export const useToken = (id: string) => {
 };
 
 export const useTokens = (ids: string[] = []) => {
-  const [tokens, setTokens] = useState<TokenMetadata[]>([]);
+  const [tokens, setTokens] = useState<TokenMetadata[]>();
 
   useEffect(() => {
     Promise.all<TokenMetadata>(ids.map((id) => getTokenMetadata(id))).then(

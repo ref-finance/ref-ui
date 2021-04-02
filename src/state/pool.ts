@@ -14,7 +14,7 @@ export const usePool = (id: number | string) => {
 };
 
 export const usePools = () => {
-  const [pools, setPools] = useState<Pool[]>([]);
+  const [pools, setPools] = useState<Pool[]>();
 
   useEffect(() => {
     getPools().then(setPools);

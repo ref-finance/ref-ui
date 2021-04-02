@@ -16,6 +16,7 @@ import { TokenMetadata } from '~services/token';
 import { useTokenBalances, useTokens } from '~state/token';
 import TokenAmount from '~components/forms/TokenAmount';
 import TabFormWrap from '~components/forms/TabFormWrap';
+import Loading from '~components/layout/Loading';
 
 interface ParamTypes {
   poolId: string;
@@ -40,7 +41,9 @@ function DetailColumn({ title, value }: TokenDetailColumnProps) {
 function Shares({ shares }: { shares: string }) {
   if (!shares) return null;
 
-  return <h2 className="text-lg pb-4 font-bold">My Shares: {shares}</h2>;
+  return (
+    <h2 className="text-lg pb-4 font-bold text-center">My Shares: {shares}</h2>
+  );
 }
 
 function PoolHeader({ pool, shares }: { pool: PoolDetails; shares: string }) {
@@ -54,7 +57,7 @@ function PoolHeader({ pool, shares }: { pool: PoolDetails; shares: string }) {
   );
   return (
     <div className="flex flex-col lg:pl-6 mt-8 mb-14">
-      <h1 className="font-normal text-xl pb-2">Pool Details</h1>
+      <h1 className="font-normal text-xl pb-2 text-center">Pool Details</h1>
       <Shares shares={shares} />
       <div className="grid grid-cols-2 gap-10">
         <DetailColumn title="Total Shares" value={pool.shareSupply} />
@@ -145,10 +148,10 @@ export default function PoolPage() {
   };
 
   // TODO: loading
-  if (!pool) return null;
+  if (!pool || !tokens) return <Loading />;
 
   return (
-    <section className="bg-gray-700 shadow-2xl rounded p-8 sm:w-full md:w-1/4 lg:w-1/2 m-auto">
+    <section className="bg-white w-2/3 m-auto px-10 py-5 rounded ring-2 ring-primary overflow-y-scroll">
       <PoolHeader pool={pool} shares={shares} />
       <TabFormWrap titles={['Add Liquidity', 'Remove Liquidity']}>
         <AddLiquidity pool={pool} tokens={tokens} />
