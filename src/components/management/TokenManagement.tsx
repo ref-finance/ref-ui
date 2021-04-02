@@ -18,7 +18,7 @@ function Portfolio() {
 
   return (
     <>
-      <TabFormWrap titles={['Deposits', 'Withdraws', 'Register']}>
+      <TabFormWrap titles={['Deposit', 'Withdraw', 'Register']}>
         <Deposit tokens={registeredTokens} />
         <Withdraw tokens={registeredTokens} />
         <Register />
