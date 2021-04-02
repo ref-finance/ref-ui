@@ -7,10 +7,16 @@ import TokenManagementPage from '~pages/TokenManagementPage';
 import PoolPage from '~pages/PoolPage';
 import PoolsPage from '~pages/PoolsPage';
 import SwapPage from '~pages/SwapPage';
+import { useCurrentStorageBalance } from '~state/account';
+import DepositNotification from '~components/alert/DepositNotification';
 
 function App() {
+  const storageBalances = useCurrentStorageBalance();
   return (
     <Router>
+      {storageBalances === null && (
+        <DepositNotification open={storageBalances === null} />
+      )}
       <div className="h-screen">
         <NavigationBar />
         <div className="flex flex-col justify-center h-4/5 ">

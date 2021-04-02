@@ -43,18 +43,9 @@ export interface AccountStorageView {
   total: string;
   available: string;
 }
-export const currentStorageBalance = (accountId: string) => {
+export const currentStorageBalance = (accountId: string):Promise<AccountStorageView> => {
   return refFiViewFunction({
     methodName: 'storage_balance_of',
     args: { account_id: accountId },
-  });
-};
-
-export const initializeAccount = async () => {
-  const balances = await currentStorageBalance(wallet.getAccountId());
-  if (balances) return balances;
-
-  return depositStorage({
-    accountId: wallet.getAccountId(),
   });
 };

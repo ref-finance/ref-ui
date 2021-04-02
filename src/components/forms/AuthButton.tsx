@@ -1,17 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { wallet } from '../../services/near';
-import { initializeAccount } from '../../services/account';
 
 function AuthButton() {
   const [accountId, setAccountId] = useState(wallet.getAccountId());
   const history = useHistory();
-
-  useEffect(() => {
-    if (accountId) {
-      initializeAccount();
-    }
-  }, [accountId]);
 
   const signout = async () => {
     wallet.signOut();
