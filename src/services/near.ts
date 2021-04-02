@@ -74,9 +74,10 @@ export const executeMultipleTransactions = async (
   transactions: Transaction[]
 ) => {
   const nearTransactions = await Promise.all(
-    transactions.map((t) => {
+    transactions.map((t, i) => {
       return wallet.createTransaction({
         receiverId: t.receiverId,
+        nonceOffset: i + 1,
         actions: t.functionCalls.map((fc) =>
           functionCall(
             fc.methodName,

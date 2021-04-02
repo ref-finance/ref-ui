@@ -7,7 +7,7 @@ import {
   wallet,
 } from './near';
 
-export const MIN_DEPOSIT_PER_TOKEN = new BN('1250000000000000000000');
+export const MIN_DEPOSIT_PER_TOKEN = new BN('800000000000000000000');
 
 interface DepositStorageOptions {
   accountId?: string;
@@ -56,7 +56,6 @@ export const initializeAccount = async () => {
 
   return depositStorage({
     accountId: wallet.getAccountId(),
-    registrationOnly: false,
   });
 };
 
