@@ -13,10 +13,11 @@ function TokenManagement() {
 
   return (
     <>
-      <TabFormWrap titles={['Deposit', 'Withdraw']}>
+      <TabFormWrap titles={['Deposit', 'Withdraw']}>  
         <Deposit tokens={tokens} />
         <Withdraw tokens={userTokens} />
       </TabFormWrap>
+      <p className="text-gray-400 text-center">Use this to deposit or withdraw tokens from the exchange.</p>
     </>
   );
 }
