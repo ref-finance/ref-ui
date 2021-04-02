@@ -62,7 +62,9 @@ function Anchor({ to, name }: { to: string; name: string }) {
   return (
     <Link to={to}>
       <h2
-        className={`hover:text-darkText p-5 ${isSelected ? 'font-bold' : ''}`}
+        className={`hover:text-darkText text-xl p-5 ${
+          isSelected ? 'font-bold' : ''
+        }`}
       >
         {name}
       </h2>
