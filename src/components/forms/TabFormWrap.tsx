@@ -8,7 +8,7 @@ export default function TabFormWrap({
 
   return (
     <section className="flex justify-center">
-      <section className="m-8 2xl:w-1/3 xl:1/2 md:w-8/12 sm:w-full">
+      <section className="m-8">
         <nav className="flex flex-col sm:flex-row">
           {titles.map((title, i) => (
             <button

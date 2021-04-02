@@ -158,7 +158,7 @@ export default function SwapCard() {
   };
 
   return (
-    <FormWrap buttonText="Swap" canSubmit={canSwap} onSubmit={handleSubmit}>
+    <FormWrap title="Swap" canSubmit={canSwap} onSubmit={handleSubmit}>
       {swapError && <Alert level="error" message={swapError.message} />}
       <FeeView pool={pool} amount={tokenInAmount} token={tokenIn} />
       <TokenAmount

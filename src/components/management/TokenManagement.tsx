@@ -18,13 +18,6 @@ function Portfolio() {
 
   return (
     <>
-      <h1 className="font-semibold font-inter pt-8">Portfolio</h1>
-      <TokenList
-        tokens={registeredTokens}
-        render={(token) => (
-          <p>{toReadableNumber(token.decimals, balances[token.id])}</p>
-        )}
-      />
       <TabFormWrap titles={['Deposits', 'Withdraws', 'Register']}>
         <Deposit tokens={registeredTokens} />
         <Withdraw tokens={registeredTokens} />

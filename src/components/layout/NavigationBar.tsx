@@ -1,13 +1,8 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import AuthButton from '~components/forms/AuthButton';
 import RefLogo from '~assets/reffi-logo.svg';
-
-interface AnchorProps {
-  href: string;
-  name: string;
-}
 
 function BottomBar() {
   return (
@@ -27,31 +22,31 @@ function BottomBar() {
   );
 }
 
-function Anchor({ href, name }: AnchorProps) {
-  const routes = ['swap', 'liquidity', ''];
+function Anchor({ to, name }: { to: string; name: string }) {
   const location = useLocation();
+  const isSelected = to === location.pathname;
 
-  const selectedRoute = routes.find((route) =>
-    location.pathname.includes(route)
-  );
-
-  const isSelected = href === `/${selectedRoute}`;
   return (
-    <a href={href}>
+    <Link to={to}>
       <h2 className={`hover:text-gray-600 ${isSelected ? 'font-bold' : ''}`}>
         {name}
       </h2>
-    </a>
+    </Link>
   );
 }
 
 function SideBar() {
   return (
-    <nav>
-      <RefLogo height="25" />
-      <AuthButton />
-      <Anchor href="/portfolio" name="Portfolio" />
-      <Anchor href="/" name="Swap" />
+    <nav className="grid grid-cols-5 items-center text-center bg-white">
+      <section className="my-5 mx-3">
+        <RefLogo className="w-44" height="45" />
+      </section>
+      <Anchor to="/portfolio" name="Portfolio" />
+      <Anchor to="/" name="Swap" />
+      <Anchor to="/management" name="Token Management" />
+      <section className="place-self-end mr-3">
+        <AuthButton />
+      </section>
       {/* <Anchor href="/pools" name="Pools" /> */}
     </nav>
   );
