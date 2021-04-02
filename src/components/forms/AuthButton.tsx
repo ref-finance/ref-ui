@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router';
 import { wallet } from '../../services/near';
-import { initializeAccount, signIn, signOut } from '../../services/account';
+import { initializeAccount } from '../../services/account';
 
 function AuthButton() {
-  const accountId = wallet.getAccountId();
+  const [accountId, setAccountId] = useState(wallet.getAccountId());
+  const history = useHistory();
 
   useEffect(() => {
     if (accountId) {
@@ -11,12 +13,18 @@ function AuthButton() {
     }
   }, [accountId]);
 
+  const signout = async () => {
+    wallet.signOut();
+    setAccountId(null);
+    history.push('/');
+  };
+
   return (
     <>
-      {wallet.isSignedIn() ? (
+      {accountId ? (
         <>
           <button
-            onClick={signOut}
+            onClick={signout}
             type="button"
             className="bg-red-600 hover:bg-white hover:text-red-600 hover:border-2 hover:border-red-600 text-white flex flex-col my-4 py-1 h-15 w-40 border-2  shadow-lg hover:bg-disabled rounded-lg transition-colors focus:outline-none"
           >
@@ -27,7 +35,7 @@ function AuthButton() {
         </>
       ) : (
         <button
-          onClick={signIn}
+          onClick={() => wallet.requestSignIn()}
           type="button"
           className="bg-blue-500 hover:bg-white hover:text-blue-500 hover:border-2 hover:border-blue-500 text-white my-4 h-10 w-40 border-2 flex-row-centered shadow-lg hover:bg-disabled rounded-lg transition-colors focus:outline-none"
         >
@@ -36,7 +44,7 @@ function AuthButton() {
         </button>
       )}
     </>
-  );}
-
+  );
+}
 
 export default AuthButton;

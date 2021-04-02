@@ -58,13 +58,3 @@ export const initializeAccount = async () => {
     accountId: wallet.getAccountId(),
   });
 };
-
-export const signIn = () => {
-  wallet.requestSignIn(REF_FI_CONTRACT_ID, 'ref-finance');
-};
-
-export const signOut = () => {
-  wallet.signOut();
-  // reload page
-  history.go(0);
-};
