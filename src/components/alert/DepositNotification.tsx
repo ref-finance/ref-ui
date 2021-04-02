@@ -4,7 +4,6 @@ import { depositStorage } from '~services/account';
 import { wallet } from '~services/near';
 
 export default function DepositNotification({ open }: { open: boolean }) {
-  console.log(open);
   return (
     <MicroModal openInitially={open}>
       {(close) => (
@@ -19,7 +18,14 @@ export default function DepositNotification({ open }: { open: boolean }) {
           >
             Yes
           </button>
-          <button onClick={() => close()}>No</button>
+          <button
+            onClick={() => {
+              wallet.signOut();
+              window.location.replace('/');
+            }}
+          >
+            No
+          </button>
         </>
       )}
     </MicroModal>

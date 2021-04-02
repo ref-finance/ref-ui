@@ -12,6 +12,7 @@ import DepositNotification from '~components/alert/DepositNotification';
 
 function App() {
   const storageBalances = useCurrentStorageBalance();
+
   return (
     <Router>
       {storageBalances === null && (
