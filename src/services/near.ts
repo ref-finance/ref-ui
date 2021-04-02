@@ -2,7 +2,7 @@ import { Near, keyStores, utils } from 'near-api-js';
 import BN from 'bn.js';
 import getConfig from './config';
 import SpecialWallet from './SpecialWallet';
-import { functionCall } from 'near-api-js/lib/transaction';
+import { createTransaction, functionCall } from 'near-api-js/lib/transaction';
 
 export const REF_FI_CONTRACT_ID =
   process.env.REF_FI_CONTRACT_ID || 'dev-1617199123305-1287489';
@@ -63,4 +63,31 @@ export const refFiManyFunctionCalls = (
   return wallet
     .account()
     .sendTransactionWithActions(REF_FI_CONTRACT_ID, actions);
+};
+
+export interface Transaction {
+  receiverId: string;
+  functionCalls: RefFiFunctionCallOptions[];
+}
+
+export const executeMultipleTransactions = async (
+  transactions: Transaction[]
+) => {
+  const nearTransactions = await Promise.all(
+    transactions.map((t) => {
+      return wallet.createTransaction({
+        receiverId: t.receiverId,
+        actions: t.functionCalls.map((fc) =>
+          functionCall(
+            fc.methodName,
+            fc.args,
+            getGas(fc.gas),
+            getAmount(fc.amount)
+          )
+        ),
+      });
+    })
+  );
+
+  return wallet.requestSignTransactions(nearTransactions);
 };
