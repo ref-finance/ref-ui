@@ -11,7 +11,7 @@ import SwapPage from '~pages/SwapPage';
 function App() {
   return (
     <Router>
-      <div className="bg-gray-600 h-screen ">
+      <div className="h-screen ">
         <NavigationBar />
         <div className="flex flex-col justify-center h-4/5">
           <Switch>

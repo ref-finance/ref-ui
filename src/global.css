@@ -22,6 +22,8 @@ html {
 
 body {
   margin: 0;
+  background: url(./assets/images/pixel-magic-background.jpg) center;
+  background-size: cover;
 }
 
 main {

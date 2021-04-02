@@ -27,11 +27,5 @@ module.exports = {
       },
     },
   },
-  variants: {
-    extend: {
-      backgroundColor: ['#F4F5F7'],
-      textCol,
-    },
-  },
   plugins: [],
 };
