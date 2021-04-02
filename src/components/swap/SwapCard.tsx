@@ -36,7 +36,7 @@ function DetailView({
   to: string;
   minAmountOut: string;
 }) {
-  if(!pool) return null;
+  if (!pool || !from || !to) return null;
 
   return (
     <>
