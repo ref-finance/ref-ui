@@ -1,35 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import FormWrap from '../forms/FormWrap';
-import { registerToken, TokenMetadata } from '../../services/token';
-import SelectToken from '~components/forms/SelectToken';
-import Icon from '~components/tokens/Icon';
-import { useUnregisteredTokens } from '~state/token';
+import { depositStorageToCoverToken } from '~services/account';
+import { wallet } from '~services/near';
 
 export default function Register() {
-  const [selectedToken, setSelectedToken] = useState<TokenMetadata>();
-  const unRegisteredTokens = useUnregisteredTokens();
+  const [count, setCount] = useState<number>();
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (selectedToken) {
-      registerToken(selectedToken.id);
-    }
+    depositStorageToCoverToken();
   };
 
   return (
     <FormWrap
-      buttonText="Register"
-      canSubmit={!!selectedToken}
+      buttonText="Storage Deposit"
+      canSubmit={!!count}
       onSubmit={handleSubmit}
     >
-      <h1 className="text-darkText text-2xl">Select token to register</h1>
-      <section className="text-center ">
-        <SelectToken
-          tokens={unRegisteredTokens}
-          selected={selectedToken && <Icon token={selectedToken} />}
-          onSelect={setSelectedToken}
-        />
-      </section>
+      <h2 className="text-darkText text-2xl">Deposit NEAR to hold tokens</h2>
+      <input
+        className="focus:outline-none shadow bg-inputBg appearance-none border rounded border-opacity-30 w-full py-2 px-3 text-3xl text-inputText leading-tight"
+        type="number"
+        min="0"
+        placeholder="I'll be depositing # tokens"
+        value={count}
+        onChange={({ target }) => setCount(Number(target.value))}
+      />
     </FormWrap>
   );
 }

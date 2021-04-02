@@ -1,4 +1,5 @@
 import BN from 'bn.js';
+import { utils } from 'near-api-js';
 import {
   refFiFunctionCall,
   refFiViewFunction,
@@ -17,7 +18,7 @@ interface DepositStorageOptions {
 export const depositStorage = ({
   accountId,
   registrationOnly = true,
-  amount = '0.1',
+  amount = '0.01',
 }: DepositStorageOptions) => {
   return refFiFunctionCall({
     methodName: 'storage_deposit',
@@ -26,11 +27,15 @@ export const depositStorage = ({
   });
 };
 
-export const depositStorageToCoverToken = () => {
+export const depositStorageToCoverToken = (tokenCount: number = 1) => {
+  const amount = utils.format.formatNearAmount(
+    MIN_DEPOSIT_PER_TOKEN.mul(new BN(tokenCount)).toString()
+  );
+
   return depositStorage({
     accountId: wallet.getAccountId(),
     registrationOnly: false,
-    amount: '0.00125', // 0.0125 1E20 vs 1E19
+    amount, // 0.0125 1E20 vs 1E19
   });
 };
 
@@ -51,6 +56,7 @@ export const initializeAccount = async () => {
 
   return depositStorage({
     accountId: wallet.getAccountId(),
+    registrationOnly: false,
   });
 };
 

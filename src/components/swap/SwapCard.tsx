@@ -17,6 +17,7 @@ import {
 import Icon from '~components/tokens/Icon';
 import { Redirect } from 'react-router';
 import Loading from '~components/layout/Loading';
+import { wallet } from '~services/near';
 
 function DetailView({
   pool,
@@ -156,13 +157,21 @@ export default function SwapCard() {
 
   if (!allTokens) return <Loading />;
 
+  console.log(wallet.isSignedIn(), tokenIn, balances?.[tokenIn?.id]);
+  const title =
+    wallet.isSignedIn() &&
+    tokenIn &&
+    (!balances?.[tokenIn.id] || balances?.[tokenIn.id] === '0')
+      ? 'Make a deposit to swap'
+      : 'Swap';
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     makeSwap();
   };
 
   return (
-    <FormWrap title="Swap" canSubmit={canSwap} onSubmit={handleSubmit}>
+    <FormWrap title={title} canSubmit={canSwap} onSubmit={handleSubmit}>
       {swapError && <Alert level="error" message={swapError.message} />}
       <FeeView pool={pool} amount={tokenInAmount} token={tokenIn} />
       <TokenAmount

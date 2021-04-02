@@ -7,6 +7,7 @@ import {
   getUserRegisteredTokens,
   TokenBalancesView,
   TokenMetadata,
+  checkTokenNeedsStorageDeposit,
 } from '~services/token';
 
 export const useToken = (id: string) => {
@@ -96,4 +97,14 @@ export const useUnregisteredTokens = () => {
   }, []);
 
   return tokens;
+};
+
+export const useNeedToPayStorage = (tokenId: string) => {
+  const [needsToPayStorage, setNeedsToPayStorage] = useState<boolean>();
+
+  useEffect(() => {
+    checkTokenNeedsStorageDeposit(tokenId).then(setNeedsToPayStorage);
+  }, [tokenId]);
+
+  return needsToPayStorage;
 };

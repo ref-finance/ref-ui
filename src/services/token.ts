@@ -18,8 +18,6 @@ export const checkTokenNeedsStorageDeposit = async (tokenId: string) => {
     currentStorageBalance(wallet.getAccountId()),
   ]);
 
-  console.log(available, registeredTokens, tokenId);
-
   return (
     new BN(available).lt(MIN_DEPOSIT_PER_TOKEN) &&
     !registeredTokens.includes(tokenId)

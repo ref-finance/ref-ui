@@ -74,9 +74,9 @@ function Anchor({ to, name }: { to: string; name: string }) {
 function DesktopBar() {
   return (
     <nav className="hidden grid-cols-5 items-center text-center bg-secondary md:grid">
-      <section className="my-5 mx-3">
+      <Link to="/" className="my-5 mx-3">
         <RefLogo className="w-44" height="45" />
-      </section>
+      </Link>
       <Anchor to="/portfolio" name="Portfolio" />
       <Anchor to="/" name="Swap" />
       <Anchor to="/management" name="Token Management" />

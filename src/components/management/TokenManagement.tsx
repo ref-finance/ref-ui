@@ -1,30 +1,34 @@
 import React from 'react';
-import { useUserRegisteredTokens } from '~state/token';
+import {
+  useNeedToPayStorage,
+  useUserRegisteredTokens,
+  useWhitelistTokens,
+} from '~state/token';
 import Loading from '~components/layout/Loading';
 import TabFormWrap from '~components/forms/TabFormWrap';
 import NewUserPortfolio from './NewUserPortfolio';
 import Deposit from './Deposit';
 import Withdraw from './Withdraw';
-import Register from './Register';
 
-function Portfolio() {
-  const registeredTokens = useUserRegisteredTokens();
+function TokenManagement() {
+  const tokens = useWhitelistTokens();
+  const userTokens = useUserRegisteredTokens();
+  const needsStorage = useNeedToPayStorage();
 
-  if (!registeredTokens) return <Loading />;
+  if (!tokens && !userTokens) return <Loading />;
 
-  if (registeredTokens.length === 0) {
+  if (userTokens.length === 0 && needsStorage) {
     return <NewUserPortfolio />;
   }
 
   return (
     <>
-      <TabFormWrap titles={['Deposit', 'Withdraw', 'Register']}>
-        <Deposit tokens={registeredTokens} />
-        <Withdraw tokens={registeredTokens} />
-        <Register />
+      <TabFormWrap titles={['Deposit', 'Withdraw']}>
+        <Deposit tokens={tokens} />
+        <Withdraw tokens={userTokens} />
       </TabFormWrap>
     </>
   );
 }
 
-export default Portfolio;
+export default TokenManagement;
