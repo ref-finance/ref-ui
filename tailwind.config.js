@@ -24,6 +24,7 @@ module.exports = {
     extend: {
       opacity: ['disabled'],
       borderWidth: ['hover'],
+      cursor: ['disabled'],
     },
   },
 };
