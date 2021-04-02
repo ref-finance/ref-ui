@@ -4,7 +4,7 @@ import SwapCard from '~components/swap/SwapCard';
 
 function SwapPage() {
   return (
-    <div className="flex justify-center">
+    <div className="place-self-center">
       <SwapCard />
     </div>
   );

@@ -16,6 +16,7 @@ import {
 } from '~utils/numbers';
 import Icon from '~components/tokens/Icon';
 import { Redirect } from 'react-router';
+import Loading from '~components/layout/Loading';
 
 function DetailView({
   pool,
@@ -152,6 +153,8 @@ export default function SwapCard() {
     tokenOut: tokenOut,
     slippageTolerance,
   });
+
+  if (!allTokens) return <Loading />;
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();

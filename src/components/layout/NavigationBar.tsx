@@ -1,24 +1,55 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { slide as Menu } from 'react-burger-menu';
 
 import AuthButton from '~components/forms/AuthButton';
 import RefLogo from '~assets/reffi-logo.svg';
 
-function BottomBar() {
+function MobileBar() {
   return (
-    <div className="flex lg:hidden fixed w-screen h-28  bg-white bottom-0 z-10 border-t shadow-md">
-      <div className="flex flex-row justify-between w-full items-center px-4">
-        <a href="/portfolio">
-          <h2 className="font-inter">Portfolio</h2>
-        </a>
-        <a href="/">
-          <h2>Swap</h2>
-        </a>
-        <a href="/liquidity">
-          <h2>Provide Liquidity</h2>
-        </a>
-      </div>
-    </div>
+    <section className="md:hidden w-full bg-white">
+      <RefLogo className="m-auto w-40" height="70" />
+      <Menu
+        styles={{
+          bmBurgerButton: {
+            position: 'fixed',
+            width: '2rem',
+            height: '1.6rem',
+            left: '1.5rem',
+            top: '1.5rem',
+          },
+          bmBurgerBars: {
+            background: '#000000',
+          },
+          bmBurgerBarsHover: {
+            background: '#a90000',
+          },
+          bmCrossButton: {
+            height: '24px',
+            width: '24px',
+          },
+          bmCross: {
+            background: '#bdc3c7',
+          },
+          bmMenuWrap: {
+            position: 'fixed',
+            height: '100%',
+          },
+          bmMenu: {
+            background: '#FFFFFF',
+            padding: '2.5em 1.5em 0',
+            fontSize: '1.15em',
+          },
+          bmMorphShape: {
+            fill: '#373a47',
+          },
+        }}
+      >
+        <Anchor to="/portfolio" name="Portfolio" />
+        <Anchor to="/" name="Swap" />
+        <Anchor to="/management" name="Token Management" />
+      </Menu>
+    </section>
   );
 }
 
@@ -28,16 +59,18 @@ function Anchor({ to, name }: { to: string; name: string }) {
 
   return (
     <Link to={to}>
-      <h2 className={`hover:text-gray-600 ${isSelected ? 'font-bold' : ''}`}>
+      <h2
+        className={`hover:text-gray-600 p-5 ${isSelected ? 'font-bold' : ''}`}
+      >
         {name}
       </h2>
     </Link>
   );
 }
 
-function SideBar() {
+function DesktopBar() {
   return (
-    <nav className="grid grid-cols-5 items-center text-center bg-white">
+    <nav className="hidden grid-cols-5 items-center text-center bg-white md:grid">
       <section className="my-5 mx-3">
         <RefLogo className="w-44" height="45" />
       </section>
@@ -55,8 +88,8 @@ function SideBar() {
 function NavigationBar() {
   return (
     <div>
-      <SideBar />
-      <BottomBar />
+      <DesktopBar />
+      <MobileBar />
     </div>
   );
 }

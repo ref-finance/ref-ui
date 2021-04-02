@@ -1,15 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { getUserRegisteredTokens } from '../../services/token';
+import React, { useEffect } from 'react';
 import { wallet } from '../../services/near';
 import { initializeAccount, signIn, signOut } from '../../services/account';
 
 function AuthButton() {
-  const [authorizedTokens, setAuthorizedTokens] = useState([]);
   const accountId = wallet.getAccountId();
 
   useEffect(() => {
     if (accountId) {
-      getUserRegisteredTokens().then((res) => setAuthorizedTokens(res));
       initializeAccount();
     }
   }, [accountId]);

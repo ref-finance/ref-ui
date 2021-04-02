@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router';
 import FullCard from '~components/layout/FullCard';
 import TokenList from '../components/tokens/TokenList';
-import SelectToken from '../components/forms/SelectToken';
 import InputAmount from '../components/forms/InputAmount';
 import FormWrap from '../components/forms/FormWrap';
 import { usePool } from '../state/pool';
@@ -149,13 +148,13 @@ export default function PoolPage() {
   if (!pool) return null;
 
   return (
-    <FullCard>
+    <section className="bg-gray-700 shadow-2xl rounded p-8 sm:w-full md:w-1/4 lg:w-1/2 m-auto">
       <PoolHeader pool={pool} shares={shares} />
       <TabFormWrap titles={['Add Liquidity', 'Remove Liquidity']}>
         <AddLiquidity pool={pool} tokens={tokens} />
         <RemoveLiquidity pool={pool} shares={shares} />
       </TabFormWrap>
       <TokenList tokens={tokens} render={render} />
-    </FullCard>
+    </section>
   );
 }

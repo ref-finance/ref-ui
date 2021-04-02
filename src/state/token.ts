@@ -32,7 +32,7 @@ export const useTokens = (ids: string[] = []) => {
 };
 
 export const useWhitelistTokens = () => {
-  const [tokens, setTokens] = useState<TokenMetadata[]>([]);
+  const [tokens, setTokens] = useState<TokenMetadata[]>();
 
   useEffect(() => {
     getWhitelistedTokens()
@@ -46,7 +46,7 @@ export const useWhitelistTokens = () => {
 };
 
 export const useUserRegisteredTokens = () => {
-  const [tokens, setTokens] = useState<TokenMetadata[]>([]);
+  const [tokens, setTokens] = useState<TokenMetadata[]>();
 
   useEffect(() => {
     getUserRegisteredTokens()

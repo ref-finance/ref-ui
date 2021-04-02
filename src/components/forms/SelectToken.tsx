@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import MicroModal from 'react-micro-modal';
 import TokenList from '../tokens/TokenList';
 import { TokenMetadata } from '../../services/token';
 import DownArrow from '../../assets/misc/select-arrow.svg';
-import { render } from 'react-dom';
 
 export default function SelectToken({
   tokens,
