@@ -18,7 +18,7 @@ function AuthButton() {
           <button
             onClick={signOut}
             type="button"
-            className="bg-red-500 hover:bg-red-600 text-white flex flex-col my-4 py-1 h-15 w-40 border border-black shadow-lg hover:bg-disabled rounded-lg transition-colors"
+            className="bg-red-600 hover:bg-white hover:text-red-600 hover:border-2 hover:border-red-600 text-white flex flex-col my-4 py-1 h-15 w-40 border-2  shadow-lg hover:bg-disabled rounded-lg transition-colors focus:outline-none"
           >
             {' '}
             <p className="w-full">SIGN OUT</p>
@@ -29,14 +29,14 @@ function AuthButton() {
         <button
           onClick={signIn}
           type="button"
-          className="bg-blue-500 hover:bg-blue-600 text-white my-4 h-10 w-40 border border-black flex-row-centered shadow-lg hover:bg-disabled rounded-lg transition-colors"
+          className="bg-blue-500 hover:bg-blue-600 text-white my-4 h-10 w-40 border border-black flex-row-centered shadow-lg hover:bg-disabled rounded-lg transition-colors focus:outline-none"
         >
           {' '}
           Sign In with NEAR
         </button>
       )}
     </>
-  );
-}
+  );}
+
 
 export default AuthButton;

@@ -79,7 +79,7 @@ function DesktopBar() {
       </Link>
       <Anchor to="/portfolio" name="Portfolio" />
       <Anchor to="/" name="Swap" />
-      <Anchor to="/management" name="Token Management" />
+      <Anchor to="/management" name="Deposit / Withdraw" />
       <section className="place-self-end mr-3">
         <AuthButton />
       </section>
