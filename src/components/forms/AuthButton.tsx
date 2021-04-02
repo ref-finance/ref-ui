@@ -21,7 +21,7 @@ function AuthButton() {
           <button
             onClick={signOut}
             type="button"
-            className="flex flex-col my-4 py-1 h-15 w-40 border border-black shadow-lg hover:bg-disabledGray rounded-lg transition-colors"
+            className="flex flex-col my-4 py-1 h-15 w-40 border border-black shadow-lg hover:bg-disabled rounded-lg transition-colors"
           >
             {' '}
             <p className="w-full">SIGN OUT</p>
@@ -32,7 +32,7 @@ function AuthButton() {
         <button
           onClick={signIn}
           type="button"
-          className="my-4 h-10 w-40 border border-black flex-row-centered shadow-lg hover:bg-disabledGray rounded-lg transition-colors"
+          className="my-4 h-10 w-40 border border-black flex-row-centered shadow-lg hover:bg-disabled rounded-lg transition-colors"
         >
           {' '}
           Sign In with NEAR

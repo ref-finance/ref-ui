@@ -24,7 +24,7 @@ function SubmitButton({ text, disabled, onClick }: SubmitButtonProps) {
         <button
           onClick={signIn}
           type="button"
-          className="my-4 h-10 w-full border border-black flex-row-centered shadow-lg hover:bg-disabledGray rounded-lg transition-colors"
+          className="my-4 h-10 w-full border border-black flex-row-centered shadow-lg hover:bg-disabled rounded-lg transition-colors"
         >
           {' '}
           Sign in to continue
