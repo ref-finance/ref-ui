@@ -43,7 +43,9 @@ export interface AccountStorageView {
   total: string;
   available: string;
 }
-export const currentStorageBalance = (accountId: string):Promise<AccountStorageView> => {
+export const currentStorageBalance = (
+  accountId: string
+): Promise<AccountStorageView> => {
   return refFiViewFunction({
     methodName: 'storage_balance_of',
     args: { account_id: accountId },
