@@ -1,5 +1,6 @@
 import { toNonDivisibleNumber, toReadableNumber } from '../utils/numbers';
 import {
+  near,
   ONE_YOCTO_NEAR,
   RefFiFunctionCallOptions,
   refFiManyFunctionCalls,
@@ -9,6 +10,7 @@ import {
 import { TokenMetadata } from './ft-contract';
 import { getIdealSwapPool, Pool } from './pool';
 import { checkTokenNeedsStorageDeposit } from './token';
+import { JsonRpcProvider } from 'near-api-js/lib/providers';
 
 interface EstimateSwapOptions {
   tokenIn: TokenMetadata;
@@ -94,4 +96,11 @@ export const swap = async ({
   }
 
   return refFiManyFunctionCalls(actions);
+};
+
+export const checkSwap = (txHash: string) => {
+  return (near.connection.provider as JsonRpcProvider).sendJsonRpc('tx', [
+    txHash,
+    wallet.getAccountId(),
+  ]);
 };

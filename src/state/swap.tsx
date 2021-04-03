@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import { Pool } from '~services/pool';
 import { TokenMetadata } from '~services/ft-contract';
 import { percentLess } from '~utils/numbers';
-import { estimateSwap, swap } from '../services/swap';
+import { checkSwap, estimateSwap, swap } from '../services/swap';
+import { useHistory, useLocation } from 'react-router';
+import { Link } from 'react-router-dom';
 
 interface SwapOptions {
   tokenIn: TokenMetadata;
@@ -21,13 +24,29 @@ export const useSwap = ({
   const [canSwap, setCanSwap] = useState<boolean>();
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
   const [swapError, setSwapError] = useState<Error>();
+
+  const { search } = useLocation();
+  const history = useHistory();
+  const txHash = new URLSearchParams(search).get('transactionHashes');
+  if (txHash) {
+    toast(
+      <a
+        className="text-primary font-semibold"
+        href={`https://explorer.testnet.near.org/transactions/${txHash}`}
+        target="_blank"
+      >
+        Swap successful. Click to view
+      </a>
+    );
+    history.replace('');
+  }
+
   const minAmountOut = tokenOutAmount
     ? String(percentLess(slippageTolerance, tokenOutAmount))
     : null;
 
   useEffect(() => {
     setCanSwap(false);
-    console.log(tokenInAmount);
     if (tokenIn && tokenOut && tokenInAmount && tokenIn.id !== tokenOut.id) {
       setSwapError(null);
       estimateSwap({
