@@ -26,6 +26,49 @@ export const checkTokenNeedsStorageDeposit = async (tokenId: string) => {
   );
 };
 
+export const registerTokenAndExchange = async (tokenId: string) => {
+  const transactions: Transaction[] = [];
+  const actions: RefFiFunctionCallOptions[] = [
+    {
+      methodName: 'register_tokens',
+      args: { token_ids: [tokenId] },
+    },
+  ];
+
+  const needsStorageDeposit = await checkTokenNeedsStorageDeposit(tokenId);
+  if (needsStorageDeposit) {
+    actions.unshift({
+      methodName: 'storage_deposit',
+      args: { account_id: wallet.getAccountId(), registration_only: false },
+      amount: '0.00084',
+    });
+  }
+
+  transactions.push({
+    receiverId: REF_FI_CONTRACT_ID,
+    functionCalls: actions,
+  });
+
+  const exchangeBalanceAtFt = await ftGetStorageBalance(
+    tokenId,
+    REF_FI_CONTRACT_ID
+  );
+  if (!exchangeBalanceAtFt || exchangeBalanceAtFt.total === '0') {
+    transactions.push({
+      receiverId: tokenId,
+      functionCalls: [
+        {
+          methodName: 'storage_deposit',
+          args: { account_id: REF_FI_CONTRACT_ID, registration_only: true },
+          amount: '0.1',
+        },
+      ],
+    });
+  }
+
+  return executeMultipleTransactions(transactions);
+};
+
 export const registerToken = async (tokenId: string) => {
   const actions: RefFiFunctionCallOptions[] = [
     {
