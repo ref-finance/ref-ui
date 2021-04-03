@@ -1,8 +1,13 @@
 import BN from 'bn.js';
 import * as math from 'mathjs';
-import { utils } from 'near-api-js';
 
 const BPS_CONVERSION = 10000;
+
+const ROUNDING_OFFSETS: BN[] = [];
+const BN10 = new BN(10);
+for (let i = 0, offset = new BN(5); i < 24; i++, offset = offset.mul(BN10)) {
+  ROUNDING_OFFSETS[i] = offset;
+}
 
 export const sumBN = (...args: string[]): string => {
   return args
@@ -18,9 +23,16 @@ export const toReadableNumber = (
 ): string => {
   if (!decimals) return number;
 
-  const wholeStr = number.substring(0, number.length - decimals) || '0';
-  const fractionStr = number
-    .substring(number.length - decimals)
+  const balanceBN = new BN(number, 10);
+  const roundingExp = 24 - decimals - 1;
+  if (roundingExp > 0) {
+    balanceBN.iadd(ROUNDING_OFFSETS[roundingExp]);
+  }
+
+  const balance = balanceBN.toString();
+  const wholeStr = balance.substring(0, balance.length - decimals) || '0';
+  const fractionStr = balance
+    .substring(balance.length - decimals)
     .padStart(decimals, '0')
     .substring(0, decimals);
 
@@ -34,7 +46,9 @@ export const toNonDivisibleNumber = (
   if (!decimals) return number;
   const [wholePart, fracPart = ''] = number.split('.');
 
-  return `${wholePart}${fracPart.padEnd(decimals, '0')}`.replace(/^0+/, '');
+  return `${wholePart}${fracPart.padEnd(decimals, '0')}`
+    .replace(/^0+/, '')
+    .slice(0, decimals);
 };
 
 export const convertToPercentDecimal = (percent: number) => {
