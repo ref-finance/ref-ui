@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "license": "MIT OR Apache-2.0",
   "scripts": {
-    "build": "parcel build src/index.html --public-url ./",
+    "build": "parcel build src/index.html",
     "start": "parcel src/index.html --open",
     "test": "jest test --runInBand"
   },
