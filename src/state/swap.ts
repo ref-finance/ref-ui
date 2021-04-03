@@ -25,6 +25,9 @@ export const useSwap = ({
     ? String(percentLess(slippageTolerance, tokenOutAmount))
     : null;
 
+  console.log(tokenOutAmount);
+  console.log(minAmountOut);
+
   useEffect(() => {
     setCanSwap(false);
     console.log(tokenInAmount);
