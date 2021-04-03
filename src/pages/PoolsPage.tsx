@@ -33,7 +33,7 @@ export default function PoolsPage() {
 
   return (
     <>
-      <section className="bg-secondary shadow-2xl rounded p-8 sm:w-full md:w-1/4 lg:w-1/2 m-auto place-self-center">
+      <section className="bg-secondary shadow-2xl rounded p-8 sm:w-full md:w-1/4 lg:w-1/2 m-auto place-self-center overflow-y-scroll">
         <header className="grid grid-cols-6">
           <section></section>
           <section className="col-span-4">
@@ -44,9 +44,10 @@ export default function PoolsPage() {
           <section>
             <Link
               to="/pools/add"
-              className="flex border rounded p-2 bg-secondary"
+              className="flex justify-center items-center border rounded p-2 bg-secondary"
             >
-              <FaPlus /> Add Pool
+              <FaPlus />
+              <span className="ml-2 text-right">Add Pool</span>
             </Link>
           </section>
         </header>

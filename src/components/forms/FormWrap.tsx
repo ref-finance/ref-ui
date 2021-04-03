@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Alert from '~components/alert/Alert';
 import SubmitButton from './SubmitButton';
 
 interface FormWrapProps {
@@ -15,12 +16,30 @@ export default function FormWrap({
   canSubmit = true,
   onSubmit,
 }: React.PropsWithChildren<FormWrapProps>) {
+  const [error, setError] = useState<Error>();
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError(null);
+
+    try {
+      await onSubmit(event);
+    } catch (err) {
+      setError(err);
+    }
+  };
+
   return (
     <form
       className="bg-secondary shadow-2xl rounded px-8 pt-6 pb-1"
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
     >
-      {title && <h2 className="formTitle font-bold text-2xl text-gray-700 text-center pb-2">{title}</h2>}
+      {title && (
+        <h2 className="formTitle font-bold text-2xl text-gray-700 text-center pb-2">
+          {title}
+        </h2>
+      )}
+      {error && <Alert level="error" message={error.message} />}
       {children}
       <SubmitButton disabled={!canSubmit} text={buttonText || title} />
     </form>

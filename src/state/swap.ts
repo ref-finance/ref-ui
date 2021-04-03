@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Pool } from '../services/pool';
-import { TokenMetadata } from '../services/ft-contract';
-import { percentLess } from '../utils/numbers';
+import { Pool } from '~services/pool';
+import { TokenMetadata } from '~services/ft-contract';
+import { percentLess } from '~utils/numbers';
 import { estimateSwap, swap } from '../services/swap';
 
 interface SwapOptions {

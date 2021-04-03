@@ -14,7 +14,7 @@ export default function Withdraw({ tokens }: { tokens: TokenMetadata[] }) {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    withdraw({
+    return withdraw({
       tokenId: selectedToken.id,
       amount,
     });

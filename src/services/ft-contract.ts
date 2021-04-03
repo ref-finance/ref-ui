@@ -4,6 +4,7 @@ import {
   getGas,
   getAmount,
   RefFiViewFunctionOptions,
+  REF_FI_CONTRACT_ID,
 } from './near';
 
 export const ftFunctionCall = (
@@ -72,4 +73,12 @@ export const ftGetTokenMetadata = async (
         'https://fluxprotocol.eth.link/static/media/wrapped-near.8b3a5e4b.svg',
     };
   }
+};
+
+export const ftRegisterExchange = async (tokenId: string) => {
+  return ftFunctionCall(tokenId, {
+    methodName: 'storage_deposit',
+    args: { account_id: REF_FI_CONTRACT_ID, registration_only: true },
+    amount: '0.1',
+  });
 };
