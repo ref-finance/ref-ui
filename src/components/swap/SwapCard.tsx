@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
-import { TokenMetadata } from '~services/ft-contract';
-import { Pool } from '~services/pool';
-import FormWrap from '~components/forms/FormWrap';
-import TokenAmount from '~components/forms/TokenAmount';
-import Alert from '~components/alert/Alert';
-import { useWhitelistTokens, useTokenBalances } from '~state/token';
+import { TokenMetadata } from '../../services/ft-contract';
+import { Pool } from '../../services/pool';
+import FormWrap from '../../components/forms/FormWrap';
+import TokenAmount from '../../components/forms/TokenAmount';
+import Alert from '../../components/alert/Alert';
+import { useWhitelistTokens, useTokenBalances } from '../../state/token';
 import { useSwap } from '../../state/swap';
 import {
   calculateExchangeRate,
   calculateFeeCharge,
   calculateFeePercent,
   toReadableNumber,
-} from '~utils/numbers';
-import Icon from '~components/tokens/Icon';
-import Loading from '~components/layout/Loading';
-import { wallet } from '~services/near';
+} from '../../utils/numbers';
+import Icon from '../../components/tokens/Icon';
+import Loading from '../../components/layout/Loading';
+import { wallet } from '../../services/near';
 
 function SwapDetail({ title, value }: { title: string; value: string }) {
   return (

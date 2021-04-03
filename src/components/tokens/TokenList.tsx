@@ -1,5 +1,5 @@
 import React from 'react';
-import { TokenMetadata } from '~services/ft-contract';
+import { TokenMetadata } from '../../services/ft-contract';
 import Token from './Token';
 
 interface TokenListProps {

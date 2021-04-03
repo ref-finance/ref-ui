@@ -1,5 +1,5 @@
 import React from 'react';
-import { wallet } from '~services/near';
+import { wallet } from '../../services/near';
 
 interface SubmitButtonProps {
   text: string;

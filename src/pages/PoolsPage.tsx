@@ -1,11 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaPlus } from 'react-icons/fa';
-import Icon from '~/components/tokens/Icon';
-import { useTokens } from '~/state/token';
-import { Pool } from '~/services/pool';
-import { usePools } from '~state/pool';
-import Loading from '~components/layout/Loading';
+import Icon from '../components/tokens/Icon';
+import { useTokens } from '../state/token';
+import { Pool } from '../services/pool';
+import { usePools } from '../state/pool';
+import Loading from '../components/layout/Loading';
 
 function PoolRow({ pool }: { pool: Pool }) {
   const tokens = useTokens(pool.tokenIds);

@@ -1,16 +1,16 @@
 import React from 'react';
 import MicroModal from 'react-micro-modal';
-import { depositStorage } from '~services/account';
-import { wallet } from '~services/near';
+import { depositStorage } from '../../services/account';
+import { wallet } from '../../services/near';
 
 export default function DepositNotification({ open }: { open: boolean }) {
   return (
     <MicroModal openInitially={open}>
       {(close) => (
         <>
-          <h1 className="text-center text-2xl">First time here?</h1>
-          <p className="my-4">
-            Ref-fi requires a one time initial storage payment of .01 Ⓝ
+          <h1 className="text-center text-2xl my-2">First time here?</h1>
+          <p>
+            Ref-fi requires a one-time initial storage payment of .01 Ⓝ
           </p>
           <section className="flex justify-center">
             <button

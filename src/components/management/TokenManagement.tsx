@@ -1,7 +1,7 @@
 import React from 'react';
-import { useUserRegisteredTokens, useWhitelistTokens } from '~state/token';
-import Loading from '~components/layout/Loading';
-import TabFormWrap from '~components/forms/TabFormWrap';
+import { useUserRegisteredTokens, useWhitelistTokens } from '../../state/token';
+import Loading from '../../components/layout/Loading';
+import TabFormWrap from '../../components/forms/TabFormWrap';
 import Deposit from './Deposit';
 import Withdraw from './Withdraw';
 

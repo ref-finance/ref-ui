@@ -3,14 +3,14 @@ import {
   ftGetBalance,
   ftGetTokenMetadata,
   TokenMetadata,
-} from '~services/ft-contract';
+} from '../services/ft-contract';
 import {
   getWhitelistedTokens,
   getTokenBalances,
   getUserRegisteredTokens,
   TokenBalancesView,
   checkTokenNeedsStorageDeposit,
-} from '~services/token';
+} from '../services/token';
 
 export const useToken = (id: string) => {
   const [token, setToken] = useState<TokenMetadata>();

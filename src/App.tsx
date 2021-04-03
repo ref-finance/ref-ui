@@ -1,15 +1,15 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import { wallet } from '~services/near';
-import { useCurrentStorageBalance } from '~state/account';
-import PortfolioPage from '~pages/PortfolioPage';
-import PoolsPage from '~pages/PoolsPage';
-import PoolPage from '~pages/PoolPage';
-import AddPoolPage from '~pages/AddPoolPage';
-import SwapPage from '~pages/SwapPage';
-import DepositNotification from '~components/alert/DepositNotification';
-import NavigationBar from '~components/layout/NavigationBar';
-import '~global.css';
+import { wallet } from './services/near';
+import { useCurrentStorageBalance } from './state/account';
+import PortfolioPage from './pages/PortfolioPage';
+import PoolsPage from './pages/PoolsPage';
+import PoolPage from './pages/PoolPage';
+import AddPoolPage from './pages/AddPoolPage';
+import SwapPage from './pages/SwapPage';
+import DepositNotification from './components/alert/DepositNotification';
+import NavigationBar from './components/layout/NavigationBar';
+import './global.css';
 
 function App() {
   const storageBalances = useCurrentStorageBalance();

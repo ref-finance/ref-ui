@@ -1,9 +1,9 @@
 import React from 'react';
-import { toReadableNumber } from '~utils/numbers';
-import { useTokenBalances, useUserRegisteredTokens } from '~state/token';
-import TokenList from '~components/tokens/TokenList';
-import Loading from '~components/layout/Loading';
-import TokenManagement from '~components/management/TokenManagement';
+import { toReadableNumber } from '../utils/numbers';
+import { useTokenBalances, useUserRegisteredTokens } from '../state/token';
+import TokenList from '../components/tokens/TokenList';
+import Loading from '../components/layout/Loading';
+import TokenManagement from '../components/management/TokenManagement';
 
 export default function PortfolioPage() {
   const balances = useTokenBalances();

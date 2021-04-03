@@ -12,7 +12,7 @@ import {
 } from './near';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { currentStorageBalance, MIN_DEPOSIT_PER_TOKEN } from './account';
-import { toNonDivisibleNumber } from '~utils/numbers';
+import { toNonDivisibleNumber } from '../utils/numbers';
 
 export const checkTokenNeedsStorageDeposit = async (tokenId: string) => {
   const [registeredTokens, { available }] = await Promise.all([

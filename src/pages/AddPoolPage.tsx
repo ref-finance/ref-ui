@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaAngleLeft } from 'react-icons/fa';
-import { useWhitelistTokens } from '~/state/token';
-import { addSimpleLiquidityPool } from '~/services/pool';
-import FormWrap from '~components/forms/FormWrap';
-import SelectToken from '~components/forms/SelectToken';
-import Icon from '~components/tokens/Icon';
-import { TokenMetadata } from '~services/ft-contract';
+import { useWhitelistTokens } from '../state/token';
+import { addSimpleLiquidityPool } from '../services/pool';
+import FormWrap from '../components/forms/FormWrap';
+import SelectToken from '../components/forms/SelectToken';
+import Icon from '../components/tokens/Icon';
+import { TokenMetadata } from '../services/ft-contract';
 
 export default function AddPool() {
   const [firstToken, setFirstToken] = useState<TokenMetadata>();

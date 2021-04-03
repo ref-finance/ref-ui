@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getPoolDetails, getPools, getSharesInPool, Pool, PoolDetails } from '~services/pool';
+import { getPoolDetails, getPools, getSharesInPool, Pool, PoolDetails } from '../services/pool';
 
 export const usePool = (id: number | string) => {
   const [pool, setPool] = useState<PoolDetails>();
