@@ -2,7 +2,7 @@ import { Near, keyStores, utils } from 'near-api-js';
 import BN from 'bn.js';
 import getConfig from './config';
 import SpecialWallet from './SpecialWallet';
-import { createTransaction, functionCall } from 'near-api-js/lib/transaction';
+import { functionCall } from 'near-api-js/lib/transaction';
 
 export const REF_FI_CONTRACT_ID =
   process.env.REF_FI_CONTRACT_ID || 'dev-1617199123305-1287489';
@@ -11,7 +11,7 @@ export const ONE_YOCTO_NEAR = '0.000000000000000000000001';
 
 export const near = new Near({
   keyStore: new keyStores.BrowserLocalStorageKeyStore(),
-  ...getConfig(process.env.NODE_ENV || 'testnet'),
+  ...getConfig(process.env.NEAR_ENV || 'testnet'),
 });
 export const wallet = new SpecialWallet(near, 'ref-fi');
 
