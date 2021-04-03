@@ -89,7 +89,7 @@ function AddLiquidity({
       {}
     );
 
-    await addLiquidityToPool({
+    return addLiquidityToPool({
       id: pool.id,
       tokenAmounts: amounts,
     });
@@ -113,7 +113,7 @@ function RemoveLiquidity({ pool, shares }: { pool: Pool; shares: string }) {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    await removeLiquidityFromPool({
+    return removeLiquidityFromPool({
       id: pool.id,
       shares: amount,
       minimumAmounts: pool.tokenIds.reduce<{ [id: string]: string }>(
@@ -147,7 +147,6 @@ export default function PoolPage() {
     );
   };
 
-  // TODO: loading
   if (!pool || !tokens) return <Loading />;
 
   return (

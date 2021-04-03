@@ -15,7 +15,7 @@ export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    deposit({
+    return deposit({
       token: selectedToken,
       amount,
     });

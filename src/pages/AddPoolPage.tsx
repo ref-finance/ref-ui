@@ -20,7 +20,7 @@ function AddPool() {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    addSimpleLiquidityPool([firstToken.id, secondToken.id], 30);
+    return addSimpleLiquidityPool([firstToken.id, secondToken.id], 30);
   };
 
   return (
@@ -65,7 +65,7 @@ function RegisterToken() {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    registerTokenAndExchange(tokenId);
+    return registerTokenAndExchange(tokenId);
   };
 
   return (

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import FormWrap from '../forms/FormWrap';
-import { registerTokenAndExchange } from '~services/token';
+import { registerToken } from '~services/token';
 
 export default function Register() {
   const [tokenId, setTokenId] = useState<string>();
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    registerTokenAndExchange(tokenId);
+    return registerToken(tokenId);
   };
 
   return (
