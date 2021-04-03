@@ -22,9 +22,6 @@ export default function PortfolioPage() {
           <p>{toReadableNumber(token.decimals, balances[token.id])}</p>
         )}
       />
-      <p className="border-t-2 my-2 py-2 text-gray-400 text-center">
-        Use this to check balances after deposits, withdraws, and swaps.
-      </p>
       <TokenManagement />
     </section>
   );
