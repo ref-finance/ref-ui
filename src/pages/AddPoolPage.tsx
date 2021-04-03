@@ -31,21 +31,33 @@ export default function AddPool() {
         canSubmit={firstToken && secondToken && fee !== 0}
         onSubmit={handleSubmit}
       >
-        <input
-          type="number"
-          value={fee}
-          onChange={({ target }) => setFee(Number(target.value))}
-        />
-        <SelectToken
-          tokens={tokens}
-          selected={firstToken && <Icon token={firstToken} />}
-          onSelect={setFirstToken}
-        />
-        <SelectToken
-          tokens={tokens}
-          selected={secondToken && <Icon token={secondToken} />}
-          onSelect={setSecondToken}
-        />
+        <fieldset className="flex items-center">
+          <label className="mr-4 text-2xl text-inputText">Fee: </label>
+          <input
+            className="focus:outline-none shadow bg-inputBg appearance-none border rounded border-opacity-30 w-full py-2 px-3 text-3xl text-inputText leading-tight"
+            type="number"
+            value={fee}
+            onChange={({ target }) => setFee(Number(target.value))}
+          />
+        </fieldset>
+        <fieldset className="flex justify-around items-center my-3">
+          <div className="flex items-center">
+            <label className="mr-4 text-2xl text-inputText">Token1: </label>
+            <SelectToken
+              tokens={tokens}
+              selected={firstToken && <Icon token={firstToken} />}
+              onSelect={setFirstToken}
+            />
+          </div>
+          <div className="flex items-center">
+            <label className="mr-4 text-2xl text-inputText">Token 2: </label>
+            <SelectToken
+              tokens={tokens}
+              selected={secondToken && <Icon token={secondToken} />}
+              onSelect={setSecondToken}
+            />
+          </div>
+        </fieldset>
       </FormWrap>
     </section>
   );
