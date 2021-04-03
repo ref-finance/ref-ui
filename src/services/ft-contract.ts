@@ -69,8 +69,7 @@ export const ftGetTokenMetadata = async (
       name: id,
       symbol: id.split('.')[0].slice(0, 8),
       decimals: 6,
-      icon:
-        'https://fluxprotocol.eth.link/static/media/wrapped-near.8b3a5e4b.svg',
+      icon: null,
     };
   }
 };

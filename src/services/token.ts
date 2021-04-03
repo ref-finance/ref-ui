@@ -70,7 +70,12 @@ export const registerTokenAndExchange = async (tokenId: string) => {
 };
 
 export const registerToken = async (tokenId: string) => {
-  const registered = await ftGetStorageBalance(tokenId, REF_FI_CONTRACT_ID);
+  const registered = await ftGetStorageBalance(
+    tokenId,
+    REF_FI_CONTRACT_ID
+  ).catch(() => {
+    throw new Error(`${tokenId} doesn't exist.`);
+  });
   if (!registered) throw new Error('No liquidity pools available for token');
 
   const actions: RefFiFunctionCallOptions[] = [

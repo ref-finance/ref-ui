@@ -34,10 +34,12 @@ export default function Register({
           value={tokenId}
           onChange={({ target }) => setTokenId(target.value)}
         />
-        <SelectToken
-          tokens={[token]}
-          selected={token && <Icon token={token} />}
-        />
+        {token?.icon && (
+          <SelectToken
+            tokens={[token]}
+            selected={token && <Icon token={token} />}
+          />
+        )}
       </fieldset>
     </FormWrap>
   );

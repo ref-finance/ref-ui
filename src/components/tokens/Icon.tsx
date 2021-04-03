@@ -10,7 +10,8 @@ export default function Icon({
   className?: string;
   size?: number | string;
 }) {
-  return (
-    <img className={`h-${size} w-${size} ${className}`} src={token.icon} />
-  );
+  const icon =
+    token.icon ||
+    'https://fluxprotocol.eth.link/static/media/wrapped-near.8b3a5e4b.svg';
+  return <img className={`h-${size} w-${size} ${className}`} src={icon} />;
 }
