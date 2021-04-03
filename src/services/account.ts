@@ -18,7 +18,7 @@ interface DepositStorageOptions {
 export const depositStorage = ({
   accountId,
   registrationOnly = true,
-  amount = '0.01',
+  amount = '0.1',
 }: DepositStorageOptions) => {
   return refFiFunctionCall({
     methodName: 'storage_deposit',

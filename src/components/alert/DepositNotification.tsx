@@ -20,6 +20,7 @@ export default function DepositNotification({ open }: { open: boolean }) {
               onClick={() =>
                 depositStorage({
                   accountId: wallet.getAccountId(),
+                  registrationOnly: false,
                 })
               }
             >

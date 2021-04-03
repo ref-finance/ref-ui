@@ -5,7 +5,9 @@ import { wallet } from '~services/near';
 export const useCurrentStorageBalance = () => {
   const [storageBalance, setStorageBalance] = useState<AccountStorageView>();
   useEffect(() => {
-    currentStorageBalance(wallet.getAccountId()).then(setStorageBalance);
+    currentStorageBalance(wallet.getAccountId())
+      .then(setStorageBalance)
+      .catch(() => setStorageBalance(null));
   }, [wallet.getAccountId()]);
   return storageBalance;
 };

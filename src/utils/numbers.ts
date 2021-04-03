@@ -1,5 +1,6 @@
 import BN from 'bn.js';
 import * as math from 'mathjs';
+import { utils } from 'near-api-js';
 
 const BPS_CONVERSION = 10000;
 
@@ -17,12 +18,7 @@ export const toReadableNumber = (
 ): string => {
   if (!decimals) return number;
 
-  const numberAsArray = number.split('');
-  numberAsArray.splice(-decimals, 0, '.');
-  return numberAsArray
-    .join('')
-    .replace(/\.([1-9]*)0*$/, '.$1')
-    .replace(/\.$/, '');
+  return utils.format.formatNearAmount(number, decimals);
 };
 
 export const toNonDivisibleNumber = (
@@ -30,9 +26,9 @@ export const toNonDivisibleNumber = (
   number: string
 ): string => {
   if (!decimals) return number;
-  const [left, right = ''] = number.split('.');
+  const [wholePart, fracPart = ''] = number.split('.');
 
-  return `${left}${right.slice(0, decimals).padEnd(decimals, '0')}`;
+  return `${wholePart}${fracPart.padEnd(decimals, '0')}`.replace(/^0+/, '');
 };
 
 export const convertToPercentDecimal = (percent: number) => {
