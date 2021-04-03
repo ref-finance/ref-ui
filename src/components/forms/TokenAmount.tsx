@@ -1,7 +1,8 @@
 import React from 'react';
 import { useTokenBalances } from '~state/token';
 import { toReadableNumber } from '~utils/numbers';
-import { TokenBalancesView, TokenMetadata } from '../../services/token';
+import { TokenMetadata } from '../../services/ft-contract';
+import { TokenBalancesView } from '../../services/token';
 import Icon from '../tokens/Icon';
 import InputAmount from './InputAmount';
 import SelectToken from './SelectToken';

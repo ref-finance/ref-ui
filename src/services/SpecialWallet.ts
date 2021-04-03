@@ -69,7 +69,7 @@ class SpecialWalletAccount extends ConnectedWalletAccount {
 
     const publicKey = PublicKey.from(accessKey.public_key);
     const nonce = accessKey.access_key.nonce + nonceOffset;
-    console.log(nonce);
+
     return createTransaction(
       this.accountId,
       publicKey,

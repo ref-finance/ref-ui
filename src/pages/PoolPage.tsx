@@ -11,7 +11,7 @@ import {
   removeLiquidityFromPool,
 } from '~services/pool';
 import { sumBN } from '~utils/numbers';
-import { TokenMetadata } from '~services/token';
+import { TokenMetadata } from '~services/ft-contract';
 import { useTokenBalances, useTokens } from '~state/token';
 import TokenAmount from '~components/forms/TokenAmount';
 import TabFormWrap from '~components/forms/TabFormWrap';

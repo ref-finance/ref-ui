@@ -8,10 +8,9 @@ import {
   refFiViewFunction,
   wallet,
 } from './near';
+import {TokenMetadata} from './ft-contract'
 import { getIdealSwapPool, Pool } from './pool';
 import {
-  getUserRegisteredTokens,
-  TokenMetadata,
   checkTokenNeedsStorageDeposit,
 } from './token';
 

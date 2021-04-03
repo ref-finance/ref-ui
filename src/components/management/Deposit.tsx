@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import FormWrap from '../forms/FormWrap';
 import TokenAmount from '../forms/TokenAmount';
-import { deposit, TokenMetadata } from '../../services/token';
+import { TokenMetadata } from '../../services/ft-contract';
+import { deposit } from '../../services/token';
 import { useDepositableBalance } from '../../state/token';
 import { toReadableNumber } from '~utils/numbers';
 

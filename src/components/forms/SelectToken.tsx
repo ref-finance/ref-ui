@@ -1,7 +1,7 @@
 import React from 'react';
 import MicroModal from 'react-micro-modal';
 import TokenList from '../tokens/TokenList';
-import { TokenMetadata } from '../../services/token';
+import { TokenMetadata } from '../../services/ft-contract';
 import DownArrow from '../../assets/misc/select-arrow.svg';
 
 export default function SelectToken({

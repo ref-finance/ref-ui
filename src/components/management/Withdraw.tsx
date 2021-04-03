@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import FormWrap from '../forms/FormWrap';
 import TokenAmount from '../forms/TokenAmount';
-import { TokenMetadata, withdraw } from '../../services/token';
+import { TokenMetadata } from '../../services/ft-contract';
+import { withdraw } from '../../services/token';
 import { useTokenBalances } from '../../state/token';
 
 export default function Withdraw({ tokens }: { tokens: TokenMetadata[] }) {

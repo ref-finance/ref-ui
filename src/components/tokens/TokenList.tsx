@@ -1,5 +1,5 @@
 import React from 'react';
-import { TokenMetadata } from '~services/token';
+import { TokenMetadata } from '~services/ft-contract';
 import Token from './Token';
 
 interface TokenListProps {
@@ -10,7 +10,7 @@ interface TokenListProps {
 
 export default function TokenList({ tokens, onClick, render }: TokenListProps) {
   const tokenElements = tokens.map((token) => (
-    <li className="text-lg"key={token.id}>
+    <li className="text-lg" key={token.id}>
       <Token token={token} onClick={onClick} render={render} />
     </li>
   ));

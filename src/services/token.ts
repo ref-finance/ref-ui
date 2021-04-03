@@ -10,6 +10,7 @@ import {
   wallet,
   executeMultipleTransactions,
 } from './near';
+import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { currentStorageBalance, MIN_DEPOSIT_PER_TOKEN } from './account';
 import { toNonDivisibleNumber } from '~utils/numbers';
 
@@ -101,16 +102,40 @@ interface WithdrawOptions {
   amount: string;
   unregister?: boolean;
 }
-export const withdraw = ({
+export const withdraw = async ({
   tokenId,
   amount,
   unregister = false,
 }: WithdrawOptions) => {
-  return refFiFunctionCall({
-    methodName: 'withdraw',
-    args: { token_id: tokenId, amount, unregister },
-    amount: ONE_YOCTO_NEAR,
-  });
+  const ftBalance = await ftGetStorageBalance(tokenId);
+
+  const transactions: Transaction[] = [
+    {
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'withdraw',
+          args: { token_id: tokenId, amount, unregister },
+          amount: ONE_YOCTO_NEAR,
+        },
+      ],
+    },
+  ];
+
+  if (!ftBalance || ftBalance.total === '0') {
+    transactions.unshift({
+      receiverId: tokenId,
+      functionCalls: [
+        {
+          methodName: 'storage_balance',
+          args: { account_id: wallet.getAccountId(), registration_only: true },
+          amount: '0.1',
+        },
+      ],
+    });
+  }
+
+  return executeMultipleTransactions(transactions);
 };
 
 export interface TokenBalancesView {
@@ -120,12 +145,6 @@ export const getTokenBalances = (): Promise<TokenBalancesView> => {
   return refFiViewFunction({
     methodName: 'get_deposits',
     args: { account_id: wallet.getAccountId() },
-  });
-};
-
-export const getDepositableBalance = (tokenId: string): Promise<string> => {
-  return wallet.account().viewFunction(tokenId, 'ft_balance_of', {
-    account_id: wallet.getAccountId(),
   });
 };
 
@@ -146,31 +165,4 @@ export const getWhitelistedTokens = async (): Promise<string[]> => {
   ]);
 
   return [...new Set<string>([...globalWhitelist, ...userWhitelist])];
-};
-
-export interface TokenMetadata {
-  id: string;
-  name: string;
-  symbol: string;
-  decimals: number;
-  icon: string;
-}
-
-export const getTokenMetadata = async (id: string): Promise<TokenMetadata> => {
-  try {
-    const metadata = await wallet.account().viewFunction(id, 'ft_metadata', {});
-    return {
-      id,
-      ...metadata,
-    };
-  } catch {
-    return {
-      id,
-      name: id,
-      symbol: id.split('.')[0].slice(0, 8),
-      decimals: 6,
-      icon:
-        'https://fluxprotocol.eth.link/static/media/wrapped-near.8b3a5e4b.svg',
-    };
-  }
 };

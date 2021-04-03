@@ -1,5 +1,5 @@
 import React from 'react';
-import { TokenMetadata } from '~/services/token';
+import { TokenMetadata } from '~/services/ft-contract';
 
 export default function Icon({
   token,

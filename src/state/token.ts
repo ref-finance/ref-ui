@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import {
-  getDepositableBalance,
+  ftGetBalance,
+  ftGetTokenMetadata,
+  TokenMetadata,
+} from '~services/ft-contract';
+import {
   getWhitelistedTokens,
   getTokenBalances,
-  getTokenMetadata,
   getUserRegisteredTokens,
   TokenBalancesView,
-  TokenMetadata,
   checkTokenNeedsStorageDeposit,
 } from '~services/token';
 
@@ -14,7 +16,7 @@ export const useToken = (id: string) => {
   const [token, setToken] = useState<TokenMetadata>();
 
   useEffect(() => {
-    getTokenMetadata(id).then(setToken);
+    ftGetTokenMetadata(id).then(setToken);
   }, [id]);
 
   return token;
@@ -24,7 +26,7 @@ export const useTokens = (ids: string[] = []) => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
 
   useEffect(() => {
-    Promise.all<TokenMetadata>(ids.map((id) => getTokenMetadata(id))).then(
+    Promise.all<TokenMetadata>(ids.map((id) => ftGetTokenMetadata(id))).then(
       setTokens
     );
   }, [ids.join('')]);
@@ -38,7 +40,7 @@ export const useWhitelistTokens = () => {
   useEffect(() => {
     getWhitelistedTokens()
       .then((tokenIds) =>
-        Promise.all(tokenIds.map((tokenId) => getTokenMetadata(tokenId)))
+        Promise.all(tokenIds.map((tokenId) => ftGetTokenMetadata(tokenId)))
       )
       .then(setTokens);
   }, []);
@@ -52,7 +54,7 @@ export const useUserRegisteredTokens = () => {
   useEffect(() => {
     getUserRegisteredTokens()
       .then((tokenIds) =>
-        Promise.all(tokenIds.map((tokenId) => getTokenMetadata(tokenId)))
+        Promise.all(tokenIds.map((tokenId) => ftGetTokenMetadata(tokenId)))
       )
       .then(setTokens);
   }, []);
@@ -76,7 +78,7 @@ export const useDepositableBalance = (tokenId: string) => {
   const [depositable, setDepositable] = useState<string>('');
 
   useEffect(() => {
-    if (tokenId) getDepositableBalance(tokenId).then(setDepositable);
+    if (tokenId) ftGetBalance(tokenId).then(setDepositable);
   }, [tokenId]);
 
   return depositable;

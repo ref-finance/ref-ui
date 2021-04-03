@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TokenMetadata } from '~services/token';
+import { TokenMetadata } from '~services/ft-contract';
 import { Pool } from '~services/pool';
 import FormWrap from '~components/forms/FormWrap';
 import TokenAmount from '~components/forms/TokenAmount';
