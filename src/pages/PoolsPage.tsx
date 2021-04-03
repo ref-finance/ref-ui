@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
+import { FaPlus } from 'react-icons/fa';
 import Icon from '~/components/tokens/Icon';
 import { useTokens } from '~/state/token';
 import { Pool } from '~/services/pool';
@@ -31,18 +32,36 @@ export default function PoolsPage() {
   if (!pools) return <Loading />;
 
   return (
-    <section className="bg-white w-2/3 m-auto px-10 py-5 rounded ring-2 ring-primary overflow-y-scroll">
-      <h1 className="text-lg font-medium p-2 text-center">Pools</h1>
-      <section>
-        <header className="grid grid-cols-12 py-2 text-right">
-          <p className="col-span-3">Symbol</p>
-          <p className="col-span-8">Total Shares</p>
-          <p>Fee</p>
+    <>
+      <section className="bg-secondary shadow-2xl rounded p-8 sm:w-full md:w-1/4 lg:w-1/2 m-auto place-self-center">
+        <header className="grid grid-cols-6">
+          <section></section>
+          <section className="col-span-4">
+            <h1 className="text-lg font-medium p-2 text-center">
+              Available Liquidity Pools
+            </h1>
+          </section>
+          <section>
+            <Link
+              to="/pools/add"
+              className="flex border rounded p-2 bg-secondary"
+            >
+              <FaPlus /> Add Pool
+            </Link>
+          </section>
         </header>
-        {pools.map((pool) => (
-          <PoolRow key={pool.id} pool={pool} />
-        ))}
+
+        <section>
+          <header className="grid grid-cols-12 py-2 text-right">
+            <p className="col-span-3">Symbol</p>
+            <p className="col-span-8">Total Shares</p>
+            <p>Fee</p>
+          </header>
+          {pools.map((pool) => (
+            <PoolRow key={pool.id} pool={pool} />
+          ))}
+        </section>
       </section>
-    </section>
+    </>
   );
 }

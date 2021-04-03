@@ -3,6 +3,7 @@ import { toReadableNumber } from '~utils/numbers';
 import { useTokenBalances, useUserRegisteredTokens } from '~state/token';
 import TokenList from '~components/tokens/TokenList';
 import Loading from '~components/layout/Loading';
+import TokenManagement from '~components/management/TokenManagement';
 
 export default function PortfolioPage() {
   const balances = useTokenBalances();
@@ -24,6 +25,7 @@ export default function PortfolioPage() {
       <p className="border-t-2 my-2 py-2 text-gray-400 text-center">
         Use this to check balances after deposits, withdraws, and swaps.
       </p>
+      <TokenManagement />
     </section>
   );
 }

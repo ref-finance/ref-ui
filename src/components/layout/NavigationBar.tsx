@@ -47,7 +47,7 @@ function MobileBar() {
       >
         <Anchor to="/portfolio" name="Portfolio" />
         <Anchor to="/" name="Swap" />
-        <Anchor to="/management" name="Token Management" />
+        <Anchor to="/pools" name="Pools" />
         <AuthButton />
       </Menu>
     </section>
@@ -80,7 +80,7 @@ function DesktopBar() {
       </Link>
       <Anchor to="/portfolio" name="Portfolio" />
       <Anchor to="/" name="Swap" />
-      <Anchor to="/management" name="Deposit / Withdraw" />
+      <Anchor to="/pools" name="Pools" />
       <section className="place-self-end mr-3">
         <AuthButton />
       </section>

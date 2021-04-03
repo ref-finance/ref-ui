@@ -29,10 +29,17 @@ export const ftGetBalance = (tokenId: string) => {
   });
 };
 
-export const ftGetStorageBalance = (tokenId: string) => {
+export interface FTStorageBalance {
+  total: string;
+  available: string;
+}
+export const ftGetStorageBalance = (
+  tokenId: string,
+  accountId = wallet.getAccountId()
+): Promise<FTStorageBalance | null> => {
   return ftViewFunction(tokenId, {
     methodName: 'storage_balance_of',
-    args: { account_id: wallet.getAccountId() },
+    args: { account_id: accountId },
   });
 };
 

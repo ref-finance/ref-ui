@@ -1,11 +1,15 @@
 import {
+  executeMultipleTransactions,
   ONE_YOCTO_NEAR,
   refFiFunctionCall,
   refFiViewFunction,
+  REF_FI_CONTRACT_ID,
+  Transaction,
   wallet,
 } from './near';
 import BN from 'bn.js';
 import { utils } from 'near-api-js';
+import { ftGetStorageBalance } from './ft-contract';
 
 const DEFAULT_PAGE_LIMIT = 10;
 
@@ -165,4 +169,39 @@ export const removeLiquidityFromPool = async ({
     },
     amount: ONE_YOCTO_NEAR,
   });
+};
+
+export const addSimpleLiquidityPool = async (
+  tokenIds: string[],
+  fee: number
+) => {
+  const storageBalances = await Promise.all(
+    tokenIds.map((id) => ftGetStorageBalance(id, REF_FI_CONTRACT_ID))
+  );
+
+  const transactions: Transaction[] = storageBalances
+    .filter((sb) => !sb || sb.total === '0')
+    .map((_, i) => ({
+      receiverId: tokenIds[i],
+      functionCalls: [
+        {
+          methodName: 'storage_deposit',
+          args: { account_id: REF_FI_CONTRACT_ID, registration_only: true },
+          amount: '0.1',
+        },
+      ],
+    }));
+
+  transactions.push({
+    receiverId: REF_FI_CONTRACT_ID,
+    functionCalls: [
+      {
+        methodName: 'add_simple_pool',
+        args: { tokens: tokenIds, fee },
+        amount: '0.005',
+      },
+    ],
+  });
+
+  return executeMultipleTransactions(transactions);
 };

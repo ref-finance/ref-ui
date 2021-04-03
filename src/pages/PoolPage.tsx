@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router';
+import { useParams, Link } from 'react-router-dom';
 import TokenList from '../components/tokens/TokenList';
 import InputAmount from '../components/forms/InputAmount';
 import FormWrap from '../components/forms/FormWrap';
@@ -10,7 +10,7 @@ import {
   PoolDetails,
   removeLiquidityFromPool,
 } from '~services/pool';
-import { sumBN } from '~utils/numbers';
+import { sumBN, toReadableNumber } from '~utils/numbers';
 import { TokenMetadata } from '~services/ft-contract';
 import { useTokenBalances, useTokens } from '~state/token';
 import TokenAmount from '~components/forms/TokenAmount';
@@ -141,7 +141,7 @@ export default function PoolPage() {
     return (
       <p>
         <span className="font-black">Total Supply: </span>
-        {pool.supplies[token.id]}
+        {toReadableNumber(token.decimals, pool.supplies[token.id])}
       </p>
     );
   };
@@ -150,7 +150,8 @@ export default function PoolPage() {
   if (!pool || !tokens) return <Loading />;
 
   return (
-    <section className="bg-white w-2/3 m-auto px-10 py-5 rounded ring-2 ring-primary overflow-y-scroll">
+    <section className="h-full overflow-y-scroll bg-secondary shadow-2xl rounded p-8 sm:w-full md:w-1/4 lg:w-1/2 m-auto place-self-center">
+      <Link to="/pools">Back</Link>
       <PoolHeader pool={pool} shares={shares} />
       <TabFormWrap titles={['Add Liquidity', 'Remove Liquidity']}>
         <AddLiquidity pool={pool} tokens={tokens} />
