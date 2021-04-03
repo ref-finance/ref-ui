@@ -6,11 +6,9 @@ import {
   refFiViewFunction,
   wallet,
 } from './near';
-import {TokenMetadata} from './ft-contract'
+import { TokenMetadata } from './ft-contract';
 import { getIdealSwapPool, Pool } from './pool';
-import {
-  checkTokenNeedsStorageDeposit,
-} from './token';
+import { checkTokenNeedsStorageDeposit } from './token';
 
 interface EstimateSwapOptions {
   tokenIn: TokenMetadata;
@@ -28,6 +26,8 @@ export const estimateSwap = async ({
   amountIn,
 }: EstimateSwapOptions): Promise<EstimateSwapView> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
+  if (!parsedAmountIn)
+    throw new Error(`${amountIn} is not a valid swap amount`);
 
   const pool = await getIdealSwapPool({
     tokenInId: tokenIn.id,

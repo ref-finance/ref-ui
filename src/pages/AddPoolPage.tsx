@@ -9,6 +9,7 @@ import Icon from '../components/tokens/Icon';
 import { ftRegisterExchange, TokenMetadata } from '../services/ft-contract';
 import TabFormWrap from '~components/forms/TabFormWrap';
 import { registerTokenAndExchange } from '~services/token';
+import PageWrap from '~components/layout/PageWrap';
 
 function AddPool() {
   const [firstToken, setFirstToken] = useState<TokenMetadata>();
@@ -87,7 +88,7 @@ function RegisterToken() {
 
 export default function AddPoolPage() {
   return (
-    <section className="bg-secondary shadow-2xl rounded p-8 sm:w-full md:w-1/4 lg:w-1/2 m-auto place-self-center">
+    <PageWrap>
       <Link to="/pools" className="mb-2">
         <FaAngleLeft size={30} />
       </Link>
@@ -95,6 +96,6 @@ export default function AddPoolPage() {
         <AddPool />
         <RegisterToken />
       </TabFormWrap>
-    </section>
+    </PageWrap>
   );
 }

@@ -6,6 +6,7 @@ import { useTokens } from '../state/token';
 import { Pool } from '../services/pool';
 import { usePools } from '../state/pool';
 import Loading from '../components/layout/Loading';
+import PageWrap from '~components/layout/PageWrap';
 
 function PoolRow({ pool }: { pool: Pool }) {
   const tokens = useTokens(pool.tokenIds);
@@ -33,7 +34,7 @@ export default function PoolsPage() {
 
   return (
     <>
-      <section className="bg-secondary shadow-2xl rounded p-8 sm:w-full md:w-1/4 lg:w-1/2 m-auto place-self-center overflow-y-scroll">
+      <PageWrap>
         <header className="grid grid-cols-6">
           <section></section>
           <section className="col-span-4">
@@ -62,7 +63,7 @@ export default function PoolsPage() {
             <PoolRow key={pool.id} pool={pool} />
           ))}
         </section>
-      </section>
+      </PageWrap>
     </>
   );
 }

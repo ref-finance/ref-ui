@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { FaAngleLeft } from 'react-icons/fa';
+import PageWrap from '../components/layout/PageWrap';
 import TokenList from '../components/tokens/TokenList';
 import InputAmount from '../components/forms/InputAmount';
 import FormWrap from '../components/forms/FormWrap';
@@ -150,7 +151,7 @@ export default function PoolPage() {
   if (!pool || !tokens) return <Loading />;
 
   return (
-    <section className="h-full overflow-y-scroll bg-secondary shadow-2xl rounded p-8 sm:w-full md:w-1/4 lg:w-1/2 m-auto place-self-center">
+    <PageWrap>
       <Link to="/pools" className="mb-2">
         <FaAngleLeft size={30} />
       </Link>
@@ -160,6 +161,6 @@ export default function PoolPage() {
         <RemoveLiquidity pool={pool} shares={shares} />
       </TabFormWrap>
       <TokenList tokens={tokens} render={render} />
-    </section>
+    </PageWrap>
   );
 }
