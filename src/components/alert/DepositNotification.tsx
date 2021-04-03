@@ -10,13 +10,11 @@ export default function DepositNotification({ open }: { open: boolean }) {
         <>
           <h1 className="text-center text-2xl">First time here?</h1>
           <p className="my-4">
-            Before you can use Re-Fi exchange you will first need to register
-            your account which requires a small amount of initial storage (.01 Ⓝ
-            )
+            Ref-fi requires a one time initial storage payment of .01 Ⓝ
           </p>
           <section className="flex justify-center">
             <button
-              className="items-center  my-4 h-10 w-40 rounded-md bg-buttonBg border-2 text-buttonText hover:bg-buttonText hover:text-buttonBg hover:border-buttonBg hover:border-2 shadow-lg hover:bg-disabled rounded-lg transition-colors focus:outline-none"
+              className="items-center my-4 h-10 w-40 rounded-md bg-buttonBg border-2 text-buttonText hover:bg-buttonText hover:text-buttonBg hover:border-buttonBg hover:border-2 shadow-lg hover:bg-disabled rounded-lg transition-colors focus:outline-none"
               onClick={() =>
                 depositStorage({
                   accountId: wallet.getAccountId(),
@@ -28,14 +26,14 @@ export default function DepositNotification({ open }: { open: boolean }) {
               PROCEED
             </button>
             <button
-              className="bg-red-600 hover:bg-white flex-row-centered hover:text-red-600 hover:border-2 hover:border-red-600 text-white flex flex-col my-4 h-10 w-40 border-2  shadow-lg hover:bg-disabled rounded-lg transition-colors focus:outline-none"
+              className="bg-red-600 hover:bg-white m-3 flex-row-centered hover:text-red-600 hover:border-2 hover:border-red-600 text-white flex flex-col my-4 h-10 w-40 border-2  shadow-lg hover:bg-disabled rounded-lg transition-colors focus:outline-none"
               onClick={() => {
                 wallet.signOut();
                 window.location.replace('/');
               }}
             >
               {' '}
-              SIGN OUT
+              CANCEL
             </button>
           </section>
         </>
