@@ -4,6 +4,7 @@ import Loading from '../../components/layout/Loading';
 import TabFormWrap from '../../components/forms/TabFormWrap';
 import Deposit from './Deposit';
 import Withdraw from './Withdraw';
+import Register from './Register';
 
 function TokenManagement() {
   const tokens = useWhitelistTokens();
@@ -13,9 +14,10 @@ function TokenManagement() {
 
   return (
     <>
-      <TabFormWrap titles={['Deposit', 'Withdraw']}>
+      <TabFormWrap titles={['Deposit', 'Withdraw', 'Whitelist Token']}>
         <Deposit tokens={tokens} />
         <Withdraw tokens={userTokens} />
+        <Register />
       </TabFormWrap>
       <p className="text-gray-400 text-center">
         Use this to deposit or withdraw tokens from the exchange.
