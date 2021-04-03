@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { FaAngleLeft } from 'react-icons/fa';
 import TokenList from '../components/tokens/TokenList';
 import InputAmount from '../components/forms/InputAmount';
 import FormWrap from '../components/forms/FormWrap';
@@ -151,7 +152,9 @@ export default function PoolPage() {
 
   return (
     <section className="h-full overflow-y-scroll bg-secondary shadow-2xl rounded p-8 sm:w-full md:w-1/4 lg:w-1/2 m-auto place-self-center">
-      <Link to="/pools">Back</Link>
+      <Link to="/pools" className="mb-2">
+        <FaAngleLeft size={30} />
+      </Link>
       <PoolHeader pool={pool} shares={shares} />
       <TabFormWrap titles={['Add Liquidity', 'Remove Liquidity']}>
         <AddLiquidity pool={pool} tokens={tokens} />

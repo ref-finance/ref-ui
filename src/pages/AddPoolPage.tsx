@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaPlus } from 'react-icons/fa';
+import { FaAngleLeft } from 'react-icons/fa';
 import { useWhitelistTokens } from '~/state/token';
 import { addSimpleLiquidityPool } from '~/services/pool';
 import FormWrap from '~components/forms/FormWrap';
@@ -23,6 +23,9 @@ export default function AddPool() {
 
   return (
     <section className="bg-secondary shadow-2xl rounded p-8 sm:w-full md:w-1/4 lg:w-1/2 m-auto place-self-center">
+      <Link to="/pools" className="mb-2">
+        <FaAngleLeft size={30} />
+      </Link>
       <FormWrap
         title="Add Liquidity Pool"
         canSubmit={firstToken && secondToken && fee !== 0}
