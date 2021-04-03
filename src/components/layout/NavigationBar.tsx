@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { slide as Menu } from 'react-burger-menu';
-import AuthButton from '~components/forms/AuthButton';
-import RefLogo from '~assets/reffi-logo.svg';
+import AuthButton from '../../components/forms/AuthButton';
+import RefLogo from '../../assets/reffi-logo.svg';
 import { wallet } from '~services/near';
 
 function MobileBar() {

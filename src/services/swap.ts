@@ -1,5 +1,5 @@
 import BN from 'bn.js';
-import { toNonDivisibleNumber, toReadableNumber } from '~utils/numbers';
+import { toNonDivisibleNumber, toReadableNumber } from '../utils/numbers';
 import { currentStorageBalance, MIN_DEPOSIT_PER_TOKEN } from './account';
 import {
   ONE_YOCTO_NEAR,

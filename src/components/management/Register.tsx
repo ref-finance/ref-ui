@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import FormWrap from '../forms/FormWrap';
 import { depositStorageToCoverToken } from '~services/account';
-import { wallet } from '~services/near';
 
 export default function Register() {
   const [count, setCount] = useState<number>();

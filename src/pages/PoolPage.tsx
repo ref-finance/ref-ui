@@ -10,13 +10,13 @@ import {
   Pool,
   PoolDetails,
   removeLiquidityFromPool,
-} from '~services/pool';
-import { sumBN, toReadableNumber } from '~utils/numbers';
-import { TokenMetadata } from '~services/ft-contract';
-import { useTokenBalances, useTokens } from '~state/token';
-import TokenAmount from '~components/forms/TokenAmount';
-import TabFormWrap from '~components/forms/TabFormWrap';
-import Loading from '~components/layout/Loading';
+} from '../services/pool';
+import { sumBN, toReadableNumber } from '../utils/numbers';
+import { TokenMetadata } from '../services/ft-contract';
+import { useTokenBalances, useTokens } from '../state/token';
+import TokenAmount from '../components/forms/TokenAmount';
+import TabFormWrap from '../components/forms/TabFormWrap';
+import Loading from '../components/layout/Loading';
 
 interface ParamTypes {
   poolId: string;

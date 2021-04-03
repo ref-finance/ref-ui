@@ -1,5 +1,4 @@
 import React, { useRef } from 'react';
-import { useForm } from 'react-hook-form';
 
 interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   max?: string;

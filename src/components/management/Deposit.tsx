@@ -4,7 +4,7 @@ import TokenAmount from '../forms/TokenAmount';
 import { TokenMetadata } from '../../services/ft-contract';
 import { deposit } from '../../services/token';
 import { useDepositableBalance } from '../../state/token';
-import { toReadableNumber } from '~utils/numbers';
+import { toReadableNumber } from '../../utils/numbers';
 
 export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
   const [amount, setAmount] = useState<string>();
