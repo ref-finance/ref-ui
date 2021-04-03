@@ -9,13 +9,14 @@ import PoolsPage from '~pages/PoolsPage';
 import SwapPage from '~pages/SwapPage';
 import { useCurrentStorageBalance } from '~state/account';
 import DepositNotification from '~components/alert/DepositNotification';
+import { wallet } from '~services/near';
 
 function App() {
   const storageBalances = useCurrentStorageBalance();
 
   return (
     <Router>
-      {storageBalances === null && (
+      {wallet.isSignedIn() && storageBalances === null && (
         <DepositNotification open={storageBalances === null} />
       )}
       <div className="h-screen">
