@@ -6,6 +6,10 @@ import {
   RefFiViewFunctionOptions,
   REF_FI_CONTRACT_ID,
 } from './near';
+import metadataDefaults from '../utils/metadata';
+
+const NEAR_ICON =
+  'https://near.org/wp-content/themes/near-19/assets/img/brand-icon.png';
 
 export const ftFunctionCall = (
   tokenId: string,
@@ -58,6 +62,9 @@ export const ftGetTokenMetadata = async (
     const metadata = await ftViewFunction(id, {
       methodName: 'ft_metadata',
     });
+    if (!metadata.icon || metadata.icon === NEAR_ICON) {
+      metadata.icon = metadataDefaults[id];
+    }
     return {
       id,
       ...metadata,
