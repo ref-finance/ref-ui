@@ -178,7 +178,7 @@ export const withdraw = async ({
       receiverId: tokenId,
       functionCalls: [
         {
-          methodName: 'storage_balance',
+          methodName: 'storage_deposit',
           args: { account_id: wallet.getAccountId(), registration_only: true },
           amount: '0.1',
         },
