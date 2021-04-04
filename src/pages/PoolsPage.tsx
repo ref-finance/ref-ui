@@ -7,7 +7,7 @@ import { Pool } from '../services/pool';
 import { usePools } from '../state/pool';
 import Loading from '../components/layout/Loading';
 import PageWrap from '~components/layout/PageWrap';
-import { toReadableNumber } from '~utils/numbers';
+import { toReadableNumber, toRoundedReadableNumber } from '~utils/numbers';
 
 function PoolRow({ pool }: { pool: Pool }) {
   const tokens = useTokens(pool.tokenIds);
@@ -23,7 +23,9 @@ function PoolRow({ pool }: { pool: Pool }) {
     >
       <p className="flex justify-end">{imgs}</p>
       <p className="col-span-2">{symbol}</p>
-      <p className="col-span-8">{toReadableNumber(24, pool.shareSupply)}</p>
+      <p className="col-span-8">
+        {toRoundedReadableNumber({ decimals: 24, number: pool.shareSupply })}
+      </p>
       <p>{pool.fee}</p>
     </Link>
   );

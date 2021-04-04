@@ -44,6 +44,24 @@ export const toNonDivisibleNumber = (
     .padStart(1, '0');
 };
 
+export const toPrecision = (number: string, precision: number): string => {
+  const [whole, decimal = ''] = number.split('.');
+
+  return `${whole}.${decimal.slice(0, precision)}`.replace(/\.$/, '');
+};
+
+export const toRoundedReadableNumber = ({
+  decimals,
+  number,
+  precision = 4,
+}: {
+  decimals: number;
+  number?: string;
+  precision?: number;
+}): string => {
+  return toPrecision(toReadableNumber(decimals, number), precision);
+};
+
 export const convertToPercentDecimal = (percent: number) => {
   return math.divide(percent, 100);
 };

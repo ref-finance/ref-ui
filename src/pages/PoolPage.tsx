@@ -12,7 +12,11 @@ import {
   PoolDetails,
   removeLiquidityFromPool,
 } from '../services/pool';
-import { sumBN, toReadableNumber } from '../utils/numbers';
+import {
+  sumBN,
+  toReadableNumber,
+  toRoundedReadableNumber,
+} from '../utils/numbers';
 import { TokenMetadata } from '../services/ft-contract';
 import { useTokenBalances, useTokens } from '../state/token';
 import TokenAmount from '../components/forms/TokenAmount';
@@ -59,11 +63,16 @@ function PoolHeader({ pool, shares }: { pool: PoolDetails; shares: string }) {
   return (
     <div className="flex flex-col lg:pl-6 mt-8 mb-14">
       <h1 className="font-normal text-xl pb-2 text-center">Pool Details</h1>
-      <Shares shares={toReadableNumber(24, shares)} />
+      <Shares
+        shares={toRoundedReadableNumber({ decimals: 24, number: shares })}
+      />
       <div className="grid grid-cols-2 gap-10">
         <DetailColumn
           title="Total Shares"
-          value={toReadableNumber(24, pool.shareSupply)}
+          value={toRoundedReadableNumber({
+            decimals: 24,
+            number: pool.shareSupply,
+          })}
         />
         <DetailColumn title="Fee" value={pool.fee} />
         <DetailColumn title="Total Liquidity" value={total} />
@@ -170,7 +179,10 @@ export default function PoolPage() {
     return (
       <p>
         <span className="font-black">Total Supply: </span>
-        {toReadableNumber(token.decimals, pool.supplies[token.id])}
+        {toRoundedReadableNumber({
+          decimals: token.decimals,
+          number: pool.supplies[token.id],
+        })}
       </p>
     );
   };
