@@ -63,7 +63,6 @@ export const ftGetTokenMetadata = async (
       ...metadata,
     };
   } catch (err) {
-    console.log(err);
     return {
       id,
       name: id,

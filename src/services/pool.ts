@@ -180,8 +180,6 @@ export const addSimpleLiquidityPool = async (
     tokenIds.map((id) => ftGetStorageBalance(id, REF_FI_CONTRACT_ID))
   );
 
-  console.log(JSON.stringify(storageBalances, null, 2));
-
   const transactions: Transaction[] = storageBalances
     .reduce((acc, sb, i) => {
       if (!sb || sb.total === '0') acc.push(tokenIds[i]);
@@ -197,8 +195,6 @@ export const addSimpleLiquidityPool = async (
         },
       ],
     }));
-
-  console.log(JSON.stringify(transactions, null, 2));
 
   transactions.push({
     receiverId: REF_FI_CONTRACT_ID,
