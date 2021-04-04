@@ -92,8 +92,8 @@ function AddLiquidity({
     return addLiquidityToPool({
       id: pool.id,
       tokenAmounts: [
-        { token: tokens[0], amount: firstTokenAmount },
-        { token: tokens[1], amount: secondTokenAmount },
+        { token: tokens[0], amount: firstTokenAmount || '0' },
+        { token: tokens[1], amount: secondTokenAmount || '0' },
       ],
     });
   };
@@ -137,7 +137,7 @@ function RemoveLiquidity({ pool, shares }: { pool: Pool; shares: string }) {
   };
 
   return (
-    <FormWrap buttonText="Remove Liquidity" onSubmit={handleSubmit}>
+    <FormWrap buttonText="Remove Liquidity" canSubmit={!!amount} onSubmit={handleSubmit}>
       <InputAmount
         value={amount}
         max={toReadableNumber(24, shares)}
