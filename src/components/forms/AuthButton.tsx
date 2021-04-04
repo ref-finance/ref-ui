@@ -19,11 +19,10 @@ function AuthButton() {
           <button
             onClick={signout}
             type="button"
-            className="bg-red-600 hover:bg-white hover:text-red-600 hover:border-2 hover:border-red-600 text-white flex flex-col my-4 py-1 h-15 w-40 border-2  shadow-lg hover:bg-disabled rounded-lg transition-colors focus:outline-none"
+            className="bg-red-600 hover:bg-white hover:text-red-600 hover:border-2 hover:border-red-600 text-white my-4 h-10 w-40 border-2 flex-row-centered shadow-lg hover:bg-disabled rounded-lg transition-colors focus:outline-none"
           >
             {' '}
-            <p className="w-full">SIGN OUT</p>
-            <h1 className="w-full">{wallet.getAccountId()}</h1>
+            SIGN OUT
           </button>
         </>
       ) : (

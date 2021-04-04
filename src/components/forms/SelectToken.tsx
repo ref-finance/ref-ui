@@ -1,8 +1,8 @@
 import React from 'react';
 import MicroModal from 'react-micro-modal';
+import { FaAngleDown } from 'react-icons/fa';
 import TokenList from '../tokens/TokenList';
 import { TokenMetadata } from '../../services/ft-contract';
-import DownArrow from '../../assets/misc/select-arrow.svg';
 
 export default function SelectToken({
   tokens,
@@ -18,8 +18,14 @@ export default function SelectToken({
   return (
     <MicroModal
       trigger={(open) => (
-        <button className="focus:outline-none p-1" type="button" onClick={open}>
-          {selected || <DownArrow className="stroke-current text-inputText" />}
+        <button
+          className="focus:outline-none p-1 col-span-3"
+          type="button"
+          onClick={open}
+        >
+          {selected || (
+            <FaAngleDown className="stroke-current text-inputText block ml-1" />
+          )}
         </button>
       )}
       overrides={{

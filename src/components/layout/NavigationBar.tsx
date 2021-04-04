@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { slide as Menu } from 'react-burger-menu';
+import Dropdown from './Dropdown';
 import AuthButton from '../../components/forms/AuthButton';
 import RefLogo from '../../assets/reffi-logo.svg';
 import { wallet } from '~services/near';
@@ -81,8 +82,8 @@ function DesktopBar() {
       <Anchor to="/portfolio" name="Portfolio" />
       <Anchor to="/" name="Swap" />
       <Anchor to="/pools" name="Pools" />
-      <section className="place-self-end mr-3">
-        <AuthButton />
+      <section className="place-self-center">
+        {wallet.isSignedIn() ? <Dropdown /> : <AuthButton />}
       </section>
     </nav>
   );

@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { toPrecision } from '~utils/numbers';
 
 interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   max?: string;
@@ -19,27 +20,36 @@ export default function InputAmount({
   };
 
   return (
-    <fieldset className={`relative flex align-center my-4 ${className}`}>
-      <input
-        ref={ref}
-        {...rest}
-        step="any"
-        min="0"
-        max={max}
-        className="focus:outline-none shadow bg-inputBg appearance-none border rounded border-opacity-30 w-full py-2 px-3 text-3xl text-inputText leading-tight"
-        type="number"
-        placeholder="0.0"
-        onChange={({ target }) => handleChange(target.value)}
-      />
-      {max ? (
-        <button
-          className="absolute inset-y-0 right-0 items-center p-4 hover:bg-hoverGray"
-          type="button"
-          onClick={() => handleChange(max)}
-        >
-          MAX
-        </button>
-      ) : null}
-    </fieldset>
+    <>
+      {max && (
+        <p className="bg-inputBg col-span-12 p-2 text-right">
+          Balance: {toPrecision(max || '0', 4, true)}
+        </p>
+      )}
+      <fieldset className={className}>
+        <div className="relative flex align-center items-center">
+          <input
+            ref={ref}
+            {...rest}
+            step="any"
+            min="0"
+            max={max}
+            className="focus:outline-none bg-inputBg appearance-none rounded border-opacity-30 w-full py-2 px-3 text-2xl text-inputText leading-tight"
+            type="number"
+            placeholder="0.0"
+            onChange={({ target }) => handleChange(target.value)}
+          />
+          {max ? (
+            <button
+              className="border rounded-lg right-0 items-center py-2 px-3 hover:bg-hoverGray m-auto"
+              type="button"
+              onClick={() => handleChange(max)}
+            >
+              MAX
+            </button>
+          ) : null}
+        </div>
+      </fieldset>
+    </>
   );
 }

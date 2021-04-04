@@ -207,5 +207,8 @@ export const addSimpleLiquidityPool = async (
     ],
   });
 
-  return executeMultipleTransactions(transactions);
+  return executeMultipleTransactions(
+    transactions,
+    `${window.location.origin}/pools`
+  );
 };

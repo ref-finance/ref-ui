@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import { Pool } from '~services/pool';
 import { TokenMetadata } from '~services/ft-contract';
 import { percentLess } from '~utils/numbers';
-import { estimateSwap, swap } from '../services/swap';
+import { checkSwap, estimateSwap, swap } from '../services/swap';
 import { useHistory, useLocation } from 'react-router';
 
 interface SwapOptions {
@@ -28,16 +28,6 @@ export const useSwap = ({
   const history = useHistory();
   const txHash = new URLSearchParams(search).get('transactionHashes');
   if (txHash) {
-    toast(
-      <a
-        className="text-primary font-semibold"
-        href={`https://explorer.testnet.near.org/transactions/${txHash}`}
-        target="_blank"
-      >
-        Swap successful. Click to view
-      </a>
-    );
-    history.replace('');
   }
 
   const minAmountOut = tokenOutAmount
@@ -45,8 +35,36 @@ export const useSwap = ({
     : null;
 
   useEffect(() => {
+    if (txHash) {
+      checkSwap(txHash)
+        .then(({ transaction }) => {
+          return (
+            transaction?.actions[0]?.['FunctionCall']?.method_name === 'swap'
+          );
+        })
+        .then((isSwap) => {
+          if (isSwap) {
+            toast(
+              <a
+                className="text-primary font-semibold"
+                href={`https://explorer.testnet.near.org/transactions/${txHash}`}
+                target="_blank"
+              >
+                Swap successful. Click to view
+              </a>
+            );
+          }
+          history.replace('');
+        });
+    }
     setCanSwap(false);
-    if (tokenIn && tokenOut && tokenInAmount && tokenIn.id !== tokenOut.id) {
+    if (
+      tokenIn &&
+      tokenOut &&
+      tokenInAmount &&
+      tokenInAmount !== '0' &&
+      tokenIn.id !== tokenOut.id
+    ) {
       setSwapError(null);
       estimateSwap({
         tokenIn,

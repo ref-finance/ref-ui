@@ -5,6 +5,7 @@ import { TokenBalancesView } from '../../services/token';
 import Icon from '../tokens/Icon';
 import InputAmount from './InputAmount';
 import SelectToken from './SelectToken';
+import { FaAngleDown } from 'react-icons/fa';
 
 interface TokenAmountProps {
   amount?: string;
@@ -36,9 +37,9 @@ export default function TokenAmount({
   );
 
   return (
-    <fieldset className="relative grid grid-cols-12 align-center">
+    <fieldset className="bg-inputBg relative grid grid-cols-12 rounded-lg p-2 align-center my-2">
       <InputAmount
-        className="col-span-11"
+        className="col-span-9"
         name={selectedToken?.id}
         max={max}
         value={amount}
@@ -47,7 +48,14 @@ export default function TokenAmount({
       <SelectToken
         tokens={tokens}
         render={balances ? render : null}
-        selected={selectedToken && <Icon token={selectedToken} />}
+        selected={
+          selectedToken && (
+            <div className="flex items-center justify-end">
+              <Icon token={selectedToken} />
+              <FaAngleDown className="stroke-current text-inputText block ml-1" />
+            </div>
+          )
+        }
         onSelect={onSelectToken}
       />
     </fieldset>

@@ -1,11 +1,12 @@
 import React from 'react';
+import PageWrap from '~components/layout/PageWrap';
 import SwapCard from '../components/swap/SwapCard';
 
 function SwapPage() {
   return (
-    <div className="place-self-center">
+    <PageWrap>
       <SwapCard />
-    </div>
+    </PageWrap>
   );
 }
 

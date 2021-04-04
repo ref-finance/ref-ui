@@ -7,26 +7,24 @@ import { Pool } from '../services/pool';
 import { usePools } from '../state/pool';
 import Loading from '../components/layout/Loading';
 import PageWrap from '~components/layout/PageWrap';
-import { toRoundedReadableNumber } from '~utils/numbers';
+import { calculateFeePercent, toRoundedReadableNumber } from '~utils/numbers';
 
 function PoolRow({ pool }: { pool: Pool }) {
   const tokens = useTokens(pool.tokenIds);
   if (!tokens) return <Loading />;
 
   const imgs = tokens.map((token, i) => <Icon key={i} token={token} />);
-  const symbol = tokens.map((token) => token.symbol).join('-');
 
   return (
     <Link
       to={`/pools/${pool.id}`}
       className="grid grid-cols-12 py-2 text-right content-center"
     >
-      <p className="flex justify-end">{imgs}</p>
-      <p className="col-span-2">{symbol}</p>
-      <p className="col-span-8">
+      <p className="flex justify-end col-span-4">{imgs}</p>
+      <p className="col-span-6">
         {toRoundedReadableNumber({ decimals: 24, number: pool.shareSupply })}
       </p>
-      <p>{pool.fee}</p>
+      <p className="col-span-2">{calculateFeePercent(pool.fee)}%</p>
     </Link>
   );
 }
@@ -58,9 +56,9 @@ export default function PoolsPage() {
 
         <section>
           <header className="grid grid-cols-12 py-2 text-right">
-            <p className="col-span-3">Symbol</p>
-            <p className="col-span-8">Total Shares</p>
-            <p>Fee</p>
+            <p className="col-span-4">Symbol</p>
+            <p className="col-span-6">Total Shares</p>
+            <p className="col-span-2">Fee</p>
           </header>
           {pools.map((pool) => (
             <PoolRow key={pool.id} pool={pool} />

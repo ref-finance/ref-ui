@@ -72,7 +72,8 @@ export interface Transaction {
 }
 
 export const executeMultipleTransactions = async (
-  transactions: Transaction[]
+  transactions: Transaction[],
+  callbackUrl?: string
 ) => {
   const nearTransactions = await Promise.all(
     transactions.map((t, i) => {
@@ -91,5 +92,5 @@ export const executeMultipleTransactions = async (
     })
   );
 
-  return wallet.requestSignTransactions(nearTransactions);
+  return wallet.requestSignTransactions(nearTransactions, callbackUrl);
 };

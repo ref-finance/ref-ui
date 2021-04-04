@@ -110,3 +110,7 @@ function formatWithCommas(value: string): string {
   }
   return value;
 }
+
+export const percent = (numerator: string, denominator: string) => {
+  return math.evaluate(`(${numerator} / ${denominator}) * 100`);
+};

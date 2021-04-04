@@ -13,5 +13,10 @@ export default function Icon({
   const icon =
     token.icon ||
     'https://fluxprotocol.eth.link/static/media/wrapped-near.8b3a5e4b.svg';
-  return <img className={`h-${size} w-${size} ${className}`} src={icon} />;
+  return (
+    <div className="flex items-center">
+      <img className={`h-${size} w-${size} ${className}`} src={icon} />
+      <p className="ml-2">{token.symbol}</p>
+    </div>
+  );
 }

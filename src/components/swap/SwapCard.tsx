@@ -11,9 +11,9 @@ import {
   calculateExchangeRate,
   calculateFeeCharge,
   calculateFeePercent,
+  toPrecision,
   toReadableNumber,
 } from '../../utils/numbers';
-import Icon from '../../components/tokens/Icon';
 import Loading from '../../components/layout/Loading';
 import { wallet } from '../../services/near';
 
@@ -28,11 +28,15 @@ function SwapDetail({ title, value }: { title: string; value: string }) {
 
 function DetailView({
   pool,
+  tokenIn,
+  tokenOut
   from,
   to,
   minAmountOut,
 }: {
   pool: Pool;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata
   from: string;
   to: string;
   minAmountOut: string;
@@ -41,32 +45,22 @@ function DetailView({
 
   return (
     <>
-      <SwapDetail title="Minimum received" value={minAmountOut} />
+      <SwapDetail
+        title="Minimum received"
+        value={toPrecision(minAmountOut, 4, true)}
+      />
       <SwapDetail
         title="Swap Rate"
-        value={calculateExchangeRate(pool.fee, from, to)}
+        value={`${calculateExchangeRate(pool.fee, from, to)} ${tokenIn.symbol} per ${tokenOut.symbol}`}
+      />
+      <SwapDetail
+        title="Pool Fee"
+        value={`${calculateFeePercent(pool.fee)}% (${calculateFeeCharge(
+          pool.fee,
+          from
+        )})`}
       />
     </>
-  );
-}
-
-function FeeView({
-  pool,
-  amount,
-  token,
-}: {
-  pool?: Pool;
-  amount: string;
-  token: TokenMetadata;
-}) {
-  if (!pool || !amount) return null;
-
-  return (
-    <p>
-      <span className="font-semibold">Pool Fee: </span>
-      {calculateFeePercent(pool.fee)}% ({calculateFeeCharge(pool.fee, amount)}{' '}
-      <Icon className="inline" token={token} size="3" />)
-    </p>
   );
 }
 
@@ -154,7 +148,6 @@ export default function SwapCard() {
   return (
     <FormWrap title={title} canSubmit={canSwap} onSubmit={handleSubmit}>
       {swapError && <Alert level="error" message={swapError.message} />}
-      <FeeView pool={pool} amount={tokenInAmount} token={tokenIn} />
       <TokenAmount
         amount={tokenInAmount}
         max={
@@ -177,7 +170,7 @@ export default function SwapCard() {
         }}
       />
       <TokenAmount
-        amount={tokenOutAmount}
+        amount={toPrecision(tokenOutAmount, 6)}
         tokens={allTokens}
         selectedToken={tokenOut}
         balances={balances}
@@ -193,6 +186,8 @@ export default function SwapCard() {
       />
       <DetailView
         pool={pool}
+        tokenIn={tokenIn}
+        tokenOut={tokenOut}
         from={tokenInAmount}
         to={tokenOutAmount}
         minAmountOut={minAmountOut}

@@ -11,7 +11,7 @@ module.exports = {
         secondary: '#F9FAFB',
         secondaryScale: colors.gray,
         darkText: colors.gray['600'],
-        inputBg: '#F9FAFB',
+        inputBg: colors.gray['100'],
         inputText: '#374151',
         hoverGray: '#F3F4F6',
         buttonBg: '#10B981',
