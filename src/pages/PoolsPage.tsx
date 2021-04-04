@@ -7,7 +7,7 @@ import { Pool } from '../services/pool';
 import { usePools } from '../state/pool';
 import Loading from '../components/layout/Loading';
 import PageWrap from '~components/layout/PageWrap';
-import { toReadableNumber, toRoundedReadableNumber } from '~utils/numbers';
+import { toRoundedReadableNumber } from '~utils/numbers';
 
 function PoolRow({ pool }: { pool: Pool }) {
   const tokens = useTokens(pool.tokenIds);

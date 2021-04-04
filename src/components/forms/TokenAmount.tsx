@@ -1,5 +1,5 @@
 import React from 'react';
-import { toReadableNumber } from '../../utils/numbers';
+import { toRoundedReadableNumber } from '../../utils/numbers';
 import { TokenMetadata } from '../../services/ft-contract';
 import { TokenBalancesView } from '../../services/token';
 import Icon from '../tokens/Icon';
@@ -27,7 +27,12 @@ export default function TokenAmount({
   onChangeAmount,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) => (
-    <p>{toReadableNumber(token.decimals, balances[token.id])}</p>
+    <p>
+      {toRoundedReadableNumber({
+        decimals: token.decimals,
+        number: balances[token.id],
+      })}
+    </p>
   );
 
   return (

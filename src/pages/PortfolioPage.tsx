@@ -1,5 +1,5 @@
 import React from 'react';
-import { toReadableNumber } from '../utils/numbers';
+import { toRoundedReadableNumber } from '../utils/numbers';
 import { useTokenBalances, useUserRegisteredTokens } from '../state/token';
 import TokenList from '../components/tokens/TokenList';
 import Loading from '../components/layout/Loading';
@@ -20,7 +20,12 @@ export default function PortfolioPage() {
       <TokenList
         tokens={registeredTokens}
         render={(token) => (
-          <p>{toReadableNumber(token.decimals, balances[token.id])}</p>
+          <p>
+            {toRoundedReadableNumber({
+              decimals: token.decimals,
+              number: balances[token.id],
+            })}
+          </p>
         )}
       />
       <TokenManagement />
