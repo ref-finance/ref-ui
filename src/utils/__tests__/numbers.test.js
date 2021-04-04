@@ -50,4 +50,8 @@ describe('toNonDivisibleNumber', () => {
   test('overprecise number', () => {
     expect(toNonDivisibleNumber(5, '123.456789')).toEqual('12345678');
   });
+
+  test('zero', () => {
+    expect(toNonDivisibleNumber(20, '0')).toEqual('0');
+  });
 });

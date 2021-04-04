@@ -39,9 +39,9 @@ export const toNonDivisibleNumber = (
   if (!decimals) return number;
   const [wholePart, fracPart = ''] = number.split('.');
 
-  return `${wholePart}${fracPart
-    .padEnd(decimals, '0')
-    .slice(0, decimals)}`.replace(/^0+/, '');
+  return `${wholePart}${fracPart.padEnd(decimals, '0').slice(0, decimals)}`
+    .replace(/^0+/, '')
+    .padStart(1, '0');
 };
 
 export const convertToPercentDecimal = (percent: number) => {

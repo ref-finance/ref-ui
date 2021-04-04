@@ -136,8 +136,6 @@ export const addLiquidityToPool = async ({
   id,
   tokenAmounts,
 }: AddLiquidityToPoolOptions) => {
-  const pool = await getPool(id);
-
   const amounts = tokenAmounts.map(({ token, amount }) =>
     toNonDivisibleNumber(token.decimals, amount)
   );

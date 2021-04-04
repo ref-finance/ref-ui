@@ -89,11 +89,19 @@ function AddLiquidity({
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (!firstTokenAmount || firstTokenAmount === '0') {
+      throw new Error(`Must provide at least 1 token for ${tokens[0].symbol}`);
+    }
+
+    if (!secondTokenAmount || secondTokenAmount === '0') {
+      throw new Error(`Must provide at least 1 token for ${tokens[1].symbol}`);
+    }
+
     return addLiquidityToPool({
       id: pool.id,
       tokenAmounts: [
-        { token: tokens[0], amount: firstTokenAmount || '0' },
-        { token: tokens[1], amount: secondTokenAmount || '0' },
+        { token: tokens[0], amount: firstTokenAmount },
+        { token: tokens[1], amount: secondTokenAmount },
       ],
     });
   };
@@ -137,7 +145,11 @@ function RemoveLiquidity({ pool, shares }: { pool: Pool; shares: string }) {
   };
 
   return (
-    <FormWrap buttonText="Remove Liquidity" canSubmit={!!amount} onSubmit={handleSubmit}>
+    <FormWrap
+      buttonText="Remove Liquidity"
+      canSubmit={!!amount}
+      onSubmit={handleSubmit}
+    >
       <InputAmount
         value={amount}
         max={toReadableNumber(24, shares)}
