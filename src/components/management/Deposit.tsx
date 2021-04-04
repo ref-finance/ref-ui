@@ -4,14 +4,14 @@ import TokenAmount from '../forms/TokenAmount';
 import { TokenMetadata } from '../../services/ft-contract';
 import { deposit } from '../../services/token';
 import { useDepositableBalance } from '../../state/token';
-import { toReadableNumber } from '../../utils/numbers';
+import { toPrecision, toReadableNumber } from '../../utils/numbers';
 
 export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
   const [amount, setAmount] = useState<string>();
   const [selectedToken, setSelectedToken] = useState<TokenMetadata>();
 
   const depositable = useDepositableBalance(selectedToken?.id);
-  const max = toReadableNumber(selectedToken?.decimals, depositable) || 0;
+  const max = toReadableNumber(selectedToken?.decimals, depositable) || '0';
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -29,7 +29,8 @@ export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
     >
       {selectedToken && (
         <h2>
-          You can deposit up to {max} {selectedToken.symbol}
+          You can deposit up to {toPrecision(max, 4, true)}{' '}
+          {selectedToken.symbol}
         </h2>
       )}
       <TokenAmount

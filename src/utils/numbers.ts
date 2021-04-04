@@ -44,10 +44,17 @@ export const toNonDivisibleNumber = (
     .padStart(1, '0');
 };
 
-export const toPrecision = (number: string, precision: number): string => {
+export const toPrecision = (
+  number: string,
+  precision: number,
+  withCommas: boolean = false
+): string => {
   const [whole, decimal = ''] = number.split('.');
 
-  return `${whole}.${decimal.slice(0, precision)}`.replace(/\.$/, '');
+  return `${withCommas ? formatWithCommas(whole) : whole}.${decimal.slice(
+    0,
+    precision
+  )}`.replace(/\.$/, '');
 };
 
 export const toRoundedReadableNumber = ({
@@ -59,7 +66,7 @@ export const toRoundedReadableNumber = ({
   number?: string;
   precision?: number;
 }): string => {
-  return toPrecision(toReadableNumber(decimals, number), precision);
+  return toPrecision(toReadableNumber(decimals, number), precision, true);
 };
 
 export const convertToPercentDecimal = (percent: number) => {
@@ -95,3 +102,11 @@ export const percentOf = (percent: number, num: number | string) => {
 export const percentLess = (percent: number, num: number | string) => {
   return math.evaluate(`${num} - ${percentOf(percent, num)}`);
 };
+
+function formatWithCommas(value: string): string {
+  const pattern = /(-?\d+)(\d{3})/;
+  while (pattern.test(value)) {
+    value = value.replace(pattern, '$1,$2');
+  }
+  return value;
+}

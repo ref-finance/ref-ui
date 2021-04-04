@@ -13,6 +13,7 @@ import {
   removeLiquidityFromPool,
 } from '../services/pool';
 import {
+  calculateFeePercent,
   sumBN,
   toReadableNumber,
   toRoundedReadableNumber,
@@ -22,6 +23,7 @@ import { useTokenBalances, useTokens } from '../state/token';
 import TokenAmount from '../components/forms/TokenAmount';
 import TabFormWrap from '../components/forms/TabFormWrap';
 import Loading from '../components/layout/Loading';
+import Icon from '~components/tokens/Icon';
 
 interface ParamTypes {
   poolId: string;
@@ -29,7 +31,7 @@ interface ParamTypes {
 
 interface TokenDetailColumnProps {
   title: string;
-  value: string | number;
+  value: string | number | React.ReactElement;
 }
 
 function DetailColumn({ title, value }: TokenDetailColumnProps) {
@@ -51,7 +53,7 @@ function Shares({ shares }: { shares: string }) {
   );
 }
 
-function PoolHeader({ pool, shares }: { pool: PoolDetails; shares: string }) {
+function PoolHeader({ pool, tokens, shares }: { pool: PoolDetails; tokens: TokenMetadata[] shares: string }) {
   const total = Object.values(pool.supplies).reduce(
     (acc, amount) => sumBN(acc, amount),
     ''
@@ -74,9 +76,22 @@ function PoolHeader({ pool, shares }: { pool: PoolDetails; shares: string }) {
             number: pool.shareSupply,
           })}
         />
-        <DetailColumn title="Fee" value={pool.fee} />
+        <DetailColumn title="Fee" value={`${calculateFeePercent(pool.fee)}%`} />
         <DetailColumn title="Total Liquidity" value={total} />
         <DetailColumn title="Accumulated Volume" value={volume} />
+        <DetailColumn
+          title="Underlying liquidity"
+          value={
+            <section className="flex flex-col items-center">
+              <section className="flex items-center">
+                <Icon token={tokens[0]} /><span className="ml-2">{pool.supplies[tokens[0].id]}</span>
+              </section>
+              <section className="flex items-center">
+                <Icon token={tokens[1]} /><span className="ml-2">{pool.supplies[tokens[0].id]}</span>
+              </section>
+            </section>
+          }
+        />
       </div>
     </div>
   );
@@ -175,18 +190,6 @@ export default function PoolPage() {
 
   if (!pool || tokens.length < 2) return <Loading />;
 
-  const render = (token: TokenMetadata) => {
-    return (
-      <p>
-        <span className="font-black">Total Supply: </span>
-        {toRoundedReadableNumber({
-          decimals: token.decimals,
-          number: pool.supplies[token.id],
-        })}
-      </p>
-    );
-  };
-
   if (!pool || !tokens) return <Loading />;
 
   return (
@@ -194,12 +197,11 @@ export default function PoolPage() {
       <Link to="/pools" className="mb-2">
         <FaAngleLeft size={30} />
       </Link>
-      <PoolHeader pool={pool} shares={shares} />
+      <PoolHeader pool={pool} tokens={tokens} shares={shares} />
       <TabFormWrap titles={['Add Liquidity', 'Remove Liquidity']}>
         <AddLiquidity pool={pool} tokens={tokens} />
         <RemoveLiquidity pool={pool} shares={shares} />
       </TabFormWrap>
-      <TokenList tokens={tokens} render={render} />
     </PageWrap>
   );
 }

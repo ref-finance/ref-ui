@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { FaArrowsAltV } from 'react-icons/fa';
 import { TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
 import FormWrap from '../../components/forms/FormWrap';
@@ -71,7 +72,6 @@ function FeeView({
 
 function SlippageSelector({
   slippageTolerance,
-  minAmountOut,
   onChange,
 }: {
   slippageTolerance: number;
@@ -109,6 +109,19 @@ export default function SwapCard() {
 
   const allTokens = useWhitelistTokens();
   const balances = useTokenBalances();
+
+  useEffect(() => {
+    const rememberedIn = localStorage.getItem('REF_FI_SWAP_IN');
+    const rememberedOut = localStorage.getItem('REF_FI_SWAP_OUT');
+    if (allTokens) {
+      setTokenIn(
+        allTokens.find((token) => token.id === rememberedIn) || allTokens[0]
+      );
+      setTokenOut(
+        allTokens.find((token) => token.id === rememberedOut) || allTokens[1]
+      );
+    }
+  }, [allTokens]);
 
   const {
     canSwap,
@@ -150,15 +163,28 @@ export default function SwapCard() {
         tokens={allTokens}
         selectedToken={tokenIn}
         balances={balances}
-        onSelectToken={(token) => setTokenIn(token)}
+        onSelectToken={(token) => {
+          localStorage.setItem('REF_FI_SWAP_IN', token.id);
+          setTokenIn(token);
+        }}
         onChangeAmount={setTokenInAmount}
+      />
+      <FaArrowsAltV
+        className="h-6 m-auto cursor-pointer"
+        onClick={() => {
+          setTokenIn(tokenOut);
+          setTokenOut(tokenIn);
+        }}
       />
       <TokenAmount
         amount={tokenOutAmount}
         tokens={allTokens}
         selectedToken={tokenOut}
         balances={balances}
-        onSelectToken={(token) => setTokenOut(token)}
+        onSelectToken={(token) => {
+          localStorage.setItem('REF_FI_SWAP_OUT', token.id);
+          setTokenOut(token);
+        }}
       />
       <SlippageSelector
         slippageTolerance={slippageTolerance}
