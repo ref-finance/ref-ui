@@ -4,6 +4,7 @@ import TokenAmount from '../forms/TokenAmount';
 import { TokenMetadata } from '../../services/ft-contract';
 import { withdraw } from '../../services/token';
 import { useTokenBalances } from '../../state/token';
+import { toReadableNumber } from '~utils/numbers';
 
 export default function Withdraw({ tokens }: { tokens: TokenMetadata[] }) {
   const balances = useTokenBalances();
@@ -15,7 +16,7 @@ export default function Withdraw({ tokens }: { tokens: TokenMetadata[] }) {
     event.preventDefault();
 
     return withdraw({
-      tokenId: selectedToken.id,
+      token: selectedToken,
       amount,
     });
   };
@@ -28,7 +29,10 @@ export default function Withdraw({ tokens }: { tokens: TokenMetadata[] }) {
     >
       <TokenAmount
         amount={amount}
-        max={balances?.[selectedToken?.id]}
+        max={toReadableNumber(
+          selectedToken?.decimals,
+          balances?.[selectedToken?.id] || '0'
+        )}
         tokens={tokens}
         selectedToken={selectedToken}
         balances={balances}

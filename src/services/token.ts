@@ -149,16 +149,17 @@ export const deposit = async ({ token, amount, msg = '' }: DepositOptions) => {
 };
 
 interface WithdrawOptions {
-  tokenId: string;
+  token: TokenMetadata;
   amount: string;
   unregister?: boolean;
 }
 export const withdraw = async ({
-  tokenId,
+  token,
   amount,
   unregister = false,
 }: WithdrawOptions) => {
-  const ftBalance = await ftGetStorageBalance(tokenId);
+  const parsedAmount = toNonDivisibleNumber(token.decimals, amount);
+  const ftBalance = await ftGetStorageBalance(token.id);
 
   const transactions: Transaction[] = [
     {
@@ -166,7 +167,7 @@ export const withdraw = async ({
       functionCalls: [
         {
           methodName: 'withdraw',
-          args: { token_id: tokenId, amount, unregister },
+          args: { token_id: token.id, amount: parsedAmount, unregister },
           amount: ONE_YOCTO_NEAR,
         },
       ],
@@ -175,7 +176,7 @@ export const withdraw = async ({
 
   if (!ftBalance || ftBalance.total === '0') {
     transactions.unshift({
-      receiverId: tokenId,
+      receiverId: token.id,
       functionCalls: [
         {
           methodName: 'storage_deposit',
