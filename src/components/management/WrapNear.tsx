@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { toReadableNumber } from '~utils/numbers';
 import { wallet } from '../../services/near';
 import { wrapNear } from '../../services/wrap-near';
 import FormWrap from '../forms/FormWrap';
@@ -12,7 +13,7 @@ export default function WrapNear() {
     wallet
       .account()
       .getAccountBalance()
-      .then(({ available }) => setBalance(available));
+      .then(({ available }) => setBalance(toReadableNumber(24, available)));
   }, []);
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -23,11 +24,8 @@ export default function WrapNear() {
   if (!balance) return <Loading />;
 
   return (
-    <FormWrap
-      buttonText="Wrap NEAR"
-      canSubmit={!!amount}
-      onSubmit={handleSubmit}
-    >
+    <FormWrap buttonText="Wrap Ⓝ" canSubmit={!!amount} onSubmit={handleSubmit}>
+      <h2>You can deposit up to {balance} Ⓝ</h2>
       <input
         className="col-span-11 focus:outline-none shadow bg-inputBg appearance-none border rounded border-opacity-30 w-full py-2 px-3 text-3xl text-inputText leading-tight"
         max={balance}
