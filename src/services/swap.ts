@@ -28,6 +28,7 @@ export const estimateSwap = async ({
   amountIn,
 }: EstimateSwapOptions): Promise<EstimateSwapView> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
+  console.log(parsedAmountIn, tokenIn);
   if (!parsedAmountIn)
     throw new Error(`${amountIn} is not a valid swap amount`);
 

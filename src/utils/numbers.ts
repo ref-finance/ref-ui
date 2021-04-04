@@ -25,9 +25,9 @@ export const toReadableNumber = (
 
   const balanceBN = new BN(number, 10);
   const roundingExp = 24 - decimals - 1;
-  if (roundingExp > 0) {
-    balanceBN.iadd(ROUNDING_OFFSETS[roundingExp]);
-  }
+  // if (roundingExp > 0) {
+  //   balanceBN.iadd(ROUNDING_OFFSETS[roundingExp]);
+  // }
 
   const balance = balanceBN.toString();
   const wholeStr = balance.substring(0, balance.length - decimals) || '0';
@@ -36,7 +36,7 @@ export const toReadableNumber = (
     .padStart(decimals, '0')
     .substring(0, decimals);
 
-  return `${wholeStr}.${fractionStr}`.replace(/0+$/, '');
+  return `${wholeStr}.${fractionStr}`.replace(/.0+$/, '');
 };
 
 export const toNonDivisibleNumber = (
@@ -46,9 +46,9 @@ export const toNonDivisibleNumber = (
   if (!decimals) return number;
   const [wholePart, fracPart = ''] = number.split('.');
 
-  return `${wholePart}${fracPart.padEnd(decimals, '0')}`
-    .replace(/^0+/, '')
-    .slice(0, decimals);
+  return `${wholePart}${fracPart
+    .padEnd(decimals, '0')
+    .slice(0, decimals)}`.replace(/^0+/, '');
 };
 
 export const convertToPercentDecimal = (percent: number) => {

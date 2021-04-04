@@ -5,7 +5,8 @@
   "scripts": {
     "build": "parcel build src/index.html",
     "start": "parcel src/index.html --open",
-    "test": "jest test --runInBand"
+    "test": "jest test --runInBand",
+    "test:watch": "yarn test --watch"
   },
   "devDependencies": {
     "@babel/core": "~7.12.3",
@@ -13,6 +14,7 @@
     "@babel/preset-react": "~7.12.5",
     "@tailwindcss/postcss7-compat": "^2.0.3",
     "@types/bn.js": "^5.1.0",
+    "@types/jest": "^26.0.22",
     "@types/mathjs": "^6.0.11",
     "@types/react": "^17.0.3",
     "@types/react-burger-menu": "^2.8.0",
@@ -22,13 +24,14 @@
     "@types/react-toastify": "^4.1.0",
     "autoprefixer": "^9",
     "babel-jest": "~26.6.2",
-    "jest": "~26.6.2",
+    "jest": "^26.6.3",
     "jest-environment-node": "~26.6.2",
     "near-cli": "~1.4.0",
     "parcel-bundler": "1.12.3",
     "postcss": "^7",
     "postcss-modules": "^4.0.0",
-    "tailwindcss": "npm:@tailwindcss/postcss7-compat"
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat",
+    "ts-jest": "^26.5.4"
   },
   "dependencies": {
     "@svgr/parcel-plugin-svgr": "^5.5.0",
@@ -44,20 +47,6 @@
     "react-spinners": "^0.10.6",
     "react-toastify": "^7.0.3",
     "typescript": "^4.2.3"
-  },
-  "jest": {
-    "moduleNameMapper": {
-      "\\.(jpg|ico|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/src/__mocks__/fileMock.js",
-      "\\.(css|less)$": "<rootDir>/src/__mocks__/fileMock.js"
-    },
-    "setupFiles": [
-      "<rootDir>/src/jest.init.js"
-    ],
-    "testEnvironment": "near-cli/test_environment",
-    "testPathIgnorePatterns": [
-      "<rootDir>/contract/",
-      "<rootDir>/node_modules/"
-    ]
   },
   "browserslist": [
     "last 2 Chrome versions"
