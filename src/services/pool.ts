@@ -179,10 +179,15 @@ export const addSimpleLiquidityPool = async (
     tokenIds.map((id) => ftGetStorageBalance(id, REF_FI_CONTRACT_ID))
   );
 
+  console.log(JSON.stringify(storageBalances, null, 2));
+
   const transactions: Transaction[] = storageBalances
-    .filter((sb) => !sb || sb.total === '0')
-    .map((_, i) => ({
-      receiverId: tokenIds[i],
+    .reduce((acc, sb, i) => {
+      if (!sb || sb.total === '0') acc.push(tokenIds[i]);
+      return acc;
+    }, [])
+    .map((id) => ({
+      receiverId: id,
       functionCalls: [
         {
           methodName: 'storage_deposit',
@@ -192,13 +197,15 @@ export const addSimpleLiquidityPool = async (
       ],
     }));
 
+  console.log(JSON.stringify(transactions, null, 2));
+
   transactions.push({
     receiverId: REF_FI_CONTRACT_ID,
     functionCalls: [
       {
         methodName: 'add_simple_pool',
         args: { tokens: tokenIds, fee },
-        amount: '0.005',
+        amount: '0.05',
       },
     ],
   });
