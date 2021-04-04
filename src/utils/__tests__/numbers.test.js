@@ -24,6 +24,12 @@ describe('toReadableNumber', () => {
   test('single decimal', () => {
     expect(toReadableNumber(24, '500000000000000000000000')).toEqual('0.5');
   });
+
+  test('big number bigger decimal', () => {
+    expect(toReadableNumber(24, '9999988666724')).toEqual(
+      '0.000000000009999988666724'
+    );
+  });
 });
 
 describe('toNonDivisibleNumber', () => {

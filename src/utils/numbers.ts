@@ -23,18 +23,11 @@ export const toReadableNumber = (
 ): string => {
   if (!decimals) return number;
 
-  const balanceBN = new BN(number, 10);
-  const roundingExp = 24 - decimals - 1;
-  // if (roundingExp > 0) {
-  //   balanceBN.iadd(ROUNDING_OFFSETS[roundingExp]);
-  // }
-
-  const balance = balanceBN.toString();
-  const wholeStr = number.slice(0, number.length - decimals) || '0';
+  const wholeStr = number.substring(0, number.length - decimals) || '0';
   const fractionStr = number
-    .slice(number.length - decimals)
+    .substring(number.length - decimals)
     .padStart(decimals, '0')
-    .slice(0, decimals);
+    .substring(0, decimals);
 
   return `${wholeStr}.${fractionStr}`.replace(/\.?0+$/, '');
 };

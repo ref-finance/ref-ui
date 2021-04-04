@@ -59,9 +59,12 @@ function PoolHeader({ pool, shares }: { pool: PoolDetails; shares: string }) {
   return (
     <div className="flex flex-col lg:pl-6 mt-8 mb-14">
       <h1 className="font-normal text-xl pb-2 text-center">Pool Details</h1>
-      <Shares shares={shares} />
+      <Shares shares={toReadableNumber(24, shares)} />
       <div className="grid grid-cols-2 gap-10">
-        <DetailColumn title="Total Shares" value={pool.shareSupply} />
+        <DetailColumn
+          title="Total Shares"
+          value={toReadableNumber(24, pool.shareSupply)}
+        />
         <DetailColumn title="Fee" value={pool.fee} />
         <DetailColumn title="Total Liquidity" value={total} />
         <DetailColumn title="Accumulated Volume" value={volume} />
@@ -77,34 +80,40 @@ function AddLiquidity({
   pool: Pool;
   tokens: TokenMetadata[];
 }) {
+  const [firstTokenAmount, setFirstTokenAmount] = useState<string>();
+  const [secondTokenAmount, setSecondTokenAmount] = useState<string>();
+
   const balances = useTokenBalances();
+  if (!balances) return <Loading />;
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const fd = new FormData(event.target as HTMLFormElement);
-
-    const amounts = pool.tokenIds.reduce<{ [key: string]: string }>(
-      (acc, tokenId) => {
-        acc[tokenId] = fd.get(tokenId).toString();
-        return acc;
-      },
-      {}
-    );
 
     return addLiquidityToPool({
       id: pool.id,
-      tokenAmounts: amounts,
+      tokenAmounts: [
+        { token: tokens[0], amount: firstTokenAmount },
+        { token: tokens[1], amount: secondTokenAmount },
+      ],
     });
   };
 
   return (
     <FormWrap buttonText="Add Liquidity" onSubmit={handleSubmit}>
-      {Object.entries(pool.supplies).map(([tokenId, max]) => (
-        <TokenAmount
-          max={balances?.[tokenId]}
-          tokens={tokens}
-          selectedToken={tokens.find((t) => t.id === tokenId)}
-        />
-      ))}
+      <TokenAmount
+        amount={firstTokenAmount}
+        max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
+        tokens={[tokens[0]]}
+        selectedToken={tokens[0]}
+        onChangeAmount={setFirstTokenAmount}
+      />
+      <TokenAmount
+        amount={secondTokenAmount}
+        max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
+        tokens={[tokens[1]]}
+        selectedToken={tokens[1]}
+        onChangeAmount={setSecondTokenAmount}
+      />
     </FormWrap>
   );
 }
@@ -129,7 +138,11 @@ function RemoveLiquidity({ pool, shares }: { pool: Pool; shares: string }) {
 
   return (
     <FormWrap buttonText="Remove Liquidity" onSubmit={handleSubmit}>
-      <InputAmount value={amount} max={shares} onChangeAmount={setAmount} />
+      <InputAmount
+        value={amount}
+        max={toReadableNumber(24, shares)}
+        onChangeAmount={setAmount}
+      />
     </FormWrap>
   );
 }
@@ -138,6 +151,8 @@ export default function PoolPage() {
   const { poolId } = useParams<ParamTypes>();
   const { pool, shares } = usePool(poolId);
   const tokens = useTokens(pool?.tokenIds);
+
+  if (!pool || tokens.length < 2) return <Loading />;
 
   const render = (token: TokenMetadata) => {
     return (

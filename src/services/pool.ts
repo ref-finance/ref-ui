@@ -9,7 +9,8 @@ import {
 } from './near';
 import BN from 'bn.js';
 import { utils } from 'near-api-js';
-import { ftGetStorageBalance } from './ft-contract';
+import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
+import { toNonDivisibleNumber } from '~utils/numbers';
 
 const DEFAULT_PAGE_LIMIT = 10;
 
@@ -39,7 +40,7 @@ const parsePool = (pool: PoolRPCView, id: number): Pool => ({
     {}
   ),
   fee: pool.total_fee,
-  shareSupply: utils.format.formatNearAmount(pool.shares_total_supply),
+  shareSupply: pool.shares_total_supply,
 });
 
 export const getPools = async (
@@ -123,12 +124,12 @@ export const getSharesInPool = (id: number): Promise<string> => {
   return refFiViewFunction({
     methodName: 'get_pool_shares',
     args: { pool_id: id, account_id: wallet.getAccountId() },
-  }).then((shares) => shares);
+  });
 };
 
 interface AddLiquidityToPoolOptions {
   id: number;
-  tokenAmounts: { [tokenId: string]: string };
+  tokenAmounts: { token: TokenMetadata; amount: string }[];
 }
 
 export const addLiquidityToPool = async ({
@@ -137,7 +138,9 @@ export const addLiquidityToPool = async ({
 }: AddLiquidityToPoolOptions) => {
   const pool = await getPool(id);
 
-  const amounts = pool.tokenIds.map((tokenId) => tokenAmounts[tokenId]);
+  const amounts = tokenAmounts.map(({ token, amount }) =>
+    toNonDivisibleNumber(token.decimals, amount)
+  );
 
   return refFiFunctionCall({
     methodName: 'add_liquidity',
@@ -164,7 +167,7 @@ export const removeLiquidityFromPool = async ({
     methodName: 'remove_liquidity',
     args: {
       pool_id: id,
-      shares,
+      shares: toNonDivisibleNumber(24, shares),
       min_amounts: amounts,
     },
     amount: ONE_YOCTO_NEAR,
