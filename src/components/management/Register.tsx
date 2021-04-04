@@ -8,7 +8,7 @@ import Icon from '~components/tokens/Icon';
 export default function Register({
   initialTokenId,
 }: {
-  initialTokenId: string;
+  initialTokenId?: string;
 }) {
   const [tokenId, setTokenId] = useState<string>(initialTokenId);
   const token = useToken(tokenId);
