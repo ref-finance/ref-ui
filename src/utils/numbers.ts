@@ -30,13 +30,13 @@ export const toReadableNumber = (
   // }
 
   const balance = balanceBN.toString();
-  const wholeStr = balance.substring(0, balance.length - decimals) || '0';
-  const fractionStr = balance
-    .substring(balance.length - decimals)
+  const wholeStr = number.slice(0, number.length - decimals) || '0';
+  const fractionStr = number
+    .slice(number.length - decimals)
     .padStart(decimals, '0')
-    .substring(0, decimals);
+    .slice(0, decimals);
 
-  return `${wholeStr}.${fractionStr}`.replace(/.0+$/, '');
+  return `${wholeStr}.${fractionStr}`.replace(/\.?0+$/, '');
 };
 
 export const toNonDivisibleNumber = (

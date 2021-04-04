@@ -17,8 +17,12 @@ describe('toReadableNumber', () => {
     expect(toReadableNumber(20, '1000000000000000000000')).toEqual('10');
   });
 
-  test('large number', () => {
+  test('large number small decimals', () => {
     expect(toReadableNumber(2, '999900023')).toEqual('9999000.23');
+  });
+
+  test('single decimal', () => {
+    expect(toReadableNumber(24, '500000000000000000000000')).toEqual('0.5');
   });
 });
 
