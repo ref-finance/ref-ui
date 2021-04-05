@@ -58,7 +58,6 @@ function Shares({
   if (!shares || !totalShares) return null;
 
   let sharePercent = percent(shares, totalShares);
-  console.log(sharePercent, Number.isNaN(sharePercent));
 
   let displayPercent;
   if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
