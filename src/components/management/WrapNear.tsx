@@ -25,7 +25,7 @@ export default function WrapNear() {
 
   return (
     <FormWrap buttonText="Wrap Ⓝ" canSubmit={!!amount} onSubmit={handleSubmit}>
-      <h2>You can deposit up to {balance} Ⓝ</h2>
+      <h2 className="text-center">You can wrap and deposit up to {balance} Ⓝ.</h2>
       <input
         className="col-span-11 focus:outline-none shadow bg-inputBg appearance-none border rounded border-opacity-30 w-full py-2 px-3 text-lg my-4 text-inputText leading-tight"
         max={balance}

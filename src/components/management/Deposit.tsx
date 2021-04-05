@@ -28,9 +28,9 @@ export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
       onSubmit={handleSubmit}
     >
       {selectedToken && (
-        <h2>
+        <h2 className="text-center">
           You can deposit up to {toPrecision(max, 4, true)}{' '}
-          {selectedToken.symbol}
+          {selectedToken.symbol}.
         </h2>
       )}
       <TokenAmount
