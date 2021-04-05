@@ -64,7 +64,7 @@ function Shares({ shares, totalShares }: { shares: string, totalShares: string }
   );
 }
 
-function PoolHeader({ pool, tokens, shares }: { pool: PoolDetails; tokens: TokenMetadata[] shares: string }) {
+function PoolHeader({ pool, tokens, shares }: { pool: PoolDetails; tokens: TokenMetadata[]; shares: string }) {
   const total = Object.values(pool.supplies).reduce(
     (acc, amount) => sumBN(acc, amount),
     ''
