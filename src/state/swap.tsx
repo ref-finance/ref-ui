@@ -47,7 +47,7 @@ export const useSwap = ({
             toast(
               <a
                 className="text-primary font-semibold"
-                href={`https://explorer.testnet.near.org/transactions/${txHash}`}
+                href={`https://explorer.near.org/transactions/${txHash}`}
                 target="_blank"
               >
                 Swap successful. Click to view
