@@ -20,7 +20,7 @@ function PoolRow({ pool }: { pool: Pool }) {
       to={`/pools/${pool.id}`}
       className="grid grid-cols-12 py-2 text-right content-center"
     >
-      <p className="flex justify-end col-span-4">{imgs}</p>
+      <p className="flex justify-end col-span-4 space-x-8">{imgs}</p>
       <p className="col-span-6">
         {toRoundedReadableNumber({ decimals: 24, number: pool.shareSupply })}
       </p>
