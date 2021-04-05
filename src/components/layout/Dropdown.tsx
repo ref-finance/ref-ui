@@ -18,7 +18,7 @@ export default function Dropdown() {
       <div>
         <button
           type="button"
-          className="flex max-w-1 items-center hover:text-darkText text-md"
+          className="flex max-w-1 items-center hover:text-darkText text-md focus:outline-none"
           id="options-menu"
           aria-expanded="true"
           aria-haspopup="true"
