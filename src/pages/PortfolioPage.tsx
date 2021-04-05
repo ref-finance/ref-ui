@@ -14,7 +14,7 @@ export default function PortfolioPage() {
 
   return (
     <PageWrap>
-      <h1 className="text-center text-xl py-2 font-bold border-b-2 ">
+      <h1 className="text-center text-xl py-2 font-bold border-b-2">
         Balances
       </h1>
       <TokenList
