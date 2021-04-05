@@ -34,7 +34,7 @@ export default function SelectToken({
     >
       {(close) => (
         <section>
-          <h2 className="text-center">Select Token</h2>
+          <h2 className="text-2xl py-2 text-center border-b-2">Select Token</h2>
           <TokenList
             tokens={tokens}
             render={render}
