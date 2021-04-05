@@ -78,7 +78,7 @@ function RegisterToken() {
       <input
         className="focus:outline-none shadow bg-inputBg appearance-none border rounded border-opacity-30 w-full py-2 px-3 text-3xl text-inputText leading-tight"
         type="text"
-        placeholder="Token Address"
+        placeholder="Enter Token Address..."
         value={tokenId}
         onChange={({ target }) => setTokenId(target.value)}
       />

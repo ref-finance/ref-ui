@@ -30,7 +30,7 @@ export default function Register({
           className="col-span-11 focus:outline-none shadow bg-inputBg appearance-none border rounded border-opacity-30 w-full py-2 px-3 text-3xl text-inputText leading-tight"
           type="text"
           disabled={!!initialTokenId}
-          placeholder="Token Address"
+          placeholder="Enter token address..."
           value={tokenId}
           onChange={({ target }) => setTokenId(target.value)}
         />

@@ -35,7 +35,7 @@ export default function FormWrap({
       onSubmit={handleSubmit}
     >
       {title && (
-        <h2 className="formTitle font-bold text-2xl text-gray-700 text-center pb-2">
+        <h2 className="formTitle font-bold text-xl text-gray-700 text-center pb-2">
           {title}
         </h2>
       )}
