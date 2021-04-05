@@ -1,13 +1,12 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { FaAngleDown } from 'react-icons/fa';
 import { wallet } from '~services/near';
 
 export default function Dropdown() {
-  const ref = useRef<HTMLDivElement>();
   const [open, setOpen] = useState<boolean>(false);
 
   const [account, network] = wallet.getAccountId().split('.');
-  const niceAccountId = `${account.slice(0, 10)}...${network}`;
+  const niceAccountId = `${account.slice(0, 10)}...${network || ''}`;
 
   return (
     <div className="relative inline-block text-left mr-12">

@@ -58,7 +58,6 @@ function MobileBar() {
 function Anchor({ to, name }: { to: string; name: string }) {
   const location = useLocation();
   const isSelected = to === location.pathname;
-  if (!wallet.isSignedIn()) return <p></p>;
 
   return (
     <Link to={to}>
@@ -79,7 +78,11 @@ function DesktopBar() {
       <Link to="/" className="my-2 mx-3">
         <RefLogo className="w-full" height="66" />
       </Link>
-      <Anchor to="/portfolio" name="Portfolio" />
+      {wallet.isSignedIn() ? (
+        <Anchor to="/portfolio" name="Portfolio" />
+      ) : (
+        <p></p>
+      )}
       <Anchor to="/" name="Swap" />
       <Anchor to="/pools" name="Pools" />
       <section className="place-self-center">

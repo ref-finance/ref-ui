@@ -5,7 +5,7 @@ import SpecialWallet from './SpecialWallet';
 import { functionCall } from 'near-api-js/lib/transaction';
 
 export const REF_FI_CONTRACT_ID =
-  process.env.REF_FI_CONTRACT_ID || 'dev-1617199123305-1287489';
+  process.env.REF_FI_CONTRACT_ID || 'ref-finance.testnet';
 
 export const ONE_YOCTO_NEAR = '0.000000000000000000000001';
 
