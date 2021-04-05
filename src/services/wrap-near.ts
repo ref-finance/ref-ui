@@ -1,5 +1,7 @@
 import { utils } from 'near-api-js';
-import { storageDepositForTokenAction } from './creators/storage';
+import {
+  storageDepositAction,
+} from './creators/storage';
 import { withdrawAction } from './creators/token';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import {
@@ -8,12 +10,11 @@ import {
   RefFiFunctionCallOptions,
   REF_FI_CONTRACT_ID,
   Transaction,
-  wallet,
 } from './near';
 import { checkTokenNeedsStorageDeposit } from './token';
 
 export const WRAP_NEAR_CONTRACT_ID = 'wrap.near';
-const NEW_ACCOUNT_STORAGE_COST = '1250000000000000000000';
+const NEW_ACCOUNT_STORAGE_COST = '0.00125';
 
 export const nearMetadata: TokenMetadata = {
   id: 'NEAR',
@@ -25,13 +26,13 @@ export const nearMetadata: TokenMetadata = {
 
 export const wrapNear = async (amount: string) => {
   const transactions: Transaction[] = [];
-  const needsStorage = await checkTokenNeedsStorageDeposit(
+  const neededStorage = await checkTokenNeedsStorageDeposit(
     WRAP_NEAR_CONTRACT_ID
   );
-  if (needsStorage) {
+  if (neededStorage) {
     transactions.push({
       receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [storageDepositForTokenAction(wallet.getAccountId())],
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
     });
   }
 

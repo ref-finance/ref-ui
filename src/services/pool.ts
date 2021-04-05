@@ -11,6 +11,7 @@ import BN from 'bn.js';
 import { utils } from 'near-api-js';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { toNonDivisibleNumber } from '~utils/numbers';
+import { storageDepositForFTAction } from './creators/storage';
 
 const DEFAULT_PAGE_LIMIT = 10;
 
@@ -187,13 +188,7 @@ export const addSimpleLiquidityPool = async (
     }, [])
     .map((id) => ({
       receiverId: id,
-      functionCalls: [
-        {
-          methodName: 'storage_deposit',
-          args: { account_id: REF_FI_CONTRACT_ID, registration_only: true },
-          amount: '0.1',
-        },
-      ],
+      functionCalls: [storageDepositForFTAction()],
     }));
 
   transactions.push({

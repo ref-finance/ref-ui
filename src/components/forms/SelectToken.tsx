@@ -15,6 +15,14 @@ export default function SelectToken({
   render?: (token: TokenMetadata) => React.ReactElement;
   onSelect?: (token: TokenMetadata) => void;
 }) {
+  if (!onSelect) {
+    return (
+      <button className="focus:outline-none p-1 col-span-3" type="button">
+        {selected}
+      </button>
+    );
+  }
+
   return (
     <MicroModal
       trigger={(open) => (

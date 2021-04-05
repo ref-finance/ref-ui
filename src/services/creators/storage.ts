@@ -1,4 +1,9 @@
-import { RefFiFunctionCallOptions, wallet } from '../near';
+import BN from 'bn.js';
+import { RefFiFunctionCallOptions, REF_FI_CONTRACT_ID, wallet } from '../near';
+
+export const STORAGE_PER_TOKEN = '0.00084';
+const STORAGE_TO_REGISTER_WITH_FT = '0.1';
+export const MIN_DEPOSIT_PER_TOKEN = new BN('800000000000000000000');
 
 interface StorageDepositActionOptions {
   accountId?: string;
@@ -24,5 +29,12 @@ export const storageDepositForTokenAction = (
   storageDepositAction({
     accountId,
     registrationOnly: false,
-    amount: '0.00084',
+    amount: STORAGE_PER_TOKEN,
+  });
+
+export const storageDepositForFTAction = () =>
+  storageDepositAction({
+    accountId: REF_FI_CONTRACT_ID,
+    registrationOnly: true,
+    amount: STORAGE_TO_REGISTER_WITH_FT,
   });

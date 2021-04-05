@@ -4,9 +4,9 @@ import {
   getGas,
   getAmount,
   RefFiViewFunctionOptions,
-  REF_FI_CONTRACT_ID,
 } from './near';
 import metadataDefaults from '../utils/metadata';
+import { storageDepositForFTAction } from './creators/storage';
 
 const NEAR_ICON =
   'https://near.org/wp-content/themes/near-19/assets/img/brand-icon.png';
@@ -81,9 +81,5 @@ export const ftGetTokenMetadata = async (
 };
 
 export const ftRegisterExchange = async (tokenId: string) => {
-  return ftFunctionCall(tokenId, {
-    methodName: 'storage_deposit',
-    args: { account_id: REF_FI_CONTRACT_ID, registration_only: true },
-    amount: '0.1',
-  });
+  return ftFunctionCall(tokenId, storageDepositForFTAction());
 };
