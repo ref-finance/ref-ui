@@ -1,0 +1,17 @@
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/pools/*"
+  to = "/index.html"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/whitelist/*"
+  to = "/index.html"
+  status = 200
+  force = false
