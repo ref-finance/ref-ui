@@ -1,4 +1,5 @@
 import BN from 'bn.js';
+import * as math from 'mathjs';
 import {
   ONE_YOCTO_NEAR,
   refFiFunctionCall,
@@ -11,19 +12,34 @@ import {
   executeMultipleTransactions,
 } from './near';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
-import { currentStorageBalance, MIN_DEPOSIT_PER_TOKEN } from './account';
+import { ACCOUNT_MIN_STORAGE_AMOUNT, currentStorageBalance } from './account';
 import { toNonDivisibleNumber } from '../utils/numbers';
+import {
+  MIN_DEPOSIT_PER_TOKEN,
+  storageDepositAction,
+  storageDepositForFTAction,
+  STORAGE_PER_TOKEN,
+} from './creators/storage';
 
 export const checkTokenNeedsStorageDeposit = async (tokenId: string) => {
-  const [registeredTokens, { available }] = await Promise.all([
+  let storageNeeded: math.MathType = 0;
+  const [registeredTokens, balance] = await Promise.all([
     getUserRegisteredTokens(),
     currentStorageBalance(wallet.getAccountId()),
   ]);
 
-  return (
-    new BN(available).lt(MIN_DEPOSIT_PER_TOKEN) &&
+  if (!balance) {
+    storageNeeded = math.add(storageNeeded, Number(ACCOUNT_MIN_STORAGE_AMOUNT));
+  }
+
+  if (
+    new BN(balance?.available || '0').lt(MIN_DEPOSIT_PER_TOKEN) &&
     !registeredTokens.includes(tokenId)
-  );
+  ) {
+    storageNeeded = math.add(storageNeeded, Number(STORAGE_PER_TOKEN));
+  }
+
+  return storageNeeded.toString();
 };
 
 export const registerTokenAndExchange = async (tokenId: string) => {
@@ -35,13 +51,9 @@ export const registerTokenAndExchange = async (tokenId: string) => {
     },
   ];
 
-  const needsStorageDeposit = await checkTokenNeedsStorageDeposit(tokenId);
-  if (needsStorageDeposit) {
-    actions.unshift({
-      methodName: 'storage_deposit',
-      args: { account_id: wallet.getAccountId(), registration_only: false },
-      amount: '0.00084',
-    });
+  const neededStorage = await checkTokenNeedsStorageDeposit(tokenId);
+  if (neededStorage) {
+    actions.unshift(storageDepositAction({ amount: neededStorage }));
   }
 
   transactions.push({
@@ -56,13 +68,7 @@ export const registerTokenAndExchange = async (tokenId: string) => {
   if (!exchangeBalanceAtFt || exchangeBalanceAtFt.total === '0') {
     transactions.push({
       receiverId: tokenId,
-      functionCalls: [
-        {
-          methodName: 'storage_deposit',
-          args: { account_id: REF_FI_CONTRACT_ID, registration_only: true },
-          amount: '0.1',
-        },
-      ],
+      functionCalls: [storageDepositForFTAction()],
     });
   }
 
@@ -85,13 +91,9 @@ export const registerToken = async (tokenId: string) => {
     },
   ];
 
-  const needsStorageDeposit = await checkTokenNeedsStorageDeposit(tokenId);
-  if (needsStorageDeposit) {
-    actions.unshift({
-      methodName: 'storage_deposit',
-      args: { account_id: wallet.getAccountId(), registration_only: false },
-      amount: '0.00084',
-    });
+  const neededStorage = await checkTokenNeedsStorageDeposit(tokenId);
+  if (neededStorage) {
+    actions.unshift(storageDepositAction({ amount: neededStorage }));
   }
 
   return refFiManyFunctionCalls(actions);
@@ -128,20 +130,11 @@ export const deposit = async ({ token, amount, msg = '' }: DepositOptions) => {
     },
   ];
 
-  const needsStorage = await checkTokenNeedsStorageDeposit(token.id);
-  if (needsStorage) {
+  const neededStorage = await checkTokenNeedsStorageDeposit(token.id);
+  if (neededStorage) {
     transactions.unshift({
       receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [
-        {
-          methodName: 'storage_deposit',
-          args: {
-            account_id: wallet.getAccountId(),
-            registration_only: false,
-          },
-          amount: '0.00084',
-        },
-      ],
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
     });
   }
 
@@ -177,13 +170,7 @@ export const withdraw = async ({
   if (!ftBalance || ftBalance.total === '0') {
     transactions.unshift({
       receiverId: token.id,
-      functionCalls: [
-        {
-          methodName: 'storage_deposit',
-          args: { account_id: wallet.getAccountId(), registration_only: true },
-          amount: '0.1',
-        },
-      ],
+      functionCalls: [storageDepositForFTAction()],
     });
   }
 

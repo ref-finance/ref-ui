@@ -31,14 +31,14 @@ function SwapDetail({ title, value }: { title: string; value: string }) {
 function DetailView({
   pool,
   tokenIn,
-  tokenOut
+  tokenOut,
   from,
   to,
   minAmountOut,
 }: {
   pool: Pool;
   tokenIn: TokenMetadata;
-  tokenOut: TokenMetadata
+  tokenOut: TokenMetadata;
   from: string;
   to: string;
   minAmountOut: string;
@@ -53,7 +53,9 @@ function DetailView({
       />
       <SwapDetail
         title="Swap Rate"
-        value={`${calculateExchangeRate(pool.fee, from, to)} ${tokenIn.symbol} per ${tokenOut.symbol}`}
+        value={`${calculateExchangeRate(pool.fee, from, to)} ${
+          tokenIn.symbol
+        } per ${tokenOut.symbol}`}
       />
       <SwapDetail
         title="Pool Fee"
@@ -179,6 +181,7 @@ export default function SwapCard() {
         onClick={() => {
           setTokenIn(tokenOut);
           setTokenOut(tokenIn);
+          setTokenInAmount(toPrecision(tokenOutAmount, 6));
         }}
       />
       <TokenAmount
