@@ -14,14 +14,15 @@ html {
 
   background-color: var(--bg);
   color: var(--fg);
-  font-family: Roboto, BlinkMacSystemFont, Segoe UI, Helvetica, Arial,
-    sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 16px;
   line-height: 1.3;
 }
 
 body {
   margin: 0;
+  background: url(./assets/images/pixel-magic-background.jpg) center;
+  background-size: cover;
 }
 
 main {
@@ -52,18 +53,6 @@ input[disabled] {
   color: black;
   opacity: 1 !important;
 }
-input[type="number"] {
+input[type='number'] {
   -moz-appearance: textfield; /* Firefox */
-}
-
-button:focus {
-  outline: none;
-}
-
-button {
-  display: flex;
-}
-
-button:disabled {
-  cursor: default;
 }

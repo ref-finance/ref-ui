@@ -1,37 +1,30 @@
-// tailwind.config.js
+const colors = require('tailwindcss/colors');
+
 module.exports = {
   purge: [],
   darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {
-      fontFamily: {
-        inter: ["inter", "sans-serif"],
-      },
-      borderColor: {
-        borderGray: "#D3D6DB",
-      },
       colors: {
-        backgroundGray: "#F4F5F7",
-        disabledGray: "#E6E7EB",
-      },
-      keyframes: {
-        float: {
-          "50%": { transform: "translate(0, 20px)" },
-        },
-      },
-      animation: {
-        float: "float 7.5s ease-in-out infinite",
-      },
-      minWidth: {
-        25: "25rem",
+        primary: '#10B981',
+        primaryScale: colors.green,
+        secondary: '#F9FAFB',
+        secondaryScale: colors.gray,
+        darkText: colors.gray['600'],
+        inputBg: colors.gray['100'],
+        inputText: '#374151',
+        hoverGray: '#F3F4F6',
+        buttonBg: '#10B981',
+        buttonText: '#F9FAFB',
       },
     },
+    plugins: [],
   },
   variants: {
     extend: {
-      backgroundColor: ["disabled"],
-      textColor: ["disabled"],
+      opacity: ['disabled'],
+      borderWidth: ['hover'],
+      cursor: ['disabled'],
     },
   },
-  plugins: [],
 };

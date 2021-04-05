@@ -1,231 +1,197 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
+import { FaArrowsAltV } from 'react-icons/fa';
+import { TokenMetadata } from '../../services/ft-contract';
+import { Pool } from '../../services/pool';
+import FormWrap from '../../components/forms/FormWrap';
+import TokenAmount from '../../components/forms/TokenAmount';
+import Alert from '../../components/alert/Alert';
+import { useWhitelistTokens, useTokenBalances } from '../../state/token';
+import { useSwap } from '../../state/swap';
+import {
+  calculateExchangeRate,
+  calculateFeeCharge,
+  calculateFeePercent,
+  toPrecision,
+  toReadableNumber,
+} from '../../utils/numbers';
+import Loading from '../../components/layout/Loading';
+import { wallet } from '../../services/near';
 
-import SelectCurrencyModal from "./SelectCurrencyModal";
-import DownArrowSVG from "~assets/misc/down-arrow.svg";
-
-import SubmitButton from "~components/general/SubmitButton";
-import { getReturn, swapToken } from "~utils/ContractUtils";
-import { getPool } from "~utils";
-
-interface SwapContainerProps {
-  title: string;
-  balance: number;
-  showMax?: boolean;
-  selectedCoin: CoinForSwap;
-  setCoin: Dispatch<SetStateAction<CoinForSwap>>;
-  value: number;
-  disabled?: boolean;
-  onMaxClick?: () => void;
-  onChange?: (value: SetStateAction<number>) => void;
-}
-
-interface MaxButtonProps {
-  onMaxClick?: () => void;
-}
-interface SwapButtonProps {
-  amount: number;
-  minAmount: number;
-  userBalance: number;
-  pool: PoolInfo;
-  selectedCoinOne: CoinForSwap;
-  selectedCoinTwo: CoinForSwap;
-  poolId: number;
-}
-
-const SwapHeader = () => (
-  <div className="flex flex-row pt-6 mb-6 space-x-4 border-b border-borderGray">
-    <div className="pb-3 border-b border-black ">
-      <h2 className="font-inter font-medium text-sm">Swap</h2>
-    </div>
-  </div>
-);
-
-function MaxButton({ onMaxClick }: MaxButtonProps) {
+function SwapDetail({ title, value }: { title: string; value: string }) {
   return (
-    <button
-      onClick={onMaxClick}
-      className="bg-disabledGray px-2 py-1 pt-1.5 rounded-md hover:border-black border transition-colors"
-      type="button"
-    >
-      MAX
-    </button>
+    <section className="grid grid-cols-2 py-1">
+      <p className="opacity-80">{title}</p>
+      <p className="text-right font-semibold">{value}</p>
+    </section>
   );
 }
 
-function SwapContainer({
-  title,
-  balance,
-  showMax,
-  selectedCoin,
-  setCoin,
-  value,
-  onMaxClick,
-  onChange,
-  disabled = false,
-}: SwapContainerProps) {
-  return (
-    <div className="flex flex-col p-3 bg-backgroundGray space-y-2">
-      <div className="flex flex-row justify-between items-center w-full">
-        <p className="text-sm font-light text-gray-400">{title}</p>
-        <p className="text-sm font-light text-gray-400">
-          Balance: {balance.toFixed(1)}
-        </p>
-      </div>
-      <div className="flex flex-row justify-between items-center w-full">
-        <input
-          type="number"
-          placeholder="0.0"
-          value={value}
-          disabled={disabled}
-          onChange={(e) => onChange(e.target.value)}
-          className="text-2xl font-inter"
-        />
-        <div className="flex flex-row items-center space-x-2.5">
-          {showMax && <MaxButton onMaxClick={onMaxClick} />}
-          <SelectCurrencyModal selectedCoin={selectedCoin} setCoin={setCoin} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DownArrow() {
-  return (
-    <div className="flex flex-row justify-center max-w my-3">
-      <DownArrowSVG />
-    </div>
-  );
-}
-
-function useAvoidDuplicateCoins(
-  coinOne: CoinForSwap,
-  coinTwo: CoinForSwap,
-  setCoinTwo: Dispatch<SetStateAction<CoinForSwap>>
-) {
-  useEffect(() => {
-    if (coinTwo && coinOne.id === coinTwo.id) {
-      setCoinTwo(null);
-    }
-  }, [coinOne, coinTwo]);
-}
-
-function SwapButton({
-  amount,
-  minAmount,
+function DetailView({
   pool,
-  selectedCoinOne,
-  selectedCoinTwo,
-  userBalance,
-  poolId,
-}: SwapButtonProps) {
-  const coinsSelected = !!(selectedCoinOne && selectedCoinTwo);
-  const notLoggedIn = !window.accountId;
-  const notEnoughBalance = amount > userBalance;
-  const disabled =
-    notEnoughBalance || notLoggedIn || !pool || amount <= 0 || !coinsSelected;
-
-  let text = "Swap";
-
-  if (!pool && coinsSelected) {
-    text = "No pool available";
-  }
-
-  if (notEnoughBalance) {
-    text = "Not enough balance";
-  }
-  if (!amount) {
-    text = "Enter an amount";
-  }
-
-  if (!selectedCoinTwo) {
-    text = "Select a token";
-  }
-
-  if (notLoggedIn) {
-    text = "Connect your wallet";
-  }
+  tokenIn,
+  tokenOut
+  from,
+  to,
+  minAmountOut,
+}: {
+  pool: Pool;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata
+  from: string;
+  to: string;
+  minAmountOut: string;
+}) {
+  if (!pool || !from || !to) return null;
 
   return (
-    <SubmitButton
-      onClick={() => {
-        swapToken(
-          poolId,
-          selectedCoinOne.id,
-          amount,
-          selectedCoinTwo.id,
-          minAmount
-        );
-      }}
-      disabled={disabled}
-      text={text}
-    />
+    <>
+      <SwapDetail
+        title="Minimum received"
+        value={toPrecision(minAmountOut, 4, true)}
+      />
+      <SwapDetail
+        title="Swap Rate"
+        value={`${calculateExchangeRate(pool.fee, from, to)} ${tokenIn.symbol} per ${tokenOut.symbol}`}
+      />
+      <SwapDetail
+        title="Pool Fee"
+        value={`${calculateFeePercent(pool.fee)}% (${calculateFeeCharge(
+          pool.fee,
+          from
+        )})`}
+      />
+    </>
   );
 }
 
-function SwapCard() {
-  const defaultCoin = window.tokenMap[window.tokenList[0]];
-  const [amount, setAmount] = useState<number>(0);
-  const [selectedCoinOne, setCoinOne] = useState<CoinForSwap>(defaultCoin);
-  const [selectedCoinTwo, setCoinTwo] = useState<CoinForSwap>();
-  const [toAmount, setToAmount] = useState<number>(0);
-  const { pool, poolId } = getPool(selectedCoinOne?.id, selectedCoinTwo?.id);
-
-  const userBalance = parseFloat(window.deposits[selectedCoinOne?.id] || 0.0);
-  useEffect(() => {
-    if (poolId > -1) {
-      getReturn(
-        poolId,
-        selectedCoinOne.id,
-        selectedCoinTwo.id,
-        amount || 0
-      ).then((returnAmt) => setToAmount(returnAmt));
-    }
-    if (!amount) {
-      setToAmount(0);
-    }
-  }, [poolId, amount]);
-
-  useEffect(() => {
-    setAmount(0);
-    setToAmount(0);
-  }, [selectedCoinOne, selectedCoinTwo]);
-  useAvoidDuplicateCoins(selectedCoinOne, selectedCoinTwo, setCoinTwo);
+function SlippageSelector({
+  slippageTolerance,
+  onChange,
+}: {
+  slippageTolerance: number;
+  minAmountOut: string;
+  onChange: (slippage: number) => void;
+}) {
+  const validSlippages = [0.1, 0.5, 1];
 
   return (
-    <div className="px-6">
-      <SwapHeader />
-      <SwapContainer
-        title="From"
-        showMax
-        onMaxClick={() => {
-          setAmount(userBalance);
+    <>
+      <fieldset className="flex items-center mb-4">
+        <label className="font-semibold">Slippage Tolerance: </label>
+        {validSlippages.map((slippage) => (
+          <button
+            className={`hover:bg-buttonBg hover:text-buttonText rounded w-full p-2 mx-2 ${
+              slippage === slippageTolerance &&
+              'bg-buttonBg text-buttonText font-semibold'
+            }`}
+            type="button"
+            onClick={() => onChange(slippage)}
+          >
+            {slippage}%
+          </button>
+        ))}
+      </fieldset>
+    </>
+  );
+}
+
+export default function SwapCard() {
+  const [tokenIn, setTokenIn] = useState<TokenMetadata>();
+  const [tokenInAmount, setTokenInAmount] = useState<string>('');
+  const [tokenOut, setTokenOut] = useState<TokenMetadata>();
+  const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
+
+  const allTokens = useWhitelistTokens();
+  const balances = useTokenBalances();
+
+  useEffect(() => {
+    const rememberedIn = localStorage.getItem('REF_FI_SWAP_IN');
+    const rememberedOut = localStorage.getItem('REF_FI_SWAP_OUT');
+    if (allTokens) {
+      setTokenIn(
+        allTokens.find((token) => token.id === rememberedIn) || allTokens[0]
+      );
+      setTokenOut(
+        allTokens.find((token) => token.id === rememberedOut) || allTokens[1]
+      );
+    }
+  }, [allTokens]);
+
+  const {
+    canSwap,
+    tokenOutAmount,
+    minAmountOut,
+    pool,
+    swapError,
+    makeSwap,
+  } = useSwap({
+    tokenIn: tokenIn,
+    tokenInAmount,
+    tokenOut: tokenOut,
+    slippageTolerance,
+  });
+
+  if (!allTokens) return <Loading />;
+
+  const title =
+    wallet.isSignedIn() &&
+    tokenIn &&
+    (!balances?.[tokenIn.id] || balances?.[tokenIn.id] === '0')
+      ? 'Make a deposit to swap'
+      : 'Swap';
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    makeSwap();
+  };
+
+  return (
+    <FormWrap title={title} canSubmit={canSwap} onSubmit={handleSubmit}>
+      {swapError && <Alert level="error" message={swapError.message} />}
+      <TokenAmount
+        amount={tokenInAmount}
+        max={
+          toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0'
+        }
+        tokens={allTokens}
+        selectedToken={tokenIn}
+        balances={balances}
+        onSelectToken={(token) => {
+          localStorage.setItem('REF_FI_SWAP_IN', token.id);
+          setTokenIn(token);
         }}
-        balance={userBalance}
-        selectedCoin={selectedCoinOne}
-        setCoin={setCoinOne}
-        value={amount}
-        onChange={setAmount}
+        onChangeAmount={setTokenInAmount}
       />
-      <DownArrow />
-      <SwapContainer
-        title="To"
-        balance={0.0}
-        value={toAmount}
-        selectedCoin={selectedCoinTwo}
-        setCoin={setCoinTwo}
-        disabled
+      <FaArrowsAltV
+        className="h-6 m-auto cursor-pointer"
+        onClick={() => {
+          setTokenIn(tokenOut);
+          setTokenOut(tokenIn);
+        }}
       />
-      <SwapButton
-        amount={amount}
-        minAmount={toAmount}
+      <TokenAmount
+        amount={toPrecision(tokenOutAmount, 6)}
+        tokens={allTokens}
+        selectedToken={tokenOut}
+        balances={balances}
+        onSelectToken={(token) => {
+          localStorage.setItem('REF_FI_SWAP_OUT', token.id);
+          setTokenOut(token);
+        }}
+      />
+      <SlippageSelector
+        slippageTolerance={slippageTolerance}
+        minAmountOut={minAmountOut}
+        onChange={setSlippageTolerance}
+      />
+      <DetailView
         pool={pool}
-        poolId={poolId}
-        userBalance={userBalance}
-        selectedCoinOne={selectedCoinOne}
-        selectedCoinTwo={selectedCoinTwo}
+        tokenIn={tokenIn}
+        tokenOut={tokenOut}
+        from={tokenInAmount}
+        to={tokenOutAmount}
+        minAmountOut={minAmountOut}
       />
-    </div>
+    </FormWrap>
   );
 }
-
-export default SwapCard;

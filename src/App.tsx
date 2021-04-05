@@ -1,40 +1,40 @@
-import "regenerator-runtime/runtime";
-import "react-toastify/dist/ReactToastify.css";
-
-import React from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import NavigationBar from "./components/layout/NavigationBar";
-// import { login, logout } from "./utils";
-import "./global.css";
-import HomePage from "~pages/PortfolioPage";
-import SwapPage from "~pages/SwapPage";
-import LiquidityPage from "~pages/LiquidityPage";
-import LiquidityTokenPage from "~pages/LiquidityTokenPage";
-
-// import getConfig from "./config";
-// const { networkId } = getConfig(process.env.NODE_ENV || "development");
+import React from 'react';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import { wallet } from './services/near';
+import { useCurrentStorageBalance } from './state/account';
+import PortfolioPage from './pages/PortfolioPage';
+import WhitelistTokenPage from './pages/WhitelistTokenPage';
+import PoolsPage from './pages/PoolsPage';
+import PoolPage from './pages/PoolPage';
+import AddPoolPage from './pages/AddPoolPage';
+import SwapPage from './pages/SwapPage';
+import DepositNotification from './components/alert/DepositNotification';
+import NavigationBar from './components/layout/NavigationBar';
+import './global.css';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
+  const storageBalances = useCurrentStorageBalance();
+
   return (
     <Router>
-      <div className="min-h-screen ">
+      <ToastContainer />
+      {wallet.isSignedIn() && storageBalances === null && (
+        <DepositNotification open={storageBalances === null} />
+      )}
+      <div className="h-screen">
         <NavigationBar />
-        <main className="min-h-screen p-4  lg:pl-8 lg:ml-80  pb-32 lg:pb-0  flex-grow">
+        <div className="flex flex-col justify-center h-4/5 ">
           <Switch>
-            <Route path="/swap">
-              <SwapPage />
-            </Route>
-            <Route path="/liquidity/:tokenId">
-              <LiquidityTokenPage />
-            </Route>
-            <Route path="/liquidity">
-              <LiquidityPage />
-            </Route>
-            <Route path="/">
-              <HomePage />
-            </Route>
+            <Route path="/portfolio" component={PortfolioPage} />
+            <Route path="/whitelist/:tokenId" component={WhitelistTokenPage} />
+            <Route path="/pools/add" component={AddPoolPage} />
+            <Route path="/pools/:poolId" component={PoolPage} />
+            <Route path="/pools" component={PoolsPage} />
+            <Route path="/" component={SwapPage} />
           </Switch>
-        </main>
+        </div>
       </div>
     </Router>
   );
