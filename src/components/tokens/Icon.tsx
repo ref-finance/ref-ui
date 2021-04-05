@@ -16,7 +16,7 @@ export default function Icon({
   return (
     <div className="flex items-center">
       <img className={`h-${size} w-${size} ${className}`} src={icon} />
-      <p className="ml-2">{token.symbol}</p>
+      <p className="ml-2 hidden sm:block">{token.symbol}</p>
     </div>
   );
 }

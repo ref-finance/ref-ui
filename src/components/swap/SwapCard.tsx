@@ -80,7 +80,7 @@ function SlippageSelector({
         <label className="font-semibold">Slippage Tolerance: </label>
         {validSlippages.map((slippage) => (
           <button
-            className={`hover:bg-buttonBg hover:text-buttonText rounded w-20 p-2 mx-2 ${
+            className={`hover:bg-buttonBg hover:text-buttonText rounded w-full p-2 mx-2 ${
               slippage === slippageTolerance &&
               'bg-buttonBg text-buttonText font-semibold'
             }`}
