@@ -66,20 +66,27 @@ export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
         onChangeAmount={setAmount}
       />
 
-      {storageBalances && (
-        <h2 className="my-4">
-          Your first deposit includes a extra{' '}
-          <span className="font-semibold">{ACCOUNT_MIN_STORAGE_AMOUNT} Ⓝ</span>{' '}
-          to cover your{' '}
-          <a
-            className="text-secondaryScale-600 underline"
-            href="https://docs.near.org/docs/concepts/storage-staking"
-          >
-            account storage
-          </a>
-          . Also, an additional{' '}
-          <span className="font-semibold">{STORAGE_PER_TOKEN} Ⓝ</span> storage
-          fee will be applied for each unique token type you deposit.
+      {storageBalances === null && (
+        <h2 className="my-4 leading-snug">
+          <p>
+            Your first deposit includes an extra{' '}
+            <span className="font-semibold">
+              {ACCOUNT_MIN_STORAGE_AMOUNT} Ⓝ
+            </span>{' '}
+            to cover your{' '}
+            <a
+              className="text-secondaryScale-600 underline"
+              href="https://docs.near.org/docs/concepts/storage-staking"
+              target="_blank"
+            >
+              account storage.
+            </a>
+          </p>
+          <p className="mt-3">
+            Also, an additional{' '}
+            <span className="font-semibold">{STORAGE_PER_TOKEN} Ⓝ</span> storage
+            fee is applied for each unique token type you deposit.
+          </p>
         </h2>
       )}
     </FormWrap>
