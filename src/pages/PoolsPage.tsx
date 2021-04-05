@@ -39,10 +39,10 @@ export default function PoolsPage() {
         <header className="grid grid-cols-6">
           <section></section>
           <section className="col-span-4">
-            <h1 className="text-2xl font-medium p-2 text-center b">
+            <h1 className="text-xl font-bold p-2 text-center">
               Available Liquidity Pools
             </h1>
-          </section>
+          </section >
           <section>
             <Link
               to="/pools/add"
@@ -56,9 +56,9 @@ export default function PoolsPage() {
 
         <section>
           <header className="grid grid-cols-12 py-2 text-center">
-            <p className="col-span-4 tet">Pool</p>
-            <p className="col-span-6">Total Shares</p>
-            <p className="col-span-2">Fee</p>
+            <p className="col-span-4 border-b-2">Pool</p>
+            <p className="col-span-6 border-b-2">Total Shares</p>
+            <p className="col-span-2 border-b-2">Fee</p>
           </header>
           {pools.map((pool) => (
             <PoolRow key={pool.id} pool={pool} />
