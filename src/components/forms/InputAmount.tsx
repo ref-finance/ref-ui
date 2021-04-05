@@ -41,7 +41,7 @@ export default function InputAmount({
           />
           {max ? (
             <button
-              className="border rounded-lg right-0 items-center py-2 px-3 hover:bg-hoverGray m-auto"
+              className="border rounded-lg right-0 items-center py-2 px-3 hover:text-primaryScale-600 hover:border-primaryScale-500 m-auto focus:outline-none"
               type="button"
               onClick={() => handleChange(max)}
             >
