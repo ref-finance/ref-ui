@@ -14,9 +14,7 @@ function TokenManagement() {
 
   return (
     <>
-      <TabFormWrap
-        titles={['Deposit', 'Withdraw', 'Wrap NEAR', 'Whitelist Token']}
-      >
+      <TabFormWrap titles={['Deposit', 'Withdraw', 'Whitelist Token']}>
         <Deposit tokens={tokens} />
         <Withdraw tokens={userTokens} />
         <Register />

@@ -11,7 +11,9 @@ export default function Withdraw({ tokens }: { tokens: TokenMetadata[] }) {
   const balances = useTokenBalances();
 
   const [amount, setAmount] = useState<string>();
-  const [selectedToken, setSelectedToken] = useState<TokenMetadata>();
+  const [selectedToken, setSelectedToken] = useState<TokenMetadata>(
+    tokens.find((token) => token.id === WRAP_NEAR_CONTRACT_ID)
+  );
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();

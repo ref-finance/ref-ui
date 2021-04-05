@@ -10,7 +10,9 @@ import { wallet } from '../../services/near';
 
 export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
   const [amount, setAmount] = useState<string>();
-  const [selectedToken, setSelectedToken] = useState<TokenMetadata>();
+  const [selectedToken, setSelectedToken] = useState<TokenMetadata>(
+    nearMetadata
+  );
   const [nearBalance, setNearBalance] = useState<string>();
 
   const depositable = useDepositableBalance(selectedToken?.id);
