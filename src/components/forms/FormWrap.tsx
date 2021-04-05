@@ -31,7 +31,7 @@ export default function FormWrap({
 
   return (
     <form
-      className="bg-secondary shadow-2xl rounded px-8 pt-6 pb-1"
+      className="bg-secondary shadow-2xl rounded px-4 pt-6 pb-1"
       onSubmit={handleSubmit}
     >
       {title && (
