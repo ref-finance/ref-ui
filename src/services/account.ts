@@ -1,11 +1,6 @@
 import BN from 'bn.js';
 import { utils } from 'near-api-js';
-import {
-  refFiFunctionCall,
-  refFiViewFunction,
-  REF_FI_CONTRACT_ID,
-  wallet,
-} from './near';
+import { refFiFunctionCall, refFiViewFunction, wallet } from './near';
 
 export const MIN_DEPOSIT_PER_TOKEN = new BN('800000000000000000000');
 

@@ -11,6 +11,7 @@ import { TokenMetadata } from './ft-contract';
 import { getIdealSwapPool, Pool } from './pool';
 import { checkTokenNeedsStorageDeposit } from './token';
 import { JsonRpcProvider } from 'near-api-js/lib/providers';
+import { storageDepositForTokenAction } from './creators/storage';
 
 interface EstimateSwapOptions {
   tokenIn: TokenMetadata;
@@ -86,13 +87,9 @@ export const swap = async ({
     },
   ];
 
-  const needsStorageDeposit = await checkTokenNeedsStorageDeposit(tokenIn.id);
+  const needsStorageDeposit = await checkTokenNeedsStorageDeposit(tokenOut.id);
   if (needsStorageDeposit) {
-    actions.unshift({
-      methodName: 'storage_deposit',
-      args: { account_id: wallet.getAccountId(), registration_only: false },
-      amount: '0.00084',
-    });
+    actions.unshift(storageDepositForTokenAction());
   }
 
   return refFiManyFunctionCalls(actions);
