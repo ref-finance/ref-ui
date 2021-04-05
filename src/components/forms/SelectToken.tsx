@@ -24,7 +24,10 @@ export default function SelectToken({
           onClick={open}
         >
           {selected || (
-            <FaAngleDown className="stroke-current text-inputText block ml-1" />
+            <section className="flex justify-end">
+              <p className="text-sm">select token</p>
+              <FaAngleDown className="stroke-current text-inputText block ml-1" />
+            </section>
           )}
         </button>
       )}
