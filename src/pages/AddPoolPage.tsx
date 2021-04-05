@@ -31,7 +31,10 @@ function AddPool() {
       onSubmit={handleSubmit}
     >
       <fieldset className="flex items-center">
-        <label className="mr-4 text-2xl text-inputText">Fee: </label>
+        <label className="mr-4 text-2xl text-inputText items-center flex flex-col">
+          <span>Fee</span>
+          <span className="text-sm">(BPS)</span>
+        </label>
         <input
           className="focus:outline-none shadow bg-inputBg appearance-none border rounded border-opacity-30 w-full py-2 px-3 text-3xl text-inputText leading-tight"
           type="number"

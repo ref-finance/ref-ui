@@ -48,23 +48,39 @@ function DetailColumn({ className, title, value }: TokenDetailColumnProps) {
   );
 }
 
-function Shares({ shares, totalShares }: { shares: string, totalShares: string }) {
+function Shares({
+  shares,
+  totalShares,
+}: {
+  shares: string;
+  totalShares: string;
+}) {
   if (!shares || !totalShares) return null;
 
   let sharePercent = percent(shares, totalShares);
-  console.log(sharePercent, Number.isNaN(sharePercent))
+  console.log(sharePercent, Number.isNaN(sharePercent));
 
   let displayPercent;
-  if(Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0' 
-  else if(sharePercent < 0.0001) displayPercent = '< 0.0001'
+  if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
+  else if (sharePercent < 0.0001) displayPercent = '< 0.0001';
   else displayPercent = toPrecision(String(sharePercent), 4);
 
   return (
-    <h2 className="text-lg pb-4 font-bold text-center">My Shares: {displayPercent}% of Total</h2>
+    <h2 className="text-lg pb-4 font-bold text-center">
+      My Shares: {displayPercent}% of Total
+    </h2>
   );
 }
 
-function PoolHeader({ pool, tokens, shares }: { pool: PoolDetails; tokens: TokenMetadata[]; shares: string }) {
+function PoolHeader({
+  pool,
+  tokens,
+  shares,
+}: {
+  pool: PoolDetails;
+  tokens: TokenMetadata[];
+  shares: string;
+}) {
   const total = Object.values(pool.supplies).reduce(
     (acc, amount) => sumBN(acc, amount),
     ''
@@ -76,10 +92,7 @@ function PoolHeader({ pool, tokens, shares }: { pool: PoolDetails; tokens: Token
   return (
     <div className="flex flex-col lg:pl-6 mt-8 mb-14">
       <h1 className="font-normal text-xl pb-2 text-center">Pool Details</h1>
-      <Shares
-        shares={shares}
-        totalShares={pool.shareSupply}
-      />
+      <Shares shares={shares} totalShares={pool.shareSupply} />
       <div className="grid grid-cols-2 gap-10">
         <DetailColumn
           title="Total Shares"
@@ -89,18 +102,30 @@ function PoolHeader({ pool, tokens, shares }: { pool: PoolDetails; tokens: Token
           })}
         />
         <DetailColumn title="Fee" value={`${calculateFeePercent(pool.fee)}%`} />
-        <DetailColumn title="Total Liquidity" value={total} />
-        <DetailColumn title="Accumulated Volume" value={volume} />
+        <DetailColumn title="Total Liquidity" value="Coming Soon" />
+        <DetailColumn title="Accumulated Volume" value="Coming Soon" />
         <DetailColumn
           className="col-span-2"
           title="Underlying liquidity"
           value={
             <section className="max-w-xs m-auto">
               <section className="grid grid-cols-2 p-2 width-1/2">
-                <Icon token={tokens[0]} /><span className="ml-2">{toRoundedReadableNumber({ decimals: tokens[0].decimals, number: pool.supplies[tokens[0].id]})}</span>
+                <Icon token={tokens[0]} />
+                <span className="ml-2">
+                  {toRoundedReadableNumber({
+                    decimals: tokens[0].decimals,
+                    number: pool.supplies[tokens[0].id],
+                  })}
+                </span>
               </section>
               <section className="grid grid-cols-2 p-2">
-                <Icon token={tokens[1]} /><span className="ml-2">{toRoundedReadableNumber({ decimals: tokens[1].decimals, number: pool.supplies[tokens[1].id] })}</span>
+                <Icon token={tokens[1]} />
+                <span className="ml-2">
+                  {toRoundedReadableNumber({
+                    decimals: tokens[1].decimals,
+                    number: pool.supplies[tokens[1].id],
+                  })}
+                </span>
               </section>
             </section>
           }
