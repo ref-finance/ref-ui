@@ -46,7 +46,7 @@ export default function PoolsPage() {
           <section>
             <Link
               to="/pools/add"
-              className="flex justify-center items-center border rounded p-2 bg-secondary"
+              className="flex justify-center items-center border rounded p-2 bg-secondary hover:text-primaryScale-500"
             >
               <FaPlus />
               <span className="ml-2 text-right">Add Pool</span>
