@@ -10,10 +10,7 @@ export default function Dropdown() {
   const niceAccountId = `${account.slice(0, 10)}...${network}`;
 
   return (
-    <div
-      className="relative inline-block text-left mr-12"
-      onBlur={() => setOpen(false)}
-    >
+    <div className="relative inline-block text-left mr-12">
       <div>
         <button
           type="button"
@@ -37,6 +34,7 @@ export default function Dropdown() {
         role="menu"
         aria-orientation="vertical"
         aria-labelledby="options-menu"
+        onBlur={() => setOpen(false)}
       >
         <div className="py-1" role="none">
           <button
