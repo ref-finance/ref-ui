@@ -10,13 +10,16 @@ function TokenManagement() {
   const tokens = useWhitelistTokens();
   const userTokens = useUserRegisteredTokens();
 
-  if (!tokens && !userTokens) return <Loading />;
+  if (!tokens || !userTokens) return <Loading />;
+  const titles = userTokens.length
+    ? ['Deposit', 'Withdraw', 'Whitelist Token']
+    : ['Deposit', 'Whitelist Token'];
 
   return (
     <>
-      <TabFormWrap titles={['Deposit', 'Withdraw', 'Whitelist Token']}>
+      <TabFormWrap titles={titles}>
         <Deposit tokens={tokens} />
-        <Withdraw tokens={userTokens} />
+        {userTokens.length ? <Withdraw tokens={userTokens} /> : null}
         <Register />
       </TabFormWrap>
       <p className="text-gray-400 text-center">

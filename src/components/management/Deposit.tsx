@@ -7,6 +7,9 @@ import { useDepositableBalance } from '../../state/token';
 import { toPrecision, toReadableNumber } from '../../utils/numbers';
 import { nearMetadata, wrapNear } from '../../services/wrap-near';
 import { wallet } from '../../services/near';
+import { useCurrentStorageBalance } from '../../state/account';
+import { ACCOUNT_MIN_STORAGE_AMOUNT } from '../../services/account';
+import { STORAGE_PER_TOKEN } from '../../services/creators/storage';
 
 export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
   const [amount, setAmount] = useState<string>();
@@ -15,6 +18,7 @@ export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
   );
   const [nearBalance, setNearBalance] = useState<string>();
 
+  const storageBalances = useCurrentStorageBalance();
   const depositable = useDepositableBalance(selectedToken?.id);
   const max =
     toReadableNumber(
@@ -56,11 +60,28 @@ export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
       <TokenAmount
         amount={amount}
         max={String(max)}
-        tokens={tokens && [nearMetadata, ...tokens]}
+        tokens={[nearMetadata, ...tokens]}
         selectedToken={selectedToken}
         onSelectToken={setSelectedToken}
         onChangeAmount={setAmount}
       />
+
+      {storageBalances && (
+        <h2 className="my-4">
+          Your first deposit includes a extra{' '}
+          <span className="font-semibold">{ACCOUNT_MIN_STORAGE_AMOUNT} Ⓝ</span>{' '}
+          to cover your{' '}
+          <a
+            className="text-secondaryScale-600 underline"
+            href="https://docs.near.org/docs/concepts/storage-staking"
+          >
+            account storage
+          </a>
+          . Also, an additional{' '}
+          <span className="font-semibold">{STORAGE_PER_TOKEN} Ⓝ</span> storage
+          fee will be applied for each unique token type you deposit.
+        </h2>
+      )}
     </FormWrap>
   );
 }
