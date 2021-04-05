@@ -37,7 +37,6 @@
     "@svgr/parcel-plugin-svgr": "^5.5.0",
     "bn.js": "^5.2.0",
     "mathjs": "^9.3.0",
-    "me": "^0.3.0",
     "near-api-js": "^0.39.0",
     "react": ">=15",
     "react-burger-menu": "^3.0.6",

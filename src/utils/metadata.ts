@@ -3,7 +3,7 @@ export default {
     'https://fluxprotocol.eth.link/static/media/wrapped-near.8b3a5e4b.svg',
   '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near':
     'https://s2.coinmarketcap.com/static/img/coins/64x64/4943.png',
-  'berryclub.ek.near': '🍌',
+  'berryclub.ek.near': 'https://assets.onlinelabels.com/images/clip-art/pitr/pitr_Bananas_icon.png',
   'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near':
     'https://s2.coinmarketcap.com/static/img/coins/64x64/825.png',
   '1f9840a85d5af5bf1d1762f925bdaddc4201f984.factory.bridge.near':
