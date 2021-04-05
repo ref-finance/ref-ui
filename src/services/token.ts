@@ -39,7 +39,7 @@ export const checkTokenNeedsStorageDeposit = async (tokenId: string) => {
     storageNeeded = math.add(storageNeeded, Number(STORAGE_PER_TOKEN));
   }
 
-  return storageNeeded.toString();
+  return storageNeeded ? storageNeeded.toString() : '';
 };
 
 export const registerTokenAndExchange = async (tokenId: string) => {

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation, useHistory } from 'react-router-dom';
 import { FaArrowsAltV } from 'react-icons/fa';
 import { TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
@@ -103,18 +104,25 @@ export default function SwapCard() {
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
 
+  const location = useLocation();
+  const history = useHistory();
+
   const allTokens = useWhitelistTokens();
   const balances = useTokenBalances();
 
   useEffect(() => {
-    const rememberedIn = localStorage.getItem('REF_FI_SWAP_IN');
-    const rememberedOut = localStorage.getItem('REF_FI_SWAP_OUT');
+    const [urlTokenIn, urlTokenOut] = location.hash.slice(1).split('-');
+    const rememberedIn = urlTokenIn || localStorage.getItem('REF_FI_SWAP_IN');
+    const rememberedOut =
+      urlTokenOut || localStorage.getItem('REF_FI_SWAP_OUT');
+
     if (allTokens) {
       setTokenIn(
-        allTokens.find((token) => token.id === rememberedIn) || allTokens[0]
+        allTokens.find((token) => token.symbol === rememberedIn) || allTokens[0]
       );
       setTokenOut(
-        allTokens.find((token) => token.id === rememberedOut) || allTokens[1]
+        allTokens.find((token) => token.symbol === rememberedOut) ||
+          allTokens[1]
       );
     }
   }, [allTokens]);
@@ -159,7 +167,8 @@ export default function SwapCard() {
         selectedToken={tokenIn}
         balances={balances}
         onSelectToken={(token) => {
-          localStorage.setItem('REF_FI_SWAP_IN', token.id);
+          localStorage.setItem('REF_FI_SWAP_IN', token.symbol);
+          history.replace(`#${token.symbol}-${tokenOut.symbol}`);
           setTokenIn(token);
         }}
         onChangeAmount={setTokenInAmount}
@@ -178,7 +187,8 @@ export default function SwapCard() {
         selectedToken={tokenOut}
         balances={balances}
         onSelectToken={(token) => {
-          localStorage.setItem('REF_FI_SWAP_OUT', token.id);
+          localStorage.setItem('REF_FI_SWAP_OUT', token.symbol);
+          history.replace(`#${tokenIn.symbol}-${token.symbol}`);
           setTokenOut(token);
         }}
       />
