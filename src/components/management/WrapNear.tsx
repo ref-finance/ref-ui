@@ -27,10 +27,10 @@ export default function WrapNear() {
     <FormWrap buttonText="Wrap Ⓝ" canSubmit={!!amount} onSubmit={handleSubmit}>
       <h2>You can deposit up to {balance} Ⓝ</h2>
       <input
-        className="col-span-11 focus:outline-none shadow bg-inputBg appearance-none border rounded border-opacity-30 w-full py-2 px-3 text-3xl text-inputText leading-tight"
+        className="col-span-11 focus:outline-none shadow bg-inputBg appearance-none border rounded border-opacity-30 w-full py-2 px-3 text-lg my-4 text-inputText leading-tight"
         max={balance}
         type="number"
-        placeholder="NEAR Amount"
+        placeholder="Enter amount of Ⓝ to wrap..."
         value={amount}
         onChange={({ target }) => setAmount(target.value)}
       />
