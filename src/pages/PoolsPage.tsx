@@ -20,11 +20,11 @@ function PoolRow({ pool }: { pool: Pool }) {
       to={`/pools/${pool.id}`}
       className="grid grid-cols-12 py-2 text-right content-center"
     >
-      <p className="flex justify-end col-span-4 space-x-8">{imgs}</p>
-      <p className="col-span-6">
+      <p className="grid grid-cols-2 col-span-4 space-x-8">{imgs}</p>
+      <p className="col-span-6 text-center">
         {toRoundedReadableNumber({ decimals: 24, number: pool.shareSupply })}
       </p>
-      <p className="col-span-2">{calculateFeePercent(pool.fee)}%</p>
+      <p className="col-span-2 text-center">{calculateFeePercent(pool.fee)}%</p>
     </Link>
   );
 }
@@ -39,7 +39,7 @@ export default function PoolsPage() {
         <header className="grid grid-cols-6">
           <section></section>
           <section className="col-span-4">
-            <h1 className="text-lg font-medium p-2 text-center">
+            <h1 className="text-2xl font-medium p-2 text-center b">
               Available Liquidity Pools
             </h1>
           </section>
@@ -55,8 +55,8 @@ export default function PoolsPage() {
         </header>
 
         <section>
-          <header className="grid grid-cols-12 py-2 text-right">
-            <p className="col-span-4">Symbol</p>
+          <header className="grid grid-cols-12 py-2 text-center">
+            <p className="col-span-4 tet">Pool</p>
             <p className="col-span-6">Total Shares</p>
             <p className="col-span-2">Fee</p>
           </header>
