@@ -10,6 +10,7 @@ import { wallet } from '../../services/near';
 import { useCurrentStorageBalance } from '../../state/account';
 import { ACCOUNT_MIN_STORAGE_AMOUNT } from '../../services/account';
 import { STORAGE_PER_TOKEN } from '../../services/creators/storage';
+import copy from '../../utils/copy';
 
 export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
   const [amount, setAmount] = useState<string>();
@@ -25,6 +26,11 @@ export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
       selectedToken?.decimals,
       selectedToken?.id === nearMetadata.id ? nearBalance : depositable
     ) || '0';
+
+  let info;
+  if (selectedToken.id === nearMetadata.id) {
+    info = copy.nearDeposit;
+  } else info = copy.deposit;
 
   useEffect(() => {
     wallet
@@ -50,6 +56,7 @@ export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
       buttonText="Deposit"
       canSubmit={!!amount && !!selectedToken}
       onSubmit={handleSubmit}
+      info={info}
     >
       {selectedToken && (
         <h2 className="text-center">

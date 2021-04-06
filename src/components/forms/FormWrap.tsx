@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import Alert from '~components/alert/Alert';
 import SubmitButton from './SubmitButton';
-import ReactTooltip from 'react-tooltip';
 
 interface FormWrapProps {
   title?: string;
   buttonText?: string;
   canSubmit?: boolean;
   onSubmit: (event: React.FormEvent) => void;
+  info?: string;
 }
 
 export default function FormWrap({
@@ -16,6 +16,7 @@ export default function FormWrap({
   buttonText,
   canSubmit = true,
   onSubmit,
+  info
 }: React.PropsWithChildren<FormWrapProps>) {
   const [error, setError] = useState<Error>();
 
@@ -44,7 +45,7 @@ export default function FormWrap({
       )}
       {error && <Alert level="error" message={error.message} />}
       {children}
-      <SubmitButton disabled={!canSubmit} text={buttonText || title} />
+      <SubmitButton disabled={!canSubmit} text={buttonText || title} info={info} />
     </form>
   );
 }
