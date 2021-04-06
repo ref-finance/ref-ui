@@ -6,16 +6,15 @@ import { addSimpleLiquidityPool } from '../services/pool';
 import FormWrap from '../components/forms/FormWrap';
 import SelectToken from '../components/forms/SelectToken';
 import Icon from '../components/tokens/Icon';
-import { ftRegisterExchange, TokenMetadata } from '../services/ft-contract';
-import TabFormWrap from '~components/forms/TabFormWrap';
-import { registerTokenAndExchange } from '~services/token';
-import PageWrap from '~components/layout/PageWrap';
-import copy from '../utils/copy';
+import { TokenMetadata } from '../services/ft-contract';
+import TabFormWrap from '../components/forms/TabFormWrap';
+import { registerTokenAndExchange } from '../services/token';
+import PageWrap from '../components/layout/PageWrap';
 
 function AddPool() {
   const [firstToken, setFirstToken] = useState<TokenMetadata>();
   const [secondToken, setSecondToken] = useState<TokenMetadata>();
-  const [fee, setFee] = useState<number>(30);
+  const [fee, setFee] = useState<number>(25);
 
   const tokens = useWhitelistTokens();
 
