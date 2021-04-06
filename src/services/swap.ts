@@ -36,7 +36,7 @@ export const estimateSwap = async ({
   const pools = await getPoolsByTokens({
     tokenInId: tokenIn.id,
     tokenOutId: tokenOut.id,
-    amountIn,
+    amountIn: parsedAmountIn,
   });
 
   if (pools.length < 1) {
