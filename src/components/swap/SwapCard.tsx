@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FaArrowsAltV, FaRegQuestionCircle} from 'react-icons/fa';
+import { FaArrowsAltV, FaRegQuestionCircle } from 'react-icons/fa';
 import ReactTooltip from 'react-tooltip';
 import { TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
@@ -83,11 +83,11 @@ function SlippageSelector({
       <fieldset className="flex items-center mb-4">
         <label className="font-semibold text-center">Slippage: </label>
         <div>
-          <FaRegQuestionCircle 
-            data-type="dark" 
+          <FaRegQuestionCircle
+            data-type="dark"
             data-place="bottom"
-            data-multiline={true} 
-            data-tip={copy.slippageCopy} 
+            data-multiline={true}
+            data-tip={copy.slippageCopy}
             className="text-med ml-2 text-left"
           />
           <ReactTooltip />
@@ -160,7 +160,12 @@ export default function SwapCard() {
   };
 
   return (
-    <FormWrap title={title} canSubmit={canSwap} onSubmit={handleSubmit}>
+    <FormWrap
+      title={title}
+      canSubmit={canSwap}
+      onSubmit={handleSubmit}
+      info={copy.swap}
+    >
       {swapError && <Alert level="error" message={swapError.message} />}
       <TokenAmount
         amount={tokenInAmount}
@@ -208,6 +213,5 @@ export default function SwapCard() {
         minAmountOut={minAmountOut}
       />
     </FormWrap>
-    
   );
 }

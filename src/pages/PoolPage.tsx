@@ -170,7 +170,11 @@ function AddLiquidity({
   };
 
   return (
-    <FormWrap buttonText="Add Liquidity" onSubmit={handleSubmit} info={copy.addLiquidity}>
+    <FormWrap
+      buttonText="Add Liquidity"
+      onSubmit={handleSubmit}
+      info={copy.addLiquidity}
+    >
       <TokenAmount
         amount={firstTokenAmount}
         max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
