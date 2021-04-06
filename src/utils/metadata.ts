@@ -1,6 +1,6 @@
 export default {
   'wrap.near':
-    'https://fluxprotocol.eth.link/static/media/wrapped-near.8b3a5e4b.svg',
+    'https://imgur.com/AaM3AbV.jpg',
   '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near':
     'https://s2.coinmarketcap.com/static/img/coins/64x64/4943.png',
   'berryclub.ek.near': 'https://assets.onlinelabels.com/images/clip-art/pitr/pitr_Bananas_icon.png',
