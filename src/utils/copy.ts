@@ -6,5 +6,7 @@ export default {
   withdraw: 'This will withdraw your selected tokens from <br> the exchange and deposit them into your wallet.',
   registerToken: 'This registers a new token with the <br> exchange that is not already listed.',
   whitelistToken: 'This allows you to add an ERC-20 token to the exchange that is not already listed.',
-  addLiquidityPool: 'This creates a new liquidity pool for the two tokens selected. <br> The fee is the percentage the pool takes from each transaction.'
+  addLiquidityPool: 'This creates a new liquidity pool for the two tokens selected. <br> The fee is the percentage the pool takes from each transaction.',
+  addLiquidity: 'This will deposit your tokens into the liquidity pool to <br> receive a portion of the returns this pool generates.',
+
 }

@@ -26,6 +26,7 @@ import TokenAmount from '../components/forms/TokenAmount';
 import TabFormWrap from '../components/forms/TabFormWrap';
 import Loading from '../components/layout/Loading';
 import Icon from '~components/tokens/Icon';
+import copy from '../utils/copy';
 
 interface ParamTypes {
   poolId: string;
@@ -169,7 +170,7 @@ function AddLiquidity({
   };
 
   return (
-    <FormWrap buttonText="Add Liquidity" onSubmit={handleSubmit}>
+    <FormWrap buttonText="Add Liquidity" onSubmit={handleSubmit} info={copy.addLiquidity}>
       <TokenAmount
         amount={firstTokenAmount}
         max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
