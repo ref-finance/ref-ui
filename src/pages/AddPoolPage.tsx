@@ -10,6 +10,7 @@ import { TokenMetadata } from '../services/ft-contract';
 import TabFormWrap from '../components/forms/TabFormWrap';
 import { registerTokenAndExchange } from '../services/token';
 import PageWrap from '../components/layout/PageWrap';
+import copy from '../utils/copy';
 
 function AddPool() {
   const [firstToken, setFirstToken] = useState<TokenMetadata>();
