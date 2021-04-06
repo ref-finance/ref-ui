@@ -8,5 +8,6 @@ export default {
   whitelistToken: 'This allows you to add an ERC-20 token to the exchange that is not already listed.',
   addLiquidityPool: 'This creates a new liquidity pool for the two tokens selected. <br> The fee is the percentage the pool takes from each transaction.',
   addLiquidity: 'This will deposit your tokens into the liquidity pool to <br> receive a portion of the returns this pool generates.',
+  removeLiquidity: 'This removes your liquidity shares from the pool and <br> transfers the tokens back into your exchange portfolio.'
 
 }

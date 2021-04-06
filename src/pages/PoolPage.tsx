@@ -212,6 +212,7 @@ function RemoveLiquidity({ pool, shares }: { pool: Pool; shares: string }) {
       buttonText="Remove Liquidity"
       canSubmit={!!amount}
       onSubmit={handleSubmit}
+      info={copy.removeLiquidity}
     >
       <InputAmount
         value={amount}
