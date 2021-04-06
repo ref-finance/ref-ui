@@ -8,9 +8,8 @@ import {
   wallet,
 } from './near';
 import BN from 'bn.js';
-import { utils } from 'near-api-js';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
-import { toNonDivisibleNumber } from '~utils/numbers';
+import { toNonDivisibleNumber } from '../utils/numbers';
 import { storageDepositForFTAction } from './creators/storage';
 
 const DEFAULT_PAGE_LIMIT = 10;
@@ -75,15 +74,6 @@ export const getPoolsByTokens = async ({
     (p) =>
       new BN(p.supplies[tokenInId]).gte(amountToTrade) && p.supplies[tokenOutId]
   );
-};
-
-export const getIdealSwapPool = async ({
-  tokenInId,
-  tokenOutId,
-  amountIn,
-}: GetPoolOptions | null) => {
-  const pool = await getPoolsByTokens({ tokenInId, tokenOutId, amountIn });
-  return pool.sort((a, b) => a.fee - b.fee)[0] ?? null;
 };
 
 export const getPool = async (id: number): Promise<Pool> => {
