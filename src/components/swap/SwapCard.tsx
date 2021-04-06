@@ -157,6 +157,7 @@ export default function SwapCard() {
 
   return (
     <FormWrap title={title} canSubmit={canSwap} onSubmit={handleSubmit}>
+      <h1 className="text-center text-red-500 text-bold border-2 border-red-500 py-2">Community developed. Not audited. Use at your own risk.</h1>
       {swapError && <Alert level="error" message={swapError.message} />}
       <TokenAmount
         amount={tokenInAmount}
