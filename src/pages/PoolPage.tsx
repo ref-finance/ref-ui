@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { FaAngleLeft } from 'react-icons/fa';
 import PageWrap from '../components/layout/PageWrap';
-import TokenList from '../components/tokens/TokenList';
 import InputAmount from '../components/forms/InputAmount';
 import FormWrap from '../components/forms/FormWrap';
 import { usePool } from '../state/pool';

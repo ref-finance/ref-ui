@@ -9,6 +9,6 @@ export default {
   addLiquidityPool: 'This creates a new liquidity pool for the two tokens selected. <br> The fee is the percentage the pool takes from each transaction.',
   addLiquidity: 'This will deposit your tokens into the liquidity pool to <br> receive a portion of the returns this pool generates.',
   removeLiquidity: 'This removes your liquidity shares from the pool and <br> transfers the tokens back into your exchange portfolio.',
-  swap: 'Swap exchanges the first selected token <br> with the value of the second selected token. <br> This looks for a pool with available liquidity <br> and the lowest exchange fee.'
-
+  swap: 'Swap exchanges the first selected token <br> with the value of the second selected token. <br> This looks for a pool with available liquidity <br> and the lowest exchange fee.',
+  balances: 'This page reflects the amount of tokens you have deposited in the exchange. <br> Use the from below to add or withdraw tokens using your NEAR Wallet.'
 }
