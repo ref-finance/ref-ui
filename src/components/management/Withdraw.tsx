@@ -16,10 +16,10 @@ export default function Withdraw({ tokens }: { tokens: TokenMetadata[] }) {
     tokens.find((token) => token.id === WRAP_NEAR_CONTRACT_ID)
   );
 
-  let info;
-  if (selectedToken.id === WRAP_NEAR_CONTRACT_ID) {
-    info = copy.nearWithdraw;
-  } else info = copy.withdraw;
+  const info =
+    selectedToken.id === WRAP_NEAR_CONTRACT_ID
+      ? copy.nearWithdraw
+      : copy.withdraw;
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
