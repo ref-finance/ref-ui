@@ -6,6 +6,8 @@ import { percentLess } from '~utils/numbers';
 import { checkSwap, estimateSwap, swap } from '../services/swap';
 import { useHistory, useLocation } from 'react-router';
 
+const ONLY_ZEROS = /^0*\.?0*$/;
+
 interface SwapOptions {
   tokenIn: TokenMetadata;
   tokenInAmount: string;
@@ -62,7 +64,7 @@ export const useSwap = ({
       tokenIn &&
       tokenOut &&
       tokenInAmount &&
-      tokenInAmount !== '0' &&
+      !ONLY_ZEROS.test(tokenInAmount) &&
       tokenIn.id !== tokenOut.id
     ) {
       setSwapError(null);
