@@ -30,6 +30,7 @@ function AddPool() {
       buttonText="Add Liquidity Pool"
       canSubmit={firstToken && secondToken && fee !== 0}
       onSubmit={handleSubmit}
+      info={copy.addLiquidityPool}
     >
       <fieldset className="flex items-center">
         <label className="mr-4 text-2xl text-inputText items-center flex flex-col">

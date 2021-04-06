@@ -5,5 +5,6 @@ export default {
   nearWithdraw: 'This will first unwrap your Ⓝ then withdraw it from <br> the exchange and move the tokens to your wallet.',
   withdraw: 'This will withdraw your selected tokens from <br> the exchange and deposit them into your wallet.',
   registerToken: 'This registers a new token with the <br> exchange that is not already listed.',
-  whitelistToken: 'This allows you to add an ERC-20 token to the exchange that is not already listed.'
+  whitelistToken: 'This allows you to add an ERC-20 token to the exchange that is not already listed.',
+  addLiquidityPool: 'This creates a new liquidity pool for the two tokens selected. <br> The fee is the percentage the pool takes from each transaction.'
 }
