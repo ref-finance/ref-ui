@@ -59,10 +59,11 @@ export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
       info={info}
     >
       {selectedToken && (
-        <h2 className="text-center">
-          You can deposit up to {toPrecision(max, 4, true)}{' '}
-          {selectedToken.symbol}.
-        </h2>
+        <div className="text-center">
+          <span> You can deposit up to </span>
+          <span className="font-bold">{toPrecision(max, 4, true)} </span>
+          <span>{selectedToken.symbol}.</span>
+        </div>
       )}
       <TokenAmount
         amount={amount}
