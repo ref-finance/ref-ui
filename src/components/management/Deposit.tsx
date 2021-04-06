@@ -26,13 +26,8 @@ export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
       selectedToken?.decimals,
       selectedToken?.id === nearMetadata.id ? nearBalance : depositable
     ) || '0';
-
-  let info;
-  if (selectedToken.id === nearMetadata.id) {
-    info = copy.nearDeposit;
-  } else info = copy.deposit;
-
-
+  const info =
+    selectedToken.id === nearMetadata.id ? copy.nearDeposit : copy.deposit;
 
   useEffect(() => {
     wallet
