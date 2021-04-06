@@ -22,13 +22,16 @@ function SubmitButton({ text, disabled, onClick, info }: SubmitButtonProps) {
         >
           <h1 className="text-xl font-inter font-medium ">{text}</h1>
           {info ? (
-            <FaInfoCircle
-              data-type="dark"
-              data-place="bottom"
-              data-multiline={true}
-              data-tip={info}
-              className="text-large ml-2"
-            />
+            <>
+              <FaInfoCircle
+                data-type="dark"
+                data-place="bottom"
+                data-multiline={true}
+                data-tip={info}
+                className="text-large ml-2"
+              />
+              <ReactTooltip />
+            </>
           ) : null}
         </button>
       ) : (

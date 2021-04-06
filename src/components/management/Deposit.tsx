@@ -32,6 +32,8 @@ export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
     info = copy.nearDeposit;
   } else info = copy.deposit;
 
+
+
   useEffect(() => {
     wallet
       .account()
