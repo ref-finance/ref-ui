@@ -16,6 +16,7 @@ import { ACCOUNT_MIN_STORAGE_AMOUNT, currentStorageBalance } from './account';
 import { toNonDivisibleNumber } from '../utils/numbers';
 import {
   MIN_DEPOSIT_PER_TOKEN,
+  STORAGE_TO_REGISTER_WITH_FT,
   storageDepositAction,
   storageDepositForFTAction,
   STORAGE_PER_TOKEN,
@@ -170,7 +171,12 @@ export const withdraw = async ({
   if (!ftBalance || ftBalance.total === '0') {
     transactions.unshift({
       receiverId: token.id,
-      functionCalls: [storageDepositForFTAction()],
+      functionCalls: [
+        storageDepositAction({
+          registrationOnly: true,
+          amount: STORAGE_TO_REGISTER_WITH_FT,
+        }),
+      ],
     });
   }
 
