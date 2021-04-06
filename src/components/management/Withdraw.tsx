@@ -6,6 +6,7 @@ import { withdraw } from '../../services/token';
 import { useTokenBalances } from '../../state/token';
 import { toReadableNumber } from '../../utils/numbers';
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import copy from '../../utils/copy';
 
 export default function Withdraw({ tokens }: { tokens: TokenMetadata[] }) {
   const balances = useTokenBalances();
@@ -14,6 +15,11 @@ export default function Withdraw({ tokens }: { tokens: TokenMetadata[] }) {
   const [selectedToken, setSelectedToken] = useState<TokenMetadata>(
     tokens.find((token) => token.id === WRAP_NEAR_CONTRACT_ID)
   );
+
+  const info =
+    selectedToken.id === WRAP_NEAR_CONTRACT_ID
+      ? copy.nearWithdraw
+      : copy.withdraw;
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -33,6 +39,7 @@ export default function Withdraw({ tokens }: { tokens: TokenMetadata[] }) {
       buttonText="Withdraw"
       canSubmit={!!amount && !!selectedToken}
       onSubmit={handleSubmit}
+      info={info}
     >
       <TokenAmount
         amount={amount}

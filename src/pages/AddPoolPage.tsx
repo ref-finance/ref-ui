@@ -10,6 +10,7 @@ import { TokenMetadata } from '../services/ft-contract';
 import TabFormWrap from '../components/forms/TabFormWrap';
 import { registerTokenAndExchange } from '../services/token';
 import PageWrap from '../components/layout/PageWrap';
+import copy from '../utils/copy';
 
 function AddPool() {
   const [firstToken, setFirstToken] = useState<TokenMetadata>();
@@ -29,6 +30,7 @@ function AddPool() {
       buttonText="Add Liquidity Pool"
       canSubmit={firstToken && secondToken && fee !== 0}
       onSubmit={handleSubmit}
+      info={copy.addLiquidityPool}
     >
       <fieldset className="flex items-center">
         <label className="mr-4 text-2xl text-inputText items-center flex flex-col">
@@ -77,6 +79,7 @@ function RegisterToken() {
       buttonText="Register Token"
       canSubmit={!!tokenId}
       onSubmit={handleSubmit}
+      info={copy.registerToken}
     >
       <input
         className="focus:outline-none shadow bg-inputBg appearance-none border rounded border-opacity-30 w-full py-2 px-3 text-3xl text-inputText leading-tight"

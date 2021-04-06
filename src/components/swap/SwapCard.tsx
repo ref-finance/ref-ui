@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
-import { FaArrowsAltV } from 'react-icons/fa';
+import { FaArrowsAltV, FaRegQuestionCircle } from 'react-icons/fa';
 import { TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
 import FormWrap from '../../components/forms/FormWrap';
@@ -17,6 +17,8 @@ import {
 } from '../../utils/numbers';
 import Loading from '../../components/layout/Loading';
 import { wallet } from '../../services/near';
+import ReactTooltip from 'react-tooltip';
+import copy from '../../utils/copy';
 
 function SwapDetail({ title, value }: { title: string; value: string }) {
   return (
@@ -80,7 +82,17 @@ function SlippageSelector({
   return (
     <>
       <fieldset className="flex items-center mb-4">
-        <label className="font-semibold">Slippage Tolerance: </label>
+        <label className="font-semibold text-center">Slippage: </label>
+        <div>
+          <FaRegQuestionCircle
+            data-type="dark"
+            data-place="bottom"
+            data-multiline={true}
+            data-tip={copy.slippageCopy}
+            className="text-med ml-2 text-left"
+          />
+          <ReactTooltip />
+        </div>
         {validSlippages.map((slippage) => (
           <button
             className={`hover:bg-buttonBg hover:text-buttonText rounded w-full p-2 mx-2 ${
@@ -156,8 +168,15 @@ export default function SwapCard() {
   };
 
   return (
-    <FormWrap title={title} canSubmit={canSwap} onSubmit={handleSubmit}>
-      <h1 className="text-center text-red-500 text-bold border-2 border-red-500 py-2">Community developed. Not audited. Use at your own risk.</h1>
+    <FormWrap
+      title={title}
+      canSubmit={canSwap}
+      onSubmit={handleSubmit}
+      info={copy.swap}
+    >
+      <h1 className="text-center text-red-500 text-bold border-2 border-red-500 py-2">
+        Community developed. Not audited. Use at your own risk.
+      </h1>
       {swapError && <Alert level="error" message={swapError.message} />}
       <TokenAmount
         amount={tokenInAmount}

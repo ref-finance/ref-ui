@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { FaAngleLeft } from 'react-icons/fa';
 import PageWrap from '../components/layout/PageWrap';
-import TokenList from '../components/tokens/TokenList';
 import InputAmount from '../components/forms/InputAmount';
 import FormWrap from '../components/forms/FormWrap';
 import { usePool } from '../state/pool';
@@ -26,6 +25,7 @@ import TokenAmount from '../components/forms/TokenAmount';
 import TabFormWrap from '../components/forms/TabFormWrap';
 import Loading from '../components/layout/Loading';
 import Icon from '~components/tokens/Icon';
+import copy from '../utils/copy';
 
 interface ParamTypes {
   poolId: string;
@@ -168,7 +168,11 @@ function AddLiquidity({
   };
 
   return (
-    <FormWrap buttonText="Add Liquidity" onSubmit={handleSubmit}>
+    <FormWrap
+      buttonText="Add Liquidity"
+      onSubmit={handleSubmit}
+      info={copy.addLiquidity}
+    >
       <TokenAmount
         amount={firstTokenAmount}
         max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
@@ -210,6 +214,7 @@ function RemoveLiquidity({ pool, shares }: { pool: Pool; shares: string }) {
       buttonText="Remove Liquidity"
       canSubmit={!!amount}
       onSubmit={handleSubmit}
+      info={copy.removeLiquidity}
     >
       <InputAmount
         value={amount}
