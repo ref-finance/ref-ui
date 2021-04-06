@@ -168,8 +168,6 @@ export const withdraw = async ({
     },
   ];
 
-  console.log(ftBalance);
-
   if (!ftBalance || ftBalance.total === '0') {
     transactions.unshift({
       receiverId: token.id,
