@@ -1,13 +1,16 @@
 import React from 'react';
 import { wallet } from '../../services/near';
+import { FaInfoCircle } from 'react-icons/fa';
+import ReactTooltip from 'react-tooltip';
 
 interface SubmitButtonProps {
   text: string;
   disabled?: boolean;
   onClick?: (event: React.MouseEvent) => void;
+  info: string;
 }
 
-function SubmitButton({ text, disabled, onClick }: SubmitButtonProps) {
+function SubmitButton({ text, disabled, onClick, info }: SubmitButtonProps) {
   return (
     <>
       {wallet.isSignedIn() ? (
@@ -17,7 +20,16 @@ function SubmitButton({ text, disabled, onClick }: SubmitButtonProps) {
           onClick={onClick}
           className="flex flex-row justify-center py-4 mt-5 mb-5 items-center rounded-md w-full bg-buttonBg border-2 text-buttonText hover:bg-buttonText hover:text-buttonBg hover:border-buttonBg hover:border-2 disabled:opacity-50 transition-colors shadow-lg transition-colors focus:outline-none disabled:cursor-not-allowed"
         >
-          <h1 className="text-xl font-inter font-medium ">{text}</h1>
+          <h1 
+            className="text-xl font-inter font-medium ">{text}</h1>
+          <FaInfoCircle 
+            data-type="dark" 
+            data-place="bottom"
+            data-multiline={true} 
+            data-tip={info}
+            className="text-large ml-2"
+          />
+          <ReactTooltip />
         </button>
       ) : (
         <button

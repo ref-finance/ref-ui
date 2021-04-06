@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Alert from '~components/alert/Alert';
 import SubmitButton from './SubmitButton';
+import ReactTooltip from 'react-tooltip';
 
 interface FormWrapProps {
   title?: string;
@@ -35,9 +36,11 @@ export default function FormWrap({
       onSubmit={handleSubmit}
     >
       {title && (
+        <>
         <h2 className="formTitle font-bold text-xl text-gray-700 text-center pb-2">
           {title}
         </h2>
+        </>
       )}
       {error && <Alert level="error" message={error.message} />}
       {children}
