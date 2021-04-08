@@ -55,8 +55,8 @@ function DetailView({
       <SwapDetail
         title="Swap Rate"
         value={`${calculateExchangeRate(pool.fee, from, to)} ${
-          tokenIn.symbol
-        } per ${tokenOut.symbol}`}
+          tokenOut.symbol
+        } per ${tokenIn.symbol}`}
       />
       <SwapDetail
         title="Pool Fee"
