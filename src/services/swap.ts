@@ -1,3 +1,4 @@
+import BN from 'bn.js';
 import { toNonDivisibleNumber, toReadableNumber } from '../utils/numbers';
 import {
   near,
@@ -8,9 +9,10 @@ import {
   wallet,
 } from './near';
 import { TokenMetadata } from './ft-contract';
-import { getIdealSwapPool, Pool } from './pool';
+import { getPoolsByTokens, Pool } from './pool';
 import { checkTokenNeedsStorageDeposit } from './token';
 import { JsonRpcProvider } from 'near-api-js/lib/providers';
+import { storageDepositForTokenAction } from './creators/storage';
 
 interface EstimateSwapOptions {
   tokenIn: TokenMetadata;
@@ -31,31 +33,52 @@ export const estimateSwap = async ({
   if (!parsedAmountIn)
     throw new Error(`${amountIn} is not a valid swap amount`);
 
-  const pool = await getIdealSwapPool({
+  const pools = await getPoolsByTokens({
     tokenInId: tokenIn.id,
     tokenOutId: tokenOut.id,
     amountIn: parsedAmountIn,
   });
 
-  if (!pool)
+  if (pools.length < 1) {
     throw new Error(
       `No pool available to make a swap from ${tokenIn.symbol} -> ${tokenOut.symbol} for the amount ${amountIn}`
     );
+  }
 
-  const estimate = await refFiViewFunction({
-    methodName: 'get_return',
-    args: {
-      pool_id: pool.id,
-      token_in: tokenIn.id,
-      token_out: tokenOut.id,
-      amount_in: parsedAmountIn,
-    },
-  });
+  try {
+    const estimates = await Promise.all(
+      pools.map((pool) => {
+        return refFiViewFunction({
+          methodName: 'get_return',
+          args: {
+            pool_id: pool.id,
+            token_in: tokenIn.id,
+            token_out: tokenOut.id,
+            amount_in: parsedAmountIn,
+          },
+        })
+          .then((estimate) => ({
+            estimate,
+            status: 'success',
+            pool,
+          }))
+          .catch(() => ({ status: 'error', estimate: '0', pool }));
+      })
+    );
 
-  return {
-    estimate: toReadableNumber(tokenOut.decimals, estimate),
-    pool,
-  };
+    const { estimate, pool } = estimates
+      .filter(({ status }) => status === 'success')
+      .sort((a, b) => (new BN(b.estimate).gt(new BN(a.estimate)) ? 1 : -1))[0];
+
+    return {
+      estimate: toReadableNumber(tokenOut.decimals, estimate),
+      pool,
+    };
+  } catch {
+    throw new Error(
+      `No pool available to make a swap from ${tokenIn.symbol} -> ${tokenOut.symbol} for the amount ${amountIn}`
+    );
+  }
 };
 
 interface SwapOptions extends EstimateSwapOptions {
@@ -86,13 +109,9 @@ export const swap = async ({
     },
   ];
 
-  const needsStorageDeposit = await checkTokenNeedsStorageDeposit(tokenIn.id);
+  const needsStorageDeposit = await checkTokenNeedsStorageDeposit(tokenOut.id);
   if (needsStorageDeposit) {
-    actions.unshift({
-      methodName: 'storage_deposit',
-      args: { account_id: wallet.getAccountId(), registration_only: false },
-      amount: '0.00084',
-    });
+    actions.unshift(storageDepositForTokenAction());
   }
 
   return refFiManyFunctionCalls(actions);

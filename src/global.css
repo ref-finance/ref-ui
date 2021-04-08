@@ -21,8 +21,23 @@ html {
 
 body {
   margin: 0;
-  background: url(./assets/images/pixel-magic-background.jpg) center;
-  background-size: cover;
+  background: rgb(0, 192, 139);
+  background: -moz-radial-gradient(
+    circle,
+    rgba(0, 192, 139, 1) 0%,
+    rgba(0, 131, 117, 1) 92%
+  );
+  background: -webkit-radial-gradient(
+    circle,
+    rgba(0, 192, 139, 1) 0%,
+    rgba(0, 131, 117, 1) 92%
+  );
+  background: radial-gradient(
+    circle,
+    rgba(0, 192, 139, 1) 0%,
+    rgba(0, 131, 117, 1) 92%
+  );
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#00c08b",endColorstr="#008375",GradientType=1);
 }
 
 main {

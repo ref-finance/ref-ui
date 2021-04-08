@@ -4,6 +4,7 @@ import { registerToken } from '~services/token';
 import { useToken } from '~state/token';
 import SelectToken from '~components/forms/SelectToken';
 import Icon from '~components/tokens/Icon';
+import copy from '../../utils/copy';
 
 export default function Register({
   initialTokenId,
@@ -24,6 +25,7 @@ export default function Register({
       buttonText="Whitelist Token"
       canSubmit={!!tokenId}
       onSubmit={handleSubmit}
+      info={copy.whitelistToken}
     >
       <fieldset className="relative grid grid-cols-12 align-center">
         <input

@@ -52,7 +52,9 @@ export default function TokenAmount({
           selectedToken && (
             <div className="flex items-center justify-end">
               <Icon token={selectedToken} />
-              <FaAngleDown className="stroke-current text-inputText block ml-1" />
+              {tokens.length > 1 && (
+                <FaAngleDown className="stroke-current text-inputText block ml-1" />
+              )}
             </div>
           )
         }
