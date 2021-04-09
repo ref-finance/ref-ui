@@ -85,7 +85,7 @@ export const unwrapNear = async (amount: string) => {
         {
           methodName: 'storage_deposit',
           args: {},
-          gas: '30000000000000',
+          gas: '50000000000000',
           amount: NEW_ACCOUNT_STORAGE_COST,
         },
       ],
