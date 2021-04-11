@@ -7,6 +7,9 @@ import { functionCall } from 'near-api-js/lib/transaction';
 export const REF_FI_CONTRACT_ID =
   process.env.REF_FI_CONTRACT_ID || 'ref-finance.testnet';
 
+  export const REF_ADBOARD_CONTRACT_ID =
+  process.env.REF_FI_CONTRACT_ID || 'ref-adboard.testnet';
+
 export const ONE_YOCTO_NEAR = '0.000000000000000000000001';
 
 export const near = new Near({

@@ -71,3 +71,66 @@ input[disabled] {
 input[type='number'] {
   -moz-appearance: textfield; /* Firefox */
 }
+
+
+
+
+
+/* Adboard */
+.tooltip-content::after {
+  content: " ";
+  position: absolute;
+  bottom: 100%; /* This will position the arrow at the top of the tooltip */
+  left: 50%;
+  margin-left: -10px;
+  border-width: 10px;
+  border-style: solid;
+  border-color: transparent transparent rgba(34, 36, 51, 1) transparent; /* This will make the top border black */
+}
+
+.hover-trigger .hover-target {
+  display: none;
+}
+
+.hover-trigger:hover .hover-target {
+  display: block;
+  margin-left: 29px;
+}
+
+.drawboard {
+  width: 600px;
+  height: 600px;
+}
+
+.bucket {
+  margin-bottom: 8px;
+}
+
+.active-bucket {
+  outline: 5px auto !important;
+  -moz-outline-radius: 9999px;
+}
+
+.compact-picker {
+  width: 260px !important;
+}
+
+.flexbox-fix {
+  display: none !important;
+}
+
+.blur {
+  background: rgba(0, 0, 0, 0.9);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.9);
+  backdrop-filter: blur(8.5px);
+  -webkit-backdrop-filter: blur(8.5px);
+}
+
+.tooltip {
+  visibility: invisible;
+}
+
+.has-tooltip:hover .tooltip {
+  visibility: visible;
+  z-index: 50;
+}

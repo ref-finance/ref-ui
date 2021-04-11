@@ -74,7 +74,7 @@ function Anchor({ to, name }: { to: string; name: string }) {
 
 function DesktopBar() {
   return (
-    <nav className="hidden grid-cols-5 items-center text-center bg-secondary md:grid">
+    <nav className="hidden grid-cols-6 items-center text-center bg-secondary md:grid">
       <Link to="/" className="my-2 mx-3">
         <RefLogo className="w-full" height="66" />
       </Link>
@@ -85,6 +85,7 @@ function DesktopBar() {
       )}
       <Anchor to="/" name="Swap" />
       <Anchor to="/pools" name="Pools" />
+      <Anchor to="/Adboard" name="Adboard" />
       <section className="place-self-center">
         {wallet.isSignedIn() ? <Dropdown /> : <AuthButton />}
       </section>
