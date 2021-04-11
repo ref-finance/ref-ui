@@ -2,7 +2,7 @@ import "regenerator-runtime/runtime";
 import React, { useEffect, useRef, useState } from "react";
 import DrawboardModal from "./DrawboardModal";
 import { useRecoilState } from "recoil";
-import { adboardState, drawboardModalState } from "./Store";
+import { adboardState, drawboardModalState, buyModalState } from "./Store";
 import { AdboardUtil } from "./AdboardUtil";
 import { getAdboardDataViewState } from "./AdboardFetcher";
 import { wallet } from "~services/near";
@@ -10,6 +10,7 @@ import metadataDefaults from '../../utils/metadata';
 import { getWhitelistedTokens } from "~services/token";
 import { getPools } from "~services/pool";
 import { estimateSwap } from "~services/swap";
+import BuyModal from "./BuyModal";
 
 
 export default function AdboardPage() {
@@ -17,10 +18,10 @@ export default function AdboardPage() {
   const adboardWrapperRef = useRef<HTMLDivElement>();
   const [DrawBoardState, setDrawboardState] = useRecoilState(drawboardModalState);
   const [AdboardState, setAdboardState] = useRecoilState(adboardState);
+  const [BuyModaleState, setBuyModaleState] = useRecoilState(buyModalState);
 
   const [YourFrames, setYourFrames] = useState([]);
   const [AvailableWhitelistedToken, setAvailableWhitelistedToken] = useState(new Set<string>());
-  //const [AvailableWhitelistedToken, setAvailableWhitelistedToken] = useRecoilState(availableWhitelistedTokenState);
 
   const refreshAdboard = async (frameId: number) => {
     // = await getFrameData();
@@ -73,9 +74,7 @@ export default function AdboardPage() {
     });
   }
 
-
   const renderAdboard = () => {
-
     adboardCanvasRef.current.style.width = AdboardUtil.PIX_WIDTH_BOARD + "px";
     adboardCanvasRef.current.style.height = AdboardUtil.PIX_HEIGHT_BOARD + "px";
 
@@ -138,7 +137,7 @@ export default function AdboardPage() {
   return (
     <div>
       {DrawBoardState.showModal && <DrawboardModal></DrawboardModal>}
-
+      {BuyModaleState.showModal && <BuyModal></BuyModal>}
       <div
         className="h-auto mx-auto"
         style={{
@@ -215,18 +214,17 @@ export default function AdboardPage() {
                   </div>
                   <div className="p-1 font-serif text-sm text-center border-b-2 border-gray-700">
                     <div>
-                      {Array.from(AvailableWhitelistedToken.values()).map((token, index) => (
-                        <button
-                          key={index}
-                          //  onClick={() => offerFrame()}
-                          className="flex flex-row justify-between w-22 h-auto px-4 py-2 font-semibold transition duration-200 border border-solid rounded-md shadow-xl hover:opacity-80 focus:outline-none border-theme-light text-theme-white bg-theme-blue"
-                        >
-                          {token}
+                      <button
+                        key={index}
+                        onClick={() => setBuyModaleState({ showModal: true, frameId: index, price: metadata.near_baseprice, availableTokens: AvailableWhitelistedToken })}
+                        className="flex flex-row justify-between w-22 h-auto px-4 py-2 font-semibold transition duration-200 border border-solid rounded-md shadow-xl hover:opacity-80 focus:outline-none border-theme-light text-theme-white bg-theme-blue"
+                      >
+                        Buy
                         </button>
+                      {/* {Array.from(AvailableWhitelistedToken.values()).map((token, index) => (
+       
 
-                      ))}
-
-
+                      ))} */}
                     </div>
 
                   </div>
