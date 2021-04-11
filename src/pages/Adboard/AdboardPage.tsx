@@ -214,13 +214,20 @@ export default function AdboardPage() {
                   </div>
                   <div className="p-1 font-serif text-sm text-center border-b-2 border-gray-700">
                     <div>
-                      <button
-                        key={index}
-                        onClick={() => setBuyModaleState({ showModal: true, frameId: index, price: metadata.near_baseprice, availableTokens: AvailableWhitelistedToken })}
-                        className="flex flex-row justify-between w-22 h-auto px-4 py-2 font-semibold transition duration-200 border border-solid rounded-md shadow-xl hover:opacity-80 focus:outline-none border-theme-light text-theme-white bg-theme-blue"
-                      >
-                        Buy
+                      {(metadata.protected_ts / 1000 / 1000) > Date.now() &&
+                        <div>Sale starts at: {new Date(metadata.protected_ts / 1000 / 1000).toISOString()} </div>
+                      }
+                      {(metadata.protected_ts / 1000 / 1000) <= Date.now() &&
+                        <div>
+                          < button
+                            key={index}
+                            onClick={() => setBuyModaleState({ showModal: true, frameId: index, price: metadata.near_baseprice, availableTokens: AvailableWhitelistedToken })}
+                            className="flex flex-row justify-between w-22 h-auto px-4 py-2 font-semibold transition duration-200 border border-solid rounded-md shadow-xl hover:opacity-80 focus:outline-none border-theme-light text-theme-white bg-theme-blue"
+                          >
+                            Buy
                         </button>
+                        </div>
+                      }
                       {/* {Array.from(AvailableWhitelistedToken.values()).map((token, index) => (
        
 
@@ -235,7 +242,7 @@ export default function AdboardPage() {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }
 

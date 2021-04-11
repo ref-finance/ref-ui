@@ -5,9 +5,8 @@ import { buyModalState } from "./Store";
 const BuyModal = () => {
   const [BuyModaleState, setBuyModaleState] = useRecoilState(buyModalState);
 
-  function buyFrame(token: string) {
-    //???
-    //how to send tokens?
+  function buyFrame(frameId: number, tokenContract: string) {
+
   }
 
   useEffect(() => {
