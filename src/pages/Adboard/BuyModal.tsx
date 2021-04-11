@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { buyModalState } from "./Store";
 
@@ -7,7 +7,13 @@ const BuyModal = () => {
 
   function buyFrame(token: string) {
     //???
+    //how to send tokens?
   }
+
+  useEffect(() => {
+    //????
+    //get conversionrate here
+  });
 
   return (
     <div className="fixed flex items-center justify-center w-screen h-screen">
