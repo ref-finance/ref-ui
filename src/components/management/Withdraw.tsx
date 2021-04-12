@@ -25,7 +25,7 @@ export default function Withdraw({ tokens }: { tokens: TokenMetadata[] }) {
     event.preventDefault();
 
     if (selectedToken.id === WRAP_NEAR_CONTRACT_ID) {
-      unwrapNear(amount);
+      return unwrapNear(amount);
     }
 
     return withdraw({
