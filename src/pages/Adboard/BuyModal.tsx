@@ -1,13 +1,15 @@
-import React, { useEffect } from "react";
-import { useRecoilState } from "recoil";
-import { buyModalState } from "./Store";
+import React, { useEffect } from 'react';
+import { AdboardMetadata } from '~services/adboard';
+import { TokenMetadata } from '~services/ft-contract';
 
-const BuyModal = () => {
-  const [BuyModaleState, setBuyModaleState] = useRecoilState(buyModalState);
+interface BuyModalProps {
+  metadata: AdboardMetadata;
+  tokens: TokenMetadata[];
+  close: () => void;
+}
 
-  function buyFrame(frameId: number, tokenContract: string) {
-
-  }
+const BuyModal = ({ metadata, tokens, close }: BuyModalProps) => {
+  function buyFrame(frameId: number, tokenContract: string) {}
 
   useEffect(() => {
     //????
@@ -19,35 +21,44 @@ const BuyModal = () => {
       <div
         className="fixed w-screen h-screen blur"
         style={{
-          filter: "blur(5px)",
-          background: "rgba(0, 0, 0, 0.75)",
+          filter: 'blur(5px)',
+          background: 'rgba(0, 0, 0, 0.75)',
         }}
       ></div>
       <div className="fixed flex flex-row h-48 rounded-md shadow-xl bg-theme-normal">
-        <div className="p-6" style={{
-          backgroundColor: "black",
-          borderRadius: "6px"
-        }}>
+        <div
+          className="p-6"
+          style={{
+            backgroundColor: 'black',
+            borderRadius: '6px',
+          }}
+        >
           <span className="mb-2 text-2xl font-semibold text-white">
-            Do you want to buy Frame #{BuyModaleState.frameId}?
+            Do you want to buy Frame #{metadata.frameId}?
           </span>
           <br></br>
-          {Array.from(BuyModaleState.availableTokens.values()).map((token, index) => (
-
-            <div className="text-white "> XX {token.split('.')[0]}             <button
-              onClick={() => buyFrame("")}
-              style={{ backgroundColor: "green", float: "right" }}
-              className="flex flex-row justify-between w-32 h-auto px-4 py-2 font-semibold border border-solid rounded-md shadow-xl focus:outline-none border-theme-light text-theme-white bg-theme-blue"
-            >
-              Buy
-          </button><br /></div>
-          ))}
+          {Array.from(
+            tokens.map((token, index) => (
+              <div className="text-white ">
+                {' '}
+                XX {token.symbol}{' '}
+                <button
+                  onClick={() => buyFrame('')}
+                  style={{ backgroundColor: 'green', float: 'right' }}
+                  className="flex flex-row justify-between w-32 h-auto px-4 py-2 font-semibold border border-solid rounded-md shadow-xl focus:outline-none border-theme-light text-theme-white bg-theme-blue"
+                >
+                  Buy
+                </button>
+                <br />
+              </div>
+            ))
+          )}
 
           <div className="flex flex-row justify-between w-full px-4 mt-12">
             <button
-              onClick={() => setBuyModaleState({ showModal: false, frameId: -1, price: 0, availableTokens: new Set<string>() })}
+              onClick={close}
               className="flex flex-row justify-center h-auto py-2 -ml-5 font-semibold border border-solid rounded-md shadow-xl focus:outline-none border-theme-light w-28 text-theme-dark bg-theme-light"
-              style={{ backgroundColor: "green" }}
+              style={{ backgroundColor: 'green' }}
             >
               <svg
                 className="w-6 h-6 mr-2"
@@ -65,7 +76,7 @@ const BuyModal = () => {
           </div>
         </div>
       </div>
-    </div >
+    </div>
   );
 };
 

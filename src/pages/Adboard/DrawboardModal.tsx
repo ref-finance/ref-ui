@@ -1,18 +1,19 @@
-import React, { useEffect, useRef } from "react";
-import { CompactPicker } from "react-color";
-import { AdboardUtil } from "./AdboardUtil";
-import { useRecoilState } from "recoil";
-import { drawboardModalState } from "./Store";
-import { near, REF_ADBOARD_CONTRACT_ID, wallet } from "~services/near";
-import BN from "bn.js";
+import React, { useEffect, useRef } from 'react';
+import { CompactPicker } from 'react-color';
+import { AdboardUtil } from '../../utils/AdboardUtil';
+import { AdboardFrameData, editFrame } from '../../services/adboard';
 
-const DrawboardModal = () => {
-  let activeColorBucket = "colorbucket1";
-  let activeColorHex = AdboardUtil.getStorageData("colorbucket1", "#F44336");
+interface DrawboardModalProps {
+  framedata: AdboardFrameData;
+  frameId: string;
+  close: () => void;
+}
+
+const DrawboardModal = ({ framedata, frameId, close }: DrawboardModalProps) => {
+  let activeColorBucket = 'colorbucket1';
+  let activeColorHex = AdboardUtil.getStorageData('colorbucket1', '#F44336');
   let drawActive = false;
 
-
-  const [DrawBoardModalState, setDrawboardModalState] = useRecoilState(drawboardModalState);
   const drawboardCanvasRef = useRef<HTMLCanvasElement>();
   const previewCanvasRef = useRef<HTMLCanvasElement>();
   const colorbucket1Ref = useRef<HTMLButtonElement>();
@@ -23,18 +24,19 @@ const DrawboardModal = () => {
   const colorbucket6Ref = useRef<HTMLButtonElement>();
 
   function renderDrawboard() {
-    let drawboardData = DrawBoardModalState.frameData;
-    const previewCanvasContext = previewCanvasRef.current.getContext("2d");
+    AdboardUtil.initColorPalette();
+    let drawboardData = framedata[Number(frameId)];
+    const previewCanvasContext = previewCanvasRef.current.getContext('2d');
     previewCanvasContext.canvas.width = 40;
     previewCanvasContext.canvas.height = 40;
 
-    const drawboardCanvasContext = drawboardCanvasRef.current.getContext("2d");
+    const drawboardCanvasContext = drawboardCanvasRef.current.getContext('2d');
     drawboardCanvasContext.canvas.width = 600;
     drawboardCanvasContext.canvas.height = 600;
     drawboardCanvasContext.clearRect(0, 0, 600, 600);
     drawboardCanvasContext.lineWidth = 1;
 
-    drawboardCanvasContext.strokeStyle = "rbga(0, 0, 0, 50)";
+    drawboardCanvasContext.strokeStyle = 'rbga(0, 0, 0, 50)';
 
     for (var i = 0; i <= AdboardUtil.LENGTH_BOXES; i++) {
       drawboardCanvasContext.moveTo(
@@ -75,15 +77,13 @@ const DrawboardModal = () => {
   }
 
   function colorPixel(cx: number, cy: number, hexColor: string) {
-    const previewCanvasContext = previewCanvasRef.current.getContext("2d");
-    const drawboardCanvasContext = drawboardCanvasRef.current.getContext("2d");
+    const previewCanvasContext = previewCanvasRef.current.getContext('2d');
+    const drawboardCanvasContext = drawboardCanvasRef.current.getContext('2d');
 
     drawboardCanvasContext.fillStyle = hexColor;
     drawboardCanvasContext.fillRect(
-      cx * (drawboardCanvasContext.canvas.width / AdboardUtil.LENGTH_BOXES) +
-      1,
-      cy * (drawboardCanvasContext.canvas.width / AdboardUtil.LENGTH_BOXES) +
-      1,
+      cx * (drawboardCanvasContext.canvas.width / AdboardUtil.LENGTH_BOXES) + 1,
+      cy * (drawboardCanvasContext.canvas.width / AdboardUtil.LENGTH_BOXES) + 1,
       drawboardCanvasContext.canvas.width / AdboardUtil.LENGTH_BOXES - 2,
       drawboardCanvasContext.canvas.height / AdboardUtil.HEIGHT_BOXES - 2
     );
@@ -97,18 +97,22 @@ const DrawboardModal = () => {
     if (!drawActive) {
       return;
     }
-    const canvas = drawboardCanvasRef.current.getContext("2d");
+    const canvas = drawboardCanvasRef.current.getContext('2d');
     var x = event.x;
     var y = event.y;
 
     x -= canvas.canvas.offsetLeft;
     y -= canvas.canvas.offsetTop + 4;
     let cx = Math.floor(x / (canvas.canvas.width / AdboardUtil.LENGTH_BOXES));
-    let cy = Math.floor(y / (canvas.canvas.height / AdboardUtil.LENGTH_BOXES)) - 3;
+    let cy =
+      Math.floor(y / (canvas.canvas.height / AdboardUtil.LENGTH_BOXES)) - 3;
     //console.log(cx + " | " + cy);
-    if (cx >= 0 && cx < AdboardUtil.LENGTH_BOXES &&
-      cy >= 0 && cy < AdboardUtil.LENGTH_BOXES) {
-
+    if (
+      cx >= 0 &&
+      cx < AdboardUtil.LENGTH_BOXES &&
+      cy >= 0 &&
+      cy < AdboardUtil.LENGTH_BOXES
+    ) {
       colorPixel(cx, cy, activeColorHex);
     } else {
       //console.log("tried to change pixel outside of canvas");
@@ -117,28 +121,28 @@ const DrawboardModal = () => {
 
   useEffect(() => {
     colorbucket1Ref.current.style.backgroundColor = AdboardUtil.getStorageData(
-      "colorbucket1",
-      "#F44336"
+      'colorbucket1',
+      '#F44336'
     );
     colorbucket2Ref.current.style.backgroundColor = AdboardUtil.getStorageData(
-      "colorbucket2",
-      "#673AB7"
+      'colorbucket2',
+      '#673AB7'
     );
     colorbucket3Ref.current.style.backgroundColor = AdboardUtil.getStorageData(
-      "colorbucket3",
-      "#2196F3"
+      'colorbucket3',
+      '#2196F3'
     );
     colorbucket4Ref.current.style.backgroundColor = AdboardUtil.getStorageData(
-      "colorbucket4",
-      "#F44336"
+      'colorbucket4',
+      '#F44336'
     );
     colorbucket5Ref.current.style.backgroundColor = AdboardUtil.getStorageData(
-      "colorbucket5",
-      "#673AB7"
+      'colorbucket5',
+      '#673AB7'
     );
     colorbucket6Ref.current.style.backgroundColor = AdboardUtil.getStorageData(
-      "colorbucket6",
-      "#2196F3"
+      'colorbucket6',
+      '#2196F3'
     );
     renderDrawboard();
   }, []);
@@ -157,27 +161,27 @@ const DrawboardModal = () => {
   }
 
   function handleChangeComplete(color: any, id: string) {
-    if (id == "colorbucket1") {
+    if (id == 'colorbucket1') {
       AdboardUtil.setStorageData(id, color);
       colorbucket1Ref.current.style.backgroundColor = color;
     }
-    if (id == "colorbucket2") {
+    if (id == 'colorbucket2') {
       AdboardUtil.setStorageData(id, color);
       colorbucket2Ref.current.style.backgroundColor = color;
     }
-    if (id == "colorbucket3") {
+    if (id == 'colorbucket3') {
       AdboardUtil.setStorageData(id, color);
       colorbucket3Ref.current.style.backgroundColor = color;
     }
-    if (id == "colorbucket4") {
+    if (id == 'colorbucket4') {
       AdboardUtil.setStorageData(id, color);
       colorbucket4Ref.current.style.backgroundColor = color;
     }
-    if (id == "colorbucket5") {
+    if (id == 'colorbucket5') {
       AdboardUtil.setStorageData(id, color);
       colorbucket5Ref.current.style.backgroundColor = color;
     }
-    if (id == "colorbucket6") {
+    if (id == 'colorbucket6') {
       AdboardUtil.setStorageData(id, color);
       colorbucket6Ref.current.style.backgroundColor = color;
     }
@@ -186,27 +190,30 @@ const DrawboardModal = () => {
     }
   }
 
-  async function saveFrame() {
-    let boardData = JSON.stringify(AdboardUtil.DrawboardData.toString().split(',').map(function(t: any) { return parseInt(t) }));
-    console.log(boardData);
-    let compressedData = AdboardUtil.compress(boardData);
-    await wallet.account().functionCall(REF_ADBOARD_CONTRACT_ID, "editFrame", { "frameId": DrawBoardModalState.frameId, "frameData": compressedData }, new BN('30000000000000'));
+  function saveFrame() {
+    const boardData = JSON.stringify(
+      AdboardUtil.DrawboardData.toString()
+        .split(',')
+        .map(function (t: any) {
+          return parseInt(t);
+        })
+    );
+
+    return editFrame({ frameId, framedata: AdboardUtil.compress(boardData) });
   }
 
   function changeUsedColor(event: any) {
-    if (event.target.classList.contains("bucket")) {
-      colorbucket1Ref.current.classList.remove("active-bucket");
-      colorbucket2Ref.current.classList.remove("active-bucket");
-      colorbucket3Ref.current.classList.remove("active-bucket");
-      colorbucket4Ref.current.classList.remove("active-bucket");
-      colorbucket5Ref.current.classList.remove("active-bucket");
-      colorbucket6Ref.current.classList.remove("active-bucket");
-      event.target.classList.add("active-bucket");
+    if (event.target.classList.contains('bucket')) {
+      colorbucket1Ref.current.classList.remove('active-bucket');
+      colorbucket2Ref.current.classList.remove('active-bucket');
+      colorbucket3Ref.current.classList.remove('active-bucket');
+      colorbucket4Ref.current.classList.remove('active-bucket');
+      colorbucket5Ref.current.classList.remove('active-bucket');
+      colorbucket6Ref.current.classList.remove('active-bucket');
+      event.target.classList.add('active-bucket');
       activeColorBucket = event.target.id;
 
-      activeColorHex = AdboardUtil.rgb2hex(
-        event.target.style.backgroundColor
-      );
+      activeColorHex = AdboardUtil.rgb2hex(event.target.style.backgroundColor);
     }
   }
 
@@ -219,7 +226,7 @@ const DrawboardModal = () => {
         }}
       >
         <div
-          style={{ paddingLeft: "40px" }}
+          style={{ paddingLeft: '40px' }}
           className="z-40 flex flex-row items-center justify-center"
         >
           <div className="flex flex-row flex-wrap bg-white w-96 h-96 drawboard">
@@ -227,7 +234,7 @@ const DrawboardModal = () => {
               ref={drawboardCanvasRef}
               id="drawboard-canvas"
               className="block"
-              style={{ width: "600px", height: "600px", zIndex: 1001 }}
+              style={{ width: '600px', height: '600px', zIndex: 1001 }}
               onMouseDown={startDraw}
               onMouseUp={stopDraw}
               onMouseMove={draw}
@@ -245,7 +252,7 @@ const DrawboardModal = () => {
                 <CompactPicker
                   colors={AdboardUtil.colorPalette}
                   onChangeComplete={(color, event) => {
-                    handleChangeComplete(color.hex, "colorbucket1");
+                    handleChangeComplete(color.hex, 'colorbucket1');
                   }}
                 />
               </div>
@@ -260,7 +267,7 @@ const DrawboardModal = () => {
                 <CompactPicker
                   colors={AdboardUtil.colorPalette}
                   onChangeComplete={(color, event) => {
-                    handleChangeComplete(color.hex, "colorbucket2");
+                    handleChangeComplete(color.hex, 'colorbucket2');
                   }}
                 />
               </div>
@@ -275,7 +282,7 @@ const DrawboardModal = () => {
                 <CompactPicker
                   colors={AdboardUtil.colorPalette}
                   onChangeComplete={(color, event) => {
-                    handleChangeComplete(color.hex, "colorbucket3");
+                    handleChangeComplete(color.hex, 'colorbucket3');
                   }}
                 />
               </div>
@@ -290,7 +297,7 @@ const DrawboardModal = () => {
                 <CompactPicker
                   colors={AdboardUtil.colorPalette}
                   onChangeComplete={(color, event) => {
-                    handleChangeComplete(color.hex, "colorbucket4");
+                    handleChangeComplete(color.hex, 'colorbucket4');
                   }}
                 />
               </div>
@@ -305,7 +312,7 @@ const DrawboardModal = () => {
                 <CompactPicker
                   colors={AdboardUtil.colorPalette}
                   onChangeComplete={(color, event) => {
-                    handleChangeComplete(color.hex, "colorbucket5");
+                    handleChangeComplete(color.hex, 'colorbucket5');
                   }}
                 />
               </div>
@@ -320,7 +327,7 @@ const DrawboardModal = () => {
                 <CompactPicker
                   colors={AdboardUtil.colorPalette}
                   onChangeComplete={(color, event) => {
-                    handleChangeComplete(color.hex, "colorbucket6");
+                    handleChangeComplete(color.hex, 'colorbucket6');
                   }}
                 />
               </div>
@@ -329,9 +336,9 @@ const DrawboardModal = () => {
           <div
             className="fixed z-50 flex justify-between h-10 w-96"
             style={{
-              marginTop: "680px",
-              width: "600px",
-              marginLeft: "-50px",
+              marginTop: '680px',
+              width: '600px',
+              marginLeft: '-50px',
             }}
           >
             <button
@@ -358,21 +365,19 @@ const DrawboardModal = () => {
             <div
               className="w-10 h-10 text-center"
               style={{
-                position: "relative",
-                left: "-40px",
+                position: 'relative',
+                left: '-40px',
               }}
             >
               <canvas
                 ref={previewCanvasRef}
                 id="preview-canvas"
                 className="block"
-                style={{ width: "40px", height: "40px" }}
+                style={{ width: '40px', height: '40px' }}
               ></canvas>
             </div>
             <button
-              onClick={() =>
-                setDrawboardModalState({ frameId: -1, showModal: false, frameData: null })
-              }
+              onClick={close}
               className="flex flex-row justify-center h-auto py-2 text-white bg-gray-800 rounded-md shadow-xl focus:outline-none mr-11 w-28"
             >
               <svg
