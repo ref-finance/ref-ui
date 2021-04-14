@@ -48,12 +48,12 @@ export const getPools = async (
   perPage: number = DEFAULT_PAGE_LIMIT
 ): Promise<Pool[]> => {
   const index = (page - 1) * perPage;
-  const poolData = await refFiViewFunction({
+  const poolData: PoolRPCView[] = await refFiViewFunction({
     methodName: 'get_pools',
     args: { from_index: index, limit: perPage },
   });
 
-  return poolData.map(parsePool);
+  return poolData.map((rawPool, i) => parsePool(rawPool, i + index));
 };
 
 interface GetPoolOptions {
