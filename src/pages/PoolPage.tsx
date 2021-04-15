@@ -172,19 +172,21 @@ function PoolHeader({
         <DetailColumn title="Total Liquidity" value="Coming Soon" />
         <DetailColumn title="Accumulated Volume" value="Coming Soon" />
         <DetailColumn
-          title="Total Underlying liquidity"
+          title="Total Underlying Liquidity"
           value={<UnderlyingLiquidity pool={pool} tokens={tokens} />}
         />
-        <DetailColumn
-          title="My Underlying liquidity"
-          value={
-            <MyUnderlyingLiquidity
-              pool={pool}
-              tokens={tokens}
-              shares={shares}
-            />
-          }
-        />
+        {shares ? (
+          <DetailColumn
+            title="My Underlying Liquidity"
+            value={
+              <MyUnderlyingLiquidity
+                pool={pool}
+                tokens={tokens}
+                shares={shares}
+              />
+            }
+          />
+        ) : null}
       </div>
     </div>
   );
@@ -360,9 +362,7 @@ export default function PoolPage() {
   const { pool, shares } = usePool(poolId);
   const tokens = useTokens(pool?.tokenIds);
 
-  if (!pool || tokens.length < 2) return <Loading />;
-
-  if (!pool || !tokens) return <Loading />;
+  if (!pool || !tokens || tokens.length < 2) return <Loading />;
 
   return (
     <PageWrap>
