@@ -1,9 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  calculateTokenShare,
-  percentLess,
-  toPrecision,
-} from '../utils/numbers';
+import { calculateFairShare, percentLess, toPrecision } from '../utils/numbers';
 import {
   DEFAULT_PAGE_LIMIT,
   getPoolDetails,
@@ -78,10 +74,10 @@ export const useRemoveLiquidity = ({
     acc[tokenId] = toPrecision(
       percentLess(
         slippageTolerance,
-        calculateTokenShare({
-          shares: shares,
-          totalSupply,
-          totalShares: pool.shareSupply,
+        calculateFairShare({
+          shareOf: totalSupply,
+          contribution: shares,
+          totalContribution: pool.shareSupply,
         })
       ),
       0

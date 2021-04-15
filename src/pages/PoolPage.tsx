@@ -7,6 +7,7 @@ import FormWrap from '../components/forms/FormWrap';
 import { usePool, useRemoveLiquidity } from '../state/pool';
 import { addLiquidityToPool, Pool, PoolDetails } from '../services/pool';
 import {
+  calculateFairShare,
   calculateFeePercent,
   percent,
   sumBN,
@@ -224,6 +225,46 @@ function AddLiquidity({
     });
   };
 
+  const changeFirstTokenAmount = (amount: string) => {
+    const fairShares = calculateFairShare({
+      shareOf: pool.shareSupply,
+      contribution: toNonDivisibleNumber(tokens[0].decimals, amount),
+      totalContribution: pool.supplies[tokens[0].id],
+    });
+
+    setFirstTokenAmount(amount);
+    setSecondTokenAmount(
+      toReadableNumber(
+        tokens[1].decimals,
+        calculateFairShare({
+          shareOf: pool.supplies[tokens[1].id],
+          contribution: fairShares,
+          totalContribution: pool.shareSupply,
+        })
+      )
+    );
+  };
+
+  const changeSecondTokenAmount = (amount: string) => {
+    const fairShares = calculateFairShare({
+      shareOf: pool.shareSupply,
+      contribution: toNonDivisibleNumber(tokens[1].decimals, amount),
+      totalContribution: pool.supplies[tokens[1].id],
+    });
+
+    setSecondTokenAmount(amount);
+    setFirstTokenAmount(
+      toReadableNumber(
+        tokens[0].decimals,
+        calculateFairShare({
+          shareOf: pool.supplies[tokens[0].id],
+          contribution: fairShares,
+          totalContribution: pool.shareSupply,
+        })
+      )
+    );
+  };
+
   return (
     <FormWrap
       buttonText="Add Liquidity"
@@ -235,14 +276,14 @@ function AddLiquidity({
         max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
         tokens={[tokens[0]]}
         selectedToken={tokens[0]}
-        onChangeAmount={setFirstTokenAmount}
+        onChangeAmount={changeFirstTokenAmount}
       />
       <TokenAmount
         amount={secondTokenAmount}
         max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
         tokens={[tokens[1]]}
         selectedToken={tokens[1]}
-        onChangeAmount={setSecondTokenAmount}
+        onChangeAmount={changeSecondTokenAmount}
       />
     </FormWrap>
   );
