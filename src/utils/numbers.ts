@@ -100,7 +100,9 @@ export const percentOf = (percent: number, num: number | string) => {
 };
 
 export const percentLess = (percent: number, num: number | string) => {
-  return math.evaluate(`${num} - ${percentOf(percent, num)}`);
+  return math.format(math.evaluate(`${num} - ${percentOf(percent, num)}`), {
+    notation: 'fixed',
+  });
 };
 
 function formatWithCommas(value: string): string {
@@ -113,4 +115,22 @@ function formatWithCommas(value: string): string {
 
 export const percent = (numerator: string, denominator: string) => {
   return math.evaluate(`(${numerator} / ${denominator}) * 100`);
+};
+
+export const calculateTokenShare = ({
+  shares,
+  totalShares,
+  totalSupply,
+}: {
+  shares: string;
+  totalShares: string;
+  totalSupply: string;
+}) => {
+  return math.format(
+    math.evaluate(`(${totalSupply} * ${shares}) / ${totalShares}`),
+    {
+      notation: 'fixed',
+      precision: 0,
+    }
+  );
 };

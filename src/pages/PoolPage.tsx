@@ -4,17 +4,13 @@ import { FaAngleLeft } from 'react-icons/fa';
 import PageWrap from '../components/layout/PageWrap';
 import InputAmount from '../components/forms/InputAmount';
 import FormWrap from '../components/forms/FormWrap';
-import { usePool } from '../state/pool';
-import {
-  addLiquidityToPool,
-  Pool,
-  PoolDetails,
-  removeLiquidityFromPool,
-} from '../services/pool';
+import { usePool, useRemoveLiquidity } from '../state/pool';
+import { addLiquidityToPool, Pool, PoolDetails } from '../services/pool';
 import {
   calculateFeePercent,
   percent,
   sumBN,
+  toNonDivisibleNumber,
   toPrecision,
   toReadableNumber,
   toRoundedReadableNumber,
@@ -24,8 +20,9 @@ import { useTokenBalances, useTokens } from '../state/token';
 import TokenAmount from '../components/forms/TokenAmount';
 import TabFormWrap from '../components/forms/TabFormWrap';
 import Loading from '../components/layout/Loading';
-import Icon from '~components/tokens/Icon';
+import Icon from '../components/tokens/Icon';
 import copy from '../utils/copy';
+import SlippageSelector from '~components/forms/SlippageSelector';
 
 interface ParamTypes {
   poolId: string;
@@ -42,7 +39,7 @@ function DetailColumn({ className, title, value }: TokenDetailColumnProps) {
     <div className={`flex flex-col mr-8 mb-8 lg:m-0 text-center ${className}`}>
       <h2 className="text-gray-500 pb-1">{title}</h2>
       <div>
-        <p>{value}</p>
+        <div>{value}</div>
       </div>
     </div>
   );
@@ -68,6 +65,76 @@ function Shares({
     <h2 className="text-lg pb-4 font-bold text-center">
       My Shares: {displayPercent}% of Total
     </h2>
+  );
+}
+
+function UnderlyingLiquidity({
+  pool,
+  tokens,
+}: {
+  pool: Pool;
+  tokens: TokenMetadata[];
+}) {
+  return (
+    <section className="max-w-xs m-auto">
+      <section className="grid grid-cols-2 p-2 width-1/2">
+        <Icon token={tokens[0]} />
+        <span className="ml-2">
+          {toRoundedReadableNumber({
+            decimals: tokens[0].decimals,
+            number: pool.supplies[tokens[0].id],
+          })}
+        </span>
+      </section>
+      <section className="grid grid-cols-2 p-2">
+        <Icon token={tokens[1]} />
+        <span className="ml-2">
+          {toRoundedReadableNumber({
+            decimals: tokens[1].decimals,
+            number: pool.supplies[tokens[1].id],
+          })}
+        </span>
+      </section>
+    </section>
+  );
+}
+
+function MyUnderlyingLiquidity({
+  pool,
+  tokens,
+  shares,
+}: {
+  pool: Pool;
+  tokens: TokenMetadata[];
+  shares: string;
+}) {
+  const { minimumAmounts } = useRemoveLiquidity({
+    pool,
+    shares,
+    slippageTolerance: 0,
+  });
+
+  return (
+    <section className="max-w-xs m-auto">
+      <section className="grid grid-cols-2 p-2 width-1/2">
+        <Icon token={tokens[0]} />
+        <span className="ml-2">
+          {toRoundedReadableNumber({
+            decimals: tokens[0].decimals,
+            number: minimumAmounts[tokens[0].id],
+          })}
+        </span>
+      </section>
+      <section className="grid grid-cols-2 p-2">
+        <Icon token={tokens[1]} />
+        <span className="ml-2">
+          {toRoundedReadableNumber({
+            decimals: tokens[1].decimals,
+            number: minimumAmounts[tokens[1].id],
+          })}
+        </span>
+      </section>
+    </section>
   );
 }
 
@@ -104,29 +171,17 @@ function PoolHeader({
         <DetailColumn title="Total Liquidity" value="Coming Soon" />
         <DetailColumn title="Accumulated Volume" value="Coming Soon" />
         <DetailColumn
-          className="col-span-2"
-          title="Underlying liquidity"
+          title="Total Underlying liquidity"
+          value={<UnderlyingLiquidity pool={pool} tokens={tokens} />}
+        />
+        <DetailColumn
+          title="My Underlying liquidity"
           value={
-            <section className="max-w-xs m-auto">
-              <section className="grid grid-cols-2 p-2 width-1/2">
-                <Icon token={tokens[0]} />
-                <span className="ml-2">
-                  {toRoundedReadableNumber({
-                    decimals: tokens[0].decimals,
-                    number: pool.supplies[tokens[0].id],
-                  })}
-                </span>
-              </section>
-              <section className="grid grid-cols-2 p-2">
-                <Icon token={tokens[1]} />
-                <span className="ml-2">
-                  {toRoundedReadableNumber({
-                    decimals: tokens[1].decimals,
-                    number: pool.supplies[tokens[1].id],
-                  })}
-                </span>
-              </section>
-            </section>
+            <MyUnderlyingLiquidity
+              pool={pool}
+              tokens={tokens}
+              shares={shares}
+            />
           }
         />
       </div>
@@ -191,22 +246,27 @@ function AddLiquidity({
   );
 }
 
-function RemoveLiquidity({ pool, shares }: { pool: Pool; shares: string }) {
+function RemoveLiquidity({
+  pool,
+  shares,
+  tokens,
+}: {
+  pool: Pool;
+  shares: string;
+  tokens: TokenMetadata[];
+}) {
   const [amount, setAmount] = useState<string>();
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
 
-    return removeLiquidityFromPool({
-      id: pool.id,
-      shares: amount,
-      minimumAmounts: pool.tokenIds.reduce<{ [id: string]: string }>(
-        (acc, id) => {
-          acc[id] = '0';
-          return acc;
-        },
-        {}
-      ),
-    });
+  const { minimumAmounts, removeLiquidity } = useRemoveLiquidity({
+    pool,
+    slippageTolerance,
+    shares: amount ? toNonDivisibleNumber(24, amount) : '0',
+  });
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    return removeLiquidity();
   };
 
   return (
@@ -221,6 +281,35 @@ function RemoveLiquidity({ pool, shares }: { pool: Pool; shares: string }) {
         max={toReadableNumber(24, shares)}
         onChangeAmount={setAmount}
       />
+      <SlippageSelector
+        slippageTolerance={slippageTolerance}
+        onChange={setSlippageTolerance}
+      />
+      {amount ? (
+        <>
+          <p className="mt-3 text-center">Minumum Tokens Out</p>
+          <section className="grid grid-cols-2 mt-3">
+            {Object.entries(minimumAmounts).map(
+              ([tokenId, minumumAmount], i) => {
+                const token = tokens.find((t) => t.id === tokenId);
+
+                return (
+                  <section key={tokenId} className="flex items-center">
+                    <Icon token={token} />
+                    <span className="ml-2">
+                      {toRoundedReadableNumber({
+                        decimals: tokens.find((t) => t.id === tokenId).decimals,
+                        number: minumumAmount,
+                        precision: 6,
+                      })}
+                    </span>
+                  </section>
+                );
+              }
+            )}
+          </section>
+        </>
+      ) : null}
     </FormWrap>
   );
 }
@@ -242,7 +331,7 @@ export default function PoolPage() {
       <PoolHeader pool={pool} tokens={tokens} shares={shares} />
       <TabFormWrap titles={['Add Liquidity', 'Remove Liquidity']}>
         <AddLiquidity pool={pool} tokens={tokens} />
-        <RemoveLiquidity pool={pool} shares={shares} />
+        <RemoveLiquidity pool={pool} shares={shares} tokens={tokens} />
       </TabFormWrap>
     </PageWrap>
   );

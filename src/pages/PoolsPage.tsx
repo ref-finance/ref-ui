@@ -40,7 +40,7 @@ function PoolRow({ pool }: { pool: Pool }) {
 }
 
 export default function PoolsPage() {
-  const pools = usePools();
+  const { pools, hasMore, nextPage } = usePools();
   if (!pools) return <Loading />;
 
   return (
@@ -75,6 +75,14 @@ export default function PoolsPage() {
             <PoolRow key={pool.id} pool={pool} />
           ))}
         </section>
+        {hasMore && (
+          <button
+            className="bg-secondary border w-full p-2 mt-2"
+            onClick={nextPage}
+          >
+            More
+          </button>
+        )}
       </PageWrap>
     </>
   );
