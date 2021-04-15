@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
-import { FaArrowsAltV, FaRegQuestionCircle } from 'react-icons/fa';
+import { FaArrowsAltV } from 'react-icons/fa';
 import { TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
-import FormWrap from '../../components/forms/FormWrap';
-import TokenAmount from '../../components/forms/TokenAmount';
-import Alert from '../../components/alert/Alert';
+import { wallet } from '../../services/near';
 import { useWhitelistTokens, useTokenBalances } from '../../state/token';
 import { useSwap } from '../../state/swap';
 import {
@@ -15,9 +13,11 @@ import {
   toPrecision,
   toReadableNumber,
 } from '../../utils/numbers';
-import Loading from '../../components/layout/Loading';
-import { wallet } from '../../services/near';
-import ReactTooltip from 'react-tooltip';
+import Loading from '../layout/Loading';
+import FormWrap from '../forms/FormWrap';
+import TokenAmount from '../forms/TokenAmount';
+import Alert from '../alert/Alert';
+import SlippageSelector from '../forms/SlippageSelector';
 import copy from '../../utils/copy';
 
 function SwapDetail({ title, value }: { title: string; value: string }) {
@@ -65,47 +65,6 @@ function DetailView({
           from
         )})`}
       />
-    </>
-  );
-}
-
-function SlippageSelector({
-  slippageTolerance,
-  onChange,
-}: {
-  slippageTolerance: number;
-  minAmountOut: string;
-  onChange: (slippage: number) => void;
-}) {
-  const validSlippages = [0.1, 0.5, 1];
-
-  return (
-    <>
-      <fieldset className="flex items-center mb-4">
-        <label className="font-semibold text-center">Slippage: </label>
-        <div>
-          <FaRegQuestionCircle
-            data-type="dark"
-            data-place="bottom"
-            data-multiline={true}
-            data-tip={copy.slippageCopy}
-            className="text-med ml-2 text-left"
-          />
-          <ReactTooltip />
-        </div>
-        {validSlippages.map((slippage) => (
-          <button
-            className={`hover:bg-buttonBg hover:text-buttonText rounded w-full p-2 mx-2 ${
-              slippage === slippageTolerance &&
-              'bg-buttonBg text-buttonText font-semibold'
-            }`}
-            type="button"
-            onClick={() => onChange(slippage)}
-          >
-            {slippage}%
-          </button>
-        ))}
-      </fieldset>
     </>
   );
 }
@@ -214,7 +173,6 @@ export default function SwapCard() {
       />
       <SlippageSelector
         slippageTolerance={slippageTolerance}
-        minAmountOut={minAmountOut}
         onChange={setSlippageTolerance}
       />
       <DetailView
