@@ -117,17 +117,17 @@ export const percent = (numerator: string, denominator: string) => {
   return math.evaluate(`(${numerator} / ${denominator}) * 100`);
 };
 
-export const calculateTokenShare = ({
-  shares,
-  totalShares,
-  totalSupply,
+export const calculateFairShare = ({
+  shareOf,
+  contribution,
+  totalContribution,
 }: {
-  shares: string;
-  totalShares: string;
-  totalSupply: string;
+  shareOf: string;
+  contribution: string;
+  totalContribution: string;
 }) => {
   return math.format(
-    math.evaluate(`(${totalSupply} * ${shares}) / ${totalShares}`),
+    math.evaluate(`(${shareOf} * ${contribution}) / ${totalContribution}`),
     {
       notation: 'fixed',
       precision: 0,
