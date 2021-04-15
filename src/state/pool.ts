@@ -1,11 +1,17 @@
 import { useEffect, useState } from 'react';
 import {
+  calculateTokenShare,
+  percentLess,
+  toPrecision,
+} from '../utils/numbers';
+import {
   DEFAULT_PAGE_LIMIT,
   getPoolDetails,
   getPools,
   getSharesInPool,
   Pool,
   PoolDetails,
+  removeLiquidityFromPool,
 } from '../services/pool';
 
 export const usePool = (id: number | string) => {
@@ -53,5 +59,46 @@ export const usePools = () => {
     pools,
     hasMore,
     nextPage,
+  };
+};
+
+export const useRemoveLiquidity = ({
+  pool,
+  shares,
+  slippageTolerance,
+}: {
+  pool: Pool;
+  shares: string;
+  slippageTolerance: number;
+}) => {
+  console.log(shares);
+  const minimumAmounts = Object.entries(pool.supplies).reduce<{
+    [tokenId: string]: string;
+  }>((acc, [tokenId, totalSupply]) => {
+    acc[tokenId] = toPrecision(
+      percentLess(
+        slippageTolerance,
+        calculateTokenShare({
+          shares: shares,
+          totalSupply,
+          totalShares: pool.shareSupply,
+        })
+      ),
+      0
+    );
+    return acc;
+  }, {});
+
+  const removeLiquidity = () => {
+    return removeLiquidityFromPool({
+      id: pool.id,
+      shares,
+      minimumAmounts,
+    });
+  };
+
+  return {
+    removeLiquidity,
+    minimumAmounts,
   };
 };
