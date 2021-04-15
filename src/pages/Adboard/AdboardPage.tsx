@@ -3,9 +3,9 @@ import DrawboardModal from './DrawboardModal';
 import { AdboardUtil } from '../../utils/AdboardUtil';
 import { useAdboardState } from '../../state/adboard';
 import BuyModal from './BuyModal';
-import { useWhitelistTokens } from '~state/token';
-import Loading from '~components/layout/Loading';
-import { AdboardMetadata } from '~services/adboard';
+import { useWhitelistTokens } from '../../state/token';
+import Loading from '../../components/layout/Loading';
+import { AdboardMetadata } from '../../services/adboard';
 
 export default function AdboardPage() {
   const adboardCanvasRef = useRef<HTMLCanvasElement>();
