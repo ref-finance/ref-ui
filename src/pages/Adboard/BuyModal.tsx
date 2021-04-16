@@ -1,7 +1,6 @@
-import { null } from 'mathjs';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { FaRegWindowClose, FaCheck } from 'react-icons/fa';
-import TokenAmount from '~components/forms/TokenAmount';
+import { useSwap } from '~state/swap';
 import SelectToken from '../../components/forms/SelectToken';
 import Icon from '../../components/tokens/Icon';
 import { AdboardMetadata } from '../../services/adboard';
@@ -18,9 +17,15 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
   const [selectedToken, setSelectedToken] = useState<TokenMetadata>();
   const token = useToken(metadata.base_token_id);
   const tokens = useUserRegisteredTokens();
-  if(!token) return null;
 
-  console.log(metadata, token);
+  const { minAmountOut } = useSwap({
+    tokenIn: token,
+    tokenInAmount: String(metadata.baseprice),
+    tokenOut: selectedToken,
+    slippageTolerance: 1.1,
+  });
+
+  if (!token) return null;
 
   function buyFrame(frameId: number, tokenContract: string) {}
 
@@ -61,14 +66,27 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
 
             <p>
               And a price factor (between 0.9 and 1.1):
-              <input type="range" min="0.9" max="1.1" step="0.1" list="steplist" />
+              <input
+                type="range"
+                min="0.9"
+                max="1.1"
+                step="0.1"
+                list="steplist"
+              />
               <datalist className="text-white" id="steplist">
                 <option>0.9</option>
                 <option>1.0</option>
                 <option>1.1</option>
               </datalist>
             </p>
-            
+            {minAmountOut ? (
+              <div className="flex mt-6">
+                <span className="mr-2">
+                  Giving you a sale price of {minAmountOut}
+                </span>
+                <Icon token={selectedToken} />
+              </div>
+            ) : null}
           </div>
           <br></br>
 

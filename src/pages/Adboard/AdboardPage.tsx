@@ -6,6 +6,7 @@ import BuyModal from './BuyModal';
 import { useWhitelistTokens } from '../../state/token';
 import Loading from '../../components/layout/Loading';
 import { AdboardMetadata } from '../../services/adboard';
+import Icon from '~components/tokens/Icon';
 
 export default function AdboardPage() {
   const adboardCanvasRef = useRef<HTMLCanvasElement>();
@@ -139,9 +140,23 @@ export default function AdboardPage() {
                 }}
               >
                 <div className="absolute z-30 flex flex-col invisible h-auto mt-8 ml-5 text-white transition duration-100 transform -translate-x-1/2 bg-gray-800 border-2 rounded shadow-xl cursor-default group-hover:visible w-max border-opacity-10 border-theme-white tooltip tooltip-content">
-                  <div className="flex justify-center p-1 font-serif text-sm text-center border-b-2 border-gray-700">
-                    #{metadata.frameId.padStart(3, '0')} -{' '}
-                    {metadata.near_baseprice} Near
+                  <div className="flex justify-center items-center p-1 font-serif text-sm text-center border-b-2 border-gray-700">
+                    <span className="ml-3">
+                      #{metadata.frameId.padStart(3, '0')} -{' '}
+                      {metadata.baseprice}
+                    </span>
+                    <span className="mr-2">
+                      {tokens && (
+                        <Icon
+                          label={false}
+                          token={
+                            tokens.find(
+                              (t) => t.id === metadata.base_token_id
+                            ) || tokens[0]
+                          }
+                        />
+                      )}
+                    </span>
                   </div>
                   <div className="p-1 font-serif text-sm text-center border-b-2 border-gray-700">
                     <div>
