@@ -5,7 +5,7 @@ import SelectToken from '../../components/forms/SelectToken';
 import Icon from '../../components/tokens/Icon';
 import { AdboardMetadata } from '../../services/adboard';
 import { TokenMetadata } from '../../services/ft-contract';
-import { useToken, useUserRegisteredTokens } from '../../state/token';
+import { useToken, useUserRegisteredTokens, useWhitelistTokens } from '../../state/token';
 
 interface BuyModalProps {
   metadata: AdboardMetadata;
@@ -15,19 +15,22 @@ interface BuyModalProps {
 
 const BuyModal = ({ metadata, close }: BuyModalProps) => {
   const [selectedToken, setSelectedToken] = useState<TokenMetadata>();
-  const token = useToken(metadata.base_token_id);
-  const tokens = useUserRegisteredTokens();
+  const token = useToken(metadata.token_id);
+  const tokens = useWhitelistTokens();
 
   const { minAmountOut } = useSwap({
     tokenIn: token,
-    tokenInAmount: String(metadata.baseprice),
+    tokenInAmount: String(metadata.token_price),
     tokenOut: selectedToken,
     slippageTolerance: 1.1,
   });
 
   if (!token) return null;
 
-  function buyFrame(frameId: number, tokenContract: string) {}
+  function buyFrame() {
+    console.log(metadata.token_id);
+    close();
+  }
 
   return (
     <div className="fixed flex items-center justify-center w-screen h-screen">
@@ -48,7 +51,7 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
         >
           <div className="mb-2 font-semibold text-white">
             <span className="flex">
-              Frame #{metadata.frameId} will cost you {metadata.baseprice}{' '}
+              Frame #{metadata.frameId} will cost you {metadata.token_price}{' '}
               <Icon className="ml-2" token={token} />
             </span>
             <p className="my-2">
@@ -100,7 +103,7 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
               Cancel
             </button>
             <button
-              onClick={close}
+              onClick={() => buyFrame()}
               className="flex flex-row justify-center items-center h-auto py-2 font-semibold border border-solid rounded-md shadow-xl focus:outline-none border-theme-light w-28 text-theme-dark bg-theme-light"
               style={{ backgroundColor: 'green' }}
             >
