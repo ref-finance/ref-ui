@@ -7,7 +7,8 @@ export const REF_ADBOARD_CONTRACT_ID =
 
 export interface AdboardMetadata {
   last_price: number;
-  near_baseprice: number;
+  baseprice: number;
+  base_token_id: string;
   owner: string;
   protected_ts: number;
   frameId: string;
