@@ -153,7 +153,7 @@ export default function AdboardPage() {
                           ).toISOString()}{' '}
                         </div>
                       )}
-                      {metadata.protected_ts / 1000 / 1000 >= Date.now() && (
+                      {metadata.protected_ts / 1000 / 1000 <= Date.now() && (
                         <div>
                           <button
                             key={metadata.frameId}
