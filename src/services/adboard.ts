@@ -6,9 +6,8 @@ export const REF_ADBOARD_CONTRACT_ID =
   process.env.REF_ADBOARD_CONTRACT_ID || 'ref-adboard.testnet';
 
 export interface AdboardMetadata {
-  last_price: number;
-  baseprice: number;
-  base_token_id: string;
+  token_price: number;
+  token_id: string;
   owner: string;
   protected_ts: number;
   frameId: string;

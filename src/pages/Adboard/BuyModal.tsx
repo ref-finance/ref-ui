@@ -15,12 +15,12 @@ interface BuyModalProps {
 
 const BuyModal = ({ metadata, close }: BuyModalProps) => {
   const [selectedToken, setSelectedToken] = useState<TokenMetadata>();
-  const token = useToken(metadata.base_token_id);
+  const token = useToken(metadata.token_id);
   const tokens = useUserRegisteredTokens();
 
   const { minAmountOut } = useSwap({
     tokenIn: token,
-    tokenInAmount: String(metadata.baseprice),
+    tokenInAmount: String(metadata.token_price),
     tokenOut: selectedToken,
     slippageTolerance: 1.1,
   });
@@ -48,7 +48,7 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
         >
           <div className="mb-2 font-semibold text-white">
             <span className="flex">
-              Frame #{metadata.frameId} will cost you {metadata.baseprice}{' '}
+              Frame #{metadata.frameId} will cost you {metadata.token_price}{' '}
               <Icon className="ml-2" token={token} />
             </span>
             <p className="my-2">
