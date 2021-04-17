@@ -1,15 +1,15 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { slide as Menu } from 'react-burger-menu';
+import Logo from './Logo';
 import Dropdown from './Dropdown';
 import AuthButton from '../../components/forms/AuthButton';
-import RefLogo from '../../assets/reffi-logo.svg';
-import { wallet } from '~services/near';
+import { wallet } from '../../services/near';
 
 function MobileBar() {
   return (
     <section className="md:hidden w-full bg-secondary">
-      <RefLogo className="m-auto w-40" height="70" />
+      <Logo className="m-auto w-40" height="70" />
       <Menu
         styles={{
           bmBurgerButton: {
@@ -76,7 +76,7 @@ function DesktopBar() {
   return (
     <nav className="hidden grid-cols-5 items-center text-center bg-secondary md:grid">
       <Link to="/" className="my-2 mx-3">
-        <RefLogo className="w-full" height="66" />
+        <Logo className="w-full" height="66" />
       </Link>
       {wallet.isSignedIn() ? (
         <Anchor to="/portfolio" name="Portfolio" />

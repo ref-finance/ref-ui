@@ -22,8 +22,8 @@ import TokenAmount from '../components/forms/TokenAmount';
 import TabFormWrap from '../components/forms/TabFormWrap';
 import Loading from '../components/layout/Loading';
 import Icon from '../components/tokens/Icon';
+import SlippageSelector from '../components/forms/SlippageSelector';
 import copy from '../utils/copy';
-import SlippageSelector from '~components/forms/SlippageSelector';
 
 interface ParamTypes {
   poolId: string;
