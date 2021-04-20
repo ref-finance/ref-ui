@@ -13,11 +13,11 @@ export default function Withdraw({ tokens }: { tokens: TokenMetadata[] }) {
 
   const [amount, setAmount] = useState<string>();
   const [selectedToken, setSelectedToken] = useState<TokenMetadata>(
-    tokens.find((token) => token.id === WRAP_NEAR_CONTRACT_ID)
+    tokens.find((token) => token.id === WRAP_NEAR_CONTRACT_ID) || tokens[0]
   );
 
   const info =
-    selectedToken.id === WRAP_NEAR_CONTRACT_ID
+    selectedToken?.id === WRAP_NEAR_CONTRACT_ID
       ? copy.nearWithdraw
       : copy.withdraw;
 
@@ -25,7 +25,7 @@ export default function Withdraw({ tokens }: { tokens: TokenMetadata[] }) {
     event.preventDefault();
 
     if (selectedToken.id === WRAP_NEAR_CONTRACT_ID) {
-      unwrapNear(amount);
+      return unwrapNear(amount);
     }
 
     return withdraw({

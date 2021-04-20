@@ -12,6 +12,7 @@ export default function TabFormWrap({
         <nav className="flex flex-col sm:flex-row">
           {titles.map((title, i) => (
             <button
+              key={title}
               className={`text-black py-4 px-6 hover:text-primaryScale-500 transition-transform focus:outline-none ${
                 active === i &&
                 'text-primaryScale-500 border-b-4 border-primary font-bold'

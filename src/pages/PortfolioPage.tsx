@@ -12,7 +12,7 @@ export default function PortfolioPage() {
   const balances = useTokenBalances();
   const registeredTokens = useUserRegisteredTokens();
 
-  if (!registeredTokens) return <Loading />;
+  if (!registeredTokens || !balances) return <Loading />;
 
   return (
     <PageWrap>

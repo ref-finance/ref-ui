@@ -33,7 +33,7 @@ export const useSwap = ({
   }
 
   const minAmountOut = tokenOutAmount
-    ? String(percentLess(slippageTolerance, tokenOutAmount))
+    ? percentLess(slippageTolerance, tokenOutAmount)
     : null;
 
   useEffect(() => {

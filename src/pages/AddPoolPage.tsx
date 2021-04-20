@@ -22,7 +22,7 @@ function AddPool() {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    return addSimpleLiquidityPool([firstToken.id, secondToken.id], 30);
+    return addSimpleLiquidityPool([firstToken.id, secondToken.id], fee);
   };
 
   return (

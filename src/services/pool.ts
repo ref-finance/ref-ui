@@ -12,7 +12,7 @@ import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { toNonDivisibleNumber } from '../utils/numbers';
 import { storageDepositForFTAction } from './creators/storage';
 
-const DEFAULT_PAGE_LIMIT = 10;
+export const DEFAULT_PAGE_LIMIT = 100;
 
 interface PoolRPCView {
   token_account_ids: string[];
@@ -48,12 +48,12 @@ export const getPools = async (
   perPage: number = DEFAULT_PAGE_LIMIT
 ): Promise<Pool[]> => {
   const index = (page - 1) * perPage;
-  const poolData = await refFiViewFunction({
+  const poolData: PoolRPCView[] = await refFiViewFunction({
     methodName: 'get_pools',
     args: { from_index: index, limit: perPage },
   });
 
-  return poolData.map(parsePool);
+  return poolData.map((rawPool, i) => parsePool(rawPool, i + index));
 };
 
 interface GetPoolOptions {
@@ -156,7 +156,7 @@ export const removeLiquidityFromPool = async ({
     methodName: 'remove_liquidity',
     args: {
       pool_id: id,
-      shares: toNonDivisibleNumber(24, shares),
+      shares,
       min_amounts: amounts,
     },
     amount: ONE_YOCTO_NEAR,
