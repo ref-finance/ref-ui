@@ -226,43 +226,51 @@ function AddLiquidity({
   };
 
   const changeFirstTokenAmount = (amount: string) => {
-    const fairShares = calculateFairShare({
-      shareOf: pool.shareSupply,
-      contribution: toNonDivisibleNumber(tokens[0].decimals, amount),
-      totalContribution: pool.supplies[tokens[0].id],
-    });
+    if (Object.values(pool.supplies).every((s) => s === '0')) {
+      setFirstTokenAmount(amount);
+    } else {
+      const fairShares = calculateFairShare({
+        shareOf: pool.shareSupply,
+        contribution: toNonDivisibleNumber(tokens[0].decimals, amount),
+        totalContribution: pool.supplies[tokens[0].id],
+      });
 
-    setFirstTokenAmount(amount);
-    setSecondTokenAmount(
-      toReadableNumber(
-        tokens[1].decimals,
-        calculateFairShare({
-          shareOf: pool.supplies[tokens[1].id],
-          contribution: fairShares,
-          totalContribution: pool.shareSupply,
-        })
-      )
-    );
+      setFirstTokenAmount(amount);
+      setSecondTokenAmount(
+        toReadableNumber(
+          tokens[1].decimals,
+          calculateFairShare({
+            shareOf: pool.supplies[tokens[1].id],
+            contribution: fairShares,
+            totalContribution: pool.shareSupply,
+          })
+        )
+      );
+    }
   };
 
   const changeSecondTokenAmount = (amount: string) => {
-    const fairShares = calculateFairShare({
-      shareOf: pool.shareSupply,
-      contribution: toNonDivisibleNumber(tokens[1].decimals, amount),
-      totalContribution: pool.supplies[tokens[1].id],
-    });
+    if (Object.values(pool.supplies).every((s) => s === '0')) {
+      setSecondTokenAmount(amount);
+    } else {
+      const fairShares = calculateFairShare({
+        shareOf: pool.shareSupply,
+        contribution: toNonDivisibleNumber(tokens[1].decimals, amount),
+        totalContribution: pool.supplies[tokens[1].id],
+      });
 
-    setSecondTokenAmount(amount);
-    setFirstTokenAmount(
-      toReadableNumber(
-        tokens[0].decimals,
-        calculateFairShare({
-          shareOf: pool.supplies[tokens[0].id],
-          contribution: fairShares,
-          totalContribution: pool.shareSupply,
-        })
-      )
-    );
+      setSecondTokenAmount(amount);
+      setFirstTokenAmount(
+        toReadableNumber(
+          tokens[0].decimals,
+          calculateFairShare({
+            shareOf: pool.supplies[tokens[0].id],
+            contribution: fairShares,
+            totalContribution: pool.shareSupply,
+          })
+        )
+      );
+    }
   };
 
   return (
