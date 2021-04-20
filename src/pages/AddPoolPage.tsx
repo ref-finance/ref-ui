@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FaAngleLeft } from 'react-icons/fa';
 import { useWhitelistTokens } from '../state/token';
 import { addSimpleLiquidityPool } from '../services/pool';
+import Loading from '../components/layout/Loading';
 import FormWrap from '../components/forms/FormWrap';
 import SelectToken from '../components/forms/SelectToken';
 import Icon from '../components/tokens/Icon';
@@ -18,6 +19,7 @@ function AddPool() {
   const [fee, setFee] = useState<number>(25);
 
   const tokens = useWhitelistTokens();
+  if (!tokens) return <Loading />;
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -33,11 +35,15 @@ function AddPool() {
       info={copy.addLiquidityPool}
     >
       <fieldset className="flex items-center">
-        <label className="mr-4 text-2xl text-inputText items-center flex flex-col">
+        <label
+          htmlFor="fee"
+          className="mr-4 text-2xl text-inputText items-center flex flex-col"
+        >
           <span>Fee</span>
           <span className="text-sm">(BPS)</span>
         </label>
         <input
+          id="fee"
           className="focus:outline-none shadow bg-inputBg appearance-none border rounded border-opacity-30 w-full py-2 px-3 text-3xl text-inputText leading-tight"
           type="number"
           value={fee}

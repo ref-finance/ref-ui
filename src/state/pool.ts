@@ -67,7 +67,6 @@ export const useRemoveLiquidity = ({
   shares: string;
   slippageTolerance: number;
 }) => {
-  console.log(shares);
   const minimumAmounts = Object.entries(pool.supplies).reduce<{
     [tokenId: string]: string;
   }>((acc, [tokenId, totalSupply]) => {
