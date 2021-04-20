@@ -11,7 +11,6 @@ import NavigationBar from './components/layout/NavigationBar';
 import './global.css';
 import 'react-toastify/dist/ReactToastify.css';
 import AdboardPage from './pages/Adboard/AdboardPage';
-import { RecoilRoot } from 'recoil';
 
 function App() {
   return (
@@ -20,17 +19,15 @@ function App() {
       <div className="h-screen">
         <NavigationBar />
         <div className="flex flex-col justify-center h-4/5 ">
-          <RecoilRoot>
-            <Switch>
-              <Route path="/portfolio" component={PortfolioPage} />
-              <Route path="/whitelist/:tokenId" component={WhitelistTokenPage} />
-              <Route path="/pools/add" component={AddPoolPage} />
-              <Route path="/pools/:poolId" component={PoolPage} />
-              <Route path="/pools" component={PoolsPage} />
-              <Route path="/adboard" component={AdboardPage} />
-              <Route path="/" component={SwapPage} />
-            </Switch>
-          </RecoilRoot>
+          <Switch>
+            <Route path="/portfolio" component={PortfolioPage} />
+            <Route path="/whitelist/:tokenId" component={WhitelistTokenPage} />
+            <Route path="/pools/add" component={AddPoolPage} />
+            <Route path="/pools/:poolId" component={PoolPage} />
+            <Route path="/pools" component={PoolsPage} />
+            <Route path="/adboard" component={AdboardPage} />
+            <Route path="/" component={SwapPage} />
+          </Switch>
         </div>
       </div>
     </Router>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaRegWindowClose, FaCheck } from 'react-icons/fa';
-import { useSwap } from '~state/swap';
+import { useSwap } from '../../state/swap';
 import SelectToken from '../../components/forms/SelectToken';
 import Icon from '../../components/tokens/Icon';
 import { AdboardMetadata } from '../../services/adboard';

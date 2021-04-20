@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaAngleDown } from 'react-icons/fa';
-import { wallet } from '~services/near';
+import { wallet } from '../../services/near';
 
 export default function Dropdown() {
   const [open, setOpen] = useState<boolean>(false);

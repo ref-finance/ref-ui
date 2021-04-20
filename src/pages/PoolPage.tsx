@@ -7,6 +7,7 @@ import FormWrap from '../components/forms/FormWrap';
 import { usePool, useRemoveLiquidity } from '../state/pool';
 import { addLiquidityToPool, Pool, PoolDetails } from '../services/pool';
 import {
+  calculateFairShare,
   calculateFeePercent,
   percent,
   sumBN,
@@ -21,8 +22,8 @@ import TokenAmount from '../components/forms/TokenAmount';
 import TabFormWrap from '../components/forms/TabFormWrap';
 import Loading from '../components/layout/Loading';
 import Icon from '../components/tokens/Icon';
+import SlippageSelector from '../components/forms/SlippageSelector';
 import copy from '../utils/copy';
-import SlippageSelector from '~components/forms/SlippageSelector';
 
 interface ParamTypes {
   poolId: string;
@@ -171,19 +172,21 @@ function PoolHeader({
         <DetailColumn title="Total Liquidity" value="Coming Soon" />
         <DetailColumn title="Accumulated Volume" value="Coming Soon" />
         <DetailColumn
-          title="Total Underlying liquidity"
+          title="Total Underlying Liquidity"
           value={<UnderlyingLiquidity pool={pool} tokens={tokens} />}
         />
-        <DetailColumn
-          title="My Underlying liquidity"
-          value={
-            <MyUnderlyingLiquidity
-              pool={pool}
-              tokens={tokens}
-              shares={shares}
-            />
-          }
-        />
+        {shares ? (
+          <DetailColumn
+            title="My Underlying Liquidity"
+            value={
+              <MyUnderlyingLiquidity
+                pool={pool}
+                tokens={tokens}
+                shares={shares}
+              />
+            }
+          />
+        ) : null}
       </div>
     </div>
   );
@@ -196,8 +199,8 @@ function AddLiquidity({
   pool: Pool;
   tokens: TokenMetadata[];
 }) {
-  const [firstTokenAmount, setFirstTokenAmount] = useState<string>();
-  const [secondTokenAmount, setSecondTokenAmount] = useState<string>();
+  const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
+  const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
 
   const balances = useTokenBalances();
   if (!balances) return <Loading />;
@@ -222,6 +225,46 @@ function AddLiquidity({
     });
   };
 
+  const changeFirstTokenAmount = (amount: string) => {
+    const fairShares = calculateFairShare({
+      shareOf: pool.shareSupply,
+      contribution: toNonDivisibleNumber(tokens[0].decimals, amount),
+      totalContribution: pool.supplies[tokens[0].id],
+    });
+
+    setFirstTokenAmount(amount);
+    setSecondTokenAmount(
+      toReadableNumber(
+        tokens[1].decimals,
+        calculateFairShare({
+          shareOf: pool.supplies[tokens[1].id],
+          contribution: fairShares,
+          totalContribution: pool.shareSupply,
+        })
+      )
+    );
+  };
+
+  const changeSecondTokenAmount = (amount: string) => {
+    const fairShares = calculateFairShare({
+      shareOf: pool.shareSupply,
+      contribution: toNonDivisibleNumber(tokens[1].decimals, amount),
+      totalContribution: pool.supplies[tokens[1].id],
+    });
+
+    setSecondTokenAmount(amount);
+    setFirstTokenAmount(
+      toReadableNumber(
+        tokens[0].decimals,
+        calculateFairShare({
+          shareOf: pool.supplies[tokens[0].id],
+          contribution: fairShares,
+          totalContribution: pool.shareSupply,
+        })
+      )
+    );
+  };
+
   return (
     <FormWrap
       buttonText="Add Liquidity"
@@ -233,14 +276,14 @@ function AddLiquidity({
         max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
         tokens={[tokens[0]]}
         selectedToken={tokens[0]}
-        onChangeAmount={setFirstTokenAmount}
+        onChangeAmount={changeFirstTokenAmount}
       />
       <TokenAmount
         amount={secondTokenAmount}
         max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
         tokens={[tokens[1]]}
         selectedToken={tokens[1]}
-        onChangeAmount={setSecondTokenAmount}
+        onChangeAmount={changeSecondTokenAmount}
       />
     </FormWrap>
   );
@@ -255,7 +298,7 @@ function RemoveLiquidity({
   shares: string;
   tokens: TokenMetadata[];
 }) {
-  const [amount, setAmount] = useState<string>();
+  const [amount, setAmount] = useState<string>('');
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
 
   const { minimumAmounts, removeLiquidity } = useRemoveLiquidity({
@@ -287,10 +330,10 @@ function RemoveLiquidity({
       />
       {amount ? (
         <>
-          <p className="mt-3 text-center">Minumum Tokens Out</p>
+          <p className="mt-3 text-center">Minimum Tokens Out</p>
           <section className="grid grid-cols-2 mt-3">
             {Object.entries(minimumAmounts).map(
-              ([tokenId, minumumAmount], i) => {
+              ([tokenId, minimumAmount], i) => {
                 const token = tokens.find((t) => t.id === tokenId);
 
                 return (
@@ -299,7 +342,7 @@ function RemoveLiquidity({
                     <span className="ml-2">
                       {toRoundedReadableNumber({
                         decimals: tokens.find((t) => t.id === tokenId).decimals,
-                        number: minumumAmount,
+                        number: minimumAmount,
                         precision: 6,
                       })}
                     </span>
@@ -319,9 +362,7 @@ export default function PoolPage() {
   const { pool, shares } = usePool(poolId);
   const tokens = useTokens(pool?.tokenIds);
 
-  if (!pool || tokens.length < 2) return <Loading />;
-
-  if (!pool || !tokens) return <Loading />;
+  if (!pool || !tokens || tokens.length < 2) return <Loading />;
 
   return (
     <PageWrap>

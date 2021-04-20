@@ -1,8 +1,8 @@
 import React from 'react';
 import { useParams } from 'react-router';
-import Loading from '~components/layout/Loading';
-import PageWrap from '~components/layout/PageWrap';
-import { useWhitelistTokens } from '~state/token';
+import Loading from '../components/layout/Loading';
+import PageWrap from '../components/layout/PageWrap';
+import { useWhitelistTokens } from '../state/token';
 import Register from '../components/management/Register';
 
 export default function WhitelistTokenPage() {

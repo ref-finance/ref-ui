@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { Pool } from '~services/pool';
-import { TokenMetadata } from '~services/ft-contract';
-import { percentLess } from '~utils/numbers';
+import { Pool } from '../services/pool';
+import { TokenMetadata } from '../services/ft-contract';
+import { percentLess } from '../utils/numbers';
 import { checkSwap, estimateSwap, swap } from '../services/swap';
 import { useHistory, useLocation } from 'react-router';
 

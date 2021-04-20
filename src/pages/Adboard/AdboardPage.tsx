@@ -6,7 +6,7 @@ import BuyModal from './BuyModal';
 import { useWhitelistTokens } from '../../state/token';
 import Loading from '../../components/layout/Loading';
 import { AdboardMetadata } from '../../services/adboard';
-import Icon from '~components/tokens/Icon';
+import Icon from '../../components/tokens/Icon';
 
 export default function AdboardPage() {
   const adboardCanvasRef = useRef<HTMLCanvasElement>();

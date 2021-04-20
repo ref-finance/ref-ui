@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { toPrecision } from '~utils/numbers';
+import { toPrecision } from '../../utils/numbers';
 
 interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   max?: string;

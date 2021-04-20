@@ -4,7 +4,7 @@ import { useTokenBalances, useUserRegisteredTokens } from '../state/token';
 import TokenList from '../components/tokens/TokenList';
 import Loading from '../components/layout/Loading';
 import TokenManagement from '../components/management/TokenManagement';
-import PageWrap from '~components/layout/PageWrap';
+import PageWrap from '../components/layout/PageWrap';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 import copy from '../utils/copy';
 
@@ -12,7 +12,7 @@ export default function PortfolioPage() {
   const balances = useTokenBalances();
   const registeredTokens = useUserRegisteredTokens();
 
-  if (!registeredTokens) return <Loading />;
+  if (!registeredTokens || !balances) return <Loading />;
 
   return (
     <PageWrap>

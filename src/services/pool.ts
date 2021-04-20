@@ -156,7 +156,7 @@ export const removeLiquidityFromPool = async ({
     methodName: 'remove_liquidity',
     args: {
       pool_id: id,
-      shares: toNonDivisibleNumber(24, shares),
+      shares,
       min_amounts: amounts,
     },
     amount: ONE_YOCTO_NEAR,

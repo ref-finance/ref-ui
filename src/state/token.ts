@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { wallet } from '../services/near';
 import {
   ftGetBalance,
   ftGetTokenMetadata,
@@ -77,7 +78,12 @@ export const useDepositableBalance = (tokenId: string) => {
   const [depositable, setDepositable] = useState<string>('');
 
   useEffect(() => {
-    if (tokenId) ftGetBalance(tokenId).then(setDepositable);
+    if (tokenId === 'NEAR') {
+      wallet
+        .account()
+        .getAccountBalance()
+        .then(({ available }) => setDepositable(available));
+    } else if (tokenId) ftGetBalance(tokenId).then(setDepositable);
   }, [tokenId]);
 
   return depositable;
