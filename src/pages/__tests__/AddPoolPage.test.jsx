@@ -130,7 +130,7 @@ describe('AddPoolPage', () => {
       expect().toHaveTransaction('nDAI', [
         {
           methodName: 'storage_deposit',
-          args: { account_id: REF_FI_CONTRACT_ID, registration_only: true }, 
+          args: { account_id: REF_FI_CONTRACT_ID, registration_only: true },
           amount: '100000000000000000000000',
           gas: '30000000000000',
         },

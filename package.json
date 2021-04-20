@@ -6,6 +6,8 @@
     "build": "parcel build src/index.html",
     "start": "parcel src/index.html",
     "start:mainnet": "NEAR_ENV=mainnet parcel src/index.html",
+    "prettier": "prettier --check src",
+    "prettier:fix": "prettier --write src", 
     "test": "jest test --runInBand",
     "test:watch": "yarn test --watch"
   },
@@ -32,6 +34,7 @@
     "parcel": "^2.0.0-beta.2",
     "postcss": "^8.2.10",
     "postcss-modules": "^4.0.0",
+    "prettier": "^2.2.1",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat",
     "ts-jest": "^26.5.4"
   },
