@@ -7,7 +7,7 @@
     "start": "parcel src/index.html",
     "start:mainnet": "NEAR_ENV=mainnet parcel src/index.html",
     "prettier": "prettier --check src",
-    "prettier:fix": "prettier --write src", 
+    "prettier:fix": "prettier --write src",
     "test": "jest test --runInBand",
     "test:watch": "yarn test --watch"
   },
@@ -15,6 +15,7 @@
     "@babel/core": "^7.13.15",
     "@babel/preset-env": "^7.13.15",
     "@babel/preset-react": "^7.13.13",
+    "@babel/preset-typescript": "^7.13.0",
     "@tailwindcss/postcss7-compat": "^2.1.0",
     "@testing-library/react": "^11.2.6",
     "@testing-library/user-event": "^13.1.5",
