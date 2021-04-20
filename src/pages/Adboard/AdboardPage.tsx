@@ -143,7 +143,7 @@ export default function AdboardPage() {
                   <div className="flex justify-center items-center p-1 font-serif text-sm text-center border-b-2 border-gray-700">
                     <span className="ml-3">
                       #{metadata.frameId.padStart(3, '0')} -{' '}
-                      {metadata.baseprice}
+                      {metadata.token_price}
                     </span>
                     <span className="mr-2">
                       {tokens && (
@@ -151,7 +151,7 @@ export default function AdboardPage() {
                           label={false}
                           token={
                             tokens.find(
-                              (t) => t.id === metadata.base_token_id
+                              (t) => t.id === metadata.token_id
                             ) || tokens[0]
                           }
                         />
