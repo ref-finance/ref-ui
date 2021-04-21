@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import FormWrap from '../forms/FormWrap';
-import { registerToken } from '~services/token';
-import { useToken } from '~state/token';
-import SelectToken from '~components/forms/SelectToken';
-import Icon from '~components/tokens/Icon';
+import { registerToken } from '../../services/token';
+import { useToken } from '../../state/token';
+import SelectToken from '../../components/forms/SelectToken';
+import Icon from '../../components/tokens/Icon';
 import copy from '../../utils/copy';
 
 export default function Register({

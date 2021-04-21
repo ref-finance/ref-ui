@@ -22,8 +22,8 @@ import TokenAmount from '../components/forms/TokenAmount';
 import TabFormWrap from '../components/forms/TabFormWrap';
 import Loading from '../components/layout/Loading';
 import Icon from '../components/tokens/Icon';
+import SlippageSelector from '../components/forms/SlippageSelector';
 import copy from '../utils/copy';
-import SlippageSelector from '~components/forms/SlippageSelector';
 
 interface ParamTypes {
   poolId: string;
@@ -199,8 +199,8 @@ function AddLiquidity({
   pool: Pool;
   tokens: TokenMetadata[];
 }) {
-  const [firstTokenAmount, setFirstTokenAmount] = useState<string>();
-  const [secondTokenAmount, setSecondTokenAmount] = useState<string>();
+  const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
+  const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
 
   const balances = useTokenBalances();
   if (!balances) return <Loading />;
@@ -298,7 +298,7 @@ function RemoveLiquidity({
   shares: string;
   tokens: TokenMetadata[];
 }) {
-  const [amount, setAmount] = useState<string>();
+  const [amount, setAmount] = useState<string>('');
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
 
   const { minimumAmounts, removeLiquidity } = useRemoveLiquidity({
@@ -330,10 +330,10 @@ function RemoveLiquidity({
       />
       {amount ? (
         <>
-          <p className="mt-3 text-center">Minumum Tokens Out</p>
+          <p className="mt-3 text-center">Minimum Tokens Out</p>
           <section className="grid grid-cols-2 mt-3">
             {Object.entries(minimumAmounts).map(
-              ([tokenId, minumumAmount], i) => {
+              ([tokenId, minimumAmount], i) => {
                 const token = tokens.find((t) => t.id === tokenId);
 
                 return (
@@ -342,7 +342,7 @@ function RemoveLiquidity({
                     <span className="ml-2">
                       {toRoundedReadableNumber({
                         decimals: tokens.find((t) => t.id === tokenId).decimals,
-                        number: minumumAmount,
+                        number: minimumAmount,
                         precision: 6,
                       })}
                     </span>
