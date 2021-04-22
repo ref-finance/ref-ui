@@ -49,6 +49,13 @@ function MobileBar() {
         <Anchor to="/portfolio" name="Portfolio" />
         <Anchor to="/" name="Swap" />
         <Anchor to="/pools" name="Pools" />
+        <a
+          href="https://ethereum.bridgetonear.org/"
+          target="_blank"
+          className="hover:text-primaryScale-500 text-xl p-5 outline-none"
+        >
+          Rainbow Bridge
+        </a>
         <AuthButton />
       </Menu>
     </section>
@@ -74,7 +81,7 @@ function Anchor({ to, name }: { to: string; name: string }) {
 
 function DesktopBar() {
   return (
-    <nav className="hidden grid-cols-5 items-center text-center bg-secondary md:grid">
+    <nav className="hidden grid-cols-6 items-center text-center bg-secondary md:grid">
       <Link to="/" className="my-2 mx-3">
         <RefLogo className="w-full" height="66" />
       </Link>
@@ -85,6 +92,13 @@ function DesktopBar() {
       )}
       <Anchor to="/" name="Swap" />
       <Anchor to="/pools" name="Pools" />
+      <a
+        href="https://ethereum.bridgetonear.org/"
+        target="_blank"
+        className="hover:text-primaryScale-500 text-xl p-5"
+      >
+        Rainbow Bridge
+      </a>
       <section className="place-self-center">
         {wallet.isSignedIn() ? <Dropdown /> : <AuthButton />}
       </section>
