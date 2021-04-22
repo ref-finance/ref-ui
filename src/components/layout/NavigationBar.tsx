@@ -52,7 +52,7 @@ function MobileBar() {
         <a
           href="https://ethereum.bridgetonear.org/"
           target="_blank"
-          className={"hover:text-primaryScale-500 text-xl p-5 outline-none"}
+          className="hover:text-primaryScale-500 text-xl p-5 outline-none"
         >
           Rainbow Bridge
         </a>
@@ -95,7 +95,7 @@ function DesktopBar() {
       <a
         href="https://ethereum.bridgetonear.org/"
         target="_blank"
-        className={"hover:text-primaryScale-500 text-xl p-5"}
+        className="hover:text-primaryScale-500 text-xl p-5"
       >
         Rainbow Bridge
       </a>
