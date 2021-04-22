@@ -49,6 +49,13 @@ function MobileBar() {
         <Anchor to="/portfolio" name="Portfolio" />
         <Anchor to="/" name="Swap" />
         <Anchor to="/pools" name="Pools" />
+        <a
+          href="https://ethereum.bridgetonear.org/"
+          target="_blank"
+          className={'hover:text-primaryScale-500 text-xl p-5 outline-none'}
+        >
+          Rainbow Bridge
+        </a>
         <AuthButton />
       </Menu>
     </section>
