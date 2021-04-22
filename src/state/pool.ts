@@ -31,7 +31,7 @@ export const usePools = () => {
 
   useEffect(() => {
     getPools(page).then((pools) => {
-      setHasMore(pools.length === DEFAULT_PAGE_LIMIT);
+      setHasMore(pools.length > 0);
       setPools((currentPools) =>
         pools.reduce<Pool[]>((acc: Pool[], pool) => {
           if (

@@ -29,8 +29,6 @@ export const useSwap = ({
   const { search } = useLocation();
   const history = useHistory();
   const txHash = new URLSearchParams(search).get('transactionHashes');
-  if (txHash) {
-  }
 
   const minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)

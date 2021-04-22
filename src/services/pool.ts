@@ -43,6 +43,12 @@ const parsePool = (pool: PoolRPCView, id: number): Pool => ({
   shareSupply: pool.shares_total_supply,
 });
 
+export const getTotalPools = () => {
+  return refFiViewFunction({
+    methodName: 'get_number_of_pools',
+  });
+};
+
 export const getPools = async (
   page: number = 1,
   perPage: number = DEFAULT_PAGE_LIMIT
@@ -70,7 +76,12 @@ export const getPoolsByTokens = async ({
   const amountToTrade = new BN(amountIn);
 
   // TODO: Check if there can be a better way. If not need to iterate through all pages to find pools
-  return (await getPools(1, 100)).filter(
+  const totalPools = await getTotalPools();
+  const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
+  const pools = (
+    await Promise.all([...Array(pages)].map((_, i) => getPools(i + 1)))
+  ).flat();
+  return pools.filter(
     (p) =>
       new BN(p.supplies[tokenInId]).gte(amountToTrade) && p.supplies[tokenOutId]
   );
