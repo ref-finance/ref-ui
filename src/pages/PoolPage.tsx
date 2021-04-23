@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { FaAngleLeft } from 'react-icons/fa';
+import { FaAngleLeft, FaRegQuestionCircle } from 'react-icons/fa';
 import PageWrap from '../components/layout/PageWrap';
 import InputAmount from '../components/forms/InputAmount';
 import FormWrap from '../components/forms/FormWrap';
@@ -24,6 +24,7 @@ import Loading from '../components/layout/Loading';
 import Icon from '../components/tokens/Icon';
 import copy from '../utils/copy';
 import SlippageSelector from '~components/forms/SlippageSelector';
+import ReactTooltip from 'react-tooltip';
 
 interface ParamTypes {
   poolId: string;
@@ -33,12 +34,28 @@ interface TokenDetailColumnProps {
   className?: string;
   title: string;
   value: string | number | React.ReactElement;
+  copy: string;
 }
 
-function DetailColumn({ className, title, value }: TokenDetailColumnProps) {
+function DetailColumn({
+  className,
+  title,
+  value,
+  copy,
+}: TokenDetailColumnProps) {
   return (
     <div className={`flex flex-col mr-8 mb-8 lg:m-0 text-center ${className}`}>
-      <h2 className="text-gray-500 pb-1">{title}</h2>
+      <h2 className="flex justify-center text-secondaryScale-500 pb-1 content-center">
+        {title}
+        <FaRegQuestionCircle
+          data-type="dark"
+          data-place="bottom"
+          data-multiline={true}
+          data-tip={copy}
+          className="text-secondaryScale-500 text-xs ml-2"
+        />
+        <ReactTooltip />
+      </h2>
       <div>
         <div>{value}</div>
       </div>
@@ -174,6 +191,7 @@ function PoolHeader({
         <DetailColumn
           title="Total Underlying Liquidity"
           value={<UnderlyingLiquidity pool={pool} tokens={tokens} />}
+          copy={copy.underlyingLiquidity}
         />
         {shares ? (
           <DetailColumn

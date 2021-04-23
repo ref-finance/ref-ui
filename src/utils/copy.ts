@@ -11,5 +11,6 @@ export default {
   removeLiquidity: 'This removes your liquidity shares from the pool and <br> transfers the tokens back into your exchange portfolio.',
   swap: 'Swap exchanges the first selected token <br> with the value of the second selected token. <br> This looks for a pool with available liquidity <br> and the lowest exchange fee.',
   balances: 'This page reflects the amount of tokens you have deposited in the exchange. <br> Use the from below to add or withdraw tokens using your NEAR Wallet.',
-  poolFee: 'The fee liquidity providers will earn on each trade. <br> If the fee is 0.3%, a trade of $100 nUSDT to nDAI <br> will incur a fee of $3 nDAI. This nDAI is distributed <br> proportionally to liquidity providers of the nUSDT - <br> nDAI pool'
+  poolFee: 'The fee liquidity providers will earn on each trade. <br> If the fee is 0.3%, a trade of $100 nUSDT to nDAI <br> will incur a fee of $3 nDAI. This nDAI is distributed <br> proportionally to liquidity providers of the nUSDT - <br> nDAI pool',
+  underlyingLiquidity: 'The amount of each token currently in the pool'
 }
