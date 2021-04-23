@@ -10,9 +10,10 @@ import {
 } from './near';
 import { TokenMetadata } from './ft-contract';
 import { getPoolsByTokens, Pool } from './pool';
-import { checkTokenNeedsStorageDeposit } from './token';
+import { checkTokenNeedsStorageDeposit, getWhitelistedTokens } from './token';
 import { JsonRpcProvider } from 'near-api-js/lib/providers';
 import { storageDepositForTokenAction } from './creators/storage';
+import { registerTokenAction } from './creators/token';
 
 interface EstimateSwapOptions {
   tokenIn: TokenMetadata;
@@ -108,6 +109,11 @@ export const swap = async ({
       amount: ONE_YOCTO_NEAR,
     },
   ];
+
+  const whitelist = await getWhitelistedTokens();
+  if (!whitelist.includes(tokenOut.id)) {
+    actions.unshift(registerTokenAction(tokenOut.id));
+  }
 
   const needsStorageDeposit = await checkTokenNeedsStorageDeposit(tokenOut.id);
   if (needsStorageDeposit) {

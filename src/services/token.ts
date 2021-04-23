@@ -21,6 +21,7 @@ import {
   storageDepositForFTAction,
   STORAGE_PER_TOKEN,
 } from './creators/storage';
+import { registerTokenAction } from './creators/token';
 
 export const checkTokenNeedsStorageDeposit = async (tokenId: string) => {
   let storageNeeded: math.MathType = 0;
@@ -85,12 +86,7 @@ export const registerToken = async (tokenId: string) => {
   });
   if (!registered) throw new Error('No liquidity pools available for token');
 
-  const actions: RefFiFunctionCallOptions[] = [
-    {
-      methodName: 'register_tokens',
-      args: { token_ids: [tokenId] },
-    },
-  ];
+  const actions: RefFiFunctionCallOptions[] = [registerTokenAction(tokenId)];
 
   const neededStorage = await checkTokenNeedsStorageDeposit(tokenId);
   if (neededStorage) {

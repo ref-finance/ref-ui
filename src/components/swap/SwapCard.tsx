@@ -70,15 +70,19 @@ function DetailView({
 }
 
 export default function SwapCard() {
+  const location = useLocation();
+  const history = useHistory();
+
+  const [urlTokenIn, urlTokenOut] = location.hash.slice(1).split('-');
+
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenInAmount, setTokenInAmount] = useState<string>('');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
 
-  const location = useLocation();
-  const history = useHistory();
-
-  const allTokens = useWhitelistTokens();
+  const allTokens = useWhitelistTokens(
+    urlTokenIn && urlTokenOut ? [urlTokenIn, urlTokenOut] : []
+  );
   const balances = useTokenBalances();
 
   useEffect(() => {
@@ -89,11 +93,10 @@ export default function SwapCard() {
 
     if (allTokens) {
       setTokenIn(
-        allTokens.find((token) => token.symbol === rememberedIn) || allTokens[0]
+        allTokens.find((token) => token.id === rememberedIn) || allTokens[0]
       );
       setTokenOut(
-        allTokens.find((token) => token.symbol === rememberedOut) ||
-          allTokens[1]
+        allTokens.find((token) => token.id === rememberedOut) || allTokens[1]
       );
     }
   }, [allTokens]);
@@ -146,8 +149,8 @@ export default function SwapCard() {
         selectedToken={tokenIn}
         balances={balances}
         onSelectToken={(token) => {
-          localStorage.setItem('REF_FI_SWAP_IN', token.symbol);
-          history.replace(`#${token.symbol}-${tokenOut.symbol}`);
+          localStorage.setItem('REF_FI_SWAP_IN', token.id);
+          history.replace(`#${token.id}-${tokenOut.id}`);
           setTokenIn(token);
         }}
         onChangeAmount={setTokenInAmount}
@@ -166,8 +169,8 @@ export default function SwapCard() {
         selectedToken={tokenOut}
         balances={balances}
         onSelectToken={(token) => {
-          localStorage.setItem('REF_FI_SWAP_OUT', token.symbol);
-          history.replace(`#${tokenIn.symbol}-${token.symbol}`);
+          localStorage.setItem('REF_FI_SWAP_OUT', token.id);
+          history.replace(`#${tokenIn.id}-${token.id}`);
           setTokenOut(token);
         }}
       />

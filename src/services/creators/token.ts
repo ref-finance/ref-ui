@@ -15,3 +15,8 @@ export const withdrawAction = ({
   gas: '50000000000000',
   amount: ONE_YOCTO_NEAR,
 });
+
+export const registerTokenAction = (tokenId: string) => ({
+  methodName: 'register_tokens',
+  args: { token_ids: [tokenId] },
+});
