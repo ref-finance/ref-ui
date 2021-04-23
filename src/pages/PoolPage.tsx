@@ -186,9 +186,21 @@ function PoolHeader({
           })}
           copy={copy.totalShares}
         />
-        <DetailColumn title="Fee" value={`${calculateFeePercent(pool.fee)}%`} />
-        <DetailColumn title="Total Liquidity" value="Coming Soon" />
-        <DetailColumn title="Accumulated Volume" value="Coming Soon" />
+        <DetailColumn
+          title="Fee"
+          value={`${calculateFeePercent(pool.fee)}%`}
+          copy={copy.poolFee}
+        />
+        <DetailColumn
+          title="Total Liquidity"
+          value="Coming Soon"
+          copy={copy.totalLiquidity}
+        />
+        <DetailColumn
+          title="Accumulated Volume"
+          value="Coming Soon"
+          copy={copy.accVolume}
+        />
         <DetailColumn
           title="Total Underlying Liquidity"
           value={<UnderlyingLiquidity pool={pool} tokens={tokens} />}
