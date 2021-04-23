@@ -184,6 +184,7 @@ function PoolHeader({
             decimals: 24,
             number: pool.shareSupply,
           })}
+          copy={copy.totalShares}
         />
         <DetailColumn title="Fee" value={`${calculateFeePercent(pool.fee)}%`} />
         <DetailColumn title="Total Liquidity" value="Coming Soon" />
