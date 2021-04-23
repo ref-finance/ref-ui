@@ -216,6 +216,7 @@ function PoolHeader({
                 shares={shares}
               />
             }
+            copy={copy.myUnderlyingLiquidity}
           />
         ) : null}
       </div>
