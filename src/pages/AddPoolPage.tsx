@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaAngleLeft } from 'react-icons/fa';
+import { FaAngleLeft, FaRegQuestionCircle } from 'react-icons/fa';
 import { useWhitelistTokens } from '../state/token';
 import { addSimpleLiquidityPool } from '../services/pool';
 import FormWrap from '../components/forms/FormWrap';
@@ -11,6 +11,7 @@ import TabFormWrap from '../components/forms/TabFormWrap';
 import { registerTokenAndExchange } from '../services/token';
 import PageWrap from '../components/layout/PageWrap';
 import copy from '../utils/copy';
+import ReactTooltip from 'react-tooltip';
 
 function AddPool() {
   const [firstToken, setFirstToken] = useState<TokenMetadata>();
@@ -37,6 +38,14 @@ function AddPool() {
           <span>Fee</span>
           <span className="text-sm">(BPS)</span>
         </label>
+        <FaRegQuestionCircle
+          data-type="dark"
+          data-place="bottom"
+          data-multiline={true}
+          data-tip={copy.poolFee}
+          className="text-xl text-secondaryScale-500 mr-4"
+        />
+        <ReactTooltip />
         <input
           className="focus:outline-none shadow bg-inputBg appearance-none border rounded border-opacity-30 w-full py-2 px-3 text-3xl text-inputText leading-tight"
           type="number"
