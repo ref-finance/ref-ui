@@ -33,14 +33,17 @@ export const useTokens = (ids: string[] = []) => {
   return tokens;
 };
 
-export const useWhitelistTokens = () => {
+export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
 
   useEffect(() => {
     getWhitelistedTokens()
-      .then((tokenIds) =>
-        Promise.all(tokenIds.map((tokenId) => ftGetTokenMetadata(tokenId)))
-      )
+      .then((tokenIds) => {
+        const allTokenIds = [...new Set([...tokenIds, ...extraTokenIds])];
+        return Promise.all(
+          allTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
+        );
+      })
       .then(setTokens);
   }, []);
 

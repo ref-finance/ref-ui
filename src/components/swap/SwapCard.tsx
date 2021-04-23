@@ -12,6 +12,7 @@ import {
   calculateFeePercent,
   toPrecision,
   toReadableNumber,
+  toRoundedReadableNumber,
 } from '../../utils/numbers';
 import Loading from '../layout/Loading';
 import FormWrap from '../forms/FormWrap';
@@ -19,12 +20,23 @@ import TokenAmount from '../forms/TokenAmount';
 import Alert from '../alert/Alert';
 import SlippageSelector from '../forms/SlippageSelector';
 import copy from '../../utils/copy';
+import Icon from '~components/tokens/Icon';
 
-function SwapDetail({ title, value }: { title: string; value: string }) {
+const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
+const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
+const TOKEN_URL_SEPARATOR = '|';
+
+function SwapDetail({
+  title,
+  value,
+}: {
+  title: string;
+  value: string | React.ReactElement;
+}) {
   return (
     <section className="grid grid-cols-2 py-1">
-      <p className="opacity-80">{title}</p>
-      <p className="text-right font-semibold">{value}</p>
+      <p className="opacity-80 self-center">{title}</p>
+      <div className="text-right font-semibold">{value}</div>
     </section>
   );
 }
@@ -65,35 +77,63 @@ function DetailView({
           from
         )})`}
       />
+      <SwapDetail
+        title="Pool Liquidity"
+        value={
+          <div>
+            <div className="flex items-center justify-end">
+              <p className="mr-2">
+                {toRoundedReadableNumber({
+                  decimals: tokenIn.decimals,
+                  number: pool.supplies[tokenIn.id],
+                })}
+              </p>
+              <Icon token={tokenIn} label={false} />
+            </div>
+            <div className="flex items-center justify-end">
+              <p className="mr-2">
+                {toRoundedReadableNumber({
+                  decimals: tokenOut.decimals,
+                  number: pool.supplies[tokenOut.id],
+                })}
+              </p>
+              <Icon token={tokenOut} label={false} />
+            </div>
+          </div>
+        }
+      />
     </>
   );
 }
 
 export default function SwapCard() {
+  const location = useLocation();
+  const history = useHistory();
+
+  const [urlTokenIn, urlTokenOut] = location.hash
+    .slice(1)
+    .split(TOKEN_URL_SEPARATOR);
+
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenInAmount, setTokenInAmount] = useState<string>('');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
 
-  const location = useLocation();
-  const history = useHistory();
-
-  const allTokens = useWhitelistTokens();
+  const allTokens = useWhitelistTokens(
+    urlTokenIn && urlTokenOut ? [urlTokenIn, urlTokenOut] : []
+  );
   const balances = useTokenBalances();
 
   useEffect(() => {
-    const [urlTokenIn, urlTokenOut] = location.hash.slice(1).split('-');
-    const rememberedIn = urlTokenIn || localStorage.getItem('REF_FI_SWAP_IN');
-    const rememberedOut =
-      urlTokenOut || localStorage.getItem('REF_FI_SWAP_OUT');
+    const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
+    const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
 
     if (allTokens) {
       setTokenIn(
-        allTokens.find((token) => token.symbol === rememberedIn) || allTokens[0]
+        allTokens.find((token) => token.id === rememberedIn) || allTokens[0]
       );
       setTokenOut(
-        allTokens.find((token) => token.symbol === rememberedOut) ||
-          allTokens[1]
+        allTokens.find((token) => token.id === rememberedOut) || allTokens[1]
       );
     }
   }, [allTokens]);
@@ -146,8 +186,8 @@ export default function SwapCard() {
         selectedToken={tokenIn}
         balances={balances}
         onSelectToken={(token) => {
-          localStorage.setItem('REF_FI_SWAP_IN', token.symbol);
-          history.replace(`#${token.symbol}-${tokenOut.symbol}`);
+          localStorage.setItem(SWAP_IN_KEY, token.id);
+          history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
           setTokenIn(token);
         }}
         onChangeAmount={setTokenInAmount}
@@ -166,8 +206,8 @@ export default function SwapCard() {
         selectedToken={tokenOut}
         balances={balances}
         onSelectToken={(token) => {
-          localStorage.setItem('REF_FI_SWAP_OUT', token.symbol);
-          history.replace(`#${tokenIn.symbol}-${token.symbol}`);
+          localStorage.setItem(SWAP_OUT_KEY, token.id);
+          history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`);
           setTokenOut(token);
         }}
       />

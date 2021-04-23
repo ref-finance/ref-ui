@@ -6,7 +6,7 @@
     },
     "noEmit": true,
     "target": "es6",
-    "lib": ["ES2020"],
+    "lib": ["ES2020", "DOM"],
     "module": "commonjs",
     "noImplicitAny": true,
     "removeComments": true,
