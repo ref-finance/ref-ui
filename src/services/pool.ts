@@ -8,6 +8,7 @@ import {
   wallet,
 } from './near';
 import BN from 'bn.js';
+import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { toNonDivisibleNumber } from '../utils/numbers';
 import { storageDepositForFTAction } from './creators/storage';
@@ -47,13 +48,17 @@ export const getPools = async (
   page: number = 1,
   perPage: number = DEFAULT_PAGE_LIMIT
 ): Promise<Pool[]> => {
-  const index = (page - 1) * perPage;
-  const poolData: PoolRPCView[] = await refFiViewFunction({
-    methodName: 'get_pools',
-    args: { from_index: index, limit: perPage },
-  });
-
-  return poolData.map((rawPool, i) => parsePool(rawPool, i + index));
+  const rows = await db.pools.toArray();
+  return rows.map((row) => ({
+    id: row.id,
+    tokenIds: [row.token1Id, row.token2Id],
+    supplies: {
+      [row.token1Id]: row.token1Supply,
+      [row.token2Id]: row.token2Supply,
+    },
+    fee: row.fee,
+    shareSupply: row.shares,
+  }));
 };
 
 interface GetPoolOptions {
