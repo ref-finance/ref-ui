@@ -3,7 +3,7 @@ import { FaRegWindowClose, FaCheck } from 'react-icons/fa';
 import { useSwap } from '../../state/swap';
 import SelectToken from '../../components/forms/SelectToken';
 import Icon from '../../components/tokens/Icon';
-import { AdboardMetadata } from '../../services/adboard';
+import { AdboardMetadata, buyFrameCall } from '../../services/adboard';
 import { TokenMetadata } from '../../services/ft-contract';
 import { useToken, useUserRegisteredTokens, useWhitelistTokens } from '../../state/token';
 
@@ -28,8 +28,8 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
   if (!token) return null;
 
   function buyFrame() {
-    console.log(metadata.token_id);
-    close();
+    //todo add parameter
+    buyFrameCall();
   }
 
   return (

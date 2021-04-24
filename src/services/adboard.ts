@@ -1,6 +1,6 @@
 import { Account } from 'near-api-js';
 import { AdboardUtil } from '../utils/AdboardUtil';
-import { near, wallet } from './near';
+import { near, REF_FI_CONTRACT_ID, wallet } from './near';
 
 export const REF_ADBOARD_CONTRACT_ID =
   process.env.REF_ADBOARD_CONTRACT_ID || 'ref-adboard.testnet';
@@ -60,3 +60,27 @@ export const editFrame = ({
     frameData: framedata,
   });
 };
+
+export const buyFrameCall = ({
+  frameId,
+  tokenId,
+  amount,
+  receiverId,
+  sellTokenId,
+  sellPrice
+}: {
+  frameId: string
+  tokenId: string,
+  amount: string,
+  receiverId: string,
+  sellTokenId: string,
+  sellPrice: string
+}) => {
+  return wallet.account().functionCall(REF_FI_CONTRACT_ID, 'mft_transfer_call', {
+    token_id: tokenId,
+    amount: amount,
+    receiver_id: receiverId,
+    msg: frameId + "||" + sellTokenId + "||" + sellPrice
+  });
+};
+
