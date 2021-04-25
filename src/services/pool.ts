@@ -46,9 +46,10 @@ const parsePool = (pool: PoolRPCView, id: number): Pool => ({
 
 export const getPools = async (
   page: number = 1,
-  perPage: number = DEFAULT_PAGE_LIMIT
+  perPage: number = DEFAULT_PAGE_LIMIT,
+  tokenName: string = ''
 ): Promise<Pool[]> => {
-  const rows = await db.pools.toArray();
+  const rows = tokenName ? await db.searchPooList(tokenName) : await db.pools.toArray();
   return rows.map((row) => ({
     id: row.id,
     tokenIds: [row.token1Id, row.token2Id],

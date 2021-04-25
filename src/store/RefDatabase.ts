@@ -33,6 +33,10 @@ class RefDatabase extends Dexie {
     this.pools = this.table('pools');
     this.tokens = this.table('tokens');
   }
+
+  public async searchPooList(token_name:string) {
+    return await this.pools.filter(function (pool) { return (pool.token1Id.indexOf(token_name) != -1); }).toArray();
+  }
 }
 
 export default new RefDatabase();
