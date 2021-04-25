@@ -7,6 +7,7 @@ import { useWhitelistTokens } from '../../state/token';
 import Loading from '../../components/layout/Loading';
 import { AdboardMetadata } from '../../services/adboard';
 import Icon from '../../components/tokens/Icon';
+import { toReadableNumber } from '../../utils/numbers'
 
 export default function AdboardPage() {
   const adboardCanvasRef = useRef<HTMLCanvasElement>();
@@ -143,7 +144,9 @@ export default function AdboardPage() {
                   <div className="flex justify-center items-center p-1 font-serif text-sm text-center border-b-2 border-gray-700">
                     <span className="ml-3">
                       #{metadata.frameId.padStart(3, '0')} -{' '}
-                      {metadata.token_price}
+                      {toReadableNumber(tokens && (tokens.find(
+                          (t) => t.id === metadata.token_id
+                      ) || tokens[0]).decimals,metadata.token_price.toString())}
                     </span>
                     <span className="mr-2">
                       {tokens && (

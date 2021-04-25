@@ -8,7 +8,7 @@ import { TokenMetadata } from '../../services/ft-contract';
 import { useToken, useUserRegisteredTokens, useWhitelistTokens } from '../../state/token';
 import { REF_ADBOARD_CONTRACT_ID } from '../../services/adboard';
 import Alert from '../../components/alert/Alert';
-import { toNonDivisibleNumber } from '../../utils/numbers'
+import { toNonDivisibleNumber,toReadableNumber } from '../../utils/numbers'
 
 interface BuyModalProps {
   metadata: AdboardMetadata;
@@ -25,34 +25,32 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
 
   const { minAmountOut } = useSwap({
     tokenIn: token,
-    tokenInAmount: String(metadata.token_price),
+    tokenInAmount: toReadableNumber(token?.decimals || 24, String(metadata.token_price)),
     tokenOut: selectedToken,
     slippageTolerance: 1.1,
   });
 
+  const sellAmount = +minAmountOut * (priceFactor || 1.0)
+
   if (!token) return null;
 
-  function callBuyEvent(
-    sellPrice: string
-  ) {
+  function callBuyEvent() {
     if (selectedToken === undefined) throw new Error('Please select token')
 
     buyFrameCall({
       frameId: metadata.frameId,
-      tokenId: 'wrap.testnet',
-      amount: toNonDivisibleNumber(24, metadata.token_price.toString()),
+      tokenId: metadata.token_id,
+      amount: metadata.token_price.toString(),
       receiverId: REF_ADBOARD_CONTRACT_ID,
       sellTokenId: selectedToken.id,
-      sellPrice
+      sellPrice: toNonDivisibleNumber(selectedToken.decimals,sellAmount.toString())
     });
   }
 
-  function buyFrame(
-    sellPrice: string
-  ) {
+  function buyFrame() {
     setError(null)
     try {
-      callBuyEvent(sellPrice)
+      callBuyEvent()
     } catch (err) {
       setError(err)
     }
@@ -77,7 +75,7 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
         >
           <div className="mb-2 font-semibold text-white">
             <span className="flex">
-              Frame #{metadata.frameId} will cost you {metadata.token_price}{' '}
+              Frame #{metadata.frameId} will cost you {toReadableNumber(token?.decimals || 24, String(metadata.token_price))}{' '}
               <Icon className="ml-2" token={token} />
             </span>
             <p className="my-2">
@@ -108,7 +106,7 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
             {minAmountOut ? (
               <div className="flex mt-6">
                 <span className="mr-2">
-                  Giving you a sale price of {minAmountOut}
+                  Giving you a sale price of {sellAmount}
                 </span>
                 <Icon token={selectedToken} />
               </div>
