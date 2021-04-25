@@ -6,6 +6,9 @@ import Icon from '../../components/tokens/Icon';
 import { AdboardMetadata, buyFrameCall } from '../../services/adboard';
 import { TokenMetadata } from '../../services/ft-contract';
 import { useToken, useUserRegisteredTokens, useWhitelistTokens } from '../../state/token';
+import { REF_ADBOARD_CONTRACT_ID } from '../../services/adboard';
+import Alert from '../../components/alert/Alert';
+import { toNonDivisibleNumber } from '../../utils/numbers'
 
 interface BuyModalProps {
   metadata: AdboardMetadata;
@@ -14,7 +17,9 @@ interface BuyModalProps {
 }
 
 const BuyModal = ({ metadata, close }: BuyModalProps) => {
+  const [error, setError] = useState<Error>();
   const [selectedToken, setSelectedToken] = useState<TokenMetadata>();
+  const [priceFactor, setPriceFactor] = useState<number>();
   const token = useToken(metadata.token_id);
   const tokens = useWhitelistTokens();
 
@@ -27,9 +32,30 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
 
   if (!token) return null;
 
-  function buyFrame() {
-    //todo add parameter
-    buyFrameCall();
+  function callBuyEvent(
+    sellPrice: string
+  ) {
+    if (selectedToken === undefined) throw new Error('Please select token')
+
+    buyFrameCall({
+      frameId: metadata.frameId,
+      tokenId: 'wrap.testnet',
+      amount: toNonDivisibleNumber(24, metadata.token_price.toString()),
+      receiverId: REF_ADBOARD_CONTRACT_ID,
+      sellTokenId: selectedToken.id,
+      sellPrice
+    });
+  }
+
+  function buyFrame(
+    sellPrice: string
+  ) {
+    setError(null)
+    try {
+      callBuyEvent(sellPrice)
+    } catch (err) {
+      setError(err)
+    }
   }
 
   return (
@@ -75,12 +101,9 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
                 max="1.1"
                 step="0.1"
                 list="steplist"
+                defaultValue={1.0}
+                onChange={(event) => setPriceFactor(+event.target.value)}
               />
-              <datalist className="text-white" id="steplist">
-                <option>0.9</option>
-                <option>1.0</option>
-                <option>1.1</option>
-              </datalist>
             </p>
             {minAmountOut ? (
               <div className="flex mt-6">
@@ -93,6 +116,7 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
           </div>
           <br></br>
 
+          {error && <Alert level="error" message={error.message} />}
           <div className="flex flex-row justify-around w-full mt-12">
             <button
               onClick={close}
@@ -103,7 +127,7 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
               Cancel
             </button>
             <button
-              onClick={() => buyFrame()}
+              onClick={() => buyFrame('1')}
               className="flex flex-row justify-center items-center h-auto py-2 font-semibold border border-solid rounded-md shadow-xl focus:outline-none border-theme-light w-28 text-theme-dark bg-theme-light"
               style={{ backgroundColor: 'green' }}
             >
