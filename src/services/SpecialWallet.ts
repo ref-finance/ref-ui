@@ -3,6 +3,12 @@ import { ConnectedWalletAccount, WalletConnection } from 'near-api-js';
 import { Action, createTransaction } from 'near-api-js/lib/transaction';
 import { PublicKey } from 'near-api-js/lib/utils';
 
+// Illia ask me to add Narwallets support to ref.defi
+// I want to coordinate with you guy. Is this service the best way to inject another wallet?
+// I would prefer to make small incremental PR's to avoid large-hard to check PR's
+// Are you ok with this?
+//
+
 export default class SpecialWallet extends WalletConnection {
   _connectedAccount: SpecialWalletAccount;
 
