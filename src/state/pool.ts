@@ -26,8 +26,9 @@ export const usePools = () => {
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [pools, setPools] = useState<Pool[]>();
-  const tokens = useWhitelistTokens() || [];
-  const tokenIds = tokens.map((t) => t.id);
+
+  const tokens = useWhitelistTokens();
+  const tokenIds = tokens?.map((t) => t.id);
 
   const nextPage = () => setPage((page) => page + 1);
 
@@ -52,8 +53,8 @@ export const usePools = () => {
           }, currentPools || [])
           .filter(
             (pool) =>
-              tokenIds.includes(pool.tokenIds[0]) &&
-              tokenIds.includes(pool.tokenIds[1])
+              tokenIds?.includes(pool.tokenIds[0]) &&
+              tokenIds?.includes(pool.tokenIds[1])
           )
       );
     });
