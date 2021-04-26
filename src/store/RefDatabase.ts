@@ -1,4 +1,5 @@
-import Dexie from 'dexie';
+import Dexie, { Collection } from 'dexie';
+import _ from 'lodash';
 
 interface Pool {
   id: number;
@@ -34,8 +35,34 @@ class RefDatabase extends Dexie {
     this.tokens = this.table('tokens');
   }
 
-  public async searchPooList(token_name:string) {
-    return await this.pools.filter(function (pool) { return (pool.token1Id.indexOf(token_name) != -1); }).toArray();
+  public allPools() {
+    return this.pools;
+  }
+
+  public withSearch(args: any, pools: Pool[]): Pool[] {
+    if (args.tokenName === '') return pools;
+    return _.filter(pools, (pool: Pool) => {
+      return _.includes(pool.token1Id, args.tokenName) || _.includes(pool.token2Id, args.tokenName)
+    });
+  }
+
+  public withOrder(args: any, pools: Pool[]): Pool[] {
+    return _.orderBy(pools, [args.column], [args.order]);
+  }
+
+  public uniquePairName(args: any, pools: Pool[]): Pool[] {
+    if (!args.uniquePairName) return pools;
+    let obj: any[] = [];
+    return pools.reduce((cur: any[], next: { token1Id: any; token2Id: any; }) => {
+      const pair_name = `${next.token1Id}--${next.token1Id}`
+      obj[pair_name] ? "" : obj[pair_name] = true && cur.push(next);
+      return cur;
+    }, []);
+  }
+
+  public async query(args: any) {
+    let pools = await this.allPools().toArray();
+    return this.withOrder(args, this.uniquePairName(args, this.withSearch(args, pools)));
   }
 }
 
