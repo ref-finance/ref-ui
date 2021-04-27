@@ -14,7 +14,7 @@ import { toNonDivisibleNumber } from '../utils/numbers';
 import { storageDepositForFTAction } from './creators/storage';
 import get = Reflect.get;
 
-export const DEFAULT_PAGE_LIMIT = 100;
+export const DEFAULT_PAGE_LIMIT = 2;
 
 interface PoolRPCView {
   token_account_ids: string[];
@@ -53,7 +53,7 @@ export const getPools = async (
   order: string = 'desc',
   uniquePairName: boolean = false
 ): Promise<Pool[]> => {
-  const rows = await db.query({ tokenName, column, order, uniquePairName });
+  const rows = await db.queryPools({ page, perPage, tokenName, column, order, uniquePairName });
   return rows.map((row) => ({
     id: row.id,
     tokenIds: [row.token1Id, row.token2Id],

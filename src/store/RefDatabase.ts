@@ -39,18 +39,26 @@ class RefDatabase extends Dexie {
     return this.pools;
   }
 
-  public withSearch(args: any, pools: Pool[]): Pool[] {
+  public allTokens() {
+    return this.tokens;
+  }
+
+  public searchPools(args: any, pools: Pool[]): Pool[] {
     if (args.tokenName === '') return pools;
     return _.filter(pools, (pool: Pool) => {
       return _.includes(pool.token1Id, args.tokenName) || _.includes(pool.token2Id, args.tokenName)
     });
   }
 
-  public withOrder(args: any, pools: Pool[]): Pool[] {
+  public orderPools(args: any, pools: Pool[]): Pool[] {
     return _.orderBy(pools, [args.column], [args.order]);
   }
 
-  public uniquePairName(args: any, pools: Pool[]): Pool[] {
+  public paginationPools(args: any, pools: Pool[]): Pool[] {
+    return _.slice(pools, (args.page - 1) * args.perPage, args.page * args.perPage);
+  }
+
+  public uniquePools(args: any, pools: Pool[]): Pool[] {
     if (!args.uniquePairName) return pools;
     let obj: any[] = [];
     return pools.reduce((cur: any[], next: { token1Id: any; token2Id: any; }) => {
@@ -60,9 +68,21 @@ class RefDatabase extends Dexie {
     }, []);
   }
 
-  public async query(args: any) {
+  public async queryPools(args: any) {
     let pools = await this.allPools().toArray();
-    return this.withOrder(args, this.uniquePairName(args, this.withSearch(args, pools)));
+    return this.paginationPools(args, this.orderPools(args, this.uniquePools(args, this.searchPools(args, pools))));
+  }
+
+  public searchTokens(args: any, tokens: TokenMetadata[]): TokenMetadata[] {
+    if (args.tokenName === '') return tokens;
+    return _.filter(tokens, (token: TokenMetadata) => {
+      return _.includes(token.name, args.tokenName)
+    });
+  }
+
+  public async queryTokens(args: any) {
+    let tokens = await this.allTokens().toArray();
+    return this.searchTokens(args, tokens);
   }
 }
 
