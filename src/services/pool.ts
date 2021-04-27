@@ -14,7 +14,7 @@ import { toNonDivisibleNumber } from '../utils/numbers';
 import { storageDepositForFTAction } from './creators/storage';
 import get = Reflect.get;
 
-export const DEFAULT_PAGE_LIMIT = 2;
+export const DEFAULT_PAGE_LIMIT = 100;
 
 interface PoolRPCView {
   token_account_ids: string[];
