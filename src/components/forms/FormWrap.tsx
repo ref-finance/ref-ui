@@ -25,31 +25,31 @@ export default function FormWrap({
     setError(null);
 
     try {
-      await onSubmit(event);
+      onSubmit(event);
     } catch (err) {
       setError(err);
     }
   };
 
   return (
-    <form
-      className="bg-secondary shadow-2xl rounded px-4 pt-6 pb-1"
-      onSubmit={handleSubmit}
-    >
-      {title && (
-        <>
-          <h2 className="formTitle font-bold text-xl text-gray-700 text-center pb-2">
-            {title}
-          </h2>
-        </>
-      )}
-      {error && <Alert level="error" message={error.message} />}
-      {children}
-      <SubmitButton
-        disabled={!canSubmit}
-        text={buttonText || title}
-        info={info}
-      />
-    </form>
+      <form
+          className="overflow-y-auto bg-secondary shadow-2xl rounded-xl p-7"
+          onSubmit={handleSubmit}
+      >
+        {title && (
+            <>
+              <h2 className="formTitle font-bold text-xl text-gray-700 text-center pb-2">
+                {title}
+              </h2>
+            </>
+        )}
+        {error && <Alert level="error" message={error.message} />}
+        {children}
+        <SubmitButton
+            disabled={!canSubmit}
+            text={buttonText || title}
+            info={info}
+        />
+      </form>
   );
 }

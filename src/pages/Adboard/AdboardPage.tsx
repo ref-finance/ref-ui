@@ -28,7 +28,6 @@ export default function AdboardPage() {
     const ctx = adboardCanvasRef.current.getContext('2d');
     ctx.canvas.width = AdboardUtil.PIX_WIDTH_BOARD;
     ctx.canvas.height = AdboardUtil.PIX_HEIGHT_BOARD;
-
     for (let p = 0; p < framedata.length; p++) {
       const x_offset = Math.floor(p / AdboardUtil.PIX_HORIZONTAL_BOXES);
       const y_offset = p % AdboardUtil.PIX_HORIZONTAL_BOXES;
@@ -140,13 +139,10 @@ export default function AdboardPage() {
                   width: '40px',
                 }}
               >
-                <div className="absolute z-30 flex flex-col invisible h-auto mt-8 ml-5 text-white transition duration-100 transform -translate-x-1/2 bg-gray-800 border-2 rounded shadow-xl cursor-default group-hover:visible w-max border-opacity-10 border-theme-white tooltip tooltip-content">
+                <div className="absolute py-4 px-6 z-30 flex flex-col invisible h-auto mt-8 ml-5 text-white transition duration-100 transform -translate-x-1/2 bg-gray-800 rounded-xl shadow-xl cursor-default group-hover:visible w-max tooltip tooltip-content">
                   <div className="flex justify-center items-center p-1 font-serif text-sm text-center border-b-2 border-gray-700">
                     <span className="ml-3">
-                      #{metadata.frameId.padStart(3, '0')} -{' '}
-                      {toReadableNumber(tokens && (tokens.find(
-                          (t) => t.id === metadata.token_id
-                      ) || tokens[0]).decimals,metadata.token_price.toString())}
+                      Coordinate #{metadata.frameId.padStart(3, '0')}
                     </span>
                     <span className="mr-2">
                       {tokens && (
@@ -176,9 +172,11 @@ export default function AdboardPage() {
                           <button
                             key={metadata.frameId}
                             onClick={() => setBuyMetadata(metadata)}
-                            className="flex flex-row justify-between w-22 h-auto px-4 py-2 font-semibold transition duration-200 border border-solid rounded-md shadow-xl hover:opacity-80 focus:outline-none border-theme-light text-theme-white bg-theme-blue"
+                            className="flex flex-row justify-between w-22 h-auto px-6 py-1 font-semibold transition duration-200 border border-solid rounded-3xl shadow-xl hover:opacity-80 focus:outline-none border-theme-light text-black bg-white"
                           >
-                            Buy
+                            Buy for <span className="text-green-400 w-4">{toReadableNumber(tokens && (tokens.find(
+                              (t) => t.id === metadata.token_id
+                            ) || tokens[0]).decimals,metadata.token_price.toString())}</span>
                           </button>
                         </div>
                       )}

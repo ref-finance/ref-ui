@@ -16,7 +16,9 @@ function SubmitButton({ disabled, onClick }: SubmitButtonProps) {
           type={onClick ? 'button' : 'submit'}
           disabled={disabled}
           onClick={onClick}
-          className="flex flex-row justify-center px-3 py-1.5 mt-6 items-center rounded-full bg-greenLight text-buttonText focus:outline-none disabled:cursor-not-allowed mx-auto"
+          className={`flex flex-row justify-center px-3 py-1.5 mt-6 items-center rounded-full bg-greenLight text-buttonText focus:outline-none disabled:cursor-not-allowed mx-auto ${
+              disabled ? 'bg-opacity-50' : ''
+          }`}
         >
           <h1 className="text-xs font-inter font-semibold">Swap</h1>
         </button>

@@ -55,13 +55,6 @@ function AccountEntry() {
   return (
     <div
       className={`cursor-pointer font-bold items-center justify-end text-center p-1 pl-3 pr-3 relative h-full`}
-      onClick={() => {
-        if (wallet.isSignedIn()) {
-          history.push('/account');
-        } else {
-          wallet.requestSignIn();
-        }
-      }}
       onMouseEnter={() => {
         setHover(true);
       }}
@@ -83,7 +76,7 @@ function AccountEntry() {
           wallet.isSignedIn() && hover ? 'block' : 'hidden'
         }`}
       >
-        <Card className="cursor-default" width="w-72">
+        <Card className="cursor-default" width="w-80">
           <div className="flex items-center justify-between text-gray-700">
             <div className="text-base">Balance</div>
             <div
@@ -118,7 +111,6 @@ function PoolsMenu() {
   const history = useHistory();
 
   const links = [
-    { label: 'My liquidity', path: '/pools/liquidity/my' },
     { label: 'Liquidity Pools', path: '/pools/liquidity' },
     { label: 'Add Token', path: '/pools/add-token' },
     { label: 'Add Liquidity Pool', path: '/pools/add' },
@@ -140,7 +132,7 @@ function PoolsMenu() {
         </h2>
         {isSelected || hover ? <ArrowDownGreen /> : <ArrowDownWhite />}
       </div>
-      <div className={`${hover ? 'block' : 'hidden'} absolute top-8`}>
+      <div className={`${hover ? 'block' : 'hidden'} absolute top-9`}>
         <Card width="w-auto" padding="p-4">
           {links.map((link) => {
             const isSelected = link.path === location.pathname;
@@ -173,6 +165,7 @@ function NavigationBar() {
         <Anchor to="/deposit" name="Deposit" />
         <Anchor to="/" name="Swap" />
         <PoolsMenu />
+        <Anchor to="/adboard" name="Adboard" />
       </nav>
       <div className="user col-span-8 items-center text-xs text-center justify-end pl-5 h-full w-96 absolute right-0">
         <BgShapeTopRight />

@@ -3,11 +3,13 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import DepositPage from './pages/DepositPage';
 import WhitelistTokenPage from './pages/WhitelistTokenPage';
-import PoolsPage from './pages/PoolsPage';
-import PoolPage from './pages/PoolPage';
-import AddPoolPage from './pages/AddPoolPage';
+import { PoolDetailsPage } from './pages/pools/DetailsPage';
 import SwapPage from './pages/SwapPage';
 import { AccountPage } from './pages/AccountPage';
+import { LiquidityPage } from './pages/pools/LiquidityPage';
+import { AddPoolPage } from './pages/pools/AddPoolPage';
+import { AddTokenPage } from './pages/pools/AddTokenPage';
+import AdboardPage from './pages/Adboard/AdboardPage';
 import NavigationBar from './components/layout/NavigationBar';
 import { BgShapeLeftBottom } from './components/icon';
 import Modal from 'react-modal';
@@ -49,9 +51,11 @@ function App() {
             <Route path="/deposit" component={DepositPage} />
             <Route path="/account" component={AccountPage} />
             <Route path="/whitelist/:tokenId" component={WhitelistTokenPage} />
+            <Route path="/pool/:id" component={PoolDetailsPage} />
+            <Route path="/adboard" component={AdboardPage} />
             <Route path="/pools/add" component={AddPoolPage} />
-            <Route path="/pools/:poolId" component={PoolPage} />
-            <Route path="/pools" component={PoolsPage} />
+            <Route path="/pools/add-token" component={AddTokenPage} />
+            <Route path="/pools/liquidity" component={LiquidityPage} />
             <Route path="/" component={SwapPage} />
           </Switch>
         </div>

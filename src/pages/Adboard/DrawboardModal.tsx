@@ -220,7 +220,7 @@ const DrawboardModal = ({ framedata, frameId, close }: DrawboardModalProps) => {
   return (
     <>
       <div
-        className="fixed flex flex-col items-center justify-start w-screen h-screen z-16"
+        className="fixed flex flex-col items-center justify-start w-screen z-16"
         style={{
           zIndex: 15,
         }}

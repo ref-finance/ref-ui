@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useHistory } from 'react-router-dom';
-import { TokenMetadata } from '../../services/ft-contract';
-import { Pool } from '../../services/pool';
-import { wallet } from '../../services/near';
-import { useWhitelistTokens, useTokenBalances } from '../../state/token';
-import { useSwap } from '../../state/swap';
+import React, {useEffect, useState} from 'react';
+import {useLocation, useHistory} from 'react-router-dom';
+import {TokenMetadata} from '../../services/ft-contract';
+import {Pool} from '../../services/pool';
+import {useTokenBalances} from '../../state/token';
+import {useSwap} from '../../state/swap';
 import {
   calculateExchangeRate,
   calculateFeeCharge,
@@ -18,9 +17,9 @@ import TokenAmount from '../forms/TokenAmount';
 import Alert from '../alert/Alert';
 import SlippageSelector from '../forms/SlippageSelector';
 import copy from '../../utils/copy';
-import { ArrowDownBlack } from '../icon/Arrows';
+import {ArrowDownBlack} from '../icon/Arrows';
 
-function SwapDetail({ title, value }: { title: string; value: string }) {
+function SwapDetail({title, value}: { title: string; value: string }) {
   return (
     <section className="grid grid-cols-2 py-1">
       <p className="opacity-80">{title}</p>
@@ -69,7 +68,8 @@ function DetailView({
   );
 }
 
-export default function SwapCard() {
+export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
+  const {allTokens} = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenInAmount, setTokenInAmount] = useState<string>('');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
@@ -78,7 +78,6 @@ export default function SwapCard() {
   const location = useLocation();
   const history = useHistory();
 
-  const allTokens = useWhitelistTokens();
   const balances = useTokenBalances();
 
   useEffect(() => {
@@ -112,15 +111,6 @@ export default function SwapCard() {
     slippageTolerance,
   });
 
-  if (!allTokens) return <Loading />;
-
-  const title =
-    wallet.isSignedIn() &&
-    tokenIn &&
-    (!balances?.[tokenIn.id] || balances?.[tokenIn.id] === '0')
-      ? 'Make a deposit to swap'
-      : 'Swap';
-
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     makeSwap();
@@ -129,7 +119,7 @@ export default function SwapCard() {
   return (
     <FormWrap canSubmit={canSwap} onSubmit={handleSubmit} info={copy.swap}>
       <div className="pb-2">
-        {swapError && <Alert level="error" message={swapError.message} />}
+        {swapError && <Alert level="error" message={swapError.message}/>}
       </div>
       <TokenAmount
         amount={tokenInAmount}
@@ -156,7 +146,7 @@ export default function SwapCard() {
         }}
       >
         <div className="inline-block mt-4 mb-4 cursor-pointer">
-          <ArrowDownBlack />
+          <ArrowDownBlack/>
         </div>
       </div>
       <TokenAmount

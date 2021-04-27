@@ -11,26 +11,9 @@ import { TokenMetadata } from '../services/ft-contract';
 import { nearMetadata } from '../services/wrap-near';
 import { useDepositableBalance } from '../state/token';
 import TokenAmount from '../components/forms/TokenAmount';
-import { Near } from '../components/icon';
 import { deposit } from '../services/token';
 import { wallet } from '~services/near';
-import { Balances } from '../components/deposit';
-
-function ConnectToNearBtn() {
-  return (
-    <div
-      className="flex items-center justify-center pt-2"
-      onClick={() => wallet.requestSignIn()}
-    >
-      <div className="inline-flex cursor-pointer font-bold items-center text-center rounded-full bg-gray-800 px-3.5 py-1">
-        <div className="pr-1">
-          <Near />
-        </div>
-        <div className="text-xs text-white">Connect to NEAR</div>
-      </div>
-    </div>
-  );
-}
+import { Balances, ConnectToNearBtn } from '../components/deposit';
 
 function DepositBtn(props: { amount?: string; token?: TokenMetadata }) {
   const { amount, token } = props;
@@ -39,8 +22,9 @@ function DepositBtn(props: { amount?: string; token?: TokenMetadata }) {
   return (
     <div className="flex items-center justify-center pt-2">
       <button
-        className={`rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold ${
-          canSubmit ? 'bg-greenLight' : 'bg-gray-800'
+        disabled={!canSubmit}
+        className={`rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight ${
+          canSubmit ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
         }`}
         onClick={() => {
           if (canSubmit) {
@@ -79,7 +63,9 @@ export default function DepositPage() {
     <div className="flex items-center flex-col">
       <div className="text-center pb-5">
         <div className="text-white text-3xl font-semibold">Deposit</div>
-        <div className="text-white text-xs pt-2">Use this to deposit tokens</div>
+        <div className="text-white text-xs pt-2">
+          Use this to deposit tokens
+        </div>
       </div>
       <Card>
         <TokenAmount
