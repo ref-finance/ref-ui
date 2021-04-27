@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { calculateFairShare, percentLess, toPrecision } from '../utils/numbers';
 import {
-  DEFAULT_PAGE_LIMIT,
   getPoolDetails,
   getPools,
   getSharesInPool,
@@ -9,6 +8,7 @@ import {
   PoolDetails,
   removeLiquidityFromPool,
 } from '../services/pool';
+import { useWhitelistTokens } from './token';
 
 export const usePool = (id: number | string) => {
   const [pool, setPool] = useState<PoolDetails>();
@@ -27,29 +27,38 @@ export const usePools = () => {
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [pools, setPools] = useState<Pool[]>();
 
+  const tokens = useWhitelistTokens();
+  const tokenIds = tokens?.map((t) => t.id);
+
   const nextPage = () => setPage((page) => page + 1);
 
   useEffect(() => {
     getPools(page).then((pools) => {
       setHasMore(pools.length > 0);
       setPools((currentPools) =>
-        pools.reduce<Pool[]>((acc: Pool[], pool) => {
-          if (
-            acc.some(
-              (p) =>
-                p.fee === pool.fee &&
-                p.tokenIds.includes(pool.tokenIds[0]) &&
-                p.tokenIds.includes(pool.tokenIds[1]) &&
-                p.shareSupply === pool.shareSupply
+        pools
+          .reduce<Pool[]>((acc: Pool[], pool) => {
+            if (
+              acc.some(
+                (p) =>
+                  p.fee === pool.fee &&
+                  p.tokenIds.includes(pool.tokenIds[0]) &&
+                  p.tokenIds.includes(pool.tokenIds[1]) &&
+                  p.shareSupply === pool.shareSupply
+              )
             )
-          )
+              return acc;
+            acc.push(pool);
             return acc;
-          acc.push(pool);
-          return acc;
-        }, currentPools || [])
+          }, currentPools || [])
+          .filter(
+            (pool) =>
+              tokenIds?.includes(pool.tokenIds[0]) &&
+              tokenIds?.includes(pool.tokenIds[1])
+          )
       );
     });
-  }, [page]);
+  }, [page, tokens]);
 
   return {
     pools,
