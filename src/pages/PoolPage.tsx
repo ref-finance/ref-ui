@@ -370,10 +370,10 @@ function RemoveLiquidity({
       />
       {amount ? (
         <>
-          <p className="mt-3 text-center">Minumum Tokens Out</p>
+          <p className="mt-3 text-center">Minimum Tokens Out</p>
           <section className="grid grid-cols-2 mt-3">
             {Object.entries(minimumAmounts).map(
-              ([tokenId, minumumAmount], i) => {
+              ([tokenId, minimumAmount], i) => {
                 const token = tokens.find((t) => t.id === tokenId);
 
                 return (
@@ -382,7 +382,7 @@ function RemoveLiquidity({
                     <span className="ml-2">
                       {toRoundedReadableNumber({
                         decimals: tokens.find((t) => t.id === tokenId).decimals,
-                        number: minumumAmount,
+                        number: minimumAmount,
                         precision: 6,
                       })}
                     </span>
