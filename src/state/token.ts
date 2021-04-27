@@ -48,11 +48,11 @@ export const useWhitelistTokens = () => {
   return tokens;
 };
 
-export const useUserRegisteredTokens = () => {
+export const useUserRegisteredTokens = (accountId?: string) => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
 
   useEffect(() => {
-    getUserRegisteredTokens()
+    getUserRegisteredTokens(accountId)
       .then((tokenIds) =>
         Promise.all(tokenIds.map((tokenId) => ftGetTokenMetadata(tokenId)))
       )

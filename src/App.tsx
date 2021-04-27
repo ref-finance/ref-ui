@@ -10,6 +10,7 @@ import SwapPage from './pages/SwapPage';
 import NavigationBar from './components/layout/NavigationBar';
 import './global.css';
 import 'react-toastify/dist/ReactToastify.css';
+import AdboardPage from './pages/Adboard/AdboardPage';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Route path="/pools/add" component={AddPoolPage} />
             <Route path="/pools/:poolId" component={PoolPage} />
             <Route path="/pools" component={PoolsPage} />
+            <Route path="/adboard" component={AdboardPage} />
             <Route path="/" component={SwapPage} />
           </Switch>
         </div>

@@ -194,10 +194,12 @@ export const getTokenBalances = (): Promise<TokenBalancesView> => {
   });
 };
 
-export const getUserRegisteredTokens = (): Promise<string[]> => {
+export const getUserRegisteredTokens = (
+  accountId: string = wallet.getAccountId()
+): Promise<string[]> => {
   return refFiViewFunction({
     methodName: 'get_user_whitelisted_tokens',
-    args: { account_id: wallet.getAccountId() },
+    args: { account_id: accountId },
   });
 };
 
