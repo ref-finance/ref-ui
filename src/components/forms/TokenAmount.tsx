@@ -1,11 +1,15 @@
 import React from 'react';
+import { wallet } from '../../services/near';
 import { toRoundedReadableNumber } from '../../utils/numbers';
 import { TokenMetadata } from '../../services/ft-contract';
 import { TokenBalancesView } from '../../services/token';
 import Icon from '../tokens/Icon';
 import InputAmount from './InputAmount';
 import SelectToken from './SelectToken';
+import AddToken from './AddToken';
 import { FaAngleDown } from 'react-icons/fa';
+import { ArrowDownGreen } from '../icon';
+import { toPrecision, toReadableNumber } from '../../utils/numbers';
 
 interface TokenAmountProps {
   amount?: string;
@@ -16,6 +20,7 @@ interface TokenAmountProps {
   onMax?: (input: HTMLInputElement) => void;
   onSelectToken?: (token: TokenMetadata) => void;
   onChangeAmount?: (amount: string) => void;
+  text?: string;
 }
 
 export default function TokenAmount({
@@ -26,9 +31,10 @@ export default function TokenAmount({
   balances,
   onSelectToken,
   onChangeAmount,
+  text,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) => (
-    <p>
+    <p className="text-black">
       {toRoundedReadableNumber({
         decimals: token.decimals,
         number: balances[token.id],
@@ -36,30 +42,49 @@ export default function TokenAmount({
     </p>
   );
 
+  const addToken = () => (
+    <AddToken />
+  )
+
+  const isSignedIn = wallet.isSignedIn();
+
   return (
-    <fieldset className="bg-inputBg relative grid grid-cols-12 rounded-lg p-2 align-center my-2">
-      <InputAmount
-        className="col-span-9"
-        name={selectedToken?.id}
-        max={max}
-        value={amount}
-        onChangeAmount={onChangeAmount}
-      />
-      <SelectToken
-        tokens={tokens}
-        render={balances ? render : null}
-        selected={
-          selectedToken && (
-            <div className="flex items-center justify-end">
-              <Icon token={selectedToken} />
-              {tokens.length > 1 && (
-                <FaAngleDown className="stroke-current text-inputText block ml-1" />
-              )}
-            </div>
-          )
-        }
-        onSelect={onSelectToken}
-      />
-    </fieldset>
+    <>
+      <div className="flex justify-between text-xs font-semibold pb-0.5">
+        <span className="text-black">{text}</span>
+        <span className={`${max === '0' ? 'text-gray-400' : null}`}>
+          Balance：
+          {max}
+        </span>
+      </div>
+      <fieldset className="bg-inputBg relative flex overflow-hidden rounded-lg align-center my-2 border">
+        <InputAmount
+          className="flex-grow"
+          name={selectedToken?.id}
+          max={max}
+          value={amount}
+          onChangeAmount={onChangeAmount}
+          disabled={!isSignedIn}
+        />
+        <SelectToken
+          tokens={tokens}
+          render={balances ? render : null}
+          addToken={addToken}
+          selected={
+            selectedToken && (
+              <div className="flex items-center justify-center font-semibold pl-3 pr-3">
+                <Icon token={selectedToken} />
+                {tokens.length > 1 && (
+                  <div className="pl-2 text-xs">
+                    <ArrowDownGreen />
+                  </div>
+                )}
+              </div>
+            )
+          }
+          onSelect={onSelectToken}
+        />
+      </fieldset>
+    </>
   );
 }

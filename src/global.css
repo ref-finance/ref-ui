@@ -21,22 +21,7 @@ html {
 
 body {
   margin: 0;
-  background: rgb(0, 192, 139);
-  background: -moz-radial-gradient(
-    circle,
-    rgba(0, 192, 139, 1) 0%,
-    rgba(0, 131, 117, 1) 92%
-  );
-  background: -webkit-radial-gradient(
-    circle,
-    rgba(0, 192, 139, 1) 0%,
-    rgba(0, 131, 117, 1) 92%
-  );
-  background: radial-gradient(
-    circle,
-    rgba(0, 192, 139, 1) 0%,
-    rgba(0, 131, 117, 1) 92%
-  );
+  background: linear-gradient(to bottom, #000 70%, #011b14 100%);
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#00c08b",endColorstr="#008375",GradientType=1);
 }
 
@@ -72,65 +57,30 @@ input[type='number'] {
   -moz-appearance: textfield; /* Firefox */
 }
 
-
-
-
-
-/* Adboard */
-.tooltip-content::after {
-  content: " ";
-  position: absolute;
-  bottom: 100%; /* This will position the arrow at the top of the tooltip */
-  left: 50%;
-  margin-left: -10px;
-  border-width: 10px;
-  border-style: solid;
-  border-color: transparent transparent rgba(34, 36, 51, 1) transparent; /* This will make the top border black */
+.gray {
+  color: #bdbdbd;
 }
 
-.hover-trigger .hover-target {
-  display: none;
+.bg-black {
+  background-color: #2d3231;
 }
 
-.hover-trigger:hover .hover-target {
-  display: block;
-  margin-left: 29px;
+.color-black {
+  color: #2d3231;
 }
 
-.drawboard {
-  width: 600px;
-  height: 600px;
+.h-screen {
+  position: relative;
 }
 
-.bucket {
-  margin-bottom: 8px;
+.user .account-name {
+  max-width: 150px;
 }
 
-.active-bucket {
-  outline: 5px auto !important;
-  -moz-outline-radius: 9999px;
+.balances .token:first-child {
+  padding-top: 0;
 }
 
-.compact-picker {
-  width: 260px !important;
-}
-
-.flexbox-fix {
-  display: none !important;
-}
-
-.blur {
-  background: rgba(0, 0, 0, 0.9);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.9);
-  backdrop-filter: blur(8.5px);
-  -webkit-backdrop-filter: blur(8.5px);
-}
-
-.tooltip {
-  visibility: invisible;
-}
-
-.has-tooltip:hover .tooltip {
-  visibility: visible;
-  z-index: 50;
+.balances .token:last-child {
+  padding-bottom: 0;
 }

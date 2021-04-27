@@ -1,7 +1,8 @@
 import React from 'react';
-import { FaRegQuestionCircle } from 'react-icons/fa';
+import { FaInfoCircle } from 'react-icons/fa';
 import ReactTooltip from 'react-tooltip';
 import copy from '../../utils/copy';
+import { Info } from '../icon/Info';
 
 export default function SlippageSelector({
   slippageTolerance,
@@ -14,31 +15,34 @@ export default function SlippageSelector({
 
   return (
     <>
-      <fieldset className="flex items-center mb-4">
-        <label className="font-semibold text-center">Slippage: </label>
+      <fieldset className="flex items-center mb-4 pt-2">
+        <label className="font-semibold text-xs text-center">Slippage: </label>
         <div>
-          <FaRegQuestionCircle
+          <div
+            className="pl-1"
             data-type="dark"
             data-place="bottom"
             data-multiline={true}
             data-tip={copy.slippageCopy}
-            className="text-med ml-2 text-left"
-          />
+          >
+            <Info />
+          </div>
           <ReactTooltip />
         </div>
-        {validSlippages.map((slippage) => (
-          <button
-            key={slippage}
-            className={`hover:bg-buttonBg hover:text-buttonText rounded w-full p-2 mx-2 ${
-              slippage === slippageTolerance &&
-              'bg-buttonBg text-buttonText font-semibold'
-            }`}
-            type="button"
-            onClick={() => onChange(slippage)}
-          >
-            {slippage}%
-          </button>
-        ))}
+        <div className="border flex rounded-full ml-16 border-1 text-gray-400 border-gray-200">
+          {validSlippages.map((slippage) => (
+            <button
+              key={slippage}
+              className={`focus:outline-none text-xs hover:text-greenLight font-semibold rounded w-full py-1 px-2 mx-2 ${
+                slippage === slippageTolerance && 'text-greenLight'
+              }`}
+              type="button"
+              onClick={() => onChange(slippage)}
+            >
+              {slippage}%
+            </button>
+          ))}
+        </div>
       </fieldset>
     </>
   );

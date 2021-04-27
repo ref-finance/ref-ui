@@ -9,15 +9,27 @@ interface TokenProps {
 }
 
 export default function Token({ token, onClick, render }: TokenProps) {
+  const { icon, symbol } = token;
   return (
     <section
       className={`${
         onClick ? 'cursor-pointer' : ' '
-      } grid grid-cols-3 align-center p-4 w-full text-center hover:bg-secondaryScale-100`}
+      } flex justify-between align-center py-4 px-2 w-full text-center hover:bg-secondaryScale-100`}
       onClick={() => onClick && onClick(token)}
     >
-      <Icon token={token} />
-      <p>{token.symbol}</p>
+      <div className="w-32">
+        <div
+          className="flex items-center text-xs"
+          style={{ lineHeight: 'unset' }}
+        >
+          {icon ? (
+            <img className="h-6 w-6 mr-3" src={icon} alt={symbol} />
+          ) : (
+            <div className="h-6 w-6 mr-3"></div>
+          )}
+          <p className="hidden sm:block">{symbol}</p>
+        </div>
+      </div>
       {render && render(token)}
     </section>
   );

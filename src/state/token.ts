@@ -48,11 +48,11 @@ export const useWhitelistTokens = () => {
   return tokens;
 };
 
-export const useUserRegisteredTokens = (accountId?: string) => {
+export const useUserRegisteredTokens = () => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
 
   useEffect(() => {
-    getUserRegisteredTokens(accountId)
+    getUserRegisteredTokens()
       .then((tokenIds) =>
         Promise.all(tokenIds.map((tokenId) => ftGetTokenMetadata(tokenId)))
       )
@@ -79,10 +79,14 @@ export const useDepositableBalance = (tokenId: string) => {
 
   useEffect(() => {
     if (tokenId === 'NEAR') {
-      wallet
-        .account()
-        .getAccountBalance()
-        .then(({ available }) => setDepositable(available));
+      if (wallet.isSignedIn()) {
+        wallet
+          .account()
+          .getAccountBalance()
+          .then(({ available }) => setDepositable(available));
+      } else {
+        setDepositable('0');
+      }
     } else if (tokenId) ftGetBalance(tokenId).then(setDepositable);
   }, [tokenId]);
 

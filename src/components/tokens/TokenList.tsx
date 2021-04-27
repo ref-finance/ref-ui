@@ -10,10 +10,10 @@ interface TokenListProps {
 
 export default function TokenList({ tokens, onClick, render }: TokenListProps) {
   const tokenElements = tokens.map((token) => (
-    <li className="text-lg" key={token.id}>
+    <div className="text-xs font-semibold" key={token.id}>
       <Token token={token} onClick={onClick} render={render} />
-    </li>
+    </div>
   ));
 
-  return <ul>{tokenElements}</ul>;
+  return <div className="divide-y">{tokenElements}</div>;
 }

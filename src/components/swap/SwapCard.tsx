@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
-import { FaArrowsAltV } from 'react-icons/fa';
 import { TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
 import { wallet } from '../../services/near';
@@ -19,6 +18,7 @@ import TokenAmount from '../forms/TokenAmount';
 import Alert from '../alert/Alert';
 import SlippageSelector from '../forms/SlippageSelector';
 import copy from '../../utils/copy';
+import { ArrowDownBlack } from '../icon/Arrows';
 
 function SwapDetail({ title, value }: { title: string; value: string }) {
   return (
@@ -93,7 +93,7 @@ export default function SwapCard() {
       );
       setTokenOut(
         allTokens.find((token) => token.symbol === rememberedOut) ||
-          allTokens[1]
+        allTokens[1]
       );
     }
   }, [allTokens]);
@@ -127,16 +127,10 @@ export default function SwapCard() {
   };
 
   return (
-    <FormWrap
-      title={title}
-      canSubmit={canSwap}
-      onSubmit={handleSubmit}
-      info={copy.swap}
-    >
-      <h1 className="text-center text-red-500 text-bold border-2 border-red-500 py-2">
-        Community developed. Not audited. Use at your own risk.
-      </h1>
-      {swapError && <Alert level="error" message={swapError.message} />}
+    <FormWrap canSubmit={canSwap} onSubmit={handleSubmit} info={copy.swap}>
+      <div className="pb-2">
+        {swapError && <Alert level="error" message={swapError.message} />}
+      </div>
       <TokenAmount
         amount={tokenInAmount}
         max={
@@ -150,21 +144,27 @@ export default function SwapCard() {
           history.replace(`#${token.symbol}-${tokenOut.symbol}`);
           setTokenIn(token);
         }}
+        text="From"
         onChangeAmount={setTokenInAmount}
       />
-      <FaArrowsAltV
-        className="h-6 m-auto cursor-pointer"
+      <div
+        className="flex items-center justify-center"
         onClick={() => {
           setTokenIn(tokenOut);
           setTokenOut(tokenIn);
           setTokenInAmount(toPrecision(tokenOutAmount, 6));
         }}
-      />
+      >
+        <div className="inline-block mt-4 mb-4 cursor-pointer">
+          <ArrowDownBlack />
+        </div>
+      </div>
       <TokenAmount
         amount={toPrecision(tokenOutAmount, 6)}
         tokens={allTokens}
         selectedToken={tokenOut}
         balances={balances}
+        text="To"
         onSelectToken={(token) => {
           localStorage.setItem('REF_FI_SWAP_OUT', token.symbol);
           history.replace(`#${tokenIn.symbol}-${token.symbol}`);

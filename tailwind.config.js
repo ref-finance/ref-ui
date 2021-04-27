@@ -16,6 +16,7 @@ module.exports = {
         hoverGray: '#F3F4F6',
         buttonBg: '#10B981',
         buttonText: '#F9FAFB',
+        greenLight: '#00C08B',
       },
     },
     plugins: [],
@@ -25,6 +26,7 @@ module.exports = {
       opacity: ['disabled'],
       borderWidth: ['hover'],
       cursor: ['disabled'],
+      padding: ['last'],
     },
   },
 };
