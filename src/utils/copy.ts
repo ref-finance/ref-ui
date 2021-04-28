@@ -1,3 +1,5 @@
+import React from 'react';
+
 export default {
   slippageCopy:
     "Slippage is the difference between the estimated <br> and actual price you receive. The percentage you <br> select is the acceptable difference between the <br> current exchange rate and the exchange rate at <br> the time of your transaction's execution.",
@@ -14,13 +16,14 @@ export default {
   whitelistToken:
     'This allows you to add an ERC-20 token to the exchange that is not already listed.',
   addLiquidityPool:
-    'This creates a new liquidity pool for the two tokens selected. <br> The fee is the percentage the pool takes from each transaction.',
+    'This creates a new liquidity pool for the two tokens selected. The fee is the percentage the pool takes from each transaction.',
   addLiquidity:
     'This will deposit your tokens into the liquidity pool to <br> receive a portion of the returns this pool generates.',
   removeLiquidity:
     'This removes your liquidity shares from the pool and <br> transfers the tokens back into your exchange portfolio.',
-  swap:
-    'Swap exchanges the first selected token <br> with the value of the second selected token. <br> This looks for a pool with available liquidity <br> and the lowest exchange fee.',
+  swap: '',
   balances:
     'This page reflects the amount of tokens you have deposited in the exchange. <br> Use the from below to add or withdraw tokens using your NEAR Wallet.',
+  addToken:
+    'This allows you to add an ERC-20 token to the exchange that is not already listed.',
 };

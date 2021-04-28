@@ -23,6 +23,8 @@ body {
   margin: 0;
   background: linear-gradient(to bottom, #000 70%, #011b14 100%);
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#00c08b",endColorstr="#008375",GradientType=1);
+  scrollbar-width: thin;
+  scrollbar-color: darkgrey transparent;
 }
 
 main {
@@ -55,6 +57,20 @@ input[disabled] {
 }
 input[type='number'] {
   -moz-appearance: textfield; /* Firefox */
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  border-radius: 10px;
 }
 
 .gray {

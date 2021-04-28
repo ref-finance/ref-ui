@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { FaRegWindowClose, FaCheck } from 'react-icons/fa';
+import { FaCheck } from 'react-icons/fa';
+import { AiOutlineClose } from 'react-icons/ai';
 import { useSwap } from '../../state/swap';
 import SelectToken from '../../components/forms/SelectToken';
 import Icon from '../../components/tokens/Icon';
@@ -57,9 +58,9 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
   }
 
   return (
-    <div className="fixed flex items-center justify-center w-screen h-screen">
+    <div className="fixed flex items-center justify-center w-screen h-4/5">
       <div
-        className="fixed w-screen h-screen blur"
+        className="fixed w-screen  h-4/5 blur"
         style={{
           filter: 'blur(5px)',
           background: 'rgba(0, 0, 0, 0.75)',
@@ -70,70 +71,61 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
           {metadata.owner}
         </div>
         <div
-          className="p-6 rounded-2xl"
+          className="rounded-2xl"
           style={{
             backgroundColor: 'black',
           }}
         >
           <div className="mb-2 font-semibold text-white">
-            <span className="flex">
-              Frame #{metadata.frameId} will cost you {toReadableNumber(token?.decimals || 24, String(metadata.token_price))}{' '}
-              <Icon className="ml-2" token={token} />
-            </span>
-            <p className="my-2">
-              After you buy the frame it is protected for 1 hour before it can
-              be bought by other users.
-            </p>
-            <p className="my-2 flex items-center">
-              Please decide which token you will accept for your frame
-              <SelectToken
-                tokens={tokens}
-                selected={selectedToken && <Icon token={selectedToken} />}
-                onSelect={setSelectedToken}
-              />
-            </p>
-
-            <p>
-              And a price factor (between 0.9 and 1.1):
-              <input
-                type="range"
-                min="0.9"
-                max="1.1"
-                step="0.1"
-                list="steplist"
-                defaultValue={1.0}
-                onChange={(event) => setPriceFactor(+event.target.value)}
-              />
-            </p>
-            {minAmountOut ? (
-              <div className="flex mt-6">
-                <span className="mr-2">
-                  Giving you a sale price of {sellAmount}
-                </span>
-                <Icon token={selectedToken} />
+            <div className="float-right" style={{marginTop:'6px',marginRight:'2px'}}>
+              <button
+                onClick={close}
+                className="flex flex-row justify-center focus:outline-none"
+              >
+                <AiOutlineClose className="mr-2" />
+              </button>
+            </div>
+            <div className="p-8">
+              <span className="flex flex-col">
+                <div className="mb-4">Coordinate <span className="float-right">#{metadata.frameId.padStart(3, '0')}</span></div>
+                <div className="mb-4">
+                  Cost <span className="float-right">{toReadableNumber(token?.decimals || 24, String(metadata.token_price))}<span className="ml-2">{token.symbol}</span></span>
+                </div>
+                <div className="mb-4">
+                  Price Set {minAmountOut ? (<span className="mr-2">{sellAmount}</span>) : null}
+                  <div className="inline-block float-right" style={{marginTop: '-3px'}}>
+                    <SelectToken
+                      placeholder="Select token"
+                      tokens={tokens}
+                      selected={selectedToken && <Icon token={selectedToken} />}
+                      onSelect={setSelectedToken}
+                    />
+                  </div>
+                </div>
+              </span>
+              <p>
+                And a price factor (between 0.9 and 1.1):
+                <input
+                  type="range"
+                  min="0.9"
+                  max="1.1"
+                  step="0.1"
+                  list="steplist"
+                  defaultValue={1.0}
+                  onChange={(event) => setPriceFactor(+event.target.value)}
+                />
+              </p>
+              {error && <Alert level="error" message={error.message} />}
+              <div className="flex flex-row justify-around w-full mt-6">
+                <button
+                  onClick={() => buyFrame()}
+                  className="flex flex-row justify-center items-center text-green-600 bg-white h-auto py-2 font-semibold rounded-3xl focus:outline-none border-theme-light w-40"
+                >
+                  <FaCheck className="mr-2" />
+                  Launch
+                </button>
               </div>
-            ) : null}
-          </div>
-          <br></br>
-
-          {error && <Alert level="error" message={error.message} />}
-          <div className="flex flex-row justify-around w-full mt-12">
-            <button
-              onClick={close}
-              className="flex flex-row justify-center items-center h-auto py-2 font-semibold border border-solid rounded-md shadow-xl focus:outline-none border-theme-light w-28 text-theme-dark bg-theme-light"
-              style={{ backgroundColor: 'green' }}
-            >
-              <FaRegWindowClose className="mr-2" />
-              Cancel
-            </button>
-            <button
-              onClick={() => buyFrame('1')}
-              className="flex flex-row justify-center items-center h-auto py-2 font-semibold border border-solid rounded-md shadow-xl focus:outline-none border-theme-light w-28 text-theme-dark bg-theme-light"
-              style={{ backgroundColor: 'green' }}
-            >
-              <FaCheck className="mr-2" />
-              Buy
-            </button>
+            </div>
           </div>
         </div>
       </div>

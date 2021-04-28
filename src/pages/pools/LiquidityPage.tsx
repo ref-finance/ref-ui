@@ -51,7 +51,7 @@ export function LiquidityPage() {
       <div className="text-center pb-8">
         <div className="text-white text-3xl font-semibold">Liquidity Pools</div>
       </div>
-      <Card width="w-2/3">
+      <Card width="w-2/3 lg:w-1/2">
         <section>
           <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm font-bold">
             <p className="col-span-1">Pair</p>
@@ -59,9 +59,11 @@ export function LiquidityPage() {
             <p className="col-span-5">Total Shares</p>
             <p className="col-span-2">Fee</p>
           </header>
-          {pools.map((pool) => (
-            <PoolRow key={pool.id} pool={pool} />
-          ))}
+          <div className="max-h-80 overflow-y-auto">
+            {pools.map((pool) => (
+              <PoolRow key={pool.id} pool={pool} />
+            ))}
+          </div>
         </section>
         {hasMore && (
           <button

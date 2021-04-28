@@ -10,6 +10,7 @@ import Icon from '~components/tokens/Icon';
 import { ConnectToNearBtn } from '~components/deposit';
 import { wallet } from '~services/near';
 import { addSimpleLiquidityPool } from '~services/pool';
+import copy from '~utils/copy';
 
 export function AddPoolPage() {
   const tokens = useWhitelistTokens();
@@ -106,8 +107,7 @@ export function AddPoolPage() {
         </div>
       </Card>
       <div className="text-white text-xs pt-3 leading-4 w-1/4 text-center">
-        This creates a new liquidity pool for the two tokens selected. The fee
-        is the percentage the pool takes from each transaction.
+        {copy.addLiquidityPool}
       </div>
     </div>
   );

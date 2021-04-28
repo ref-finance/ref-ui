@@ -4,6 +4,7 @@ import { ConnectToNearBtn } from '~components/deposit';
 import { wallet } from '~services/near';
 import { registerTokenAndExchange } from '~services/token';
 import Alert from '~components/alert/Alert';
+import copy from '~utils/copy';
 
 export function AddTokenPage() {
   const [addr, setAddr] = useState('');
@@ -52,8 +53,7 @@ export function AddTokenPage() {
         </div>
       </Card>
       <div className="text-white text-xs pt-3 leading-4 w-1/4 text-center">
-        This allows you to add an ERC-20 token to the exchange that is not
-        already listed.
+        {copy.addToken}
       </div>
     </div>
   );

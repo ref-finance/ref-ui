@@ -51,7 +51,7 @@ export default function AdboardPage() {
   if (loading) return <Loading />;
 
   return (
-    <div>
+    <div className="flex items-center flex-col">
       {selectedFrameId && (
         <DrawboardModal
           framedata={framedata}
@@ -188,10 +188,7 @@ export default function AdboardPage() {
             ))}
           </div>
         </div>
-        <div className="clear-both"></div>
       </div>
     </div>
   );
 }
-
-// this component gets rendered by App after the form is submitted

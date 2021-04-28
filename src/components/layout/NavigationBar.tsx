@@ -111,7 +111,7 @@ function PoolsMenu() {
   const history = useHistory();
 
   const links = [
-    { label: 'Liquidity Pools', path: '/pools/liquidity' },
+    { label: 'Liquidity Pools', path: '/pools' },
     { label: 'Add Token', path: '/pools/add-token' },
     { label: 'Add Liquidity Pool', path: '/pools/add' },
   ];
