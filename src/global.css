@@ -69,10 +69,6 @@ input[type='number'] {
   color: #2d3231;
 }
 
-.h-screen {
-  position: relative;
-}
-
 .user .account-name {
   max-width: 150px;
 }
