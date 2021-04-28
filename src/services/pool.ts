@@ -5,14 +5,13 @@ import {
   refFiViewFunction,
   REF_FI_CONTRACT_ID,
   Transaction,
-  wallet
+  wallet,
 } from './near';
 import BN from 'bn.js';
 import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { toNonDivisibleNumber } from '../utils/numbers';
 import { storageDepositForFTAction } from './creators/storage';
-import get = Reflect.get;
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -42,27 +41,34 @@ const parsePool = (pool: PoolRPCView, id: number): Pool => ({
     {}
   ),
   fee: pool.total_fee,
-  shareSupply: pool.shares_total_supply
+  shareSupply: pool.shares_total_supply,
 });
 
-export const getPools = async (
-  page: number = 1,
-  perPage: number = DEFAULT_PAGE_LIMIT,
-  tokenName: string = '',
-  column: string = '',
-  order: string = 'desc',
-  uniquePairName: boolean = false
-): Promise<Pool[]> => {
+export const getPools = async ({
+  page = 1,
+  perPage = DEFAULT_PAGE_LIMIT,
+  tokenName = '',
+  column = '',
+  order = 'desc',
+  uniquePairName = false,
+}: {
+  page?: number;
+  perPage?: number;
+  tokenName?: string;
+  column?: string;
+  order?: string;
+  uniquePairName?: boolean;
+}): Promise<Pool[]> => {
   const rows = await db.queryPools({ page, perPage, tokenName, column, order, uniquePairName });
   return rows.map((row) => ({
     id: row.id,
     tokenIds: [row.token1Id, row.token2Id],
     supplies: {
       [row.token1Id]: row.token1Supply,
-      [row.token2Id]: row.token2Supply
+      [row.token2Id]: row.token2Supply,
     },
     fee: row.fee,
-    shareSupply: row.shares
+    shareSupply: row.shares,
   }));
 };
 
@@ -72,16 +78,15 @@ interface GetPoolOptions {
   amountIn: string;
 }
 
-export const getPoolsByTokens = async (
-  {
-    tokenInId,
-    tokenOutId,
-    amountIn
-  }: GetPoolOptions): Promise<Pool[]> => {
+export const getPoolsByTokens = async ({
+  tokenInId,
+  tokenOutId,
+  amountIn,
+}: GetPoolOptions): Promise<Pool[]> => {
   const amountToTrade = new BN(amountIn);
 
   // TODO: Check if there can be a better way. If not need to iterate through all pages to find pools
-  return (await getPools(1, 100)).filter(
+  return (await getPools({ page: 1, perPage: 100 })).filter(
     (p) =>
       new BN(p.supplies[tokenInId]).gte(amountToTrade) && p.supplies[tokenOutId]
   );
@@ -90,7 +95,7 @@ export const getPoolsByTokens = async (
 export const getPool = async (id: number): Promise<Pool> => {
   return refFiViewFunction({
     methodName: 'get_pool',
-    args: { pool_id: id }
+    args: { pool_id: id },
   }).then((pool) => parsePool(pool, id));
 };
 
@@ -105,8 +110,8 @@ export const getPoolDetails = async (id: number): Promise<PoolDetails> => {
     getPool(id),
     refFiViewFunction({
       methodName: 'get_pool_volumes',
-      args: { pool_id: id }
-    })
+      args: { pool_id: id },
+    }),
   ]);
 
   return {
@@ -114,7 +119,7 @@ export const getPoolDetails = async (id: number): Promise<PoolDetails> => {
     volumes: pool.tokenIds.reduce((acc: PoolVolumes, tokenId, i) => {
       acc[tokenId] = volumes[i];
       return acc;
-    }, {})
+    }, {}),
   };
 };
 
@@ -125,7 +130,7 @@ export const getPoolVolumes = async (id: number): Promise<PoolVolumes> => {
 export const getSharesInPool = (id: number): Promise<string> => {
   return refFiViewFunction({
     methodName: 'get_pool_shares',
-    args: { pool_id: id, account_id: wallet.getAccountId() }
+    args: { pool_id: id, account_id: wallet.getAccountId() },
   });
 };
 
@@ -134,11 +139,10 @@ interface AddLiquidityToPoolOptions {
   tokenAmounts: { token: TokenMetadata; amount: string }[];
 }
 
-export const addLiquidityToPool = async (
-  {
-    id,
-    tokenAmounts
-  }: AddLiquidityToPoolOptions) => {
+export const addLiquidityToPool = async ({
+   id,
+   tokenAmounts,
+ }: AddLiquidityToPoolOptions) => {
   const amounts = tokenAmounts.map(({ token, amount }) =>
     toNonDivisibleNumber(token.decimals, amount)
   );
@@ -146,7 +150,7 @@ export const addLiquidityToPool = async (
   return refFiFunctionCall({
     methodName: 'add_liquidity',
     args: { pool_id: id, amounts },
-    amount: ONE_YOCTO_NEAR
+    amount: ONE_YOCTO_NEAR,
   });
 };
 
@@ -155,13 +159,11 @@ interface RemoveLiquidityOptions {
   shares: string;
   minimumAmounts: { [tokenId: string]: string };
 }
-
-export const removeLiquidityFromPool = async (
-  {
-    id,
-    shares,
-    minimumAmounts
-  }: RemoveLiquidityOptions) => {
+export const removeLiquidityFromPool = async ({
+  id,
+  shares,
+  minimumAmounts,
+}: RemoveLiquidityOptions) => {
   const pool = await getPool(id);
 
   const amounts = pool.tokenIds.map((tokenId) => minimumAmounts[tokenId]);
@@ -171,9 +173,9 @@ export const removeLiquidityFromPool = async (
     args: {
       pool_id: id,
       shares,
-      min_amounts: amounts
+      min_amounts: amounts,
     },
-    amount: ONE_YOCTO_NEAR
+    amount: ONE_YOCTO_NEAR,
   });
 };
 
@@ -192,7 +194,7 @@ export const addSimpleLiquidityPool = async (
     }, [])
     .map((id) => ({
       receiverId: id,
-      functionCalls: [storageDepositForFTAction()]
+      functionCalls: [storageDepositForFTAction()],
     }));
 
   transactions.push({
@@ -201,9 +203,9 @@ export const addSimpleLiquidityPool = async (
       {
         methodName: 'add_simple_pool',
         args: { tokens: tokenIds, fee },
-        amount: '0.05'
-      }
-    ]
+        amount: '0.05',
+      },
+    ],
   });
 
   return executeMultipleTransactions(

@@ -9,6 +9,7 @@ import {
   PoolDetails,
   removeLiquidityFromPool,
 } from '../services/pool';
+import { debounce } from 'lodash';
 
 export const usePool = (id: number | string) => {
   const [pool, setPool] = useState<PoolDetails>();
@@ -22,33 +23,59 @@ export const usePool = (id: number | string) => {
   return { pool, shares };
 };
 
-export const usePools = () => {
+export const usePools = (props: {
+  tokenName?: string;
+  sortBy?: string;
+  order?: string;
+}) => {
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(false);
-  const [pools, setPools] = useState<Pool[]>();
+  const [pools, setPools] = useState<Pool[]>([]);
 
   const nextPage = () => setPage((page) => page + 1);
 
-  useEffect(() => {
-    getPools(page).then((pools) => {
+  function _loadPools(accumulate = true) {
+    getPools({
+      page,
+      tokenName: props.tokenName,
+      column: props.sortBy,
+      order: props.order,
+    }).then((pools) => {
       setHasMore(pools.length === DEFAULT_PAGE_LIMIT);
       setPools((currentPools) =>
-        pools.reduce<Pool[]>((acc: Pool[], pool) => {
-          if (
-            acc.some(
-              (p) =>
-                p.fee === pool.fee &&
-                p.tokenIds.includes(pool.tokenIds[0]) &&
-                p.tokenIds.includes(pool.tokenIds[1]) &&
-                p.shareSupply === pool.shareSupply
+        pools.reduce<Pool[]>(
+          (acc: Pool[], pool) => {
+            if (
+              acc.some(
+                (p) =>
+                  p.fee === pool.fee &&
+                  p.tokenIds.includes(pool.tokenIds[0]) &&
+                  p.tokenIds.includes(pool.tokenIds[1]) &&
+                  p.shareSupply === pool.shareSupply
+              )
             )
-          )
+              return acc;
+            acc.push(pool);
             return acc;
-          acc.push(pool);
-          return acc;
-        }, currentPools || [])
+          },
+          accumulate ? currentPools.slice() : []
+        )
       );
     });
+  }
+
+  const loadPools = debounce(_loadPools, 500);
+
+  useEffect(() => {
+    loadPools(false);
+  }, [props.tokenName]);
+
+  useEffect(() => {
+    loadPools(false);
+  }, [props.sortBy, props.order]);
+
+  useEffect(() => {
+    loadPools();
   }, [page]);
 
   return {
