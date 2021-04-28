@@ -65,12 +65,14 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
           background: 'rgba(0, 0, 0, 0.75)',
         }}
       ></div>
-      <div className="fixed flex w-1/2 flex-row rounded-md shadow-xl bg-theme-normal">
+      <div className="fixed flex flex-col rounded-md shadow-xl bg-theme-normal">
+        <div className="p-2 mx-8 rounded-xl rounded-b-none text-center bg-green-500 text-black font-semibold">
+          {metadata.owner}
+        </div>
         <div
-          className="p-6"
+          className="p-6 rounded-2xl"
           style={{
             backgroundColor: 'black',
-            borderRadius: '6px',
           }}
         >
           <div className="mb-2 font-semibold text-white">

@@ -17,9 +17,14 @@ export const useAdboardState = () => {
     (metadata) => metadata.owner === wallet.getAccountId()
   );
 
+  const isOwnFrame = (owner: string) => {
+    return owner === wallet.getAccountId()
+  }
+
   return {
     ...adboardState,
     loading,
     ownedFrames,
+    isOwnFrame
   };
 };
