@@ -100,7 +100,7 @@ export function TokenList(props: {
         })}
         {tokens.length === 0 ? (
             <div className="text-center text-gray-600 text-xs font-semibold pt-2 pb-2">
-              No tokens deposit
+              No tokens deposited
             </div>
         ) : null}
       </div>

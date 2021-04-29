@@ -64,7 +64,7 @@ export default function DepositPage() {
       <div className="text-center pb-5">
         <div className="text-white text-3xl font-semibold">Deposit</div>
         <div className="text-white text-xs pt-2">
-          Use this to deposit tokens
+          Deposit tokens to swap and pool
         </div>
       </div>
       <Card>

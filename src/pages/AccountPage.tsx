@@ -14,7 +14,6 @@ export function AccountPage() {
       <div className="text-center pb-5">
         <div className="text-white text-3xl font-semibold">Account Balance</div>
         <div className="text-white text-xs pt-2">
-          Use this to deposit tokens
         </div>
       </div>
       <Balances tokens={userTokens} balances={balances} />

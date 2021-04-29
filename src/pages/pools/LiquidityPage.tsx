@@ -59,7 +59,7 @@ export function LiquidityPage() {
           <div className="rounded-lg w-1/5 border my-2">
             <input
               className={`text-sm font-bold bg-inputBg focus:outline-none rounded-lg w-full py-2 px-3 text-greenLight`}
-              placeholder="Search pool list..."
+              placeholder="Search pools..."
               value={tokenName}
               onChange={(evt) => setTokenName(evt.target.value)}
             />

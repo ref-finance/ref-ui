@@ -81,7 +81,7 @@ function AccountEntry() {
             <div className="text-base">Balance</div>
             <div
               className="cursor-pointer rounded-full border border-greenLight px-2 py-1"
-              onClick={() => history.push('/account')}
+              onClick={() => history.push('/deposit')}
             >
               View account
             </div>
@@ -111,9 +111,9 @@ function PoolsMenu() {
   const history = useHistory();
 
   const links = [
-    { label: 'Liquidity Pools', path: '/pools' },
+    { label: 'View Pools', path: '/pools' },
     { label: 'Add Token', path: '/pools/add-token' },
-    { label: 'Add Liquidity Pool', path: '/pools/add' },
+    { label: 'Create New Pool', path: '/pools/add' },
   ];
 
   return (

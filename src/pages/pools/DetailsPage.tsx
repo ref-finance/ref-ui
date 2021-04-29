@@ -123,7 +123,7 @@ function AddLiquidityModal(
       <div></div>
       <Card style={{ width: '30vw' }}>
         <div className="text-sm text-gray-800 font-semibold pb-4">
-          Remove Liquidity
+          Add Liquidity
         </div>
         <div className="flex justify-center">
           {error && <Alert level="error" message={error.message} />}

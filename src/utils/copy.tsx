@@ -24,12 +24,12 @@ export default {
   swap: (
     <>
       <div>
-        Swap exchanges the first selected token with the value of the second
+        Swap exchanges the first selected token with the second
         selected token.
       </div>
       <div>
-        This looks for a pool with available liquidity and the lowest exchange
-        fee.
+        The pools with the highest available liquidity and the lowest exchange
+        fee will be used.
       </div>
     </>
   ),

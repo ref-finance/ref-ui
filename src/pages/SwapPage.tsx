@@ -14,7 +14,7 @@ function SwapPage() {
         Swap
       </div>
       <div className="describe text-center text-xs pb-5 text-white">
-        Use this to deposit tokens
+        Exchange tokens
       </div>
       <section className="w-1/4 m-auto">
         <SwapCard allTokens={allTokens} />

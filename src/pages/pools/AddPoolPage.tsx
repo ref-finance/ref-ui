@@ -49,7 +49,7 @@ export function AddPoolPage() {
     <div className="flex items-center flex-col">
       <div className="text-center pb-8">
         <div className="text-white text-3xl font-semibold">
-          Add Liquidity Pool
+          Create New Pool
         </div>
       </div>
       <Card width="w-1/3">
