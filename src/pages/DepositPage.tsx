@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import {
   useTokenBalances,
   useUserRegisteredTokens,
@@ -15,9 +16,13 @@ import { deposit } from '../services/token';
 import { wallet } from '~services/near';
 import { Balances, ConnectToNearBtn } from '../components/deposit';
 
-function DepositBtn(props: { amount?: string; token?: TokenMetadata }) {
-  const { amount, token } = props;
-  const canSubmit = !!amount && !!token;
+function DepositBtn(props: {
+  amount?: string;
+  token?: TokenMetadata;
+  balance?: string;
+}) {
+  const { amount, token, balance } = props;
+  const canSubmit = balance !== '0' && !!amount && !!token;
 
   return (
     <div className="flex items-center justify-center pt-2">
@@ -42,17 +47,25 @@ function DepositBtn(props: { amount?: string; token?: TokenMetadata }) {
 }
 
 export default function DepositPage() {
+  const { id } = useParams<{ id: string }>();
   const [amount, setAmount] = useState<string>('');
   const balances = useTokenBalances();
 
   const registeredTokens = useUserRegisteredTokens();
+  const tokens = useWhitelistTokens();
+
   const [selectedToken, setSelectedToken] = useState<TokenMetadata>(
-    nearMetadata
+    id && tokens ? tokens.find((tok) => tok.id === id) : nearMetadata
   );
 
-  const tokens = useWhitelistTokens();
   const userTokens = useUserRegisteredTokens();
   const depositable = useDepositableBalance(selectedToken?.id);
+
+  useEffect(() => {
+    if (id && tokens) {
+      setSelectedToken(tokens.find((tok) => tok.id === id));
+    }
+  }, [id, tokens]);
 
   if (!tokens || !userTokens) return <Loading />;
   if (!registeredTokens || !balances) return <Loading />;
@@ -77,7 +90,7 @@ export default function DepositPage() {
           onChangeAmount={setAmount}
         />
         {wallet.isSignedIn() ? (
-          <DepositBtn amount={amount} token={selectedToken} />
+          <DepositBtn balance={max} amount={amount} token={selectedToken} />
         ) : (
           <ConnectToNearBtn />
         )}
