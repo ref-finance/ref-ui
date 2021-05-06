@@ -62,13 +62,17 @@ function AccountEntry() {
         setHover(false);
       }}
     >
-      <div className="inline-flex p-1 items-center justify-center rounded-full bg-gray-700 pl-3 pr-3 absolute top-5 right-10">
+      <div className="inline-flex py-2 px-6 items-center justify-center rounded-full bg-gray-700 absolute top-5 right-10">
         <div className="pr-1">
           <Near />
         </div>
         <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name text-white">
-          {account.length > 10 ? niceAccountId : wallet.getAccountId()}
-          {wallet.isSignedIn() ? accountName : 'Connect to NEAR'}
+          {wallet.isSignedIn() ? accountName : <button
+            onClick={() => wallet.requestSignIn()}
+            type="button"
+          >
+            <span className="ml-2 text-xs">Connect to NEAR</span>
+          </button>}
         </div>
       </div>
       <div
