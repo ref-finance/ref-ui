@@ -1,9 +1,9 @@
-import React, {useEffect, useState} from 'react';
-import {useLocation, useHistory} from 'react-router-dom';
-import {TokenMetadata} from '../../services/ft-contract';
-import {Pool} from '../../services/pool';
-import {useTokenBalances} from '../../state/token';
-import {useSwap} from '../../state/swap';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useHistory } from 'react-router-dom';
+import { TokenMetadata } from '../../services/ft-contract';
+import { Pool } from '../../services/pool';
+import { useTokenBalances } from '../../state/token';
+import { useSwap } from '../../state/swap';
 import {
   calculateExchangeRate,
   calculateFeeCharge,
@@ -11,15 +11,14 @@ import {
   toPrecision,
   toReadableNumber,
 } from '../../utils/numbers';
-import Loading from '../layout/Loading';
 import FormWrap from '../forms/FormWrap';
 import TokenAmount from '../forms/TokenAmount';
 import Alert from '../alert/Alert';
 import SlippageSelector from '../forms/SlippageSelector';
 import copy from '../../utils/copy';
-import {ArrowDownBlack} from '../icon/Arrows';
+import { ArrowDownBlack } from '../icon/Arrows';
 
-function SwapDetail({title, value}: { title: string; value: string }) {
+function SwapDetail({ title, value }: { title: string; value: string }) {
   return (
     <section className="grid grid-cols-2 py-1">
       <p className="opacity-80">{title}</p>
@@ -69,7 +68,7 @@ function DetailView({
 }
 
 export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
-  const {allTokens} = props;
+  const { allTokens } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenInAmount, setTokenInAmount] = useState<string>('');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
@@ -116,16 +115,34 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     makeSwap();
   };
 
+  const tokenInMax =
+    toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0';
+
   return (
-    <FormWrap canSubmit={canSwap} onSubmit={handleSubmit} info={copy.swap}>
+    <FormWrap
+      canSubmit={canSwap}
+      showElseView={tokenInMax === '0'}
+      elseView={
+        <div className="flex justify-center">
+          <button
+            className={`rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight`}
+            onClick={() => {
+              history.push(`/deposit/${tokenIn.id}`);
+            }}
+          >
+            Deposit to Stake
+          </button>
+        </div>
+      }
+      onSubmit={handleSubmit}
+      info={copy.swap}
+    >
       <div className="pb-2">
-        {swapError && <Alert level="error" message={swapError.message}/>}
+        {swapError && <Alert level="error" message={swapError.message} />}
       </div>
       <TokenAmount
         amount={tokenInAmount}
-        max={
-          toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0'
-        }
+        max={tokenInMax}
         tokens={allTokens}
         selectedToken={tokenIn}
         balances={balances}
@@ -146,7 +163,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         }}
       >
         <div className="inline-block mt-4 mb-4 cursor-pointer">
-          <ArrowDownBlack/>
+          <ArrowDownBlack />
         </div>
       </div>
       <TokenAmount

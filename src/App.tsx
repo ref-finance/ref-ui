@@ -48,7 +48,7 @@ function App() {
         <NavigationBar />
         <div className="flex flex-col justify-center h-4/5 ">
           <Switch>
-            <Route path="/deposit" component={DepositPage} />
+            <Route path="/deposit/:id?" component={DepositPage} />
             <Route path="/account" component={AccountPage} />
             <Route path="/whitelist/:tokenId" component={WhitelistTokenPage} />
             <Route path="/pool/:id" component={PoolDetailsPage} />

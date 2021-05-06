@@ -24,8 +24,7 @@ export default {
   swap: (
     <>
       <div>
-        Swap exchanges the first selected token with the second
-        selected token.
+        Swap exchanges the first selected token with the second selected token.
       </div>
       <div>
         The pools with the highest available liquidity and the lowest exchange
@@ -37,4 +36,6 @@ export default {
     'This page reflects the amount of tokens you have deposited in the exchange. <br> Use the from below to add or withdraw tokens using your NEAR Wallet.',
   addToken:
     'This allows you to add an ERC-20 token to the exchange that is not already listed.',
+  poolFee:
+    'The fee liquidity providers will earn on each trade. <br> If the fee is 0.3%, a trade of $100 nUSDT to nDAI <br> will incur a fee of $0.3 nDAI. This nDAI is distributed <br> proportionally to liquidity providers of the nUSDT - <br> nDAI pool',
 };

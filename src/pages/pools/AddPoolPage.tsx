@@ -11,6 +11,8 @@ import { ConnectToNearBtn } from '~components/deposit';
 import { wallet } from '~services/near';
 import { addSimpleLiquidityPool } from '~services/pool';
 import copy from '~utils/copy';
+import { FaRegQuestionCircle } from 'react-icons/fa';
+import ReactTooltip from 'react-tooltip';
 
 export function AddPoolPage() {
   const tokens = useWhitelistTokens();
@@ -48,9 +50,7 @@ export function AddPoolPage() {
   return (
     <div className="flex items-center flex-col">
       <div className="text-center pb-8">
-        <div className="text-white text-3xl font-semibold">
-          Create New Pool
-        </div>
+        <div className="text-white text-3xl font-semibold">Create New Pool</div>
       </div>
       <Card width="w-1/3">
         <div className="text-xs font-semibold">Token</div>
@@ -71,7 +71,17 @@ export function AddPoolPage() {
           selected={token2 && <Selected token={token2} />}
           onSelect={setToken2}
         />
-        <div className="text-xs font-semibold pt-2">Fee (Basis points)</div>
+        <div className="text-xs font-semibold pt-2 flex items-center justify-start">
+          <span className="pr-1">Fee (Basis points) </span>
+          <FaRegQuestionCircle
+            data-type="dark"
+            data-place="bottom"
+            data-multiline={true}
+            data-tip={copy.poolFee}
+            className="text-xs font-semibold text-secondaryScale-500"
+          />
+          <ReactTooltip className="text-xs font-light" />
+        </div>
         <div className="rounded-lg w-full border my-2">
           <input
             step="any"

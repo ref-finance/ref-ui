@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { matchPath } from 'react-router';
 import {
   Logo,
   Near,
@@ -15,15 +16,21 @@ import { useTokenBalances, useUserRegisteredTokens } from '../../state/token';
 
 function Anchor({
   to,
+  pattern,
   name,
   className,
 }: {
   to: string;
+  pattern: string;
   name: string;
   className?: string;
 }) {
   const location = useLocation();
-  const isSelected = to === location.pathname;
+  const isSelected = matchPath(location.pathname, {
+    path: pattern,
+    exact: true,
+    strict: false,
+  });
 
   return (
     <Link to={to}>
@@ -62,7 +69,7 @@ function AccountEntry() {
         setHover(false);
       }}
     >
-      <div className="inline-flex py-2 px-6 items-center justify-center rounded-full bg-gray-700 absolute top-5 right-10">
+      <div className="inline-flex p-1 items-center justify-center rounded-full bg-gray-700 pl-3 pr-3 absolute top-5 right-10">
         <div className="pr-1">
           <Near />
         </div>
@@ -110,7 +117,7 @@ function AccountEntry() {
 
 function PoolsMenu() {
   const location = useLocation();
-  const isSelected = location.pathname.startsWith('/pools/');
+  const isSelected = location.pathname.startsWith('/pools');
   const [hover, setHover] = useState(false);
   const history = useHistory();
 
@@ -166,10 +173,10 @@ function NavigationBar() {
         <div className="relative -top-0.5">
           <Logo />
         </div>
-        <Anchor to="/deposit" name="Deposit" />
-        <Anchor to="/" name="Swap" />
+        <Anchor to="/deposit" pattern="/deposit/:id?" name="Deposit" />
+        <Anchor to="/" pattern="/" name="Swap" />
         <PoolsMenu />
-        <Anchor to="/adboard" name="Adboard" />
+        <Anchor to="/adboard" pattern="/adboard" name="Adboard" />
       </nav>
       <div className="user col-span-8 items-center text-xs text-center justify-end pl-5 h-full w-96 absolute right-0">
         <BgShapeTopRight />

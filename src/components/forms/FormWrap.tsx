@@ -7,7 +7,9 @@ interface FormWrapProps {
   buttonText?: string;
   canSubmit?: boolean;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-  info?: string;
+  info?: string | JSX.Element;
+  showElseView?: boolean;
+  elseView?: JSX.Element;
 }
 
 export default function FormWrap({
@@ -17,6 +19,8 @@ export default function FormWrap({
   canSubmit = true,
   onSubmit,
   info,
+  showElseView,
+  elseView,
 }: React.PropsWithChildren<FormWrapProps>) {
   const [error, setError] = useState<Error>();
 
@@ -32,24 +36,28 @@ export default function FormWrap({
   };
 
   return (
-      <form
-          className="overflow-y-auto bg-secondary shadow-2xl rounded-xl p-7"
-          onSubmit={handleSubmit}
-      >
-        {title && (
-            <>
-              <h2 className="formTitle font-bold text-xl text-gray-700 text-center pb-2">
-                {title}
-              </h2>
-            </>
-        )}
-        {error && <Alert level="error" message={error.message} />}
-        {children}
+    <form
+      className="overflow-y-auto bg-secondary shadow-2xl rounded-xl p-7"
+      onSubmit={handleSubmit}
+    >
+      {title && (
+        <>
+          <h2 className="formTitle font-bold text-xl text-gray-700 text-center pb-2">
+            {title}
+          </h2>
+        </>
+      )}
+      {error && <Alert level="error" message={error.message} />}
+      {children}
+      {showElseView && elseView ? (
+        elseView
+      ) : (
         <SubmitButton
-            disabled={!canSubmit}
-            text={buttonText || title}
-            info={info}
+          disabled={!canSubmit}
+          text={buttonText || title}
+          info={info}
         />
-      </form>
+      )}
+    </form>
   );
 }

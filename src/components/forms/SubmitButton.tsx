@@ -5,7 +5,7 @@ interface SubmitButtonProps {
   text: string;
   disabled?: boolean;
   onClick?: (event: React.MouseEvent) => void;
-  info?: string;
+  info?: string | JSX.Element;
 }
 
 function SubmitButton({ disabled, onClick }: SubmitButtonProps) {
@@ -17,7 +17,7 @@ function SubmitButton({ disabled, onClick }: SubmitButtonProps) {
           disabled={disabled}
           onClick={onClick}
           className={`flex flex-row justify-center px-3 py-1.5 mt-6 items-center rounded-full bg-greenLight text-buttonText focus:outline-none disabled:cursor-not-allowed mx-auto ${
-              disabled ? 'bg-opacity-50' : ''
+            disabled ? 'bg-opacity-50' : ''
           }`}
         >
           <h1 className="text-xs font-inter font-semibold">Swap</h1>

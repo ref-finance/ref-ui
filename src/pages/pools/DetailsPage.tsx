@@ -1,22 +1,20 @@
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import Modal from 'react-modal';
 import { Card } from '~components/card';
 import { usePool, useRemoveLiquidity } from '../../state/pool';
-import { addLiquidityToPool, Pool, PoolDetails } from '~services/pool';
+import { addLiquidityToPool, Pool } from '~services/pool';
 import { useTokenBalances, useTokens } from '../../state/token';
 import Loading from '~components/layout/Loading';
 import {
   calculateFairShare,
   calculateFeePercent,
   percent,
-  sumBN,
   toNonDivisibleNumber,
   toPrecision,
   toReadableNumber,
   toRoundedReadableNumber,
 } from '../../utils/numbers';
-import { WithdrawModal } from '~components/deposit';
 import TokenAmount from '~components/forms/TokenAmount';
 import { TokenMetadata } from '~services/ft-contract';
 import Alert from '~components/alert/Alert';
@@ -264,9 +262,9 @@ function RemoveLiquidityModal(
 }
 
 function MyShares({
-  shares,
-  totalShares,
-}: {
+                    shares,
+                    totalShares,
+                  }: {
   shares: string;
   totalShares: string;
 }) {
