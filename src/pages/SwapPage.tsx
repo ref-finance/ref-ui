@@ -18,7 +18,7 @@ function SwapPage() {
       </div>
       <section className="w-1/4 m-auto">
         <SwapCard allTokens={allTokens} />
-        <div className="text-center text-white text-xs leading-4 mt-2 whitespace-nowrap transform scale-95 origin-center">
+        <div className="text-center text-white text-xs leading-4 mt-2 w-full m-auto">
           {copy.swap}
         </div>
       </section>
