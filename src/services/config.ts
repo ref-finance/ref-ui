@@ -22,7 +22,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         helperUrl: 'https://helper.testnet.near.org',
         explorerUrl: 'https://explorer.testnet.near.org',
         REF_FI_CONTRACT_ID:
-          process.env.REF_FI_CONTRACT_ID || 'ref-finance.testnet',
+          process.env.REF_FI_CONTRACT_ID || 'ref_finance_01.testnet',
         WRAP_NEAR_CONTRACT_ID:
           process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.testnet',
       };

@@ -9,7 +9,7 @@ import Loading from '../components/layout/Loading';
 import { Card } from '../components/card';
 import { toReadableNumber } from '../utils/numbers';
 import { TokenMetadata } from '../services/ft-contract';
-import { nearMetadata } from '../services/wrap-near';
+import { nearMetadata, wrapNear } from '../services/wrap-near';
 import { useDepositableBalance } from '../state/token';
 import TokenAmount from '../components/forms/TokenAmount';
 import { deposit } from '../services/token';
@@ -33,6 +33,9 @@ function DepositBtn(props: {
         }`}
         onClick={() => {
           if (canSubmit) {
+            if (token.id === nearMetadata.id) {
+              return wrapNear(amount);
+            }
             deposit({
               token,
               amount,
@@ -53,7 +56,6 @@ export default function DepositPage() {
 
   const registeredTokens = useUserRegisteredTokens();
   const tokens = useWhitelistTokens();
-
   const [selectedToken, setSelectedToken] = useState<TokenMetadata>(
     id && tokens ? tokens.find((tok) => tok.id === id) : nearMetadata
   );

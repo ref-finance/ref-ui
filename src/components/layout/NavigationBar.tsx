@@ -57,7 +57,6 @@ function AccountEntry() {
 
   const accountName =
     account.length > 10 ? niceAccountId : wallet.getAccountId();
-  console.log(wallet)
   if (!userTokens || !balances) return null;
 
   return (
