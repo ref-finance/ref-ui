@@ -13,6 +13,7 @@ import { useHistory } from 'react-router';
 import { Card } from '~components/card';
 import { TokenList } from '~components/deposit';
 import { useTokenBalances, useUserRegisteredTokens } from '../../state/token';
+import { REF_FI_CONTRACT_ID } from  '../../services/near'
 
 function Anchor({
   to,
@@ -56,7 +57,7 @@ function AccountEntry() {
 
   const accountName =
     account.length > 10 ? niceAccountId : wallet.getAccountId();
-
+  console.log(wallet)
   if (!userTokens || !balances) return null;
 
   return (
@@ -75,7 +76,7 @@ function AccountEntry() {
         </div>
         <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name text-white">
           {wallet.isSignedIn() ? accountName : <button
-            onClick={() => wallet.requestSignIn()}
+            onClick={() => wallet.requestSignIn(REF_FI_CONTRACT_ID)}
             type="button"
           >
             <span className="ml-2 text-xs">Connect to NEAR</span>

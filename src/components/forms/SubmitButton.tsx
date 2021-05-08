@@ -1,6 +1,6 @@
 import React from 'react';
 import { Near } from '../icon';
-import { wallet } from '../../services/near';
+import { REF_FI_CONTRACT_ID, wallet } from '../../services/near';
 interface SubmitButtonProps {
   text: string;
   disabled?: boolean;
@@ -24,7 +24,7 @@ function SubmitButton({ disabled, onClick }: SubmitButtonProps) {
         </button>
       ) : (
         <button
-          onClick={() => wallet.requestSignIn()}
+          onClick={() => wallet.requestSignIn(REF_FI_CONTRACT_ID)}
           type="button"
           className="flex bg-black font-semibold px-3 py-1.5 text-white p-2 mt-6 items-center rounded-full focus:outline-none mx-auto"
         >

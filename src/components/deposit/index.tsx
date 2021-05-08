@@ -10,7 +10,7 @@ import { toReadableNumber } from '../../utils/numbers';
 import { Card } from '../card';
 import TokenAmount from '../forms/TokenAmount';
 import { TokenBalancesView, withdraw } from '../../services/token';
-import { wallet } from '~services/near';
+import { REF_FI_CONTRACT_ID, wallet } from '~services/near';
 import { Near } from '~components/icon';
 
 export function WithdrawModal(props: ReactModal.Props) {
@@ -145,7 +145,7 @@ export function ConnectToNearBtn() {
   return (
     <div
       className="flex items-center justify-center pt-2"
-      onClick={() => wallet.requestSignIn()}
+      onClick={() => wallet.requestSignIn(REF_FI_CONTRACT_ID)}
     >
       <div className="inline-flex cursor-pointer font-bold items-center text-center rounded-full bg-gray-800 px-3.5 py-1">
         <div className="pr-1">
