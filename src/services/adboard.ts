@@ -18,7 +18,7 @@ export interface AdboardState {
 }
 
 export const getAdboardState = async (): Promise<AdboardState> => {
-  const resp = await axios.get("http://near-pixelparty.co/api/getAdboard");
+  const resp = await axios.get("https://near-pixelparty.co/api/getAdboard");
   return { framedata: resp.data.framedata, metadata: resp.data.metadata };
 };
 
