@@ -7,6 +7,8 @@ import SpecialWallet from './SpecialWallet';
 const config = getConfig();
 export const REF_FI_CONTRACT_ID = config.REF_FI_CONTRACT_ID;
 
+export const REF_ADBOARD_CONTRACT_ID = config.REF_ADBOARD_CONTRACT_ID;
+
 export const ONE_YOCTO_NEAR = '0.000000000000000000000001';
 
 export const near = new Near({
