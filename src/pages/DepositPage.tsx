@@ -43,7 +43,7 @@ function DepositBtn(props: {
           }
         }}
       >
-        Deposit to Stake
+        Deposit
       </button>
     </div>
   );

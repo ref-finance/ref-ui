@@ -130,7 +130,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
               history.push(`/deposit/${tokenIn.id}`);
             }}
           >
-            Deposit to Stake
+            Deposit to Swap
           </button>
         </div>
       }
