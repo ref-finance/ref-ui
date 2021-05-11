@@ -13,12 +13,12 @@ function SwapPage() {
       <div className="title text-center text-3xl pb-3 text-white font-semibold">
         Swap
       </div>
-      <div className="describe text-center text-xs pb-5 text-white">
+      <div className="describe text-center text-sm pb-5 text-white">
         Exchange tokens
       </div>
-      <section className="w-1/4 m-auto">
+      <section className="w-1/3 m-auto">
         <SwapCard allTokens={allTokens} />
-        <div className="text-center text-white text-xs leading-4 mt-2 w-full m-auto">
+        <div className="text-center text-white text-sm leading-6 mt-2 w-full m-auto">
           {copy.swap}
         </div>
       </section>

@@ -30,7 +30,7 @@ function SubmitButton({ disabled, onClick }: SubmitButtonProps) {
         >
           {' '}
           <Near />
-          <span className="ml-2 text-xs">Connect to NEAR</span>
+          <span className="ml-2 text-sm">Connect to NEAR</span>
         </button>
       )}
     </>

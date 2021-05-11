@@ -116,7 +116,7 @@ export function AddPoolPage() {
           )}
         </div>
       </Card>
-      <div className="text-white text-xs pt-3 leading-4 w-1/4 text-center">
+      <div className="text-white text-sm pt-3 leading-6 w-1/3 text-center">
         {copy.addLiquidityPool}
       </div>
     </div>

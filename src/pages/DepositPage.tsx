@@ -28,7 +28,7 @@ function DepositBtn(props: {
     <div className="flex items-center justify-center pt-2">
       <button
         disabled={!canSubmit}
-        className={`rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight ${
+        className={`rounded-full text-sm text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight ${
           canSubmit ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
         }`}
         onClick={() => {
@@ -78,7 +78,7 @@ export default function DepositPage() {
     <div className="flex items-center flex-col">
       <div className="text-center pb-5">
         <div className="text-white text-3xl font-semibold">Deposit</div>
-        <div className="text-white text-xs pt-2">
+        <div className="text-white text-sm pt-2">
           Deposit tokens to swap and pool
         </div>
       </div>
@@ -97,7 +97,7 @@ export default function DepositPage() {
           <ConnectToNearBtn />
         )}
       </Card>
-      <div className="text-white text-xs pt-3">
+      <div className="text-white text-sm pt-3">
         Small storage fee is applied of{' '}
         <span className="font-bold">0.00084</span> Ⓝ
       </div>

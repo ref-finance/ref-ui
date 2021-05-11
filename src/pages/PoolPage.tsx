@@ -383,7 +383,7 @@ export default function PoolPage() {
         <div className="flex justify-center">
           <MicroModal trigger={(open) => (
             <button onClick={open}
-                    className="flex flex-row justify-center p-2 px-4 mt-5 mb-5 items-center rounded-2xl bg-primaryScale-600 border-2 text-buttonText hover:bg-buttonText hover:text-buttonBg hover:border-buttonBg hover:border-2 transition-colors shadow-lg transition-colors focus:outline-none disabled:cursor-not-allowed mr-2.5 text-xs">Add
+                    className="flex flex-row justify-center p-2 px-4 mt-5 mb-5 items-center rounded-2xl bg-primaryScale-600 border-2 text-buttonText hover:bg-buttonText hover:text-buttonBg hover:border-buttonBg hover:border-2 transition-colors shadow-lg transition-colors focus:outline-none disabled:cursor-not-allowed mr-2.5 text-sm">Add
               Liquidity</button>
           )} overrides={{
             Dialog: {style: {padding: 0}},
@@ -394,7 +394,7 @@ export default function PoolPage() {
           </MicroModal>
           <MicroModal trigger={(open) => (
             <button onClick={open}
-                    className="flex flex-row justify-center p-2 px-4 mt-5 mb-5 items-center rounded-2xl bg-primaryScale-600 bg-opacity-50 border-2 text-buttonText hover:bg-buttonText hover:text-buttonBg hover:border-buttonBg hover:border-2 transition-colors shadow-lg transition-colors focus:outline-none disabled:cursor-not-allowed mr-2.5 text-xs">Remove
+                    className="flex flex-row justify-center p-2 px-4 mt-5 mb-5 items-center rounded-2xl bg-primaryScale-600 bg-opacity-50 border-2 text-buttonText hover:bg-buttonText hover:text-buttonBg hover:border-buttonBg hover:border-2 transition-colors shadow-lg transition-colors focus:outline-none disabled:cursor-not-allowed mr-2.5 text-sm">Remove
               Liquidity</button>
           )} overrides={{
             Dialog: {style: {padding: 0}},

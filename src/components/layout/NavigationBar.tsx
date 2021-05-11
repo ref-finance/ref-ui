@@ -36,7 +36,7 @@ function Anchor({
   return (
     <Link to={to}>
       <h2
-        className={`link hover:text-green-500 text-sm font-bold p-2 cursor-pointer ${className} ${
+        className={`link hover:text-green-500 text-lg font-bold p-2 cursor-pointer ${className} ${
           isSelected ? 'text-green-500' : 'text-white'
         }`}
       >
@@ -78,7 +78,7 @@ function AccountEntry() {
             onClick={() => wallet.requestSignIn(REF_FI_CONTRACT_ID)}
             type="button"
           >
-            <span className="ml-2 text-xs">Connect to NEAR</span>
+            <span className="ml-2 text-sm">Connect to NEAR</span>
           </button>}
         </div>
       </div>
@@ -135,7 +135,7 @@ function PoolsMenu() {
     >
       <div className="flex items-center justify-center">
         <h2
-          className={`link hover:text-green-500 text-sm font-bold p-2 cursor-pointer ${
+          className={`link hover:text-green-500 text-lg font-bold p-2 cursor-pointer ${
             isSelected || hover ? 'text-green-500' : 'text-white'
           }`}
         >
@@ -151,7 +151,7 @@ function PoolsMenu() {
             return (
               <div
                 key={link.path}
-                className={`whitespace-nowrap text-left text-xs font-semibold text-gray-600 cursor-pointer pb-2 last:pb-0 hover:text-greenLight ${
+                className={`whitespace-nowrap text-left text-sm font-semibold text-gray-600 cursor-pointer pb-2 last:pb-0 hover:text-greenLight ${
                   isSelected ? 'text-green-500' : 'text-white'
                 }`}
                 onClick={() => history.push(link.path)}
