@@ -36,8 +36,9 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
 
   if (!token) return null;
 
-  async function callBuyEvent() {
+  function callBuyEvent() {
     if (selectedToken === undefined) throw new Error('Please select token')
+    if (!pool) throw new Error('No pool support, please create pool for these two tokens')
 
     buyFrameCall({
       frameId: metadata.frameId,
