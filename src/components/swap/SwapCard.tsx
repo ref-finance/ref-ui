@@ -117,6 +117,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   const tokenInMax =
     toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0';
+  const tokenOutMax =
+    toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
 
   return (
     <FormWrap
@@ -168,6 +170,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       </div>
       <TokenAmount
         amount={toPrecision(tokenOutAmount, 6)}
+        max={tokenOutMax}
         tokens={allTokens}
         selectedToken={tokenOut}
         balances={balances}
