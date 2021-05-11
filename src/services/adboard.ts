@@ -43,20 +43,22 @@ export const buyFrameCall = (
     amount,
     receiverId,
     sellTokenId,
-    sellPrice
+    sellPrice,
+    poolId
   }: {
     frameId: string
     tokenId: string,
     amount: string,
     receiverId: string,
     sellTokenId: string,
-    sellPrice: string
+    sellPrice: string,
+    poolId: number
   }) => {
   return wallet.account().functionCall(REF_FI_CONTRACT_ID, 'mft_transfer_call', {
     token_id: tokenId,
     amount: amount,
     receiver_id: receiverId,
-    msg: frameId + "||" + sellTokenId + "||" + sellPrice
+    msg: frameId + "||" + sellTokenId + "||" + sellPrice + "||" + poolId
   }, getGas('300000000000000'), getAmount(ONE_YOCTO_NEAR));
 };
 

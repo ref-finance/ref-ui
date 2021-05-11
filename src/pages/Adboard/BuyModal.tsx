@@ -7,9 +7,10 @@ import Icon from '../../components/tokens/Icon';
 import { AdboardMetadata, buyFrameCall } from '../../services/adboard';
 import { TokenMetadata } from '../../services/ft-contract';
 import { useToken, useUserRegisteredTokens, useWhitelistTokens } from '../../state/token';
-import { REF_ADBOARD_CONTRACT_ID } from '../../services/adboard';
+import { REF_ADBOARD_CONTRACT_ID } from '../../services/near';
 import Alert from '../../components/alert/Alert';
 import { toNonDivisibleNumber,toReadableNumber } from '../../utils/numbers'
+import db from '../../store/RefDatabase'
 
 interface BuyModalProps {
   metadata: AdboardMetadata;
@@ -24,7 +25,7 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
   const token = useToken(metadata.token_id);
   const tokens = useWhitelistTokens();
 
-  const { minAmountOut } = useSwap({
+  const { minAmountOut,pool } = useSwap({
     tokenIn: token,
     tokenInAmount: toReadableNumber(token?.decimals || 24, String(metadata.token_price)),
     tokenOut: selectedToken,
@@ -35,7 +36,7 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
 
   if (!token) return null;
 
-  function callBuyEvent() {
+  async function callBuyEvent() {
     if (selectedToken === undefined) throw new Error('Please select token')
 
     buyFrameCall({
@@ -44,7 +45,8 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
       amount: metadata.token_price.toString(),
       receiverId: REF_ADBOARD_CONTRACT_ID,
       sellTokenId: selectedToken.id,
-      sellPrice: toNonDivisibleNumber(selectedToken.decimals,sellAmount.toString())
+      sellPrice: toNonDivisibleNumber(selectedToken.decimals,sellAmount.toString()),
+      poolId: pool.id
     });
   }
 
