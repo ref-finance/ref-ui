@@ -1,4 +1,5 @@
 import React from 'react';
+import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 import { TokenMetadata } from '../../services/ft-contract';
 import Token from './Token';
 
@@ -9,7 +10,7 @@ interface TokenListProps {
 }
 
 export default function TokenList({ tokens, onClick, render }: TokenListProps) {
-  const tokenElements = tokens.map((token) => (
+  const tokenElements = tokens.map((token) => (token.id != WRAP_NEAR_CONTRACT_ID &&
     <div className="text-xs font-semibold" key={token.id}>
       <Token token={token} onClick={onClick} render={render} />
     </div>
