@@ -91,6 +91,7 @@ export default function DepositPage() {
           selectedToken={selectedToken}
           onSelectToken={setSelectedToken}
           onChangeAmount={setAmount}
+          calledBy='deposit'
         />
         {wallet.isSignedIn() ? (
           <DepositBtn balance={max} amount={amount} token={selectedToken} />

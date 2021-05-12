@@ -22,6 +22,7 @@ interface TokenAmountProps {
   onSelectToken?: (token: TokenMetadata) => void;
   onChangeAmount?: (amount: string) => void;
   text?: string;
+  calledBy?: string;
 }
 
 export default function TokenAmount({
@@ -34,6 +35,7 @@ export default function TokenAmount({
   onSelectToken,
   onChangeAmount,
   text,
+  calledBy,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) => (
     <p className="text-black">
@@ -85,6 +87,7 @@ export default function TokenAmount({
             )
           }
           onSelect={onSelectToken}
+          calledBy={calledBy}
         />
       </fieldset>
     </>

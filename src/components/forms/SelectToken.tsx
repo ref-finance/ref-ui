@@ -13,6 +13,7 @@ export default function SelectToken({
   addToken,
   standalone,
   placeholder,
+  calledBy
 }: {
   tokens: TokenMetadata[];
   selected: string | React.ReactElement;
@@ -21,6 +22,7 @@ export default function SelectToken({
   render?: (token: TokenMetadata) => React.ReactElement;
   onSelect?: (token: TokenMetadata) => void;
   addToken?: () => JSX.Element;
+  calledBy?: string;
 }) {
   if (!onSelect) {
     return (
@@ -78,6 +80,7 @@ export default function SelectToken({
                     onSelect && onSelect(token);
                     close();
                   }}
+                  calledBy={calledBy}
               />
             </section>
         )}
