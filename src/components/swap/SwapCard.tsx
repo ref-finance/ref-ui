@@ -117,7 +117,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   const tokenInMax =
     toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0';
-  const tokenOutMax =
+  const tokenOutTotal =
     toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
 
   return (
@@ -144,6 +144,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       </div>
       <TokenAmount
         amount={tokenInAmount}
+        total={tokenInMax}
         max={tokenInMax}
         tokens={allTokens}
         selectedToken={tokenIn}
@@ -170,7 +171,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       </div>
       <TokenAmount
         amount={toPrecision(tokenOutAmount, 6)}
-        max={tokenOutMax}
+        total={tokenOutTotal}
         tokens={allTokens}
         selectedToken={tokenOut}
         balances={balances}

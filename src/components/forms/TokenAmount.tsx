@@ -14,6 +14,7 @@ import { toPrecision, toReadableNumber } from '../../utils/numbers';
 interface TokenAmountProps {
   amount?: string;
   max?: string;
+  total?: string;
   tokens: TokenMetadata[];
   selectedToken: TokenMetadata;
   balances?: TokenBalancesView;
@@ -26,6 +27,7 @@ interface TokenAmountProps {
 export default function TokenAmount({
   amount,
   max,
+  total,
   tokens,
   selectedToken,
   balances,
@@ -54,7 +56,7 @@ export default function TokenAmount({
         <span className="text-black">{text}</span>
         <span className={`${max === '0' ? 'text-gray-400' : null}`}>
           Balance：
-          {max}
+          {total}
         </span>
       </div>
       <fieldset className="bg-inputBg relative flex overflow-hidden rounded-lg align-center my-2 border">
