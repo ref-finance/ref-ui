@@ -21,6 +21,7 @@ import {
   storageDepositForFTAction,
   STORAGE_PER_TOKEN,
 } from './creators/storage';
+import {unwrapNear, WRAP_NEAR_CONTRACT_ID } from './wrap-near';
 
 export const checkTokenNeedsStorageDeposit = async (tokenId: string) => {
   let storageNeeded: math.MathType = 0;
@@ -152,6 +153,10 @@ export const withdraw = async ({
   amount,
   unregister = false,
 }: WithdrawOptions) => {
+  if (token.id === WRAP_NEAR_CONTRACT_ID) {
+    return unwrapNear(amount);
+  }
+
   const parsedAmount = toNonDivisibleNumber(token.decimals, amount);
   const ftBalance = await ftGetStorageBalance(token.id);
 
