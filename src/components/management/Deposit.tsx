@@ -53,6 +53,7 @@ export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
       <TokenAmount
         amount={amount}
         max={String(max)}
+        total={String(max)}
         tokens={[nearMetadata, ...tokens]}
         selectedToken={selectedToken}
         onSelectToken={setSelectedToken}

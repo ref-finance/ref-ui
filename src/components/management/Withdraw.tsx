@@ -47,6 +47,10 @@ export default function Withdraw({ tokens }: { tokens: TokenMetadata[] }) {
           selectedToken?.decimals,
           balances?.[selectedToken?.id] || '0'
         )}
+        total={toReadableNumber(
+          selectedToken?.decimals,
+          balances?.[selectedToken?.id] || '0'
+        )}
         tokens={tokens}
         selectedToken={selectedToken}
         balances={balances}

@@ -43,6 +43,7 @@ export function WithdrawModal(props: ReactModal.Props) {
         <TokenAmount
           amount={amount}
           max={max}
+          total={max}
           tokens={userTokens}
           selectedToken={selectedToken}
           onSelectToken={setSelectedToken}
