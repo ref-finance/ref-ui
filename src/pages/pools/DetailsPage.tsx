@@ -327,8 +327,8 @@ export function PoolDetailsPage() {
               <div>{tokens[0].symbol}</div>
               <div>
                 {toRoundedReadableNumber({
-                  decimals: tokens[1].decimals,
-                  number: pool.supplies[tokens[1].id],
+                  decimals: tokens[0].decimals,
+                  number: pool.supplies[tokens[0].id],
                 })}
               </div>
             </div>
