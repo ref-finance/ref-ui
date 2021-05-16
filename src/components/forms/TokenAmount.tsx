@@ -79,9 +79,10 @@ export default function TokenAmount({
             selectedToken && (
               <div
                 className="flex items-center justify-center font-semibold pl-3 pr-3"
-                data-tip={selectedToken.id}
+                data-tip={selectedToken.id === "NEAR" ? "" : selectedToken.id}
                 data-type="dark"
                 data-effect="solid"
+                data-delay-show={300}
               >
                 <Icon token={selectedToken} />
                 {tokens.length > 1 && (

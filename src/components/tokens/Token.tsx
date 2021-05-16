@@ -17,7 +17,7 @@ export default function Token({ token, onClick, render }: TokenProps) {
         onClick ? 'cursor-pointer' : ' '
       } flex justify-between align-center py-4 px-2 w-full text-center hover:bg-secondaryScale-100`}
       onClick={() => onClick && onClick(token)}
-      data-tip={id}
+      data-tip={id === "NEAR" ? "" : id}
       data-type="dark"
       data-delay-show={300}
     >
