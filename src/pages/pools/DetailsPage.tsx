@@ -313,7 +313,7 @@ export function PoolDetailsPage() {
           </div>
         </div>
         <div className="text-center border-b">
-          <div className="inline-flex text-center text-xs pb-6">
+          <div className="inline-flex flex-wrap justify-center text-center text-xs pb-6">
             <div>{tokens[0].id}</div>
             <div className="px-2">-</div>
             <div>{tokens[1].id}</div>
