@@ -1,6 +1,7 @@
 import React from 'react';
 import { TokenMetadata } from '../../services/ft-contract';
 import Icon from './Icon';
+import ReactTooltip from 'react-tooltip';
 
 interface TokenProps {
   token: TokenMetadata;
@@ -9,13 +10,16 @@ interface TokenProps {
 }
 
 export default function Token({ token, onClick, render }: TokenProps) {
-  const { icon, symbol } = token;
+  const { id, icon, symbol } = token;
   return (
     <section
       className={`${
         onClick ? 'cursor-pointer' : ' '
       } flex justify-between align-center py-4 px-2 w-full text-center hover:bg-secondaryScale-100`}
       onClick={() => onClick && onClick(token)}
+      data-tip={id}
+      data-type="dark"
+      data-delay-show={300}
     >
       <div className="w-32">
         <div
@@ -31,6 +35,7 @@ export default function Token({ token, onClick, render }: TokenProps) {
         </div>
       </div>
       {render && render(token)}
+      <ReactTooltip />
     </section>
   );
 }

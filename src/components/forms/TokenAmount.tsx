@@ -10,6 +10,7 @@ import AddToken from './AddToken';
 import { FaAngleDown } from 'react-icons/fa';
 import { ArrowDownGreen } from '../icon';
 import { toPrecision, toReadableNumber } from '../../utils/numbers';
+import ReactTooltip from 'react-tooltip';
 
 interface TokenAmountProps {
   amount?: string;
@@ -76,13 +77,19 @@ export default function TokenAmount({
           addToken={addToken}
           selected={
             selectedToken && (
-              <div className="flex items-center justify-center font-semibold pl-3 pr-3">
+              <div
+                className="flex items-center justify-center font-semibold pl-3 pr-3"
+                data-tip={selectedToken.id}
+                data-type="dark"
+                data-effect="solid"
+              >
                 <Icon token={selectedToken} />
                 {tokens.length > 1 && (
                   <div className="pl-2 text-xs">
                     <ArrowDownGreen />
                   </div>
                 )}
+                <ReactTooltip />
               </div>
             )
           }

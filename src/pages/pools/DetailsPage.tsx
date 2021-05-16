@@ -305,11 +305,18 @@ export function PoolDetailsPage() {
             <Icon icon={tokens[1].icon} />
           </div>
         </div>
-        <div className="text-center border-b">
-          <div className="inline-flex text-center text-base font-semibold pt-2 pb-6">
+        <div className="text-center">
+          <div className="inline-flex text-center text-base font-semibold pt-2">
             <div>{tokens[0].symbol}</div>
             <div className="px-2">-</div>
             <div>{tokens[1].symbol}</div>
+          </div>
+        </div>
+        <div className="text-center border-b">
+          <div className="inline-flex text-center text-xs pb-6">
+            <div>{tokens[0].id}</div>
+            <div className="px-2">-</div>
+            <div>{tokens[1].id}</div>
           </div>
         </div>
         <div className="text-xs font-semibold text-gray-600 pt-6">
