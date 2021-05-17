@@ -27,49 +27,32 @@ const request = (
   return new Promise((resolve, reject) => {
     fetch(api_url, fetchOptions)
       .then((response) => response.json())
-      .then((result) => {
-        resolve(result);
+      .then((err) => {
+        resolve(err);
       });
   });
 };
 
-export const get_pool_balance = async (pool_id: number, tokens: any[]) => {
-  return await request(config.REF_FI_CONTRACT_ID, 'get_pools_shares', {
-    account_id: wallet.getAccountId(),
-    pool_id: pool_id,
-  }).then((balance) => {
-    return balance;
+export const get_pool_balance = async (pool_id: number) => {
+  return await request(config.REF_FI_CONTRACT_ID, 'get_pool_shares', {
+    "account_id": wallet.getAccountId(),
+    "pool_id": pool_id
   });
 };
 
 export const get_pools = async (counter: number) => {
-  return await fetch(api_url, {
-    method: 'POST',
-    body: JSON.stringify({
-      rpc_node: config.nodeUrl,
-      contract: config.REF_FI_CONTRACT_ID,
-      method: 'get_pools',
-      params: { from_index: counter, limit: DEFAULT_PAGE_LIMIT },
-    }),
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  })
-    .then((res) => res.json())
-    .then((pools) => {
-      pools.forEach((pool: any, i: number) => {
-        pool.id = i + counter;
-      });
-
-      let promises = [];
-      Object.keys(pools).map((pool_id) => {
-        promises.push(
-          Promise.resolve(
-            get_pool_balance(
-              Number(pool_id) + counter,
-              pools[pool_id].token_account_ids
-            )
-          )
-        );
-      });
-      return pools;
+  return await request(config.REF_FI_CONTRACT_ID, 'get_pools', {
+    from_index: counter,
+    limit: DEFAULT_PAGE_LIMIT
+  }).then((pools) => {
+    pools.forEach((pool: any, i: number) => {
+      pool.id = i + counter;
     });
+    Object.keys(pools).map((pool_id,index) => {
+      const pool_balance = get_pool_balance(Number(pool_id) + counter).then((pool_balance) => {
+        pools[index].shares = pool_balance
+      })
+    });
+    return pools;
+  });
 };
