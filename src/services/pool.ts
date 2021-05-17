@@ -1,6 +1,6 @@
 import {
   executeMultipleTransactions,
-  ONE_YOCTO_NEAR,
+  LP_STORAGE_AMOUNT,
   refFiFunctionCall,
   refFiViewFunction,
   REF_FI_CONTRACT_ID,
@@ -150,7 +150,7 @@ export const addLiquidityToPool = async ({
   return refFiFunctionCall({
     methodName: 'add_liquidity',
     args: { pool_id: id, amounts },
-    amount: ONE_YOCTO_NEAR,
+    amount: LP_STORAGE_AMOUNT,
   });
 };
 
@@ -175,7 +175,7 @@ export const removeLiquidityFromPool = async ({
       shares,
       min_amounts: amounts,
     },
-    amount: ONE_YOCTO_NEAR,
+    amount: LP_STORAGE_AMOUNT,
   });
 };
 
