@@ -9,6 +9,7 @@ import { get_pools } from '~services/api';
 import { toRoundedReadableNumber } from '~utils/numbers';
 import { usePool } from '~state/pool';
 import { RemoveLiquidityModal } from './DetailsPage';
+import BN from 'bn.js';
 
 function Empty() {
   return (
@@ -62,7 +63,7 @@ export function YourLiquidityPage() {
 }
 
 function PoolRow(props: { pool: any }) {
-  const { pool, shares } = usePool(props.pool.id);
+  const { pool } = usePool(props.pool.id);
   const tokens = useTokens(pool?.tokenIds);
   const [showWithdraw, setShowWithdraw] = useState(false);
 
@@ -96,7 +97,7 @@ function PoolRow(props: { pool: any }) {
       </div>
       <RemoveLiquidityModal
         pool={pool}
-        shares={shares}
+        shares={Number(props.pool.shares).toLocaleString('fullwide', {useGrouping:false})}
         tokens={tokens}
         isOpen={showWithdraw}
         onRequestClose={() => setShowWithdraw(false)}

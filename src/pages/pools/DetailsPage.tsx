@@ -129,6 +129,7 @@ function AddLiquidityModal(
         <TokenAmount
           amount={firstTokenAmount}
           max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
+          total={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
           tokens={[tokens[0]]}
           selectedToken={tokens[0]}
           onChangeAmount={changeFirstTokenAmount}
@@ -137,6 +138,7 @@ function AddLiquidityModal(
           <TokenAmount
             amount={secondTokenAmount}
             max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
+            total={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
             tokens={[tokens[1]]}
             selectedToken={tokens[1]}
             onChangeAmount={changeSecondTokenAmount}
@@ -174,7 +176,6 @@ export function RemoveLiquidityModal(
   const { pool, shares, tokens } = props;
   const [amount, setAmount] = useState<string>('');
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
-
   const { minimumAmounts, removeLiquidity } = useRemoveLiquidity({
     pool,
     slippageTolerance,
@@ -261,9 +262,9 @@ export function RemoveLiquidityModal(
 }
 
 function MyShares({
-                    shares,
-                    totalShares,
-                  }: {
+  shares,
+  totalShares,
+}: {
   shares: string;
   totalShares: string;
 }) {
@@ -324,8 +325,8 @@ export function PoolDetailsPage() {
               <div>{tokens[0].symbol}</div>
               <div>
                 {toRoundedReadableNumber({
-                  decimals: tokens[1].decimals,
-                  number: pool.supplies[tokens[1].id],
+                  decimals: tokens[0].decimals,
+                  number: pool.supplies[tokens[0].id],
                 })}
               </div>
             </div>
