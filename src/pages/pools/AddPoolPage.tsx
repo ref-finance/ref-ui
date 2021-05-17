@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card } from '~components/card';
+import { Card } from '~components/card/Card';
 import { useWhitelistTokens, useTokenBalances } from '../../state/token';
 import Loading from '~components/layout/Loading';
 import SelectToken from '~components/forms/SelectToken';
@@ -7,7 +7,7 @@ import { TokenMetadata } from '../../services/ft-contract';
 import { toRoundedReadableNumber } from '../../utils/numbers';
 import { ArrowDownGreen } from '~components/icon';
 import Icon from '~components/tokens/Icon';
-import { ConnectToNearBtn } from '~components/deposit';
+import { ConnectToNearBtn } from '~components/deposit/Deposit';
 import { wallet } from '~services/near';
 import { addSimpleLiquidityPool } from '~services/pool';
 import copy from '~utils/copy';

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Card } from '~components/card';
-import { ConnectToNearBtn } from '~components/deposit';
+import { Card } from '~components/card/Card';
+import { ConnectToNearBtn } from '~components/deposit/Deposit';
 import { wallet } from '~services/near';
 import { registerTokenAndExchange } from '~services/token';
 import Alert from '~components/alert/Alert';

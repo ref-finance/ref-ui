@@ -7,6 +7,7 @@ import { PoolDetailsPage } from './pages/pools/DetailsPage';
 import SwapPage from './pages/SwapPage';
 import { AccountPage } from './pages/AccountPage';
 import { LiquidityPage } from './pages/pools/LiquidityPage';
+import { YourLiquidityPage } from './pages/pools/YourLiquidityPage';
 import { AddPoolPage } from './pages/pools/AddPoolPage';
 import { AddTokenPage } from './pages/pools/AddTokenPage';
 import AdboardPage from './pages/Adboard/AdboardPage';
@@ -55,6 +56,7 @@ function App() {
             <Route path="/adboard" component={AdboardPage} />
             <Route path="/pools/add" component={AddPoolPage} />
             <Route path="/pools/add-token" component={AddTokenPage} />
+            <Route path="/pools/yours" component={YourLiquidityPage} />
             <Route path="/pools" component={LiquidityPage} />
             <Route path="/" component={SwapPage} />
           </Switch>

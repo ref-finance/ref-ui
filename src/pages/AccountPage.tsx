@@ -1,5 +1,5 @@
 import React from 'react';
-import { Balances } from '../components/deposit';
+import { Balances } from '../components/deposit/Deposit';
 import { useTokenBalances, useUserRegisteredTokens } from '../state/token';
 import Loading from '../components/layout/Loading';
 

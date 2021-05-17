@@ -10,8 +10,8 @@ import {
 import { Link, useLocation } from 'react-router-dom';
 import { wallet } from '~services/near';
 import { useHistory } from 'react-router';
-import { Card } from '~components/card';
-import { TokenList } from '~components/deposit';
+import { Card } from '~components/card/Card';
+import { TokenList } from '~components/deposit/Deposit';
 import { useTokenBalances, useUserRegisteredTokens } from '../../state/token';
 import { REF_FI_CONTRACT_ID } from  '../../services/near'
 
@@ -126,6 +126,13 @@ function PoolsMenu() {
     { label: 'Add Token', path: '/pools/add-token' },
     { label: 'Create New Pool', path: '/pools/add' },
   ];
+
+  if (wallet.isSignedIn()) {
+    links.push({
+      label: 'Your Liquidity',
+      path: '/pools/yours',
+    });
+  }
 
   return (
     <div

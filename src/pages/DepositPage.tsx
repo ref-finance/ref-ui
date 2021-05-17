@@ -6,7 +6,7 @@ import {
   useWhitelistTokens,
 } from '../state/token';
 import Loading from '../components/layout/Loading';
-import { Card } from '../components/card';
+import { Card } from '../components/card/Card';
 import { toReadableNumber } from '../utils/numbers';
 import { TokenMetadata } from '../services/ft-contract';
 import { nearMetadata, wrapNear } from '../services/wrap-near';
@@ -14,7 +14,7 @@ import { useDepositableBalance } from '../state/token';
 import TokenAmount from '../components/forms/TokenAmount';
 import { deposit } from '../services/token';
 import { wallet } from '~services/near';
-import { Balances, ConnectToNearBtn } from '../components/deposit';
+import { Balances, ConnectToNearBtn } from '../components/deposit/Deposit';
 
 function DepositBtn(props: {
   amount?: string;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card } from '~components/card';
+import { Card } from '~components/card/Card';
 import { usePools } from '../../state/pool';
 import Loading from '~components/layout/Loading';
 import { useTokens } from '../../state/token';

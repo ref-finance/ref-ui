@@ -7,7 +7,7 @@ import {
 } from '../../state/token';
 import { TokenMetadata } from '../../services/ft-contract';
 import { toReadableNumber } from '../../utils/numbers';
-import { Card } from '../card';
+import { Card } from '../card/Card';
 import TokenAmount from '../forms/TokenAmount';
 import { TokenBalancesView, withdraw } from '../../services/token';
 import { REF_FI_CONTRACT_ID, wallet } from '~services/near';

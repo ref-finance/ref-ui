@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Modal from 'react-modal';
-import { Card } from '~components/card';
-import { usePool, useRemoveLiquidity } from '../../state/pool';
+import { Card } from '~components/card/Card';
+import { usePool, useRemoveLiquidity } from '~state/pool';
 import { addLiquidityToPool, Pool } from '~services/pool';
-import { useTokenBalances, useTokens } from '../../state/token';
+import { useTokenBalances, useTokens } from '~state/token';
 import Loading from '~components/layout/Loading';
 import {
   calculateFairShare,
@@ -129,7 +129,6 @@ function AddLiquidityModal(
         <TokenAmount
           amount={firstTokenAmount}
           max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
-          total={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
           tokens={[tokens[0]]}
           selectedToken={tokens[0]}
           onChangeAmount={changeFirstTokenAmount}
@@ -138,7 +137,6 @@ function AddLiquidityModal(
           <TokenAmount
             amount={secondTokenAmount}
             max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
-            total={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
             tokens={[tokens[1]]}
             selectedToken={tokens[1]}
             onChangeAmount={changeSecondTokenAmount}
@@ -166,7 +164,7 @@ function AddLiquidityModal(
   );
 }
 
-function RemoveLiquidityModal(
+export function RemoveLiquidityModal(
   props: ReactModal.Props & {
     pool: Pool;
     shares: string;
@@ -177,7 +175,6 @@ function RemoveLiquidityModal(
   const [amount, setAmount] = useState<string>('');
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
 
-  console.log(toReadableNumber(24, shares));
   const { minimumAmounts, removeLiquidity } = useRemoveLiquidity({
     pool,
     slippageTolerance,
@@ -327,8 +324,8 @@ export function PoolDetailsPage() {
               <div>{tokens[0].symbol}</div>
               <div>
                 {toRoundedReadableNumber({
-                  decimals: tokens[0].decimals,
-                  number: pool.supplies[tokens[0].id],
+                  decimals: tokens[1].decimals,
+                  number: pool.supplies[tokens[1].id],
                 })}
               </div>
             </div>
