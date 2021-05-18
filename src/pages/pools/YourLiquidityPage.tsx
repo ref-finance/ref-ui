@@ -81,7 +81,7 @@ function PoolRow(props: { pool: any }) {
     return <div key={id} className="h-6 w-6 rounded-full border"></div>;
   });
 
-  return (
+  return (props.pool.share > 0 &&
     <div className="grid grid-cols-12 py-2 content-center items-center text-xs font-semibold text-gray-600">
       <div className="grid grid-cols-2 col-span-2">
         <div className="w-14 flex items-center justify-between">{images}</div>
@@ -90,14 +90,14 @@ function PoolRow(props: { pool: any }) {
         {tokens[0].symbol}-{tokens[1].symbol}
       </p>
       <p className="col-span-4 text-center">
-        {toRoundedReadableNumber({ decimals: 24, number: pool.shareSupply })}
+        {toRoundedReadableNumber({ decimals: 24, number: Number(props.pool.share).toLocaleString('fullwide', {useGrouping:false}) })}
       </p>
       <div className="col-span-2 text-right">
         <GreenButton onClick={() => setShowWithdraw(true)}>Remove</GreenButton>
       </div>
       <RemoveLiquidityModal
         pool={pool}
-        shares={Number(props.pool.shares).toLocaleString('fullwide', {useGrouping:false})}
+        shares={Number(props.pool.share).toLocaleString('fullwide', {useGrouping:false})}
         tokens={tokens}
         isOpen={showWithdraw}
         onRequestClose={() => setShowWithdraw(false)}
