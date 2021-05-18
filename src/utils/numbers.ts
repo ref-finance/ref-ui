@@ -36,7 +36,7 @@ export const toNonDivisibleNumber = (
   decimals: number,
   number: string
 ): string => {
-  if (!decimals) return number;
+  if (decimals === null || decimals === undefined) return number;
   const [wholePart, fracPart = ''] = number.split('.');
 
   return `${wholePart}${fracPart.padEnd(decimals, '0').slice(0, decimals)}`
