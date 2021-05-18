@@ -10,7 +10,7 @@ import {
 } from './near';
 import { TokenMetadata } from './ft-contract';
 import { getPoolsByTokens, Pool } from './pool';
-import { checkTokenNeedsStorageDeposit } from './token';
+import { checkTokenNeedsStorageDeposit, round } from './token';
 import { JsonRpcProvider } from 'near-api-js/lib/providers';
 import { storageDepositForTokenAction } from './creators/storage';
 
@@ -97,8 +97,8 @@ export const swap = async ({
     pool_id: pool.id,
     token_in: tokenIn.id,
     token_out: tokenOut.id,
-    amount_in: toNonDivisibleNumber(tokenIn.decimals, amountIn),
-    min_amount_out: toNonDivisibleNumber(tokenOut.decimals, minAmountOut),
+    amount_in: round(tokenIn.decimals,toNonDivisibleNumber(tokenIn.decimals, amountIn)),
+    min_amount_out: round(tokenIn.decimals,toNonDivisibleNumber(tokenOut.decimals, minAmountOut)),
   };
 
   const actions: RefFiFunctionCallOptions[] = [

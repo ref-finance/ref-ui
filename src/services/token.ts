@@ -21,7 +21,7 @@ import {
   storageDepositForFTAction,
   STORAGE_PER_TOKEN,
 } from './creators/storage';
-import {unwrapNear, WRAP_NEAR_CONTRACT_ID } from './wrap-near';
+import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from './wrap-near';
 
 export const checkTokenNeedsStorageDeposit = async (tokenId: string) => {
   let storageNeeded: math.MathType = 0;
@@ -113,6 +113,7 @@ interface DepositOptions {
   amount: string;
   msg?: string;
 }
+
 export const deposit = async ({ token, amount, msg = '' }: DepositOptions) => {
   const transactions: Transaction[] = [
     {
@@ -148,6 +149,7 @@ interface WithdrawOptions {
   amount: string;
   unregister?: boolean;
 }
+
 export const withdraw = async ({
   token,
   amount,
@@ -192,6 +194,7 @@ export const withdraw = async ({
 export interface TokenBalancesView {
   [tokenId: string]: string;
 }
+
 export const getTokenBalances = (): Promise<TokenBalancesView> => {
   return refFiViewFunction({
     methodName: 'get_deposits',
@@ -219,3 +222,7 @@ export const getWhitelistedTokens = async (): Promise<string[]> => {
 
   return [...new Set<string>([...globalWhitelist, ...userWhitelist])];
 };
+
+export const round = (decimals:number, minAmountOut: string) => {
+  return Number.isInteger(Number(minAmountOut)) ? minAmountOut : Math.ceil(Math.round(Number(minAmountOut) * Math.pow(10, decimals))/Math.pow(10, decimals)).toString();
+}

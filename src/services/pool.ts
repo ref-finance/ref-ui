@@ -86,7 +86,7 @@ export const getPoolsByTokens = async ({
   const amountToTrade = new BN(amountIn);
 
   // TODO: Check if there can be a better way. If not need to iterate through all pages to find pools
-  return (await getPools({ page: 1, perPage: 100 })).filter(
+  return (await getPools({ page: 1, perPage: 10000 })).filter(
     (p) =>
       new BN(p.supplies[tokenInId]).gte(amountToTrade) && p.supplies[tokenOutId]
   );
