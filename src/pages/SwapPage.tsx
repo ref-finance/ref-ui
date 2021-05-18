@@ -22,12 +22,6 @@ function SwapPage() {
         <div className="text-center text-white text-sm leading-6 mt-2 w-full m-auto">
           {copy.swap}
         </div>
-        <div className="text-center mt-6 w-full">
-          <RainBow className={"m-auto mb-8 mt-8"} />
-          <a target="_blank" href="https://ethereum.bridgetonear.org/" className="text-white border rounded-full p-4 py-2 border-greenLight text-greenLight">
-            Rainbow Bridge
-          </a>
-        </div>
       </section>
     </div>
   );

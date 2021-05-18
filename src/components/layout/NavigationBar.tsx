@@ -14,6 +14,7 @@ import { Card } from '~components/card/Card';
 import { TokenList } from '~components/deposit/Deposit';
 import { useTokenBalances, useUserRegisteredTokens } from '../../state/token';
 import { REF_FI_CONTRACT_ID } from  '../../services/near'
+import RainBow from '~components/layout/RainBow';
 
 function Anchor({
   to,
@@ -184,6 +185,9 @@ function NavigationBar() {
         <Anchor to="/" pattern="/" name="Swap" />
         <PoolsMenu />
         <Anchor to="/adboard" pattern="/adboard" name="Adboard" />
+        <a target="_blank" href="https://ethereum.bridgetonear.org/" className="relative ext-white border rounded-full p-4 py-2 border-greenLight text-greenLight">
+          Rainbow&nbsp;Bridge
+        </a>
       </nav>
       <div className="user col-span-8 items-center text-xs text-center justify-end pl-5 h-full w-96 absolute right-0">
         <BgShapeTopRight />

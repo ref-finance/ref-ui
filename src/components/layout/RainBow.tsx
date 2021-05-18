@@ -6,8 +6,8 @@ export default function RainBow({
   className: string;
 }) {
   return (
-    <svg className={className} width="60px" height="38px" viewBox="0 0 60 38" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-      <g id="page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <svg className={className} width="60px" height="38px" viewBox="0 0 60 38" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+      <g id="page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
         <g id="board" transform="translate(-812.000000, -766.000000)">
           <g id="group" transform="translate(812.000000, 766.000000)">
             <rect id="rect" fill="#8FCDFF" x="21" y="0" width="8" height="8"></rect>
