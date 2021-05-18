@@ -54,4 +54,8 @@ describe('toNonDivisibleNumber', () => {
   test('zero', () => {
     expect(toNonDivisibleNumber(20, '0')).toEqual('0');
   });
+
+  test('zero decimals', () => {
+    expect(toNonDivisibleNumber(0, '5.15')).toEqual('5');
+  });
 });
