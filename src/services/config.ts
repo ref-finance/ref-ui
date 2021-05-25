@@ -8,10 +8,12 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         walletUrl: 'https://wallet.near.org',
         helperUrl: 'https://helper.mainnet.near.org',
         explorerUrl: 'https://explorer.mainnet.near.org',
+        indexerUrl: 'https://mainnet-indexer.ref-finance.com',
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'ref-finance.near',
         WRAP_NEAR_CONTRACT_ID: process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.near',
-        REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near'
+        REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
+        REF_FARM_CONTRACT_ID: process.env.REF_FARM_CONTRACT_ID || 'ref-farming.near',
       };
     case 'development':
     case 'testnet':
@@ -22,11 +24,13 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         walletUrl: 'https://wallet.testnet.near.org',
         helperUrl: 'https://helper.testnet.near.org',
         explorerUrl: 'https://explorer.testnet.near.org',
+        indexerUrl: 'https://testnet-indexer.ref-finance.com',
         REF_FI_CONTRACT_ID:
-          process.env.REF_FI_CONTRACT_ID || 'ref_finance_01.testnet',
+          process.env.REF_FI_CONTRACT_ID || 'ref-finance.testnet',
         WRAP_NEAR_CONTRACT_ID:
           process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.testnet',
-          REF_ADBOARD_CONTRACT_ID: 'ref-adboard.testnet'
+        REF_ADBOARD_CONTRACT_ID: 'ref-adboard.testnet',
+        REF_FARM_CONTRACT_ID: process.env.REF_FARM_CONTRACT_ID || 'ref-farming.testnet',
       };
   }
 }

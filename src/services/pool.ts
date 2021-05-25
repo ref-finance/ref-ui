@@ -12,6 +12,7 @@ import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { toNonDivisibleNumber } from '../utils/numbers';
 import { storageDepositForFTAction } from './creators/storage';
+import { get_pools_from_indexer } from './api';
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -51,6 +52,7 @@ export const getPools = async ({
   column = '',
   order = 'desc',
   uniquePairName = false,
+  useIndexerData = true,
 }: {
   page?: number;
   perPage?: number;
@@ -58,7 +60,13 @@ export const getPools = async ({
   column?: string;
   order?: string;
   uniquePairName?: boolean;
+  useIndexerData?: boolean;
 }): Promise<Pool[]> => {
+  if (useIndexerData) {
+    const poolData: PoolRPCView[] = await get_pools_from_indexer();
+    return poolData.map((rawPool, i) => parsePool(rawPool, i));
+  }
+
   const rows = await db.queryPools({ page, perPage, tokenName, column, order, uniquePairName });
   return rows.map((row) => ({
     id: row.id,
@@ -140,9 +148,9 @@ interface AddLiquidityToPoolOptions {
 }
 
 export const addLiquidityToPool = async ({
-   id,
-   tokenAmounts,
- }: AddLiquidityToPoolOptions) => {
+  id,
+  tokenAmounts,
+}: AddLiquidityToPoolOptions) => {
   const amounts = tokenAmounts.map(({ token, amount }) =>
     toNonDivisibleNumber(token.decimals, amount)
   );
