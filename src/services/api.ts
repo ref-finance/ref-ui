@@ -1,6 +1,7 @@
 import getConfig from './config';
 import { wallet } from './near';
 import { DEFAULT_PAGE_LIMIT } from './pool';
+import _ from 'lodash';
 
 const config = getConfig();
 const api_url = 'https://rest.nearapi.org/view';
@@ -51,12 +52,28 @@ export const get_pools = async (counter: number) => {
     });
 };
 
-export const get_pools_from_indexer = async (): Promise<PoolRPCView[]> => {
+export const get_pools_from_indexer = async (args: any): Promise<PoolRPCView[]> => {
   return await fetch(config.indexerUrl + '/list-top-pools', {
     method: 'GET',
     headers: { 'Content-type': 'application/json; charset=UTF-8' }
   }).then(res => res.json())
     .then(pools => {
-      return pools;
+      return paginationPools(args, orderPools(args, searchPools(args, pools)));
     });
 };
+
+const searchPools = (args: any, pools: PoolRPCView[]) => {
+  if (args.tokenName === '') return pools;
+  return _.filter(pools, (pool: PoolRPCView) => {
+    return _.includes(pool.token_account_ids[0], args.tokenName) || _.includes(pool.token_account_ids[1], args.tokenName)
+  });
+}
+
+const orderPools = (args: any, pools: PoolRPCView[]) => {
+  const column = args.column === 'fee' ? 'total_fee' : args.column;
+  return _.orderBy(pools, [column], [args.order]);
+}
+
+const paginationPools = (args: any, pools: PoolRPCView[]) => {
+  return _.slice(pools, (args.page - 1) * args.perPage, args.page * args.perPage);
+}

@@ -63,7 +63,7 @@ export const getPools = async ({
   useIndexerData?: boolean;
 }): Promise<Pool[]> => {
   if (useIndexerData) {
-    const poolData: PoolRPCView[] = await get_pools_from_indexer();
+    const poolData: PoolRPCView[] = await get_pools_from_indexer({ page, perPage, tokenName, column, order, uniquePairName });
     return poolData.map((rawPool, i) => parsePool(rawPool, i));
   }
 
