@@ -7,17 +7,14 @@ import { Link } from 'react-router-dom';
 import { Pool } from '../../services/pool';
 import {
   calculateFeePercent,
+  toPrecision,
+  toReadableNumber,
   toRoundedReadableNumber,
 } from '../../utils/numbers';
 
 function PoolRow({ pool }: { pool: Pool }) {
   const tokens = useTokens(pool.tokenIds);
   if (!tokens) return <Loading />;
-  tokens.sort((a, b) => {
-    if (a.symbol === 'wNEAR') return 1;
-    if (b.symbol === 'wNEAR') return -1;
-    return a.symbol > b.symbol ? 1 : -1;
-  });
 
   const images = tokens.map((token) => {
     const { icon, id } = token;
@@ -31,11 +28,12 @@ function PoolRow({ pool }: { pool: Pool }) {
       className="grid grid-cols-12 py-2 content-center text-xs font-semibold text-gray-600"
     >
       <div className="grid grid-cols-2 col-span-1">{images}</div>
-      <p className="grid col-span-4">
-        {tokens[0].symbol}-{tokens[1].symbol}
+      <p className="col-span-6">
+        <span className="float-left">{tokens[0].symbol}={toPrecision(toReadableNumber(tokens[0].decimals || 24, pool.supplies[pool.tokenIds[0]]),4)}</span>
+        <span className="float-right mr-24">{tokens[1].symbol}={toPrecision(toReadableNumber(tokens[1].decimals || 24, pool.supplies[pool.tokenIds[1]]),4)}</span>
       </p>
-      <p className="col-span-5">
-        {toRoundedReadableNumber({ decimals: 24, number: pool.shareSupply })}
+      <p className="col-span-3">
+        ${pool.tvl}
       </p>
       <p className="col-span-2">{calculateFeePercent(pool.fee)}%</p>
     </Link>
@@ -44,7 +42,7 @@ function PoolRow({ pool }: { pool: Pool }) {
 
 export function LiquidityPage() {
   const [tokenName, setTokenName] = useState('');
-  const [sortBy] = useState('fee');
+  const [sortBy, setSoryBy] = useState('tvl');
   const [order, setOrder] = useState('desc');
   const { pools, hasMore, nextPage } = usePools({ tokenName, sortBy, order, useIndexerData:true });
   if (!pools) return <Loading />;
@@ -68,11 +66,20 @@ export function LiquidityPage() {
         <section>
           <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm font-bold">
             <p className="col-span-1">Pair</p>
-            <p className="col-span-4">Liquidity</p>
-            <p className="col-span-5">Total shares</p>
+            <p className="col-span-6">Liquidity</p>
+            <p
+              className="col-span-3"
+              onClick={() => {
+                setSoryBy('tvl')
+                setOrder(order === 'desc' ? 'asc' : 'desc');
+              }}
+            >
+              Market Price
+            </p>
             <p
               className="col-span-2 cursor-pointer"
               onClick={() => {
+                setSoryBy('fee')
                 setOrder(order === 'desc' ? 'asc' : 'desc');
               }}
             >

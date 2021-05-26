@@ -2,15 +2,19 @@ import getConfig from './config';
 import { wallet } from './near';
 import { DEFAULT_PAGE_LIMIT } from './pool';
 import _ from 'lodash';
+import { toPrecision } from '~utils/numbers';
 
 const config = getConfig();
 const api_url = 'https://rest.nearapi.org/view';
 
 interface PoolRPCView {
+  id: number;
   token_account_ids: string[];
+  token_symbols: string[];
   amounts: string[];
   total_fee: number;
   shares_total_supply: string;
+  tvl: number;
 }
 
 export const get_pool_balance = async (pool_id: number) => {
@@ -58,20 +62,33 @@ export const get_pools_from_indexer = async (args: any): Promise<PoolRPCView[]> 
     headers: { 'Content-type': 'application/json; charset=UTF-8' }
   }).then(res => res.json())
     .then(pools => {
+      pools = pools.map((pool: any) => ({
+        id: Number(pool.id),
+        token_account_ids: pool.token_account_ids,
+        token_symbols: pool.token_symbols,
+        amounts: pool.amounts,
+        total_fee: pool.total_fee,
+        shares_total_supply: pool.shares_total_supply,
+        tvl: Number(toPrecision(pool.tvl,2)),
+      }));
       return paginationPools(args, orderPools(args, searchPools(args, pools)));
     });
 };
 
 const searchPools = (args: any, pools: PoolRPCView[]) => {
   if (args.tokenName === '') return pools;
+  console.log(args.tokenName)
   return _.filter(pools, (pool: PoolRPCView) => {
-    return _.includes(pool.token_account_ids[0], args.tokenName) || _.includes(pool.token_account_ids[1], args.tokenName)
+    console.log()
+    return _.includes(pool.token_symbols[0].toLowerCase(), args.tokenName.toLowerCase()) || _.includes(pool.token_symbols[1].toLowerCase(), args.tokenName.toLowerCase())
   });
 }
 
 const orderPools = (args: any, pools: PoolRPCView[]) => {
-  const column = args.column === 'fee' ? 'total_fee' : args.column;
-  return _.orderBy(pools, [column], [args.order]);
+  let column = args.column || 'tvl';
+  let order =  args.order || 'desc';
+  column = args.column === 'fee' ? 'total_fee' : column;
+  return _.orderBy(pools, [column], [order]);
 }
 
 const paginationPools = (args: any, pools: PoolRPCView[]) => {

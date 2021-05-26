@@ -17,10 +17,13 @@ import { get_pools_from_indexer } from './api';
 export const DEFAULT_PAGE_LIMIT = 100;
 
 interface PoolRPCView {
+  id: number;
   token_account_ids: string[];
+  token_symbols: string[];
   amounts: string[];
   total_fee: number;
   shares_total_supply: string;
+  tvl: number;
 }
 
 export interface Pool {
@@ -29,10 +32,11 @@ export interface Pool {
   supplies: { [key: string]: string };
   fee: number;
   shareSupply: string;
+  tvl: number;
 }
 
-const parsePool = (pool: PoolRPCView, id: number): Pool => ({
-  id,
+const parsePool = (pool: PoolRPCView): Pool => ({
+  id: pool.id,
   tokenIds: pool.token_account_ids,
   supplies: pool.amounts.reduce(
     (acc: { [tokenId: string]: string }, amount: string, i: number) => {
@@ -43,6 +47,7 @@ const parsePool = (pool: PoolRPCView, id: number): Pool => ({
   ),
   fee: pool.total_fee,
   shareSupply: pool.shares_total_supply,
+  tvl: pool.tvl
 });
 
 export const getPools = async ({
@@ -64,7 +69,7 @@ export const getPools = async ({
 }): Promise<Pool[]> => {
   if (useIndexerData) {
     const poolData: PoolRPCView[] = await get_pools_from_indexer({ page, perPage, tokenName, column, order, uniquePairName });
-    return poolData.map((rawPool, i) => parsePool(rawPool, i));
+    return poolData.map((rawPool) => parsePool(rawPool));
   }
 
   const rows = await db.queryPools({ page, perPage, tokenName, column, order, uniquePairName });
@@ -77,6 +82,7 @@ export const getPools = async ({
     },
     fee: row.fee,
     shareSupply: row.shares,
+    tvl: 0
   }));
 };
 
