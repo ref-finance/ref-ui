@@ -28,9 +28,9 @@ function PoolRow({ pool }: { pool: Pool }) {
       className="grid grid-cols-12 py-2 content-center text-xs font-semibold text-gray-600"
     >
       <div className="grid grid-cols-2 col-span-1">{images}</div>
-      <p className="col-span-6">
-        <span className="float-left">{tokens[0].symbol}={toPrecision(toReadableNumber(tokens[0].decimals || 24, pool.supplies[pool.tokenIds[0]]),4)}</span>
-        <span className="float-right mr-24">{tokens[1].symbol}={toPrecision(toReadableNumber(tokens[1].decimals || 24, pool.supplies[pool.tokenIds[1]]),4)}</span>
+      <p className="grid grid-cols-2 col-span-6">
+        <span>{tokens[0].symbol}={toPrecision(toReadableNumber(tokens[0].decimals || 24, pool.supplies[pool.tokenIds[0]]),4)}</span>
+        <span>{tokens[1].symbol}={toPrecision(toReadableNumber(tokens[1].decimals || 24, pool.supplies[pool.tokenIds[1]]),4)}</span>
       </p>
       <p className="col-span-3">
         ${pool.tvl}
