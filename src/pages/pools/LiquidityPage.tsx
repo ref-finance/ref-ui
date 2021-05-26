@@ -11,6 +11,7 @@ import {
   toReadableNumber,
   toRoundedReadableNumber,
 } from '../../utils/numbers';
+import { round } from '~services/token';
 
 function PoolRow({ pool }: { pool: Pool }) {
   const tokens = useTokens(pool.tokenIds);
@@ -28,11 +29,15 @@ function PoolRow({ pool }: { pool: Pool }) {
       className="grid grid-cols-12 py-2 content-center text-xs font-semibold text-gray-600"
     >
       <div className="grid grid-cols-2 col-span-1">{images}</div>
-      <p className="grid grid-cols-2 col-span-6">
+      <p className="grid grid-cols-2 col-span-5">
         <span>{tokens[0].symbol}={toPrecision(toReadableNumber(tokens[0].decimals || 24, pool.supplies[pool.tokenIds[0]]),4)}</span>
         <span>{tokens[1].symbol}={toPrecision(toReadableNumber(tokens[1].decimals || 24, pool.supplies[pool.tokenIds[1]]),4)}</span>
       </p>
-      <p className="col-span-3">
+      <p className="col-span-2">
+        {toReadableNumber(tokens[1].decimals || 24, pool.supplies[pool.tokenIds[1]])=='0'?
+          'N/A':'≈'+(1,Number(toReadableNumber(tokens[0].decimals || 24, pool.supplies[pool.tokenIds[0]]))/Number(toReadableNumber(tokens[1].decimals || 24, pool.supplies[pool.tokenIds[1]]))).toFixed(8)}
+      </p>
+      <p className="col-span-2">
         ${pool.tvl}
       </p>
       <p className="col-span-2">{calculateFeePercent(pool.fee)}%</p>
@@ -66,15 +71,18 @@ export function LiquidityPage() {
         <section>
           <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm font-bold">
             <p className="col-span-1">Pair</p>
-            <p className="col-span-6">Liquidity</p>
+            <p className="col-span-5">Liquidity</p>
             <p
-              className="col-span-3"
+              className="col-span-2"
               onClick={() => {
                 setSoryBy('tvl')
                 setOrder(order === 'desc' ? 'asc' : 'desc');
               }}
             >
               Market Price
+            </p>
+            <p className="col-span-2">
+              Total Value Locked
             </p>
             <p
               className="col-span-2 cursor-pointer"
