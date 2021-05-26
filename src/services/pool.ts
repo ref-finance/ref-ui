@@ -52,7 +52,7 @@ export const getPools = async ({
   column = '',
   order = 'desc',
   uniquePairName = false,
-  useIndexerData = true,
+  useIndexerData = false,
 }: {
   page?: number;
   perPage?: number;

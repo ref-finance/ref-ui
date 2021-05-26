@@ -46,7 +46,7 @@ export function LiquidityPage() {
   const [tokenName, setTokenName] = useState('');
   const [sortBy] = useState('fee');
   const [order, setOrder] = useState('desc');
-  const { pools, hasMore, nextPage } = usePools({ tokenName, sortBy, order });
+  const { pools, hasMore, nextPage } = usePools({ tokenName, sortBy, order, useIndexerData:true });
   if (!pools) return <Loading />;
 
   return (
