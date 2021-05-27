@@ -1,6 +1,7 @@
 import {
   executeMultipleTransactions,
   LP_STORAGE_AMOUNT,
+  ONE_YOCTO_NEAR,
   refFiFunctionCall,
   refFiViewFunction,
   REF_FI_CONTRACT_ID,
@@ -35,8 +36,8 @@ export interface Pool {
   tvl: number;
 }
 
-const parsePool = (pool: PoolRPCView): Pool => ({
-  id: pool.id,
+const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
+  id: pool.id || id,
   tokenIds: pool.token_account_ids,
   supplies: pool.amounts.reduce(
     (acc: { [tokenId: string]: string }, amount: string, i: number) => {
@@ -189,7 +190,7 @@ export const removeLiquidityFromPool = async ({
       shares,
       min_amounts: amounts,
     },
-    amount: LP_STORAGE_AMOUNT,
+    amount: ONE_YOCTO_NEAR,
   });
 };
 
