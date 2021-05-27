@@ -47,7 +47,7 @@ function App() {
       <div className="relative h-screen">
         <BgShapeLeftBottom />
         <NavigationBar />
-        <div className="flex flex-col justify-center h-4/5 ">
+        <div className="justify-center h-4/5 mt-24">
           <Switch>
             <Route path="/deposit/:id?" component={DepositPage} />
             <Route path="/account" component={AccountPage} />
