@@ -77,9 +77,7 @@ export const get_pools_from_indexer = async (args: any): Promise<PoolRPCView[]> 
 
 const searchPools = (args: any, pools: PoolRPCView[]) => {
   if (args.tokenName === '') return pools;
-  console.log(args.tokenName)
   return _.filter(pools, (pool: PoolRPCView) => {
-    console.log()
     return _.includes(pool.token_symbols[0].toLowerCase(), args.tokenName.toLowerCase()) || _.includes(pool.token_symbols[1].toLowerCase(), args.tokenName.toLowerCase())
   });
 }
