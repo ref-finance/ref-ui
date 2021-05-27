@@ -6,7 +6,7 @@ import {
   useWhitelistTokens,
 } from '../../state/token';
 import { TokenMetadata } from '../../services/ft-contract';
-import { toReadableNumber } from '../../utils/numbers';
+import { toPrecision, toReadableNumber } from '../../utils/numbers';
 import { Card } from '../card/Card';
 import TokenAmount from '../forms/TokenAmount';
 import { TokenBalancesView, withdraw } from '../../services/token';
@@ -97,7 +97,7 @@ export function TokenList(props: {
         const balance = balances[token.id] || '0';
         if (balance === '0' && hideEmpty) return null;
 
-        const amount = toReadableNumber(token.decimals, balance);
+        const amount = toPrecision(toReadableNumber(token.decimals, balance),6);
         return <Token key={token.id} {...token} amount={amount} />;
       })}
       {tokens.length === 0 ? (

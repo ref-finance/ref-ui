@@ -57,8 +57,8 @@ export default function TokenAmount({
       <div className="flex justify-between text-xs font-semibold pb-0.5">
         <span className="text-black">{text}</span>
         <span className={`${max === '0' ? 'text-gray-400' : null}`}>
-          Balance：
-          {total}
+          Balance:
+          {toPrecision(total,6)}
         </span>
       </div>
       <fieldset className="bg-inputBg relative flex overflow-hidden rounded-lg align-center my-2 border">
