@@ -25,6 +25,7 @@ interface PoolRPCView {
   total_fee: number;
   shares_total_supply: string;
   tvl: number;
+  token0_ref_price: string;
 }
 
 export interface Pool {
@@ -34,6 +35,7 @@ export interface Pool {
   fee: number;
   shareSupply: string;
   tvl: number;
+  token0_ref_price: string;
 }
 
 const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
@@ -48,7 +50,8 @@ const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
   ),
   fee: pool.total_fee,
   shareSupply: pool.shares_total_supply,
-  tvl: pool.tvl
+  tvl: pool.tvl,
+  token0_ref_price: pool.token0_ref_price;
 });
 
 export const getPools = async ({
@@ -83,7 +86,8 @@ export const getPools = async ({
     },
     fee: row.fee,
     shareSupply: row.shares,
-    tvl: 0
+    tvl: 0,
+    token0_ref_price: '0'
   }));
 };
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card } from '~components/card/Card';
 import { usePools } from '../../state/pool';
 import Loading from '~components/layout/Loading';
-import { useTokens } from '../../state/token';
+import {getPrice, useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';
 import { Pool } from '../../services/pool';
 import {
@@ -34,8 +34,7 @@ function PoolRow({ pool }: { pool: Pool }) {
         <span>{tokens[1].symbol}={toPrecision(toReadableNumber(tokens[1].decimals || 24, pool.supplies[pool.tokenIds[1]]),4)}</span>
       </p>
       <p className="col-span-2">
-        {toReadableNumber(tokens[1].decimals || 24, pool.supplies[pool.tokenIds[1]])=='0'?
-          'N/A':'≈'+(1,Number(toReadableNumber(tokens[0].decimals || 24, pool.supplies[pool.tokenIds[0]]))/Number(toReadableNumber(tokens[1].decimals || 24, pool.supplies[pool.tokenIds[1]]))).toFixed(8)}
+        {getPrice(tokens,pool,pool.token0_ref_price)}
       </p>
       <p className="col-span-2">
         ${pool.tvl}
