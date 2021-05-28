@@ -15,6 +15,7 @@ interface PoolRPCView {
   total_fee: number;
   shares_total_supply: string;
   tvl: number;
+  token0_ref_price: string;
 }
 
 export const get_pool_balance = async (pool_id: number) => {
@@ -29,7 +30,7 @@ export const get_pool_balance = async (pool_id: number) => {
     headers: { 'Content-type': 'application/json; charset=UTF-8' }
   }).then(res => res.json())
     .then(balance => {
-      return balance;
+      return balance.toString();
     });
 };
 
@@ -48,7 +49,7 @@ export const get_pools = async (counter: number) => {
       pools.forEach(async (pool: any, i: number) => {
         pool.id = i + counter;
         const pool_balance = await get_pool_balance(Number(pool.id) + counter);
-        if (pool_balance > 0) {
+        if (Number(pool_balance) > 0) {
           pools[i].share = pool_balance;
         }
       });
@@ -70,6 +71,7 @@ export const get_pools_from_indexer = async (args: any): Promise<PoolRPCView[]> 
         total_fee: pool.total_fee,
         shares_total_supply: pool.shares_total_supply,
         tvl: Number(toPrecision(pool.tvl,2)),
+        token0_ref_price: pool.token0_ref_price
       }));
       return paginationPools(args, orderPools(args, searchPools(args, pools)));
     });
