@@ -34,7 +34,7 @@ function PoolRow({ pool }: { pool: Pool }) {
         <span>{tokens[1].symbol}={toPrecision(toReadableNumber(tokens[1].decimals || 24, pool.supplies[pool.tokenIds[1]]),4)}</span>
       </p>
       <p className="col-span-2">
-        {getPrice(tokens,pool,pool.token0_ref_price)}
+        {getPrice(tokens,pool,pool.token0_ref_price,false)}
       </p>
       <p className="col-span-2">
         ${pool.tvl}

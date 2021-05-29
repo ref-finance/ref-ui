@@ -3,6 +3,7 @@ import { wallet } from './near';
 import { DEFAULT_PAGE_LIMIT } from './pool';
 import _ from 'lodash';
 import { toPrecision } from '~utils/numbers';
+import { BigNumber } from "bignumber.js";
 
 const config = getConfig();
 const api_url = 'https://rest.nearapi.org/view';
@@ -30,7 +31,7 @@ export const get_pool_balance = async (pool_id: number) => {
     headers: { 'Content-type': 'application/json; charset=UTF-8' }
   }).then(res => res.json())
     .then(balance => {
-      return balance.toString();
+      return BigNumber(balance.toString()).toFixed();
     });
 };
 

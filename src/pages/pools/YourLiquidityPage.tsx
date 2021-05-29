@@ -90,7 +90,7 @@ function PoolRow(props: { pool: any }) {
         {tokens[0].symbol}-{tokens[1].symbol}
       </p>
       <p className="col-span-4 text-center">
-        {toRoundedReadableNumber({ decimals: 24, number: Number(props.pool.share).toLocaleString('fullwide', {useGrouping:false}) })}
+        {toRoundedReadableNumber({ decimals: 24, number: props.pool.share })}
       </p>
       <div className="col-span-2 text-right">
         <GreenButton onClick={() => setShowWithdraw(true)}>Remove</GreenButton>
