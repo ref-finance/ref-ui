@@ -1,4 +1,5 @@
 import { utils } from 'near-api-js';
+import getConfig from './config';
 import { storageDepositAction } from './creators/storage';
 import { withdrawAction } from './creators/token';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
@@ -11,7 +12,7 @@ import {
 } from './near';
 import { checkTokenNeedsStorageDeposit } from './token';
 
-export const WRAP_NEAR_CONTRACT_ID = 'wrap.near';
+export const { WRAP_NEAR_CONTRACT_ID } = getConfig();
 const NEW_ACCOUNT_STORAGE_COST = '0.00125';
 
 export const nearMetadata: TokenMetadata = {

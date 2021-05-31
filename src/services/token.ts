@@ -21,6 +21,7 @@ import {
   storageDepositForFTAction,
   STORAGE_PER_TOKEN,
 } from './creators/storage';
+import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from './wrap-near';
 import { registerTokenAction } from './creators/token';
 
 export const checkTokenNeedsStorageDeposit = async (tokenId: string) => {
@@ -108,6 +109,7 @@ interface DepositOptions {
   amount: string;
   msg?: string;
 }
+
 export const deposit = async ({ token, amount, msg = '' }: DepositOptions) => {
   const transactions: Transaction[] = [
     {
@@ -143,11 +145,16 @@ interface WithdrawOptions {
   amount: string;
   unregister?: boolean;
 }
+
 export const withdraw = async ({
   token,
   amount,
   unregister = false,
 }: WithdrawOptions) => {
+  if (token.id === WRAP_NEAR_CONTRACT_ID) {
+    return unwrapNear(amount);
+  }
+
   const parsedAmount = toNonDivisibleNumber(token.decimals, amount);
   const ftBalance = await ftGetStorageBalance(token.id);
 
@@ -183,6 +190,7 @@ export const withdraw = async ({
 export interface TokenBalancesView {
   [tokenId: string]: string;
 }
+
 export const getTokenBalances = (): Promise<TokenBalancesView> => {
   return refFiViewFunction({
     methodName: 'get_deposits',
@@ -190,10 +198,12 @@ export const getTokenBalances = (): Promise<TokenBalancesView> => {
   });
 };
 
-export const getUserRegisteredTokens = (): Promise<string[]> => {
+export const getUserRegisteredTokens = (
+  accountId: string = wallet.getAccountId()
+): Promise<string[]> => {
   return refFiViewFunction({
     methodName: 'get_user_whitelisted_tokens',
-    args: { account_id: wallet.getAccountId() },
+    args: { account_id: accountId },
   });
 };
 
@@ -208,3 +218,7 @@ export const getWhitelistedTokens = async (): Promise<string[]> => {
 
   return [...new Set<string>([...globalWhitelist, ...userWhitelist])];
 };
+
+export const round = (decimals:number, minAmountOut: string) => {
+  return Number.isInteger(Number(minAmountOut)) ? minAmountOut : Math.ceil(Math.round(Number(minAmountOut) * Math.pow(10, decimals))/Math.pow(10, decimals)).toString();
+}

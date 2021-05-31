@@ -1,5 +1,6 @@
 import {
   executeMultipleTransactions,
+  LP_STORAGE_AMOUNT,
   ONE_YOCTO_NEAR,
   refFiFunctionCall,
   refFiViewFunction,
@@ -8,18 +9,24 @@ import {
   wallet,
 } from './near';
 import BN from 'bn.js';
+import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { toNonDivisibleNumber } from '../utils/numbers';
 import { storageDepositForFTAction } from './creators/storage';
+import { get_pools_from_indexer } from './api';
 
 export const DEFAULT_PAGE_LIMIT = 100;
 export const LP_STORAGE_AMOUNT = '0.00128';
 
 interface PoolRPCView {
+  id: number;
   token_account_ids: string[];
+  token_symbols: string[];
   amounts: string[];
   total_fee: number;
   shares_total_supply: string;
+  tvl: number;
+  token0_ref_price: string;
 }
 
 export interface Pool {
@@ -28,10 +35,12 @@ export interface Pool {
   supplies: { [key: string]: string };
   fee: number;
   shareSupply: string;
+  tvl: number;
+  token0_ref_price: string;
 }
 
-const parsePool = (pool: PoolRPCView, id: number): Pool => ({
-  id,
+const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
+  id: pool.id || id,
   tokenIds: pool.token_account_ids,
   supplies: pool.amounts.reduce(
     (acc: { [tokenId: string]: string }, amount: string, i: number) => {
@@ -42,25 +51,45 @@ const parsePool = (pool: PoolRPCView, id: number): Pool => ({
   ),
   fee: pool.total_fee,
   shareSupply: pool.shares_total_supply,
+  tvl: pool.tvl,
+  token0_ref_price: pool.token0_ref_price;
 });
 
-export const getTotalPools = () => {
-  return refFiViewFunction({
-    methodName: 'get_number_of_pools',
-  });
-};
+export const getPools = async ({
+  page = 1,
+  perPage = DEFAULT_PAGE_LIMIT,
+  tokenName = '',
+  column = '',
+  order = 'desc',
+  uniquePairName = false,
+  useIndexerData = false,
+}: {
+  page?: number;
+  perPage?: number;
+  tokenName?: string;
+  column?: string;
+  order?: string;
+  uniquePairName?: boolean;
+  useIndexerData?: boolean;
+}): Promise<Pool[]> => {
+  if (useIndexerData) {
+    const poolData: PoolRPCView[] = await get_pools_from_indexer({ page, perPage, tokenName, column, order, uniquePairName });
+    return poolData.map((rawPool) => parsePool(rawPool));
+  }
 
-export const getPools = async (
-  page: number = 1,
-  perPage: number = DEFAULT_PAGE_LIMIT
-): Promise<Pool[]> => {
-  const index = (page - 1) * perPage;
-  const poolData: PoolRPCView[] = await refFiViewFunction({
-    methodName: 'get_pools',
-    args: { from_index: index, limit: perPage },
-  });
-
-  return poolData.map((rawPool, i) => parsePool(rawPool, i + index));
+  const rows = await db.queryPools({ page, perPage, tokenName, column, order, uniquePairName });
+  return rows.map((row) => ({
+    id: row.id,
+    tokenIds: [row.token1Id, row.token2Id],
+    supplies: {
+      [row.token1Id]: row.token1Supply,
+      [row.token2Id]: row.token2Supply,
+    },
+    fee: row.fee,
+    shareSupply: row.shares,
+    tvl: 0,
+    token0_ref_price: '0'
+  }));
 };
 
 interface GetPoolOptions {
@@ -77,12 +106,8 @@ export const getPoolsByTokens = async ({
   const amountToTrade = new BN(amountIn);
 
   // TODO: Check if there can be a better way. If not need to iterate through all pages to find pools
-  const totalPools = await getTotalPools();
-  const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
-  const pools = (
-    await Promise.all([...Array(pages)].map((_, i) => getPools(i + 1)))
-  ).flat();
-  return pools.filter(
+
+  return (await getPools({ page: 1, perPage: 10000 })).filter(
     (p) =>
       new BN(p.supplies[tokenInId]).gte(amountToTrade) && p.supplies[tokenOutId]
   );

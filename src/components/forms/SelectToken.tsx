@@ -3,59 +3,87 @@ import MicroModal from 'react-micro-modal';
 import { FaAngleDown } from 'react-icons/fa';
 import TokenList from '../tokens/TokenList';
 import { TokenMetadata } from '../../services/ft-contract';
+import { ArrowDownGreen } from '../icon';
 
 export default function SelectToken({
   tokens,
   selected,
   render,
   onSelect,
+  addToken,
+  standalone,
+  placeholder,
+  calledBy
 }: {
   tokens: TokenMetadata[];
   selected: string | React.ReactElement;
+  standalone?: boolean;
+  placeholder?: string;
   render?: (token: TokenMetadata) => React.ReactElement;
   onSelect?: (token: TokenMetadata) => void;
+  addToken?: () => JSX.Element;
+  calledBy?: string;
 }) {
   if (!onSelect) {
     return (
-      <button className="focus:outline-none p-1 col-span-3" type="button">
-        {selected}
-      </button>
+        <button className="focus:outline-none p-1" type="button">
+          {selected}
+        </button>
     );
   }
 
   return (
-    <MicroModal
-      trigger={(open) => (
-        <button
-          className="focus:outline-none p-1 col-span-3"
-          type="button"
-          onClick={open}
-        >
-          {selected || (
-            <section className="flex justify-end">
-              <p className="text-sm">select token</p>
-              <FaAngleDown className="stroke-current text-inputText block ml-1" />
-            </section>
+      <MicroModal
+          trigger={(open) => (
+              <button
+                  className={`focus:outline-none ${standalone ? 'w-full' : ''}`}
+                  type="button"
+                  onClick={open}
+              >
+                {selected || (
+                    <section
+                        className={`flex justify-between items-center px-3 py-3 ${
+                            standalone
+                                ? 'bg-inputBg relative flex overflow-hidden rounded-lg align-center my-2 border'
+                                : ''
+                        }`}
+                    >
+                      <p
+                          className="text-xs font-semibold leading-none"
+                          style={{ lineHeight: 'unset' }}
+                      >
+                        {placeholder ?? 'Select'}
+                      </p>
+                      <div className="pl-2">
+                        <ArrowDownGreen />
+                      </div>
+                    </section>
+                )}
+              </button>
           )}
-        </button>
-      )}
-      overrides={{
-        Dialog: { style: { maxWidth: 'auto' } },
-      }}
-    >
-      {(close) => (
-        <section>
-          <h2 className="text-2xl py-2 text-center border-b-2">Select Token</h2>
-          <TokenList
-            tokens={tokens}
-            render={render}
-            onClick={(token) => {
-              onSelect && onSelect(token);
-              close();
-            }}
-          />
-        </section>
-      )}
-    </MicroModal>
+          overrides={{
+            Dialog: {
+              style: { width: '25%', borderRadius: '0.75rem', padding: '1.5rem' },
+            },
+          }}
+      >
+        {(close) => (
+            <section>
+              <div className="flex border-b items-center justify-between pb-5">
+                <h2 className="text-sm font-bold text-center">Select Token</h2>
+                {addToken && addToken()}
+              </div>
+              <TokenList
+                  tokens={tokens}
+                  render={render}
+                  onClick={(token) => {
+                    onSelect && onSelect(token);
+                    close();
+                  }}
+                  calledBy={calledBy}
+              />
+            </section>
+        )}
+      </MicroModal>
   );
 }

@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
-import { FaArrowsAltV } from 'react-icons/fa';
 import { TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
-import { wallet } from '../../services/near';
-import { useWhitelistTokens, useTokenBalances } from '../../state/token';
+import { useTokenBalances } from '../../state/token';
 import { useSwap } from '../../state/swap';
 import {
   calculateExchangeRate,
@@ -14,13 +12,16 @@ import {
   toReadableNumber,
   toRoundedReadableNumber,
 } from '../../utils/numbers';
-import Loading from '../layout/Loading';
 import FormWrap from '../forms/FormWrap';
 import TokenAmount from '../forms/TokenAmount';
 import Alert from '../alert/Alert';
 import SlippageSelector from '../forms/SlippageSelector';
 import copy from '../../utils/copy';
+<<<<<<< HEAD
 import Icon from '~components/tokens/Icon';
+=======
+import { ArrowDownBlack } from '../icon/Arrows';
+>>>>>>> feat/new-ui
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -106,6 +107,7 @@ function DetailView({
   );
 }
 
+<<<<<<< HEAD
 export default function SwapCard() {
   const location = useLocation();
   const history = useHistory();
@@ -114,14 +116,24 @@ export default function SwapCard() {
     .slice(1)
     .split(TOKEN_URL_SEPARATOR);
 
+=======
+export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
+  const { allTokens } = props;
+>>>>>>> feat/new-ui
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenInAmount, setTokenInAmount] = useState<string>('');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
 
+<<<<<<< HEAD
   const allTokens = useWhitelistTokens(
     urlTokenIn && urlTokenOut ? [urlTokenIn, urlTokenOut] : []
   );
+=======
+  const location = useLocation();
+  const history = useHistory();
+
+>>>>>>> feat/new-ui
   const balances = useTokenBalances();
 
   useEffect(() => {
@@ -133,7 +145,12 @@ export default function SwapCard() {
         allTokens.find((token) => token.id === rememberedIn) || allTokens[0]
       );
       setTokenOut(
+<<<<<<< HEAD
         allTokens.find((token) => token.id === rememberedOut) || allTokens[1]
+=======
+        allTokens.find((token) => token.symbol === rememberedOut) ||
+        allTokens[1]
+>>>>>>> feat/new-ui
       );
     }
   }, [allTokens]);
@@ -152,36 +169,42 @@ export default function SwapCard() {
     slippageTolerance,
   });
 
-  if (!allTokens) return <Loading />;
-
-  const title =
-    wallet.isSignedIn() &&
-    tokenIn &&
-    (!balances?.[tokenIn.id] || balances?.[tokenIn.id] === '0')
-      ? 'Make a deposit to swap'
-      : 'Swap';
-
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     makeSwap();
   };
 
+  const tokenInMax =
+    toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0';
+  const tokenOutTotal =
+    toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
+
   return (
     <FormWrap
-      title={title}
       canSubmit={canSwap}
+      showElseView={tokenInMax === '0'}
+      elseView={
+        <div className="flex justify-center">
+          <button
+            className={`rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight`}
+            onClick={() => {
+              history.push(`/deposit/${tokenIn.id}`);
+            }}
+          >
+            Deposit to Swap
+          </button>
+        </div>
+      }
       onSubmit={handleSubmit}
       info={copy.swap}
     >
-      <h1 className="text-center text-red-500 text-bold border-2 border-red-500 py-2">
-        Community developed. Not audited. Use at your own risk.
-      </h1>
-      {swapError && <Alert level="error" message={swapError.message} />}
+      <div className="pb-2">
+        {swapError && <Alert level="error" message={swapError.message} />}
+      </div>
       <TokenAmount
         amount={tokenInAmount}
-        max={
-          toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0'
-        }
+        total={tokenInMax}
+        max={tokenInMax}
         tokens={allTokens}
         selectedToken={tokenIn}
         balances={balances}
@@ -190,21 +213,28 @@ export default function SwapCard() {
           history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
           setTokenIn(token);
         }}
+        text="From"
         onChangeAmount={setTokenInAmount}
       />
-      <FaArrowsAltV
-        className="h-6 m-auto cursor-pointer"
+      <div
+        className="flex items-center justify-center"
         onClick={() => {
           setTokenIn(tokenOut);
           setTokenOut(tokenIn);
           setTokenInAmount(toPrecision(tokenOutAmount, 6));
         }}
-      />
+      >
+        <div className="inline-block mt-4 mb-4 cursor-pointer">
+          <ArrowDownBlack />
+        </div>
+      </div>
       <TokenAmount
         amount={toPrecision(tokenOutAmount, 6)}
+        total={tokenOutTotal}
         tokens={allTokens}
         selectedToken={tokenOut}
         balances={balances}
+        text="To"
         onSelectToken={(token) => {
           localStorage.setItem(SWAP_OUT_KEY, token.id);
           history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`);

@@ -1,0 +1,399 @@
+import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import Modal from 'react-modal';
+import { Card } from '~components/card/Card';
+import { usePool, useRemoveLiquidity } from '~state/pool';
+import { addLiquidityToPool, Pool } from '~services/pool';
+import { useTokenBalances, useTokens } from '~state/token';
+import Loading from '~components/layout/Loading';
+import {
+  calculateFairShare,
+  calculateFeePercent,
+  percent,
+  toNonDivisibleNumber,
+  toPrecision,
+  toReadableNumber,
+  toRoundedReadableNumber,
+} from '../../utils/numbers';
+import TokenAmount from '~components/forms/TokenAmount';
+import { TokenMetadata } from '~services/ft-contract';
+import Alert from '~components/alert/Alert';
+import InputAmount from '~components/forms/InputAmount';
+import SlippageSelector from '~components/forms/SlippageSelector';
+
+interface ParamTypes {
+  id: string;
+}
+
+function Icon(props: { icon?: string }) {
+  const { icon } = props;
+  return icon ? (
+    <img className="block h-7 w-7" src={icon} />
+  ) : (
+    <div className="h-7 w-7 rounded-full border"></div>
+  );
+}
+
+function AddLiquidityModal(
+  props: ReactModal.Props & {
+    pool: Pool;
+    tokens: TokenMetadata[];
+  }
+) {
+  const { pool, tokens } = props;
+  const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
+  const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
+  const balances = useTokenBalances();
+  const [error, setError] = useState<Error>();
+
+  if (!balances) return null;
+
+  const changeFirstTokenAmount = (amount: string) => {
+    if (Object.values(pool.supplies).every((s) => s === '0')) {
+      setFirstTokenAmount(amount);
+    } else {
+      const fairShares = calculateFairShare({
+        shareOf: pool.shareSupply,
+        contribution: toNonDivisibleNumber(tokens[0].decimals, amount),
+        totalContribution: pool.supplies[tokens[0].id],
+      });
+
+      setFirstTokenAmount(amount);
+      setSecondTokenAmount(
+        toReadableNumber(
+          tokens[1].decimals,
+          calculateFairShare({
+            shareOf: pool.supplies[tokens[1].id],
+            contribution: fairShares,
+            totalContribution: pool.shareSupply,
+          })
+        )
+      );
+    }
+  };
+
+  const changeSecondTokenAmount = (amount: string) => {
+    if (Object.values(pool.supplies).every((s) => s === '0')) {
+      setSecondTokenAmount(amount);
+    } else {
+      const fairShares = calculateFairShare({
+        shareOf: pool.shareSupply,
+        contribution: toNonDivisibleNumber(tokens[1].decimals, amount),
+        totalContribution: pool.supplies[tokens[1].id],
+      });
+
+      setSecondTokenAmount(amount);
+      setFirstTokenAmount(
+        toReadableNumber(
+          tokens[0].decimals,
+          calculateFairShare({
+            shareOf: pool.supplies[tokens[0].id],
+            contribution: fairShares,
+            totalContribution: pool.shareSupply,
+          })
+        )
+      );
+    }
+  };
+
+  const canSubmit = firstTokenAmount && secondTokenAmount;
+
+  function submit() {
+    if (!firstTokenAmount || firstTokenAmount === '0') {
+      throw new Error(`Must provide at least 1 token for ${tokens[0].symbol}`);
+    }
+
+    if (!secondTokenAmount || secondTokenAmount === '0') {
+      throw new Error(`Must provide at least 1 token for ${tokens[1].symbol}`);
+    }
+
+    return addLiquidityToPool({
+      id: pool.id,
+      tokenAmounts: [
+        { token: tokens[0], amount: firstTokenAmount },
+        { token: tokens[1], amount: secondTokenAmount },
+      ],
+    });
+  }
+
+  return (
+    <Modal {...props}>
+      <div></div>
+      <Card style={{ width: '30vw' }}>
+        <div className="text-sm text-gray-800 font-semibold pb-4">
+          Add Liquidity
+        </div>
+        <div className="flex justify-center">
+          {error && <Alert level="error" message={error.message} />}
+        </div>
+        <TokenAmount
+          amount={firstTokenAmount}
+          max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
+          total={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
+          tokens={[tokens[0]]}
+          selectedToken={tokens[0]}
+          onChangeAmount={changeFirstTokenAmount}
+        />
+        <div className="pt-4">
+          <TokenAmount
+            amount={secondTokenAmount}
+            max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
+            total={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
+            tokens={[tokens[1]]}
+            selectedToken={tokens[1]}
+            onChangeAmount={changeSecondTokenAmount}
+          />
+        </div>
+        <div className="flex items-center justify-center pt-6">
+          <button
+            disabled={!canSubmit}
+            className={`rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight ${
+              canSubmit ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
+            }`}
+            onClick={async () => {
+              try {
+                await submit();
+              } catch (err) {
+                setError(err);
+              }
+            }}
+          >
+            Add Liquidity
+          </button>
+        </div>
+      </Card>
+    </Modal>
+  );
+}
+
+export function RemoveLiquidityModal(
+  props: ReactModal.Props & {
+    pool: Pool;
+    shares: string;
+    tokens: TokenMetadata[];
+  }
+) {
+  const { pool, shares, tokens } = props;
+  const [amount, setAmount] = useState<string>('');
+  const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
+  const { minimumAmounts, removeLiquidity } = useRemoveLiquidity({
+    pool,
+    slippageTolerance,
+    shares: amount ? toNonDivisibleNumber(24, amount) : '0',
+  });
+
+  const [error, setError] = useState<Error>();
+
+  return (
+    <Modal {...props}>
+      <Card style={{ width: '30vw' }}>
+        <div className="text-sm text-gray-800 font-semibold pb-4">
+          Remove Liquidity
+        </div>
+        <div className="flex justify-center">
+          {error && <Alert level="error" message={error.message} />}
+        </div>
+        <div>
+          <p className="col-span-12 p-2 text-right text-xs font-semibold">
+            Balance: {toReadableNumber(24, shares)}
+          </p>
+          <div className="border rounded-lg overflow-hidden">
+            <InputAmount
+              maxBorder={false}
+              value={amount}
+              max={toReadableNumber(24, shares)}
+              onChangeAmount={setAmount}
+            />
+          </div>
+        </div>
+        <div className="pt-2">
+          <SlippageSelector
+            slippageTolerance={slippageTolerance}
+            onChange={setSlippageTolerance}
+          />
+        </div>
+        {amount ? (
+          <>
+            <p className="mt-3 text-left text-xs font-semibold">
+              Minimum Tokens Out
+            </p>
+            <section className="grid grid-cols-2 mt-3 text-xs font-semibold">
+              {Object.entries(minimumAmounts).map(
+                ([tokenId, minimumAmount], i) => {
+                  const token = tokens.find((t) => t.id === tokenId);
+
+                  return (
+                    <section key={tokenId} className="flex items-center">
+                      <Icon icon={token.icon} />
+                      <span className="ml-2">
+                        {toRoundedReadableNumber({
+                          decimals: tokens.find((t) => t.id === tokenId)
+                            .decimals,
+                          number: minimumAmount,
+                          precision: 6,
+                        })}
+                      </span>
+                    </section>
+                  );
+                }
+              )}
+            </section>
+          </>
+        ) : null}
+        <div className="flex items-center justify-center pt-6">
+          <button
+            className={`rounded-full text-xs text-white px-3 py-1.5 ml-3 focus:outline-none font-semibold bg-greenLight ${
+              amount ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
+            }`}
+            onClick={async () => {
+              try {
+                await removeLiquidity();
+              } catch (error) {
+                setError(error);
+              }
+            }}
+          >
+            Remove Liquidity
+          </button>
+        </div>
+      </Card>
+    </Modal>
+  );
+}
+
+function MyShares({
+  shares,
+  totalShares,
+}: {
+  shares: string;
+  totalShares: string;
+}) {
+  if (!shares || !totalShares) return null;
+
+  let sharePercent = percent(shares, totalShares);
+
+  let displayPercent;
+  if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
+  else if (sharePercent < 0.0001) displayPercent = '< 0.0001';
+  else displayPercent = toPrecision(String(sharePercent), 4);
+
+  return <div>{displayPercent}% of Total</div>;
+}
+
+export function PoolDetailsPage() {
+  const { id } = useParams<ParamTypes>();
+  const { pool, shares } = usePool(id);
+  const tokens = useTokens(pool?.tokenIds);
+
+  const [showFunding, setShowFunding] = useState(false);
+  const [showWithdraw, setShowWithdraw] = useState(false);
+
+  if (!pool || !tokens || tokens.length < 2) return <Loading />;
+
+  return (
+    <div className="flex items-center flex-col">
+      <div className="text-center pb-8">
+        <div className="text-white text-3xl font-semibold">Pool details</div>
+      </div>
+      <Card width="w-1/3">
+        <div className="text-center">
+          <div className="inline-flex items-center text-base font-semibold">
+            <Icon icon={tokens[0].icon} />
+            <div className="px-1"></div>
+            <Icon icon={tokens[1].icon} />
+          </div>
+        </div>
+        <div className="text-center border-b">
+          <div className="inline-flex text-center text-base font-semibold pt-2 pb-6">
+            <div>{tokens[0].symbol}</div>
+            <div className="px-2">-</div>
+            <div>{tokens[1].symbol}</div>
+          </div>
+        </div>
+        <div className="text-xs font-semibold text-gray-600 pt-6">
+          <div className="flex items-center justify-between py-2">
+            <div>Total Liquidity</div>
+            <div>Coming Soon</div>
+          </div>
+          <div className="flex items-center justify-between py-2">
+            <div>Accumulated Volume</div>
+            <div>Coming Soon</div>
+          </div>
+          <div className="flex-col items-center justify-between py-2">
+            <div>Underlying liquidity</div>
+            <div className="flex items-center justify-between">
+              <div>{tokens[0].symbol}</div>
+              <div>
+                {toRoundedReadableNumber({
+                  decimals: tokens[0].decimals,
+                  number: pool.supplies[tokens[0].id],
+                })}
+              </div>
+            </div>
+            <div className="flex items-center justify-between py-1">
+              <div>{tokens[1].symbol}</div>
+              <div>
+                {toRoundedReadableNumber({
+                  decimals: tokens[1].decimals,
+                  number: pool.supplies[tokens[1].id],
+                })}
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center justify-between py-2">
+            <div>Total Shares</div>
+            <div>
+              {toRoundedReadableNumber({
+                decimals: 24,
+                number: pool.shareSupply,
+              })}
+            </div>
+          </div>
+          <div className="flex items-center justify-between py-2">
+            <div>Fees</div>
+            <div>{`${calculateFeePercent(pool.fee)}%`}</div>
+          </div>
+          <div className="flex items-center justify-between py-2">
+            <div>My Shares</div>
+            <div>
+              <MyShares shares={shares} totalShares={pool.shareSupply} />
+            </div>
+          </div>
+          <div className="flex items-center justify-center pt-6">
+            <button
+              className={`rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight`}
+              onClick={() => {
+                setShowFunding(true);
+              }}
+            >
+              Add Liquidity
+            </button>
+            <button
+              className={`rounded-full text-xs text-white px-3 py-1.5 ml-3 focus:outline-none font-semibold bg-greenLight ${
+                1 ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
+              }`}
+              onClick={() => {
+                setShowWithdraw(true);
+              }}
+            >
+              Remove Liquidity
+            </button>
+          </div>
+        </div>
+      </Card>
+      <RemoveLiquidityModal
+        pool={pool}
+        shares={shares}
+        tokens={tokens}
+        isOpen={showWithdraw}
+        onRequestClose={() => setShowWithdraw(false)}
+      />
+      <AddLiquidityModal
+        pool={pool}
+        tokens={tokens}
+        isOpen={showFunding}
+        onRequestClose={() => setShowFunding(false)}
+      />
+    </div>
+  );
+}

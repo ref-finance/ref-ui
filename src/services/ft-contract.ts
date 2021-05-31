@@ -73,7 +73,7 @@ export const ftGetTokenMetadata = async (
     return {
       id,
       name: id,
-      symbol: id.split('.')[0].slice(0, 8),
+      symbol: id?.split('.')[0].slice(0, 8),
       decimals: 6,
       icon: null,
     };

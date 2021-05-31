@@ -12,13 +12,9 @@ export default function Icon({
   label?: boolean;
   size?: number | string;
 }) {
-  const icon =
-    token.icon ||
-    'https://fluxprotocol.eth.link/static/media/wrapped-near.8b3a5e4b.svg';
   return (
-    <div className="flex items-center">
-      <img className={`h-${size} w-${size} ${className}`} src={icon} />
-      {label && <p className="ml-2 hidden sm:block">{token.symbol}</p>}
+    <div className="flex items-center text-xs" style={{ lineHeight: 'unset' }}>
+      {label && <p className="hidden sm:block">{token.symbol}</p>}
     </div>
   );
 }
