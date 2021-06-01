@@ -71,19 +71,12 @@ export const getPools = async (counter: number) => {
     });
 }
 
-export const getYourPoolsFromIndexer = async (args?: any): Promise<PoolRPCView[]> => {
+export const getYourPoolsFromIndexer = async (): Promise<PoolRPCView[]> => {
   return await fetch(config.indexerUrl + '/liquidity-pools/' + wallet.getAccountId(), {
     method: 'GET',
     headers: { 'Content-type': 'application/json; charset=UTF-8' }
   }).then(res => res.json())
     .then(pools => {
-      pools.forEach(async (pool: any, i: number) => {
-        pool.id = i;
-        const pool_balance = await getPoolBalance(Number(pool.id));
-        if (Number(pool_balance) > 0) {
-          pools[i].share = pool_balance;
-        }
-      });
       return pools;
     });
 }
