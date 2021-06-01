@@ -17,9 +17,22 @@ interface PoolRPCView {
   shares_total_supply: string;
   tvl: number;
   token0_ref_price: string;
+  share: string;
 }
 
-export const get_pool_balance = async (pool_id: number) => {
+const parsePoolView = (pool: any): PoolRPCView => ({
+  id: Number(pool.id),
+  token_account_ids: pool.token_account_ids,
+  token_symbols: pool.token_symbols,
+  amounts: pool.amounts,
+  total_fee: pool.total_fee,
+  shares_total_supply: pool.shares_total_supply,
+  tvl: Number(toPrecision(pool.tvl,2)),
+  token0_ref_price: pool.token0_ref_price,
+  share: pool.share
+});
+
+export const getPoolBalance = async (pool_id: number) => {
   return await fetch(api_url, {
     method: 'POST',
     body: JSON.stringify({
@@ -31,11 +44,11 @@ export const get_pool_balance = async (pool_id: number) => {
     headers: { 'Content-type': 'application/json; charset=UTF-8' }
   }).then(res => res.json())
     .then(balance => {
-      return BigNumber(balance.toString()).toFixed();
+      return new BigNumber(balance.toString()).toFixed();
     });
-};
+}
 
-export const get_pools = async (counter: number) => {
+export const getPools = async (counter: number) => {
   return await fetch(api_url, {
     method: 'POST',
     body: JSON.stringify({
@@ -49,49 +62,58 @@ export const get_pools = async (counter: number) => {
     .then(pools => {
       pools.forEach(async (pool: any, i: number) => {
         pool.id = i + counter;
-        const pool_balance = await get_pool_balance(Number(pool.id) + counter);
+        const pool_balance = await getPoolBalance(Number(pool.id) + counter);
         if (Number(pool_balance) > 0) {
           pools[i].share = pool_balance;
         }
       });
       return pools;
     });
-};
+}
 
-export const get_pools_from_indexer = async (args: any): Promise<PoolRPCView[]> => {
+export const getYourPoolsFromIndexer = async (args?: any): Promise<PoolRPCView[]> => {
+  return await fetch(config.indexerUrl + '/liquidity-pools/' + wallet.getAccountId(), {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' }
+  }).then(res => res.json())
+    .then(pools => {
+      pools.forEach(async (pool: any, i: number) => {
+        pool.id = i;
+        const pool_balance = await getPoolBalance(Number(pool.id));
+        if (Number(pool_balance) > 0) {
+          pools[i].share = pool_balance;
+        }
+      });
+      return pools;
+    });
+}
+
+export const getPoolsFromIndexer = async (args: any): Promise<PoolRPCView[]> => {
   return await fetch(config.indexerUrl + '/list-top-pools', {
     method: 'GET',
     headers: { 'Content-type': 'application/json; charset=UTF-8' }
   }).then(res => res.json())
     .then(pools => {
-      pools = pools.map((pool: any) => ({
-        id: Number(pool.id),
-        token_account_ids: pool.token_account_ids,
-        token_symbols: pool.token_symbols,
-        amounts: pool.amounts,
-        total_fee: pool.total_fee,
-        shares_total_supply: pool.shares_total_supply,
-        tvl: Number(toPrecision(pool.tvl,2)),
-        token0_ref_price: pool.token0_ref_price
-      }));
-      return paginationPools(args, orderPools(args, searchPools(args, pools)));
-    });
-};
+      pools = pools.map((pool: any) => parsePoolView(pool));
 
-const searchPools = (args: any, pools: PoolRPCView[]) => {
+      return pagination(args, order(args, search(args, pools)));
+    });
+}
+
+const search = (args: any, pools: PoolRPCView[]) => {
   if (args.tokenName === '') return pools;
   return _.filter(pools, (pool: PoolRPCView) => {
     return _.includes(pool.token_symbols[0].toLowerCase(), args.tokenName.toLowerCase()) || _.includes(pool.token_symbols[1].toLowerCase(), args.tokenName.toLowerCase())
   });
 }
 
-const orderPools = (args: any, pools: PoolRPCView[]) => {
+const order = (args: any, pools: PoolRPCView[]) => {
   let column = args.column || 'tvl';
   let order =  args.order || 'desc';
   column = args.column === 'fee' ? 'total_fee' : column;
   return _.orderBy(pools, [column], [order]);
 }
 
-const paginationPools = (args: any, pools: PoolRPCView[]) => {
+const pagination = (args: any, pools: PoolRPCView[]) => {
   return _.slice(pools, (args.page - 1) * args.perPage, args.page * args.perPage);
 }
