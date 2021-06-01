@@ -16,65 +16,6 @@ import { useTokenBalances, useUserRegisteredTokens } from '../../state/token';
 import { REF_FI_CONTRACT_ID } from  '../../services/near'
 import RainBow from '~components/layout/RainBow';
 
-<<<<<<< HEAD
-function MobileBar() {
-  return (
-    <section className="md:hidden w-full bg-secondary">
-      <RefLogo className="m-auto w-40" height="70" />
-      <Menu
-        styles={{
-          bmBurgerButton: {
-            position: 'fixed',
-            width: '2rem',
-            height: '1.6rem',
-            left: '1.5rem',
-            top: '1.5rem',
-          },
-          bmBurgerBars: {
-            background: '#000000',
-          },
-          bmBurgerBarsHover: {
-            background: '#a90000',
-          },
-          bmCrossButton: {
-            height: '24px',
-            width: '24px',
-          },
-          bmCross: {
-            background: '#bdc3c7',
-          },
-          bmMenuWrap: {
-            position: 'fixed',
-            height: '100%',
-          },
-          bmMenu: {
-            background: '#FFFFFF',
-            padding: '2.5em 1.5em 0',
-            fontSize: '1.15em',
-          },
-          bmMorphShape: {
-            fill: '#373a47',
-          },
-        }}
-      >
-        <Anchor to="/portfolio" name="Portfolio" />
-        <Anchor to="/" name="Swap" />
-        <Anchor to="/pools" name="Pools" />
-        <a
-          href="https://ethereum.bridgetonear.org/"
-          target="_blank"
-          className="hover:text-primaryScale-500 text-xl p-5 outline-none"
-        >
-          Rainbow Bridge
-        </a>
-        <AuthButton />
-      </Menu>
-    </section>
-  );
-}
-
-function Anchor({ to, name }: { to: string; name: string }) {
-=======
 function Anchor({
   to,
   pattern,
@@ -86,7 +27,6 @@ function Anchor({
   name: string;
   className?: string;
 }) {
->>>>>>> feat/new-ui
   const location = useLocation();
   const isSelected = matchPath(location.pathname, {
     path: pattern,
@@ -121,30 +61,6 @@ function AccountEntry() {
   if (!userTokens || !balances) return null;
 
   return (
-<<<<<<< HEAD
-    <nav className="hidden grid-cols-6 items-center text-center bg-secondary md:grid">
-      <Link to="/" className="my-2 mx-3">
-        <RefLogo className="w-full" height="66" />
-      </Link>
-      {wallet.isSignedIn() ? (
-        <Anchor to="/portfolio" name="Portfolio" />
-      ) : (
-        <p></p>
-      )}
-      <Anchor to="/" name="Swap" />
-      <Anchor to="/pools" name="Pools" />
-      <a
-        href="https://ethereum.bridgetonear.org/"
-        target="_blank"
-        className="hover:text-primaryScale-500 text-xl p-5"
-      >
-        Rainbow Bridge
-      </a>
-      <section className="place-self-center">
-        {wallet.isSignedIn() ? <Dropdown /> : <AuthButton />}
-      </section>
-    </nav>
-=======
     <div
       className={`cursor-pointer font-bold items-center justify-end text-center p-1 pl-3 pr-3 relative h-full`}
       onMouseEnter={() => {
@@ -255,7 +171,6 @@ function PoolsMenu() {
         </Card>
       </div>
     </div>
->>>>>>> feat/new-ui
   );
 }
 

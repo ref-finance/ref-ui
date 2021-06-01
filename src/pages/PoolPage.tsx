@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-<<<<<<< HEAD
-import { FaAngleLeft, FaRegQuestionCircle } from 'react-icons/fa';
-=======
 import MicroModal from 'react-micro-modal';
 import { FaAngleLeft } from 'react-icons/fa';
->>>>>>> feat/new-ui
-import PageWrap from '../components/layout/PageWrap';
 import InputAmount from '../components/forms/InputAmount';
 import FormWrap from '../components/forms/FormWrap';
 import { usePool, useRemoveLiquidity } from '../state/pool';
@@ -24,16 +19,10 @@ import {
 import { TokenMetadata } from '../services/ft-contract';
 import { useTokenBalances, useTokens } from '../state/token';
 import TokenAmount from '../components/forms/TokenAmount';
-import TabFormWrap from '../components/forms/TabFormWrap';
 import Loading from '../components/layout/Loading';
 import Icon from '../components/tokens/Icon';
 import SlippageSelector from '../components/forms/SlippageSelector';
 import copy from '../utils/copy';
-<<<<<<< HEAD
-import SlippageSelector from '~components/forms/SlippageSelector';
-import ReactTooltip from 'react-tooltip';
-=======
->>>>>>> feat/new-ui
 
 interface ParamTypes {
   poolId: string;
@@ -43,35 +32,12 @@ interface TokenDetailColumnProps {
   className?: string;
   title: string;
   value: string | number | React.ReactElement;
-  copy: string;
 }
 
-<<<<<<< HEAD
-function DetailColumn({
-  className,
-  title,
-  value,
-  copy,
-}: TokenDetailColumnProps) {
-  return (
-    <div className={`flex flex-col mr-8 mb-8 lg:m-0 text-center ${className}`}>
-      <h2 className="flex justify-center text-secondaryScale-500 pb-1 content-center">
-        {title}
-        <FaRegQuestionCircle
-          data-type="dark"
-          data-place="bottom"
-          data-multiline={true}
-          data-tip={copy}
-          className="text-secondaryScale-500 text-xs ml-2"
-        />
-        <ReactTooltip />
-      </h2>
-=======
 function DetailColumn({className, title, value}: TokenDetailColumnProps) {
   return (
     <div className={`font-semibold flex justify-between mb-2 lg:m-0 text-center ${className}`}>
       <h2 className="font-semibold pb-1">{title}</h2>
->>>>>>> feat/new-ui
       <div>
         <div>{value}</div>
       </div>
@@ -203,27 +169,13 @@ function PoolHeader(
             decimals: 24,
             number: pool.shareSupply,
           })}
-          copy={copy.totalShares}
         />
-        <DetailColumn
-          title="Fee"
-          value={`${calculateFeePercent(pool.fee)}%`}
-          copy={copy.poolFee}
-        />
-        <DetailColumn
-          title="Total Liquidity"
-          value="Coming Soon"
-          copy={copy.totalLiquidity}
-        />
-        <DetailColumn
-          title="Accumulated Volume"
-          value="Coming Soon"
-          copy={copy.accVolume}
-        />
+        <DetailColumn title="Fee" value={`${calculateFeePercent(pool.fee)}%`} />
+        <DetailColumn title="Total Liquidity" value="Coming Soon" />
+        <DetailColumn title="Accumulated Volume" value="Coming Soon" />
         <DetailColumn
           title="Total Underlying Liquidity"
           value={<UnderlyingLiquidity pool={pool} tokens={tokens} />}
-          copy={copy.underlyingLiquidity}
         />
         <Shares shares={shares} totalShares={pool.shareSupply} />
         {shares ? (
@@ -236,7 +188,6 @@ function PoolHeader(
                 shares={shares}
               />
             }
-            copy={copy.myUnderlyingLiquidity}
           />
         ) : null}
       </div>
