@@ -5,7 +5,7 @@ import { ConnectToNearBtn, GreenButton } from '~components/button/Button';
 import Loading from '~components/layout/Loading';
 import { wallet } from '~services/near';
 import { useTokens } from '~state/token';
-import { get_pools } from '~services/api';
+import { getPoolBalance, getYourPoolsFromIndexer } from '~services/api';
 import { toRoundedReadableNumber } from '~utils/numbers';
 import { usePool } from '~state/pool';
 import { RemoveLiquidityModal } from './DetailsPage';
@@ -35,7 +35,7 @@ export function YourLiquidityPage() {
   const [pools, setPools] = useState([]);
 
   useEffect(() => {
-    get_pools(0).then(setPools);
+    getYourPoolsFromIndexer().then(setPools);
   }, []);
 
   return (
@@ -64,10 +64,15 @@ export function YourLiquidityPage() {
 
 function PoolRow(props: { pool: any }) {
   const { pool } = usePool(props.pool.id);
+  const [balance, setBalance] = useState('0');
   const tokens = useTokens(pool?.tokenIds);
   const [showWithdraw, setShowWithdraw] = useState(false);
 
-  if (!pool || !tokens || tokens.length < 2) return <Loading />;
+  useEffect(() => {
+    getPoolBalance(Number(props.pool.id)).then(setBalance);
+  }, []);
+
+  if (!pool || !tokens || tokens.length < 2 || !balance) return <Loading />;
 
   tokens.sort((a, b) => {
     if (a.symbol === 'wNEAR') return 1;
@@ -81,7 +86,7 @@ function PoolRow(props: { pool: any }) {
     return <div key={id} className="h-6 w-6 rounded-full border"></div>;
   });
 
-  return (Number(props.pool.share) > 0 &&
+  return (Number(balance)>0 &&
     <div className="grid grid-cols-12 py-2 content-center items-center text-xs font-semibold text-gray-600">
       <div className="grid grid-cols-2 col-span-2">
         <div className="w-14 flex items-center justify-between">{images}</div>
@@ -90,14 +95,14 @@ function PoolRow(props: { pool: any }) {
         {tokens[0].symbol}-{tokens[1].symbol}
       </p>
       <p className="col-span-4 text-center">
-        {toRoundedReadableNumber({ decimals: 24, number: props.pool.share })}
+        {toRoundedReadableNumber({ decimals: 24, number: balance })}
       </p>
       <div className="col-span-2 text-right">
         <GreenButton onClick={() => setShowWithdraw(true)}>Remove</GreenButton>
       </div>
       <RemoveLiquidityModal
         pool={pool}
-        shares={props.pool.share}
+        shares={balance}
         tokens={tokens}
         isOpen={showWithdraw}
         onRequestClose={() => setShowWithdraw(false)}
