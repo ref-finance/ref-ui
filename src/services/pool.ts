@@ -16,7 +16,6 @@ import { storageDepositForFTAction } from './creators/storage';
 import { getPoolsFromIndexer } from './api';
 
 export const DEFAULT_PAGE_LIMIT = 100;
-export const LP_STORAGE_AMOUNT = '0.00128';
 
 interface PoolRPCView {
   id: number;

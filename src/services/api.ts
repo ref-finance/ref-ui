@@ -42,7 +42,7 @@ export const getPoolBalance = async (pool_id: number) => {
       "params": { "account_id": wallet.getAccountId(), "pool_id": pool_id }
     }),
     headers: { 'Content-type': 'application/json; charset=UTF-8' }
-  }).then(res => res.json())
+  }).then(res => res.text())
     .then(balance => {
       return new BigNumber(balance.toString()).toFixed();
     });
