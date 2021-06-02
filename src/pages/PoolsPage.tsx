@@ -45,14 +45,11 @@ export default function PoolsPage() {
 
   return (
     <>
-      <PageWrap>
+      <div className="mb-7 title text-center text-3xl pb-3 text-white font-semibold">Liquidity Pools</div>
+      <div className="overflow-y-auto bg-secondary shadow-2xl rounded p-6 sm:w-full md:w-2/3 lg:w-1/2 place-self-center max-h-96">
         <header className="grid grid-cols-6">
           <section></section>
-          <section className="col-span-4">
-            <h1 className="text-xl font-bold p-2 text-center">
-              Available Liquidity Pools
-            </h1>
-          </section>
+          <section className="col-span-4" />
           <section>
             <Link
               to="/pools/add"
@@ -83,7 +80,7 @@ export default function PoolsPage() {
             More
           </button>
         )}
-      </PageWrap>
+      </div>
     </>
   );
 }

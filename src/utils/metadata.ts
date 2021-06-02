@@ -1,9 +1,9 @@
-export default {
-  'wrap.near':
-    'https://imgur.com/AaM3AbV.jpg',
+const icons: { [tokenId: string]: string } = {
+  'wrap.near': 'https://imgur.com/AaM3AbV.jpg',
   '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near':
     'https://s2.coinmarketcap.com/static/img/coins/64x64/4943.png',
-  'berryclub.ek.near': 'https://assets.onlinelabels.com/images/clip-art/pitr/pitr_Bananas_icon.png',
+  'berryclub.ek.near':
+    'https://assets.onlinelabels.com/images/clip-art/pitr/pitr_Bananas_icon.png',
   'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near':
     'https://s2.coinmarketcap.com/static/img/coins/64x64/825.png',
   '1f9840a85d5af5bf1d1762f925bdaddc4201f984.factory.bridge.near':
@@ -41,3 +41,5 @@ export default {
   '111111111117dc0aa78b770fa6a738034120c302.factory.bridge.near':
     'https://s2.coinmarketcap.com/static/img/coins/64x64/8104.png',
 };
+
+export default icons;

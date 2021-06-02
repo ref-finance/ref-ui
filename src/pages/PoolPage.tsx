@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { FaAngleLeft, FaRegQuestionCircle } from 'react-icons/fa';
-import PageWrap from '../components/layout/PageWrap';
+import MicroModal from 'react-micro-modal';
+import { FaAngleLeft } from 'react-icons/fa';
 import InputAmount from '../components/forms/InputAmount';
 import FormWrap from '../components/forms/FormWrap';
 import { usePool, useRemoveLiquidity } from '../state/pool';
@@ -19,12 +19,10 @@ import {
 import { TokenMetadata } from '../services/ft-contract';
 import { useTokenBalances, useTokens } from '../state/token';
 import TokenAmount from '../components/forms/TokenAmount';
-import TabFormWrap from '../components/forms/TabFormWrap';
 import Loading from '../components/layout/Loading';
 import Icon from '../components/tokens/Icon';
+import SlippageSelector from '../components/forms/SlippageSelector';
 import copy from '../utils/copy';
-import SlippageSelector from '~components/forms/SlippageSelector';
-import ReactTooltip from 'react-tooltip';
 
 interface ParamTypes {
   poolId: string;
@@ -34,28 +32,12 @@ interface TokenDetailColumnProps {
   className?: string;
   title: string;
   value: string | number | React.ReactElement;
-  copy: string;
 }
 
-function DetailColumn({
-  className,
-  title,
-  value,
-  copy,
-}: TokenDetailColumnProps) {
+function DetailColumn({className, title, value}: TokenDetailColumnProps) {
   return (
-    <div className={`flex flex-col mr-8 mb-8 lg:m-0 text-center ${className}`}>
-      <h2 className="flex justify-center text-secondaryScale-500 pb-1 content-center">
-        {title}
-        <FaRegQuestionCircle
-          data-type="dark"
-          data-place="bottom"
-          data-multiline={true}
-          data-tip={copy}
-          className="text-secondaryScale-500 text-xs ml-2"
-        />
-        <ReactTooltip />
-      </h2>
+    <div className={`font-semibold flex justify-between mb-2 lg:m-0 text-center ${className}`}>
+      <h2 className="font-semibold pb-1">{title}</h2>
       <div>
         <div>{value}</div>
       </div>
@@ -63,13 +45,14 @@ function DetailColumn({
   );
 }
 
-function Shares({
-  shares,
-  totalShares,
-}: {
-  shares: string;
-  totalShares: string;
-}) {
+function Shares(
+  {
+    shares,
+    totalShares,
+  }: {
+    shares: string;
+    totalShares: string;
+  }) {
   if (!shares || !totalShares) return null;
 
   let sharePercent = percent(shares, totalShares);
@@ -80,19 +63,21 @@ function Shares({
   else displayPercent = toPrecision(String(sharePercent), 4);
 
   return (
-    <h2 className="text-lg pb-4 font-bold text-center">
-      My Shares: {displayPercent}% of Total
-    </h2>
+    <DetailColumn
+      title="My Shares"
+      value={`${displayPercent}% of Total`}
+    />
   );
 }
 
-function UnderlyingLiquidity({
-  pool,
-  tokens,
-}: {
-  pool: Pool;
-  tokens: TokenMetadata[];
-}) {
+function UnderlyingLiquidity(
+  {
+    pool,
+    tokens,
+  }: {
+    pool: Pool;
+    tokens: TokenMetadata[];
+  }) {
   return (
     <section className="max-w-xs m-auto">
       <section className="grid grid-cols-2 p-2 width-1/2">
@@ -117,16 +102,17 @@ function UnderlyingLiquidity({
   );
 }
 
-function MyUnderlyingLiquidity({
-  pool,
-  tokens,
-  shares,
-}: {
-  pool: Pool;
-  tokens: TokenMetadata[];
-  shares: string;
-}) {
-  const { minimumAmounts } = useRemoveLiquidity({
+function MyUnderlyingLiquidity(
+  {
+    pool,
+    tokens,
+    shares,
+  }: {
+    pool: Pool;
+    tokens: TokenMetadata[];
+    shares: string;
+  }) {
+  const {minimumAmounts} = useRemoveLiquidity({
     pool,
     shares,
     slippageTolerance: 0,
@@ -156,56 +142,42 @@ function MyUnderlyingLiquidity({
   );
 }
 
-function PoolHeader({
-  pool,
-  tokens,
-  shares,
-}: {
-  pool: PoolDetails;
-  tokens: TokenMetadata[];
-  shares: string;
-}) {
+function PoolHeader(
+  {
+    pool,
+    tokens,
+    shares,
+  }: {
+    pool: PoolDetails;
+    tokens: TokenMetadata[];
+    shares: string;
+  }) {
   const total = Object.values(pool.supplies).reduce(
     (acc, amount) => sumBN(acc, amount),
     ''
   );
   const volume = Object.values(pool.volumes).reduce(
-    (acc, { input, output }) => sumBN(acc, input, output),
+    (acc, {input, output}) => sumBN(acc, input, output),
     '0'
   );
   return (
-    <div className="flex flex-col lg:pl-6 mt-8 mb-14">
-      <h1 className="font-normal text-xl pb-2 text-center">Pool Details</h1>
-      <Shares shares={shares} totalShares={pool.shareSupply} />
-      <div className="grid grid-cols-2 gap-10">
+    <div className="flex flex-col lg:pl-6 mt-8 mb-7">
+      <div className="grid grid-cols-1">
         <DetailColumn
           title="Total Shares"
           value={toRoundedReadableNumber({
             decimals: 24,
             number: pool.shareSupply,
           })}
-          copy={copy.totalShares}
         />
-        <DetailColumn
-          title="Fee"
-          value={`${calculateFeePercent(pool.fee)}%`}
-          copy={copy.poolFee}
-        />
-        <DetailColumn
-          title="Total Liquidity"
-          value="Coming Soon"
-          copy={copy.totalLiquidity}
-        />
-        <DetailColumn
-          title="Accumulated Volume"
-          value="Coming Soon"
-          copy={copy.accVolume}
-        />
+        <DetailColumn title="Fee" value={`${calculateFeePercent(pool.fee)}%`} />
+        <DetailColumn title="Total Liquidity" value="Coming Soon" />
+        <DetailColumn title="Accumulated Volume" value="Coming Soon" />
         <DetailColumn
           title="Total Underlying Liquidity"
           value={<UnderlyingLiquidity pool={pool} tokens={tokens} />}
-          copy={copy.underlyingLiquidity}
         />
+        <Shares shares={shares} totalShares={pool.shareSupply} />
         {shares ? (
           <DetailColumn
             title="My Underlying Liquidity"
@@ -216,7 +188,6 @@ function PoolHeader({
                 shares={shares}
               />
             }
-            copy={copy.myUnderlyingLiquidity}
           />
         ) : null}
       </div>
@@ -224,18 +195,19 @@ function PoolHeader({
   );
 }
 
-function AddLiquidity({
-  pool,
-  tokens,
-}: {
-  pool: Pool;
-  tokens: TokenMetadata[];
-}) {
-  const [firstTokenAmount, setFirstTokenAmount] = useState<string>();
-  const [secondTokenAmount, setSecondTokenAmount] = useState<string>();
+function AddLiquidity(
+  {
+    pool,
+    tokens,
+  }: {
+    pool: Pool;
+    tokens: TokenMetadata[];
+  }) {
+  const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
+  const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
 
   const balances = useTokenBalances();
-  if (!balances) return <Loading />;
+  if (!balances) return <div className="p-24"><Loading /></div>;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -251,58 +223,50 @@ function AddLiquidity({
     return addLiquidityToPool({
       id: pool.id,
       tokenAmounts: [
-        { token: tokens[0], amount: firstTokenAmount },
-        { token: tokens[1], amount: secondTokenAmount },
+        {token: tokens[0], amount: firstTokenAmount},
+        {token: tokens[1], amount: secondTokenAmount},
       ],
     });
   };
 
   const changeFirstTokenAmount = (amount: string) => {
-    if (Object.values(pool.supplies).every((s) => s === '0')) {
-      setFirstTokenAmount(amount);
-    } else {
-      const fairShares = calculateFairShare({
-        shareOf: pool.shareSupply,
-        contribution: toNonDivisibleNumber(tokens[0].decimals, amount),
-        totalContribution: pool.supplies[tokens[0].id],
-      });
+    const fairShares = calculateFairShare({
+      shareOf: pool.shareSupply,
+      contribution: toNonDivisibleNumber(tokens[0].decimals, amount),
+      totalContribution: pool.supplies[tokens[0].id],
+    });
 
-      setFirstTokenAmount(amount);
-      setSecondTokenAmount(
-        toReadableNumber(
-          tokens[1].decimals,
-          calculateFairShare({
-            shareOf: pool.supplies[tokens[1].id],
-            contribution: fairShares,
-            totalContribution: pool.shareSupply,
-          })
-        )
-      );
-    }
+    setFirstTokenAmount(amount);
+    setSecondTokenAmount(
+      toReadableNumber(
+        tokens[1].decimals,
+        calculateFairShare({
+          shareOf: pool.supplies[tokens[1].id],
+          contribution: fairShares,
+          totalContribution: pool.shareSupply,
+        })
+      )
+    );
   };
 
   const changeSecondTokenAmount = (amount: string) => {
-    if (Object.values(pool.supplies).every((s) => s === '0')) {
-      setSecondTokenAmount(amount);
-    } else {
-      const fairShares = calculateFairShare({
-        shareOf: pool.shareSupply,
-        contribution: toNonDivisibleNumber(tokens[1].decimals, amount),
-        totalContribution: pool.supplies[tokens[1].id],
-      });
+    const fairShares = calculateFairShare({
+      shareOf: pool.shareSupply,
+      contribution: toNonDivisibleNumber(tokens[1].decimals, amount),
+      totalContribution: pool.supplies[tokens[1].id],
+    });
 
-      setSecondTokenAmount(amount);
-      setFirstTokenAmount(
-        toReadableNumber(
-          tokens[0].decimals,
-          calculateFairShare({
-            shareOf: pool.supplies[tokens[0].id],
-            contribution: fairShares,
-            totalContribution: pool.shareSupply,
-          })
-        )
-      );
-    }
+    setSecondTokenAmount(amount);
+    setFirstTokenAmount(
+      toReadableNumber(
+        tokens[0].decimals,
+        calculateFairShare({
+          shareOf: pool.supplies[tokens[0].id],
+          contribution: fairShares,
+          totalContribution: pool.shareSupply,
+        })
+      )
+    );
   };
 
   return (
@@ -314,6 +278,7 @@ function AddLiquidity({
       <TokenAmount
         amount={firstTokenAmount}
         max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
+        total={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
         tokens={[tokens[0]]}
         selectedToken={tokens[0]}
         onChangeAmount={changeFirstTokenAmount}
@@ -321,6 +286,7 @@ function AddLiquidity({
       <TokenAmount
         amount={secondTokenAmount}
         max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
+        total={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
         tokens={[tokens[1]]}
         selectedToken={tokens[1]}
         onChangeAmount={changeSecondTokenAmount}
@@ -329,19 +295,20 @@ function AddLiquidity({
   );
 }
 
-function RemoveLiquidity({
-  pool,
-  shares,
-  tokens,
-}: {
-  pool: Pool;
-  shares: string;
-  tokens: TokenMetadata[];
-}) {
-  const [amount, setAmount] = useState<string>();
+function RemoveLiquidity(
+  {
+    pool,
+    shares,
+    tokens,
+  }: {
+    pool: Pool;
+    shares: string;
+    tokens: TokenMetadata[];
+  }) {
+  const [amount, setAmount] = useState<string>('');
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
 
-  const { minimumAmounts, removeLiquidity } = useRemoveLiquidity({
+  const {minimumAmounts, removeLiquidity} = useRemoveLiquidity({
     pool,
     slippageTolerance,
     shares: amount ? toNonDivisibleNumber(24, amount) : '0',
@@ -398,22 +365,46 @@ function RemoveLiquidity({
 }
 
 export default function PoolPage() {
-  const { poolId } = useParams<ParamTypes>();
-  const { pool, shares } = usePool(poolId);
+  const {poolId} = useParams<ParamTypes>();
+  const {pool, shares} = usePool(poolId);
   const tokens = useTokens(pool?.tokenIds);
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
 
   return (
-    <PageWrap>
-      <Link to="/pools" className="mb-2">
-        <FaAngleLeft size={30} />
-      </Link>
-      <PoolHeader pool={pool} tokens={tokens} shares={shares} />
-      <TabFormWrap titles={['Add Liquidity', 'Remove Liquidity']}>
-        <AddLiquidity pool={pool} tokens={tokens} />
-        <RemoveLiquidity pool={pool} shares={shares} tokens={tokens} />
-      </TabFormWrap>
-    </PageWrap>
+    <>
+      <div className="mb-7 title text-center text-4xl pb-3 text-white">Pool details</div>
+      <div
+        className="overflow-y-auto bg-secondary shadow-2xl rounded p-6 sm:w-full md:w-2/3 lg:w-1/2 place-self-center">
+        <Link to="/pools" className="mb-2">
+          <FaAngleLeft size={30} />
+        </Link>
+        <PoolHeader pool={pool} tokens={tokens} shares={shares} />
+        <div className="flex justify-center">
+          <MicroModal trigger={(open) => (
+            <button onClick={open}
+                    className="flex flex-row justify-center p-2 px-4 mt-5 mb-5 items-center rounded-2xl bg-primaryScale-600 border-2 text-buttonText hover:bg-buttonText hover:text-buttonBg hover:border-buttonBg hover:border-2 transition-colors shadow-lg transition-colors focus:outline-none disabled:cursor-not-allowed mr-2.5 text-sm">Add
+              Liquidity</button>
+          )} overrides={{
+            Dialog: {style: {padding: 0}},
+          }}>
+            {(close) => (
+              <AddLiquidity pool={pool} tokens={tokens} />
+            )}
+          </MicroModal>
+          <MicroModal trigger={(open) => (
+            <button onClick={open}
+                    className="flex flex-row justify-center p-2 px-4 mt-5 mb-5 items-center rounded-2xl bg-primaryScale-600 bg-opacity-50 border-2 text-buttonText hover:bg-buttonText hover:text-buttonBg hover:border-buttonBg hover:border-2 transition-colors shadow-lg transition-colors focus:outline-none disabled:cursor-not-allowed mr-2.5 text-sm">Remove
+              Liquidity</button>
+          )} overrides={{
+            Dialog: {style: {padding: 0}},
+          }}>
+            {(close) => (
+              <RemoveLiquidity pool={pool} shares={shares} tokens={tokens} />
+            )}
+          </MicroModal>
+        </div>
+      </div>
+    </>
   );
 }

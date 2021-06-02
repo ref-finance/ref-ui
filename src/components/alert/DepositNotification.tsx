@@ -57,6 +57,7 @@ function FirstDepositForm() {
       <TokenAmount
         amount={amount}
         max={String(max)}
+        total={String(max)}
         tokens={[nearMetadata]}
         selectedToken={selectedToken}
         onChangeAmount={setAmount}
