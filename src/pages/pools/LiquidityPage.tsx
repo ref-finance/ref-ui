@@ -12,6 +12,8 @@ import {
   toRoundedReadableNumber,
 } from '../../utils/numbers';
 import { round } from '~services/token';
+import { FaRegQuestionCircle } from 'react-icons/fa';
+import ReactTooltip from 'react-tooltip';
 
 function PoolRow({ pool }: { pool: Pool }) {
   const tokens = useTokens(pool.tokenIds);
@@ -71,18 +73,24 @@ export function LiquidityPage() {
           <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm font-bold">
             <p className="col-span-1">Pair</p>
             <p className="col-span-5">Liquidity</p>
-            <p
+            <p className="col-span-2">Market Price</p>
+            <div
               className="col-span-2"
               onClick={() => {
                 setSoryBy('tvl')
                 setOrder(order === 'desc' ? 'asc' : 'desc');
               }}
             >
-              Market Price
-            </p>
-            <p className="col-span-2">
-              Total Value Locked
-            </p>
+              <span>TVL</span>
+              <FaRegQuestionCircle
+                data-type="dark"
+                data-place="bottom"
+                data-multiline={true}
+                data-tip={'Total Value Locked'}
+                className="inline-block	ml-2 text-xs font-semibold text-secondaryScale-500"
+              />
+              <ReactTooltip className="text-xs font-light" />
+            </div>
             <p
               className="col-span-2 cursor-pointer"
               onClick={() => {
