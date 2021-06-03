@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import DepositPage from './pages/DepositPage';
-import WhitelistTokenPage from './pages/WhitelistTokenPage';
 import { PoolDetailsPage } from './pages/pools/DetailsPage';
 import SwapPage from './pages/SwapPage';
 import { AccountPage } from './pages/AccountPage';
@@ -51,7 +50,6 @@ function App() {
           <Switch>
             <Route path="/deposit/:id?" component={DepositPage} />
             <Route path="/account" component={AccountPage} />
-            <Route path="/whitelist/:tokenId" component={WhitelistTokenPage} />
             <Route path="/pool/:id" component={PoolDetailsPage} />
             <Route path="/adboard" component={AdboardPage} />
             <Route path="/pools/add" component={AddPoolPage} />
