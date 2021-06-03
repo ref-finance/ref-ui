@@ -39,7 +39,7 @@ export interface Pool {
 }
 
 const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
-  id: id > 0 ? id : pool.id,
+  id: id >= 0 ? id : pool.id,
   tokenIds: pool.token_account_ids,
   supplies: pool.amounts.reduce(
     (acc: { [tokenId: string]: string }, amount: string, i: number) => {
