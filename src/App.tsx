@@ -12,7 +12,7 @@ import { AddPoolPage } from './pages/pools/AddPoolPage';
 import { AddTokenPage } from './pages/pools/AddTokenPage';
 import AdboardPage from './pages/Adboard/AdboardPage';
 import NavigationBar from './components/layout/NavigationBar';
-import { BgShapeLeftBottom } from './components/icon';
+import { BgShapeLeftBottom, BgShapeTopRight } from './components/icon';
 import Modal from 'react-modal';
 
 import './global.css';
@@ -46,6 +46,7 @@ function App() {
       <ToastContainer />
       <div className="relative h-screen">
         <BgShapeLeftBottom />
+        <BgShapeTopRight />
         <NavigationBar />
         <div className="justify-center h-4/5 mt-24">
           <Switch>
