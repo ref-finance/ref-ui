@@ -184,6 +184,7 @@ function NavigationBar() {
         <Anchor to="/deposit" pattern="/deposit/:id?" name="Deposit" />
         <Anchor to="/" pattern="/" name="Swap" />
         <PoolsMenu />
+        <Anchor to="/adboard" pattern="/adboard" name="Adboard" />
         <a target="_blank" href="https://ethereum.bridgetonear.org/" className="relative ext-white border rounded-full p-4 py-2 border-greenLight text-greenLight">
           Rainbow&nbsp;Bridge
         </a>
