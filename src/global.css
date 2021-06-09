@@ -21,8 +21,7 @@ html {
 
 body {
   margin: 0;
-  background: linear-gradient(to bottom, #000 70%, #011b14 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#00c08b",endColorstr="#008375",GradientType=1);
+  background: #001220;
   scrollbar-width: thin;
   scrollbar-color: darkgrey transparent;
 }
@@ -99,7 +98,7 @@ input[type='number'] {
 
 /* Adboard */
 .tooltip-content::after {
-  content: " ";
+  content: ' ';
   position: absolute;
   bottom: 100%; /* This will position the arrow at the top of the tooltip */
   left: 50%;

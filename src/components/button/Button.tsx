@@ -2,6 +2,17 @@ import React, { HTMLAttributes } from 'react';
 import { wallet, REF_FI_CONTRACT_ID } from '~services/near';
 import { Near } from '~components/icon';
 
+export function BorderlessButton(props: HTMLAttributes<HTMLButtonElement>) {
+  return (
+    <button
+      className={`rounded-xl border border-greenLight focus:outline-none font-semibold focus:outline-none ${props.className}`}
+      {...props}
+    >
+      {props.children}
+    </button>
+  );
+}
+
 export function BorderButton(props: HTMLAttributes<HTMLButtonElement>) {
   return (
     <button

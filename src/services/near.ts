@@ -9,6 +9,8 @@ export const REF_FI_CONTRACT_ID = config.REF_FI_CONTRACT_ID;
 
 export const REF_ADBOARD_CONTRACT_ID = config.REF_ADBOARD_CONTRACT_ID;
 
+export const REF_FARM_CONTRACT_ID = config.REF_FARM_CONTRACT_ID;
+
 export const LP_STORAGE_AMOUNT = '0.00128';
 
 export const ONE_YOCTO_NEAR = '0.000000000000000000000001';
@@ -18,6 +20,7 @@ export const near = new Near({
   ...config,
 });
 export const wallet = new SpecialWallet(near, 'ref-fi');
+export const farmWallet = new SpecialWallet(near, 'ref-farm');
 
 export const getGas = (gas: string) =>
   gas ? new BN(gas) : new BN('30000000000000');
@@ -97,4 +100,66 @@ export const executeMultipleTransactions = async (
   );
 
   return wallet.requestSignTransactions(nearTransactions, callbackUrl);
+};
+
+export const refFarmFunctionCall = ({
+  methodName,
+  args,
+  gas,
+  amount,
+}: RefFiFunctionCallOptions) => {
+  return farmWallet
+    .account()
+    .functionCall(
+      REF_FARM_CONTRACT_ID,
+      methodName,
+      args,
+      getGas(gas),
+      getAmount(amount)
+    );
+};
+
+export const refFarmViewFunction = ({
+  methodName,
+  args,
+}: RefFiViewFunctionOptions) => {
+  return farmWallet
+    .account()
+    .viewFunction(REF_FARM_CONTRACT_ID, methodName, args);
+};
+
+export const refFarmManyFunctionCalls = (
+  functionCalls: RefFiFunctionCallOptions[]
+) => {
+  const actions = functionCalls.map((fc) =>
+    functionCall(fc.methodName, fc.args, getGas(fc.gas), getAmount(fc.amount))
+  );
+
+  return farmWallet
+    .account()
+    .sendTransactionWithActions(REF_FARM_CONTRACT_ID, actions);
+};
+
+export const executeFarmMultipleTransactions = async (
+  transactions: Transaction[],
+  callbackUrl?: string
+) => {
+  const nearTransactions = await Promise.all(
+    transactions.map((t, i) => {
+      return farmWallet.createTransaction({
+        receiverId: t.receiverId,
+        nonceOffset: i + 1,
+        actions: t.functionCalls.map((fc) =>
+          functionCall(
+            fc.methodName,
+            fc.args,
+            getGas(fc.gas),
+            getAmount(fc.amount)
+          )
+        ),
+      });
+    })
+  );
+
+  return farmWallet.requestSignTransactions(nearTransactions, callbackUrl);
 };

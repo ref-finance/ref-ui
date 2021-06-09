@@ -14,6 +14,7 @@ import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { toNonDivisibleNumber } from '../utils/numbers';
 import { storageDepositForFTAction } from './creators/storage';
 import { getPoolsFromIndexer } from './api';
+import { farmConfig } from '~utils/FarmData';
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -72,11 +73,25 @@ export const getPools = async ({
   useIndexerData?: boolean;
 }): Promise<Pool[]> => {
   if (useIndexerData) {
-    const poolData: PoolRPCView[] = await getPoolsFromIndexer({ page, perPage, tokenName, column, order, uniquePairName });
+    const poolData: PoolRPCView[] = await getPoolsFromIndexer({
+      page,
+      perPage,
+      tokenName,
+      column,
+      order,
+      uniquePairName,
+    });
     return poolData.map((rawPool) => parsePool(rawPool));
   }
 
-  const rows = await db.queryPools({ page, perPage, tokenName, column, order, uniquePairName });
+  const rows = await db.queryPools({
+    page,
+    perPage,
+    tokenName,
+    column,
+    order,
+    uniquePairName,
+  });
   return rows.map((row) => ({
     id: row.id,
     tokenIds: [row.token1Id, row.token2Id],
@@ -87,7 +102,7 @@ export const getPools = async ({
     fee: row.fee,
     shareSupply: row.shares,
     tvl: 0,
-    token0_ref_price: '0'
+    token0_ref_price: '0',
   }));
 };
 
@@ -152,6 +167,15 @@ export const getSharesInPool = (id: number): Promise<string> => {
     methodName: 'get_pool_shares',
     args: { pool_id: id, account_id: wallet.getAccountId() },
   });
+};
+
+export const canFarm = (pool_id: number): Boolean => {
+  const poolIds: number[] = [];
+  for (const [key, value] of Object.entries(farmConfig)) {
+    poolIds.push(value.poolId);
+  }
+
+  return poolIds.includes(pool_id);
 };
 
 interface AddLiquidityToPoolOptions {

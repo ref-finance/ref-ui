@@ -2,16 +2,14 @@ import React, { useState } from 'react';
 import { Card } from '~components/card/Card';
 import { usePools } from '../../state/pool';
 import Loading from '~components/layout/Loading';
-import {getPrice, useTokens } from '../../state/token';
+import { getPrice, useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';
-import { Pool } from '../../services/pool';
+import { canFarm, Pool } from '../../services/pool';
 import {
   calculateFeePercent,
   toPrecision,
   toReadableNumber,
-  toRoundedReadableNumber,
 } from '../../utils/numbers';
-import { round } from '~services/token';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 import ReactTooltip from 'react-tooltip';
 
@@ -31,17 +29,34 @@ function PoolRow({ pool }: { pool: Pool }) {
       className="grid grid-cols-12 py-2 content-center text-xs font-semibold text-gray-600"
     >
       <div className="grid grid-cols-2 col-span-1">{images}</div>
-      <p className="grid grid-cols-2 col-span-5">
-        <span>{tokens[0].symbol}={toPrecision(toReadableNumber(tokens[0].decimals || 24, pool.supplies[pool.tokenIds[0]]),4)}</span>
-        <span>{tokens[1].symbol}={toPrecision(toReadableNumber(tokens[1].decimals || 24, pool.supplies[pool.tokenIds[1]]),4)}</span>
+      <p className="grid grid-cols-1 col-span-4">
+        <span>
+          {tokens[0].symbol}=
+          {toPrecision(
+            toReadableNumber(
+              tokens[0].decimals || 24,
+              pool.supplies[pool.tokenIds[0]]
+            ),
+            4
+          )}
+        </span>
+        <span>
+          {tokens[1].symbol}=
+          {toPrecision(
+            toReadableNumber(
+              tokens[1].decimals || 24,
+              pool.supplies[pool.tokenIds[1]]
+            ),
+            4
+          )}
+        </span>
       </p>
-      <p className="col-span-2">
-        {getPrice(tokens,pool,pool.token0_ref_price,false)}
+      <p className="col-span-3">
+        {getPrice(tokens, pool, pool.token0_ref_price, false)}
       </p>
-      <p className="col-span-2">
-        ${pool.tvl}
-      </p>
-      <p className="col-span-2">{calculateFeePercent(pool.fee)}%</p>
+      <p className="col-span-2">${pool.tvl}</p>
+      <p className="col-span-1">{calculateFeePercent(pool.fee)}%</p>
+      <p className="col-span-1">{canFarm(pool.id) ? 'Yes' : ''}</p>
     </Link>
   );
 }
@@ -50,7 +65,12 @@ export function LiquidityPage() {
   const [tokenName, setTokenName] = useState('');
   const [sortBy, setSoryBy] = useState('tvl');
   const [order, setOrder] = useState('desc');
-  const { pools, hasMore, nextPage } = usePools({ tokenName, sortBy, order, useIndexerData:true });
+  const { pools, hasMore, nextPage } = usePools({
+    tokenName,
+    sortBy,
+    order,
+    useIndexerData: true,
+  });
   if (!pools) return <Loading />;
 
   return (
@@ -72,12 +92,12 @@ export function LiquidityPage() {
         <section>
           <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm font-bold">
             <p className="col-span-1">Pair</p>
-            <p className="col-span-5">Liquidity</p>
-            <p className="col-span-2">Market Price</p>
+            <p className="col-span-4">Liquidity</p>
+            <p className="col-span-3">Market Price</p>
             <div
               className="col-span-2"
               onClick={() => {
-                setSoryBy('tvl')
+                setSoryBy('tvl');
                 setOrder(order === 'desc' ? 'asc' : 'desc');
               }}
             >
@@ -92,14 +112,15 @@ export function LiquidityPage() {
               <ReactTooltip className="text-xs font-light" />
             </div>
             <p
-              className="col-span-2 cursor-pointer"
+              className="col-span-1 cursor-pointer"
               onClick={() => {
-                setSoryBy('fee')
+                setSoryBy('fee');
                 setOrder(order === 'desc' ? 'asc' : 'desc');
               }}
             >
               Fee
             </p>
+            <p className="col-span-1 cursor-pointer">Support Farm</p>
           </header>
           <div className="max-h-80 overflow-y-auto">
             {pools.map((pool, i) => (

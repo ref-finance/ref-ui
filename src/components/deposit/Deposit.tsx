@@ -97,7 +97,10 @@ export function TokenList(props: {
         const balance = balances[token.id] || '0';
         if (balance === '0' && hideEmpty) return null;
 
-        const amount = toPrecision(toReadableNumber(token.decimals, balance),6);
+        const amount = toPrecision(
+          toReadableNumber(token.decimals, balance),
+          6
+        );
         return <Token key={token.id} {...token} amount={amount} />;
       })}
       {tokens.length === 0 ? (

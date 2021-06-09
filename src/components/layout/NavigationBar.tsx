@@ -13,7 +13,7 @@ import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
 import { TokenList } from '~components/deposit/Deposit';
 import { useTokenBalances, useUserRegisteredTokens } from '../../state/token';
-import { REF_FI_CONTRACT_ID } from  '../../services/near'
+import { REF_FI_CONTRACT_ID } from '../../services/near';
 import RainBow from '~components/layout/RainBow';
 
 function Anchor({
@@ -75,12 +75,16 @@ function AccountEntry() {
           <Near />
         </div>
         <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name text-white">
-          {wallet.isSignedIn() ? accountName : <button
-            onClick={() => wallet.requestSignIn(REF_FI_CONTRACT_ID)}
-            type="button"
-          >
-            <span className="ml-2 text-sm">Connect to NEAR</span>
-          </button>}
+          {wallet.isSignedIn() ? (
+            accountName
+          ) : (
+            <button
+              onClick={() => wallet.requestSignIn(REF_FI_CONTRACT_ID)}
+              type="button"
+            >
+              <span className="ml-2 text-sm">Connect to NEAR</span>
+            </button>
+          )}
         </div>
       </div>
       <div
@@ -184,7 +188,12 @@ function NavigationBar() {
         <Anchor to="/deposit" pattern="/deposit/:id?" name="Deposit" />
         <Anchor to="/" pattern="/" name="Swap" />
         <PoolsMenu />
-        <a target="_blank" href="https://ethereum.bridgetonear.org/" className="relative ext-white border rounded-full p-4 py-2 border-greenLight text-greenLight">
+        <Anchor to="/farms" pattern="/farms" name="Farms" />
+        <a
+          target="_blank"
+          href="https://ethereum.bridgetonear.org/"
+          className="relative ext-white border rounded-full p-4 py-2 border-greenLight text-greenLight"
+        >
           Rainbow&nbsp;Bridge
         </a>
       </nav>

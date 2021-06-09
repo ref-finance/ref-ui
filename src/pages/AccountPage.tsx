@@ -13,8 +13,7 @@ export function AccountPage() {
     <div className="flex items-center flex-col">
       <div className="text-center pb-5">
         <div className="text-white text-3xl font-semibold">Account Balance</div>
-        <div className="text-white text-xs pt-2">
-        </div>
+        <div className="text-white text-xs pt-2"></div>
       </div>
       <Balances tokens={userTokens} balances={balances} />
     </div>

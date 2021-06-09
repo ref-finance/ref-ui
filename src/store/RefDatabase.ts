@@ -46,7 +46,10 @@ class RefDatabase extends Dexie {
   public searchPools(args: any, pools: Pool[]): Pool[] {
     if (args.tokenName === '') return pools;
     return _.filter(pools, (pool: Pool) => {
-      return _.includes(pool.token1Id, args.tokenName) || _.includes(pool.token2Id, args.tokenName)
+      return (
+        _.includes(pool.token1Id, args.tokenName) ||
+        _.includes(pool.token2Id, args.tokenName)
+      );
     });
   }
 
@@ -55,28 +58,41 @@ class RefDatabase extends Dexie {
   }
 
   public paginationPools(args: any, pools: Pool[]): Pool[] {
-    return _.slice(pools, (args.page - 1) * args.perPage, args.page * args.perPage);
+    return _.slice(
+      pools,
+      (args.page - 1) * args.perPage,
+      args.page * args.perPage
+    );
   }
 
   public uniquePools(args: any, pools: Pool[]): Pool[] {
     if (!args.uniquePairName) return pools;
     let obj: any[] = [];
-    return pools.reduce((cur: any[], next: { token1Id: any; token2Id: any; }) => {
-      const pair_name = `${next.token1Id}--${next.token1Id}`
-      obj[pair_name] ? "" : obj[pair_name] = true && cur.push(next);
-      return cur;
-    }, []);
+    return pools.reduce(
+      (cur: any[], next: { token1Id: any; token2Id: any }) => {
+        const pair_name = `${next.token1Id}--${next.token1Id}`;
+        obj[pair_name] ? '' : (obj[pair_name] = true && cur.push(next));
+        return cur;
+      },
+      []
+    );
   }
 
   public async queryPools(args: any) {
     let pools = await this.allPools().toArray();
-    return this.paginationPools(args, this.orderPools(args, this.uniquePools(args, this.searchPools(args, pools))));
+    return this.paginationPools(
+      args,
+      this.orderPools(
+        args,
+        this.uniquePools(args, this.searchPools(args, pools))
+      )
+    );
   }
 
   public searchTokens(args: any, tokens: TokenMetadata[]): TokenMetadata[] {
     if (args.tokenName === '') return tokens;
     return _.filter(tokens, (token: TokenMetadata) => {
-      return _.includes(token.name, args.tokenName)
+      return _.includes(token.name, args.tokenName);
     });
   }
 

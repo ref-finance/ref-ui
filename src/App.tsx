@@ -16,6 +16,7 @@ import Modal from 'react-modal';
 
 import './global.css';
 import 'react-toastify/dist/ReactToastify.css';
+import { FarmsPage } from '~pages/farms/FarmsPage';
 
 Modal.defaultStyles = {
   overlay: {
@@ -57,6 +58,7 @@ function App() {
             <Route path="/pools/add-token" component={AddTokenPage} />
             <Route path="/pools/yours" component={YourLiquidityPage} />
             <Route path="/pools" component={LiquidityPage} />
+            <Route path="/farms" component={FarmsPage} />
             <Route path="/" component={SwapPage} />
           </Switch>
         </div>
