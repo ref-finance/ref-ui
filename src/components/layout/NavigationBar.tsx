@@ -13,7 +13,7 @@ import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
 import { TokenList } from '~components/deposit/Deposit';
 import { useTokenBalances, useUserRegisteredTokens } from '../../state/token';
-import { REF_FI_CONTRACT_ID } from '../../services/near';
+import { REF_FARM_CONTRACT_ID } from '../../services/near';
 import RainBow from '~components/layout/RainBow';
 
 function Anchor({
@@ -79,7 +79,7 @@ function AccountEntry() {
             accountName
           ) : (
             <button
-              onClick={() => wallet.requestSignIn(REF_FI_CONTRACT_ID)}
+              onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
               type="button"
             >
               <span className="ml-2 text-sm">Connect to NEAR</span>

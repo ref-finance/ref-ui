@@ -41,11 +41,13 @@ export function FarmsPage() {
     });
   }
 
-  function loadFarmInfoList() {}
+  function loadFarmInfoList() {
+    getFarms({}).then(setFarms);
+  }
 
   useEffect(() => {
     loadUnclaimedFarms();
-    getFarms({}).then(setFarms);
+    loadFarmInfoList();
   }, []);
 
   function claimRewards() {
@@ -82,10 +84,7 @@ export function FarmsPage() {
                   >
                     <div>{farmConfig[farm.farm_id].name}</div>
                     <div>
-                      {toReadableNumber(
-                        farm.rewardToken.decimals,
-                        farm.userUnclaimedReward
-                      )}
+                      {farm.userUnclaimedReward}
                       <span> {farm.rewardToken.symbol}</span>
                     </div>
                   </div>

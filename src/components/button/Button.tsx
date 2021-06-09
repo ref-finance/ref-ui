@@ -1,5 +1,5 @@
 import React, { HTMLAttributes } from 'react';
-import { wallet, REF_FI_CONTRACT_ID } from '~services/near';
+import { wallet, REF_FARM_CONTRACT_ID } from '~services/near';
 import { Near } from '~components/icon';
 
 export function BorderlessButton(props: HTMLAttributes<HTMLButtonElement>) {
@@ -60,7 +60,7 @@ export function GrayButton(
 export function ConnectToNearBtn() {
   return (
     <div className="flex items-center justify-center pt-2">
-      <GrayButton onClick={() => wallet.requestSignIn(REF_FI_CONTRACT_ID)}>
+      <GrayButton onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}>
         <div className="pr-1">
           <Near />
         </div>
