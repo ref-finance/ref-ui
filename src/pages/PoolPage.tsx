@@ -34,9 +34,11 @@ interface TokenDetailColumnProps {
   value: string | number | React.ReactElement;
 }
 
-function DetailColumn({className, title, value}: TokenDetailColumnProps) {
+function DetailColumn({ className, title, value }: TokenDetailColumnProps) {
   return (
-    <div className={`font-semibold flex justify-between mb-2 lg:m-0 text-center ${className}`}>
+    <div
+      className={`font-semibold flex justify-between mb-2 lg:m-0 text-center ${className}`}
+    >
       <h2 className="font-semibold pb-1">{title}</h2>
       <div>
         <div>{value}</div>
@@ -45,14 +47,13 @@ function DetailColumn({className, title, value}: TokenDetailColumnProps) {
   );
 }
 
-function Shares(
-  {
-    shares,
-    totalShares,
-  }: {
-    shares: string;
-    totalShares: string;
-  }) {
+function Shares({
+  shares,
+  totalShares,
+}: {
+  shares: string;
+  totalShares: string;
+}) {
   if (!shares || !totalShares) return null;
 
   let sharePercent = percent(shares, totalShares);
@@ -63,21 +64,17 @@ function Shares(
   else displayPercent = toPrecision(String(sharePercent), 4);
 
   return (
-    <DetailColumn
-      title="My Shares"
-      value={`${displayPercent}% of Total`}
-    />
+    <DetailColumn title="My Shares" value={`${displayPercent}% of Total`} />
   );
 }
 
-function UnderlyingLiquidity(
-  {
-    pool,
-    tokens,
-  }: {
-    pool: Pool;
-    tokens: TokenMetadata[];
-  }) {
+function UnderlyingLiquidity({
+  pool,
+  tokens,
+}: {
+  pool: Pool;
+  tokens: TokenMetadata[];
+}) {
   return (
     <section className="max-w-xs m-auto">
       <section className="grid grid-cols-2 p-2 width-1/2">
@@ -102,17 +99,16 @@ function UnderlyingLiquidity(
   );
 }
 
-function MyUnderlyingLiquidity(
-  {
-    pool,
-    tokens,
-    shares,
-  }: {
-    pool: Pool;
-    tokens: TokenMetadata[];
-    shares: string;
-  }) {
-  const {minimumAmounts} = useRemoveLiquidity({
+function MyUnderlyingLiquidity({
+  pool,
+  tokens,
+  shares,
+}: {
+  pool: Pool;
+  tokens: TokenMetadata[];
+  shares: string;
+}) {
+  const { minimumAmounts } = useRemoveLiquidity({
     pool,
     shares,
     slippageTolerance: 0,
@@ -142,22 +138,21 @@ function MyUnderlyingLiquidity(
   );
 }
 
-function PoolHeader(
-  {
-    pool,
-    tokens,
-    shares,
-  }: {
-    pool: PoolDetails;
-    tokens: TokenMetadata[];
-    shares: string;
-  }) {
+function PoolHeader({
+  pool,
+  tokens,
+  shares,
+}: {
+  pool: PoolDetails;
+  tokens: TokenMetadata[];
+  shares: string;
+}) {
   const total = Object.values(pool.supplies).reduce(
     (acc, amount) => sumBN(acc, amount),
     ''
   );
   const volume = Object.values(pool.volumes).reduce(
-    (acc, {input, output}) => sumBN(acc, input, output),
+    (acc, { input, output }) => sumBN(acc, input, output),
     '0'
   );
   return (
@@ -195,19 +190,23 @@ function PoolHeader(
   );
 }
 
-function AddLiquidity(
-  {
-    pool,
-    tokens,
-  }: {
-    pool: Pool;
-    tokens: TokenMetadata[];
-  }) {
+function AddLiquidity({
+  pool,
+  tokens,
+}: {
+  pool: Pool;
+  tokens: TokenMetadata[];
+}) {
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
 
   const balances = useTokenBalances();
-  if (!balances) return <div className="p-24"><Loading /></div>;
+  if (!balances)
+    return (
+      <div className="p-24">
+        <Loading />
+      </div>
+    );
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -223,8 +222,8 @@ function AddLiquidity(
     return addLiquidityToPool({
       id: pool.id,
       tokenAmounts: [
-        {token: tokens[0], amount: firstTokenAmount},
-        {token: tokens[1], amount: secondTokenAmount},
+        { token: tokens[0], amount: firstTokenAmount },
+        { token: tokens[1], amount: secondTokenAmount },
       ],
     });
   };
@@ -295,20 +294,19 @@ function AddLiquidity(
   );
 }
 
-function RemoveLiquidity(
-  {
-    pool,
-    shares,
-    tokens,
-  }: {
-    pool: Pool;
-    shares: string;
-    tokens: TokenMetadata[];
-  }) {
+function RemoveLiquidity({
+  pool,
+  shares,
+  tokens,
+}: {
+  pool: Pool;
+  shares: string;
+  tokens: TokenMetadata[];
+}) {
   const [amount, setAmount] = useState<string>('');
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
 
-  const {minimumAmounts, removeLiquidity} = useRemoveLiquidity({
+  const { minimumAmounts, removeLiquidity } = useRemoveLiquidity({
     pool,
     slippageTolerance,
     shares: amount ? toNonDivisibleNumber(24, amount) : '0',
@@ -365,40 +363,51 @@ function RemoveLiquidity(
 }
 
 export default function PoolPage() {
-  const {poolId} = useParams<ParamTypes>();
-  const {pool, shares} = usePool(poolId);
+  const { poolId } = useParams<ParamTypes>();
+  const { pool, shares } = usePool(poolId);
   const tokens = useTokens(pool?.tokenIds);
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
 
   return (
     <>
-      <div className="mb-7 title text-center text-4xl pb-3 text-white">Pool details</div>
-      <div
-        className="overflow-y-auto bg-secondary shadow-2xl rounded p-6 sm:w-full md:w-2/3 lg:w-1/2 place-self-center">
+      <div className="mb-7 title text-center text-4xl pb-3 text-white">
+        Pool details
+      </div>
+      <div className="overflow-y-auto bg-secondary shadow-2xl rounded p-6 sm:w-full md:w-2/3 lg:w-1/2 place-self-center">
         <Link to="/pools" className="mb-2">
           <FaAngleLeft size={30} />
         </Link>
         <PoolHeader pool={pool} tokens={tokens} shares={shares} />
         <div className="flex justify-center">
-          <MicroModal trigger={(open) => (
-            <button onClick={open}
-                    className="flex flex-row justify-center p-2 px-4 mt-5 mb-5 items-center rounded-2xl bg-primaryScale-600 border-2 text-buttonText hover:bg-buttonText hover:text-buttonBg hover:border-buttonBg hover:border-2 transition-colors shadow-lg transition-colors focus:outline-none disabled:cursor-not-allowed mr-2.5 text-sm">Add
-              Liquidity</button>
-          )} overrides={{
-            Dialog: {style: {padding: 0}},
-          }}>
-            {(close) => (
-              <AddLiquidity pool={pool} tokens={tokens} />
+          <MicroModal
+            trigger={(open) => (
+              <button
+                onClick={open}
+                className="flex flex-row justify-center p-2 px-4 mt-5 mb-5 items-center rounded-2xl bg-primaryScale-600 border-2 text-buttonText hover:bg-buttonText hover:text-buttonBg hover:border-buttonBg hover:border-2 transition-colors shadow-lg transition-colors focus:outline-none disabled:cursor-not-allowed mr-2.5 text-sm"
+              >
+                Add Liquidity
+              </button>
             )}
+            overrides={{
+              Dialog: { style: { padding: 0 } },
+            }}
+          >
+            {(close) => <AddLiquidity pool={pool} tokens={tokens} />}
           </MicroModal>
-          <MicroModal trigger={(open) => (
-            <button onClick={open}
-                    className="flex flex-row justify-center p-2 px-4 mt-5 mb-5 items-center rounded-2xl bg-primaryScale-600 bg-opacity-50 border-2 text-buttonText hover:bg-buttonText hover:text-buttonBg hover:border-buttonBg hover:border-2 transition-colors shadow-lg transition-colors focus:outline-none disabled:cursor-not-allowed mr-2.5 text-sm">Remove
-              Liquidity</button>
-          )} overrides={{
-            Dialog: {style: {padding: 0}},
-          }}>
+          <MicroModal
+            trigger={(open) => (
+              <button
+                onClick={open}
+                className="flex flex-row justify-center p-2 px-4 mt-5 mb-5 items-center rounded-2xl bg-primaryScale-600 bg-opacity-50 border-2 text-buttonText hover:bg-buttonText hover:text-buttonBg hover:border-buttonBg hover:border-2 transition-colors shadow-lg transition-colors focus:outline-none disabled:cursor-not-allowed mr-2.5 text-sm"
+              >
+                Remove Liquidity
+              </button>
+            )}
+            overrides={{
+              Dialog: { style: { padding: 0 } },
+            }}
+          >
             {(close) => (
               <RemoveLiquidity pool={pool} shares={shares} tokens={tokens} />
             )}

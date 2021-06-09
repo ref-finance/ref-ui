@@ -15,9 +15,8 @@ import TokenAmount from '../forms/TokenAmount';
 
 function FirstDepositForm() {
   const [amount, setAmount] = useState<string>();
-  const [selectedToken, setSelectedToken] = useState<TokenMetadata>(
-    nearMetadata
-  );
+  const [selectedToken, setSelectedToken] =
+    useState<TokenMetadata>(nearMetadata);
   const [nearBalance, setNearBalance] = useState<string>();
 
   const depositable = useDepositableBalance(selectedToken?.id);

@@ -6,11 +6,15 @@ import SelectToken from '../../components/forms/SelectToken';
 import Icon from '../../components/tokens/Icon';
 import { AdboardMetadata, buyFrameCall } from '../../services/adboard';
 import { TokenMetadata } from '../../services/ft-contract';
-import { useToken, useUserRegisteredTokens, useWhitelistTokens } from '../../state/token';
+import {
+  useToken,
+  useUserRegisteredTokens,
+  useWhitelistTokens,
+} from '../../state/token';
 import { REF_ADBOARD_CONTRACT_ID } from '../../services/near';
 import Alert from '../../components/alert/Alert';
-import { toNonDivisibleNumber,toReadableNumber } from '../../utils/numbers'
-import db from '../../store/RefDatabase'
+import { toNonDivisibleNumber, toReadableNumber } from '../../utils/numbers';
+import db from '../../store/RefDatabase';
 
 interface BuyModalProps {
   metadata: AdboardMetadata;
@@ -25,20 +29,26 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
   const token = useToken(metadata.token_id);
   const tokens = useWhitelistTokens();
 
-  const { minAmountOut,pool } = useSwap({
+  const { minAmountOut, pool } = useSwap({
     tokenIn: token,
-    tokenInAmount: toReadableNumber(token?.decimals || 24, String(metadata.token_price)),
+    tokenInAmount: toReadableNumber(
+      token?.decimals || 24,
+      String(metadata.token_price)
+    ),
     tokenOut: selectedToken,
     slippageTolerance: 1.1,
   });
 
-  const sellAmount = +minAmountOut * (priceFactor || 1.0)
+  const sellAmount = +minAmountOut * (priceFactor || 1.0);
 
   if (!token) return null;
 
   function callBuyEvent() {
-    if (selectedToken === undefined) throw new Error('Please select token')
-    if (!pool) throw new Error('No pool support, please create pool for these two tokens')
+    if (selectedToken === undefined) throw new Error('Please select token');
+    if (!pool)
+      throw new Error(
+        'No pool support, please create pool for these two tokens'
+      );
 
     buyFrameCall({
       frameId: metadata.frameId,
@@ -46,17 +56,20 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
       amount: metadata.token_price.toString(),
       receiverId: REF_ADBOARD_CONTRACT_ID,
       sellTokenId: selectedToken.id,
-      sellPrice: toNonDivisibleNumber(selectedToken.decimals,sellAmount.toString()),
-      poolId: pool.id
+      sellPrice: toNonDivisibleNumber(
+        selectedToken.decimals,
+        sellAmount.toString()
+      ),
+      poolId: pool.id,
     });
   }
 
   function buyFrame() {
-    setError(null)
+    setError(null);
     try {
-      callBuyEvent()
+      callBuyEvent();
     } catch (err) {
-      setError(err)
+      setError(err);
     }
   }
 
@@ -80,7 +93,10 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
           }}
         >
           <div className="mb-2 font-semibold text-white">
-            <div className="float-right" style={{marginTop:'6px',marginRight:'2px'}}>
+            <div
+              className="float-right"
+              style={{ marginTop: '6px', marginRight: '2px' }}
+            >
               <button
                 onClick={close}
                 className="flex flex-row justify-center focus:outline-none"
@@ -90,13 +106,31 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
             </div>
             <div className="p-8">
               <span className="flex flex-col">
-                <div className="mb-4">Coordinate <span className="float-right">#{metadata.frameId.padStart(3, '0')}</span></div>
                 <div className="mb-4">
-                  Cost <span className="float-right">{toReadableNumber(token?.decimals || 24, String(metadata.token_price))}<span className="ml-2">{token.symbol}</span></span>
+                  Coordinate{' '}
+                  <span className="float-right">
+                    #{metadata.frameId.padStart(3, '0')}
+                  </span>
                 </div>
                 <div className="mb-4">
-                  Price Set {minAmountOut ? (<span className="mr-2">{sellAmount}</span>) : null}
-                  <div className="inline-block float-right" style={{marginTop: '-3px'}}>
+                  Cost{' '}
+                  <span className="float-right">
+                    {toReadableNumber(
+                      token?.decimals || 24,
+                      String(metadata.token_price)
+                    )}
+                    <span className="ml-2">{token.symbol}</span>
+                  </span>
+                </div>
+                <div className="mb-4">
+                  Price Set{' '}
+                  {minAmountOut ? (
+                    <span className="mr-2">{sellAmount}</span>
+                  ) : null}
+                  <div
+                    className="inline-block float-right"
+                    style={{ marginTop: '-3px' }}
+                  >
                     <SelectToken
                       placeholder="Select token"
                       tokens={tokens}

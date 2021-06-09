@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card } from '~components/card/Card';
 import { usePools } from '../../state/pool';
 import Loading from '~components/layout/Loading';
-import {getPrice, useTokens } from '../../state/token';
+import { getPrice, useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';
 import { Pool } from '../../services/pool';
 import {
@@ -30,18 +30,38 @@ function PoolRow({ pool }: { pool: Pool }) {
       to={`/pool/${pool.id}`}
       className="grid grid-cols-12 md:flex xs:flex md:justify-between xs:justify-between md:flex-wrap xs:flex-wrap py-2 content-center text-xs font-semibold text-gray-600"
     >
-      <div className="lg:grid grid-cols-2 col-span-1 md:flex xs:flex md:items-center md:gap-x-1 xs:gap-x-1">{images}</div>
+      <div className="lg:grid grid-cols-2 col-span-1 md:flex xs:flex md:items-center md:gap-x-1 xs:gap-x-1">
+        {images}
+      </div>
       <p className="grid grid-cols-2 col-span-5 md:flex xs:flex md:items-center xs:gap-x-1">
-        <span>{tokens[0].symbol}={toPrecision(toReadableNumber(tokens[0].decimals || 24, pool.supplies[pool.tokenIds[0]]),4)}</span>
-        <span>{tokens[1].symbol}={toPrecision(toReadableNumber(tokens[1].decimals || 24, pool.supplies[pool.tokenIds[1]]),4)}</span>
+        <span>
+          {tokens[0].symbol}=
+          {toPrecision(
+            toReadableNumber(
+              tokens[0].decimals || 24,
+              pool.supplies[pool.tokenIds[0]]
+            ),
+            4
+          )}
+        </span>
+        <span>
+          {tokens[1].symbol}=
+          {toPrecision(
+            toReadableNumber(
+              tokens[1].decimals || 24,
+              pool.supplies[pool.tokenIds[1]]
+            ),
+            4
+          )}
+        </span>
       </p>
       <p className="col-span-2 md:flex xs:flex">
-        {getPrice(tokens,pool,pool.token0_ref_price,false)}
+        {getPrice(tokens, pool, pool.token0_ref_price, false)}
       </p>
+      <p className="col-span-2 md:flex xs:flex">${pool.tvl}</p>
       <p className="col-span-2 md:flex xs:flex">
-        ${pool.tvl}
+        {calculateFeePercent(pool.fee)}%
       </p>
-      <p className="col-span-2 md:flex xs:flex">{calculateFeePercent(pool.fee)}%</p>
     </Link>
   );
 }
@@ -50,7 +70,12 @@ export function LiquidityPage() {
   const [tokenName, setTokenName] = useState('');
   const [sortBy, setSoryBy] = useState('tvl');
   const [order, setOrder] = useState('desc');
-  const { pools, hasMore, nextPage } = usePools({ tokenName, sortBy, order, useIndexerData:true });
+  const { pools, hasMore, nextPage } = usePools({
+    tokenName,
+    sortBy,
+    order,
+    useIndexerData: true,
+  });
   if (!pools) return <Loading />;
 
   return (
@@ -77,7 +102,7 @@ export function LiquidityPage() {
             <div
               className="col-span-2"
               onClick={() => {
-                setSoryBy('tvl')
+                setSoryBy('tvl');
                 setOrder(order === 'desc' ? 'asc' : 'desc');
               }}
             >
@@ -94,7 +119,7 @@ export function LiquidityPage() {
             <p
               className="col-span-2 cursor-pointer"
               onClick={() => {
-                setSoryBy('fee')
+                setSoryBy('fee');
                 setOrder(order === 'desc' ? 'asc' : 'desc');
               }}
             >

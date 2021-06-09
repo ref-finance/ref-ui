@@ -1,5 +1,5 @@
-import {useEffect, useState} from 'react';
-import {wallet} from '../services/near';
+import { useEffect, useState } from 'react';
+import { wallet } from '../services/near';
 import {
   ftGetBalance,
   ftGetTokenMetadata,
@@ -11,7 +11,7 @@ import {
   getUserRegisteredTokens,
   TokenBalancesView,
 } from '../services/token';
-import {toReadableNumber} from '~utils/numbers';
+import { toReadableNumber } from '~utils/numbers';
 
 export const useToken = (id: string) => {
   const [token, setToken] = useState<TokenMetadata>();
@@ -87,7 +87,7 @@ export const useDepositableBalance = (tokenId: string) => {
         wallet
           .account()
           .getAccountBalance()
-          .then(({available}) => setDepositable(available));
+          .then(({ available }) => setDepositable(available));
       } else {
         setDepositable('0');
       }
@@ -114,10 +114,33 @@ export const useUnregisteredTokens = () => {
   return tokens;
 };
 
-export const getPrice = (tokens: any, pool: any, first_token_price: any, use_api_price: boolean) => {
-  const first_token_num = toReadableNumber(tokens[0].decimals || 24, pool.supplies[pool.tokenIds[0]]);
-  const second_token_num = toReadableNumber(tokens[1].decimals || 24, pool.supplies[pool.tokenIds[1]]);
+export const getPrice = (
+  tokens: any,
+  pool: any,
+  first_token_price: any,
+  use_api_price: boolean
+) => {
+  const first_token_num = toReadableNumber(
+    tokens[0].decimals || 24,
+    pool.supplies[pool.tokenIds[0]]
+  );
+  const second_token_num = toReadableNumber(
+    tokens[1].decimals || 24,
+    pool.supplies[pool.tokenIds[1]]
+  );
 
-  return use_api_price ? (first_token_price === 'N/A') ? 'N/A' : Number(first_token_num) === 0 ? 'N/A' : `≈$${(Number(second_token_num) / Number(first_token_num) * first_token_price).toFixed(8)}` :
-    Number(first_token_num) === 0 ? 'N/A' : `≈${(Number(second_token_num) / Number(first_token_num)).toFixed(4)} ${tokens[1].symbol}`;
+  return use_api_price
+    ? first_token_price === 'N/A'
+      ? 'N/A'
+      : Number(first_token_num) === 0
+      ? 'N/A'
+      : `≈$${(
+          (Number(second_token_num) / Number(first_token_num)) *
+          first_token_price
+        ).toFixed(8)}`
+    : Number(first_token_num) === 0
+    ? 'N/A'
+    : `≈${(Number(second_token_num) / Number(first_token_num)).toFixed(4)} ${
+        tokens[1].symbol
+      }`;
 };

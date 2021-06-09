@@ -7,7 +7,7 @@ import { useWhitelistTokens } from '../../state/token';
 import Loading from '../../components/layout/Loading';
 import { AdboardMetadata } from '../../services/adboard';
 import Icon from '../../components/tokens/Icon';
-import { toReadableNumber } from '../../utils/numbers'
+import { toReadableNumber } from '../../utils/numbers';
 
 export default function AdboardPage() {
   const adboardCanvasRef = useRef<HTMLCanvasElement>();
@@ -15,7 +15,8 @@ export default function AdboardPage() {
 
   const [selectedFrameId, setSelectedFrameId] = useState<string>();
   const [buyMetadata, setBuyMetadata] = useState<AdboardMetadata>();
-  const {framedata, metadata, loading, ownedFrames, isOwnFrame} = useAdboardState();
+  const { framedata, metadata, loading, ownedFrames, isOwnFrame } =
+    useAdboardState();
   const tokens = useWhitelistTokens();
 
   useEffect(() => {
@@ -76,7 +77,7 @@ export default function AdboardPage() {
         <canvas
           ref={adboardCanvasRef}
           id="adboard-canvas"
-          style={{width: '500px', height: '500px', display: 'none'}}
+          style={{ width: '500px', height: '500px', display: 'none' }}
         ></canvas>
         <div
           className="mx-auto rounded rounded-md shadow-md float-left"
@@ -87,8 +88,10 @@ export default function AdboardPage() {
             overflow: 'auto',
           }}
         >
-          <p className="text-white px-2 font-semibold	mb-2">My frames: {ownedFrames.length}</p>
-          {ownedFrames?.map(({frameId}, index) => (
+          <p className="text-white px-2 font-semibold	mb-2">
+            My frames: {ownedFrames.length}
+          </p>
+          {ownedFrames?.map(({ frameId }, index) => (
             <div
               onClick={() => setSelectedFrameId(frameId)}
               className="text-white shadow group"
@@ -148,9 +151,8 @@ export default function AdboardPage() {
                         <Icon
                           label={false}
                           token={
-                            tokens.find(
-                              (t) => t.id === metadata.token_id
-                            ) || tokens[0]
+                            tokens.find((t) => t.id === metadata.token_id) ||
+                            tokens[0]
                           }
                         />
                       )}
@@ -161,16 +163,38 @@ export default function AdboardPage() {
                       <div>
                         <button
                           key={metadata.frameId}
-                          onClick={() => isOwnFrame(metadata.owner) ? '' : setBuyMetadata(metadata)}
-                          className={["flex flex-row justify-between h-auto px-6 py-1 font-semibold transition duration-200 border border-solid rounded-3xl shadow-xl hover:opacity-80 focus:outline-none border-theme-light", isOwnFrame(metadata.owner)?"bg-gray-600 text-white":"bg-white text-black"].join(' ')}
+                          onClick={() =>
+                            isOwnFrame(metadata.owner)
+                              ? ''
+                              : setBuyMetadata(metadata)
+                          }
+                          className={[
+                            'flex flex-row justify-between h-auto px-6 py-1 font-semibold transition duration-200 border border-solid rounded-3xl shadow-xl hover:opacity-80 focus:outline-none border-theme-light',
+                            isOwnFrame(metadata.owner)
+                              ? 'bg-gray-600 text-white'
+                              : 'bg-white text-black',
+                          ].join(' ')}
                         >
-                          {isOwnFrame(metadata.owner) && (<span className="pr-2">Sell</span>) || (<span className="pr-2">Buy</span>)} for <span
-                          className="text-green-400 px-2">{toReadableNumber(tokens && (tokens.find(
-                          (t) => t.id === metadata.token_id
-                        ) || tokens[0]).decimals, metadata.token_price.toString())}</span>
-                          {tokens && (tokens.find(
-                            (t) => t.id === metadata.token_id
-                          ) || tokens[0]).symbol}
+                          {(isOwnFrame(metadata.owner) && (
+                            <span className="pr-2">Sell</span>
+                          )) || <span className="pr-2">Buy</span>}{' '}
+                          for{' '}
+                          <span className="text-green-400 px-2">
+                            {toReadableNumber(
+                              tokens &&
+                                (
+                                  tokens.find(
+                                    (t) => t.id === metadata.token_id
+                                  ) || tokens[0]
+                                ).decimals,
+                              metadata.token_price.toString()
+                            )}
+                          </span>
+                          {tokens &&
+                            (
+                              tokens.find((t) => t.id === metadata.token_id) ||
+                              tokens[0]
+                            ).symbol}
                         </button>
                       </div>
                       {metadata.protected_ts / 1000 / 1000 > Date.now() && (

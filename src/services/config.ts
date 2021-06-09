@@ -13,7 +13,8 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.REF_FI_CONTRACT_ID || 'ref-finance.near',
         WRAP_NEAR_CONTRACT_ID: process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.near',
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
-        REF_FARM_CONTRACT_ID: process.env.REF_FARM_CONTRACT_ID || 'ref-farming.near',
+        REF_FARM_CONTRACT_ID:
+          process.env.REF_FARM_CONTRACT_ID || 'ref-farming.near',
       };
     case 'development':
     case 'testnet':
@@ -28,7 +29,8 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.REF_FI_CONTRACT_ID || 'ref-finance.near',
         WRAP_NEAR_CONTRACT_ID: process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.near',
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
-        REF_FARM_CONTRACT_ID: process.env.REF_FARM_CONTRACT_ID || 'ref-farming.near',
+        REF_FARM_CONTRACT_ID:
+          process.env.REF_FARM_CONTRACT_ID || 'ref-farming.near',
       };
     default:
       return {
@@ -42,7 +44,8 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.REF_FI_CONTRACT_ID || 'ref-finance.near',
         WRAP_NEAR_CONTRACT_ID: process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.near',
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
-        REF_FARM_CONTRACT_ID: process.env.REF_FARM_CONTRACT_ID || 'ref-farming.near',
+        REF_FARM_CONTRACT_ID:
+          process.env.REF_FARM_CONTRACT_ID || 'ref-farming.near',
       };
   }
 }

@@ -18,8 +18,9 @@ export function WithdrawModal(props: ReactModal.Props) {
   const tokens = useWhitelistTokens();
   const userTokens = useUserRegisteredTokens();
   const balances = useTokenBalances();
-  const [selectedToken, setSelectedToken] =
-    useState<TokenMetadata | null>(null);
+  const [selectedToken, setSelectedToken] = useState<TokenMetadata | null>(
+    null
+  );
 
   useEffect(() => {
     if (userTokens) setSelectedToken(userTokens[0]);
