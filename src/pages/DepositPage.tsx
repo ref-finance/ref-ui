@@ -75,14 +75,14 @@ export default function DepositPage() {
   const max = toReadableNumber(selectedToken?.decimals, depositable) || '0';
 
   return (
-    <div className="flex items-center flex-col">
+    <div className="flex items-center flex-col w-1/3 md:w-5/6 xs:w-11/12 m-auto">
       <div className="text-center pb-5">
         <div className="text-white text-3xl font-semibold">Deposit</div>
         <div className="text-white text-sm pt-2">
           Deposit tokens to swap and pool
         </div>
       </div>
-      <Card>
+      <Card width="w-full">
         <TokenAmount
           amount={amount}
           max={max}

@@ -17,7 +17,7 @@ function SwapPage() {
       <div className="describe text-center text-sm pb-5 text-white">
         Exchange tokens
       </div>
-      <section className="w-1/3 m-auto">
+      <section className="w-1/3 md:w-5/6 xs:w-11/12 m-auto">
         <SwapCard allTokens={allTokens} />
         <div className="text-center text-white text-sm leading-6 mt-2 w-full m-auto">
           {copy.swap}

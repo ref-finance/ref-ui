@@ -4,6 +4,13 @@ module.exports = {
   purge: [],
   darkMode: false, // or 'media' or 'class'
   theme: {
+    screens: {
+      xs: { max: '300px', max: '500px' },
+      md: { min: '500px', max: '1024px' },
+      lg: { min: '1024px' },
+      xl: { min: '1028px' },
+      '2xl': { min: '1536px' },
+    },
     extend: {
       colors: {
         primary: '#10B981',

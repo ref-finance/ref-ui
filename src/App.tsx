@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import DepositPage from './pages/DepositPage';
-import WhitelistTokenPage from './pages/WhitelistTokenPage';
 import { PoolDetailsPage } from './pages/pools/DetailsPage';
 import SwapPage from './pages/SwapPage';
 import { AccountPage } from './pages/AccountPage';
@@ -12,7 +11,7 @@ import { AddPoolPage } from './pages/pools/AddPoolPage';
 import { AddTokenPage } from './pages/pools/AddTokenPage';
 import AdboardPage from './pages/Adboard/AdboardPage';
 import NavigationBar from './components/layout/NavigationBar';
-import { BgShapeLeftBottom } from './components/icon';
+import { BgShapeLeftBottom, BgShapeTopRight } from './components/icon';
 import Modal from 'react-modal';
 
 import './global.css';
@@ -46,24 +45,35 @@ function App() {
       <ToastContainer />
       <div className="relative h-screen">
         <BgShapeLeftBottom />
+        <BgShapeTopRight />
         <NavigationBar />
-        <div className="justify-center h-4/5 mt-24">
-          <Switch>
-            <Route path="/deposit/:id?" component={DepositPage} />
-            <Route path="/account" component={AccountPage} />
-            <Route path="/whitelist/:tokenId" component={WhitelistTokenPage} />
-            <Route path="/pool/:id" component={PoolDetailsPage} />
-            <Route path="/adboard" component={AdboardPage} />
-            <Route path="/pools/add" component={AddPoolPage} />
-            <Route path="/pools/add-token" component={AddTokenPage} />
-            <Route path="/pools/yours" component={YourLiquidityPage} />
-            <Route path="/pools" component={LiquidityPage} />
-            <Route path="/" component={SwapPage} />
-          </Switch>
-        </div>
+        <Switch>
+          <Route path="/deposit/:id?" component={autoHeight(DepositPage)} />
+          <Route path="/account" component={autoHeight(AccountPage)} />
+          <Route path="/pool/:id" component={autoHeight(PoolDetailsPage)} />
+          <Route path="/adboard" component={autoHeight(AdboardPage)} />
+          <Route path="/pools/add" component={autoHeight(AddPoolPage)} />
+          <Route path="/pools/add-token" component={autoHeight(AddTokenPage)} />
+          <Route
+            path="/pools/yours"
+            component={autoHeight(YourLiquidityPage)}
+          />
+          <Route path="/pools" component={autoHeight(LiquidityPage)} />
+          <Route path="/" component={autoHeight(SwapPage)} />
+        </Switch>
       </div>
     </Router>
   );
+}
+
+function autoHeight(Comp: any) {
+  return (props: any) => {
+    return (
+      <div className="flex flex-col justify-center h-4/5 relative z-10">
+        <Comp {...props} />
+      </div>
+    );
+  };
 }
 
 export default App;

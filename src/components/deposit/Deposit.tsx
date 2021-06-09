@@ -18,9 +18,8 @@ export function WithdrawModal(props: ReactModal.Props) {
   const tokens = useWhitelistTokens();
   const userTokens = useUserRegisteredTokens();
   const balances = useTokenBalances();
-  const [selectedToken, setSelectedToken] = useState<TokenMetadata | null>(
-    null
-  );
+  const [selectedToken, setSelectedToken] =
+    useState<TokenMetadata | null>(null);
 
   useEffect(() => {
     if (userTokens) setSelectedToken(userTokens[0]);
@@ -97,7 +96,10 @@ export function TokenList(props: {
         const balance = balances[token.id] || '0';
         if (balance === '0' && hideEmpty) return null;
 
-        const amount = toPrecision(toReadableNumber(token.decimals, balance),6);
+        const amount = toPrecision(
+          toReadableNumber(token.decimals, balance),
+          6
+        );
         return <Token key={token.id} {...token} amount={amount} />;
       })}
       {tokens.length === 0 ? (
@@ -122,7 +124,7 @@ export function Balances(props: {
       {title ? (
         <div className="text-white font-semibold text-xl pb-4">Balance</div>
       ) : null}
-      <Card>
+      <Card width="w-full">
         <TokenList hideEmpty={true} tokens={tokens} balances={balances} />
 
         {tokens.length > 0 ? (

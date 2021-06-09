@@ -39,14 +39,14 @@ export function YourLiquidityPage() {
   }, []);
 
   return (
-    <div className="flex items-center flex-col">
+    <div className="flex items-center flex-col w-1/3 md:w-5/6 xs:w-11/12 m-auto">
       <div className="text-center pb-8">
         <div className="text-white text-3xl font-semibold">Your Liquidity</div>
       </div>
-      <div className="w-1/3 flex justify-center">
+      <div className="w-full flex justify-center">
         {error && <Alert level="error" message={error.message} />}
       </div>
-      <Card width="w-1/3">
+      <Card width="w-full">
         {!wallet.isSignedIn() || pools.length === 0 ? <Empty /> : null}
         {pools.length > 0 ? (
           <section>

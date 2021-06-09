@@ -48,11 +48,11 @@ export function AddPoolPage() {
   const canSubmit = !!fee && !!token1 && !!token2;
 
   return (
-    <div className="flex items-center flex-col">
+    <div className="flex items-center flex-col w-1/3 md:w-5/6 xs:w-11/12 m-auto">
       <div className="text-center pb-8">
         <div className="text-white text-3xl font-semibold">Create New Pool</div>
       </div>
-      <Card width="w-1/3">
+      <Card width="w-full">
         <div className="text-xs font-semibold">Token</div>
         <SelectToken
           standalone
@@ -116,7 +116,7 @@ export function AddPoolPage() {
           )}
         </div>
       </Card>
-      <div className="text-white text-sm pt-3 leading-6 w-1/3 text-center">
+      <div className="text-white text-sm pt-3 leading-6 w-11/12 text-center">
         {copy.addLiquidityPool}
       </div>
     </div>

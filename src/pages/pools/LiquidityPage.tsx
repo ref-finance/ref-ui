@@ -28,20 +28,20 @@ function PoolRow({ pool }: { pool: Pool }) {
   return (
     <Link
       to={`/pool/${pool.id}`}
-      className="grid grid-cols-12 py-2 content-center text-xs font-semibold text-gray-600"
+      className="grid grid-cols-12 md:flex xs:flex md:justify-between xs:justify-between md:flex-wrap xs:flex-wrap py-2 content-center text-xs font-semibold text-gray-600"
     >
-      <div className="grid grid-cols-2 col-span-1">{images}</div>
-      <p className="grid grid-cols-2 col-span-5">
+      <div className="lg:grid grid-cols-2 col-span-1 md:flex xs:flex md:items-center md:gap-x-1 xs:gap-x-1">{images}</div>
+      <p className="grid grid-cols-2 col-span-5 md:flex xs:flex md:items-center xs:gap-x-1">
         <span>{tokens[0].symbol}={toPrecision(toReadableNumber(tokens[0].decimals || 24, pool.supplies[pool.tokenIds[0]]),4)}</span>
         <span>{tokens[1].symbol}={toPrecision(toReadableNumber(tokens[1].decimals || 24, pool.supplies[pool.tokenIds[1]]),4)}</span>
       </p>
-      <p className="col-span-2">
+      <p className="col-span-2 md:flex xs:flex">
         {getPrice(tokens,pool,pool.token0_ref_price,false)}
       </p>
-      <p className="col-span-2">
+      <p className="col-span-2 md:flex xs:flex">
         ${pool.tvl}
       </p>
-      <p className="col-span-2">{calculateFeePercent(pool.fee)}%</p>
+      <p className="col-span-2 md:flex xs:flex">{calculateFeePercent(pool.fee)}%</p>
     </Link>
   );
 }
@@ -54,13 +54,13 @@ export function LiquidityPage() {
   if (!pools) return <Loading />;
 
   return (
-    <div className="flex items-center flex-col">
+    <div className="flex items-center flex-col w-3/6 md:w-5/6 xs:w-11/12 m-auto">
       <div className="text-center pb-8">
         <div className="text-white text-3xl font-semibold">Liquidity Pools</div>
       </div>
-      <Card width="md:w-2/3 lg:w-1/2">
+      <Card width="w-full">
         <div className="flex items-center justify-end pb-4">
-          <div className="rounded-lg w-1/5 border my-2">
+          <div className="rounded-lg w-1/5 xs:w-full border my-2">
             <input
               className={`text-sm font-bold bg-inputBg focus:outline-none rounded-lg w-full py-2 px-3 text-greenLight`}
               placeholder="Search pools..."
@@ -70,7 +70,7 @@ export function LiquidityPage() {
           </div>
         </div>
         <section>
-          <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm font-bold">
+          <header className="grid grid-cols-12 xs:flex xs:justify-between py-2 pb-4 text-left text-sm font-bold">
             <p className="col-span-1">Pair</p>
             <p className="col-span-5">Liquidity</p>
             <p className="col-span-2">Market Price</p>
