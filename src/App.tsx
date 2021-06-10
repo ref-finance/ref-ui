@@ -47,20 +47,22 @@ function App() {
         <BgShapeLeftBottom />
         <BgShapeTopRight />
         <NavigationBar />
-        <Switch>
-          <Route path="/deposit/:id?" component={autoHeight(DepositPage)} />
-          <Route path="/account" component={autoHeight(AccountPage)} />
-          <Route path="/pool/:id" component={autoHeight(PoolDetailsPage)} />
-          <Route path="/adboard" component={autoHeight(AdboardPage)} />
-          <Route path="/pools/add" component={autoHeight(AddPoolPage)} />
-          <Route path="/pools/add-token" component={autoHeight(AddTokenPage)} />
-          <Route
-            path="/pools/yours"
-            component={autoHeight(YourLiquidityPage)}
-          />
-          <Route path="/pools" component={autoHeight(LiquidityPage)} />
-          <Route path="/" component={autoHeight(SwapPage)} />
-        </Switch>
+        <div className="justify-center h-4/5 mt-24">
+          <Switch>
+            <Route path="/deposit/:id?" component={autoHeight(DepositPage)} />
+            <Route path="/account" component={autoHeight(AccountPage)} />
+            <Route path="/pool/:id" component={autoHeight(PoolDetailsPage)} />
+            <Route path="/adboard" component={autoHeight(AdboardPage)} />
+            <Route path="/pools/add" component={autoHeight(AddPoolPage)} />
+            <Route path="/pools/add-token" component={autoHeight(AddTokenPage)} />
+            <Route
+              path="/pools/yours"
+              component={autoHeight(YourLiquidityPage)}
+            />
+            <Route path="/pools" component={autoHeight(LiquidityPage)} />
+            <Route path="/" component={autoHeight(SwapPage)} />
+          </Switch>
+        </div>
       </div>
     </Router>
   );

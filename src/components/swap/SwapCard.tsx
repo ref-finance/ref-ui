@@ -18,6 +18,10 @@ import SlippageSelector from '../forms/SlippageSelector';
 import copy from '../../utils/copy';
 import { ArrowDownBlack } from '../icon/Arrows';
 
+const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
+const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
+const TOKEN_URL_SEPARATOR = '|';
+
 function SwapDetail({ title, value }: { title: string; value: string }) {
   return (
     <section className="grid grid-cols-2 py-1">
@@ -80,18 +84,18 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const balances = useTokenBalances();
 
   useEffect(() => {
-    const [urlTokenIn, urlTokenOut] = location.hash.slice(1).split('-');
-    const rememberedIn = urlTokenIn || localStorage.getItem('REF_FI_SWAP_IN');
+    const [urlTokenIn, urlTokenOut] = decodeURIComponent(location.hash.slice(1)).split(TOKEN_URL_SEPARATOR);
+    const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
     const rememberedOut =
-      urlTokenOut || localStorage.getItem('REF_FI_SWAP_OUT');
+      urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
 
     if (allTokens) {
       setTokenIn(
-        allTokens.find((token) => token.symbol === rememberedIn) || allTokens[0]
+        allTokens.find((token) => token.id === rememberedIn) || allTokens[0]
       );
       setTokenOut(
-        allTokens.find((token) => token.symbol === rememberedOut) ||
-          allTokens[1]
+        allTokens.find((token) => token.id === rememberedOut) ||
+        allTokens[1]
       );
     }
   }, [allTokens]);
@@ -144,8 +148,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         selectedToken={tokenIn}
         balances={balances}
         onSelectToken={(token) => {
-          localStorage.setItem('REF_FI_SWAP_IN', token.symbol);
-          history.replace(`#${token.symbol}-${tokenOut.symbol}`);
+          localStorage.setItem(SWAP_IN_KEY, token.symbol);
+          history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
           setTokenIn(token);
         }}
         text="From"
@@ -171,8 +175,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         balances={balances}
         text="To"
         onSelectToken={(token) => {
-          localStorage.setItem('REF_FI_SWAP_OUT', token.symbol);
-          history.replace(`#${tokenIn.symbol}-${token.symbol}`);
+          localStorage.setItem(SWAP_OUT_KEY, token.symbol);
+          history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`);
           setTokenOut(token);
         }}
       />
