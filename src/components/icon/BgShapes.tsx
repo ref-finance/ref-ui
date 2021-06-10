@@ -13,7 +13,6 @@ export function BgShapeTopRight() {
     >
       <svg
         width="100%"
-        height="auto"
         viewBox="0 0 256 177"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -67,7 +66,6 @@ export function BgShapeLeftBottom() {
     >
       <svg
         width="100%"
-        height="auto"
         viewBox="0 0 281 280"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

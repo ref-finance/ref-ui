@@ -20,6 +20,7 @@ import { TokenMetadata } from '~services/ft-contract';
 import Alert from '~components/alert/Alert';
 import InputAmount from '~components/forms/InputAmount';
 import SlippageSelector from '~components/forms/SlippageSelector';
+import { isMobile } from '~utils/device';
 
 interface ParamTypes {
   id: string;
@@ -116,10 +117,12 @@ function AddLiquidityModal(
     });
   }
 
+  const cardWidth = isMobile() ? '75vw' : '30vw'
+
   return (
     <Modal {...props}>
       <div></div>
-      <Card style={{ width: '30vw' }}>
+      <Card style={{ width: cardWidth }}>
         <div className="text-sm text-gray-800 font-semibold pb-4">
           Add Liquidity
         </div>
@@ -181,12 +184,12 @@ export function RemoveLiquidityModal(
     slippageTolerance,
     shares: amount ? toNonDivisibleNumber(24, amount) : '0',
   });
-
   const [error, setError] = useState<Error>();
+  const cardWidth = isMobile() ? '75vw' : '30vw'
 
   return (
     <Modal {...props}>
-      <Card style={{ width: '30vw' }}>
+      <Card style={{ width: cardWidth }}>
         <div className="text-sm text-gray-800 font-semibold pb-4">
           Remove Liquidity
         </div>

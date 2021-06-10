@@ -47,35 +47,25 @@ function App() {
         <BgShapeLeftBottom />
         <BgShapeTopRight />
         <NavigationBar />
-        <div className="justify-center h-4/5 mt-24">
+        <div className="sm:flex sm:flex-col justify-center h-4/5 lg:mt-24 relative">
           <Switch>
-            <Route path="/deposit/:id?" component={autoHeight(DepositPage)} />
-            <Route path="/account" component={autoHeight(AccountPage)} />
-            <Route path="/pool/:id" component={autoHeight(PoolDetailsPage)} />
-            <Route path="/adboard" component={autoHeight(AdboardPage)} />
-            <Route path="/pools/add" component={autoHeight(AddPoolPage)} />
-            <Route path="/pools/add-token" component={autoHeight(AddTokenPage)} />
+            <Route path="/deposit/:id?" component={DepositPage} />
+            <Route path="/account" component={AccountPage} />
+            <Route path="/pool/:id" component={PoolDetailsPage} />
+            <Route path="/adboard" component={AdboardPage} />
+            <Route path="/pools/add" component={AddPoolPage} />
+            <Route path="/pools/add-token" component={AddTokenPage} />
             <Route
               path="/pools/yours"
-              component={autoHeight(YourLiquidityPage)}
+              component={YourLiquidityPage}
             />
-            <Route path="/pools" component={autoHeight(LiquidityPage)} />
-            <Route path="/" component={autoHeight(SwapPage)} />
+            <Route path="/pools" component={LiquidityPage} />
+            <Route path="/" component={SwapPage} />
           </Switch>
         </div>
       </div>
     </Router>
   );
-}
-
-function autoHeight(Comp: any) {
-  return (props: any) => {
-    return (
-      <div className="flex flex-col justify-center h-4/5 relative z-10">
-        <Comp {...props} />
-      </div>
-    );
-  };
 }
 
 export default App;

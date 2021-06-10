@@ -1,9 +1,9 @@
 import React from 'react';
 import MicroModal from 'react-micro-modal';
-import { FaAngleDown } from 'react-icons/fa';
 import TokenList from '../tokens/TokenList';
 import { TokenMetadata } from '../../services/ft-contract';
 import { ArrowDownGreen } from '../icon';
+import { isMobile } from '~utils/device';
 
 export default function SelectToken({
   tokens,
@@ -31,7 +31,7 @@ export default function SelectToken({
       </button>
     );
   }
-
+  const dialogWidth = isMobile() ? '75%' : '25%'
   return (
     <MicroModal
       trigger={(open) => (
@@ -63,7 +63,7 @@ export default function SelectToken({
       )}
       overrides={{
         Dialog: {
-          style: { width: '25%', borderRadius: '0.75rem', padding: '1.5rem' },
+          style: { width: dialogWidth, borderRadius: '0.75rem', padding: '1.5rem' },
         },
       }}
     >

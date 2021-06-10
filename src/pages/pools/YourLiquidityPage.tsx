@@ -9,7 +9,6 @@ import { getPoolBalance, getYourPoolsFromIndexer } from '~services/api';
 import { toRoundedReadableNumber } from '~utils/numbers';
 import { usePool } from '~state/pool';
 import { RemoveLiquidityModal } from './DetailsPage';
-import BN from 'bn.js';
 
 function Empty() {
   return (

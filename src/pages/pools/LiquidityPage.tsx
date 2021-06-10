@@ -9,9 +9,7 @@ import {
   calculateFeePercent,
   toPrecision,
   toReadableNumber,
-  toRoundedReadableNumber,
 } from '../../utils/numbers';
-import { round } from '~services/token';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 import ReactTooltip from 'react-tooltip';
 
