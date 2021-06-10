@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card } from '~components/card/Card';
 import { usePools } from '../../state/pool';
 import Loading from '~components/layout/Loading';
@@ -14,7 +14,13 @@ import { FaRegQuestionCircle } from 'react-icons/fa';
 import ReactTooltip from 'react-tooltip';
 
 function PoolRow({ pool }: { pool: Pool }) {
+  const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const tokens = useTokens(pool.tokenIds);
+  useEffect(() => {
+    canFarm(pool.id).then((canFarm) => {
+      setSupportFarm(canFarm);
+    });
+  }, []);
   if (!tokens) return <Loading />;
 
   const images = tokens.map((token) => {
@@ -23,12 +29,23 @@ function PoolRow({ pool }: { pool: Pool }) {
     return <div key={id} className="h-6 w-6 rounded-full border"></div>;
   });
 
+  const farmButton = () => {
+    if (supportFarm)
+      return (
+        <div className="mt-1 h-4 mr-3 ml-1 text-center bg-greenLight text-white font-bold inline-block rounded">
+          Farms
+        </div>
+      );
+    return '';
+  };
+
   return (
     <Link
       to={`/pool/${pool.id}`}
       className="grid grid-cols-12 py-2 content-center text-xs font-semibold text-gray-600"
     >
       <div className="grid grid-cols-2 col-span-1">{images}</div>
+      <div className="grid grid-cols-1 col-span-1">{farmButton()}</div>
       <p className="grid grid-cols-1 col-span-4">
         <span>
           {tokens[0].symbol}=
@@ -56,7 +73,6 @@ function PoolRow({ pool }: { pool: Pool }) {
       </p>
       <p className="col-span-2">${pool.tvl}</p>
       <p className="col-span-1">{calculateFeePercent(pool.fee)}%</p>
-      <p className="col-span-1">{canFarm(pool.id) ? 'Yes' : ''}</p>
     </Link>
   );
 }
@@ -92,6 +108,7 @@ export function LiquidityPage() {
         <section>
           <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm font-bold">
             <p className="col-span-1">Pair</p>
+            <p className="col-span-1"></p>
             <p className="col-span-4">Liquidity</p>
             <p className="col-span-3">Market Price</p>
             <div
@@ -120,7 +137,6 @@ export function LiquidityPage() {
             >
               Fee
             </p>
-            <p className="col-span-1 cursor-pointer">Support Farm</p>
           </header>
           <div className="max-h-80 overflow-y-auto">
             {pools.map((pool, i) => (

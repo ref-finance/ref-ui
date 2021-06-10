@@ -88,7 +88,7 @@ function AccountEntry() {
         </div>
       </div>
       <div
-        className={`absolute top-12 pt-2 right-10 ${
+        className={`absolute top-12 pt-2 right-10 z-50 ${
           wallet.isSignedIn() && hover ? 'block' : 'hidden'
         }`}
       >

@@ -14,7 +14,7 @@ import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { toNonDivisibleNumber } from '../utils/numbers';
 import { storageDepositForFTAction } from './creators/storage';
 import { getPoolsFromIndexer } from './api';
-import { farmConfig } from '~utils/FarmData';
+import { getFarms } from '~services/farm';
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -73,7 +73,7 @@ export const getPools = async ({
   useIndexerData?: boolean;
 }): Promise<Pool[]> => {
   if (useIndexerData) {
-    const poolData: PoolRPCView[] = await getPoolsFromIndexer({
+    const poolsData: PoolRPCView[] = await getPoolsFromIndexer({
       page,
       perPage,
       tokenName,
@@ -81,7 +81,7 @@ export const getPools = async ({
       order,
       uniquePairName,
     });
-    return poolData.map((rawPool) => parsePool(rawPool));
+    return poolsData.map((rawPool) => parsePool(rawPool));
   }
 
   const rows = await db.queryPools({
@@ -169,11 +169,13 @@ export const getSharesInPool = (id: number): Promise<string> => {
   });
 };
 
-export const canFarm = (pool_id: number): Boolean => {
+export const canFarm = async (pool_id: number): Promise<Boolean> => {
   const poolIds: number[] = [];
-  for (const [key, value] of Object.entries(farmConfig)) {
-    poolIds.push(value.poolId);
+  const farms = await getFarms({});
+  for (const item of farms) {
+    poolIds.push(Number(item.lpTokenId));
   }
+  console.log(poolIds, pool_id, poolIds.includes(pool_id));
 
   return poolIds.includes(pool_id);
 };

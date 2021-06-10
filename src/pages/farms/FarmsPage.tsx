@@ -23,9 +23,10 @@ import {
 import { toReadableNumber } from '~utils/numbers';
 import { mftGetBalance } from '~services/mft-contract';
 import { wallet } from '~services/near';
-import { farmConfig } from '~utils/FarmData';
 import Loading from '~components/layout/Loading';
 import { ConnectToNearBtn } from '~components/deposit/Deposit';
+import { usePool } from '~state/pool';
+import { useTokens } from '~state/token';
 
 export function FarmsPage() {
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
@@ -82,7 +83,7 @@ export function FarmsPage() {
                     key={farm.farm_id}
                     className="py-2 flex items-center justify-between"
                   >
-                    <div>{farmConfig[farm.farm_id].name}</div>
+                    <div>{farm.lpTokenId}</div>
                     <div>
                       {farm.userUnclaimedReward}
                       <span> {farm.rewardToken.symbol}</span>
@@ -119,28 +120,22 @@ export function FarmsPage() {
   );
 }
 
-function farmIdToTokenIds(farmId: string) {
-  const at = farmId.indexOf('@');
-  const pound = farmId.lastIndexOf('#');
-  const tok1 = farmId.slice(at + 1, pound);
-  const tok2 = farmId.slice(pound + 1);
-  return { tok1, tok2 };
-}
-
 function FarmView({ data }: { data: FarmInfo }) {
   const [withdrawVisible, setWithdrawVisible] = useState(false);
   const [unstakeVisible, setUnstakeVisible] = useState(false);
   const [stakeVisible, setStakeVisible] = useState(false);
   const [stakeBalance, setStakeBalance] = useState('0');
   const [error, setError] = useState<Error>();
-  const { tok1 } = farmIdToTokenIds(data.farm_id);
+  const PoolId = data.lpTokenId;
+  const { pool } = usePool(PoolId);
+  const tokens = useTokens(pool?.tokenIds);
 
   async function showUnstakeModal() {
     setUnstakeVisible(true);
   }
 
   async function showStakeModal() {
-    const b = await mftGetBalance(tok1);
+    const b = await mftGetBalance(data.lpTokenId);
     setStakeBalance(toReadableNumber(LP_TOKEN_DECIMALS, b));
     setStakeVisible(true);
   }
@@ -149,24 +144,40 @@ function FarmView({ data }: { data: FarmInfo }) {
     setWithdrawVisible(true);
   }
 
-  const PoolId = farmConfig[data.farm_id].poolId;
-  const Icon = farmConfig[data.farm_id].icon;
-  const Name = farmConfig[data.farm_id].name;
-  const Description = farmConfig[data.farm_id].description;
+  if (!pool || !tokens || tokens.length < 2) return <Loading />;
+
+  tokens.sort((a, b) => {
+    if (a.symbol === 'wNEAR') return 1;
+    if (b.symbol === 'wNEAR') return -1;
+    return a.symbol > b.symbol ? 1 : -1;
+  });
+
+  const images = tokens.map((token, index) => {
+    const { icon, id } = token;
+    if (icon) return <img key={id} className="h-8 w-8" src={icon} />;
+    return <div key={id} className="h-8 w-8 rounded-full border"></div>;
+  });
+
+  const symbols = tokens.map((token, index) => {
+    const { symbol } = token;
+    const hLine = index === 1 ? '' : '-';
+    return `${symbol}${hLine}`;
+  });
 
   return (
     <Card width="w-full" className="self-start">
       <div className="pb-3 border-b flex items-center">
         <div className="flex items-center justify-center">
           <div className="h-9">
-            <Icon />
+            <div className="w-18 flex items-center justify-between">
+              {images}
+            </div>
           </div>
         </div>
         <div className="pl-2">
           <div>
-            <a href={`/pool/${PoolId}`}>{Name}</a>
+            <a href={`/pool/${PoolId}`}>{symbols}</a>
           </div>
-          <div className="text-gray-300 text-xs">{Description}</div>
         </div>
       </div>
       <div className="text-center">
@@ -269,7 +280,7 @@ function FarmView({ data }: { data: FarmInfo }) {
         btnText="Stake"
         max={stakeBalance}
         onSubmit={(amount) => {
-          stake({ token_id: tok1, amount }).catch(setError);
+          stake({ token_id: data.lpTokenId, amount }).catch(setError);
         }}
       />
     </Card>

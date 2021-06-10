@@ -29,6 +29,7 @@ export interface Farm {
 }
 
 export interface FarmInfo extends Farm {
+  lpTokenId: string;
   rewardNumber: string;
   userStaked: string;
   rewardsPerWeek: string;
@@ -89,6 +90,10 @@ export const getFarms = async ({
   const seeds = await getSeeds({ page: page, perPage: perPage });
 
   const tasks = farms.map(async (f) => {
+    const lpTokenId = f.farm_id.slice(
+      f.farm_id.indexOf('@') + 1,
+      f.farm_id.lastIndexOf('#')
+    );
     const userStaked = toReadableNumber(
       LP_TOKEN_DECIMALS,
       stakedList[f.seed_id] ?? '0'
@@ -97,19 +102,24 @@ export const getFarms = async ({
     const rewardNumber =
       toReadableNumber(rewardToken.decimals, rewardList[f.reward_token]) ?? '0';
     const seedAmount = seeds[f.seed_id] ?? '0';
-    const rewardNumberPerWeek = math.evaluate(
-      `(${f.reward_per_session} / ${f.session_interval}) * 604800`
+    const rewardNumberPerWeek = math.round(
+      math.evaluate(
+        `(${f.reward_per_session} / ${f.session_interval}) * 604800`
+      )
     );
+
     const rewardsPerWeek = toReadableNumber(
       rewardToken.decimals,
       rewardNumberPerWeek.toString()
     );
     const userRewardNumberPerWeek =
       seedAmount !== '0'
-        ? math.evaluate(
-            `${rewardNumberPerWeek} * (${
-              stakedList[f.seed_id] ?? 0
-            } / ${seedAmount})`
+        ? math.round(
+            math.evaluate(
+              `${rewardNumberPerWeek} * (${
+                stakedList[f.seed_id] ?? 0
+              } / ${seedAmount})`
+            )
           )
         : 0;
     const userRewardsPerWeek = toReadableNumber(
@@ -126,6 +136,7 @@ export const getFarms = async ({
     );
     const fi: FarmInfo = {
       ...f,
+      lpTokenId,
       rewardNumber,
       userStaked,
       rewardsPerWeek,
