@@ -105,6 +105,11 @@ input[type='number'] {
   padding-bottom: 0;
 }
 
+#pool-container::-webkit-scrollbar,
+.infinite-scroll-component::-webkit-scrollbar {
+  display: none;
+}
+
 /* Adboard */
 .tooltip-content::after {
   content: ' ';
