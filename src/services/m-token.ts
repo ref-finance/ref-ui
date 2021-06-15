@@ -147,9 +147,12 @@ export const withdrawReward = async ({
 
   if (!ftBalance || ftBalance.total === '0') {
     transactions.unshift({
-      receiverId: REF_FARM_CONTRACT_ID,
+      receiverId: token_id,
       functionCalls: [
-        storageDepositAction({ amount: STORAGE_TO_REGISTER_WITH_MFT }),
+        storageDepositAction({
+          registrationOnly: true,
+          amount: STORAGE_TO_REGISTER_WITH_MFT,
+        }),
       ],
     });
   }
