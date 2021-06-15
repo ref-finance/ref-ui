@@ -18,7 +18,7 @@ interface StorageDepositActionOptions {
 }
 export const storageDepositAction = ({
   accountId = wallet.getAccountId(),
-  registrationOnly = true,
+  registrationOnly = false,
   amount,
 }: StorageDepositActionOptions): RefFiFunctionCallOptions => ({
   methodName: 'storage_deposit',
