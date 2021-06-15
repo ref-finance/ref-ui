@@ -76,7 +76,8 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
                   tokens[0].decimals || 24,
                   pool.supplies[pool.tokenIds[0]]
                 ),
-                4
+                4,
+                true
               )}
             </div>
             <div>
@@ -86,7 +87,8 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
                   tokens[1].decimals || 24,
                   pool.supplies[pool.tokenIds[1]]
                 ),
-                4
+                4,
+                true
               )}
             </div>
           </div>
@@ -108,7 +110,7 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
               history.push(`/pool/${pool.id}`);
             }}
           >
-            More
+            View Detail
           </button>
         </div>
       </div>
@@ -211,7 +213,8 @@ function PoolRow({ pool }: { pool: Pool }) {
               tokens[0].decimals || 24,
               pool.supplies[pool.tokenIds[0]]
             ),
-            4
+            4,
+            true
           )}
         </div>
         <div>
@@ -221,7 +224,8 @@ function PoolRow({ pool }: { pool: Pool }) {
               tokens[1].decimals || 24,
               pool.supplies[pool.tokenIds[1]]
             ),
-            4
+            4,
+            true
           )}
         </div>
       </div>

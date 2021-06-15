@@ -102,7 +102,8 @@ export function TokenList(props: {
 
         const amount = toPrecision(
           toReadableNumber(token.decimals, balance),
-          6
+          6,
+          true
         );
         return <Token key={token.id} {...token} amount={amount} />;
       })}
