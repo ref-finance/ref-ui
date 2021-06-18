@@ -186,21 +186,25 @@ function FarmView({ data }: { data: FarmInfo }) {
       <div className="py-2">
         {data.userStaked !== '0' ? (
           <div className="flex items-center justify-between text-xs py-2">
-            <div>Shares You've Staked</div>
+            <div>Your Shares</div>
             <div>{data.userStaked}</div>
           </div>
         ) : null}
-        <div className="flex items-center justify-between text-xs py-2">
-          <div>Rewards per week</div>
-          <div>
-            {data.rewardsPerWeek} {data.rewardToken.symbol}
+        {data.userStaked === '0' ? (
+          <div className="flex items-center justify-between text-xs py-2">
+            <div>Rewards per week</div>
+            <div>
+              {data.rewardsPerWeek} {data.rewardToken.symbol}
+            </div>
           </div>
+        ) : null}
+        <div className="flex items-center justify-between text-xs py-2">
+          <div>APR</div>
+          <div>{data.apr}</div>
         </div>
         <div className="flex items-center justify-between text-xs py-2">
-          <div>Weekly rewards per</div>
-          <div>
-            {data.userRewardsPerWeek} {data.rewardToken.symbol}
-          </div>
+          <div>Total Staked</div>
+          <div>${data.totalStaked}</div>
         </div>
         {data.userUnclaimedReward !== '0' ? (
           <div className="flex items-center justify-between text-xs py-2">

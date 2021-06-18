@@ -8,7 +8,7 @@ import { BigNumber } from 'bignumber.js';
 const config = getConfig();
 const api_url = 'https://rest.nearapi.org/view';
 
-interface PoolRPCView {
+export interface PoolRPCView {
   id: number;
   token_account_ids: string[];
   token_symbols: string[];
@@ -99,6 +99,24 @@ export const getPoolsFromIndexer = async (
       pools = pools.map((pool: any) => parsePoolView(pool));
 
       return pagination(args, order(args, search(args, pools)));
+    });
+};
+
+export const getPoolsByIdsFromIndexer = async (
+  pool_ids: string[]
+): Promise<PoolRPCView[]> => {
+  return await fetch(config.indexerUrl + '/list-pools-byids', {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    body: JSON.stringify({
+      params: { pool_ids: pool_ids },
+    }),
+  })
+    .then((res) => res.json())
+    .then((pools) => {
+      pools = pools.map((pool: any) => parsePoolView(pool));
+
+      return pools;
     });
 };
 

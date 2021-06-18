@@ -3,6 +3,8 @@ import { toReadableNumber } from '~utils/numbers';
 import { LP_TOKEN_DECIMALS } from '~services/m-token';
 import * as math from 'mathjs';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
+import { getPool } from '~services/pool';
+import { getPoolsByIdsFromIndexer } from '~services/api';
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -36,6 +38,8 @@ export interface FarmInfo extends Farm {
   userRewardsPerWeek: string;
   userUnclaimedReward: string;
   rewardToken: TokenMetadata;
+  totalStaked: number;
+  apr: number;
 }
 
 export const getSeeds = async ({
@@ -79,21 +83,35 @@ export const getFarms = async ({
   });
 
   let stakedList: Record<string, string> = {};
-  try {
-    stakedList = await getStakedListByAccountId({});
-  } catch (error) {}
-
+  stakedList = await getStakedListByAccountId({});
   let rewardList: Record<string, string> = {};
-  try {
-    rewardList = await getRewards({});
-  } catch (error) {}
-  const seeds = await getSeeds({ page: page, perPage: perPage });
+  rewardList = await getRewards({});
 
+  const seeds = await getSeeds({ page: page, perPage: perPage });
+  const pool_ids = farms.map((f) => {
+    return f.farm_id.slice(
+      f.farm_id.indexOf('@') + 1,
+      f.farm_id.lastIndexOf('#')
+    );
+  });
+  const pools = await getPoolsByIdsFromIndexer(pool_ids);
+  const poolsList = pools.map((pool): any => {
+    return {
+      [pool.id]: {
+        tvl: pool.tvl,
+        sts: pool.shares_total_supply,
+        tokenPrice: pool.token0_ref_price,
+      },
+    };
+  });
   const tasks = farms.map(async (f) => {
     const lpTokenId = f.farm_id.slice(
       f.farm_id.indexOf('@') + 1,
       f.farm_id.lastIndexOf('#')
     );
+    const poolTvl = poolsList[Number(lpTokenId)].tvl;
+    const poolSts = poolsList[Number(lpTokenId)].sts;
+    const tokenPrice = poolsList[Number(lpTokenId)].tokenPrice;
     const userStaked = toReadableNumber(
       LP_TOKEN_DECIMALS,
       stakedList[f.seed_id] ?? '0'
@@ -127,13 +145,18 @@ export const getFarms = async ({
       userRewardNumberPerWeek.toString()
     );
     let userUnclaimedRewardNumber: string = '0';
-    try {
-      userUnclaimedRewardNumber = await getUnclaimedReward(f.farm_id);
-    } catch (error) {}
+    userUnclaimedRewardNumber = await getUnclaimedReward(f.farm_id);
     const userUnclaimedReward = toReadableNumber(
       rewardToken.decimals,
       userUnclaimedRewardNumber
     );
+    const totalStaked =
+      poolSts === 0 ? 0 : (Number(rewardNumber) * poolTvl) / poolSts;
+    const apr =
+      totalStaked === 0
+        ? 0
+        : (1 / totalStaked) * (Number(rewardsPerWeek) * tokenPrice) * 52 * 100;
+
     const fi: FarmInfo = {
       ...f,
       lpTokenId,
@@ -143,6 +166,8 @@ export const getFarms = async ({
       userRewardsPerWeek,
       userUnclaimedReward,
       rewardToken,
+      totalStaked,
+      apr,
     };
     return fi;
   });
