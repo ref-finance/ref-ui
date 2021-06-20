@@ -200,7 +200,7 @@ function FarmView({ data }: { data: FarmInfo }) {
         ) : null}
         <div className="flex items-center justify-between text-xs py-2">
           <div>APR</div>
-          <div>{data.apr}</div>
+          <div>{data.apr}%</div>
         </div>
         <div className="flex items-center justify-between text-xs py-2">
           <div>Total Staked</div>

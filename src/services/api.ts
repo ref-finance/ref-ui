@@ -1,6 +1,5 @@
 import getConfig from './config';
 import { wallet } from './near';
-import { DEFAULT_PAGE_LIMIT } from './pool';
 import _ from 'lodash';
 import { toPrecision } from '~utils/numbers';
 import { BigNumber } from 'bignumber.js';
@@ -105,12 +104,10 @@ export const getPoolsFromIndexer = async (
 export const getPoolsByIdsFromIndexer = async (
   pool_ids: string[]
 ): Promise<PoolRPCView[]> => {
-  return await fetch(config.indexerUrl + '/list-pools-byids', {
+  const ids = pool_ids.join('|');
+  return await fetch(config.indexerUrl + '/list-pools-by-ids?ids=' + ids, {
     method: 'GET',
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
-    body: JSON.stringify({
-      params: { pool_ids: pool_ids },
-    }),
   })
     .then((res) => res.json())
     .then((pools) => {

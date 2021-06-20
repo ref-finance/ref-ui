@@ -1,5 +1,5 @@
 import { refFarmFunctionCall, refFarmViewFunction, farmWallet } from './near';
-import { toReadableNumber } from '~utils/numbers';
+import { toPrecision, toReadableNumber } from '~utils/numbers';
 import { LP_TOKEN_DECIMALS } from '~services/m-token';
 import * as math from 'mathjs';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
@@ -39,7 +39,7 @@ export interface FarmInfo extends Farm {
   userUnclaimedReward: string;
   rewardToken: TokenMetadata;
   totalStaked: number;
-  apr: number;
+  apr: string;
 }
 
 export const getSeeds = async ({
@@ -95,23 +95,19 @@ export const getFarms = async ({
     );
   });
   const pools = await getPoolsByIdsFromIndexer(pool_ids);
-  const poolsList = pools.map((pool): any => {
-    return {
-      [pool.id]: {
-        tvl: pool.tvl,
-        sts: pool.shares_total_supply,
-        tokenPrice: pool.token0_ref_price,
-      },
-    };
-  });
+  const poolsList = pools.reduce((obj, cur) => ({ ...obj, [cur.id]: cur }), {});
+
   const tasks = farms.map(async (f) => {
     const lpTokenId = f.farm_id.slice(
       f.farm_id.indexOf('@') + 1,
       f.farm_id.lastIndexOf('#')
     );
-    const poolTvl = poolsList[Number(lpTokenId)].tvl;
-    const poolSts = poolsList[Number(lpTokenId)].sts;
-    const tokenPrice = poolsList[Number(lpTokenId)].tokenPrice;
+
+    const poolTvl = poolsList[lpTokenId].tvl;
+    const poolSts = Number(
+      toReadableNumber(24, poolsList[lpTokenId].shares_total_supply)
+    );
+    const tokenPrice = poolsList[lpTokenId].token0_ref_price;
     const userStaked = toReadableNumber(
       LP_TOKEN_DECIMALS,
       stakedList[f.seed_id] ?? '0'
@@ -151,11 +147,27 @@ export const getFarms = async ({
       userUnclaimedRewardNumber
     );
     const totalStaked =
-      poolSts === 0 ? 0 : (Number(rewardNumber) * poolTvl) / poolSts;
+      poolSts === 0
+        ? 0
+        : Number(
+            toPrecision(
+              ((Number(rewardNumber) * poolTvl) / poolSts).toString(),
+              1
+            )
+          );
+
     const apr =
       totalStaked === 0
-        ? 0
-        : (1 / totalStaked) * (Number(rewardsPerWeek) * tokenPrice) * 52 * 100;
+        ? '0'
+        : toPrecision(
+            (
+              (1 / totalStaked) *
+              (Number(rewardsPerWeek) * tokenPrice) *
+              52 *
+              100
+            ).toString(),
+            1
+          );
 
     const fi: FarmInfo = {
       ...f,
