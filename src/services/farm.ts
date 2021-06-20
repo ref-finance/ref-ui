@@ -106,7 +106,7 @@ export const getFarms = async ({
     const { shares_total_supply, token0_ref_price, tvl } = poolsList[lpTokenId];
     const poolTvl = tvl;
     const poolSts = Number(toReadableNumber(24, shares_total_supply));
-    const tokenPrice = token0_ref_price;
+    const tokenPrice = Number(token0_ref_price);
     const userStaked = toReadableNumber(
       LP_TOKEN_DECIMALS,
       stakedList[f.seed_id] ?? '0'
