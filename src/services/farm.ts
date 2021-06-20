@@ -1,10 +1,9 @@
-import { refFarmFunctionCall, refFarmViewFunction, farmWallet } from './near';
+import { farmWallet, refFarmFunctionCall, refFarmViewFunction } from './near';
 import { toPrecision, toReadableNumber } from '~utils/numbers';
 import { LP_TOKEN_DECIMALS } from '~services/m-token';
 import * as math from 'mathjs';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
-import { getPool } from '~services/pool';
-import { getPoolsByIdsFromIndexer } from '~services/api';
+import { getPoolsByIdsFromIndexer, PoolRPCView } from '~services/api';
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -94,8 +93,9 @@ export const getFarms = async ({
       f.farm_id.lastIndexOf('#')
     );
   });
+  let poolsList: Record<string, PoolRPCView> = {};
   const pools = await getPoolsByIdsFromIndexer(pool_ids);
-  const poolsList = pools.reduce((obj, cur) => ({ ...obj, [cur.id]: cur }), {});
+  poolsList = pools.reduce((obj, pool) => ({ ...obj, [pool.id]: pool }), {});
 
   const tasks = farms.map(async (f) => {
     const lpTokenId = f.farm_id.slice(
@@ -103,11 +103,10 @@ export const getFarms = async ({
       f.farm_id.lastIndexOf('#')
     );
 
-    const poolTvl = poolsList[lpTokenId].tvl;
-    const poolSts = Number(
-      toReadableNumber(24, poolsList[lpTokenId].shares_total_supply)
-    );
-    const tokenPrice = poolsList[lpTokenId].token0_ref_price;
+    const { shares_total_supply, token0_ref_price, tvl } = poolsList[lpTokenId];
+    const poolTvl = tvl;
+    const poolSts = Number(toReadableNumber(24, shares_total_supply));
+    const tokenPrice = token0_ref_price;
     const userStaked = toReadableNumber(
       LP_TOKEN_DECIMALS,
       stakedList[f.seed_id] ?? '0'
