@@ -55,10 +55,7 @@ function App() {
             <Route path="/adboard" component={AdboardPage} />
             <Route path="/pools/add" component={AddPoolPage} />
             <Route path="/pools/add-token" component={AddTokenPage} />
-            <Route
-              path="/pools/yours"
-              component={YourLiquidityPage}
-            />
+            <Route path="/pools/yours" component={YourLiquidityPage} />
             <Route path="/pools" component={LiquidityPage} />
             <Route path="/" component={SwapPage} />
           </Switch>

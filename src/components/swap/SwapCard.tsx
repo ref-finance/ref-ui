@@ -84,18 +84,18 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const balances = useTokenBalances();
 
   useEffect(() => {
-    const [urlTokenIn, urlTokenOut] = decodeURIComponent(location.hash.slice(1)).split(TOKEN_URL_SEPARATOR);
+    const [urlTokenIn, urlTokenOut] = decodeURIComponent(
+      location.hash.slice(1)
+    ).split(TOKEN_URL_SEPARATOR);
     const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
-    const rememberedOut =
-      urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
+    const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
 
     if (allTokens) {
       setTokenIn(
         allTokens.find((token) => token.id === rememberedIn) || allTokens[0]
       );
       setTokenOut(
-        allTokens.find((token) => token.id === rememberedOut) ||
-        allTokens[1]
+        allTokens.find((token) => token.id === rememberedOut) || allTokens[1]
       );
     }
   }, [allTokens]);

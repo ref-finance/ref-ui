@@ -39,7 +39,7 @@ export function WithdrawModal(props: ReactModal.Props) {
 
   return (
     <Modal {...props}>
-      <Card style={{width:cardWidth}}>
+      <Card style={{ width: cardWidth }}>
         <div className="text-sm text-gray-800 font-semibold pb-4">
           Withdraw Token
         </div>

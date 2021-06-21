@@ -117,7 +117,7 @@ function AddLiquidityModal(
     });
   }
 
-  const cardWidth = isMobile() ? '75vw' : '30vw'
+  const cardWidth = isMobile() ? '75vw' : '30vw';
 
   return (
     <Modal {...props}>
@@ -185,7 +185,7 @@ export function RemoveLiquidityModal(
     shares: amount ? toNonDivisibleNumber(24, amount) : '0',
   });
   const [error, setError] = useState<Error>();
-  const cardWidth = isMobile() ? '75vw' : '30vw'
+  const cardWidth = isMobile() ? '75vw' : '30vw';
 
   return (
     <Modal {...props}>

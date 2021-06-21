@@ -31,7 +31,7 @@ export default function SelectToken({
       </button>
     );
   }
-  const dialogWidth = isMobile() ? '75%' : '25%'
+  const dialogWidth = isMobile() ? '75%' : '25%';
   return (
     <MicroModal
       trigger={(open) => (
@@ -63,7 +63,11 @@ export default function SelectToken({
       )}
       overrides={{
         Dialog: {
-          style: { width: dialogWidth, borderRadius: '0.75rem', padding: '1.5rem' },
+          style: {
+            width: dialogWidth,
+            borderRadius: '0.75rem',
+            padding: '1.5rem',
+          },
         },
       }}
     >
