@@ -71,7 +71,7 @@ export function FarmsPage() {
         <div className="w-72 relative">
           <div className="text-green-400 text-5xl px-7">Farms</div>
           <div className="text-whiteOpacity85 text-xs py-4 p-7">
-            Simply stake token to earn in Farms. High APR, low risk.
+            Stake your liquidity provider (LP) tokens to earn rewards!
           </div>
           {unclaimedFarmsIsLoading ? (
             <Loading />
