@@ -52,6 +52,7 @@ export function FarmsPage() {
   }, []);
 
   function claimRewards() {
+    setUnclaimedFarmsIsLoading(true);
     const tasks = farms.map((farm) => claimRewardByFarm(farm.farm_id));
     Promise.all(tasks)
       .then(() => {
@@ -121,6 +122,7 @@ export function FarmsPage() {
 }
 
 function FarmView({ data }: { data: FarmInfo }) {
+  const [farmsIsLoading, setFarmsIsLoading] = useState(false);
   const [withdrawVisible, setWithdrawVisible] = useState(false);
   const [unstakeVisible, setUnstakeVisible] = useState(false);
   const [stakeVisible, setStakeVisible] = useState(false);
@@ -144,7 +146,15 @@ function FarmView({ data }: { data: FarmInfo }) {
     setWithdrawVisible(true);
   }
 
-  if (!pool || !tokens || tokens.length < 2) return <Loading />;
+  function claimReward(farm_id: string) {
+    setFarmsIsLoading(true);
+    claimRewardByFarm(farm_id).then(() => {
+      window.location.reload();
+    });
+  }
+
+  if (!pool || !tokens || tokens.length < 2 || farmsIsLoading)
+    return <Loading />;
 
   tokens.sort((a, b) => {
     if (a.symbol === 'wNEAR') return 1;
@@ -229,7 +239,7 @@ function FarmView({ data }: { data: FarmInfo }) {
               </BorderButton>
             ) : null}
             {data.userUnclaimedReward !== '0' ? (
-              <BorderButton onClick={() => claimRewardByFarm(data.farm_id)}>
+              <BorderButton onClick={() => claimReward(data.farm_id)}>
                 <div className="w-10 text-greenLight">Claim</div>
               </BorderButton>
             ) : null}
