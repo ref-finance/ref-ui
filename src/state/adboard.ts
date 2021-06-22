@@ -18,13 +18,13 @@ export const useAdboardState = () => {
   );
 
   const isOwnFrame = (owner: string) => {
-    return owner === wallet.getAccountId()
-  }
+    return owner === wallet.getAccountId();
+  };
 
   return {
     ...adboardState,
     loading,
     ownedFrames,
-    isOwnFrame
+    isOwnFrame,
   };
 };

@@ -72,11 +72,25 @@ export const getPools = async ({
   useIndexerData?: boolean;
 }): Promise<Pool[]> => {
   if (useIndexerData) {
-    const poolData: PoolRPCView[] = await getPoolsFromIndexer({ page, perPage, tokenName, column, order, uniquePairName });
+    const poolData: PoolRPCView[] = await getPoolsFromIndexer({
+      page,
+      perPage,
+      tokenName,
+      column,
+      order,
+      uniquePairName,
+    });
     return poolData.map((rawPool) => parsePool(rawPool));
   }
 
-  const rows = await db.queryPools({ page, perPage, tokenName, column, order, uniquePairName });
+  const rows = await db.queryPools({
+    page,
+    perPage,
+    tokenName,
+    column,
+    order,
+    uniquePairName,
+  });
   return rows.map((row) => ({
     id: row.id,
     tokenIds: [row.token1Id, row.token2Id],
@@ -87,7 +101,7 @@ export const getPools = async ({
     fee: row.fee,
     shareSupply: row.shares,
     tvl: 0,
-    token0_ref_price: '0'
+    token0_ref_price: '0',
   }));
 };
 

@@ -81,6 +81,14 @@ input[type='number'] {
   background-color: #2d3231;
 }
 
+.bg-mobile-nav {
+  background-color: #001220;
+}
+
+.bg-mobile-nav-item {
+  background-color: #000b19;
+}
+
 .color-black {
   color: #2d3231;
 }
@@ -97,9 +105,14 @@ input[type='number'] {
   padding-bottom: 0;
 }
 
+#pool-container::-webkit-scrollbar,
+.infinite-scroll-component::-webkit-scrollbar {
+  display: none;
+}
+
 /* Adboard */
 .tooltip-content::after {
-  content: " ";
+  content: ' ';
   position: absolute;
   bottom: 100%; /* This will position the arrow at the top of the tooltip */
   left: 50%;

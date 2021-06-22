@@ -20,6 +20,7 @@ import { TokenMetadata } from '~services/ft-contract';
 import Alert from '~components/alert/Alert';
 import InputAmount from '~components/forms/InputAmount';
 import SlippageSelector from '~components/forms/SlippageSelector';
+import { isMobile } from '~utils/device';
 
 interface ParamTypes {
   id: string;
@@ -116,10 +117,12 @@ function AddLiquidityModal(
     });
   }
 
+  const cardWidth = isMobile() ? '75vw' : '30vw';
+
   return (
     <Modal {...props}>
       <div></div>
-      <Card style={{ width: '30vw' }}>
+      <Card style={{ width: cardWidth }}>
         <div className="text-sm text-gray-800 font-semibold pb-4">
           Add Liquidity
         </div>
@@ -181,12 +184,12 @@ export function RemoveLiquidityModal(
     slippageTolerance,
     shares: amount ? toNonDivisibleNumber(24, amount) : '0',
   });
-
   const [error, setError] = useState<Error>();
+  const cardWidth = isMobile() ? '75vw' : '30vw';
 
   return (
     <Modal {...props}>
-      <Card style={{ width: '30vw' }}>
+      <Card style={{ width: cardWidth }}>
         <div className="text-sm text-gray-800 font-semibold pb-4">
           Remove Liquidity
         </div>
@@ -291,11 +294,11 @@ export function PoolDetailsPage() {
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
 
   return (
-    <div className="flex items-center flex-col">
+    <div className="flex items-center flex-col w-1/3 md:w-5/6 xs:w-11/12 m-auto">
       <div className="text-center pb-8">
         <div className="text-white text-3xl font-semibold">Pool details</div>
       </div>
-      <Card width="w-1/3">
+      <Card width="w-full">
         <div className="text-center">
           <div className="inline-flex items-center text-base font-semibold">
             <Icon icon={tokens[0].icon} />

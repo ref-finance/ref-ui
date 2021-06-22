@@ -47,7 +47,7 @@ function App() {
         <BgShapeLeftBottom />
         <BgShapeTopRight />
         <NavigationBar />
-        <div className="justify-center h-4/5 mt-24">
+        <div className="xs:flex xs:flex-col md:flex md:flex-col justify-center h-4/5 lg:mt-24 relative">
           <Switch>
             <Route path="/deposit/:id?" component={DepositPage} />
             <Route path="/account" component={AccountPage} />

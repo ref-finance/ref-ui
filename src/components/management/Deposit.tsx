@@ -13,9 +13,8 @@ import copy from '../../utils/copy';
 
 export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
   const [amount, setAmount] = useState<string>('');
-  const [selectedToken, setSelectedToken] = useState<TokenMetadata>(
-    nearMetadata
-  );
+  const [selectedToken, setSelectedToken] =
+    useState<TokenMetadata>(nearMetadata);
 
   const storageBalances = useCurrentStorageBalance();
   const depositable = useDepositableBalance(selectedToken?.id);

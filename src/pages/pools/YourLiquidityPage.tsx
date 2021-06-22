@@ -9,7 +9,6 @@ import { getPoolBalance, getYourPoolsFromIndexer } from '~services/api';
 import { toRoundedReadableNumber } from '~utils/numbers';
 import { usePool } from '~state/pool';
 import { RemoveLiquidityModal } from './DetailsPage';
-import BN from 'bn.js';
 
 function Empty() {
   return (
@@ -39,14 +38,14 @@ export function YourLiquidityPage() {
   }, []);
 
   return (
-    <div className="flex items-center flex-col">
+    <div className="flex items-center flex-col w-1/3 md:w-5/6 xs:w-11/12 m-auto">
       <div className="text-center pb-8">
         <div className="text-white text-3xl font-semibold">Your Liquidity</div>
       </div>
-      <div className="w-1/3 flex justify-center">
+      <div className="w-full flex justify-center">
         {error && <Alert level="error" message={error.message} />}
       </div>
-      <Card width="w-1/3">
+      <Card width="w-full">
         {!wallet.isSignedIn() || pools.length === 0 ? <Empty /> : null}
         {pools.length > 0 ? (
           <section>
@@ -86,27 +85,31 @@ function PoolRow(props: { pool: any }) {
     return <div key={id} className="h-6 w-6 rounded-full border"></div>;
   });
 
-  return (Number(balance)>0 &&
-    <div className="grid grid-cols-12 py-2 content-center items-center text-xs font-semibold text-gray-600">
-      <div className="grid grid-cols-2 col-span-2">
-        <div className="w-14 flex items-center justify-between">{images}</div>
+  return (
+    Number(balance) > 0 && (
+      <div className="grid grid-cols-12 py-2 content-center items-center text-xs font-semibold text-gray-600">
+        <div className="grid grid-cols-2 col-span-2">
+          <div className="w-14 flex items-center justify-between">{images}</div>
+        </div>
+        <p className="grid col-span-4">
+          {tokens[0].symbol}-{tokens[1].symbol}
+        </p>
+        <p className="col-span-4 text-center">
+          {toRoundedReadableNumber({ decimals: 24, number: balance })}
+        </p>
+        <div className="col-span-2 text-right">
+          <GreenButton onClick={() => setShowWithdraw(true)}>
+            Remove
+          </GreenButton>
+        </div>
+        <RemoveLiquidityModal
+          pool={pool}
+          shares={balance}
+          tokens={tokens}
+          isOpen={showWithdraw}
+          onRequestClose={() => setShowWithdraw(false)}
+        />
       </div>
-      <p className="grid col-span-4">
-        {tokens[0].symbol}-{tokens[1].symbol}
-      </p>
-      <p className="col-span-4 text-center">
-        {toRoundedReadableNumber({ decimals: 24, number: balance })}
-      </p>
-      <div className="col-span-2 text-right">
-        <GreenButton onClick={() => setShowWithdraw(true)}>Remove</GreenButton>
-      </div>
-      <RemoveLiquidityModal
-        pool={pool}
-        shares={balance}
-        tokens={tokens}
-        isOpen={showWithdraw}
-        onRequestClose={() => setShowWithdraw(false)}
-      />
-    </div>
+    )
   );
 }

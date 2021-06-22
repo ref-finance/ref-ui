@@ -219,6 +219,11 @@ export const getWhitelistedTokens = async (): Promise<string[]> => {
   return [...new Set<string>([...globalWhitelist, ...userWhitelist])];
 };
 
-export const round = (decimals:number, minAmountOut: string) => {
-  return Number.isInteger(Number(minAmountOut)) ? minAmountOut : Math.ceil(Math.round(Number(minAmountOut) * Math.pow(10, decimals))/Math.pow(10, decimals)).toString();
-}
+export const round = (decimals: number, minAmountOut: string) => {
+  return Number.isInteger(Number(minAmountOut))
+    ? minAmountOut
+    : Math.ceil(
+        Math.round(Number(minAmountOut) * Math.pow(10, decimals)) /
+          Math.pow(10, decimals)
+      ).toString();
+};

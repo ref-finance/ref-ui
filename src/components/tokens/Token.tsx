@@ -27,7 +27,7 @@ export default function Token({ token, onClick, render }: TokenProps) {
           ) : (
             <div className="h-6 w-6 mr-3"></div>
           )}
-          <p className="hidden sm:block">{symbol}</p>
+          <p className="block">{symbol}</p>
         </div>
       </div>
       {render && render(token)}

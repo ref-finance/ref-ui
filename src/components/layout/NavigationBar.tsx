@@ -1,19 +1,25 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { matchPath } from 'react-router';
 import {
   Logo,
   Near,
-  BgShapeTopRight,
   ArrowDownWhite,
   ArrowDownGreen,
-} from '../../components/icon';
+  NavLogo,
+  NavClose,
+  NavExpand,
+  NavLogoLarge,
+  MenuItemCollapse,
+  MenuItemExpand,
+} from '~components/icon';
 import { Link, useLocation } from 'react-router-dom';
 import { wallet } from '~services/near';
 import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
 import { TokenList } from '~components/deposit/Deposit';
-import { useTokenBalances, useUserRegisteredTokens } from '../../state/token';
-import { REF_FI_CONTRACT_ID } from  '../../services/near'
+import { useTokenBalances, useUserRegisteredTokens } from '~state/token';
+import { REF_FI_CONTRACT_ID } from '~services/near';
+import { ConnectToNearBtn } from '~components/deposit/Deposit';
 import RainBow from '~components/layout/RainBow';
 
 function Anchor({
@@ -62,7 +68,7 @@ function AccountEntry() {
 
   return (
     <div
-      className={`cursor-pointer font-bold items-center justify-end text-center p-1 pl-3 pr-3 relative h-full`}
+      className={`cursor-pointer font-bold items-center justify-end text-center p-1 overflow-visible pl-3 pr-3 relative h-full`}
       onMouseEnter={() => {
         setHover(true);
       }}
@@ -75,16 +81,20 @@ function AccountEntry() {
           <Near />
         </div>
         <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name text-white">
-          {wallet.isSignedIn() ? accountName : <button
-            onClick={() => wallet.requestSignIn(REF_FI_CONTRACT_ID)}
-            type="button"
-          >
-            <span className="ml-2 text-sm">Connect to NEAR</span>
-          </button>}
+          {wallet.isSignedIn() ? (
+            accountName
+          ) : (
+            <button
+              onClick={() => wallet.requestSignIn(REF_FI_CONTRACT_ID)}
+              type="button"
+            >
+              <span className="ml-2 text-sm">Connect to NEAR</span>
+            </button>
+          )}
         </div>
       </div>
       <div
-        className={`absolute top-12 pt-2 right-10 ${
+        className={`relative top-12 pt-2 right-2 ${
           wallet.isSignedIn() && hover ? 'block' : 'hidden'
         }`}
       >
@@ -137,7 +147,7 @@ function PoolsMenu() {
 
   return (
     <div
-      className="relative"
+      className="relative z-20"
       onMouseOver={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
@@ -174,25 +184,172 @@ function PoolsMenu() {
   );
 }
 
-function NavigationBar() {
+function MobileAnchor({
+  to,
+  pattern,
+  name,
+  className,
+  onClick,
+}: {
+  to: string;
+  pattern: string;
+  name: string;
+  className?: string;
+  onClick: () => void;
+}) {
+  const location = useLocation();
+  const isSelected = matchPath(location.pathname, {
+    path: pattern,
+    exact: true,
+    strict: false,
+  });
+
   return (
-    <div className="nav-wrap hidden grid-cols-12 items-center text-center md:grid relative">
-      <nav className="flex items-center space-x-10 pl-5 pt-3">
-        <div className="relative -top-0.5">
-          <Logo />
+    <div>
+      <Link onClick={onClick} to={to}>
+        <div
+          className={`p-4 link font-bold p-2 ${className} ${
+            isSelected ? 'text-green-500' : 'text-white'
+          }`}
+        >
+          {name}
         </div>
-        <Anchor to="/deposit" pattern="/deposit/:id?" name="Deposit" />
-        <Anchor to="/" pattern="/" name="Swap" />
-        <PoolsMenu />
-        <a target="_blank" href="https://ethereum.bridgetonear.org/" className="relative ext-white border rounded-full p-4 py-2 border-greenLight text-greenLight">
-          Rainbow&nbsp;Bridge
-        </a>
-      </nav>
-      <div className="user col-span-8 items-center text-xs text-center justify-end pl-5 h-full w-96 absolute right-0">
-        <BgShapeTopRight />
-        <AccountEntry />
+      </Link>
+    </div>
+  );
+}
+
+function MobilePoolsMenu({
+  links,
+  onClick,
+}: {
+  links: Array<{ label: string; path: string }>;
+  onClick: () => void;
+}) {
+  const location = useLocation();
+  const isSelected = location.pathname.startsWith('/pools');
+  const [show, setShow] = useState(isSelected);
+  const history = useHistory();
+
+  return (
+    <div className="relative z-20">
+      <div
+        className="flex p-4 items-center justify-between"
+        onClick={() => setShow(!show)}
+      >
+        <div
+          className={`text-white link font-bold ${
+            isSelected ? 'text-green-500' : 'text-white'
+          }`}
+        >
+          Pools
+        </div>
+        {show ? <MenuItemCollapse /> : <MenuItemExpand />}
+      </div>
+      <div className={`divide-y divide-green-800 ${show ? 'block' : 'hidden'}`}>
+        {links.map((link) => {
+          const isSelected = link.path === location.pathname;
+
+          return (
+            <div
+              key={link.path}
+              className={`bg-mobile-nav-item whitespace-nowrap text-left font-bold text-white p-4 ${
+                isSelected ? 'text-green-500' : 'text-white'
+              }`}
+              onClick={() => {
+                onClick();
+                history.push(link.path);
+              }}
+            >
+              {link.label}
+            </div>
+          );
+        })}
       </div>
     </div>
+  );
+}
+
+function MobileNavBar() {
+  const [show, setShow] = useState(false);
+
+  const links = [
+    { label: 'View Pools', path: '/pools' },
+    { label: 'Add Token', path: '/pools/add-token' },
+    { label: 'Create New Pool', path: '/pools/add' },
+  ];
+
+  if (wallet.isSignedIn()) {
+    links.push({
+      label: 'Your Liquidity',
+      path: '/pools/yours',
+    });
+  }
+
+  function close() {
+    setShow(false);
+  }
+
+  return (
+    <div className="nav-wrap lg:hidden md:show = relative">
+      <div className="flex items-center justify-between p-4">
+        <NavLogo />
+        <NavExpand onClick={() => setShow(true)} />
+      </div>
+      <div
+        className={`absolute top-0 left-0 z-20 h-screen w-full bg-mobile-nav overflow-auto ${
+          show ? 'block' : 'hidden'
+        }`}
+      >
+        <div className="flex items-center justify-between p-4">
+          <NavLogoLarge />
+          <NavClose onClick={() => setShow(false)} />
+        </div>
+        {wallet.isSignedIn() ? null : (
+          <div className="mt-2">
+            <ConnectToNearBtn />
+          </div>
+        )}
+        <div className="mt-9 divide-y divide-green-800 border-t border-b border-green-800">
+          <MobileAnchor
+            to="/deposit"
+            pattern="/deposit/:id?"
+            name="Deposit"
+            onClick={close}
+          />
+          <MobileAnchor to="/" pattern="/" name="Swap" onClick={close} />
+          <MobilePoolsMenu links={links} onClick={close} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NavigationBar() {
+  return (
+    <>
+      <div className="nav-wrap md:hidden xs:hidden text-center relative">
+        <nav className="flex items-center space-x-10 pl-5 pt-3 col-span-8">
+          <div className="relative -top-0.5">
+            <Logo />
+          </div>
+          <Anchor to="/deposit" pattern="/deposit/:id?" name="Deposit" />
+          <Anchor to="/" pattern="/" name="Swap" />
+          <PoolsMenu />
+          <a
+            target="_blank"
+            href="https://ethereum.bridgetonear.org/"
+            className="relative ext-white border rounded-full p-4 py-2 border-greenLight text-greenLight"
+          >
+            Rainbow&nbsp;Bridge
+          </a>
+        </nav>
+        <div className="user text-xs text-center justify-end pl-5 h-full w-96 absolute top-0 right-0 z-20">
+          <AccountEntry />
+        </div>
+      </div>
+      <MobileNavBar />
+    </>
   );
 }
 export default NavigationBar;

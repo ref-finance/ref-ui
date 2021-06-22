@@ -46,9 +46,7 @@ export default function TokenAmount({
     </p>
   );
 
-  const addToken = () => (
-    <AddToken />
-  )
+  const addToken = () => <AddToken />;
 
   const isSignedIn = wallet.isSignedIn();
 
@@ -58,7 +56,7 @@ export default function TokenAmount({
         <span className="text-black">{text}</span>
         <span className={`${max === '0' ? 'text-gray-400' : null}`}>
           Balance:
-          {toPrecision(total,6)}
+          {toPrecision(total, 6, true)}
         </span>
       </div>
       <fieldset className="bg-inputBg relative flex overflow-hidden rounded-lg align-center my-2 border">
