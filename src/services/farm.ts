@@ -115,6 +115,9 @@ export const getFarms = async ({
     const rewardNumber =
       toReadableNumber(rewardToken.decimals, rewardList[f.reward_token]) ?? '0';
     const seedAmount = seeds[f.seed_id] ?? '0';
+    const totalSeed =
+      toReadableNumber(LP_TOKEN_DECIMALS, seeds[f.seed_id]) ?? '0';
+
     const rewardNumberPerWeek = math.round(
       math.evaluate(
         `(${f.reward_per_session} / ${f.session_interval}) * 604800`
@@ -145,14 +148,12 @@ export const getFarms = async ({
       rewardToken.decimals,
       userUnclaimedRewardNumber
     );
+
     const totalStaked =
       poolSts === 0
         ? 0
         : Number(
-            toPrecision(
-              ((Number(rewardNumber) * poolTvl) / poolSts).toString(),
-              1
-            )
+            toPrecision(((Number(totalSeed) * poolTvl) / poolSts).toString(), 1)
           );
 
     const apr =
