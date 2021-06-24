@@ -1796,6 +1796,11 @@
     "jest-diff" "^26.0.0"
     "pretty-format" "^26.0.0"
 
+"@types/lodash@^4.14.170":
+  "integrity" "sha512-bpcvu/MKHHeYX+qeEN8GE7DIravODWdACVA1ctevD8CN24RhPZIKMn9ntfAsrvLfSX3cR5RrBKAbYm9bGs0A+Q=="
+  "resolved" "https://registry.npmjs.org/@types/lodash/-/lodash-4.14.170.tgz"
+  "version" "4.14.170"
+
 "@types/mathjs@^6.0.11":
   "integrity" "sha512-q9B8ZreO41L38iTY76bCZEtAqzeRs4mNIOZpZ1sLSlcYgvgfFrnf8y8qfmas0tVWrsODjmQbQJFD6RJJJCqJbQ=="
   "resolved" "https://registry.npmjs.org/@types/mathjs/-/mathjs-6.0.11.tgz"
@@ -6115,6 +6120,11 @@
   "integrity" "sha512-1lM+BMLGuDfsdwf3rsgBSrxJwAZHFIrQ8YR61xIqdHo0uNKI9M52wNpHSrliZATJp51On6JD0AfRxd4YGSU0lw=="
   "resolved" "https://registry.npmjs.org/modern-normalize/-/modern-normalize-1.0.0.tgz"
   "version" "1.0.0"
+
+"moment@^2.29.1":
+  "integrity" "sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ=="
+  "resolved" "https://registry.npmjs.org/moment/-/moment-2.29.1.tgz"
+  "version" "2.29.1"
 
 "ms@2.0.0":
   "integrity" "sha1-VgiurfwAvmwpAd9fmGF4jeDVl8g="

@@ -5,10 +5,11 @@ import { ConnectToNearBtn, GreenButton } from '~components/button/Button';
 import Loading from '~components/layout/Loading';
 import { wallet } from '~services/near';
 import { useTokens } from '~state/token';
-import { getPoolBalance, getYourPoolsFromIndexer } from '~services/api';
+import { getPoolBalance } from '~services/api';
 import { toRoundedReadableNumber } from '~utils/numbers';
 import { usePool } from '~state/pool';
 import { RemoveLiquidityModal } from './DetailsPage';
+import { getYourPools } from '~services/indexer';
 
 function Empty() {
   return (
@@ -34,7 +35,7 @@ export function YourLiquidityPage() {
   const [pools, setPools] = useState([]);
 
   useEffect(() => {
-    getYourPoolsFromIndexer().then(setPools);
+    getYourPools().then(setPools);
   }, []);
 
   return (

@@ -2,12 +2,13 @@ import React from 'react';
 import { Balances } from '../components/deposit/Deposit';
 import { useTokenBalances, useUserRegisteredTokens } from '../state/token';
 import Loading from '../components/layout/Loading';
+import { getLatestActions } from '~services/indexer';
 
 export function AccountPage() {
   const userTokens = useUserRegisteredTokens();
   const balances = useTokenBalances();
-
-  if (!balances || !userTokens) return <Loading />;
+  const actions = getLatestActions();
+  if (!balances || !userTokens || !actions) return <Loading />;
 
   return (
     <div className="flex items-center flex-col">

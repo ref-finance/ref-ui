@@ -103,7 +103,7 @@ function AccountEntry() {
             <div className="text-base">Balance</div>
             <div
               className="cursor-pointer rounded-full border border-greenLight px-2 py-1"
-              onClick={() => history.push('/deposit')}
+              onClick={() => history.push('/account')}
             >
               View account
             </div>
