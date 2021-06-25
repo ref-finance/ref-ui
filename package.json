@@ -6,6 +6,7 @@
     "build": "parcel build src/index.html",
     "start": "parcel src/index.html",
     "start:mainnet": "NEAR_ENV=mainnet parcel src/index.html",
+    "start:testnet": "NEAR_ENV=testnet parcel src/index.html",
     "prettier": "prettier --check src",
     "prettier:fix": "prettier --write src",
     "test": "jest test --runInBand",

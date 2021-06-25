@@ -51,6 +51,11 @@ export function YourLiquidityPage() {
         {pools.length > 0 ? (
           <section>
             <div className="max-h-80 overflow-y-auto">
+              <div className="grid grid-cols-12 py-2 content-center items-center text-xs font-semibold text-gray-600">
+                <div className="grid grid-cols-2 col-span-2"></div>
+                <p className="grid col-span-4">Pair</p>
+                <p className="col-span-4 text-center">Shares Owned</p>
+              </div>
               {pools.map((pool, i) => (
                 <PoolRow key={i} pool={pool} />
               ))}
