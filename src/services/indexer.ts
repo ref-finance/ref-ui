@@ -3,7 +3,20 @@ import { wallet } from './near';
 import _ from 'lodash';
 import { parsePoolView, PoolRPCView } from './api';
 import moment from 'moment/moment';
+
 const config = getConfig();
+
+const parseActionView = (action: any) => {
+  return {
+    datetime: moment
+      .unix(action[0] / 1000000000)
+      .format('MMMM D, YYYY [at] h:mm:ss A'),
+    txUrl: config.explorerUrl + '/transactions/' + action[1],
+    message: action[2],
+    parameter: action[3],
+    status: action[5] === 'SUCCESS_VALUE',
+  };
+};
 
 export const getYourPools = async (): Promise<PoolRPCView[]> => {
   return await fetch(
@@ -73,15 +86,7 @@ export const getLatestActions = async () => {
   )
     .then((res) => res.json())
     .then((items) => {
-      items = items.map((item: any) => {
-        ({
-          date: moment
-            .unix(item[0] / 1000000000)
-            .format('MMMM D, YYYY [at] h:mm:ss A'),
-          action: item[1],
-          parameter: item[2],
-        });
-      });
+      items = items.map((item: any) => parseActionView(item));
       return items;
     });
 };
