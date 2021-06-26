@@ -1,8 +1,9 @@
 import getConfig from './config';
-import { wallet } from './near';
+import {wallet} from './near';
 import _ from 'lodash';
-import { parsePoolView, PoolRPCView } from './api';
+import {parsePoolView, PoolRPCView} from './api';
 import moment from 'moment/moment';
+import {parseAction} from "~services/transaction";
 
 const config = getConfig();
 
@@ -12,8 +13,7 @@ const parseActionView = (action: any) => {
       .unix(action[0] / 1000000000)
       .format('MMMM D, YYYY [at] h:mm:ss A'),
     txUrl: config.explorerUrl + '/transactions/' + action[1],
-    message: action[2],
-    parameter: action[3],
+    data: parseAction(action[2], action[3]),
     status: action[5] === 'SUCCESS_VALUE',
   };
 };
@@ -23,7 +23,7 @@ export const getYourPools = async (): Promise<PoolRPCView[]> => {
     config.indexerUrl + '/liquidity-pools/' + wallet.getAccountId(),
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {'Content-type': 'application/json; charset=UTF-8'},
     }
   )
     .then((res) => res.json())
@@ -35,7 +35,7 @@ export const getYourPools = async (): Promise<PoolRPCView[]> => {
 export const getTopPools = async (args: any): Promise<PoolRPCView[]> => {
   return await fetch(config.indexerUrl + '/list-top-pools', {
     method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    headers: {'Content-type': 'application/json; charset=UTF-8'},
   })
     .then((res) => res.json())
     .then((pools) => {
@@ -81,12 +81,13 @@ export const getLatestActions = async () => {
     config.indexerUrl + '/latest-actions/' + wallet.getAccountId(),
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {'Content-type': 'application/json; charset=UTF-8'},
     }
   )
     .then((res) => res.json())
     .then((items) => {
       items = items.map((item: any) => parseActionView(item));
+
       return items;
     });
 };
