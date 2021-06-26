@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
+import { FaRegQuestionCircle } from 'react-icons/fa';
+import ReactTooltip from 'react-tooltip';
 import { Card } from '~components/card/Card';
-import { useWhitelistTokens, useTokenBalances } from '../../state/token';
+import { useWhitelistTokens, useTokenBalances } from '~state/token';
 import Loading from '~components/layout/Loading';
 import SelectToken from '~components/forms/SelectToken';
-import { TokenMetadata } from '../../services/ft-contract';
-import { toRoundedReadableNumber } from '../../utils/numbers';
+import { TokenMetadata } from '~services/ft-contract';
+import { toRoundedReadableNumber } from '~utils/numbers';
 import { ArrowDownGreen } from '~components/icon';
 import Icon from '~components/tokens/Icon';
 import { ConnectToNearBtn } from '~components/deposit/Deposit';
 import { wallet } from '~services/near';
 import { addSimpleLiquidityPool } from '~services/pool';
 import copy from '~utils/copy';
-import { FaRegQuestionCircle } from 'react-icons/fa';
-import ReactTooltip from 'react-tooltip';
+import { Toggle } from '~components/toggle';
 
 export function AddPoolPage() {
   const tokens = useWhitelistTokens();
@@ -71,27 +72,27 @@ export function AddPoolPage() {
           selected={token2 && <Selected token={token2} />}
           onSelect={setToken2}
         />
-        <div className="text-xs font-semibold pt-2 flex items-center justify-start">
-          <span className="pr-1">Fee (Basis points) </span>
-          <FaRegQuestionCircle
-            data-type="dark"
-            data-place="bottom"
-            data-multiline={true}
-            data-tip={copy.poolFee}
-            className="text-xs font-semibold text-secondaryScale-500"
+        <div className="text-xs font-semibold pt-2 flex items-center justify-between">
+          <div>
+            <span className="pr-1">Fee (Basis points) </span>
+          </div>
+          <Toggle
+            opts={[
+              { label: '25', value: '25' },
+              { label: '35', value: '35' },
+              { label: '85', value: '85' },
+            ]}
+            onChange={(v) => setFee(v)}
+            value="35"
           />
-          <ReactTooltip className="text-xs font-light" />
         </div>
-        <div className="rounded-lg w-full border my-2">
-          <input
-            step="any"
-            min="0"
-            className={`text-sm font-bold bg-inputBg focus:outline-none rounded-lg w-full py-2 px-3 text-greenLight`}
-            type="number"
-            placeholder="0.0"
-            value={fee}
-            onChange={({ target }) => setFee(target.value)}
-          />
+        <div className="text-xs font-semibold pt-4 flex items-center justify-between">
+          <div>
+            <span className="pr-1">Total Fee (protocol fee is 0.05%)</span>
+          </div>
+          <div className="text-right border bg-gray-100 p-2 px-3 rounded-lg">
+            25
+          </div>
         </div>
         <div className="pt-4 flex items-center justify-center">
           {wallet.isSignedIn() ? (
