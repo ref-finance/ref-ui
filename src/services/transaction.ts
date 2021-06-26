@@ -1,70 +1,92 @@
-export const parseAction = (methodName: string, params: any) => {
+import {ftGetTokenMetadata, TokenMetadata} from "~services/ft-contract";
+import {toReadableNumber} from "~utils/numbers";
+import {getPoolDetails} from "~services/pool";
+
+export const parseAction = async (methodName: string, params: any) => {
   switch (methodName) {
     case 'swap': {
-      return parseSwap(params);
+      return await parseSwap(params);
     }
     case 'withdraw': {
-      return parseWithdraw(params);
+      return await parseWithdraw(params);
     }
     case 'register_tokens': {
-      return parseRegisterTokens(params);
+      return await parseRegisterTokens(params);
     }
     case 'add_liquidity': {
-      return parseAddLiquidity(params);
+      return await parseAddLiquidity(params);
     }
     case 'remove_liquidity': {
-      return parseRemoveLiquidity(params);
+      return await parseRemoveLiquidity(params);
     }
     case 'add_simple_pool': {
-      return parseAddSimplePool(params);
+      return await parseAddSimplePool(params);
+    }
+    case 'storage_deposit': {
+      return await parseStorageDeposit();
     }
   }
 };
 
-const parseSwap = (params: any) => {
+const parseSwap = async (params: any) => {
+  const in_token = await ftGetTokenMetadata(params.actions[0].token_in);
+  const out_token = await ftGetTokenMetadata(params.actions[0].token_out);
+
   return {
-    pool_id: params.actions[0].pool_id,
-    amount_in: params.actions[0].amount_in,
-    amount_out: params.actions[0].min_amount_out,
-    token_in_id: params.actions[0].token_in,
-    token_out_id: params.actions[0].token_out,
+    "Pool Id": params.actions[0].pool_id,
+    "Amount In": toReadableNumber(in_token.decimals, params.actions[0].amount_in),
+    "Amount Out": toReadableNumber(out_token.decimals, params.actions[0].min_amount_out),
+    "Token In": in_token.symbol,
+    "Token Out": out_token.symbol,
   }
 };
 
-const parseWithdraw = (params: any) => {
+const parseWithdraw = async (params: any) => {
+  const token = await ftGetTokenMetadata(params.token);
+
   return {
-    amount: params.amount,
-    token_id: params.token,
+    "Amount": toReadableNumber(token.decimals, params.amount),
+    "Token": token.symbol,
   }
 };
 
 const parseRegisterTokens = (params: any) => {
   return {
-    token_ids: params.token_ids
+    'Token Ids': params.token_ids.join(',')
   }
 };
 
-const parseAddLiquidity = (params: any) => {
+const parseAddLiquidity = async (params: any) => {
+  const pool = await getPoolDetails(params.pool_id);
+  const tokens = await Promise.all<TokenMetadata>(pool.tokenIds.map((id) => ftGetTokenMetadata(id)));
+
   return {
-    pool_id: params.pool_id,
-    amount1: params.amounts[0],
-    amount2: params.amounts[1],
+    "Pool Id": params.pool_id,
+    "Amount One": toReadableNumber(tokens[0].decimals,params.amounts[0]),
+    "Amount Two": toReadableNumber(tokens[1].decimals,params.amounts[1]),
   }
 };
 
-const parseRemoveLiquidity = (params: any) => {
+const parseRemoveLiquidity = async (params: any) => {
+  const pool = await getPoolDetails(params.pool_id);
+  const tokens = await Promise.all<TokenMetadata>(pool.tokenIds.map((id) => ftGetTokenMetadata(id)));
+
   return {
-    pool_id: params.pool_id,
-    amount1: params.min_amounts[0],
-    amount2: params.min_amounts[1],
-    shares: params.shares,
+    "Pool Id": params.pool_id,
+    "Amount One": toReadableNumber(tokens[0].decimals,params.min_amounts[0]),
+    "Amount Two": toReadableNumber(tokens[1].decimals,params.min_amounts[1]),
+    "Shares": params.shares,
   }
 };
 
-const parseAddSimplePool = (params: any) => {
+const parseAddSimplePool = async (params: any) => {
   return {
-    fee: params.fee,
-    token1: params.tokens[0],
-    token2: params.tokens[1],
+    "Fee": params.fee,
+    "Token One": params.tokens[0],
+    "Token Two": params.tokens[1],
   }
 };
+
+const parseStorageDeposit = async () => {
+  return 'Storage Deposit';
+}

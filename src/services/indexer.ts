@@ -7,13 +7,14 @@ import {parseAction} from "~services/transaction";
 
 const config = getConfig();
 
-const parseActionView = (action: any) => {
+const parseActionView = async (action: any) => {
+  const data = await parseAction(action[2], action[3]);
   return {
     datetime: moment
       .unix(action[0] / 1000000000)
       .format('MMMM D, YYYY [at] h:mm:ss A'),
     txUrl: config.explorerUrl + '/transactions/' + action[1],
-    data: parseAction(action[2], action[3]),
+    data: data,
     status: action[5] === 'SUCCESS_VALUE',
   };
 };
@@ -86,8 +87,8 @@ export const getLatestActions = async () => {
   )
     .then((res) => res.json())
     .then((items) => {
-      items = items.map((item: any) => parseActionView(item));
+      const tasks = items.map(async (item: any) => await parseActionView(item));
 
-      return items;
+      return Promise.all(tasks);
     });
 };
