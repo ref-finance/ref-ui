@@ -3,10 +3,12 @@ import { wallet, REF_FI_CONTRACT_ID } from '~services/near';
 import { Near } from '~components/icon';
 
 export function BorderButton(props: HTMLAttributes<HTMLButtonElement>) {
+  const { className, ...propsWithoutClassName } = props;
+
   return (
     <button
       className={`rounded-full text-xs px-3 py-1.5 focus:outline-none font-semibold border border-greenLight focus:outline-none ${props.className}`}
-      {...props}
+      {...propsWithoutClassName}
     >
       {props.children}
     </button>
@@ -36,10 +38,11 @@ export function GrayButton(
     disabled?: boolean;
   }
 ) {
+  const { className, ...propsWithoutClassName } = props;
   return (
     <button
       className={`inline-flex cursor-pointer font-bold items-center text-center rounded-full bg-gray-800 px-3.5 py-1 focus:outline-none ${props.className}`}
-      {...props}
+      {...propsWithoutClassName}
     >
       {props.children}
     </button>
