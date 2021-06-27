@@ -168,3 +168,12 @@ input[type='number'] {
   visibility: visible;
   z-index: 50;
 }
+
+.hide-scrollbar::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+.hide-scrollbar::-webkit-scrollbar-thum {
+  background: transparent;
+}

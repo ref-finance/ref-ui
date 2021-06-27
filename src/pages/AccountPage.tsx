@@ -4,7 +4,7 @@ import { GreenButton, GrayButton } from '~components/button/Button';
 
 export function AccountPage() {
   return (
-    <div className="w-7/12 m-auto overflow-y-auto h-full">
+    <div className="hide-scrollbar w-7/12 m-auto overflow-y-auto h-full">
       <div className="grid grid-cols-3 gap-6">
         <div className="col-span-2">
           <Card className="w-full">
