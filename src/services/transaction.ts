@@ -33,6 +33,7 @@ const parseSwap = async (params: any) => {
   const out_token = await ftGetTokenMetadata(params.actions[0].token_out);
 
   return {
+    "Action": "Swap",
     "Pool Id": params.actions[0].pool_id,
     "Amount In": toReadableNumber(in_token.decimals, params.actions[0].amount_in),
     "Amount Out": toReadableNumber(out_token.decimals, params.actions[0].min_amount_out),
@@ -45,6 +46,7 @@ const parseWithdraw = async (params: any) => {
   const token = await ftGetTokenMetadata(params.token);
 
   return {
+    "Action": "Withdraw",
     "Amount": toReadableNumber(token.decimals, params.amount),
     "Token": token.symbol,
   }
@@ -52,6 +54,7 @@ const parseWithdraw = async (params: any) => {
 
 const parseRegisterTokens = (params: any) => {
   return {
+    "Action": "Register Tokens",
     'Token Ids': params.token_ids.join(',')
   }
 };
@@ -61,6 +64,7 @@ const parseAddLiquidity = async (params: any) => {
   const tokens = await Promise.all<TokenMetadata>(pool.tokenIds.map((id) => ftGetTokenMetadata(id)));
 
   return {
+    "Action": "Add Liquidity",
     "Pool Id": params.pool_id,
     "Amount One": toReadableNumber(tokens[0].decimals,params.amounts[0]),
     "Amount Two": toReadableNumber(tokens[1].decimals,params.amounts[1]),
@@ -72,6 +76,7 @@ const parseRemoveLiquidity = async (params: any) => {
   const tokens = await Promise.all<TokenMetadata>(pool.tokenIds.map((id) => ftGetTokenMetadata(id)));
 
   return {
+    "Action": "Remove Liquidity",
     "Pool Id": params.pool_id,
     "Amount One": toReadableNumber(tokens[0].decimals,params.min_amounts[0]),
     "Amount Two": toReadableNumber(tokens[1].decimals,params.min_amounts[1]),
@@ -81,6 +86,7 @@ const parseRemoveLiquidity = async (params: any) => {
 
 const parseAddSimplePool = async (params: any) => {
   return {
+    "Action": "Swap",
     "Fee": params.fee,
     "Token One": params.tokens[0],
     "Token Two": params.tokens[1],
@@ -88,5 +94,7 @@ const parseAddSimplePool = async (params: any) => {
 };
 
 const parseStorageDeposit = async () => {
-  return 'Storage Deposit';
+  return {
+    "Action": "Storage Deposit"
+  }
 }
