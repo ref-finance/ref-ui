@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@svgr/parcel-plugin-svgr": "^5.5.0",
+    "actionsheet-react": "^1.0.12",
     "axios": "^0.21.1",
     "bignumber.js": "^9.0.1",
     "bn.js": "^5.2.0",
