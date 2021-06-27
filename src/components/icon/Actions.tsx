@@ -39,7 +39,7 @@ export function Swap() {
   );
 }
 
-export function withdraw() {
+export function Withdraw() {
   return (
     <svg
       width="16px"
@@ -78,7 +78,7 @@ export function withdraw() {
   );
 }
 
-export function registerToken() {
+export function RegisterToken() {
   return (
     <svg
       width="16px"
@@ -117,7 +117,7 @@ export function registerToken() {
   );
 }
 
-export function removeLiquidity() {
+export function RemoveLiquidity() {
   return (
     <svg
       width="18px"
@@ -163,7 +163,7 @@ export function removeLiquidity() {
   );
 }
 
-export function addLiquidity() {
+export function AddLiquidity() {
   return (
     <svg
       width="16px"
@@ -213,7 +213,7 @@ export function addLiquidity() {
   );
 }
 
-export function addPool() {
+export function AddPool() {
   return (
     <svg
       width="16px"
@@ -244,4 +244,18 @@ export function addPool() {
       </g>
     </svg>
   );
+}
+
+const viewMap = {
+  Swap: Swap,
+  Withdraw: Withdraw,
+  'Register Tokens': RegisterToken,
+  'Add Liquidity': AddLiquidity,
+  'Remove Liquidity': RemoveLiquidity,
+  'Add Pool': AddPool,
+};
+
+export function mapToView(action: string): JSX.Element {
+  const View = viewMap[action as keyof typeof viewMap];
+  return View ? <View /> : null;
 }

@@ -2,24 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
 import Alert from '~components/alert/Alert';
+import Modal from 'react-modal';
 import { GreenButton, GrayButton } from '~components/button/Button';
-import { Balances } from '~components/deposit/Deposit';
+import { mapToView } from '~components/icon/Actions';
 import {
   useTokenBalances,
   useUserRegisteredTokens,
   useTokens,
 } from '~state/token';
 import Loading from '~components/layout/Loading';
-import { getLatestActions, getYourPools } from '~services/indexer';
+import { getLatestActions, getYourPools, ActionData } from '~services/indexer';
 import { toPrecision, toReadableNumber } from '~utils/numbers';
 import { usePool } from '~state/pool';
 import { getPoolBalance } from '~services/api';
 import { RemoveLiquidityModal } from './pools/DetailsPage';
-import { TokenMetadata } from '~services/ft-contract';
-import { TokenBalancesView } from '~services/token';
+import moment from 'moment';
+import { wallet } from '~services/near';
+import getConfig from '~services/config';
 
 function useLastActions() {
-  const [actions, setActions] = useState([]);
+  const [actions, setActions] = useState<ActionData[]>([]);
 
   useEffect(() => {
     getLatestActions().then((resp) => {
@@ -40,7 +42,13 @@ function Balance({ hideEmpty }: { hideEmpty?: boolean }) {
     <Card className="w-full">
       <div className="flex items-center justify-between pb-4">
         <div className="font-semibold">Balance</div>
-        <GreenButton>Go to Wallet</GreenButton>
+        <GreenButton
+          onClick={() => {
+            window.open(getConfig().walletUrl, '_blank');
+          }}
+        >
+          Go to Wallet
+        </GreenButton>
       </div>
       <div>
         {userTokens.map((token) => {
@@ -186,44 +194,117 @@ function Liquidity() {
   );
 }
 
+function Actions() {
+  const actions = useLastActions();
+  const [detail, setDetail] = useState<ActionData | null>(null);
+  if (!actions) return <Loading />;
+
+  return (
+    <Card className="w-full">
+      <div className="flex items-center justify-between pb-4">
+        <div className="font-semibold">Recent Activity</div>
+        <div></div>
+      </div>
+      <div className="border-b">
+        {actions.map((action, i) => {
+          let icon = mapToView(action.data.Action);
+          icon = icon ? (
+            <div className="mr-4">{icon}</div>
+          ) : (
+            <div className="rounded-full h-4 w-4 bg-gray-300 mr-3"></div>
+          );
+          return (
+            <div
+              key={i}
+              className="flex items-center justify-between py-4 border-t cursor-pointer"
+              onClick={() => {
+                setDetail(action);
+              }}
+            >
+              <div className="flex items-center justify-between">
+                {icon}
+                <span className="text-xs font-semibold">
+                  {action.data.Action}
+                </span>
+              </div>
+              <div className="text-gray-400 text-xs">
+                {moment(action.datetime).fromNow(true)} ago
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div>
+        <GrayButton
+          className="text-white text-xs w-full justify-center py-2 mt-4"
+          onClick={() => {
+            const url = `https://explorer.testnet.near.org/accounts/${
+              wallet.account().accountId
+            }`;
+            window.open(url, '_blank');
+          }}
+        >
+          <div>View All</div>
+        </GrayButton>
+      </div>
+
+      <Modal
+        isOpen={!!detail}
+        onRequestClose={() => setDetail(null)}
+        style={{ content: { outline: 'none' } }}
+      >
+        {detail ? (
+          <Card style={{ width: '40vw' }}>
+            <div className="text-center pb-4 font-semibold">
+              {detail.data.Action}
+            </div>
+            <div className="border-b">
+              {Object.keys(detail.data).map((k, i) => {
+                if (k === 'Action') return null;
+
+                return (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between border-t py-3 text-sm"
+                  >
+                    <div>{k}</div>
+                    <div>{(detail.data as any)[k]}</div>
+                  </div>
+                );
+              })}
+              <div className="flex items-center justify-between border-t py-3 text-sm">
+                <div>status</div>
+                <div>{detail.status ? 'success' : 'failed'}</div>
+              </div>
+            </div>
+            <div className="pt-2">
+              <GrayButton className="text-white text-xs w-full justify-center py-2 mt-4">
+                <div
+                  onClick={() => {
+                    window.open(detail.txUrl, '_blank');
+                  }}
+                >
+                  View on Explorer
+                </div>
+              </GrayButton>
+            </div>
+          </Card>
+        ) : null}
+      </Modal>
+    </Card>
+  );
+}
+
 function Account() {
   return (
-    <div className="hide-scrollbar w-7/12 m-auto overflow-y-auto h-full">
+    <div className="hide-scrollbar w-7/12 m-auto overflow-y-auto h-full md:hidden">
       <div className="grid grid-cols-3 gap-6 xs:hidden">
         <div className="col-span-2">
           <Balance />
           <Liquidity />
         </div>
         <div>
-          <Card className="w-full">
-            <div className="flex items-center justify-between pb-4">
-              <div className="font-semibold">Recent Activity</div>
-              <div></div>
-            </div>
-            <div className="border-b">
-              {Array(5)
-                .fill(0)
-                .map((_, i) => {
-                  return (
-                    <div
-                      key={i}
-                      className="flex items-center justify-between py-4 border-t"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="rounded-full h-6 w-6 bg-gray-600 mr-3"></div>
-                        <span className="text-xs font-semibold">BANANA</span>
-                      </div>
-                      <div className="text-gray-400 text-xs">1780</div>
-                    </div>
-                  );
-                })}
-            </div>
-            <div>
-              <GrayButton className="text-white text-xs w-full justify-center py-2 mt-4">
-                <div>View All</div>
-              </GrayButton>
-            </div>
-          </Card>
+          <Actions />
         </div>
       </div>
     </div>

@@ -86,7 +86,7 @@ const parseRemoveLiquidity = async (params: any) => {
 
 const parseAddSimplePool = async (params: any) => {
   return {
-    "Action": "Swap",
+    "Action": "Add Pool",
     "Fee": params.fee,
     "Token One": params.tokens[0],
     "Token Two": params.tokens[1],

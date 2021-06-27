@@ -1,9 +1,9 @@
 import getConfig from './config';
-import {wallet} from './near';
+import { wallet } from './near';
 import _ from 'lodash';
-import {parsePoolView, PoolRPCView} from './api';
+import { parsePoolView, PoolRPCView } from './api';
 import moment from 'moment/moment';
-import {parseAction} from "~services/transaction";
+import { parseAction } from '~services/transaction';
 
 const config = getConfig();
 
@@ -11,8 +11,7 @@ const parseActionView = async (action: any) => {
   const data = await parseAction(action[2], action[3]);
   return {
     datetime: moment
-      .unix(action[0] / 1000000000)
-      .format('MMMM D, YYYY [at] h:mm:ss A'),
+      .unix(action[0] / 1000000000),
     txUrl: config.explorerUrl + '/transactions/' + action[1],
     data: data,
     status: action[5] === 'SUCCESS_VALUE',
@@ -24,7 +23,7 @@ export const getYourPools = async (): Promise<PoolRPCView[]> => {
     config.indexerUrl + '/liquidity-pools/' + wallet.getAccountId(),
     {
       method: 'GET',
-      headers: {'Content-type': 'application/json; charset=UTF-8'},
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
     }
   )
     .then((res) => res.json())
@@ -36,7 +35,7 @@ export const getYourPools = async (): Promise<PoolRPCView[]> => {
 export const getTopPools = async (args: any): Promise<PoolRPCView[]> => {
   return await fetch(config.indexerUrl + '/list-top-pools', {
     method: 'GET',
-    headers: {'Content-type': 'application/json; charset=UTF-8'},
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
   })
     .then((res) => res.json())
     .then((pools) => {
@@ -77,12 +76,16 @@ const _pagination = (args: any, pools: PoolRPCView[]) => {
   );
 };
 
-export const getLatestActions = async () => {
+export type ActionData = Awaited<ReturnType<typeof parseActionView>>;
+
+type Awaited<T> = T extends Promise<infer P> ? P : never;
+
+export const getLatestActions = async (): Promise<Array<ActionData>> => {
   return await fetch(
     config.indexerUrl + '/latest-actions/' + wallet.getAccountId(),
     {
       method: 'GET',
-      headers: {'Content-type': 'application/json; charset=UTF-8'},
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
     }
   )
     .then((res) => res.json())
