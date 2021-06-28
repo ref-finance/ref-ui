@@ -1,6 +1,6 @@
-import {ftGetTokenMetadata, TokenMetadata} from "~services/ft-contract";
-import {toReadableNumber} from "~utils/numbers";
-import {getPoolDetails} from "~services/pool";
+import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
+import { toReadableNumber } from '~utils/numbers';
+import { getPoolDetails } from '~services/pool';
 
 export const parseAction = async (methodName: string, params: any) => {
   switch (methodName) {
@@ -25,6 +25,9 @@ export const parseAction = async (methodName: string, params: any) => {
     case 'storage_deposit': {
       return await parseStorageDeposit();
     }
+    default: {
+      return await parseDefault();
+    }
   }
 };
 
@@ -33,68 +36,84 @@ const parseSwap = async (params: any) => {
   const out_token = await ftGetTokenMetadata(params.actions[0].token_out);
 
   return {
-    "Action": "Swap",
-    "Pool Id": params.actions[0].pool_id,
-    "Amount In": toReadableNumber(in_token.decimals, params.actions[0].amount_in),
-    "Amount Out": toReadableNumber(out_token.decimals, params.actions[0].min_amount_out),
-    "Token In": in_token.symbol,
-    "Token Out": out_token.symbol,
-  }
+    Action: 'Swap',
+    'Pool Id': params.actions[0].pool_id,
+    'Amount In': toReadableNumber(
+      in_token.decimals,
+      params.actions[0].amount_in
+    ),
+    'Amount Out': toReadableNumber(
+      out_token.decimals,
+      params.actions[0].min_amount_out
+    ),
+    'Token In': in_token.symbol,
+    'Token Out': out_token.symbol,
+  };
 };
 
 const parseWithdraw = async (params: any) => {
   const token = await ftGetTokenMetadata(params.token);
 
   return {
-    "Action": "Withdraw",
-    "Amount": toReadableNumber(token.decimals, params.amount),
-    "Token": token.symbol,
-  }
+    Action: 'Withdraw',
+    Amount: toReadableNumber(token.decimals, params.amount),
+    Token: token.symbol,
+  };
 };
 
 const parseRegisterTokens = (params: any) => {
   return {
-    "Action": "Register Tokens",
-    'Token Ids': params.token_ids.join(',')
-  }
+    Action: 'Register Tokens',
+    'Token Ids': params.token_ids.join(','),
+  };
 };
 
 const parseAddLiquidity = async (params: any) => {
   const pool = await getPoolDetails(params.pool_id);
-  const tokens = await Promise.all<TokenMetadata>(pool.tokenIds.map((id) => ftGetTokenMetadata(id)));
+  const tokens = await Promise.all<TokenMetadata>(
+    pool.tokenIds.map((id) => ftGetTokenMetadata(id))
+  );
 
   return {
-    "Action": "Add Liquidity",
-    "Pool Id": params.pool_id,
-    "Amount One": toReadableNumber(tokens[0].decimals,params.amounts[0]),
-    "Amount Two": toReadableNumber(tokens[1].decimals,params.amounts[1]),
-  }
+    Action: 'Add Liquidity',
+    'Pool Id': params.pool_id,
+    'Amount One': toReadableNumber(tokens[0].decimals, params.amounts[0]),
+    'Amount Two': toReadableNumber(tokens[1].decimals, params.amounts[1]),
+  };
 };
 
 const parseRemoveLiquidity = async (params: any) => {
   const pool = await getPoolDetails(params.pool_id);
-  const tokens = await Promise.all<TokenMetadata>(pool.tokenIds.map((id) => ftGetTokenMetadata(id)));
+  const tokens = await Promise.all<TokenMetadata>(
+    pool.tokenIds.map((id) => ftGetTokenMetadata(id))
+  );
 
   return {
-    "Action": "Remove Liquidity",
-    "Pool Id": params.pool_id,
-    "Amount One": toReadableNumber(tokens[0].decimals,params.min_amounts[0]),
-    "Amount Two": toReadableNumber(tokens[1].decimals,params.min_amounts[1]),
-    "Shares": params.shares,
-  }
+    Action: 'Remove Liquidity',
+    'Pool Id': params.pool_id,
+    'Amount One': toReadableNumber(tokens[0].decimals, params.min_amounts[0]),
+    'Amount Two': toReadableNumber(tokens[1].decimals, params.min_amounts[1]),
+    Shares: params.shares,
+  };
 };
 
 const parseAddSimplePool = async (params: any) => {
   return {
-    "Action": "Add Pool",
-    "Fee": params.fee,
-    "Token One": params.tokens[0],
-    "Token Two": params.tokens[1],
-  }
+    Action: 'Add Pool',
+    Fee: params.fee,
+    'Token One': params.tokens[0],
+    'Token Two': params.tokens[1],
+  };
 };
 
 const parseStorageDeposit = async () => {
   return {
-    "Action": "Storage Deposit"
-  }
-}
+    Action: 'Storage Deposit',
+  };
+};
+
+const parseDefault = async () => {
+  return {
+    Action: 'Not Found',
+  };
+};

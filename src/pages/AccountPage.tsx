@@ -25,6 +25,8 @@ import { wallet } from '~services/near';
 import getConfig from '~services/config';
 import ActionSheet, { ActionSheetRef } from 'actionsheet-react';
 
+const config = getConfig();
+
 function useLastActions() {
   const [actions, setActions] = useState<ActionData[]>([]);
 
@@ -228,7 +230,7 @@ function Actions() {
       </div>
       <div className="border-b">
         {actions.map((action, i) => {
-          let icon = mapToView(action.data.Action);
+          let icon = mapToView(action.data?.Action);
           icon = icon ? (
             <div className="mr-4">{icon}</div>
           ) : (
@@ -259,9 +261,7 @@ function Actions() {
         <GrayButton
           className="text-white text-xs w-full justify-center py-2 mt-4"
           onClick={() => {
-            const url = `https://explorer.testnet.near.org/accounts/${
-              wallet.account().accountId
-            }`;
+            const url = config.walletUrl + '/' + wallet.account().accountId;
             window.open(url, '_blank');
           }}
         >
@@ -294,8 +294,8 @@ function Actions() {
                 );
               })}
               <div className="flex items-center justify-between border-t py-3 text-sm">
-                <div>status</div>
-                <div>{detail.status ? 'success' : 'failed'}</div>
+                <div>Status</div>
+                <div>{detail.status ? 'Success' : 'Failed'}</div>
               </div>
             </div>
             <div className="pt-2">
@@ -480,8 +480,8 @@ function MobileActions() {
                 );
               })}
               <div className="flex items-center justify-between border-t py-3 text-sm">
-                <div>status</div>
-                <div>{detail.status ? 'success' : 'failed'}</div>
+                <div>Status</div>
+                <div>{detail.status ? 'Success' : 'Failed'}</div>
               </div>
             </div>
             <div className="pt-2">
@@ -513,7 +513,7 @@ function MobileAccount() {
       <div className="flex items-center justify-center py-4">
         <GreenButton
           onClick={() => {
-            window.open(getConfig().walletUrl, '_blank');
+            window.open(config.walletUrl, '_blank');
           }}
         >
           Go to Wallet

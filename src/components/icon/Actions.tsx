@@ -468,7 +468,7 @@ export function AddPoolBlack() {
       xmlnsXlink="http://www.w3.org/1999/xlink"
     >
       <g
-        id="页面-1"
+        id="Page-1"
         stroke="none"
         strokeWidth="1"
         fill="none"
