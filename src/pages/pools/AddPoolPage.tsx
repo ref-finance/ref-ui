@@ -14,13 +14,15 @@ import { wallet } from '~services/near';
 import { addSimpleLiquidityPool } from '~services/pool';
 import copy from '~utils/copy';
 import { Toggle } from '~components/toggle';
+import Alert from '~components/alert/Alert';
 
 export function AddPoolPage() {
   const tokens = useWhitelistTokens();
   const balances = useTokenBalances();
   const [token1, setToken1] = useState<TokenMetadata | null>(null);
   const [token2, setToken2] = useState<TokenMetadata | null>(null);
-  const [fee, setFee] = useState('');
+  const [fee, setFee] = useState('0.40');
+  const [error, setError] = useState<Error>();
 
   if (!tokens || !balances) return <Loading />;
 
@@ -55,6 +57,9 @@ export function AddPoolPage() {
       </div>
       <Card width="w-full">
         <div className="text-xs font-semibold">Token</div>
+        <div className="w-full flex justify-center">
+          {error && <Alert level="error" message={error.message} />}
+        </div>
         <SelectToken
           standalone
           placeholder="Select token"
@@ -78,20 +83,29 @@ export function AddPoolPage() {
           </div>
           <Toggle
             opts={[
-              { label: '25', value: '25' },
-              { label: '35', value: '35' },
-              { label: '85', value: '85' },
+              { label: '0.25', value: '0.25' },
+              { label: '0.35', value: '0.35' },
+              { label: '0.85', value: '0.85' },
             ]}
-            onChange={(v) => setFee(v)}
-            value="35"
+            onChange={(v) =>
+              setFee((parseFloat(v) + 0.05 + Number.EPSILON).toFixed(2))
+            }
+            value="0.35"
           />
         </div>
         <div className="text-xs font-semibold pt-4 flex items-center justify-between">
           <div>
             <span className="pr-1">Total Fee (protocol fee is 0.05%)</span>
           </div>
-          <div className="text-right border bg-gray-100 p-2 px-3 rounded-lg">
-            25
+          <div className="inline-block w-20 border bg-gray-100 p-2 px-3 rounded-lg">
+            <input
+              className="text-right"
+              type="number"
+              value={fee}
+              onChange={(evt) => {
+                setFee(evt.target.value);
+              }}
+            />
           </div>
         </div>
         <div className="pt-4 flex items-center justify-center">
@@ -103,6 +117,17 @@ export function AddPoolPage() {
               }`}
               onClick={() => {
                 if (canSubmit) {
+                  const v = parseFloat(fee);
+                  if (!v) {
+                    setError(new Error('Please input valid number'));
+                    return;
+                  }
+                  if (v >= 1) {
+                    setError(new Error('Please input number that less then 1'));
+                    return;
+                  }
+                  setError(null);
+
                   addSimpleLiquidityPool(
                     [token1.id, token2.id],
                     parseFloat(fee)

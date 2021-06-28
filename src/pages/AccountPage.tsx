@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useHistory } from 'react-router';
+import moment from 'moment';
+import ActionSheet, { ActionSheetRef } from 'actionsheet-react';
+import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
 import Alert from '~components/alert/Alert';
-import Modal from 'react-modal';
 import {
   GreenButton,
   GrayButton,
@@ -20,10 +22,8 @@ import { toPrecision, toReadableNumber } from '~utils/numbers';
 import { usePool } from '~state/pool';
 import { getPoolBalance } from '~services/api';
 import { RemoveLiquidityModal } from './pools/DetailsPage';
-import moment from 'moment';
 import { wallet } from '~services/near';
 import getConfig from '~services/config';
-import ActionSheet, { ActionSheetRef } from 'actionsheet-react';
 
 const config = getConfig();
 
@@ -413,7 +413,7 @@ function MobileActions() {
   if (!actions || actions.length === 0) return <Loading />;
 
   return (
-    <div className="px-6 mt-4">
+    <div className="px-6 mt-4 overflow-auto">
       <div className="border-b border-gray-700">
         {actions.map((action, i) => {
           let icon = mapToView(action.data.Action, true);
@@ -506,7 +506,7 @@ function MobileAccount() {
   const [showRecent, setShowRecent] = useState(false);
 
   return (
-    <div className="lg:hidden xl:hidden md:show xs:show relative text-white">
+    <div className="lg:hidden xl:hidden md:show xs:show relative text-white flex-grow overflow-auto pb-6">
       <div className="text-center text-lg font-semibold">
         {showRecent ? 'Recent Activity' : 'Account'}
       </div>
@@ -519,15 +519,9 @@ function MobileAccount() {
           Go to Wallet
         </GreenButton>
         <div className="w-4"></div>
-        {showRecent ? (
-          <GreenButton onClick={() => setShowRecent(!showRecent)}>
-            Recent Activity
-          </GreenButton>
-        ) : (
-          <BorderButton onClick={() => setShowRecent(!showRecent)}>
-            Recent Activity
-          </BorderButton>
-        )}
+        <BorderButton onClick={() => setShowRecent(!showRecent)}>
+          {showRecent ? 'Balance' : 'Recent Activity'}
+        </BorderButton>
       </div>
 
       {!showRecent ? (

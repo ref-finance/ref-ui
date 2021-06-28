@@ -43,7 +43,7 @@ function App() {
   return (
     <Router>
       <ToastContainer />
-      <div className="relative h-screen">
+      <div className="relative h-screen xs:flex xs:flex-col md:flex md:flex-col">
         <BgShapeLeftBottom />
         <BgShapeTopRight />
         <NavigationBar />

@@ -291,7 +291,7 @@ function MobileNavBar() {
   }
 
   return (
-    <div className="nav-wrap lg:hidden md:show = relative">
+    <div className="nav-wrap lg:hidden md:show relative">
       <div className="flex items-center justify-between p-4">
         <NavLogo />
         <NavExpand onClick={() => setShow(true)} />
