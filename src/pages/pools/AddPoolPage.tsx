@@ -21,7 +21,7 @@ export function AddPoolPage() {
   const balances = useTokenBalances();
   const [token1, setToken1] = useState<TokenMetadata | null>(null);
   const [token2, setToken2] = useState<TokenMetadata | null>(null);
-  const [fee, setFee] = useState('0.40');
+  const [fee, setFee] = useState('0.30');
   const [error, setError] = useState<Error>();
 
   if (!tokens || !balances) return <Loading />;
@@ -83,14 +83,15 @@ export function AddPoolPage() {
           </div>
           <Toggle
             opts={[
+              { label: '0.15', value: '0.15' },
+              { label: '0.20', value: '0.20' },
               { label: '0.25', value: '0.25' },
               { label: '0.35', value: '0.35' },
-              { label: '0.85', value: '0.85' },
             ]}
             onChange={(v) =>
               setFee((parseFloat(v) + 0.05 + Number.EPSILON).toFixed(2))
             }
-            value="0.35"
+            value="0.25"
           />
         </div>
         <div className="text-xs font-semibold pt-4 flex items-center justify-between">
@@ -122,15 +123,17 @@ export function AddPoolPage() {
                     setError(new Error('Please input valid number'));
                     return;
                   }
-                  if (v >= 1) {
-                    setError(new Error('Please input number that less then 1'));
+                  if (v >= 20) {
+                    setError(
+                      new Error('Please input number that less then 20')
+                    );
                     return;
                   }
                   setError(null);
 
                   addSimpleLiquidityPool(
                     [token1.id, token2.id],
-                    parseFloat(fee)
+                    parseFloat(fee) * 100 - 5
                   );
                 }
               }}
