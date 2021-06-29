@@ -3,7 +3,8 @@ import { toPrecision, toReadableNumber } from '~utils/numbers';
 import { LP_TOKEN_DECIMALS } from '~services/m-token';
 import * as math from 'mathjs';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
-import { getPoolsByIdsFromIndexer, PoolRPCView } from '~services/api';
+import { getPoolsByIdsFromIndexer, getTokenPriceList, PoolRPCView } from '~services/api';
+import getConfig from "~services/config";
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -85,7 +86,8 @@ export const getFarms = async ({
   stakedList = await getStakedListByAccountId({});
   let rewardList: Record<string, string> = {};
   rewardList = await getRewards({});
-
+  const tokenPriceList = await getTokenPriceList();
+  const refPrice = tokenPriceList[getConfig().REF_TOKEN_CONTRACT_ID]?.price || 0;
   const seeds = await getSeeds({ page: page, perPage: perPage });
   const pool_ids = farms.map((f) => {
     return f.farm_id.slice(
@@ -106,7 +108,6 @@ export const getFarms = async ({
     const { shares_total_supply, token0_ref_price, tvl } = poolsList[lpTokenId];
     const poolTvl = tvl;
     const poolSts = Number(toReadableNumber(24, shares_total_supply));
-    const tokenPrice = Number(token0_ref_price);
     const userStaked = toReadableNumber(
       LP_TOKEN_DECIMALS,
       stakedList[f.seed_id] ?? '0'
@@ -162,7 +163,7 @@ export const getFarms = async ({
         : toPrecision(
             (
               (1 / totalStaked) *
-              (Number(rewardsPerWeek) * tokenPrice) *
+              (Number(rewardsPerWeek) * refPrice) *
               52 *
               100
             ).toString(),

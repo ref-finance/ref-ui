@@ -32,6 +32,8 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'ref-farming.testnet',
+        REF_TOKEN_CONTRACT_ID:
+          process.env.REF_TOKEN_CONTRACT_ID || 'rft.tokenfactory.testnet',
       };
     default:
       return {
