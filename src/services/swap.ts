@@ -1,11 +1,14 @@
 import BN from 'bn.js';
 import { toNonDivisibleNumber, toReadableNumber } from '../utils/numbers';
 import {
+  executeMultipleTransactions,
   near,
   ONE_YOCTO_NEAR,
+  REF_FI_CONTRACT_ID,
   RefFiFunctionCallOptions,
   refFiManyFunctionCalls,
   refFiViewFunction,
+  Transaction,
   wallet,
 } from './near';
 import { TokenMetadata } from './ft-contract';
@@ -16,7 +19,10 @@ import {
   round,
 } from './token';
 import { JsonRpcProvider } from 'near-api-js/lib/providers';
-import { storageDepositForTokenAction } from './creators/storage';
+import {
+  storageDepositAction,
+  storageDepositForTokenAction,
+} from './creators/storage';
 import { registerTokenAction } from './creators/token';
 
 interface EstimateSwapOptions {
@@ -102,35 +108,50 @@ export const swap = async ({
     pool_id: pool.id,
     token_in: tokenIn.id,
     token_out: tokenOut.id,
-    amount_in: round(
-      tokenIn.decimals,
-      toNonDivisibleNumber(tokenIn.decimals, amountIn)
-    ),
     min_amount_out: round(
       tokenIn.decimals,
       toNonDivisibleNumber(tokenOut.decimals, minAmountOut)
     ),
   };
 
-  const actions: RefFiFunctionCallOptions[] = [
+  const transactions: Transaction[] = [
     {
-      methodName: 'swap',
-      args: { actions: [swapAction] },
-      amount: ONE_YOCTO_NEAR,
+      receiverId: tokenIn.id,
+      functionCalls: [
+        {
+          methodName: 'ft_transfer_call',
+          args: {
+            receiver_id: REF_FI_CONTRACT_ID,
+            amount: amountIn,
+            msg: {
+              force: 0,
+              actions: [swapAction],
+            },
+          },
+          amount: ONE_YOCTO_NEAR,
+          gas: '100000000000000',
+        },
+      ],
     },
   ];
 
   const whitelist = await getWhitelistedTokens();
   if (!whitelist.includes(tokenOut.id)) {
-    actions.unshift(registerTokenAction(tokenOut.id));
+    transactions.unshift({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [registerTokenAction(tokenOut.id)],
+    });
   }
 
-  const needsStorageDeposit = await checkTokenNeedsStorageDeposit(tokenOut.id);
-  if (needsStorageDeposit) {
-    actions.unshift(storageDepositForTokenAction());
+  const neededStorage = await checkTokenNeedsStorageDeposit(tokenIn.id);
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
   }
 
-  return refFiManyFunctionCalls(actions);
+  return executeMultipleTransactions(transactions);
 };
 
 export const checkSwap = (txHash: string) => {
