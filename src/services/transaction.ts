@@ -52,12 +52,13 @@ const parseSwap = async (params: any) => {
 };
 
 const parseWithdraw = async (params: any) => {
-  const token = await ftGetTokenMetadata(params.token);
+  const token = await ftGetTokenMetadata(params.token_id);
 
   return {
     Action: 'Withdraw',
     Amount: toReadableNumber(token.decimals, params.amount),
     Token: token.symbol,
+    'Token Address': token.id,
   };
 };
 
@@ -93,7 +94,7 @@ const parseRemoveLiquidity = async (params: any) => {
     'Pool Id': params.pool_id,
     'Amount One': toReadableNumber(tokens[0].decimals, params.min_amounts[0]),
     'Amount Two': toReadableNumber(tokens[1].decimals, params.min_amounts[1]),
-    Shares: params.shares,
+    Shares: toReadableNumber(24, params.shares),
   };
 };
 
