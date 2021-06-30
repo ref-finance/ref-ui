@@ -35,8 +35,6 @@ export default function InputAmount({
             ref={ref}
             {...rest}
             step="any"
-            min="0"
-            max={max}
             className={`text-sm font-bold focus:outline-none bg-inputBg appearance-none rounded border-opacity-30 w-full py-3 px-3 leading-tight ${
               disabled
                 ? 'text-gray-400 placeholder-gray-400'
