@@ -10,8 +10,7 @@ const config = getConfig();
 const parseActionView = async (action: any) => {
   const data = await parseAction(action[2], action[3]);
   return {
-    datetime: moment
-      .unix(action[0] / 1000000000),
+    datetime: moment.unix(action[0] / 1000000000),
     txUrl: config.explorerUrl + '/transactions/' + action[1],
     data: data,
     status: action[5] === 'SUCCESS_VALUE',

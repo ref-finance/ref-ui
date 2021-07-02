@@ -24,6 +24,14 @@ import {
   storageDepositForTokenAction,
 } from './creators/storage';
 import { registerTokenAction } from './creators/token';
+import {
+  nearMetadata,
+  NEW_ACCOUNT_STORAGE_COST,
+  WRAP_NEAR_CONTRACT_ID,
+  wrapNear,
+  wnearMetadata,
+} from '~services/wrap-near';
+import { utils } from 'near-api-js';
 
 interface EstimateSwapOptions {
   tokenIn: TokenMetadata;
@@ -114,40 +122,56 @@ export const swap = async ({
     ),
   };
 
-  const transactions: Transaction[] = [
-    {
-      receiverId: tokenIn.id,
-      functionCalls: [
-        {
-          methodName: 'ft_transfer_call',
-          args: {
-            receiver_id: REF_FI_CONTRACT_ID,
-            amount: amountIn,
-            msg: {
-              force: 0,
-              actions: [swapAction],
-            },
-          },
-          amount: ONE_YOCTO_NEAR,
-          gas: '100000000000000',
-        },
-      ],
+  const transactions: Transaction[] = [];
+  const neededStorage = await checkTokenNeedsStorageDeposit(tokenIn.id);
+  if (neededStorage) {
+    transactions.push({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+
+  const actions: RefFiFunctionCallOptions[] = [];
+
+  if (tokenIn.symbol === wnearMetadata.symbol) {
+    actions.push({
+      methodName: 'near_deposit',
+      args: {},
+      amount: amountIn,
+    });
+  } else {
+    actions.push({
+      methodName: 'storage_deposit',
+      args: {},
+      gas: '30000000000000',
+      amount: NEW_ACCOUNT_STORAGE_COST,
+    });
+  }
+
+  actions.push({
+    methodName: 'ft_transfer_call',
+    args: {
+      receiver_id: REF_FI_CONTRACT_ID,
+      amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
+      msg: JSON.stringify({
+        force: 0,
+        actions: [swapAction],
+      }),
     },
-  ];
+    gas: '100000000000000',
+    amount: ONE_YOCTO_NEAR,
+  });
+
+  transactions.push({
+    receiverId: tokenIn.id,
+    functionCalls: actions,
+  });
 
   const whitelist = await getWhitelistedTokens();
   if (!whitelist.includes(tokenOut.id)) {
     transactions.unshift({
       receiverId: REF_FI_CONTRACT_ID,
       functionCalls: [registerTokenAction(tokenOut.id)],
-    });
-  }
-
-  const neededStorage = await checkTokenNeedsStorageDeposit(tokenIn.id);
-  if (neededStorage) {
-    transactions.unshift({
-      receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [storageDepositAction({ amount: neededStorage })],
     });
   }
 
