@@ -15,6 +15,7 @@ import { TokenMetadata } from './ft-contract';
 import { getPoolsByTokens, Pool } from './pool';
 import {
   checkTokenNeedsStorageDeposit,
+  getTokenBalance,
   getWhitelistedTokens,
   round,
 } from './token';
@@ -23,7 +24,7 @@ import {
   storageDepositAction,
   storageDepositForTokenAction,
 } from './creators/storage';
-import {registerTokenAction, withdrawAction} from './creators/token';
+import { registerTokenAction, withdrawAction } from './creators/token';
 import {
   nearMetadata,
   NEW_ACCOUNT_STORAGE_COST,
@@ -112,6 +113,37 @@ export const swap = async ({
   amountIn,
   minAmountOut,
 }: SwapOptions) => {
+  const maxTokenInAmount = await getTokenBalance(tokenIn?.id);
+
+  if (
+    Number(maxTokenInAmount) <
+    Number(toNonDivisibleNumber(tokenIn.decimals, amountIn))
+  ) {
+    await directSwap({
+      pool,
+      tokenIn,
+      tokenOut,
+      amountIn,
+      minAmountOut,
+    });
+  } else {
+    await depositSwap({
+      pool,
+      tokenIn,
+      tokenOut,
+      amountIn,
+      minAmountOut,
+    });
+  }
+};
+
+export const directSwap = async ({
+  pool,
+  tokenIn,
+  tokenOut,
+  amountIn,
+  minAmountOut,
+}: SwapOptions) => {
   const swapAction = {
     pool_id: pool.id,
     token_in: tokenIn.id,
@@ -189,6 +221,48 @@ export const swap = async ({
   }
 
   return executeMultipleTransactions(transactions);
+};
+
+export const depositSwap = async ({
+  pool,
+  tokenIn,
+  tokenOut,
+  amountIn,
+  minAmountOut,
+}: SwapOptions) => {
+  const swapAction = {
+    pool_id: pool.id,
+    token_in: tokenIn.id,
+    token_out: tokenOut.id,
+    amount_in: round(
+      tokenIn.decimals,
+      toNonDivisibleNumber(tokenIn.decimals, amountIn)
+    ),
+    min_amount_out: round(
+      tokenIn.decimals,
+      toNonDivisibleNumber(tokenOut.decimals, minAmountOut)
+    ),
+  };
+
+  const actions: RefFiFunctionCallOptions[] = [
+    {
+      methodName: 'swap',
+      args: { actions: [swapAction] },
+      amount: ONE_YOCTO_NEAR,
+    },
+  ];
+
+  const whitelist = await getWhitelistedTokens();
+  if (!whitelist.includes(tokenOut.id)) {
+    actions.unshift(registerTokenAction(tokenOut.id));
+  }
+
+  const needsStorageDeposit = await checkTokenNeedsStorageDeposit(tokenOut.id);
+  if (needsStorageDeposit) {
+    actions.unshift(storageDepositForTokenAction());
+  }
+
+  return refFiManyFunctionCalls(actions);
 };
 
 export const checkSwap = (txHash: string) => {

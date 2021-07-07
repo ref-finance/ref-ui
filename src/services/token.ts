@@ -198,6 +198,13 @@ export const getTokenBalances = (): Promise<TokenBalancesView> => {
   });
 };
 
+export const getTokenBalance = (tokenId: string): Promise<number> => {
+  return refFiViewFunction({
+    methodName: 'get_deposit',
+    args: { account_id: wallet.getAccountId(), token_id: tokenId },
+  });
+};
+
 export const getUserRegisteredTokens = (
   accountId: string = wallet.getAccountId()
 ): Promise<string[]> => {
