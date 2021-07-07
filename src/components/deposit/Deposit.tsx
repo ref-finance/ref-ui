@@ -12,6 +12,7 @@ import TokenAmount from '../forms/TokenAmount';
 import { TokenBalancesView, withdraw } from '../../services/token';
 import { REF_FARM_CONTRACT_ID, wallet } from '~services/near';
 import { Near } from '~components/icon';
+import { isMobile } from '~utils/device';
 
 export function WithdrawModal(props: ReactModal.Props) {
   const [amount, setAmount] = useState<string>('');
@@ -34,9 +35,11 @@ export function WithdrawModal(props: ReactModal.Props) {
     balances[selectedToken.id] || '0'
   );
 
+  const cardWidth = isMobile() ? '75vw' : '25vw';
+
   return (
     <Modal {...props}>
-      <Card style={{ width: '25vw' }}>
+      <Card style={{ width: cardWidth }}>
         <div className="text-sm text-gray-800 font-semibold pb-4">
           Withdraw Token
         </div>
@@ -99,7 +102,8 @@ export function TokenList(props: {
 
         const amount = toPrecision(
           toReadableNumber(token.decimals, balance),
-          6
+          6,
+          true
         );
         return <Token key={token.id} {...token} amount={amount} />;
       })}
@@ -125,7 +129,7 @@ export function Balances(props: {
       {title ? (
         <div className="text-white font-semibold text-xl pb-4">Balance</div>
       ) : null}
-      <Card>
+      <Card width="w-full">
         <TokenList hideEmpty={true} tokens={tokens} balances={balances} />
 
         {tokens.length > 0 ? (

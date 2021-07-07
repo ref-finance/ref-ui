@@ -80,6 +80,14 @@ input[type='number'] {
   background-color: #2d3231;
 }
 
+.bg-mobile-nav {
+  background-color: #001220;
+}
+
+.bg-mobile-nav-item {
+  background-color: #000b19;
+}
+
 .color-black {
   color: #2d3231;
 }
@@ -94,6 +102,11 @@ input[type='number'] {
 
 .balances .token:last-child {
   padding-bottom: 0;
+}
+
+#pool-container::-webkit-scrollbar,
+.infinite-scroll-component::-webkit-scrollbar {
+  display: none;
 }
 
 /* Adboard */
@@ -153,4 +166,13 @@ input[type='number'] {
 .has-tooltip:hover .tooltip {
   visibility: visible;
   z-index: 50;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+.hide-scrollbar::-webkit-scrollbar-thum {
+  background: transparent;
 }

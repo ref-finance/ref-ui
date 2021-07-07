@@ -19,7 +19,7 @@ export interface PoolRPCView {
   share: string;
 }
 
-const parsePoolView = (pool: any): PoolRPCView => ({
+export const parsePoolView = (pool: any): PoolRPCView => ({
   id: Number(pool.id),
   token_account_ids: pool.token_account_ids,
   token_symbols: pool.token_symbols,
@@ -72,35 +72,6 @@ export const getPools = async (counter: number) => {
     });
 };
 
-export const getYourPoolsFromIndexer = async (): Promise<PoolRPCView[]> => {
-  return await fetch(
-    config.indexerUrl + '/liquidity-pools/' + wallet.getAccountId(),
-    {
-      method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
-    }
-  )
-    .then((res) => res.json())
-    .then((pools) => {
-      return pools;
-    });
-};
-
-export const getPoolsFromIndexer = async (
-  args: any
-): Promise<PoolRPCView[]> => {
-  return await fetch(config.indexerUrl + '/list-top-pools', {
-    method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  })
-    .then((res) => res.json())
-    .then((pools) => {
-      pools = pools.map((pool: any) => parsePoolView(pool));
-
-      return pagination(args, order(args, search(args, pools)));
-    });
-};
-
 export const getPoolsByIdsFromIndexer = async (
   pool_ids: string[]
 ): Promise<PoolRPCView[]> => {
@@ -115,37 +86,6 @@ export const getPoolsByIdsFromIndexer = async (
 
       return pools;
     });
-};
-
-const search = (args: any, pools: PoolRPCView[]) => {
-  if (args.tokenName === '') return pools;
-  return _.filter(pools, (pool: PoolRPCView) => {
-    return (
-      _.includes(
-        pool.token_symbols[0].toLowerCase(),
-        args.tokenName.toLowerCase()
-      ) ||
-      _.includes(
-        pool.token_symbols[1].toLowerCase(),
-        args.tokenName.toLowerCase()
-      )
-    );
-  });
-};
-
-const order = (args: any, pools: PoolRPCView[]) => {
-  let column = args.column || 'tvl';
-  let order = args.order || 'desc';
-  column = args.column === 'fee' ? 'total_fee' : column;
-  return _.orderBy(pools, [column], [order]);
-};
-
-const pagination = (args: any, pools: PoolRPCView[]) => {
-  return _.slice(
-    pools,
-    (args.page - 1) * args.perPage,
-    args.page * args.perPage
-  );
 };
 
 export const getTokenPriceList = async (): Promise<any> => {

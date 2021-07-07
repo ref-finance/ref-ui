@@ -14,7 +14,7 @@ export default function Icon({
 }) {
   return (
     <div className="flex items-center text-xs" style={{ lineHeight: 'unset' }}>
-      {label && <p className="hidden sm:block">{token.symbol}</p>}
+      {label && <p className="block">{token.symbol}</p>}
     </div>
   );
 }

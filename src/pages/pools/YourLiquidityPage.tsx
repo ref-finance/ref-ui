@@ -5,11 +5,11 @@ import { ConnectToNearBtn, GreenButton } from '~components/button/Button';
 import Loading from '~components/layout/Loading';
 import { wallet } from '~services/near';
 import { useTokens } from '~state/token';
-import { getPoolBalance, getYourPoolsFromIndexer } from '~services/api';
+import { getPoolBalance } from '~services/api';
 import { toRoundedReadableNumber } from '~utils/numbers';
 import { usePool } from '~state/pool';
 import { RemoveLiquidityModal } from './DetailsPage';
-import BN from 'bn.js';
+import { getYourPools } from '~services/indexer';
 
 function Empty() {
   return (
@@ -35,22 +35,27 @@ export function YourLiquidityPage() {
   const [pools, setPools] = useState([]);
 
   useEffect(() => {
-    getYourPoolsFromIndexer().then(setPools);
+    getYourPools().then(setPools);
   }, []);
 
   return (
-    <div className="flex items-center flex-col">
+    <div className="flex items-center flex-col w-1/3 md:w-5/6 xs:w-11/12 m-auto">
       <div className="text-center pb-8">
         <div className="text-white text-3xl font-semibold">Your Liquidity</div>
       </div>
-      <div className="w-1/3 flex justify-center">
+      <div className="w-full flex justify-center">
         {error && <Alert level="error" message={error.message} />}
       </div>
-      <Card width="w-1/3">
+      <Card width="w-full">
         {!wallet.isSignedIn() || pools.length === 0 ? <Empty /> : null}
         {pools.length > 0 ? (
           <section>
             <div className="max-h-80 overflow-y-auto">
+              <div className="grid grid-cols-12 py-2 content-center items-center text-xs font-semibold text-gray-600">
+                <div className="grid grid-cols-2 col-span-2"></div>
+                <p className="grid col-span-4">Pair</p>
+                <p className="col-span-4 text-center">Shares Owned</p>
+              </div>
               {pools.map((pool, i) => (
                 <PoolRow key={i} pool={pool} />
               ))}

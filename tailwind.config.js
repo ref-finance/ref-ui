@@ -4,6 +4,13 @@ module.exports = {
   purge: [],
   darkMode: false, // or 'media' or 'class'
   theme: {
+    screens: {
+      xs: { min: '300px', max: '600px' },
+      md: { min: '600px', max: '1024px' },
+      lg: { min: '1024px' },
+      xl: { min: '1280px' },
+      '2xl': { min: '1536px' },
+    },
     extend: {
       colors: {
         primary: '#10B981',
@@ -20,6 +27,7 @@ module.exports = {
         greenOpacity100: 'rgba(2, 109, 97, 1)',
         whiteOpacity85: 'rgba(255, 255, 255, 0.85)',
         blackLight: '#003648',
+        greenLight1: '#01C08B',
       },
     },
     plugins: [],

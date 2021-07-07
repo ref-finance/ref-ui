@@ -1,23 +1,38 @@
 import BN from 'bn.js';
 import { toNonDivisibleNumber, toReadableNumber } from '../utils/numbers';
 import {
+  executeMultipleTransactions,
   near,
   ONE_YOCTO_NEAR,
+  REF_FI_CONTRACT_ID,
   RefFiFunctionCallOptions,
   refFiManyFunctionCalls,
   refFiViewFunction,
+  Transaction,
   wallet,
 } from './near';
 import { TokenMetadata } from './ft-contract';
 import { getPoolsByTokens, Pool } from './pool';
 import {
   checkTokenNeedsStorageDeposit,
+  getTokenBalance,
   getWhitelistedTokens,
   round,
 } from './token';
 import { JsonRpcProvider } from 'near-api-js/lib/providers';
-import { storageDepositForTokenAction } from './creators/storage';
-import { registerTokenAction } from './creators/token';
+import {
+  storageDepositAction,
+  storageDepositForTokenAction,
+} from './creators/storage';
+import { registerTokenAction, withdrawAction } from './creators/token';
+import {
+  nearMetadata,
+  NEW_ACCOUNT_STORAGE_COST,
+  WRAP_NEAR_CONTRACT_ID,
+  wrapNear,
+  wnearMetadata,
+} from '~services/wrap-near';
+import { utils } from 'near-api-js';
 
 interface EstimateSwapOptions {
   tokenIn: TokenMetadata;
@@ -92,6 +107,123 @@ interface SwapOptions extends EstimateSwapOptions {
 }
 
 export const swap = async ({
+  pool,
+  tokenIn,
+  tokenOut,
+  amountIn,
+  minAmountOut,
+}: SwapOptions) => {
+  const maxTokenInAmount = await getTokenBalance(tokenIn?.id);
+
+  if (
+    Number(maxTokenInAmount) <
+    Number(toNonDivisibleNumber(tokenIn.decimals, amountIn))
+  ) {
+    await directSwap({
+      pool,
+      tokenIn,
+      tokenOut,
+      amountIn,
+      minAmountOut,
+    });
+  } else {
+    await depositSwap({
+      pool,
+      tokenIn,
+      tokenOut,
+      amountIn,
+      minAmountOut,
+    });
+  }
+};
+
+export const directSwap = async ({
+  pool,
+  tokenIn,
+  tokenOut,
+  amountIn,
+  minAmountOut,
+}: SwapOptions) => {
+  const swapAction = {
+    pool_id: pool.id,
+    token_in: tokenIn.id,
+    token_out: tokenOut.id,
+    min_amount_out: round(
+      tokenIn.decimals,
+      toNonDivisibleNumber(tokenOut.decimals, minAmountOut)
+    ),
+  };
+
+  const transactions: Transaction[] = [];
+  const neededStorage = await checkTokenNeedsStorageDeposit(tokenIn.id);
+  if (neededStorage) {
+    transactions.push({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+
+  const actions: RefFiFunctionCallOptions[] = [];
+
+  if (tokenIn.symbol === wnearMetadata.symbol) {
+    actions.push({
+      methodName: 'near_deposit',
+      args: {},
+      amount: amountIn,
+    });
+  } else {
+    actions.push({
+      methodName: 'storage_deposit',
+      args: {},
+      gas: '30000000000000',
+      amount: NEW_ACCOUNT_STORAGE_COST,
+    });
+  }
+
+  actions.push({
+    methodName: 'ft_transfer_call',
+    args: {
+      receiver_id: REF_FI_CONTRACT_ID,
+      amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
+      msg: JSON.stringify({
+        force: 0,
+        actions: [swapAction],
+      }),
+    },
+    gas: '100000000000000',
+    amount: ONE_YOCTO_NEAR,
+  });
+
+  transactions.push({
+    receiverId: tokenIn.id,
+    functionCalls: actions,
+  });
+
+  if (tokenOut.symbol === wnearMetadata.symbol) {
+    transactions.push({
+      receiverId: WRAP_NEAR_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'near_withdraw',
+          args: { amount: utils.format.parseNearAmount(minAmountOut) },
+          amount: ONE_YOCTO_NEAR,
+        },
+      ],
+    });
+  }
+
+  const whitelist = await getWhitelistedTokens();
+  if (!whitelist.includes(tokenOut.id)) {
+    transactions.unshift({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [registerTokenAction(tokenOut.id)],
+    });
+  }
+
+  return executeMultipleTransactions(transactions);
+};
+
+export const depositSwap = async ({
   pool,
   tokenIn,
   tokenOut,

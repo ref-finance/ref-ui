@@ -13,8 +13,9 @@ import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { toNonDivisibleNumber } from '../utils/numbers';
 import { storageDepositForFTAction } from './creators/storage';
-import { getPoolsFromIndexer, PoolRPCView } from './api';
 import { getFarms } from '~services/farm';
+import { getTopPools } from '~services/indexer';
+import { PoolRPCView } from './api';
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -62,7 +63,7 @@ export const getPools = async ({
   useIndexerData?: boolean;
 }): Promise<Pool[]> => {
   if (useIndexerData) {
-    const poolsData: PoolRPCView[] = await getPoolsFromIndexer({
+    const poolData: PoolRPCView[] = await getTopPools({
       page,
       perPage,
       tokenName,
@@ -70,7 +71,7 @@ export const getPools = async ({
       order,
       uniquePairName,
     });
-    return poolsData.map((rawPool) => parsePool(rawPool));
+    return poolData.map((rawPool) => parsePool(rawPool));
   }
 
   const rows = await db.queryPools({
