@@ -9,7 +9,7 @@ export const REF_FI_CONTRACT_ID = config.REF_FI_CONTRACT_ID;
 
 export const REF_ADBOARD_CONTRACT_ID = config.REF_ADBOARD_CONTRACT_ID;
 
-export const LP_STORAGE_AMOUNT = '0.00128';
+export const LP_STORAGE_AMOUNT = '0.00144';
 
 export const ONE_YOCTO_NEAR = '0.000000000000000000000001';
 
