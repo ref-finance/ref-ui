@@ -23,7 +23,7 @@ import {
   storageDepositAction,
   storageDepositForTokenAction,
 } from './creators/storage';
-import { registerTokenAction } from './creators/token';
+import {registerTokenAction, withdrawAction} from './creators/token';
 import {
   nearMetadata,
   NEW_ACCOUNT_STORAGE_COST,
@@ -166,6 +166,19 @@ export const swap = async ({
     receiverId: tokenIn.id,
     functionCalls: actions,
   });
+
+  if (tokenOut.symbol === wnearMetadata.symbol) {
+    transactions.push({
+      receiverId: WRAP_NEAR_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'near_withdraw',
+          args: { amount: utils.format.parseNearAmount(minAmountOut) },
+          amount: ONE_YOCTO_NEAR,
+        },
+      ],
+    });
+  }
 
   const whitelist = await getWhitelistedTokens();
   if (!whitelist.includes(tokenOut.id)) {
