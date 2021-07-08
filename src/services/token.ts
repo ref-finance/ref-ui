@@ -51,10 +51,12 @@ export const registerTokenAndExchange = async (tokenId: string) => {
     {
       methodName: 'register_tokens',
       args: { token_ids: [tokenId] },
+      amount: ONE_YOCTO_NEAR,
     },
   ];
 
   const neededStorage = await checkTokenNeedsStorageDeposit(tokenId);
+
   if (neededStorage) {
     actions.unshift(storageDepositAction({ amount: neededStorage }));
   }
@@ -101,6 +103,7 @@ export const unregisterToken = (tokenId: string) => {
   return refFiFunctionCall({
     methodName: 'unregister_tokens',
     args: { token_ids: [tokenId] },
+    amount: ONE_YOCTO_NEAR,
   });
 };
 
