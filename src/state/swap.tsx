@@ -41,7 +41,9 @@ export const useSwap = ({
           return (
             transaction?.actions[1]?.['FunctionCall']?.method_name ===
               'ft_transfer_call' ||
-            transaction?.actions[0]?.['FunctionCall']?.method_name === 'swap'
+            transaction?.actions[0]?.['FunctionCall']?.method_name === 'swap' ||
+            transaction?.actions[0]?.['FunctionCall']?.method_name ===
+            'near_withdraw'
           );
         })
         .then((isSwap) => {
