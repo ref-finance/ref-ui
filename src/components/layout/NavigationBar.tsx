@@ -325,6 +325,16 @@ function MobileNavBar() {
             onClick={close}
           />
           <MobilePoolsMenu links={links} onClick={close} />
+          <div>
+            <Link to="https://ethereum.bridgetonear.org/" target="_blank">
+              <div
+                className="p-4 link font-bold p-2 text-white"
+              >
+                Move assets to/from Ethereum
+                <RainBow className="h-6 inline-block"></RainBow>
+              </div>
+            </Link>
+          </div>
         </div>
       </div>
     </div>
@@ -345,9 +355,10 @@ function NavigationBar() {
           <a
             target="_blank"
             href="https://ethereum.bridgetonear.org/"
-            className="relative ext-white border rounded-full p-4 py-2 border-greenLight text-greenLight"
+            className="mt-1 relative ext-white border rounded-full p-4 py-2 border-greenLight text-greenLight"
           >
-            Rainbow&nbsp;Bridge
+            <RainBow className="h-6 inline-block"></RainBow>
+            Move assets to/from Ethereum
           </a>
         </nav>
         <div className="user text-xs text-center justify-end pl-5 h-full w-96 absolute top-0 right-0 z-20">
