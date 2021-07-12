@@ -20,6 +20,7 @@ import { ArrowDownBlack } from '../icon/Arrows';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
+const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
 
 function SwapDetail({ title, value }: { title: string; value: string }) {
@@ -84,11 +85,13 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const balances = useTokenBalances();
 
   useEffect(() => {
-    const [urlTokenIn, urlTokenOut] = decodeURIComponent(
+    const [urlTokenIn, urlTokenOut, urlSlippageTolerance] = decodeURIComponent(
       location.hash.slice(1)
     ).split(TOKEN_URL_SEPARATOR);
     const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
     const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
+    const rememberedSlippageTolerance = urlSlippageTolerance || localStorage.getItem(SWAP_SLIPPAGE_KEY);
+    setSlippageTolerance(Number(rememberedSlippageTolerance))
 
     if (allTokens) {
       setTokenIn(
@@ -165,7 +168,10 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       />
       <SlippageSelector
         slippageTolerance={slippageTolerance}
-        onChange={setSlippageTolerance}
+        onChange={(slippage) => {
+          setSlippageTolerance(slippage)
+          localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage.toString());
+        }}
       />
       <DetailView
         pool={pool}
