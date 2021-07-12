@@ -198,7 +198,7 @@ export function RemoveLiquidityModal(
         </div>
         <div>
           <p className="col-span-12 p-2 text-right text-xs font-semibold">
-            Balance: {toReadableNumber(24, shares)}
+            Balance: &nbsp;{toReadableNumber(24, shares)}
           </p>
           <div className="border rounded-lg overflow-hidden">
             <InputAmount
