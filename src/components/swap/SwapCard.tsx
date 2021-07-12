@@ -134,7 +134,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         selectedToken={tokenIn}
         balances={balances}
         onSelectToken={(token) => {
-          localStorage.setItem(SWAP_IN_KEY, token.symbol);
+          localStorage.setItem(SWAP_IN_KEY, token.id);
           history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
           setTokenIn(token);
         }}
@@ -161,7 +161,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         balances={balances}
         text="To"
         onSelectToken={(token) => {
-          localStorage.setItem(SWAP_OUT_KEY, token.symbol);
+          localStorage.setItem(SWAP_OUT_KEY, token.id);
           history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`);
           setTokenOut(token);
         }}
