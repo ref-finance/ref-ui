@@ -1,7 +1,6 @@
 import React from 'react';
 import { toRealSymbol } from '~utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
-import Icon from './Icon';
 
 interface TokenProps {
   token: TokenMetadata;
@@ -10,7 +9,7 @@ interface TokenProps {
 }
 
 export default function Token({ token, onClick, render }: TokenProps) {
-  const { icon, symbol } = token;
+  const { icon, symbol, id } = token;
   return (
     <section
       className={`${
@@ -18,7 +17,7 @@ export default function Token({ token, onClick, render }: TokenProps) {
       } flex justify-between align-center py-4 px-2 w-full text-center hover:bg-secondaryScale-100`}
       onClick={() => onClick && onClick(token)}
     >
-      <div className="w-32">
+      <div className="w-full text-left">
         <div
           className="flex items-center text-xs"
           style={{ lineHeight: 'unset' }}
@@ -28,7 +27,10 @@ export default function Token({ token, onClick, render }: TokenProps) {
           ) : (
             <div className="h-6 w-6 mr-3"></div>
           )}
-          <p className="block">{toRealSymbol(symbol)}</p>
+          <div className="block">
+            <p>{toRealSymbol(symbol)}</p>
+            <p className="text-xs text-gray-500">{id}</p>
+          </div>
         </div>
       </div>
       {render && render(token)}

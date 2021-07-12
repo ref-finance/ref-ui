@@ -26,12 +26,12 @@ interface ParamTypes {
   id: string;
 }
 
-function Icon(props: { icon?: string }) {
-  const { icon } = props;
+function Icon(props: { icon?: string, className?: string }) {
+  const { icon, className } = props;
   return icon ? (
-    <img className="block h-7 w-7" src={icon} />
+    <img className={`block h-7 w-7 ${className}`} src={icon} />
   ) : (
-    <div className="h-7 w-7 rounded-full border"></div>
+    <div className={`h-7 w-7 rounded-full border ${className}`}></div>
   );
 }
 
@@ -299,18 +299,19 @@ export function PoolDetailsPage() {
         <div className="text-white text-3xl font-semibold">Pool details</div>
       </div>
       <Card width="w-full">
-        <div className="text-center">
-          <div className="inline-flex items-center text-base font-semibold">
-            <Icon icon={tokens[0].icon} />
-            <div className="px-1"></div>
-            <Icon icon={tokens[1].icon} />
-          </div>
-        </div>
         <div className="text-center border-b">
           <div className="inline-flex text-center text-base font-semibold pt-2 pb-6">
-            <div>{tokens[0].symbol}</div>
+            <div className="text-right">
+              <Icon icon={tokens[0].icon} className={'float-right'} />
+              <p>{tokens[0].symbol}</p>
+              <p className="text-xs text-gray-500">{tokens[0].id}</p>
+            </div>
             <div className="px-2">-</div>
-            <div>{tokens[1].symbol}</div>
+            <div className="text-left">
+              <Icon icon={tokens[1].icon} />
+              <p>{tokens[1].symbol}</p>
+              <p className="text-xs text-gray-500">{tokens[1].id}</p>
+            </div>
           </div>
         </div>
         <div className="text-xs font-semibold text-gray-600 pt-6">
