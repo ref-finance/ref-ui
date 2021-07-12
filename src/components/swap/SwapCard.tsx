@@ -75,7 +75,7 @@ function DetailView({
 export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const { allTokens } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
-  const [tokenInAmount, setTokenInAmount] = useState<string>('');
+  const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
 
