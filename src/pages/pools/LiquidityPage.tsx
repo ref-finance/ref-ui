@@ -28,6 +28,16 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
 
   if (!tokens) return <Loading />;
 
+  const farmButton = () => {
+    if (supportFarm)
+      return (
+        <div className="mt-1 px-1 h-4 mr-3 text-center bg-greenLight text-white font-bold inline-block rounded">
+          Farms
+        </div>
+      );
+    return '';
+  };
+
   return (
     <div
       className={`flex items-top flex-col relative text-xs font-semibold text-gray-600 w-11/12 m-auto mb-2.5 pr-0`}
@@ -47,8 +57,13 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
             {tokens[0].symbol}-{tokens[1].symbol}
           </div>
           {expand ? null : (
-            <div className="col-span-2">
-              TVL: <span className="text-greenLight1">${pool.tvl}</span>
+            <div>
+              <div className="col-span-2">
+                TVL: <span className="text-greenLight1">${pool.tvl}</span>
+              </div>
+              <div className="col-span-2">
+                {farmButton()}
+              </div>
             </div>
           )}
         </div>
@@ -201,7 +216,7 @@ function PoolRow({ pool }: { pool: Pool }) {
   const farmButton = () => {
     if (supportFarm)
       return (
-        <div className="mt-1 h-4 mr-3 ml-1 text-center bg-greenLight text-white font-bold inline-block rounded">
+        <div className="mt-4 h-4 mr-3 ml-1 text-center bg-greenLight text-white font-bold inline-block rounded">
           Farms
         </div>
       );
@@ -213,7 +228,7 @@ function PoolRow({ pool }: { pool: Pool }) {
       to={`/pool/${pool.id}`}
       className="grid grid-cols-12 py-2 content-center text-xs font-semibold text-gray-600"
     >
-      <div className="col-span-2">
+      <div className="col-span-1">
         <div className="relative">
           <img
             key={tokens[0].id}
@@ -228,8 +243,8 @@ function PoolRow({ pool }: { pool: Pool }) {
         </div>
       </div>
       <div className="col-span-1">{farmButton()}</div>
-      <div className="col-span-3">
-        <div>
+      <div className="col-span-4">
+        <div className="mt-2">
           {tokens[0].symbol}=
           {toPrecision(
             toReadableNumber(
@@ -253,10 +268,20 @@ function PoolRow({ pool }: { pool: Pool }) {
         </div>
       </div>
       <div className="col-span-3">
-        {getPrice(tokens, pool, pool.token0_ref_price, false)}
+        <div className="mt-4">
+          {getPrice(tokens, pool, pool.token0_ref_price, false)}
+        </div>
       </div>
-      <div className="col-span-2">${pool.tvl}</div>
-      <div className="col-span-2">{calculateFeePercent(pool.fee)}%</div>
+      <div className="col-span-2">
+        <div className="mt-4">
+          ${pool.tvl}
+        </div>
+      </div>
+      <div className="col-span-1">
+        <div className="mt-4">
+          {calculateFeePercent(pool.fee)}%
+        </div>
+      </div>
     </Link>
   );
 }
