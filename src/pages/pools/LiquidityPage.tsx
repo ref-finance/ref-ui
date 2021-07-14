@@ -42,7 +42,7 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
           </div>
           {expand ? null : (
             <div className="col-span-2">
-              TVL: <span className="text-greenLight1">${pool.tvl}</span>
+              TVL: <span className="text-greenLight1">${toPrecision(pool.tvl.toString(),2,true)}</span>
             </div>
           )}
         </div>
@@ -245,7 +245,7 @@ function PoolRow({ pool }: { pool: Pool }) {
       <div className="col-span-3">
         {getPrice(tokens, pool, pool.token0_ref_price, false)}
       </div>
-      <div className="col-span-2">${pool.tvl}</div>
+      <div className="col-span-2">${toPrecision(pool.tvl.toString(),2,true)}</div>
       <div className="col-span-2">{calculateFeePercent(pool.fee)}%</div>
     </Link>
   );
@@ -327,7 +327,7 @@ function LiquidityPage_({
                 No match pool
               </div>
             ) : (
-              ''
+              ""
             )}
           </div>
         </section>
