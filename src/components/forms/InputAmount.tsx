@@ -1,5 +1,4 @@
 import React, { useRef } from 'react';
-import { toPrecision } from '../../utils/numbers';
 
 interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   max?: string;
@@ -45,18 +44,18 @@ export default function InputAmount({
             onChange={({ target }) => handleChange(target.value)}
           />
           {max ? (
-            <button
+            <a
               className={`rounded-lg right-0 items-center py-3 px-3 m-auto focus:outline-none font-semibold text-xs
              ${
                disabled
                  ? 'text-gray-400 hover:text-gray-400'
                  : 'text-greenLight'
              }`}
-              style={{ lineHeight: 'unset' }}
+              style={{ lineHeight: 'unset', cursor:'pointer' }}
               onClick={() => handleChange(max)}
             >
               MAX
-            </button>
+            </a>
           ) : null}
         </div>
       </fieldset>
