@@ -114,7 +114,7 @@ export const useUnregisteredTokens = () => {
   return tokens;
 };
 
-export const getPrice = (
+export const getExchangeRate = (
   tokens: any,
   pool: any,
   first_token_price: any,
@@ -140,7 +140,7 @@ export const getPrice = (
         ).toFixed(8)}`
     : Number(first_token_num) === 0
     ? 'N/A'
-    : `≈${(Number(second_token_num) / Number(first_token_num)).toFixed(4)} ${
+    : `≈ ${(Number(second_token_num) / Number(first_token_num)).toFixed(4)} ${
         tokens[1].symbol
       }`;
 };

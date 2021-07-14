@@ -6,7 +6,7 @@ import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
 import { usePools } from '../../state/pool';
 import Loading from '~components/layout/Loading';
-import { getPrice, useTokens } from '../../state/token';
+import { getExchangeRate, useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';
 import { Pool } from '../../services/pool';
 import {
@@ -103,9 +103,9 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
           </div>
         </div>
         <div className="flex items-center justify-between px-4">
-          <div className="text-sm text-gray-900">Market Price</div>
+          <div className="text-sm text-gray-900">Exchange Rate</div>
           <div className="text-greenLight1">
-            ${getPrice(tokens, pool, pool.token0_ref_price, false)}
+            1&nbsp;{tokens[0].symbol}&nbsp;{getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
           </div>
         </div>
         <div className="flex items-center justify-between px-4">
@@ -243,7 +243,7 @@ function PoolRow({ pool }: { pool: Pool }) {
         </div>
       </div>
       <div className="col-span-3">
-        {getPrice(tokens, pool, pool.token0_ref_price, false)}
+        1&nbsp;{tokens[0].symbol}&nbsp;{getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
       </div>
       <div className="col-span-2">${toPrecision(pool.tvl.toString(),2,true)}</div>
       <div className="col-span-2">{calculateFeePercent(pool.fee)}%</div>
@@ -290,7 +290,7 @@ function LiquidityPage_({
           <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm font-bold">
             <p className="col-span-2">Pair</p>
             <p className="col-span-3">Liquidity</p>
-            <p className="col-span-3">Market Price</p>
+            <p className="col-span-3">Exchange Rate</p>
             <div
               className="col-span-2"
               onClick={() => {
