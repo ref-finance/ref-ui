@@ -111,7 +111,7 @@ function AccountEntry() {
           <TokenList tokens={userTokens} balances={balances} />
           <div className="flex items-center justify-center pt-2">
             <div
-              className="rounded-full bg-greenLight px-3 py-1.5 text-xs text-white font-semibold cursor-pointer"
+              className="rounded-full bg-greenLight px-5 py-2.5 text-xs text-white font-semibold cursor-pointer"
               onClick={() => {
                 wallet.signOut();
                 window.location.assign('/');

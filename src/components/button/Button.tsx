@@ -9,7 +9,7 @@ export function BorderButton(
 
   return (
     <button
-      className={`rounded-full text-xs px-3 py-1.5 focus:outline-none font-semibold border ${
+      className={`rounded-full text-xs px-5 py-2.5 focus:outline-none font-semibold border ${
         borderColor ? borderColor : 'border-greenLight'
       }  focus:outline-none ${className}`}
       {...propsWithoutClassName}
@@ -27,7 +27,7 @@ export function GreenButton(
   return (
     <button
       disabled={disabled}
-      className={`rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold border border-greenLight bg-greenLight focus:outline-none ${className} ${
+      className={`rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold border border-greenLight bg-greenLight focus:outline-none ${className} ${
         disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
       }`}
       {...propsWithoutClassName}

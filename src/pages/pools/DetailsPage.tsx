@@ -155,7 +155,7 @@ function AddLiquidityModal(
         <div className="flex items-center justify-center pt-6">
           <button
             disabled={!canSubmit}
-            className={`rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight ${
+            className={`rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight ${
               canSubmit ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
             }`}
             onClick={async () => {
@@ -250,7 +250,7 @@ export function RemoveLiquidityModal(
         ) : null}
         <div className="flex items-center justify-center pt-6">
           <button
-            className={`rounded-full text-xs text-white px-3 py-1.5 ml-3 focus:outline-none font-semibold bg-greenLight ${
+            className={`rounded-full text-xs text-white px-5 py-2.5 ml-3 focus:outline-none font-semibold bg-greenLight ${
               amount ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
             }`}
             onClick={async () => {
@@ -389,7 +389,7 @@ export function PoolDetailsPage() {
           </div>
           <div className="flex items-center justify-center pt-6">
             <button
-              className={`rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight`}
+              className={`rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight`}
               onClick={() => {
                 setShowFunding(true);
               }}
@@ -397,7 +397,7 @@ export function PoolDetailsPage() {
               Add Liquidity
             </button>
             <button
-              className={`rounded-full text-xs text-white px-3 py-1.5 ml-3 focus:outline-none font-semibold bg-greenLight ${
+              className={`rounded-full text-xs text-white px-5 py-2.5 ml-3 focus:outline-none font-semibold bg-greenLight ${
                 1 ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
               }`}
               onClick={() => {

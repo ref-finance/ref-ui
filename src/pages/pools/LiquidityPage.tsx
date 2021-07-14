@@ -114,7 +114,7 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
         </div>
         <div className="text-center">
           <button
-            className="rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight"
+            className="rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight"
             onClick={() => {
               history.push(`/pool/${pool.id}`);
             }}
@@ -174,11 +174,6 @@ function MobileLiquidityPage({
           hasMore={hasMore}
           loader={
             <h4 style={{ textAlign: 'center', color: 'white' }}>Loading...</h4>
-          }
-          endMessage={
-            <p style={{ textAlign: 'center', color: 'white' }}>
-              <b>No more pools</b>
-            </p>
           }
           pullDownToRefresh={false}
         >
@@ -322,19 +317,12 @@ function LiquidityPage_({
             {pools.map((pool, i) => (
               <PoolRow key={i} pool={pool} />
             ))}
-            {pools.length === 0 ? (
-              <div className="text-center text-xs font-semibold py-4">
-                No match pool
-              </div>
-            ) : (
-              ""
-            )}
           </div>
         </section>
         {hasMore && (
           <div className="flex items-center justify-center pt-5">
             <button
-              className="rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight"
+              className="rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight"
               onClick={nextPage}
             >
               More
