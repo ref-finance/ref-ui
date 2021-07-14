@@ -97,7 +97,9 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
         <div className="flex items-center justify-between px-4">
           <div className="text-sm text-gray-900">Tokens</div>
           <div>
-            <p className="text-xs text-gray-500">{tokens[0].id}|{tokens[1].id}</p>
+            <p className="text-xs text-gray-500">
+              {tokens[0].id}|{tokens[1].id}
+            </p>
           </div>
         </div>
         <div className="flex items-center justify-between px-4">
@@ -196,7 +198,10 @@ function PoolRow({ pool }: { pool: Pool }) {
   return (
     <Link
       title={`${tokens[0].id}|${tokens[1].id}`}
-      to={`/pool/${pool.id}`}
+      to={{
+        pathname: `/pool/${pool.id}`,
+        state: { tvl: pool.tvl },
+      }}
       className="grid grid-cols-12 py-2 content-center text-xs font-semibold text-gray-600"
     >
       <div className="col-span-2">

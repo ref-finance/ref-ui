@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
 import { usePool, useRemoveLiquidity } from '~state/pool';
@@ -21,12 +21,17 @@ import Alert from '~components/alert/Alert';
 import InputAmount from '~components/forms/InputAmount';
 import SlippageSelector from '~components/forms/SlippageSelector';
 import { isMobile } from '~utils/device';
+import getConfig from '~services/config';
 
 interface ParamTypes {
   id: string;
 }
 
-function Icon(props: { icon?: string, className?: string }) {
+interface LocationTypes {
+  tvl: number;
+}
+
+function Icon(props: { icon?: string; className?: string }) {
   const { icon, className } = props;
   return icon ? (
     <img className={`block h-7 w-7 ${className}`} src={icon} />
@@ -285,6 +290,7 @@ function MyShares({
 
 export function PoolDetailsPage() {
   const { id } = useParams<ParamTypes>();
+  const { state } = useLocation<LocationTypes>();
   const { pool, shares } = usePool(id);
   const tokens = useTokens(pool?.tokenIds);
 
@@ -304,17 +310,35 @@ export function PoolDetailsPage() {
             <div className="text-right">
               <Icon icon={tokens[0].icon} className={'float-right'} />
               <p>{tokens[0].symbol}</p>
-              <p className="text-xs text-gray-500">{tokens[0].id}</p>
+              <a
+                target="_blank"
+                href={`${getConfig().explorerUrl}/accounts/${tokens[0].id}`}
+                className="text-xs text-gray-500"
+                title={tokens[0].id}
+              >{`${tokens[0].id.substring(0, 12)}${
+                tokens[0].id.length > 12 ? '...' : ''
+              }`}</a>
             </div>
             <div className="px-2">-</div>
             <div className="text-left">
               <Icon icon={tokens[1].icon} />
               <p>{tokens[1].symbol}</p>
-              <p className="text-xs text-gray-500">{tokens[1].id}</p>
+              <a
+                target="_blank"
+                href={`${getConfig().explorerUrl}/accounts/${tokens[1].id}`}
+                className="text-xs text-gray-500"
+                title={tokens[1].id}
+              >{`${tokens[1].id.substring(0, 12)}${
+                tokens[1].id.length > 12 ? '...' : ''
+              }`}</a>
             </div>
           </div>
         </div>
         <div className="text-xs font-semibold text-gray-600 pt-6">
+          <div className="flex items-center justify-between py-2">
+            <div>TVL</div>
+            <div>{`$${state.tvl}`}</div>
+          </div>
           <div className="flex items-center justify-between py-2">
             <div>Total Liquidity</div>
             <div>Coming Soon</div>

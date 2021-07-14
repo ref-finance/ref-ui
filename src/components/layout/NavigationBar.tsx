@@ -327,9 +327,7 @@ function MobileNavBar() {
           <MobilePoolsMenu links={links} onClick={close} />
           <div>
             <Link to="https://ethereum.bridgetonear.org/" target="_blank">
-              <div
-                className="p-4 link font-bold p-2 text-white"
-              >
+              <div className="p-4 link font-bold p-2 text-white">
                 Move assets to/from Ethereum
                 <RainBow className="h-6 inline-block"></RainBow>
               </div>

@@ -23,7 +23,11 @@ export default function Token({ token, onClick, render }: TokenProps) {
           style={{ lineHeight: 'unset' }}
         >
           {icon ? (
-            <img className="h-6 w-6 mr-3" src={icon} alt={toRealSymbol(symbol)} />
+            <img
+              className="h-6 w-6 mr-3"
+              src={icon}
+              alt={toRealSymbol(symbol)}
+            />
           ) : (
             <div className="h-6 w-6 mr-3"></div>
           )}

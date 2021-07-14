@@ -90,8 +90,9 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     ).split(TOKEN_URL_SEPARATOR);
     const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
     const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
-    const rememberedSlippageTolerance = urlSlippageTolerance || localStorage.getItem(SWAP_SLIPPAGE_KEY);
-    setSlippageTolerance(Number(rememberedSlippageTolerance))
+    const rememberedSlippageTolerance =
+      urlSlippageTolerance || localStorage.getItem(SWAP_SLIPPAGE_KEY);
+    setSlippageTolerance(Number(rememberedSlippageTolerance));
 
     if (allTokens) {
       setTokenIn(
@@ -169,7 +170,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       <SlippageSelector
         slippageTolerance={slippageTolerance}
         onChange={(slippage) => {
-          setSlippageTolerance(slippage)
+          setSlippageTolerance(slippage);
           localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage.toString());
         }}
       />
