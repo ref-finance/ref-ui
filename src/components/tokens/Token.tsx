@@ -32,8 +32,7 @@ export default function Token({ token, onClick, render }: TokenProps) {
             <div className="h-6 w-6 mr-3"></div>
           )}
           <div className="block">
-            <p>{toRealSymbol(symbol)}</p>
-            <p className="text-xs text-gray-500">{id}</p>
+            {toRealSymbol(symbol)}
           </div>
         </div>
       </div>
