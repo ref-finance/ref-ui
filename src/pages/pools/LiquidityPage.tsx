@@ -103,7 +103,7 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
           </div>
         </div>
         <div className="flex items-center justify-between px-4">
-          <div className="text-sm text-gray-900">Exchange Rate</div>
+          <div className="text-sm text-gray-900">Swap Rate</div>
           <div className="text-greenLight1">
             1&nbsp;{tokens[0].symbol}&nbsp;{getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
           </div>
@@ -285,7 +285,7 @@ function LiquidityPage_({
           <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm font-bold">
             <p className="col-span-2">Pair</p>
             <p className="col-span-3">Liquidity</p>
-            <p className="col-span-3">Exchange Rate</p>
+            <p className="col-span-3">Swap Rate</p>
             <div
               className="col-span-2"
               onClick={() => {

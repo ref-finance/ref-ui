@@ -1,6 +1,5 @@
 import React from 'react';
 import SwapCard from '~components/swap/SwapCard';
-import RainBow from '~components/layout/RainBow';
 import Loading from '~components/layout/Loading';
 import { useWhitelistTokens } from '../state/token';
 import copy from '~utils/copy';
