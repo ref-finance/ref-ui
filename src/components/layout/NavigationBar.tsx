@@ -20,6 +20,7 @@ import { TokenList } from '~components/deposit/Deposit';
 import { useTokenBalances, useUserRegisteredTokens } from '~state/token';
 import { REF_FARM_CONTRACT_ID } from '~services/near';
 import { ConnectToNearBtn } from '~components/deposit/Deposit';
+import RainBow from './RainBow';
 
 function Anchor({
   to,
@@ -110,7 +111,7 @@ function AccountEntry() {
           <TokenList tokens={userTokens} balances={balances} />
           <div className="flex items-center justify-center pt-2">
             <div
-              className="rounded-full bg-greenLight px-3 py-1.5 text-xs text-white font-semibold cursor-pointer"
+              className="rounded-full bg-greenLight px-5 py-2.5 text-xs text-white font-semibold cursor-pointer"
               onClick={() => {
                 wallet.signOut();
                 window.location.assign('/');
@@ -324,6 +325,14 @@ function MobileNavBar() {
             onClick={close}
           />
           <MobilePoolsMenu links={links} onClick={close} />
+          <div>
+            <Link to="https://ethereum.bridgetonear.org/" target="_blank">
+              <div className="p-4 link font-bold p-2 text-white">
+                Move assets to/from Ethereum
+                <RainBow className="h-6 inline-block"></RainBow>
+              </div>
+            </Link>
+          </div>
         </div>
       </div>
     </div>
@@ -345,9 +354,10 @@ function NavigationBar() {
           <a
             target="_blank"
             href="https://ethereum.bridgetonear.org/"
-            className="relative ext-white border rounded-full p-4 py-2 border-greenLight text-greenLight"
+            className="mt-1 relative ext-white border rounded-full p-4 py-2 border-greenLight text-greenLight"
           >
-            Rainbow&nbsp;Bridge
+            <RainBow className="h-6 inline-block"></RainBow>
+            Move assets to/from Ethereum
           </a>
         </nav>
         <div className="user text-xs text-center justify-end pl-5 h-full w-96 absolute top-0 right-0 z-20">

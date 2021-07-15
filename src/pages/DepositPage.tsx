@@ -28,7 +28,7 @@ function DepositBtn(props: {
     <div className="flex items-center justify-center pt-2">
       <button
         disabled={!canSubmit}
-        className={`rounded-full text-sm text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight ${
+        className={`rounded-full text-sm text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight ${
           canSubmit ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
         }`}
         onClick={() => {

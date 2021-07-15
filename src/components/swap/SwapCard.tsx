@@ -20,6 +20,7 @@ import { ArrowDownBlack } from '../icon/Arrows';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
+const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
 
 function SwapDetail({ title, value }: { title: string; value: string }) {
@@ -74,7 +75,7 @@ function DetailView({
 export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const { allTokens } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
-  const [tokenInAmount, setTokenInAmount] = useState<string>('');
+  const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
 
@@ -84,11 +85,14 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const balances = useTokenBalances();
 
   useEffect(() => {
-    const [urlTokenIn, urlTokenOut] = decodeURIComponent(
+    const [urlTokenIn, urlTokenOut, urlSlippageTolerance] = decodeURIComponent(
       location.hash.slice(1)
     ).split(TOKEN_URL_SEPARATOR);
     const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
     const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
+    const rememberedSlippageTolerance =
+      urlSlippageTolerance || localStorage.getItem(SWAP_SLIPPAGE_KEY);
+    setSlippageTolerance(Number(rememberedSlippageTolerance));
 
     if (allTokens) {
       setTokenIn(
@@ -131,7 +135,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         selectedToken={tokenIn}
         balances={balances}
         onSelectToken={(token) => {
-          localStorage.setItem(SWAP_IN_KEY, token.symbol);
+          localStorage.setItem(SWAP_IN_KEY, token.id);
           history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
           setTokenIn(token);
         }}
@@ -158,14 +162,17 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         balances={balances}
         text="To"
         onSelectToken={(token) => {
-          localStorage.setItem(SWAP_OUT_KEY, token.symbol);
+          localStorage.setItem(SWAP_OUT_KEY, token.id);
           history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`);
           setTokenOut(token);
         }}
       />
       <SlippageSelector
         slippageTolerance={slippageTolerance}
-        onChange={setSlippageTolerance}
+        onChange={(slippage) => {
+          setSlippageTolerance(slippage);
+          localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage.toString());
+        }}
       />
       <DetailView
         pool={pool}

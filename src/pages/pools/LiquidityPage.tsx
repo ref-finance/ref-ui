@@ -6,7 +6,7 @@ import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
 import { usePools } from '../../state/pool';
 import Loading from '~components/layout/Loading';
-import { getPrice, useTokens } from '../../state/token';
+import { getExchangeRate, useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';
 import { canFarm, Pool } from '../../services/pool';
 import {
@@ -31,7 +31,7 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
   const farmButton = () => {
     if (supportFarm)
       return (
-        <div className="mt-1 px-1 h-4 mr-3 text-center bg-greenLight text-white font-bold inline-block rounded">
+        <div className="mt-1 px-1 py-0.5 px-1 mr-3 text-center bg-greenLight text-white font-bold inline-block rounded">
           Farms
         </div>
       );
@@ -59,7 +59,7 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
           {expand ? null : (
             <div>
               <div className="col-span-2">
-                TVL: <span className="text-greenLight1">${pool.tvl}</span>
+                TVL: <span className="text-greenLight1">${toPrecision(pool.tvl.toString(),2,true)}</span>
               </div>
               <div className="col-span-2">
                 {farmButton()}
@@ -114,10 +114,19 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
             </div>
           </div>
         </div>
+
         <div className="flex items-center justify-between px-4">
-          <div className="text-sm text-gray-900">Market Price</div>
+          <div className="text-sm text-gray-900">Tokens</div>
+          <div>
+            <p className="text-xs text-gray-500">
+              {tokens[0].id}|{tokens[1].id}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center justify-between px-4">
+          <div className="text-sm text-gray-900">Swap Rate</div>
           <div className="text-greenLight1">
-            ${getPrice(tokens, pool, pool.token0_ref_price, false)}
+            1&nbsp;{tokens[0].symbol}&nbsp;{getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
           </div>
         </div>
         <div className="flex items-center justify-between px-4">
@@ -126,7 +135,7 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
         </div>
         <div className="text-center">
           <button
-            className="rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight"
+            className="rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight"
             onClick={() => {
               history.push(`/pool/${pool.id}`);
             }}
@@ -187,11 +196,6 @@ function MobileLiquidityPage({
           loader={
             <h4 style={{ textAlign: 'center', color: 'white' }}>Loading...</h4>
           }
-          endMessage={
-            <p style={{ textAlign: 'center', color: 'white' }}>
-              <b>No more pools</b>
-            </p>
-          }
           pullDownToRefresh={false}
         >
           {pools.map((pool, i) => (
@@ -216,7 +220,7 @@ function PoolRow({ pool }: { pool: Pool }) {
   const farmButton = () => {
     if (supportFarm)
       return (
-        <div className="mt-4 h-4 mr-3 ml-1 text-center bg-greenLight text-white font-bold inline-block rounded">
+        <div className="mt-4 py-0.5 px-1 mr-3 ml-1 text-center bg-greenLight text-white font-bold inline-block rounded">
           Farms
         </div>
       );
@@ -225,7 +229,11 @@ function PoolRow({ pool }: { pool: Pool }) {
 
   return (
     <Link
-      to={`/pool/${pool.id}`}
+      title={`${tokens[0].id}|${tokens[1].id}`}
+      to={{
+        pathname: `/pool/${pool.id}`,
+        state: { tvl: pool.tvl },
+      }}
       className="grid grid-cols-12 py-2 content-center text-xs font-semibold text-gray-600"
     >
       <div className="col-span-1">
@@ -269,12 +277,12 @@ function PoolRow({ pool }: { pool: Pool }) {
       </div>
       <div className="col-span-3">
         <div className="mt-4">
-          {getPrice(tokens, pool, pool.token0_ref_price, false)}
+          1&nbsp;{tokens[0].symbol}&nbsp;{getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
         </div>
       </div>
       <div className="col-span-2">
         <div className="mt-4">
-          ${pool.tvl}
+          ${toPrecision(pool.tvl.toString(),2,true)}
         </div>
       </div>
       <div className="col-span-1">
@@ -323,10 +331,9 @@ function LiquidityPage_({
         </div>
         <section className="px-2">
           <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm font-bold">
-            <p className="col-span-1">Pair</p>
-            <p className="col-span-1"></p>
+            <p className="col-span-2">Pair</p>
             <p className="col-span-4">Liquidity</p>
-            <p className="col-span-3">Market Price</p>
+            <p className="col-span-3">Swap Rate</p>
             <div
               className="col-span-2"
               onClick={() => {
@@ -358,19 +365,12 @@ function LiquidityPage_({
             {pools.map((pool, i) => (
               <PoolRow key={i} pool={pool} />
             ))}
-            {pools.length === 0 ? (
-              <div className="text-center text-xs font-semibold py-4">
-                No match pool
-              </div>
-            ) : (
-              ''
-            )}
           </div>
         </section>
         {hasMore && (
           <div className="flex items-center justify-center pt-5">
             <button
-              className="rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight"
+              className="rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight"
               onClick={nextPage}
             >
               More

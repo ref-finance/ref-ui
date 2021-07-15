@@ -16,7 +16,7 @@ function SubmitButton({ disabled, onClick }: SubmitButtonProps) {
           type={onClick ? 'button' : 'submit'}
           disabled={disabled}
           onClick={onClick}
-          className={`flex flex-row justify-center px-3 py-1.5 mt-6 items-center rounded-full bg-greenLight text-buttonText focus:outline-none disabled:cursor-not-allowed mx-auto ${
+          className={`flex flex-row justify-center px-5 py-2.5 mt-6 items-center rounded-full bg-greenLight text-buttonText focus:outline-none disabled:cursor-not-allowed mx-auto ${
             disabled ? 'bg-opacity-50' : ''
           }`}
         >
@@ -26,7 +26,7 @@ function SubmitButton({ disabled, onClick }: SubmitButtonProps) {
         <button
           onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
           type="button"
-          className="flex bg-black font-semibold px-3 py-1.5 text-white p-2 mt-6 items-center rounded-full focus:outline-none mx-auto"
+          className="flex bg-black font-semibold px-5 py-2.5 text-white p-2 mt-6 items-center rounded-full focus:outline-none mx-auto"
         >
           {' '}
           <Near />

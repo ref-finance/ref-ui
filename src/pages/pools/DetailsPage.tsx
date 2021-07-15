@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
 import { usePool, useRemoveLiquidity } from '~state/pool';
@@ -21,17 +21,22 @@ import Alert from '~components/alert/Alert';
 import InputAmount from '~components/forms/InputAmount';
 import SlippageSelector from '~components/forms/SlippageSelector';
 import { isMobile } from '~utils/device';
+import getConfig from '~services/config';
 
 interface ParamTypes {
   id: string;
 }
 
-function Icon(props: { icon?: string }) {
-  const { icon } = props;
+interface LocationTypes {
+  tvl: number;
+}
+
+function Icon(props: { icon?: string; className?: string }) {
+  const { icon, className } = props;
   return icon ? (
-    <img className="block h-7 w-7" src={icon} />
+    <img className={`block h-7 w-7 ${className}`} src={icon} />
   ) : (
-    <div className="h-7 w-7 rounded-full border"></div>
+    <div className={`h-7 w-7 rounded-full border ${className}`}></div>
   );
 }
 
@@ -150,7 +155,7 @@ function AddLiquidityModal(
         <div className="flex items-center justify-center pt-6">
           <button
             disabled={!canSubmit}
-            className={`rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight ${
+            className={`rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight ${
               canSubmit ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
             }`}
             onClick={async () => {
@@ -198,7 +203,7 @@ export function RemoveLiquidityModal(
         </div>
         <div>
           <p className="col-span-12 p-2 text-right text-xs font-semibold">
-            Balance: {toReadableNumber(24, shares)}
+            Balance: &nbsp;{toReadableNumber(24, shares)}
           </p>
           <div className="border rounded-lg overflow-hidden">
             <InputAmount
@@ -245,7 +250,7 @@ export function RemoveLiquidityModal(
         ) : null}
         <div className="flex items-center justify-center pt-6">
           <button
-            className={`rounded-full text-xs text-white px-3 py-1.5 ml-3 focus:outline-none font-semibold bg-greenLight ${
+            className={`rounded-full text-xs text-white px-5 py-2.5 ml-3 focus:outline-none font-semibold bg-greenLight ${
               amount ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
             }`}
             onClick={async () => {
@@ -285,6 +290,7 @@ function MyShares({
 
 export function PoolDetailsPage() {
   const { id } = useParams<ParamTypes>();
+  const { state } = useLocation<LocationTypes>();
   const { pool, shares } = usePool(id);
   const tokens = useTokens(pool?.tokenIds);
 
@@ -299,21 +305,40 @@ export function PoolDetailsPage() {
         <div className="text-white text-3xl font-semibold">Pool details</div>
       </div>
       <Card width="w-full">
-        <div className="text-center">
-          <div className="inline-flex items-center text-base font-semibold">
-            <Icon icon={tokens[0].icon} />
-            <div className="px-1"></div>
-            <Icon icon={tokens[1].icon} />
-          </div>
-        </div>
         <div className="text-center border-b">
           <div className="inline-flex text-center text-base font-semibold pt-2 pb-6">
-            <div>{tokens[0].symbol}</div>
+            <div className="text-right">
+              <Icon icon={tokens[0].icon} className={'float-right'} />
+              <p>{tokens[0].symbol}</p>
+              <a
+                target="_blank"
+                href={`${getConfig().explorerUrl}/accounts/${tokens[0].id}`}
+                className="text-xs text-gray-500"
+                title={tokens[0].id}
+              >{`${tokens[0].id.substring(0, 12)}${
+                tokens[0].id.length > 12 ? '...' : ''
+              }`}</a>
+            </div>
             <div className="px-2">-</div>
-            <div>{tokens[1].symbol}</div>
+            <div className="text-left">
+              <Icon icon={tokens[1].icon} />
+              <p>{tokens[1].symbol}</p>
+              <a
+                target="_blank"
+                href={`${getConfig().explorerUrl}/accounts/${tokens[1].id}`}
+                className="text-xs text-gray-500"
+                title={tokens[1].id}
+              >{`${tokens[1].id.substring(0, 12)}${
+                tokens[1].id.length > 12 ? '...' : ''
+              }`}</a>
+            </div>
           </div>
         </div>
         <div className="text-xs font-semibold text-gray-600 pt-6">
+          <div className="flex items-center justify-between py-2">
+            <div>TVL</div>
+            <div>{`$${state.tvl}`}</div>
+          </div>
           <div className="flex items-center justify-between py-2">
             <div>Total Liquidity</div>
             <div>Coming Soon</div>
@@ -364,7 +389,7 @@ export function PoolDetailsPage() {
           </div>
           <div className="flex items-center justify-center pt-6">
             <button
-              className={`rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight`}
+              className={`rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight`}
               onClick={() => {
                 setShowFunding(true);
               }}
@@ -372,7 +397,7 @@ export function PoolDetailsPage() {
               Add Liquidity
             </button>
             <button
-              className={`rounded-full text-xs text-white px-3 py-1.5 ml-3 focus:outline-none font-semibold bg-greenLight ${
+              className={`rounded-full text-xs text-white px-5 py-2.5 ml-3 focus:outline-none font-semibold bg-greenLight ${
                 1 ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
               }`}
               onClick={() => {

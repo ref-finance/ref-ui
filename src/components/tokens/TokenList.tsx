@@ -20,7 +20,7 @@ export default function TokenList({
     (token) =>
       ((token.id != WRAP_NEAR_CONTRACT_ID && calledBy === 'deposit') ||
         calledBy != 'deposit') && (
-        <div className="text-xs font-semibold" key={token.id}>
+        <div className="text-xs font-semibold" key={token.id} title={token.id}>
           <Token token={token} onClick={onClick} render={render} />
         </div>
       )

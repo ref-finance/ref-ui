@@ -54,7 +54,7 @@ export function WithdrawModal(props: ReactModal.Props) {
         />
         <div className="flex items-center justify-center pt-5">
           <button
-            className="rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-green-500"
+            className="rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-green-500"
             onClick={() => {
               withdraw({
                 token: selectedToken,
@@ -135,7 +135,7 @@ export function Balances(props: {
         {tokens.length > 0 ? (
           <div className="flex items-center justify-center pt-5">
             <button
-              className="rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight"
+              className="rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight"
               onClick={() => setIsOpen(true)}
             >
               Withdraw

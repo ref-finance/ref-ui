@@ -85,7 +85,7 @@ function Balance({ hideEmpty }: { hideEmpty?: boolean }) {
                 )}
                 <div className="flex flex-col justify-between py-1">
                   <div>{token.symbol}</div>
-                  <div className="text-xs text-gray-500">{token.name}</div>
+                  <div className="text-xs text-gray-500">{token.id}</div>
                 </div>
               </div>
               <div className="text-gray-600">{amount}</div>
