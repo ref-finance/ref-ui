@@ -176,3 +176,21 @@ input[type='number'] {
 .hide-scrollbar::-webkit-scrollbar-thum {
   background: transparent;
 }
+
+.ended {
+  color: #fff;
+  font-size: 14px;
+  line-height: 32px;
+  background: #bbb;
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 0 2em;
+  -webkit-transform-origin: left bottom;
+  -moz-transform-origin: left bottom;
+  transform-origin: left bottom;
+  -webkit-transform: translate(29.29%,-100%) rotate(45deg);
+  -moz-transform: translate(29.29%,-100%) rotate(45deg);
+  transform: translate(29.29%,-100%) rotate(45deg);
+  text-indent: 0;
+}

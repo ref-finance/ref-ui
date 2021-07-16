@@ -5,9 +5,10 @@ export function Card(
     React.HTMLAttributes<HTMLDivElement> & {
       width?: string;
       padding?: string | number;
+      ended?: boolean;
     }
 ) {
-  const { width, padding } = props;
+  const { width, padding, ended } = props;
   return (
     <div
       {...props}

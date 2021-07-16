@@ -31,12 +31,12 @@ interface LocationTypes {
   tvl: number;
 }
 
-function Icon(props: { icon?: string; className?: string }) {
-  const { icon, className } = props;
+function Icon(props: { icon?: string; className?: string; style?: any }) {
+  const { icon, className, style } = props;
   return icon ? (
-    <img className={`block h-7 w-7 ${className}`} src={icon} />
+    <img className={`block h-7 w-7 ${className}`} src={icon} style={style} />
   ) : (
-    <div className={`h-7 w-7 rounded-full border ${className}`}></div>
+    <div className={`h-7 w-7 rounded-full border ${className}`} style={style}></div>
   );
 }
 
@@ -308,7 +308,7 @@ export function PoolDetailsPage() {
         <div className="text-center border-b">
           <div className="inline-flex text-center text-base font-semibold pt-2 pb-6">
             <div className="text-right">
-              <Icon icon={tokens[0].icon} className={'float-right'} />
+              <Icon icon={tokens[0].icon} style={{marginLeft: "auto",order: 2}} />
               <p>{tokens[0].symbol}</p>
               <a
                 target="_blank"
@@ -337,7 +337,7 @@ export function PoolDetailsPage() {
         <div className="text-xs font-semibold text-gray-600 pt-6">
           <div className="flex items-center justify-between py-2">
             <div>TVL</div>
-            <div>{`$${state.tvl}`}</div>
+            <div>{`$${state?.tvl || ""}`}</div>
           </div>
           <div className="flex items-center justify-between py-2">
             <div>Total Liquidity</div>

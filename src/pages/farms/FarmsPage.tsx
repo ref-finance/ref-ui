@@ -27,6 +27,9 @@ import Loading from '~components/layout/Loading';
 import { ConnectToNearBtn } from '~components/deposit/Deposit';
 import { usePool } from '~state/pool';
 import { useTokens } from '~state/token';
+import copy from "~utils/copy";
+import {Info} from "~components/icon/Info";
+import ReactTooltip from "react-tooltip";
 
 export function FarmsPage() {
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
@@ -128,9 +131,14 @@ function FarmView({ data }: { data: FarmInfo }) {
   const [stakeVisible, setStakeVisible] = useState(false);
   const [stakeBalance, setStakeBalance] = useState('0');
   const [error, setError] = useState<Error>();
+  const [ended, setEnded] = useState(false);
   const PoolId = data.lpTokenId;
   const { pool } = usePool(PoolId);
   const tokens = useTokens(pool?.tokenIds);
+
+  useEffect(() => {
+    setEnded(data.farm_status === 'Ended')
+  }, [data]);
 
   async function showUnstakeModal() {
     setUnstakeVisible(true);
@@ -175,8 +183,8 @@ function FarmView({ data }: { data: FarmInfo }) {
   });
 
   return (
-    <Card width="w-full" className="self-start">
-      <div className="pb-3 border-b flex items-center">
+    <Card width="w-full" className="self-start" ended={ended} padding={"p-0"}>
+      <div className={`${ended ? "rounded-t-xl bg-gray-300 bg-opacity-50" : ""} border-b flex items-center p-6 relative overflow-hidden`}>
         <div className="flex items-center justify-center">
           <div className="h-9">
             <div className="w-18 flex items-center justify-between">
@@ -189,74 +197,95 @@ function FarmView({ data }: { data: FarmInfo }) {
             <a href={`/pool/${PoolId}`}>{symbols}</a>
           </div>
         </div>
-      </div>
-      <div className="text-center">
-        {error ? <Alert level="error" message={error.message} /> : null}
-      </div>
-      <div className="py-2">
-        {data.userStaked !== '0' ? (
-          <div className="flex items-center justify-between text-xs py-2">
-            <div>Your Shares</div>
-            <div>{data.userStaked}</div>
+        {ended ? <div className="ended">ENDED</div> : null}
+        <div style={{ marginLeft: "auto", order : 3 }}>
+          <div className="inline-block">
+            <a className="text-sm hover:text-green-500 text-lg font-bold p-2 cursor-pointer text-green-500" href={`/pool/${PoolId}`}>
+              View Pool
+            </a>
           </div>
-        ) : null}
-        {data.userStaked === '0' ? (
-          <div className="flex items-center justify-between text-xs py-2">
-            <div>Rewards per week</div>
-            <div>
-              {data.rewardsPerWeek} {data.rewardToken.symbol}
+          <div className="inline-block">
+            <div
+              data-type="dark"
+              data-place="bottom"
+              data-multiline={true}
+              data-tip={copy.getLPTokenCopy}
+            >
+              <Info />
             </div>
+            <ReactTooltip />
           </div>
-        ) : null}
-        <div className="flex items-center justify-between text-xs py-2">
-          <div>APR</div>
-          <div>{data.apr}%</div>
         </div>
-        <div className="flex items-center justify-between text-xs py-2">
-          <div>Total Staked</div>
-          <div>${data.totalStaked}</div>
-        </div>
-        {data.userUnclaimedReward !== '0' ? (
-          <div className="flex items-center justify-between text-xs py-2">
-            <div>Unclaimed rewards</div>
-            <div>
-              {data.userUnclaimedReward} {data.rewardToken.symbol}
-            </div>
-          </div>
-        ) : null}
       </div>
-      <div>
-        {wallet.isSignedIn() ? (
-          <div className="flex flex-wrap gap-2 justify-center mt-4">
-            {data.rewardNumber !== '0' && data.userStaked !== '0' ? (
-              <GreenButton onClick={() => showWithDraw()}>
-                <div className="w-16 text-xs text-white">Withdraw</div>
-              </GreenButton>
-            ) : null}
-            {data.userStaked === '0' ? (
-              <BorderButton onClick={() => showStakeModal()}>
-                <div className="w-10 text-greenLight">Stake</div>
-              </BorderButton>
-            ) : null}
-            {data.userUnclaimedReward !== '0' ? (
-              <BorderButton onClick={() => claimReward(data.farm_id)}>
-                <div className="w-10 text-greenLight">Claim</div>
-              </BorderButton>
-            ) : null}
-            {data.userStaked !== '0' ? (
-              <BorderlessButton onClick={() => showUnstakeModal()}>
-                <div className="w-8 text-lg text-greenLight">-</div>
-              </BorderlessButton>
-            ) : null}
-            {data.userStaked !== '0' ? (
-              <BorderlessButton onClick={() => showStakeModal()}>
-                <div className="w-8 text-lg text-greenLight">+</div>
-              </BorderlessButton>
-            ) : null}
+      <div className="info-list p-6">
+        <div className="text-center">
+          {error ? <Alert level="error" message={error.message} /> : null}
+        </div>
+        <div className="py-2">
+          {data.userStaked !== '0' ? (
+            <div className="flex items-center justify-between text-xs py-2">
+              <div>Your Shares</div>
+              <div>{data.userStaked}</div>
+            </div>
+          ) : null}
+          {data.userStaked === '0' ? (
+            <div className="flex items-center justify-between text-xs py-2">
+              <div>Rewards per week</div>
+              <div>
+                {data.rewardsPerWeek} {data.rewardToken.symbol}
+              </div>
+            </div>
+          ) : null}
+          <div className="flex items-center justify-between text-xs py-2">
+            <div>APR</div>
+            <div>{data.apr}%</div>
           </div>
-        ) : (
-          <ConnectToNearBtn />
-        )}
+          <div className="flex items-center justify-between text-xs py-2">
+            <div>Total Staked</div>
+            <div>${data.totalStaked}</div>
+          </div>
+          {data.userUnclaimedReward !== '0' ? (
+            <div className="flex items-center justify-between text-xs py-2">
+              <div>Unclaimed rewards</div>
+              <div>
+                {data.userUnclaimedReward} {data.rewardToken.symbol}
+              </div>
+            </div>
+          ) : null}
+        </div>
+        <div>
+          {wallet.isSignedIn() ? (
+            <div className="flex flex-wrap gap-2 justify-center mt-4">
+              {data.rewardNumber !== '0' && data.userStaked !== '0' ? (
+                <BorderButton onClick={() => showWithDraw()}>
+                  <div className="w-16 text-xs text-greenLight">Withdraw</div>
+                </BorderButton>
+              ) : null}
+              {data.userStaked === '0' ? (
+                <GreenButton onClick={() => showStakeModal()} disabled={ended}>
+                  <div className="w-10 text-white">Stake</div>
+                </GreenButton>
+              ) : null}
+              {data.userUnclaimedReward !== '0' ? (
+                <BorderButton onClick={() => claimReward(data.farm_id)}>
+                  <div className="w-10 text-greenLight">Claim</div>
+                </BorderButton>
+              ) : null}
+              {data.userStaked !== '0' && !ended ? (
+                <BorderlessButton onClick={() => showUnstakeModal()}>
+                  <div className="w-8 text-lg text-greenLight">-</div>
+                </BorderlessButton>
+              ) : null}
+              {data.userStaked !== '0' && !ended ? (
+                <BorderlessButton onClick={() => showStakeModal()}>
+                  <div className="w-8 text-lg text-greenLight">+</div>
+                </BorderlessButton>
+              ) : null}
+            </div>
+          ) : (
+            <ConnectToNearBtn />
+          )}
+        </div>
       </div>
 
       <ActionModal
