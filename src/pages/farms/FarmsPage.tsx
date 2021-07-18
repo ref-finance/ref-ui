@@ -131,7 +131,7 @@ function FarmView({ data }: { data: FarmInfo }) {
   const [stakeVisible, setStakeVisible] = useState(false);
   const [stakeBalance, setStakeBalance] = useState('0');
   const [error, setError] = useState<Error>();
-  const [ended, setEnded] = useState(false);
+  const [ended, setEnded] = useState<boolean>(false);
   const PoolId = data.lpTokenId;
   const { pool } = usePool(PoolId);
   const tokens = useTokens(pool?.tokenIds);
@@ -183,7 +183,7 @@ function FarmView({ data }: { data: FarmInfo }) {
   });
 
   return (
-    <Card width="w-full" className="self-start" ended={ended} padding={"p-0"}>
+    <Card width="w-full" className="self-start" padding={"p-0"}>
       <div className={`${ended ? "rounded-t-xl bg-gray-300 bg-opacity-50" : ""} border-b flex items-center p-6 relative overflow-hidden`}>
         <div className="flex items-center justify-center">
           <div className="h-9">
@@ -197,7 +197,7 @@ function FarmView({ data }: { data: FarmInfo }) {
             <a href={`/pool/${PoolId}`}>{symbols}</a>
           </div>
         </div>
-        {ended ? <div className="ended">ENDED</div> : null}
+        {ended ? (<div className="ended">ENDED</div>) : null}
         <div style={{ marginLeft: "auto", order : 3 }}>
           <div className="inline-block">
             <a className="text-sm hover:text-green-500 text-lg font-bold p-2 cursor-pointer text-green-500" href={`/pool/${PoolId}`}>

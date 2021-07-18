@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
@@ -16,7 +16,7 @@ import {
   toRoundedReadableNumber,
 } from '../../utils/numbers';
 import TokenAmount from '~components/forms/TokenAmount';
-import { TokenMetadata } from '~services/ft-contract';
+import {ftGetTokenMetadata, TokenMetadata} from '~services/ft-contract';
 import Alert from '~components/alert/Alert';
 import InputAmount from '~components/forms/InputAmount';
 import SlippageSelector from '~components/forms/SlippageSelector';
@@ -49,10 +49,20 @@ function AddLiquidityModal(
   const { pool, tokens } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
+  const [firstTokenMetadata, setFirstTokenMetadata] = useState<TokenMetadata>();
+  const [secondTokenMetadata, setSecondTokenMetadata] = useState<TokenMetadata>();
   const balances = useTokenBalances();
   const [error, setError] = useState<Error>();
 
   if (!balances) return null;
+
+  ftGetTokenMetadata(tokens[0].id).then((tokenMetadata) => {
+    setFirstTokenMetadata(tokenMetadata);
+  })
+
+  ftGetTokenMetadata(tokens[1].id).then((tokenMetadata) => {
+    setSecondTokenMetadata(tokenMetadata);
+  })
 
   const changeFirstTokenAmount = (amount: string) => {
     if (Object.values(pool.supplies).every((s) => s === '0')) {
@@ -111,6 +121,14 @@ function AddLiquidityModal(
 
     if (!secondTokenAmount || secondTokenAmount === '0') {
       throw new Error(`Must provide at least 1 token for ${tokens[1].symbol}`);
+    }
+
+    if (!firstTokenMetadata) {
+      throw new Error(`${tokens[0].id} is not exist`);
+    }
+
+    if (!secondTokenMetadata) {
+      throw new Error(`${tokens[1].id} is not exist`);
     }
 
     return addLiquidityToPool({
