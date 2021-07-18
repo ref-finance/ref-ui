@@ -16,7 +16,7 @@ import {
   toRoundedReadableNumber,
 } from '../../utils/numbers';
 import TokenAmount from '~components/forms/TokenAmount';
-import { TokenMetadata } from '~services/ft-contract';
+import {ftGetTokenMetadata, TokenMetadata} from '~services/ft-contract';
 import Alert from '~components/alert/Alert';
 import InputAmount from '~components/forms/InputAmount';
 import SlippageSelector from '~components/forms/SlippageSelector';
@@ -31,12 +31,12 @@ interface LocationTypes {
   tvl: number;
 }
 
-function Icon(props: { icon?: string; className?: string }) {
-  const { icon, className } = props;
+function Icon(props: { icon?: string; className?: string; style?: any }) {
+  const { icon, className, style } = props;
   return icon ? (
-    <img className={`block h-7 w-7 ${className}`} src={icon} />
+    <img className={`block h-7 w-7 ${className}`} src={icon} style={style} />
   ) : (
-    <div className={`h-7 w-7 rounded-full border ${className}`}></div>
+    <div className={`h-7 w-7 rounded-full border ${className}`} style={style}></div>
   );
 }
 
@@ -49,10 +49,20 @@ function AddLiquidityModal(
   const { pool, tokens } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
+  const [firstTokenMetadata, setFirstTokenMetadata] = useState<TokenMetadata>();
+  const [secondTokenMetadata, setSecondTokenMetadata] = useState<TokenMetadata>();
   const balances = useTokenBalances();
   const [error, setError] = useState<Error>();
 
   if (!balances) return null;
+
+  ftGetTokenMetadata(tokens[0].id).then((tokenMetadata) => {
+    setFirstTokenMetadata(tokenMetadata);
+  })
+
+  ftGetTokenMetadata(tokens[1].id).then((tokenMetadata) => {
+    setSecondTokenMetadata(tokenMetadata);
+  })
 
   const changeFirstTokenAmount = (amount: string) => {
     if (Object.values(pool.supplies).every((s) => s === '0')) {
@@ -111,6 +121,14 @@ function AddLiquidityModal(
 
     if (!secondTokenAmount || secondTokenAmount === '0') {
       throw new Error(`Must provide at least 1 token for ${tokens[1].symbol}`);
+    }
+
+    if (!firstTokenMetadata) {
+      throw new Error(`${tokens[0].id} is not exist`);
+    }
+
+    if (!secondTokenMetadata) {
+      throw new Error(`${tokens[1].id} is not exist`);
     }
 
     return addLiquidityToPool({
@@ -308,7 +326,7 @@ export function PoolDetailsPage() {
         <div className="text-center border-b">
           <div className="inline-flex text-center text-base font-semibold pt-2 pb-6">
             <div className="text-right">
-              <Icon icon={tokens[0].icon} className={'float-right'} />
+              <Icon icon={tokens[0].icon} style={{marginLeft: "auto",order: 2}} />
               <p>{tokens[0].symbol}</p>
               <a
                 target="_blank"
@@ -337,7 +355,7 @@ export function PoolDetailsPage() {
         <div className="text-xs font-semibold text-gray-600 pt-6">
           <div className="flex items-center justify-between py-2">
             <div>TVL</div>
-            <div>{`$${state.tvl}`}</div>
+            <div>{`$${state?.tvl || ""}`}</div>
           </div>
           <div className="flex items-center justify-between py-2">
             <div>Total Liquidity</div>

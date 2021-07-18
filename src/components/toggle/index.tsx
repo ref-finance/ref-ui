@@ -10,7 +10,7 @@ export function Toggle({ opts, value, onChange }: RadioProps) {
   const [v, setV] = useState<string>(value);
   return (
     <div
-      className={`m-toggle rounded-full bg-gray-100 select-none bg-blackLight inline-flex items-center cursor-pointer text-sm`}
+      className={`m-toggle rounded-full bg-gray-100 select-none inline-flex items-center cursor-pointer text-sm`}
     >
       {opts.map((item) => {
         const active = item.value === v;
