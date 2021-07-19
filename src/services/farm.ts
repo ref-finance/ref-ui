@@ -3,8 +3,13 @@ import { toPrecision, toReadableNumber } from '~utils/numbers';
 import { LP_TOKEN_DECIMALS } from '~services/m-token';
 import * as math from 'mathjs';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
-import { getPoolsByIdsFromIndexer, getTokenPriceList, PoolRPCView } from '~services/api';
-import getConfig from "~services/config";
+import {
+  getPoolsByIdsFromIndexer,
+  getTokenPriceList,
+  PoolRPCView,
+} from '~services/api';
+import getConfig from '~services/config';
+import { BigNumber } from 'bignumber.js';
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -87,7 +92,8 @@ export const getFarms = async ({
   let rewardList: Record<string, string> = {};
   rewardList = await getRewards({});
   const tokenPriceList = await getTokenPriceList();
-  const refPrice = tokenPriceList[getConfig().REF_TOKEN_CONTRACT_ID]?.price || 0;
+  const refPrice =
+    tokenPriceList[getConfig().REF_TOKEN_CONTRACT_ID]?.price || 0;
   const seeds = await getSeeds({ page: page, perPage: perPage });
   const pool_ids = farms.map((f) => {
     return f.farm_id.slice(
@@ -125,10 +131,14 @@ export const getFarms = async ({
       )
     );
 
-    const rewardsPerWeek = toReadableNumber(
-      rewardToken.decimals,
-      rewardNumberPerWeek.toString()
+    const rewardsPerWeek = toPrecision(
+      toReadableNumber(
+        rewardToken.decimals,
+        new BigNumber(rewardNumberPerWeek.toString()).toFixed()
+      ),
+      4
     );
+
     const userRewardNumberPerWeek =
       seedAmount !== '0'
         ? math.round(

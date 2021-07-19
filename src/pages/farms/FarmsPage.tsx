@@ -27,9 +27,10 @@ import Loading from '~components/layout/Loading';
 import { ConnectToNearBtn } from '~components/deposit/Deposit';
 import { usePool } from '~state/pool';
 import { useTokens } from '~state/token';
-import copy from "~utils/copy";
-import {Info} from "~components/icon/Info";
-import ReactTooltip from "react-tooltip";
+import copy from '~utils/copy';
+import { Info } from '~components/icon/Info';
+import ReactTooltip from 'react-tooltip';
+import { toRealSymbol } from '~utils/token';
 
 export function FarmsPage() {
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
@@ -111,7 +112,7 @@ export function FarmsPage() {
           )}
         </div>
         <div className="flex-grow">
-          <div className="min-h-full overflow-auto relative mt-8 pb-4">
+          <div className="overflow-auto relative mt-8 pb-4">
             <div className="grid grid-cols-3 gap-4">
               {farms.map((f) => (
                 <FarmView key={f.farm_id} data={f} />
@@ -137,7 +138,7 @@ function FarmView({ data }: { data: FarmInfo }) {
   const tokens = useTokens(pool?.tokenIds);
 
   useEffect(() => {
-    setEnded(data.farm_status === 'Ended')
+    setEnded(data.farm_status === 'Ended');
   }, [data]);
 
   async function showUnstakeModal() {
@@ -179,12 +180,16 @@ function FarmView({ data }: { data: FarmInfo }) {
   const symbols = tokens.map((token, index) => {
     const { symbol } = token;
     const hLine = index === 1 ? '' : '-';
-    return `${symbol}${hLine}`;
+    return `${toRealSymbol(symbol)}${hLine}`;
   });
 
   return (
-    <Card width="w-full" className="self-start" padding={"p-0"}>
-      <div className={`${ended ? "rounded-t-xl bg-gray-300 bg-opacity-50" : ""} border-b flex items-center p-6 relative overflow-hidden`}>
+    <Card width="w-full" className="self-start" padding={'p-0'}>
+      <div
+        className={`${
+          ended ? 'rounded-t-xl bg-gray-300 bg-opacity-50' : ''
+        } border-b flex items-center p-6 relative overflow-hidden`}
+      >
         <div className="flex items-center justify-center">
           <div className="h-9">
             <div className="w-18 flex items-center justify-between">
@@ -195,12 +200,18 @@ function FarmView({ data }: { data: FarmInfo }) {
         <div className="pl-2">
           <div>
             <a href={`/pool/${PoolId}`}>{symbols}</a>
+            <p className="text-xs text-gray-400">
+              Earn {toRealSymbol(data?.rewardToken?.symbol)}
+            </p>
           </div>
         </div>
-        {ended ? (<div className="ended">ENDED</div>) : null}
-        <div style={{ marginLeft: "auto", order : 3 }}>
+        {ended ? <div className="ended">ENDED</div> : null}
+        <div style={{ marginLeft: 'auto', order: 3 }}>
           <div className="inline-block">
-            <a className="text-sm hover:text-green-500 text-lg font-bold p-2 cursor-pointer text-green-500" href={`/pool/${PoolId}`}>
+            <a
+              className="text-sm hover:text-green-500 text-lg font-bold p-2 cursor-pointer text-green-500"
+              href={`/pool/${PoolId}`}
+            >
               View Pool
             </a>
           </div>
@@ -232,7 +243,7 @@ function FarmView({ data }: { data: FarmInfo }) {
             <div className="flex items-center justify-between text-xs py-2">
               <div>Rewards per week</div>
               <div>
-                {data.rewardsPerWeek} {data.rewardToken.symbol}
+                {data.rewardsPerWeek} {toRealSymbol(data?.rewardToken?.symbol)}
               </div>
             </div>
           ) : null}
@@ -248,7 +259,8 @@ function FarmView({ data }: { data: FarmInfo }) {
             <div className="flex items-center justify-between text-xs py-2">
               <div>Unclaimed rewards</div>
               <div>
-                {data.userUnclaimedReward} {data.rewardToken.symbol}
+                {data.userUnclaimedReward}{' '}
+                {toRealSymbol(data.rewardToken.symbol)}
               </div>
             </div>
           ) : null}
