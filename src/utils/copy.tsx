@@ -38,6 +38,5 @@ export default {
     'This allows you to add an ERC-20 token to the exchange that is not already listed.',
   poolFee:
     'The fee liquidity providers will earn on each trade. <br> If the fee is 0.3%, a trade of $100 nUSDT to nDAI <br> will incur a fee of $0.3 nDAI. This nDAI is distributed <br> proportionally to liquidity providers of the nUSDT - <br> nDAI pool',
-  getLPTokenCopy:
-    'Click here to jump to the pool corresponding to this farm, and get LPToken after adding liquidity.'
+  getLPTokenCopy: 'Click here to jump to the corresponding pool.',
 };
