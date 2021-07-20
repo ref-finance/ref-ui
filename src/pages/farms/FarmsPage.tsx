@@ -72,7 +72,7 @@ export function FarmsPage() {
         {error ? <Alert level="error" message={error.message} /> : null}
       </div>
       <div className="flex gaps-x-8 px-5 -mt-12 xs:flex-col xs:mt-8 md:flex-col md:mt-8">
-        <div className="w-72 relative xs:w-full md:w-full">
+        <div className="w-72 mr-4 relative xs:w-full md:w-full">
           <div className="text-green-400 text-5xl px-7 xs:text-center md:text-center">
             Farms
           </div>
@@ -175,8 +175,11 @@ function FarmView({ data }: { data: FarmInfo }) {
 
   const images = tokens.map((token, index) => {
     const { icon, id } = token;
-    if (icon) return <img key={id} className="h-8 w-8" src={icon} />;
-    return <div key={id} className="h-8 w-8 rounded-full border"></div>;
+    if (icon)
+      return <img key={id} className="h-8 w-8 xs:h-4 xs:w-4" src={icon} />;
+    return (
+      <div key={id} className="h-8 w-8 xs:h-4 xs:w-4 rounded-full border"></div>
+    );
   });
 
   const symbols = tokens.map((token, index) => {
@@ -193,15 +196,17 @@ function FarmView({ data }: { data: FarmInfo }) {
         } border-b flex items-center p-6 relative overflow-hidden`}
       >
         <div className="flex items-center justify-center">
-          <div className="h-9">
-            <div className="w-18 flex items-center justify-between">
+          <div className="h-9 xs:h-5">
+            <div className="w-18 xs:w-8 flex items-center justify-between">
               {images}
             </div>
           </div>
         </div>
         <div className="pl-2">
           <div>
-            <a href={`/pool/${PoolId}`}>{symbols}</a>
+            <a href={`/pool/${PoolId}`} className="xs:text-sm">
+              {symbols}
+            </a>
             <p className="text-xs text-gray-400">
               Earn {toRealSymbol(data?.rewardToken?.symbol)}
             </p>
@@ -211,7 +216,7 @@ function FarmView({ data }: { data: FarmInfo }) {
         <div style={{ marginLeft: 'auto', order: 3 }}>
           <div className="inline-block">
             <a
-              className="text-sm hover:text-green-500 text-lg font-bold p-2 cursor-pointer text-green-500"
+              className="hover:text-green-500 text-lg xs:text-sm font-bold p-2 cursor-pointer text-green-500"
               href={`/pool/${PoolId}`}
             >
               View Pool
