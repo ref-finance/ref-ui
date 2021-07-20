@@ -67,17 +67,21 @@ export const useSwap = ({
       !ONLY_ZEROS.test(tokenInAmount) &&
       tokenIn.id !== tokenOut.id
     ) {
+      const nts = new Date().getTime().toString();
       setSwapError(null);
       estimateSwap({
         tokenIn,
         tokenOut,
         amountIn: tokenInAmount,
+        ts: nts,
       })
-        .then(({ estimate, pool }) => {
+        .then(({ estimate, pool, ts }) => {
           if (!estimate || !pool) throw '';
-          setCanSwap(true);
-          setTokenOutAmount(estimate);
-          setPool(pool);
+          if (nts === ts) {
+            setCanSwap(true);
+            setTokenOutAmount(estimate);
+            setPool(pool);
+          }
         })
         .catch((err) => {
           setCanSwap(false);
