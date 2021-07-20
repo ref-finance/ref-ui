@@ -155,9 +155,9 @@ export const getFarms = async ({
     );
     let userUnclaimedRewardNumber: string = '0';
     userUnclaimedRewardNumber = await getUnclaimedReward(f.farm_id);
-    const userUnclaimedReward = toReadableNumber(
-      rewardToken.decimals,
-      userUnclaimedRewardNumber
+    const userUnclaimedReward = toPrecision(
+      toReadableNumber(rewardToken.decimals, userUnclaimedRewardNumber),
+      4
     );
 
     const totalStaked =

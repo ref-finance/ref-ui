@@ -68,12 +68,14 @@ export function FarmsPage() {
 
   return (
     <>
-      <div className="w-1/3 flex m-auto justify-center">
+      <div className="w-1/3 xs:w-full md:w-full flex m-auto justify-center">
         {error ? <Alert level="error" message={error.message} /> : null}
       </div>
-      <div className="flex gap-x-8 px-5 -mt-12">
-        <div className="w-72 relative">
-          <div className="text-green-400 text-5xl px-7">Farms</div>
+      <div className="flex gaps-x-8 px-5 -mt-12 xs:flex-col xs:mt-8 md:flex-col md:mt-8">
+        <div className="w-72 relative xs:w-full md:w-full">
+          <div className="text-green-400 text-5xl px-7 xs:text-center md:text-center">
+            Farms
+          </div>
           <div className="text-whiteOpacity85 text-xs py-4 p-7">
             Stake your liquidity provider (LP) tokens to earn rewards!
           </div>
@@ -111,9 +113,9 @@ export function FarmsPage() {
             </div>
           )}
         </div>
-        <div className="flex-grow">
+        <div className="flex-grow xs:flex-none">
           <div className="overflow-auto relative mt-8 pb-4">
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-4 xs:grid-cols-1 md:grid-cols-1">
               {farms.map((f) => (
                 <FarmView key={f.farm_id} data={f} />
               ))}
