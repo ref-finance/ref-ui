@@ -176,9 +176,9 @@ function FarmView({ data }: { data: FarmInfo }) {
   const images = tokens.map((token, index) => {
     const { icon, id } = token;
     if (icon)
-      return <img key={id} className="h-8 w-8 xs:h-4 xs:w-4" src={icon} />;
+      return <img key={id} className="h-8 w-8 xs:h-6 xs:w-6" src={icon} />;
     return (
-      <div key={id} className="h-8 w-8 xs:h-4 xs:w-4 rounded-full border"></div>
+      <div key={id} className="h-8 w-8 xs:h-6 xs:w-6 rounded-full border"></div>
     );
   });
 
@@ -196,8 +196,8 @@ function FarmView({ data }: { data: FarmInfo }) {
         } border-b flex items-center p-6 relative overflow-hidden`}
       >
         <div className="flex items-center justify-center">
-          <div className="h-9 xs:h-5">
-            <div className="w-18 xs:w-8 flex items-center justify-between">
+          <div className="h-9 xs:h-6">
+            <div className="w-18 xs:w-12 flex items-center justify-between">
               {images}
             </div>
           </div>
