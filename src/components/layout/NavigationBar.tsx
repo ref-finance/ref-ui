@@ -305,7 +305,17 @@ function MobileNavBar() {
           <NavLogoLarge />
           <NavClose onClick={() => setShow(false)} />
         </div>
-        {wallet.isSignedIn() ? null : (
+        {wallet.isSignedIn() ? (
+          <div
+            className="mt-2 rounded-full bg-greenLight px-3 py-1.5 text-xs text-white text-center font-semibold cursor-pointer mx-auto w-1/3"
+            onClick={() => {
+              wallet.signOut();
+              window.location.assign('/');
+            }}
+          >
+            Sign out
+          </div>
+        ) : (
           <div className="mt-2">
             <ConnectToNearBtn />
           </div>
