@@ -291,7 +291,7 @@ function MobileNavBar() {
   }
 
   return (
-    <div className="nav-wrap lg:hidden md:show relative">
+    <div className="nav-wrap lg:hidden md:show relative z-10">
       <div className="flex items-center justify-between p-4">
         <NavLogo />
         <NavExpand onClick={() => setShow(true)} />
@@ -329,7 +329,6 @@ function MobileNavBar() {
             <Link to="https://ethereum.bridgetonear.org/" target="_blank">
               <div className="p-4 link font-bold p-2 text-white">
                 Move assets to/from Ethereum
-                <RainBow className="h-6 inline-block"></RainBow>
               </div>
             </Link>
           </div>
@@ -350,6 +349,7 @@ function NavigationBar() {
           <Anchor to="/deposit" pattern="/deposit/:id?" name="Deposit" />
           <Anchor to="/" pattern="/" name="Swap" />
           <PoolsMenu />
+          <Anchor to="/airdrop" pattern="/airdrop" name="Airdrop" />
           <a
             target="_blank"
             href="https://ethereum.bridgetonear.org/"

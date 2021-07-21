@@ -1,5 +1,4 @@
 import React from 'react';
-import { FaInfoCircle } from 'react-icons/fa';
 import ReactTooltip from 'react-tooltip';
 import copy from '../../utils/copy';
 import { Info } from '../icon/Info';

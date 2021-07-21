@@ -59,6 +59,7 @@
     "react": ">=16.0.0",
     "react-burger-menu": "^3.0.6",
     "react-color": "^2.19.3",
+    "react-countdown": "^2.3.2",
     "react-dom": "^16.0.0",
     "react-icons": "^4.2.0",
     "react-infinite-scroll-component": "^6.1.0",

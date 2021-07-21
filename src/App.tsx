@@ -16,6 +16,7 @@ import Modal from 'react-modal';
 
 import './global.css';
 import 'react-toastify/dist/ReactToastify.css';
+import { AirdropPage } from '~pages/AirdropPage';
 
 Modal.defaultStyles = {
   overlay: {
@@ -59,6 +60,7 @@ function App() {
             component={AutoHeight(YourLiquidityPage)}
           />
           <Route path="/pools" component={AutoHeight(LiquidityPage)} />
+          <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
           <Route path="/" component={AutoHeight(SwapPage)} />
         </Switch>
       </div>
