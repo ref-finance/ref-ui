@@ -325,6 +325,12 @@ function MobileNavBar() {
             onClick={close}
           />
           <MobilePoolsMenu links={links} onClick={close} />
+          <MobileAnchor
+            to="/airdrop"
+            pattern="/airdrop"
+            name="Airdrop"
+            onClick={close}
+          />
           <div>
             <Link to="https://ethereum.bridgetonear.org/" target="_blank">
               <div className="p-4 link font-bold p-2 text-white">
