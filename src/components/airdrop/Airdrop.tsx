@@ -6,6 +6,7 @@ import { useToken } from '~state/token';
 import { TokenMetadata } from '~services/ft-contract';
 import Loading from '~components/layout/Loading';
 import Countdown, { zeroPad } from 'react-countdown';
+import { Item } from '~components/airdrop/Item';
 
 function notParticipateAirdropView(currentAccountId: string) {
   return (
@@ -21,47 +22,13 @@ function notParticipateAirdropView(currentAccountId: string) {
 }
 
 function participateAirdropView(token: TokenMetadata, renderer: any) {
-  const { id, symbol, icon } = token;
   const unlocked = 70.2;
   const locking = 29.8;
   return (
-    <div className="text-left p-4">
-      <div>
-        <label>Total Ref Token</label>
-        <div className="bg-gray-200 rounded px-4 py-2 my-4 flex items-center">
-          <img
-            key={id}
-            className="h-8 w-8 rounded-full border bg-white"
-            src={icon}
-          />
-          <span className="ml-2">{symbol}</span>
-          <span className="order-last ml-auto font-bold">100</span>
-        </div>
-      </div>
-      <div>
-        <label>Locking Ref Token</label>
-        <div className="bg-gray-200 rounded px-4 py-2 my-4 flex items-center">
-          <img
-            key={id}
-            className="h-8 w-8 rounded-full border bg-white"
-            src={icon}
-          />
-          <span className="ml-2">{symbol}</span>
-          <span className="order-last ml-auto font-bold">80</span>
-        </div>
-      </div>
-      <div>
-        <label>Unclaim Ref Token</label>
-        <div className="bg-gray-200 rounded px-4 py-2 my-4 flex items-center">
-          <img
-            key={id}
-            className="h-8 w-8 rounded-full border bg-white"
-            src={icon}
-          />
-          <span className="ml-2">{symbol}</span>
-          <span className="order-last ml-auto font-bold">20</span>
-        </div>
-      </div>
+    <div className="text-left text-sm p-4">
+      <Item token={token} amount="100" label="Total Ref Token" />
+      <Item token={token} amount="80" label="Locking Ref Token" />
+      <Item token={token} amount="20" label="Unclaim Ref Token" />
       <div>
         <div className="w-full mx-auto rounded-xl bg-gray-200 mt-8">
           {unlocked > 0 ? (
@@ -126,7 +93,7 @@ export default function AirdropView() {
   if (!refToken) return Loading();
 
   return (
-    <div className="overflow-y-auto bg-secondary shadow-2xl rounded-xl p-7">
+    <div className="overflow-y-auto bg-secondary shadow-2xl rounded-xl p-7 xs:p-2 md:p-2">
       {participateAirdrop
         ? participateAirdropView(refToken, renderer)
         : notParticipateAirdropView(currentAccountId)}
