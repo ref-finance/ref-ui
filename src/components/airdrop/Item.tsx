@@ -1,5 +1,6 @@
-import React, { PropsWithChildren } from 'react';
+import React from 'react';
 import { TokenMetadata } from '~services/ft-contract';
+import { toPrecision } from '~utils/numbers';
 
 export function Item(props: {
   token: TokenMetadata;
@@ -19,7 +20,12 @@ export function Item(props: {
           src={props.token.icon}
         />
         <span className="ml-2">{props.token.symbol}</span>
-        <span className="order-last ml-auto font-bold">{props.amount}</span>
+        <span className="order-last ml-auto">
+          Balance:{' '}
+          <span className="font-bold">
+            {toPrecision(props.amount.toString(), 1)}
+          </span>
+        </span>
       </div>
     </div>
   );
