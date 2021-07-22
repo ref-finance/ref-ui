@@ -35,6 +35,6 @@ export const storageDepositForTokenAction = (
 export const storageDepositForFTAction = () =>
   storageDepositAction({
     accountId: REF_FI_CONTRACT_ID,
-    registrationOnly: true,
+    registrationOnly: false,
     amount: STORAGE_TO_REGISTER_WITH_FT,
   });

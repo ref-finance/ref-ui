@@ -7,6 +7,7 @@ import { TokenMetadata } from '~services/ft-contract';
 import Loading from '~components/layout/Loading';
 import Countdown, { zeroPad } from 'react-countdown';
 import { Item } from '~components/airdrop/Item';
+import { getAccount, getStats } from '~services/airdrop';
 
 function notParticipateAirdropView(currentAccountId: string) {
   return (
@@ -88,6 +89,12 @@ export default function AirdropView() {
     }
   };
   useEffect(() => {
+    getAccount().then((account) => {
+      console.log(account);
+    });
+    getStats().then((stats) => {
+      console.log(stats);
+    });
     setParticipateAirdrop(true);
   });
   if (!refToken) return Loading();
