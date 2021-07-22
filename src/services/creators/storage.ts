@@ -34,20 +34,17 @@ export const storageDepositForTokenAction = (
 ): RefFiFunctionCallOptions =>
   storageDepositAction({
     accountId,
-    registrationOnly: true,
     amount: STORAGE_PER_TOKEN,
   });
 
 export const storageDepositForFTAction = () =>
   storageDepositAction({
     accountId: REF_FI_CONTRACT_ID,
-    registrationOnly: true,
     amount: STORAGE_TO_REGISTER_WITH_FT,
   });
 
 export const storageDepositForMFTAction = () =>
   storageDepositAction({
     accountId: REF_FARM_CONTRACT_ID,
-    registrationOnly: true,
     amount: STORAGE_TO_REGISTER_WITH_MFT,
   });
