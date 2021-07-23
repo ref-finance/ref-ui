@@ -272,6 +272,7 @@ function MobilePoolsMenu({
 
 function MobileNavBar() {
   const [show, setShow] = useState(false);
+  const accountId = wallet.getAccountId();
 
   const links = [
     { label: 'View Pools', path: '/pools' },
@@ -313,7 +314,8 @@ function MobileNavBar() {
               window.location.assign('/');
             }}
           >
-            Sign out
+            <p>Sign out</p>
+            <p>({accountId})</p>
           </div>
         ) : (
           <div className="mt-2">
