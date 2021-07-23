@@ -31,6 +31,8 @@ import copy from '~utils/copy';
 import { Info } from '~components/icon/Info';
 import ReactTooltip from 'react-tooltip';
 import { toRealSymbol } from '~utils/token';
+import {getPoolDetails, Pool, PoolDetails} from "~services/pool";
+import {ftGetTokenMetadata, TokenMetadata} from "~services/ft-contract";
 
 export function FarmsPage() {
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
@@ -86,16 +88,7 @@ export function FarmsPage() {
               <div className="text-xl">Your Rewards</div>
               <div className="text-xs pt-4">
                 {unclaimedFarms.map((farm) => (
-                  <div
-                    key={farm.farm_id}
-                    className="py-2 flex items-center justify-between"
-                  >
-                    <div>{farm.lpTokenId}</div>
-                    <div>
-                      {farm.userUnclaimedReward}
-                      <span> {farm.rewardToken.symbol}</span>
-                    </div>
-                  </div>
+                  <ClaimView key={farm.farm_id} data={farm} />
                 ))}
               </div>
               <div className="pt-7 py-2 text-center">
@@ -116,8 +109,8 @@ export function FarmsPage() {
         <div className="flex-grow xs:flex-none">
           <div className="overflow-auto relative mt-8 pb-4">
             <div className="grid grid-cols-3 gap-4 xs:grid-cols-1 md:grid-cols-1">
-              {farms.map((f) => (
-                <FarmView key={f.farm_id} data={f} />
+              {farms.map((farm) => (
+                <FarmView key={farm.farm_id} data={farm} />
               ))}
             </div>
           </div>
@@ -125,6 +118,38 @@ export function FarmsPage() {
       </div>
     </>
   );
+}
+
+function ClaimView({data} : {data: FarmInfo}) {
+  const [firstToken,setFirstToken] = useState<TokenMetadata>();
+  const [secondToken,setSecondToken] = useState<TokenMetadata>();
+
+  useEffect(()=>{
+    getPoolDetails(Number(data.lpTokenId)).then(pool=>{
+      ftGetTokenMetadata(pool.tokenIds[0]).then(token=>{
+        setFirstToken(token)
+      })
+      ftGetTokenMetadata(pool.tokenIds[1]).then(token=>{
+        setSecondToken(token)
+      })
+    })
+  },[data])
+  if (!firstToken || !secondToken) return Loading();
+
+  return (
+    <div>
+      <div
+        key={data.farm_id}
+        className="py-2 flex items-center justify-between"
+      >
+        <div>{`${toRealSymbol(firstToken.symbol)}-${toRealSymbol(secondToken.symbol)}`}</div>
+        <div>
+          {data.userUnclaimedReward}
+          <span> {data.rewardToken.symbol}</span>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function FarmView({ data }: { data: FarmInfo }) {
