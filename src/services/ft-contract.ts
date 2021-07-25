@@ -7,7 +7,7 @@ import {
 } from './near';
 import metadataDefaults from '../utils/metadata';
 import { storageDepositForFTAction } from './creators/storage';
-import db from "../store/RefDatabase";
+import db from '../store/RefDatabase';
 
 export const NEAR_ICON =
   'https://near.org/wp-content/themes/near-19/assets/img/brand-icon.png';
@@ -60,7 +60,7 @@ export const ftGetTokenMetadata = async (
   id: string
 ): Promise<TokenMetadata> => {
   try {
-    let metadata = await db.allTokens().where({id:id}).first();
+    let metadata = await db.allTokens().where({ id: id }).first();
     if (!metadata) {
       metadata = await ftViewFunction(id, {
         methodName: 'ft_metadata',
