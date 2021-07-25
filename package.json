@@ -22,7 +22,7 @@
     "@testing-library/user-event": "^13.1.5",
     "@types/bn.js": "^5.1.0",
     "@types/jest": "^26.0.22",
-    "@types/lodash": "^4.14.170",
+    "@types/lodash": "^4.14.171",
     "@types/mathjs": "^6.0.11",
     "@types/react": "^17.0.3",
     "@types/react-burger-menu": "^2.8.0",
