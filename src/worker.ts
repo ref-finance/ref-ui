@@ -63,7 +63,7 @@ const cachePools = async () => {
   for (let page = 1; page <= pages; page++) {
     const pools = await getPools(page);
     await db.pools.bulkPut(
-      pools.map((pool, i) => ({
+      pools.map((pool: { token_account_ids: any[]; amounts: any[]; total_fee: any; shares_total_supply: any; }, i: number) => ({
         id: (page - 1) * MAX_PER_PAGE + i,
         token1Id: pool.token_account_ids[0],
         token2Id: pool.token_account_ids[1],

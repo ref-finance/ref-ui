@@ -67,10 +67,10 @@ class RefDatabase extends Dexie {
 
   public uniquePools(args: any, pools: Pool[]): Pool[] {
     if (!args.uniquePairName) return pools;
-    let obj: any[] = [];
+    let obj: any[];
     return pools.reduce(
       (cur: any[], next: { token1Id: any; token2Id: any }) => {
-        const pair_name = `${next.token1Id}--${next.token1Id}`;
+        const pair_name:any = `${next.token1Id}--${next.token1Id}`;
         obj[pair_name] ? '' : (obj[pair_name] = true && cur.push(next));
         return cur;
       },
