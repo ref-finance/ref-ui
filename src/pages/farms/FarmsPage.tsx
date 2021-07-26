@@ -31,8 +31,8 @@ import copy from '~utils/copy';
 import { Info } from '~components/icon/Info';
 import ReactTooltip from 'react-tooltip';
 import { toRealSymbol } from '~utils/token';
-import {getPoolDetails, Pool, PoolDetails} from "~services/pool";
-import {ftGetTokenMetadata, TokenMetadata} from "~services/ft-contract";
+import { getPoolDetails, Pool, PoolDetails } from '~services/pool';
+import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 
 export function FarmsPage() {
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
@@ -120,20 +120,20 @@ export function FarmsPage() {
   );
 }
 
-function ClaimView({data} : {data: FarmInfo}) {
-  const [firstToken,setFirstToken] = useState<TokenMetadata>();
-  const [secondToken,setSecondToken] = useState<TokenMetadata>();
+function ClaimView({ data }: { data: FarmInfo }) {
+  const [firstToken, setFirstToken] = useState<TokenMetadata>();
+  const [secondToken, setSecondToken] = useState<TokenMetadata>();
 
-  useEffect(()=>{
-    getPoolDetails(Number(data.lpTokenId)).then(pool=>{
-      ftGetTokenMetadata(pool.tokenIds[0]).then(token=>{
-        setFirstToken(token)
-      })
-      ftGetTokenMetadata(pool.tokenIds[1]).then(token=>{
-        setSecondToken(token)
-      })
-    })
-  },[data])
+  useEffect(() => {
+    getPoolDetails(Number(data.lpTokenId)).then((pool) => {
+      ftGetTokenMetadata(pool.tokenIds[0]).then((token) => {
+        setFirstToken(token);
+      });
+      ftGetTokenMetadata(pool.tokenIds[1]).then((token) => {
+        setSecondToken(token);
+      });
+    });
+  }, [data]);
   if (!firstToken || !secondToken) return Loading();
 
   return (
@@ -142,14 +142,16 @@ function ClaimView({data} : {data: FarmInfo}) {
         key={data.farm_id}
         className="py-2 flex items-center justify-between"
       >
-        <div>{`${toRealSymbol(firstToken.symbol)}-${toRealSymbol(secondToken.symbol)}`}</div>
+        <div>{`${toRealSymbol(firstToken.symbol)}-${toRealSymbol(
+          secondToken.symbol
+        )}`}</div>
         <div>
           {data.userUnclaimedReward}
           <span> {data.rewardToken.symbol}</span>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function FarmView({ data }: { data: FarmInfo }) {
@@ -394,7 +396,7 @@ function ActionModal(
         <div>
           <div className="flex justify-end text-xs font-semibold pb-2.5">
             <span className={`${max === '0' ? 'text-gray-400' : null}`}>
-              Balance：
+              Balance:
               {max}
             </span>
           </div>
@@ -402,7 +404,6 @@ function ActionModal(
             <InputAmount
               className="flex-grow"
               maxBorder={false}
-              // name={selectedToken?.id}
               max={max}
               value={amount}
               onChangeAmount={setAmount}
