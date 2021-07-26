@@ -55,7 +55,9 @@ function participateAirdropView(
   const cliff_timestamp = Number(accountInfo?.cliff_timestamp);
   const current_timestamp = moment().unix();
   const unlockedPercent: number =
-    current_timestamp - cliff_timestamp > 0
+    current_timestamp > end_timestamp
+      ? 100
+      : current_timestamp > cliff_timestamp
       ? Number(
           (
             Number(
@@ -65,6 +67,7 @@ function participateAirdropView(
           ).toFixed(1)
         )
       : 0;
+
   const lockingPercent: number = 100 - unlockedPercent;
   const lockingAmount = (Number(total_balance) * lockingPercent) / 100;
   const unlockedAmount = (Number(total_balance) * unlockedPercent) / 100;
@@ -74,13 +77,13 @@ function participateAirdropView(
       toReadableNumber(token.decimals, accountInfo?.claimed_balance.toString())
     );
   const canClaim =
-    moment().unix() > Number(statsInfo?.claim_expiration_timestamp) ||
-    moment().unix() < Number(accountInfo?.start_timestamp);
+    moment().unix() < Number(statsInfo?.claim_expiration_timestamp) ||
+    moment().unix() > Number(accountInfo?.start_timestamp);
   const isStart = moment().unix() > Number(accountInfo?.start_timestamp);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    claim();
+    claim().then();
   };
 
   return (
