@@ -44,7 +44,7 @@ interface EstimateSwapOptions {
 export interface EstimateSwapView {
   estimate: string;
   pool: Pool;
-  ts: string;
+  ts?: string;
 }
 export const estimateSwap = async ({
   tokenIn,

@@ -92,8 +92,7 @@ export const getFarms = async ({
   let rewardList: Record<string, string> = {};
   rewardList = await getRewards({});
   const tokenPriceList = await getTokenPriceList();
-  const refPrice =
-    tokenPriceList[getConfig().REF_TOKEN_CONTRACT_ID]?.price || 0;
+  const refPrice = tokenPriceList[getConfig().REF_TOKEN_ID]?.price || 0;
   const seeds = await getSeeds({ page: page, perPage: perPage });
   const pool_ids = farms.map((f) => {
     return f.farm_id.slice(

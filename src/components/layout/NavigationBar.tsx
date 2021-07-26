@@ -272,6 +272,7 @@ function MobilePoolsMenu({
 
 function MobileNavBar() {
   const [show, setShow] = useState(false);
+  const accountId = wallet.getAccountId();
 
   const links = [
     { label: 'View Pools', path: '/pools' },
@@ -291,7 +292,7 @@ function MobileNavBar() {
   }
 
   return (
-    <div className="nav-wrap lg:hidden md:show relative">
+    <div className="nav-wrap lg:hidden md:show relative z-10">
       <div className="flex items-center justify-between p-4">
         <NavLogo />
         <NavExpand onClick={() => setShow(true)} />
@@ -305,7 +306,18 @@ function MobileNavBar() {
           <NavLogoLarge />
           <NavClose onClick={() => setShow(false)} />
         </div>
-        {wallet.isSignedIn() ? null : (
+        {wallet.isSignedIn() ? (
+          <div
+            className="mt-2 rounded-full bg-greenLight px-3 py-1.5 text-xs text-white text-center font-semibold cursor-pointer mx-auto w-1/3"
+            onClick={() => {
+              wallet.signOut();
+              window.location.assign('/');
+            }}
+          >
+            <p>Sign out</p>
+            <p>({accountId})</p>
+          </div>
+        ) : (
           <div className="mt-2">
             <ConnectToNearBtn />
           </div>
@@ -325,11 +337,16 @@ function MobileNavBar() {
             onClick={close}
           />
           <MobilePoolsMenu links={links} onClick={close} />
+          <MobileAnchor
+            to="/airdrop"
+            pattern="/airdrop"
+            name="Airdrop"
+            onClick={close}
+          />
           <div>
             <Link to="https://ethereum.bridgetonear.org/" target="_blank">
               <div className="p-4 link font-bold p-2 text-white">
                 Move assets to/from Ethereum
-                <RainBow className="h-6 inline-block"></RainBow>
               </div>
             </Link>
           </div>
@@ -351,6 +368,7 @@ function NavigationBar() {
           <Anchor to="/" pattern="/" name="Swap" />
           <PoolsMenu />
           <Anchor to="/farms" pattern="/farms" name="Farms" />
+          <Anchor to="/airdrop" pattern="/airdrop" name="Airdrop" />
           <a
             target="_blank"
             href="https://ethereum.bridgetonear.org/"

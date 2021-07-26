@@ -1,5 +1,4 @@
 import React from 'react';
-import { FaInfoCircle } from 'react-icons/fa';
 import ReactTooltip from 'react-tooltip';
 import copy from '../../utils/copy';
 import { Info } from '../icon/Info';
@@ -21,9 +20,9 @@ export default function SlippageSelector({
           <div
             className="pl-1"
             data-type="dark"
-            data-place="bottom"
+            data-place="top"
             data-multiline={true}
-            data-tip={copy.slippageCopy}
+            data-tip={copy.airdrop}
           >
             <Info />
           </div>
