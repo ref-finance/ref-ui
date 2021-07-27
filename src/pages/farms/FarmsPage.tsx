@@ -42,10 +42,15 @@ export function FarmsPage() {
 
   function loadUnclaimedFarms() {
     setUnclaimedFarmsIsLoading(true);
-    getUnclaimedFarms({}).then(async (farms) => {
-      setUnclaimedFarmsIsLoading(false);
-      setUnclaimedFarms(farms);
-    });
+    getUnclaimedFarms({})
+      .then(async (farms) => {
+        setUnclaimedFarmsIsLoading(false);
+        setUnclaimedFarms(farms);
+      })
+      .catch((error) => {
+        setUnclaimedFarmsIsLoading(false);
+        setError(error);
+      });
   }
 
   function loadFarmInfoList() {
@@ -74,7 +79,7 @@ export function FarmsPage() {
         {error ? <Alert level="error" message={error.message} /> : null}
       </div>
       <div className="flex gaps-x-8 px-5 -mt-12 xs:flex-col xs:mt-8 md:flex-col md:mt-8">
-        <div className="w-72 mr-4 relative xs:w-full md:w-full">
+        <div className="mr-4 relative xs:w-full md:w-full">
           <div className="text-green-400 text-5xl px-7 xs:text-center md:text-center">
             Farms
           </div>
@@ -186,9 +191,14 @@ function FarmView({ data }: { data: FarmInfo }) {
 
   function claimReward(farm_id: string) {
     setFarmsIsLoading(true);
-    claimRewardByFarm(farm_id).then(() => {
-      window.location.reload();
-    });
+    claimRewardByFarm(farm_id)
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        setFarmsIsLoading(false);
+        setError(error);
+      });
   }
 
   if (!pool || !tokens || tokens.length < 2 || farmsIsLoading)

@@ -72,6 +72,18 @@ export const getPools = async (counter: number) => {
     });
 };
 
+export const getPoolFromIndexer = async (
+  pool_id: string
+): Promise<PoolRPCView> => {
+  return await fetch(config.indexerUrl + '/get-pool?pool_id=' + pool_id, {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  })
+    .then((res) => res.json())
+    .then((pool) => {
+      return parsePoolView(pool);
+    });
+};
 export const getPoolsByIdsFromIndexer = async (
   pool_ids: string[]
 ): Promise<PoolRPCView[]> => {
