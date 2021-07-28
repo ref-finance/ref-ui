@@ -31,7 +31,7 @@ import copy from '~utils/copy';
 import { Info } from '~components/icon/Info';
 import ReactTooltip from 'react-tooltip';
 import { toRealSymbol } from '~utils/token';
-import { getPoolDetails, Pool, PoolDetails } from '~services/pool';
+import { getPoolDetails } from '~services/pool';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 
 export function FarmsPage() {
@@ -70,7 +70,7 @@ export function FarmsPage() {
         loadUnclaimedFarms();
         loadFarmInfoList();
       })
-      .catch((e) => setError);
+      .catch(setError);
   }
 
   return (
@@ -168,8 +168,7 @@ function FarmView({ data }: { data: FarmInfo }) {
   const [error, setError] = useState<Error>();
   const [ended, setEnded] = useState<boolean>(false);
   const PoolId = data.lpTokenId;
-  const { pool } = usePool(PoolId);
-  const tokens = useTokens(pool?.tokenIds);
+  const tokens = useTokens(data?.tokenIds);
 
   useEffect(() => {
     setEnded(data.farm_status === 'Ended');
@@ -201,8 +200,7 @@ function FarmView({ data }: { data: FarmInfo }) {
       });
   }
 
-  if (!pool || !tokens || tokens.length < 2 || farmsIsLoading)
-    return <Loading />;
+  if (!tokens || tokens.length < 2 || farmsIsLoading) return <Loading />;
 
   tokens.sort((a, b) => {
     if (a.symbol === 'wNEAR') return 1;

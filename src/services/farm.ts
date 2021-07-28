@@ -45,6 +45,7 @@ export interface FarmInfo extends Farm {
   rewardToken: TokenMetadata;
   totalStaked: number;
   apr: string;
+  tokenIds: string[];
 }
 
 export const getSeeds = async ({
@@ -81,19 +82,26 @@ export const getFarms = async ({
   page?: number;
   perPage?: number;
 }): Promise<FarmInfo[]> => {
+  const isSignedIn: boolean = farmWallet.isSignedIn();
   const index = (page - 1) * perPage;
   const farms: Farm[] = await refFarmViewFunction({
     methodName: 'list_farms',
     args: { from_index: index, limit: perPage },
   });
 
-  let stakedList: Record<string, string> = {};
-  stakedList = await getStakedListByAccountId({});
-  let rewardList: Record<string, string> = {};
-  rewardList = await getRewards({});
+  let stakedList: Record<string, string> = isSignedIn
+    ? await getStakedListByAccountId({})
+    : {};
+
+  let rewardList: Record<string, string> = isSignedIn
+    ? await getRewards({})
+    : {};
+
   const tokenPriceList = await getTokenPriceList();
   const refPrice = tokenPriceList[getConfig().REF_TOKEN_ID]?.price || 0;
+
   const seeds = await getSeeds({ page: page, perPage: perPage });
+
   const pool_ids = farms.map((f) => {
     return f.farm_id.slice(
       f.farm_id.indexOf('@') + 1,
@@ -102,7 +110,10 @@ export const getFarms = async ({
   });
   let poolsList: Record<string, PoolRPCView> = {};
   const pools = await getPoolsByIdsFromIndexer(pool_ids);
-  poolsList = pools.reduce((obj, pool) => ({ ...obj, [pool.id]: pool }), {});
+  poolsList = pools.reduce(
+    (obj: any, pool: any) => ({ ...obj, [pool.id]: pool }),
+    {}
+  );
 
   const tasks = farms.map(async (f) => {
     const lpTokenId = f.farm_id.slice(
@@ -110,7 +121,8 @@ export const getFarms = async ({
       f.farm_id.lastIndexOf('#')
     );
 
-    const { shares_total_supply, token0_ref_price, tvl } = poolsList[lpTokenId];
+    const { shares_total_supply, tvl, token_account_ids } =
+      poolsList[lpTokenId];
     const poolTvl = tvl;
     const poolSts = Number(toReadableNumber(24, shares_total_supply));
     const userStaked = toReadableNumber(
@@ -152,8 +164,10 @@ export const getFarms = async ({
       rewardToken.decimals,
       userRewardNumberPerWeek.toString()
     );
-    let userUnclaimedRewardNumber: string = '0';
-    userUnclaimedRewardNumber = await getUnclaimedReward(f.farm_id);
+    let userUnclaimedRewardNumber: string = isSignedIn
+      ? await getUnclaimedReward(f.farm_id)
+      : '0';
+
     const userUnclaimedReward = toPrecision(
       toReadableNumber(rewardToken.decimals, userUnclaimedRewardNumber),
       4
@@ -190,6 +204,7 @@ export const getFarms = async ({
       rewardToken,
       totalStaked,
       apr,
+      tokenIds: token_account_ids,
     };
     return fi;
   });
@@ -204,10 +219,13 @@ export const getUnclaimedFarms = async ({
   page?: number;
   perPage?: number;
 }): Promise<FarmInfo[]> => {
+  const isSignedIn = farmWallet.isSignedIn();
   let farms: FarmInfo[] = await getFarms({ page, perPage });
   await Promise.all(
     farms.map(async (farm: any, i: number) => {
-      const current_user_reward = await getUnclaimedReward(farm.farm_id);
+      const current_user_reward = isSignedIn
+        ? await getUnclaimedReward(farm.farm_id)
+        : 0;
       farms[i].current_user_reward = current_user_reward;
     })
   );

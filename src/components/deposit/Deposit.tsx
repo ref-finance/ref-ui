@@ -13,6 +13,7 @@ import { TokenBalancesView, withdraw } from '../../services/token';
 import { REF_FARM_CONTRACT_ID, wallet } from '~services/near';
 import { Near } from '~components/icon';
 import { isMobile } from '~utils/device';
+import { toRealSymbol } from '~utils/token';
 
 export function WithdrawModal(props: ReactModal.Props) {
   const [amount, setAmount] = useState<string>('');
@@ -80,7 +81,7 @@ export function Token(props: TokenMetadata & { amount: string }) {
         ) : (
           <div className="h-6 w-6"></div>
         )}
-        <div className="pl-5 font-semibold text-xs">{symbol}</div>
+        <div className="pl-5 font-semibold text-xs">{toRealSymbol(symbol)}</div>
       </div>
       <div className="font-semibold text-xs">{amount}</div>
     </div>
