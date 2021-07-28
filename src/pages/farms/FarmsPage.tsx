@@ -312,7 +312,7 @@ function FarmView({ data }: { data: FarmInfo }) {
         <div>
           {wallet.isSignedIn() ? (
             <div className="flex flex-wrap gap-2 justify-center mt-4">
-              {data.rewardNumber !== '0' && data.userStaked !== '0' ? (
+              {data.rewardNumber !== '0' ? (
                 <BorderButton onClick={() => showWithDraw()}>
                   <div className="w-16 text-xs text-greenLight">Withdraw</div>
                 </BorderButton>
