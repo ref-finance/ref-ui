@@ -368,7 +368,6 @@ function NavigationBar() {
           <Anchor to="/" pattern="/" name="Swap" />
           <PoolsMenu />
           <Anchor to="/farms" pattern="/farms" name="Farms" />
-          <Anchor to="/airdrop" pattern="/airdrop" name="Airdrop" />
           <a
             target="_blank"
             href="https://ethereum.bridgetonear.org/"

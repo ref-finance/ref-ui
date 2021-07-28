@@ -79,7 +79,7 @@ export function FarmsPage() {
         {error ? <Alert level="error" message={error.message} /> : null}
       </div>
       <div className="flex gaps-x-8 px-5 -mt-12 xs:flex-col xs:mt-8 md:flex-col md:mt-8">
-        <div className="mr-4 relative xs:w-full md:w-full">
+        <div className="w-96 mr-4 relative xs:w-full md:w-full">
           <div className="text-green-400 text-5xl px-7 xs:text-center md:text-center">
             Farms
           </div>
@@ -272,8 +272,8 @@ function FarmView({ data }: { data: FarmInfo }) {
           </div>
         </div>
       </div>
-      <div className="info-list p-6">
-        <div className="text-center">
+      <div className="info-list p-6 h-60">
+        <div className="text-center max-w-2xl">
           {error ? <Alert level="error" message={error.message} /> : null}
         </div>
         <div className="py-2">
@@ -317,7 +317,7 @@ function FarmView({ data }: { data: FarmInfo }) {
                   <div className="w-16 text-xs text-greenLight">Withdraw</div>
                 </BorderButton>
               ) : null}
-              {data.userStaked === '0' ? (
+              {data.userStaked === '0' || ended ? (
                 <GreenButton onClick={() => showStakeModal()} disabled={ended}>
                   <div className="w-10 text-white">Stake</div>
                 </GreenButton>
@@ -327,12 +327,12 @@ function FarmView({ data }: { data: FarmInfo }) {
                   <div className="w-10 text-greenLight">Claim</div>
                 </BorderButton>
               ) : null}
-              {data.userStaked !== '0' && !ended ? (
+              {data.userStaked !== '0' ? (
                 <BorderlessButton onClick={() => showUnstakeModal()}>
                   <div className="w-8 text-lg text-greenLight">-</div>
                 </BorderlessButton>
               ) : null}
-              {data.userStaked !== '0' && !ended ? (
+              {data.userStaked !== '0' ? (
                 <BorderlessButton onClick={() => showStakeModal()}>
                   <div className="w-8 text-lg text-greenLight">+</div>
                 </BorderlessButton>

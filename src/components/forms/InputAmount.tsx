@@ -32,6 +32,7 @@ export default function InputAmount({
         >
           <input
             ref={ref}
+            max={max}
             {...rest}
             step="any"
             className={`text-sm font-bold focus:outline-none bg-inputBg appearance-none rounded border-opacity-30 w-full py-3 px-3 leading-tight ${
@@ -51,7 +52,7 @@ export default function InputAmount({
                  ? 'text-gray-400 hover:text-gray-400'
                  : 'text-greenLight'
              }`}
-              style={{ lineHeight: 'unset', cursor:'pointer' }}
+              style={{ lineHeight: 'unset', cursor: 'pointer' }}
               onClick={() => handleChange(max)}
             >
               MAX

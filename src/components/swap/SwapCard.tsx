@@ -126,7 +126,24 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
 
   return (
-    <FormWrap canSubmit={canSwap} onSubmit={handleSubmit} info={copy.swap}>
+    <FormWrap
+      canSubmit={canSwap}
+      showElseView={tokenInMax === '0'}
+      elseView={
+        <div className="flex justify-center">
+          <button
+            className={`rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight`}
+            onClick={() => {
+              history.push(`/deposit/${tokenIn.id}`);
+            }}
+          >
+            Deposit to Swap
+          </button>
+        </div>
+      }
+      onSubmit={handleSubmit}
+      info={copy.swap}
+    >
       <div className="pb-2">
         {swapError && <Alert level="error" message={swapError.message} />}
       </div>

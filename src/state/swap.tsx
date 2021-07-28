@@ -100,7 +100,7 @@ export const useSwap = ({
       amountIn: tokenInAmount,
       tokenOut,
       minAmountOut,
-    });
+    }).catch(setSwapError);
   };
 
   return {
