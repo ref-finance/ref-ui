@@ -168,7 +168,7 @@ export const withdraw = async ({
         {
           methodName: 'withdraw',
           args: { token_id: token.id, amount: parsedAmount, unregister },
-          gas: '50000000000000',
+          gas: '100000000000000',
           amount: ONE_YOCTO_NEAR,
         },
       ],

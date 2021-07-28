@@ -179,7 +179,7 @@ export const directSwap = async ({
     actions.push({
       methodName: 'storage_deposit',
       args: {},
-      gas: '30000000000000',
+      gas: '100000000000000',
       amount: NEW_ACCOUNT_STORAGE_COST,
     });
   }
