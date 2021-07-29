@@ -25,7 +25,6 @@ import { mftGetBalance } from '~services/mft-contract';
 import { wallet } from '~services/near';
 import Loading from '~components/layout/Loading';
 import { ConnectToNearBtn } from '~components/deposit/Deposit';
-import { usePool } from '~state/pool';
 import { useTokens } from '~state/token';
 import copy from '~utils/copy';
 import { Info } from '~components/icon/Info';
@@ -33,6 +32,7 @@ import ReactTooltip from 'react-tooltip';
 import { toRealSymbol } from '~utils/token';
 import { getPoolDetails } from '~services/pool';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
+import ReactModal from 'react-modal';
 
 export function FarmsPage() {
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);

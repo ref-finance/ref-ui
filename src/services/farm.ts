@@ -1,4 +1,9 @@
-import { farmWallet, refFarmFunctionCall, refFarmViewFunction } from './near';
+import {
+  farmWallet,
+  refFarmFunctionCall,
+  refFarmViewFunction,
+  wallet,
+} from './near';
 import { toPrecision, toReadableNumber } from '~utils/numbers';
 import { LP_TOKEN_DECIMALS } from '~services/m-token';
 import * as math from 'mathjs';
@@ -65,7 +70,7 @@ export const getSeeds = async ({
 };
 
 export const getStakedListByAccountId = async ({
-  accountId = farmWallet.getAccountId(),
+  accountId = wallet.getAccountId(),
 }): Promise<Record<string, string>> => {
   const stakedList = await refFarmViewFunction({
     methodName: 'list_user_seeds',
@@ -82,7 +87,7 @@ export const getFarms = async ({
   page?: number;
   perPage?: number;
 }): Promise<FarmInfo[]> => {
-  const isSignedIn: boolean = farmWallet.isSignedIn();
+  const isSignedIn: boolean = wallet.isSignedIn();
   const index = (page - 1) * perPage;
   const farms: Farm[] = await refFarmViewFunction({
     methodName: 'list_farms',
@@ -252,7 +257,7 @@ export const getFarm = async (id: number): Promise<Farm> => {
 };
 
 export const getRewards = async ({
-  accountId = farmWallet.getAccountId(),
+  accountId = wallet.getAccountId(),
 }): Promise<any> => {
   return refFarmViewFunction({
     methodName: 'list_rewards',
@@ -262,7 +267,7 @@ export const getRewards = async ({
 
 export const getRewardByTokenId = async (
   token_id: string,
-  accountId = farmWallet.getAccountId()
+  accountId = wallet.getAccountId()
 ): Promise<any> => {
   return refFarmViewFunction({
     methodName: 'get_reward',
@@ -272,7 +277,7 @@ export const getRewardByTokenId = async (
 
 export const getUnclaimedReward = async (
   farm_id: string,
-  accountId = farmWallet.getAccountId()
+  accountId = wallet.getAccountId()
 ): Promise<any> => {
   return refFarmViewFunction({
     methodName: 'get_unclaimed_reward',
@@ -281,7 +286,7 @@ export const getUnclaimedReward = async (
 };
 
 export const listRewards = async (
-  accountId = farmWallet.getAccountId()
+  accountId = wallet.getAccountId()
 ): Promise<any> => {
   return refFarmViewFunction({
     methodName: 'list_rewards',
