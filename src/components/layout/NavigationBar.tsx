@@ -338,9 +338,9 @@ function MobileNavBar() {
           />
           <MobilePoolsMenu links={links} onClick={close} />
           <MobileAnchor
-            to="/airdrop"
-            pattern="/airdrop"
-            name="Airdrop"
+            to="/farms"
+            pattern="/farms"
+            name="Farms"
             onClick={close}
           />
           <div>
