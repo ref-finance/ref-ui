@@ -2,7 +2,9 @@ import React, { HTMLAttributes } from 'react';
 import { wallet, REF_FARM_CONTRACT_ID } from '~services/near';
 import { Near } from '~components/icon';
 
-export function BorderlessButton(props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean; }) {
+export function BorderlessButton(
+  props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean }
+) {
   const { disabled } = props;
   return (
     <button
@@ -16,7 +18,9 @@ export function BorderlessButton(props: HTMLAttributes<HTMLButtonElement> & { di
 }
 
 export function BorderButton(
-  props: HTMLAttributes<HTMLButtonElement> & { borderColor?: string } & { disabled?: boolean; }
+  props: HTMLAttributes<HTMLButtonElement> & { borderColor?: string } & {
+    disabled?: boolean;
+  }
 ) {
   const { className, borderColor, disabled, ...propsWithoutClassName } = props;
   return (
@@ -24,7 +28,9 @@ export function BorderButton(
       disabled={disabled}
       className={`rounded-full text-xs px-5 py-2.5 focus:outline-none font-semibold border ${
         borderColor ? borderColor : 'border-greenLight'
-      }  focus:outline-none ${className} ${disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''}`}
+      }  focus:outline-none ${className} ${
+        disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
+      }`}
       {...propsWithoutClassName}
     >
       {props.children}

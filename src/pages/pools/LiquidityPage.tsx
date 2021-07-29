@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 import ReactTooltip from 'react-tooltip';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -59,11 +59,12 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
           {expand ? null : (
             <div>
               <div className="col-span-2">
-                TVL: <span className="text-greenLight1">${toPrecision(pool.tvl.toString(),2,true)}</span>
+                TVL:{' '}
+                <span className="text-greenLight1">
+                  ${toPrecision(pool.tvl.toString(), 2, true)}
+                </span>
               </div>
-              <div className="col-span-2">
-                {farmButton()}
-              </div>
+              <div className="col-span-2">{farmButton()}</div>
             </div>
           )}
         </div>
@@ -126,7 +127,8 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
         <div className="flex items-center justify-between px-4">
           <div className="text-sm text-gray-900">Swap Rate</div>
           <div className="text-greenLight1">
-            1&nbsp;{tokens[0].symbol}&nbsp;{getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
+            1&nbsp;{tokens[0].symbol}&nbsp;
+            {getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
           </div>
         </div>
         <div className="flex items-center justify-between px-4">
@@ -277,18 +279,15 @@ function PoolRow({ pool }: { pool: Pool }) {
       </div>
       <div className="col-span-3">
         <div className="mt-4">
-          1&nbsp;{tokens[0].symbol}&nbsp;{getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
+          1&nbsp;{tokens[0].symbol}&nbsp;
+          {getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
         </div>
       </div>
       <div className="col-span-2">
-        <div className="mt-4">
-          ${toPrecision(pool.tvl.toString(),2,true)}
-        </div>
+        <div className="mt-4">${toPrecision(pool.tvl.toString(), 2, true)}</div>
       </div>
       <div className="col-span-1">
-        <div className="mt-4">
-          {calculateFeePercent(pool.fee)}%
-        </div>
+        <div className="mt-4">{calculateFeePercent(pool.fee)}%</div>
       </div>
     </Link>
   );
