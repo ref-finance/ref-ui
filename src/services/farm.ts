@@ -1,9 +1,4 @@
-import {
-  farmWallet,
-  refFarmFunctionCall,
-  refFarmViewFunction,
-  wallet,
-} from './near';
+import { refFarmFunctionCall, refFarmViewFunction, wallet } from './near';
 import { toPrecision, toReadableNumber } from '~utils/numbers';
 import { LP_TOKEN_DECIMALS } from '~services/m-token';
 import * as math from 'mathjs';
@@ -224,7 +219,7 @@ export const getUnclaimedFarms = async ({
   page?: number;
   perPage?: number;
 }): Promise<FarmInfo[]> => {
-  const isSignedIn = farmWallet.isSignedIn();
+  const isSignedIn = wallet.isSignedIn();
   let farms: FarmInfo[] = await getFarms({ page, perPage });
   await Promise.all(
     farms.map(async (farm: any, i: number) => {
