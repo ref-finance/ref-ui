@@ -6,7 +6,7 @@ import {
   executeFarmMultipleTransactions,
   REF_FI_CONTRACT_ID,
   REF_FARM_CONTRACT_ID,
-  farmWallet,
+  wallet,
 } from '../services/near';
 import { ftGetStorageBalance, TokenMetadata } from '../services/ft-contract';
 import { toNonDivisibleNumber } from '~utils/numbers';
@@ -26,7 +26,7 @@ export const FARM_STORAGE_BALANCE = '0.1';
 
 export const checkTokenNeedsStorageDeposit = async () => {
   let storageNeeded: math.MathType = 0;
-  const balance = await currentStorageBalanceOfFarm(farmWallet.getAccountId());
+  const balance = await currentStorageBalanceOfFarm(wallet.getAccountId());
 
   if (!balance) {
     storageNeeded = math.add(storageNeeded, Number(ACCOUNT_MIN_STORAGE_AMOUNT));
