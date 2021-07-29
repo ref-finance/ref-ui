@@ -51,10 +51,12 @@ export const registerTokenAndExchange = async (tokenId: string) => {
     {
       methodName: 'register_tokens',
       args: { token_ids: [tokenId] },
+      amount: ONE_YOCTO_NEAR,
     },
   ];
 
   const neededStorage = await checkTokenNeedsStorageDeposit(tokenId);
+
   if (neededStorage) {
     actions.unshift(storageDepositAction({ amount: neededStorage }));
   }
@@ -101,6 +103,7 @@ export const unregisterToken = (tokenId: string) => {
   return refFiFunctionCall({
     methodName: 'unregister_tokens',
     args: { token_ids: [tokenId] },
+    amount: ONE_YOCTO_NEAR,
   });
 };
 
@@ -165,7 +168,7 @@ export const withdraw = async ({
         {
           methodName: 'withdraw',
           args: { token_id: token.id, amount: parsedAmount, unregister },
-          gas: '50000000000000',
+          gas: '100000000000000',
           amount: ONE_YOCTO_NEAR,
         },
       ],
@@ -195,6 +198,13 @@ export const getTokenBalances = (): Promise<TokenBalancesView> => {
   return refFiViewFunction({
     methodName: 'get_deposits',
     args: { account_id: wallet.getAccountId() },
+  });
+};
+
+export const getTokenBalance = (tokenId: string): Promise<number> => {
+  return refFiViewFunction({
+    methodName: 'get_deposit',
+    args: { account_id: wallet.getAccountId(), token_id: tokenId },
   });
 };
 

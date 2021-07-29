@@ -1,4 +1,5 @@
 import React from 'react';
+import { toRealSymbol } from '~utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
 
 export default function Icon({
@@ -14,7 +15,7 @@ export default function Icon({
 }) {
   return (
     <div className="flex items-center text-xs" style={{ lineHeight: 'unset' }}>
-      {label && <p className="block">{token.symbol}</p>}
+      {label && <p className="block">{toRealSymbol(token.symbol)}</p>}
     </div>
   );
 }

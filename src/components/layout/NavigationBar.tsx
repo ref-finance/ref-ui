@@ -18,9 +18,9 @@ import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
 import { TokenList } from '~components/deposit/Deposit';
 import { useTokenBalances, useUserRegisteredTokens } from '~state/token';
-import { REF_FI_CONTRACT_ID } from '~services/near';
+import { REF_FARM_CONTRACT_ID } from '~services/near';
 import { ConnectToNearBtn } from '~components/deposit/Deposit';
-import RainBow from '~components/layout/RainBow';
+import RainBow from './RainBow';
 
 function Anchor({
   to,
@@ -85,7 +85,7 @@ function AccountEntry() {
             accountName
           ) : (
             <button
-              onClick={() => wallet.requestSignIn(REF_FI_CONTRACT_ID)}
+              onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
               type="button"
             >
               <span className="ml-2 text-sm">Connect to NEAR</span>
@@ -103,7 +103,7 @@ function AccountEntry() {
             <div className="text-base">Balance</div>
             <div
               className="cursor-pointer rounded-full border border-greenLight px-2 py-1"
-              onClick={() => history.push('/deposit')}
+              onClick={() => history.push('/account')}
             >
               View account
             </div>
@@ -111,7 +111,7 @@ function AccountEntry() {
           <TokenList tokens={userTokens} balances={balances} />
           <div className="flex items-center justify-center pt-2">
             <div
-              className="rounded-full bg-greenLight px-3 py-1.5 text-xs text-white font-semibold cursor-pointer"
+              className="rounded-full bg-greenLight px-5 py-2.5 text-xs text-white font-semibold cursor-pointer"
               onClick={() => {
                 wallet.signOut();
                 window.location.assign('/');
@@ -292,7 +292,7 @@ function MobileNavBar() {
   }
 
   return (
-    <div className="nav-wrap lg:hidden md:show = relative">
+    <div className="nav-wrap lg:hidden md:show relative z-10">
       <div className="flex items-center justify-between p-4">
         <NavLogo />
         <NavExpand onClick={() => setShow(true)} />
@@ -330,7 +330,26 @@ function MobileNavBar() {
             onClick={close}
           />
           <MobileAnchor to="/" pattern="/" name="Swap" onClick={close} />
+          <MobileAnchor
+            to="/account"
+            pattern="/account"
+            name="Account"
+            onClick={close}
+          />
           <MobilePoolsMenu links={links} onClick={close} />
+          <MobileAnchor
+            to="/airdrop"
+            pattern="/airdrop"
+            name="Airdrop"
+            onClick={close}
+          />
+          <div>
+            <Link to="https://ethereum.bridgetonear.org/" target="_blank">
+              <div className="p-4 link font-bold p-2 text-white">
+                Move assets to/from Ethereum
+              </div>
+            </Link>
+          </div>
         </div>
       </div>
     </div>
@@ -348,12 +367,14 @@ function NavigationBar() {
           <Anchor to="/deposit" pattern="/deposit/:id?" name="Deposit" />
           <Anchor to="/" pattern="/" name="Swap" />
           <PoolsMenu />
+          <Anchor to="/farms" pattern="/farms" name="Farms" />
           <a
             target="_blank"
             href="https://ethereum.bridgetonear.org/"
-            className="relative ext-white border rounded-full p-4 py-2 border-greenLight text-greenLight"
+            className="mt-1 relative ext-white border rounded-full p-4 py-2 border-greenLight text-greenLight"
           >
-            Rainbow&nbsp;Bridge
+            <RainBow className="h-6 inline-block"></RainBow>
+            Move assets to/from Ethereum
           </a>
         </nav>
         <div className="user text-xs text-center justify-end pl-5 h-full w-96 absolute top-0 right-0 z-20">

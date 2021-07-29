@@ -21,8 +21,7 @@ html {
 
 body {
   margin: 0;
-  background: linear-gradient(to bottom, #000 70%, #011b14 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#00c08b",endColorstr="#008375",GradientType=1);
+  background: #001220;
   scrollbar-width: thin;
   scrollbar-color: darkgrey transparent;
 }
@@ -167,4 +166,31 @@ input[type='number'] {
 .has-tooltip:hover .tooltip {
   visibility: visible;
   z-index: 50;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+.hide-scrollbar::-webkit-scrollbar-thum {
+  background: transparent;
+}
+
+.ended {
+  color: #fff;
+  font-size: 14px;
+  line-height: 32px;
+  background: #bbb;
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 0 2em;
+  -webkit-transform-origin: left bottom;
+  -moz-transform-origin: left bottom;
+  transform-origin: left bottom;
+  -webkit-transform: translate(29.29%, -100%) rotate(45deg);
+  -moz-transform: translate(29.29%, -100%) rotate(45deg);
+  transform: translate(29.29%, -100%) rotate(45deg);
+  text-indent: 0;
 }

@@ -16,6 +16,8 @@ import Modal from 'react-modal';
 
 import './global.css';
 import 'react-toastify/dist/ReactToastify.css';
+import { FarmsPage } from '~pages/farms/FarmsPage';
+import { AirdropPage } from '~pages/AirdropPage';
 
 Modal.defaultStyles = {
   overlay: {
@@ -43,26 +45,42 @@ function App() {
   return (
     <Router>
       <ToastContainer />
-      <div className="relative h-screen">
+      <div className="relative min-h-screen pb-12 xs:flex xs:flex-col md:flex md:flex-col">
         <BgShapeLeftBottom />
         <BgShapeTopRight />
         <NavigationBar />
-        <div className="xs:flex xs:flex-col md:flex md:flex-col justify-center h-4/5 lg:mt-24 relative">
-          <Switch>
-            <Route path="/deposit/:id?" component={DepositPage} />
-            <Route path="/account" component={AccountPage} />
-            <Route path="/pool/:id" component={PoolDetailsPage} />
-            <Route path="/adboard" component={AdboardPage} />
-            <Route path="/pools/add" component={AddPoolPage} />
-            <Route path="/pools/add-token" component={AddTokenPage} />
-            <Route path="/pools/yours" component={YourLiquidityPage} />
-            <Route path="/pools" component={LiquidityPage} />
-            <Route path="/" component={SwapPage} />
-          </Switch>
-        </div>
+        <Switch>
+          <Route path="/deposit/:id?" component={AutoHeight(DepositPage)} />
+          <Route path="/account" component={AccountPage} />
+          <Route path="/pool/:id" component={AutoHeight(PoolDetailsPage)} />
+          <Route path="/adboard" component={AutoHeight(AdboardPage)} />
+          <Route path="/pools/add" component={AutoHeight(AddPoolPage)} />
+          <Route path="/pools/add-token" component={AutoHeight(AddTokenPage)} />
+          <Route
+            path="/pools/yours"
+            component={AutoHeight(YourLiquidityPage)}
+          />
+          <Route path="/pools" component={AutoHeight(LiquidityPage)} />
+          <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
+          <Route path="/farms" component={AutoHeight(FarmsPage)} />
+          <Route path="/" component={AutoHeight(SwapPage)} />
+        </Switch>
       </div>
     </Router>
   );
+}
+
+// decorate any components with this HOC to display them as vertical-align middle
+// use individual fn is needed since `h-4/5` is not a appropriate style rule for
+// any components
+function AutoHeight(Comp: any) {
+  return (props: any) => {
+    return (
+      <div className="xs:flex xs:flex-col md:flex md:flex-col justify-center h-4/5 lg:mt-24 relative">
+        <Comp {...props} />
+      </div>
+    );
+  };
 }
 
 export default App;

@@ -1,25 +1,28 @@
 import React, { useState } from 'react';
+import { FaRegQuestionCircle } from 'react-icons/fa';
+import ReactTooltip from 'react-tooltip';
 import { Card } from '~components/card/Card';
-import { useWhitelistTokens, useTokenBalances } from '../../state/token';
+import { useWhitelistTokens, useTokenBalances } from '~state/token';
 import Loading from '~components/layout/Loading';
 import SelectToken from '~components/forms/SelectToken';
-import { TokenMetadata } from '../../services/ft-contract';
-import { toRoundedReadableNumber } from '../../utils/numbers';
+import { TokenMetadata } from '~services/ft-contract';
+import { toRoundedReadableNumber } from '~utils/numbers';
 import { ArrowDownGreen } from '~components/icon';
 import Icon from '~components/tokens/Icon';
 import { ConnectToNearBtn } from '~components/deposit/Deposit';
 import { wallet } from '~services/near';
 import { addSimpleLiquidityPool } from '~services/pool';
 import copy from '~utils/copy';
-import { FaRegQuestionCircle } from 'react-icons/fa';
-import ReactTooltip from 'react-tooltip';
+import { Toggle } from '~components/toggle';
+import Alert from '~components/alert/Alert';
 
 export function AddPoolPage() {
   const tokens = useWhitelistTokens();
   const balances = useTokenBalances();
   const [token1, setToken1] = useState<TokenMetadata | null>(null);
   const [token2, setToken2] = useState<TokenMetadata | null>(null);
-  const [fee, setFee] = useState('');
+  const [fee, setFee] = useState('0.40');
+  const [error, setError] = useState<Error>();
 
   if (!tokens || !balances) return <Loading />;
 
@@ -54,6 +57,9 @@ export function AddPoolPage() {
       </div>
       <Card width="w-full">
         <div className="text-xs font-semibold">Token</div>
+        <div className="w-full flex justify-center">
+          {error && <Alert level="error" message={error.message} />}
+        </div>
         <SelectToken
           standalone
           placeholder="Select token"
@@ -71,40 +77,62 @@ export function AddPoolPage() {
           selected={token2 && <Selected token={token2} />}
           onSelect={setToken2}
         />
-        <div className="text-xs font-semibold pt-2 flex items-center justify-start">
-          <span className="pr-1">Fee (Basis points) </span>
-          <FaRegQuestionCircle
-            data-type="dark"
-            data-place="bottom"
-            data-multiline={true}
-            data-tip={copy.poolFee}
-            className="text-xs font-semibold text-secondaryScale-500"
+        <div className="text-xs font-semibold pt-2 flex items-center justify-between">
+          <div>
+            <span className="pr-1">Fee (Basis points) </span>
+          </div>
+          <Toggle
+            opts={[
+              { label: '0.15', value: '0.15' },
+              { label: '0.35', value: '0.35' },
+              { label: '0.55', value: '0.55' },
+            ]}
+            onChange={(v) =>
+              setFee((parseFloat(v) + 0.05 + Number.EPSILON).toFixed(2))
+            }
+            value="0.35"
           />
-          <ReactTooltip className="text-xs font-light" />
         </div>
-        <div className="rounded-lg w-full border my-2">
-          <input
-            step="any"
-            min="0"
-            className={`text-sm font-bold bg-inputBg focus:outline-none rounded-lg w-full py-2 px-3 text-greenLight`}
-            type="number"
-            placeholder="0.0"
-            value={fee}
-            onChange={({ target }) => setFee(target.value)}
-          />
+        <div className="text-xs font-semibold pt-4 flex items-center justify-between">
+          <div>
+            <span className="pr-1">Total Fee (protocol fee is 0.05%)</span>
+          </div>
+          <div className="inline-block w-20 border bg-gray-100 p-2 px-3 rounded-lg">
+            <input
+              className="text-right"
+              type="number"
+              value={fee}
+              onChange={(evt) => {
+                setFee(evt.target.value);
+              }}
+            />
+          </div>
         </div>
         <div className="pt-4 flex items-center justify-center">
           {wallet.isSignedIn() ? (
             <button
               disabled={!canSubmit}
-              className={`rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight ${
+              className={`rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight ${
                 canSubmit ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
               }`}
               onClick={() => {
                 if (canSubmit) {
+                  const v = parseFloat(fee);
+                  if (!v) {
+                    setError(new Error('Please input valid number'));
+                    return;
+                  }
+                  if (v >= 20) {
+                    setError(
+                      new Error('Please input number that less then 20')
+                    );
+                    return;
+                  }
+                  setError(null);
+
                   addSimpleLiquidityPool(
                     [token1.id, token2.id],
-                    parseFloat(fee)
+                    parseFloat(fee) * 100 - 5
                   );
                 }
               }}

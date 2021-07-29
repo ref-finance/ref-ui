@@ -13,7 +13,15 @@ import {
 import { checkTokenNeedsStorageDeposit } from './token';
 
 export const { WRAP_NEAR_CONTRACT_ID } = getConfig();
-const NEW_ACCOUNT_STORAGE_COST = '0.00125';
+export const NEW_ACCOUNT_STORAGE_COST = '0.00125';
+
+export const wnearMetadata: TokenMetadata = {
+  id: 'wNEAR',
+  name: 'wNEAR',
+  symbol: 'wNEAR',
+  decimals: 24,
+  icon: 'https://imgur.com/AaM3AbV.jpg',
+};
 
 export const nearMetadata: TokenMetadata = {
   id: 'NEAR',
@@ -42,7 +50,7 @@ export const wrapNear = async (amount: string) => {
     actions.push({
       methodName: 'storage_deposit',
       args: {},
-      gas: '30000000000000',
+      gas: '100000000000000',
       amount: NEW_ACCOUNT_STORAGE_COST,
     });
   }
@@ -84,7 +92,7 @@ export const unwrapNear = async (amount: string) => {
         {
           methodName: 'storage_deposit',
           args: {},
-          gas: '50000000000000',
+          gas: '100000000000000',
           amount: NEW_ACCOUNT_STORAGE_COST,
         },
       ],

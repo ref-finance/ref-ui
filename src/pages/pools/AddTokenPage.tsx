@@ -32,7 +32,7 @@ export function AddTokenPage() {
           {wallet.isSignedIn() ? (
             <button
               disabled={!addr}
-              className={`rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight ${
+              className={`rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight ${
                 addr ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
               }`}
               onClick={async () => {

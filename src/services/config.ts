@@ -15,6 +15,8 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'ref-farming.near',
+        REF_TOKEN_ID: 'token.ref-finance.near',
+        REF_AIRDROP_CONTRACT_ID: 'ref-airdrop-lockup.near',
       };
     case 'development':
     case 'testnet':
@@ -32,6 +34,8 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'ref-farming.testnet',
+        REF_TOKEN_ID: 'token.ref-finance.testnet',
+        REF_AIRDROP_CONTRACT_ID: 'ref-airdrop-lockup.testnet',
       };
     default:
       return {
@@ -47,6 +51,8 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'ref-farming.near',
+        REF_TOKEN_ID: 'token.ref-finance.near',
+        REF_AIRDROP_CONTRACT_ID: 'ref-airdrop-lockup.near',
       };
   }
 }

@@ -1,6 +1,5 @@
 import getConfig from './config';
 import { wallet } from './near';
-import { DEFAULT_PAGE_LIMIT } from './pool';
 import _ from 'lodash';
 import { toPrecision } from '~utils/numbers';
 import { BigNumber } from 'bignumber.js';
@@ -8,7 +7,7 @@ import { BigNumber } from 'bignumber.js';
 const config = getConfig();
 const api_url = 'https://rest.nearapi.org/view';
 
-interface PoolRPCView {
+export interface PoolRPCView {
   id: number;
   token_account_ids: string[];
   token_symbols: string[];
@@ -20,7 +19,7 @@ interface PoolRPCView {
   share: string;
 }
 
-const parsePoolView = (pool: any): PoolRPCView => ({
+export const parsePoolView = (pool: any): PoolRPCView => ({
   id: Number(pool.id),
   token_account_ids: pool.token_account_ids,
   token_symbols: pool.token_symbols,
@@ -73,24 +72,23 @@ export const getPools = async (counter: number) => {
     });
 };
 
-export const getYourPoolsFromIndexer = async (): Promise<PoolRPCView[]> => {
-  return await fetch(
-    config.indexerUrl + '/liquidity-pools/' + wallet.getAccountId(),
-    {
-      method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
-    }
-  )
+export const getPoolFromIndexer = async (
+  pool_id: string
+): Promise<PoolRPCView> => {
+  return await fetch(config.indexerUrl + '/get-pool?pool_id=' + pool_id, {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  })
     .then((res) => res.json())
-    .then((pools) => {
-      return pools;
+    .then((pool) => {
+      return parsePoolView(pool);
     });
 };
-
-export const getPoolsFromIndexer = async (
-  args: any
+export const getPoolsByIdsFromIndexer = async (
+  pool_ids: string[]
 ): Promise<PoolRPCView[]> => {
-  return await fetch(config.indexerUrl + '/list-top-pools', {
+  const ids = pool_ids.join('|');
+  return await fetch(config.indexerUrl + '/list-pools-by-ids?ids=' + ids, {
     method: 'GET',
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   })
@@ -98,37 +96,17 @@ export const getPoolsFromIndexer = async (
     .then((pools) => {
       pools = pools.map((pool: any) => parsePoolView(pool));
 
-      return pagination(args, order(args, search(args, pools)));
+      return pools;
     });
 };
 
-const search = (args: any, pools: PoolRPCView[]) => {
-  if (args.tokenName === '') return pools;
-  return _.filter(pools, (pool: PoolRPCView) => {
-    return (
-      _.includes(
-        pool.token_symbols[0].toLowerCase(),
-        args.tokenName.toLowerCase()
-      ) ||
-      _.includes(
-        pool.token_symbols[1].toLowerCase(),
-        args.tokenName.toLowerCase()
-      )
-    );
-  });
-};
-
-const order = (args: any, pools: PoolRPCView[]) => {
-  let column = args.column || 'tvl';
-  let order = args.order || 'desc';
-  column = args.column === 'fee' ? 'total_fee' : column;
-  return _.orderBy(pools, [column], [order]);
-};
-
-const pagination = (args: any, pools: PoolRPCView[]) => {
-  return _.slice(
-    pools,
-    (args.page - 1) * args.perPage,
-    args.page * args.perPage
-  );
+export const getTokenPriceList = async (): Promise<any> => {
+  return await fetch(config.indexerUrl + '/list-token-price', {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  })
+    .then((res) => res.json())
+    .then((list) => {
+      return list;
+    });
 };
