@@ -19,9 +19,15 @@ interface TokenMetadata {
   icon: string;
 }
 
+export interface FarmDexie {
+  id: string;
+  pool_id: string;
+}
+
 class RefDatabase extends Dexie {
   public pools: Dexie.Table<Pool>;
   public tokens: Dexie.Table<TokenMetadata>;
+  public farms: Dexie.Table<FarmDexie>;
 
   public constructor() {
     super('RefDatabase');
@@ -29,10 +35,12 @@ class RefDatabase extends Dexie {
     this.version(1).stores({
       pools: 'id, token1Id, token2Id, token1Supply, token2Supply, fee, shares',
       tokens: 'id, name, symbol, decimals, icon',
+      farms: 'id, pool_id',
     });
 
     this.pools = this.table('pools');
     this.tokens = this.table('tokens');
+    this.farms = this.table('farms');
   }
 
   public allPools() {
@@ -41,6 +49,10 @@ class RefDatabase extends Dexie {
 
   public allTokens() {
     return this.tokens;
+  }
+
+  public allFarms() {
+    return this.farms;
   }
 
   public searchPools(args: any, pools: Pool[]): Pool[] {
@@ -99,6 +111,11 @@ class RefDatabase extends Dexie {
   public async queryTokens(args: any) {
     let tokens = await this.allTokens().toArray();
     return this.searchTokens(args, tokens);
+  }
+
+  public async queryFarms() {
+    let farms = await this.allFarms().toArray();
+    return farms;
   }
 }
 

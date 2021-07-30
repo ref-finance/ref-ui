@@ -1,7 +1,8 @@
 import { keyStores, Near } from 'near-api-js';
-import db from './store/RefDatabase';
+import db, { FarmDexie } from './store/RefDatabase';
 import getConfig from './services/config';
 import { TokenMetadata } from '~services/ft-contract';
+import { Farm } from '~services/farm';
 
 const config = getConfig();
 
@@ -30,6 +31,24 @@ const view = ({
     .then(({ result }) => JSON.parse(Buffer.from(result).toString()));
 };
 
+const farmView = ({
+  methodName,
+  args = {},
+}: {
+  methodName: string;
+  args?: object;
+}) => {
+  return near.connection.provider
+    .query({
+      request_type: 'call_function',
+      finality: 'final',
+      account_id: config.REF_FARM_CONTRACT_ID,
+      method_name: methodName,
+      args_base64: Buffer.from(JSON.stringify(args)).toString('base64'),
+    })
+    .then(({ result }) => JSON.parse(Buffer.from(result).toString()));
+};
+
 const getTotalPools = () => {
   return view({ methodName: 'get_number_of_pools' });
 };
@@ -52,6 +71,15 @@ const getTokens = async () => {
     .then((tokens) => {
       return tokens;
     });
+};
+
+const getFarms = (page: number) => {
+  const index = (page - 1) * MAX_PER_PAGE;
+
+  return farmView({
+    methodName: 'list_farms',
+    args: { from_index: index, limit: MAX_PER_PAGE },
+  });
 };
 
 const cachePools = async () => {
@@ -103,9 +131,27 @@ const cacheTokens = async () => {
   );
 };
 
+const cacheFarmPools = async () => {
+  const farms: Farm[] = await getFarms(1);
+  const farmsArr = Object.keys(farms).map((key) => ({
+    id: key,
+    pool_id: farms[Number(key)].farm_id.slice(
+      farms[Number(key)].farm_id.indexOf('@') + 1,
+      farms[Number(key)].farm_id.lastIndexOf('#')
+    ),
+  }));
+  await db.farms.bulkPut(
+    farmsArr.map((farm: FarmDexie) => ({
+      id: farm.id,
+      pool_id: farm.pool_id,
+    }))
+  );
+};
+
 run();
 
 async function run() {
   cachePools();
   cacheTokens();
+  cacheFarmPools();
 }
