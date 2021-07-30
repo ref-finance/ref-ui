@@ -24,6 +24,7 @@ import { getPoolBalance } from '~services/api';
 import { RemoveLiquidityModal } from './pools/DetailsPage';
 import { wallet } from '~services/near';
 import getConfig from '~services/config';
+import { toRealSymbol } from '~utils/token';
 
 const config = getConfig();
 
@@ -78,13 +79,13 @@ function Balance({ hideEmpty }: { hideEmpty?: boolean }) {
                   <img
                     className="h-10 w-10 mr-3"
                     src={token.icon}
-                    alt={token.symbol}
+                    alt={toRealSymbol(token.symbol)}
                   />
                 ) : (
                   <div className="rounded-full h-10 w-10 bg-gray-300 mr-3"></div>
                 )}
                 <div className="flex flex-col justify-between py-1">
-                  <div>{token.symbol}</div>
+                  <div>{toRealSymbol(token.symbol)}</div>
                   <div className="text-xs text-gray-500">{token.id}</div>
                 </div>
               </div>
@@ -137,11 +138,11 @@ function PoolRow({ pool: p, mobile }: { pool: any; mobile?: boolean }) {
     >
       <div className="flex item-center justify-between text-xs">
         <div>
-          {tokens[0].symbol}: {b0}
+          {toRealSymbol(tokens[0].symbol)}: {b0}
         </div>
         <div className="px-4">-</div>
         <div>
-          {tokens[1].symbol}: {b1}
+          {toRealSymbol(tokens[1].symbol)}: {b1}
         </div>
       </div>
       <div className="text-gray-600">
@@ -323,7 +324,6 @@ function Account() {
         <div className="grid grid-cols-3 gap-6 xs:hidden">
           <div className="col-span-2">
             <Balance />
-            <Liquidity />
           </div>
           <div>
             <Actions />
@@ -363,13 +363,13 @@ function MobileBalance({ hideEmpty }: { hideEmpty?: boolean }) {
                 <img
                   className="h-10 w-10 mr-3"
                   src={token.icon}
-                  alt={token.symbol}
+                  alt={toRealSymbol(token.symbol)}
                 />
               ) : (
                 <div className="rounded-full h-10 w-10 bg-gray-300 mr-3"></div>
               )}
               <div className="flex flex-col justify-between py-1">
-                <div>{token.symbol}</div>
+                <div>{toRealSymbol(token.symbol)}</div>
                 <div className="text-xs text-gray-300">{token.name}</div>
               </div>
             </div>

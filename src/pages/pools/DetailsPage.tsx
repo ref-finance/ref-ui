@@ -24,6 +24,7 @@ import { isMobile } from '~utils/device';
 import getConfig from '~services/config';
 import { getPoolFromIndexer, PoolRPCView } from '~services/api';
 import ReactModal from 'react-modal';
+import { toRealSymbol } from '~utils/token';
 
 interface ParamTypes {
   id: string;
@@ -122,11 +123,15 @@ function AddLiquidityModal(
 
   function submit() {
     if (!firstTokenAmount || firstTokenAmount === '0') {
-      throw new Error(`Must provide at least 1 token for ${tokens[0].symbol}`);
+      throw new Error(
+        `Must provide at least 1 token for ${toRealSymbol(tokens[0].symbol)}`
+      );
     }
 
     if (!secondTokenAmount || secondTokenAmount === '0') {
-      throw new Error(`Must provide at least 1 token for ${tokens[1].symbol}`);
+      throw new Error(
+        `Must provide at least 1 token for ${toRealSymbol(tokens[1].symbol)}`
+      );
     }
 
     if (!firstTokenMetadata) {
@@ -348,10 +353,10 @@ export function PoolDetailsPage() {
                 icon={tokens[0].icon}
                 style={{ marginLeft: 'auto', order: 2 }}
               />
-              <p>{tokens[0].symbol}</p>
+              <p>{toRealSymbol(tokens[0].symbol)}</p>
               <a
                 target="_blank"
-                href={`${getConfig().explorerUrl}/accounts/${tokens[0].id}`}
+                href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
                 className="text-xs text-gray-500"
                 title={tokens[0].id}
               >{`${tokens[0].id.substring(0, 12)}${
@@ -361,10 +366,10 @@ export function PoolDetailsPage() {
             <div className="px-2">-</div>
             <div className="text-left">
               <Icon icon={tokens[1].icon} />
-              <p>{tokens[1].symbol}</p>
+              <p>{toRealSymbol(tokens[1].symbol)}</p>
               <a
                 target="_blank"
-                href={`${getConfig().explorerUrl}/accounts/${tokens[1].id}`}
+                href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
                 className="text-xs text-gray-500"
                 title={tokens[1].id}
               >{`${tokens[1].id.substring(0, 12)}${
@@ -389,7 +394,7 @@ export function PoolDetailsPage() {
           <div className="flex-col items-center justify-between py-2">
             <div>Underlying liquidity</div>
             <div className="flex items-center justify-between">
-              <div>{tokens[0].symbol}</div>
+              <div>{toRealSymbol(tokens[0].symbol)}</div>
               <div>
                 {toRoundedReadableNumber({
                   decimals: tokens[0].decimals,
@@ -398,7 +403,7 @@ export function PoolDetailsPage() {
               </div>
             </div>
             <div className="flex items-center justify-between py-1">
-              <div>{tokens[1].symbol}</div>
+              <div>{toRealSymbol(tokens[1].symbol)}</div>
               <div>
                 {toRoundedReadableNumber({
                   decimals: tokens[1].decimals,

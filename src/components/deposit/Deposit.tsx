@@ -77,7 +77,7 @@ export function Token(props: TokenMetadata & { amount: string }) {
     <div className="token flex items-center justify-between pt-3.5 pb-3.5">
       <div className="flex items-center">
         {icon ? (
-          <img className="h-6 w-6" src={icon} alt={symbol} />
+          <img className="h-6 w-6" src={icon} alt={toRealSymbol(symbol)} />
         ) : (
           <div className="h-6 w-6"></div>
         )}

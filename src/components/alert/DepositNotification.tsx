@@ -12,6 +12,7 @@ import { useDepositableBalance, useWhitelistTokens } from '../../state/token';
 import { toPrecision, toReadableNumber } from '../../utils/numbers';
 import FormWrap from '../forms/FormWrap';
 import TokenAmount from '../forms/TokenAmount';
+import { toRealSymbol } from '~utils/token';
 
 function FirstDepositForm() {
   const [amount, setAmount] = useState<string>();
@@ -50,7 +51,7 @@ function FirstDepositForm() {
       {selectedToken && (
         <h2 className="text-center">
           You can deposit up to {toPrecision(max, 4, true)}{' '}
-          {selectedToken.symbol}.
+          {toRealSymbol(selectedToken.symbol)}.
         </h2>
       )}
       <TokenAmount

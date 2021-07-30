@@ -14,6 +14,7 @@ import {
   toPrecision,
   toReadableNumber,
 } from '../../utils/numbers';
+import { toRealSymbol } from '~utils/token';
 
 function MobilePoolRow({ pool }: { pool: Pool }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
@@ -54,7 +55,7 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
               expand ? 'text-white' : 'text-gray-800'
             }`}
           >
-            {tokens[0].symbol}-{tokens[1].symbol}
+            {toRealSymbol(tokens[0].symbol)}-{toRealSymbol(tokens[1].symbol)}
           </div>
           {expand ? null : (
             <div>
@@ -92,7 +93,7 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
           <div className="text-sm text-gray-900">Liquidity</div>
           <div>
             <div>
-              {tokens[0].symbol}=
+              {toRealSymbol(tokens[0].symbol)}=
               {toPrecision(
                 toReadableNumber(
                   tokens[0].decimals || 24,
@@ -103,7 +104,7 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
               )}
             </div>
             <div>
-              {tokens[1].symbol}=
+              {toRealSymbol(tokens[1].symbol)}=
               {toPrecision(
                 toReadableNumber(
                   tokens[1].decimals || 24,
@@ -127,7 +128,7 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
         <div className="flex items-center justify-between px-4">
           <div className="text-sm text-gray-900">Swap Rate</div>
           <div className="text-greenLight1">
-            1&nbsp;{tokens[0].symbol}&nbsp;
+            1&nbsp;{toRealSymbol(tokens[0].symbol)}&nbsp;
             {getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
           </div>
         </div>
@@ -255,7 +256,7 @@ function PoolRow({ pool }: { pool: Pool }) {
       <div className="col-span-1">{farmButton()}</div>
       <div className="col-span-4">
         <div className="mt-2">
-          {tokens[0].symbol}=
+          {toRealSymbol(tokens[0].symbol)}=
           {toPrecision(
             toReadableNumber(
               tokens[0].decimals || 24,
@@ -266,7 +267,7 @@ function PoolRow({ pool }: { pool: Pool }) {
           )}
         </div>
         <div>
-          {tokens[1].symbol}=
+          {toRealSymbol(tokens[1].symbol)}=
           {toPrecision(
             toReadableNumber(
               tokens[1].decimals || 24,
@@ -279,7 +280,7 @@ function PoolRow({ pool }: { pool: Pool }) {
       </div>
       <div className="col-span-3">
         <div className="mt-4">
-          1&nbsp;{tokens[0].symbol}&nbsp;
+          1&nbsp;{toRealSymbol(tokens[0].symbol)}&nbsp;
           {getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
         </div>
       </div>

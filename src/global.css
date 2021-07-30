@@ -177,11 +177,9 @@ input[type='number'] {
   background: transparent;
 }
 
-.ended {
-  color: #fff;
+.status-bar {
   font-size: 14px;
   line-height: 32px;
-  background: #bbb;
   position: absolute;
   right: 0;
   top: 0;
@@ -193,4 +191,14 @@ input[type='number'] {
   -moz-transform: translate(29.29%, -100%) rotate(45deg);
   transform: translate(29.29%, -100%) rotate(45deg);
   text-indent: 0;
+}
+
+.ended {
+  color: #fff;
+  background: #bbb;
+}
+
+.pending {
+  color: #fff;
+  background: #00515a;
 }

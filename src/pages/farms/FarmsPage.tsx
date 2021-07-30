@@ -20,7 +20,7 @@ import {
   LP_TOKEN_DECIMALS,
   withdrawReward,
 } from '~services/m-token';
-import { toReadableNumber } from '~utils/numbers';
+import { toPrecision, toReadableNumber } from '~utils/numbers';
 import { mftGetBalance } from '~services/mft-contract';
 import { wallet } from '~services/near';
 import Loading from '~components/layout/Loading';
@@ -33,6 +33,7 @@ import { toRealSymbol } from '~utils/token';
 import { getPoolDetails } from '~services/pool';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import ReactModal from 'react-modal';
+import { isMobile } from '~utils/device';
 
 export function FarmsPage() {
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
@@ -96,18 +97,20 @@ export function FarmsPage() {
                   <ClaimView key={farm.farm_id} data={farm} />
                 ))}
               </div>
-              <div className="pt-7 py-2 text-center">
-                {wallet.isSignedIn() ? (
-                  <button
-                    className={`rounded-full text-xs px-3 py-1.5 focus:outline-none font-semibold focus:outline-none bg-white text-green-700`}
-                    onClick={claimRewards}
-                  >
-                    Claim Rewards
-                  </button>
-                ) : (
-                  <ConnectToNearBtn />
-                )}
-              </div>
+              {unclaimedFarms.length > 0 ? (
+                <div className="pt-7 py-2 text-center">
+                  {wallet.isSignedIn() ? (
+                    <button
+                      className={`rounded-full text-xs px-3 py-1.5 focus:outline-none font-semibold focus:outline-none bg-white text-green-700`}
+                      onClick={claimRewards}
+                    >
+                      Claim Rewards
+                    </button>
+                  ) : (
+                    <ConnectToNearBtn />
+                  )}
+                </div>
+              ) : null}
             </div>
           )}
         </div>
@@ -152,7 +155,7 @@ function ClaimView({ data }: { data: FarmInfo }) {
         )}`}</div>
         <div>
           {data.userUnclaimedReward}
-          <span> {data.rewardToken.symbol}</span>
+          <span> {toRealSymbol(data.rewardToken.symbol)}</span>
         </div>
       </div>
     </div>
@@ -167,11 +170,13 @@ function FarmView({ data }: { data: FarmInfo }) {
   const [stakeBalance, setStakeBalance] = useState('0');
   const [error, setError] = useState<Error>();
   const [ended, setEnded] = useState<boolean>(false);
+  const [pending, setPending] = useState<boolean>(false);
   const PoolId = data.lpTokenId;
   const tokens = useTokens(data?.tokenIds);
 
   useEffect(() => {
     setEnded(data.farm_status === 'Ended');
+    setPending(data.farm_status === 'Created');
   }, [data]);
 
   async function showUnstakeModal() {
@@ -228,7 +233,7 @@ function FarmView({ data }: { data: FarmInfo }) {
       <div
         className={`${
           ended ? 'rounded-t-xl bg-gray-300 bg-opacity-50' : ''
-        } border-b flex items-center p-6 relative overflow-hidden`}
+        } border-b flex items-center p-6 relative overflow-hidden flex-wrap`}
       >
         <div className="flex items-center justify-center">
           <div className="h-9 xs:h-6">
@@ -237,7 +242,7 @@ function FarmView({ data }: { data: FarmInfo }) {
             </div>
           </div>
         </div>
-        <div className="pl-2">
+        <div className="pl-2 order-2 lg:ml-auto xl:m-0">
           <div>
             <a href={`/pool/${PoolId}`} className="xs:text-sm">
               {symbols}
@@ -247,8 +252,9 @@ function FarmView({ data }: { data: FarmInfo }) {
             </p>
           </div>
         </div>
-        {ended ? <div className="ended">ENDED</div> : null}
-        <div style={{ marginLeft: 'auto', order: 3 }}>
+        {ended ? <div className="ended status-bar">ENDED</div> : null}
+        {pending ? <div className="pending status-bar">PENDING</div> : null}
+        <div className="ml-auto order-3 lg:w-full lg:mt-2 xl:w-auto xl:mt-0">
           <div className="inline-block">
             <a
               className="hover:text-green-500 text-lg xs:text-sm font-bold p-2 cursor-pointer text-green-500"
@@ -278,7 +284,7 @@ function FarmView({ data }: { data: FarmInfo }) {
           {data.userStaked !== '0' ? (
             <div className="flex items-center justify-between text-xs py-2">
               <div>Your Shares</div>
-              <div>{data.userStaked}</div>
+              <div>{toPrecision(data.userStaked, 6)}</div>
             </div>
           ) : null}
           {data.userStaked === '0' ? (
@@ -395,9 +401,11 @@ function ActionModal(
   const { max } = props;
   const [amount, setAmount] = useState<string>('');
 
+  const cardWidth = isMobile() ? '75vw' : '25vw';
+
   return (
     <Modal {...props}>
-      <Card style={{ width: '25vw' }}>
+      <Card style={{ width: cardWidth }}>
         <div className="text-sm text-gray-800 font-semibold pb-4">
           {props.title}
         </div>
