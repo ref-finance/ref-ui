@@ -13,7 +13,6 @@ import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { toNonDivisibleNumber } from '../utils/numbers';
 import { storageDepositForFTAction } from './creators/storage';
-import { getFarms } from '~services/farm';
 import { getTopPools } from '~services/indexer';
 import { PoolRPCView } from './api';
 
@@ -161,11 +160,11 @@ export const getSharesInPool = (id: number): Promise<string> => {
 
 export const canFarm = async (pool_id: number): Promise<Boolean> => {
   const poolIds: number[] = [];
-  const farms = await getFarms({});
-  for (const item of farms) {
-    poolIds.push(Number(item.lpTokenId));
-  }
+  const farms = await db.queryFarms();
 
+  for (const item of farms) {
+    poolIds.push(Number(item.pool_id));
+  }
   return poolIds.includes(pool_id);
 };
 
