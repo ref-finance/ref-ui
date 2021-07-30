@@ -10,9 +10,10 @@ import { toPrecision, toReadableNumber } from '../../utils/numbers';
 import { Card } from '../card/Card';
 import TokenAmount from '../forms/TokenAmount';
 import { TokenBalancesView, withdraw } from '../../services/token';
-import { REF_FI_CONTRACT_ID, wallet } from '~services/near';
+import { REF_FARM_CONTRACT_ID, wallet } from '~services/near';
 import { Near } from '~components/icon';
 import { isMobile } from '~utils/device';
+import { toRealSymbol } from '~utils/token';
 
 export function WithdrawModal(props: ReactModal.Props) {
   const [amount, setAmount] = useState<string>('');
@@ -76,11 +77,11 @@ export function Token(props: TokenMetadata & { amount: string }) {
     <div className="token flex items-center justify-between pt-3.5 pb-3.5">
       <div className="flex items-center">
         {icon ? (
-          <img className="h-6 w-6" src={icon} alt={symbol} />
+          <img className="h-6 w-6" src={icon} alt={toRealSymbol(symbol)} />
         ) : (
           <div className="h-6 w-6"></div>
         )}
-        <div className="pl-5 font-semibold text-xs">{symbol}</div>
+        <div className="pl-5 font-semibold text-xs">{toRealSymbol(symbol)}</div>
       </div>
       <div className="font-semibold text-xs">{amount}</div>
     </div>
@@ -153,7 +154,7 @@ export function ConnectToNearBtn() {
   return (
     <div
       className="flex items-center justify-center pt-2"
-      onClick={() => wallet.requestSignIn(REF_FI_CONTRACT_ID)}
+      onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
     >
       <div className="inline-flex cursor-pointer font-bold items-center text-center rounded-full bg-gray-800 px-3.5 py-1">
         <div className="pr-1">

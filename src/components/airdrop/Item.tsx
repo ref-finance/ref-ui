@@ -1,6 +1,7 @@
 import React from 'react';
 import { TokenMetadata } from '~services/ft-contract';
 import { toPrecision } from '~utils/numbers';
+import { toRealSymbol } from '~utils/token';
 
 export function Item(props: {
   token: TokenMetadata;
@@ -19,7 +20,7 @@ export function Item(props: {
           className="h-8 w-8 rounded-full border bg-white"
           src={props.token.icon}
         />
-        <span className="ml-2">{props.token.symbol}</span>
+        <span className="ml-2">{toRealSymbol(props.token.symbol)}</span>
         <span className="order-last ml-auto">
           Balance:{' '}
           <span className="font-bold">

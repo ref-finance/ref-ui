@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 import ReactTooltip from 'react-tooltip';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -8,19 +8,36 @@ import { usePools } from '../../state/pool';
 import Loading from '~components/layout/Loading';
 import { getExchangeRate, useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';
-import { Pool } from '../../services/pool';
+import { canFarm, Pool } from '../../services/pool';
 import {
   calculateFeePercent,
   toPrecision,
   toReadableNumber,
 } from '../../utils/numbers';
+import { toRealSymbol } from '~utils/token';
 
 function MobilePoolRow({ pool }: { pool: Pool }) {
+  const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const tokens = useTokens(pool.tokenIds);
+  useEffect(() => {
+    canFarm(pool.id).then((canFarm) => {
+      setSupportFarm(canFarm);
+    });
+  }, []);
   const [expand, setExpand] = useState(false);
   const history = useHistory();
 
   if (!tokens) return <Loading />;
+
+  const farmButton = () => {
+    if (supportFarm)
+      return (
+        <div className="mt-1 px-1 py-0.5 px-1 mr-3 text-center bg-greenLight text-white font-bold inline-block rounded">
+          Farms
+        </div>
+      );
+    return '';
+  };
 
   return (
     <div
@@ -38,11 +55,17 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
               expand ? 'text-white' : 'text-gray-800'
             }`}
           >
-            {tokens[0].symbol}-{tokens[1].symbol}
+            {toRealSymbol(tokens[0].symbol)}-{toRealSymbol(tokens[1].symbol)}
           </div>
           {expand ? null : (
-            <div className="col-span-2">
-              TVL: <span className="text-greenLight1">${toPrecision(pool.tvl.toString(),2,true)}</span>
+            <div>
+              <div className="col-span-2">
+                TVL:{' '}
+                <span className="text-greenLight1">
+                  ${toPrecision(pool.tvl.toString(), 2, true)}
+                </span>
+              </div>
+              <div className="col-span-2">{farmButton()}</div>
             </div>
           )}
         </div>
@@ -70,7 +93,7 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
           <div className="text-sm text-gray-900">Liquidity</div>
           <div>
             <div>
-              {tokens[0].symbol}=
+              {toRealSymbol(tokens[0].symbol)}=
               {toPrecision(
                 toReadableNumber(
                   tokens[0].decimals || 24,
@@ -81,7 +104,7 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
               )}
             </div>
             <div>
-              {tokens[1].symbol}=
+              {toRealSymbol(tokens[1].symbol)}=
               {toPrecision(
                 toReadableNumber(
                   tokens[1].decimals || 24,
@@ -105,7 +128,8 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
         <div className="flex items-center justify-between px-4">
           <div className="text-sm text-gray-900">Swap Rate</div>
           <div className="text-greenLight1">
-            1&nbsp;{tokens[0].symbol}&nbsp;{getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
+            1&nbsp;{toRealSymbol(tokens[0].symbol)}&nbsp;
+            {getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
           </div>
         </div>
         <div className="flex items-center justify-between px-4">
@@ -187,8 +211,24 @@ function MobileLiquidityPage({
 }
 
 function PoolRow({ pool }: { pool: Pool }) {
+  const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const tokens = useTokens(pool.tokenIds);
+  useEffect(() => {
+    canFarm(pool.id).then((canFarm) => {
+      setSupportFarm(canFarm);
+    });
+  }, []);
   if (!tokens) return <Loading />;
+
+  const farmButton = () => {
+    if (supportFarm)
+      return (
+        <div className="mt-4 py-0.5 px-1 mr-3 ml-1 text-center bg-greenLight text-white font-bold inline-block rounded">
+          Farms
+        </div>
+      );
+    return '';
+  };
 
   return (
     <Link
@@ -199,7 +239,7 @@ function PoolRow({ pool }: { pool: Pool }) {
       }}
       className="grid grid-cols-12 py-2 content-center text-xs font-semibold text-gray-600"
     >
-      <div className="col-span-2">
+      <div className="col-span-1">
         <div className="relative">
           <img
             key={tokens[0].id}
@@ -213,9 +253,10 @@ function PoolRow({ pool }: { pool: Pool }) {
           />
         </div>
       </div>
-      <div className="col-span-3">
-        <div>
-          {tokens[0].symbol}=
+      <div className="col-span-1">{farmButton()}</div>
+      <div className="col-span-4">
+        <div className="mt-2">
+          {toRealSymbol(tokens[0].symbol)}=
           {toPrecision(
             toReadableNumber(
               tokens[0].decimals || 24,
@@ -226,7 +267,7 @@ function PoolRow({ pool }: { pool: Pool }) {
           )}
         </div>
         <div>
-          {tokens[1].symbol}=
+          {toRealSymbol(tokens[1].symbol)}=
           {toPrecision(
             toReadableNumber(
               tokens[1].decimals || 24,
@@ -238,10 +279,17 @@ function PoolRow({ pool }: { pool: Pool }) {
         </div>
       </div>
       <div className="col-span-3">
-        1&nbsp;{tokens[0].symbol}&nbsp;{getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
+        <div className="mt-4">
+          1&nbsp;{toRealSymbol(tokens[0].symbol)}&nbsp;
+          {getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
+        </div>
       </div>
-      <div className="col-span-2">${toPrecision(pool.tvl.toString(),2,true)}</div>
-      <div className="col-span-2">{calculateFeePercent(pool.fee)}%</div>
+      <div className="col-span-2">
+        <div className="mt-4">${toPrecision(pool.tvl.toString(), 2, true)}</div>
+      </div>
+      <div className="col-span-1">
+        <div className="mt-4">{calculateFeePercent(pool.fee)}%</div>
+      </div>
     </Link>
   );
 }
@@ -284,7 +332,7 @@ function LiquidityPage_({
         <section className="px-2">
           <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm font-bold">
             <p className="col-span-2">Pair</p>
-            <p className="col-span-3">Liquidity</p>
+            <p className="col-span-4">Liquidity</p>
             <p className="col-span-3">Swap Rate</p>
             <div
               className="col-span-2"
@@ -304,7 +352,7 @@ function LiquidityPage_({
               <ReactTooltip className="text-xs font-light" />
             </div>
             <p
-              className="col-span-2 cursor-pointer"
+              className="col-span-1 cursor-pointer"
               onClick={() => {
                 onSortChange('fee');
                 onOrderChange(order === 'desc' ? 'asc' : 'desc');

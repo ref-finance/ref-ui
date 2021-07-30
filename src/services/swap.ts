@@ -26,10 +26,8 @@ import {
 } from './creators/storage';
 import { registerTokenAction, withdrawAction } from './creators/token';
 import {
-  nearMetadata,
   NEW_ACCOUNT_STORAGE_COST,
   WRAP_NEAR_CONTRACT_ID,
-  wrapNear,
   wnearMetadata,
 } from '~services/wrap-near';
 import { utils } from 'near-api-js';
@@ -179,7 +177,7 @@ export const directSwap = async ({
     actions.push({
       methodName: 'storage_deposit',
       args: {},
-      gas: '30000000000000',
+      gas: '100000000000000',
       amount: NEW_ACCOUNT_STORAGE_COST,
     });
   }

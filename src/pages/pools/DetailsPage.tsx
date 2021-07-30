@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
@@ -16,12 +16,14 @@ import {
   toRoundedReadableNumber,
 } from '../../utils/numbers';
 import TokenAmount from '~components/forms/TokenAmount';
-import {ftGetTokenMetadata, TokenMetadata} from '~services/ft-contract';
+import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import Alert from '~components/alert/Alert';
 import InputAmount from '~components/forms/InputAmount';
 import SlippageSelector from '~components/forms/SlippageSelector';
 import { isMobile } from '~utils/device';
-import getConfig from '~services/config';
+import { getPoolFromIndexer } from '~services/api';
+import ReactModal from 'react-modal';
+import { toRealSymbol } from '~utils/token';
 
 interface ParamTypes {
   id: string;
@@ -36,7 +38,10 @@ function Icon(props: { icon?: string; className?: string; style?: any }) {
   return icon ? (
     <img className={`block h-7 w-7 ${className}`} src={icon} style={style} />
   ) : (
-    <div className={`h-7 w-7 rounded-full border ${className}`} style={style}></div>
+    <div
+      className={`h-7 w-7 rounded-full border ${className}`}
+      style={style}
+    ></div>
   );
 }
 
@@ -50,7 +55,8 @@ function AddLiquidityModal(
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [firstTokenMetadata, setFirstTokenMetadata] = useState<TokenMetadata>();
-  const [secondTokenMetadata, setSecondTokenMetadata] = useState<TokenMetadata>();
+  const [secondTokenMetadata, setSecondTokenMetadata] =
+    useState<TokenMetadata>();
   const balances = useTokenBalances();
   const [error, setError] = useState<Error>();
 
@@ -58,11 +64,11 @@ function AddLiquidityModal(
 
   ftGetTokenMetadata(tokens[0].id).then((tokenMetadata) => {
     setFirstTokenMetadata(tokenMetadata);
-  })
+  });
 
   ftGetTokenMetadata(tokens[1].id).then((tokenMetadata) => {
     setSecondTokenMetadata(tokenMetadata);
-  })
+  });
 
   const changeFirstTokenAmount = (amount: string) => {
     if (Object.values(pool.supplies).every((s) => s === '0')) {
@@ -116,11 +122,23 @@ function AddLiquidityModal(
 
   function submit() {
     if (!firstTokenAmount || firstTokenAmount === '0') {
-      throw new Error(`Must provide at least 1 token for ${tokens[0].symbol}`);
+      throw new Error(
+        `Must provide at least 1 token for ${toRealSymbol(tokens[0].symbol)}`
+      );
     }
 
     if (!secondTokenAmount || secondTokenAmount === '0') {
-      throw new Error(`Must provide at least 1 token for ${tokens[1].symbol}`);
+      throw new Error(
+        `Must provide at least 1 token for ${toRealSymbol(tokens[1].symbol)}`
+      );
+    }
+
+    if (!firstTokenMetadata) {
+      throw new Error(`${tokens[0].id} is not exist`);
+    }
+
+    if (!secondTokenMetadata) {
+      throw new Error(`${tokens[1].id} is not exist`);
     }
 
     if (!firstTokenMetadata) {
@@ -310,10 +328,22 @@ export function PoolDetailsPage() {
   const { id } = useParams<ParamTypes>();
   const { state } = useLocation<LocationTypes>();
   const { pool, shares } = usePool(id);
+
   const tokens = useTokens(pool?.tokenIds);
 
   const [showFunding, setShowFunding] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
+  const [poolTVL, setPoolTVL] = useState<number>();
+
+  useEffect(() => {
+    if (state?.tvl > 0) {
+      setPoolTVL(state?.tvl);
+    } else {
+      getPoolFromIndexer(id).then((pool) => {
+        setPoolTVL(pool?.tvl);
+      });
+    }
+  }, [id]);
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
 
@@ -326,11 +356,14 @@ export function PoolDetailsPage() {
         <div className="text-center border-b">
           <div className="inline-flex text-center text-base font-semibold pt-2 pb-6">
             <div className="text-right">
-              <Icon icon={tokens[0].icon} style={{marginLeft: "auto",order: 2}} />
-              <p>{tokens[0].symbol}</p>
+              <Icon
+                icon={tokens[0].icon}
+                style={{ marginLeft: 'auto', order: 2 }}
+              />
+              <p>{toRealSymbol(tokens[0].symbol)}</p>
               <a
                 target="_blank"
-                href={`${getConfig().explorerUrl}/accounts/${tokens[0].id}`}
+                href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
                 className="text-xs text-gray-500"
                 title={tokens[0].id}
               >{`${tokens[0].id.substring(0, 12)}${
@@ -340,10 +373,10 @@ export function PoolDetailsPage() {
             <div className="px-2">-</div>
             <div className="text-left">
               <Icon icon={tokens[1].icon} />
-              <p>{tokens[1].symbol}</p>
+              <p>{toRealSymbol(tokens[1].symbol)}</p>
               <a
                 target="_blank"
-                href={`${getConfig().explorerUrl}/accounts/${tokens[1].id}`}
+                href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
                 className="text-xs text-gray-500"
                 title={tokens[1].id}
               >{`${tokens[1].id.substring(0, 12)}${
@@ -355,7 +388,7 @@ export function PoolDetailsPage() {
         <div className="text-xs font-semibold text-gray-600 pt-6">
           <div className="flex items-center justify-between py-2">
             <div>TVL</div>
-            <div>{`$${state?.tvl || ""}`}</div>
+            <div>${poolTVL}</div>
           </div>
           <div className="flex items-center justify-between py-2">
             <div>Total Liquidity</div>
@@ -368,7 +401,7 @@ export function PoolDetailsPage() {
           <div className="flex-col items-center justify-between py-2">
             <div>Underlying liquidity</div>
             <div className="flex items-center justify-between">
-              <div>{tokens[0].symbol}</div>
+              <div>{toRealSymbol(tokens[0].symbol)}</div>
               <div>
                 {toRoundedReadableNumber({
                   decimals: tokens[0].decimals,
@@ -377,7 +410,7 @@ export function PoolDetailsPage() {
               </div>
             </div>
             <div className="flex items-center justify-between py-1">
-              <div>{tokens[1].symbol}</div>
+              <div>{toRealSymbol(tokens[1].symbol)}</div>
               <div>
                 {toRoundedReadableNumber({
                   decimals: tokens[1].decimals,

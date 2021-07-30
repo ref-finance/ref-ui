@@ -15,6 +15,7 @@ import { REF_ADBOARD_CONTRACT_ID } from '../../services/near';
 import Alert from '../../components/alert/Alert';
 import { toNonDivisibleNumber, toReadableNumber } from '../../utils/numbers';
 import db from '../../store/RefDatabase';
+import { toRealSymbol } from '~utils/token';
 
 interface BuyModalProps {
   metadata: AdboardMetadata;
@@ -119,7 +120,7 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
                       token?.decimals || 24,
                       String(metadata.token_price)
                     )}
-                    <span className="ml-2">{token.symbol}</span>
+                    <span className="ml-2">{toRealSymbol(token.symbol)}</span>
                   </span>
                 </div>
                 <div className="mb-4">

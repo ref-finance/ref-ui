@@ -21,7 +21,7 @@ export function AddPoolPage() {
   const balances = useTokenBalances();
   const [token1, setToken1] = useState<TokenMetadata | null>(null);
   const [token2, setToken2] = useState<TokenMetadata | null>(null);
-  const [fee, setFee] = useState('0.30');
+  const [fee, setFee] = useState('0.40');
   const [error, setError] = useState<Error>();
 
   if (!tokens || !balances) return <Loading />;
@@ -84,14 +84,13 @@ export function AddPoolPage() {
           <Toggle
             opts={[
               { label: '0.15', value: '0.15' },
-              { label: '0.20', value: '0.20' },
-              { label: '0.25', value: '0.25' },
               { label: '0.35', value: '0.35' },
+              { label: '0.55', value: '0.55' },
             ]}
             onChange={(v) =>
               setFee((parseFloat(v) + 0.05 + Number.EPSILON).toFixed(2))
             }
-            value="0.25"
+            value="0.35"
           />
         </div>
         <div className="text-xs font-semibold pt-4 flex items-center justify-between">

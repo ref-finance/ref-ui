@@ -18,9 +18,9 @@ import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
 import { TokenList } from '~components/deposit/Deposit';
 import { useTokenBalances, useUserRegisteredTokens } from '~state/token';
-import { REF_FI_CONTRACT_ID } from '~services/near';
+import { REF_FARM_CONTRACT_ID } from '~services/near';
 import { ConnectToNearBtn } from '~components/deposit/Deposit';
-import RainBow from '~components/layout/RainBow';
+import RainBow from './RainBow';
 
 function Anchor({
   to,
@@ -85,7 +85,7 @@ function AccountEntry() {
             accountName
           ) : (
             <button
-              onClick={() => wallet.requestSignIn(REF_FI_CONTRACT_ID)}
+              onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
               type="button"
             >
               <span className="ml-2 text-sm">Connect to NEAR</span>
@@ -338,13 +338,22 @@ function MobileNavBar() {
           />
           <MobilePoolsMenu links={links} onClick={close} />
           <MobileAnchor
+            to="/farms"
+            pattern="/farms"
+            name="Farms"
+            onClick={close}
+          />
+          <MobileAnchor
             to="/airdrop"
             pattern="/airdrop"
             name="Airdrop"
             onClick={close}
           />
           <div>
-            <Link to="https://ethereum.bridgetonear.org/" target="_blank">
+            <Link
+              to={{ pathname: 'https://ethereum.bridgetonear.org/' }}
+              target="_blank"
+            >
               <div className="p-4 link font-bold p-2 text-white">
                 Move assets to/from Ethereum
               </div>
@@ -368,6 +377,7 @@ function NavigationBar() {
           <Anchor to="/" pattern="/" name="Swap" />
           <PoolsMenu />
           <Anchor to="/airdrop" pattern="/airdrop" name="Airdrop" />
+          <Anchor to="/farms" pattern="/farms" name="Farms" />
           <a
             target="_blank"
             href="https://ethereum.bridgetonear.org/"

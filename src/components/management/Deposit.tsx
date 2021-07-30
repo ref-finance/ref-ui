@@ -10,6 +10,7 @@ import { useCurrentStorageBalance } from '../../state/account';
 import { ACCOUNT_MIN_STORAGE_AMOUNT } from '../../services/account';
 import { STORAGE_PER_TOKEN } from '../../services/creators/storage';
 import copy from '../../utils/copy';
+import { toRealSymbol } from '~utils/token';
 
 export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
   const [amount, setAmount] = useState<string>('');
@@ -46,7 +47,7 @@ export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
         <div className="text-center">
           <span> You can deposit up to </span>
           <span className="font-bold">{toPrecision(max, 4, true)} </span>
-          <span>{selectedToken.symbol}.</span>
+          <span>{toRealSymbol(selectedToken.symbol)}.</span>
         </div>
       )}
       <TokenAmount

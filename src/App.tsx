@@ -16,6 +16,7 @@ import Modal from 'react-modal';
 
 import './global.css';
 import 'react-toastify/dist/ReactToastify.css';
+import { FarmsPage } from '~pages/farms/FarmsPage';
 import { AirdropPage } from '~pages/AirdropPage';
 
 Modal.defaultStyles = {
@@ -61,6 +62,7 @@ function App() {
           />
           <Route path="/pools" component={AutoHeight(LiquidityPage)} />
           <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
+          <Route path="/farms" component={AutoHeight(FarmsPage)} />
           <Route path="/" component={AutoHeight(SwapPage)} />
         </Switch>
       </div>

@@ -10,6 +10,7 @@ import { toRoundedReadableNumber } from '~utils/numbers';
 import { usePool } from '~state/pool';
 import { RemoveLiquidityModal } from './DetailsPage';
 import { getYourPools } from '~services/indexer';
+import { toRealSymbol } from '~utils/token';
 
 function Empty() {
   return (
@@ -98,7 +99,7 @@ function PoolRow(props: { pool: any }) {
           <div className="w-14 flex items-center justify-between">{images}</div>
         </div>
         <p className="grid col-span-4">
-          {tokens[0].symbol}-{tokens[1].symbol}
+          {toRealSymbol(tokens[0].symbol)}-{toRealSymbol(tokens[1].symbol)}
         </p>
         <p className="col-span-4 text-center">
           {toRoundedReadableNumber({ decimals: 24, number: balance })}
