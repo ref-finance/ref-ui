@@ -98,7 +98,7 @@ export function FarmsPage() {
                 ))}
               </div>
               <div className="pt-7 py-2 text-center">
-                {wallet.isSignedIn() ? (
+                {wallet.isSignedIn() && farms.length > 0 ? (
                   <button
                     className={`rounded-full text-xs px-3 py-1.5 focus:outline-none font-semibold focus:outline-none bg-white text-green-700`}
                     onClick={claimRewards}
