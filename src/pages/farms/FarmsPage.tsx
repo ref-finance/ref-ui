@@ -282,7 +282,7 @@ function FarmView({ data }: { data: FarmInfo }) {
           {data.userStaked !== '0' ? (
             <div className="flex items-center justify-between text-xs py-2">
               <div>Your Shares</div>
-              <div>≈{toPrecision(data.userStaked, 6)}</div>
+              <div>{toPrecision(data.userStaked, 6)}</div>
             </div>
           ) : null}
           {data.userStaked === '0' ? (

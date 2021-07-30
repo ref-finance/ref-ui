@@ -356,7 +356,7 @@ export function PoolDetailsPage() {
               <p>{toRealSymbol(tokens[0].symbol)}</p>
               <a
                 target="_blank"
-                href={`${getConfig().explorerUrl}/accounts/${tokens[0].id}`}
+                href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
                 className="text-xs text-gray-500"
                 title={tokens[0].id}
               >{`${tokens[0].id.substring(0, 12)}${
@@ -369,7 +369,7 @@ export function PoolDetailsPage() {
               <p>{toRealSymbol(tokens[1].symbol)}</p>
               <a
                 target="_blank"
-                href={`${getConfig().explorerUrl}/accounts/${tokens[1].id}`}
+                href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
                 className="text-xs text-gray-500"
                 title={tokens[1].id}
               >{`${tokens[1].id.substring(0, 12)}${
