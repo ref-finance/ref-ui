@@ -17,6 +17,7 @@ import Alert from '../alert/Alert';
 import SlippageSelector from '../forms/SlippageSelector';
 import copy from '../../utils/copy';
 import { ArrowDownBlack } from '../icon/Arrows';
+import { toRealSymbol } from '~utils/token';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -57,9 +58,9 @@ function DetailView({
       />
       <SwapDetail
         title="Swap Rate"
-        value={`${calculateExchangeRate(pool.fee, from, to)} ${
+        value={`${calculateExchangeRate(pool.fee, from, to)} ${toRealSymbol(
           tokenOut.symbol
-        } per ${tokenIn.symbol}`}
+        )} per ${toRealSymbol(tokenIn.symbol)}`}
       />
       <SwapDetail
         title="Pool Fee"

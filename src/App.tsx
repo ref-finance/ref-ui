@@ -61,7 +61,6 @@ function App() {
             component={AutoHeight(YourLiquidityPage)}
           />
           <Route path="/pools" component={AutoHeight(LiquidityPage)} />
-          <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
           <Route path="/farms" component={AutoHeight(FarmsPage)} />
           <Route path="/" component={AutoHeight(SwapPage)} />
         </Switch>

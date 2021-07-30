@@ -8,6 +8,7 @@ import Loading from '../../components/layout/Loading';
 import { AdboardMetadata } from '../../services/adboard';
 import Icon from '../../components/tokens/Icon';
 import { toReadableNumber } from '../../utils/numbers';
+import { toRealSymbol } from '~utils/token';
 
 export default function AdboardPage() {
   const adboardCanvasRef = useRef<HTMLCanvasElement>();
@@ -191,10 +192,13 @@ export default function AdboardPage() {
                             )}
                           </span>
                           {tokens &&
-                            (
-                              tokens.find((t) => t.id === metadata.token_id) ||
-                              tokens[0]
-                            ).symbol}
+                            toRealSymbol(
+                              (
+                                tokens.find(
+                                  (t) => t.id === metadata.token_id
+                                ) || tokens[0]
+                              ).symbol
+                            )}
                         </button>
                       </div>
                       {metadata.protected_ts / 1000 / 1000 > Date.now() && (
