@@ -449,9 +449,7 @@ function MobileActions() {
           className=" w-full text-white py-2 mt-6"
           borderColor="border-gray-500"
           onClick={() => {
-            const url = `https://explorer.testnet.near.org/accounts/${
-              wallet.account().accountId
-            }`;
+            const url = config.walletUrl + '/' + wallet.account().accountId;
             window.open(url, '_blank');
           }}
         >
