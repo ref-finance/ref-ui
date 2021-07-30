@@ -97,18 +97,20 @@ export function FarmsPage() {
                   <ClaimView key={farm.farm_id} data={farm} />
                 ))}
               </div>
-              <div className="pt-7 py-2 text-center">
-                {wallet.isSignedIn() && farms.length > 0 ? (
-                  <button
-                    className={`rounded-full text-xs px-3 py-1.5 focus:outline-none font-semibold focus:outline-none bg-white text-green-700`}
-                    onClick={claimRewards}
-                  >
-                    Claim Rewards
-                  </button>
-                ) : (
-                  <ConnectToNearBtn />
-                )}
-              </div>
+              {unclaimedFarms.length > 0 ? (
+                <div className="pt-7 py-2 text-center">
+                  {wallet.isSignedIn() ? (
+                    <button
+                      className={`rounded-full text-xs px-3 py-1.5 focus:outline-none font-semibold focus:outline-none bg-white text-green-700`}
+                      onClick={claimRewards}
+                    >
+                      Claim Rewards
+                    </button>
+                  ) : (
+                    <ConnectToNearBtn />
+                  )}
+                </div>
+              ) : null}
             </div>
           )}
         </div>
