@@ -219,7 +219,7 @@ export function RemoveLiquidityModal(
     shares: amount ? toNonDivisibleNumber(24, amount) : '0',
   });
   const [error, setError] = useState<Error>();
-  const cardWidth = isMobile() ? '75vw' : '30vw';
+  const cardWidth = isMobile() ? '85vw' : '30vw';
 
   return (
     <Modal {...props}>
@@ -232,7 +232,7 @@ export function RemoveLiquidityModal(
         </div>
         <div>
           <p className="col-span-12 p-2 text-right text-xs font-semibold">
-            Balance: &nbsp;{toReadableNumber(24, shares)}
+            Balance: &nbsp;{toPrecision(toReadableNumber(24, shares), 6)}
           </p>
           <div className="border rounded-lg overflow-hidden">
             <InputAmount
