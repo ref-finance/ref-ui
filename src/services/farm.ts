@@ -98,7 +98,6 @@ export const getFarms = async ({
     : {};
 
   const tokenPriceList = await getTokenPriceList();
-  const refPrice = tokenPriceList[getConfig().REF_TOKEN_ID]?.price || 0;
 
   const seeds = await getSeeds({ page: page, perPage: perPage });
 
@@ -130,6 +129,7 @@ export const getFarms = async ({
       stakedList[f.seed_id] ?? '0'
     );
     const rewardToken = await ftGetTokenMetadata(f.reward_token);
+    const rewardTokenPrice = tokenPriceList[rewardToken.id]?.price || 0;
     const rewardNumber =
       toReadableNumber(rewardToken.decimals, rewardList[f.reward_token]) ?? '0';
     const seedAmount = seeds[f.seed_id] ?? '0';
@@ -186,7 +186,7 @@ export const getFarms = async ({
         : toPrecision(
             (
               (1 / totalStaked) *
-              (Number(rewardsPerWeek) * refPrice) *
+              (Number(rewardsPerWeek) * rewardTokenPrice) *
               52 *
               100
             ).toString(),
