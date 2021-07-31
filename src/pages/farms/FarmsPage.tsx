@@ -276,7 +276,7 @@ function FarmView({ data }: { data: FarmInfo }) {
           </div>
         </div>
       </div>
-      <div className="info-list p-6 h-60">
+      <div className="info-list p-6" style={{ minHeight: '12rem' }}>
         <div className="text-center max-w-2xl">
           {error ? <Alert level="error" message={error.message} /> : null}
         </div>
@@ -413,7 +413,7 @@ function ActionModal(
           <div className="flex justify-end text-xs font-semibold pb-2.5">
             <span className={`${max === '0' ? 'text-gray-400' : null}`}>
               Balance:
-              {max}
+              {toPrecision(max, 6)}
             </span>
           </div>
           <div className="flex bg-inputBg relative overflow-hidden rounded-lg align-center my-2 border">

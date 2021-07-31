@@ -20,6 +20,8 @@ import {
   STORAGE_PER_TOKEN,
   STORAGE_TO_REGISTER_WITH_MFT,
 } from '../services/creators/storage';
+import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { utils } from 'near-api-js';
 
 export const LP_TOKEN_DECIMALS = 24;
 export const FARM_STORAGE_BALANCE = '0.1';
@@ -128,22 +130,10 @@ export const withdrawReward = async ({
   token,
   unregister = false,
 }: WithdrawOptions) => {
+  const transactions: Transaction[] = [];
+
   const parsedAmount = toNonDivisibleNumber(token.decimals, amount);
   const ftBalance = await ftGetStorageBalance(token_id);
-
-  const transactions: Transaction[] = [
-    {
-      receiverId: REF_FARM_CONTRACT_ID,
-      functionCalls: [
-        {
-          methodName: 'withdraw_reward',
-          args: { token_id: token_id, amount: parsedAmount, unregister },
-          gas: '100000000000000',
-          amount: ONE_YOCTO_NEAR,
-        },
-      ],
-    },
-  ];
 
   if (!ftBalance || ftBalance.total === '0') {
     transactions.unshift({
@@ -153,6 +143,31 @@ export const withdrawReward = async ({
           registrationOnly: true,
           amount: STORAGE_TO_REGISTER_WITH_MFT,
         }),
+      ],
+    });
+  }
+
+  transactions.push({
+    receiverId: REF_FARM_CONTRACT_ID,
+    functionCalls: [
+      {
+        methodName: 'withdraw_reward',
+        args: { token_id: token_id, amount: parsedAmount, unregister },
+        gas: '100000000000000',
+        amount: ONE_YOCTO_NEAR,
+      },
+    ],
+  });
+
+  if (token_id === WRAP_NEAR_CONTRACT_ID) {
+    transactions.push({
+      receiverId: WRAP_NEAR_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'near_withdraw',
+          args: { amount: utils.format.parseNearAmount(amount) },
+          amount: ONE_YOCTO_NEAR,
+        },
       ],
     });
   }
