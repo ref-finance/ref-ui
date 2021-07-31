@@ -276,7 +276,7 @@ function FarmView({ data }: { data: FarmInfo }) {
           </div>
         </div>
       </div>
-      <div className="info-list p-6" style={{ minHeight: '16rem' }}>
+      <div className="info-list p-6" style={{ minHeight: '12rem' }}>
         <div className="text-center max-w-2xl">
           {error ? <Alert level="error" message={error.message} /> : null}
         </div>
