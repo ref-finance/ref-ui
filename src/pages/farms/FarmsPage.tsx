@@ -6,14 +6,9 @@ import InputAmount from '~components/forms/InputAmount';
 import {
   GreenButton,
   BorderButton,
-  BorderlessButton,
+  WithdrawButton,
 } from '~components/button/Button';
-import {
-  getUnclaimedFarms,
-  getFarms,
-  claimRewardByFarm,
-  FarmInfo,
-} from '~services/farm';
+import { getFarms, claimRewardByFarm, FarmInfo } from '~services/farm';
 import {
   stake,
   unstake,
@@ -30,36 +25,23 @@ import copy from '~utils/copy';
 import { Info } from '~components/icon/Info';
 import ReactTooltip from 'react-tooltip';
 import { toRealSymbol } from '~utils/token';
-import { getPoolDetails } from '~services/pool';
-import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import ReactModal from 'react-modal';
 import { isMobile } from '~utils/device';
 
 export function FarmsPage() {
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
-  const [unclaimedFarms, setUnclaimedFarms] = useState<FarmInfo[]>([]);
   const [farms, setFarms] = useState<FarmInfo[]>([]);
   const [error, setError] = useState<Error>();
 
-  function loadUnclaimedFarms() {
-    setUnclaimedFarmsIsLoading(true);
-    getUnclaimedFarms({})
-      .then(async (farms) => {
-        setUnclaimedFarmsIsLoading(false);
-        setUnclaimedFarms(farms);
-      })
-      .catch((error) => {
-        setUnclaimedFarmsIsLoading(false);
-        setError(error);
-      });
-  }
-
   function loadFarmInfoList() {
-    getFarms({}).then(setFarms);
+    setUnclaimedFarmsIsLoading(true);
+    getFarms({}).then((farms) => {
+      setUnclaimedFarmsIsLoading(false);
+      setFarms(farms);
+    });
   }
 
   useEffect(() => {
-    loadUnclaimedFarms();
     loadFarmInfoList();
   }, []);
 
@@ -68,7 +50,6 @@ export function FarmsPage() {
     const tasks = farms.map((farm) => claimRewardByFarm(farm.farm_id));
     Promise.all(tasks)
       .then(() => {
-        loadUnclaimedFarms();
         loadFarmInfoList();
       })
       .catch(setError);
@@ -93,24 +74,10 @@ export function FarmsPage() {
             <div className="bg-greenOpacity100 text-whiteOpacity85 rounded-xl p-7">
               <div className="text-xl">Your Rewards</div>
               <div className="text-xs pt-4">
-                {unclaimedFarms.map((farm) => (
+                {farms.map((farm) => (
                   <ClaimView key={farm.farm_id} data={farm} />
                 ))}
               </div>
-              {unclaimedFarms.length > 0 ? (
-                <div className="pt-7 py-2 text-center">
-                  {wallet.isSignedIn() ? (
-                    <button
-                      className={`rounded-full text-xs px-3 py-1.5 focus:outline-none font-semibold focus:outline-none bg-white text-green-700`}
-                      onClick={claimRewards}
-                    >
-                      Claim Rewards
-                    </button>
-                  ) : (
-                    <ConnectToNearBtn />
-                  )}
-                </div>
-              ) : null}
             </div>
           )}
         </div>
@@ -129,20 +96,22 @@ export function FarmsPage() {
 }
 
 function ClaimView({ data }: { data: FarmInfo }) {
-  const [firstToken, setFirstToken] = useState<TokenMetadata>();
-  const [secondToken, setSecondToken] = useState<TokenMetadata>();
+  const [disableWithdraw, setDisableWithdraw] = useState<boolean>(false);
 
   useEffect(() => {
-    getPoolDetails(Number(data.lpTokenId)).then((pool) => {
-      ftGetTokenMetadata(pool.tokenIds[0]).then((token) => {
-        setFirstToken(token);
-      });
-      ftGetTokenMetadata(pool.tokenIds[1]).then((token) => {
-        setSecondToken(token);
-      });
-    });
+    if (data.rewardNumber === '0') {
+      setDisableWithdraw(true);
+    }
   }, [data]);
-  if (!firstToken || !secondToken) return Loading();
+
+  function withdrawRewards() {
+    setDisableWithdraw(true);
+    withdrawReward({
+      token_id: data.reward_token,
+      amount: data.rewardNumber,
+      token: data.rewardToken,
+    });
+  }
 
   return (
     <div>
@@ -150,12 +119,21 @@ function ClaimView({ data }: { data: FarmInfo }) {
         key={data.farm_id}
         className="py-2 flex items-center justify-between"
       >
-        <div>{`${toRealSymbol(firstToken.symbol)}-${toRealSymbol(
-          secondToken.symbol
-        )}`}</div>
         <div>
-          {data.userUnclaimedReward}
-          <span> {toRealSymbol(data.rewardToken.symbol)}</span>
+          {toPrecision(data.rewardNumber, 6)}{' '}
+          {toRealSymbol(data.rewardToken.symbol)}
+        </div>
+        <div>
+          {wallet.isSignedIn() ? (
+            <WithdrawButton
+              onClick={withdrawRewards}
+              disabled={disableWithdraw}
+            >
+              Withdraw
+            </WithdrawButton>
+          ) : (
+            <ConnectToNearBtn />
+          )}
         </div>
       </div>
     </div>
@@ -171,6 +149,8 @@ function FarmView({ data }: { data: FarmInfo }) {
   const [error, setError] = useState<Error>();
   const [ended, setEnded] = useState<boolean>(false);
   const [pending, setPending] = useState<boolean>(false);
+  const [disableClaim, setDisableClaim] = useState<boolean>(false);
+
   const PoolId = data.lpTokenId;
   const tokens = useTokens(data?.tokenIds);
 
@@ -194,13 +174,13 @@ function FarmView({ data }: { data: FarmInfo }) {
   }
 
   function claimReward(farm_id: string) {
-    setFarmsIsLoading(true);
+    setDisableClaim(true);
     claimRewardByFarm(farm_id)
       .then(() => {
         window.location.reload();
       })
       .catch((error) => {
-        setFarmsIsLoading(false);
+        setDisableClaim(false);
         setError(error);
       });
   }
@@ -303,44 +283,32 @@ function FarmView({ data }: { data: FarmInfo }) {
             <div>Total Staked</div>
             <div>${data.totalStaked}</div>
           </div>
-          {data.userUnclaimedReward !== '0' ? (
-            <div className="flex items-center justify-between text-xs py-2">
-              <div>Unclaimed rewards</div>
-              <div>
-                {data.userUnclaimedReward}{' '}
-                {toRealSymbol(data.rewardToken.symbol)}
-              </div>
+          <div className="flex items-center justify-between text-xs py-2">
+            <div>Unclaimed rewards</div>
+            <div>
+              {data.userUnclaimedReward} {toRealSymbol(data.rewardToken.symbol)}
             </div>
-          ) : null}
+          </div>
         </div>
         <div>
           {wallet.isSignedIn() ? (
             <div className="flex flex-wrap gap-2 justify-center mt-4">
-              {data.rewardNumber !== '0' ? (
-                <BorderButton onClick={() => showWithDraw()}>
-                  <div className="w-16 text-xs text-greenLight">Withdraw</div>
-                </BorderButton>
-              ) : null}
-              {data.userStaked === '0' || ended ? (
-                <GreenButton onClick={() => showStakeModal()} disabled={ended}>
-                  <div className="w-10 text-white">Stake</div>
+              {data.userUnclaimedReward !== '0' ? (
+                <GreenButton
+                  onClick={() => claimReward(data.farm_id)}
+                  disabled={disableClaim}
+                >
+                  <div className="w-16 text-xs">Claim</div>
                 </GreenButton>
               ) : null}
-              {data.userUnclaimedReward !== '0' ? (
-                <BorderButton onClick={() => claimReward(data.farm_id)}>
-                  <div className="w-10 text-greenLight">Claim</div>
+              {data.userStaked !== '0' ? (
+                <BorderButton onClick={() => showUnstakeModal()}>
+                  <div className="w-16 text-xs text-greenLight">Unstake</div>
                 </BorderButton>
               ) : null}
-              {data.userStaked !== '0' ? (
-                <BorderlessButton onClick={() => showUnstakeModal()}>
-                  <div className="w-8 text-lg text-greenLight">-</div>
-                </BorderlessButton>
-              ) : null}
-              {data.userStaked !== '0' ? (
-                <BorderlessButton onClick={() => showStakeModal()}>
-                  <div className="w-8 text-lg text-greenLight">+</div>
-                </BorderlessButton>
-              ) : null}
+              <BorderButton onClick={() => showStakeModal()} disabled={ended}>
+                <div className="w-16 text-xs text-greenLight">Stake</div>
+              </BorderButton>
             </div>
           ) : (
             <ConnectToNearBtn />
