@@ -8,7 +8,18 @@ import {
   BorderButton,
   WithdrawButton,
 } from '~components/button/Button';
-import { getFarms, claimRewardByFarm, FarmInfo } from '~services/farm';
+import {
+  getFarms,
+  claimRewardByFarm,
+  FarmInfo,
+  getFarmInfo,
+  Farm,
+  getStakedListByAccountId,
+  getRewards,
+  getSeeds,
+  getLPTokenId,
+  DEFAULT_PAGE_LIMIT,
+} from '~services/farm';
 import {
   stake,
   unstake,
@@ -27,33 +38,55 @@ import ReactTooltip from 'react-tooltip';
 import { toRealSymbol } from '~utils/token';
 import ReactModal from 'react-modal';
 import { isMobile } from '~utils/device';
+import {
+  getPoolsByIdsFromIndexer,
+  getTokenPriceList,
+  PoolRPCView,
+} from '~services/api';
+import ClipLoader from 'react-spinners/ClipLoader';
 
 export function FarmsPage() {
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
   const [farms, setFarms] = useState<FarmInfo[]>([]);
   const [error, setError] = useState<Error>();
+  const [stakedList, setStakedList] = useState<Record<string, string>>({});
+  const [rewardList, setRewardList] = useState<Record<string, string>>({});
+  const [tokenPriceList, setTokenPriceList] = useState<any>();
+  const [seeds, setSeeds] = useState<Record<string, string>>({});
+  const page = 1;
+  const perPage = DEFAULT_PAGE_LIMIT;
 
-  function loadFarmInfoList() {
+  async function loadFarmInfoList() {
     setUnclaimedFarmsIsLoading(true);
-    getFarms({}).then((farms) => {
+    const stakedList: Record<string, string> = await getStakedListByAccountId(
+      {}
+    );
+    setStakedList(stakedList);
+    const rewardList: Record<string, string> = await getRewards({});
+    setRewardList(rewardList);
+    const tokenPriceList: any = await getTokenPriceList();
+    setTokenPriceList(tokenPriceList);
+    const seeds: Record<string, string> = await getSeeds({
+      page: page,
+      perPage: perPage,
+    });
+    setSeeds(seeds);
+    getFarms({
+      page,
+      perPage,
+      stakedList,
+      rewardList,
+      tokenPriceList,
+      seeds,
+    }).then((farms) => {
       setUnclaimedFarmsIsLoading(false);
       setFarms(farms);
     });
   }
 
   useEffect(() => {
-    loadFarmInfoList();
+    loadFarmInfoList().then();
   }, []);
-
-  function claimRewards() {
-    setUnclaimedFarmsIsLoading(true);
-    const tasks = farms.map((farm) => claimRewardByFarm(farm.farm_id));
-    Promise.all(tasks)
-      .then(() => {
-        loadFarmInfoList();
-      })
-      .catch(setError);
-  }
 
   return (
     <>
@@ -83,11 +116,22 @@ export function FarmsPage() {
         </div>
         <div className="flex-grow xs:flex-none">
           <div className="overflow-auto relative mt-8 pb-4">
-            <div className="grid grid-cols-3 gap-4 xs:grid-cols-1 md:grid-cols-1">
-              {farms.map((farm) => (
-                <FarmView key={farm.farm_id} data={farm} />
-              ))}
-            </div>
+            {unclaimedFarmsIsLoading ? (
+              <Loading />
+            ) : (
+              <div className="grid grid-cols-3 gap-4 xs:grid-cols-1 md:grid-cols-1">
+                {farms.map((farm) => (
+                  <FarmView
+                    key={farm.farm_id}
+                    farmData={farm}
+                    stakedList={stakedList}
+                    rewardList={rewardList}
+                    tokenPriceList={tokenPriceList}
+                    seeds={seeds}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -140,7 +184,19 @@ function ClaimView({ data }: { data: FarmInfo }) {
   );
 }
 
-function FarmView({ data }: { data: FarmInfo }) {
+function FarmView({
+  farmData,
+  stakedList,
+  rewardList,
+  tokenPriceList,
+  seeds,
+}: {
+  farmData: FarmInfo;
+  stakedList: Record<string, string>;
+  rewardList: Record<string, string>;
+  tokenPriceList: any;
+  seeds: Record<string, string>;
+}) {
   const [farmsIsLoading, setFarmsIsLoading] = useState(false);
   const [withdrawVisible, setWithdrawVisible] = useState(false);
   const [unstakeVisible, setUnstakeVisible] = useState(false);
@@ -150,14 +206,50 @@ function FarmView({ data }: { data: FarmInfo }) {
   const [ended, setEnded] = useState<boolean>(false);
   const [pending, setPending] = useState<boolean>(false);
   const [disableClaim, setDisableClaim] = useState<boolean>(false);
+  const [data, setData] = useState<FarmInfo>();
+  const [count, setCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const clipColor = '#00c08b';
+  const clipSize = 14;
+  const refreshTime = 30000;
 
-  const PoolId = data.lpTokenId;
-  const tokens = useTokens(data?.tokenIds);
+  const PoolId = farmData.lpTokenId;
+  const tokens = useTokens(farmData?.tokenIds);
 
   useEffect(() => {
-    setEnded(data.farm_status === 'Ended');
-    setPending(data.farm_status === 'Created');
-  }, [data]);
+    setEnded(farmData.farm_status === 'Ended');
+    setPending(farmData.farm_status === 'Created');
+    setData(farmData);
+    setLoading(false);
+  }, [farmData]);
+
+  useEffect(() => {
+    if (count > 0) {
+      setLoading(true);
+      getFarmInfo(
+        farmData,
+        farmData.pool,
+        stakedList[farmData.seed_id],
+        tokenPriceList,
+        rewardList[farmData.reward_token],
+        seeds[farmData.seed_id],
+        farmData.lpTokenId
+      ).then((data) => {
+        setData(data);
+        setLoading(false);
+      });
+    }
+
+    if (data) {
+      setEnded(data.farm_status === 'Ended');
+      setPending(data.farm_status === 'Created');
+    }
+
+    const id = setInterval(() => {
+      setCount(count + 1);
+    }, refreshTime);
+    return () => clearInterval(id);
+  }, [count]);
 
   async function showUnstakeModal() {
     setUnstakeVisible(true);
@@ -277,17 +369,29 @@ function FarmView({ data }: { data: FarmInfo }) {
           ) : null}
           <div className="flex items-center justify-between text-xs py-2">
             <div>APR</div>
-            <div>{data.apr}%</div>
+            <div>
+              <ClipLoader color={clipColor} loading={loading} size={clipSize} />
+            </div>
+            {loading ? null : <div>{data.apr}%</div>}
           </div>
           <div className="flex items-center justify-between text-xs py-2">
             <div>Total Staked</div>
-            <div>${data.totalStaked}</div>
+            <div>
+              <ClipLoader color={clipColor} loading={loading} size={clipSize} />
+            </div>
+            {loading ? null : <div>${data.totalStaked}</div>}
           </div>
           <div className="flex items-center justify-between text-xs py-2">
             <div>Unclaimed rewards</div>
             <div>
-              {data.userUnclaimedReward} {toRealSymbol(data.rewardToken.symbol)}
+              <ClipLoader color={clipColor} loading={loading} size={clipSize} />
             </div>
+            {loading ? null : (
+              <div>
+                {data.userUnclaimedReward}{' '}
+                {toRealSymbol(data.rewardToken.symbol)}
+              </div>
+            )}
           </div>
         </div>
         <div>
