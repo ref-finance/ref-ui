@@ -22,7 +22,7 @@ export default function SlippageSelector({
             data-type="dark"
             data-place="top"
             data-multiline={true}
-            data-tip={copy.airdrop}
+            data-tip={copy.slippageCopy}
           >
             <Info />
           </div>
