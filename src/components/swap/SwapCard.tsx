@@ -151,7 +151,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         onClick={() => {
           setTokenIn(tokenOut);
           setTokenOut(tokenIn);
-          setTokenInAmount(toPrecision(tokenOutAmount, 6));
+          setTokenInAmount(toPrecision('1', 6));
         }}
       >
         <div className="inline-block mt-4 mb-4 cursor-pointer">
