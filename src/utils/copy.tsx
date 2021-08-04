@@ -41,4 +41,6 @@ export default {
   getLPTokenCopy: 'Click here to jump to the corresponding pool.',
   airdrop:
     ' Please claim your airdrop at least once before the expiration date otherwise your balance would be donated into the treasury.',
+  farmRewards:
+    'Here is where you will see all the balances that you have claimed from the pools you are participating in. Withdraw to your Near wallet',
 };

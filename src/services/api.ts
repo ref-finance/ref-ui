@@ -1,6 +1,5 @@
 import getConfig from './config';
 import { wallet } from './near';
-import _ from 'lodash';
 import { toPrecision } from '~utils/numbers';
 import { BigNumber } from 'bignumber.js';
 
@@ -84,6 +83,7 @@ export const getPoolFromIndexer = async (
       return parsePoolView(pool);
     });
 };
+
 export const getPoolsByIdsFromIndexer = async (
   pool_ids: string[]
 ): Promise<PoolRPCView[]> => {
@@ -108,5 +108,19 @@ export const getTokenPriceList = async (): Promise<any> => {
     .then((res) => res.json())
     .then((list) => {
       return list;
+    });
+};
+
+export const getUserWalletTokens = async (): Promise<any> => {
+  return await fetch(
+    config.helperUrl + '/account/' + wallet.getAccountId() + '/likelyTokens',
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((tokens) => {
+      return tokens;
     });
 };
