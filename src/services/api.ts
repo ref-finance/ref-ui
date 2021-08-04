@@ -110,3 +110,17 @@ export const getTokenPriceList = async (): Promise<any> => {
       return list;
     });
 };
+
+export const getUserWalletTokens = async (): Promise<any> => {
+  return await fetch(
+    config.helperUrl + '/account/' + wallet.getAccountId() + '/likelyTokens',
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((tokens) => {
+      return tokens;
+    });
+};

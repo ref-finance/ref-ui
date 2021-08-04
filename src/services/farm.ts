@@ -3,12 +3,7 @@ import { toPrecision, toReadableNumber } from '~utils/numbers';
 import { LP_TOKEN_DECIMALS } from '~services/m-token';
 import * as math from 'mathjs';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
-import {
-  getPoolsByIdsFromIndexer,
-  getTokenPriceList,
-  PoolRPCView,
-} from '~services/api';
-import getConfig from '~services/config';
+import { getPoolsByIdsFromIndexer, PoolRPCView } from '~services/api';
 import { BigNumber } from 'bignumber.js';
 
 export const DEFAULT_PAGE_LIMIT = 100;
@@ -36,6 +31,7 @@ export interface Farm {
 }
 
 export interface FarmInfo extends Farm {
+  pool: PoolRPCView;
   lpTokenId: string;
   rewardNumber: string;
   userStaked: string;
@@ -75,152 +71,175 @@ export const getStakedListByAccountId = async ({
   return stakedList;
 };
 
+export const getLPTokenId = (farm_id: string) => {
+  return farm_id.slice(farm_id.indexOf('@') + 1, farm_id.lastIndexOf('#'));
+};
+
 export const getFarms = async ({
   page = 1,
   perPage = DEFAULT_PAGE_LIMIT,
+  stakedList,
+  rewardList,
+  tokenPriceList,
+  seeds,
 }: {
   page?: number;
   perPage?: number;
+  stakedList: Record<string, string>;
+  rewardList: Record<string, string>;
+  tokenPriceList: any;
+  seeds: Record<string, string>;
 }): Promise<FarmInfo[]> => {
-  const isSignedIn: boolean = wallet.isSignedIn();
   const index = (page - 1) * perPage;
   const farms: Farm[] = await refFarmViewFunction({
     methodName: 'list_farms',
     args: { from_index: index, limit: perPage },
   });
-
-  let stakedList: Record<string, string> = isSignedIn
-    ? await getStakedListByAccountId({})
-    : {};
-
-  let rewardList: Record<string, string> = isSignedIn
-    ? await getRewards({})
-    : {};
-
-  const tokenPriceList = await getTokenPriceList();
-  const refPrice = tokenPriceList[getConfig().REF_TOKEN_ID]?.price || 0;
-
-  const seeds = await getSeeds({ page: page, perPage: perPage });
-
   const pool_ids = farms.map((f) => {
-    return f.farm_id.slice(
-      f.farm_id.indexOf('@') + 1,
-      f.farm_id.lastIndexOf('#')
-    );
+    return getLPTokenId(f.farm_id);
   });
-  let poolsList: Record<string, PoolRPCView> = {};
   const pools = await getPoolsByIdsFromIndexer(pool_ids);
-  poolsList = pools.reduce(
+
+  let poolList: Record<string, PoolRPCView> = pools.reduce(
     (obj: any, pool: any) => ({ ...obj, [pool.id]: pool }),
     {}
   );
 
   const tasks = farms.map(async (f) => {
-    const lpTokenId = f.farm_id.slice(
-      f.farm_id.indexOf('@') + 1,
-      f.farm_id.lastIndexOf('#')
+    const fi: FarmInfo = await getFarmInfo(
+      f,
+      poolList[getLPTokenId(f.farm_id)],
+      stakedList[f.seed_id],
+      tokenPriceList,
+      rewardList[f.reward_token],
+      seeds[f.seed_id],
+      getLPTokenId(f.farm_id)
     );
-
-    const { shares_total_supply, tvl, token_account_ids } =
-      poolsList[lpTokenId];
-    const poolTvl = tvl;
-    const poolSts = Number(toReadableNumber(24, shares_total_supply));
-    const userStaked = toReadableNumber(
-      LP_TOKEN_DECIMALS,
-      stakedList[f.seed_id] ?? '0'
-    );
-    const rewardToken = await ftGetTokenMetadata(f.reward_token);
-    const rewardNumber =
-      toReadableNumber(rewardToken.decimals, rewardList[f.reward_token]) ?? '0';
-    const seedAmount = seeds[f.seed_id] ?? '0';
-    const totalSeed =
-      toReadableNumber(LP_TOKEN_DECIMALS, seeds[f.seed_id]) ?? '0';
-
-    const rewardNumberPerWeek = math.round(
-      math.evaluate(
-        `(${f.reward_per_session} / ${f.session_interval}) * 604800`
-      )
-    );
-
-    const rewardsPerWeek = toPrecision(
-      toReadableNumber(
-        rewardToken.decimals,
-        new BigNumber(rewardNumberPerWeek.toString()).toFixed()
-      ),
-      4
-    );
-
-    const userRewardNumberPerWeek =
-      seedAmount !== '0'
-        ? math.round(
-            math.evaluate(
-              `${rewardNumberPerWeek} * (${
-                stakedList[f.seed_id] ?? 0
-              } / ${seedAmount})`
-            )
-          )
-        : 0;
-    const userRewardsPerWeek = toReadableNumber(
-      rewardToken.decimals,
-      userRewardNumberPerWeek.toString()
-    );
-    let userUnclaimedRewardNumber: string = isSignedIn
-      ? await getUnclaimedReward(f.farm_id)
-      : '0';
-
-    const userUnclaimedReward = toPrecision(
-      toReadableNumber(rewardToken.decimals, userUnclaimedRewardNumber),
-      4
-    );
-
-    const totalStaked =
-      poolSts === 0
-        ? 0
-        : Number(
-            toPrecision(((Number(totalSeed) * poolTvl) / poolSts).toString(), 1)
-          );
-
-    const apr =
-      totalStaked === 0
-        ? '0'
-        : toPrecision(
-            (
-              (1 / totalStaked) *
-              (Number(rewardsPerWeek) * refPrice) *
-              52 *
-              100
-            ).toString(),
-            1
-          );
-
-    const fi: FarmInfo = {
-      ...f,
-      lpTokenId,
-      rewardNumber,
-      userStaked,
-      rewardsPerWeek,
-      userRewardsPerWeek,
-      userUnclaimedReward,
-      rewardToken,
-      totalStaked,
-      apr,
-      tokenIds: token_account_ids,
-    };
     return fi;
   });
 
   return Promise.all(tasks);
 };
 
+export const getFarmInfo = async (
+  farm: Farm,
+  pool: PoolRPCView,
+  staked: string,
+  tokenPriceList: any,
+  reward: string,
+  seed: string,
+  lpTokenId: string
+): Promise<FarmInfo> => {
+  const isSignedIn: boolean = wallet.isSignedIn();
+  const { shares_total_supply, tvl, token_account_ids } = pool;
+  const poolTvl = tvl;
+  const poolSts = Number(toReadableNumber(24, shares_total_supply));
+  const userStaked = toReadableNumber(LP_TOKEN_DECIMALS, staked ?? '0');
+  const rewardToken = await ftGetTokenMetadata(farm.reward_token);
+  const rewardTokenPrice = tokenPriceList
+    ? tokenPriceList[rewardToken.id]?.price
+    : 0;
+  const rewardNumber = toReadableNumber(rewardToken.decimals, reward) ?? '0';
+  const seedAmount = seed ?? '0';
+  const totalSeed = toReadableNumber(LP_TOKEN_DECIMALS, seedAmount);
+
+  const rewardNumberPerWeek = math.round(
+    math.evaluate(
+      `(${farm.reward_per_session} / ${farm.session_interval}) * 604800`
+    )
+  );
+
+  const rewardsPerWeek = toPrecision(
+    toReadableNumber(
+      rewardToken.decimals,
+      new BigNumber(rewardNumberPerWeek.toString()).toFixed()
+    ),
+    4
+  );
+
+  const userRewardNumberPerWeek =
+    seedAmount !== '0'
+      ? math.round(
+          math.evaluate(
+            `${rewardNumberPerWeek} * (${staked ?? 0} / ${seedAmount})`
+          )
+        )
+      : 0;
+
+  const userRewardsPerWeek = toReadableNumber(
+    rewardToken.decimals,
+    userRewardNumberPerWeek.toString()
+  );
+
+  let userUnclaimedRewardNumber: string = isSignedIn
+    ? await getUnclaimedReward(farm.farm_id)
+    : '0';
+
+  const userUnclaimedReward = toPrecision(
+    toReadableNumber(rewardToken.decimals, userUnclaimedRewardNumber),
+    6
+  );
+
+  const totalStaked =
+    poolSts === 0
+      ? 0
+      : Number(
+          toPrecision(((Number(totalSeed) * poolTvl) / poolSts).toString(), 1)
+        );
+
+  const apr =
+    totalStaked === 0
+      ? '0'
+      : toPrecision(
+          (
+            (1 / totalStaked) *
+            (Number(rewardsPerWeek) * rewardTokenPrice) *
+            52 *
+            100
+          ).toString(),
+          1
+        );
+
+  return {
+    ...farm,
+    pool,
+    lpTokenId,
+    rewardNumber,
+    userStaked,
+    rewardsPerWeek,
+    userRewardsPerWeek,
+    userUnclaimedReward,
+    rewardToken,
+    totalStaked,
+    apr,
+    tokenIds: token_account_ids,
+  };
+};
+
 export const getUnclaimedFarms = async ({
   page = 1,
   perPage = DEFAULT_PAGE_LIMIT,
+  stakedList,
+  rewardList,
+  tokenPriceList,
+  seeds,
 }: {
   page?: number;
   perPage?: number;
+  stakedList: Record<string, string>;
+  rewardList: Record<string, string>;
+  tokenPriceList: any;
+  seeds: Record<string, string>;
 }): Promise<FarmInfo[]> => {
   const isSignedIn = wallet.isSignedIn();
-  let farms: FarmInfo[] = await getFarms({ page, perPage });
+  let farms: FarmInfo[] = await getFarms({
+    page,
+    perPage,
+    stakedList,
+    rewardList,
+    tokenPriceList,
+    seeds,
+  });
   await Promise.all(
     farms.map(async (farm: any, i: number) => {
       const current_user_reward = isSignedIn

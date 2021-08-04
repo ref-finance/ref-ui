@@ -72,6 +72,24 @@ export function GrayButton(
   );
 }
 
+export function WithdrawButton(
+  props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean }
+) {
+  const { disabled } = props;
+  const { className, ...propsWithoutClassName } = props;
+  return (
+    <button
+      disabled={disabled}
+      className={`rounded-full text-xs px-3 py-1.5 focus:outline-none font-semibold focus:outline-none bg-white text-green-700 ${className} ${
+        disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
+      }`}
+      {...propsWithoutClassName}
+    >
+      {props.children}
+    </button>
+  );
+}
+
 export function ConnectToNearBtn() {
   return (
     <div className="flex items-center justify-center pt-2">

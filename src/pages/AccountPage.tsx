@@ -25,6 +25,7 @@ import { RemoveLiquidityModal } from './pools/DetailsPage';
 import { wallet } from '~services/near';
 import getConfig from '~services/config';
 import { toRealSymbol } from '~utils/token';
+import { TokenMetadata } from '~services/ft-contract';
 
 const config = getConfig();
 
@@ -40,7 +41,7 @@ function useLastActions() {
   return actions;
 }
 
-function Balance({ hideEmpty }: { hideEmpty?: boolean }) {
+function Balances({ hideEmpty }: { hideEmpty?: boolean }) {
   const userTokens = useUserRegisteredTokens();
   const balances = useTokenBalances();
 
@@ -59,42 +60,61 @@ function Balance({ hideEmpty }: { hideEmpty?: boolean }) {
         </GreenButton>
       </div>
       <div>
-        {userTokens.map((token) => {
-          const balance = balances[token.id] || '0';
-          if (balance === '0' && hideEmpty) return null;
-
-          const amount = toPrecision(
-            toReadableNumber(token.decimals, balance),
-            6,
-            true
-          );
-
+        {userTokens.map((token, i) => {
           return (
-            <div
-              key={token.id}
-              className="flex items-center justify-between py-4 border-t"
-            >
-              <div className="flex item-center justify-between">
-                {token.icon ? (
-                  <img
-                    className="h-10 w-10 mr-3"
-                    src={token.icon}
-                    alt={toRealSymbol(token.symbol)}
-                  />
-                ) : (
-                  <div className="rounded-full h-10 w-10 bg-gray-300 mr-3"></div>
-                )}
-                <div className="flex flex-col justify-between py-1">
-                  <div>{toRealSymbol(token.symbol)}</div>
-                  <div className="text-xs text-gray-500">{token.id}</div>
-                </div>
-              </div>
-              <div className="text-gray-600">{amount}</div>
-            </div>
+            <TokenRow
+              key={i}
+              token={token}
+              balanceValue={balances[token.id]}
+              hideEmpty={hideEmpty}
+            />
           );
         })}
       </div>
     </Card>
+  );
+}
+
+function TokenRow({
+  token,
+  balanceValue,
+  hideEmpty,
+}: {
+  token: TokenMetadata;
+  balanceValue: string;
+  hideEmpty?: boolean;
+}) {
+  const balance = balanceValue || '0';
+  if (balance === '0' && hideEmpty) return null;
+
+  const amount = toPrecision(
+    toReadableNumber(token.decimals, balance),
+    6,
+    true
+  );
+
+  return (
+    <div
+      key={token.id}
+      className="flex items-center justify-between py-4 border-t"
+    >
+      <div className="flex item-center justify-between">
+        {token.icon ? (
+          <img
+            className="h-10 w-10 mr-3"
+            src={token.icon}
+            alt={toRealSymbol(token.symbol)}
+          />
+        ) : (
+          <div className="rounded-full h-10 w-10 bg-gray-300 mr-3"></div>
+        )}
+        <div className="flex flex-col justify-between py-1">
+          <div>{toRealSymbol(token.symbol)}</div>
+          <div className="text-xs text-gray-500">{token.id}</div>
+        </div>
+      </div>
+      <div className="text-gray-600">{amount}</div>
+    </div>
   );
 }
 
@@ -323,7 +343,7 @@ function Account() {
       <div className="hide-scrollbar w-7/12 m-auto overflow-y-auto h-full">
         <div className="grid grid-cols-3 gap-6 xs:hidden">
           <div className="col-span-2">
-            <Balance />
+            <Balances />
           </div>
           <div>
             <Actions />
@@ -334,7 +354,7 @@ function Account() {
   );
 }
 
-function MobileBalance({ hideEmpty }: { hideEmpty?: boolean }) {
+function MobileBalances({ hideEmpty }: { hideEmpty?: boolean }) {
   const userTokens = useUserRegisteredTokens();
   const balances = useTokenBalances();
 
@@ -449,9 +469,7 @@ function MobileActions() {
           className=" w-full text-white py-2 mt-6"
           borderColor="border-gray-500"
           onClick={() => {
-            const url = `https://explorer.testnet.near.org/accounts/${
-              wallet.account().accountId
-            }`;
+            const url = config.walletUrl + '/' + wallet.account().accountId;
             window.open(url, '_blank');
           }}
         >
@@ -526,8 +544,7 @@ function MobileAccount() {
 
       {!showRecent ? (
         <>
-          <MobileBalance />
-          <MobileLiquidity />
+          <MobileBalances />
         </>
       ) : (
         <MobileActions />
