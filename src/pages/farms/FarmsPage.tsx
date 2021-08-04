@@ -106,7 +106,10 @@ export function FarmsPage() {
           ) : (
             <div className="bg-greenOpacity100 text-whiteOpacity85 rounded-xl p-7">
               <div className="text-xl">Your Rewards</div>
-              <div className="text-xs pt-4">
+              <div className="text-sm pt-2 text-gray-50">
+                {copy.farmRewards}
+              </div>
+              <div className="text-xs pt-2">
                 {farms.map((farm) => (
                   <ClaimView key={farm.farm_id} data={farm} />
                 ))}
