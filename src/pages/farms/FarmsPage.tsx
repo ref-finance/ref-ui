@@ -13,11 +13,9 @@ import {
   claimRewardByFarm,
   FarmInfo,
   getFarmInfo,
-  Farm,
   getStakedListByAccountId,
   getRewards,
   getSeeds,
-  getLPTokenId,
   DEFAULT_PAGE_LIMIT,
 } from '~services/farm';
 import {
@@ -38,11 +36,7 @@ import ReactTooltip from 'react-tooltip';
 import { toRealSymbol } from '~utils/token';
 import ReactModal from 'react-modal';
 import { isMobile } from '~utils/device';
-import {
-  getPoolsByIdsFromIndexer,
-  getTokenPriceList,
-  PoolRPCView,
-} from '~services/api';
+import { getTokenPriceList } from '~services/api';
 import ClipLoader from 'react-spinners/ClipLoader';
 
 export function FarmsPage() {
@@ -58,19 +52,24 @@ export function FarmsPage() {
 
   async function loadFarmInfoList() {
     setUnclaimedFarmsIsLoading(true);
-    const stakedList: Record<string, string> = await getStakedListByAccountId(
-      {}
-    );
-    setStakedList(stakedList);
-    const rewardList: Record<string, string> = await getRewards({});
-    setRewardList(rewardList);
+    const isSignedIn: boolean = wallet.isSignedIn();
+    const stakedList: Record<string, string> = isSignedIn
+      ? await getStakedListByAccountId({})
+      : {};
+    const rewardList: Record<string, string> = isSignedIn
+      ? await getRewards({})
+      : {};
     const tokenPriceList: any = await getTokenPriceList();
-    setTokenPriceList(tokenPriceList);
     const seeds: Record<string, string> = await getSeeds({
       page: page,
       perPage: perPage,
     });
+
+    setStakedList(stakedList);
+    setRewardList(rewardList);
+    setTokenPriceList(tokenPriceList);
     setSeeds(seeds);
+
     getFarms({
       page,
       perPage,
