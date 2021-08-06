@@ -212,7 +212,7 @@ function FarmView({
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const clipColor = '#00c08b';
-  const clipSize = 14;
+  const clipSize = 12;
   const refreshTime = 30000;
 
   const PoolId = farmData.lpTokenId;

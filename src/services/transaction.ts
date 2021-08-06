@@ -11,7 +11,7 @@ export const parseAction = async (methodName: string, params: any) => {
       return await parseWithdraw(params);
     }
     case 'register_tokens': {
-      return await parseRegisterTokens(params);
+      return parseRegisterTokens(params);
     }
     case 'add_liquidity': {
       return await parseAddLiquidity(params);
