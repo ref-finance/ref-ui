@@ -195,7 +195,7 @@ export default function AirdropView() {
         setStatsInfo(err);
       });
   }, []);
-  if (!refToken || !accountInfo || !statsInfo) return Loading();
+  if (!refToken && !accountInfo && !statsInfo) return Loading();
 
   return (
     <div className="overflow-y-auto bg-secondary shadow-2xl rounded-xl p-7 xs:p-2 md:p-2">
