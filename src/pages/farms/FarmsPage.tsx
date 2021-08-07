@@ -17,6 +17,7 @@ import {
   getRewards,
   getSeeds,
   DEFAULT_PAGE_LIMIT,
+  listRewards,
 } from '~services/farm';
 import {
   stake,
@@ -38,6 +39,7 @@ import ReactModal from 'react-modal';
 import { isMobile } from '~utils/device';
 import { getTokenPriceList } from '~services/api';
 import ClipLoader from 'react-spinners/ClipLoader';
+import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 
 export function FarmsPage() {
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
@@ -109,8 +111,8 @@ export function FarmsPage() {
                 {copy.farmRewards}
               </div>
               <div className="text-xs pt-2">
-                {farms.map((farm) => (
-                  <ClaimView key={farm.farm_id} data={farm} />
+                {Object.entries(rewardList).map((rewardToken: any, index) => (
+                  <ClaimView key={index} data={rewardToken} />
                 ))}
               </div>
             </div>
@@ -141,11 +143,13 @@ export function FarmsPage() {
   );
 }
 
-function ClaimView({ data }: { data: FarmInfo }) {
+function ClaimView({ data }: { data: any }) {
   const [disableWithdraw, setDisableWithdraw] = useState<boolean>(false);
+  const [token, setToken] = useState<TokenMetadata>();
 
   useEffect(() => {
-    if (data.rewardNumber === '0') {
+    ftGetTokenMetadata(data[0]).then(setToken);
+    if (data[1] === '0') {
       setDisableWithdraw(true);
     }
   }, [data]);
@@ -153,11 +157,13 @@ function ClaimView({ data }: { data: FarmInfo }) {
   function withdrawRewards() {
     setDisableWithdraw(true);
     withdrawReward({
-      token_id: data.reward_token,
-      amount: data.rewardNumber,
-      token: data.rewardToken,
+      token_id: data[0],
+      amount: toReadableNumber(token.decimals, data[1]),
+      token: token,
     });
   }
+
+  if (!token) return Loading();
 
   return (
     <div>
@@ -166,8 +172,8 @@ function ClaimView({ data }: { data: FarmInfo }) {
         className="py-2 flex items-center justify-between"
       >
         <div>
-          {toPrecision(data.rewardNumber, 6)}{' '}
-          {toRealSymbol(data.rewardToken.symbol)}
+          {toPrecision(toReadableNumber(token.decimals, data[1]), 6)}{' '}
+          {toRealSymbol(token.symbol)}
         </div>
         <div>
           {wallet.isSignedIn() ? (
