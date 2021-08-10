@@ -3,8 +3,9 @@ import { toPrecision, toReadableNumber } from '~utils/numbers';
 import { LP_TOKEN_DECIMALS } from '~services/m-token';
 import * as math from 'mathjs';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
-import { getPoolsByIdsFromIndexer, PoolRPCView } from '~services/api';
+import { PoolRPCView } from '~services/api';
 import { BigNumber } from 'bignumber.js';
+import { getPoolsByIds } from '~services/indexer';
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -98,17 +99,35 @@ export const getFarms = async ({
   const pool_ids = farms.map((f) => {
     return getLPTokenId(f.farm_id);
   });
-  const pools = await getPoolsByIdsFromIndexer(pool_ids);
 
-  let poolList: Record<string, PoolRPCView> = pools.reduce(
-    (obj: any, pool: any) => ({ ...obj, [pool.id]: pool }),
-    {}
-  );
+  let poolList: Record<string, PoolRPCView> = {};
+  const pools = await getPoolsByIds(pool_ids);
+  if (pools) {
+    poolList = pools.reduce(
+      (obj: any, pool: any) => ({ ...obj, [pool.id]: pool }),
+      {}
+    );
+  }
 
   const tasks = farms.map(async (f) => {
+    const pool: PoolRPCView =
+      Object.keys(poolList).length === 0
+        ? {
+            id: 0,
+            token_account_ids: ['', ''],
+            token_symbols: ['', ''],
+            amounts: ['', ''],
+            total_fee: 0,
+            shares_total_supply: '0',
+            tvl: 0,
+            token0_ref_price: '0',
+            share: '0',
+          }
+        : poolList[getLPTokenId(f.farm_id)];
+
     const fi: FarmInfo = await getFarmInfo(
       f,
-      poolList[getLPTokenId(f.farm_id)],
+      pool,
       stakedList[f.seed_id],
       tokenPriceList,
       rewardList[f.reward_token],

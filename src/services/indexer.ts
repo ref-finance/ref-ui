@@ -4,6 +4,8 @@ import _ from 'lodash';
 import { parsePoolView, PoolRPCView } from './api';
 import moment from 'moment/moment';
 import { parseAction } from '~services/transaction';
+import { Simulate } from 'react-dom/test-utils';
+import error = Simulate.error;
 
 const config = getConfig();
 
@@ -32,15 +34,57 @@ export const getYourPools = async (): Promise<PoolRPCView[]> => {
 };
 
 export const getTopPools = async (args: any): Promise<PoolRPCView[]> => {
-  return await fetch(config.indexerUrl + '/list-top-pools', {
+  return fetch(config.indexerUrl + '/list-top-pools', {
     method: 'GET',
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   })
     .then((res) => res.json())
     .then((pools) => {
       pools = pools.map((pool: any) => parsePoolView(pool));
+      return _order(args, _search(args, pools));
+    })
+    .catch(() => {
+      return [];
+    });
+};
 
-      return _pagination(args, _order(args, _search(args, pools)));
+export const getPool = async (pool_id: string): Promise<PoolRPCView> => {
+  return await fetch(config.indexerUrl + '/get-pool?pool_id=' + pool_id, {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  })
+    .then((res) => res.json())
+    .then((pool) => {
+      return parsePoolView(pool);
+    });
+};
+
+export const getPoolsByIds = async (
+  pool_ids: string[]
+): Promise<PoolRPCView[]> => {
+  const ids = pool_ids.join('|');
+  return fetch(config.indexerUrl + '/list-pools-by-ids?ids=' + ids, {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  })
+    .then((res) => res.json())
+    .then((pools) => {
+      pools = pools.map((pool: any) => parsePoolView(pool));
+      return pools;
+    })
+    .catch(() => {
+      return [];
+    });
+};
+
+export const getTokenPriceList = async (): Promise<any> => {
+  return await fetch(config.indexerUrl + '/list-token-price', {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  })
+    .then((res) => res.json())
+    .then((list) => {
+      return list;
     });
 };
 

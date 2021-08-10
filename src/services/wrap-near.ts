@@ -50,7 +50,7 @@ export const wrapNear = async (amount: string) => {
     actions.push({
       methodName: 'storage_deposit',
       args: {},
-      gas: '100000000000000',
+      gas: '50000000000000',
       amount: NEW_ACCOUNT_STORAGE_COST,
     });
   }
