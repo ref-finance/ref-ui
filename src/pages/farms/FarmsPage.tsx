@@ -53,21 +53,37 @@ export function FarmsPage() {
 
   useEffect(() => {
     setUnclaimedFarmsIsLoading(true);
-    getStakedListByAccountId({}).then((stakedList) => {
-      setStakedList(stakedList);
-    });
-    getRewards({}).then((rewardList) => {
-      setRewardList(rewardList);
-    });
+    getStakedListByAccountId({})
+      .then((stakedList) => {
+        setStakedList(stakedList);
+      })
+      .catch(() => {
+        setStakedList({});
+      });
+    getRewards({})
+      .then((rewardList) => {
+        setRewardList(rewardList);
+      })
+      .catch(() => {
+        setRewardList({});
+      });
     getSeeds({
       page: page,
       perPage: perPage,
-    }).then((seeds) => {
-      setSeeds(seeds);
-    });
-    getTokenPriceList().then((tokenPriceList) => {
-      setTokenPriceList(tokenPriceList);
-    });
+    })
+      .then((seeds) => {
+        setSeeds(seeds);
+      })
+      .catch(() => {
+        setSeeds({});
+      });
+    getTokenPriceList()
+      .then((tokenPriceList) => {
+        setTokenPriceList(tokenPriceList);
+      })
+      .catch(() => {
+        setTokenPriceList(0);
+      });
   }, []);
 
   useEffect(() => {

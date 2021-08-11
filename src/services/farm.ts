@@ -156,7 +156,7 @@ export const getFarmInfo = async (
   const userStaked = toReadableNumber(LP_TOKEN_DECIMALS, staked ?? '0');
   const rewardToken = await ftGetTokenMetadata(farm.reward_token);
   const rewardTokenPrice = tokenPriceList
-    ? tokenPriceList[rewardToken.id]?.price
+    ? tokenPriceList[rewardToken.id]?.price || 0
     : 0;
   const rewardNumber = toReadableNumber(rewardToken.decimals, reward) ?? '0';
   const seedAmount = seed ?? '0';
@@ -212,7 +212,7 @@ export const getFarmInfo = async (
       : toPrecision(
           (
             (1 / totalStaked) *
-            (Number(rewardsPerWeek) * rewardTokenPrice) *
+            (Number(rewardsPerWeek) * Number(rewardTokenPrice)) *
             52 *
             100
           ).toString(),
