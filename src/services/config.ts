@@ -8,8 +8,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         walletUrl: 'https://wallet.near.org',
         helperUrl: 'https://helper.mainnet.near.org',
         explorerUrl: 'https://explorer.mainnet.near.org',
-        indexerUrl:
-          process.env.INDEXER_URL || 'https://mainnet-indexer.ref-finance.com',
+        indexerUrl: process.env.INDEXER_URL || 'https://indexer.88jinmayi.com',
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'ref-finance.near',
         WRAP_NEAR_CONTRACT_ID: process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.near',
@@ -46,8 +45,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         walletUrl: 'https://wallet.near.org',
         helperUrl: 'https://helper.mainnet.near.org',
         explorerUrl: 'https://explorer.mainnet.near.org',
-        indexerUrl:
-          process.env.INDEXER_URL || 'https://mainnet-indexer.ref-finance.com',
+        indexerUrl: process.env.INDEXER_URL || 'https://indexer.88jinmayi.com',
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'ref-finance.near',
         WRAP_NEAR_CONTRACT_ID: process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.near',
