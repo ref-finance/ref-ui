@@ -50,13 +50,13 @@ jobs:
           # An array of folder to exclude
           EXCLUDE: ""
 
-      - name: deploy to 47.242.213.140
+      - name: deploy to 47.242.226.48
         uses: easingthemes/ssh-deploy@v2.2.11
         with:
           # 服务器私钥
           SSH_PRIVATE_KEY:  ${{ secrets.SSH_PRIVATE_KEY }}
           # 服务器IP
-          REMOTE_HOST:  47.242.213.140
+          REMOTE_HOST:  47.242.226.48
           # 服务器用户
           REMOTE_USER:  root
           # 服务器端口
