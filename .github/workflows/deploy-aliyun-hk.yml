@@ -1,0 +1,71 @@
+name: Deploy To Aliyun HK
+
+on:
+  push:
+    branches: [debug-new-server]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 15.x
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
+      - run: yarn test
+      - run: yarn prettier
+      - uses: actions/upload-artifact@v2.2.4
+        with:
+          name: mydist
+          path: dist
+  deploy-aliyun-hk:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: download artifact
+        uses: actions/download-artifact@v2.0.10
+        with:
+          name: mydist
+          path: dist
+
+      - name: deploy to 47.242.213.140
+        uses: easingthemes/ssh-deploy@v2.2.11
+        with:
+          # 服务器私钥
+          SSH_PRIVATE_KEY:  ${{ secrets.SSH_PRIVATE_KEY }}
+          # 服务器IP
+          REMOTE_HOST:  47.242.213.140
+          # 服务器用户
+          REMOTE_USER:  root
+          # 服务器端口
+          REMOTE_PORT: 22
+          # 源目录，编译后的目录
+          SOURCE: "dist/"
+          # 目标目录，服务器上的目录
+          TARGET: "/data/ref-ui"
+          #  rsync 参数
+          ARGS: "-rltgoDzvO"
+          # An array of folder to exclude
+          EXCLUDE: ""
+
+      - name: deploy to 47.242.213.140
+        uses: easingthemes/ssh-deploy@v2.2.11
+        with:
+          # 服务器私钥
+          SSH_PRIVATE_KEY:  ${{ secrets.SSH_PRIVATE_KEY }}
+          # 服务器IP
+          REMOTE_HOST:  47.242.213.140
+          # 服务器用户
+          REMOTE_USER:  root
+          # 服务器端口
+          REMOTE_PORT: 22
+          # 源目录，编译后的目录
+          SOURCE: "dist/"
+          # 目标目录，服务器上的目录
+          TARGET: "/data/ref-ui"
+          #  rsync 参数
+          ARGS: "-rltgoDzvO"
+          # An array of folder to exclude
+          EXCLUDE: ""
