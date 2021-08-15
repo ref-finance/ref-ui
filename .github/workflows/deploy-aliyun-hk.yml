@@ -1,0 +1,71 @@
+name: Deploy To Aliyun HK
+
+on:
+  push:
+    branches: [debug-new-server]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 15.x
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
+      - run: yarn test
+      - run: yarn prettier
+      - uses: actions/upload-artifact@v2.2.4
+        with:
+          name: mydist
+          path: dist
+  deploy-aliyun-hk:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: download artifact
+        uses: actions/download-artifact@v2.0.10
+        with:
+          name: mydist
+          path: dist
+
+      - name: deploy to 47.242.213.140
+        uses: easingthemes/ssh-deploy@v2.2.11
+        with:
+          # SSH PRIVATE KEY
+          SSH_PRIVATE_KEY:  ${{ secrets.SSH_PRIVATE_KEY }}
+          # Server IP
+          REMOTE_HOST:  47.242.213.140
+          # Username
+          REMOTE_USER:  root
+          # Port
+          REMOTE_PORT: 22
+          # Source
+          SOURCE: "dist/"
+          # Target
+          TARGET: "/data/ref-ui"
+          #  rsync
+          ARGS: "-rltgoDzvO"
+          # An array of folder to exclude
+          EXCLUDE: ""
+
+      - name: deploy to 47.242.226.48
+        uses: easingthemes/ssh-deploy@v2.2.11
+        with:
+          # SSH PRIVATE KEY
+          SSH_PRIVATE_KEY:  ${{ secrets.SSH_PRIVATE_KEY }}
+          # Server IP
+          REMOTE_HOST:  47.242.226.48
+          # Username
+          REMOTE_USER:  root
+          # Port
+          REMOTE_PORT: 22
+          # Source
+          SOURCE: "dist/"
+          # Target
+          TARGET: "/data/ref-ui"
+          #  rsync
+          ARGS: "-rltgoDzvO"
+          # An array of folder to exclude
+          EXCLUDE: ""
