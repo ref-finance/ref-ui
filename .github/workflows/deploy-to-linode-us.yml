@@ -22,7 +22,7 @@ jobs:
         with:
           name: mydist
           path: dist
-  deploy-aliyun-hk:
+  deploy-linode-us:
     needs: build
     runs-on: ubuntu-latest
     steps:
