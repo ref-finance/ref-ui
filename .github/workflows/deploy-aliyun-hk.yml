@@ -3,6 +3,8 @@ name: Deploy To Aliyun HK
 on:
   push:
     branches: [debug-new-server]
+  pull_request:
+    branches: [debug-new-server]
 
 jobs:
   build:
