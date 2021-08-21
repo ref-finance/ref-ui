@@ -10,7 +10,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         explorerUrl: 'https://explorer.mainnet.near.org',
         indexerUrl: 'https://mainnet-indexer.ref-finance.com',
         REF_FI_CONTRACT_ID:
-          process.env.REF_FI_CONTRACT_ID || 'ref-finance.near',
+          process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
         WRAP_NEAR_CONTRACT_ID: process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.near',
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
         REF_FARM_CONTRACT_ID:
@@ -46,7 +46,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         explorerUrl: 'https://explorer.mainnet.near.org',
         indexerUrl: 'https://mainnet-indexer.ref-finance.com',
         REF_FI_CONTRACT_ID:
-          process.env.REF_FI_CONTRACT_ID || 'ref-finance.near',
+          process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
         WRAP_NEAR_CONTRACT_ID: process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.near',
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
         REF_FARM_CONTRACT_ID:
