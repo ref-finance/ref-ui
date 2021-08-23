@@ -15,98 +15,11 @@
     />
     <link rel="apple-touch-icon" href="./assets/favicon.ico" />
     <title>Ref Finance</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@200;300;400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      /* css reset */
-      body,
-      div,
-      dl,
-      dt,
-      dd,
-      ul,
-      ol,
-      li,
-      h1,
-      h2,
-      h3,
-      h4,
-      h5,
-      h6,
-      pre,
-      code,
-      form,
-      fieldset,
-      legend,
-      input,
-      button,
-      textarea,
-      p,
-      blockquote,
-      th,
-      td {
-        margin: 0;
-        padding: 0;
-      }
-      body {
-        color: #666666;
-        font-size: 12px;
-        font-family: sans-serif;
-      }
-      .main-style * {
-        box-sizing: border-box;
-      }
-      .no_data {
-        text-align: center;
-        clear: both;
-        background-color: #fafafa;
-      }
-      .no_dataImg {
-        width: 240px;
-        padding: 170px 0px 50px 0px;
-      }
-      .no_dataText {
-        text-align: center;
-        padding: 0px 0px 90px 0px;
-        color: #bebebe;
-        font-size: 24px;
-        font-weight: bold;
-      }
-      .info {
-        padding: 5px;
-      }
-      .text-lg {
-        font-size: 18px;
-      }
-    </style>
+    <link rel="stylesheet" href="app.pcss" />
   </head>
-  <body style="background-color: #fafafa">
-    <div class="main-style">
-      <div class="no_data">
-        <img class="no_dataImg" src="./assets/maintenance.gif" alt="" />
-        <div class="no_dataText">System maintenance</div>
-        <div class="info">
-          <p class="text-lg">
-            Thank you for your patience Ref.finance community.
-          </p>
-          <p class="text-lg">
-            As promised, the REF smart contract was redeployed on mainnet as of
-            21st Aug
-          </p>
-          <p class="text-lg">
-            and now on beta mainnet testing on
-            <a href="https://mainnet.ref-finance.com/" target="_blank"
-              >https://mainnet.ref-finance.com.</a
-            >
-          </p>
-          <p class="text-lg">
-            Ref.finance will be officially re-launched at 12am UTC on August
-            23th.
-          </p>
-        </div>
-      </div>
-    </div>
+  <body class="font-sans">
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script src="./index.tsx"></script>
   </body>
 </html>

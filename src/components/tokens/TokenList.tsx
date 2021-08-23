@@ -16,15 +16,11 @@ export default function TokenList({
   render,
   calledBy,
 }: TokenListProps) {
-  const tokenElements = tokens.map(
-    (token) =>
-      ((token.id != WRAP_NEAR_CONTRACT_ID && calledBy === 'deposit') ||
-        calledBy != 'deposit') && (
-        <div className="text-xs font-semibold" key={token.id} title={token.id}>
-          <Token token={token} onClick={onClick} render={render} />
-        </div>
-      )
-  );
+  const tokenElements = tokens.map((token) => (
+    <div className="text-xs font-semibold" key={token.id} title={token.id}>
+      <Token token={token} onClick={onClick} render={render} />
+    </div>
+  ));
 
   return <div className="divide-y">{tokenElements}</div>;
 }

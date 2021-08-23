@@ -51,7 +51,7 @@ export const registerTokenAndExchange = async (tokenId: string) => {
     {
       methodName: 'register_tokens',
       args: { token_ids: [tokenId] },
-      // amount: ONE_YOCTO_NEAR,
+      amount: ONE_YOCTO_NEAR,
     },
   ];
 
@@ -103,7 +103,7 @@ export const unregisterToken = (tokenId: string) => {
   return refFiFunctionCall({
     methodName: 'unregister_tokens',
     args: { token_ids: [tokenId] },
-    // amount: ONE_YOCTO_NEAR,
+    amount: ONE_YOCTO_NEAR,
   });
 };
 
