@@ -33,11 +33,25 @@ function Empty() {
 
 export function YourLiquidityPage() {
   const [error, setError] = useState<Error>();
-  const [pools, setPools] = useState([]);
+  const [pools, setPools] = useState([
+    {
+      id: 0,
+      token_account_ids: ['', ''],
+      token_symbols: ['', ''],
+      amounts: ['0', '0'],
+      total_fee: 0,
+      shares_total_supply: '',
+      tvl: 0,
+      token0_ref_price: '',
+      share: '0',
+    },
+  ]);
 
   useEffect(() => {
     getYourPools().then(setPools);
   }, []);
+
+  if (!pools) return <Loading />;
 
   return (
     <div className="flex items-center flex-col w-1/3 md:w-5/6 xs:w-11/12 m-auto">
@@ -78,7 +92,7 @@ function PoolRow(props: { pool: any }) {
     getPoolBalance(Number(props.pool.id)).then(setBalance);
   }, []);
 
-  if (!pool || !tokens || tokens.length < 2 || !balance) return <Loading />;
+  if (!pool || !tokens || tokens.length < 2 || !balance) return null;
 
   tokens.sort((a, b) => {
     if (a.symbol === 'wNEAR') return 1;
