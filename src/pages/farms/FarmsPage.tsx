@@ -33,7 +33,7 @@ import { useTokens } from '~state/token';
 import copy from '~utils/copy';
 import { Info } from '~components/icon/Info';
 import ReactTooltip from 'react-tooltip';
-import { toRealSymbol } from '~utils/token';
+import { getMftTokenId, toRealSymbol } from '~utils/token';
 import ReactModal from 'react-modal';
 import { isMobile } from '~utils/device';
 import ClipLoader from 'react-spinners/ClipLoader';
@@ -290,7 +290,7 @@ function FarmView({
   }
 
   async function showStakeModal() {
-    const b = await mftGetBalance(data.lpTokenId);
+    const b = await mftGetBalance(getMftTokenId(data.lpTokenId));
     setStakeBalance(toReadableNumber(LP_TOKEN_DECIMALS, b));
     setStakeVisible(true);
   }
@@ -477,7 +477,6 @@ function FarmView({
         onSubmit={(amount) => {
           unstake({
             seed_id: data.seed_id,
-            lp_token_id: data.lpTokenId,
             amount,
           }).catch(setError);
         }}
@@ -507,7 +506,9 @@ function FarmView({
         btnText="Stake"
         max={stakeBalance}
         onSubmit={(amount) => {
-          stake({ token_id: data.lpTokenId, amount }).catch(setError);
+          stake({ token_id: getMftTokenId(data.lpTokenId), amount }).catch(
+            setError
+          );
         }}
       />
     </Card>
