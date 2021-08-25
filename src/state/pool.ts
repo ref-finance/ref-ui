@@ -29,7 +29,6 @@ export const usePools = (props: {
   tokenName?: string;
   sortBy?: string;
   order?: string;
-  useIndexerData?: boolean;
 }) => {
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(false);
@@ -46,7 +45,6 @@ export const usePools = (props: {
       tokenName: props.tokenName,
       column: props.sortBy,
       order: props.order,
-      useIndexerData: props.useIndexerData,
     }).then((pools) => {
       setHasMore(pools.length === DEFAULT_PAGE_LIMIT);
       setPools((currentPools) =>

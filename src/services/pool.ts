@@ -51,7 +51,6 @@ export const getPools = async ({
   column = '',
   order = 'desc',
   uniquePairName = false,
-  useIndexerData = false,
 }: {
   page?: number;
   perPage?: number;
@@ -59,21 +58,8 @@ export const getPools = async ({
   column?: string;
   order?: string;
   uniquePairName?: boolean;
-  useIndexerData?: boolean;
 }): Promise<Pool[]> => {
-  if (useIndexerData) {
-    const poolData: PoolRPCView[] = await getTopPools({
-      page,
-      perPage,
-      tokenName,
-      column,
-      order,
-      uniquePairName,
-    });
-    return poolData.map((rawPool) => parsePool(rawPool));
-  }
-
-  const rows = await db.queryPools({
+  const poolData: PoolRPCView[] = await getTopPools({
     page,
     perPage,
     tokenName,
@@ -81,18 +67,30 @@ export const getPools = async ({
     order,
     uniquePairName,
   });
-  return rows.map((row) => ({
-    id: row.id,
-    tokenIds: [row.token1Id, row.token2Id],
-    supplies: {
-      [row.token1Id]: row.token1Supply,
-      [row.token2Id]: row.token2Supply,
-    },
-    fee: row.fee,
-    shareSupply: row.shares,
-    tvl: 0,
-    token0_ref_price: '0',
-  }));
+  if (poolData.length > 0) {
+    return poolData.map((rawPool) => parsePool(rawPool));
+  } else {
+    const rows = await db.queryPools({
+      page,
+      perPage,
+      tokenName,
+      column,
+      order,
+      uniquePairName,
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      tokenIds: [row.token1Id, row.token2Id],
+      supplies: {
+        [row.token1Id]: row.token1Supply,
+        [row.token2Id]: row.token2Supply,
+      },
+      fee: row.fee,
+      shareSupply: row.shares,
+      tvl: 0,
+      token0_ref_price: '0',
+    }));
+  }
 };
 
 interface GetPoolOptions {

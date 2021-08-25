@@ -23,7 +23,7 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
     canFarm(pool.id).then((canFarm) => {
       setSupportFarm(canFarm);
     });
-  }, []);
+  }, [pool]);
   const [expand, setExpand] = useState(false);
   const history = useHistory();
 
@@ -73,7 +73,7 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
 
         <div className="relative w-20">
           <img
-            key={tokens[0].id}
+            key={tokens[0].id.substring(0, 12).substring(0, 12)}
             className="h-12 w-12 border rounded-full border-gray-300"
             src={tokens[0].icon}
           />
@@ -224,7 +224,7 @@ function PoolRow({ pool }: { pool: Pool }) {
     canFarm(pool.id).then((canFarm) => {
       setSupportFarm(canFarm);
     });
-  }, []);
+  }, [pool]);
   if (!tokens) return <Loading />;
 
   const farmButton = () => {
@@ -239,7 +239,10 @@ function PoolRow({ pool }: { pool: Pool }) {
 
   return (
     <Link
-      title={`${tokens[0].id}|${tokens[1].id}`}
+      title={`${tokens[0].id.substring(0, 12)}|${tokens[1].id}`.substring(
+        0,
+        12
+      )}
       to={{
         pathname: `/pool/${pool.id}`,
         state: { tvl: pool.tvl },
@@ -249,7 +252,7 @@ function PoolRow({ pool }: { pool: Pool }) {
       <div className="col-span-1">
         <div className="relative">
           <img
-            key={tokens[0].id}
+            key={tokens[0].id.substring(0, 12).substring(0, 12)}
             className="h-12 w-12 border rounded-full border-gray-300"
             src={tokens[0].icon}
           />
@@ -398,7 +401,6 @@ export function LiquidityPage() {
     tokenName,
     sortBy,
     order,
-    useIndexerData: true,
   });
   if (!pools) return <Loading />;
 

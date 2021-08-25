@@ -21,10 +21,9 @@ import Alert from '~components/alert/Alert';
 import InputAmount from '~components/forms/InputAmount';
 import SlippageSelector from '~components/forms/SlippageSelector';
 import { isMobile } from '~utils/device';
-import getConfig from '~services/config';
-import { getPoolFromIndexer, PoolRPCView } from '~services/api';
 import ReactModal from 'react-modal';
 import { toRealSymbol } from '~utils/token';
+import { getPool } from '~services/indexer';
 
 interface ParamTypes {
   id: string;
@@ -332,7 +331,7 @@ export function PoolDetailsPage() {
     if (state?.tvl > 0) {
       setPoolTVL(state?.tvl);
     } else {
-      getPoolFromIndexer(id).then((pool) => {
+      getPool(id).then((pool) => {
         setPoolTVL(pool?.tvl);
       });
     }
