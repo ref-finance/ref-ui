@@ -153,5 +153,5 @@ run();
 async function run() {
   cachePools();
   cacheTokens();
-  // cacheFarmPools();
+  cacheFarmPools();
 }

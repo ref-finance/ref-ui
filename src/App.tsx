@@ -61,6 +61,7 @@ function App() {
             component={AutoHeight(YourLiquidityPage)}
           />
           <Route path="/pools" component={AutoHeight(LiquidityPage)} />
+          <Route path="/farms" component={AutoHeight(FarmsPage)} />
           <Route path="/" component={AutoHeight(SwapPage)} />
         </Switch>
       </div>
