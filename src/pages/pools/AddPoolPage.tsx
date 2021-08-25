@@ -21,7 +21,7 @@ export function AddPoolPage() {
   const balances = useTokenBalances();
   const [token1, setToken1] = useState<TokenMetadata | null>(null);
   const [token2, setToken2] = useState<TokenMetadata | null>(null);
-  const [fee, setFee] = useState('0.40');
+  const [fee, setFee] = useState('0.30');
   const [error, setError] = useState<Error>();
 
   if (!tokens || !balances) return <Loading />;
