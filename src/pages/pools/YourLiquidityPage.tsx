@@ -5,7 +5,7 @@ import { ConnectToNearBtn, GreenButton } from '~components/button/Button';
 import Loading from '~components/layout/Loading';
 import { wallet } from '~services/near';
 import { useTokens } from '~state/token';
-import { getPoolBalance } from '~services/api';
+import { getPoolBalance, PoolRPCView } from '~services/api';
 import { toRoundedReadableNumber } from '~utils/numbers';
 import { usePool } from '~state/pool';
 import { RemoveLiquidityModal } from './DetailsPage';
@@ -33,19 +33,7 @@ function Empty() {
 
 export function YourLiquidityPage() {
   const [error, setError] = useState<Error>();
-  const [pools, setPools] = useState([
-    {
-      id: 0,
-      token_account_ids: ['', ''],
-      token_symbols: ['', ''],
-      amounts: ['0', '0'],
-      total_fee: 0,
-      shares_total_supply: '',
-      tvl: 0,
-      token0_ref_price: '',
-      share: '0',
-    },
-  ]);
+  const [pools, setPools] = useState<PoolRPCView[]>();
 
   useEffect(() => {
     getYourPools().then(setPools);
