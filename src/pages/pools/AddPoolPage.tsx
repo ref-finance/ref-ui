@@ -84,13 +84,13 @@ export function AddPoolPage() {
           <Toggle
             opts={[
               { label: '0.15', value: '0.15' },
-              { label: '0.35', value: '0.35' },
+              { label: '0.25', value: '0.25' },
               { label: '0.55', value: '0.55' },
             ]}
             onChange={(v) =>
               setFee((parseFloat(v) + 0.05 + Number.EPSILON).toFixed(2))
             }
-            value="0.35"
+            value="0.25"
           />
         </div>
         <div className="text-xs font-semibold pt-4 flex items-center justify-between">
