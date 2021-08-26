@@ -122,7 +122,13 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
           <div className="text-sm text-gray-900">Tokens</div>
           <div>
             <p className="text-xs text-gray-500">
-              {tokens[0].id}|{tokens[1].id}
+              {`${tokens[0].id.substring(0, 12)}${
+                tokens[0].id.length > 12 ? '...' : ''
+              }`}
+              |
+              {`${tokens[1].id.substring(0, 12)}${
+                tokens[1].id.length > 12 ? '...' : ''
+              }`}
             </p>
           </div>
         </div>
