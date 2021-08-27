@@ -16,13 +16,12 @@ import {
   toRoundedReadableNumber,
 } from '../../utils/numbers';
 import TokenAmount from '~components/forms/TokenAmount';
-import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
+import { TokenMetadata } from '~services/ft-contract';
 import Alert from '~components/alert/Alert';
 import InputAmount from '~components/forms/InputAmount';
 import SlippageSelector from '~components/forms/SlippageSelector';
 import { isMobile } from '~utils/device';
-import getConfig from '~services/config';
-import { getPoolFromIndexer, PoolRPCView } from '~services/api';
+import { getPoolFromIndexer } from '~services/api';
 import ReactModal from 'react-modal';
 import { toRealSymbol } from '~utils/token';
 
@@ -55,21 +54,10 @@ function AddLiquidityModal(
   const { pool, tokens } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
-  const [firstTokenMetadata, setFirstTokenMetadata] = useState<TokenMetadata>();
-  const [secondTokenMetadata, setSecondTokenMetadata] =
-    useState<TokenMetadata>();
   const balances = useTokenBalances();
   const [error, setError] = useState<Error>();
 
   if (!balances) return null;
-
-  ftGetTokenMetadata(tokens[0].id).then((tokenMetadata) => {
-    setFirstTokenMetadata(tokenMetadata);
-  });
-
-  ftGetTokenMetadata(tokens[1].id).then((tokenMetadata) => {
-    setSecondTokenMetadata(tokenMetadata);
-  });
 
   const changeFirstTokenAmount = (amount: string) => {
     if (Object.values(pool.supplies).every((s) => s === '0')) {
@@ -134,11 +122,11 @@ function AddLiquidityModal(
       );
     }
 
-    if (!firstTokenMetadata) {
+    if (!tokens[0]) {
       throw new Error(`${tokens[0].id} is not exist`);
     }
 
-    if (!secondTokenMetadata) {
+    if (!tokens[1]) {
       throw new Error(`${tokens[1].id} is not exist`);
     }
 
