@@ -227,6 +227,13 @@ function PoolRow({ pool }: { pool: Pool }) {
   }, []);
   if (!tokens) return <Loading />;
 
+  tokens.sort((a, b) => {
+    if (a.symbol === 'wNEAR') return 1;
+    if (b.symbol === 'wNEAR') return -1;
+    return a.symbol > b.symbol ? 1 : -1;
+  });
+  pool.tokenIds = [tokens[0].id, tokens[1].id];
+
   const farmButton = () => {
     if (supportFarm)
       return (
