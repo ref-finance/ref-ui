@@ -65,8 +65,7 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
                   ${toPrecision(pool.tvl.toString(), 2, true)}
                 </span>
               </div>
-              <div className="col-span-2"></div>
-              {/*farm button*/}
+              <div className="col-span-2">{farmButton()}</div>
             </div>
           )}
         </div>
@@ -263,8 +262,7 @@ function PoolRow({ pool }: { pool: Pool }) {
           />
         </div>
       </div>
-      <div className="col-span-1"></div>
-      {/*farm button*/}
+      <div className="col-span-1">{farmButton()}</div>
       <div className="col-span-4">
         <div className="mt-2">
           {toRealSymbol(tokens[0].symbol)}=
