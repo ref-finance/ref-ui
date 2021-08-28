@@ -209,6 +209,13 @@ export function RemoveLiquidityModal(
   const [error, setError] = useState<Error>();
   const cardWidth = isMobile() ? '85vw' : '30vw';
 
+  function submit() {
+    if (Number(amount) === 0) {
+      throw new Error(`Must input a value greater than 0`);
+    }
+    return removeLiquidity();
+  }
+
   return (
     <Modal {...props}>
       <Card style={{ width: cardWidth }}>
@@ -272,7 +279,7 @@ export function RemoveLiquidityModal(
             }`}
             onClick={async () => {
               try {
-                await removeLiquidity();
+                await submit();
               } catch (error) {
                 setError(error);
               }

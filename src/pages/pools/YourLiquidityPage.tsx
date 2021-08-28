@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from '~components/card/Card';
 import Alert from '~components/alert/Alert';
-import { ConnectToNearBtn, GreenButton } from '~components/button/Button';
+import { BorderButton, ConnectToNearBtn } from '~components/button/Button';
 import Loading from '~components/layout/Loading';
 import { wallet } from '~services/near';
 import { useTokens } from '~state/token';
-import { getPoolBalance } from '~services/api';
+import { getPoolBalance, PoolRPCView } from '~services/api';
 import { toRoundedReadableNumber } from '~utils/numbers';
 import { usePool } from '~state/pool';
 import { RemoveLiquidityModal } from './DetailsPage';
@@ -19,33 +19,28 @@ function Empty() {
         You aren’t providing liquidity to any pools
       </div>
       <div className="flex items-center justify-center">
-        {wallet.isSignedIn() ? (
-          <div className="pt-2">
-            <GreenButton>Add Liquidity</GreenButton>
-          </div>
-        ) : (
-          <ConnectToNearBtn />
-        )}
+        {wallet.isSignedIn() ? <AddLiquidityButton /> : <ConnectToNearBtn />}
       </div>
+    </div>
+  );
+}
+
+function AddLiquidityButton() {
+  return (
+    <div className="pt-2">
+      <a
+        href="/pools"
+        className="rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold border border-greenLight bg-greenLight focus:outline-none"
+      >
+        Add Liquidity
+      </a>
     </div>
   );
 }
 
 export function YourLiquidityPage() {
   const [error, setError] = useState<Error>();
-  const [pools, setPools] = useState([
-    {
-      id: 0,
-      token_account_ids: ['', ''],
-      token_symbols: ['', ''],
-      amounts: ['0', '0'],
-      total_fee: 0,
-      shares_total_supply: '',
-      tvl: 0,
-      token0_ref_price: '',
-      share: '0',
-    },
-  ]);
+  const [pools, setPools] = useState<PoolRPCView[]>();
 
   useEffect(() => {
     getYourPools().then(setPools);
@@ -62,7 +57,6 @@ export function YourLiquidityPage() {
         {error && <Alert level="error" message={error.message} />}
       </div>
       <Card width="w-full">
-        {!wallet.isSignedIn() || pools.length === 0 ? <Empty /> : null}
         {pools.length > 0 ? (
           <section>
             <div className="max-h-80 overflow-y-auto">
@@ -75,8 +69,13 @@ export function YourLiquidityPage() {
                 <PoolRow key={i} pool={pool} />
               ))}
             </div>
+            <div className="flex items-center justify-center my-4">
+              <AddLiquidityButton />
+            </div>
           </section>
-        ) : null}
+        ) : (
+          <Empty />
+        )}
       </Card>
     </div>
   );
@@ -84,13 +83,13 @@ export function YourLiquidityPage() {
 
 function PoolRow(props: { pool: any }) {
   const { pool } = usePool(props.pool.id);
-  const [balance, setBalance] = useState('0');
+  const [balance, setBalance] = useState<string>();
   const tokens = useTokens(pool?.tokenIds);
   const [showWithdraw, setShowWithdraw] = useState(false);
 
   useEffect(() => {
     getPoolBalance(Number(props.pool.id)).then(setBalance);
-  }, []);
+  }, [balance]);
 
   if (!pool || !tokens || tokens.length < 2 || !balance) return null;
 
@@ -119,9 +118,9 @@ function PoolRow(props: { pool: any }) {
           {toRoundedReadableNumber({ decimals: 24, number: balance })}
         </p>
         <div className="col-span-2 text-right">
-          <GreenButton onClick={() => setShowWithdraw(true)}>
+          <BorderButton onClick={() => setShowWithdraw(true)}>
             Remove
-          </GreenButton>
+          </BorderButton>
         </div>
         <RemoveLiquidityModal
           pool={pool}
