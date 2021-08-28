@@ -122,11 +122,11 @@ export const getExchangeRate = (
 ) => {
   const first_token_num = toReadableNumber(
     tokens[0].decimals || 24,
-    pool.supplies[pool.tokenIds[0]]
+    pool.supplies[tokens[0].id]
   );
   const second_token_num = toReadableNumber(
     tokens[1].decimals || 24,
-    pool.supplies[pool.tokenIds[1]]
+    pool.supplies[tokens[1].id]
   );
 
   return use_api_price
