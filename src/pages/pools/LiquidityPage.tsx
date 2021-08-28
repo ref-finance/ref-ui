@@ -232,7 +232,6 @@ function PoolRow({ pool }: { pool: Pool }) {
     if (b.symbol === 'wNEAR') return -1;
     return a.symbol > b.symbol ? 1 : -1;
   });
-  pool.tokenIds = [tokens[0].id, tokens[1].id];
 
   const farmButton = () => {
     if (supportFarm)
@@ -275,7 +274,7 @@ function PoolRow({ pool }: { pool: Pool }) {
           {toPrecision(
             toReadableNumber(
               tokens[0].decimals || 24,
-              pool.supplies[pool.tokenIds[0]]
+              pool.supplies[tokens[0].id]
             ),
             4,
             true
@@ -286,7 +285,7 @@ function PoolRow({ pool }: { pool: Pool }) {
           {toPrecision(
             toReadableNumber(
               tokens[1].decimals || 24,
-              pool.supplies[pool.tokenIds[1]]
+              pool.supplies[tokens[1].id]
             ),
             4,
             true
