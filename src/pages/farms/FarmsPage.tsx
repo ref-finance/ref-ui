@@ -258,11 +258,9 @@ function FarmView({
     } else {
       return (
         <>
+          <div>Start in </div>
           <div>
-            Start in <span className="text-green-600">{countdown.days}</span>{' '}
-            days{' '}
-          </div>
-          <div>
+            <span className="text-green-600">{countdown.days}</span> days{' '}
             <span className="text-green-600">
               {zeroPad(countdown.hours)}:{zeroPad(countdown.minutes)}:
               {zeroPad(countdown.seconds)}
@@ -471,7 +469,10 @@ function FarmView({
                 </div>
               </>
             ) : (
-              <Countdown date={data.start_at} renderer={renderer} />
+              <Countdown
+                date={moment.unix(data.start_at).valueOf()}
+                renderer={renderer}
+              />
             )}
           </div>
         </div>
