@@ -39,6 +39,8 @@ import { isMobile } from '~utils/device';
 import ClipLoader from 'react-spinners/ClipLoader';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import { getTokenPriceList } from '~services/indexer';
+import Countdown, { zeroPad } from 'react-countdown';
+import moment from 'moment';
 
 export function FarmsPage() {
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
@@ -250,6 +252,27 @@ function FarmView({
   const PoolId = farmData.lpTokenId;
   const tokens = useTokens(farmData?.tokenIds);
 
+  const renderer = (countdown: any) => {
+    if (countdown.completed) {
+      return null;
+    } else {
+      return (
+        <>
+          <div>
+            Start in <span className="text-green-600">{countdown.days}</span>{' '}
+            days{' '}
+          </div>
+          <div>
+            <span className="text-green-600">
+              {zeroPad(countdown.hours)}:{zeroPad(countdown.minutes)}:
+              {zeroPad(countdown.seconds)}
+            </span>
+          </div>
+        </>
+      );
+    }
+  };
+
   useEffect(() => {
     setEnded(farmData.farm_status === 'Ended');
     setPending(farmData.farm_status === 'Created');
@@ -310,6 +333,10 @@ function FarmView({
         setDisableClaim(false);
         setError(error);
       });
+  }
+
+  function farmStarted() {
+    return moment.unix(data.start_at).valueOf() < moment().valueOf();
   }
 
   if (!tokens || tokens.length < 2 || farmsIsLoading) return <Loading />;
@@ -432,6 +459,19 @@ function FarmView({
                 {data.userUnclaimedReward}{' '}
                 {toRealSymbol(data.rewardToken.symbol)}
               </div>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between text-xs py-2">
+            {farmStarted() ? (
+              <>
+                <div>Started at </div>
+                <div>
+                  {moment.unix(data.start_at).format('YYYY-MM-DD HH:mm:ss')}
+                </div>
+              </>
+            ) : (
+              <Countdown date={data.start_at} renderer={renderer} />
             )}
           </div>
         </div>
