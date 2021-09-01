@@ -53,42 +53,20 @@ export function FarmsPage() {
   const page = 1;
   const perPage = DEFAULT_PAGE_LIMIT;
 
-  useEffect(() => {
+  async function loadFarmInfoList() {
     setUnclaimedFarmsIsLoading(true);
-    getStakedListByAccountId({})
-      .then((stakedList) => {
-        setStakedList(stakedList);
-      })
-      .catch(() => {
-        setStakedList({});
-      });
-    getRewards({})
-      .then((rewardList) => {
-        setRewardList(rewardList);
-      })
-      .catch(() => {
-        setRewardList({});
-      });
-    getSeeds({
-      page: page,
-      perPage: perPage,
-    })
-      .then((seeds) => {
-        setSeeds(seeds);
-      })
-      .catch(() => {
-        setSeeds({});
-      });
-    getTokenPriceList()
-      .then((tokenPriceList) => {
-        setTokenPriceList(tokenPriceList);
-      })
-      .catch(() => {
-        setTokenPriceList(0);
-      });
-  }, []);
+    let stakedList: Record<string, string> = {};
+    stakedList = await getStakedListByAccountId({});
+    let rewardList: Record<string, string> = {};
+    rewardList = await getRewards({});
+    const tokenPriceList: any = await getTokenPriceList();
+    const seeds: Record<string, string> = await getSeeds({});
 
-  useEffect(() => {
+    setStakedList(stakedList);
+    setRewardList(rewardList);
+    setTokenPriceList(tokenPriceList);
+    setSeeds(seeds);
+
     getFarms({
       page,
       perPage,
@@ -100,7 +78,10 @@ export function FarmsPage() {
       setUnclaimedFarmsIsLoading(false);
       setFarms(farms);
     });
-  }, [tokenPriceList]);
+  }
+  useEffect(() => {
+    loadFarmInfoList().then();
+  }, []);
 
   return (
     <>
