@@ -24,7 +24,7 @@ import { isMobile } from '~utils/device';
 import ReactModal from 'react-modal';
 import { toRealSymbol } from '~utils/token';
 import { getPool } from '~services/indexer';
-import { FaArrowLeft, FaExclamationCircle } from 'react-icons/fa';
+import { FaArrowLeft } from 'react-icons/fa';
 
 interface ParamTypes {
   id: string;

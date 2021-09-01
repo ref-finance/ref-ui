@@ -429,7 +429,7 @@ function FarmView({
             </div>
             {loading ? null : (
               <div>{`${
-                data.totalStaked === 0 ? '-' : `${data.totalStaked}`
+                data.totalStaked === 0 ? '-' : `$${data.totalStaked}`
               }`}</div>
             )}
           </div>
