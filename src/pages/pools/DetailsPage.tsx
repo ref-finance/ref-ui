@@ -24,6 +24,7 @@ import { isMobile } from '~utils/device';
 import ReactModal from 'react-modal';
 import { toRealSymbol } from '~utils/token';
 import { getPool } from '~services/indexer';
+import { FaArrowLeft, FaExclamationCircle } from 'react-icons/fa';
 
 interface ParamTypes {
   id: string;
@@ -31,6 +32,7 @@ interface ParamTypes {
 
 interface LocationTypes {
   tvl: number;
+  backToFarms: boolean;
 }
 
 function Icon(props: { icon?: string; className?: string; style?: any }) {
@@ -322,6 +324,7 @@ export function PoolDetailsPage() {
   const [showFunding, setShowFunding] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [poolTVL, setPoolTVL] = useState<number>();
+  const [backToFarmsButton, setBackToFarmsButton] = useState(false);
 
   useEffect(() => {
     if (state?.tvl > 0) {
@@ -331,6 +334,8 @@ export function PoolDetailsPage() {
         setPoolTVL(pool?.tvl);
       });
     }
+    console.log(state?.backToFarms);
+    setBackToFarmsButton(state?.backToFarms);
   }, [id]);
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
@@ -342,6 +347,13 @@ export function PoolDetailsPage() {
       </div>
       <Card width="w-full">
         <div className="text-center border-b">
+          {backToFarmsButton ? (
+            <div className="float-left">
+              <a href="/farms">
+                <FaArrowLeft className="mx-auto text-gray-600 mt-2 mb-6" />
+              </a>
+            </div>
+          ) : null}
           <div className="inline-flex text-center text-base font-semibold pt-2 pb-6">
             <div className="text-right">
               <Icon

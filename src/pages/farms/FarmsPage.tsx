@@ -41,6 +41,7 @@ import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import { getTokenPriceList } from '~services/indexer';
 import Countdown, { zeroPad } from 'react-countdown';
 import moment from 'moment';
+import { Link } from 'react-router-dom';
 
 export function FarmsPage() {
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
@@ -369,12 +370,16 @@ function FarmView({
         {pending ? <div className="pending status-bar">PENDING</div> : null}
         <div className="ml-auto order-3 lg:w-full lg:mt-2 xl:w-auto xl:mt-0">
           <div className="inline-block">
-            <a
+            <Link
+              title="View Pool"
+              to={{
+                pathname: `/pool/${PoolId}`,
+                state: { backToFarms: true },
+              }}
               className="hover:text-green-500 text-lg xs:text-sm font-bold p-2 cursor-pointer text-green-500"
-              href={`/pool/${PoolId}`}
             >
-              View Pool
-            </a>
+              <span>View Pool</span>
+            </Link>
           </div>
           <div className="inline-block">
             <div
