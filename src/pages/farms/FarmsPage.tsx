@@ -17,7 +17,6 @@ import {
   getRewards,
   getSeeds,
   DEFAULT_PAGE_LIMIT,
-  listRewards,
 } from '~services/farm';
 import {
   stake,
@@ -34,12 +33,15 @@ import { useTokens } from '~state/token';
 import copy from '~utils/copy';
 import { Info } from '~components/icon/Info';
 import ReactTooltip from 'react-tooltip';
-import { toRealSymbol } from '~utils/token';
+import { getMftTokenId, toRealSymbol } from '~utils/token';
 import ReactModal from 'react-modal';
 import { isMobile } from '~utils/device';
-import { getTokenPriceList } from '~services/api';
 import ClipLoader from 'react-spinners/ClipLoader';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
+import { getTokenPriceList } from '~services/indexer';
+import Countdown, { zeroPad } from 'react-countdown';
+import moment from 'moment';
+import { Link } from 'react-router-dom';
 
 export function FarmsPage() {
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
@@ -62,10 +64,7 @@ export function FarmsPage() {
       ? await getRewards({})
       : {};
     const tokenPriceList: any = await getTokenPriceList();
-    const seeds: Record<string, string> = await getSeeds({
-      page: page,
-      perPage: perPage,
-    });
+    const seeds: Record<string, string> = await getSeeds({});
 
     setStakedList(stakedList);
     setRewardList(rewardList);
@@ -84,7 +83,6 @@ export function FarmsPage() {
       setFarms(farms);
     });
   }
-
   useEffect(() => {
     loadFarmInfoList().then();
   }, []);
@@ -145,7 +143,10 @@ export function FarmsPage() {
 
 function ClaimView({ data }: { data: any }) {
   const [disableWithdraw, setDisableWithdraw] = useState<boolean>(false);
+  const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false);
   const [token, setToken] = useState<TokenMetadata>();
+  const withdrawLoadingColor = '#ffffff';
+  const withdrawLoadingSize = 12;
 
   useEffect(() => {
     ftGetTokenMetadata(data[0]).then(setToken);
@@ -156,6 +157,7 @@ function ClaimView({ data }: { data: any }) {
 
   function withdrawRewards() {
     setDisableWithdraw(true);
+    setWithdrawLoading(true);
     withdrawReward({
       token_id: data[0],
       amount: toReadableNumber(token.decimals, data[1]),
@@ -181,7 +183,14 @@ function ClaimView({ data }: { data: any }) {
               onClick={withdrawRewards}
               disabled={disableWithdraw}
             >
-              Withdraw
+              <div>
+                <ClipLoader
+                  color={withdrawLoadingColor}
+                  loading={withdrawLoading}
+                  size={withdrawLoadingSize}
+                />
+              </div>
+              {withdrawLoading ? null : <div>Withdraw</div>}
             </WithdrawButton>
           ) : (
             <ConnectToNearBtn />
@@ -217,12 +226,35 @@ function FarmView({
   const [data, setData] = useState<FarmInfo>();
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [claimLoading, setClaimLoading] = useState(false);
+
   const clipColor = '#00c08b';
   const clipSize = 12;
+  const claimLoadingColor = '#ffffff';
+  const claimLoadingSize = 12;
   const refreshTime = 30000;
 
   const PoolId = farmData.lpTokenId;
   const tokens = useTokens(farmData?.tokenIds);
+
+  const renderer = (countdown: any) => {
+    if (countdown.completed) {
+      return null;
+    } else {
+      return (
+        <>
+          <div>Start in </div>
+          <div>
+            <span className="text-green-600">{countdown.days}</span> days{' '}
+            <span className="text-green-600">
+              {zeroPad(countdown.hours)}:{zeroPad(countdown.minutes)}:
+              {zeroPad(countdown.seconds)}
+            </span>
+          </div>
+        </>
+      );
+    }
+  };
 
   useEffect(() => {
     setEnded(farmData.farm_status === 'Ended');
@@ -264,7 +296,7 @@ function FarmView({
   }
 
   async function showStakeModal() {
-    const b = await mftGetBalance(data.lpTokenId);
+    const b = await mftGetBalance(getMftTokenId(data.lpTokenId));
     setStakeBalance(toReadableNumber(LP_TOKEN_DECIMALS, b));
     setStakeVisible(true);
   }
@@ -275,6 +307,7 @@ function FarmView({
 
   function claimReward(farm_id: string) {
     setDisableClaim(true);
+    setClaimLoading(true);
     claimRewardByFarm(farm_id)
       .then(() => {
         window.location.reload();
@@ -283,6 +316,10 @@ function FarmView({
         setDisableClaim(false);
         setError(error);
       });
+  }
+
+  function farmStarted() {
+    return moment.unix(data.start_at).valueOf() < moment().valueOf();
   }
 
   if (!tokens || tokens.length < 2 || farmsIsLoading) return <Loading />;
@@ -296,7 +333,13 @@ function FarmView({
   const images = tokens.map((token, index) => {
     const { icon, id } = token;
     if (icon)
-      return <img key={id} className="h-8 w-8 xs:h-6 xs:w-6" src={icon} />;
+      return (
+        <img
+          key={id}
+          className="h-8 w-8 xs:h-6 xs:w-6 rounded-full"
+          src={icon}
+        />
+      );
     return (
       <div key={id} className="h-8 w-8 xs:h-6 xs:w-6 rounded-full border"></div>
     );
@@ -336,12 +379,16 @@ function FarmView({
         {pending ? <div className="pending status-bar">PENDING</div> : null}
         <div className="ml-auto order-3 lg:w-full lg:mt-2 xl:w-auto xl:mt-0">
           <div className="inline-block">
-            <a
+            <Link
+              title="View Pool"
+              to={{
+                pathname: `/pool/${PoolId}`,
+                state: { backToFarms: true },
+              }}
               className="hover:text-green-500 text-lg xs:text-sm font-bold p-2 cursor-pointer text-green-500"
-              href={`/pool/${PoolId}`}
             >
-              View Pool
-            </a>
+              <span>View Pool</span>
+            </Link>
           </div>
           <div className="inline-block">
             <div
@@ -380,14 +427,20 @@ function FarmView({
             <div>
               <ClipLoader color={clipColor} loading={loading} size={clipSize} />
             </div>
-            {loading ? null : <div>{data.apr}%</div>}
+            {loading ? null : (
+              <div>{`${data.apr === '0' ? '-' : `${data.apr}%`}`}</div>
+            )}
           </div>
           <div className="flex items-center justify-between text-xs py-2">
             <div>Total Staked</div>
             <div>
               <ClipLoader color={clipColor} loading={loading} size={clipSize} />
             </div>
-            {loading ? null : <div>${data.totalStaked}</div>}
+            {loading ? null : (
+              <div>{`${
+                data.totalStaked === 0 ? '-' : `$${data.totalStaked}`
+              }`}</div>
+            )}
           </div>
           <div className="flex items-center justify-between text-xs py-2">
             <div>Unclaimed rewards</div>
@@ -401,6 +454,22 @@ function FarmView({
               </div>
             )}
           </div>
+
+          <div className="flex items-center justify-between text-xs py-2">
+            {farmStarted() ? (
+              <>
+                <div>Started at </div>
+                <div>
+                  {moment.unix(data.start_at).format('YYYY-MM-DD HH:mm:ss')}
+                </div>
+              </>
+            ) : (
+              <Countdown
+                date={moment.unix(data.start_at).valueOf()}
+                renderer={renderer}
+              />
+            )}
+          </div>
         </div>
         <div>
           {wallet.isSignedIn() ? (
@@ -410,7 +479,14 @@ function FarmView({
                   onClick={() => claimReward(data.farm_id)}
                   disabled={disableClaim}
                 >
-                  <div className="w-16 text-xs">Claim</div>
+                  <div className="w-16 text-xs">
+                    <ClipLoader
+                      color={claimLoadingColor}
+                      loading={claimLoading}
+                      size={claimLoadingSize}
+                    />
+                    {claimLoading ? null : <div>Claim</div>}
+                  </div>
                 </GreenButton>
               ) : null}
               {data.userStaked !== '0' ? (
@@ -435,7 +511,10 @@ function FarmView({
         btnText="Unstake"
         max={data.userStaked}
         onSubmit={(amount) => {
-          unstake({ seed_id: data.seed_id, amount }).catch(setError);
+          unstake({
+            seed_id: data.seed_id,
+            amount,
+          }).catch(setError);
         }}
       />
 
@@ -463,7 +542,9 @@ function FarmView({
         btnText="Stake"
         max={stakeBalance}
         onSubmit={(amount) => {
-          stake({ token_id: data.lpTokenId, amount }).catch(setError);
+          stake({ token_id: getMftTokenId(data.lpTokenId), amount }).catch(
+            setError
+          );
         }}
       />
     </Card>

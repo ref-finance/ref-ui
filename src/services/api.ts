@@ -2,6 +2,8 @@ import getConfig from './config';
 import { wallet } from './near';
 import { toPrecision } from '~utils/numbers';
 import { BigNumber } from 'bignumber.js';
+import { Simulate } from 'react-dom/test-utils';
+import error = Simulate.error;
 
 const config = getConfig();
 const api_url = 'https://rest.nearapi.org/view';
@@ -68,46 +70,6 @@ export const getPools = async (counter: number) => {
         }
       });
       return pools;
-    });
-};
-
-export const getPoolFromIndexer = async (
-  pool_id: string
-): Promise<PoolRPCView> => {
-  return await fetch(config.indexerUrl + '/get-pool?pool_id=' + pool_id, {
-    method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  })
-    .then((res) => res.json())
-    .then((pool) => {
-      return parsePoolView(pool);
-    });
-};
-
-export const getPoolsByIdsFromIndexer = async (
-  pool_ids: string[]
-): Promise<PoolRPCView[]> => {
-  const ids = pool_ids.join('|');
-  return await fetch(config.indexerUrl + '/list-pools-by-ids?ids=' + ids, {
-    method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  })
-    .then((res) => res.json())
-    .then((pools) => {
-      pools = pools.map((pool: any) => parsePoolView(pool));
-
-      return pools;
-    });
-};
-
-export const getTokenPriceList = async (): Promise<any> => {
-  return await fetch(config.indexerUrl + '/list-token-price', {
-    method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  })
-    .then((res) => res.json())
-    .then((list) => {
-      return list;
     });
 };
 

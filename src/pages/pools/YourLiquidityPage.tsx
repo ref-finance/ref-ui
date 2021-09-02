@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from '~components/card/Card';
 import Alert from '~components/alert/Alert';
-import {
-  BorderButton,
-  ConnectToNearBtn,
-  GreenButton,
-} from '~components/button/Button';
+import { BorderButton, ConnectToNearBtn } from '~components/button/Button';
 import Loading from '~components/layout/Loading';
 import { wallet } from '~services/near';
 import { useTokens } from '~state/token';

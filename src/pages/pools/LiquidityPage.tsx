@@ -23,7 +23,7 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
     canFarm(pool.id).then((canFarm) => {
       setSupportFarm(canFarm);
     });
-  }, []);
+  }, [pool]);
   const [expand, setExpand] = useState(false);
   const history = useHistory();
 
@@ -65,15 +65,14 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
                   ${toPrecision(pool.tvl.toString(), 2, true)}
                 </span>
               </div>
-              <div className="col-span-2"></div>
-              {/*farm button*/}
+              <div className="col-span-2">{farmButton()}</div>
             </div>
           )}
         </div>
 
         <div className="relative w-20">
           <img
-            key={tokens[0].id}
+            key={tokens[0].id.substring(0, 12).substring(0, 12)}
             className="h-12 w-12 border rounded-full border-gray-300"
             src={tokens[0].icon}
           />
@@ -224,7 +223,7 @@ function PoolRow({ pool }: { pool: Pool }) {
     canFarm(pool.id).then((canFarm) => {
       setSupportFarm(canFarm);
     });
-  }, []);
+  }, [pool]);
   if (!tokens) return <Loading />;
 
   tokens.sort((a, b) => {
@@ -245,7 +244,10 @@ function PoolRow({ pool }: { pool: Pool }) {
 
   return (
     <Link
-      title={`${tokens[0].id}|${tokens[1].id}`}
+      title={`${tokens[0].id.substring(0, 12)}|${tokens[1].id}`.substring(
+        0,
+        12
+      )}
       to={{
         pathname: `/pool/${pool.id}`,
         state: { tvl: pool.tvl },
@@ -255,7 +257,7 @@ function PoolRow({ pool }: { pool: Pool }) {
       <div className="col-span-1">
         <div className="relative">
           <img
-            key={tokens[0].id}
+            key={tokens[0].id.substring(0, 12).substring(0, 12)}
             className="h-12 w-12 border rounded-full border-gray-300"
             src={tokens[0].icon}
           />
@@ -266,8 +268,7 @@ function PoolRow({ pool }: { pool: Pool }) {
           />
         </div>
       </div>
-      <div className="col-span-1"></div>
-      {/*farm button*/}
+      <div className="col-span-1">{farmButton()}</div>
       <div className="col-span-4">
         <div className="mt-2">
           {toRealSymbol(tokens[0].symbol)}=
@@ -404,7 +405,6 @@ export function LiquidityPage() {
     tokenName,
     sortBy,
     order,
-    useIndexerData: true,
   });
   if (!pools) return <Loading />;
 
