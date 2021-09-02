@@ -337,6 +337,12 @@ function MobileNavBar() {
             onClick={close}
           />
           <MobilePoolsMenu links={links} onClick={close} />
+          <MobileAnchor
+            to="/farms"
+            pattern="/farms"
+            name="Farms"
+            onClick={close}
+          />
           <div>
             <Link
               to={{ pathname: 'https://ethereum.bridgetonear.org/' }}
@@ -364,6 +370,7 @@ function NavigationBar() {
           <Anchor to="/deposit" pattern="/deposit/:id?" name="Deposit" />
           <Anchor to="/" pattern="/" name="Swap" />
           <PoolsMenu />
+          <Anchor to="/farms" pattern="/farms" name="Farms" />
           <a
             target="_blank"
             href="https://ethereum.bridgetonear.org/"

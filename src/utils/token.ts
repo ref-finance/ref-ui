@@ -4,3 +4,7 @@ export const toRealSymbol = (symbol: string) => {
     ? symbol.substring(1)
     : symbol;
 };
+
+export const getMftTokenId = (id: string) => {
+  return ':' + id;
+};

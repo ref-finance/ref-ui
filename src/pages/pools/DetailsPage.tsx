@@ -21,9 +21,10 @@ import Alert from '~components/alert/Alert';
 import InputAmount from '~components/forms/InputAmount';
 import SlippageSelector from '~components/forms/SlippageSelector';
 import { isMobile } from '~utils/device';
-import { getPoolFromIndexer } from '~services/api';
 import ReactModal from 'react-modal';
 import { toRealSymbol } from '~utils/token';
+import { getPool } from '~services/indexer';
+import { FaArrowLeft } from 'react-icons/fa';
 
 interface ParamTypes {
   id: string;
@@ -31,6 +32,7 @@ interface ParamTypes {
 
 interface LocationTypes {
   tvl: number;
+  backToFarms: boolean;
 }
 
 function Icon(props: { icon?: string; className?: string; style?: any }) {
@@ -209,6 +211,13 @@ export function RemoveLiquidityModal(
   const [error, setError] = useState<Error>();
   const cardWidth = isMobile() ? '85vw' : '30vw';
 
+  function submit() {
+    if (Number(amount) === 0) {
+      throw new Error(`Must input a value greater than 0`);
+    }
+    return removeLiquidity();
+  }
+
   return (
     <Modal {...props}>
       <Card style={{ width: cardWidth }}>
@@ -272,7 +281,7 @@ export function RemoveLiquidityModal(
             }`}
             onClick={async () => {
               try {
-                await removeLiquidity();
+                await submit();
               } catch (error) {
                 setError(error);
               }
@@ -315,15 +324,18 @@ export function PoolDetailsPage() {
   const [showFunding, setShowFunding] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [poolTVL, setPoolTVL] = useState<number>();
+  const [backToFarmsButton, setBackToFarmsButton] = useState(false);
 
   useEffect(() => {
     if (state?.tvl > 0) {
       setPoolTVL(state?.tvl);
     } else {
-      getPoolFromIndexer(id).then((pool) => {
+      getPool(id).then((pool) => {
         setPoolTVL(pool?.tvl);
       });
     }
+    console.log(state?.backToFarms);
+    setBackToFarmsButton(state?.backToFarms);
   }, [id]);
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
@@ -335,6 +347,13 @@ export function PoolDetailsPage() {
       </div>
       <Card width="w-full">
         <div className="text-center border-b">
+          {backToFarmsButton ? (
+            <div className="float-left">
+              <a href="/farms">
+                <FaArrowLeft className="mx-auto text-gray-600 mt-2 mb-6" />
+              </a>
+            </div>
+          ) : null}
           <div className="inline-flex text-center text-base font-semibold pt-2 pb-6">
             <div className="text-right">
               <Icon
