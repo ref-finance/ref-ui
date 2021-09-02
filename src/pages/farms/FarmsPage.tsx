@@ -56,10 +56,13 @@ export function FarmsPage() {
 
   async function loadFarmInfoList() {
     setUnclaimedFarmsIsLoading(true);
-    let stakedList: Record<string, string> = {};
-    stakedList = await getStakedListByAccountId({});
-    let rewardList: Record<string, string> = {};
-    rewardList = await getRewards({});
+    const isSignedIn: boolean = wallet.isSignedIn();
+    const stakedList: Record<string, string> = isSignedIn
+      ? await getStakedListByAccountId({})
+      : {};
+    const rewardList: Record<string, string> = isSignedIn
+      ? await getRewards({})
+      : {};
     const tokenPriceList: any = await getTokenPriceList();
     const seeds: Record<string, string> = await getSeeds({});
 
