@@ -330,7 +330,13 @@ function FarmView({
   const images = tokens.map((token, index) => {
     const { icon, id } = token;
     if (icon)
-      return <img key={id} className="h-8 w-8 xs:h-6 xs:w-6" src={icon} />;
+      return (
+        <img
+          key={id}
+          className="h-8 w-8 xs:h-6 xs:w-6 rounded-full"
+          src={icon}
+        />
+      );
     return (
       <div key={id} className="h-8 w-8 xs:h-6 xs:w-6 rounded-full border"></div>
     );
