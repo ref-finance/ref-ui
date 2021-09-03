@@ -235,6 +235,9 @@ export function RemoveLiquidityModal(
     if (Number(amount) === 0) {
       throw new Error(`Must input a value greater than 0`);
     }
+    if (amount > toReadableNumber(24, shares)) {
+      throw new Error(`Must input a value not greater than your balance`);
+    }
     return removeLiquidity();
   }
 
