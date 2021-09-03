@@ -184,6 +184,49 @@ function PoolsMenu() {
   );
 }
 
+function CommunityMenu() {
+  const [hover, setHover] = useState(false);
+
+  const links = [
+    { label: 'Discord', url: 'https://discord.gg/SJBGcfMxJz' },
+    { label: 'Telegram', url: 'https://t.me/ref_finance' },
+    { label: 'Twitter', url: 'https://twitter.com/finance_ref' },
+    { label: 'Medium', url: 'https://ref-finance.medium.com/' },
+  ];
+
+  return (
+    <div
+      className="relative z-20"
+      onMouseOver={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      <div className="flex items-center justify-center">
+        <h2
+          className={`link hover:text-green-500 text-lg font-bold p-2 cursor-pointer undefined text-white`}
+        >
+          Community
+        </h2>
+        {hover ? <ArrowDownGreen /> : <ArrowDownWhite />}
+      </div>
+      <div className={`${hover ? 'block' : 'hidden'} absolute top-9`}>
+        <Card width="w-auto" padding="p-4">
+          {links.map((link) => {
+            return (
+              <div
+                key={link.url}
+                className={`whitespace-nowrap text-left text-sm font-semibold text-gray-600 cursor-pointer pb-2 last:pb-0 hover:text-greenLight`}
+                onClick={() => window.open(link.url)}
+              >
+                {link.label}
+              </div>
+            );
+          })}
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 function MobileAnchor({
   to,
   pattern,
@@ -270,6 +313,44 @@ function MobilePoolsMenu({
   );
 }
 
+function MobileCommunityMenu({
+  links,
+  onClick,
+}: {
+  links: Array<{ label: string; url: string }>;
+  onClick: () => void;
+}) {
+  const [show, setShow] = useState(false);
+
+  return (
+    <div className="relative z-20">
+      <div
+        className="flex p-4 items-center justify-between"
+        onClick={() => setShow(!show)}
+      >
+        <div className={`text-white link font-bold`}>Community</div>
+        {show ? <MenuItemCollapse /> : <MenuItemExpand />}
+      </div>
+      <div className={`divide-y divide-green-800 ${show ? 'block' : 'hidden'}`}>
+        {links.map((link) => {
+          return (
+            <div
+              key={link.url}
+              className={`bg-mobile-nav-item whitespace-nowrap text-left font-bold text-white p-4`}
+              onClick={() => {
+                onClick();
+                window.open(link.url);
+              }}
+            >
+              {link.label}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function MobileNavBar() {
   const [show, setShow] = useState(false);
   const accountId = wallet.getAccountId();
@@ -278,6 +359,13 @@ function MobileNavBar() {
     { label: 'View Pools', path: '/pools' },
     { label: 'Add Token', path: '/pools/add-token' },
     { label: 'Create New Pool', path: '/pools/add' },
+  ];
+
+  const communityLinks = [
+    { label: 'Discord', url: 'https://discord.gg/SJBGcfMxJz' },
+    { label: 'Telegram', url: 'https://t.me/ref_finance' },
+    { label: 'Twitter', url: 'https://twitter.com/finance_ref' },
+    { label: 'Medium', url: 'https://ref-finance.medium.com/' },
   ];
 
   if (wallet.isSignedIn()) {
@@ -351,6 +439,7 @@ function MobileNavBar() {
               <div className="p-4 link font-bold p-2 text-white">Docs</div>
             </Link>
           </div>
+          <MobileCommunityMenu links={communityLinks} onClick={close} />
           <div>
             <Link
               to={{ pathname: 'https://ethereum.bridgetonear.org/' }}
@@ -371,7 +460,7 @@ function NavigationBar() {
   return (
     <>
       <div className="nav-wrap md:hidden xs:hidden text-center relative">
-        <nav className="flex items-center space-x-10 pl-5 pt-3 col-span-8">
+        <nav className="flex items-center space-x-6 pl-5 pt-3 col-span-8">
           <div className="relative -top-0.5">
             <Logo />
           </div>
@@ -384,6 +473,7 @@ function NavigationBar() {
               Docs
             </h2>
           </a>
+          <CommunityMenu />
           <a
             target="_blank"
             href="https://ethereum.bridgetonear.org/"
