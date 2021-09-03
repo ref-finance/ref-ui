@@ -345,6 +345,14 @@ function MobileNavBar() {
           />
           <div>
             <Link
+              to={{ pathname: 'https://guide.ref.finance/' }}
+              target="_blank"
+            >
+              <div className="p-4 link font-bold p-2 text-white">Docs</div>
+            </Link>
+          </div>
+          <div>
+            <Link
               to={{ pathname: 'https://ethereum.bridgetonear.org/' }}
               target="_blank"
             >
@@ -371,6 +379,11 @@ function NavigationBar() {
           <Anchor to="/" pattern="/" name="Swap" />
           <PoolsMenu />
           <Anchor to="/farms" pattern="/farms" name="Farms" />
+          <a href="https://guide.ref.finance/" target="_blank">
+            <h2 className="link hover:text-green-500 text-lg font-bold p-2 cursor-pointer undefined text-white">
+              Docs
+            </h2>
+          </a>
           <a
             target="_blank"
             href="https://ethereum.bridgetonear.org/"
