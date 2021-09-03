@@ -62,7 +62,6 @@ function AddLiquidityModal(
   if (!balances) return null;
 
   const changeFirstTokenAmount = (amount: string) => {
-    setError(null);
     if (Object.values(pool.supplies).every((s) => s === '0')) {
       setFirstTokenAmount(amount);
     } else {
@@ -87,7 +86,6 @@ function AddLiquidityModal(
   };
 
   const changeSecondTokenAmount = (amount: string) => {
-    setError(null);
     if (Object.values(pool.supplies).every((s) => s === '0')) {
       setSecondTokenAmount(amount);
     } else {
@@ -114,24 +112,6 @@ function AddLiquidityModal(
   const canSubmit = firstTokenAmount && secondTokenAmount;
 
   function submit() {
-    if (
-      firstTokenAmount >
-      toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
-    ) {
-      throw new Error(
-        `You don't have enough ${toRealSymbol(tokens[0].symbol)}`
-      );
-    }
-
-    if (
-      secondTokenAmount >
-      toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
-    ) {
-      throw new Error(
-        `You don't have enough ${toRealSymbol(tokens[1].symbol)}`
-      );
-    }
-
     if (!firstTokenAmount || firstTokenAmount === '0') {
       throw new Error(
         `Must provide at least 1 token for ${toRealSymbol(tokens[0].symbol)}`
@@ -234,9 +214,6 @@ export function RemoveLiquidityModal(
   function submit() {
     if (Number(amount) === 0) {
       throw new Error(`Must input a value greater than 0`);
-    }
-    if (amount > toReadableNumber(24, shares)) {
-      throw new Error(`Must input a value not greater than your balance`);
     }
     return removeLiquidity();
   }
