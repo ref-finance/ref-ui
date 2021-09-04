@@ -25,6 +25,7 @@ import ReactModal from 'react-modal';
 import { toRealSymbol } from '~utils/token';
 import { getPool } from '~services/indexer';
 import { FaArrowLeft } from 'react-icons/fa';
+import { BigNumber } from 'bignumber.js';
 
 interface ParamTypes {
   id: string;
@@ -62,6 +63,7 @@ function AddLiquidityModal(
   if (!balances) return null;
 
   const changeFirstTokenAmount = (amount: string) => {
+    setError(null);
     if (Object.values(pool.supplies).every((s) => s === '0')) {
       setFirstTokenAmount(amount);
     } else {
@@ -86,6 +88,7 @@ function AddLiquidityModal(
   };
 
   const changeSecondTokenAmount = (amount: string) => {
+    setError(null);
     if (Object.values(pool.supplies).every((s) => s === '0')) {
       setSecondTokenAmount(amount);
     } else {
@@ -112,6 +115,27 @@ function AddLiquidityModal(
   const canSubmit = firstTokenAmount && secondTokenAmount;
 
   function submit() {
+    const firstTokenAmountBN = new BigNumber(firstTokenAmount.toString());
+    const firstTokenBalanceBN = new BigNumber(
+      toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+    );
+    const secondTokenAmountBN = new BigNumber(secondTokenAmount.toString());
+    const secondTokenBalanceBN = new BigNumber(
+      toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+    );
+
+    if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
+      throw new Error(
+        `You don't have enough ${toRealSymbol(tokens[0].symbol)}`
+      );
+    }
+
+    if (secondTokenAmountBN.isGreaterThan(secondTokenBalanceBN)) {
+      throw new Error(
+        `You don't have enough ${toRealSymbol(tokens[1].symbol)}`
+      );
+    }
+
     if (!firstTokenAmount || firstTokenAmount === '0') {
       throw new Error(
         `Must provide at least 1 token for ${toRealSymbol(tokens[0].symbol)}`
@@ -212,9 +236,15 @@ export function RemoveLiquidityModal(
   const cardWidth = isMobile() ? '85vw' : '30vw';
 
   function submit() {
+    const amountBN = new BigNumber(amount.toString());
+    const shareBN = new BigNumber(toReadableNumber(24, shares));
     if (Number(amount) === 0) {
       throw new Error(`Must input a value greater than 0`);
     }
+    if (amountBN.isGreaterThan(shareBN)) {
+      throw new Error(`Must input a value not greater than your balance`);
+    }
+
     return removeLiquidity();
   }
 
@@ -334,7 +364,6 @@ export function PoolDetailsPage() {
         setPoolTVL(pool?.tvl);
       });
     }
-    console.log(state?.backToFarms);
     setBackToFarmsButton(state?.backToFarms);
   }, [id]);
 
