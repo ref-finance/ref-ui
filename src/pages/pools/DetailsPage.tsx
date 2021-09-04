@@ -115,26 +115,22 @@ function AddLiquidityModal(
   const canSubmit = firstTokenAmount && secondTokenAmount;
 
   function submit() {
-    const firstTokenAmountBN = new BigNumber(
-      firstTokenAmount.toString()
-    ).toFixed();
+    const firstTokenAmountBN = new BigNumber(firstTokenAmount.toString());
     const firstTokenBalanceBN = new BigNumber(
       toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
-    ).toFixed();
-    const secondTokenAmountBN = new BigNumber(
-      secondTokenAmount.toString()
-    ).toFixed();
+    );
+    const secondTokenAmountBN = new BigNumber(secondTokenAmount.toString());
     const secondTokenBalanceBN = new BigNumber(
-      toReadableNumber(tokens[1].decimals, balances[tokens[0].id])
-    ).toFixed();
+      toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+    );
 
-    if (firstTokenAmountBN > firstTokenBalanceBN) {
+    if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
       throw new Error(
         `You don't have enough ${toRealSymbol(tokens[0].symbol)}`
       );
     }
 
-    if (secondTokenAmountBN > secondTokenBalanceBN) {
+    if (secondTokenAmountBN.isGreaterThan(secondTokenBalanceBN)) {
       throw new Error(
         `You don't have enough ${toRealSymbol(tokens[1].symbol)}`
       );
@@ -240,12 +236,12 @@ export function RemoveLiquidityModal(
   const cardWidth = isMobile() ? '85vw' : '30vw';
 
   function submit() {
-    const amountBN = new BigNumber(amount.toString()).toFixed();
-    const shareBN = new BigNumber(toReadableNumber(24, shares)).toFixed();
+    const amountBN = new BigNumber(amount.toString());
+    const shareBN = new BigNumber(toReadableNumber(24, shares));
     if (Number(amount) === 0) {
       throw new Error(`Must input a value greater than 0`);
     }
-    if (amountBN > shareBN) {
+    if (amountBN.isGreaterThan(shareBN)) {
       throw new Error(`Must input a value not greater than your balance`);
     }
 
