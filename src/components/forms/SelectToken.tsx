@@ -67,6 +67,7 @@ export default function SelectToken({
             width: dialogWidth,
             borderRadius: '0.75rem',
             padding: '1.5rem',
+            zIndex: 100,
           },
         },
       }}
