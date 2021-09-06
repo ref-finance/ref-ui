@@ -57,7 +57,7 @@ function participateAirdropView(
   const unlockedPercent: number =
     currentTimestamp > end_timestamp
       ? 100
-      : currentTimestamp > cliffTimestamp
+      : currentTimestamp > startTimestamp
       ? Number(
           (
             Number(
@@ -78,7 +78,8 @@ function participateAirdropView(
   const claimedAmount = Number(
     toReadableNumber(token.decimals, accountInfo?.claimed_balance.toString())
   );
-  const unclaimAmount = unlockedAmount - claimedAmount;
+  const unclaimAmount =
+    unlockedAmount - claimedAmount > 0 ? unlockedAmount - claimedAmount : 0;
   const canClaim =
     moment().unix() < Number(statsInfo?.claim_expiration_timestamp) ||
     moment().unix() > Number(cliffTimestamp);
