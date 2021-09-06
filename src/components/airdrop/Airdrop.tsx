@@ -3,7 +3,7 @@ import { FaExclamationCircle, FaRegQuestionCircle } from 'react-icons/fa';
 import getConfig from '~services/config';
 import { wallet } from '~services/near';
 import { useToken } from '~state/token';
-import { TokenMetadata } from '~services/ft-contract';
+import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import Loading from '~components/layout/Loading';
 import Countdown, { zeroPad } from 'react-countdown';
 import { Item } from '~components/airdrop/Item';
@@ -83,7 +83,7 @@ function participateAirdropView(
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    claim().then();
+    claim(token.id).then();
   };
 
   return (
@@ -151,7 +151,7 @@ export default function AirdropView() {
   const [accountInfo, setAccountInfo] = useState<AccountOptions>();
   const [statsInfo, setStatsInfo] = useState<StatsOptions>();
   const currentAccountId = wallet.getAccountId();
-  const refToken = useToken(getConfig().REF_TOKEN_ID);
+  const [token, setToken] = useState<TokenMetadata>();
 
   const renderer = (countdown: any) => {
     if (countdown.completed) {
@@ -179,6 +179,7 @@ export default function AirdropView() {
   useEffect(() => {
     getAccount()
       .then((account) => {
+        console.log(account);
         setAccountInfo(account);
         if (account) {
           setParticipateAirdrop(true);
@@ -189,18 +190,22 @@ export default function AirdropView() {
       });
     getStats()
       .then((stats) => {
+        ftGetTokenMetadata(stats.token_account_id).then((token) => {
+          setToken(token);
+        });
         setStatsInfo(stats);
       })
       .catch((err) => {
         setStatsInfo(err);
       });
   }, []);
-  if (!refToken && !accountInfo && !statsInfo) return Loading();
+
+  if (!token || !accountInfo || !statsInfo) return Loading();
 
   return (
     <div className="overflow-y-auto bg-secondary shadow-2xl rounded-xl p-7 xs:p-2 md:p-2">
       {participateAirdrop
-        ? participateAirdropView(refToken, accountInfo, statsInfo, renderer)
+        ? participateAirdropView(token, accountInfo, statsInfo, renderer)
         : notParticipateAirdropView(currentAccountId)}
     </div>
   );

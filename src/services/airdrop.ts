@@ -2,11 +2,9 @@ import {
   getAmount,
   getGas,
   REF_AIRDRAOP_CONTRACT_ID,
-  REF_TOKEN_ID,
   wallet,
 } from '~services/near';
 import { functionCall } from 'near-api-js/lib/transaction';
-import { storageDepositForFTAction } from '~services/creators/storage';
 import { NEW_ACCOUNT_STORAGE_COST } from '~services/wrap-near';
 
 const AIRDROP_STORAGE_AMOUNT = '0.01';
@@ -92,7 +90,7 @@ export const getAccount = async (): Promise<AccountOptions> => {
   });
 };
 
-export const claim = async () => {
+export const claim = async (token_id: string) => {
   const transactions: Transaction[] = [];
   const actions: AirDropFunctionCallOptions[] = [];
 
@@ -103,7 +101,7 @@ export const claim = async () => {
   });
 
   transactions.push({
-    receiverId: REF_TOKEN_ID,
+    receiverId: token_id,
     functionCalls: [
       {
         methodName: 'storage_deposit',
