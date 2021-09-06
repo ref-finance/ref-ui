@@ -78,8 +78,7 @@ function participateAirdropView(
     );
   const canClaim =
     moment().unix() < Number(statsInfo?.claim_expiration_timestamp) ||
-    moment().unix() > Number(accountInfo?.start_timestamp);
-  const isStart = moment().unix() > Number(accountInfo?.start_timestamp);
+    moment().unix() > Number(accountInfo?.cliff_timestamp);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -118,16 +117,14 @@ function participateAirdropView(
         </div>
       </div>
       <div className="text-center mt-8">
-        {isStart ? (
-          <div>
-            <div className="mb-2">
-              Start at{' '}
-              {moment
-                .unix(Number(accountInfo?.start_timestamp))
-                .format('YYYY-MM-DD HH:mm:ss')}
-            </div>
+        <div>
+          <div className="mb-2">
+            Start at{' '}
+            {moment
+              .unix(Number(accountInfo?.start_timestamp))
+              .format('YYYY-MM-DD HH:mm:ss')}
           </div>
-        ) : null}
+        </div>
         <Countdown date={expiration_time} renderer={renderer} />
       </div>
       <div className="w-1/3 mx-auto">
