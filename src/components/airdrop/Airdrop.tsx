@@ -179,7 +179,6 @@ export default function AirdropView() {
   useEffect(() => {
     getAccount()
       .then((account) => {
-        console.log(account);
         setAccountInfo(account);
         if (account) {
           setParticipateAirdrop(true);
@@ -200,7 +199,7 @@ export default function AirdropView() {
       });
   }, []);
 
-  if (!token || !accountInfo || !statsInfo) return Loading();
+  if (!statsInfo || !token) return Loading();
 
   return (
     <div className="overflow-y-auto bg-secondary shadow-2xl rounded-xl p-7 xs:p-2 md:p-2">
