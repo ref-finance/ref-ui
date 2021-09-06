@@ -121,7 +121,7 @@ function participateAirdropView(
           <div className="mb-2">
             Start at{' '}
             {moment
-              .unix(Number(accountInfo?.start_timestamp))
+              .unix(Number(accountInfo?.cliff_timestamp))
               .format('YYYY-MM-DD HH:mm:ss')}
           </div>
         </div>
