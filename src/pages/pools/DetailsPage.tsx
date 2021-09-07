@@ -16,15 +16,16 @@ import {
   toRoundedReadableNumber,
 } from '../../utils/numbers';
 import TokenAmount from '~components/forms/TokenAmount';
-import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
+import { TokenMetadata } from '~services/ft-contract';
 import Alert from '~components/alert/Alert';
 import InputAmount from '~components/forms/InputAmount';
 import SlippageSelector from '~components/forms/SlippageSelector';
 import { isMobile } from '~utils/device';
-import getConfig from '~services/config';
-import { getPoolFromIndexer, PoolRPCView } from '~services/api';
 import ReactModal from 'react-modal';
 import { toRealSymbol } from '~utils/token';
+import { getPool } from '~services/indexer';
+import { FaArrowLeft } from 'react-icons/fa';
+import { BigNumber } from 'bignumber.js';
 
 interface ParamTypes {
   id: string;
@@ -32,6 +33,7 @@ interface ParamTypes {
 
 interface LocationTypes {
   tvl: number;
+  backToFarms: boolean;
 }
 
 function Icon(props: { icon?: string; className?: string; style?: any }) {
@@ -55,23 +57,13 @@ function AddLiquidityModal(
   const { pool, tokens } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
-  const [firstTokenMetadata, setFirstTokenMetadata] = useState<TokenMetadata>();
-  const [secondTokenMetadata, setSecondTokenMetadata] =
-    useState<TokenMetadata>();
   const balances = useTokenBalances();
   const [error, setError] = useState<Error>();
 
   if (!balances) return null;
 
-  ftGetTokenMetadata(tokens[0].id).then((tokenMetadata) => {
-    setFirstTokenMetadata(tokenMetadata);
-  });
-
-  ftGetTokenMetadata(tokens[1].id).then((tokenMetadata) => {
-    setSecondTokenMetadata(tokenMetadata);
-  });
-
   const changeFirstTokenAmount = (amount: string) => {
+    setError(null);
     if (Object.values(pool.supplies).every((s) => s === '0')) {
       setFirstTokenAmount(amount);
     } else {
@@ -96,6 +88,7 @@ function AddLiquidityModal(
   };
 
   const changeSecondTokenAmount = (amount: string) => {
+    setError(null);
     if (Object.values(pool.supplies).every((s) => s === '0')) {
       setSecondTokenAmount(amount);
     } else {
@@ -122,6 +115,27 @@ function AddLiquidityModal(
   const canSubmit = firstTokenAmount && secondTokenAmount;
 
   function submit() {
+    const firstTokenAmountBN = new BigNumber(firstTokenAmount.toString());
+    const firstTokenBalanceBN = new BigNumber(
+      toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+    );
+    const secondTokenAmountBN = new BigNumber(secondTokenAmount.toString());
+    const secondTokenBalanceBN = new BigNumber(
+      toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+    );
+
+    if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
+      throw new Error(
+        `You don't have enough ${toRealSymbol(tokens[0].symbol)}`
+      );
+    }
+
+    if (secondTokenAmountBN.isGreaterThan(secondTokenBalanceBN)) {
+      throw new Error(
+        `You don't have enough ${toRealSymbol(tokens[1].symbol)}`
+      );
+    }
+
     if (!firstTokenAmount || firstTokenAmount === '0') {
       throw new Error(
         `Must provide at least 1 token for ${toRealSymbol(tokens[0].symbol)}`
@@ -134,11 +148,11 @@ function AddLiquidityModal(
       );
     }
 
-    if (!firstTokenMetadata) {
+    if (!tokens[0]) {
       throw new Error(`${tokens[0].id} is not exist`);
     }
 
-    if (!secondTokenMetadata) {
+    if (!tokens[1]) {
       throw new Error(`${tokens[1].id} is not exist`);
     }
 
@@ -221,6 +235,19 @@ export function RemoveLiquidityModal(
   const [error, setError] = useState<Error>();
   const cardWidth = isMobile() ? '85vw' : '30vw';
 
+  function submit() {
+    const amountBN = new BigNumber(amount.toString());
+    const shareBN = new BigNumber(toReadableNumber(24, shares));
+    if (Number(amount) === 0) {
+      throw new Error(`Must input a value greater than 0`);
+    }
+    if (amountBN.isGreaterThan(shareBN)) {
+      throw new Error(`Must input a value not greater than your balance`);
+    }
+
+    return removeLiquidity();
+  }
+
   return (
     <Modal {...props}>
       <Card style={{ width: cardWidth }}>
@@ -284,7 +311,7 @@ export function RemoveLiquidityModal(
             }`}
             onClick={async () => {
               try {
-                await removeLiquidity();
+                await submit();
               } catch (error) {
                 setError(error);
               }
@@ -327,15 +354,17 @@ export function PoolDetailsPage() {
   const [showFunding, setShowFunding] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [poolTVL, setPoolTVL] = useState<number>();
+  const [backToFarmsButton, setBackToFarmsButton] = useState(false);
 
   useEffect(() => {
     if (state?.tvl > 0) {
       setPoolTVL(state?.tvl);
     } else {
-      getPoolFromIndexer(id).then((pool) => {
+      getPool(id).then((pool) => {
         setPoolTVL(pool?.tvl);
       });
     }
+    setBackToFarmsButton(state?.backToFarms);
   }, [id]);
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
@@ -347,6 +376,13 @@ export function PoolDetailsPage() {
       </div>
       <Card width="w-full">
         <div className="text-center border-b">
+          {backToFarmsButton ? (
+            <div className="float-left">
+              <a href="/farms">
+                <FaArrowLeft className="mx-auto text-gray-600 mt-2 mb-6" />
+              </a>
+            </div>
+          ) : null}
           <div className="inline-flex text-center text-base font-semibold pt-2 pb-6">
             <div className="text-right">
               <Icon
