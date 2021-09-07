@@ -78,7 +78,7 @@ function participateAirdropView(
     );
   const canClaim =
     moment().unix() < Number(statsInfo?.claim_expiration_timestamp) ||
-    moment().unix() > Number(accountInfo?.cliff_timestamp);
+    moment().unix() > Number(accountInfo?.start_timestamp);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
