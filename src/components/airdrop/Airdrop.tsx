@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FaExclamationCircle, FaRegQuestionCircle } from 'react-icons/fa';
-import getConfig from '~services/config';
 import { wallet } from '~services/near';
-import { useToken } from '~state/token';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import Loading from '~components/layout/Loading';
 import Countdown, { zeroPad } from 'react-countdown';
@@ -70,14 +68,17 @@ function participateAirdropView(
         )
       : 0;
 
-  const lockingPercent: number = 100 - unlockedPercent;
-  const lockingAmount = (Number(total_balance) * lockingPercent) / 100;
-  const unlockedAmount = (Number(total_balance) * unlockedPercent) / 100;
+  const lockingPercent: number = Number((100 - unlockedPercent).toFixed(3));
+  const lockingAmount = Number(
+    ((Number(total_balance) * lockingPercent) / 100).toFixed(3)
+  );
+  const unlockedAmount = Number(
+    ((Number(total_balance) * unlockedPercent) / 100).toFixed(3)
+  );
   const claimedAmount = Number(
     toReadableNumber(token.decimals, accountInfo?.claimed_balance.toString())
   );
-  const unclaimAmount =
-    unlockedAmount <= claimedAmount ? 0 : unlockedAmount - claimedAmount;
+  const unclaimAmount = unlockedAmount - claimedAmount;
   const canClaim =
     moment().unix() < Number(statsInfo?.claim_expiration_timestamp) ||
     moment().unix() > Number(cliffTimestamp);

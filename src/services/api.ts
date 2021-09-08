@@ -2,8 +2,6 @@ import getConfig from './config';
 import { wallet } from './near';
 import { toPrecision } from '~utils/numbers';
 import { BigNumber } from 'bignumber.js';
-import { Simulate } from 'react-dom/test-utils';
-import error = Simulate.error;
 import moment from 'moment';
 
 const config = getConfig();
@@ -89,5 +87,5 @@ export const getUserWalletTokens = async (): Promise<any> => {
 };
 
 export const getCurrentUnixTime = async (): Promise<any> => {
-  return moment.unix;
+  return moment().unix();
 };
