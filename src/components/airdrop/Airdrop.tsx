@@ -66,7 +66,7 @@ function participateAirdropView(
               (currentTimestamp - startTimestamp) /
                 (end_timestamp - startTimestamp)
             ) * 100
-          ).toFixed(2)
+          ).toFixed(3)
         )
       : 0;
 

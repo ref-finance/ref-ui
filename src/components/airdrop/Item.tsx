@@ -24,7 +24,7 @@ export function Item(props: {
         <span className="order-last ml-auto">
           Balance:{' '}
           <span className="font-bold">
-            {toPrecision(props.amount.toString(), 1)}
+            {toPrecision(props.amount.toString(), 3)}
           </span>
         </span>
       </div>
