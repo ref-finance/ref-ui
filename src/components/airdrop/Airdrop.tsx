@@ -65,18 +65,18 @@ function participateAirdropView(
               (current_timestamp - start_timestamp) /
                 (end_timestamp - start_timestamp)
             ) * 100
-          ).toFixed(1)
+          ).toFixed(2)
         )
       : 0;
 
   const lockingPercent: number = 100 - unlockedPercent;
   const lockingAmount = (Number(total_balance) * lockingPercent) / 100;
   const unlockedAmount = (Number(total_balance) * unlockedPercent) / 100;
+  const claimedAmount = Number(
+    toReadableNumber(token.decimals, accountInfo?.claimed_balance.toString())
+  );
   const unclaimAmount =
-    unlockedAmount -
-    Number(
-      toReadableNumber(token.decimals, accountInfo?.claimed_balance.toString())
-    );
+    unlockedAmount <= claimedAmount ? 0 : unlockedAmount - claimedAmount;
   const canClaim =
     moment().unix() < Number(statsInfo?.claim_expiration_timestamp) ||
     moment().unix() > Number(cliff_timestamp);
