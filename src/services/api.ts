@@ -4,6 +4,7 @@ import { toPrecision } from '~utils/numbers';
 import { BigNumber } from 'bignumber.js';
 import { Simulate } from 'react-dom/test-utils';
 import error = Simulate.error;
+import moment from 'moment';
 
 const config = getConfig();
 const api_url = 'https://rest.nearapi.org/view';
@@ -85,4 +86,8 @@ export const getUserWalletTokens = async (): Promise<any> => {
     .then((tokens) => {
       return tokens;
     });
+};
+
+export const getCurrentUnixTime = async (): Promise<any> => {
+  return moment.unix;
 };

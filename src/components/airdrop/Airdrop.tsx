@@ -212,7 +212,6 @@ export default function AirdropView() {
         setStatsInfo(err);
       });
     getCurrentUnixTime().then((unixtime) => {
-      console.log(unixtime);
       setCurrentTimestamp(Number(unixtime));
     });
   }, []);
