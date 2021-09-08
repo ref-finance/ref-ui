@@ -19,6 +19,7 @@ import moment from 'moment';
 import { ConnectToNearBtn } from '~components/button/Button';
 import ReactTooltip from 'react-tooltip';
 import copy from '~utils/copy';
+import { getCurrentUnixTime } from '~services/api';
 
 function notParticipateAirdropView(currentAccountId: string) {
   return currentAccountId ? (
@@ -41,6 +42,7 @@ function participateAirdropView(
   token: TokenMetadata,
   accountInfo: AccountOptions,
   statsInfo: StatsOptions,
+  currentTimestamp: number,
   renderer: any
 ) {
   const total_balance = toReadableNumber(
@@ -52,18 +54,17 @@ function participateAirdropView(
     .valueOf();
 
   const end_timestamp = Number(accountInfo?.end_timestamp);
-  const cliff_timestamp = Number(accountInfo?.cliff_timestamp);
-  const start_timestamp = Number(accountInfo?.start_timestamp);
-  const current_timestamp = moment().unix();
+  const cliffTimestamp = Number(accountInfo?.cliff_timestamp);
+  const startTimestamp = Number(accountInfo?.start_timestamp);
   const unlockedPercent: number =
-    current_timestamp > end_timestamp
+    currentTimestamp > end_timestamp
       ? 100
-      : current_timestamp > cliff_timestamp
+      : currentTimestamp > cliffTimestamp
       ? Number(
           (
             Number(
-              (current_timestamp - start_timestamp) /
-                (end_timestamp - start_timestamp)
+              (currentTimestamp - startTimestamp) /
+                (end_timestamp - startTimestamp)
             ) * 100
           ).toFixed(2)
         )
@@ -79,7 +80,7 @@ function participateAirdropView(
     unlockedAmount <= claimedAmount ? 0 : unlockedAmount - claimedAmount;
   const canClaim =
     moment().unix() < Number(statsInfo?.claim_expiration_timestamp) ||
-    moment().unix() > Number(cliff_timestamp);
+    moment().unix() > Number(cliffTimestamp);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -95,24 +96,41 @@ function participateAirdropView(
         <div className="w-full mx-auto rounded-xl bg-gray-200 mt-8">
           {unlockedPercent > 0 ? (
             <div
-              className={`inline-block text-center text-white rounded-l-xl p-2 bg-green-500 text-xs ${
+              className={`inline-block text-center text-white rounded-l-xl py-2 bg-green-500 text-xs ${
                 unlockedPercent === 100 ? 'rounded-r-xl' : ''
               }`}
-              style={{ width: `${unlockedPercent}%` }}
+              style={{
+                width: `${unlockedPercent <= 1 ? 1 : unlockedPercent}%`,
+              }}
             >
-              <p>Unlocked</p>
-              <p>{`${unlockedPercent}%`}</p>
+              {unlockedPercent < 15 ? (
+                <>
+                  <p className="text-green-500">Unlocked</p>
+                  <p className="text-green-500">{`${unlockedPercent}%`}</p>
+                </>
+              ) : (
+                <>
+                  <p>Unlocked</p>
+                  <p>{`${unlockedPercent}%`}</p>
+                </>
+              )}
             </div>
           ) : null}
           {lockingPercent > 0 ? (
             <div
-              className={`inline-block text-center rounded-r-xl p-2 bg-gray-200 text-xs ${
+              className={`inline-block text-center rounded-r-xl py-2 bg-gray-200 text-xs ${
                 lockingPercent === 100 ? 'rounded-l-xl' : ''
               }`}
-              style={{ width: `${lockingPercent}%` }}
+              style={{
+                width: `${lockingPercent >= 99 ? 99 : lockingPercent}%`,
+              }}
             >
-              <p>Locking</p>
-              <p>{`${lockingPercent}%`}</p>
+              {lockingPercent < 15 ? null : (
+                <>
+                  <p className="bg-gray-200">Locking</p>
+                  <p>{`${lockingPercent}%`}</p>
+                </>
+              )}
             </div>
           ) : null}
         </div>
@@ -120,10 +138,7 @@ function participateAirdropView(
       <div className="text-center mt-8">
         <div>
           <div className="mb-2">
-            Start at{' '}
-            {moment
-              .unix(Number(accountInfo?.start_timestamp))
-              .format('YYYY-MM-DD HH:mm:ss')}
+            Start at {moment.unix(startTimestamp).format('YYYY-MM-DD HH:mm:ss')}
           </div>
         </div>
         <Countdown date={expiration_time} renderer={renderer} />
@@ -150,6 +165,7 @@ export default function AirdropView() {
   const [statsInfo, setStatsInfo] = useState<StatsOptions>();
   const currentAccountId = wallet.getAccountId();
   const [token, setToken] = useState<TokenMetadata>();
+  const [currentTimestamp, setCurrentTimestamp] = useState<number>();
 
   const renderer = (countdown: any) => {
     if (countdown.completed) {
@@ -195,6 +211,10 @@ export default function AirdropView() {
       .catch((err) => {
         setStatsInfo(err);
       });
+    getCurrentUnixTime().then((unixtime) => {
+      console.log(unixtime);
+      setCurrentTimestamp(Number(unixtime));
+    });
   }, []);
 
   if (!statsInfo || !token) return Loading();
@@ -202,7 +222,13 @@ export default function AirdropView() {
   return (
     <div className="overflow-y-auto bg-secondary shadow-2xl rounded-xl p-7 xs:p-2 md:p-2">
       {participateAirdrop
-        ? participateAirdropView(token, accountInfo, statsInfo, renderer)
+        ? participateAirdropView(
+            token,
+            accountInfo,
+            statsInfo,
+            currentTimestamp,
+            renderer
+          )
         : notParticipateAirdropView(currentAccountId)}
     </div>
   );
