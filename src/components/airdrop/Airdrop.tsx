@@ -102,7 +102,7 @@ function participateAirdropView(
                 unlockedPercent === 100 ? 'rounded-xl' : ''
               }`}
               style={{
-                width: `${unlockedPercent <= 1 ? 1 : unlockedPercent}%`,
+                width: `${unlockedPercent <= 2 ? 2 : unlockedPercent}%`,
               }}
             >
               {unlockedPercent < 15 ? (
@@ -124,7 +124,7 @@ function participateAirdropView(
                 lockingPercent === 100 ? 'rounded-xl' : ''
               }`}
               style={{
-                width: `${lockingPercent >= 99 ? 99 : lockingPercent}%`,
+                width: `${lockingPercent >= 98 ? 98 : lockingPercent}%`,
               }}
             >
               {lockingPercent < 15 ? null : (
