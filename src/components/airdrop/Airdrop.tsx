@@ -98,8 +98,8 @@ function participateAirdropView(
         <div className="w-full mx-auto rounded-xl bg-gray-200 mt-8">
           {unlockedPercent > 0 ? (
             <div
-              className={`inline-block text-center text-white rounded-l-xl py-2 bg-green-500 text-xs ${
-                unlockedPercent === 100 ? 'rounded-r-xl' : ''
+              className={`inline-block text-center text-white rounded-xl py-2 bg-green-500 text-xs ${
+                unlockedPercent === 100 ? 'rounded-xl' : ''
               }`}
               style={{
                 width: `${unlockedPercent <= 1 ? 1 : unlockedPercent}%`,
@@ -120,8 +120,8 @@ function participateAirdropView(
           ) : null}
           {lockingPercent > 0 ? (
             <div
-              className={`inline-block text-center rounded-r-xl py-2 bg-gray-200 text-xs ${
-                lockingPercent === 100 ? 'rounded-l-xl' : ''
+              className={`inline-block text-center rounded-xl py-2 bg-gray-200 text-xs ${
+                lockingPercent === 100 ? 'rounded-xl' : ''
               }`}
               style={{
                 width: `${lockingPercent >= 99 ? 99 : lockingPercent}%`,
