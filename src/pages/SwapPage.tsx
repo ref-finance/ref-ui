@@ -3,6 +3,7 @@ import SwapCard from '~components/swap/SwapCard';
 import Loading from '~components/layout/Loading';
 import { useWhitelistTokens } from '../state/token';
 import copy from '~utils/copy';
+import { FormattedMessage } from 'react-intl';
 
 function SwapPage() {
   const allTokens = useWhitelistTokens();
@@ -11,10 +12,13 @@ function SwapPage() {
   return (
     <div className="swap">
       <div className="title text-center text-3xl pb-3 text-white font-semibold">
-        Swap
+        <FormattedMessage id="swap" defaultMessage="Swap" />
       </div>
       <div className="describe text-center text-sm pb-5 text-white">
-        Exchange tokens
+        <FormattedMessage
+          id="exchange_tokens"
+          defaultMessage="Exchange tokens"
+        />
       </div>
       <section className="w-1/3 md:w-5/6 xs:w-11/12 m-auto">
         <SwapCard allTokens={allTokens} />
