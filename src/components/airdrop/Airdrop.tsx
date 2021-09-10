@@ -81,8 +81,8 @@ function participateAirdropView(
   const unclaimAmount =
     unlockedAmount - claimedAmount > 0 ? unlockedAmount - claimedAmount : 0;
   const canClaim =
-    moment().unix() < Number(statsInfo?.claim_expiration_timestamp) ||
-    moment().unix() > Number(cliffTimestamp) ||
+    moment().unix() < Number(statsInfo?.claim_expiration_timestamp) &&
+    moment().unix() > Number(cliffTimestamp) &&
     accountInfo?.claimed_balance != accountInfo?.balance;
 
   const handleSubmit = (event: React.FormEvent) => {
