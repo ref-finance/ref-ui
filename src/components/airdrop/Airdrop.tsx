@@ -82,12 +82,13 @@ function participateAirdropView(
   const unclaimAmount =
     unlockedAmount - claimedAmount > 0 ? unlockedAmount - claimedAmount : 0;
   const canClaim =
-    moment().unix() < Number(statsInfo?.claim_expiration_timestamp) &&
     moment().unix() > Number(cliffTimestamp) &&
     accountInfo?.claimed_balance != accountInfo?.balance;
+  const canNotClaim = moment().unix() < Number(cliffTimestamp);
   const canClaimTimeText = `You can claim from ${moment
     .unix(cliffTimestamp)
     .format('YYYY-MM-DD HH:mm:ss')}`;
+  const claimedAllText = 'You have claimed all your rewards';
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (canClaim) claim(token.id).then();
@@ -156,7 +157,9 @@ function participateAirdropView(
           className={`w-full rounded-full bg-gray-800 text-center text-white mt-6 p-4 focus:outline-none ${
             canClaim ? '' : 'bg-opacity-50 cursor-not-allowed'
           }`}
-          data-tip={canClaim ? '' : canClaimTimeText}
+          data-tip={
+            canClaim ? '' : canNotClaim ? canClaimTimeText : claimedAllText
+          }
         >
           Claim
         </button>
