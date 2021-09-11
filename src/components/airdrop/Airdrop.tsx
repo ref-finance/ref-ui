@@ -18,6 +18,7 @@ import { ConnectToNearBtn } from '~components/button/Button';
 import ReactTooltip from 'react-tooltip';
 import copy from '~utils/copy';
 import { getCurrentUnixTime } from '~services/api';
+import { hover } from '@testing-library/user-event/dist/hover';
 
 function notParticipateAirdropView(currentAccountId: string) {
   return currentAccountId ? (
@@ -84,10 +85,12 @@ function participateAirdropView(
     moment().unix() < Number(statsInfo?.claim_expiration_timestamp) &&
     moment().unix() > Number(cliffTimestamp) &&
     accountInfo?.claimed_balance != accountInfo?.balance;
-
+  const canClaimTimeText = `You can claim from ${moment
+    .unix(cliffTimestamp)
+    .format('YYYY-MM-DD HH:mm:ss')}`;
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    claim(token.id).then();
+    if (canClaim) claim(token.id).then();
   };
 
   return (
@@ -149,14 +152,15 @@ function participateAirdropView(
       <div className="w-1/3 mx-auto">
         <button
           type="button"
-          disabled={!canClaim}
           onClick={handleSubmit}
           className={`w-full rounded-full bg-gray-800 text-center text-white mt-6 p-4 focus:outline-none ${
-            canClaim ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
+            canClaim ? '' : 'bg-opacity-50 cursor-not-allowed'
           }`}
+          data-tip={canClaim ? '' : canClaimTimeText}
         >
           Claim
         </button>
+        <ReactTooltip className="text-xs font-light" />
       </div>
     </div>
   );
@@ -215,6 +219,7 @@ export default function AirdropView() {
         setStatsInfo(err);
       });
     getCurrentUnixTime().then((unixtime) => {
+      console.log(unixtime);
       setCurrentTimestamp(Number(unixtime));
     });
   }, []);

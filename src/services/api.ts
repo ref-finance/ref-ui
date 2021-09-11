@@ -87,5 +87,15 @@ export const getUserWalletTokens = async (): Promise<any> => {
 };
 
 export const getCurrentUnixTime = async (): Promise<any> => {
-  return moment().unix();
+  return await fetch(config.indexerUrl + '/timestamp', {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  })
+    .then((res) => res.json())
+    .then((ts) => {
+      return ts.ts;
+    })
+    .catch(() => {
+      return moment().unix();
+    });
 };
