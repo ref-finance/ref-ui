@@ -180,6 +180,7 @@ export default function AirdropView() {
   const [currentTimestamp, setCurrentTimestamp] = useState<number>();
 
   const { search } = useLocation();
+  const history = useHistory();
   const txHash = new URLSearchParams(search).get('transactionHashes');
 
   const renderer = (countdown: any) => {
@@ -241,6 +242,7 @@ export default function AirdropView() {
               </a>
             );
           }
+          history.replace('/airdrop');
         });
     }
   }, []);
