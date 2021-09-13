@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import { Pool } from '../services/pool';
 import { TokenMetadata } from '../services/ft-contract';
 import { percentLess } from '../utils/numbers';
-import { checkSwap, estimateSwap, swap } from '../services/swap';
+import { checkTransaction, estimateSwap, swap } from '../services/swap';
 import { useHistory, useLocation } from 'react-router';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
@@ -37,7 +37,7 @@ export const useSwap = ({
 
   useEffect(() => {
     if (txHash) {
-      checkSwap(txHash)
+      checkTransaction(txHash)
         .then(({ transaction }) => {
           return (
             transaction?.actions[1]?.['FunctionCall']?.method_name ===
@@ -62,6 +62,9 @@ export const useSwap = ({
           history.replace('');
         });
     }
+  }, []);
+
+  useEffect(() => {
     setCanSwap(false);
     if (
       tokenIn &&

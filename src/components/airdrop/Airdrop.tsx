@@ -18,7 +18,9 @@ import { ConnectToNearBtn } from '~components/button/Button';
 import ReactTooltip from 'react-tooltip';
 import copy from '~utils/copy';
 import { getCurrentUnixTime } from '~services/api';
-import { hover } from '@testing-library/user-event/dist/hover';
+import { useHistory, useLocation } from 'react-router';
+import { checkTransaction } from '~services/swap';
+import { toast } from 'react-toastify';
 
 function notParticipateAirdropView(currentAccountId: string) {
   return currentAccountId ? (
@@ -177,6 +179,9 @@ export default function AirdropView() {
   const [token, setToken] = useState<TokenMetadata>();
   const [currentTimestamp, setCurrentTimestamp] = useState<number>();
 
+  const { search } = useLocation();
+  const txHash = new URLSearchParams(search).get('transactionHashes');
+
   const renderer = (countdown: any) => {
     if (countdown.completed) {
       return <span>Ended</span>;
@@ -200,6 +205,46 @@ export default function AirdropView() {
       );
     }
   };
+
+  useEffect(() => {
+    if (txHash) {
+      checkTransaction(txHash)
+        .then(({ receipts, receipts_outcome }) => {
+          return (
+            receipts[1]?.receipt?.Action?.actions[0]?.FunctionCall
+              ?.method_name === 'ft_transfer' &&
+            receipts_outcome[1]?.outcome?.status?.Failure !== undefined
+          );
+        })
+        .then((isFail) => {
+          if (isFail) {
+            toast.error(
+              <a
+                className="text-gray font-semibold"
+                href={`https://explorer.near.org/transactions/${txHash}`}
+                target="_blank"
+              >
+                Claim failed. Click to view
+              </a>,
+              {
+                theme: 'light',
+              }
+            );
+          } else {
+            toast(
+              <a
+                className="text-primary font-semibold"
+                href={`https://explorer.near.org/transactions/${txHash}`}
+                target="_blank"
+              >
+                Claim successful. Click to view
+              </a>
+            );
+          }
+        });
+    }
+  }, []);
+
   useEffect(() => {
     getAccount()
       .then((account) => {

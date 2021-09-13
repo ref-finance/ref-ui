@@ -267,9 +267,9 @@ export const depositSwap = async ({
   return refFiManyFunctionCalls(actions);
 };
 
-export const checkSwap = (txHash: string) => {
-  return (near.connection.provider as JsonRpcProvider).sendJsonRpc('tx', [
-    txHash,
-    wallet.getAccountId(),
-  ]);
+export const checkTransaction = (txHash: string) => {
+  return (near.connection.provider as JsonRpcProvider).sendJsonRpc(
+    'EXPERIMENTAL_tx_status',
+    [txHash, wallet.getAccountId()]
+  );
 };
