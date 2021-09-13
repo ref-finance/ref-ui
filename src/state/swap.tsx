@@ -5,6 +5,7 @@ import { TokenMetadata } from '../services/ft-contract';
 import { percentLess } from '../utils/numbers';
 import { checkTransaction, estimateSwap, swap } from '../services/swap';
 import { useHistory, useLocation } from 'react-router';
+import getConfig from '~services/config';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -52,7 +53,7 @@ export const useSwap = ({
             toast(
               <a
                 className="text-primary font-semibold"
-                href={`https://explorer.near.org/transactions/${txHash}`}
+                href={`${getConfig().explorerUrl}/transactions/${txHash}`}
                 target="_blank"
               >
                 Swap successful. Click to view

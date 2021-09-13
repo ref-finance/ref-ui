@@ -21,6 +21,7 @@ import { getCurrentUnixTime } from '~services/api';
 import { useHistory, useLocation } from 'react-router';
 import { checkTransaction } from '~services/swap';
 import { toast } from 'react-toastify';
+import getConfig from '~services/config';
 
 function notParticipateAirdropView(currentAccountId: string) {
   return currentAccountId ? (
@@ -222,7 +223,7 @@ export default function AirdropView() {
             toast.error(
               <a
                 className="text-gray font-semibold"
-                href={`https://explorer.near.org/transactions/${txHash}`}
+                href={`${getConfig().explorerUrl}/transactions/${txHash}`}
                 target="_blank"
               >
                 Claim failed. Click to view
@@ -235,7 +236,7 @@ export default function AirdropView() {
             toast(
               <a
                 className="text-primary font-semibold"
-                href={`https://explorer.near.org/transactions/${txHash}`}
+                href={`${getConfig().explorerUrl}/transactions/${txHash}`}
                 target="_blank"
               >
                 Claim successful. Click to view
