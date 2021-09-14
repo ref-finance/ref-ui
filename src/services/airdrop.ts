@@ -104,21 +104,21 @@ export const claim = async (token_id: string) => {
     gas: getGas('100000000000000').toString(),
   });
 
-  // const balance = await ftGetStorageBalance(token_id);
-  //
-  // if (!balance || balance.total === '0') {
-  //   transactions.push({
-  //     receiverId: token_id,
-  //     functionCalls: [
-  //       {
-  //         methodName: 'storage_deposit',
-  //         args: {},
-  //         gas: '100000000000000',
-  //         amount: NEW_ACCOUNT_STORAGE_COST,
-  //       },
-  //     ],
-  //   });
-  // }
+  const balance = await ftGetStorageBalance(token_id);
+
+  if (!balance || balance.total === '0') {
+    transactions.push({
+      receiverId: token_id,
+      functionCalls: [
+        {
+          methodName: 'storage_deposit',
+          args: {},
+          gas: '100000000000000',
+          amount: NEW_ACCOUNT_STORAGE_COST,
+        },
+      ],
+    });
+  }
 
   transactions.push({
     receiverId: REF_AIRDRAOP_CONTRACT_ID,
