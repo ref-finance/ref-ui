@@ -68,70 +68,72 @@ function AccountEntry() {
   if (!userTokens || !balances) return null;
 
   return (
-    <div
-      className={`cursor-pointer font-bold items-center justify-end text-center p-1 overflow-visible pl-3 pr-3 relative h-full`}
-      onMouseEnter={() => {
-        setHover(true);
-      }}
-      onMouseLeave={() => {
-        setHover(false);
-      }}
-    >
-      <div className="inline-flex p-1 items-center justify-center rounded-full bg-gray-700 pl-3 pr-3 absolute top-5 right-10">
-        <div className="pr-1">
-          <Near />
-        </div>
-        <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name text-white">
-          {wallet.isSignedIn() ? (
-            accountName
-          ) : (
-            <button
-              onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
-              type="button"
-            >
-              <span className="ml-2 text-sm">
-                <FormattedMessage
-                  id="connect_to_near"
-                  defaultMessage="Connect to NEAR"
-                />
-              </span>
-            </button>
-          )}
-        </div>
-      </div>
+    <div className="user text-xs text-center justify-end pl-5 h-full absolute top-0 right-20 z-20">
       <div
-        className={`relative top-12 pt-2 right-2 ${
-          wallet.isSignedIn() && hover ? 'block' : 'hidden'
-        }`}
+        className={`cursor-pointer font-bold items-center justify-end text-center p-1 overflow-visible pl-3 pr-3 relative h-full`}
+        onMouseEnter={() => {
+          setHover(true);
+        }}
+        onMouseLeave={() => {
+          setHover(false);
+        }}
       >
-        <Card className="cursor-default" width="w-80">
-          <div className="flex items-center justify-between text-gray-700">
-            <div className="text-base">
-              <FormattedMessage id="balance" defaultMessage="Balance" />
-            </div>
-            <div
-              className="cursor-pointer rounded-full border border-greenLight px-2 py-1"
-              onClick={() => history.push('/account')}
-            >
-              <FormattedMessage
-                id="view_account"
-                defaultMessage="View account"
-              />
-            </div>
+        <div className="inline-flex p-1 items-center justify-center rounded-full bg-gray-700 pl-3 pr-3 absolute top-5 right-10">
+          <div className="pr-1">
+            <Near />
           </div>
-          <TokenList tokens={userTokens} balances={balances} />
-          <div className="flex items-center justify-center pt-2">
-            <div
-              className="rounded-full bg-greenLight px-5 py-2.5 text-xs text-white font-semibold cursor-pointer"
-              onClick={() => {
-                wallet.signOut();
-                window.location.assign('/');
-              }}
-            >
-              <FormattedMessage id="sign_out" defaultMessage="Sign out" />
-            </div>
+          <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name text-white">
+            {wallet.isSignedIn() ? (
+              accountName
+            ) : (
+              <button
+                onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
+                type="button"
+              >
+                <span className="ml-2 text-xs">
+                  <FormattedMessage
+                    id="connect_to_near"
+                    defaultMessage="Connect to NEAR"
+                  />
+                </span>
+              </button>
+            )}
           </div>
-        </Card>
+        </div>
+        <div
+          className={`relative top-12 pt-2 right-8 w-80 ${
+            wallet.isSignedIn() && hover ? 'block' : 'hidden'
+          }`}
+        >
+          <Card className="cursor-default" width="w-80">
+            <div className="flex items-center justify-between text-gray-700">
+              <div className="text-base">
+                <FormattedMessage id="balance" defaultMessage="Balance" />
+              </div>
+              <div
+                className="cursor-pointer rounded-full border border-greenLight px-2 py-1"
+                onClick={() => history.push('/account')}
+              >
+                <FormattedMessage
+                  id="view_account"
+                  defaultMessage="View account"
+                />
+              </div>
+            </div>
+            <TokenList tokens={userTokens} balances={balances} />
+            <div className="flex items-center justify-center pt-2">
+              <div
+                className="rounded-full bg-greenLight px-5 py-2.5 text-xs text-white font-semibold cursor-pointer"
+                onClick={() => {
+                  wallet.signOut();
+                  window.location.assign('/');
+                }}
+              >
+                <FormattedMessage id="sign_out" defaultMessage="Sign out" />
+              </div>
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );
@@ -538,9 +540,7 @@ function NavigationBar() {
             />
           </a>
         </nav>
-        <div className="user text-xs text-center justify-end pl-5 h-full w-96 absolute top-0 right-0 z-20">
-          <AccountEntry />
-        </div>
+        <AccountEntry />
       </div>
       <MobileNavBar />
     </>

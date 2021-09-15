@@ -33,7 +33,7 @@ function SubmitButton({ disabled, onClick }: SubmitButtonProps) {
         >
           {' '}
           <Near />
-          <span className="ml-2 text-sm">
+          <span className="ml-2 text-xs">
             <FormattedMessage
               id="connect_to_near"
               defaultMessage="Connect to NEAR"
