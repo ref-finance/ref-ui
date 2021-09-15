@@ -11,12 +11,16 @@ import { usePool } from '~state/pool';
 import { RemoveLiquidityModal } from './DetailsPage';
 import { getYourPools } from '~services/indexer';
 import { toRealSymbol } from '~utils/token';
+import { FormattedMessage } from 'react-intl';
 
 function Empty() {
   return (
     <div>
       <div className="text-center font-semibold text-xs pb-1">
-        You aren’t providing liquidity to any pools
+        <FormattedMessage
+          id="you_are_not_providing_liquidity_to_any_pools"
+          defaultMessage="You aren’t providing liquidity to any pools"
+        />
       </div>
       <div className="flex items-center justify-center">
         {wallet.isSignedIn() ? <AddLiquidityButton /> : <ConnectToNearBtn />}
@@ -32,7 +36,7 @@ function AddLiquidityButton() {
         href="/pools"
         className="rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold border border-greenLight bg-greenLight focus:outline-none"
       >
-        Add Liquidity
+        <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
       </a>
     </div>
   );
@@ -51,7 +55,12 @@ export function YourLiquidityPage() {
   return (
     <div className="flex items-center flex-col w-1/3 md:w-5/6 xs:w-11/12 m-auto">
       <div className="text-center pb-8">
-        <div className="text-white text-3xl font-semibold">Your Liquidity</div>
+        <div className="text-white text-3xl font-semibold">
+          <FormattedMessage
+            id="your_liquidity"
+            defaultMessage="Your Liquidity"
+          />
+        </div>
       </div>
       <div className="w-full flex justify-center">
         {error && <Alert level="error" message={error.message} />}
@@ -119,7 +128,7 @@ function PoolRow(props: { pool: any }) {
         </p>
         <div className="col-span-2 text-right">
           <BorderButton onClick={() => setShowWithdraw(true)}>
-            Remove
+            <FormattedMessage id="remove" defaultMessage="Remove" />
           </BorderButton>
         </div>
         <RemoveLiquidityModal

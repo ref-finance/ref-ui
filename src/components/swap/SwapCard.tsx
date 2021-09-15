@@ -15,9 +15,9 @@ import FormWrap from '../forms/FormWrap';
 import TokenAmount from '../forms/TokenAmount';
 import Alert from '../alert/Alert';
 import SlippageSelector from '../forms/SlippageSelector';
-import copy from '../../utils/copy';
 import { ArrowDownBlack } from '../icon/Arrows';
 import { toRealSymbol } from '~utils/token';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -48,22 +48,24 @@ function DetailView({
   to: string;
   minAmountOut: string;
 }) {
+  const intl = useIntl();
+
   if (!pool || !from || !to) return null;
 
   return (
     <>
       <SwapDetail
-        title="Minimum received"
+        title={intl.formatMessage({ id: 'minimum_received' })}
         value={toPrecision(minAmountOut, 4, true)}
       />
       <SwapDetail
-        title="Swap Rate"
+        title={intl.formatMessage({ id: 'swap_rate' })}
         value={`${calculateExchangeRate(pool.fee, from, to)} ${toRealSymbol(
           tokenOut.symbol
         )} per ${toRealSymbol(tokenIn.symbol)}`}
       />
       <SwapDetail
-        title="Pool Fee"
+        title={intl.formatMessage({ id: 'pool_fee' })}
         value={`${calculateFeePercent(pool.fee)}% (${calculateFeeCharge(
           pool.fee,
           from
@@ -80,6 +82,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
 
+  const intl = useIntl();
   const location = useLocation();
   const history = useHistory();
 
@@ -138,12 +141,15 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
               history.push(`/deposit/${tokenIn.id}`);
             }}
           >
-            Deposit to Swap
+            <FormattedMessage
+              id="deposit_to_swap"
+              defaultMessage="存入兑换的代币"
+            />
           </button>
         </div>
       }
       onSubmit={handleSubmit}
-      info={copy.swap}
+      info={intl.formatMessage({ id: 'swapCopy' })}
     >
       <div className="pb-2">
         {swapError && <Alert level="error" message={swapError.message} />}
@@ -160,7 +166,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
           setTokenIn(token);
         }}
-        text="From"
+        text={intl.formatMessage({ id: 'from' })}
         onChangeAmount={setTokenInAmount}
       />
       <div
@@ -181,7 +187,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         tokens={allTokens}
         selectedToken={tokenOut}
         balances={balances}
-        text="To"
+        text={intl.formatMessage({ id: 'to' })}
         onSelectToken={(token) => {
           localStorage.setItem(SWAP_OUT_KEY, token.id);
           history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`);

@@ -6,11 +6,11 @@ import { withdraw } from '../../services/token';
 import { useTokenBalances } from '../../state/token';
 import { toReadableNumber } from '../../utils/numbers';
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
-import copy from '../../utils/copy';
+import { useIntl } from 'react-intl';
 
 export default function Withdraw({ tokens }: { tokens: TokenMetadata[] }) {
   const balances = useTokenBalances();
-
+  const intl = useIntl();
   const [amount, setAmount] = useState<string>('');
   const [selectedToken, setSelectedToken] = useState<TokenMetadata>(
     tokens.find((token) => token.id === WRAP_NEAR_CONTRACT_ID) || tokens[0]
@@ -18,8 +18,8 @@ export default function Withdraw({ tokens }: { tokens: TokenMetadata[] }) {
 
   const info =
     selectedToken?.id === WRAP_NEAR_CONTRACT_ID
-      ? copy.nearWithdraw
-      : copy.withdraw;
+      ? intl.formatMessage({ id: 'nearWithdrawCopy' })
+      : intl.formatMessage({ id: 'withdrawCopy' });
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();

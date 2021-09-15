@@ -1,6 +1,7 @@
 import React from 'react';
 import { Near } from '../icon';
 import { REF_FARM_CONTRACT_ID, wallet } from '../../services/near';
+import { FormattedMessage } from 'react-intl';
 interface SubmitButtonProps {
   text: string;
   disabled?: boolean;
@@ -20,7 +21,9 @@ function SubmitButton({ disabled, onClick }: SubmitButtonProps) {
             disabled ? 'bg-opacity-50' : ''
           }`}
         >
-          <h1 className="text-xs font-inter font-semibold">Swap</h1>
+          <h1 className="text-xs font-inter font-semibold">
+            <FormattedMessage id="swap" defaultMessage="Swap" />
+          </h1>
         </button>
       ) : (
         <button
@@ -30,7 +33,12 @@ function SubmitButton({ disabled, onClick }: SubmitButtonProps) {
         >
           {' '}
           <Near />
-          <span className="ml-2 text-sm">Connect to NEAR</span>
+          <span className="ml-2 text-sm">
+            <FormattedMessage
+              id="connect_to_near"
+              defaultMessage="Connect to NEAR"
+            />
+          </span>
         </button>
       )}
     </>

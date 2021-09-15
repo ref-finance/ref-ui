@@ -1,6 +1,7 @@
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import { toReadableNumber } from '~utils/numbers';
 import { getPoolDetails } from '~services/pool';
+import { useIntl } from 'react-intl';
 
 export const parseAction = async (methodName: string, params: any) => {
   switch (methodName) {

@@ -30,7 +30,6 @@ import { wallet } from '~services/near';
 import Loading from '~components/layout/Loading';
 import { ConnectToNearBtn } from '~components/deposit/Deposit';
 import { useTokens } from '~state/token';
-import copy from '~utils/copy';
 import { Info } from '~components/icon/Info';
 import ReactTooltip from 'react-tooltip';
 import { getMftTokenId, toRealSymbol } from '~utils/token';
@@ -42,6 +41,8 @@ import { getTokenPriceList } from '~services/indexer';
 import Countdown, { zeroPad } from 'react-countdown';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
+import { FormattedMessage, useIntl } from 'react-intl';
+import parse from 'html-react-parser';
 
 export function FarmsPage() {
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
@@ -53,6 +54,7 @@ export function FarmsPage() {
   const [seeds, setSeeds] = useState<Record<string, string>>({});
   const page = 1;
   const perPage = DEFAULT_PAGE_LIMIT;
+  const intl = useIntl();
 
   async function loadFarmInfoList() {
     setUnclaimedFarmsIsLoading(true);
@@ -95,18 +97,27 @@ export function FarmsPage() {
       <div className="flex gaps-x-8 px-5 -mt-12 xs:flex-col xs:mt-8 md:flex-col md:mt-8">
         <div className="w-96 mr-4 relative xs:w-full md:w-full">
           <div className="text-green-400 text-5xl px-7 xs:text-center md:text-center">
-            Farms
+            <FormattedMessage id="farms" defaultMessage="Farms" />
           </div>
           <div className="text-whiteOpacity85 text-xs py-4 p-7">
-            Stake your liquidity provider (LP) tokens to earn rewards!
+            <FormattedMessage
+              id="stake_your_liquidity_provider_LP_tokens_to_earn_rewards"
+              defaultMessage="Stake your liquidity provider (LP) tokens to earn rewards"
+            />
+            !
           </div>
           {unclaimedFarmsIsLoading ? (
             <Loading />
           ) : (
             <div className="bg-greenOpacity100 text-whiteOpacity85 rounded-xl p-7">
-              <div className="text-xl">Your Rewards</div>
+              <div className="text-xl">
+                <FormattedMessage
+                  id="your_rewards"
+                  defaultMessage="Your Rewards"
+                />
+              </div>
               <div className="text-sm pt-2 text-gray-50">
-                {copy.farmRewards}
+                {parse(intl.formatMessage({ id: 'farmRewardsCopy' }))}
               </div>
               <div className="text-xs pt-2">
                 {Object.entries(rewardList).map((rewardToken: any, index) => (
@@ -237,13 +248,17 @@ function FarmView({
   const PoolId = farmData.lpTokenId;
   const tokens = useTokens(farmData?.tokenIds);
 
+  const intl = useIntl();
+
   const renderer = (countdown: any) => {
     if (countdown.completed) {
       return null;
     } else {
       return (
         <>
-          <div>Start in </div>
+          <div>
+            <FormattedMessage id="start_in" defaultMessage="Start in" />
+          </div>
           <div>
             <span className="text-green-600">{countdown.days}</span> days{' '}
             <span className="text-green-600">
@@ -371,23 +386,34 @@ function FarmView({
               {symbols}
             </a>
             <p className="text-xs text-gray-400">
-              Earn {toRealSymbol(data?.rewardToken?.symbol)}
+              <FormattedMessage id="earn" defaultMessage="Earn" />{' '}
+              {toRealSymbol(data?.rewardToken?.symbol)}
             </p>
           </div>
         </div>
-        {ended ? <div className="ended status-bar">ENDED</div> : null}
-        {pending ? <div className="pending status-bar">PENDING</div> : null}
+        {ended ? (
+          <div className="ended status-bar">
+            <FormattedMessage id="ended" defaultMessage="ENDED" />
+          </div>
+        ) : null}
+        {pending ? (
+          <div className="pending status-bar">
+            <FormattedMessage id="pending" defaultMessage="PENDING" />
+          </div>
+        ) : null}
         <div className="ml-auto order-3 lg:w-full lg:mt-2 xl:w-auto xl:mt-0">
           <div className="inline-block">
             <Link
-              title="View Pool"
+              title={intl.formatMessage({ id: 'view_pool' })}
               to={{
                 pathname: `/pool/${PoolId}`,
                 state: { backToFarms: true },
               }}
               className="hover:text-green-500 text-lg xs:text-sm font-bold p-2 cursor-pointer text-green-500"
             >
-              <span>View Pool</span>
+              <span>
+                <FormattedMessage id="view_pool" defaultMessage="View Pool" />
+              </span>
             </Link>
           </div>
           <div className="inline-block">
@@ -395,7 +421,7 @@ function FarmView({
               data-type="dark"
               data-place="bottom"
               data-multiline={true}
-              data-tip={copy.getLPTokenCopy}
+              data-tip={intl.formatMessage({ id: 'getLPTokenCopy' })}
             >
               <Info />
             </div>
@@ -410,20 +436,32 @@ function FarmView({
         <div className="py-2">
           {data.userStaked !== '0' ? (
             <div className="flex items-center justify-between text-xs py-2">
-              <div>Your Shares</div>
+              <div>
+                <FormattedMessage
+                  id="your_shares"
+                  defaultMessage="Your Shares"
+                />
+              </div>
               <div>{toPrecision(data.userStaked, 6)}</div>
             </div>
           ) : null}
           {data.userStaked === '0' ? (
             <div className="flex items-center justify-between text-xs py-2">
-              <div>Rewards per week</div>
+              <div>
+                <FormattedMessage
+                  id="rewards_per_week"
+                  defaultMessage="Rewards per week"
+                />
+              </div>
               <div>
                 {data.rewardsPerWeek} {toRealSymbol(data?.rewardToken?.symbol)}
               </div>
             </div>
           ) : null}
           <div className="flex items-center justify-between text-xs py-2">
-            <div>APR</div>
+            <div>
+              <FormattedMessage id="apr" defaultMessage="APR" />
+            </div>
             <div>
               <ClipLoader color={clipColor} loading={loading} size={clipSize} />
             </div>
@@ -432,7 +470,12 @@ function FarmView({
             )}
           </div>
           <div className="flex items-center justify-between text-xs py-2">
-            <div>Total Staked</div>
+            <div>
+              <FormattedMessage
+                id="total_staked"
+                defaultMessage="Total Staked"
+              />
+            </div>
             <div>
               <ClipLoader color={clipColor} loading={loading} size={clipSize} />
             </div>
@@ -443,7 +486,12 @@ function FarmView({
             )}
           </div>
           <div className="flex items-center justify-between text-xs py-2">
-            <div>Unclaimed rewards</div>
+            <div>
+              <FormattedMessage
+                id="unclaimed_rewards"
+                defaultMessage="Unclaimed rewards"
+              />
+            </div>
             <div>
               <ClipLoader color={clipColor} loading={loading} size={clipSize} />
             </div>
@@ -458,7 +506,12 @@ function FarmView({
           <div className="flex items-center justify-between text-xs py-2">
             {farmStarted() ? (
               <>
-                <div>Started at </div>
+                <div>
+                  <FormattedMessage
+                    id="started_at"
+                    defaultMessage="Started at"
+                  />
+                </div>
                 <div>
                   {moment.unix(data.start_at).format('YYYY-MM-DD HH:mm:ss')}
                 </div>
@@ -485,17 +538,25 @@ function FarmView({
                       loading={claimLoading}
                       size={claimLoadingSize}
                     />
-                    {claimLoading ? null : <div>Claim</div>}
+                    {claimLoading ? null : (
+                      <div>
+                        <FormattedMessage id="claim" defaultMessage="Claim" />
+                      </div>
+                    )}
                   </div>
                 </GreenButton>
               ) : null}
               {data.userStaked !== '0' ? (
                 <BorderButton onClick={() => showUnstakeModal()}>
-                  <div className="w-16 text-xs text-greenLight">Unstake</div>
+                  <div className="w-16 text-xs text-greenLight">
+                    <FormattedMessage id="unstake" defaultMessage="Unstake" />
+                  </div>
                 </BorderButton>
               ) : null}
               <BorderButton onClick={() => showStakeModal()} disabled={ended}>
-                <div className="w-16 text-xs text-greenLight">Stake</div>
+                <div className="w-16 text-xs text-greenLight">
+                  <FormattedMessage id="stake" defaultMessage="Stake" />
+                </div>
               </BorderButton>
             </div>
           ) : (
@@ -507,8 +568,8 @@ function FarmView({
       <ActionModal
         isOpen={unstakeVisible}
         onRequestClose={() => setUnstakeVisible(false)}
-        title="Unstake"
-        btnText="Unstake"
+        title={intl.formatMessage({ id: 'unstake' })}
+        btnText={intl.formatMessage({ id: 'unstake' })}
         max={data.userStaked}
         onSubmit={(amount) => {
           unstake({
@@ -521,8 +582,8 @@ function FarmView({
       <ActionModal
         isOpen={withdrawVisible}
         onRequestClose={() => setWithdrawVisible(false)}
-        title="Withdraw"
-        btnText="Withdraw"
+        title={intl.formatMessage({ id: 'withdraw' })}
+        btnText={intl.formatMessage({ id: 'withdraw' })}
         max={data.rewardNumber}
         onSubmit={(amount) => {
           withdrawReward({
@@ -538,8 +599,8 @@ function FarmView({
         onRequestClose={() => {
           setStakeVisible(false);
         }}
-        title="Stake"
-        btnText="Stake"
+        title={intl.formatMessage({ id: 'stake' })}
+        btnText={intl.formatMessage({ id: 'stake' })}
         max={stakeBalance}
         onSubmit={(amount) => {
           stake({ token_id: getMftTokenId(data.lpTokenId), amount }).catch(
@@ -573,7 +634,7 @@ function ActionModal(
         <div>
           <div className="flex justify-end text-xs font-semibold pb-2.5">
             <span className={`${max === '0' ? 'text-gray-400' : null}`}>
-              Balance:
+              <FormattedMessage id="balance" defaultMessage="Balance" />:
               {toPrecision(max, 6)}
             </span>
           </div>

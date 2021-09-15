@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { FaRegQuestionCircle } from 'react-icons/fa';
-import ReactTooltip from 'react-tooltip';
 import { Card } from '~components/card/Card';
 import { useWhitelistTokens, useTokenBalances } from '~state/token';
 import Loading from '~components/layout/Loading';
@@ -12,9 +10,10 @@ import Icon from '~components/tokens/Icon';
 import { ConnectToNearBtn } from '~components/deposit/Deposit';
 import { wallet } from '~services/near';
 import { addSimpleLiquidityPool } from '~services/pool';
-import copy from '~utils/copy';
 import { Toggle } from '~components/toggle';
 import Alert from '~components/alert/Alert';
+import { FormattedMessage, useIntl } from 'react-intl';
+import parse from 'html-react-parser';
 
 export function AddPoolPage() {
   const tokens = useWhitelistTokens();
@@ -23,6 +22,7 @@ export function AddPoolPage() {
   const [token2, setToken2] = useState<TokenMetadata | null>(null);
   const [fee, setFee] = useState('0.30');
   const [error, setError] = useState<Error>();
+  const intl = useIntl();
 
   if (!tokens || !balances) return <Loading />;
 
@@ -47,31 +47,39 @@ export function AddPoolPage() {
       </div>
     );
   };
-
   const canSubmit = !!fee && !!token1 && !!token2;
 
   return (
     <div className="flex items-center flex-col w-1/3 md:w-5/6 xs:w-11/12 m-auto">
       <div className="text-center pb-8">
-        <div className="text-white text-3xl font-semibold">Create New Pool</div>
+        <div className="text-white text-3xl font-semibold">
+          <FormattedMessage
+            id="create_new_pool"
+            defaultMessage="Create New Pool"
+          />
+        </div>
       </div>
       <Card width="w-full">
-        <div className="text-xs font-semibold">Token</div>
+        <div className="text-xs font-semibold">
+          <FormattedMessage id="token" defaultMessage="Token" />
+        </div>
         <div className="w-full flex justify-center">
           {error && <Alert level="error" message={error.message} />}
         </div>
         <SelectToken
           standalone
-          placeholder="Select token"
+          placeholder={intl.formatMessage({ id: 'select_token' })}
           tokens={tokens}
           render={balances ? render : null}
           selected={token1 && <Selected token={token1} />}
           onSelect={setToken1}
         />
-        <div className="text-xs font-semibold pt-2">Pair</div>
+        <div className="text-xs font-semibold pt-2">
+          <FormattedMessage id="pair" defaultMessage="Pair" />
+        </div>
         <SelectToken
           standalone
-          placeholder="Select token"
+          placeholder={intl.formatMessage({ id: 'select_token' })}
           tokens={tokens}
           render={balances ? render : null}
           selected={token2 && <Selected token={token2} />}
@@ -79,7 +87,14 @@ export function AddPoolPage() {
         />
         <div className="text-xs font-semibold pt-2 flex items-center justify-between">
           <div>
-            <span className="pr-1">Fee (Basis points) </span>
+            <span className="pr-1">
+              <FormattedMessage id="fee" defaultMessage="Fee" /> (
+              <FormattedMessage
+                id="basis_points"
+                defaultMessage="Basis points"
+              />
+              )
+            </span>
           </div>
           <Toggle
             opts={[
@@ -95,7 +110,14 @@ export function AddPoolPage() {
         </div>
         <div className="text-xs font-semibold pt-4 flex items-center justify-between">
           <div>
-            <span className="pr-1">Total Fee (protocol fee is 0.05%)</span>
+            <span className="pr-1">
+              <FormattedMessage id="total_fee" defaultMessage="Total Fee" />(
+              <FormattedMessage
+                id="protocol_fee_is"
+                defaultMessage="protocol fee is"
+              />
+              0.05%)
+            </span>
           </div>
           <div className="inline-block w-20 border bg-gray-100 p-2 px-3 rounded-lg">
             <input
@@ -137,7 +159,10 @@ export function AddPoolPage() {
                 }
               }}
             >
-              Add Liquidity
+              <FormattedMessage
+                id="add_liquidity"
+                defaultMessage="Add Liquidity"
+              />
             </button>
           ) : (
             <ConnectToNearBtn />
@@ -145,7 +170,7 @@ export function AddPoolPage() {
         </div>
       </Card>
       <div className="text-white text-sm pt-3 leading-6 w-11/12 text-center">
-        {copy.addLiquidityPool}
+        {parse(intl.formatMessage({ id: 'addLiquidityPoolCopy' }))}
       </div>
     </div>
   );

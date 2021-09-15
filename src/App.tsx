@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import DepositPage from './pages/DepositPage';
@@ -18,44 +18,7 @@ import './global.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { FarmsPage } from '~pages/farms/FarmsPage';
 import { AirdropPage } from '~pages/AirdropPage';
-import { IntlProvider } from 'react-intl';
-import zh_CN from './locales/zh_CN';
-import en_US from './locales/en_US';
-
-const chooseLocale = (): any => {
-  console.log(navigator.language.split('_')[0]);
-  switch (navigator.language.split('_')[0]) {
-    case 'en':
-      return en_US;
-      break;
-    case 'zh-CN':
-      return zh_CN;
-      break;
-    default:
-      return en_US;
-      break;
-  }
-};
-
-let i18nConfig = {
-  locale: navigator.language.split(/[-_]/)[0],
-  messages: chooseLocale(),
-};
-
-const onChangeLanguage = (lang: string) => {
-  switch (lang) {
-    case 'en':
-      i18nConfig.messages = en_US;
-      break;
-    case 'zh-CN':
-      i18nConfig.messages = zh_CN;
-      break;
-    default:
-      i18nConfig.messages = en_US;
-      break;
-  }
-  i18nConfig.locale = lang;
-};
+import { Context } from '~components/wrapper';
 
 Modal.defaultStyles = {
   overlay: {
@@ -80,35 +43,35 @@ Modal.defaultStyles = {
 Modal.setAppElement('#root');
 
 function App() {
+  const context = useContext(Context);
   return (
-    <IntlProvider messages={i18nConfig.messages} locale={i18nConfig.locale}>
-      <Router>
-        <ToastContainer />
-        <div className="relative min-h-screen pb-12 xs:flex xs:flex-col md:flex md:flex-col">
-          <BgShapeLeftBottom />
-          <BgShapeTopRight />
-          <NavigationBar />
-          <Switch>
-            <Route path="/deposit/:id?" component={AutoHeight(DepositPage)} />
-            <Route path="/account" component={AccountPage} />
-            <Route path="/pool/:id" component={AutoHeight(PoolDetailsPage)} />
-            <Route path="/adboard" component={AutoHeight(AdboardPage)} />
-            <Route path="/pools/add" component={AutoHeight(AddPoolPage)} />
-            <Route
-              path="/pools/add-token"
-              component={AutoHeight(AddTokenPage)}
-            />
-            <Route
-              path="/pools/yours"
-              component={AutoHeight(YourLiquidityPage)}
-            />
-            <Route path="/pools" component={AutoHeight(LiquidityPage)} />
-            <Route path="/farms" component={AutoHeight(FarmsPage)} />
-            <Route path="/" component={AutoHeight(SwapPage)} />
-          </Switch>
-        </div>
-      </Router>
-    </IntlProvider>
+    <Router>
+      <ToastContainer />
+      <div className="relative min-h-screen pb-12 xs:flex xs:flex-col md:flex md:flex-col">
+        <BgShapeLeftBottom />
+        <BgShapeTopRight />
+        <NavigationBar />
+        <select value={context.locale} onChange={context.selectLanguage}>
+          <option value="en">English</option>
+          <option value="zh-CN">中文版</option>
+        </select>
+        <Switch>
+          <Route path="/deposit/:id?" component={AutoHeight(DepositPage)} />
+          <Route path="/account" component={AccountPage} />
+          <Route path="/pool/:id" component={AutoHeight(PoolDetailsPage)} />
+          <Route path="/adboard" component={AutoHeight(AdboardPage)} />
+          <Route path="/pools/add" component={AutoHeight(AddPoolPage)} />
+          <Route path="/pools/add-token" component={AutoHeight(AddTokenPage)} />
+          <Route
+            path="/pools/yours"
+            component={AutoHeight(YourLiquidityPage)}
+          />
+          <Route path="/pools" component={AutoHeight(LiquidityPage)} />
+          <Route path="/farms" component={AutoHeight(FarmsPage)} />
+          <Route path="/" component={AutoHeight(SwapPage)} />
+        </Switch>
+      </div>
+    </Router>
   );
 }
 

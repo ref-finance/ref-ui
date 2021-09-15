@@ -14,6 +14,7 @@ import { REF_FARM_CONTRACT_ID, wallet } from '~services/near';
 import { Near } from '~components/icon';
 import { isMobile } from '~utils/device';
 import { toRealSymbol } from '~utils/token';
+import { FormattedMessage } from 'react-intl';
 
 export function WithdrawModal(props: ReactModal.Props) {
   const [amount, setAmount] = useState<string>('');
@@ -42,7 +43,10 @@ export function WithdrawModal(props: ReactModal.Props) {
     <Modal {...props}>
       <Card style={{ width: cardWidth }}>
         <div className="text-sm text-gray-800 font-semibold pb-4">
-          Withdraw Token
+          <FormattedMessage
+            id="withdraw_token"
+            defaultMessage="Withdraw Token"
+          />
         </div>
         <TokenAmount
           amount={amount}
@@ -64,7 +68,7 @@ export function WithdrawModal(props: ReactModal.Props) {
               });
             }}
           >
-            Withdraw
+            <FormattedMessage id="withdraw" defaultMessage="Withdraw" />
           </button>
         </div>
       </Card>
@@ -111,7 +115,10 @@ export function TokenList(props: {
       })}
       {tokens.length === 0 ? (
         <div className="text-center text-gray-600 text-xs font-semibold pt-2 pb-2">
-          No tokens deposited
+          <FormattedMessage
+            id="no_tokens_deposited"
+            defaultMessage="No tokens deposited"
+          />
         </div>
       ) : null}
     </div>
@@ -129,7 +136,9 @@ export function Balances(props: {
   return (
     <div className="balances flex items-center flex-col justify-center pt-8 w-full">
       {title ? (
-        <div className="text-white font-semibold text-xl pb-4">Balance</div>
+        <div className="text-white font-semibold text-xl pb-4">
+          <FormattedMessage id="balance" defaultMessage="Balance" />
+        </div>
       ) : null}
       <Card width="w-full">
         <TokenList hideEmpty={true} tokens={tokens} balances={balances} />
@@ -140,7 +149,7 @@ export function Balances(props: {
               className="rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight"
               onClick={() => setIsOpen(true)}
             >
-              Withdraw
+              <FormattedMessage id="withdraw" defaultMessage="Withdraw" />
             </button>
           </div>
         ) : null}
@@ -161,7 +170,12 @@ export function ConnectToNearBtn() {
         <div className="pr-1">
           <Near />
         </div>
-        <div className="text-xs text-white">Connect to NEAR</div>
+        <div className="text-xs text-white">
+          <FormattedMessage
+            id="connect_to_near"
+            defaultMessage="Connect to NEAR"
+          />
+        </div>
       </div>
     </div>
   );
