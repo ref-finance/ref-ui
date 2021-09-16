@@ -290,7 +290,8 @@ export function RemoveLiquidityModal(
         </div>
         <div>
           <p className="col-span-12 p-2 text-right text-xs font-semibold">
-            Balance: &nbsp;{toPrecision(toReadableNumber(24, shares), 6)}
+            <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
+            {toPrecision(toReadableNumber(24, shares), 6)}
           </p>
           <div className="border rounded-lg overflow-hidden">
             <InputAmount

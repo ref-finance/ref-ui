@@ -46,6 +46,7 @@ const zh_CN = {
   view_detail: '查看详情',
   pool_details: '资金池详情',
   liquidity_pools: '流动性资金池',
+  minimum_tokens_out: '最少可获得代币数量',
   pair: '交易对',
   tvl: '总锁定价值',
   search_pools: '搜索资金池',
@@ -111,7 +112,7 @@ const zh_CN = {
   is_not_exist: '不存在',
   must_input_a_value_greater_than_zero: '必须输入一个大于0的值',
   must_input_a_value_not_greater_than_your_balance:
-    '输入的数值不能大于那你的余额数量',
+    '输入的数值不能大于你的余额数量',
   no_pool_available_to_make_a_swap_from: '没有池子能够提供',
   for_the_amount: '数额为',
   no_pool_eng_for_chinese: '的交易',
