@@ -71,8 +71,15 @@ export function YourLiquidityPage() {
             <div className="max-h-80 overflow-y-auto">
               <div className="grid grid-cols-12 py-2 content-center items-center text-xs font-semibold text-gray-600">
                 <div className="grid grid-cols-2 col-span-2"></div>
-                <p className="grid col-span-4">Pair</p>
-                <p className="col-span-4 text-center">Shares Owned</p>
+                <p className="grid col-span-4">
+                  <FormattedMessage id="pair" defaultMessage="Pair" />
+                </p>
+                <p className="col-span-4 text-center">
+                  <FormattedMessage
+                    id="shares_owned"
+                    defaultMessage="Shares Owned"
+                  />
+                </p>
               </div>
               {pools.map((pool, i) => (
                 <PoolRow key={i} pool={pool} />

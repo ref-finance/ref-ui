@@ -5,6 +5,7 @@ import { TokenMetadata } from '../services/ft-contract';
 import { percentLess } from '../utils/numbers';
 import { checkSwap, estimateSwap, swap } from '../services/swap';
 import { useHistory, useLocation } from 'react-router';
+import { useIntl } from 'react-intl';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -34,6 +35,8 @@ export const useSwap = ({
   const minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
     : null;
+
+  const intl = useIntl();
 
   useEffect(() => {
     if (txHash) {
@@ -77,6 +80,7 @@ export const useSwap = ({
         tokenOut,
         amountIn: tokenInAmount,
         ts: nts,
+        intl,
       })
         .then(({ estimate, pool, ts }) => {
           if (!estimate || !pool) throw '';
@@ -110,6 +114,7 @@ export const useSwap = ({
           tokenOut,
           amountIn: tokenInAmount,
           ts: nts,
+          intl,
         })
           .then(({ estimate, pool, ts }) => {
             if (!estimate || !pool) throw '';

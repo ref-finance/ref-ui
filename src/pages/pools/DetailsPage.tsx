@@ -26,7 +26,7 @@ import { toRealSymbol } from '~utils/token';
 import { getPool } from '~services/indexer';
 import { FaArrowLeft } from 'react-icons/fa';
 import { BigNumber } from 'bignumber.js';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 interface ParamTypes {
   id: string;
@@ -60,6 +60,7 @@ function AddLiquidityModal(
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const balances = useTokenBalances();
   const [error, setError] = useState<Error>();
+  const intl = useIntl();
 
   if (!balances) return null;
 
@@ -127,34 +128,50 @@ function AddLiquidityModal(
 
     if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
       throw new Error(
-        `You don't have enough ${toRealSymbol(tokens[0].symbol)}`
+        `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
+          tokens[0].symbol
+        )}`
       );
     }
 
     if (secondTokenAmountBN.isGreaterThan(secondTokenBalanceBN)) {
       throw new Error(
-        `You don't have enough ${toRealSymbol(tokens[1].symbol)}`
+        `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
+          tokens[1].symbol
+        )}`
       );
     }
 
     if (!firstTokenAmount || firstTokenAmount === '0') {
       throw new Error(
-        `Must provide at least 1 token for ${toRealSymbol(tokens[0].symbol)}`
+        `${intl.formatMessage({
+          id: 'must_provide_at_least_one_token_for',
+        })} ${toRealSymbol(tokens[0].symbol)}`
       );
     }
 
     if (!secondTokenAmount || secondTokenAmount === '0') {
       throw new Error(
-        `Must provide at least 1 token for ${toRealSymbol(tokens[1].symbol)}`
+        `${intl.formatMessage({
+          id: 'must_provide_at_least_one_token_for',
+        })} ${toRealSymbol(tokens[1].symbol)}`
       );
     }
 
     if (!tokens[0]) {
-      throw new Error(`${tokens[0].id} is not exist`);
+      throw new Error(
+        `${tokens[0].id} ${intl.formatMessage({
+          id: 'is_not_exist',
+        })}`
+      );
     }
 
     if (!tokens[1]) {
-      throw new Error(`${tokens[1].id} is not exist`);
+      throw new Error(
+        `${tokens[1].id} ${intl.formatMessage({
+          id: 'is_not_exist',
+        })}`
+      );
     }
 
     return addLiquidityToPool({
@@ -238,15 +255,22 @@ export function RemoveLiquidityModal(
   });
   const [error, setError] = useState<Error>();
   const cardWidth = isMobile() ? '85vw' : '30vw';
+  const intl = useIntl();
 
   function submit() {
     const amountBN = new BigNumber(amount.toString());
     const shareBN = new BigNumber(toReadableNumber(24, shares));
     if (Number(amount) === 0) {
-      throw new Error(`Must input a value greater than 0`);
+      throw new Error(
+        intl.formatMessage({ id: 'must_input_a_value_greater_than_zero' })
+      );
     }
     if (amountBN.isGreaterThan(shareBN)) {
-      throw new Error(`Must input a value not greater than your balance`);
+      throw new Error(
+        intl.formatMessage({
+          id: 'must_input_a_value_not_greater_than_your_balance',
+        })
+      );
     }
 
     return removeLiquidity();

@@ -201,7 +201,11 @@ function ClaimView({ data }: { data: any }) {
                   size={withdrawLoadingSize}
                 />
               </div>
-              {withdrawLoading ? null : <div>Withdraw</div>}
+              {withdrawLoading ? null : (
+                <div>
+                  <FormattedMessage id="withdraw" defaultMessage="Withdraw" />
+                </div>
+              )}
             </WithdrawButton>
           ) : (
             <ConnectToNearBtn />

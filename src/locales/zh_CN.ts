@@ -17,8 +17,8 @@ const zh_CN = {
   add_token: '添加代币',
   create_new_pool: '创建流动池',
   your_liquidity: '你的流动性',
-  farms: '挖矿',
-  Farms: '挖矿',
+  farms: '农场',
+  Farms: '农场',
   docs: '文档',
   Docs: '文档',
   community: '社区',
@@ -44,6 +44,7 @@ const zh_CN = {
   fee: '手续费',
   fees: '手续费',
   view_detail: '查看详情',
+  pool_details: '资金池详情',
   liquidity_pools: '流动性资金池',
   pair: '交易对',
   tvl: '总锁定价值',
@@ -78,6 +79,8 @@ const zh_CN = {
   stake: '质押',
   unstake: '取消质押',
   your_rewards: '你的奖励',
+  your_shares: '你的份额',
+  shares_owned: '当前份额',
   stake_your_liquidity_provider_LP_tokens_to_earn_rewards:
     '质押你的LP Token来赚钱奖励吧',
   go_to_wallet: '跳转到钱包',
@@ -95,7 +98,7 @@ const zh_CN = {
   addLiquidityPoolCopy:
     '为所选的两个代币对创建一个新的流动性池。<br>兑换手续费用是流动池从每笔交易中获得的百分比。',
   swapCopy:
-    'Swap exchanges兑换是将第一个选定的代币交换成第二个选定的代币。<br> 将使用最高流动性和最低交易费用的池。',
+    '兑换交易是将第一个选定的代币交换成第二个选定的代币。<br> 将使用最高流动性和最低交易费用的池。',
   addTokenCopy: '允许您向可兑换代币名单中添加ERC-20代币。',
   getLPTokenCopy: '单击此处跳转到相应的池。',
   airdrop:
@@ -103,5 +106,15 @@ const zh_CN = {
   farmRewardsCopy:
     '您将在这里看到您从参与的池中认领的所有余额。<br>提取到你的Near钱包',
   totalValueLockedCopy: '总锁定价值',
+  you_do_not_have_enough: '你没有足够的',
+  must_provide_at_least_one_token_for: '你提供的币的数量不能为0',
+  is_not_exist: '不存在',
+  must_input_a_value_greater_than_zero: '必须输入一个大于0的值',
+  must_input_a_value_not_greater_than_your_balance:
+    '输入的数值不能大于那你的余额数量',
+  no_pool_available_to_make_a_swap_from: '没有池子能够提供',
+  for_the_amount: '数额为',
+  no_pool_eng_for_chinese: '的交易',
+  is_not_a_valid_swap_amount: '错误的兑换数额',
 };
 export default zh_CN;

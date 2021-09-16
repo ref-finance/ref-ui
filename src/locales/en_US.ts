@@ -44,6 +44,7 @@ const en_US = {
   fee: 'Fee',
   fees: 'Fees',
   view_detail: 'View detail',
+  pool_details: 'Pool details',
   liquidity_pools: 'Liquidity pools',
   pair: 'Pair',
   tvl: 'TVL',
@@ -79,6 +80,8 @@ const en_US = {
   stake: 'Stake',
   unstake: 'Unstake',
   your_rewards: 'Your rewards',
+  your_shares: 'Your Shares',
+  shares_owned: 'Shares Owned',
   stake_your_liquidity_provider_LP_tokens_to_earn_rewards:
     'Stake your liquidity provider (LP) tokens to earn rewards',
   go_to_wallet: 'Go to Wallet',
@@ -111,5 +114,16 @@ const en_US = {
   farmRewardsCopy:
     'Here is where you will see all the balances that you have claimed from the pools you are participating in. Withdraw to your Near wallet',
   totalValueLockedCopy: 'Total Value Locked',
+  you_do_not_have_enough: "You don't have enough",
+  must_provide_at_least_one_token_for: 'Must provide at least 1 token for',
+  is_not_exist: 'is not exist',
+  must_input_a_value_greater_than_zero: 'Must input a value greater than 0',
+  must_input_a_value_not_greater_than_your_balance:
+    'Must input a value not greater than your balance',
+  no_pool_available_to_make_a_swap_from:
+    'No pool available to make a swap from',
+  for_the_amount: 'for the amount',
+  no_pool_eng_for_chinese: '',
+  is_not_a_valid_swap_amount: 'is not a valid swap amount',
 };
 export default en_US;
