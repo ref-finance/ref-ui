@@ -42,6 +42,7 @@ import { getTokenPriceList } from '~services/indexer';
 import Countdown, { zeroPad } from 'react-countdown';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
+import _ from 'lodash';
 
 export function FarmsPage() {
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
@@ -80,6 +81,7 @@ export function FarmsPage() {
       seeds,
     }).then((farms) => {
       setUnclaimedFarmsIsLoading(false);
+      farms = _.orderBy(farms, ['farm_status'], ['desc']);
       setFarms(farms);
     });
   }
