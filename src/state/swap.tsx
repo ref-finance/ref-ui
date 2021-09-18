@@ -70,17 +70,15 @@ export const useSwap = ({
       !ONLY_ZEROS.test(tokenInAmount) &&
       tokenIn.id !== tokenOut.id
     ) {
-      const nts = new Date().getTime().toString();
       setSwapError(null);
       estimateSwap({
         tokenIn,
         tokenOut,
         amountIn: tokenInAmount,
-        ts: nts,
       })
-        .then(({ estimate, pool, ts }) => {
+        .then(({ estimate, pool, amountIn }) => {
           if (!estimate || !pool) throw '';
-          if (nts === ts) {
+          if (tokenInAmount === amountIn) {
             setCanSwap(true);
             setTokenOutAmount(estimate);
             setPool(pool);
@@ -109,11 +107,10 @@ export const useSwap = ({
           tokenIn,
           tokenOut,
           amountIn: tokenInAmount,
-          ts: nts,
         })
-          .then(({ estimate, pool, ts }) => {
+          .then(({ estimate, pool, amountIn }) => {
             if (!estimate || !pool) throw '';
-            if (nts === ts) {
+            if (tokenInAmount === amountIn) {
               setCanSwap(true);
               setTokenOutAmount(estimate);
               setPool(pool);
@@ -133,13 +130,20 @@ export const useSwap = ({
   }, [count]);
 
   const makeSwap = () => {
-    swap({
-      pool,
-      tokenIn,
-      amountIn: tokenInAmount,
-      tokenOut,
-      minAmountOut,
-    }).catch(setSwapError);
+    if (
+      tokenInAmount !=
+      (document.getElementById('inputAmount') as HTMLInputElement).value
+    ) {
+      setCanSwap(false);
+    } else {
+      swap({
+        pool,
+        tokenIn,
+        amountIn: tokenInAmount,
+        tokenOut,
+        minAmountOut,
+      }).catch(setSwapError);
+    }
   };
 
   return {

@@ -44,13 +44,12 @@ interface EstimateSwapOptions {
 export interface EstimateSwapView {
   estimate: string;
   pool: Pool;
-  ts?: string;
+  amountIn?: string;
 }
 export const estimateSwap = async ({
   tokenIn,
   tokenOut,
   amountIn,
-  ts,
 }: EstimateSwapOptions): Promise<EstimateSwapView> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
   if (!parsedAmountIn)
@@ -96,7 +95,7 @@ export const estimateSwap = async ({
     return {
       estimate: toReadableNumber(tokenOut.decimals, estimate),
       pool,
-      ts,
+      amountIn,
     };
   } catch {
     throw new Error(
