@@ -22,6 +22,7 @@ interface TokenAmountProps {
   onChangeAmount?: (amount: string) => void;
   text?: string;
   calledBy?: string;
+  disabled?: boolean;
 }
 
 export default function TokenAmount({
@@ -35,6 +36,7 @@ export default function TokenAmount({
   onChangeAmount,
   text,
   calledBy,
+  disabled = false,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) => (
     <p className="text-black">
@@ -66,7 +68,7 @@ export default function TokenAmount({
           max={max}
           value={amount}
           onChangeAmount={onChangeAmount}
-          disabled={!isSignedIn}
+          disabled={!isSignedIn || disabled}
         />
         <SelectToken
           tokens={tokens}

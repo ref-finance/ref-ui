@@ -80,6 +80,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
   const [disableSwap, setDisableSwap] = useState<boolean>();
+  const [disableTokenInput, setDisableTokenInput] = useState<boolean>();
 
   const location = useLocation();
   const history = useHistory();
@@ -172,9 +173,15 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
           setTokenIn(token);
         }}
+        disabled={disableTokenInput}
         text="From"
         onChangeAmount={(amount) => {
           setDisableSwap(true);
+          setDisableTokenInput(true);
+          setTimeout(() => {
+            setDisableTokenInput(false);
+            document.getElementById('inputAmount').focus();
+          }, 400);
           setTokenInAmount(amount);
         }}
       />

@@ -43,6 +43,7 @@ export default function InputAmount({
             type="number"
             placeholder="0.0"
             onChange={({ target }) => handleChange(target.value)}
+            disabled={disabled}
           />
           {max ? (
             <a
