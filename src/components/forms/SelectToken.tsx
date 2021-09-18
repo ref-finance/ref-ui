@@ -62,6 +62,9 @@ export default function SelectToken({
         </button>
       )}
       overrides={{
+        Overlay: {
+          className: 'z-20',
+        },
         Dialog: {
           style: {
             width: dialogWidth,
