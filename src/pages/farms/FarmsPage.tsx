@@ -260,7 +260,7 @@ function FarmView({
 
   useEffect(() => {
     setEnded(farmData.farm_status === 'Ended');
-    setPending(farmData.farm_status === 'Created');
+    setPending(farmData.farm_status === 'Pending');
     setData(farmData);
     setLoading(false);
   }, [farmData]);
@@ -284,7 +284,7 @@ function FarmView({
 
     if (data) {
       setEnded(data.farm_status === 'Ended');
-      setPending(data.farm_status === 'Created');
+      setPending(data.farm_status === 'Pending');
     }
 
     const id = setInterval(() => {
