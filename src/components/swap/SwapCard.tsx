@@ -79,6 +79,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
+  const [disableSwap, setDisableSwap] = useState<boolean>();
 
   const location = useLocation();
   const history = useHistory();
@@ -122,7 +123,11 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     tokenOut: tokenOut,
     slippageTolerance,
   });
-  console.log(fromTokenInAmount);
+
+  useEffect(() => {
+    if (fromTokenInAmount === tokenInAmount) setDisableSwap(false);
+  }, [fromTokenInAmount]);
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     makeSwap();
@@ -135,7 +140,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   return (
     <FormWrap
-      canSubmit={canSwap}
+      canSubmit={canSwap && !disableSwap}
       showElseView={tokenInMax === '0'}
       elseView={
         <div className="flex justify-center">
@@ -168,7 +173,10 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           setTokenIn(token);
         }}
         text="From"
-        onChangeAmount={setTokenInAmount}
+        onChangeAmount={(amount) => {
+          setDisableSwap(true);
+          setTokenInAmount(amount);
+        }}
       />
       <div
         className="flex items-center justify-center"
@@ -194,6 +202,9 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`);
           setTokenOut(token);
         }}
+        onChangeAmount={() => {
+          setDisableSwap(false);
+        }}
       />
       <SlippageSelector
         slippageTolerance={slippageTolerance}
@@ -206,7 +217,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         pool={pool}
         tokenIn={tokenIn}
         tokenOut={tokenOut}
-        from={fromTokenInAmount}
+        from={tokenInAmount}
         to={tokenOutAmount}
         minAmountOut={minAmountOut}
       />
