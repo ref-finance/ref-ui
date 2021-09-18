@@ -108,14 +108,21 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     }
   }, [allTokens]);
 
-  const { canSwap, tokenOutAmount, minAmountOut, pool, swapError, makeSwap } =
-    useSwap({
-      tokenIn: tokenIn,
-      tokenInAmount,
-      tokenOut: tokenOut,
-      slippageTolerance,
-    });
-
+  const {
+    canSwap,
+    fromTokenInAmount,
+    tokenOutAmount,
+    minAmountOut,
+    pool,
+    swapError,
+    makeSwap,
+  } = useSwap({
+    tokenIn: tokenIn,
+    tokenInAmount,
+    tokenOut: tokenOut,
+    slippageTolerance,
+  });
+  console.log(fromTokenInAmount);
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     makeSwap();
@@ -199,7 +206,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         pool={pool}
         tokenIn={tokenIn}
         tokenOut={tokenOut}
-        from={tokenInAmount}
+        from={fromTokenInAmount}
         to={tokenOutAmount}
         minAmountOut={minAmountOut}
       />

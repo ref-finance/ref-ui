@@ -76,13 +76,11 @@ export const useSwap = ({
         tokenOut,
         amountIn: tokenInAmount,
       })
-        .then(({ estimate, pool, amountIn }) => {
+        .then(({ estimate, pool }) => {
           if (!estimate || !pool) throw '';
-          if (tokenInAmount === amountIn) {
-            setCanSwap(true);
-            setTokenOutAmount(estimate);
-            setPool(pool);
-          }
+          setCanSwap(true);
+          setTokenOutAmount(estimate);
+          setPool(pool);
         })
         .catch((err) => {
           setCanSwap(false);
@@ -101,20 +99,17 @@ export const useSwap = ({
         !ONLY_ZEROS.test(tokenInAmount) &&
         tokenIn.id !== tokenOut.id
       ) {
-        const nts = new Date().getTime().toString();
         setSwapError(null);
         estimateSwap({
           tokenIn,
           tokenOut,
           amountIn: tokenInAmount,
         })
-          .then(({ estimate, pool, amountIn }) => {
+          .then(({ estimate, pool }) => {
             if (!estimate || !pool) throw '';
-            if (tokenInAmount === amountIn) {
-              setCanSwap(true);
-              setTokenOutAmount(estimate);
-              setPool(pool);
-            }
+            setCanSwap(true);
+            setTokenOutAmount(estimate);
+            setPool(pool);
           })
           .catch((err) => {
             setCanSwap(false);
@@ -130,24 +125,18 @@ export const useSwap = ({
   }, [count]);
 
   const makeSwap = () => {
-    if (
-      tokenInAmount !=
-      (document.getElementById('inputAmount') as HTMLInputElement).value
-    ) {
-      setCanSwap(false);
-    } else {
-      swap({
-        pool,
-        tokenIn,
-        amountIn: tokenInAmount,
-        tokenOut,
-        minAmountOut,
-      }).catch(setSwapError);
-    }
+    swap({
+      pool,
+      tokenIn,
+      amountIn: tokenInAmount,
+      tokenOut,
+      minAmountOut,
+    }).catch(setSwapError);
   };
 
   return {
     canSwap,
+    fromTokenInAmount: tokenInAmount,
     tokenOutAmount,
     minAmountOut,
     pool,

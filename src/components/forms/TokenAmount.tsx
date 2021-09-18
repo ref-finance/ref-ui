@@ -7,9 +7,8 @@ import Icon from '../tokens/Icon';
 import InputAmount from './InputAmount';
 import SelectToken from './SelectToken';
 import AddToken from './AddToken';
-import { FaAngleDown } from 'react-icons/fa';
 import { ArrowDownGreen } from '../icon';
-import { toPrecision, toReadableNumber } from '../../utils/numbers';
+import { toPrecision } from '../../utils/numbers';
 
 interface TokenAmountProps {
   amount?: string;
