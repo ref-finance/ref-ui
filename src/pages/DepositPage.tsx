@@ -88,7 +88,7 @@ export default function DepositPage() {
           max={max}
           total={max}
           tokens={[nearMetadata, ...tokens]}
-          balances={balances}
+          balances={null}
           selectedToken={selectedToken}
           onSelectToken={setSelectedToken}
           onChangeAmount={setAmount}
