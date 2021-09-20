@@ -1,6 +1,7 @@
 import React, { HTMLAttributes } from 'react';
 import { wallet, REF_FARM_CONTRACT_ID } from '~services/near';
 import { Near } from '~components/icon';
+import { FormattedMessage } from 'react-intl';
 
 export function BorderlessButton(
   props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean }
@@ -97,7 +98,12 @@ export function ConnectToNearBtn() {
         <div className="pr-1">
           <Near />
         </div>
-        <div className="text-xs text-white">Connect to NEAR</div>
+        <div className="text-xs text-white">
+          <FormattedMessage
+            id="connect_to_near"
+            defaultMessage="Connect to NEAR"
+          />
+        </div>
       </GrayButton>
     </div>
   );

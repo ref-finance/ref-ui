@@ -3,8 +3,10 @@ import { toast } from 'react-toastify';
 import { Pool } from '../services/pool';
 import { TokenMetadata } from '../services/ft-contract';
 import { percentLess } from '../utils/numbers';
-import { checkSwap, estimateSwap, swap } from '../services/swap';
+import { checkTransaction, estimateSwap, swap } from '../services/swap';
 import { useHistory, useLocation } from 'react-router';
+import getConfig from '~services/config';
+import { useIntl } from 'react-intl';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -35,9 +37,11 @@ export const useSwap = ({
     ? percentLess(slippageTolerance, tokenOutAmount)
     : null;
 
+  const intl = useIntl();
+
   useEffect(() => {
     if (txHash) {
-      checkSwap(txHash)
+      checkTransaction(txHash)
         .then(({ transaction }) => {
           return (
             transaction?.actions[1]?.['FunctionCall']?.method_name ===
@@ -52,7 +56,7 @@ export const useSwap = ({
             toast(
               <a
                 className="text-primary font-semibold"
-                href={`https://explorer.near.org/transactions/${txHash}`}
+                href={`${getConfig().explorerUrl}/transactions/${txHash}`}
                 target="_blank"
               >
                 Swap successful. Click to view
@@ -62,6 +66,9 @@ export const useSwap = ({
           history.replace('');
         });
     }
+  }, [txHash]);
+
+  useEffect(() => {
     setCanSwap(false);
     if (
       tokenIn &&
@@ -75,6 +82,7 @@ export const useSwap = ({
         tokenIn,
         tokenOut,
         amountIn: tokenInAmount,
+        intl,
       })
         .then(({ estimate, pool }) => {
           if (!estimate || !pool) throw '';
@@ -104,6 +112,7 @@ export const useSwap = ({
           tokenIn,
           tokenOut,
           amountIn: tokenInAmount,
+          intl,
         })
           .then(({ estimate, pool }) => {
             if (!estimate || !pool) throw '';

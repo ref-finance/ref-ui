@@ -24,12 +24,10 @@ import {
   storageDepositAction,
   storageDepositForTokenAction,
 } from './creators/storage';
-import { registerTokenAction, withdrawAction } from './creators/token';
+import { registerTokenAction } from './creators/token';
 import {
-  nearMetadata,
   NEW_ACCOUNT_STORAGE_COST,
   WRAP_NEAR_CONTRACT_ID,
-  wrapNear,
   wnearMetadata,
 } from '~services/wrap-near';
 import { utils } from 'near-api-js';
@@ -38,21 +36,25 @@ interface EstimateSwapOptions {
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
   amountIn: string;
-  ts?: string;
+  intl?: any;
 }
 
 export interface EstimateSwapView {
   estimate: string;
   pool: Pool;
+  intl?: any;
 }
 export const estimateSwap = async ({
   tokenIn,
   tokenOut,
   amountIn,
+  intl,
 }: EstimateSwapOptions): Promise<EstimateSwapView> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
   if (!parsedAmountIn)
-    throw new Error(`${amountIn} is not a valid swap amount`);
+    throw new Error(
+      `${amountIn} ${intl.formatMessage({ id: 'is_not_a_valid_swap_amount' })}`
+    );
 
   const pools = await getPoolsByTokens({
     tokenInId: tokenIn.id,
@@ -62,7 +64,13 @@ export const estimateSwap = async ({
 
   if (pools.length < 1) {
     throw new Error(
-      `No pool available to make a swap from ${tokenIn.symbol} -> ${tokenOut.symbol} for the amount ${amountIn}`
+      `${intl.formatMessage({ id: 'no_pool_available_to_make_a_swap_from' })} ${
+        tokenIn.symbol
+      } -> ${tokenOut.symbol} ${intl.formatMessage({
+        id: 'for_the_amount',
+      })} ${amountIn} ${intl.formatMessage({
+        id: 'no_pool_eng_for_chinese',
+      })}`
     );
   }
 
@@ -97,7 +105,13 @@ export const estimateSwap = async ({
     };
   } catch {
     throw new Error(
-      `No pool available to make a swap from ${tokenIn.symbol} -> ${tokenOut.symbol} for the amount ${amountIn}`
+      `${intl.formatMessage({ id: 'no_pool_available_to_make_a_swap_from' })} ${
+        tokenIn.symbol
+      } -> ${tokenOut.symbol} ${intl.formatMessage({
+        id: 'for_the_amount',
+      })} ${amountIn} ${intl.formatMessage({
+        id: 'no_pool_eng_for_chinese',
+      })}`
     );
   }
 };
@@ -266,9 +280,9 @@ export const depositSwap = async ({
   return refFiManyFunctionCalls(actions);
 };
 
-export const checkSwap = (txHash: string) => {
-  return (near.connection.provider as JsonRpcProvider).sendJsonRpc('tx', [
-    txHash,
-    wallet.getAccountId(),
-  ]);
+export const checkTransaction = (txHash: string) => {
+  return (near.connection.provider as JsonRpcProvider).sendJsonRpc(
+    'EXPERIMENTAL_tx_status',
+    [txHash, wallet.getAccountId()]
+  );
 };

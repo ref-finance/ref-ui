@@ -9,6 +9,7 @@ import SelectToken from './SelectToken';
 import AddToken from './AddToken';
 import { ArrowDownGreen } from '../icon';
 import { toPrecision } from '../../utils/numbers';
+import { FormattedMessage } from 'react-intl';
 
 interface TokenAmountProps {
   amount?: string;
@@ -56,7 +57,8 @@ export default function TokenAmount({
       <div className="flex justify-between text-xs font-semibold pb-0.5">
         <span className="text-black">{text}</span>
         <span className={`${max === '0' ? 'text-gray-400' : null}`}>
-          Balance:&nbsp;
+          <FormattedMessage id="balance" defaultMessage="Balance" />
+          :&nbsp;
           {toPrecision(total, 6, true)}
         </span>
       </div>
