@@ -22,15 +22,23 @@ import { useHistory, useLocation } from 'react-router';
 import { checkTransaction } from '~services/swap';
 import { toast } from 'react-toastify';
 import getConfig from '~services/config';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 function notParticipateAirdropView(currentAccountId: string) {
   return currentAccountId ? (
     <div className="text-center p-4">
       <FaExclamationCircle className="mx-auto text-gray-600 text-6xl mt-2 mb-6" />
-      <div className="text-2xl">Sorry</div>
+      <div className="text-2xl">
+        <FormattedMessage id="sorry" defaultMessage="Sorry" />
+      </div>
       <div className="mt-4">
-        Account <span className="italic font-bold">{currentAccountId}</span> has
-        no available claim
+        <FormattedMessage id="account" defaultMessage="Account" />{' '}
+        <span className="italic font-bold">{currentAccountId}</span>{' '}
+        <FormattedMessage
+          id="has_no_available_claim"
+          defaultMessage=" has
+        no available claim"
+        />
       </div>
     </div>
   ) : (
@@ -47,6 +55,7 @@ function participateAirdropView(
   currentTimestamp: number,
   renderer: any
 ) {
+  const intl = useIntl();
   const total_balance = toReadableNumber(
     token.decimals,
     accountInfo?.balance.toString() || '0'
@@ -88,10 +97,12 @@ function participateAirdropView(
     moment().unix() > Number(cliffTimestamp) &&
     accountInfo?.claimed_balance != accountInfo?.balance;
   const canNotClaim = moment().unix() < Number(cliffTimestamp);
-  const canClaimTimeText = `You can claim from ${moment
-    .unix(cliffTimestamp)
-    .format('YYYY-MM-DD HH:mm:ss')}`;
-  const claimedAllText = 'You have claimed all your rewards';
+  const canClaimTimeText = `${intl.formatMessage({
+    id: 'you_can_claim_from',
+  })} ${moment.unix(cliffTimestamp).format('YYYY-MM-DD HH:mm:ss')}`;
+  const claimedAllText = intl.formatMessage({
+    id: 'you_have_claimed_all_your_rewards',
+  });
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (canClaim) claim(token.id).then();
@@ -99,9 +110,21 @@ function participateAirdropView(
 
   return (
     <div className="text-left text-sm p-4">
-      <Item token={token} amount={total_balance} label="Total Ref Token" />
-      <Item token={token} amount={lockingAmount} label="Locking Ref Token" />
-      <Item token={token} amount={unclaimAmount} label="Unclaim Ref Token" />
+      <Item
+        token={token}
+        amount={total_balance}
+        label={intl.formatMessage({ id: 'total_ref_token' })}
+      />
+      <Item
+        token={token}
+        amount={lockingAmount}
+        label={intl.formatMessage({ id: 'locaking_ref_token' })}
+      />
+      <Item
+        token={token}
+        amount={unclaimAmount}
+        label={intl.formatMessage({ id: 'unclaim_ref_token' })}
+      />
       <div>
         <div className="w-full mx-auto rounded-xl bg-gray-200 mt-8">
           {unlockedPercent > 0 ? (
@@ -115,12 +138,16 @@ function participateAirdropView(
             >
               {unlockedPercent < 15 ? (
                 <>
-                  <p className="text-green-500">Unlocked</p>
+                  <p className="text-green-500">
+                    <FormattedMessage id="unlocked" defaultMessage="Unlocked" />
+                  </p>
                   <p className="text-green-500">{`${unlockedPercent}%`}</p>
                 </>
               ) : (
                 <>
-                  <p>Unlocked</p>
+                  <p>
+                    <FormattedMessage id="unlocked" defaultMessage="Unlocked" />
+                  </p>
                   <p>{`${unlockedPercent}%`}</p>
                 </>
               )}
@@ -137,7 +164,9 @@ function participateAirdropView(
             >
               {lockingPercent < 15 ? null : (
                 <>
-                  <p className="bg-gray-200">Locking</p>
+                  <p className="bg-gray-200">
+                    <FormattedMessage id="locking" defaultMessage="Locking" />
+                  </p>
                   <p>{`${lockingPercent}%`}</p>
                 </>
               )}
@@ -148,7 +177,8 @@ function participateAirdropView(
       <div className="text-center mt-8">
         <div>
           <div className="mb-2">
-            Start at {moment.unix(startTimestamp).format('YYYY-MM-DD HH:mm:ss')}
+            <FormattedMessage id="start_at" defaultMessage="Start at" />{' '}
+            {moment.unix(startTimestamp).format('YYYY-MM-DD HH:mm:ss')}
           </div>
         </div>
         <Countdown date={expiration_time} renderer={renderer} />
@@ -164,7 +194,7 @@ function participateAirdropView(
             canClaim ? '' : canNotClaim ? canClaimTimeText : claimedAllText
           }
         >
-          Claim
+          <FormattedMessage id="claim" defaultMessage="Claim" />
         </button>
         <ReactTooltip className="text-xs font-light" />
       </div>
@@ -183,14 +213,21 @@ export default function AirdropView() {
   const { search } = useLocation();
   const history = useHistory();
   const txHash = new URLSearchParams(search).get('transactionHashes');
+  const intl = useIntl();
 
   const renderer = (countdown: any) => {
     if (countdown.completed) {
-      return <span>Ended</span>;
+      return (
+        <span>
+          <FormattedMessage id="ended" defaultMessage="Ended" />
+        </span>
+      );
     } else {
       return (
         <div>
-          Ends in <span className="text-green-600">{countdown.days}</span> days{' '}
+          <FormattedMessage id="ends_in" defaultMessage="Ends in" />{' '}
+          <span className="text-green-600">{countdown.days}</span>{' '}
+          <FormattedMessage id="days" defaultMessage="days" />{' '}
           <span className="text-green-600">
             {zeroPad(countdown.hours)}:{zeroPad(countdown.minutes)}:
             {zeroPad(countdown.seconds)}
@@ -199,7 +236,7 @@ export default function AirdropView() {
             data-type="dark"
             data-place="bottom"
             data-multiline={true}
-            data-tip={copy.airdrop}
+            data-tip={intl.formatMessage({ id: 'airdropCopy' })}
             className="inline-block	ml-2 text-xs font-semibold text-secondaryScale-500"
           />
           <ReactTooltip className="text-xs font-light" />
@@ -226,7 +263,10 @@ export default function AirdropView() {
                 href={`${getConfig().explorerUrl}/transactions/${txHash}`}
                 target="_blank"
               >
-                Claim failed. Click to view
+                <FormattedMessage
+                  id="claim_failed_click_to_view"
+                  defaultMessage="Claim failed. Click to view"
+                />
               </a>,
               {
                 theme: 'light',
@@ -239,7 +279,10 @@ export default function AirdropView() {
                 href={`${getConfig().explorerUrl}/transactions/${txHash}`}
                 target="_blank"
               >
-                Claim successful. Click to view
+                <FormattedMessage
+                  id="claim_successful_click_to_view"
+                  defaultMessage="Claim successful. Click to view"
+                />
               </a>
             );
           }

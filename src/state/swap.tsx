@@ -6,7 +6,7 @@ import { percentLess } from '../utils/numbers';
 import { checkTransaction, estimateSwap, swap } from '../services/swap';
 import { useHistory, useLocation } from 'react-router';
 import getConfig from '~services/config';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -59,7 +59,10 @@ export const useSwap = ({
                 href={`${getConfig().explorerUrl}/transactions/${txHash}`}
                 target="_blank"
               >
-                Swap successful. Click to view
+                <FormattedMessage
+                  id="swap_successful_click_to_view"
+                  defaultMessage="Swap successful. Click to view"
+                />
               </a>
             );
           }

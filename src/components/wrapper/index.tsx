@@ -4,7 +4,7 @@ import zh_CN from '../../locales/zh_CN';
 import en_US from '../../locales/en_US';
 
 export const Context = React.createContext(null);
-const local = navigator.language;
+const local = localStorage.getItem('local') || navigator.language;
 let lang: any;
 
 const changeLocale = (local: string) => {
@@ -19,6 +19,7 @@ const changeLocale = (local: string) => {
       lang = en_US;
       break;
   }
+  localStorage.setItem('local', local);
 };
 
 changeLocale(local);

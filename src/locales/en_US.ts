@@ -19,6 +19,8 @@ const en_US = {
   your_liquidity: 'Your liquidity',
   farms: 'Farms',
   Farms: 'Farms',
+  airdrop: 'Airdrop',
+  Airdrop: 'Airdrop',
   docs: 'Docs',
   Docs: 'Docs',
   community: 'Community',
@@ -89,6 +91,21 @@ const en_US = {
   recent_activity: 'Recent activity',
   view_all: 'View all',
   cancel: 'Cancel',
+  claim_ref_token: 'Claim Ref Token',
+  has_no_available_claim: 'Has no available calim',
+  sorry: 'Sorry',
+  total_ref_token: 'Total Ref Token',
+  locking_ref_token: 'Locking Ref Token',
+  unclaim_ref_token: 'Unclaim Ref Token',
+  unlocked: 'Unlocked',
+  locking: 'Locking',
+  you_can_claim_from: 'You can claim from',
+  you_have_claimed_all_your_rewards: 'You have claimed all your rewards',
+  ends_in: 'Ends in',
+  days: 'days',
+  swap_successful_click_to_view: 'Swap successful. Click to view',
+  claim_successful_click_to_view: 'Claim successful. Click to view',
+  claim_failed_click_to_view: 'Claim failed. Click to view',
   slippageCopy:
     "Slippage is the difference between the estimated <br> and actual price you receive. The percentage you <br> select is the acceptable difference between the <br> current exchange rate and the exchange rate at <br> the time of your transaction's execution.",
   depositCopy:
@@ -110,7 +127,7 @@ const en_US = {
   addTokenCopy:
     'This allows you to add an ERC-20 token to the exchange that is not already listed.',
   getLPTokenCopy: 'Click here to jump to the corresponding pool.',
-  airdrop:
+  airdropCopy:
     ' Please claim your airdrop at least once before the expiration date otherwise your balance would be donated into the treasury.',
   farmRewardsCopy:
     'Here is where you will see all the balances that you have claimed from the pools you are participating in. Withdraw to your Near wallet',

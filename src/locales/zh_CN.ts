@@ -1,3 +1,5 @@
+import React from 'react';
+
 const zh_CN = {
   deposit: '存入',
   Deposit: '存入',
@@ -19,6 +21,8 @@ const zh_CN = {
   your_liquidity: '你的流动性',
   farms: '农场',
   Farms: '农场',
+  airdrop: '空投',
+  Airdrop: '空投',
   docs: '文档',
   Docs: '文档',
   community: '社区',
@@ -67,7 +71,7 @@ const zh_CN = {
   total_fee: '总费用',
   protocol_fee_is: '协议费为',
   start_in: '开始',
-  start_at: '开始',
+  start_at: '开始于',
   started_at: '开始于',
   earn: '赚取',
   ended: '已结束',
@@ -88,6 +92,21 @@ const zh_CN = {
   recent_activity: '近期操作',
   view_all: '查看全部',
   cancel: '取消',
+  claim_ref_token: '认领 Ref 代币',
+  has_no_available_claim: '无空投额度',
+  sorry: '抱歉',
+  total_ref_token: 'Ref代币总额度',
+  locking_ref_token: 'Ref代币锁定额度',
+  unclaim_ref_token: 'Ref代币未领取额度',
+  unlocked: '已解锁',
+  locking: '锁定中',
+  you_can_claim_from: '你可以从如下时间开始认领',
+  you_have_claimed_all_your_rewards: '你已经领取了你所有的奖励',
+  ends_in: '结束于',
+  days: '天后',
+  swap_successful_click_to_view: '交易成功，点击查看详情',
+  claim_successful_click_to_view: '认领成功，点击查看详情',
+  claim_failed_click_to_view: '认领失败，点击查看详情',
   slippageCopy:
     '滑点是您收到的估计价格与实际价格之间的差额。<br>您选择的百分比是当前汇率与执行交易时汇率之间<br>的可接受差异。',
   depositCopy: '将您选择的代币存入，以便进行兑换或添加到流动性池中。',
@@ -102,8 +121,7 @@ const zh_CN = {
     '兑换交易是将第一个选定的代币交换成第二个选定的代币。<br> 将使用最高流动性和最低交易费用的池。',
   addTokenCopy: '允许您向可兑换代币名单中添加ERC-20代币。',
   getLPTokenCopy: '单击此处跳转到相应的池。',
-  airdrop:
-    'Please claim your airdrop at least once before the expiration date otherwise your balance would be donated into the treasury.',
+  airdropCopy: '请在截止日期前至少claim一次空投，否则您的余额将捐给财政部。',
   farmRewardsCopy:
     '您将在这里看到您从参与的池中认领的所有余额。<br>提取到你的Near钱包',
   totalValueLockedCopy: '总锁定价值',
