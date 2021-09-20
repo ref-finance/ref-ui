@@ -177,11 +177,11 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         text="From"
         onChangeAmount={(amount) => {
           setDisableSwap(true);
-          setDisableTokenInput(true);
-          setTimeout(() => {
-            setDisableTokenInput(false);
-            document.getElementById('inputAmount').focus();
-          }, 400);
+          // setDisableTokenInput(true);
+          // setTimeout(() => {
+          //   setDisableTokenInput(false);
+          //   document.getElementById('inputAmount').focus();
+          // }, 400);
           setTokenInAmount(amount);
         }}
       />
