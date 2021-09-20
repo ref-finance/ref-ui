@@ -4,6 +4,7 @@ import TokenList from '../tokens/TokenList';
 import { TokenMetadata } from '../../services/ft-contract';
 import { ArrowDownGreen } from '../icon';
 import { isMobile } from '~utils/device';
+import { FormattedMessage } from 'react-intl';
 
 export default function SelectToken({
   tokens,
@@ -75,7 +76,12 @@ export default function SelectToken({
       {(close) => (
         <section>
           <div className="flex border-b items-center justify-between pb-5">
-            <h2 className="text-sm font-bold text-center">Select Token</h2>
+            <h2 className="text-sm font-bold text-center">
+              <FormattedMessage
+                id="select_token"
+                defaultMessage="Select Token"
+              />
+            </h2>
             {addToken && addToken()}
           </div>
           <TokenList

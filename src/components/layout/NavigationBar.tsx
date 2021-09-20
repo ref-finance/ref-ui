@@ -21,6 +21,7 @@ import { useTokenBalances, useUserRegisteredTokens } from '~state/token';
 import { REF_FARM_CONTRACT_ID } from '~services/near';
 import { ConnectToNearBtn } from '~components/deposit/Deposit';
 import RainBow from './RainBow';
+import { FormattedMessage } from 'react-intl';
 
 function Anchor({
   to,
@@ -47,7 +48,7 @@ function Anchor({
           isSelected ? 'text-green-500' : 'text-white'
         }`}
       >
-        {name}
+        <FormattedMessage id={name} defaultMessage={name} />
       </h2>
     </Link>
   );
@@ -67,60 +68,72 @@ function AccountEntry() {
   if (!userTokens || !balances) return null;
 
   return (
-    <div
-      className={`cursor-pointer font-bold items-center justify-end text-center p-1 overflow-visible pl-3 pr-3 relative h-full`}
-      onMouseEnter={() => {
-        setHover(true);
-      }}
-      onMouseLeave={() => {
-        setHover(false);
-      }}
-    >
-      <div className="inline-flex p-1 items-center justify-center rounded-full bg-gray-700 pl-3 pr-3 absolute top-5 right-10">
-        <div className="pr-1">
-          <Near />
-        </div>
-        <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name text-white">
-          {wallet.isSignedIn() ? (
-            accountName
-          ) : (
-            <button
-              onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
-              type="button"
-            >
-              <span className="ml-2 text-sm">Connect to NEAR</span>
-            </button>
-          )}
-        </div>
-      </div>
+    <div className="user text-xs text-center justify-end pl-5 h-full absolute top-0 right-20 z-20">
       <div
-        className={`relative top-12 pt-2 right-2 ${
-          wallet.isSignedIn() && hover ? 'block' : 'hidden'
-        }`}
+        className={`cursor-pointer font-bold items-center justify-end text-center p-1 overflow-visible pl-3 pr-3 relative h-full`}
+        onMouseEnter={() => {
+          setHover(true);
+        }}
+        onMouseLeave={() => {
+          setHover(false);
+        }}
       >
-        <Card className="cursor-default" width="w-80">
-          <div className="flex items-center justify-between text-gray-700">
-            <div className="text-base">Balance</div>
-            <div
-              className="cursor-pointer rounded-full border border-greenLight px-2 py-1"
-              onClick={() => history.push('/account')}
-            >
-              View account
-            </div>
+        <div className="inline-flex p-1 items-center justify-center rounded-full bg-gray-700 pl-3 pr-3 absolute top-5 right-10">
+          <div className="pr-1">
+            <Near />
           </div>
-          <TokenList tokens={userTokens} balances={balances} />
-          <div className="flex items-center justify-center pt-2">
-            <div
-              className="rounded-full bg-greenLight px-5 py-2.5 text-xs text-white font-semibold cursor-pointer"
-              onClick={() => {
-                wallet.signOut();
-                window.location.assign('/');
-              }}
-            >
-              Sign out
-            </div>
+          <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name text-white">
+            {wallet.isSignedIn() ? (
+              accountName
+            ) : (
+              <button
+                onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
+                type="button"
+              >
+                <span className="ml-2 text-xs">
+                  <FormattedMessage
+                    id="connect_to_near"
+                    defaultMessage="Connect to NEAR"
+                  />
+                </span>
+              </button>
+            )}
           </div>
-        </Card>
+        </div>
+        <div
+          className={`relative top-12 pt-2 right-8 w-80 ${
+            wallet.isSignedIn() && hover ? 'block' : 'hidden'
+          }`}
+        >
+          <Card className="cursor-default" width="w-80">
+            <div className="flex items-center justify-between text-gray-700">
+              <div className="text-base">
+                <FormattedMessage id="balance" defaultMessage="Balance" />
+              </div>
+              <div
+                className="cursor-pointer rounded-full border border-greenLight px-2 py-1"
+                onClick={() => history.push('/account')}
+              >
+                <FormattedMessage
+                  id="view_account"
+                  defaultMessage="View account"
+                />
+              </div>
+            </div>
+            <TokenList tokens={userTokens} balances={balances} />
+            <div className="flex items-center justify-center pt-2">
+              <div
+                className="rounded-full bg-greenLight px-5 py-2.5 text-xs text-white font-semibold cursor-pointer"
+                onClick={() => {
+                  wallet.signOut();
+                  window.location.assign('/');
+                }}
+              >
+                <FormattedMessage id="sign_out" defaultMessage="Sign out" />
+              </div>
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );
@@ -133,14 +146,30 @@ function PoolsMenu() {
   const history = useHistory();
 
   const links = [
-    { label: 'View Pools', path: '/pools' },
-    { label: 'Add Token', path: '/pools/add-token' },
-    { label: 'Create New Pool', path: '/pools/add' },
+    {
+      label: <FormattedMessage id="view_pools" defaultMessage="View Pools" />,
+      path: '/pools',
+    },
+    {
+      label: <FormattedMessage id="add_token" defaultMessage="Add Token" />,
+      path: '/pools/add-token',
+    },
+    {
+      label: (
+        <FormattedMessage
+          id="create_new_pool"
+          defaultMessage="Create New Pool"
+        />
+      ),
+      path: '/pools/add',
+    },
   ];
 
   if (wallet.isSignedIn()) {
     links.push({
-      label: 'Your Liquidity',
+      label: (
+        <FormattedMessage id="your_liquidity" defaultMessage="Your Liquidity" />
+      ),
       path: '/pools/yours',
     });
   }
@@ -157,7 +186,7 @@ function PoolsMenu() {
             isSelected || hover ? 'text-green-500' : 'text-white'
           }`}
         >
-          Pools
+          <FormattedMessage id="pools" defaultMessage="Pools" />
         </h2>
         {isSelected || hover ? <ArrowDownGreen /> : <ArrowDownWhite />}
       </div>
@@ -204,7 +233,7 @@ function CommunityMenu() {
         <h2
           className={`link hover:text-green-500 text-lg font-bold p-2 cursor-pointer undefined text-white`}
         >
-          Community
+          <FormattedMessage id="community" defaultMessage="Community" />
         </h2>
         {hover ? <ArrowDownGreen /> : <ArrowDownWhite />}
       </div>
@@ -255,7 +284,7 @@ function MobileAnchor({
             isSelected ? 'text-green-500' : 'text-white'
           }`}
         >
-          {name}
+          <FormattedMessage id={name} defaultMessage={name} />
         </div>
       </Link>
     </div>
@@ -266,7 +295,7 @@ function MobilePoolsMenu({
   links,
   onClick,
 }: {
-  links: Array<{ label: string; path: string }>;
+  links: Array<{ label: JSX.Element; path: string }>;
   onClick: () => void;
 }) {
   const location = useLocation();
@@ -285,7 +314,7 @@ function MobilePoolsMenu({
             isSelected ? 'text-green-500' : 'text-white'
           }`}
         >
-          Pools
+          <FormattedMessage id="pools" defaultMessage="Pools" />
         </div>
         {show ? <MenuItemCollapse /> : <MenuItemExpand />}
       </div>
@@ -328,7 +357,9 @@ function MobileCommunityMenu({
         className="flex p-4 items-center justify-between"
         onClick={() => setShow(!show)}
       >
-        <div className={`text-white link font-bold`}>Community</div>
+        <div className={`text-white link font-bold`}>
+          <FormattedMessage id="community" defaultMessage="Community" />
+        </div>
         {show ? <MenuItemCollapse /> : <MenuItemExpand />}
       </div>
       <div className={`divide-y divide-green-800 ${show ? 'block' : 'hidden'}`}>
@@ -356,9 +387,23 @@ function MobileNavBar() {
   const accountId = wallet.getAccountId();
 
   const links = [
-    { label: 'View Pools', path: '/pools' },
-    { label: 'Add Token', path: '/pools/add-token' },
-    { label: 'Create New Pool', path: '/pools/add' },
+    {
+      label: <FormattedMessage id="view_pools" defaultMessage="View Pools" />,
+      path: '/pools',
+    },
+    {
+      label: <FormattedMessage id="add_token" defaultMessage="Add Token" />,
+      path: '/pools/add-token',
+    },
+    {
+      label: (
+        <FormattedMessage
+          id="create_new_pool"
+          defaultMessage="Create New Pool"
+        />
+      ),
+      path: '/pools/add',
+    },
   ];
 
   const communityLinks = [
@@ -370,7 +415,9 @@ function MobileNavBar() {
 
   if (wallet.isSignedIn()) {
     links.push({
-      label: 'Your Liquidity',
+      label: (
+        <FormattedMessage id="your_liquidity" defaultMessage="Your Liquidity" />
+      ),
       path: '/pools/yours',
     });
   }
@@ -402,7 +449,9 @@ function MobileNavBar() {
               window.location.assign('/');
             }}
           >
-            <p>Sign out</p>
+            <p>
+              <FormattedMessage id="sign_out" defaultMessage="Sign out" />
+            </p>
             <p>({accountId})</p>
           </div>
         ) : (
@@ -442,7 +491,9 @@ function MobileNavBar() {
               to={{ pathname: 'https://guide.ref.finance/' }}
               target="_blank"
             >
-              <div className="p-4 link font-bold p-2 text-white">Docs</div>
+              <div className="p-4 link font-bold p-2 text-white">
+                <FormattedMessage id="docs" defaultMessage="Docs" />
+              </div>
             </Link>
           </div>
           <MobileCommunityMenu links={communityLinks} onClick={close} />
@@ -452,7 +503,10 @@ function MobileNavBar() {
               target="_blank"
             >
               <div className="p-4 link font-bold p-2 text-white">
-                Move assets to/from Ethereum
+                <FormattedMessage
+                  id="move_assets_to_from_ethereum"
+                  defaultMessage="Move assets to/from Ethereum"
+                />
               </div>
             </Link>
           </div>
@@ -477,7 +531,7 @@ function NavigationBar() {
           <Anchor to="/farms" pattern="/farms" name="Farms" />
           <a href="https://guide.ref.finance/" target="_blank">
             <h2 className="link hover:text-green-500 text-lg font-bold p-2 cursor-pointer undefined text-white">
-              Docs
+              <FormattedMessage id="docs" defaultMessage="Docs" />
             </h2>
           </a>
           <CommunityMenu />
@@ -487,12 +541,13 @@ function NavigationBar() {
             className="mt-1 relative ext-white border rounded-full p-4 py-2 border-greenLight text-greenLight"
           >
             <RainBow className="h-6 inline-block"></RainBow>
-            Move assets to/from Ethereum
+            <FormattedMessage
+              id="move_assets_to_from_ethereum"
+              defaultMessage="Move assets to/from Ethereum"
+            />
           </a>
         </nav>
-        <div className="user text-xs text-center justify-end pl-5 h-full w-96 absolute top-0 right-0 z-20">
-          <AccountEntry />
-        </div>
+        <AccountEntry />
       </div>
       <MobileNavBar />
     </>

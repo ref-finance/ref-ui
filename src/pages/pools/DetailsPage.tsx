@@ -26,6 +26,7 @@ import { toRealSymbol } from '~utils/token';
 import { getPool } from '~services/indexer';
 import { FaArrowLeft } from 'react-icons/fa';
 import { BigNumber } from 'bignumber.js';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 interface ParamTypes {
   id: string;
@@ -59,6 +60,7 @@ function AddLiquidityModal(
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const balances = useTokenBalances();
   const [error, setError] = useState<Error>();
+  const intl = useIntl();
 
   if (!balances) return null;
 
@@ -126,34 +128,50 @@ function AddLiquidityModal(
 
     if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
       throw new Error(
-        `You don't have enough ${toRealSymbol(tokens[0].symbol)}`
+        `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
+          tokens[0].symbol
+        )}`
       );
     }
 
     if (secondTokenAmountBN.isGreaterThan(secondTokenBalanceBN)) {
       throw new Error(
-        `You don't have enough ${toRealSymbol(tokens[1].symbol)}`
+        `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
+          tokens[1].symbol
+        )}`
       );
     }
 
     if (!firstTokenAmount || firstTokenAmount === '0') {
       throw new Error(
-        `Must provide at least 1 token for ${toRealSymbol(tokens[0].symbol)}`
+        `${intl.formatMessage({
+          id: 'must_provide_at_least_one_token_for',
+        })} ${toRealSymbol(tokens[0].symbol)}`
       );
     }
 
     if (!secondTokenAmount || secondTokenAmount === '0') {
       throw new Error(
-        `Must provide at least 1 token for ${toRealSymbol(tokens[1].symbol)}`
+        `${intl.formatMessage({
+          id: 'must_provide_at_least_one_token_for',
+        })} ${toRealSymbol(tokens[1].symbol)}`
       );
     }
 
     if (!tokens[0]) {
-      throw new Error(`${tokens[0].id} is not exist`);
+      throw new Error(
+        `${tokens[0].id} ${intl.formatMessage({
+          id: 'is_not_exist',
+        })}`
+      );
     }
 
     if (!tokens[1]) {
-      throw new Error(`${tokens[1].id} is not exist`);
+      throw new Error(
+        `${tokens[1].id} ${intl.formatMessage({
+          id: 'is_not_exist',
+        })}`
+      );
     }
 
     return addLiquidityToPool({
@@ -172,7 +190,7 @@ function AddLiquidityModal(
       <div></div>
       <Card style={{ width: cardWidth }}>
         <div className="text-sm text-gray-800 font-semibold pb-4">
-          Add Liquidity
+          <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
         </div>
         <div className="flex justify-center">
           {error && <Alert level="error" message={error.message} />}
@@ -209,7 +227,10 @@ function AddLiquidityModal(
               }
             }}
           >
-            Add Liquidity
+            <FormattedMessage
+              id="add_liquidity"
+              defaultMessage="Add Liquidity"
+            />
           </button>
         </div>
       </Card>
@@ -234,15 +255,22 @@ export function RemoveLiquidityModal(
   });
   const [error, setError] = useState<Error>();
   const cardWidth = isMobile() ? '85vw' : '30vw';
+  const intl = useIntl();
 
   function submit() {
     const amountBN = new BigNumber(amount.toString());
     const shareBN = new BigNumber(toReadableNumber(24, shares));
     if (Number(amount) === 0) {
-      throw new Error(`Must input a value greater than 0`);
+      throw new Error(
+        intl.formatMessage({ id: 'must_input_a_value_greater_than_zero' })
+      );
     }
     if (amountBN.isGreaterThan(shareBN)) {
-      throw new Error(`Must input a value not greater than your balance`);
+      throw new Error(
+        intl.formatMessage({
+          id: 'must_input_a_value_not_greater_than_your_balance',
+        })
+      );
     }
 
     return removeLiquidity();
@@ -252,14 +280,18 @@ export function RemoveLiquidityModal(
     <Modal {...props}>
       <Card style={{ width: cardWidth }}>
         <div className="text-sm text-gray-800 font-semibold pb-4">
-          Remove Liquidity
+          <FormattedMessage
+            id="remove_liquidity"
+            defaultMessage="Remove Liquidity"
+          />
         </div>
         <div className="flex justify-center">
           {error && <Alert level="error" message={error.message} />}
         </div>
         <div>
           <p className="col-span-12 p-2 text-right text-xs font-semibold">
-            Balance: &nbsp;{toPrecision(toReadableNumber(24, shares), 6)}
+            <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
+            {toPrecision(toReadableNumber(24, shares), 6)}
           </p>
           <div className="border rounded-lg overflow-hidden">
             <InputAmount
@@ -279,7 +311,10 @@ export function RemoveLiquidityModal(
         {amount ? (
           <>
             <p className="mt-3 text-left text-xs font-semibold">
-              Minimum Tokens Out
+              <FormattedMessage
+                id="minimum_tokens_out"
+                defaultMessage="Minimum Tokens Out"
+              />
             </p>
             <section className="grid grid-cols-2 mt-3 text-xs font-semibold">
               {Object.entries(minimumAmounts).map(
@@ -317,7 +352,10 @@ export function RemoveLiquidityModal(
               }
             }}
           >
-            Remove Liquidity
+            <FormattedMessage
+              id="remove_liquidity"
+              defaultMessage="Remove Liquidity"
+            />
           </button>
         </div>
       </Card>
@@ -372,7 +410,9 @@ export function PoolDetailsPage() {
   return (
     <div className="flex items-center flex-col w-1/3 md:w-5/6 xs:w-11/12 m-auto">
       <div className="text-center pb-8">
-        <div className="text-white text-3xl font-semibold">Pool details</div>
+        <div className="text-white text-3xl font-semibold">
+          <FormattedMessage id="pool_details" defaultMessage="Pool details" />
+        </div>
       </div>
       <Card width="w-full">
         <div className="text-center border-b">
@@ -416,19 +456,40 @@ export function PoolDetailsPage() {
         </div>
         <div className="text-xs font-semibold text-gray-600 pt-6">
           <div className="flex items-center justify-between py-2">
-            <div>TVL</div>
+            <div>
+              <FormattedMessage id="tvl" defaultMessage="TVL" />
+            </div>
             <div>${poolTVL}</div>
           </div>
           <div className="flex items-center justify-between py-2">
-            <div>Total Liquidity</div>
-            <div>Coming Soon</div>
+            <div>
+              <FormattedMessage
+                id="total_liquidity"
+                defaultMessage="Total Liquidity"
+              />
+            </div>
+            <div>
+              <FormattedMessage id="coming_soon" defaultMessage="Coming Soon" />
+            </div>
           </div>
           <div className="flex items-center justify-between py-2">
-            <div>Accumulated Volume</div>
-            <div>Coming Soon</div>
+            <div>
+              <FormattedMessage
+                id="accumulated_volume"
+                defaultMessage="Accumulated Volume"
+              />
+            </div>
+            <div>
+              <FormattedMessage id="coming_soon" defaultMessage="Coming Soon" />
+            </div>
           </div>
           <div className="flex-col items-center justify-between py-2">
-            <div>Underlying liquidity</div>
+            <div>
+              <FormattedMessage
+                id="underlying_liquidity"
+                defaultMessage="Underlying liquidity"
+              />
+            </div>
             <div className="flex items-center justify-between">
               <div>{toRealSymbol(tokens[0].symbol)}</div>
               <div>
@@ -449,7 +510,12 @@ export function PoolDetailsPage() {
             </div>
           </div>
           <div className="flex items-center justify-between py-2">
-            <div>Total Shares</div>
+            <div>
+              <FormattedMessage
+                id="total_shares"
+                defaultMessage="Total Shares"
+              />
+            </div>
             <div>
               {toRoundedReadableNumber({
                 decimals: 24,
@@ -458,11 +524,15 @@ export function PoolDetailsPage() {
             </div>
           </div>
           <div className="flex items-center justify-between py-2">
-            <div>Fees</div>
+            <div>
+              <FormattedMessage id="fees" defaultMessage="Fees" />
+            </div>
             <div>{`${calculateFeePercent(pool.fee)}%`}</div>
           </div>
           <div className="flex items-center justify-between py-2">
-            <div>My Shares</div>
+            <div>
+              <FormattedMessage id="my_shares" defaultMessage="My Shares" />
+            </div>
             <div>
               <MyShares shares={shares} totalShares={pool.shareSupply} />
             </div>
@@ -474,7 +544,10 @@ export function PoolDetailsPage() {
                 setShowFunding(true);
               }}
             >
-              Add Liquidity
+              <FormattedMessage
+                id="add_liquidity"
+                defaultMessage="Add Liquidity"
+              />
             </button>
             <button
               className={`rounded-full text-xs text-white px-5 py-2.5 ml-3 focus:outline-none font-semibold bg-greenLight ${
@@ -484,7 +557,10 @@ export function PoolDetailsPage() {
                 setShowWithdraw(true);
               }}
             >
-              Remove Liquidity
+              <FormattedMessage
+                id="remove_liquidity"
+                defaultMessage="Remove Liquidity"
+              />
             </button>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Alert from '../alert/Alert';
 import SubmitButton from './SubmitButton';
+import { FormattedMessage } from 'react-intl';
 
 interface FormWrapProps {
   title?: string;
@@ -43,7 +44,7 @@ export default function FormWrap({
       {title && (
         <>
           <h2 className="formTitle font-bold text-xl text-gray-700 text-center pb-2">
-            {title}
+            <FormattedMessage id={title} defaultMessage={title} />
           </h2>
         </>
       )}
