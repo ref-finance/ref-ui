@@ -146,15 +146,15 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         text="From"
         onChangeAmount={setTokenInAmount}
       />
-      <div
-        className="flex items-center justify-center"
-        onClick={() => {
-          setTokenIn(tokenOut);
-          setTokenOut(tokenIn);
-          setTokenInAmount(toPrecision('1', 6));
-        }}
-      >
-        <div className="inline-block mt-4 mb-4 cursor-pointer">
+      <div className="flex items-center justify-center">
+        <div
+          className="inline-block mt-4 mb-4 cursor-pointer"
+          onClick={() => {
+            setTokenIn(tokenOut);
+            setTokenOut(tokenIn);
+            setTokenInAmount(toPrecision('1', 6));
+          }}
+        >
           <ArrowDownBlack />
         </div>
       </div>
