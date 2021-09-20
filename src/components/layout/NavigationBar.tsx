@@ -217,6 +217,7 @@ function CommunityMenu() {
   const [hover, setHover] = useState(false);
 
   const links = [
+    { label: 'Forum', url: 'https://gov.ref.finance' },
     { label: 'Discord', url: 'https://discord.gg/SJBGcfMxJz' },
     { label: 'Telegram', url: 'https://t.me/ref_finance' },
     { label: 'Twitter', url: 'https://twitter.com/finance_ref' },
@@ -407,6 +408,7 @@ function MobileNavBar() {
   ];
 
   const communityLinks = [
+    { label: 'Forum', url: 'https://gov.ref.finance' },
     { label: 'Discord', url: 'https://discord.gg/SJBGcfMxJz' },
     { label: 'Telegram', url: 'https://t.me/ref_finance' },
     { label: 'Twitter', url: 'https://twitter.com/finance_ref' },
