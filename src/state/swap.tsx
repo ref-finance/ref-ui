@@ -63,7 +63,7 @@ export const useSwap = ({
           history.replace('');
         });
     }
-  }, []);
+  }, [txHash]);
 
   useEffect(() => {
     setCanSwap(false);
