@@ -529,8 +529,8 @@ function NavigationBar() {
           <Anchor to="/deposit" pattern="/deposit/:id?" name="Deposit" />
           <Anchor to="/" pattern="/" name="Swap" />
           <PoolsMenu />
-          <Anchor to="/airdrop" pattern="/airdrop" name="Airdrop" />
           <Anchor to="/farms" pattern="/farms" name="Farms" />
+          <Anchor to="/airdrop" pattern="/airdrop" name="Airdrop" />
           <a href="https://guide.ref.finance/" target="_blank">
             <h2 className="link hover:text-green-500 text-lg font-bold p-2 cursor-pointer undefined text-white">
               <FormattedMessage id="docs" defaultMessage="Docs" />
