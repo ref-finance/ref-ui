@@ -71,7 +71,7 @@ export function YourLiquidityPage() {
             <div className="max-h-80 overflow-y-auto">
               <div className="grid grid-cols-12 py-2 content-center items-center text-xs font-semibold text-gray-600">
                 <div className="grid grid-cols-2 col-span-2"></div>
-                <p className="grid col-span-4">
+                <p className="grid col-span-3">
                   <FormattedMessage id="pair" defaultMessage="Pair" />
                 </p>
                 <p className="col-span-4 text-center">
@@ -127,13 +127,13 @@ function PoolRow(props: { pool: any }) {
         <div className="grid grid-cols-2 col-span-2">
           <div className="w-14 flex items-center justify-between">{images}</div>
         </div>
-        <p className="grid col-span-4">
+        <p className="grid col-span-3">
           {toRealSymbol(tokens[0].symbol)}-{toRealSymbol(tokens[1].symbol)}
         </p>
         <p className="col-span-4 text-center">
           {toRoundedReadableNumber({ decimals: 24, number: balance })}
         </p>
-        <div className="col-span-2 text-right">
+        <div className="col-span-3 text-right">
           <BorderButton onClick={() => setShowWithdraw(true)}>
             <FormattedMessage id="remove" defaultMessage="Remove" />
           </BorderButton>

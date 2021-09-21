@@ -270,6 +270,7 @@ export default function AirdropView() {
               </a>,
               {
                 theme: 'light',
+                closeOnClick: false,
               }
             );
           } else {
@@ -283,7 +284,11 @@ export default function AirdropView() {
                   id="claim_successful_click_to_view"
                   defaultMessage="Claim successful. Click to view"
                 />
-              </a>
+              </a>,
+              {
+                theme: 'light',
+                closeOnClick: false,
+              }
             );
           }
           history.replace('/airdrop');

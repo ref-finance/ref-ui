@@ -63,7 +63,8 @@ export const useSwap = ({
                   id="swap_successful_click_to_view"
                   defaultMessage="Swap successful. Click to view"
                 />
-              </a>
+              </a>,
+              { closeOnClick: false }
             );
           }
           history.replace('');

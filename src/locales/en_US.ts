@@ -141,7 +141,7 @@ const en_US = {
   no_pool_available_to_make_a_swap_from:
     'No pool available to make a swap from',
   for_the_amount: 'for the amount',
-  no_pool_eng_for_chinese: '',
+  no_pool_eng_for_chinese: ' ',
   is_not_a_valid_swap_amount: 'is not a valid swap amount',
 };
 export default en_US;
