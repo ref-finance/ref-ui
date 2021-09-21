@@ -118,7 +118,7 @@ function participateAirdropView(
       <Item
         token={token}
         amount={lockingAmount}
-        label={intl.formatMessage({ id: 'locaking_ref_token' })}
+        label={intl.formatMessage({ id: 'locking_ref_token' })}
       />
       <Item
         token={token}
