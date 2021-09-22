@@ -23,6 +23,13 @@ export default function AddToken() {
           <FormattedMessage id="add_token" defaultMessage="Add Token" />
         </button>
       )}
+      overrides={{
+        Overlay: {
+          style: {
+            zIndex: 120,
+          },
+        },
+      }}
     >
       {(close) => (
         <>
