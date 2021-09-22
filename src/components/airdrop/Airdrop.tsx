@@ -323,7 +323,7 @@ export default function AirdropView() {
       setCurrentTimestamp(Number(unixtime));
     });
   }, []);
-
+  console.log(accountInfo, token);
   if (!statsInfo || !token) return Loading();
 
   return (
