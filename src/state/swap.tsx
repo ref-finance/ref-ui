@@ -64,7 +64,10 @@ export const useSwap = ({
                   defaultMessage="Swap successful. Click to view"
                 />
               </a>,
-              { closeOnClick: false }
+              {
+                autoClose: 8000,
+                closeOnClick: false,
+              }
             );
           }
           history.replace('');

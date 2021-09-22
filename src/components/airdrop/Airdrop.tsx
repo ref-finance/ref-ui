@@ -271,6 +271,7 @@ export default function AirdropView() {
               {
                 theme: 'light',
                 closeOnClick: false,
+                autoClose: 8000,
               }
             );
           } else {
@@ -288,6 +289,7 @@ export default function AirdropView() {
               {
                 theme: 'light',
                 closeOnClick: false,
+                autoClose: 8000,
               }
             );
           }

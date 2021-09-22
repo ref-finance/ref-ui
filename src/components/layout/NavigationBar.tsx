@@ -21,7 +21,7 @@ import { useTokenBalances, useUserRegisteredTokens } from '~state/token';
 import { REF_FARM_CONTRACT_ID } from '~services/near';
 import { ConnectToNearBtn } from '~components/deposit/Deposit';
 import RainBow from './RainBow';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 function Anchor({
   to,
@@ -215,8 +215,13 @@ function PoolsMenu() {
 
 function CommunityMenu() {
   const [hover, setHover] = useState(false);
+  const intl = useIntl();
 
   const links = [
+    {
+      label: intl.formatMessage({ id: 'docs' }),
+      url: 'https://guide.ref.finance',
+    },
     { label: 'Forum', url: 'https://gov.ref.finance' },
     { label: 'Discord', url: 'https://discord.gg/SJBGcfMxJz' },
     { label: 'Telegram', url: 'https://t.me/ref_finance' },
@@ -385,6 +390,7 @@ function MobileCommunityMenu({
 
 function MobileNavBar() {
   const [show, setShow] = useState(false);
+  const intl = useIntl();
   const accountId = wallet.getAccountId();
 
   const links = [
@@ -408,6 +414,10 @@ function MobileNavBar() {
   ];
 
   const communityLinks = [
+    {
+      label: intl.formatMessage({ id: 'docs' }),
+      url: 'https://guide.ref.finance',
+    },
     { label: 'Forum', url: 'https://gov.ref.finance' },
     { label: 'Discord', url: 'https://discord.gg/SJBGcfMxJz' },
     { label: 'Telegram', url: 'https://t.me/ref_finance' },
@@ -493,16 +503,6 @@ function MobileNavBar() {
             name="Airdrop"
             onClick={close}
           />
-          <div>
-            <Link
-              to={{ pathname: 'https://guide.ref.finance/' }}
-              target="_blank"
-            >
-              <div className="p-4 link font-bold p-2 text-white">
-                <FormattedMessage id="docs" defaultMessage="Docs" />
-              </div>
-            </Link>
-          </div>
           <MobileCommunityMenu links={communityLinks} onClick={close} />
           <div>
             <Link
@@ -536,11 +536,6 @@ function NavigationBar() {
           <PoolsMenu />
           <Anchor to="/farms" pattern="/farms" name="Farms" />
           <Anchor to="/airdrop" pattern="/airdrop" name="Airdrop" />
-          <a href="https://guide.ref.finance/" target="_blank">
-            <h2 className="link hover:text-green-500 text-lg font-bold p-2 cursor-pointer undefined text-white">
-              <FormattedMessage id="docs" defaultMessage="Docs" />
-            </h2>
-          </a>
           <CommunityMenu />
           <a
             target="_blank"
