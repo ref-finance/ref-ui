@@ -2,6 +2,7 @@ import React from 'react';
 import ReactTooltip from 'react-tooltip';
 import { Info } from '../icon/Info';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { isMobile } from '~utils/device';
 
 export default function SlippageSelector({
   slippageTolerance,
@@ -29,7 +30,7 @@ export default function SlippageSelector({
           >
             <Info />
           </div>
-          <ReactTooltip />
+          <ReactTooltip offset={{ left: 100 }} />
         </div>
         <div className="border flex rounded-full ml-16 border-1 text-gray-400 border-gray-200">
           {validSlippages.map((slippage) => (

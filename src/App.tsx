@@ -109,7 +109,7 @@ function langSwitcher() {
         />
       </svg>
       <select
-        className="border border-gray-300 rounded-full text-gray-600 h-6 pl-5 pr-7 bg-white hover:border-gray-400 focus:outline-none appearance-none text-xs"
+        className="border border-gray-300 rounded-full text-gray-600 h-6 pl-5 pr-7 hover:border-gray-400 focus:outline-none appearance-none text-xs"
         value={context.locale}
         onChange={context.selectLanguage}
       >
@@ -131,7 +131,7 @@ function langSwitcher() {
         />
       </svg>
       <select
-        className="border border-gray-300 rounded-full text-gray-600 h-5 pl-5 pr-7 bg-white hover:border-gray-400 focus:outline-none appearance-none text-xs"
+        className="border border-gray-300 rounded-full text-gray-600 h-5 pl-5 pr-7 hover:border-gray-400 focus:outline-none appearance-none text-xs"
         value={context.locale}
         onChange={context.selectLanguage}
       >
