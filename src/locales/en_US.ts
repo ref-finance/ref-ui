@@ -92,7 +92,7 @@ const en_US = {
   view_all: 'View all',
   cancel: 'Cancel',
   claim_ref_token: 'Claim Ref Token',
-  has_no_available_claim: 'Has no available calim',
+  has_no_available_claim: 'has no available claim',
   sorry: 'Sorry',
   total_ref_token: 'Total Ref Token',
   locking_ref_token: 'Locking Ref Token',
