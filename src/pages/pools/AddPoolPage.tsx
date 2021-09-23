@@ -88,7 +88,7 @@ export function AddPoolPage() {
         <div className="text-xs font-semibold pt-2 flex items-center justify-between">
           <div>
             <span className="pr-1">
-              <FormattedMessage id="fee" defaultMessage="Fee" />%
+              <FormattedMessage id="fee" defaultMessage="Fee" /> %
             </span>
           </div>
           <Toggle
