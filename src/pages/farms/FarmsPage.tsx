@@ -249,7 +249,7 @@ function FarmView({
   const clipSize = 12;
   const claimLoadingColor = '#ffffff';
   const claimLoadingSize = 12;
-  const refreshTime = 30000;
+  const refreshTime = 120000;
 
   const PoolId = farmData.lpTokenId;
   const tokens = useTokens(farmData?.tokenIds);

@@ -118,7 +118,7 @@ function langSwitcher() {
       </select>
     </div>
   ) : (
-    <div className="inline-flex relative float-right -mt-9 mr-8">
+    <div className="inline-flex relative float-right -mt-9 mr-4">
       <svg
         className="w-2 h-1 absolute top-0 right-0 m-2 pointer-events-none"
         xmlns="http://www.w3.org/2000/svg"

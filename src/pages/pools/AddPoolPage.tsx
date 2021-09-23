@@ -88,12 +88,7 @@ export function AddPoolPage() {
         <div className="text-xs font-semibold pt-2 flex items-center justify-between">
           <div>
             <span className="pr-1">
-              <FormattedMessage id="fee" defaultMessage="Fee" /> (
-              <FormattedMessage
-                id="basis_points"
-                defaultMessage="Basis points"
-              />
-              )
+              <FormattedMessage id="fee" defaultMessage="Fee" />%
             </span>
           </div>
           <Toggle
@@ -114,7 +109,7 @@ export function AddPoolPage() {
               <FormattedMessage id="total_fee" defaultMessage="Total Fee" />(
               <FormattedMessage
                 id="protocol_fee_is"
-                defaultMessage="protocol fee is"
+                defaultMessage="protocol fee is "
               />
               0.05%)
             </span>

@@ -69,7 +69,7 @@ const zh_CN = {
   select_token: '选择代币',
   basis_points: '基点',
   total_fee: '总费用',
-  protocol_fee_is: '协议费为',
+  protocol_fee_is: '协议费为 ',
   start_in: '开始',
   start_at: '开始于',
   started_at: '开始于',
@@ -108,7 +108,7 @@ const zh_CN = {
   claim_successful_click_to_view: '认领成功，点击查看详情',
   claim_failed_click_to_view: '认领失败，点击查看详情',
   slippageCopyForMobile:
-    '滑点是您收到的估计价格与实际价格之间的差额。您选择的百分比是当前汇率与执行交易时汇率之间的可接受差异。',
+    '滑点是估计价格与成交价格之间的差额。您选择的百分比是当前汇率与执行交易时汇率之间的可接受差异。',
   slippageCopy:
     '滑点是您收到的估计价格与实际价格之间的差额。<br>您选择的百分比是当前汇率与执行交易时汇率之间<br>的可接受差异。',
   depositCopy: '将您选择的代币存入，以便进行兑换或添加到流动性池中。',

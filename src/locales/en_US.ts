@@ -68,7 +68,7 @@ const en_US = {
   select_token: 'Select Token',
   basis_points: 'Basis points',
   total_fee: 'Total fee',
-  protocol_fee_is: 'protocol fee is',
+  protocol_fee_is: 'protocol fee is ',
   start_in: 'Start in',
   start_at: 'Start at',
   started_at: 'Started at',
