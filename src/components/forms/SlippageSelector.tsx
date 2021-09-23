@@ -13,6 +13,7 @@ export default function SlippageSelector({
 }) {
   const validSlippages = [0.1, 0.5, 1];
   const intl = useIntl();
+  const slippageCopyId = isMobile() ? 'slippageCopyForMobile' : 'slippageCopy';
 
   return (
     <>
@@ -24,13 +25,13 @@ export default function SlippageSelector({
           <div
             className="pl-1"
             data-type="dark"
-            data-place="top"
+            data-place="right"
             data-multiline={true}
-            data-tip={intl.formatMessage({ id: 'slippageCopy' })}
+            data-tip={intl.formatMessage({ id: slippageCopyId })}
           >
             <Info />
           </div>
-          <ReactTooltip offset={{ left: 100 }} />
+          <ReactTooltip />
         </div>
         <div className="border flex rounded-full ml-16 border-1 text-gray-400 border-gray-200">
           {validSlippages.map((slippage) => (

@@ -106,6 +106,8 @@ const en_US = {
   swap_successful_click_to_view: 'Swap successful. Click to view',
   claim_successful_click_to_view: 'Claim successful. Click to view',
   claim_failed_click_to_view: 'Claim failed. Click to view',
+  slippageCopyForMobile:
+    "Slippage is the difference between the estimated and actual price you receive. The percentage you select is the acceptable difference between the current exchange rate and the exchange rate at the time of your transaction's execution.",
   slippageCopy:
     "Slippage is the difference between the estimated <br> and actual price you receive. The percentage you <br> select is the acceptable difference between the <br> current exchange rate and the exchange rate at <br> the time of your transaction's execution.",
   depositCopy:
