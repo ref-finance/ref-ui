@@ -24,7 +24,11 @@ import {
   LP_TOKEN_DECIMALS,
   withdrawReward,
 } from '~services/m-token';
-import { toPrecision, toReadableNumber } from '~utils/numbers';
+import {
+  formatWithCommas,
+  toPrecision,
+  toReadableNumber,
+} from '~utils/numbers';
 import { mftGetBalance } from '~services/mft-contract';
 import { wallet } from '~services/near';
 import Loading from '~components/layout/Loading';
@@ -487,7 +491,9 @@ function FarmView({
             </div>
             {loading ? null : (
               <div>{`${
-                data.totalStaked === 0 ? '-' : `$${data.totalStaked}`
+                data.totalStaked === 0
+                  ? '-'
+                  : `$${formatWithCommas(data.totalStaked.toString())}`
               }`}</div>
             )}
           </div>
