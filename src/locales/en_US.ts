@@ -98,7 +98,7 @@ const en_US = {
   locking_ref_token: 'Locked Ref Token',
   unclaim_ref_token: 'Unclaimed Ref Token',
   unlocked: 'Unlocked',
-  locking: 'Locking',
+  locking: 'Locked',
   you_can_claim_from: 'You can claim from',
   you_have_claimed_all_your_rewards: 'You have claimed all your rewards',
   ends_in: 'Ends in',
