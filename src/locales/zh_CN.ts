@@ -123,7 +123,7 @@ const zh_CN = {
     '兑换交易是将第一个选定的代币交换成第二个选定的代币。<br> 将使用最高流动性和最低交易费用的池。',
   addTokenCopy: '允许您向可兑换代币名单中添加ERC-20代币。',
   getLPTokenCopy: '单击此处跳转到相应的池。',
-  airdropCopy: '请在截止日期前至少claim一次空投，否则您的余额将捐给财政部。',
+  airdropCopy: '请在截止日期前至少领取一次空投，否则您的余额将捐给财政部。',
   farmRewardsCopy:
     '您将在这里看到您从参与的池中认领的所有余额。<br>提取到你的Near钱包',
   totalValueLockedCopy: '总锁定价值',
