@@ -2,8 +2,7 @@ import getConfig from './config';
 import { wallet } from './near';
 import { toPrecision } from '~utils/numbers';
 import { BigNumber } from 'bignumber.js';
-import { Simulate } from 'react-dom/test-utils';
-import error = Simulate.error;
+import moment from 'moment';
 
 const config = getConfig();
 const api_url = 'https://rest.nearapi.org/view';
@@ -84,5 +83,19 @@ export const getUserWalletTokens = async (): Promise<any> => {
     .then((res) => res.json())
     .then((tokens) => {
       return tokens;
+    });
+};
+
+export const getCurrentUnixTime = async (): Promise<any> => {
+  return await fetch(config.indexerUrl + '/timestamp', {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  })
+    .then((res) => res.json())
+    .then((ts) => {
+      return ts.ts;
+    })
+    .catch(() => {
+      return moment().unix();
     });
 };

@@ -26,6 +26,7 @@ import { wallet } from '~services/near';
 import getConfig from '~services/config';
 import { toRealSymbol } from '~utils/token';
 import { TokenMetadata } from '~services/ft-contract';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 const config = getConfig();
 
@@ -50,13 +51,15 @@ function Balances({ hideEmpty }: { hideEmpty?: boolean }) {
   return (
     <Card className="w-full">
       <div className="flex items-center justify-between pb-4">
-        <div className="font-semibold">Balance</div>
+        <div className="font-semibold">
+          <FormattedMessage id="balance" defaultMessage="Balance" />
+        </div>
         <GreenButton
           onClick={() => {
             window.open(getConfig().walletUrl, '_blank');
           }}
         >
-          Go to Wallet
+          <FormattedMessage id="go_to_wallet" defaultMessage="Go to Wallet" />
         </GreenButton>
       </div>
       <div>
@@ -246,7 +249,12 @@ function Actions() {
   return (
     <Card className="w-full">
       <div className="flex items-center justify-between pb-4">
-        <div className="font-semibold">Recent Activity</div>
+        <div className="font-semibold">
+          <FormattedMessage
+            id="recent_activity"
+            defaultMessage="Recent Activity"
+          />
+        </div>
         <div></div>
       </div>
       <div className="border-b">
@@ -286,7 +294,9 @@ function Actions() {
             window.open(url, '_blank');
           }}
         >
-          <div>View All</div>
+          <div>
+            <FormattedMessage id="view_all" defaultMessage="View All" />
+          </div>
         </GrayButton>
       </div>
 
@@ -362,7 +372,9 @@ function MobileBalances({ hideEmpty }: { hideEmpty?: boolean }) {
 
   return (
     <div className="px-6">
-      <div className="py-4 text-center">Balance</div>
+      <div className="py-4 text-center">
+        <FormattedMessage id="balance" defaultMessage="Balance" />
+      </div>
       {userTokens.map((token) => {
         const balance = balances[token.id] || '0';
         if (balance === '0' && hideEmpty) return null;
@@ -415,7 +427,9 @@ function MobileLiquidity() {
         {error && <Alert level="error" message={error.message} />}
       </div>
 
-      <div className="font-semibold text-center pt-8 pb-6">Your Liquidity</div>
+      <div className="font-semibold text-center pt-8 pb-6">
+        <FormattedMessage id="your_liquidity" defaultMessage="Your Liquidity" />
+      </div>
       {pools.length === 0 ? <LiquidityEmpty /> : null}
       <div>
         {pools.map((pool, i) => {
@@ -473,7 +487,9 @@ function MobileActions() {
             window.open(url, '_blank');
           }}
         >
-          <div>View All</div>
+          <div>
+            <FormattedMessage id="view_all" defaultMessage="View All" />
+          </div>
         </BorderButton>
       </div>
 
@@ -522,11 +538,13 @@ function MobileActions() {
 
 function MobileAccount() {
   const [showRecent, setShowRecent] = useState(false);
-
+  const intl = useIntl();
   return (
     <div className="lg:hidden xl:hidden md:show xs:show relative text-white flex-grow overflow-auto pb-6">
       <div className="text-center text-lg font-semibold">
-        {showRecent ? 'Recent Activity' : 'Account'}
+        {showRecent
+          ? intl.formatMessage({ id: 'recent_activity' })
+          : intl.formatMessage({ id: 'account' })}
       </div>
       <div className="flex items-center justify-center py-4">
         <GreenButton
@@ -534,11 +552,13 @@ function MobileAccount() {
             window.open(config.walletUrl, '_blank');
           }}
         >
-          Go to Wallet
+          <FormattedMessage id="go_to_wallet" defaultMessage="Go to Wallet" />
         </GreenButton>
         <div className="w-4"></div>
         <BorderButton onClick={() => setShowRecent(!showRecent)}>
-          {showRecent ? 'Balance' : 'Recent Activity'}
+          {showRecent
+            ? intl.formatMessage({ id: 'balance' })
+            : intl.formatMessage({ id: 'recent_activity' })}
         </BorderButton>
       </div>
 

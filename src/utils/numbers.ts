@@ -105,7 +105,7 @@ export const percentLess = (percent: number, num: number | string) => {
   });
 };
 
-function formatWithCommas(value: string): string {
+export function formatWithCommas(value: string): string {
   const pattern = /(-?\d+)(\d{3})/;
   while (pattern.test(value)) {
     value = value.replace(pattern, '$1,$2');

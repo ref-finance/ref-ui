@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactTooltip from 'react-tooltip';
-import copy from '../../utils/copy';
 import { Info } from '../icon/Info';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { isMobile } from '~utils/device';
 
 export default function SlippageSelector({
   slippageTolerance,
@@ -11,18 +12,22 @@ export default function SlippageSelector({
   onChange: (slippage: number) => void;
 }) {
   const validSlippages = [0.1, 0.5, 1];
+  const intl = useIntl();
+  const slippageCopyId = isMobile() ? 'slippageCopyForMobile' : 'slippageCopy';
 
   return (
     <>
       <fieldset className="flex items-center mb-4 pt-2">
-        <label className="font-semibold text-xs text-center">Slippage: </label>
+        <label className="font-semibold text-xs text-center">
+          <FormattedMessage id="slippage" defaultMessage="Slippage" />:
+        </label>
         <div>
           <div
             className="pl-1"
             data-type="dark"
-            data-place="top"
+            data-place="right"
             data-multiline={true}
-            data-tip={copy.slippageCopy}
+            data-tip={intl.formatMessage({ id: slippageCopyId })}
           >
             <Info />
           </div>
