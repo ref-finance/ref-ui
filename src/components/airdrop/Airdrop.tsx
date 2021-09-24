@@ -53,9 +53,9 @@ function participateAirdropView(
   accountInfo: AccountOptions,
   statsInfo: StatsOptions,
   currentTimestamp: number,
-  renderer: any
+  renderer: any,
+  intl: any
 ) {
-  const intl = useIntl();
   const total_balance = toReadableNumber(
     token.decimals,
     accountInfo?.balance.toString() || '0'
@@ -333,7 +333,8 @@ export default function AirdropView() {
             accountInfo,
             statsInfo,
             currentTimestamp,
-            renderer
+            renderer,
+            intl
           )
         : notParticipateAirdropView(currentAccountId)}
     </div>
