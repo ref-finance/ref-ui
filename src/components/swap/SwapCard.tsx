@@ -18,6 +18,8 @@ import SlippageSelector from '../forms/SlippageSelector';
 import { ArrowDownBlack } from '../icon/Arrows';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { toast } from 'react-toastify';
+import getConfig from '~services/config';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -81,7 +83,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
-  const [disableSwap, setDisableSwap] = useState<boolean>();
   const [disableTokenInput, setDisableTokenInput] = useState<boolean>();
 
   const intl = useIntl();
@@ -115,7 +116,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   const {
     canSwap,
-    fromTokenInAmount,
     tokenOutAmount,
     minAmountOut,
     pool,
@@ -129,14 +129,17 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   });
 
   useEffect(() => {
-    if (fromTokenInAmount === tokenInAmount) setDisableSwap(false);
-  }, [fromTokenInAmount]);
+    setDisableTokenInput(!canSwap);
+    setTimeout(() => {
+      document.getElementById('inputAmount').focus();
+    }, 100);
+  }, [canSwap]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     makeSwap();
   };
-
+  
   const tokenInMax =
     toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0';
   const tokenOutTotal =
@@ -144,7 +147,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   return (
     <FormWrap
-      canSubmit={canSwap && !disableSwap}
+      canSubmit={canSwap}
       showElseView={tokenInMax === '0'}
       elseView={
         <div className="flex justify-center">
@@ -182,13 +185,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         disabled={disableTokenInput}
         text={intl.formatMessage({ id: 'from' })}
         onChangeAmount={(amount) => {
-          setDisableSwap(true);
-          // setDisableTokenInput(true);
-          // setTimeout(() => {
-          //   setDisableTokenInput(false);
-          //   document.getElementById('inputAmount').focus();
-          // }, 400);
           setTokenInAmount(amount);
+          if(amount=='') setTokenInAmount('1');
         }}
       />
       <div className="flex items-center justify-center">
@@ -214,9 +212,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           localStorage.setItem(SWAP_OUT_KEY, token.id);
           history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`);
           setTokenOut(token);
-        }}
-        onChangeAmount={() => {
-          setDisableSwap(false);
         }}
       />
       <SlippageSelector
