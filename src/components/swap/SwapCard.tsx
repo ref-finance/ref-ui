@@ -15,9 +15,9 @@ import FormWrap from '../forms/FormWrap';
 import TokenAmount from '../forms/TokenAmount';
 import Alert from '../alert/Alert';
 import SlippageSelector from '../forms/SlippageSelector';
-import copy from '../../utils/copy';
 import { ArrowDownBlack } from '../icon/Arrows';
 import { toRealSymbol } from '~utils/token';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -48,22 +48,24 @@ function DetailView({
   to: string;
   minAmountOut: string;
 }) {
+  const intl = useIntl();
+
   if (!pool || !from || !to) return null;
 
   return (
     <>
       <SwapDetail
-        title="Minimum received"
+        title={intl.formatMessage({ id: 'minimum_received' })}
         value={toPrecision(minAmountOut, 4, true)}
       />
       <SwapDetail
-        title="Swap Rate"
+        title={intl.formatMessage({ id: 'swap_rate' })}
         value={`${calculateExchangeRate(pool.fee, from, to)} ${toRealSymbol(
           tokenOut.symbol
         )} per ${toRealSymbol(tokenIn.symbol)}`}
       />
       <SwapDetail
-        title="Pool Fee"
+        title={intl.formatMessage({ id: 'pool_fee' })}
         value={`${calculateFeePercent(pool.fee)}% (${calculateFeeCharge(
           pool.fee,
           from
@@ -79,7 +81,10 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
+  const [disableSwap, setDisableSwap] = useState<boolean>();
+  const [disableTokenInput, setDisableTokenInput] = useState<boolean>();
 
+  const intl = useIntl();
   const location = useLocation();
   const history = useHistory();
 
@@ -108,13 +113,24 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     }
   }, [allTokens]);
 
-  const { canSwap, tokenOutAmount, minAmountOut, pool, swapError, makeSwap } =
-    useSwap({
-      tokenIn: tokenIn,
-      tokenInAmount,
-      tokenOut: tokenOut,
-      slippageTolerance,
-    });
+  const {
+    canSwap,
+    fromTokenInAmount,
+    tokenOutAmount,
+    minAmountOut,
+    pool,
+    swapError,
+    makeSwap,
+  } = useSwap({
+    tokenIn: tokenIn,
+    tokenInAmount,
+    tokenOut: tokenOut,
+    slippageTolerance,
+  });
+
+  useEffect(() => {
+    if (fromTokenInAmount === tokenInAmount) setDisableSwap(false);
+  }, [fromTokenInAmount]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -128,7 +144,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   return (
     <FormWrap
-      canSubmit={canSwap}
+      canSubmit={canSwap && !disableSwap}
       showElseView={tokenInMax === '0'}
       elseView={
         <div className="flex justify-center">
@@ -138,12 +154,15 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
               history.push(`/deposit/${tokenIn.id}`);
             }}
           >
-            Deposit to Swap
+            <FormattedMessage
+              id="deposit_to_swap"
+              defaultMessage="存入兑换的代币"
+            />
           </button>
         </div>
       }
       onSubmit={handleSubmit}
-      info={copy.swap}
+      info={intl.formatMessage({ id: 'swapCopy' })}
     >
       <div className="pb-2">
         {swapError && <Alert level="error" message={swapError.message} />}
@@ -160,18 +179,27 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
           setTokenIn(token);
         }}
-        text="From"
-        onChangeAmount={setTokenInAmount}
-      />
-      <div
-        className="flex items-center justify-center"
-        onClick={() => {
-          setTokenIn(tokenOut);
-          setTokenOut(tokenIn);
-          setTokenInAmount(toPrecision('1', 6));
+        disabled={disableTokenInput}
+        text={intl.formatMessage({ id: 'from' })}
+        onChangeAmount={(amount) => {
+          setDisableSwap(true);
+          // setDisableTokenInput(true);
+          // setTimeout(() => {
+          //   setDisableTokenInput(false);
+          //   document.getElementById('inputAmount').focus();
+          // }, 400);
+          setTokenInAmount(amount);
         }}
-      >
-        <div className="inline-block mt-4 mb-4 cursor-pointer">
+      />
+      <div className="flex items-center justify-center">
+        <div
+          className="inline-block mt-4 mb-4 cursor-pointer"
+          onClick={() => {
+            setTokenIn(tokenOut);
+            setTokenOut(tokenIn);
+            setTokenInAmount(toPrecision('1', 6));
+          }}
+        >
           <ArrowDownBlack />
         </div>
       </div>
@@ -181,11 +209,14 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         tokens={allTokens}
         selectedToken={tokenOut}
         balances={balances}
-        text="To"
+        text={intl.formatMessage({ id: 'to' })}
         onSelectToken={(token) => {
           localStorage.setItem(SWAP_OUT_KEY, token.id);
           history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`);
           setTokenOut(token);
+        }}
+        onChangeAmount={() => {
+          setDisableSwap(false);
         }}
       />
       <SlippageSelector

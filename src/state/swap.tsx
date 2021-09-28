@@ -3,8 +3,10 @@ import { toast } from 'react-toastify';
 import { Pool } from '../services/pool';
 import { TokenMetadata } from '../services/ft-contract';
 import { percentLess } from '../utils/numbers';
-import { checkSwap, estimateSwap, swap } from '../services/swap';
+import { checkTransaction, estimateSwap, swap } from '../services/swap';
 import { useHistory, useLocation } from 'react-router';
+import getConfig from '~services/config';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -35,9 +37,11 @@ export const useSwap = ({
     ? percentLess(slippageTolerance, tokenOutAmount)
     : null;
 
+  const intl = useIntl();
+
   useEffect(() => {
     if (txHash) {
-      checkSwap(txHash)
+      checkTransaction(txHash)
         .then(({ transaction }) => {
           return (
             transaction?.actions[1]?.['FunctionCall']?.method_name ===
@@ -52,16 +56,26 @@ export const useSwap = ({
             toast(
               <a
                 className="text-primary font-semibold"
-                href={`https://explorer.near.org/transactions/${txHash}`}
+                href={`${getConfig().explorerUrl}/transactions/${txHash}`}
                 target="_blank"
               >
-                Swap successful. Click to view
-              </a>
+                <FormattedMessage
+                  id="swap_successful_click_to_view"
+                  defaultMessage="Swap successful. Click to view"
+                />
+              </a>,
+              {
+                autoClose: 8000,
+                closeOnClick: false,
+              }
             );
           }
           history.replace('');
         });
     }
+  }, [txHash]);
+
+  useEffect(() => {
     setCanSwap(false);
     if (
       tokenIn &&
@@ -70,21 +84,18 @@ export const useSwap = ({
       !ONLY_ZEROS.test(tokenInAmount) &&
       tokenIn.id !== tokenOut.id
     ) {
-      const nts = new Date().getTime().toString();
       setSwapError(null);
       estimateSwap({
         tokenIn,
         tokenOut,
         amountIn: tokenInAmount,
-        ts: nts,
+        intl,
       })
-        .then(({ estimate, pool, ts }) => {
+        .then(({ estimate, pool }) => {
           if (!estimate || !pool) throw '';
-          if (nts === ts) {
-            setCanSwap(true);
-            setTokenOutAmount(estimate);
-            setPool(pool);
-          }
+          setCanSwap(true);
+          setTokenOutAmount(estimate);
+          setPool(pool);
         })
         .catch((err) => {
           setCanSwap(false);
@@ -103,21 +114,18 @@ export const useSwap = ({
         !ONLY_ZEROS.test(tokenInAmount) &&
         tokenIn.id !== tokenOut.id
       ) {
-        const nts = new Date().getTime().toString();
         setSwapError(null);
         estimateSwap({
           tokenIn,
           tokenOut,
           amountIn: tokenInAmount,
-          ts: nts,
+          intl,
         })
-          .then(({ estimate, pool, ts }) => {
+          .then(({ estimate, pool }) => {
             if (!estimate || !pool) throw '';
-            if (nts === ts) {
-              setCanSwap(true);
-              setTokenOutAmount(estimate);
-              setPool(pool);
-            }
+            setCanSwap(true);
+            setTokenOutAmount(estimate);
+            setPool(pool);
           })
           .catch((err) => {
             setCanSwap(false);
@@ -144,6 +152,7 @@ export const useSwap = ({
 
   return {
     canSwap,
+    fromTokenInAmount: tokenInAmount,
     tokenOutAmount,
     minAmountOut,
     pool,

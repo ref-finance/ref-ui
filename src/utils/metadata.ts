@@ -44,6 +44,8 @@ const icons: { [tokenId: string]: string } = {
     'https://imgur.com/55sGoBm.png',
   'de30da39c46104798bb5aa3fe8b9e0e1f348163f.factory.bridge.near':
     'https://s2.coinmarketcap.com/static/img/coins/64x64/10052.png',
+  'a4ef4b0b23c1fc81d3f9ecf93510e64f58a4a016.factory.bridge.near':
+    'https://s2.coinmarketcap.com/static/img/coins/64x64/4222.png',
 };
 
 export default icons;

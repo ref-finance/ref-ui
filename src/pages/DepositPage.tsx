@@ -15,6 +15,7 @@ import TokenAmount from '../components/forms/TokenAmount';
 import { deposit } from '../services/token';
 import { wallet } from '~services/near';
 import { Balances, ConnectToNearBtn } from '../components/deposit/Deposit';
+import { FormattedMessage } from 'react-intl';
 
 function DepositBtn(props: {
   amount?: string;
@@ -43,7 +44,7 @@ function DepositBtn(props: {
           }
         }}
       >
-        Deposit
+        <FormattedMessage id="deposit" defaultMessage="Deposit" />
       </button>
     </div>
   );
@@ -77,9 +78,14 @@ export default function DepositPage() {
   return (
     <div className="flex items-center flex-col w-1/3 md:w-5/6 xs:w-11/12 m-auto">
       <div className="text-center pb-5">
-        <div className="text-white text-3xl font-semibold">Deposit</div>
+        <div className="text-white text-3xl font-semibold">
+          <FormattedMessage id="deposit" defaultMessage="Deposit" />
+        </div>
         <div className="text-white text-sm pt-2">
-          Deposit tokens to swap and pool
+          <FormattedMessage
+            id="deposit_tokens_to_swap_and_pool"
+            defaultMessage="Deposit tokens to swap and pool"
+          />
         </div>
       </div>
       <Card width="w-full">
@@ -101,7 +107,10 @@ export default function DepositPage() {
         )}
       </Card>
       <div className="text-white text-sm pt-3">
-        Small storage fee is applied of{' '}
+        <FormattedMessage
+          id="small_storage_fee_is_applied_of"
+          defaultMessage="Small storage fee is applied of"
+        />{' '}
         <span className="font-bold">0.00084</span> Ⓝ
       </div>
 

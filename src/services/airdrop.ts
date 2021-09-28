@@ -2,12 +2,14 @@ import {
   getAmount,
   getGas,
   REF_AIRDRAOP_CONTRACT_ID,
-  REF_TOKEN_ID,
   wallet,
 } from '~services/near';
 import { functionCall } from 'near-api-js/lib/transaction';
-import { storageDepositForFTAction } from '~services/creators/storage';
-import { NEW_ACCOUNT_STORAGE_COST } from '~services/wrap-near';
+import {
+  NEW_ACCOUNT_STORAGE_COST,
+  WRAP_NEAR_CONTRACT_ID,
+} from '~services/wrap-near';
+import { ftGetStorageBalance } from '~services/ft-contract';
 
 const AIRDROP_STORAGE_AMOUNT = '0.01';
 
@@ -92,7 +94,7 @@ export const getAccount = async (): Promise<AccountOptions> => {
   });
 };
 
-export const claim = async () => {
+export const claim = async (token_id: string) => {
   const transactions: Transaction[] = [];
   const actions: AirDropFunctionCallOptions[] = [];
 
@@ -102,17 +104,21 @@ export const claim = async () => {
     gas: getGas('100000000000000').toString(),
   });
 
-  transactions.push({
-    receiverId: REF_TOKEN_ID,
-    functionCalls: [
-      {
-        methodName: 'storage_deposit',
-        args: {},
-        gas: '100000000000000',
-        amount: NEW_ACCOUNT_STORAGE_COST,
-      },
-    ],
-  });
+  const balance = await ftGetStorageBalance(token_id);
+
+  if (!balance || balance.total === '0') {
+    transactions.push({
+      receiverId: token_id,
+      functionCalls: [
+        {
+          methodName: 'storage_deposit',
+          args: {},
+          gas: '100000000000000',
+          amount: NEW_ACCOUNT_STORAGE_COST,
+        },
+      ],
+    });
+  }
 
   transactions.push({
     receiverId: REF_AIRDRAOP_CONTRACT_ID,

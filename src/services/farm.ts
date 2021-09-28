@@ -219,6 +219,8 @@ export const getFarmInfo = async (
           1
         );
 
+  if (farm.farm_status === 'Created') farm.farm_status = 'Pending';
+
   return {
     ...farm,
     pool,

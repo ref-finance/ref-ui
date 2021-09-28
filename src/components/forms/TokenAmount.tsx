@@ -7,9 +7,9 @@ import Icon from '../tokens/Icon';
 import InputAmount from './InputAmount';
 import SelectToken from './SelectToken';
 import AddToken from './AddToken';
-import { FaAngleDown } from 'react-icons/fa';
 import { ArrowDownGreen } from '../icon';
-import { toPrecision, toReadableNumber } from '../../utils/numbers';
+import { toPrecision } from '../../utils/numbers';
+import { FormattedMessage } from 'react-intl';
 
 interface TokenAmountProps {
   amount?: string;
@@ -23,6 +23,7 @@ interface TokenAmountProps {
   onChangeAmount?: (amount: string) => void;
   text?: string;
   calledBy?: string;
+  disabled?: boolean;
 }
 
 export default function TokenAmount({
@@ -36,6 +37,7 @@ export default function TokenAmount({
   onChangeAmount,
   text,
   calledBy,
+  disabled = false,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) => (
     <p className="text-black">
@@ -55,18 +57,20 @@ export default function TokenAmount({
       <div className="flex justify-between text-xs font-semibold pb-0.5">
         <span className="text-black">{text}</span>
         <span className={`${max === '0' ? 'text-gray-400' : null}`}>
-          Balance:&nbsp;
+          <FormattedMessage id="balance" defaultMessage="Balance" />
+          :&nbsp;
           {toPrecision(total, 6, true)}
         </span>
       </div>
       <fieldset className="bg-inputBg relative flex overflow-hidden rounded-lg align-center my-2 border">
         <InputAmount
           className="flex-grow"
+          id="inputAmount"
           name={selectedToken?.id}
           max={max}
           value={amount}
           onChangeAmount={onChangeAmount}
-          disabled={!isSignedIn}
+          disabled={!isSignedIn || disabled}
         />
         <SelectToken
           tokens={tokens}

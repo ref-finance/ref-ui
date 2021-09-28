@@ -16,7 +16,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.near',
         REF_TOKEN_ID: 'token.ref-finance.near',
-        REF_AIRDROP_CONTRACT_ID: 'ref-airdrop-lockup.near',
+        REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
       };
     case 'development':
     case 'testnet':
@@ -35,7 +35,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.testnet',
         REF_TOKEN_ID: 'token.ref-finance.testnet',
-        REF_AIRDROP_CONTRACT_ID: 'ref-airdrop-lockup.testnet',
+        REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
       };
     default:
       return {
@@ -44,15 +44,15 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         walletUrl: 'https://wallet.near.org',
         helperUrl: 'https://helper.mainnet.near.org',
         explorerUrl: 'https://explorer.mainnet.near.org',
-        indexerUrl: 'https://indexer.ref-finance.org',
+        indexerUrl: 'https://indexer.ref-finance.net',
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
         WRAP_NEAR_CONTRACT_ID: process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.near',
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.near',
-        REF_TOKEN_ID: 'token.v2.ref-finance.near',
-        REF_AIRDROP_CONTRACT_ID: 'ref-airdrop-lockup.near',
+        REF_TOKEN_ID: 'token.ref-finance.near',
+        REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
       };
   }
 }
