@@ -18,8 +18,6 @@ import SlippageSelector from '../forms/SlippageSelector';
 import { ArrowDownBlack } from '../icon/Arrows';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { toast } from 'react-toastify';
-import getConfig from '~services/config';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -114,32 +112,30 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     }
   }, [allTokens]);
 
-  const {
-    canSwap,
-    tokenOutAmount,
-    minAmountOut,
-    pool,
-    swapError,
-    makeSwap,
-  } = useSwap({
-    tokenIn: tokenIn,
-    tokenInAmount,
-    tokenOut: tokenOut,
-    slippageTolerance,
-  });
+  const { canSwap, tokenOutAmount, minAmountOut, pool, swapError, makeSwap } =
+    useSwap({
+      tokenIn: tokenIn,
+      tokenInAmount,
+      tokenOut: tokenOut,
+      slippageTolerance,
+    });
 
   useEffect(() => {
-    setDisableTokenInput(!canSwap);
+    if (Number(tokenInAmount) === 0 || swapError != null) {
+      setDisableTokenInput(false);
+    } else {
+      setDisableTokenInput(!canSwap);
+    }
     setTimeout(() => {
       document.getElementById('inputAmount').focus();
     }, 100);
-  }, [canSwap]);
+  }, [canSwap, swapError]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     makeSwap();
   };
-  
+
   const tokenInMax =
     toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0';
   const tokenOutTotal =
@@ -186,7 +182,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         text={intl.formatMessage({ id: 'from' })}
         onChangeAmount={(amount) => {
           setTokenInAmount(amount);
-          if(amount=='') setTokenInAmount('1');
         }}
       />
       <div className="flex items-center justify-center">
