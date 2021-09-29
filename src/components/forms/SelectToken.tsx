@@ -15,7 +15,6 @@ export default function SelectToken({
   addToken,
   standalone,
   placeholder,
-  calledBy,
   balances,
 }: {
   tokens: TokenMetadata[];
@@ -25,7 +24,6 @@ export default function SelectToken({
   render?: (token: TokenMetadata) => React.ReactElement;
   onSelect?: (token: TokenMetadata) => void;
   addToken?: () => JSX.Element;
-  calledBy?: string;
   balances?: TokenBalancesView;
 }) {
   if (!onSelect) {
@@ -99,7 +97,6 @@ export default function SelectToken({
               onSelect && onSelect(token);
               close();
             }}
-            calledBy={calledBy}
             balances={balances}
           />
         </section>

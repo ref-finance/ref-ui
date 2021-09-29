@@ -1,6 +1,8 @@
 import React from 'react';
 import { toRealSymbol } from '~utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
+import { useDepositableBalance } from '~state/token';
+import { toPrecision, toReadableNumber } from '~utils/numbers';
 
 interface TokenProps {
   token: TokenMetadata;
@@ -9,7 +11,10 @@ interface TokenProps {
 }
 
 export default function Token({ token, onClick, render }: TokenProps) {
-  const { icon, symbol, id } = token;
+  const { icon, symbol, id, decimals } = token;
+  const tokenAmount =
+    toPrecision(toReadableNumber(decimals, useDepositableBalance(id)), 6) ||
+    '0';
   return (
     <section
       className={`${
@@ -34,7 +39,7 @@ export default function Token({ token, onClick, render }: TokenProps) {
           <div className="block">{toRealSymbol(symbol)}</div>
         </div>
       </div>
-      {render && render(token)}
+      {render ? render(token) : tokenAmount}
     </section>
   );
 }

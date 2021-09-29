@@ -22,7 +22,6 @@ interface TokenAmountProps {
   onSelectToken?: (token: TokenMetadata) => void;
   onChangeAmount?: (amount: string) => void;
   text?: string;
-  calledBy?: string;
   disabled?: boolean;
 }
 
@@ -36,7 +35,6 @@ export default function TokenAmount({
   onSelectToken,
   onChangeAmount,
   text,
-  calledBy,
   disabled = false,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) => (
@@ -89,7 +87,6 @@ export default function TokenAmount({
             )
           }
           onSelect={onSelectToken}
-          calledBy={calledBy}
           balances={balances}
         />
       </fieldset>
