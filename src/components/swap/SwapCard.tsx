@@ -190,7 +190,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           onClick={() => {
             setTokenIn(tokenOut);
             setTokenOut(tokenIn);
-            setTokenInAmount(toPrecision(tokenInAmount, 6));
+            setTokenInAmount(toPrecision('1', 6));
           }}
         >
           <ArrowDownBlack />
