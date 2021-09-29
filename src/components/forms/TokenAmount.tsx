@@ -90,6 +90,7 @@ export default function TokenAmount({
           }
           onSelect={onSelectToken}
           calledBy={calledBy}
+          balances={balances}
         />
       </fieldset>
     </>
