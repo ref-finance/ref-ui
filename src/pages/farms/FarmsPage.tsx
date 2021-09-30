@@ -64,14 +64,41 @@ export function FarmsPage() {
   async function loadFarmInfoList() {
     setUnclaimedFarmsIsLoading(true);
     const isSignedIn: boolean = wallet.isSignedIn();
-    const stakedList: Record<string, string> = isSignedIn
-      ? await getStakedListByAccountId({})
-      : {};
-    const rewardList: Record<string, string> = isSignedIn
-      ? await getRewards({})
-      : {};
-    const tokenPriceList: any = await getTokenPriceList();
-    const seeds: Record<string, string> = await getSeeds({});
+
+    const emptyObj = async () => {
+      return {};
+    };
+    let Params: [
+      Promise<Record<string, string>>,
+      Promise<Record<string, string>>,
+      Promise<any>,
+      Promise<Record<string, string>>
+    ];
+
+    if (isSignedIn) {
+      Params = [
+        getStakedListByAccountId({}),
+        getRewards({}),
+        getTokenPriceList(),
+        getSeeds({}),
+      ];
+    } else {
+      Params = [emptyObj(), emptyObj(), getTokenPriceList(), getSeeds({})];
+    }
+
+    const resolvedParams: [
+      Record<string, string>,
+      Record<string, string>,
+      any,
+      Record<string, string>
+    ] = await Promise.all(Params);
+
+    const stakedList: Record<string, string> = resolvedParams[0];
+    const rewardList: Record<string, string> = resolvedParams[1];
+
+    const tokenPriceList: any = resolvedParams[2];
+
+    const seeds: Record<string, string> = resolvedParams[3];
 
     setStakedList(stakedList);
     setRewardList(rewardList);
