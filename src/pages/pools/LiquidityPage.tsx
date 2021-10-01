@@ -80,12 +80,12 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
         <div className="relative w-20">
           <img
             key={tokens[0].id.substring(0, 12).substring(0, 12)}
-            className="h-12 w-12 border rounded-full border-gray-300"
+            className="h-12 w-12 border rounded-full"
             src={tokens[0].icon}
           />
           <img
             key={tokens[1].id}
-            className="h-7 w-7 absolute left-9 bottom-0 border rounded-full border-gray-300"
+            className="h-7 w-7 absolute left-9 bottom-0 rounded-full"
             src={tokens[1].icon}
           />
         </div>
@@ -265,10 +265,10 @@ function PoolRow({ pool }: { pool: Pool }) {
 
   return (
     <Link
-      title={`${tokens[0].id.substring(0, 12)}|${tokens[1].id}`.substring(
+      title={`${tokens[0].id.substring(0, 12)}|${tokens[1].id.substring(
         0,
         12
-      )}
+      )}`}
       to={{
         pathname: `/pool/${pool.id}`,
         state: { tvl: pool.tvl },
@@ -279,12 +279,12 @@ function PoolRow({ pool }: { pool: Pool }) {
         <div className="relative">
           <img
             key={tokens[0].id.substring(0, 12).substring(0, 12)}
-            className="h-12 w-12 border rounded-full border-gray-300"
+            className="h-12 w-12 border rounded-full"
             src={tokens[0].icon}
           />
           <img
             key={tokens[1].id}
-            className="h-7 w-7 absolute left-9 bottom-0 border rounded-full border-gray-300"
+            className="h-7 w-7 absolute left-9 bottom-0 rounded-full"
             src={tokens[1].icon}
           />
         </div>
