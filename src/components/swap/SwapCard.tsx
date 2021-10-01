@@ -18,6 +18,7 @@ import SlippageSelector from '../forms/SlippageSelector';
 import { ArrowDownBlack } from '../icon/Arrows';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { FaExchangeAlt } from 'react-icons/fa';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -29,6 +30,62 @@ function SwapDetail({ title, value }: { title: string; value: string }) {
     <section className="grid grid-cols-2 py-1">
       <p className="opacity-80">{title}</p>
       <p className="text-right font-semibold">{value}</p>
+    </section>
+  );
+}
+
+function SwapRateDetail({
+  title,
+  value,
+  pool,
+  from,
+  to,
+  tokenIn,
+  tokenOut,
+}: {
+  title: string;
+  value: string;
+  pool: Pool;
+  from: string;
+  to: string;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+}) {
+  const [newValue, setNewValue] = useState<string>('');
+  const [isRevert, setIsRevert] = useState<boolean>(false);
+
+  useEffect(() => {
+    setNewValue(value);
+  }, [value]);
+
+  useEffect(() => {
+    setNewValue(
+      `${calculateExchangeRate(
+        pool.fee,
+        isRevert ? to : from,
+        isRevert ? from : to
+      )} ${toRealSymbol(
+        isRevert ? tokenIn.symbol : tokenOut.symbol
+      )} per ${toRealSymbol(isRevert ? tokenOut.symbol : tokenIn.symbol)}`
+    );
+  }, [isRevert]);
+
+  function switchSwapRate() {
+    setIsRevert(!isRevert);
+  }
+
+  return (
+    <section className="grid grid-cols-2 py-1">
+      <p className="opacity-80">{title}</p>
+      <p
+        className="text-right font-semibold cursor-pointer"
+        onClick={switchSwapRate}
+      >
+        <span className="float-right">{newValue}</span>
+        <span className="float-right mr-2 mt-1 text-sm">
+          <FaExchangeAlt></FaExchangeAlt>
+        </span>
+      </p>
     </section>
   );
 }
@@ -58,11 +115,16 @@ function DetailView({
         title={intl.formatMessage({ id: 'minimum_received' })}
         value={toPrecision(minAmountOut, 4, true)}
       />
-      <SwapDetail
+      <SwapRateDetail
         title={intl.formatMessage({ id: 'swap_rate' })}
         value={`${calculateExchangeRate(pool.fee, from, to)} ${toRealSymbol(
           tokenOut.symbol
         )} per ${toRealSymbol(tokenIn.symbol)}`}
+        pool={pool}
+        from={from}
+        to={to}
+        tokenIn={tokenIn}
+        tokenOut={tokenOut}
       />
       <SwapDetail
         title={intl.formatMessage({ id: 'pool_fee' })}
