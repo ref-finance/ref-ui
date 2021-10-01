@@ -18,7 +18,7 @@ export default function InputAmount({
   const ref = useRef<HTMLInputElement>();
 
   const handleChange = (amount: string) => {
-    if (Number(amount)<0) {
+    if (Number(amount) < 0) {
       ref.current.value = '0';
     } else {
       if (onChangeAmount) onChangeAmount(amount);
