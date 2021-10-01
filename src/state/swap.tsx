@@ -152,7 +152,6 @@ export const useSwap = ({
 
   return {
     canSwap,
-    fromTokenInAmount: tokenInAmount,
     tokenOutAmount,
     minAmountOut,
     pool,

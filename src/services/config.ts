@@ -8,7 +8,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         walletUrl: 'https://wallet.near.org',
         helperUrl: 'https://helper.mainnet.near.org',
         explorerUrl: 'https://explorer.mainnet.near.org',
-        indexerUrl: 'https://mainnet-indexer.ref-finance.com',
+        indexerUrl: 'https://indexer.ref-finance.net',
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
         WRAP_NEAR_CONTRACT_ID: process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.near',
