@@ -8,19 +8,30 @@ interface TokenProps {
   token: TokenMetadata;
   onClick: (token: TokenMetadata) => void;
   render?: (token: TokenMetadata) => React.ReactElement;
+  totalAmount?: string;
 }
 
-export default function Token({ token, onClick, render }: TokenProps) {
+export default function Token({
+  token,
+  onClick,
+  render,
+  totalAmount,
+}: TokenProps) {
   const { icon, symbol, id, decimals } = token;
-  const tokenAmount =
-    toPrecision(toReadableNumber(decimals, useDepositableBalance(id)), 6) ||
-    '0';
+  const totalTokenAmount = toReadableNumber(
+    decimals,
+    useDepositableBalance(id)
+  );
+  const tokenAmount = toPrecision(totalTokenAmount, 6) || '0';
   return (
     <section
       className={`${
         onClick ? 'cursor-pointer' : ' '
       } flex justify-between align-center py-4 px-2 w-full text-center hover:bg-secondaryScale-100`}
       onClick={() => onClick && onClick(token)}
+      title={
+        totalAmount ? totalAmount : toReadableNumber(decimals, totalTokenAmount)
+      }
     >
       <div className="w-full text-left">
         <div

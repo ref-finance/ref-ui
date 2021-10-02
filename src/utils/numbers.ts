@@ -48,7 +48,7 @@ export const toPrecision = (
   number: string,
   precision: number,
   withCommas: boolean = false,
-  atLeastOne: boolean = true,
+  atLeastOne: boolean = true
 ): string => {
   const [whole, decimal = ''] = number.split('.');
 
@@ -56,7 +56,7 @@ export const toPrecision = (
     0,
     precision
   )}`.replace(/\.$/, '');
-  if (atLeastOne && Number(str)===0 && str.length > 1) {
+  if (atLeastOne && Number(str) === 0 && str.length > 1) {
     var n = str.lastIndexOf('0');
     str = str.slice(0, n) + str.slice(n).replace('0', '1');
   }
@@ -67,7 +67,7 @@ export const toPrecision = (
 export const toRoundedReadableNumber = ({
   decimals,
   number,
-  precision = 4,
+  precision = 6,
 }: {
   decimals: number;
   number?: string;

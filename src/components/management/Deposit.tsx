@@ -49,7 +49,7 @@ export default function Deposit({ tokens }: { tokens: TokenMetadata[] }) {
       {selectedToken && (
         <div className="text-center">
           <span> You can deposit up to </span>
-          <span className="font-bold">{toPrecision(max, 4, true)} </span>
+          <span className="font-bold">{toPrecision(max, 6, true)} </span>
           <span>{toRealSymbol(selectedToken.symbol)}.</span>
         </div>
       )}

@@ -13,7 +13,7 @@ import {
   calculateFeePercent,
   toPrecision,
   toReadableNumber,
-  toInternationalCurrencySystem
+  toInternationalCurrencySystem,
 } from '../../utils/numbers';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -107,9 +107,9 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
               {toPrecision(
                 toReadableNumber(
                   tokens[0].decimals || 24,
-                  pool.supplies[pool.tokenIds[0]]
+                  pool.supplies[tokens[0].id]
                 ),
-                4,
+                6,
                 true
               )}
             </div>
@@ -118,9 +118,9 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
               {toPrecision(
                 toReadableNumber(
                   tokens[1].decimals || 24,
-                  pool.supplies[pool.tokenIds[1]]
+                  pool.supplies[tokens[1].id]
                 ),
-                4,
+                6,
                 true
               )}
             </div>
@@ -289,9 +289,7 @@ function PoolRow({ pool }: { pool: Pool }) {
             src={tokens[1].icon}
           />
         </div>
-        <div className="relative float-left ml-6 xl:ml-4">
-        {farmButton()}
-        </div>
+        <div className="relative float-left ml-6 xl:ml-4">{farmButton()}</div>
       </div>
       <div className="col-span-3">
         <div className="mt-2">
@@ -320,7 +318,9 @@ function PoolRow({ pool }: { pool: Pool }) {
         </div>
       </div>
       <div className="col-span-2">
-        <div className="mt-4">${toInternationalCurrencySystem(pool.tvl.toString())}</div>
+        <div className="mt-4">
+          ${toInternationalCurrencySystem(pool.tvl.toString())}
+        </div>
       </div>
       <div className="col-span-1">
         <div className="mt-4">{calculateFeePercent(pool.fee)}%</div>

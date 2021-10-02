@@ -81,10 +81,12 @@ function SwapRateDetail({
         className="text-right font-semibold cursor-pointer"
         onClick={switchSwapRate}
       >
-        <span className="float-right">{newValue}</span>
-        <span className="float-right mr-2 mt-1 text-sm">
-          <FaExchangeAlt></FaExchangeAlt>
+        <span className="float-right xs:w-2/3">
+          {newValue}
         </span>
+        <span className="float-right mr-2 xs:mr-0 mt-1 text-sm">
+            <FaExchangeAlt></FaExchangeAlt>
+          </span>
       </p>
     </section>
   );
@@ -113,7 +115,7 @@ function DetailView({
     <>
       <SwapDetail
         title={intl.formatMessage({ id: 'minimum_received' })}
-        value={toPrecision(minAmountOut, 4, true)}
+        value={toPrecision(minAmountOut, 6, true)}
       />
       <SwapRateDetail
         title={intl.formatMessage({ id: 'swap_rate' })}
@@ -217,7 +219,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           >
             <FormattedMessage
               id="deposit_to_swap"
-              defaultMessage="存入兑换的代币"
+              defaultMessage="Deposit to swap"
             />
           </button>
         </div>

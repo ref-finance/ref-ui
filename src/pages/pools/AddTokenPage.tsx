@@ -44,10 +44,12 @@ export function AddTokenPage() {
                   try {
                     await registerTokenAndExchange(addr);
                   } catch (err) {
-                    if (addr.substr(0,2)==='0x' && addr.length===42) {
+                    if (addr.substr(0, 2) === '0x' && addr.length === 42) {
                       setError(intl.formatMessage({ id: 'not_nep_address' }));
-                    } else if(err.message.indexOf('does not exist')!=-1) {
-                      setError(intl.formatMessage({ id: 'not_correct_address' }));
+                    } else if (err.message.indexOf('does not exist') != -1) {
+                      setError(
+                        intl.formatMessage({ id: 'not_correct_address' })
+                      );
                     } else {
                       setError(err.message);
                     }

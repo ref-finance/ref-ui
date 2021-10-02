@@ -128,7 +128,7 @@ const zh_CN = {
     '您将在这里看到您从参与的池中认领的所有余额。<br>提取到你的Near钱包',
   totalValueLockedCopy: '总锁定价值',
   you_do_not_have_enough: '你没有足够的',
-  must_provide_at_least_one_token_for: '你提供的币的数量不能为0',
+  must_provide_at_least_one_token_for: '你提供的币的数量需大于0',
   is_not_exist: '不存在',
   must_input_a_value_greater_than_zero: '必须输入一个大于0的值',
   must_input_a_value_not_greater_than_your_balance:
@@ -137,7 +137,8 @@ const zh_CN = {
   for_the_amount: '数额为',
   no_pool_eng_for_chinese: '的交易',
   is_not_a_valid_swap_amount: '错误的兑换数额',
-  not_nep_address: '您输入的地址不是NEP-141地址，请检查后再输入。如果是其他主网合约，去彩虹桥进行桥接处理',
+  not_nep_address:
+    '您输入的地址不是NEP-141地址，请检查后再输入。如果是其他主网合约，去彩虹桥进行桥接处理',
   not_correct_address: '您输入的地址不正确，请检查后再输入',
 };
 export default zh_CN;

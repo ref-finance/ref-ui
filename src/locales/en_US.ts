@@ -135,7 +135,7 @@ const en_US = {
     'Here is where you will see all the balances that you have claimed from the pools you are participating in. Withdraw to your Near wallet',
   totalValueLockedCopy: 'Total Value Locked',
   you_do_not_have_enough: "You don't have enough",
-  must_provide_at_least_one_token_for: 'Must provide at least 1 token for',
+  must_provide_at_least_one_token_for: 'Must provide greater than 0 token for',
   is_not_exist: 'is not exist',
   must_input_a_value_greater_than_zero: 'Must input a value greater than 0',
   must_input_a_value_not_greater_than_your_balance:
@@ -145,7 +145,9 @@ const en_US = {
   for_the_amount: 'for the amount',
   no_pool_eng_for_chinese: ' ',
   is_not_a_valid_swap_amount: 'is not a valid swap amount',
-  not_nep_address: 'The address you entered is not a NEP-141 address, please check and enter it again. If it is another mainnet contract, go to Rainbow Bridge for bridging processing',
-  not_correct_address: 'The address you entered is incorrect, please check and enter',
+  not_nep_address:
+    'The address you entered is not a NEP-141 address, please check and enter it again. If it is another mainnet contract, go to Rainbow Bridge for bridging processing',
+  not_correct_address:
+    'The address you entered is incorrect, please check and enter',
 };
 export default en_US;

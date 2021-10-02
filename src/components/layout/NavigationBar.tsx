@@ -68,7 +68,7 @@ function AccountEntry() {
   if (!userTokens || !balances) return null;
 
   return (
-    <div className="user text-xs text-center justify-end pl-5 h-full absolute top-0 right-20">
+    <div className="user text-xs text-center justify-end pl-5 h-full absolute top-0 right-20 z-20">
       <div
         className={`cursor-pointer font-bold items-center justify-end text-center p-1 overflow-visible pl-3 pr-3 relative h-full`}
         onMouseEnter={() => {
@@ -176,7 +176,7 @@ function PoolsMenu() {
 
   return (
     <div
-      className="relative"
+      className="relative z-20"
       onMouseOver={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
@@ -231,7 +231,7 @@ function CommunityMenu() {
 
   return (
     <div
-      className="relative"
+      className="relative z-20"
       onMouseOver={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >

@@ -18,7 +18,9 @@ export default function TokenList({
   balances,
 }: TokenListProps) {
   const balanceToAmount = (token: TokenMetadata) => {
-    return Number(toReadableNumber(token.decimals, balances[token.id])) || 0;
+    return balances
+      ? Number(toReadableNumber(token.decimals, balances[token.id])) || 0
+      : 0;
   };
 
   if (balances) {
@@ -38,10 +40,16 @@ export default function TokenList({
     <div
       className="text-xs font-semibold"
       key={token.id}
-      title={token.id}
-      data-amount={balances ? balanceToAmount(token) : 0}
+      data-amount={balanceToAmount(token)}
     >
-      <Token token={token} onClick={onClick} render={render} />
+      <Token
+        token={token}
+        onClick={onClick}
+        render={render}
+        totalAmount={
+          balances ? toReadableNumber(token.decimals, balances[token.id]) : ''
+        }
+      />
     </div>
   ));
 
