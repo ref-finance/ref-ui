@@ -121,7 +121,7 @@ const zh_CN = {
     '为所选的两个代币对创建一个新的流动性池。<br>兑换手续费用是流动池从每笔交易中获得的百分比。',
   swapCopy:
     '兑换交易是将第一个选定的代币交换成第二个选定的代币。<br> 将使用最高流动性和最低交易费用的池。',
-  addTokenCopy: '允许您向可兑换代币名单中添加ERC-20代币。',
+  addTokenCopy: '允许您向可兑换代币名单中添加NEP-141代币。',
   getLPTokenCopy: '单击此处跳转到相应的池。',
   airdropCopy: '请在截止日期前至少领取一次空投，否则您的余额将捐给财政部。',
   farmRewardsCopy:
@@ -137,7 +137,7 @@ const zh_CN = {
   for_the_amount: '数额为',
   no_pool_eng_for_chinese: '的交易',
   is_not_a_valid_swap_amount: '错误的兑换数额',
-  not_nep_address: '您输入的地址不是NEP141地址，请检查后再输入。如果是其他主网合约，去彩虹桥进行桥接处理',
+  not_nep_address: '您输入的地址不是NEP-141地址，请检查后再输入。如果是其他主网合约，去彩虹桥进行桥接处理',
   not_correct_address: '您输入的地址不正确，请检查后再输入',
 };
 export default zh_CN;

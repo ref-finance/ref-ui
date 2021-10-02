@@ -121,7 +121,7 @@ const en_US = {
   registerToken:
     'This registers a new token with the <br> exchange that is not already listed.',
   whitelistTokenCopy:
-    'This allows you to add an ERC-20 token to the exchange that is not already listed.',
+    'This allows you to add an NEP-141 token to the exchange that is not already listed.',
   addLiquidityPoolCopy:
     'This creates a new liquidity pool for the two tokens selected. The fee is the percentage the pool takes from each transaction.',
   swapCopy:
@@ -145,7 +145,7 @@ const en_US = {
   for_the_amount: 'for the amount',
   no_pool_eng_for_chinese: ' ',
   is_not_a_valid_swap_amount: 'is not a valid swap amount',
-  not_nep_address: 'The address you entered is not a NEP141 address, please check and enter it again. If it is another mainnet contract, go to Rainbow Bridge for bridging processing',
+  not_nep_address: 'The address you entered is not a NEP-141 address, please check and enter it again. If it is another mainnet contract, go to Rainbow Bridge for bridging processing',
   not_correct_address: 'The address you entered is incorrect, please check and enter',
 };
 export default en_US;
