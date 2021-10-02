@@ -127,7 +127,7 @@ const en_US = {
   swapCopy:
     'Swap exchanges the first selected token with the second <br> selected token.The pools with the highest available liquidity and the lowest exchange fee will be used.',
   addTokenCopy:
-    'This allows you to add an ERC-20 token to the exchange that is not already listed.',
+    'This allows you to add an NEP-141 token to the exchange that is not already listed.',
   getLPTokenCopy: 'Click here to jump to the corresponding pool.',
   airdropCopy:
     ' Please claim your airdrop at least once before the expiration date otherwise your balance would be donated into the treasury.',

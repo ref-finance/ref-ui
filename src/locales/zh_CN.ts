@@ -116,7 +116,7 @@ const zh_CN = {
   nearWithdrawCopy: '将您的 Ⓝ 取出后并将代币移到您的钱包中。',
   withdrawCopy: '取出您选择的代币，并将其存入您的钱包。',
   registerToken: '申请注册一个代币名单以外的新代币。',
-  whitelistTokenCopy: '允许您向可兑换代币名单中添加ERC-20代币。',
+  whitelistTokenCopy: '允许您向可兑换代币名单中添加NEP-141代币。',
   addLiquidityPoolCopy:
     '为所选的两个代币对创建一个新的流动性池。<br>兑换手续费用是流动池从每笔交易中获得的百分比。',
   swapCopy:

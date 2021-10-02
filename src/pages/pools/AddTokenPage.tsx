@@ -44,7 +44,7 @@ export function AddTokenPage() {
                   try {
                     await registerTokenAndExchange(addr);
                   } catch (err) {
-                    if (err.message.indexOf('CodeDoesNotExist')!=-1) {
+                    if (addr.substr(0,2)==='0x' && addr.length===42) {
                       setError(intl.formatMessage({ id: 'not_nep_address' }));
                     } else if(err.message.indexOf('does not exist')!=-1) {
                       setError(intl.formatMessage({ id: 'not_correct_address' }));
