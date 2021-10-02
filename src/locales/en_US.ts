@@ -145,5 +145,7 @@ const en_US = {
   for_the_amount: 'for the amount',
   no_pool_eng_for_chinese: ' ',
   is_not_a_valid_swap_amount: 'is not a valid swap amount',
+  not_nep_address: 'The address you entered is not a NEP141 address, please check and enter it again. If it is another mainnet contract, go to Rainbow Bridge for bridging processing',
+  not_correct_address: 'The address you entered is incorrect, please check and enter',
 };
 export default en_US;

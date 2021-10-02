@@ -350,7 +350,7 @@ function LiquidityPage_({
 }) {
   const intl = useIntl();
   return (
-    <div className="flex items-center flex-col w-3/6 lg:w-5/6 md:w-5/6 m-auto xs:hidden">
+    <div className="flex items-center flex-col w-3/6 lg:w-5/6 xl:w-2/3 md:w-5/6 m-auto xs:hidden">
       <div className="text-center pb-8">
         <div className="text-white text-3xl font-semibold">
           <FormattedMessage

@@ -137,5 +137,7 @@ const zh_CN = {
   for_the_amount: '数额为',
   no_pool_eng_for_chinese: '的交易',
   is_not_a_valid_swap_amount: '错误的兑换数额',
+  not_nep_address: '您输入的地址不是NEP141地址，请检查后再输入。如果是其他主网合约，去彩虹桥进行桥接处理',
+  not_correct_address: '您输入的地址不正确，请检查后再输入',
 };
 export default zh_CN;
