@@ -81,12 +81,10 @@ function SwapRateDetail({
         className="text-right font-semibold cursor-pointer"
         onClick={switchSwapRate}
       >
-        <span className="float-right xs:w-2/3">
-          {newValue}
-        </span>
+        <span className="float-right xs:w-2/3">{newValue}</span>
         <span className="float-right mr-2 xs:mr-0 mt-1 text-sm">
-            <FaExchangeAlt></FaExchangeAlt>
-          </span>
+          <FaExchangeAlt></FaExchangeAlt>
+        </span>
       </p>
     </section>
   );

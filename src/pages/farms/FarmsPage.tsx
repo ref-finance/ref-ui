@@ -257,6 +257,11 @@ function FarmView({
 
   const PoolId = farmData.lpTokenId;
   const tokens = useTokens(farmData?.tokenIds);
+  const endTime =
+    data?.reward_per_session > 0
+      ? moment(data?.start_at) +
+        (data?.session_interval * data?.total_reward) / data?.reward_per_session
+      : '';
 
   const intl = useIntl();
 
@@ -344,7 +349,14 @@ function FarmView({
   }
 
   function farmStarted() {
-    return moment.unix(data.start_at).valueOf() < moment().valueOf();
+    return (
+      moment.unix(data.start_at).valueOf() < moment().valueOf() &&
+      data.start_at != 0
+    );
+  }
+
+  function showEndAt() {
+    return farmStarted() && data?.reward_per_session;
   }
 
   if (!tokens || tokens.length < 2 || farmsIsLoading) return <Loading />;
@@ -531,6 +543,22 @@ function FarmView({
             ) : (
               <Countdown
                 date={moment.unix(data.start_at).valueOf()}
+                renderer={renderer}
+              />
+            )}
+          </div>
+
+          <div className="flex items-center justify-between text-xs py-2">
+            {showEndAt() ? (
+              <>
+                <div>
+                  <FormattedMessage id="end_at" defaultMessage="End at" />
+                </div>
+                <div>{moment.unix(endTime).format('YYYY-MM-DD HH:mm:ss')}</div>
+              </>
+            ) : (
+              <Countdown
+                date={moment.unix(endTime).valueOf()}
                 renderer={renderer}
               />
             )}

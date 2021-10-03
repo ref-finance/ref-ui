@@ -72,6 +72,7 @@ const en_US = {
   start_in: 'Start in',
   start_at: 'Start at',
   started_at: 'Started at',
+  end_at: 'End at',
   earn: 'Earn',
   ended: 'ENDED',
   pending: 'PENDING',

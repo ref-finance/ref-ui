@@ -2,7 +2,7 @@ import React from 'react';
 import { toRealSymbol } from '~utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
 import { useDepositableBalance } from '~state/token';
-import { toPrecision, toReadableNumber } from '~utils/numbers';
+import { toPrecision, toReadableNumber, toNonDivisibleNumber } from '~utils/numbers';
 
 interface TokenProps {
   token: TokenMetadata;
@@ -22,6 +22,7 @@ export default function Token({
     decimals,
     useDepositableBalance(id)
   );
+  
   const tokenAmount = toPrecision(totalTokenAmount, 6) || '0';
   return (
     <section
@@ -30,7 +31,7 @@ export default function Token({
       } flex justify-between align-center py-4 px-2 w-full text-center hover:bg-secondaryScale-100`}
       onClick={() => onClick && onClick(token)}
       title={
-        totalAmount ? totalAmount : toReadableNumber(decimals, totalTokenAmount)
+        totalAmount ? totalAmount : totalTokenAmount
       }
     >
       <div className="w-full text-left">

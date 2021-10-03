@@ -73,6 +73,7 @@ const zh_CN = {
   start_in: '开始',
   start_at: '开始于',
   started_at: '开始于',
+  end_at: '结束于',
   earn: '赚取',
   ended: '已结束',
   pending: '未开始',

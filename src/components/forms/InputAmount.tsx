@@ -1,4 +1,4 @@
-import React, { useRef,useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   max?: string;
@@ -16,7 +16,7 @@ export default function InputAmount({
   ...rest
 }: InputAmountProps) {
   const ref = useRef<HTMLInputElement>();
-  const [symbolsArr] = useState(["e", "E", "+", "-"]);
+  const [symbolsArr] = useState(['e', 'E', '+', '-']);
 
   const handleChange = (amount: string) => {
     if (onChangeAmount) onChangeAmount(amount);
@@ -45,7 +45,7 @@ export default function InputAmount({
             placeholder="0.0"
             onChange={({ target }) => handleChange(target.value)}
             disabled={disabled}
-            onKeyDown={e => symbolsArr.includes(e.key) && e.preventDefault()}
+            onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
           />
           {max ? (
             <a
