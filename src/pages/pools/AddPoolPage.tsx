@@ -73,6 +73,7 @@ export function AddPoolPage() {
           render={balances ? render : null}
           selected={token1 && <Selected token={token1} />}
           onSelect={setToken1}
+          balances={balances}
         />
         <div className="text-xs font-semibold pt-2">
           <FormattedMessage id="pair" defaultMessage="Pair" />
@@ -84,6 +85,7 @@ export function AddPoolPage() {
           render={balances ? render : null}
           selected={token2 && <Selected token={token2} />}
           onSelect={setToken2}
+          balances={balances}
         />
         <div className="text-xs font-semibold pt-2 flex items-center justify-between">
           <div>
