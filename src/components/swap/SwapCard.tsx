@@ -113,7 +113,7 @@ function DetailView({
     <>
       <SwapDetail
         title={intl.formatMessage({ id: 'minimum_received' })}
-        value={toPrecision(minAmountOut, 6, true)}
+        value={toPrecision(minAmountOut, 8, true)}
       />
       <SwapRateDetail
         title={intl.formatMessage({ id: 'swap_rate' })}
@@ -259,7 +259,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         </div>
       </div>
       <TokenAmount
-        amount={toPrecision(tokenOutAmount, 10)}
+        amount={toPrecision(tokenOutAmount, 8)}
         total={tokenOutTotal}
         tokens={allTokens}
         selectedToken={tokenOut}
