@@ -556,12 +556,7 @@ function FarmView({
                 </div>
                 <div>{moment.unix(endTime).format('YYYY-MM-DD HH:mm:ss')}</div>
               </>
-            ) : (
-              <Countdown
-                date={moment.unix(endTime).valueOf()}
-                renderer={renderer}
-              />
-            )}
+            ) : null}
           </div>
         </div>
         <div>

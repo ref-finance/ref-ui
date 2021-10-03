@@ -259,7 +259,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         </div>
       </div>
       <TokenAmount
-        amount={toPrecision(tokenOutAmount, 6)}
+        amount={toPrecision(tokenOutAmount, 10)}
         total={tokenOutTotal}
         tokens={allTokens}
         selectedToken={tokenOut}
