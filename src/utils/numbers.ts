@@ -97,7 +97,7 @@ export const calculateExchangeRate = (
   to: string
 ) => {
   return math.round(
-    math.evaluate(`${to} / (${from} - ${calculateFeeCharge(fee, from)})`),
+    math.evaluate(`${to} / ${from}`),
     4
   );
 };
