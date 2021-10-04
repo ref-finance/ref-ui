@@ -28,6 +28,7 @@ import {
   formatWithCommas,
   toPrecision,
   toReadableNumber,
+  toInternationalCurrencySystem,
 } from '~utils/numbers';
 import { mftGetBalance } from '~services/mft-contract';
 import { wallet } from '~services/near';
@@ -262,7 +263,6 @@ function FarmView({
       ? moment(data?.start_at) +
         (data?.session_interval * data?.total_reward) / data?.reward_per_session
       : '';
-
   const intl = useIntl();
 
   const renderer = (countdown: any) => {
@@ -356,7 +356,7 @@ function FarmView({
   }
 
   function showEndAt() {
-    return farmStarted() && data?.reward_per_session;
+    return farmStarted() && data?.reward_per_session && data?.total_reward > 0;
   }
 
   if (!tokens || tokens.length < 2 || farmsIsLoading) return <Loading />;
@@ -451,7 +451,7 @@ function FarmView({
           </div>
         </div>
       </div>
-      <div className="info-list p-6" style={{ minHeight: '12rem' }}>
+      <div className="info-list p-6" style={{ minHeight: '20rem' }}>
         <div className="text-center max-w-2xl">
           {error ? <Alert level="error" message={error.message} /> : null}
         </div>
@@ -505,7 +505,10 @@ function FarmView({
               <div>{`${
                 data.totalStaked === 0
                   ? '-'
-                  : `$${formatWithCommas(data.totalStaked.toString())}`
+                  : `$${toInternationalCurrencySystem(
+                      data.totalStaked.toString(),
+                      1
+                    )}`
               }`}</div>
             )}
           </div>
