@@ -17,6 +17,7 @@ import {
   getRewards,
   getSeeds,
   DEFAULT_PAGE_LIMIT,
+  claimRewardBySeed,
 } from '~services/farm';
 import {
   stake,
@@ -105,6 +106,18 @@ export function FarmsPage() {
     setTokenPriceList(tokenPriceList);
     setSeeds(seeds);
 
+    const composeFarms = (farms: FarmInfo[]) => {
+      var tempMap = {};
+      while (farms.length) {
+        let current = farms.pop();
+        tempMap[current.start_at + current.seed_id] =
+          tempMap[current.start_at + current.seed_id] || [];
+        tempMap[current.start_at + current.seed_id].push(current);
+      }
+
+      return Object.keys(tempMap).map((key) => tempMap[key]);
+    };
+
     getFarms({
       page,
       perPage,
@@ -114,7 +127,8 @@ export function FarmsPage() {
       seeds,
     }).then((farms) => {
       setUnclaimedFarmsIsLoading(false);
-      farms = _.orderBy(farms, ['farm_status'], ['desc']);
+      // farms = _.orderBy(farms, ['farm_status'], ['desc']);
+      farms = composeFarms(farms);
       setFarms(farms);
     });
   }
@@ -168,8 +182,9 @@ export function FarmsPage() {
               <div className="grid grid-cols-3 gap-4 xs:grid-cols-1 md:grid-cols-1">
                 {farms.map((farm) => (
                   <FarmView
-                    key={farm.farm_id}
-                    farmData={farm}
+                    key={farm[0].farm_id}
+                    farmsData={farm}
+                    farmData={farm[0]}
                     stakedList={stakedList}
                     rewardList={rewardList}
                     tokenPriceList={tokenPriceList}
@@ -250,12 +265,14 @@ function ClaimView({ data }: { data: any }) {
 }
 
 function FarmView({
+  farmsData,
   farmData,
   stakedList,
   rewardList,
   tokenPriceList,
   seeds,
 }: {
+  farmsData: FarmInfo[];
   farmData: FarmInfo;
   stakedList: Record<string, string>;
   rewardList: Record<string, string>;
@@ -275,6 +292,7 @@ function FarmView({
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [claimLoading, setClaimLoading] = useState(false);
+  const [apr, setApr] = useState('0');
 
   const clipColor = '#00c08b';
   const clipSize = 12;
@@ -309,8 +327,8 @@ function FarmView({
   };
 
   useEffect(() => {
-    setEnded(farmData.farm_status === 'Ended');
-    setPending(farmData.farm_status === 'Pending');
+    setEnded(isEnded(farmData));
+    setPending(isPending(farmData));
     setData(farmData);
     setLoading(false);
   }, [farmData]);
@@ -333,8 +351,8 @@ function FarmView({
     }
 
     if (data) {
-      setEnded(data.farm_status === 'Ended');
-      setPending(data.farm_status === 'Pending');
+      setEnded(isEnded(data));
+      setPending(isPending(data));
     }
 
     const id = setInterval(() => {
@@ -370,8 +388,194 @@ function FarmView({
       });
   }
 
+  function claimAllRewards(seed_id: string) {
+    setDisableClaim(true);
+    setClaimLoading(true);
+    claimRewardBySeed(seed_id)
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        setDisableClaim(false);
+        setError(error);
+      });
+  }
+
+  function isEnded(data: FarmInfo) {
+    let ended: boolean = true;
+    if (farmsData.length > 1) {
+      for (let i = 0; i < farmsData.length; i++) {
+        if (farmsData[i].farm_status != 'Ended') {
+          ended = false;
+          break;
+        }
+      }
+    } else {
+      ended = data.farm_status === 'Ended';
+    }
+    return ended;
+  }
+
+  function isPending(data: FarmInfo) {
+    let pending: boolean = true;
+    if (farmsData.length > 1) {
+      for (let i = 0; i < farmsData.length; i++) {
+        if (farmsData[i].farm_status != 'Pending') {
+          pending = false;
+          break;
+        }
+      }
+    } else {
+      pending = data.farm_status === 'Pending';
+    }
+    return pending;
+  }
+
   function farmStarted() {
-    return moment.unix(data.start_at).valueOf() < moment().valueOf();
+    let started: boolean;
+    if (farmsData.length > 1) {
+      let tempNum = 0;
+      farmsData.forEach(function (item) {
+        if (moment.unix(item.start_at).valueOf() < moment().valueOf())
+          tempNum++;
+      });
+      started = tempNum > 0;
+    } else {
+      started = moment.unix(data.start_at).valueOf() < moment().valueOf();
+    }
+    return started;
+  }
+
+  function getStartTime() {
+    let start_at: any[] = [];
+    if (farmsData.length > 1) {
+      farmsData.forEach(function (item) {
+        start_at.push(item.start_at);
+      });
+      start_at = _.sortBy(start_at);
+    } else {
+      start_at.push(data.start_at);
+    }
+    return start_at[0];
+  }
+
+  function showEndAt() {
+    let showEndAt: boolean;
+    if (farmsData.length > 1) {
+      let tempNum = 0;
+      farmsData.forEach(function (item) {
+        if (item?.reward_per_session && item?.total_reward > 0) tempNum++;
+      });
+      showEndAt = tempNum > 0;
+    } else {
+      showEndAt = data?.reward_per_session && data?.total_reward > 0;
+    }
+    return farmStarted() && showEndAt;
+  }
+
+  function getEndTime() {
+    let end_at: any[] = [];
+
+    if (farmsData.length > 1) {
+      farmsData.forEach(function (item) {
+        end_at.push(
+          item?.reward_per_session > 0
+            ? moment(item?.start_at).add(
+                (item?.session_interval * item?.total_reward) /
+                  item?.reward_per_session,
+                'seconds'
+              )
+            : ''
+        );
+      });
+      end_at = _.orderBy(end_at, 'desc');
+    } else {
+      end_at.push(data.start_at);
+    }
+    return end_at[0];
+  }
+
+  function getRewardTokensSymbol() {
+    let symbols = '';
+    if (farmsData.length > 1) {
+      farmsData.forEach(function (item) {
+        symbols += toRealSymbol(item?.rewardToken?.symbol) + '/';
+      });
+      symbols = symbols.substring(0, symbols.lastIndexOf('/'));
+    } else {
+      symbols = toRealSymbol(data?.rewardToken?.symbol);
+    }
+    return symbols;
+  }
+
+  function getRewardTokensIcon() {
+    let icons = '';
+    if (farmsData.length > 1) {
+      farmsData.forEach(function (item) {
+        icons += `<img className="h-8 w-8 xs:h-6 xs:w-6 rounded-full" src=${item?.rewardToken?.icon} />`;
+      });
+    } else {
+      icons = `<img className="h-8 w-8 xs:h-6 xs:w-6 rounded-full" src=${data?.rewardToken?.icon} />`;
+    }
+    return icons;
+  }
+
+  function getTotalApr() {
+    let apr = 0;
+    if (farmsData.length > 1) {
+      farmsData.forEach(function (item) {
+        apr += Number(item.apr);
+      });
+    } else {
+      apr = Number(data.apr);
+    }
+    return apr;
+  }
+
+  function getAllRewardsPerWeek() {
+    let result = '';
+    if (farmsData.length > 1) {
+      farmsData.forEach(function (item) {
+        result +=
+          data.rewardsPerWeek +
+          ' ' +
+          toRealSymbol(item?.rewardToken?.symbol) +
+          ' / ';
+      });
+      result = result.substring(0, result.lastIndexOf('/ '));
+    } else {
+      result =
+        data.rewardsPerWeek + ' ' + toRealSymbol(data?.rewardToken?.symbol);
+    }
+    return result;
+  }
+
+  function getAllUnclaimedReward() {
+    let result = '';
+    if (farmsData.length > 1) {
+      farmsData.forEach(function (item) {
+        result +=
+          data.userUnclaimedReward +
+          ' ' +
+          toRealSymbol(item?.rewardToken?.symbol) +
+          ' / ';
+      });
+      result = result.substring(0, result.lastIndexOf('/ '));
+    } else {
+      result =
+        data.userUnclaimedReward +
+        ' ' +
+        toRealSymbol(data?.rewardToken?.symbol);
+    }
+    return result;
+  }
+
+  function getClaimId() {
+    if (farmsData.length > 1) {
+      return 'claim_all';
+    } else {
+      return 'claim';
+    }
   }
 
   if (!tokens || tokens.length < 2 || farmsIsLoading) return <Loading />;
@@ -388,12 +592,15 @@ function FarmView({
       return (
         <img
           key={id}
-          className="h-8 w-8 xs:h-6 xs:w-6 rounded-full"
+          className="h-10 w-10 xs:h-6 xs:w-6 rounded-full"
           src={icon}
         />
       );
     return (
-      <div key={id} className="h-8 w-8 xs:h-6 xs:w-6 rounded-full border"></div>
+      <div
+        key={id}
+        className="h-10 w-10 xs:h-6 xs:w-6 rounded-full border"
+      ></div>
     );
   });
 
@@ -408,24 +615,20 @@ function FarmView({
       <div
         className={`${
           ended ? 'rounded-t-xl bg-gray-300 bg-opacity-50' : ''
-        } border-b flex items-center p-6 relative overflow-hidden flex-wrap`}
+        } flex items-center p-6 pb-0 relative overflow-hidden flex-wrap`}
       >
         <div className="flex items-center justify-center">
-          <div className="h-9 xs:h-6">
-            <div className="w-18 xs:w-12 flex items-center justify-between">
+          <div className="h-11 xs:h-6">
+            <div className="w-22 xs:w-12 flex items-center justify-between">
               {images}
             </div>
           </div>
         </div>
         <div className="pl-2 order-2 lg:ml-auto xl:m-0">
           <div>
-            <a href={`/pool/${PoolId}`} className="xs:text-sm">
+            <a href={`/pool/${PoolId}`} className="text-lg xs:text-sm">
               {symbols}
             </a>
-            <p className="text-xs text-gray-400">
-              <FormattedMessage id="earn" defaultMessage="Earn" />{' '}
-              {toRealSymbol(data?.rewardToken?.symbol)}
-            </p>
           </div>
         </div>
         {ended ? (
@@ -466,13 +669,36 @@ function FarmView({
           </div>
         </div>
       </div>
-      <div className="info-list p-6" style={{ minHeight: '12rem' }}>
+      <div className="flex items-center p-6 relative overflow-hidden flex-wrap text-xs text-gray-400">
+        <div className="flex">{parse(getRewardTokensIcon())}</div>
+        <div className="flex pl-3 order-2">{getRewardTokensSymbol()}</div>
+      </div>
+      <div className="info-list p-6 pt-0" style={{ minHeight: '24rem' }}>
         <div className="text-center max-w-2xl">
           {error ? <Alert level="error" message={error.message} /> : null}
         </div>
         <div className="py-2">
+          <div className="flex items-center justify-between py-2">
+            <div className="text-xl">
+              <FormattedMessage id="tvl" defaultMessage="TVL" />
+            </div>
+            <div className="text-xl">{`${
+              data.totalStaked === 0
+                ? '-'
+                : `$${formatWithCommas(data.totalStaked.toString())}`
+            }`}</div>
+          </div>
+          <div className="flex items-center justify-between py-2">
+            <div className="text-xl">
+              <FormattedMessage id="apr" defaultMessage="APR" />
+            </div>
+            <div className="text-xl">{`${
+              getTotalApr() === 0 ? '-' : `${getTotalApr()}%`
+            }`}</div>
+          </div>
+          <hr className="my-3" />
           {data.userStaked !== '0' ? (
-            <div className="flex items-center justify-between text-xs py-2">
+            <div className="flex items-center justify-between text-sm py-2">
               <div>
                 <FormattedMessage
                   id="your_shares"
@@ -483,66 +709,27 @@ function FarmView({
             </div>
           ) : null}
           {data.userStaked === '0' ? (
-            <div className="flex items-center justify-between text-xs py-2">
+            <div className="flex items-center justify-between text-sm py-2">
               <div>
                 <FormattedMessage
                   id="rewards_per_week"
                   defaultMessage="Rewards per week"
                 />
               </div>
-              <div>
-                {data.rewardsPerWeek} {toRealSymbol(data?.rewardToken?.symbol)}
-              </div>
+              <div>{getAllRewardsPerWeek()}</div>
             </div>
           ) : null}
-          <div className="flex items-center justify-between text-xs py-2">
-            <div>
-              <FormattedMessage id="apr" defaultMessage="APR" />
-            </div>
-            <div>
-              <ClipLoader color={clipColor} loading={loading} size={clipSize} />
-            </div>
-            {loading ? null : (
-              <div>{`${data.apr === '0' ? '-' : `${data.apr}%`}`}</div>
-            )}
-          </div>
-          <div className="flex items-center justify-between text-xs py-2">
-            <div>
-              <FormattedMessage
-                id="total_staked"
-                defaultMessage="Total Staked"
-              />
-            </div>
-            <div>
-              <ClipLoader color={clipColor} loading={loading} size={clipSize} />
-            </div>
-            {loading ? null : (
-              <div>{`${
-                data.totalStaked === 0
-                  ? '-'
-                  : `$${formatWithCommas(data.totalStaked.toString())}`
-              }`}</div>
-            )}
-          </div>
-          <div className="flex items-center justify-between text-xs py-2">
+          <div className="flex items-center justify-between text-sm py-2">
             <div>
               <FormattedMessage
                 id="unclaimed_rewards"
                 defaultMessage="Unclaimed rewards"
               />
             </div>
-            <div>
-              <ClipLoader color={clipColor} loading={loading} size={clipSize} />
-            </div>
-            {loading ? null : (
-              <div>
-                {data.userUnclaimedReward}{' '}
-                {toRealSymbol(data.rewardToken.symbol)}
-              </div>
-            )}
+            <div>{getAllUnclaimedReward()}</div>
           </div>
 
-          <div className="flex items-center justify-between text-xs py-2">
+          <div className="flex items-center justify-between text-sm py-2">
             {farmStarted() ? (
               <>
                 <div>
@@ -552,15 +739,28 @@ function FarmView({
                   />
                 </div>
                 <div>
-                  {moment.unix(data.start_at).format('YYYY-MM-DD HH:mm:ss')}
+                  {moment.unix(getStartTime()).format('YYYY-MM-DD HH:mm:ss')}
                 </div>
               </>
             ) : (
               <Countdown
-                date={moment.unix(data.start_at).valueOf()}
+                date={moment.unix(getStartTime()).valueOf()}
                 renderer={renderer}
               />
             )}
+          </div>
+
+          <div className="flex items-center justify-between text-sm py-2">
+            {showEndAt() ? (
+              <>
+                <div>
+                  <FormattedMessage id="end_at" defaultMessage="End at" />
+                </div>
+                <div>
+                  {moment.unix(getEndTime()).format('YYYY-MM-DD HH:mm:ss')}
+                </div>
+              </>
+            ) : null}
           </div>
         </div>
         <div>
@@ -568,7 +768,7 @@ function FarmView({
             <div className="flex flex-wrap gap-2 justify-center mt-4">
               {data.userUnclaimedReward !== '0' ? (
                 <GreenButton
-                  onClick={() => claimReward(data.farm_id)}
+                  onClick={() => claimAllRewards(data.seed_id)}
                   disabled={disableClaim}
                 >
                   <div className="w-16 text-xs">
@@ -579,7 +779,7 @@ function FarmView({
                     />
                     {claimLoading ? null : (
                       <div>
-                        <FormattedMessage id="claim" defaultMessage="Claim" />
+                        <FormattedMessage id={getClaimId()} />
                       </div>
                     )}
                   </div>
