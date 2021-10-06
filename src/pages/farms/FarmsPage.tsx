@@ -563,7 +563,7 @@ function FarmView({
     if (farmsData.length > 1) {
       farmsData.forEach(function (item) {
         result +=
-          data.userUnclaimedReward +
+          item.userUnclaimedReward +
           ' ' +
           toRealSymbol(item?.rewardToken?.symbol) +
           ' / ';
