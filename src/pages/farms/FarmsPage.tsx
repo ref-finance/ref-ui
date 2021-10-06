@@ -722,9 +722,10 @@ function FarmView({
             <div>
               <FormattedMessage id="apr" defaultMessage="APR" />
             </div>
-            <div className="text-xl">{`${
-              getTotalApr() === 0 ? '-' : `${getTotalApr()}%`
-            }`}</div>
+            <div className="text-xl">
+              {`${getTotalApr() === 0 ? '-' : `${getTotalApr()}%`}`}
+              <ReactTooltip />
+            </div>
           </div>
           <hr className="my-3" />
           {data.userStaked !== '0' ? (
@@ -782,7 +783,7 @@ function FarmView({
             {showEndAt() ? (
               <>
                 <div>
-                  <FormattedMessage id="end_at" defaultMessage="End at" />
+                  <FormattedMessage id="end_date" defaultMessage="End date" />
                 </div>
                 <div>
                   {moment.unix(getEndTime()).format('YYYY-MM-DD HH:mm:ss')}
