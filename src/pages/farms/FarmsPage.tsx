@@ -110,21 +110,16 @@ export function FarmsPage() {
       var tempMap = {};
       while (farms.length) {
         let current = farms.pop();
-        tempMap[
-          (moment.unix(current.start_at).valueOf() < moment().valueOf() &&
-            current?.reward_per_session &&
-            current?.total_reward > 0) + current.seed_id
-        ] =
-          tempMap[
-            (moment.unix(current.start_at).valueOf() < moment().valueOf() &&
-              current?.reward_per_session &&
-              current?.total_reward > 0) + current.seed_id
-          ] || [];
-        tempMap[
-          (moment.unix(current.start_at).valueOf() < moment().valueOf() &&
-            current?.reward_per_session &&
-            current?.total_reward > 0) + current.seed_id
-        ].push(current);
+        const farmEnded = current.farm_status === 'Ended';
+
+        if (farmEnded) {
+          tempMap[current.start_at + current.seed_id] =
+            tempMap[current.start_at + current.seed_id] || [];
+          tempMap[current.start_at + current.seed_id].push(current);
+        } else {
+          tempMap[current.seed_id] = tempMap[current.seed_id] || [];
+          tempMap[current.seed_id].push(current);
+        }
       }
 
       return Object.keys(tempMap).map((key) => tempMap[key]);
