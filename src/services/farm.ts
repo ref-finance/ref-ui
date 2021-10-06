@@ -196,7 +196,7 @@ export const getFarmInfo = async (
 
   const userUnclaimedReward = toPrecision(
     toReadableNumber(rewardToken.decimals, userUnclaimedRewardNumber),
-    6
+    3
   );
 
   const totalStaked =

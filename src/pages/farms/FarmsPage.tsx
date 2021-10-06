@@ -460,6 +460,9 @@ function FarmView({
         start_at.push(item.start_at);
       });
       start_at = _.sortBy(start_at);
+      start_at = start_at.filter(function (val) {
+        return val != '0';
+      });
     } else {
       start_at.push(data.start_at);
     }
@@ -487,11 +490,9 @@ function FarmView({
       farmsData.forEach(function (item) {
         end_at.push(
           item?.reward_per_session > 0
-            ? moment(item?.start_at).add(
+            ? moment(item?.start_at).valueOf() +
                 (item?.session_interval * item?.total_reward) /
-                  item?.reward_per_session,
-                'seconds'
-              )
+                  item?.reward_per_session
             : ''
         );
       });
@@ -544,7 +545,7 @@ function FarmView({
     if (farmsData.length > 1) {
       farmsData.forEach(function (item) {
         result +=
-          data.rewardsPerWeek +
+          item.rewardsPerWeek +
           ' ' +
           toRealSymbol(item?.rewardToken?.symbol) +
           ' / ';
@@ -718,17 +719,15 @@ function FarmView({
               <div>{toPrecision(data.userStaked, 6)}</div>
             </div>
           ) : null}
-          {data.userStaked === '0' ? (
-            <div className="flex items-center justify-between text-sm py-2">
-              <div>
-                <FormattedMessage
-                  id="rewards_per_week"
-                  defaultMessage="Rewards per week"
-                />
-              </div>
-              <div>{getAllRewardsPerWeek()}</div>
+          <div className="flex items-center justify-between text-sm py-2">
+            <div>
+              <FormattedMessage
+                id="rewards_per_week"
+                defaultMessage="Rewards per week"
+              />
             </div>
-          ) : null}
+            <div>{getAllRewardsPerWeek()}</div>
+          </div>
           <div className="flex items-center justify-between text-sm py-2">
             <div>
               <FormattedMessage
