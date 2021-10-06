@@ -497,7 +497,11 @@ function FarmView({
       });
       end_at = _.orderBy(end_at, 'desc');
     } else {
-      end_at.push(data.start_at);
+      end_at.push(
+        moment(data?.start_at).valueOf() +
+          (data?.session_interval * data?.total_reward) /
+            data?.reward_per_session
+      );
     }
     return end_at[0];
   }
