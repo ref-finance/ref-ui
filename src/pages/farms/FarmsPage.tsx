@@ -110,6 +110,8 @@ export function FarmsPage() {
 
     const composeFarms = (farms: FarmInfo[]) => {
       let tempMap = {};
+      let tempFarms = [];
+
       while (farms.length) {
         let current = farms.pop();
         const farmEnded = current.farm_status === 'Ended';
@@ -124,7 +126,12 @@ export function FarmsPage() {
         }
       }
 
-      return Object.keys(tempMap).map((key) => tempMap[key]);
+      tempFarms = Object.keys(tempMap)
+        .sort()
+        .reverse()
+        .map((key) => tempMap[key]);
+
+      return tempFarms;
     };
 
     getFarms({
@@ -441,7 +448,11 @@ function FarmView({
         }
       }
     } else {
-      pending = data.farm_status === 'Pending';
+      if (moment.unix(data.start_at).valueOf() > moment().valueOf()) {
+        pending = true;
+      } else {
+        pending = data.farm_status === 'Pending';
+      }
     }
     return pending;
   }
