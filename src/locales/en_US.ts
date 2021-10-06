@@ -72,6 +72,9 @@ const en_US = {
   start_in: 'Start in',
   start_at: 'Start at',
   started_at: 'Started at',
+  start_date: 'Start date',
+  end_at: 'End at',
+  end_date: 'End date',
   earn: 'Earn',
   ended: 'ENDED',
   pending: 'PENDING',
@@ -122,13 +125,13 @@ const en_US = {
   registerToken:
     'This registers a new token with the <br> exchange that is not already listed.',
   whitelistTokenCopy:
-    'This allows you to add an ERC-20 token to the exchange that is not already listed.',
+    'This allows you to add an NEP-141 token to the exchange that is not already listed.',
   addLiquidityPoolCopy:
     'This creates a new liquidity pool for the two tokens selected. The fee is the percentage the pool takes from each transaction.',
   swapCopy:
     'Swap exchanges the first selected token with the second <br> selected token.The pools with the highest available liquidity and the lowest exchange fee will be used.',
   addTokenCopy:
-    'This allows you to add an ERC-20 token to the exchange that is not already listed.',
+    'This allows you to add an NEP-141 token to the exchange that is not already listed.',
   getLPTokenCopy: 'Click here to jump to the corresponding pool.',
   airdropCopy:
     ' Please claim your airdrop at least once before the expiration date otherwise your balance would be donated into the treasury.',
@@ -136,7 +139,7 @@ const en_US = {
     'Here is where you will see all the balances that you have claimed from the pools you are participating in. Withdraw to your Near wallet',
   totalValueLockedCopy: 'Total Value Locked',
   you_do_not_have_enough: "You don't have enough",
-  must_provide_at_least_one_token_for: 'Must provide at least 1 token for',
+  must_provide_at_least_one_token_for: 'Must provide greater than 0 token for',
   is_not_exist: 'is not exist',
   must_input_a_value_greater_than_zero: 'Must input a value greater than 0',
   must_input_a_value_not_greater_than_your_balance:
@@ -146,5 +149,9 @@ const en_US = {
   for_the_amount: 'for the amount',
   no_pool_eng_for_chinese: ' ',
   is_not_a_valid_swap_amount: 'is not a valid swap amount',
+  not_nep_address:
+    'The address you entered is not a NEP-141 address, please check and enter it again. If it is another mainnet contract, go to Rainbow Bridge for bridging processing',
+  not_correct_address:
+    'The address you entered is incorrect, please check and enter',
 };
 export default en_US;

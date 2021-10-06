@@ -93,6 +93,25 @@ export const getPools = async ({
   }
 };
 
+export const getTotalPools = () => {
+  return refFiViewFunction({
+    methodName: 'get_number_of_pools',
+  });
+};
+
+export const getAllPools = async (
+  page: number = 1,
+  perPage: number = DEFAULT_PAGE_LIMIT
+): Promise<Pool[]> => {
+  const index = (page - 1) * perPage;
+  const poolData: PoolRPCView[] = await refFiViewFunction({
+    methodName: 'get_pools',
+    args: { from_index: index, limit: perPage },
+  });
+
+  return poolData.map((rawPool, i) => parsePool(rawPool, i + index));
+};
+
 interface GetPoolOptions {
   tokenInId: string;
   tokenOutId: string;
@@ -108,7 +127,12 @@ export const getPoolsByTokens = async ({
 
   // TODO: Check if there can be a better way. If not need to iterate through all pages to find pools
 
-  return (await getPools({ page: 1, perPage: 10000 })).filter(
+  const totalPools = await getTotalPools();
+  const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
+  const pools = (
+    await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
+  ).flat();
+  return pools.filter(
     (p) =>
       new BN(p.supplies[tokenInId]).gte(amountToTrade) && p.supplies[tokenOutId]
   );

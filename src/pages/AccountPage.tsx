@@ -100,6 +100,7 @@ function TokenRow({
     <div
       key={token.id}
       className="flex items-center justify-between py-4 border-t"
+      title={toReadableNumber(token.decimals, balance)}
     >
       <div className="flex item-center justify-between">
         {token.icon ? (

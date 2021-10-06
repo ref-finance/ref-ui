@@ -76,10 +76,15 @@ export function WithdrawModal(props: ReactModal.Props) {
   );
 }
 
-export function Token(props: TokenMetadata & { amount: string }) {
-  const { symbol, icon, amount } = props;
+export function Token(
+  props: TokenMetadata & { amount: string; totalAmount: string }
+) {
+  const { symbol, icon, amount, totalAmount } = props;
   return (
-    <div className="token flex items-center justify-between pt-3.5 pb-3.5">
+    <div
+      className="token flex items-center justify-between pt-3.5 pb-3.5"
+      title={totalAmount}
+    >
       <div className="flex items-center">
         {icon ? (
           <img className="h-6 w-6" src={icon} alt={toRealSymbol(symbol)} />
@@ -111,7 +116,14 @@ export function TokenList(props: {
           6,
           true
         );
-        return <Token key={token.id} {...token} amount={amount} />;
+        return (
+          <Token
+            key={token.id}
+            {...token}
+            amount={amount}
+            totalAmount={toReadableNumber(token.decimals, balance)}
+          />
+        );
       })}
       {tokens.length === 0 ? (
         <div className="text-center text-gray-600 text-xs font-semibold pt-2 pb-2">

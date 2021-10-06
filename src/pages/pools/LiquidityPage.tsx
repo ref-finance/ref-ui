@@ -13,6 +13,7 @@ import {
   calculateFeePercent,
   toPrecision,
   toReadableNumber,
+  toInternationalCurrencySystem,
 } from '../../utils/numbers';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -80,12 +81,12 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
         <div className="relative w-20">
           <img
             key={tokens[0].id.substring(0, 12).substring(0, 12)}
-            className="h-12 w-12 border rounded-full border-gray-300"
+            className="h-12 w-12 border rounded-full"
             src={tokens[0].icon}
           />
           <img
             key={tokens[1].id}
-            className="h-7 w-7 absolute left-9 bottom-0 border rounded-full border-gray-300"
+            className="h-7 w-7 absolute left-9 bottom-0 rounded-full"
             src={tokens[1].icon}
           />
         </div>
@@ -106,9 +107,9 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
               {toPrecision(
                 toReadableNumber(
                   tokens[0].decimals || 24,
-                  pool.supplies[pool.tokenIds[0]]
+                  pool.supplies[tokens[0].id]
                 ),
-                4,
+                6,
                 true
               )}
             </div>
@@ -117,9 +118,9 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
               {toPrecision(
                 toReadableNumber(
                   tokens[1].decimals || 24,
-                  pool.supplies[pool.tokenIds[1]]
+                  pool.supplies[tokens[1].id]
                 ),
-                4,
+                6,
                 true
               )}
             </div>
@@ -193,7 +194,7 @@ function MobileLiquidityPage({
 }) {
   const intl = useIntl();
   return (
-    <div className="flex items-center flex-col w-3/6 md:w-5/6 xs:w-11/12 m-auto md:hidden lg:hidden xl:hidden xs:show">
+    <div className="flex items-center flex-col w-3/6 md:w-5/6 lg:w-5/6 xs:w-11/12 m-auto md:hidden lg:hidden xl:hidden xs:show">
       <div className="text-center pb-8">
         <div className="text-white text-3xl font-semibold">
           <FormattedMessage
@@ -265,52 +266,48 @@ function PoolRow({ pool }: { pool: Pool }) {
 
   return (
     <Link
-      title={`${tokens[0].id.substring(0, 12)}|${tokens[1].id}`.substring(
+      title={`${tokens[0].id.substring(0, 12)}|${tokens[1].id.substring(
         0,
         12
-      )}
+      )}`}
       to={{
         pathname: `/pool/${pool.id}`,
         state: { tvl: pool.tvl },
       }}
       className="grid grid-cols-12 py-2 content-center text-xs font-semibold text-gray-600"
     >
-      <div className="col-span-1">
-        <div className="relative">
+      <div className="col-span-3">
+        <div className="relative float-left">
           <img
             key={tokens[0].id.substring(0, 12).substring(0, 12)}
-            className="h-12 w-12 border rounded-full border-gray-300"
+            className="h-12 w-12 border rounded-full"
             src={tokens[0].icon}
           />
           <img
             key={tokens[1].id}
-            className="h-7 w-7 absolute left-9 bottom-0 border rounded-full border-gray-300"
+            className="h-7 w-7 absolute left-9 bottom-0 rounded-full"
             src={tokens[1].icon}
           />
         </div>
+        <div className="relative float-left ml-6 xl:ml-4">{farmButton()}</div>
       </div>
-      <div className="col-span-1">{farmButton()}</div>
-      <div className="col-span-4">
+      <div className="col-span-3">
         <div className="mt-2">
           {toRealSymbol(tokens[0].symbol)}=
-          {toPrecision(
+          {toInternationalCurrencySystem(
             toReadableNumber(
               tokens[0].decimals || 24,
               pool.supplies[tokens[0].id]
-            ),
-            4,
-            true
+            )
           )}
         </div>
         <div>
           {toRealSymbol(tokens[1].symbol)}=
-          {toPrecision(
+          {toInternationalCurrencySystem(
             toReadableNumber(
               tokens[1].decimals || 24,
               pool.supplies[tokens[1].id]
-            ),
-            4,
-            true
+            )
           )}
         </div>
       </div>
@@ -321,7 +318,9 @@ function PoolRow({ pool }: { pool: Pool }) {
         </div>
       </div>
       <div className="col-span-2">
-        <div className="mt-4">${toPrecision(pool.tvl.toString(), 2, true)}</div>
+        <div className="mt-4">
+          ${toInternationalCurrencySystem(pool.tvl.toString())}
+        </div>
       </div>
       <div className="col-span-1">
         <div className="mt-4">{calculateFeePercent(pool.fee)}%</div>
@@ -351,7 +350,7 @@ function LiquidityPage_({
 }) {
   const intl = useIntl();
   return (
-    <div className="flex items-center flex-col w-3/6 md:w-5/6 m-auto xs:hidden">
+    <div className="flex items-center flex-col w-3/6 lg:w-5/6 xl:w-2/3 md:w-5/6 m-auto xs:hidden">
       <div className="text-center pb-8">
         <div className="text-white text-3xl font-semibold">
           <FormattedMessage
@@ -373,10 +372,10 @@ function LiquidityPage_({
         </div>
         <section className="px-2">
           <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm font-bold">
-            <p className="col-span-2">
+            <p className="col-span-3">
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </p>
-            <p className="col-span-4">
+            <p className="col-span-3">
               <FormattedMessage id="liquidity" defaultMessage="Liquidity" />
             </p>
             <p className="col-span-3">

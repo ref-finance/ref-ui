@@ -29,6 +29,7 @@ import {
   formatWithCommas,
   toPrecision,
   toReadableNumber,
+  toInternationalCurrencySystem,
 } from '~utils/numbers';
 import { mftGetBalance } from '~services/mft-contract';
 import { wallet } from '~services/near';
@@ -310,7 +311,11 @@ function FarmView({
 
   const PoolId = farmData.lpTokenId;
   const tokens = useTokens(farmData?.tokenIds);
-
+  const endTime =
+    data?.reward_per_session > 0
+      ? moment(data?.start_at).valueOf() +
+        (data?.session_interval * data?.total_reward) / data?.reward_per_session
+      : 0;
   const intl = useIntl();
 
   const renderer = (countdown: any) => {
@@ -320,7 +325,7 @@ function FarmView({
       return (
         <>
           <div>
-            <FormattedMessage id="start_in" defaultMessage="Start in" />
+            <FormattedMessage id="start_date" defaultMessage="Start date" />
           </div>
           <div>
             <span className="text-green-600">{countdown.days}</span> days{' '}
@@ -692,7 +697,10 @@ function FarmView({
             <div className="text-xl">{`${
               data.totalStaked === 0
                 ? '-'
-                : `$${formatWithCommas(data.totalStaked.toString())}`
+                : `$${toInternationalCurrencySystem(
+                    data.totalStaked.toString(),
+                    2
+                  )}`
             }`}</div>
           </div>
           <div className="flex items-center justify-between text-sm py-2">
@@ -739,8 +747,8 @@ function FarmView({
               <>
                 <div>
                   <FormattedMessage
-                    id="started_at"
-                    defaultMessage="Started at"
+                    id="start_date"
+                    defaultMessage="Start date"
                   />
                 </div>
                 <div>
