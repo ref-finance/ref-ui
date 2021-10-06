@@ -109,7 +109,7 @@ export function FarmsPage() {
     setSeeds(seeds);
 
     const composeFarms = (farms: FarmInfo[]) => {
-      var tempMap = {};
+      let tempMap = {};
       while (farms.length) {
         let current = farms.pop();
         const farmEnded = current.farm_status === 'Ended';
@@ -431,9 +431,13 @@ function FarmView({
     let pending: boolean = true;
     if (farmsData.length > 1) {
       for (let i = 0; i < farmsData.length; i++) {
-        if (farmsData[i].farm_status != 'Pending') {
-          pending = false;
-          break;
+        if (moment.unix(farmsData[i].start_at).valueOf() > moment().valueOf()) {
+          pending = true;
+        } else {
+          if (farmsData[i].farm_status != 'Pending') {
+            pending = false;
+            break;
+          }
         }
       }
     } else {
