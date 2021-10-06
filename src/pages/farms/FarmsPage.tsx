@@ -260,9 +260,9 @@ function FarmView({
   const tokens = useTokens(farmData?.tokenIds);
   const endTime =
     data?.reward_per_session > 0
-      ? moment(data?.start_at) +
+      ? moment(data?.start_at).valueOf() +
         (data?.session_interval * data?.total_reward) / data?.reward_per_session
-      : '';
+      : 0;
   const intl = useIntl();
 
   const renderer = (countdown: any) => {
@@ -272,7 +272,7 @@ function FarmView({
       return (
         <>
           <div>
-            <FormattedMessage id="start_in" defaultMessage="Start in" />
+            <FormattedMessage id="start_date" defaultMessage="Start date" />
           </div>
           <div>
             <span className="text-green-600">{countdown.days}</span> days{' '}
@@ -535,8 +535,8 @@ function FarmView({
               <>
                 <div>
                   <FormattedMessage
-                    id="started_at"
-                    defaultMessage="Started at"
+                    id="start_date"
+                    defaultMessage="Start date"
                   />
                 </div>
                 <div>
@@ -555,7 +555,7 @@ function FarmView({
             {showEndAt() ? (
               <>
                 <div>
-                  <FormattedMessage id="end_at" defaultMessage="End at" />
+                  <FormattedMessage id="end_date" defaultMessage="End date" />
                 </div>
                 <div>{moment.unix(endTime).format('YYYY-MM-DD HH:mm:ss')}</div>
               </>
