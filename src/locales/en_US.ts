@@ -81,7 +81,7 @@ const en_US = {
   rewards_per_week: 'Rewards per week',
   apr: 'APR',
   total_staked: 'Total staked',
-  unclaimed_rewards: 'unclaimed rewards',
+  unclaimed_rewards: 'Unclaimed rewards',
   claim: 'Claim',
   stake: 'Stake',
   unstake: 'Unstake',
