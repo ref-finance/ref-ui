@@ -382,30 +382,28 @@ function FarmView({
     setWithdrawVisible(true);
   }
 
-  function claimReward(farm_id: string) {
+  function claimReward() {
     setDisableClaim(true);
     setClaimLoading(true);
-    claimRewardByFarm(farm_id)
-      .then(() => {
-        window.location.reload();
-      })
-      .catch((error) => {
-        setDisableClaim(false);
-        setError(error);
-      });
-  }
-
-  function claimAllRewards(seed_id: string) {
-    setDisableClaim(true);
-    setClaimLoading(true);
-    claimRewardBySeed(seed_id)
-      .then(() => {
-        window.location.reload();
-      })
-      .catch((error) => {
-        setDisableClaim(false);
-        setError(error);
-      });
+    if (farmsData.length > 1) {
+      claimRewardBySeed(data.seed_id)
+        .then(() => {
+          window.location.reload();
+        })
+        .catch((error) => {
+          setDisableClaim(false);
+          setError(error);
+        });
+    } else {
+      claimRewardByFarm(data.farm_id)
+        .then(() => {
+          window.location.reload();
+        })
+        .catch((error) => {
+          setDisableClaim(false);
+          setError(error);
+        });
+    }
   }
 
   function isEnded(data: FarmInfo) {
@@ -777,7 +775,7 @@ function FarmView({
             <div className="flex flex-wrap gap-2 justify-center mt-4">
               {data.userUnclaimedReward !== '0' ? (
                 <GreenButton
-                  onClick={() => claimAllRewards(data.seed_id)}
+                  onClick={() => claimReward()}
                   disabled={disableClaim}
                 >
                   <div className="w-16 text-xs">
