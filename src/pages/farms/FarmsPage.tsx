@@ -563,6 +563,18 @@ function FarmView({
     return apr;
   }
 
+  function getAprList() {
+    let result = '';
+    if (farmsData.length > 1) {
+      farmsData.forEach(function (item) {
+        result += `<div>${item?.rewardToken?.symbol} : ${item.apr}% APR</div>`;
+      });
+    } else {
+      result = `<div>${data?.rewardToken?.symbol} : ${data.apr}% APR</div>`;
+    }
+    return result;
+  }
+
   function getAllRewardsPerWeek() {
     let result = '';
     if (farmsData.length > 1) {
@@ -722,7 +734,14 @@ function FarmView({
             <div>
               <FormattedMessage id="apr" defaultMessage="APR" />
             </div>
-            <div className="text-xl">
+            <div
+              className="text-xl"
+              data-type="info"
+              data-place="bottom"
+              data-multiline={true}
+              data-tip={getAprList()}
+              data-html={true}
+            >
               {`${getTotalApr() === 0 ? '-' : `${getTotalApr()}%`}`}
               <ReactTooltip />
             </div>
