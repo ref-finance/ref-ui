@@ -49,6 +49,7 @@ import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import parse from 'html-react-parser';
+import { FaArrowCircleRight } from 'react-icons/fa';
 
 export function FarmsPage() {
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
@@ -637,6 +638,26 @@ function FarmView({
             </a>
           </div>
         </div>
+        <div className="pl-2 order-3 lg:ml-auto xl:m-0">
+          <Link
+            title={intl.formatMessage({ id: 'view_pool' })}
+            to={{
+              pathname: `/pool/${PoolId}`,
+              state: { backToFarms: true },
+            }}
+            className="hover:text-green-500 text-xl xs:text-sm font-bold p-2 cursor-pointer text-green-500"
+          >
+            <span
+              data-type="dark"
+              data-place="bottom"
+              data-multiline={true}
+              data-tip={intl.formatMessage({ id: 'getLPTokenCopy' })}
+            >
+              <FaArrowCircleRight />
+            </span>
+            <ReactTooltip />
+          </Link>
+        </div>
         {ended ? (
           <div className="ended status-bar">
             <FormattedMessage id="ended" defaultMessage="ENDED" />
@@ -647,33 +668,6 @@ function FarmView({
             <FormattedMessage id="pending" defaultMessage="PENDING" />
           </div>
         ) : null}
-        <div className="ml-auto order-3 lg:w-full lg:mt-2 xl:w-auto xl:mt-0">
-          <div className="inline-block">
-            <Link
-              title={intl.formatMessage({ id: 'view_pool' })}
-              to={{
-                pathname: `/pool/${PoolId}`,
-                state: { backToFarms: true },
-              }}
-              className="hover:text-green-500 text-lg xs:text-sm font-bold p-2 cursor-pointer text-green-500"
-            >
-              <span>
-                <FormattedMessage id="view_pool" defaultMessage="View Pool" />
-              </span>
-            </Link>
-          </div>
-          <div className="inline-block">
-            <div
-              data-type="dark"
-              data-place="bottom"
-              data-multiline={true}
-              data-tip={intl.formatMessage({ id: 'getLPTokenCopy' })}
-            >
-              <Info />
-            </div>
-            <ReactTooltip />
-          </div>
-        </div>
       </div>
       <div className="flex items-center p-6 relative overflow-hidden flex-wrap text-xs text-gray-400">
         <div className="flex">{parse(getRewardTokensIcon())}</div>
