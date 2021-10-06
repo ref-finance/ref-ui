@@ -110,9 +110,21 @@ export function FarmsPage() {
       var tempMap = {};
       while (farms.length) {
         let current = farms.pop();
-        tempMap[current.start_at + current.seed_id] =
-          tempMap[current.start_at + current.seed_id] || [];
-        tempMap[current.start_at + current.seed_id].push(current);
+        tempMap[
+          (moment.unix(current.start_at).valueOf() < moment().valueOf() &&
+            current?.reward_per_session &&
+            current?.total_reward > 0) + current.seed_id
+        ] =
+          tempMap[
+            (moment.unix(current.start_at).valueOf() < moment().valueOf() &&
+              current?.reward_per_session &&
+              current?.total_reward > 0) + current.seed_id
+          ] || [];
+        tempMap[
+          (moment.unix(current.start_at).valueOf() < moment().valueOf() &&
+            current?.reward_per_session &&
+            current?.total_reward > 0) + current.seed_id
+        ].push(current);
       }
 
       return Object.keys(tempMap).map((key) => tempMap[key]);
@@ -168,7 +180,7 @@ export function FarmsPage() {
               </div>
               <div className="text-xs pt-2">
                 {Object.entries(rewardList).map((rewardToken: any, index) => (
-                  <ClaimView key={index} data={rewardToken} />
+                  <WithdrawView key={index} data={rewardToken} />
                 ))}
               </div>
             </div>
@@ -200,7 +212,7 @@ export function FarmsPage() {
   );
 }
 
-function ClaimView({ data }: { data: any }) {
+function WithdrawView({ data }: { data: any }) {
   const [disableWithdraw, setDisableWithdraw] = useState<boolean>(false);
   const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false);
   const [token, setToken] = useState<TokenMetadata>();
@@ -512,10 +524,10 @@ function FarmView({
     let icons = '';
     if (farmsData.length > 1) {
       farmsData.forEach(function (item) {
-        icons += `<img className="h-8 w-8 xs:h-6 xs:w-6 rounded-full" src=${item?.rewardToken?.icon} />`;
+        icons += `<img className="h-8 w-8 xs:h-6 xs:w-6 mr-2 rounded-full" src="${item?.rewardToken?.icon}" />`;
       });
     } else {
-      icons = `<img className="h-8 w-8 xs:h-6 xs:w-6 rounded-full" src=${data?.rewardToken?.icon} />`;
+      icons = `<img className="h-8 w-8 xs:h-6 xs:w-6 mr-2 rounded-full" src="${data?.rewardToken?.icon}" />`;
     }
     return icons;
   }
@@ -592,14 +604,14 @@ function FarmView({
       return (
         <img
           key={id}
-          className="h-10 w-10 xs:h-6 xs:w-6 rounded-full"
+          className="h-10 w-10 xs:h-6 xs:w-6 mr-2 rounded-full"
           src={icon}
         />
       );
     return (
       <div
         key={id}
-        className="h-10 w-10 xs:h-6 xs:w-6 rounded-full border"
+        className="h-10 w-10 xs:h-6 xs:w-6 mr-2 rounded-full border"
       ></div>
     );
   });
@@ -678,9 +690,12 @@ function FarmView({
           {error ? <Alert level="error" message={error.message} /> : null}
         </div>
         <div className="py-2">
-          <div className="flex items-center justify-between py-2">
-            <div className="text-xl">
-              <FormattedMessage id="tvl" defaultMessage="TVL" />
+          <div className="flex items-center justify-between text-sm py-2">
+            <div>
+              <FormattedMessage
+                id="total_staked"
+                defaultMessage="Total staked"
+              />
             </div>
             <div className="text-xl">{`${
               data.totalStaked === 0
@@ -688,8 +703,8 @@ function FarmView({
                 : `$${formatWithCommas(data.totalStaked.toString())}`
             }`}</div>
           </div>
-          <div className="flex items-center justify-between py-2">
-            <div className="text-xl">
+          <div className="flex items-center justify-between text-sm py-2">
+            <div>
               <FormattedMessage id="apr" defaultMessage="APR" />
             </div>
             <div className="text-xl">{`${
