@@ -29,6 +29,7 @@ Modal.defaultStyles = {
     right: 0,
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    zIndex: 30,
   },
   content: {
     position: 'absolute',
@@ -118,7 +119,7 @@ function langSwitcher() {
       </select>
     </div>
   ) : (
-    <div className="inline-flex relative float-right -mt-9 mr-4">
+    <div className="inline-flex relative float-right -mt-9 mr-4 md:mt-1 md:ml-2">
       <svg
         className="w-2 h-1 absolute top-0 right-0 m-2 pointer-events-none"
         xmlns="http://www.w3.org/2000/svg"

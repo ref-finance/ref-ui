@@ -103,7 +103,7 @@ describe('toRoundedReadableNumber', () => {
         decimals: 20,
         number: '123456789123456789',
       })
-    ).toEqual('0.0012');
+    ).toEqual('0.001234');
   });
 
   test('high decimals hige precision', () => {
@@ -145,8 +145,8 @@ describe('calculateFeeCharge', () => {
 
 describe('calculateExchangeRate', () => {
   test('calculate the exchange rate', () => {
-    expect(calculateExchangeRate(30, 100, 99.7)).toEqual(1);
-    expect(calculateExchangeRate(30, 200, 50)).toEqual(0.2508);
+    expect(calculateExchangeRate(30, 100, 100)).toEqual(1);
+    expect(calculateExchangeRate(30, 200, 50)).toEqual(0.25);
   });
 });
 

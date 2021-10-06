@@ -28,6 +28,7 @@ import {
   formatWithCommas,
   toPrecision,
   toReadableNumber,
+  toInternationalCurrencySystem,
 } from '~utils/numbers';
 import { mftGetBalance } from '~services/mft-contract';
 import { wallet } from '~services/near';
@@ -284,7 +285,11 @@ function FarmView({
 
   const PoolId = farmData.lpTokenId;
   const tokens = useTokens(farmData?.tokenIds);
-
+  const endTime =
+    data?.reward_per_session > 0
+      ? moment(data?.start_at).valueOf() +
+        (data?.session_interval * data?.total_reward) / data?.reward_per_session
+      : 0;
   const intl = useIntl();
 
   const renderer = (countdown: any) => {
@@ -294,7 +299,7 @@ function FarmView({
       return (
         <>
           <div>
-            <FormattedMessage id="start_in" defaultMessage="Start in" />
+            <FormattedMessage id="start_date" defaultMessage="Start date" />
           </div>
           <div>
             <span className="text-green-600">{countdown.days}</span> days{' '}
@@ -371,7 +376,14 @@ function FarmView({
   }
 
   function farmStarted() {
-    return moment.unix(data.start_at).valueOf() < moment().valueOf();
+    return (
+      moment.unix(data.start_at).valueOf() < moment().valueOf() &&
+      data.start_at != 0
+    );
+  }
+
+  function showEndAt() {
+    return farmStarted() && data?.reward_per_session && data?.total_reward > 0;
   }
 
   if (!tokens || tokens.length < 2 || farmsIsLoading) return <Loading />;
@@ -466,7 +478,7 @@ function FarmView({
           </div>
         </div>
       </div>
-      <div className="info-list p-6" style={{ minHeight: '12rem' }}>
+      <div className="info-list p-6" style={{ minHeight: '20rem' }}>
         <div className="text-center max-w-2xl">
           {error ? <Alert level="error" message={error.message} /> : null}
         </div>
@@ -520,7 +532,10 @@ function FarmView({
               <div>{`${
                 data.totalStaked === 0
                   ? '-'
-                  : `$${formatWithCommas(data.totalStaked.toString())}`
+                  : `$${toInternationalCurrencySystem(
+                      data.totalStaked.toString(),
+                      1
+                    )}`
               }`}</div>
             )}
           </div>
@@ -547,8 +562,8 @@ function FarmView({
               <>
                 <div>
                   <FormattedMessage
-                    id="started_at"
-                    defaultMessage="Started at"
+                    id="start_date"
+                    defaultMessage="Start date"
                   />
                 </div>
                 <div>
@@ -561,6 +576,17 @@ function FarmView({
                 renderer={renderer}
               />
             )}
+          </div>
+
+          <div className="flex items-center justify-between text-xs py-2">
+            {showEndAt() ? (
+              <>
+                <div>
+                  <FormattedMessage id="end_date" defaultMessage="End date" />
+                </div>
+                <div>{moment.unix(endTime).format('YYYY-MM-DD HH:mm:ss')}</div>
+              </>
+            ) : null}
           </div>
         </div>
         <div>

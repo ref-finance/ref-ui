@@ -22,7 +22,6 @@ interface TokenAmountProps {
   onSelectToken?: (token: TokenMetadata) => void;
   onChangeAmount?: (amount: string) => void;
   text?: string;
-  calledBy?: string;
   disabled?: boolean;
 }
 
@@ -36,7 +35,6 @@ export default function TokenAmount({
   onSelectToken,
   onChangeAmount,
   text,
-  calledBy,
   disabled = false,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) => (
@@ -56,7 +54,10 @@ export default function TokenAmount({
     <>
       <div className="flex justify-between text-xs font-semibold pb-0.5">
         <span className="text-black">{text}</span>
-        <span className={`${max === '0' ? 'text-gray-400' : null}`}>
+        <span
+          className={`${max === '0' ? 'text-gray-400' : null}`}
+          title={total}
+        >
           <FormattedMessage id="balance" defaultMessage="Balance" />
           :&nbsp;
           {toPrecision(total, 6, true)}
@@ -89,7 +90,7 @@ export default function TokenAmount({
             )
           }
           onSelect={onSelectToken}
-          calledBy={calledBy}
+          balances={balances}
         />
       </fieldset>
     </>

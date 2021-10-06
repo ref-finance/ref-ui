@@ -42,10 +42,7 @@ function Icon(props: { icon?: string; className?: string; style?: any }) {
   return icon ? (
     <img className={`block h-7 w-7 ${className}`} src={icon} style={style} />
   ) : (
-    <div
-      className={`h-7 w-7 rounded-full border ${className}`}
-      style={style}
-    ></div>
+    <div className={`h-7 w-7 rounded-full ${className}`} style={style}></div>
   );
 }
 

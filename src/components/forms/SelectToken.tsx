@@ -5,6 +5,7 @@ import { TokenMetadata } from '../../services/ft-contract';
 import { ArrowDownGreen } from '../icon';
 import { isMobile } from '~utils/device';
 import { FormattedMessage } from 'react-intl';
+import { TokenBalancesView } from '~services/token';
 
 export default function SelectToken({
   tokens,
@@ -14,7 +15,7 @@ export default function SelectToken({
   addToken,
   standalone,
   placeholder,
-  calledBy,
+  balances,
 }: {
   tokens: TokenMetadata[];
   selected: string | React.ReactElement;
@@ -23,7 +24,7 @@ export default function SelectToken({
   render?: (token: TokenMetadata) => React.ReactElement;
   onSelect?: (token: TokenMetadata) => void;
   addToken?: () => JSX.Element;
-  calledBy?: string;
+  balances?: TokenBalancesView;
 }) {
   if (!onSelect) {
     return (
@@ -96,7 +97,7 @@ export default function SelectToken({
               onSelect && onSelect(token);
               close();
             }}
-            calledBy={calledBy}
+            balances={balances}
           />
         </section>
       )}
