@@ -216,7 +216,7 @@ export const getFarmInfo = async (
             52 *
             100
           ).toString(),
-          1
+          2
         );
 
   if (farm.farm_status === 'Created') farm.farm_status = 'Pending';
