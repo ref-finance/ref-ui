@@ -515,7 +515,7 @@ function FarmView({
             : ''
         );
       });
-      end_at = _.orderBy(end_at, 'desc');
+      end_at.sort().reverse();
     } else {
       end_at.push(
         moment(data?.start_at).valueOf() +
@@ -523,6 +523,7 @@ function FarmView({
             data?.reward_per_session
       );
     }
+
     return end_at[0];
   }
 
