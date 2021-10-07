@@ -158,7 +158,7 @@ export function FarmsPage() {
         {error ? <Alert level="error" message={error.message} /> : null}
       </div>
       <div className="flex gaps-x-8 px-5 -mt-12 xs:flex-col xs:mt-8 md:flex-col md:mt-8">
-        <div className="w-96 mr-4 relative xs:w-full md:w-full">
+        <div className="3xl:w-1/3 w-96 mr-4 relative xs:w-full md:w-full">
           <div className="text-green-400 text-5xl px-7 xs:text-center md:text-center">
             <FormattedMessage id="farms" defaultMessage="Farms" />
           </div>
@@ -195,7 +195,7 @@ export function FarmsPage() {
             {unclaimedFarmsIsLoading ? (
               <Loading />
             ) : (
-              <div className="grid grid-cols-3 gap-4 xs:grid-cols-1 md:grid-cols-1">
+              <div className="grid grid-cols-2 gap-4 2xl:grid-cols-3 xs:grid-cols-1 md:grid-cols-1">
                 {farms.map((farm) => (
                   <FarmView
                     key={farm[0].farm_id}
@@ -580,7 +580,7 @@ function FarmView({
     if (farmsData.length > 1) {
       farmsData.forEach(function (item) {
         result +=
-          item.rewardsPerWeek +
+          formatWithCommas(item.rewardsPerWeek) +
           ' ' +
           toRealSymbol(item?.rewardToken?.symbol) +
           ' / ';
@@ -588,7 +588,9 @@ function FarmView({
       result = result.substring(0, result.lastIndexOf('/ '));
     } else {
       result =
-        data.rewardsPerWeek + ' ' + toRealSymbol(data?.rewardToken?.symbol);
+        formatWithCommas(data.rewardsPerWeek) +
+        ' ' +
+        toRealSymbol(data?.rewardToken?.symbol);
     }
     return result;
   }
@@ -598,7 +600,7 @@ function FarmView({
     if (farmsData.length > 1) {
       farmsData.forEach(function (item) {
         result +=
-          item.userUnclaimedReward +
+          formatWithCommas(item.userUnclaimedReward) +
           ' ' +
           toRealSymbol(item?.rewardToken?.symbol) +
           ' / ';
@@ -606,7 +608,7 @@ function FarmView({
       result = result.substring(0, result.lastIndexOf('/ '));
     } else {
       result =
-        data.userUnclaimedReward +
+        formatWithCommas(data.userUnclaimedReward) +
         ' ' +
         toRealSymbol(data?.rewardToken?.symbol);
     }
@@ -619,6 +621,21 @@ function FarmView({
     } else {
       return 'claim';
     }
+  }
+
+  function haveUnclaimedReward() {
+    let have: boolean = false;
+    if (farmsData.length > 1) {
+      for (let i = 0; i < farmsData.length; i++) {
+        if (farmsData[i].userUnclaimedReward != '0') {
+          have = true;
+          break;
+        }
+      }
+    } else {
+      have = Number(data.userUnclaimedReward) > 0;
+    }
+    return have;
   }
 
   if (!tokens || tokens.length < 2 || farmsIsLoading) return <Loading />;
@@ -814,7 +831,7 @@ function FarmView({
         <div>
           {wallet.isSignedIn() ? (
             <div className="flex flex-wrap gap-2 justify-center mt-4">
-              {data.userUnclaimedReward !== '0' ? (
+              {haveUnclaimedReward() ? (
                 <GreenButton
                   onClick={() => claimReward()}
                   disabled={disableClaim}
