@@ -97,7 +97,7 @@ export const estimateSwap = async ({
 
     const { estimate, pool } = estimates
       .filter(({ status }) => status === 'success')
-      .sort((a, b) => (new BN(b.estimate).gt(new BN(a.estimate)) ? 1 : -1))[0];
+      .sort((a, b) => (new BN(b.pool.tvl).gt(new BN(a.pool.tvl)) ? 1 : -1))[0];
 
     return {
       estimate: toReadableNumber(tokenOut.decimals, estimate),
