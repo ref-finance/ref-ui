@@ -564,7 +564,7 @@ function FarmView({
     } else {
       apr = Number(data.apr);
     }
-    return apr;
+    return toPrecision(apr.toString(), 1);
   }
 
   function getAprList() {
@@ -763,7 +763,7 @@ function FarmView({
               data-tip={getAprList()}
               data-html={true}
             >
-              {`${getTotalApr() === 0 ? '-' : `${getTotalApr()}%`}`}
+              {`${getTotalApr() === '0' ? '-' : `${getTotalApr()}%`}`}
               <ReactTooltip />
             </div>
           </div>
