@@ -84,6 +84,7 @@ const zh_CN = {
   total_staked: '质押总金额',
   unclaimed_rewards: '未领取奖励',
   claim: '认领',
+  claim_all: '认领全部',
   stake: '质押',
   unstake: '取消质押',
   your_rewards: '你的奖励',

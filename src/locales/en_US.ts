@@ -83,6 +83,7 @@ const en_US = {
   total_staked: 'Total staked',
   unclaimed_rewards: 'Unclaimed rewards',
   claim: 'Claim',
+  claim_all: 'Claim All',
   stake: 'Stake',
   unstake: 'Unstake',
   your_rewards: 'Your rewards',

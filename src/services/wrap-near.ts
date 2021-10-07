@@ -20,7 +20,7 @@ export const wnearMetadata: TokenMetadata = {
   name: 'wNEAR',
   symbol: 'wNEAR',
   decimals: 24,
-  icon: 'https://imgur.com/AaM3AbV.jpg',
+  icon: 'https://i.postimg.cc/T1rYwHQ5/AaM3AbV.png',
 };
 
 export const nearMetadata: TokenMetadata = {

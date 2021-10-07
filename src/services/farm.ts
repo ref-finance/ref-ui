@@ -173,7 +173,7 @@ export const getFarmInfo = async (
       rewardToken.decimals,
       new BigNumber(rewardNumberPerWeek.toString()).toFixed()
     ),
-    1
+    2
   );
 
   const userRewardNumberPerWeek =
@@ -196,7 +196,7 @@ export const getFarmInfo = async (
 
   const userUnclaimedReward = toPrecision(
     toReadableNumber(rewardToken.decimals, userUnclaimedRewardNumber),
-    6
+    2
   );
 
   const totalStaked =
