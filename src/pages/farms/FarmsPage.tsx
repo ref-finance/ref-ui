@@ -131,6 +131,10 @@ export function FarmsPage() {
         .reverse()
         .map((key) => tempMap[key]);
 
+      tempFarms.sort(function (a, b) {
+        return b.length - a.length;
+      });
+
       return tempFarms;
     };
 
