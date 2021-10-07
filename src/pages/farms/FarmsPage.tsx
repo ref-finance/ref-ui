@@ -131,6 +131,10 @@ export function FarmsPage() {
         .reverse()
         .map((key) => tempMap[key]);
 
+      tempFarms.sort(function (a, b) {
+        return b.length - a.length;
+      });
+
       return tempFarms;
     };
 
@@ -143,7 +147,6 @@ export function FarmsPage() {
       seeds,
     }).then((farms) => {
       setUnclaimedFarmsIsLoading(false);
-      // farms = _.orderBy(farms, ['farm_status'], ['desc']);
       farms = composeFarms(farms);
       setFarms(farms);
     });
@@ -158,7 +161,7 @@ export function FarmsPage() {
         {error ? <Alert level="error" message={error.message} /> : null}
       </div>
       <div className="flex gaps-x-8 px-5 -mt-12 xs:flex-col xs:mt-8 md:flex-col md:mt-8">
-        <div className="3xl:w-1/4 w-96 mr-4 relative xs:w-full md:w-full">
+        <div className="w-96 mr-4 relative xs:w-full md:w-full">
           <div className="text-green-400 text-5xl px-7 xs:text-center md:text-center">
             <FormattedMessage id="farms" defaultMessage="Farms" />
           </div>
