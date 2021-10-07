@@ -27,7 +27,6 @@ export const useSwap = ({
   const [canSwap, setCanSwap] = useState<boolean>();
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
   const [swapError, setSwapError] = useState<Error>();
-  const [count, setCount] = useState(0);
 
   const { search } = useLocation();
   const history = useHistory();
@@ -104,41 +103,6 @@ export const useSwap = ({
         });
     }
   }, [tokenIn, tokenOut, tokenInAmount]);
-
-  useEffect(() => {
-    if (count > 0) {
-      if (
-        tokenIn &&
-        tokenOut &&
-        tokenInAmount &&
-        !ONLY_ZEROS.test(tokenInAmount) &&
-        tokenIn.id !== tokenOut.id
-      ) {
-        setSwapError(null);
-        estimateSwap({
-          tokenIn,
-          tokenOut,
-          amountIn: tokenInAmount,
-          intl,
-        })
-          .then(({ estimate, pool }) => {
-            if (!estimate || !pool) throw '';
-            setCanSwap(true);
-            setTokenOutAmount(estimate);
-            setPool(pool);
-          })
-          .catch((err) => {
-            setCanSwap(false);
-            setTokenOutAmount('');
-            setSwapError(err);
-          });
-      }
-    }
-    const id = setInterval(() => {
-      setCount(count + 1);
-    }, 30000);
-    return () => clearInterval(id);
-  }, [count]);
 
   const makeSwap = () => {
     swap({

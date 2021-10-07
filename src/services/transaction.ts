@@ -43,7 +43,7 @@ const parseSwap = async (params: any) => {
       in_token.decimals,
       params.actions[0].amount_in
     ),
-    'Amount Out': toReadableNumber(
+    'Min Amount Out': toReadableNumber(
       out_token.decimals,
       params.actions[0].min_amount_out
     ),
