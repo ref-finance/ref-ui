@@ -564,7 +564,7 @@ function FarmView({
     } else {
       apr = Number(data.apr);
     }
-    return toPrecision(apr.toString(), 1);
+    return toPrecision(apr.toString(), 2);
   }
 
   function getAprList() {
