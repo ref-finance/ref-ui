@@ -101,14 +101,14 @@ export const useSwap = ({
           setTokenOutAmount('');
           setSwapError(err);
         });
-    }
-    if (
+    } else if (
       tokenIn &&
       tokenOut &&
       !tokenInAmount &&
       ONLY_ZEROS.test(tokenInAmount) &&
       tokenIn.id !== tokenOut.id
     ) {
+      setSwapError(null);
       setTokenOutAmount('0');
     }
   }, [tokenIn, tokenOut, tokenInAmount]);
