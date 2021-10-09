@@ -94,6 +94,7 @@ export const useSwap = ({
           if (!estimate || !pool) throw '';
           setCanSwap(true);
           setTokenOutAmount(estimate);
+          console.log('estimate', estimate);
           setPool(pool);
         })
         .catch((err) => {
@@ -101,6 +102,15 @@ export const useSwap = ({
           setTokenOutAmount('');
           setSwapError(err);
         });
+    }
+    if (
+      tokenIn &&
+      tokenOut &&
+      !tokenInAmount &&
+      ONLY_ZEROS.test(tokenInAmount) &&
+      tokenIn.id !== tokenOut.id
+    ) {
+      setTokenOutAmount('0');
     }
   }, [tokenIn, tokenOut, tokenInAmount]);
 
