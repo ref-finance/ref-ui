@@ -94,7 +94,6 @@ export const useSwap = ({
           if (!estimate || !pool) throw '';
           setCanSwap(true);
           setTokenOutAmount(estimate);
-          console.log('estimate', estimate);
           setPool(pool);
         })
         .catch((err) => {
