@@ -108,7 +108,6 @@ export const useSwap = ({
       ONLY_ZEROS.test(tokenInAmount) &&
       tokenIn.id !== tokenOut.id
     ) {
-      setSwapError(null);
       setTokenOutAmount('0');
     }
   }, [tokenIn, tokenOut, tokenInAmount]);
