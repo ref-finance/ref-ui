@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-10-09 19:51:37
+ * @LastEditTime: 2021-10-09 20:00:09
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: /ref-ui/src/components/forms/InputAmount.tsx
+ */
 import React, { useRef, useState } from 'react';
 
 interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -43,6 +51,8 @@ export default function InputAmount({
             }`}
             type="number"
             placeholder="0.0"
+            min="0"
+            onWheel={() => ref.current.blur()}
             onChange={({ target }) => handleChange(target.value)}
             disabled={disabled}
             onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
