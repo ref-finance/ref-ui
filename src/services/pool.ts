@@ -13,7 +13,7 @@ import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { toNonDivisibleNumber } from '../utils/numbers';
 import { storageDepositForFTAction } from './creators/storage';
-import { getTopPools } from '~services/indexer';
+import { getTopPools, getPoolsByIds} from '~services/indexer';
 import { PoolRPCView } from './api';
 
 export const DEFAULT_PAGE_LIMIT = 100;
@@ -139,11 +139,19 @@ export const getPoolsByTokens = async ({
 }: GetPoolOptions): Promise<Pool[]> => {
   const amountToTrade = new BN(amountIn);
 
-  // TODO: Check if there can be a better way. If not need to iterate through all pages to find pools
 
-  return (await getPoolsFromIndexer({ page: 1, perPage: 10000 })).filter(
+  const poolIds = (
+    await db.getCachedPoolsByTokens({
+      token1Id: tokenInId,
+      token2Id: tokenOutId,
+    })
+  ).map((pool) => pool.id.toString());
+  return (await getPoolsByIds(poolIds))
+  .map((pool) => parsePool(pool))
+  .filter(
     (p) =>
-      new BN(p.supplies[tokenInId]).gte(amountToTrade) && p.supplies[tokenOutId]
+      new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
+      p.supplies[tokenOutId]
   );
 };
 

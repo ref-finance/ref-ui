@@ -55,6 +55,21 @@ class RefDatabase extends Dexie {
     return this.farms;
   }
 
+  public async getCachedPoolsByTokens(args: {
+    token1Id: string;
+    token2Id: string;
+  }): Promise<Pool[]> {
+    const { token1Id, token2Id } = args;
+    const pools1 = await this.allPools()
+      .where({ token1Id: token1Id, token2Id: token2Id })
+      .toArray();
+    const pools2 = await this.allPools()
+      .where({ token2Id: token1Id, token1Id: token2Id })
+      .toArray();
+    return [...pools1, ...pools2]
+  }
+
+
   public searchPools(args: any, pools: Pool[]): Pool[] {
     if (args.tokenName === '') return pools;
     return _.filter(pools, (pool: Pool) => {
