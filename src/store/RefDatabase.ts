@@ -66,9 +66,8 @@ class RefDatabase extends Dexie {
     const pools2 = await this.allPools()
       .where({ token2Id: token1Id, token1Id: token2Id })
       .toArray();
-    return [...pools1, ...pools2]
+    return [...pools1, ...pools2];
   }
-
 
   public searchPools(args: any, pools: Pool[]): Pool[] {
     if (args.tokenName === '') return pools;

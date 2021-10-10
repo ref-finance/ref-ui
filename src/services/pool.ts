@@ -13,7 +13,7 @@ import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { toNonDivisibleNumber } from '../utils/numbers';
 import { storageDepositForFTAction } from './creators/storage';
-import { getTopPools, getPoolsByIds} from '~services/indexer';
+import { getTopPools, getPoolsByIds } from '~services/indexer';
 import { PoolRPCView } from './api';
 
 export const DEFAULT_PAGE_LIMIT = 100;
@@ -139,7 +139,6 @@ export const getPoolsByTokens = async ({
 }: GetPoolOptions): Promise<Pool[]> => {
   const amountToTrade = new BN(amountIn);
 
-
   const poolIds = (
     await db.getCachedPoolsByTokens({
       token1Id: tokenInId,
@@ -147,12 +146,12 @@ export const getPoolsByTokens = async ({
     })
   ).map((pool) => pool.id.toString());
   return (await getPoolsByIds(poolIds))
-  .map((pool) => parsePool(pool))
-  .filter(
-    (p) =>
-      new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
-      p.supplies[tokenOutId]
-  );
+    .map((pool) => parsePool(pool))
+    .filter(
+      (p) =>
+        new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
+        p.supplies[tokenOutId]
+    );
 };
 
 export const getPool = async (id: number): Promise<Pool> => {
