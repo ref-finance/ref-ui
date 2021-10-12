@@ -39,7 +39,9 @@ export const wrapNear = async (amount: string) => {
   if (neededStorage) {
     transactions.push({
       receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [storageDepositAction({ amount: neededStorage })],
+      functionCalls: [
+        storageDepositAction({ gas: 30000000000000, amount: neededStorage }),
+      ],
     });
   }
 
