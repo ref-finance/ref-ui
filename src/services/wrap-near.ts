@@ -58,6 +58,7 @@ export const wrapNear = async (amount: string) => {
   actions.push({
     methodName: 'near_deposit',
     args: {},
+    gas: '50000000000000',
     amount,
   });
 
@@ -68,7 +69,7 @@ export const wrapNear = async (amount: string) => {
       amount: utils.format.parseNearAmount(amount),
       msg: '',
     },
-    gas: '100000000000000',
+    gas: '50000000000000',
     amount: ONE_YOCTO_NEAR,
   });
 
