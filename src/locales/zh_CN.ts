@@ -32,6 +32,7 @@ const zh_CN = {
   account: '账号',
   Account: '账号',
   move_assets_to_from_ethereum: '以太坊资产桥',
+  rainbow_bridge: '以太坊资产桥',
   deposit_to_swap: '存入代币进行兑换',
   connect_to_near: '连接钱包',
   slippage: '滑点',

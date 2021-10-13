@@ -218,7 +218,18 @@ function MoreMenu() {
   const intl = useIntl();
 
   const links = [
-    { label: 'Airdrop', url: '/airdrop', isExternal: false },
+    {
+      label: <FormattedMessage id="airdrop" defaultMessage="Airdrop" />,
+      url: '/airdrop',
+      isExternal: false,
+    },
+    {
+      label: (
+        <FormattedMessage id="rainbow_bridge" defaultMessage="RainBow Bridge" />
+      ),
+      url: 'https://ethereum.bridgetonear.org/',
+      isExternal: true,
+    },
     {
       label: intl.formatMessage({ id: 'docs' }),
       url: 'https://guide.ref.finance',
@@ -239,11 +250,6 @@ function MoreMenu() {
     {
       label: 'Medium',
       url: 'https://ref-finance.medium.com/',
-      isExternal: true,
-    },
-    {
-      label: 'RainBow Bridge',
-      url: 'https://ethereum.bridgetonear.org/',
       isExternal: true,
     },
   ];
@@ -404,7 +410,7 @@ function MobileMoreMenu({
             >
               {link.label}
               {link.isExternal ? (
-                <FaExternalLinkAlt className="float-right mt-1 ml-2" />
+                <FaExternalLinkAlt className="float-right mt-1 ml-2 text-xs opacity-60" />
               ) : null}
             </div>
           );
@@ -440,7 +446,18 @@ function MobileNavBar() {
   ];
 
   const moreLinks = [
-    { label: 'Airdrop', url: '/airdrop', isExternal: false },
+    {
+      label: <FormattedMessage id="airdrop" defaultMessage="Airdrop" />,
+      url: '/airdrop',
+      isExternal: false,
+    },
+    {
+      label: (
+        <FormattedMessage id="rainbow_bridge" defaultMessage="RainBow Bridge" />
+      ),
+      url: 'https://ethereum.bridgetonear.org/',
+      isExternal: true,
+    },
     {
       label: intl.formatMessage({ id: 'docs' }),
       url: 'https://guide.ref.finance',
@@ -461,11 +478,6 @@ function MobileNavBar() {
     {
       label: 'Medium',
       url: 'https://ref-finance.medium.com/',
-      isExternal: true,
-    },
-    {
-      label: 'RainBow Bridge',
-      url: 'https://ethereum.bridgetonear.org/',
       isExternal: true,
     },
   ];
@@ -549,7 +561,7 @@ function MobileNavBar() {
             >
               <div className="p-4 link font-bold p-2 text-white">
                 Quiz
-                <FaExternalLinkAlt className="float-right mt-1 ml-2" />
+                <FaExternalLinkAlt className="float-right mt-1 ml-2 text-xs opacity-60" />
               </div>
             </Link>
           </div>

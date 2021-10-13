@@ -30,6 +30,7 @@ const en_US = {
   account: 'Account',
   Account: 'Account',
   move_assets_to_from_ethereum: 'Move assets to/from Ethereum',
+  rainbow_bridge: 'RainBow Bridge',
   deposit_to_swap: 'Deposit to swap',
   connect_to_near: 'Connect to Near',
   slippage: 'Slippage',
