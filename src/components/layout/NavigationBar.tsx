@@ -274,7 +274,7 @@ function MoreMenu() {
               >
                 {link.label}
                 {link.isExternal ? (
-                  <FaExternalLinkAlt className="float-right mt-1 ml-2" />
+                  <FaExternalLinkAlt className="float-right mt-1 ml-2 text-xs opacity-60" />
                 ) : null}
               </div>
             );
