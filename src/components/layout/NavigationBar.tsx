@@ -20,8 +20,8 @@ import { TokenList } from '~components/deposit/Deposit';
 import { useTokenBalances, useUserRegisteredTokens } from '~state/token';
 import { REF_FARM_CONTRACT_ID } from '~services/near';
 import { ConnectToNearBtn } from '~components/deposit/Deposit';
-import RainBow from './RainBow';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { FaExternalLinkAlt } from 'react-icons/fa';
 
 function Anchor({
   to,
@@ -213,20 +213,39 @@ function PoolsMenu() {
   );
 }
 
-function CommunityMenu() {
+function MoreMenu() {
   const [hover, setHover] = useState(false);
   const intl = useIntl();
 
   const links = [
+    { label: 'Airdrop', url: '/airdrop', isExternal: false },
     {
       label: intl.formatMessage({ id: 'docs' }),
       url: 'https://guide.ref.finance',
+      isExternal: true,
     },
-    { label: 'Forum', url: 'https://gov.ref.finance' },
-    { label: 'Discord', url: 'https://discord.gg/SJBGcfMxJz' },
-    { label: 'Telegram', url: 'https://t.me/ref_finance' },
-    { label: 'Twitter', url: 'https://twitter.com/finance_ref' },
-    { label: 'Medium', url: 'https://ref-finance.medium.com/' },
+    { label: 'Forum', url: 'https://gov.ref.finance', isExternal: true },
+    {
+      label: 'Discord',
+      url: 'https://discord.gg/SJBGcfMxJz',
+      isExternal: true,
+    },
+    { label: 'Telegram', url: 'https://t.me/ref_finance', isExternal: true },
+    {
+      label: 'Twitter',
+      url: 'https://twitter.com/finance_ref',
+      isExternal: true,
+    },
+    {
+      label: 'Medium',
+      url: 'https://ref-finance.medium.com/',
+      isExternal: true,
+    },
+    {
+      label: 'RainBow Bridge',
+      url: 'https://ethereum.bridgetonear.org/',
+      isExternal: true,
+    },
   ];
 
   return (
@@ -239,20 +258,24 @@ function CommunityMenu() {
         <h2
           className={`link hover:text-green-500 text-lg font-bold p-2 cursor-pointer undefined text-white`}
         >
-          <FormattedMessage id="community" defaultMessage="Community" />
+          ...
         </h2>
-        {hover ? <ArrowDownGreen /> : <ArrowDownWhite />}
       </div>
       <div className={`${hover ? 'block' : 'hidden'} absolute top-9`}>
-        <Card width="w-auto" padding="p-4">
+        <Card width="w-48" padding="p-4" className="border border-gray-200">
           {links.map((link) => {
             return (
               <div
                 key={link.url}
                 className={`whitespace-nowrap text-left text-sm font-semibold text-gray-600 cursor-pointer pb-2 last:pb-0 hover:text-greenLight`}
-                onClick={() => window.open(link.url)}
+                onClick={() =>
+                  window.open(link.url, link.isExternal ? '' : '_self')
+                }
               >
                 {link.label}
+                {link.isExternal ? (
+                  <FaExternalLinkAlt className="float-right mt-1 ml-2" />
+                ) : null}
               </div>
             );
           })}
@@ -348,11 +371,11 @@ function MobilePoolsMenu({
   );
 }
 
-function MobileCommunityMenu({
+function MobileMoreMenu({
   links,
   onClick,
 }: {
-  links: Array<{ label: string; url: string }>;
+  links: Array<{ label: string; url: string; isExternal: boolean }>;
   onClick: () => void;
 }) {
   const [show, setShow] = useState(false);
@@ -364,7 +387,7 @@ function MobileCommunityMenu({
         onClick={() => setShow(!show)}
       >
         <div className={`text-white link font-bold`}>
-          <FormattedMessage id="community" defaultMessage="Community" />
+          <FormattedMessage id="more" defaultMessage="More" />
         </div>
         {show ? <MenuItemCollapse /> : <MenuItemExpand />}
       </div>
@@ -380,6 +403,9 @@ function MobileCommunityMenu({
               }}
             >
               {link.label}
+              {link.isExternal ? (
+                <FaExternalLinkAlt className="float-right mt-1 ml-2" />
+              ) : null}
             </div>
           );
         })}
@@ -413,16 +439,35 @@ function MobileNavBar() {
     },
   ];
 
-  const communityLinks = [
+  const moreLinks = [
+    { label: 'Airdrop', url: '/airdrop', isExternal: false },
     {
       label: intl.formatMessage({ id: 'docs' }),
       url: 'https://guide.ref.finance',
+      isExternal: true,
     },
-    { label: 'Forum', url: 'https://gov.ref.finance' },
-    { label: 'Discord', url: 'https://discord.gg/SJBGcfMxJz' },
-    { label: 'Telegram', url: 'https://t.me/ref_finance' },
-    { label: 'Twitter', url: 'https://twitter.com/finance_ref' },
-    { label: 'Medium', url: 'https://ref-finance.medium.com/' },
+    { label: 'Forum', url: 'https://gov.ref.finance', isExternal: true },
+    {
+      label: 'Discord',
+      url: 'https://discord.gg/SJBGcfMxJz',
+      isExternal: true,
+    },
+    { label: 'Telegram', url: 'https://t.me/ref_finance', isExternal: true },
+    {
+      label: 'Twitter',
+      url: 'https://twitter.com/finance_ref',
+      isExternal: true,
+    },
+    {
+      label: 'Medium',
+      url: 'https://ref-finance.medium.com/',
+      isExternal: true,
+    },
+    {
+      label: 'RainBow Bridge',
+      url: 'https://ethereum.bridgetonear.org/',
+      isExternal: true,
+    },
   ];
 
   if (wallet.isSignedIn()) {
@@ -497,26 +542,19 @@ function MobileNavBar() {
             name="Farms"
             onClick={close}
           />
-          <MobileAnchor
-            to="/airdrop"
-            pattern="/airdrop"
-            name="Airdrop"
-            onClick={close}
-          />
-          <MobileCommunityMenu links={communityLinks} onClick={close} />
           <div>
             <Link
-              to={{ pathname: 'https://ethereum.bridgetonear.org/' }}
+              to={{ pathname: 'https://mzko2gfnij6.typeform.com/to/EPmUetxU' }}
               target="_blank"
             >
               <div className="p-4 link font-bold p-2 text-white">
-                <FormattedMessage
-                  id="move_assets_to_from_ethereum"
-                  defaultMessage="Move assets to/from Ethereum"
-                />
+                Quiz
+                <FaExternalLinkAlt className="float-right mt-1 ml-2" />
               </div>
             </Link>
           </div>
+
+          <MobileMoreMenu links={moreLinks} onClick={close} />
         </div>
       </div>
     </div>
@@ -535,19 +573,15 @@ function NavigationBar() {
           <Anchor to="/" pattern="/" name="Swap" />
           <PoolsMenu />
           <Anchor to="/farms" pattern="/farms" name="Farms" />
-          <Anchor to="/airdrop" pattern="/airdrop" name="Airdrop" />
-          <CommunityMenu />
           <a
             target="_blank"
-            href="https://ethereum.bridgetonear.org/"
+            href="https://mzko2gfnij6.typeform.com/to/EPmUetxU"
             className="mt-1 relative ext-white border rounded-full p-4 py-2 border-greenLight text-greenLight"
           >
-            <RainBow className="h-6 inline-block"></RainBow>
-            <FormattedMessage
-              id="move_assets_to_from_ethereum"
-              defaultMessage="Move assets to/from Ethereum"
-            />
+            Quiz
           </a>
+
+          <MoreMenu />
         </nav>
         <AccountEntry />
       </div>

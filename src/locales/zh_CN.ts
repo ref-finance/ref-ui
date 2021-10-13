@@ -27,6 +27,8 @@ const zh_CN = {
   Docs: '文档',
   community: '社区',
   Community: '社区',
+  more: '更多',
+  More: '更多',
   account: '账号',
   Account: '账号',
   move_assets_to_from_ethereum: '以太坊资产桥',

@@ -25,6 +25,8 @@ const en_US = {
   Docs: 'Docs',
   community: 'Community',
   Community: 'Community',
+  more: 'More',
+  More: 'More',
   account: 'Account',
   Account: 'Account',
   move_assets_to_from_ethereum: 'Move assets to/from Ethereum',
