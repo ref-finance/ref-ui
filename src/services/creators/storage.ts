@@ -14,25 +14,20 @@ export const MIN_DEPOSIT_PER_TOKEN = new BN('800000000000000000000');
 interface StorageDepositActionOptions {
   accountId?: string;
   registrationOnly?: boolean;
-  gas?: number;
   amount: string;
 }
 export const storageDepositAction = ({
   accountId = wallet.getAccountId(),
   registrationOnly = false,
-  gas = 100000000000000,
   amount,
-}: StorageDepositActionOptions): RefFiFunctionCallOptions => (
-  gas,
-  {
-    methodName: 'storage_deposit',
-    args: {
-      account_id: accountId,
-      registration_only: registrationOnly,
-    },
-    amount,
-  }
-);
+}: StorageDepositActionOptions): RefFiFunctionCallOptions => ({
+  methodName: 'storage_deposit',
+  args: {
+    account_id: accountId,
+    registration_only: registrationOnly,
+  },
+  amount,
+});
 
 export const storageDepositForTokenAction = (
   accountId: string = wallet.getAccountId()
