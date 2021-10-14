@@ -192,7 +192,12 @@ export const getPoolsByTokens = async ({
   const cache = await db.checkPoolsByTokens(tokenInId, tokenOutId);
 
   if (cache) {
-    filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
+    const cache_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
+    filtered_pools = cache_pools.filter(
+      (p) =>
+        new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
+        p.supplies[tokenOutId]
+    );
   } else {
     const totalPools = await getTotalPools();
     const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
