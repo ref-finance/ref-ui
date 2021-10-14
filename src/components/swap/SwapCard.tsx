@@ -143,7 +143,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
-  const [disableTokenInput, setDisableTokenInput] = useState<boolean>();
 
   const intl = useIntl();
   const location = useLocation();
@@ -181,17 +180,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       tokenOut: tokenOut,
       slippageTolerance,
     });
-
-  useEffect(() => {
-    if (Number(tokenInAmount) === 0 || swapError != null) {
-      setDisableTokenInput(false);
-    } else {
-      setDisableTokenInput(!canSwap);
-    }
-    setTimeout(() => {
-      document.getElementById('inputAmount').focus();
-    }, 100);
-  }, [canSwap, swapError]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -240,7 +228,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
           setTokenIn(token);
         }}
-        disabled={disableTokenInput}
         text={intl.formatMessage({ id: 'from' })}
         onChangeAmount={(amount) => {
           setTokenInAmount(amount);

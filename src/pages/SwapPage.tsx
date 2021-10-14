@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import SwapCard from '~components/swap/SwapCard';
 import Loading from '~components/layout/Loading';
 import { useWhitelistTokens } from '../state/token';
