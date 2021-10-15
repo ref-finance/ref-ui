@@ -108,7 +108,7 @@ export function AddPoolPage() {
         <div className="text-xs font-semibold pt-4 flex items-center justify-between">
           <div>
             <span className="pr-1">
-              <FormattedMessage id="total_fee" defaultMessage="Total Fee" />(
+              <FormattedMessage id="total_fee" defaultMessage="Total Fee %" />(
               <FormattedMessage
                 id="protocol_fee_is"
                 defaultMessage="protocol fee is "
@@ -166,9 +166,6 @@ export function AddPoolPage() {
           )}
         </div>
       </Card>
-      <div className="text-white text-sm pt-3 leading-6 w-11/12 text-center">
-        {parse(intl.formatMessage({ id: 'addLiquidityPoolCopy' }))}
-      </div>
     </div>
   );
 }

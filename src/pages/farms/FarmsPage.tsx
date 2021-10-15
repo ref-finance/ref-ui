@@ -167,8 +167,8 @@ export function FarmsPage() {
           </div>
           <div className="text-whiteOpacity85 text-xs py-4 p-7">
             <FormattedMessage
-              id="stake_your_liquidity_provider_LP_tokens_to_earn_rewards"
-              defaultMessage="Stake your liquidity provider (LP) tokens to earn rewards"
+              id="stake_your_liquidity_provider_LP_tokens"
+              defaultMessage="Stake your Liquidity Provider (LP) tokens"
             />
             !
           </div>

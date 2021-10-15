@@ -39,7 +39,7 @@ const en_US = {
   to: 'To',
   sign_out: 'Sign out',
   view_account: 'View account',
-  deposit_tokens_to_swap_and_pool: 'Deposit tokens to swap and pool',
+  deposit_to_swap_and_add_liquidity: 'Deposit to swap and add liquidity',
   small_storage_fee_is_applied_of: 'Small storage fee is applied of',
   liquidity: 'Liquidity',
   tokens: 'Tokens',
@@ -67,7 +67,7 @@ const en_US = {
   remove: 'Remove',
   select_token: 'Select Token',
   basis_points: 'Basis points',
-  total_fee: 'Total fee',
+  total_fee: 'Total fee %',
   protocol_fee_is: 'protocol fee is ',
   start_in: 'Start in',
   start_at: 'Start at',
@@ -89,8 +89,8 @@ const en_US = {
   your_rewards: 'Your rewards',
   your_shares: 'Your Shares',
   shares_owned: 'Shares Owned',
-  stake_your_liquidity_provider_LP_tokens_to_earn_rewards:
-    'Stake your liquidity provider (LP) tokens to earn rewards',
+  stake_your_liquidity_provider_LP_tokens:
+    'Stake your liquidity provider (LP) tokens',
   go_to_wallet: 'Go to Wallet',
   recent_activity: 'Recent activity',
   view_all: 'View all',
@@ -136,7 +136,7 @@ const en_US = {
   airdropCopy:
     ' Please claim your airdrop at least once before the expiration date otherwise your balance would be donated into the treasury.',
   farmRewardsCopy:
-    'Here is where you will see all the balances that you have claimed from the pools you are participating in. Withdraw to your Near wallet',
+    'What you have claimed but not withdrawn to your NEAR Wallet yet.',
   totalValueLockedCopy: 'Total Value Locked',
   you_do_not_have_enough: "You don't have enough",
   must_provide_at_least_one_token_for: 'Must provide greater than 0 token for',

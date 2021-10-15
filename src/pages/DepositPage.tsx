@@ -83,8 +83,8 @@ export default function DepositPage() {
         </div>
         <div className="text-white text-sm pt-2">
           <FormattedMessage
-            id="deposit_tokens_to_swap_and_pool"
-            defaultMessage="Deposit tokens to swap and pool"
+            id="deposit_to_swap_and_add_liquidity"
+            defaultMessage="Deposit to swap and add liquidity"
           />
         </div>
       </div>

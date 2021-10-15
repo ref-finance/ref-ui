@@ -22,7 +22,7 @@ export function AddTokenPage() {
       </div>
       <Card width="w-full">
         <div className="text-xs font-semibold">
-          <FormattedMessage id="token" defaultMessage="Token" />
+          <FormattedMessage id="add_token" defaultMessage="Add Token" />
         </div>
         <div className="rounded-lg w-full border my-2">
           <input
