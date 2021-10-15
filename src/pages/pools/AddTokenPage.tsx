@@ -67,7 +67,7 @@ export function AddTokenPage() {
       <div className="text-white text-sm pt-3 leading-6 w-full text-center">
         <FormattedMessage
           id="addTokenCopy"
-          defaultMessage="This allows you to add an ERC-20 token to the exchange that is not already listed."
+          defaultMessage="Add any NEP-141 token."
         />
       </div>
     </div>

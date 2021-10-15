@@ -16,8 +16,8 @@ const en_US = {
   view_pool: 'View Pool',
   add_token: 'Add token',
   Add_Token: 'Add Token',
-  create_new_pool: 'Create new pool',
-  your_liquidity: 'Your liquidity',
+  create_new_pool: 'Create New Pool',
+  your_liquidity: 'Your Liquidity',
   farms: 'Farms',
   Farms: 'Farms',
   airdrop: 'Airdrop',
@@ -128,14 +128,12 @@ const en_US = {
     'This will withdraw your selected tokens from <br> the exchange and deposit them into your wallet.',
   registerToken:
     'This registers a new token with the <br> exchange that is not already listed.',
-  whitelistTokenCopy:
-    'This allows you to add any NEP-141 token to the exchange that is not already listed.',
+  whitelistTokenCopy: 'Add any NEP-141 token.',
   addLiquidityPoolCopy:
     'This creates a new liquidity pool for the two tokens selected. The fee is the percentage the pool takes from each transaction.',
   swapCopy:
     'Swap exchanges the first selected token with the second <br> selected token.The pools with the highest available liquidity and the lowest exchange fee will be used.',
-  addTokenCopy:
-    'This allows you to add any NEP-141 token to the exchange that is not already listed.',
+  addTokenCopy: 'Add any NEP-141 token.',
   getLPTokenCopy: 'Click here to jump to the corresponding pool.',
   airdropCopy:
     ' Please claim your airdrop at least once before the expiration date otherwise your balance would be donated into the treasury.',

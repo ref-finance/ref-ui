@@ -1,13 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import SwapCard from '~components/swap/SwapCard';
 import Loading from '~components/layout/Loading';
 import { useWhitelistTokens } from '../state/token';
-import { FormattedMessage, useIntl } from 'react-intl';
-import parse from 'html-react-parser';
+import { FormattedMessage } from 'react-intl';
 
 function SwapPage() {
   const allTokens = useWhitelistTokens();
-  const intl = useIntl();
   if (!allTokens) return <Loading />;
 
   return (
