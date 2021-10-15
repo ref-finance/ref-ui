@@ -14,9 +14,12 @@ const en_US = {
   no_tokens_deposited: 'No Tokens Deposited',
   view_pools: 'View Pools',
   view_pool: 'View Pool',
-  add_token: 'Add Token',
+  add_token: 'Add token',
+  Add_Token: 'Add Token',
   create_new_pool: 'Create new pool',
+  Create_New_Pool: 'Create New Pool',
   your_liquidity: 'Your liquidity',
+  Your_Liquidity: 'Your Liquidity',
   farms: 'Farms',
   Farms: 'Farms',
   airdrop: 'Airdrop',
@@ -42,7 +45,7 @@ const en_US = {
   to: 'To',
   sign_out: 'Sign out',
   view_account: 'View account',
-  deposit_tokens_to_swap_and_pool: 'Deposit tokens to swap and pool',
+  deposit_to_swap_and_add_liquidity: 'Deposit to swap and add liquidity',
   small_storage_fee_is_applied_of: 'Small storage fee is applied of',
   liquidity: 'Liquidity',
   tokens: 'Tokens',
@@ -70,7 +73,7 @@ const en_US = {
   remove: 'Remove',
   select_token: 'Select Token',
   basis_points: 'Basis points',
-  total_fee: 'Total fee',
+  total_fee: 'Total fee %',
   protocol_fee_is: 'protocol fee is ',
   start_in: 'Start in',
   start_at: 'Start at',
@@ -92,8 +95,8 @@ const en_US = {
   your_rewards: 'Your rewards',
   your_shares: 'Your Shares',
   shares_owned: 'Shares Owned',
-  stake_your_liquidity_provider_LP_tokens_to_earn_rewards:
-    'Stake your liquidity provider (LP) tokens to earn rewards',
+  stake_your_liquidity_provider_LP_tokens:
+    'Stake your Liquidity Provider (LP) tokens',
   go_to_wallet: 'Go to Wallet',
   recent_activity: 'Recent activity',
   view_all: 'View all',
@@ -127,19 +130,17 @@ const en_US = {
     'This will withdraw your selected tokens from <br> the exchange and deposit them into your wallet.',
   registerToken:
     'This registers a new token with the <br> exchange that is not already listed.',
-  whitelistTokenCopy:
-    'This allows you to add an NEP-141 token to the exchange that is not already listed.',
+  whitelistTokenCopy: 'Add any NEP-141 token.',
   addLiquidityPoolCopy:
     'This creates a new liquidity pool for the two tokens selected. The fee is the percentage the pool takes from each transaction.',
   swapCopy:
     'Swap exchanges the first selected token with the second <br> selected token.The pools with the highest available liquidity and the lowest exchange fee will be used.',
-  addTokenCopy:
-    'This allows you to add an NEP-141 token to the exchange that is not already listed.',
+  addTokenCopy: 'Add any NEP-141 token.',
   getLPTokenCopy: 'Click here to jump to the corresponding pool.',
   airdropCopy:
     ' Please claim your airdrop at least once before the expiration date otherwise your balance would be donated into the treasury.',
   farmRewardsCopy:
-    'Here is where you will see all the balances that you have claimed from the pools you are participating in. Withdraw to your Near wallet',
+    'What you have claimed but not withdrawn to your NEAR Wallet yet.',
   totalValueLockedCopy: 'Total Value Locked',
   you_do_not_have_enough: "You don't have enough",
   must_provide_at_least_one_token_for: 'Must provide greater than 0 token for',

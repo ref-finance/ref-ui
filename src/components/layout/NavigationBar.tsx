@@ -151,13 +151,13 @@ function PoolsMenu() {
       path: '/pools',
     },
     {
-      label: <FormattedMessage id="add_token" defaultMessage="Add Token" />,
+      label: <FormattedMessage id="Add_Token" defaultMessage="Add Token" />,
       path: '/pools/add-token',
     },
     {
       label: (
         <FormattedMessage
-          id="create_new_pool"
+          id="Create_New_Pool"
           defaultMessage="Create New Pool"
         />
       ),
@@ -168,7 +168,7 @@ function PoolsMenu() {
   if (wallet.isSignedIn()) {
     links.push({
       label: (
-        <FormattedMessage id="your_liquidity" defaultMessage="Your Liquidity" />
+        <FormattedMessage id="Your_Liquidity" defaultMessage="Your Liquidity" />
       ),
       path: '/pools/yours',
     });
@@ -431,13 +431,13 @@ function MobileNavBar() {
       path: '/pools',
     },
     {
-      label: <FormattedMessage id="add_token" defaultMessage="Add Token" />,
+      label: <FormattedMessage id="Add_Token" defaultMessage="Add Token" />,
       path: '/pools/add-token',
     },
     {
       label: (
         <FormattedMessage
-          id="create_new_pool"
+          id="Create_New_Pool"
           defaultMessage="Create New Pool"
         />
       ),
@@ -485,7 +485,7 @@ function MobileNavBar() {
   if (wallet.isSignedIn()) {
     links.push({
       label: (
-        <FormattedMessage id="your_liquidity" defaultMessage="Your Liquidity" />
+        <FormattedMessage id="Your_Liquidity" defaultMessage="Your Liquidity" />
       ),
       path: '/pools/yours',
     });
