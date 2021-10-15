@@ -1,6 +1,5 @@
 import { utils } from 'near-api-js';
 import getConfig from './config';
-import { storageDepositAction } from './creators/storage';
 import { withdrawAction } from './creators/token';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import {
@@ -9,6 +8,7 @@ import {
   RefFiFunctionCallOptions,
   REF_FI_CONTRACT_ID,
   Transaction,
+  wallet,
 } from './near';
 import { checkTokenNeedsStorageDeposit } from './token';
 
@@ -39,7 +39,17 @@ export const wrapNear = async (amount: string) => {
   if (neededStorage) {
     transactions.push({
       receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [storageDepositAction({ amount: neededStorage })],
+      functionCalls: [
+        {
+          methodName: 'storage_deposit',
+          args: {
+            account_id: wallet.getAccountId(),
+            registration_only: false,
+          },
+          gas: '30000000000000',
+          amount: neededStorage,
+        },
+      ],
     });
   }
 
@@ -58,6 +68,7 @@ export const wrapNear = async (amount: string) => {
   actions.push({
     methodName: 'near_deposit',
     args: {},
+    gas: '50000000000000',
     amount,
   });
 
@@ -68,7 +79,7 @@ export const wrapNear = async (amount: string) => {
       amount: utils.format.parseNearAmount(amount),
       msg: '',
     },
-    gas: '100000000000000',
+    gas: '50000000000000',
     amount: ONE_YOCTO_NEAR,
   });
 
