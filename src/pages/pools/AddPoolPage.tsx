@@ -166,9 +166,6 @@ export function AddPoolPage() {
           )}
         </div>
       </Card>
-      <div className="text-white text-sm pt-3 leading-6 w-11/12 text-center">
-        {parse(intl.formatMessage({ id: 'addLiquidityPoolCopy' }))}
-      </div>
     </div>
   );
 }
