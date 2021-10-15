@@ -14,7 +14,8 @@ const en_US = {
   no_tokens_deposited: 'No Tokens Deposited',
   view_pools: 'View Pools',
   view_pool: 'View Pool',
-  add_token: 'Add Token',
+  add_token: 'Add token',
+  Add_Token: 'Add Token',
   create_new_pool: 'Create new pool',
   your_liquidity: 'Your liquidity',
   farms: 'Farms',
@@ -90,7 +91,7 @@ const en_US = {
   your_shares: 'Your Shares',
   shares_owned: 'Shares Owned',
   stake_your_liquidity_provider_LP_tokens:
-    'Stake your liquidity provider (LP) tokens',
+    'Stake your Liquidity Provider (LP) tokens',
   go_to_wallet: 'Go to Wallet',
   recent_activity: 'Recent activity',
   view_all: 'View all',
@@ -125,13 +126,13 @@ const en_US = {
   registerToken:
     'This registers a new token with the <br> exchange that is not already listed.',
   whitelistTokenCopy:
-    'This allows you to add an NEP-141 token to the exchange that is not already listed.',
+    'This allows you to add any NEP-141 token to the exchange that is not already listed.',
   addLiquidityPoolCopy:
     'This creates a new liquidity pool for the two tokens selected. The fee is the percentage the pool takes from each transaction.',
   swapCopy:
     'Swap exchanges the first selected token with the second <br> selected token.The pools with the highest available liquidity and the lowest exchange fee will be used.',
   addTokenCopy:
-    'This allows you to add an NEP-141 token to the exchange that is not already listed.',
+    'This allows you to add any NEP-141 token to the exchange that is not already listed.',
   getLPTokenCopy: 'Click here to jump to the corresponding pool.',
   airdropCopy:
     ' Please claim your airdrop at least once before the expiration date otherwise your balance would be donated into the treasury.',

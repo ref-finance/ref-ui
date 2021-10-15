@@ -22,7 +22,7 @@ export function AddTokenPage() {
       </div>
       <Card width="w-full">
         <div className="text-xs font-semibold">
-          <FormattedMessage id="add_token" defaultMessage="Add Token" />
+          <FormattedMessage id="add_token" defaultMessage="Add token" />
         </div>
         <div className="rounded-lg w-full border my-2">
           <input
@@ -57,7 +57,7 @@ export function AddTokenPage() {
                 }
               }}
             >
-              <FormattedMessage id="add_token" defaultMessage="Add Token" />
+              <FormattedMessage id="add_token" defaultMessage="Add token" />
             </button>
           ) : (
             <ConnectToNearBtn />

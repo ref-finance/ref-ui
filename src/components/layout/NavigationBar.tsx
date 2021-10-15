@@ -151,7 +151,7 @@ function PoolsMenu() {
       path: '/pools',
     },
     {
-      label: <FormattedMessage id="add_token" defaultMessage="Add Token" />,
+      label: <FormattedMessage id="Add_Token" defaultMessage="Add Token" />,
       path: '/pools/add-token',
     },
     {

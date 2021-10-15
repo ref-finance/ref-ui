@@ -17,6 +17,7 @@ const zh_CN = {
   view_pools: '查看流动池',
   view_pool: '查看流动池',
   add_token: '添加代币',
+  Add_Token: '添加代币',
   create_new_pool: '创建流动池',
   your_liquidity: '你的流动性',
   farms: '农场',
