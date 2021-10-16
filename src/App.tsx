@@ -110,7 +110,7 @@ function langSwitcher() {
         />
       </svg>
       <select
-        className="border border-gray-300 rounded-full text-gray-600 h-6 pl-5 pr-7 bg-white hover:border-gray-400 focus:outline-none appearance-none text-xs"
+        className="border border-gray-300 rounded-full text-gray-600 h-6 pl-5 pr-7 bg-white hover:border-gray-400 focus:outline-none appearance-none text-xs appearance-default"
         value={context.locale}
         onChange={context.selectLanguage}
       >
@@ -119,7 +119,7 @@ function langSwitcher() {
       </select>
     </div>
   ) : (
-    <div className="inline-flex relative float-right -mt-9 mr-4 md:mt-1 md:ml-2">
+    <div className="inline-flex absolute top-5 right-4 mt-0.5 z-20 md:top-16 md:left-2 md:mt-1.5 md:right-auto xs:top-16 xs:left-2 xs:mt-1.5 xs:right-auto">
       <svg
         className="w-2 h-1 absolute top-0 right-0 m-2 pointer-events-none"
         xmlns="http://www.w3.org/2000/svg"

@@ -78,10 +78,10 @@ function SwapRateDetail({
     <section className="grid grid-cols-2 py-1">
       <p className="opacity-80">{title}</p>
       <p
-        className="text-right font-semibold cursor-pointer"
+        className="text-right font-semibold cursor-pointer justify-between flex"
         onClick={switchSwapRate}
       >
-        <span className="float-right xs:w-2/3">{newValue}</span>
+        <span className="float-right xs:w-2/3 order-2">{newValue}</span>
         <span className="float-right mr-2 xs:mr-0 mt-1 text-sm">
           <FaExchangeAlt></FaExchangeAlt>
         </span>
