@@ -276,7 +276,7 @@ function PoolRow({ pool }: { pool: Pool }) {
       }}
       className="grid grid-cols-12 py-2 content-center text-xs font-semibold text-gray-600"
     >
-      <div className="col-span-3">
+      <div className="col-span-3 sm:col-span-2">
         <div className="relative float-left">
           <img
             key={tokens[0].id.substring(0, 12).substring(0, 12)}
@@ -291,7 +291,7 @@ function PoolRow({ pool }: { pool: Pool }) {
         </div>
         <div className="relative float-left ml-6 xl:ml-4">{farmButton()}</div>
       </div>
-      <div className="col-span-3">
+      <div className="col-span-3 sm:col-span-4">
         <div className="mt-2">
           {toRealSymbol(tokens[0].symbol)}=
           {toInternationalCurrencySystem(
@@ -372,10 +372,10 @@ function LiquidityPage_({
         </div>
         <section className="px-2">
           <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm font-bold">
-            <p className="col-span-3">
+            <p className="col-span-3 sm:col-span-2">
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </p>
-            <p className="col-span-3">
+            <p className="col-span-3 sm:col-span-4">
               <FormattedMessage id="liquidity" defaultMessage="Liquidity" />
             </p>
             <p className="col-span-3">
