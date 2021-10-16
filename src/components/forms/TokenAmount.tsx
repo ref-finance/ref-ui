@@ -66,6 +66,7 @@ export default function TokenAmount({
       <fieldset className="bg-inputBg relative flex overflow-hidden rounded-lg align-center my-2 border">
         <InputAmount
           className="flex-grow"
+          id="inputAmount"
           name={selectedToken?.id}
           max={max}
           value={amount}

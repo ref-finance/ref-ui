@@ -19,6 +19,7 @@ import { ArrowDownBlack } from '../icon/Arrows';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaExchangeAlt } from 'react-icons/fa';
+import db from '~store/RefDatabase';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -143,6 +144,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
+  const [disableTokenInput, setDisableTokenInput] = useState<boolean>();
+  const [cached, setCached] = useState<boolean>();
 
   const intl = useIntl();
   const location = useLocation();
@@ -180,6 +183,28 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       tokenOut: tokenOut,
       slippageTolerance,
     });
+
+  useEffect(() => {
+    const [urlTokenIn, urlTokenOut] = decodeURIComponent(
+      location.hash.slice(1)
+    ).split(TOKEN_URL_SEPARATOR);
+    const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
+    const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
+    db.checkPoolsByTokens(rememberedIn, rememberedOut).then((cached) => {
+      if (!cached) {
+        if (Number(tokenInAmount) === 0 || swapError != null) {
+          setDisableTokenInput(false);
+        } else {
+          setDisableTokenInput(!canSwap);
+        }
+      } else {
+        setDisableTokenInput(false);
+      }
+      setTimeout(() => {
+        document.getElementById('inputAmount').focus();
+      }, 100);
+    });
+  }, [canSwap, swapError]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -229,6 +254,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           setTokenIn(token);
         }}
         text={intl.formatMessage({ id: 'from' })}
+        disabled={disableTokenInput}
         onChangeAmount={(amount) => {
           setTokenInAmount(amount);
         }}

@@ -1,5 +1,9 @@
 import BN from 'bn.js';
-import { toNonDivisibleNumber, toReadableNumber } from '../utils/numbers';
+import {
+  toNonDivisibleNumber,
+  toPrecision,
+  toReadableNumber,
+} from '../utils/numbers';
 import {
   executeMultipleTransactions,
   near,
