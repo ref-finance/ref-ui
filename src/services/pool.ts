@@ -205,15 +205,13 @@ export const getPoolsByTokens = async ({
       await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
     ).flat();
 
+    await db.cachePoolsByTokens(pools);
     filtered_pools = pools.filter(
       (p) =>
         new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
         p.supplies[tokenOutId]
     );
-
-    await db.cachePoolsByTokens(filtered_pools);
   }
-
   return filtered_pools;
 };
 

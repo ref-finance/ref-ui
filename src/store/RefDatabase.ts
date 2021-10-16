@@ -137,6 +137,7 @@ class RefDatabase extends Dexie {
   }
 
   public async cachePoolsByTokens(pools: any) {
+    await this.poolsTokens.clear();
     await this.poolsTokens.bulkPut(
       pools.map(
         (pool: {
