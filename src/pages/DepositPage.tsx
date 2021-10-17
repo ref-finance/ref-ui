@@ -7,6 +7,7 @@ import {
 } from '../state/token';
 import Loading from '../components/layout/Loading';
 import { Card } from '../components/card/Card';
+// import { toReadableNumber } from '../utils/numbers';
 import { toReadableNumber } from '../utils/numbers';
 import { TokenMetadata } from '../services/ft-contract';
 import { nearMetadata, wrapNear } from '../services/wrap-near';
@@ -62,7 +63,7 @@ export default function DepositPage() {
   );
 
   const userTokens = useUserRegisteredTokens();
-  const depositable = useDepositableBalance(selectedToken?.id);
+  const max = useDepositableBalance(selectedToken?.id, selectedToken?.decimals);
 
   useEffect(() => {
     if (id && tokens) {
@@ -73,7 +74,7 @@ export default function DepositPage() {
   if (!tokens || !userTokens) return <Loading />;
   if (!registeredTokens || !balances) return <Loading />;
 
-  const max = toReadableNumber(selectedToken?.decimals, depositable) || '0';
+  // const max = toReadableNumber(selectedToken?.decimals, depositable) || '0';
 
   return (
     <div className="flex items-center flex-col w-1/3 md:w-5/6 xs:w-11/12 m-auto">

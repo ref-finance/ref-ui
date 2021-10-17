@@ -78,9 +78,9 @@ export const useTokenBalances = () => {
   return balances;
 };
 
-export const useDepositableBalance = (tokenId: string) => {
+export const useDepositableBalance = (tokenId: string, decimals: number) => {
   const [depositable, setDepositable] = useState<string>('');
-
+  const [max, setMax] = useState<string>('');
   useEffect(() => {
     if (tokenId === 'NEAR') {
       if (wallet.isSignedIn()) {
@@ -94,7 +94,12 @@ export const useDepositableBalance = (tokenId: string) => {
     } else if (tokenId) ftGetBalance(tokenId).then(setDepositable);
   }, [tokenId]);
 
-  return depositable;
+  useEffect(() => {
+    const max = toReadableNumber(decimals, depositable) || '0';
+    setMax(max);
+  }, [depositable]);
+
+  return max;
 };
 
 export const useUnregisteredTokens = () => {
