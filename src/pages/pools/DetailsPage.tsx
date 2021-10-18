@@ -25,10 +25,13 @@ import { isMobile } from '~utils/device';
 import ReactModal from 'react-modal';
 import { toRealSymbol } from '~utils/token';
 
+import { BackArrow } from '~components/icon';
+import { useHistory } from 'react-router';
 import { getPool } from '~services/indexer';
 import { FaArrowLeft } from 'react-icons/fa';
 import { BigNumber } from 'bignumber.js';
 import { FormattedMessage, useIntl } from 'react-intl';
+
 interface ParamTypes {
   id: string;
 }
@@ -42,7 +45,7 @@ function Icon(props: { icon?: string; className?: string; style?: any }) {
   const { icon, className, style } = props;
   return icon ? (
     <img
-      className={`block h-7 w-7 ${className} border border-solid`}
+      className={`block h-7 w-7 ${className} rounded-full border border-solid`}
       src={icon}
       style={style}
     />
@@ -391,7 +394,7 @@ export function PoolDetailsPage() {
   const { id } = useParams<ParamTypes>();
   const { state } = useLocation<LocationTypes>();
   const { pool, shares } = usePool(id);
-
+  const history = useHistory();
   const tokens = useTokens(pool?.tokenIds);
 
   const [showFunding, setShowFunding] = useState(false);
@@ -412,19 +415,25 @@ export function PoolDetailsPage() {
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
 
-  console.log(tokens);
-
   return (
-    <div className="flex items-center flex-row w-3/6 lg:w-5/6 xl:w-2/3 md:w-5/6 m-auto">
+    <div className="flex items-start flex-row w-3/6 lg:w-5/6 xl:w-4/5 md:w-5/6 m-auto">
+      <div
+        className="p-2 mr-4"
+        onClick={() => {
+          history.goBack();
+        }}
+      >
+        <BackArrow />
+      </div>
       <div>
         <Card
           className="rounded-2xl mr-3"
-          padding="p-2"
+          padding="px-8 pt-8 pb-4"
           bgColor="bg-cardBg"
           width="w-96"
         >
           {/* 展示token */}
-          <div className="text-center border-b border-gray-500">
+          <div className="text-center border-b border-gray-600">
             {backToFarmsButton ? (
               <div className="float-left">
                 <a href="/farms">
@@ -434,17 +443,17 @@ export function PoolDetailsPage() {
             ) : null}
 
             <div className="flex flex-col text-center text-base pt-2 pb-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center">
-                  <Icon icon={tokens[0].icon} className="h-11 w-11 mr-2" />
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-end">
+                  <Icon icon={tokens[0].icon} className="h-12 w-12 mr-2" />
                   <div className="flex items-start flex-col">
-                    <div className="text-white text-2xl">
+                    <div className="text-white text-xl">
                       {toRealSymbol(tokens[0].symbol)}
                     </div>
                     <a
                       target="_blank"
                       href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
-                      className="text-xs text-gray-500"
+                      className="text-xs text-gray-400"
                       title={tokens[0].id}
                     >{`${tokens[0].id.substring(0, 12)}${
                       tokens[0].id.length > 12 ? '...' : ''
@@ -460,17 +469,17 @@ export function PoolDetailsPage() {
                   )}
                 </div>
               </div>
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center">
-                  <Icon icon={tokens[1].icon} className="h-11 w-11 mr-2" />
+              <div className="flex items-center justify-between mb-10">
+                <div className="flex items-end">
+                  <Icon icon={tokens[1].icon} className="h-12 w-12 mr-2" />
                   <div className="flex items-start flex-col">
-                    <div className="text-white text-2xl">
+                    <div className="text-white text-xl">
                       {toRealSymbol(tokens[1].symbol)}
                     </div>
                     <a
                       target="_blank"
                       href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
-                      className="text-xs text-gray-500"
+                      className="text-xs text-gray-400"
                       title={tokens[1].id}
                     >{`${tokens[1].id.substring(0, 12)}${
                       tokens[1].id.length > 12 ? '...' : ''
@@ -486,12 +495,13 @@ export function PoolDetailsPage() {
                   )}
                 </div>
               </div>
+              {/* rate */}
               <div className="flex justify-between">
-                <div className="text-white text-sm px-2 ml-1 border border-solid">
+                <div className="text-white text-sm text-center px-2  rounded-sm border border-solid">
                   1&nbsp;{toRealSymbol(tokens[0].symbol)}&nbsp;
                   {getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
                 </div>
-                <div className="text-white text-sm px-2 mr-1 border border-solid">
+                <div className="text-white text-sm text-center px-2  rounded-sm border border-solid">
                   1&nbsp;{toRealSymbol(tokens[1].symbol)}&nbsp;
                   {getExchangeRate(
                     tokens.reverse(),
@@ -505,18 +515,18 @@ export function PoolDetailsPage() {
           </div>
 
           {/* 内部内容 */}
-          <div className="text-xs text-gray-600 pt-6">
+          <div className="text-base text-gray-400 pt-6">
             {/* fee */}
-            <div className="flex items-center justify-between py-2">
-              <div className="text-base">
-                <FormattedMessage id="fees" defaultMessage="Fees" />
+            <div className="flex items-center justify-between py-2.5">
+              <div>
+                <FormattedMessage id="fee" defaultMessage="Fee" />
               </div>
-              <div className="border px-2 rounded-sm">{`${calculateFeePercent(
+              <div className="text-sm text-white border-greenLight border px-2 rounded-sm">{`${calculateFeePercent(
                 pool.fee
               )}%`}</div>
             </div>
             {/* Total liquidity */}
-            <div className="flex items-center justify-between py-2">
+            <div className="flex items-center justify-between py-2.5">
               <div>
                 <FormattedMessage
                   id="total_liquidity"
@@ -531,52 +541,52 @@ export function PoolDetailsPage() {
               </div>
             </div>
             {/* TVL */}
-            <div className="flex items-center justify-between py-2">
+            <div className="flex items-center justify-between py-2.5">
               <div>
                 <FormattedMessage id="tvl" defaultMessage="TVL" />
               </div>
-              <div>${poolTVL}</div>
-            </div>
-
-            <div className="flex items-center justify-between py-2">
-              <div>
-                <FormattedMessage
-                  id="accumulated_volume"
-                  defaultMessage="Accumulated Volume"
-                />
-              </div>
-              <div>
-                <FormattedMessage
-                  id="coming_soon"
-                  defaultMessage="Coming Soon"
-                />
+              <div className="text-lg text-white">
+                {' '}
+                ${toInternationalCurrencySystem(poolTVL.toString())}
               </div>
             </div>
+            <div className="flex items-center justify-between py-2.5">
+              <div>
+                <FormattedMessage id="24h_volume" defaultMessage="24h Volume" />
+              </div>
+              <div className="text-lg text-white">{'coming soon'}</div>
+            </div>
 
-            <div className="flex items-center justify-between py-2">
+            <div className="flex items-center justify-between py-2.5">
               <div>
                 <FormattedMessage
                   id="total_shares"
                   defaultMessage="Total Shares"
                 />
               </div>
-              <div>
+              <div className="text-white">
                 {toRoundedReadableNumber({
                   decimals: 24,
                   number: pool.shareSupply,
+                  precision: 0,
                 })}
               </div>
             </div>
 
-            <div className="flex items-center justify-between py-2">
+            <div className="flex items-center justify-between py-2.5">
               <div>
                 <FormattedMessage id="my_shares" defaultMessage="My Shares" />
               </div>
-              <div>
+              <div
+                // className="text-white"
+                style={{
+                  color: '#FFFFFF',
+                }}
+              >
                 <MyShares shares={shares} totalShares={pool.shareSupply} />
               </div>
             </div>
-            <div className="flex items-center justify-center pt-6">
+            {/* <div className="flex items-center justify-center pt-6">
               <button
                 className={`rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight`}
                 onClick={() => {
@@ -601,16 +611,60 @@ export function PoolDetailsPage() {
                   defaultMessage="Remove Liquidity"
                 />
               </button>
-            </div>
+            </div> */}
           </div>
         </Card>
       </div>
 
-      {/* </div> */}
-
       {/* 展示chart */}
-      <div className="w-full">
-        <Card width="w-full" className="rounded-2xl"></Card>
+      <div
+        className="w-full  opacity-70"
+        style={{
+          height: '559px',
+        }}
+      >
+        <Card
+          width="w-full"
+          className="rounded-2xl h-full flex flex-col justify-between"
+          bgColor="bg-chartBg"
+          padding="p-7"
+        >
+          <div className="pb-7">
+            <div className="flex items-center justify-between">
+              <div className="text-gray-400 text-xl float-left">$&nbsp;-</div>
+              <div className="text-white rounded-2xl flex items-center bg-gray-700">
+                <div className="py-2 px-6 rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo">
+                  TVL
+                </div>
+                <div className="py-2 px-6">Volume</div>
+              </div>
+            </div>
+            <div className="text-xs text-gray-500">Sep. 11 2021</div>
+          </div>
+          <div className="text-center text-lg text-white">Coming soon...</div>
+
+          <div>
+            <div className="border border-gradientFrom w-full mb-2"></div>
+            <div className="flex text-xs text-gray-500 justify-between">
+              {[
+                '24',
+                '31',
+                '07',
+                '14',
+                '21',
+                '28',
+                '04',
+                '11',
+                '18',
+                '25',
+                '02',
+                '09',
+              ].map((d) => {
+                return <div>{d}</div>;
+              })}
+            </div>
+          </div>
+        </Card>
       </div>
 
       <RemoveLiquidityModal
