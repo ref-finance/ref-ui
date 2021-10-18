@@ -511,7 +511,7 @@ export function PoolDetailsPage() {
               <div className="text-base">
                 <FormattedMessage id="fees" defaultMessage="Fees" />
               </div>
-              <div className="border px-2">{`${calculateFeePercent(
+              <div className="border px-2 rounded-sm">{`${calculateFeePercent(
                 pool.fee
               )}%`}</div>
             </div>
