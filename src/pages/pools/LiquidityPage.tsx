@@ -49,7 +49,7 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
 
   return (
     <div
-      className={`flex items-top flex-col relative text-xs font-semibold text-gray-600 w-11/12 m-auto mb-2.5 pr-0`}
+      className={`flex items-top flex-col relative text-xs  text-gray-600 w-11/12 m-auto mb-2.5 pr-0`}
     >
       <div
         className={`flex justify-between p-4 rounded-lg ${
@@ -59,9 +59,7 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
       >
         <div className="flex flex-col justify-between">
           <div
-            className={`text-base font-semibold ${
-              expand ? 'text-white' : 'text-gray-800'
-            }`}
+            className={`text-base  ${expand ? 'text-white' : 'text-gray-800'}`}
           >
             {toRealSymbol(tokens[0].symbol)}-{toRealSymbol(tokens[1].symbol)}
           </div>
@@ -160,7 +158,7 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
         </div>
         <div className="text-center">
           <button
-            className="rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight"
+            className="rounded-full text-xs text-white px-5 py-2.5 focus:outline-none  bg-greenLight"
             onClick={() => {
               history.push(`/pool/${pool.id}`);
             }}
@@ -196,7 +194,7 @@ function MobileLiquidityPage({
   return (
     <div className="flex items-center flex-col w-3/6 md:w-5/6 lg:w-5/6 xs:w-11/12 m-auto md:hidden lg:hidden xl:hidden xs:show">
       <div className="text-center pb-8">
-        <div className="text-white text-3xl font-semibold">
+        <div className="text-white text-3xl ">
           <FormattedMessage
             id="liquidity_pools"
             defaultMessage="Liquidity Pools"
@@ -274,7 +272,7 @@ function PoolRow({ pool }: { pool: Pool }) {
         pathname: `/pool/${pool.id}`,
         state: { tvl: pool.tvl },
       }}
-      className="grid grid-cols-12 py-2 content-center text-xs font-semibold text-gray-600"
+      className="grid grid-cols-12 py-2 content-center text-xs  text-gray-600"
     >
       <div className="col-span-3 md:col-span-4">
         <div className="relative float-left">
@@ -350,18 +348,70 @@ function LiquidityPage_({
 }) {
   const intl = useIntl();
   return (
-    <div className="flex items-center flex-col w-3/6 lg:w-5/6 xl:w-2/3 md:w-5/6 m-auto xs:hidden">
-      <Card width="w-full">
-        <div className="flex items-center justify-end pb-4 px-2">
-          <div className="rounded-lg w-1/5 xs:w-full border my-2">
-            <input
-              className={`text-sm font-bold bg-inputBg focus:outline-none rounded-lg w-full py-2 px-3 text-greenLight`}
-              placeholder={intl.formatMessage({ id: 'search_pools' })}
-              value={tokenName}
-              onChange={(evt) => onSearch(evt.target.value)}
+    <div className="flex items-center flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-2/3 md:w-5/6 m-auto xs:hidden">
+      <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
+        <div className="pb-6 mx-8">
+          <div className="text-white text-2xl ">
+            <FormattedMessage
+              id="liquidity_pools"
+              defaultMessage="Liquidity Pools"
             />
           </div>
         </div>
+
+        <div className="mx-8 flex items-center">
+          <div className="text-gray-400 text-lg ">
+            <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
+          </div>
+          <FaRegQuestionCircle
+            data-type="dark"
+            data-place="bottom"
+            data-multiline={true}
+            data-tip={intl.formatMessage({ id: 'myWatchList' })}
+            className="inline-block	ml-2 text-sm  text-gray-500"
+          />
+          <ReactTooltip className="text-sm" />
+        </div>
+        <div className="my-4 border border-solid border-gray-600"></div>
+        <div className="flex mx-8 justify-between">
+          <div>
+            <div className="">
+              <div className="text-white text-lg">
+                <FormattedMessage id="top_pools" defaultMessage="Top Pools" />
+              </div>
+            </div>
+            <div className="">
+              {/* 展示比例 */}
+              <FaRegQuestionCircle
+                data-type="dark"
+                data-place="bottom"
+                data-multiline={true}
+                data-tip={intl.formatMessage({ id: 'topPools' })}
+                className="inline-block	ml-2 text-sm  text-gray-500"
+              />
+              <ReactTooltip className="text-sm" />
+            </div>
+          </div>
+          <div className="flex items-center">
+            <div className=" text-gray-400 text-sm mr-12">
+              {'Hide Low TVL Pools'}
+            </div>
+            <div
+              className="rounded w-full my-2 text-gray-400"
+              style={{
+                backgroundColor: ' rgba(0, 0, 0, 0.2)',
+              }}
+            >
+              <input
+                className={`text-sm outline-none rounded w-full py-2 px-3`}
+                placeholder={intl.formatMessage({ id: 'search_pools' })}
+                value={tokenName}
+                onChange={(evt) => onSearch(evt.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+
         <section className="px-2">
           <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm font-bold">
             <p className="col-span-3 md:col-span-4">
@@ -388,7 +438,7 @@ function LiquidityPage_({
                 data-place="bottom"
                 data-multiline={true}
                 data-tip={intl.formatMessage({ id: 'totalValueLockedCopy' })}
-                className="inline-block	ml-2 text-xs font-semibold text-secondaryScale-500"
+                className="inline-block	ml-2 text-xs  text-secondaryScale-500"
               />
               <ReactTooltip className="text-xs font-light" />
             </div>
@@ -411,7 +461,7 @@ function LiquidityPage_({
         {hasMore && (
           <div className="flex items-center justify-center pt-5">
             <button
-              className="rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight"
+              className="rounded-full text-xs text-white px-5 py-2.5 focus:outline-none  bg-greenLight"
               onClick={nextPage}
             >
               More

@@ -416,7 +416,7 @@ export function PoolDetailsPage() {
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
 
   return (
-    <div className="flex items-start flex-row w-3/6 lg:w-5/6 xl:w-4/5 md:w-5/6 m-auto">
+    <div className="flex items-start flex-row w-4/6 lg:w-5/6 xl:w-4/5 md:w-5/6 m-auto">
       <div
         className="p-2 mr-4"
         onClick={() => {
