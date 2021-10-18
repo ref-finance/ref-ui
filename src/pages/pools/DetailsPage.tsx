@@ -428,12 +428,12 @@ export function PoolDetailsPage() {
       <div>
         <Card
           className="rounded-2xl mr-3"
-          padding="px-8 pt-8 pb-4"
+          padding="pt-8 pb-4 px-0"
           bgColor="bg-cardBg"
           width="w-96"
         >
           {/* 展示token */}
-          <div className="text-center border-b border-gray-600">
+          <div className="text-center mx-8">
             {backToFarmsButton ? (
               <div className="float-left">
                 <a href="/farms">
@@ -442,7 +442,7 @@ export function PoolDetailsPage() {
               </div>
             ) : null}
 
-            <div className="flex flex-col text-center text-base pt-2 pb-6">
+            <div className="flex flex-col text-center text-base pt-2 pb-4">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-end">
                   <Icon icon={tokens[0].icon} className="h-12 w-12 mr-2" />
@@ -513,9 +513,9 @@ export function PoolDetailsPage() {
               </div>
             </div>
           </div>
-
+          <div className="border border-solid border-gray-600"></div>
           {/* 内部内容 */}
-          <div className="text-base text-gray-400 pt-6">
+          <div className="text-base text-gray-400 pt-6 mx-8">
             {/* fee */}
             <div className="flex items-center justify-between py-2.5">
               <div>
