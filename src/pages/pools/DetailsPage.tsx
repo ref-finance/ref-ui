@@ -554,7 +554,7 @@ export function PoolDetailsPage() {
               <div>
                 <FormattedMessage id="24h_volume" defaultMessage="24h Volume" />
               </div>
-              <div className="text-lg text-white">{'coming soon'}</div>
+              <div className="text-lg text-white">{'Coming soon'}</div>
             </div>
 
             <div className="flex items-center justify-between py-2.5">
