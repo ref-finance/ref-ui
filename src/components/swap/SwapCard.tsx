@@ -145,7 +145,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
   const [disableTokenInput, setDisableTokenInput] = useState<boolean>();
-  const [cached, setCached] = useState<boolean>();
 
   const intl = useIntl();
   const location = useLocation();

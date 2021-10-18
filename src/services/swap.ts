@@ -34,6 +34,7 @@ import {
   wnearMetadata,
 } from '~services/wrap-near';
 import { utils } from 'near-api-js';
+import { BigNumber } from 'bignumber.js';
 
 const FEE_DIVISOR = 10000;
 
@@ -91,10 +92,12 @@ export const estimateSwap = async ({
           tokenOut.decimals,
           pool.supplies[tokenOut.id]
         );
-        const estimate = (
-          (amount_with_fee * out_balance) /
-          (FEE_DIVISOR * in_balance + amount_with_fee)
-        ).toString();
+        const estimate = new BigNumber(
+          (
+            (amount_with_fee * out_balance) /
+            (FEE_DIVISOR * in_balance + amount_with_fee)
+          ).toString()
+        ).toFixed();
 
         return Promise.resolve(estimate)
           .then((estimate) => ({
