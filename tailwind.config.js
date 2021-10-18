@@ -29,6 +29,7 @@ module.exports = {
         whiteOpacity85: 'rgba(255, 255, 255, 0.85)',
         blackLight: '#003648',
         greenLight1: '#01C08B',
+        cardBg: '#1D2932',
       },
     },
     plugins: [],

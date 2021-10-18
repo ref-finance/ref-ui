@@ -59,6 +59,8 @@ export const getPools = async ({
   order?: string;
   uniquePairName?: boolean;
 }): Promise<Pool[]> => {
+
+  // 获得top pools
   const poolData: PoolRPCView[] = await getTopPools({
     page,
     perPage,
