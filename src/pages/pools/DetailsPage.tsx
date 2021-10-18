@@ -616,16 +616,16 @@ export function PoolDetailsPage() {
         </Card>
       </div>
 
-      {/* 展示chart */}
+      {/* chart */}
       <div
-        className="w-full  opacity-70"
+        className="w-full opacity-80"
         style={{
           height: '559px',
         }}
       >
         <Card
           width="w-full"
-          className="rounded-2xl h-full flex flex-col justify-between"
+          className="rounded-2xl h-full flex flex-col justify-between "
           bgColor="bg-chartBg"
           padding="p-7"
         >
@@ -633,17 +633,43 @@ export function PoolDetailsPage() {
             <div className="flex items-center justify-between">
               <div className="text-gray-400 text-xl float-left">$&nbsp;-</div>
               <div className="text-white rounded-2xl flex items-center bg-gray-700">
-                <div className="py-2 px-6 rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo">
+                <div className="py-2 px-4 w-20 rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo">
                   TVL
                 </div>
-                <div className="py-2 px-6">Volume</div>
+                <div className="py-2 px-4 w-20">Volume</div>
               </div>
             </div>
             <div className="text-xs text-gray-500">Sep. 11 2021</div>
           </div>
-          <div className="text-center text-lg text-white">Coming soon...</div>
+          <div className="text-center text-lg text-gray-500">
+            Coming Soon...
+          </div>
 
           <div>
+            <div
+              style={{
+                width: '400px',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '1px',
+                transform: 'rotate(90deg)',
+                position: 'relative',
+                bottom: '190px',
+                left: '300px',
+              }}
+            ></div>
+            <div
+              style={{
+                border: '1px solid #ffffff',
+                boxSizing: 'border-box',
+                width: '13px',
+                height: '13px',
+                position: 'relative',
+                left: '495px',
+                top: '4px',
+                backgroundColor: '#00d6af',
+              }}
+              className="rounded-full"
+            ></div>
             <div className="border border-gradientFrom w-full mb-2"></div>
             <div className="flex text-xs text-gray-500 justify-between">
               {[
