@@ -358,7 +358,6 @@ function LiquidityPage_({
             />
           </div>
         </div>
-
         <div className="mx-8 flex items-center">
           <div className="text-gray-400 text-lg ">
             <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
