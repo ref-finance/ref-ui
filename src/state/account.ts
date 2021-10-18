@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
-import { AccountStorageView, currentStorageBalance } from '../services/account';
+import {
+  AccountStorageView,
+  currentRefPrice,
+  currentStorageBalance,
+  RefPrice,
+} from '../services/account';
 import { wallet } from '../services/near';
 
 export const useCurrentStorageBalance = () => {
@@ -10,4 +15,14 @@ export const useCurrentStorageBalance = () => {
       .catch(() => setStorageBalance(null));
   }, [wallet.getAccountId()]);
   return storageBalance;
+};
+
+export const useRefPrice = () => {
+  const [data, setData] = useState<RefPrice>();
+  useEffect(() => {
+    currentRefPrice().then((res) => {
+      res && setData(res);
+    });
+  }, []);
+  return { data };
 };

@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { matchPath } from 'react-router';
+import { Context } from '~components/wrapper';
 import {
   Logo,
   Near,
   ArrowDownWhite,
   ArrowDownGreen,
   NavLogo,
-  NavClose,
-  NavExpand,
   NavLogoLarge,
   MenuItemCollapse,
   MenuItemExpand,
+  IconBubble,
 } from '~components/icon';
 import { Link, useLocation } from 'react-router-dom';
 import { wallet } from '~services/near';
@@ -22,6 +22,8 @@ import { REF_FARM_CONTRACT_ID } from '~services/near';
 import { ConnectToNearBtn } from '~components/deposit/Deposit';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaExternalLinkAlt } from 'react-icons/fa';
+import { HiMenu } from 'react-icons/hi';
+import { IoClose } from 'react-icons/io5';
 
 function Anchor({
   to,
@@ -44,8 +46,8 @@ function Anchor({
   return (
     <Link to={to}>
       <h2
-        className={`link hover:text-green-500 text-lg font-bold p-2 cursor-pointer ${className} ${
-          isSelected ? 'text-green-500' : 'text-white'
+        className={`link hover:text-green-500 text-lg font-bold p-4 cursor-pointer ${className} ${
+          isSelected ? 'text-green-500' : 'text-gray-400'
         }`}
       >
         <FormattedMessage id={name} defaultMessage={name} />
@@ -68,17 +70,18 @@ function AccountEntry() {
   if (!userTokens || !balances) return null;
 
   return (
-    <div className="user text-xs text-center justify-end pl-5 h-full absolute top-0 right-20 z-20">
+    <div className="user text-xs text-center justify-end pt-6 h-full right-28 absolute top-0 z-20">
       <div
-        className={`cursor-pointer font-bold items-center justify-end text-center p-1 overflow-visible pl-3 pr-3 relative h-full`}
+        className={`cursor-pointer font-bold items-center justify-end text-center overflow-visible relative h-full`}
         onMouseEnter={() => {
+          console.log('uuu');
           setHover(true);
         }}
         onMouseLeave={() => {
           setHover(false);
         }}
       >
-        <div className="inline-flex p-1 items-center justify-center rounded-full bg-gray-700 pl-3 pr-3 absolute top-5 right-10">
+        <div className="inline-flex p-1 items-center justify-center rounded-full bg-gray-700 pl-3 pr-3 absolute top-5 right-9">
           <div className="pr-1">
             <Near />
           </div>
@@ -101,7 +104,7 @@ function AccountEntry() {
           </div>
         </div>
         <div
-          className={`relative top-12 pt-2 right-8 w-80 ${
+          className={`relative top-10 pt-2 right-0 w-80 ${
             wallet.isSignedIn() && hover ? 'block' : 'hidden'
           }`}
         >
@@ -182,15 +185,15 @@ function PoolsMenu() {
     >
       <div className="flex items-center justify-center">
         <h2
-          className={`link hover:text-green-500 text-lg font-bold p-2 cursor-pointer ${
-            isSelected || hover ? 'text-green-500' : 'text-white'
+          className={`link hover:text-green-500 text-lg font-bold p-4 cursor-pointer ${
+            isSelected || hover ? 'text-green-500' : 'text-gray-400'
           }`}
         >
           <FormattedMessage id="pools" defaultMessage="Pools" />
         </h2>
         {isSelected || hover ? <ArrowDownGreen /> : <ArrowDownWhite />}
       </div>
-      <div className={`${hover ? 'block' : 'hidden'} absolute top-9`}>
+      <div className={`${hover ? 'block' : 'hidden'} absolute top-12`}>
         <Card width="w-auto" padding="p-4">
           {links.map((link) => {
             const isSelected = link.path === location.pathname;
@@ -256,18 +259,20 @@ function MoreMenu() {
 
   return (
     <div
-      className="relative z-20"
+      className="relative z-20 h-8"
       onMouseOver={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <div className="flex items-center justify-center">
+      <div className="flex border border-gray-400 hover:border-green-500 rounded-full">
         <h2
-          className={`link hover:text-green-500 text-lg font-bold p-2 cursor-pointer undefined text-white`}
+          className={`link hover:text-green-500 block font-bold cursor-pointer text-gray-400 h-7 w-7`}
         >
           ...
         </h2>
       </div>
-      <div className={`${hover ? 'block' : 'hidden'} absolute top-9`}>
+      <div
+        className={`${hover ? 'block' : 'hidden'} absolute top-6 -right-4 pt-4`}
+      >
         <Card width="w-48" padding="p-4" className="border border-gray-200">
           {links.map((link) => {
             return (
@@ -287,6 +292,33 @@ function MoreMenu() {
           })}
         </Card>
       </div>
+    </div>
+  );
+}
+function langSwitcher() {
+  const context = useContext(Context);
+  const currentLocal = localStorage.getItem('local');
+  return (
+    <div className="text-gray-400 text-xs cursor-pointer ml-4">
+      <span
+        id="en"
+        className={`pr-0.5 hover:text-white ${
+          currentLocal === 'en' ? 'text-white' : 'text-gray-400'
+        } `}
+        onClick={context.selectLanguage}
+      >
+        En
+      </span>{' '}
+      /
+      <span
+        id="zh-CN"
+        className={`pl-0.5 hover:text-white ${
+          currentLocal === 'zh-CN' ? 'text-white' : 'text-gray-400'
+        } `}
+        onClick={context.selectLanguage}
+      >
+        中文
+      </span>
     </div>
   );
 }
@@ -502,18 +534,19 @@ function MobileNavBar() {
         zIndex: show ? 200 : 10,
       }}
     >
-      <div className="flex items-center justify-between p-4">
+      <div className="flex items-center text-2xl text-white justify-between p-4">
         <NavLogo />
-        <NavExpand onClick={() => setShow(true)} />
+        <HiMenu onClick={() => setShow(true)} />
       </div>
+      <div className="block"> {langSwitcher()}</div>
       <div
         className={`absolute top-0 left-0 z-20 h-screen w-full bg-mobile-nav overflow-auto ${
           show ? 'block' : 'hidden'
         }`}
       >
-        <div className="flex items-center justify-between p-4">
+        <div className="flex items-center justify-between p-4 text-white text-2xl">
           <NavLogoLarge />
-          <NavClose onClick={() => setShow(false)} />
+          <IoClose onClick={() => setShow(false)} />
         </div>
         {wallet.isSignedIn() ? (
           <div
@@ -577,25 +610,32 @@ function NavigationBar() {
   return (
     <>
       <div className="nav-wrap md:hidden xs:hidden text-center relative">
-        <nav className="flex items-center space-x-6 pl-5 pt-3 col-span-8">
+        <nav className="flex items-center justify-between px-9 pt-6 col-span-8">
           <div className="relative -top-0.5">
             <Logo />
           </div>
-          <Anchor to="/deposit" pattern="/deposit/:id?" name="Deposit" />
-          <Anchor to="/" pattern="/" name="Swap" />
-          <PoolsMenu />
-          <Anchor to="/farms" pattern="/farms" name="Farms" />
-          <a
-            target="_blank"
-            href="https://mzko2gfnij6.typeform.com/to/EPmUetxU"
-            className="mt-1 relative ext-white border rounded-full p-4 py-2 border-greenLight text-greenLight"
-          >
-            Quiz
-          </a>
-
-          <MoreMenu />
+          <div className="flex items-center">
+            <span className="relative inline-flex pr-4">
+              <IconBubble />
+              <a
+                target="_blank"
+                href="https://mzko2gfnij6.typeform.com/to/EPmUetxU"
+                className={`w-14 h-6 text-gray-800 absolute top-0 left-0`}
+              >
+                Quiz
+              </a>
+            </span>
+            <Anchor to="/deposit" pattern="/deposit/:id?" name="Deposit" />
+            <Anchor to="/" pattern="/" name="Swap" />
+            <PoolsMenu />
+            <Anchor to="/farms" pattern="/farms" name="Farms" />
+          </div>
+          <div className="flex items-center w-44 justify-end">
+            <AccountEntry />
+            <MoreMenu />
+            {langSwitcher()}
+          </div>
         </nav>
-        <AccountEntry />
       </div>
       <MobileNavBar />
     </>

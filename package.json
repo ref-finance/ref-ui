@@ -45,6 +45,7 @@
     "typescript": "^4.2"
   },
   "dependencies": {
+    "@react-icons/all-files": "^4.1.0",
     "@svgr/parcel-plugin-svgr": "^5.5.0",
     "actionsheet-react": "^1.0.12",
     "axios": "^0.21.1",
