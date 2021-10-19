@@ -86,7 +86,7 @@ function App() {
 function AutoHeight(Comp: any) {
   return (props: any) => {
     return (
-      <div className="xs:flex xs:flex-col md:flex md:flex-col justify-center h-4/5 lg:mt-12 relative">
+      <div className="xs:flex xs:flex-col md:flex md:flex-col justify-center h-4/5 lg:mt-8 relative">
         <Comp {...props} />
       </div>
     );

@@ -274,9 +274,10 @@ function PoolRow({ pool }: { pool: Pool }) {
         pathname: `/pool/${pool.id}`,
         state: { tvl: pool.tvl },
       }}
-      className="grid grid-cols-12 py-2 content-center text-xs  text-gray-600"
+      className="grid grid-cols-12 py-2 content-center text-base text-left mx-8  text-gray-600"
     >
-      <div className="col-span-3 md:col-span-4">
+      <div className="col-span-1"></div>
+      <div className="col-span-5 md:col-span-4">
         <div className="relative float-left">
           <img
             key={tokens[0].id.substring(0, 12).substring(0, 12)}
@@ -291,16 +292,11 @@ function PoolRow({ pool }: { pool: Pool }) {
         </div>
         <div className="relative float-left ml-6 xl:ml-4">{farmButton()}</div>
       </div>
-      <div className="col-span-3 sm:col-span-4">
-        <div className="mt-2">
-          {toRealSymbol(tokens[0].symbol)}=
-          {toInternationalCurrencySystem(
-            toReadableNumber(
-              tokens[0].decimals || 24,
-              pool.supplies[tokens[0].id]
-            )
-          )}
-        </div>
+      <div className="col-span-1 md:hidden">
+        <div className="mt-4">{calculateFeePercent(pool.fee)}%</div>
+      </div>
+      <div className="col-span-2 sm:col-span-4">
+        <div className="mt-2"></div>
         <div>
           {toRealSymbol(tokens[1].symbol)}=
           {toInternationalCurrencySystem(
@@ -311,20 +307,13 @@ function PoolRow({ pool }: { pool: Pool }) {
           )}
         </div>
       </div>
-      <div className="col-span-3">
-        <div className="mt-4">
-          1&nbsp;{toRealSymbol(tokens[0].symbol)}&nbsp;
-          {getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
-        </div>
-      </div>
+
       <div className="col-span-2">
         <div className="mt-4">
           ${toInternationalCurrencySystem(pool.tvl.toString())}
         </div>
       </div>
-      <div className="col-span-1 md:hidden">
-        <div className="mt-4">{calculateFeePercent(pool.fee)}%</div>
-      </div>
+      <div className="col-span-1">More Pools</div>
     </Link>
   );
 }
@@ -350,7 +339,7 @@ function LiquidityPage_({
 }) {
   const intl = useIntl();
   return (
-    <div className="flex items-center flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-2/3 md:w-5/6 m-auto xs:hidden">
+    <div className="flex items-center flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:w-5/6 m-auto xs:hidden">
       <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
         <div className="pb-6 mx-8">
           <div className="text-white text-2xl ">
@@ -374,7 +363,7 @@ function LiquidityPage_({
           <ReactTooltip className="text-sm" />
         </div>
         <div className="my-4 border-b border-solid border-gray-600"></div>
-        <div className="flex mx-8 justify-between pb-7">
+        <div className="flex mx-8 justify-between pb-4">
           <div>
             <div className="">
               <div className="text-white text-lg">
@@ -420,11 +409,11 @@ function LiquidityPage_({
         </div>
 
         <section className="px-2">
-          <header className="grid grid-cols-12 py-2 pb-4 text-center text-base text-gray-400 mx-8 border-b border-gray-600">
+          <header className="grid grid-cols-12 py-2 pb-4 text-left text-base text-gray-400 mx-8 border-b border-gray-600">
             <p className="col-span-1">
               <FormattedMessage id="id" defaultMessage="#" />
             </p>
-            <p className="col-span-4 md:col-span-4">
+            <p className="col-span-5 md:col-span-4">
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </p>
             <p
@@ -451,7 +440,7 @@ function LiquidityPage_({
                 <FormattedMessage id="tvl" defaultMessage="TVL" />
               </span>
             </div>
-            <p className="col-span-2">
+            <p className="col-span-1">
               <FormattedMessage id="more_pools" defaultMessage="More Pools" />
             </p>
           </header>
