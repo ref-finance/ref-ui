@@ -274,21 +274,26 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
         pathname: `/pool/${pool.id}`,
         state: { tvl: pool.tvl },
       }}
-      className="grid grid-cols-12 py-3 text-white content-center text-base text-left mx-8  border-b border-gray-600"
+      className="grid grid-cols-12 py-3.5 text-white content-center text-base text-left mx-8  border-b border-gray-600"
     >
       <div className="col-span-1">{index}</div>
       <div className="col-span-5 md:col-span-4 flex items-center">
         <div className="flex items-center">
-          <img
-            key={tokens[0].id.substring(0, 12).substring(0, 12)}
-            className="h-9 w-9 border rounded-full mr-2"
-            src={tokens[0].icon}
-          />
-          <img
-            key={tokens[1].id}
-            className="h-9 w-9 border rounded-full"
-            src={tokens[1].icon}
-          />
+          <div className="h-9 w-9 border rounded-full mr-2">
+            <img
+              key={tokens[0].id.substring(0, 12).substring(0, 12)}
+              className="h-9 w-9 border rounded-full mr-2"
+              src={tokens[0].icon}
+            />
+          </div>
+
+          <div className="h-9 w-9 border rounded-full">
+            <img
+              key={tokens[1].id}
+              className="h-9 w-9 border rounded-full"
+              src={tokens[1].icon}
+            />
+          </div>
         </div>
         <div className="text-lg ml-7">
           {tokens[0].symbol + '-' + tokens[1].symbol}
