@@ -11,6 +11,7 @@ import Loading from '~components/layout/Loading';
 import { getExchangeRate, useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';
 import { canFarm, Pool } from '../../services/pool';
+import { FarmMiningIcon } from '~components/icon/FarmMining';
 import {
   calculateFeePercent,
   toPrecision,
@@ -257,27 +258,27 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   const farmButton = () => {
     if (supportFarm)
       return (
-        <div className="px-0.5 ml-3 mr-2 text-xs text-center bg-gray-600 text-gray-400 inline-block rounded ">
-          <FormattedMessage id="farms" defaultMessage="Farms" />
+        <div className="flex items-center">
+          <div className="px-0.5 ml-3 mr-2 text-xs text-center bg-gray-600 text-gray-400 inline-block rounded ">
+            <FormattedMessage id="farms" defaultMessage="Farms" />
+          </div>
+          <FarmMiningIcon />
         </div>
       );
     return '';
   };
 
   return (
-    <Link
-      title={`${tokens[0].id.substring(0, 12)}|${tokens[1].id.substring(
-        0,
-        12
-      )}`}
-      to={{
-        pathname: `/pool/${pool.id}`,
-        state: { tvl: pool.tvl },
-      }}
-      className="grid grid-cols-12 py-3.5 text-white content-center text-base text-left mx-8  border-b border-gray-600"
-    >
+    <div className="grid grid-cols-12 py-3.5 text-white content-center text-base text-left mx-8  border-b border-gray-600">
       <div className="col-span-1">{index}</div>
-      <div className="col-span-5 md:col-span-4 flex items-center">
+
+      <Link
+        to={{
+          pathname: `/pool/${pool.id}`,
+          state: { tvl: pool.tvl },
+        }}
+        className="col-span-5 md:col-span-4 flex items-center"
+      >
         <div className="flex items-center">
           <div className="h-9 w-9 border rounded-full mr-2">
             <img
@@ -299,30 +300,20 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
           {tokens[0].symbol + '-' + tokens[1].symbol}
         </div>
         {farmButton()}
-      </div>
-      <div className="col-span-1 md:hidden ">
+
+        {/*  */}
+      </Link>
+
+      <div className="col-span-1 py-1 md:hidden ">
         {calculateFeePercent(pool.fee)}%
       </div>
-      <div className="col-span-2 sm:col-span-4">
-        <div className="mt-2"></div>
-        <div>
-          {toRealSymbol(tokens[1].symbol)}=
-          {toInternationalCurrencySystem(
-            toReadableNumber(
-              tokens[1].decimals || 24,
-              pool.supplies[tokens[1].id]
-            )
-          )}
-        </div>
-      </div>
+      <div className="col-span-2 sm:col-span-4 py-1">total volume</div>
 
-      <div className="col-span-2">
-        <div className="">
-          ${toInternationalCurrencySystem(pool.tvl.toString())}
-        </div>
+      <div className="col-span-2 py-1">
+        ${toInternationalCurrencySystem(pool.tvl.toString())}
       </div>
-      <div className="col-span-1">More Pools</div>
-    </Link>
+      <div className="col-span-1 py-1">More Pools</div>
+    </div>
   );
 }
 
