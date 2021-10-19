@@ -215,7 +215,7 @@ function MobileLiquidityPage({
         id="poll-container"
         style={{
           width: '100%',
-          height: '60vh',
+          height: '80vh',
           overflow: 'auto',
         }}
       >
@@ -238,7 +238,7 @@ function MobileLiquidityPage({
   );
 }
 
-function PoolRow({ pool }: { pool: Pool }) {
+function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const tokens = useTokens(pool.tokenIds);
   useEffect(() => {
@@ -257,7 +257,7 @@ function PoolRow({ pool }: { pool: Pool }) {
   const farmButton = () => {
     if (supportFarm)
       return (
-        <div className="mt-4 py-0.5 px-1 mr-3 ml-1 text-center bg-greenLight text-white font-bold inline-block rounded">
+        <div className="px-0.5 ml-3 mr-2 text-xs text-center bg-gray-600 text-gray-400 inline-block rounded">
           <FormattedMessage id="farms" defaultMessage="Farms" />
         </div>
       );
@@ -274,26 +274,29 @@ function PoolRow({ pool }: { pool: Pool }) {
         pathname: `/pool/${pool.id}`,
         state: { tvl: pool.tvl },
       }}
-      className="grid grid-cols-12 py-2 content-center text-base text-left mx-8  text-gray-600"
+      className="grid grid-cols-12 py-3 content-center text-base text-left mx-8  text-gray-600"
     >
-      <div className="col-span-1"></div>
-      <div className="col-span-5 md:col-span-4">
-        <div className="relative float-left">
+      <div className="col-span-1">{index}</div>
+      <div className="col-span-5 md:col-span-4 flex items-center">
+        <div className="flex items-center">
           <img
             key={tokens[0].id.substring(0, 12).substring(0, 12)}
-            className="h-12 w-12 border rounded-full"
+            className="h-9 w-9 border rounded-full mr-2"
             src={tokens[0].icon}
           />
           <img
             key={tokens[1].id}
-            className="h-7 w-7 absolute left-9 bottom-0 rounded-full"
+            className="h-9 w-9 border rounded-full"
             src={tokens[1].icon}
           />
         </div>
-        <div className="relative float-left ml-6 xl:ml-4">{farmButton()}</div>
+        <div className="text-white text-lg ml-7">
+          {tokens[0].symbol + '-' + tokens[1].symbol}
+        </div>
+        {farmButton()}
       </div>
-      <div className="col-span-1 md:hidden">
-        <div className="mt-4">{calculateFeePercent(pool.fee)}%</div>
+      <div className="col-span-1 md:hidden ">
+        {calculateFeePercent(pool.fee)}%
       </div>
       <div className="col-span-2 sm:col-span-4">
         <div className="mt-2"></div>
@@ -309,7 +312,7 @@ function PoolRow({ pool }: { pool: Pool }) {
       </div>
 
       <div className="col-span-2">
-        <div className="mt-4">
+        <div className="">
           ${toInternationalCurrencySystem(pool.tvl.toString())}
         </div>
       </div>
@@ -444,9 +447,9 @@ function LiquidityPage_({
               <FormattedMessage id="more_pools" defaultMessage="More Pools" />
             </p>
           </header>
-          <div className="max-h-80 overflow-y-auto">
+          <div className="max-h-96 overflow-y-auto">
             {pools.map((pool, i) => (
-              <PoolRow key={i} pool={pool} />
+              <PoolRow key={i} pool={pool} index={i + 1} />
             ))}
           </div>
         </section>
