@@ -274,7 +274,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
         pathname: `/pool/${pool.id}`,
         state: { tvl: pool.tvl },
       }}
-      className="grid grid-cols-12 py-3 content-center text-base text-left mx-8  text-gray-600"
+      className="grid grid-cols-12 py-3 text-white content-center text-base text-left mx-8  border-b border-gray-600"
     >
       <div className="col-span-1">{index}</div>
       <div className="col-span-5 md:col-span-4 flex items-center">
@@ -290,7 +290,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
             src={tokens[1].icon}
           />
         </div>
-        <div className="text-white text-lg ml-7">
+        <div className="text-lg ml-7">
           {tokens[0].symbol + '-' + tokens[1].symbol}
         </div>
         {farmButton()}
