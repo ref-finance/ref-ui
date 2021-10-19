@@ -257,7 +257,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   const farmButton = () => {
     if (supportFarm)
       return (
-        <div className="px-0.5 ml-3 mr-2 text-xs text-center bg-gray-600 text-gray-400 inline-block rounded">
+        <div className="px-0.5 ml-3 mr-2 text-xs text-center bg-gray-600 text-gray-400 inline-block rounded ">
           <FormattedMessage id="farms" defaultMessage="Farms" />
         </div>
       );
@@ -454,7 +454,9 @@ function LiquidityPage_({
           </header>
           <div className="max-h-96 overflow-y-auto">
             {pools.map((pool, i) => (
-              <PoolRow key={i} pool={pool} index={i + 1} />
+              <div className="w-full hover:bg-poolRowHover">
+                <PoolRow key={i} pool={pool} index={i + 1} />
+              </div>
             ))}
           </div>
         </section>
