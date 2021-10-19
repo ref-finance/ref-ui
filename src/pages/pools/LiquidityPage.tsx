@@ -6,7 +6,7 @@ import ReactTooltip from 'react-tooltip';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
-import { useAllPools, usePools } from '../../state/pool';
+import { useAllPools, usePools, useSamePairList } from '../../state/pool';
 import Loading from '~components/layout/Loading';
 import { getExchangeRate, useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';
@@ -244,6 +244,8 @@ function MobileLiquidityPage({
 function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const tokens = useTokens(pool.tokenIds);
+  const samePairList = useSamePairList({ topPool: pool });
+  console.log(samePairList);
   useEffect(() => {
     canFarm(pool.id).then((canFarm) => {
       setSupportFarm(canFarm);
@@ -314,7 +316,9 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
       <div className="col-span-2 py-1">
         ${toInternationalCurrencySystem(pool.tvl.toString())}
       </div>
-      <div className="col-span-1 py-1">More Pools</div>
+      <div className="col-span-1 py-1">
+        {samePairList?.length ? `${samePairList?.length - 1} More` : '-'}
+      </div>
     </div>
   );
 }
@@ -420,19 +424,19 @@ function LiquidityPage_({
           <header className="grid grid-cols-12 py-2 pb-4 text-left text-base text-gray-400 mx-8 border-b border-gray-600">
             <p
               className="col-span-1 flex items-center"
-              onClick={() => {
-                onSortChange('id');
-                onOrderChange(order === 'desc' ? 'asc' : 'desc');
-              }}
+              // onClick={() => {
+              //   onSortChange('id');
+              //   onOrderChange(order === 'desc' ? 'asc' : 'desc');
+              // }}
             >
               <div className="mr-1">
                 <FormattedMessage id="id" defaultMessage="#" />
               </div>
-              {sortBy === 'id' && order === 'desc' ? (
+              {/* {sortBy === 'id' && order === 'desc' ? (
                 <PolygonGreen />
               ) : (
                 <PolygonGray />
-              )}
+              )} */}
             </p>
             <p className="col-span-5 md:col-span-4">
               <FormattedMessage id="pair" defaultMessage="Pair" />
@@ -525,10 +529,8 @@ export function LiquidityPage() {
     order,
   });
 
-  const AllPools = useAllPools({ topPools: pools });
-
+  const AllPools = useAllPools();
   console.log(AllPools);
-
   console.log(pools);
 
   if (!pools) return <Loading />;

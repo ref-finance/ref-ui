@@ -3,6 +3,7 @@ import { calculateFairShare, percentLess, toPrecision } from '../utils/numbers';
 import {
   DEFAULT_PAGE_LIMIT,
   getAllPoolsFromDb,
+  getCachedPoolsByTokenId,
   getPoolDetails,
   getPools,
   getSharesInPool,
@@ -94,14 +95,34 @@ export const usePools = (props: {
   };
 };
 
-export const useAllPools = (props:{topPools: Pool[]})=>{
-  // 
+export const useSamePairList = (props:{topPool: Pool})=>{
+  const {topPool} = props
+  // const tokenId1 = topPool.tokenIds[0]
+  // const tokenId2 = topPool.tokenIds[1]
 
-  const {topPools} = props
+  const [token1Id, token2Id] = topPool.tokenIds
 
+  const [samePairList, setSamePairList] = useState<PoolDb[]>()
+
+  useEffect(()=>{
+      getCachedPoolsByTokenId({
+        token1Id,
+        token2Id
+      }).then(res=>{
+        setSamePairList(res)
+      })
   
+  },[])
+  return samePairList
+
+}
+
+
+
+export const useAllPools = ()=>{
+
+
   const [allPools, setAllPools] = useState<PoolDb[]>();
-  
   
     useEffect(()=>{
       getAllPoolsFromDb().then(res=>{

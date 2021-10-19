@@ -125,6 +125,12 @@ export const getAllPoolsFromDb = async()=>{
   return await db.allPools().toArray()
 }
 
+export const getCachedPoolsByTokenId = async({token1Id, token2Id}:{token1Id:string, token2Id:string})=>{
+  return await db.allPools().where({
+    token1Id,token2Id
+  }).toArray()
+}
+
 
 export const getTotalPools = () => {
   return refFiViewFunction({
