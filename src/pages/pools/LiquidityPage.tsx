@@ -6,7 +6,7 @@ import ReactTooltip from 'react-tooltip';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
-import { usePools } from '../../state/pool';
+import { useAllPools, usePools } from '../../state/pool';
 import Loading from '~components/layout/Loading';
 import { getExchangeRate, useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';
@@ -20,6 +20,8 @@ import {
 } from '../../utils/numbers';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { PoolDb } from '~store/RefDatabase';
+import { PolygonGray, PolygonGreen } from '~components/icon/Polygon';
 
 function MobilePoolRow({ pool }: { pool: Pool }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
@@ -307,7 +309,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
       <div className="col-span-1 py-1 md:hidden ">
         {calculateFeePercent(pool.fee)}%
       </div>
-      <div className="col-span-2 sm:col-span-4 py-1">total volume</div>
+      <div className="col-span-2 sm:col-span-4 py-1">Coming soon</div>
 
       <div className="col-span-2 py-1">
         ${toInternationalCurrencySystem(pool.tvl.toString())}
@@ -319,6 +321,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
 
 function LiquidityPage_({
   pools,
+  sortBy,
   tokenName,
   order,
   hasMore,
@@ -326,10 +329,13 @@ function LiquidityPage_({
   onSortChange,
   onOrderChange,
   nextPage,
+  allPools,
 }: {
   pools: Pool[];
+  sortBy: string;
   tokenName: string;
   order: string;
+  allPools: PoolDb[];
   hasMore: boolean;
   onSearch: (name: string) => void;
   onSortChange: (by: string) => void;
@@ -369,9 +375,12 @@ function LiquidityPage_({
                 <FormattedMessage id="top_pools" defaultMessage="Top Pools" />
               </div>
             </div>
-            <div className="">
-              {/* 展示比例 */}
-              <div></div>
+            <div className="flex items-center">
+              <div className="text-gray-400">
+                {(pools?.length ? pools?.length : '-') +
+                  ' of ' +
+                  (allPools?.length ? allPools?.length : '-')}
+              </div>
 
               <FaRegQuestionCircle
                 data-type="dark"
@@ -409,40 +418,79 @@ function LiquidityPage_({
 
         <section className="px-2">
           <header className="grid grid-cols-12 py-2 pb-4 text-left text-base text-gray-400 mx-8 border-b border-gray-600">
-            <p className="col-span-1">
-              <FormattedMessage id="id" defaultMessage="#" />
+            <p
+              className="col-span-1 flex items-center"
+              onClick={() => {
+                onSortChange('id');
+                onOrderChange(order === 'desc' ? 'asc' : 'desc');
+              }}
+            >
+              <div className="mr-1">
+                <FormattedMessage id="id" defaultMessage="#" />
+              </div>
+              {sortBy === 'id' && order === 'desc' ? (
+                <PolygonGreen />
+              ) : (
+                <PolygonGray />
+              )}
             </p>
             <p className="col-span-5 md:col-span-4">
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </p>
             <p
-              className="col-span-1 md:hidden cursor-pointer"
+              className="col-span-1 md:hidden cursor-pointer flex items-center"
               onClick={() => {
                 onSortChange('fee');
                 onOrderChange(order === 'desc' ? 'asc' : 'desc');
               }}
             >
-              <FormattedMessage id="fee" defaultMessage="Fee" />
+              <div className="mr-1">
+                <FormattedMessage id="fee" defaultMessage="Fee" />
+              </div>
+              {sortBy === 'fee' && order === 'desc' ? (
+                <PolygonGreen />
+              ) : (
+                <PolygonGray />
+              )}
             </p>
-            <p className="col-span-2">
-              <FormattedMessage id="24h_volume" defaultMessage="24h Volume" />
+            <p
+              className="col-span-2 flex items-center"
+              onClick={() => {
+                onSortChange('24h_volume');
+                onOrderChange(order === 'desc' ? 'asc' : 'desc');
+              }}
+            >
+              <div className="mr-1">
+                <FormattedMessage id="24h_volume" defaultMessage="24h Volume" />
+              </div>
+              {sortBy === '24h_volume' && order === 'desc' ? (
+                <PolygonGreen />
+              ) : (
+                <PolygonGray />
+              )}
             </p>
 
             <div
-              className="col-span-2"
+              className="col-span-2 flex items-center"
               onClick={() => {
                 onSortChange('tvl');
                 onOrderChange(order === 'desc' ? 'asc' : 'desc');
               }}
             >
-              <span>
+              <span className="mr-1">
                 <FormattedMessage id="tvl" defaultMessage="TVL" />
               </span>
+              {sortBy === 'tvl' && order === 'desc' ? (
+                <PolygonGreen />
+              ) : (
+                <PolygonGray />
+              )}
             </div>
             <p className="col-span-1">
               <FormattedMessage id="more_pools" defaultMessage="More Pools" />
             </p>
           </header>
+
           <div className="max-h-96 overflow-y-auto">
             {pools.map((pool, i) => (
               <div className="w-full hover:bg-poolRowHover">
@@ -470,11 +518,19 @@ export function LiquidityPage() {
   const [tokenName, setTokenName] = useState('');
   const [sortBy, setSortBy] = useState('tvl');
   const [order, setOrder] = useState('desc');
+
   const { pools, hasMore, nextPage } = usePools({
     tokenName,
     sortBy,
     order,
   });
+
+  const AllPools = useAllPools({ topPools: pools });
+
+  console.log(AllPools);
+
+  console.log(pools);
+
   if (!pools) return <Loading />;
 
   return (
@@ -483,6 +539,8 @@ export function LiquidityPage() {
         tokenName={tokenName}
         pools={pools}
         order={order}
+        sortBy={sortBy}
+        allPools={AllPools}
         onOrderChange={setOrder}
         onSortChange={setSortBy}
         onSearch={setTokenName}

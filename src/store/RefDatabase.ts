@@ -1,6 +1,8 @@
 import Dexie, { Collection } from 'dexie';
 import _ from 'lodash';
 
+
+
 interface Pool {
   id: number;
   token1Id: string;
@@ -18,6 +20,9 @@ interface TokenMetadata {
   decimals: number;
   icon: string;
 }
+
+export type PoolDb = Pool 
+
 
 export interface FarmDexie {
   id: string;

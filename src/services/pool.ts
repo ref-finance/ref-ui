@@ -60,7 +60,6 @@ export const getPools = async ({
   uniquePairName?: boolean;
 }): Promise<Pool[]> => {
 
-  // 获得top pools
   const poolData: PoolRPCView[] = await getTopPools({
     page,
     perPage,
@@ -121,6 +120,11 @@ export const getPoolsFromIndexer = async ({
 
   return poolData.map((rawPool) => parsePool(rawPool));
 };
+
+export const getAllPoolsFromDb = async()=>{
+  return await db.allPools().toArray()
+}
+
 
 export const getTotalPools = () => {
   return refFiViewFunction({

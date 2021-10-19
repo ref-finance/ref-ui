@@ -402,6 +402,7 @@ export function PoolDetailsPage() {
   const [poolTVL, setPoolTVL] = useState<number>();
   const [backToFarmsButton, setBackToFarmsButton] = useState(false);
 
+  console.log(pool);
   useEffect(() => {
     if (state?.tvl > 0) {
       setPoolTVL(state?.tvl);

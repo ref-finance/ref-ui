@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { calculateFairShare, percentLess, toPrecision } from '../utils/numbers';
 import {
   DEFAULT_PAGE_LIMIT,
+  getAllPoolsFromDb,
   getPoolDetails,
   getPools,
   getSharesInPool,
@@ -9,6 +10,8 @@ import {
   PoolDetails,
   removeLiquidityFromPool,
 } from '../services/pool';
+import { PoolDb } from '~store/RefDatabase';
+
 
 import { useWhitelistTokens } from './token';
 import { debounce } from 'lodash';
@@ -24,6 +27,7 @@ export const usePool = (id: number | string) => {
 
   return { pool, shares };
 };
+
 
 export const usePools = (props: {
   tokenName?: string;
@@ -89,6 +93,25 @@ export const usePools = (props: {
     nextPage,
   };
 };
+
+export const useAllPools = (props:{topPools: Pool[]})=>{
+  // 
+
+  const {topPools} = props
+
+  
+  const [allPools, setAllPools] = useState<PoolDb[]>();
+  
+  
+    useEffect(()=>{
+      getAllPoolsFromDb().then(res=>{
+        setAllPools(res)
+      })
+    },[])
+
+
+    return allPools;
+}
 
 export const useRemoveLiquidity = ({
   pool,
