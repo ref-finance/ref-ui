@@ -6,7 +6,7 @@ import ReactTooltip from 'react-tooltip';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
-import { useAllPools, usePools, useSamePairList } from '../../state/pool';
+import { useAllPools, usePools, useMorePoolIds } from '../../state/pool';
 import Loading from '~components/layout/Loading';
 import { getExchangeRate, useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';
@@ -244,8 +244,9 @@ function MobileLiquidityPage({
 function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const tokens = useTokens(pool.tokenIds);
-  const samePairList = useSamePairList({ topPool: pool });
-  console.log(samePairList);
+  const morePoolIds = useMorePoolIds({ topPool: pool });
+  const [showLinkArrow, setShowLinkArrow] = useState(false);
+
   useEffect(() => {
     canFarm(pool.id).then((canFarm) => {
       setSupportFarm(canFarm);
@@ -287,7 +288,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
           <div className="h-9 w-9 border rounded-full mr-2">
             <img
               key={tokens[0].id.substring(0, 12).substring(0, 12)}
-              className="h-9 w-9 border rounded-full mr-2"
+              className="rounded-full mr-2 w-full"
               src={tokens[0].icon}
             />
           </div>
@@ -316,9 +317,18 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
       <div className="col-span-2 py-1">
         ${toInternationalCurrencySystem(pool.tvl.toString())}
       </div>
-      <div className="col-span-1 py-1">
-        {samePairList?.length ? `${samePairList?.length - 1} More` : '-'}
-      </div>
+      <Link
+        className="col-span-1 py-1 hover:text-green-500 hover:cursor-pointer"
+        onMouseEnter={() => setShowLinkArrow(true)}
+        onMouseLeave={() => setShowLinkArrow(false)}
+        to={{
+          pathname: `/more_pools/${pool.tokenIds}`,
+          state: { morePoolIds, tokens },
+        }}
+      >
+        {morePoolIds?.length ? `${morePoolIds?.length - 1} More` : '-'}
+        {showLinkArrow && '>'}
+      </Link>
     </div>
   );
 }
@@ -530,8 +540,6 @@ export function LiquidityPage() {
   });
 
   const AllPools = useAllPools();
-  console.log(AllPools);
-  console.log(pools);
 
   if (!pools) return <Loading />;
 

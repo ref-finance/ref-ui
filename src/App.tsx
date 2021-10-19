@@ -12,6 +12,7 @@ import { AddTokenPage } from './pages/pools/AddTokenPage';
 import AdboardPage from './pages/Adboard/AdboardPage';
 import NavigationBar from './components/layout/NavigationBar';
 import Footer from './components/layout/Footer';
+import { MorePoolsPage } from '~pages/pools/MorePoolsPage';
 import {
   BgShapeLeftTop,
   BgShapeCenter,
@@ -61,6 +62,10 @@ function App() {
         <Switch>
           <Route path="/deposit/:id?" component={AutoHeight(DepositPage)} />
           <Route path="/account" component={AccountPage} />
+          <Route
+            path="/more_pools/:tokenIds"
+            component={AutoHeight(MorePoolsPage)}
+          />
           <Route path="/pool/:id" component={AutoHeight(PoolDetailsPage)} />
           <Route path="/adboard" component={AutoHeight(AdboardPage)} />
           <Route path="/pools/add" component={AutoHeight(AddPoolPage)} />

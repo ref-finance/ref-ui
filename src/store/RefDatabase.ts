@@ -21,7 +21,7 @@ interface TokenMetadata {
   icon: string;
 }
 
-export type PoolDb = Pool 
+export interface PoolDb extends Pool {tvl?:string} 
 
 
 export interface FarmDexie {

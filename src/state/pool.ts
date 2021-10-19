@@ -13,9 +13,10 @@ import {
 } from '../services/pool';
 import { PoolDb } from '~store/RefDatabase';
 
-
 import { useWhitelistTokens } from './token';
 import { debounce } from 'lodash';
+import { getPoolsByIds } from '~services/indexer';
+import { PoolRPCView } from '~services/api';
 
 export const usePool = (id: number | string) => {
   const [pool, setPool] = useState<PoolDetails>();
@@ -28,7 +29,6 @@ export const usePool = (id: number | string) => {
 
   return { pool, shares };
 };
-
 
 export const usePools = (props: {
   tokenName?: string;
@@ -95,44 +95,49 @@ export const usePools = (props: {
   };
 };
 
-export const useSamePairList = (props:{topPool: Pool})=>{
-  const {topPool} = props
+export const useMorePoolIds = (props: { topPool: Pool }) => {
+  const { topPool } = props;
   // const tokenId1 = topPool.tokenIds[0]
   // const tokenId2 = topPool.tokenIds[1]
 
-  const [token1Id, token2Id] = topPool.tokenIds
+  const [token1Id, token2Id] = topPool.tokenIds;
 
-  const [samePairList, setSamePairList] = useState<PoolDb[]>()
+  const [ids, setIds] = useState<string[]>();
 
-  useEffect(()=>{
-      getCachedPoolsByTokenId({
-        token1Id,
-        token2Id
-      }).then(res=>{
-        setSamePairList(res)
-      })
-  
-  },[])
-  return samePairList
+  useEffect(() => {
+    getCachedPoolsByTokenId({
+      token1Id,
+      token2Id,
+    }).then((res) => {
+      const idsFromCachePools: string[] = res.map((p) => {
+        return p.id.toString();
+      });
+      setIds(idsFromCachePools);
+    });
+  }, []);
+  return ids;
+};
 
-}
+export const useMorePools = ({ morePoolIds }: { morePoolIds: string[] }) => {
+  const [morePools, setMorePools] = useState<PoolRPCView[]>();
 
+  useEffect(() => {
+    getPoolsByIds(morePoolIds).then(setMorePools);
+  }, []);
+  return morePools;
+};
 
-
-export const useAllPools = ()=>{
-
-
+export const useAllPools = () => {
   const [allPools, setAllPools] = useState<PoolDb[]>();
-  
-    useEffect(()=>{
-      getAllPoolsFromDb().then(res=>{
-        setAllPools(res)
-      })
-    },[])
 
+  useEffect(() => {
+    getAllPoolsFromDb().then((res) => {
+      setAllPools(res);
+    });
+  }, []);
 
-    return allPools;
-}
+  return allPools;
+};
 
 export const useRemoveLiquidity = ({
   pool,
