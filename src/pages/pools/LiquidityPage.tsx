@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { FaRegQuestionCircle } from 'react-icons/fa';
+import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
+// AiOutlineSearch
+
 import ReactTooltip from 'react-tooltip';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useHistory } from 'react-router';
@@ -371,8 +373,8 @@ function LiquidityPage_({
           />
           <ReactTooltip className="text-sm" />
         </div>
-        <div className="my-4 border border-solid border-gray-600"></div>
-        <div className="flex mx-8 justify-between">
+        <div className="my-4 border-b border-solid border-gray-600"></div>
+        <div className="flex mx-8 justify-between pb-7">
           <div>
             <div className="">
               <div className="text-white text-lg">
@@ -381,6 +383,8 @@ function LiquidityPage_({
             </div>
             <div className="">
               {/* 展示比例 */}
+              <div></div>
+
               <FaRegQuestionCircle
                 data-type="dark"
                 data-place="bottom"
@@ -391,12 +395,15 @@ function LiquidityPage_({
               <ReactTooltip className="text-sm" />
             </div>
           </div>
-          <div className="flex items-center">
-            <div className=" text-gray-400 text-sm mr-12">
-              {'Hide Low TVL Pools'}
+          <div className="flex items-center w-3/7">
+            <div className="flex items-center">
+              <div className=" text-gray-400 text-sm mr-10">
+                {'Hide Low TVL Pools'}
+              </div>
             </div>
+
             <div
-              className="rounded w-full my-2 text-gray-400"
+              className="rounded w-full my-2 text-gray-400 flex items-center pr-2"
               style={{
                 backgroundColor: ' rgba(0, 0, 0, 0.2)',
               }}
@@ -407,21 +414,32 @@ function LiquidityPage_({
                 value={tokenName}
                 onChange={(evt) => onSearch(evt.target.value)}
               />
+              <FaSearch />
             </div>
           </div>
         </div>
 
         <section className="px-2">
-          <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm font-bold">
-            <p className="col-span-3 md:col-span-4">
+          <header className="grid grid-cols-12 py-2 pb-4 text-center text-base text-gray-400 mx-8 border-b border-gray-600">
+            <p className="col-span-1">
+              <FormattedMessage id="id" defaultMessage="#" />
+            </p>
+            <p className="col-span-4 md:col-span-4">
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </p>
-            <p className="col-span-3">
-              <FormattedMessage id="liquidity" defaultMessage="Liquidity" />
+            <p
+              className="col-span-1 md:hidden cursor-pointer"
+              onClick={() => {
+                onSortChange('fee');
+                onOrderChange(order === 'desc' ? 'asc' : 'desc');
+              }}
+            >
+              <FormattedMessage id="fee" defaultMessage="Fee" />
             </p>
-            <p className="col-span-3">
-              <FormattedMessage id="swap_rate" defaultMessage="Swap Rate" />
+            <p className="col-span-2">
+              <FormattedMessage id="24h_volume" defaultMessage="24h Volume" />
             </p>
+
             <div
               className="col-span-2"
               onClick={() => {
@@ -432,23 +450,9 @@ function LiquidityPage_({
               <span>
                 <FormattedMessage id="tvl" defaultMessage="TVL" />
               </span>
-              <FaRegQuestionCircle
-                data-type="dark"
-                data-place="bottom"
-                data-multiline={true}
-                data-tip={intl.formatMessage({ id: 'totalValueLockedCopy' })}
-                className="inline-block	ml-2 text-xs  text-secondaryScale-500"
-              />
-              <ReactTooltip className="text-xs font-light" />
             </div>
-            <p
-              className="col-span-1 md:hidden cursor-pointer"
-              onClick={() => {
-                onSortChange('fee');
-                onOrderChange(order === 'desc' ? 'asc' : 'desc');
-              }}
-            >
-              <FormattedMessage id="fee" defaultMessage="Fee" />
+            <p className="col-span-2">
+              <FormattedMessage id="more_pools" defaultMessage="More Pools" />
             </p>
           </header>
           <div className="max-h-80 overflow-y-auto">
