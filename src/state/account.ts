@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import {
   AccountStorageView,
-  currentRefPrice,
   currentStorageBalance,
   RefPrice,
 } from '../services/account';
 import { wallet } from '../services/near';
+import { currentRefPrice } from '~services/api';
 
 export const useCurrentStorageBalance = () => {
   const [storageBalance, setStorageBalance] = useState<AccountStorageView>();

@@ -28,6 +28,7 @@ const CommunityLinks = [
 ];
 function Footer() {
   const { data } = useRefPrice();
+
   return (
     <>
       <div className="absolute w-full bottom-6">

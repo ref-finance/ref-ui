@@ -30,8 +30,8 @@ export function BgShapeLeftTop() {
             y2="78.6711"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#5AC694" />
-            <stop offset="1" stop-color="#5AC694" stop-opacity="0" />
+            <stop stopColor="#5AC694" />
+            <stop offset="1" stopColor="#5AC694" stopOpacity="0" />
           </linearGradient>
         </defs>
       </svg>
@@ -41,10 +41,10 @@ export function BgShapeLeftTop() {
 
 export function BgShapeAnimation() {
   return (
-    <div className="w-full top-0 md:hidden xs:hidden block absolute left-0  overflow-hidden max-h-screen pt-40">
+    <div className="w-full top-0 md:hidden xs:hidden block absolute left-0 overflow-hidden max-h-screen pt-40">
       <svg
         width="100%"
-        height="auto"
+        height="100%"
         viewBox="0 0 1440 565"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -57,7 +57,7 @@ export function BgShapeAnimation() {
 
 export function BgShapeCenter() {
   return (
-    <div className="w-full top-0 md:hidden xs:hidden block absolute left-0  overflow-hidden max-h-screen pt-20">
+    <div className="w-full top-0 md:hidden xs:hidden block absolute left-0 overflow-hidden max-h-screen pt-20">
       <img src={bgGridImg} alt="" className="w-full max-h-screen" />
     </div>
   );
