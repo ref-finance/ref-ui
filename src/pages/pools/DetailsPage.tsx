@@ -766,7 +766,7 @@ export function PoolDetailsPage() {
                 transform: 'rotate(90deg)',
                 position: 'relative',
                 bottom: '190px',
-                left: '300px',
+                left: '100px',
               }}
             ></div>
             <div
@@ -776,7 +776,7 @@ export function PoolDetailsPage() {
                 width: '13px',
                 height: '13px',
                 position: 'relative',
-                left: '495px',
+                left: '295px',
                 top: '4px',
                 backgroundColor: '#00d6af',
                 opacity: 0.4,
