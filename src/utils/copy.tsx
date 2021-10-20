@@ -14,7 +14,7 @@ export default {
   registerToken:
     'This registers a new token with the <br> exchange that is not already listed.',
   whitelistToken:
-    'This allows you to add an ERC-20 token to the exchange that is not already listed.',
+    'This allows you to add an NEP-141 token to the exchange that is not already listed.',
   addLiquidityPool:
     'This creates a new liquidity pool for the two tokens selected. The fee is the percentage the pool takes from each transaction.',
   addLiquidity:
@@ -35,7 +35,7 @@ export default {
   balances:
     'This page reflects the amount of tokens you have deposited in the exchange. <br> Use the from below to add or withdraw tokens using your NEAR Wallet.',
   addToken:
-    'This allows you to add an ERC-20 token to the exchange that is not already listed.',
+    'This allows you to add an NEP-141 token to the exchange that is not already listed.',
   poolFee:
     'The fee liquidity providers will earn on each trade. <br> If the fee is 0.3%, a trade of $100 nUSDT to nDAI <br> will incur a fee of $0.3 nDAI. This nDAI is distributed <br> proportionally to liquidity providers of the nUSDT - <br> nDAI pool',
   getLPTokenCopy: 'Click here to jump to the corresponding pool.',

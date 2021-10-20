@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
-// AiOutlineSearch
-
 import ReactTooltip from 'react-tooltip';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
-import { useAllPools, usePools, useMorePoolIds } from '../../state/pool';
+import { useMorePoolIds } from '../../state/pool';
 import Loading from '~components/layout/Loading';
 import { getExchangeRate, useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';

@@ -22,7 +22,7 @@ export function AddTokenPage() {
       </div>
       <Card width="w-full">
         <div className="text-xs font-semibold">
-          <FormattedMessage id="token" defaultMessage="Token" />
+          <FormattedMessage id="add_token" defaultMessage="Add token" />
         </div>
         <div className="rounded-lg w-full border my-2">
           <input
@@ -57,7 +57,7 @@ export function AddTokenPage() {
                 }
               }}
             >
-              <FormattedMessage id="add_token" defaultMessage="Add Token" />
+              <FormattedMessage id="add_token" defaultMessage="Add token" />
             </button>
           ) : (
             <ConnectToNearBtn />
@@ -67,7 +67,7 @@ export function AddTokenPage() {
       <div className="text-white text-sm pt-3 leading-6 w-full text-center">
         <FormattedMessage
           id="addTokenCopy"
-          defaultMessage="This allows you to add an ERC-20 token to the exchange that is not already listed."
+          defaultMessage="Add any NEP-141 token."
         />
       </div>
     </div>

@@ -94,6 +94,43 @@ export const getPools = async ({
   }
 };
 
+export const getPoolsFromCache = async ({
+  page = 1,
+  perPage = DEFAULT_PAGE_LIMIT,
+  tokenName = '',
+  column = '',
+  order = 'desc',
+  uniquePairName = false,
+}: {
+  page?: number;
+  perPage?: number;
+  tokenName?: string;
+  column?: string;
+  order?: string;
+  uniquePairName?: boolean;
+}) => {
+  const rows = await db.queryPools({
+    page,
+    perPage,
+    tokenName,
+    column,
+    order,
+    uniquePairName,
+  });
+  return rows.map((row) => ({
+    id: row.id,
+    tokenIds: [row.token1Id, row.token2Id],
+    supplies: {
+      [row.token1Id]: row.token1Supply,
+      [row.token2Id]: row.token2Supply,
+    },
+    fee: row.fee,
+    shareSupply: row.shares,
+    tvl: 0,
+    token0_ref_price: '0',
+  }));
+};
+
 export const getPoolsFromIndexer = async ({
   page = 1,
   perPage = DEFAULT_PAGE_LIMIT,
@@ -139,6 +176,19 @@ export const getTotalPools = () => {
   });
 };
 
+export const getAllPools = async (
+  page: number = 1,
+  perPage: number = DEFAULT_PAGE_LIMIT
+): Promise<Pool[]> => {
+  const index = (page - 1) * perPage;
+  const poolData: PoolRPCView[] = await refFiViewFunction({
+    methodName: 'get_pools',
+    args: { from_index: index, limit: perPage },
+  });
+
+  return poolData.map((rawPool, i) => parsePool(rawPool, i + index));
+};
+
 interface GetPoolOptions {
   tokenInId: string;
   tokenOutId: string;
@@ -151,13 +201,31 @@ export const getPoolsByTokens = async ({
   amountIn,
 }: GetPoolOptions): Promise<Pool[]> => {
   const amountToTrade = new BN(amountIn);
+  let filtered_pools;
+  const cache = await db.checkPoolsByTokens(tokenInId, tokenOutId);
 
-  // TODO: Check if there can be a better way. If not need to iterate through all pages to find pools
+  if (cache) {
+    const cache_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
+    filtered_pools = cache_pools.filter(
+      (p) =>
+        new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
+        p.supplies[tokenOutId]
+    );
+  } else {
+    const totalPools = await getTotalPools();
+    const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
+    const pools = (
+      await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
+    ).flat();
 
-  return (await getPoolsFromIndexer({ page: 1, perPage: 10000 })).filter(
-    (p) =>
-      new BN(p.supplies[tokenInId]).gte(amountToTrade) && p.supplies[tokenOutId]
-  );
+    await db.cachePoolsByTokens(pools);
+    filtered_pools = pools.filter(
+      (p) =>
+        new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
+        p.supplies[tokenOutId]
+    );
+  }
+  return filtered_pools;
 };
 
 export const getPool = async (id: number): Promise<Pool> => {
