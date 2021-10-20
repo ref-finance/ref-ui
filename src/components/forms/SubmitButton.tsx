@@ -18,7 +18,9 @@ function SubmitButton({ disabled, onClick }: SubmitButtonProps) {
           type={onClick ? 'button' : 'submit'}
           disabled={disabled}
           onClick={onClick}
-          className={`flex flex-row w-full justify-center px-5 py-2 mt-6 text-white disabled:cursor-not-allowed mx-auto`}
+          className={`flex flex-row w-full justify-center px-5 py-2 mt-6 text-white disabled:cursor-not-allowed mx-auto ${
+            disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
+          }`}
           style={
             disabled
               ? {
