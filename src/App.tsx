@@ -17,7 +17,6 @@ import {
   BgShapeLeftTop,
   BgShapeCenter,
   BgShapeCenterSmall,
-  BgShapeAnimation,
 } from './components/icon';
 import Modal from 'react-modal';
 
@@ -53,11 +52,10 @@ function App() {
   return (
     <Router>
       <ToastContainer />
-      <div className="relative min-h-screen pb-14 xs:flex xs:flex-col md:flex md:flex-col">
+      <div className="relative min-h-screen pb-20 xs:flex xs:flex-col md:flex md:flex-col">
         <BgShapeLeftTop />
         <BgShapeCenter />
         <BgShapeCenterSmall />
-        <BgShapeAnimation />
         <NavigationBar />
         <Switch>
           <Route path="/deposit/:id?" component={AutoHeight(DepositPage)} />

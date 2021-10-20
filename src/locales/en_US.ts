@@ -142,8 +142,9 @@ const en_US = {
   farmRewardsCopy:
     'What you have claimed but not withdrawn to your NEAR Wallet yet.',
   totalValueLockedCopy: 'Total Value Locked',
-  topPools: 'For each token pair, show the pool with the largest TVL among all the pools of the token pair.',
-  myWatchList:'My Watchlist',
+  topPools:
+    'For each token pair, show the pool with the largest TVL among all the pools of the token pair.',
+  myWatchList: 'My Watchlist',
   you_do_not_have_enough: "You don't have enough",
   must_provide_at_least_one_token_for: 'Must provide greater than 0 token for',
   is_not_exist: 'is not exist',
@@ -159,5 +160,6 @@ const en_US = {
     'The address you entered is not a NEP-141 address, please check and enter it again. If it is another mainnet contract, go to Rainbow Bridge for bridging processing',
   not_correct_address:
     'The address you entered is incorrect, please check and enter',
+  commen_basses: 'Commen Basses',
 };
 export default en_US;

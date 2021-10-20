@@ -59,7 +59,6 @@ export const getPools = async ({
   order?: string;
   uniquePairName?: boolean;
 }): Promise<Pool[]> => {
-
   const poolData: PoolRPCView[] = await getTopPools({
     page,
     perPage,
@@ -158,17 +157,25 @@ export const getPoolsFromIndexer = async ({
   return poolData.map((rawPool) => parsePool(rawPool));
 };
 
-export const getAllPoolsFromDb = async()=>{
-  return await db.allPools().toArray()
-}
+export const getAllPoolsFromDb = async () => {
+  return await db.allPools().toArray();
+};
 
-export const getCachedPoolsByTokenId = async({token1Id, token2Id}:{token1Id:string, token2Id:string})=>{
-  return  await db.allPools().where({
-    token1Id,token2Id
-  }).toArray()
-
-}
-
+export const getCachedPoolsByTokenId = async ({
+  token1Id,
+  token2Id,
+}: {
+  token1Id: string;
+  token2Id: string;
+}) => {
+  return await db
+    .allPools()
+    .where({
+      token1Id,
+      token2Id,
+    })
+    .toArray();
+};
 
 export const getTotalPools = () => {
   return refFiViewFunction({

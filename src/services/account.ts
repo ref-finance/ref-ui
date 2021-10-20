@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { storageDepositAction } from './creators/storage';
 import {
   refFarmViewFunction,
@@ -44,4 +45,18 @@ export const currentStorageBalanceOfFarm = (
     methodName: 'storage_balance_of',
     args: { account_id: accountId },
   });
+};
+
+export const currentRefPrice = () => {
+  return axios
+    .get<RefPrice>(
+      'https://api.coingecko.com/api/v3/simple/price?ids=ref-finance&vs_currencies=usd'
+    )
+    .then((res) => {
+      if (res.status === 200) {
+        return res.data;
+      } else {
+        console.log(res.statusText);
+      }
+    });
 };

@@ -74,6 +74,7 @@ function AccountEntry() {
       <div
         className={`cursor-pointer font-bold items-center justify-end text-center overflow-visible relative h-full`}
         onMouseEnter={() => {
+          console.log('uuu');
           setHover(true);
         }}
         onMouseLeave={() => {

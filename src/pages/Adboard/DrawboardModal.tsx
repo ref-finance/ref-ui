@@ -396,7 +396,7 @@ const DrawboardModal = ({ framedata, frameId, close }: DrawboardModalProps) => {
           </div>
         </div>
       </div>
-      <div className="fixed w-screen h-screen -mt-32 bg-black blur"></div>
+      <div className="fixed w-screen h-screen -mt-32 bg-black bg-opacity-25 blur"></div>
     </>
   );
 };
