@@ -57,7 +57,7 @@ export function AddPoolPage() {
             defaultMessage="Create New Pool"
           />
         </h2>
-        <div className="text-xs font-semibold text-primaryLabel">
+        <div className="text-xs font-semibold text-primaryText">
           <FormattedMessage id="token" defaultMessage="Token" />
         </div>
         <div className="w-full flex justify-center">
@@ -72,7 +72,7 @@ export function AddPoolPage() {
           onSelect={setToken1}
           balances={balances}
         />
-        <div className="text-xs font-semibold text-primaryLabel pt-2">
+        <div className="text-xs font-semibold text-primaryText pt-2">
           <FormattedMessage id="pair" defaultMessage="Pair" />
         </div>
         <SelectToken
@@ -86,7 +86,7 @@ export function AddPoolPage() {
         />
         <div className="text-xs font-semibold pt-2 flex items-center justify-between">
           <div>
-            <span className="pr-1 text-primaryLabel">
+            <span className="pr-1 text-primaryText">
               <FormattedMessage id="fee" defaultMessage="Fee" /> %
             </span>
           </div>
@@ -104,7 +104,7 @@ export function AddPoolPage() {
         </div>
         <div className="text-xs font-semibold pt-4 flex items-center justify-between">
           <div>
-            <span className="pr-1 text-primaryLabel">
+            <span className="pr-1 text-primaryText">
               <FormattedMessage id="total_fee" defaultMessage="Total Fee %" />(
               <FormattedMessage
                 id="protocol_fee_is"

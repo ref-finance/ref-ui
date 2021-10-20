@@ -37,7 +37,7 @@ module.exports = {
         gradientFromHover: '#00D6AF',
         gradientToHover: '#00967B',
         poolRowHover: '#001320',
-        primaryLabel: '#7E8A93',
+        primaryText: '#7E8A93',
         inputDarkBg: 'rgba(0, 0, 0, 0.2)',
       },
       fontFamily: {
