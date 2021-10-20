@@ -78,7 +78,7 @@ export const useTokenBalances = () => {
   return balances;
 };
 
-export const useDepositableBalance = (tokenId: string, decimals: number) => {
+export const useDepositableBalance = (tokenId: string, decimals?: number) => {
   const [depositable, setDepositable] = useState<string>('');
   const [max, setMax] = useState<string>('');
   useEffect(() => {

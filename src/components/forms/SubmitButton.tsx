@@ -29,7 +29,7 @@ function SubmitButton({ disabled, onClick }: SubmitButtonProps) {
         <button
           onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
           type="button"
-          className="flex bg-black font-semibold px-5 py-2.5 text-white p-2 mt-6 items-center rounded-full focus:outline-none mx-auto"
+          className="flex bg-black bg-opacity-25 font-semibold px-5 py-2.5 text-white p-2 mt-6 items-center rounded-full focus:outline-none mx-auto"
         >
           {' '}
           <Near />

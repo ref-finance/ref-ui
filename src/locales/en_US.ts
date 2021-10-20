@@ -157,5 +157,6 @@ const en_US = {
     'The address you entered is not a NEP-141 address, please check and enter it again. If it is another mainnet contract, go to Rainbow Bridge for bridging processing',
   not_correct_address:
     'The address you entered is incorrect, please check and enter',
+  commen_basses: 'Commen Basses',
 };
 export default en_US;

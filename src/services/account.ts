@@ -54,8 +54,6 @@ export const currentRefPrice = () => {
     )
     .then((res) => {
       if (res.status === 200) {
-        console.log('dfsdf');
-        console.log(res);
         return res.data;
       } else {
         console.log(res.statusText);
