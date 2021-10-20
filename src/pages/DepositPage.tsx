@@ -105,7 +105,7 @@ export default function DepositPage() {
           tokens={[nearMetadata, ...tokens]}
           selectedToken={selectedToken}
           onSelectToken={setSelectedToken}
-          onSearchToken={handleSearch}
+          // onSearchToken={handleSearch}
           onChangeAmount={setAmount}
         />
         {wallet.isSignedIn() ? (
