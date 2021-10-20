@@ -197,9 +197,16 @@ function AddLiquidityModal(
 
   return (
     <Modal {...props}>
-      <div></div>
-      <Card style={{ width: cardWidth }}>
-        <div className="text-sm text-gray-800 font-semibold pb-4">
+      <Card
+        style={{
+          width: cardWidth,
+          border: '1px solid rgba(0, 198, 162, 0.5)',
+        }}
+        padding="p-8"
+        bgColor="bg-cardBg"
+        className="text-white"
+      >
+        <div className="text-base pb-4">
           <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
         </div>
         <div className="flex justify-center">
@@ -224,11 +231,9 @@ function AddLiquidityModal(
           />
         </div>
         <div className="flex items-center justify-center pt-6">
-          <button
+          <SolidButton
             disabled={!canSubmit}
-            className={`rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight ${
-              canSubmit ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
-            }`}
+            className={`focus:outline-none`}
             onClick={async () => {
               try {
                 await submit();
@@ -241,7 +246,7 @@ function AddLiquidityModal(
               id="add_liquidity"
               defaultMessage="Add Liquidity"
             />
-          </button>
+          </SolidButton>
         </div>
       </Card>
     </Modal>

@@ -119,19 +119,19 @@ export function SolidButton(
   const { disabled, padding, className, onClick } = props;
 
   return (
-    <div
-      className={` text-white rounded ${
-        className ? className : ''
-      } bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover`}
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`
+        text-white rounded  bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover
+        py-2 px-6 ${padding ? padding : ''} ${
+        disabled ? 'cursor-not-allowed bg-opacity-50' : ''
+      } 
+        ${className ? className : ''}
+      `}
     >
-      <button
-        onClick={onClick}
-        disabled={disabled}
-        className={`py-2 px-6 ${padding ? padding : ''}`}
-      >
-        {props.children}
-      </button>
-    </div>
+      {props.children}
+    </button>
   );
 }
 
@@ -154,7 +154,7 @@ export function OutlineButton(
       <button
         onClick={onClick}
         disabled={disabled}
-        className={`py-2 px-6 ${padding ? padding : ''}`}
+        className={`py-2 px-6 ${padding ? padding : ''} `}
       >
         {props.children}
       </button>
