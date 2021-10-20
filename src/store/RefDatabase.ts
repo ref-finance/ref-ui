@@ -1,7 +1,7 @@
-import Dexie, { Collection } from 'dexie';
+import Dexie from 'dexie';
 import _ from 'lodash';
 import moment from 'moment';
-import getConfig from '~services/config';
+import getConfig from '../services/config';
 
 interface Pool {
   id: number;
@@ -151,8 +151,8 @@ class RefDatabase extends Dexie {
           id: pool.id,
           token1Id: pool.tokenIds[0],
           token2Id: pool.tokenIds[1],
-          token1Supply: pool.supplies[pool.tokenIds[0]],
-          token2Supply: pool.supplies[pool.tokenIds[1]],
+          token1Supply: pool.supplies[Number(pool.tokenIds[0])],
+          token2Supply: pool.supplies[Number(pool.tokenIds[1])],
           fee: pool.fee,
           shares: pool.shareSupply,
           update_time: moment().unix(),
@@ -189,8 +189,8 @@ class RefDatabase extends Dexie {
       .and((item) => item.token2Id === tokenOutId)
       .and(
         (item) =>
-          item.update_time >=
-          moment().unix() - getConfig().POOL_TOKEN_REFRESH_INTERVAL
+          Number(item.update_time) >=
+          moment().unix() - Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
       )
       .toArray();
     let reverseItems = await this.poolsTokens
@@ -199,8 +199,8 @@ class RefDatabase extends Dexie {
       .and((item) => item.token2Id === tokenInId)
       .and(
         (item) =>
-          item.update_time >=
-          moment().unix() - getConfig().POOL_TOKEN_REFRESH_INTERVAL
+          Number(item.update_time) >=
+          moment().unix() - Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
       )
       .toArray();
 
