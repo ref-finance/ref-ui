@@ -7,8 +7,6 @@ import {
 } from '../state/token';
 import Loading from '../components/layout/Loading';
 import { Card } from '../components/card/Card';
-// import { toReadableNumber } from '../utils/numbers';
-import { toReadableNumber } from '../utils/numbers';
 import { TokenMetadata } from '../services/ft-contract';
 import { nearMetadata, wrapNear } from '../services/wrap-near';
 import { useDepositableBalance } from '../state/token';
@@ -58,6 +56,7 @@ export default function DepositPage() {
 
   const registeredTokens = useUserRegisteredTokens();
   const tokens = useWhitelistTokens();
+  // const [tokenList, setTokenList] = useState<TokenMetadata[]>([]);
   const [selectedToken, setSelectedToken] = useState<TokenMetadata>(
     id && tokens ? tokens.find((tok) => tok.id === id) : nearMetadata
   );
@@ -74,7 +73,16 @@ export default function DepositPage() {
   if (!tokens || !userTokens) return <Loading />;
   if (!registeredTokens || !balances) return <Loading />;
 
-  // const max = toReadableNumber(selectedToken?.decimals, depositable) || '0';
+  const handleSearch = (value: string) => {
+    const result = tokens.filter(
+      ({ name }) =>
+        name.includes(value) ||
+        name.includes(value.toLocaleLowerCase()) ||
+        name.includes(value.toLocaleUpperCase())
+    );
+    console.log(result);
+    // setTokenList(result);
+  };
 
   return (
     <div className="flex items-center flex-col w-1/3 md:w-5/6 xs:w-11/12 m-auto">
@@ -97,6 +105,7 @@ export default function DepositPage() {
           tokens={[nearMetadata, ...tokens]}
           selectedToken={selectedToken}
           onSelectToken={setSelectedToken}
+          onSearchToken={handleSearch}
           onChangeAmount={setAmount}
         />
         {wallet.isSignedIn() ? (

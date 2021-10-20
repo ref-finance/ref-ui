@@ -18,7 +18,7 @@ export const useCurrentStorageBalance = () => {
 };
 
 export const useRefPrice = () => {
-  const [data, setData] = useState<RefPrice>();
+  const [data, setData] = useState<any>();
   useEffect(() => {
     currentRefPrice().then((res) => {
       res && setData(res);

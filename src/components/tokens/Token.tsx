@@ -1,18 +1,21 @@
 import React from 'react';
 import { toRealSymbol } from '~utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
-import { useDepositableBalance } from '~state/token';
+import { useDepositableBalance, useTokenBalances } from '~state/token';
 import {
   toPrecision,
   toReadableNumber,
   toNonDivisibleNumber,
+  toRoundedReadableNumber,
 } from '~utils/numbers';
+import { AiOutlineConsoleSql } from 'react-icons/ai';
 
 interface TokenProps {
   token: TokenMetadata;
   onClick: (token: TokenMetadata) => void;
   render?: (token: TokenMetadata) => React.ReactElement;
   totalAmount?: string;
+  sortBy?: string;
 }
 
 export default function Token({
@@ -20,6 +23,7 @@ export default function Token({
   onClick,
   render,
   totalAmount,
+  sortBy,
 }: TokenProps) {
   const { icon, symbol, id, decimals } = token;
   const totalTokenAmount = toReadableNumber(
@@ -29,31 +33,33 @@ export default function Token({
 
   const tokenAmount = toPrecision(totalTokenAmount, 6) || '0';
   return (
-    <section
-      className={`${
-        onClick ? 'cursor-pointer' : ' '
-      } flex justify-between align-center py-4 px-2 w-full text-center hover:bg-secondaryScale-100`}
+    <tr
+      key={id}
+      className="hover:bg-black hover:bg-opacity-10"
       onClick={() => onClick && onClick(token)}
       title={totalAmount ? totalAmount : totalTokenAmount}
     >
-      <div className="w-full text-left">
-        <div
-          className="flex items-center text-xs"
-          style={{ lineHeight: 'unset' }}
-        >
-          {icon ? (
-            <img
-              className="h-6 w-6 mr-3"
-              src={icon}
-              alt={toRealSymbol(symbol)}
-            />
-          ) : (
-            <div className="h-6 w-6 mr-3"></div>
-          )}
-          <div className="block">{toRealSymbol(symbol)}</div>
-        </div>
-      </div>
-      {render ? render(token) : tokenAmount}
-    </section>
+      <td className="text-sm pl-6 py-5">
+        {icon ? (
+          <img
+            className="h-6 w-6 mr-3 inline-block"
+            src={icon}
+            alt={toRealSymbol(symbol)}
+          />
+        ) : (
+          <span className="h-6 w-6 mr-3"></span>
+        )}
+        <span className="inline-block text-white">{toRealSymbol(symbol)}</span>
+      </td>
+      <td className={`py-4 ${sortBy === 'near' ? 'text-white' : ''}`}>
+        {tokenAmount}
+      </td>
+      <td className={`py-4 ${sortBy === 'ref' ? 'text-white' : ''}`}>
+        {render(token)}
+      </td>
+      <td className={`pr-6 py-4 ${sortBy === 'total' ? 'text-white' : ''}`}>
+        {Number(render(token)) + Number(tokenAmount)}
+      </td>
+    </tr>
   );
 }

@@ -18,7 +18,7 @@ export default function AddToken() {
       trigger={(open) => (
         <button
           onClick={open}
-          className="border border-greenLight focus:outline-none rounded-2xl py-1 px-2 text-xs font-semibold"
+          className="border border-gray-400 text-gray-400 focus:outline-none rounded-2xl py-1 px-2 text-xs font-semibold mr-4"
         >
           <FormattedMessage id="add_token" defaultMessage="Add Token" />
         </button>

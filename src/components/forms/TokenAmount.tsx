@@ -20,6 +20,7 @@ interface TokenAmountProps {
   balances?: TokenBalancesView;
   onMax?: (input: HTMLInputElement) => void;
   onSelectToken?: (token: TokenMetadata) => void;
+  onSearchToken?: (value: string) => void;
   onChangeAmount?: (amount: string) => void;
   text?: string;
   disabled?: boolean;
@@ -33,18 +34,16 @@ export default function TokenAmount({
   selectedToken,
   balances,
   onSelectToken,
+  onSearchToken,
   onChangeAmount,
   text,
   disabled = false,
 }: TokenAmountProps) {
-  const render = (token: TokenMetadata) => (
-    <p className="text-black">
-      {toRoundedReadableNumber({
-        decimals: token.decimals,
-        number: balances[token.id],
-      })}
-    </p>
-  );
+  const render = (token: TokenMetadata) =>
+    toRoundedReadableNumber({
+      decimals: token.decimals,
+      number: balances ? balances[token.id] : '0',
+    });
 
   const addToken = () => <AddToken />;
 
@@ -72,7 +71,7 @@ export default function TokenAmount({
         />
         <SelectToken
           tokens={tokens}
-          render={balances ? render : null}
+          render={render}
           addToken={addToken}
           selected={
             selectedToken && (
@@ -87,6 +86,7 @@ export default function TokenAmount({
             )
           }
           onSelect={onSelectToken}
+          // onSearch={onSearchToken}
           balances={balances}
         />
       </fieldset>
