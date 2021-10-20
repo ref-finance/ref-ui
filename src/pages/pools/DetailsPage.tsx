@@ -403,21 +403,25 @@ export function RemoveLiquidityModal(
         </div>
         {amount ? (
           <>
-            <p className="mt-3 text-left text-xs font-semibold">
+            <p className="mt-3 text-left text-sm ">
               <FormattedMessage
                 id="minimum_tokens_out"
                 defaultMessage="Minimum Tokens Out"
               />
             </p>
-            <section className="grid grid-cols-2 mt-3 text-xs font-semibold">
+            <section className="flex items-center justify-center mx-3 mb-12">
               {Object.entries(minimumAmounts).map(
                 ([tokenId, minimumAmount], i) => {
                   const token = tokens.find((t) => t.id === tokenId);
 
                   return (
-                    <section key={tokenId} className="flex items-center">
-                      <Icon icon={token.icon} />
-                      <span className="ml-2">
+                    <section
+                      key={tokenId}
+                      className="flex flex-col items-center"
+                    >
+                      <Icon icon={token.icon} className="h-12 w-12" />
+                      <span className="m-1 mb-2 text-sm">{token.symbol} </span>
+                      <span className="ml-2 text-lg font-bold">
                         {toRoundedReadableNumber({
                           decimals: tokens.find((t) => t.id === tokenId)
                             .decimals,
