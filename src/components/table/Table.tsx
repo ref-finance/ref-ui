@@ -8,7 +8,7 @@ import Token from '~components/tokens/Token';
 interface TokenListProps {
   tokens: TokenMetadata[];
   onClick?: (token: TokenMetadata) => void;
-  render?: (token: TokenMetadata) => React.ReactElement;
+  render?: (token: TokenMetadata) => string;
   balances?: TokenBalancesView;
 }
 
