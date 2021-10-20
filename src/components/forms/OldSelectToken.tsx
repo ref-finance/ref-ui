@@ -156,7 +156,13 @@ export default function OldSelectToken({
               onChange={(evt) => onSearch(evt.target.value)}
             />
           </div>
-          <CommenBasses />
+          <CommenBasses
+            tokens={tokensData}
+            onClick={(token) => {
+              onSelect && onSelect(token);
+              close();
+            }}
+          />
           <Table
             tokens={listData}
             render={render}
