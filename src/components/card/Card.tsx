@@ -13,7 +13,7 @@ export function Card(
   return (
     <div
       {...props}
-      className={` ${bgColor ? bgColor : 'bg-gray-50'}  rounded-xl ${
+      className={` ${bgColor ? bgColor : 'bg-cardBg'}  rounded-xl ${
         padding ? padding : 'p-6'
       } ${width ? width : 'w-1/4'} ${props.className}`}
     >

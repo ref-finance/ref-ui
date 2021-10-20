@@ -119,19 +119,17 @@ export function SolidButton(
   const { disabled, padding, className, onClick } = props;
 
   return (
-    <div
-      className={` text-white rounded ${
-        className ? className : ''
-      } bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover`}
+    <button
+      onClick={onClick}
+      className={`
+      ${disabled ? 'cursor-not-allowed opacity-40' : ''} 
+        text-white rounded  bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover
+        py-2 px-6 ${padding ? padding : ''} 
+        ${className ? className : ''}
+      `}
     >
-      <button
-        onClick={onClick}
-        disabled={disabled}
-        className={`py-2 px-6 ${padding ? padding : ''}`}
-      >
-        {props.children}
-      </button>
-    </div>
+      {props.children}
+    </button>
   );
 }
 
@@ -144,21 +142,19 @@ export function OutlineButton(
 ) {
   const { disabled, padding, className, onClick } = props;
   return (
-    <div
-      className={`rounded ${className ? className : ''}`}
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`rounded py-2 px-6 ${padding ? padding : ''} ${
+        className ? className : ''
+      }`}
       style={{
         color: '#00D6A2',
         border: `1px solid #00C6A2`,
       }}
     >
-      <button
-        onClick={onClick}
-        disabled={disabled}
-        className={`py-2 px-6 ${padding ? padding : ''}`}
-      >
-        {props.children}
-      </button>
-    </div>
+      {props.children}
+    </button>
   );
 }
 

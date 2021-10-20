@@ -33,6 +33,8 @@ import { BigNumber } from 'bignumber.js';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { WatchListStart } from '~components/icon/WatchListStart';
 import { OutlineButton, SolidButton } from '~components/button/Button';
+import { wallet } from '~services/near';
+import { FarmMining } from './MorePoolsPage';
 
 interface ParamTypes {
   id: string;
@@ -193,42 +195,107 @@ function AddLiquidityModal(
     });
   }
 
-  const cardWidth = isMobile() ? '75vw' : '30vw';
+  const cardWidth = isMobile() ? '75vw' : '40vw';
 
   return (
     <Modal {...props}>
-      <div></div>
-      <Card style={{ width: cardWidth }}>
-        <div className="text-sm text-gray-800 font-semibold pb-4">
+      <Card
+        style={{
+          width: cardWidth,
+          border: '1px solid rgba(0, 198, 162, 0.5)',
+        }}
+        padding="p-8"
+        bgColor="bg-cardBg"
+        className="text-white"
+      >
+        <div className="text-base font-bold pb-4">
           <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
         </div>
         <div className="flex justify-center">
           {error && <Alert level="error" message={error.message} />}
         </div>
-        <TokenAmount
-          amount={firstTokenAmount}
-          max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
-          total={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
-          tokens={[tokens[0]]}
-          selectedToken={tokens[0]}
-          onChangeAmount={changeFirstTokenAmount}
-        />
-        <div className="pt-4">
-          <TokenAmount
-            amount={secondTokenAmount}
-            max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
-            total={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
-            tokens={[tokens[1]]}
-            selectedToken={tokens[1]}
-            onChangeAmount={changeSecondTokenAmount}
-          />
+        <div className="mt-6">
+          <div className="text-xs text-right mb-1 text-gray-400">
+            <FormattedMessage id="balance" defaultMessage="Balance" />
+            :&nbsp;
+            {toPrecision(
+              toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
+              6,
+              true
+            )}
+          </div>
+          <div className="flex items-center ">
+            <div className="flex items-end mr-12">
+              <Icon icon={tokens[0].icon} className="h-12 w-12 mr-2" />
+              <div className="flex items-start flex-col">
+                <div className="text-white text-xl">
+                  {toRealSymbol(tokens[0].symbol)}
+                </div>
+                <div
+                  className="text-xs text-gray-400"
+                  title={tokens[0].id}
+                >{`${tokens[0].id.substring(0, 12)}${
+                  tokens[0].id.length > 12 ? '...' : ''
+                }`}</div>
+              </div>
+            </div>
+            <InputAmount
+              className="w-full"
+              max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
+              onChangeAmount={changeFirstTokenAmount}
+              value={firstTokenAmount}
+              disabled={!wallet.isSignedIn()}
+            ></InputAmount>
+          </div>
+
+          {/* <TokenAmount
+            amount={firstTokenAmount}
+            max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
+            total={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
+            tokens={[tokens[0]]}
+            selectedToken={tokens[0]}
+            onChangeAmount={changeFirstTokenAmount}
+          /> */}
         </div>
-        <div className="flex items-center justify-center pt-6">
-          <button
+
+        <div className="my-10">
+          <div className="text-xs text-right mb-1 text-gray-400">
+            <FormattedMessage id="balance" defaultMessage="Balance" />
+            :&nbsp;
+            {toPrecision(
+              toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
+              6,
+              true
+            )}
+          </div>
+          <div className="flex items-center">
+            <div className="flex items-end mr-8">
+              <Icon icon={tokens[1].icon} className="h-12 w-12 mr-2" />
+              <div className="flex items-start flex-col">
+                <div className="text-white text-xl">
+                  {toRealSymbol(tokens[1].symbol)}
+                </div>
+                <div
+                  className="text-xs text-gray-400"
+                  title={tokens[1].id}
+                >{`${tokens[1].id.substring(0, 12)}${
+                  tokens[1].id.length > 12 ? '...' : ''
+                }`}</div>
+              </div>
+            </div>
+            <InputAmount
+              className="w-full"
+              max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
+              onChangeAmount={changeSecondTokenAmount}
+              value={secondTokenAmount}
+              disabled={!wallet.isSignedIn()}
+            ></InputAmount>
+          </div>
+        </div>
+        <div className="flex items-center justify-center">
+          <SolidButton
             disabled={!canSubmit}
-            className={`rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight ${
-              canSubmit ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
-            }`}
+            className={`focus:outline-none`}
             onClick={async () => {
               try {
                 await submit();
@@ -241,7 +308,7 @@ function AddLiquidityModal(
               id="add_liquidity"
               defaultMessage="Add Liquidity"
             />
-          </button>
+          </SolidButton>
         </div>
       </Card>
     </Modal>
@@ -264,7 +331,7 @@ export function RemoveLiquidityModal(
     shares: amount ? toNonDivisibleNumber(24, amount) : '0',
   });
   const [error, setError] = useState<Error>();
-  const cardWidth = isMobile() ? '85vw' : '30vw';
+  const cardWidth = isMobile() ? '75vw' : '40vw';
   const intl = useIntl();
 
   function submit() {
@@ -288,8 +355,16 @@ export function RemoveLiquidityModal(
 
   return (
     <Modal {...props}>
-      <Card style={{ width: cardWidth }}>
-        <div className="text-sm text-gray-800 font-semibold pb-4">
+      <Card
+        style={{
+          width: cardWidth,
+          border: '1px solid rgba(0, 198, 162, 0.5)',
+        }}
+        padding="p-8"
+        bgColor="bg-cardBg"
+        className="text-white"
+      >
+        <div className="text-base pb-4">
           <FormattedMessage
             id="remove_liquidity"
             defaultMessage="Remove Liquidity"
@@ -299,11 +374,12 @@ export function RemoveLiquidityModal(
           {error && <Alert level="error" message={error.message} />}
         </div>
         <div>
-          <p className="col-span-12 p-2 text-right text-xs font-semibold">
-            <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
+          <div className="text-xs text-right mb-1 text-gray-400">
+            <FormattedMessage id="balance" defaultMessage="Balance" />
+            :&nbsp;
             {toPrecision(toReadableNumber(24, shares), 6)}
-          </p>
-          <div className="border rounded-lg overflow-hidden">
+          </div>
+          <div className="rounded overflow-hidden">
             <InputAmount
               maxBorder={false}
               value={amount}
@@ -312,7 +388,7 @@ export function RemoveLiquidityModal(
             />
           </div>
         </div>
-        <div className="pt-2">
+        <div className="pt-4 mb-8">
           <SlippageSelector
             slippageTolerance={slippageTolerance}
             onChange={setSlippageTolerance}
@@ -320,21 +396,25 @@ export function RemoveLiquidityModal(
         </div>
         {amount ? (
           <>
-            <p className="mt-3 text-left text-xs font-semibold">
+            <p className="mt-3 text-left text-sm ">
               <FormattedMessage
                 id="minimum_tokens_out"
                 defaultMessage="Minimum Tokens Out"
               />
             </p>
-            <section className="grid grid-cols-2 mt-3 text-xs font-semibold">
+            <section className="flex items-center justify-center mx-3 mb-12">
               {Object.entries(minimumAmounts).map(
                 ([tokenId, minimumAmount], i) => {
                   const token = tokens.find((t) => t.id === tokenId);
 
                   return (
-                    <section key={tokenId} className="flex items-center">
-                      <Icon icon={token.icon} />
-                      <span className="ml-2">
+                    <section
+                      key={tokenId}
+                      className="flex flex-col items-center"
+                    >
+                      <Icon icon={token.icon} className="h-12 w-12" />
+                      <span className="m-1 mb-2 text-sm">{token.symbol} </span>
+                      <span className="ml-2 text-lg font-bold">
                         {toRoundedReadableNumber({
                           decimals: tokens.find((t) => t.id === tokenId)
                             .decimals,
@@ -349,11 +429,10 @@ export function RemoveLiquidityModal(
             </section>
           </>
         ) : null}
-        <div className="flex items-center justify-center pt-6">
-          <button
-            className={`rounded-full text-xs text-white px-5 py-2.5 ml-3 focus:outline-none font-semibold bg-greenLight ${
-              amount ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
-            }`}
+        <div className="flex items-center justify-center">
+          <SolidButton
+            disabled={!amount}
+            className={`focus:outline-none`}
             onClick={async () => {
               try {
                 await submit();
@@ -366,7 +445,7 @@ export function RemoveLiquidityModal(
               id="remove_liquidity"
               defaultMessage="Remove Liquidity"
             />
-          </button>
+          </SolidButton>
         </div>
       </Card>
     </Modal>
@@ -418,7 +497,7 @@ export function PoolDetailsPage() {
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
 
   return (
-    <div className="flex items-start flex-row w-4/6 lg:w-5/6 xl:w-4/5 md:w-5/6 m-auto">
+    <div className="flex items-start flex-row md:w-10/12 xs:w-10/12 w-4/6 lg:w-5/6 xl:w-4/5 md:flex-col xs:flex-col m-auto">
       <div
         className="p-2 mr-4"
         onClick={() => {
@@ -427,14 +506,15 @@ export function PoolDetailsPage() {
       >
         <BackArrow />
       </div>
-      <div>
+
+      <div className="md:w-full xs:w-full">
         <Card
-          className="rounded-2xl mr-3"
+          className="rounded-2xl mr-3 lg:w-96 md:w-full xs:w-full"
           padding="pt-8 pb-4 px-0"
           bgColor="bg-cardBg"
-          width="w-96"
         >
-          {/* 展示token */}
+          {/* show token */}
+
           <div className="text-center mx-8">
             {backToFarmsButton ? (
               <div className="float-left">
@@ -445,6 +525,9 @@ export function PoolDetailsPage() {
             ) : null}
 
             <div className="flex flex-col text-center text-base pt-2 pb-4">
+              <div className="flex justify-end mb-4">
+                {state?.backToFarms && <FarmMining />}
+              </div>
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-end">
                   <Icon icon={tokens[0].icon} className="h-12 w-12 mr-2" />
@@ -516,7 +599,6 @@ export function PoolDetailsPage() {
             </div>
           </div>
           <div className="border border-solid border-gray-600"></div>
-          {/* 内部内容 */}
           <div className="text-base text-gray-400 pt-6 mx-8">
             {/* fee */}
             <div className="flex items-center justify-between py-2.5">
@@ -580,7 +662,6 @@ export function PoolDetailsPage() {
                 <FormattedMessage id="my_shares" defaultMessage="My Shares" />
               </div>
               <div
-                // className="text-white"
                 style={{
                   color: '#FFFFFF',
                 }}
@@ -588,9 +669,29 @@ export function PoolDetailsPage() {
                 <MyShares shares={shares} totalShares={pool.shareSupply} />
               </div>
             </div>
-            {/* <div className="flex items-center justify-center pt-6">
-              <button
-                className={`rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight`}
+          </div>
+        </Card>
+      </div>
+
+      {/* chart */}
+      <div
+        className="w-full flex flex-col h-full"
+        // style={{
+        //   height: '559px',
+        // }}
+      >
+        <div className="lg:flex items-center justify-between mb-4">
+          <div className="flex items-center xs:hidden md:hidden">
+            <div className="mr-2">
+              <WatchListStart />
+            </div>
+            <div className="text-gray-400 text-xs"> {'Add Watchlist'} </div>
+          </div>
+          <div className="lg:flex items-center xs:mt-8 md:mt-8 xs:grid xs:grid-cols-2 md:grid md:grid-cols-2">
+            <div className=" pr-3">
+              <SolidButton
+                padding="px-6"
+                className="xs:w-full  md:w-full xs:col-span-1 md:col-span-1"
                 onClick={() => {
                   setShowFunding(true);
                 }}
@@ -599,65 +700,32 @@ export function PoolDetailsPage() {
                   id="add_liquidity"
                   defaultMessage="Add Liquidity"
                 />
-              </button>
-              <button
-                className={`rounded-full text-xs text-white px-5 py-2.5 ml-3 focus:outline-none font-semibold bg-greenLight ${
-                  1 ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
-                }`}
+              </SolidButton>
+            </div>
+            <div className="pl-3">
+              <OutlineButton
+                padding="px-6"
                 onClick={() => {
                   setShowWithdraw(true);
                 }}
+                className="xs:w-full md:w-full xs:col-span-1 md:col-span-1"
               >
                 <FormattedMessage
                   id="remove_liquidity"
                   defaultMessage="Remove Liquidity"
                 />
-              </button>
-            </div> */}
-          </div>
-        </Card>
-      </div>
-
-      {/* chart */}
-      <div
-        className="w-full opacity-80 flex flex-col"
-        style={{
-          height: '559px',
-        }}
-      >
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <div className="mr-2">
-              <WatchListStart />
+              </OutlineButton>
             </div>
-            <div className="text-gray-400 text-xs"> {'Add Watchlist'} </div>
-          </div>
-          <div className="flex items-center">
-            <SolidButton
-              padding="px-10"
-              className="mr-4"
-              onClick={() => {
-                setShowFunding(true);
-              }}
-            >
-              Add Liquidity{' '}
-            </SolidButton>
-            <OutlineButton
-              padding="px-10"
-              onClick={() => {
-                setShowWithdraw(true);
-              }}
-            >
-              {' '}
-              Remove Liquidity{' '}
-            </OutlineButton>
           </div>
         </div>
+
         <Card
           width="w-full"
-          className="rounded-2xl h-full flex flex-col justify-between "
-          bgColor="bg-chartBg"
+          className="relative rounded-2xl bg-chartBg h-full flex flex-col justify-between md:hidden xs:hidden"
           padding="p-7"
+          style={{
+            height: '540px',
+          }}
         >
           <div className="pb-7">
             <div className="flex items-center justify-between">
@@ -671,8 +739,14 @@ export function PoolDetailsPage() {
             </div>
             <div className="text-xs text-gray-500">Sep. 11 2021</div>
           </div>
-          <div className="text-center text-lg text-gray-500">
-            Coming Soon...
+          <div
+            className="absolute w-full left-0 top-0 h-full m-auto text-center text-xl text-gray-500 flex items-center justify-center opacity-70"
+            style={{
+              backdropFilter: 'blur(1px)',
+              background: '#001320',
+            }}
+          >
+            <div>Coming Soon...</div>
           </div>
 
           <div>
@@ -684,7 +758,7 @@ export function PoolDetailsPage() {
                 transform: 'rotate(90deg)',
                 position: 'relative',
                 bottom: '190px',
-                left: '300px',
+                left: '100px',
               }}
             ></div>
             <div
@@ -694,9 +768,10 @@ export function PoolDetailsPage() {
                 width: '13px',
                 height: '13px',
                 position: 'relative',
-                left: '495px',
+                left: '295px',
                 top: '4px',
                 backgroundColor: '#00d6af',
+                opacity: 0.4,
               }}
               className="rounded-full"
             ></div>
@@ -729,12 +804,30 @@ export function PoolDetailsPage() {
         tokens={tokens}
         isOpen={showWithdraw}
         onRequestClose={() => setShowWithdraw(false)}
+        style={{
+          content: {
+            position: 'absolute',
+            top: '50%',
+          },
+          overlay: {
+            backdropFilter: 'blur(10px)',
+          },
+        }}
       />
       <AddLiquidityModal
         pool={pool}
         tokens={tokens}
         isOpen={showFunding}
         onRequestClose={() => setShowFunding(false)}
+        style={{
+          content: {
+            position: 'absolute',
+            top: '50%',
+          },
+          overlay: {
+            backdropFilter: 'blur(10px)',
+          },
+        }}
       />
     </div>
   );

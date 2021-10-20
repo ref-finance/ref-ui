@@ -36,7 +36,7 @@ const en_US = {
   rainbow_bridge: 'Rainbow Bridge',
   deposit_to_swap: 'Deposit to swap',
   connect_to_near: 'Connect to Near',
-  slippage: 'Slippage',
+  slippage: 'Slippage tolerance',
   minimum_received: 'Minimum received',
   swap_rate: 'Swap rate',
   pool_fee: 'Pool fee',
