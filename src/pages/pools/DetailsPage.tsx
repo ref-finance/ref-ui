@@ -633,10 +633,24 @@ export function PoolDetailsPage() {
             <div className="text-gray-400 text-xs"> {'Add Watchlist'} </div>
           </div>
           <div className="flex items-center">
-            <SolidButton padding="px-10" className="mr-4">
+            <SolidButton
+              padding="px-10"
+              className="mr-4"
+              onClick={() => {
+                setShowFunding(true);
+              }}
+            >
               Add Liquidity{' '}
             </SolidButton>
-            <OutlineButton padding="px-10"> Remove Liquidity </OutlineButton>
+            <OutlineButton
+              padding="px-10"
+              onClick={() => {
+                setShowWithdraw(true);
+              }}
+            >
+              {' '}
+              Remove Liquidity{' '}
+            </OutlineButton>
           </div>
         </div>
         <Card

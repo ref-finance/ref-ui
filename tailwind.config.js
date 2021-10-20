@@ -33,6 +33,8 @@ module.exports = {
         chartBg: '#001320',
         gradientFrom: '#00c6a2',
         gradientTo: '#008b72',
+        gradientFromHover: '#00D6AF',
+        gradientToHover: '#00967B',
         poolRowHover: '#001320',
       },
     },
