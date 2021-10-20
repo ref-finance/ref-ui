@@ -273,9 +273,9 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   };
 
   return (
-    <div className="grid grid-cols-12 py-3.5 text-white content-center text-base text-left mx-8  border-b border-gray-600">
+    <div className="grid grid-cols-12 py-3.5 text-white content-center text-base text-left mx-8 border-b border-gray-600">
       <div className="col-span-6 md:col-span-4 flex items-center">
-        <div className="mr-6">{index}</div>
+        <div className="mr-6 w-2">{index}</div>
         <Link
           to={{
             pathname: `/pool/${pool.id}`,

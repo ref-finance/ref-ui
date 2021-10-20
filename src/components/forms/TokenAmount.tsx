@@ -52,8 +52,8 @@ export default function TokenAmount({
   return (
     <>
       <div className="flex justify-between text-xs font-semibold pb-0.5 w-3/5">
-        <span className="text-primaryLabel">{text}</span>
-        <span className="text-primaryLabel" title={total}>
+        <span className="text-primaryText">{text}</span>
+        <span className="text-primaryText" title={total}>
           <FormattedMessage id="balance" defaultMessage="Balance" />
           :&nbsp;
           {toPrecision(total, 3, true)}

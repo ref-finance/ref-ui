@@ -108,7 +108,7 @@ function AccountEntry() {
           }`}
         >
           <Card className="cursor-default" width="w-80">
-            <div className="flex items-center justify-between text-gray-700">
+            <div className="flex items-center justify-between text-primaryText">
               <div className="text-base">
                 <FormattedMessage id="balance" defaultMessage="Balance" />
               </div>
@@ -196,7 +196,7 @@ function PoolsMenu() {
             return (
               <div
                 key={link.path}
-                className={`whitespace-nowrap text-left text-sm font-semibold text-gray-600 cursor-pointer pb-2 last:pb-0 hover:text-greenLight ${
+                className={`whitespace-nowrap text-left text-sm font-semibold text-primaryText cursor-pointer pb-2 last:pb-0 hover:text-greenLight ${
                   isSelected ? 'text-green-500' : 'text-white'
                 }`}
                 onClick={() => history.push(link.path)}
@@ -273,7 +273,7 @@ function MoreMenu() {
             return (
               <div
                 key={link.url}
-                className={`whitespace-nowrap text-left text-sm font-semibold text-gray-600 cursor-pointer pb-2 last:pb-0 hover:text-greenLight`}
+                className={`whitespace-nowrap text-left text-sm font-semibold text-primaryText cursor-pointer pb-2 last:pb-0 hover:text-greenLight`}
                 onClick={() =>
                   window.open(link.url, link.isExternal ? '' : '_self')
                 }

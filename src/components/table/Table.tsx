@@ -89,7 +89,11 @@ export default function Table({
                 sortBy === 'near' ? 'text-greenLight' : ''
               }`}
             >
-              Near <span className="xs:text-xs"><br className="hidden xs:inline-block" />Account</span>
+              Near{' '}
+              <span className="xs:text-xs">
+                <br className="hidden xs:inline-block" />
+                Account
+              </span>
               <TiArrowSortedUp
                 onClick={() => onSortChange('near')}
                 className={`inline-block cursor-pointer ${
@@ -104,7 +108,11 @@ export default function Table({
                 sortBy === 'ref' ? 'text-greenLight' : ''
               }`}
             >
-              Ref <span className="xs:text-xs"><br className="hidden xs:inline-block" />Account</span>
+              Ref{' '}
+              <span className="xs:text-xs">
+                <br className="hidden xs:inline-block" />
+                Account
+              </span>
               <TiArrowSortedUp
                 onClick={() => onSortChange('ref')}
                 className={`inline-block cursor-pointer ${

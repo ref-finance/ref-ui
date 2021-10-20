@@ -69,7 +69,7 @@ export function YourLiquidityPage() {
         {pools.length > 0 ? (
           <section>
             <div className="max-h-80 overflow-y-auto">
-              <div className="grid grid-cols-12 py-2 content-center items-center text-xs font-semibold text-gray-600">
+              <div className="grid grid-cols-12 py-2 content-center items-center text-xs font-semibold text-primaryText">
                 <div className="grid grid-cols-2 col-span-2"></div>
                 <p className="grid col-span-3">
                   <FormattedMessage id="pair" defaultMessage="Pair" />
