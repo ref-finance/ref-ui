@@ -33,6 +33,7 @@ import { BigNumber } from 'bignumber.js';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { WatchListStart } from '~components/icon/WatchListStart';
 import { OutlineButton, SolidButton } from '~components/button/Button';
+import { wallet } from '~services/near';
 
 interface ParamTypes {
   id: string;
@@ -212,25 +213,91 @@ function AddLiquidityModal(
         <div className="flex justify-center">
           {error && <Alert level="error" message={error.message} />}
         </div>
-        <TokenAmount
-          amount={firstTokenAmount}
-          max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
-          total={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
-          tokens={[tokens[0]]}
-          selectedToken={tokens[0]}
-          onChangeAmount={changeFirstTokenAmount}
-        />
-        <div className="pt-4">
-          <TokenAmount
+        <div>
+          <div className="text-xs text-right mb-1 text-gray-400">
+            <FormattedMessage id="balance" defaultMessage="Balance" />
+            :&nbsp;
+            {toPrecision(
+              toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
+              6,
+              true
+            )}
+          </div>
+          <div className="flex items-center ">
+            <div className="flex items-end mr-4">
+              <Icon icon={tokens[0].icon} className="h-12 w-12 mr-2" />
+              <div className="flex items-start flex-col">
+                <div className="text-white text-xl">
+                  {toRealSymbol(tokens[0].symbol)}
+                </div>
+                <div
+                  className="text-xs text-gray-400"
+                  title={tokens[0].id}
+                >{`${tokens[0].id.substring(0, 12)}${
+                  tokens[0].id.length > 12 ? '...' : ''
+                }`}</div>
+              </div>
+            </div>
+            <InputAmount
+              max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
+              onChangeAmount={changeFirstTokenAmount}
+              value={firstTokenAmount}
+              disabled={!wallet.isSignedIn()}
+            ></InputAmount>
+          </div>
+
+          {/* <TokenAmount
+            amount={firstTokenAmount}
+            max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
+            total={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
+            tokens={[tokens[0]]}
+            selectedToken={tokens[0]}
+            onChangeAmount={changeFirstTokenAmount}
+          /> */}
+        </div>
+
+        <div className="my-10">
+          {/* <TokenAmount
             amount={secondTokenAmount}
             max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
             total={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
             tokens={[tokens[1]]}
             selectedToken={tokens[1]}
             onChangeAmount={changeSecondTokenAmount}
-          />
+          /> */}
+          <div className="text-xs text-right mb-1 text-gray-400">
+            <FormattedMessage id="balance" defaultMessage="Balance" />
+            :&nbsp;
+            {toPrecision(
+              toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
+              6,
+              true
+            )}
+          </div>
+          <div className="flex items-center">
+            <div className="flex items-end mr-4">
+              <Icon icon={tokens[1].icon} className="h-12 w-12 mr-2" />
+              <div className="flex items-start flex-col">
+                <div className="text-white text-xl">
+                  {toRealSymbol(tokens[1].symbol)}
+                </div>
+                <div
+                  className="text-xs text-gray-400"
+                  title={tokens[1].id}
+                >{`${tokens[1].id.substring(0, 12)}${
+                  tokens[1].id.length > 12 ? '...' : ''
+                }`}</div>
+              </div>
+            </div>
+            <InputAmount
+              max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
+              onChangeAmount={changeSecondTokenAmount}
+              value={secondTokenAmount}
+              disabled={!wallet.isSignedIn()}
+            ></InputAmount>
+          </div>
         </div>
-        <div className="flex items-center justify-center pt-6">
+        <div className="flex items-center justify-center">
           <SolidButton
             disabled={!canSubmit}
             className={`focus:outline-none`}

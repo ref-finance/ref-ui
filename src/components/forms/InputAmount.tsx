@@ -27,9 +27,10 @@ export default function InputAmount({
     <>
       <fieldset className={className}>
         <div
-          className={`relative flex align-center items-center border-solid border-gray-200 ${
-            maxBorder ? 'border-r' : ''
-          }`}
+          className={`relative flex align-center items-center pr-3 rounded`}
+          style={{
+            background: 'rgba(0, 0, 0, 0.2)',
+          }}
         >
           <input
             ref={ref}
@@ -38,7 +39,7 @@ export default function InputAmount({
             onWheel={() => ref.current.blur()}
             {...rest}
             step="any"
-            className={`text-sm font-bold focus:outline-none bg-inputBg appearance-none rounded border-opacity-30 w-full py-3 px-3 leading-tight ${
+            className={`text-2xl focus:outline-none appearance-none border-opacity-30 w-full p-3 leading-tight ${
               disabled
                 ? 'text-gray-400 placeholder-gray-400'
                 : 'text-greenLight'
@@ -51,7 +52,7 @@ export default function InputAmount({
           />
           {max ? (
             <a
-              className={`rounded-lg right-0 items-center py-3 px-3 m-auto focus:outline-none font-semibold text-xs
+              className={`rounded p-0.5 items-center m-auto focus:outline-none border border-green-500 text-xs
              ${
                disabled
                  ? 'text-gray-400 hover:text-gray-400'
