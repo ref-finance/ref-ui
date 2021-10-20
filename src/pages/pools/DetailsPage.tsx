@@ -225,7 +225,7 @@ function AddLiquidityModal(
             )}
           </div>
           <div className="flex items-center ">
-            <div className="flex items-end mr-4">
+            <div className="flex items-end mr-12">
               <Icon icon={tokens[0].icon} className="h-12 w-12 mr-2" />
               <div className="flex items-start flex-col">
                 <div className="text-white text-xl">
@@ -269,7 +269,7 @@ function AddLiquidityModal(
             )}
           </div>
           <div className="flex items-center">
-            <div className="flex items-end mr-4">
+            <div className="flex items-end mr-8">
               <Icon icon={tokens[1].icon} className="h-12 w-12 mr-2" />
               <div className="flex items-start flex-col">
                 <div className="text-white text-xl">
