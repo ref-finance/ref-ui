@@ -815,12 +815,30 @@ export function PoolDetailsPage() {
         tokens={tokens}
         isOpen={showWithdraw}
         onRequestClose={() => setShowWithdraw(false)}
+        style={{
+          content: {
+            position: 'absolute',
+            top: '40%',
+          },
+          overlay: {
+            backdropFilter: 'blur(10px)',
+          },
+        }}
       />
       <AddLiquidityModal
         pool={pool}
         tokens={tokens}
         isOpen={showFunding}
         onRequestClose={() => setShowFunding(false)}
+        style={{
+          content: {
+            position: 'absolute',
+            top: '40%',
+          },
+          overlay: {
+            backdropFilter: 'blur(10px)',
+          },
+        }}
       />
     </div>
   );
