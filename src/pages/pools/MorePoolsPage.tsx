@@ -138,7 +138,7 @@ export const MorePoolsPage = () => {
   return (
     <>
       <div className="xs:hidden md:hidden lg:w-5/6 xl:w-3/4 m-auto text-white">
-        <Card width="w-full" bgColor="bg-cardBg" padding="py-7 px-0">
+        <Card width="w-full" bgcolor="bg-cardBg" padding="py-7 px-0">
           <div className="mx-8">
             <Link
               to={{
@@ -302,7 +302,7 @@ const MobileRow = ({
   return (
     <Card
       width="w-full"
-      bgColor="bg-cardBg"
+      bgcolor="bg-cardBg"
       className="rounded mb-2"
       padding="p-4"
     >

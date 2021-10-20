@@ -173,7 +173,7 @@ export const getFarmInfo = async (
       rewardToken.decimals,
       new BigNumber(rewardNumberPerWeek.toString()).toFixed()
     ),
-    2
+    0
   );
 
   const userRewardNumberPerWeek =

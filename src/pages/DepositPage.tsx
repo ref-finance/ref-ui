@@ -97,7 +97,7 @@ export default function DepositPage() {
 
   return (
     <div className="flex items-center flex-col xl:w-1/3 2xl:w-1/3 3xl:w-1/4 lg:w-1/2 md:w-5/6 xs:w-11/12 m-auto">
-      <Card width="w-full" bgColor="bg-dark">
+      <Card width="w-full" bgcolor="bg-dark">
         <h2 className="formTitle font-bold text-xl text-white text-left pb-4">
           {intl.formatMessage({ id: 'deposit' })}
         </h2>

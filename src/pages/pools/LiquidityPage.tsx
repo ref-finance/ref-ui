@@ -37,8 +37,7 @@ const ConnectToNearCard = () => {
       <div className="mb-8 text-lg">
         <FormattedMessage
           id="connect_to_near_tip"
-          defaultMessage="Connect your wallet to provide
-            liquidity and view your deposite."
+          defaultMessage="Connect your wallet to provide liquidity and view your deposit."
         />
       </div>
       <div className="text-2xl">
@@ -144,7 +143,7 @@ function MobileLiquidityPage({
   return (
     <div className="flex items-center flex-col w-3/6 xs:w-5/6 md:w-5/6 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
       {!wallet.isSignedIn() && <ConnectToNearCard />}
-      <Card className="w-full mb-4" bgColor="bg-cardBg" padding="p-0">
+      <Card className="w-full mb-4" bgcolor="bg-cardBg" padding="p-0">
         <div className="mx-6 mb-6 mt-3">
           <div className="text-white text-2xl ">
             <FormattedMessage
@@ -360,7 +359,7 @@ function LiquidityPage_({
   const intl = useIntl();
   return (
     <div className="flex items-center flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
-      <Card className="w-full mb-4" bgColor="bg-cardBg">
+      <Card className="w-full mb-4" bgcolor="bg-cardBg">
         <div className="pb-6 mx-8">
           <div className="text-white text-2xl ">
             <FormattedMessage

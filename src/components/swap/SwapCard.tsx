@@ -239,9 +239,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       info={intl.formatMessage({ id: 'swapCopy' })}
       title={intl.formatMessage({ id: 'swap' })}
     >
-      <div className="pb-2">
-        {swapError && <Alert level="error" message={swapError.message} />}
-      </div>
       <TokenAmount
         amount={tokenInAmount}
         total={tokenInMax}
@@ -303,6 +300,9 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         to={tokenOutAmount}
         minAmountOut={minAmountOut}
       />
+      <div className="pb-2">
+        {swapError && <Alert level="error" message={swapError.message} />}
+      </div>
     </NewFormWrap>
   );
 }

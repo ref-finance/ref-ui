@@ -1,4 +1,5 @@
 import React from 'react';
+import { FaExclamationTriangle } from 'react-icons/fa';
 
 export default function Alert({
   level,
@@ -16,14 +17,10 @@ export default function Alert({
   return (
     <div className="p-2">
       <div
-        className={`inline-flex items-center bg-white leading-none text-${color}-600 rounded-full p-2 shadow text-teal text-sm`}
+        className={`inline-flex items-center leading-none p-2 text-teal text-xs`}
       >
-        <span
-          className={`inline-flex bg-${color}-600 text-white rounded-full h-6 px-3 justify-center items-center`}
-        >
-          {level}
-        </span>
-        <span className="inline-flex px-2">{message}</span>
+        <FaExclamationTriangle className={`text-${color}-500 text-lg`} />
+        <span className={`text-${color}-500 inline-flex px-2`}>{message}</span>
       </div>
     </div>
   );

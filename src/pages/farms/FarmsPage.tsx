@@ -675,7 +675,12 @@ function FarmView({
   });
 
   return (
-    <Card width="w-full" className="self-start" padding={'p-0'}>
+    <Card
+      width="w-full"
+      className="self-start"
+      padding={'p-0'}
+      bgcolor="bg-white"
+    >
       <div
         className={`${
           ended ? 'rounded-t-xl bg-gray-300 bg-opacity-50' : ''
