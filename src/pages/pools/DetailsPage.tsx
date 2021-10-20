@@ -683,10 +683,10 @@ export function PoolDetailsPage() {
 
       {/* chart */}
       <div
-        className="w-full flex flex-col"
-        style={{
-          height: '559px',
-        }}
+        className="w-full flex flex-col h-full"
+        // style={{
+        //   height: '559px',
+        // }}
       >
         <div className="lg:flex items-center justify-between mb-4">
           <div className="flex items-center xs:hidden md:hidden">
@@ -698,7 +698,7 @@ export function PoolDetailsPage() {
           <div className="lg:flex items-center xs:mt-8 md:mt-8 xs:grid xs:grid-cols-2 md:grid md:grid-cols-2">
             <div className=" pr-3">
               <SolidButton
-                padding="px-10"
+                padding="px-6"
                 className="xs:w-full  md:w-full xs:col-span-1 md:col-span-1"
                 onClick={() => {
                   setShowFunding(true);
@@ -712,7 +712,7 @@ export function PoolDetailsPage() {
             </div>
             <div className="pl-3">
               <OutlineButton
-                padding="px-10"
+                padding="px-6"
                 onClick={() => {
                   setShowWithdraw(true);
                 }}
@@ -731,6 +731,9 @@ export function PoolDetailsPage() {
           width="w-full"
           className="relative rounded-2xl bg-chartBg h-full flex flex-col justify-between md:hidden xs:hidden"
           padding="p-7"
+          style={{
+            height: '540px',
+          }}
         >
           <div className="pb-7">
             <div className="flex items-center justify-between">
