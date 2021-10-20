@@ -1,4 +1,5 @@
 const colors = require('tailwindcss/colors');
+const defaultTheme = require('tailwindcss/defaultTheme');
 
 module.exports = {
   purge: [],
@@ -38,6 +39,9 @@ module.exports = {
         poolRowHover: '#001320',
         primaryLabel: '#7E8A93',
         inputDarkBg: 'rgba(0, 0, 0, 0.2)',
+      },
+      fontFamily: {
+        sans: ['Poppins', ...defaultTheme.fontFamily.sans],
       },
     },
     plugins: [],

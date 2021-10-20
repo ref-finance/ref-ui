@@ -83,12 +83,15 @@ export default function SelectToken({
   return (
     <MicroModal
       trigger={(open) => (
-        <div className={`focus:outline-none w-2/5`} onClick={open}>
+        <div
+          className={`focus:outline-none  ${standalone ? 'w-full' : 'w-2/5'}`}
+          onClick={open}
+        >
           {selected || (
             <section
               className={`flex justify-between items-center px-3 py-3 ${
                 standalone
-                  ? 'bg-inputBg relative flex overflow-hidden rounded-lg align-center my-2 border'
+                  ? 'bg-inputDarkBg text-white relative flex overflow-hidden rounded-lg align-center my-2 border border-greenLight'
                   : ''
               }`}
             >
