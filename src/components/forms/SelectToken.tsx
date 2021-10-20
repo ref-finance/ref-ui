@@ -37,8 +37,6 @@ export default function SelectToken({
   addToken?: () => JSX.Element;
   balances?: TokenBalancesView;
 }) {
-  const [listData, setListData] = useState<any[]>([]);
-
   if (!onSelect) {
     return (
       <button className="focus:outline-none p-1" type="button">
@@ -71,18 +69,14 @@ export default function SelectToken({
       };
     });
 
-  useEffect(() => {
-    setListData(tokensData);
-  }, [tokens]);
-
-  const onSearch = (value: string) => {
-    const result = tokens.filter(({ symbol }) =>
-      toRealSymbol(symbol)
-        .toLocaleUpperCase()
-        .includes(value.toLocaleUpperCase())
-    );
-    setListData(result);
-  };
+  // const onSearch = (value: string) => {
+  //   const result = tokens.filter(({ symbol }) =>
+  //     toRealSymbol(symbol)
+  //       .toLocaleUpperCase()
+  //       .includes(value.toLocaleUpperCase())
+  //   );
+  //   setListData(result);
+  // };
 
   return (
     <MicroModal
@@ -145,16 +139,22 @@ export default function SelectToken({
               className="absolute text-gray-400 text-2xl right-6"
             />
           </div>
-          <div className="rounded-lg w-full my-2 px-6">
+          {/* <div className="rounded-lg w-full my-2 px-6">
             <input
               className={`text-sm min bg-black bg-opacity-25 focus:outline-none rounded-lg w-full py-2 px-3 text-greenLight`}
               placeholder={intl.formatMessage({ id: 'search_pools' })}
               onChange={(evt) => onSearch(evt.target.value)}
             />
-          </div>
-          <CommenBasses />
+          </div> */}
+          <CommenBasses
+            tokens={tokensData}
+            onClick={(token) => {
+              onSelect && onSelect(token);
+              close();
+            }}
+          />
           <Table
-            tokens={listData}
+            tokens={tokensData}
             render={render}
             onClick={(token) => {
               onSelect && onSelect(token);
