@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Alert from '../alert/Alert';
 import SubmitButton from './SubmitButton';
 import { FormattedMessage } from 'react-intl';
+import { GradientButton } from '~components/button/Button';
 
 interface NewFormWrapProps {
   title?: string;

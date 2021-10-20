@@ -20,6 +20,7 @@ import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaExchangeAlt } from 'react-icons/fa';
 import db from '~store/RefDatabase';
+import { GradientButton } from '~components/button/Button';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -28,9 +29,9 @@ const TOKEN_URL_SEPARATOR = '|';
 
 function SwapDetail({ title, value }: { title: string; value: string }) {
   return (
-    <section className="grid grid-cols-2 py-1">
-      <p className="opacity-80">{title}</p>
-      <p className="text-right font-semibold">{value}</p>
+    <section className="grid grid-cols-2 py-1 text-xs">
+      <p className="text-primaryLabel">{title}</p>
+      <p className="text-right text-white">{value}</p>
     </section>
   );
 }
@@ -76,14 +77,17 @@ function SwapRateDetail({
   }
 
   return (
-    <section className="grid grid-cols-2 py-1">
-      <p className="opacity-80">{title}</p>
+    <section className="grid grid-cols-2 py-1 text-xs">
+      <p className="text-primaryLabel">{title}</p>
       <p
-        className="text-right font-semibold cursor-pointer justify-between flex"
+        className="text-right text-white cursor-pointer justify-between"
         onClick={switchSwapRate}
       >
         <span className="float-right xs:w-2/3 order-2">{newValue}</span>
-        <span className="float-right mr-2 xs:mr-0 mt-1 text-sm">
+        <span
+          className="float-right mr-2 xs:mr-0"
+          style={{ marginTop: '0.1rem' }}
+        >
           <FaExchangeAlt></FaExchangeAlt>
         </span>
       </p>
@@ -221,8 +225,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       showElseView={tokenInMax === '0'}
       elseView={
         <div className="flex justify-center">
-          <button
-            className={`rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight`}
+          <GradientButton
+            className={`w-full text-center text-lg text-white px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
             onClick={() => {
               history.push(`/deposit/${tokenIn.id}`);
             }}
@@ -231,7 +235,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
               id="deposit_to_swap"
               defaultMessage="Deposit to swap"
             />
-          </button>
+          </GradientButton>
         </div>
       }
       onSubmit={handleSubmit}

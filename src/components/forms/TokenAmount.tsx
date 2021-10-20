@@ -52,20 +52,17 @@ export default function TokenAmount({
 
   return (
     <>
-      <div className="flex justify-between text-xs font-semibold pb-0.5">
-        <span className="text-black">{text}</span>
-        <span
-          className={`${max === '0' ? 'text-gray-400' : null}`}
-          title={total}
-        >
+      <div className="flex justify-between text-xs font-semibold pb-0.5 w-3/5">
+        <span className="text-primaryLabel">{text}</span>
+        <span className="text-primaryLabel" title={total}>
           <FormattedMessage id="balance" defaultMessage="Balance" />
           :&nbsp;
           {toPrecision(total, 6, true)}
         </span>
       </div>
-      <fieldset className="bg-inputBg relative flex overflow-hidden rounded-lg align-center my-2 border">
+      <fieldset className="relative flex overflow-hidden rounded-lg align-center my-2">
         <InputAmount
-          className="flex-grow"
+          className="w-3/5"
           id="inputAmount"
           name={selectedToken?.id}
           max={max}
