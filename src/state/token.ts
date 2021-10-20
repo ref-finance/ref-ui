@@ -145,7 +145,7 @@ export const getExchangeRate = (
         ).toFixed(8)}`
     : Number(first_token_num) === 0
     ? 'N/A'
-    : `≈ ${(Number(second_token_num) / Number(first_token_num)).toFixed(4)} ${
+    : `≈ ${(Number(second_token_num) / Number(first_token_num)).toFixed(2)} ${
         tokens[1].symbol
       }`;
 };

@@ -68,8 +68,8 @@ input[type='number'] {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: darkgrey;
-  border-radius: 10px;
+  background: linear-gradient(180deg, #00FFD1 0%, #00BA98 100%);;
+  border-radius: 8px;
 }
 
 .gray {
