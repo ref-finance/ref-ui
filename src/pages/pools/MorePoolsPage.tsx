@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PoolDb } from '~store/RefDatabase';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { Card } from '~components/card/Card';
-import { BackArrow } from '~components/icon';
+import { BackArrow, DownArrowLight, UpArrowDeep } from '~components/icon';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
 import Loading from '~components/layout/Loading';
 
@@ -64,39 +64,39 @@ function PoolRow({
 
   return (
     <div className="grid grid-cols-12 py-3.5 text-white content-center text-base text-left mx-8  border-b border-gray-600">
-      <div className="col-span-1">{index}</div>
+      <div className="col-span-8 md:col-span-4 flex items-center">
+        <div className="mr-6">{index}</div>
 
-      <Link
-        to={{
-          pathname: `/pool/${pool.id}`,
-          state: { tvl: pool?.tvl },
-        }}
-        className="col-span-7 md:col-span-4 flex items-center"
-      >
-        <div className="flex items-center">
-          <div className="h-9 w-9 border rounded-full mr-2">
-            <img
-              key={tokens[0].id.substring(0, 12).substring(0, 12)}
-              className="rounded-full mr-2 w-full"
-              src={tokens[0].icon}
-            />
-          </div>
+        <Link
+          to={{
+            pathname: `/pool/${pool.id}`,
+            state: { tvl: pool?.tvl },
+          }}
+          className="flex items-center"
+        >
+          <div className="flex items-center">
+            <div className="h-9 w-9 border rounded-full mr-2">
+              <img
+                key={tokens[0].id.substring(0, 12).substring(0, 12)}
+                className="rounded-full mr-2 w-full"
+                src={tokens[0].icon}
+              />
+            </div>
 
-          <div className="h-9 w-9 border rounded-full">
-            <img
-              key={tokens[1].id}
-              className="h-9 w-9 border rounded-full"
-              src={tokens[1].icon}
-            />
+            <div className="h-9 w-9 border rounded-full">
+              <img
+                key={tokens[1].id}
+                className="h-9 w-9 border rounded-full"
+                src={tokens[1].icon}
+              />
+            </div>
           </div>
-        </div>
-        <div className="text-lg ml-7">
-          {tokens[0].symbol + '-' + tokens[1].symbol}
-        </div>
+          <div className="text-lg ml-7">
+            {tokens[0].symbol + '-' + tokens[1].symbol}
+          </div>
+        </Link>
         {farmButton()}
-
-        {/*  */}
-      </Link>
+      </div>
 
       <div className="col-span-1 py-1 md:hidden ">
         {calculateFeePercent(pool?.total_fee)}%
@@ -161,23 +161,10 @@ export const MorePoolsPage = () => {
 
         <section className="px-2">
           <header className="grid grid-cols-12 py-2 pb-4 text-left text-base text-gray-400 mx-8 border-b border-gray-600">
-            <p
-              className="col-span-1 flex items-center"
-              // onClick={() => {
-              //   onSortChange('id');
-              //   onOrderChange(order === 'desc' ? 'asc' : 'desc');
-              // }}
-            >
-              <div className="mr-1">
+            <p className="col-span-8 md:col-span-4 flex">
+              <div className="mr-6">
                 <FormattedMessage id="id" defaultMessage="#" />
               </div>
-              {sortBy === 'id' && order === 'desc' ? (
-                <PolygonGreen />
-              ) : (
-                <PolygonGray />
-              )}
-            </p>
-            <p className="col-span-7 md:col-span-4">
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </p>
             <p
@@ -191,9 +178,9 @@ export const MorePoolsPage = () => {
                 <FormattedMessage id="fee" defaultMessage="Fee" />
               </div>
               {sortBy === 'fee' && order === 'desc' ? (
-                <PolygonGreen />
+                <DownArrowLight />
               ) : (
-                <PolygonGray />
+                <UpArrowDeep />
               )}
             </p>
             <p
@@ -207,9 +194,9 @@ export const MorePoolsPage = () => {
                 <FormattedMessage id="24h_volume" defaultMessage="24h Volume" />
               </div>
               {sortBy === '24h_volume' && order === 'desc' ? (
-                <PolygonGreen />
+                <DownArrowLight />
               ) : (
-                <PolygonGray />
+                <UpArrowDeep />
               )}
             </p>
 
@@ -224,9 +211,9 @@ export const MorePoolsPage = () => {
                 <FormattedMessage id="tvl" defaultMessage="TVL" />
               </span>
               {sortBy === 'tvl' && order === 'desc' ? (
-                <PolygonGreen />
+                <DownArrowLight />
               ) : (
-                <PolygonGray />
+                <UpArrowDeep />
               )}
             </div>
           </header>

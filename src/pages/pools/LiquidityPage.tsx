@@ -20,6 +20,7 @@ import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { PoolDb } from '~store/RefDatabase';
 import { PolygonGray, PolygonGreen } from '~components/icon/Polygon';
+import { DownArrowLight, UpArrowDeep } from '~components/icon';
 
 function MobilePoolRow({ pool }: { pool: Pool }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
@@ -273,39 +274,41 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
 
   return (
     <div className="grid grid-cols-12 py-3.5 text-white content-center text-base text-left mx-8  border-b border-gray-600">
-      <div className="col-span-1">{index}</div>
+      <div className="col-span-6 md:col-span-4 flex items-center">
+        <div className="mr-6">{index}</div>
+        <Link
+          to={{
+            pathname: `/pool/${pool.id}`,
+            state: { tvl: pool.tvl, backToFarms: supportFarm },
+          }}
+          className="flex items-center"
+        >
+          <div className="flex items-center">
+            <div className="h-9 w-9 border rounded-full mr-2">
+              <img
+                key={tokens[0].id.substring(0, 12).substring(0, 12)}
+                className="rounded-full mr-2 w-full"
+                src={tokens[0].icon}
+              />
+            </div>
 
-      <Link
-        to={{
-          pathname: `/pool/${pool.id}`,
-          state: { tvl: pool.tvl, backToFarms: supportFarm },
-        }}
-        className="col-span-5 md:col-span-4 flex items-center"
-      >
-        <div className="flex items-center">
-          <div className="h-9 w-9 border rounded-full mr-2">
-            <img
-              key={tokens[0].id.substring(0, 12).substring(0, 12)}
-              className="rounded-full mr-2 w-full"
-              src={tokens[0].icon}
-            />
+            <div className="h-9 w-9 border rounded-full">
+              <img
+                key={tokens[1].id}
+                className="h-9 w-9 border rounded-full"
+                src={tokens[1].icon}
+              />
+            </div>
+          </div>
+          <div className="text-lg ml-7">
+            {tokens[0].symbol + '-' + tokens[1].symbol}
           </div>
 
-          <div className="h-9 w-9 border rounded-full">
-            <img
-              key={tokens[1].id}
-              className="h-9 w-9 border rounded-full"
-              src={tokens[1].icon}
-            />
-          </div>
-        </div>
-        <div className="text-lg ml-7">
-          {tokens[0].symbol + '-' + tokens[1].symbol}
-        </div>
+          {/*  */}
+        </Link>
+
         {farmButton()}
-
-        {/*  */}
-      </Link>
+      </div>
 
       <div className="col-span-1 py-1 md:hidden ">
         {calculateFeePercent(pool.fee)}%
@@ -357,7 +360,7 @@ function LiquidityPage_({
   const intl = useIntl();
   return (
     <div className="flex items-center flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:w-5/6 m-auto xs:hidden">
-      <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
+      <Card className="w-full mb-4" bgColor="bg-cardBg">
         <div className="pb-6 mx-8">
           <div className="text-white text-2xl ">
             <FormattedMessage
@@ -379,7 +382,8 @@ function LiquidityPage_({
           />
           <ReactTooltip className="text-sm" />
         </div>
-        <div className="my-4 border-b border-solid border-gray-600"></div>
+      </Card>
+      <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
         <div className="flex mx-8 justify-between pb-4">
           <div>
             <div className="">
@@ -430,23 +434,10 @@ function LiquidityPage_({
 
         <section className="px-2">
           <header className="grid grid-cols-12 py-2 pb-4 text-left text-base text-gray-400 mx-8 border-b border-gray-600">
-            <p
-              className="col-span-1 flex items-center"
-              // onClick={() => {
-              //   onSortChange('id');
-              //   onOrderChange(order === 'desc' ? 'asc' : 'desc');
-              // }}
-            >
-              <div className="mr-1">
+            <p className="col-span-6 md:col-span-4 flex">
+              <div className="mr-6">
                 <FormattedMessage id="id" defaultMessage="#" />
               </div>
-              {/* {sortBy === 'id' && order === 'desc' ? (
-                <PolygonGreen />
-              ) : (
-                <PolygonGray />
-              )} */}
-            </p>
-            <p className="col-span-5 md:col-span-4">
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </p>
             <p
@@ -460,9 +451,9 @@ function LiquidityPage_({
                 <FormattedMessage id="fee" defaultMessage="Fee" />
               </div>
               {sortBy === 'fee' && order === 'desc' ? (
-                <PolygonGreen />
+                <DownArrowLight />
               ) : (
-                <PolygonGray />
+                <UpArrowDeep />
               )}
             </p>
             <p
@@ -476,9 +467,9 @@ function LiquidityPage_({
                 <FormattedMessage id="24h_volume" defaultMessage="24h Volume" />
               </div>
               {sortBy === '24h_volume' && order === 'desc' ? (
-                <PolygonGreen />
+                <DownArrowLight />
               ) : (
-                <PolygonGray />
+                <UpArrowDeep />
               )}
             </p>
 
@@ -493,9 +484,9 @@ function LiquidityPage_({
                 <FormattedMessage id="tvl" defaultMessage="TVL" />
               </span>
               {sortBy === 'tvl' && order === 'desc' ? (
-                <PolygonGreen />
+                <DownArrowLight />
               ) : (
-                <PolygonGray />
+                <UpArrowDeep />
               )}
             </div>
             <p className="col-span-1">
