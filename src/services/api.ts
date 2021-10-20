@@ -3,16 +3,12 @@ import { wallet } from './near';
 import { toPrecision } from '~utils/numbers';
 import { BigNumber } from 'bignumber.js';
 import moment from 'moment';
-import axios from 'axios';
 
 const config = getConfig();
 const api_url = 'https://rest.nearapi.org/view';
-const coingecko_url = 'https://api.coingecko.com/api/v3';
 
 export interface RefPrice {
-  'ref-finance': {
-    usd: number;
-  };
+  price: string;
 }
 
 export interface PoolRPCView {
@@ -108,16 +104,19 @@ export const getCurrentUnixTime = async (): Promise<any> => {
     });
 };
 
-export const currentRefPrice = () => {
-  return axios
-    .get<RefPrice>(
-      coingecko_url + '/simple/price?ids=ref-finance&vs_currencies=usd'
-    )
-    .then((res) => {
-      if (res.status === 200) {
-        return res.data;
-      } else {
-        return res.statusText;
-      }
+export const currentRefPrice = async (): Promise<any> => {
+  return await fetch(
+    config.indexerUrl + '/get-token-price?token_id=token.v2.ref-finance.near',
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((priceBody) => {
+      return priceBody.price;
+    })
+    .catch(() => {
+      return '-';
     });
 };

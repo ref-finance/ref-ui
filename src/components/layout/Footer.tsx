@@ -3,6 +3,7 @@ import { AiOutlineMedium } from 'react-icons/ai';
 import { FaDiscord, FaTelegramPlane, FaTwitter } from 'react-icons/fa';
 import { FooterLogo } from '~components/icon/FooterLogo';
 import { useRefPrice } from '~state/account';
+import { toPrecision } from '~utils/numbers';
 
 const CommunityLinks = [
   {
@@ -28,6 +29,7 @@ const CommunityLinks = [
 ];
 function Footer() {
   const { data } = useRefPrice();
+  if (!data) return null;
 
   return (
     <>
@@ -35,7 +37,9 @@ function Footer() {
         <footer className="flex items-center justify-between md:justify-center xs:justify-center pl-9 pr-9">
           <div className="relative pl-14 md:hidden xs:hidden">
             <FooterLogo />
-            <span className="text-white">${data?.['ref-finance'].usd}</span>
+            <span className="text-white">
+              ${data === '-' ? '-' : toPrecision(data, 2)}
+            </span>
           </div>
           <div className="flex w-72 justify-between md:justify-around xs:justify-around">
             {CommunityLinks.map((link) => {

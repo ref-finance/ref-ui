@@ -157,3 +157,26 @@ export function OutlineButton(
     </button>
   );
 }
+
+export function GradientButton(
+  props: HTMLAttributes<HTMLButtonElement> & {
+    disabled?: boolean;
+    padding?: string;
+    className?: string;
+  }
+) {
+  const { disabled, className, onClick } = props;
+  return (
+    <div
+      className={`${className ? className : ''}`}
+      style={{
+        background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+        borderRadius: '5px',
+      }}
+    >
+      <button onClick={onClick} disabled={disabled}>
+        {props.children}
+      </button>
+    </div>
+  );
+}

@@ -7,7 +7,7 @@ interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   onChangeAmount?: (amount: string) => void;
 }
 
-export default function InputAmount({
+export default function OldInputAmount({
   max,
   className,
   onChangeAmount,
@@ -27,7 +27,9 @@ export default function InputAmount({
     <>
       <fieldset className={className}>
         <div
-          className={`relative flex align-center items-center bg-inputDarkBg rounded-lg`}
+          className={`relative flex align-center items-center border-solid border-gray-200 ${
+            maxBorder ? 'border-r' : ''
+          }`}
         >
           <input
             ref={ref}
@@ -36,8 +38,10 @@ export default function InputAmount({
             onWheel={() => ref.current.blur()}
             {...rest}
             step="any"
-            className={`text-lg font-bold w-full p-2 ${
-              disabled ? 'text-gray-200 placeholder-gray-200' : 'text-white'
+            className={`text-sm font-bold focus:outline-none bg-black appearance-none rounded border-opacity-30 w-full py-3 px-3 leading-tight ${
+              disabled
+                ? 'text-gray-400 placeholder-gray-400'
+                : 'text-greenLight'
             }`}
             type="number"
             placeholder="0.0"
@@ -47,8 +51,7 @@ export default function InputAmount({
           />
           {max ? (
             <a
-              className={`rounded border border-greenLight items-center px-1 mr-1 m-auto focus:outline-none text-xs
-             text-greenLight
+              className={`rounded-lg right-0 items-center py-3 px-3 m-auto focus:outline-none font-semibold text-xs
              ${
                disabled
                  ? 'text-gray-400 hover:text-gray-400'

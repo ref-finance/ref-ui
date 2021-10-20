@@ -50,10 +50,6 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 
-input[disabled] {
-  color: black;
-  opacity: 1 !important;
-}
 input[type='number'] {
   -moz-appearance: textfield; /* Firefox */
 }
@@ -68,16 +64,12 @@ input[type='number'] {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #00FFD1 0%, #00BA98 100%);;
+  background: linear-gradient(180deg, #00ffd1 0%, #00ba98 100%);
   border-radius: 8px;
 }
 
 .gray {
   color: #bdbdbd;
-}
-
-.bg-black {
-  background-color: #2d3231;
 }
 
 .bg-mobile-nav {
@@ -89,7 +81,7 @@ input[type='number'] {
 }
 
 .bg-dark {
-  background-color: #1D2932;
+  background-color: #1d2932;
 }
 
 .color-black {

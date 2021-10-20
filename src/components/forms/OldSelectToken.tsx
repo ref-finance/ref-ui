@@ -17,7 +17,7 @@ import {
 import { useDepositableBalance } from '~state/token';
 import { toRealSymbol } from '~utils/token';
 
-export default function SelectToken({
+export default function OldSelectToken({
   tokens,
   selected,
   render,
@@ -87,7 +87,11 @@ export default function SelectToken({
   return (
     <MicroModal
       trigger={(open) => (
-        <div className={`focus:outline-none w-2/5`} onClick={open}>
+        <button
+          className={`focus:outline-none ${standalone ? 'w-full' : ''}`}
+          type="button"
+          onClick={open}
+        >
           {selected || (
             <section
               className={`flex justify-between items-center px-3 py-3 ${
@@ -107,7 +111,7 @@ export default function SelectToken({
               </div>
             </section>
           )}
-        </div>
+        </button>
       )}
       overrides={{
         Overlay: {
