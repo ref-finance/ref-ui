@@ -28,7 +28,7 @@ export default function CommenBasses({ tokens, onClick }: CommenBassesProps) {
   return (
     <section className="px-6">
       <div className="text-sm font-bold py-2">
-        <FormattedMessage id="commen_basses" defaultMessage="Commen Basses" />
+        <FormattedMessage id="popular_tokens" defaultMessage="Popular Tokens" />
       </div>
       <div className="w-full flex flex-wrap text-sm text-center">
         {commenBassesTokens.map((token) => {
