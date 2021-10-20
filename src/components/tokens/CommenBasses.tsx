@@ -26,7 +26,7 @@ export default function CommenBasses() {
       <div className="w-full flex flex-wrap text-sm text-center">
         {Object.keys(CommenBassesConfig).map((item) => {
           return (
-            <div className="inline-block pl-4 pt-4">
+            <div className="inline-block pl-4 pt-4" key={CommenBassesConfig[item].id}>
               <img
                 src={CommenBassesConfig[item].icon}
                 alt=""

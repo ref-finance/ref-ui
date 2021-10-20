@@ -65,9 +65,9 @@ export default function SelectToken({
       return {
         ...item,
         asset: toRealSymbol(item.symbol),
-        near: nearCount,
-        ref: refCount,
-        total: nearCount + refCount,
+        near: Number(nearCount),
+        ref: Number(refCount),
+        total: Number(nearCount) + Number(refCount),
       };
     });
 
