@@ -8,7 +8,7 @@ import Loading from '~components/layout/Loading';
 
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { PolygonGray, PolygonGreen } from '~components/icon/Polygon';
+// import { PolygonGray, PolygonGreen } from '~components/icon/Polygon';
 import { useTokens } from '../../state/token';
 import { TokenMetadata } from '~services/ft-contract';
 import { canFarm, Pool } from '../../services/pool';
@@ -55,8 +55,8 @@ function PoolRow({
     if (supportFarm)
       return (
         <div className="flex items-center">
-          <div className="px-0.5 ml-3 mr-2 text-xs text-center bg-gray-600 text-gray-400 inline-block rounded ">
-            <FormattedMessage id="farms" defaultMessage="Farms" />
+          <div className="mx-2">
+            <FarmStamp />
           </div>
           <FarmMiningIcon />
         </div>
@@ -80,7 +80,7 @@ function PoolRow({
             <div className="h-9 w-9 border rounded-full mr-2">
               <img
                 key={tokens[0].id.substring(0, 12).substring(0, 12)}
-                className="rounded-full mr-2 w-full"
+                className="rounded-full w-full"
                 src={tokens[0].icon}
               />
             </div>
@@ -154,7 +154,7 @@ export const MorePoolsPage = () => {
                 <div className="h-9 w-9 border rounded-full mr-2">
                   <img
                     key={tokens[0].id.substring(0, 12).substring(0, 12)}
-                    className="rounded-full mr-2 w-full"
+                    className="rounded-full w-full mr-2"
                     src={tokens[0].icon}
                   />
                 </div>
@@ -259,7 +259,7 @@ export const MorePoolsPage = () => {
             <div className="h-9 w-9 border rounded-full mr-2">
               <img
                 key={tokens[0].id.substring(0, 12).substring(0, 12)}
-                className="rounded-full mr-2 w-full"
+                className="rounded-full w-full mr-2"
                 src={tokens[0].icon}
               />
             </div>
@@ -312,7 +312,7 @@ const MobileRow = ({
             <div className="h-6 w-6 border rounded-full">
               <img
                 key={tokens[0].id.substring(0, 12).substring(0, 12)}
-                className="rounded-full mr-2 w-full"
+                className="rounded-full w-full"
                 src={tokens[0].icon}
               />
             </div>

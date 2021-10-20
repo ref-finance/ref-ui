@@ -208,7 +208,7 @@ function AddLiquidityModal(
         bgColor="bg-cardBg"
         className="text-white"
       >
-        <div className="text-base pb-4">
+        <div className="text-base font-bold pb-4">
           <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
         </div>
         <div className="flex justify-center">
@@ -259,14 +259,6 @@ function AddLiquidityModal(
         </div>
 
         <div className="my-10">
-          {/* <TokenAmount
-            amount={secondTokenAmount}
-            max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
-            total={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
-            tokens={[tokens[1]]}
-            selectedToken={tokens[1]}
-            onChangeAmount={changeSecondTokenAmount}
-          /> */}
           <div className="text-xs text-right mb-1 text-gray-400">
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
@@ -505,7 +497,7 @@ export function PoolDetailsPage() {
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
 
   return (
-    <div className="flex items-start flex-row w-4/6 lg:w-5/6 xl:w-4/5 md:flex-col xs:flex-col m-auto">
+    <div className="flex items-start flex-row md:w-10/12 xs:w-10/12 w-4/6 lg:w-5/6 xl:w-4/5 md:flex-col xs:flex-col m-auto">
       <div
         className="p-2 mr-4"
         onClick={() => {
