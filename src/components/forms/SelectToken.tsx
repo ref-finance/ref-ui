@@ -31,7 +31,7 @@ export default function SelectToken({
   selected: string | React.ReactElement;
   standalone?: boolean;
   placeholder?: string;
-  render?: (token: TokenMetadata) => React.ReactElement;
+  render?: (token: TokenMetadata) => React.ReactElement | string;
   onSelect?: (token: TokenMetadata) => void;
   onSearch?: (value: string) => void;
   addToken?: () => JSX.Element;
@@ -55,7 +55,7 @@ export default function SelectToken({
         item.decimals,
         useDepositableBalance(item.id)
       );
-      const nearCount = toPrecision(totalTokenAmount, 6) || '0';
+      const nearCount = toPrecision(totalTokenAmount, 3) || '0';
       const refCount = toRoundedReadableNumber({
         decimals: item.decimals,
         number: balances ? balances[item.id] : '0',
@@ -63,9 +63,11 @@ export default function SelectToken({
       return {
         ...item,
         asset: toRealSymbol(item.symbol),
-        near: Number(nearCount),
-        ref: Number(refCount),
-        total: Number(nearCount) + Number(refCount),
+        near: Number(nearCount.replace(/[\,]+/g, '')),
+        ref: Number(toPrecision(refCount, 3).replace(/[\,]+/g, '')),
+        total:
+          Number(nearCount.replace(/[\,]+/g, '')) +
+          Number(toPrecision(refCount, 3).replace(/[\,]+/g, '')),
       };
     });
 
