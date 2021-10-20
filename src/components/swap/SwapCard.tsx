@@ -11,7 +11,7 @@ import {
   toPrecision,
   toReadableNumber,
 } from '../../utils/numbers';
-import FormWrap from '../forms/FormWrap';
+import NewFormWrap from '../forms/NewFormWrap';
 import TokenAmount from '../forms/TokenAmount';
 import Alert from '../alert/Alert';
 import SlippageSelector from '../forms/SlippageSelector';
@@ -204,7 +204,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
 
   return (
-    <FormWrap
+    <NewFormWrap
       canSubmit={canSwap}
       showElseView={tokenInMax === '0'}
       elseView={
@@ -224,6 +224,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       }
       onSubmit={handleSubmit}
       info={intl.formatMessage({ id: 'swapCopy' })}
+      title={'Swap'}
     >
       <div className="pb-2">
         {swapError && <Alert level="error" message={swapError.message} />}
@@ -286,6 +287,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         to={tokenOutAmount}
         minAmountOut={minAmountOut}
       />
-    </FormWrap>
+    </NewFormWrap>
   );
 }

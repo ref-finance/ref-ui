@@ -88,6 +88,10 @@ input[type='number'] {
   background-color: #000b19;
 }
 
+.bg-dark {
+  background-color: #1D2932;
+}
+
 .color-black {
   color: #2d3231;
 }

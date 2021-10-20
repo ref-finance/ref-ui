@@ -12,9 +12,6 @@ function SwapPage() {
 
   return (
     <div className="swap">
-      <div className="title text-center text-3xl pb-3 text-white font-semibold">
-        <FormattedMessage id="swap" defaultMessage="Swap" />
-      </div>
       <section className="w-1/3 md:w-5/6 xs:w-11/12 m-auto">
         <SwapCard allTokens={allTokens} />
       </section>
