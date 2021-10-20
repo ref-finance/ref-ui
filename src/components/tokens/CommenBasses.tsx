@@ -1,41 +1,51 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { toRealSymbol } from '~utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
-import { useDepositableBalance } from '~state/token';
-import {
-  toPrecision,
-  toReadableNumber,
-  toNonDivisibleNumber,
-} from '~utils/numbers';
-import { CommenBassesConfig } from '~utils/CommenBasses';
 import { FormattedMessage } from 'react-intl';
 
-interface TokenProps {
-  token: TokenMetadata;
+interface CommenBassesProps {
+  tokens: TokenMetadata[];
   onClick: (token: TokenMetadata) => void;
-  render?: (token: TokenMetadata) => React.ReactElement;
-  totalAmount?: string;
 }
+const COMMEN_BASSES = [
+  'REF',
+  'wNEAR',
+  'SKYWARD',
+  'OCT',
+  'DAI',
+  'PARAS',
+  'STNEAR',
+  'wETH',
+  'USDT',
+  'HAPI',
+];
 
-export default function CommenBasses() {
+export default function CommenBasses({ tokens, onClick }: CommenBassesProps) {
+  const commenBassesTokens = useMemo(
+    () => tokens.filter((item) => COMMEN_BASSES.indexOf(item.symbol) > -1),
+    [tokens]
+  );
   return (
     <section className="px-6">
       <div className="text-sm font-bold py-2">
         <FormattedMessage id="commen_basses" defaultMessage="Commen Basses" />
       </div>
       <div className="w-full flex flex-wrap text-sm text-center">
-        {Object.keys(CommenBassesConfig).map((item) => {
+        {commenBassesTokens.map((token) => {
           return (
             <div
               className="inline-block pl-4 pt-4"
-              key={CommenBassesConfig[item].id}
+              key={token.id}
+              onClick={() => onClick && onClick(token)}
             >
-              <img
-                src={CommenBassesConfig[item].icon}
-                alt=""
-                className="inline-block w-7 h-7 mr-2"
-              />
-              <span>{CommenBassesConfig[item].name}</span>
+              {token.icon && (
+                <img
+                  src={token.icon}
+                  alt={toRealSymbol(token.symbol)}
+                  className="inline-block w-7 h-7 mr-2"
+                />
+              )}
+              <span>{toRealSymbol(token.symbol)}</span>
             </div>
           );
         })}

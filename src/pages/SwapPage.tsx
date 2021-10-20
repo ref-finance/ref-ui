@@ -2,7 +2,6 @@ import React from 'react';
 import SwapCard from '~components/swap/SwapCard';
 import Loading from '~components/layout/Loading';
 import { useWhitelistTokens } from '../state/token';
-import { FormattedMessage } from 'react-intl';
 
 function SwapPage() {
   const allTokens = useWhitelistTokens();

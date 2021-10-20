@@ -237,7 +237,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       }
       onSubmit={handleSubmit}
       info={intl.formatMessage({ id: 'swapCopy' })}
-      title={'Swap'}
+      title={intl.formatMessage({ id: 'swap' })}
     >
       <div className="pb-2">
         {swapError && <Alert level="error" message={swapError.message} />}
