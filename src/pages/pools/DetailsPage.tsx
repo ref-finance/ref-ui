@@ -661,7 +661,6 @@ export function PoolDetailsPage() {
                 <FormattedMessage id="my_shares" defaultMessage="My Shares" />
               </div>
               <div
-                // className="text-white"
                 style={{
                   color: '#FFFFFF',
                 }}
@@ -669,39 +668,13 @@ export function PoolDetailsPage() {
                 <MyShares shares={shares} totalShares={pool.shareSupply} />
               </div>
             </div>
-            {/* <div className="flex items-center justify-center pt-6">
-              <button
-                className={`rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight`}
-                onClick={() => {
-                  setShowFunding(true);
-                }}
-              >
-                <FormattedMessage
-                  id="add_liquidity"
-                  defaultMessage="Add Liquidity"
-                />
-              </button>
-              <button
-                className={`rounded-full text-xs text-white px-5 py-2.5 ml-3 focus:outline-none font-semibold bg-greenLight ${
-                  1 ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
-                }`}
-                onClick={() => {
-                  setShowWithdraw(true);
-                }}
-              >
-                <FormattedMessage
-                  id="remove_liquidity"
-                  defaultMessage="Remove Liquidity"
-                />
-              </button>
-            </div> */}
           </div>
         </Card>
       </div>
 
       {/* chart */}
       <div
-        className="w-full opacity-80 flex flex-col"
+        className="w-full opacity-100 flex flex-col"
         style={{
           height: '559px',
         }}
@@ -739,10 +712,10 @@ export function PoolDetailsPage() {
             </OutlineButton>
           </div>
         </div>
+
         <Card
           width="w-full"
-          className="rounded-2xl h-full flex flex-col justify-between "
-          bgColor="bg-chartBg"
+          className="relative rounded-2xl bg-chartBg h-full flex flex-col justify-between "
           padding="p-7"
         >
           <div className="pb-7">
@@ -757,8 +730,14 @@ export function PoolDetailsPage() {
             </div>
             <div className="text-xs text-gray-500">Sep. 11 2021</div>
           </div>
-          <div className="text-center text-lg text-gray-500">
-            Coming Soon...
+          <div
+            className="absolute w-full left-0 top-0 h-full m-auto text-center text-xl text-gray-500 flex items-center justify-center opacity-70"
+            style={{
+              backdropFilter: 'blur(1px)',
+              background: '#001320',
+            }}
+          >
+            <div>Coming Soon...</div>
           </div>
 
           <div>
@@ -783,6 +762,7 @@ export function PoolDetailsPage() {
                 left: '495px',
                 top: '4px',
                 backgroundColor: '#00d6af',
+                opacity: 0.4,
               }}
               className="rounded-full"
             ></div>
