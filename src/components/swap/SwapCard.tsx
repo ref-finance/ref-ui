@@ -11,7 +11,7 @@ import {
   toPrecision,
   toReadableNumber,
 } from '../../utils/numbers';
-import FormWrap from '../forms/FormWrap';
+import NewFormWrap from '../forms/NewFormWrap';
 import TokenAmount from '../forms/TokenAmount';
 import Alert from '../alert/Alert';
 import SlippageSelector from '../forms/SlippageSelector';
@@ -19,6 +19,7 @@ import { ArrowDownBlack } from '../icon/Arrows';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaExchangeAlt } from 'react-icons/fa';
+import db from '~store/RefDatabase';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -183,14 +184,25 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     });
 
   useEffect(() => {
-    if (Number(tokenInAmount) === 0 || swapError != null) {
-      setDisableTokenInput(false);
-    } else {
-      setDisableTokenInput(!canSwap);
-    }
-    setTimeout(() => {
-      document.getElementById('inputAmount').focus();
-    }, 100);
+    const [urlTokenIn, urlTokenOut] = decodeURIComponent(
+      location.hash.slice(1)
+    ).split(TOKEN_URL_SEPARATOR);
+    const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
+    const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
+    db.checkPoolsByTokens(rememberedIn, rememberedOut).then((cached) => {
+      if (!cached) {
+        if (Number(tokenInAmount) === 0 || swapError != null) {
+          setDisableTokenInput(false);
+        } else {
+          setDisableTokenInput(!canSwap);
+        }
+      } else {
+        setDisableTokenInput(false);
+      }
+      setTimeout(() => {
+        document.getElementById('inputAmount').focus();
+      }, 100);
+    });
   }, [canSwap, swapError]);
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -204,7 +216,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
 
   return (
-    <FormWrap
+    <NewFormWrap
       canSubmit={canSwap}
       showElseView={tokenInMax === '0'}
       elseView={
@@ -224,6 +236,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       }
       onSubmit={handleSubmit}
       info={intl.formatMessage({ id: 'swapCopy' })}
+      title={'Swap'}
     >
       <div className="pb-2">
         {swapError && <Alert level="error" message={swapError.message} />}
@@ -240,8 +253,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
           setTokenIn(token);
         }}
-        disabled={disableTokenInput}
         text={intl.formatMessage({ id: 'from' })}
+        disabled={disableTokenInput}
         onChangeAmount={(amount) => {
           setTokenInAmount(amount);
         }}
@@ -286,6 +299,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         to={tokenOutAmount}
         minAmountOut={minAmountOut}
       />
-    </FormWrap>
+    </NewFormWrap>
   );
 }

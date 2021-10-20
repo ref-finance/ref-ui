@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
-// AiOutlineSearch
-
 import ReactTooltip from 'react-tooltip';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useHistory } from 'react-router';

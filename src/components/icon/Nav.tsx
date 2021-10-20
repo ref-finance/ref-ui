@@ -134,8 +134,8 @@ export function IconBubble() {
           y2="22.9932"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#00FFD1" />
-          <stop offset="1" stop-color="#00BA98" />
+          <stop stopColor="#00FFD1" />
+          <stop offset="1" stopColor="#00BA98" />
         </linearGradient>
       </defs>
     </svg>

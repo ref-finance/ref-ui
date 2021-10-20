@@ -18,7 +18,7 @@ export function FooterLogo() {
             height="37"
             rx="18.5"
             fill="url(#paint0_linear_148:1048)"
-            shape-rendering="crispEdges"
+            shapeRendering="crispEdges"
           />
           <rect
             x="11"
@@ -27,7 +27,7 @@ export function FooterLogo() {
             height="37"
             rx="18.5"
             stroke="url(#paint1_linear_148:1048)"
-            shape-rendering="crispEdges"
+            shapeRendering="crispEdges"
           />
         </g>
         <circle cx="28.5" cy="29.5" r="18" stroke="#00D6AF" />
@@ -64,7 +64,7 @@ export function FooterLogo() {
             filterUnits="userSpaceOnUse"
             colorInterpolationFilters="sRGB"
           >
-            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+            <feFlood floodOpacity="0" result="BackgroundImageFix" />
             <feGaussianBlur in="BackgroundImage" stdDeviation="25" />
             <feComposite
               in2="SourceAlpha"
@@ -104,8 +104,8 @@ export function FooterLogo() {
             y2="-29.8383"
             gradientUnits="userSpaceOnUse"
           >
-            <stop offset="0.0641396" stop-color="white" stop-opacity="0.08" />
-            <stop offset="1" stop-color="white" stop-opacity="0.03" />
+            <stop offset="0.0641396" stopColor="white" stopOpacity="0.08" />
+            <stop offset="1" stopColor="white" stopOpacity="0.03" />
           </linearGradient>
           <linearGradient
             id="paint1_linear_148:1048"
@@ -115,9 +115,9 @@ export function FooterLogo() {
             y2="84.9892"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#00C6A2" stop-opacity="0.83" />
-            <stop offset="0.588542" stop-color="#73818B" stop-opacity="0.56" />
-            <stop offset="1" stop-color="#00BA98" stop-opacity="0.28" />
+            <stop stopColor="#00C6A2" stopOpacity="0.83" />
+            <stop offset="0.588542" stopColor="#73818B" stopOpacity="0.56" />
+            <stop offset="1" stopColor="#00BA98" stopOpacity="0.28" />
           </linearGradient>
         </defs>
       </svg>
