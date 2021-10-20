@@ -120,14 +120,17 @@ export function SolidButton(
 
   return (
     <div
-      className={`py-2 px-6 ${padding ? padding : ''} text-white rounded ${
-        className ? className : ''
-      }`}
+      className={` text-white rounded ${className ? className : ''}`}
       style={{
         background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
       }}
     >
-      <button disabled={disabled}>{props.children}</button>
+      <button
+        disabled={disabled}
+        className={`py-2 px-6 ${padding ? padding : ''}`}
+      >
+        {props.children}
+      </button>
     </div>
   );
 }
@@ -142,15 +145,18 @@ export function OutlineButton(
   const { disabled, padding, className } = props;
   return (
     <div
-      className={`py-2 px-6 ${padding ? padding : ''} rounded ${
-        className ? className : ''
-      }`}
+      className={`rounded ${className ? className : ''}`}
       style={{
         color: '#00D6A2',
         border: '1px solid #00C6A2',
       }}
     >
-      <button disabled={disabled}>{props.children}</button>
+      <button
+        disabled={disabled}
+        className={`py-2 px-6 ${padding ? padding : ''}`}
+      >
+        {props.children}
+      </button>
     </div>
   );
 }
