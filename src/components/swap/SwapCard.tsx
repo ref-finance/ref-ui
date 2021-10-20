@@ -19,6 +19,7 @@ import { ArrowDownBlack } from '../icon/Arrows';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaExchangeAlt } from 'react-icons/fa';
+import db from '~store/RefDatabase';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -78,10 +79,10 @@ function SwapRateDetail({
     <section className="grid grid-cols-2 py-1">
       <p className="opacity-80">{title}</p>
       <p
-        className="text-right font-semibold cursor-pointer"
+        className="text-right font-semibold cursor-pointer justify-between flex"
         onClick={switchSwapRate}
       >
-        <span className="float-right xs:w-2/3">{newValue}</span>
+        <span className="float-right xs:w-2/3 order-2">{newValue}</span>
         <span className="float-right mr-2 xs:mr-0 mt-1 text-sm">
           <FaExchangeAlt></FaExchangeAlt>
         </span>
@@ -183,14 +184,25 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     });
 
   useEffect(() => {
-    if (Number(tokenInAmount) === 0 || swapError != null) {
-      setDisableTokenInput(false);
-    } else {
-      setDisableTokenInput(!canSwap);
-    }
-    setTimeout(() => {
-      document.getElementById('inputAmount').focus();
-    }, 100);
+    const [urlTokenIn, urlTokenOut] = decodeURIComponent(
+      location.hash.slice(1)
+    ).split(TOKEN_URL_SEPARATOR);
+    const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
+    const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
+    db.checkPoolsByTokens(rememberedIn, rememberedOut).then((cached) => {
+      if (!cached) {
+        if (Number(tokenInAmount) === 0 || swapError != null) {
+          setDisableTokenInput(false);
+        } else {
+          setDisableTokenInput(!canSwap);
+        }
+      } else {
+        setDisableTokenInput(false);
+      }
+      setTimeout(() => {
+        document.getElementById('inputAmount').focus();
+      }, 100);
+    });
   }, [canSwap, swapError]);
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -240,8 +252,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
           setTokenIn(token);
         }}
-        disabled={disableTokenInput}
         text={intl.formatMessage({ id: 'from' })}
+        disabled={disableTokenInput}
         onChangeAmount={(amount) => {
           setTokenInAmount(amount);
         }}

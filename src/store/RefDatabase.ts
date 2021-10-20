@@ -1,5 +1,7 @@
-import Dexie, { Collection } from 'dexie';
+import Dexie from 'dexie';
 import _ from 'lodash';
+import moment from 'moment';
+import getConfig from '../services/config';
 
 interface Pool {
   id: number;
@@ -19,6 +21,18 @@ interface TokenMetadata {
   icon: string;
 }
 
+interface PoolsTokens {
+  id: number;
+  pool_id: string;
+  token1Id: string;
+  token2Id: string;
+  token1Supply: string;
+  token2Supply: string;
+  fee: number;
+  shares: string;
+  update_time: string;
+  token0_price: string;
+}
 export interface FarmDexie {
   id: string;
   pool_id: string;
@@ -28,19 +42,23 @@ class RefDatabase extends Dexie {
   public pools: Dexie.Table<Pool>;
   public tokens: Dexie.Table<TokenMetadata>;
   public farms: Dexie.Table<FarmDexie>;
+  public poolsTokens: Dexie.Table<PoolsTokens>;
 
   public constructor() {
     super('RefDatabase');
 
-    this.version(3.1).stores({
+    this.version(4.0).stores({
       pools: 'id, token1Id, token2Id, token1Supply, token2Supply, fee, shares',
       tokens: 'id, name, symbol, decimals, icon',
       farms: 'id, pool_id',
+      pools_tokens:
+        'id, token1Id, token2Id, token1Supply, token2Supply, fee, shares, update_time, token0_price',
     });
 
     this.pools = this.table('pools');
     this.tokens = this.table('tokens');
     this.farms = this.table('farms');
+    this.poolsTokens = this.table('pools_tokens');
   }
 
   public allPools() {
@@ -116,6 +134,77 @@ class RefDatabase extends Dexie {
   public async queryFarms() {
     let farms = await this.allFarms().toArray();
     return farms;
+  }
+
+  public async cachePoolsByTokens(pools: any) {
+    await this.poolsTokens.clear();
+    await this.poolsTokens.bulkPut(
+      pools.map(
+        (pool: {
+          id: number;
+          tokenIds: string[];
+          supplies: any[];
+          fee: number;
+          shareSupply: string;
+          token0_ref_price: string;
+        }) => ({
+          id: pool.id,
+          token1Id: pool.tokenIds[0],
+          token2Id: pool.tokenIds[1],
+          token1Supply: pool.supplies[Number(pool.tokenIds[0])],
+          token2Supply: pool.supplies[Number(pool.tokenIds[1])],
+          fee: pool.fee,
+          shares: pool.shareSupply,
+          update_time: moment().unix(),
+          token0_price: pool.token0_ref_price || '0',
+        })
+      )
+    );
+  }
+
+  public async checkPoolsByTokens(tokenInId: string, tokenOutId: string) {
+    const items = await this.queryPoolsByTokens(tokenInId, tokenOutId);
+    return items.length > 0;
+  }
+
+  public async getPoolsByTokens(tokenInId: string, tokenOutId: string) {
+    const items = await this.queryPoolsByTokens(tokenInId, tokenOutId);
+
+    return items.map((item) => ({
+      id: item.id,
+      fee: item.fee,
+      tokenIds: [item.token1Id, item.token2Id],
+      supplies: {
+        [item.token1Id]: item.token1Supply,
+        [item.token2Id]: item.token2Supply,
+      },
+      token0_ref_price: item.token0_price,
+    }));
+  }
+
+  async queryPoolsByTokens(tokenInId: string, tokenOutId: string) {
+    let normalItems = await this.poolsTokens
+      .where('token1Id')
+      .equals(tokenInId)
+      .and((item) => item.token2Id === tokenOutId)
+      .and(
+        (item) =>
+          Number(item.update_time) >=
+          moment().unix() - Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
+      )
+      .toArray();
+    let reverseItems = await this.poolsTokens
+      .where('token1Id')
+      .equals(tokenOutId)
+      .and((item) => item.token2Id === tokenInId)
+      .and(
+        (item) =>
+          Number(item.update_time) >=
+          moment().unix() - Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
+      )
+      .toArray();
+
+    return [...normalItems, ...reverseItems];
   }
 }
 
