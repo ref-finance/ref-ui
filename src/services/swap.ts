@@ -83,7 +83,7 @@ export const estimateSwap = async ({
   try {
     const estimates = await Promise.all(
       pools.map((pool) => {
-        const amount_with_fee = amountIn * (FEE_DIVISOR - pool.fee);
+        const amount_with_fee = Number(amountIn) * (FEE_DIVISOR - pool.fee);
         const in_balance = toReadableNumber(
           tokenIn.decimals,
           pool.supplies[tokenIn.id]
@@ -94,8 +94,8 @@ export const estimateSwap = async ({
         );
         const estimate = new BigNumber(
           (
-            (amount_with_fee * out_balance) /
-            (FEE_DIVISOR * in_balance + amount_with_fee)
+            (amount_with_fee * Number(out_balance)) /
+            (FEE_DIVISOR * Number(in_balance) + amount_with_fee)
           ).toString()
         ).toFixed();
 

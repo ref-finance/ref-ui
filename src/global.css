@@ -50,10 +50,6 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 
-input[disabled] {
-  color: black;
-  opacity: 1 !important;
-}
 input[type='number'] {
   -moz-appearance: textfield; /* Firefox */
 }
