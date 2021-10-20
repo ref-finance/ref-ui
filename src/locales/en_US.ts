@@ -57,7 +57,7 @@ const en_US = {
   minimum_tokens_out: 'Minimum tokens out',
   pair: 'Pair',
   tvl: 'TVL',
-  search_pools: 'Search Pool...',
+  search_pools: 'Search Pool',
   add_liquidity: 'Add liquidity',
   remove_liquidity: 'Remove liquidity',
   total_liquidity: 'Total liquidity',

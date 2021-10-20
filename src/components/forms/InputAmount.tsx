@@ -27,7 +27,7 @@ export default function InputAmount({
     <>
       <fieldset className={className}>
         <div
-          className={`relative flex align-center items-center bg-inputDarkBg`}
+          className={`relative flex align-center items-center bg-inputDarkBg rounded-lg`}
         >
           <input
             ref={ref}
@@ -36,7 +36,7 @@ export default function InputAmount({
             onWheel={() => ref.current.blur()}
             {...rest}
             step="any"
-            className={`text-lg font-bold w-full p-2 leading-tight ${
+            className={`text-lg font-bold w-full p-2 ${
               disabled ? 'text-gray-200 placeholder-gray-200' : 'text-white'
             }`}
             type="number"
@@ -47,7 +47,8 @@ export default function InputAmount({
           />
           {max ? (
             <a
-              className={`rounded-lg right-0 items-center py-3 px-3 m-auto focus:outline-none font-semibold text-xs
+              className={`rounded border border-greenLight items-center px-1 mr-1 m-auto focus:outline-none text-xs
+             text-greenLight
              ${
                disabled
                  ? 'text-gray-400 hover:text-gray-400'
