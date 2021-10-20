@@ -71,8 +71,8 @@ export function BackArrow() {
       <path
         d="M10 1L2 9.5L10 18"
         stroke="white"
-        stroke-width="2"
-        stroke-linecap="round"
+        strokeWidth="2"
+        strokeLinecap="round"
       />
     </svg>
   );

@@ -645,7 +645,10 @@ export function PoolDetailsPage() {
                 setShowFunding(true);
               }}
             >
-              Add Liquidity{' '}
+              <FormattedMessage
+                id="add_liquidity"
+                defaultMessage="Add Liquidity"
+              />
             </SolidButton>
             <OutlineButton
               padding="px-10"
@@ -653,8 +656,10 @@ export function PoolDetailsPage() {
                 setShowWithdraw(true);
               }}
             >
-              {' '}
-              Remove Liquidity{' '}
+              <FormattedMessage
+                id="remove_liquidity"
+                defaultMessage="Remove Liquidity"
+              />
             </OutlineButton>
           </div>
         </div>

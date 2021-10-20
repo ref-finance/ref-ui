@@ -121,12 +121,10 @@ export function SolidButton(
   return (
     <button
       onClick={onClick}
-      disabled={disabled}
       className={`
+      ${disabled ? 'cursor-not-allowed opacity-40' : ''} 
         text-white rounded  bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover
-        py-2 px-6 ${padding ? padding : ''} ${
-        disabled ? 'cursor-not-allowed bg-opacity-50' : ''
-      } 
+        py-2 px-6 ${padding ? padding : ''} 
         ${className ? className : ''}
       `}
     >
