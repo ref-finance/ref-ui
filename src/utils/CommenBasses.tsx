@@ -18,41 +18,41 @@ export const CommenBassesConfig: {
   '1': {
     icon: BANANA_URL,
     name: 'Banana',
-    id:1
+    id: 1,
   },
   '2': {
     icon: USDC,
     name: 'Usdc',
-    id:2
+    id: 2,
   },
   '3': {
     icon: USDT,
     name: 'Usdt',
-    id:3
+    id: 3,
   },
   '4': {
     icon: BANANA_URL,
     name: 'Banana',
-    id:4
+    id: 4,
   },
   '5': {
     icon: DAI,
     name: 'Dai',
-    id:5
+    id: 5,
   },
   '6': {
     icon: PARAS,
     name: 'Paras',
-    id:6
+    id: 6,
   },
   '7': {
     icon: BANANA_URL,
     name: 'Banana',
-    id:7
+    id: 7,
   },
   '8': {
     icon: REF,
     name: 'Ref',
-    id:8
+    id: 8,
   },
 };
