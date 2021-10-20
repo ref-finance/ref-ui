@@ -154,10 +154,6 @@ function PoolsMenu() {
       path: '/pools',
     },
     {
-      label: <FormattedMessage id="Add_Token" defaultMessage="Add Token" />,
-      path: '/pools/add-token',
-    },
-    {
       label: (
         <FormattedMessage
           id="Create_New_Pool"
@@ -461,10 +457,6 @@ function MobileNavBar() {
     {
       label: <FormattedMessage id="view_pools" defaultMessage="View Pools" />,
       path: '/pools',
-    },
-    {
-      label: <FormattedMessage id="Add_Token" defaultMessage="Add Token" />,
-      path: '/pools/add-token',
     },
     {
       label: (
