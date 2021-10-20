@@ -56,10 +56,10 @@ export default function TokenAmount({
         <span className="text-primaryLabel" title={total}>
           <FormattedMessage id="balance" defaultMessage="Balance" />
           :&nbsp;
-          {toPrecision(total, 6, true)}
+          {toPrecision(total, 3, true)}
         </span>
       </div>
-      <fieldset className="relative flex overflow-hidden rounded-lg align-center my-2">
+      <fieldset className="relative flex overflow-hidden align-center my-2">
         <InputAmount
           className="w-3/5"
           id="inputAmount"
@@ -75,13 +75,8 @@ export default function TokenAmount({
           addToken={addToken}
           selected={
             selectedToken && (
-              <div className="flex items-center justify-center font-semibold pl-3 pr-3">
+              <div className="flex items-center justify-end font-semibold">
                 <Icon token={selectedToken} />
-                {tokens.length > 1 && (
-                  <div className="pl-2 text-xs">
-                    <ArrowDownGreen />
-                  </div>
-                )}
               </div>
             )
           }

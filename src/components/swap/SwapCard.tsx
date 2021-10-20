@@ -77,19 +77,16 @@ function SwapRateDetail({
   }
 
   return (
-    <section className="grid grid-cols-2 py-1 text-xs">
-      <p className="text-primaryLabel">{title}</p>
+    <section className="flex py-1 text-xs">
+      <p className="text-primaryLabel w-1/5">{title}</p>
       <p
-        className="text-right text-white cursor-pointer justify-between"
+        className="flex justify-end text-white cursor-pointer w-4/5"
         onClick={switchSwapRate}
       >
-        <span className="float-right xs:w-2/3 order-2">{newValue}</span>
-        <span
-          className="float-right mr-2 xs:mr-0"
-          style={{ marginTop: '0.1rem' }}
-        >
+        <span className="mr-2 xs:mr-0" style={{ marginTop: '0.1rem' }}>
           <FaExchangeAlt></FaExchangeAlt>
         </span>
+        <span className="xs:w-2/3">{newValue}</span>
       </p>
     </section>
   );
