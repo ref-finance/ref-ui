@@ -194,7 +194,7 @@ function AddLiquidityModal(
     });
   }
 
-  const cardWidth = isMobile() ? '75vw' : '30vw';
+  const cardWidth = isMobile() ? '75vw' : '35vw';
 
   return (
     <Modal {...props}>
@@ -213,7 +213,7 @@ function AddLiquidityModal(
         <div className="flex justify-center">
           {error && <Alert level="error" message={error.message} />}
         </div>
-        <div>
+        <div className="mt-6">
           <div className="text-xs text-right mb-1 text-gray-400">
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
@@ -239,6 +239,7 @@ function AddLiquidityModal(
               </div>
             </div>
             <InputAmount
+              className="w-full"
               max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
               onChangeAmount={changeFirstTokenAmount}
               value={firstTokenAmount}
@@ -290,6 +291,7 @@ function AddLiquidityModal(
               </div>
             </div>
             <InputAmount
+              className="w-full"
               max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
               onChangeAmount={changeSecondTokenAmount}
               value={secondTokenAmount}
@@ -336,7 +338,7 @@ export function RemoveLiquidityModal(
     shares: amount ? toNonDivisibleNumber(24, amount) : '0',
   });
   const [error, setError] = useState<Error>();
-  const cardWidth = isMobile() ? '85vw' : '30vw';
+  const cardWidth = isMobile() ? '75vw' : '35vw';
   const intl = useIntl();
 
   function submit() {
@@ -360,8 +362,16 @@ export function RemoveLiquidityModal(
 
   return (
     <Modal {...props}>
-      <Card style={{ width: cardWidth }}>
-        <div className="text-sm text-gray-800 font-semibold pb-4">
+      <Card
+        style={{
+          width: cardWidth,
+          border: '1px solid rgba(0, 198, 162, 0.5)',
+        }}
+        padding="p-8"
+        bgColor="bg-cardBg"
+        className="text-white"
+      >
+        <div className="text-base pb-4">
           <FormattedMessage
             id="remove_liquidity"
             defaultMessage="Remove Liquidity"
@@ -371,11 +381,12 @@ export function RemoveLiquidityModal(
           {error && <Alert level="error" message={error.message} />}
         </div>
         <div>
-          <p className="col-span-12 p-2 text-right text-xs font-semibold">
-            <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
+          <div className="text-xs text-right mb-1 text-gray-400">
+            <FormattedMessage id="balance" defaultMessage="Balance" />
+            :&nbsp;
             {toPrecision(toReadableNumber(24, shares), 6)}
-          </p>
-          <div className="border rounded-lg overflow-hidden">
+          </div>
+          <div className="rounded overflow-hidden">
             <InputAmount
               maxBorder={false}
               value={amount}
@@ -384,7 +395,7 @@ export function RemoveLiquidityModal(
             />
           </div>
         </div>
-        <div className="pt-2">
+        <div className="pt-4 mb-8">
           <SlippageSelector
             slippageTolerance={slippageTolerance}
             onChange={setSlippageTolerance}
@@ -421,11 +432,10 @@ export function RemoveLiquidityModal(
             </section>
           </>
         ) : null}
-        <div className="flex items-center justify-center pt-6">
-          <button
-            className={`rounded-full text-xs text-white px-5 py-2.5 ml-3 focus:outline-none font-semibold bg-greenLight ${
-              amount ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
-            }`}
+        <div className="flex items-center justify-center">
+          <SolidButton
+            disabled={!amount}
+            className={`focus:outline-none`}
             onClick={async () => {
               try {
                 await submit();
@@ -438,7 +448,7 @@ export function RemoveLiquidityModal(
               id="remove_liquidity"
               defaultMessage="Remove Liquidity"
             />
-          </button>
+          </SolidButton>
         </div>
       </Card>
     </Modal>
@@ -506,7 +516,7 @@ export function PoolDetailsPage() {
           bgColor="bg-cardBg"
           width="w-96"
         >
-          {/* 展示token */}
+          {/* show token */}
           <div className="text-center mx-8">
             {backToFarmsButton ? (
               <div className="float-left">
@@ -588,7 +598,6 @@ export function PoolDetailsPage() {
             </div>
           </div>
           <div className="border border-solid border-gray-600"></div>
-          {/* 内部内容 */}
           <div className="text-base text-gray-400 pt-6 mx-8">
             {/* fee */}
             <div className="flex items-center justify-between py-2.5">
