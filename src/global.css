@@ -200,47 +200,52 @@ input[type='number'] {
 }
 
 @keyframes spin {
-    from {
-        transform: rotate(0deg)
-    }
-    to {
-        transform: rotate(360deg)
-    }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.loadingScreen,.slick-loader {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.4);
-    opacity: 0;
-    z-index: -1;
-    transition: all .5s;
-    border-radius: 6px
+.loadingScreen,
+.slick-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  z-index: -1;
+  transition: all 0.5s;
+  border-radius: 6px;
 }
 
-.loadingScreen.active,.slick-loader.active {
-    z-index: 10000;
-    opacity: 1
+.loadingScreen.active,
+.slick-loader.active {
+  z-index: 10000;
+  opacity: 1;
 }
 
-.loadingScreen svg,.slick-loader svg {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    left: 0;
-    right: 0;
-    margin: 0 auto;
-    width: 200px
+.loadingScreen svg,
+.slick-loader svg {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: 200px;
 }
 
-.loadingScreen svg path,.slick-loader svg path {
-    animation: spin 1s linear infinite;
-    transform-origin: center
+.loadingScreen svg path,
+.slick-loader svg path {
+  animation: spin 1s linear infinite;
+  transform-origin: center;
 }
 
-.loadingScreen.slick-loader-inner,.slick-loader.slick-loader-inner {
-    position: absolute
+.loadingScreen.slick-loader-inner,
+.slick-loader.slick-loader-inner {
+  position: absolute;
 }

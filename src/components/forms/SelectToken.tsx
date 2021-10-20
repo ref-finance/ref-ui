@@ -37,7 +37,6 @@ export default function SelectToken({
   addToken?: () => JSX.Element;
   balances?: TokenBalancesView;
 }) {
-
   if (!onSelect) {
     return (
       <button className="focus:outline-none p-1" type="button">
@@ -69,7 +68,6 @@ export default function SelectToken({
         total: Number(nearCount) + Number(refCount),
       };
     });
-
 
   // const onSearch = (value: string) => {
   //   const result = tokens.filter(({ symbol }) =>
@@ -148,12 +146,13 @@ export default function SelectToken({
               onChange={(evt) => onSearch(evt.target.value)}
             />
           </div> */}
-          <CommenBasses 
-              tokens={tokensData}            
-              onClick={(token) => {
+          <CommenBasses
+            tokens={tokensData}
+            onClick={(token) => {
               onSelect && onSelect(token);
               close();
-            }}/>
+            }}
+          />
           <Table
             tokens={tokensData}
             render={render}

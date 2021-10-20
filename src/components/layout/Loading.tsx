@@ -4,5 +4,5 @@ import { Loading } from '~components/icon/loading';
 
 export default function () {
   // return <Loader color="#10B981" css="display: block; margin: auto" />;
-  return <Loading />
+  return <Loading />;
 }
