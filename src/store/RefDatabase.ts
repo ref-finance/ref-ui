@@ -34,6 +34,10 @@ interface PoolsTokens {
   token0_price: string;
 }
 
+export interface PoolDb extends Pool {
+  tvl?: string;
+}
+
 export interface FarmDexie {
   id: string;
   pool_id: string;
