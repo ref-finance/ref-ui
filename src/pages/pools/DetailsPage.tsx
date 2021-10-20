@@ -31,6 +31,8 @@ import { getPool } from '~services/indexer';
 import { FaArrowLeft } from 'react-icons/fa';
 import { BigNumber } from 'bignumber.js';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { WatchListStart } from '~components/icon/WatchListStart';
+import { OutlineButton, SolidButton } from '~components/button/Button';
 
 interface ParamTypes {
   id: string;
@@ -618,11 +620,25 @@ export function PoolDetailsPage() {
 
       {/* chart */}
       <div
-        className="w-full opacity-80"
+        className="w-full opacity-80 flex flex-col"
         style={{
           height: '559px',
         }}
       >
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <div className="mr-2">
+              <WatchListStart />
+            </div>
+            <div className="text-gray-400 text-xs"> {'Add Watchlist'} </div>
+          </div>
+          <div className="flex items-center">
+            <SolidButton padding="px-10" className="mr-4">
+              Add Liquidity{' '}
+            </SolidButton>
+            <OutlineButton padding="px-10"> Remove Liquidity </OutlineButton>
+          </div>
+        </div>
         <Card
           width="w-full"
           className="rounded-2xl h-full flex flex-col justify-between "
@@ -685,8 +701,8 @@ export function PoolDetailsPage() {
                 '25',
                 '02',
                 '09',
-              ].map((d) => {
-                return <div>{d}</div>;
+              ].map((d, i) => {
+                return <div key={i}>{d}</div>;
               })}
             </div>
           </div>

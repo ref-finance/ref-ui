@@ -280,7 +280,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
       <Link
         to={{
           pathname: `/pool/${pool.id}`,
-          state: { tvl: pool.tvl },
+          state: { tvl: pool.tvl, backToFarms: supportFarm },
         }}
         className="col-span-5 md:col-span-4 flex items-center"
       >
