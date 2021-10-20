@@ -818,7 +818,7 @@ export function PoolDetailsPage() {
         style={{
           content: {
             position: 'absolute',
-            top: '40%',
+            top: '50%',
           },
           overlay: {
             backdropFilter: 'blur(10px)',
@@ -833,7 +833,7 @@ export function PoolDetailsPage() {
         style={{
           content: {
             position: 'absolute',
-            top: '40%',
+            top: '50%',
           },
           overlay: {
             backdropFilter: 'blur(10px)',
