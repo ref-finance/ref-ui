@@ -31,7 +31,7 @@ export default function Token({
     useDepositableBalance(id)
   );
 
-  const tokenAmount = toPrecision(totalTokenAmount, 6) || '0';
+  const tokenAmount = toPrecision(totalTokenAmount, 3) || '0';
   return (
     <tr
       key={id}

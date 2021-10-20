@@ -1,7 +1,6 @@
 import React from 'react';
 
-const bgGridImg = 'https://i.postimg.cc/t4Dh5Xbf/Rectangle.png';
-const bgGridSmallImg = 'https://i.postimg.cc/qMXN2t0M/small-Grid-Image-2.png';
+const bgGridSmallImg = 'https://i.postimg.cc/43xZN5zd/bg-image2.png';
 
 export function BgShapeLeftTop() {
   return (
@@ -61,7 +60,7 @@ export function BgShapeCenter() {
 
 export function BgShapeCenterSmall() {
   return (
-    <div className="w-full top-0 absolute left-0 overflow-hidden max-h-screen hidden md:block xs:block">
+    <div className="w-full top-0 absolute left-0 overflow-hidden max-h-screen hidden md:block xs:block opacity-50">
       <img src={bgGridSmallImg} alt="" className="w-full h-auto" />
     </div>
   );
