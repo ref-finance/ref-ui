@@ -14,7 +14,7 @@ import TokenAmount from '../components/forms/TokenAmount';
 import { deposit } from '../services/token';
 import { wallet } from '~services/near';
 import { Balances, ConnectToNearBtn } from '../components/deposit/Deposit';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 function DepositBtn(props: {
   amount?: string;
@@ -25,12 +25,23 @@ function DepositBtn(props: {
   const canSubmit = balance !== '0' && !!amount && !!token;
 
   return (
-    <div className="flex items-center justify-center pt-2">
+    <div className="flex items-center justify-center pt-2 w-full">
       <button
         disabled={!canSubmit}
-        className={`rounded-full text-sm text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight ${
+        className={`w-full rounded-full text-sm text-white px-5 py-2.5 focus:outline-none font-semibold ${
           canSubmit ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
         }`}
+        style={
+          canSubmit
+            ? {
+                background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+                borderRadius: '5px',
+              }
+            : {
+                background: '#314351',
+                borderRadius: '5px',
+              }
+        }
         onClick={() => {
           if (canSubmit) {
             if (token.id === nearMetadata.id) {
@@ -63,6 +74,7 @@ export default function DepositPage() {
 
   const userTokens = useUserRegisteredTokens();
   const max = useDepositableBalance(selectedToken?.id, selectedToken?.decimals);
+  const intl = useIntl();
 
   useEffect(() => {
     if (id && tokens) {
@@ -80,24 +92,15 @@ export default function DepositPage() {
         name.includes(value.toLocaleLowerCase()) ||
         name.includes(value.toLocaleUpperCase())
     );
-    console.log(result);
     // setTokenList(result);
   };
 
   return (
-    <div className="flex items-center flex-col w-1/3 md:w-5/6 xs:w-11/12 m-auto">
-      <div className="text-center pb-5">
-        <div className="text-white text-3xl font-semibold">
-          <FormattedMessage id="deposit" defaultMessage="Deposit" />
-        </div>
-        <div className="text-white text-sm pt-2">
-          <FormattedMessage
-            id="deposit_to_swap_and_add_liquidity"
-            defaultMessage="Deposit to swap and add liquidity"
-          />
-        </div>
-      </div>
-      <Card width="w-full">
+    <div className="flex items-center flex-col xl:w-1/3 2xl:w-1/3 3xl:w-1/4 lg:w-1/2 md:w-5/6 xs:w-11/12 m-auto">
+      <Card width="w-full" bgColor="bg-dark">
+        <h2 className="formTitle font-bold text-xl text-white text-left pb-4">
+          {intl.formatMessage({ id: 'deposit' })}
+        </h2>
         <TokenAmount
           amount={amount}
           max={max}
@@ -107,6 +110,7 @@ export default function DepositPage() {
           onSelectToken={setSelectedToken}
           // onSearchToken={handleSearch}
           onChangeAmount={setAmount}
+          text={selectedToken.symbol}
         />
         {wallet.isSignedIn() ? (
           <DepositBtn balance={max} amount={amount} token={selectedToken} />

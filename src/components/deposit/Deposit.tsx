@@ -82,7 +82,7 @@ export function Token(
   const { symbol, icon, amount, totalAmount } = props;
   return (
     <div
-      className="token flex items-center justify-between pt-3.5 pb-3.5"
+      className="token flex items-center justify-between pt-3.5 pb-3.5 text-white"
       title={totalAmount}
     >
       <div className="flex items-center">
@@ -106,14 +106,14 @@ export function TokenList(props: {
   const { tokens, balances, hideEmpty } = props;
 
   return (
-    <div className="divide-y">
+    <div className="divide-y divide-gray-600">
       {tokens.map((token) => {
         const balance = balances[token.id] || '0';
         if (balance === '0' && hideEmpty) return null;
 
         const amount = toPrecision(
           toReadableNumber(token.decimals, balance),
-          6,
+          3,
           true
         );
         return (
@@ -147,18 +147,22 @@ export function Balances(props: {
 
   return (
     <div className="balances flex items-center flex-col justify-center pt-8 w-full">
-      {title ? (
-        <div className="text-white font-semibold text-xl pb-4">
-          <FormattedMessage id="balance" defaultMessage="Balance" />
-        </div>
-      ) : null}
-      <Card width="w-full">
+      <Card width="w-full" bgColor="bg-dark">
+        {title ? (
+          <div className="text-white font-semibold text-xl pb-4">
+            <FormattedMessage id="balance" defaultMessage="Balance" />
+          </div>
+        ) : null}
         <TokenList hideEmpty={true} tokens={tokens} balances={balances} />
 
         {tokens.length > 0 ? (
           <div className="flex items-center justify-center pt-5">
             <button
-              className="rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight"
+              className={`flex flex-row w-full justify-center px-5 py-2 mt-6 text-white disabled:cursor-not-allowed mx-auto`}
+              style={{
+                background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+                borderRadius: '5px',
+              }}
               onClick={() => setIsOpen(true)}
             >
               <FormattedMessage id="withdraw" defaultMessage="Withdraw" />
