@@ -8,9 +8,8 @@ import { TokenMetadata } from '../../services/ft-contract';
 import { wallet } from '../../services/near';
 import { deposit } from '../../services/token';
 import { nearMetadata, wrapNear } from '../../services/wrap-near';
-import { useDepositableBalance, useWhitelistTokens } from '../../state/token';
+import { useDepositableBalance } from '../../state/token';
 import { toPrecision, toReadableNumber } from '../../utils/numbers';
-import FormWrap from '../forms/FormWrap';
 import TokenAmount from '../forms/TokenAmount';
 import { toRealSymbol } from '~utils/token';
 

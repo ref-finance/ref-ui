@@ -3,7 +3,7 @@ import Alert from '../alert/Alert';
 import SubmitButton from './SubmitButton';
 import { FormattedMessage } from 'react-intl';
 
-interface FormWrapProps {
+interface NewFormWrapProps {
   title?: string;
   buttonText?: string;
   canSubmit?: boolean;
@@ -13,7 +13,7 @@ interface FormWrapProps {
   elseView?: JSX.Element;
 }
 
-export default function FormWrap({
+export default function NewFormWrap({
   children,
   title,
   buttonText,
@@ -22,7 +22,7 @@ export default function FormWrap({
   info,
   showElseView,
   elseView,
-}: React.PropsWithChildren<FormWrapProps>) {
+}: React.PropsWithChildren<NewFormWrapProps>) {
   const [error, setError] = useState<Error>();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -43,7 +43,7 @@ export default function FormWrap({
     >
       {title && (
         <>
-          <h2 className="formTitle font-bold text-xl text-gray-700 text-center pb-2">
+          <h2 className="formTitle font-bold text-xl text-white text-left pb-2">
             <FormattedMessage id={title} defaultMessage={title} />
           </h2>
         </>

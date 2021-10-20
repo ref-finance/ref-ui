@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { calculateFairShare, percentLess, toPrecision } from '../utils/numbers';
 import {
   DEFAULT_PAGE_LIMIT,
+  getAllPoolsFromDb,
+  getCachedPoolsByTokenId,
   getPoolDetails,
   getPools,
   getSharesInPool,
@@ -9,9 +11,12 @@ import {
   PoolDetails,
   removeLiquidityFromPool,
 } from '../services/pool';
+import { PoolDb } from '~store/RefDatabase';
 
 import { useWhitelistTokens } from './token';
 import { debounce } from 'lodash';
+import { getPoolsByIds } from '~services/indexer';
+import { PoolRPCView } from '~services/api';
 
 export const usePool = (id: number | string) => {
   const [pool, setPool] = useState<PoolDetails>();
@@ -88,6 +93,50 @@ export const usePools = (props: {
     hasMore,
     nextPage,
   };
+};
+
+export const useMorePoolIds = (props: { topPool: Pool }) => {
+  const { topPool } = props;
+  // const tokenId1 = topPool.tokenIds[0]
+  // const tokenId2 = topPool.tokenIds[1]
+
+  const [token1Id, token2Id] = topPool.tokenIds;
+
+  const [ids, setIds] = useState<string[]>();
+
+  useEffect(() => {
+    getCachedPoolsByTokenId({
+      token1Id,
+      token2Id,
+    }).then((res) => {
+      const idsFromCachePools: string[] = res.map((p) => {
+        return p.id.toString();
+      });
+      setIds(idsFromCachePools);
+    });
+  }, []);
+  return ids;
+};
+
+export const useMorePools = ({ morePoolIds }: { morePoolIds: string[] }) => {
+  const [morePools, setMorePools] = useState<PoolRPCView[]>();
+
+  useEffect(() => {
+    getPoolsByIds(morePoolIds).then(setMorePools);
+  }, []);
+  return morePools;
+};
+
+export const useAllPools = () => {
+  const [allPools, setAllPools] = useState<PoolDb[]>();
+
+  useEffect(() => {
+    getAllPoolsFromDb().then((res) => {
+      setAllPools(res);
+    });
+  }, []);
+
+  return allPools;
 };
 
 export const useRemoveLiquidity = ({

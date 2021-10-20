@@ -17,7 +17,8 @@
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
     "downlevelIteration": true,
-    "skipLibCheck": true /* Skip type checking of declaration files. */
+    "skipLibCheck": true, /* Skip type checking of declaration files. */
+    "suppressImplicitAnyIndexErrors": true
   },
   "include": ["src/"],
   "exclude": ["node_modules/*", "**/*.spec.ts", "src/index.tsx"]
