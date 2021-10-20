@@ -96,7 +96,7 @@ export default function SelectToken({
               }`}
             >
               <p
-                className="text-xs font-semibold leading-none"
+                className="text-lg font-semibold leading-none"
                 style={{ lineHeight: 'unset' }}
               >
                 {placeholder ?? 'Select'}

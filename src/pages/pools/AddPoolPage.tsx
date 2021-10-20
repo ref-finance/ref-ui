@@ -25,18 +25,16 @@ export function AddPoolPage() {
 
   if (!tokens || !balances) return <Loading />;
 
-  const render = (token: TokenMetadata) => (
-    <p className="text-black">
-      {toRoundedReadableNumber({
-        decimals: token.decimals,
-        number: balances[token.id],
-      })}
-    </p>
-  );
+  const render = (token: TokenMetadata) =>
+  toRoundedReadableNumber({
+    decimals: token.decimals,
+    number: balances ? balances[token.id] : '0',
+  });
 
   const Selected = (props: { token: TokenMetadata }) => {
     return (
-      <div className="flex items-center justify-between font-semibold bg-inputBg relative flex overflow-hidden rounded-lg align-center my-2 border py-3 px-3">
+
+      <div className="flex h-12 justify-between items-center px-3 py-3 bg-inputDarkBg text-white relative flex overflow-hidden rounded-lg align-center my-2 border border-greenLight">
         <Icon token={props.token} />
         {tokens.length > 1 && (
           <div className="pl-2 text-xs">
@@ -67,7 +65,7 @@ export function AddPoolPage() {
           standalone
           placeholder={intl.formatMessage({ id: 'select_token' })}
           tokens={tokens}
-          render={balances ? render : null}
+          render={render}
           selected={token1 && <Selected token={token1} />}
           onSelect={setToken1}
           balances={balances}
@@ -79,7 +77,7 @@ export function AddPoolPage() {
           standalone
           placeholder={intl.formatMessage({ id: 'select_token' })}
           tokens={tokens}
-          render={balances ? render : null}
+          render={render}
           selected={token2 && <Selected token={token2} />}
           onSelect={setToken2}
           balances={balances}
