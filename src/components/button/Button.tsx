@@ -142,20 +142,18 @@ export function OutlineButton(
 ) {
   const { disabled, padding, className, onClick } = props;
   return (
-    <div
-      className={`rounded ${className ? className : ''}`}
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`rounded py-2 px-6 ${padding ? padding : ''} ${
+        className ? className : ''
+      }`}
       style={{
         color: '#00D6A2',
         border: `1px solid #00C6A2`,
       }}
     >
-      <button
-        onClick={onClick}
-        disabled={disabled}
-        className={`py-2 px-6 ${padding ? padding : ''} `}
-      >
-        {props.children}
-      </button>
-    </div>
+      {props.children}
+    </button>
   );
 }

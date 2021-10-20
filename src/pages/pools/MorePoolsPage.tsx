@@ -72,7 +72,7 @@ function PoolRow({
         <Link
           to={{
             pathname: `/pool/${pool.id}`,
-            state: { tvl: pool?.tvl },
+            state: { tvl: pool?.tvl, backToFarms: supportFarm },
           }}
           className="flex items-center"
         >
@@ -112,7 +112,7 @@ function PoolRow({
   );
 }
 
-const FarmMining = () => {
+export const FarmMining = () => {
   return (
     <div className="flex items-center">
       <div className="mr-2">
@@ -328,7 +328,7 @@ const MobileRow = ({
           <Link
             to={{
               pathname: `/pool/${pool.id}`,
-              state: { tvl: pool?.tvl },
+              state: { tvl: pool?.tvl, backToFarms: supportFarm },
             }}
             className="text-lg ml-2 font-semibold"
           >

@@ -34,6 +34,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { WatchListStart } from '~components/icon/WatchListStart';
 import { OutlineButton, SolidButton } from '~components/button/Button';
 import { wallet } from '~services/near';
+import { FarmMining } from './MorePoolsPage';
 
 interface ParamTypes {
   id: string;
@@ -504,7 +505,7 @@ export function PoolDetailsPage() {
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
 
   return (
-    <div className="flex items-start flex-row w-4/6 lg:w-5/6 xl:w-4/5 md:w-5/6 m-auto">
+    <div className="flex items-start flex-row w-4/6 lg:w-5/6 xl:w-4/5 md:flex-col xs:flex-col m-auto">
       <div
         className="p-2 mr-4"
         onClick={() => {
@@ -513,14 +514,15 @@ export function PoolDetailsPage() {
       >
         <BackArrow />
       </div>
-      <div>
+
+      <div className="md:w-full xs:w-full">
         <Card
-          className="rounded-2xl mr-3"
+          className="rounded-2xl mr-3 lg:w-96 md:w-full xs:w-full"
           padding="pt-8 pb-4 px-0"
           bgColor="bg-cardBg"
-          width="w-96"
         >
           {/* show token */}
+
           <div className="text-center mx-8">
             {backToFarmsButton ? (
               <div className="float-left">
@@ -531,6 +533,9 @@ export function PoolDetailsPage() {
             ) : null}
 
             <div className="flex flex-col text-center text-base pt-2 pb-4">
+              <div className="flex justify-end mb-4">
+                {state?.backToFarms && <FarmMining />}
+              </div>
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-end">
                   <Icon icon={tokens[0].icon} className="h-12 w-12 mr-2" />
@@ -678,48 +683,53 @@ export function PoolDetailsPage() {
 
       {/* chart */}
       <div
-        className="w-full opacity-100 flex flex-col"
+        className="w-full flex flex-col"
         style={{
           height: '559px',
         }}
       >
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
+        <div className="lg:flex items-center justify-between mb-4">
+          <div className="flex items-center xs:hidden md:hidden">
             <div className="mr-2">
               <WatchListStart />
             </div>
             <div className="text-gray-400 text-xs"> {'Add Watchlist'} </div>
           </div>
-          <div className="flex items-center">
-            <SolidButton
-              padding="px-10"
-              className="mr-4"
-              onClick={() => {
-                setShowFunding(true);
-              }}
-            >
-              <FormattedMessage
-                id="add_liquidity"
-                defaultMessage="Add Liquidity"
-              />
-            </SolidButton>
-            <OutlineButton
-              padding="px-10"
-              onClick={() => {
-                setShowWithdraw(true);
-              }}
-            >
-              <FormattedMessage
-                id="remove_liquidity"
-                defaultMessage="Remove Liquidity"
-              />
-            </OutlineButton>
+          <div className="lg:flex items-center xs:mt-8 md:mt-8 xs:grid xs:grid-cols-2 md:grid md:grid-cols-2">
+            <div className=" pr-3">
+              <SolidButton
+                padding="px-10"
+                className="xs:w-full  md:w-full xs:col-span-1 md:col-span-1"
+                onClick={() => {
+                  setShowFunding(true);
+                }}
+              >
+                <FormattedMessage
+                  id="add_liquidity"
+                  defaultMessage="Add Liquidity"
+                />
+              </SolidButton>
+            </div>
+            <div className="pl-3">
+              <OutlineButton
+                padding="px-10"
+                onClick={() => {
+                  setShowWithdraw(true);
+                }}
+                className="xs:w-full md:w-full xs:col-span-1 md:col-span-1"
+              >
+                <FormattedMessage
+                  id="remove_liquidity"
+                  defaultMessage="Remove Liquidity"
+                />
+              </OutlineButton>
+            </div>
           </div>
         </div>
 
         <Card
           width="w-full"
-          className="relative rounded-2xl bg-chartBg h-full flex flex-col justify-between "
+          className="relative rounded-2xl bg-chartBg h-full flex flex-col justify-between md:hidden xs:hidden"
           padding="p-7"
         >
           <div className="pb-7">
