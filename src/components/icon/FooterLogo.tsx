@@ -37,20 +37,20 @@ export function FooterLogo() {
           fill="#00C6A2"
         />
         <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
+          fillRule="evenodd"
+          clipRule="evenodd"
           d="M31.3644 31.1C31.2757 31.1 31.1876 31.0977 31.1001 31.0932V27.1229L35.4176 23.1138C36.0263 23.9446 36.3858 24.9696 36.3858 26.0786C36.3858 28.8518 34.1376 31.1 31.3644 31.1ZM34.2899 21.9969L31.1001 24.9589V21.064C31.1876 21.0594 31.2757 21.0571 31.3644 21.0571C32.4559 21.0571 33.4662 21.4054 34.2899 21.9969Z"
           fill="white"
         />
         <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
+          fillRule="evenodd"
+          clipRule="evenodd"
           d="M30.5714 21.0571H25.8142V25.7501L27.9489 27.8848L30.5714 25.4497V21.0571ZM30.5714 27.6136L27.9081 30.0866L25.8142 27.9927V37.4428H30.5714V27.6136Z"
           fill="white"
         />
         <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
+          fillRule="evenodd"
+          clipRule="evenodd"
           d="M25.2857 21.0571H20V27.8644L23.9642 23.9002L25.2857 25.2216V21.0571ZM25.2857 27.4642L23.9642 26.1427L20 30.1069V37.4428H25.2857V27.4642Z"
           fill="white"
         />

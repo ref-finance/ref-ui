@@ -15,20 +15,20 @@ export function NavLogo(props: SVGProps<SVGSVGElement>) {
         fill="#00C6A2"
       />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M21.5 21C21.3323 21 21.1656 20.9957 21 20.9871V13.4755L29.1681 5.89086C30.3199 7.46277 31 9.40196 31 11.5C31 16.7467 26.7467 21 21.5 21ZM27.0347 3.77793L21 9.38161V2.01293C21.1656 2.00435 21.3323 2 21.5 2C23.5651 2 25.4762 2.6589 27.0347 3.77793Z"
         fill="white"
       />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M20 2H11V10.8787L15.0385 14.9172L20 10.3102V2ZM20 14.4041L14.9614 19.0828L11 15.1213V33H20V14.4041Z"
         fill="white"
       />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M10 2H0V14.8787L7.49999 7.37869L10 9.8787V2ZM10 14.1213L7.49999 11.6213L0 19.1213V33H10V14.1213Z"
         fill="white"
       />
@@ -120,8 +120,8 @@ export function IconBubble() {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M11.5 0C5.14873 0 0 5.14873 0 11.5C0 17.8513 5.14873 23 11.5 23H27.5H32C35.5 27 40 28.3333 42 28.5V23H43.5C49.8513 23 55 17.8513 55 11.5C55 5.14873 49.8513 0 43.5 0H11.5Z"
         fill="url(#paint0_linear_146:2346)"
       />
