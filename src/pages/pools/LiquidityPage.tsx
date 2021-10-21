@@ -54,6 +54,7 @@ const ConnectToNearCard = () => {
 
 function MobilePoolRow({ pool }: { pool: Pool }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
+  const morePoolIds = useMorePoolIds({ topPool: pool });
   const tokens = useTokens(pool.tokenIds);
   useEffect(() => {
     canFarm(pool.id).then((canFarm) => {
@@ -69,14 +70,12 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
     return a.symbol > b.symbol ? 1 : -1;
   });
 
-  const farmButton = () => {
-    if (supportFarm)
-      return (
-        <div className="mt-1 px-1 py-0.5 px-1 mr-3 text-center bg-greenLight text-white font-bold inline-block rounded">
-          <FormattedMessage id="farms" defaultMessage="Farms" />
-        </div>
-      );
-    return '';
+  const MobileMoreFarmStamp = ({ count }: { count: number }) => {
+    return (
+      <div className="px-1 rounded border border-greenLight text-greenLight">
+        {count + '+'}
+      </div>
+    );
   };
 
   return (
@@ -109,6 +108,18 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
           >
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </Link>
+
+          {morePoolIds?.length && morePoolIds?.length - 1 > 0 && (
+            <Link
+              to={{
+                pathname: `/more_pools/${pool.tokenIds}`,
+                state: { morePoolIds, tokens },
+              }}
+              className="mx-2"
+            >
+              <MobileMoreFarmStamp count={morePoolIds?.length - 1} />
+            </Link>
+          )}
         </div>
         <div>
           <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />

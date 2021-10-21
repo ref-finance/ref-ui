@@ -111,6 +111,86 @@ function PoolRow({
     </div>
   );
 }
+const MobileRow = ({
+  pool,
+  tokens,
+}: {
+  pool: PoolRPCView;
+  tokens: TokenMetadata[];
+}) => {
+  const [supportFarm, setSupportFarm] = useState<Boolean>(false);
+
+  useEffect(() => {
+    canFarm(pool.id).then((canFarm) => {
+      setSupportFarm(canFarm);
+    });
+  }, [pool]);
+
+  return (
+    <Card
+      width="w-full"
+      bgcolor="bg-cardBg"
+      className="rounded mb-2"
+      padding="p-4"
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center justify-start">
+          <div className="flex items-center">
+            <div className="h-6 w-6 border rounded-full">
+              <img
+                key={tokens[0].id.substring(0, 12).substring(0, 12)}
+                className="rounded-full w-full"
+                src={tokens[0].icon}
+              />
+            </div>
+
+            <div className="h-6 w-6 border rounded-full">
+              <img
+                key={tokens[1].id}
+                className="w-full rounded-full"
+                src={tokens[1].icon}
+              />
+            </div>
+          </div>
+          <Link
+            to={{
+              pathname: `/pool/${pool.id}`,
+              state: { tvl: pool?.tvl, backToFarms: supportFarm },
+            }}
+            className="text-lg ml-2 font-semibold"
+          >
+            {tokens[0].symbol + '-' + tokens[1].symbol}
+          </Link>
+        </div>
+        {supportFarm && <FarmMining />}
+      </div>
+
+      <div className="flex flex-col text-base">
+        <div className="flex items-center justify-between my-3">
+          <div className="text-gray-400">
+            <FormattedMessage id="fee" defaultMessage="Fee" />
+          </div>
+          <div>{calculateFeePercent(pool?.total_fee)}%</div>
+        </div>
+        <div className="flex items-center justify-between my-3">
+          <div className="text-gray-400">
+            <FormattedMessage id="24h_volume" defaultMessage="24h Volume" />
+          </div>
+
+          <div>
+            <FormattedMessage id="Coming soon" defaultMessage="Coming soon" />
+          </div>
+        </div>
+        <div className="flex items-center justify-between my-3">
+          <div className="text-gray-400">
+            <FormattedMessage id="tvl" defaultMessage="TVL" />
+          </div>
+          <div>${toInternationalCurrencySystem(pool?.tvl.toString())}</div>
+        </div>
+      </div>
+    </Card>
+  );
+};
 
 export const FarmMining = () => {
   return (
@@ -279,86 +359,5 @@ export const MorePoolsPage = () => {
         })}
       </div>
     </>
-  );
-};
-
-const MobileRow = ({
-  pool,
-  tokens,
-}: {
-  pool: PoolRPCView;
-  tokens: TokenMetadata[];
-}) => {
-  const [supportFarm, setSupportFarm] = useState<Boolean>(false);
-
-  useEffect(() => {
-    canFarm(pool.id).then((canFarm) => {
-      setSupportFarm(canFarm);
-    });
-  }, [pool]);
-
-  return (
-    <Card
-      width="w-full"
-      bgcolor="bg-cardBg"
-      className="rounded mb-2"
-      padding="p-4"
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center justify-start">
-          <div className="flex items-center">
-            <div className="h-6 w-6 border rounded-full">
-              <img
-                key={tokens[0].id.substring(0, 12).substring(0, 12)}
-                className="rounded-full w-full"
-                src={tokens[0].icon}
-              />
-            </div>
-
-            <div className="h-6 w-6 border rounded-full">
-              <img
-                key={tokens[1].id}
-                className="w-full rounded-full"
-                src={tokens[1].icon}
-              />
-            </div>
-          </div>
-          <Link
-            to={{
-              pathname: `/pool/${pool.id}`,
-              state: { tvl: pool?.tvl, backToFarms: supportFarm },
-            }}
-            className="text-lg ml-2 font-semibold"
-          >
-            {tokens[0].symbol + '-' + tokens[1].symbol}
-          </Link>
-        </div>
-        {supportFarm && <FarmMining />}
-      </div>
-
-      <div className="flex flex-col text-base">
-        <div className="flex items-center justify-between my-3">
-          <div className="text-gray-400">
-            <FormattedMessage id="fee" defaultMessage="Fee" />
-          </div>
-          <div>{calculateFeePercent(pool?.total_fee)}%</div>
-        </div>
-        <div className="flex items-center justify-between my-3">
-          <div className="text-gray-400">
-            <FormattedMessage id="24h_volume" defaultMessage="24h Volume" />
-          </div>
-
-          <div>
-            <FormattedMessage id="Coming soon" defaultMessage="Coming soon" />
-          </div>
-        </div>
-        <div className="flex items-center justify-between my-3">
-          <div className="text-gray-400">
-            <FormattedMessage id="tvl" defaultMessage="TVL" />
-          </div>
-          <div>${toInternationalCurrencySystem(pool?.tvl.toString())}</div>
-        </div>
-      </div>
-    </Card>
   );
 };
