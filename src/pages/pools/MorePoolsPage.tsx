@@ -175,13 +175,13 @@ export const MorePoolsPage = () => {
 
           <section className="px-2">
             <header className="grid grid-cols-12 py-2 pb-4 text-left text-base text-gray-400 mx-8 border-b border-gray-600">
-              <p className="col-span-8 flex">
+              <div className="col-span-8 flex">
                 <div className="mr-6">
                   <FormattedMessage id="id" defaultMessage="#" />
                 </div>
                 <FormattedMessage id="pair" defaultMessage="Pair" />
-              </p>
-              <p
+              </div>
+              <div
                 className="col-span-1 md:hidden cursor-pointer flex items-center"
                 onClick={() => {
                   setSortBy('fee');
@@ -196,8 +196,8 @@ export const MorePoolsPage = () => {
                 ) : (
                   <UpArrowDeep />
                 )}
-              </p>
-              <p
+              </div>
+              <div
                 className="col-span-2 flex items-center cursor-pointer "
                 onClick={() => {
                   setSortBy('24h_volume');
@@ -215,7 +215,7 @@ export const MorePoolsPage = () => {
                 ) : (
                   <UpArrowDeep />
                 )}
-              </p>
+              </div>
 
               <div
                 className="col-span-1 flex items-center"
@@ -236,7 +236,7 @@ export const MorePoolsPage = () => {
             </header>
             <div className="max-h-96 overflow-y-auto">
               {morePools?.map((pool, i) => (
-                <div className="w-full hover:bg-poolRowHover">
+                <div className="w-full hover:bg-poolRowHover" key={i}>
                   <PoolRow key={i} pool={pool} index={i + 1} tokens={tokens} />
                 </div>
               ))}
@@ -277,7 +277,7 @@ export const MorePoolsPage = () => {
           </div>
         </div>
         {morePools?.map((pool, i) => {
-          return <MobileRow tokens={tokens} pool={pool} />;
+          return <MobileRow tokens={tokens} key={i} pool={pool} />;
         })}
       </div>
     </>

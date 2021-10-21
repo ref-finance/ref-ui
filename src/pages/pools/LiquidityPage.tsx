@@ -228,8 +228,8 @@ function MobileLiquidityPage({
           <div className="border-b border-gray-700 "></div>
           <div className="max-h-96 overflow-y-auto">
             {pools.map((pool, i) => (
-              <div className="w-full hover:bg-poolRowHover">
-                <MobilePoolRow key={i} pool={pool} />
+              <div className="w-full hover:bg-poolRowHover" key={i}>
+                <MobilePoolRow pool={pool} />
               </div>
             ))}
           </div>
@@ -432,13 +432,13 @@ function LiquidityPage_({
 
         <section className="px-2">
           <header className="grid grid-cols-12 py-2 pb-4 text-left text-base text-gray-400 mx-8 border-b border-gray-600">
-            <p className="col-span-6 md:col-span-4 flex">
+            <div className="col-span-6 md:col-span-4 flex">
               <div className="mr-6">
                 <FormattedMessage id="id" defaultMessage="#" />
               </div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
-            </p>
-            <p
+            </div>
+            <div
               className="col-span-1 md:hidden cursor-pointer flex items-center"
               onClick={() => {
                 onSortChange('fee');
@@ -453,8 +453,8 @@ function LiquidityPage_({
               ) : (
                 <UpArrowDeep />
               )}
-            </p>
-            <p
+            </div>
+            <div
               className="col-span-2 flex items-center"
               onClick={() => {
                 onSortChange('24h_volume');
@@ -469,7 +469,7 @@ function LiquidityPage_({
               ) : (
                 <UpArrowDeep />
               )}
-            </p>
+            </div>
 
             <div
               className="col-span-2 flex items-center"
@@ -494,8 +494,8 @@ function LiquidityPage_({
 
           <div className="max-h-96 overflow-y-auto">
             {pools.map((pool, i) => (
-              <div className="w-full hover:bg-poolRowHover">
-                <PoolRow key={i} pool={pool} index={i + 1} />
+              <div className="w-full hover:bg-poolRowHover" key={i}>
+                <PoolRow pool={pool} index={i + 1} />
               </div>
             ))}
           </div>
