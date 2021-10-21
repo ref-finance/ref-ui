@@ -586,7 +586,7 @@ export function PoolDetailsPage() {
       <div
         className="p-2 mr-4"
         onClick={() => {
-          history.goBack();
+          (top.location = '/pools'), '_top';
         }}
       >
         <BackArrow />
