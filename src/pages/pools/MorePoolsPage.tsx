@@ -214,7 +214,8 @@ const MobileRow = ({
 export const FarmMining = () => {
   return (
     <div className="flex items-center">
-      <div className="mr-2">
+      {/*<div className="mr-2">*/}
+      <div>
         <FarmStamp />
       </div>
       <div className="hidden">

@@ -138,7 +138,7 @@ function MobilePoolRow({ pool, sortBy }: { pool: Pool; sortBy: string }) {
           )}
         </div>
         <div className="mr-4">
-          {sortBy === '24h_volume' ? (
+          {sortBy === 'h24_volume' ? (
             <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
           ) : (
             showSortedValue({ sortBy, value: pool[sortBy] })
@@ -191,7 +191,7 @@ function MobileLiquidityPage({
         <div
           className="py-1 px-2  w-full hover:bg-poolRowHover hover:text-white"
           onClick={() => {
-            onSortChange('24h_volume');
+            onSortChange('h24_volume');
             setShowModal(false);
           }}
         >
@@ -268,15 +268,15 @@ function MobileLiquidityPage({
           />
           <FaSearch />
         </div>
-        <div className="hidden mb-4 flex items-center mx-6">
-          <div className="text-gray-400 text-sm mr-4">
-            <FormattedMessage
-              id="hide_low_tvl_pools"
-              defaultMessage="Hide low TVL pools"
-            />
-          </div>
-          <WatchListStart />
-        </div>
+        {/*<div className="hidden mb-4 flex items-center mx-6">*/}
+        {/*  <div className="text-gray-400 text-sm mr-4">*/}
+        {/*    <FormattedMessage*/}
+        {/*      id="hide_low_tvl_pools"*/}
+        {/*      defaultMessage="Hide low TVL pools"*/}
+        {/*    />*/}
+        {/*  </div>*/}
+        {/*  <WatchListStart />*/}
+        {/*</div>*/}
         <div className="hidden mb-4 mx-6 ">
           <div className="text-gray-400 text-sm mr-4">
             <FormattedMessage
@@ -309,7 +309,7 @@ function MobileLiquidityPage({
                   <FormattedMessage
                     id={sortBy}
                     defaultMessage={
-                      sortBy !== '24h_volume' ? sortBy : '24h Volume'
+                      sortBy !== 'h24_volume' ? sortBy : '24h Volume'
                     }
                   />
                 </div>
@@ -516,15 +516,14 @@ function LiquidityPage_({
             </div>
           </div>
           <div className="flex items-center w-3/7">
-            <div className="flex items-center">
-              <div className="text-gray-400 text-sm mr-10">
-                <FormattedMessage
-                  id="hide_low_tvl_pools"
-                  defaultMessage="Hide low TVL pools"
-                />
-              </div>
-            </div>
-
+            {/*<div className="flex items-center">*/}
+            {/*  <div className="text-gray-400 text-sm mr-10">*/}
+            {/*    <FormattedMessage*/}
+            {/*      id="hide_low_tvl_pools"*/}
+            {/*      defaultMessage="Hide low TVL pools"*/}
+            {/*    />*/}
+            {/*  </div>*/}
+            {/*</div>*/}
             <div
               className="rounded w-full my-2 text-gray-400 flex items-center pr-2"
               style={{
@@ -567,14 +566,14 @@ function LiquidityPage_({
             <div
               className="col-span-2 flex items-center"
               onClick={() => {
-                onSortChange('24h_volume');
+                onSortChange('h24_volume');
                 onOrderChange(order === 'desc' ? 'asc' : 'desc');
               }}
             >
               <div className="mr-1">
                 <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
               </div>
-              {sortBy === '24h_volume' && order === 'desc' ? (
+              {sortBy === 'h24_volume' && order === 'desc' ? (
                 <DownArrowLight />
               ) : (
                 <UpArrowDeep />

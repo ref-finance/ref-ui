@@ -252,7 +252,7 @@ function AddLiquidityModal(
               onChangeAmount={changeFirstTokenAmount}
               value={firstTokenAmount}
               disabled={!wallet.isSignedIn()}
-            ></InputAmount>
+            />
           </div>
         </div>
 
@@ -323,7 +323,7 @@ function AddLiquidityModal(
               onChangeAmount={changeSecondTokenAmount}
               value={secondTokenAmount}
               disabled={!wallet.isSignedIn()}
-            ></InputAmount>
+            />
           </div>
         </div>
 
@@ -601,6 +601,13 @@ export function PoolDetailsPage() {
           {/* show token */}
 
           <div className="text-center mx-8">
+            {/*{backToFarmsButton ? (*/}
+            {/*  <div className="float-left">*/}
+            {/*    <a href="/farms">*/}
+            {/*      <FaArrowLeft className="mx-auto text-gray-600 mt-2 mb-6" />*/}
+            {/*    </a>*/}
+            {/*  </div>*/}
+            {/*) : null}*/}
             <div className="flex flex-col text-center text-base pt-2 pb-4">
               <div className="flex justify-end mb-4">
                 {backToFarmsButton && (
@@ -765,7 +772,7 @@ export function PoolDetailsPage() {
 
       {/* chart */}
       <div className="w-full flex flex-col h-full">
-        <div className="lg:flex items-center justify-between mb-4">
+        <div className="lg:flex items-center justify-end mb-4">
           <div className="hidden flex items-center xs:hidden md:hidden">
             <div className="mr-2">
               <WatchListStart />

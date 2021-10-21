@@ -237,7 +237,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       }
       onSubmit={handleSubmit}
       info={intl.formatMessage({ id: 'swapCopy' })}
-      title={intl.formatMessage({ id: 'swap' })}
+      title={'swap'}
     >
       <TokenAmount
         amount={tokenInAmount}
