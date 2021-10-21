@@ -721,7 +721,7 @@ export function PoolDetailsPage() {
             </div>
             <div className="flex items-center justify-between py-2.5">
               <div>
-                <FormattedMessage id="24h_volume" defaultMessage="24h Volume" />
+                <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
               </div>
               <div className="text-base text-white">
                 <FormattedMessage
@@ -816,10 +816,12 @@ export function PoolDetailsPage() {
             <div className="flex items-center justify-between">
               <div className="text-gray-400 text-xl float-left">$&nbsp;-</div>
               <div className="text-white rounded-2xl flex items-center bg-gray-700">
-                <div className="py-2 px-4 w-20 rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo">
-                  TVL
+                <div className="py-2 px-4 w-25 rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo">
+                  <FormattedMessage id="tvl" defaultMessage="TVL" />
                 </div>
-                <div className="py-2 px-4 w-20">Volume</div>
+                <div className="py-2 px-4 w-25">
+                  <FormattedMessage id="volume" defaultMessage="Volume" />
+                </div>
               </div>
             </div>
             <div className="text-xs text-gray-500">Sep. 11 2021</div>
@@ -831,7 +833,9 @@ export function PoolDetailsPage() {
               background: '#001320',
             }}
           >
-            <div>Coming Soon...</div>
+            <div>
+              <FormattedMessage id="coming_soon" defaultMessage="Coming Soon" />
+            </div>
           </div>
 
           <div>

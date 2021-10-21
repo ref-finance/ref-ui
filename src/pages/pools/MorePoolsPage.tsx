@@ -106,7 +106,9 @@ function PoolRow({
       <div className="col-span-1 py-1  ">
         {calculateFeePercent(pool?.total_fee)}%
       </div>
-      <div className="col-span-2  py-1">Coming soon</div>
+      <div className="col-span-2  py-1">
+        <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
+      </div>
 
       <div className="col-span-1 py-1">
         ${toInternationalCurrencySystem(pool?.tvl.toString())}
@@ -191,11 +193,11 @@ const MobileRow = ({
         </div>
         <div className="flex items-center justify-between my-3">
           <div className="text-gray-400">
-            <FormattedMessage id="24h_volume" defaultMessage="24h Volume" />
+            <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
           </div>
 
           <div>
-            <FormattedMessage id="Coming soon" defaultMessage="Coming soon" />
+            <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
           </div>
         </div>
         <div className="flex items-center justify-between my-3">

@@ -64,6 +64,7 @@ const zh_CN = {
   remove_liquidity: '移除流动性',
   total_liquidity: '总流动性',
   coming_soon: '敬请期待',
+  connect_to_near_tip:'连接您的钱包以提供流动性并查看您的存款',
   accumulated_volume: '累计成交量',
   underlying_liquidity: '基础流动性',
   total_shares: '份额总量',
@@ -158,6 +159,7 @@ const zh_CN = {
   more_pools: '更多流动池',
   my_watchlist: '我的收藏',
   h24_volume: '24小时交易量',
+  volume:'交易量',
   hide_low_tvl_pools: '隐藏底锁仓量池子',
   watchlist_title: '顶部的我的收藏',
 };

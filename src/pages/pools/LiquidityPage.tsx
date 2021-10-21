@@ -195,7 +195,7 @@ function MobileLiquidityPage({
             setShowModal(false);
           }}
         >
-          <FormattedMessage id="24h_volume" defaultMessage="24h Volume" />
+          <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
         </div>
         <div
           className="py-1 px-2 w-full hover:bg-poolRowHover hover:text-white"
@@ -417,7 +417,9 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
       <div className="col-span-1 py-1 md:hidden ">
         {calculateFeePercent(pool.fee)}%
       </div>
-      <div className="col-span-2 sm:col-span-4 py-1">Coming soon</div>
+      <div className="col-span-2 sm:col-span-4 py-1">
+        <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
+      </div>
       <div className="col-span-2 py-1">
         ${toInternationalCurrencySystem(pool.tvl.toString())}
       </div>
