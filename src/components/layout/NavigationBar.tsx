@@ -294,7 +294,7 @@ function langSwitcher() {
   const context = useContext(Context);
   const currentLocal = localStorage.getItem('local');
   return (
-    <div className="text-gray-400 text-xs cursor-pointer ml-4">
+    <div className="text-gray-400 text-xs cursor-pointer ml-4 xs:mb-4 md:mb-4">
       <span
         id="en"
         className={`pr-0.5 hover:text-white ${

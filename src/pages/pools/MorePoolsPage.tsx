@@ -65,9 +65,9 @@ function PoolRow({
   };
 
   return (
-    <div className="grid grid-cols-12 py-3.5 text-white content-center text-base text-left mx-8  border-b border-gray-600">
+    <div className="grid grid-cols-12 py-3.5 text-white content-center text-sm text-left mx-8  border-b border-gray-600">
       <div className="col-span-8 flex items-center">
-        <div className="mr-6">{index}</div>
+        <div className="mr-6 w-2">{index}</div>
 
         <Link
           to={{
@@ -93,7 +93,7 @@ function PoolRow({
               />
             </div>
           </div>
-          <div className="text-lg ml-7">
+          <div className="text-sm ml-7">
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </div>
         </Link>
@@ -174,9 +174,9 @@ export const MorePoolsPage = () => {
           </div>
 
           <section className="px-2">
-            <header className="grid grid-cols-12 py-2 pb-4 text-left text-base text-gray-400 mx-8 border-b border-gray-600">
+            <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
               <p className="col-span-8 flex">
-                <div className="mr-6">
+                <div className="mr-6 w-2">
                   <FormattedMessage id="id" defaultMessage="#" />
                 </div>
                 <FormattedMessage id="pair" defaultMessage="Pair" />
@@ -330,7 +330,7 @@ const MobileRow = ({
               pathname: `/pool/${pool.id}`,
               state: { tvl: pool?.tvl, backToFarms: supportFarm },
             }}
-            className="text-lg ml-2 font-semibold"
+            className="text-sm ml-2 font-semibold"
           >
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </Link>
@@ -338,7 +338,7 @@ const MobileRow = ({
         {supportFarm && <FarmMining />}
       </div>
 
-      <div className="flex flex-col text-base">
+      <div className="flex flex-col text-sm">
         <div className="flex items-center justify-between my-3">
           <div className="text-gray-400">
             <FormattedMessage id="fee" defaultMessage="Fee" />
