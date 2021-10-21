@@ -9,6 +9,8 @@ import Loading from '~components/layout/Loading';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
 import { FarmStamp } from '~components/icon/FarmStamp';
 import { MULTI_MINING_POOLS } from '~services/near';
+import { PoolSlippageSelector } from '~components/forms/SlippageSelector';
+import { Link } from 'react-router-dom';
 import {
   calculateFairShare,
   calculateFeePercent,
@@ -217,7 +219,9 @@ function AddLiquidityModal(
         <div className="flex justify-center">
           {error && <Alert level="error" message={error.message} />}
         </div>
-        <div className="mt-6">
+
+        {/* PC display */}
+        <div className="mt-6 md:hidden xs:hidden">
           <div className="text-xs text-right mb-1 text-gray-400">
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
@@ -228,7 +232,7 @@ function AddLiquidityModal(
             )}
           </div>
           <div className="flex items-center ">
-            <div className="flex items-end mr-12">
+            <div className="flex items-end mr-10">
               <Icon icon={tokens[0].icon} className="h-12 w-12 mr-2" />
               <div className="flex items-start flex-col">
                 <div className="text-white text-xl">
@@ -250,18 +254,45 @@ function AddLiquidityModal(
               disabled={!wallet.isSignedIn()}
             ></InputAmount>
           </div>
-
-          {/* <TokenAmount
-            amount={firstTokenAmount}
-            max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
-            total={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
-            tokens={[tokens[0]]}
-            selectedToken={tokens[0]}
-            onChangeAmount={changeFirstTokenAmount}
-          /> */}
         </div>
 
-        <div className="my-10">
+        {/* mobile display */}
+        <div className="mt-6 lg:hidden">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-end mr-10">
+              <Icon icon={tokens[0].icon} className="h-12 w-12 mr-2" />
+              <div className="flex items-start flex-col">
+                <div className="text-white text-xl">
+                  {toRealSymbol(tokens[0].symbol)}
+                </div>
+                <div
+                  className="text-xs text-gray-400"
+                  title={tokens[0].id}
+                >{`${tokens[0].id.substring(0, 12)}${
+                  tokens[0].id.length > 12 ? '...' : ''
+                }`}</div>
+              </div>
+            </div>
+            <div className="text-xs text-right mb-1 text-gray-400">
+              <FormattedMessage id="balance" defaultMessage="Balance" />
+              :&nbsp;
+              {toPrecision(
+                toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
+                6,
+                true
+              )}
+            </div>
+          </div>
+          <InputAmount
+            className="w-full"
+            max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
+            onChangeAmount={changeFirstTokenAmount}
+            value={firstTokenAmount}
+            disabled={!wallet.isSignedIn()}
+          ></InputAmount>
+        </div>
+
+        <div className="my-10 md:hidden xs:hidden">
           <div className="text-xs text-right mb-1 text-gray-400">
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
@@ -272,7 +303,7 @@ function AddLiquidityModal(
             )}
           </div>
           <div className="flex items-center">
-            <div className="flex items-end mr-8">
+            <div className="flex items-end mr-10">
               <Icon icon={tokens[1].icon} className="h-12 w-12 mr-2" />
               <div className="flex items-start flex-col">
                 <div className="text-white text-xl">
@@ -295,6 +326,42 @@ function AddLiquidityModal(
             ></InputAmount>
           </div>
         </div>
+
+        <div className="my-10 lg:hidden">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-end mr-10">
+              <Icon icon={tokens[1].icon} className="h-12 w-12 mr-2" />
+              <div className="flex items-start flex-col">
+                <div className="text-white text-xl">
+                  {toRealSymbol(tokens[1].symbol)}
+                </div>
+                <div
+                  className="text-xs text-gray-400"
+                  title={tokens[1].id}
+                >{`${tokens[1].id.substring(0, 12)}${
+                  tokens[1].id.length > 12 ? '...' : ''
+                }`}</div>
+              </div>
+            </div>
+            <div className="text-xs text-right mb-1 text-gray-400">
+              <FormattedMessage id="balance" defaultMessage="Balance" />
+              :&nbsp;
+              {toPrecision(
+                toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
+                6,
+                true
+              )}
+            </div>
+          </div>
+          <InputAmount
+            className="w-full"
+            max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
+            onChangeAmount={changeSecondTokenAmount}
+            value={secondTokenAmount}
+            disabled={!wallet.isSignedIn()}
+          ></InputAmount>
+        </div>
+
         <div className="flex items-center justify-center">
           <SolidButton
             disabled={!canSubmit}
@@ -392,7 +459,7 @@ export function RemoveLiquidityModal(
           </div>
         </div>
         <div className="pt-4 mb-8">
-          <SlippageSelector
+          <PoolSlippageSelector
             slippageTolerance={slippageTolerance}
             onChange={setSlippageTolerance}
           />
@@ -405,7 +472,7 @@ export function RemoveLiquidityModal(
                 defaultMessage="Minimum Tokens Out"
               />
             </p>
-            <section className="flex items-center justify-center mx-3 mb-12">
+            <section className="flex items-center xs:flex-col justify-center mx-3 mb-12">
               {Object.entries(minimumAmounts).map(
                 ([tokenId, minimumAmount], i) => {
                   const token = tokens.find((t) => t.id === tokenId);
@@ -534,17 +601,17 @@ export function PoolDetailsPage() {
           {/* show token */}
 
           <div className="text-center mx-8">
-            {backToFarmsButton ? (
-              <div className="float-left">
-                <a href="/farms">
-                  <FaArrowLeft className="mx-auto text-gray-600 mt-2 mb-6" />
-                </a>
-              </div>
-            ) : null}
-
             <div className="flex flex-col text-center text-base pt-2 pb-4">
               <div className="flex justify-end mb-4">
-                {state?.backToFarms && farmButton()}
+                {backToFarmsButton && (
+                  <Link
+                    to={{
+                      pathname: '/farms',
+                    }}
+                  >
+                    {farmButton()}
+                  </Link>
+                )}
               </div>
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-end">
@@ -705,11 +772,11 @@ export function PoolDetailsPage() {
             </div>
             <div className="text-gray-400 text-xs"> {'Add Watchlist'} </div>
           </div>
-          <div className="lg:flex items-center xs:mt-8 md:mt-8 xs:grid xs:grid-cols-2 md:grid md:grid-cols-2">
-            <div className=" pr-3">
+          <div className="lg:flex items-center justify-end xs:mt-8 md:mt-8 xs:grid xs:grid-cols-2 md:grid md:grid-cols-2 w-full">
+            <div className="pr-3">
               <SolidButton
                 padding="px-6"
-                className="xs:w-full  md:w-full xs:col-span-1 md:col-span-1"
+                className="w-48 xs:w-full  md:w-full xs:col-span-1 md:col-span-1"
                 onClick={() => {
                   setShowFunding(true);
                 }}
@@ -726,7 +793,7 @@ export function PoolDetailsPage() {
                 onClick={() => {
                   setShowWithdraw(true);
                 }}
-                className="xs:w-full md:w-full xs:col-span-1 md:col-span-1"
+                className="w-48 xs:w-full md:w-full xs:col-span-1 md:col-span-1"
               >
                 <FormattedMessage
                   id="remove_liquidity"
