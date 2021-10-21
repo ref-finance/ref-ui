@@ -58,7 +58,9 @@ function PoolRow({
           <div className="mx-2">
             <FarmStamp />
           </div>
-          <FarmMiningIcon />
+          <div className="hidden">
+            <FarmMiningIcon />
+          </div>
         </div>
       );
     return '';
@@ -198,7 +200,7 @@ export const FarmMining = () => {
       <div className="mr-2">
         <FarmStamp />
       </div>
-      <div>
+      <div className="hidden">
         <FarmMiningIcon />
       </div>
     </div>

@@ -125,7 +125,10 @@ function MobilePoolRow({ pool, sortBy }: { pool: Pool; sortBy: string }) {
             <Link
               to={{
                 pathname: `/more_pools/${pool.tokenIds}`,
-                state: { morePoolIds, tokens },
+                state: {
+                  morePoolIds: morePoolIds?.filter((id) => +id !== pool.id),
+                  tokens,
+                },
               }}
               className="mx-2"
             >
@@ -344,6 +347,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const tokens = useTokens(pool.tokenIds);
   const morePoolIds = useMorePoolIds({ topPool: pool });
+
   const [showLinkArrow, setShowLinkArrow] = useState(false);
 
   useEffect(() => {
@@ -409,12 +413,10 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
 
         {farmButton()}
       </div>
-
       <div className="col-span-1 py-1 md:hidden ">
         {calculateFeePercent(pool.fee)}%
       </div>
       <div className="col-span-2 sm:col-span-4 py-1">Coming soon</div>
-
       <div className="col-span-2 py-1">
         ${toInternationalCurrencySystem(pool.tvl.toString())}
       </div>
@@ -424,7 +426,10 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
         onMouseLeave={() => setShowLinkArrow(false)}
         to={{
           pathname: `/more_pools/${pool.tokenIds}`,
-          state: { morePoolIds, tokens },
+          state: {
+            morePoolIds: morePoolIds?.filter((id) => +id !== pool.id),
+            tokens,
+          },
         }}
       >
         {morePoolIds?.length ? `${morePoolIds?.length - 1} More` : '-'}
