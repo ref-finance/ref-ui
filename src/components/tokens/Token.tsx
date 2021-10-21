@@ -13,7 +13,7 @@ import { AiOutlineConsoleSql } from 'react-icons/ai';
 interface TokenProps {
   token: TokenMetadata;
   onClick: (token: TokenMetadata) => void;
-  render?: (token: TokenMetadata) => React.ReactElement;
+  render?: (token: TokenMetadata) => string;
   totalAmount?: string;
   sortBy?: string;
 }
@@ -31,7 +31,8 @@ export default function Token({
     useDepositableBalance(id)
   );
 
-  const tokenAmount = toPrecision(totalTokenAmount, 6) || '0';
+  const tokenAmount = toPrecision(totalTokenAmount, 3) || '0';
+  const refAccount = toPrecision(render(token), 3);
   return (
     <tr
       key={id}
@@ -55,10 +56,13 @@ export default function Token({
         {tokenAmount}
       </td>
       <td className={`py-4 ${sortBy === 'ref' ? 'text-white' : ''}`}>
-        {render(token)}
+        {refAccount}
       </td>
       <td className={`pr-6 py-4 ${sortBy === 'total' ? 'text-white' : ''}`}>
-        {Number(render(token)) + Number(tokenAmount)}
+        {(
+          Number(refAccount.replace(/[\,]+/g, '')) +
+          Number(tokenAmount.replace(/[\,]+/g, ''))
+        ).toLocaleString()}
       </td>
     </tr>
   );

@@ -47,13 +47,11 @@ export default function InputAmount({
           />
           {max ? (
             <a
-              className={`rounded border border-greenLight items-center px-1 mr-1 m-auto focus:outline-none text-xs
-             text-greenLight
-             ${
-               disabled
-                 ? 'text-gray-400 hover:text-gray-400'
-                 : 'text-greenLight'
-             }`}
+              className={`rounded border border-greenLight items-center px-1 mr-1 m-auto focus:outline-none text-xs ${
+                disabled
+                  ? 'text-gray-400 hover:text-gray-400'
+                  : 'text-greenLight'
+              }`}
               style={{ lineHeight: 'unset', cursor: 'pointer' }}
               onClick={() => handleChange(max)}
             >

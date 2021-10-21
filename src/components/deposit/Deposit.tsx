@@ -147,7 +147,7 @@ export function Balances(props: {
 
   return (
     <div className="balances flex items-center flex-col justify-center pt-8 w-full">
-      <Card width="w-full" bgColor="bg-dark">
+      <Card width="w-full" bgcolor="bg-dark">
         {title ? (
           <div className="text-white font-semibold text-xl pb-4">
             <FormattedMessage id="balance" defaultMessage="Balance" />

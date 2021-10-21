@@ -31,7 +31,7 @@ export default function SelectToken({
   selected: string | React.ReactElement;
   standalone?: boolean;
   placeholder?: string;
-  render?: (token: TokenMetadata) => React.ReactElement;
+  render?: (token: TokenMetadata) => React.ReactElement | string;
   onSelect?: (token: TokenMetadata) => void;
   onSearch?: (value: string) => void;
   addToken?: () => JSX.Element;
@@ -55,7 +55,7 @@ export default function SelectToken({
         item.decimals,
         useDepositableBalance(item.id)
       );
-      const nearCount = toPrecision(totalTokenAmount, 6) || '0';
+      const nearCount = toPrecision(totalTokenAmount, 3) || '0';
       const refCount = toRoundedReadableNumber({
         decimals: item.decimals,
         number: balances ? balances[item.id] : '0',
@@ -63,9 +63,11 @@ export default function SelectToken({
       return {
         ...item,
         asset: toRealSymbol(item.symbol),
-        near: Number(nearCount),
-        ref: Number(refCount),
-        total: Number(nearCount) + Number(refCount),
+        near: Number(nearCount.replace(/[\,]+/g, '')),
+        ref: Number(toPrecision(refCount, 3).replace(/[\,]+/g, '')),
+        total:
+          Number(nearCount.replace(/[\,]+/g, '')) +
+          Number(toPrecision(refCount, 3).replace(/[\,]+/g, '')),
       };
     });
 
@@ -81,17 +83,20 @@ export default function SelectToken({
   return (
     <MicroModal
       trigger={(open) => (
-        <div className={`focus:outline-none w-2/5`} onClick={open}>
+        <div
+          className={`focus:outline-none  ${standalone ? 'w-full' : 'w-2/5'}`}
+          onClick={open}
+        >
           {selected || (
             <section
               className={`flex justify-between items-center px-3 py-3 ${
                 standalone
-                  ? 'bg-inputBg relative flex overflow-hidden rounded-lg align-center my-2 border'
+                  ? 'bg-inputDarkBg text-white relative flex overflow-hidden rounded-lg align-center my-2 border border-greenLight'
                   : ''
               }`}
             >
               <p
-                className="text-xs font-semibold leading-none"
+                className="text-lg font-semibold leading-none"
                 style={{ lineHeight: 'unset' }}
               >
                 {placeholder ?? 'Select'}

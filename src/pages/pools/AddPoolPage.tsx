@@ -13,7 +13,6 @@ import { addSimpleLiquidityPool } from '~services/pool';
 import { Toggle } from '~components/toggle';
 import Alert from '~components/alert/Alert';
 import { FormattedMessage, useIntl } from 'react-intl';
-import parse from 'html-react-parser';
 
 export function AddPoolPage() {
   const tokens = useWhitelistTokens();
@@ -26,18 +25,16 @@ export function AddPoolPage() {
 
   if (!tokens || !balances) return <Loading />;
 
-  const render = (token: TokenMetadata) => (
-    <p className="text-black">
-      {toRoundedReadableNumber({
-        decimals: token.decimals,
-        number: balances[token.id],
-      })}
-    </p>
-  );
+  const render = (token: TokenMetadata) =>
+  toRoundedReadableNumber({
+    decimals: token.decimals,
+    number: balances ? balances[token.id] : '0',
+  });
 
   const Selected = (props: { token: TokenMetadata }) => {
     return (
-      <div className="flex items-center justify-between font-semibold bg-inputBg relative flex overflow-hidden rounded-lg align-center my-2 border py-3 px-3">
+
+      <div className="flex h-12 justify-between items-center px-3 py-3 bg-inputDarkBg text-white relative flex overflow-hidden rounded-lg align-center my-2 border border-greenLight">
         <Icon token={props.token} />
         {tokens.length > 1 && (
           <div className="pl-2 text-xs">
@@ -50,17 +47,15 @@ export function AddPoolPage() {
   const canSubmit = !!fee && !!token1 && !!token2;
 
   return (
-    <div className="flex items-center flex-col w-1/3 md:w-5/6 xs:w-11/12 m-auto">
-      <div className="text-center pb-8">
-        <div className="text-white text-3xl font-semibold">
+    <div className="flex items-center flex-col xl:w-1/3 2xl:w-1/3 3xl:w-1/4 lg:w-1/2 md:w-5/6 xs:w-11/12 m-auto">
+      <Card width="w-full" bgcolor="bg-dark">
+        <h2 className="formTitle font-bold text-xl text-white text-left pb-4">
           <FormattedMessage
             id="create_new_pool"
             defaultMessage="Create New Pool"
           />
-        </div>
-      </div>
-      <Card width="w-full">
-        <div className="text-xs font-semibold">
+        </h2>
+        <div className="text-xs font-semibold text-primaryText">
           <FormattedMessage id="token" defaultMessage="Token" />
         </div>
         <div className="w-full flex justify-center">
@@ -70,26 +65,26 @@ export function AddPoolPage() {
           standalone
           placeholder={intl.formatMessage({ id: 'select_token' })}
           tokens={tokens}
-          render={balances ? render : null}
+          render={render}
           selected={token1 && <Selected token={token1} />}
           onSelect={setToken1}
           balances={balances}
         />
-        <div className="text-xs font-semibold pt-2">
+        <div className="text-xs font-semibold text-primaryText pt-2">
           <FormattedMessage id="pair" defaultMessage="Pair" />
         </div>
         <SelectToken
           standalone
           placeholder={intl.formatMessage({ id: 'select_token' })}
           tokens={tokens}
-          render={balances ? render : null}
+          render={render}
           selected={token2 && <Selected token={token2} />}
           onSelect={setToken2}
           balances={balances}
         />
         <div className="text-xs font-semibold pt-2 flex items-center justify-between">
           <div>
-            <span className="pr-1">
+            <span className="pr-1 text-primaryText">
               <FormattedMessage id="fee" defaultMessage="Fee" /> %
             </span>
           </div>
@@ -107,7 +102,7 @@ export function AddPoolPage() {
         </div>
         <div className="text-xs font-semibold pt-4 flex items-center justify-between">
           <div>
-            <span className="pr-1">
+            <span className="pr-1 text-primaryText">
               <FormattedMessage id="total_fee" defaultMessage="Total Fee %" />(
               <FormattedMessage
                 id="protocol_fee_is"
@@ -116,9 +111,9 @@ export function AddPoolPage() {
               0.05%)
             </span>
           </div>
-          <div className="inline-block w-20 border bg-gray-100 p-2 px-3 rounded-lg">
+          <div className="inline-block w-20 border border-greenLight bg-inputDarkBg p-2 px-3 rounded-lg">
             <input
-              className="text-right"
+              className="text-right text-white"
               type="number"
               value={fee}
               onChange={(evt) => {
@@ -127,13 +122,25 @@ export function AddPoolPage() {
             />
           </div>
         </div>
-        <div className="pt-4 flex items-center justify-center">
+        <div className="pt-4 flex items-center justify-center w-full">
           {wallet.isSignedIn() ? (
             <button
               disabled={!canSubmit}
-              className={`rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight ${
+              className={`rounded-full w-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold ${
                 canSubmit ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
               }`}
+              style={
+                canSubmit
+                  ? {
+                      background:
+                        'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+                      borderRadius: '5px',
+                    }
+                  : {
+                      background: '#314351',
+                      borderRadius: '5px',
+                    }
+              }
               onClick={() => {
                 if (canSubmit) {
                   const v = parseFloat(fee);

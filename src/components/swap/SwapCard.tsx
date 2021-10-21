@@ -15,7 +15,7 @@ import NewFormWrap from '../forms/NewFormWrap';
 import TokenAmount from '../forms/TokenAmount';
 import Alert from '../alert/Alert';
 import SlippageSelector from '../forms/SlippageSelector';
-import { ArrowDownBlack } from '../icon/Arrows';
+import { ArrowDownBlack, SwapArrow } from '../icon/Arrows';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaExchangeAlt } from 'react-icons/fa';
@@ -30,7 +30,7 @@ const TOKEN_URL_SEPARATOR = '|';
 function SwapDetail({ title, value }: { title: string; value: string }) {
   return (
     <section className="grid grid-cols-2 py-1 text-xs">
-      <p className="text-primaryLabel">{title}</p>
+      <p className="text-primaryText">{title}</p>
       <p className="text-right text-white">{value}</p>
     </section>
   );
@@ -78,7 +78,7 @@ function SwapRateDetail({
 
   return (
     <section className="flex py-1 text-xs">
-      <p className="text-primaryLabel w-1/5">{title}</p>
+      <p className="text-primaryText w-1/5">{title}</p>
       <p
         className="flex justify-end text-white cursor-pointer w-4/5"
         onClick={switchSwapRate}
@@ -223,7 +223,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       elseView={
         <div className="flex justify-center">
           <GradientButton
-            className={`w-full text-center text-lg text-white px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
+            className={`w-full text-center text-lg text-white mt-4 px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
             onClick={() => {
               history.push(`/deposit/${tokenIn.id}`);
             }}
@@ -239,9 +239,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       info={intl.formatMessage({ id: 'swapCopy' })}
       title={intl.formatMessage({ id: 'swap' })}
     >
-      <div className="pb-2">
-        {swapError && <Alert level="error" message={swapError.message} />}
-      </div>
       <TokenAmount
         amount={tokenInAmount}
         total={tokenInMax}
@@ -260,16 +257,19 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           setTokenInAmount(amount);
         }}
       />
-      <div className="flex items-center justify-center">
+      <div
+        className="flex items-center justify-center border-t mt-12"
+        style={{ borderColor: 'rgba(126, 138, 147, 0.3)' }}
+      >
         <div
-          className="inline-block mt-4 mb-4 cursor-pointer"
+          className="inline-block -mt-9 mb-3 cursor-pointer"
           onClick={() => {
             setTokenIn(tokenOut);
             setTokenOut(tokenIn);
             setTokenInAmount(toPrecision('1', 6));
           }}
         >
-          <ArrowDownBlack />
+          <SwapArrow />
         </div>
       </div>
       <TokenAmount
@@ -300,6 +300,9 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         to={tokenOutAmount}
         minAmountOut={minAmountOut}
       />
+      <div className="pb-2">
+        {swapError && <Alert level="error" message={swapError.message} />}
+      </div>
     </NewFormWrap>
   );
 }

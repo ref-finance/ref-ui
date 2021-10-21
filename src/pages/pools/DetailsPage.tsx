@@ -205,7 +205,7 @@ function AddLiquidityModal(
           border: '1px solid rgba(0, 198, 162, 0.5)',
         }}
         padding="p-8"
-        bgColor="bg-cardBg"
+        bgcolor="bg-cardBg"
         className="text-white"
       >
         <div className="text-base font-bold pb-4">
@@ -361,7 +361,7 @@ export function RemoveLiquidityModal(
           border: '1px solid rgba(0, 198, 162, 0.5)',
         }}
         padding="p-8"
-        bgColor="bg-cardBg"
+        bgcolor="bg-cardBg"
         className="text-white"
       >
         <div className="text-base pb-4">
@@ -511,7 +511,7 @@ export function PoolDetailsPage() {
         <Card
           className="rounded-2xl mr-3 lg:w-96 md:w-full xs:w-full"
           padding="pt-8 pb-4 px-0"
-          bgColor="bg-cardBg"
+          bgcolor="bg-cardBg"
         >
           {/* show token */}
 

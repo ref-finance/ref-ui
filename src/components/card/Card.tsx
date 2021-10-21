@@ -5,15 +5,15 @@ export function Card(
     React.HTMLAttributes<HTMLDivElement> & {
       width?: string;
       padding?: string | number;
-      bgColor?: string;
+      bgcolor?: string;
     }
 ) {
-  const { width, padding, bgColor } = props;
+  const { width, padding, bgcolor } = props;
 
   return (
     <div
       {...props}
-      className={` ${bgColor ? bgColor : 'bg-cardBg'}  rounded-xl ${
+      className={`${bgcolor ? bgcolor : 'bg-cardBg'} rounded-xl ${
         padding ? padding : 'p-6'
       } ${width ? width : 'w-1/4'} ${props.className}`}
     >

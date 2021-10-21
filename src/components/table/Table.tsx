@@ -8,7 +8,7 @@ import Token from '~components/tokens/Token';
 interface TokenListProps {
   tokens: TokenMetadata[];
   onClick?: (token: TokenMetadata) => void;
-  render?: (token: TokenMetadata) => React.ReactElement;
+  render?: (token: TokenMetadata) => string;
   balances?: TokenBalancesView;
 }
 
@@ -89,7 +89,7 @@ export default function Table({
                 sortBy === 'near' ? 'text-greenLight' : ''
               }`}
             >
-              Near Account
+              Near <span className="xs:text-xs"><br className="hidden xs:inline-block" />Account</span>
               <TiArrowSortedUp
                 onClick={() => onSortChange('near')}
                 className={`inline-block cursor-pointer ${
@@ -104,7 +104,7 @@ export default function Table({
                 sortBy === 'ref' ? 'text-greenLight' : ''
               }`}
             >
-              Ref Account
+              Ref <span className="xs:text-xs"><br className="hidden xs:inline-block" />Account</span>
               <TiArrowSortedUp
                 onClick={() => onSortChange('ref')}
                 className={`inline-block cursor-pointer ${
