@@ -151,8 +151,8 @@ const zh_CN = {
     '您输入的地址不是NEP-141地址，请检查后再输入。如果是其他主网合约，去彩虹桥进行桥接处理',
   not_correct_address: '您输入的地址不正确，请检查后再输入',
   popular_tokens: '常用代币',
-  asset_label:'资产',
-  account_label:'账户',
-  total_label:'总量'
+  asset_label: '资产',
+  account_label: '账户',
+  total_label: '总量',
 };
 export default zh_CN;

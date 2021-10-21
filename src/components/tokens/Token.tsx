@@ -61,8 +61,10 @@ export default function Token({
       </td>
       <td className={`pr-6 py-4 ${sortBy === 'total' ? 'text-white' : ''}`}>
         {toInternationalCurrencySystem(
-          (Number(refAccount.replace(/[\,]+/g, '')) +
-          Number(tokenAmount.replace(/[\,]+/g, ''))).toString()
+          (
+            Number(refAccount.replace(/[\,]+/g, '')) +
+            Number(tokenAmount.replace(/[\,]+/g, ''))
+          ).toString()
         )}
       </td>
     </tr>
