@@ -29,7 +29,7 @@ export default function Token({
   const { icon, symbol, id, decimals } = token;
   const totalTokenAmount = toReadableNumber(
     decimals,
-    useDepositableBalance(id)
+    useDepositableBalance(id, decimals)
   );
 
   const tokenAmount = toPrecision(totalTokenAmount, 3) || '0';
@@ -39,7 +39,6 @@ export default function Token({
       key={id}
       className="hover:bg-black hover:bg-opacity-10"
       onClick={() => onClick && onClick(token)}
-      title={totalAmount ? totalAmount : totalTokenAmount}
     >
       <td className="text-sm pl-6 py-5">
         {icon ? (
