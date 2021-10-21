@@ -686,7 +686,7 @@ export function PoolDetailsPage() {
         // }}
       >
         <div className="lg:flex items-center justify-between mb-4">
-          <div className="flex items-center xs:hidden md:hidden">
+          <div className="hidden flex items-center xs:hidden md:hidden">
             <div className="mr-2">
               <WatchListStart />
             </div>
