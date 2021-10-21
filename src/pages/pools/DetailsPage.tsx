@@ -6,6 +6,9 @@ import { usePool, useRemoveLiquidity } from '~state/pool';
 import { addLiquidityToPool, Pool } from '~services/pool';
 import { useTokenBalances, useTokens, getExchangeRate } from '~state/token';
 import Loading from '~components/layout/Loading';
+import { FarmMiningIcon } from '~components/icon/FarmMining';
+import { FarmStamp } from '~components/icon/FarmStamp';
+import { MULTI_MINING_POOLS } from '~services/near';
 import {
   calculateFairShare,
   calculateFeePercent,
@@ -483,6 +486,21 @@ export function PoolDetailsPage() {
   const [poolTVL, setPoolTVL] = useState<number>();
   const [backToFarmsButton, setBackToFarmsButton] = useState(false);
 
+  const farmButton = () => {
+    if (backToFarmsButton)
+      return (
+        <div className="flex items-center">
+          <div className="mx-2">
+            <FarmStamp />
+          </div>
+          <div>
+            {MULTI_MINING_POOLS.includes(pool.id) && <FarmMiningIcon />}
+          </div>
+        </div>
+      );
+    return '';
+  };
+
   useEffect(() => {
     if (state?.tvl > 0) {
       setPoolTVL(state?.tvl);
@@ -526,7 +544,7 @@ export function PoolDetailsPage() {
 
             <div className="flex flex-col text-center text-base pt-2 pb-4">
               <div className="flex justify-end mb-4">
-                {state?.backToFarms && <FarmMining />}
+                {state?.backToFarms && farmButton()}
               </div>
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-end">
@@ -679,12 +697,7 @@ export function PoolDetailsPage() {
       </div>
 
       {/* chart */}
-      <div
-        className="w-full flex flex-col h-full"
-        // style={{
-        //   height: '559px',
-        // }}
-      >
+      <div className="w-full flex flex-col h-full">
         <div className="lg:flex items-center justify-between mb-4">
           <div className="hidden flex items-center xs:hidden md:hidden">
             <div className="mr-2">
