@@ -137,7 +137,7 @@ function MobilePoolRow({ pool, sortBy }: { pool: Pool; sortBy: string }) {
           )}
         </div>
         <div className="mr-4">
-          {sortBy === '24h_volume' ? (
+          {sortBy === 'h24_volume' ? (
             <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
           ) : (
             showSortedValue({ sortBy, value: pool[sortBy] })
@@ -190,11 +190,11 @@ function MobileLiquidityPage({
         <div
           className="py-1 px-2  w-full hover:bg-poolRowHover hover:text-white"
           onClick={() => {
-            onSortChange('24h_volume');
+            onSortChange('h24_volume');
             setShowModal(false);
           }}
         >
-          <FormattedMessage id="24h_volume" defaultMessage="24h Volume" />
+          <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
         </div>
         <div
           className="py-1 px-2 w-full hover:bg-poolRowHover hover:text-white"
@@ -308,7 +308,7 @@ function MobileLiquidityPage({
                   <FormattedMessage
                     id={sortBy}
                     defaultMessage={
-                      sortBy !== '24h_volume' ? sortBy : '24h Volume'
+                      sortBy !== 'h24_volume' ? sortBy : '24h Volume'
                     }
                   />
                 </div>
@@ -414,7 +414,9 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
       <div className="col-span-1 py-1 md:hidden ">
         {calculateFeePercent(pool.fee)}%
       </div>
-      <div className="col-span-2 sm:col-span-4 py-1">Coming soon</div>
+      <div className="col-span-2 sm:col-span-4 py-1">
+        <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
+      </div>
       <div className="col-span-2 py-1">
         ${toInternationalCurrencySystem(pool.tvl.toString())}
       </div>
@@ -562,14 +564,14 @@ function LiquidityPage_({
             <div
               className="col-span-2 flex items-center"
               onClick={() => {
-                onSortChange('24h_volume');
+                onSortChange('h24_volume');
                 onOrderChange(order === 'desc' ? 'asc' : 'desc');
               }}
             >
               <div className="mr-1">
                 <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
               </div>
-              {sortBy === '24h_volume' && order === 'desc' ? (
+              {sortBy === 'h24_volume' && order === 'desc' ? (
                 <DownArrowLight />
               ) : (
                 <UpArrowDeep />
