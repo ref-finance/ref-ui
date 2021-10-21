@@ -10,6 +10,7 @@ import { getExchangeRate, useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';
 import { canFarm, Pool } from '../../services/pool';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
+import { MULTI_MINING_POOLS } from '~services/near';
 import {
   calculateFeePercent,
   toPrecision,
@@ -194,7 +195,7 @@ function MobileLiquidityPage({
             setShowModal(false);
           }}
         >
-          <FormattedMessage id="24h_volume" defaultMessage="24h Volume" />
+          <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
         </div>
         <div
           className="py-1 px-2 w-full hover:bg-poolRowHover hover:text-white"
@@ -370,7 +371,9 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
           <div className="mx-2">
             <FarmStamp />
           </div>
-          <FarmMiningIcon />
+          <div>
+            {MULTI_MINING_POOLS.includes(pool.id) && <FarmMiningIcon />}
+          </div>
         </div>
       );
     return '';
@@ -414,7 +417,9 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
       <div className="col-span-1 py-1 md:hidden ">
         {calculateFeePercent(pool.fee)}%
       </div>
-      <div className="col-span-2 sm:col-span-4 py-1">Coming soon</div>
+      <div className="col-span-2 sm:col-span-4 py-1">
+        <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
+      </div>
       <div className="col-span-2 py-1">
         ${toInternationalCurrencySystem(pool.tvl.toString())}
       </div>
