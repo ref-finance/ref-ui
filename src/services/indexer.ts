@@ -59,9 +59,11 @@ export const getPool = async (pool_id: string): Promise<PoolRPCView> => {
     });
 };
 
-export const getPoolsByIds = async (
-  pool_ids: string[]
-): Promise<PoolRPCView[]> => {
+export const getPoolsByIds = async ({
+  pool_ids,
+}: {
+  pool_ids: string[];
+}): Promise<PoolRPCView[]> => {
   const ids = pool_ids.join('|');
   return fetch(config.indexerUrl + '/list-pools-by-ids?ids=' + ids, {
     method: 'GET',

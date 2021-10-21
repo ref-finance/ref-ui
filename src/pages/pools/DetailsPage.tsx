@@ -129,11 +129,11 @@ function AddLiquidityModal(
   const canSubmit = firstTokenAmount && secondTokenAmount;
 
   function submit() {
-    const firstTokenAmountBN = new BigNumber(firstTokenAmount.toString());
+    const firstTokenAmountBN = new BigNumber(firstTokenAmount?.toString());
     const firstTokenBalanceBN = new BigNumber(
       toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
     );
-    const secondTokenAmountBN = new BigNumber(secondTokenAmount.toString());
+    const secondTokenAmountBN = new BigNumber(secondTokenAmount?.toString());
     const secondTokenBalanceBN = new BigNumber(
       toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
     );
@@ -335,7 +335,7 @@ export function RemoveLiquidityModal(
   const intl = useIntl();
 
   function submit() {
-    const amountBN = new BigNumber(amount.toString());
+    const amountBN = new BigNumber(amount?.toString());
     const shareBN = new BigNumber(toReadableNumber(24, shares));
     if (Number(amount) === 0) {
       throw new Error(
@@ -617,10 +617,10 @@ export function PoolDetailsPage() {
                   defaultMessage="Total Liquidity"
                 />
               </div>
-              <div>
+              <div className="text-base text-white">
                 <FormattedMessage
                   id="coming_soon"
-                  defaultMessage="Coming Soon"
+                  defaultMessage="Coming soon"
                 />
               </div>
             </div>
@@ -631,14 +631,19 @@ export function PoolDetailsPage() {
               </div>
               <div className="text-lg text-white">
                 {' '}
-                ${toInternationalCurrencySystem(poolTVL.toString())}
+                ${toInternationalCurrencySystem(poolTVL?.toString())}
               </div>
             </div>
             <div className="flex items-center justify-between py-2.5">
               <div>
                 <FormattedMessage id="24h_volume" defaultMessage="24h Volume" />
               </div>
-              <div className="text-lg text-white">{'Coming soon'}</div>
+              <div className="text-base text-white">
+                <FormattedMessage
+                  id="coming_soon"
+                  defaultMessage="Coming soon"
+                />
+              </div>
             </div>
 
             <div className="flex items-center justify-between py-2.5">
@@ -681,7 +686,7 @@ export function PoolDetailsPage() {
         // }}
       >
         <div className="lg:flex items-center justify-between mb-4">
-          <div className="flex items-center xs:hidden md:hidden">
+          <div className="hidden flex items-center xs:hidden md:hidden">
             <div className="mr-2">
               <WatchListStart />
             </div>
