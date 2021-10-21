@@ -267,15 +267,15 @@ function MobileLiquidityPage({
           />
           <FaSearch />
         </div>
-        <div className="hidden mb-4 flex items-center mx-6">
-          <div className="text-gray-400 text-sm mr-4">
-            <FormattedMessage
-              id="hide_low_tvl_pools"
-              defaultMessage="Hide low TVL pools"
-            />
-          </div>
-          <WatchListStart />
-        </div>
+        {/*<div className="hidden mb-4 flex items-center mx-6">*/}
+        {/*  <div className="text-gray-400 text-sm mr-4">*/}
+        {/*    <FormattedMessage*/}
+        {/*      id="hide_low_tvl_pools"*/}
+        {/*      defaultMessage="Hide low TVL pools"*/}
+        {/*    />*/}
+        {/*  </div>*/}
+        {/*  <WatchListStart />*/}
+        {/*</div>*/}
         <div className="hidden mb-4 mx-6 ">
           <div className="text-gray-400 text-sm mr-4">
             <FormattedMessage
@@ -513,15 +513,14 @@ function LiquidityPage_({
             </div>
           </div>
           <div className="flex items-center w-3/7">
-            <div className="flex items-center">
-              <div className="text-gray-400 text-sm mr-10">
-                <FormattedMessage
-                  id="hide_low_tvl_pools"
-                  defaultMessage="Hide low TVL pools"
-                />
-              </div>
-            </div>
-
+            {/*<div className="flex items-center">*/}
+            {/*  <div className="text-gray-400 text-sm mr-10">*/}
+            {/*    <FormattedMessage*/}
+            {/*      id="hide_low_tvl_pools"*/}
+            {/*      defaultMessage="Hide low TVL pools"*/}
+            {/*    />*/}
+            {/*  </div>*/}
+            {/*</div>*/}
             <div
               className="rounded w-full my-2 text-gray-400 flex items-center pr-2"
               style={{

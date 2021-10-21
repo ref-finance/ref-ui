@@ -176,11 +176,11 @@ const MobileRow = ({
         </div>
         <div className="flex items-center justify-between my-3">
           <div className="text-gray-400">
-            <FormattedMessage id="24h_volume" defaultMessage="24h Volume" />
+            <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
           </div>
 
           <div>
-            <FormattedMessage id="Coming soon" defaultMessage="Coming soon" />
+            <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
           </div>
         </div>
         <div className="flex items-center justify-between my-3">
@@ -197,7 +197,8 @@ const MobileRow = ({
 export const FarmMining = () => {
   return (
     <div className="flex items-center">
-      <div className="mr-2">
+      {/*<div className="mr-2">*/}
+      <div>
         <FarmStamp />
       </div>
       <div className="hidden">

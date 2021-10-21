@@ -245,7 +245,7 @@ function AddLiquidityModal(
               onChangeAmount={changeFirstTokenAmount}
               value={firstTokenAmount}
               disabled={!wallet.isSignedIn()}
-            ></InputAmount>
+            />
           </div>
 
           {/* <TokenAmount
@@ -289,7 +289,7 @@ function AddLiquidityModal(
               onChangeAmount={changeSecondTokenAmount}
               value={secondTokenAmount}
               disabled={!wallet.isSignedIn()}
-            ></InputAmount>
+            />
           </div>
         </div>
         <div className="flex items-center justify-center">
@@ -516,13 +516,13 @@ export function PoolDetailsPage() {
           {/* show token */}
 
           <div className="text-center mx-8">
-            {backToFarmsButton ? (
-              <div className="float-left">
-                <a href="/farms">
-                  <FaArrowLeft className="mx-auto text-gray-600 mt-2 mb-6" />
-                </a>
-              </div>
-            ) : null}
+            {/*{backToFarmsButton ? (*/}
+            {/*  <div className="float-left">*/}
+            {/*    <a href="/farms">*/}
+            {/*      <FaArrowLeft className="mx-auto text-gray-600 mt-2 mb-6" />*/}
+            {/*    </a>*/}
+            {/*  </div>*/}
+            {/*) : null}*/}
 
             <div className="flex flex-col text-center text-base pt-2 pb-4">
               <div className="flex justify-end mb-4">
@@ -636,7 +636,7 @@ export function PoolDetailsPage() {
             </div>
             <div className="flex items-center justify-between py-2.5">
               <div>
-                <FormattedMessage id="24h_volume" defaultMessage="24h Volume" />
+                <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
               </div>
               <div className="text-base text-white">
                 <FormattedMessage
@@ -685,7 +685,7 @@ export function PoolDetailsPage() {
         //   height: '559px',
         // }}
       >
-        <div className="lg:flex items-center justify-between mb-4">
+        <div className="lg:flex items-center justify-end mb-4">
           <div className="hidden flex items-center xs:hidden md:hidden">
             <div className="mr-2">
               <WatchListStart />
@@ -735,11 +735,11 @@ export function PoolDetailsPage() {
           <div className="pb-7">
             <div className="flex items-center justify-between">
               <div className="text-gray-400 text-xl float-left">$&nbsp;-</div>
-              <div className="text-white rounded-2xl flex items-center bg-gray-700">
+              <div className="text-white rounded-2xl flex items-center bg-gray-700 text-center">
                 <div className="py-2 px-4 w-20 rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo">
                   TVL
                 </div>
-                <div className="py-2 px-4 w-20">Volume</div>
+                <div className="py-2 px-4">Volume</div>
               </div>
             </div>
             <div className="text-xs text-gray-500">Sep. 11 2021</div>
