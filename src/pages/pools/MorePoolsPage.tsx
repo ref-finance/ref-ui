@@ -254,11 +254,9 @@ export const MorePoolsPage = () => {
           </div>
 
           <section className="px-2">
-            <header className="grid grid-cols-12 py-2 pb-4 text-left text-base text-gray-400 mx-8 border-b border-gray-600">
+            <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
               <div className="col-span-8 flex">
-                <div className="mr-6">
-                  <FormattedMessage id="id" defaultMessage="#" />
-                </div>
+                <div className="mr-6 w-2">#</div>
                 <FormattedMessage id="pair" defaultMessage="Pair" />
               </div>
               <div
@@ -280,13 +278,13 @@ export const MorePoolsPage = () => {
               <div
                 className="col-span-2 flex items-center cursor-pointer "
                 onClick={() => {
-                  setSortBy('24h_volume');
+                  setSortBy('h24_volume');
                   setOrder(order === 'desc' ? 'asc' : 'desc');
                 }}
               >
                 <div className="mr-1">
                   <FormattedMessage
-                    id="24h_volume"
+                    id="h24_volume"
                     defaultMessage="24h Volume"
                   />
                 </div>

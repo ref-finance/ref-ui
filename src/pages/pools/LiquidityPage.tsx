@@ -240,14 +240,14 @@ function MobileLiquidityPage({
                 data-type="dark"
                 data-place="bottom"
                 data-multiline={true}
-                data-tip={intl.formatMessage({ id: 'topPools' })}
+                data-tip={intl.formatMessage({ id: 'topPoolsCopy' })}
                 className="inline-block	ml-2 text-sm text-gray-500"
               />
               <ReactTooltip className="text-sm" />
             </div>
           </div>
 
-          <div className="text-gray-400 text-sm">
+          <div className="text-gray-400 text-xs">
             {(pools?.length ? pools?.length : '-') +
               ' of ' +
               (allPools?.length ? allPools?.length : '-')}
@@ -271,7 +271,7 @@ function MobileLiquidityPage({
           <div className="text-gray-400 text-sm mr-4">
             <FormattedMessage
               id="hide_low_tvl_pools"
-              defaultMessage="Hide Low TVL Pools"
+              defaultMessage="Hide low TVL pools"
             />
           </div>
           <WatchListStart />
@@ -280,7 +280,7 @@ function MobileLiquidityPage({
           <div className="text-gray-400 text-sm mr-4">
             <FormattedMessage
               id="watchlist_title"
-              defaultMessage="My Watchlist on the Top"
+              defaultMessage="My watchlist on the top"
             />
           </div>
         </div>
@@ -430,8 +430,8 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
           },
         }}
       >
-        {morePoolIds?.length ? `${morePoolIds?.length - 1} More` : '-'}
-        {showLinkArrow && '>'}
+        {morePoolIds?.length ? `${morePoolIds?.length - 1} +` : '-'}
+        {showLinkArrow && ' >'}
       </Link>
     </div>
   );
@@ -473,14 +473,14 @@ function LiquidityPage_({
           </div>
         </div>
         <div className="mx-8 flex items-center">
-          <div className="text-gray-400 text-lg ">
-            <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
+          <div className="text-gray-400 text-sm">
+            <FormattedMessage id="my_watchlist" defaultMessage="My watchlist" />
           </div>
           <FaRegQuestionCircle
             data-type="dark"
             data-place="bottom"
             data-multiline={true}
-            data-tip={intl.formatMessage({ id: 'myWatchList' })}
+            data-tip={intl.formatMessage({ id: 'my_watchlist' })}
             className="inline-block	ml-2 text-sm  text-gray-500"
           />
           <ReactTooltip className="text-sm" />
@@ -494,7 +494,7 @@ function LiquidityPage_({
             </div>
 
             <div className="flex items-center">
-              <div className="text-gray-400">
+              <div className="text-gray-400 text-sm">
                 {(pools?.length ? pools?.length : '-') +
                   ' of ' +
                   (allPools?.length ? allPools?.length : '-')}
@@ -504,7 +504,7 @@ function LiquidityPage_({
                 data-type="dark"
                 data-place="bottom"
                 data-multiline={true}
-                data-tip={intl.formatMessage({ id: 'topPools' })}
+                data-tip={intl.formatMessage({ id: 'topPoolsCopy' })}
                 className="inline-block	ml-2 text-sm  text-gray-500"
               />
               <ReactTooltip className="text-sm" />
@@ -512,8 +512,11 @@ function LiquidityPage_({
           </div>
           <div className="flex items-center w-3/7">
             <div className="flex items-center">
-              <div className=" text-gray-400 text-sm mr-10">
-                {'Hide Low TVL Pools'}
+              <div className="text-gray-400 text-sm mr-10">
+                <FormattedMessage
+                  id="hide_low_tvl_pools"
+                  defaultMessage="Hide low TVL pools"
+                />
               </div>
             </div>
 
@@ -535,11 +538,9 @@ function LiquidityPage_({
         </div>
 
         <section className="px-2">
-          <header className="grid grid-cols-12 py-2 pb-4 text-left text-base text-gray-400 mx-8 border-b border-gray-600">
+          <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
             <div className="col-span-6 md:col-span-4 flex">
-              <div className="mr-6">
-                <FormattedMessage id="id" defaultMessage="#" />
-              </div>
+              <div className="mr-6 w-2">#</div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </div>
             <div
@@ -566,7 +567,7 @@ function LiquidityPage_({
               }}
             >
               <div className="mr-1">
-                <FormattedMessage id="24h_volume" defaultMessage="24h Volume" />
+                <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
               </div>
               {sortBy === '24h_volume' && order === 'desc' ? (
                 <DownArrowLight />
