@@ -308,24 +308,24 @@ function Actions() {
       >
         {detail ? (
           <Card style={{ width: '30vw' }}>
-            <div className="text-center pb-4 font-semibold">
+            <div className="text-white text-center pb-4 font-semibold">
               {detail.data.Action}
             </div>
-            <div className="border-b">
+            <div className="border-b text-white">
               {Object.keys(detail.data).map((k, i) => {
                 if (k === 'Action') return null;
 
                 return (
                   <div
                     key={i}
-                    className="flex items-center justify-between border-t py-3 text-sm"
+                    className="flex items-center justify-between py-3 text-sm"
                   >
                     <div>{k}</div>
                     <div>{(detail.data as any)[k]}</div>
                   </div>
                 );
               })}
-              <div className="flex items-center justify-between border-t py-3 text-sm">
+              <div className="flex items-center justify-between py-3 text-sm">
                 <div>Status</div>
                 <div>{detail.status ? 'Success' : 'Failed'}</div>
               </div>
@@ -507,14 +507,14 @@ function MobileActions() {
                 return (
                   <div
                     key={i}
-                    className="flex items-center justify-between border-t py-3 text-sm"
+                    className="flex items-center justify-between  py-3 text-sm"
                   >
                     <div>{k}</div>
                     <div>{(detail.data as any)[k]}</div>
                   </div>
                 );
               })}
-              <div className="flex items-center justify-between border-t py-3 text-sm">
+              <div className="flex items-center justify-between py-3 text-sm">
                 <div>Status</div>
                 <div>{detail.status ? 'Success' : 'Failed'}</div>
               </div>
