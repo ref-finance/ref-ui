@@ -118,14 +118,22 @@ export const useMorePoolIds = (props: { topPool: Pool }) => {
   return ids;
 };
 
-export const useMorePools = ({ morePoolIds,order,sortBy  }: { morePoolIds: string[], order:boolean | 'desc' | 'asc', sortBy:string }) => {
+export const useMorePools = ({
+  morePoolIds,
+  order,
+  sortBy,
+}: {
+  morePoolIds: string[];
+  order: boolean | 'desc' | 'asc';
+  sortBy: string;
+}) => {
   const [morePools, setMorePools] = useState<PoolRPCView[]>();
   useEffect(() => {
-    getPoolsByIds({pool_ids:morePoolIds}).then(res=>{
-      const orderedPools = orderBy(res,[sortBy],[order]);
-      setMorePools(orderedPools)
+    getPoolsByIds({ pool_ids: morePoolIds }).then((res) => {
+      const orderedPools = orderBy(res, [sortBy], [order]);
+      setMorePools(orderedPools);
     });
-  }, [order,sortBy]);
+  }, [order, sortBy]);
   return morePools;
 };
 
