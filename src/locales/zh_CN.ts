@@ -135,7 +135,7 @@ const zh_CN = {
   airdropCopy: '请在截止日期前至少领取一次空投，否则您的余额将捐给财政部。',
   farmRewardsCopy: '您已领取但尚未提取到您的NEAR钱包中的代币。',
   totalValueLockedCopy: '总锁定价值',
-  topPools: '对每一个交易对, 展示所有该交易对的池子中锁仓量最大的池子',
+  topPoolsCopy: '对每一个交易对, 展示所有该交易对的池子中锁仓量最大的池子',
   myWatchList: '我的收藏列表',
   you_do_not_have_enough: '你没有足够的',
   must_provide_at_least_one_token_for: '你提供的币的数量需大于0',
