@@ -3,8 +3,6 @@ import _ from 'lodash';
 import moment from 'moment';
 import getConfig from '../services/config';
 
-
-
 interface Pool {
   id: number;
   token1Id: string;

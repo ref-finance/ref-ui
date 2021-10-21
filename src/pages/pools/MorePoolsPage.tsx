@@ -67,9 +67,9 @@ function PoolRow({
   };
 
   return (
-    <div className="grid grid-cols-12 py-3.5 text-white content-center text-base text-left mx-8  border-b border-gray-600">
+    <div className="grid grid-cols-12 py-3.5 text-white content-center text-sm text-left mx-8  border-b border-gray-600">
       <div className="col-span-8 flex items-center">
-        <div className="mr-6">{index}</div>
+        <div className="mr-6 w-2">{index}</div>
 
         <Link
           to={{
@@ -95,7 +95,7 @@ function PoolRow({
               />
             </div>
           </div>
-          <div className="text-lg ml-7">
+          <div className="text-sm ml-7">
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </div>
         </Link>

@@ -161,5 +161,8 @@ const en_US = {
   not_correct_address:
     'The address you entered is incorrect, please check and enter',
   popular_tokens: 'Popular Tokens',
+  asset_label: 'Asset',
+  account_label: 'Account',
+  total_label: 'Total',
 };
 export default en_US;

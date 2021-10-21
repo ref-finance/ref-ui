@@ -35,13 +35,13 @@ const ConnectToNearCard = () => {
       className="bg-opacity-0 border rounded border-gradientFrom text-white mb-5"
       padding="p-8"
     >
-      <div className="mb-8 text-lg">
+      <div className="mb-8">
         <FormattedMessage
           id="connect_to_near_tip"
           defaultMessage="Connect your wallet to provide liquidity and view your deposit."
         />
       </div>
-      <div className="text-2xl">
+      <div className="text-xl">
         <SolidButton className="w-full">
           <FormattedMessage
             id="connect_to_near"
@@ -92,7 +92,7 @@ function MobilePoolRow({ pool, sortBy }: { pool: Pool; sortBy: string }) {
 
   return (
     <div className="flex flex-col border-b border-gray-700 bg-cardBg w-full px-4 py-6 text-white">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between text-sm">
         <div className="flex items-center justify-start">
           <div className="flex items-center">
             <div className="h-6 w-6 border rounded-full">
@@ -116,7 +116,7 @@ function MobilePoolRow({ pool, sortBy }: { pool: Pool; sortBy: string }) {
               pathname: `/pool/${pool.id}`,
               state: { tvl: pool?.tvl, backToFarms: supportFarm },
             }}
-            className="text-lg ml-2 font-semibold"
+            className="text-sm ml-2 font-semibold"
           >
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </Link>
@@ -223,7 +223,7 @@ function MobileLiquidityPage({
       {!wallet.isSignedIn() && <ConnectToNearCard />}
       <Card className="w-full mb-4" bgcolor="bg-cardBg" padding="p-0">
         <div className="mx-6 mb-6 mt-3">
-          <div className="text-white text-2xl ">
+          <div className="text-white text-xl">
             <FormattedMessage
               id="liquidity_pools"
               defaultMessage="Liquidity Pools"
@@ -232,7 +232,7 @@ function MobileLiquidityPage({
         </div>
         <div className="mx-6 flex items-center justify-between mb-2">
           <div className="flex items-center">
-            <div className="text-white text-lg">
+            <div className="text-white text-base">
               <FormattedMessage id="top_pools" defaultMessage="Top Pools" />
             </div>
             <div>
@@ -241,13 +241,13 @@ function MobileLiquidityPage({
                 data-place="bottom"
                 data-multiline={true}
                 data-tip={intl.formatMessage({ id: 'topPools' })}
-                className="inline-block	ml-2 text-sm  text-gray-500"
+                className="inline-block	ml-2 text-sm text-gray-500"
               />
               <ReactTooltip className="text-sm" />
             </div>
           </div>
 
-          <div className="text-gray-400">
+          <div className="text-gray-400 text-sm">
             {(pools?.length ? pools?.length : '-') +
               ' of ' +
               (allPools?.length ? allPools?.length : '-')}
@@ -285,7 +285,7 @@ function MobileLiquidityPage({
           </div>
         </div>
         <section className="w-full">
-          <header className="p-4 text-gray-400 flex items-center justify-between">
+          <header className="p-4 text-gray-400 flex items-center justify-between text-sm">
             <div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </div>
@@ -377,7 +377,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   };
 
   return (
-    <div className="grid grid-cols-12 py-3.5 text-white content-center text-base text-left mx-8 border-b border-gray-600">
+    <div className="grid grid-cols-12 py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-600">
       <div className="col-span-6 md:col-span-4 flex items-center">
         <div className="mr-6 w-2">{index}</div>
         <Link
@@ -404,11 +404,9 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
               />
             </div>
           </div>
-          <div className="text-lg ml-7">
+          <div className="text-sm ml-7">
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </div>
-
-          {/*  */}
         </Link>
 
         {farmButton()}

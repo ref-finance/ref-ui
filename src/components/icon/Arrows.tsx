@@ -115,171 +115,79 @@ export function UpArrowDeep() {
 export function SwapArrow() {
   return (
     <svg
-      width="69"
-      height="69"
-      viewBox="0 0 69 69"
-      fill="none"
+      width="47px"
+      height="47px"
+      viewBox="0 0 47 47"
+      version="1.1"
       xmlns="http://www.w3.org/2000/svg"
-      className="bg-dark"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
     >
-      <g filter="url(#filter0_bd_148:138)">
-        <circle
-          cx="34.5"
-          cy="34.5"
-          r="23.5"
-          fill="black"
-          fillOpacity="0.2"
-          shapeRendering="crispEdges"
-        />
-        <circle
-          cx="34.5"
-          cy="34.5"
-          r="23.5"
-          stroke="white"
-          strokeOpacity="0.4"
-          shapeRendering="crispEdges"
-        />
-      </g>
-      <circle
-        cx="38.5751"
-        cy="29.3311"
-        r="7.65116"
-        fill="url(#paint0_linear_148:138)"
-      />
-      <g filter="url(#filter1_bd_148:138)">
-        <circle
-          cx="32.0177"
-          cy="36.9825"
-          r="8.74418"
-          fill="url(#paint1_linear_148:138)"
-          shapeRendering="crispEdges"
-        />
-        <circle
-          cx="32.0177"
-          cy="36.9825"
-          r="8.74418"
-          stroke="url(#paint2_linear_148:138)"
-          shapeRendering="crispEdges"
-        />
-      </g>
+      <title>group11</title>
       <defs>
-        <filter
-          id="filter0_bd_148:138"
-          x="-39.5"
-          y="-39.5"
-          width="148"
-          height="148"
-          filterUnits="userSpaceOnUse"
-          colorInterpolationFilters="sRGB"
-        >
-          <feFlood floodOpacity="0" result="BackgroundImageFix" />
-          <feGaussianBlur in="BackgroundImage" stdDeviation="25" />
-          <feComposite
-            in2="SourceAlpha"
-            operator="in"
-            result="effect1_backgroundBlur_148:138"
-          />
-          <feColorMatrix
-            in="SourceAlpha"
-            type="matrix"
-            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-            result="hardAlpha"
-          />
-          <feOffset />
-          <feGaussianBlur stdDeviation="5" />
-          <feComposite in2="hardAlpha" operator="out" />
-          <feColorMatrix
-            type="matrix"
-            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"
-          />
-          <feBlend
-            mode="normal"
-            in2="effect1_backgroundBlur_148:138"
-            result="effect2_dropShadow_148:138"
-          />
-          <feBlend
-            mode="normal"
-            in="SourceGraphic"
-            in2="effect2_dropShadow_148:138"
-            result="shape"
-          />
-        </filter>
-        <filter
-          id="filter1_bd_148:138"
-          x="12.7736"
-          y="17.7383"
-          width="38.4883"
-          height="38.4884"
-          filterUnits="userSpaceOnUse"
-          colorInterpolationFilters="sRGB"
-        >
-          <feFlood floodOpacity="0" result="BackgroundImageFix" />
-          <feGaussianBlur in="BackgroundImage" stdDeviation="5" />
-          <feComposite
-            in2="SourceAlpha"
-            operator="in"
-            result="effect1_backgroundBlur_148:138"
-          />
-          <feColorMatrix
-            in="SourceAlpha"
-            type="matrix"
-            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-            result="hardAlpha"
-          />
-          <feOffset />
-          <feGaussianBlur stdDeviation="5" />
-          <feComposite in2="hardAlpha" operator="out" />
-          <feColorMatrix
-            type="matrix"
-            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"
-          />
-          <feBlend
-            mode="normal"
-            in2="effect1_backgroundBlur_148:138"
-            result="effect2_dropShadow_148:138"
-          />
-          <feBlend
-            mode="normal"
-            in="SourceGraphic"
-            in2="effect2_dropShadow_148:138"
-            result="shape"
-          />
-        </filter>
         <linearGradient
-          id="paint0_linear_148:138"
-          x1="46.0936"
-          y1="23.3854"
-          x2="30.8421"
-          y2="25.5243"
-          gradientUnits="userSpaceOnUse"
+          x1="81.3378233%"
+          y1="17.0054882%"
+          x2="28.0536953%"
+          y2="81.1183261%"
+          id="linearGradient-1"
         >
-          <stop stopColor="#00D6AF" />
-          <stop offset="1" stopColor="#1AA289" />
+          <stop stopColor="#00D6AF" offset="0%"></stop>
+          <stop stopColor="#1AA189" offset="100%"></stop>
         </linearGradient>
         <linearGradient
-          id="paint1_linear_148:138"
-          x1="40.528"
-          y1="45.2457"
-          x2="19.842"
-          y2="37.8939"
-          gradientUnits="userSpaceOnUse"
+          x1="74.7356726%"
+          y1="11.2541712%"
+          x2="29.9893808%"
+          y2="93.8122554%"
+          id="linearGradient-2"
         >
-          <stop offset="0.0641396" stopColor="white" stopOpacity="0.15" />
-          <stop offset="1" stopColor="white" stopOpacity="0.22" />
-        </linearGradient>
-        <linearGradient
-          id="paint2_linear_148:138"
-          x1="40.3787"
-          y1="28.2383"
-          x2="20.6286"
-          y2="35.9821"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stopColor="#C1FFF4" />
-          <stop offset="0.588542" stopColor="#73818B" stopOpacity="0.56" />
-          <stop offset="1" stopColor="#BFCDFF" />
+          <stop stopColor="#C1FFF4" offset="0%"></stop>
+          <stop
+            stopColor="#73818B"
+            stopOpacity="0.556135271"
+            offset="46.055507%"
+          ></stop>
+          <stop stopColor="#BFCDFF" offset="100%"></stop>
         </linearGradient>
       </defs>
+      <g
+        id="page1"
+        stroke="none"
+        strokeWidth="1"
+        fill="none"
+        fill-rule="evenodd"
+      >
+        <g id="group11">
+          <circle
+            id="oval"
+            strokeOpacity="0.396552666"
+            stroke="#FFFFFF"
+            fillOpacity="0.2"
+            fill="#000000"
+            cx="23.5"
+            cy="23.5"
+            r="23"
+          ></circle>
+          <g id="group7" transform="translate(12.000000, 13.000000)">
+            <circle
+              id="oval"
+              fill="url(#linearGradient-1)"
+              cx="16.5"
+              cy="7.5"
+              r="7.5"
+            ></circle>
+            <circle
+              id="oval"
+              stroke="url(#linearGradient-2)"
+              fillOpacity="0.2"
+              fill="#FFFFFF"
+              cx="9"
+              cy="13"
+              r="8.5"
+            ></circle>
+          </g>
+        </g>
+      </g>
     </svg>
   );
 }

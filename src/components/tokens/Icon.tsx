@@ -19,7 +19,7 @@ export default function Icon({
       className="flex items-center text-lg text-white"
       style={{ lineHeight: 'unset' }}
     >
-      {label && <p className="block">{toRealSymbol(token.symbol)}</p>}
+      {label && <p className="block text-sm">{toRealSymbol(token.symbol)}</p>}
       <div className="pl-2 text-xs">
         <ArrowDownWhite />
       </div>
