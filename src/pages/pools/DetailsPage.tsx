@@ -710,7 +710,11 @@ export function PoolDetailsPage() {
                 />
               </div>
               <div className="text-base text-white">
-                {toPrecision(toReadableNumber(24, pool.shareSupply), 3)}
+                {toRoundedReadableNumber({
+                  decimals: 24,
+                  number: pool.shareSupply,
+                  precision: 0,
+                })}
               </div>
             </div>
             {/* TVL */}
@@ -732,22 +736,6 @@ export function PoolDetailsPage() {
                   id="coming_soon"
                   defaultMessage="Coming soon"
                 />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between py-2.5">
-              <div>
-                <FormattedMessage
-                  id="total_shares"
-                  defaultMessage="Total Shares"
-                />
-              </div>
-              <div className="text-white">
-                {toRoundedReadableNumber({
-                  decimals: 24,
-                  number: pool.shareSupply,
-                  precision: 0,
-                })}
               </div>
             </div>
 
