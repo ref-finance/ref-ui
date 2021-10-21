@@ -128,12 +128,10 @@ export const FarmMining = () => {
 export const MorePoolsPage = () => {
   const { state } = useLocation<LocationTypes>();
   const [sortBy, setSortBy] = useState('tvl');
-  const [order, setOrder] = useState('desc');
+  const [order, setOrder] = useState<boolean | 'desc' | 'asc'>('desc');
   const morePoolIds = state?.morePoolIds;
   const tokens = state?.tokens;
-  // const supportFarm = state?.supportFarm;
-  const morePools = useMorePools({ morePoolIds });
-  // console.log(supportFarm);
+  const morePools = useMorePools({ morePoolIds, order, sortBy });
 
   return (
     <>
@@ -184,14 +182,14 @@ export const MorePoolsPage = () => {
               <div
                 className="col-span-1 md:hidden cursor-pointer flex items-center"
                 onClick={() => {
-                  setSortBy('fee');
+                  setSortBy('total_fee');
                   setOrder(order === 'desc' ? 'asc' : 'desc');
                 }}
               >
                 <div className="mr-1">
                   <FormattedMessage id="fee" defaultMessage="Fee" />
                 </div>
-                {sortBy === 'fee' && order === 'desc' ? (
+                {sortBy === 'total_fee' && order === 'desc' ? (
                   <DownArrowLight />
                 ) : (
                   <UpArrowDeep />
@@ -218,13 +216,13 @@ export const MorePoolsPage = () => {
               </div>
 
               <div
-                className="col-span-1 flex items-center"
+                className="col-span-1 flex items-center cursor-pointer"
                 onClick={() => {
                   setSortBy('tvl');
                   setOrder(order === 'desc' ? 'asc' : 'desc');
                 }}
               >
-                <span className="mr-1">
+                <span className="mr-1 ">
                   <FormattedMessage id="tvl" defaultMessage="TVL" />
                 </span>
                 {sortBy === 'tvl' && order === 'desc' ? (

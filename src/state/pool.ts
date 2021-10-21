@@ -14,7 +14,7 @@ import {
 import { PoolDb } from '~store/RefDatabase';
 
 import { useWhitelistTokens } from './token';
-import { debounce } from 'lodash';
+import _, { debounce, orderBy } from 'lodash';
 import { getPoolsByIds } from '~services/indexer';
 import { PoolRPCView } from '~services/api';
 
@@ -118,12 +118,14 @@ export const useMorePoolIds = (props: { topPool: Pool }) => {
   return ids;
 };
 
-export const useMorePools = ({ morePoolIds }: { morePoolIds: string[] }) => {
+export const useMorePools = ({ morePoolIds,order,sortBy  }: { morePoolIds: string[], order:boolean | 'desc' | 'asc', sortBy:string }) => {
   const [morePools, setMorePools] = useState<PoolRPCView[]>();
-
   useEffect(() => {
-    getPoolsByIds(morePoolIds).then(setMorePools);
-  }, []);
+    getPoolsByIds({pool_ids:morePoolIds}).then(res=>{
+      const orderedPools = orderBy(res,[sortBy],[order]);
+      setMorePools(orderedPools)
+    });
+  }, [order,sortBy]);
   return morePools;
 };
 

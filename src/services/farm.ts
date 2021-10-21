@@ -101,7 +101,7 @@ export const getFarms = async ({
   });
 
   let poolList: Record<string, PoolRPCView> = {};
-  const pools = await getPoolsByIds(pool_ids);
+  const pools = await getPoolsByIds({pool_ids});
   if (pools) {
     poolList = pools.reduce(
       (obj: any, pool: any) => ({ ...obj, [pool.id]: pool }),

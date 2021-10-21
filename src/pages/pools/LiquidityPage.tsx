@@ -472,7 +472,7 @@ function LiquidityPage_({
             </div>
 
             <div
-              className="col-span-2 flex items-center"
+              className="col-span-2 flex items-center cursor-pointer"
               onClick={() => {
                 onSortChange('tvl');
                 onOrderChange(order === 'desc' ? 'asc' : 'desc');
