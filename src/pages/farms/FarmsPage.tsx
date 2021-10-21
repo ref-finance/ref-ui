@@ -940,7 +940,7 @@ function ActionModal(
 
   return (
     <Modal {...props}>
-      <Card style={{ width: cardWidth }}>
+      <Card style={{ width: cardWidth }} bgcolor="bg-white">
         <div className="text-sm text-gray-800 font-semibold pb-4">
           {props.title}
         </div>

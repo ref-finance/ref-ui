@@ -51,7 +51,7 @@ function Balances({ hideEmpty }: { hideEmpty?: boolean }) {
   return (
     <Card className="w-full">
       <div className="flex items-center justify-between pb-4">
-        <div className="font-semibold">
+        <div className="font-semibold text-white">
           <FormattedMessage id="balance" defaultMessage="Balance" />
         </div>
         <GreenButton
@@ -99,7 +99,7 @@ function TokenRow({
   return (
     <div
       key={token.id}
-      className="flex items-center justify-between py-4 border-t"
+      className="flex items-center justify-between py-4"
       title={toReadableNumber(token.decimals, balance)}
     >
       <div className="flex item-center justify-between">
@@ -112,12 +112,12 @@ function TokenRow({
         ) : (
           <div className="rounded-full h-10 w-10 bg-gray-300 mr-3"></div>
         )}
-        <div className="flex flex-col justify-between py-1">
+        <div className="flex flex-col justify-between py-1 text-white">
           <div>{toRealSymbol(token.symbol)}</div>
-          <div className="text-xs text-gray-500">{token.id}</div>
+          <div className="text-xs text-gray-400">{token.id}</div>
         </div>
       </div>
-      <div className="text-gray-600">{amount}</div>
+      <div className="text-gray-400">{amount}</div>
     </div>
   );
 }
@@ -250,7 +250,7 @@ function Actions() {
   return (
     <Card className="w-full">
       <div className="flex items-center justify-between pb-4">
-        <div className="font-semibold">
+        <div className="font-semibold text-white">
           <FormattedMessage
             id="recent_activity"
             defaultMessage="Recent Activity"
@@ -258,7 +258,7 @@ function Actions() {
         </div>
         <div></div>
       </div>
-      <div className="border-b">
+      <div className="border-b border-t border-gray-500 border-opacity-30">
         {actions.map((action, i) => {
           let icon = mapToView(action.data?.Action);
           icon = icon ? (
@@ -269,14 +269,14 @@ function Actions() {
           return (
             <div
               key={i}
-              className="flex items-center justify-between py-4 border-t cursor-pointer"
+              className="flex items-center justify-between py-4 cursor-pointer"
               onClick={() => {
                 setDetail(action);
               }}
             >
               <div className="flex items-center justify-between">
                 {icon}
-                <span className="text-xs font-semibold">
+                <span className="text-xs font-semibold text-white">
                   {action.data.Action}
                 </span>
               </div>
@@ -308,24 +308,24 @@ function Actions() {
       >
         {detail ? (
           <Card style={{ width: '30vw' }}>
-            <div className="text-center pb-4 font-semibold">
+            <div className="text-white text-center pb-4 font-semibold">
               {detail.data.Action}
             </div>
-            <div className="border-b">
+            <div className="border-b text-white">
               {Object.keys(detail.data).map((k, i) => {
                 if (k === 'Action') return null;
 
                 return (
                   <div
                     key={i}
-                    className="flex items-center justify-between border-t py-3 text-sm"
+                    className="flex items-center justify-between py-3 text-sm"
                   >
                     <div>{k}</div>
                     <div>{(detail.data as any)[k]}</div>
                   </div>
                 );
               })}
-              <div className="flex items-center justify-between border-t py-3 text-sm">
+              <div className="flex items-center justify-between py-3 text-sm">
                 <div>Status</div>
                 <div>{detail.status ? 'Success' : 'Failed'}</div>
               </div>
@@ -507,14 +507,14 @@ function MobileActions() {
                 return (
                   <div
                     key={i}
-                    className="flex items-center justify-between border-t py-3 text-sm"
+                    className="flex items-center justify-between  py-3 text-sm"
                   >
                     <div>{k}</div>
                     <div>{(detail.data as any)[k]}</div>
                   </div>
                 );
               })}
-              <div className="flex items-center justify-between border-t py-3 text-sm">
+              <div className="flex items-center justify-between py-3 text-sm">
                 <div>Status</div>
                 <div>{detail.status ? 'Success' : 'Failed'}</div>
               </div>
