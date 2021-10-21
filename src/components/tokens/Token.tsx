@@ -7,6 +7,7 @@ import {
   toReadableNumber,
   toNonDivisibleNumber,
   toRoundedReadableNumber,
+  toInternationalCurrencySystem,
 } from '~utils/numbers';
 import { AiOutlineConsoleSql } from 'react-icons/ai';
 
@@ -53,16 +54,16 @@ export default function Token({
         <span className="inline-block text-white">{toRealSymbol(symbol)}</span>
       </td>
       <td className={`py-4 ${sortBy === 'near' ? 'text-white' : ''}`}>
-        {tokenAmount}
+        {toInternationalCurrencySystem(tokenAmount).replace(/[\,]+/g, '')}
       </td>
       <td className={`py-4 ${sortBy === 'ref' ? 'text-white' : ''}`}>
-        {refAccount}
+        {toInternationalCurrencySystem(refAccount.replace(/[\,]+/g, ''))}
       </td>
       <td className={`pr-6 py-4 ${sortBy === 'total' ? 'text-white' : ''}`}>
-        {(
-          Number(refAccount.replace(/[\,]+/g, '')) +
-          Number(tokenAmount.replace(/[\,]+/g, ''))
-        ).toLocaleString()}
+        {toInternationalCurrencySystem(
+          (Number(refAccount.replace(/[\,]+/g, '')) +
+          Number(tokenAmount.replace(/[\,]+/g, ''))).toString()
+        )}
       </td>
     </tr>
   );

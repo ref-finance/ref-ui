@@ -4,6 +4,7 @@ import { TokenMetadata } from '../../services/ft-contract';
 import { TokenBalancesView } from '~services/token';
 import { toReadableNumber } from '~utils/numbers';
 import Token from '~components/tokens/Token';
+import { FormattedMessage } from 'react-intl';
 
 interface TokenListProps {
   tokens: TokenMetadata[];
@@ -74,7 +75,7 @@ export default function Table({
                 sortBy === 'asset' ? 'text-greenLight' : ''
               }`}
             >
-              Asset
+              <FormattedMessage id="asset_label" defaultMessage="Asset" />
               <TiArrowSortedUp
                 onClick={() => onSortChange('asset')}
                 className={`inline-block cursor-pointer ${
@@ -89,7 +90,10 @@ export default function Table({
                 sortBy === 'near' ? 'text-greenLight' : ''
               }`}
             >
-              Near <span className="xs:text-xs"><br className="hidden xs:inline-block" />Account</span>
+              Near <span className="xs:text-xs">
+                <br className="hidden xs:inline-block" />
+                <FormattedMessage id="account_label" defaultMessage="Account" />
+              </span>
               <TiArrowSortedUp
                 onClick={() => onSortChange('near')}
                 className={`inline-block cursor-pointer ${
@@ -104,7 +108,10 @@ export default function Table({
                 sortBy === 'ref' ? 'text-greenLight' : ''
               }`}
             >
-              Ref <span className="xs:text-xs"><br className="hidden xs:inline-block" />Account</span>
+              Ref <span className="xs:text-xs">
+                    <br className="hidden xs:inline-block" />
+                    <FormattedMessage id="account_label" defaultMessage="Account" />
+                </span>
               <TiArrowSortedUp
                 onClick={() => onSortChange('ref')}
                 className={`inline-block cursor-pointer ${
@@ -119,7 +126,7 @@ export default function Table({
                 sortBy === 'total' ? 'text-greenLight' : ''
               }`}
             >
-              Total
+              <FormattedMessage id="total_label" defaultMessage="Total" />
               <TiArrowSortedUp
                 onClick={() => onSortChange('total')}
                 className={`inline-block cursor-pointer ${

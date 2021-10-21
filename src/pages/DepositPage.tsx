@@ -111,6 +111,7 @@ export default function DepositPage() {
           // onSearchToken={handleSearch}
           onChangeAmount={setAmount}
           text={selectedToken.symbol}
+          balances={balances}
         />
         {wallet.isSignedIn() ? (
           <DepositBtn balance={max} amount={amount} token={selectedToken} />
