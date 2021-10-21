@@ -164,5 +164,11 @@ const en_US = {
   asset_label: 'Asset',
   account_label: 'Account',
   total_label: 'Total',
+  top_pools: 'Top pools',
+  more_pools: 'More pools',
+  my_watchlist: 'My watchlist',
+  h24_volume: '24h Volume',
+  hide_low_tvl_pools: 'Hide low TVL pools',
+  watchlist_title: 'My watchlist on the top',
 };
 export default en_US;

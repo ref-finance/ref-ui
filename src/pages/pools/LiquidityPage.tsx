@@ -169,7 +169,7 @@ function MobileLiquidityPage({
             </div>
           </div>
 
-          <div className="text-gray-400 text-sm">
+          <div className="text-gray-400 text-xs">
             {(pools?.length ? pools?.length : '-') +
               ' of ' +
               (allPools?.length ? allPools?.length : '-')}
@@ -193,7 +193,7 @@ function MobileLiquidityPage({
           <div className="text-gray-400 text-sm mr-4">
             <FormattedMessage
               id="hide_low_tvl_pools"
-              defaultMessage="Hide Low TVL Pools"
+              defaultMessage="Hide low TVL pools"
             />
           </div>
           <WatchListStart />
@@ -202,7 +202,7 @@ function MobileLiquidityPage({
           <div className="text-gray-400 text-sm mr-4">
             <FormattedMessage
               id="watchlist_title"
-              defaultMessage="My Watchlist on the Top"
+              defaultMessage="My watchlist on the top"
             />
           </div>
         </div>
@@ -324,8 +324,8 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
           state: { morePoolIds, tokens },
         }}
       >
-        {morePoolIds?.length ? `${morePoolIds?.length - 1} More` : '-'}
-        {showLinkArrow && '>'}
+        {morePoolIds?.length ? `${morePoolIds?.length - 1} +` : '-'}
+        {showLinkArrow && ' >'}
       </Link>
     </div>
   );
@@ -367,8 +367,8 @@ function LiquidityPage_({
           </div>
         </div>
         <div className="mx-8 flex items-center">
-          <div className="text-gray-400 text-lg ">
-            <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
+          <div className="text-gray-400 text-sm">
+            <FormattedMessage id="my_watchlist" defaultMessage="My watchlist" />
           </div>
           <FaRegQuestionCircle
             data-type="dark"
@@ -388,7 +388,7 @@ function LiquidityPage_({
             </div>
 
             <div className="flex items-center">
-              <div className="text-gray-400">
+              <div className="text-gray-400 text-sm">
                 {(pools?.length ? pools?.length : '-') +
                   ' of ' +
                   (allPools?.length ? allPools?.length : '-')}
@@ -460,7 +460,7 @@ function LiquidityPage_({
               }}
             >
               <div className="mr-1">
-                <FormattedMessage id="24h_volume" defaultMessage="24h Volume" />
+                <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
               </div>
               {sortBy === '24h_volume' && order === 'desc' ? (
                 <DownArrowLight />
