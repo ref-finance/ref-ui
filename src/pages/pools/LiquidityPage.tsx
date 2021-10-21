@@ -162,7 +162,7 @@ function MobileLiquidityPage({
                 data-type="dark"
                 data-place="bottom"
                 data-multiline={true}
-                data-tip={intl.formatMessage({ id: 'topPools' })}
+                data-tip={intl.formatMessage({ id: 'topPoolsCopy' })}
                 className="inline-block	ml-2 text-sm text-gray-500"
               />
               <ReactTooltip className="text-sm" />
@@ -374,7 +374,7 @@ function LiquidityPage_({
             data-type="dark"
             data-place="bottom"
             data-multiline={true}
-            data-tip={intl.formatMessage({ id: 'myWatchList' })}
+            data-tip={intl.formatMessage({ id: 'my_watchlist' })}
             className="inline-block	ml-2 text-sm  text-gray-500"
           />
           <ReactTooltip className="text-sm" />
@@ -398,7 +398,7 @@ function LiquidityPage_({
                 data-type="dark"
                 data-place="bottom"
                 data-multiline={true}
-                data-tip={intl.formatMessage({ id: 'topPools' })}
+                data-tip={intl.formatMessage({ id: 'topPoolsCopy' })}
                 className="inline-block	ml-2 text-sm  text-gray-500"
               />
               <ReactTooltip className="text-sm" />
@@ -406,8 +406,11 @@ function LiquidityPage_({
           </div>
           <div className="flex items-center w-3/7">
             <div className="flex items-center">
-              <div className=" text-gray-400 text-sm mr-10">
-                {'Hide Low TVL Pools'}
+              <div className="text-gray-400 text-sm mr-10">
+                <FormattedMessage
+                  id="hide_low_tvl_pools"
+                  defaultMessage="Hide low TVL pools"
+                />
               </div>
             </div>
 
@@ -431,9 +434,7 @@ function LiquidityPage_({
         <section className="px-2">
           <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
             <p className="col-span-6 md:col-span-4 flex">
-              <div className="mr-6">
-                <FormattedMessage id="id" defaultMessage="#" />
-              </div>
+              <div className="mr-6 w-2">#</div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </p>
             <p
