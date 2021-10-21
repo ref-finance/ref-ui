@@ -22,6 +22,7 @@ import {
 import { useMorePools } from '~state/pool';
 import { PoolRPCView } from '~services/api';
 import { FarmStamp } from '~components/icon/FarmStamp';
+import { MULTI_MINING_POOLS } from '~services/near';
 
 interface LocationTypes {
   morePoolIds: string[];
@@ -58,8 +59,8 @@ function PoolRow({
           <div className="mx-2">
             <FarmStamp />
           </div>
-          <div className="hidden">
-            <FarmMiningIcon />
+          <div className="">
+            {MULTI_MINING_POOLS.includes(pool.id) && <FarmMiningIcon />}
           </div>
         </div>
       );
@@ -105,7 +106,9 @@ function PoolRow({
       <div className="col-span-1 py-1  ">
         {calculateFeePercent(pool?.total_fee)}%
       </div>
-      <div className="col-span-2  py-1">Coming soon</div>
+      <div className="col-span-2  py-1">
+        <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
+      </div>
 
       <div className="col-span-1 py-1">
         ${toInternationalCurrencySystem(pool?.tvl.toString())}
@@ -121,6 +124,20 @@ const MobileRow = ({
   tokens: TokenMetadata[];
 }) => {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
+  const farmButton = () => {
+    if (supportFarm)
+      return (
+        <div className="flex items-center">
+          <div className="mx-2">
+            <FarmStamp />
+          </div>
+          <div className="">
+            {MULTI_MINING_POOLS.includes(pool.id) && <FarmMiningIcon />}
+          </div>
+        </div>
+      );
+    return '';
+  };
 
   useEffect(() => {
     canFarm(pool.id).then((canFarm) => {
@@ -164,7 +181,7 @@ const MobileRow = ({
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </Link>
         </div>
-        {supportFarm && <FarmMining />}
+        {farmButton()}
       </div>
 
       <div className="flex flex-col text-base">

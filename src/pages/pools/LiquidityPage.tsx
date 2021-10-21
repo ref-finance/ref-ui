@@ -10,6 +10,7 @@ import { getExchangeRate, useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';
 import { canFarm, Pool } from '../../services/pool';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
+import { MULTI_MINING_POOLS } from '~services/near';
 import {
   calculateFeePercent,
   toPrecision,
@@ -370,7 +371,9 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
           <div className="mx-2">
             <FarmStamp />
           </div>
-          <FarmMiningIcon />
+          <div>
+            {MULTI_MINING_POOLS.includes(pool.id) && <FarmMiningIcon />}
+          </div>
         </div>
       );
     return '';
