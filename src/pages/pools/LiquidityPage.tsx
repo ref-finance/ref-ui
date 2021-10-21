@@ -25,6 +25,7 @@ import { SolidButton } from '~components/button/Button';
 import { wallet } from '~services/near';
 import { WatchListStart } from '~components/icon/WatchListStart';
 import { PolygonGrayDown } from '~components/icon/Polygon';
+import { orderBy } from 'lodash';
 // import { PolygonGrayUp } from '~components/icon/Polygon';
 
 const ConnectToNearCard = () => {
@@ -52,8 +53,9 @@ const ConnectToNearCard = () => {
   );
 };
 
-function MobilePoolRow({ pool }: { pool: Pool }) {
+function MobilePoolRow({ pool, sortBy }: { pool: Pool; sortBy: string }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
+  const morePoolIds = useMorePoolIds({ topPool: pool });
   const tokens = useTokens(pool.tokenIds);
   useEffect(() => {
     canFarm(pool.id).then((canFarm) => {
@@ -68,15 +70,24 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
     if (b.symbol === 'wNEAR') return -1;
     return a.symbol > b.symbol ? 1 : -1;
   });
+  const showSortedValue = ({
+    sortBy,
+    value,
+  }: {
+    sortBy: string;
+    value?: number;
+  }) => {
+    if (sortBy === 'tvl')
+      return toInternationalCurrencySystem(value.toString());
+    else if (sortBy === 'fee') return `${calculateFeePercent(value)}%`;
+  };
 
-  const farmButton = () => {
-    if (supportFarm)
-      return (
-        <div className="mt-1 px-1 py-0.5 px-1 mr-3 text-center bg-greenLight text-white font-bold inline-block rounded">
-          <FormattedMessage id="farms" defaultMessage="Farms" />
-        </div>
-      );
-    return '';
+  const MobileMoreFarmStamp = ({ count }: { count: number }) => {
+    return (
+      <div className="px-1 rounded border border-greenLight text-greenLight">
+        {count + '+'}
+      </div>
+    );
   };
 
   return (
@@ -109,9 +120,28 @@ function MobilePoolRow({ pool }: { pool: Pool }) {
           >
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </Link>
+
+          {morePoolIds?.length && morePoolIds?.length - 1 > 0 && (
+            <Link
+              to={{
+                pathname: `/more_pools/${pool.tokenIds}`,
+                state: {
+                  morePoolIds: morePoolIds?.filter((id) => +id !== pool.id),
+                  tokens,
+                },
+              }}
+              className="mx-2"
+            >
+              <MobileMoreFarmStamp count={morePoolIds?.length - 1} />
+            </Link>
+          )}
         </div>
-        <div>
-          <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
+        <div className="mr-4">
+          {sortBy === '24h_volume' ? (
+            <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
+          ) : (
+            showSortedValue({ sortBy, value: pool[sortBy] })
+          )}
         </div>
       </div>
     </div>
@@ -127,11 +157,13 @@ function MobileLiquidityPage({
   onSortChange,
   onOrderChange,
   nextPage,
+  sortBy,
   allPools,
 }: {
   pools: Pool[];
   tokenName: string;
   order: string;
+  sortBy: string;
   hasMore: boolean;
   allPools: PoolDb[];
   onSearch: (name: string) => void;
@@ -140,6 +172,52 @@ function MobileLiquidityPage({
   nextPage: (...args: []) => void;
 }) {
   const intl = useIntl();
+  const [showSelectModal, setShowSelectModal] = useState<boolean>();
+
+  const SelectModal = ({
+    className,
+    setShowModal,
+  }: {
+    className?: string;
+    setShowModal: (mode: boolean) => void;
+  }) => {
+    return (
+      <Card
+        width="w-36 absolute"
+        className={`rounded border border-gray-400 flex text-sm flex-col items-start ${className}`}
+        padding="py-1 px-0"
+      >
+        <div
+          className="py-1 px-2  w-full hover:bg-poolRowHover hover:text-white"
+          onClick={() => {
+            onSortChange('24h_volume');
+            setShowModal(false);
+          }}
+        >
+          <FormattedMessage id="24h_volume" defaultMessage="24h Volume" />
+        </div>
+        <div
+          className="py-1 px-2 w-full hover:bg-poolRowHover hover:text-white"
+          onClick={() => {
+            onSortChange('tvl');
+            setShowModal(false);
+          }}
+        >
+          <FormattedMessage id="tvl" defaultMessage="TVL" />
+        </div>
+        <div
+          className="py-1 px-2   w-full hover:bg-poolRowHover hover:text-white"
+          onClick={() => {
+            onSortChange('fee');
+            setShowModal(false);
+          }}
+        >
+          <FormattedMessage id="fee" defaultMessage="Fee" />
+        </div>
+      </Card>
+    );
+  };
+
   return (
     <div className="flex items-center flex-col w-3/6 xs:w-5/6 md:w-5/6 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
       {!wallet.isSignedIn() && <ConnectToNearCard />}
@@ -189,7 +267,7 @@ function MobileLiquidityPage({
           />
           <FaSearch />
         </div>
-        <div className="mb-4 flex items-center mx-6">
+        <div className="hidden mb-4 flex items-center mx-6">
           <div className="text-gray-400 text-sm mr-4">
             <FormattedMessage
               id="hide_low_tvl_pools"
@@ -198,7 +276,7 @@ function MobileLiquidityPage({
           </div>
           <WatchListStart />
         </div>
-        <div className="mb-4 mx-6 ">
+        <div className="hidden mb-4 mx-6 ">
           <div className="text-gray-400 text-sm mr-4">
             <FormattedMessage
               id="watchlist_title"
@@ -211,25 +289,51 @@ function MobileLiquidityPage({
             <div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </div>
-            <div className="flex items-center ">
-              <div className="mr-2">
-                <DownArrowLight />
+            <div className="flex items-center">
+              <div
+                className="mr-2"
+                onClick={() => {
+                  onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                }}
+              >
+                {order === 'desc' ? <DownArrowLight /> : <UpArrowDeep />}
               </div>
-              <div className="rounded text-gray-400 flex items-center border border-gray-400">
-                <div className="p-1 border-r border-gray-400">
-                  {'24h volume'}
+              <div className="relative rounded text-gray-400 flex items-center border border-gray-400 w-36">
+                <div
+                  className="p-1 border-r border-gray-400 w-32"
+                  onClick={() => {
+                    setShowSelectModal(true);
+                  }}
+                >
+                  <FormattedMessage
+                    id={sortBy}
+                    defaultMessage={
+                      sortBy !== '24h_volume' ? sortBy : '24h Volume'
+                    }
+                  />
                 </div>
-                <div className="p-1">
+                <div
+                  className="p-1"
+                  onClick={() => {
+                    setShowSelectModal(true);
+                  }}
+                >
                   <PolygonGrayDown />
                 </div>
+                {showSelectModal && (
+                  <SelectModal
+                    setShowModal={setShowSelectModal}
+                    className="top-10"
+                  />
+                )}
               </div>
             </div>
           </header>
           <div className="border-b border-gray-700 "></div>
           <div className="max-h-96 overflow-y-auto">
             {pools.map((pool, i) => (
-              <div className="w-full hover:bg-poolRowHover">
-                <MobilePoolRow key={i} pool={pool} />
+              <div className="w-full hover:bg-poolRowHover" key={i}>
+                <MobilePoolRow pool={pool} sortBy={sortBy} />
               </div>
             ))}
           </div>
@@ -243,6 +347,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const tokens = useTokens(pool.tokenIds);
   const morePoolIds = useMorePoolIds({ topPool: pool });
+
   const [showLinkArrow, setShowLinkArrow] = useState(false);
 
   useEffect(() => {
@@ -306,12 +411,10 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
 
         {farmButton()}
       </div>
-
       <div className="col-span-1 py-1 md:hidden ">
         {calculateFeePercent(pool.fee)}%
       </div>
       <div className="col-span-2 sm:col-span-4 py-1">Coming soon</div>
-
       <div className="col-span-2 py-1">
         ${toInternationalCurrencySystem(pool.tvl.toString())}
       </div>
@@ -321,7 +424,10 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
         onMouseLeave={() => setShowLinkArrow(false)}
         to={{
           pathname: `/more_pools/${pool.tokenIds}`,
-          state: { morePoolIds, tokens },
+          state: {
+            morePoolIds: morePoolIds?.filter((id) => +id !== pool.id),
+            tokens,
+          },
         }}
       >
         {morePoolIds?.length ? `${morePoolIds?.length - 1} +` : '-'}
@@ -357,7 +463,7 @@ function LiquidityPage_({
   const intl = useIntl();
   return (
     <div className="flex items-center flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
-      <Card className="w-full mb-4" bgcolor="bg-cardBg">
+      <Card className="hidden w-full mb-4" bgcolor="bg-cardBg">
         <div className="pb-6 mx-8">
           <div className="text-white text-2xl ">
             <FormattedMessage
@@ -433,11 +539,11 @@ function LiquidityPage_({
 
         <section className="px-2">
           <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
-            <p className="col-span-6 md:col-span-4 flex">
+            <div className="col-span-6 md:col-span-4 flex">
               <div className="mr-6 w-2">#</div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
-            </p>
-            <p
+            </div>
+            <div
               className="col-span-1 md:hidden cursor-pointer flex items-center"
               onClick={() => {
                 onSortChange('fee');
@@ -452,8 +558,8 @@ function LiquidityPage_({
               ) : (
                 <UpArrowDeep />
               )}
-            </p>
-            <p
+            </div>
+            <div
               className="col-span-2 flex items-center"
               onClick={() => {
                 onSortChange('24h_volume');
@@ -468,10 +574,10 @@ function LiquidityPage_({
               ) : (
                 <UpArrowDeep />
               )}
-            </p>
+            </div>
 
             <div
-              className="col-span-2 flex items-center"
+              className="col-span-2 flex items-center cursor-pointer"
               onClick={() => {
                 onSortChange('tvl');
                 onOrderChange(order === 'desc' ? 'asc' : 'desc');
@@ -493,8 +599,8 @@ function LiquidityPage_({
 
           <div className="max-h-96 overflow-y-auto">
             {pools.map((pool, i) => (
-              <div className="w-full hover:bg-poolRowHover">
-                <PoolRow key={i} pool={pool} index={i + 1} />
+              <div className="w-full hover:bg-poolRowHover" key={i}>
+                <PoolRow pool={pool} index={i + 1} />
               </div>
             ))}
           </div>
@@ -548,6 +654,7 @@ export function LiquidityPage() {
         pools={pools}
         allPools={AllPools}
         order={order}
+        sortBy={sortBy}
         onOrderChange={setOrder}
         onSortChange={setSortBy}
         onSearch={setTokenName}

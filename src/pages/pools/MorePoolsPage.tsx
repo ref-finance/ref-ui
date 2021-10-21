@@ -58,7 +58,9 @@ function PoolRow({
           <div className="mx-2">
             <FarmStamp />
           </div>
-          <FarmMiningIcon />
+          <div className="hidden">
+            <FarmMiningIcon />
+          </div>
         </div>
       );
     return '';
@@ -111,177 +113,6 @@ function PoolRow({
     </div>
   );
 }
-
-export const FarmMining = () => {
-  return (
-    <div className="flex items-center">
-      <div className="mr-2">
-        <FarmStamp />
-      </div>
-      <div>
-        <FarmMiningIcon />
-      </div>
-    </div>
-  );
-};
-
-export const MorePoolsPage = () => {
-  const { state } = useLocation<LocationTypes>();
-  const [sortBy, setSortBy] = useState('tvl');
-  const [order, setOrder] = useState('desc');
-  const morePoolIds = state?.morePoolIds;
-  const tokens = state?.tokens;
-  // const supportFarm = state?.supportFarm;
-  const morePools = useMorePools({ morePoolIds });
-  // console.log(supportFarm);
-
-  return (
-    <>
-      <div className="xs:hidden md:hidden lg:w-5/6 xl:w-3/4 m-auto text-white">
-        <Card width="w-full" bgcolor="bg-cardBg" padding="py-7 px-0">
-          <div className="mx-8">
-            <Link
-              to={{
-                pathname: '/pools',
-              }}
-              className="flex items-center inline-block"
-            >
-              <BackArrow />
-              <p className="ml-3">Pools</p>
-            </Link>
-            <div className="flex items-center mb-14 justify-center">
-              <div className="flex items-center">
-                <div className="h-9 w-9 border rounded-full mr-2">
-                  <img
-                    key={tokens[0].id.substring(0, 12).substring(0, 12)}
-                    className="rounded-full w-full mr-2"
-                    src={tokens[0].icon}
-                  />
-                </div>
-
-                <div className="h-9 w-9 border rounded-full">
-                  <img
-                    key={tokens[1].id}
-                    className="h-9 w-9 border rounded-full"
-                    src={tokens[1].icon}
-                  />
-                </div>
-              </div>
-              <div className="text-2xl ml-7">
-                {tokens[0].symbol + '-' + tokens[1].symbol}
-              </div>
-            </div>
-          </div>
-
-          <section className="px-2">
-            <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
-              <p className="col-span-8 flex">
-                <div className="mr-6 w-2">#</div>
-                <FormattedMessage id="pair" defaultMessage="Pair" />
-              </p>
-              <p
-                className="col-span-1 md:hidden cursor-pointer flex items-center"
-                onClick={() => {
-                  setSortBy('fee');
-                  setOrder(order === 'desc' ? 'asc' : 'desc');
-                }}
-              >
-                <div className="mr-1">
-                  <FormattedMessage id="fee" defaultMessage="Fee" />
-                </div>
-                {sortBy === 'fee' && order === 'desc' ? (
-                  <DownArrowLight />
-                ) : (
-                  <UpArrowDeep />
-                )}
-              </p>
-              <p
-                className="col-span-2 flex items-center cursor-pointer "
-                onClick={() => {
-                  setSortBy('h24_volume');
-                  setOrder(order === 'desc' ? 'asc' : 'desc');
-                }}
-              >
-                <div className="mr-1">
-                  <FormattedMessage
-                    id="h24_volume"
-                    defaultMessage="24h Volume"
-                  />
-                </div>
-                {sortBy === '24h_volume' && order === 'desc' ? (
-                  <DownArrowLight />
-                ) : (
-                  <UpArrowDeep />
-                )}
-              </p>
-
-              <div
-                className="col-span-1 flex items-center"
-                onClick={() => {
-                  setSortBy('tvl');
-                  setOrder(order === 'desc' ? 'asc' : 'desc');
-                }}
-              >
-                <span className="mr-1">
-                  <FormattedMessage id="tvl" defaultMessage="TVL" />
-                </span>
-                {sortBy === 'tvl' && order === 'desc' ? (
-                  <DownArrowLight />
-                ) : (
-                  <UpArrowDeep />
-                )}
-              </div>
-            </header>
-            <div className="max-h-96 overflow-y-auto">
-              {morePools?.map((pool, i) => (
-                <div className="w-full hover:bg-poolRowHover">
-                  <PoolRow key={i} pool={pool} index={i + 1} tokens={tokens} />
-                </div>
-              ))}
-            </div>
-          </section>
-        </Card>
-      </div>
-      <div className="w-10/12 lg:hidden m-auto text-white">
-        <Link
-          to={{
-            pathname: '/pools',
-          }}
-          className="flex items-center inline-block"
-        >
-          <BackArrow />
-          <p className="ml-3">Pools</p>
-        </Link>
-        <div className="flex flex-col items-center mb-12 justify-center">
-          <div className="flex items-center">
-            <div className="h-9 w-9 border rounded-full mr-2">
-              <img
-                key={tokens[0].id.substring(0, 12).substring(0, 12)}
-                className="rounded-full w-full mr-2"
-                src={tokens[0].icon}
-              />
-            </div>
-
-            <div className="h-9 w-9 border rounded-full">
-              <img
-                key={tokens[1].id}
-                className="h-9 w-9 border rounded-full"
-                src={tokens[1].icon}
-              />
-            </div>
-          </div>
-          <div className="text-2xl">
-            {tokens[0].symbol + '-' + tokens[1].symbol}
-          </div>
-        </div>
-        {morePools?.map((pool, i) => {
-          return <MobileRow tokens={tokens} pool={pool} />;
-        })}
-      </div>
-    </>
-  );
-};
-
 const MobileRow = ({
   pool,
   tokens,
@@ -328,7 +159,7 @@ const MobileRow = ({
               pathname: `/pool/${pool.id}`,
               state: { tvl: pool?.tvl, backToFarms: supportFarm },
             }}
-            className="text-sm ml-2 font-semibold"
+            className="text-lg ml-2 font-semibold"
           >
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </Link>
@@ -336,7 +167,7 @@ const MobileRow = ({
         {supportFarm && <FarmMining />}
       </div>
 
-      <div className="flex flex-col text-sm">
+      <div className="flex flex-col text-base">
         <div className="flex items-center justify-between my-3">
           <div className="text-gray-400">
             <FormattedMessage id="fee" defaultMessage="Fee" />
@@ -345,11 +176,11 @@ const MobileRow = ({
         </div>
         <div className="flex items-center justify-between my-3">
           <div className="text-gray-400">
-            <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
+            <FormattedMessage id="24h_volume" defaultMessage="24h Volume" />
           </div>
 
           <div>
-            <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
+            <FormattedMessage id="Coming soon" defaultMessage="Coming soon" />
           </div>
         </div>
         <div className="flex items-center justify-between my-3">
@@ -360,5 +191,173 @@ const MobileRow = ({
         </div>
       </div>
     </Card>
+  );
+};
+
+export const FarmMining = () => {
+  return (
+    <div className="flex items-center">
+      <div className="mr-2">
+        <FarmStamp />
+      </div>
+      <div className="hidden">
+        <FarmMiningIcon />
+      </div>
+    </div>
+  );
+};
+
+export const MorePoolsPage = () => {
+  const { state } = useLocation<LocationTypes>();
+  const [sortBy, setSortBy] = useState('tvl');
+  const [order, setOrder] = useState<boolean | 'desc' | 'asc'>('desc');
+  const morePoolIds = state?.morePoolIds;
+  const tokens = state?.tokens;
+  const morePools = useMorePools({ morePoolIds, order, sortBy });
+
+  return (
+    <>
+      <div className="xs:hidden md:hidden lg:w-5/6 xl:w-3/4 m-auto text-white">
+        <Card width="w-full" bgcolor="bg-cardBg" padding="py-7 px-0">
+          <div className="mx-8">
+            <Link
+              to={{
+                pathname: '/pools',
+              }}
+              className="flex items-center inline-block"
+            >
+              <BackArrow />
+              <p className="ml-3">Pools</p>
+            </Link>
+            <div className="flex items-center mb-14 justify-center">
+              <div className="flex items-center">
+                <div className="h-9 w-9 border rounded-full mr-2">
+                  <img
+                    key={tokens[0].id.substring(0, 12).substring(0, 12)}
+                    className="rounded-full w-full mr-2"
+                    src={tokens[0].icon}
+                  />
+                </div>
+
+                <div className="h-9 w-9 border rounded-full">
+                  <img
+                    key={tokens[1].id}
+                    className="h-9 w-9 border rounded-full"
+                    src={tokens[1].icon}
+                  />
+                </div>
+              </div>
+              <div className="text-2xl ml-7">
+                {tokens[0].symbol + '-' + tokens[1].symbol}
+              </div>
+            </div>
+          </div>
+
+          <section className="px-2">
+            <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
+              <div className="col-span-8 flex">
+                <div className="mr-6 w-2">#</div>
+                <FormattedMessage id="pair" defaultMessage="Pair" />
+              </div>
+              <div
+                className="col-span-1 md:hidden cursor-pointer flex items-center"
+                onClick={() => {
+                  setSortBy('total_fee');
+                  setOrder(order === 'desc' ? 'asc' : 'desc');
+                }}
+              >
+                <div className="mr-1">
+                  <FormattedMessage id="fee" defaultMessage="Fee" />
+                </div>
+                {sortBy === 'total_fee' && order === 'desc' ? (
+                  <DownArrowLight />
+                ) : (
+                  <UpArrowDeep />
+                )}
+              </div>
+              <div
+                className="col-span-2 flex items-center cursor-pointer "
+                onClick={() => {
+                  setSortBy('h24_volume');
+                  setOrder(order === 'desc' ? 'asc' : 'desc');
+                }}
+              >
+                <div className="mr-1">
+                  <FormattedMessage
+                    id="h24_volume"
+                    defaultMessage="24h Volume"
+                  />
+                </div>
+                {sortBy === '24h_volume' && order === 'desc' ? (
+                  <DownArrowLight />
+                ) : (
+                  <UpArrowDeep />
+                )}
+              </div>
+
+              <div
+                className="col-span-1 flex items-center cursor-pointer"
+                onClick={() => {
+                  setSortBy('tvl');
+                  setOrder(order === 'desc' ? 'asc' : 'desc');
+                }}
+              >
+                <span className="mr-1 ">
+                  <FormattedMessage id="tvl" defaultMessage="TVL" />
+                </span>
+                {sortBy === 'tvl' && order === 'desc' ? (
+                  <DownArrowLight />
+                ) : (
+                  <UpArrowDeep />
+                )}
+              </div>
+            </header>
+            <div className="max-h-96 overflow-y-auto">
+              {morePools?.map((pool, i) => (
+                <div className="w-full hover:bg-poolRowHover" key={i}>
+                  <PoolRow key={i} pool={pool} index={i + 1} tokens={tokens} />
+                </div>
+              ))}
+            </div>
+          </section>
+        </Card>
+      </div>
+      <div className="w-10/12 lg:hidden m-auto text-white">
+        <Link
+          to={{
+            pathname: '/pools',
+          }}
+          className="flex items-center inline-block"
+        >
+          <BackArrow />
+          <p className="ml-3">Pools</p>
+        </Link>
+        <div className="flex flex-col items-center mb-12 justify-center">
+          <div className="flex items-center">
+            <div className="h-9 w-9 border rounded-full mr-2">
+              <img
+                key={tokens[0].id.substring(0, 12).substring(0, 12)}
+                className="rounded-full w-full mr-2"
+                src={tokens[0].icon}
+              />
+            </div>
+
+            <div className="h-9 w-9 border rounded-full">
+              <img
+                key={tokens[1].id}
+                className="h-9 w-9 border rounded-full"
+                src={tokens[1].icon}
+              />
+            </div>
+          </div>
+          <div className="text-2xl">
+            {tokens[0].symbol + '-' + tokens[1].symbol}
+          </div>
+        </div>
+        {morePools?.map((pool, i) => {
+          return <MobileRow tokens={tokens} key={i} pool={pool} />;
+        })}
+      </div>
+    </>
   );
 };
