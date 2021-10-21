@@ -30,11 +30,11 @@ export default function CommenBasses({ tokens, onClick }: CommenBassesProps) {
       <div className="text-sm font-bold py-2">
         <FormattedMessage id="popular_tokens" defaultMessage="Popular Tokens" />
       </div>
-      <div className="w-full flex flex-wrap text-sm text-center">
+      <div className="w-full grid-cols-4 xs:grid-cols-3 grid text-sm text-left">
         {commenBassesTokens.map((token) => {
           return (
             <div
-              className="inline-block pl-4 pt-4"
+              className="pt-4"
               key={token.id}
               onClick={() => onClick && onClick(token)}
             >
