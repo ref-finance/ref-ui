@@ -78,15 +78,15 @@ function SwapRateDetail({
 
   return (
     <section className="flex py-1 text-xs">
-      <p className="text-primaryText w-1/5">{title}</p>
+      <p className="text-primaryText w-1/5 xs:w-2/5">{title}</p>
       <p
-        className="flex justify-end text-white cursor-pointer w-4/5"
+        className="flex justify-end text-white cursor-pointer w-4/5 xs:w-3/5"
         onClick={switchSwapRate}
       >
-        <span className="mr-2 xs:mr-0" style={{ marginTop: '0.1rem' }}>
+        <span className="mr-2" style={{ marginTop: '0.1rem' }}>
           <FaExchangeAlt></FaExchangeAlt>
         </span>
-        <span className="xs:w-2/3">{newValue}</span>
+        <span>{newValue}</span>
       </p>
     </section>
   );
@@ -262,7 +262,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         style={{ borderColor: 'rgba(126, 138, 147, 0.3)' }}
       >
         <div
-          className="inline-block -mt-9 mb-3 cursor-pointer"
+          className="inline-block -mt-6 mb-4 cursor-pointer bg-dark"
           onClick={() => {
             setTokenIn(tokenOut);
             setTokenOut(tokenIn);
