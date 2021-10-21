@@ -26,14 +26,13 @@ export function AddPoolPage() {
   if (!tokens || !balances) return <Loading />;
 
   const render = (token: TokenMetadata) =>
-  toRoundedReadableNumber({
-    decimals: token.decimals,
-    number: balances ? balances[token.id] : '0',
-  });
+    toRoundedReadableNumber({
+      decimals: token.decimals,
+      number: balances ? balances[token.id] : '0',
+    });
 
   const Selected = (props: { token: TokenMetadata }) => {
     return (
-
       <div className="flex h-12 justify-between items-center px-3 py-3 bg-inputDarkBg text-white relative flex overflow-hidden rounded-lg align-center my-2 border border-greenLight">
         <Icon token={props.token} />
         {tokens.length > 1 && (
@@ -47,7 +46,7 @@ export function AddPoolPage() {
   const canSubmit = !!fee && !!token1 && !!token2;
 
   return (
-    <div className="flex items-center flex-col xl:w-1/3 2xl:w-1/3 3xl:w-1/4 lg:w-1/2 md:w-5/6 xs:w-11/12 m-auto">
+    <div className="flex items-center flex-col xl:w-1/3 2xl:w-1/3 3xl:w-1/4 lg:w-1/2 md:w-5/6 xs:w-full xs:p-2 m-auto">
       <Card width="w-full" bgcolor="bg-dark">
         <h2 className="formTitle font-bold text-xl text-white text-left pb-4">
           <FormattedMessage
