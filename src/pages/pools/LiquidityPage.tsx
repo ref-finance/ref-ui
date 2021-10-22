@@ -501,7 +501,7 @@ function LiquidityPage_({
             <div className="flex items-center">
               <div className="text-gray-400 text-sm">
                 {(pools?.length ? pools?.length : '-') +
-                  ' of ' +
+                  ' out of ' +
                   (allPools?.length ? allPools?.length : '-')}
               </div>
 
