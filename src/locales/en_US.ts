@@ -164,6 +164,7 @@ const en_US = {
   account_label: 'Account',
   total_label: 'Total',
   top_pools: 'Top pools',
+  pool_id: 'Pool ID',
   more_pools: 'More pools',
   my_watchlist: 'My watchlist',
   h24_volume: '24h Volume',

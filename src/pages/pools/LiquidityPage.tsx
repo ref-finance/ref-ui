@@ -430,12 +430,12 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
         to={{
           pathname: `/more_pools/${pool.tokenIds}`,
           state: {
-            morePoolIds: morePoolIds?.filter((id) => +id !== pool.id),
+            morePoolIds: morePoolIds,
             tokens,
           },
         }}
       >
-        {morePoolIds?.length ? `${morePoolIds?.length - 1} +` : '-'}
+        {morePoolIds?.length ? `${morePoolIds?.length} +` : '-'}
         {showLinkArrow && ' >'}
       </Link>
     </div>
@@ -597,7 +597,7 @@ function LiquidityPage_({
               )}
             </div>
             <p className="col-span-1">
-              <FormattedMessage id="more_pools" defaultMessage="More Pools" />
+              <FormattedMessage id="pools" defaultMessage="Pools" />
             </p>
           </header>
 
