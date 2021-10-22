@@ -1,15 +1,7 @@
 import React from 'react';
 import { toRealSymbol } from '~utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
-import { useDepositableBalance, useTokenBalances } from '~state/token';
-import {
-  toPrecision,
-  toReadableNumber,
-  toNonDivisibleNumber,
-  toRoundedReadableNumber,
-  toInternationalCurrencySystem,
-} from '~utils/numbers';
-import { AiOutlineConsoleSql } from 'react-icons/ai';
+import { toInternationalCurrencySystem } from '~utils/numbers';
 
 interface TokenProps {
   token: TokenMetadata;
@@ -19,21 +11,8 @@ interface TokenProps {
   sortBy?: string;
 }
 
-export default function Token({
-  token,
-  onClick,
-  render,
-  totalAmount,
-  sortBy,
-}: TokenProps) {
-  const { icon, symbol, id, decimals } = token;
-  const totalTokenAmount = toReadableNumber(
-    decimals,
-    useDepositableBalance(id, decimals)
-  );
-
-  const tokenAmount = toPrecision(totalTokenAmount, 3) || '0';
-  const refAccount = toPrecision(render(token), 3);
+export default function Token({ token, onClick, sortBy }: TokenProps) {
+  const { icon, symbol, id, near, ref, total } = token;
   return (
     <tr
       key={id}
@@ -53,18 +32,13 @@ export default function Token({
         <span className="inline-block text-white">{toRealSymbol(symbol)}</span>
       </td>
       <td className={`py-4 ${sortBy === 'near' ? 'text-white' : ''}`}>
-        {toInternationalCurrencySystem(tokenAmount).replace(/[\,]+/g, '')}
+        {toInternationalCurrencySystem(String(near)).replace(/[\,]+/g, '')}
       </td>
       <td className={`py-4 ${sortBy === 'ref' ? 'text-white' : ''}`}>
-        {toInternationalCurrencySystem(refAccount.replace(/[\,]+/g, ''))}
+        {toInternationalCurrencySystem(String(ref))}
       </td>
       <td className={`pr-6 py-4 ${sortBy === 'total' ? 'text-white' : ''}`}>
-        {toInternationalCurrencySystem(
-          (
-            Number(refAccount.replace(/[\,]+/g, '')) +
-            Number(tokenAmount.replace(/[\,]+/g, ''))
-          ).toString()
-        )}
+        {toInternationalCurrencySystem(String(total))}
       </td>
     </tr>
   );
