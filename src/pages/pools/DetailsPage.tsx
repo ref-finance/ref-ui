@@ -586,7 +586,7 @@ export function PoolDetailsPage() {
       <div
         className="p-2 mr-4"
         onClick={() => {
-          history.goBack();
+          (top.location = '/pools'), '_top';
         }}
       >
         <BackArrow />
@@ -710,10 +710,11 @@ export function PoolDetailsPage() {
                 />
               </div>
               <div className="text-base text-white">
-                <FormattedMessage
-                  id="coming_soon"
-                  defaultMessage="Coming soon"
-                />
+                {toRoundedReadableNumber({
+                  decimals: 24,
+                  number: pool.shareSupply,
+                  precision: 0,
+                })}
               </div>
             </div> */}
             {/* TVL */}
@@ -735,22 +736,6 @@ export function PoolDetailsPage() {
                   id="coming_soon"
                   defaultMessage="Coming soon"
                 />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between py-2.5">
-              <div>
-                <FormattedMessage
-                  id="total_shares"
-                  defaultMessage="Total Shares"
-                />
-              </div>
-              <div className="text-white">
-                {toRoundedReadableNumber({
-                  decimals: 24,
-                  number: pool.shareSupply,
-                  precision: 0,
-                })}
               </div>
             </div>
 
@@ -856,7 +841,7 @@ export function PoolDetailsPage() {
                 bottom: '190px',
                 left: '100px',
               }}
-            ></div>
+            />
             <div
               style={{
                 border: '1px solid #ffffff',
@@ -870,8 +855,8 @@ export function PoolDetailsPage() {
                 opacity: 0.4,
               }}
               className="rounded-full"
-            ></div>
-            <div className="border border-gradientFrom w-full mb-2"></div>
+            />
+            <div className="border border-gradientFrom w-full mb-2" />
             <div className="flex text-xs text-gray-500 justify-between">
               {[
                 '24',
