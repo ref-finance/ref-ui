@@ -702,7 +702,7 @@ export function PoolDetailsPage() {
               )}%`}</div>
             </div>
             {/* Total liquidity */}
-            <div className="flex items-center justify-between py-2.5">
+            {/* <div className="flex items-center justify-between py-2.5">
               <div>
                 <FormattedMessage
                   id="total_liquidity"
@@ -715,7 +715,7 @@ export function PoolDetailsPage() {
                   defaultMessage="Coming soon"
                 />
               </div>
-            </div>
+            </div> */}
             {/* TVL */}
             <div className="flex items-center justify-between py-2.5">
               <div>
@@ -816,7 +816,7 @@ export function PoolDetailsPage() {
           className="relative rounded-2xl bg-chartBg h-full flex flex-col justify-between md:hidden xs:hidden"
           padding="p-7"
           style={{
-            height: '540px',
+            height: '466px',
           }}
         >
           <div className="pb-7">
