@@ -127,7 +127,7 @@ function MobilePoolRow({ pool, sortBy }: { pool: Pool; sortBy: string }) {
               to={{
                 pathname: `/more_pools/${pool.tokenIds}`,
                 state: {
-                  morePoolIds: morePoolIds?.filter((id) => +id !== pool.id),
+                  morePoolIds: morePoolIds,
                   tokens,
                 },
               }}
