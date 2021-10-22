@@ -55,6 +55,9 @@ export interface TokenMetadata {
   symbol: string;
   decimals: number;
   icon: string;
+  ref?: number;
+  near?: number;
+  total?: number;
 }
 export const ftGetTokenMetadata = async (
   id: string
