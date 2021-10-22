@@ -26,7 +26,7 @@ import { SolidButton } from '~components/button/Button';
 import { wallet } from '~services/near';
 import { WatchListStart } from '~components/icon/WatchListStart';
 import { PolygonGrayDown } from '~components/icon/Polygon';
-import { orderBy } from 'lodash';
+import { divide, orderBy } from 'lodash';
 // import { PolygonGrayUp } from '~components/icon/Polygon';
 
 const ConnectToNearCard = () => {
@@ -348,7 +348,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const tokens = useTokens(pool.tokenIds);
   const morePoolIds = useMorePoolIds({ topPool: pool });
-
+  const history = useHistory();
   const [showLinkArrow, setShowLinkArrow] = useState(false);
 
   useEffect(() => {
@@ -380,16 +380,16 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   };
 
   return (
-    <div className="grid grid-cols-12 py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-600">
+    <Link
+      className="grid grid-cols-12 py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-600"
+      to={{
+        pathname: `/pool/${pool.id}`,
+        state: { tvl: pool.tvl, backToFarms: supportFarm },
+      }}
+    >
       <div className="col-span-6 md:col-span-4 flex items-center">
         <div className="mr-6 w-2">{index}</div>
-        <Link
-          to={{
-            pathname: `/pool/${pool.id}`,
-            state: { tvl: pool.tvl, backToFarms: supportFarm },
-          }}
-          className="flex items-center"
-        >
+        <div className="flex items-center">
           <div className="flex items-center">
             <div className="h-9 w-9 border rounded-full mr-2">
               <img
@@ -410,7 +410,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
           <div className="text-sm ml-7">
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </div>
-        </Link>
+        </div>
 
         {farmButton()}
       </div>
@@ -423,22 +423,23 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
       <div className="col-span-2 py-1">
         ${toInternationalCurrencySystem(pool.tvl.toString())}
       </div>
-      <Link
+
+      <div
         className="col-span-1 py-1 hover:text-green-500 hover:cursor-pointer"
         onMouseEnter={() => setShowLinkArrow(true)}
         onMouseLeave={() => setShowLinkArrow(false)}
-        to={{
-          pathname: `/more_pools/${pool.tokenIds}`,
-          state: {
-            morePoolIds: morePoolIds?.filter((id) => +id !== pool.id),
+        onClick={(e) => {
+          e.preventDefault();
+          history.push(`/more_pools/${pool.tokenIds}`, {
+            morePoolIds: morePoolIds,
             tokens,
-          },
+          });
         }}
       >
-        {morePoolIds?.length ? `${morePoolIds?.length - 1} +` : '-'}
+        {morePoolIds?.length ? `${morePoolIds?.length} +` : '-'}
         {showLinkArrow && ' >'}
-      </Link>
-    </div>
+      </div>
+    </Link>
   );
 }
 
@@ -501,7 +502,7 @@ function LiquidityPage_({
             <div className="flex items-center">
               <div className="text-gray-400 text-sm">
                 {(pools?.length ? pools?.length : '-') +
-                  ' of ' +
+                  ' out of ' +
                   (allPools?.length ? allPools?.length : '-')}
               </div>
 
@@ -597,7 +598,7 @@ function LiquidityPage_({
               )}
             </div>
             <p className="col-span-1">
-              <FormattedMessage id="more_pools" defaultMessage="More Pools" />
+              <FormattedMessage id="pools" defaultMessage="Pools" />
             </p>
           </header>
 

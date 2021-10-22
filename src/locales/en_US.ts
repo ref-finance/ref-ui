@@ -143,7 +143,7 @@ const en_US = {
     'What you have claimed but not withdrawn to your NEAR Wallet yet.',
   totalValueLockedCopy: 'Total Value Locked',
   topPoolsCopy:
-    'For each token pair, show the pool with the largest TVL among all the pools of the token pair.',
+    'For every pair, only display the highest pool TVL.',
   you_do_not_have_enough: "You don't have enough",
   must_provide_at_least_one_token_for: 'Must provide greater than 0 token for',
   is_not_exist: 'is not exist',
@@ -164,6 +164,7 @@ const en_US = {
   account_label: 'Account',
   total_label: 'Total',
   top_pools: 'Top pools',
+  pool_id: 'Pool ID',
   more_pools: 'More pools',
   my_watchlist: 'My watchlist',
   h24_volume: '24h Volume',

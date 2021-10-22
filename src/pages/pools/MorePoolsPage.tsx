@@ -70,7 +70,7 @@ function PoolRow({
   return (
     <div className="grid grid-cols-12 py-3.5 text-white content-center text-sm text-left mx-8  border-b border-gray-600">
       <div className="col-span-8 flex items-center">
-        <div className="mr-6 w-2">{index}</div>
+        <div className="mr-12 w-2">{pool?.id}</div>
 
         <Link
           to={{
@@ -273,8 +273,10 @@ export const MorePoolsPage = () => {
 
           <section className="px-2">
             <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
-              <div className="col-span-8 flex">
-                <div className="mr-6 w-2">#</div>
+              <div className="col-span-8 flex items-center">
+                <div className="mr-3 ">
+                  <FormattedMessage id="pool_id" defaultMessage="Pool ID" />
+                </div>
                 <FormattedMessage id="pair" defaultMessage="Pair" />
               </div>
               <div
