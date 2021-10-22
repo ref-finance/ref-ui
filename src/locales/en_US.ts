@@ -142,7 +142,7 @@ const en_US = {
   farmRewardsCopy:
     'What you have claimed but not withdrawn to your NEAR Wallet yet.',
   totalValueLockedCopy: 'Total Value Locked',
-  topPoolsCopy: 'For every pair, only display the highest pool TVL.',
+  topPoolsCopy: 'For every pair, only display the highest pool TVL',
   you_do_not_have_enough: "You don't have enough",
   must_provide_at_least_one_token_for: 'Must provide greater than 0 token for',
   is_not_exist: 'is not exist',
