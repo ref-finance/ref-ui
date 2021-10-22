@@ -601,13 +601,6 @@ export function PoolDetailsPage() {
           {/* show token */}
 
           <div className="text-center mx-8">
-            {/*{backToFarmsButton ? (*/}
-            {/*  <div className="float-left">*/}
-            {/*    <a href="/farms">*/}
-            {/*      <FaArrowLeft className="mx-auto text-gray-600 mt-2 mb-6" />*/}
-            {/*    </a>*/}
-            {/*  </div>*/}
-            {/*) : null}*/}
             <div className="flex flex-col text-center text-base pt-2 pb-4">
               <div className="flex justify-end mb-4">
                 {backToFarmsButton && (
@@ -701,22 +694,6 @@ export function PoolDetailsPage() {
                 pool.fee
               )}%`}</div>
             </div>
-            {/* Total liquidity */}
-            {/* <div className="flex items-center justify-between py-2.5">
-              <div>
-                <FormattedMessage
-                  id="total_liquidity"
-                  defaultMessage="Total Liquidity"
-                />
-              </div>
-              <div className="text-base text-white">
-                {toRoundedReadableNumber({
-                  decimals: 24,
-                  number: pool.shareSupply,
-                  precision: 0,
-                })}
-              </div>
-            </div> */}
             {/* TVL */}
             <div className="flex items-center justify-between py-2.5">
               <div>
@@ -738,7 +715,19 @@ export function PoolDetailsPage() {
                 />
               </div>
             </div>
-
+            <div className="flex items-center justify-between py-2.5">
+              <div>
+                <FormattedMessage
+                  id="total_shares"
+                  defaultMessage="Total Shares"
+                />
+              </div>
+              <div className="text-base text-white">
+                {toInternationalCurrencySystem(
+                  toReadableNumber(24, pool?.shareSupply)
+                )}
+              </div>
+            </div>
             <div className="flex items-center justify-between py-2.5">
               <div>
                 <FormattedMessage id="my_shares" defaultMessage="My Shares" />

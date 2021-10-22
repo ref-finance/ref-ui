@@ -86,7 +86,7 @@ function MobilePoolRow({ pool, sortBy }: { pool: Pool; sortBy: string }) {
   const MobileMoreFarmStamp = ({ count }: { count: number }) => {
     return (
       <div className="px-1 rounded border border-greenLight text-greenLight">
-        {count + '+'}
+        {count}
       </div>
     );
   };
@@ -122,7 +122,7 @@ function MobilePoolRow({ pool, sortBy }: { pool: Pool; sortBy: string }) {
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </Link>
 
-          {morePoolIds?.length && morePoolIds?.length - 1 > 0 && (
+          {morePoolIds?.length && (
             <Link
               to={{
                 pathname: `/more_pools/${pool.tokenIds}`,
@@ -133,7 +133,7 @@ function MobilePoolRow({ pool, sortBy }: { pool: Pool; sortBy: string }) {
               }}
               className="mx-2"
             >
-              <MobileMoreFarmStamp count={morePoolIds?.length - 1} />
+              <MobileMoreFarmStamp count={morePoolIds?.length} />
             </Link>
           )}
         </div>
@@ -436,7 +436,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
           });
         }}
       >
-        {morePoolIds?.length ? `${morePoolIds?.length} +` : '-'}
+        {morePoolIds?.length ? `${morePoolIds?.length}` : '-'}
         {showLinkArrow && ' >'}
       </div>
     </Link>
