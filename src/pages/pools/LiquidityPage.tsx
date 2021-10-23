@@ -220,7 +220,7 @@ function MobileLiquidityPage({
   };
 
   return (
-    <div className="flex items-center flex-col w-3/6 xs:w-5/6 md:w-5/6 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
+    <div className="flex items-center flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
       {!wallet.isSignedIn() && <ConnectToNearCard />}
       <Card className="w-full mb-4" bgcolor="bg-cardBg" padding="p-0">
         <div className="mx-6 mb-6 mt-3">

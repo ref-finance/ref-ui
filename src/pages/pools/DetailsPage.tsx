@@ -582,7 +582,7 @@ export function PoolDetailsPage() {
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
 
   return (
-    <div className="flex items-start flex-row md:w-10/12 xs:w-10/12 w-4/6 lg:w-5/6 xl:w-4/5 md:flex-col xs:flex-col m-auto">
+    <div className="flex items-start flex-row md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 md:flex-col xs:flex-col m-auto">
       <div
         className="p-2 mr-4"
         onClick={() => {
@@ -754,9 +754,9 @@ export function PoolDetailsPage() {
             <div className="text-gray-400 text-xs"> {'Add Watchlist'} </div>
           </div>
           <div className="lg:flex items-center justify-end xs:mt-8 md:mt-8 xs:grid xs:grid-cols-2 md:grid md:grid-cols-2 w-full">
-            <div className="pr-3">
+            <div className="pr-2">
               <SolidButton
-                padding="px-6"
+                padding="px-0"
                 className="w-48 xs:w-full  md:w-full xs:col-span-1 md:col-span-1"
                 onClick={() => {
                   setShowFunding(true);
@@ -768,9 +768,9 @@ export function PoolDetailsPage() {
                 />
               </SolidButton>
             </div>
-            <div className="pl-3">
+            <div className="pl-2">
               <OutlineButton
-                padding="px-6"
+                padding="px-0"
                 onClick={() => {
                   setShowWithdraw(true);
                 }}

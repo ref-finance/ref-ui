@@ -27,7 +27,6 @@ import { MULTI_MINING_POOLS } from '~services/near';
 interface LocationTypes {
   morePoolIds: string[];
   tokens: TokenMetadata[];
-  // supportFarm: boolean;
 }
 function PoolRow({
   pool,
@@ -342,7 +341,7 @@ export const MorePoolsPage = () => {
           </section>
         </Card>
       </div>
-      <div className="w-10/12 lg:hidden m-auto text-white">
+      <div className="w-11/12 lg:hidden m-auto text-white">
         <Link
           to={{
             pathname: '/pools',
