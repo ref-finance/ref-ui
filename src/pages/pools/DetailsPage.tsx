@@ -259,7 +259,7 @@ function AddLiquidityModal(
         {/* mobile display */}
         <div className="mt-6 lg:hidden">
           <div className="flex items-center justify-between mb-2">
-            <div className="flex items-end mr-10">
+            <div className="flex items-end">
               <Icon icon={tokens[0].icon} className="h-12 w-12 mr-2" />
               <div className="flex items-start flex-col">
                 <div className="text-white text-xl">
@@ -329,7 +329,7 @@ function AddLiquidityModal(
 
         <div className="my-10 lg:hidden">
           <div className="flex items-center justify-between mb-2">
-            <div className="flex items-end mr-10">
+            <div className="flex items-end">
               <Icon icon={tokens[1].icon} className="h-12 w-12 mr-2" />
               <div className="flex items-start flex-col">
                 <div className="text-white text-xl">
