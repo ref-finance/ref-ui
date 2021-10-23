@@ -365,7 +365,7 @@ function AddLiquidityModal(
         <div className="flex items-center justify-center">
           <SolidButton
             disabled={!canSubmit}
-            className={`focus:outline-none`}
+            className={`focus:outline-none px-4`}
             onClick={async () => {
               try {
                 await submit();
@@ -502,7 +502,7 @@ export function RemoveLiquidityModal(
         <div className="flex items-center justify-center">
           <SolidButton
             disabled={!amount}
-            className={`focus:outline-none`}
+            className={`focus:outline-none px-4`}
             onClick={async () => {
               try {
                 await submit();
