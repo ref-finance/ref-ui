@@ -466,13 +466,13 @@ export function RemoveLiquidityModal(
         </div>
         {amount ? (
           <>
-            <p className="mt-3 text-left text-sm ">
+            <p className="my-3 text-left text-sm">
               <FormattedMessage
                 id="minimum_tokens_out"
                 defaultMessage="Minimum Tokens Out"
               />
             </p>
-            <section className="flex items-center xs:flex-col justify-center mx-3 mb-12">
+            <section className="grid grid-cols-2 mb-6 w-full">
               {Object.entries(minimumAmounts).map(
                 ([tokenId, minimumAmount], i) => {
                   const token = tokens.find((t) => t.id === tokenId);
@@ -480,17 +480,14 @@ export function RemoveLiquidityModal(
                   return (
                     <section
                       key={tokenId}
-                      className="flex flex-col items-center"
+                      className="flex flex-col items-center col-span-1"
                     >
                       <Icon icon={token.icon} className="h-12 w-12" />
                       <span className="m-1 mb-2 text-sm">{token.symbol} </span>
-                      <span className="ml-2 text-lg font-bold">
-                        {toRoundedReadableNumber({
-                          decimals: tokens.find((t) => t.id === tokenId)
-                            .decimals,
-                          number: minimumAmount,
-                          precision: 6,
-                        })}
+                      <span className="ml-2 text-base font-bold">
+                        {toInternationalCurrencySystem(
+                          toReadableNumber(token.decimals, minimumAmount)
+                        )}
                       </span>
                     </section>
                   );
@@ -875,10 +872,6 @@ export function PoolDetailsPage() {
         isOpen={showWithdraw}
         onRequestClose={() => setShowWithdraw(false)}
         style={{
-          content: {
-            position: 'absolute',
-            top: '50%',
-          },
           overlay: {
             backdropFilter: 'blur(10px)',
           },
@@ -889,11 +882,8 @@ export function PoolDetailsPage() {
         tokens={tokens}
         isOpen={showFunding}
         onRequestClose={() => setShowFunding(false)}
+        overlayClassName=""
         style={{
-          content: {
-            position: 'absolute',
-            top: '50%',
-          },
           overlay: {
             backdropFilter: 'blur(10px)',
           },
