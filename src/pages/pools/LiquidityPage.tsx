@@ -364,19 +364,15 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
     return a.symbol > b.symbol ? 1 : -1;
   });
 
-  const farmButton = () => {
-    if (supportFarm)
-      return (
-        <div className="flex items-center">
-          <div className="mx-2">
-            <FarmStamp />
-          </div>
-          <div>
-            {MULTI_MINING_POOLS.includes(pool.id) && <FarmMiningIcon />}
-          </div>
+  const FarmButton = () => {
+    return (
+      <div className="flex items-center">
+        <div className="mx-2">
+          <FarmStamp />
         </div>
-      );
-    return '';
+        <div>{MULTI_MINING_POOLS.includes(pool.id) && <FarmMiningIcon />}</div>
+      </div>
+    );
   };
 
   return (
@@ -412,7 +408,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
           </div>
         </div>
 
-        {farmButton()}
+        {supportFarm && <FarmButton />}
       </div>
       <div className="col-span-1 py-1 md:hidden ">
         {calculateFeePercent(pool.fee)}%

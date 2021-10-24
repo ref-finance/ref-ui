@@ -51,19 +51,17 @@ function PoolRow({
     return a.symbol > b.symbol ? 1 : -1;
   });
 
-  const farmButton = () => {
-    if (supportFarm)
-      return (
-        <div className="flex items-center">
-          <div className="mx-2">
-            <FarmStamp />
-          </div>
-          <div className="">
-            {MULTI_MINING_POOLS.includes(pool.id) && <FarmMiningIcon />}
-          </div>
+  const FarmButton = () => {
+    return (
+      <div className="flex items-center">
+        <div className="mx-2">
+          <FarmStamp />
         </div>
-      );
-    return '';
+        <div className="">
+          {MULTI_MINING_POOLS.includes(pool.id) && <FarmMiningIcon />}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -99,7 +97,7 @@ function PoolRow({
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </div>
         </Link>
-        {farmButton()}
+        {supportFarm && <FarmButton />}
       </div>
 
       <div className="col-span-1 py-1  ">
@@ -123,19 +121,17 @@ const MobileRow = ({
   tokens: TokenMetadata[];
 }) => {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
-  const farmButton = () => {
-    if (supportFarm)
-      return (
-        <div className="flex items-center">
-          <div className="mx-2">
-            <FarmStamp />
-          </div>
-          <div className="">
-            {MULTI_MINING_POOLS.includes(pool.id) && <FarmMiningIcon />}
-          </div>
+  const FarmButton = () => {
+    return (
+      <div className="flex items-center">
+        <div className="mx-2">
+          <FarmStamp />
         </div>
-      );
-    return '';
+        <div className="">
+          {MULTI_MINING_POOLS.includes(pool.id) && <FarmMiningIcon />}
+        </div>
+      </div>
+    );
   };
 
   useEffect(() => {
@@ -180,7 +176,7 @@ const MobileRow = ({
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </Link>
         </div>
-        {farmButton()}
+        {supportFarm && <FarmButton />}
       </div>
 
       <div className="flex flex-col text-base">

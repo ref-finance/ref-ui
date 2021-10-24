@@ -550,8 +550,7 @@ export function PoolDetailsPage() {
   const [poolTVL, setPoolTVL] = useState<number>();
   const [backToFarmsButton, setBackToFarmsButton] = useState(false);
 
-  const farmButton = () => {
-    if (backToFarmsButton)
+  const FarmButton = () => {
       return (
         <div className="flex items-center">
           <div className="mx-2">
@@ -562,7 +561,6 @@ export function PoolDetailsPage() {
           </div>
         </div>
       );
-    return '';
   };
 
   useEffect(() => {
@@ -606,7 +604,7 @@ export function PoolDetailsPage() {
                       pathname: '/farms',
                     }}
                   >
-                    {farmButton()}
+                    <FarmButton />
                   </Link>
                 )}
               </div>
