@@ -7,6 +7,7 @@ import {
   getPoolDetails,
   getPools,
   getSharesInPool,
+  getTotalPools,
   Pool,
   PoolDetails,
   removeLiquidityFromPool,
@@ -138,10 +139,10 @@ export const useMorePools = ({
 };
 
 export const useAllPools = () => {
-  const [allPools, setAllPools] = useState<PoolDb[]>();
+  const [allPools, setAllPools] = useState<number>();
 
   useEffect(() => {
-    getAllPoolsFromDb().then((res) => {
+    getTotalPools().then((res) => {
       setAllPools(res);
     });
   }, []);

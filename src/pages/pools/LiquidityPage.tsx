@@ -166,7 +166,7 @@ function MobileLiquidityPage({
   order: string;
   sortBy: string;
   hasMore: boolean;
-  allPools: PoolDb[];
+  allPools: number;
   onSearch: (name: string) => void;
   onSortChange: (by: string) => void;
   onOrderChange: (by: string) => void;
@@ -251,7 +251,7 @@ function MobileLiquidityPage({
           <div className="text-gray-400 text-xs">
             {(pools?.length ? pools?.length : '-') +
               ' of ' +
-              (allPools?.length ? allPools?.length : '-')}
+              (allPools ? allPools : '-')}
           </div>
         </div>
         <div
@@ -459,7 +459,7 @@ function LiquidityPage_({
   sortBy: string;
   tokenName: string;
   order: string;
-  allPools: PoolDb[];
+  allPools: number;
   hasMore: boolean;
   onSearch: (name: string) => void;
   onSortChange: (by: string) => void;
@@ -503,7 +503,7 @@ function LiquidityPage_({
               <div className="text-gray-400 text-sm">
                 {(pools?.length ? pools?.length : '-') +
                   ' out of ' +
-                  (allPools?.length ? allPools?.length : '-')}
+                  (allPools ? allPools : '-')}
               </div>
 
               <FaRegQuestionCircle
