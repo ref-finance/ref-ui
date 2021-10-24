@@ -754,7 +754,7 @@ export function PoolDetailsPage() {
             <div className="pr-2">
               <SolidButton
                 padding="px-0"
-                className="w-48 xs:w-full  md:w-full xs:col-span-1 md:col-span-1"
+                className="w-48 h-10 xs:w-full  md:w-full xs:col-span-1 md:col-span-1"
                 onClick={() => {
                   setShowFunding(true);
                 }}
@@ -771,7 +771,7 @@ export function PoolDetailsPage() {
                 onClick={() => {
                   setShowWithdraw(true);
                 }}
-                className="w-48 xs:w-full md:w-full xs:col-span-1 md:col-span-1"
+                className="w-48 h-10 xs:w-full md:w-full xs:col-span-1 md:col-span-1"
               >
                 <FormattedMessage
                   id="remove_liquidity"
