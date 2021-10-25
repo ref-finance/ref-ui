@@ -34,12 +34,12 @@ function Footer() {
   return (
     <>
       <div className="absolute w-full bottom-6">
-        <footer className="flex items-center justify-between md:justify-center xs:justify-center pl-9 pr-9">
-          <div className="relative pl-14 md:hidden xs:hidden">
+        <footer className="flex items-center justify-center pl-9 pr-9">
+          <div className="fixed left-3 bottom-5 md:hidden xs:hidden">
             <FooterLogo />
-            <span className="text-white">
+            <div className="flex justify-star items-center pl-14 text-white">
               ${data === '-' ? '-' : toPrecision(data, 2)}
-            </span>
+            </div>
           </div>
           <div className="flex w-72 justify-between md:justify-around xs:justify-around">
             {CommunityLinks.map((link) => {
@@ -54,7 +54,6 @@ function Footer() {
               );
             })}
           </div>
-          <div className="w-32 md:hidden xs:hidden"></div>
         </footer>
       </div>
     </>

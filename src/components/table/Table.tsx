@@ -8,63 +8,23 @@ import { FormattedMessage } from 'react-intl';
 
 interface TokenListProps {
   tokens: TokenMetadata[];
+  sortBy: string;
+  currentSort: string;
+  onSortChange?: (sortBy: string) => void;
   onClick?: (token: TokenMetadata) => void;
   render?: (token: TokenMetadata) => string;
   balances?: TokenBalancesView;
 }
 
-type TokenData = TokenMetadata & {
-  asset: string;
-  near: number;
-  ref: number;
-  total: number;
-};
-
-function sort(a: any, b: any) {
-  if (typeof a === 'string' && typeof b === 'string') {
-    return a.localeCompare(b);
-  } else if (typeof a === 'number' && typeof b === 'number') {
-    return a - b;
-  } else {
-    return a;
-  }
-}
-
 export default function Table({
   tokens,
+  sortBy,
+  currentSort,
+  onSortChange,
   onClick,
   render,
   balances,
 }: TokenListProps) {
-  const [currentSort, setSort] = useState<string>('down');
-  const [sortBy, setSortBy] = useState<string>('near');
-
-  const sortTypes: { [key: string]: any } = {
-    up: {
-      class: 'sort-up',
-      fn: (a: any, b: any) => sort(a[sortBy], b[sortBy]),
-    },
-    down: {
-      class: 'sort-down',
-      fn: (a: any, b: any) => sort(b[sortBy], a[sortBy]),
-    },
-    default: {
-      class: 'sort',
-      fn: (a: any, b: any) => a,
-    },
-  };
-
-  const onSortChange = (sortBy: string) => {
-    setSortBy(sortBy);
-    let nextSort;
-
-    if (currentSort === 'down') nextSort = 'up';
-    else if (currentSort === 'up') nextSort = 'down';
-    setSort(nextSort);
-  };
-
-  const sortedData = [...tokens].sort(sortTypes[currentSort].fn);
-
   return (
     tokens.length > 0 && (
       <table className="text-left w-full text-sm text-gray-400 mt-10 table-auto">
@@ -141,7 +101,7 @@ export default function Table({
           </tr>
         </thead>
         <tbody>
-          {sortedData.map((token) => (
+          {tokens.map((token) => (
             <Token
               key={token.id}
               token={token}
