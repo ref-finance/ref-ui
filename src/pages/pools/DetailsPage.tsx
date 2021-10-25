@@ -37,7 +37,11 @@ import { getPool } from '~services/indexer';
 import { FaArrowLeft } from 'react-icons/fa';
 import { BigNumber } from 'bignumber.js';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { WatchListStart } from '~components/icon/WatchListStart';
+import {
+  WatchListStartEmpty,
+  WatchListStartEmptyMobile,
+  WatchListStartFull,
+} from '~components/icon/WatchListStart';
 import { OutlineButton, SolidButton } from '~components/button/Button';
 import { wallet } from '~services/near';
 import { FarmMining } from './MorePoolsPage';
@@ -580,13 +584,18 @@ export function PoolDetailsPage() {
 
   return (
     <div className="flex items-start flex-row md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 md:flex-col xs:flex-col m-auto">
-      <div
-        className="p-2 mr-4"
-        onClick={() => {
-          history.goBack();
-        }}
-      >
-        <BackArrow />
+      <div className="flex items-center justify-between w-full mb-4">
+        <div
+          className="p-2 mr-4"
+          onClick={() => {
+            history.goBack();
+          }}
+        >
+          <BackArrow />
+        </div>
+        <div className="lg:hidden">
+          <WatchListStartEmpty />
+        </div>
       </div>
 
       <div className="md:w-full xs:w-full">
@@ -595,8 +604,6 @@ export function PoolDetailsPage() {
           padding="pt-8 pb-4 px-0"
           bgcolor="bg-cardBg"
         >
-          {/* show token */}
-
           <div className="text-center mx-8">
             <div className="flex flex-col text-center text-base pt-2 pb-4">
               <div className="flex justify-end mb-4">
@@ -729,11 +736,7 @@ export function PoolDetailsPage() {
               <div>
                 <FormattedMessage id="my_shares" defaultMessage="My Shares" />
               </div>
-              <div
-                style={{
-                  color: '#FFFFFF',
-                }}
-              >
+              <div className="text-white">
                 <MyShares shares={shares} totalShares={pool.shareSupply} />
               </div>
             </div>
@@ -744,11 +747,16 @@ export function PoolDetailsPage() {
       {/* chart */}
       <div className="w-full flex flex-col h-full">
         <div className="lg:flex items-center justify-end mb-4">
-          <div className="hidden flex items-center xs:hidden md:hidden">
+          <div className="flex items-center xs:hidden md:hidden">
             <div className="mr-2">
-              <WatchListStart />
+              <WatchListStartEmpty />
             </div>
-            <div className="text-gray-400 text-xs"> {'Add Watchlist'} </div>
+            <div className="text-gray-400 text-xs whitespace-nowrap	">
+              <FormattedMessage
+                id="add_watchlist"
+                defaultMessage="Add Watchlist"
+              />
+            </div>
           </div>
           <div className="lg:flex items-center justify-end xs:mt-8 md:mt-8 xs:grid xs:grid-cols-2 md:grid md:grid-cols-2 w-full">
             <div className="pr-2">

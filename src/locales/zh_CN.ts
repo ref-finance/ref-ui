@@ -163,5 +163,6 @@ const zh_CN = {
   volume: '交易量',
   hide_low_tvl_pools: '隐藏底锁仓量池子',
   watchlist_title: '顶部的我的收藏',
+  add_watchlist: '添加到收藏'
 };
 export default zh_CN;

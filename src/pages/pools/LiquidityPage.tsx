@@ -17,6 +17,7 @@ import {
   toReadableNumber,
   toInternationalCurrencySystem,
 } from '../../utils/numbers';
+import { CheckedTick, CheckedEmpty } from '~components/icon/CheckBox';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { PoolDb } from '~store/RefDatabase';
@@ -24,7 +25,10 @@ import { DownArrowLight, UpArrowDeep } from '~components/icon';
 import { FarmStamp } from '~components/icon/FarmStamp';
 import { SolidButton } from '~components/button/Button';
 import { wallet } from '~services/near';
-import { WatchListStart } from '~components/icon/WatchListStart';
+import {
+  WatchListStartEmpty,
+  WatchListStartEmptyMobile,
+} from '~components/icon/WatchListStart';
 import { PolygonGrayDown } from '~components/icon/Polygon';
 import { orderBy } from 'lodash';
 // import { PolygonGrayUp } from '~components/icon/Polygon';
@@ -225,12 +229,12 @@ function MobileLiquidityPage({
       {!wallet.isSignedIn() && <ConnectToNearCard />}
       <Card className="w-full mb-4" bgcolor="bg-cardBg" padding="p-0">
         <div className="mx-6 mb-6 mt-3">
-          {/* <div className="text-white text-xl">
+          <div className="text-white text-xl">
             <FormattedMessage
               id="liquidity_pools"
               defaultMessage="Liquidity Pools"
             />
-          </div> */}
+          </div>
         </div>
         <div className="mx-6 flex items-center justify-between mb-2">
           <div className="flex items-center">
@@ -264,16 +268,22 @@ function MobileLiquidityPage({
           />
           <FaSearch />
         </div>
-        {/*<div className="hidden mb-4 flex items-center mx-6">*/}
-        {/*  <div className="text-gray-400 text-sm mr-4">*/}
-        {/*    <FormattedMessage*/}
-        {/*      id="hide_low_tvl_pools"*/}
-        {/*      defaultMessage="Hide low TVL pools"*/}
-        {/*    />*/}
-        {/*  </div>*/}
-        {/*  <WatchListStart />*/}
-        {/*</div>*/}
-        <div className="hidden mb-4 mx-6 ">
+        <div className=" mb-4 flex items-center mx-6">
+          <div className="mr-2">
+            <CheckedEmpty />
+          </div>
+          <div className="text-gray-400 text-sm mr-4">
+            <FormattedMessage
+              id="hide_low_tvl_pools"
+              defaultMessage="Hide low TVL pools"
+            />
+          </div>
+          <WatchListStartEmptyMobile />
+        </div>
+        <div className=" mb-4 mx-6 flex items-center">
+          <div className="mr-2">
+            <CheckedEmpty />
+          </div>
           <div className="text-gray-400 text-sm mr-4">
             <FormattedMessage
               id="watchlist_title"
@@ -461,7 +471,8 @@ function LiquidityPage_({
   const intl = useIntl();
   return (
     <div className="flex items-center flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
-      <Card className="hidden w-full mb-4" bgcolor="bg-cardBg">
+      {/* 是否显示看watch list中是否有值 */}
+      <Card className=" w-full mb-4" padding="p-0 py-6" bgcolor="bg-cardBg">
         <div className="pb-6 mx-8">
           <div className="text-white text-2xl ">
             <FormattedMessage
@@ -509,14 +520,18 @@ function LiquidityPage_({
             </div>
           </div>
           <div className="flex items-center w-3/7">
-            {/*<div className="flex items-center">*/}
-            {/*  <div className="text-gray-400 text-sm mr-10">*/}
-            {/*    <FormattedMessage*/}
-            {/*      id="hide_low_tvl_pools"*/}
-            {/*      defaultMessage="Hide low TVL pools"*/}
-            {/*    />*/}
-            {/*  </div>*/}
-            {/*</div>*/}
+            <div className="flex items-center">
+              <div className="mr-2">
+                <CheckedEmpty />
+                {/* <CheckedTick /> */}
+              </div>
+              <div className="text-gray-400 text-sm mr-10">
+                <FormattedMessage
+                  id="hide_low_tvl_pools"
+                  defaultMessage="Hide low TVL pools"
+                />
+              </div>
+            </div>
             <div
               className="rounded w-full my-2 text-gray-400 flex items-center pr-2"
               style={{

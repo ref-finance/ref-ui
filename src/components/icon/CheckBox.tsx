@@ -50,7 +50,7 @@ export const CheckedTick = () => {
   return (
     <div className="relative">
       <CheckedBg />
-      <div className="absolute">
+      <div className="absolute top-1 left-0.5">
         <Tick />
       </div>
     </div>
@@ -60,14 +60,14 @@ export const CheckedTick = () => {
 export const CheckedEmpty = () => {
   return (
     <svg
-      width="35"
-      height="35"
-      viewBox="0 0 35 35"
+      width="15"
+      height="15"
+      viewBox="0 0 15 15"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
       <g filter="url(#filter0_bd_105:1137)">
-        <rect x="10" y="10" width="15" height="15" rx="4" fill="#304452" />
+        <rect width="15" height="15" rx="4" fill="#304452" />
       </g>
       <defs>
         <filter
@@ -77,7 +77,7 @@ export const CheckedEmpty = () => {
           width="115"
           height="115"
           filterUnits="userSpaceOnUse"
-          colorInterpolationFilters="sRGB"
+          color-interpolation-filters="sRGB"
         >
           <feFlood flood-opacity="0" result="BackgroundImageFix" />
           <feGaussianBlur in="BackgroundImage" stdDeviation="25" />
