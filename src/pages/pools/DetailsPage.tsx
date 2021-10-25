@@ -11,6 +11,7 @@ import { FarmStamp } from '~components/icon/FarmStamp';
 import { MULTI_MINING_POOLS } from '~services/near';
 import { PoolSlippageSelector } from '~components/forms/SlippageSelector';
 import { Link } from 'react-router-dom';
+import { canFarm } from '~services/pool';
 import {
   calculateFairShare,
   calculateFeePercent,
@@ -545,7 +546,7 @@ export function PoolDetailsPage() {
   const [showFunding, setShowFunding] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [poolTVL, setPoolTVL] = useState<number>();
-  const [backToFarmsButton, setBackToFarmsButton] = useState(false);
+  const [backToFarmsButton, setBackToFarmsButton] = useState<Boolean>(false);
 
   const FarmButton = () => {
     return (
@@ -566,7 +567,13 @@ export function PoolDetailsPage() {
         setPoolTVL(pool?.tvl);
       });
     }
-    setBackToFarmsButton(state?.backToFarms);
+    if (state?.backToFarms) {
+      setBackToFarmsButton(state?.backToFarms);
+    } else {
+      canFarm(+id).then((canFarm) => {
+        setBackToFarmsButton(canFarm);
+      });
+    }
   }, [id]);
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
