@@ -115,7 +115,7 @@ export const useMorePoolIds = (props: { topPool: Pool }) => {
       });
       setIds(idsFromCachePools);
     });
-  }, []);
+  }, [topPool?.id]);
   return ids;
 };
 
