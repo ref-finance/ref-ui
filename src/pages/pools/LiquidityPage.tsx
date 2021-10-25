@@ -254,12 +254,7 @@ function MobileLiquidityPage({
               (allPools ? allPools : '-')}
           </div>
         </div>
-        <div
-          className="rounded my-2 text-gray-400 flex items-center pr-2 mx-6 mb-5"
-          style={{
-            backgroundColor: ' rgba(0, 0, 0, 0.2)',
-          }}
-        >
+        <div className="rounded my-2 text-gray-400 flex items-center pr-2 mx-6 mb-5 bg-inputDarkBg">
           <input
             className={`text-sm outline-none rounded w-full py-2 px-3`}
             placeholder={intl.formatMessage({ id: 'search_pools' })}
