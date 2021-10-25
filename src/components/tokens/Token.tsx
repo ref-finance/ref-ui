@@ -6,7 +6,6 @@ import { toInternationalCurrencySystem } from '~utils/numbers';
 interface TokenProps {
   token: TokenMetadata;
   onClick: (token: TokenMetadata) => void;
-  render?: (token: TokenMetadata) => string;
   totalAmount?: string;
   sortBy?: string;
 }

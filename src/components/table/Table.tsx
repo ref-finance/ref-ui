@@ -12,7 +12,6 @@ interface TokenListProps {
   currentSort: string;
   onSortChange?: (sortBy: string) => void;
   onClick?: (token: TokenMetadata) => void;
-  render?: (token: TokenMetadata) => string;
   balances?: TokenBalancesView;
 }
 
@@ -22,7 +21,6 @@ export default function Table({
   currentSort,
   onSortChange,
   onClick,
-  render,
   balances,
 }: TokenListProps) {
   return (
@@ -101,12 +99,12 @@ export default function Table({
           </tr>
         </thead>
         <tbody>
-          {tokens.map((token) => (
+          {tokens.filter(Boolean).map((token) => (
             <Token
               key={token.id}
               token={token}
               onClick={onClick}
-              render={render}
+              // render={render}
               sortBy={sortBy}
               totalAmount={
                 balances

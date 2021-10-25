@@ -25,11 +25,12 @@ export function AddPoolPage() {
 
   if (!tokens || !balances) return <Loading />;
 
-  const render = (token: TokenMetadata) =>
-    toRoundedReadableNumber({
+  const render = (token: TokenMetadata) => {
+    return toRoundedReadableNumber({
       decimals: token.decimals,
       number: balances ? balances[token.id] : '0',
     });
+  };
 
   const Selected = (props: { token: TokenMetadata }) => {
     return (

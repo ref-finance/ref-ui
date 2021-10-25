@@ -81,7 +81,6 @@ export default function TokenAmount({
             )
           }
           onSelect={onSelectToken}
-          // onSearch={onSearchToken}
           balances={balances}
         />
       </fieldset>

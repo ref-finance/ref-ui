@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import MicroModal from 'react-micro-modal';
-import TokenList from '../tokens/TokenList';
 import { TokenMetadata } from '../../services/ft-contract';
 import { ArrowDownGreen } from '../icon';
 import { isMobile } from '~utils/device';
@@ -9,12 +8,7 @@ import { TokenBalancesView } from '~services/token';
 import { IoCloseOutline } from 'react-icons/io5';
 import CommenBasses from '~components/tokens/CommenBasses';
 import Table from '~components/table/Table';
-import {
-  toPrecision,
-  toReadableNumber,
-  toRoundedReadableNumber,
-} from '~utils/numbers';
-import { useDepositableBalance } from '~state/token';
+import { useTokensData } from '~state/token';
 import { toRealSymbol } from '~utils/token';
 
 function sort(a: any, b: any) {
@@ -62,37 +56,27 @@ export default function SelectToken({
   const dialogMinwidth = isMobile() ? 340 : 490;
   const dialogHidth = isMobile() ? '95%' : '57%';
   const intl = useIntl();
-  const tokensData =
-    tokens?.length > 0 &&
-    tokens.map((item) => {
-      const totalTokenAmount = toReadableNumber(
-        item.decimals,
-        useDepositableBalance(item.id)
-      );
-      const nearCount = toPrecision(totalTokenAmount, 3) || '0';
-      const refCount = toRoundedReadableNumber({
-        decimals: item.decimals,
-        number: balances ? balances[item.id] : '0',
-      });
-      return {
-        ...item,
-        asset: toRealSymbol(item.symbol),
-        near: Number(nearCount.replace(/[\,]+/g, '')),
-        ref: Number(toPrecision(refCount, 3).replace(/[\,]+/g, '')),
-        total:
-          Number(nearCount.replace(/[\,]+/g, '')) +
-          Number(toPrecision(refCount, 3).replace(/[\,]+/g, '')),
-      };
-    });
+  const {
+    tokensData,
+    loading: loadingTokensData,
+    trigger,
+  } = useTokensData(tokens, balances);
+  useEffect(() => {
+    trigger();
+  }, [trigger]);
 
   useEffect(() => {
-    const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
-    setListData(sortedData);
-  }, [tokens, balances]);
+    if (!loadingTokensData) {
+      const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
+      setListData(sortedData);
+    }
+  }, [loadingTokensData, tokensData]);
 
   useEffect(() => {
-    const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
-    setListData(sortedData);
+    if (!!tokensData) {
+      const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
+      setListData(sortedData);
+    }
   }, [currentSort, sortBy]);
 
   const sortTypes: { [key: string]: any } = {
@@ -214,7 +198,6 @@ export default function SelectToken({
             currentSort={currentSort}
             onSortChange={onSortChange}
             tokens={listData}
-            render={render}
             onClick={(token) => {
               onSelect && onSelect(token);
               close();
