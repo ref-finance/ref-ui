@@ -239,7 +239,7 @@ function MobileLiquidityPage({
             <div>
               <FaRegQuestionCircle
                 data-type="dark"
-                data-place="bottom"
+                data-place="right"
                 data-multiline={true}
                 data-tip={intl.formatMessage({ id: 'topPoolsCopy' })}
                 className="inline-block	ml-2 text-sm text-gray-500"
