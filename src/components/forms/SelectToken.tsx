@@ -17,6 +17,16 @@ import {
 import { useDepositableBalance } from '~state/token';
 import { toRealSymbol } from '~utils/token';
 
+function sort(a: any, b: any) {
+  if (typeof a === 'string' && typeof b === 'string') {
+    return a.localeCompare(b);
+  } else if (typeof a === 'number' && typeof b === 'number') {
+    return a - b;
+  } else {
+    return a;
+  }
+}
+
 export default function SelectToken({
   tokens,
   selected,
@@ -31,12 +41,16 @@ export default function SelectToken({
   selected: string | React.ReactElement;
   standalone?: boolean;
   placeholder?: string;
-  render?: (token: TokenMetadata) => React.ReactElement | string;
+  render?: (token: TokenMetadata) => string;
   onSelect?: (token: TokenMetadata) => void;
   onSearch?: (value: string) => void;
   addToken?: () => JSX.Element;
   balances?: TokenBalancesView;
 }) {
+  const [listData, setListData] = useState<TokenMetadata[]>([]);
+  const [currentSort, setSort] = useState<string>('down');
+  const [sortBy, setSortBy] = useState<string>('near');
+
   if (!onSelect) {
     return (
       <button className="focus:outline-none p-1" type="button">
@@ -71,14 +85,51 @@ export default function SelectToken({
       };
     });
 
-  // const onSearch = (value: string) => {
-  //   const result = tokens.filter(({ symbol }) =>
-  //     toRealSymbol(symbol)
-  //       .toLocaleUpperCase()
-  //       .includes(value.toLocaleUpperCase())
-  //   );
-  //   setListData(result);
-  // };
+  useEffect(() => {
+    const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
+    setListData(sortedData);
+  }, [tokens, balances]);
+
+  useEffect(() => {
+    const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
+    setListData(sortedData);
+  }, [currentSort, sortBy]);
+
+  const sortTypes: { [key: string]: any } = {
+    up: {
+      class: 'sort-up',
+      fn: (a: any, b: any) => sort(a[sortBy], b[sortBy]),
+    },
+    down: {
+      class: 'sort-down',
+      fn: (a: any, b: any) => sort(b[sortBy], a[sortBy]),
+    },
+    default: {
+      class: 'sort',
+      fn: (a: any, b: any) => a,
+    },
+  };
+
+  const onSortChange = (params: string) => {
+    if (params === sortBy) {
+      let nextSort;
+      if (currentSort === 'down') nextSort = 'up';
+      else if (currentSort === 'up') nextSort = 'down';
+      setSort(nextSort);
+    } else {
+      setSort('up');
+    }
+    setSortBy(params);
+  };
+
+  const onSearch = (value: string) => {
+    const result = tokensData.filter(({ symbol }) =>
+      toRealSymbol(symbol)
+        .toLocaleUpperCase()
+        .includes(value.toLocaleUpperCase())
+    );
+    setListData(result);
+  };
 
   return (
     <MicroModal
@@ -144,13 +195,13 @@ export default function SelectToken({
               className="absolute text-gray-400 text-2xl right-6"
             />
           </div>
-          {/* <div className="rounded-lg w-full my-2 px-6">
+          <div className="rounded-lg w-full my-2 px-6">
             <input
               className={`text-sm min bg-black bg-opacity-25 focus:outline-none rounded-lg w-full py-2 px-3 text-greenLight`}
               placeholder={intl.formatMessage({ id: 'search_pools' })}
               onChange={(evt) => onSearch(evt.target.value)}
             />
-          </div> */}
+          </div>
           <CommenBasses
             tokens={tokensData}
             onClick={(token) => {
@@ -159,7 +210,10 @@ export default function SelectToken({
             }}
           />
           <Table
-            tokens={tokensData}
+            sortBy={sortBy}
+            currentSort={currentSort}
+            onSortChange={onSortChange}
+            tokens={listData}
             render={render}
             onClick={(token) => {
               onSelect && onSelect(token);
