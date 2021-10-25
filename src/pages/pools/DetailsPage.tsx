@@ -426,13 +426,10 @@ export function RemoveLiquidityModal(
   return (
     <Modal {...props}>
       <Card
-        style={{
-          width: cardWidth,
-          border: '1px solid rgba(0, 198, 162, 0.5)',
-        }}
         padding="p-8"
         bgcolor="bg-cardBg"
-        className="text-white"
+        className="text-white border border-gradientFromHover"
+        width={cardWidth}
       >
         <div className="text-base pb-4">
           <FormattedMessage
