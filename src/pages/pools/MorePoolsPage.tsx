@@ -65,17 +65,17 @@ function PoolRow({
   };
 
   return (
-    <div className="grid grid-cols-12 py-3.5 text-white content-center text-sm text-left mx-8  border-b border-gray-600">
+    <Link
+      className="grid grid-cols-12 py-3.5 text-white content-center text-sm text-left mx-8  border-b border-gray-600"
+      to={{
+        pathname: `/pool/${pool.id}`,
+        state: { tvl: pool?.tvl, backToFarms: supportFarm },
+      }}
+    >
       <div className="col-span-8 flex items-center">
         <div className="mr-12 w-2">{pool?.id}</div>
 
-        <Link
-          to={{
-            pathname: `/pool/${pool.id}`,
-            state: { tvl: pool?.tvl, backToFarms: supportFarm },
-          }}
-          className="flex items-center"
-        >
+        <div className="flex items-center">
           <div className="flex items-center">
             <div className="h-9 w-9 border rounded-full mr-2">
               <img
@@ -96,7 +96,7 @@ function PoolRow({
           <div className="text-sm ml-7">
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </div>
-        </Link>
+        </div>
         {supportFarm && <FarmButton />}
       </div>
 
@@ -110,7 +110,7 @@ function PoolRow({
       <div className="col-span-1 py-1">
         ${toInternationalCurrencySystem(pool?.tvl.toString())}
       </div>
-    </div>
+    </Link>
   );
 }
 const MobileRow = ({

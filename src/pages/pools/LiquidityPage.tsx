@@ -26,7 +26,7 @@ import { SolidButton } from '~components/button/Button';
 import { wallet } from '~services/near';
 import { WatchListStart } from '~components/icon/WatchListStart';
 import { PolygonGrayDown } from '~components/icon/Polygon';
-import { divide, orderBy } from 'lodash';
+import { orderBy } from 'lodash';
 // import { PolygonGrayUp } from '~components/icon/Polygon';
 
 const ConnectToNearCard = () => {
@@ -58,6 +58,7 @@ function MobilePoolRow({ pool, sortBy }: { pool: Pool; sortBy: string }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const morePoolIds = useMorePoolIds({ topPool: pool });
   const tokens = useTokens(pool.tokenIds);
+  const history = useHistory();
   useEffect(() => {
     canFarm(pool.id).then((canFarm) => {
       setSupportFarm(canFarm);
@@ -92,7 +93,13 @@ function MobilePoolRow({ pool, sortBy }: { pool: Pool; sortBy: string }) {
   };
 
   return (
-    <div className="flex flex-col border-b border-gray-700 bg-cardBg w-full px-4 py-6 text-white">
+    <Link
+      className="flex flex-col border-b border-gray-700 bg-cardBg w-full px-4 py-6 text-white"
+      to={{
+        pathname: `/pool/${pool.id}`,
+        state: { tvl: pool?.tvl, backToFarms: supportFarm },
+      }}
+    >
       <div className="flex items-center justify-between text-sm">
         <div className="flex items-center justify-start">
           <div className="flex items-center">
@@ -112,29 +119,23 @@ function MobilePoolRow({ pool, sortBy }: { pool: Pool; sortBy: string }) {
               />
             </div>
           </div>
-          <Link
-            to={{
-              pathname: `/pool/${pool.id}`,
-              state: { tvl: pool?.tvl, backToFarms: supportFarm },
-            }}
-            className="text-sm ml-2 font-semibold"
-          >
+          <div className="text-sm ml-2 font-semibold">
             {tokens[0].symbol + '-' + tokens[1].symbol}
-          </Link>
+          </div>
 
           {morePoolIds?.length && (
-            <Link
-              to={{
-                pathname: `/more_pools/${pool.tokenIds}`,
-                state: {
+            <div
+              onClick={(e) => {
+                e.preventDefault();
+                history.push(`/more_pools/${pool.tokenIds}`, {
                   morePoolIds: morePoolIds,
                   tokens,
-                },
+                });
               }}
               className="mx-2"
             >
               <MobileMoreFarmStamp count={morePoolIds?.length} />
-            </Link>
+            </div>
           )}
         </div>
         <div className="mr-4">
@@ -145,7 +146,7 @@ function MobilePoolRow({ pool, sortBy }: { pool: Pool; sortBy: string }) {
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -224,12 +225,12 @@ function MobileLiquidityPage({
       {!wallet.isSignedIn() && <ConnectToNearCard />}
       <Card className="w-full mb-4" bgcolor="bg-cardBg" padding="p-0">
         <div className="mx-6 mb-6 mt-3">
-          <div className="text-white text-xl">
+          {/* <div className="text-white text-xl">
             <FormattedMessage
               id="liquidity_pools"
               defaultMessage="Liquidity Pools"
             />
-          </div>
+          </div> */}
         </div>
         <div className="mx-6 flex items-center justify-between mb-2">
           <div className="flex items-center">
