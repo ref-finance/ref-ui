@@ -34,7 +34,7 @@ export default function CommenBasses({ tokens, onClick }: CommenBassesProps) {
         {commenBassesTokens.map((token) => {
           return (
             <div
-              className="pt-4"
+              className="pt-4 cursor-pointer"
               key={token.id}
               onClick={() => onClick && onClick(token)}
             >
