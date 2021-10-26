@@ -474,9 +474,9 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
 
 function WatchListCard({ watchList }: { watchList: WatchList[] }) {
   const intl = useIntl();
-  const watchPools = useWatchPools({
-    watchList,
-  });
+  // const watchPools = useWatchPools({
+  //   watchList,
+  // });
 
   return (
     <>
@@ -488,7 +488,7 @@ function WatchListCard({ watchList }: { watchList: WatchList[] }) {
           />
         </div>
       </div>
-      <Card
+      {/* <Card
         className=" w-full mb-4 hidden"
         padding="p-0 py-6"
         bgcolor="bg-cardBg"
@@ -545,7 +545,7 @@ function WatchListCard({ watchList }: { watchList: WatchList[] }) {
             ))}
           </div>
         </section>
-      </Card>
+      </Card> */}
     </>
   );
 }
@@ -582,7 +582,7 @@ function LiquidityPage_({
   const intl = useIntl();
   return (
     <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
-      {watchList?.length && <WatchListCard watchList={watchList} />}
+      {<WatchListCard watchList={watchList} />}
 
       <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
         <div className="flex mx-8 justify-between pb-4">
