@@ -101,7 +101,7 @@ export const getDepositableBalance = async (
   } else if (tokenId) {
     return ftGetBalance(tokenId).then((res) => {
       return toReadableNumber(decimals, res);
-    });
+    }).catch(res=>'0');
   } else {
     return '';
   }
@@ -155,7 +155,7 @@ export const useTokensData = (
             };
           })
           .then((d: TokenMetadata) => setResultAtIndex(d, index))
-          .catch(() => {});
+          .catch((err) => {console.log('edd',err)});
       }
     }
   }, [balances]);

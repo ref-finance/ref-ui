@@ -45,6 +45,8 @@ export default function SelectToken({
   const [currentSort, setSort] = useState<string>('down');
   const [sortBy, setSortBy] = useState<string>('near');
 
+  console.log(listData);
+
   if (!onSelect) {
     return (
       <button className="focus:outline-none p-1" type="button">
@@ -115,6 +117,12 @@ export default function SelectToken({
     setListData(result);
   };
 
+  const handleClose = (close: () => void) => {
+    const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
+    setListData(sortedData);
+    close();
+  };
+
   return (
     <MicroModal
       trigger={(open) => (
@@ -175,14 +183,14 @@ export default function SelectToken({
             </h2>
             {addToken && addToken()}
             <IoCloseOutline
-              onClick={() => close()}
+              onClick={() => handleClose(close)}
               className="absolute text-gray-400 text-2xl right-6"
             />
           </div>
           <div className="rounded-lg w-full my-2 px-6">
             <input
               className={`text-sm min bg-black bg-opacity-25 focus:outline-none rounded-lg w-full py-2 px-3 text-greenLight`}
-              placeholder={intl.formatMessage({ id: 'search_pools' })}
+              placeholder={intl.formatMessage({ id: 'search_token' })}
               onChange={(evt) => onSearch(evt.target.value)}
             />
           </div>

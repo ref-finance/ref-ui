@@ -172,5 +172,6 @@ const en_US = {
   add_watchlist: 'Add Watchlist',
   remove_watchlist:'Remove Watchlist',
   my_watchlist_copy: 'Marked pools will appear here',
+  search_token:'Search Token'
 };
 export default en_US;
