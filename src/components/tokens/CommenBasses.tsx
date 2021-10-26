@@ -42,7 +42,7 @@ export default function CommenBasses({ tokens, onClick }: CommenBassesProps) {
                 <img
                   src={token.icon}
                   alt={toRealSymbol(token.symbol)}
-                  className="inline-block w-7 h-7 mr-2"
+                  className="inline-block w-7 h-7 mr-2 border rounded-full border-greenLight"
                 />
               )}
               <span>{toRealSymbol(token.symbol)}</span>

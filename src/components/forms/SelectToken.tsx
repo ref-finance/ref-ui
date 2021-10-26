@@ -41,11 +41,10 @@ export default function SelectToken({
   addToken?: () => JSX.Element;
   balances?: TokenBalancesView;
 }) {
+  const [visible, setVisible] = useState(false);
   const [listData, setListData] = useState<TokenMetadata[]>([]);
   const [currentSort, setSort] = useState<string>('down');
   const [sortBy, setSortBy] = useState<string>('near');
-
-  console.log(listData);
 
   if (!onSelect) {
     return (
@@ -117,18 +116,20 @@ export default function SelectToken({
     setListData(result);
   };
 
-  const handleClose = (close: () => void) => {
+  const handleClose = () => {
     const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
     setListData(sortedData);
-    close();
+    setVisible(false);
   };
 
   return (
     <MicroModal
-      trigger={(open) => (
+      open={visible}
+      handleClose={handleClose}
+      trigger={() => (
         <div
           className={`focus:outline-none  ${standalone ? 'w-full' : 'w-2/5'}`}
-          onClick={open}
+          onClick={() => setVisible(true)}
         >
           {selected || (
             <section
@@ -172,7 +173,7 @@ export default function SelectToken({
         },
       }}
     >
-      {(close) => (
+      {() => (
         <section className="text-white">
           <div className="flex items-center justify-between pb-5 pr-8 px-6 relative">
             <h2 className="text-sm font-bold text-center">
@@ -183,7 +184,7 @@ export default function SelectToken({
             </h2>
             {addToken && addToken()}
             <IoCloseOutline
-              onClick={() => handleClose(close)}
+              onClick={() => handleClose()}
               className="absolute text-gray-400 text-2xl right-6"
             />
           </div>
@@ -198,7 +199,7 @@ export default function SelectToken({
             tokens={tokensData}
             onClick={(token) => {
               onSelect && onSelect(token);
-              close();
+              handleClose();
             }}
           />
           <Table
@@ -208,7 +209,7 @@ export default function SelectToken({
             tokens={listData}
             onClick={(token) => {
               onSelect && onSelect(token);
-              close();
+              handleClose();
             }}
             balances={balances}
           />
