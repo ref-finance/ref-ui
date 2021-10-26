@@ -147,7 +147,7 @@ function MobilePoolRow({
             </div>
           )} */}
 
-          {morePoolIds?.length && (
+          {morePoolIds?.length && morePoolIds?.length > 1 && (
             <div
               onClick={(e) => {
                 e.preventDefault();
