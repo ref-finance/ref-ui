@@ -4,7 +4,14 @@ import ReactTooltip from 'react-tooltip';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
-import { useAllPools, usePools, useMorePoolIds } from '../../state/pool';
+import { find } from 'lodash';
+import {
+  useAllPools,
+  usePools,
+  useMorePoolIds,
+  useAllWatchList,
+  useWatchPools,
+} from '../../state/pool';
 import Loading from '~components/layout/Loading';
 import { getExchangeRate, useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';
@@ -17,16 +24,20 @@ import {
   toReadableNumber,
   toInternationalCurrencySystem,
 } from '../../utils/numbers';
+import { CheckedTick, CheckedEmpty } from '~components/icon/CheckBox';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { PoolDb } from '~store/RefDatabase';
+import { PoolDb, WatchList } from '~store/RefDatabase';
 import { DownArrowLight, UpArrowDeep } from '~components/icon';
 import { FarmStamp } from '~components/icon/FarmStamp';
 import { SolidButton } from '~components/button/Button';
 import { wallet } from '~services/near';
-import { WatchListStart } from '~components/icon/WatchListStart';
+import {
+  WatchListStartEmpty,
+  WatchListStartFull,
+} from '~components/icon/WatchListStar';
 import { PolygonGrayDown } from '~components/icon/Polygon';
-import { orderBy } from 'lodash';
+import _, { orderBy, sortBy, filter } from 'lodash';
 // import { PolygonGrayUp } from '~components/icon/Polygon';
 
 const ConnectToNearCard = () => {
@@ -54,7 +65,15 @@ const ConnectToNearCard = () => {
   );
 };
 
-function MobilePoolRow({ pool, sortBy }: { pool: Pool; sortBy: string }) {
+function MobilePoolRow({
+  pool,
+  sortBy,
+  watched,
+}: {
+  pool: Pool;
+  sortBy: string;
+  watched: Boolean;
+}) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const morePoolIds = useMorePoolIds({ topPool: pool });
   const tokens = useTokens(pool.tokenIds);
@@ -103,7 +122,7 @@ function MobilePoolRow({ pool, sortBy }: { pool: Pool; sortBy: string }) {
       <div className="flex items-center justify-between text-sm">
         <div className="flex items-center justify-start">
           <div className="flex items-center">
-            <div className="h-6 w-6 border rounded-full">
+            <div className="h-6 w-6 border border-gradientFromHover rounded-full">
               <img
                 key={tokens[0].id.substring(0, 12).substring(0, 12)}
                 className="rounded-full w-full"
@@ -111,7 +130,7 @@ function MobilePoolRow({ pool, sortBy }: { pool: Pool; sortBy: string }) {
               />
             </div>
 
-            <div className="h-6 w-6 border rounded-full">
+            <div className="h-6 w-6 border border-gradientFromHover rounded-full">
               <img
                 key={tokens[1].id}
                 className="w-full rounded-full"
@@ -122,6 +141,11 @@ function MobilePoolRow({ pool, sortBy }: { pool: Pool; sortBy: string }) {
           <div className="text-sm ml-2 font-semibold">
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </div>
+          {/* {watched && (
+            <div className="ml-2">
+              <WatchListStartFull />
+            </div>
+          )} */}
 
           {morePoolIds?.length && (
             <div
@@ -154,27 +178,33 @@ function MobileLiquidityPage({
   pools,
   tokenName,
   order,
+  watchList,
   hasMore,
   onSearch,
   onSortChange,
   onOrderChange,
   nextPage,
   sortBy,
+  onHide,
+  hideLowTVL,
   allPools,
 }: {
   pools: Pool[];
   tokenName: string;
   order: string;
+  watchList: WatchList[];
   sortBy: string;
+  hideLowTVL: Boolean;
   hasMore: boolean;
   allPools: number;
+  onHide: (mode: Boolean) => void;
   onSearch: (name: string) => void;
   onSortChange: (by: string) => void;
   onOrderChange: (by: string) => void;
   nextPage: (...args: []) => void;
 }) {
   const intl = useIntl();
-  const [showSelectModal, setShowSelectModal] = useState<boolean>();
+  const [showSelectModal, setShowSelectModal] = useState<Boolean>();
 
   const SelectModal = ({
     className,
@@ -221,18 +251,18 @@ function MobileLiquidityPage({
   };
 
   return (
-    <div className="flex items-center flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
+    <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
       {!wallet.isSignedIn() && <ConnectToNearCard />}
-      <Card className="w-full mb-4" bgcolor="bg-cardBg" padding="p-0">
-        <div className="mx-6 mb-6 mt-3">
-          {/* <div className="text-white text-xl">
-            <FormattedMessage
-              id="liquidity_pools"
-              defaultMessage="Liquidity Pools"
-            />
-          </div> */}
+      <div className="mx-6 mb-6 mt-3">
+        <div className="text-white text-xl">
+          <FormattedMessage
+            id="liquidity_pools"
+            defaultMessage="Liquidity Pools"
+          />
         </div>
-        <div className="mx-6 flex items-center justify-between mb-2">
+      </div>
+      <Card className="w-full mb-4" bgcolor="bg-cardBg" padding="p-0">
+        <div className="mx-6 flex items-center justify-between my-4">
           <div className="flex items-center">
             <div className="text-white text-base">
               <FormattedMessage id="top_pools" defaultMessage="Top Pools" />
@@ -264,20 +294,23 @@ function MobileLiquidityPage({
           />
           <FaSearch />
         </div>
-        {/*<div className="hidden mb-4 flex items-center mx-6">*/}
-        {/*  <div className="text-gray-400 text-sm mr-4">*/}
-        {/*    <FormattedMessage*/}
-        {/*      id="hide_low_tvl_pools"*/}
-        {/*      defaultMessage="Hide low TVL pools"*/}
-        {/*    />*/}
-        {/*  </div>*/}
-        {/*  <WatchListStart />*/}
-        {/*</div>*/}
-        <div className="hidden mb-4 mx-6 ">
+        <div className=" mb-4 flex items-center mx-6">
+          <div className="mr-2">
+            {hideLowTVL && (
+              <div onClick={() => onHide(false)}>
+                <CheckedTick />
+              </div>
+            )}
+            {!hideLowTVL && (
+              <div onClick={() => onHide(true)}>
+                <CheckedEmpty />
+              </div>
+            )}
+          </div>
           <div className="text-gray-400 text-sm mr-4">
             <FormattedMessage
-              id="watchlist_title"
-              defaultMessage="My watchlist on the top"
+              id="hide_low_tvl_pools"
+              defaultMessage="Hide low TVL pools"
             />
           </div>
         </div>
@@ -330,7 +363,11 @@ function MobileLiquidityPage({
           <div className="max-h-96 overflow-y-auto">
             {pools.map((pool, i) => (
               <div className="w-full hover:bg-poolRowHover" key={i}>
-                <MobilePoolRow pool={pool} sortBy={sortBy} />
+                <MobilePoolRow
+                  pool={pool}
+                  sortBy={sortBy}
+                  watched={!!find(watchList, { pool_id: pool.id.toString() })}
+                />
               </div>
             ))}
           </div>
@@ -383,7 +420,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
         <div className="mr-6 w-2">{index}</div>
         <div className="flex items-center">
           <div className="flex items-center">
-            <div className="h-9 w-9 border rounded-full mr-2">
+            <div className="h-9 w-9 border border-gradientFromHover rounded-full mr-2">
               <img
                 key={tokens[0].id.substring(0, 12).substring(0, 12)}
                 className="rounded-full mr-2 w-full"
@@ -391,10 +428,10 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
               />
             </div>
 
-            <div className="h-9 w-9 border rounded-full">
+            <div className="h-9 w-9 border border-gradientFromHover rounded-full">
               <img
                 key={tokens[1].id}
-                className="h-9 w-9 border rounded-full"
+                className="rounded-full mr-2 w-full"
                 src={tokens[1].icon}
               />
             </div>
@@ -435,13 +472,94 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   );
 }
 
+function WatchListCard({ watchList }: { watchList: WatchList[] }) {
+  const intl = useIntl();
+  const watchPools = useWatchPools({
+    watchList,
+  });
+
+  return (
+    <>
+      <div className="pb-6 mx-8">
+        <div className="text-white text-2xl">
+          <FormattedMessage
+            id="liquidity_pools"
+            defaultMessage="Liquidity Pools"
+          />
+        </div>
+      </div>
+      <Card
+        className=" w-full mb-4 hidden"
+        padding="p-0 py-6"
+        bgcolor="bg-cardBg"
+      >
+        <div className="mx-8 flex items-center">
+          <div
+            className={`text-${
+              watchList?.length > 0 ? 'white' : 'gray-400'
+            } text-lg`}
+          >
+            <FormattedMessage id="my_watchlist" defaultMessage="My watchlist" />
+          </div>
+          <FaRegQuestionCircle
+            data-type="dark"
+            data-place="bottom"
+            data-multiline={true}
+            data-tip={intl.formatMessage({ id: 'my_watchlist_copy' })}
+            className="inline-block	ml-2 text-sm  text-gray-500"
+          />
+          <ReactTooltip className="text-sm" />
+        </div>
+        <section className="px-2">
+          <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
+            <div className="col-span-6 md:col-span-4 flex">
+              <div className="mr-6 w-2">#</div>
+              <FormattedMessage id="pair" defaultMessage="Pair" />
+            </div>
+            <div className="col-span-1 md:hidden cursor-pointer flex items-center">
+              <div className="mr-1">
+                <FormattedMessage id="fee" defaultMessage="Fee" />
+              </div>
+            </div>
+            <div className="col-span-2 flex items-center">
+              <div className="mr-1">
+                <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
+              </div>
+            </div>
+
+            <div className="col-span-2 flex items-center cursor-pointer">
+              <span className="mr-1">
+                <FormattedMessage id="tvl" defaultMessage="TVL" />
+              </span>
+            </div>
+            <p className="col-span-1">
+              <FormattedMessage id="pools" defaultMessage="Pools" />
+            </p>
+          </header>
+
+          <div className="max-h-96 overflow-y-auto">
+            {watchPools?.map((pool, i) => (
+              <div className="w-full hover:bg-poolRowHover" key={i}>
+                <PoolRow pool={pool} index={i + 1} />
+              </div>
+            ))}
+          </div>
+        </section>
+      </Card>
+    </>
+  );
+}
+
 function LiquidityPage_({
   pools,
   sortBy,
   tokenName,
   order,
   hasMore,
+  watchList,
   onSearch,
+  onHide,
+  hideLowTVL,
   onSortChange,
   onOrderChange,
   nextPage,
@@ -449,8 +567,11 @@ function LiquidityPage_({
 }: {
   pools: Pool[];
   sortBy: string;
+  hideLowTVL: Boolean;
+  watchList: WatchList[];
   tokenName: string;
   order: string;
+  onHide: (mode: Boolean) => void;
   allPools: number;
   hasMore: boolean;
   onSearch: (name: string) => void;
@@ -460,30 +581,9 @@ function LiquidityPage_({
 }) {
   const intl = useIntl();
   return (
-    <div className="flex items-center flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
-      <Card className="hidden w-full mb-4" bgcolor="bg-cardBg">
-        <div className="pb-6 mx-8">
-          <div className="text-white text-2xl ">
-            <FormattedMessage
-              id="liquidity_pools"
-              defaultMessage="Liquidity Pools"
-            />
-          </div>
-        </div>
-        <div className="mx-8 flex items-center">
-          <div className="text-gray-400 text-sm">
-            <FormattedMessage id="my_watchlist" defaultMessage="My watchlist" />
-          </div>
-          <FaRegQuestionCircle
-            data-type="dark"
-            data-place="bottom"
-            data-multiline={true}
-            data-tip={intl.formatMessage({ id: 'my_watchlist' })}
-            className="inline-block	ml-2 text-sm  text-gray-500"
-          />
-          <ReactTooltip className="text-sm" />
-        </div>
-      </Card>
+    <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
+      {watchList?.length && <WatchListCard watchList={watchList} />}
+
       <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
         <div className="flex mx-8 justify-between pb-4">
           <div>
@@ -509,20 +609,27 @@ function LiquidityPage_({
             </div>
           </div>
           <div className="flex items-center w-3/7">
-            {/*<div className="flex items-center">*/}
-            {/*  <div className="text-gray-400 text-sm mr-10">*/}
-            {/*    <FormattedMessage*/}
-            {/*      id="hide_low_tvl_pools"*/}
-            {/*      defaultMessage="Hide low TVL pools"*/}
-            {/*    />*/}
-            {/*  </div>*/}
-            {/*</div>*/}
-            <div
-              className="rounded w-full my-2 text-gray-400 flex items-center pr-2"
-              style={{
-                backgroundColor: ' rgba(0, 0, 0, 0.2)',
-              }}
-            >
+            <div className="flex items-center">
+              <div className="mr-2">
+                {hideLowTVL && (
+                  <div onClick={() => onHide(false)}>
+                    <CheckedTick />
+                  </div>
+                )}
+                {!hideLowTVL && (
+                  <div onClick={() => onHide(true)}>
+                    <CheckedEmpty />
+                  </div>
+                )}
+              </div>
+              <div className="text-gray-400 text-sm mr-10">
+                <FormattedMessage
+                  id="hide_low_tvl_pools"
+                  defaultMessage="Hide low TVL pools"
+                />
+              </div>
+            </div>
+            <div className="rounded w-full my-2 text-gray-400 flex items-center pr-2 bg-inputDarkBg">
               <input
                 className={`text-sm outline-none rounded w-full py-2 px-3`}
                 placeholder={intl.formatMessage({ id: 'search_pools' })}
@@ -602,16 +709,6 @@ function LiquidityPage_({
             ))}
           </div>
         </section>
-        {hasMore && (
-          <div className="flex items-center justify-center pt-5">
-            <button
-              className="rounded-full text-xs text-white px-5 py-2.5 focus:outline-none  bg-greenLight"
-              onClick={nextPage}
-            >
-              More
-            </button>
-          </div>
-        )}
       </Card>
     </div>
   );
@@ -621,6 +718,11 @@ export function LiquidityPage() {
   const [tokenName, setTokenName] = useState('');
   const [sortBy, setSortBy] = useState('tvl');
   const [order, setOrder] = useState('desc');
+  const AllPools = useAllPools();
+  const watchList = useAllWatchList();
+  const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
+  const [watchListTop, setWatchListTop] = useState<Boolean>(false);
+  const [displayPools, setDisplayPools] = useState<Pool[]>();
 
   const { pools, hasMore, nextPage } = usePools({
     tokenName,
@@ -628,15 +730,27 @@ export function LiquidityPage() {
     order,
   });
 
-  const AllPools = useAllPools();
+  useEffect(() => {
+    let tempPools;
 
-  if (!pools) return <Loading />;
+    if (hideLowTVL) {
+      tempPools = _.filter(pools, (pool) => pool.tvl > 1000);
+    } else {
+      tempPools = pools;
+    }
+    setDisplayPools(tempPools);
+  }, [pools, hideLowTVL, watchList]);
+
+  if (!displayPools || !watchList) return <Loading />;
 
   return (
     <>
       <LiquidityPage_
         tokenName={tokenName}
-        pools={pools}
+        pools={displayPools}
+        onHide={setHideLowTVL}
+        hideLowTVL={hideLowTVL}
+        watchList={watchList}
         order={order}
         sortBy={sortBy}
         allPools={AllPools}
@@ -647,13 +761,16 @@ export function LiquidityPage() {
         nextPage={nextPage}
       />
       <MobileLiquidityPage
+        hideLowTVL={hideLowTVL}
         tokenName={tokenName}
-        pools={pools}
+        pools={displayPools}
+        watchList={watchList}
         allPools={AllPools}
         order={order}
         sortBy={sortBy}
         onOrderChange={setOrder}
         onSortChange={setSortBy}
+        onHide={setHideLowTVL}
         onSearch={setTokenName}
         hasMore={hasMore}
         nextPage={nextPage}

@@ -28,7 +28,7 @@ export interface Pool {
   token0_ref_price: string;
 }
 
-const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
+export const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
   id: id >= 0 ? id : pool.id,
   tokenIds: pool.token_account_ids,
   supplies: pool.amounts.reduce(
@@ -159,6 +159,58 @@ export const getPoolsFromIndexer = async ({
 
 export const getAllPoolsFromDb = async () => {
   return await db.allPools().toArray();
+};
+
+export const getAllWatchListFromDb = async ({
+  account = wallet.getAccountId(),
+}: {
+  account?: string;
+}) => {
+  return await db
+    .allWatchList()
+    .where({
+      account,
+    })
+    .toArray();
+};
+
+export const getWatchListFromDb = async ({
+  pool_id,
+  account = wallet.getAccountId(),
+}: {
+  pool_id: string;
+  account?: string;
+}) => {
+  return await db
+    .allWatchList()
+    .where({
+      pool_id,
+      account,
+    })
+    .toArray();
+};
+
+export const addPoolToWatchList = async ({
+  pool_id,
+  account = wallet.getAccountId(),
+}: {
+  pool_id: string;
+  account?: string;
+}) => {
+  return await db.watchList.put({
+    id: account + '-' + pool_id,
+    pool_id,
+    account,
+  });
+};
+export const removePoolFromWatchList = async ({
+  pool_id,
+  account = wallet.getAccountId(),
+}: {
+  pool_id: string;
+  account?: string;
+}) => {
+  return await db.watchList.delete(account + '-' + pool_id);
 };
 
 export const getCachedPoolsByTokenId = async ({

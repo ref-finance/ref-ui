@@ -13,6 +13,7 @@ module.exports = {
       '2xl': { min: '1536px' },
       '3xl': { min: '1792px' },
     },
+    boxShadow: { '4xl': '0px 0px 10px 4px rgba(0, 0, 0, 0.35)' },
     extend: {
       colors: {
         primary: '#10B981',
@@ -39,6 +40,8 @@ module.exports = {
         poolRowHover: '#001320',
         primaryText: '#7E8A93',
         inputDarkBg: 'rgba(0, 0, 0, 0.2)',
+        navHighLightBg: '#304452',
+        navHighLightText: '#C6D1DA',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

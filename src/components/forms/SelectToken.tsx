@@ -41,6 +41,7 @@ export default function SelectToken({
   addToken?: () => JSX.Element;
   balances?: TokenBalancesView;
 }) {
+  const [visible, setVisible] = useState(false);
   const [listData, setListData] = useState<TokenMetadata[]>([]);
   const [currentSort, setSort] = useState<string>('down');
   const [sortBy, setSortBy] = useState<string>('near');
@@ -115,12 +116,20 @@ export default function SelectToken({
     setListData(result);
   };
 
+  const handleClose = () => {
+    const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
+    setListData(sortedData);
+    setVisible(false);
+  };
+
   return (
     <MicroModal
-      trigger={(open) => (
+      open={visible}
+      handleClose={handleClose}
+      trigger={() => (
         <div
           className={`focus:outline-none  ${standalone ? 'w-full' : 'w-2/5'}`}
-          onClick={open}
+          onClick={() => setVisible(true)}
         >
           {selected || (
             <section
@@ -164,7 +173,7 @@ export default function SelectToken({
         },
       }}
     >
-      {(close) => (
+      {() => (
         <section className="text-white">
           <div className="flex items-center justify-between pb-5 pr-8 px-6 relative">
             <h2 className="text-sm font-bold text-center">
@@ -175,14 +184,14 @@ export default function SelectToken({
             </h2>
             {addToken && addToken()}
             <IoCloseOutline
-              onClick={() => close()}
+              onClick={() => handleClose()}
               className="absolute text-gray-400 text-2xl right-6"
             />
           </div>
           <div className="rounded-lg w-full my-2 px-6">
             <input
               className={`text-sm min bg-black bg-opacity-25 focus:outline-none rounded-lg w-full py-2 px-3 text-greenLight`}
-              placeholder={intl.formatMessage({ id: 'search_pools' })}
+              placeholder={intl.formatMessage({ id: 'search_token' })}
               onChange={(evt) => onSearch(evt.target.value)}
             />
           </div>
@@ -190,7 +199,7 @@ export default function SelectToken({
             tokens={tokensData}
             onClick={(token) => {
               onSelect && onSelect(token);
-              close();
+              handleClose();
             }}
           />
           <Table
@@ -200,7 +209,7 @@ export default function SelectToken({
             tokens={listData}
             onClick={(token) => {
               onSelect && onSelect(token);
-              close();
+              handleClose();
             }}
             balances={balances}
           />

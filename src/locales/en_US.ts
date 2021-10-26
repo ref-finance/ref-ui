@@ -58,8 +58,8 @@ const en_US = {
   pair: 'Pair',
   tvl: 'TVL',
   search_pools: 'Search Pool',
-  add_liquidity: 'Add liquidity',
-  remove_liquidity: 'Remove liquidity',
+  add_liquidity: 'Add Liquidity',
+  remove_liquidity: 'Remove Liquidity',
   total_liquidity: 'Total liquidity',
   coming_soon: 'Coming soon',
   accumulated_volume: 'Accumulated Volume',
@@ -169,5 +169,9 @@ const en_US = {
   h24_volume: '24h Volume',
   hide_low_tvl_pools: 'Hide low TVL pools',
   watchlist_title: 'My watchlist on the top',
+  add_watchlist: 'Add Watchlist',
+  remove_watchlist: 'Remove Watchlist',
+  my_watchlist_copy: 'Marked pools will appear here',
+  search_token: 'Search Token',
 };
 export default en_US;
