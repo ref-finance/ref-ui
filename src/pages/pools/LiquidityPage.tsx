@@ -615,7 +615,7 @@ function LiquidityPage_({
   const intl = useIntl();
   return (
     <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
-      <WatchListCard watchList={watchList} />
+      {watchList?.length && <WatchListCard watchList={watchList} />}
 
       <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
         <div className="flex mx-8 justify-between pb-4">
