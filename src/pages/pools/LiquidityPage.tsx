@@ -141,11 +141,11 @@ function MobilePoolRow({
           <div className="text-sm ml-2 font-semibold">
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </div>
-          {watched && (
+          {/* {watched && (
             <div className="ml-2">
               <WatchListStartFull />
             </div>
-          )}
+          )} */}
 
           {morePoolIds?.length && (
             <div
@@ -488,7 +488,11 @@ function WatchListCard({ watchList }: { watchList: WatchList[] }) {
           />
         </div>
       </div>
-      <Card className=" w-full mb-4" padding="p-0 py-6" bgcolor="bg-cardBg">
+      <Card
+        className=" w-full mb-4 hidden"
+        padding="p-0 py-6"
+        bgcolor="bg-cardBg"
+      >
         <div className="mx-8 flex items-center">
           <div
             className={`text-${
@@ -726,7 +730,6 @@ export function LiquidityPage() {
     order,
   });
 
-  // 筛选display pools
   useEffect(() => {
     let tempPools;
 

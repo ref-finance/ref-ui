@@ -637,14 +637,14 @@ export function PoolDetailsPage() {
                     <FarmButton />
                   </Link>
                 )}
-                <div className="lg:hidden">
+                {/* <div className="lg:hidden">
                   <div onClick={handleSaveWatchList}>
                     {!showFullStart && <WatchListStartEmpty />}
                   </div>
                   <div onClick={handleRemoveFromWatchList}>
                     {showFullStart && <WatchListStartFull />}
                   </div>
-                </div>
+                </div> */}
               </div>
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-end">
@@ -776,7 +776,7 @@ export function PoolDetailsPage() {
       {/* chart */}
       <div className="w-full flex flex-col h-full">
         <div className="lg:flex items-center justify-end mb-4">
-          <div className="flex items-center xs:hidden md:hidden">
+          {/* <div className="flex items-center xs:hidden md:hidden">
             <div className="mr-2">
               <div onClick={handleSaveWatchList}>
                 {!showFullStart && <WatchListStartEmpty />}
@@ -793,7 +793,7 @@ export function PoolDetailsPage() {
                 }
               />
             </div>
-          </div>
+          </div> */}
 
           <div className="lg:flex items-center justify-end xs:mt-8 md:mt-8 xs:grid xs:grid-cols-2 md:grid md:grid-cols-2 w-full">
             <div className="pr-2">
