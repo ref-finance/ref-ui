@@ -11,10 +11,10 @@ import { Card } from '../card/Card';
 import TokenAmount from '../forms/TokenAmount';
 import { TokenBalancesView, withdraw } from '../../services/token';
 import { REF_FARM_CONTRACT_ID, wallet } from '~services/near';
-import { Near } from '~components/icon';
 import { isMobile } from '~utils/device';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage } from 'react-intl';
+import { GradientButton } from '~components/button/Button';
 
 export function WithdrawModal(props: ReactModal.Props) {
   const [amount, setAmount] = useState<string>('');
@@ -37,7 +37,7 @@ export function WithdrawModal(props: ReactModal.Props) {
     balances[selectedToken.id] || '0'
   );
 
-  const cardWidth = isMobile() ? '75vw' : '25vw';
+  const cardWidth = isMobile() ? '95vw' : '25vw';
 
   return (
     <Modal {...props}>
@@ -60,7 +60,11 @@ export function WithdrawModal(props: ReactModal.Props) {
         />
         <div className="flex items-center justify-center pt-5">
           <button
-            className="rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-green-500"
+            className={`flex flex-row w-full justify-center px-5 py-2 mt-6 text-white disabled:cursor-not-allowed mx-auto`}
+            style={{
+              background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+              borderRadius: '5px',
+            }}
             onClick={() => {
               withdraw({
                 token: selectedToken,
@@ -178,21 +182,11 @@ export function Balances(props: {
 
 export function ConnectToNearBtn() {
   return (
-    <div
-      className="flex items-center justify-center pt-2"
+    <GradientButton
+      className={`w-full text-center text-lg text-white mt-4 px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
       onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
     >
-      <div className="inline-flex cursor-pointer font-bold items-center text-center rounded-full bg-gray-800 px-3.5 py-1">
-        <div className="pr-1">
-          <Near />
-        </div>
-        <div className="text-xs text-white">
-          <FormattedMessage
-            id="connect_to_near"
-            defaultMessage="Connect to NEAR"
-          />
-        </div>
-      </div>
-    </div>
+      <FormattedMessage id="connect_to_near" defaultMessage="Connect to NEAR" />
+    </GradientButton>
   );
 }

@@ -51,6 +51,7 @@ import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import parse from 'html-react-parser';
 import { FaArrowCircleRight } from 'react-icons/fa';
+import OldInputAmount from '~components/forms/OldInputAmount';
 
 export function FarmsPage() {
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
@@ -952,7 +953,7 @@ function ActionModal(
             </span>
           </div>
           <div className="flex bg-inputBg relative overflow-hidden rounded-lg align-center my-2 border">
-            <InputAmount
+            <OldInputAmount
               className="flex-grow"
               maxBorder={false}
               max={max}

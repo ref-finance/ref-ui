@@ -38,7 +38,7 @@ export default function OldInputAmount({
             onWheel={() => ref.current.blur()}
             {...rest}
             step="any"
-            className={`text-sm font-bold focus:outline-none bg-black appearance-none rounded border-opacity-30 w-full py-3 px-3 leading-tight ${
+            className={`text-sm font-bold focus:outline-none bg-inputBg appearance-none rounded border-opacity-30 w-full py-3 px-3 leading-tight ${
               disabled
                 ? 'text-gray-400 placeholder-gray-400'
                 : 'text-greenLight'

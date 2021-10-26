@@ -190,22 +190,24 @@ class RefDatabase extends Dexie {
   async queryPoolsByTokens(tokenInId: string, tokenOutId: string) {
     let normalItems = await this.poolsTokens
       .where('token1Id')
-      .equals(tokenInId)
-      .and((item) => item.token2Id === tokenOutId)
+      .equals(tokenInId.toString())
+      .and((item) => item.token2Id === tokenOutId.toString())
       .and(
         (item) =>
           Number(item.update_time) >=
-          moment().unix() - Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
+          Number(moment().unix()) -
+            Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
       )
       .toArray();
     let reverseItems = await this.poolsTokens
       .where('token1Id')
-      .equals(tokenOutId)
-      .and((item) => item.token2Id === tokenInId)
+      .equals(tokenOutId.toString())
+      .and((item) => item.token2Id === tokenInId.toString())
       .and(
         (item) =>
           Number(item.update_time) >=
-          moment().unix() - Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
+          Number(moment().unix()) -
+            Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
       )
       .toArray();
 

@@ -93,18 +93,18 @@ export function WithdrawButton(
 
 export function ConnectToNearBtn() {
   return (
-    <div className="flex items-center justify-center pt-2">
-      <GrayButton onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}>
-        <div className="pr-1">
+    <div className="flex items-center justify-start pt-2">
+      <BorderButton onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}>
+        <div className="pr-1 order-1">
           <Near />
         </div>
-        <div className="text-xs text-white">
+        <div className="text-xs text-white order-2">
           <FormattedMessage
             id="connect_to_near"
             defaultMessage="Connect to NEAR"
           />
         </div>
-      </GrayButton>
+      </BorderButton>
     </div>
   );
 }

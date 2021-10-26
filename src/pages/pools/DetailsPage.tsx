@@ -19,14 +19,11 @@ import {
   toNonDivisibleNumber,
   toPrecision,
   toReadableNumber,
-  toRoundedReadableNumber,
   toInternationalCurrencySystem,
 } from '../../utils/numbers';
-import TokenAmount from '~components/forms/TokenAmount';
 import { TokenMetadata } from '~services/ft-contract';
 import Alert from '~components/alert/Alert';
 import InputAmount from '~components/forms/InputAmount';
-import SlippageSelector from '~components/forms/SlippageSelector';
 import { isMobile } from '~utils/device';
 import ReactModal from 'react-modal';
 import { toRealSymbol } from '~utils/token';
@@ -34,13 +31,11 @@ import { toRealSymbol } from '~utils/token';
 import { BackArrow } from '~components/icon';
 import { useHistory } from 'react-router';
 import { getPool } from '~services/indexer';
-import { FaArrowLeft } from 'react-icons/fa';
 import { BigNumber } from 'bignumber.js';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { WatchListStart } from '~components/icon/WatchListStart';
 import { OutlineButton, SolidButton } from '~components/button/Button';
 import { wallet } from '~services/near';
-import { FarmMining } from './MorePoolsPage';
 
 interface ParamTypes {
   id: string;
@@ -55,15 +50,15 @@ function Icon(props: { icon?: string; className?: string; style?: any }) {
   const { icon, className, style } = props;
   return icon ? (
     <img
-      className={`block h-7 w-7 ${className} rounded-full border border-solid`}
+      className={`block ${className} rounded-full border border-solid`}
       src={icon}
       style={style}
     />
   ) : (
     <div
-      className={`h-7 w-7 rounded-full ${className} border border-solid`}
+      className={`rounded-full ${className} border border-solid`}
       style={style}
-    ></div>
+    />
   );
 }
 
@@ -201,7 +196,7 @@ function AddLiquidityModal(
     });
   }
 
-  const cardWidth = isMobile() ? '75vw' : '40vw';
+  const cardWidth = isMobile() ? '95vw' : '40vw';
 
   return (
     <Modal {...props}>
@@ -228,22 +223,22 @@ function AddLiquidityModal(
             :&nbsp;
             {toPrecision(
               toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
-              6,
+              2,
               true
             )}
           </div>
           <div className="flex items-center ">
             <div className="flex items-end mr-10">
-              <Icon icon={tokens[0].icon} className="h-12 w-12 mr-2" />
+              <Icon icon={tokens[0].icon} className="h-9 w-9 mr-2" />
               <div className="flex items-start flex-col">
-                <div className="text-white text-xl">
+                <div className="text-white text-base">
                   {toRealSymbol(tokens[0].symbol)}
                 </div>
                 <div
                   className="text-xs text-gray-400"
                   title={tokens[0].id}
-                >{`${tokens[0].id.substring(0, 12)}${
-                  tokens[0].id.length > 12 ? '...' : ''
+                >{`${tokens[0].id.substring(0, 25)}${
+                  tokens[0].id.length > 25 ? '...' : ''
                 }`}</div>
               </div>
             </div>
@@ -261,16 +256,16 @@ function AddLiquidityModal(
         <div className="mt-6 lg:hidden">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-end">
-              <Icon icon={tokens[0].icon} className="h-12 w-12 mr-2" />
+              <Icon icon={tokens[0].icon} className="h-9 w-9 mr-2" />
               <div className="flex items-start flex-col">
-                <div className="text-white text-xl">
+                <div className="text-white text-base">
                   {toRealSymbol(tokens[0].symbol)}
                 </div>
                 <div
                   className="text-xs text-gray-400"
                   title={tokens[0].id}
-                >{`${tokens[0].id.substring(0, 12)}${
-                  tokens[0].id.length > 12 ? '...' : ''
+                >{`${tokens[0].id.substring(0, 25)}${
+                  tokens[0].id.length > 25 ? '...' : ''
                 }`}</div>
               </div>
             </div>
@@ -279,7 +274,7 @@ function AddLiquidityModal(
               :&nbsp;
               {toPrecision(
                 toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
-                6,
+                2,
                 true
               )}
             </div>
@@ -290,7 +285,7 @@ function AddLiquidityModal(
             onChangeAmount={changeFirstTokenAmount}
             value={firstTokenAmount}
             disabled={!wallet.isSignedIn()}
-          ></InputAmount>
+          />
         </div>
 
         <div className="my-10 md:hidden xs:hidden">
@@ -299,22 +294,22 @@ function AddLiquidityModal(
             :&nbsp;
             {toPrecision(
               toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
-              6,
+              2,
               true
             )}
           </div>
           <div className="flex items-center">
             <div className="flex items-end mr-10">
-              <Icon icon={tokens[1].icon} className="h-12 w-12 mr-2" />
+              <Icon icon={tokens[1].icon} className="h-9 w-9 mr-2" />
               <div className="flex items-start flex-col">
-                <div className="text-white text-xl">
+                <div className="text-white text-base">
                   {toRealSymbol(tokens[1].symbol)}
                 </div>
                 <div
                   className="text-xs text-gray-400"
                   title={tokens[1].id}
-                >{`${tokens[1].id.substring(0, 12)}${
-                  tokens[1].id.length > 12 ? '...' : ''
+                >{`${tokens[1].id.substring(0, 25)}${
+                  tokens[1].id.length > 25 ? '...' : ''
                 }`}</div>
               </div>
             </div>
@@ -331,16 +326,16 @@ function AddLiquidityModal(
         <div className="my-10 lg:hidden">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-end">
-              <Icon icon={tokens[1].icon} className="h-12 w-12 mr-2" />
+              <Icon icon={tokens[1].icon} className="h-9 w-9 mr-2" />
               <div className="flex items-start flex-col">
-                <div className="text-white text-xl">
+                <div className="text-white text-base">
                   {toRealSymbol(tokens[1].symbol)}
                 </div>
                 <div
                   className="text-xs text-gray-400"
                   title={tokens[1].id}
-                >{`${tokens[1].id.substring(0, 12)}${
-                  tokens[1].id.length > 12 ? '...' : ''
+                >{`${tokens[1].id.substring(0, 25)}${
+                  tokens[1].id.length > 25 ? '...' : ''
                 }`}</div>
               </div>
             </div>
@@ -349,7 +344,7 @@ function AddLiquidityModal(
               :&nbsp;
               {toPrecision(
                 toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
-                6,
+                2,
                 true
               )}
             </div>
@@ -360,7 +355,7 @@ function AddLiquidityModal(
             onChangeAmount={changeSecondTokenAmount}
             value={secondTokenAmount}
             disabled={!wallet.isSignedIn()}
-          ></InputAmount>
+          />
         </div>
 
         <div className="flex items-center justify-center">
@@ -402,7 +397,7 @@ export function RemoveLiquidityModal(
     shares: amount ? toNonDivisibleNumber(24, amount) : '0',
   });
   const [error, setError] = useState<Error>();
-  const cardWidth = isMobile() ? '75vw' : '40vw';
+  const cardWidth = isMobile() ? '95vw' : '40vw';
   const intl = useIntl();
 
   function submit() {
@@ -430,7 +425,10 @@ export function RemoveLiquidityModal(
         padding="p-8"
         bgcolor="bg-cardBg"
         className="text-white border border-gradientFromHover"
-        width={cardWidth}
+        style={{
+          width: cardWidth,
+          border: '1px solid rgba(0, 198, 162, 0.5)',
+        }}
       >
         <div className="text-base pb-4">
           <FormattedMessage
@@ -445,7 +443,7 @@ export function RemoveLiquidityModal(
           <div className="text-xs text-right mb-1 text-gray-400">
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
-            {toPrecision(toReadableNumber(24, shares), 6)}
+            {toPrecision(toReadableNumber(24, shares), 2)}
           </div>
           <div className="rounded overflow-hidden">
             <InputAmount
@@ -480,7 +478,7 @@ export function RemoveLiquidityModal(
                       key={tokenId}
                       className="flex flex-col items-center col-span-1"
                     >
-                      <Icon icon={token.icon} className="h-12 w-12" />
+                      <Icon icon={token.icon} className="h-9 w-9" />
                       <span className="m-1 mb-2 text-sm">{token.symbol} </span>
                       <span className="ml-2 text-base font-bold">
                         {toInternationalCurrencySystem(
@@ -612,9 +610,9 @@ export function PoolDetailsPage() {
               </div>
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-end">
-                  <Icon icon={tokens[0].icon} className="h-12 w-12 mr-2" />
+                  <Icon icon={tokens[0].icon} className="h-9 w-9 mr-2" />
                   <div className="flex items-start flex-col">
-                    <div className="text-white text-xl">
+                    <div className="text-white text-base">
                       {toRealSymbol(tokens[0].symbol)}
                     </div>
                     <a
@@ -622,8 +620,8 @@ export function PoolDetailsPage() {
                       href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
                       className="text-xs text-gray-400"
                       title={tokens[0].id}
-                    >{`${tokens[0].id.substring(0, 12)}${
-                      tokens[0].id.length > 12 ? '...' : ''
+                    >{`${tokens[0].id.substring(0, 25)}${
+                      tokens[0].id.length > 25 ? '...' : ''
                     }`}</a>
                   </div>
                 </div>
@@ -638,9 +636,9 @@ export function PoolDetailsPage() {
               </div>
               <div className="flex items-center justify-between mb-10">
                 <div className="flex items-end">
-                  <Icon icon={tokens[1].icon} className="h-12 w-12 mr-2" />
+                  <Icon icon={tokens[1].icon} className="h-9 w-9 mr-2" />
                   <div className="flex items-start flex-col">
-                    <div className="text-white text-xl">
+                    <div className="text-white text-base">
                       {toRealSymbol(tokens[1].symbol)}
                     </div>
                     <a
@@ -648,8 +646,8 @@ export function PoolDetailsPage() {
                       href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
                       className="text-xs text-gray-400"
                       title={tokens[1].id}
-                    >{`${tokens[1].id.substring(0, 12)}${
-                      tokens[1].id.length > 12 ? '...' : ''
+                    >{`${tokens[1].id.substring(0, 25)}${
+                      tokens[1].id.length > 25 ? '...' : ''
                     }`}</a>
                   </div>
                 </div>
@@ -680,7 +678,7 @@ export function PoolDetailsPage() {
               </div>
             </div>
           </div>
-          <div className="border border-solid border-gray-600"></div>
+          <div className="border border-solid border-gray-600" />
           <div className="text-base text-gray-400 pt-6 mx-8">
             {/* fee */}
             <div className="flex items-center justify-between py-2.5">
@@ -792,7 +790,7 @@ export function PoolDetailsPage() {
         >
           <div className="pb-7">
             <div className="flex items-center justify-between">
-              <div className="text-gray-400 text-xl float-left">$&nbsp;-</div>
+              <div className="text-gray-400 text-base float-left">$&nbsp;-</div>
               <div className="text-white rounded-2xl flex items-center bg-gray-700">
                 <div className="py-2 px-4 w-25 rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo">
                   <FormattedMessage id="tvl" defaultMessage="TVL" />
@@ -805,7 +803,7 @@ export function PoolDetailsPage() {
             <div className="text-xs text-gray-500">Sep. 11 2021</div>
           </div>
           <div
-            className="absolute w-full left-0 top-0 h-full m-auto text-center text-xl text-gray-500 flex items-center justify-center opacity-70"
+            className="absolute w-full left-0 top-0 h-full m-auto text-center text-base text-gray-500 flex items-center justify-center opacity-70"
             style={{
               backdropFilter: 'blur(1px)',
               background: '#001320',
