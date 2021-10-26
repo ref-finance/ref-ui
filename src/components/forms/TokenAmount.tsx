@@ -7,7 +7,6 @@ import Icon from '../tokens/Icon';
 import InputAmount from './InputAmount';
 import SelectToken from './SelectToken';
 import AddToken from './AddToken';
-import { ArrowDownGreen } from '../icon';
 import { toPrecision } from '../../utils/numbers';
 import { FormattedMessage } from 'react-intl';
 
@@ -61,7 +60,7 @@ export default function TokenAmount({
       </div>
       <fieldset className="relative flex overflow-hidden align-center my-2">
         <InputAmount
-          className="w-3/5"
+          className="w-3/5 px-1 border border-transparent rounded-xl"
           id="inputAmount"
           name={selectedToken?.id}
           max={max}

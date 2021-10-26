@@ -16,6 +16,7 @@ export default function InputAmount({
   ...rest
 }: InputAmountProps) {
   const ref = useRef<HTMLInputElement>();
+  const field = useRef<HTMLFieldSetElement>();
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
 
   const handleChange = (amount: string) => {
@@ -23,9 +24,17 @@ export default function InputAmount({
     ref.current.value = amount;
   };
 
+  const handleFocus = () => {
+    field.current.className = 'w-3/5 px-1 border border-greenLight rounded-xl';
+  };
+
+  const handleFocusOut = () => {
+    field.current.className = 'w-3/5 px-1 border border-transparent rounded-xl';
+  };
+
   return (
     <>
-      <fieldset className={className}>
+      <fieldset className={className} ref={field}>
         <div
           className={`relative flex align-center items-center bg-inputDarkBg rounded-lg`}
         >
@@ -44,6 +53,8 @@ export default function InputAmount({
             onChange={({ target }) => handleChange(target.value)}
             disabled={disabled}
             onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
+            onFocus={() => handleFocus()}
+            onBlur={() => handleFocusOut()}
           />
           {max ? (
             <a
