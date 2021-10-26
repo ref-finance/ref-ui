@@ -639,14 +639,10 @@ export function PoolDetailsPage() {
                 )}
                 <div className="lg:hidden">
                   <div onClick={handleSaveWatchList}>
-                    {wallet.isSignedIn() && !showFullStart && (
-                      <WatchListStartEmpty />
-                    )}
+                    {!showFullStart && <WatchListStartEmpty />}
                   </div>
                   <div onClick={handleRemoveFromWatchList}>
-                    {wallet.isSignedIn() && showFullStart && (
-                      <WatchListStartFull />
-                    )}
+                    {showFullStart && <WatchListStartFull />}
                   </div>
                 </div>
               </div>
