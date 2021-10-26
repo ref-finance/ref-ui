@@ -37,7 +37,7 @@ import {
   WatchListStartFull,
 } from '~components/icon/WatchListStart';
 import { PolygonGrayDown } from '~components/icon/Polygon';
-import { orderBy } from 'lodash';
+import _, { orderBy, sortBy, filter } from 'lodash';
 // import { PolygonGrayUp } from '~components/icon/Polygon';
 
 const ConnectToNearCard = () => {
@@ -184,7 +184,11 @@ function MobileLiquidityPage({
   onSortChange,
   onOrderChange,
   nextPage,
+  onWatchListTop,
   sortBy,
+  onHide,
+  watchListTop,
+  hideLowTVL,
   allPools,
 }: {
   pools: Pool[];
@@ -192,15 +196,19 @@ function MobileLiquidityPage({
   order: string;
   watchList: WatchList[];
   sortBy: string;
+  watchListTop: Boolean;
+  hideLowTVL: Boolean;
   hasMore: boolean;
   allPools: number;
+  onWatchListTop: (mode: Boolean) => void;
+  onHide: (mode: Boolean) => void;
   onSearch: (name: string) => void;
   onSortChange: (by: string) => void;
   onOrderChange: (by: string) => void;
   nextPage: (...args: []) => void;
 }) {
   const intl = useIntl();
-  const [showSelectModal, setShowSelectModal] = useState<boolean>();
+  const [showSelectModal, setShowSelectModal] = useState<Boolean>();
 
   const SelectModal = ({
     className,
@@ -292,7 +300,16 @@ function MobileLiquidityPage({
         </div>
         <div className=" mb-4 flex items-center mx-6">
           <div className="mr-2">
-            <CheckedEmpty />
+            {hideLowTVL && (
+              <div onClick={() => onHide(false)}>
+                <CheckedTick />
+              </div>
+            )}
+            {!hideLowTVL && (
+              <div onClick={() => onHide(true)}>
+                <CheckedEmpty />
+              </div>
+            )}
           </div>
           <div className="text-gray-400 text-sm mr-4">
             <FormattedMessage
@@ -303,15 +320,36 @@ function MobileLiquidityPage({
         </div>
         <div className=" mb-4 mx-6 flex items-center">
           <div className="mr-2">
-            <CheckedEmpty />
+            {watchListTop && (
+              <div onClick={() => onWatchListTop(false)}>
+                <CheckedTick />
+              </div>
+            )}
+            {!watchListTop && (
+              <div onClick={() => onWatchListTop(true)}>
+                <CheckedEmpty />
+              </div>
+            )}
           </div>
+
           <div className="text-gray-400 text-sm mr-4">
             <FormattedMessage
               id="watchlist_title"
               defaultMessage="My watchlist on the top"
             />
           </div>
-          <WatchListStartEmpty />
+          <div className="mr-2">
+            {watchListTop && (
+              <div onClick={() => onWatchListTop(false)}>
+                <WatchListStartFull />
+              </div>
+            )}
+            {!watchListTop && (
+              <div onClick={() => onWatchListTop(true)}>
+                <WatchListStartEmpty />
+              </div>
+            )}
+          </div>
         </div>
         <section className="w-full">
           <header className="p-4 text-gray-400 flex items-center justify-between text-sm">
@@ -591,6 +629,8 @@ function LiquidityPage_({
   hasMore,
   watchList,
   onSearch,
+  onHide,
+  hideLowTVL,
   onSortChange,
   onOrderChange,
   nextPage,
@@ -598,9 +638,11 @@ function LiquidityPage_({
 }: {
   pools: Pool[];
   sortBy: string;
+  hideLowTVL: Boolean;
   watchList: WatchList[];
   tokenName: string;
   order: string;
+  onHide: (mode: Boolean) => void;
   allPools: number;
   hasMore: boolean;
   onSearch: (name: string) => void;
@@ -641,8 +683,16 @@ function LiquidityPage_({
           <div className="flex items-center w-3/7">
             <div className="flex items-center">
               <div className="mr-2">
-                <CheckedEmpty />
-                {/* <CheckedTick /> */}
+                {hideLowTVL && (
+                  <div onClick={() => onHide(false)}>
+                    <CheckedTick />
+                  </div>
+                )}
+                {!hideLowTVL && (
+                  <div onClick={() => onHide(true)}>
+                    <CheckedEmpty />
+                  </div>
+                )}
               </div>
               <div className="text-gray-400 text-sm mr-10">
                 <FormattedMessage
@@ -731,16 +781,6 @@ function LiquidityPage_({
             ))}
           </div>
         </section>
-        {/* {hasMore && (
-          <div className="flex items-center justify-center pt-5">
-            <button
-              className="rounded-full text-xs text-white px-5 py-2.5 focus:outline-none  bg-greenLight"
-              onClick={nextPage}
-            >
-              More
-            </button>
-          </div>
-        )} */}
       </Card>
     </div>
   );
@@ -750,6 +790,11 @@ export function LiquidityPage() {
   const [tokenName, setTokenName] = useState('');
   const [sortBy, setSortBy] = useState('tvl');
   const [order, setOrder] = useState('desc');
+  const AllPools = useAllPools();
+  const watchList = useAllWatchList();
+  const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
+  const [watchListTop, setWatchListTop] = useState<Boolean>(false);
+  const [displayPools, setDisplayPools] = useState<Pool[]>();
 
   const { pools, hasMore, nextPage } = usePools({
     tokenName,
@@ -757,19 +802,36 @@ export function LiquidityPage() {
     order,
   });
 
-  const watchList = useAllWatchList();
+  useEffect(() => {
+    let tempPools;
 
-  console.log(watchList);
+    if (hideLowTVL && watchListTop) {
+      tempPools = _.sortBy(
+        _.filter(pools, (pool) => pool.tvl > 1000),
+        (sp) => !!find(watchList, { pool_id: sp.id.toString() })
+      );
+    } else if (hideLowTVL) {
+      tempPools = _.filter(pools, (pool) => pool.tvl > 1000);
+    } else if (watchListTop) {
+      tempPools = _.sortBy(
+        pools,
+        (sp) => !find(watchList, { pool_id: sp.id.toString() })
+      );
+    } else {
+      tempPools = pools;
+    }
+    setDisplayPools(tempPools);
+  }, [pools, hideLowTVL, watchListTop, watchList]);
 
-  const AllPools = useAllPools();
-
-  if (!pools) return <Loading />;
+  if (!displayPools) return <Loading />;
 
   return (
     <>
       <LiquidityPage_
         tokenName={tokenName}
-        pools={pools}
+        pools={displayPools}
+        onHide={setHideLowTVL}
+        hideLowTVL={hideLowTVL}
         watchList={watchList}
         order={order}
         sortBy={sortBy}
@@ -781,14 +843,18 @@ export function LiquidityPage() {
         nextPage={nextPage}
       />
       <MobileLiquidityPage
+        watchListTop={watchListTop}
+        onWatchListTop={setWatchListTop}
+        hideLowTVL={hideLowTVL}
         tokenName={tokenName}
-        pools={pools}
+        pools={displayPools}
         watchList={watchList}
         allPools={AllPools}
         order={order}
         sortBy={sortBy}
         onOrderChange={setOrder}
         onSortChange={setSortBy}
+        onHide={setHideLowTVL}
         onSearch={setTokenName}
         hasMore={hasMore}
         nextPage={nextPage}
