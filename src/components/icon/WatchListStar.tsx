@@ -10,7 +10,6 @@ export const WatchListStartEmpty = () => {
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
     >
-      <title>watchlist star</title>
       <g
         id="页面-1"
         stroke="none"
@@ -39,7 +38,6 @@ export const WatchListStartFull = () => {
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
     >
-      <title>add watchlist star</title>
       <g
         id="页面-1"
         stroke="none"
