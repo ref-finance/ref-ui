@@ -164,8 +164,8 @@ const zh_CN = {
   hide_low_tvl_pools: '隐藏低锁仓量资金池',
   watchlist_title: '顶部的我的收藏',
   add_watchlist: '添加到收藏',
-  remove_watchlist:'取消收藏',
+  remove_watchlist: '取消收藏',
   my_watchlist_copy: '收藏过的流动池将会出现在这里',
-  search_token:'搜索代币'
+  search_token: '搜索代币',
 };
 export default zh_CN;

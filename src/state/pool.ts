@@ -14,7 +14,7 @@ import {
   PoolDetails,
   removeLiquidityFromPool,
 } from '../services/pool';
-import db,{ PoolDb, WatchList } from '~store/RefDatabase';
+import db, { PoolDb, WatchList } from '~store/RefDatabase';
 
 import { useWhitelistTokens } from './token';
 import _, { debounce, orderBy } from 'lodash';
@@ -152,20 +152,15 @@ export const useAllWatchList = () => {
   return watchList;
 };
 
-export const useWatchPools = ({
-  watchList,
-}: {
-  watchList: WatchList[];
-}) => {
+export const useWatchPools = ({ watchList }: { watchList: WatchList[] }) => {
   const [watchPools, setWatchPools] = useState<Pool[]>();
-  const ids = watchList.map(watchedPool=>watchedPool.pool_id)
+  const ids = watchList.map((watchedPool) => watchedPool.pool_id);
   useEffect(() => {
-    getPoolsByIds({pool_ids:ids}).then(res=>{
-      const resPools = res.map(pool=>parsePool(pool))
-      setWatchPools(resPools)
-    })
+    getPoolsByIds({ pool_ids: ids }).then((res) => {
+      const resPools = res.map((pool) => parsePool(pool));
+      setWatchPools(resPools);
+    });
   }, [watchList]);
-
 
   return watchPools;
 };
@@ -174,7 +169,7 @@ export const useAllPools = () => {
   const [allPools, setAllPools] = useState<number>();
 
   useEffect(() => {
-     getTotalPools().then((res) => {
+    getTotalPools().then((res) => {
       setAllPools(res);
     });
   }, []);
