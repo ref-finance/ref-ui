@@ -509,20 +509,9 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   );
 }
 
-function WatchListCard({
-  pools,
-  watchList,
-}: {
-  pools: Pool[];
-  watchList: WatchList[];
-}) {
+function WatchListCard({ watchList }: { watchList: WatchList[] }) {
   const intl = useIntl();
-  const [sortBy, setSortBy] = useState('tvl');
-  const [order, setOrder] = useState('desc');
   const watchPools = useWatchPools({
-    order,
-    sortBy,
-    pools,
     watchList,
   });
 
@@ -560,54 +549,21 @@ function WatchListCard({
               <div className="mr-6 w-2">#</div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </div>
-            <div
-              className="col-span-1 md:hidden cursor-pointer flex items-center"
-              onClick={() => {
-                setSortBy('fee');
-                setOrder(order === 'desc' ? 'asc' : 'desc');
-              }}
-            >
+            <div className="col-span-1 md:hidden cursor-pointer flex items-center">
               <div className="mr-1">
                 <FormattedMessage id="fee" defaultMessage="Fee" />
               </div>
-              {sortBy === 'fee' && order === 'desc' ? (
-                <DownArrowLight />
-              ) : (
-                <UpArrowDeep />
-              )}
             </div>
-            <div
-              className="col-span-2 flex items-center"
-              onClick={() => {
-                setSortBy('h24_volume');
-                setOrder(order === 'desc' ? 'asc' : 'desc');
-              }}
-            >
+            <div className="col-span-2 flex items-center">
               <div className="mr-1">
                 <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
               </div>
-              {sortBy === 'h24_volume' && order === 'desc' ? (
-                <DownArrowLight />
-              ) : (
-                <UpArrowDeep />
-              )}
             </div>
 
-            <div
-              className="col-span-2 flex items-center cursor-pointer"
-              onClick={() => {
-                setSortBy('tvl');
-                setOrder(order === 'desc' ? 'asc' : 'desc');
-              }}
-            >
+            <div className="col-span-2 flex items-center cursor-pointer">
               <span className="mr-1">
                 <FormattedMessage id="tvl" defaultMessage="TVL" />
               </span>
-              {sortBy === 'tvl' && order === 'desc' ? (
-                <DownArrowLight />
-              ) : (
-                <UpArrowDeep />
-              )}
             </div>
             <p className="col-span-1">
               <FormattedMessage id="pools" defaultMessage="Pools" />
@@ -659,8 +615,7 @@ function LiquidityPage_({
   const intl = useIntl();
   return (
     <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
-      {/* 是否显示看watch list中是否有值 */}
-      <WatchListCard pools={pools} watchList={watchList} />
+      <WatchListCard watchList={watchList} />
 
       <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
         <div className="flex mx-8 justify-between pb-4">
@@ -808,6 +763,7 @@ export function LiquidityPage() {
     order,
   });
 
+  // 筛选display pools
   useEffect(() => {
     let tempPools;
 
@@ -829,7 +785,7 @@ export function LiquidityPage() {
     setDisplayPools(tempPools);
   }, [pools, hideLowTVL, watchListTop, watchList]);
 
-  if (!displayPools) return <Loading />;
+  if (!displayPools || !watchList) return <Loading />;
 
   return (
     <>

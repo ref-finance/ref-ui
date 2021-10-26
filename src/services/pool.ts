@@ -28,7 +28,7 @@ export interface Pool {
   token0_ref_price: string;
 }
 
-const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
+export const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
   id: id >= 0 ? id : pool.id,
   tokenIds: pool.token_account_ids,
   supplies: pool.amounts.reduce(

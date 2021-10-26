@@ -9,16 +9,17 @@ import {
   getPools,
   getSharesInPool,
   getTotalPools,
+  parsePool,
   Pool,
   PoolDetails,
   removeLiquidityFromPool,
 } from '../services/pool';
-import { PoolDb, WatchList } from '~store/RefDatabase';
+import db,{ PoolDb, WatchList } from '~store/RefDatabase';
 
 import { useWhitelistTokens } from './token';
 import _, { debounce, orderBy } from 'lodash';
 import { getPoolsByIds } from '~services/indexer';
-import { PoolRPCView } from '~services/api';
+import { parsePoolView, PoolRPCView } from '~services/api';
 
 export const usePool = (id: number | string) => {
   const [pool, setPool] = useState<PoolDetails>();
@@ -153,22 +154,18 @@ export const useAllWatchList = () => {
 
 export const useWatchPools = ({
   watchList,
-  pools,
-  order,
-  sortBy,
 }: {
   watchList: WatchList[];
-  pools: Pool[];
-  order: string;
-  sortBy: string;
 }) => {
   const [watchPools, setWatchPools] = useState<Pool[]>();
+  const ids = watchList.map(watchedPool=>watchedPool.pool_id)
   useEffect(() => {
-    const filteredPools = _.filter(pools, (pool) => {
-      return !!_.find(watchList, { pool_id: pool.id.toString() });
-    });
-    setWatchPools(filteredPools);
-  }, [order, sortBy, pools, watchList]);
+    getPoolsByIds({pool_ids:ids}).then(res=>{
+      const resPools = res.map(pool=>parsePool(pool))
+      setWatchPools(resPools)
+    })
+  }, [watchList]);
+
 
   return watchPools;
 };
@@ -177,7 +174,7 @@ export const useAllPools = () => {
   const [allPools, setAllPools] = useState<number>();
 
   useEffect(() => {
-    getTotalPools().then((res) => {
+     getTotalPools().then((res) => {
       setAllPools(res);
     });
   }, []);
