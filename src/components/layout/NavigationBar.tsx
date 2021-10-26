@@ -107,7 +107,7 @@ function AccountEntry() {
             wallet.isSignedIn() && hover ? 'block' : 'hidden'
           }`}
         >
-          <Card className="cursor-default shadow-4xl" width="w-80">
+          <Card className="cursor-default shadow-4xl border border-primaryText" width="w-80">
             <div className="flex items-center justify-between text-primaryText">
               <div className="text-base">
                 <FormattedMessage id="balance" defaultMessage="Balance" />
@@ -191,9 +191,9 @@ function PoolsMenu() {
       <div
         className={`${
           hover ? 'block' : 'hidden'
-        } absolute top-12 -left-20 rounded-md shadow-4xl`}
+        } absolute top-12 -left-20 rounded-md`}
       >
-        <Card width="w-64" padding="py-4" rounded="rounded-md">
+        <Card width="w-64" padding="py-4" rounded="rounded-md" className="border border-primaryText shadow-4xl">
           {links.map((link) => {
             const isSelected = link.path === location.pathname;
 
@@ -274,7 +274,7 @@ function MoreMenu() {
           hover ? 'block' : 'hidden'
         } absolute top-6 -right-4 pt-4 rounded-md`}
       >
-        <Card width="w-48" padding="py-4" rounded="rounded-md" className="shadow-4xl">
+        <Card width="w-48" padding="py-4" rounded="rounded-md" className="shadow-4xl border border-primaryText">
           {links.map((link) => {
             return (
               <div
