@@ -14,7 +14,7 @@ import { useTokenBalances, useTokens, getExchangeRate } from '~state/token';
 import Loading from '~components/layout/Loading';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
 import { FarmStamp } from '~components/icon/FarmStamp';
-import { MULTI_MINING_POOLS } from '~services/near';
+import { MULTI_MINING_POOLS, REF_FARM_CONTRACT_ID } from '~services/near';
 import { PoolSlippageSelector } from '~components/forms/SlippageSelector';
 import { Link } from 'react-router-dom';
 import { canFarm } from '~services/pool';
@@ -570,9 +570,13 @@ export function PoolDetailsPage() {
   };
 
   const handleSaveWatchList = () => {
-    addPoolToWatchList({ pool_id: id }).then(() => {
-      setShowFullStar(true);
-    });
+    if (!wallet.isSignedIn()) {
+      wallet.requestSignIn(REF_FARM_CONTRACT_ID);
+    } else {
+      addPoolToWatchList({ pool_id: id }).then(() => {
+        setShowFullStar(true);
+      });
+    }
   };
 
   const handleRemoveFromWatchList = () => {
@@ -779,12 +783,10 @@ export function PoolDetailsPage() {
           <div className="flex items-center xs:hidden md:hidden">
             <div className="mr-2">
               <div onClick={handleSaveWatchList}>
-                {wallet.isSignedIn() && !showFullStart && (
-                  <WatchListStartEmpty />
-                )}
+                {!showFullStart && <WatchListStartEmpty />}
               </div>
               <div onClick={handleRemoveFromWatchList}>
-                {wallet.isSignedIn() && showFullStart && <WatchListStartFull />}
+                {showFullStart && <WatchListStartFull />}
               </div>
             </div>
             <div className="text-gray-400 text-xs whitespace-nowrap	">
