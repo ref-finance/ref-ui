@@ -35,7 +35,7 @@ import { wallet } from '~services/near';
 import {
   WatchListStartEmpty,
   WatchListStartFull,
-} from '~components/icon/WatchListStart';
+} from '~components/icon/WatchListStar';
 import { PolygonGrayDown } from '~components/icon/Polygon';
 import _, { orderBy, sortBy, filter } from 'lodash';
 // import { PolygonGrayUp } from '~components/icon/Polygon';

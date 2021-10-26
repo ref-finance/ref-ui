@@ -24,7 +24,7 @@ import { PoolRPCView } from '~services/api';
 import { FarmStamp } from '~components/icon/FarmStamp';
 import { MULTI_MINING_POOLS } from '~services/near';
 import { divide, find } from 'lodash';
-import { WatchListStartFull } from '~components/icon/WatchListStart';
+import { WatchListStartFull } from '~components/icon/WatchListStar';
 
 interface LocationTypes {
   morePoolIds: string[];

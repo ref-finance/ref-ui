@@ -46,7 +46,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import {
   WatchListStartEmpty,
   WatchListStartFull,
-} from '~components/icon/WatchListStart';
+} from '~components/icon/WatchListStar';
 import { OutlineButton, SolidButton } from '~components/button/Button';
 import { wallet } from '~services/near';
 import { FarmMining } from './MorePoolsPage';
@@ -606,24 +606,13 @@ export function PoolDetailsPage() {
 
   return (
     <div className="flex items-start flex-row md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 md:flex-col xs:flex-col m-auto">
-      <div className="flex items-center justify-between mb-4">
-        <div
-          className="p-2 mr-4"
-          onClick={() => {
-            history.goBack();
-          }}
-        >
-          <BackArrow />
-        </div>
-        {/* mobile watchlist */}
-        <div className="lg:hidden">
-          <div onClick={handleSaveWatchList}>
-            {wallet.isSignedIn() && !showFullStart && <WatchListStartEmpty />}
-          </div>
-          <div onClick={handleRemoveFromWatchList}>
-            {wallet.isSignedIn() && showFullStart && <WatchListStartFull />}
-          </div>
-        </div>
+      <div
+        className="p-2 mr-4"
+        onClick={() => {
+          history.goBack();
+        }}
+      >
+        <BackArrow />
       </div>
 
       <div className="md:w-full xs:w-full">
@@ -644,6 +633,18 @@ export function PoolDetailsPage() {
                     <FarmButton />
                   </Link>
                 )}
+                <div className="lg:hidden">
+                  <div onClick={handleSaveWatchList}>
+                    {wallet.isSignedIn() && !showFullStart && (
+                      <WatchListStartEmpty />
+                    )}
+                  </div>
+                  <div onClick={handleRemoveFromWatchList}>
+                    {wallet.isSignedIn() && showFullStart && (
+                      <WatchListStartFull />
+                    )}
+                  </div>
+                </div>
               </div>
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-end">
