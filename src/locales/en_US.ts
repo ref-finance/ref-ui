@@ -117,30 +117,30 @@ const en_US = {
   claim_successful_click_to_view: 'Claim successful. Click to view',
   claim_failed_click_to_view: 'Claim failed. Click to view',
   slippageCopyForMobile:
-    'Slippage means the difference between what you expect to get and what you actually get due to other swaps executing first.',
+    'Slippage means the difference between what you expect to get and what you actually get due to other swaps executing first',
   slippageCopy:
-    'Slippage means the difference between what you expect to <br> get and what you actually get due to other swaps executing first.',
+    'Slippage means the difference between what you expect to <br> get and what you actually get due to other swaps executing first',
   depositCopy:
-    'This deposits your selected tokens into the <br> exchange for swapping or adding to a liquidity pool.',
+    'This deposits your selected tokens into the <br> exchange for swapping or adding to a liquidity pool',
   nearDepositCopy:
-    'This first wraps then deposits your Ⓝ into the <br> exchange for swapping or adding to a liquidity pool.',
+    'This first wraps then deposits your Ⓝ into the <br> exchange for swapping or adding to a liquidity pool',
   nearWithdrawCopy:
-    'This will first unwrap your Ⓝ then withdraw it from <br> the exchange and move the tokens to your wallet.',
+    'This will first unwrap your Ⓝ then withdraw it from <br> the exchange and move the tokens to your wallet',
   withdrawCopy:
-    'This will withdraw your selected tokens from <br> the exchange and deposit them into your wallet.',
+    'This will withdraw your selected tokens from <br> the exchange and deposit them into your wallet',
   registerToken:
-    'This registers a new token with the <br> exchange that is not already listed.',
-  whitelistTokenCopy: 'Add any NEP-141 token.',
+    'This registers a new token with the <br> exchange that is not already listed',
+  whitelistTokenCopy: 'Add any NEP-141 token',
   addLiquidityPoolCopy:
-    'This creates a new liquidity pool for the two tokens selected. The fee is the percentage the pool takes from each transaction.',
+    'This creates a new liquidity pool for the two tokens selected. The fee is the percentage the pool takes from each transaction',
   swapCopy:
-    'Swap exchanges the first selected token with the second <br> selected token.The pools with the highest available liquidity and the lowest exchange fee will be used.',
-  addTokenCopy: 'Add any NEP-141 token.',
-  getLPTokenCopy: 'Click here to jump to the corresponding pool.',
+    'Swap exchanges the first selected token with the second <br> selected token.The pools with the highest available liquidity and the lowest exchange fee will be used',
+  addTokenCopy: 'Add any NEP-141 token',
+  getLPTokenCopy: 'Click here to jump to the corresponding pool',
   airdropCopy:
-    ' Please claim your airdrop at least once before the expiration date otherwise your balance would be donated into the treasury.',
+    ' Please claim your airdrop at least once before the expiration date otherwise your balance would be donated into the treasury',
   farmRewardsCopy:
-    'What you have claimed but not withdrawn to your NEAR Wallet yet.',
+    'What you have claimed but not withdrawn to your NEAR Wallet yet',
   totalValueLockedCopy: 'Total Value Locked',
   topPoolsCopy: 'For every pair, only display the highest pool TVL',
   you_do_not_have_enough: "You don't have enough",

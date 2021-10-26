@@ -118,9 +118,9 @@ const zh_CN = {
   claim_successful_click_to_view: '认领成功，点击查看详情',
   claim_failed_click_to_view: '认领失败，点击查看详情',
   slippageCopyForMobile:
-    '滑点是估计价格与成交价格之间的差额。您选择的百分比是当前汇率与执行交易时汇率之间的可接受差异。',
+    '滑点是您期望得到的和因先执行的其他交易而实际得到的之间的差异。',
   slippageCopy:
-    '滑点是估计价格与成交价格之间的差额。<br>您选择的百分比是当前汇率与执行交易时汇率之间<br>的可接受差异。',
+    '滑点是您期望得到的和因先执行的其他交易而实际得到的之间的差异。',
   depositCopy: '将您选择的代币存入，以便进行兑换或添加到流动性池中。',
   nearDepositCopy: '将 Ⓝ 打包存入进行交换或添加到流动性池中',
   nearWithdrawCopy: '将您的 Ⓝ 取出后并将代币移到您的钱包中。',
