@@ -177,7 +177,7 @@ export function FarmsPage() {
             <Loading />
           ) : (
             <div className="bg-greenOpacity100 text-whiteOpacity85 rounded-xl p-7">
-              <div className="text-xl">
+              <div className="text-xl flex">
                 <div className="float-left">
                   <FormattedMessage
                     id="your_rewards"
@@ -185,7 +185,7 @@ export function FarmsPage() {
                   />
                 </div>
                 <div
-                  className="mt-3 ml-2 text-sm"
+                  className="float-left mt-2 ml-2 text-sm"
                   data-type="dark"
                   data-place="right"
                   data-multiline={true}
