@@ -13,8 +13,9 @@ import { useDepositableBalance } from '../state/token';
 import TokenAmount from '../components/forms/TokenAmount';
 import { deposit } from '../services/token';
 import { wallet } from '~services/near';
-import { Balances, ConnectToNearBtn } from '../components/deposit/Deposit';
+import { Balances } from '../components/deposit/Deposit';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { ConnectToNearBtn } from '~components/button/Button';
 
 function DepositBtn(props: {
   amount?: string;
@@ -108,7 +109,6 @@ export default function DepositPage() {
           tokens={[nearMetadata, ...tokens]}
           selectedToken={selectedToken}
           onSelectToken={setSelectedToken}
-          // onSearchToken={handleSearch}
           onChangeAmount={setAmount}
           text={selectedToken.symbol}
           balances={balances}
