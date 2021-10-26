@@ -18,7 +18,7 @@ export default function Token({ token, onClick, sortBy }: TokenProps) {
       className="hover:bg-black hover:bg-opacity-10"
       onClick={() => onClick && onClick(token)}
     >
-      <td className="xs:text-xs text-sm pl-6 py-5">
+      <td className="xs:text-xs text-sm pl-6 py-5 cursor-pointer">
         {icon ? (
           <img
             className="h-6 w-6 mr-3 inline-block border rounded-full border-greenLight"
