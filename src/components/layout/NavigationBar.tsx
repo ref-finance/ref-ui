@@ -107,7 +107,10 @@ function AccountEntry() {
             wallet.isSignedIn() && hover ? 'block' : 'hidden'
           }`}
         >
-          <Card className="cursor-default shadow-4xl" width="w-80">
+          <Card
+            className="cursor-default shadow-4xl border border-primaryText"
+            width="w-80"
+          >
             <div className="flex items-center justify-between text-primaryText">
               <div className="text-base">
                 <FormattedMessage id="balance" defaultMessage="Balance" />
@@ -191,16 +194,21 @@ function PoolsMenu() {
       <div
         className={`${
           hover ? 'block' : 'hidden'
-        } absolute top-12 -left-20 rounded-md shadow-4xl`}
+        } absolute top-12 -left-20 rounded-md`}
       >
-        <Card width="w-64" padding="py-4" rounded="rounded-md">
+        <Card
+          width="w-64"
+          padding="py-4"
+          rounded="rounded-md"
+          className="border border-primaryText shadow-4xl"
+        >
           {links.map((link) => {
             const isSelected = link.path === location.pathname;
 
             return (
               <div
                 key={link.path}
-                className={`whitespace-nowrap text-center hover:bg-navHighLightBg text-sm font-semibold text-primaryText hover:text-white cursor-pointer py-4  ${
+                className={`whitespace-nowrap text-left hover:bg-navHighLightBg text-sm font-semibold text-primaryText hover:text-white cursor-pointer py-4 pl-16 ${
                   isSelected ? 'text-green-500' : 'text-white'
                 }`}
                 onClick={() => history.push(link.path)}
@@ -278,13 +286,13 @@ function MoreMenu() {
           width="w-48"
           padding="py-4"
           rounded="rounded-md"
-          className="shadow-4xl"
+          className="shadow-4xl border border-primaryText"
         >
           {links.map((link) => {
             return (
               <div
                 key={link.url}
-                className={`whitespace-nowrap text-center hover:bg-navHighLightBg text-sm font-semibold text-primaryText hover:text-white cursor-pointer py-2`}
+                className={`whitespace-nowrap text-left hover:bg-navHighLightBg text-sm font-semibold text-primaryText hover:text-white cursor-pointer py-2 pl-8`}
                 onClick={() =>
                   window.open(link.url, link.isExternal ? '' : '_self')
                 }

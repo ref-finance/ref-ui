@@ -531,7 +531,7 @@ function MyShares({
   shares: string;
   totalShares: string;
 }) {
-  if (!shares || !totalShares) return null;
+  if (!shares || !totalShares) return <div>-</div>;
 
   let sharePercent = percent(shares, totalShares);
 
@@ -699,12 +699,12 @@ export function PoolDetailsPage() {
               </div>
             </div>
             {/* rate */}
-            <div className="flex justify-between text-xs">
-              <div className="text-white text-center px-2  rounded-sm border border-solid">
+            <div className="flex justify-between text-sm md:text-xs xs:text-xs">
+              <div className="text-white text-center px-2  rounded-sm border border-solid border-gray-400">
                 1&nbsp;{toRealSymbol(tokens[0].symbol)}&nbsp;
                 {getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
               </div>
-              <div className="text-white text-center px-2  rounded-sm border border-solid">
+              <div className="text-white text-center px-2  rounded-sm border border-solid border-gray-400">
                 1&nbsp;{toRealSymbol(tokens[1].symbol)}&nbsp;
                 {getExchangeRate(
                   tokens.reverse(),
@@ -716,7 +716,7 @@ export function PoolDetailsPage() {
             </div>
           </div>
           <div className="border-b border-solid border-gray-600"></div>
-          <div className="text-sm text-gray-400 pt-4 mx-3">
+          <div className="text-sm text-gray-400 pt-4 mx-4">
             {/* fee */}
             <div className="flex items-center justify-between py-2.5">
               <div>
@@ -831,7 +831,7 @@ export function PoolDetailsPage() {
           className="relative rounded-2xl bg-chartBg h-full flex flex-col justify-between md:hidden xs:hidden"
           padding="p-7"
           style={{
-            height: '466px',
+            height: '396px',
           }}
         >
           <div className="pb-7">
