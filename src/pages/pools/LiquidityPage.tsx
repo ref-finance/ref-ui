@@ -10,6 +10,7 @@ import {
   usePools,
   useMorePoolIds,
   useAllWatchList,
+  useWatchPools,
 } from '../../state/pool';
 import Loading from '~components/layout/Loading';
 import { getExchangeRate, useTokens } from '../../state/token';
@@ -470,6 +471,118 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   );
 }
 
+function WatchListCard({
+  pools,
+  watchList,
+}: {
+  pools: Pool[];
+  watchList: WatchList[];
+}) {
+  const intl = useIntl();
+  const [sortBy, setSortBy] = useState('tvl');
+  const [order, setOrder] = useState('desc');
+  const watchPools = useWatchPools({
+    order,
+    sortBy,
+    pools,
+    watchList,
+  });
+
+  return (
+    <Card className=" w-full mb-4" padding="p-0 py-6" bgcolor="bg-cardBg">
+      <div className="pb-6 mx-8">
+        <div className="text-white text-2xl ">
+          <FormattedMessage
+            id="liquidity_pools"
+            defaultMessage="Liquidity Pools"
+          />
+        </div>
+      </div>
+      <div className="mx-8 flex items-center">
+        <div className="text-gray-400 text-lg">
+          <FormattedMessage id="my_watchlist" defaultMessage="My watchlist" />
+        </div>
+        <FaRegQuestionCircle
+          data-type="dark"
+          data-place="bottom"
+          data-multiline={true}
+          data-tip={intl.formatMessage({ id: 'my_watchlist_copy' })}
+          className="inline-block	ml-2 text-sm  text-gray-500"
+        />
+        <ReactTooltip className="text-sm" />
+      </div>
+      <section className="px-2">
+        <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
+          <div className="col-span-6 md:col-span-4 flex">
+            <div className="mr-6 w-2">#</div>
+            <FormattedMessage id="pair" defaultMessage="Pair" />
+          </div>
+          <div
+            className="col-span-1 md:hidden cursor-pointer flex items-center"
+            onClick={() => {
+              setSortBy('fee');
+              setOrder(order === 'desc' ? 'asc' : 'desc');
+            }}
+          >
+            <div className="mr-1">
+              <FormattedMessage id="fee" defaultMessage="Fee" />
+            </div>
+            {sortBy === 'fee' && order === 'desc' ? (
+              <DownArrowLight />
+            ) : (
+              <UpArrowDeep />
+            )}
+          </div>
+          <div
+            className="col-span-2 flex items-center"
+            onClick={() => {
+              setSortBy('h24_volume');
+              setOrder(order === 'desc' ? 'asc' : 'desc');
+            }}
+          >
+            <div className="mr-1">
+              <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
+            </div>
+            {sortBy === 'h24_volume' && order === 'desc' ? (
+              <DownArrowLight />
+            ) : (
+              <UpArrowDeep />
+            )}
+          </div>
+
+          <div
+            className="col-span-2 flex items-center cursor-pointer"
+            onClick={() => {
+              setSortBy('tvl');
+              setOrder(order === 'desc' ? 'asc' : 'desc');
+            }}
+          >
+            <span className="mr-1">
+              <FormattedMessage id="tvl" defaultMessage="TVL" />
+            </span>
+            {sortBy === 'tvl' && order === 'desc' ? (
+              <DownArrowLight />
+            ) : (
+              <UpArrowDeep />
+            )}
+          </div>
+          <p className="col-span-1">
+            <FormattedMessage id="pools" defaultMessage="Pools" />
+          </p>
+        </header>
+
+        <div className="max-h-96 overflow-y-auto">
+          {watchPools?.map((pool, i) => (
+            <div className="w-full hover:bg-poolRowHover" key={i}>
+              <PoolRow pool={pool} index={i + 1} />
+            </div>
+          ))}
+        </div>
+      </section>
+    </Card>
+  );
+}
+
 function LiquidityPage_({
   pools,
   sortBy,
@@ -499,29 +612,7 @@ function LiquidityPage_({
   return (
     <div className="flex items-center flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
       {/* 是否显示看watch list中是否有值 */}
-      <Card className=" w-full mb-4" padding="p-0 py-6" bgcolor="bg-cardBg">
-        <div className="pb-6 mx-8">
-          <div className="text-white text-2xl ">
-            <FormattedMessage
-              id="liquidity_pools"
-              defaultMessage="Liquidity Pools"
-            />
-          </div>
-        </div>
-        <div className="mx-8 flex items-center">
-          <div className="text-gray-400 text-lg">
-            <FormattedMessage id="my_watchlist" defaultMessage="My watchlist" />
-          </div>
-          <FaRegQuestionCircle
-            data-type="dark"
-            data-place="bottom"
-            data-multiline={true}
-            data-tip={intl.formatMessage({ id: 'my_watchlist_copy' })}
-            className="inline-block	ml-2 text-sm  text-gray-500"
-          />
-          <ReactTooltip className="text-sm" />
-        </div>
-      </Card>
+      <WatchListCard pools={pools} watchList={watchList} />
 
       <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
         <div className="flex mx-8 justify-between pb-4">
@@ -640,7 +731,7 @@ function LiquidityPage_({
             ))}
           </div>
         </section>
-        {hasMore && (
+        {/* {hasMore && (
           <div className="flex items-center justify-center pt-5">
             <button
               className="rounded-full text-xs text-white px-5 py-2.5 focus:outline-none  bg-greenLight"
@@ -649,7 +740,7 @@ function LiquidityPage_({
               More
             </button>
           </div>
-        )}
+        )} */}
       </Card>
     </div>
   );
@@ -667,6 +758,8 @@ export function LiquidityPage() {
   });
 
   const watchList = useAllWatchList();
+
+  console.log(watchList);
 
   const AllPools = useAllPools();
 

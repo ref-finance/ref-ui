@@ -148,7 +148,29 @@ export const useAllWatchList = () => {
     });
   }, []);
 
-  return watchList
+  return watchList;
+};
+
+export const useWatchPools = ({
+  watchList,
+  pools,
+  order,
+  sortBy,
+}: {
+  watchList: WatchList[];
+  pools: Pool[];
+  order: string;
+  sortBy: string;
+}) => {
+  const [watchPools, setWatchPools] = useState<Pool[]>();
+  useEffect(() => {
+    const filteredPools = _.filter(pools, (pool) => {
+      return !!_.find(watchList, { pool_id: pool.id.toString() });
+    });
+    setWatchPools(filteredPools);
+  }, [order, sortBy, pools, watchList]);
+
+  return watchPools;
 };
 
 export const useAllPools = () => {

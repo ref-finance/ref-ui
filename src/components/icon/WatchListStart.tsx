@@ -14,9 +14,9 @@ export const WatchListStartEmpty = () => {
       <g
         id="页面-1"
         stroke="none"
-        stroke-width="1"
+        strokeWidth="1"
         fill="none"
-        fill-rule="evenodd"
+        fillRule="evenodd"
       >
         <g id="watchlist-star" stroke="#7B8A94">
           <path
@@ -43,9 +43,9 @@ export const WatchListStartFull = () => {
       <g
         id="页面-1"
         stroke="none"
-        stroke-width="1"
+        strokeWidth="1"
         fill="none"
-        fill-rule="evenodd"
+        fillRule="evenodd"
       >
         <g id="add-watchlist-star" fill="#7B8A94" stroke="#7B8A94">
           <path
