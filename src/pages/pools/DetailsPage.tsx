@@ -789,11 +789,14 @@ export function PoolDetailsPage() {
             </div>
             <div className="text-gray-400 text-xs whitespace-nowrap	">
               <FormattedMessage
-                id="add_watchlist"
-                defaultMessage="Add Watchlist"
+                id={showFullStart ? 'remove_watchlist' : 'add_watchlist'}
+                defaultMessage={
+                  showFullStart ? 'Remove Watchlist' : 'Add Watchlist'
+                }
               />
             </div>
           </div>
+
           <div className="lg:flex items-center justify-end xs:mt-8 md:mt-8 xs:grid xs:grid-cols-2 md:grid md:grid-cols-2 w-full">
             <div className="pr-2">
               <SolidButton

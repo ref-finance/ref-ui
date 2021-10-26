@@ -170,6 +170,7 @@ const en_US = {
   hide_low_tvl_pools: 'Hide low TVL pools',
   watchlist_title: 'My watchlist on the top',
   add_watchlist: 'Add Watchlist',
+  remove_watchlist:'Remove Watchlist',
   my_watchlist_copy: 'Marked pools will appear here',
 };
 export default en_US;
