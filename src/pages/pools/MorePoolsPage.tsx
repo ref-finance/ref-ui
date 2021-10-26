@@ -81,7 +81,7 @@ function PoolRow({
 
         <div className="flex items-center">
           <div className="flex items-center">
-            <div className="h-9 w-9 border rounded-full mr-2">
+            <div className="h-9 w-9 border border-gradientFromHover rounded-full mr-2">
               <img
                 key={tokens[0].id.substring(0, 12).substring(0, 12)}
                 className="rounded-full w-full"
@@ -89,10 +89,10 @@ function PoolRow({
               />
             </div>
 
-            <div className="h-9 w-9 border rounded-full">
+            <div className="h-9 w-9 border border-gradientFromHover rounded-full">
               <img
                 key={tokens[1].id}
-                className="h-9 w-9 border rounded-full"
+                className="w-full rounded-full"
                 src={tokens[1].icon}
               />
             </div>
@@ -167,7 +167,7 @@ const MobileRow = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center justify-start">
             <div className="flex items-center">
-              <div className="h-6 w-6 border rounded-full">
+              <div className="h-6 w-6 border border-gradientFromHover rounded-full">
                 <img
                   key={tokens[0].id.substring(0, 12).substring(0, 12)}
                   className="rounded-full w-full"
@@ -175,7 +175,7 @@ const MobileRow = ({
                 />
               </div>
 
-              <div className="h-6 w-6 border rounded-full">
+              <div className="h-6 w-6 border border-gradientFromHover rounded-full">
                 <img
                   key={tokens[1].id}
                   className="w-full rounded-full"
@@ -263,7 +263,7 @@ export const MorePoolsPage = () => {
             </Link>
             <div className="flex items-center mb-14 justify-center">
               <div className="flex items-center">
-                <div className="h-9 w-9 border rounded-full mr-2">
+                <div className="h-9 w-9 border border-gradientFromHover rounded-full mr-2">
                   <img
                     key={tokens[0].id.substring(0, 12).substring(0, 12)}
                     className="rounded-full w-full mr-2"
@@ -271,10 +271,10 @@ export const MorePoolsPage = () => {
                   />
                 </div>
 
-                <div className="h-9 w-9 border rounded-full">
+                <div className="h-9 w-9 border border-gradientFromHover rounded-full">
                   <img
                     key={tokens[1].id}
-                    className="h-9 w-9 border rounded-full"
+                    className="rounded-full w-full"
                     src={tokens[1].icon}
                   />
                 </div>
@@ -374,7 +374,7 @@ export const MorePoolsPage = () => {
         </Link>
         <div className="flex flex-col items-center mb-12 justify-center">
           <div className="flex items-center">
-            <div className="h-9 w-9 border rounded-full mr-2">
+            <div className="h-9 w-9 border border-gradientFromHover rounded-full mr-2">
               <img
                 key={tokens[0].id.substring(0, 12).substring(0, 12)}
                 className="rounded-full w-full mr-2"
@@ -382,10 +382,10 @@ export const MorePoolsPage = () => {
               />
             </div>
 
-            <div className="h-9 w-9 border rounded-full">
+            <div className="h-9 w-9 border border-gradientFromHover rounded-full">
               <img
                 key={tokens[1].id}
-                className="h-9 w-9 border rounded-full"
+                className="w-full rounded-full"
                 src={tokens[1].icon}
               />
             </div>

@@ -64,7 +64,7 @@ function Icon(props: { icon?: string; className?: string; style?: any }) {
   const { icon, className, style } = props;
   return icon ? (
     <img
-      className={`block h-7 w-7 ${className} rounded-full border border-solid`}
+      className={`block h-7 w-7 ${className} rounded-full border border-gradientFromHover border-solid`}
       src={icon}
       style={style}
     />

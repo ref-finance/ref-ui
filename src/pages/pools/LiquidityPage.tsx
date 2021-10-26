@@ -122,7 +122,7 @@ function MobilePoolRow({
       <div className="flex items-center justify-between text-sm">
         <div className="flex items-center justify-start">
           <div className="flex items-center">
-            <div className="h-6 w-6 border rounded-full">
+            <div className="h-6 w-6 border border-gradientFromHover rounded-full">
               <img
                 key={tokens[0].id.substring(0, 12).substring(0, 12)}
                 className="rounded-full w-full"
@@ -130,7 +130,7 @@ function MobilePoolRow({
               />
             </div>
 
-            <div className="h-6 w-6 border rounded-full">
+            <div className="h-6 w-6 border border-gradientFromHover rounded-full">
               <img
                 key={tokens[1].id}
                 className="w-full rounded-full"
@@ -457,7 +457,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
         <div className="mr-6 w-2">{index}</div>
         <div className="flex items-center">
           <div className="flex items-center">
-            <div className="h-9 w-9 border rounded-full mr-2">
+            <div className="h-9 w-9 border border-gradientFromHover rounded-full mr-2">
               <img
                 key={tokens[0].id.substring(0, 12).substring(0, 12)}
                 className="rounded-full mr-2 w-full"
@@ -465,10 +465,10 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
               />
             </div>
 
-            <div className="h-9 w-9 border rounded-full">
+            <div className="h-9 w-9 border border-gradientFromHover rounded-full">
               <img
                 key={tokens[1].id}
-                className="h-9 w-9 border rounded-full"
+                className="rounded-full mr-2 w-full"
                 src={tokens[1].icon}
               />
             </div>
