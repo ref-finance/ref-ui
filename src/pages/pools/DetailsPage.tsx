@@ -606,7 +606,7 @@ export function PoolDetailsPage() {
 
   return (
     <div className="flex items-start flex-row md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 md:flex-col xs:flex-col m-auto">
-      <div className="flex items-center justify-between w-full mb-4">
+      <div className="flex items-center justify-between mb-4">
         <div
           className="p-2 mr-4"
           onClick={() => {
