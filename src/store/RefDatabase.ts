@@ -43,11 +43,18 @@ export interface FarmDexie {
   pool_id: string;
 }
 
+export interface WatchList {
+  id: string;
+  account: string;
+  pool_id: string;
+}
+
 class RefDatabase extends Dexie {
   public pools: Dexie.Table<Pool>;
   public tokens: Dexie.Table<TokenMetadata>;
   public farms: Dexie.Table<FarmDexie>;
   public poolsTokens: Dexie.Table<PoolsTokens>;
+  public watchList: Dexie.Table<WatchList>;
 
   public constructor() {
     super('RefDatabase');
@@ -58,12 +65,18 @@ class RefDatabase extends Dexie {
       farms: 'id, pool_id',
       pools_tokens:
         'id, token1Id, token2Id, token1Supply, token2Supply, fee, shares, update_time, token0_price',
+      watchList: 'id, account, pool_id',
     });
 
     this.pools = this.table('pools');
     this.tokens = this.table('tokens');
     this.farms = this.table('farms');
     this.poolsTokens = this.table('pools_tokens');
+    this.watchList = this.table('watchList');
+  }
+
+  public allWatchList() {
+    return this.watchList;
   }
 
   public allPools() {

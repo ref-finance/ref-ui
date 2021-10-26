@@ -169,6 +169,7 @@ const en_US = {
   h24_volume: '24h Volume',
   hide_low_tvl_pools: 'Hide low TVL pools',
   watchlist_title: 'My watchlist on the top',
-  add_watchlist: 'Add Watchlist'
+  add_watchlist: 'Add Watchlist',
+  my_watchlist_copy: 'Marked pools will appear here',
 };
 export default en_US;

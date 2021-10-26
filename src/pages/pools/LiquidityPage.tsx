@@ -4,7 +4,13 @@ import ReactTooltip from 'react-tooltip';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
-import { useAllPools, usePools, useMorePoolIds } from '../../state/pool';
+import { find } from 'lodash';
+import {
+  useAllPools,
+  usePools,
+  useMorePoolIds,
+  useAllWatchList,
+} from '../../state/pool';
 import Loading from '~components/layout/Loading';
 import { getExchangeRate, useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';
@@ -20,14 +26,14 @@ import {
 import { CheckedTick, CheckedEmpty } from '~components/icon/CheckBox';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { PoolDb } from '~store/RefDatabase';
+import { PoolDb, WatchList } from '~store/RefDatabase';
 import { DownArrowLight, UpArrowDeep } from '~components/icon';
 import { FarmStamp } from '~components/icon/FarmStamp';
 import { SolidButton } from '~components/button/Button';
 import { wallet } from '~services/near';
 import {
   WatchListStartEmpty,
-  WatchListStartEmptyMobile,
+  WatchListStartFull,
 } from '~components/icon/WatchListStart';
 import { PolygonGrayDown } from '~components/icon/Polygon';
 import { orderBy } from 'lodash';
@@ -58,7 +64,15 @@ const ConnectToNearCard = () => {
   );
 };
 
-function MobilePoolRow({ pool, sortBy }: { pool: Pool; sortBy: string }) {
+function MobilePoolRow({
+  pool,
+  sortBy,
+  watched,
+}: {
+  pool: Pool;
+  sortBy: string;
+  watched: Boolean;
+}) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const morePoolIds = useMorePoolIds({ topPool: pool });
   const tokens = useTokens(pool.tokenIds);
@@ -126,6 +140,11 @@ function MobilePoolRow({ pool, sortBy }: { pool: Pool; sortBy: string }) {
           <div className="text-sm ml-2 font-semibold">
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </div>
+          {watched && (
+            <div className="ml-2">
+              <WatchListStartFull />
+            </div>
+          )}
 
           {morePoolIds?.length && (
             <div
@@ -158,6 +177,7 @@ function MobileLiquidityPage({
   pools,
   tokenName,
   order,
+  watchList,
   hasMore,
   onSearch,
   onSortChange,
@@ -169,6 +189,7 @@ function MobileLiquidityPage({
   pools: Pool[];
   tokenName: string;
   order: string;
+  watchList: WatchList[];
   sortBy: string;
   hasMore: boolean;
   allPools: number;
@@ -278,7 +299,6 @@ function MobileLiquidityPage({
               defaultMessage="Hide low TVL pools"
             />
           </div>
-          <WatchListStartEmptyMobile />
         </div>
         <div className=" mb-4 mx-6 flex items-center">
           <div className="mr-2">
@@ -290,6 +310,7 @@ function MobileLiquidityPage({
               defaultMessage="My watchlist on the top"
             />
           </div>
+          <WatchListStartEmpty />
         </div>
         <section className="w-full">
           <header className="p-4 text-gray-400 flex items-center justify-between text-sm">
@@ -340,7 +361,11 @@ function MobileLiquidityPage({
           <div className="max-h-96 overflow-y-auto">
             {pools.map((pool, i) => (
               <div className="w-full hover:bg-poolRowHover" key={i}>
-                <MobilePoolRow pool={pool} sortBy={sortBy} />
+                <MobilePoolRow
+                  pool={pool}
+                  sortBy={sortBy}
+                  watched={!!find(watchList, { pool_id: pool.id.toString() })}
+                />
               </div>
             ))}
           </div>
@@ -451,6 +476,7 @@ function LiquidityPage_({
   tokenName,
   order,
   hasMore,
+  watchList,
   onSearch,
   onSortChange,
   onOrderChange,
@@ -459,6 +485,7 @@ function LiquidityPage_({
 }: {
   pools: Pool[];
   sortBy: string;
+  watchList: WatchList[];
   tokenName: string;
   order: string;
   allPools: number;
@@ -482,19 +509,20 @@ function LiquidityPage_({
           </div>
         </div>
         <div className="mx-8 flex items-center">
-          <div className="text-gray-400 text-sm">
+          <div className="text-gray-400 text-lg">
             <FormattedMessage id="my_watchlist" defaultMessage="My watchlist" />
           </div>
           <FaRegQuestionCircle
             data-type="dark"
             data-place="bottom"
             data-multiline={true}
-            data-tip={intl.formatMessage({ id: 'my_watchlist' })}
+            data-tip={intl.formatMessage({ id: 'my_watchlist_copy' })}
             className="inline-block	ml-2 text-sm  text-gray-500"
           />
           <ReactTooltip className="text-sm" />
         </div>
       </Card>
+
       <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
         <div className="flex mx-8 justify-between pb-4">
           <div>
@@ -532,12 +560,7 @@ function LiquidityPage_({
                 />
               </div>
             </div>
-            <div
-              className="rounded w-full my-2 text-gray-400 flex items-center pr-2"
-              style={{
-                backgroundColor: ' rgba(0, 0, 0, 0.2)',
-              }}
-            >
+            <div className="rounded w-full my-2 text-gray-400 flex items-center pr-2 bg-inputDarkBg">
               <input
                 className={`text-sm outline-none rounded w-full py-2 px-3`}
                 placeholder={intl.formatMessage({ id: 'search_pools' })}
@@ -643,6 +666,8 @@ export function LiquidityPage() {
     order,
   });
 
+  const watchList = useAllWatchList();
+
   const AllPools = useAllPools();
 
   if (!pools) return <Loading />;
@@ -652,6 +677,7 @@ export function LiquidityPage() {
       <LiquidityPage_
         tokenName={tokenName}
         pools={pools}
+        watchList={watchList}
         order={order}
         sortBy={sortBy}
         allPools={AllPools}
@@ -664,6 +690,7 @@ export function LiquidityPage() {
       <MobileLiquidityPage
         tokenName={tokenName}
         pools={pools}
+        watchList={watchList}
         allPools={AllPools}
         order={order}
         sortBy={sortBy}

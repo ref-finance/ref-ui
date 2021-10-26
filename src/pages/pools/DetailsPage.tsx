@@ -3,7 +3,13 @@ import { useLocation, useParams } from 'react-router-dom';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
 import { usePool, useRemoveLiquidity } from '~state/pool';
-import { addLiquidityToPool, Pool } from '~services/pool';
+import {
+  addLiquidityToPool,
+  addPoolToWatchList,
+  getWatchListFromDb,
+  Pool,
+  removePoolFromWatchList,
+} from '~services/pool';
 import { useTokenBalances, useTokens, getExchangeRate } from '~state/token';
 import Loading from '~components/layout/Loading';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
@@ -39,7 +45,6 @@ import { BigNumber } from 'bignumber.js';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
   WatchListStartEmpty,
-  WatchListStartEmptyMobile,
   WatchListStartFull,
 } from '~components/icon/WatchListStart';
 import { OutlineButton, SolidButton } from '~components/button/Button';
@@ -551,6 +556,7 @@ export function PoolDetailsPage() {
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [poolTVL, setPoolTVL] = useState<number>();
   const [backToFarmsButton, setBackToFarmsButton] = useState<Boolean>(false);
+  const [showFullStart, setShowFullStar] = useState<Boolean>(false);
 
   const FarmButton = () => {
     return (
@@ -561,6 +567,18 @@ export function PoolDetailsPage() {
         <div>{MULTI_MINING_POOLS.includes(pool.id) && <FarmMiningIcon />}</div>
       </div>
     );
+  };
+
+  const handleSaveWatchList = () => {
+    addPoolToWatchList({ pool_id: id }).then(() => {
+      setShowFullStar(true);
+    });
+  };
+
+  const handleRemoveFromWatchList = () => {
+    removePoolFromWatchList({ pool_id: id }).then(() => {
+      setShowFullStar(false);
+    });
   };
 
   useEffect(() => {
@@ -578,6 +596,10 @@ export function PoolDetailsPage() {
         setBackToFarmsButton(canFarm);
       });
     }
+
+    getWatchListFromDb({ pool_id: id }).then((watchlist) => {
+      setShowFullStar(watchlist.length > 0);
+    });
   }, [id]);
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
@@ -593,8 +615,14 @@ export function PoolDetailsPage() {
         >
           <BackArrow />
         </div>
+        {/* mobile watchlist */}
         <div className="lg:hidden">
-          <WatchListStartEmpty />
+          <div onClick={handleSaveWatchList}>
+            {wallet.isSignedIn() && !showFullStart && <WatchListStartEmpty />}
+          </div>
+          <div onClick={handleRemoveFromWatchList}>
+            {wallet.isSignedIn() && showFullStart && <WatchListStartFull />}
+          </div>
         </div>
       </div>
 
@@ -749,7 +777,14 @@ export function PoolDetailsPage() {
         <div className="lg:flex items-center justify-end mb-4">
           <div className="flex items-center xs:hidden md:hidden">
             <div className="mr-2">
-              <WatchListStartEmpty />
+              <div onClick={handleSaveWatchList}>
+                {wallet.isSignedIn() && !showFullStart && (
+                  <WatchListStartEmpty />
+                )}
+              </div>
+              <div onClick={handleRemoveFromWatchList}>
+                {wallet.isSignedIn() && showFullStart && <WatchListStartFull />}
+              </div>
             </div>
             <div className="text-gray-400 text-xs whitespace-nowrap	">
               <FormattedMessage

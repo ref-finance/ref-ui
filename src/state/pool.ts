@@ -3,6 +3,7 @@ import { calculateFairShare, percentLess, toPrecision } from '../utils/numbers';
 import {
   DEFAULT_PAGE_LIMIT,
   getAllPoolsFromDb,
+  getAllWatchListFromDb,
   getCachedPoolsByTokenId,
   getPoolDetails,
   getPools,
@@ -12,7 +13,7 @@ import {
   PoolDetails,
   removeLiquidityFromPool,
 } from '../services/pool';
-import { PoolDb } from '~store/RefDatabase';
+import { PoolDb, WatchList } from '~store/RefDatabase';
 
 import { useWhitelistTokens } from './token';
 import _, { debounce, orderBy } from 'lodash';
@@ -136,6 +137,18 @@ export const useMorePools = ({
     });
   }, [order, sortBy]);
   return morePools;
+};
+
+export const useAllWatchList = () => {
+  const [watchList, setWatchList] = useState<WatchList[]>();
+
+  useEffect(() => {
+    getAllWatchListFromDb({}).then((watchlist) => {
+      setWatchList(watchlist);
+    });
+  }, []);
+
+  return watchList
 };
 
 export const useAllPools = () => {
