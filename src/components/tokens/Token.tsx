@@ -21,7 +21,7 @@ export default function Token({ token, onClick, sortBy }: TokenProps) {
       <td className="xs:text-xs text-sm pl-6 py-5">
         {icon ? (
           <img
-            className="h-6 w-6 mr-3 inline-block"
+            className="h-6 w-6 mr-3 inline-block border rounded-full border-greenLight"
             src={icon}
             alt={toRealSymbol(symbol)}
           />
