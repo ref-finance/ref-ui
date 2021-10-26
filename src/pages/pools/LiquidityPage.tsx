@@ -184,10 +184,8 @@ function MobileLiquidityPage({
   onSortChange,
   onOrderChange,
   nextPage,
-  onWatchListTop,
   sortBy,
   onHide,
-  watchListTop,
   hideLowTVL,
   allPools,
 }: {
@@ -196,11 +194,9 @@ function MobileLiquidityPage({
   order: string;
   watchList: WatchList[];
   sortBy: string;
-  watchListTop: Boolean;
   hideLowTVL: Boolean;
   hasMore: boolean;
   allPools: number;
-  onWatchListTop: (mode: Boolean) => void;
   onHide: (mode: Boolean) => void;
   onSearch: (name: string) => void;
   onSortChange: (by: string) => void;
@@ -255,18 +251,18 @@ function MobileLiquidityPage({
   };
 
   return (
-    <div className="flex items-center flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
+    <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
       {!wallet.isSignedIn() && <ConnectToNearCard />}
-      <Card className="w-full mb-4" bgcolor="bg-cardBg" padding="p-0">
-        <div className="mx-6 mb-6 mt-3">
-          <div className="text-white text-xl">
-            <FormattedMessage
-              id="liquidity_pools"
-              defaultMessage="Liquidity Pools"
-            />
-          </div>
+      <div className="mx-6 mb-6 mt-3">
+        <div className="text-white text-xl">
+          <FormattedMessage
+            id="liquidity_pools"
+            defaultMessage="Liquidity Pools"
+          />
         </div>
-        <div className="mx-6 flex items-center justify-between mb-2">
+      </div>
+      <Card className="w-full mb-4" bgcolor="bg-cardBg" padding="p-0">
+        <div className="mx-6 flex items-center justify-between my-4">
           <div className="flex items-center">
             <div className="text-white text-base">
               <FormattedMessage id="top_pools" defaultMessage="Top Pools" />
@@ -316,39 +312,6 @@ function MobileLiquidityPage({
               id="hide_low_tvl_pools"
               defaultMessage="Hide low TVL pools"
             />
-          </div>
-        </div>
-        <div className=" mb-4 mx-6 flex items-center">
-          <div className="mr-2">
-            {watchListTop && (
-              <div onClick={() => onWatchListTop(false)}>
-                <CheckedTick />
-              </div>
-            )}
-            {!watchListTop && (
-              <div onClick={() => onWatchListTop(true)}>
-                <CheckedEmpty />
-              </div>
-            )}
-          </div>
-
-          <div className="text-gray-400 text-sm mr-4">
-            <FormattedMessage
-              id="watchlist_title"
-              defaultMessage="My watchlist on the top"
-            />
-          </div>
-          <div className="mr-2">
-            {watchListTop && (
-              <div onClick={() => onWatchListTop(false)}>
-                <WatchListStartFull />
-              </div>
-            )}
-            {!watchListTop && (
-              <div onClick={() => onWatchListTop(true)}>
-                <WatchListStartEmpty />
-              </div>
-            )}
           </div>
         </div>
         <section className="w-full">
@@ -767,23 +730,13 @@ export function LiquidityPage() {
   useEffect(() => {
     let tempPools;
 
-    if (hideLowTVL && watchListTop) {
-      tempPools = _.sortBy(
-        _.filter(pools, (pool) => pool.tvl > 1000),
-        (sp) => !!find(watchList, { pool_id: sp.id.toString() })
-      );
-    } else if (hideLowTVL) {
+    if (hideLowTVL) {
       tempPools = _.filter(pools, (pool) => pool.tvl > 1000);
-    } else if (watchListTop) {
-      tempPools = _.sortBy(
-        pools,
-        (sp) => !find(watchList, { pool_id: sp.id.toString() })
-      );
     } else {
       tempPools = pools;
     }
     setDisplayPools(tempPools);
-  }, [pools, hideLowTVL, watchListTop, watchList]);
+  }, [pools, hideLowTVL, watchList]);
 
   if (!displayPools || !watchList) return <Loading />;
 
@@ -805,8 +758,6 @@ export function LiquidityPage() {
         nextPage={nextPage}
       />
       <MobileLiquidityPage
-        watchListTop={watchListTop}
-        onWatchListTop={setWatchListTop}
         hideLowTVL={hideLowTVL}
         tokenName={tokenName}
         pools={displayPools}
