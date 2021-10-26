@@ -19,10 +19,12 @@ import {
   toReadableNumber,
   toInternationalCurrencySystem,
 } from '../../utils/numbers';
-import { useMorePools } from '~state/pool';
+import { useAllWatchList, useMorePools } from '~state/pool';
 import { PoolRPCView } from '~services/api';
 import { FarmStamp } from '~components/icon/FarmStamp';
 import { MULTI_MINING_POOLS } from '~services/near';
+import { divide, find } from 'lodash';
+import { WatchListStartFull } from '~components/icon/WatchListStart';
 
 interface LocationTypes {
   morePoolIds: string[];
@@ -32,10 +34,12 @@ function PoolRow({
   pool,
   index,
   tokens,
+  watched,
 }: {
   pool: PoolRPCView;
   index: number;
   tokens: TokenMetadata[];
+  watched: Boolean;
 }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
 
@@ -98,6 +102,11 @@ function PoolRow({
           </div>
         </div>
         {supportFarm && <FarmButton />}
+        {watched && (
+          <div className="mx-2">
+            <WatchListStartFull />
+          </div>
+        )}
       </div>
 
       <div className="col-span-1 py-1  ">
@@ -116,9 +125,11 @@ function PoolRow({
 const MobileRow = ({
   pool,
   tokens,
+  watched,
 }: {
   pool: PoolRPCView;
   tokens: TokenMetadata[];
+  watched: Boolean;
 }) => {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const FarmButton = () => {
@@ -147,61 +158,67 @@ const MobileRow = ({
       className="rounded mb-2"
       padding="p-4"
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center justify-start">
-          <div className="flex items-center">
-            <div className="h-6 w-6 border rounded-full">
-              <img
-                key={tokens[0].id.substring(0, 12).substring(0, 12)}
-                className="rounded-full w-full"
-                src={tokens[0].icon}
-              />
+      <Link
+        to={{
+          pathname: `/pool/${pool.id}`,
+          state: { tvl: pool?.tvl, backToFarms: supportFarm },
+        }}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center justify-start">
+            <div className="flex items-center">
+              <div className="h-6 w-6 border rounded-full">
+                <img
+                  key={tokens[0].id.substring(0, 12).substring(0, 12)}
+                  className="rounded-full w-full"
+                  src={tokens[0].icon}
+                />
+              </div>
+
+              <div className="h-6 w-6 border rounded-full">
+                <img
+                  key={tokens[1].id}
+                  className="w-full rounded-full"
+                  src={tokens[1].icon}
+                />
+              </div>
+            </div>
+            <div className="text-lg ml-2 font-semibold">
+              {tokens[0].symbol + '-' + tokens[1].symbol}
+            </div>
+            {watched && (
+              <div className="ml-2">
+                <WatchListStartFull />
+              </div>
+            )}
+          </div>
+          {supportFarm && <FarmButton />}
+        </div>
+
+        <div className="flex flex-col text-base">
+          <div className="flex items-center justify-between my-3">
+            <div className="text-gray-400">
+              <FormattedMessage id="fee" defaultMessage="Fee" />
+            </div>
+            <div>{calculateFeePercent(pool?.total_fee)}%</div>
+          </div>
+          <div className="flex items-center justify-between my-3">
+            <div className="text-gray-400">
+              <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
             </div>
 
-            <div className="h-6 w-6 border rounded-full">
-              <img
-                key={tokens[1].id}
-                className="w-full rounded-full"
-                src={tokens[1].icon}
-              />
+            <div>
+              <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
             </div>
           </div>
-          <Link
-            to={{
-              pathname: `/pool/${pool.id}`,
-              state: { tvl: pool?.tvl, backToFarms: supportFarm },
-            }}
-            className="text-lg ml-2 font-semibold"
-          >
-            {tokens[0].symbol + '-' + tokens[1].symbol}
-          </Link>
-        </div>
-        {supportFarm && <FarmButton />}
-      </div>
-
-      <div className="flex flex-col text-base">
-        <div className="flex items-center justify-between my-3">
-          <div className="text-gray-400">
-            <FormattedMessage id="fee" defaultMessage="Fee" />
-          </div>
-          <div>{calculateFeePercent(pool?.total_fee)}%</div>
-        </div>
-        <div className="flex items-center justify-between my-3">
-          <div className="text-gray-400">
-            <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
-          </div>
-
-          <div>
-            <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
+          <div className="flex items-center justify-between my-3">
+            <div className="text-gray-400">
+              <FormattedMessage id="tvl" defaultMessage="TVL" />
+            </div>
+            <div>${toInternationalCurrencySystem(pool?.tvl.toString())}</div>
           </div>
         </div>
-        <div className="flex items-center justify-between my-3">
-          <div className="text-gray-400">
-            <FormattedMessage id="tvl" defaultMessage="TVL" />
-          </div>
-          <div>${toInternationalCurrencySystem(pool?.tvl.toString())}</div>
-        </div>
-      </div>
+      </Link>
     </Card>
   );
 };
@@ -227,6 +244,8 @@ export const MorePoolsPage = () => {
   const morePoolIds = state?.morePoolIds;
   const tokens = state?.tokens;
   const morePools = useMorePools({ morePoolIds, order, sortBy });
+
+  const watchList = useAllWatchList();
 
   return (
     <>
@@ -330,7 +349,13 @@ export const MorePoolsPage = () => {
             <div className="max-h-96 overflow-y-auto">
               {morePools?.map((pool, i) => (
                 <div className="w-full hover:bg-poolRowHover" key={i}>
-                  <PoolRow key={i} pool={pool} index={i + 1} tokens={tokens} />
+                  <PoolRow
+                    key={i}
+                    pool={pool}
+                    index={i + 1}
+                    tokens={tokens}
+                    watched={!!find(watchList, { pool_id: pool.id.toString() })}
+                  />
                 </div>
               ))}
             </div>
@@ -370,7 +395,14 @@ export const MorePoolsPage = () => {
           </div>
         </div>
         {morePools?.map((pool, i) => {
-          return <MobileRow tokens={tokens} key={i} pool={pool} />;
+          return (
+            <MobileRow
+              tokens={tokens}
+              key={i}
+              pool={pool}
+              watched={!!find(watchList, { pool_id: pool.id.toString() })}
+            />
+          );
         })}
       </div>
     </>
