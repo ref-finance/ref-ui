@@ -200,7 +200,7 @@ function PoolsMenu() {
             return (
               <div
                 key={link.path}
-                className={`whitespace-nowrap text-center hover:bg-navHighLightBg text-sm font-semibold text-primaryText hover:text-white cursor-pointer py-4  ${
+                className={`whitespace-nowrap text-left hover:bg-navHighLightBg text-sm font-semibold text-primaryText hover:text-white cursor-pointer py-4 pl-16 ${
                   isSelected ? 'text-green-500' : 'text-white'
                 }`}
                 onClick={() => history.push(link.path)}
@@ -279,7 +279,7 @@ function MoreMenu() {
             return (
               <div
                 key={link.url}
-                className={`whitespace-nowrap text-center hover:bg-navHighLightBg text-sm font-semibold text-primaryText hover:text-white cursor-pointer py-2`}
+                className={`whitespace-nowrap text-left hover:bg-navHighLightBg text-sm font-semibold text-primaryText hover:text-white cursor-pointer py-2 pl-8`}
                 onClick={() =>
                   window.open(link.url, link.isExternal ? '' : '_self')
                 }
