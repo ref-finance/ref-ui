@@ -162,7 +162,7 @@ export const getAllPoolsFromDb = async () => {
 };
 
 export const getAllWatchListFromDb = async ({
-  account = wallet.getAccountId()
+  account = wallet.getAccountId(),
 }: {
   account?: string;
 }) => {

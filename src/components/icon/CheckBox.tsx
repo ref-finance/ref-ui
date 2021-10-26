@@ -77,9 +77,9 @@ export const CheckedEmpty = () => {
           width="115"
           height="115"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feGaussianBlur in="BackgroundImage" stdDeviation="25" />
           <feComposite
             in2="SourceAlpha"

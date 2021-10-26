@@ -16,7 +16,7 @@ import {
 import { PoolDb, WatchList } from '~store/RefDatabase';
 
 import { useWhitelistTokens } from './token';
-import _, { debounce, orderBy, } from 'lodash';
+import _, { debounce, orderBy } from 'lodash';
 import { getPoolsByIds } from '~services/indexer';
 import { PoolRPCView } from '~services/api';
 
@@ -162,18 +162,15 @@ export const useWatchPools = ({
   order: string;
   sortBy: string;
 }) => {
-  const [watchPools, setWatchPools] = useState<Pool[]>()
-  useEffect(()=>{
-    const filteredPools = _.filter(pools, (pool)=>{
-      return !!_.find(watchList,{pool_id: pool.id.toString()})
-    })
-    setWatchPools(filteredPools)
+  const [watchPools, setWatchPools] = useState<Pool[]>();
+  useEffect(() => {
+    const filteredPools = _.filter(pools, (pool) => {
+      return !!_.find(watchList, { pool_id: pool.id.toString() });
+    });
+    setWatchPools(filteredPools);
+  }, [order, sortBy, pools, watchList]);
 
-  },[order, sortBy, pools, watchList])
-  
-  return watchPools
-
-
+  return watchPools;
 };
 
 export const useAllPools = () => {

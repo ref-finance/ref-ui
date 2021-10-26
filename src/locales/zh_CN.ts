@@ -164,6 +164,6 @@ const zh_CN = {
   hide_low_tvl_pools: '隐藏底锁仓量池子',
   watchlist_title: '顶部的我的收藏',
   add_watchlist: '添加到收藏',
-  my_watchlist_copy:'收藏过的流动池将会出现在这里'
+  my_watchlist_copy: '收藏过的流动池将会出现在这里',
 };
 export default zh_CN;
