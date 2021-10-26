@@ -73,7 +73,7 @@ const en_US = {
   remove: 'Remove',
   select_token: 'Select Token',
   basis_points: 'Basis points',
-  total_fee: 'Total fee %',
+  total_fee: 'Total fee % ',
   protocol_fee_is: 'protocol fee is ',
   start_in: 'Start in',
   start_at: 'Start at',
@@ -117,9 +117,9 @@ const en_US = {
   claim_successful_click_to_view: 'Claim successful. Click to view',
   claim_failed_click_to_view: 'Claim failed. Click to view',
   slippageCopyForMobile:
-    "Slippage is the difference between the estimated and actual price you receive. The percentage you select is the acceptable difference between the current exchange rate and the exchange rate at the time of your transaction's execution.",
+    'Slippage means the difference between what you expect to get and what you actually get due to other swaps executing first.',
   slippageCopy:
-    "Slippage is the difference between the estimated <br> and actual price you receive. The percentage you <br> select is the acceptable difference between the <br> current exchange rate and the exchange rate at <br> the time of your transaction's execution.",
+    'Slippage means the difference between what you expect to <br> get and what you actually get due to other swaps executing first.',
   depositCopy:
     'This deposits your selected tokens into the <br> exchange for swapping or adding to a liquidity pool.',
   nearDepositCopy:

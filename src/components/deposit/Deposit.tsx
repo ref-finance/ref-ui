@@ -179,14 +179,3 @@ export function Balances(props: {
     </div>
   );
 }
-
-export function ConnectToNearBtn() {
-  return (
-    <GradientButton
-      className={`w-full text-center text-lg text-white mt-4 px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
-      onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
-    >
-      <FormattedMessage id="connect_to_near" defaultMessage="Connect to NEAR" />
-    </GradientButton>
-  );
-}

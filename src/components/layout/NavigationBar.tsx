@@ -19,7 +19,7 @@ import { Card } from '~components/card/Card';
 import { TokenList } from '~components/deposit/Deposit';
 import { useTokenBalances, useUserRegisteredTokens } from '~state/token';
 import { REF_FARM_CONTRACT_ID } from '~services/near';
-import { ConnectToNearBtn } from '~components/deposit/Deposit';
+import { ConnectToNearBtn } from '~components/button/Button';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { HiMenu } from 'react-icons/hi';
@@ -274,7 +274,12 @@ function MoreMenu() {
           hover ? 'block' : 'hidden'
         } absolute top-6 -right-4 pt-4 rounded-md`}
       >
-        <Card width="w-48" padding="py-4" rounded="rounded-md" className="shadow-4xl">
+        <Card
+          width="w-48"
+          padding="py-4"
+          rounded="rounded-md"
+          className="shadow-4xl"
+        >
           {links.map((link) => {
             return (
               <div

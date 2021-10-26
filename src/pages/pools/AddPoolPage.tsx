@@ -7,7 +7,7 @@ import { TokenMetadata } from '~services/ft-contract';
 import { toRoundedReadableNumber } from '~utils/numbers';
 import { ArrowDownGreen } from '~components/icon';
 import Icon from '~components/tokens/Icon';
-import { ConnectToNearBtn } from '~components/deposit/Deposit';
+import { ConnectToNearBtn } from '~components/button/Button';
 import { wallet } from '~services/near';
 import { addSimpleLiquidityPool } from '~services/pool';
 import { Toggle } from '~components/toggle';

@@ -75,7 +75,7 @@ const zh_CN = {
   remove: '移除',
   select_token: '选择代币',
   basis_points: '基点',
-  total_fee: '总费用 %',
+  total_fee: '总费用 % ',
   protocol_fee_is: '协议费为 ',
   start_in: '开始',
   start_at: '开始于',

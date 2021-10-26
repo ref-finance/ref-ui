@@ -34,7 +34,7 @@ import {
 import { mftGetBalance } from '~services/mft-contract';
 import { wallet } from '~services/near';
 import Loading from '~components/layout/Loading';
-import { ConnectToNearBtn } from '~components/deposit/Deposit';
+import { ConnectToNearBtn } from '~components/button/Button';
 import { useTokens } from '~state/token';
 import { Info } from '~components/icon/Info';
 import ReactTooltip from 'react-tooltip';
@@ -50,7 +50,7 @@ import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import parse from 'html-react-parser';
-import { FaArrowCircleRight } from 'react-icons/fa';
+import { FaArrowCircleRight, FaRegQuestionCircle } from 'react-icons/fa';
 import OldInputAmount from '~components/forms/OldInputAmount';
 
 export function FarmsPage() {
@@ -166,7 +166,7 @@ export function FarmsPage() {
           <div className="text-green-400 text-5xl px-7 xs:text-center md:text-center">
             <FormattedMessage id="farms" defaultMessage="Farms" />
           </div>
-          <div className="text-whiteOpacity85 text-xs py-4 p-7">
+          <div className="text-whiteOpacity85 text-xs py-4 p-7 xs:text-center">
             <FormattedMessage
               id="stake_your_liquidity_provider_LP_tokens"
               defaultMessage="Stake your Liquidity Provider (LP) tokens"
@@ -178,13 +178,24 @@ export function FarmsPage() {
           ) : (
             <div className="bg-greenOpacity100 text-whiteOpacity85 rounded-xl p-7">
               <div className="text-xl">
-                <FormattedMessage
-                  id="your_rewards"
-                  defaultMessage="Your Rewards"
-                />
-              </div>
-              <div className="text-sm pt-2 text-gray-50">
-                {parse(intl.formatMessage({ id: 'farmRewardsCopy' }))}
+                <div className="float-left">
+                  <FormattedMessage
+                    id="your_rewards"
+                    defaultMessage="Your Rewards"
+                  />
+                </div>
+                <div
+                  className="mt-3 ml-2 text-sm"
+                  data-type="dark"
+                  data-place="right"
+                  data-multiline={true}
+                  data-tip={parse(
+                    intl.formatMessage({ id: 'farmRewardsCopy' })
+                  )}
+                >
+                  <FaRegQuestionCircle />
+                </div>
+                <ReactTooltip />
               </div>
               <div className="text-xs pt-2">
                 {Object.entries(rewardList).map((rewardToken: any, index) => (
