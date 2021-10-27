@@ -72,11 +72,11 @@ const ConnectToNearCard = () => {
 function MobilePoolRow({
   pool,
   sortBy,
-  watched,
-}: {
+}: // watched,
+{
   pool: Pool;
   sortBy: string;
-  watched: Boolean;
+  // watched: Boolean;
 }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const morePoolIds = useMorePoolIds({ topPool: pool });
@@ -182,7 +182,7 @@ function MobileLiquidityPage({
   pools,
   tokenName,
   order,
-  watchList,
+  // watchList,
   hasMore,
   onSearch,
   onSortChange,
@@ -196,7 +196,7 @@ function MobileLiquidityPage({
   pools: Pool[];
   tokenName: string;
   order: string;
-  watchList: WatchList[];
+  // watchList: WatchList[];
   sortBy: string;
   hideLowTVL: Boolean;
   hasMore: boolean;
@@ -376,7 +376,7 @@ function MobileLiquidityPage({
                 <MobilePoolRow
                   pool={pool}
                   sortBy={sortBy}
-                  watched={!!find(watchList, { pool_id: pool.id.toString() })}
+                  // watched={!!find(watchList, { pool_id: pool.id.toString() })}
                 />
               </div>
             ))}
@@ -566,7 +566,7 @@ function LiquidityPage_({
   tokenName,
   order,
   hasMore,
-  watchList,
+  // watchList,
   onSearch,
   onHide,
   hideLowTVL,
@@ -578,7 +578,7 @@ function LiquidityPage_({
   pools: Pool[];
   sortBy: string;
   hideLowTVL: Boolean;
-  watchList: WatchList[];
+  // watchList: WatchList[];
   tokenName: string;
   order: string;
   onHide: (mode: Boolean) => void;
@@ -592,7 +592,7 @@ function LiquidityPage_({
   const intl = useIntl();
   return (
     <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
-      {<WatchListCard watchList={watchList} />}
+      {/* {<WatchListCard watchList={watchList} />} */}
 
       <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
         <div className="flex mx-8 justify-between pb-4">
@@ -739,7 +739,7 @@ export function LiquidityPage() {
   const [sortBy, setSortBy] = useState('tvl');
   const [order, setOrder] = useState('desc');
   const AllPools = useAllPools();
-  const watchList = useAllWatchList();
+  // const watchList = useAllWatchList();
   const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
   const [watchListTop, setWatchListTop] = useState<Boolean>(false);
   const [displayPools, setDisplayPools] = useState<Pool[]>();
@@ -759,9 +759,10 @@ export function LiquidityPage() {
       tempPools = pools;
     }
     setDisplayPools(tempPools);
-  }, [pools, hideLowTVL, watchList]);
+  }, [pools, hideLowTVL]);
 
-  if (!displayPools || !watchList) return <Loading />;
+  // if (!displayPools || !watchList) return <Loading />;
+  if (!displayPools) return <Loading />;
 
   return (
     <>
@@ -770,7 +771,7 @@ export function LiquidityPage() {
         pools={displayPools}
         onHide={setHideLowTVL}
         hideLowTVL={hideLowTVL}
-        watchList={watchList}
+        // watchList={watchList}
         order={order}
         sortBy={sortBy}
         allPools={AllPools}
@@ -784,7 +785,7 @@ export function LiquidityPage() {
         hideLowTVL={hideLowTVL}
         tokenName={tokenName}
         pools={displayPools}
-        watchList={watchList}
+        // watchList={watchList}
         allPools={AllPools}
         order={order}
         sortBy={sortBy}
