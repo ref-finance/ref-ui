@@ -26,19 +26,19 @@ export default function InputAmount({
 
   const handleFocus = () => {
     field.current.className =
-      className + 'px-1 border border-greenLight rounded-xl';
+      className + ' px-1 border border-greenLight rounded-xl';
   };
 
   const handleFocusOut = () => {
     field.current.className =
-      className + 'px-1 border border-transparent rounded-xl';
+      className + ' px-1 border border-transparent rounded-xl';
   };
 
   return (
     <>
       <fieldset className={className} ref={field}>
         <div
-          className={`relative flex align-center items-center bg-inputDarkBg rounded-lg`}
+          className={`relative flex align-center items-center bg-inputDarkBg rounded-xl`}
         >
           <input
             ref={ref}
