@@ -219,6 +219,11 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   return (
     <NewFormWrap
       canSubmit={canSwap}
+      slippageTolerance={slippageTolerance}
+      onChange={(slippage) => {
+        setSlippageTolerance(slippage);
+        localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
+      }}
       showElseView={tokenInMax === '0'}
       elseView={
         <div className="flex justify-center">
@@ -285,13 +290,13 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           setTokenOut(token);
         }}
       />
-      <SlippageSelector
+      {/* <SlippageSelector
         slippageTolerance={slippageTolerance}
         onChange={(slippage) => {
           setSlippageTolerance(slippage);
-          localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage.toString());
+          localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
         }}
-      />
+      /> */}
       <DetailView
         pool={pool}
         tokenIn={tokenIn}
