@@ -89,7 +89,8 @@ function AddLiquidityModal(
   const [error, setError] = useState<Error>();
   const intl = useIntl();
   const history = useHistory();
-  const [toDeposit, SetToDeposit] = useState<Boolean>(false);
+  const [canDepositBySubmit, SetCanDepositBySubmit] = useState<boolean>(false);
+
   if (!balances) return null;
 
   const changeFirstTokenAmount = (amount: string) => {
@@ -155,7 +156,7 @@ function AddLiquidityModal(
     );
 
     if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
-      SetToDeposit(true);
+      SetCanDepositBySubmit(true);
 
       throw new Error(
         `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
@@ -165,7 +166,7 @@ function AddLiquidityModal(
     }
 
     if (secondTokenAmountBN.isGreaterThan(secondTokenBalanceBN)) {
-      SetToDeposit(true);
+      SetCanDepositBySubmit(true);
 
       throw new Error(
         `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
@@ -221,18 +222,31 @@ function AddLiquidityModal(
     const className = `focus:outline-none px-4 w-full ${
       !wallet.isSignedIn() ? 'rounded-3xl' : ''
     }`;
-    const [messageId, setMessageId] = useState<string>('connect_to_near');
-    const [defaultMessage, setDefaultMessage] =
-      useState<string>('Connect to NEAR');
+    const [messageId, setMessageId] = useState<string>('add_liquidity');
+    const [defaultMessage, setDefaultMessage] = useState<string>(
+      'Deposit to Add Liquidity'
+    );
+
+    const canDeposit =
+      firstTokenAmount === '0' ||
+      secondTokenAmount === '0' ||
+      !firstTokenAmount ||
+      !secondTokenAmount ||
+      canDepositBySubmit;
 
     useEffect(() => {
       if (!wallet.isSignedIn()) {
         setMessageId('connect_to_near');
         setDefaultMessage('Connect to NEAR');
-      } else if (firstTokenAmount === '0' || secondTokenAmount === '0') {
+      } else if (
+        firstTokenAmount === '0' ||
+        secondTokenAmount === '0' ||
+        !firstTokenAmount ||
+        !secondTokenAmount
+      ) {
         setMessageId('deposit_to_add_liquidity');
         setDefaultMessage('Deposit to Add Liquidity');
-      } else if (toDeposit) {
+      } else if (canDepositBySubmit) {
         setMessageId('deposit');
         setDefaultMessage('Deposit');
       } else {
@@ -244,7 +258,7 @@ function AddLiquidityModal(
     const handleClick = async () => {
       if (!wallet.isSignedIn()) {
         wallet.requestSignIn(REF_FI_CONTRACT_ID);
-      } else if (toDeposit) {
+      } else if (canDeposit) {
         history.push(`/deposit`);
       } else {
         try {
@@ -256,7 +270,7 @@ function AddLiquidityModal(
     };
     return (
       <SolidButton
-        disabled={!canSubmit && wallet.isSignedIn()}
+        disabled={!canSubmit && wallet.isSignedIn() && !canDeposit}
         className={className}
         onClick={handleClick}
       >
