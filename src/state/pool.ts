@@ -145,11 +145,11 @@ export const useMorePools = ({
 export const useAllWatchList = () => {
   const [watchList, setWatchList] = useState<WatchList[]>();
 
-  useEffect(() => {
-    getAllWatchListFromDb({}).then((watchlist) => {
-      setWatchList(watchlist);
-    });
-  }, []);
+  // useEffect(() => {
+  //   getAllWatchListFromDb({}).then((watchlist) => {
+  //     setWatchList(watchlist);
+  //   });
+  // }, []);
 
   return watchList;
 };
