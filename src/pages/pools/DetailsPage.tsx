@@ -18,6 +18,7 @@ import { MULTI_MINING_POOLS, REF_FARM_CONTRACT_ID } from '~services/near';
 import { PoolSlippageSelector } from '~components/forms/SlippageSelector';
 import { Link } from 'react-router-dom';
 import { canFarm } from '~services/pool';
+
 import {
   calculateFairShare,
   calculateFeePercent,
@@ -428,6 +429,22 @@ export function RemoveLiquidityModal(
     return removeLiquidity();
   }
 
+  function handleChangeAmount(value: string) {
+    setAmount(value);
+
+    const amountBN = new BigNumber(value.toString());
+    const shareBN = new BigNumber(toReadableNumber(24, shares));
+    if (amountBN.isGreaterThan(shareBN)) {
+      throw new Error(
+        intl.formatMessage({
+          id: 'must_input_a_value_not_greater_than_your_balance',
+        })
+      );
+    } else {
+      setError(null);
+    }
+  }
+
   return (
     <Modal {...props}>
       <Card
@@ -445,9 +462,7 @@ export function RemoveLiquidityModal(
             defaultMessage="Remove Liquidity"
           />
         </div>
-        <div className="flex justify-center">
-          {error && <Alert level="error" message={error.message} />}
-        </div>
+
         <div>
           <div className="text-xs text-right mb-1 text-gray-400">
             <FormattedMessage id="balance" defaultMessage="Balance" />
@@ -459,7 +474,13 @@ export function RemoveLiquidityModal(
               maxBorder={false}
               value={amount}
               max={toReadableNumber(24, shares)}
-              onChangeAmount={setAmount}
+              onChangeAmount={(value) => {
+                try {
+                  handleChangeAmount(value);
+                } catch (error) {
+                  setError(error);
+                }
+              }}
             />
           </div>
         </div>
@@ -501,10 +522,13 @@ export function RemoveLiquidityModal(
             </section>
           </>
         ) : null}
+        <div className="flex justify-center">
+          {error && <Alert level="error" message={error.message} />}
+        </div>
         <div className="flex items-center justify-center">
           <SolidButton
             disabled={!amount}
-            className={`focus:outline-none px-4`}
+            className={`focus:outline-none px-4 w-full`}
             onClick={async () => {
               try {
                 await submit();
