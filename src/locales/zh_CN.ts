@@ -39,6 +39,7 @@ const zh_CN = {
   deposit_to_swap: '存入代币进行兑换',
   connect_to_near: '连接钱包',
   slippage: '滑点',
+  slippage_title: '交易设置',
   minimum_received: '可收到的最低数额',
   swap_rate: '兑换汇率',
   pool_fee: '手续费',

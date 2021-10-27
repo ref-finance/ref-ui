@@ -37,6 +37,7 @@ const en_US = {
   deposit_to_swap: 'Deposit to swap',
   connect_to_near: 'Connect to Near',
   slippage: 'Slippage tolerance',
+  slippage_title: 'Transaction Settings',
   minimum_received: 'Minimum received',
   swap_rate: 'Swap rate',
   pool_fee: 'Pool fee',
