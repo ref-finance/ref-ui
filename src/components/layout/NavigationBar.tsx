@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { matchPath } from 'react-router';
 import { Context } from '~components/wrapper';
 import {
@@ -484,7 +484,17 @@ function MobileNavBar() {
   const [show, setShow] = useState(false);
   const intl = useIntl();
   const { data } = useRefPrice();
+  const iconRef = useRef<HTMLSpanElement | null>(null);
+  const popupRef = useRef<HTMLDivElement | null>(null);
   const accountId = wallet.getAccountId();
+
+  useEffect(() => {
+    document.addEventListener('click', handleClick, false);
+
+    return () => {
+      document.addEventListener('click', handleClick, false);
+    };
+  }, []);
 
   const links = [
     {
@@ -539,6 +549,16 @@ function MobileNavBar() {
     },
   ];
 
+  const handleClick = (e: any) => {
+    if (
+      iconRef.current.contains(e.target) ||
+      popupRef.current.contains(e.target)
+    ) {
+      return;
+    }
+    setShow(false);
+  };
+
   if (wallet.isSignedIn()) {
     links.push({
       label: (
@@ -561,16 +581,20 @@ function MobileNavBar() {
     >
       <div className="flex items-center text-2xl text-white justify-between p-4">
         <NavLogo />
-        <HiMenu onClick={() => setShow(true)} />
+        <span ref={iconRef} onClick={() => setShow(true)}>
+          <HiMenu />
+        </span>
       </div>
       <div className="block"> {langSwitcher()}</div>
       <div
         className={`absolute top-0 left-0 z-20 h-screen w-full bg-black bg-opacity-30 backdrop-blur-lg backdrop-filter overflow-auto ${
           show ? 'block' : 'hidden'
         }`}
-        onClick={() => setShow(false)}
       >
-        <div className="block h-full w-4/6 float-right pt-6 bg-mobile-nav">
+        <div
+          ref={popupRef}
+          className="block h-full w-4/6 float-right pt-6 bg-mobile-nav"
+        >
           <div className="flex justify-between items-center">
             <div
               className={`inline-flex p-1 ml-4 items-center justify-center rounded-full ${
