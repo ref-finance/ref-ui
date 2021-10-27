@@ -25,6 +25,11 @@ import { FaExternalLinkAlt } from 'react-icons/fa';
 import { HiMenu } from 'react-icons/hi';
 import { IoClose } from 'react-icons/io5';
 
+import { FiChevronUp, FiChevronDown } from 'react-icons/fi';
+import { RiLogoutCircleRLine } from 'react-icons/ri';
+import { useRefPrice } from '~state/account';
+import { toPrecision } from '~utils/numbers';
+
 function Anchor({
   to,
   pattern,
@@ -362,7 +367,7 @@ function MobileAnchor({
       <Link onClick={onClick} to={to}>
         <div
           className={`p-4 link font-bold p-2 ${className} ${
-            isSelected ? 'text-green-500' : 'text-white'
+            isSelected ? 'text-white bg-navHighLightBg' : 'text-primaryText'
           }`}
         >
           <FormattedMessage id={name} defaultMessage={name} />
@@ -392,22 +397,26 @@ function MobilePoolsMenu({
       >
         <div
           className={`text-white link font-bold ${
-            isSelected ? 'text-green-500' : 'text-white'
+            isSelected ? 'text-white bg-navHighLightBg' : 'text-primaryText'
           }`}
         >
           <FormattedMessage id="pools" defaultMessage="Pools" />
         </div>
-        {show ? <MenuItemCollapse /> : <MenuItemExpand />}
+        {show ? (
+          <FiChevronUp className="text-xl" />
+        ) : (
+          <FiChevronDown className="text-xl" />
+        )}
       </div>
-      <div className={`divide-y divide-green-800 ${show ? 'block' : 'hidden'}`}>
+      <div className={`${show ? 'block' : 'hidden'}`}>
         {links.map((link) => {
           const isSelected = link.path === location.pathname;
 
           return (
             <div
               key={link.path}
-              className={`bg-mobile-nav-item whitespace-nowrap text-left font-bold text-white p-4 ${
-                isSelected ? 'text-green-500' : 'text-white'
+              className={`whitespace-nowrap text-left font-bold text-white p-4 ${
+                isSelected ? 'text-white bg-navHighLightBg' : 'text-primaryText'
               }`}
               onClick={() => {
                 onClick();
@@ -438,17 +447,22 @@ function MobileMoreMenu({
         className="flex p-4 items-center justify-between"
         onClick={() => setShow(!show)}
       >
-        <div className={`text-white link font-bold`}>
+        <div className={`text-primaryText link font-bold`}>
           <FormattedMessage id="more" defaultMessage="More" />
         </div>
-        {show ? <MenuItemCollapse /> : <MenuItemExpand />}
+
+        {show ? (
+          <FiChevronUp className="text-xl" />
+        ) : (
+          <FiChevronDown className="text-xl" />
+        )}
       </div>
-      <div className={`divide-y divide-green-800 ${show ? 'block' : 'hidden'}`}>
+      <div className={`${show ? 'block' : 'hidden'}`}>
         {links.map((link) => {
           return (
             <div
               key={link.url}
-              className={`bg-mobile-nav-item whitespace-nowrap text-left font-bold text-white p-4`}
+              className={`bg-mobile-nav-item whitespace-nowrap text-left font-bold text-primaryText p-4`}
               onClick={() => {
                 onClick();
                 window.open(link.url);
@@ -469,6 +483,7 @@ function MobileMoreMenu({
 function MobileNavBar() {
   const [show, setShow] = useState(false);
   const intl = useIntl();
+  const { data } = useRefPrice();
   const accountId = wallet.getAccountId();
 
   const links = [
@@ -550,66 +565,93 @@ function MobileNavBar() {
       </div>
       <div className="block"> {langSwitcher()}</div>
       <div
-        className={`absolute top-0 left-0 z-20 h-screen w-full bg-mobile-nav overflow-auto ${
+        className={`absolute top-0 left-0 z-20 h-screen w-full bg-black bg-opacity-30 backdrop-blur-lg backdrop-filter overflow-auto ${
           show ? 'block' : 'hidden'
         }`}
+        onClick={() => setShow(false)}
       >
-        <div className="flex items-center justify-between p-4 text-white text-2xl">
-          <NavLogoLarge />
-          <IoClose onClick={() => setShow(false)} />
-        </div>
-        {wallet.isSignedIn() ? (
-          <div
-            className="mt-2 rounded-full bg-greenLight px-3 py-1.5 text-xs text-white text-center font-semibold cursor-pointer mx-auto w-1/3"
-            onClick={() => {
-              wallet.signOut();
-              window.location.assign('/');
-            }}
-          >
-            <p>
-              <FormattedMessage id="sign_out" defaultMessage="Sign out" />
-            </p>
-            <p>({accountId})</p>
-          </div>
-        ) : (
-          <div className="mt-2">
-            <ConnectToNearBtn />
-          </div>
-        )}
-        <div className="mt-9 divide-y divide-green-800 border-t border-b border-green-800">
-          <MobileAnchor
-            to="/deposit"
-            pattern="/deposit/:id?"
-            name="Deposit"
-            onClick={close}
-          />
-          <MobileAnchor to="/" pattern="/" name="Swap" onClick={close} />
-          <MobileAnchor
-            to="/account"
-            pattern="/account"
-            name="Account"
-            onClick={close}
-          />
-          <MobilePoolsMenu links={links} onClick={close} />
-          <MobileAnchor
-            to="/farms"
-            pattern="/farms"
-            name="Farms"
-            onClick={close}
-          />
-          <div>
-            <Link
-              to={{ pathname: 'https://mzko2gfnij6.typeform.com/to/EPmUetxU' }}
-              target="_blank"
+        <div className="block h-full w-4/6 float-right pt-6 bg-mobile-nav">
+          <div className="flex justify-between items-center">
+            <div
+              className={`inline-flex p-1 ml-4 items-center justify-center rounded-full ${
+                wallet.isSignedIn()
+                  ? 'bg-gray-700 text-white'
+                  : 'border border-gradientFrom text-gradientFrom'
+              } pl-3 pr-3`}
             >
-              <div className="p-4 link font-bold p-2 text-white">
-                Quiz
-                <FaExternalLinkAlt className="float-right mt-1 ml-2 text-xs opacity-60" />
+              <div className="pr-1">
+                <Near color={wallet.isSignedIn() ? 'white' : '#00c6a2'} />
               </div>
-            </Link>
+              <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name">
+                {wallet.isSignedIn() ? (
+                  <div>{accountId}</div>
+                ) : (
+                  <button
+                    onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
+                    type="button"
+                  >
+                    <span className="ml-2 text-xs">
+                      <FormattedMessage
+                        id="connect_to_near"
+                        defaultMessage="Connect to NEAR"
+                      />
+                    </span>
+                  </button>
+                )}
+              </div>
+            </div>
+            {wallet.isSignedIn() && (
+              <RiLogoutCircleRLine
+                className=" text-2xl text-primaryText mr-5"
+                onClick={() => {
+                  wallet.signOut();
+                  window.location.assign('/');
+                }}
+              />
+            )}
           </div>
 
-          <MobileMoreMenu links={moreLinks} onClick={close} />
+          <div className="pl-4 mt-5">
+            <NavLogoLarge />${data && data !== '-' ? toPrecision(data, 2) : '-'}
+          </div>
+
+          <div className="mt-5 text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
+            <MobileAnchor
+              to="/deposit"
+              pattern="/deposit/:id?"
+              name="Deposit"
+              onClick={close}
+            />
+            <MobileAnchor to="/" pattern="/" name="Swap" onClick={close} />
+            <MobileAnchor
+              to="/account"
+              pattern="/account"
+              name="Account"
+              onClick={close}
+            />
+            <MobilePoolsMenu links={links} onClick={close} />
+            <MobileAnchor
+              to="/farms"
+              pattern="/farms"
+              name="Farms"
+              onClick={close}
+            />
+            <div>
+              <Link
+                to={{
+                  pathname: 'https://mzko2gfnij6.typeform.com/to/EPmUetxU',
+                }}
+                target="_blank"
+              >
+                <div className="p-4 link font-bold p-2 text-primaryText">
+                  Quiz
+                  <FaExternalLinkAlt className="float-right mt-1 ml-2 text-xs opacity-60" />
+                </div>
+              </Link>
+            </div>
+
+            <MobileMoreMenu links={moreLinks} onClick={close} />
+          </div>
         </div>
       </div>
     </div>
