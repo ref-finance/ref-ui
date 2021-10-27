@@ -14,10 +14,15 @@ import { useTokenBalances, useTokens, getExchangeRate } from '~state/token';
 import Loading from '~components/layout/Loading';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
 import { FarmStamp } from '~components/icon/FarmStamp';
-import { MULTI_MINING_POOLS, REF_FARM_CONTRACT_ID } from '~services/near';
+import {
+  MULTI_MINING_POOLS,
+  REF_FARM_CONTRACT_ID,
+  REF_FI_CONTRACT_ID,
+} from '~services/near';
 import { PoolSlippageSelector } from '~components/forms/SlippageSelector';
 import { Link } from 'react-router-dom';
 import { canFarm } from '~services/pool';
+
 import {
   calculateFairShare,
   calculateFeePercent,
@@ -34,7 +39,7 @@ import { isMobile } from '~utils/device';
 import ReactModal from 'react-modal';
 import { toRealSymbol } from '~utils/token';
 
-import { BackArrow } from '~components/icon';
+import { BackArrow, Near } from '~components/icon';
 import { useHistory } from 'react-router';
 import { getPool } from '~services/indexer';
 import { BigNumber } from 'bignumber.js';
@@ -83,6 +88,8 @@ function AddLiquidityModal(
   const balances = useTokenBalances();
   const [error, setError] = useState<Error>();
   const intl = useIntl();
+  const history = useHistory();
+  const [canDepositBySubmit, SetCanDepositBySubmit] = useState<boolean>(false);
 
   if (!balances) return null;
 
@@ -149,6 +156,8 @@ function AddLiquidityModal(
     );
 
     if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
+      SetCanDepositBySubmit(true);
+
       throw new Error(
         `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
           tokens[0].symbol
@@ -157,6 +166,8 @@ function AddLiquidityModal(
     }
 
     if (secondTokenAmountBN.isGreaterThan(secondTokenBalanceBN)) {
+      SetCanDepositBySubmit(true);
+
       throw new Error(
         `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
           tokens[1].symbol
@@ -207,6 +218,77 @@ function AddLiquidityModal(
 
   const cardWidth = isMobile() ? '95vw' : '40vw';
 
+  const ButtonRender = () => {
+    const className = `focus:outline-none px-4 w-full ${
+      !wallet.isSignedIn() ? 'rounded-3xl' : ''
+    }`;
+    const [messageId, setMessageId] = useState<string>('add_liquidity');
+    const [defaultMessage, setDefaultMessage] = useState<string>(
+      'Deposit to Add Liquidity'
+    );
+
+    const canDeposit =
+      firstTokenAmount === '0' ||
+      secondTokenAmount === '0' ||
+      !firstTokenAmount ||
+      !secondTokenAmount ||
+      canDepositBySubmit;
+
+    useEffect(() => {
+      if (!wallet.isSignedIn()) {
+        setMessageId('connect_to_near');
+        setDefaultMessage('Connect to NEAR');
+      } else if (
+        firstTokenAmount === '0' ||
+        secondTokenAmount === '0' ||
+        !firstTokenAmount ||
+        !secondTokenAmount
+      ) {
+        setMessageId('deposit_to_add_liquidity');
+        setDefaultMessage('Deposit to Add Liquidity');
+      } else if (canDepositBySubmit) {
+        setMessageId('deposit');
+        setDefaultMessage('Deposit');
+      } else {
+        setMessageId('add_liquidity');
+        setDefaultMessage('Add Liquidity');
+      }
+    }, [wallet.isSignedIn(), firstTokenAmount, secondTokenAmount]);
+
+    const handleClick = async () => {
+      if (!wallet.isSignedIn()) {
+        wallet.requestSignIn(REF_FI_CONTRACT_ID);
+      } else if (canDeposit) {
+        history.push(`/deposit`);
+      } else {
+        try {
+          await submit();
+        } catch (err) {
+          setError(err);
+        }
+      }
+    };
+    return (
+      <SolidButton
+        disabled={!canSubmit && wallet.isSignedIn() && !canDeposit}
+        className={className}
+        onClick={handleClick}
+      >
+        <div className="flex items-center justify-center w-full m-auto">
+          {!wallet.isSignedIn() && (
+            <div className="mr-2">
+              {' '}
+              <Near />
+            </div>
+          )}
+          <div>
+            <FormattedMessage id={messageId} defaultMessage={defaultMessage} />
+          </div>
+        </div>
+      </SolidButton>
+    );
+  };
+
   return (
     <Modal {...props}>
       <Card
@@ -221,12 +303,9 @@ function AddLiquidityModal(
         <div className="text-base font-bold pb-4">
           <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
         </div>
-        <div className="flex justify-center">
-          {error && <Alert level="error" message={error.message} />}
-        </div>
 
         {/* PC display */}
-        <div className="mt-6 md:hidden xs:hidden">
+        <div className="mt-8 md:hidden xs:hidden">
           <div className="text-xs text-right mb-1 text-gray-400">
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
@@ -256,13 +335,12 @@ function AddLiquidityModal(
               max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
               onChangeAmount={changeFirstTokenAmount}
               value={firstTokenAmount}
-              disabled={!wallet.isSignedIn()}
             />
           </div>
         </div>
 
         {/* mobile display */}
-        <div className="mt-6 lg:hidden">
+        <div className="my-6 lg:hidden">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-end">
               <Icon icon={tokens[0].icon} className="h-9 w-9 mr-2" />
@@ -297,7 +375,7 @@ function AddLiquidityModal(
           />
         </div>
 
-        <div className="my-10 md:hidden xs:hidden">
+        <div className="my-8 md:hidden xs:hidden">
           <div className="text-xs text-right mb-1 text-gray-400">
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
@@ -327,12 +405,11 @@ function AddLiquidityModal(
               max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
               onChangeAmount={changeSecondTokenAmount}
               value={secondTokenAmount}
-              disabled={!wallet.isSignedIn()}
             />
           </div>
         </div>
 
-        <div className="my-10 lg:hidden">
+        <div className="my-8 lg:hidden">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-end">
               <Icon icon={tokens[1].icon} className="h-9 w-9 mr-2" />
@@ -363,27 +440,13 @@ function AddLiquidityModal(
             max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
             onChangeAmount={changeSecondTokenAmount}
             value={secondTokenAmount}
-            disabled={!wallet.isSignedIn()}
           />
         </div>
-
+        <div className="flex justify-center mb-8">
+          {error && <Alert level="error" message={error.message} />}
+        </div>
         <div className="flex items-center justify-center">
-          <SolidButton
-            disabled={!canSubmit}
-            className={`focus:outline-none px-4`}
-            onClick={async () => {
-              try {
-                await submit();
-              } catch (err) {
-                setError(err);
-              }
-            }}
-          >
-            <FormattedMessage
-              id="add_liquidity"
-              defaultMessage="Add Liquidity"
-            />
-          </SolidButton>
+          <ButtonRender />
         </div>
       </Card>
     </Modal>
@@ -428,6 +491,22 @@ export function RemoveLiquidityModal(
     return removeLiquidity();
   }
 
+  function handleChangeAmount(value: string) {
+    setAmount(value);
+
+    const amountBN = new BigNumber(value.toString());
+    const shareBN = new BigNumber(toReadableNumber(24, shares));
+    if (amountBN.isGreaterThan(shareBN)) {
+      throw new Error(
+        intl.formatMessage({
+          id: 'must_input_a_value_not_greater_than_your_balance',
+        })
+      );
+    } else {
+      setError(null);
+    }
+  }
+
   return (
     <Modal {...props}>
       <Card
@@ -445,21 +524,26 @@ export function RemoveLiquidityModal(
             defaultMessage="Remove Liquidity"
           />
         </div>
-        <div className="flex justify-center">
-          {error && <Alert level="error" message={error.message} />}
-        </div>
+
         <div>
           <div className="text-xs text-right mb-1 text-gray-400">
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
             {toPrecision(toReadableNumber(24, shares), 2)}
           </div>
-          <div className="rounded overflow-hidden">
+          <div className=" overflow-hidden ">
             <InputAmount
               maxBorder={false}
               value={amount}
               max={toReadableNumber(24, shares)}
-              onChangeAmount={setAmount}
+              onChangeAmount={(value) => {
+                try {
+                  handleChangeAmount(value);
+                } catch (error) {
+                  setError(error);
+                }
+              }}
+              className="border border-transparent rounded-xl"
             />
           </div>
         </div>
@@ -501,10 +585,13 @@ export function RemoveLiquidityModal(
             </section>
           </>
         ) : null}
+        <div className="flex justify-center">
+          {error && <Alert level="error" message={error.message} />}
+        </div>
         <div className="flex items-center justify-center">
           <SolidButton
             disabled={!amount}
-            className={`focus:outline-none px-4`}
+            className={`focus:outline-none px-4 w-full`}
             onClick={async () => {
               try {
                 await submit();
