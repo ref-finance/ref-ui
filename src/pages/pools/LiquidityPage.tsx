@@ -219,7 +219,13 @@ function MobileLiquidityPage({
         padding="py-1 px-0"
       >
         <div
-          className="py-1 px-2  w-full hover:bg-poolRowHover hover:text-white"
+          className="fixed top-0 left-0 w-screen h-screen opacity-0 z-0"
+          onClick={() => {
+            setShowModal(false);
+          }}
+        ></div>
+        <div
+          className="py-2 px-2  w-full hover:bg-poolRowHover hover:text-white rounded-lg hover:opacity-80 z-30"
           onClick={() => {
             onSortChange('h24_volume');
             setShowModal(false);
@@ -228,7 +234,7 @@ function MobileLiquidityPage({
           <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
         </div>
         <div
-          className="py-1 px-2 w-full hover:bg-poolRowHover hover:text-white"
+          className="py-2 px-2 w-full hover:bg-poolRowHover hover:text-white rounded-lg hover:opacity-80 z-30"
           onClick={() => {
             onSortChange('tvl');
             setShowModal(false);
@@ -237,7 +243,7 @@ function MobileLiquidityPage({
           <FormattedMessage id="tvl" defaultMessage="TVL" />
         </div>
         <div
-          className="py-1 px-2   w-full hover:bg-poolRowHover hover:text-white"
+          className="py-2 px-2   w-full hover:bg-poolRowHover hover:text-white rounded-lg hover:opacity-80 z-30"
           onClick={() => {
             onSortChange('fee');
             setShowModal(false);
