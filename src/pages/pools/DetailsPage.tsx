@@ -469,7 +469,7 @@ export function RemoveLiquidityModal(
             :&nbsp;
             {toPrecision(toReadableNumber(24, shares), 2)}
           </div>
-          <div className="rounded overflow-hidden">
+          <div className=" overflow-hidden ">
             <InputAmount
               maxBorder={false}
               value={amount}
@@ -481,6 +481,7 @@ export function RemoveLiquidityModal(
                   setError(error);
                 }
               }}
+              className="border border-transparent rounded-xl"
             />
           </div>
         </div>
