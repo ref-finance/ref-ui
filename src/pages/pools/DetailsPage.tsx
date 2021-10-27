@@ -700,11 +700,11 @@ export function PoolDetailsPage() {
             </div>
             {/* rate */}
             <div className="flex justify-between text-sm md:text-xs xs:text-xs">
-              <div className="text-white text-center px-2  rounded-sm border border-solid border-gray-400">
+              <div className="text-white text-center px-1  rounded-sm border border-solid border-gray-400">
                 1&nbsp;{toRealSymbol(tokens[0].symbol)}&nbsp;
                 {getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
               </div>
-              <div className="text-white text-center px-2  rounded-sm border border-solid border-gray-400">
+              <div className="text-white text-center px-1  rounded-sm border border-solid border-gray-400">
                 1&nbsp;{toRealSymbol(tokens[1].symbol)}&nbsp;
                 {getExchangeRate(
                   tokens.reverse(),
