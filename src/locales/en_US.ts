@@ -174,5 +174,6 @@ const en_US = {
   remove_watchlist: 'Remove Watchlist',
   my_watchlist_copy: 'Marked pools will appear here',
   search_token: 'Search Token',
+  deposit_to_add_liquidity: 'Deposit to Add Liquidity'
 };
 export default en_US;

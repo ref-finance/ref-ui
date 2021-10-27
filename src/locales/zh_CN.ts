@@ -168,5 +168,6 @@ const zh_CN = {
   remove_watchlist: '取消收藏',
   my_watchlist_copy: '收藏过的流动池将会出现在这里',
   search_token: '搜索代币',
+  deposit_to_add_liquidity:'存入代币以添加流动性',
 };
 export default zh_CN;

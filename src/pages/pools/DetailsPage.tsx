@@ -14,7 +14,11 @@ import { useTokenBalances, useTokens, getExchangeRate } from '~state/token';
 import Loading from '~components/layout/Loading';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
 import { FarmStamp } from '~components/icon/FarmStamp';
-import { MULTI_MINING_POOLS, REF_FARM_CONTRACT_ID } from '~services/near';
+import {
+  MULTI_MINING_POOLS,
+  REF_FARM_CONTRACT_ID,
+  REF_FI_CONTRACT_ID,
+} from '~services/near';
 import { PoolSlippageSelector } from '~components/forms/SlippageSelector';
 import { Link } from 'react-router-dom';
 import { canFarm } from '~services/pool';
@@ -35,7 +39,7 @@ import { isMobile } from '~utils/device';
 import ReactModal from 'react-modal';
 import { toRealSymbol } from '~utils/token';
 
-import { BackArrow } from '~components/icon';
+import { BackArrow, Near } from '~components/icon';
 import { useHistory } from 'react-router';
 import { getPool } from '~services/indexer';
 import { BigNumber } from 'bignumber.js';
@@ -84,7 +88,8 @@ function AddLiquidityModal(
   const balances = useTokenBalances();
   const [error, setError] = useState<Error>();
   const intl = useIntl();
-
+  const history = useHistory();
+  const [toDeposit, SetToDeposit] = useState<Boolean>(false);
   if (!balances) return null;
 
   const changeFirstTokenAmount = (amount: string) => {
@@ -150,6 +155,8 @@ function AddLiquidityModal(
     );
 
     if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
+      SetToDeposit(true);
+
       throw new Error(
         `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
           tokens[0].symbol
@@ -158,6 +165,8 @@ function AddLiquidityModal(
     }
 
     if (secondTokenAmountBN.isGreaterThan(secondTokenBalanceBN)) {
+      SetToDeposit(true);
+
       throw new Error(
         `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
           tokens[1].symbol
@@ -208,6 +217,64 @@ function AddLiquidityModal(
 
   const cardWidth = isMobile() ? '95vw' : '40vw';
 
+  const ButtonRender = () => {
+    const className = `focus:outline-none px-4 w-full ${
+      !wallet.isSignedIn() ? 'rounded-3xl' : ''
+    }`;
+    const [messageId, setMessageId] = useState<string>('connect_to_near');
+    const [defaultMessage, setDefaultMessage] =
+      useState<string>('Connect to NEAR');
+
+    useEffect(() => {
+      if (!wallet.isSignedIn()) {
+        setMessageId('connect_to_near');
+        setDefaultMessage('Connect to NEAR');
+      } else if (firstTokenAmount === '0' || secondTokenAmount === '0') {
+        setMessageId('deposit_to_add_liquidity');
+        setDefaultMessage('Deposit to Add Liquidity');
+      } else if (toDeposit) {
+        setMessageId('deposit');
+        setDefaultMessage('Deposit');
+      } else {
+        setMessageId('add_liquidity');
+        setDefaultMessage('Add Liquidity');
+      }
+    }, [wallet.isSignedIn(), firstTokenAmount, secondTokenAmount]);
+
+    const handleClick = async () => {
+      if (!wallet.isSignedIn()) {
+        wallet.requestSignIn(REF_FI_CONTRACT_ID);
+      } else if (toDeposit) {
+        history.push(`/deposit`);
+      } else {
+        try {
+          await submit();
+        } catch (err) {
+          setError(err);
+        }
+      }
+    };
+    return (
+      <SolidButton
+        disabled={!canSubmit && wallet.isSignedIn()}
+        className={className}
+        onClick={handleClick}
+      >
+        <div className="flex items-center justify-center w-full m-auto">
+          {!wallet.isSignedIn() && (
+            <div className="mr-2">
+              {' '}
+              <Near />
+            </div>
+          )}
+          <div>
+            <FormattedMessage id={messageId} defaultMessage={defaultMessage} />
+          </div>
+        </div>
+      </SolidButton>
+    );
+  };
+
   return (
     <Modal {...props}>
       <Card
@@ -222,12 +289,9 @@ function AddLiquidityModal(
         <div className="text-base font-bold pb-4">
           <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
         </div>
-        <div className="flex justify-center">
-          {error && <Alert level="error" message={error.message} />}
-        </div>
 
         {/* PC display */}
-        <div className="mt-6 md:hidden xs:hidden">
+        <div className="mt-8 md:hidden xs:hidden">
           <div className="text-xs text-right mb-1 text-gray-400">
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
@@ -257,13 +321,12 @@ function AddLiquidityModal(
               max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
               onChangeAmount={changeFirstTokenAmount}
               value={firstTokenAmount}
-              disabled={!wallet.isSignedIn()}
             />
           </div>
         </div>
 
         {/* mobile display */}
-        <div className="mt-6 lg:hidden">
+        <div className="my-6 lg:hidden">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-end">
               <Icon icon={tokens[0].icon} className="h-9 w-9 mr-2" />
@@ -298,7 +361,7 @@ function AddLiquidityModal(
           />
         </div>
 
-        <div className="my-10 md:hidden xs:hidden">
+        <div className="my-8 md:hidden xs:hidden">
           <div className="text-xs text-right mb-1 text-gray-400">
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
@@ -328,12 +391,11 @@ function AddLiquidityModal(
               max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
               onChangeAmount={changeSecondTokenAmount}
               value={secondTokenAmount}
-              disabled={!wallet.isSignedIn()}
             />
           </div>
         </div>
 
-        <div className="my-10 lg:hidden">
+        <div className="my-8 lg:hidden">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-end">
               <Icon icon={tokens[1].icon} className="h-9 w-9 mr-2" />
@@ -364,27 +426,13 @@ function AddLiquidityModal(
             max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
             onChangeAmount={changeSecondTokenAmount}
             value={secondTokenAmount}
-            disabled={!wallet.isSignedIn()}
           />
         </div>
-
+        <div className="flex justify-center mb-8">
+          {error && <Alert level="error" message={error.message} />}
+        </div>
         <div className="flex items-center justify-center">
-          <SolidButton
-            disabled={!canSubmit}
-            className={`focus:outline-none px-4`}
-            onClick={async () => {
-              try {
-                await submit();
-              } catch (err) {
-                setError(err);
-              }
-            }}
-          >
-            <FormattedMessage
-              id="add_liquidity"
-              defaultMessage="Add Liquidity"
-            />
-          </SolidButton>
+          <ButtonRender />
         </div>
       </Card>
     </Modal>
