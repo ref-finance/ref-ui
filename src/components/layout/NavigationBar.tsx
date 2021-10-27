@@ -593,7 +593,7 @@ function MobileNavBar() {
       >
         <div
           ref={popupRef}
-          className="block h-full w-4/6 float-right pt-6 bg-mobile-nav"
+          className="block h-full w-4/6 float-right pt-6 bg-mobile-nav shadow-4xl"
         >
           <div className="flex justify-between items-center">
             <div
@@ -639,7 +639,7 @@ function MobileNavBar() {
             <NavLogoLarge />${data && data !== '-' ? toPrecision(data, 2) : '-'}
           </div>
 
-          <div className="mt-5 text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
+          <div className="text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
             <MobileAnchor
               to="/deposit"
               pattern="/deposit/:id?"
