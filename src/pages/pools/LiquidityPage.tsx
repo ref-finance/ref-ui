@@ -17,7 +17,7 @@ import { getExchangeRate, useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';
 import { canFarm, Pool } from '../../services/pool';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
-import { MULTI_MINING_POOLS } from '~services/near';
+import { MULTI_MINING_POOLS, REF_FARM_CONTRACT_ID } from '~services/near';
 import {
   calculateFeePercent,
   toPrecision,
@@ -53,7 +53,12 @@ const ConnectToNearCard = () => {
         />
       </div>
       <div className="text-xl">
-        <SolidButton className="w-full">
+        <SolidButton
+          className="w-full"
+          onClick={() => {
+            wallet.requestSignIn(REF_FARM_CONTRACT_ID);
+          }}
+        >
           <FormattedMessage
             id="connect_to_near"
             defaultMessage="Connect To NEAR"
