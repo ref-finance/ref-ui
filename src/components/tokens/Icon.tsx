@@ -20,12 +20,12 @@ export default function Icon({
       style={{ lineHeight: 'unset' }}
     >
       {label && <p className="block text-sm">{toRealSymbol(token.symbol)}</p>}
-      <div className="pl-2 text-xs">
+      <div className="pl-2 xs:pl-1 text-xs">
         <ArrowDownWhite />
       </div>
       <img
         key={token.id}
-        className="ml-2 h-9 w-9 border rounded-full border-greenLight"
+        className="ml-2 xs:ml-1 h-9 w-9 xs:h-7 xs:w-7 border rounded-full border-greenLight"
         src={token.icon}
       />
     </div>

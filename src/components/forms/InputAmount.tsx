@@ -47,7 +47,7 @@ export default function InputAmount({
             onWheel={() => ref.current.blur()}
             {...rest}
             step="any"
-            className={`text-lg font-bold w-full p-2 ${
+            className={`xs:text-sm text-lg font-bold w-full p-2 ${
               disabled ? 'text-gray-200 placeholder-gray-200' : 'text-white'
             }`}
             type="number"
