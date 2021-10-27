@@ -38,7 +38,6 @@ import {
 } from '~components/icon/WatchListStar';
 import { PolygonGrayDown } from '~components/icon/Polygon';
 import _, { orderBy, sortBy, filter } from 'lodash';
-// import { PolygonGrayUp } from '~components/icon/Polygon';
 
 const ConnectToNearCard = () => {
   return (
@@ -600,12 +599,19 @@ function LiquidityPage_({
 
               <FaRegQuestionCircle
                 data-type="dark"
-                data-place="bottom"
+                data-place="right"
                 data-multiline={true}
                 data-tip={intl.formatMessage({ id: 'topPoolsCopy' })}
                 className="inline-block	ml-2 text-sm  text-gray-500"
               />
-              <ReactTooltip className="text-sm" />
+              <ReactTooltip
+                className="text-sm shadow-4xl"
+                backgroundColor="#1D2932"
+                border
+                borderColor="#6B7280"
+                effect="solid"
+                class="tool-tip"
+              />
             </div>
           </div>
           <div className="flex items-center w-3/7">
