@@ -589,22 +589,41 @@ export function RemoveLiquidityModal(
           {error && <Alert level="error" message={error.message} />}
         </div>
         <div className="flex items-center justify-center">
-          <SolidButton
-            disabled={!amount}
-            className={`focus:outline-none px-4 w-full`}
-            onClick={async () => {
-              try {
-                await submit();
-              } catch (error) {
-                setError(error);
-              }
-            }}
-          >
-            <FormattedMessage
-              id="remove_liquidity"
-              defaultMessage="Remove Liquidity"
-            />
-          </SolidButton>
+          {wallet.isSignedIn() ? (
+            <SolidButton
+              disabled={!amount}
+              className={`focus:outline-none px-4 w-full`}
+              onClick={async () => {
+                try {
+                  await submit();
+                } catch (error) {
+                  setError(error);
+                }
+              }}
+            >
+              <FormattedMessage
+                id="remove_liquidity"
+                defaultMessage="Remove Liquidity"
+              />
+            </SolidButton>
+          ) : (
+            <SolidButton
+              className={`focus:outline-none px-4 w-full rounded-3xl`}
+              onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
+            >
+              <div className="w-full m-auto flex items-center justify-center">
+                <div className="mr-2">
+                  <Near />
+                </div>
+                <div>
+                  <FormattedMessage
+                    id="connect_to_near"
+                    defaultMessage="Connect to NEAR"
+                  />
+                </div>
+              </div>
+            </SolidButton>
+          )}
         </div>
       </Card>
     </Modal>
