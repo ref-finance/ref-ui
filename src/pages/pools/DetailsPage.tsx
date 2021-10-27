@@ -654,7 +654,8 @@ export function PoolDetailsPage() {
   const { state } = useLocation<LocationTypes>();
   const { pool, shares } = usePool(id);
   const history = useHistory();
-  const [tokens, setTokens] = useState<TokenMetadata[]>();
+
+  const tokens = useTokens(pool?.tokenIds);
 
   const [showFunding, setShowFunding] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
@@ -693,12 +694,6 @@ export function PoolDetailsPage() {
   };
 
   useEffect(() => {
-    if (pool?.tokenIds) {
-      Promise.all<TokenMetadata>(
-        pool?.tokenIds.map((id) => ftGetTokenMetadata(id))
-      ).then(setTokens);
-    }
-
     if (state?.tvl > 0) {
       setPoolTVL(state?.tvl);
     } else {
@@ -714,12 +709,14 @@ export function PoolDetailsPage() {
       });
     }
 
-    getWatchListFromDb({ pool_id: id }).then((watchlist) => {
-      setShowFullStar(watchlist.length > 0);
-    });
-  }, [pool]);
+    // getWatchListFromDb({ pool_id: id }).then((watchlist) => {
+    //   setShowFullStar(watchlist.length > 0);
+    // });
+  }, []);
 
-  if (!tokens) return <Loading />;
+  if (!pool || !tokens || tokens.length < 2) return <Loading />;
+  console.log(tokens);
+  const newTokens = tokens;
 
   return (
     <div>
@@ -762,6 +759,7 @@ export function PoolDetailsPage() {
               </div>
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-end">
+                  {console.log(tokens[0])}
                   <Icon icon={tokens[0].icon} className="h-10 w-10 mr-2" />
                   <div className="flex items-start flex-col">
                     <div className="text-white text-base">
@@ -821,7 +819,7 @@ export function PoolDetailsPage() {
                 <div className="text-white text-center px-1  rounded-sm border border-solid border-gray-400">
                   1&nbsp;{toRealSymbol(tokens[1].symbol)}&nbsp;
                   {getExchangeRate(
-                    tokens.reverse(),
+                    [tokens[1], tokens[0]],
                     pool,
                     pool.token0_ref_price,
                     false
@@ -829,7 +827,7 @@ export function PoolDetailsPage() {
                 </div>
               </div>
             </div>
-            <div className="border-b border-solid border-gray-600"></div>
+            <div className="border-b border-solid border-gray-600" />
             <div className="text-sm text-gray-400 pt-4 mx-4">
               {/* fee */}
               <div className="flex items-center justify-between py-2.5">
