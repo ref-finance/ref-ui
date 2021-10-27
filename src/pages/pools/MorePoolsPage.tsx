@@ -259,7 +259,9 @@ export const MorePoolsPage = () => {
               className="flex items-center inline-block"
             >
               <BackArrow />
-              <p className="ml-3">Pools</p>
+              <p className="ml-3">
+                <FormattedMessage id="pools" defaultMessage="Pools" />
+              </p>
             </Link>
             <div className="flex items-center mb-14 justify-center">
               <div className="flex items-center">
