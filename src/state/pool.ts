@@ -27,7 +27,9 @@ export const usePool = (id: number | string) => {
 
   useEffect(() => {
     getPoolDetails(Number(id)).then(setPool);
-    getSharesInPool(Number(id)).then(setShares);
+    getSharesInPool(Number(id))
+      .then(setShares)
+      .catch(() => setShares);
   }, []);
 
   return { pool, shares };

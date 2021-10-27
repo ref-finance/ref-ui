@@ -27,7 +27,7 @@ import {
   toReadableNumber,
   toInternationalCurrencySystem,
 } from '../../utils/numbers';
-import { TokenMetadata } from '~services/ft-contract';
+import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import Alert from '~components/alert/Alert';
 import InputAmount from '~components/forms/InputAmount';
 import { isMobile } from '~utils/device';
@@ -548,7 +548,7 @@ export function PoolDetailsPage() {
   const { state } = useLocation<LocationTypes>();
   const { pool, shares } = usePool(id);
   const history = useHistory();
-  const tokens = useTokens(pool?.tokenIds);
+  const [tokens, setTokens] = useState<TokenMetadata[]>();
 
   const [showFunding, setShowFunding] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
@@ -587,6 +587,12 @@ export function PoolDetailsPage() {
   };
 
   useEffect(() => {
+    if (pool?.tokenIds) {
+      Promise.all<TokenMetadata>(
+        pool?.tokenIds.map((id) => ftGetTokenMetadata(id))
+      ).then(setTokens);
+    }
+
     if (state?.tvl > 0) {
       setPoolTVL(state?.tvl);
     } else {
@@ -605,9 +611,9 @@ export function PoolDetailsPage() {
     getWatchListFromDb({ pool_id: id }).then((watchlist) => {
       setShowFullStar(watchlist.length > 0);
     });
-  }, [id]);
+  }, [pool]);
 
-  if (!pool || !tokens || tokens.length < 2) return <Loading />;
+  if (!tokens) return <Loading />;
 
   return (
     <div className="flex items-start flex-row md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 md:flex-col xs:flex-col m-auto">
@@ -658,8 +664,8 @@ export function PoolDetailsPage() {
                     href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
                     className="text-xs text-gray-400"
                     title={tokens[0].id}
-                  >{`${tokens[0].id.substring(0, 12)}${
-                    tokens[0].id.length > 12 ? '...' : ''
+                  >{`${tokens[0].id.substring(0, 24)}${
+                    tokens[0].id.length > 24 ? '...' : ''
                   }`}</a>
                 </div>
               </div>
@@ -684,8 +690,8 @@ export function PoolDetailsPage() {
                     href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
                     className="text-xs text-gray-400"
                     title={tokens[1].id}
-                  >{`${tokens[1].id.substring(0, 12)}${
-                    tokens[1].id.length > 12 ? '...' : ''
+                  >{`${tokens[1].id.substring(0, 24)}${
+                    tokens[1].id.length > 24 ? '...' : ''
                   }`}</a>
                 </div>
               </div>
