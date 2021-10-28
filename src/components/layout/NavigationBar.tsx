@@ -587,7 +587,7 @@ function MobileNavBar() {
       </div>
       <div className="block"> {langSwitcher()}</div>
       <div
-        className={`absolute top-0 left-0 z-20 h-screen w-full bg-black bg-opacity-30 backdrop-blur-lg backdrop-filter overflow-auto ${
+        className={`fixed top-0 left-0 z-20 h-screen w-full bg-black bg-opacity-30 backdrop-blur-lg backdrop-filter overflow-auto ${
           show ? 'block' : 'hidden'
         }`}
       >
@@ -635,8 +635,11 @@ function MobileNavBar() {
             )}
           </div>
 
-          <div className="pl-4 mt-5">
-            <NavLogoLarge />${data && data !== '-' ? toPrecision(data, 2) : '-'}
+          <div className="p-4 flex">
+            <NavLogoLarge />
+            <span className="inline-block ml-2 mt-1 text-white">
+              ${data && data !== '-' ? toPrecision(data, 2) : '-'}
+            </span>
           </div>
 
           <div className="text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
