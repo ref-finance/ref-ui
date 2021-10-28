@@ -60,108 +60,115 @@ export default function SlippageSelector({
   }, [showSlip, invalid]);
 
   return (
-    <div className=" relative">
+    <div className="relative">
+      {showSlip && (
+        <IoCloseOutline
+          className="absolute top-12 xs:top-10 z-20 right-3 text-primaryText"
+          onClick={(e) => closeToolTip(e)}
+        />
+      )}
       <div className=" w-7 text-2xl text-white" onClick={(e) => openToolTip(e)}>
         <Slider showSlip={showSlip} />
       </div>
       {showSlip && (
-        <fieldset
-          className="z-10 absolute top-5 right-0 xs:-right-4 px-4 py-6 bg-cardBg border shadow-4xl border-greenLight border-opacity-30 rounded-lg flex flex-col mb-4"
-          onClick={(e) => {
-            openToolTip(e);
-          }}
-        >
-          <div className="flex justify-between">
-            <label className=" text-base text-center text-white">
-              <FormattedMessage
-                id="slippage_title"
-                defaultMessage="Transaction Settings"
-              />
-            </label>
-            {/* <IoCloseOutline className="text-primaryText" onClick={(e)=>closeToolTip(e)}/> */}
-          </div>
-          <div className="flex items-center">
-            <label className="text-sm py-5 text-center text-white">
-              <FormattedMessage
-                id="slippage"
-                defaultMessage="Slippage tolerance"
-              />
-            </label>
-            <div className="text-gray-400">
-              <div
-                className="pl-1 text-white text-base"
-                data-type="dark"
-                data-place="right"
-                data-multiline={true}
-                data-tip={intl.formatMessage({ id: slippageCopyId })}
-              >
-                <FaRegQuestionCircle />
-              </div>
-              <ReactTooltip />
+        <div className="xs:fixed xs:z-10 xs:top-16 xs:left-0 xs:backdrop-filter xs:backdrop-blur-lg xs:right-0 xs:bottom-0 xs:bg-black xs:bg-opacity-30 ">
+          <fieldset
+            className="z-10 absolute top-5 right-0 xs:relative xs:mx-5 xs:top-20 xs:right-0 px-4 py-6 bg-cardBg border shadow-4xl border-greenLight border-opacity-30 rounded-lg flex flex-col mb-4"
+            onClick={(e) => {
+              openToolTip(e);
+            }}
+          >
+            <div>
+              <label className=" text-base text-center text-white">
+                <FormattedMessage
+                  id="slippage_title"
+                  defaultMessage="Transaction Settings"
+                />
+              </label>
             </div>
-          </div>
-
-          <div className="flex text-white items-center">
-            <div className="w-48 flex justify-between bg-slipBg bg-opacity-40 rounded">
-              {validSlippages.map((slippage) => (
-                <button
-                  key={slippage}
-                  className={` w-14 h-7 text-center focus:outline-none text-sm hover:bg-gradientFrom rounded ${
-                    slippage === slippageTolerance
-                      ? 'text-chartBg bg-gradientFrom'
-                      : ''
-                  }`}
-                  type="button"
-                  onClick={() => handleBtnChange(slippage)}
+            <div className="flex items-center">
+              <label className="text-sm py-5 text-center text-white">
+                <FormattedMessage
+                  id="slippage"
+                  defaultMessage="Slippage tolerance"
+                />
+              </label>
+              <div className="text-gray-400">
+                <div
+                  className="pl-1 text-white text-base"
+                  data-type="dark"
+                  data-place="right"
+                  data-multiline={true}
+                  data-tip={intl.formatMessage({ id: slippageCopyId })}
                 >
-                  {slippage}%
-                </button>
-              ))}
+                  <FaRegQuestionCircle />
+                </div>
+                <ReactTooltip />
+              </div>
             </div>
-            <input
-              ref={ref}
-              max={99}
-              min={0}
-              defaultValue={slippageTolerance ? slippageTolerance : 0.5}
-              onWheel={() => ref.current.blur()}
-              step="any"
-              className={`${
-                slippageTolerance && !invalid && !warn
-                  ? 'border border-gradientFrom text-gradientFrom bg-opacity-0'
-                  : ''
-              } focus:border focus:border-gradientFrom focus:text-gradientFrom focus:bg-opacity-0 w-14 h-7 text-center text-sm rounded mx-2 bg-gray-500 ${
-                invalid && !warn
-                  ? 'border border-error text-error bg-opacity-0'
-                  : ''
-              } ${warn ? 'border border-warn text-warn bg-opacity-0' : ''}`}
-              type="number"
-              placeholder=""
-              onChange={({ target }) => handleChange(target.value)}
-              onKeyDown={(e) =>
-                symbolsArr.includes(e.key) && e.preventDefault()
-              }
-            />
-            %
-          </div>
-          <div className={`${invalid || warn ? 'block' : 'hidden'}`}>
-            {invalid ? (
-              <div className="text-error text-xs py-3">
-                <IoWarning className="inline-block text-lg align-text-top mr-1" />
-                <FormattedMessage
-                  id="slip_invalid"
-                  defaultMessage="You might be easier to swap, but also receive less."
-                />
+
+            <div className="flex text-white items-center">
+              <div className="w-48 flex justify-between bg-slipBg bg-opacity-40 rounded">
+                {validSlippages.map((slippage) => (
+                  <button
+                    key={slippage}
+                    className={` w-14 h-7 text-center focus:outline-none text-sm hover:bg-gradientFrom rounded ${
+                      slippage === slippageTolerance
+                        ? 'text-chartBg bg-gradientFrom'
+                        : ''
+                    }`}
+                    type="button"
+                    onClick={() => handleBtnChange(slippage)}
+                  >
+                    {slippage}%
+                  </button>
+                ))}
               </div>
-            ) : (
-              <div className="text-warn text-xs py-3">
-                <FormattedMessage
-                  id="slip_wran"
-                  defaultMessage="The slippage tolerance is invalid."
-                />
-              </div>
-            )}
-          </div>
-        </fieldset>
+              <input
+                ref={ref}
+                max={99}
+                min={0}
+                defaultValue={slippageTolerance ? slippageTolerance : 0.5}
+                onWheel={() => ref.current.blur()}
+                step="any"
+                className={`${
+                  slippageTolerance && !invalid && !warn
+                    ? 'border border-gradientFrom text-gradientFrom bg-opacity-0'
+                    : ''
+                } focus:border focus:border-gradientFrom focus:text-gradientFrom focus:bg-opacity-0 w-14 h-7 text-center text-sm rounded mx-2 bg-gray-500 ${
+                  invalid && !warn
+                    ? 'border border-error text-error bg-opacity-0'
+                    : ''
+                } ${warn ? 'border border-warn text-warn bg-opacity-0' : ''}`}
+                type="number"
+                placeholder=""
+                onChange={({ target }) => handleChange(target.value)}
+                onKeyDown={(e) =>
+                  symbolsArr.includes(e.key) && e.preventDefault()
+                }
+              />
+              %
+            </div>
+            <div className={`${invalid || warn ? 'block' : 'hidden'}`}>
+              {invalid ? (
+                <div className="text-error text-xs py-3">
+                  <IoWarning className="inline-block text-lg align-text-top mr-1" />
+                  <FormattedMessage
+                    id="slip_invalid"
+                    defaultMessage="You might be easier to swap, but also receive less."
+                  />
+                </div>
+              ) : (
+                <div className="text-warn text-xs py-3">
+                  <FormattedMessage
+                    id="slip_wran"
+                    defaultMessage="The slippage tolerance is invalid."
+                  />
+                </div>
+              )}
+            </div>
+          </fieldset>
+        </div>
       )}
     </div>
   );
