@@ -85,17 +85,14 @@ function AddLiquidityModal(
   const { pool, tokens } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
-  const [messageId, setMessageId] = useState<string>(
-    'deposit_to_add_liquidity'
-  );
-  const [defaultMessage, setDefaultMessage] = useState<string>(
-    'Deposit to Add Liquidity'
-  );
+  const [messageId, setMessageId] = useState<string>('add_liquidity');
+  const [defaultMessage, setDefaultMessage] = useState<string>('Add Liquidity');
   const balances = useTokenBalances();
   const [error, setError] = useState<Error>();
   const intl = useIntl();
   const history = useHistory();
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
+  const [canDeposit, setCanDeposit] = useState<boolean>(false);
 
   if (!balances) return null;
 
@@ -180,10 +177,12 @@ function AddLiquidityModal(
     );
 
     setCanSubmit(false);
+    setCanDeposit(false);
 
     if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
-      setMessageId('deposit');
-      setDefaultMessage('Deposit');
+      setCanDeposit(true);
+      setMessageId('deposit_to_add_liquidity');
+      setDefaultMessage('Deposit to Add Liquidity');
 
       throw new Error(
         `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
@@ -193,8 +192,9 @@ function AddLiquidityModal(
     }
 
     if (secondTokenAmountBN.isGreaterThan(secondTokenBalanceBN)) {
-      setMessageId('deposit');
-      setDefaultMessage('Deposit');
+      setCanDeposit(true);
+      setMessageId('deposit_to_add_liquidity');
+      setDefaultMessage('Deposit to Add Liquidity');
       throw new Error(
         `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
           tokens[1].symbol
@@ -203,8 +203,9 @@ function AddLiquidityModal(
     }
 
     if (!firstAmount || firstAmount === '0') {
-      setMessageId('deposit_to_add_liquidity');
-      setDefaultMessage('Deposit to Add Liquidity');
+      setCanSubmit(false);
+      setMessageId('add_liquidity');
+      setDefaultMessage('Add Liquidity');
       throw new Error(
         `${intl.formatMessage({
           id: 'must_provide_at_least_one_token_for',
@@ -213,8 +214,9 @@ function AddLiquidityModal(
     }
 
     if (!secondAmount || secondAmount === '0') {
-      setMessageId('deposit_to_add_liquidity');
-      setDefaultMessage('Deposit to Add Liquidity');
+      setCanSubmit(false);
+      setMessageId('add_liquidity');
+      setDefaultMessage('Add Liquidity');
       throw new Error(
         `${intl.formatMessage({
           id: 'must_provide_at_least_one_token_for',
@@ -237,9 +239,9 @@ function AddLiquidityModal(
         })}`
       );
     }
+    setCanSubmit(true);
     setMessageId('add_liquidity');
     setDefaultMessage('Add Liquidity');
-    setCanSubmit(true);
   }
 
   function submit() {
@@ -278,7 +280,7 @@ function AddLiquidityModal(
     }
 
     const handleClick = async () => {
-      if (messageId !== 'add_liquidity') {
+      if (canSubmit) {
         history.push(`/deposit`);
       } else {
         submit();
@@ -286,7 +288,7 @@ function AddLiquidityModal(
     };
     return (
       <SolidButton
-        disabled={!(canSubmit || messageId !== 'add_liquidity')}
+        disabled={!canSubmit && !canDeposit}
         className="focus:outline-none px-4 w-full"
         onClick={handleClick}
       >
@@ -326,18 +328,10 @@ function AddLiquidityModal(
             )}
           </div>
           <div className="flex items-center ">
-            <div className="flex items-end mr-4">
+            <div className="flex items-center mr-4 w-1/3">
               <Icon icon={tokens[0].icon} className="h-9 w-9 mr-2" />
-              <div className="flex items-start flex-col">
-                <div className="text-white text-base">
-                  {toRealSymbol(tokens[0].symbol)}
-                </div>
-                <div
-                  className="text-xs text-gray-400"
-                  title={tokens[0].id}
-                >{`${tokens[0].id.substring(0, 25)}${
-                  tokens[0].id.length > 25 ? '...' : ''
-                }`}</div>
+              <div className="text-white text-base" title={tokens[0].id}>
+                {toRealSymbol(tokens[0].symbol)}
               </div>
             </div>
             <InputAmount
@@ -396,18 +390,10 @@ function AddLiquidityModal(
             )}
           </div>
           <div className="flex items-center">
-            <div className="flex items-end mr-4">
+            <div className="flex items-center mr-4 w-1/3">
               <Icon icon={tokens[1].icon} className="h-9 w-9 mr-2" />
-              <div className="flex items-start flex-col">
-                <div className="text-white text-base">
-                  {toRealSymbol(tokens[1].symbol)}
-                </div>
-                <div
-                  className="text-xs text-gray-400"
-                  title={tokens[1].id}
-                >{`${tokens[1].id.substring(0, 25)}${
-                  tokens[1].id.length > 25 ? '...' : ''
-                }`}</div>
+              <div className="text-white text-base" title={tokens[1].id}>
+                {toRealSymbol(tokens[1].symbol)}
               </div>
             </div>
             <InputAmount
@@ -478,6 +464,7 @@ export function RemoveLiquidityModal(
     slippageTolerance,
     shares: amount ? toNonDivisibleNumber(24, amount) : '0',
   });
+  const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [error, setError] = useState<Error>();
   const cardWidth = isMobile() ? '95vw' : '40vw';
   const intl = useIntl();
@@ -503,6 +490,7 @@ export function RemoveLiquidityModal(
 
   function handleChangeAmount(value: string) {
     setAmount(value);
+    setError(null);
 
     const amountBN = new BigNumber(value.toString());
     const shareBN = new BigNumber(toReadableNumber(24, shares));
@@ -512,11 +500,13 @@ export function RemoveLiquidityModal(
           id: 'must_input_a_value_not_greater_than_your_balance',
         })
       );
-    } else {
-      setError(null);
     }
+    if (!value || value === '0') {
+      setCanSubmit(false);
+      return;
+    }
+    setCanSubmit(true);
   }
-
   return (
     <Modal {...props}>
       <Card
@@ -601,7 +591,7 @@ export function RemoveLiquidityModal(
         <div className="flex items-center justify-center">
           {wallet.isSignedIn() ? (
             <SolidButton
-              disabled={!amount}
+              disabled={!canSubmit}
               className={`focus:outline-none px-4 w-full`}
               onClick={async () => {
                 try {
