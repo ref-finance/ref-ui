@@ -255,7 +255,6 @@ function AddLiquidityModal(
   const cardWidth = isMobile() ? '95vw' : '40vw';
 
   const ButtonRender = () => {
-    // 未登陆, 优先登陆.
     if (!wallet.isSignedIn()) {
       return (
         <SolidButton
@@ -278,7 +277,6 @@ function AddLiquidityModal(
       );
     }
 
-    // 已登陆状态的两种情况
     const handleClick = async () => {
       if (messageId !== 'add_liquidity') {
         history.push(`/deposit`);
