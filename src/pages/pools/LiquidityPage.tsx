@@ -278,7 +278,8 @@ function MobileLiquidityPage({
         <div className="mx-6 flex items-center justify-between my-4">
           <div className="flex items-center">
             <div className="text-white text-base">
-              <FormattedMessage id="top_pools" defaultMessage="Top Pools" />
+              {/* <FormattedMessage id="top_pools" defaultMessage="Top Pools" /> */}
+              Top Pools
             </div>
             <div>
               <FaRegQuestionCircle
@@ -601,7 +602,8 @@ function LiquidityPage_({
         <div className="flex mx-8 justify-between pb-4">
           <div>
             <div className="text-white text-lg">
-              <FormattedMessage id="top_pools" defaultMessage="Top Pools" />
+              {/* <FormattedMessage id="top_pools" defaultMessage="Top Pools" /> */}
+              Top Pools
             </div>
 
             <div className="flex items-center">
