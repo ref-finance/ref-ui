@@ -85,17 +85,14 @@ function AddLiquidityModal(
   const { pool, tokens } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
-  const [messageId, setMessageId] = useState<string>(
-    'deposit_to_add_liquidity'
-  );
-  const [defaultMessage, setDefaultMessage] = useState<string>(
-    'Deposit to Add Liquidity'
-  );
+  const [messageId, setMessageId] = useState<string>('add_liquidity');
+  const [defaultMessage, setDefaultMessage] = useState<string>('Add Liquidity');
   const balances = useTokenBalances();
   const [error, setError] = useState<Error>();
   const intl = useIntl();
   const history = useHistory();
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
+  const [canDeposit, setCanDeposit] = useState<boolean>(false);
 
   if (!balances) return null;
 
@@ -180,10 +177,12 @@ function AddLiquidityModal(
     );
 
     setCanSubmit(false);
+    setCanDeposit(false);
 
     if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
-      setMessageId('deposit');
-      setDefaultMessage('Deposit');
+      setCanDeposit(true);
+      setMessageId('deposit_to_add_liquidity');
+      setDefaultMessage('Deposit to Add Liquidity');
 
       throw new Error(
         `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
@@ -193,8 +192,9 @@ function AddLiquidityModal(
     }
 
     if (secondTokenAmountBN.isGreaterThan(secondTokenBalanceBN)) {
-      setMessageId('deposit');
-      setDefaultMessage('Deposit');
+      setCanDeposit(true);
+      setMessageId('deposit_to_add_liquidity');
+      setDefaultMessage('Deposit to Add Liquidity');
       throw new Error(
         `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
           tokens[1].symbol
@@ -203,8 +203,9 @@ function AddLiquidityModal(
     }
 
     if (!firstAmount || firstAmount === '0') {
-      setMessageId('deposit_to_add_liquidity');
-      setDefaultMessage('Deposit to Add Liquidity');
+      setCanSubmit(false);
+      setMessageId('add_liquidity');
+      setDefaultMessage('Add Liquidity');
       throw new Error(
         `${intl.formatMessage({
           id: 'must_provide_at_least_one_token_for',
@@ -213,8 +214,9 @@ function AddLiquidityModal(
     }
 
     if (!secondAmount || secondAmount === '0') {
-      setMessageId('deposit_to_add_liquidity');
-      setDefaultMessage('Deposit to Add Liquidity');
+      setCanSubmit(false);
+      setMessageId('add_liquidity');
+      setDefaultMessage('Add Liquidity');
       throw new Error(
         `${intl.formatMessage({
           id: 'must_provide_at_least_one_token_for',
@@ -237,9 +239,9 @@ function AddLiquidityModal(
         })}`
       );
     }
+    setCanSubmit(true);
     setMessageId('add_liquidity');
     setDefaultMessage('Add Liquidity');
-    setCanSubmit(true);
   }
 
   function submit() {
@@ -278,7 +280,7 @@ function AddLiquidityModal(
     }
 
     const handleClick = async () => {
-      if (messageId !== 'add_liquidity') {
+      if (canSubmit) {
         history.push(`/deposit`);
       } else {
         submit();
@@ -286,7 +288,7 @@ function AddLiquidityModal(
     };
     return (
       <SolidButton
-        disabled={!(canSubmit || messageId !== 'add_liquidity')}
+        disabled={!canSubmit && !canDeposit}
         className="focus:outline-none px-4 w-full"
         onClick={handleClick}
       >
