@@ -587,7 +587,7 @@ function MobileNavBar() {
       </div>
       <div className="block"> {langSwitcher()}</div>
       <div
-        className={`fixed top-0 left-0 z-20 h-screen w-full bg-black bg-opacity-30 backdrop-blur-lg backdrop-filter overflow-auto ${
+        className={`fixed top-0 left-0 z-20 h-screen w-full bg-black bg-opacity-30 backdrop-blur-lg filter-blur backdrop-filter overflow-auto ${
           show ? 'block' : 'hidden'
         }`}
       >

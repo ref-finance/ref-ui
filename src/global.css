@@ -254,3 +254,8 @@ input[type='number'] {
 .__react_component_tooltip::after {
   content: none !important;
 }
+
+.filter-blur {
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+}

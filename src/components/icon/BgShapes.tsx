@@ -81,7 +81,7 @@ export function BgShapeCenter() {
 export function BgShapeCenterSmall() {
   return (
     <div className="w-full top-0 absolute left-0 overflow-hidden max-h-screen hidden md:block xs:block">
-      <img src={bgGridSmallImg} alt="" className="w-full h-auto" />
+      <img src={bgGridSmallImg} alt="" className="w-full mt-16 h-auto" />
     </div>
   );
 }
