@@ -182,7 +182,7 @@ export function GradientButton(
         borderRadius: '5px',
       }}
     >
-      <button onClick={onClick} disabled={disabled}>
+      <button onClick={onClick} disabled={disabled} className="w-full">
         {props.children}
       </button>
     </div>
