@@ -372,7 +372,9 @@ export const MorePoolsPage = () => {
           className="flex items-center inline-block"
         >
           <BackArrow />
-          <p className="ml-3">Pools</p>
+          <p className="ml-3">
+            <FormattedMessage id="pools" defaultMessage="Pools" />
+          </p>
         </Link>
         <div className="flex flex-col items-center mb-12 justify-center">
           <div className="flex items-center">

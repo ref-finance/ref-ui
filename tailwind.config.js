@@ -33,6 +33,8 @@ module.exports = {
         greenLight1: '#01C08B',
         cardBg: '#1D2932',
         chartBg: '#001320',
+        warn: '#DEA550',
+        error:'#DE5050',
         gradientFrom: '#00c6a2',
         gradientTo: '#008b72',
         gradientFromHover: '#00D6AF',
@@ -42,6 +44,7 @@ module.exports = {
         inputDarkBg: 'rgba(0, 0, 0, 0.2)',
         navHighLightBg: '#304452',
         navHighLightText: '#C6D1DA',
+        slipBg: '#637684'
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

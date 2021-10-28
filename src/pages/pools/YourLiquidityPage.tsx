@@ -16,13 +16,13 @@ import { FormattedMessage } from 'react-intl';
 function Empty() {
   return (
     <div>
-      <div className="text-center font-semibold text-xs pb-1">
+      <div className="text-center font-semibold text-xs pb-1 text-primaryText">
         <FormattedMessage
           id="you_are_not_providing_liquidity_to_any_pools"
           defaultMessage="You aren’t providing liquidity to any pools"
         />
       </div>
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center my-4">
         {wallet.isSignedIn() ? <AddLiquidityButton /> : <ConnectToNearBtn />}
       </div>
     </div>

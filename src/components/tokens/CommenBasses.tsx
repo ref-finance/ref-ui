@@ -24,7 +24,7 @@ export default function CommenBasses({ tokens, onClick }: CommenBassesProps) {
   const commenBassesTokens = tokens.filter((item) => {
     return COMMEN_BASSES.indexOf(item.symbol) > -1;
   });
-  
+
   return (
     <section className="px-6">
       <div className="text-sm font-bold py-2">
