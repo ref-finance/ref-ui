@@ -88,7 +88,8 @@ function MobilePoolRow({
     });
   }, [pool]);
 
-  if (!tokens) return <Loading />;
+  // if (!tokens) return <Loading />;
+  if (!tokens) return <></>;
 
   tokens.sort((a, b) => {
     if (a.symbol === 'wNEAR') return 1;
@@ -399,7 +400,8 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
       setSupportFarm(canFarm);
     });
   }, [pool]);
-  if (!tokens) return <Loading />;
+  // if (!tokens) return <Loading />;
+  if (!tokens) return <></>;
 
   tokens.sort((a, b) => {
     if (a.symbol === 'wNEAR') return 1;
