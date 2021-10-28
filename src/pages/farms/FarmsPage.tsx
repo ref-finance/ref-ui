@@ -902,6 +902,11 @@ function FarmView({
             amount,
           }).catch(setError);
         }}
+        style={{
+          content: {
+            outline: 'none',
+          },
+        }}
       />
 
       <ActionModal
@@ -917,6 +922,11 @@ function FarmView({
             token: data.rewardToken,
           }).catch(setError);
         }}
+        style={{
+          content: {
+            outline: 'none',
+          },
+        }}
       />
 
       <ActionModal
@@ -931,6 +941,11 @@ function FarmView({
           stake({ token_id: getMftTokenId(data.lpTokenId), amount }).catch(
             setError
           );
+        }}
+        style={{
+          content: {
+            outline: 'none',
+          },
         }}
       />
     </Card>

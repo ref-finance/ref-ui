@@ -1039,6 +1039,9 @@ export function PoolDetailsPage() {
             overlay: {
               backdropFilter: 'blur(10px)',
             },
+            content: {
+              outline: 'none',
+            },
           }}
         />
         <AddLiquidityModal
@@ -1050,6 +1053,9 @@ export function PoolDetailsPage() {
           style={{
             overlay: {
               backdropFilter: 'blur(10px)',
+            },
+            content: {
+              outline: 'none',
             },
           }}
         />
