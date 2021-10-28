@@ -280,7 +280,7 @@ function AddLiquidityModal(
     }
 
     const handleClick = async () => {
-      if (canSubmit) {
+      if (canDeposit) {
         history.push(`/deposit`);
       } else {
         submit();
