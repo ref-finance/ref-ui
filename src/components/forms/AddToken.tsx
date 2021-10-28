@@ -53,7 +53,7 @@ export default function AddToken() {
             />
           </div>
           <input
-            className="focus:outline-none shadow bg-black bg-opacity-25 appearance-none rounded-lg w-96 py-2 px-3 text-sm text-greenLight leading-tight font-bold"
+            className="focus:outline-none shadow bg-black bg-opacity-25 appearance-none rounded-lg w-96 xs:w-72 py-2 px-3 text-sm text-greenLight leading-tight font-bold"
             type="text"
             placeholder={intl.formatMessage({ id: 'enter_token_address' })}
             value={tokenId}

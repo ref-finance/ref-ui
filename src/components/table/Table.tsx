@@ -49,9 +49,6 @@ export default function Table({
               }`}
             >
               Near
-              <span className="xs:text-xs">
-                <br className="hidden xs:inline-block" />
-              </span>
               <TiArrowSortedUp
                 onClick={() => onSortChange('near')}
                 className={`inline-block cursor-pointer ${
@@ -67,9 +64,6 @@ export default function Table({
               }`}
             >
               Ref
-              <span className="xs:text-xs">
-                <br className="hidden xs:inline-block" />
-              </span>
               <TiArrowSortedUp
                 onClick={() => onSortChange('ref')}
                 className={`inline-block cursor-pointer ${
