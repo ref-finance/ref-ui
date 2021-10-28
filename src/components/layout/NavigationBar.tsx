@@ -650,12 +650,14 @@ function MobileNavBar() {
               onClick={close}
             />
             <MobileAnchor to="/" pattern="/" name="Swap" onClick={close} />
-            <MobileAnchor
-              to="/account"
-              pattern="/account"
-              name="Account"
-              onClick={close}
-            />
+            {wallet.isSignedIn() && (
+              <MobileAnchor
+                to="/account"
+                pattern="/account"
+                name="Account"
+                onClick={close}
+              />
+            )}
             <MobilePoolsMenu links={links} onClick={close} />
             <MobileAnchor
               to="/farms"

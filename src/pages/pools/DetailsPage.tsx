@@ -282,7 +282,7 @@ function AddLiquidityModal(
     const handleClick = async () => {
       if (canDeposit) {
         history.push(`/deposit`);
-      } else {
+      } else if (canSubmit) {
         submit();
       }
     };
