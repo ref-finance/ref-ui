@@ -169,5 +169,7 @@ const zh_CN = {
   my_watchlist_copy: '收藏过的流动池将会出现在这里',
   search_token: '搜索代币',
   deposit_to_add_liquidity: '存入代币以添加流动性',
+  slip_wran: '你可能更容易交换，但收到的也更少',
+  slip_invalid: '请输入有效的值',
 };
 export default zh_CN;
