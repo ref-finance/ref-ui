@@ -308,7 +308,7 @@ function AddLiquidityModal(
         }}
         padding="p-8"
         bgcolor="bg-cardBg"
-        className="text-white"
+        className="text-white focus:outline-none "
       >
         <div className="text-base font-bold pb-4">
           <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
@@ -522,7 +522,7 @@ export function RemoveLiquidityModal(
       <Card
         padding="p-8"
         bgcolor="bg-cardBg"
-        className="text-white border border-gradientFromHover"
+        className="text-white border border-gradientFromHover focus:outline-none "
         style={{
           width: cardWidth,
           border: '1px solid rgba(0, 198, 162, 0.5)',
