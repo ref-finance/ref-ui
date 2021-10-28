@@ -328,18 +328,10 @@ function AddLiquidityModal(
             )}
           </div>
           <div className="flex items-center ">
-            <div className="flex items-end mr-4">
+            <div className="flex items-center mr-4 w-1/3">
               <Icon icon={tokens[0].icon} className="h-9 w-9 mr-2" />
-              <div className="flex items-start flex-col">
-                <div className="text-white text-base">
-                  {toRealSymbol(tokens[0].symbol)}
-                </div>
-                <div
-                  className="text-xs text-gray-400"
-                  title={tokens[0].id}
-                >{`${tokens[0].id.substring(0, 25)}${
-                  tokens[0].id.length > 25 ? '...' : ''
-                }`}</div>
+              <div className="text-white text-base" title={tokens[0].id}>
+                {toRealSymbol(tokens[0].symbol)}
               </div>
             </div>
             <InputAmount
@@ -398,18 +390,10 @@ function AddLiquidityModal(
             )}
           </div>
           <div className="flex items-center">
-            <div className="flex items-end mr-4">
+            <div className="flex items-center mr-4 w-1/3">
               <Icon icon={tokens[1].icon} className="h-9 w-9 mr-2" />
-              <div className="flex items-start flex-col">
-                <div className="text-white text-base">
-                  {toRealSymbol(tokens[1].symbol)}
-                </div>
-                <div
-                  className="text-xs text-gray-400"
-                  title={tokens[1].id}
-                >{`${tokens[1].id.substring(0, 25)}${
-                  tokens[1].id.length > 25 ? '...' : ''
-                }`}</div>
+              <div className="text-white text-base" title={tokens[1].id}>
+                {toRealSymbol(tokens[1].symbol)}
               </div>
             </div>
             <InputAmount
