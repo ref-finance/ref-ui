@@ -11,6 +11,10 @@ import db from '../store/RefDatabase';
 
 export const NEAR_ICON =
   'https://near.org/wp-content/themes/near-19/assets/img/brand-icon.png';
+const BANANA_ID = 'berryclub.ek.near';
+const CHEDDAR_ID = 'token.cheddar.near';
+const CUCUMBER_ID = 'farm.berryclub.ek.near';
+const HAPI_ID = 'd9c2d319cd7e6177336b0a9c93c21cb48d84fb54.factory.bridge.near';
 
 export const ftFunctionCall = (
   tokenId: string,
@@ -69,7 +73,14 @@ export const ftGetTokenMetadata = async (
         methodName: 'ft_metadata',
       });
     }
-    if (!metadata.icon || metadata.icon === NEAR_ICON) {
+    if (
+      !metadata.icon ||
+      metadata.icon === NEAR_ICON ||
+      metadata.id === BANANA_ID ||
+      metadata.id === CHEDDAR_ID ||
+      metadata.id === CUCUMBER_ID ||
+      metadata.id === HAPI_ID
+    ) {
       metadata.icon = metadataDefaults[id];
     }
     return {

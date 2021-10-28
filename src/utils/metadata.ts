@@ -45,6 +45,10 @@ const icons: { [tokenId: string]: string } = {
     'https://s2.coinmarketcap.com/static/img/coins/64x64/10052.png',
   'a4ef4b0b23c1fc81d3f9ecf93510e64f58a4a016.factory.bridge.near':
     'https://s2.coinmarketcap.com/static/img/coins/64x64/4222.png',
+  'token.cheddar.near': 'https://i.postimg.cc/xk1vJC6x/cheddar.png',
+  'farm.berryclub.ek.near': 'https://i.postimg.cc/TLyn0sMn/cucumber.png',
+  'd9c2d319cd7e6177336b0a9c93c21cb48d84fb54.factory.bridge.near':
+    'https://i.postimg.cc/jwGPFhtm/HAPI.png',
 };
 
 export default icons;

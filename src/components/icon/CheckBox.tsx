@@ -66,52 +66,7 @@ export const CheckedEmpty = () => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g filter="url(#filter0_bd_105:1137)">
-        <rect width="15" height="15" rx="4" fill="#304452" />
-      </g>
-      <defs>
-        <filter
-          id="filter0_bd_105:1137"
-          x="-40"
-          y="-40"
-          width="115"
-          height="115"
-          filterUnits="userSpaceOnUse"
-          colorInterpolationFilters="sRGB"
-        >
-          <feFlood floodOpacity="0" result="BackgroundImageFix" />
-          <feGaussianBlur in="BackgroundImage" stdDeviation="25" />
-          <feComposite
-            in2="SourceAlpha"
-            operator="in"
-            result="effect1_backgroundBlur_105:1137"
-          />
-          <feColorMatrix
-            in="SourceAlpha"
-            type="matrix"
-            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-            result="hardAlpha"
-          />
-          <feOffset />
-          <feGaussianBlur stdDeviation="5" />
-          <feComposite in2="hardAlpha" operator="out" />
-          <feColorMatrix
-            type="matrix"
-            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"
-          />
-          <feBlend
-            mode="normal"
-            in2="effect1_backgroundBlur_105:1137"
-            result="effect2_dropShadow_105:1137"
-          />
-          <feBlend
-            mode="normal"
-            in="SourceGraphic"
-            in2="effect2_dropShadow_105:1137"
-            result="shape"
-          />
-        </filter>
-      </defs>
+      <rect width="15" height="15" rx="4" fill="#304452" />
     </svg>
   );
 };

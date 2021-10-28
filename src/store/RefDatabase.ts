@@ -3,8 +3,6 @@ import _ from 'lodash';
 import moment from 'moment';
 import getConfig from '../services/config';
 
-Dexie.debug = false;
-
 interface Pool {
   id: number;
   token1Id: string;
@@ -53,7 +51,7 @@ export interface WatchList {
 
 class RefDatabase extends Dexie {
   public pools: Dexie.Table<Pool>;
-  public tokens: Dexie.TabSlippagele<TokenMetadata>;
+  public tokens: Dexie.Table<TokenMetadata>;
   public farms: Dexie.Table<FarmDexie>;
   public poolsTokens: Dexie.Table<PoolsTokens>;
   public watchList: Dexie.Table<WatchList>;
@@ -61,7 +59,7 @@ class RefDatabase extends Dexie {
   public constructor() {
     super('RefDatabase');
 
-    this.version(4.0).stores({
+    this.version(4.1).stores({
       pools: 'id, token1Id, token2Id, token1Supply, token2Supply, fee, shares',
       tokens: 'id, name, symbol, decimals, icon',
       farms: 'id, pool_id',

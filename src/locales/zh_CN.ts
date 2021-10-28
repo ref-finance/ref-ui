@@ -156,7 +156,7 @@ const zh_CN = {
   asset_label: '资产',
   account_label: '账户',
   total_label: '总量',
-  top_pools: '最大锁仓量流动池',
+  top_pools: 'Top pools',
   pool_id: '流动池 ID',
   more_pools: '更多流动池',
   my_watchlist: '我的收藏',
