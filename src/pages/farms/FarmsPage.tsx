@@ -955,7 +955,7 @@ function ActionModal(
       <Card
         style={{ width: cardWidth }}
         bgcolor="bg-white"
-        className="focus:outline-none "
+        className="outline-none "
       >
         <div className="text-sm text-gray-800 font-semibold pb-4">
           {props.title}
