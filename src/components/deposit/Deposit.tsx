@@ -40,7 +40,7 @@ export function WithdrawModal(props: ReactModal.Props) {
   const cardWidth = isMobile() ? '95vw' : '25vw';
 
   return (
-    <Modal {...props}>
+    <Modal {...props} className="outline-none">
       <Card style={{ width: cardWidth }}>
         <div className="text-sm text-gray-800 font-semibold pb-4">
           <FormattedMessage
