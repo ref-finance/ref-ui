@@ -39,6 +39,8 @@ import {
 import { PolygonGrayDown } from '~components/icon/Polygon';
 import _, { orderBy, sortBy, filter } from 'lodash';
 
+const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
+
 const ConnectToNearCard = () => {
   return (
     <Card
@@ -228,7 +230,7 @@ function MobileLiquidityPage({
           onClick={() => {
             setShowModal(false);
           }}
-        ></div>
+        />
         <div
           className="py-2 px-2  w-full hover:bg-poolRowHover hover:text-white rounded-lg hover:opacity-80 z-30"
           onClick={() => {
@@ -743,7 +745,6 @@ export function LiquidityPage() {
   const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
   const [watchListTop, setWatchListTop] = useState<Boolean>(false);
   const [displayPools, setDisplayPools] = useState<Pool[]>();
-
   const { pools, hasMore, nextPage } = usePools({
     tokenName,
     sortBy,
@@ -752,6 +753,8 @@ export function LiquidityPage() {
 
   useEffect(() => {
     let tempPools;
+
+    setHideLowTVL(JSON.parse(localStorage.getItem(HIDE_LOW_TVL)) || false);
 
     if (hideLowTVL) {
       tempPools = _.filter(pools, (pool) => pool.tvl > 1000);
@@ -769,7 +772,10 @@ export function LiquidityPage() {
       <LiquidityPage_
         tokenName={tokenName}
         pools={displayPools}
-        onHide={setHideLowTVL}
+        onHide={(isHide) => {
+          localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
+          setHideLowTVL(isHide);
+        }}
         hideLowTVL={hideLowTVL}
         // watchList={watchList}
         order={order}
@@ -791,7 +797,10 @@ export function LiquidityPage() {
         sortBy={sortBy}
         onOrderChange={setOrder}
         onSortChange={setSortBy}
-        onHide={setHideLowTVL}
+        onHide={(isHide) => {
+          localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
+          setHideLowTVL(isHide);
+        }}
         onSearch={setTokenName}
         hasMore={hasMore}
         nextPage={nextPage}
