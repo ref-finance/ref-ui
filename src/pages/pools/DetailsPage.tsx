@@ -704,7 +704,7 @@ export function PoolDetailsPage() {
     if (state?.backToFarms) {
       setBackToFarmsButton(state?.backToFarms);
     } else {
-      canFarm(+id).then((canFarm) => {
+      canFarm(Number(id)).then((canFarm) => {
         setBackToFarmsButton(canFarm);
       });
     }
@@ -715,8 +715,6 @@ export function PoolDetailsPage() {
   }, []);
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
-  console.log(tokens);
-  const newTokens = tokens;
 
   return (
     <div>
@@ -724,7 +722,7 @@ export function PoolDetailsPage() {
         <div
           className="inline-block"
           onClick={() => {
-            history.goBack();
+            history.push(`/pools`);
           }}
         >
           <BackArrow />
