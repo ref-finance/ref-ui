@@ -141,22 +141,27 @@ function AddLiquidityModal(
         contribution: toNonDivisibleNumber(tokens[1].decimals, amount),
         totalContribution: pool.supplies[tokens[1].id],
       });
+      const firstAmount = toReadableNumber(
+        tokens[0].decimals,
+        calculateFairShare({
+          shareOf: pool.supplies[tokens[0].id],
+          contribution: fairShares,
+          totalContribution: pool.shareSupply,
+        })
+      );
 
       setSecondTokenAmount(amount);
-      setFirstTokenAmount(
-        toReadableNumber(
-          tokens[0].decimals,
-          calculateFairShare({
-            shareOf: pool.supplies[tokens[0].id],
-            contribution: fairShares,
-            totalContribution: pool.shareSupply,
-          })
-        )
-      );
+      setFirstTokenAmount(firstAmount);
+      try {
+        validate({
+          firstAmount,
+          secondAmount: amount,
+        });
+      } catch (error) {
+        setError(error);
+      }
     }
   };
-
-  // const canSubmit = firstTokenAmount && secondTokenAmount;
 
   function validate({
     firstAmount,
@@ -250,7 +255,6 @@ function AddLiquidityModal(
   const cardWidth = isMobile() ? '95vw' : '40vw';
 
   const ButtonRender = () => {
-    // 未登陆, 优先登陆.
     if (!wallet.isSignedIn()) {
       return (
         <SolidButton
@@ -273,7 +277,6 @@ function AddLiquidityModal(
       );
     }
 
-    // 已登陆状态的两种情况
     const handleClick = async () => {
       if (messageId !== 'add_liquidity') {
         history.push(`/deposit`);
