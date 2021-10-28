@@ -14,11 +14,10 @@ import {
 import NewFormWrap from '../forms/NewFormWrap';
 import TokenAmount from '../forms/TokenAmount';
 import Alert from '../alert/Alert';
-import SlippageSelector from '../forms/SlippageSelector';
-import { ArrowDownBlack, SwapArrow } from '../icon/Arrows';
+import { SwapArrow } from '../icon/Arrows';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { FaExchangeAlt } from 'react-icons/fa';
+import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import db from '~store/RefDatabase';
 import { GradientButton } from '~components/button/Button';
 
@@ -84,7 +83,7 @@ function SwapRateDetail({
         onClick={switchSwapRate}
       >
         <span className="mr-2" style={{ marginTop: '0.1rem' }}>
-          <FaExchangeAlt></FaExchangeAlt>
+          <FaExchangeAlt />
         </span>
         <span>{newValue}</span>
       </p>
@@ -108,34 +107,50 @@ function DetailView({
   minAmountOut: string;
 }) {
   const intl = useIntl();
+  const [showDetails, setShowDetails] = useState<boolean>(false);
 
   if (!pool || !from || !to) return null;
 
   return (
-    <>
-      <SwapDetail
-        title={intl.formatMessage({ id: 'minimum_received' })}
-        value={toPrecision(minAmountOut, 8, true)}
-      />
-      <SwapRateDetail
-        title={intl.formatMessage({ id: 'swap_rate' })}
-        value={`${calculateExchangeRate(pool.fee, from, to)} ${toRealSymbol(
-          tokenOut.symbol
-        )} per ${toRealSymbol(tokenIn.symbol)}`}
-        pool={pool}
-        from={from}
-        to={to}
-        tokenIn={tokenIn}
-        tokenOut={tokenOut}
-      />
-      <SwapDetail
-        title={intl.formatMessage({ id: 'pool_fee' })}
-        value={`${calculateFeePercent(pool.fee)}% (${calculateFeeCharge(
-          pool.fee,
-          from
-        )})`}
-      />
-    </>
+    <div className="mt-8">
+      <div
+        className="flex justify-center"
+        onClick={() => {
+          setShowDetails(!showDetails);
+        }}
+      >
+        <div className="flex items-center text-white">
+          <p className="block text-xs">Details</p>
+          <div className="pl-1 text-sm">
+            {showDetails ? <FaAngleUp /> : <FaAngleDown />}
+          </div>
+        </div>
+      </div>
+      <div className={showDetails ? '' : 'hidden'}>
+        <SwapDetail
+          title={intl.formatMessage({ id: 'minimum_received' })}
+          value={toPrecision(minAmountOut, 8, true)}
+        />
+        <SwapRateDetail
+          title={intl.formatMessage({ id: 'swap_rate' })}
+          value={`${calculateExchangeRate(pool.fee, from, to)} ${toRealSymbol(
+            tokenOut.symbol
+          )} per ${toRealSymbol(tokenIn.symbol)}`}
+          pool={pool}
+          from={from}
+          to={to}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+        />
+        <SwapDetail
+          title={intl.formatMessage({ id: 'pool_fee' })}
+          value={`${calculateFeePercent(pool.fee)}% (${calculateFeeCharge(
+            pool.fee,
+            from
+          )})`}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -290,13 +305,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           setTokenOut(token);
         }}
       />
-      {/* <SlippageSelector
-        slippageTolerance={slippageTolerance}
-        onChange={(slippage) => {
-          setSlippageTolerance(slippage);
-          localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
-        }}
-      /> */}
       <DetailView
         pool={pool}
         tokenIn={tokenIn}
@@ -305,6 +313,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         to={tokenOutAmount}
         minAmountOut={minAmountOut}
       />
+
       <div className="pb-2">
         {swapError && <Alert level="error" message={swapError.message} />}
       </div>
