@@ -141,22 +141,27 @@ function AddLiquidityModal(
         contribution: toNonDivisibleNumber(tokens[1].decimals, amount),
         totalContribution: pool.supplies[tokens[1].id],
       });
+      const firstAmount = toReadableNumber(
+        tokens[0].decimals,
+        calculateFairShare({
+          shareOf: pool.supplies[tokens[0].id],
+          contribution: fairShares,
+          totalContribution: pool.shareSupply,
+        })
+      );
 
       setSecondTokenAmount(amount);
-      setFirstTokenAmount(
-        toReadableNumber(
-          tokens[0].decimals,
-          calculateFairShare({
-            shareOf: pool.supplies[tokens[0].id],
-            contribution: fairShares,
-            totalContribution: pool.shareSupply,
-          })
-        )
-      );
+      setFirstTokenAmount(firstAmount);
+      try {
+        validate({
+          firstAmount,
+          secondAmount: amount,
+        });
+      } catch (error) {
+        setError(error);
+      }
     }
   };
-
-  // const canSubmit = firstTokenAmount && secondTokenAmount;
 
   function validate({
     firstAmount,
