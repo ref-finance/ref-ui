@@ -61,19 +61,23 @@ export default function SlippageSelector({
 
   return (
     <div className="relative">
-      {showSlip && (
-        <IoCloseOutline
-          className="absolute top-12 xs:top-10 z-20 right-3 text-primaryText"
-          onClick={(e) => closeToolTip(e)}
-        />
-      )}
       <div className=" w-7 text-2xl text-white" onClick={(e) => openToolTip(e)}>
         <Slider showSlip={showSlip} />
       </div>
       {showSlip && (
-        <div className="xs:fixed xs:z-10 xs:top-16 xs:left-0 xs:backdrop-filter xs:backdrop-blur-lg xs:right-0 xs:bottom-0 xs:bg-black xs:bg-opacity-30 ">
+        <div
+          className={`xs:fixed xs:z-10 xs:top-0 xs:left-0 ${
+            isMobile() ? 'filter-blur' : ''
+          } xs:backdrop-filter xs:backdrop-blur-lg xs:right-0 xs:bottom-0 xs:bg-black xs:bg-opacity-30`}
+        >
+          {showSlip && (
+            <IoCloseOutline
+              className="absolute top-12 xs:top-48 xs:right-10 z-20 right-3 text-primaryText"
+              onClick={(e) => closeToolTip(e)}
+            />
+          )}
           <fieldset
-            className="z-10 absolute top-5 right-0 xs:relative xs:mx-5 xs:top-20 xs:right-0 px-4 py-6 bg-cardBg border shadow-4xl border-greenLight border-opacity-30 rounded-lg flex flex-col mb-4"
+            className="z-10 absolute top-5 right-0 xs:relative xs:mx-5 xs:top-40 xs:right-0 px-4 py-6 bg-cardBg border shadow-4xl border-greenLight border-opacity-30 rounded-lg flex flex-col mb-4"
             onClick={(e) => {
               openToolTip(e);
             }}

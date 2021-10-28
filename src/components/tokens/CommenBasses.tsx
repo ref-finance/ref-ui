@@ -22,7 +22,7 @@ const COMMEN_BASSES = [
 
 export default function CommenBasses({ tokens, onClick }: CommenBassesProps) {
   const commenBassesTokens = tokens.filter((item) => {
-    return COMMEN_BASSES.indexOf(item.symbol) > -1;
+    return COMMEN_BASSES.indexOf(item?.symbol) > -1;
   });
 
   return (
