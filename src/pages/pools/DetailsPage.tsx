@@ -480,6 +480,7 @@ export function RemoveLiquidityModal(
     slippageTolerance,
     shares: amount ? toNonDivisibleNumber(24, amount) : '0',
   });
+  const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [error, setError] = useState<Error>();
   const cardWidth = isMobile() ? '95vw' : '40vw';
   const intl = useIntl();
@@ -505,6 +506,7 @@ export function RemoveLiquidityModal(
 
   function handleChangeAmount(value: string) {
     setAmount(value);
+    setError(null);
 
     const amountBN = new BigNumber(value.toString());
     const shareBN = new BigNumber(toReadableNumber(24, shares));
@@ -514,11 +516,13 @@ export function RemoveLiquidityModal(
           id: 'must_input_a_value_not_greater_than_your_balance',
         })
       );
-    } else {
-      setError(null);
     }
+    if (!value || value === '0') {
+      setCanSubmit(false);
+      return;
+    }
+    setCanSubmit(true);
   }
-
   return (
     <Modal {...props}>
       <Card
@@ -603,7 +607,7 @@ export function RemoveLiquidityModal(
         <div className="flex items-center justify-center">
           {wallet.isSignedIn() ? (
             <SolidButton
-              disabled={!amount}
+              disabled={!canSubmit}
               className={`focus:outline-none px-4 w-full`}
               onClick={async () => {
                 try {
