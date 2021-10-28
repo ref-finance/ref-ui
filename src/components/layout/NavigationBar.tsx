@@ -397,7 +397,7 @@ function MobilePoolsMenu({
       >
         <div
           className={`text-white link font-bold ${
-            isSelected ? 'text-white bg-navHighLightBg' : 'text-primaryText'
+            isSelected ? 'text-white' : 'text-primaryText'
           }`}
         >
           <FormattedMessage id="pools" defaultMessage="Pools" />
