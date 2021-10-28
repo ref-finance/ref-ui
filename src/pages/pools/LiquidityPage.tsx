@@ -307,12 +307,11 @@ function MobileLiquidityPage({
         </div>
         <div className=" mb-4 flex items-center mx-6">
           <div className="mr-2">
-            {hideLowTVL && (
+            {hideLowTVL ? (
               <div onClick={() => onHide(false)}>
                 <CheckedTick />
               </div>
-            )}
-            {!hideLowTVL && (
+            ) : (
               <div onClick={() => onHide(true)}>
                 <CheckedEmpty />
               </div>
@@ -372,7 +371,7 @@ function MobileLiquidityPage({
           </header>
           <div className="border-b border-gray-700 "></div>
           <div className="max-h-96 overflow-y-auto">
-            {pools.map((pool, i) => (
+            {pools?.map((pool, i) => (
               <div className="w-full hover:bg-poolRowHover" key={i}>
                 <MobilePoolRow
                   pool={pool}
@@ -630,12 +629,11 @@ function LiquidityPage_({
           <div className="flex items-center w-3/7">
             <div className="flex items-center">
               <div className="mr-2">
-                {hideLowTVL && (
+                {hideLowTVL ? (
                   <div onClick={() => onHide(false)}>
                     <CheckedTick />
                   </div>
-                )}
-                {!hideLowTVL && (
+                ) : (
                   <div onClick={() => onHide(true)}>
                     <CheckedEmpty />
                   </div>
@@ -721,7 +719,7 @@ function LiquidityPage_({
           </header>
 
           <div className="max-h-96 overflow-y-auto">
-            {pools.map((pool, i) => (
+            {pools?.map((pool, i) => (
               <div
                 className="w-full hover:bg-poolRowHover bg-blend-overlay"
                 key={i}

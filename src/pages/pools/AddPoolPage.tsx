@@ -51,7 +51,7 @@ export function AddPoolPage() {
       <Card width="w-full" bgcolor="bg-dark">
         <h2 className="formTitle font-bold text-xl text-white text-left pb-4">
           <FormattedMessage
-            id="create_new_pool"
+            id="Create_New_Pool"
             defaultMessage="Create New Pool"
           />
         </h2>
