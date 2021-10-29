@@ -287,13 +287,13 @@ function MobileLiquidityPage({
                 data-place="right"
                 data-multiline={true}
                 data-tip={intl.formatMessage({ id: 'topPoolsCopy' })}
-                className="inline-block	ml-2 text-sm text-gray-500"
+                className="inline-block	ml-2 text-sm text-primaryText"
               />
               <ReactTooltip
                 className="text-xs shadow-4xl"
                 backgroundColor="#1D2932"
                 border
-                borderColor="#6B7280"
+                borderColor="#7e8a93"
                 effect="solid"
                 class="tool-tip"
               />
@@ -625,13 +625,13 @@ function LiquidityPage_({
                 data-place="right"
                 data-multiline={true}
                 data-tip={intl.formatMessage({ id: 'topPoolsCopy' })}
-                className="inline-block	ml-2 text-sm  text-gray-500"
+                className="inline-block	ml-2 text-sm  text-primaryText"
               />
               <ReactTooltip
                 className="text-xs shadow-4xl"
                 backgroundColor="#1D2932"
                 border
-                borderColor="#6B7280"
+                borderColor="#7e8a93"
                 effect="solid"
                 class="tool-tip"
               />
