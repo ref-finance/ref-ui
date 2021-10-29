@@ -56,6 +56,7 @@ const zh_CN = {
   fees: '手续费',
   view_detail: '查看详情',
   pool_details: '资金池详情',
+  details: '详情',
   liquidity_pools: '流动性资金池',
   minimum_tokens_out: '最少可获得代币数量',
   pair: '交易对',

@@ -54,6 +54,7 @@ const en_US = {
   fees: 'Fees',
   view_detail: 'View detail',
   pool_details: 'Pool details',
+  details: 'Details',
   liquidity_pools: 'Liquidity pools',
   minimum_tokens_out: 'Minimum tokens out',
   pair: 'Pair',

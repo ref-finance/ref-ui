@@ -120,7 +120,9 @@ function DetailView({
         }}
       >
         <div className="flex items-center text-white">
-          <p className="block text-xs">Details</p>
+          <p className="block text-xs">
+            <FormattedMessage id="details" defaultMessage="Details" />
+          </p>
           <div className="pl-1 text-sm">
             {showDetails ? <FaAngleUp /> : <FaAngleDown />}
           </div>
