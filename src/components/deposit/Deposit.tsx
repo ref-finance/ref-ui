@@ -175,7 +175,15 @@ export function Balances(props: {
         ) : null}
       </Card>
 
-      <WithdrawModal isOpen={isOpen} onRequestClose={() => setIsOpen(false)} />
+      <WithdrawModal
+        isOpen={isOpen}
+        onRequestClose={() => setIsOpen(false)}
+        style={{
+          content: {
+            outline: 'none',
+          },
+        }}
+      />
     </div>
   );
 }
