@@ -60,24 +60,16 @@ export default function SlippageSelector({
   }, [showSlip, invalid]);
 
   return (
-    <div className="relative">
+    <div className="relative z-10">
       <div className=" w-7 text-2xl text-white" onClick={(e) => openToolTip(e)}>
         <Slider showSlip={showSlip} />
       </div>
       {showSlip && (
         <div
-          className={`xs:fixed xs:z-10 xs:top-0 xs:left-0 ${
-            isMobile() ? 'filter-blur' : ''
-          } xs:backdrop-filter xs:backdrop-blur-lg xs:right-0 xs:bottom-0 xs:bg-black xs:bg-opacity-30`}
+          className={`xs:fixed xs:z-10 xs:top-0 xs:left-0 xs:backdrop-filter xs:right-0 xs:bottom-0 xs:bg-black xs:bg-opacity-60`}
         >
-          {showSlip && (
-            <IoCloseOutline
-              className="absolute top-12 xs:top-48 xs:right-10 z-20 right-3 text-primaryText"
-              onClick={(e) => closeToolTip(e)}
-            />
-          )}
           <fieldset
-            className="z-10 absolute top-5 right-0 xs:relative xs:mx-5 xs:top-40 xs:right-0 px-4 py-6 bg-cardBg border shadow-4xl border-greenLight border-opacity-30 rounded-lg flex flex-col mb-4"
+            className="absolute top-5 right-0 xs:relative xs:mx-5 xs:top-40 xs:right-0 px-4 py-6 bg-cardBg border shadow-4xl border-greenLight border-opacity-30 rounded-lg flex flex-col mb-4"
             onClick={(e) => {
               openToolTip(e);
             }}
@@ -128,23 +120,24 @@ export default function SlippageSelector({
                   </button>
                 ))}
               </div>
-              <input
+              <input 
                 ref={ref}
-                max={99}
-                min={0}
+                max={99.99999}
+                min={0.000001}
                 defaultValue={slippageTolerance ? slippageTolerance : 0.5}
                 onWheel={() => ref.current.blur()}
                 step="any"
                 className={`${
                   slippageTolerance && !invalid && !warn
-                    ? 'border border-gradientFrom text-gradientFrom bg-opacity-0'
+                    ? 'border border-gradientFrom normal-input text-gradientFrom bg-opacity-0'
                     : ''
-                } focus:border focus:border-gradientFrom focus:text-gradientFrom focus:bg-opacity-0 w-14 h-7 text-center text-sm rounded mx-2 bg-gray-500 ${
+                } focus:text-gradientFrom focus:bg-opacity-0 w-14 h-7 text-center text-sm rounded mx-2 bg-gray-500 ${
                   invalid && !warn
-                    ? 'border border-error text-error bg-opacity-0'
+                    ? 'border border-error text-error bg-opacity-0 invalid-input'
                     : ''
-                } ${warn ? 'border border-warn text-warn bg-opacity-0' : ''}`}
+                } ${warn ? 'border border-warn text-warn bg-opacity-0 warn-input' : ''}`}
                 type="number"
+                required={true}
                 placeholder=""
                 onChange={({ target }) => handleChange(target.value)}
                 onKeyDown={(e) =>
@@ -172,6 +165,12 @@ export default function SlippageSelector({
               )}
             </div>
           </fieldset>
+          {showSlip && (
+            <IoCloseOutline
+              className="absolute top-12 xs:top-48 xs:right-10 right-3 text-primaryText"
+              onClick={(e) => closeToolTip(e)}
+            />
+          )}
         </div>
       )}
     </div>
