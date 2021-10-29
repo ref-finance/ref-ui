@@ -259,15 +259,15 @@ input[type='number'] {
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
 }
-input.normal-input:focus{
+input.normal-input:focus {
   border: 1px solid #00c6a2;
   color: #00c6a2;
 }
-input.invalid-input:focus{
-  border: 1px solid #DE5050;
-  color: #DE5050;
+input.invalid-input:focus {
+  border: 1px solid #de5050;
+  color: #de5050;
 }
-input.warn-input:focus{
-  border: 1px solid #DEA550;
-  color: #DEA550;
+input.warn-input:focus {
+  border: 1px solid #dea550;
+  color: #dea550;
 }

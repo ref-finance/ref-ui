@@ -120,7 +120,7 @@ export default function SlippageSelector({
                   </button>
                 ))}
               </div>
-              <input 
+              <input
                 ref={ref}
                 max={99.99999}
                 min={0.000001}
@@ -135,7 +135,11 @@ export default function SlippageSelector({
                   invalid && !warn
                     ? 'border border-error text-error bg-opacity-0 invalid-input'
                     : ''
-                } ${warn ? 'border border-warn text-warn bg-opacity-0 warn-input' : ''}`}
+                } ${
+                  warn
+                    ? 'border border-warn text-warn bg-opacity-0 warn-input'
+                    : ''
+                }`}
                 type="number"
                 required={true}
                 placeholder=""
