@@ -776,7 +776,7 @@ export function LiquidityPage() {
   }, [pools, hideLowTVL]);
 
   // if (!displayPools || !watchList) return <Loading />;
-  if (!displayPools) return <Loading />;
+  if (!displayPools || pools.length === 0) return <Loading />;
 
   return (
     <>
