@@ -722,7 +722,7 @@ export function PoolDetailsPage() {
     <div>
       <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 m-auto">
         <div
-          className="inline-block"
+          className="inline-block mr-2"
           onClick={() => {
             history.goBack();
           }}
