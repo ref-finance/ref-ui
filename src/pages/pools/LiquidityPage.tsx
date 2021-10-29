@@ -289,7 +289,14 @@ function MobileLiquidityPage({
                 data-tip={intl.formatMessage({ id: 'topPoolsCopy' })}
                 className="inline-block	ml-2 text-sm text-gray-500"
               />
-              <ReactTooltip className="text-sm" />
+              <ReactTooltip
+                className="text-xs shadow-4xl"
+                backgroundColor="#1D2932"
+                border
+                borderColor="#6B7280"
+                effect="solid"
+                class="tool-tip"
+              />
             </div>
           </div>
 
@@ -621,7 +628,7 @@ function LiquidityPage_({
                 className="inline-block	ml-2 text-sm  text-gray-500"
               />
               <ReactTooltip
-                className="text-sm shadow-4xl"
+                className="text-xs shadow-4xl"
                 backgroundColor="#1D2932"
                 border
                 borderColor="#6B7280"
