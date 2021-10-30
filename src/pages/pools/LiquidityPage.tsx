@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 import ReactTooltip from 'react-tooltip';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -303,7 +303,9 @@ function MobileLiquidityPage({
         <div className="rounded my-2 text-gray-400 flex items-center pr-2 mx-6 mb-5 bg-inputDarkBg">
           <input
             className={`text-sm outline-none rounded w-full py-2 px-3`}
-            placeholder={intl.formatMessage({ id: 'search_pools' })}
+            placeholder={intl.formatMessage({
+              id: 'click_search_bar_to_search',
+            })}
             value={searchValue}
             onChange={(evt) => setSearchValue(evt.target.value)}
             onKeyUp={(evt) => {
@@ -312,7 +314,10 @@ function MobileLiquidityPage({
               }
             }}
           />
-          <FaSearch className="cursor-pointer" onClick={() => onSearch(searchValue)} />
+          <FaSearch
+            className="cursor-pointer"
+            onClick={() => onSearch(searchValue)}
+          />
         </div>
         <div className=" mb-4 flex items-center mx-6">
           <div className="mr-2">
@@ -661,7 +666,9 @@ function LiquidityPage_({
             <div className="rounded w-full my-2 text-gray-400 flex items-center pr-2 bg-inputDarkBg">
               <input
                 className={`text-sm outline-none rounded w-full py-2 px-3`}
-                placeholder={intl.formatMessage({ id: 'search_pools' })}
+                placeholder={intl.formatMessage({
+                  id: 'press_enter_to_search',
+                })}
                 value={searchValue}
                 onChange={(evt) => setSearchValue(evt.target.value)}
                 onKeyUp={(evt) => {
@@ -670,7 +677,10 @@ function LiquidityPage_({
                   }
                 }}
               />
-              <FaSearch className="cursor-pointer" onClick={() => onSearch(searchValue)} />
+              <FaSearch
+                className="cursor-pointer"
+                onClick={() => onSearch(searchValue)}
+              />
             </div>
           </div>
         </div>
