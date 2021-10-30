@@ -48,12 +48,6 @@ const ConnectToNearCard = () => {
       className="bg-opacity-0 border rounded border-gradientFrom text-white mb-5"
       padding="p-8"
     >
-      <div className="mb-8">
-        <FormattedMessage
-          id="connect_to_near_tip"
-          defaultMessage="Connect your wallet to provide liquidity and view your deposit."
-        />
-      </div>
       <div className="text-xl">
         <SolidButton
           className="w-full"
@@ -303,7 +297,7 @@ function MobileLiquidityPage({
 
           <div className="text-gray-400 text-xs">
             {(pools?.length ? pools?.length : '-') +
-              ' of ' +
+              ' out of ' +
               (allPools ? allPools : '-')}
           </div>
         </div>
