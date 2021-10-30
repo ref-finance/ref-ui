@@ -259,7 +259,6 @@ function MobileLiquidityPage({
 
   return (
     <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
-      {!wallet.isSignedIn() && <ConnectToNearCard />}
       <div className="mx-6 mb-6 mt-3">
         <div className="text-white text-xl">
           <FormattedMessage
@@ -313,7 +312,7 @@ function MobileLiquidityPage({
               }
             }}
           />
-          <FaSearch onClick={() => onSearch(searchValue)} />
+          <FaSearch className="cursor-pointer" onClick={() => onSearch(searchValue)} />
         </div>
         <div className=" mb-4 flex items-center mx-6">
           <div className="mr-2">
@@ -671,7 +670,7 @@ function LiquidityPage_({
                   }
                 }}
               />
-              <FaSearch onClick={() => onSearch(searchValue)} />
+              <FaSearch className="cursor-pointer" onClick={() => onSearch(searchValue)} />
             </div>
           </div>
         </div>
@@ -761,7 +760,7 @@ export function LiquidityPage() {
   const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
   const [watchListTop, setWatchListTop] = useState<Boolean>(false);
   const [displayPools, setDisplayPools] = useState<Pool[]>();
-  const { pools, hasMore, nextPage } = usePools({
+  const { pools, hasMore, nextPage, loading } = usePools({
     tokenName,
     sortBy,
     order,
@@ -781,7 +780,7 @@ export function LiquidityPage() {
   }, [pools, hideLowTVL]);
 
   // if (!displayPools || !watchList) return <Loading />;
-  if (!displayPools || pools.length === 0) return <Loading />;
+  if (!displayPools || loading) return <Loading />;
 
   return (
     <>
