@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { calculateFairShare, percentLess, toPrecision } from '../utils/numbers';
 import {
   DEFAULT_PAGE_LIMIT,
@@ -35,6 +35,13 @@ export const usePool = (id: number | string) => {
   return { pool, shares };
 };
 
+interface LoadPoolsOpts {
+  accumulate: boolean;
+  tokenName?: string;
+  sortBy?: string;
+  order?: string;
+}
+
 export const usePools = (props: {
   tokenName?: string;
   sortBy?: string;
@@ -43,60 +50,87 @@ export const usePools = (props: {
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [pools, setPools] = useState<Pool[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const tokens = useWhitelistTokens();
   const tokenIds = tokens?.map((t) => t.id);
 
   const nextPage = () => setPage((page) => page + 1);
 
-  function _loadPools(accumulate = true) {
+  function _loadPools({
+    accumulate = true,
+    tokenName,
+    sortBy,
+    order,
+  }: LoadPoolsOpts) {
+    setLoading(true);
     getPools({
       page,
-      tokenName: props.tokenName,
-      column: props.sortBy,
-      order: props.order,
-    }).then((pools) => {
-      setHasMore(pools.length === DEFAULT_PAGE_LIMIT);
-      setPools((currentPools) =>
-        pools.reduce<Pool[]>(
-          (acc: Pool[], pool) => {
-            if (
-              acc.some(
-                (p) =>
-                  p.fee === pool.fee &&
-                  p.tokenIds.includes(pool.tokenIds[0]) &&
-                  p.tokenIds.includes(pool.tokenIds[1]) &&
-                  p.shareSupply === pool.shareSupply
+      tokenName: tokenName,
+      column: sortBy,
+      order: order,
+    })
+      .then((pools) => {
+        setHasMore(pools.length === DEFAULT_PAGE_LIMIT);
+        setPools((currentPools) =>
+          pools.reduce<Pool[]>(
+            (acc: Pool[], pool) => {
+              if (
+                acc.some(
+                  (p) =>
+                    p.fee === pool.fee &&
+                    p.tokenIds.includes(pool.tokenIds[0]) &&
+                    p.tokenIds.includes(pool.tokenIds[1]) &&
+                    p.shareSupply === pool.shareSupply
+                )
               )
-            )
+                return acc;
+              acc.push(pool);
               return acc;
-            acc.push(pool);
-            return acc;
-          },
-          accumulate ? currentPools.slice() : []
-        )
-      );
-    });
+            },
+            accumulate ? currentPools.slice() : []
+          )
+        );
+      })
+      .finally(() => setLoading(false));
   }
 
-  const loadPools = debounce(_loadPools, 500);
+  const loadPools = useCallback(debounce(_loadPools, 500), []);
+
+  // const loadPools = debounce(_loadPools, 500);
 
   useEffect(() => {
-    loadPools(false);
+    loadPools({
+      accumulate: false,
+      tokenName: props.tokenName,
+      sortBy: props.sortBy,
+      order: props.order,
+    });
   }, [props.tokenName]);
 
   useEffect(() => {
-    loadPools(false);
+    loadPools({
+      accumulate: false,
+      tokenName: props.tokenName,
+      sortBy: props.sortBy,
+      order: props.order,
+    });
   }, [props.sortBy, props.order]);
 
   useEffect(() => {
-    loadPools();
+    loadPools({
+      accumulate: true,
+      tokenName: props.tokenName,
+      sortBy: props.sortBy,
+      order: props.order,
+    });
   }, [page]);
 
   return {
     pools,
     hasMore,
     nextPage,
+    loading,
   };
 };
 

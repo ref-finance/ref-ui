@@ -756,7 +756,7 @@ export function LiquidityPage() {
   const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
   const [watchListTop, setWatchListTop] = useState<Boolean>(false);
   const [displayPools, setDisplayPools] = useState<Pool[]>();
-  const { pools, hasMore, nextPage } = usePools({
+  const { pools, hasMore, nextPage, loading } = usePools({
     tokenName,
     sortBy,
     order,
@@ -776,7 +776,7 @@ export function LiquidityPage() {
   }, [pools, hideLowTVL]);
 
   // if (!displayPools || !watchList) return <Loading />;
-  if (!displayPools || pools.length === 0) return <Loading />;
+  if (!displayPools || loading) return <Loading />;
 
   return (
     <>
