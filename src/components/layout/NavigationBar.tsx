@@ -393,7 +393,10 @@ function MobilePoolsMenu({
     <div className="relative z-20">
       <div
         className="flex p-4 items-center justify-between"
-        onClick={() => setShow(!show)}
+        onClick={() => {
+          console.log('oooo');
+          setShow(!show);
+        }}
       >
         <div
           className={`text-white link font-bold ${
@@ -402,11 +405,12 @@ function MobilePoolsMenu({
         >
           <FormattedMessage id="pools" defaultMessage="Pools" />
         </div>
-        {show ? (
-          <FiChevronUp className="text-xl" />
-        ) : (
-          <FiChevronDown className="text-xl" />
-        )}
+        <FiChevronUp
+          className={`${show ? 'inline-block' : 'hidden'} text-xl`}
+        />
+        <FiChevronDown
+          className={`${!show ? 'inline-block' : 'hidden'} text-xl`}
+        />
       </div>
       <div className={`${show ? 'block' : 'hidden'}`}>
         {links.map((link) => {
@@ -450,12 +454,12 @@ function MobileMoreMenu({
         <div className={`text-primaryText link font-bold`}>
           <FormattedMessage id="more" defaultMessage="More" />
         </div>
-
-        {show ? (
-          <FiChevronUp className="text-xl" />
-        ) : (
-          <FiChevronDown className="text-xl" />
-        )}
+        <FiChevronUp
+          className={`${show ? 'inline-block' : 'hidden'} text-xl`}
+        />
+        <FiChevronDown
+          className={`${!show ? 'inline-block' : 'hidden'} text-xl`}
+        />
       </div>
       <div className={`${show ? 'block' : 'hidden'}`}>
         {links.map((link) => {
@@ -581,9 +585,39 @@ function MobileNavBar() {
     >
       <div className="flex items-center text-2xl text-white justify-between p-4">
         <NavLogo />
-        <span ref={iconRef} onClick={() => setShow(true)}>
-          <HiMenu />
-        </span>
+        <div className="flex">
+          <div
+            className={`inline-flex p-1 mr-2 items-center justify-center rounded-full ${
+              wallet.isSignedIn()
+                ? 'bg-gray-700 text-white'
+                : 'border border-gradientFrom text-gradientFrom'
+            } pl-3 pr-3`}
+          >
+            <div className="pr-1">
+              <Near color={wallet.isSignedIn() ? 'white' : '#00c6a2'} />
+            </div>
+            <div className="overflow-ellipsis overflow-hidden text-xs whitespace-nowrap account-name">
+              {wallet.isSignedIn() ? (
+                <div>{accountId}</div>
+              ) : (
+                <button
+                  onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
+                  type="button"
+                >
+                  <span className="ml-2 text-xs">
+                    <FormattedMessage
+                      id="connect_to_near"
+                      defaultMessage="Connect to NEAR"
+                    />
+                  </span>
+                </button>
+              )}
+            </div>
+          </div>
+          <span ref={iconRef} onClick={() => setShow(true)}>
+            <HiMenu />
+          </span>
+        </div>
       </div>
       <div className="block"> {langSwitcher()}</div>
       <div
@@ -641,8 +675,15 @@ function MobileNavBar() {
               ${data && data !== '-' ? toPrecision(data, 2) : '-'}
             </span>
           </div>
-
           <div className="text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
+            {wallet.isSignedIn() && (
+              <MobileAnchor
+                to="/account"
+                pattern="/account"
+                name="view_account"
+                onClick={close}
+              />
+            )}
             <MobileAnchor
               to="/deposit"
               pattern="/deposit/:id?"
@@ -650,14 +691,6 @@ function MobileNavBar() {
               onClick={close}
             />
             <MobileAnchor to="/" pattern="/" name="Swap" onClick={close} />
-            {wallet.isSignedIn() && (
-              <MobileAnchor
-                to="/account"
-                pattern="/account"
-                name="Account"
-                onClick={close}
-              />
-            )}
             <MobilePoolsMenu links={links} onClick={close} />
             <MobileAnchor
               to="/farms"
