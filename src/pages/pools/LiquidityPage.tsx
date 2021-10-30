@@ -48,12 +48,6 @@ const ConnectToNearCard = () => {
       className="bg-opacity-0 border rounded border-gradientFrom text-white mb-5"
       padding="p-8"
     >
-      <div className="mb-8">
-        <FormattedMessage
-          id="connect_to_near_tip"
-          defaultMessage="Connect your wallet to provide liquidity and view your deposit."
-        />
-      </div>
       <div className="text-xl">
         <SolidButton
           className="w-full"
@@ -212,7 +206,7 @@ function MobileLiquidityPage({
 }) {
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>();
-
+  const [searchValue, setSearchValue] = useState<string>('');
   const SelectModal = ({
     className,
     setShowModal,
@@ -265,7 +259,6 @@ function MobileLiquidityPage({
 
   return (
     <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
-      {!wallet.isSignedIn() && <ConnectToNearCard />}
       <div className="mx-6 mb-6 mt-3">
         <div className="text-white text-xl">
           <FormattedMessage
@@ -274,7 +267,7 @@ function MobileLiquidityPage({
           />
         </div>
       </div>
-      <Card className="w-full mb-4" bgcolor="bg-cardBg" padding="p-0">
+      <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4">
         <div className="mx-6 flex items-center justify-between my-4">
           <div className="flex items-center">
             <div className="text-white text-base">
@@ -303,7 +296,7 @@ function MobileLiquidityPage({
 
           <div className="text-gray-400 text-xs">
             {(pools?.length ? pools?.length : '-') +
-              ' of ' +
+              ' out of ' +
               (allPools ? allPools : '-')}
           </div>
         </div>
@@ -311,10 +304,15 @@ function MobileLiquidityPage({
           <input
             className={`text-sm outline-none rounded w-full py-2 px-3`}
             placeholder={intl.formatMessage({ id: 'search_pools' })}
-            value={tokenName}
-            onChange={(evt) => onSearch(evt.target.value)}
+            value={searchValue}
+            onChange={(evt) => setSearchValue(evt.target.value)}
+            onKeyUp={(evt) => {
+              if (evt.keyCode === 13) {
+                onSearch(searchValue);
+              }
+            }}
           />
-          <FaSearch />
+          <FaSearch onClick={() => onSearch(searchValue)} />
         </div>
         <div className=" mb-4 flex items-center mx-6">
           <div className="mr-2">
@@ -602,6 +600,7 @@ function LiquidityPage_({
   nextPage: (...args: []) => void;
 }) {
   const intl = useIntl();
+  const [searchValue, setSearchValue] = useState<string>(tokenName);
   return (
     <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
       {/* {<WatchListCard watchList={watchList} />} */}
@@ -663,10 +662,15 @@ function LiquidityPage_({
               <input
                 className={`text-sm outline-none rounded w-full py-2 px-3`}
                 placeholder={intl.formatMessage({ id: 'search_pools' })}
-                value={tokenName}
-                onChange={(evt) => onSearch(evt.target.value)}
+                value={searchValue}
+                onChange={(evt) => setSearchValue(evt.target.value)}
+                onKeyUp={(evt) => {
+                  if (evt.keyCode === 13) {
+                    onSearch(searchValue);
+                  }
+                }}
               />
-              <FaSearch />
+              <FaSearch onClick={() => onSearch(searchValue)} />
             </div>
           </div>
         </div>
