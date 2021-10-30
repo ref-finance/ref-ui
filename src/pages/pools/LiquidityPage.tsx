@@ -317,10 +317,7 @@ function MobileLiquidityPage({
             //   }
             // }}
           />
-          <FaSearch
-            className="cursor-pointer"
-            onClick={() => onSearch(searchValue)}
-          />
+          <FaSearch onClick={() => onSearch(searchValue)} />
         </div>
         <div className=" mb-4 flex items-center mx-6">
           <div className="mr-2">
@@ -683,10 +680,7 @@ function LiquidityPage_({
                 //   }
                 // }}
               />
-              <FaSearch
-                className="cursor-pointer"
-                onClick={() => onSearch(searchValue)}
-              />
+              <FaSearch onClick={() => onSearch(searchValue)} />
             </div>
           </div>
         </div>
