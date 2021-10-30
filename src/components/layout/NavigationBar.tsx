@@ -394,7 +394,6 @@ function MobilePoolsMenu({
       <div
         className="flex p-4 items-center justify-between"
         onClick={() => {
-          console.log('oooo');
           setShow(!show);
         }}
       >
@@ -443,7 +442,9 @@ function MobileMoreMenu({
   links: Array<{ label: string; url: string; isExternal: boolean }>;
   onClick: () => void;
 }) {
-  const [show, setShow] = useState(false);
+  const location = useLocation();
+  const isSelected = location.pathname.startsWith('/airdrop');
+  const [show, setShow] = useState(isSelected);
 
   return (
     <div className="relative z-20">
@@ -451,7 +452,11 @@ function MobileMoreMenu({
         className="flex p-4 items-center justify-between"
         onClick={() => setShow(!show)}
       >
-        <div className={`text-primaryText link font-bold`}>
+        <div
+          className={`text-white link font-bold ${
+            isSelected ? 'text-white' : 'text-primaryText'
+          }`}
+        >
           <FormattedMessage id="more" defaultMessage="More" />
         </div>
         <FiChevronUp
@@ -463,13 +468,16 @@ function MobileMoreMenu({
       </div>
       <div className={`${show ? 'block' : 'hidden'}`}>
         {links.map((link) => {
+          const isSelected = link.url === location.pathname;
           return (
             <div
               key={link.url}
-              className={`bg-mobile-nav-item whitespace-nowrap text-left font-bold text-primaryText p-4`}
+              className={`whitespace-nowrap text-left font-bold text-white p-4 ${
+                isSelected ? 'text-white bg-navHighLightBg' : 'text-primaryText'
+              }`}
               onClick={() => {
                 onClick();
-                window.open(link.url);
+                window.open(link.url, link.isExternal ? '' : '_self');
               }}
             >
               {link.label}
@@ -587,7 +595,7 @@ function MobileNavBar() {
         <NavLogo />
         <div className="flex">
           <div
-            className={`inline-flex p-1 mr-2 items-center justify-center rounded-full ${
+            className={`inline-flex px-1 mr-2 items-center justify-center rounded-full ${
               wallet.isSignedIn()
                 ? 'bg-gray-700 text-white'
                 : 'border border-gradientFrom text-gradientFrom'
@@ -631,7 +639,7 @@ function MobileNavBar() {
         >
           <div className="flex justify-between items-center">
             <div
-              className={`inline-flex p-1 ml-4 items-center justify-center rounded-full ${
+              className={`inline-flex px-1 ml-4 items-center justify-center rounded-full ${
                 wallet.isSignedIn()
                   ? 'bg-gray-700 text-white'
                   : 'border border-gradientFrom text-gradientFrom'
@@ -640,7 +648,7 @@ function MobileNavBar() {
               <div className="pr-1">
                 <Near color={wallet.isSignedIn() ? 'white' : '#00c6a2'} />
               </div>
-              <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name">
+              <div className="overflow-ellipsis py-1 text-xs overflow-hidden whitespace-nowrap account-name">
                 {wallet.isSignedIn() ? (
                   <div>{accountId}</div>
                 ) : (
