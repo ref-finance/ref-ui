@@ -195,7 +195,15 @@ export function FarmsPage() {
                 >
                   <FaRegQuestionCircle />
                 </div>
-                <ReactTooltip />
+                <ReactTooltip
+                  className="text-xs shadow-4xl"
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                  class="tool-tip"
+                  textColor="#c6d1da"
+                />
               </div>
               <div className="text-xs pt-2">
                 {Object.entries(rewardList).map((rewardToken: any, index) => (
@@ -729,7 +737,15 @@ function FarmView({
             >
               <FaArrowCircleRight />
             </span>
-            <ReactTooltip />
+            <ReactTooltip
+              className="text-xs shadow-4xl"
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+              class="tool-tip"
+              textColor="#c6d1da"
+            />
           </Link>
         </div>
         {ended ? (
@@ -781,7 +797,15 @@ function FarmView({
               data-html={true}
             >
               {`${getTotalApr() === '0' ? '-' : `${getTotalApr()}%`}`}
-              <ReactTooltip />
+              <ReactTooltip
+                className="text-xs shadow-4xl"
+                backgroundColor="#1D2932"
+                border
+                borderColor="#7e8a93"
+                effect="solid"
+                class="tool-tip"
+                textColor="#c6d1da"
+              />
             </div>
           </div>
           <hr className="my-3" />

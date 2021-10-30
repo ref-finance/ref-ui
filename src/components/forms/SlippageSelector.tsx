@@ -219,7 +219,14 @@ export function PoolSlippageSelector({
             >
               <FaRegQuestionCircle />
             </div>
-            <ReactTooltip />
+            <ReactTooltip
+              className="text-xs text-left shadow-4xl"
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+              textColor="#c6d1da"
+            />
           </div>
         </div>
 
