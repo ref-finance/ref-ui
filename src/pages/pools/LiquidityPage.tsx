@@ -265,7 +265,6 @@ function MobileLiquidityPage({
 
   return (
     <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
-      {!wallet.isSignedIn() && <ConnectToNearCard />}
       <div className="mx-6 mb-6 mt-3">
         <div className="text-white text-xl">
           <FormattedMessage
