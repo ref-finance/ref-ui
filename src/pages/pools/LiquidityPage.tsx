@@ -268,7 +268,7 @@ function MobileLiquidityPage({
           />
         </div>
       </div>
-      <Card className="w-full mb-4" bgcolor="bg-cardBg" padding="p-0">
+      <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4">
         <div className="mx-6 flex items-center justify-between my-4">
           <div className="flex items-center">
             <div className="text-white text-base">
@@ -659,6 +659,11 @@ function LiquidityPage_({
                 placeholder={intl.formatMessage({ id: 'search_pools' })}
                 value={tokenName}
                 onChange={(evt) => onSearch(evt.target.value)}
+                // onKeyDown={(evt) => {
+                //   if (evt.keyCode === 13) {
+                //     onSearch(tokenName);
+                //   }
+                // }}
               />
               <FaSearch />
             </div>
