@@ -206,7 +206,7 @@ function MobileLiquidityPage({
 }) {
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>();
-
+  const [searchValue, setSearchValue] = useState<string>('');
   const SelectModal = ({
     className,
     setShowModal,
@@ -305,10 +305,10 @@ function MobileLiquidityPage({
           <input
             className={`text-sm outline-none rounded w-full py-2 px-3`}
             placeholder={intl.formatMessage({ id: 'search_pools' })}
-            value={tokenName}
-            onChange={(evt) => onSearch(evt.target.value)}
+            value={searchValue}
+            onChange={(evt) => setSearchValue(evt.target.value)}
           />
-          <FaSearch />
+          <FaSearch onClick={() => onSearch(searchValue)} />
         </div>
         <div className=" mb-4 flex items-center mx-6">
           <div className="mr-2">
@@ -596,6 +596,7 @@ function LiquidityPage_({
   nextPage: (...args: []) => void;
 }) {
   const intl = useIntl();
+  const [searchValue, setSearchValue] = useState<string>(tokenName);
   return (
     <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
       {/* {<WatchListCard watchList={watchList} />} */}
@@ -657,13 +658,13 @@ function LiquidityPage_({
               <input
                 className={`text-sm outline-none rounded w-full py-2 px-3`}
                 placeholder={intl.formatMessage({ id: 'search_pools' })}
-                value={tokenName}
-                onChange={(evt) => onSearch(evt.target.value)}
-                // onKeyDown={(evt) => {
-                //   if (evt.keyCode === 13) {
-                //     onSearch(tokenName);
-                //   }
-                // }}
+                value={searchValue}
+                onChange={(evt) => setSearchValue(evt.target.value)}
+                onKeyUp={(evt) => {
+                  if (evt.keyCode === 13) {
+                    onSearch(searchValue);
+                  }
+                }}
               />
               <FaSearch />
             </div>
