@@ -419,7 +419,9 @@ function MobilePoolsMenu({
             <div
               key={link.path}
               className={`whitespace-nowrap text-left font-bold text-white p-4 ${
-                isSelected ? 'text-white bg-navHighLightBg' : 'text-primaryText'
+                isSelected
+                  ? 'text-white bg-navHighLightBg'
+                  : 'text-primaryText bg-mobile-nav'
               }`}
               onClick={() => {
                 onClick();
@@ -473,7 +475,9 @@ function MobileMoreMenu({
             <div
               key={link.url}
               className={`whitespace-nowrap text-left font-bold text-white p-4 ${
-                isSelected ? 'text-white bg-navHighLightBg' : 'text-primaryText'
+                isSelected
+                  ? 'text-white bg-navHighLightBg'
+                  : 'text-primaryText bg-mobile-nav'
               }`}
               onClick={() => {
                 onClick();
