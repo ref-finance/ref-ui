@@ -18,6 +18,7 @@ const COMMEN_BASSES = [
   'wETH',
   'USDT',
   'HAPI',
+  'PULSE',
 ];
 
 export default function CommenBasses({ tokens, onClick }: CommenBassesProps) {
