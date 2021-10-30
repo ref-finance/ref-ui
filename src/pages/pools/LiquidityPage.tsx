@@ -307,6 +307,11 @@ function MobileLiquidityPage({
             placeholder={intl.formatMessage({ id: 'search_pools' })}
             value={searchValue}
             onChange={(evt) => setSearchValue(evt.target.value)}
+            onKeyUp={(evt) => {
+              if (evt.keyCode === 13) {
+                onSearch(searchValue);
+              }
+            }}
           />
           <FaSearch onClick={() => onSearch(searchValue)} />
         </div>
@@ -666,7 +671,7 @@ function LiquidityPage_({
                   }
                 }}
               />
-              <FaSearch />
+              <FaSearch onClick={() => onSearch(searchValue)} />
             </div>
           </div>
         </div>
