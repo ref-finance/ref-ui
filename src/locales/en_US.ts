@@ -178,7 +178,7 @@ const en_US = {
   deposit_to_add_liquidity: 'Deposit to Add Liquidity',
   slip_wran: 'You might be easier to swap, but also receive less.',
   slip_invalid: 'The slippage tolerance is invalid.',
-  press_enter_to_search:'Press enter to search',
-  click_search_bar_to_search:'Click search bar to search',
+  press_enter_to_search: 'Press enter to search',
+  click_search_bar_to_search: 'Click search bar to search',
 };
 export default en_US;
