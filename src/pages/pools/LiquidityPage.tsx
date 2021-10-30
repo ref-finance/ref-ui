@@ -206,7 +206,7 @@ function MobileLiquidityPage({
 }) {
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>();
-  const [searchValue, setSearchValue] = useState<string>('');
+  const [searchValue, setSearchValue] = useState<string>(tokenName);
   const SelectModal = ({
     className,
     setShowModal,
