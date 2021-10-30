@@ -11,15 +11,15 @@ import {
   toPrecision,
   toReadableNumber,
 } from '../../utils/numbers';
-import FormWrap from '../forms/FormWrap';
+import NewFormWrap from '../forms/NewFormWrap';
 import TokenAmount from '../forms/TokenAmount';
 import Alert from '../alert/Alert';
-import SlippageSelector from '../forms/SlippageSelector';
-import { ArrowDownBlack } from '../icon/Arrows';
+import { SwapArrow } from '../icon/Arrows';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { FaExchangeAlt } from 'react-icons/fa';
+import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import db from '~store/RefDatabase';
+import { GradientButton } from '~components/button/Button';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -28,9 +28,9 @@ const TOKEN_URL_SEPARATOR = '|';
 
 function SwapDetail({ title, value }: { title: string; value: string }) {
   return (
-    <section className="grid grid-cols-2 py-1">
-      <p className="opacity-80">{title}</p>
-      <p className="text-right font-semibold">{value}</p>
+    <section className="grid grid-cols-2 py-1 text-xs">
+      <p className="text-primaryText">{title}</p>
+      <p className="text-right text-white">{value}</p>
     </section>
   );
 }
@@ -76,16 +76,16 @@ function SwapRateDetail({
   }
 
   return (
-    <section className="grid grid-cols-2 py-1">
-      <p className="opacity-80">{title}</p>
+    <section className="flex py-1 text-xs">
+      <p className="text-primaryText w-1/5 xs:w-2/5">{title}</p>
       <p
-        className="text-right font-semibold cursor-pointer justify-between flex"
+        className="flex justify-end text-white cursor-pointer w-4/5 xs:w-3/5"
         onClick={switchSwapRate}
       >
-        <span className="float-right xs:w-2/3 order-2">{newValue}</span>
-        <span className="float-right mr-2 xs:mr-0 mt-1 text-sm">
-          <FaExchangeAlt></FaExchangeAlt>
+        <span className="mr-2" style={{ marginTop: '0.1rem' }}>
+          <FaExchangeAlt />
         </span>
+        <span>{newValue}</span>
       </p>
     </section>
   );
@@ -107,34 +107,52 @@ function DetailView({
   minAmountOut: string;
 }) {
   const intl = useIntl();
+  const [showDetails, setShowDetails] = useState<boolean>(false);
 
   if (!pool || !from || !to) return null;
 
   return (
-    <>
-      <SwapDetail
-        title={intl.formatMessage({ id: 'minimum_received' })}
-        value={toPrecision(minAmountOut, 8, true)}
-      />
-      <SwapRateDetail
-        title={intl.formatMessage({ id: 'swap_rate' })}
-        value={`${calculateExchangeRate(pool.fee, from, to)} ${toRealSymbol(
-          tokenOut.symbol
-        )} per ${toRealSymbol(tokenIn.symbol)}`}
-        pool={pool}
-        from={from}
-        to={to}
-        tokenIn={tokenIn}
-        tokenOut={tokenOut}
-      />
-      <SwapDetail
-        title={intl.formatMessage({ id: 'pool_fee' })}
-        value={`${calculateFeePercent(pool.fee)}% (${calculateFeeCharge(
-          pool.fee,
-          from
-        )})`}
-      />
-    </>
+    <div className="mt-8">
+      <div
+        className="flex justify-center"
+        onClick={() => {
+          setShowDetails(!showDetails);
+        }}
+      >
+        <div className="flex items-center text-white">
+          <p className="block text-xs">
+            <FormattedMessage id="details" defaultMessage="Details" />
+          </p>
+          <div className="pl-1 text-sm">
+            {showDetails ? <FaAngleUp /> : <FaAngleDown />}
+          </div>
+        </div>
+      </div>
+      <div className={showDetails ? '' : 'hidden'}>
+        <SwapDetail
+          title={intl.formatMessage({ id: 'minimum_received' })}
+          value={toPrecision(minAmountOut, 8, true)}
+        />
+        <SwapRateDetail
+          title={intl.formatMessage({ id: 'swap_rate' })}
+          value={`${calculateExchangeRate(pool.fee, from, to)} ${toRealSymbol(
+            tokenOut.symbol
+          )} per ${toRealSymbol(tokenIn.symbol)}`}
+          pool={pool}
+          from={from}
+          to={to}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+        />
+        <SwapDetail
+          title={intl.formatMessage({ id: 'pool_fee' })}
+          value={`${calculateFeePercent(pool.fee)}% (${calculateFeeCharge(
+            pool.fee,
+            from
+          )})`}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -216,13 +234,18 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
 
   return (
-    <FormWrap
+    <NewFormWrap
       canSubmit={canSwap}
+      slippageTolerance={slippageTolerance}
+      onChange={(slippage) => {
+        setSlippageTolerance(slippage);
+        localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
+      }}
       showElseView={tokenInMax === '0'}
       elseView={
         <div className="flex justify-center">
-          <button
-            className={`rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight`}
+          <GradientButton
+            className={`w-full text-center text-lg text-white mt-4 px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
             onClick={() => {
               history.push(`/deposit/${tokenIn.id}`);
             }}
@@ -231,15 +254,13 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
               id="deposit_to_swap"
               defaultMessage="Deposit to swap"
             />
-          </button>
+          </GradientButton>
         </div>
       }
       onSubmit={handleSubmit}
       info={intl.formatMessage({ id: 'swapCopy' })}
+      title={'swap'}
     >
-      <div className="pb-2">
-        {swapError && <Alert level="error" message={swapError.message} />}
-      </div>
       <TokenAmount
         amount={tokenInAmount}
         total={tokenInMax}
@@ -258,16 +279,19 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           setTokenInAmount(amount);
         }}
       />
-      <div className="flex items-center justify-center">
+      <div
+        className="flex items-center justify-center border-t mt-12"
+        style={{ borderColor: 'rgba(126, 138, 147, 0.3)' }}
+      >
         <div
-          className="inline-block mt-4 mb-4 cursor-pointer"
+          className="inline-block -mt-6 mb-4 cursor-pointer bg-dark"
           onClick={() => {
             setTokenIn(tokenOut);
             setTokenOut(tokenIn);
             setTokenInAmount(toPrecision('1', 6));
           }}
         >
-          <ArrowDownBlack />
+          <SwapArrow />
         </div>
       </div>
       <TokenAmount
@@ -283,13 +307,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           setTokenOut(token);
         }}
       />
-      <SlippageSelector
-        slippageTolerance={slippageTolerance}
-        onChange={(slippage) => {
-          setSlippageTolerance(slippage);
-          localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage.toString());
-        }}
-      />
       <DetailView
         pool={pool}
         tokenIn={tokenIn}
@@ -298,6 +315,10 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         to={tokenOutAmount}
         minAmountOut={minAmountOut}
       />
-    </FormWrap>
+
+      <div className="pb-2">
+        {swapError && <Alert level="error" message={swapError.message} />}
+      </div>
+    </NewFormWrap>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import MicroModal from 'react-micro-modal';
+import TokenList from '../tokens/TokenList';
 import { TokenMetadata } from '../../services/ft-contract';
 import { ArrowDownGreen } from '../icon';
 import { isMobile } from '~utils/device';
@@ -8,20 +9,15 @@ import { TokenBalancesView } from '~services/token';
 import { IoCloseOutline } from 'react-icons/io5';
 import CommenBasses from '~components/tokens/CommenBasses';
 import Table from '~components/table/Table';
-import { useTokensData } from '~state/token';
+import {
+  toPrecision,
+  toReadableNumber,
+  toRoundedReadableNumber,
+} from '~utils/numbers';
+import { useDepositableBalance } from '~state/token';
 import { toRealSymbol } from '~utils/token';
 
-function sort(a: any, b: any) {
-  if (typeof a === 'string' && typeof b === 'string') {
-    return a.localeCompare(b);
-  } else if (typeof a === 'number' && typeof b === 'number') {
-    return a - b;
-  } else {
-    return a;
-  }
-}
-
-export default function SelectToken({
+export default function OldSelectToken({
   tokens,
   selected,
   render,
@@ -35,16 +31,13 @@ export default function SelectToken({
   selected: string | React.ReactElement;
   standalone?: boolean;
   placeholder?: string;
-  render?: (token: TokenMetadata) => string;
+  render?: (token: TokenMetadata) => React.ReactElement;
   onSelect?: (token: TokenMetadata) => void;
   onSearch?: (value: string) => void;
   addToken?: () => JSX.Element;
   balances?: TokenBalancesView;
 }) {
-  const [visible, setVisible] = useState(false);
-  const [listData, setListData] = useState<TokenMetadata[]>([]);
-  const [currentSort, setSort] = useState<string>('down');
-  const [sortBy, setSortBy] = useState<string>('near');
+  const [listData, setListData] = useState<any[]>([]);
 
   if (!onSelect) {
     return (
@@ -57,58 +50,33 @@ export default function SelectToken({
   const dialogMinwidth = isMobile() ? 340 : 490;
   const dialogHidth = isMobile() ? '95%' : '57%';
   const intl = useIntl();
-  const {
-    tokensData,
-    loading: loadingTokensData,
-    trigger,
-  } = useTokensData(tokens, balances);
-  useEffect(() => {
-    trigger();
-  }, [trigger]);
+  const tokensData =
+    tokens?.length > 0 &&
+    tokens.map((item) => {
+      const totalTokenAmount = toReadableNumber(
+        item.decimals,
+        useDepositableBalance(item.id)
+      );
+      const nearCount = toPrecision(totalTokenAmount, 6) || '0';
+      const refCount = toRoundedReadableNumber({
+        decimals: item.decimals,
+        number: balances ? balances[item.id] : '0',
+      });
+      return {
+        ...item,
+        asset: toRealSymbol(item.symbol),
+        near: Number(nearCount),
+        ref: Number(refCount),
+        total: Number(nearCount) + Number(refCount),
+      };
+    });
 
   useEffect(() => {
-    if (!loadingTokensData) {
-      const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
-      setListData(sortedData);
-    }
-  }, [loadingTokensData, tokensData]);
-
-  useEffect(() => {
-    if (!!tokensData) {
-      const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
-      setListData(sortedData);
-    }
-  }, [currentSort, sortBy]);
-
-  const sortTypes: { [key: string]: any } = {
-    up: {
-      class: 'sort-up',
-      fn: (a: any, b: any) => sort(a[sortBy], b[sortBy]),
-    },
-    down: {
-      class: 'sort-down',
-      fn: (a: any, b: any) => sort(b[sortBy], a[sortBy]),
-    },
-    default: {
-      class: 'sort',
-      fn: (a: any, b: any) => a,
-    },
-  };
-
-  const onSortChange = (params: string) => {
-    if (params === sortBy) {
-      let nextSort;
-      if (currentSort === 'down') nextSort = 'up';
-      else if (currentSort === 'up') nextSort = 'down';
-      setSort(nextSort);
-    } else {
-      setSort('up');
-    }
-    setSortBy(params);
-  };
+    setListData(tokensData);
+  }, [tokens]);
 
   const onSearch = (value: string) => {
-    const result = tokensData.filter(({ symbol }) =>
+    const result = tokens.filter(({ symbol }) =>
       toRealSymbol(symbol)
         .toLocaleUpperCase()
         .includes(value.toLocaleUpperCase())
@@ -116,31 +84,24 @@ export default function SelectToken({
     setListData(result);
   };
 
-  const handleClose = () => {
-    const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
-    setListData(sortedData);
-    setVisible(false);
-  };
-
   return (
     <MicroModal
-      open={visible}
-      handleClose={handleClose}
-      trigger={() => (
-        <div
-          className={`focus:outline-none  ${standalone ? 'w-full' : 'w-2/5'}`}
-          onClick={() => setVisible(true)}
+      trigger={(open) => (
+        <button
+          className={`focus:outline-none ${standalone ? 'w-full' : ''}`}
+          type="button"
+          onClick={open}
         >
           {selected || (
             <section
               className={`flex justify-between items-center px-3 py-3 ${
                 standalone
-                  ? 'bg-inputDarkBg text-white relative flex overflow-hidden rounded-lg align-center my-2 border border-greenLight'
+                  ? 'bg-inputBg relative flex overflow-hidden rounded-lg align-center my-2 border'
                   : ''
               }`}
             >
               <p
-                className="text-lg font-semibold leading-none"
+                className="text-xs font-semibold leading-none"
                 style={{ lineHeight: 'unset' }}
               >
                 {placeholder ?? 'Select'}
@@ -150,7 +111,7 @@ export default function SelectToken({
               </div>
             </section>
           )}
-        </div>
+        </button>
       )}
       overrides={{
         Overlay: {
@@ -173,7 +134,7 @@ export default function SelectToken({
         },
       }}
     >
-      {() => (
+      {(close) => (
         <section className="text-white">
           <div className="flex items-center justify-between pb-5 pr-8 px-6 relative">
             <h2 className="text-sm font-bold text-center">
@@ -184,14 +145,14 @@ export default function SelectToken({
             </h2>
             {addToken && addToken()}
             <IoCloseOutline
-              onClick={() => handleClose()}
+              onClick={() => close()}
               className="absolute text-gray-400 text-2xl right-6"
             />
           </div>
           <div className="rounded-lg w-full my-2 px-6">
             <input
               className={`text-sm min bg-black bg-opacity-25 focus:outline-none rounded-lg w-full py-2 px-3 text-greenLight`}
-              placeholder={intl.formatMessage({ id: 'search_token' })}
+              placeholder={intl.formatMessage({ id: 'search_pools' })}
               onChange={(evt) => onSearch(evt.target.value)}
             />
           </div>
@@ -199,17 +160,15 @@ export default function SelectToken({
             tokens={tokensData}
             onClick={(token) => {
               onSelect && onSelect(token);
-              handleClose();
+              close();
             }}
           />
           <Table
-            sortBy={sortBy}
-            currentSort={currentSort}
-            onSortChange={onSortChange}
             tokens={listData}
+            render={render}
             onClick={(token) => {
               onSelect && onSelect(token);
-              handleClose();
+              close();
             }}
             balances={balances}
           />

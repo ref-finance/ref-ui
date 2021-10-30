@@ -7,6 +7,11 @@ import {
 } from './near';
 
 export const ACCOUNT_MIN_STORAGE_AMOUNT = '0.00098';
+export interface RefPrice {
+  'ref-finance': {
+    usd: number;
+  };
+}
 
 export const initializeAccount = () => {
   return refFiFunctionCall(

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { wallet } from '../services/near';
 import {
   ftGetBalance,
@@ -11,7 +11,12 @@ import {
   getUserRegisteredTokens,
   TokenBalancesView,
 } from '../services/token';
-import { toReadableNumber } from '~utils/numbers';
+import {
+  toPrecision,
+  toReadableNumber,
+  toRoundedReadableNumber,
+} from '~utils/numbers';
+import { toRealSymbol } from '~utils/token';
 
 export const useToken = (id: string) => {
   const [token, setToken] = useState<TokenMetadata>();
@@ -78,7 +83,99 @@ export const useTokenBalances = () => {
   return balances;
 };
 
-export const useDepositableBalance = (tokenId: string, decimals: number) => {
+export const getDepositableBalance = async (
+  tokenId: string,
+  decimals?: number
+) => {
+  if (tokenId === 'NEAR') {
+    if (wallet.isSignedIn()) {
+      return wallet
+        .account()
+        .getAccountBalance()
+        .then(({ available }) => {
+          return toReadableNumber(decimals, available);
+        });
+    } else {
+      return toReadableNumber(decimals, '0');
+    }
+  } else if (tokenId) {
+    return ftGetBalance(tokenId)
+      .then((res) => {
+        return toReadableNumber(decimals, res);
+      })
+      .catch((res) => '0');
+  } else {
+    return '';
+  }
+};
+
+export const useTokensData = (
+  tokens: TokenMetadata[],
+  balances?: TokenBalancesView
+) => {
+  const [count, setCount] = useState(0);
+  const [result, setResult] = useState<TokenMetadata[]>([]);
+  const fetchIdRef = useRef(0);
+  const setResultAtIndex = (data: TokenMetadata, index: number) => {
+    setResult((oldResults) => {
+      const newResults = [...oldResults];
+      newResults[index] = data;
+      return newResults;
+    });
+    setCount((c) => c + 1);
+  };
+
+  const trigger = useCallback(() => {
+    if (!!balances) {
+      setCount(0);
+      setResult([]);
+      const currentFetchId = fetchIdRef.current;
+      for (let i = 0; i < tokens.length; i++) {
+        const index = i;
+        const item = tokens[index];
+        getDepositableBalance(item.id, item.decimals)
+          .then((max: string) => {
+            if (currentFetchId !== fetchIdRef.current) {
+              throw new Error();
+            }
+            return max;
+          })
+          .then((max: string) => {
+            const nearCount = toPrecision(max, 3) || '0';
+            const refCount = toRoundedReadableNumber({
+              decimals: item.decimals,
+              number: balances ? balances[item.id] : '0',
+            });
+            return {
+              ...item,
+              asset: toRealSymbol(item.symbol),
+              near: Number(nearCount.replace(/[\,]+/g, '')),
+              ref: Number(toPrecision(refCount, 3).replace(/[\,]+/g, '')),
+              total:
+                Number(nearCount.replace(/[\,]+/g, '')) +
+                Number(toPrecision(refCount, 3).replace(/[\,]+/g, '')),
+            };
+          })
+          .then((d: TokenMetadata) => setResultAtIndex(d, index))
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+    }
+  }, [balances]);
+
+  useEffect(() => {
+    trigger();
+  }, [tokens, tokens.length]);
+
+  return {
+    trigger,
+    loading: count < tokens.length,
+    tokensData: result,
+  };
+};
+
+export const useDepositableBalance = (tokenId: string, decimals?: number) => {
   const [depositable, setDepositable] = useState<string>('');
   const [max, setMax] = useState<string>('');
   useEffect(() => {
@@ -145,7 +242,7 @@ export const getExchangeRate = (
         ).toFixed(8)}`
     : Number(first_token_num) === 0
     ? 'N/A'
-    : `≈ ${(Number(second_token_num) / Number(first_token_num)).toFixed(4)} ${
+    : `≈ ${(Number(second_token_num) / Number(first_token_num)).toFixed(2)} ${
         tokens[1].symbol
       }`;
 };

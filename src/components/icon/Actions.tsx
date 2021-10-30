@@ -20,7 +20,7 @@ export function Swap() {
         <g
           id="Account"
           transform="translate(-1148.000000, -339.000000)"
-          fill="#000000"
+          fill="#ffffff"
           fillRule="nonzero"
         >
           <g id="exchange" transform="translate(1148.000000, 339.000000)">
@@ -59,7 +59,7 @@ export function Withdraw() {
         <g
           id="Account"
           transform="translate(-1148.000000, -379.000000)"
-          fill="#000000"
+          fill="#ffffff"
           fillRule="nonzero"
         >
           <g id="exchange" transform="translate(1148.000000, 379.000000)">
@@ -98,7 +98,7 @@ export function RegisterToken() {
         <g
           id="Account"
           transform="translate(-1148.000000, -420.000000)"
-          fill="#000000"
+          fill="#ffffff"
           fillRule="nonzero"
         >
           <g id="exchange-2" transform="translate(1148.000000, 420.000000)">
@@ -139,7 +139,7 @@ export function RemoveLiquidity() {
             <g
               id="exchange-3"
               transform="translate(0.939340, 0.025126)"
-              fill="#000000"
+              fill="#ffffff"
               fillRule="nonzero"
             >
               <path
@@ -153,7 +153,7 @@ export function RemoveLiquidity() {
               x2="12.4393398"
               y2="8.52512627"
               id="line-2"
-              stroke="#000000"
+              stroke="#ffffff"
               strokeLinecap="round"
             ></line>
           </g>
@@ -182,7 +182,7 @@ export function AddLiquidity() {
       >
         <g id="Account" transform="translate(-1148.000000, -501.000000)">
           <g id="Group-4" transform="translate(1148.000000, 501.000000)">
-            <g id="exchange-4" fill="#000000" fillRule="nonzero">
+            <g id="exchange-4" fill="#ffffff" fillRule="nonzero">
               <path
                 d="M8,0 C3.5816875,0 0,3.5816875 0,8 C0,12.4183125 3.5816875,16 8,16 C12.4183125,16 16,12.4183125 16,8 C16,3.5816875 12.4183125,0 8,0 Z M8,14.9090938 C4.18465625,14.9090938 1.09090625,11.8157031 1.09090625,8 C1.09090625,4.18429687 4.18465625,1.09090625 8,1.09090625 C11.8160625,1.09090625 14.9090938,4.18429688 14.9090938,8 C14.9090938,11.8157031 11.8160625,14.9090938 8,14.9090938 Z"
                 id="shape"
@@ -194,7 +194,7 @@ export function AddLiquidity() {
               x2="11.5"
               y2="8.5"
               id="line-2"
-              stroke="#000000"
+              stroke="#ffffff"
               strokeLinecap="round"
             ></line>
             <line
@@ -203,7 +203,7 @@ export function AddLiquidity() {
               x2="8.5"
               y2="11.5"
               id="line-2"
-              stroke="#000000"
+              stroke="#ffffff"
               strokeLinecap="round"
             ></line>
           </g>
@@ -235,10 +235,10 @@ export function AddPool() {
             <path
               d="M8,0 C3.5816875,0 0,3.5816875 0,8 C0,12.4183125 3.5816875,16 8,16 C12.4183125,16 16,12.4183125 16,8 C16,3.5816875 12.4183125,0 8,0 Z M8,14.9090938 C4.18465625,14.9090938 1.09090625,11.8157031 1.09090625,8 C1.09090625,4.18429687 4.18465625,1.09090625 8,1.09090625 C11.8160625,1.09090625 14.9090938,4.18429688 14.9090938,8 C14.9090938,11.8157031 11.8160625,14.9090938 8,14.9090938 Z"
               id="shape"
-              fill="#000000"
+              fill="#ffffff"
               fillRule="nonzero"
             ></path>
-            <circle id="oval" stroke="#000000" cx="8" cy="8" r="2.5"></circle>
+            <circle id="oval" stroke="#ffffff" cx="8" cy="8" r="2.5"></circle>
           </g>
         </g>
       </g>
@@ -514,7 +514,7 @@ function Default() {
         <g
           id="Account"
           transform="translate(-1148.000000, -662.000000)"
-          fill="#000000"
+          fill="#ffffff"
           fillRule="nonzero"
         >
           <g id="Group" transform="translate(1148.000000, 662.000000)">
@@ -648,7 +648,7 @@ function Deposit() {
         <g
           id="Account"
           transform="translate(-1147.000000, -703.000000)"
-          fill="#000000"
+          fill="#ffffff"
           fillRule="nonzero"
         >
           <g id="Group-2" transform="translate(1147.500000, 703.000000)">

@@ -33,8 +33,19 @@ interface PoolsTokens {
   update_time: string;
   token0_price: string;
 }
+
+export interface PoolDb extends Pool {
+  tvl?: string;
+}
+
 export interface FarmDexie {
   id: string;
+  pool_id: string;
+}
+
+export interface WatchList {
+  id: string;
+  account: string;
   pool_id: string;
 }
 
@@ -43,22 +54,29 @@ class RefDatabase extends Dexie {
   public tokens: Dexie.Table<TokenMetadata>;
   public farms: Dexie.Table<FarmDexie>;
   public poolsTokens: Dexie.Table<PoolsTokens>;
+  public watchList: Dexie.Table<WatchList>;
 
   public constructor() {
     super('RefDatabase');
 
-    this.version(4.0).stores({
+    this.version(4.1).stores({
       pools: 'id, token1Id, token2Id, token1Supply, token2Supply, fee, shares',
       tokens: 'id, name, symbol, decimals, icon',
       farms: 'id, pool_id',
       pools_tokens:
         'id, token1Id, token2Id, token1Supply, token2Supply, fee, shares, update_time, token0_price',
+      watchList: 'id, account, pool_id',
     });
 
     this.pools = this.table('pools');
     this.tokens = this.table('tokens');
     this.farms = this.table('farms');
     this.poolsTokens = this.table('pools_tokens');
+    this.watchList = this.table('watchList');
+  }
+
+  public allWatchList() {
+    return this.watchList;
   }
 
   public allPools() {
@@ -185,22 +203,24 @@ class RefDatabase extends Dexie {
   async queryPoolsByTokens(tokenInId: string, tokenOutId: string) {
     let normalItems = await this.poolsTokens
       .where('token1Id')
-      .equals(tokenInId)
-      .and((item) => item.token2Id === tokenOutId)
+      .equals(tokenInId.toString())
+      .and((item) => item.token2Id === tokenOutId.toString())
       .and(
         (item) =>
           Number(item.update_time) >=
-          moment().unix() - Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
+          Number(moment().unix()) -
+            Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
       )
       .toArray();
     let reverseItems = await this.poolsTokens
       .where('token1Id')
-      .equals(tokenOutId)
-      .and((item) => item.token2Id === tokenInId)
+      .equals(tokenOutId.toString())
+      .and((item) => item.token2Id === tokenInId.toString())
       .and(
         (item) =>
           Number(item.update_time) >=
-          moment().unix() - Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
+          Number(moment().unix()) -
+            Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
       )
       .toArray();
 

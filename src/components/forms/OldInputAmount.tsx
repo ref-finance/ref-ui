@@ -7,7 +7,7 @@ interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   onChangeAmount?: (amount: string) => void;
 }
 
-export default function InputAmount({
+export default function OldInputAmount({
   max,
   className,
   onChangeAmount,
@@ -16,7 +16,6 @@ export default function InputAmount({
   ...rest
 }: InputAmountProps) {
   const ref = useRef<HTMLInputElement>();
-  const field = useRef<HTMLFieldSetElement>();
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
 
   const handleChange = (amount: string) => {
@@ -24,21 +23,13 @@ export default function InputAmount({
     ref.current.value = amount;
   };
 
-  const handleFocus = () => {
-    field.current.className =
-      className + ' px-1 border border-greenLight rounded-xl';
-  };
-
-  const handleFocusOut = () => {
-    field.current.className =
-      className + ' px-1 border border-transparent rounded-xl';
-  };
-
   return (
     <>
-      <fieldset className={className} ref={field}>
+      <fieldset className={className}>
         <div
-          className={`relative flex align-center items-center bg-inputDarkBg rounded-xl`}
+          className={`relative flex align-center items-center border-solid border-gray-200 ${
+            maxBorder ? 'border-r' : ''
+          }`}
         >
           <input
             ref={ref}
@@ -47,24 +38,25 @@ export default function InputAmount({
             onWheel={() => ref.current.blur()}
             {...rest}
             step="any"
-            className={`xs:text-sm text-lg font-bold w-full p-2 ${
-              disabled ? 'text-gray-200 placeholder-gray-200' : 'text-white'
+            className={`text-sm font-bold focus:outline-none bg-inputBg appearance-none rounded border-opacity-30 w-full py-3 px-3 leading-tight ${
+              disabled
+                ? 'text-gray-400 placeholder-gray-400'
+                : 'text-greenLight'
             }`}
             type="number"
             placeholder="0.0"
             onChange={({ target }) => handleChange(target.value)}
             disabled={disabled}
             onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
-            onFocus={() => handleFocus()}
-            onBlur={() => handleFocusOut()}
           />
           {max ? (
             <a
-              className={`rounded border border-greenLight items-center px-1 mr-1 m-auto focus:outline-none text-xs ${
-                disabled
-                  ? 'text-gray-400 hover:text-gray-400'
-                  : 'text-greenLight'
-              }`}
+              className={`rounded-lg right-0 items-center py-3 px-3 m-auto focus:outline-none font-semibold text-xs
+             ${
+               disabled
+                 ? 'text-gray-400 hover:text-gray-400'
+                 : 'text-greenLight'
+             }`}
               style={{ lineHeight: 'unset', cursor: 'pointer' }}
               onClick={() => handleChange(max)}
             >

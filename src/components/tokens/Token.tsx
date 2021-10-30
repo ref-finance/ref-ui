@@ -1,59 +1,56 @@
 import React from 'react';
 import { toRealSymbol } from '~utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
-import { useDepositableBalance } from '~state/token';
-import {
-  toPrecision,
-  toReadableNumber,
-  toNonDivisibleNumber,
-} from '~utils/numbers';
+import { toInternationalCurrencySystem } from '~utils/numbers';
 
 interface TokenProps {
   token: TokenMetadata;
   onClick: (token: TokenMetadata) => void;
-  render?: (token: TokenMetadata) => React.ReactElement;
   totalAmount?: string;
+  sortBy?: string;
 }
 
-export default function Token({
-  token,
-  onClick,
-  render,
-  totalAmount,
-}: TokenProps) {
-  const { icon, symbol, id, decimals } = token;
-  const totalTokenAmount = toReadableNumber(
-    decimals,
-    useDepositableBalance(id)
-  );
-
-  const tokenAmount = toPrecision(totalTokenAmount, 6) || '0';
+export default function Token({ token, onClick, sortBy }: TokenProps) {
+  const { icon, symbol, id, near, ref, total } = token;
   return (
-    <section
-      className={`${
-        onClick ? 'cursor-pointer' : ' '
-      } flex justify-between align-center py-4 px-2 w-full text-center hover:bg-secondaryScale-100`}
+    <tr
+      key={id}
+      className="hover:bg-black hover:bg-opacity-10"
       onClick={() => onClick && onClick(token)}
-      title={totalAmount ? totalAmount : totalTokenAmount}
     >
-      <div className="w-full text-left">
-        <div
-          className="flex items-center text-xs"
-          style={{ lineHeight: 'unset' }}
-        >
-          {icon ? (
-            <img
-              className="h-6 w-6 mr-3"
-              src={icon}
-              alt={toRealSymbol(symbol)}
-            />
-          ) : (
-            <div className="h-6 w-6 mr-3"></div>
-          )}
-          <div className="block">{toRealSymbol(symbol)}</div>
-        </div>
-      </div>
-      {render ? render(token) : tokenAmount}
-    </section>
+      <td className="xs:text-xs text-sm pl-6 py-5 cursor-pointer">
+        {icon ? (
+          <img
+            className="h-6 w-6 mr-3 inline-block border rounded-full border-greenLight"
+            src={icon}
+            alt={toRealSymbol(symbol)}
+          />
+        ) : (
+          <span className="h-6 w-6 mr-3"></span>
+        )}
+        <span className="inline-block text-white">{toRealSymbol(symbol)}</span>
+      </td>
+      <td
+        className={`py-4 xs:text-xs text-sm ${
+          sortBy === 'near' ? 'text-white' : ''
+        }`}
+      >
+        {toInternationalCurrencySystem(String(near)).replace(/[\,]+/g, '')}
+      </td>
+      <td
+        className={`py-4 xs:text-xs text-sm ${
+          sortBy === 'ref' ? 'text-white' : ''
+        }`}
+      >
+        {toInternationalCurrencySystem(String(ref))}
+      </td>
+      <td
+        className={`pr-6 xs:text-xs text-sm py-4 ${
+          sortBy === 'total' ? 'text-white' : ''
+        }`}
+      >
+        {toInternationalCurrencySystem(String(total))}
+      </td>
+    </tr>
   );
 }

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Card } from '~components/card/Card';
-import { ConnectToNearBtn } from '~components/deposit/Deposit';
 import { wallet } from '~services/near';
 import { registerTokenAndExchange } from '~services/token';
 import Alert from '~components/alert/Alert';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { ConnectToNearBtn } from '~components/button/Button';
 
 export function AddTokenPage() {
   const [addr, setAddr] = useState('');

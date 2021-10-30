@@ -34,7 +34,7 @@ import {
 import { mftGetBalance } from '~services/mft-contract';
 import { wallet } from '~services/near';
 import Loading from '~components/layout/Loading';
-import { ConnectToNearBtn } from '~components/deposit/Deposit';
+import { ConnectToNearBtn } from '~components/button/Button';
 import { useTokens } from '~state/token';
 import { Info } from '~components/icon/Info';
 import ReactTooltip from 'react-tooltip';
@@ -50,7 +50,8 @@ import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import parse from 'html-react-parser';
-import { FaArrowCircleRight } from 'react-icons/fa';
+import { FaArrowCircleRight, FaRegQuestionCircle } from 'react-icons/fa';
+import OldInputAmount from '~components/forms/OldInputAmount';
 
 export function FarmsPage() {
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
@@ -165,7 +166,7 @@ export function FarmsPage() {
           <div className="text-green-400 text-5xl px-7 xs:text-center md:text-center">
             <FormattedMessage id="farms" defaultMessage="Farms" />
           </div>
-          <div className="text-whiteOpacity85 text-xs py-4 p-7">
+          <div className="text-whiteOpacity85 text-xs py-4 p-7 xs:text-center">
             <FormattedMessage
               id="stake_your_liquidity_provider_LP_tokens"
               defaultMessage="Stake your Liquidity Provider (LP) tokens"
@@ -176,14 +177,33 @@ export function FarmsPage() {
             <Loading />
           ) : (
             <div className="bg-greenOpacity100 text-whiteOpacity85 rounded-xl p-7">
-              <div className="text-xl">
-                <FormattedMessage
-                  id="your_rewards"
-                  defaultMessage="Your Rewards"
+              <div className="text-xl flex">
+                <div className="float-left">
+                  <FormattedMessage
+                    id="your_rewards"
+                    defaultMessage="Your Rewards"
+                  />
+                </div>
+                <div
+                  className="float-left mt-2 ml-2 text-sm"
+                  data-type="dark"
+                  data-place="right"
+                  data-multiline={true}
+                  data-tip={parse(
+                    intl.formatMessage({ id: 'farmRewardsCopy' })
+                  )}
+                >
+                  <FaRegQuestionCircle />
+                </div>
+                <ReactTooltip
+                  className="text-xs shadow-4xl"
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                  class="tool-tip"
+                  textColor="#c6d1da"
                 />
-              </div>
-              <div className="text-sm pt-2 text-gray-50">
-                {parse(intl.formatMessage({ id: 'farmRewardsCopy' }))}
               </div>
               <div className="text-xs pt-2">
                 {Object.entries(rewardList).map((rewardToken: any, index) => (
@@ -675,7 +695,12 @@ function FarmView({
   });
 
   return (
-    <Card width="w-full" className="self-start" padding={'p-0'}>
+    <Card
+      width="w-full"
+      className="self-start"
+      padding={'p-0'}
+      bgcolor="bg-white"
+    >
       <div
         className={`${
           ended ? 'rounded-t-xl bg-gray-300 bg-opacity-50' : ''
@@ -712,7 +737,15 @@ function FarmView({
             >
               <FaArrowCircleRight />
             </span>
-            <ReactTooltip />
+            <ReactTooltip
+              className="text-xs shadow-4xl"
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+              class="tool-tip"
+              textColor="#c6d1da"
+            />
           </Link>
         </div>
         {ended ? (
@@ -764,7 +797,15 @@ function FarmView({
               data-html={true}
             >
               {`${getTotalApr() === '0' ? '-' : `${getTotalApr()}%`}`}
-              <ReactTooltip />
+              <ReactTooltip
+                className="text-xs shadow-4xl"
+                backgroundColor="#1D2932"
+                border
+                borderColor="#7e8a93"
+                effect="solid"
+                class="tool-tip"
+                textColor="#c6d1da"
+              />
             </div>
           </div>
           <hr className="my-3" />
@@ -885,6 +926,11 @@ function FarmView({
             amount,
           }).catch(setError);
         }}
+        style={{
+          content: {
+            outline: 'none',
+          },
+        }}
       />
 
       <ActionModal
@@ -900,6 +946,11 @@ function FarmView({
             token: data.rewardToken,
           }).catch(setError);
         }}
+        style={{
+          content: {
+            outline: 'none',
+          },
+        }}
       />
 
       <ActionModal
@@ -914,6 +965,11 @@ function FarmView({
           stake({ token_id: getMftTokenId(data.lpTokenId), amount }).catch(
             setError
           );
+        }}
+        style={{
+          content: {
+            outline: 'none',
+          },
         }}
       />
     </Card>
@@ -935,7 +991,11 @@ function ActionModal(
 
   return (
     <Modal {...props}>
-      <Card style={{ width: cardWidth }}>
+      <Card
+        style={{ width: cardWidth }}
+        bgcolor="bg-white"
+        className="outline-none "
+      >
         <div className="text-sm text-gray-800 font-semibold pb-4">
           {props.title}
         </div>
@@ -947,7 +1007,7 @@ function ActionModal(
             </span>
           </div>
           <div className="flex bg-inputBg relative overflow-hidden rounded-lg align-center my-2 border">
-            <InputAmount
+            <OldInputAmount
               className="flex-grow"
               maxBorder={false}
               max={max}
