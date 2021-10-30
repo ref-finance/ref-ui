@@ -304,15 +304,18 @@ function MobileLiquidityPage({
           <input
             className={`text-sm outline-none rounded w-full py-2 px-3`}
             placeholder={intl.formatMessage({
-              id: 'click_search_bar_to_search',
+              id: 'search_pools',
             })}
             value={searchValue}
-            onChange={(evt) => setSearchValue(evt.target.value)}
-            onKeyUp={(evt) => {
-              if (evt.keyCode === 13) {
-                onSearch(searchValue);
-              }
+            onChange={(evt) => {
+              setSearchValue(evt.target.value);
+              onSearch(evt.target.value);
             }}
+            // onKeyUp={(evt) => {
+            //   if (evt.keyCode === 13) {
+            //     onSearch(searchValue);
+            //   }
+            // }}
           />
           <FaSearch
             className="cursor-pointer"
@@ -667,15 +670,18 @@ function LiquidityPage_({
               <input
                 className={`text-sm outline-none rounded w-full py-2 px-3`}
                 placeholder={intl.formatMessage({
-                  id: 'press_enter_to_search',
+                  id: 'search_pools',
                 })}
                 value={searchValue}
-                onChange={(evt) => setSearchValue(evt.target.value)}
-                onKeyUp={(evt) => {
-                  if (evt.keyCode === 13) {
-                    onSearch(searchValue);
-                  }
+                onChange={(evt) => {
+                  setSearchValue(evt.target.value);
+                  onSearch(evt.target.value);
                 }}
+                // onKeyUp={(evt) => {
+                //   if (evt.keyCode === 13) {
+                //     onSearch(searchValue);
+                //   }
+                // }}
               />
               <FaSearch
                 className="cursor-pointer"
