@@ -888,7 +888,7 @@ export function PoolDetailsPage() {
         <div className="w-full flex flex-col h-full">
           <div className="lg:flex items-center justify-end mb-4">
             <div className="flex items-center xs:hidden md:hidden">
-              <div className="mr-2">
+              <div className="mr-2 cursor-pointer">
                 <div onClick={handleSaveWatchList}>
                   {!showFullStart && <WatchListStartEmpty />}
                 </div>

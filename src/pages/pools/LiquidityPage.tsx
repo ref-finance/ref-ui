@@ -163,9 +163,11 @@ function MobileWatchListCard({ watchList }: { watchList: WatchList[] }) {
     <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4 mb-4">
       <div className="mx-4 flex items-center justify-between mt-4">
         <div className="flex items-center">
-          <div className={`text-${
+          <div
+            className={`text-${
               watchList?.length > 0 ? 'white' : 'gray-400'
-            }  text-base`}>
+            }  text-base`}
+          >
             <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
             {watchList.length > 0 ? ` (${watchList.length})` : ''}
           </div>
@@ -355,7 +357,6 @@ function MobileLiquidityPage({
               setSearchTrigger(!searchTrigger);
             }}
           />
-          <FaSearch onClick={() => onSearch(searchValue)} />
         </div>
         <div className=" mb-4 flex items-center mx-6">
           <div className="mr-2">

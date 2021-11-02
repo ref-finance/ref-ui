@@ -182,7 +182,10 @@ export const useAllWatchList = () => {
 
   useEffect(() => {
     getAllWatchListFromDb({}).then((watchlist) => {
-      setWatchList(watchlist);
+        
+      setWatchList(
+        _.orderBy(watchlist,'update_time','desc')
+      );
     });
   }, []);
 
