@@ -39,7 +39,7 @@ import { isMobile } from '~utils/device';
 import ReactModal from 'react-modal';
 import { toRealSymbol } from '~utils/token';
 
-import { BackArrow, Near } from '~components/icon';
+import { BackArrow, ModalClose, Near } from '~components/icon';
 import { useHistory } from 'react-router';
 import { getPool } from '~services/indexer';
 import { BigNumber } from 'bignumber.js';
@@ -312,8 +312,19 @@ function AddLiquidityModal(
         bgcolor="bg-cardBg"
         className="text-white outline-none "
       >
-        <div className="text-base font-bold pb-4">
-          <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
+        <div className="flex items-center justify-between">
+          <div className="text-base font-bold pb-4">
+            <FormattedMessage
+              id="add_liquidity"
+              defaultMessage="Add Liquidity"
+            />
+          </div>
+          <div
+            className="ml-2 cursor-pointer p-1"
+            onClick={props.onRequestClose}
+          >
+            <ModalClose />
+          </div>
         </div>
 
         {/* PC display */}
@@ -518,11 +529,19 @@ export function RemoveLiquidityModal(
           border: '1px solid rgba(0, 198, 162, 0.5)',
         }}
       >
-        <div className="text-base pb-4">
-          <FormattedMessage
-            id="remove_liquidity"
-            defaultMessage="Remove Liquidity"
-          />
+        <div className="flex items-center justify-between">
+          <div className="text-base pb-4">
+            <FormattedMessage
+              id="remove_liquidity"
+              defaultMessage="Remove Liquidity"
+            />
+          </div>
+          <div
+            className="ml-2 cursor-pointer p-1"
+            onClick={props.onRequestClose}
+          >
+            <ModalClose />
+          </div>
         </div>
 
         <div>
