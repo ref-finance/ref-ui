@@ -165,6 +165,7 @@ function MobileWatchListCard({ watchList }: { watchList: WatchList[] }) {
         <div className="flex items-center">
           <div className="text-white text-base">
             <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
+            {` (${watchList.length})`}
           </div>
           <div>
             <FaRegQuestionCircle
@@ -185,7 +186,6 @@ function MobileWatchListCard({ watchList }: { watchList: WatchList[] }) {
             />
           </div>
         </div>
-        <div className="text-gray-400 text-xs">{watchList.length}</div>
       </div>
       <section className="w-full">
         <header className="p-4 text-gray-400 flex items-center justify-between text-sm">
@@ -557,7 +557,15 @@ function WatchListCard({ watchList }: { watchList: WatchList[] }) {
             data-tip={intl.formatMessage({ id: 'my_watchlist_copy' })}
             className="inline-block ml-2 text-sm  text-gray-500"
           />
-          <ReactTooltip className="text-sm" />
+          <ReactTooltip
+            className="text-xs shadow-4xl"
+            backgroundColor="#1D2932"
+            border
+            borderColor="#7e8a93"
+            effect="solid"
+            class="tool-tip"
+            textColor="#c6d1da"
+          />
         </div>
         <section className="px-2">
           <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
