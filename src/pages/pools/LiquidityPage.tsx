@@ -163,9 +163,11 @@ function MobileWatchListCard({ watchList }: { watchList: WatchList[] }) {
     <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4 mb-4">
       <div className="mx-4 flex items-center justify-between mt-4">
         <div className="flex items-center">
-          <div className="text-white text-base">
+          <div className={`text-${
+              watchList?.length > 0 ? 'white' : 'gray-400'
+            }  text-base`}>
             <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
-            {` (${watchList.length})`}
+            {watchList.length > 0 ? ` (${watchList.length})` : ''}
           </div>
           <div>
             <FaRegQuestionCircle
@@ -294,7 +296,7 @@ function MobileLiquidityPage({
           />
         </div>
       </div>
-      {watchList.length > 0 && <MobileWatchListCard watchList={watchList} />}
+      <MobileWatchListCard watchList={watchList} />
 
       <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4">
         <div className="mx-4 flex items-center justify-between my-4">
@@ -656,7 +658,7 @@ function LiquidityPage_({
           />
         </div>
       </div>
-      {watchList.length > 0 && <WatchListCard watchList={watchList} />}
+      <WatchListCard watchList={watchList} />
 
       <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
         <div className="flex mx-8 justify-between pb-4">
