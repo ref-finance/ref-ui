@@ -709,9 +709,9 @@ export function PoolDetailsPage() {
       });
     }
 
-    // getWatchListFromDb({ pool_id: id }).then((watchlist) => {
-    //   setShowFullStar(watchlist.length > 0);
-    // });
+    getWatchListFromDb({ pool_id: id }).then((watchlist) => {
+      setShowFullStar(watchlist.length > 0);
+    });
   }, []);
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
@@ -736,7 +736,7 @@ export function PoolDetailsPage() {
             bgcolor="bg-cardBg"
           >
             <div className="flex flex-col text-center text-base mx-4 py-4">
-              <div className="flex justify-end mb-4">
+              <div className="flex items-center justify-end mb-4">
                 {backToFarmsButton && (
                   <Link
                     to={{
@@ -746,18 +746,17 @@ export function PoolDetailsPage() {
                     <FarmButton />
                   </Link>
                 )}
-                {/* <div className="lg:hidden">
+                <div className="lg:hidden ml-2">
                   <div onClick={handleSaveWatchList}>
                     {!showFullStart && <WatchListStartEmpty />}
                   </div>
                   <div onClick={handleRemoveFromWatchList}>
                     {showFullStart && <WatchListStartFull />}
                   </div>
-                </div> */}
+                </div>
               </div>
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-end">
-                  {console.log(tokens[0])}
                   <Icon icon={tokens[0].icon} className="h-10 w-10 mr-2" />
                   <div className="flex items-start flex-col">
                     <div className="text-white text-base">
@@ -888,24 +887,24 @@ export function PoolDetailsPage() {
         {/* chart */}
         <div className="w-full flex flex-col h-full">
           <div className="lg:flex items-center justify-end mb-4">
-            {/* <div className="flex items-center xs:hidden md:hidden">
-            <div className="mr-2">
-              <div onClick={handleSaveWatchList}>
-                {!showFullStart && <WatchListStartEmpty />}
+            <div className="flex items-center xs:hidden md:hidden">
+              <div className="mr-2">
+                <div onClick={handleSaveWatchList}>
+                  {!showFullStart && <WatchListStartEmpty />}
+                </div>
+                <div onClick={handleRemoveFromWatchList}>
+                  {showFullStart && <WatchListStartFull />}
+                </div>
               </div>
-              <div onClick={handleRemoveFromWatchList}>
-                {showFullStart && <WatchListStartFull />}
+              <div className="text-gray-400 text-xs whitespace-nowrap ">
+                <FormattedMessage
+                  id={showFullStart ? 'remove_watchlist' : 'add_watchlist'}
+                  defaultMessage={
+                    showFullStart ? 'Remove Watchlist' : 'Add Watchlist'
+                  }
+                />
               </div>
             </div>
-            <div className="text-gray-400 text-xs whitespace-nowrap	">
-              <FormattedMessage
-                id={showFullStart ? 'remove_watchlist' : 'add_watchlist'}
-                defaultMessage={
-                  showFullStart ? 'Remove Watchlist' : 'Add Watchlist'
-                }
-              />
-            </div>
-          </div> */}
 
             <div className="lg:flex items-center justify-end xs:mt-4 md:mt-4 xs:grid xs:grid-cols-2 md:grid md:grid-cols-2 w-full">
               <div className="pr-2">

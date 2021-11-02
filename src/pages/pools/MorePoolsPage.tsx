@@ -102,11 +102,11 @@ function PoolRow({
           </div>
         </div>
         {supportFarm && <FarmButton />}
-        {/* {watched && (
+        {watched && (
           <div className="mx-2">
             <WatchListStartFull />
           </div>
-        )} */}
+        )}
       </div>
 
       <div className="col-span-1 py-1  ">
@@ -186,11 +186,11 @@ const MobileRow = ({
             <div className="text-lg ml-2 font-semibold">
               {tokens[0].symbol + '-' + tokens[1].symbol}
             </div>
-            {/* {watched && (
+            {watched && (
               <div className="ml-2">
                 <WatchListStartFull />
               </div>
-            )} */}
+            )}
           </div>
           {supportFarm && <FarmButton />}
         </div>
