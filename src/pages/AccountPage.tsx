@@ -105,7 +105,7 @@ function TokenRow({
       <div className="flex item-center justify-between">
         {token.icon ? (
           <img
-            className="h-10 w-10 mr-3"
+            className="h-10 w-10 mr-3 border rounded-full border-greenLight"
             src={token.icon}
             alt={toRealSymbol(token.symbol)}
           />
@@ -394,7 +394,7 @@ function MobileBalances({ hideEmpty }: { hideEmpty?: boolean }) {
             <div className="flex item-center justify-between">
               {token.icon ? (
                 <img
-                  className="h-10 w-10 mr-3"
+                  className="h-10 w-10 mr-3 border rounded-full border-greenLight"
                   src={token.icon}
                   alt={toRealSymbol(token.symbol)}
                 />

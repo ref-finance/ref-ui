@@ -10,6 +10,7 @@ import CommenBasses from '~components/tokens/CommenBasses';
 import Table from '~components/table/Table';
 import { useTokensData } from '~state/token';
 import { toRealSymbol } from '~utils/token';
+import { FaSearch } from 'react-icons/fa';
 
 function sort(a: any, b: any) {
   if (typeof a === 'string' && typeof b === 'string') {
@@ -182,18 +183,21 @@ export default function SelectToken({
                 defaultMessage="Select Token"
               />
             </h2>
-            {addToken && addToken()}
             <IoCloseOutline
               onClick={() => handleClose()}
-              className="absolute text-gray-400 text-2xl right-6"
+              className="absolute text-gray-400 text-2xl right-6 cursor-pointer"
             />
           </div>
-          <div className="rounded-lg w-full my-2 px-6">
-            <input
-              className={`text-sm min bg-black bg-opacity-25 focus:outline-none rounded-lg w-full py-2 px-3 text-greenLight`}
-              placeholder={intl.formatMessage({ id: 'search_token' })}
-              onChange={(evt) => onSearch(evt.target.value)}
-            />
+          <div className="flex justify-between items-center mb-5 mx-6">
+            <div className="flex-auto rounded text-gray-400 flex items-center pr-2 mr-4 bg-inputDarkBg">
+              <input
+                className={`text-sm outline-none rounded w-full py-2 px-3`}
+                placeholder={intl.formatMessage({ id: 'search_token' })}
+                onChange={(evt) => onSearch(evt.target.value)}
+              />
+              <FaSearch />
+            </div>
+            {addToken && addToken()}
           </div>
           <CommenBasses
             tokens={tokensData}
