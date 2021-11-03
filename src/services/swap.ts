@@ -1,4 +1,5 @@
 import BN from 'bn.js';
+import Big from 'big.js';
 import {
   toNonDivisibleNumber,
   toPrecision,
@@ -36,7 +37,11 @@ import {
 import { utils } from 'near-api-js';
 import { BigNumber } from 'bignumber.js';
 
+
+Big.DP = 40;
+Big.strict = false;
 const FEE_DIVISOR = 10000;
+
 
 interface EstimateSwapOptions {
   tokenIn: TokenMetadata;
@@ -67,6 +72,9 @@ export const estimateSwap = async ({
     tokenOutId: tokenOut.id,
     amountIn: parsedAmountIn,
   });
+
+
+  //console.log('POOLS FOUND ARE...',pools);
 
   if (pools.length < 1) {
     throw new Error(
@@ -109,6 +117,8 @@ export const estimateSwap = async ({
       })
     );
 
+      //console.log('estimates are ...',estimates)
+
     const { estimate, pool } = estimates
       .filter(({ status }) => status === 'success')
       .sort((a, b) => (Number(b.estimate) > Number(a.estimate) ? 1 : -1))[0];
@@ -134,6 +144,8 @@ interface SwapOptions extends EstimateSwapOptions {
   pool: Pool;
   minAmountOut: string;
 }
+
+
 
 export const swap = async ({
   pool,
