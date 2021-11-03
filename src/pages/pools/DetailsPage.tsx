@@ -312,7 +312,7 @@ function AddLiquidityModal(
         bgcolor="bg-cardBg"
         className="text-white outline-none "
       >
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between">
           <div className="text-base font-bold pb-4">
             <FormattedMessage
               id="add_liquidity"
@@ -529,7 +529,7 @@ export function RemoveLiquidityModal(
           border: '1px solid rgba(0, 198, 162, 0.5)',
         }}
       >
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between">
           <div className="text-base pb-4">
             <FormattedMessage
               id="remove_liquidity"
