@@ -29,7 +29,11 @@ import { CheckedTick, CheckedEmpty } from '~components/icon/CheckBox';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { PoolDb, WatchList } from '~store/RefDatabase';
-import { DownArrowLight, UpArrowDeep } from '~components/icon';
+import {
+  DownArrowLight,
+  DownArrowLightMobile,
+  UpArrowDeep,
+} from '~components/icon';
 import { FarmStamp } from '~components/icon/FarmStamp';
 import { SolidButton } from '~components/button/Button';
 import { wallet } from '~services/near';
@@ -390,7 +394,7 @@ function MobileLiquidityPage({
                   onOrderChange(order === 'desc' ? 'asc' : 'desc');
                 }}
               >
-                {order === 'desc' ? <DownArrowLight /> : <UpArrowDeep />}
+                {order === 'desc' ? <DownArrowLightMobile /> : <UpArrowDeep />}
               </div>
               <div className="relative rounded text-gray-400 flex items-center border border-gray-400 w-36">
                 <div
