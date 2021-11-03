@@ -352,6 +352,7 @@ function MobileLiquidityPage({
             }}
           />
           <FaSearch
+            className="cursor-pointer"
             onClick={() => {
               onSearch(searchValue);
               setSearchTrigger(!searchTrigger);
@@ -736,6 +737,7 @@ function LiquidityPage_({
                 }}
               />
               <FaSearch
+                className="cursor-pointer"
                 onClick={() => {
                   onSearch(searchValue);
                   setSearchTrigger(!searchTrigger);
