@@ -290,7 +290,8 @@ function MobileLiquidityPage({
   const inputRef = useRef(null);
 
   useEffect(() => {
-    inputRef.current.focus();
+    if (searchTrigger === false || searchTrigger === true)
+      inputRef.current.focus();
   }, [searchTrigger]);
 
   return (
@@ -550,7 +551,7 @@ function WatchListCard({ watchList }: { watchList: WatchList[] }) {
   });
   return (
     <>
-      <Card className=" w-full mb-4" padding="p-0 py-6" bgcolor="bg-cardBg">
+      <Card className=" w-full mb-2" padding="p-0 py-6" bgcolor="bg-cardBg">
         <div className="mx-8 flex items-center">
           <div
             className={`text-${
@@ -656,12 +657,13 @@ function LiquidityPage_({
   const [searchValue, setSearchValue] = useState<string>(tokenName);
   const inputRef = useRef(null);
   useEffect(() => {
-    inputRef.current?.focus();
+    if (searchTrigger === false || searchTrigger === true)
+      inputRef.current?.focus();
   }, [searchTrigger]);
   return (
     <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
-      <div className="pb-6 mx-8">
-        <div className="text-white text-2xl">
+      <div className="mb-4 mx-8">
+        <div className="text-white text-xl">
           <FormattedMessage
             id="liquidity_pools"
             defaultMessage="Liquidity Pools"
@@ -837,7 +839,7 @@ export function LiquidityPage() {
   const [order, setOrder] = useState('desc');
   const AllPools = useAllPools();
   const watchList = useAllWatchList();
-  const [searchTrigger, setSearchTrigger] = useState<Boolean>(false);
+  const [searchTrigger, setSearchTrigger] = useState<Boolean>(null);
   const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
   const [displayPools, setDisplayPools] = useState<Pool[]>();
   const { pools, hasMore, nextPage, loading } = usePools({
