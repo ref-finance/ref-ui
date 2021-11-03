@@ -70,7 +70,7 @@ function PoolRow({
 
   return (
     <Link
-      className="grid grid-cols-12 py-3.5 text-white content-center text-sm text-left mx-8  border-b border-gray-600"
+      className="grid grid-cols-12 py-3.5 text-white content-center text-sm text-left mx-8  border-b border-gray-600 hover:opacity-80"
       to={{
         pathname: `/pool/${pool.id}`,
         state: { tvl: pool?.tvl, backToFarms: supportFarm },
@@ -287,7 +287,7 @@ export const MorePoolsPage = () => {
             </div>
           </div>
 
-          <section className="px-2">
+          <section className="">
             <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
               <div className="col-span-8 flex items-center">
                 <div className="mr-3 ">
@@ -350,7 +350,10 @@ export const MorePoolsPage = () => {
             </header>
             <div className="max-h-96 overflow-y-auto">
               {morePools?.map((pool, i) => (
-                <div className="w-full hover:bg-poolRowHover" key={i}>
+                <div
+                  className="w-full hover:bg-poolRowHover hover:bg-opacity-20"
+                  key={i}
+                >
                   <PoolRow
                     key={i}
                     pool={pool}
