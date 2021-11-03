@@ -2,7 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { PoolDb } from '~store/RefDatabase';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { Card } from '~components/card/Card';
-import { BackArrow, DownArrowLight, UpArrowDeep } from '~components/icon';
+import {
+  BackArrow,
+  DownArrowLight,
+  UpArrowDeep,
+  UpArrowLight,
+} from '~components/icon';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
 import Loading from '~components/layout/Loading';
 
@@ -305,30 +310,23 @@ export const MorePoolsPage = () => {
                 <div className="mr-1">
                   <FormattedMessage id="fee" defaultMessage="Fee" />
                 </div>
-                {sortBy === 'total_fee' && order === 'desc' ? (
-                  <DownArrowLight />
+                {sortBy === 'total_fee' ? (
+                  order === 'desc' ? (
+                    <DownArrowLight />
+                  ) : (
+                    <UpArrowLight />
+                  )
                 ) : (
                   <UpArrowDeep />
                 )}
               </div>
-              <div
-                className="col-span-2 flex items-center cursor-pointer "
-                onClick={() => {
-                  setSortBy('h24_volume');
-                  setOrder(order === 'desc' ? 'asc' : 'desc');
-                }}
-              >
+              <div className="col-span-2 flex items-center cursor-pointer ">
                 <div className="mr-1">
                   <FormattedMessage
                     id="h24_volume"
                     defaultMessage="24h Volume"
                   />
                 </div>
-                {sortBy === '24h_volume' && order === 'desc' ? (
-                  <DownArrowLight />
-                ) : (
-                  <UpArrowDeep />
-                )}
               </div>
 
               <div
@@ -341,8 +339,12 @@ export const MorePoolsPage = () => {
                 <span className="mr-1 ">
                   <FormattedMessage id="tvl" defaultMessage="TVL" />
                 </span>
-                {sortBy === 'tvl' && order === 'desc' ? (
-                  <DownArrowLight />
+                {sortBy === 'tvl' ? (
+                  order === 'desc' ? (
+                    <DownArrowLight />
+                  ) : (
+                    <UpArrowLight />
+                  )
                 ) : (
                   <UpArrowDeep />
                 )}

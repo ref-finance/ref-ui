@@ -33,6 +33,7 @@ import {
   DownArrowLight,
   DownArrowLightMobile,
   UpArrowDeep,
+  UpArrowLight,
 } from '~components/icon';
 import { FarmStamp } from '~components/icon/FarmStamp';
 import { SolidButton } from '~components/button/Button';
@@ -767,8 +768,12 @@ function LiquidityPage_({
               <div className="mr-1">
                 <FormattedMessage id="fee" defaultMessage="Fee" />
               </div>
-              {sortBy === 'fee' && order === 'desc' ? (
-                <DownArrowLight />
+              {sortBy === 'fee' ? (
+                order === 'desc' ? (
+                  <DownArrowLight />
+                ) : (
+                  <UpArrowLight />
+                )
               ) : (
                 <UpArrowDeep />
               )}
@@ -783,11 +788,6 @@ function LiquidityPage_({
               <div className="mr-1">
                 <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
               </div>
-              {sortBy === 'h24_volume' && order === 'desc' ? (
-                <DownArrowLight />
-              ) : (
-                <UpArrowDeep />
-              )}
             </div>
 
             <div
@@ -800,8 +800,12 @@ function LiquidityPage_({
               <span className="mr-1">
                 <FormattedMessage id="tvl" defaultMessage="TVL" />
               </span>
-              {sortBy === 'tvl' && order === 'desc' ? (
-                <DownArrowLight />
+              {sortBy === 'tvl' ? (
+                order === 'desc' ? (
+                  <DownArrowLight />
+                ) : (
+                  <UpArrowLight />
+                )
               ) : (
                 <UpArrowDeep />
               )}
