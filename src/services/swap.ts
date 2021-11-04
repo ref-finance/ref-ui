@@ -37,6 +37,8 @@ import {
 import { utils } from 'near-api-js';
 import { BigNumber } from 'bignumber.js';
 
+import { calculateOptimalOutput } from './parallelSwapLogic.js';
+
 
 Big.DP = 40;
 Big.strict = false;
@@ -74,8 +76,9 @@ export const estimateSwap = async ({
   });
 
 
-  //console.log('POOLS FOUND ARE...',pools);
-
+  console.log('POOLS FOUND ARE...',pools);
+  let poolAllocations = await calculateOptimalOutput(pools, parsedAmountIn, tokenIn.id);
+  console.log('pool Alocations are: ',poolAllocations);
   if (pools.length < 1) {
     throw new Error(
       `${intl.formatMessage({ id: 'no_pool_available_to_make_a_swap_from' })} ${
