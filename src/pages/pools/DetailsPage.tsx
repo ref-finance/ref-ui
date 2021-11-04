@@ -394,7 +394,7 @@ function AddLiquidityModal(
             </div>
           </div>
           <InputAmount
-            className="w-full"
+            className="w-full border border-transparent rounded-xl"
             max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
             onChangeAmount={changeFirstTokenAmount}
             value={firstTokenAmount}
@@ -455,13 +455,13 @@ function AddLiquidityModal(
             </div>
           </div>
           <InputAmount
-            className="w-full"
+            className="w-full border border-transparent rounded-xl"
             max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
             onChangeAmount={changeSecondTokenAmount}
             value={secondTokenAmount}
           />
         </div>
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-8 ">
           {error && <Alert level="error" message={error.message} />}
         </div>
         <div className="flex items-center justify-center">
@@ -1092,6 +1092,8 @@ export function PoolDetailsPage() {
             },
             content: {
               outline: 'none',
+              position: 'fixed',
+              bottom: '50%',
             },
           }}
         />
@@ -1107,6 +1109,8 @@ export function PoolDetailsPage() {
             },
             content: {
               outline: 'none',
+              position: 'fixed',
+              bottom: '50%',
             },
           }}
         />
