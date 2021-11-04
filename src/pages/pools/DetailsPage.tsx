@@ -750,7 +750,7 @@ export function PoolDetailsPage() {
   return (
     <div>
       <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 m-auto">
-        <div className="inline-block pr-4 py-2 inline-flex items-center">
+        <div className="inline-block pr-4 pb-2 inline-flex items-center">
           <PoolRouter located={false} pathname="/pools">
             <FormattedMessage id="top_pools" defaultMessage="Top Pools" />
           </PoolRouter>

@@ -17,8 +17,8 @@ export const PoolRouter = (
         pathname,
         state,
       }}
-      className={`text-gray-400 text-xs hover:text-white ${
-        located ? 'text-white' : ''
+      className={`text-xs hover:text-white ${
+        located ? 'text-white' : 'text-gray-400 '
       } ${className}`}
     >
       {props.children}

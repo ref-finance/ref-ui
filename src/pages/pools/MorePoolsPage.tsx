@@ -140,10 +140,12 @@ const MobileRow = ({
   pool,
   tokens,
   watched,
+  morePoolIds,
 }: {
   pool: PoolRPCView;
   tokens: TokenMetadata[];
   watched: Boolean;
+  morePoolIds: string[];
 }) => {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const FarmButton = () => {
@@ -175,7 +177,13 @@ const MobileRow = ({
       <Link
         to={{
           pathname: `/pool/${pool.id}`,
-          state: { tvl: pool?.tvl, backToFarms: supportFarm },
+          state: {
+            tvl: pool?.tvl,
+            backToFarms: supportFarm,
+            fromMorePools: true,
+            tokens,
+            morePoolIds,
+          },
         }}
       >
         <div className="flex items-center justify-between">
@@ -390,18 +398,23 @@ export const MorePoolsPage = () => {
       </div>
       {/* Mobile */}
       <div className="w-11/12 lg:hidden m-auto text-white">
-        <Link
-          to={{
-            pathname: '/pools',
-          }}
-          className="flex items-center inline-block"
-        >
-          <BackArrowWhite />
-          <p className="ml-3">
-            <FormattedMessage id="pools" defaultMessage="Pools" />
-          </p>
-        </Link>
-        <div className="flex flex-col items-center mb-12 justify-center">
+        <div className="inline-flex items-center">
+          <PoolRouter pathname="/pools" located={false}>
+            <FormattedMessage id="top_pools" defaultMessage="Top Pools" />
+          </PoolRouter>
+          <PoolRouter
+            located={true}
+            pathname={`/more_pools/${state.tokens.map((tk) => tk.id)}`}
+            state={state}
+            className="inline-flex items-center"
+          >
+            <div className="mx-2">{'>'}</div>
+            <div>
+              <FormattedMessage id="more_pools" defaultMessage="More Pools" />
+            </div>
+          </PoolRouter>
+        </div>
+        <div className="flex flex-col items-center my-4 justify-center">
           <div className="flex items-center">
             <div className="h-9 w-9 border border-gradientFromHover rounded-full mr-2">
               <img
@@ -430,6 +443,7 @@ export const MorePoolsPage = () => {
               key={i}
               pool={pool}
               watched={!!find(watchList, { pool_id: pool.id.toString() })}
+              morePoolIds={morePoolIds}
             />
           );
         })}
