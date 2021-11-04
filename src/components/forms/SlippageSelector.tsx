@@ -217,7 +217,7 @@ export function PoolSlippageSelector({
               data-multiline={true}
               data-tip={intl.formatMessage({ id: slippageCopyId })}
             >
-              <FaRegQuestionCircle />
+              <FaRegQuestionCircle className="text-sm" />
             </div>
             <ReactTooltip
               className="text-xs text-left shadow-4xl"
@@ -237,7 +237,7 @@ export function PoolSlippageSelector({
               className={`w-12 focus:outline-none text-sm hover:bg-gradientFrom  rounded py-1 px-2 mx-2 ${
                 slippage === slippageTolerance
                   ? 'text-chartBg bg-gradientFrom'
-                  : 'bg-gray-500'
+                  : 'bg-slipBg'
               }`}
               type="button"
               onClick={() => onChange(slippage)}
