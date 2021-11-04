@@ -8,8 +8,6 @@ import {
   ArrowDownGreen,
   NavLogo,
   NavLogoLarge,
-  MenuItemCollapse,
-  MenuItemExpand,
   IconBubble,
 } from '~components/icon';
 import { Link, useLocation } from 'react-router-dom';
@@ -23,12 +21,13 @@ import { ConnectToNearBtn } from '~components/button/Button';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { HiMenu } from 'react-icons/hi';
-import { IoClose } from 'react-icons/io5';
+import { IoChevronBack, IoClose } from 'react-icons/io5';
 
 import { FiChevronUp, FiChevronDown } from 'react-icons/fi';
 import { RiLogoutCircleRLine } from 'react-icons/ri';
 import { useRefPrice } from '~state/account';
 import { toPrecision } from '~utils/numbers';
+import { useMenuItems } from '~utils/menu';
 
 function Anchor({
   to,
@@ -75,7 +74,7 @@ function AccountEntry() {
   if (!userTokens || !balances) return null;
 
   return (
-    <div className="user text-xs text-center justify-end pt-6 h-full right-28 absolute top-0 z-20">
+    <div className="user text-xs text-center justify-end pt-6 h-full right-20 absolute top-0 z-20">
       <div
         className={`cursor-pointer font-bold items-center justify-end text-center overflow-visible relative h-full`}
         onMouseEnter={() => {
@@ -85,7 +84,7 @@ function AccountEntry() {
           setHover(false);
         }}
       >
-        <div className="inline-flex p-1 items-center justify-center rounded-full bg-gray-700 pl-3 pr-3 absolute top-5 right-9">
+        <div className="inline-flex py-1 items-center justify-center rounded-full bg-gray-700 px-5 absolute top-5 right-2">
           <div className="pr-1">
             <Near />
           </div>
@@ -230,45 +229,19 @@ function PoolsMenu() {
 
 function MoreMenu() {
   const [hover, setHover] = useState(false);
-  const intl = useIntl();
-
-  const links = [
-    {
-      label: <FormattedMessage id="airdrop" defaultMessage="Airdrop" />,
-      url: '/airdrop',
-      isExternal: false,
-    },
-    {
-      label: (
-        <FormattedMessage id="rainbow_bridge" defaultMessage="RainBow Bridge" />
-      ),
-      url: 'https://ethereum.bridgetonear.org/',
-      isExternal: true,
-    },
-    {
-      label: intl.formatMessage({ id: 'docs' }),
-      url: 'https://guide.ref.finance',
-      isExternal: true,
-    },
-    { label: 'Forum', url: 'https://gov.ref.finance', isExternal: true },
-    {
-      label: 'Discord',
-      url: 'https://discord.gg/SJBGcfMxJz',
-      isExternal: true,
-    },
-    { label: 'Telegram', url: 'https://t.me/ref_finance', isExternal: true },
-    {
-      label: 'Twitter',
-      url: 'https://twitter.com/finance_ref',
-      isExternal: true,
-    },
-    {
-      label: 'Medium',
-      url: 'https://ref-finance.medium.com/',
-      isExternal: true,
-    },
-  ];
-
+  const [parentLabel, setParentLabel] = useState('');
+  const { menuData } = useMenuItems();
+  const [curMenuItems, setCurMenuItems] = useState(menuData);
+  const context = useContext(Context);
+  const currentLocal = localStorage.getItem('local');
+  const onClickMenuItem = (items: any[], label: string) => {
+    setCurMenuItems(items);
+    setParentLabel(label);
+  };
+  const switchLanuage = (label: string) => {
+    context.selectLanguage(label);
+  };
+  const hasSubMenu = curMenuItems.some(({ children }) => !!children?.length);
   return (
     <div
       className="relative z-20 h-8"
@@ -288,56 +261,58 @@ function MoreMenu() {
         } absolute top-6 -right-4 pt-4 rounded-md`}
       >
         <Card
-          width="w-48"
+          width="w-64"
           padding="py-4"
           rounded="rounded-md"
           className="shadow-4xl border border-primaryText"
         >
-          {links.map((link) => {
-            return (
-              <div
-                key={link.url}
-                className={`whitespace-nowrap text-left hover:bg-navHighLightBg text-sm font-semibold text-primaryText hover:text-white cursor-pointer py-2 pl-8`}
-                onClick={() =>
-                  window.open(link.url, link.isExternal ? '' : '_self')
-                }
-              >
-                {link.label}
-                {link.isExternal ? (
-                  <FaExternalLinkAlt className="mt-1 ml-2 text-xs opacity-60 inline-block" />
-                ) : null}
-              </div>
-            );
-          })}
+          {!hasSubMenu && parentLabel && (
+            <div className="whitespace-nowrap text-left items-center flex justify-start hover:bg-navHighLightBg text-sm font-semibold text-primaryText hover:text-white cursor-pointer py-4 pl-4">
+              <IoChevronBack
+                className=" text-xl"
+                onClick={() => onClickMenuItem?.(menuData, '')}
+              />
+              <span className=" ml-10">{parentLabel}</span>
+            </div>
+          )}
+          {curMenuItems.map(
+            ({
+              id,
+              url,
+              children,
+              label,
+              icon,
+              logo,
+              isExternal,
+              language,
+            }) => {
+              return (
+                <div
+                  key={id}
+                  className={`whitespace-nowrap text-left items-center flex justify-start hover:bg-navHighLightBg text-sm font-semibold hover:text-white
+                 ${
+                   language && currentLocal === language
+                     ? 'bg-navHighLightBg text-white'
+                     : 'text-primaryText'
+                 }
+                 cursor-pointer py-4 pl-16`}
+                  onClick={() =>
+                    url
+                      ? window.open(url, isExternal ? '' : '_self')
+                      : children
+                      ? onClickMenuItem?.(children, label)
+                      : switchLanuage(language)
+                  }
+                >
+                  {logo && <span className="text-2xl mr-6">{logo}</span>}
+                  {label}
+                  <span className="ml-4 text-xs">{icon}</span>
+                </div>
+              );
+            }
+          )}
         </Card>
       </div>
-    </div>
-  );
-}
-function langSwitcher() {
-  const context = useContext(Context);
-  const currentLocal = localStorage.getItem('local');
-  return (
-    <div className="text-gray-400 text-xs cursor-pointer ml-4 xs:mb-4 md:mb-4">
-      <span
-        id="en"
-        className={`pr-0.5 hover:text-white ${
-          currentLocal === 'en' ? 'text-white' : 'text-gray-400'
-        } `}
-        onClick={context.selectLanguage}
-      >
-        En
-      </span>{' '}
-      /
-      <span
-        id="zh-CN"
-        className={`pl-0.5 hover:text-white ${
-          currentLocal === 'zh-CN' ? 'text-white' : 'text-gray-400'
-        } `}
-        onClick={context.selectLanguage}
-      >
-        中文
-      </span>
     </div>
   );
 }
@@ -496,6 +471,53 @@ function MobileMoreMenu({
   );
 }
 
+function MobileSwitchLanguage() {
+  const context = useContext(Context);
+  const currentLocal = localStorage.getItem('local');
+  const [show, setShow] = useState(false);
+
+  return (
+    <div className="relative z-20">
+      <div
+        className="flex p-4 items-center justify-between"
+        onClick={() => setShow(!show)}
+      >
+        <div className={'font-bold text-primaryText'}>
+          <FormattedMessage id="language" defaultMessage="Language" />
+        </div>
+        <FiChevronUp
+          className={`${show ? 'inline-block' : 'hidden'} text-xl`}
+        />
+        <FiChevronDown
+          className={`${!show ? 'inline-block' : 'hidden'} text-xl`}
+        />
+      </div>
+      <div className={`${show ? 'block' : 'hidden'}`}>
+        <div
+          className={`whitespace-nowrap text-left font-bold text-white p-4 ${
+            currentLocal === 'en'
+              ? 'text-white bg-navHighLightBg'
+              : 'text-primaryText bg-mobile-nav'
+          }`}
+          onClick={() => context.selectLanguage('en')}
+        >
+          English
+        </div>
+        <div
+          className={`whitespace-nowrap text-left font-bold text-white p-4 ${
+            currentLocal === 'zh-CN'
+              ? 'text-white bg-navHighLightBg'
+              : 'text-primaryText bg-mobile-nav'
+          }`}
+          onClick={() => context.selectLanguage('zh-CN')}
+        >
+          中文
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function MobileNavBar() {
   const [show, setShow] = useState(false);
   const intl = useIntl();
@@ -631,7 +653,6 @@ function MobileNavBar() {
           </span>
         </div>
       </div>
-      <div className="block"> {langSwitcher()}</div>
       <div
         className={`fixed top-0 left-0 z-20 h-screen w-full bg-black bg-opacity-30 backdrop-blur-lg filter-blur backdrop-filter overflow-auto ${
           show ? 'block' : 'hidden'
@@ -725,6 +746,7 @@ function MobileNavBar() {
             </div>
 
             <MobileMoreMenu links={moreLinks} onClick={close} />
+            <MobileSwitchLanguage />
           </div>
         </div>
       </div>
@@ -759,7 +781,6 @@ function NavigationBar() {
           <div className="flex items-center w-44 justify-end">
             <AccountEntry />
             <MoreMenu />
-            {langSwitcher()}
           </div>
         </nav>
       </div>

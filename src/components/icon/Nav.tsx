@@ -96,46 +96,6 @@ export function NavLogoLarge() {
   );
 }
 
-export function MenuItemExpand() {
-  return (
-    <svg
-      width="17"
-      height="12"
-      viewBox="0 0 17 12"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M2.2 2L8.6 10L15 2"
-        stroke="white"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-export function MenuItemCollapse() {
-  return (
-    <svg
-      width="17"
-      height="12"
-      viewBox="0 0 17 12"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M14.8 10L8.4 2L2 10"
-        stroke="white"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 export function IconBubble() {
   return (
     <svg
