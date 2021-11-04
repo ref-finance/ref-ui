@@ -21,16 +21,19 @@ export function BorderlessButton(
 export function BorderButton(
   props: HTMLAttributes<HTMLButtonElement> & { borderColor?: string } & {
     disabled?: boolean;
+    rounded? : string
   }
 ) {
-  const { className, borderColor, disabled, ...propsWithoutClassName } = props;
+  const { className, borderColor, disabled, rounded, ...propsWithoutClassName } = props;
   return (
     <button
       disabled={disabled}
-      className={`rounded-full text-xs px-5 py-2.5 focus:outline-none font-semibold border ${
+      className={`text-xs px-5 py-2.5 focus:outline-none font-semibold border ${
         borderColor ? borderColor : 'border-greenLight'
       }  focus:outline-none ${className} ${
         disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
+      } ${
+        rounded || 'rounded-full'
       }`}
       {...propsWithoutClassName}
     >
@@ -40,16 +43,16 @@ export function BorderButton(
 }
 
 export function GreenButton(
-  props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean }
+  props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean } & { rounded? :string}
 ) {
-  const { disabled } = props;
+  const { disabled, rounded } = props;
   const { className, ...propsWithoutClassName } = props;
   return (
     <button
       disabled={disabled}
-      className={`rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold border border-greenLight bg-greenLight focus:outline-none ${className} ${
+      className={` text-xs text-white px-5 py-2.5 font-semibold border border-greenLight bg-greenLight focus:outline-none ${className} ${
         disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
-      }`}
+      } ${rounded || 'rounded-full'}`}
       {...propsWithoutClassName}
     >
       {props.children}
@@ -186,5 +189,23 @@ export function GradientButton(
         {props.children}
       </button>
     </div>
+  );
+}
+export function GreenLButton(
+  props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean }
+) {
+  const { disabled } = props;
+  const { className, ...propsWithoutClassName } = props;
+  return (
+    <button
+      disabled={disabled}
+      style={{background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'}}
+      className={`w-full rounded text-lg text-white font-semibold border-0 px-5 py-2 focus:outline-none ${className} ${
+        disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
+      }`}
+      {...propsWithoutClassName}
+    >
+      {props.children}
+    </button>
   );
 }
