@@ -44,7 +44,11 @@ module.exports = {
         inputDarkBg: 'rgba(0, 0, 0, 0.2)',
         navHighLightBg: '#304452',
         navHighLightText: '#C6D1DA',
-        slipBg: '#637684'
+        slipBg: '#637684',
+        farmText: '#73818B',
+        farmSplitLine: '#314351',
+        farmDark: '#2B3A44',
+        framBorder: '#00C6A2'
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

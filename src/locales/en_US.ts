@@ -180,5 +180,7 @@ const en_US = {
   slip_invalid: 'The slippage tolerance is invalid.',
   press_enter_to_search: 'Press enter to search',
   click_search_bar_to_search: 'Click search bar to search',
+  reward_tokens: 'Reward Tokens',
+  detail: 'Detail'
 };
 export default en_US;

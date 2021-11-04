@@ -174,5 +174,7 @@ const zh_CN = {
   slip_invalid: '请输入有效的值',
   press_enter_to_search: '按下回车以搜索',
   click_search_bar_to_search: '点击搜索图标以搜索',
+  reward_tokens: '奖励币',
+  detail: '详情'
 };
 export default zh_CN;

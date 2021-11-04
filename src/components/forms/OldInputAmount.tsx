@@ -27,9 +27,7 @@ export default function OldInputAmount({
     <>
       <fieldset className={className}>
         <div
-          className={`relative flex align-center items-center border-solid border-gray-200 ${
-            maxBorder ? 'border-r' : ''
-          }`}
+          className={`relative flex align-center items-center h-11`}
         >
           <input
             ref={ref}
@@ -38,7 +36,7 @@ export default function OldInputAmount({
             onWheel={() => ref.current.blur()}
             {...rest}
             step="any"
-            className={`text-sm font-bold focus:outline-none bg-inputBg appearance-none rounded border-opacity-30 w-full py-3 px-3 leading-tight ${
+            className={`w-full h-full px-4 bg-black bg-opacity-20 text-sm font-bold focus:outline-non appearance-none rounded leading-tight ${
               disabled
                 ? 'text-gray-400 placeholder-gray-400'
                 : 'text-greenLight'
@@ -51,7 +49,7 @@ export default function OldInputAmount({
           />
           {max ? (
             <a
-              className={`rounded-lg right-0 items-center py-3 px-3 m-auto focus:outline-none font-semibold text-xs
+              className={`flex justify-center items-center bg-black bg-opacity-20 h-full px-3.5 alifocus:outline-none font-semibold
              ${
                disabled
                  ? 'text-gray-400 hover:text-gray-400'
@@ -60,7 +58,7 @@ export default function OldInputAmount({
               style={{ lineHeight: 'unset', cursor: 'pointer' }}
               onClick={() => handleChange(max)}
             >
-              MAX
+              <label className="text-xs border border-framBorder rounded-sm px-1 cursor-pointer" style={{zoom: 0.8}}>MAX</label>
             </a>
           ) : null}
         </div>
