@@ -44,7 +44,7 @@ export default function OldInputAmount({
             type="number"
             placeholder="0.0"
             onChange={({ target }) => handleChange(target.value)}
-            disabled={disabled}
+            // disabled={disabled}
             onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
           />
           {max ? (
@@ -58,7 +58,7 @@ export default function OldInputAmount({
               style={{ lineHeight: 'unset', cursor: 'pointer' }}
               onClick={() => handleChange(max)}
             >
-              <label className="text-xs border border-framBorder rounded-sm px-1 cursor-pointer" style={{zoom: 0.8}}>MAX</label>
+              <label className={`text-xs border rounded-sm px-1 cursor-pointer ${disabled ? 'border-gray-400' : 'border-framBorder'}`} style={{zoom: 0.8}}>MAX</label>
             </a>
           ) : null}
         </div>

@@ -3,7 +3,7 @@ import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
 import Alert from '~components/alert/Alert';
 import InputAmount from '~components/forms/InputAmount';
-import { FarmMiningIcon } from '~components/icon/FarmMining';
+import { FarmMiningIcon, ModalClose } from '~components/icon';
 import {
   GreenButton,
   GreenLButton,
@@ -792,7 +792,7 @@ function FarmView({
             </div>
           </div>
           <Link title={intl.formatMessage({ id: 'view_pool' })} to={{pathname: `/pool/${PoolId}`,state: { backToFarms: true }}}>
-            <span className="text-xs text-framBorder border border-framBorder rounded w-10 text-center box-content px-1" style={{zoom: 0.8}}><FormattedMessage id="detail" defaultMessage="detail" /></span>
+            <span className="text-xs text-framBorder border border-framBorder rounded w-10 text-center box-content px-1" style={{zoom: 0.8}}><FormattedMessage id="detail_tip" defaultMessage="detail" /></span>
           </Link>
         </div>
         {ended ? (
@@ -1046,20 +1046,19 @@ function ActionModal(
 ) {
   const { max } = props;
   const [amount, setAmount] = useState<string>('');
-
   const cardWidth = isMobile() ? '75vw' : '25vw';
-
   return (
     <Modal {...props}>
       <Card
         style={{ width: cardWidth }}
         className="outline-none border border-gradientFrom border-opacity-50"
       >
-        <div className="text-xl text-white font-semibold mb-7">
-          {props.title}
+        <div className="flex justify-between items-start text-xl text-white font-semibold mb-7">
+          <label>{props.title}</label>
+          <div className="cursor-pointer" onClick={props.onRequestClose}><ModalClose/></div>
         </div>
         <div>
-          <div className="flex justify-end mb-1">
+          <div className="flex justify-end mb-1.5">
             <span className="text-primaryText text-xs">
               <FormattedMessage id="balance" defaultMessage="Balance" />:
               {toPrecision(max, 6)}
@@ -1070,12 +1069,13 @@ function ActionModal(
               className="flex-grow"
               max={max}
               value={amount}
+              disabled={Number(amount) >= Number(max)}
               onChangeAmount={setAmount}
             />
           </div>
         </div>
         <div className="flex items-center justify-center pt-5">
-          <GreenLButton onClick={() => props.onSubmit(amount)}>
+          <GreenLButton onClick={() => props.onSubmit(amount)} disabled={!amount || Number(amount) >= Number(max) }>
             {props.btnText}
           </GreenLButton>
         </div>

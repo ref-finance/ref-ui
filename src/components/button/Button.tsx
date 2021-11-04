@@ -201,7 +201,7 @@ export function GreenLButton(
       disabled={disabled}
       style={{background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'}}
       className={`w-full rounded text-lg text-white font-semibold border-0 px-5 py-2 focus:outline-none ${className} ${
-        disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
+        disabled ? 'opacity-40 cursor-not-allowed' : ''
       }`}
       {...propsWithoutClassName}
     >
