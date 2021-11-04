@@ -50,8 +50,7 @@ export default function TokenAmount({
 
   return (
     <>
-      <div className="flex justify-between text-xs font-semibold pb-0.5 w-3/5">
-        <span className="text-primaryText">{text}</span>
+      <div className="flex justify-end text-xs font-semibold pb-0.5 w-3/5">
         <span className="text-primaryText" title={total}>
           <FormattedMessage id="balance" defaultMessage="Balance" />
           :&nbsp;
@@ -60,7 +59,7 @@ export default function TokenAmount({
       </div>
       <fieldset className="relative flex overflow-hidden align-center my-2">
         <InputAmount
-          className="w-3/5 px-1 border border-transparent rounded-xl"
+          className="w-3/5 pr-1 border border-transparent rounded-xl"
           id="inputAmount"
           name={selectedToken?.id}
           max={max}

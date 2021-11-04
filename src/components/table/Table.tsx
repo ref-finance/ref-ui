@@ -29,7 +29,7 @@ export default function Table({
         <thead>
           <tr className="font-normal border-b border-gray-500 border-opacity-30">
             <th
-              className={`font-normal pb-2 pl-6  ${
+              className={`font-normal w-2/5 pb-2 pl-6  ${
                 sortBy === 'asset' ? 'text-greenLight' : ''
               }`}
             >
@@ -44,7 +44,7 @@ export default function Table({
               />
             </th>
             <th
-              className={`font-normal pb-2  ${
+              className={`font-normal pb-2 w-1/5  ${
                 sortBy === 'near' ? 'text-greenLight' : ''
               }`}
             >
@@ -59,7 +59,7 @@ export default function Table({
               />
             </th>
             <th
-              className={`font-normal pb-2  ${
+              className={`font-normal pb-2 w-1/5 ${
                 sortBy === 'ref' ? 'text-greenLight' : ''
               }`}
             >
@@ -74,7 +74,7 @@ export default function Table({
               />
             </th>
             <th
-              className={`font-normal pb-2 pr-6 ${
+              className={`font-normal pb-2 pr-6 w-1/5 ${
                 sortBy === 'total' ? 'text-greenLight' : ''
               }`}
             >

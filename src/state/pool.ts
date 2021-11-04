@@ -43,6 +43,7 @@ interface LoadPoolsOpts {
 }
 
 export const usePools = (props: {
+  searchTrigger?: Boolean;
   tokenName?: string;
   sortBy?: string;
   order?: string;
@@ -106,7 +107,7 @@ export const usePools = (props: {
       sortBy: props.sortBy,
       order: props.order,
     });
-  }, [props.tokenName]);
+  }, [props.searchTrigger]);
 
   useEffect(() => {
     loadPools({
@@ -179,11 +180,11 @@ export const useMorePools = ({
 export const useAllWatchList = () => {
   const [watchList, setWatchList] = useState<WatchList[]>();
 
-  // useEffect(() => {
-  //   getAllWatchListFromDb({}).then((watchlist) => {
-  //     setWatchList(watchlist);
-  //   });
-  // }, []);
+  useEffect(() => {
+    getAllWatchListFromDb({}).then((watchlist) => {
+      setWatchList(_.orderBy(watchlist, 'update_time', 'desc'));
+    });
+  }, []);
 
   return watchList;
 };

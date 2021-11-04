@@ -39,7 +39,12 @@ import { isMobile } from '~utils/device';
 import ReactModal from 'react-modal';
 import { toRealSymbol } from '~utils/token';
 
-import { BackArrow, Near } from '~components/icon';
+import {
+  BackArrowWhite,
+  BackArrowGray,
+  ModalClose,
+  Near,
+} from '~components/icon';
 import { useHistory } from 'react-router';
 import { getPool } from '~services/indexer';
 import { BigNumber } from 'bignumber.js';
@@ -50,14 +55,21 @@ import {
 } from '~components/icon/WatchListStar';
 import { OutlineButton, SolidButton } from '~components/button/Button';
 import { wallet } from '~services/near';
+import { PoolRouter } from '~components/layout/PoolRouter';
 
 interface ParamTypes {
   id: string;
 }
 
-interface LocationTypes {
+interface MorePoolsStateType {
+  morePoolIds?: string[];
+  tokens?: TokenMetadata[];
+}
+
+interface LocationTypes extends MorePoolsStateType {
   tvl: number;
   backToFarms: boolean;
+  fromMorePools?: boolean;
 }
 
 function Icon(props: { icon?: string; className?: string; style?: any }) {
@@ -312,8 +324,19 @@ function AddLiquidityModal(
         bgcolor="bg-cardBg"
         className="text-white outline-none "
       >
-        <div className="text-base font-bold pb-4">
-          <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
+        <div className="flex items-start justify-between">
+          <div className="text-base font-bold pb-4">
+            <FormattedMessage
+              id="add_liquidity"
+              defaultMessage="Add Liquidity"
+            />
+          </div>
+          <div
+            className="ml-2 cursor-pointer p-1"
+            onClick={props.onRequestClose}
+          >
+            <ModalClose />
+          </div>
         </div>
 
         {/* PC display */}
@@ -518,11 +541,19 @@ export function RemoveLiquidityModal(
           border: '1px solid rgba(0, 198, 162, 0.5)',
         }}
       >
-        <div className="text-base pb-4">
-          <FormattedMessage
-            id="remove_liquidity"
-            defaultMessage="Remove Liquidity"
-          />
+        <div className="flex items-start justify-between">
+          <div className="text-base pb-4">
+            <FormattedMessage
+              id="remove_liquidity"
+              defaultMessage="Remove Liquidity"
+            />
+          </div>
+          <div
+            className="ml-2 cursor-pointer p-1"
+            onClick={props.onRequestClose}
+          >
+            <ModalClose />
+          </div>
         </div>
 
         <div>
@@ -653,7 +684,6 @@ export function PoolDetailsPage() {
   const { id } = useParams<ParamTypes>();
   const { state } = useLocation<LocationTypes>();
   const { pool, shares } = usePool(id);
-  const history = useHistory();
 
   const tokens = useTokens(pool?.tokenIds);
 
@@ -662,7 +692,8 @@ export function PoolDetailsPage() {
   const [poolTVL, setPoolTVL] = useState<number>();
   const [backToFarmsButton, setBackToFarmsButton] = useState<Boolean>(false);
   const [showFullStart, setShowFullStar] = useState<Boolean>(false);
-
+  const fromMorePools = state?.fromMorePools;
+  const morePoolIds = state?.morePoolIds;
   const FarmButton = () => {
     const isMultiMining = MULTI_MINING_POOLS.includes(pool.id);
     return (
@@ -709,9 +740,9 @@ export function PoolDetailsPage() {
       });
     }
 
-    // getWatchListFromDb({ pool_id: id }).then((watchlist) => {
-    //   setShowFullStar(watchlist.length > 0);
-    // });
+    getWatchListFromDb({ pool_id: id }).then((watchlist) => {
+      setShowFullStar(watchlist.length > 0);
+    });
   }, []);
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
@@ -719,13 +750,34 @@ export function PoolDetailsPage() {
   return (
     <div>
       <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 m-auto">
-        <div
-          className="inline-block pr-4 py-2 cursor-pointer"
-          onClick={() => {
-            history.push(`/pools`);
-          }}
-        >
-          <BackArrow />
+        <div className="inline-block pr-4 pb-2 inline-flex items-center">
+          <PoolRouter located={false} pathname="/pools">
+            <FormattedMessage id="top_pools" defaultMessage="Top Pools" />
+          </PoolRouter>
+          {fromMorePools && (
+            <PoolRouter
+              located={false}
+              pathname={`/more_pools/${tokens.map((tk) => tk.id)}`}
+              state={{ tokens, morePoolIds }}
+              className="inline-flex items-center"
+            >
+              <div className="mx-2">{'>'}</div>
+              <div>
+                <FormattedMessage id="more_pools" defaultMessage="More Pools" />
+              </div>
+            </PoolRouter>
+          )}
+
+          <PoolRouter
+            located={true}
+            pathname={`/pool/${pool.id}`}
+            className="inline-flex items-center"
+          >
+            <div className="mx-2">{'>'}</div>
+            <div>
+              <FormattedMessage id="detail" defaultMessage="Detail" />
+            </div>
+          </PoolRouter>
         </div>
       </div>
       <div className="flex items-start flex-row md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 md:flex-col xs:flex-col m-auto">
@@ -736,28 +788,29 @@ export function PoolDetailsPage() {
             bgcolor="bg-cardBg"
           >
             <div className="flex flex-col text-center text-base mx-4 py-4">
-              <div className="flex justify-end mb-4">
+              <div className="flex items-center justify-end mb-4">
                 {backToFarmsButton && (
                   <Link
                     to={{
                       pathname: '/farms',
+                      hash: `${pool.id}`,
                     }}
+                    target="_blank"
                   >
                     <FarmButton />
                   </Link>
                 )}
-                {/* <div className="lg:hidden">
+                <div className="lg:hidden ml-2">
                   <div onClick={handleSaveWatchList}>
                     {!showFullStart && <WatchListStartEmpty />}
                   </div>
                   <div onClick={handleRemoveFromWatchList}>
                     {showFullStart && <WatchListStartFull />}
                   </div>
-                </div> */}
+                </div>
               </div>
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-end">
-                  {console.log(tokens[0])}
                   <Icon icon={tokens[0].icon} className="h-10 w-10 mr-2" />
                   <div className="flex items-start flex-col">
                     <div className="text-white text-base">
@@ -888,24 +941,24 @@ export function PoolDetailsPage() {
         {/* chart */}
         <div className="w-full flex flex-col h-full">
           <div className="lg:flex items-center justify-end mb-4">
-            {/* <div className="flex items-center xs:hidden md:hidden">
-            <div className="mr-2">
-              <div onClick={handleSaveWatchList}>
-                {!showFullStart && <WatchListStartEmpty />}
+            <div className="flex items-center xs:hidden md:hidden">
+              <div className="mr-2 cursor-pointer">
+                <div onClick={handleSaveWatchList}>
+                  {!showFullStart && <WatchListStartEmpty />}
+                </div>
+                <div onClick={handleRemoveFromWatchList}>
+                  {showFullStart && <WatchListStartFull />}
+                </div>
               </div>
-              <div onClick={handleRemoveFromWatchList}>
-                {showFullStart && <WatchListStartFull />}
+              <div className="text-gray-400 text-xs whitespace-nowrap ">
+                <FormattedMessage
+                  id={showFullStart ? 'remove_watchlist' : 'add_watchlist'}
+                  defaultMessage={
+                    showFullStart ? 'Remove Watchlist' : 'Add Watchlist'
+                  }
+                />
               </div>
             </div>
-            <div className="text-gray-400 text-xs whitespace-nowrap	">
-              <FormattedMessage
-                id={showFullStart ? 'remove_watchlist' : 'add_watchlist'}
-                defaultMessage={
-                  showFullStart ? 'Remove Watchlist' : 'Add Watchlist'
-                }
-              />
-            </div>
-          </div> */}
 
             <div className="lg:flex items-center justify-end xs:mt-4 md:mt-4 xs:grid xs:grid-cols-2 md:grid md:grid-cols-2 w-full">
               <div className="pr-2">

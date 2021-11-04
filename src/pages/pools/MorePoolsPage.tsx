@@ -2,9 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { PoolDb } from '~store/RefDatabase';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { Card } from '~components/card/Card';
-import { BackArrow, DownArrowLight, UpArrowDeep } from '~components/icon';
+import {
+  BackArrowWhite,
+  BackArrowGray,
+  DownArrowLight,
+  UpArrowDeep,
+  UpArrowLight,
+} from '~components/icon';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
-import Loading from '~components/layout/Loading';
+import { PoolRouter } from '~components/layout/PoolRouter';
 
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -35,11 +41,13 @@ function PoolRow({
   index,
   tokens,
   watched,
+  morePoolIds,
 }: {
   pool: PoolRPCView;
   index: number;
   tokens: TokenMetadata[];
   watched: Boolean;
+  morePoolIds: string[];
 }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
 
@@ -70,10 +78,16 @@ function PoolRow({
 
   return (
     <Link
-      className="grid grid-cols-12 py-3.5 text-white content-center text-sm text-left mx-8  border-b border-gray-600"
+      className="grid grid-cols-12 py-3.5 text-white content-center text-sm text-left mx-8  border-b border-gray-600 hover:opacity-80"
       to={{
         pathname: `/pool/${pool.id}`,
-        state: { tvl: pool?.tvl, backToFarms: supportFarm },
+        state: {
+          tvl: pool?.tvl,
+          backToFarms: supportFarm,
+          fromMorePools: true,
+          tokens,
+          morePoolIds,
+        },
       }}
     >
       <div className="col-span-8 flex items-center">
@@ -102,11 +116,11 @@ function PoolRow({
           </div>
         </div>
         {supportFarm && <FarmButton />}
-        {/* {watched && (
+        {watched && (
           <div className="mx-2">
             <WatchListStartFull />
           </div>
-        )} */}
+        )}
       </div>
 
       <div className="col-span-1 py-1  ">
@@ -126,10 +140,12 @@ const MobileRow = ({
   pool,
   tokens,
   watched,
+  morePoolIds,
 }: {
   pool: PoolRPCView;
   tokens: TokenMetadata[];
   watched: Boolean;
+  morePoolIds: string[];
 }) => {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const FarmButton = () => {
@@ -161,7 +177,13 @@ const MobileRow = ({
       <Link
         to={{
           pathname: `/pool/${pool.id}`,
-          state: { tvl: pool?.tvl, backToFarms: supportFarm },
+          state: {
+            tvl: pool?.tvl,
+            backToFarms: supportFarm,
+            fromMorePools: true,
+            tokens,
+            morePoolIds,
+          },
         }}
       >
         <div className="flex items-center justify-between">
@@ -186,11 +208,11 @@ const MobileRow = ({
             <div className="text-lg ml-2 font-semibold">
               {tokens[0].symbol + '-' + tokens[1].symbol}
             </div>
-            {/* {watched && (
+            {watched && (
               <div className="ml-2">
                 <WatchListStartFull />
               </div>
-            )} */}
+            )}
           </div>
           {supportFarm && <FarmButton />}
         </div>
@@ -244,25 +266,34 @@ export const MorePoolsPage = () => {
   const morePoolIds = state?.morePoolIds;
   const tokens = state?.tokens;
   const morePools = useMorePools({ morePoolIds, order, sortBy });
-
+  const history = useHistory();
   const watchList = useAllWatchList();
 
   return (
     <>
+      {/* PC */}
       <div className="xs:hidden md:hidden lg:w-5/6 xl:w-3/4 m-auto text-white">
         <Card width="w-full" bgcolor="bg-cardBg" padding="py-7 px-0">
-          <div className="mx-8">
-            <Link
-              to={{
-                pathname: '/pools',
-              }}
-              className="flex items-center inline-block"
-            >
-              <BackArrow />
-              <p className="ml-3">
-                <FormattedMessage id="pools" defaultMessage="Pools" />
-              </p>
-            </Link>
+          <div className="mx-8 text-gray-400">
+            <div className="inline-flex items-center">
+              <PoolRouter pathname="/pools" located={false}>
+                <FormattedMessage id="top_pools" defaultMessage="Top Pools" />
+              </PoolRouter>
+              <PoolRouter
+                located={true}
+                pathname={`/more_pools/${state.tokens.map((tk) => tk.id)}`}
+                state={state}
+                className="inline-flex items-center"
+              >
+                <div className="mx-2">{'>'}</div>
+                <div>
+                  <FormattedMessage
+                    id="more_pools"
+                    defaultMessage="More Pools"
+                  />
+                </div>
+              </PoolRouter>
+            </div>
             <div className="flex items-center mb-14 justify-center">
               <div className="flex items-center">
                 <div className="h-9 w-9 border border-gradientFromHover rounded-full mr-2">
@@ -287,7 +318,7 @@ export const MorePoolsPage = () => {
             </div>
           </div>
 
-          <section className="px-2">
+          <section className="">
             <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
               <div className="col-span-8 flex items-center">
                 <div className="mr-3 ">
@@ -305,30 +336,23 @@ export const MorePoolsPage = () => {
                 <div className="mr-1">
                   <FormattedMessage id="fee" defaultMessage="Fee" />
                 </div>
-                {sortBy === 'total_fee' && order === 'desc' ? (
-                  <DownArrowLight />
+                {sortBy === 'total_fee' ? (
+                  order === 'desc' ? (
+                    <DownArrowLight />
+                  ) : (
+                    <UpArrowLight />
+                  )
                 ) : (
                   <UpArrowDeep />
                 )}
               </div>
-              <div
-                className="col-span-2 flex items-center cursor-pointer "
-                onClick={() => {
-                  setSortBy('h24_volume');
-                  setOrder(order === 'desc' ? 'asc' : 'desc');
-                }}
-              >
+              <div className="col-span-2 flex items-center cursor-pointer ">
                 <div className="mr-1">
                   <FormattedMessage
                     id="h24_volume"
                     defaultMessage="24h Volume"
                   />
                 </div>
-                {sortBy === '24h_volume' && order === 'desc' ? (
-                  <DownArrowLight />
-                ) : (
-                  <UpArrowDeep />
-                )}
               </div>
 
               <div
@@ -341,8 +365,12 @@ export const MorePoolsPage = () => {
                 <span className="mr-1 ">
                   <FormattedMessage id="tvl" defaultMessage="TVL" />
                 </span>
-                {sortBy === 'tvl' && order === 'desc' ? (
-                  <DownArrowLight />
+                {sortBy === 'tvl' ? (
+                  order === 'desc' ? (
+                    <DownArrowLight />
+                  ) : (
+                    <UpArrowLight />
+                  )
                 ) : (
                   <UpArrowDeep />
                 )}
@@ -350,13 +378,17 @@ export const MorePoolsPage = () => {
             </header>
             <div className="max-h-96 overflow-y-auto">
               {morePools?.map((pool, i) => (
-                <div className="w-full hover:bg-poolRowHover" key={i}>
+                <div
+                  className="w-full hover:bg-poolRowHover hover:bg-opacity-20"
+                  key={i}
+                >
                   <PoolRow
                     key={i}
                     pool={pool}
                     index={i + 1}
                     tokens={tokens}
                     watched={!!find(watchList, { pool_id: pool.id.toString() })}
+                    morePoolIds={morePoolIds}
                   />
                 </div>
               ))}
@@ -364,19 +396,25 @@ export const MorePoolsPage = () => {
           </section>
         </Card>
       </div>
+      {/* Mobile */}
       <div className="w-11/12 lg:hidden m-auto text-white">
-        <Link
-          to={{
-            pathname: '/pools',
-          }}
-          className="flex items-center inline-block"
-        >
-          <BackArrow />
-          <p className="ml-3">
-            <FormattedMessage id="pools" defaultMessage="Pools" />
-          </p>
-        </Link>
-        <div className="flex flex-col items-center mb-12 justify-center">
+        <div className="inline-flex items-center">
+          <PoolRouter pathname="/pools" located={false}>
+            <FormattedMessage id="top_pools" defaultMessage="Top Pools" />
+          </PoolRouter>
+          <PoolRouter
+            located={true}
+            pathname={`/more_pools/${state.tokens.map((tk) => tk.id)}`}
+            state={state}
+            className="inline-flex items-center"
+          >
+            <div className="mx-2">{'>'}</div>
+            <div>
+              <FormattedMessage id="more_pools" defaultMessage="More Pools" />
+            </div>
+          </PoolRouter>
+        </div>
+        <div className="flex flex-col items-center my-4 justify-center">
           <div className="flex items-center">
             <div className="h-9 w-9 border border-gradientFromHover rounded-full mr-2">
               <img
@@ -405,6 +443,7 @@ export const MorePoolsPage = () => {
               key={i}
               pool={pool}
               watched={!!find(watchList, { pool_id: pool.id.toString() })}
+              morePoolIds={morePoolIds}
             />
           );
         })}

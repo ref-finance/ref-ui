@@ -55,6 +55,7 @@ const en_US = {
   view_detail: 'View detail',
   pool_details: 'Pool details',
   details: 'Details',
+  detail:'Detail',
   liquidity_pools: 'Liquidity pools',
   minimum_tokens_out: 'Minimum tokens out',
   pair: 'Pair',
@@ -100,7 +101,7 @@ const en_US = {
   stake_your_liquidity_provider_LP_tokens:
     'Stake your Liquidity Provider (LP) tokens',
   go_to_wallet: 'Go to Wallet',
-  recent_activity: 'Recent activity',
+  recent_activity: 'Recent Activity',
   view_all: 'View all',
   cancel: 'Cancel',
   claim_ref_token: 'Claim Ref Token',

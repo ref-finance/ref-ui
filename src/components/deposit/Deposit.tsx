@@ -15,6 +15,7 @@ import { isMobile } from '~utils/device';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage } from 'react-intl';
 import { GradientButton } from '~components/button/Button';
+import { IoCloseOutline } from 'react-icons/io5';
 
 export function WithdrawModal(props: ReactModal.Props) {
   const [amount, setAmount] = useState<string>('');
@@ -38,14 +39,21 @@ export function WithdrawModal(props: ReactModal.Props) {
   );
 
   const cardWidth = isMobile() ? '95vw' : '25vw';
+  const { onRequestClose } = props;
 
   return (
     <Modal {...props}>
       <Card style={{ width: cardWidth }}>
-        <div className="text-sm text-gray-800 font-semibold pb-4">
-          <FormattedMessage
-            id="withdraw_token"
-            defaultMessage="Withdraw Token"
+        <div className="flex items-center justify-between  pb-6 relative">
+          <h2 className="text-sm font-bold text-center text-white">
+            <FormattedMessage
+              id="withdraw_token"
+              defaultMessage="Withdraw Token"
+            />
+          </h2>
+          <IoCloseOutline
+            onClick={onRequestClose}
+            className="text-gray-400 text-2xl cursor-pointer"
           />
         </div>
         <TokenAmount
@@ -91,13 +99,17 @@ export function Token(
     >
       <div className="flex items-center">
         {icon ? (
-          <img className="h-6 w-6" src={icon} alt={toRealSymbol(symbol)} />
+          <img
+            className="h-6 w-6 border rounded-full border-greenLight"
+            src={icon}
+            alt={toRealSymbol(symbol)}
+          />
         ) : (
-          <div className="h-6 w-6"></div>
+          <div className="h-6 w-6 border rounded-full border-greenLight"></div>
         )}
-        <div className="pl-5 font-semibold text-xs">{toRealSymbol(symbol)}</div>
+        <div className="pl-5 font-semibold text-sm">{toRealSymbol(symbol)}</div>
       </div>
-      <div className="font-semibold text-xs">{amount}</div>
+      <div className="font-semibold text-sm">{amount}</div>
     </div>
   );
 }
