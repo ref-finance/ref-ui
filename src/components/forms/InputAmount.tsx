@@ -60,10 +60,10 @@ export default function InputAmount({
           />
           {max ? (
             <a
-              className={`rounded border border-greenLight items-center px-1 mr-2 m-auto focus:outline-none text-xs ${
-                disabled
-                  ? 'text-gray-400 hover:text-gray-400'
-                  : 'text-greenLight'
+              className={`rounded border  items-center px-1 mr-2 m-auto focus:outline-none text-xs ${
+                disabled || max === rest.value
+                  ? 'text-gray-400 hover:text-gray-400 border-gray-400'
+                  : 'text-greenLight border-greenLight'
               }`}
               style={{ lineHeight: 'unset', cursor: 'pointer' }}
               onClick={() => handleChange(max)}
