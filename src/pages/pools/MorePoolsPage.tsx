@@ -10,7 +10,7 @@ import {
   UpArrowLight,
 } from '~components/icon';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
-import { PoolRouter } from '~components/layout/PoolRouter';
+import { BreadCrumb } from '~components/layout/BreadCrumb';
 
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -79,12 +79,15 @@ function PoolRow({
   return (
     <Link
       className="grid grid-cols-12 py-3.5 text-white content-center text-sm text-left mx-8  border-b border-gray-600 hover:opacity-80"
+      onClick={() => {
+        localStorage.setItem('fromMorePools', 'y');
+        localStorage.setItem('morePoolIds', JSON.stringify(morePoolIds));
+      }}
       to={{
         pathname: `/pool/${pool.id}`,
         state: {
           tvl: pool?.tvl,
           backToFarms: supportFarm,
-          fromMorePools: true,
           tokens,
           morePoolIds,
         },
@@ -175,12 +178,16 @@ const MobileRow = ({
       padding="p-4"
     >
       <Link
+        onClick={() => {
+          localStorage.setItem('morePoolIds', JSON.stringify(morePoolIds));
+
+          localStorage.setItem('fromMorePools', 'y');
+        }}
         to={{
           pathname: `/pool/${pool.id}`,
           state: {
             tvl: pool?.tvl,
             backToFarms: supportFarm,
-            fromMorePools: true,
             tokens,
             morePoolIds,
           },
@@ -275,25 +282,20 @@ export const MorePoolsPage = () => {
       <div className="xs:hidden md:hidden lg:w-5/6 xl:w-3/4 m-auto text-white">
         <Card width="w-full" bgcolor="bg-cardBg" padding="py-7 px-0">
           <div className="mx-8 text-gray-400">
-            <div className="inline-flex items-center">
-              <PoolRouter pathname="/pools" located={false}>
-                <FormattedMessage id="top_pools" defaultMessage="Top Pools" />
-              </PoolRouter>
-              <PoolRouter
-                located={true}
-                pathname={`/more_pools/${state.tokens.map((tk) => tk.id)}`}
-                state={state}
-                className="inline-flex items-center"
-              >
-                <div className="mx-2">{'>'}</div>
-                <div>
-                  <FormattedMessage
-                    id="more_pools"
-                    defaultMessage="More Pools"
-                  />
-                </div>
-              </PoolRouter>
-            </div>
+            <BreadCrumb
+              routes={[
+                {
+                  id: 'top_pools',
+                  msg: 'Top Pools',
+                  pathname: '/pools',
+                },
+                {
+                  id: 'more_pools',
+                  msg: 'More Pools',
+                  pathname: `/more_pools`,
+                },
+              ]}
+            />
             <div className="flex items-center mb-14 justify-center">
               <div className="flex items-center">
                 <div className="h-9 w-9 border border-gradientFromHover rounded-full mr-2">
@@ -398,22 +400,20 @@ export const MorePoolsPage = () => {
       </div>
       {/* Mobile */}
       <div className="w-11/12 lg:hidden m-auto text-white">
-        <div className="inline-flex items-center">
-          <PoolRouter pathname="/pools" located={false}>
-            <FormattedMessage id="top_pools" defaultMessage="Top Pools" />
-          </PoolRouter>
-          <PoolRouter
-            located={true}
-            pathname={`/more_pools/${state.tokens.map((tk) => tk.id)}`}
-            state={state}
-            className="inline-flex items-center"
-          >
-            <div className="mx-2">{'>'}</div>
-            <div>
-              <FormattedMessage id="more_pools" defaultMessage="More Pools" />
-            </div>
-          </PoolRouter>
-        </div>
+        <BreadCrumb
+          routes={[
+            {
+              id: 'top_pools',
+              msg: 'Top Pools',
+              pathname: '/pools',
+            },
+            {
+              id: 'more_pools',
+              msg: 'More Pools',
+              pathname: `/more_pools`,
+            },
+          ]}
+        />
         <div className="flex flex-col items-center my-4 justify-center">
           <div className="flex items-center">
             <div className="h-9 w-9 border border-gradientFromHover rounded-full mr-2">

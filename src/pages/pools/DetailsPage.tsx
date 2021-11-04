@@ -55,21 +55,15 @@ import {
 } from '~components/icon/WatchListStar';
 import { OutlineButton, SolidButton } from '~components/button/Button';
 import { wallet } from '~services/near';
-import { PoolRouter } from '~components/layout/PoolRouter';
+import { BreadCrumb } from '~components/layout/BreadCrumb';
 
 interface ParamTypes {
   id: string;
 }
 
-interface MorePoolsStateType {
-  morePoolIds?: string[];
-  tokens?: TokenMetadata[];
-}
-
-interface LocationTypes extends MorePoolsStateType {
+interface LocationTypes {
   tvl: number;
   backToFarms: boolean;
-  fromMorePools?: boolean;
 }
 
 function Icon(props: { icon?: string; className?: string; style?: any }) {
@@ -692,8 +686,9 @@ export function PoolDetailsPage() {
   const [poolTVL, setPoolTVL] = useState<number>();
   const [backToFarmsButton, setBackToFarmsButton] = useState<Boolean>(false);
   const [showFullStart, setShowFullStar] = useState<Boolean>(false);
-  const fromMorePools = state?.fromMorePools;
-  const morePoolIds = state?.morePoolIds;
+  const fromMorePools = localStorage.getItem('fromMorePools') === 'y';
+  const morePoolIds: string[] =
+    JSON.parse(localStorage.getItem('morePoolIds')) || [];
   const FarmButton = () => {
     const isMultiMining = MULTI_MINING_POOLS.includes(pool.id);
     return (
@@ -750,35 +745,26 @@ export function PoolDetailsPage() {
   return (
     <div>
       <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 m-auto">
-        <div className="inline-block pr-4 pb-2 inline-flex items-center">
-          <PoolRouter located={false} pathname="/pools">
-            <FormattedMessage id="top_pools" defaultMessage="Top Pools" />
-          </PoolRouter>
-          {fromMorePools && (
-            <PoolRouter
-              located={false}
-              pathname={`/more_pools/${tokens.map((tk) => tk.id)}`}
-              state={{ tokens, morePoolIds }}
-              className="inline-flex items-center"
-            >
-              <div className="mx-2">{'>'}</div>
-              <div>
-                <FormattedMessage id="more_pools" defaultMessage="More Pools" />
-              </div>
-            </PoolRouter>
-          )}
-
-          <PoolRouter
-            located={true}
-            pathname={`/pool/${pool.id}`}
-            className="inline-flex items-center"
-          >
-            <div className="mx-2">{'>'}</div>
-            <div>
-              <FormattedMessage id="detail" defaultMessage="Detail" />
-            </div>
-          </PoolRouter>
-        </div>
+        <BreadCrumb
+          routes={[
+            { id: 'top_pools', msg: 'Top Pools', pathname: '/pools' },
+            {
+              id: 'more_pools',
+              msg: 'More Pools',
+              pathname: `/more_pools/${tokens.map((tk) => tk.id)}`,
+              state: {
+                fromMorePools,
+                tokens,
+                morePoolIds,
+              },
+            },
+            {
+              id: 'detail',
+              msg: 'Detail',
+              pathname: `/pool`,
+            },
+          ]}
+        />
       </div>
       <div className="flex items-start flex-row md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 md:flex-col xs:flex-col m-auto">
         <div className="md:w-full xs:w-full">

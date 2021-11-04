@@ -96,6 +96,7 @@ function MobilePoolRow({
   return (
     <Link
       className="flex flex-col border-b border-gray-700 bg-cardBg w-full px-4 py-6 text-white"
+      onClick={() => localStorage.setItem('fromMorePools', 'n')}
       to={{
         pathname: `/pool/${pool.id}`,
         state: { tvl: pool?.tvl, backToFarms: supportFarm },
@@ -483,6 +484,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   return (
     <Link
       className="grid grid-cols-12 py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-600 hover:opacity-80"
+      onClick={() => localStorage.setItem('fromMorePools', 'n')}
       to={{
         pathname: `/pool/${pool.id}`,
         state: { tvl: pool.tvl, backToFarms: supportFarm },
