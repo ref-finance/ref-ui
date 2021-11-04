@@ -3,13 +3,14 @@ import { PoolDb } from '~store/RefDatabase';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { Card } from '~components/card/Card';
 import {
-  BackArrow,
+  BackArrowWhite,
+  BackArrowGray,
   DownArrowLight,
   UpArrowDeep,
   UpArrowLight,
 } from '~components/icon';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
-import Loading from '~components/layout/Loading';
+import { PoolRouter } from '~components/layout/PoolRouter';
 
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -40,11 +41,13 @@ function PoolRow({
   index,
   tokens,
   watched,
+  morePoolIds,
 }: {
   pool: PoolRPCView;
   index: number;
   tokens: TokenMetadata[];
   watched: Boolean;
+  morePoolIds: string[];
 }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
 
@@ -78,7 +81,13 @@ function PoolRow({
       className="grid grid-cols-12 py-3.5 text-white content-center text-sm text-left mx-8  border-b border-gray-600 hover:opacity-80"
       to={{
         pathname: `/pool/${pool.id}`,
-        state: { tvl: pool?.tvl, backToFarms: supportFarm },
+        state: {
+          tvl: pool?.tvl,
+          backToFarms: supportFarm,
+          fromMorePools: true,
+          tokens,
+          morePoolIds,
+        },
       }}
     >
       <div className="col-span-8 flex items-center">
@@ -249,25 +258,34 @@ export const MorePoolsPage = () => {
   const morePoolIds = state?.morePoolIds;
   const tokens = state?.tokens;
   const morePools = useMorePools({ morePoolIds, order, sortBy });
-
+  const history = useHistory();
   const watchList = useAllWatchList();
 
   return (
     <>
+      {/* PC */}
       <div className="xs:hidden md:hidden lg:w-5/6 xl:w-3/4 m-auto text-white">
         <Card width="w-full" bgcolor="bg-cardBg" padding="py-7 px-0">
-          <div className="mx-8">
-            <Link
-              to={{
-                pathname: '/pools',
-              }}
-              className="flex items-center inline-block"
-            >
-              <BackArrow />
-              <p className="ml-3">
-                <FormattedMessage id="pools" defaultMessage="Pools" />
-              </p>
-            </Link>
+          <div className="mx-8 text-gray-400">
+            <div className="inline-flex items-center">
+              <PoolRouter pathname="/pools" located={false}>
+                <FormattedMessage id="top_pools" defaultMessage="Top Pools" />
+              </PoolRouter>
+              <PoolRouter
+                located={true}
+                pathname={`/more_pools/${state.tokens.map((tk) => tk.id)}`}
+                state={state}
+                className="inline-flex items-center"
+              >
+                <div className="mx-2">{'>'}</div>
+                <div>
+                  <FormattedMessage
+                    id="more_pools"
+                    defaultMessage="More Pools"
+                  />
+                </div>
+              </PoolRouter>
+            </div>
             <div className="flex items-center mb-14 justify-center">
               <div className="flex items-center">
                 <div className="h-9 w-9 border border-gradientFromHover rounded-full mr-2">
@@ -362,6 +380,7 @@ export const MorePoolsPage = () => {
                     index={i + 1}
                     tokens={tokens}
                     watched={!!find(watchList, { pool_id: pool.id.toString() })}
+                    morePoolIds={morePoolIds}
                   />
                 </div>
               ))}
@@ -369,6 +388,7 @@ export const MorePoolsPage = () => {
           </section>
         </Card>
       </div>
+      {/* Mobile */}
       <div className="w-11/12 lg:hidden m-auto text-white">
         <Link
           to={{
@@ -376,7 +396,7 @@ export const MorePoolsPage = () => {
           }}
           className="flex items-center inline-block"
         >
-          <BackArrow />
+          <BackArrowWhite />
           <p className="ml-3">
             <FormattedMessage id="pools" defaultMessage="Pools" />
           </p>

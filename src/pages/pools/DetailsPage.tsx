@@ -39,7 +39,12 @@ import { isMobile } from '~utils/device';
 import ReactModal from 'react-modal';
 import { toRealSymbol } from '~utils/token';
 
-import { BackArrow, ModalClose, Near } from '~components/icon';
+import {
+  BackArrowWhite,
+  BackArrowGray,
+  ModalClose,
+  Near,
+} from '~components/icon';
 import { useHistory } from 'react-router';
 import { getPool } from '~services/indexer';
 import { BigNumber } from 'bignumber.js';
@@ -50,14 +55,21 @@ import {
 } from '~components/icon/WatchListStar';
 import { OutlineButton, SolidButton } from '~components/button/Button';
 import { wallet } from '~services/near';
+import { PoolRouter } from '~components/layout/PoolRouter';
 
 interface ParamTypes {
   id: string;
 }
 
-interface LocationTypes {
+interface MorePoolsStateType {
+  morePoolIds?: string[];
+  tokens?: TokenMetadata[];
+}
+
+interface LocationTypes extends MorePoolsStateType {
   tvl: number;
   backToFarms: boolean;
+  fromMorePools?: boolean;
 }
 
 function Icon(props: { icon?: string; className?: string; style?: any }) {
@@ -672,7 +684,6 @@ export function PoolDetailsPage() {
   const { id } = useParams<ParamTypes>();
   const { state } = useLocation<LocationTypes>();
   const { pool, shares } = usePool(id);
-  const history = useHistory();
 
   const tokens = useTokens(pool?.tokenIds);
 
@@ -681,7 +692,8 @@ export function PoolDetailsPage() {
   const [poolTVL, setPoolTVL] = useState<number>();
   const [backToFarmsButton, setBackToFarmsButton] = useState<Boolean>(false);
   const [showFullStart, setShowFullStar] = useState<Boolean>(false);
-
+  const fromMorePools = state?.fromMorePools;
+  const morePoolIds = state?.morePoolIds;
   const FarmButton = () => {
     const isMultiMining = MULTI_MINING_POOLS.includes(pool.id);
     return (
@@ -738,13 +750,34 @@ export function PoolDetailsPage() {
   return (
     <div>
       <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 m-auto">
-        <div
-          className="inline-block pr-4 py-2 cursor-pointer"
-          onClick={() => {
-            history.push(`/pools`);
-          }}
-        >
-          <BackArrow />
+        <div className="inline-block pr-4 py-2 inline-flex items-center">
+          <PoolRouter located={false} pathname="/pools">
+            <FormattedMessage id="top_pools" defaultMessage="Top Pools" />
+          </PoolRouter>
+          {fromMorePools && (
+            <PoolRouter
+              located={false}
+              pathname={`/more_pools/${tokens.map((tk) => tk.id)}`}
+              state={{ tokens, morePoolIds }}
+              className="inline-flex items-center"
+            >
+              <div className="mx-2">{'>'}</div>
+              <div>
+                <FormattedMessage id="more_pools" defaultMessage="More Pools" />
+              </div>
+            </PoolRouter>
+          )}
+
+          <PoolRouter
+            located={true}
+            pathname={`/pool/${pool.id}`}
+            className="inline-flex items-center"
+          >
+            <div className="mx-2">{'>'}</div>
+            <div>
+              <FormattedMessage id="detail" defaultMessage="Detail" />
+            </div>
+          </PoolRouter>
         </div>
       </div>
       <div className="flex items-start flex-row md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 md:flex-col xs:flex-col m-auto">
@@ -760,7 +793,9 @@ export function PoolDetailsPage() {
                   <Link
                     to={{
                       pathname: '/farms',
+                      hash: `${pool.id}`,
                     }}
+                    target="_blank"
                   >
                     <FarmButton />
                   </Link>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
 import Alert from '~components/alert/Alert';
@@ -46,7 +46,7 @@ import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import { getTokenPriceList } from '~services/indexer';
 import Countdown, { zeroPad } from 'react-countdown';
 import moment from 'moment';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import parse from 'html-react-parser';
@@ -61,10 +61,12 @@ export function FarmsPage() {
   const [rewardList, setRewardList] = useState<Record<string, string>>({});
   const [tokenPriceList, setTokenPriceList] = useState<any>();
   const [seeds, setSeeds] = useState<Record<string, string>>({});
+
+  const { hash } = useLocation();
+  const pool_id = hash.slice(1);
   const page = 1;
   const perPage = DEFAULT_PAGE_LIMIT;
   const intl = useIntl();
-
   async function loadFarmInfoList() {
     setUnclaimedFarmsIsLoading(true);
     const isSignedIn: boolean = wallet.isSignedIn();
@@ -156,6 +158,13 @@ export function FarmsPage() {
     loadFarmInfoList().then();
   }, []);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      document.getElementById(pool_id).scrollIntoView();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [unclaimedFarmsIsLoading]);
+
   return (
     <>
       <div className="w-1/3 xs:w-full md:w-full flex m-auto justify-center">
@@ -220,15 +229,16 @@ export function FarmsPage() {
             ) : (
               <div className="grid grid-cols-2 gap-4 2xl:grid-cols-3 xs:grid-cols-1 md:grid-cols-1">
                 {farms.map((farm) => (
-                  <FarmView
-                    key={farm[0].farm_id}
-                    farmsData={farm}
-                    farmData={farm[0]}
-                    stakedList={stakedList}
-                    rewardList={rewardList}
-                    tokenPriceList={tokenPriceList}
-                    seeds={seeds}
-                  />
+                  <div key={farm[0].farm_id} id={`${farm[0].pool.id}`}>
+                    <FarmView
+                      farmsData={farm}
+                      farmData={farm[0]}
+                      stakedList={stakedList}
+                      rewardList={rewardList}
+                      tokenPriceList={tokenPriceList}
+                      seeds={seeds}
+                    />
+                  </div>
                 ))}
               </div>
             )}
@@ -723,6 +733,7 @@ function FarmView({
         <div className="pl-2 order-3 lg:ml-auto xl:m-0">
           <Link
             title={intl.formatMessage({ id: 'view_pool' })}
+            target="_blank"
             to={{
               pathname: `/pool/${PoolId}`,
               state: { backToFarms: true },

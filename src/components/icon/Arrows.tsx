@@ -59,7 +59,7 @@ export function ArrowDownWhite() {
   );
 }
 
-export function BackArrow() {
+export function BackArrowWhite() {
   return (
     <svg
       width="11"
@@ -71,6 +71,24 @@ export function BackArrow() {
       <path
         d="M10 1L2 9.5L10 18"
         stroke="white"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+export function BackArrowGray() {
+  return (
+    <svg
+      width="8"
+      height="13"
+      viewBox="0 0 8 13"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M7 1L2 6.5L7 12"
+        stroke="#7E8A93"
         strokeWidth="2"
         strokeLinecap="round"
       />
