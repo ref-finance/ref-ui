@@ -106,6 +106,14 @@ function AddLiquidityModal(
     setError(null);
     if (Object.values(pool.supplies).every((s) => s === '0')) {
       setFirstTokenAmount(amount);
+      try {
+        validate({
+          firstAmount: amount,
+          secondAmount: secondTokenAmount,
+        });
+      } catch (error) {
+        setError(error);
+      }
     } else {
       const fairShares = calculateFairShare({
         shareOf: pool.shareSupply,
@@ -138,6 +146,14 @@ function AddLiquidityModal(
     setError(null);
     if (Object.values(pool.supplies).every((s) => s === '0')) {
       setSecondTokenAmount(amount);
+      try {
+        validate({
+          firstAmount:firstTokenAmount,
+          secondAmount: amount,
+        });
+      } catch (error) {
+        setError(error);
+      }
     } else {
       const fairShares = calculateFairShare({
         shareOf: pool.shareSupply,
