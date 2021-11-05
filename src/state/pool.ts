@@ -30,7 +30,7 @@ export const usePool = (id: number | string) => {
     getSharesInPool(Number(id))
       .then(setShares)
       .catch(() => setShares);
-  }, []);
+  }, [id]);
 
   return { pool, shares };
 };
