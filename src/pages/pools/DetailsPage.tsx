@@ -1090,7 +1090,8 @@ export function PoolDetailsPage() {
           onRequestClose={() => setShowWithdraw(false)}
           style={{
             overlay: {
-              backdropFilter: 'blur(10px)',
+              backdropFilter: 'blur(15px)',
+              WebkitBackdropFilter: 'blur(15px)',
             },
             content: {
               outline: 'none',
@@ -1107,7 +1108,8 @@ export function PoolDetailsPage() {
           overlayClassName=""
           style={{
             overlay: {
-              backdropFilter: 'blur(10px)',
+              backdropFilter: 'blur(15px)',
+              WebkitBackdropFilter: 'blur(15px)',
             },
             content: {
               outline: 'none',
