@@ -37,7 +37,7 @@ import {
 import { utils } from 'near-api-js';
 import { BigNumber } from 'bignumber.js';
 
-import { calculateOptimalOutput } from './parallelSwapLogic.js';
+import { calculateOptimalOutput, formatPoolNew } from './parallelSwapLogic.js';
 
 
 Big.DP = 40;
@@ -77,7 +77,7 @@ export const estimateSwap = async ({
 
 
   console.log('POOLS FOUND ARE...',pools);
-  let poolAllocations = await calculateOptimalOutput(pools, parsedAmountIn, tokenIn.id);
+  let poolAllocations = await calculateOptimalOutput(pools, parsedAmountIn, tokenIn.id,tokenOut.id);
   console.log('pool Alocations are: ',poolAllocations);
   if (pools.length < 1) {
     throw new Error(
@@ -314,4 +314,138 @@ export const checkTransaction = (txHash: string) => {
     'EXPERIMENTAL_tx_status',
     [txHash, wallet.getAccountId()]
   );
+};
+
+
+///////////////////////////////
+// Parallel Swap Logic Below //
+///////////////////////////////
+
+function formatPoolNew(pool, inputToken, outputToken) {
+  let p = pool;
+  let x = p.supplies[inputToken]
+  let y = p.supplies[outputToken]
+  p['gamma_bps'] = new Big(10000).minus(p.fee);
+  p['x'] = x;
+  p['y'] = y;
+  return p;
+}
+
+
+function calculate_dx_float(mu, pool,inputToken, outputToken) {
+  let p = formatPoolNew(pool, inputToken, outputToken);
+  let radical = new Big(p.x).times(p.y).div(p.gamma_bps);
+  let dxFloat = new Big(mu).times(100).times(radical.sqrt()).minus(new Big(p.x).times(10000).div(p.gamma_bps));
+  return dxFloat
+};
+
+
+  
+function calculate_dy_float(dx_float,pool, inputToken, outputToken) {
+  if (dx_float <= 0) {
+  return new Big(0);
+  } 
+  let p = formatPoolNew(pool, inputToken, outputToken);
+  let dx = new Big(dx_float);
+  let denom = new Big(10000).times(p.x).plus(new Big(p.gamma_bps).times(dx));
+  let numerator = new Big(p.y).times(dx).times(p.gamma_bps);
+  let dyFloat = numerator.div(denom).round();
+  return dyFloat;
+};
+
+
+function solveForMuFloat(pools, totalDeltaX, inputToken, outputToken) {
+  if (pools.length > 0){
+      let numerator = new Big(totalDeltaX);
+      let denominator = new Big(0);
+      console.log(numerator);
+      console.log(denominator)
+
+      for (var i=0; i < pools.length; i++) {
+          let p = formatPoolNew(pools[i],inputToken,outputToken);
+          let numAdd = new Big(p.x).times(10000).div(p.gamma_bps);
+          console.log(numAdd.toFixed());
+          numerator = numerator.plus(numAdd);
+          let denomAdd = new Big(p.x).times(p.y).div(p.gamma_bps).sqrt().times(100);
+          denominator = denominator.plus(denomAdd);
+      }
+
+      const mu = new Big(numerator).div(denominator);
+  return mu;	
+  }
+  else {
+      console.log('ERROR - could not find pools that satisfy token pair')
+      const mu = NaN;
+  return mu;	
+  }
+};
+
+
+  
+function calculateOptimalOutput(pools, inputAmount, inputToken, outputToken) {
+// This runs the main optimization algorithm using the input
+// console.log('input amount is... ',inputAmount)
+//let mu = solveForMu(pools, inputAmount);
+let mu = solveForMuFloat(pools, inputAmount, inputToken, outputToken);
+// console.log('mu is ... ', mu)
+let dxArray = new Array();
+let negativeDxValsFlag = false;
+for (var i=0; i<pools.length; i++) {
+    let pool = formatPoolNew(pools[i],inputToken, outputToken);
+  let dx = calculate_dx_float(mu,pool,inputToken,outputToken);
+  if (dx<0) {
+    // console.log('found a negative dx value!')
+    negativeDxValsFlag = true;
+  }
+      let dxInt = new Big(dx).round()
+  dxArray.push(dxInt);
+}
+if (negativeDxValsFlag) {
+    dxArray = reducePools(pools, dxArray,inputAmount, inputToken, outputToken);
+}
+let dxArraySum = new Big(0);
+for (var i=0; i<dxArray.length; i++) {
+  dxArraySum = dxArraySum.plus(dxArray[i]);
+}
+let normalizedDxArray = [];
+for (var i=0; i<dxArray.length; i++) {
+      let ndx = new Big(dxArray[i]).times(inputAmount).div(dxArraySum).round()
+  normalizedDxArray.push(BigInt(ndx.toFixed()));
+}
+return normalizedDxArray
+};
+
+
+function reducePools(pools, dxArray, inputAmount, inputToken, outputToken) {
+let goodIndices = [];
+for (var i=0;i<dxArray.length;i++) {
+  let dx = dxArray[i];
+  if (dx>=0) {
+    goodIndices.push(i)
+  }
+}
+  if (goodIndices.length < 1) {
+  console.log("ERROR OCCURRED -- ALL DX VALUES WERE NEGATIVE")
+  return dxArray;
+  }
+let newPools = [];
+for (var j=0; j<dxArray.length; j++) {
+  if (goodIndices.includes(j)) {
+    newPools.push(pools[j])
+  }
+}
+let newDxVec = calculateOptimalOutput(newPools,inputAmount,inputToken,outputToken);
+let goodInd2newdx = {};
+for (var k=0;k<newDxVec.length;k++) {
+  goodInd2newdx[goodIndices[k]] = newDxVec[k]
+}
+let newFullDxVec = [];
+for (var ii=0; ii<pools.length; ii++) {
+  if (goodIndices.includes(ii)) {
+    newFullDxVec.push(goodInd2newdx[ii]);
+  } else {
+    newFullDxVec.push(0);
+  }
+}
+return newFullDxVec;
 };
