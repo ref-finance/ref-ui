@@ -271,9 +271,9 @@ input.warn-input:focus {
   border: 1px solid #dea550;
   color: #dea550;
 }
-.reactTip{
-  border-radius:0.375rem!important;
-  padding:0.44rem 0.75rem!important;
-  min-width: 7rem!important;
-  opacity: 1!important;
+.reactTip {
+  border-radius: 0.375rem !important;
+  padding: 0.44rem 0.75rem !important;
+  min-width: 7rem !important;
+  opacity: 1 !important;
 }

@@ -157,11 +157,8 @@ function MobilePoolRow({
   );
 }
 
-function MobileWatchListCard({ watchList }: { watchList: WatchList[] }) {
+function MobileWatchListCard({ watchPools }: { watchPools: Pool[] }) {
   const intl = useIntl();
-  const watchPools = useWatchPools({
-    watchList,
-  });
   const [showSelectModal, setShowSelectModal] = useState<Boolean>(false);
   const [sortBy, onSortChange] = useState<string>('tvl');
 
@@ -171,11 +168,11 @@ function MobileWatchListCard({ watchList }: { watchList: WatchList[] }) {
         <div className="flex items-center">
           <div
             className={`text-${
-              watchList?.length > 0 ? 'white' : 'gray-400'
+              watchPools?.length > 0 ? 'white' : 'gray-400'
             }  text-base`}
           >
             <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
-            {watchList.length > 0 ? ` (${watchList.length})` : ''}
+            {watchPools.length > 0 ? ` (${watchPools.length})` : ''}
           </div>
           <div>
             <FaRegQuestionCircle
@@ -242,7 +239,7 @@ function MobileWatchListCard({ watchList }: { watchList: WatchList[] }) {
               <MobilePoolRow
                 sortBy={sortBy}
                 pool={pool}
-                watched={!!find(watchList, { pool_id: pool.id.toString() })}
+                watched={!!find(watchPools, { id: pool.id })}
               />
             </div>
           ))}
@@ -256,7 +253,7 @@ function MobileLiquidityPage({
   pools,
   tokenName,
   order,
-  watchList,
+  watchPools,
   hasMore,
   onSearch,
   onSortChange,
@@ -275,7 +272,7 @@ function MobileLiquidityPage({
   setSearchTrigger: (mode: Boolean) => void;
   tokenName: string;
   order: string;
-  watchList: WatchList[];
+  watchPools: Pool[];
   sortBy: string;
   hideLowTVL: Boolean;
   hasMore: boolean;
@@ -305,7 +302,7 @@ function MobileLiquidityPage({
           />
         </div>
       </div>
-      <MobileWatchListCard watchList={watchList} />
+      <MobileWatchListCard watchPools={watchPools} />
 
       <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4">
         <div className="mx-4 flex items-center justify-between my-4">
@@ -438,7 +435,7 @@ function MobileLiquidityPage({
                 <MobilePoolRow
                   pool={pool}
                   sortBy={sortBy}
-                  watched={!!find(watchList, { pool_id: pool.id.toString() })}
+                  watched={!!find(watchPools, { id: pool.id })}
                 />
               </div>
             ))}
@@ -546,18 +543,15 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   );
 }
 
-function WatchListCard({ watchList }: { watchList: WatchList[] }) {
+function WatchListCard({ watchPools }: { watchPools: Pool[] }) {
   const intl = useIntl();
-  const watchPools = useWatchPools({
-    watchList,
-  });
   return (
     <>
       <Card className=" w-full mb-2" padding="p-0 py-6" bgcolor="bg-cardBg">
         <div className="mx-8 flex items-center">
           <div
             className={`text-${
-              watchList?.length > 0 ? 'white' : 'gray-400'
+              watchPools?.length > 0 ? 'white' : 'gray-400'
             } text-lg`}
           >
             <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
@@ -628,7 +622,7 @@ function LiquidityPage_({
   tokenName,
   order,
   hasMore,
-  watchList,
+  watchPools,
   onSearch,
   onHide,
   hideLowTVL,
@@ -642,7 +636,7 @@ function LiquidityPage_({
   pools: Pool[];
   sortBy: string;
   hideLowTVL: Boolean;
-  watchList: WatchList[];
+  watchPools: Pool[];
   tokenName: string;
   order: string;
   searchTrigger: Boolean;
@@ -672,7 +666,7 @@ function LiquidityPage_({
           />
         </div>
       </div>
-      <WatchListCard watchList={watchList} />
+      <WatchListCard watchPools={watchPools} />
 
       <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
         <div className="flex mx-8 justify-between pb-4">
@@ -840,7 +834,7 @@ export function LiquidityPage() {
   const [sortBy, setSortBy] = useState('tvl');
   const [order, setOrder] = useState('desc');
   const AllPools = useAllPools();
-  const watchList = useAllWatchList();
+  const watchPools = useWatchPools();
   const [searchTrigger, setSearchTrigger] = useState<Boolean>(null);
   const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
   const [displayPools, setDisplayPools] = useState<Pool[]>();
@@ -864,7 +858,7 @@ export function LiquidityPage() {
     setDisplayPools(tempPools);
   }, [pools, hideLowTVL]);
 
-  if (!displayPools || loading || !watchList) return <Loading />;
+  if (!displayPools || loading || !watchPools) return <Loading />;
 
   return (
     <>
@@ -878,7 +872,7 @@ export function LiquidityPage() {
           setHideLowTVL(isHide);
         }}
         hideLowTVL={hideLowTVL}
-        watchList={watchList}
+        watchPools={watchPools}
         order={order}
         sortBy={sortBy}
         allPools={AllPools}
@@ -894,7 +888,7 @@ export function LiquidityPage() {
         hideLowTVL={hideLowTVL}
         tokenName={tokenName}
         pools={displayPools}
-        watchList={watchList}
+        watchPools={watchPools}
         allPools={AllPools}
         order={order}
         sortBy={sortBy}

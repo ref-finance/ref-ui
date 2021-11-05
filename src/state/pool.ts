@@ -30,7 +30,7 @@ export const usePool = (id: number | string) => {
     getSharesInPool(Number(id))
       .then(setShares)
       .catch(() => setShares);
-  }, []);
+  }, [id]);
 
   return { pool, shares };
 };
@@ -137,8 +137,6 @@ export const usePools = (props: {
 
 export const useMorePoolIds = (props: { topPool: Pool }) => {
   const { topPool } = props;
-  // const tokenId1 = topPool.tokenIds[0]
-  // const tokenId2 = topPool.tokenIds[1]
 
   const [token1Id, token2Id] = topPool.tokenIds;
 
@@ -189,10 +187,18 @@ export const useAllWatchList = () => {
   return watchList;
 };
 
-export const useWatchPools = ({ watchList }: { watchList: WatchList[] }) => {
+export const useWatchPools = () => {
+  const [watchList, setWatchList] = useState<WatchList[]>([]);
+
   const [watchPools, setWatchPools] = useState<Pool[]>();
-  const ids = watchList.map((watchedPool) => watchedPool.pool_id);
   useEffect(() => {
+    getAllWatchListFromDb({}).then((watchlist) => {
+      setWatchList(_.orderBy(watchlist, 'update_time', 'desc'));
+    });
+  }, []);
+
+  useEffect(() => {
+    const ids = watchList.map((watchedPool) => watchedPool.pool_id);
     getPoolsByIds({ pool_ids: ids }).then((res) => {
       const resPools = res.map((pool) => parsePool(pool));
       setWatchPools(resPools);

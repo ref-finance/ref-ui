@@ -148,7 +148,7 @@ function AddLiquidityModal(
       setSecondTokenAmount(amount);
       try {
         validate({
-          firstAmount:firstTokenAmount,
+          firstAmount: firstTokenAmount,
           secondAmount: amount,
         });
       } catch (error) {

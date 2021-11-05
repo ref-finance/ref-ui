@@ -26,9 +26,7 @@ export default function OldInputAmount({
   return (
     <>
       <fieldset className={className}>
-        <div
-          className={`relative flex align-center items-center h-11`}
-        >
+        <div className={`relative flex align-center items-center h-11`}>
           <input
             ref={ref}
             max={max}
@@ -58,7 +56,14 @@ export default function OldInputAmount({
               style={{ lineHeight: 'unset', cursor: 'pointer' }}
               onClick={() => handleChange(max)}
             >
-              <label className={`text-xs border rounded-sm px-1 cursor-pointer ${disabled ? 'border-gray-400' : 'border-framBorder'}`} style={{zoom: 0.8}}>MAX</label>
+              <label
+                className={`text-xs border rounded-sm px-1 cursor-pointer ${
+                  disabled ? 'border-gray-400' : 'border-framBorder'
+                }`}
+                style={{ zoom: 0.8 }}
+              >
+                MAX
+              </label>
             </a>
           ) : null}
         </div>

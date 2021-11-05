@@ -1,10 +1,10 @@
 import React from 'react';
 
-export const FarmMiningIcon = (props:any) => {
+export const FarmMiningIcon = (props: any) => {
   return (
     <svg
-      width={props.w || "25"}
-      height={props.h || "23"}
+      width={props.w || '25'}
+      height={props.h || '23'}
       viewBox="0 0 25 23"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
