@@ -28,9 +28,7 @@ export default function OldInputAmount({
   return (
     <>
       <fieldset className={className}>
-        <div
-          className={`relative flex align-center items-center h-11`}
-        >
+        <div className={`relative flex align-center items-center h-11`}>
           <input
             ref={ref}
             max={max}

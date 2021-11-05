@@ -367,13 +367,13 @@ function FarmView({
       return null;
     } else {
       return (
-          <div className="text-farmText">
-            <span className="text-green-600">{countdown.days}</span> days{' '}
-            <span className="text-green-600 inline-block w-20">
-              {zeroPad(countdown.hours)}:{zeroPad(countdown.minutes)}:
-              {zeroPad(countdown.seconds)}
-            </span>
-          </div>
+        <div className="text-farmText">
+          <span className="text-green-600">{countdown.days}</span> days{' '}
+          <span className="text-green-600 inline-block w-20">
+            {zeroPad(countdown.hours)}:{zeroPad(countdown.minutes)}:
+            {zeroPad(countdown.seconds)}
+          </span>
+        </div>
       );
     }
   };
@@ -572,13 +572,13 @@ function FarmView({
     return symbols;
   }
   function getRewardTokensSymbol() {
-    let result:string = ''
-    farmsData.forEach(item => {
-      const {rewardToken} = item;
+    let result: string = '';
+    farmsData.forEach((item) => {
+      const { rewardToken } = item;
       const itemHtml = `<div class="flex justify-between items-center h-8">
                           <image class="w-5 h-5 rounded-full mr-7" src="${rewardToken.icon}"/>
                           <label class="text-xs text-navHighLightText">${rewardToken?.symbol}</label>
-                        </div>`
+                        </div>`;
       result += itemHtml;
     });
     return result;
@@ -596,10 +596,16 @@ function FarmView({
     return icons;
   }
   function getRewardTokensIcon() {
-    let icons:any[] = [];
+    let icons: any[] = [];
     farmsData.forEach(function (item) {
-      const {farm_id, rewardToken} = item;
-      const icon = <img key={farm_id} className="h-5 w-5 ml-1.5 rounded-full" src={rewardToken?.icon} />;
+      const { farm_id, rewardToken } = item;
+      const icon = (
+        <img
+          key={farm_id}
+          className="h-5 w-5 ml-1.5 rounded-full"
+          src={rewardToken?.icon}
+        />
+      );
       icons.push(icon);
     });
     return icons;
@@ -629,13 +635,17 @@ function FarmView({
     return result;
   }
   function getAprList() {
-    let result:string = ''
-    farmsData.forEach(item => {
-      const {rewardToken, apr} = item;
+    let result: string = '';
+    farmsData.forEach((item) => {
+      const { rewardToken, apr } = item;
       const itemHtml = `<div class="flex justify-between items-center h-8">
-                          <image class="w-5 h-5 rounded-full mr-7" src="${rewardToken.icon}"/>
-                          <label class="text-xs text-navHighLightText">${formatWithCommas(apr) + '%'}</label>
-                        </div>`
+                          <image class="w-5 h-5 rounded-full mr-7" src="${
+                            rewardToken.icon
+                          }"/>
+                          <label class="text-xs text-navHighLightText">${
+                            formatWithCommas(apr) + '%'
+                          }</label>
+                        </div>`;
       result += itemHtml;
     });
     return result;
@@ -661,14 +671,18 @@ function FarmView({
     return result;
   }
 
-  function getAllRewardsPerWeek () {
-    let result:string = ''
-    farmsData.forEach(item => {
-      const {rewardToken, rewardsPerWeek} = item;
+  function getAllRewardsPerWeek() {
+    let result: string = '';
+    farmsData.forEach((item) => {
+      const { rewardToken, rewardsPerWeek } = item;
       const itemHtml = `<div class="flex justify-between items-center h-8">
-                          <image class="w-5 h-5 rounded-full mr-7" src="${rewardToken.icon}"/>
-                          <label class="text-xs text-navHighLightText">${formatWithCommas(rewardsPerWeek)}</label>
-                        </div>`
+                          <image class="w-5 h-5 rounded-full mr-7" src="${
+                            rewardToken.icon
+                          }"/>
+                          <label class="text-xs text-navHighLightText">${formatWithCommas(
+                            rewardsPerWeek
+                          )}</label>
+                        </div>`;
       result += itemHtml;
     });
     return result;
@@ -694,13 +708,17 @@ function FarmView({
     return result;
   }
   function getAllUnclaimedReward() {
-    let result:string = ''
-    farmsData.forEach(item => {
-      const {rewardToken, userUnclaimedReward} = item;
+    let result: string = '';
+    farmsData.forEach((item) => {
+      const { rewardToken, userUnclaimedReward } = item;
       const itemHtml = `<div class="flex justify-between items-center h-8">
-                          <image class="w-5 h-5 rounded-full mr-7" src="${rewardToken.icon}"/>
-                          <label class="text-xs text-navHighLightText">${formatWithCommas(userUnclaimedReward)}</label>
-                        </div>`
+                          <image class="w-5 h-5 rounded-full mr-7" src="${
+                            rewardToken.icon
+                          }"/>
+                          <label class="text-xs text-navHighLightText">${formatWithCommas(
+                            userUnclaimedReward
+                          )}</label>
+                        </div>`;
       result += itemHtml;
     });
     return result;
@@ -743,14 +761,20 @@ function FarmView({
       return (
         <img
           key={id}
-          className={"h-11 w-11 rounded-full border border-gradientFromHover " + (index == 1 ? '-ml-1.5': '')}
+          className={
+            'h-11 w-11 rounded-full border border-gradientFromHover ' +
+            (index == 1 ? '-ml-1.5' : '')
+          }
           src={icon}
         />
       );
     return (
       <div
         key={id}
-        className={"h-11 w-11 rounded-full bg-cardBg border border-gradientFromHover " + (index == 1 ? '-ml-1.5': '')}
+        className={
+          'h-11 w-11 rounded-full bg-cardBg border border-gradientFromHover ' +
+          (index == 1 ? '-ml-1.5' : '')
+        }
       ></div>
     );
   });
@@ -768,9 +792,7 @@ function FarmView({
       padding={'p-0'}
       rounded="rounded-2xl"
     >
-      <div
-        className='flex items-center p-6 pb-0 relative overflow-hidden flex-wrap'
-      >
+      <div className="flex items-center p-6 pb-0 relative overflow-hidden flex-wrap">
         <div className="flex items-center justify-center">
           <div className="h-11">
             <div className="w-22 flex items-center justify-between">
@@ -782,17 +804,30 @@ function FarmView({
           <div className="flex items-center">
             <div className="order-2 lg:ml-auto xl:m-0">
               <div>
-                <a href={`/pool/${PoolId}`} className="text-lg xs:text-sm text-white">
+                <a
+                  href={`/pool/${PoolId}`}
+                  className="text-lg xs:text-sm text-white"
+                >
                   {symbols}
                 </a>
               </div>
             </div>
             <div className="pl-3 order-3 lg:ml-auto xl:m-0">
-              {farmsData?.length > 1 ? <FarmMiningIcon w="20" h="18.4"/> : null}
+              {farmsData?.length > 1 ? (
+                <FarmMiningIcon w="20" h="18.4" />
+              ) : null}
             </div>
           </div>
-          <Link title={intl.formatMessage({ id: 'view_pool' })} to={{pathname: `/pool/${PoolId}`,state: { backToFarms: true }}}>
-            <span className="text-xs text-framBorder border border-framBorder rounded w-10 text-center box-content px-1" style={{zoom: 0.8}}><FormattedMessage id="detail_tip" defaultMessage="detail" /></span>
+          <Link
+            title={intl.formatMessage({ id: 'view_pool' })}
+            to={{ pathname: `/pool/${PoolId}`, state: { backToFarms: true } }}
+          >
+            <span
+              className="text-xs text-framBorder border border-framBorder rounded w-10 text-center box-content px-1"
+              style={{ zoom: 0.8 }}
+            >
+              <FormattedMessage id="detail_tip" defaultMessage="detail" />
+            </span>
           </Link>
         </div>
         {ended ? (
@@ -860,7 +895,9 @@ function FarmView({
                   defaultMessage="Your Shares"
                 />
               </div>
-              <div className="text-white">{toPrecision(data.userStaked, 6)}</div>
+              <div className="text-white">
+                {toPrecision(data.userStaked, 6)}
+              </div>
             </div>
           ) : null}
           <div className="flex items-center justify-between text-sm py-2 text-farmText">
@@ -870,9 +907,18 @@ function FarmView({
                 defaultMessage="Reward Tokens"
               />
             </div>
-            <div className="flex" data-class="reactTip" data-for={"rewardTokens" + data.farm_id} data-place="top" data-html={true} data-tip={getRewardTokensSymbol()}>{getRewardTokensIcon()}</div>
+            <div
+              className="flex"
+              data-class="reactTip"
+              data-for={'rewardTokens' + data.farm_id}
+              data-place="top"
+              data-html={true}
+              data-tip={getRewardTokensSymbol()}
+            >
+              {getRewardTokensIcon()}
+            </div>
             <ReactTooltip
-              id={"rewardTokens" + data.farm_id}
+              id={'rewardTokens' + data.farm_id}
               backgroundColor="#1D2932"
               border
               borderColor="#7e8a93"
@@ -886,9 +932,18 @@ function FarmView({
                 defaultMessage="Rewards per week"
               />
             </div>
-            <div className="text-white" data-class="reactTip" data-for={"rewardPerWeekId" + data.farm_id} data-place="top" data-html={true} data-tip={getAllRewardsPerWeek()}>-</div>
+            <div
+              className="text-white"
+              data-class="reactTip"
+              data-for={'rewardPerWeekId' + data.farm_id}
+              data-place="top"
+              data-html={true}
+              data-tip={getAllRewardsPerWeek()}
+            >
+              -
+            </div>
             <ReactTooltip
-              id={"rewardPerWeekId" + data.farm_id}
+              id={'rewardPerWeekId' + data.farm_id}
               backgroundColor="#1D2932"
               border
               borderColor="#7e8a93"
@@ -902,9 +957,18 @@ function FarmView({
                 defaultMessage="Unclaimed rewards"
               />
             </div>
-            <div className="text-white" data-class="reactTip" data-for={"unclaimedRewardId" + data.farm_id} data-place="top" data-html={true} data-tip={getAllUnclaimedReward()}>-</div>
+            <div
+              className="text-white"
+              data-class="reactTip"
+              data-for={'unclaimedRewardId' + data.farm_id}
+              data-place="top"
+              data-html={true}
+              data-tip={getAllUnclaimedReward()}
+            >
+              -
+            </div>
             <ReactTooltip
-              id={"unclaimedRewardId" + data.farm_id}
+              id={'unclaimedRewardId' + data.farm_id}
               backgroundColor="#1D2932"
               border
               borderColor="#7e8a93"
@@ -916,13 +980,22 @@ function FarmView({
           {wallet.isSignedIn() ? (
             <div className="flex gap-2 justify-center mt-4">
               {data.userStaked !== '0' ? (
-                <BorderButton onClick={() => showUnstakeModal()} rounded="rounded-md" className="xs:px-3.5">
+                <BorderButton
+                  onClick={() => showUnstakeModal()}
+                  rounded="rounded-md"
+                  className="xs:px-3.5"
+                >
                   <div className="w-16 text-xs text-greenLight">
                     <FormattedMessage id="unstake" defaultMessage="Unstake" />
                   </div>
                 </BorderButton>
               ) : null}
-              <BorderButton onClick={() => showStakeModal()} disabled={ended} rounded="rounded-md" className="xs:px-3.5">
+              <BorderButton
+                onClick={() => showStakeModal()}
+                disabled={ended}
+                rounded="rounded-md"
+                className="xs:px-3.5"
+              >
                 <div className="w-16 text-xs text-greenLight">
                   <FormattedMessage id="stake" defaultMessage="Stake" />
                 </div>
@@ -955,24 +1028,24 @@ function FarmView({
         </div>
       </div>
       <div className="flex justify-center items-center h-8 bg-farmDark">
-          {farmStarted() ? (
-              <div className="text-farmText text-sm">
-                {moment.unix(getStartTime()).format('YYYY-MM-DD HH:mm:ss')}
-              </div>
-            ) : (
-              <Countdown
-                date={moment.unix(getStartTime()).valueOf()}
-                renderer={renderer}
-              />
-            )}
-            {showEndAt() ? (
-              <>
-                <label className="w-2.5 border border-t-0 border-greenLight h-0 mx-4"></label>
-                <div className="text-farmText text-sm">
-                  {moment.unix(getEndTime()).format('YYYY-MM-DD HH:mm:ss')}
-                </div>
-              </>
-            ) : null}
+        {farmStarted() ? (
+          <div className="text-farmText text-sm">
+            {moment.unix(getStartTime()).format('YYYY-MM-DD HH:mm:ss')}
+          </div>
+        ) : (
+          <Countdown
+            date={moment.unix(getStartTime()).valueOf()}
+            renderer={renderer}
+          />
+        )}
+        {showEndAt() ? (
+          <>
+            <label className="w-2.5 border border-t-0 border-greenLight h-0 mx-4"></label>
+            <div className="text-farmText text-sm">
+              {moment.unix(getEndTime()).format('YYYY-MM-DD HH:mm:ss')}
+            </div>
+          </>
+        ) : null}
       </div>
       <ActionModal
         isOpen={unstakeVisible}
@@ -1055,7 +1128,9 @@ function ActionModal(
       >
         <div className="flex justify-between items-start text-xl text-white font-semibold mb-7">
           <label>{props.title}</label>
-          <div className="cursor-pointer" onClick={props.onRequestClose}><ModalClose/></div>
+          <div className="cursor-pointer" onClick={props.onRequestClose}>
+            <ModalClose />
+          </div>
         </div>
         <div>
           <div className="flex justify-end mb-1.5">

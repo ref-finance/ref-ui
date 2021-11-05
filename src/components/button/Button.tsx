@@ -21,10 +21,16 @@ export function BorderlessButton(
 export function BorderButton(
   props: HTMLAttributes<HTMLButtonElement> & { borderColor?: string } & {
     disabled?: boolean;
-    rounded? : string
+    rounded?: string;
   }
 ) {
-  const { className, borderColor, disabled, rounded, ...propsWithoutClassName } = props;
+  const {
+    className,
+    borderColor,
+    disabled,
+    rounded,
+    ...propsWithoutClassName
+  } = props;
   return (
     <button
       disabled={disabled}
@@ -32,9 +38,7 @@ export function BorderButton(
         borderColor ? borderColor : 'border-greenLight'
       }  focus:outline-none ${className} ${
         disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
-      } ${
-        rounded || 'rounded-full'
-      }`}
+      } ${rounded || 'rounded-full'}`}
       {...propsWithoutClassName}
     >
       {props.children}
@@ -43,7 +47,9 @@ export function BorderButton(
 }
 
 export function GreenButton(
-  props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean } & { rounded? :string}
+  props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean } & {
+    rounded?: string;
+  }
 ) {
   const { disabled, rounded } = props;
   const { className, ...propsWithoutClassName } = props;
@@ -199,7 +205,9 @@ export function GreenLButton(
   return (
     <button
       disabled={disabled}
-      style={{background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'}}
+      style={{
+        background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+      }}
       className={`w-full rounded text-lg text-white font-semibold border-0 px-5 py-2 focus:outline-none ${className} ${
         disabled ? 'opacity-40 cursor-not-allowed' : ''
       }`}
