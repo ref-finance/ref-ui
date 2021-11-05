@@ -1046,7 +1046,7 @@ function ActionModal(
 ) {
   const { max } = props;
   const [amount, setAmount] = useState<string>('');
-  const cardWidth = isMobile() ? '75vw' : '25vw';
+  const cardWidth = isMobile() ? '90vw' : '30vw';
   return (
     <Modal {...props}>
       <Card
@@ -1069,13 +1069,12 @@ function ActionModal(
               className="flex-grow"
               max={max}
               value={amount}
-              disabled={Number(amount) >= Number(max)}
               onChangeAmount={setAmount}
             />
           </div>
         </div>
         <div className="flex items-center justify-center pt-5">
-          <GreenLButton onClick={() => props.onSubmit(amount)} disabled={!amount || Number(amount) >= Number(max) }>
+          <GreenLButton onClick={() => props.onSubmit(amount)} disabled={!amount || amount > max || amount=='0' }>
             {props.btnText}
           </GreenLButton>
         </div>
