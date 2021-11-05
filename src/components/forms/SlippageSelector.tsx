@@ -61,7 +61,7 @@ export default function SlippageSelector({
 
   return (
     <div className="relative z-10">
-      <div className=" w-7 text-2xl text-white" onClick={(e) => openToolTip(e)}>
+      <div className="w-6 text-2xl text-white" onClick={(e) => openToolTip(e)}>
         <Slider showSlip={showSlip} />
       </div>
       {showSlip && (

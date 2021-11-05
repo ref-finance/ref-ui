@@ -368,7 +368,7 @@ function AddLiquidityModal(
               </div>
             </div>
             <InputAmount
-              className="w-full border border-transparent rounded-xl "
+              className="w-full border border-transparent rounded"
               max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
               onChangeAmount={changeFirstTokenAmount}
               value={firstTokenAmount}
@@ -404,7 +404,7 @@ function AddLiquidityModal(
             </div>
           </div>
           <InputAmount
-            className="w-full border border-transparent rounded-xl"
+            className="w-full border border-transparent rounded"
             max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
             onChangeAmount={changeFirstTokenAmount}
             value={firstTokenAmount}
@@ -430,7 +430,7 @@ function AddLiquidityModal(
               </div>
             </div>
             <InputAmount
-              className="w-full border border-transparent rounded-xl"
+              className="w-full border border-transparent rounded"
               max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
               onChangeAmount={changeSecondTokenAmount}
               value={secondTokenAmount}
@@ -465,7 +465,7 @@ function AddLiquidityModal(
             </div>
           </div>
           <InputAmount
-            className="w-full border border-transparent rounded-xl"
+            className="w-full border border-transparent rounded"
             max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
             onChangeAmount={changeSecondTokenAmount}
             value={secondTokenAmount}
@@ -584,7 +584,7 @@ export function RemoveLiquidityModal(
                   setError(error);
                 }
               }}
-              className="border border-transparent rounded-xl"
+              className="border border-transparent rounded"
             />
           </div>
         </div>

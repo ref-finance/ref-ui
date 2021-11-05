@@ -59,7 +59,7 @@ export default function TokenAmount({
       </div>
       <fieldset className="relative flex overflow-hidden align-center my-2">
         <InputAmount
-          className="w-3/5 pr-1 border border-transparent rounded-xl"
+          className="w-3/5 pr-1 border border-transparent rounded"
           id="inputAmount"
           name={selectedToken?.id}
           max={max}
