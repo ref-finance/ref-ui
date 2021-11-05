@@ -77,7 +77,7 @@ export const estimateSwap = async ({
 
 
   console.log('POOLS FOUND ARE...',pools);
-  let poolAllocations = await calculateOptimalOutput(pools, parsedAmountIn, tokenIn.id,tokenOut.id);
+  let poolAllocations = await calculateOptimalOutput(pools, parsedAmountIn, tokenIn.id);
   console.log('pool Alocations are: ',poolAllocations);
   if (pools.length < 1) {
     throw new Error(
@@ -449,3 +449,20 @@ for (var ii=0; ii<pools.length; ii++) {
 }
 return newFullDxVec;
 };
+
+//////////////////////////
+// MAIN FUNCTION -- RETURNS ARRAYs OF OPTIMAL INPUTS, 
+//                                    EXPECTED OUTPUTS, AND 
+//                                    POOL ID ARRAYS
+//////////////////////////
+
+function calculateParallelSwapInputsOutputsPerPool(pools,inputAmount, inputToken, outputToken) {
+  let ndxArray = calculateOptimalOutput(pools, inputAmount, inputToken, outputToken)
+  let dyArray = [];
+  for (var i=0; i<pools.length; i++) {
+      let dyNow = new Big(calculate_dy_float(ndxArray[i],pools[i], inputToken, outputToken));
+      dyArray.push(dyNow)
+  }
+  let poolIdArray = pools.map((item) => item.id);
+
+  return ndxArray, dyArray, poolIdArray
