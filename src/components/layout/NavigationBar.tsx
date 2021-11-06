@@ -28,13 +28,7 @@ import { RiLogoutCircleRLine } from 'react-icons/ri';
 import { useRefPrice } from '~state/account';
 import { toPrecision } from '~utils/numbers';
 import { useMenuItems } from '~utils/menu';
-import {
-  MobileAnchor,
-  MobileMoreMenu,
-  MobileNavBar,
-  MobilePoolsMenu,
-  MobileSwitchLanguage,
-} from './MobileNav';
+import { MobileNavBar } from './MobileNav';
 
 function Anchor({
   to,
@@ -264,7 +258,7 @@ function MoreMenu() {
       </div>
       <div
         className={`${
-          hover ? 'block' : 'hidden'
+          hover ? 'block' : 'block'
         } absolute top-6 -right-4 pt-4 rounded-md`}
       >
         <Card
