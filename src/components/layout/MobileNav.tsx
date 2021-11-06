@@ -149,14 +149,6 @@ export function MobileNavBar() {
     setShow(false);
   };
 
-  // if (wallet.isSignedIn()) {
-  //   links.push({
-  //     label: (
-  //       <FormattedMessage id="Your_Liquidity" defaultMessage="Your Liquidity" />
-  //     ),
-  //     path: '/pools/yours',
-  //   });
-  // }
   if (wallet.isSignedIn()) {
     moreLinks[2].children[2] = {
       id: 'Your_Liquidity',
