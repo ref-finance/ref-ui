@@ -20,7 +20,7 @@ import { REF_FARM_CONTRACT_ID } from '~services/near';
 import { ConnectToNearBtn } from '~components/button/Button';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { HiMenu } from 'react-icons/hi';
+import { HiMenu, HiOutlineExternalLink } from 'react-icons/hi';
 import { IoChevronBack, IoClose } from 'react-icons/io5';
 
 import { FiChevronUp, FiChevronDown } from 'react-icons/fi';
@@ -144,6 +144,57 @@ function AccountEntry() {
             </div>
           </Card>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function Quiz() {
+  const [hoverQuiz, setHoverQuiz] = useState(false);
+  return (
+    <div
+      className="relative z-20"
+      onMouseOver={() => setHoverQuiz(true)}
+      onMouseLeave={() => setHoverQuiz(false)}
+    >
+      <span className="relative inline-flex p-4">
+        <IconBubble />
+        <span className={`w-20 h-14 text-gray-800 absolute top-4 left-1`}>
+          Quiz
+        </span>
+      </span>
+      <div
+        className={`${
+          hoverQuiz ? 'block' : 'hidden'
+        } absolute top-12 -left-12 rounded-md`}
+      >
+        <Card
+          width="w-48"
+          padding="py-4"
+          rounded="rounded-md"
+          className="border border-primaryText shadow-4xl"
+        >
+          <div
+            className="whitespace-nowrap text-left hover:bg-navHighLightBg text-sm font-semibold flex justify-start text-primaryText hover:text-white cursor-pointer py-4 pl-10 "
+            onClick={() =>
+              window.open('https://mzko2gfnij6.typeform.com/to/N6jSxnym')
+            }
+          >
+            <FormattedMessage id="New_ui" defaultMessage="New UI" />
+            <span className="ml-2 bg-gradientFrom px-2 flex justify-center items-center text-white text-xs rounded-full">
+              Hot
+            </span>
+          </div>
+          <div
+            className="whitespace-nowrap text-left hover:bg-navHighLightBg text-sm font-semibold flex justify-start text-primaryText hover:text-white cursor-pointer py-4 pl-10"
+            onClick={() =>
+              window.open('https://mzko2gfnij6.typeform.com/to/EPmUetxU')
+            }
+          >
+            <FormattedMessage id="Risk" defaultMessage="Risk" />
+            <HiOutlineExternalLink className="float-right ml-2 text-xl opacity-60" />
+          </div>
+        </Card>
       </div>
     </div>
   );
@@ -307,7 +358,7 @@ function MoreMenu() {
                 >
                   {logo && <span className="text-2xl mr-6">{logo}</span>}
                   {label}
-                  <span className="ml-4 text-xs">{icon}</span>
+                  <span className="ml-4 text-xl">{icon}</span>
                 </div>
               );
             }
@@ -327,16 +378,7 @@ function NavigationBar() {
             <Logo />
           </div>
           <div className="flex items-center">
-            <span className="relative inline-flex pr-4">
-              <IconBubble />
-              <a
-                target="_blank"
-                href="https://mzko2gfnij6.typeform.com/to/EPmUetxU"
-                className={`w-14 h-6 text-gray-800 absolute top-0 left-0`}
-              >
-                Quiz
-              </a>
-            </span>
+            <Quiz />
             <Anchor to="/deposit" pattern="/deposit/:id?" name="Deposit" />
             <Anchor to="/" pattern="/" name="Swap" />
             <PoolsMenu />

@@ -13,8 +13,7 @@ import { wallet } from '~services/near';
 import { useHistory } from 'react-router';
 import { REF_FARM_CONTRACT_ID } from '~services/near';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { FaExternalLinkAlt } from 'react-icons/fa';
-import { HiMenu } from 'react-icons/hi';
+import { HiMenu, HiOutlineExternalLink } from 'react-icons/hi';
 
 import { FiChevronUp, FiChevronDown } from 'react-icons/fi';
 import { RiLogoutCircleRLine } from 'react-icons/ri';
@@ -362,7 +361,7 @@ export function MobileNavBar() {
                               )}
 
                               {link.url && link.isExternal && (
-                                <FaExternalLinkAlt className="float-right mt-1 ml-2 text-xs opacity-60" />
+                                <HiOutlineExternalLink className="float-right ml-2 text-xl opacity-60" />
                               )}
                             </div>
                           );

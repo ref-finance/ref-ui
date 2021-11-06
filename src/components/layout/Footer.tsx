@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { AiOutlineMedium } from 'react-icons/ai';
 import { FaDiscord, FaTelegramPlane, FaTwitter } from 'react-icons/fa';
 import { FooterLogo } from '~components/icon/FooterLogo';
+import { RefAnalytics, RefAnalyticsGary } from '~components/icon/RefAnalytics';
 import { useRefPrice } from '~state/account';
 import { toPrecision } from '~utils/numbers';
 
@@ -29,6 +30,7 @@ const CommunityLinks = [
 ];
 function Footer() {
   const { data } = useRefPrice();
+  const [hoverLogo, setHoverLogo] = useState(false);
   if (!data) return null;
 
   return (
@@ -39,6 +41,15 @@ function Footer() {
             <FooterLogo />
             <div className="flex justify-star items-center pl-14 text-white">
               ${data === '-' ? '-' : toPrecision(data, 2)}
+            </div>
+            <div
+              className="mt-5 ml-5 cursor-pointer"
+              onMouseOver={() => setHoverLogo(true)}
+              onMouseLeave={() => setHoverLogo(false)}
+              onClick={() => window.open('https://sodaki.com/')}
+            >
+              {!hoverLogo && <RefAnalyticsGary />}
+              {hoverLogo && <RefAnalytics />}
             </div>
           </div>
           <div className="flex w-72 justify-between md:justify-around xs:justify-around">
