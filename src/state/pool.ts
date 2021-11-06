@@ -18,7 +18,7 @@ import db, { PoolDb, WatchList } from '~store/RefDatabase';
 
 import { useWhitelistTokens } from './token';
 import _, { debounce, orderBy } from 'lodash';
-import { getPoolsByIds } from '~services/indexer';
+import { getPoolMonthVolume, getPoolsByIds } from '~services/indexer';
 import { parsePoolView, PoolRPCView } from '~services/api';
 
 export const usePool = (id: number | string) => {
@@ -258,4 +258,21 @@ export const useRemoveLiquidity = ({
     removeLiquidity,
     minimumAmounts,
   };
+};
+
+export interface volumeType {
+  pool_id: string;
+  dateString: string;
+  fiat_volume: string;
+  asset_volume: string;
+  volume_dollar: string;
+}
+
+export const useMonthVolume = async (pool_id: string) => {
+  const [monthVolumeById, setMonthVolumeById] = useState<volumeType[]>();
+  useEffect(() => {
+    getPoolMonthVolume(pool_id).then(setMonthVolumeById);
+  }, [pool_id]);
+
+  return monthVolumeById;
 };

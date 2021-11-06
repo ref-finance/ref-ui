@@ -2,7 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
-import { usePool, useRemoveLiquidity } from '~state/pool';
+import {
+  useMonthVolume,
+  usePool,
+  useRemoveLiquidity,
+  volumeType,
+} from '~state/pool';
 import {
   addLiquidityToPool,
   addPoolToWatchList,
@@ -57,9 +62,34 @@ import { OutlineButton, SolidButton } from '~components/button/Button';
 import { wallet } from '~services/near';
 import { BreadCrumb } from '~components/layout/BreadCrumb';
 
+import {
+  ResponsiveContainer,
+  LineChart,
+  BarChart,
+  XAxis,
+  YAxis,
+  Bar,
+  Line,
+  BarProps,
+  Tooltip,
+  Cell,
+} from 'recharts';
+
+import { volume79 } from '../../store/volume79';
+import _ from 'lodash';
 interface ParamTypes {
   id: string;
 }
+
+const data = volume79
+  .map((v, i) => {
+    return {
+      ...v,
+      dateString: Number(v.dateString.split('-').splice(-1)),
+      volume_dollar: Number(v.volume_dollar),
+    };
+  })
+  .reverse();
 
 interface LocationTypes {
   tvl: number;
@@ -690,6 +720,55 @@ function MyShares({
   return <div>{displayPercent}% of Total</div>;
 }
 
+export function VolumeChart() {
+  const [hoverIndex, setHoverIndex] = useState<number>(null);
+
+  const baseColor = '#00967B';
+  const hoverColor = '#00c6a2';
+
+  const handleMouseEnter = (data: volumeType, index: number) => {
+    setHoverIndex(index);
+  };
+
+  const handleMouseLeave = (data: volumeType, index: number) => {
+    setHoverIndex(null);
+  };
+
+  return (
+    <>
+      <div className="flex items-center justify-between self-start">
+        <div className="text-white text-xl">
+          {`$${toInternationalCurrencySystem(
+            typeof hoverIndex === 'number'
+              ? data[hoverIndex].volume_dollar.toString()
+              : data[data.length - 1].volume_dollar.toString()
+          )}`}
+        </div>
+      </div>
+      <ResponsiveContainer height="100%" width="100%">
+        <BarChart data={data}>
+          {/* dataKey need to be encoded*/}
+          <XAxis dataKey="dateString" tickLine={false} axisLine={false} />
+          {/* <Tooltip /> */}
+          <Bar
+            dataKey="volume_dollar"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            {data.map((entry, i) => (
+              <Cell
+                key={`cell-${i}`}
+                fill={hoverIndex === i ? hoverColor : baseColor}
+              />
+            ))}
+          </Bar>
+          {/* <CustomBar /> */}
+        </BarChart>
+      </ResponsiveContainer>
+    </>
+  );
+}
+
 export function PoolDetailsPage() {
   const { id } = useParams<ParamTypes>();
   const { state } = useLocation<LocationTypes>();
@@ -702,6 +781,8 @@ export function PoolDetailsPage() {
   const [poolTVL, setPoolTVL] = useState<number>();
   const [backToFarmsButton, setBackToFarmsButton] = useState<Boolean>(false);
   const [showFullStart, setShowFullStar] = useState<Boolean>(false);
+  // const monthVolumeById = useMonthVolume(id);
+
   const fromMorePools = localStorage.getItem('fromMorePools') === 'y';
   const morePoolIds: string[] =
     JSON.parse(localStorage.getItem('morePoolIds')) || [];
@@ -996,13 +1077,15 @@ export function PoolDetailsPage() {
 
           <Card
             width="w-full"
-            className="relative rounded-2xl bg-chartBg h-full flex flex-col justify-between md:hidden xs:hidden"
+            className="relative rounded-2xl bg-chartBg h-full flex flex-col justify-center md:hidden xs:hidden items-center"
             padding="p-7"
             style={{
               height: '391px',
             }}
           >
-            <div className="pb-7">
+            <VolumeChart />
+
+            {/* <div className="pb-7">
               <div className="flex items-center justify-between">
                 <div className="text-gray-400 text-base float-left">
                   $&nbsp;-
@@ -1078,7 +1161,7 @@ export function PoolDetailsPage() {
                   return <div key={i}>{d}</div>;
                 })}
               </div>
-            </div>
+            </div> */}
           </Card>
         </div>
 

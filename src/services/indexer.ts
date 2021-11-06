@@ -6,8 +6,22 @@ import moment from 'moment/moment';
 import { parseAction } from '~services/transaction';
 import { Simulate } from 'react-dom/test-utils';
 import error = Simulate.error;
+import { volumeType } from '~state/pool';
 
 const config = getConfig();
+
+export const getPoolMonthVolume = async (
+  pool_id: string
+): Promise<volumeType[]> => {
+  return await fetch(config.sodakiUrl + `/${pool_id}/volume`, {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  })
+    .then((res) => res.json())
+    .then((monthVolume) => {
+      return monthVolume;
+    });
+};
 
 const parseActionView = async (action: any) => {
   const data = await parseAction(action[2], action[3]);

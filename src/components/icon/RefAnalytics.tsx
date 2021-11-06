@@ -18,8 +18,8 @@ export function RefAnalytics() {
         fill="#00C6A2"
       />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M6.06766 1.40015H0V1.40032V7.46798V18.903H6.06766V7.46798L17.7362 7.46798C17.7362 4.1169 15.0197 1.40032 11.6686 1.40032L6.06766 1.40032V1.40015Z"
         fill="#EBEBEB"
       />
