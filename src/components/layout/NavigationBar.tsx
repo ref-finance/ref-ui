@@ -184,6 +184,7 @@ function Quiz() {
             <span className="ml-2 bg-gradientFrom px-2 flex justify-center items-center text-white text-xs rounded-full">
               Hot
             </span>
+            <HiOutlineExternalLink className="float-right ml-2 text-xl" />
           </div>
           <div
             className="whitespace-nowrap text-left hover:bg-navHighLightBg text-sm font-semibold flex justify-start text-primaryText hover:text-white cursor-pointer py-4 pl-10"
@@ -192,7 +193,7 @@ function Quiz() {
             }
           >
             <FormattedMessage id="Risk" defaultMessage="Risk" />
-            <HiOutlineExternalLink className="float-right ml-2 text-xl opacity-60" />
+            <HiOutlineExternalLink className="float-right ml-2 text-xl" />
           </div>
         </Card>
       </div>
