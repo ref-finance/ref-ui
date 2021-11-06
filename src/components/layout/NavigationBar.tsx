@@ -258,7 +258,7 @@ function MoreMenu() {
       </div>
       <div
         className={`${
-          hover ? 'block' : 'block'
+          hover ? 'block' : 'hidden'
         } absolute top-6 -right-4 pt-4 rounded-md`}
       >
         <Card
