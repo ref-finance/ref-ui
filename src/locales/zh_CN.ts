@@ -172,7 +172,7 @@ const zh_CN = {
   search_token: '搜索代币',
   language: '语言',
   deposit_to_add_liquidity: '存入代币以添加流动性',
-  slip_wran: '你可能更容易交换，但收到的也更少',
+  slip_wran: '注意，请检查您可以收到的最低金额',
   slip_invalid: '请输入有效的值',
   press_enter_to_search: '按下回车以搜索',
   click_search_bar_to_search: '点击搜索图标以搜索',

@@ -9,7 +9,7 @@ import {
   GreenLButton,
   BorderButton,
   WithdrawButton,
-  GradientButton
+  GradientButton,
 } from '~components/button/Button';
 import {
   getFarms,
@@ -985,30 +985,30 @@ function FarmView({
                   onClick={() => showUnstakeModal()}
                   rounded="rounded-md"
                   px="px-0"
-                  py='py-1'
+                  py="py-1"
                   className="flex-grow text-lg text-greenLight"
                 >
                   <FormattedMessage id="unstake" defaultMessage="Unstake" />
                 </BorderButton>
               ) : null}
-              { ended ? null : ( data.userStaked !== '0' ?
+              {ended ? null : data.userStaked !== '0' ? (
                 <BorderButton
-                    onClick={() => showStakeModal()}
-                    rounded="rounded-md"
-                    px="px-0"
-                    py='py-1'
-                    className="flex-grow text-lg text-greenLight"
-                  >
-                   <FormattedMessage id="stake" defaultMessage="Stake" />
-                </BorderButton> :
-                 <GradientButton
-                    className={`w-full h-10 text-center text-lg text-white mt-4 focus:outline-none font-semibold `}
-                    onClick={() => showStakeModal()}
-                  >
-                    <FormattedMessage id="stake" defaultMessage="Stake" />
-                  </GradientButton>
-                )
-              }
+                  onClick={() => showStakeModal()}
+                  rounded="rounded-md"
+                  px="px-0"
+                  py="py-1"
+                  className="flex-grow text-lg text-greenLight"
+                >
+                  <FormattedMessage id="stake" defaultMessage="Stake" />
+                </BorderButton>
+              ) : (
+                <GradientButton
+                  className={`w-full h-10 text-center text-lg text-white mt-4 focus:outline-none font-semibold `}
+                  onClick={() => showStakeModal()}
+                >
+                  <FormattedMessage id="stake" defaultMessage="Stake" />
+                </GradientButton>
+              )}
               {haveUnclaimedReward() ? (
                 <GradientButton
                   onClick={() => claimReward()}
@@ -1016,15 +1016,15 @@ function FarmView({
                   className="text-white text-lg flex-grow"
                 >
                   <ClipLoader
-                      color={claimLoadingColor}
-                      loading={claimLoading}
-                      size={claimLoadingSize}
-                    />
-                    {claimLoading ? null : (
-                      <div>
-                        <FormattedMessage id={getClaimId()} />
-                      </div>
-                    )}
+                    color={claimLoadingColor}
+                    loading={claimLoading}
+                    size={claimLoadingSize}
+                  />
+                  {claimLoading ? null : (
+                    <div>
+                      <FormattedMessage id={getClaimId()} />
+                    </div>
+                  )}
                 </GradientButton>
               ) : null}
             </div>
@@ -1156,7 +1156,14 @@ function ActionModal(
           </div>
         </div>
         <div className="flex items-center justify-center pt-5">
-          <GreenLButton onClick={() => props.onSubmit(amount)} disabled={!amount || amount=='0' || new BigNumber(amount).isGreaterThan(maxToFormat)}>
+          <GreenLButton
+            onClick={() => props.onSubmit(amount)}
+            disabled={
+              !amount ||
+              amount == '0' ||
+              new BigNumber(amount).isGreaterThan(maxToFormat)
+            }
+          >
             {props.btnText}
           </GreenLButton>
         </div>

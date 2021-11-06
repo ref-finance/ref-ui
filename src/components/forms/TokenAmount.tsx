@@ -6,7 +6,6 @@ import { TokenBalancesView } from '../../services/token';
 import Icon from '../tokens/Icon';
 import InputAmount from './InputAmount';
 import SelectToken from './SelectToken';
-import AddToken from './AddToken';
 import { toPrecision } from '../../utils/numbers';
 import { FormattedMessage } from 'react-intl';
 
@@ -44,8 +43,6 @@ export default function TokenAmount({
       number: balances ? balances[token.id] : '0',
     });
 
-  const addToken = () => <AddToken />;
-
   const isSignedIn = wallet.isSignedIn();
 
   return (
@@ -70,7 +67,6 @@ export default function TokenAmount({
         <SelectToken
           tokens={tokens}
           render={render}
-          addToken={addToken}
           selected={
             selectedToken && (
               <div className="flex items-center justify-end font-semibold">

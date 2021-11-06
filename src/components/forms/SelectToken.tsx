@@ -11,6 +11,7 @@ import Table from '~components/table/Table';
 import { useTokensData } from '~state/token';
 import { toRealSymbol } from '~utils/token';
 import { FaSearch } from 'react-icons/fa';
+import AddToken from './AddToken';
 
 function sort(a: any, b: any) {
   if (typeof a === 'string' && typeof b === 'string') {
@@ -27,7 +28,6 @@ export default function SelectToken({
   selected,
   render,
   onSelect,
-  addToken,
   standalone,
   placeholder,
   balances,
@@ -39,13 +39,13 @@ export default function SelectToken({
   render?: (token: TokenMetadata) => string;
   onSelect?: (token: TokenMetadata) => void;
   onSearch?: (value: string) => void;
-  addToken?: () => JSX.Element;
   balances?: TokenBalancesView;
 }) {
   const [visible, setVisible] = useState(false);
   const [listData, setListData] = useState<TokenMetadata[]>([]);
   const [currentSort, setSort] = useState<string>('down');
   const [sortBy, setSortBy] = useState<string>('near');
+  const addToken = () => <AddToken />;
 
   if (!onSelect) {
     return (
@@ -197,7 +197,7 @@ export default function SelectToken({
               />
               <FaSearch />
             </div>
-            {addToken && addToken()}
+            {addToken()}
           </div>
           <CommenBasses
             tokens={tokensData}

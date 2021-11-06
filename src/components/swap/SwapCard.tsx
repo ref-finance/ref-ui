@@ -119,7 +119,7 @@ function DetailView({
           setShowDetails(!showDetails);
         }}
       >
-        <div className="flex items-center text-white">
+        <div className="flex items-center text-white cursor-pointer">
           <p className="block text-xs">
             <FormattedMessage id="details" defaultMessage="Details" />
           </p>

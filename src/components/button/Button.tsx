@@ -57,7 +57,7 @@ export function GreenButton(
     py?: string;
   }
 ) {
-  const { disabled, rounded, px, py} = props;
+  const { disabled, rounded, px, py } = props;
   const { className, ...propsWithoutClassName } = props;
   return (
     <button
