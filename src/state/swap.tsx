@@ -90,11 +90,13 @@ export const useSwap = ({
         amountIn: tokenInAmount,
         intl,
       })
-        .then(({ estimate, pool }) => {
-          if (!estimate || !pool) throw '';
+        .then((estimates) => {
+          if (!estimates) throw '';
           setCanSwap(true);
-          setTokenOutAmount(estimate);
-          setPool(pool);
+		  console.log(estimates.estimates);
+		  const estimate = (estimates.estimates.reduce((total, value) => total + Number(value.estimate), Number(0));
+          setTokenOutAmount(estimate.toString());
+          setPool(estimates.estimates[0].pool);
         })
         .catch((err) => {
           setCanSwap(false);

@@ -62,7 +62,7 @@ export const estimateSwap = async ({
   tokenOut,
   amountIn,
   intl,
-}: EstimateSwapOptions): Promise<EstimateSwapView> => {
+}: EstimateSwapOptions): Promise<EstimateSwapView[]> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
   if (!parsedAmountIn)
     throw new Error(
@@ -77,9 +77,11 @@ export const estimateSwap = async ({
 
 
   console.log('POOLS FOUND ARE...',pools);
-  let poolAllocations = await calculateOptimalOutput(pools, parsedAmountIn, tokenIn.id);
-  console.log('pool Alocations are: ',poolAllocations);
-  if (pools.length < 1) {
+  let poolAllocations = await calculateOptimalOutput(pools, parsedAmountIn, tokenIn.id, tokenOut.id);
+  console.log('pool Allocations are: ', pools, poolAllocations);
+  let parallelPools = pools.filter(({ partialAmountIn }) => partialAmountIn > 0 )
+  console.log('parallelPools',parallelPools);
+  if (parallelPools.length < 1) {
     throw new Error(
       `${intl.formatMessage({ id: 'no_pool_available_to_make_a_swap_from' })} ${
         tokenIn.symbol
@@ -93,7 +95,7 @@ export const estimateSwap = async ({
 
   try {
     const estimates = await Promise.all(
-      pools.map((pool) => {
+      parallelPools.map((pool) => {
         const amount_with_fee = Number(amountIn) * (FEE_DIVISOR - pool.fee);
         const in_balance = toReadableNumber(
           tokenIn.decimals,
@@ -120,15 +122,41 @@ export const estimateSwap = async ({
       })
     );
 
-      //console.log('estimates are ...',estimates)
+// let estimates = [
+    // {estimate: '99.69257342076861', 
+    // pool: {id: 2, 
+	      // gamma_bps: 20,
+	      // tokenIds: ['wrap.testnet', 'rft.tokenfactory.testnet'], 
+		  // supplies: {'rft.tokenfactory.testnet': "3122645575005",
+		            // 'wrap.testnet': "311603047091212996993322730"}, 
+		  // fee: 20, 
+		  // x: "311603047091212996993322730",
+		  // y: "3122645575005",
+		  // shareSupply: '1394082189476357871691236927', …}
+    // status: "success"},
+    // {estimate: '99.69257342076861', 
+    // pool: {id: 299, 
+	      // gamma_bps: 20,
+	      // tokenIds: ['wrap.testnet', 'rft.tokenfactory.testnet'], 
+		  // supplies: {'rft.tokenfactory.testnet': "3122645575005",
+		            // 'wrap.testnet': "311603047091212996993322730"}, 
+		  // fee: 20, 
+		  // x: "311603047091212996993322730",
+		  // y: "3122645575005",
+		  // shareSupply: '1394082189476357871691236927', …}
+    // status: "success"},
+// ];
+      console.log('estimates are ...',estimates)
 
-    const { estimate, pool } = estimates
-      .filter(({ status }) => status === 'success')
-      .sort((a, b) => (Number(b.estimate) > Number(a.estimate) ? 1 : -1))[0];
+    // const { estimate, pool } = estimates
+      // .filter(({ status }) => status === 'success')
+      // .sort((a, b) => (Number(b.estimate) > Number(a.estimate) ? 1 : -1))[0];
+
 
     return {
-      estimate: estimate,
-      pool,
+		estimates
+      // estimate: estimate,
+      // pool,
     };
   } catch (err) {
     throw new Error(
@@ -391,7 +419,7 @@ let mu = solveForMuFloat(pools, inputAmount, inputToken, outputToken);
 let dxArray = new Array();
 let negativeDxValsFlag = false;
 for (var i=0; i<pools.length; i++) {
-    let pool = formatPoolNew(pools[i],inputToken, outputToken);
+  let pool = formatPoolNew(pools[i],inputToken, outputToken);
   let dx = calculate_dx_float(mu,pool,inputToken,outputToken);
   if (dx<0) {
     // console.log('found a negative dx value!')
@@ -409,8 +437,9 @@ for (var i=0; i<dxArray.length; i++) {
 }
 let normalizedDxArray = [];
 for (var i=0; i<dxArray.length; i++) {
-      let ndx = new Big(dxArray[i]).times(inputAmount).div(dxArraySum).round()
+  let ndx = new Big(dxArray[i]).times(inputAmount).div(dxArraySum).round()
   normalizedDxArray.push(BigInt(ndx.toFixed()));
+  pools[i]['partialAmountIn'] = BigInt(ndx.toFixed());
 }
 return normalizedDxArray
 };

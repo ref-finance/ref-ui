@@ -146,10 +146,10 @@ function DetailView({
         />
         <SwapDetail
           title={intl.formatMessage({ id: 'pool_fee' })}
-          value={`${calculateFeePercent(pool.fee)}% (${calculateFeeCharge(
-            pool.fee,
-            from
-          )})`}
+          value='included' //{`${calculateFeePercent(pool.fee)}% (${calculateFeeCharge(
+           // pool.fee,
+            //from
+         // )})`}
         />
       </div>
     </div>
