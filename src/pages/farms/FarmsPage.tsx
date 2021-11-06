@@ -810,7 +810,7 @@ function FarmView({
                     pathname: `/pool/${PoolId}`,
                     state: { backToFarms: true },
                   }}
-                  target="blank"
+                  target="_blank"
                   className="text-lg xs:text-sm text-white"
                 >
                   {symbols}
@@ -826,7 +826,7 @@ function FarmView({
           <Link
             title={intl.formatMessage({ id: 'view_pool' })}
             to={{ pathname: `/pool/${PoolId}`, state: { backToFarms: true } }}
-            target="blank"
+            target="_blank"
           >
             <span
               className="text-xs text-framBorder border border-framBorder rounded w-10 text-center box-content px-1"
@@ -1071,6 +1071,10 @@ function FarmView({
           }).catch(setError);
         }}
         style={{
+          overlay: {
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
+          },
           content: {
             outline: 'none',
           },
