@@ -652,7 +652,7 @@ function FarmView({
     return result;
   }
 
-  function getAllRewardsPerWeekOld() {
+  function getAllRewardsPerWeek() {
     let result = '';
     if (farmsData.length > 1) {
       farmsData.forEach(function (item) {
@@ -672,7 +672,7 @@ function FarmView({
     return result;
   }
 
-  function getAllRewardsPerWeek() {
+  function getAllRewardsPerWeekOld() {
     let result: string = '';
     farmsData.forEach((item) => {
       const { rewardToken, rewardsPerWeek } = item;
@@ -689,7 +689,7 @@ function FarmView({
     return result;
   }
 
-  function getAllUnclaimedRewardOld() {
+  function getAllUnclaimedReward() {
     let result = '';
     if (farmsData.length > 1) {
       farmsData.forEach(function (item) {
@@ -708,7 +708,7 @@ function FarmView({
     }
     return result;
   }
-  function getAllUnclaimedReward() {
+  function getAllUnclaimedRewardOld() {
     let result: string = '';
     farmsData.forEach((item) => {
       const { rewardToken, userUnclaimedReward } = item;
@@ -789,7 +789,7 @@ function FarmView({
   return (
     <Card
       width="w-full"
-      className="self-start truncate"
+      className="self-start overflow-hidden"
       padding={'p-0'}
       rounded="rounded-2xl"
     >
@@ -822,6 +822,7 @@ function FarmView({
           <Link
             title={intl.formatMessage({ id: 'view_pool' })}
             to={{ pathname: `/pool/${PoolId}`, state: { backToFarms: true } }}
+            target="blank"
           >
             <span
               className="text-xs text-framBorder border border-framBorder rounded w-10 text-center box-content px-1"
@@ -922,21 +923,21 @@ function FarmView({
             </div>
             <div
               className="text-white"
-              data-class="reactTip"
-              data-for={'rewardPerWeekId' + data.farm_id}
-              data-place="top"
-              data-html={true}
-              data-tip={getAllRewardsPerWeek()}
+              // data-class="reactTip"
+              // data-for={'rewardPerWeekId' + data.farm_id}
+              // data-place="top"
+              // data-html={true}
+              // data-tip={getAllRewardsPerWeek()}
             >
-              -
+              {getAllRewardsPerWeek()}
             </div>
-            <ReactTooltip
+            {/* <ReactTooltip
               id={'rewardPerWeekId' + data.farm_id}
               backgroundColor="#1D2932"
               border
               borderColor="#7e8a93"
               effect="solid"
-            />
+            /> */}
           </div>
           {data.userStaked !== '0' ? (
             <div className="flex items-center justify-between text-sm py-2 text-farmText">
@@ -960,21 +961,21 @@ function FarmView({
             </div>
             <div
               className="text-white"
-              data-class="reactTip"
-              data-for={'unclaimedRewardId' + data.farm_id}
-              data-place="top"
-              data-html={true}
-              data-tip={getAllUnclaimedReward()}
+              // data-class="reactTip"
+              // data-for={'unclaimedRewardId' + data.farm_id}
+              // data-place="top"
+              // data-html={true}
+              // data-tip={getAllUnclaimedReward()}
             >
-              -
+              {getAllUnclaimedReward()}
             </div>
-            <ReactTooltip
+            {/* <ReactTooltip
               id={'unclaimedRewardId' + data.farm_id}
               backgroundColor="#1D2932"
               border
               borderColor="#7e8a93"
               effect="solid"
-            />
+            /> */}
           </div>
         </div>
         <div>
