@@ -22,6 +22,8 @@ export function BorderButton(
   props: HTMLAttributes<HTMLButtonElement> & { borderColor?: string } & {
     disabled?: boolean;
     rounded?: string;
+    px?: string;
+    py?: string;
   }
 ) {
   const {
@@ -29,16 +31,18 @@ export function BorderButton(
     borderColor,
     disabled,
     rounded,
+    px,
+    py,
     ...propsWithoutClassName
   } = props;
   return (
     <button
       disabled={disabled}
-      className={`text-xs px-5 py-2.5 focus:outline-none font-semibold border ${
+      className={`text-xs focus:outline-none font-semibold border ${
         borderColor ? borderColor : 'border-greenLight'
       }  focus:outline-none ${className} ${
         disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
-      } ${rounded || 'rounded-full'}`}
+      } ${rounded || 'rounded-full'} ${px || 'px-5'} ${py || 'py-2.5'}`}
       {...propsWithoutClassName}
     >
       {props.children}
@@ -49,16 +53,18 @@ export function BorderButton(
 export function GreenButton(
   props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean } & {
     rounded?: string;
+    px?: string;
+    py?: string;
   }
 ) {
-  const { disabled, rounded } = props;
+  const { disabled, rounded, px, py} = props;
   const { className, ...propsWithoutClassName } = props;
   return (
     <button
       disabled={disabled}
       className={` text-xs text-white px-5 py-2.5 font-semibold border border-greenLight bg-greenLight focus:outline-none ${className} ${
         disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
-      } ${rounded || 'rounded-full'}`}
+      } ${rounded || 'rounded-full'} ${px || 'px-5'} ${py || 'py-2.5'}`}
       {...propsWithoutClassName}
     >
       {props.children}
@@ -191,7 +197,7 @@ export function GradientButton(
         borderRadius: '5px',
       }}
     >
-      <button onClick={onClick} disabled={disabled} className="w-full">
+      <button onClick={onClick} disabled={disabled} className="w-full h-full">
         {props.children}
       </button>
     </div>

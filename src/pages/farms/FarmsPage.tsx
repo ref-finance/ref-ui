@@ -9,6 +9,7 @@ import {
   GreenLButton,
   BorderButton,
   WithdrawButton,
+  GradientButton
 } from '~components/button/Button';
 import {
   getFarms,
@@ -54,7 +55,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import parse from 'html-react-parser';
 import { FaArrowCircleRight, FaRegQuestionCircle } from 'react-icons/fa';
 import OldInputAmount from '~components/forms/OldInputAmount';
-
+import { BigNumber } from 'bignumber.js';
 export function FarmsPage() {
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
   const [farms, setFarms] = useState<FarmInfo[]>([]);
@@ -887,19 +888,6 @@ function FarmView({
             </div>
           </div>
           <div className="my-3.5 border border-t-0 border-farmSplitLine"></div>
-          {data.userStaked !== '0' ? (
-            <div className="flex items-center justify-between text-sm py-2 text-farmText">
-              <div>
-                <FormattedMessage
-                  id="your_shares"
-                  defaultMessage="Your Shares"
-                />
-              </div>
-              <div className="text-white">
-                {toPrecision(data.userStaked, 6)}
-              </div>
-            </div>
-          ) : null}
           <div className="flex items-center justify-between text-sm py-2 text-farmText">
             <div>
               <FormattedMessage
@@ -950,6 +938,19 @@ function FarmView({
               effect="solid"
             />
           </div>
+          {data.userStaked !== '0' ? (
+            <div className="flex items-center justify-between text-sm py-2 text-farmText">
+              <div>
+                <FormattedMessage
+                  id="your_shares"
+                  defaultMessage="Your Shares"
+                />
+              </div>
+              <div className="text-white">
+                {toPrecision(data.userStaked, 6)}
+              </div>
+            </div>
+          ) : null}
           <div className="flex items-center justify-between text-sm py-2 text-farmText">
             <div>
               <FormattedMessage
@@ -983,32 +984,38 @@ function FarmView({
                 <BorderButton
                   onClick={() => showUnstakeModal()}
                   rounded="rounded-md"
-                  className="xs:px-3.5"
+                  px="px-0"
+                  py='py-1'
+                  className="flex-grow text-lg text-greenLight"
                 >
-                  <div className="w-16 text-xs text-greenLight">
-                    <FormattedMessage id="unstake" defaultMessage="Unstake" />
-                  </div>
+                  <FormattedMessage id="unstake" defaultMessage="Unstake" />
                 </BorderButton>
               ) : null}
-              <BorderButton
-                onClick={() => showStakeModal()}
-                disabled={ended}
-                rounded="rounded-md"
-                className="xs:px-3.5"
-              >
-                <div className="w-16 text-xs text-greenLight">
-                  <FormattedMessage id="stake" defaultMessage="Stake" />
-                </div>
-              </BorderButton>
+              { ended ? null : ( data.userStaked !== '0' ?
+                <BorderButton
+                    onClick={() => showStakeModal()}
+                    rounded="rounded-md"
+                    px="px-0"
+                    py='py-1'
+                    className="flex-grow text-lg text-greenLight"
+                  >
+                   <FormattedMessage id="stake" defaultMessage="Stake" />
+                </BorderButton> :
+                 <GradientButton
+                    className={`w-full h-10 text-center text-lg text-white mt-4 focus:outline-none font-semibold `}
+                    onClick={() => showStakeModal()}
+                  >
+                    <FormattedMessage id="stake" defaultMessage="Stake" />
+                  </GradientButton>
+                )
+              }
               {haveUnclaimedReward() ? (
-                <GreenButton
+                <GradientButton
                   onClick={() => claimReward()}
                   disabled={disableClaim}
-                  rounded="rounded-md"
-                  className="xs:px-3.5"
+                  className="text-white text-lg flex-grow"
                 >
-                  <div className="w-16 text-xs">
-                    <ClipLoader
+                  <ClipLoader
                       color={claimLoadingColor}
                       loading={claimLoading}
                       size={claimLoadingSize}
@@ -1018,8 +1025,7 @@ function FarmView({
                         <FormattedMessage id={getClaimId()} />
                       </div>
                     )}
-                  </div>
-                </GreenButton>
+                </GradientButton>
               ) : null}
             </div>
           ) : (
@@ -1120,6 +1126,7 @@ function ActionModal(
   const { max } = props;
   const [amount, setAmount] = useState<string>('');
   const cardWidth = isMobile() ? '90vw' : '30vw';
+  const maxToFormat = new BigNumber(max);
   return (
     <Modal {...props}>
       <Card
@@ -1149,7 +1156,7 @@ function ActionModal(
           </div>
         </div>
         <div className="flex items-center justify-center pt-5">
-          <GreenLButton onClick={() => props.onSubmit(amount)} disabled={!amount || amount > max || amount=='0' }>
+          <GreenLButton onClick={() => props.onSubmit(amount)} disabled={!amount || amount=='0' || new BigNumber(amount).isGreaterThan(maxToFormat)}>
             {props.btnText}
           </GreenLButton>
         </div>
