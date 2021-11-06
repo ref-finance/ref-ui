@@ -805,12 +805,16 @@ function FarmView({
           <div className="flex items-center">
             <div className="order-2 lg:ml-auto xl:m-0">
               <div>
-                <a
-                  href={`/pool/${PoolId}`}
+                <Link
+                  to={{
+                    pathname: `/pool/${PoolId}`,
+                    state: { backToFarms: true },
+                  }}
+                  target="blank"
                   className="text-lg xs:text-sm text-white"
                 >
                   {symbols}
-                </a>
+                </Link>
               </div>
             </div>
             <div className="pl-3 order-3 lg:ml-auto xl:m-0">
@@ -915,7 +919,7 @@ function FarmView({
             />
           </div>
           <div className="flex items-center justify-between text-sm py-2 text-farmText">
-            <div>
+            <div className="pr-1">
               <FormattedMessage
                 id="rewards_per_week"
                 defaultMessage="Rewards per week"
@@ -953,7 +957,7 @@ function FarmView({
             </div>
           ) : null}
           <div className="flex items-center justify-between text-sm py-2 text-farmText">
-            <div>
+            <div className="pr-1">
               <FormattedMessage
                 id="unclaimed_rewards"
                 defaultMessage="Unclaimed rewards"
@@ -987,7 +991,7 @@ function FarmView({
                   rounded="rounded-md"
                   px="px-0"
                   py="py-1"
-                  className="flex-grow text-lg text-greenLight"
+                  className="flex-grow  w-20 text-lg text-greenLight"
                 >
                   <FormattedMessage id="unstake" defaultMessage="Unstake" />
                 </BorderButton>
@@ -998,7 +1002,7 @@ function FarmView({
                   rounded="rounded-md"
                   px="px-0"
                   py="py-1"
-                  className="flex-grow text-lg text-greenLight"
+                  className="flex-grow w-20 text-lg text-greenLight"
                 >
                   <FormattedMessage id="stake" defaultMessage="Stake" />
                 </BorderButton>
@@ -1014,7 +1018,7 @@ function FarmView({
                 <GradientButton
                   onClick={() => claimReward()}
                   disabled={disableClaim}
-                  className="text-white text-lg flex-grow"
+                  className="text-white text-lg flex-grow  w-20"
                 >
                   <ClipLoader
                     color={claimLoadingColor}
@@ -1107,6 +1111,10 @@ function FarmView({
           );
         }}
         style={{
+          overlay: {
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
+          },
           content: {
             outline: 'none',
           },
@@ -1161,7 +1169,7 @@ function ActionModal(
             onClick={() => props.onSubmit(amount)}
             disabled={
               !amount ||
-              amount == '0' ||
+              new BigNumber(amount).isEqualTo(0) ||
               new BigNumber(amount).isGreaterThan(maxToFormat)
             }
           >
