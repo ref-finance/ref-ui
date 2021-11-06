@@ -1,11 +1,7 @@
 import React, { ReactNode } from 'react';
 import { AiOutlineMedium } from 'react-icons/ai';
-import {
-  FaDiscord,
-  FaExternalLinkAlt,
-  FaTelegramPlane,
-  FaTwitter,
-} from 'react-icons/fa';
+import { FaDiscord, FaTelegramPlane, FaTwitter } from 'react-icons/fa';
+import { HiOutlineExternalLink } from 'react-icons/hi';
 import { FormattedMessage, useIntl } from 'react-intl';
 
 export type MenuItem = {
@@ -32,14 +28,14 @@ export const useMenuItems = () => {
         <FormattedMessage id="rainbow_bridge" defaultMessage="RainBow Bridge" />
       ),
       url: 'https://ethereum.bridgetonear.org/',
-      icon: <FaExternalLinkAlt />,
+      icon: <HiOutlineExternalLink />,
       isExternal: true,
       id: 2,
     },
     {
       label: intl.formatMessage({ id: 'docs' }),
       url: 'https://guide.ref.finance',
-      icon: <FaExternalLinkAlt />,
+      icon: <HiOutlineExternalLink />,
       isExternal: true,
       id: 3,
     },
@@ -48,20 +44,20 @@ export const useMenuItems = () => {
     {
       label: 'Community',
       url: '',
-      icon: <FaExternalLinkAlt />,
+      icon: <HiOutlineExternalLink />,
       id: 5,
       children: [
         {
           logo: <FaTwitter />,
           label: 'Twitter',
-          icon: <FaExternalLinkAlt />,
+          icon: <HiOutlineExternalLink />,
           url: 'https://twitter.com/finance_ref',
           isExternal: true,
           id: 6,
         },
         {
           logo: <FaTelegramPlane />,
-          icon: <FaExternalLinkAlt />,
+          icon: <HiOutlineExternalLink />,
           label: 'Telegram',
           url: 'https://t.me/ref_finance',
           isExternal: true,
@@ -69,7 +65,7 @@ export const useMenuItems = () => {
         },
         {
           logo: <FaDiscord />,
-          icon: <FaExternalLinkAlt />,
+          icon: <HiOutlineExternalLink />,
           label: 'Discord',
           url: 'https://discord.gg/SJBGcfMxJz',
           isExternal: true,
@@ -77,7 +73,7 @@ export const useMenuItems = () => {
         },
         {
           logo: <AiOutlineMedium />,
-          icon: <FaExternalLinkAlt />,
+          icon: <HiOutlineExternalLink />,
           label: 'Medium',
           url: 'https://ref-finance.medium.com/',
           isExternal: true,
@@ -250,14 +246,14 @@ export const moreLinks: MobileMenuItem[] = [
       {
         id: 'New_ui',
         label: 'New UI',
-        url: '//mzko2gfnij6.typeform.com/to/N6jSxnym',
+        url: 'https://mzko2gfnij6.typeform.com/to/N6jSxnym',
         isExternal: true,
         tip: 'Hot',
       },
       {
         id: 'Risk',
         label: 'Risk',
-        url: '//mzko2gfnij6.typeform.com/to/EPmUetxU',
+        url: 'https://mzko2gfnij6.typeform.com/to/EPmUetxU',
         isExternal: true,
       },
     ],
