@@ -10,8 +10,6 @@ import { volumeType, TVLType } from '~state/pool';
 
 const config = getConfig();
 
-
-
 export const getPoolMonthVolume = async (
   pool_id: string
 ): Promise<volumeType[]> => {
@@ -21,29 +19,22 @@ export const getPoolMonthVolume = async (
   })
     .then((res) => res.json())
     .then((monthVolume) => {
-      return monthVolume.slice(0,30);
+      return monthVolume.slice(0, 30);
     });
 };
 
-
-
-
-export const getPoolMonthTVL = async (
-  pool_id: string
-): Promise<TVLType[]> => {
+export const getPoolMonthTVL = async (pool_id: string): Promise<TVLType[]> => {
   return await fetch(config.sodakiUrl + `/${pool_id}/tvl`, {
     method: 'GET',
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   })
     .then((res) => res.json())
     .then((monthTVL) => {
-      return monthTVL.slice(0,30);
+      return monthTVL.slice(0, 30);
     });
 };
 
-export const get24hVolume = async (
-  pool_id: string
-):Promise<string> => {
+export const get24hVolume = async (pool_id: string): Promise<string> => {
   return await fetch(config.sodakiUrl + `/${pool_id}/rolling24hvolume/sum`, {
     method: 'GET',
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
@@ -53,7 +44,6 @@ export const get24hVolume = async (
       return monthTVL.toString();
     });
 };
-
 
 const parseActionView = async (action: any) => {
   const data = await parseAction(action[2], action[3]);

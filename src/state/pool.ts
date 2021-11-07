@@ -18,7 +18,12 @@ import db, { PoolDb, WatchList } from '~store/RefDatabase';
 
 import { useWhitelistTokens } from './token';
 import _, { debounce, orderBy } from 'lodash';
-import { getPoolMonthVolume, getPoolMonthTVL, getPoolsByIds, get24hVolume } from '~services/indexer';
+import {
+  getPoolMonthVolume,
+  getPoolMonthTVL,
+  getPoolsByIds,
+  get24hVolume,
+} from '~services/indexer';
 import { parsePoolView, PoolRPCView } from '~services/api';
 
 export const usePool = (id: number | string) => {
@@ -268,26 +273,27 @@ export interface volumeType {
   volume_dollar: string;
 }
 
-export interface volumeDataType{
+export interface volumeDataType {
   pool_id: string;
   dateString: string;
   fiat_volume: string;
   asset_volume: string;
   volume_dollar: number;
-  
 }
 
-export const useMonthVolume =  (pool_id: string) => {
+export const useMonthVolume = (pool_id: string) => {
   const [monthVolumeById, setMonthVolumeById] = useState<volumeDataType[]>();
   useEffect(() => {
-    getPoolMonthVolume(pool_id).then(res=>{
-      const monthVolume =  res.map((v,i)=>{
-        return {
-          ...v,
-          volume_dollar: Number(v.volume_dollar),
-        }
-      }).reverse()
-      setMonthVolumeById(monthVolume)
+    getPoolMonthVolume(pool_id).then((res) => {
+      const monthVolume = res
+        .map((v, i) => {
+          return {
+            ...v,
+            volume_dollar: Number(v.volume_dollar),
+          };
+        })
+        .reverse();
+      setMonthVolumeById(monthVolume);
     });
   }, [pool_id]);
 
@@ -298,61 +304,59 @@ export interface TVLType {
   pool_id: string;
   asset_amount: string;
   fiat_amount: string;
-  asset_price:string;
+  asset_price: string;
   fiat_price: string;
-  asset_tvl:string;
-  fiat_tvl:string;
-  date:string;
+  asset_tvl: string;
+  fiat_tvl: string;
+  date: string;
 }
-export interface TVLDataType{
+export interface TVLDataType {
   pool_id: string;
   asset_amount: string;
   fiat_amount: string;
-  asset_price:string;
+  asset_price: string;
   fiat_price: string;
-  asset_tvl:number;
-  fiat_tvl:string;
-  date:string;
+  asset_tvl: number;
+  fiat_tvl: string;
+  date: string;
 }
 
-
-export const useMonthTVL =  (pool_id: string) => {
+export const useMonthTVL = (pool_id: string) => {
   const [monthTVLById, setMonthTVLById] = useState<TVLDataType[]>();
   useEffect(() => {
-    getPoolMonthTVL(pool_id).then(res=>{
-      const monthTVL =  res.map((v,i)=>{
-        return {
-          ...v,
-          asset_tvl:Number(v.asset_tvl)
-        }
-      }).reverse()
-      setMonthTVLById(monthTVL)
+    getPoolMonthTVL(pool_id).then((res) => {
+      const monthTVL = res
+        .map((v, i) => {
+          return {
+            ...v,
+            asset_tvl: Number(v.asset_tvl),
+          };
+        })
+        .reverse();
+      setMonthTVLById(monthTVL);
     });
   }, [pool_id]);
 
   return monthTVLById;
 };
 
-
-export const useDayVolume = (pool_id:string)=>{
+export const useDayVolume = (pool_id: string) => {
   const [dayVolume, setDayVolume] = useState<string>();
-  useEffect(()=>{
-    get24hVolume(pool_id).then(setDayVolume)
-  },[pool_id])
-  return dayVolume
-}
+  useEffect(() => {
+    get24hVolume(pool_id).then(setDayVolume);
+  }, [pool_id]);
+  return dayVolume;
+};
 
-export const useDayVolumeByIds = (ids:string[])=>{
+export const useDayVolumeByIds = (ids: string[]) => {
   const [dayVolumeByIds, setDayVolumeByIds] = useState<string[]>();
-  const getDayVolumeByIds = async() =>{
-    const volumesByIds = await Promise.all(
-      ids.map(id=>get24hVolume(id))
-    )
-    return volumesByIds
-  }
-  useEffect(()=>{
-    getDayVolumeByIds().then(setDayVolumeByIds)
-  },[ids])
+  const getDayVolumeByIds = async () => {
+    const volumesByIds = await Promise.all(ids.map((id) => get24hVolume(id)));
+    return volumesByIds;
+  };
+  useEffect(() => {
+    getDayVolumeByIds().then(setDayVolumeByIds);
+  }, [ids]);
 
-  return dayVolumeByIds
-}
+  return dayVolumeByIds;
+};
