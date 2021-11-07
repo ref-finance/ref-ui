@@ -63,7 +63,7 @@ function SwapRateDetail({
     setNewValue(
       `1 ${toRealSymbol(
         isRevert ? tokenIn.symbol : tokenOut.symbol
-      )} = ${calculateExchangeRate(
+      )} ≈ ${calculateExchangeRate(
         pool.fee,
         isRevert ? from : to,
         isRevert ? to : from
@@ -135,7 +135,7 @@ function DetailView({
         />
         <SwapRateDetail
           title={intl.formatMessage({ id: 'swap_rate' })}
-          value={`1 ${toRealSymbol(tokenOut.symbol)} = ${calculateExchangeRate(
+          value={`1 ${toRealSymbol(tokenOut.symbol)} ≈ ${calculateExchangeRate(
             pool.fee,
             to,
             from
