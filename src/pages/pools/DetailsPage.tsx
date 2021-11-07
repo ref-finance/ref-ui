@@ -80,6 +80,7 @@ import {
   Cell,
   Area,
   AreaChart,
+  ComposedChart,
 } from 'recharts';
 
 import _ from 'lodash';
@@ -773,7 +774,6 @@ export function VolumeChart({
   };
 
   const formatDate = (rawDate: string) => moment(rawDate).format('ll');
-
   return (
     <>
       <div className="flex items-center justify-between self-start w-full">
@@ -835,15 +835,6 @@ export function TVLChart({
 
   const formatDate = (rawDate: string) => moment(rawDate).format('ll');
 
-  // const handleMouseEnter = (data: TVLDataType, index: number) => {
-  //   setHoverIndex(index);
-  // };
-
-  // const handleMouseLeave = (data: TVLDataType, index: number) => {
-  //   setHoverIndex(null);
-  // };
-  // console.log(data[0].date);
-  console.log(data);
   return (
     <>
       <div className="flex items-center justify-between self-start w-full">
@@ -866,11 +857,16 @@ export function TVLChart({
           setChartDisplay={setChartDisplay}
         />
       </div>
-      <ResponsiveContainer width="80%" height="100%">
-        <AreaChart data={data}>
+      <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart
+          data={data}
+          onMouseMove={(item: any) => {
+            setHoverIndex(item.activeTooltipIndex);
+          }}
+        >
           <defs>
             <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#00c6a2" stopOpacity={0.3} />
+              <stop offset="5%" stopColor="#00c6a2" stopOpacity={0.2} />
               <stop offset="95%" stopColor="#00c6a2" stopOpacity={0} />
             </linearGradient>
           </defs>
@@ -879,8 +875,7 @@ export function TVLChart({
             tickLine={false}
             axisLine={false}
             tickFormatter={(value, index) => {
-              console.log(value);
-              return value.split('-').pop();
+              return data[index].date.split('-').pop();
             }}
           />
 
@@ -897,7 +892,7 @@ export function TVLChart({
             fillOpacity={1}
             fill="url(#colorGradient)"
           />
-        </AreaChart>
+        </ComposedChart>
       </ResponsiveContainer>
     </>
   );
