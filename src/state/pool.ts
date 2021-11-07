@@ -347,16 +347,3 @@ export const useDayVolume = (pool_id: string) => {
   }, [pool_id]);
   return dayVolume;
 };
-
-export const useDayVolumeByIds = (ids: string[]) => {
-  const [dayVolumeByIds, setDayVolumeByIds] = useState<string[]>();
-  const getDayVolumeByIds = async () => {
-    const volumesByIds = await Promise.all(ids.map((id) => get24hVolume(id)));
-    return volumesByIds;
-  };
-  useEffect(() => {
-    getDayVolumeByIds().then(setDayVolumeByIds);
-  }, [ids]);
-
-  return dayVolumeByIds;
-};

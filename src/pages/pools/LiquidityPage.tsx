@@ -147,13 +147,6 @@ function MobilePoolRow({
             </div>
           )}
         </div>
-        <div className="">
-          {sortBy === 'h24_volume'
-            ? dayVolume
-              ? toInternationalCurrencySystem(dayVolume)
-              : '-'
-            : showSortedValue({ sortBy, value: pool[sortBy] })}
-        </div>
       </div>
     </Link>
   );
@@ -209,12 +202,7 @@ function MobileWatchListCard({ watchPools }: { watchPools: Pool[] }) {
                   setShowSelectModal(true);
                 }}
               >
-                <FormattedMessage
-                  id={sortBy}
-                  defaultMessage={
-                    sortBy !== 'h24_volume' ? sortBy : '24h Volume'
-                  }
-                />
+                <FormattedMessage id={sortBy} defaultMessage={sortBy} />
               </div>
               <div
                 className="p-1"
@@ -405,12 +393,7 @@ function MobileLiquidityPage({
                     setShowSelectModal(true);
                   }}
                 >
-                  <FormattedMessage
-                    id={sortBy}
-                    defaultMessage={
-                      sortBy !== 'h24_volume' ? sortBy : '24h Volume'
-                    }
-                  />
+                  <FormattedMessage id={sortBy} defaultMessage={sortBy} />
                 </div>
                 <div
                   className="p-1"
@@ -452,7 +435,6 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const tokens = useTokens(pool.tokenIds);
   const morePoolIds = useMorePoolIds({ topPool: pool });
-  const dayVolume = useDayVolume(pool.id.toString());
   const history = useHistory();
   const [showLinkArrow, setShowLinkArrow] = useState(false);
 
@@ -483,7 +465,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
 
   return (
     <Link
-      className="grid grid-cols-12 py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-600 hover:opacity-80"
+      className="grid grid-cols-10 py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-600 hover:opacity-80"
       onClick={() => localStorage.setItem('fromMorePools', 'n')}
       to={{
         pathname: `/pool/${pool.id}`,
@@ -520,9 +502,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
       <div className="col-span-1 py-1 md:hidden ">
         {calculateFeePercent(pool.fee)}%
       </div>
-      <div className="col-span-2 sm:col-span-4 py-1">
-        {dayVolume ? toInternationalCurrencySystem(dayVolume) : '-'}
-      </div>
+
       <div className="col-span-2 py-1">
         ${toInternationalCurrencySystem(pool.tvl.toString())}
       </div>
@@ -577,7 +557,7 @@ function WatchListCard({ watchPools }: { watchPools: Pool[] }) {
           />
         </div>
         <section className="">
-          <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
+          <header className="grid grid-cols-10 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
             <div className="col-span-6 md:col-span-4 flex">
               <div className="mr-6 w-2">#</div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
@@ -585,11 +565,6 @@ function WatchListCard({ watchPools }: { watchPools: Pool[] }) {
             <div className="col-span-1 md:hidden cursor-pointer flex items-center">
               <div className="mr-1">
                 <FormattedMessage id="fee" defaultMessage="Fee" />
-              </div>
-            </div>
-            <div className="col-span-2 flex items-center">
-              <div className="mr-1">
-                <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
               </div>
             </div>
 
@@ -754,7 +729,7 @@ function LiquidityPage_({
         </div>
 
         <section className="">
-          <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
+          <header className="grid grid-cols-10 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
             <div className="col-span-6 md:col-span-4 flex">
               <div className="mr-6 w-2">#</div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
@@ -778,17 +753,6 @@ function LiquidityPage_({
               ) : (
                 <UpArrowDeep />
               )}
-            </div>
-            <div
-              className="col-span-2 flex items-center"
-              onClick={() => {
-                onSortChange('h24_volume');
-                onOrderChange(order === 'desc' ? 'asc' : 'desc');
-              }}
-            >
-              <div className="mr-1">
-                <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
-              </div>
             </div>
 
             <div

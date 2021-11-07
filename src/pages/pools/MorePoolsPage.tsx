@@ -50,7 +50,6 @@ function PoolRow({
   morePoolIds: string[];
 }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
-  const dayVolume = useDayVolume(pool.id.toString());
   useEffect(() => {
     canFarm(pool.id).then((canFarm) => {
       setSupportFarm(canFarm);
@@ -78,7 +77,7 @@ function PoolRow({
 
   return (
     <Link
-      className="grid grid-cols-12 py-3.5 text-white content-center text-sm text-left mx-8  border-b border-gray-600 hover:opacity-80"
+      className="grid grid-cols-10 py-3.5 text-white content-center text-sm text-left mx-8  border-b border-gray-600 hover:opacity-80"
       onClick={() => {
         localStorage.setItem('fromMorePools', 'y');
         localStorage.setItem('morePoolIds', JSON.stringify(morePoolIds));
@@ -93,7 +92,7 @@ function PoolRow({
         },
       }}
     >
-      <div className="col-span-8 flex items-center">
+      <div className="col-span-7 flex items-center">
         <div className="mr-12 w-2">{pool?.id}</div>
 
         <div className="flex items-center">
@@ -126,11 +125,8 @@ function PoolRow({
         )}
       </div>
 
-      <div className="col-span-1 py-1  ">
+      <div className="col-span-2 py-1  ">
         {calculateFeePercent(pool?.total_fee)}%
-      </div>
-      <div className="col-span-2  py-1">
-        {dayVolume ? toInternationalCurrencySystem(dayVolume) : '-'}
       </div>
 
       <div className="col-span-1 py-1">
@@ -151,7 +147,6 @@ const MobileRow = ({
   morePoolIds: string[];
 }) => {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
-  const dayVolume = useDayVolume(pool.id.toString());
   const FarmButton = () => {
     return (
       <div className="flex items-center">
@@ -232,15 +227,7 @@ const MobileRow = ({
             </div>
             <div>{calculateFeePercent(pool?.total_fee)}%</div>
           </div>
-          <div className="flex items-center justify-between my-3">
-            <div className="text-gray-400">
-              <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
-            </div>
 
-            <div>
-              {dayVolume ? toInternationalCurrencySystem(dayVolume) : '-'}
-            </div>
-          </div>
           <div className="flex items-center justify-between my-3">
             <div className="text-gray-400">
               <FormattedMessage id="tvl" defaultMessage="TVL" />
@@ -322,15 +309,15 @@ export const MorePoolsPage = () => {
           </div>
 
           <section className="">
-            <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
-              <div className="col-span-8 flex items-center">
+            <header className="grid grid-cols-10 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
+              <div className="col-span-7 flex items-center">
                 <div className="mr-3 ">
                   <FormattedMessage id="pool_id" defaultMessage="Pool ID" />
                 </div>
                 <FormattedMessage id="pair" defaultMessage="Pair" />
               </div>
               <div
-                className="col-span-1 md:hidden cursor-pointer flex items-center"
+                className="col-span-2 md:hidden cursor-pointer flex items-center"
                 onClick={() => {
                   setSortBy('total_fee');
                   setOrder(order === 'desc' ? 'asc' : 'desc');
@@ -348,14 +335,6 @@ export const MorePoolsPage = () => {
                 ) : (
                   <UpArrowDeep />
                 )}
-              </div>
-              <div className="col-span-2 flex items-center cursor-pointer ">
-                <div className="mr-1">
-                  <FormattedMessage
-                    id="h24_volume"
-                    defaultMessage="24h Volume"
-                  />
-                </div>
               </div>
 
               <div

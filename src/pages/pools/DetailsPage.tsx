@@ -842,7 +842,8 @@ export function TVLChart({
   // const handleMouseLeave = (data: TVLDataType, index: number) => {
   //   setHoverIndex(null);
   // };
-
+  // console.log(data[0].date);
+  console.log(data);
   return (
     <>
       <div className="flex items-center justify-between self-start w-full">
@@ -865,7 +866,7 @@ export function TVLChart({
           setChartDisplay={setChartDisplay}
         />
       </div>
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="80%" height="100%">
         <AreaChart data={data}>
           <defs>
             <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
@@ -878,6 +879,7 @@ export function TVLChart({
             tickLine={false}
             axisLine={false}
             tickFormatter={(value, index) => {
+              console.log(value);
               return value.split('-').pop();
             }}
           />

@@ -24,15 +24,6 @@ export const SelectModal = ({
         }}
       />
       <div
-        className="py-2 px-2  w-full hover:bg-poolRowHover hover:text-white rounded-lg hover:opacity-80 z-30"
-        onClick={() => {
-          onSortChange('h24_volume');
-          setShowModal(false);
-        }}
-      >
-        <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
-      </div>
-      <div
         className="py-2 px-2 w-full hover:bg-poolRowHover hover:text-white rounded-lg hover:opacity-80 z-30"
         onClick={() => {
           onSortChange('tvl');
