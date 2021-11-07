@@ -191,12 +191,12 @@ input[type='number'] {
 
 .ended {
   color: #fff;
-  background: #bbb;
+  background: #75818a;
 }
 
 .pending {
   color: #fff;
-  background: #00515a;
+  background: #59c5a6;
 }
 
 @keyframes spin {
@@ -276,4 +276,13 @@ input.warn-input:focus {
   padding: 0.44rem 0.75rem !important;
   min-width: 7rem !important;
   opacity: 1 !important;
+}
+.farmEnded .border-gradientFromHover {
+  border-color: #73818b;
+}
+.farmEnded .text-white {
+  color: #73818b;
+}
+.farmEnded img {
+  filter: grayscale(100%);
 }

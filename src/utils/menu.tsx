@@ -1,11 +1,7 @@
 import React, { ReactNode } from 'react';
 import { AiOutlineMedium } from 'react-icons/ai';
-import {
-  FaDiscord,
-  FaExternalLinkAlt,
-  FaTelegramPlane,
-  FaTwitter,
-} from 'react-icons/fa';
+import { FaDiscord, FaTelegramPlane, FaTwitter } from 'react-icons/fa';
+import { HiOutlineExternalLink } from 'react-icons/hi';
 import { FormattedMessage, useIntl } from 'react-intl';
 
 export type MenuItem = {
@@ -32,14 +28,14 @@ export const useMenuItems = () => {
         <FormattedMessage id="rainbow_bridge" defaultMessage="RainBow Bridge" />
       ),
       url: 'https://ethereum.bridgetonear.org/',
-      icon: <FaExternalLinkAlt />,
+      icon: <HiOutlineExternalLink />,
       isExternal: true,
       id: 2,
     },
     {
       label: intl.formatMessage({ id: 'docs' }),
       url: 'https://guide.ref.finance',
-      icon: <FaExternalLinkAlt />,
+      icon: <HiOutlineExternalLink />,
       isExternal: true,
       id: 3,
     },
@@ -48,20 +44,20 @@ export const useMenuItems = () => {
     {
       label: 'Community',
       url: '',
-      icon: <FaExternalLinkAlt />,
+      icon: <HiOutlineExternalLink />,
       id: 5,
       children: [
         {
           logo: <FaTwitter />,
           label: 'Twitter',
-          icon: <FaExternalLinkAlt />,
+          icon: <HiOutlineExternalLink />,
           url: 'https://twitter.com/finance_ref',
           isExternal: true,
           id: 6,
         },
         {
           logo: <FaTelegramPlane />,
-          icon: <FaExternalLinkAlt />,
+          icon: <HiOutlineExternalLink />,
           label: 'Telegram',
           url: 'https://t.me/ref_finance',
           isExternal: true,
@@ -69,7 +65,7 @@ export const useMenuItems = () => {
         },
         {
           logo: <FaDiscord />,
-          icon: <FaExternalLinkAlt />,
+          icon: <HiOutlineExternalLink />,
           label: 'Discord',
           url: 'https://discord.gg/SJBGcfMxJz',
           isExternal: true,
@@ -77,7 +73,7 @@ export const useMenuItems = () => {
         },
         {
           logo: <AiOutlineMedium />,
-          icon: <FaExternalLinkAlt />,
+          icon: <HiOutlineExternalLink />,
           label: 'Medium',
           url: 'https://ref-finance.medium.com/',
           isExternal: true,
@@ -112,3 +108,154 @@ export const useMenuItems = () => {
 
   return { menuData };
 };
+
+export type MobileMenuItem = {
+  id: string;
+  label: string;
+  url: string;
+  icon?: ReactNode;
+  isExternal: boolean;
+  children?: MobileMenuItem[];
+  logo?: ReactNode;
+  pattern?: string;
+  tip?: string;
+  subRoute?: string[];
+};
+
+export const moreLinks: MobileMenuItem[] = [
+  {
+    id: 'Deposit',
+    label: 'Deposit',
+    pattern: '/deposit/:id?',
+    url: '/deposit',
+    isExternal: false,
+  },
+  {
+    id: 'Swap',
+    label: 'Swap',
+    pattern: '/',
+    url: '/',
+    isExternal: false,
+  },
+  {
+    id: 'pools',
+    label: 'Pools',
+    url: '',
+    subRoute: ['/pools', '/pools/add', '/pools/yours'],
+    isExternal: false,
+    children: [
+      {
+        id: 'view_pools',
+        label: 'View Pools',
+        url: '/pools',
+        pattern: '/pools',
+        isExternal: false,
+      },
+      {
+        id: 'Create_New_Pool',
+        label: 'Create New Pool',
+        url: '/pools/add',
+        pattern: '/pools/add',
+        isExternal: false,
+      },
+    ],
+  },
+  {
+    id: 'Farms',
+    label: 'Farms',
+    pattern: '/farms',
+    url: '/farms',
+    isExternal: false,
+  },
+  {
+    id: 'more',
+    label: 'More',
+    url: '',
+    isExternal: false,
+    subRoute: ['/airdrop'],
+    children: [
+      {
+        id: 'airdrop',
+        label: 'Airdrop',
+        url: '/airdrop',
+        pattern: '/airdrop',
+        isExternal: false,
+      },
+      {
+        id: 'rainbow_bridge',
+        label: 'RainBow Bridge',
+        url: 'https://ethereum.bridgetonear.org/',
+        isExternal: true,
+      },
+      {
+        id: 'docs',
+        label: 'docs',
+        url: 'https://guide.ref.finance',
+        isExternal: true,
+      },
+      {
+        label: 'Forum',
+        id: 'Forum',
+        url: 'https://gov.ref.finance',
+        isExternal: true,
+      },
+    ],
+  },
+  {
+    id: 'community',
+    label: 'Community',
+    url: '',
+    isExternal: false,
+    children: [
+      {
+        logo: <FaDiscord />,
+        label: 'Discord',
+        id: 'Discord',
+        url: 'https://discord.gg/SJBGcfMxJz',
+        isExternal: true,
+      },
+      {
+        logo: <FaTelegramPlane />,
+        label: 'Telegram',
+        id: 'Telegram',
+        url: 'https://t.me/ref_finance',
+        isExternal: true,
+      },
+      {
+        logo: <FaTwitter />,
+        id: 'Twitter',
+        label: 'Twitter',
+        url: 'https://twitter.com/finance_ref',
+        isExternal: true,
+      },
+      {
+        logo: <AiOutlineMedium />,
+        id: 'Medium',
+        label: 'Medium',
+        url: 'https://ref-finance.medium.com/',
+        isExternal: true,
+      },
+    ],
+  },
+  {
+    id: 'Quiz',
+    label: 'Quiz',
+    url: '',
+    isExternal: true,
+    children: [
+      {
+        id: 'New_ui',
+        label: 'New UI',
+        url: 'https://mzko2gfnij6.typeform.com/to/N6jSxnym',
+        isExternal: true,
+        tip: 'Hot',
+      },
+      {
+        id: 'Risk',
+        label: 'Risk',
+        url: 'https://mzko2gfnij6.typeform.com/to/EPmUetxU',
+        isExternal: true,
+      },
+    ],
+  },
+];
