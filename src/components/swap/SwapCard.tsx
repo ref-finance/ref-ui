@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import { TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
@@ -227,6 +227,18 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     event.preventDefault();
     makeSwap();
   };
+  const topBall = useRef<HTMLInputElement>();
+  const bottomBall = useRef<HTMLInputElement>();
+  const runSwapAnimation = function () {
+    topBall.current.style.animation = 'rotation1 1s 0s ease-out 1';
+    bottomBall.current.style.animation = 'rotation2 1s 0s ease-out 1';
+    topBall.current.addEventListener('animationend', function () {
+      topBall.current.style.animation = '';
+    });
+    bottomBall.current.addEventListener('animationend', function () {
+      bottomBall.current.style.animation = '';
+    });
+  };
 
   const tokenInMax =
     toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0';
@@ -284,14 +296,22 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         style={{ borderColor: 'rgba(126, 138, 147, 0.3)' }}
       >
         <div
-          className="inline-block -mt-6 mb-4 cursor-pointer bg-dark"
+          className="relative flex items-center -mt-6 mb-4 w-14 h-14 border border-white border-opacity-40 rounded-full cursor-pointer bg-dark"
           onClick={() => {
+            runSwapAnimation();
             setTokenIn(tokenOut);
             setTokenOut(tokenIn);
             setTokenInAmount(toPrecision('1', 6));
           }}
         >
-          <SwapArrow />
+          <div className="swap-wrap">
+            <div className="top-ball" ref={topBall} id="top-ball"></div>
+            <div
+              className="bottom-ball"
+              ref={bottomBall}
+              id="bottom-ball"
+            ></div>
+          </div>
         </div>
       </div>
       <TokenAmount
