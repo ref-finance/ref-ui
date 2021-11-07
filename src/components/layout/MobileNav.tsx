@@ -1,4 +1,5 @@
 import React, {
+  createContext,
   ReactNode,
   useContext,
   useEffect,
@@ -56,29 +57,38 @@ export function MobileAnchor({
     </div>
   );
 }
-
+const openMenuContext = createContext(null);
 export function MobileSwitchLanguage() {
   const context = useContext(Context);
   const currentLocal = localStorage.getItem('local');
   const [show, setShow] = useState(false);
+  const { openMenu, setOpenMenu } = useContext(openMenuContext);
+  const handleLanguageMenu = function () {
+    if (openMenu || show === false) {
+      setShow(true);
+      setOpenMenu(false);
+    } else {
+      setShow(false);
+    }
+  };
 
   return (
     <div className="relative z-20 bg-cardBg">
       <div
         className="flex p-4 items-center text-lg justify-between"
-        onClick={() => setShow(!show)}
+        onClick={handleLanguageMenu}
       >
         <div className={'font-bold text-primaryText'}>
           <FormattedMessage id="language" defaultMessage="Language" />
         </div>
         <FiChevronUp
-          className={`${show ? 'inline-block' : 'hidden'} text-xl`}
+          className={`${show && !openMenu ? 'inline-block' : 'hidden'} text-xl`}
         />
         <FiChevronDown
-          className={`${!show ? 'inline-block' : 'hidden'} text-xl`}
+          className={`${!show || openMenu ? 'inline-block' : 'hidden'} text-xl`}
         />
       </div>
-      <div className={`ml-12 ${show ? 'block' : 'hidden'}`}>
+      <div className={`ml-12 ${show && !openMenu ? 'block' : 'hidden'}`}>
         <div
           className={`whitespace-nowrap bg-cardBg text-left font-bold text-white p-4 ${
             currentLocal === 'en' ? 'text-white' : 'text-primaryText'
@@ -175,7 +185,7 @@ export function MobileNavBar() {
 
   return (
     <div
-      className="nav-wrap lg:hidden md:show relative"
+      className="nav-wrap lg:hidden md:show relative xs:mb-6 md:mb-6"
       style={{
         zIndex: show ? 200 : 10,
       }}
@@ -223,7 +233,7 @@ export function MobileNavBar() {
       >
         <div
           ref={popupRef}
-          className="block h-full w-4/6 float-right pt-6 bg-cardBg shadow-4xl"
+          className="block h-full overflow-y-scroll w-4/6 float-right pt-6 bg-cardBg shadow-4xl"
         >
           <div className="flex justify-between items-center">
             <div
@@ -372,11 +382,13 @@ export function MobileNavBar() {
                 );
               }
             )}
-            <MobileSwitchLanguage />
+            <openMenuContext.Provider value={{ openMenu, setOpenMenu }}>
+              <MobileSwitchLanguage />
+            </openMenuContext.Provider>
           </div>
           <Logout />
           <div
-            className=" p-4 bg-cardBg"
+            className="p-4 bg-cardBg mb-24"
             onClick={() => window.open('https://sodaki.com/')}
           >
             <RefAnalytics />

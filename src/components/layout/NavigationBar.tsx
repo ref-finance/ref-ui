@@ -166,10 +166,10 @@ function Quiz() {
       <div
         className={`${
           hoverQuiz ? 'block' : 'hidden'
-        } absolute top-12 -left-12 rounded-md`}
+        } absolute top-12 -left-20 rounded-md`}
       >
         <Card
-          width="w-48"
+          width="w-60"
           padding="py-4"
           rounded="rounded-md"
           className="border border-primaryText shadow-4xl"
