@@ -472,7 +472,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
         state: { tvl: pool.tvl, backToFarms: supportFarm },
       }}
     >
-      <div className="col-span-6 md:col-span-4 flex items-center">
+      <div className="col-span-7 md:col-span-4 flex items-center">
         <div className="mr-6 w-2">{index}</div>
         <div className="flex items-center">
           <div className="flex items-center">
@@ -503,7 +503,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
         {calculateFeePercent(pool.fee)}%
       </div>
 
-      <div className="col-span-2 py-1">
+      <div className="col-span-1 py-1">
         ${toInternationalCurrencySystem(pool.tvl.toString())}
       </div>
 
@@ -558,7 +558,7 @@ function WatchListCard({ watchPools }: { watchPools: Pool[] }) {
         </div>
         <section className="">
           <header className="grid grid-cols-10 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
-            <div className="col-span-6 md:col-span-4 flex">
+            <div className="col-span-7 md:col-span-4 flex">
               <div className="mr-6 w-2">#</div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </div>
@@ -568,7 +568,7 @@ function WatchListCard({ watchPools }: { watchPools: Pool[] }) {
               </div>
             </div>
 
-            <div className="col-span-2 flex items-center cursor-pointer">
+            <div className="col-span-1 flex items-center cursor-pointer">
               <span className="mr-1">
                 <FormattedMessage id="tvl" defaultMessage="TVL" />
               </span>
@@ -730,7 +730,7 @@ function LiquidityPage_({
 
         <section className="">
           <header className="grid grid-cols-10 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
-            <div className="col-span-6 md:col-span-4 flex">
+            <div className="col-span-7 md:col-span-4 flex">
               <div className="mr-6 w-2">#</div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </div>
@@ -756,7 +756,7 @@ function LiquidityPage_({
             </div>
 
             <div
-              className="col-span-2 flex items-center cursor-pointer"
+              className="col-span-1 flex items-center cursor-pointer"
               onClick={() => {
                 onSortChange('tvl');
                 onOrderChange(order === 'desc' ? 'asc' : 'desc');
