@@ -25,7 +25,7 @@ import {
   toReadableNumber,
   toInternationalCurrencySystem,
 } from '../../utils/numbers';
-import { useAllWatchList, useMorePools } from '~state/pool';
+import { useAllWatchList, useDayVolume, useMorePools } from '~state/pool';
 import { PoolRPCView } from '~services/api';
 import { FarmStamp } from '~components/icon/FarmStamp';
 import { MULTI_MINING_POOLS } from '~services/near';
@@ -50,7 +50,7 @@ function PoolRow({
   morePoolIds: string[];
 }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
-
+  const dayVolume = useDayVolume(pool.id.toString());
   useEffect(() => {
     canFarm(pool.id).then((canFarm) => {
       setSupportFarm(canFarm);
@@ -130,7 +130,7 @@ function PoolRow({
         {calculateFeePercent(pool?.total_fee)}%
       </div>
       <div className="col-span-2  py-1">
-        <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
+        {dayVolume ? toInternationalCurrencySystem(dayVolume) : '-'}
       </div>
 
       <div className="col-span-1 py-1">
@@ -151,6 +151,7 @@ const MobileRow = ({
   morePoolIds: string[];
 }) => {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
+  const dayVolume = useDayVolume(pool.id.toString());
   const FarmButton = () => {
     return (
       <div className="flex items-center">
@@ -237,7 +238,7 @@ const MobileRow = ({
             </div>
 
             <div>
-              <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
+              {dayVolume ? toInternationalCurrencySystem(dayVolume) : '-'}
             </div>
           </div>
           <div className="flex items-center justify-between my-3">

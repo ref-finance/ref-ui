@@ -9,8 +9,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         helperUrl: 'https://helper.mainnet.near.org',
         explorerUrl: 'https://explorer.mainnet.near.org',
         indexerUrl: 'https://indexer.ref-finance.net',
-        // TODO: waiting for production url to be delete
-        sodakiUrl: 'https://dev.sodaki.com/api/pool',
+        sodakiUrl: 'https://sodaki.com/api/pool',
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
         WRAP_NEAR_CONTRACT_ID: process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.near',

@@ -3,10 +3,15 @@ import { useLocation, useParams } from 'react-router-dom';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
 import {
+  useMonthTVL,
   useMonthVolume,
   usePool,
   useRemoveLiquidity,
+  volumeDataType,
   volumeType,
+  TVLDataType,
+  TVLType,
+  useDayVolume,
 } from '~state/pool';
 import {
   addLiquidityToPool,
@@ -73,23 +78,15 @@ import {
   BarProps,
   Tooltip,
   Cell,
+  Area,
+  AreaChart,
 } from 'recharts';
 
-import { volume79 } from '../../store/volume79';
 import _ from 'lodash';
+import moment from 'moment';
 interface ParamTypes {
   id: string;
 }
-
-const data = volume79
-  .map((v, i) => {
-    return {
-      ...v,
-      dateString: Number(v.dateString.split('-').splice(-1)),
-      volume_dollar: Number(v.volume_dollar),
-    };
-  })
-  .reverse();
 
 interface LocationTypes {
   tvl: number;
@@ -720,36 +717,93 @@ function MyShares({
   return <div>{displayPercent}% of Total</div>;
 }
 
-export function VolumeChart() {
+const ChartChangeButton = ({
+  chartDisplay,
+  setChartDisplay,
+}: {
+  chartDisplay: 'volume' | 'tvl';
+  setChartDisplay: (display: 'volume' | 'tvl') => void;
+}) => {
+  return (
+    <div className="text-white rounded-2xl flex items-center bg-gray-700">
+      <button
+        className={`py-2 px-4 w-25 ${
+          chartDisplay === 'tvl'
+            ? 'rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo'
+            : ''
+        }`}
+        onClick={() => setChartDisplay('tvl')}
+      >
+        <FormattedMessage id="tvl" defaultMessage="TVL" />
+      </button>
+      <button
+        className={`py-2 px-4 w-25 ${
+          chartDisplay === 'volume'
+            ? 'rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo'
+            : ''
+        }`}
+        onClick={() => setChartDisplay('volume')}
+      >
+        <FormattedMessage id="volume" defaultMessage="Volume" />
+      </button>
+    </div>
+  );
+};
+
+export function VolumeChart({
+  data,
+  chartDisplay,
+  setChartDisplay,
+}: {
+  data: volumeDataType[];
+  chartDisplay: 'volume' | 'tvl';
+  setChartDisplay: (display: 'volume' | 'tvl') => void;
+}) {
   const [hoverIndex, setHoverIndex] = useState<number>(null);
 
   const baseColor = '#00967B';
   const hoverColor = '#00c6a2';
 
-  const handleMouseEnter = (data: volumeType, index: number) => {
+  const handleMouseEnter = (data: volumeDataType, index: number) => {
     setHoverIndex(index);
   };
 
-  const handleMouseLeave = (data: volumeType, index: number) => {
+  const handleMouseLeave = (data: volumeDataType, index: number) => {
     setHoverIndex(null);
   };
 
+  const formatDate = (rawDate: string) => moment(rawDate).format('ll');
+
   return (
     <>
-      <div className="flex items-center justify-between self-start">
-        <div className="text-white text-xl">
-          {`$${toInternationalCurrencySystem(
-            typeof hoverIndex === 'number'
-              ? data[hoverIndex].volume_dollar.toString()
-              : data[data.length - 1].volume_dollar.toString()
-          )}`}
+      <div className="flex items-center justify-between self-start w-full">
+        <div className="flex flex-col">
+          <div className="text-white text-2xl">
+            {`$${toInternationalCurrencySystem(
+              typeof hoverIndex === 'number'
+                ? data[hoverIndex].volume_dollar.toString()
+                : data[data.length - 1].volume_dollar.toString()
+            )}`}
+          </div>
+          <div className="text-base text-gray-400">
+            {typeof hoverIndex === 'number'
+              ? formatDate(data[hoverIndex].dateString)
+              : formatDate(data[data.length - 1].dateString)}
+          </div>
         </div>
+        <ChartChangeButton
+          chartDisplay={chartDisplay}
+          setChartDisplay={setChartDisplay}
+        />
       </div>
       <ResponsiveContainer height="100%" width="100%">
         <BarChart data={data}>
-          {/* dataKey need to be encoded*/}
-          <XAxis dataKey="dateString" tickLine={false} axisLine={false} />
-          {/* <Tooltip /> */}
+          <XAxis
+            dataKey="dateString"
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={(value, index) => value.split('-').pop()}
+          />
           <Bar
             dataKey="volume_dollar"
             onMouseEnter={handleMouseEnter}
@@ -762,8 +816,86 @@ export function VolumeChart() {
               />
             ))}
           </Bar>
-          {/* <CustomBar /> */}
         </BarChart>
+      </ResponsiveContainer>
+    </>
+  );
+}
+
+export function TVLChart({
+  data,
+  chartDisplay,
+  setChartDisplay,
+}: {
+  data: TVLDataType[];
+  chartDisplay: 'volume' | 'tvl';
+  setChartDisplay: (display: 'volume' | 'tvl') => void;
+}) {
+  const [hoverIndex, setHoverIndex] = useState<number>(null);
+
+  const formatDate = (rawDate: string) => moment(rawDate).format('ll');
+
+  // const handleMouseEnter = (data: TVLDataType, index: number) => {
+  //   setHoverIndex(index);
+  // };
+
+  // const handleMouseLeave = (data: TVLDataType, index: number) => {
+  //   setHoverIndex(null);
+  // };
+
+  return (
+    <>
+      <div className="flex items-center justify-between self-start w-full">
+        <div className="flex flex-col">
+          <div className="text-white text-2xl">
+            {`$${toInternationalCurrencySystem(
+              typeof hoverIndex === 'number'
+                ? data[hoverIndex].asset_tvl.toString()
+                : data[data.length - 1].asset_tvl.toString()
+            )}`}
+          </div>
+          <div className="text-base text-gray-400">
+            {typeof hoverIndex === 'number'
+              ? formatDate(data[hoverIndex].date)
+              : formatDate(data[data.length - 1].date)}
+          </div>
+        </div>
+        <ChartChangeButton
+          chartDisplay={chartDisplay}
+          setChartDisplay={setChartDisplay}
+        />
+      </div>
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={data}>
+          <defs>
+            <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#00c6a2" stopOpacity={0.3} />
+              <stop offset="95%" stopColor="#00c6a2" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <XAxis
+            dataKey="date"
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={(value, index) => {
+              return value.split('-').pop();
+            }}
+          />
+
+          <Tooltip
+            wrapperStyle={{
+              visibility: 'hidden',
+            }}
+          />
+          <Area
+            dataKey="asset_tvl"
+            dot={false}
+            stroke="#00c6a2"
+            strokeWidth={4}
+            fillOpacity={1}
+            fill="url(#colorGradient)"
+          />
+        </AreaChart>
       </ResponsiveContainer>
     </>
   );
@@ -773,7 +905,7 @@ export function PoolDetailsPage() {
   const { id } = useParams<ParamTypes>();
   const { state } = useLocation<LocationTypes>();
   const { pool, shares } = usePool(id);
-
+  const dayVolume = useDayVolume(id);
   const tokens = useTokens(pool?.tokenIds);
 
   const [showFunding, setShowFunding] = useState(false);
@@ -781,11 +913,13 @@ export function PoolDetailsPage() {
   const [poolTVL, setPoolTVL] = useState<number>();
   const [backToFarmsButton, setBackToFarmsButton] = useState<Boolean>(false);
   const [showFullStart, setShowFullStar] = useState<Boolean>(false);
-  // const monthVolumeById = useMonthVolume(id);
-
+  const [chartDisplay, setChartDisplay] = useState<'volume' | 'tvl'>('volume');
+  const monthVolumeById = useMonthVolume(id);
+  const monthTVLById = useMonthTVL(id);
   const fromMorePools = localStorage.getItem('fromMorePools') === 'y';
   const morePoolIds: string[] =
     JSON.parse(localStorage.getItem('morePoolIds')) || [];
+
   const FarmButton = () => {
     const isMultiMining = MULTI_MINING_POOLS.includes(pool.id);
     return (
@@ -837,7 +971,14 @@ export function PoolDetailsPage() {
     });
   }, []);
 
-  if (!pool || !tokens || tokens.length < 2) return <Loading />;
+  if (
+    !pool ||
+    !tokens ||
+    tokens.length < 2 ||
+    !monthVolumeById ||
+    !monthTVLById
+  )
+    return <Loading />;
 
   return (
     <div>
@@ -989,11 +1130,8 @@ export function PoolDetailsPage() {
                     defaultMessage="24h Volume"
                   />
                 </div>
-                <div className="text-sm text-white">
-                  <FormattedMessage
-                    id="coming_soon"
-                    defaultMessage="Coming soon"
-                  />
+                <div className="text-white">
+                  {dayVolume ? toInternationalCurrencySystem(dayVolume) : '-'}
                 </div>
               </div>
               <div className="flex items-center justify-between py-2.5">
@@ -1080,88 +1218,22 @@ export function PoolDetailsPage() {
             className="relative rounded-2xl bg-chartBg h-full flex flex-col justify-center md:hidden xs:hidden items-center"
             padding="p-7"
             style={{
-              height: '391px',
+              height: '400px',
             }}
           >
-            <VolumeChart />
-
-            {/* <div className="pb-7">
-              <div className="flex items-center justify-between">
-                <div className="text-gray-400 text-base float-left">
-                  $&nbsp;-
-                </div>
-                <div className="text-white rounded-2xl flex items-center bg-gray-700">
-                  <div className="py-2 px-4 w-25 rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo">
-                    <FormattedMessage id="tvl" defaultMessage="TVL" />
-                  </div>
-                  <div className="py-2 px-4 w-25">
-                    <FormattedMessage id="volume" defaultMessage="Volume" />
-                  </div>
-                </div>
-              </div>
-              <div className="text-xs text-gray-500">Sep. 11 2021</div>
-            </div>
-            <div
-              className="absolute w-full left-0 top-0 h-full m-auto text-center text-base text-gray-500 flex items-center justify-center opacity-70"
-              style={{
-                backdropFilter: 'blur(1px)',
-                background: '#001320',
-              }}
-            >
-              <div>
-                <FormattedMessage
-                  id="coming_soon"
-                  defaultMessage="Coming Soon"
-                />
-              </div>
-            </div>
-
-            <div>
-              <div
-                style={{
-                  width: '300px',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '1px',
-                  transform: 'rotate(90deg)',
-                  position: 'relative',
-                  bottom: '140px',
-                  left: '150px',
-                }}
+            {chartDisplay === 'volume' ? (
+              <VolumeChart
+                data={monthVolumeById}
+                chartDisplay={chartDisplay}
+                setChartDisplay={setChartDisplay}
               />
-              <div
-                style={{
-                  border: '1px solid #ffffff',
-                  boxSizing: 'border-box',
-                  width: '13px',
-                  height: '13px',
-                  position: 'relative',
-                  left: '295px',
-                  top: '4px',
-                  backgroundColor: '#00d6af',
-                  opacity: 0.4,
-                }}
-                className="rounded-full"
-              />
-              <div className="border border-gradientFrom w-full mb-2" />
-              <div className="flex text-xs text-gray-500 justify-between">
-                {[
-                  '24',
-                  '31',
-                  '07',
-                  '14',
-                  '21',
-                  '28',
-                  '04',
-                  '11',
-                  '18',
-                  '25',
-                  '02',
-                  '09',
-                ].map((d, i) => {
-                  return <div key={i}>{d}</div>;
-                })}
-              </div>
-            </div> */}
+            ) : (
+              <TVLChart
+                data={monthTVLById}
+                chartDisplay={chartDisplay}
+                setChartDisplay={setChartDisplay}
+              ></TVLChart>
+            )}
           </Card>
         </div>
 

@@ -12,6 +12,7 @@ import {
   useMorePoolIds,
   useAllWatchList,
   useWatchPools,
+  useDayVolume,
 } from '../../state/pool';
 import Loading from '~components/layout/Loading';
 import { getExchangeRate, useTokens } from '../../state/token';
@@ -59,6 +60,7 @@ function MobilePoolRow({
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const morePoolIds = useMorePoolIds({ topPool: pool });
   const tokens = useTokens(pool.tokenIds);
+  const dayVolume = useDayVolume(pool.id.toString());
   const history = useHistory();
   useEffect(() => {
     canFarm(pool.id).then((canFarm) => {
@@ -146,11 +148,11 @@ function MobilePoolRow({
           )}
         </div>
         <div className="">
-          {sortBy === 'h24_volume' ? (
-            <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
-          ) : (
-            showSortedValue({ sortBy, value: pool[sortBy] })
-          )}
+          {sortBy === 'h24_volume'
+            ? dayVolume
+              ? toInternationalCurrencySystem(dayVolume)
+              : '-'
+            : showSortedValue({ sortBy, value: pool[sortBy] })}
         </div>
       </div>
     </Link>
@@ -450,6 +452,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const tokens = useTokens(pool.tokenIds);
   const morePoolIds = useMorePoolIds({ topPool: pool });
+  const dayVolume = useDayVolume(pool.id.toString());
   const history = useHistory();
   const [showLinkArrow, setShowLinkArrow] = useState(false);
 
@@ -518,7 +521,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
         {calculateFeePercent(pool.fee)}%
       </div>
       <div className="col-span-2 sm:col-span-4 py-1">
-        <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
+        {dayVolume ? toInternationalCurrencySystem(dayVolume) : '-'}
       </div>
       <div className="col-span-2 py-1">
         ${toInternationalCurrencySystem(pool.tvl.toString())}
