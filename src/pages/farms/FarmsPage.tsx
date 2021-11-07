@@ -174,7 +174,7 @@ export function FarmsPage() {
         {error ? <Alert level="error" message={error.message} /> : null}
       </div>
       <div className="flex gaps-x-8 px-5 -mt-12 xs:flex-col xs:mt-8 md:flex-col md:mt-8">
-        <div className="w-96 mr-4 relative xs:w-full md:w-full">
+        <div className="w-96 mr-4 mt-8 xs:mt-0 md:mt-0 relative xs:w-full md:w-full">
           <div className="text-green-400 text-5xl px-7 xs:text-center md:text-center">
             <FormattedMessage id="farms" defaultMessage="Farms" />
           </div>
@@ -690,22 +690,36 @@ function FarmView({
   }
 
   function getAllUnclaimedReward() {
-    let result = '';
-    if (farmsData.length > 1) {
-      farmsData.forEach(function (item) {
-        result +=
-          formatWithCommas(item.userUnclaimedReward) +
-          ' ' +
-          toRealSymbol(item?.rewardToken?.symbol) +
-          ' / ';
-      });
-      result = result.substring(0, result.lastIndexOf('/ '));
-    } else {
-      result =
-        formatWithCommas(data.userUnclaimedReward) +
-        ' ' +
-        toRealSymbol(data?.rewardToken?.symbol);
-    }
+    // let result = '';
+    // if (farmsData.length > 1) {
+    //   farmsData.forEach(function (item) {
+    //     result +=
+    //       formatWithCommas(item.userUnclaimedReward) +
+    //       ' ' +
+    //       toRealSymbol(item?.rewardToken?.symbol) +
+    //       ' / '
+    //   });
+    //   result = result.substring(0, result.lastIndexOf('/ '));
+    // } else {
+    //   result =
+    //     formatWithCommas(data.userUnclaimedReward) +
+    //     ' ' +
+    //     toRealSymbol(data?.rewardToken?.symbol);
+    // }
+    const result: JSX.Element[] = [];
+    farmsData.forEach(function (item, index) {
+      const rewardV = item.userUnclaimedReward;
+      const elem = (
+        <label
+          key={item.farm_id + item.rewardToken.id}
+          style={{ color: Number(rewardV) > 0 ? '#fff' : '' }}
+        >
+          {formatWithCommas(rewardV)} {toRealSymbol(item?.rewardToken?.symbol)}{' '}
+          {index == farmsData.length - 1 ? '' : '/ '}
+        </label>
+      );
+      result.push(elem);
+    });
     return result;
   }
   function getAllUnclaimedRewardOld() {
@@ -789,11 +803,11 @@ function FarmView({
   return (
     <Card
       width="w-full"
-      className="self-start overflow-hidden"
+      className={`self-start overflow-hidden ${ended ? 'farmEnded' : ''}`}
       padding={'p-0'}
       rounded="rounded-2xl"
     >
-      <div className="flex items-center p-6 pb-0 relative overflow-hidden flex-wrap">
+      <div className="flex items-center p-6 pb-0 relative flex-wrap">
         <div className="flex items-center justify-center">
           <div className="h-11">
             <div className="w-22 flex items-center justify-between">

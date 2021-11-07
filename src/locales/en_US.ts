@@ -104,7 +104,7 @@ const en_US = {
   stake: 'Stake',
   unstake: 'Unstake',
   your_rewards: 'Your rewards',
-  your_shares: 'Your Shares',
+  your_shares: 'Shares',
   shares_owned: 'Shares Owned',
   stake_your_liquidity_provider_LP_tokens:
     'Stake your Liquidity Provider (LP) tokens',
