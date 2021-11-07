@@ -295,7 +295,7 @@ export const useMonthVolume = (pool_id: string) => {
         .reverse();
       setMonthVolumeById(monthVolume);
     });
-  }, [pool_id]);
+  }, []);
 
   return monthVolumeById;
 };
@@ -335,7 +335,7 @@ export const useMonthTVL = (pool_id: string) => {
         .reverse();
       setMonthTVLById(monthTVL);
     });
-  }, [pool_id]);
+  }, []);
 
   return monthTVLById;
 };

@@ -774,6 +774,9 @@ export function VolumeChart({
   };
 
   const formatDate = (rawDate: string) => moment(rawDate).format('ll');
+
+  if (!data) return <></>;
+
   return (
     <>
       <div className="flex items-center justify-between self-start w-full">
@@ -834,6 +837,7 @@ export function TVLChart({
   const [hoverIndex, setHoverIndex] = useState<number>(null);
 
   const formatDate = (rawDate: string) => moment(rawDate).format('ll');
+  if (!data) return <></>;
 
   return (
     <>
@@ -905,14 +909,14 @@ export function PoolDetailsPage() {
   const dayVolume = useDayVolume(id);
   const tokens = useTokens(pool?.tokenIds);
 
+  const monthVolume = useMonthVolume(id);
+  const monthTVL = useMonthTVL(id);
   const [showFunding, setShowFunding] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [poolTVL, setPoolTVL] = useState<number>();
   const [backToFarmsButton, setBackToFarmsButton] = useState<Boolean>(false);
   const [showFullStart, setShowFullStar] = useState<Boolean>(false);
   const [chartDisplay, setChartDisplay] = useState<'volume' | 'tvl'>('volume');
-  const monthVolumeById = useMonthVolume(id);
-  const monthTVLById = useMonthTVL(id);
   const fromMorePools = localStorage.getItem('fromMorePools') === 'y';
   const morePoolIds: string[] =
     JSON.parse(localStorage.getItem('morePoolIds')) || [];
@@ -968,14 +972,7 @@ export function PoolDetailsPage() {
     });
   }, []);
 
-  if (
-    !pool ||
-    !tokens ||
-    tokens.length < 2 ||
-    !monthVolumeById ||
-    !monthTVLById
-  )
-    return <Loading />;
+  if (!pool || !tokens || tokens.length < 2) return <Loading />;
 
   return (
     <div>
@@ -1220,16 +1217,16 @@ export function PoolDetailsPage() {
           >
             {chartDisplay === 'volume' ? (
               <VolumeChart
-                data={monthVolumeById}
+                data={monthVolume}
                 chartDisplay={chartDisplay}
                 setChartDisplay={setChartDisplay}
               />
             ) : (
               <TVLChart
-                data={monthTVLById}
+                data={monthTVL}
                 chartDisplay={chartDisplay}
                 setChartDisplay={setChartDisplay}
-              ></TVLChart>
+              />
             )}
           </Card>
         </div>
