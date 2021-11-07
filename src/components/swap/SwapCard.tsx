@@ -61,13 +61,13 @@ function SwapRateDetail({
 
   useEffect(() => {
     setNewValue(
-      `${calculateExchangeRate(
-        pool.fee,
-        isRevert ? to : from,
-        isRevert ? from : to
-      )} ${toRealSymbol(
+      `1 ${toRealSymbol(
         isRevert ? tokenIn.symbol : tokenOut.symbol
-      )} per ${toRealSymbol(isRevert ? tokenOut.symbol : tokenIn.symbol)}`
+      )} = ${calculateExchangeRate(
+        pool.fee,
+        isRevert ? from : to,
+        isRevert ? to : from
+      )} ${toRealSymbol(isRevert ? tokenOut.symbol : tokenIn.symbol)}`
     );
   }, [isRevert]);
 
@@ -135,9 +135,11 @@ function DetailView({
         />
         <SwapRateDetail
           title={intl.formatMessage({ id: 'swap_rate' })}
-          value={`${calculateExchangeRate(pool.fee, from, to)} ${toRealSymbol(
-            tokenOut.symbol
-          )} per ${toRealSymbol(tokenIn.symbol)}`}
+          value={`1 ${toRealSymbol(tokenOut.symbol)} = ${calculateExchangeRate(
+            pool.fee,
+            to,
+            from
+          )} ${toRealSymbol(tokenIn.symbol)}`}
           pool={pool}
           from={from}
           to={to}
