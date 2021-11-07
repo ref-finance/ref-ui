@@ -287,20 +287,12 @@ input.warn-input:focus {
   filter: grayscale(100%);
 }
 
-body {
-  --size: 20px;
-  --grbg1: linear-gradient(-166.57deg, #208170 44.85%, #373f5a 100%);
-  --grbg2: linear-gradient(262.02deg, #00d6af 2.13%, #1aa289 91.26%);
-}
-
 .swap-wrap {
   position: absolute;
-  width: var(--size);
-  height: var(--size);
+  width: 20px;
+  height: 20px;
   top: 12px;
   left: 31px;
-  margin-top: calc(- (var(--size) / 2));
-  margin-left: calc(- (var(--size) / 2));
   perspective: 60vh;
 }
 
@@ -313,7 +305,7 @@ body {
   left: -20px;
   top: 10px;
   border: #88a9a3 solid 1px;
-  background: var(--grbg1);
+  background: linear-gradient(-166.57deg, #208170 44.85%, #373f5a 100%);
   transform: translateZ(0vh);
   z-index: 2;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
@@ -327,7 +319,7 @@ body {
   border-radius: 50%;
   right: 10px;
   top: 0;
-  background: var(--grbg2);
+  background: linear-gradient(262.02deg, #00d6af 2.13%, #1aa289 91.26%);
   transform: translateZ(0vh);
   z-index: 1;
 }
