@@ -76,7 +76,7 @@ const en_US = {
   accumulated_volume: 'Accumulated Volume',
   underlying_liquidity: 'Underlying liquidity',
   total_shares: 'Total shares',
-  my_shares: 'My shares',
+  my_shares: 'Shares',
   token: 'Token',
   enter_token_address: 'Enter token address',
   you_are_not_providing_liquidity_to_any_pools:
