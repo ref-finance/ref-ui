@@ -842,7 +842,6 @@ export function VolumeChart({
           <Bar
             dataKey="volume_dollar"
             background={<BackgroundRender dataKey="volume_dollar" />}
-            // background={{ fill: '#010101' }}
           >
             {data.map((entry, i) => (
               <Cell
