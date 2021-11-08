@@ -117,7 +117,7 @@ function AccountEntry() {
           }`}
         >
           <Card
-            className="cursor-default shadow-4xl border border-primaryText"
+            className="menu-max-height cursor-default shadow-4xl  border border-primaryText"
             width="w-80"
           >
             <div className="flex items-center justify-between mb-5 text-primaryText">
@@ -273,8 +273,10 @@ function PoolsMenu() {
             return (
               <div
                 key={link.path}
-                className={`flex justify-start items-center hover:bg-navHighLightBg text-sm font-semibold text-primaryText hover:text-white cursor-pointer py-4 pl-7 ${
-                  isSelected ? 'text-green-500' : 'text-white'
+                className={`flex justify-start items-center hover:bg-navHighLightBg text-sm font-semibold  hover:text-white cursor-pointer py-4 pl-7 ${
+                  isSelected
+                    ? 'text-white bg-navHighLightBg'
+                    : 'text-primaryText'
                 }`}
                 onClick={() => history.push(link.path)}
               >
@@ -296,6 +298,8 @@ function MoreMenu() {
   const [curMenuItems, setCurMenuItems] = useState(menuData);
   const context = useContext(Context);
   const currentLocal = localStorage.getItem('local');
+  const location = useLocation();
+  const history = useHistory();
   const onClickMenuItem = (items: any[], label: string) => {
     setCurMenuItems(items);
     setParentLabel(label);
@@ -303,12 +307,34 @@ function MoreMenu() {
   const switchLanuage = (label: string) => {
     context.selectLanguage(label);
   };
+  const handleMoreMenuClick = (
+    url: string,
+    isExternal: boolean,
+    label: string,
+    children?: any,
+    language?: string
+  ) => {
+    if (url) {
+      if (isExternal) {
+        window.open(url);
+      } else {
+        history.push(url);
+      }
+    } else if (children) {
+      onClickMenuItem?.(children, label);
+    } else {
+      switchLanuage(language);
+    }
+  };
   const hasSubMenu = curMenuItems.some(({ children }) => !!children?.length);
   return (
     <div
       className="relative z-20 h-8"
       onMouseOver={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
+      onMouseLeave={() => {
+        setHover(false);
+        onClickMenuItem?.(menuData, '');
+      }}
     >
       <div className="flex border border-gray-400 hover:border-green-500 rounded-full">
         <h2
@@ -329,11 +355,11 @@ function MoreMenu() {
           className="shadow-4xl border border-primaryText"
         >
           {!hasSubMenu && parentLabel && (
-            <div className="whitespace-nowrap text-left items-center flex justify-start hover:bg-navHighLightBg text-sm font-semibold text-primaryText hover:text-white cursor-pointer py-4 pl-4">
-              <IoChevronBack
-                className=" text-xl"
-                onClick={() => onClickMenuItem?.(menuData, '')}
-              />
+            <div
+              className="whitespace-nowrap hover:text-white text-left items-center flex justify-start text-sm font-semibold text-primaryText cursor-pointer py-4 pl-4"
+              onClick={() => onClickMenuItem?.(menuData, '')}
+            >
+              <IoChevronBack className="text-xl " />
               <span className=" ml-8">{parentLabel}</span>
             </div>
           )}
@@ -348,22 +374,33 @@ function MoreMenu() {
               isExternal,
               language,
             }) => {
+              const isSelected =
+                url &&
+                !isExternal &&
+                matchPath(location.pathname, {
+                  path: url,
+                  exact: true,
+                  strict: false,
+                });
+
               return (
                 <div
                   key={id}
                   className={`whitespace-nowrap text-left items-center flex justify-start hover:bg-navHighLightBg text-sm font-semibold hover:text-white
                  ${
-                   language && currentLocal === language
+                   (language && currentLocal === language) || isSelected
                      ? 'bg-navHighLightBg text-white'
                      : 'text-primaryText'
                  }
                  cursor-pointer py-4 pl-7`}
                   onClick={() =>
-                    url
-                      ? window.open(url, isExternal ? '' : '_self')
-                      : children
-                      ? onClickMenuItem?.(children, label)
-                      : switchLanuage(language)
+                    handleMoreMenuClick(
+                      url,
+                      isExternal,
+                      label,
+                      children,
+                      language
+                    )
                   }
                 >
                   {logo && (

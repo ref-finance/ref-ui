@@ -42,7 +42,7 @@ export function BgShapeLeftTop() {
 export function BgShapeCenter() {
   return (
     <div
-      className="w-full top-0 md:hidden xs:hidden block absolute left-0  overflow-hidden max-h-screen pt-20"
+      className="w-full opacity-40 top-0 md:hidden xs:hidden block absolute left-0  overflow-hidden max-h-screen pt-20"
       style={{ minHeight: 670 }}
     >
       <svg
@@ -80,7 +80,7 @@ export function BgShapeCenter() {
 
 export function BgShapeCenterSmall() {
   return (
-    <div className="w-full top-0 absolute left-0 overflow-hidden max-h-screen hidden md:block xs:block">
+    <div className="w-full top-0 absolute opacity-40 left-0 overflow-hidden max-h-screen hidden md:block xs:block">
       <img src={bgGridSmallImg} alt="" className="w-full mt-16 h-auto" />
     </div>
   );

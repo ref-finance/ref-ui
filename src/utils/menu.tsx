@@ -57,6 +57,7 @@ export const useMenuItems = () => {
     {
       label: intl.formatMessage({ id: 'Forum' }),
       url: 'https://gov.ref.finance',
+      icon: <HiOutlineExternalLink />,
       isExternal: true,
       id: 4,
       logo: <IconForum />,
