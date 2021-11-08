@@ -775,7 +775,7 @@ export function VolumeChart({
 
   const formatDate = (rawDate: string) => moment(rawDate).format('ll');
 
-  if (!data) return <></>;
+  if (!data || data.length === 0) return <></>;
 
   return (
     <>
@@ -837,7 +837,7 @@ export function TVLChart({
   const [hoverIndex, setHoverIndex] = useState<number>(null);
 
   const formatDate = (rawDate: string) => moment(rawDate).format('ll');
-  if (!data) return <></>;
+  if (!data || data.length === 0) return <></>;
   return (
     <>
       <div className="flex items-center justify-between self-start w-full">
