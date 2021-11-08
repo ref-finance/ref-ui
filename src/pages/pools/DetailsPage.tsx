@@ -765,14 +765,6 @@ export function VolumeChart({
   const baseColor = '#00967B';
   const hoverColor = '#00c6a2';
 
-  const handleMouseEnter = (data: volumeDataType, index: number) => {
-    setHoverIndex(index);
-  };
-
-  const handleMouseLeave = (data: volumeDataType, index: number) => {
-    setHoverIndex(null);
-  };
-
   const formatDate = (rawDate: string) => moment(rawDate).format('ll');
 
   if (!data || data.length === 0) return <></>;
@@ -800,18 +792,26 @@ export function VolumeChart({
         />
       </div>
       <ResponsiveContainer height="100%" width="100%">
-        <BarChart data={data}>
+        <BarChart
+          data={data}
+          onMouseMove={(item: any) => setHoverIndex(item.activeTooltipIndex)}
+        >
           <XAxis
             dataKey="dateString"
             tickLine={false}
             axisLine={false}
             tickFormatter={(value, index) => value.split('-').pop()}
           />
-          <Bar
-            dataKey="volume_dollar"
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
+          <Tooltip
+            offset={0}
+            wrapperStyle={{
+              visibility: 'hidden',
+            }}
+            cursor={{
+              fill: '#304452',
+            }}
+          />
+          <Bar dataKey="volume_dollar">
             {data.map((entry, i) => (
               <Cell
                 key={`cell-${i}`}
@@ -845,13 +845,8 @@ export function TVLChart({
           <div className="text-white text-2xl">
             {`$${toInternationalCurrencySystem(
               typeof hoverIndex === 'number'
-                ? (
-                    data[hoverIndex].asset_tvl + data[hoverIndex].fiat_tvl
-                  ).toString()
-                : (
-                    data[data.length - 1].asset_tvl +
-                    data[data.length - 1].fiat_tvl
-                  ).toString()
+                ? data[hoverIndex].total_tvl.toString()
+                : data[data.length - 1].total_tvl.toString()
             )}`}
           </div>
           <div className="text-xs text-gray-400">
@@ -889,12 +884,13 @@ export function TVLChart({
             wrapperStyle={{
               visibility: 'hidden',
             }}
+            cursor={{ opacity: '0.3' }}
           />
           <Area
-            dataKey="asset_tvl"
+            dataKey="scaled_tvl"
             dot={false}
             stroke="#00c6a2"
-            strokeWidth={4}
+            strokeWidth={3}
             fillOpacity={1}
             fill="url(#colorGradient)"
           />
@@ -1211,8 +1207,9 @@ export function PoolDetailsPage() {
 
           <Card
             width="w-full"
-            className="relative rounded-2xl bg-chartBg h-full flex flex-col justify-center md:hidden xs:hidden items-center"
+            className="relative rounded-2xl h-full flex flex-col justify-center md:hidden xs:hidden items-center"
             padding="p-7"
+            bgcolor="bg-cardBg"
             style={{
               height: '400px',
             }}

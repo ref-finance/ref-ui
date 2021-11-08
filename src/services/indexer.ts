@@ -18,7 +18,7 @@ export const getPoolMonthVolume = async (
   })
     .then((res) => res.json())
     .then((monthVolume) => {
-      return monthVolume.slice(0, 30);
+      return monthVolume.slice(0, 60);
     });
 };
 
@@ -29,7 +29,7 @@ export const getPoolMonthTVL = async (pool_id: string): Promise<TVLType[]> => {
   })
     .then((res) => res.json())
     .then((monthTVL) => {
-      return monthTVL.slice(0, 30);
+      return monthTVL.slice(0, 60);
     });
 };
 
