@@ -767,6 +767,37 @@ export function VolumeChart({
 
   const formatDate = (rawDate: string) => moment(rawDate).format('ll');
 
+  const BackgroundRender = (targetBar: BarProps & { index?: number }) => {
+    const { x, y, width, height, index } = targetBar;
+    if (index === hoverIndex)
+      return (
+        <path
+          x={x}
+          y={y}
+          fill="#304452"
+          width={width}
+          height={height}
+          fillOpacity={1}
+          className="recharts-rectangle recharts-bar-background-rectangle"
+          d={
+            'M ' + x + ',5 h ' + width + ' v ' + height + ' h ' + -width + ' Z'
+          }
+        />
+      );
+    else
+      return (
+        <path
+          x={x}
+          y={y}
+          fill="#304452"
+          width={width}
+          height={height}
+          fillOpacity={0}
+          className="recharts-rectangle recharts-bar-background-rectangle"
+        />
+      );
+  };
+
   if (!data || data.length === 0) return <></>;
 
   return (
@@ -803,15 +834,16 @@ export function VolumeChart({
             tickFormatter={(value, index) => value.split('-').pop()}
           />
           <Tooltip
-            offset={0}
             wrapperStyle={{
               visibility: 'hidden',
             }}
-            cursor={{
-              fill: '#304452',
-            }}
+            cursor={false}
           />
-          <Bar dataKey="volume_dollar">
+          <Bar
+            dataKey="volume_dollar"
+            background={<BackgroundRender dataKey="volume_dollar" />}
+            // background={{ fill: '#010101' }}
+          >
             {data.map((entry, i) => (
               <Cell
                 key={`cell-${i}`}
