@@ -9,7 +9,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         helperUrl: 'https://helper.mainnet.near.org',
         explorerUrl: 'https://explorer.mainnet.near.org',
         indexerUrl: 'https://indexer.ref-finance.net',
-        sodakiUrl: 'https://sodaki.com/api/pool',
+        sodakiApiUrl: 'https://sodaki.com',
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
         WRAP_NEAR_CONTRACT_ID: process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.near',
@@ -31,6 +31,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         helperUrl: 'https://helper.testnet.near.org',
         explorerUrl: 'https://explorer.testnet.near.org',
         indexerUrl: 'https://testnet-indexer.ref-finance.com',
+        sodakiApiUrl: 'https://sodaki.com',
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'ref-finance-101.testnet',
         WRAP_NEAR_CONTRACT_ID:
@@ -52,6 +53,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         helperUrl: 'https://helper.mainnet.near.org',
         explorerUrl: 'https://explorer.mainnet.near.org',
         indexerUrl: 'https://indexer.ref-finance.net',
+        sodakiApiUrl: 'https://sodaki.com',
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
         WRAP_NEAR_CONTRACT_ID: process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.near',

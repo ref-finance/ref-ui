@@ -5,7 +5,6 @@ import { parsePoolView, PoolRPCView } from './api';
 import moment from 'moment/moment';
 import { parseAction } from '~services/transaction';
 import { Simulate } from 'react-dom/test-utils';
-import error = Simulate.error;
 import { volumeType, TVLType } from '~state/pool';
 
 const config = getConfig();
@@ -13,7 +12,7 @@ const config = getConfig();
 export const getPoolMonthVolume = async (
   pool_id: string
 ): Promise<volumeType[]> => {
-  return await fetch(config.sodakiUrl + `/${pool_id}/volume`, {
+  return await fetch(config.sodakiApiUrl + `/api/pool/${pool_id}/volume`, {
     method: 'GET',
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   })
@@ -24,7 +23,7 @@ export const getPoolMonthVolume = async (
 };
 
 export const getPoolMonthTVL = async (pool_id: string): Promise<TVLType[]> => {
-  return await fetch(config.sodakiUrl + `/${pool_id}/tvl`, {
+  return await fetch(config.sodakiApiUrl + `/api/pool/${pool_id}/tvl`, {
     method: 'GET',
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   })
@@ -35,10 +34,13 @@ export const getPoolMonthTVL = async (pool_id: string): Promise<TVLType[]> => {
 };
 
 export const get24hVolume = async (pool_id: string): Promise<string> => {
-  return await fetch(config.sodakiUrl + `/${pool_id}/rolling24hvolume/sum`, {
-    method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  })
+  return await fetch(
+    config.sodakiApiUrl + `/api/pool/${pool_id}/rolling24hvolume/sum`,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
     .then((res) => res.json())
     .then((monthTVL) => {
       return monthTVL.toString();
