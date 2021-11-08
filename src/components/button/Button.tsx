@@ -109,6 +109,7 @@ export function WithdrawButton(
 export function ConnectToNearBtn() {
   return (
     <GradientButton
+      color="#fff"
       className={`w-full text-center text-lg text-white mt-4 px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
       onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
     >
@@ -186,15 +187,17 @@ export function GradientButton(
     disabled?: boolean;
     padding?: string;
     className?: string;
+    color?: string;
   }
 ) {
-  const { disabled, className, onClick } = props;
+  const { disabled, className, color, onClick } = props;
   return (
     <div
       className={`${className ? className : ''}`}
       style={{
         background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
         borderRadius: '5px',
+        color: color || '',
       }}
     >
       <button onClick={onClick} disabled={disabled} className="w-full h-full">
