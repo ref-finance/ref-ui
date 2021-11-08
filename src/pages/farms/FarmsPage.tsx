@@ -169,22 +169,22 @@ export function FarmsPage() {
   }, [unclaimedFarmsIsLoading]);
 
   return (
-    <>
+    <div className="w-4/6 mx-auto">
       <div className="w-1/3 xs:w-full md:w-full flex m-auto justify-center">
         {error ? <Alert level="error" message={error.message} /> : null}
       </div>
-      <div className="flex gaps-x-8 px-5 -mt-12 xs:flex-col xs:mt-8 md:flex-col md:mt-8">
-        <div className="w-96 mr-4 mt-8 xs:mt-0 md:mt-0 relative xs:w-full md:w-full">
+      <div className="flex flex-col gaps-x-8 px-5 -mt-12 xs:mt-8 md:mt-8">
+        <div className="flex justify-between mr-4 mt-8 xs:mt-0 md:mt-0 relative xs:w-full md:w-full">
           <div className="text-green-400 text-5xl px-7 xs:text-center md:text-center">
             <FormattedMessage id="farms" defaultMessage="Farms" />
           </div>
-          <div className="text-whiteOpacity85 text-xs py-4 p-7 xs:text-center">
+          {/* <div className="text-whiteOpacity85 text-xs py-4 p-7 xs:text-center">
             <FormattedMessage
               id="stake_your_liquidity_provider_LP_tokens"
               defaultMessage="Stake your Liquidity Provider (LP) tokens"
             />
             !
-          </div>
+          </div> */}
           {unclaimedFarmsIsLoading ? (
             <Loading />
           ) : (
@@ -250,7 +250,7 @@ export function FarmsPage() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
