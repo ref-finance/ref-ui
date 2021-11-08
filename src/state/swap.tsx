@@ -65,7 +65,7 @@ export const useSwap = ({
                 />
               </a>,
               {
-                autoClose: 3000,
+                autoClose: 8000,
                 closeOnClick: false,
                 hideProgressBar: false,
                 closeButton: <CloseIcon />,

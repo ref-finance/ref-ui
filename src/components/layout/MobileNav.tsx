@@ -8,7 +8,14 @@ import React, {
 } from 'react';
 import { matchPath } from 'react-router';
 import { Context } from '~components/wrapper';
-import { Near, NavLogo, NavLogoLarge, IconMyLiquidity } from '~components/icon';
+import {
+  Near,
+  NavLogo,
+  NavLogoLarge,
+  IconMyLiquidity,
+  IconEn,
+  IconZh,
+} from '~components/icon';
 import { Link, useLocation } from 'react-router-dom';
 import { wallet } from '~services/near';
 import { useHistory } from 'react-router';
@@ -88,21 +95,27 @@ export function MobileSwitchLanguage() {
           className={`${!show || openMenu ? 'inline-block' : 'hidden'} text-xl`}
         />
       </div>
-      <div className={`ml-12 ${show && !openMenu ? 'block' : 'hidden'}`}>
+      <div className={`${show && !openMenu ? 'block' : 'hidden'}`}>
         <div
-          className={`whitespace-nowrap bg-cardBg text-left font-bold text-white p-4 ${
+          className={`flex items-center whitespace-nowrap bg-cardBg text-left font-bold text-white p-4 ${
             currentLocal === 'en' ? 'text-white' : 'text-primaryText'
           }`}
           onClick={() => context.selectLanguage('en')}
         >
+          <span className="text-2xl mr-5">
+            <IconEn />
+          </span>
           English
         </div>
         <div
-          className={`whitespace-nowrap text-left bg-cardBg font-bold text-white p-4 ${
+          className={`flex items-center hitespace-nowrap text-left bg-cardBg font-bold text-white p-4 ${
             currentLocal === 'zh-CN' ? 'text-white' : 'text-primaryText '
           }`}
           onClick={() => context.selectLanguage('zh-CN')}
         >
+          <span className="text-2xl mr-5">
+            <IconZh />
+          </span>
           中文
         </div>
       </div>

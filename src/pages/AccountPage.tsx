@@ -70,8 +70,12 @@ function Balances({ hideEmpty }: { hideEmpty?: boolean }) {
       </div>
       <div>
         <div className="flex text-sm text-primaryText items-center justify-between py-4">
-          <div>Your REF Portfolio</div>
-          <div>Token Balance</div>
+          <div>
+            <FormattedMessage id="token" defaultMessage="Token" />
+          </div>
+          <div>
+            <FormattedMessage id="balance" defaultMessage="Balance" />
+          </div>
         </div>
         {userTokens.map((token, i) => {
           return (
@@ -310,7 +314,6 @@ function Actions() {
       </div>
 
       <Modal
-        className="filter-blur"
         isOpen={!!detail}
         onRequestClose={() => setDetail(null)}
         style={{ content: { outline: 'none' } }}

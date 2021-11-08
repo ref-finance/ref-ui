@@ -55,7 +55,7 @@ export const useMenuItems = () => {
       logo: <IconDocs />,
     },
     {
-      label: 'Forum',
+      label: intl.formatMessage({ id: 'Forum' }),
       url: 'https://gov.ref.finance',
       isExternal: true,
       id: 4,
@@ -63,7 +63,7 @@ export const useMenuItems = () => {
     },
 
     {
-      label: 'Community',
+      label: intl.formatMessage({ id: 'Community' }),
       url: '',
       icon: <HiOutlineExternalLink />,
       id: 5,
