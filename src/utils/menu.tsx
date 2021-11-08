@@ -3,6 +3,18 @@ import { AiOutlineMedium } from 'react-icons/ai';
 import { FaDiscord, FaTelegramPlane, FaTwitter } from 'react-icons/fa';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import { FormattedMessage, useIntl } from 'react-intl';
+import {
+  IconAirDrop,
+  IconCommunity,
+  IconCreateNew,
+  IconDocs,
+  IconEn,
+  IconForum,
+  IconLanguage,
+  IconPools,
+  IconRainbow,
+  IconZh,
+} from '~components/icon/Nav';
 
 export type MenuItem = {
   id: number;
@@ -22,6 +34,7 @@ export const useMenuItems = () => {
       url: '/airdrop',
       isExternal: false,
       id: 1,
+      logo: <IconAirDrop />,
     },
     {
       label: (
@@ -31,6 +44,7 @@ export const useMenuItems = () => {
       icon: <HiOutlineExternalLink />,
       isExternal: true,
       id: 2,
+      logo: <IconRainbow />,
     },
     {
       label: intl.formatMessage({ id: 'docs' }),
@@ -38,14 +52,22 @@ export const useMenuItems = () => {
       icon: <HiOutlineExternalLink />,
       isExternal: true,
       id: 3,
+      logo: <IconDocs />,
     },
-    { label: 'Forum', url: 'https://gov.ref.finance', isExternal: true, id: 4 },
+    {
+      label: 'Forum',
+      url: 'https://gov.ref.finance',
+      isExternal: true,
+      id: 4,
+      logo: <IconForum />,
+    },
 
     {
       label: 'Community',
       url: '',
       icon: <HiOutlineExternalLink />,
       id: 5,
+      logo: <IconCommunity />,
       children: [
         {
           logo: <FaTwitter />,
@@ -86,7 +108,7 @@ export const useMenuItems = () => {
       url: '',
       isExternal: false,
       id: 10,
-
+      logo: <IconLanguage />,
       children: [
         {
           label: 'English',
@@ -94,6 +116,7 @@ export const useMenuItems = () => {
           language: 'en',
           url: '',
           id: 11,
+          logo: <IconEn />,
         },
         {
           label: '中文',
@@ -101,6 +124,7 @@ export const useMenuItems = () => {
           language: 'zh-CN',
           url: '',
           id: 12,
+          logo: <IconZh />,
         },
       ],
     },
@@ -150,6 +174,7 @@ export const moreLinks: MobileMenuItem[] = [
         url: '/pools',
         pattern: '/pools',
         isExternal: false,
+        logo: <IconPools />,
       },
       {
         id: 'Create_New_Pool',
@@ -157,6 +182,7 @@ export const moreLinks: MobileMenuItem[] = [
         url: '/pools/add',
         pattern: '/pools/add',
         isExternal: false,
+        logo: <IconCreateNew />,
       },
     ],
   },
@@ -180,24 +206,28 @@ export const moreLinks: MobileMenuItem[] = [
         url: '/airdrop',
         pattern: '/airdrop',
         isExternal: false,
+        logo: <IconAirDrop />,
       },
       {
         id: 'rainbow_bridge',
         label: 'RainBow Bridge',
         url: 'https://ethereum.bridgetonear.org/',
         isExternal: true,
+        logo: <IconRainbow />,
       },
       {
         id: 'docs',
         label: 'docs',
         url: 'https://guide.ref.finance',
         isExternal: true,
+        logo: <IconDocs />,
       },
       {
         label: 'Forum',
         id: 'Forum',
         url: 'https://gov.ref.finance',
         isExternal: true,
+        logo: <IconForum />,
       },
     ],
   },

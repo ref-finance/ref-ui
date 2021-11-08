@@ -319,26 +319,28 @@ export interface TVLDataType {
   asset_tvl: number;
   fiat_tvl: number;
   date: string;
-  total_tvl:number;
-  scaled_tvl:number;
+  total_tvl: number;
+  scaled_tvl: number;
 }
 
 export const useMonthTVL = (pool_id: string) => {
   const [monthTVLById, setMonthTVLById] = useState<TVLDataType[]>();
   useEffect(() => {
     getPoolMonthTVL(pool_id).then((res) => {
-      const minDay = _.minBy(res,(o)=>{return Number(o.asset_tvl)+Number(o.fiat_tvl)})
-      const minValue = Number(minDay.asset_tvl) + Number(minDay.fiat_tvl)
-      
+      const minDay = _.minBy(res, (o) => {
+        return Number(o.asset_tvl) + Number(o.fiat_tvl);
+      });
+      const minValue = Number(minDay.asset_tvl) + Number(minDay.fiat_tvl);
 
       const monthTVL = res
         .map((v, i) => {
           return {
             ...v,
             asset_tvl: Number(v.asset_tvl),
-            fiat_tvl:Number(v.fiat_tvl),
+            fiat_tvl: Number(v.fiat_tvl),
             total_tvl: Number(v.fiat_tvl) + Number(v.asset_tvl),
-            scaled_tvl: Number(v.fiat_tvl) + Number(v.asset_tvl) - minValue * 0.99
+            scaled_tvl:
+              Number(v.fiat_tvl) + Number(v.asset_tvl) - minValue * 0.99,
           };
         })
         .reverse();

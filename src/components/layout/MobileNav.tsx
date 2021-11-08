@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import { matchPath } from 'react-router';
 import { Context } from '~components/wrapper';
-import { Near, NavLogo, NavLogoLarge } from '~components/icon';
+import { Near, NavLogo, NavLogoLarge, IconMyLiquidity } from '~components/icon';
 import { Link, useLocation } from 'react-router-dom';
 import { wallet } from '~services/near';
 import { useHistory } from 'react-router';
@@ -165,6 +165,7 @@ export function MobileNavBar() {
       url: '/pools/yours',
       pattern: '/pools/yours',
       isExternal: false,
+      logo: <IconMyLiquidity />,
     };
   }
 
@@ -343,7 +344,7 @@ export function MobileNavBar() {
                           return (
                             <div
                               key={link.id}
-                              className={`whitespace-nowrap text-left pl-12 p-4 flex justify-start ${
+                              className={`whitespace-nowrap text-left items-center p-4 flex justify-start ${
                                 !link.isExternal && isSubMenuSelected
                                   ? 'text-white bg-navHighLightBg'
                                   : 'text-primaryText'

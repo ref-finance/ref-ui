@@ -9,6 +9,10 @@ import {
   NavLogo,
   NavLogoLarge,
   IconBubble,
+  IconMyLiquidity,
+  IconCreateNew,
+  IconPools,
+  IconAirDropGreenTip,
 } from '~components/icon';
 import { Link, useLocation } from 'react-router-dom';
 import { wallet } from '~services/near';
@@ -17,7 +21,7 @@ import { Card } from '~components/card/Card';
 import { TokenList } from '~components/deposit/Deposit';
 import { useTokenBalances, useUserRegisteredTokens } from '~state/token';
 import { REF_FARM_CONTRACT_ID } from '~services/near';
-import { ConnectToNearBtn } from '~components/button/Button';
+import { ConnectToNearBtn, GradientButton } from '~components/button/Button';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { HiMenu, HiOutlineExternalLink } from 'react-icons/hi';
@@ -116,24 +120,25 @@ function AccountEntry() {
             className="cursor-default shadow-4xl border border-primaryText"
             width="w-80"
           >
-            <div className="flex items-center justify-between text-primaryText">
-              <div className="text-base">
+            <div className="flex items-center justify-between mb-5 text-primaryText">
+              <div className="text-white">
                 <FormattedMessage id="balance" defaultMessage="Balance" />
               </div>
-              <div
-                className="cursor-pointer rounded-full border border-greenLight px-2 py-1"
+            </div>
+            <TokenList tokens={userTokens} balances={balances} />
+            <div className="flex items-center justify-center pt-5">
+              <GradientButton
+                className=" w-36 h-8 text-white cursor-pointer py-2 mr-2"
                 onClick={() => history.push('/account')}
               >
                 <FormattedMessage
                   id="view_account"
                   defaultMessage="View account"
                 />
-              </div>
-            </div>
-            <TokenList tokens={userTokens} balances={balances} />
-            <div className="flex items-center justify-center pt-2">
+              </GradientButton>
+
               <div
-                className="rounded-full bg-greenLight px-5 py-2.5 text-xs text-white font-semibold cursor-pointer"
+                className="h-8 w-20 rounded border-gradientFrom border py-2 text-xs text-gradientFrom font-semibold cursor-pointer"
                 onClick={() => {
                   wallet.signOut();
                   window.location.assign('/');
@@ -211,6 +216,7 @@ function PoolsMenu() {
     {
       label: <FormattedMessage id="view_pools" defaultMessage="View Pools" />,
       path: '/pools',
+      logo: <IconPools />,
     },
     {
       label: (
@@ -220,6 +226,7 @@ function PoolsMenu() {
         />
       ),
       path: '/pools/add',
+      logo: <IconCreateNew />,
     },
   ];
 
@@ -229,6 +236,7 @@ function PoolsMenu() {
         <FormattedMessage id="Your_Liquidity" defaultMessage="Your Liquidity" />
       ),
       path: '/pools/yours',
+      logo: <IconMyLiquidity />,
     });
   }
 
@@ -265,11 +273,12 @@ function PoolsMenu() {
             return (
               <div
                 key={link.path}
-                className={`whitespace-nowrap text-left hover:bg-navHighLightBg text-sm font-semibold text-primaryText hover:text-white cursor-pointer py-4 pl-16 ${
+                className={`flex justify-start items-center hover:bg-navHighLightBg text-sm font-semibold text-primaryText hover:text-white cursor-pointer py-4 pl-7 ${
                   isSelected ? 'text-green-500' : 'text-white'
                 }`}
                 onClick={() => history.push(link.path)}
               >
+                <span className="inline-block mr-3">{link.logo}</span>
                 {link.label}
               </div>
             );
@@ -325,7 +334,7 @@ function MoreMenu() {
                 className=" text-xl"
                 onClick={() => onClickMenuItem?.(menuData, '')}
               />
-              <span className=" ml-10">{parentLabel}</span>
+              <span className=" ml-8">{parentLabel}</span>
             </div>
           )}
           {curMenuItems.map(
@@ -348,7 +357,7 @@ function MoreMenu() {
                      ? 'bg-navHighLightBg text-white'
                      : 'text-primaryText'
                  }
-                 cursor-pointer py-4 pl-16`}
+                 cursor-pointer py-4 pl-7`}
                   onClick={() =>
                     url
                       ? window.open(url, isExternal ? '' : '_self')
@@ -357,8 +366,19 @@ function MoreMenu() {
                       : switchLanuage(language)
                   }
                 >
-                  {logo && <span className="text-2xl mr-6">{logo}</span>}
+                  {logo && (
+                    <span
+                      className={`${parentLabel ? 'ml-10' : ''} text-2xl mr-4`}
+                    >
+                      {logo}
+                    </span>
+                  )}
                   {label}
+                  {id === 1 && (
+                    <span className=" -mt-2 ml-1">
+                      <IconAirDropGreenTip />{' '}
+                    </span>
+                  )}
                   <span className="ml-4 text-xl">{icon}</span>
                 </div>
               );
