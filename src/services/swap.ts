@@ -135,20 +135,20 @@ interface SwapOptions extends EstimateSwapOptions {
   minAmountOut: string;
 }
 
+interface InstantSwapOption extends SwapOptions {
+  useNearBalance: boolean;
+}
+
 export const swap = async ({
+  useNearBalance,
   pool,
   tokenIn,
   tokenOut,
   amountIn,
   minAmountOut,
-}: SwapOptions) => {
-  const maxTokenInAmount = await getTokenBalance(tokenIn?.id);
-
-  if (
-    Number(maxTokenInAmount) <
-    Number(toNonDivisibleNumber(tokenIn.decimals, amountIn))
-  ) {
-    await directSwap({
+}: InstantSwapOption) => {
+  if (useNearBalance) {
+    await instantSwap({
       pool,
       tokenIn,
       tokenOut,
@@ -166,7 +166,7 @@ export const swap = async ({
   }
 };
 
-export const directSwap = async ({
+export const instantSwap = async ({
   pool,
   tokenIn,
   tokenOut,

@@ -112,13 +112,14 @@ export const useSwap = ({
     }
   }, [tokenIn, tokenOut, tokenInAmount]);
 
-  const makeSwap = () => {
+  const makeSwap = (useNearBalance: boolean) => {
     swap({
       pool,
       tokenIn,
       amountIn: tokenInAmount,
       tokenOut,
       minAmountOut,
+      useNearBalance,
     }).catch(setSwapError);
   };
 

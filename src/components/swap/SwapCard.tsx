@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
-import { TokenMetadata } from '../../services/ft-contract';
+import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
-import { useTokenBalances } from '../../state/token';
+import { useDepositableBalance, useTokenBalances } from '../../state/token';
 import { useSwap } from '../../state/swap';
 import {
   calculateExchangeRate,
@@ -20,6 +20,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import db from '~store/RefDatabase';
 import { GradientButton } from '~components/button/Button';
+import { wallet } from '~services/near';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -165,6 +166,9 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
   const [disableTokenInput, setDisableTokenInput] = useState<boolean>();
+  const [useNearBalance, setUseNearBalance] = useState<boolean>(true);
+  const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
+    useState<string>();
 
   const intl = useIntl();
   const location = useLocation();
@@ -194,6 +198,37 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       );
     }
   }, [allTokens]);
+
+  useEffect(() => {
+    if (wallet.isSignedIn()) {
+      if (useNearBalance) {
+        if (tokenIn) {
+          const tokenId = tokenIn.id;
+          if (tokenId === 'NEAR') {
+            if (wallet.isSignedIn()) {
+              wallet
+                .account()
+                .getAccountBalance()
+                .then(({ available }) =>
+                  setTokenInBalanceFromNear(
+                    toReadableNumber(tokenIn?.decimals, available)
+                  )
+                );
+            } else {
+              setTokenInBalanceFromNear('0');
+            }
+          } else if (tokenId)
+            ftGetBalance(tokenId).then((available) =>
+              setTokenInBalanceFromNear(
+                toReadableNumber(tokenIn?.decimals, available)
+              )
+            );
+        }
+      }
+    } else {
+      setUseNearBalance(false);
+    }
+  }, [tokenIn]);
 
   const { canSwap, tokenOutAmount, minAmountOut, pool, swapError, makeSwap } =
     useSwap({
@@ -227,7 +262,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    makeSwap();
+    makeSwap(useNearBalance);
   };
   const topBall = useRef<HTMLInputElement>();
   const bottomBall = useRef<HTMLInputElement>();
@@ -242,8 +277,9 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     });
   };
 
-  const tokenInMax =
-    toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0';
+  const tokenInMax = useNearBalance
+    ? tokenInBalanceFromNear || '0'
+    : toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0';
   const tokenOutTotal =
     toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
 
@@ -286,6 +322,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           localStorage.setItem(SWAP_IN_KEY, token.id);
           history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
           setTokenIn(token);
+          setTokenInBalanceFromNear(token.near.toString());
         }}
         text={intl.formatMessage({ id: 'from' })}
         disabled={disableTokenInput}
@@ -307,12 +344,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           }}
         >
           <div className="swap-wrap">
-            <div className="top-ball" ref={topBall} id="top-ball"></div>
-            <div
-              className="bottom-ball"
-              ref={bottomBall}
-              id="bottom-ball"
-            ></div>
+            <div className="top-ball" ref={topBall} id="top-ball" />
+            <div className="bottom-ball" ref={bottomBall} id="bottom-ball" />
           </div>
         </div>
       </div>
