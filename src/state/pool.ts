@@ -317,7 +317,7 @@ export interface TVLDataType {
   asset_price: string;
   fiat_price: string;
   asset_tvl: number;
-  fiat_tvl: string;
+  fiat_tvl: number;
   date: string;
 }
 
@@ -330,6 +330,7 @@ export const useMonthTVL = (pool_id: string) => {
           return {
             ...v,
             asset_tvl: Number(v.asset_tvl),
+            fiat_tvl:Number(v.fiat_tvl)
           };
         })
         .reverse();

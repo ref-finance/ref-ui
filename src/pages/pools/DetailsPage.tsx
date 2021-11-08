@@ -728,7 +728,7 @@ const ChartChangeButton = ({
   return (
     <div className="text-white rounded-2xl flex items-center bg-gray-700">
       <button
-        className={`py-2 px-4 w-25 ${
+        className={`py-1 px-4 w-22 ${
           chartDisplay === 'tvl'
             ? 'rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo'
             : ''
@@ -738,7 +738,7 @@ const ChartChangeButton = ({
         <FormattedMessage id="tvl" defaultMessage="TVL" />
       </button>
       <button
-        className={`py-2 px-4 w-25 ${
+        className={`py-1 px-4 w-22 ${
           chartDisplay === 'volume'
             ? 'rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo'
             : ''
@@ -788,7 +788,7 @@ export function VolumeChart({
                 : data[data.length - 1].volume_dollar.toString()
             )}`}
           </div>
-          <div className="text-base text-gray-400">
+          <div className="text-xs text-gray-400">
             {typeof hoverIndex === 'number'
               ? formatDate(data[hoverIndex].dateString)
               : formatDate(data[data.length - 1].dateString)}
@@ -845,11 +845,16 @@ export function TVLChart({
           <div className="text-white text-2xl">
             {`$${toInternationalCurrencySystem(
               typeof hoverIndex === 'number'
-                ? data[hoverIndex].asset_tvl.toString()
-                : data[data.length - 1].asset_tvl.toString()
+                ? (
+                    data[hoverIndex].asset_tvl + data[hoverIndex].fiat_tvl
+                  ).toString()
+                : (
+                    data[data.length - 1].asset_tvl +
+                    data[data.length - 1].fiat_tvl
+                  ).toString()
             )}`}
           </div>
-          <div className="text-base text-gray-400">
+          <div className="text-xs text-gray-400">
             {typeof hoverIndex === 'number'
               ? formatDate(data[hoverIndex].date)
               : formatDate(data[data.length - 1].date)}
