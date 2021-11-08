@@ -38,9 +38,9 @@ export function BorderButton(
   return (
     <button
       disabled={disabled}
-      className={`text-xs focus:outline-none font-semibold border ${
+      className={`text-xs font-semibold border ${
         borderColor ? borderColor : 'border-greenLight'
-      }  focus:outline-none ${className} ${
+      }  ${className} ${
         disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
       } ${rounded || 'rounded-full'} ${px || 'px-5'} ${py || 'py-2.5'}`}
       {...propsWithoutClassName}

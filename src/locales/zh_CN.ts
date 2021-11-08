@@ -105,7 +105,7 @@ const zh_CN = {
   stake: '质押',
   unstake: '取消质押',
   your_rewards: '你的奖励',
-  your_shares: '你的份额',
+  your_shares: '份额',
   shares_owned: '当前份额',
   stake_your_liquidity_provider_LP_tokens: '质押你的LP代币',
   go_to_wallet: '跳转到钱包',

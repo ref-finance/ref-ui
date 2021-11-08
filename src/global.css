@@ -362,6 +362,6 @@ input.warn-input:focus {
     transform: translateZ(10px);
   }
 }
-.recharts-text.recharts-cartesian-axis-tick-value{
+.recharts-text.recharts-cartesian-axis-tick-value {
   font-size: 12px;
 }
