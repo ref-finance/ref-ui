@@ -12,7 +12,6 @@ import {
   useMorePoolIds,
   useAllWatchList,
   useWatchPools,
-  useDayVolume,
 } from '../../state/pool';
 import Loading from '~components/layout/Loading';
 import { getExchangeRate, useTokens } from '../../state/token';
@@ -60,7 +59,6 @@ function MobilePoolRow({
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const morePoolIds = useMorePoolIds({ topPool: pool });
   const tokens = useTokens(pool.tokenIds);
-  const dayVolume = useDayVolume(pool.id.toString());
   const history = useHistory();
   useEffect(() => {
     canFarm(pool.id).then((canFarm) => {

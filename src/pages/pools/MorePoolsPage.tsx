@@ -25,7 +25,7 @@ import {
   toReadableNumber,
   toInternationalCurrencySystem,
 } from '../../utils/numbers';
-import { useAllWatchList, useDayVolume, useMorePools } from '~state/pool';
+import { useAllWatchList, useMorePools } from '~state/pool';
 import { PoolRPCView } from '~services/api';
 import { FarmStamp } from '~components/icon/FarmStamp';
 import { MULTI_MINING_POOLS } from '~services/near';
