@@ -12,7 +12,7 @@ const config = getConfig();
 export const getPoolMonthVolume = async (
   pool_id: string
 ): Promise<volumeType[]> => {
-  return await fetch(config.sodakiApiUrl + `/api/pool/${pool_id}/volume`, {
+  return await fetch(config.sodakiApiUrl + `/pool/${pool_id}/volume`, {
     method: 'GET',
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   })
@@ -23,7 +23,7 @@ export const getPoolMonthVolume = async (
 };
 
 export const getPoolMonthTVL = async (pool_id: string): Promise<TVLType[]> => {
-  return await fetch(config.sodakiApiUrl + `/api/pool/${pool_id}/tvl`, {
+  return await fetch(config.sodakiApiUrl + `/pool/${pool_id}/tvl`, {
     method: 'GET',
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   })
@@ -35,7 +35,7 @@ export const getPoolMonthTVL = async (pool_id: string): Promise<TVLType[]> => {
 
 export const get24hVolume = async (pool_id: string): Promise<string> => {
   return await fetch(
-    config.sodakiApiUrl + `/api/pool/${pool_id}/rolling24hvolume/sum`,
+    config.sodakiApiUrl + `/pool/${pool_id}/rolling24hvolume/sum`,
     {
       method: 'GET',
       headers: { 'Content-type': 'application/json; charset=UTF-8' },
