@@ -838,7 +838,6 @@ export function TVLChart({
 
   const formatDate = (rawDate: string) => moment(rawDate).format('ll');
   if (!data) return <></>;
-
   return (
     <>
       <div className="flex items-center justify-between self-start w-full">
@@ -878,9 +877,7 @@ export function TVLChart({
             dataKey="date"
             tickLine={false}
             axisLine={false}
-            tickFormatter={(value, index) => {
-              return data[index].date.split('-').pop();
-            }}
+            tickFormatter={(value, index) => value.split('-').pop()}
           />
 
           <Tooltip
