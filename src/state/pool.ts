@@ -330,7 +330,7 @@ export const useMonthTVL = (pool_id: string) => {
           return {
             ...v,
             asset_tvl: Number(v.asset_tvl),
-            fiat_tvl:Number(v.fiat_tvl)
+            fiat_tvl: Number(v.fiat_tvl),
           };
         })
         .reverse();

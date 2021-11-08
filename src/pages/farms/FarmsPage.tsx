@@ -940,7 +940,7 @@ function FarmView({
               />
             </div>
             <div
-              className="text-white"
+              className="text-white text-right"
               // data-class="reactTip"
               // data-for={'rewardPerWeekId' + data.farm_id}
               // data-place="top"
@@ -978,7 +978,7 @@ function FarmView({
               />
             </div>
             <div
-              className="text-white"
+              className="text-white text-right"
               // data-class="reactTip"
               // data-for={'unclaimedRewardId' + data.farm_id}
               // data-place="top"
@@ -1022,6 +1022,7 @@ function FarmView({
                 </BorderButton>
               ) : (
                 <GradientButton
+                  color="#fff"
                   className={`w-full h-10 text-center text-lg text-white mt-4 focus:outline-none font-semibold `}
                   onClick={() => showStakeModal()}
                 >
@@ -1030,6 +1031,7 @@ function FarmView({
               )}
               {haveUnclaimedReward() ? (
                 <GradientButton
+                  color="#fff"
                   onClick={() => claimReward()}
                   disabled={disableClaim}
                   className="text-white text-lg flex-grow  w-20"
