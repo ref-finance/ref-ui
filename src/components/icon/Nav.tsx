@@ -314,8 +314,7 @@ export function IconLanguage() {
 export function IconEn() {
   return (
     <svg
-      width="28"
-      height="28"
+      className="xs:w-5 md:w-5 w-6 xs:h-6 md:h-6 h-6"
       viewBox="0 0 28 28"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -330,8 +329,7 @@ export function IconEn() {
 export function IconZh() {
   return (
     <svg
-      width="28"
-      height="28"
+      className="xs:w-5 md:w-5 w-6 xs:h-5 md:h-5 h-6"
       viewBox="0 0 28 28"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
