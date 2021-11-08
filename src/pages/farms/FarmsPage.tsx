@@ -1016,7 +1016,7 @@ function FarmView({
                   rounded="rounded-md"
                   px="px-0"
                   py="py-1"
-                  className="flex-grow w-20 text-lg text-greenLight"
+                  className="flex-grow  w-20 text-lg text-greenLight"
                 >
                   <FormattedMessage id="stake" defaultMessage="Stake" />
                 </BorderButton>
