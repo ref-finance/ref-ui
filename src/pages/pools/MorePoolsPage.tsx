@@ -14,7 +14,6 @@ import { BreadCrumb } from '~components/layout/BreadCrumb';
 
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
-// import { PolygonGray, PolygonGreen } from '~components/icon/Polygon';
 import { useTokens } from '../../state/token';
 import { TokenMetadata } from '~services/ft-contract';
 import { canFarm, Pool } from '../../services/pool';
