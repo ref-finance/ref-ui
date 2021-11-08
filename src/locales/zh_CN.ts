@@ -78,7 +78,7 @@ const zh_CN = {
   accumulated_volume: '累计成交量',
   underlying_liquidity: '基础流动性',
   total_shares: '份额总量',
-  my_shares: '我的份额',
+  my_shares: '份额',
   token: '代币',
   enter_token_address: '输入代币地址',
   you_are_not_providing_liquidity_to_any_pools: '你未提供任何池子的流动性',
