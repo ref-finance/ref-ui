@@ -33,7 +33,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         indexerUrl: 'https://testnet-indexer.ref-finance.com',
         sodakiApiUrl: 'https://sodaki.com/api',
         REF_FI_CONTRACT_ID:
-          process.env.REF_FI_CONTRACT_ID || 'ref-finance-101.testnet',
+          process.env.REF_FI_CONTRACT_ID || 'exchange.ref-dev.testnet',
         WRAP_NEAR_CONTRACT_ID:
           process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.testnet',
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',

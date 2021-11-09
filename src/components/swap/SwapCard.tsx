@@ -14,13 +14,13 @@ import {
 import NewFormWrap from '../forms/NewFormWrap';
 import TokenAmount from '../forms/TokenAmount';
 import Alert from '../alert/Alert';
-import { SwapArrow } from '../icon/Arrows';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import db from '~store/RefDatabase';
 import { GradientButton } from '~components/button/Button';
 import { wallet } from '~services/near';
+import { checkAndAddStorage } from '~services/creators/storage';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -200,23 +200,20 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   }, [allTokens]);
 
   useEffect(() => {
+    checkAndAddStorage().then(console.log);
     if (wallet.isSignedIn()) {
       if (useNearBalance) {
         if (tokenIn) {
           const tokenId = tokenIn.id;
           if (tokenId === 'NEAR') {
-            if (wallet.isSignedIn()) {
-              wallet
-                .account()
-                .getAccountBalance()
-                .then(({ available }) =>
-                  setTokenInBalanceFromNear(
-                    toReadableNumber(tokenIn?.decimals, available)
-                  )
-                );
-            } else {
-              setTokenInBalanceFromNear('0');
-            }
+            wallet
+              .account()
+              .getAccountBalance()
+              .then(({ available }) =>
+                setTokenInBalanceFromNear(
+                  toReadableNumber(tokenIn?.decimals, available)
+                )
+              );
           } else if (tokenId)
             ftGetBalance(tokenId).then((available) =>
               setTokenInBalanceFromNear(

@@ -6,7 +6,7 @@ import {
   wallet,
 } from './near';
 
-export const ACCOUNT_MIN_STORAGE_AMOUNT = '0.00098';
+export const ACCOUNT_MIN_STORAGE_AMOUNT = '0.00102';
 export interface RefPrice {
   'ref-finance': {
     usd: number;
