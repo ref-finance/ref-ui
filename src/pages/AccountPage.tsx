@@ -562,7 +562,7 @@ function MobileAccount() {
       </div>
       <div className="flex items-center justify-center py-4">
         <GradientButton
-          className="rounded w-56 text-xs text-white py-2 px-5"
+          className="rounded w-52 text-xs text-white py-2 px-5"
           btnClassName="font-semibold"
           onClick={() => setShowRecent(!showRecent)}
         >
@@ -571,7 +571,7 @@ function MobileAccount() {
             : intl.formatMessage({ id: 'recent_activity' })}
         </GradientButton>
         <div
-          className="ml-4 h-8 w-24 text-center inline-block rounded border-gradientFrom border py-2 text-xs text-gradientFrom font-semibold cursor-pointer"
+          className="ml-4 h-8 w-28 text-center inline-block rounded border-gradientFrom border py-2 text-xs text-gradientFrom font-semibold cursor-pointer"
           onClick={() => {
             window.open(config.walletUrl, '_blank');
           }}
