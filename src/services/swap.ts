@@ -76,11 +76,11 @@ export const estimateSwap = async ({
   });
 
 
-  console.log('POOLS FOUND ARE...',pools);
+  // console.log('POOLS FOUND ARE...',pools);
   let poolAllocations = await calculateOptimalOutput(pools, parsedAmountIn, tokenIn.id, tokenOut.id);
-  console.log('pool Allocations are: ', pools, poolAllocations);
+  // console.log('pool Allocations are: ', pools, poolAllocations);
   let parallelPools = pools.filter(({ partialAmountIn }) => partialAmountIn > 0 )
-  console.log('parallelPools',parallelPools);
+  // console.log('parallelPools',parallelPools);
   if (parallelPools.length < 1) {
     throw new Error(
       `${intl.formatMessage({ id: 'no_pool_available_to_make_a_swap_from' })} ${
@@ -123,30 +123,20 @@ export const estimateSwap = async ({
     );
 
 // let estimates = [
-    // {estimate: '99.69257342076861', 
+    // {estimate: "0.0993657238158704", 
     // pool: {id: 2, 
-	      // gamma_bps: 20,
+	      // gamma_bps: new Big(20),
 	      // tokenIds: ['wrap.testnet', 'rft.tokenfactory.testnet'], 
-		  // supplies: {'rft.tokenfactory.testnet': "3122645575005",
-		            // 'wrap.testnet': "311603047091212996993322730"}, 
+		  // supplies: {'rft.tokenfactory.testnet': "3112557073842",
+		            // 'wrap.testnet': "312615047091212996993322730"}, 
 		  // fee: 20, 
-		  // x: "311603047091212996993322730",
-		  // y: "3122645575005",
-		  // shareSupply: '1394082189476357871691236927', …}
-    // status: "success"},
-    // {estimate: '99.69257342076861', 
-    // pool: {id: 299, 
-	      // gamma_bps: 20,
-	      // tokenIds: ['wrap.testnet', 'rft.tokenfactory.testnet'], 
-		  // supplies: {'rft.tokenfactory.testnet': "3122645575005",
-		            // 'wrap.testnet': "311603047091212996993322730"}, 
-		  // fee: 20, 
-		  // x: "311603047091212996993322730",
-		  // y: "3122645575005",
-		  // shareSupply: '1394082189476357871691236927', …}
+		  // partialAmountIn: new Big(100000000000000000000),
+		  // x: "312615047091212996993322730",
+		  // y: "3112557073842",
+	// },
     // status: "success"},
 // ];
-      console.log('estimates are ...',estimates)
+      // console.log('estimates are ...',estimates)
 
     // const { estimate, pool } = estimates
       // .filter(({ status }) => status === 'success')
@@ -179,52 +169,52 @@ interface SwapOptions extends EstimateSwapOptions {
 
 
 export const swap = async ({
-  pool,
+  swapsToDo,
   tokenIn,
   tokenOut,
-  amountIn,
-  minAmountOut,
-}: SwapOptions) => {
+  tokenInAmount,
+  slippageTolerance,
+}) => {
+	console.log('Swap...');
   const maxTokenInAmount = await getTokenBalance(tokenIn?.id);
+
+console.log(tokenIn.decimals)
+console.log('amount in',tokenInAmount)
 
   if (
     Number(maxTokenInAmount) <
-    Number(toNonDivisibleNumber(tokenIn.decimals, amountIn))
+    Number(toNonDivisibleNumber(tokenIn.decimals, tokenInAmount))
   ) {
+	  console.log('Direct Swap?')
     await directSwap({
-      pool,
-      tokenIn,
-      tokenOut,
-      amountIn,
-      minAmountOut,
-    });
+  swapsToDo,
+  tokenIn,
+  tokenOut,
+  tokenInAmount,
+  slippageTolerance,
+   });
   } else {
+	  console.log('Deposit Swap?')
     await depositSwap({
-      pool,
-      tokenIn,
-      tokenOut,
-      amountIn,
-      minAmountOut,
+  swapsToDo,
+  tokenIn,
+  tokenOut,
+  tokenInAmount,
+  slippageTolerance,
     });
   }
 };
 
 export const directSwap = async ({
-  pool,
+  swapsToDo,
   tokenIn,
   tokenOut,
-  amountIn,
-  minAmountOut,
-}: SwapOptions) => {
-  const swapAction = {
-    pool_id: pool.id,
-    token_in: tokenIn.id,
-    token_out: tokenOut.id,
-    min_amount_out: round(
-      tokenIn.decimals,
-      toNonDivisibleNumber(tokenOut.decimals, minAmountOut)
-    ),
-  };
+  tokenInAmount,
+  slippageTolerance,
+}) => {
+	console.log('Direct Swap...');
+	let tokenOutAmount = swapsToDo[0].estimate;
+	const swapActions = [{pool_id:2, token_in:'wrap.testnet', token_out:'rft.tokenfactory.testnet', amount_in:'0.001', min_amount_out: "0.099"}];
 
   const transactions: Transaction[] = [];
   const neededStorage = await checkTokenNeedsStorageDeposit(tokenIn.id);
@@ -259,7 +249,7 @@ export const directSwap = async ({
       amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
       msg: JSON.stringify({
         force: 0,
-        actions: [swapAction],
+        actions: swapActions,
       }),
     },
     gas: '100000000000000',
@@ -296,48 +286,43 @@ export const directSwap = async ({
 };
 
 export const depositSwap = async ({
-  pool,
+  swapsToDo,
   tokenIn,
   tokenOut,
   amountIn,
-  minAmountOut,
-}: SwapOptions) => {
-  const swapAction = {
-    pool_id: pool.id,
-    token_in: tokenIn.id,
-    token_out: tokenOut.id,
-    amount_in: round(
-      tokenIn.decimals,
-      toNonDivisibleNumber(tokenIn.decimals, amountIn)
-    ),
-    min_amount_out: round(
-      tokenIn.decimals,
-      toNonDivisibleNumber(tokenOut.decimals, minAmountOut)
-    ),
-  };
+  slippageTolerance,
+}) => {
+	console.log('Deposit Swap...');
+	let tokenOutAmount = swapsToDo[0].estimate;
+	const swapActions = [{pool_id:2, token_in:'wrap.testnet', token_out:'rft.tokenfactory.testnet', amount_in:'0.001', min_amount_out: "0.099"}];
+
 
   const actions: RefFiFunctionCallOptions[] = [
     {
       methodName: 'swap',
-      args: { actions: [swapAction] },
+      args: { actions: swapActions },
       amount: ONE_YOCTO_NEAR,
     },
   ];
 
+	console.log('Deposit Swap...A');
   const whitelist = await getWhitelistedTokens();
   if (!whitelist.includes(tokenOut.id)) {
     actions.unshift(registerTokenAction(tokenOut.id));
   }
 
+	console.log('Deposit Swap...B');
   const needsStorageDeposit = await checkTokenNeedsStorageDeposit(tokenOut.id);
   if (needsStorageDeposit) {
     actions.unshift(storageDepositForTokenAction());
   }
 
+	console.log('Deposit Swap...C');
   return refFiManyFunctionCalls(actions);
 };
 
 export const checkTransaction = (txHash: string) => {
+	console.log('checkTransaction');
   return (near.connection.provider as JsonRpcProvider).sendJsonRpc(
     'EXPERIMENTAL_tx_status',
     [txHash, wallet.getAccountId()]
@@ -386,13 +371,13 @@ function solveForMuFloat(pools, totalDeltaX, inputToken, outputToken) {
   if (pools.length > 0){
       let numerator = new Big(totalDeltaX);
       let denominator = new Big(0);
-      console.log(numerator);
-      console.log(denominator)
+      // console.log(numerator);
+      // console.log(denominator)
 
       for (var i=0; i < pools.length; i++) {
           let p = formatPoolNew(pools[i],inputToken,outputToken);
           let numAdd = new Big(p.x).times(10000).div(p.gamma_bps);
-          console.log(numAdd.toFixed());
+          // console.log(numAdd.toFixed());
           numerator = numerator.plus(numAdd);
           let denomAdd = new Big(p.x).times(p.y).div(p.gamma_bps).sqrt().times(100);
           denominator = denominator.plus(denomAdd);
@@ -439,7 +424,7 @@ let normalizedDxArray = [];
 for (var i=0; i<dxArray.length; i++) {
   let ndx = new Big(dxArray[i]).times(inputAmount).div(dxArraySum).round()
   normalizedDxArray.push(BigInt(ndx.toFixed()));
-  pools[i]['partialAmountIn'] = BigInt(ndx.toFixed());
+  pools[i]['partialAmountIn'] = BigNumber(ndx.toFixed());
 }
 return normalizedDxArray
 };

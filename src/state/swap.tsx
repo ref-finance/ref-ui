@@ -23,10 +23,12 @@ export const useSwap = ({
   tokenOut,
   slippageTolerance,
 }: SwapOptions) => {
+	console.log('Real tokenInAmount', tokenInAmount);
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
   const [swapError, setSwapError] = useState<Error>();
+  const [swapsToDo, setSwapsToDo] = useState();
 
   const { search } = useLocation();
   const history = useHistory();
@@ -93,7 +95,8 @@ export const useSwap = ({
         .then((estimates) => {
           if (!estimates) throw '';
           setCanSwap(true);
-		  console.log(estimates.estimates);
+		  setSwapsToDo(estimates.estimates);
+		  // console.log(estimates.estimates);
 		  const estimate = (estimates.estimates.reduce((total, value) => total + Number(value.estimate), Number(0));
           setTokenOutAmount(estimate.toString());
           setPool(estimates.estimates[0].pool);
@@ -113,16 +116,21 @@ export const useSwap = ({
       setTokenOutAmount('0');
     }
   }, [tokenIn, tokenOut, tokenInAmount]);
-
+ 
+console.log('amountIn -> tokenInAmount', tokenInAmount);
   const makeSwap = () => {
+  console.log('swapsToDo2', swapsToDo);
+  for(let swapToDo of swapsToDo) {
+    console.log('swap to do amount in', tokenInAmount);
     swap({
-      pool,
+      swapsToDo,
       tokenIn,
-      amountIn: tokenInAmount,
       tokenOut,
-      minAmountOut,
+      tokenInAmount,
+	  slippageTolerance,
     }).catch(setSwapError);
   };
+  }
 
   return {
     canSwap,
