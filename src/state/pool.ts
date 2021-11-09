@@ -209,13 +209,12 @@ export const useWatchPools = () => {
 
   useEffect(() => {
     const ids = watchList.map((watchedPool) => watchedPool.pool_id);
-    if(ids.length === 0) return;
+    if (ids.length === 0) return;
     getPoolsByIds({ pool_ids: ids }).then((res) => {
       const resPools = res.map((pool) => parsePool(pool));
       setWatchPools(resPools);
     });
   }, [watchList]);
-  
 
   return watchPools;
 };

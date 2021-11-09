@@ -4,7 +4,7 @@ import ReactTooltip from 'react-tooltip';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
-import { find } from 'lodash';
+import { find, values } from 'lodash';
 import { SelectModal } from '~components/layout/SelectModal';
 import {
   useAllPools,
@@ -145,6 +145,7 @@ function MobilePoolRow({
             </div>
           )}
         </div>
+        <div>{showSortedValue({ sortBy, value: pool[sortBy] })}</div>
       </div>
     </Link>
   );
