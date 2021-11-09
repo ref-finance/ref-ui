@@ -185,5 +185,6 @@ const zh_CN = {
   click_search_bar_to_search: '点击搜索图标以搜索',
   reward_tokens: '奖励币',
   detail_tip: '详情',
+  no_data: '暂无数据'
 };
 export default zh_CN;
