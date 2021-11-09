@@ -95,7 +95,7 @@ export const estimateSwap = async ({
   try {
     const estimates = await Promise.all(
       parallelPools.map((pool) => {
-		  console.log('pool', pool);
+		  // console.log('pool', pool);
         const amount_with_fee = Number(amountIn) * (FEE_DIVISOR - pool.fee);
         const in_balance = toReadableNumber(
           tokenIn.decimals,
@@ -279,7 +279,7 @@ export const depositSwap = async ({
   tokenInAmount,
   slippageTolerance,
 }) => {
-	console.log('Deposit Swap...', tokenInAmount);
+	// console.log('Deposit Swap...', tokenInAmount);
 	// console.log('swapsToDo', swapsToDo);
 	
 	const swapActions = swapsToDo.map((s2d) => {
@@ -303,24 +303,24 @@ export const depositSwap = async ({
     },
   ];
 
-	console.log('Deposit Swap...A');
+	// console.log('Deposit Swap...A');
   const whitelist = await getWhitelistedTokens();
   if (!whitelist.includes(tokenOut.id)) {
     actions.unshift(registerTokenAction(tokenOut.id));
   }
 
-	console.log('Deposit Swap...B');
+	// console.log('Deposit Swap...B');
   const needsStorageDeposit = await checkTokenNeedsStorageDeposit(tokenOut.id);
   if (needsStorageDeposit) {
     actions.unshift(storageDepositForTokenAction());
   }
 
-	console.log('Deposit Swap...C');
+	// console.log('Deposit Swap...C');
   return refFiManyFunctionCalls(actions);
 };
 
 export const checkTransaction = (txHash: string) => {
-	console.log('checkTransaction');
+	// console.log('checkTransaction');
   return (near.connection.provider as JsonRpcProvider).sendJsonRpc(
     'EXPERIMENTAL_tx_status',
     [txHash, wallet.getAccountId()]
@@ -447,7 +447,7 @@ function calculate_dy_float(dx_float,pool, inputToken, outputToken) {
   */ 
 function calculateOptimalOutput(pools, inputAmount, inputToken, outputToken) {
 // This runs the main optimization algorithm using the input
-console.log('input amount is... ',inputAmount)
+// console.log('input amount is... ',inputAmount)
 //let mu = solveForMu(pools, inputAmount);
 let mu = solveForMuFloat(pools, inputAmount, inputToken, outputToken);
 // console.log('mu is ... ', mu)
@@ -505,7 +505,7 @@ for (var i=0;i<dxArray.length;i++) {
   }
 }
   if (goodIndices.length < 1) {
-  console.log("ERROR OCCURRED -- ALL DX VALUES WERE NEGATIVE")
+  // console.log("ERROR OCCURRED -- ALL DX VALUES WERE NEGATIVE")
   return dxArray;
   }
 let newPools = [];
