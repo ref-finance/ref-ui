@@ -7,6 +7,7 @@ import { checkTransaction, estimateSwap, swap } from '../services/swap';
 import { useHistory, useLocation } from 'react-router';
 import getConfig from '~services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { CloseIcon } from '~components/icon/Actions';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -54,7 +55,7 @@ export const useSwap = ({
           if (isSwap) {
             toast(
               <a
-                className="text-primary font-semibold"
+                className="text-white"
                 href={`${getConfig().explorerUrl}/transactions/${txHash}`}
                 target="_blank"
               >
@@ -66,6 +67,17 @@ export const useSwap = ({
               {
                 autoClose: 8000,
                 closeOnClick: false,
+                hideProgressBar: false,
+                closeButton: <CloseIcon />,
+                progressStyle: {
+                  background: '#00FFD1',
+                  borderRadius: '8px',
+                },
+                style: {
+                  background: '#1D2932',
+                  boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
+                  borderRadius: '8px',
+                },
               }
             );
           }

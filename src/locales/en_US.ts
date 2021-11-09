@@ -33,8 +33,8 @@ const en_US = {
   More: 'More',
   account: 'Account',
   Account: 'Account',
-  New_ui: 'REF Quiz.New UI',
-  Risk: 'REF Quiz.Risks',
+  New_ui: 'New UI',
+  Risk: 'Risks',
   Forum: 'Forum',
   Discord: 'Discord',
   Telegram: 'Telegram',
@@ -192,5 +192,6 @@ const en_US = {
   click_search_bar_to_search: 'Click search bar to search',
   reward_tokens: 'Reward Tokens',
   detail_tip: 'Detail',
+  no_data: 'No Data',
 };
 export default en_US;

@@ -790,7 +790,7 @@ function FarmView({
           'h-11 w-11 rounded-full bg-cardBg border border-gradientFromHover ' +
           (index == 1 ? '-ml-1.5' : '')
         }
-      ></div>
+      />
     );
   });
 
@@ -940,7 +940,7 @@ function FarmView({
               />
             </div>
             <div
-              className="text-white"
+              className="text-white text-right"
               // data-class="reactTip"
               // data-for={'rewardPerWeekId' + data.farm_id}
               // data-place="top"
@@ -978,7 +978,7 @@ function FarmView({
               />
             </div>
             <div
-              className="text-white"
+              className="text-white text-right"
               // data-class="reactTip"
               // data-for={'unclaimedRewardId' + data.farm_id}
               // data-place="top"
@@ -1022,6 +1022,7 @@ function FarmView({
                 </BorderButton>
               ) : (
                 <GradientButton
+                  color="#fff"
                   className={`w-full h-10 text-center text-lg text-white mt-4 focus:outline-none font-semibold `}
                   onClick={() => showStakeModal()}
                 >
@@ -1030,6 +1031,7 @@ function FarmView({
               )}
               {haveUnclaimedReward() ? (
                 <GradientButton
+                  color="#fff"
                   onClick={() => claimReward()}
                   disabled={disableClaim}
                   className="text-white text-lg flex-grow  w-20"
@@ -1065,7 +1067,7 @@ function FarmView({
         )}
         {showEndAt() ? (
           <>
-            <label className="w-2.5 border border-t-0 border-greenLight h-0 mx-4"></label>
+            <label className="w-2.5 border border-t-0 border-greenLight h-0 mx-4" />
             <div className="text-farmText text-sm">
               {moment.unix(getEndTime()).format('YYYY-MM-DD HH:mm:ss')}
             </div>

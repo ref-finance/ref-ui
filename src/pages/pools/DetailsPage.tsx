@@ -66,7 +66,6 @@ import {
 import { OutlineButton, SolidButton } from '~components/button/Button';
 import { wallet } from '~services/near';
 import { BreadCrumb } from '~components/layout/BreadCrumb';
-
 import {
   ResponsiveContainer,
   LineChart,
@@ -85,6 +84,7 @@ import {
 
 import _ from 'lodash';
 import moment from 'moment';
+import { ChartNoData } from '~components/icon/ChartNoData';
 interface ParamTypes {
   id: string;
 }
@@ -721,12 +721,20 @@ function MyShares({
 const ChartChangeButton = ({
   chartDisplay,
   setChartDisplay,
+  className,
+  noData,
 }: {
   chartDisplay: 'volume' | 'tvl';
   setChartDisplay: (display: 'volume' | 'tvl') => void;
+  className?: string;
+  noData?: boolean;
 }) => {
   return (
-    <div className="text-white rounded-2xl flex items-center bg-gray-700">
+    <div
+      className={`text-white rounded-2xl flex items-center bg-gray-700 ${className} ${
+        noData ? 'z-30 opacity-70' : ''
+      }`}
+    >
       <button
         className={`py-1 px-4 w-22 ${
           chartDisplay === 'tvl'
@@ -751,6 +759,94 @@ const ChartChangeButton = ({
   );
 };
 
+function EmptyChart({
+  chartDisplay,
+  setChartDisplay,
+}: {
+  chartDisplay: 'volume' | 'tvl';
+  setChartDisplay: (display: 'volume' | 'tvl') => void;
+}) {
+  return (
+    <div className="w-full h-full flex flex-col justify-between">
+      <div className="pb-7">
+        <div className="flex items-center justify-between">
+          <div className="text-gray-400 text-base float-left">$&nbsp;-</div>
+          <ChartChangeButton
+            noData={true}
+            chartDisplay={chartDisplay}
+            setChartDisplay={setChartDisplay}
+          />
+        </div>
+        <div className="text-xs text-gray-500">-</div>
+      </div>
+
+      {/* layout */}
+      <div
+        className="absolute w-full left-0 top-0 h-full m-auto text-center text-base text-gray-500 flex items-center justify-center opacity-70 z-10"
+        style={{
+          background: '#001320',
+        }}
+      >
+        <div>
+          <div>
+            <ChartNoData />
+          </div>
+          <div>
+            <FormattedMessage id="no_data" defaultMessage="No Data" />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div
+          style={{
+            width: '300px',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '1px',
+            transform: 'rotate(90deg)',
+            position: 'relative',
+            bottom: '140px',
+            left: '150px',
+          }}
+        />
+        <div
+          style={{
+            borderBottom: '1px solid #ffffff',
+            boxSizing: 'border-box',
+            width: '13px',
+            height: '13px',
+            position: 'relative',
+            left: '295px',
+            top: '4px',
+            backgroundColor: '#00d6af',
+            opacity: 0.4,
+          }}
+          className="rounded-full"
+        />
+        <div className="border border-gradientFrom w-full mb-2" />
+        <div className="flex text-xs text-gray-500 justify-between">
+          {[
+            '24',
+            '31',
+            '07',
+            '14',
+            '21',
+            '28',
+            '04',
+            '11',
+            '18',
+            '25',
+            '02',
+            '09',
+          ].map((d, i) => {
+            return <div key={i}>{d}</div>;
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function VolumeChart({
   data,
   chartDisplay,
@@ -765,17 +861,46 @@ export function VolumeChart({
   const baseColor = '#00967B';
   const hoverColor = '#00c6a2';
 
-  const handleMouseEnter = (data: volumeDataType, index: number) => {
-    setHoverIndex(index);
-  };
-
-  const handleMouseLeave = (data: volumeDataType, index: number) => {
-    setHoverIndex(null);
-  };
-
   const formatDate = (rawDate: string) => moment(rawDate).format('ll');
 
-  if (!data || data.length === 0) return <></>;
+  const BackgroundRender = (targetBar: BarProps & { index?: number }) => {
+    const { x, y, width, height, index } = targetBar;
+    if (index === hoverIndex)
+      return (
+        <path
+          x={x}
+          y={y}
+          fill="#304452"
+          width={width}
+          height={height}
+          fillOpacity={1}
+          className="recharts-rectangle recharts-bar-background-rectangle"
+          d={
+            'M ' + x + ',5 h ' + width + ' v ' + height + ' h ' + -width + ' Z'
+          }
+        />
+      );
+    else
+      return (
+        <path
+          x={x}
+          y={y}
+          fill="#304452"
+          width={width}
+          height={height}
+          fillOpacity={0}
+          className="recharts-rectangle recharts-bar-background-rectangle"
+        />
+      );
+  };
+  if (!data) return <></>;
+  if (data.length === 0)
+    return (
+      <EmptyChart
+        chartDisplay={chartDisplay}
+        setChartDisplay={setChartDisplay}
+      />
+    );
 
   return (
     <>
@@ -800,17 +925,25 @@ export function VolumeChart({
         />
       </div>
       <ResponsiveContainer height="100%" width="100%">
-        <BarChart data={data}>
+        <BarChart
+          data={data}
+          onMouseMove={(item: any) => setHoverIndex(item.activeTooltipIndex)}
+        >
           <XAxis
             dataKey="dateString"
             tickLine={false}
             axisLine={false}
             tickFormatter={(value, index) => value.split('-').pop()}
           />
+          <Tooltip
+            wrapperStyle={{
+              visibility: 'hidden',
+            }}
+            cursor={false}
+          />
           <Bar
             dataKey="volume_dollar"
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
+            background={<BackgroundRender dataKey="volume_dollar" />}
           >
             {data.map((entry, i) => (
               <Cell
@@ -835,9 +968,14 @@ export function TVLChart({
   setChartDisplay: (display: 'volume' | 'tvl') => void;
 }) {
   const [hoverIndex, setHoverIndex] = useState<number>(null);
-
   const formatDate = (rawDate: string) => moment(rawDate).format('ll');
-  if (!data || data.length === 0) return <></>;
+  if (!data || data.length === 0)
+    return (
+      <EmptyChart
+        setChartDisplay={setChartDisplay}
+        chartDisplay={chartDisplay}
+      />
+    );
   return (
     <>
       <div className="flex items-center justify-between self-start w-full">
@@ -845,13 +983,8 @@ export function TVLChart({
           <div className="text-white text-2xl">
             {`$${toInternationalCurrencySystem(
               typeof hoverIndex === 'number'
-                ? (
-                    data[hoverIndex].asset_tvl + data[hoverIndex].fiat_tvl
-                  ).toString()
-                : (
-                    data[data.length - 1].asset_tvl +
-                    data[data.length - 1].fiat_tvl
-                  ).toString()
+                ? data[hoverIndex].total_tvl.toString()
+                : data[data.length - 1].total_tvl.toString()
             )}`}
           </div>
           <div className="text-xs text-gray-400">
@@ -889,12 +1022,13 @@ export function TVLChart({
             wrapperStyle={{
               visibility: 'hidden',
             }}
+            cursor={{ opacity: '0.3' }}
           />
           <Area
-            dataKey="asset_tvl"
+            dataKey="scaled_tvl"
             dot={false}
             stroke="#00c6a2"
-            strokeWidth={4}
+            strokeWidth={3}
             fillOpacity={1}
             fill="url(#colorGradient)"
           />
@@ -1009,7 +1143,7 @@ export function PoolDetailsPage() {
           >
             <div className="flex flex-col text-center text-base mx-4 py-4">
               <div className="flex items-center justify-end mb-4">
-                {backToFarmsButton && (
+                {backToFarmsButton ? (
                   <Link
                     to={{
                       pathname: '/farms',
@@ -1019,6 +1153,8 @@ export function PoolDetailsPage() {
                   >
                     <FarmButton />
                   </Link>
+                ) : (
+                  <span>' '</span>
                 )}
                 <div className="lg:hidden ml-2">
                   <div onClick={handleSaveWatchList}>
@@ -1211,10 +1347,11 @@ export function PoolDetailsPage() {
 
           <Card
             width="w-full"
-            className="relative rounded-2xl bg-chartBg h-full flex flex-col justify-center md:hidden xs:hidden items-center"
+            className="relative rounded-2xl h-full flex flex-col justify-center md:hidden xs:hidden items-center"
             padding="p-7"
+            bgcolor="bg-cardBg"
             style={{
-              height: '400px',
+              height: '397px',
             }}
           >
             {chartDisplay === 'volume' ? (

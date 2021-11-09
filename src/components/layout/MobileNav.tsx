@@ -1,6 +1,5 @@
 import React, {
   createContext,
-  ReactNode,
   useContext,
   useEffect,
   useRef,
@@ -8,7 +7,14 @@ import React, {
 } from 'react';
 import { matchPath } from 'react-router';
 import { Context } from '~components/wrapper';
-import { Near, NavLogo, NavLogoLarge } from '~components/icon';
+import {
+  Near,
+  NavLogo,
+  NavLogoLarge,
+  IconMyLiquidity,
+  IconEn,
+  IconZh,
+} from '~components/icon';
 import { Link, useLocation } from 'react-router-dom';
 import { wallet } from '~services/near';
 import { useHistory } from 'react-router';
@@ -88,21 +94,27 @@ export function MobileSwitchLanguage() {
           className={`${!show || openMenu ? 'inline-block' : 'hidden'} text-xl`}
         />
       </div>
-      <div className={`ml-12 ${show && !openMenu ? 'block' : 'hidden'}`}>
+      <div className={`${show && !openMenu ? 'block' : 'hidden'}`}>
         <div
-          className={`whitespace-nowrap bg-cardBg text-left font-bold text-white p-4 ${
+          className={`flex items-center whitespace-nowrap bg-cardBg text-left font-bold text-white p-4 ${
             currentLocal === 'en' ? 'text-white' : 'text-primaryText'
           }`}
           onClick={() => context.selectLanguage('en')}
         >
+          <span className="text-2xl mr-5">
+            <IconEn />
+          </span>
           English
         </div>
         <div
-          className={`whitespace-nowrap text-left bg-cardBg font-bold text-white p-4 ${
+          className={`flex items-center hitespace-nowrap text-left bg-cardBg font-bold text-white p-4 ${
             currentLocal === 'zh-CN' ? 'text-white' : 'text-primaryText '
           }`}
           onClick={() => context.selectLanguage('zh-CN')}
         >
+          <span className="text-2xl mr-5">
+            <IconZh />
+          </span>
           中文
         </div>
       </div>
@@ -165,6 +177,7 @@ export function MobileNavBar() {
       url: '/pools/yours',
       pattern: '/pools/yours',
       isExternal: false,
+      logo: <IconMyLiquidity />,
     };
   }
 
@@ -283,14 +296,22 @@ export function MobileNavBar() {
             )}
             {moreLinks.map(
               ({ id, label, subRoute, pattern, url, isExternal, children }) => {
-                const location = useLocation();
-                const isSelected = subRoute
+                let location = useLocation();
+                let isSelected = subRoute
                   ? subRoute.includes(location.pathname)
                   : matchPath(location.pathname, {
                       path: pattern,
                       exact: true,
                       strict: false,
                     });
+                if (
+                  location.pathname.startsWith('/pool/') ||
+                  location.pathname.startsWith('/more_pools/')
+                ) {
+                  if (id === 'pools') {
+                    isSelected = true;
+                  }
+                }
                 return (
                   <div key={id}>
                     <div
@@ -332,7 +353,7 @@ export function MobileNavBar() {
                         }`}
                       >
                         {children?.map((link) => {
-                          const isSubMenuSelected = matchPath(
+                          let isSubMenuSelected: any = matchPath(
                             location.pathname,
                             {
                               path: link.pattern,
@@ -340,10 +361,18 @@ export function MobileNavBar() {
                               strict: false,
                             }
                           );
+                          if (
+                            location.pathname.startsWith('/pool/') ||
+                            location.pathname.startsWith('/more_pools/')
+                          ) {
+                            if (link.id === 'view_pools') {
+                              isSubMenuSelected = true;
+                            }
+                          }
                           return (
                             <div
                               key={link.id}
-                              className={`whitespace-nowrap text-left pl-12 p-4 flex justify-start ${
+                              className={`whitespace-nowrap text-left items-center p-4 flex justify-start ${
                                 !link.isExternal && isSubMenuSelected
                                   ? 'text-white bg-navHighLightBg'
                                   : 'text-primaryText'
@@ -356,7 +385,7 @@ export function MobileNavBar() {
                               }}
                             >
                               {link.logo && (
-                                <span className="text-2xl mr-5">
+                                <span className="text-xl text-left w-9">
                                   {link.logo}
                                 </span>
                               )}

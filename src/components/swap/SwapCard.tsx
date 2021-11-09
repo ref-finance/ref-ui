@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
-import { useDepositableBalance, useTokenBalances } from '../../state/token';
+import { useTokenBalances } from '../../state/token';
 import { useSwap } from '../../state/swap';
 import {
   calculateExchangeRate,
