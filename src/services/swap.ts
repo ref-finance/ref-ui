@@ -1,5 +1,7 @@
 import BN from 'bn.js';
 import Big from 'big.js';
+// pulled in big.js to be able to use large floating point numbers as well as large integers.
+// the floating point precision is necessary for the lagrange multiplier solution for parallel swap.
 import {
   toNonDivisibleNumber,
   toPrecision,
@@ -38,9 +40,6 @@ import {
 import { utils } from 'near-api-js';
 import { BigNumber } from 'bignumber.js';
 
-import { calculateOptimalOutput, formatPoolNew } from './parallelSwapLogic.js';
-
-
 Big.DP = 40;
 Big.strict = false;
 const FEE_DIVISOR = 10000;
@@ -76,12 +75,11 @@ export const estimateSwap = async ({
     amountIn: parsedAmountIn,
   });
 
-// console.log("parsedAmountIn",parsedAmountIn);
-  // console.log('POOLS FOUND ARE...',pools);
+// Added in calculation here to determine the optimal spread of total input token amount amongst relevant pools.
+// This is the main parallel swap algorithm function.
   let poolAllocations = await calculateOptimalOutput(pools, parsedAmountIn, tokenIn.id, tokenOut.id);
-  // console.log('pool Allocations are: ', pools, poolAllocations);
+  // Now, filter only those pools that were allocated some non-zero amount of input token.
   let parallelPools = pools.filter(({ partialAmountIn }) => partialAmountIn > 0 )
-  // console.log('parallelPools',parallelPools);
   if (parallelPools.length < 1) {
     throw new Error(
       `${intl.formatMessage({ id: 'no_pool_available_to_make_a_swap_from' })} ${
@@ -124,26 +122,6 @@ export const estimateSwap = async ({
       })
     );
 
-// let estimates = [
-    // {estimate: "0.0993657238158704", 
-    // pool: {id: 2, 
-	      // gamma_bps: new Big(20),
-	      // tokenIds: ['wrap.testnet', 'rft.tokenfactory.testnet'], 
-		  // supplies: {'rft.tokenfactory.testnet': "3112557073842",
-		            // 'wrap.testnet': "312615047091212996993322730"}, 
-		  // fee: 20, 
-		  // partialAmountIn: new Big(100000000000000000000),
-		  // x: "312615047091212996993322730",
-		  // y: "3112557073842",
-	// },
-    // status: "success"},
-// ];
-      // console.log('estimates are ...',estimates)
-
-    // const { estimate, pool } = estimates
-      // .filter(({ status }) => status === 'success')
-      // .sort((a, b) => (Number(b.estimate) > Number(a.estimate) ? 1 : -1))[0];
-
 
     return {
 		estimates
@@ -177,14 +155,14 @@ export const swap = async ({
   tokenInAmount,
   slippageTolerance,
 }) => {
-	console.log('Swap...');
+	// console.log('Swap...');
   const maxTokenInAmount = await getTokenBalance(tokenIn?.id);
 
   if (
     Number(maxTokenInAmount) <
     Number(toNonDivisibleNumber(tokenIn.decimals, tokenInAmount))
   ) {
-	  console.log('Direct Swap?')
+	  // console.log('Direct Swap?')
     await directSwap({
   swapsToDo,
   tokenIn,
@@ -193,7 +171,7 @@ export const swap = async ({
   slippageTolerance,
    });
   } else {
-	  console.log('Deposit Swap?')
+	  // console.log('Deposit Swap?')
     await depositSwap({
   swapsToDo,
   tokenIn,
@@ -211,7 +189,8 @@ export const directSwap = async ({
   tokenInAmount,
   slippageTolerance,
 }) => {
-	console.log('Direct Swap...');
+	// console.log('Direct Swap...');
+  // this operation maps the original swapAction over multiple pools
 	const swapActions = swapsToDo.map((s2d) => {
 		let tokenOutAmount = s2d.estimate;
 		let minTokenOutAmount = tokenOutAmount ? percentLess(slippageTolerance, tokenOutAmount): null;
@@ -353,6 +332,15 @@ export const checkTransaction = (txHash: string) => {
 // Parallel Swap Logic Below //
 ///////////////////////////////
 
+/** formatPoolNew
+ * This function appends to the existing standard Pool struct and adds attributes that simplify the parallel swap algorithms.
+ * Adds attributes "x" (for input token reserves in pool), "y" (for output token reserves in pool), and "gamma_bps" (for 1- fee in bps)
+ * Our convention for our algorithm has been to use "x" as the input token and "y" as the output token.
+ * @param pool    AMM structure containing reserves of inputToken and outputToken
+ * @param inputToken the name of the inputToken being traded in.
+ * @param outputToken the name of the outputToken being traded out.
+ * @returns newFormatPool
+ */
 function formatPoolNew(pool, inputToken, outputToken) {
   let p = pool;
   let x = p.supplies[inputToken]
@@ -364,28 +352,18 @@ function formatPoolNew(pool, inputToken, outputToken) {
 }
 
 
-function calculate_dx_float(mu, pool,inputToken, outputToken) {
-  let p = formatPoolNew(pool, inputToken, outputToken);
-  let radical = new Big(p.x).times(p.y).div(p.gamma_bps);
-  let dxFloat = new Big(mu).times(100).times(radical.sqrt()).minus(new Big(p.x).times(10000).div(p.gamma_bps));
-  return dxFloat
-};
-
-
-  
-function calculate_dy_float(dx_float,pool, inputToken, outputToken) {
-  if (dx_float <= 0) {
-  return new Big(0);
-  } 
-  let p = formatPoolNew(pool, inputToken, outputToken);
-  let dx = new Big(dx_float);
-  let denom = new Big(10000).times(p.x).plus(new Big(p.gamma_bps).times(dx));
-  let numerator = new Big(p.y).times(dx).times(p.gamma_bps);
-  let dyFloat = numerator.div(denom).round();
-  return dyFloat;
-};
-
-
+/** solveForMuFloat
+ * This function takes the set of token pools, the total input of inputToken, and the names of inputToken and outputToken and
+ * solves for the Lagrange Multiplier "mu". Note that mu must be allowed to be aritrary precision floating point number. Mu will
+ * be used in subsequent function calls to determine the best allocations of intputToken to be made per pool.
+ * For more detailed math on how this function was derived, please see the white paper:
+ * https://github.com/giddyphysicist/ParallelSwapForRefFinance/blob/main/ParallelSwapWhitePaper.pdf
+ * @param pools   list of pools that contain inputToken and outputToken
+ * @param totalDeltaX  total allocation (among all pools) being input of inputToken
+ * @param inputToken   the name of the inputToken being traded in.
+ * @param outputToken   the name of the outputToken being traded out.
+ * @returns mu   the lagrange multiplier value calculated for a set of pools and inputToken amount.
+ */
 function solveForMuFloat(pools, totalDeltaX, inputToken, outputToken) {
   if (pools.length > 0){
       let numerator = new Big(totalDeltaX);
@@ -413,7 +391,60 @@ function solveForMuFloat(pools, totalDeltaX, inputToken, outputToken) {
 };
 
 
-  
+/** calculate_dx_float
+ * Once mu has been calculated for a set of pools and total input amount, the next step is
+ * determining the total allocation per pool. This function evaluates the amount of input Token to be 
+ * allocated to the given pool. Note, in our original algorithmic convention, the 'x' variable was for the input token,
+ * and the 'y' variable was for the output token. Here, the value dx is the part of the full amount of input token X. 
+ * Again, the detailed formulae for these operations can be found in the white paper referenced above.
+ * @param mu   the lagrange multiplier value calculated for a set of pools and inputToken amount.
+ * @param pool   AMM structure containing reserves of inputToken and outputToken
+ * @param inputToken the name of the inputToken being traded in.
+ * @param outputToken  the name of the outputToken being traded out.
+ * @returns dxFloat   the allocation amount determined for the given pool
+ */
+function calculate_dx_float(mu, pool,inputToken, outputToken) {
+  let p = formatPoolNew(pool, inputToken, outputToken);
+  let radical = new Big(p.x).times(p.y).div(p.gamma_bps);
+  let dxFloat = new Big(mu).times(100).times(radical.sqrt()).minus(new Big(p.x).times(10000).div(p.gamma_bps));
+  return dxFloat
+};
+
+
+/** calculate_dy_float
+ * Once you have an allocation amount for a given pool, you can use the AMM constant-product formula to determine
+ * the expected output amount of output Token. 
+ * Note, here, as earlier, our algorithmic convention uses "y" as the output token, and so "dy" is the fraction of 
+ * the total output of output Token, assuming there could be dy contributions from other parallel pools as well.
+ * @param dx_float  input allocation amount of inputToken for the given pool
+ * @param pool   a structure representing the reserves and fees for a given pool.
+ * @param inputToken  the name of the inputToken being traded in.
+ * @param outputToken  the name of the outputToken being traded out.
+ * @returns dyFloat  the expected trade out amount out of outputToken
+ */
+function calculate_dy_float(dx_float,pool, inputToken, outputToken) {
+  if (dx_float <= 0) {
+  return new Big(0);
+  } 
+  let p = formatPoolNew(pool, inputToken, outputToken);
+  let dx = new Big(dx_float);
+  let denom = new Big(10000).times(p.x).plus(new Big(p.gamma_bps).times(dx));
+  let numerator = new Big(p.y).times(dx).times(p.gamma_bps);
+  let dyFloat = numerator.div(denom).round();
+  return dyFloat;
+};
+
+
+
+
+ /** calculateOptimalOutput
+  * This is the main function, which calculates optimal values of inputToken to swap into each pool.
+  * @param pools  list of relevant AMM pools containing inputToken and outputToken
+  * @param inputAmount   the numeric total amount of inputToken to be traded into the group of swap pools.
+  * @param inputToken   the name of the inputToken being traded in. 
+  * @param outputToken  the name of the outputToken being traded out.
+  * @returns normalizedDxArray an array containing the amount allocations of inputToken per pool in the list of pools.
+  */ 
 function calculateOptimalOutput(pools, inputAmount, inputToken, outputToken) {
 // This runs the main optimization algorithm using the input
 console.log('input amount is... ',inputAmount)
@@ -448,7 +479,23 @@ for (var i=0; i<dxArray.length; i++) {
 return normalizedDxArray
 };
 
-
+/** reducePools
+ * This function is used to implement part of the non-linear slack variables in the lagrange - multiplier 
+ * solution for parallel swap. Part of what comes out of the math is that sometimes, the optimal allocation for a pool
+ * can be negative, which makes no physical sense. When this occurs, that particular pool needs to be flagged and the 
+ * lagrange constraint applied to force the allocation to be zero. 
+ * This function takes an already-solved set of pools, input allocation per pool, the total input amount, and the 
+ * inputToken name and outputToken name, and determines which, if any, allocations need to be set to zero.
+ * However, when this occurs, and a pool is essentially ignored from the list, then the calculation for mu must be re-done. 
+ * So the calculateOptimalOutput function is then called on the reduced set of pools, and if no negative allocation values remain, 
+ * then the allocations on the reduced set is determined, and values of zero are put in for the 'failed' pools. 
+ * @param pools  list of pools that contain inputToken and outputToken
+ * @param dxArray  list of input allocation per pool
+ * @param inputAmount   total amount of inputToken to be traded among the pools
+ * @param inputToken    the name of the inputToken
+ * @param outputToken   the name of the outputToken
+ * @returns newFullDxVec  the new full list of input allocations the same length as dxArray, containing zeros for failed pools. 
+ */
 function reducePools(pools, dxArray, inputAmount, inputToken, outputToken) {
 let goodIndices = [];
 for (var i=0;i<dxArray.length;i++) {
@@ -483,19 +530,3 @@ for (var ii=0; ii<pools.length; ii++) {
 return newFullDxVec;
 };
 
-//////////////////////////
-// MAIN FUNCTION -- RETURNS ARRAYs OF OPTIMAL INPUTS, 
-//                                    EXPECTED OUTPUTS, AND 
-//                                    POOL ID ARRAYS
-//////////////////////////
-
-function calculateParallelSwapInputsOutputsPerPool(pools,inputAmount, inputToken, outputToken) {
-  let ndxArray = calculateOptimalOutput(pools, inputAmount, inputToken, outputToken)
-  let dyArray = [];
-  for (var i=0; i<pools.length; i++) {
-      let dyNow = new Big(calculate_dy_float(ndxArray[i],pools[i], inputToken, outputToken));
-      dyArray.push(dyNow)
-  }
-  let poolIdArray = pools.map((item) => item.id);
-
-  return ndxArray, dyArray, poolIdArray
