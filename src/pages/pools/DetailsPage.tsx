@@ -21,9 +21,10 @@ import {
   removePoolFromWatchList,
 } from '~services/pool';
 import { useTokenBalances, useTokens, getExchangeRate } from '~state/token';
-import Loading, { ChartLoading } from '~components/layout/Loading';
+import Loading from '~components/layout/Loading';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
 import { FarmStamp } from '~components/icon/FarmStamp';
+import { ChartLoading } from '~components/icon/Loading';
 import {
   MULTI_MINING_POOLS,
   REF_FARM_CONTRACT_ID,

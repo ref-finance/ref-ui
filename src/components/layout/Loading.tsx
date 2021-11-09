@@ -6,7 +6,3 @@ import { Loading } from './../icon/Loading';
 export default function () {
   return <Loading />;
 }
-
-export function ChartLoading() {
-  return <Loader color="#10B981" css="display: block; margin: auto" />;
-}
