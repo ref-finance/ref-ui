@@ -201,6 +201,7 @@ export const addPoolToWatchList = async ({
     id: account + '-' + pool_id,
     pool_id,
     account,
+    update_time: new Date().getTime(),
   });
 };
 export const removePoolFromWatchList = async ({

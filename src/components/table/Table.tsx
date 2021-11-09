@@ -26,10 +26,13 @@ export default function Table({
   return (
     tokens.length > 0 && (
       <table className="text-left w-full text-sm text-gray-400 mt-10 table-auto">
-        <thead>
+        <thead
+          className="sticky -top-6 z-30"
+          style={{ background: 'rgb(29, 41, 50)' }}
+        >
           <tr className="font-normal border-b border-gray-500 border-opacity-30">
             <th
-              className={`font-normal pb-2 pl-6  ${
+              className={`font-normal w-2/5 pb-2 pl-6  ${
                 sortBy === 'asset' ? 'text-greenLight' : ''
               }`}
             >
@@ -44,7 +47,7 @@ export default function Table({
               />
             </th>
             <th
-              className={`font-normal pb-2  ${
+              className={`font-normal pb-2 w-1/5  ${
                 sortBy === 'near' ? 'text-greenLight' : ''
               }`}
             >
@@ -59,7 +62,7 @@ export default function Table({
               />
             </th>
             <th
-              className={`font-normal pb-2  ${
+              className={`font-normal pb-2 w-1/5 ${
                 sortBy === 'ref' ? 'text-greenLight' : ''
               }`}
             >
@@ -74,7 +77,7 @@ export default function Table({
               />
             </th>
             <th
-              className={`font-normal pb-2 pr-6 ${
+              className={`font-normal pb-2 pr-6 w-1/5 ${
                 sortBy === 'total' ? 'text-greenLight' : ''
               }`}
             >

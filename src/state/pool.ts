@@ -17,8 +17,13 @@ import {
 import db, { PoolDb, WatchList } from '~store/RefDatabase';
 
 import { useWhitelistTokens } from './token';
-import _, { debounce, orderBy } from 'lodash';
-import { getPoolsByIds } from '~services/indexer';
+import _, { debounce, min, orderBy } from 'lodash';
+import {
+  getPoolMonthVolume,
+  getPoolMonthTVL,
+  getPoolsByIds,
+  get24hVolume,
+} from '~services/indexer';
 import { parsePoolView, PoolRPCView } from '~services/api';
 
 export const usePool = (id: number | string) => {
@@ -43,6 +48,7 @@ interface LoadPoolsOpts {
 }
 
 export const usePools = (props: {
+  searchTrigger?: Boolean;
   tokenName?: string;
   sortBy?: string;
   order?: string;
@@ -63,7 +69,6 @@ export const usePools = (props: {
     sortBy,
     order,
   }: LoadPoolsOpts) {
-    setLoading(true);
     getPools({
       page,
       tokenName: tokenName,
@@ -100,15 +105,19 @@ export const usePools = (props: {
   // const loadPools = debounce(_loadPools, 500);
 
   useEffect(() => {
+    setLoading(true);
+
     loadPools({
       accumulate: false,
       tokenName: props.tokenName,
       sortBy: props.sortBy,
       order: props.order,
     });
-  }, [props.tokenName]);
+  }, [props.searchTrigger]);
 
   useEffect(() => {
+    setLoading(true);
+
     loadPools({
       accumulate: false,
       tokenName: props.tokenName,
@@ -118,6 +127,8 @@ export const usePools = (props: {
   }, [props.sortBy, props.order]);
 
   useEffect(() => {
+    setLoading(true);
+
     loadPools({
       accumulate: true,
       tokenName: props.tokenName,
@@ -136,8 +147,6 @@ export const usePools = (props: {
 
 export const useMorePoolIds = (props: { topPool: Pool }) => {
   const { topPool } = props;
-  // const tokenId1 = topPool.tokenIds[0]
-  // const tokenId2 = topPool.tokenIds[1]
 
   const [token1Id, token2Id] = topPool.tokenIds;
 
@@ -179,19 +188,27 @@ export const useMorePools = ({
 export const useAllWatchList = () => {
   const [watchList, setWatchList] = useState<WatchList[]>();
 
-  // useEffect(() => {
-  //   getAllWatchListFromDb({}).then((watchlist) => {
-  //     setWatchList(watchlist);
-  //   });
-  // }, []);
+  useEffect(() => {
+    getAllWatchListFromDb({}).then((watchlist) => {
+      setWatchList(_.orderBy(watchlist, 'update_time', 'desc'));
+    });
+  }, []);
 
   return watchList;
 };
 
-export const useWatchPools = ({ watchList }: { watchList: WatchList[] }) => {
+export const useWatchPools = () => {
+  const [watchList, setWatchList] = useState<WatchList[]>([]);
+
   const [watchPools, setWatchPools] = useState<Pool[]>();
-  const ids = watchList.map((watchedPool) => watchedPool.pool_id);
   useEffect(() => {
+    getAllWatchListFromDb({}).then((watchlist) => {
+      setWatchList(_.orderBy(watchlist, 'update_time', 'desc'));
+    });
+  }, []);
+
+  useEffect(() => {
+    const ids = watchList.map((watchedPool) => watchedPool.pool_id);
     getPoolsByIds({ pool_ids: ids }).then((res) => {
       const resPools = res.map((pool) => parsePool(pool));
       setWatchPools(resPools);
@@ -251,4 +268,98 @@ export const useRemoveLiquidity = ({
     removeLiquidity,
     minimumAmounts,
   };
+};
+
+export interface volumeType {
+  pool_id: string;
+  dateString: string;
+  fiat_volume: string;
+  asset_volume: string;
+  volume_dollar: string;
+}
+
+export interface volumeDataType {
+  pool_id: string;
+  dateString: string;
+  fiat_volume: string;
+  asset_volume: string;
+  volume_dollar: number;
+}
+
+export const useMonthVolume = (pool_id: string) => {
+  const [monthVolumeById, setMonthVolumeById] = useState<volumeDataType[]>();
+  useEffect(() => {
+    getPoolMonthVolume(pool_id).then((res) => {
+      const monthVolume = res
+        .map((v, i) => {
+          return {
+            ...v,
+            volume_dollar: Number(v.volume_dollar),
+          };
+        })
+        .reverse();
+      setMonthVolumeById(monthVolume);
+    });
+  }, []);
+
+  return monthVolumeById;
+};
+
+export interface TVLType {
+  pool_id: string;
+  asset_amount: string;
+  fiat_amount: string;
+  asset_price: string;
+  fiat_price: string;
+  asset_tvl: string;
+  fiat_tvl: string;
+  date: string;
+}
+export interface TVLDataType {
+  pool_id: string;
+  asset_amount: string;
+  fiat_amount: string;
+  asset_price: string;
+  fiat_price: string;
+  asset_tvl: number;
+  fiat_tvl: number;
+  date: string;
+  total_tvl: number;
+  scaled_tvl: number;
+}
+
+export const useMonthTVL = (pool_id: string) => {
+  const [monthTVLById, setMonthTVLById] = useState<TVLDataType[]>();
+  useEffect(() => {
+    getPoolMonthTVL(pool_id).then((res) => {
+      const minDay = _.minBy(res, (o) => {
+        return Number(o.asset_tvl) + Number(o.fiat_tvl);
+      });
+      const minValue = Number(minDay?.asset_tvl) + Number(minDay?.fiat_tvl);
+
+      const monthTVL = res
+        .map((v, i) => {
+          return {
+            ...v,
+            asset_tvl: Number(v?.asset_tvl),
+            fiat_tvl: Number(v?.fiat_tvl),
+            total_tvl: Number(v?.fiat_tvl) + Number(v?.asset_tvl),
+            scaled_tvl:
+              Number(v?.fiat_tvl) + Number(v?.asset_tvl) - minValue * 0.99,
+          };
+        })
+        .reverse();
+      setMonthTVLById(monthTVL);
+    });
+  }, []);
+
+  return monthTVLById;
+};
+
+export const useDayVolume = (pool_id: string) => {
+  const [dayVolume, setDayVolume] = useState<string>();
+  useEffect(() => {
+    get24hVolume(pool_id).then(setDayVolume);
+  }, [pool_id]);
+  return dayVolume;
 };

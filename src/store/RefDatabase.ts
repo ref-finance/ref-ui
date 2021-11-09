@@ -47,6 +47,7 @@ export interface WatchList {
   id: string;
   account: string;
   pool_id: string;
+  update_time: number;
 }
 
 class RefDatabase extends Dexie {
@@ -65,7 +66,7 @@ class RefDatabase extends Dexie {
       farms: 'id, pool_id',
       pools_tokens:
         'id, token1Id, token2Id, token1Supply, token2Supply, fee, shares, update_time, token0_price',
-      watchList: 'id, account, pool_id',
+      watchList: 'id, account, pool_id, update_time',
     });
 
     this.pools = this.table('pools');

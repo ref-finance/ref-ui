@@ -61,7 +61,10 @@ export default function SlippageSelector({
 
   return (
     <div className="relative z-10">
-      <div className=" w-7 text-2xl text-white" onClick={(e) => openToolTip(e)}>
+      <div
+        className="w-6 text-2xl text-white cursor-pointer"
+        onClick={(e) => openToolTip(e)}
+      >
         <Slider showSlip={showSlip} />
       </div>
       {showSlip && (
@@ -163,14 +166,15 @@ export default function SlippageSelector({
                   <IoWarning className="inline-block text-lg align-text-top mr-1" />
                   <FormattedMessage
                     id="slip_invalid"
-                    defaultMessage="You might be easier to swap, but also receive less."
+                    defaultMessage="The slippage tolerance is invalid."
                   />
                 </div>
               ) : (
                 <div className="text-warn text-xs py-3">
+                  <IoWarning className="inline-block text-lg align-text-top mr-1" />
                   <FormattedMessage
                     id="slip_wran"
-                    defaultMessage="The slippage tolerance is invalid."
+                    defaultMessage="Be careful, please check the minimum you can receive."
                   />
                 </div>
               )}
@@ -178,7 +182,7 @@ export default function SlippageSelector({
           </fieldset>
           {showSlip && (
             <IoCloseOutline
-              className="absolute top-12 xs:top-48 xs:right-10 right-3 text-primaryText"
+              className="absolute top-12 xs:top-48 xs:right-10 right-3 text-primaryText cursor-pointer"
               onClick={(e) => closeToolTip(e)}
             />
           )}
@@ -217,7 +221,7 @@ export function PoolSlippageSelector({
               data-multiline={true}
               data-tip={intl.formatMessage({ id: slippageCopyId })}
             >
-              <FaRegQuestionCircle />
+              <FaRegQuestionCircle className="text-sm" />
             </div>
             <ReactTooltip
               className="text-xs text-left shadow-4xl"
@@ -237,7 +241,7 @@ export function PoolSlippageSelector({
               className={`w-12 focus:outline-none text-sm hover:bg-gradientFrom  rounded py-1 px-2 mx-2 ${
                 slippage === slippageTolerance
                   ? 'text-chartBg bg-gradientFrom'
-                  : 'bg-gray-500'
+                  : 'bg-slipBg'
               }`}
               type="button"
               onClick={() => onChange(slippage)}
