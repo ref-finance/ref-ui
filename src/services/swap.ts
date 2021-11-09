@@ -4,6 +4,7 @@ import {
   toNonDivisibleNumber,
   toPrecision,
   toReadableNumber,
+  percentLess
 } from '../utils/numbers';
 import {
   executeMultipleTransactions,
@@ -75,7 +76,7 @@ export const estimateSwap = async ({
     amountIn: parsedAmountIn,
   });
 
-
+// console.log("parsedAmountIn",parsedAmountIn);
   // console.log('POOLS FOUND ARE...',pools);
   let poolAllocations = await calculateOptimalOutput(pools, parsedAmountIn, tokenIn.id, tokenOut.id);
   // console.log('pool Allocations are: ', pools, poolAllocations);
@@ -96,6 +97,7 @@ export const estimateSwap = async ({
   try {
     const estimates = await Promise.all(
       parallelPools.map((pool) => {
+		  console.log('pool', pool);
         const amount_with_fee = Number(amountIn) * (FEE_DIVISOR - pool.fee);
         const in_balance = toReadableNumber(
           tokenIn.decimals,
@@ -178,9 +180,6 @@ export const swap = async ({
 	console.log('Swap...');
   const maxTokenInAmount = await getTokenBalance(tokenIn?.id);
 
-console.log(tokenIn.decimals)
-console.log('amount in',tokenInAmount)
-
   if (
     Number(maxTokenInAmount) <
     Number(toNonDivisibleNumber(tokenIn.decimals, tokenInAmount))
@@ -213,8 +212,17 @@ export const directSwap = async ({
   slippageTolerance,
 }) => {
 	console.log('Direct Swap...');
-	let tokenOutAmount = swapsToDo[0].estimate;
-	const swapActions = [{pool_id:2, token_in:'wrap.testnet', token_out:'rft.tokenfactory.testnet', amount_in:'0.001', min_amount_out: "0.099"}];
+	const swapActions = swapsToDo.map((s2d) => {
+		let tokenOutAmount = s2d.estimate;
+		let minTokenOutAmount = tokenOutAmount ? percentLess(slippageTolerance, tokenOutAmount): null;
+		return {
+			pool_id: s2d.pool.id, 
+			token_in: tokenIn.id, 
+			token_out: tokenOut.id, 
+			amount_in: round(tokenIn.decimals, toNonDivisibleNumber(tokenIn.decimals, tokenInAmount)), 
+			min_amount_out: round(tokenOut.decimals, toNonDivisibleNumber(tokenOut.decimals, minTokenOutAmount))
+		}
+	});
 
   const transactions: Transaction[] = [];
   const neededStorage = await checkTokenNeedsStorageDeposit(tokenIn.id);
@@ -289,12 +297,23 @@ export const depositSwap = async ({
   swapsToDo,
   tokenIn,
   tokenOut,
-  amountIn,
+  tokenInAmount,
   slippageTolerance,
 }) => {
-	console.log('Deposit Swap...');
-	let tokenOutAmount = swapsToDo[0].estimate;
-	const swapActions = [{pool_id:2, token_in:'wrap.testnet', token_out:'rft.tokenfactory.testnet', amount_in:'0.001', min_amount_out: "0.099"}];
+	console.log('Deposit Swap...', tokenInAmount);
+	// console.log('swapsToDo', swapsToDo);
+	
+	const swapActions = swapsToDo.map((s2d) => {
+		let tokenOutAmount = s2d.estimate;
+		let minTokenOutAmount = tokenOutAmount ? percentLess(slippageTolerance, tokenOutAmount): null;
+		return {
+			pool_id: s2d.pool.id, 
+			token_in: tokenIn.id, 
+			token_out: tokenOut.id, 
+			amount_in: round(tokenIn.decimals, toNonDivisibleNumber(tokenIn.decimals, tokenInAmount)), 
+			min_amount_out: round(tokenOut.decimals, toNonDivisibleNumber(tokenOut.decimals, minTokenOutAmount))
+		}
+	});
 
 
   const actions: RefFiFunctionCallOptions[] = [
@@ -397,7 +416,7 @@ function solveForMuFloat(pools, totalDeltaX, inputToken, outputToken) {
   
 function calculateOptimalOutput(pools, inputAmount, inputToken, outputToken) {
 // This runs the main optimization algorithm using the input
-// console.log('input amount is... ',inputAmount)
+console.log('input amount is... ',inputAmount)
 //let mu = solveForMu(pools, inputAmount);
 let mu = solveForMuFloat(pools, inputAmount, inputToken, outputToken);
 // console.log('mu is ... ', mu)
