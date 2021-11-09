@@ -148,10 +148,13 @@ export function MobileNavBar() {
   const { data } = useRefPrice();
   const iconRef = useRef<HTMLSpanElement | null>(null);
   const popupRef = useRef<HTMLDivElement | null>(null);
-  const accountId = wallet.getAccountId();
+  const [account, network] = wallet.getAccountId().split('.');
+  const niceAccountId = `${account.slice(0, 10)}...${network || ''}`;
   const [openMenu, setOpenMenu] = useState('');
   const [closeMenu, setCloseMenu] = useState(false);
   const history = useHistory();
+  const accountName =
+    account.length > 10 ? niceAccountId : wallet.getAccountId();
 
   useEffect(() => {
     document.addEventListener('click', handleClick, false);
@@ -219,7 +222,7 @@ export function MobileNavBar() {
             </div>
             <div className="overflow-ellipsis overflow-hidden text-xs whitespace-nowrap account-name">
               {wallet.isSignedIn() ? (
-                <div>{accountId}</div>
+                <div>{accountName}</div>
               ) : (
                 <button
                   onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
@@ -262,7 +265,7 @@ export function MobileNavBar() {
               </div>
               <div className="overflow-ellipsis py-1 text-xs overflow-hidden whitespace-nowrap account-name">
                 {wallet.isSignedIn() ? (
-                  <div>{accountId}</div>
+                  <div>{accountName}</div>
                 ) : (
                   <button
                     onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
