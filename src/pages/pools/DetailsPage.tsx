@@ -734,7 +734,7 @@ const ChartChangeButton = ({
   return (
     <div
       className={`text-white rounded-2xl flex items-center bg-gray-700 ${className} ${
-        noData ? 'z-30 opacity-70' : ''
+        noData ? 'z-20 opacity-70' : ''
       }`}
     >
       <button
