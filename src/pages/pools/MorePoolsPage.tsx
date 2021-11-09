@@ -259,7 +259,6 @@ export const MorePoolsPage = () => {
   const morePoolIds = state?.morePoolIds;
   const tokens = state?.tokens;
   const morePools = useMorePools({ morePoolIds, order, sortBy });
-  const history = useHistory();
   const watchList = useAllWatchList();
 
   return (

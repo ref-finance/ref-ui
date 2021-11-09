@@ -69,7 +69,6 @@ export const usePools = (props: {
     sortBy,
     order,
   }: LoadPoolsOpts) {
-    setLoading(true);
     getPools({
       page,
       tokenName: tokenName,
@@ -106,6 +105,8 @@ export const usePools = (props: {
   // const loadPools = debounce(_loadPools, 500);
 
   useEffect(() => {
+    setLoading(true);
+
     loadPools({
       accumulate: false,
       tokenName: props.tokenName,
@@ -115,6 +116,8 @@ export const usePools = (props: {
   }, [props.searchTrigger]);
 
   useEffect(() => {
+    setLoading(true);
+
     loadPools({
       accumulate: false,
       tokenName: props.tokenName,
@@ -124,6 +127,8 @@ export const usePools = (props: {
   }, [props.sortBy, props.order]);
 
   useEffect(() => {
+    setLoading(true);
+
     loadPools({
       accumulate: true,
       tokenName: props.tokenName,
