@@ -249,15 +249,17 @@ function PoolsMenu() {
       onMouseOver={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <div className="flex items-center justify-center">
+      <div
+        className={`flex items-center justify-center ${
+          isSelected || hover ? 'text-green-500' : 'text-gray-400'
+        }`}
+      >
         <h2
-          className={`link hover:text-green-500 text-lg font-bold p-4 cursor-pointer ${
-            isSelected || hover ? 'text-green-500' : 'text-gray-400'
-          }`}
+          className={`link hover:text-green-500 text-lg font-bold p-4 cursor-pointer`}
         >
           <FormattedMessage id="pools" defaultMessage="Pools" />
         </h2>
-        {isSelected || hover ? <ArrowDownGreen /> : <ArrowDownWhite />}
+        <FiChevronDown />
       </div>
       <div
         className={`${
@@ -271,7 +273,15 @@ function PoolsMenu() {
           className="border border-primaryText shadow-4xl"
         >
           {links.map((link) => {
-            const isSelected = link.path === location.pathname;
+            let isSelected = link.path === location.pathname;
+            if (
+              location.pathname.startsWith('/pool/') ||
+              location.pathname.startsWith('/more_pools/')
+            ) {
+              if (link.path === '/pools') {
+                isSelected = true;
+              }
+            }
 
             return (
               <div
