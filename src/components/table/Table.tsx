@@ -77,7 +77,7 @@ export default function Table({
               />
             </th>
             <th
-              className={`font-normal pb-2 pr-5 w-1/5 ${
+              className={`font-normal pb-2 pr-3 w-1/5 ${
                 sortBy === 'total' ? 'text-greenLight' : ''
               }`}
             >
