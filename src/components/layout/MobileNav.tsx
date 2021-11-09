@@ -297,14 +297,22 @@ export function MobileNavBar() {
             )}
             {moreLinks.map(
               ({ id, label, subRoute, pattern, url, isExternal, children }) => {
-                const location = useLocation();
-                const isSelected = subRoute
+                let location = useLocation();
+                let isSelected = subRoute
                   ? subRoute.includes(location.pathname)
                   : matchPath(location.pathname, {
                       path: pattern,
                       exact: true,
                       strict: false,
                     });
+                if (
+                  location.pathname.startsWith('/pool/') ||
+                  location.pathname.startsWith('/more_pools/')
+                ) {
+                  if (id === 'pools') {
+                    isSelected = true;
+                  }
+                }
                 return (
                   <div key={id}>
                     <div
@@ -346,7 +354,7 @@ export function MobileNavBar() {
                         }`}
                       >
                         {children?.map((link) => {
-                          const isSubMenuSelected = matchPath(
+                          let isSubMenuSelected: any = matchPath(
                             location.pathname,
                             {
                               path: link.pattern,
@@ -354,6 +362,14 @@ export function MobileNavBar() {
                               strict: false,
                             }
                           );
+                          if (
+                            location.pathname.startsWith('/pool/') ||
+                            location.pathname.startsWith('/more_pools/')
+                          ) {
+                            if (id === 'view_pools') {
+                              isSubMenuSelected = true;
+                            }
+                          }
                           return (
                             <div
                               key={link.id}

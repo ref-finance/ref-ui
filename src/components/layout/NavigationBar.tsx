@@ -208,7 +208,10 @@ function Quiz() {
 
 function PoolsMenu() {
   const location = useLocation();
-  const isSelected = location.pathname.startsWith('/pools');
+  const isSelected =
+    location.pathname.startsWith('/pools') ||
+    location.pathname.startsWith('/pool') ||
+    location.pathname.startsWith('/more_pools');
   const [hover, setHover] = useState(false);
   const history = useHistory();
 
