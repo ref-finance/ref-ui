@@ -330,17 +330,17 @@ export const useMonthTVL = (pool_id: string) => {
       const minDay = _.minBy(res, (o) => {
         return Number(o.asset_tvl) + Number(o.fiat_tvl);
       });
-      const minValue = Number(minDay.asset_tvl) + Number(minDay.fiat_tvl);
+      const minValue = Number(minDay?.asset_tvl) + Number(minDay?.fiat_tvl);
 
       const monthTVL = res
         .map((v, i) => {
           return {
             ...v,
-            asset_tvl: Number(v.asset_tvl),
-            fiat_tvl: Number(v.fiat_tvl),
-            total_tvl: Number(v.fiat_tvl) + Number(v.asset_tvl),
+            asset_tvl: Number(v?.asset_tvl),
+            fiat_tvl: Number(v?.fiat_tvl),
+            total_tvl: Number(v?.fiat_tvl) + Number(v?.asset_tvl),
             scaled_tvl:
-              Number(v.fiat_tvl) + Number(v.asset_tvl) - minValue * 0.99,
+              Number(v?.fiat_tvl) + Number(v?.asset_tvl) - minValue * 0.99,
           };
         })
         .reverse();

@@ -192,6 +192,6 @@ const en_US = {
   click_search_bar_to_search: 'Click search bar to search',
   reward_tokens: 'Reward Tokens',
   detail_tip: 'Detail',
-  no_data:'No Data'
+  no_data: 'No Data',
 };
 export default en_US;
