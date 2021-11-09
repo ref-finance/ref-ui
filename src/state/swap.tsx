@@ -23,7 +23,7 @@ export const useSwap = ({
   tokenOut,
   slippageTolerance,
 }: SwapOptions) => {
-	console.log('Real tokenInAmount', tokenInAmount);
+	// console.log('Real tokenInAmount', tokenInAmount);
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
@@ -117,11 +117,11 @@ export const useSwap = ({
     }
   }, [tokenIn, tokenOut, tokenInAmount]);
  
-console.log('amountIn -> tokenInAmount', tokenInAmount);
+// console.log('amountIn -> tokenInAmount', tokenInAmount);
   const makeSwap = () => {
-  console.log('swapsToDo2', swapsToDo);
+  // console.log('swapsToDo2', swapsToDo);
   for(let swapToDo of swapsToDo) {
-    console.log('swap to do amount in', tokenInAmount);
+    // console.log('swap to do amount in', tokenInAmount);
     swap({
       swapsToDo,
       tokenIn,
