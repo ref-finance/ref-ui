@@ -370,7 +370,7 @@ export function MobileNavBar() {
                               }}
                             >
                               {link.logo && (
-                                <span className="text-2xl mr-5">
+                                <span className="text-xl text-left w-9">
                                   {link.logo}
                                 </span>
                               )}

@@ -27,7 +27,7 @@ import { FaExternalLinkAlt } from 'react-icons/fa';
 import { HiMenu, HiOutlineExternalLink } from 'react-icons/hi';
 import { IoChevronBack, IoClose } from 'react-icons/io5';
 
-import { FiChevronUp, FiChevronDown } from 'react-icons/fi';
+import { FiChevronUp, FiChevronDown, FiChevronRight } from 'react-icons/fi';
 import { RiLogoutCircleRLine } from 'react-icons/ri';
 import { useRefPrice } from '~state/account';
 import { toPrecision } from '~utils/numbers';
@@ -405,7 +405,9 @@ function MoreMenu() {
                 >
                   {logo && (
                     <span
-                      className={`${parentLabel ? 'ml-10' : ''} text-2xl mr-4`}
+                      className={`${
+                        parentLabel ? 'ml-10' : ''
+                      } text-xl w-9 text-left`}
                     >
                       {logo}
                     </span>
@@ -417,6 +419,11 @@ function MoreMenu() {
                     </span>
                   )}
                   <span className="ml-4 text-xl">{icon}</span>
+                  {children && (
+                    <span className="text-xl absolute right-4">
+                      <FiChevronRight />
+                    </span>
+                  )}
                 </div>
               );
             }

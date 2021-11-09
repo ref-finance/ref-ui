@@ -66,8 +66,8 @@ export const useMenuItems = () => {
     {
       label: intl.formatMessage({ id: 'Community' }),
       url: '',
-      icon: <HiOutlineExternalLink />,
       id: 5,
+      isExternal: false,
       logo: <IconCommunity />,
       children: [
         {

@@ -13,6 +13,7 @@ const zh_CN = {
   Pool: '流动池',
   pools: '流动池',
   Pools: '流动池',
+  Quiz: 'Quiz',
   no_tokens_deposited: '无代币存入',
   view_pools: '查看流动池',
   view_pool: '查看流动池',
