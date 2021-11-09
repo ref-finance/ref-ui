@@ -21,7 +21,7 @@ import {
   removePoolFromWatchList,
 } from '~services/pool';
 import { useTokenBalances, useTokens, getExchangeRate } from '~state/token';
-import Loading from '~components/layout/Loading';
+import Loading, { ChartLoading } from '~components/layout/Loading';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
 import { FarmStamp } from '~components/icon/FarmStamp';
 import {
@@ -763,9 +763,11 @@ const ChartChangeButton = ({
 function EmptyChart({
   chartDisplay,
   setChartDisplay,
+  loading,
 }: {
   chartDisplay: 'volume' | 'tvl';
   setChartDisplay: (display: 'volume' | 'tvl') => void;
+  loading?: boolean;
 }) {
   return (
     <div className="w-full h-full flex flex-col justify-between">
@@ -788,14 +790,18 @@ function EmptyChart({
           background: '#001320',
         }}
       >
-        <div>
+        {loading ? (
+          <ChartLoading />
+        ) : (
           <div>
-            <ChartNoData />
+            <div>
+              <ChartNoData />
+            </div>
+            <div>
+              <FormattedMessage id="no_data" defaultMessage="No Data" />
+            </div>
           </div>
-          <div>
-            <FormattedMessage id="no_data" defaultMessage="No Data" />
-          </div>
-        </div>
+        )}
       </div>
 
       <div>
@@ -894,7 +900,14 @@ export function VolumeChart({
         />
       );
   };
-  if (!data) return <></>;
+  if (!data)
+    return (
+      <EmptyChart
+        chartDisplay={chartDisplay}
+        setChartDisplay={setChartDisplay}
+        loading={true}
+      />
+    );
   if (data.length === 0)
     return (
       <EmptyChart
