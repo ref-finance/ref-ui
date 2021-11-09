@@ -60,7 +60,7 @@ function Balances({ hideEmpty }: { hideEmpty?: boolean }) {
           {wallet.isSignedIn() && accountName}
         </div>
         <GradientButton
-          className="text-white py-2 px-5"
+          className="text-white text-xs py-2 px-5"
           onClick={() => {
             window.open(getConfig().walletUrl, '_blank');
           }}
@@ -387,7 +387,7 @@ function MobileBalances({ hideEmpty }: { hideEmpty?: boolean }) {
   if (!balances || !userTokens) return <Loading />;
 
   return (
-    <div className="bg-cardBg m-4 rounded-2xl p-6 md:rounded-lg xs:rounded-lg">
+    <div className="bg-cardBg mx-4 rounded-2xl p-6 md:rounded-lg xs:rounded-lg">
       <div className="py-4 text-center">
         <FormattedMessage id="balance" defaultMessage="Balance" />
       </div>
@@ -463,8 +463,8 @@ function MobileActions() {
   if (!actions || actions.length === 0) return <Loading />;
 
   return (
-    <div className="px-6 mt-4 overflow-auto">
-      <div className="bg-cardBg m-4 rounded-2xl p-6 md:rounded-lg xs:rounded-lg">
+    <div className="overflow-auto">
+      <div className="bg-cardBg mx-4 rounded-2xl p-6 md:rounded-lg xs:rounded-lg">
         {actions.map((action, i) => {
           let icon = mapToView(action.data.Action, true);
           icon = icon ? (
@@ -562,20 +562,21 @@ function MobileAccount() {
       </div>
       <div className="flex items-center justify-center py-4">
         <GradientButton
-          className=" rounded text-white py-2 px-5"
-          onClick={() => {
-            window.open(config.walletUrl, '_blank');
-          }}
-        >
-          <FormattedMessage id="go_to_wallet" defaultMessage="Go to Wallet" />
-        </GradientButton>
-        <div
-          className="ml-4 h-8 w-36 text-center inline-block rounded border-gradientFrom border py-2 text-xs text-gradientFrom font-semibold cursor-pointer"
+          className="rounded w-56 text-xs text-white py-2 px-5"
+          btnClassName="font-semibold"
           onClick={() => setShowRecent(!showRecent)}
         >
           {showRecent
             ? intl.formatMessage({ id: 'balance' })
             : intl.formatMessage({ id: 'recent_activity' })}
+        </GradientButton>
+        <div
+          className="ml-4 h-8 w-24 text-center inline-block rounded border-gradientFrom border py-2 text-xs text-gradientFrom font-semibold cursor-pointer"
+          onClick={() => {
+            window.open(config.walletUrl, '_blank');
+          }}
+        >
+          <FormattedMessage id="go_to_wallet" defaultMessage="Go to Wallet" />
         </div>
       </div>
 
