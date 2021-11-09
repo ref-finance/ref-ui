@@ -366,7 +366,7 @@ export function MobileNavBar() {
                             location.pathname.startsWith('/pool/') ||
                             location.pathname.startsWith('/more_pools/')
                           ) {
-                            if (id === 'view_pools') {
+                            if (link.id === 'view_pools') {
                               isSubMenuSelected = true;
                             }
                           }
