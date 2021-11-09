@@ -5,6 +5,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
 import { find } from 'lodash';
+import { SelectModal } from '~components/layout/SelectModal';
 import {
   useAllPools,
   usePools,
@@ -28,7 +29,12 @@ import { CheckedTick, CheckedEmpty } from '~components/icon/CheckBox';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { PoolDb, WatchList } from '~store/RefDatabase';
-import { DownArrowLight, UpArrowDeep } from '~components/icon';
+import {
+  DownArrowLight,
+  DownArrowLightMobile,
+  UpArrowDeep,
+  UpArrowLight,
+} from '~components/icon';
 import { FarmStamp } from '~components/icon/FarmStamp';
 import { SolidButton } from '~components/button/Button';
 import { wallet } from '~services/near';
@@ -41,38 +47,14 @@ import _, { orderBy, sortBy, filter } from 'lodash';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
-const ConnectToNearCard = () => {
-  return (
-    <Card
-      width="w-full"
-      className="bg-opacity-0 border rounded border-gradientFrom text-white mb-5"
-      padding="p-8"
-    >
-      <div className="text-xl">
-        <SolidButton
-          className="w-full"
-          onClick={() => {
-            wallet.requestSignIn(REF_FARM_CONTRACT_ID);
-          }}
-        >
-          <FormattedMessage
-            id="connect_to_near"
-            defaultMessage="Connect To NEAR"
-          />
-        </SolidButton>
-      </div>
-    </Card>
-  );
-};
-
 function MobilePoolRow({
   pool,
   sortBy,
-}: // watched,
-{
+  watched,
+}: {
   pool: Pool;
   sortBy: string;
-  // watched: Boolean;
+  watched: Boolean;
 }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const morePoolIds = useMorePoolIds({ topPool: pool });
@@ -84,7 +66,6 @@ function MobilePoolRow({
     });
   }, [pool]);
 
-  // if (!tokens) return <Loading />;
   if (!tokens) return <></>;
 
   tokens.sort((a, b) => {
@@ -115,6 +96,7 @@ function MobilePoolRow({
   return (
     <Link
       className="flex flex-col border-b border-gray-700 bg-cardBg w-full px-4 py-6 text-white"
+      onClick={() => localStorage.setItem('fromMorePools', 'n')}
       to={{
         pathname: `/pool/${pool.id}`,
         state: { tvl: pool?.tvl, backToFarms: supportFarm },
@@ -142,11 +124,11 @@ function MobilePoolRow({
           <div className="text-sm ml-2 font-semibold">
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </div>
-          {/* {watched && (
+          {watched && (
             <div className="ml-2">
               <WatchListStartFull />
             </div>
-          )} */}
+          )}
 
           {morePoolIds?.length && morePoolIds?.length > 1 && (
             <div
@@ -163,15 +145,95 @@ function MobilePoolRow({
             </div>
           )}
         </div>
-        <div className="mr-4">
-          {sortBy === 'h24_volume' ? (
-            <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
-          ) : (
-            showSortedValue({ sortBy, value: pool[sortBy] })
-          )}
-        </div>
       </div>
     </Link>
+  );
+}
+
+function MobileWatchListCard({ watchPools }: { watchPools: Pool[] }) {
+  const intl = useIntl();
+  const [showSelectModal, setShowSelectModal] = useState<Boolean>(false);
+  const [sortBy, onSortChange] = useState<string>('tvl');
+
+  return (
+    <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4 mb-4">
+      <div className="mx-4 flex items-center justify-between mt-4">
+        <div className="flex items-center">
+          <div
+            className={`text-${
+              watchPools?.length > 0 ? 'white' : 'gray-400'
+            }  text-base`}
+          >
+            <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
+            {watchPools.length > 0 ? ` (${watchPools.length})` : ''}
+          </div>
+          <div>
+            <FaRegQuestionCircle
+              data-type="dark"
+              data-place="right"
+              data-multiline={true}
+              data-tip={intl.formatMessage({ id: 'my_watchlist_copy' })}
+              className="inline-block ml-2 text-xs text-primaryText"
+            />
+            <ReactTooltip
+              className="text-xs shadow-4xl"
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+              class="tool-tip"
+              textColor="#c6d1da"
+            />
+          </div>
+        </div>
+      </div>
+      <section className="w-full">
+        <header className="p-4 text-gray-400 flex items-center justify-between text-sm">
+          <div>
+            <FormattedMessage id="pair" defaultMessage="Pair" />
+          </div>
+          <div className="flex items-center">
+            <div className="relative rounded text-gray-400 flex items-center border border-gray-400 w-36">
+              <div
+                className="p-1 border-r border-gray-400 w-32"
+                onClick={() => {
+                  setShowSelectModal(true);
+                }}
+              >
+                <FormattedMessage id={sortBy} defaultMessage={sortBy} />
+              </div>
+              <div
+                className="p-1"
+                onClick={() => {
+                  setShowSelectModal(true);
+                }}
+              >
+                <PolygonGrayDown />
+              </div>
+              {showSelectModal && (
+                <SelectModal
+                  onSortChange={onSortChange}
+                  setShowModal={setShowSelectModal}
+                  className="top-10"
+                />
+              )}
+            </div>
+          </div>
+        </header>
+        <div className="border-b border-gray-700 "></div>
+        <div className="max-h-96 overflow-y-auto">
+          {watchPools?.map((pool, i) => (
+            <div className="w-full hover:bg-poolRowHover" key={i}>
+              <MobilePoolRow
+                sortBy={sortBy}
+                pool={pool}
+                watched={!!find(watchPools, { id: pool.id })}
+              />
+            </div>
+          ))}
+        </div>
+      </section>
+    </Card>
   );
 }
 
@@ -179,7 +241,7 @@ function MobileLiquidityPage({
   pools,
   tokenName,
   order,
-  // watchList,
+  watchPools,
   hasMore,
   onSearch,
   onSortChange,
@@ -189,77 +251,38 @@ function MobileLiquidityPage({
   onHide,
   hideLowTVL,
   allPools,
+  searchTrigger,
+  setSearchTrigger,
 }: {
   pools: Pool[];
+  searchTrigger: Boolean;
+  onSortChange: (modeSort: string) => void;
+  setSearchTrigger: (mode: Boolean) => void;
   tokenName: string;
   order: string;
-  // watchList: WatchList[];
+  watchPools: Pool[];
   sortBy: string;
   hideLowTVL: Boolean;
   hasMore: boolean;
   allPools: number;
   onHide: (mode: Boolean) => void;
   onSearch: (name: string) => void;
-  onSortChange: (by: string) => void;
   onOrderChange: (by: string) => void;
   nextPage: (...args: []) => void;
 }) {
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>();
   const [searchValue, setSearchValue] = useState<string>(tokenName);
-  const SelectModal = ({
-    className,
-    setShowModal,
-  }: {
-    className?: string;
-    setShowModal: (mode: boolean) => void;
-  }) => {
-    return (
-      <Card
-        width="w-36 absolute"
-        className={`rounded border border-gray-400 flex text-sm flex-col items-start ${className}`}
-        padding="py-1 px-0"
-      >
-        <div
-          className="fixed top-0 left-0 w-screen h-screen opacity-0 z-0"
-          onClick={() => {
-            setShowModal(false);
-          }}
-        />
-        <div
-          className="py-2 px-2  w-full hover:bg-poolRowHover hover:text-white rounded-lg hover:opacity-80 z-30"
-          onClick={() => {
-            onSortChange('h24_volume');
-            setShowModal(false);
-          }}
-        >
-          <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
-        </div>
-        <div
-          className="py-2 px-2 w-full hover:bg-poolRowHover hover:text-white rounded-lg hover:opacity-80 z-30"
-          onClick={() => {
-            onSortChange('tvl');
-            setShowModal(false);
-          }}
-        >
-          <FormattedMessage id="tvl" defaultMessage="TVL" />
-        </div>
-        <div
-          className="py-2 px-2   w-full hover:bg-poolRowHover hover:text-white rounded-lg hover:opacity-80 z-30"
-          onClick={() => {
-            onSortChange('fee');
-            setShowModal(false);
-          }}
-        >
-          <FormattedMessage id="fee" defaultMessage="Fee" />
-        </div>
-      </Card>
-    );
-  };
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (searchTrigger === false || searchTrigger === true)
+      inputRef.current.focus();
+  }, [searchTrigger]);
 
   return (
     <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
-      <div className="mx-6 mb-6 mt-3">
+      <div className="mx-4 mb-6 mt-3">
         <div className="text-white text-xl">
           <FormattedMessage
             id="liquidity_pools"
@@ -267,8 +290,10 @@ function MobileLiquidityPage({
           />
         </div>
       </div>
+      <MobileWatchListCard watchPools={watchPools} />
+
       <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4">
-        <div className="mx-6 flex items-center justify-between my-4">
+        <div className="mx-4 flex items-center justify-between my-4">
           <div className="flex items-center">
             <div className="text-white text-base">
               {/* <FormattedMessage id="top_pools" defaultMessage="Top Pools" /> */}
@@ -280,7 +305,7 @@ function MobileLiquidityPage({
                 data-place="right"
                 data-multiline={true}
                 data-tip={intl.formatMessage({ id: 'topPoolsCopy' })}
-                className="inline-block	ml-2 text-xs text-primaryText"
+                className="inline-block ml-2 text-xs text-primaryText"
               />
               <ReactTooltip
                 className="text-xs shadow-4xl"
@@ -302,22 +327,29 @@ function MobileLiquidityPage({
         </div>
         <div className="rounded my-2 text-gray-400 flex items-center pr-2 mx-6 mb-5 bg-inputDarkBg">
           <input
+            ref={inputRef}
             className={`text-sm outline-none rounded w-full py-2 px-3`}
             placeholder={intl.formatMessage({
-              id: 'search_pools',
+              id: 'click_search_bar_to_search',
             })}
             value={searchValue}
             onChange={(evt) => {
               setSearchValue(evt.target.value);
-              onSearch(evt.target.value);
             }}
-            // onKeyUp={(evt) => {
-            //   if (evt.keyCode === 13) {
-            //     onSearch(searchValue);
-            //   }
-            // }}
+            onKeyUp={(evt) => {
+              if (evt.keyCode === 13) {
+                onSearch(searchValue);
+                setSearchTrigger(!searchTrigger);
+              }
+            }}
           />
-          <FaSearch onClick={() => onSearch(searchValue)} />
+          <FaSearch
+            className="cursor-pointer"
+            onClick={() => {
+              onSearch(searchValue);
+              setSearchTrigger(!searchTrigger);
+            }}
+          />
         </div>
         <div className=" mb-4 flex items-center mx-6">
           <div className="mr-2">
@@ -350,7 +382,7 @@ function MobileLiquidityPage({
                   onOrderChange(order === 'desc' ? 'asc' : 'desc');
                 }}
               >
-                {order === 'desc' ? <DownArrowLight /> : <UpArrowDeep />}
+                {order === 'desc' ? <DownArrowLightMobile /> : <UpArrowDeep />}
               </div>
               <div className="relative rounded text-gray-400 flex items-center border border-gray-400 w-36">
                 <div
@@ -359,12 +391,7 @@ function MobileLiquidityPage({
                     setShowSelectModal(true);
                   }}
                 >
-                  <FormattedMessage
-                    id={sortBy}
-                    defaultMessage={
-                      sortBy !== 'h24_volume' ? sortBy : '24h Volume'
-                    }
-                  />
+                  <FormattedMessage id={sortBy} defaultMessage={sortBy} />
                 </div>
                 <div
                   className="p-1"
@@ -376,6 +403,7 @@ function MobileLiquidityPage({
                 </div>
                 {showSelectModal && (
                   <SelectModal
+                    onSortChange={onSortChange}
                     setShowModal={setShowSelectModal}
                     className="top-10"
                   />
@@ -390,7 +418,7 @@ function MobileLiquidityPage({
                 <MobilePoolRow
                   pool={pool}
                   sortBy={sortBy}
-                  // watched={!!find(watchList, { pool_id: pool.id.toString() })}
+                  watched={!!find(watchPools, { id: pool.id })}
                 />
               </div>
             ))}
@@ -435,13 +463,14 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
 
   return (
     <Link
-      className="grid grid-cols-12 py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-600 hover:opacity-80"
+      className="grid grid-cols-10 py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-600 hover:opacity-80"
+      onClick={() => localStorage.setItem('fromMorePools', 'n')}
       to={{
         pathname: `/pool/${pool.id}`,
         state: { tvl: pool.tvl, backToFarms: supportFarm },
       }}
     >
-      <div className="col-span-6 md:col-span-4 flex items-center">
+      <div className="col-span-7 md:col-span-4 flex items-center">
         <div className="mr-6 w-2">{index}</div>
         <div className="flex items-center">
           <div className="flex items-center">
@@ -471,10 +500,8 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
       <div className="col-span-1 py-1 md:hidden ">
         {calculateFeePercent(pool.fee)}%
       </div>
-      <div className="col-span-2 sm:col-span-4 py-1">
-        <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
-      </div>
-      <div className="col-span-2 py-1">
+
+      <div className="col-span-1 py-1">
         ${toInternationalCurrencySystem(pool.tvl.toString())}
       </div>
 
@@ -497,47 +524,39 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   );
 }
 
-function WatchListCard({ watchList }: { watchList: WatchList[] }) {
+function WatchListCard({ watchPools }: { watchPools: Pool[] }) {
   const intl = useIntl();
-  // const watchPools = useWatchPools({
-  //   watchList,
-  // });
-
   return (
     <>
-      <div className="pb-6 mx-8">
-        <div className="text-white text-2xl">
-          <FormattedMessage
-            id="liquidity_pools"
-            defaultMessage="Liquidity Pools"
-          />
-        </div>
-      </div>
-      {/* <Card
-        className=" w-full mb-4 hidden"
-        padding="p-0 py-6"
-        bgcolor="bg-cardBg"
-      >
+      <Card className=" w-full mb-2" padding="p-0 py-6" bgcolor="bg-cardBg">
         <div className="mx-8 flex items-center">
           <div
             className={`text-${
-              watchList?.length > 0 ? 'white' : 'gray-400'
+              watchPools?.length > 0 ? 'white' : 'gray-400'
             } text-lg`}
           >
-            <FormattedMessage id="my_watchlist" defaultMessage="My watchlist" />
+            <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
           </div>
           <FaRegQuestionCircle
             data-type="dark"
-            data-place="bottom"
+            data-place="right"
             data-multiline={true}
             data-tip={intl.formatMessage({ id: 'my_watchlist_copy' })}
-            className="inline-block	ml-2 text-sm  text-gray-500"
+            className="inline-block ml-2 text-sm  text-gray-500"
           />
-          <ReactTooltip className="text-sm" />
+          <ReactTooltip
+            className="text-xs shadow-4xl"
+            backgroundColor="#1D2932"
+            border
+            borderColor="#7e8a93"
+            effect="solid"
+            class="tool-tip"
+            textColor="#c6d1da"
+          />
         </div>
-        <section className="px-2">
-          <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
-            <div className="col-span-6 md:col-span-4 flex">
+        <section className="">
+          <header className="grid grid-cols-10 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
+            <div className="col-span-7 md:col-span-4 flex">
               <div className="mr-6 w-2">#</div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </div>
@@ -546,13 +565,8 @@ function WatchListCard({ watchList }: { watchList: WatchList[] }) {
                 <FormattedMessage id="fee" defaultMessage="Fee" />
               </div>
             </div>
-            <div className="col-span-2 flex items-center">
-              <div className="mr-1">
-                <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
-              </div>
-            </div>
 
-            <div className="col-span-2 flex items-center cursor-pointer">
+            <div className="col-span-1 flex items-center cursor-pointer">
               <span className="mr-1">
                 <FormattedMessage id="tvl" defaultMessage="TVL" />
               </span>
@@ -564,13 +578,16 @@ function WatchListCard({ watchList }: { watchList: WatchList[] }) {
 
           <div className="max-h-96 overflow-y-auto">
             {watchPools?.map((pool, i) => (
-              <div className="w-full hover:bg-poolRowHover" key={i}>
+              <div
+                className="w-full hover:bg-poolRowHover hover:bg-opacity-20"
+                key={i}
+              >
                 <PoolRow pool={pool} index={i + 1} />
               </div>
             ))}
           </div>
         </section>
-      </Card> */}
+      </Card>
     </>
   );
 }
@@ -581,21 +598,25 @@ function LiquidityPage_({
   tokenName,
   order,
   hasMore,
-  // watchList,
+  watchPools,
   onSearch,
   onHide,
   hideLowTVL,
   onSortChange,
   onOrderChange,
+  searchTrigger,
+  setSearchTrigger,
   nextPage,
   allPools,
 }: {
   pools: Pool[];
   sortBy: string;
   hideLowTVL: Boolean;
-  // watchList: WatchList[];
+  watchPools: Pool[];
   tokenName: string;
   order: string;
+  searchTrigger: Boolean;
+  setSearchTrigger: (mode: Boolean) => void;
   onHide: (mode: Boolean) => void;
   allPools: number;
   hasMore: boolean;
@@ -606,9 +627,22 @@ function LiquidityPage_({
 }) {
   const intl = useIntl();
   const [searchValue, setSearchValue] = useState<string>(tokenName);
+  const inputRef = useRef(null);
+  useEffect(() => {
+    if (searchTrigger === false || searchTrigger === true)
+      inputRef.current?.focus();
+  }, [searchTrigger]);
   return (
     <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
-      {/* {<WatchListCard watchList={watchList} />} */}
+      <div className="mb-4 mx-8">
+        <div className="text-white text-xl">
+          <FormattedMessage
+            id="liquidity_pools"
+            defaultMessage="Liquidity Pools"
+          />
+        </div>
+      </div>
+      <WatchListCard watchPools={watchPools} />
 
       <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
         <div className="flex mx-8 justify-between pb-4">
@@ -630,7 +664,7 @@ function LiquidityPage_({
                 data-place="right"
                 data-multiline={true}
                 data-tip={intl.formatMessage({ id: 'topPoolsCopy' })}
-                className="inline-block	ml-2 text-sm  text-primaryText"
+                className="inline-block ml-2 text-sm  text-primaryText"
               />
               <ReactTooltip
                 className="text-xs shadow-4xl"
@@ -665,29 +699,36 @@ function LiquidityPage_({
             </div>
             <div className="rounded w-full my-2 text-gray-400 flex items-center pr-2 bg-inputDarkBg">
               <input
+                ref={inputRef}
                 className={`text-sm outline-none rounded w-full py-2 px-3`}
                 placeholder={intl.formatMessage({
-                  id: 'search_pools',
+                  id: 'press_enter_to_search',
                 })}
                 value={searchValue}
                 onChange={(evt) => {
                   setSearchValue(evt.target.value);
-                  onSearch(evt.target.value);
                 }}
-                // onKeyUp={(evt) => {
-                //   if (evt.keyCode === 13) {
-                //     onSearch(searchValue);
-                //   }
-                // }}
+                onKeyUp={(evt) => {
+                  if (evt.keyCode === 13) {
+                    onSearch(searchValue);
+                    setSearchTrigger(!searchTrigger);
+                  }
+                }}
               />
-              <FaSearch onClick={() => onSearch(searchValue)} />
+              <FaSearch
+                className="cursor-pointer"
+                onClick={() => {
+                  onSearch(searchValue);
+                  setSearchTrigger(!searchTrigger);
+                }}
+              />
             </div>
           </div>
         </div>
 
         <section className="">
-          <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
-            <div className="col-span-6 md:col-span-4 flex">
+          <header className="grid grid-cols-10 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
+            <div className="col-span-7 md:col-span-4 flex">
               <div className="mr-6 w-2">#</div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </div>
@@ -701,31 +742,19 @@ function LiquidityPage_({
               <div className="mr-1">
                 <FormattedMessage id="fee" defaultMessage="Fee" />
               </div>
-              {sortBy === 'fee' && order === 'desc' ? (
-                <DownArrowLight />
-              ) : (
-                <UpArrowDeep />
-              )}
-            </div>
-            <div
-              className="col-span-2 flex items-center"
-              onClick={() => {
-                onSortChange('h24_volume');
-                onOrderChange(order === 'desc' ? 'asc' : 'desc');
-              }}
-            >
-              <div className="mr-1">
-                <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
-              </div>
-              {sortBy === 'h24_volume' && order === 'desc' ? (
-                <DownArrowLight />
+              {sortBy === 'fee' ? (
+                order === 'desc' ? (
+                  <DownArrowLight />
+                ) : (
+                  <UpArrowLight />
+                )
               ) : (
                 <UpArrowDeep />
               )}
             </div>
 
             <div
-              className="col-span-2 flex items-center cursor-pointer"
+              className="col-span-1 flex items-center cursor-pointer"
               onClick={() => {
                 onSortChange('tvl');
                 onOrderChange(order === 'desc' ? 'asc' : 'desc');
@@ -734,8 +763,12 @@ function LiquidityPage_({
               <span className="mr-1">
                 <FormattedMessage id="tvl" defaultMessage="TVL" />
               </span>
-              {sortBy === 'tvl' && order === 'desc' ? (
-                <DownArrowLight />
+              {sortBy === 'tvl' ? (
+                order === 'desc' ? (
+                  <DownArrowLight />
+                ) : (
+                  <UpArrowLight />
+                )
               ) : (
                 <UpArrowDeep />
               )}
@@ -748,7 +781,7 @@ function LiquidityPage_({
           <div className="max-h-96 overflow-y-auto">
             {pools?.map((pool, i) => (
               <div
-                className="w-full hover:bg-poolRowHover bg-blend-overlay"
+                className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20"
                 key={i}
               >
                 <PoolRow pool={pool} index={i + 1} />
@@ -766,11 +799,12 @@ export function LiquidityPage() {
   const [sortBy, setSortBy] = useState('tvl');
   const [order, setOrder] = useState('desc');
   const AllPools = useAllPools();
-  // const watchList = useAllWatchList();
+  const watchPools = useWatchPools();
+  const [searchTrigger, setSearchTrigger] = useState<Boolean>(null);
   const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
-  const [watchListTop, setWatchListTop] = useState<Boolean>(false);
   const [displayPools, setDisplayPools] = useState<Pool[]>();
   const { pools, hasMore, nextPage, loading } = usePools({
+    searchTrigger,
     tokenName,
     sortBy,
     order,
@@ -789,20 +823,21 @@ export function LiquidityPage() {
     setDisplayPools(tempPools);
   }, [pools, hideLowTVL]);
 
-  // if (!displayPools || !watchList) return <Loading />;
-  if (!displayPools || loading) return <Loading />;
+  if (!displayPools || loading || !watchPools) return <Loading />;
 
   return (
     <>
       <LiquidityPage_
         tokenName={tokenName}
+        searchTrigger={searchTrigger}
+        setSearchTrigger={setSearchTrigger}
         pools={displayPools}
         onHide={(isHide) => {
           localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
           setHideLowTVL(isHide);
         }}
         hideLowTVL={hideLowTVL}
-        // watchList={watchList}
+        watchPools={watchPools}
         order={order}
         sortBy={sortBy}
         allPools={AllPools}
@@ -813,10 +848,12 @@ export function LiquidityPage() {
         nextPage={nextPage}
       />
       <MobileLiquidityPage
+        searchTrigger={searchTrigger}
+        setSearchTrigger={setSearchTrigger}
         hideLowTVL={hideLowTVL}
         tokenName={tokenName}
         pools={displayPools}
-        // watchList={watchList}
+        watchPools={watchPools}
         allPools={AllPools}
         order={order}
         sortBy={sortBy}

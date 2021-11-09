@@ -119,7 +119,7 @@ export default function DepositPage() {
           <ConnectToNearBtn />
         )}
       </Card>
-      <div className="text-white text-sm pt-3">
+      <div className="text-primaryText text-xs pt-3">
         <FormattedMessage
           id="small_storage_fee_is_applied_of"
           defaultMessage="Small storage fee is applied of"

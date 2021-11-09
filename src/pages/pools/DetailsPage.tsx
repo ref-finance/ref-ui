@@ -2,7 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
-import { usePool, useRemoveLiquidity } from '~state/pool';
+import {
+  useMonthTVL,
+  useMonthVolume,
+  usePool,
+  useRemoveLiquidity,
+  volumeDataType,
+  volumeType,
+  TVLDataType,
+  TVLType,
+  useDayVolume,
+} from '~state/pool';
 import {
   addLiquidityToPool,
   addPoolToWatchList,
@@ -39,7 +49,12 @@ import { isMobile } from '~utils/device';
 import ReactModal from 'react-modal';
 import { toRealSymbol } from '~utils/token';
 
-import { BackArrow, Near } from '~components/icon';
+import {
+  BackArrowWhite,
+  BackArrowGray,
+  ModalClose,
+  Near,
+} from '~components/icon';
 import { useHistory } from 'react-router';
 import { getPool } from '~services/indexer';
 import { BigNumber } from 'bignumber.js';
@@ -50,7 +65,27 @@ import {
 } from '~components/icon/WatchListStar';
 import { OutlineButton, SolidButton } from '~components/button/Button';
 import { wallet } from '~services/near';
+import { BreadCrumb } from '~components/layout/BreadCrumb';
 
+import {
+  ResponsiveContainer,
+  LineChart,
+  BarChart,
+  XAxis,
+  YAxis,
+  Bar,
+  Line,
+  BarProps,
+  Tooltip,
+  Cell,
+  Area,
+  AreaChart,
+  ComposedChart,
+} from 'recharts';
+
+import _ from 'lodash';
+import moment from 'moment';
+import { ChartNoData } from '~components/icon/ChartNoData';
 interface ParamTypes {
   id: string;
 }
@@ -328,8 +363,19 @@ function AddLiquidityModal(
         bgcolor="bg-cardBg"
         className="text-white outline-none "
       >
-        <div className="text-base font-bold pb-4">
-          <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
+        <div className="flex items-start justify-between">
+          <div className="text-base font-bold pb-4">
+            <FormattedMessage
+              id="add_liquidity"
+              defaultMessage="Add Liquidity"
+            />
+          </div>
+          <div
+            className="ml-2 cursor-pointer p-1"
+            onClick={props.onRequestClose}
+          >
+            <ModalClose />
+          </div>
         </div>
 
         {/* PC display */}
@@ -351,7 +397,7 @@ function AddLiquidityModal(
               </div>
             </div>
             <InputAmount
-              className="w-full border border-transparent rounded-xl "
+              className="w-full border border-transparent rounded"
               max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
               onChangeAmount={changeFirstTokenAmount}
               value={firstTokenAmount}
@@ -387,7 +433,7 @@ function AddLiquidityModal(
             </div>
           </div>
           <InputAmount
-            className="w-full"
+            className="w-full border border-transparent rounded"
             max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
             onChangeAmount={changeFirstTokenAmount}
             value={firstTokenAmount}
@@ -413,7 +459,7 @@ function AddLiquidityModal(
               </div>
             </div>
             <InputAmount
-              className="w-full border border-transparent rounded-xl"
+              className="w-full border border-transparent rounded"
               max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
               onChangeAmount={changeSecondTokenAmount}
               value={secondTokenAmount}
@@ -448,13 +494,13 @@ function AddLiquidityModal(
             </div>
           </div>
           <InputAmount
-            className="w-full"
+            className="w-full border border-transparent rounded"
             max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
             onChangeAmount={changeSecondTokenAmount}
             value={secondTokenAmount}
           />
         </div>
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-8 ">
           {error && <Alert level="error" message={error.message} />}
         </div>
         <div className="flex items-center justify-center">
@@ -534,11 +580,19 @@ export function RemoveLiquidityModal(
           border: '1px solid rgba(0, 198, 162, 0.5)',
         }}
       >
-        <div className="text-base pb-4">
-          <FormattedMessage
-            id="remove_liquidity"
-            defaultMessage="Remove Liquidity"
-          />
+        <div className="flex items-start justify-between">
+          <div className="text-base pb-4">
+            <FormattedMessage
+              id="remove_liquidity"
+              defaultMessage="Remove Liquidity"
+            />
+          </div>
+          <div
+            className="ml-2 cursor-pointer p-1"
+            onClick={props.onRequestClose}
+          >
+            <ModalClose />
+          </div>
         </div>
 
         <div>
@@ -559,7 +613,7 @@ export function RemoveLiquidityModal(
                   setError(error);
                 }
               }}
-              className="border border-transparent rounded-xl"
+              className="border border-transparent rounded"
             />
           </div>
         </div>
@@ -665,19 +719,344 @@ function MyShares({
   return <div>{displayPercent}% of Total</div>;
 }
 
+const ChartChangeButton = ({
+  chartDisplay,
+  setChartDisplay,
+  className,
+  noData,
+}: {
+  chartDisplay: 'volume' | 'tvl';
+  setChartDisplay: (display: 'volume' | 'tvl') => void;
+  className?: string;
+  noData?: boolean;
+}) => {
+  return (
+    <div
+      className={`text-white rounded-2xl flex items-center bg-gray-700 ${className} ${
+        noData ? 'z-30 opacity-70' : ''
+      }`}
+    >
+      <button
+        className={`py-1 px-4 w-22 ${
+          chartDisplay === 'tvl'
+            ? 'rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo'
+            : ''
+        }`}
+        onClick={() => setChartDisplay('tvl')}
+      >
+        <FormattedMessage id="tvl" defaultMessage="TVL" />
+      </button>
+      <button
+        className={`py-1 px-4 w-22 ${
+          chartDisplay === 'volume'
+            ? 'rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo'
+            : ''
+        }`}
+        onClick={() => setChartDisplay('volume')}
+      >
+        <FormattedMessage id="volume" defaultMessage="Volume" />
+      </button>
+    </div>
+  );
+};
+
+function EmptyChart({
+  chartDisplay,
+  setChartDisplay,
+}: {
+  chartDisplay: 'volume' | 'tvl';
+  setChartDisplay: (display: 'volume' | 'tvl') => void;
+}) {
+  return (
+    <div className="w-full h-full flex flex-col justify-between">
+      <div className="pb-7">
+        <div className="flex items-center justify-between">
+          <div className="text-gray-400 text-base float-left">$&nbsp;-</div>
+          <ChartChangeButton
+            noData={true}
+            chartDisplay={chartDisplay}
+            setChartDisplay={setChartDisplay}
+          />
+        </div>
+        <div className="text-xs text-gray-500">-</div>
+      </div>
+
+      {/* layout */}
+      <div
+        className="absolute w-full left-0 top-0 h-full m-auto text-center text-base text-gray-500 flex items-center justify-center opacity-70 z-10"
+        style={{
+          background: '#001320',
+        }}
+      >
+        <div>
+          <div>
+            <ChartNoData />
+          </div>
+          <div>
+            <FormattedMessage id="no_data" defaultMessage="No Data" />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div
+          style={{
+            width: '300px',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '1px',
+            transform: 'rotate(90deg)',
+            position: 'relative',
+            bottom: '140px',
+            left: '150px',
+          }}
+        />
+        <div
+          style={{
+            borderBottom: '1px solid #ffffff',
+            boxSizing: 'border-box',
+            width: '13px',
+            height: '13px',
+            position: 'relative',
+            left: '295px',
+            top: '4px',
+            backgroundColor: '#00d6af',
+            opacity: 0.4,
+          }}
+          className="rounded-full"
+        />
+        <div className="border border-gradientFrom w-full mb-2" />
+        <div className="flex text-xs text-gray-500 justify-between">
+          {[
+            '24',
+            '31',
+            '07',
+            '14',
+            '21',
+            '28',
+            '04',
+            '11',
+            '18',
+            '25',
+            '02',
+            '09',
+          ].map((d, i) => {
+            return <div key={i}>{d}</div>;
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function VolumeChart({
+  data,
+  chartDisplay,
+  setChartDisplay,
+}: {
+  data: volumeDataType[];
+  chartDisplay: 'volume' | 'tvl';
+  setChartDisplay: (display: 'volume' | 'tvl') => void;
+}) {
+  const [hoverIndex, setHoverIndex] = useState<number>(null);
+
+  const baseColor = '#00967B';
+  const hoverColor = '#00c6a2';
+
+  const formatDate = (rawDate: string) => moment(rawDate).format('ll');
+
+  const BackgroundRender = (targetBar: BarProps & { index?: number }) => {
+    const { x, y, width, height, index } = targetBar;
+    if (index === hoverIndex)
+      return (
+        <path
+          x={x}
+          y={y}
+          fill="#304452"
+          width={width}
+          height={height}
+          fillOpacity={1}
+          className="recharts-rectangle recharts-bar-background-rectangle"
+          d={
+            'M ' + x + ',5 h ' + width + ' v ' + height + ' h ' + -width + ' Z'
+          }
+        />
+      );
+    else
+      return (
+        <path
+          x={x}
+          y={y}
+          fill="#304452"
+          width={width}
+          height={height}
+          fillOpacity={0}
+          className="recharts-rectangle recharts-bar-background-rectangle"
+        />
+      );
+  };
+  if (!data) return <></>;
+  if (data.length === 0)
+    return (
+      <EmptyChart
+        chartDisplay={chartDisplay}
+        setChartDisplay={setChartDisplay}
+      />
+    );
+
+  return (
+    <>
+      <div className="flex items-center justify-between self-start w-full">
+        <div className="flex flex-col">
+          <div className="text-white text-2xl">
+            {`$${toInternationalCurrencySystem(
+              typeof hoverIndex === 'number'
+                ? data[hoverIndex].volume_dollar.toString()
+                : data[data.length - 1].volume_dollar.toString()
+            )}`}
+          </div>
+          <div className="text-xs text-gray-400">
+            {typeof hoverIndex === 'number'
+              ? formatDate(data[hoverIndex].dateString)
+              : formatDate(data[data.length - 1].dateString)}
+          </div>
+        </div>
+        <ChartChangeButton
+          chartDisplay={chartDisplay}
+          setChartDisplay={setChartDisplay}
+        />
+      </div>
+      <ResponsiveContainer height="100%" width="100%">
+        <BarChart
+          data={data}
+          onMouseMove={(item: any) => setHoverIndex(item.activeTooltipIndex)}
+        >
+          <XAxis
+            dataKey="dateString"
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={(value, index) => value.split('-').pop()}
+          />
+          <Tooltip
+            wrapperStyle={{
+              visibility: 'hidden',
+            }}
+            cursor={false}
+          />
+          <Bar
+            dataKey="volume_dollar"
+            background={<BackgroundRender dataKey="volume_dollar" />}
+          >
+            {data.map((entry, i) => (
+              <Cell
+                key={`cell-${i}`}
+                fill={hoverIndex === i ? hoverColor : baseColor}
+              />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </>
+  );
+}
+
+export function TVLChart({
+  data,
+  chartDisplay,
+  setChartDisplay,
+}: {
+  data: TVLDataType[];
+  chartDisplay: 'volume' | 'tvl';
+  setChartDisplay: (display: 'volume' | 'tvl') => void;
+}) {
+  const [hoverIndex, setHoverIndex] = useState<number>(null);
+  const formatDate = (rawDate: string) => moment(rawDate).format('ll');
+  if (!data || data.length === 0)
+    return (
+      <EmptyChart
+        setChartDisplay={setChartDisplay}
+        chartDisplay={chartDisplay}
+      />
+    );
+  return (
+    <>
+      <div className="flex items-center justify-between self-start w-full">
+        <div className="flex flex-col">
+          <div className="text-white text-2xl">
+            {`$${toInternationalCurrencySystem(
+              typeof hoverIndex === 'number'
+                ? data[hoverIndex].total_tvl.toString()
+                : data[data.length - 1].total_tvl.toString()
+            )}`}
+          </div>
+          <div className="text-xs text-gray-400">
+            {typeof hoverIndex === 'number'
+              ? formatDate(data[hoverIndex].date)
+              : formatDate(data[data.length - 1].date)}
+          </div>
+        </div>
+        <ChartChangeButton
+          chartDisplay={chartDisplay}
+          setChartDisplay={setChartDisplay}
+        />
+      </div>
+      <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart
+          data={data}
+          onMouseMove={(item: any) => {
+            setHoverIndex(item.activeTooltipIndex);
+          }}
+        >
+          <defs>
+            <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#00c6a2" stopOpacity={0.2} />
+              <stop offset="95%" stopColor="#00c6a2" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <XAxis
+            dataKey="date"
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={(value, index) => value.split('-').pop()}
+          />
+
+          <Tooltip
+            wrapperStyle={{
+              visibility: 'hidden',
+            }}
+            cursor={{ opacity: '0.3' }}
+          />
+          <Area
+            dataKey="scaled_tvl"
+            dot={false}
+            stroke="#00c6a2"
+            strokeWidth={3}
+            fillOpacity={1}
+            fill="url(#colorGradient)"
+          />
+        </ComposedChart>
+      </ResponsiveContainer>
+    </>
+  );
+}
+
 export function PoolDetailsPage() {
   const { id } = useParams<ParamTypes>();
   const { state } = useLocation<LocationTypes>();
   const { pool, shares } = usePool(id);
-  const history = useHistory();
-
+  const dayVolume = useDayVolume(id);
   const tokens = useTokens(pool?.tokenIds);
 
+  const monthVolume = useMonthVolume(id);
+  const monthTVL = useMonthTVL(id);
   const [showFunding, setShowFunding] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [poolTVL, setPoolTVL] = useState<number>();
   const [backToFarmsButton, setBackToFarmsButton] = useState<Boolean>(false);
   const [showFullStart, setShowFullStar] = useState<Boolean>(false);
+  const [chartDisplay, setChartDisplay] = useState<'volume' | 'tvl'>('volume');
+  const fromMorePools = localStorage.getItem('fromMorePools') === 'y';
+  const morePoolIds: string[] =
+    JSON.parse(localStorage.getItem('morePoolIds')) || [];
 
   const FarmButton = () => {
     const isMultiMining = MULTI_MINING_POOLS.includes(pool.id);
@@ -725,9 +1104,9 @@ export function PoolDetailsPage() {
       });
     }
 
-    // getWatchListFromDb({ pool_id: id }).then((watchlist) => {
-    //   setShowFullStar(watchlist.length > 0);
-    // });
+    getWatchListFromDb({ pool_id: id }).then((watchlist) => {
+      setShowFullStar(watchlist.length > 0);
+    });
   }, []);
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
@@ -735,14 +1114,26 @@ export function PoolDetailsPage() {
   return (
     <div>
       <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 m-auto">
-        <div
-          className="inline-block pr-4 py-2 cursor-pointer"
-          onClick={() => {
-            history.push(`/pools`);
-          }}
-        >
-          <BackArrow />
-        </div>
+        <BreadCrumb
+          routes={[
+            { id: 'top_pools', msg: 'Top Pools', pathname: '/pools' },
+            {
+              id: 'more_pools',
+              msg: 'More Pools',
+              pathname: `/more_pools/${tokens.map((tk) => tk.id)}`,
+              state: {
+                fromMorePools,
+                tokens,
+                morePoolIds,
+              },
+            },
+            {
+              id: 'detail',
+              msg: 'Detail',
+              pathname: `/pool`,
+            },
+          ]}
+        />
       </div>
       <div className="flex items-start flex-row md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 md:flex-col xs:flex-col m-auto">
         <div className="md:w-full xs:w-full">
@@ -752,28 +1143,31 @@ export function PoolDetailsPage() {
             bgcolor="bg-cardBg"
           >
             <div className="flex flex-col text-center text-base mx-4 py-4">
-              <div className="flex justify-end mb-4">
-                {backToFarmsButton && (
+              <div className="flex items-center justify-end mb-4">
+                {backToFarmsButton ? (
                   <Link
                     to={{
                       pathname: '/farms',
+                      hash: `${pool.id}`,
                     }}
+                    target="_blank"
                   >
                     <FarmButton />
                   </Link>
+                ) : (
+                  <span>' '</span>
                 )}
-                {/* <div className="lg:hidden">
+                <div className="lg:hidden ml-2">
                   <div onClick={handleSaveWatchList}>
                     {!showFullStart && <WatchListStartEmpty />}
                   </div>
                   <div onClick={handleRemoveFromWatchList}>
                     {showFullStart && <WatchListStartFull />}
                   </div>
-                </div> */}
+                </div>
               </div>
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-end">
-                  {console.log(tokens[0])}
                   <Icon icon={tokens[0].icon} className="h-10 w-10 mr-2" />
                   <div className="flex items-start flex-col">
                     <div className="text-white text-base">
@@ -869,11 +1263,8 @@ export function PoolDetailsPage() {
                     defaultMessage="24h Volume"
                   />
                 </div>
-                <div className="text-sm text-white">
-                  <FormattedMessage
-                    id="coming_soon"
-                    defaultMessage="Coming soon"
-                  />
+                <div className="text-white">
+                  {dayVolume ? toInternationalCurrencySystem(dayVolume) : '-'}
                 </div>
               </div>
               <div className="flex items-center justify-between py-2.5">
@@ -904,24 +1295,24 @@ export function PoolDetailsPage() {
         {/* chart */}
         <div className="w-full flex flex-col h-full">
           <div className="lg:flex items-center justify-end mb-4">
-            {/* <div className="flex items-center xs:hidden md:hidden">
-            <div className="mr-2">
-              <div onClick={handleSaveWatchList}>
-                {!showFullStart && <WatchListStartEmpty />}
+            <div className="flex items-center xs:hidden md:hidden">
+              <div className="mr-2 cursor-pointer">
+                <div onClick={handleSaveWatchList}>
+                  {!showFullStart && <WatchListStartEmpty />}
+                </div>
+                <div onClick={handleRemoveFromWatchList}>
+                  {showFullStart && <WatchListStartFull />}
+                </div>
               </div>
-              <div onClick={handleRemoveFromWatchList}>
-                {showFullStart && <WatchListStartFull />}
+              <div className="text-gray-400 text-xs whitespace-nowrap ">
+                <FormattedMessage
+                  id={showFullStart ? 'remove_watchlist' : 'add_watchlist'}
+                  defaultMessage={
+                    showFullStart ? 'Remove Watchlist' : 'Add Watchlist'
+                  }
+                />
               </div>
             </div>
-            <div className="text-gray-400 text-xs whitespace-nowrap	">
-              <FormattedMessage
-                id={showFullStart ? 'remove_watchlist' : 'add_watchlist'}
-                defaultMessage={
-                  showFullStart ? 'Remove Watchlist' : 'Add Watchlist'
-                }
-              />
-            </div>
-          </div> */}
 
             <div className="lg:flex items-center justify-end xs:mt-4 md:mt-4 xs:grid xs:grid-cols-2 md:grid md:grid-cols-2 w-full">
               <div className="pr-2">
@@ -957,89 +1348,26 @@ export function PoolDetailsPage() {
 
           <Card
             width="w-full"
-            className="relative rounded-2xl bg-chartBg h-full flex flex-col justify-between md:hidden xs:hidden"
+            className="relative rounded-2xl h-full flex flex-col justify-center md:hidden xs:hidden items-center"
             padding="p-7"
+            bgcolor="bg-cardBg"
             style={{
-              height: '391px',
+              height: '397px',
             }}
           >
-            <div className="pb-7">
-              <div className="flex items-center justify-between">
-                <div className="text-gray-400 text-base float-left">
-                  $&nbsp;-
-                </div>
-                <div className="text-white rounded-2xl flex items-center bg-gray-700">
-                  <div className="py-2 px-4 w-25 rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo">
-                    <FormattedMessage id="tvl" defaultMessage="TVL" />
-                  </div>
-                  <div className="py-2 px-4 w-25">
-                    <FormattedMessage id="volume" defaultMessage="Volume" />
-                  </div>
-                </div>
-              </div>
-              <div className="text-xs text-gray-500">Sep. 11 2021</div>
-            </div>
-            <div
-              className="absolute w-full left-0 top-0 h-full m-auto text-center text-base text-gray-500 flex items-center justify-center opacity-70"
-              style={{
-                backdropFilter: 'blur(1px)',
-                background: '#001320',
-              }}
-            >
-              <div>
-                <FormattedMessage
-                  id="coming_soon"
-                  defaultMessage="Coming Soon"
-                />
-              </div>
-            </div>
-
-            <div>
-              <div
-                style={{
-                  width: '300px',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '1px',
-                  transform: 'rotate(90deg)',
-                  position: 'relative',
-                  bottom: '140px',
-                  left: '150px',
-                }}
+            {chartDisplay === 'volume' ? (
+              <VolumeChart
+                data={monthVolume}
+                chartDisplay={chartDisplay}
+                setChartDisplay={setChartDisplay}
               />
-              <div
-                style={{
-                  border: '1px solid #ffffff',
-                  boxSizing: 'border-box',
-                  width: '13px',
-                  height: '13px',
-                  position: 'relative',
-                  left: '295px',
-                  top: '4px',
-                  backgroundColor: '#00d6af',
-                  opacity: 0.4,
-                }}
-                className="rounded-full"
+            ) : (
+              <TVLChart
+                data={monthTVL}
+                chartDisplay={chartDisplay}
+                setChartDisplay={setChartDisplay}
               />
-              <div className="border border-gradientFrom w-full mb-2" />
-              <div className="flex text-xs text-gray-500 justify-between">
-                {[
-                  '24',
-                  '31',
-                  '07',
-                  '14',
-                  '21',
-                  '28',
-                  '04',
-                  '11',
-                  '18',
-                  '25',
-                  '02',
-                  '09',
-                ].map((d, i) => {
-                  return <div key={i}>{d}</div>;
-                })}
-              </div>
-            </div>
+            )}
           </Card>
         </div>
 
@@ -1051,10 +1379,13 @@ export function PoolDetailsPage() {
           onRequestClose={() => setShowWithdraw(false)}
           style={{
             overlay: {
-              backdropFilter: 'blur(10px)',
+              backdropFilter: 'blur(15px)',
+              WebkitBackdropFilter: 'blur(15px)',
             },
             content: {
               outline: 'none',
+              position: 'fixed',
+              bottom: '50%',
             },
           }}
         />
@@ -1066,10 +1397,13 @@ export function PoolDetailsPage() {
           overlayClassName=""
           style={{
             overlay: {
-              backdropFilter: 'blur(10px)',
+              backdropFilter: 'blur(15px)',
+              WebkitBackdropFilter: 'blur(15px)',
             },
             content: {
               outline: 'none',
+              position: 'fixed',
+              bottom: '50%',
             },
           }}
         />

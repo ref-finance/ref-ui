@@ -26,19 +26,19 @@ export default function InputAmount({
 
   const handleFocus = () => {
     field.current.className =
-      className + ' px-1 border border-greenLight rounded-xl';
+      className + ' px-1 border border-greenLight rounded';
   };
 
   const handleFocusOut = () => {
     field.current.className =
-      className + ' px-1 border border-transparent rounded-xl';
+      className + ' px-1 border border-transparent rounded';
   };
 
   return (
     <>
       <fieldset className={className} ref={field}>
         <div
-          className={`relative flex align-center items-center bg-inputDarkBg rounded-xl`}
+          className={`relative flex align-center items-center bg-inputDarkBg rounded`}
         >
           <input
             ref={ref}
@@ -60,10 +60,10 @@ export default function InputAmount({
           />
           {max ? (
             <a
-              className={`rounded border border-greenLight items-center px-1 mr-1 m-auto focus:outline-none text-xs ${
-                disabled
-                  ? 'text-gray-400 hover:text-gray-400'
-                  : 'text-greenLight'
+              className={`rounded border  items-center px-1 mr-2 m-auto focus:outline-none text-xs ${
+                disabled || max === rest.value
+                  ? 'text-gray-400 hover:text-gray-400 border-gray-400'
+                  : 'text-greenLight border-greenLight'
               }`}
               style={{ lineHeight: 'unset', cursor: 'pointer' }}
               onClick={() => handleChange(max)}

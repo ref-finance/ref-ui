@@ -15,10 +15,10 @@ export function Card(
     <div
       {...props}
       className={`${bgcolor ? bgcolor : 'bg-cardBg'} ${
-        rounded ? rounded : 'rounded-xl'
+        rounded ? rounded : 'rounded-2xl'
       } ${padding ? padding : 'p-6'} ${width ? width : 'w-1/4'} ${
         props.className
-      }`}
+      } md:rounded-lg xs:rounded-lg`}
     >
       {props.children}
     </div>
