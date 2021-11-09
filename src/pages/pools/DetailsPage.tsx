@@ -984,7 +984,15 @@ export function TVLChart({
 }) {
   const [hoverIndex, setHoverIndex] = useState<number>(null);
   const formatDate = (rawDate: string) => moment(rawDate).format('ll');
-  if (!data || data.length === 0)
+  if (!data)
+    return (
+      <EmptyChart
+        setChartDisplay={setChartDisplay}
+        chartDisplay={chartDisplay}
+        loading={true}
+      />
+    );
+  if (data.length === 0)
     return (
       <EmptyChart
         setChartDisplay={setChartDisplay}
