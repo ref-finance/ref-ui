@@ -24,6 +24,7 @@ import { useTokenBalances, useTokens, getExchangeRate } from '~state/token';
 import Loading from '~components/layout/Loading';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
 import { FarmStamp } from '~components/icon/FarmStamp';
+import { ChartLoading } from '~components/icon/Loading';
 import {
   MULTI_MINING_POOLS,
   REF_FARM_CONTRACT_ID,
@@ -733,7 +734,7 @@ const ChartChangeButton = ({
   return (
     <div
       className={`text-white rounded-2xl flex items-center bg-gray-700 ${className} ${
-        noData ? 'z-30 opacity-70' : ''
+        noData ? 'z-20 opacity-70' : ''
       }`}
     >
       <button
@@ -763,9 +764,11 @@ const ChartChangeButton = ({
 function EmptyChart({
   chartDisplay,
   setChartDisplay,
+  loading,
 }: {
   chartDisplay: 'volume' | 'tvl';
   setChartDisplay: (display: 'volume' | 'tvl') => void;
+  loading?: boolean;
 }) {
   return (
     <div className="w-full h-full flex flex-col justify-between">
@@ -788,14 +791,18 @@ function EmptyChart({
           background: '#001320',
         }}
       >
-        <div>
+        {loading ? (
+          <ChartLoading />
+        ) : (
           <div>
-            <ChartNoData />
+            <div>
+              <ChartNoData />
+            </div>
+            <div>
+              <FormattedMessage id="no_data" defaultMessage="No Data" />
+            </div>
           </div>
-          <div>
-            <FormattedMessage id="no_data" defaultMessage="No Data" />
-          </div>
-        </div>
+        )}
       </div>
 
       <div>
@@ -894,7 +901,14 @@ export function VolumeChart({
         />
       );
   };
-  if (!data) return <></>;
+  if (!data)
+    return (
+      <EmptyChart
+        chartDisplay={chartDisplay}
+        setChartDisplay={setChartDisplay}
+        loading={true}
+      />
+    );
   if (data.length === 0)
     return (
       <EmptyChart
@@ -970,7 +984,15 @@ export function TVLChart({
 }) {
   const [hoverIndex, setHoverIndex] = useState<number>(null);
   const formatDate = (rawDate: string) => moment(rawDate).format('ll');
-  if (!data || data.length === 0)
+  if (!data)
+    return (
+      <EmptyChart
+        setChartDisplay={setChartDisplay}
+        chartDisplay={chartDisplay}
+        loading={true}
+      />
+    );
+  if (data.length === 0)
     return (
       <EmptyChart
         setChartDisplay={setChartDisplay}

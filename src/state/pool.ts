@@ -106,7 +106,6 @@ export const usePools = (props: {
 
   useEffect(() => {
     setLoading(true);
-
     loadPools({
       accumulate: false,
       tokenName: props.tokenName,
@@ -117,7 +116,6 @@ export const usePools = (props: {
 
   useEffect(() => {
     setLoading(true);
-
     loadPools({
       accumulate: false,
       tokenName: props.tokenName,
@@ -128,7 +126,6 @@ export const usePools = (props: {
 
   useEffect(() => {
     setLoading(true);
-
     loadPools({
       accumulate: true,
       tokenName: props.tokenName,
@@ -200,7 +197,7 @@ export const useAllWatchList = () => {
 export const useWatchPools = () => {
   const [watchList, setWatchList] = useState<WatchList[]>([]);
 
-  const [watchPools, setWatchPools] = useState<Pool[]>();
+  const [watchPools, setWatchPools] = useState<Pool[]>([]);
   useEffect(() => {
     getAllWatchListFromDb({}).then((watchlist) => {
       setWatchList(_.orderBy(watchlist, 'update_time', 'desc'));
@@ -209,6 +206,7 @@ export const useWatchPools = () => {
 
   useEffect(() => {
     const ids = watchList.map((watchedPool) => watchedPool.pool_id);
+    if (ids.length === 0) return;
     getPoolsByIds({ pool_ids: ids }).then((res) => {
       const resPools = res.map((pool) => parsePool(pool));
       setWatchPools(resPools);

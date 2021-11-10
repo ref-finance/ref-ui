@@ -38,7 +38,6 @@ export const get24hVolume = async (pool_id: string): Promise<string> => {
     config.sodakiApiUrl + `/pool/${pool_id}/rolling24hvolume/sum`,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
     }
   )
     .then((res) => res.json())
