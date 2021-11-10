@@ -71,7 +71,7 @@ function AccountEntry() {
   if (!userTokens || !balances) return null;
 
   return (
-    <div className="user text-xs text-center justify-end pt-6 h-full right-20 absolute top-0 z-20">
+    <div className="user text-xs text-center justify-end pt-6 h-full right-20 absolute top-0 z-30">
       <div
         className={`cursor-pointer font-bold items-center justify-end text-center overflow-visible relative h-full`}
         onMouseEnter={() => {
@@ -333,7 +333,7 @@ function MoreMenu() {
   const hasSubMenu = curMenuItems.some(({ children }) => !!children?.length);
   return (
     <div
-      className="relative z-20 h-8"
+      className="relative z-30 h-8"
       onMouseOver={() => setHover(true)}
       onMouseLeave={() => {
         setHover(false);

@@ -76,7 +76,7 @@ function PoolRow({
 
   return (
     <Link
-      className="grid grid-cols-10 py-3.5 text-white content-center text-sm text-left mx-8  border-b border-gray-600 hover:opacity-80"
+      className="grid grid-cols-10 py-3.5 text-white content-center text-sm text-left mx-8  border-b border-gray-700 border-opacity-70 hover:opacity-80"
       onClick={() => {
         localStorage.setItem('fromMorePools', 'y');
         localStorage.setItem('morePoolIds', JSON.stringify(morePoolIds));
@@ -307,7 +307,7 @@ export const MorePoolsPage = () => {
           </div>
 
           <section className="">
-            <header className="grid grid-cols-10 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
+            <header className="grid grid-cols-10 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-700 border-opacity-70">
               <div className="col-span-7 flex items-center">
                 <div className="mr-3 ">
                   <FormattedMessage id="pool_id" defaultMessage="Pool ID" />

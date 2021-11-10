@@ -188,9 +188,10 @@ export function GradientButton(
     padding?: string;
     className?: string;
     color?: string;
+    btnClassName?: string;
   }
 ) {
-  const { disabled, className, color, onClick } = props;
+  const { disabled, className, color, btnClassName, onClick } = props;
   return (
     <div
       className={`${className ? className : ''}`}
@@ -200,7 +201,11 @@ export function GradientButton(
         color: color || '',
       }}
     >
-      <button onClick={onClick} disabled={disabled} className="w-full h-full">
+      <button
+        onClick={onClick}
+        disabled={disabled}
+        className={`w-full h-full ${btnClassName ? btnClassName : ''}`}
+      >
         {props.children}
       </button>
     </div>

@@ -4,7 +4,7 @@ import ReactTooltip from 'react-tooltip';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
-import { find } from 'lodash';
+import { find, values } from 'lodash';
 import { SelectModal } from '~components/layout/SelectModal';
 import {
   useAllPools,
@@ -95,7 +95,7 @@ function MobilePoolRow({
 
   return (
     <Link
-      className="flex flex-col border-b border-gray-700 bg-cardBg w-full px-4 py-6 text-white"
+      className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-4 py-6 text-white"
       onClick={() => localStorage.setItem('fromMorePools', 'n')}
       to={{
         pathname: `/pool/${pool.id}`,
@@ -145,6 +145,7 @@ function MobilePoolRow({
             </div>
           )}
         </div>
+        <div>{showSortedValue({ sortBy, value: pool[sortBy] })}</div>
       </div>
     </Link>
   );
@@ -220,7 +221,7 @@ function MobileWatchListCard({ watchPools }: { watchPools: Pool[] }) {
             </div>
           </div>
         </header>
-        <div className="border-b border-gray-700 "></div>
+        <div className="border-b border-gray-700 border-opacity-70"></div>
         <div className="max-h-96 overflow-y-auto">
           {watchPools?.map((pool, i) => (
             <div className="w-full hover:bg-poolRowHover" key={i}>
@@ -411,7 +412,7 @@ function MobileLiquidityPage({
               </div>
             </div>
           </header>
-          <div className="border-b border-gray-700 "></div>
+          <div className="border-b border-gray-700 border-opacity-70"></div>
           <div className="max-h-96 overflow-y-auto">
             {pools?.map((pool, i) => (
               <div className="w-full hover:bg-poolRowHover" key={i}>
@@ -463,7 +464,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
 
   return (
     <Link
-      className="grid grid-cols-10 py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-600 hover:opacity-80"
+      className="grid grid-cols-10 py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-700 border-opacity-70 hover:opacity-80"
       onClick={() => localStorage.setItem('fromMorePools', 'n')}
       to={{
         pathname: `/pool/${pool.id}`,
@@ -555,7 +556,7 @@ function WatchListCard({ watchPools }: { watchPools: Pool[] }) {
           />
         </div>
         <section className="">
-          <header className="grid grid-cols-10 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
+          <header className="grid grid-cols-10 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-700 border-opacity-70">
             <div className="col-span-7 md:col-span-4 flex">
               <div className="mr-6 w-2">#</div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
@@ -727,7 +728,7 @@ function LiquidityPage_({
         </div>
 
         <section className="">
-          <header className="grid grid-cols-10 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
+          <header className="grid grid-cols-10 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-700 border-opacity-70">
             <div className="col-span-7 md:col-span-4 flex">
               <div className="mr-6 w-2">#</div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
