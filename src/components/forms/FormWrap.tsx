@@ -38,7 +38,7 @@ export default function FormWrap({
 
   return (
     <form
-      className="overflow-y-auto bg-secondary shadow-2xl rounded-xl p-7"
+      className="overflow-y-auto bg-secondary shadow-2xl rounded-xl p-7 bg-dark"
       onSubmit={handleSubmit}
     >
       {title && (

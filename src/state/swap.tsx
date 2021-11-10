@@ -7,6 +7,7 @@ import { checkTransaction, estimateSwap, swap } from '../services/swap';
 import { useHistory, useLocation } from 'react-router';
 import getConfig from '~services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { CloseIcon } from '~components/icon/Actions';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -27,7 +28,6 @@ export const useSwap = ({
   const [canSwap, setCanSwap] = useState<boolean>();
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
   const [swapError, setSwapError] = useState<Error>();
-  const [count, setCount] = useState(0);
 
   const { search } = useLocation();
   const history = useHistory();
@@ -55,7 +55,7 @@ export const useSwap = ({
           if (isSwap) {
             toast(
               <a
-                className="text-primary font-semibold"
+                className="text-white"
                 href={`${getConfig().explorerUrl}/transactions/${txHash}`}
                 target="_blank"
               >
@@ -67,6 +67,17 @@ export const useSwap = ({
               {
                 autoClose: 8000,
                 closeOnClick: false,
+                hideProgressBar: false,
+                closeButton: <CloseIcon />,
+                progressStyle: {
+                  background: '#00FFD1',
+                  borderRadius: '8px',
+                },
+                style: {
+                  background: '#1D2932',
+                  boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
+                  borderRadius: '8px',
+                },
               }
             );
           }
@@ -102,43 +113,16 @@ export const useSwap = ({
           setTokenOutAmount('');
           setSwapError(err);
         });
+    } else if (
+      tokenIn &&
+      tokenOut &&
+      !tokenInAmount &&
+      ONLY_ZEROS.test(tokenInAmount) &&
+      tokenIn.id !== tokenOut.id
+    ) {
+      setTokenOutAmount('0');
     }
   }, [tokenIn, tokenOut, tokenInAmount]);
-
-  useEffect(() => {
-    if (count > 0) {
-      if (
-        tokenIn &&
-        tokenOut &&
-        tokenInAmount &&
-        !ONLY_ZEROS.test(tokenInAmount) &&
-        tokenIn.id !== tokenOut.id
-      ) {
-        setSwapError(null);
-        estimateSwap({
-          tokenIn,
-          tokenOut,
-          amountIn: tokenInAmount,
-          intl,
-        })
-          .then(({ estimate, pool }) => {
-            if (!estimate || !pool) throw '';
-            setCanSwap(true);
-            setTokenOutAmount(estimate);
-            setPool(pool);
-          })
-          .catch((err) => {
-            setCanSwap(false);
-            setTokenOutAmount('');
-            setSwapError(err);
-          });
-      }
-    }
-    const id = setInterval(() => {
-      setCount(count + 1);
-    }, 30000);
-    return () => clearInterval(id);
-  }, [count]);
 
   const makeSwap = () => {
     swap({

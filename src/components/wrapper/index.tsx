@@ -28,8 +28,8 @@ const Wrapper = (props: any) => {
   const [locale, setLocale] = useState(local);
   const [messages, setMessages] = useState(lang);
 
-  function selectLanguage(e: any) {
-    const newLocale = e.target.value;
+  function selectLanguage(e: string) {
+    const newLocale = e;
     changeLocale(newLocale);
     setLocale(newLocale);
     setMessages(lang);

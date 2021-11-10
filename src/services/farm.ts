@@ -101,7 +101,7 @@ export const getFarms = async ({
   });
 
   let poolList: Record<string, PoolRPCView> = {};
-  const pools = await getPoolsByIds(pool_ids);
+  const pools = await getPoolsByIds({ pool_ids });
   if (pools) {
     poolList = pools.reduce(
       (obj: any, pool: any) => ({ ...obj, [pool.id]: pool }),
@@ -173,7 +173,7 @@ export const getFarmInfo = async (
       rewardToken.decimals,
       new BigNumber(rewardNumberPerWeek.toString()).toFixed()
     ),
-    4
+    0
   );
 
   const userRewardNumberPerWeek =
@@ -196,7 +196,7 @@ export const getFarmInfo = async (
 
   const userUnclaimedReward = toPrecision(
     toReadableNumber(rewardToken.decimals, userUnclaimedRewardNumber),
-    6
+    2
   );
 
   const totalStaked =
@@ -216,7 +216,7 @@ export const getFarmInfo = async (
             52 *
             100
           ).toString(),
-          1
+          2
         );
 
   if (farm.farm_status === 'Created') farm.farm_status = 'Pending';

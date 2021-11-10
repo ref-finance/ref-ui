@@ -6,8 +6,6 @@ import { TokenBalancesView } from '../../services/token';
 import Icon from '../tokens/Icon';
 import InputAmount from './InputAmount';
 import SelectToken from './SelectToken';
-import AddToken from './AddToken';
-import { ArrowDownGreen } from '../icon';
 import { toPrecision } from '../../utils/numbers';
 import { FormattedMessage } from 'react-intl';
 
@@ -20,9 +18,9 @@ interface TokenAmountProps {
   balances?: TokenBalancesView;
   onMax?: (input: HTMLInputElement) => void;
   onSelectToken?: (token: TokenMetadata) => void;
+  onSearchToken?: (value: string) => void;
   onChangeAmount?: (amount: string) => void;
   text?: string;
-  calledBy?: string;
   disabled?: boolean;
 }
 
@@ -34,37 +32,31 @@ export default function TokenAmount({
   selectedToken,
   balances,
   onSelectToken,
+  onSearchToken,
   onChangeAmount,
   text,
-  calledBy,
   disabled = false,
 }: TokenAmountProps) {
-  const render = (token: TokenMetadata) => (
-    <p className="text-black">
-      {toRoundedReadableNumber({
-        decimals: token.decimals,
-        number: balances[token.id],
-      })}
-    </p>
-  );
-
-  const addToken = () => <AddToken />;
+  const render = (token: TokenMetadata) =>
+    toRoundedReadableNumber({
+      decimals: token.decimals,
+      number: balances ? balances[token.id] : '0',
+    });
 
   const isSignedIn = wallet.isSignedIn();
 
   return (
     <>
-      <div className="flex justify-between text-xs font-semibold pb-0.5">
-        <span className="text-black">{text}</span>
-        <span className={`${max === '0' ? 'text-gray-400' : null}`}>
+      <div className="flex justify-end text-xs font-semibold pb-0.5 w-3/5">
+        <span className="text-primaryText" title={total}>
           <FormattedMessage id="balance" defaultMessage="Balance" />
           :&nbsp;
-          {toPrecision(total, 6, true)}
+          {toPrecision(total, 3, true)}
         </span>
       </div>
-      <fieldset className="bg-inputBg relative flex overflow-hidden rounded-lg align-center my-2 border">
+      <fieldset className="relative flex overflow-hidden align-center my-2">
         <InputAmount
-          className="flex-grow"
+          className="w-3/5 pr-1 border border-transparent rounded"
           id="inputAmount"
           name={selectedToken?.id}
           max={max}
@@ -74,22 +66,16 @@ export default function TokenAmount({
         />
         <SelectToken
           tokens={tokens}
-          render={balances ? render : null}
-          addToken={addToken}
+          render={render}
           selected={
             selectedToken && (
-              <div className="flex items-center justify-center font-semibold pl-3 pr-3">
+              <div className="flex items-center justify-end font-semibold">
                 <Icon token={selectedToken} />
-                {tokens.length > 1 && (
-                  <div className="pl-2 text-xs">
-                    <ArrowDownGreen />
-                  </div>
-                )}
               </div>
             )
           }
           onSelect={onSelectToken}
-          calledBy={calledBy}
+          balances={balances}
         />
       </fieldset>
     </>

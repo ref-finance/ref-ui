@@ -7,6 +7,10 @@ import moment from 'moment';
 const config = getConfig();
 const api_url = 'https://rest.nearapi.org/view';
 
+export interface RefPrice {
+  price: string;
+}
+
 export interface PoolRPCView {
   id: number;
   token_account_ids: string[];
@@ -97,5 +101,22 @@ export const getCurrentUnixTime = async (): Promise<any> => {
     })
     .catch(() => {
       return moment().unix();
+    });
+};
+
+export const currentRefPrice = async (): Promise<any> => {
+  return await fetch(
+    config.indexerUrl + '/get-token-price?token_id=token.v2.ref-finance.near',
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((priceBody) => {
+      return priceBody.price;
+    })
+    .catch(() => {
+      return '-';
     });
 };

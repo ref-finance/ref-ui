@@ -1,5 +1,9 @@
 import BN from 'bn.js';
-import { toNonDivisibleNumber, toReadableNumber } from '../utils/numbers';
+import {
+  toNonDivisibleNumber,
+  toPrecision,
+  toReadableNumber,
+} from '../utils/numbers';
 import {
   executeMultipleTransactions,
   near,
@@ -7,7 +11,6 @@ import {
   REF_FI_CONTRACT_ID,
   RefFiFunctionCallOptions,
   refFiManyFunctionCalls,
-  refFiViewFunction,
   Transaction,
   wallet,
 } from './near';
@@ -31,6 +34,9 @@ import {
   wnearMetadata,
 } from '~services/wrap-near';
 import { utils } from 'near-api-js';
+import { BigNumber } from 'bignumber.js';
+
+const FEE_DIVISOR = 10000;
 
 interface EstimateSwapOptions {
   tokenIn: TokenMetadata;
@@ -77,15 +83,23 @@ export const estimateSwap = async ({
   try {
     const estimates = await Promise.all(
       pools.map((pool) => {
-        return refFiViewFunction({
-          methodName: 'get_return',
-          args: {
-            pool_id: pool.id,
-            token_in: tokenIn.id,
-            token_out: tokenOut.id,
-            amount_in: parsedAmountIn,
-          },
-        })
+        const amount_with_fee = Number(amountIn) * (FEE_DIVISOR - pool.fee);
+        const in_balance = toReadableNumber(
+          tokenIn.decimals,
+          pool.supplies[tokenIn.id]
+        );
+        const out_balance = toReadableNumber(
+          tokenOut.decimals,
+          pool.supplies[tokenOut.id]
+        );
+        const estimate = new BigNumber(
+          (
+            (amount_with_fee * Number(out_balance)) /
+            (FEE_DIVISOR * Number(in_balance) + amount_with_fee)
+          ).toString()
+        ).toFixed();
+
+        return Promise.resolve(estimate)
           .then((estimate) => ({
             estimate,
             status: 'success',
@@ -97,13 +111,13 @@ export const estimateSwap = async ({
 
     const { estimate, pool } = estimates
       .filter(({ status }) => status === 'success')
-      .sort((a, b) => (new BN(b.estimate).gt(new BN(a.estimate)) ? 1 : -1))[0];
+      .sort((a, b) => (Number(b.estimate) > Number(a.estimate) ? 1 : -1))[0];
 
     return {
-      estimate: toReadableNumber(tokenOut.decimals, estimate),
+      estimate: estimate,
       pool,
     };
-  } catch {
+  } catch (err) {
     throw new Error(
       `${intl.formatMessage({ id: 'no_pool_available_to_make_a_swap_from' })} ${
         tokenIn.symbol

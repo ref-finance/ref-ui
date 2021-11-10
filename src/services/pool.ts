@@ -28,7 +28,7 @@ export interface Pool {
   token0_ref_price: string;
 }
 
-const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
+export const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
   id: id >= 0 ? id : pool.id,
   tokenIds: pool.token_account_ids,
   supplies: pool.amounts.reduce(
@@ -93,6 +93,162 @@ export const getPools = async ({
   }
 };
 
+export const getPoolsFromCache = async ({
+  page = 1,
+  perPage = DEFAULT_PAGE_LIMIT,
+  tokenName = '',
+  column = '',
+  order = 'desc',
+  uniquePairName = false,
+}: {
+  page?: number;
+  perPage?: number;
+  tokenName?: string;
+  column?: string;
+  order?: string;
+  uniquePairName?: boolean;
+}) => {
+  const rows = await db.queryPools({
+    page,
+    perPage,
+    tokenName,
+    column,
+    order,
+    uniquePairName,
+  });
+  return rows.map((row) => ({
+    id: row.id,
+    tokenIds: [row.token1Id, row.token2Id],
+    supplies: {
+      [row.token1Id]: row.token1Supply,
+      [row.token2Id]: row.token2Supply,
+    },
+    fee: row.fee,
+    shareSupply: row.shares,
+    tvl: 0,
+    token0_ref_price: '0',
+  }));
+};
+
+export const getPoolsFromIndexer = async ({
+  page = 1,
+  perPage = DEFAULT_PAGE_LIMIT,
+  tokenName = '',
+  column = '',
+  order = 'desc',
+  uniquePairName = false,
+}: {
+  page?: number;
+  perPage?: number;
+  tokenName?: string;
+  column?: string;
+  order?: string;
+  uniquePairName?: boolean;
+}): Promise<Pool[]> => {
+  const poolData: PoolRPCView[] = await getTopPools({
+    page,
+    perPage,
+    tokenName,
+    column,
+    order,
+    uniquePairName,
+  });
+
+  return poolData.map((rawPool) => parsePool(rawPool));
+};
+
+export const getAllPoolsFromDb = async () => {
+  return await db.allPools().toArray();
+};
+
+export const getAllWatchListFromDb = async ({
+  account = wallet.getAccountId(),
+}: {
+  account?: string;
+}) => {
+  return await db
+    .allWatchList()
+    .where({
+      account,
+    })
+    .toArray();
+};
+
+export const getWatchListFromDb = async ({
+  pool_id,
+  account = wallet.getAccountId(),
+}: {
+  pool_id: string;
+  account?: string;
+}) => {
+  return await db
+    .allWatchList()
+    .where({
+      pool_id,
+      account,
+    })
+    .toArray();
+};
+
+export const addPoolToWatchList = async ({
+  pool_id,
+  account = wallet.getAccountId(),
+}: {
+  pool_id: string;
+  account?: string;
+}) => {
+  return await db.watchList.put({
+    id: account + '-' + pool_id,
+    pool_id,
+    account,
+    update_time: new Date().getTime(),
+  });
+};
+export const removePoolFromWatchList = async ({
+  pool_id,
+  account = wallet.getAccountId(),
+}: {
+  pool_id: string;
+  account?: string;
+}) => {
+  return await db.watchList.delete(account + '-' + pool_id);
+};
+
+export const getCachedPoolsByTokenId = async ({
+  token1Id,
+  token2Id,
+}: {
+  token1Id: string;
+  token2Id: string;
+}) => {
+  return await db
+    .allPools()
+    .where({
+      token1Id,
+      token2Id,
+    })
+    .toArray();
+};
+
+export const getTotalPools = () => {
+  return refFiViewFunction({
+    methodName: 'get_number_of_pools',
+  });
+};
+
+export const getAllPools = async (
+  page: number = 1,
+  perPage: number = DEFAULT_PAGE_LIMIT
+): Promise<Pool[]> => {
+  const index = (page - 1) * perPage;
+  const poolData: PoolRPCView[] = await refFiViewFunction({
+    methodName: 'get_pools',
+    args: { from_index: index, limit: perPage },
+  });
+
+  return poolData.map((rawPool, i) => parsePool(rawPool, i + index));
+};
+
 interface GetPoolOptions {
   tokenInId: string;
   tokenOutId: string;
@@ -105,13 +261,31 @@ export const getPoolsByTokens = async ({
   amountIn,
 }: GetPoolOptions): Promise<Pool[]> => {
   const amountToTrade = new BN(amountIn);
+  let filtered_pools;
+  const cache = await db.checkPoolsByTokens(tokenInId, tokenOutId);
 
-  // TODO: Check if there can be a better way. If not need to iterate through all pages to find pools
+  if (cache) {
+    const cache_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
+    filtered_pools = cache_pools.filter(
+      (p) =>
+        new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
+        p.supplies[tokenOutId]
+    );
+  } else {
+    const totalPools = await getTotalPools();
+    const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
+    const pools = (
+      await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
+    ).flat();
 
-  return (await getPools({ page: 1, perPage: 10000 })).filter(
-    (p) =>
-      new BN(p.supplies[tokenInId]).gte(amountToTrade) && p.supplies[tokenOutId]
-  );
+    await db.cachePoolsByTokens(pools);
+    filtered_pools = pools.filter(
+      (p) =>
+        new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
+        p.supplies[tokenOutId]
+    );
+  }
+  return filtered_pools;
 };
 
 export const getPool = async (id: number): Promise<Pool> => {

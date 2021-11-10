@@ -1,174 +1,240 @@
-import React, { useState, useEffect } from 'react';
-import { FaRegQuestionCircle } from 'react-icons/fa';
+import React, { useState, useEffect, useRef } from 'react';
+import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 import ReactTooltip from 'react-tooltip';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
-import { usePools } from '../../state/pool';
+import { find, values } from 'lodash';
+import { SelectModal } from '~components/layout/SelectModal';
+import {
+  useAllPools,
+  usePools,
+  useMorePoolIds,
+  useAllWatchList,
+  useWatchPools,
+} from '../../state/pool';
 import Loading from '~components/layout/Loading';
 import { getExchangeRate, useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';
 import { canFarm, Pool } from '../../services/pool';
+import { FarmMiningIcon } from '~components/icon/FarmMining';
+import { MULTI_MINING_POOLS, REF_FARM_CONTRACT_ID } from '~services/near';
 import {
   calculateFeePercent,
   toPrecision,
   toReadableNumber,
+  toInternationalCurrencySystem,
 } from '../../utils/numbers';
+import { CheckedTick, CheckedEmpty } from '~components/icon/CheckBox';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { PoolDb, WatchList } from '~store/RefDatabase';
+import {
+  DownArrowLight,
+  DownArrowLightMobile,
+  UpArrowDeep,
+  UpArrowLight,
+} from '~components/icon';
+import { FarmStamp } from '~components/icon/FarmStamp';
+import { SolidButton } from '~components/button/Button';
+import { wallet } from '~services/near';
+import {
+  WatchListStartEmpty,
+  WatchListStartFull,
+} from '~components/icon/WatchListStar';
+import { PolygonGrayDown } from '~components/icon/Polygon';
+import _, { orderBy, sortBy, filter } from 'lodash';
 
-function MobilePoolRow({ pool }: { pool: Pool }) {
+const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
+
+function MobilePoolRow({
+  pool,
+  sortBy,
+  watched,
+}: {
+  pool: Pool;
+  sortBy: string;
+  watched: Boolean;
+}) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
+  const morePoolIds = useMorePoolIds({ topPool: pool });
   const tokens = useTokens(pool.tokenIds);
+  const history = useHistory();
   useEffect(() => {
     canFarm(pool.id).then((canFarm) => {
       setSupportFarm(canFarm);
     });
   }, [pool]);
-  const [expand, setExpand] = useState(false);
-  const history = useHistory();
 
-  if (!tokens) return <Loading />;
+  if (!tokens) return <></>;
 
   tokens.sort((a, b) => {
     if (a.symbol === 'wNEAR') return 1;
     if (b.symbol === 'wNEAR') return -1;
     return a.symbol > b.symbol ? 1 : -1;
   });
+  const showSortedValue = ({
+    sortBy,
+    value,
+  }: {
+    sortBy: string;
+    value?: number;
+  }) => {
+    if (sortBy === 'tvl')
+      return toInternationalCurrencySystem(value.toString());
+    else if (sortBy === 'fee') return `${calculateFeePercent(value)}%`;
+  };
 
-  const farmButton = () => {
-    if (supportFarm)
-      return (
-        <div className="mt-1 px-1 py-0.5 px-1 mr-3 text-center bg-greenLight text-white font-bold inline-block rounded">
-          <FormattedMessage id="farms" defaultMessage="Farms" />
-        </div>
-      );
-    return '';
+  const MobileMoreFarmStamp = ({ count }: { count: number }) => {
+    return (
+      <div className="px-1 rounded border border-greenLight text-greenLight">
+        {count}
+      </div>
+    );
   };
 
   return (
-    <div
-      className={`flex items-top flex-col relative text-xs font-semibold text-gray-600 w-11/12 m-auto mb-2.5 pr-0`}
+    <Link
+      className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-4 py-6 text-white"
+      onClick={() => localStorage.setItem('fromMorePools', 'n')}
+      to={{
+        pathname: `/pool/${pool.id}`,
+        state: { tvl: pool?.tvl, backToFarms: supportFarm },
+      }}
     >
-      <div
-        className={`flex justify-between p-4 rounded-lg ${
-          expand ? 'bg-greenLight1' : 'bg-white'
-        } ${expand ? 'rounded-b-none' : 'rounded-lg'}`}
-        onClick={() => setExpand(!expand)}
-      >
-        <div className="flex flex-col justify-between">
-          <div
-            className={`text-base font-semibold ${
-              expand ? 'text-white' : 'text-gray-800'
-            }`}
-          >
-            {toRealSymbol(tokens[0].symbol)}-{toRealSymbol(tokens[1].symbol)}
+      <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center justify-start">
+          <div className="flex items-center">
+            <div className="h-6 w-6 border border-gradientFromHover rounded-full">
+              <img
+                key={tokens[0].id.substring(0, 12).substring(0, 12)}
+                className="rounded-full w-full"
+                src={tokens[0].icon}
+              />
+            </div>
+
+            <div className="h-6 w-6 border border-gradientFromHover rounded-full">
+              <img
+                key={tokens[1].id}
+                className="w-full rounded-full"
+                src={tokens[1].icon}
+              />
+            </div>
           </div>
-          {expand ? null : (
-            <div>
-              <div className="col-span-2">
-                TVL:{' '}
-                <span className="text-greenLight1">
-                  ${toPrecision(pool.tvl.toString(), 2, true)}
-                </span>
-              </div>
-              <div className="col-span-2">{farmButton()}</div>
+          <div className="text-sm ml-2 font-semibold">
+            {tokens[0].symbol + '-' + tokens[1].symbol}
+          </div>
+          {watched && (
+            <div className="ml-2">
+              <WatchListStartFull />
+            </div>
+          )}
+
+          {morePoolIds?.length && morePoolIds?.length > 1 && (
+            <div
+              onClick={(e) => {
+                e.preventDefault();
+                history.push(`/more_pools/${pool.tokenIds}`, {
+                  morePoolIds: morePoolIds,
+                  tokens,
+                });
+              }}
+              className="mx-2"
+            >
+              <MobileMoreFarmStamp count={morePoolIds?.length} />
             </div>
           )}
         </div>
-
-        <div className="relative w-20">
-          <img
-            key={tokens[0].id.substring(0, 12).substring(0, 12)}
-            className="h-12 w-12 border rounded-full border-gray-300"
-            src={tokens[0].icon}
-          />
-          <img
-            key={tokens[1].id}
-            className="h-7 w-7 absolute left-9 bottom-0 border rounded-full border-gray-300"
-            src={tokens[1].icon}
-          />
-        </div>
+        <div>{showSortedValue({ sortBy, value: pool[sortBy] })}</div>
       </div>
+    </Link>
+  );
+}
 
-      <div
-        className={`bg-white rounded-b-lg grid gap-y-6 pt-4 pb-4 ${
-          expand ? 'show' : 'hidden'
-        }`}
-      >
-        <div className="flex items-center justify-between px-4">
-          <div className="text-sm text-gray-900">
-            <FormattedMessage id="liquidity" defaultMessage="Liquidity" />
-          </div>
-          <div>
-            <div>
-              {toRealSymbol(tokens[0].symbol)}=
-              {toPrecision(
-                toReadableNumber(
-                  tokens[0].decimals || 24,
-                  pool.supplies[pool.tokenIds[0]]
-                ),
-                4,
-                true
-              )}
-            </div>
-            <div>
-              {toRealSymbol(tokens[1].symbol)}=
-              {toPrecision(
-                toReadableNumber(
-                  tokens[1].decimals || 24,
-                  pool.supplies[pool.tokenIds[1]]
-                ),
-                4,
-                true
-              )}
-            </div>
-          </div>
-        </div>
+function MobileWatchListCard({ watchPools }: { watchPools: Pool[] }) {
+  const intl = useIntl();
+  const [showSelectModal, setShowSelectModal] = useState<Boolean>(false);
+  const [sortBy, onSortChange] = useState<string>('tvl');
 
-        <div className="flex items-center justify-between px-4">
-          <div className="text-sm text-gray-900">
-            <FormattedMessage id="tokens" defaultMessage="Tokens" />
-          </div>
-          <div>
-            <p className="text-xs text-gray-500">
-              {`${tokens[0].id.substring(0, 12)}${
-                tokens[0].id.length > 12 ? '...' : ''
-              }`}
-              |
-              {`${tokens[1].id.substring(0, 12)}${
-                tokens[1].id.length > 12 ? '...' : ''
-              }`}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center justify-between px-4">
-          <div className="text-sm text-gray-900">
-            <FormattedMessage id="swap_rate" defaultMessage="Swap Rate" />
-          </div>
-          <div className="text-greenLight1">
-            1&nbsp;{toRealSymbol(tokens[0].symbol)}&nbsp;
-            {getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
-          </div>
-        </div>
-        <div className="flex items-center justify-between px-4">
-          <div className="text-sm text-gray-900">
-            <FormattedMessage id="fee" defaultMessage="Fee" />
-          </div>
-          <div>{calculateFeePercent(pool.fee)}%</div>
-        </div>
-        <div className="text-center">
-          <button
-            className="rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight"
-            onClick={() => {
-              history.push(`/pool/${pool.id}`);
-            }}
+  return (
+    <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4 mb-4">
+      <div className="mx-4 flex items-center justify-between mt-4">
+        <div className="flex items-center">
+          <div
+            className={`text-${
+              watchPools?.length > 0 ? 'white' : 'gray-400'
+            }  text-base`}
           >
-            <FormattedMessage id="view_detail" defaultMessage="View Detail" />
-          </button>
+            <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
+            {watchPools.length > 0 ? ` (${watchPools.length})` : ''}
+          </div>
+          <div>
+            <FaRegQuestionCircle
+              data-type="dark"
+              data-place="right"
+              data-multiline={true}
+              data-tip={intl.formatMessage({ id: 'my_watchlist_copy' })}
+              className="inline-block ml-2 text-xs text-primaryText"
+            />
+            <ReactTooltip
+              className="text-xs shadow-4xl"
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+              class="tool-tip"
+              textColor="#c6d1da"
+            />
+          </div>
         </div>
       </div>
-    </div>
+      <section className="w-full">
+        <header className="p-4 text-gray-400 flex items-center justify-between text-sm">
+          <div>
+            <FormattedMessage id="pair" defaultMessage="Pair" />
+          </div>
+          <div className="flex items-center">
+            <div className="relative rounded text-gray-400 flex items-center border border-gray-400 w-36">
+              <div
+                className="p-1 border-r border-gray-400 w-32"
+                onClick={() => {
+                  setShowSelectModal(true);
+                }}
+              >
+                <FormattedMessage id={sortBy} defaultMessage={sortBy} />
+              </div>
+              <div
+                className="p-1"
+                onClick={() => {
+                  setShowSelectModal(true);
+                }}
+              >
+                <PolygonGrayDown />
+              </div>
+              {showSelectModal && (
+                <SelectModal
+                  onSortChange={onSortChange}
+                  setShowModal={setShowSelectModal}
+                  className="top-10"
+                />
+              )}
+            </div>
+          </div>
+        </header>
+        <div className="border-b border-gray-700 border-opacity-70"></div>
+        <div className="max-h-96 overflow-y-auto">
+          {watchPools?.map((pool, i) => (
+            <div className="w-full hover:bg-poolRowHover" key={i}>
+              <MobilePoolRow
+                sortBy={sortBy}
+                pool={pool}
+                watched={!!find(watchPools, { id: pool.id })}
+              />
+            </div>
+          ))}
+        </div>
+      </section>
+    </Card>
   );
 }
 
@@ -176,76 +242,208 @@ function MobileLiquidityPage({
   pools,
   tokenName,
   order,
+  watchPools,
   hasMore,
   onSearch,
   onSortChange,
   onOrderChange,
   nextPage,
+  sortBy,
+  onHide,
+  hideLowTVL,
+  allPools,
+  searchTrigger,
+  setSearchTrigger,
 }: {
   pools: Pool[];
+  searchTrigger: Boolean;
+  onSortChange: (modeSort: string) => void;
+  setSearchTrigger: (mode: Boolean) => void;
   tokenName: string;
   order: string;
+  watchPools: Pool[];
+  sortBy: string;
+  hideLowTVL: Boolean;
   hasMore: boolean;
+  allPools: number;
+  onHide: (mode: Boolean) => void;
   onSearch: (name: string) => void;
-  onSortChange: (by: string) => void;
   onOrderChange: (by: string) => void;
   nextPage: (...args: []) => void;
 }) {
   const intl = useIntl();
+  const [showSelectModal, setShowSelectModal] = useState<Boolean>();
+  const [searchValue, setSearchValue] = useState<string>(tokenName);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (searchTrigger === false || searchTrigger === true)
+      inputRef.current.focus();
+  }, [searchTrigger]);
+
   return (
-    <div className="flex items-center flex-col w-3/6 md:w-5/6 xs:w-11/12 m-auto md:hidden lg:hidden xl:hidden xs:show">
-      <div className="text-center pb-8">
-        <div className="text-white text-3xl font-semibold">
+    <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
+      <div className="mx-4 mb-6 mt-3">
+        <div className="text-white text-xl">
           <FormattedMessage
             id="liquidity_pools"
             defaultMessage="Liquidity Pools"
           />
         </div>
-        <div className="rounded-full w-1/5 xs:w-full border mt-4">
+      </div>
+      <MobileWatchListCard watchPools={watchPools} />
+
+      <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4">
+        <div className="mx-4 flex items-center justify-between my-4">
+          <div className="flex items-center">
+            <div className="text-white text-base">
+              {/* <FormattedMessage id="top_pools" defaultMessage="Top Pools" /> */}
+              Top Pools
+            </div>
+            <div>
+              <FaRegQuestionCircle
+                data-type="dark"
+                data-place="right"
+                data-multiline={true}
+                data-tip={intl.formatMessage({ id: 'topPoolsCopy' })}
+                className="inline-block ml-2 text-xs text-primaryText"
+              />
+              <ReactTooltip
+                className="text-xs shadow-4xl"
+                backgroundColor="#1D2932"
+                border
+                borderColor="#7e8a93"
+                effect="solid"
+                class="tool-tip"
+                textColor="#c6d1da"
+              />
+            </div>
+          </div>
+
+          <div className="text-gray-400 text-xs">
+            {(pools?.length ? pools?.length : '-') +
+              ' out of ' +
+              (allPools ? allPools : '-')}
+          </div>
+        </div>
+        <div className="rounded my-2 text-gray-400 flex items-center pr-2 mx-6 mb-5 bg-inputDarkBg">
           <input
-            className={`text-sm font-bold bg-inputBg focus:outline-none rounded-full w-full py-2 px-3 text-greenLight text-center`}
-            placeholder={intl.formatMessage({ id: 'search_pools' })}
-            value={tokenName}
-            onChange={(evt) => onSearch(evt.target.value)}
+            ref={inputRef}
+            className={`text-sm outline-none rounded w-full py-2 px-3`}
+            placeholder={intl.formatMessage({
+              id: 'click_search_bar_to_search',
+            })}
+            value={searchValue}
+            onChange={(evt) => {
+              setSearchValue(evt.target.value);
+            }}
+            onKeyUp={(evt) => {
+              if (evt.keyCode === 13) {
+                onSearch(searchValue);
+                setSearchTrigger(!searchTrigger);
+              }
+            }}
+          />
+          <FaSearch
+            className="cursor-pointer"
+            onClick={() => {
+              onSearch(searchValue);
+              setSearchTrigger(!searchTrigger);
+            }}
           />
         </div>
-      </div>
-      <div
-        id="poll-container"
-        style={{
-          width: '100%',
-          height: '60vh',
-          overflow: 'auto',
-        }}
-      >
-        <InfiniteScroll
-          scrollableTarget="poll-container"
-          dataLength={pools.length}
-          next={nextPage}
-          hasMore={hasMore}
-          loader={
-            <h4 style={{ textAlign: 'center', color: 'white' }}>Loading...</h4>
-          }
-          pullDownToRefresh={false}
-        >
-          {pools.map((pool, i) => (
-            <MobilePoolRow key={i} pool={pool} />
-          ))}
-        </InfiniteScroll>
-      </div>
+        <div className=" mb-4 flex items-center mx-6">
+          <div className="mr-2">
+            {hideLowTVL ? (
+              <div onClick={() => onHide(false)}>
+                <CheckedTick />
+              </div>
+            ) : (
+              <div onClick={() => onHide(true)}>
+                <CheckedEmpty />
+              </div>
+            )}
+          </div>
+          <div className="text-gray-400 text-sm mr-4">
+            <FormattedMessage
+              id="hide_low_tvl_pools"
+              defaultMessage="Hide low TVL pools"
+            />
+          </div>
+        </div>
+        <section className="w-full">
+          <header className="p-4 text-gray-400 flex items-center justify-between text-sm">
+            <div>
+              <FormattedMessage id="pair" defaultMessage="Pair" />
+            </div>
+            <div className="flex items-center">
+              <div
+                className="mr-2"
+                onClick={() => {
+                  onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                }}
+              >
+                {order === 'desc' ? <DownArrowLightMobile /> : <UpArrowDeep />}
+              </div>
+              <div className="relative rounded text-gray-400 flex items-center border border-gray-400 w-36">
+                <div
+                  className="p-1 border-r border-gray-400 w-32"
+                  onClick={() => {
+                    setShowSelectModal(true);
+                  }}
+                >
+                  <FormattedMessage id={sortBy} defaultMessage={sortBy} />
+                </div>
+                <div
+                  className="p-1"
+                  onClick={() => {
+                    setShowSelectModal(true);
+                  }}
+                >
+                  <PolygonGrayDown />
+                </div>
+                {showSelectModal && (
+                  <SelectModal
+                    onSortChange={onSortChange}
+                    setShowModal={setShowSelectModal}
+                    className="top-10"
+                  />
+                )}
+              </div>
+            </div>
+          </header>
+          <div className="border-b border-gray-700 border-opacity-70"></div>
+          <div className="max-h-96 overflow-y-auto">
+            {pools?.map((pool, i) => (
+              <div className="w-full hover:bg-poolRowHover" key={i}>
+                <MobilePoolRow
+                  pool={pool}
+                  sortBy={sortBy}
+                  watched={!!find(watchPools, { id: pool.id })}
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+      </Card>
     </div>
   );
 }
 
-function PoolRow({ pool }: { pool: Pool }) {
+function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const tokens = useTokens(pool.tokenIds);
+  const morePoolIds = useMorePoolIds({ topPool: pool });
+  const history = useHistory();
+  const [showLinkArrow, setShowLinkArrow] = useState(false);
+
   useEffect(() => {
     canFarm(pool.id).then((canFarm) => {
       setSupportFarm(canFarm);
     });
   }, [pool]);
-  if (!tokens) return <Loading />;
+  // if (!tokens) return <Loading />;
+  if (!tokens) return <></>;
 
   tokens.sort((a, b) => {
     if (a.symbol === 'wNEAR') return 1;
@@ -253,96 +451,175 @@ function PoolRow({ pool }: { pool: Pool }) {
     return a.symbol > b.symbol ? 1 : -1;
   });
 
-  const farmButton = () => {
-    if (supportFarm)
-      return (
-        <div className="mt-4 py-0.5 px-1 mr-3 ml-1 text-center bg-greenLight text-white font-bold inline-block rounded">
-          <FormattedMessage id="farms" defaultMessage="Farms" />
+  const FarmButton = () => {
+    return (
+      <div className="flex items-center">
+        <div className="mx-2">
+          <FarmStamp />
         </div>
-      );
-    return '';
+        <div>{MULTI_MINING_POOLS.includes(pool.id) && <FarmMiningIcon />}</div>
+      </div>
+    );
   };
 
   return (
     <Link
-      title={`${tokens[0].id.substring(0, 12)}|${tokens[1].id}`.substring(
-        0,
-        12
-      )}
+      className="grid grid-cols-10 py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-700 border-opacity-70 hover:opacity-80"
+      onClick={() => localStorage.setItem('fromMorePools', 'n')}
       to={{
         pathname: `/pool/${pool.id}`,
-        state: { tvl: pool.tvl },
+        state: { tvl: pool.tvl, backToFarms: supportFarm },
       }}
-      className="grid grid-cols-12 py-2 content-center text-xs font-semibold text-gray-600"
     >
-      <div className="col-span-1">
-        <div className="relative">
-          <img
-            key={tokens[0].id.substring(0, 12).substring(0, 12)}
-            className="h-12 w-12 border rounded-full border-gray-300"
-            src={tokens[0].icon}
-          />
-          <img
-            key={tokens[1].id}
-            className="h-7 w-7 absolute left-9 bottom-0 border rounded-full border-gray-300"
-            src={tokens[1].icon}
-          />
+      <div className="col-span-7 md:col-span-4 flex items-center">
+        <div className="mr-6 w-2">{index}</div>
+        <div className="flex items-center">
+          <div className="flex items-center">
+            <div className="h-9 w-9 border border-gradientFromHover rounded-full mr-2">
+              <img
+                key={tokens[0].id.substring(0, 12).substring(0, 12)}
+                className="rounded-full mr-2 w-full"
+                src={tokens[0].icon}
+              />
+            </div>
+
+            <div className="h-9 w-9 border border-gradientFromHover rounded-full">
+              <img
+                key={tokens[1].id}
+                className="rounded-full mr-2 w-full"
+                src={tokens[1].icon}
+              />
+            </div>
+          </div>
+          <div className="text-sm ml-7">
+            {tokens[0].symbol + '-' + tokens[1].symbol}
+          </div>
         </div>
+
+        {supportFarm && <FarmButton />}
       </div>
-      <div className="col-span-1">{farmButton()}</div>
-      <div className="col-span-4">
-        <div className="mt-2">
-          {toRealSymbol(tokens[0].symbol)}=
-          {toPrecision(
-            toReadableNumber(
-              tokens[0].decimals || 24,
-              pool.supplies[tokens[0].id]
-            ),
-            4,
-            true
-          )}
-        </div>
-        <div>
-          {toRealSymbol(tokens[1].symbol)}=
-          {toPrecision(
-            toReadableNumber(
-              tokens[1].decimals || 24,
-              pool.supplies[tokens[1].id]
-            ),
-            4,
-            true
-          )}
-        </div>
+      <div className="col-span-1 py-1 md:hidden ">
+        {calculateFeePercent(pool.fee)}%
       </div>
-      <div className="col-span-3">
-        <div className="mt-4">
-          1&nbsp;{toRealSymbol(tokens[0].symbol)}&nbsp;
-          {getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
-        </div>
+
+      <div className="col-span-1 py-1">
+        ${toInternationalCurrencySystem(pool.tvl.toString())}
       </div>
-      <div className="col-span-2">
-        <div className="mt-4">${toPrecision(pool.tvl.toString(), 2, true)}</div>
-      </div>
-      <div className="col-span-1">
-        <div className="mt-4">{calculateFeePercent(pool.fee)}%</div>
+
+      <div
+        className="col-span-1 py-1 hover:text-green-500 hover:cursor-pointer"
+        onMouseEnter={() => setShowLinkArrow(true)}
+        onMouseLeave={() => setShowLinkArrow(false)}
+        onClick={(e) => {
+          e.preventDefault();
+          history.push(`/more_pools/${pool.tokenIds}`, {
+            morePoolIds: morePoolIds,
+            tokens,
+          });
+        }}
+      >
+        {morePoolIds?.length ? `${morePoolIds?.length}` : '-'}
+        {showLinkArrow && ' >'}
       </div>
     </Link>
   );
 }
 
+function WatchListCard({ watchPools }: { watchPools: Pool[] }) {
+  const intl = useIntl();
+  return (
+    <>
+      <Card className=" w-full mb-2" padding="p-0 py-6" bgcolor="bg-cardBg">
+        <div className="mx-8 flex items-center">
+          <div
+            className={`text-${
+              watchPools?.length > 0 ? 'white' : 'gray-400'
+            } text-lg`}
+          >
+            <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
+          </div>
+          <FaRegQuestionCircle
+            data-type="dark"
+            data-place="right"
+            data-multiline={true}
+            data-tip={intl.formatMessage({ id: 'my_watchlist_copy' })}
+            className="inline-block ml-2 text-sm  text-gray-500"
+          />
+          <ReactTooltip
+            className="text-xs shadow-4xl"
+            backgroundColor="#1D2932"
+            border
+            borderColor="#7e8a93"
+            effect="solid"
+            class="tool-tip"
+            textColor="#c6d1da"
+          />
+        </div>
+        <section className="">
+          <header className="grid grid-cols-10 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-700 border-opacity-70">
+            <div className="col-span-7 md:col-span-4 flex">
+              <div className="mr-6 w-2">#</div>
+              <FormattedMessage id="pair" defaultMessage="Pair" />
+            </div>
+            <div className="col-span-1 md:hidden cursor-pointer flex items-center">
+              <div className="mr-1">
+                <FormattedMessage id="fee" defaultMessage="Fee" />
+              </div>
+            </div>
+
+            <div className="col-span-1 flex items-center cursor-pointer">
+              <span className="mr-1">
+                <FormattedMessage id="tvl" defaultMessage="TVL" />
+              </span>
+            </div>
+            <p className="col-span-1">
+              <FormattedMessage id="pools" defaultMessage="Pools" />
+            </p>
+          </header>
+
+          <div className="max-h-96 overflow-y-auto">
+            {watchPools?.map((pool, i) => (
+              <div
+                className="w-full hover:bg-poolRowHover hover:bg-opacity-20"
+                key={i}
+              >
+                <PoolRow pool={pool} index={i + 1} />
+              </div>
+            ))}
+          </div>
+        </section>
+      </Card>
+    </>
+  );
+}
+
 function LiquidityPage_({
   pools,
+  sortBy,
   tokenName,
   order,
   hasMore,
+  watchPools,
   onSearch,
+  onHide,
+  hideLowTVL,
   onSortChange,
   onOrderChange,
+  searchTrigger,
+  setSearchTrigger,
   nextPage,
+  allPools,
 }: {
   pools: Pool[];
+  sortBy: string;
+  hideLowTVL: Boolean;
+  watchPools: Pool[];
   tokenName: string;
   order: string;
+  searchTrigger: Boolean;
+  setSearchTrigger: (mode: Boolean) => void;
+  onHide: (mode: Boolean) => void;
+  allPools: number;
   hasMore: boolean;
   onSearch: (name: string) => void;
   onSortChange: (by: string) => void;
@@ -350,83 +627,169 @@ function LiquidityPage_({
   nextPage: (...args: []) => void;
 }) {
   const intl = useIntl();
+  const [searchValue, setSearchValue] = useState<string>(tokenName);
+  const inputRef = useRef(null);
+  useEffect(() => {
+    if (searchTrigger === false || searchTrigger === true)
+      inputRef.current?.focus();
+  }, [searchTrigger]);
   return (
-    <div className="flex items-center flex-col w-3/6 md:w-5/6 m-auto xs:hidden">
-      <div className="text-center pb-8">
-        <div className="text-white text-3xl font-semibold">
+    <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
+      <div className="mb-4 mx-8">
+        <div className="text-white text-xl">
           <FormattedMessage
             id="liquidity_pools"
             defaultMessage="Liquidity Pools"
           />
         </div>
       </div>
-      <Card width="w-full">
-        <div className="flex items-center justify-end pb-4 px-2">
-          <div className="rounded-lg w-1/5 xs:w-full border my-2">
-            <input
-              className={`text-sm font-bold bg-inputBg focus:outline-none rounded-lg w-full py-2 px-3 text-greenLight`}
-              placeholder={intl.formatMessage({ id: 'search_pools' })}
-              value={tokenName}
-              onChange={(evt) => onSearch(evt.target.value)}
-            />
-          </div>
-        </div>
-        <section className="px-2">
-          <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm font-bold">
-            <p className="col-span-2">
-              <FormattedMessage id="pair" defaultMessage="Pair" />
-            </p>
-            <p className="col-span-4">
-              <FormattedMessage id="liquidity" defaultMessage="Liquidity" />
-            </p>
-            <p className="col-span-3">
-              <FormattedMessage id="swap_rate" defaultMessage="Swap Rate" />
-            </p>
-            <div
-              className="col-span-2"
-              onClick={() => {
-                onSortChange('tvl');
-                onOrderChange(order === 'desc' ? 'asc' : 'desc');
-              }}
-            >
-              <span>
-                <FormattedMessage id="tvl" defaultMessage="TVL" />
-              </span>
+      <WatchListCard watchPools={watchPools} />
+
+      <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
+        <div className="flex mx-8 justify-between pb-4">
+          <div>
+            <div className="text-white text-lg">
+              {/* <FormattedMessage id="top_pools" defaultMessage="Top Pools" /> */}
+              Top Pools
+            </div>
+
+            <div className="flex items-center">
+              <div className="text-gray-400 text-sm">
+                {(pools?.length ? pools?.length : '-') +
+                  ' out of ' +
+                  (allPools ? allPools : '-')}
+              </div>
+
               <FaRegQuestionCircle
                 data-type="dark"
-                data-place="bottom"
+                data-place="right"
                 data-multiline={true}
-                data-tip={intl.formatMessage({ id: 'totalValueLockedCopy' })}
-                className="inline-block	ml-2 text-xs font-semibold text-secondaryScale-500"
+                data-tip={intl.formatMessage({ id: 'topPoolsCopy' })}
+                className="inline-block ml-2 text-sm  text-primaryText"
               />
-              <ReactTooltip className="text-xs font-light" />
+              <ReactTooltip
+                className="text-xs shadow-4xl"
+                backgroundColor="#1D2932"
+                border
+                borderColor="#7e8a93"
+                effect="solid"
+                class="tool-tip"
+                textColor="#c6d1da"
+              />
             </div>
-            <p
-              className="col-span-1 cursor-pointer"
+          </div>
+          <div className="flex items-center w-3/7">
+            <div className="flex items-center">
+              <div className="mr-2">
+                {hideLowTVL ? (
+                  <div onClick={() => onHide(false)}>
+                    <CheckedTick />
+                  </div>
+                ) : (
+                  <div onClick={() => onHide(true)}>
+                    <CheckedEmpty />
+                  </div>
+                )}
+              </div>
+              <div className="text-gray-400 text-sm mr-10">
+                <FormattedMessage
+                  id="hide_low_tvl_pools"
+                  defaultMessage="Hide low TVL pools"
+                />
+              </div>
+            </div>
+            <div className="rounded w-full my-2 text-gray-400 flex items-center pr-2 bg-inputDarkBg">
+              <input
+                ref={inputRef}
+                className={`text-sm outline-none rounded w-full py-2 px-3`}
+                placeholder={intl.formatMessage({
+                  id: 'press_enter_to_search',
+                })}
+                value={searchValue}
+                onChange={(evt) => {
+                  setSearchValue(evt.target.value);
+                }}
+                onKeyUp={(evt) => {
+                  if (evt.keyCode === 13) {
+                    onSearch(searchValue);
+                    setSearchTrigger(!searchTrigger);
+                  }
+                }}
+              />
+              <FaSearch
+                className="cursor-pointer"
+                onClick={() => {
+                  onSearch(searchValue);
+                  setSearchTrigger(!searchTrigger);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        <section className="">
+          <header className="grid grid-cols-10 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-700 border-opacity-70">
+            <div className="col-span-7 md:col-span-4 flex">
+              <div className="mr-6 w-2">#</div>
+              <FormattedMessage id="pair" defaultMessage="Pair" />
+            </div>
+            <div
+              className="col-span-1 md:hidden cursor-pointer flex items-center"
               onClick={() => {
                 onSortChange('fee');
                 onOrderChange(order === 'desc' ? 'asc' : 'desc');
               }}
             >
-              <FormattedMessage id="fee" defaultMessage="Fee" />
+              <div className="mr-1">
+                <FormattedMessage id="fee" defaultMessage="Fee" />
+              </div>
+              {sortBy === 'fee' ? (
+                order === 'desc' ? (
+                  <DownArrowLight />
+                ) : (
+                  <UpArrowLight />
+                )
+              ) : (
+                <UpArrowDeep />
+              )}
+            </div>
+
+            <div
+              className="col-span-1 flex items-center cursor-pointer"
+              onClick={() => {
+                onSortChange('tvl');
+                onOrderChange(order === 'desc' ? 'asc' : 'desc');
+              }}
+            >
+              <span className="mr-1">
+                <FormattedMessage id="tvl" defaultMessage="TVL" />
+              </span>
+              {sortBy === 'tvl' ? (
+                order === 'desc' ? (
+                  <DownArrowLight />
+                ) : (
+                  <UpArrowLight />
+                )
+              ) : (
+                <UpArrowDeep />
+              )}
+            </div>
+            <p className="col-span-1">
+              <FormattedMessage id="pools" defaultMessage="Pools" />
             </p>
           </header>
-          <div className="max-h-80 overflow-y-auto">
-            {pools.map((pool, i) => (
-              <PoolRow key={i} pool={pool} />
+
+          <div className="max-h-96 overflow-y-auto">
+            {pools?.map((pool, i) => (
+              <div
+                className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20"
+                key={i}
+              >
+                <PoolRow pool={pool} index={i + 1} />
+              </div>
             ))}
           </div>
         </section>
-        {hasMore && (
-          <div className="flex items-center justify-center pt-5">
-            <button
-              className="rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold bg-greenLight"
-              onClick={nextPage}
-            >
-              More
-            </button>
-          </div>
-        )}
       </Card>
     </div>
   );
@@ -436,19 +799,49 @@ export function LiquidityPage() {
   const [tokenName, setTokenName] = useState('');
   const [sortBy, setSortBy] = useState('tvl');
   const [order, setOrder] = useState('desc');
-  const { pools, hasMore, nextPage } = usePools({
+  const AllPools = useAllPools();
+  const watchPools = useWatchPools();
+  const [searchTrigger, setSearchTrigger] = useState<Boolean>(null);
+  const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
+  const [displayPools, setDisplayPools] = useState<Pool[]>();
+  const { pools, hasMore, nextPage, loading } = usePools({
+    searchTrigger,
     tokenName,
     sortBy,
     order,
   });
-  if (!pools) return <Loading />;
+
+  useEffect(() => {
+    let tempPools;
+
+    setHideLowTVL(JSON.parse(localStorage.getItem(HIDE_LOW_TVL)) || false);
+
+    if (hideLowTVL) {
+      tempPools = _.filter(pools, (pool) => pool.tvl > 1000);
+    } else {
+      tempPools = pools;
+    }
+    setDisplayPools(tempPools);
+  }, [pools, hideLowTVL]);
+
+  if (!displayPools || loading || !watchPools) return <Loading />;
 
   return (
     <>
       <LiquidityPage_
         tokenName={tokenName}
-        pools={pools}
+        searchTrigger={searchTrigger}
+        setSearchTrigger={setSearchTrigger}
+        pools={displayPools}
+        onHide={(isHide) => {
+          localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
+          setHideLowTVL(isHide);
+        }}
+        hideLowTVL={hideLowTVL}
+        watchPools={watchPools}
         order={order}
+        sortBy={sortBy}
+        allPools={AllPools}
         onOrderChange={setOrder}
         onSortChange={setSortBy}
         onSearch={setTokenName}
@@ -456,11 +849,21 @@ export function LiquidityPage() {
         nextPage={nextPage}
       />
       <MobileLiquidityPage
+        searchTrigger={searchTrigger}
+        setSearchTrigger={setSearchTrigger}
+        hideLowTVL={hideLowTVL}
         tokenName={tokenName}
-        pools={pools}
+        pools={displayPools}
+        watchPools={watchPools}
+        allPools={AllPools}
         order={order}
+        sortBy={sortBy}
         onOrderChange={setOrder}
         onSortChange={setSortBy}
+        onHide={(isHide) => {
+          localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
+          setHideLowTVL(isHide);
+        }}
         onSearch={setTokenName}
         hasMore={hasMore}
         nextPage={nextPage}

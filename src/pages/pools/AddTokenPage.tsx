@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Card } from '~components/card/Card';
-import { ConnectToNearBtn } from '~components/deposit/Deposit';
 import { wallet } from '~services/near';
 import { registerTokenAndExchange } from '~services/token';
 import Alert from '~components/alert/Alert';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { ConnectToNearBtn } from '~components/button/Button';
 
 export function AddTokenPage() {
   const [addr, setAddr] = useState('');
-  const [error, setError] = useState<Error>();
+  const [error, setError] = useState<string>();
   const intl = useIntl();
   return (
     <div className="flex items-center flex-col w-1/3 md:w-5/6 xs:w-11/12 m-auto">
@@ -17,12 +17,12 @@ export function AddTokenPage() {
           <FormattedMessage id="add_token" defaultMessage="Add Token" />
         </div>
       </div>
-      <div className="w-1/3 flex justify-center">
-        {error && <Alert level="error" message={error.message} />}
+      <div className="w-full flex justify-center">
+        {error && <Alert level="error" message={error} />}
       </div>
       <Card width="w-full">
         <div className="text-xs font-semibold">
-          <FormattedMessage id="token" defaultMessage="Token" />
+          <FormattedMessage id="add_token" defaultMessage="Add token" />
         </div>
         <div className="rounded-lg w-full border my-2">
           <input
@@ -44,12 +44,20 @@ export function AddTokenPage() {
                   try {
                     await registerTokenAndExchange(addr);
                   } catch (err) {
-                    setError(err);
+                    if (addr.substr(0, 2) === '0x' && addr.length === 42) {
+                      setError(intl.formatMessage({ id: 'not_nep_address' }));
+                    } else if (err.message.indexOf('does not exist') != -1) {
+                      setError(
+                        intl.formatMessage({ id: 'not_correct_address' })
+                      );
+                    } else {
+                      setError(err.message);
+                    }
                   }
                 }
               }}
             >
-              <FormattedMessage id="add_token" defaultMessage="Add Token" />
+              <FormattedMessage id="add_token" defaultMessage="Add token" />
             </button>
           ) : (
             <ConnectToNearBtn />
@@ -59,7 +67,7 @@ export function AddTokenPage() {
       <div className="text-white text-sm pt-3 leading-6 w-full text-center">
         <FormattedMessage
           id="addTokenCopy"
-          defaultMessage="This allows you to add an ERC-20 token to the exchange that is not already listed."
+          defaultMessage="Add any NEP-141 token."
         />
       </div>
     </div>

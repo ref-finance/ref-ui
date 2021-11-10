@@ -16,13 +16,13 @@ import { FormattedMessage } from 'react-intl';
 function Empty() {
   return (
     <div>
-      <div className="text-center font-semibold text-xs pb-1">
+      <div className="text-center font-semibold text-xs pb-1 text-primaryText">
         <FormattedMessage
           id="you_are_not_providing_liquidity_to_any_pools"
           defaultMessage="You aren’t providing liquidity to any pools"
         />
       </div>
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center my-4">
         {wallet.isSignedIn() ? <AddLiquidityButton /> : <ConnectToNearBtn />}
       </div>
     </div>
@@ -69,7 +69,7 @@ export function YourLiquidityPage() {
         {pools.length > 0 ? (
           <section>
             <div className="max-h-80 overflow-y-auto">
-              <div className="grid grid-cols-12 py-2 content-center items-center text-xs font-semibold text-gray-600">
+              <div className="grid grid-cols-12 py-2 content-center items-center text-xs font-semibold text-primaryText">
                 <div className="grid grid-cols-2 col-span-2"></div>
                 <p className="grid col-span-3">
                   <FormattedMessage id="pair" defaultMessage="Pair" />
@@ -117,7 +117,8 @@ function PoolRow(props: { pool: any }) {
 
   const images = tokens.map((token) => {
     const { icon, id } = token;
-    if (icon) return <img key={id} className="h-6 w-6" src={icon} />;
+    if (icon)
+      return <img key={id} className="h-6 w-6 rounded-full" src={icon} />;
     return <div key={id} className="h-6 w-6 rounded-full border"></div>;
   });
 

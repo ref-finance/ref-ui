@@ -5,6 +5,9 @@ import getConfig from './config';
 import SpecialWallet from './SpecialWallet';
 
 const config = getConfig();
+
+export const MULTI_MINING_POOLS = config.MULTI_MINING_POOLS;
+
 export const REF_FI_CONTRACT_ID = config.REF_FI_CONTRACT_ID;
 
 export const REF_ADBOARD_CONTRACT_ID = config.REF_ADBOARD_CONTRACT_ID;
@@ -26,7 +29,7 @@ export const near = new Near({
 export const wallet = new SpecialWallet(near, config.REF_FI_CONTRACT_ID);
 
 export const getGas = (gas: string) =>
-  gas ? new BN(gas) : new BN('30000000000000');
+  gas ? new BN(gas) : new BN('100000000000000');
 export const getAmount = (amount: string) =>
   amount ? new BN(utils.format.parseNearAmount(amount)) : new BN('0');
 

@@ -14,7 +14,7 @@ import {
 } from '~services/airdrop';
 import { toReadableNumber } from '~utils/numbers';
 import moment from 'moment';
-import { ConnectToNearBtn } from '~components/button/Button';
+import { SmallConnectToNearBtn } from '~components/button/Button';
 import ReactTooltip from 'react-tooltip';
 import copy from '~utils/copy';
 import { getCurrentUnixTime } from '~services/api';
@@ -43,7 +43,7 @@ function notParticipateAirdropView(currentAccountId: string) {
     </div>
   ) : (
     <div className="text-center p-4">
-      <ConnectToNearBtn />
+      <SmallConnectToNearBtn />
     </div>
   );
 }

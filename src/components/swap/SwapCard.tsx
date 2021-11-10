@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import { TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
@@ -11,13 +11,15 @@ import {
   toPrecision,
   toReadableNumber,
 } from '../../utils/numbers';
-import FormWrap from '../forms/FormWrap';
+import NewFormWrap from '../forms/NewFormWrap';
 import TokenAmount from '../forms/TokenAmount';
 import Alert from '../alert/Alert';
-import SlippageSelector from '../forms/SlippageSelector';
-import { ArrowDownBlack } from '../icon/Arrows';
+import { SwapArrow } from '../icon/Arrows';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
+import db from '~store/RefDatabase';
+import { GradientButton } from '~components/button/Button';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -26,9 +28,65 @@ const TOKEN_URL_SEPARATOR = '|';
 
 function SwapDetail({ title, value }: { title: string; value: string }) {
   return (
-    <section className="grid grid-cols-2 py-1">
-      <p className="opacity-80">{title}</p>
-      <p className="text-right font-semibold">{value}</p>
+    <section className="grid grid-cols-2 py-1 text-xs">
+      <p className="text-primaryText">{title}</p>
+      <p className="text-right text-white">{value}</p>
+    </section>
+  );
+}
+
+function SwapRateDetail({
+  title,
+  value,
+  pool,
+  from,
+  to,
+  tokenIn,
+  tokenOut,
+}: {
+  title: string;
+  value: string;
+  pool: Pool;
+  from: string;
+  to: string;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+}) {
+  const [newValue, setNewValue] = useState<string>('');
+  const [isRevert, setIsRevert] = useState<boolean>(false);
+
+  useEffect(() => {
+    setNewValue(value);
+  }, [value]);
+
+  useEffect(() => {
+    setNewValue(
+      `1 ${toRealSymbol(
+        isRevert ? tokenIn.symbol : tokenOut.symbol
+      )} ≈ ${calculateExchangeRate(
+        pool.fee,
+        isRevert ? from : to,
+        isRevert ? to : from
+      )} ${toRealSymbol(isRevert ? tokenOut.symbol : tokenIn.symbol)}`
+    );
+  }, [isRevert]);
+
+  function switchSwapRate() {
+    setIsRevert(!isRevert);
+  }
+
+  return (
+    <section className="flex py-1 text-xs">
+      <p className="text-primaryText w-1/5 xs:w-2/5">{title}</p>
+      <p
+        className="flex justify-end text-white cursor-pointer w-4/5 xs:w-3/5"
+        onClick={switchSwapRate}
+      >
+        <span className="mr-2" style={{ marginTop: '0.1rem' }}>
+          <FaExchangeAlt />
+        </span>
+        <span>{newValue}</span>
+      </p>
     </section>
   );
 }
@@ -49,29 +107,54 @@ function DetailView({
   minAmountOut: string;
 }) {
   const intl = useIntl();
+  const [showDetails, setShowDetails] = useState<boolean>(false);
 
   if (!pool || !from || !to) return null;
 
   return (
-    <>
-      <SwapDetail
-        title={intl.formatMessage({ id: 'minimum_received' })}
-        value={toPrecision(minAmountOut, 4, true)}
-      />
-      <SwapDetail
-        title={intl.formatMessage({ id: 'swap_rate' })}
-        value={`${calculateExchangeRate(pool.fee, from, to)} ${toRealSymbol(
-          tokenOut.symbol
-        )} per ${toRealSymbol(tokenIn.symbol)}`}
-      />
-      <SwapDetail
-        title={intl.formatMessage({ id: 'pool_fee' })}
-        value={`${calculateFeePercent(pool.fee)}% (${calculateFeeCharge(
-          pool.fee,
-          from
-        )})`}
-      />
-    </>
+    <div className="mt-8">
+      <div
+        className="flex justify-center"
+        onClick={() => {
+          setShowDetails(!showDetails);
+        }}
+      >
+        <div className="flex items-center text-white cursor-pointer">
+          <p className="block text-xs">
+            <FormattedMessage id="details" defaultMessage="Details" />
+          </p>
+          <div className="pl-1 text-sm">
+            {showDetails ? <FaAngleUp /> : <FaAngleDown />}
+          </div>
+        </div>
+      </div>
+      <div className={showDetails ? '' : 'hidden'}>
+        <SwapDetail
+          title={intl.formatMessage({ id: 'minimum_received' })}
+          value={toPrecision(minAmountOut, 8, true)}
+        />
+        <SwapRateDetail
+          title={intl.formatMessage({ id: 'swap_rate' })}
+          value={`1 ${toRealSymbol(tokenOut.symbol)} ≈ ${calculateExchangeRate(
+            pool.fee,
+            to,
+            from
+          )} ${toRealSymbol(tokenIn.symbol)}`}
+          pool={pool}
+          from={from}
+          to={to}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+        />
+        <SwapDetail
+          title={intl.formatMessage({ id: 'pool_fee' })}
+          value={`${calculateFeePercent(pool.fee)}% (${calculateFeeCharge(
+            pool.fee,
+            from
+          )})`}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -121,19 +204,42 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     });
 
   useEffect(() => {
-    if (Number(tokenInAmount) === 0 || swapError != null) {
-      setDisableTokenInput(false);
-    } else {
-      setDisableTokenInput(!canSwap);
-    }
-    setTimeout(() => {
-      document.getElementById('inputAmount').focus();
-    }, 100);
+    const [urlTokenIn, urlTokenOut] = decodeURIComponent(
+      location.hash.slice(1)
+    ).split(TOKEN_URL_SEPARATOR);
+    const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
+    const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
+    db.checkPoolsByTokens(rememberedIn, rememberedOut).then((cached) => {
+      if (!cached) {
+        if (Number(tokenInAmount) === 0 || swapError != null) {
+          setDisableTokenInput(false);
+        } else {
+          setDisableTokenInput(!canSwap);
+        }
+      } else {
+        setDisableTokenInput(false);
+      }
+      setTimeout(() => {
+        document.getElementById('inputAmount').focus();
+      }, 100);
+    });
   }, [canSwap, swapError]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     makeSwap();
+  };
+  const topBall = useRef<HTMLInputElement>();
+  const bottomBall = useRef<HTMLInputElement>();
+  const runSwapAnimation = function () {
+    topBall.current.style.animation = 'rotation1 1s 0s ease-out 1';
+    bottomBall.current.style.animation = 'rotation2 1s 0s ease-out 1';
+    topBall.current.addEventListener('animationend', function () {
+      topBall.current.style.animation = '';
+    });
+    bottomBall.current.addEventListener('animationend', function () {
+      bottomBall.current.style.animation = '';
+    });
   };
 
   const tokenInMax =
@@ -142,30 +248,33 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
 
   return (
-    <FormWrap
+    <NewFormWrap
       canSubmit={canSwap}
+      slippageTolerance={slippageTolerance}
+      onChange={(slippage) => {
+        setSlippageTolerance(slippage);
+        localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
+      }}
       showElseView={tokenInMax === '0'}
       elseView={
         <div className="flex justify-center">
-          <button
-            className={`rounded-full text-xs text-white px-3 py-1.5 focus:outline-none font-semibold bg-greenLight`}
+          <GradientButton
+            className={`w-full text-center text-lg text-white mt-4 px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
             onClick={() => {
               history.push(`/deposit/${tokenIn.id}`);
             }}
           >
             <FormattedMessage
               id="deposit_to_swap"
-              defaultMessage="存入兑换的代币"
+              defaultMessage="Deposit to swap"
             />
-          </button>
+          </GradientButton>
         </div>
       }
       onSubmit={handleSubmit}
       info={intl.formatMessage({ id: 'swapCopy' })}
+      title={'swap'}
     >
-      <div className="pb-2">
-        {swapError && <Alert level="error" message={swapError.message} />}
-      </div>
       <TokenAmount
         amount={tokenInAmount}
         total={tokenInMax}
@@ -178,26 +287,37 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
           setTokenIn(token);
         }}
-        disabled={disableTokenInput}
         text={intl.formatMessage({ id: 'from' })}
+        disabled={disableTokenInput}
         onChangeAmount={(amount) => {
           setTokenInAmount(amount);
         }}
       />
-      <div className="flex items-center justify-center">
+      <div
+        className="flex items-center justify-center border-t mt-12"
+        style={{ borderColor: 'rgba(126, 138, 147, 0.3)' }}
+      >
         <div
-          className="inline-block mt-4 mb-4 cursor-pointer"
+          className="relative flex items-center -mt-6 mb-4 w-14 h-14 border border-white border-opacity-40 rounded-full cursor-pointer bg-dark"
           onClick={() => {
+            runSwapAnimation();
             setTokenIn(tokenOut);
             setTokenOut(tokenIn);
             setTokenInAmount(toPrecision('1', 6));
           }}
         >
-          <ArrowDownBlack />
+          <div className="swap-wrap">
+            <div className="top-ball" ref={topBall} id="top-ball"></div>
+            <div
+              className="bottom-ball"
+              ref={bottomBall}
+              id="bottom-ball"
+            ></div>
+          </div>
         </div>
       </div>
       <TokenAmount
-        amount={toPrecision(tokenOutAmount, 6)}
+        amount={toPrecision(tokenOutAmount, 8)}
         total={tokenOutTotal}
         tokens={allTokens}
         selectedToken={tokenOut}
@@ -209,13 +329,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           setTokenOut(token);
         }}
       />
-      <SlippageSelector
-        slippageTolerance={slippageTolerance}
-        onChange={(slippage) => {
-          setSlippageTolerance(slippage);
-          localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage.toString());
-        }}
-      />
       <DetailView
         pool={pool}
         tokenIn={tokenIn}
@@ -224,6 +337,10 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         to={tokenOutAmount}
         minAmountOut={minAmountOut}
       />
-    </FormWrap>
+
+      <div className="pb-2">
+        {swapError && <Alert level="error" message={swapError.message} />}
+      </div>
+    </NewFormWrap>
   );
 }

@@ -1,4 +1,5 @@
 const colors = require('tailwindcss/colors');
+const defaultTheme = require('tailwindcss/defaultTheme');
 
 module.exports = {
   purge: [],
@@ -10,7 +11,9 @@ module.exports = {
       lg: { min: '1024px' },
       xl: { min: '1280px' },
       '2xl': { min: '1536px' },
+      '3xl': { min: '1792px' },
     },
+    boxShadow: { '4xl': '0px 0px 10px 4px rgba(0, 0, 0, 0.35)' },
     extend: {
       colors: {
         primary: '#10B981',
@@ -28,6 +31,27 @@ module.exports = {
         whiteOpacity85: 'rgba(255, 255, 255, 0.85)',
         blackLight: '#003648',
         greenLight1: '#01C08B',
+        cardBg: '#1D2932',
+        chartBg: '#001320',
+        warn: '#DEA550',
+        error: '#DE5050',
+        gradientFrom: '#00c6a2',
+        gradientTo: '#008b72',
+        gradientFromHover: '#00D6AF',
+        gradientToHover: '#00967B',
+        poolRowHover: '#001320',
+        primaryText: '#7E8A93',
+        inputDarkBg: 'rgba(0, 0, 0, 0.2)',
+        navHighLightBg: '#304452',
+        navHighLightText: '#C6D1DA',
+        slipBg: '#3e4e59',
+        farmText: '#73818B',
+        farmSplitLine: '#314351',
+        farmDark: '#2B3A44',
+        framBorder: '#00C6A2',
+      },
+      fontFamily: {
+        sans: ['Poppins', ...defaultTheme.fontFamily.sans],
       },
     },
     plugins: [],

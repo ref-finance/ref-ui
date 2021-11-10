@@ -1,4 +1,4 @@
-import React, { HTMLAttributes } from 'react';
+import React, { HTMLAttributes, useState } from 'react';
 import { wallet, REF_FARM_CONTRACT_ID } from '~services/near';
 import { Near } from '~components/icon';
 import { FormattedMessage } from 'react-intl';
@@ -21,17 +21,28 @@ export function BorderlessButton(
 export function BorderButton(
   props: HTMLAttributes<HTMLButtonElement> & { borderColor?: string } & {
     disabled?: boolean;
+    rounded?: string;
+    px?: string;
+    py?: string;
   }
 ) {
-  const { className, borderColor, disabled, ...propsWithoutClassName } = props;
+  const {
+    className,
+    borderColor,
+    disabled,
+    rounded,
+    px,
+    py,
+    ...propsWithoutClassName
+  } = props;
   return (
     <button
       disabled={disabled}
-      className={`rounded-full text-xs px-5 py-2.5 focus:outline-none font-semibold border ${
+      className={`text-xs font-semibold border ${
         borderColor ? borderColor : 'border-greenLight'
-      }  focus:outline-none ${className} ${
+      }  ${className} ${
         disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
-      }`}
+      } ${rounded || 'rounded-full'} ${px || 'px-5'} ${py || 'py-2.5'}`}
       {...propsWithoutClassName}
     >
       {props.children}
@@ -40,16 +51,20 @@ export function BorderButton(
 }
 
 export function GreenButton(
-  props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean }
+  props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean } & {
+    rounded?: string;
+    px?: string;
+    py?: string;
+  }
 ) {
-  const { disabled } = props;
+  const { disabled, rounded, px, py } = props;
   const { className, ...propsWithoutClassName } = props;
   return (
     <button
       disabled={disabled}
-      className={`rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold border border-greenLight bg-greenLight focus:outline-none ${className} ${
+      className={` text-xs text-white px-5 py-2.5 font-semibold border border-greenLight bg-greenLight focus:outline-none ${className} ${
         disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
-      }`}
+      } ${rounded || 'rounded-full'} ${px || 'px-5'} ${py || 'py-2.5'}`}
       {...propsWithoutClassName}
     >
       {props.children}
@@ -93,6 +108,18 @@ export function WithdrawButton(
 
 export function ConnectToNearBtn() {
   return (
+    <GradientButton
+      color="#fff"
+      className={`w-full text-center text-lg text-white mt-4 px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
+      onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
+    >
+      <FormattedMessage id="connect_to_near" defaultMessage="Connect to NEAR" />
+    </GradientButton>
+  );
+}
+
+export function SmallConnectToNearBtn() {
+  return (
     <div className="flex items-center justify-center pt-2">
       <GrayButton onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}>
         <div className="pr-1">
@@ -106,5 +133,101 @@ export function ConnectToNearBtn() {
         </div>
       </GrayButton>
     </div>
+  );
+}
+
+export function SolidButton(
+  props: HTMLAttributes<HTMLButtonElement> & {
+    disabled?: boolean;
+    padding?: string;
+    className?: string;
+  }
+) {
+  const { disabled, padding, className, onClick } = props;
+
+  return (
+    <button
+      onClick={onClick}
+      className={`${disabled ? 'cursor-not-allowed opacity-40' : ''} 
+        text-white rounded  bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover
+        py-2 ${padding ? padding : ''}
+        ${className ? className : ''}
+      `}
+    >
+      {props.children}
+    </button>
+  );
+}
+
+export function OutlineButton(
+  props: HTMLAttributes<HTMLButtonElement> & {
+    disabled?: boolean;
+    padding?: string;
+    className?: string;
+  }
+) {
+  const { disabled, padding, className, onClick } = props;
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`rounded py-2 ${
+        padding ? padding : ''
+      } border border-gradientFromHover text-gradientFrom ${
+        className ? className : ''
+      }`}
+    >
+      {props.children}
+    </button>
+  );
+}
+
+export function GradientButton(
+  props: HTMLAttributes<HTMLButtonElement> & {
+    disabled?: boolean;
+    padding?: string;
+    className?: string;
+    color?: string;
+    btnClassName?: string;
+  }
+) {
+  const { disabled, className, color, btnClassName, onClick } = props;
+  return (
+    <div
+      className={`${className ? className : ''}`}
+      style={{
+        background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+        borderRadius: '5px',
+        color: color || '',
+      }}
+    >
+      <button
+        onClick={onClick}
+        disabled={disabled}
+        className={`w-full h-full ${btnClassName ? btnClassName : ''}`}
+      >
+        {props.children}
+      </button>
+    </div>
+  );
+}
+export function GreenLButton(
+  props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean }
+) {
+  const { disabled } = props;
+  const { className, ...propsWithoutClassName } = props;
+  return (
+    <button
+      disabled={disabled}
+      style={{
+        background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+      }}
+      className={`w-full rounded text-lg text-white font-semibold border-0 px-5 py-2 focus:outline-none ${className} ${
+        disabled ? 'opacity-40 cursor-not-allowed' : ''
+      }`}
+      {...propsWithoutClassName}
+    >
+      {props.children}
+    </button>
   );
 }

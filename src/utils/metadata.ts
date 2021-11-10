@@ -1,9 +1,8 @@
 const icons: { [tokenId: string]: string } = {
-  'wrap.near': 'https://imgur.com/AaM3AbV.jpg',
+  'wrap.near': 'https://i.postimg.cc/4xx2KRxt/wNEAR.png',
   '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near':
     'https://s2.coinmarketcap.com/static/img/coins/64x64/4943.png',
-  'berryclub.ek.near':
-    'https://assets.onlinelabels.com/images/clip-art/pitr/pitr_Bananas_icon.png',
+  'berryclub.ek.near': 'https://i.postimg.cc/j263fsf6/banana.png',
   'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near':
     'https://s2.coinmarketcap.com/static/img/coins/64x64/825.png',
   '1f9840a85d5af5bf1d1762f925bdaddc4201f984.factory.bridge.near':
@@ -41,11 +40,15 @@ const icons: { [tokenId: string]: string } = {
   '111111111117dc0aa78b770fa6a738034120c302.factory.bridge.near':
     'https://s2.coinmarketcap.com/static/img/coins/64x64/8104.png',
   'f5cfbc74057c610c8ef151a439252680ac68c6dc.factory.bridge.near':
-    'https://imgur.com/55sGoBm.png',
+    'https://i.postimg.cc/NMJB3MF8/55sGoBm.png',
   'de30da39c46104798bb5aa3fe8b9e0e1f348163f.factory.bridge.near':
     'https://s2.coinmarketcap.com/static/img/coins/64x64/10052.png',
   'a4ef4b0b23c1fc81d3f9ecf93510e64f58a4a016.factory.bridge.near':
     'https://s2.coinmarketcap.com/static/img/coins/64x64/4222.png',
+  'token.cheddar.near': 'https://i.postimg.cc/xk1vJC6x/cheddar.png',
+  'farm.berryclub.ek.near': 'https://i.postimg.cc/TLyn0sMn/cucumber.png',
+  'd9c2d319cd7e6177336b0a9c93c21cb48d84fb54.factory.bridge.near':
+    'https://i.postimg.cc/jwGPFhtm/HAPI.png',
 };
 
 export default icons;
