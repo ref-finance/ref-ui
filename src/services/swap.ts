@@ -184,15 +184,23 @@ export const instantSwap = async ({
   };
 
   const transactions: Transaction[] = [];
-  const neededStorage = await checkTokenNeedsStorageDeposit(tokenIn.id);
+  const actions: RefFiFunctionCallOptions[] = [];
+
+  const whitelist = await getWhitelistedTokens();
+  if (!whitelist.includes(tokenIn.id)) {
+    actions.unshift(registerTokenAction(tokenIn.id));
+  }
+  if (!whitelist.includes(tokenOut.id)) {
+    actions.unshift(registerTokenAction(tokenOut.id));
+  }
+
+  const neededStorage = await checkTokenNeedsStorageDeposit(tokenOut.id);
   if (neededStorage) {
     transactions.push({
       receiverId: REF_FI_CONTRACT_ID,
       functionCalls: [storageDepositAction({ amount: neededStorage })],
     });
   }
-
-  const actions: RefFiFunctionCallOptions[] = [];
 
   if (tokenIn.symbol === wnearMetadata.symbol) {
     actions.push({
@@ -204,7 +212,7 @@ export const instantSwap = async ({
     actions.push({
       methodName: 'storage_deposit',
       args: {},
-      gas: '100000000000000',
+      gas: '30000000000000',
       amount: NEW_ACCOUNT_STORAGE_COST,
     });
   }
@@ -238,14 +246,6 @@ export const instantSwap = async ({
           amount: ONE_YOCTO_NEAR,
         },
       ],
-    });
-  }
-
-  const whitelist = await getWhitelistedTokens();
-  if (!whitelist.includes(tokenOut.id)) {
-    transactions.unshift({
-      receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [registerTokenAction(tokenOut.id)],
     });
   }
 
