@@ -3,7 +3,7 @@ import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
 import Alert from '~components/alert/Alert';
 import InputAmount from '~components/forms/InputAmount';
-import { FarmMiningIcon, ModalClose } from '~components/icon';
+import { FarmMiningIcon, ModalClose, ArrowDown, Dots } from '~components/icon';
 import {
   GreenButton,
   GreenLButton,
@@ -21,6 +21,7 @@ import {
   getSeeds,
   DEFAULT_PAGE_LIMIT,
   claimRewardBySeed,
+  getAllSinglePriceByTokenIds,
 } from '~services/farm';
 import {
   stake,
@@ -56,7 +57,19 @@ import parse from 'html-react-parser';
 import { FaArrowCircleRight, FaRegQuestionCircle } from 'react-icons/fa';
 import OldInputAmount from '~components/forms/OldInputAmount';
 import { BigNumber } from 'bignumber.js';
+interface SearchData {
+  status: boolean;
+  staked: boolean;
+  sort: string;
+  sortBoxHidden: boolean;
+}
 export function FarmsPage() {
+  const intl = useIntl();
+  const sortList = [
+    'NEW',
+    intl.formatMessage({ id: 'apr' }),
+    intl.formatMessage({ id: 'total_staked' }),
+  ];
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
   const [farms, setFarms] = useState<FarmInfo[]>([]);
   const [error, setError] = useState<Error>();
@@ -64,12 +77,37 @@ export function FarmsPage() {
   const [rewardList, setRewardList] = useState<Record<string, string>>({});
   const [tokenPriceList, setTokenPriceList] = useState<any>();
   const [seeds, setSeeds] = useState<Record<string, string>>({});
-
+  const [tokenPriceMap, setTokenPriceMap] = useState<Record<string, string>>(
+    {}
+  );
+  const [searchData, setSearchData] = useState<SearchData>({
+    status: true,
+    staked: false,
+    sort: sortList[0],
+    sortBoxHidden: true,
+  });
+  const sortRef = useRef(null);
+  const sortBoxRef = useRef(null);
   const { hash } = useLocation();
   const pool_id = hash.slice(1);
   const page = 1;
   const perPage = DEFAULT_PAGE_LIMIT;
-  const intl = useIntl();
+  useEffect(() => {
+    loadFarmInfoList().then();
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      document.getElementById(pool_id).scrollIntoView();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [unclaimedFarmsIsLoading]);
+  useEffect(() => {
+    document.addEventListener('click', handleClick, false);
+    return () => {
+      document.removeEventListener('click', handleClick, false);
+    };
+  }, [searchData]);
   async function loadFarmInfoList() {
     setUnclaimedFarmsIsLoading(true);
     const isSignedIn: boolean = wallet.isSignedIn();
@@ -133,51 +171,274 @@ export function FarmsPage() {
       }
 
       tempFarms = Object.keys(tempMap)
-        .sort()
-        .reverse()
-        .map((key) => tempMap[key]);
-
-      tempFarms.sort(function (a, b) {
-        return b.length - a.length;
+        // .sort()
+        // .reverse()
+        .map((key) => {
+          const ele = tempMap[key];
+          ele.key = key;
+          return ele;
+        });
+      // tempFarms.sort(function (a, b) {
+      //   return b.length - a.length;
+      // });
+      tempFarms.forEach((arr: any) => {
+        const totalApr = getTotalApr(arr);
+        arr.totalApr = new BigNumber(totalApr);
+        const tempMap = {};
+        arr.forEach((m: any) => {
+          tempMap[m.rewardToken?.id] = tempMap[m.rewardToken?.id] || [];
+          tempMap[m.rewardToken?.id].push(m);
+        });
+        arr.splice(0, arr.length);
+        Object.keys(tempMap).forEach((m: any) => {
+          const commonRewardArr = tempMap[m];
+          if (commonRewardArr.length > 1) {
+            const target = commonRewardArr[0];
+            for (let i = 1; i < commonRewardArr.length; i++) {
+              const commonReward = commonRewardArr[i];
+              target.apr = BigNumber.sum(
+                target.apr,
+                commonReward.apr
+              ).valueOf();
+              target.rewardsPerWeek = BigNumber.sum(
+                target.rewardsPerWeek,
+                commonReward.rewardsPerWeek
+              ).valueOf();
+              target.userUnclaimedReward = BigNumber.sum(
+                target.userUnclaimedReward,
+                commonReward.userUnclaimedReward
+              ).valueOf();
+            }
+            tempMap[m] = [target];
+          }
+          arr.push(tempMap[m][0]);
+        });
       });
-
       return tempFarms;
     };
 
-    getFarms({
+    const farms = await getFarms({
       page,
       perPage,
       stakedList,
       rewardList,
       tokenPriceList,
       seeds,
-    }).then((farms) => {
-      setUnclaimedFarmsIsLoading(false);
-      farms = composeFarms(farms);
-      setFarms(farms);
     });
+    setUnclaimedFarmsIsLoading(false);
+    await getTokenSinglePrice(farms);
+    const mergeFarms = composeFarms(farms);
+    searchByCondition(mergeFarms);
   }
-  useEffect(() => {
-    loadFarmInfoList().then();
-  }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      document.getElementById(pool_id).scrollIntoView();
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [unclaimedFarmsIsLoading]);
-
+  async function getTokenSinglePrice(farms: any[]) {
+    const tokenIdList = new Set();
+    farms.forEach((item) => {
+      const tokenId = item.rewardToken?.id || '';
+      if (tokenId) {
+        tokenIdList.add(tokenId);
+      }
+    });
+    const arr: any[] = Array.from(tokenIdList);
+    const paramStr = arr.join('|');
+    const priceList = await getAllSinglePriceByTokenIds(paramStr);
+    const tempMap = {};
+    priceList.forEach((item: string, index: number) => {
+      tempMap[arr[index]] = item;
+    });
+    setTokenPriceMap(tempMap);
+  }
+  const handleClick = (e: any) => {
+    if (
+      !sortRef.current.contains(e.target) &&
+      !sortBoxRef.current.contains(e.target)
+    ) {
+      searchData.sortBoxHidden = true;
+      setSearchData(Object.assign({}, searchData));
+    }
+  };
+  function searchByCondition(list?: any) {
+    const { status, staked, sort } = searchData;
+    let listAll = list || farms;
+    listAll.forEach((item: any) => {
+      const isEnd = isEnded(item);
+      const useStaked = Number(item[0].userStaked) > 0;
+      const condition1 = status == !isEnd;
+      let condition2 = true;
+      if (staked) {
+        condition2 = useStaked;
+      }
+      if (condition1 && condition2) {
+        item.show = true;
+      } else {
+        item.show = false;
+      }
+    });
+    if (sort == 'NEW') {
+      const tempMap = {};
+      const keyList: any[] = [];
+      listAll.forEach((m: any) => {
+        tempMap[m.key] = m;
+        keyList.push(m.key);
+      });
+      listAll = keyList
+        .sort()
+        .reverse()
+        .map((key) => tempMap[key]);
+      listAll.sort(function (a: any, b: any) {
+        return b.length - a.length;
+      });
+    }
+    if (sort == 'APR') {
+      listAll.sort((item1: any, item2: any) => {
+        if (item1.totalApr.isGreaterThan(item2.totalApr)) {
+          return -1;
+        } else {
+          return 1;
+        }
+      });
+    } else if (sort == 'Total staked') {
+      listAll.sort((item1: any, item2: any) => {
+        const big1 = new BigNumber(item1[0].totalStaked);
+        const big2 = new BigNumber(item2[0].totalStaked);
+        if (big1.isGreaterThan(big2)) {
+          return -1;
+        } else {
+          return 1;
+        }
+      });
+    }
+    setFarms(listAll);
+  }
+  function getTotalApr(farmsData: FarmInfo[]) {
+    let apr = 0;
+    if (farmsData.length > 1) {
+      farmsData.forEach(function (item) {
+        apr += Number(item.apr);
+      });
+    } else {
+      apr = Number(farmsData[0].apr);
+    }
+    return toPrecision(apr.toString(), 2);
+  }
+  function isEnded(farmsData: FarmInfo[]) {
+    let ended: boolean = true;
+    for (let i = 0; i < farmsData.length; i++) {
+      if (farmsData[i].farm_status != 'Ended') {
+        ended = false;
+        break;
+      }
+    }
+    return ended;
+  }
+  function showSortBox() {
+    searchData.sortBoxHidden = !searchData.sortBoxHidden;
+    setSearchData(Object.assign({}, searchData));
+  }
+  function changeSortV(e: any) {
+    searchData.sortBoxHidden = !searchData.sortBoxHidden;
+    searchData.sort = e.target.innerText;
+    setSearchData(Object.assign({}, searchData));
+    searchByCondition();
+  }
+  function changeStatus(status: number) {
+    searchData.status = !!status;
+    setSearchData(Object.assign({}, searchData));
+    searchByCondition();
+  }
+  function changeStaked() {
+    searchData.staked = !searchData.staked;
+    setSearchData(Object.assign({}, searchData));
+    searchByCondition();
+  }
   return (
-    <div className="w-4/6 mx-auto">
+    <div className="w-4/6 xs:w-full md:w-full mx-auto xs:mt-4 md:mt-4">
       <div className="w-1/3 xs:w-full md:w-full flex m-auto justify-center">
         {error ? <Alert level="error" message={error.message} /> : null}
       </div>
-      <div className="flex flex-col gaps-x-8 px-5 -mt-12 xs:mt-8 md:mt-8">
-        <div className="flex justify-between mr-4 mt-8 xs:mt-0 md:mt-0 relative xs:w-full md:w-full">
-          <div className="text-green-400 text-5xl px-7 xs:text-center md:text-center">
+      <div className="flex flex-col px-5 -mt-12 xs:mt-8 md:mt-8">
+        {/* flex items-end justify-between  */}
+        <div className="grid grid-cols-farmtr gap-4 gap-y-5 mt-8 xs:mt-0 md:mt-0 relative xs:w-full md:w-full xs:grid md:grid xs:grid-cols-1 md:grid-cols-1">
+          <div className="text-white text-3xl absolute top-0 left-0 xs:-top-12 md:-top-12">
             <FormattedMessage id="farms" defaultMessage="Farms" />
           </div>
+          {/* 搜索栏 */}
+          {unclaimedFarmsIsLoading ? null : (
+            <div className="flex items-center self-end xs:justify-between">
+              <div className="flex items-center w-36 xs:w-32 md:w-32 text-farmText rounded-full h-7 bg-farmSbg mr-4">
+                <label
+                  onClick={() => changeStatus(1)}
+                  className={`flex justify-center items-center w-1/2 rounded-full h-full cursor-pointer ${
+                    searchData.status ? 'text-chartBg bg-farmSearch' : ''
+                  }`}
+                >
+                  <FormattedMessage id="live" defaultMessage="Live" />
+                </label>
+                <label
+                  onClick={() => changeStatus(0)}
+                  className={`flex justify-center items-center w-1/2 rounded-full h-full cursor-pointer ${
+                    !searchData.status ? 'text-chartBg bg-farmSearch' : ''
+                  }`}
+                >
+                  <FormattedMessage id="ended_search" defaultMessage="Ended" />
+                </label>
+              </div>
+              <div className="flex items-center mr-4">
+                <label className="text-farmText text-sm">
+                  <FormattedMessage
+                    id="staked_only"
+                    defaultMessage="Staked Only"
+                  />
+                </label>
+                <div
+                  onClick={changeStaked}
+                  className={`flex items-center w-11 h-7 bg-cardBg rounded-full px-1  ml-2.5 box-border cursor-pointer ${
+                    searchData.staked ? 'justify-end' : ''
+                  }`}
+                >
+                  <a
+                    className={`h-5 w-5 rounded-full ${
+                      searchData.staked ? 'bg-farmSearch' : 'bg-farmRound'
+                    }`}
+                  ></a>
+                </div>
+              </div>
+              <div className="flex items-center relative">
+                <label className="text-farmText text-sm mr-2.5 xs:hidden md:hidden">
+                  <FormattedMessage id="sort_by" defaultMessage="Sort by" />
+                </label>
+                <span
+                  ref={sortRef}
+                  onClick={showSortBox}
+                  className="flex items-center justify-between w-32 h-7 xs:w-8 md:w-8 rounded-full px-3 box-border border border-farmText cursor-pointer text-sm text-gray-200"
+                >
+                  <label className="whitespace-nowrap xs:hidden md:hidden">
+                    {searchData.sort}
+                  </label>
+                  <ArrowDown></ArrowDown>
+                </span>
+                <div
+                  ref={sortBoxRef}
+                  className={`absolute z-50 top-8 left-14 xs:left-auto xs:right-0 md:left-auto md:right-0 w-36 border border-farmText bg-cardBg rounded-md ${
+                    searchData.sortBoxHidden ? 'hidden' : ''
+                  }`}
+                >
+                  {sortList.map((item) => (
+                    <p
+                      key={item}
+                      onClick={changeSortV}
+                      className={`flex items-center p-4 text-sm h-7 text-white text-opacity-40 my-2 cursor-pointer hover:bg-white hover:bg-opacity-10 hover:text-opacity-100 ${
+                        item == searchData.sort
+                          ? 'bg-white bg-opacity-10 text-opacity-100'
+                          : ''
+                      }`}
+                    >
+                      {item}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
           {/* <div className="text-whiteOpacity85 text-xs py-4 p-7 xs:text-center">
             <FormattedMessage
               id="stake_your_liquidity_provider_LP_tokens"
@@ -185,47 +446,76 @@ export function FarmsPage() {
             />
             !
           </div> */}
-          {unclaimedFarmsIsLoading ? (
-            <Loading />
-          ) : (
-            <div className="bg-greenOpacity100 text-whiteOpacity85 rounded-xl p-7">
-              <div className="text-xl flex">
-                <div className="float-left">
-                  <FormattedMessage
-                    id="your_rewards"
-                    defaultMessage="Your Rewards"
-                  />
+          {
+            unclaimedFarmsIsLoading ? (
+              <Loading />
+            ) : (
+              <div className="flex items-center relative overflow-hidden justify-between bg-farmtr text-whiteOpacity85 rounded-lg px-6 py-5 xs:row-start-1 xs:row-end-2 md:row-start-1 md:row-end-2">
+                <Dots></Dots>
+                <div className="flex flex-col items-center">
+                  <p className="text-white text-sm mb-1.5">
+                    <FormattedMessage
+                      id="your_farms_rewards"
+                      defaultMessage="Your Farms Rewards"
+                    />
+                  </p>
+                  <label className="text-white text-2xl font-semibold whitespace-nowrap">
+                    {/* $ 109.225 */}-
+                  </label>
                 </div>
-                <div
-                  className="float-left mt-2 ml-2 text-sm"
-                  data-type="dark"
-                  data-place="right"
-                  data-multiline={true}
-                  data-tip={parse(
-                    intl.formatMessage({ id: 'farmRewardsCopy' })
-                  )}
-                  data-for="yourRewardsId"
-                >
-                  <FaRegQuestionCircle />
+                <div className="flex flex-col items-center">
+                  <p className="text-white text-sm mb-1.5">
+                    <FormattedMessage
+                      id="your_farms"
+                      defaultMessage="Your Farms"
+                    />
+                  </p>
+                  <label className="text-white text-2xl font-semibold whitespace-nowrap">
+                    {/* 3 */}-
+                  </label>
                 </div>
-                <ReactTooltip
-                  id="yourRewardsId"
-                  className="text-xs shadow-4xl"
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                  class="tool-tip"
-                  textColor="#c6d1da"
-                />
               </div>
-              <div className="text-xs pt-2">
-                {Object.entries(rewardList).map((rewardToken: any, index) => (
-                  <WithdrawView key={index} data={rewardToken} />
-                ))}
-              </div>
-            </div>
-          )}
+            )
+            // (
+            //   <div className="bg-greenOpacity100 text-whiteOpacity85 rounded-xl p-7">
+            //     <div className="text-xl flex">
+            //       <div className="float-left">
+            //         <FormattedMessage
+            //           id="your_rewards"
+            //           defaultMessage="Your Rewards"
+            //         />
+            //       </div>
+            //       <div
+            //         className="float-left mt-2 ml-2 text-sm"
+            //         data-type="dark"
+            //         data-place="right"
+            //         data-multiline={true}
+            //         data-tip={parse(
+            //           intl.formatMessage({ id: 'farmRewardsCopy' })
+            //         )}
+            //         data-for="yourRewardsId"
+            //       >
+            //         <FaRegQuestionCircle />
+            //       </div>
+            //       <ReactTooltip
+            //         id="yourRewardsId"
+            //         className="text-xs shadow-4xl"
+            //         backgroundColor="#1D2932"
+            //         border
+            //         borderColor="#7e8a93"
+            //         effect="solid"
+            //         class="tool-tip"
+            //         textColor="#c6d1da"
+            //       />
+            //     </div>
+            //     <div className="text-xs pt-2">
+            //       {Object.entries(rewardList).map((rewardToken: any, index) => (
+            //         <WithdrawView key={index} data={rewardToken} />
+            //       ))}
+            //     </div>
+            //   </div>
+            // )
+          }
         </div>
         <div className="flex-grow xs:flex-none">
           <div className="overflow-auto relative mt-8 pb-4">
@@ -234,7 +524,11 @@ export function FarmsPage() {
             ) : (
               <div className="grid grid-cols-2 gap-4 2xl:grid-cols-3 xs:grid-cols-1 md:grid-cols-1">
                 {farms.map((farm) => (
-                  <div key={farm[0].farm_id} id={`${farm[0].pool.id}`}>
+                  <div
+                    key={farm[0].farm_id}
+                    id={`${farm[0].pool.id}`}
+                    className={farm.show ? '' : 'hidden'}
+                  >
                     <FarmView
                       farmsData={farm}
                       farmData={farm[0]}
@@ -242,6 +536,7 @@ export function FarmsPage() {
                       rewardList={rewardList}
                       tokenPriceList={tokenPriceList}
                       seeds={seeds}
+                      tokenPriceMap={tokenPriceMap}
                     />
                   </div>
                 ))}
@@ -325,6 +620,7 @@ function FarmView({
   rewardList,
   tokenPriceList,
   seeds,
+  tokenPriceMap,
 }: {
   farmsData: FarmInfo[];
   farmData: FarmInfo;
@@ -332,6 +628,7 @@ function FarmView({
   rewardList: Record<string, string>;
   tokenPriceList: any;
   seeds: Record<string, string>;
+  tokenPriceMap: Record<string | number, string | number>;
 }) {
   const [farmsIsLoading, setFarmsIsLoading] = useState(false);
   const [withdrawVisible, setWithdrawVisible] = useState(false);
@@ -347,6 +644,12 @@ function FarmView({
   const [loading, setLoading] = useState(true);
   const [claimLoading, setClaimLoading] = useState(false);
   const [apr, setApr] = useState('0');
+  const [rewardsPerWeek, setRewardsPerWeek] = useState<
+    Record<string | number, string | number>
+  >({});
+  const [unclaimed, setUnclaimed] = useState<
+    Record<string | number, string | number>
+  >({});
 
   const clipColor = '#00c08b';
   const clipSize = 12;
@@ -384,6 +687,8 @@ function FarmView({
     setPending(isPending(farmData));
     setData(farmData);
     setLoading(false);
+    getAllRewardsPerWeek();
+    getAllUnclaimedReward();
   }, [farmData]);
 
   useEffect(() => {
@@ -414,6 +719,72 @@ function FarmView({
     return () => clearInterval(id);
   }, [count]);
 
+  function getAllRewardsPerWeek() {
+    let result: string = '';
+    let totalPrice = 0;
+    farmsData.forEach((item) => {
+      const { rewardToken, rewardsPerWeek } = item;
+      const { id, icon } = rewardToken;
+      let price = 0;
+      if (tokenPriceMap[id] && tokenPriceMap[id] != 'N/A') {
+        price = +rewardsPerWeek * +tokenPriceMap[id];
+        totalPrice += price;
+      }
+      const itemHtml = `<div class="flex justify-between items-center h-8">
+                          <image class="w-5 h-5 rounded-full mr-7" src="${icon}"/>
+                          <label class="text-xs text-navHighLightText">${
+                            price == 0
+                              ? '-'
+                              : `$${toInternationalCurrencySystem(
+                                  price.toString(),
+                                  2
+                                )}`
+                          }</label>
+                        </div>`;
+      result += itemHtml;
+    });
+    setRewardsPerWeek({
+      tip: result,
+      totalPrice: `${
+        totalPrice == 0
+          ? '-'
+          : `$${toInternationalCurrencySystem(totalPrice.toString(), 2)}`
+      }`,
+    });
+  }
+  function getAllUnclaimedReward() {
+    let result: string = '';
+    let totalPrice = 0;
+    farmsData.forEach((item) => {
+      const { rewardToken, userUnclaimedReward } = item;
+      const { id, icon } = rewardToken;
+      let price = 0;
+      if (tokenPriceMap[id] && tokenPriceMap[id] != 'N/A') {
+        price = +userUnclaimedReward * +tokenPriceMap[id];
+        totalPrice += price;
+      }
+      const itemHtml = `<div class="flex justify-between items-center h-8">
+                          <image class="w-5 h-5 rounded-full mr-7" src="${icon}"/>
+                          <label class="text-xs text-navHighLightText">${
+                            price == 0
+                              ? '-'
+                              : `$${toInternationalCurrencySystem(
+                                  price.toString(),
+                                  2
+                                )}`
+                          }</label>
+                        </div>`;
+      result += itemHtml;
+    });
+    setUnclaimed({
+      tip: result,
+      totalPrice: `${
+        totalPrice == 0
+          ? '-'
+          : `$${toInternationalCurrencySystem(totalPrice.toString(), 2)}`
+      }`,
+    });
+  }
   async function showUnstakeModal() {
     setUnstakeVisible(true);
   }
@@ -652,7 +1023,7 @@ function FarmView({
     return result;
   }
 
-  function getAllRewardsPerWeek() {
+  function getAllRewardsPerWeekOld() {
     let result = '';
     if (farmsData.length > 1) {
       farmsData.forEach(function (item) {
@@ -672,24 +1043,7 @@ function FarmView({
     return result;
   }
 
-  function getAllRewardsPerWeekOld() {
-    let result: string = '';
-    farmsData.forEach((item) => {
-      const { rewardToken, rewardsPerWeek } = item;
-      const itemHtml = `<div class="flex justify-between items-center h-8">
-                          <image class="w-5 h-5 rounded-full mr-7" src="${
-                            rewardToken.icon
-                          }"/>
-                          <label class="text-xs text-navHighLightText">${formatWithCommas(
-                            rewardsPerWeek
-                          )}</label>
-                        </div>`;
-      result += itemHtml;
-    });
-    return result;
-  }
-
-  function getAllUnclaimedReward() {
+  function getAllUnclaimedRewardOld() {
     // let result = '';
     // if (farmsData.length > 1) {
     //   farmsData.forEach(function (item) {
@@ -719,22 +1073,6 @@ function FarmView({
         </label>
       );
       result.push(elem);
-    });
-    return result;
-  }
-  function getAllUnclaimedRewardOld() {
-    let result: string = '';
-    farmsData.forEach((item) => {
-      const { rewardToken, userUnclaimedReward } = item;
-      const itemHtml = `<div class="flex justify-between items-center h-8">
-                          <image class="w-5 h-5 rounded-full mr-7" src="${
-                            rewardToken.icon
-                          }"/>
-                          <label class="text-xs text-navHighLightText">${formatWithCommas(
-                            userUnclaimedReward
-                          )}</label>
-                        </div>`;
-      result += itemHtml;
     });
     return result;
   }
@@ -941,21 +1279,21 @@ function FarmView({
             </div>
             <div
               className="text-white text-right"
-              // data-class="reactTip"
-              // data-for={'rewardPerWeekId' + data.farm_id}
-              // data-place="top"
-              // data-html={true}
-              // data-tip={getAllRewardsPerWeek()}
+              data-class="reactTip"
+              data-for={'rewardPerWeekId' + data.farm_id}
+              data-place="top"
+              data-html={true}
+              data-tip={rewardsPerWeek.tip}
             >
-              {getAllRewardsPerWeek()}
+              {rewardsPerWeek.totalPrice}
             </div>
-            {/* <ReactTooltip
+            <ReactTooltip
               id={'rewardPerWeekId' + data.farm_id}
               backgroundColor="#1D2932"
               border
               borderColor="#7e8a93"
               effect="solid"
-            /> */}
+            />
           </div>
           {data.userStaked !== '0' ? (
             <div className="flex items-center justify-between text-sm py-2 text-farmText">
@@ -979,21 +1317,21 @@ function FarmView({
             </div>
             <div
               className="text-white text-right"
-              // data-class="reactTip"
-              // data-for={'unclaimedRewardId' + data.farm_id}
-              // data-place="top"
-              // data-html={true}
-              // data-tip={getAllUnclaimedReward()}
+              data-class="reactTip"
+              data-for={'unclaimedRewardId' + data.farm_id}
+              data-place="top"
+              data-html={true}
+              data-tip={unclaimed.tip}
             >
-              {getAllUnclaimedReward()}
+              {unclaimed.totalPrice}
             </div>
-            {/* <ReactTooltip
+            <ReactTooltip
               id={'unclaimedRewardId' + data.farm_id}
               backgroundColor="#1D2932"
               border
               borderColor="#7e8a93"
               effect="solid"
-            /> */}
+            />
           </div>
         </div>
         <div>

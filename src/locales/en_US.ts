@@ -192,5 +192,11 @@ const en_US = {
   click_search_bar_to_search: 'Click search bar to search',
   reward_tokens: 'Reward Tokens',
   detail_tip: 'Detail',
+  live: 'Live',
+  ended_search: 'Ended',
+  staked_only: 'Staked Only',
+  sort_by: 'Sort by',
+  your_farms_rewards: 'Your Farms Rewards',
+  your_farms: 'Your Farms',
 };
 export default en_US;

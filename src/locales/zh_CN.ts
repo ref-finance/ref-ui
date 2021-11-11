@@ -185,5 +185,11 @@ const zh_CN = {
   click_search_bar_to_search: '点击搜索图标以搜索',
   reward_tokens: '奖励币',
   detail_tip: '详情',
+  live: '进行',
+  ended_search: '结束',
+  staked_only: '按质押',
+  sort_by: '按排序',
+  your_farms_rewards: '你的农场奖励',
+  your_farms: '你的农场',
 };
 export default zh_CN;
