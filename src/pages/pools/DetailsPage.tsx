@@ -873,7 +873,13 @@ export function VolumeChart({
   const baseColor = '#00967B';
   const hoverColor = '#00c6a2';
 
-  const formatDate = (rawDate: string) => moment(rawDate).format('ll');
+  const formatDate = (rawDate: string) => {
+    const date = rawDate.split('-');
+
+    return moment(
+      new Date(Number(date[0]), Number(date[1]), Number(date[2]))
+    ).format('ll');
+  };
 
   const BackgroundRender = (targetBar: BarProps & { index?: number }) => {
     const { x, y, width, height, index } = targetBar;
