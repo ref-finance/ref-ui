@@ -33,8 +33,8 @@ const en_US = {
   More: 'More',
   account: 'Account',
   Account: 'Account',
-  New_ui: 'REF Quiz.New UI',
-  Risk: 'REF Quiz.Risks',
+  New_ui: 'New UI',
+  Risk: 'Risks',
   Forum: 'Forum',
   Discord: 'Discord',
   Telegram: 'Telegram',
@@ -198,5 +198,6 @@ const en_US = {
   sort_by: 'Sort by',
   your_farms_rewards: 'Your Farms Rewards',
   your_farms: 'Your Farms',
+  no_data: 'No Data',
 };
 export default en_US;

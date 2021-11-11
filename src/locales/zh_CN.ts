@@ -13,6 +13,7 @@ const zh_CN = {
   Pool: '流动池',
   pools: '流动池',
   Pools: '流动池',
+  Quiz: 'Quiz',
   no_tokens_deposited: '无代币存入',
   view_pools: '查看流动池',
   view_pool: '查看流动池',
@@ -34,9 +35,9 @@ const zh_CN = {
   More: '更多',
   account: '账号',
   Account: '账号',
-  New_ui: 'REF Quiz.New UI',
-  Risk: 'REF Quiz.Risks',
-  Forum: 'Forum',
+  New_ui: 'New UI',
+  Risk: 'Risks',
+  Forum: '论坛',
   Discord: 'Discord',
   Telegram: 'Telegram',
   Twitter: 'Twitter',
@@ -191,5 +192,6 @@ const zh_CN = {
   sort_by: '按排序',
   your_farms_rewards: '你的农场奖励',
   your_farms: '你的农场',
+  no_data: '暂无数据',
 };
 export default zh_CN;

@@ -63,6 +63,7 @@ interface SearchData {
   sort: string;
   sortBoxHidden: boolean;
 }
+
 export function FarmsPage() {
   const intl = useIntl();
   const sortList = [
@@ -77,6 +78,7 @@ export function FarmsPage() {
   const [rewardList, setRewardList] = useState<Record<string, string>>({});
   const [tokenPriceList, setTokenPriceList] = useState<any>();
   const [seeds, setSeeds] = useState<Record<string, string>>({});
+
   const [tokenPriceMap, setTokenPriceMap] = useState<Record<string, string>>(
     {}
   );
@@ -88,10 +90,12 @@ export function FarmsPage() {
   });
   const sortRef = useRef(null);
   const sortBoxRef = useRef(null);
+
   const { hash } = useLocation();
   const pool_id = hash.slice(1);
   const page = 1;
   const perPage = DEFAULT_PAGE_LIMIT;
+
   useEffect(() => {
     loadFarmInfoList().then();
   }, []);
@@ -108,6 +112,7 @@ export function FarmsPage() {
       document.removeEventListener('click', handleClick, false);
     };
   }, [searchData]);
+
   async function loadFarmInfoList() {
     setUnclaimedFarmsIsLoading(true);
     const isSignedIn: boolean = wallet.isSignedIn();
@@ -350,11 +355,13 @@ export function FarmsPage() {
     setSearchData(Object.assign({}, searchData));
     searchByCondition();
   }
+
   return (
     <div className="w-4/6 xs:w-full md:w-full mx-auto xs:mt-4 md:mt-4">
       <div className="w-1/3 xs:w-full md:w-full flex m-auto justify-center">
         {error ? <Alert level="error" message={error.message} /> : null}
       </div>
+
       <div className="flex flex-col px-5 -mt-12 xs:mt-8 md:mt-8">
         {/* flex items-end justify-between  */}
         <div className="grid grid-cols-farmtr gap-4 gap-y-5 mt-8 xs:mt-0 md:mt-0 relative xs:w-full md:w-full xs:grid md:grid xs:grid-cols-1 md:grid-cols-1">
@@ -1074,6 +1081,7 @@ function FarmView({
       );
       result.push(elem);
     });
+
     return result;
   }
 
@@ -1128,7 +1136,7 @@ function FarmView({
           'h-11 w-11 rounded-full bg-cardBg border border-gradientFromHover ' +
           (index == 1 ? '-ml-1.5' : '')
         }
-      ></div>
+      />
     );
   });
 
@@ -1244,7 +1252,7 @@ function FarmView({
               />
             </div>
           </div>
-          <div className="my-3.5 border border-t-0 border-farmSplitLine"></div>
+          <div className="my-3.5 border border-t-0 border-farmSplitLine" />
           <div className="flex items-center justify-between text-sm py-2 text-farmText">
             <div>
               <FormattedMessage
@@ -1405,7 +1413,7 @@ function FarmView({
         )}
         {showEndAt() ? (
           <>
-            <label className="w-2.5 border border-t-0 border-greenLight h-0 mx-4"></label>
+            <label className="w-2.5 border border-t-0 border-greenLight h-0 mx-4" />
             <div className="text-farmText text-sm">
               {moment.unix(getEndTime()).format('YYYY-MM-DD HH:mm:ss')}
             </div>

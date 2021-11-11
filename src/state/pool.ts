@@ -69,7 +69,6 @@ export const usePools = (props: {
     sortBy,
     order,
   }: LoadPoolsOpts) {
-    setLoading(true);
     getPools({
       page,
       tokenName: tokenName,
@@ -106,6 +105,7 @@ export const usePools = (props: {
   // const loadPools = debounce(_loadPools, 500);
 
   useEffect(() => {
+    setLoading(true);
     loadPools({
       accumulate: false,
       tokenName: props.tokenName,
@@ -115,6 +115,7 @@ export const usePools = (props: {
   }, [props.searchTrigger]);
 
   useEffect(() => {
+    setLoading(true);
     loadPools({
       accumulate: false,
       tokenName: props.tokenName,
@@ -124,6 +125,7 @@ export const usePools = (props: {
   }, [props.sortBy, props.order]);
 
   useEffect(() => {
+    setLoading(true);
     loadPools({
       accumulate: true,
       tokenName: props.tokenName,
@@ -195,7 +197,7 @@ export const useAllWatchList = () => {
 export const useWatchPools = () => {
   const [watchList, setWatchList] = useState<WatchList[]>([]);
 
-  const [watchPools, setWatchPools] = useState<Pool[]>();
+  const [watchPools, setWatchPools] = useState<Pool[]>([]);
   useEffect(() => {
     getAllWatchListFromDb({}).then((watchlist) => {
       setWatchList(_.orderBy(watchlist, 'update_time', 'desc'));
@@ -204,6 +206,7 @@ export const useWatchPools = () => {
 
   useEffect(() => {
     const ids = watchList.map((watchedPool) => watchedPool.pool_id);
+    if (ids.length === 0) return;
     getPoolsByIds({ pool_ids: ids }).then((res) => {
       const resPools = res.map((pool) => parsePool(pool));
       setWatchPools(resPools);
@@ -330,17 +333,17 @@ export const useMonthTVL = (pool_id: string) => {
       const minDay = _.minBy(res, (o) => {
         return Number(o.asset_tvl) + Number(o.fiat_tvl);
       });
-      const minValue = Number(minDay.asset_tvl) + Number(minDay.fiat_tvl);
+      const minValue = Number(minDay?.asset_tvl) + Number(minDay?.fiat_tvl);
 
       const monthTVL = res
         .map((v, i) => {
           return {
             ...v,
-            asset_tvl: Number(v.asset_tvl),
-            fiat_tvl: Number(v.fiat_tvl),
-            total_tvl: Number(v.fiat_tvl) + Number(v.asset_tvl),
+            asset_tvl: Number(v?.asset_tvl),
+            fiat_tvl: Number(v?.fiat_tvl),
+            total_tvl: Number(v?.fiat_tvl) + Number(v?.asset_tvl),
             scaled_tvl:
-              Number(v.fiat_tvl) + Number(v.asset_tvl) - minValue * 0.99,
+              Number(v?.fiat_tvl) + Number(v?.asset_tvl) - minValue * 0.99,
           };
         })
         .reverse();

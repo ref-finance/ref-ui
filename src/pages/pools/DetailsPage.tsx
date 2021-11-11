@@ -24,6 +24,7 @@ import { useTokenBalances, useTokens, getExchangeRate } from '~state/token';
 import Loading from '~components/layout/Loading';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
 import { FarmStamp } from '~components/icon/FarmStamp';
+import { ChartLoading } from '~components/icon/Loading';
 import {
   MULTI_MINING_POOLS,
   REF_FARM_CONTRACT_ID,
@@ -85,6 +86,7 @@ import {
 
 import _ from 'lodash';
 import moment from 'moment';
+import { ChartNoData } from '~components/icon/ChartNoData';
 interface ParamTypes {
   id: string;
 }
@@ -721,12 +723,20 @@ function MyShares({
 const ChartChangeButton = ({
   chartDisplay,
   setChartDisplay,
+  className,
+  noData,
 }: {
   chartDisplay: 'volume' | 'tvl';
   setChartDisplay: (display: 'volume' | 'tvl') => void;
+  className?: string;
+  noData?: boolean;
 }) => {
   return (
-    <div className="text-white rounded-2xl flex items-center bg-gray-700">
+    <div
+      className={`text-white rounded-2xl flex items-center bg-gray-700 ${className} ${
+        noData ? 'z-20 opacity-70' : ''
+      }`}
+    >
       <button
         className={`py-1 px-4 w-22 ${
           chartDisplay === 'tvl'
@@ -750,6 +760,100 @@ const ChartChangeButton = ({
     </div>
   );
 };
+
+function EmptyChart({
+  chartDisplay,
+  setChartDisplay,
+  loading,
+}: {
+  chartDisplay: 'volume' | 'tvl';
+  setChartDisplay: (display: 'volume' | 'tvl') => void;
+  loading?: boolean;
+}) {
+  return (
+    <div className="w-full h-full flex flex-col justify-between">
+      <div className="pb-7">
+        <div className="flex items-center justify-between">
+          <div className="text-gray-400 text-base float-left">$&nbsp;-</div>
+          <ChartChangeButton
+            noData={true}
+            chartDisplay={chartDisplay}
+            setChartDisplay={setChartDisplay}
+          />
+        </div>
+        <div className="text-xs text-gray-500">-</div>
+      </div>
+
+      {/* layout */}
+      <div
+        className="absolute w-full left-0 top-0 h-full m-auto text-center text-base text-gray-500 flex items-center justify-center opacity-70 z-10"
+        style={{
+          background: '#001320',
+        }}
+      >
+        {loading ? (
+          <ChartLoading />
+        ) : (
+          <div>
+            <div>
+              <ChartNoData />
+            </div>
+            <div>
+              <FormattedMessage id="no_data" defaultMessage="No Data" />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div>
+        <div
+          style={{
+            width: '300px',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '1px',
+            transform: 'rotate(90deg)',
+            position: 'relative',
+            bottom: '140px',
+            left: '150px',
+          }}
+        />
+        <div
+          style={{
+            borderBottom: '1px solid #ffffff',
+            boxSizing: 'border-box',
+            width: '13px',
+            height: '13px',
+            position: 'relative',
+            left: '295px',
+            top: '4px',
+            backgroundColor: '#00d6af',
+            opacity: 0.4,
+          }}
+          className="rounded-full"
+        />
+        <div className="border border-gradientFrom w-full mb-2" />
+        <div className="flex text-xs text-gray-500 justify-between">
+          {[
+            '24',
+            '31',
+            '07',
+            '14',
+            '21',
+            '28',
+            '04',
+            '11',
+            '18',
+            '25',
+            '02',
+            '09',
+          ].map((d, i) => {
+            return <div key={i}>{d}</div>;
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function VolumeChart({
   data,
@@ -798,7 +902,21 @@ export function VolumeChart({
       );
   };
 
-  if (!data || data.length === 0) return <></>;
+  if (!data)
+    return (
+      <EmptyChart
+        chartDisplay={chartDisplay}
+        setChartDisplay={setChartDisplay}
+        loading={true}
+      />
+    );
+  if (data.length === 0)
+    return (
+      <EmptyChart
+        chartDisplay={chartDisplay}
+        setChartDisplay={setChartDisplay}
+      />
+    );
 
   return (
     <>
@@ -866,9 +984,23 @@ export function TVLChart({
   setChartDisplay: (display: 'volume' | 'tvl') => void;
 }) {
   const [hoverIndex, setHoverIndex] = useState<number>(null);
-
   const formatDate = (rawDate: string) => moment(rawDate).format('ll');
-  if (!data || data.length === 0) return <></>;
+  if (!data)
+    return (
+      <EmptyChart
+        setChartDisplay={setChartDisplay}
+        chartDisplay={chartDisplay}
+        loading={true}
+      />
+    );
+  if (data.length === 0)
+    return (
+      <EmptyChart
+        setChartDisplay={setChartDisplay}
+        chartDisplay={chartDisplay}
+      />
+    );
+
   return (
     <>
       <div className="flex items-center justify-between self-start w-full">
@@ -1036,7 +1168,7 @@ export function PoolDetailsPage() {
           >
             <div className="flex flex-col text-center text-base mx-4 py-4">
               <div className="flex items-center justify-end mb-4">
-                {backToFarmsButton && (
+                {backToFarmsButton ? (
                   <Link
                     to={{
                       pathname: '/farms',
@@ -1046,6 +1178,8 @@ export function PoolDetailsPage() {
                   >
                     <FarmButton />
                   </Link>
+                ) : (
+                  <span>' '</span>
                 )}
                 <div className="lg:hidden ml-2">
                   <div onClick={handleSaveWatchList}>
@@ -1242,7 +1376,7 @@ export function PoolDetailsPage() {
             padding="p-7"
             bgcolor="bg-cardBg"
             style={{
-              height: '400px',
+              height: '397px',
             }}
           >
             {chartDisplay === 'volume' ? (

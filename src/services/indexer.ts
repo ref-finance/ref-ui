@@ -4,7 +4,6 @@ import _ from 'lodash';
 import { parsePoolView, PoolRPCView } from './api';
 import moment from 'moment/moment';
 import { parseAction } from '~services/transaction';
-import { Simulate } from 'react-dom/test-utils';
 import { volumeType, TVLType } from '~state/pool';
 
 const config = getConfig();

@@ -9,6 +9,10 @@ import {
   NavLogo,
   NavLogoLarge,
   IconBubble,
+  IconMyLiquidity,
+  IconCreateNew,
+  IconPools,
+  IconAirDropGreenTip,
 } from '~components/icon';
 import { Link, useLocation } from 'react-router-dom';
 import { wallet } from '~services/near';
@@ -17,13 +21,13 @@ import { Card } from '~components/card/Card';
 import { TokenList } from '~components/deposit/Deposit';
 import { useTokenBalances, useUserRegisteredTokens } from '~state/token';
 import { REF_FARM_CONTRACT_ID } from '~services/near';
-import { ConnectToNearBtn } from '~components/button/Button';
+import { ConnectToNearBtn, GradientButton } from '~components/button/Button';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { HiMenu, HiOutlineExternalLink } from 'react-icons/hi';
 import { IoChevronBack, IoClose } from 'react-icons/io5';
 
-import { FiChevronUp, FiChevronDown } from 'react-icons/fi';
+import { FiChevronUp, FiChevronDown, FiChevronRight } from 'react-icons/fi';
 import { RiLogoutCircleRLine } from 'react-icons/ri';
 import { useRefPrice } from '~state/account';
 import { toPrecision } from '~utils/numbers';
@@ -75,7 +79,7 @@ function AccountEntry() {
   if (!userTokens || !balances) return null;
 
   return (
-    <div className="user text-xs text-center justify-end pt-6 h-full right-20 absolute top-0 z-20">
+    <div className="user text-xs text-center justify-end pt-6 h-full right-20 absolute top-0 z-30">
       <div
         className={`cursor-pointer font-bold items-center justify-end text-center overflow-visible relative h-full`}
         onMouseEnter={() => {
@@ -113,27 +117,28 @@ function AccountEntry() {
           }`}
         >
           <Card
-            className="cursor-default shadow-4xl border border-primaryText"
+            className="menu-max-height cursor-default shadow-4xl  border border-primaryText"
             width="w-80"
           >
-            <div className="flex items-center justify-between text-primaryText">
-              <div className="text-base">
+            <div className="flex items-center justify-between mb-5 text-primaryText">
+              <div className="text-white">
                 <FormattedMessage id="balance" defaultMessage="Balance" />
               </div>
-              <div
-                className="cursor-pointer rounded-full border border-greenLight px-2 py-1"
+            </div>
+            <TokenList tokens={userTokens} balances={balances} />
+            <div className="flex items-center justify-center pt-5">
+              <GradientButton
+                className=" w-36 h-8 text-white cursor-pointer py-2 mr-2"
                 onClick={() => history.push('/account')}
               >
                 <FormattedMessage
                   id="view_account"
                   defaultMessage="View account"
                 />
-              </div>
-            </div>
-            <TokenList tokens={userTokens} balances={balances} />
-            <div className="flex items-center justify-center pt-2">
+              </GradientButton>
+
               <div
-                className="rounded-full bg-greenLight px-5 py-2.5 text-xs text-white font-semibold cursor-pointer"
+                className="h-8 w-20 rounded border-gradientFrom border py-2 text-xs text-gradientFrom font-semibold cursor-pointer"
                 onClick={() => {
                   wallet.signOut();
                   window.location.assign('/');
@@ -203,7 +208,10 @@ function Quiz() {
 
 function PoolsMenu() {
   const location = useLocation();
-  const isSelected = location.pathname.startsWith('/pools');
+  const isSelected =
+    location.pathname.startsWith('/pools') ||
+    location.pathname.startsWith('/pool') ||
+    location.pathname.startsWith('/more_pools');
   const [hover, setHover] = useState(false);
   const history = useHistory();
 
@@ -211,6 +219,7 @@ function PoolsMenu() {
     {
       label: <FormattedMessage id="view_pools" defaultMessage="View Pools" />,
       path: '/pools',
+      logo: <IconPools />,
     },
     {
       label: (
@@ -220,6 +229,7 @@ function PoolsMenu() {
         />
       ),
       path: '/pools/add',
+      logo: <IconCreateNew />,
     },
   ];
 
@@ -229,6 +239,7 @@ function PoolsMenu() {
         <FormattedMessage id="Your_Liquidity" defaultMessage="Your Liquidity" />
       ),
       path: '/pools/yours',
+      logo: <IconMyLiquidity />,
     });
   }
 
@@ -238,15 +249,17 @@ function PoolsMenu() {
       onMouseOver={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <div className="flex items-center justify-center">
+      <div
+        className={`flex items-center justify-center ${
+          isSelected || hover ? 'text-green-500' : 'text-gray-400'
+        }`}
+      >
         <h2
-          className={`link hover:text-green-500 text-lg font-bold p-4 cursor-pointer ${
-            isSelected || hover ? 'text-green-500' : 'text-gray-400'
-          }`}
+          className={`link hover:text-green-500 text-lg font-bold p-4 cursor-pointer`}
         >
           <FormattedMessage id="pools" defaultMessage="Pools" />
         </h2>
-        {isSelected || hover ? <ArrowDownGreen /> : <ArrowDownWhite />}
+        <FiChevronDown />
       </div>
       <div
         className={`${
@@ -260,16 +273,27 @@ function PoolsMenu() {
           className="border border-primaryText shadow-4xl"
         >
           {links.map((link) => {
-            const isSelected = link.path === location.pathname;
+            let isSelected = link.path === location.pathname;
+            if (
+              location.pathname.startsWith('/pool/') ||
+              location.pathname.startsWith('/more_pools/')
+            ) {
+              if (link.path === '/pools') {
+                isSelected = true;
+              }
+            }
 
             return (
               <div
                 key={link.path}
-                className={`whitespace-nowrap text-left hover:bg-navHighLightBg text-sm font-semibold text-primaryText hover:text-white cursor-pointer py-4 pl-16 ${
-                  isSelected ? 'text-green-500' : 'text-white'
+                className={`flex justify-start items-center hover:bg-navHighLightBg text-sm font-semibold  hover:text-white cursor-pointer py-4 pl-7 ${
+                  isSelected
+                    ? 'text-white bg-navHighLightBg'
+                    : 'text-primaryText'
                 }`}
                 onClick={() => history.push(link.path)}
               >
+                <span className="inline-block mr-3">{link.logo}</span>
                 {link.label}
               </div>
             );
@@ -287,6 +311,8 @@ function MoreMenu() {
   const [curMenuItems, setCurMenuItems] = useState(menuData);
   const context = useContext(Context);
   const currentLocal = localStorage.getItem('local');
+  const location = useLocation();
+  const history = useHistory();
   const onClickMenuItem = (items: any[], label: string) => {
     setCurMenuItems(items);
     setParentLabel(label);
@@ -294,12 +320,34 @@ function MoreMenu() {
   const switchLanuage = (label: string) => {
     context.selectLanguage(label);
   };
+  const handleMoreMenuClick = (
+    url: string,
+    isExternal: boolean,
+    label: string,
+    children?: any,
+    language?: string
+  ) => {
+    if (url) {
+      if (isExternal) {
+        window.open(url);
+      } else {
+        history.push(url);
+      }
+    } else if (children) {
+      onClickMenuItem?.(children, label);
+    } else {
+      switchLanuage(language);
+    }
+  };
   const hasSubMenu = curMenuItems.some(({ children }) => !!children?.length);
   return (
     <div
-      className="relative z-20 h-8"
+      className="relative z-30 h-8"
       onMouseOver={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
+      onMouseLeave={() => {
+        setHover(false);
+        onClickMenuItem?.(menuData, '');
+      }}
     >
       <div className="flex border border-gray-400 hover:border-green-500 rounded-full">
         <h2
@@ -320,12 +368,12 @@ function MoreMenu() {
           className="shadow-4xl border border-primaryText"
         >
           {!hasSubMenu && parentLabel && (
-            <div className="whitespace-nowrap text-left items-center flex justify-start hover:bg-navHighLightBg text-sm font-semibold text-primaryText hover:text-white cursor-pointer py-4 pl-4">
-              <IoChevronBack
-                className=" text-xl"
-                onClick={() => onClickMenuItem?.(menuData, '')}
-              />
-              <span className=" ml-10">{parentLabel}</span>
+            <div
+              className="whitespace-nowrap hover:text-white text-left items-center flex justify-start text-sm font-semibold text-primaryText cursor-pointer py-4 pl-4"
+              onClick={() => onClickMenuItem?.(menuData, '')}
+            >
+              <IoChevronBack className="text-xl " />
+              <span className=" ml-8">{parentLabel}</span>
             </div>
           )}
           {curMenuItems.map(
@@ -339,27 +387,56 @@ function MoreMenu() {
               isExternal,
               language,
             }) => {
+              const isSelected =
+                url &&
+                !isExternal &&
+                matchPath(location.pathname, {
+                  path: url,
+                  exact: true,
+                  strict: false,
+                });
+
               return (
                 <div
                   key={id}
                   className={`whitespace-nowrap text-left items-center flex justify-start hover:bg-navHighLightBg text-sm font-semibold hover:text-white
                  ${
-                   language && currentLocal === language
+                   (language && currentLocal === language) || isSelected
                      ? 'bg-navHighLightBg text-white'
                      : 'text-primaryText'
                  }
-                 cursor-pointer py-4 pl-16`}
+                 cursor-pointer py-4 pl-7`}
                   onClick={() =>
-                    url
-                      ? window.open(url, isExternal ? '' : '_self')
-                      : children
-                      ? onClickMenuItem?.(children, label)
-                      : switchLanuage(language)
+                    handleMoreMenuClick(
+                      url,
+                      isExternal,
+                      label,
+                      children,
+                      language
+                    )
                   }
                 >
-                  {logo && <span className="text-2xl mr-6">{logo}</span>}
+                  {logo && (
+                    <span
+                      className={`${
+                        parentLabel ? 'ml-10' : ''
+                      } text-xl w-9 text-left`}
+                    >
+                      {logo}
+                    </span>
+                  )}
                   {label}
+                  {id === 1 && (
+                    <span className=" -mt-2 ml-1">
+                      <IconAirDropGreenTip />{' '}
+                    </span>
+                  )}
                   <span className="ml-4 text-xl">{icon}</span>
+                  {children && (
+                    <span className="text-xl absolute right-4">
+                      <FiChevronRight />
+                    </span>
+                  )}
                 </div>
               );
             }

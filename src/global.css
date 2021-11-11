@@ -245,6 +245,11 @@ input[type='number'] {
   transform-origin: center;
 }
 
+.inner-loader svg path {
+  animation: spin 1s linear infinite;
+  transform-origin: center;
+}
+
 .loadingScreen.slick-loader-inner,
 .slick-loader.slick-loader-inner {
   position: absolute;
@@ -362,6 +367,13 @@ input.warn-input:focus {
     transform: translateZ(10px);
   }
 }
+
+.menu-max-height {
+  max-height: calc(100vh - 80px);
+  overflew-y: scroll;
+  overflow-x: hidden;
+}
+
 .recharts-text.recharts-cartesian-axis-tick-value {
   font-size: 12px;
 }
