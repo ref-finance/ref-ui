@@ -14,7 +14,7 @@ import {
   Transaction,
   wallet,
 } from './near';
-import { TokenMetadata } from './ft-contract';
+import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { getPoolsByTokens, Pool } from './pool';
 import {
   checkTokenNeedsStorageDeposit,
@@ -184,40 +184,39 @@ export const instantSwap = async ({
   };
 
   const transactions: Transaction[] = [];
-  const actions: RefFiFunctionCallOptions[] = [];
+  const tokenInActions: RefFiFunctionCallOptions[] = [];
+  const tokenOutActions: RefFiFunctionCallOptions[] = [];
 
-  const whitelist = await getWhitelistedTokens();
-  if (!whitelist.includes(tokenIn.id)) {
-    actions.unshift(registerTokenAction(tokenIn.id));
-  }
-  if (!whitelist.includes(tokenOut.id)) {
-    actions.unshift(registerTokenAction(tokenOut.id));
-  }
+  const tokenOutRegistered = await ftGetStorageBalance(
+    tokenOut.id,
+    wallet.getAccountId()
+  ).catch(() => {
+    throw new Error(`${tokenOut.id} doesn't exist.`);
+  });
 
-  const neededStorage = await checkTokenNeedsStorageDeposit(tokenOut.id);
-  if (neededStorage) {
-    transactions.push({
-      receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [storageDepositAction({ amount: neededStorage })],
-    });
-  }
-
-  if (tokenIn.symbol === wnearMetadata.symbol) {
-    actions.push({
-      methodName: 'near_deposit',
-      args: {},
-      amount: amountIn,
-    });
-  } else {
-    actions.push({
+  if (!tokenOutRegistered) {
+    tokenOutActions.push({
       methodName: 'storage_deposit',
       args: {},
       gas: '30000000000000',
       amount: NEW_ACCOUNT_STORAGE_COST,
     });
+
+    transactions.push({
+      receiverId: tokenOut.id,
+      functionCalls: tokenOutActions,
+    });
   }
 
-  actions.push({
+  if (tokenIn.symbol === wnearMetadata.symbol) {
+    tokenInActions.push({
+      methodName: 'near_deposit',
+      args: {},
+      amount: amountIn,
+    });
+  }
+
+  tokenInActions.push({
     methodName: 'ft_transfer_call',
     args: {
       receiver_id: REF_FI_CONTRACT_ID,
@@ -233,7 +232,7 @@ export const instantSwap = async ({
 
   transactions.push({
     receiverId: tokenIn.id,
-    functionCalls: actions,
+    functionCalls: tokenInActions,
   });
 
   if (tokenOut.symbol === wnearMetadata.symbol) {
