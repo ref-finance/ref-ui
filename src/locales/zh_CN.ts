@@ -193,5 +193,6 @@ const zh_CN = {
   your_farms_rewards: '你的农场奖励',
   your_farms: '你的农场',
   no_data: '暂无数据',
+  new: '最新',
 };
 export default zh_CN;

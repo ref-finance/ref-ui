@@ -2,10 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
 import Alert from '~components/alert/Alert';
-import InputAmount from '~components/forms/InputAmount';
 import { FarmMiningIcon, ModalClose, ArrowDown, Dots } from '~components/icon';
 import {
-  GreenButton,
   GreenLButton,
   BorderButton,
   WithdrawButton,
@@ -34,6 +32,9 @@ import {
   toPrecision,
   toReadableNumber,
   toInternationalCurrencySystem,
+  percentLess,
+  calculateFairShare,
+  toNonDivisibleNumber,
 } from '~utils/numbers';
 import { mftGetBalance } from '~services/mft-contract';
 import { wallet } from '~services/near';
@@ -66,11 +67,11 @@ interface SearchData {
 
 export function FarmsPage() {
   const intl = useIntl();
-  const sortList = [
-    'NEW',
-    intl.formatMessage({ id: 'apr' }),
-    intl.formatMessage({ id: 'total_staked' }),
-  ];
+  const sortList = {
+    new: intl.formatMessage({ id: 'new' }),
+    apr: intl.formatMessage({ id: 'apr' }),
+    total_staked: intl.formatMessage({ id: 'total_staked' }),
+  };
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
   const [farms, setFarms] = useState<FarmInfo[]>([]);
   const [error, setError] = useState<Error>();
@@ -85,9 +86,14 @@ export function FarmsPage() {
   const [searchData, setSearchData] = useState<SearchData>({
     status: true,
     staked: false,
-    sort: sortList[0],
+    sort: 'new',
     sortBoxHidden: true,
   });
+  const [yourFarm, setYourFarm] = useState<Record<string, string>>({
+    rewards: '-',
+    quantity: '-',
+  });
+
   const sortRef = useRef(null);
   const sortBoxRef = useRef(null);
 
@@ -233,17 +239,32 @@ export function FarmsPage() {
     setUnclaimedFarmsIsLoading(false);
     await getTokenSinglePrice(farms);
     const mergeFarms = composeFarms(farms);
+    if (wallet.isSignedIn()) {
+      const seed_ids = new Set();
+      mergeFarms.forEach((arr) => {
+        const { seed_id, userStaked } = arr[0];
+        if (Number(userStaked) > 0) {
+          seed_ids.add(seed_id);
+        }
+      });
+      setYourFarm({
+        rewards: '-',
+        quantity: seed_ids.size.toString(),
+      });
+    }
     searchByCondition(mergeFarms);
   }
   async function getTokenSinglePrice(farms: any[]) {
-    const tokenIdList = new Set();
+    const tokenIdList: string[] = [];
     farms.forEach((item) => {
-      const tokenId = item.rewardToken?.id || '';
-      if (tokenId) {
-        tokenIdList.add(tokenId);
+      const rewardToken = item.rewardToken?.id || '';
+      const tokenIds = item.tokenIds || [];
+      tokenIdList.push(...tokenIds);
+      if (rewardToken) {
+        tokenIdList.push(rewardToken);
       }
     });
-    const arr: any[] = Array.from(tokenIdList);
+    const arr: any[] = Array.from(new Set(tokenIdList));
     const paramStr = arr.join('|');
     const priceList = await getAllSinglePriceByTokenIds(paramStr);
     const tempMap = {};
@@ -278,7 +299,7 @@ export function FarmsPage() {
         item.show = false;
       }
     });
-    if (sort == 'NEW') {
+    if (sort == 'new') {
       const tempMap = {};
       const keyList: any[] = [];
       listAll.forEach((m: any) => {
@@ -293,7 +314,7 @@ export function FarmsPage() {
         return b.length - a.length;
       });
     }
-    if (sort == 'APR') {
+    if (sort == 'apr') {
       listAll.sort((item1: any, item2: any) => {
         if (item1.totalApr.isGreaterThan(item2.totalApr)) {
           return -1;
@@ -301,7 +322,7 @@ export function FarmsPage() {
           return 1;
         }
       });
-    } else if (sort == 'Total staked') {
+    } else if (sort == 'total_staked') {
       listAll.sort((item1: any, item2: any) => {
         const big1 = new BigNumber(item1[0].totalStaked);
         const big2 = new BigNumber(item2[0].totalStaked);
@@ -341,7 +362,7 @@ export function FarmsPage() {
   }
   function changeSortV(e: any) {
     searchData.sortBoxHidden = !searchData.sortBoxHidden;
-    searchData.sort = e.target.innerText;
+    searchData.sort = e.target.dataset.id;
     setSearchData(Object.assign({}, searchData));
     searchByCondition();
   }
@@ -355,7 +376,6 @@ export function FarmsPage() {
     setSearchData(Object.assign({}, searchData));
     searchByCondition();
   }
-
   return (
     <div className="w-4/6 xs:w-full md:w-full mx-auto xs:mt-4 md:mt-4">
       <div className="w-1/3 xs:w-full md:w-full flex m-auto justify-center">
@@ -363,14 +383,12 @@ export function FarmsPage() {
       </div>
 
       <div className="flex flex-col px-5 -mt-12 xs:mt-8 md:mt-8">
-        {/* flex items-end justify-between  */}
-        <div className="grid grid-cols-farmtr gap-4 gap-y-5 mt-8 xs:mt-0 md:mt-0 relative xs:w-full md:w-full xs:grid md:grid xs:grid-cols-1 md:grid-cols-1">
+        <div className="grid grid-cols-farmSearch gap-4 gap-y-5 mt-8 xs:mt-0 md:mt-0 relative xs:w-full md:w-full xs:grid md:grid xs:grid-cols-1 md:grid-cols-1">
           <div className="text-white text-3xl absolute top-0 left-0 xs:-top-12 md:-top-12">
             <FormattedMessage id="farms" defaultMessage="Farms" />
           </div>
-          {/* 搜索栏 */}
           {unclaimedFarmsIsLoading ? null : (
-            <div className="flex items-center self-end xs:justify-between">
+            <div className="flex items-center self-end">
               <div className="flex items-center w-36 xs:w-32 md:w-32 text-farmText rounded-full h-7 bg-farmSbg mr-4">
                 <label
                   onClick={() => changeStatus(1)}
@@ -389,26 +407,28 @@ export function FarmsPage() {
                   <FormattedMessage id="ended_search" defaultMessage="Ended" />
                 </label>
               </div>
-              <div className="flex items-center mr-4">
-                <label className="text-farmText text-sm">
-                  <FormattedMessage
-                    id="staked_only"
-                    defaultMessage="Staked Only"
-                  />
-                </label>
-                <div
-                  onClick={changeStaked}
-                  className={`flex items-center w-11 h-7 bg-cardBg rounded-full px-1  ml-2.5 box-border cursor-pointer ${
-                    searchData.staked ? 'justify-end' : ''
-                  }`}
-                >
-                  <a
-                    className={`h-5 w-5 rounded-full ${
-                      searchData.staked ? 'bg-farmSearch' : 'bg-farmRound'
+              {wallet.isSignedIn() ? (
+                <div className="flex items-center mr-4">
+                  <label className="text-farmText text-sm">
+                    <FormattedMessage
+                      id="staked_only"
+                      defaultMessage="Staked Only"
+                    />
+                  </label>
+                  <div
+                    onClick={changeStaked}
+                    className={`flex items-center w-11 h-7 bg-cardBg rounded-full px-1  ml-2.5 box-border cursor-pointer ${
+                      searchData.staked ? 'justify-end' : ''
                     }`}
-                  ></a>
+                  >
+                    <a
+                      className={`h-5 w-5 rounded-full ${
+                        searchData.staked ? 'bg-farmSearch' : 'bg-farmRound'
+                      }`}
+                    ></a>
+                  </div>
                 </div>
-              </div>
+              ) : null}
               <div className="flex items-center relative">
                 <label className="text-farmText text-sm mr-2.5 xs:hidden md:hidden">
                   <FormattedMessage id="sort_by" defaultMessage="Sort by" />
@@ -419,7 +439,7 @@ export function FarmsPage() {
                   className="flex items-center justify-between w-32 h-7 xs:w-8 md:w-8 rounded-full px-3 box-border border border-farmText cursor-pointer text-sm text-gray-200"
                 >
                   <label className="whitespace-nowrap xs:hidden md:hidden">
-                    {searchData.sort}
+                    {sortList[searchData.sort]}
                   </label>
                   <ArrowDown></ArrowDown>
                 </span>
@@ -429,24 +449,26 @@ export function FarmsPage() {
                     searchData.sortBoxHidden ? 'hidden' : ''
                   }`}
                 >
-                  {sortList.map((item) => (
+                  {Object.entries(sortList).map((item) => (
                     <p
-                      key={item}
+                      key={item[0]}
                       onClick={changeSortV}
+                      data-id={item[0]}
                       className={`flex items-center p-4 text-sm h-7 text-white text-opacity-40 my-2 cursor-pointer hover:bg-white hover:bg-opacity-10 hover:text-opacity-100 ${
-                        item == searchData.sort
+                        item[0] == searchData.sort
                           ? 'bg-white bg-opacity-10 text-opacity-100'
                           : ''
                       }`}
                     >
-                      {item}
+                      {item[1]}
                     </p>
                   ))}
                 </div>
               </div>
             </div>
           )}
-          {/* <div className="text-whiteOpacity85 text-xs py-4 p-7 xs:text-center">
+          {/* 
+          <div className="text-whiteOpacity85 text-xs py-4 p-7 xs:text-center">
             <FormattedMessage
               id="stake_your_liquidity_provider_LP_tokens"
               defaultMessage="Stake your Liquidity Provider (LP) tokens"
@@ -457,7 +479,7 @@ export function FarmsPage() {
             unclaimedFarmsIsLoading ? (
               <Loading />
             ) : (
-              <div className="flex items-center relative overflow-hidden justify-between bg-farmtr text-whiteOpacity85 rounded-lg px-6 py-5 xs:row-start-1 xs:row-end-2 md:row-start-1 md:row-end-2">
+              <div className="flex items-center relative overflow-hidden justify-between bg-farmTopRight text-whiteOpacity85 rounded-lg px-6 py-5 xs:row-start-1 xs:row-end-2 md:row-start-1 md:row-end-2">
                 <Dots></Dots>
                 <div className="flex flex-col items-center">
                   <p className="text-white text-sm mb-1.5">
@@ -467,7 +489,7 @@ export function FarmsPage() {
                     />
                   </p>
                   <label className="text-white text-2xl font-semibold whitespace-nowrap">
-                    {/* $ 109.225 */}-
+                    {yourFarm.rewards}
                   </label>
                 </div>
                 <div className="flex flex-col items-center">
@@ -478,7 +500,7 @@ export function FarmsPage() {
                     />
                   </p>
                   <label className="text-white text-2xl font-semibold whitespace-nowrap">
-                    {/* 3 */}-
+                    {yourFarm.quantity}
                   </label>
                 </div>
               </div>
@@ -666,6 +688,7 @@ function FarmView({
 
   const PoolId = farmData.lpTokenId;
   const tokens = useTokens(farmData?.tokenIds);
+
   const endTime =
     data?.reward_per_session > 0
       ? moment(data?.start_at).valueOf() +
@@ -1107,15 +1130,60 @@ function FarmView({
     }
     return have;
   }
-
+  function calculateNumByShare(farmData: FarmInfo, tokens: any) {
+    if (Number(farmData.userStaked) <= 0) return {};
+    const shares = toNonDivisibleNumber(24, farmData.userStaked);
+    const slippageTolerance = 0;
+    const { shares_total_supply, amounts, token_account_ids } = farmData.pool;
+    const minimumAmounts = amounts.reduce((acc, totalSupply, index) => {
+      acc[token_account_ids[index]] = toPrecision(
+        percentLess(
+          slippageTolerance,
+          calculateFairShare({
+            shareOf: totalSupply,
+            contribution: shares,
+            totalContribution: shares_total_supply,
+          })
+        ),
+        0
+      );
+      return acc;
+    }, {});
+    let result: string = '';
+    let totalPrice: number = 0;
+    tokens.forEach((token: any) => {
+      const { id, icon, decimals } = token;
+      const tokenNum = toReadableNumber(decimals, minimumAmounts[id]);
+      const singlePrice = tokenPriceMap[id];
+      if (singlePrice && singlePrice != 'N/A') {
+        totalPrice += new BigNumber(tokenNum)
+          .multipliedBy(singlePrice)
+          .toNumber();
+      }
+      const itemHtml = `<div class="flex justify-between items-center h-8">
+                          <image class="w-5 h-5 rounded-full mr-7" src="${
+                            token.icon
+                          }"/>
+                          <label class="text-xs text-navHighLightText">${toInternationalCurrencySystem(
+                            tokenNum
+                          )}</label>
+                        </div>`;
+      result += itemHtml;
+    });
+    let percentage = '(-%)';
+    if (totalPrice) {
+      const percent = (totalPrice / farmData.totalStaked) * 100;
+      percentage = `(${toPrecision(percent.toString(), 2)}%)`;
+    }
+    return { tip: result, percentage };
+  }
   if (!tokens || tokens.length < 2 || farmsIsLoading) return <Loading />;
-
+  const yourShare = calculateNumByShare(farmData, tokens);
   tokens.sort((a, b) => {
     if (a.symbol === 'wNEAR') return 1;
     if (b.symbol === 'wNEAR') return -1;
     return a.symbol > b.symbol ? 1 : -1;
   });
-
   const images = tokens.map((token, index) => {
     const { icon, id } = token;
     if (icon)
@@ -1139,7 +1207,6 @@ function FarmView({
       />
     );
   });
-
   const symbols = tokens.map((token, index) => {
     const { symbol } = token;
     const hLine = index === 1 ? '' : '-';
@@ -1311,9 +1378,23 @@ function FarmView({
                   defaultMessage="Your Shares"
                 />
               </div>
-              <div className="text-white">
-                {toPrecision(data.userStaked, 6)}
+              <div
+                className="text-white"
+                data-class="reactTip"
+                data-for={'yourShareId' + data.farm_id}
+                data-place="top"
+                data-html={true}
+                data-tip={yourShare.tip}
+              >
+                {toPrecision(data.userStaked, 6)} {yourShare.percentage}
               </div>
+              <ReactTooltip
+                id={'yourShareId' + data.farm_id}
+                backgroundColor="#1D2932"
+                border
+                borderColor="#7e8a93"
+                effect="solid"
+              />
             </div>
           ) : null}
           <div className="flex items-center justify-between text-sm py-2 text-farmText">
@@ -1351,7 +1432,7 @@ function FarmView({
                   rounded="rounded-md"
                   px="px-0"
                   py="py-1"
-                  className="flex-grow  w-20 text-lg text-greenLight"
+                  className="flex-grow  w-20 text-base text-greenLight"
                 >
                   <FormattedMessage id="unstake" defaultMessage="Unstake" />
                 </BorderButton>
@@ -1362,14 +1443,14 @@ function FarmView({
                   rounded="rounded-md"
                   px="px-0"
                   py="py-1"
-                  className="flex-grow  w-20 text-lg text-greenLight"
+                  className="flex-grow  w-20 text-base text-greenLight"
                 >
                   <FormattedMessage id="stake" defaultMessage="Stake" />
                 </BorderButton>
               ) : (
                 <GradientButton
                   color="#fff"
-                  className={`w-full h-10 text-center text-lg text-white mt-4 focus:outline-none font-semibold `}
+                  className={`w-full h-10 text-center text-base text-white mt-4 focus:outline-none font-semibold `}
                   onClick={() => showStakeModal()}
                 >
                   <FormattedMessage id="stake" defaultMessage="Stake" />
@@ -1380,7 +1461,7 @@ function FarmView({
                   color="#fff"
                   onClick={() => claimReward()}
                   disabled={disableClaim}
-                  className="text-white text-lg flex-grow  w-20"
+                  className="text-white text-base flex-grow  w-20"
                 >
                   <ClipLoader
                     color={claimLoadingColor}

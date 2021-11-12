@@ -199,5 +199,6 @@ const en_US = {
   your_farms_rewards: 'Your Farms Rewards',
   your_farms: 'Your Farms',
   no_data: 'No Data',
+  new: 'NEW',
 };
 export default en_US;

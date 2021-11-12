@@ -19,7 +19,7 @@ module.exports = {
         'farmSearch': "linear-gradient(106.25deg, #00FFD1 6.88%, #00BA98 81.93%)"
       }),
       gridTemplateColumns: {
-        'farmtr': '2fr 1fr'
+        'farmSearch': '2fr 1fr'
       },
       colors: {
         primary: '#10B981',
@@ -57,7 +57,7 @@ module.exports = {
         framBorder: '#00C6A2',
         farmSbg:'#2F3D47',
         farmRound:"#B3C2CC",
-        farmtr:'#3a8671'
+        farmTopRight:'#008870'
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
