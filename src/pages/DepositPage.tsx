@@ -16,6 +16,7 @@ import { wallet } from '~services/near';
 import { Balances } from '../components/deposit/Deposit';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { ConnectToNearBtn } from '~components/button/Button';
+import { BigNumber } from 'bignumber.js';
 
 function DepositBtn(props: {
   amount?: string;
@@ -23,8 +24,11 @@ function DepositBtn(props: {
   balance?: string;
 }) {
   const { amount, token, balance } = props;
-  const canSubmit = balance !== '0' && !!amount && !!token;
-
+  const canSubmit =
+    balance !== '0' &&
+    !!amount &&
+    !!token &&
+    new BigNumber(amount).isLessThanOrEqualTo(new BigNumber(balance));
   return (
     <div className="flex items-center justify-center pt-2 w-full">
       <button
