@@ -1,6 +1,6 @@
 import React, { HTMLAttributes, useState } from 'react';
 import { wallet, REF_FARM_CONTRACT_ID } from '~services/near';
-import { Near } from '~components/icon';
+import { Near, UnLoginIcon } from '~components/icon';
 import { FormattedMessage } from 'react-intl';
 
 export function BorderlessButton(
@@ -108,13 +108,23 @@ export function WithdrawButton(
 
 export function ConnectToNearBtn() {
   return (
-    <GradientButton
-      color="#fff"
-      className={`w-full text-center text-base text-white mt-4 px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
+    <div
+      className="flex items-center cursor-pointer justify-center rounded-full py-2 text-white text-base"
+      style={{
+        background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+      }}
       onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
     >
-      <FormattedMessage id="connect_to_near" defaultMessage="Connect to NEAR" />
-    </GradientButton>
+      <div className="mr-3.5">
+        <UnLoginIcon />
+      </div>
+      <button>
+        <FormattedMessage
+          id="connect_to_near"
+          defaultMessage="Connect to NEAR"
+        />
+      </button>
+    </div>
   );
 }
 

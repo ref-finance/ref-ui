@@ -2,7 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
 import Alert from '~components/alert/Alert';
-import { FarmMiningIcon, ModalClose, ArrowDown, Dots } from '~components/icon';
+import {
+  FarmMiningIcon,
+  ModalClose,
+  ArrowDown,
+  Dots,
+  Light,
+} from '~components/icon';
 import {
   GreenLButton,
   BorderButton,
@@ -89,10 +95,11 @@ export function FarmsPage() {
     sort: 'new',
     sortBoxHidden: true,
   });
-  const [yourFarm, setYourFarm] = useState<Record<string, string>>({
+  const [yourFarms, setYourFarms] = useState<Record<string, string>>({
     rewards: '-',
     quantity: '-',
   });
+  const [lps, setLps] = useState<Record<string, FarmInfo[]>>({});
 
   const sortRef = useRef(null);
   const sortBoxRef = useRef(null);
@@ -236,22 +243,26 @@ export function FarmsPage() {
       tokenPriceList,
       seeds,
     });
+    if (isSignedIn) {
+      const tempMap = {};
+      const mySeeds = new Set();
+      farms.forEach((farm) => {
+        const { seed_id, userStaked } = farm;
+        tempMap[seed_id] = tempMap[seed_id] || [];
+        tempMap[seed_id].push(farm);
+        if (Number(userStaked) > 0) {
+          mySeeds.add(seed_id);
+        }
+      });
+      setLps(tempMap);
+      setYourFarms({
+        rewards: '-',
+        quantity: mySeeds.size.toString(),
+      });
+    }
     setUnclaimedFarmsIsLoading(false);
     await getTokenSinglePrice(farms);
     const mergeFarms = composeFarms(farms);
-    if (wallet.isSignedIn()) {
-      const seed_ids = new Set();
-      mergeFarms.forEach((arr) => {
-        const { seed_id, userStaked } = arr[0];
-        if (Number(userStaked) > 0) {
-          seed_ids.add(seed_id);
-        }
-      });
-      setYourFarm({
-        rewards: '-',
-        quantity: seed_ids.size.toString(),
-      });
-    }
     searchByCondition(mergeFarms);
   }
   async function getTokenSinglePrice(farms: any[]) {
@@ -489,7 +500,7 @@ export function FarmsPage() {
                     />
                   </p>
                   <label className="text-white text-2xl font-semibold whitespace-nowrap">
-                    {yourFarm.rewards}
+                    {yourFarms.rewards}
                   </label>
                 </div>
                 <div className="flex flex-col items-center">
@@ -500,7 +511,7 @@ export function FarmsPage() {
                     />
                   </p>
                   <label className="text-white text-2xl font-semibold whitespace-nowrap">
-                    {yourFarm.quantity}
+                    {yourFarms.quantity}
                   </label>
                 </div>
               </div>
@@ -552,7 +563,7 @@ export function FarmsPage() {
               <Loading />
             ) : (
               <div className="grid grid-cols-2 gap-4 2xl:grid-cols-3 xs:grid-cols-1 md:grid-cols-1">
-                {farms.map((farm) => (
+                {farms.map((farm: any) => (
                   <div
                     key={farm[0].farm_id}
                     id={`${farm[0].pool.id}`}
@@ -566,6 +577,7 @@ export function FarmsPage() {
                       tokenPriceList={tokenPriceList}
                       seeds={seeds}
                       tokenPriceMap={tokenPriceMap}
+                      lps={lps}
                     />
                   </div>
                 ))}
@@ -650,6 +662,7 @@ function FarmView({
   tokenPriceList,
   seeds,
   tokenPriceMap,
+  lps,
 }: {
   farmsData: FarmInfo[];
   farmData: FarmInfo;
@@ -658,6 +671,7 @@ function FarmView({
   tokenPriceList: any;
   seeds: Record<string, string>;
   tokenPriceMap: Record<string | number, string | number>;
+  lps: Record<string, FarmInfo[]>;
 }) {
   const [farmsIsLoading, setFarmsIsLoading] = useState(false);
   const [withdrawVisible, setWithdrawVisible] = useState(false);
@@ -679,7 +693,6 @@ function FarmView({
   const [unclaimed, setUnclaimed] = useState<
     Record<string | number, string | number>
   >({});
-
   const clipColor = '#00c08b';
   const clipSize = 12;
   const claimLoadingColor = '#ffffff';
@@ -1074,22 +1087,6 @@ function FarmView({
   }
 
   function getAllUnclaimedRewardOld() {
-    // let result = '';
-    // if (farmsData.length > 1) {
-    //   farmsData.forEach(function (item) {
-    //     result +=
-    //       formatWithCommas(item.userUnclaimedReward) +
-    //       ' ' +
-    //       toRealSymbol(item?.rewardToken?.symbol) +
-    //       ' / '
-    //   });
-    //   result = result.substring(0, result.lastIndexOf('/ '));
-    // } else {
-    //   result =
-    //     formatWithCommas(data.userUnclaimedReward) +
-    //     ' ' +
-    //     toRealSymbol(data?.rewardToken?.symbol);
-    // }
     const result: JSX.Element[] = [];
     farmsData.forEach(function (item, index) {
       const rewardV = item.userUnclaimedReward;
@@ -1507,6 +1504,8 @@ function FarmView({
         title={intl.formatMessage({ id: 'unstake' })}
         btnText={intl.formatMessage({ id: 'unstake' })}
         max={data.userStaked}
+        farm={farmData}
+        lps={lps}
         onSubmit={(amount) => {
           unstake({
             seed_id: data.seed_id,
@@ -1576,54 +1575,116 @@ function ActionModal(
     title?: string;
     btnText?: string;
     max: string;
+    farm?: FarmInfo;
+    lps?: Record<string, FarmInfo[]>;
     onSubmit: (amount: string) => void;
   }
 ) {
-  const { max } = props;
+  const { max, farm, lps } = props;
   const [amount, setAmount] = useState<string>('');
+  const [showTip, setShowTip] = useState<boolean>(false);
   const cardWidth = isMobile() ? '90vw' : '30vw';
   const maxToFormat = new BigNumber(max);
+  useEffect(() => {
+    if (farm) {
+      // unstake situation
+      const { seed_id } = farm;
+      const farms = lps[seed_id];
+      if (farms && farms.length > 1 && !isEnded(farms)) {
+        setShowTip(true);
+      }
+    }
+  }, [props.isOpen]);
+  function isEnded(farmsData: FarmInfo[]) {
+    let ended: boolean = true;
+    for (let i = 0; i < farmsData.length; i++) {
+      if (farmsData[i].farm_status != 'Ended') {
+        ended = false;
+        break;
+      }
+    }
+    return ended;
+  }
+  function Tip() {
+    return (
+      <div className="flex flex-col items-center text-center w-2/3 xs:w-full md:w-full">
+        <Light />
+        <p className="text-base text-white mb-2.5 mt-8">
+          You currently have an active/pending farm.
+        </p>
+        <p className="text-2xl text-white leading-relaxed">
+          Unstaking will remove the stake from all active and pending farms of
+          the same pair.
+        </p>
+        <p className="text-base text-white mb-6 mt-5">
+          Will you going to unstake?
+        </p>
+        <div className="flex items-center">
+          <BorderButton
+            onClick={props.onRequestClose}
+            rounded="rounded-md"
+            px="px-0"
+            py="py-1"
+            className="w-32 h-8 text-sm text-greenLight mx-2"
+          >
+            <FormattedMessage id="cancel" defaultMessage="Cancel" />
+          </BorderButton>
+          <GradientButton
+            color="#fff"
+            className="w-32 h-8 text-center text-sm text-white focus:outline-none font-semibold mx-2"
+            onClick={() => setShowTip(false)}
+          >
+            <FormattedMessage id="unstake" defaultMessage="Unstake" />
+          </GradientButton>
+        </div>
+      </div>
+    );
+  }
   return (
     <Modal {...props}>
-      <Card
-        style={{ width: cardWidth }}
-        className="outline-none border border-gradientFrom border-opacity-50"
-      >
-        <div className="flex justify-between items-start text-xl text-white font-semibold mb-7">
-          <label>{props.title}</label>
-          <div className="cursor-pointer" onClick={props.onRequestClose}>
-            <ModalClose />
+      {showTip ? (
+        <Tip />
+      ) : (
+        <Card
+          style={{ width: cardWidth }}
+          className="outline-none border border-gradientFrom border-opacity-50"
+        >
+          <div className="flex justify-between items-start text-xl text-white font-semibold mb-7">
+            <label>{props.title}</label>
+            <div className="cursor-pointer" onClick={props.onRequestClose}>
+              <ModalClose />
+            </div>
           </div>
-        </div>
-        <div>
-          <div className="flex justify-end mb-1.5">
-            <span className="text-primaryText text-xs">
-              <FormattedMessage id="balance" defaultMessage="Balance" />:
-              {toPrecision(max, 6)}
-            </span>
+          <div>
+            <div className="flex justify-end mb-1.5">
+              <span className="text-primaryText text-xs">
+                <FormattedMessage id="balance" defaultMessage="Balance" />:
+                {toPrecision(max, 6)}
+              </span>
+            </div>
+            <div className="flex rounded relative overflow-hidden align-center">
+              <OldInputAmount
+                className="flex-grow"
+                max={max}
+                value={amount}
+                onChangeAmount={setAmount}
+              />
+            </div>
           </div>
-          <div className="flex rounded relative overflow-hidden align-center">
-            <OldInputAmount
-              className="flex-grow"
-              max={max}
-              value={amount}
-              onChangeAmount={setAmount}
-            />
+          <div className="flex items-center justify-center pt-5">
+            <GreenLButton
+              onClick={() => props.onSubmit(amount)}
+              disabled={
+                !amount ||
+                new BigNumber(amount).isEqualTo(0) ||
+                new BigNumber(amount).isGreaterThan(maxToFormat)
+              }
+            >
+              {props.btnText}
+            </GreenLButton>
           </div>
-        </div>
-        <div className="flex items-center justify-center pt-5">
-          <GreenLButton
-            onClick={() => props.onSubmit(amount)}
-            disabled={
-              !amount ||
-              new BigNumber(amount).isEqualTo(0) ||
-              new BigNumber(amount).isGreaterThan(maxToFormat)
-            }
-          >
-            {props.btnText}
-          </GreenLButton>
-        </div>
-      </Card>
+        </Card>
+      )}
     </Modal>
   );
 }
