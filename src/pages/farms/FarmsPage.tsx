@@ -115,7 +115,10 @@ export function FarmsPage() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      document.getElementById(pool_id).scrollIntoView();
+      const poolDom = document.getElementById(pool_id);
+      if (poolDom) {
+        poolDom.scrollIntoView();
+      }
     }, 500);
     return () => clearTimeout(timer);
   }, [unclaimedFarmsIsLoading]);
