@@ -68,7 +68,6 @@ export default function DepositPage() {
 
   const registeredTokens = useUserRegisteredTokens();
   const tokens = useWhitelistTokens();
-  // const [tokenList, setTokenList] = useState<TokenMetadata[]>([]);
   const [selectedToken, setSelectedToken] = useState<TokenMetadata>(
     id && tokens ? tokens.find((tok) => tok.id === id) : nearMetadata
   );

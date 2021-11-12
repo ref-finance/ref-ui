@@ -7,12 +7,19 @@ import {
   REF_FI_CONTRACT_ID,
   Transaction,
   wallet,
+  RefFiFunctionCallOptions,
+  refFiManyFunctionCalls,
 } from './near';
 import BN from 'bn.js';
 import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { toNonDivisibleNumber } from '../utils/numbers';
-import { storageDepositForFTAction } from './creators/storage';
+import {
+  needDepositStorage,
+  ONE_MORE_DEPOSIT_AMOUNT,
+  storageDepositAction,
+  storageDepositForFTAction,
+} from './creators/storage';
 import { getTopPools } from '~services/indexer';
 import { PoolRPCView } from './api';
 
@@ -353,11 +360,24 @@ export const addLiquidityToPool = async ({
     toNonDivisibleNumber(token.decimals, amount)
   );
 
-  return refFiFunctionCall({
-    methodName: 'add_liquidity',
-    args: { pool_id: id, amounts },
-    amount: LP_STORAGE_AMOUNT,
-  });
+  const actions: RefFiFunctionCallOptions[] = [
+    {
+      methodName: 'add_liquidity',
+      args: { pool_id: id, amounts },
+      amount: LP_STORAGE_AMOUNT,
+    },
+  ];
+
+  const needDeposit = await needDepositStorage();
+  if (needDeposit) {
+    actions.unshift(
+      storageDepositAction({
+        amount: ONE_MORE_DEPOSIT_AMOUNT,
+      })
+    );
+  }
+
+  return refFiManyFunctionCalls(actions);
 };
 
 interface RemoveLiquidityOptions {
@@ -374,15 +394,28 @@ export const removeLiquidityFromPool = async ({
 
   const amounts = pool.tokenIds.map((tokenId) => minimumAmounts[tokenId]);
 
-  return refFiFunctionCall({
-    methodName: 'remove_liquidity',
-    args: {
-      pool_id: id,
-      shares,
-      min_amounts: amounts,
+  const actions: RefFiFunctionCallOptions[] = [
+    {
+      methodName: 'remove_liquidity',
+      args: {
+        pool_id: id,
+        shares,
+        min_amounts: amounts,
+      },
+      amount: ONE_YOCTO_NEAR,
     },
-    amount: ONE_YOCTO_NEAR,
-  });
+  ];
+
+  const needDeposit = await needDepositStorage();
+  if (needDeposit) {
+    actions.unshift(
+      storageDepositAction({
+        amount: ONE_MORE_DEPOSIT_AMOUNT,
+      })
+    );
+  }
+
+  return refFiManyFunctionCalls(actions);
 };
 
 export const addSimpleLiquidityPool = async (

@@ -19,7 +19,9 @@ import {
   STORAGE_TO_REGISTER_WITH_FT,
   storageDepositAction,
   storageDepositForFTAction,
+  needDepositStorage,
   STORAGE_PER_TOKEN,
+  ONE_MORE_DEPOSIT_AMOUNT,
 } from './creators/storage';
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from './wrap-near';
 import { registerTokenAction } from './creators/token';
@@ -77,6 +79,18 @@ export const registerTokenAndExchange = async (tokenId: string) => {
     });
   }
 
+  const needDeposit = await needDepositStorage();
+  if (needDeposit) {
+    transactions.unshift({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [
+        storageDepositAction({
+          amount: ONE_MORE_DEPOSIT_AMOUNT,
+        }),
+      ],
+    });
+  }
+
   return executeMultipleTransactions(transactions);
 };
 
@@ -96,15 +110,37 @@ export const registerToken = async (tokenId: string) => {
     actions.unshift(storageDepositAction({ amount: neededStorage }));
   }
 
+  const needDeposit = await needDepositStorage();
+  if (needDeposit) {
+    actions.unshift(
+      storageDepositAction({
+        amount: ONE_MORE_DEPOSIT_AMOUNT,
+      })
+    );
+  }
+
   return refFiManyFunctionCalls(actions);
 };
 
 export const unregisterToken = (tokenId: string) => {
-  return refFiFunctionCall({
-    methodName: 'unregister_tokens',
-    args: { token_ids: [tokenId] },
-    amount: ONE_YOCTO_NEAR,
-  });
+  const actions: RefFiFunctionCallOptions[] = [
+    {
+      methodName: 'unregister_tokens',
+      args: { token_ids: [tokenId] },
+      amount: ONE_YOCTO_NEAR,
+    },
+  ];
+
+  const needDeposit = await needDepositStorage();
+  if (needDeposit) {
+    actions.unshift(
+      storageDepositAction({
+        amount: ONE_MORE_DEPOSIT_AMOUNT,
+      })
+    );
+  }
+
+  return refFiManyFunctionCalls(actions);
 };
 
 interface DepositOptions {
@@ -140,6 +176,18 @@ export const deposit = async ({ token, amount, msg = '' }: DepositOptions) => {
     });
   }
 
+  const needDeposit = await needDepositStorage();
+  if (needDeposit) {
+    transactions.unshift({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [
+        storageDepositAction({
+          amount: ONE_MORE_DEPOSIT_AMOUNT,
+        }),
+      ],
+    });
+  }
+
   return executeMultipleTransactions(transactions);
 };
 
@@ -158,22 +206,21 @@ export const withdraw = async ({
     return unwrapNear(amount);
   }
 
+  const transactions: Transaction[] = [];
   const parsedAmount = toNonDivisibleNumber(token.decimals, amount);
   const ftBalance = await ftGetStorageBalance(token.id);
 
-  const transactions: Transaction[] = [
-    {
-      receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [
-        {
-          methodName: 'withdraw',
-          args: { token_id: token.id, amount: parsedAmount, unregister },
-          gas: '100000000000000',
-          amount: ONE_YOCTO_NEAR,
-        },
-      ],
-    },
-  ];
+  transactions.unshift({
+    receiverId: REF_FI_CONTRACT_ID,
+    functionCalls: [
+      {
+        methodName: 'withdraw',
+        args: { token_id: token.id, amount: parsedAmount, unregister },
+        gas: '100000000000000',
+        amount: ONE_YOCTO_NEAR,
+      },
+    ],
+  });
 
   if (!ftBalance || ftBalance.total === '0') {
     transactions.unshift({
@@ -182,6 +229,18 @@ export const withdraw = async ({
         storageDepositAction({
           registrationOnly: true,
           amount: STORAGE_TO_REGISTER_WITH_FT,
+        }),
+      ],
+    });
+  }
+
+  const needDeposit = await needDepositStorage();
+  if (needDeposit) {
+    transactions.unshift({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [
+        storageDepositAction({
+          amount: ONE_MORE_DEPOSIT_AMOUNT,
         }),
       ],
     });
