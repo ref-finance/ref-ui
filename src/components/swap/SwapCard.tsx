@@ -20,7 +20,6 @@ import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import db from '~store/RefDatabase';
 import { GradientButton } from '~components/button/Button';
 import { wallet } from '~services/near';
-import { checkAndAddStorage } from '~services/creators/storage';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -200,7 +199,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   }, [allTokens]);
 
   useEffect(() => {
-    checkAndAddStorage().then(console.log);
     if (wallet.isSignedIn()) {
       if (useNearBalance) {
         if (tokenIn) {
