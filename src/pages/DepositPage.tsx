@@ -16,6 +16,7 @@ import { wallet } from '~services/near';
 import { Balances } from '../components/deposit/Deposit';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { ConnectToNearBtn } from '~components/button/Button';
+import { STORAGE_PER_TOKEN } from '~services/creators/storage';
 
 function DepositBtn(props: {
   amount?: string;
@@ -123,7 +124,7 @@ export default function DepositPage() {
           id="small_storage_fee_is_applied_of"
           defaultMessage="Small storage fee is applied of"
         />{' '}
-        <span className="font-bold">0.00084</span> Ⓝ
+        <span className="font-bold">{STORAGE_PER_TOKEN}</span> Ⓝ
       </div>
 
       <Balances title="Balance" tokens={userTokens} balances={balances} />
