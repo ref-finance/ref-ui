@@ -11,6 +11,11 @@ import {
   wallet,
 } from './near';
 import { checkTokenNeedsStorageDeposit } from './token';
+import {
+  needDepositStorage,
+  ONE_MORE_DEPOSIT_AMOUNT,
+  storageDepositAction,
+} from '~services/creators/storage';
 
 export const { WRAP_NEAR_CONTRACT_ID } = getConfig();
 export const NEW_ACCOUNT_STORAGE_COST = '0.00125';
@@ -88,6 +93,18 @@ export const wrapNear = async (amount: string) => {
     functionCalls: actions,
   });
 
+  const needDeposit = await needDepositStorage();
+  if (needDeposit) {
+    transactions.unshift({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [
+        storageDepositAction({
+          amount: ONE_MORE_DEPOSIT_AMOUNT,
+        }),
+      ],
+    });
+  }
+
   return executeMultipleTransactions(transactions);
 };
 
@@ -130,6 +147,18 @@ export const unwrapNear = async (amount: string) => {
       },
     ],
   });
+
+  const needDeposit = await needDepositStorage();
+  if (needDeposit) {
+    transactions.unshift({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [
+        storageDepositAction({
+          amount: ONE_MORE_DEPOSIT_AMOUNT,
+        }),
+      ],
+    });
+  }
 
   return executeMultipleTransactions(transactions);
 };

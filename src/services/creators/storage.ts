@@ -57,5 +57,5 @@ export const needDepositStorage = async (accountId = wallet.getAccountId()) => {
     args: { account_id: accountId },
   });
 
-  return new BN(storage.deposit).lte(new BN(storage.usage));
+  return new BN(storage?.deposit).lte(new BN(storage?.usage));
 };
