@@ -122,7 +122,7 @@ export const registerToken = async (tokenId: string) => {
   return refFiManyFunctionCalls(actions);
 };
 
-export const unregisterToken = (tokenId: string) => {
+export const unregisterToken = async (tokenId: string) => {
   const actions: RefFiFunctionCallOptions[] = [
     {
       methodName: 'unregister_tokens',
