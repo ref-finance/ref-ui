@@ -68,7 +68,9 @@ function AccountEntry() {
 
   const accountName =
     account.length > 10 ? niceAccountId : wallet.getAccountId();
-  if (!userTokens || !balances) return null;
+  if (wallet.isSignedIn()) {
+    if (!userTokens || !balances) return null;
+  }
 
   return (
     <div className="user text-xs text-center justify-end pt-6 h-full right-20 absolute top-0 z-30">
@@ -117,7 +119,9 @@ function AccountEntry() {
                 <FormattedMessage id="balance" defaultMessage="Balance" />
               </div>
             </div>
-            <TokenList tokens={userTokens} balances={balances} />
+            {wallet.isSignedIn() ? (
+              <TokenList tokens={userTokens} balances={balances} />
+            ) : null}
             <div className="flex items-center justify-center pt-5">
               <GradientButton
                 className=" w-36 h-8 text-white cursor-pointer py-2 mr-2"
