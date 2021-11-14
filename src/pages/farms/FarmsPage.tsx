@@ -95,10 +95,8 @@ export function FarmsPage() {
     sort: 'new',
     sortBoxHidden: true,
   });
-  const [yourFarms, setYourFarms] = useState<Record<string, string>>({
-    rewards: '-',
-    quantity: '-',
-  });
+  const [yourFarms, setYourFarms] = useState<string | number>('-');
+  const [yourReward, setYourReward] = useState<string | number>('-');
   const [lps, setLps] = useState<Record<string, FarmInfo[]>>({});
 
   const sortRef = useRef(null);
@@ -246,29 +244,34 @@ export function FarmsPage() {
       tokenPriceList,
       seeds,
     });
+    const tempUnClaimRewardMap = {};
     if (isSignedIn) {
       const tempMap = {};
       const mySeeds = new Set();
       farms.forEach((farm) => {
-        const { seed_id, userStaked } = farm;
+        const { seed_id, userStaked, userUnclaimedReward, rewardToken } = farm;
         tempMap[seed_id] = tempMap[seed_id] || [];
         tempMap[seed_id].push(farm);
         if (Number(userStaked) > 0) {
           mySeeds.add(seed_id);
         }
+        if (Number(userUnclaimedReward) > 0) {
+          const { id } = rewardToken;
+          tempUnClaimRewardMap[id] = BigNumber.sum(
+            tempUnClaimRewardMap[id] || 0,
+            userUnclaimedReward
+          ).toNumber();
+        }
       });
       setLps(tempMap);
-      setYourFarms({
-        rewards: '-',
-        quantity: mySeeds.size.toString(),
-      });
+      setYourFarms(mySeeds.size.toString());
     }
     setUnclaimedFarmsIsLoading(false);
-    await getTokenSinglePrice(farms);
+    await getTokenSinglePrice(farms, tempUnClaimRewardMap);
     const mergeFarms = composeFarms(farms);
     searchByCondition(mergeFarms);
   }
-  async function getTokenSinglePrice(farms: any[]) {
+  async function getTokenSinglePrice(farms: any[], map: Record<string, any>) {
     const tokenIdList: string[] = [];
     farms.forEach((item) => {
       const rewardToken = item.rewardToken?.id || '';
@@ -286,6 +289,20 @@ export function FarmsPage() {
       tempMap[arr[index]] = item;
     });
     setTokenPriceMap(tempMap);
+    let totalUnClaim = 0;
+    Object.keys(map).forEach((item) => {
+      if (tempMap[item] && tempMap[item] != 'N/A') {
+        totalUnClaim = BigNumber.sum(
+          tempMap[item] * map[item],
+          totalUnClaim
+        ).toNumber();
+      }
+    });
+    if (totalUnClaim > 0) {
+      setYourReward(
+        `$${toInternationalCurrencySystem(totalUnClaim.toString(), 2)}`
+      );
+    }
   }
   const handleClick = (e: any) => {
     if (
@@ -503,7 +520,7 @@ export function FarmsPage() {
                     />
                   </p>
                   <label className="text-white text-2xl font-semibold whitespace-nowrap">
-                    {yourFarms.rewards}
+                    {yourReward}
                   </label>
                 </div>
                 <div className="flex flex-col items-center">
@@ -514,7 +531,7 @@ export function FarmsPage() {
                     />
                   </p>
                   <label className="text-white text-2xl font-semibold whitespace-nowrap">
-                    {yourFarms.quantity}
+                    {yourFarms}
                   </label>
                 </div>
               </div>
