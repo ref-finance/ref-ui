@@ -25,7 +25,8 @@ export default function SlippageSelector({
   const [invalid, setInvalid] = useState(false);
   const [warn, setWarn] = useState(false);
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
-  const useNearBalance = localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY);
+  const useNearBalance =
+    localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) || 'true';
 
   const openToolTip = (e: any) => {
     e.nativeEvent.stopImmediatePropagation();
