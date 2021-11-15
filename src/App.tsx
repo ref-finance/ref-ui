@@ -16,7 +16,6 @@ import { MorePoolsPage } from '~pages/pools/MorePoolsPage';
 import {
   BgShapeLeftTop,
   BgShapeCenter,
-  BgShapeCenterSmall,
 } from './components/icon';
 import Modal from 'react-modal';
 
@@ -52,10 +51,9 @@ function App() {
   return (
     <Router>
       <ToastContainer />
-      <div className="relative min-h-screen pb-20 xs:flex xs:flex-col md:flex md:flex-col">
+      <div className="relative min-h-screen pb-20 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
         <BgShapeLeftTop />
         <BgShapeCenter />
-        <BgShapeCenterSmall />
         <NavigationBar />
         <Switch>
           <Route path="/deposit/:id?" component={AutoHeight(DepositPage)} />
