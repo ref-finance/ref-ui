@@ -11,7 +11,6 @@ import {
   toPrecision,
   toReadableNumber,
 } from '../../utils/numbers';
-import NewFormWrap from '../forms/NewFormWrap';
 import TokenAmount from '../forms/TokenAmount';
 import Alert from '../alert/Alert';
 import { toRealSymbol } from '~utils/token';
@@ -20,10 +19,12 @@ import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import db from '~store/RefDatabase';
 import { GradientButton } from '~components/button/Button';
 import { wallet } from '~services/near';
+import SwapFormWrap from '../forms/SwapFormWrap';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
 const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
+export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
 
 function SwapDetail({ title, value }: { title: string; value: string }) {
@@ -165,7 +166,10 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
   const [disableTokenInput, setDisableTokenInput] = useState<boolean>();
-  const [useNearBalance, setUseNearBalance] = useState<boolean>(true);
+  const [useNearBalance, setUseNearBalance] = useState<boolean>(
+    localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) === 'true'
+  );
+
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();
 
@@ -279,14 +283,21 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
 
   return (
-    <NewFormWrap
+    <SwapFormWrap
       canSubmit={canSwap}
       slippageTolerance={slippageTolerance}
       onChange={(slippage) => {
         setSlippageTolerance(slippage);
         localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
       }}
-      showElseView={tokenInMax === '0'}
+      bindUseBalance={(useNearBalance) => {
+        setUseNearBalance(useNearBalance);
+        localStorage.setItem(
+          SWAP_USE_NEAR_BALANCE_KEY,
+          useNearBalance.toString()
+        );
+      }}
+      showElseView={tokenInMax === '0' && !useNearBalance}
       elseView={
         <div className="flex justify-center">
           <GradientButton
@@ -369,6 +380,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       <div className="pb-2">
         {swapError && <Alert level="error" message={swapError.message} />}
       </div>
-    </NewFormWrap>
+    </SwapFormWrap>
   );
 }

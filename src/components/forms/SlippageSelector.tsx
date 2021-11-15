@@ -5,13 +5,16 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { isMobile } from '~utils/device';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 import { IoCloseOutline, IoWarning } from 'react-icons/io5';
+import { SWAP_USE_NEAR_BALANCE_KEY } from '~components/swap/SwapCard';
 
 export default function SlippageSelector({
   slippageTolerance,
   onChange,
+  bindUseBalance,
 }: {
   slippageTolerance: number;
   onChange: (slippage: number) => void;
+  bindUseBalance: (useNearBalance: boolean) => void;
 }) {
   const ref = useRef<HTMLInputElement>();
   const field = useRef<HTMLFieldSetElement>();
@@ -22,6 +25,8 @@ export default function SlippageSelector({
   const [invalid, setInvalid] = useState(false);
   const [warn, setWarn] = useState(false);
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
+  const useNearBalance = localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY);
+
   const openToolTip = (e: any) => {
     e.nativeEvent.stopImmediatePropagation();
     setShowSlip(true);
@@ -45,11 +50,16 @@ export default function SlippageSelector({
   const closeToolTip = (e: any) => {
     if (!invalid) setShowSlip(false);
   };
+
   const handleBtnChange = (slippage: number) => {
     setInvalid(false);
     setWarn(false);
     onChange(slippage);
     ref.current.value = slippage.toString();
+  };
+
+  const handleBalanceOption = (useBalance: string) => {
+    bindUseBalance(useBalance === 'wallet');
   };
 
   useEffect(() => {
@@ -178,6 +188,58 @@ export default function SlippageSelector({
                   />
                 </div>
               )}
+            </div>
+            <div className="flex items-center">
+              <label className="text-sm py-5 text-center text-white">
+                <FormattedMessage
+                  id="use_balance"
+                  defaultMessage="Use Balance"
+                />
+              </label>
+              <div className="text-gray-400">
+                <div
+                  className="pl-1 text-white text-base"
+                  data-type="dark"
+                  data-place="right"
+                  data-multiline={true}
+                  data-tip={intl.formatMessage({ id: slippageCopyId })}
+                >
+                  <FaRegQuestionCircle />
+                </div>
+                <ReactTooltip
+                  className="text-xs text-left shadow-4xl"
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                  textColor="#c6d1da"
+                />
+              </div>
+            </div>
+            <div
+              className="flex items-center"
+              onChange={({ target }) => handleBalanceOption(target.value)}
+            >
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  className="form-radio w-4 text-green-500"
+                  name="useBalance"
+                  value="wallet"
+                  defaultChecked={useNearBalance === 'true'}
+                />
+                <span className="ml-2 text-sm w-18">In Wallet(default)</span>
+              </label>
+              <label className="inline-flex items-center ml-6">
+                <input
+                  type="radio"
+                  className="form-radio w-4 text-green-500"
+                  name="useBalance"
+                  value="ref"
+                  defaultChecked={useNearBalance === 'false'}
+                />
+                <span className="ml-2 text-sm w-18">In Ref</span>
+              </label>
             </div>
           </fieldset>
           {showSlip && (

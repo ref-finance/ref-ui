@@ -4,7 +4,7 @@ import SubmitButton from './SubmitButton';
 import { FormattedMessage } from 'react-intl';
 import SlippageSelector from './SlippageSelector';
 
-interface NewFormWrapProps {
+interface SwapFormWrapProps {
   title?: string;
   buttonText?: string;
   canSubmit?: boolean;
@@ -14,9 +14,10 @@ interface NewFormWrapProps {
   showElseView?: boolean;
   elseView?: JSX.Element;
   onChange: (slippage: number) => void;
+  bindUseBalance: (useNearBalance: boolean) => void;
 }
 
-export default function NewFormWrap({
+export default function SwapFormWrap({
   children,
   title,
   buttonText,
@@ -27,7 +28,8 @@ export default function NewFormWrap({
   showElseView,
   elseView,
   onChange,
-}: React.PropsWithChildren<NewFormWrapProps>) {
+  bindUseBalance,
+}: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -53,6 +55,7 @@ export default function NewFormWrap({
             <SlippageSelector
               slippageTolerance={slippageTolerance}
               onChange={onChange}
+              bindUseBalance={bindUseBalance}
             />
           </h2>
         </>
