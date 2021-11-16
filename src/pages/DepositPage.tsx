@@ -67,13 +67,12 @@ export default function DepositPage() {
   const [amount, setAmount] = useState<string>('');
   const balances = useTokenBalances();
 
-  const registeredTokens = useUserRegisteredTokens();
   const tokens = useWhitelistTokens();
   const [selectedToken, setSelectedToken] = useState<TokenMetadata>(
     id && tokens ? tokens.find((tok) => tok.id === id) : nearMetadata
   );
 
-  const userTokens = useUserRegisteredTokens();
+  const userTokens = useUserRegisteredTokens() || [];
   const max = useDepositableBalance(selectedToken?.id, selectedToken?.decimals);
   const intl = useIntl();
 
@@ -83,8 +82,7 @@ export default function DepositPage() {
     }
   }, [id, tokens]);
 
-  if (!tokens || !userTokens) return <Loading />;
-  if (!registeredTokens || !balances) return <Loading />;
+  if (!tokens || !balances || !userTokens) return <Loading />;
 
   const handleSearch = (value: string) => {
     const result = tokens.filter(
