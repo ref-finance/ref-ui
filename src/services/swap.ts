@@ -208,14 +208,6 @@ export const instantSwap = async ({
     });
   }
 
-  if (tokenIn.symbol === wnearMetadata.symbol) {
-    tokenInActions.push({
-      methodName: 'near_deposit',
-      args: {},
-      amount: amountIn,
-    });
-  }
-
   tokenInActions.push({
     methodName: 'ft_transfer_call',
     args: {
@@ -234,19 +226,6 @@ export const instantSwap = async ({
     receiverId: tokenIn.id,
     functionCalls: tokenInActions,
   });
-
-  if (tokenOut.symbol === wnearMetadata.symbol) {
-    transactions.push({
-      receiverId: WRAP_NEAR_CONTRACT_ID,
-      functionCalls: [
-        {
-          methodName: 'near_withdraw',
-          args: { amount: utils.format.parseNearAmount(minAmountOut) },
-          amount: ONE_YOCTO_NEAR,
-        },
-      ],
-    });
-  }
 
   return executeMultipleTransactions(transactions);
 };
