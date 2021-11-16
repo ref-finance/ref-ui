@@ -205,11 +205,11 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   }, [allTokens]);
 
   useEffect(() => {
-    if (wallet.isSignedIn()) {
-      if (useNearBalance) {
-        if (tokenIn) {
-          const tokenInId = tokenIn.id;
-          if (tokenInId) {
+    if (useNearBalance) {
+      if (tokenIn) {
+        const tokenInId = tokenIn.id;
+        if (tokenInId) {
+          if (wallet.isSignedIn()) {
             ftGetBalance(tokenInId).then((available) =>
               setTokenInBalanceFromNear(
                 toReadableNumber(tokenIn?.decimals, available)
@@ -217,9 +217,11 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
             );
           }
         }
-        if (tokenOut) {
-          const tokenOutId = tokenOut.id;
-          if (tokenOutId) {
+      }
+      if (tokenOut) {
+        const tokenOutId = tokenOut.id;
+        if (tokenOutId) {
+          if (wallet.isSignedIn()) {
             ftGetBalance(tokenOutId).then((available) =>
               setTokenOutBalanceFromNear(
                 toReadableNumber(tokenOut?.decimals, available)
@@ -228,8 +230,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           }
         }
       }
-    } else {
-      setUseNearBalance(false);
     }
   }, [tokenIn, tokenOut]);
 
