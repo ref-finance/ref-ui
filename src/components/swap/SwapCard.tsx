@@ -169,8 +169,9 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [useNearBalance, setUseNearBalance] = useState<boolean>(
     localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) === 'true' || true
   );
-
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
+    useState<string>();
+  const [tokenOutBalanceFromNear, setTokenOutBalanceFromNear] =
     useState<string>();
 
   const intl = useIntl();
@@ -206,28 +207,30 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     if (wallet.isSignedIn()) {
       if (useNearBalance) {
         if (tokenIn) {
-          const tokenId = tokenIn.id;
-          if (tokenId === 'NEAR') {
-            wallet
-              .account()
-              .getAccountBalance()
-              .then(({ available }) =>
-                setTokenInBalanceFromNear(
-                  toReadableNumber(tokenIn?.decimals, available)
-                )
-              );
-          } else if (tokenId)
-            ftGetBalance(tokenId).then((available) =>
+          const tokenInId = tokenIn.id;
+          if (tokenInId) {
+            ftGetBalance(tokenInId).then((available) =>
               setTokenInBalanceFromNear(
                 toReadableNumber(tokenIn?.decimals, available)
               )
             );
+          }
+        }
+        if (tokenOut) {
+          const tokenOutId = tokenOut.id;
+          if (tokenOutId) {
+            ftGetBalance(tokenOutId).then((available) =>
+              setTokenOutBalanceFromNear(
+                toReadableNumber(tokenOut?.decimals, available)
+              )
+            );
+          }
         }
       }
     } else {
       setUseNearBalance(false);
     }
-  }, [tokenIn]);
+  }, [tokenIn, tokenOut]);
 
   const { canSwap, tokenOutAmount, minAmountOut, pool, swapError, makeSwap } =
     useSwap({
@@ -279,8 +282,9 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const tokenInMax = useNearBalance
     ? tokenInBalanceFromNear || '0'
     : toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0';
-  const tokenOutTotal =
-    toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
+  const tokenOutTotal = useNearBalance
+    ? tokenOutBalanceFromNear || '0'
+    : toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
 
   return (
     <SwapFormWrap
@@ -366,6 +370,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           localStorage.setItem(SWAP_OUT_KEY, token.id);
           history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`);
           setTokenOut(token);
+          setTokenOutBalanceFromNear(token.near.toString());
         }}
       />
       <DetailView
