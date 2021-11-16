@@ -167,8 +167,9 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
   const [disableTokenInput, setDisableTokenInput] = useState<boolean>();
   const [useNearBalance, setUseNearBalance] = useState<boolean>(
-    localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) === 'true' || true
+    localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) != 'false'
   );
+
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();
   const [tokenOutBalanceFromNear, setTokenOutBalanceFromNear] =

@@ -39,24 +39,16 @@ function SubmitButton({ disabled, onClick }: SubmitButtonProps) {
           </h1>
         </button>
       ) : (
-        <button
+        <GradientButton
+          color="#fff"
+          className={`w-full text-center text-lg text-white mt-4 px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
           onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
-          type="button"
-          className="flex w-full font-semibold px-5 py-2 text-white mt-6 mx-auto"
-          style={{
-            background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
-            borderRadius: '5px',
-          }}
         >
-          {' '}
-          <Near />
-          <span className="ml-2 text-lg">
-            <FormattedMessage
-              id="connect_to_near"
-              defaultMessage="Connect to NEAR"
-            />
-          </span>
-        </button>
+          <FormattedMessage
+            id="connect_to_near"
+            defaultMessage="Connect to NEAR"
+          />
+        </GradientButton>
       )}
     </>
   );
