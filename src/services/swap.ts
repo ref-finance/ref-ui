@@ -24,6 +24,8 @@ import {
 } from './token';
 import { JsonRpcProvider } from 'near-api-js/lib/providers';
 import {
+  needDepositStorage,
+  ONE_MORE_DEPOSIT_AMOUNT,
   storageDepositAction,
   storageDepositForTokenAction,
 } from './creators/storage';
@@ -267,6 +269,15 @@ export const depositSwap = async ({
   const needsStorageDeposit = await checkTokenNeedsStorageDeposit(tokenOut.id);
   if (needsStorageDeposit) {
     actions.unshift(storageDepositForTokenAction());
+  }
+
+  const needDeposit = await needDepositStorage();
+  if (needDeposit) {
+    actions.unshift(
+      storageDepositAction({
+        amount: ONE_MORE_DEPOSIT_AMOUNT,
+      })
+    );
   }
 
   return refFiManyFunctionCalls(actions);
