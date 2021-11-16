@@ -109,7 +109,7 @@ export default function SlippageSelector({
                   data-type="dark"
                   data-place="right"
                   data-multiline={true}
-                  data-tip={intl.formatMessage({ id: slippageCopyId })}
+                  data-tip={intl.formatMessage({ id: 'selectBalanceCopy' })}
                 >
                   <FaRegQuestionCircle />
                 </div>
@@ -193,8 +193,8 @@ export default function SlippageSelector({
             <div className="flex items-center">
               <label className="text-sm py-5 text-center text-white">
                 <FormattedMessage
-                  id="use_balance"
-                  defaultMessage="Use Balance"
+                  id="select_balance"
+                  defaultMessage="Select Balance"
                 />
               </label>
               <div className="text-gray-400">
@@ -203,7 +203,7 @@ export default function SlippageSelector({
                   data-type="dark"
                   data-place="right"
                   data-multiline={true}
-                  data-tip={intl.formatMessage({ id: slippageCopyId })}
+                  data-tip={intl.formatMessage({ id: 'selectBalanceCopy' })}
                 >
                   <FaRegQuestionCircle />
                 </div>
@@ -229,7 +229,9 @@ export default function SlippageSelector({
                   value="wallet"
                   defaultChecked={useNearBalance === 'true'}
                 />
-                <span className="ml-2 text-sm w-18">In Wallet(default)</span>
+                <span className="ml-2 text-sm w-18">
+                  {intl.formatMessage({ id: 'near_wallet' })}
+                </span>
               </label>
               <label className="inline-flex items-center ml-6">
                 <input
@@ -239,7 +241,9 @@ export default function SlippageSelector({
                   value="ref"
                   defaultChecked={useNearBalance === 'false'}
                 />
-                <span className="ml-2 text-sm w-18">In Ref</span>
+                <span className="ml-2 text-sm w-18">
+                  {intl.formatMessage({ id: 'ref_account' })}
+                </span>
               </label>
             </div>
           </fieldset>

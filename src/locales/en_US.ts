@@ -193,5 +193,10 @@ const en_US = {
   reward_tokens: 'Reward Tokens',
   detail_tip: 'Detail',
   no_data: 'No Data',
+  select_balance: 'Select Balance',
+  selectBalanceCopy:
+    'Select [Near Wallet] to swap directly tokens available in your Near wallet',
+  near_wallet: 'Near Wallet',
+  ref_account: 'Ref Account',
 };
 export default en_US;

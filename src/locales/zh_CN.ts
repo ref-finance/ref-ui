@@ -187,5 +187,9 @@ const zh_CN = {
   reward_tokens: '奖励币',
   detail_tip: '详情',
   no_data: '暂无数据',
+  select_balance: '选择资产来源',
+  selectBalanceCopy: '选择[NEAR钱包]直接使用你钱包里的资产进行交易',
+  near_wallet: 'NEAR钱包',
+  ref_account: 'REF账户',
 };
 export default zh_CN;
