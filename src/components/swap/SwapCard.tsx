@@ -231,7 +231,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         }
       }
     }
-  }, [tokenIn, tokenOut]);
+  }, [tokenIn, tokenOut, useNearBalance]);
 
   const { canSwap, tokenOutAmount, minAmountOut, pool, swapError, makeSwap } =
     useSwap({
