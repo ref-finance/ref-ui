@@ -337,6 +337,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         }}
         text={intl.formatMessage({ id: 'from' })}
         disabled={disableTokenInput}
+        useNearBalance={useNearBalance}
         onChangeAmount={(amount) => {
           setTokenInAmount(amount);
         }}
@@ -367,6 +368,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         selectedToken={tokenOut}
         balances={balances}
         text={intl.formatMessage({ id: 'to' })}
+        useNearBalance={useNearBalance}
         onSelectToken={(token) => {
           localStorage.setItem(SWAP_OUT_KEY, token.id);
           history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`);

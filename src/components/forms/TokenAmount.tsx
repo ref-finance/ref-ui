@@ -8,6 +8,7 @@ import InputAmount from './InputAmount';
 import SelectToken from './SelectToken';
 import { toPrecision } from '../../utils/numbers';
 import { FormattedMessage } from 'react-intl';
+import { SmallWallet } from '~components/icon/SmallWallet';
 
 interface TokenAmountProps {
   amount?: string;
@@ -22,6 +23,7 @@ interface TokenAmountProps {
   onChangeAmount?: (amount: string) => void;
   text?: string;
   disabled?: boolean;
+  useNearBalance: boolean;
 }
 
 export default function TokenAmount({
@@ -36,6 +38,7 @@ export default function TokenAmount({
   onChangeAmount,
   text,
   disabled = false,
+  useNearBalance,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) =>
     toRoundedReadableNumber({
@@ -49,6 +52,11 @@ export default function TokenAmount({
     <>
       <div className="flex justify-end text-xs font-semibold pb-0.5 w-3/5">
         <span className="text-primaryText" title={total}>
+          {useNearBalance ? (
+            <span className="mr-2 float-left">
+              <SmallWallet />
+            </span>
+          ) : null}
           <FormattedMessage id="balance" defaultMessage="Balance" />
           :&nbsp;
           {toPrecision(total, 3, true)}
