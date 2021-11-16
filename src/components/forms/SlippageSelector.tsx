@@ -109,7 +109,7 @@ export default function SlippageSelector({
                   data-type="dark"
                   data-place="right"
                   data-multiline={true}
-                  data-tip={intl.formatMessage({ id: 'selectBalanceCopy' })}
+                  data-tip={intl.formatMessage({ id: slippageCopyId })}
                 >
                   <FaRegQuestionCircle />
                 </div>
