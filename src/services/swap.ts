@@ -189,25 +189,27 @@ export const instantSwap = async ({
   const tokenInActions: RefFiFunctionCallOptions[] = [];
   const tokenOutActions: RefFiFunctionCallOptions[] = [];
 
-  const tokenOutRegistered = await ftGetStorageBalance(
-    tokenOut.id,
-    wallet.getAccountId()
-  ).catch(() => {
-    throw new Error(`${tokenOut.id} doesn't exist.`);
-  });
-
-  if (!tokenOutRegistered || tokenOutRegistered.total === '0') {
-    tokenOutActions.push({
-      methodName: 'storage_deposit',
-      args: {},
-      gas: '30000000000000',
-      amount: NEW_ACCOUNT_STORAGE_COST,
+  if (wallet.isSignedIn()) {
+    const tokenOutRegistered = await ftGetStorageBalance(
+      tokenOut.id,
+      wallet.getAccountId()
+    ).catch(() => {
+      throw new Error(`${tokenOut.id} doesn't exist.`);
     });
 
-    transactions.push({
-      receiverId: tokenOut.id,
-      functionCalls: tokenOutActions,
-    });
+    if (!tokenOutRegistered || tokenOutRegistered.total === '0') {
+      tokenOutActions.push({
+        methodName: 'storage_deposit',
+        args: {},
+        gas: '30000000000000',
+        amount: NEW_ACCOUNT_STORAGE_COST,
+      });
+
+      transactions.push({
+        receiverId: tokenOut.id,
+        functionCalls: tokenOutActions,
+      });
+    }
   }
 
   tokenInActions.push({
