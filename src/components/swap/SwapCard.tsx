@@ -20,6 +20,7 @@ import db from '~store/RefDatabase';
 import { GradientButton } from '~components/button/Button';
 import { wallet } from '~services/near';
 import SwapFormWrap from '../forms/SwapFormWrap';
+import SwapTip from '~components/forms/SwapTip';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -289,6 +290,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const canSubmit = canSwap && (tokenInMax != '0' || !useNearBalance);
 
   return (
+    <>
+    <SwapTip></SwapTip>
     <SwapFormWrap
       canSubmit={canSubmit}
       slippageTolerance={slippageTolerance}
@@ -390,5 +393,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         {swapError && <Alert level="error" message={swapError.message} />}
       </div>
     </SwapFormWrap>
+    </>
   );
 }
