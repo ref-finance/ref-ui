@@ -286,10 +286,11 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const tokenOutTotal = useNearBalance
     ? tokenOutBalanceFromNear || '0'
     : toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
+  const canSubmit = canSwap && (tokenInMax != '0' || !useNearBalance);
 
   return (
     <SwapFormWrap
-      canSubmit={canSwap}
+      canSubmit={canSubmit}
       slippageTolerance={slippageTolerance}
       onChange={(slippage) => {
         setSlippageTolerance(slippage);
