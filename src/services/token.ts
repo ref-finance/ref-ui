@@ -28,20 +28,29 @@ import { registerTokenAction } from './creators/token';
 
 export const checkTokenNeedsStorageDeposit = async (tokenId: string) => {
   let storageNeeded: math.MathType = 0;
-  const [registeredTokens, balance] = await Promise.all([
-    getUserRegisteredTokens(),
-    currentStorageBalance(wallet.getAccountId()),
-  ]);
 
-  if (!balance) {
-    storageNeeded = math.add(storageNeeded, Number(ACCOUNT_MIN_STORAGE_AMOUNT));
-  }
+  const needDeposit = await needDepositStorage();
+  if (needDeposit) {
+    storageNeeded = Number(ONE_MORE_DEPOSIT_AMOUNT);
+  } else {
+    const [registeredTokens, balance] = await Promise.all([
+      getUserRegisteredTokens(),
+      currentStorageBalance(wallet.getAccountId()),
+    ]);
 
-  if (
-    new BN(balance?.available || '0').lt(MIN_DEPOSIT_PER_TOKEN) &&
-    !registeredTokens.includes(tokenId)
-  ) {
-    storageNeeded = math.add(storageNeeded, Number(STORAGE_PER_TOKEN));
+    if (!balance) {
+      storageNeeded = math.add(
+        storageNeeded,
+        Number(ACCOUNT_MIN_STORAGE_AMOUNT)
+      );
+    }
+
+    if (
+      new BN(balance?.available || '0').lt(MIN_DEPOSIT_PER_TOKEN) &&
+      !registeredTokens.includes(tokenId)
+    ) {
+      storageNeeded = math.add(storageNeeded, Number(STORAGE_PER_TOKEN));
+    }
   }
 
   return storageNeeded ? storageNeeded.toString() : '';
@@ -79,18 +88,6 @@ export const registerTokenAndExchange = async (tokenId: string) => {
     });
   }
 
-  const needDeposit = await needDepositStorage();
-  if (needDeposit) {
-    transactions.unshift({
-      receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [
-        storageDepositAction({
-          amount: ONE_MORE_DEPOSIT_AMOUNT,
-        }),
-      ],
-    });
-  }
-
   return executeMultipleTransactions(transactions);
 };
 
@@ -108,15 +105,6 @@ export const registerToken = async (tokenId: string) => {
   const neededStorage = await checkTokenNeedsStorageDeposit(tokenId);
   if (neededStorage) {
     actions.unshift(storageDepositAction({ amount: neededStorage }));
-  }
-
-  const needDeposit = await needDepositStorage();
-  if (needDeposit) {
-    actions.unshift(
-      storageDepositAction({
-        amount: ONE_MORE_DEPOSIT_AMOUNT,
-      })
-    );
   }
 
   return refFiManyFunctionCalls(actions);
@@ -173,18 +161,6 @@ export const deposit = async ({ token, amount, msg = '' }: DepositOptions) => {
     transactions.unshift({
       receiverId: REF_FI_CONTRACT_ID,
       functionCalls: [storageDepositAction({ amount: neededStorage })],
-    });
-  }
-
-  const needDeposit = await needDepositStorage();
-  if (needDeposit) {
-    transactions.unshift({
-      receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [
-        storageDepositAction({
-          amount: ONE_MORE_DEPOSIT_AMOUNT,
-        }),
-      ],
     });
   }
 

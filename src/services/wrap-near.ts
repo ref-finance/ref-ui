@@ -93,18 +93,6 @@ export const wrapNear = async (amount: string) => {
     functionCalls: actions,
   });
 
-  const needDeposit = await needDepositStorage();
-  if (needDeposit) {
-    transactions.unshift({
-      receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [
-        storageDepositAction({
-          amount: ONE_MORE_DEPOSIT_AMOUNT,
-        }),
-      ],
-    });
-  }
-
   return executeMultipleTransactions(transactions);
 };
 

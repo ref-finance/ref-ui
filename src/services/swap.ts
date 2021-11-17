@@ -273,15 +273,6 @@ export const depositSwap = async ({
     actions.unshift(storageDepositForTokenAction());
   }
 
-  const needDeposit = await needDepositStorage();
-  if (needDeposit) {
-    actions.unshift(
-      storageDepositAction({
-        amount: ONE_MORE_DEPOSIT_AMOUNT,
-      })
-    );
-  }
-
   return refFiManyFunctionCalls(actions);
 };
 
