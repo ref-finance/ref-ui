@@ -268,9 +268,9 @@ export const depositSwap = async ({
     actions.unshift(registerTokenAction(tokenOut.id));
   }
 
-  const needsStorageDeposit = await checkTokenNeedsStorageDeposit(tokenOut.id);
-  if (needsStorageDeposit) {
-    actions.unshift(storageDepositForTokenAction());
+  const neededStorage = await checkTokenNeedsStorageDeposit(tokenOut.id);
+  if (neededStorage) {
+    actions.unshift(storageDepositAction({ amount: neededStorage }));
   }
 
   return refFiManyFunctionCalls(actions);
