@@ -191,5 +191,7 @@ const zh_CN = {
   selectBalanceCopy: '选择[NEAR钱包]直接使用你钱包里的资产进行交易',
   near_wallet: 'NEAR钱包',
   ref_account: 'REF账户',
+  swap_tip: '如果想直接从REF账户中兑换可以在设置中选择REF账户',
+  attention: '请注意',
 };
 export default zh_CN;

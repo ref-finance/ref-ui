@@ -198,5 +198,8 @@ const en_US = {
     'Select [Near Wallet] to swap directly tokens available in your Near wallet',
   near_wallet: 'Near Wallet',
   ref_account: 'Ref Account',
+  swap_tip:
+    'Swap directly from your REF account by selecting REF Account in Settings',
+  attention: 'Attention',
 };
 export default en_US;
