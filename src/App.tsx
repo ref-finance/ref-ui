@@ -13,7 +13,11 @@ import AdboardPage from './pages/Adboard/AdboardPage';
 import NavigationBar from './components/layout/NavigationBar';
 import Footer from './components/layout/Footer';
 import { MorePoolsPage } from '~pages/pools/MorePoolsPage';
-import { BgShapeLeftTop, BgShapeCenter } from './components/icon';
+import {
+  BgShapeLeftTop,
+  BgShapeCenter,
+  BgShapeCenterSmall,
+} from './components/icon';
 import Modal from 'react-modal';
 
 import './global.css';
@@ -51,6 +55,7 @@ function App() {
       <div className="relative min-h-screen pb-20 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
         <BgShapeLeftTop />
         <BgShapeCenter />
+        <BgShapeCenterSmall />
         <NavigationBar />
         <Switch>
           <Route path="/deposit/:id?" component={AutoHeight(DepositPage)} />
