@@ -228,6 +228,7 @@ export default function SlippageSelector({
                   name="useBalance"
                   value="wallet"
                   defaultChecked={useNearBalance === 'true'}
+                  style={{ accentColor: '#00c6a2' }}
                 />
                 <span className="ml-2 text-sm w-18">
                   {intl.formatMessage({ id: 'near_wallet' })}
@@ -240,6 +241,7 @@ export default function SlippageSelector({
                   name="useBalance"
                   value="ref"
                   defaultChecked={useNearBalance === 'false'}
+                  style={{ accentColor: '#00c6a2' }}
                 />
                 <span className="ml-2 text-sm w-18">
                   {intl.formatMessage({ id: 'ref_account' })}
