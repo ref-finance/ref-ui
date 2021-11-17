@@ -210,28 +210,28 @@ export const instantSwap = async ({
         functionCalls: tokenOutActions,
       });
     }
+
+    tokenInActions.push({
+      methodName: 'ft_transfer_call',
+      args: {
+        receiver_id: REF_FI_CONTRACT_ID,
+        amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
+        msg: JSON.stringify({
+          force: 0,
+          actions: [swapAction],
+        }),
+      },
+      gas: '100000000000000',
+      amount: ONE_YOCTO_NEAR,
+    });
+
+    transactions.push({
+      receiverId: tokenIn.id,
+      functionCalls: tokenInActions,
+    });
+
+    return executeMultipleTransactions(transactions);
   }
-
-  tokenInActions.push({
-    methodName: 'ft_transfer_call',
-    args: {
-      receiver_id: REF_FI_CONTRACT_ID,
-      amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
-      msg: JSON.stringify({
-        force: 0,
-        actions: [swapAction],
-      }),
-    },
-    gas: '100000000000000',
-    amount: ONE_YOCTO_NEAR,
-  });
-
-  transactions.push({
-    receiverId: tokenIn.id,
-    functionCalls: tokenInActions,
-  });
-
-  return executeMultipleTransactions(transactions);
 };
 
 export const depositSwap = async ({
