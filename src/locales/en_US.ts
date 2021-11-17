@@ -199,7 +199,7 @@ const en_US = {
   near_wallet: 'Near Wallet',
   ref_account: 'Ref Account',
   swap_tip:
-    'Swap directly from your REF account by selecting REF Account in Settings',
+    'Swap directly from your Ref account by selecting Ref Account in Settings',
   attention: 'Attention',
 };
 export default en_US;

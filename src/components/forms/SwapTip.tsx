@@ -36,7 +36,7 @@ export default function SwapTip() {
           <FormattedMessage id="attention"></FormattedMessage>
         </label>
       </div>
-      <div className="text-xs text-white">
+      <div className="text-sm text-white">
         <FormattedMessage id="swap_tip"></FormattedMessage>
         <Setting className="inline-block ml-2.5"></Setting>
       </div>
