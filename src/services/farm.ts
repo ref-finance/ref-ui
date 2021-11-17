@@ -332,14 +332,14 @@ export const listRewards = async (
 
 export const claimRewardByFarm = async (farm_id: string): Promise<any> => {
   return refFarmFunctionCall({
-    methodName: 'claim_reward_by_farm',
-    args: { farm_id: farm_id },
+    methodName: 'claim_and_withdraw_by_farm',
+    args: { farm_id: farm_id, withdraw_all_tokens: true },
   });
 };
 
 export const claimRewardBySeed = async (seed_id: string): Promise<any> => {
   return refFarmFunctionCall({
-    methodName: 'claim_reward_by_seed',
+    methodName: 'claim_and_withdraw_by_seed',
     args: { seed_id: seed_id },
   });
 };
