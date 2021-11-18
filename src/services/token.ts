@@ -33,7 +33,7 @@ export const checkTokenNeedsStorageDeposit = async () => {
   if (needDeposit) {
     storageNeeded = Number(ONE_MORE_DEPOSIT_AMOUNT);
   } else {
-    const [balance] = await currentStorageBalance(wallet.getAccountId());
+    const balance = currentStorageBalance(wallet.getAccountId());
 
     if (!balance) {
       storageNeeded = math.add(
