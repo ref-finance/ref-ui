@@ -24,7 +24,7 @@ import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 import { utils } from 'near-api-js';
 
 export const LP_TOKEN_DECIMALS = 24;
-export const FARM_STORAGE_BALANCE = '0.1';
+export const FARM_STORAGE_BALANCE = '0.03';
 
 export const checkTokenNeedsStorageDeposit = async () => {
   let storageNeeded: math.MathType = 0;
@@ -100,7 +100,7 @@ export const unstake = async ({
             msg,
           },
           amount: ONE_YOCTO_NEAR,
-          gas: '100000000000000',
+          gas: '200000000000000',
         },
       ],
     },
