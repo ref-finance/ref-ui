@@ -26,17 +26,14 @@ import {
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from './wrap-near';
 import { registerTokenAction } from './creators/token';
 
-export const checkTokenNeedsStorageDeposit = async (tokenId: string) => {
+export const checkTokenNeedsStorageDeposit = async () => {
   let storageNeeded: math.MathType = 0;
 
   const needDeposit = await needDepositStorage();
   if (needDeposit) {
     storageNeeded = Number(ONE_MORE_DEPOSIT_AMOUNT);
   } else {
-    const [registeredTokens, balance] = await Promise.all([
-      getUserRegisteredTokens(),
-      currentStorageBalance(wallet.getAccountId()),
-    ]);
+    const [balance] = await currentStorageBalance(wallet.getAccountId());
 
     if (!balance) {
       storageNeeded = math.add(
@@ -45,10 +42,7 @@ export const checkTokenNeedsStorageDeposit = async (tokenId: string) => {
       );
     }
 
-    if (
-      new BN(balance?.available || '0').lt(MIN_DEPOSIT_PER_TOKEN) &&
-      !registeredTokens.includes(tokenId)
-    ) {
+    if (new BN(balance?.available || '0').lt(MIN_DEPOSIT_PER_TOKEN)) {
       storageNeeded = math.add(storageNeeded, Number(STORAGE_PER_TOKEN));
     }
   }
@@ -66,7 +60,7 @@ export const registerTokenAndExchange = async (tokenId: string) => {
     },
   ];
 
-  const neededStorage = await checkTokenNeedsStorageDeposit(tokenId);
+  const neededStorage = await checkTokenNeedsStorageDeposit();
 
   if (neededStorage) {
     actions.unshift(storageDepositAction({ amount: neededStorage }));
@@ -102,7 +96,7 @@ export const registerToken = async (tokenId: string) => {
 
   const actions: RefFiFunctionCallOptions[] = [registerTokenAction(tokenId)];
 
-  const neededStorage = await checkTokenNeedsStorageDeposit(tokenId);
+  const neededStorage = await checkTokenNeedsStorageDeposit();
   if (neededStorage) {
     actions.unshift(storageDepositAction({ amount: neededStorage }));
   }
@@ -156,7 +150,7 @@ export const deposit = async ({ token, amount, msg = '' }: DepositOptions) => {
     },
   ];
 
-  const neededStorage = await checkTokenNeedsStorageDeposit(token.id);
+  const neededStorage = await checkTokenNeedsStorageDeposit();
   if (neededStorage) {
     transactions.unshift({
       receiverId: REF_FI_CONTRACT_ID,

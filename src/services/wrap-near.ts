@@ -38,9 +38,7 @@ export const nearMetadata: TokenMetadata = {
 
 export const wrapNear = async (amount: string) => {
   const transactions: Transaction[] = [];
-  const neededStorage = await checkTokenNeedsStorageDeposit(
-    WRAP_NEAR_CONTRACT_ID
-  );
+  const neededStorage = await checkTokenNeedsStorageDeposit();
   if (neededStorage) {
     transactions.push({
       receiverId: REF_FI_CONTRACT_ID,
