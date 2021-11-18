@@ -178,7 +178,7 @@ function PoolRow(props: { pool: any; balance: string }) {
         />
       </div>
       {/* Mobile */}
-      <div className="lg:hidden pt-6 pb-4 px-6 text-sm text-white border-b border-gray-700 border-opacity-70">
+      <div className="lg:hidden pt-6 pb-4 px-6 text-sm text-white border-b border-gray-700 border-opacity-70 flex flex-col">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <div className="ml-1 mr-2">{Images}</div>
@@ -193,6 +193,15 @@ function PoolRow(props: { pool: any; balance: string }) {
               decimal={2}
             />
           </div>
+        </div>
+        <div className="mt-2 self-end">
+          <OutlineButton
+            onClick={() => setShowWithdraw(true)}
+            className="text-xs px-4 font-semibold"
+            padding="py-1"
+          >
+            <FormattedMessage id="remove" defaultMessage="Remove" />
+          </OutlineButton>
         </div>
       </div>
     </>
