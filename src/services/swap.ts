@@ -149,22 +149,24 @@ export const swap = async ({
   amountIn,
   minAmountOut,
 }: InstantSwapOption) => {
-  if (useNearBalance) {
-    await instantSwap({
-      pool,
-      tokenIn,
-      tokenOut,
-      amountIn,
-      minAmountOut,
-    });
-  } else {
-    await depositSwap({
-      pool,
-      tokenIn,
-      tokenOut,
-      amountIn,
-      minAmountOut,
-    });
+  if (pool) {
+    if (useNearBalance) {
+      await instantSwap({
+        pool,
+        tokenIn,
+        tokenOut,
+        amountIn,
+        minAmountOut,
+      });
+    } else {
+      await depositSwap({
+        pool,
+        tokenIn,
+        tokenOut,
+        amountIn,
+        minAmountOut,
+      });
+    }
   }
 };
 
@@ -176,9 +178,9 @@ export const instantSwap = async ({
   minAmountOut,
 }: SwapOptions) => {
   const swapAction = {
-    pool_id: pool.id,
-    token_in: tokenIn.id,
-    token_out: tokenOut.id,
+    pool_id: pool?.id,
+    token_in: tokenIn?.id,
+    token_out: tokenOut?.id,
     min_amount_out: round(
       tokenIn.decimals,
       toNonDivisibleNumber(tokenOut.decimals, minAmountOut)
