@@ -3,7 +3,7 @@ import { toPrecision, toReadableNumber } from '~utils/numbers';
 import { LP_TOKEN_DECIMALS } from '~services/m-token';
 import * as math from 'mathjs';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
-import { PoolRPCView } from '~services/api';
+import { PoolRPCView, currentTokensPrice } from '~services/api';
 import { BigNumber } from 'bignumber.js';
 import { getPoolsByIds } from '~services/indexer';
 
@@ -43,6 +43,7 @@ export interface FarmInfo extends Farm {
   totalStaked: number;
   apr: string;
   tokenIds: string[];
+  show?: boolean;
 }
 
 export const getSeeds = async ({
@@ -331,14 +332,20 @@ export const listRewards = async (
 
 export const claimRewardByFarm = async (farm_id: string): Promise<any> => {
   return refFarmFunctionCall({
-    methodName: 'claim_reward_by_farm',
-    args: { farm_id: farm_id },
+    methodName: 'claim_and_withdraw_by_farm',
+    args: { farm_id: farm_id, withdraw_all_tokens: true },
   });
 };
 
 export const claimRewardBySeed = async (seed_id: string): Promise<any> => {
   return refFarmFunctionCall({
-    methodName: 'claim_reward_by_seed',
+    methodName: 'claim_and_withdraw_by_seed',
     args: { seed_id: seed_id },
   });
+};
+
+export const getAllSinglePriceByTokenIds = async (
+  token_ids: string
+): Promise<any> => {
+  return await currentTokensPrice(token_ids);
 };

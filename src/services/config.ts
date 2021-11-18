@@ -30,7 +30,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         walletUrl: 'https://wallet.testnet.near.org',
         helperUrl: 'https://helper.testnet.near.org',
         explorerUrl: 'https://explorer.testnet.near.org',
-        indexerUrl: 'https://testnet-indexer.ref-finance.com',
+        indexerUrl: 'https://dev-indexer.ref-finance.com',
         sodakiApiUrl: 'https://sodaki.com/api',
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'exchange.ref-dev.testnet',
@@ -38,7 +38,8 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.testnet',
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
         REF_FARM_CONTRACT_ID:
-          process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.testnet',
+          process.env.REF_FARM_CONTRACT_ID || 'farm102.ref-dev.testnet',
+
         REF_TOKEN_ID: 'token.ref-finance.testnet',
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
         POOL_TOKEN_REFRESH_INTERVAL:

@@ -645,7 +645,11 @@ export function RemoveLiquidityModal(
                       <span className="m-1 mb-2 text-sm">{token.symbol} </span>
                       <span className="ml-2 text-base font-bold">
                         {toInternationalCurrencySystem(
-                          toReadableNumber(token.decimals, minimumAmount)
+                          toPrecision(
+                            toReadableNumber(token.decimals, minimumAmount),
+                            4
+                          ),
+                          4
                         )}
                       </span>
                     </section>
@@ -900,6 +904,7 @@ export function VolumeChart({
         />
       );
   };
+
   if (!data)
     return (
       <EmptyChart
@@ -991,6 +996,7 @@ export function TVLChart({
         loading={true}
       />
     );
+
   if (data.length === 0)
     return (
       <EmptyChart
@@ -998,6 +1004,7 @@ export function TVLChart({
         chartDisplay={chartDisplay}
       />
     );
+
   return (
     <>
       <div className="flex items-center justify-between self-start w-full">

@@ -207,5 +207,12 @@ const en_US = {
   swap_tip:
     'Swap directly from your Ref account by selecting Ref Account in Settings',
   attention: 'Attention',
+  live: 'Live',
+  ended_search: 'Ended',
+  staked_only: 'Staked Only',
+  sort_by: 'Sort by',
+  your_farms_rewards: 'Your Farms Rewards',
+  your_farms: 'Your Farms',
+  new: 'NEW',
 };
 export default en_US;

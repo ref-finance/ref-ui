@@ -401,6 +401,7 @@ function MoreMenu() {
                   exact: true,
                   strict: false,
                 });
+
               return (
                 <div
                   key={id}

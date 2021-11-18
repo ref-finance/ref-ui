@@ -120,3 +120,20 @@ export const currentRefPrice = async (): Promise<any> => {
       return '-';
     });
 };
+
+export const currentTokensPrice = async (ids: string): Promise<any> => {
+  return await fetch(
+    config.indexerUrl + '/list-token-price-by-ids?ids=' + ids,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((priceBody) => {
+      return priceBody;
+    })
+    .catch(() => {
+      return [];
+    });
+};

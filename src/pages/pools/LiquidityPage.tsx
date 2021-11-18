@@ -221,7 +221,7 @@ function MobileWatchListCard({ watchPools }: { watchPools: Pool[] }) {
             </div>
           </div>
         </header>
-        <div className="border-b border-gray-700 border-opacity-70"></div>
+        <div className="border-b border-gray-700 border-opacity-70" />
         <div className="max-h-96 overflow-y-auto">
           {watchPools?.map((pool, i) => (
             <div className="w-full hover:bg-poolRowHover" key={i}>
@@ -412,7 +412,7 @@ function MobileLiquidityPage({
               </div>
             </div>
           </header>
-          <div className="border-b border-gray-700 border-opacity-70"></div>
+          <div className="border-b border-gray-700 border-opacity-70" />
           <div className="max-h-96 overflow-y-auto">
             {pools?.map((pool, i) => (
               <div className="w-full hover:bg-poolRowHover" key={i}>

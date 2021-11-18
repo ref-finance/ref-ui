@@ -373,6 +373,7 @@ input.warn-input:focus {
   overflew-y: scroll;
   overflow-x: hidden;
 }
+
 .recharts-text.recharts-cartesian-axis-tick-value {
   font-size: 12px;
 }

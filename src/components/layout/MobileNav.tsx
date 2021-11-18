@@ -155,6 +155,7 @@ export function MobileNavBar() {
   const [closeMenu, setCloseMenu] = useState(false);
   const history = useHistory();
   const allTokens = useWhitelistTokens();
+
   const accountName =
     account.length > 10 ? niceAccountId : wallet.getAccountId();
 

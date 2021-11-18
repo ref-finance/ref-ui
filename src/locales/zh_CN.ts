@@ -199,5 +199,12 @@ const zh_CN = {
   ref_account: 'Ref账户',
   swap_tip: '如果想直接从Ref账户中兑换可以在设置中选择Ref账户',
   attention: '请注意',
+  live: '进行',
+  ended_search: '结束',
+  staked_only: '按质押',
+  sort_by: '按排序',
+  your_farms_rewards: '你的农场奖励',
+  your_farms: '你的农场',
+  new: '最新',
 };
 export default zh_CN;

@@ -15,6 +15,12 @@ module.exports = {
     },
     boxShadow: { '4xl': '0px 0px 10px 4px rgba(0, 0, 0, 0.35)' },
     extend: {
+      backgroundImage: theme => ({
+        'farmSearch': "linear-gradient(106.25deg, #00FFD1 6.88%, #00BA98 81.93%)"
+      }),
+      gridTemplateColumns: {
+        'farmSearch': '2fr 1fr'
+      },
       colors: {
         primary: '#10B981',
         primaryScale: colors.green,
@@ -49,6 +55,9 @@ module.exports = {
         farmSplitLine: '#314351',
         farmDark: '#2B3A44',
         framBorder: '#00C6A2',
+        farmSbg:'#2F3D47',
+        farmRound:"#B3C2CC",
+        farmTopRight:'#008870'
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
