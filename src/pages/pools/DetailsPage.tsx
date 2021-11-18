@@ -708,9 +708,11 @@ export function RemoveLiquidityModal(
 export function MyShares({
   shares,
   totalShares,
+  decimal,
 }: {
   shares: string;
   totalShares: string;
+  decimal?: number;
 }) {
   if (!shares || !totalShares) return <div>-</div>;
 
@@ -718,8 +720,11 @@ export function MyShares({
 
   let displayPercent;
   if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
-  else if (sharePercent < 0.0001) displayPercent = '< 0.0001';
-  else displayPercent = toPrecision(String(sharePercent), 4);
+  else if (sharePercent < 0.0001)
+    displayPercent = `< ${
+      decimal ? '0.'.padEnd(decimal + 1, '0') + '1' : '0.0001'
+    }`;
+  else displayPercent = toPrecision(String(sharePercent), decimal || 4);
 
   return <div>{displayPercent}% of Total</div>;
 }

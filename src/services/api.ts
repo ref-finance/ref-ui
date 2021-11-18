@@ -52,6 +52,12 @@ export const getPoolBalance = async (pool_id: number) => {
     });
 };
 
+export const getPoolsBalances = async (pool_ids: number[]) => {
+  return await Promise.all(
+    pool_ids.map(async (pool_id) => await getPoolBalance(Number(pool_id)))
+  );
+};
+
 export const getPools = async (counter: number) => {
   return await fetch(api_url, {
     method: 'POST',
