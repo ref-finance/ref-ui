@@ -31,7 +31,15 @@ export const useSwap = ({
 
   const { search } = useLocation();
   const history = useHistory();
-  const txHash = new URLSearchParams(search).get('transactionHashes');
+  const txHashes = new URLSearchParams(search)
+    .get('transactionHashes')
+    ?.split(',');
+
+  const txHash = txHashes
+    ? txHashes.length > 1
+      ? txHashes[1]
+      : txHashes[0]
+    : '';
 
   const minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
@@ -45,6 +53,8 @@ export const useSwap = ({
         .then(({ transaction }) => {
           return (
             transaction?.actions[1]?.['FunctionCall']?.method_name ===
+              'ft_transfer_call' ||
+            transaction?.actions[0]?.['FunctionCall']?.method_name ===
               'ft_transfer_call' ||
             transaction?.actions[0]?.['FunctionCall']?.method_name === 'swap' ||
             transaction?.actions[0]?.['FunctionCall']?.method_name ===
