@@ -28,6 +28,8 @@ import { useRefPrice } from '~state/account';
 import { toPrecision } from '~utils/numbers';
 import { RefAnalytics } from '~components/icon/RefAnalytics';
 import { moreLinks } from '~utils/menu';
+import WrapNear from '~components/forms/WrapNear';
+import { useWhitelistTokens } from '~state/token';
 
 export function MobileAnchor({
   to,
@@ -152,6 +154,7 @@ export function MobileNavBar() {
   const [openMenu, setOpenMenu] = useState('');
   const [closeMenu, setCloseMenu] = useState(false);
   const history = useHistory();
+  const allTokens = useWhitelistTokens();
   const accountName =
     account.length > 10 ? niceAccountId : wallet.getAccountId();
 
@@ -282,12 +285,16 @@ export function MobileNavBar() {
             </div>
           </div>
 
-          <div className="p-4 flex">
-            <NavLogoLarge />
-            <span className="inline-block ml-2 mt-1 text-white">
-              ${data && data !== '-' ? toPrecision(data, 2) : '-'}
-            </span>
+          <div className="p-4 flex text-white items-center justify-between">
+            <div className="flex">
+              <NavLogoLarge />
+              <span className="inline-block ml-2 mt-1 text-white">
+                ${data && data !== '-' ? toPrecision(data, 2) : '-'}
+              </span>
+            </div>
+            {wallet.isSignedIn() && <WrapNear allTokens={allTokens} />}
           </div>
+
           <div className="text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
             {wallet.isSignedIn() && (
               <MobileAnchor

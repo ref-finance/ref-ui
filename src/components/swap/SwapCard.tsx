@@ -291,7 +291,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   return (
     <>
-      <SwapTip />
+      <SwapTip></SwapTip>
       <SwapFormWrap
         canSubmit={canSubmit}
         slippageTolerance={slippageTolerance}
@@ -351,7 +351,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           style={{ borderColor: 'rgba(126, 138, 147, 0.3)' }}
         >
           <div
-            className="relative flex items-center -mt-6 mb-4 w-14 h-14 border border-white border-opacity-40 rounded-full cursor-pointer bg-dark"
+            className="relative flex items-center -mt-6 mb-4 w-11 h-11 border border-white border-opacity-40 rounded-full cursor-pointer bg-dark"
             onClick={() => {
               runSwapAnimation();
               setTokenIn(tokenOut);
