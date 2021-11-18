@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from '~components/card/Card';
 import Alert from '~components/alert/Alert';
-import { BorderButton, ConnectToNearBtn } from '~components/button/Button';
+import {
+  BorderButton,
+  ConnectToNearBtn,
+  SolidButton,
+  OutlineButton,
+} from '~components/button/Button';
 import Loading from '~components/layout/Loading';
 import { wallet } from '~services/near';
 import { useTokens } from '~state/token';
@@ -12,33 +17,30 @@ import { RemoveLiquidityModal } from './DetailsPage';
 import { getYourPools } from '~services/indexer';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage } from 'react-intl';
+import { useHistory } from 'react-router-dom';
+import { MyShares } from './DetailsPage';
 
 function Empty() {
   return (
     <div>
-      <div className="text-center font-semibold text-xs pb-1 text-primaryText">
+      <div className="text-center font-semibold text-xs mb-4 text-primaryText">
         <FormattedMessage
           id="you_are_not_providing_liquidity_to_any_pools"
           defaultMessage="You aren’t providing liquidity to any pools"
         />
       </div>
-      <div className="flex items-center justify-center my-4">
-        {wallet.isSignedIn() ? <AddLiquidityButton /> : <ConnectToNearBtn />}
-      </div>
+      {wallet.isSignedIn() ? <AddLiquidityButton /> : <ConnectToNearBtn />}
     </div>
   );
 }
 
 function AddLiquidityButton() {
+  const history = useHistory();
+
   return (
-    <div className="pt-2">
-      <a
-        href="/pools"
-        className="rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold border border-greenLight bg-greenLight focus:outline-none"
-      >
-        <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
-      </a>
-    </div>
+    <SolidButton onClick={() => history.push('/pools')} className="w-full">
+      <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
+    </SolidButton>
   );
 }
 
@@ -54,38 +56,31 @@ export function YourLiquidityPage() {
 
   return (
     <div className="flex items-center flex-col w-1/3 md:w-5/6 xs:w-11/12 m-auto">
-      <div className="text-center pb-8">
-        <div className="text-white text-3xl font-semibold">
-          <FormattedMessage
-            id="your_liquidity"
-            defaultMessage="Your Liquidity"
-          />
-        </div>
-      </div>
       <div className="w-full flex justify-center">
         {error && <Alert level="error" message={error.message} />}
       </div>
-      <Card width="w-full">
+      <Card width="w-full" padding="px-0 py-6">
+        <div className="text-white text-xl px-6 pb-6">
+          <FormattedMessage id="my_liquidity" defaultMessage="My Liquidity" />
+        </div>
         {pools.length > 0 ? (
           <section>
-            <div className="max-h-80 overflow-y-auto">
-              <div className="grid grid-cols-12 py-2 content-center items-center text-xs font-semibold text-primaryText">
-                <div className="grid grid-cols-2 col-span-2"></div>
-                <p className="grid col-span-3">
+            <div className="">
+              <div className="grid grid-cols-10 py-2 content-center items-center text-xs text-primaryText px-6">
+                <p className="grid col-span-5">
                   <FormattedMessage id="pair" defaultMessage="Pair" />
                 </p>
-                <p className="col-span-4 text-center">
-                  <FormattedMessage
-                    id="shares_owned"
-                    defaultMessage="Shares Owned"
-                  />
+                <p className="col-span-5">
+                  <FormattedMessage id="my_shares" defaultMessage="My Shares" />
                 </p>
               </div>
-              {pools.map((pool, i) => (
-                <PoolRow key={i} pool={pool} />
-              ))}
+              <div className="max-h-96 overflow-y-auto">
+                {pools.map((pool, i) => (
+                  <PoolRow key={i} pool={pool} />
+                ))}
+              </div>
             </div>
-            <div className="flex items-center justify-center my-4">
+            <div className="flex items-center justify-center mt-4 px-6">
               <AddLiquidityButton />
             </div>
           </section>
@@ -98,7 +93,7 @@ export function YourLiquidityPage() {
 }
 
 function PoolRow(props: { pool: any }) {
-  const { pool } = usePool(props.pool.id);
+  const { pool, shares } = usePool(props.pool.id);
   const [balance, setBalance] = useState<string>();
   const tokens = useTokens(pool?.tokenIds);
   const [showWithdraw, setShowWithdraw] = useState(false);
@@ -115,29 +110,49 @@ function PoolRow(props: { pool: any }) {
     return a.symbol > b.symbol ? 1 : -1;
   });
 
-  const images = tokens.map((token) => {
-    const { icon, id } = token;
-    if (icon)
-      return <img key={id} className="h-6 w-6 rounded-full" src={icon} />;
-    return <div key={id} className="h-6 w-6 rounded-full border"></div>;
-  });
+  // const images = tokens.map((token) => {
+  //   const { icon, id } = token;
+  //   if (icon)
+  //     return <img key={id} className="h-6 w-6 rounded-full" src={icon} />;
+  //   return <div key={id} className="h-6 w-6 rounded-full border"></div>;
+  // });
 
   return (
     Number(balance) > 0 && (
-      <div className="grid grid-cols-12 py-2 content-center items-center text-xs font-semibold text-gray-600">
-        <div className="grid grid-cols-2 col-span-2">
-          <div className="w-14 flex items-center justify-between">{images}</div>
+      <div className="grid grid-cols-10 py-2 content-center items-center text-sm text-white px-6 border-t border-gray-700 border-opacity-70">
+        <div className="col-span-2">
+          <div className="w-16 flex items-center justify-between ">
+            <div className="h-7 w-7 border border-gradientFromHover rounded-full mr-2">
+              <img
+                key={tokens[0].id.substring(0, 12).substring(0, 12)}
+                className="rounded-full mr-2 w-full"
+                src={tokens[0].icon}
+              />
+            </div>
+            <div className="h-7 w-7 border border-gradientFromHover rounded-full">
+              <img
+                key={tokens[1].id}
+                className="rounded-full mr-2 w-full"
+                src={tokens[1].icon}
+              />
+            </div>
+          </div>
         </div>
-        <p className="grid col-span-3">
+
+        <p className="grid col-span-3 text-left">
           {toRealSymbol(tokens[0].symbol)}-{toRealSymbol(tokens[1].symbol)}
         </p>
-        <p className="col-span-4 text-center">
-          {toRoundedReadableNumber({ decimals: 24, number: balance })}
-        </p>
-        <div className="col-span-3 text-right">
-          <BorderButton onClick={() => setShowWithdraw(true)}>
+        <div className="col-span-3 text-left">
+          <MyShares shares={shares} totalShares={pool.shareSupply} />
+        </div>
+        <div className="col-span-2 text-right">
+          <OutlineButton
+            onClick={() => setShowWithdraw(true)}
+            className="text-xs px-4"
+            padding="py-1"
+          >
             <FormattedMessage id="remove" defaultMessage="Remove" />
-          </BorderButton>
+          </OutlineButton>
         </div>
         <RemoveLiquidityModal
           pool={pool}

@@ -193,5 +193,6 @@ const en_US = {
   reward_tokens: 'Reward Tokens',
   detail_tip: 'Detail',
   no_data: 'No Data',
+  my_liquidity: 'My Liquidity',
 };
 export default en_US;

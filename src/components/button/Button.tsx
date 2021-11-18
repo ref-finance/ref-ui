@@ -171,11 +171,9 @@ export function OutlineButton(
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`rounded py-2 ${
-        padding ? padding : ''
-      } border border-gradientFromHover text-gradientFrom ${
-        className ? className : ''
-      }`}
+      className={`rounded ${
+        padding ? padding : 'py-2'
+      } border border-gradientFromHover text-gradientFrom ${className}`}
     >
       {props.children}
     </button>

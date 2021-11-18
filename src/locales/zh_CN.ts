@@ -187,5 +187,6 @@ const zh_CN = {
   reward_tokens: '奖励币',
   detail_tip: '详情',
   no_data: '暂无数据',
+  my_liquidity: '我的流动池',
 };
 export default zh_CN;

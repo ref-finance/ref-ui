@@ -705,7 +705,7 @@ export function RemoveLiquidityModal(
   );
 }
 
-function MyShares({
+export function MyShares({
   shares,
   totalShares,
 }: {
