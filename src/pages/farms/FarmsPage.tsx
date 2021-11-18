@@ -264,7 +264,9 @@ export function FarmsPage() {
         }
       });
       setLps(tempMap);
-      setYourFarms(mySeeds.size.toString());
+      if (mySeeds.size > 0) {
+        setYourFarms(mySeeds.size.toString());
+      }
     }
     setUnclaimedFarmsIsLoading(false);
     await getTokenSinglePrice(farms, tempUnClaimRewardMap);
@@ -1189,7 +1191,7 @@ function FarmView({
     });
     let percentage = '(-%)';
     if (totalPrice) {
-      const percent = (totalPrice / farmData.totalStaked) * 100;
+      const percent = Math.min((totalPrice / farmData.totalStaked) * 100, 100);
       percentage = `(${toPrecision(percent.toString(), 2)}%)`;
     }
     return { tip: result, percentage };
