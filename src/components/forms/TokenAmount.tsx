@@ -14,7 +14,8 @@ interface TokenAmountProps {
   amount?: string;
   max?: string;
   total?: string;
-  tokens: TokenMetadata[];
+  tokens?: TokenMetadata[];
+  showSelectToken?: boolean;
   selectedToken: TokenMetadata;
   balances?: TokenBalancesView;
   onMax?: (input: HTMLInputElement) => void;
@@ -23,7 +24,7 @@ interface TokenAmountProps {
   onChangeAmount?: (amount: string) => void;
   text?: string;
   disabled?: boolean;
-  useNearBalance: boolean;
+  useNearBalance?: boolean;
 }
 
 export default function TokenAmount({
@@ -37,6 +38,7 @@ export default function TokenAmount({
   onSearchToken,
   onChangeAmount,
   text,
+  showSelectToken = true,
   disabled = false,
   useNearBalance,
 }: TokenAmountProps) {
@@ -70,19 +72,26 @@ export default function TokenAmount({
           onChangeAmount={onChangeAmount}
           disabled={disabled}
         />
-        <SelectToken
-          tokens={tokens}
-          render={render}
-          selected={
-            selectedToken && (
-              <div className="flex items-center justify-end font-semibold">
-                <Icon token={selectedToken} />
-              </div>
-            )
-          }
-          onSelect={onSelectToken}
-          balances={balances}
-        />
+        {showSelectToken && (
+          <SelectToken
+            tokens={tokens}
+            render={render}
+            selected={
+              selectedToken && (
+                <div className="flex items-center justify-end font-semibold">
+                  <Icon token={selectedToken} />
+                </div>
+              )
+            }
+            onSelect={onSelectToken}
+            balances={balances}
+          />
+        )}
+        {!showSelectToken && selectedToken && (
+          <div className="flex items-center justify-end font-semibold w-2/5">
+            <Icon token={selectedToken} showArrow={false} />
+          </div>
+        )}
       </fieldset>
     </>
   );
