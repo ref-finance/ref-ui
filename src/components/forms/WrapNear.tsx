@@ -6,7 +6,7 @@ import { WrapNearEnter } from '~components/icon/Near';
 import Alert from '~components/alert/Alert';
 import { ftGetBalance, TokenMetadata } from '~services/ft-contract';
 import { wallet } from '~services/near';
-import { nearMetadata, unwrapNear, wrapNear } from '~services/wrap-near';
+import { nearMetadata, nearDeposit, nearWithdraw } from '~services/wrap-near';
 import { useDepositableBalance } from '~state/token';
 import { isMobile } from '~utils/device';
 import { toPrecision, toReadableNumber } from '~utils/numbers';
@@ -93,9 +93,9 @@ function WrapNear(props: { allTokens: TokenMetadata[] }) {
   const handleSubmit = (e: any) => {
     e.preventDefault();
     if (tokenIn?.id === 'NEAR') {
-      return wrapNear(tokenInAmount);
+      return nearDeposit(tokenInAmount);
     } else {
-      return unwrapNear(tokenInAmount);
+      return nearWithdraw(tokenInAmount);
     }
   };
   const runSwapAnimation = function () {

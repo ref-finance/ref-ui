@@ -36,6 +36,41 @@ export const nearMetadata: TokenMetadata = {
   icon: 'https://near.org/wp-content/themes/near-19/assets/img/brand-icon.png',
 };
 
+export const nearDeposit = async (amount: string) => {
+  const transactions: Transaction[] = [
+    {
+      receiverId: WRAP_NEAR_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'near_deposit',
+          args: {},
+          gas: '50000000000000',
+          amount,
+        },
+      ],
+    },
+  ];
+
+  return executeMultipleTransactions(transactions);
+};
+
+export const nearWithdraw = async (amount: string) => {
+  const transactions: Transaction[] = [
+    {
+      receiverId: WRAP_NEAR_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'near_withdraw',
+          args: { amount: utils.format.parseNearAmount(amount) },
+          amount: ONE_YOCTO_NEAR,
+        },
+      ],
+    },
+  ];
+
+  return executeMultipleTransactions(transactions);
+};
+
 export const wrapNear = async (amount: string) => {
   const transactions: Transaction[] = [];
   const neededStorage = await checkTokenNeedsStorageDeposit();
