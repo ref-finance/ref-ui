@@ -46,8 +46,6 @@ export default function TokenAmount({
       number: balances ? balances[token.id] : '0',
     });
 
-  const isSignedIn = wallet.isSignedIn();
-
   return (
     <>
       <div className="flex justify-end text-xs font-semibold pb-0.5 w-3/5">
@@ -70,7 +68,7 @@ export default function TokenAmount({
           max={max}
           value={amount}
           onChangeAmount={onChangeAmount}
-          disabled={!isSignedIn || disabled}
+          disabled={disabled}
         />
         <SelectToken
           tokens={tokens}

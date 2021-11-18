@@ -3,6 +3,7 @@ import Alert from '../alert/Alert';
 import SubmitButton from './SubmitButton';
 import { FormattedMessage } from 'react-intl';
 import SlippageSelector from './SlippageSelector';
+import { wallet } from '~services/near';
 
 interface SwapFormWrapProps {
   title?: string;
@@ -36,10 +37,12 @@ export default function SwapFormWrap({
     event.preventDefault();
     setError(null);
 
-    try {
-      onSubmit(event);
-    } catch (err) {
-      setError(err);
+    if (wallet.isSignedIn()) {
+      try {
+        onSubmit(event);
+      } catch (err) {
+        setError(err);
+      }
     }
   };
 
