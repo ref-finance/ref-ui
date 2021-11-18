@@ -213,7 +213,7 @@ export const useWatchPools = () => {
     });
   }, [watchList]);
 
-  return watchPools; 
+  return watchPools;
 };
 
 export const useAllPools = () => {

@@ -4,13 +4,14 @@ import { REF_FARM_CONTRACT_ID, wallet } from '../../services/near';
 import { FormattedMessage } from 'react-intl';
 import { GradientButton } from '~components/button/Button';
 interface SubmitButtonProps {
-  text: string;
+  text?: string;
   disabled?: boolean;
   onClick?: (event: React.MouseEvent) => void;
   info?: string | JSX.Element;
+  label?: string;
 }
 
-function SubmitButton({ disabled, onClick }: SubmitButtonProps) {
+function SubmitButton({ disabled, onClick, label }: SubmitButtonProps) {
   return (
     <>
       {wallet.isSignedIn() ? (
@@ -34,9 +35,16 @@ function SubmitButton({ disabled, onClick }: SubmitButtonProps) {
                 }
           }
         >
-          <h1 className="text-lg font-inter font-semibold">
-            <FormattedMessage id="swap" defaultMessage="Swap" />
-          </h1>
+          {!label && (
+            <h1 className="text-lg font-inter font-semibold">
+              <FormattedMessage id="swap" defaultMessage="Swap" />
+            </h1>
+          )}
+          {label && (
+            <h1 className="text-lg font-inter font-semibold">
+              <FormattedMessage id={label} defaultMessage={label} />
+            </h1>
+          )}
         </button>
       ) : (
         <GradientButton

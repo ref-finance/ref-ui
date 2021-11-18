@@ -15,7 +15,11 @@ import { wallet } from '~services/near';
 import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
 import { TokenList } from '~components/deposit/Deposit';
-import { useTokenBalances, useUserRegisteredTokens } from '~state/token';
+import {
+  useTokenBalances,
+  useUserRegisteredTokens,
+  useWhitelistTokens,
+} from '~state/token';
 import { REF_FARM_CONTRACT_ID } from '~services/near';
 import { GradientButton } from '~components/button/Button';
 import { FormattedMessage } from 'react-intl';
@@ -25,6 +29,7 @@ import { IoChevronBack, IoClose } from 'react-icons/io5';
 import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
 import { useMenuItems } from '~utils/menu';
 import { MobileNavBar } from './MobileNav';
+import WrapNear from '~components/forms/WrapNear';
 
 function Anchor({
   to,
@@ -60,7 +65,7 @@ function Anchor({
 function AccountEntry() {
   const userTokens = useUserRegisteredTokens();
   const balances = useTokenBalances();
-
+  const allTokens = useWhitelistTokens();
   const [hover, setHover] = useState(false);
   const [account, network] = wallet.getAccountId().split('.');
   const niceAccountId = `${account.slice(0, 10)}...${network || ''}`;
@@ -114,6 +119,12 @@ function AccountEntry() {
             className="menu-max-height cursor-default shadow-4xl  border border-primaryText"
             width="w-80"
           >
+            {wallet.isSignedIn() && (
+              <div className="flex items-center justify-between mb-6 text-white">
+                <FormattedMessage id="wrapnear" defaultMessage="Wrap Near" />
+                <WrapNear allTokens={allTokens} />
+              </div>
+            )}
             <div className="flex items-center justify-between mb-5 text-primaryText">
               <div className="text-white">
                 <FormattedMessage id="balance" defaultMessage="Balance" />
