@@ -95,7 +95,7 @@ function WrapNear(props: { allTokens: TokenMetadata[] }) {
   const tokenInMax =
     tokenIn?.id === 'NEAR'
       ? useDepositableBalance(tokenIn?.id, tokenIn?.decimals)
-      : tokenInBalanceFromNear || '0';
+      : tokenInBalanceFromNear || tokenOutBalanceFromNear || '0';
   const tokenOutTotal =
     tokenOut?.id === 'NEAR'
       ? useDepositableBalance(tokenOut?.id, tokenOut?.decimals)
@@ -144,7 +144,7 @@ function WrapNear(props: { allTokens: TokenMetadata[] }) {
           </div>
         ) : (
           <div
-            className=" py-1 px-2 border border-framBorder text-framBorder hover:text-white hover:bg-framBorder hover:border-0 cursor-pointer rounded h-6 items-center flex"
+            className=" py-1 px-2 border text-sm border-framBorder text-framBorder hover:text-white hover:bg-framBorder hover:border-0 cursor-pointer rounded h-6 items-center flex"
             onClick={() => setVisible(true)}
           >
             <WrapNearEnter></WrapNearEnter>

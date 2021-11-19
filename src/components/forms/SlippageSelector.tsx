@@ -65,6 +65,11 @@ export default function SlippageSelector({
 
   useEffect(() => {
     document.onclick = (e) => closeToolTip(e);
+    if (showSlip) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
     return () => {
       document.onclick = null;
     };
