@@ -14,9 +14,9 @@ import SubmitButton from './SubmitButton';
 import TokenAmount from './TokenAmount';
 
 const WNEAR_SYMBOL = 'wNEAR';
-const dialogWidth = isMobile() ? '75%' : '45%';
-const dialogMinwidth = isMobile() ? 340 : 490;
-const dialogHidth = isMobile() ? '65%' : '57%';
+const dialogWidth = isMobile() ? 340 : 550;
+const dialogMinwidth = isMobile() ? 340 : 550;
+const dialogHidth = isMobile() ? 525 : 520;
 
 function WrapNear(props: { allTokens: TokenMetadata[] }) {
   const { allTokens } = props;
@@ -25,7 +25,6 @@ function WrapNear(props: { allTokens: TokenMetadata[] }) {
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [tokenIn, setTokenIn] = useState<TokenMetadata>(nearMetadata);
   const [tokenInAmount, setTokenInAmount] = useState<string>('0');
-  const [disableTokenInput, setDisableTokenInput] = useState<boolean>();
   const topBall = useRef<HTMLInputElement>();
   const bottomBall = useRef<HTMLInputElement>();
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
@@ -41,10 +40,10 @@ function WrapNear(props: { allTokens: TokenMetadata[] }) {
   }, [allTokens]);
 
   useEffect(() => {
-    if (tokenIn) {
+    if (tokenIn && tokenIn.id !== 'NEAR') {
       const tokenInId = tokenIn.id;
       if (tokenInId) {
-        if (wallet.isSignedIn()) {
+        if (wallet.isSignedIn() && wallet.getAccountId()) {
           ftGetBalance(tokenInId).then((available) =>
             setTokenInBalanceFromNear(
               toReadableNumber(tokenIn?.decimals, available)
@@ -53,7 +52,7 @@ function WrapNear(props: { allTokens: TokenMetadata[] }) {
         }
       }
     }
-    if (tokenOut) {
+    if (tokenOut && tokenOut.id !== 'NEAR') {
       const tokenOutId = tokenOut.id;
       if (tokenOutId) {
         if (wallet.isSignedIn()) {
@@ -68,10 +67,27 @@ function WrapNear(props: { allTokens: TokenMetadata[] }) {
   }, [tokenIn, tokenOut]);
 
   useEffect(() => {
-    if (tokenInAmount !== '0' && Number(tokenInAmount) >= Number(tokenInMax)) {
-      setShowError(true);
+    if (tokenInAmount && tokenInAmount !== '0') {
+      if (
+        tokenIn.id === 'NEAR' &&
+        Number(tokenInAmount) > Number(tokenInMax) - 1
+      ) {
+        setShowError(true);
+      } else if (Number(tokenInAmount) > Number(tokenInMax)) {
+        setShowError(true);
+      }
+    } else {
+      setShowError(false);
     }
   }, [tokenInAmount]);
+
+  useEffect(() => {
+    if (visible) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  }, [visible]);
 
   const nearBalance = tokenIn
     ? useDepositableBalance(nearMetadata.id, nearMetadata.decimals)
@@ -84,7 +100,8 @@ function WrapNear(props: { allTokens: TokenMetadata[] }) {
     tokenOut?.id === 'NEAR'
       ? useDepositableBalance(tokenOut?.id, tokenOut?.decimals)
       : tokenOutBalanceFromNear || '0';
-  const canSubmit = tokenInAmount !== '0' && !showError && tokenInMax !== '0';
+  const canSubmit =
+    tokenInAmount && tokenInAmount !== '0' && !showError && tokenInMax !== '0';
 
   const handleClose = () => {
     setVisible(false);
@@ -113,20 +130,35 @@ function WrapNear(props: { allTokens: TokenMetadata[] }) {
     <MicroModal
       open={visible}
       handleClose={handleClose}
-      trigger={() => (
-        <div
-          className=" py-1 px-2 border border-framBorder rounded h-6 items-center flex"
-          onClick={() => setVisible(true)}
-        >
-          <WrapNearEnter></WrapNearEnter>
-          <span className=" ml-2">{toPrecision(nearBalance, 3, true)}</span>
-        </div>
-      )}
+      trigger={() =>
+        isMobile() ? (
+          <div
+            className="flex p-4 justify-between"
+            onClick={() => setVisible(true)}
+          >
+            <FormattedMessage id="wrapnear" defaultMessage="Wrap NEAR" />
+            <div className=" py-1 px-2 border border-framBorder text-framBorder hover:text-white hover:bg-framBorder hover:border-0 cursor-pointer rounded h-6 items-center flex">
+              <WrapNearEnter></WrapNearEnter>
+              <span className=" ml-2">{toPrecision(nearBalance, 3, true)}</span>
+            </div>
+          </div>
+        ) : (
+          <div
+            className=" py-1 px-2 border border-framBorder text-framBorder hover:text-white hover:bg-framBorder hover:border-0 cursor-pointer rounded h-6 items-center flex"
+            onClick={() => setVisible(true)}
+          >
+            <WrapNearEnter></WrapNearEnter>
+            <span className=" ml-2">{toPrecision(nearBalance, 3, true)}</span>
+          </div>
+        )
+      }
       overrides={{
         Overlay: {
           style: {
             zIndex: 110,
             backgroundColor: 'rgba(0, 19, 32, 0.65)',
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
           },
         },
         Dialog: {
@@ -150,7 +182,7 @@ function WrapNear(props: { allTokens: TokenMetadata[] }) {
         >
           <h2 className="formTitle flex justify-between font-bold text-xl text-white text-left pb-2">
             <FormattedMessage id="wrapnear" defaultMessage="Wrap NEAR" />
-            <IoClose onClick={handleClose} />
+            <IoClose onClick={handleClose} className=" cursor-pointer" />
           </h2>
           <div>
             <div className=" text-primaryText text-sm mt-3 mb-5">
@@ -177,14 +209,12 @@ function WrapNear(props: { allTokens: TokenMetadata[] }) {
               selectedToken={tokenIn}
               showSelectToken={false}
               text={intl.formatMessage({ id: 'from' })}
-              disabled={disableTokenInput}
               onChangeAmount={(amount) => {
-                console.log(amount, 'amount');
                 setTokenInAmount(amount);
               }}
             />
             <div
-              className="flex items-center justify-center border-t mt-12"
+              className="flex items-center justify-center border-t mt-12 mb-3"
               style={{ borderColor: 'rgba(126, 138, 147, 0.3)' }}
             >
               <div

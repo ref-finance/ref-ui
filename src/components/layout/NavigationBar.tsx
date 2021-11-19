@@ -65,7 +65,6 @@ function Anchor({
 function AccountEntry() {
   const userTokens = useUserRegisteredTokens();
   const balances = useTokenBalances();
-  const allTokens = useWhitelistTokens();
   const [hover, setHover] = useState(false);
   const [account, network] = wallet.getAccountId().split('.');
   const niceAccountId = `${account.slice(0, 10)}...${network || ''}`;
@@ -78,9 +77,9 @@ function AccountEntry() {
   }
 
   return (
-    <div className="user text-xs text-center justify-end pt-6 h-full right-20 absolute top-0 z-30">
+    <div className="user text-xs text-center justify-end h-full z-30 ml-2 mx-5">
       <div
-        className={`cursor-pointer font-bold items-center justify-end text-center overflow-visible relative h-full`}
+        className={`cursor-pointer font-bold items-center justify-end text-center overflow-visible relative h-16 pt-5`}
         onMouseEnter={() => {
           setHover(true);
         }}
@@ -88,7 +87,7 @@ function AccountEntry() {
           setHover(false);
         }}
       >
-        <div className="inline-flex py-1 items-center justify-center rounded-full bg-gray-700 px-5 absolute top-5 right-2">
+        <div className="inline-flex py-1 items-center justify-center rounded-full bg-gray-700 px-5">
           <div className="pr-1">
             <Near />
           </div>
@@ -111,7 +110,7 @@ function AccountEntry() {
           </div>
         </div>
         <div
-          className={`relative top-10 pt-2 right-0 w-80 ${
+          className={`absolute top-14 pt-2 right-0 w-80 ${
             wallet.isSignedIn() && hover ? 'block' : 'hidden'
           }`}
         >
@@ -119,12 +118,6 @@ function AccountEntry() {
             className="menu-max-height cursor-default shadow-4xl  border border-primaryText"
             width="w-80"
           >
-            {wallet.isSignedIn() && (
-              <div className="flex items-center justify-between mb-6 text-white">
-                <FormattedMessage id="wrapnear" defaultMessage="Wrap Near" />
-                <WrapNear allTokens={allTokens} />
-              </div>
-            )}
             <div className="flex items-center justify-between mb-5 text-primaryText">
               <div className="text-white">
                 <FormattedMessage id="balance" defaultMessage="Balance" />
@@ -454,11 +447,12 @@ function MoreMenu() {
 }
 
 function NavigationBar() {
+  const allTokens = useWhitelistTokens();
   return (
     <>
       <div className="nav-wrap md:hidden xs:hidden text-center relative">
         <nav className="flex items-center justify-between px-9 pt-6 col-span-8">
-          <div className="relative -top-0.5">
+          <div className="relative -top-0.5 flex-1">
             <Logo />
           </div>
           <div className="flex items-center">
@@ -468,7 +462,12 @@ function NavigationBar() {
             <PoolsMenu />
             <Anchor to="/farms" pattern="/farms" name="Farms" />
           </div>
-          <div className="flex items-center w-44 justify-end">
+          <div className="flex items-center justify-end flex-1">
+            {wallet.isSignedIn() && (
+              <div className="text-white">
+                <WrapNear allTokens={allTokens} />
+              </div>
+            )}
             <AccountEntry />
             <MoreMenu />
           </div>

@@ -55,7 +55,7 @@ export function MobileAnchor({
     <div>
       <Link onClick={onClick} to={to}>
         <div
-          className={`p-4 text-lg link font-bold p-2 ${className} ${
+          className={`p-4 text-lg link font-bold ${className} ${
             isSelected ? 'text-white bg-navHighLightBg' : 'text-primaryText'
           }`}
         >
@@ -286,14 +286,11 @@ export function MobileNavBar() {
             </div>
           </div>
 
-          <div className="p-4 flex text-white items-center justify-between">
-            <div className="flex">
-              <NavLogoLarge />
-              <span className="inline-block ml-2 mt-1 text-white">
-                ${data && data !== '-' ? toPrecision(data, 2) : '-'}
-              </span>
-            </div>
-            {wallet.isSignedIn() && <WrapNear allTokens={allTokens} />}
+          <div className="p-4 flex text-white items-center justify-start">
+            <NavLogoLarge />
+            <span className="inline-block ml-2 mt-1 text-white">
+              ${data && data !== '-' ? toPrecision(data, 2) : '-'}
+            </span>
           </div>
 
           <div className="text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
@@ -304,6 +301,11 @@ export function MobileNavBar() {
                 name="view_account"
                 onClick={close}
               />
+            )}
+            {wallet.isSignedIn() && (
+              <div className="text-primaryText" onClick={() => setShow(false)}>
+                <WrapNear allTokens={allTokens} />
+              </div>
             )}
             {moreLinks.map(
               ({ id, label, subRoute, pattern, url, isExternal, children }) => {
