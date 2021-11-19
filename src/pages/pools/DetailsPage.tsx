@@ -33,7 +33,6 @@ import {
 import { PoolSlippageSelector } from '~components/forms/SlippageSelector';
 import { Link } from 'react-router-dom';
 import { canFarm } from '~services/pool';
-
 import {
   calculateFairShare,
   calculateFeePercent,
@@ -707,13 +706,25 @@ export function RemoveLiquidityModal(
 function MyShares({
   shares,
   totalShares,
+  poolId,
+  stakeList = {},
 }: {
   shares: string;
   totalShares: string;
+  poolId: number;
+  stakeList: Record<string, string>;
 }) {
   if (!shares || !totalShares) return <div>-</div>;
-
-  let sharePercent = percent(shares, totalShares);
+  const seedIdList: string[] = Object.keys(stakeList);
+  let farmStake: string | number = '0';
+  seedIdList.forEach((seed) => {
+    const id = Number(seed.split('@')[1]);
+    if (id == poolId) {
+      farmStake = BigNumber.sum(farmStake, stakeList[seed]).valueOf();
+    }
+  });
+  const userTotalShare = BigNumber.sum(shares, farmStake).valueOf();
+  let sharePercent = percent(userTotalShare, totalShares);
 
   let displayPercent;
   if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
@@ -1070,7 +1081,7 @@ export function TVLChart({
 export function PoolDetailsPage() {
   const { id } = useParams<ParamTypes>();
   const { state } = useLocation<LocationTypes>();
-  const { pool, shares } = usePool(id);
+  const { pool, shares, stakeList } = usePool(id);
   const dayVolume = useDayVolume(id);
   const tokens = useTokens(pool?.tokenIds);
 
@@ -1313,7 +1324,12 @@ export function PoolDetailsPage() {
                   <FormattedMessage id="my_shares" defaultMessage="My Shares" />
                 </div>
                 <div className="text-white">
-                  <MyShares shares={shares} totalShares={pool.shareSupply} />
+                  <MyShares
+                    shares={shares}
+                    totalShares={pool.shareSupply}
+                    poolId={pool.id}
+                    stakeList={stakeList}
+                  />
                 </div>
               </div>
             </div>
