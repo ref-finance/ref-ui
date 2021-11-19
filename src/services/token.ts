@@ -115,13 +115,10 @@ export const unregisterToken = async (tokenId: string) => {
     },
   ];
 
-  const needDeposit = await needDepositStorage();
-  if (needDeposit) {
-    actions.unshift(
-      storageDepositAction({
-        amount: ONE_MORE_DEPOSIT_AMOUNT,
-      })
-    );
+  const neededStorage = await checkTokenNeedsStorageDeposit();
+
+  if (neededStorage) {
+    actions.unshift(storageDepositAction({ amount: neededStorage }));
   }
 
   return refFiManyFunctionCalls(actions);
@@ -206,15 +203,11 @@ export const withdraw = async ({
     });
   }
 
-  const needDeposit = await needDepositStorage();
-  if (needDeposit) {
+  const neededStorage = await checkTokenNeedsStorageDeposit();
+  if (neededStorage) {
     transactions.unshift({
       receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [
-        storageDepositAction({
-          amount: ONE_MORE_DEPOSIT_AMOUNT,
-        }),
-      ],
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
     });
   }
 
