@@ -22,6 +22,7 @@ import {
 } from './creators/storage';
 import { getTopPools } from '~services/indexer';
 import { PoolRPCView } from './api';
+import { checkTokenNeedsStorageDeposit } from '~services/token';
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -368,7 +369,7 @@ export const addLiquidityToPool = async ({
     },
   ];
 
-  const needDeposit = await needDepositStorage();
+  const needDeposit = await checkTokenNeedsStorageDeposit();
   if (needDeposit) {
     actions.unshift(
       storageDepositAction({
@@ -406,7 +407,7 @@ export const removeLiquidityFromPool = async ({
     },
   ];
 
-  const needDeposit = await needDepositStorage();
+  const needDeposit = await checkTokenNeedsStorageDeposit();
   if (needDeposit) {
     actions.unshift(
       storageDepositAction({
