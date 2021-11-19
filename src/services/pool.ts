@@ -373,7 +373,7 @@ export const addLiquidityToPool = async ({
   if (needDeposit) {
     actions.unshift(
       storageDepositAction({
-        amount: ONE_MORE_DEPOSIT_AMOUNT,
+        amount: needDeposit,
       })
     );
   }
@@ -411,7 +411,7 @@ export const removeLiquidityFromPool = async ({
   if (needDeposit) {
     actions.unshift(
       storageDepositAction({
-        amount: ONE_MORE_DEPOSIT_AMOUNT,
+        amount: needDeposit,
       })
     );
   }

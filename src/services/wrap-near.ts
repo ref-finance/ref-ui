@@ -169,15 +169,11 @@ export const unwrapNear = async (amount: string) => {
     ],
   });
 
-  const needDeposit = await needDepositStorage();
+  const needDeposit = await checkTokenNeedsStorageDeposit();
   if (needDeposit) {
     transactions.unshift({
       receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [
-        storageDepositAction({
-          amount: ONE_MORE_DEPOSIT_AMOUNT,
-        }),
-      ],
+      functionCalls: [storageDepositAction({ amount: needDeposit })],
     });
   }
 
