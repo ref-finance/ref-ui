@@ -26,6 +26,7 @@ import {
   DEFAULT_PAGE_LIMIT,
   claimRewardBySeed,
   getAllSinglePriceByTokenIds,
+  claimAndWithDrawReward,
 } from '~services/farm';
 import {
   stake,
@@ -867,25 +868,26 @@ function FarmView({
   function claimReward() {
     setDisableClaim(true);
     setClaimLoading(true);
-    if (farmsData.length > 1) {
-      claimRewardBySeed(data.seed_id)
-        .then(() => {
-          window.location.reload();
-        })
-        .catch((error) => {
-          setDisableClaim(false);
-          setError(error);
-        });
-    } else {
-      claimRewardByFarm(data.farm_id)
-        .then(() => {
-          window.location.reload();
-        })
-        .catch((error) => {
-          setDisableClaim(false);
-          setError(error);
-        });
-    }
+    claimAndWithDrawReward(farmsData);
+    // if (farmsData.length > 1) {
+    //   claimRewardBySeed(data.seed_id)
+    //     .then(() => {
+    //       window.location.reload();
+    //     })
+    //     .catch((error) => {
+    //       setDisableClaim(false);
+    //       setError(error);
+    //     });
+    // } else {
+    //   claimRewardByFarm(data.farm_id)
+    //     .then(() => {
+    //       window.location.reload();
+    //     })
+    //     .catch((error) => {
+    //       setDisableClaim(false);
+    //       setError(error);
+    //     });
+    // }
   }
 
   function isEnded(data: FarmInfo) {

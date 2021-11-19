@@ -1,12 +1,27 @@
-import { refFarmFunctionCall, refFarmViewFunction, wallet } from './near';
+import {
+  refFarmFunctionCall,
+  refFarmViewFunction,
+  wallet,
+  Transaction,
+  executeFarmMultipleTransactions,
+} from './near';
 import { toPrecision, toReadableNumber } from '~utils/numbers';
 import { LP_TOKEN_DECIMALS } from '~services/m-token';
 import * as math from 'mathjs';
-import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
+import {
+  ftGetTokenMetadata,
+  TokenMetadata,
+  ftGetStorageBalance,
+} from '~services/ft-contract';
 import { PoolRPCView, currentTokensPrice } from '~services/api';
 import { BigNumber } from 'bignumber.js';
 import { getPoolsByIds } from '~services/indexer';
-
+import {
+  storageDepositAction,
+  STORAGE_TO_REGISTER_WITH_MFT,
+} from '../services/creators/storage';
+import getConfig from './config';
+const config = getConfig();
 export const DEFAULT_PAGE_LIMIT = 100;
 
 export interface Seed {
@@ -348,4 +363,57 @@ export const getAllSinglePriceByTokenIds = async (
   token_ids: string
 ): Promise<any> => {
   return await currentTokensPrice(token_ids);
+};
+
+export const claimAndWithDrawReward = async (
+  farmsData: any[]
+): Promise<any> => {
+  const token_ids: string[] = [];
+  const transactions: Transaction[] = [];
+  const ftBalanceListPromise: any[] = [];
+  farmsData.forEach((farm) => {
+    const { userUnclaimedReward, rewardToken } = farm;
+    if (Number(userUnclaimedReward) > 0) {
+      token_ids.push(rewardToken.id);
+    }
+  });
+  token_ids.forEach((tokenId) => {
+    ftBalanceListPromise.push(ftGetStorageBalance(tokenId));
+  });
+  const ftBalanceList = await Promise.all(ftBalanceListPromise);
+  ftBalanceList.forEach((balance, index) => {
+    if (!balance || balance.total === '0') {
+      transactions.unshift({
+        receiverId: token_ids[index],
+        functionCalls: [
+          storageDepositAction({
+            registrationOnly: true,
+            amount: STORAGE_TO_REGISTER_WITH_MFT,
+          }),
+        ],
+      });
+    }
+  });
+  if (farmsData.length > 1) {
+    transactions.push({
+      receiverId: config.REF_FARM_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'claim_and_withdraw_by_seed',
+          args: { seed_id: farmsData[0]['seed_id'] },
+        },
+      ],
+    });
+  } else {
+    transactions.push({
+      receiverId: config.REF_FARM_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'claim_and_withdraw_by_farm',
+          args: { farm_id: farmsData[0]['farm_id'], withdraw_all_tokens: true },
+        },
+      ],
+    });
+  }
+  return executeFarmMultipleTransactions(transactions);
 };
