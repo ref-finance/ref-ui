@@ -109,7 +109,11 @@ function WrapNear(props: ReactModal.Props & { allTokens: TokenMetadata[] }) {
     });
   };
   const getMax = function () {
-    return tokenIn.id === 'NEAR' ? String(Number(tokenInMax) - 1) : tokenInMax;
+    return tokenIn.id !== 'NEAR'
+      ? tokenInMax
+      : Number(tokenInMax) <= 1
+      ? '0'
+      : String(Number(tokenInMax) - 1);
   };
 
   return (
@@ -144,6 +148,7 @@ function WrapNear(props: ReactModal.Props & { allTokens: TokenMetadata[] }) {
             amount={tokenInAmount}
             total={tokenInMax}
             max={getMax()}
+            useNearBalance={true}
             selectedToken={tokenIn}
             showSelectToken={false}
             text={intl.formatMessage({ id: 'from' })}
@@ -161,7 +166,7 @@ function WrapNear(props: ReactModal.Props & { allTokens: TokenMetadata[] }) {
                 runSwapAnimation();
                 setTokenIn(tokenOut);
                 setTokenOut(tokenIn);
-                setTokenInAmount('0');
+                setTokenInAmount('');
                 setShowError(false);
               }}
             >
@@ -179,6 +184,7 @@ function WrapNear(props: ReactModal.Props & { allTokens: TokenMetadata[] }) {
             amount={tokenInAmount}
             total={tokenOutTotal}
             showSelectToken={false}
+            useNearBalance={true}
             disabled={true}
             selectedToken={tokenOut}
             text={intl.formatMessage({ id: 'to' })}
