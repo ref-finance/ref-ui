@@ -38,7 +38,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.testnet',
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
         REF_FARM_CONTRACT_ID:
-          process.env.REF_FARM_CONTRACT_ID || 'farm102.ref-dev.testnet',
+          process.env.REF_FARM_CONTRACT_ID || 'farm110.ref-dev.testnet',
 
         REF_TOKEN_ID: 'token.ref-finance.testnet',
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
