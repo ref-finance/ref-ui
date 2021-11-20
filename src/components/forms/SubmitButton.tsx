@@ -2,7 +2,7 @@ import React from 'react';
 import { Near } from '../icon';
 import { REF_FARM_CONTRACT_ID, wallet } from '../../services/near';
 import { FormattedMessage } from 'react-intl';
-import { GradientButton } from '~components/button/Button';
+import { GradientButton, ConnectToNearBtn } from '~components/button/Button';
 interface SubmitButtonProps {
   text?: string;
   disabled?: boolean;
@@ -47,16 +47,9 @@ function SubmitButton({ disabled, onClick, label }: SubmitButtonProps) {
           )}
         </button>
       ) : (
-        <GradientButton
-          color="#fff"
-          className={`w-full text-center text-lg text-white mt-4 px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
-          onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
-        >
-          <FormattedMessage
-            id="connect_to_near"
-            defaultMessage="Connect to NEAR"
-          />
-        </GradientButton>
+        <div className="mt-4">
+          <ConnectToNearBtn></ConnectToNearBtn>
+        </div>
       )}
     </>
   );

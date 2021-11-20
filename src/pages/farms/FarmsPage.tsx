@@ -42,6 +42,7 @@ import {
   percentLess,
   calculateFairShare,
   toNonDivisibleNumber,
+  percent,
 } from '~utils/numbers';
 import { mftGetBalance } from '~services/mft-contract';
 import { wallet } from '~services/near';
@@ -1171,16 +1172,9 @@ function FarmView({
       return acc;
     }, {});
     let result: string = '';
-    let totalPrice: number = 0;
     tokens.forEach((token: any) => {
-      const { id, icon, decimals } = token;
+      const { id, decimals } = token;
       const tokenNum = toReadableNumber(decimals, minimumAmounts[id]);
-      const singlePrice = tokenPriceMap[id];
-      if (singlePrice && singlePrice != 'N/A') {
-        totalPrice += new BigNumber(tokenNum)
-          .multipliedBy(singlePrice)
-          .toNumber();
-      }
       const itemHtml = `<div class="flex justify-between items-center h-8">
                           <image class="w-5 h-5 rounded-full mr-7" src="${
                             token.icon
@@ -1192,10 +1186,16 @@ function FarmView({
       result += itemHtml;
     });
     let percentage = '(-%)';
-    if (totalPrice) {
-      const percent = Math.min((totalPrice / farmData.totalStaked) * 100, 100);
-      percentage = `(${toPrecision(percent.toString(), 2)}%)`;
+    if (farmData.userStaked) {
+      const userStaked = toNonDivisibleNumber(24, farmData.userStaked);
+      const percentV = percent(userStaked, stakedList[farmData.seed_id]);
+      if (new BigNumber(0.001).isGreaterThan(percentV)) {
+        percentage = '(<0.001%)';
+      } else {
+        percentage = `(${toPrecision(percentV.toString(), 2)}%)`;
+      }
     }
+
     return { tip: result, percentage };
   }
   if (!tokens || tokens.length < 2 || farmsIsLoading) return <Loading />;
@@ -1634,14 +1634,13 @@ function ActionModal(
       <div className="flex flex-col items-center text-center w-2/3 xs:w-full md:w-full">
         <Light />
         <p className="text-base text-white mb-2.5 mt-8">
-          You currently have an active/pending farm.
+          <FormattedMessage id="unstake_tip_t"></FormattedMessage>
         </p>
         <p className="text-2xl text-white leading-relaxed">
-          Unstaking will remove the stake from all active and pending farms of
-          the same pair.
+          <FormattedMessage id="unstake_tip_m"></FormattedMessage>
         </p>
         <p className="text-base text-white mb-6 mt-5">
-          Will you going to unstake?
+          <FormattedMessage id="unstake_tip_b"></FormattedMessage>
         </p>
         <div className="flex items-center">
           <BorderButton

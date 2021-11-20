@@ -41,6 +41,7 @@ import {
   toPrecision,
   toReadableNumber,
   toInternationalCurrencySystem,
+  toRoundedReadableNumber,
 } from '../../utils/numbers';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import Alert from '~components/alert/Alert';
@@ -66,6 +67,7 @@ import {
 import { OutlineButton, SolidButton } from '~components/button/Button';
 import { wallet } from '~services/near';
 import { BreadCrumb } from '~components/layout/BreadCrumb';
+import { LP_TOKEN_DECIMALS } from '../../services/m-token';
 import {
   ResponsiveContainer,
   LineChart,
@@ -723,15 +725,23 @@ function MyShares({
       farmStake = BigNumber.sum(farmStake, stakeList[seed]).valueOf();
     }
   });
-  const userTotalShare = BigNumber.sum(shares, farmStake).valueOf();
-  let sharePercent = percent(userTotalShare, totalShares);
+  const userTotalShare = BigNumber.sum(shares, farmStake);
+  let sharePercent = percent(userTotalShare.valueOf(), totalShares);
 
   let displayPercent;
   if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
   else if (sharePercent < 0.0001) displayPercent = '< 0.0001';
   else displayPercent = toPrecision(String(sharePercent), 4);
 
-  return <div>{displayPercent}% of Total</div>;
+  return (
+    <div>{`${toRoundedReadableNumber({
+      decimals: LP_TOKEN_DECIMALS,
+      number:
+        userTotalShare
+          .toNumber()
+          .toLocaleString('fullwide', { useGrouping: false }) ?? '0',
+    })} (${displayPercent}%)`}</div>
+  );
 }
 
 const ChartChangeButton = ({

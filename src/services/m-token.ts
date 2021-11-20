@@ -61,7 +61,7 @@ export const stake = async ({ token_id, amount, msg = '' }: StakeOptions) => {
             msg,
           },
           amount: ONE_YOCTO_NEAR,
-          gas: '100000000000000',
+          gas: '180000000000000',
         },
       ],
     },
