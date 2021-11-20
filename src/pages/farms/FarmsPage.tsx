@@ -1634,14 +1634,13 @@ function ActionModal(
       <div className="flex flex-col items-center text-center w-2/3 xs:w-full md:w-full">
         <Light />
         <p className="text-base text-white mb-2.5 mt-8">
-          You currently have an active/pending farm.
+          <FormattedMessage id="unstake_tip_t"></FormattedMessage>
         </p>
         <p className="text-2xl text-white leading-relaxed">
-          Unstaking will remove the stake from all active and pending farms of
-          the same pair.
+          <FormattedMessage id="unstake_tip_m"></FormattedMessage>
         </p>
         <p className="text-base text-white mb-6 mt-5">
-          Will you going to unstake?
+          <FormattedMessage id="unstake_tip_b"></FormattedMessage>
         </p>
         <div className="flex items-center">
           <BorderButton

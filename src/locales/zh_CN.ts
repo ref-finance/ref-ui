@@ -206,5 +206,9 @@ const zh_CN = {
   your_farms_rewards: '你的农场奖励',
   your_farms: '你的农场',
   new: '最新',
+  unstake_tip_t: '目前你有进行中/未开始的农场.',
+  unstake_tip_m:
+    '取消质押操作会把所有质押从相同交易对的所有进行中和未开始的农场里移除.',
+  unstake_tip_b: '你将要继续取消质押吗?',
 };
 export default zh_CN;
