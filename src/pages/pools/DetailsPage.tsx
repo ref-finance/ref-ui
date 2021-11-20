@@ -41,6 +41,7 @@ import {
   toPrecision,
   toReadableNumber,
   toInternationalCurrencySystem,
+  toRoundedReadableNumber,
 } from '../../utils/numbers';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import Alert from '~components/alert/Alert';
@@ -724,8 +725,8 @@ function MyShares({
       farmStake = BigNumber.sum(farmStake, stakeList[seed]).valueOf();
     }
   });
-  const userTotalShare = BigNumber.sum(shares, farmStake).valueOf();
-  let sharePercent = percent(userTotalShare, totalShares);
+  const userTotalShare = BigNumber.sum(shares, farmStake);
+  let sharePercent = percent(userTotalShare.valueOf(), totalShares);
 
   let displayPercent;
   if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
@@ -733,9 +734,13 @@ function MyShares({
   else displayPercent = toPrecision(String(sharePercent), 4);
 
   return (
-    <div>{`${toInternationalCurrencySystem(
-      toReadableNumber(LP_TOKEN_DECIMALS, shares ?? '0')
-    )} (${displayPercent}%)`}</div>
+    <div>{`${toRoundedReadableNumber({
+      decimals: LP_TOKEN_DECIMALS,
+      number:
+        userTotalShare
+          .toNumber()
+          .toLocaleString('fullwide', { useGrouping: false }) ?? '0',
+    })} (${displayPercent}%)`}</div>
   );
 }
 
