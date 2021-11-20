@@ -9,6 +9,7 @@ import {
   IconCreateNew,
   IconPools,
   IconAirDropGreenTip,
+  WrapNearEnter,
 } from '~components/icon';
 import { Link, useLocation } from 'react-router-dom';
 import { wallet } from '~services/near';
@@ -448,6 +449,7 @@ function MoreMenu() {
 
 function NavigationBar() {
   const allTokens = useWhitelistTokens();
+  const [showWrapNear, setShowWrapNear] = useState(false);
   return (
     <>
       <div className="nav-wrap md:hidden xs:hidden text-center relative">
@@ -465,7 +467,29 @@ function NavigationBar() {
           <div className="flex items-center justify-end flex-1">
             {wallet.isSignedIn() && (
               <div className="text-white">
-                <WrapNear allTokens={allTokens} />
+                <div
+                  className=" py-1 px-2 border text-sm border-framBorder text-framBorder hover:text-white hover:bg-framBorder hover:border-0 cursor-pointer rounded h-6 items-center flex"
+                  onClick={() => setShowWrapNear(true)}
+                >
+                  <WrapNearEnter></WrapNearEnter>
+                  <span className=" ml-2">Wrap Near</span>
+                </div>
+                <WrapNear
+                  isOpen={showWrapNear}
+                  onRequestClose={() => setShowWrapNear(false)}
+                  allTokens={allTokens}
+                  style={{
+                    overlay: {
+                      backdropFilter: 'blur(15px)',
+                      WebkitBackdropFilter: 'blur(15px)',
+                    },
+                    content: {
+                      outline: 'none',
+                      position: 'fixed',
+                      bottom: '50%',
+                    },
+                  }}
+                />
               </div>
             )}
             <AccountEntry />

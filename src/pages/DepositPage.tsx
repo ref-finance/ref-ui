@@ -102,7 +102,7 @@ export default function DepositPage() {
         </h2>
         <TokenAmount
           amount={amount}
-          max={max}
+          max={selectedToken.id === 'NEAR' ? String(Number(max) - 1) : max}
           total={max}
           tokens={[nearMetadata, ...tokens]}
           selectedToken={selectedToken}

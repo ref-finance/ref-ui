@@ -25,13 +25,11 @@ export default function InputAmount({
   };
 
   const handleFocus = () => {
-    field.current.className =
-      className + ' px-1 border border-greenLight rounded';
+    field.current.className = className + ' border border-greenLight rounded';
   };
 
   const handleFocusOut = () => {
-    field.current.className =
-      className + ' px-1 border border-transparent rounded';
+    field.current.className = className + ' border border-transparent rounded';
   };
 
   return (
