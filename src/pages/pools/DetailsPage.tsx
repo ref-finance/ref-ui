@@ -66,6 +66,7 @@ import {
 import { OutlineButton, SolidButton } from '~components/button/Button';
 import { wallet } from '~services/near';
 import { BreadCrumb } from '~components/layout/BreadCrumb';
+import { LP_TOKEN_DECIMALS } from '../../services/m-token';
 import {
   ResponsiveContainer,
   LineChart,
@@ -731,7 +732,12 @@ function MyShares({
   else if (sharePercent < 0.0001) displayPercent = '< 0.0001';
   else displayPercent = toPrecision(String(sharePercent), 4);
 
-  return <div>{displayPercent}% of Total</div>;
+  return (
+    <div>{`${toPrecision(
+      toReadableNumber(LP_TOKEN_DECIMALS, userTotalShare ?? '0'),
+      6
+    )} (${displayPercent}%)`}</div>
+  );
 }
 
 const ChartChangeButton = ({
