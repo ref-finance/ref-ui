@@ -108,6 +108,9 @@ function WrapNear(props: ReactModal.Props & { allTokens: TokenMetadata[] }) {
       bottomBall.current.style.animation = '';
     });
   };
+  const getMax = function () {
+    return tokenIn.id === 'NEAR' ? String(Number(tokenInMax) - 1) : tokenInMax;
+  };
 
   return (
     <Modal {...props}>
@@ -140,7 +143,7 @@ function WrapNear(props: ReactModal.Props & { allTokens: TokenMetadata[] }) {
           <TokenAmount
             amount={tokenInAmount}
             total={tokenInMax}
-            max={String(Number(tokenInMax) - 1)}
+            max={getMax()}
             selectedToken={tokenIn}
             showSelectToken={false}
             text={intl.formatMessage({ id: 'from' })}

@@ -341,6 +341,7 @@ export function MobileNavBar() {
                     content: {
                       outline: 'none',
                       position: 'fixed',
+                      width: '90%',
                       bottom: '50%',
                     },
                   }}

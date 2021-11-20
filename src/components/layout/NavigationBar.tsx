@@ -31,6 +31,7 @@ import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
 import { useMenuItems } from '~utils/menu';
 import { MobileNavBar } from './MobileNav';
 import WrapNear from '~components/forms/WrapNear';
+import { isMobile } from '~utils/device';
 
 function Anchor({
   to,
@@ -486,6 +487,7 @@ function NavigationBar() {
                     content: {
                       outline: 'none',
                       position: 'fixed',
+                      width: 550,
                       bottom: '50%',
                     },
                   }}
