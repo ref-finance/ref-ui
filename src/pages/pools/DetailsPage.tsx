@@ -733,9 +733,8 @@ function MyShares({
   else displayPercent = toPrecision(String(sharePercent), 4);
 
   return (
-    <div>{`${toPrecision(
-      toReadableNumber(LP_TOKEN_DECIMALS, userTotalShare ?? '0'),
-      6
+    <div>{`${toInternationalCurrencySystem(
+      toReadableNumber(LP_TOKEN_DECIMALS, shares ?? '0')
     )} (${displayPercent}%)`}</div>
   );
 }
