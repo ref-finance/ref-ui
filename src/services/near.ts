@@ -6,8 +6,6 @@ import SpecialWallet from './SpecialWallet';
 
 const config = getConfig();
 
-export const MULTI_MINING_POOLS = config.MULTI_MINING_POOLS;
-
 export const REF_FI_CONTRACT_ID = config.REF_FI_CONTRACT_ID;
 
 export const REF_ADBOARD_CONTRACT_ID = config.REF_ADBOARD_CONTRACT_ID;

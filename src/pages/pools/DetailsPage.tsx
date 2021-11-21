@@ -25,11 +25,7 @@ import Loading from '~components/layout/Loading';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
 import { FarmStamp } from '~components/icon/FarmStamp';
 import { ChartLoading } from '~components/icon/Loading';
-import {
-  MULTI_MINING_POOLS,
-  REF_FARM_CONTRACT_ID,
-  REF_FI_CONTRACT_ID,
-} from '~services/near';
+import { REF_FARM_CONTRACT_ID, REF_FI_CONTRACT_ID } from '~services/near';
 import { PoolSlippageSelector } from '~components/forms/SlippageSelector';
 import { Link } from 'react-router-dom';
 import { canFarm } from '~services/pool';

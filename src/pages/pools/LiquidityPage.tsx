@@ -18,7 +18,6 @@ import { getExchangeRate, useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';
 import { canFarm, Pool } from '../../services/pool';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
-import { MULTI_MINING_POOLS, REF_FARM_CONTRACT_ID } from '~services/near';
 import {
   calculateFeePercent,
   toPrecision,

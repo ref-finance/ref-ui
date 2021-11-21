@@ -20,7 +20,6 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 10,
-        MULTI_MINING_POOLS: [79, 377, 2, 4],
       };
     case 'development':
     case 'testnet':
@@ -44,7 +43,6 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 10,
-        MULTI_MINING_POOLS: [79, 377, 2, 4],
       };
     default:
       return {
@@ -65,7 +63,6 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 10,
-        MULTI_MINING_POOLS: [79, 377, 2, 4],
       };
   }
 }
