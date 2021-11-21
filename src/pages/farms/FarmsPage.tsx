@@ -104,8 +104,6 @@ export function FarmsPage() {
   const sortRef = useRef(null);
   const sortBoxRef = useRef(null);
 
-  const { hash } = useLocation();
-  const pool_id = hash.slice(1);
   const page = 1;
   const perPage = DEFAULT_PAGE_LIMIT;
 
@@ -113,15 +111,6 @@ export function FarmsPage() {
     loadFarmInfoList().then();
   }, []);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const poolDom = document.getElementById(pool_id);
-      if (poolDom) {
-        poolDom.scrollIntoView();
-      }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [unclaimedFarmsIsLoading]);
   useEffect(() => {
     document.addEventListener('click', handleClick, false);
     return () => {

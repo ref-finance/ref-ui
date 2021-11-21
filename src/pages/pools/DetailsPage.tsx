@@ -1195,7 +1195,6 @@ export function PoolDetailsPage() {
                   <Link
                     to={{
                       pathname: '/farms',
-                      hash: `${pool.id}`,
                     }}
                     target="_blank"
                   >
