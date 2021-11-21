@@ -49,9 +49,12 @@ function PoolRow({
   morePoolIds: string[];
 }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
+  const [farmCount, setFarmCount] = useState<Number>(1);
+
   useEffect(() => {
     canFarm(pool.id).then((canFarm) => {
-      setSupportFarm(canFarm);
+      setSupportFarm(!!canFarm);
+      setFarmCount(canFarm);
     });
   }, [pool]);
 
@@ -61,15 +64,13 @@ function PoolRow({
     return a.symbol > b.symbol ? 1 : -1;
   });
 
-  const FarmButton = () => {
+  const FarmButton = ({ farmCount }: { farmCount: Number }) => {
     return (
       <div className="flex items-center">
         <div className="mx-2">
           <FarmStamp />
         </div>
-        <div className="">
-          {MULTI_MINING_POOLS.includes(pool.id) && <FarmMiningIcon />}
-        </div>
+        <div className="">{farmCount > 1 && <FarmMiningIcon />}</div>
       </div>
     );
   };
@@ -116,7 +117,7 @@ function PoolRow({
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </div>
         </div>
-        {supportFarm && <FarmButton />}
+        {supportFarm && <FarmButton farmCount={farmCount} />}
         {watched && (
           <div className="mx-2">
             <WatchListStartFull />
@@ -146,22 +147,22 @@ const MobileRow = ({
   morePoolIds: string[];
 }) => {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
-  const FarmButton = () => {
+  const [farmCount, setFarmCount] = useState<Number>(1);
+  const FarmButton = ({ farmCount }: { farmCount: Number }) => {
     return (
       <div className="flex items-center">
         <div className="mx-2">
           <FarmStamp />
         </div>
-        <div className="">
-          {MULTI_MINING_POOLS.includes(pool.id) && <FarmMiningIcon />}
-        </div>
+        <div className="">{farmCount > 1 && <FarmMiningIcon />}</div>
       </div>
     );
   };
 
   useEffect(() => {
     canFarm(pool.id).then((canFarm) => {
-      setSupportFarm(canFarm);
+      setSupportFarm(!!canFarm);
+      setFarmCount(canFarm);
     });
   }, [pool]);
 
@@ -216,7 +217,7 @@ const MobileRow = ({
               </div>
             )}
           </div>
-          {supportFarm && <FarmButton />}
+          {supportFarm && <FarmButton farmCount={farmCount} />}
         </div>
 
         <div className="flex flex-col text-base">

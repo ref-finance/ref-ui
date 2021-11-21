@@ -338,14 +338,16 @@ export const getSharesInPool = (id: number): Promise<string> => {
   });
 };
 
-export const canFarm = async (pool_id: number): Promise<Boolean> => {
-  const poolIds: number[] = [];
+export const canFarm = async (pool_id: number): Promise<Number> => {
   const farms = await db.queryFarms();
 
-  for (const item of farms) {
-    poolIds.push(Number(item.pool_id));
-  }
-  return poolIds.includes(pool_id);
+  const count = farms.reduce((pre, cur) => {
+    if (Number(cur.pool_id) === pool_id) return pre + 1;
+    return pre;
+  }, 0);
+
+  console.log(count);
+  return count;
 };
 
 interface AddLiquidityToPoolOptions {

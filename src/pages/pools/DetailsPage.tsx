@@ -740,6 +740,8 @@ function MyShares({
         userTotalShare
           .toNumber()
           .toLocaleString('fullwide', { useGrouping: false }) ?? '0',
+      precision: 4,
+      withCommas: false,
     })} (${displayPercent}%)`}</div>
   );
 }
@@ -1106,9 +1108,10 @@ export function PoolDetailsPage() {
   const fromMorePools = localStorage.getItem('fromMorePools') === 'y';
   const morePoolIds: string[] =
     JSON.parse(localStorage.getItem('morePoolIds')) || [];
+  const [farmCount, setFarmCount] = useState<Number>(1);
 
-  const FarmButton = () => {
-    const isMultiMining = MULTI_MINING_POOLS.includes(pool.id);
+  const FarmButton = ({ farmCount }: { farmCount: Number }) => {
+    const isMultiMining = farmCount > 1;
     return (
       <div className="flex items-center">
         <div className="ml-2">
@@ -1145,13 +1148,10 @@ export function PoolDetailsPage() {
         setPoolTVL(pool?.tvl);
       });
     }
-    if (state?.backToFarms) {
-      setBackToFarmsButton(state?.backToFarms);
-    } else {
-      canFarm(Number(id)).then((canFarm) => {
-        setBackToFarmsButton(canFarm);
-      });
-    }
+    canFarm(Number(id)).then((canFarm) => {
+      setBackToFarmsButton(!!canFarm);
+      setFarmCount(canFarm);
+    });
 
     getWatchListFromDb({ pool_id: id }).then((watchlist) => {
       setShowFullStar(watchlist.length > 0);
@@ -1201,7 +1201,7 @@ export function PoolDetailsPage() {
                     }}
                     target="_blank"
                   >
-                    <FarmButton />
+                    <FarmButton farmCount={farmCount} />
                   </Link>
                 ) : (
                   <span>' '</span>
@@ -1325,7 +1325,8 @@ export function PoolDetailsPage() {
                 </div>
                 <div className=" text-white">
                   {toInternationalCurrencySystem(
-                    toReadableNumber(24, pool?.shareSupply)
+                    toReadableNumber(24, pool?.shareSupply),
+                    4
                   )}
                 </div>
               </div>
