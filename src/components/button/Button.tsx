@@ -109,9 +109,10 @@ export function WithdrawButton(
 export function ConnectToNearBtn() {
   return (
     <div
-      className="flex items-center cursor-pointer justify-center rounded-full py-2 text-white text-base"
+      className="flex items-center cursor-pointer justify-center rounded-full py-2 text-base"
       style={{
         background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+        color: '#fff',
       }}
       onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
     >

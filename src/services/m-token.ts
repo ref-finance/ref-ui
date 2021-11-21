@@ -174,3 +174,43 @@ export const withdrawReward = async ({
 
   return executeFarmMultipleTransactions(transactions);
 };
+
+export const withdrawAllReward = async (
+  rewardList: Record<string, string>,
+  unregister = false
+) => {
+  const transactions: Transaction[] = [];
+  const token_id_list = Object.keys(rewardList).slice(0, 7);
+  const ftBalancePromiseList: any[] = [];
+  const functionCalls: any[] = [];
+  token_id_list.forEach((token_id) => {
+    const ftBalance = ftGetStorageBalance(token_id);
+    ftBalancePromiseList.push(ftBalance);
+    functionCalls.push({
+      methodName: 'withdraw_reward',
+      args: { token_id: token_id, amount: rewardList[token_id], unregister },
+      gas: '40000000000000',
+      amount: ONE_YOCTO_NEAR,
+    });
+  });
+  const resolvedBalanceList = await Promise.all(ftBalancePromiseList);
+  resolvedBalanceList.forEach((ftBalance, index) => {
+    if (!ftBalance || ftBalance.total === '0') {
+      transactions.unshift({
+        receiverId: token_id_list[index],
+        functionCalls: [
+          storageDepositAction({
+            registrationOnly: true,
+            amount: STORAGE_TO_REGISTER_WITH_MFT,
+          }),
+        ],
+      });
+    }
+  });
+
+  transactions.push({
+    receiverId: REF_FARM_CONTRACT_ID,
+    functionCalls,
+  });
+  return executeFarmMultipleTransactions(transactions);
+};

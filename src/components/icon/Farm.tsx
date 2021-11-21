@@ -19,7 +19,7 @@ const ArrowDown = () => {
 
 const Dots = () => {
   return (
-    <div className="absolute left-1 bottom-1">
+    <div className="absolute left-0 bottom-0">
       <svg
         width="290"
         height="51"

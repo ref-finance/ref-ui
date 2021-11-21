@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
 import Alert from '~components/alert/Alert';
+import TipsBox from '~components/farm/TipsBox';
 import {
   FarmMiningIcon,
   ModalClose,
@@ -26,13 +27,13 @@ import {
   DEFAULT_PAGE_LIMIT,
   claimRewardBySeed,
   getAllSinglePriceByTokenIds,
-  claimAndWithDrawReward,
 } from '~services/farm';
 import {
   stake,
   unstake,
   LP_TOKEN_DECIMALS,
   withdrawReward,
+  withdrawAllReward,
 } from '~services/m-token';
 import {
   formatWithCommas,
@@ -87,6 +88,7 @@ export function FarmsPage() {
   const [rewardList, setRewardList] = useState<Record<string, string>>({});
   const [tokenPriceList, setTokenPriceList] = useState<any>();
   const [seeds, setSeeds] = useState<Record<string, string>>({});
+  const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false);
 
   const [tokenPriceMap, setTokenPriceMap] = useState<Record<string, string>>(
     {}
@@ -151,12 +153,15 @@ export function FarmsPage() {
     ] = await Promise.all(Params);
 
     const stakedList: Record<string, string> = resolvedParams[0];
-    const rewardList: Record<string, string> = resolvedParams[1];
-
     const tokenPriceList: any = resolvedParams[2];
-
     const seeds: Record<string, string> = resolvedParams[3];
 
+    Object.entries(resolvedParams[1]).forEach((item) => {
+      const [key, v] = item;
+      if (v !== '0') {
+        rewardList[key] = v;
+      }
+    });
     setStakedList(stakedList);
     setRewardList(rewardList);
     setTokenPriceList(tokenPriceList);
@@ -180,17 +185,11 @@ export function FarmsPage() {
         }
       }
 
-      tempFarms = Object.keys(tempMap)
-        // .sort()
-        // .reverse()
-        .map((key) => {
-          const ele = tempMap[key];
-          ele.key = key;
-          return ele;
-        });
-      // tempFarms.sort(function (a, b) {
-      //   return b.length - a.length;
-      // });
+      tempFarms = Object.keys(tempMap).map((key) => {
+        const ele = tempMap[key];
+        ele.key = key;
+        return ele;
+      });
       tempFarms.forEach((arr: any) => {
         const totalApr = getTotalApr(arr);
         arr.totalApr = new BigNumber(totalApr);
@@ -235,24 +234,25 @@ export function FarmsPage() {
       tokenPriceList,
       seeds,
     });
-    const tempUnClaimRewardMap = {};
+    // const tempUnClaimRewardMap = {};
     if (isSignedIn) {
       const tempMap = {};
       const mySeeds = new Set();
       farms.forEach((farm) => {
-        const { seed_id, userStaked, userUnclaimedReward, rewardToken } = farm;
+        const { seed_id, userStaked, /*userUnclaimedReward,*/ rewardToken } =
+          farm;
         tempMap[seed_id] = tempMap[seed_id] || [];
         tempMap[seed_id].push(farm);
         if (Number(userStaked) > 0) {
           mySeeds.add(seed_id);
         }
-        if (Number(userUnclaimedReward) > 0) {
-          const { id } = rewardToken;
-          tempUnClaimRewardMap[id] = BigNumber.sum(
-            tempUnClaimRewardMap[id] || 0,
-            userUnclaimedReward
-          ).toNumber();
-        }
+        // if (Number(userUnclaimedReward) > 0) {
+        //   const { id } = rewardToken;
+        //   tempUnClaimRewardMap[id] = BigNumber.sum(
+        //     tempUnClaimRewardMap[id] || 0,
+        //     userUnclaimedReward
+        //   ).toNumber();
+        // }
       });
       setLps(tempMap);
       if (mySeeds.size > 0) {
@@ -260,18 +260,23 @@ export function FarmsPage() {
       }
     }
     setUnclaimedFarmsIsLoading(false);
-    await getTokenSinglePrice(farms, tempUnClaimRewardMap);
+    await getTokenSinglePrice(farms, rewardList);
     const mergeFarms = composeFarms(farms);
     searchByCondition(mergeFarms);
   }
-  async function getTokenSinglePrice(farms: any[], map: Record<string, any>) {
+  async function getTokenSinglePrice(
+    farms: any[],
+    rewardList: Record<string, string>
+  ) {
     const tokenIdList: string[] = [];
+    const rewardTokenList: Record<string, any> = {};
     farms.forEach((item) => {
-      const rewardToken = item.rewardToken?.id || '';
-      const tokenIds = item.tokenIds || [];
+      const { rewardToken = {}, tokenIds = [] } = item;
       tokenIdList.push(...tokenIds);
-      if (rewardToken) {
-        tokenIdList.push(rewardToken);
+      const { id } = rewardToken;
+      if (id) {
+        tokenIdList.push(id);
+        rewardTokenList[id] = rewardToken;
       }
     });
     const arr: any[] = Array.from(new Set(tokenIdList));
@@ -282,18 +287,31 @@ export function FarmsPage() {
       tempMap[arr[index]] = item;
     });
     setTokenPriceMap(tempMap);
-    let totalUnClaim = 0;
-    Object.keys(map).forEach((item) => {
-      if (tempMap[item] && tempMap[item] != 'N/A') {
-        totalUnClaim = BigNumber.sum(
-          tempMap[item] * map[item],
-          totalUnClaim
+    // let totalUnClaim = 0;
+    // Object.keys(map).forEach((item) => {
+    //   if (tempMap[item] && tempMap[item] != 'N/A') {
+    //     totalUnClaim = BigNumber.sum(
+    //       tempMap[item] * map[item],
+    //       totalUnClaim
+    //     ).toNumber();
+    //   }
+    // });
+    let totalUnWithDraw = 0;
+    Object.entries(rewardList).forEach((arr) => {
+      const [key, v] = arr;
+      const singlePrice = tempMap[key];
+      const token = rewardTokenList[key];
+      const number: any = toReadableNumber(token.decimals, v);
+      if (singlePrice && singlePrice != 'N/A') {
+        totalUnWithDraw = BigNumber.sum(
+          singlePrice * number,
+          totalUnWithDraw
         ).toNumber();
       }
     });
-    if (totalUnClaim > 0) {
+    if (totalUnWithDraw > 0) {
       setYourReward(
-        `$${toInternationalCurrencySystem(totalUnClaim.toString(), 2)}`
+        `$${toInternationalCurrencySystem(totalUnWithDraw.toString(), 2)}`
       );
     }
   }
@@ -400,202 +418,188 @@ export function FarmsPage() {
     setSearchData(Object.assign({}, searchData));
     searchByCondition();
   }
+  async function doWithDraw() {
+    setWithdrawLoading(true);
+    withdrawAllReward(rewardList);
+  }
   return (
-    <div className="w-4/6 xs:w-full md:w-full mx-auto xs:mt-4 md:mt-4">
+    <div className="xs:w-full md:w-full xs:mt-4 md:mt-4">
       <div className="w-1/3 xs:w-full md:w-full flex m-auto justify-center">
         {error ? <Alert level="error" message={error.message} /> : null}
       </div>
-
-      <div className="flex flex-col px-5 -mt-12 xs:mt-8 md:mt-8">
-        <div className="grid grid-cols-farmSearch gap-4 gap-y-5 mt-8 xs:mt-0 md:mt-0 relative xs:w-full md:w-full xs:grid md:grid xs:grid-cols-1 md:grid-cols-1">
-          <div className="text-white text-3xl absolute top-0 left-0 xs:-top-12 md:-top-12">
+      <div className="grid grid-cols-farmContainer grid-flow-col xs:grid-cols-1 xs:grid-flow-row md:grid-cols-1 md:grid-flow-row">
+        <div className="text-white pl-12 xs:px-5 md:px-5">
+          <div className="text-white text-3xl h-12">
             <FormattedMessage id="farms" defaultMessage="Farms" />
           </div>
-          {unclaimedFarmsIsLoading ? null : (
-            <div className="flex items-center self-end">
-              <div className="flex items-center w-36 xs:w-32 md:w-32 text-farmText rounded-full h-7 bg-farmSbg mr-4">
-                <label
-                  onClick={() => changeStatus(1)}
-                  className={`flex justify-center items-center w-1/2 rounded-full h-full cursor-pointer ${
-                    searchData.status ? 'text-chartBg bg-farmSearch' : ''
-                  }`}
-                >
-                  <FormattedMessage id="live" defaultMessage="Live" />
+          <div className="rounded-2xl bg-cardBg pt-5 pb-10 relative overflow-hidden">
+            <div className="flex justify-between px-5 pb-11">
+              <div className="flex flex-col items-center">
+                <label className="text-white text-sm text-center mb-1.5">
+                  <FormattedMessage id="value_rewards"></FormattedMessage>
                 </label>
-                <label
-                  onClick={() => changeStatus(0)}
-                  className={`flex justify-center items-center w-1/2 rounded-full h-full cursor-pointer ${
-                    !searchData.status ? 'text-chartBg bg-farmSearch' : ''
-                  }`}
-                >
-                  <FormattedMessage id="ended_search" defaultMessage="Ended" />
+                <label className="text-white text-2xl text-center font-semibold">
+                  {yourReward}
                 </label>
               </div>
-              {wallet.isSignedIn() ? (
-                <div className="flex items-center mr-4">
-                  <label className="text-farmText text-sm">
-                    <FormattedMessage
-                      id="staked_only"
-                      defaultMessage="Staked Only"
-                    />
-                  </label>
-                  <div
-                    onClick={changeStaked}
-                    className={`flex items-center w-11 h-7 bg-cardBg rounded-full px-1  ml-2.5 box-border cursor-pointer ${
-                      searchData.staked ? 'justify-end' : ''
-                    }`}
-                  >
-                    <a
-                      className={`h-5 w-5 rounded-full ${
-                        searchData.staked ? 'bg-farmSearch' : 'bg-farmRound'
-                      }`}
-                    ></a>
-                  </div>
-                </div>
-              ) : null}
-              <div className="flex items-center relative">
-                <label className="text-farmText text-sm mr-2.5 xs:hidden md:hidden">
-                  <FormattedMessage id="sort_by" defaultMessage="Sort by" />
+              <div className="flex flex-col items-center">
+                <label className="text-white text-sm text-center mb-1.5">
+                  <FormattedMessage id="your_farms"></FormattedMessage>
                 </label>
-                <span
-                  ref={sortRef}
-                  onClick={showSortBox}
-                  className="flex items-center justify-between w-32 h-7 xs:w-8 md:w-8 rounded-full px-3 box-border border border-farmText cursor-pointer text-sm text-gray-200"
-                >
-                  <label className="whitespace-nowrap xs:hidden md:hidden">
-                    {sortList[searchData.sort]}
-                  </label>
-                  <ArrowDown></ArrowDown>
-                </span>
-                <div
-                  ref={sortBoxRef}
-                  className={`absolute z-50 top-8 left-14 xs:left-auto xs:right-0 md:left-auto md:right-0 w-36 border border-farmText bg-cardBg rounded-md ${
-                    searchData.sortBoxHidden ? 'hidden' : ''
-                  }`}
-                >
-                  {Object.entries(sortList).map((item) => (
-                    <p
-                      key={item[0]}
-                      onClick={changeSortV}
-                      data-id={item[0]}
-                      className={`flex items-center p-4 text-sm h-7 text-white text-opacity-40 my-2 cursor-pointer hover:bg-white hover:bg-opacity-10 hover:text-opacity-100 ${
-                        item[0] == searchData.sort
-                          ? 'bg-white bg-opacity-10 text-opacity-100'
-                          : ''
-                      }`}
-                    >
-                      {item[1]}
-                    </p>
-                  ))}
-                </div>
+                <label className="text-white text-2xl text-center font-semibold">
+                  {yourFarms}
+                </label>
               </div>
             </div>
-          )}
-          {/* 
-          <div className="text-whiteOpacity85 text-xs py-4 p-7 xs:text-center">
-            <FormattedMessage
-              id="stake_your_liquidity_provider_LP_tokens"
-              defaultMessage="Stake your Liquidity Provider (LP) tokens"
-            />
-            !
-          </div> */}
-          {
-            unclaimedFarmsIsLoading ? (
-              <Loading />
-            ) : (
-              <div className="flex items-center relative overflow-hidden justify-between bg-farmTopRight text-whiteOpacity85 rounded-lg px-6 py-5 xs:row-start-1 xs:row-end-2 md:row-start-1 md:row-end-2">
-                <Dots></Dots>
-                <div className="flex flex-col items-center">
-                  <p className="text-white text-sm mb-1.5">
-                    <FormattedMessage
-                      id="your_farms_rewards"
-                      defaultMessage="Your Farms Rewards"
-                    />
-                  </p>
-                  <label className="text-white text-2xl font-semibold whitespace-nowrap">
-                    {yourReward}
-                  </label>
+            {Object.entries(rewardList).length > 0 ? (
+              <>
+                <div className="h-px bg-farmSplitLine"></div>
+                <div className="px-5 pt-1.5 pb-7">
+                  {Object.entries(rewardList).map((rewardToken: any, index) => (
+                    <WithdrawView key={index} data={rewardToken} />
+                  ))}
                 </div>
-                <div className="flex flex-col items-center">
-                  <p className="text-white text-sm mb-1.5">
-                    <FormattedMessage
-                      id="your_farms"
-                      defaultMessage="Your Farms"
-                    />
-                  </p>
-                  <label className="text-white text-2xl font-semibold whitespace-nowrap">
-                    {yourFarms}
-                  </label>
-                </div>
-              </div>
-            )
-            // (
-            //   <div className="bg-greenOpacity100 text-whiteOpacity85 rounded-xl p-7">
-            //     <div className="text-xl flex">
-            //       <div className="float-left">
-            //         <FormattedMessage
-            //           id="your_rewards"
-            //           defaultMessage="Your Rewards"
-            //         />
-            //       </div>
-            //       <div
-            //         className="float-left mt-2 ml-2 text-sm"
-            //         data-type="dark"
-            //         data-place="right"
-            //         data-multiline={true}
-            //         data-tip={parse(
-            //           intl.formatMessage({ id: 'farmRewardsCopy' })
-            //         )}
-            //         data-for="yourRewardsId"
-            //       >
-            //         <FaRegQuestionCircle />
-            //       </div>
-            //       <ReactTooltip
-            //         id="yourRewardsId"
-            //         className="text-xs shadow-4xl"
-            //         backgroundColor="#1D2932"
-            //         border
-            //         borderColor="#7e8a93"
-            //         effect="solid"
-            //         class="tool-tip"
-            //         textColor="#c6d1da"
-            //       />
-            //     </div>
-            //     <div className="text-xs pt-2">
-            //       {Object.entries(rewardList).map((rewardToken: any, index) => (
-            //         <WithdrawView key={index} data={rewardToken} />
-            //       ))}
-            //     </div>
-            //   </div>
-            // )
-          }
-        </div>
-        <div className="flex-grow xs:flex-none">
-          <div className="overflow-auto relative mt-8 pb-4">
-            {unclaimedFarmsIsLoading ? (
-              <Loading />
-            ) : (
-              <div className="grid grid-cols-2 gap-4 2xl:grid-cols-3 xs:grid-cols-1 md:grid-cols-1">
-                {farms.map((farm: any) => (
-                  <div
-                    key={farm[0].farm_id}
-                    id={`${farm[0].pool.id}`}
-                    className={farm.show ? '' : 'hidden'}
+                <div className="flex justify-center">
+                  <GradientButton
+                    color="#fff"
+                    className={`w-36 h-9 text-center text-base text-white mt-4 focus:outline-none font-semibold`}
+                    onClick={doWithDraw}
                   >
-                    <FarmView
-                      farmsData={farm}
-                      farmData={farm[0]}
-                      stakedList={stakedList}
-                      rewardList={rewardList}
-                      tokenPriceList={tokenPriceList}
-                      seeds={seeds}
-                      tokenPriceMap={tokenPriceMap}
-                      lps={lps}
+                    <div>
+                      <ClipLoader
+                        color="#fff"
+                        loading={withdrawLoading}
+                        size="12"
+                      />
+                    </div>
+                    {withdrawLoading ? null : (
+                      <div>
+                        <FormattedMessage
+                          id="withdraw"
+                          defaultMessage="Withdraw"
+                        />
+                      </div>
+                    )}
+                  </GradientButton>
+                </div>
+              </>
+            ) : null}
+            <Dots></Dots>
+          </div>
+        </div>
+        <div className="flex flex-col pl-5 pr-8 xs:px-5 md:px-5 xs:mt-8 md:mt-8">
+          <div className="h-12 xs:w-full md:w-full">
+            {unclaimedFarmsIsLoading ? null : (
+              <div className="flex items-center self-end">
+                <div className="flex items-center w-36 xs:w-32 md:w-32 text-farmText rounded-full h-7 bg-farmSbg mr-4">
+                  <label
+                    onClick={() => changeStatus(1)}
+                    className={`flex justify-center items-center w-1/2 rounded-full h-full cursor-pointer ${
+                      searchData.status ? 'text-chartBg bg-farmSearch' : ''
+                    }`}
+                  >
+                    <FormattedMessage id="live" defaultMessage="Live" />
+                  </label>
+                  <label
+                    onClick={() => changeStatus(0)}
+                    className={`flex justify-center items-center w-1/2 rounded-full h-full cursor-pointer ${
+                      !searchData.status ? 'text-chartBg bg-farmSearch' : ''
+                    }`}
+                  >
+                    <FormattedMessage
+                      id="ended_search"
+                      defaultMessage="Ended"
                     />
+                  </label>
+                </div>
+                {wallet.isSignedIn() ? (
+                  <div className="flex items-center mr-4">
+                    <label className="text-farmText text-sm">
+                      <FormattedMessage
+                        id="staked_only"
+                        defaultMessage="Staked Only"
+                      />
+                    </label>
+                    <div
+                      onClick={changeStaked}
+                      className={`flex items-center w-11 h-7 bg-cardBg rounded-full px-1  ml-2.5 box-border cursor-pointer ${
+                        searchData.staked ? 'justify-end' : ''
+                      }`}
+                    >
+                      <a
+                        className={`h-5 w-5 rounded-full ${
+                          searchData.staked ? 'bg-farmSearch' : 'bg-farmRound'
+                        }`}
+                      ></a>
+                    </div>
                   </div>
-                ))}
+                ) : null}
+                <div className="flex items-center relative">
+                  <label className="text-farmText text-sm mr-2.5 xs:hidden md:hidden">
+                    <FormattedMessage id="sort_by" defaultMessage="Sort by" />
+                  </label>
+                  <span
+                    ref={sortRef}
+                    onClick={showSortBox}
+                    className="flex items-center justify-between w-32 h-7 xs:w-8 md:w-8 rounded-full px-3 box-border border border-farmText cursor-pointer text-sm text-gray-200"
+                  >
+                    <label className="whitespace-nowrap xs:hidden md:hidden">
+                      {sortList[searchData.sort]}
+                    </label>
+                    <ArrowDown></ArrowDown>
+                  </span>
+                  <div
+                    ref={sortBoxRef}
+                    className={`absolute z-50 top-8 left-14 xs:left-auto xs:right-0 md:left-auto md:right-0 w-36 border border-farmText bg-cardBg rounded-md ${
+                      searchData.sortBoxHidden ? 'hidden' : ''
+                    }`}
+                  >
+                    {Object.entries(sortList).map((item) => (
+                      <p
+                        key={item[0]}
+                        onClick={changeSortV}
+                        data-id={item[0]}
+                        className={`flex items-center p-4 text-sm h-7 text-white text-opacity-40 my-2 cursor-pointer hover:bg-white hover:bg-opacity-10 hover:text-opacity-100 ${
+                          item[0] == searchData.sort
+                            ? 'bg-white bg-opacity-10 text-opacity-100'
+                            : ''
+                        }`}
+                      >
+                        {item[1]}
+                      </p>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
+          </div>
+          <div className="flex-grow xs:flex-none">
+            <div className="overflow-auto relative pb-4">
+              {unclaimedFarmsIsLoading ? (
+                <Loading />
+              ) : (
+                <div className="grid gap-4 grid-cols-2 2xl:grid-cols-3 xs:grid-cols-1 md:grid-cols-1">
+                  {farms.map((farm: any) => (
+                    <div
+                      key={farm[0].farm_id}
+                      id={`${farm[0].pool.id}`}
+                      className={farm.show ? '' : 'hidden'}
+                    >
+                      <FarmView
+                        farmsData={farm}
+                        farmData={farm[0]}
+                        stakedList={stakedList}
+                        rewardList={rewardList}
+                        tokenPriceList={tokenPriceList}
+                        seeds={seeds}
+                        tokenPriceMap={tokenPriceMap}
+                        lps={lps}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -604,64 +608,21 @@ export function FarmsPage() {
 }
 
 function WithdrawView({ data }: { data: any }) {
-  const [disableWithdraw, setDisableWithdraw] = useState<boolean>(false);
-  const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false);
   const [token, setToken] = useState<TokenMetadata>();
-  const withdrawLoadingColor = '#ffffff';
-  const withdrawLoadingSize = 12;
-
   useEffect(() => {
     ftGetTokenMetadata(data[0]).then(setToken);
-    if (data[1] === '0') {
-      setDisableWithdraw(true);
-    }
   }, [data]);
-
-  function withdrawRewards() {
-    setDisableWithdraw(true);
-    setWithdrawLoading(true);
-    withdrawReward({
-      token_id: data[0],
-      amount: toReadableNumber(token.decimals, data[1]),
-      token: token,
-    });
-  }
-
   if (!token) return Loading();
-
   return (
-    <div>
-      <div
-        key={data.farm_id}
-        className="py-2 flex items-center justify-between"
-      >
-        <div>
-          {toPrecision(toReadableNumber(token.decimals, data[1]), 6)}{' '}
+    <div key={data.farm_id}>
+      <div className="flex justify-between py-3.5">
+        <span className="flex items-center text-sm text-white">
+          <img src={token.icon} className="w-6 h-6 rounded-full mr-2" />
           {toRealSymbol(token.symbol)}
-        </div>
-        <div>
-          {wallet.isSignedIn() ? (
-            <WithdrawButton
-              onClick={withdrawRewards}
-              disabled={disableWithdraw}
-            >
-              <div>
-                <ClipLoader
-                  color={withdrawLoadingColor}
-                  loading={withdrawLoading}
-                  size={withdrawLoadingSize}
-                />
-              </div>
-              {withdrawLoading ? null : (
-                <div>
-                  <FormattedMessage id="withdraw" defaultMessage="Withdraw" />
-                </div>
-              )}
-            </WithdrawButton>
-          ) : (
-            <ConnectToNearBtn />
-          )}
-        </div>
+        </span>
+        <label className="text-sm text-white">
+          {toPrecision(toReadableNumber(token.decimals, data[1]), 6)}{' '}
+        </label>
       </div>
     </div>
   );
@@ -788,14 +749,9 @@ function FarmView({
       }
       const itemHtml = `<div class="flex justify-between items-center h-8">
                           <image class="w-5 h-5 rounded-full mr-7" src="${icon}"/>
-                          <label class="text-xs text-navHighLightText">${
-                            price == 0
-                              ? '-'
-                              : `$${toInternationalCurrencySystem(
-                                  price.toString(),
-                                  2
-                                )}`
-                          }</label>
+                          <label class="text-xs text-navHighLightText">${formatWithCommas(
+                            rewardsPerWeek
+                          )}</label>
                         </div>`;
       result += itemHtml;
     });
@@ -821,14 +777,9 @@ function FarmView({
       }
       const itemHtml = `<div class="flex justify-between items-center h-8">
                           <image class="w-5 h-5 rounded-full mr-7" src="${icon}"/>
-                          <label class="text-xs text-navHighLightText">${
-                            price == 0
-                              ? '-'
-                              : `$${toInternationalCurrencySystem(
-                                  price.toString(),
-                                  2
-                                )}`
-                          }</label>
+                          <label class="text-xs text-navHighLightText">${formatWithCommas(
+                            userUnclaimedReward
+                          )}</label>
                         </div>`;
       result += itemHtml;
     });
@@ -858,26 +809,25 @@ function FarmView({
   function claimReward() {
     setDisableClaim(true);
     setClaimLoading(true);
-    claimAndWithDrawReward(farmsData);
-    // if (farmsData.length > 1) {
-    //   claimRewardBySeed(data.seed_id)
-    //     .then(() => {
-    //       window.location.reload();
-    //     })
-    //     .catch((error) => {
-    //       setDisableClaim(false);
-    //       setError(error);
-    //     });
-    // } else {
-    //   claimRewardByFarm(data.farm_id)
-    //     .then(() => {
-    //       window.location.reload();
-    //     })
-    //     .catch((error) => {
-    //       setDisableClaim(false);
-    //       setError(error);
-    //     });
-    // }
+    if (farmsData.length > 1) {
+      claimRewardBySeed(data.seed_id)
+        .then(() => {
+          window.location.reload();
+        })
+        .catch((error) => {
+          setDisableClaim(false);
+          setError(error);
+        });
+    } else {
+      claimRewardByFarm(data.farm_id)
+        .then(() => {
+          window.location.reload();
+        })
+        .catch((error) => {
+          setDisableClaim(false);
+          setError(error);
+        });
+    }
   }
 
   function isEnded(data: FarmInfo) {
@@ -1177,7 +1127,7 @@ function FarmView({
     let percentage = '(-%)';
     if (farmData.userStaked) {
       const userStaked = toNonDivisibleNumber(24, farmData.userStaked);
-      const percentV = percent(userStaked, stakedList[farmData.seed_id]);
+      const percentV = percent(userStaked, farmData.seedAmount);
       if (new BigNumber(0.001).isGreaterThan(percentV)) {
         percentage = '(<0.001%)';
       } else {
@@ -1226,9 +1176,12 @@ function FarmView({
   return (
     <Card
       width="w-full"
-      className={`self-start overflow-hidden ${ended ? 'farmEnded' : ''}`}
+      className={`self-start relative overflow-hidden ${
+        ended ? 'farmEnded' : ''
+      }`}
       padding={'p-0'}
       rounded="rounded-2xl"
+      style={{ height: '28.5rem' }}
     >
       <div className="flex items-center p-6 pb-0 relative flex-wrap">
         <div className="flex items-center justify-center">
@@ -1487,11 +1440,13 @@ function FarmView({
               ) : null}
             </div>
           ) : (
-            <ConnectToNearBtn />
+            <div className="mt-11">
+              <ConnectToNearBtn />
+            </div>
           )}
         </div>
       </div>
-      <div className="flex justify-center items-center h-8 bg-farmDark">
+      <div className="flex justify-center items-center h-8 bg-farmDark absolute w-full bottom-0">
         {farmStarted() ? (
           <div className="text-farmText text-sm">
             {moment.unix(getStartTime()).format('YYYY-MM-DD HH:mm:ss')}
@@ -1564,6 +1519,8 @@ function FarmView({
         title={intl.formatMessage({ id: 'stake' })}
         btnText={intl.formatMessage({ id: 'stake' })}
         max={stakeBalance}
+        farm={farmData}
+        lps={lps}
         onSubmit={(amount) => {
           stake({ token_id: getMftTokenId(data.lpTokenId), amount }).catch(
             setError
@@ -1603,7 +1560,12 @@ function ActionModal(
       // unstake situation
       const { seed_id } = farm;
       const farms = lps[seed_id];
-      if (farms && farms.length > 1 && !isEnded(farms)) {
+      if (
+        farms &&
+        farms.length > 1 &&
+        !isEnded(farms) &&
+        farm.farm_status == 'Ended'
+      ) {
         setShowTip(true);
       }
     }
@@ -1657,45 +1619,50 @@ function ActionModal(
       {showTip ? (
         <Tip />
       ) : (
-        <Card
-          style={{ width: cardWidth }}
-          className="outline-none border border-gradientFrom border-opacity-50"
-        >
-          <div className="flex justify-between items-start text-xl text-white font-semibold mb-7">
-            <label>{props.title}</label>
-            <div className="cursor-pointer" onClick={props.onRequestClose}>
-              <ModalClose />
+        <div>
+          {Number(farm?.userUnclaimedReward) !== 0 ? (
+            <TipsBox style={{ width: cardWidth }} />
+          ) : null}
+          <Card
+            style={{ width: cardWidth }}
+            className="outline-none border border-gradientFrom border-opacity-50"
+          >
+            <div className="flex justify-between items-start text-xl text-white font-semibold mb-7">
+              <label>{props.title}</label>
+              <div className="cursor-pointer" onClick={props.onRequestClose}>
+                <ModalClose />
+              </div>
             </div>
-          </div>
-          <div>
-            <div className="flex justify-end mb-1.5">
-              <span className="text-primaryText text-xs">
-                <FormattedMessage id="balance" defaultMessage="Balance" />:
-                {toPrecision(max, 6)}
-              </span>
+            <div>
+              <div className="flex justify-end mb-1.5">
+                <span className="text-primaryText text-xs">
+                  <FormattedMessage id="balance" defaultMessage="Balance" />:
+                  {toPrecision(max, 6)}
+                </span>
+              </div>
+              <div className="flex rounded relative overflow-hidden align-center">
+                <OldInputAmount
+                  className="flex-grow"
+                  max={max}
+                  value={amount}
+                  onChangeAmount={setAmount}
+                />
+              </div>
             </div>
-            <div className="flex rounded relative overflow-hidden align-center">
-              <OldInputAmount
-                className="flex-grow"
-                max={max}
-                value={amount}
-                onChangeAmount={setAmount}
-              />
+            <div className="flex items-center justify-center pt-5">
+              <GreenLButton
+                onClick={() => props.onSubmit(amount)}
+                disabled={
+                  !amount ||
+                  new BigNumber(amount).isEqualTo(0) ||
+                  new BigNumber(amount).isGreaterThan(maxToFormat)
+                }
+              >
+                {props.btnText}
+              </GreenLButton>
             </div>
-          </div>
-          <div className="flex items-center justify-center pt-5">
-            <GreenLButton
-              onClick={() => props.onSubmit(amount)}
-              disabled={
-                !amount ||
-                new BigNumber(amount).isEqualTo(0) ||
-                new BigNumber(amount).isGreaterThan(maxToFormat)
-              }
-            >
-              {props.btnText}
-            </GreenLButton>
-          </div>
-        </Card>
+          </Card>
+        </div>
       )}
     </Modal>
   );

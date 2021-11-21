@@ -218,5 +218,8 @@ const en_US = {
   unstake_tip_m:
     'Unstaking will remove the stake from all active and pending farms of the same pair.',
   unstake_tip_b: 'Will you going to unstake?',
+  value_rewards: 'Value of Rewards',
+  stake_unstake_tip:
+    'You have rewards unclaimed,stake / unstake will claim your unclaimed rewards first automatically.',
 };
 export default en_US;

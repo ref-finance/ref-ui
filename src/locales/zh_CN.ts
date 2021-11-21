@@ -210,5 +210,7 @@ const zh_CN = {
   unstake_tip_m:
     '取消质押操作会把所有质押从相同交易对的所有进行中和未开始的农场里移除.',
   unstake_tip_b: '你将要继续取消质押吗?',
+  value_rewards: '奖励币总价值',
+  stake_unstake_tip: '你有未领取的奖励, 质押/取消质押操作将会自动领取',
 };
 export default zh_CN;

@@ -59,6 +59,7 @@ export interface FarmInfo extends Farm {
   apr: string;
   tokenIds: string[];
   show?: boolean;
+  seedAmount: string;
 }
 
 export const getSeeds = async ({
@@ -250,6 +251,7 @@ export const getFarmInfo = async (
     totalStaked,
     apr,
     tokenIds: token_account_ids,
+    seedAmount,
   };
 };
 
@@ -347,14 +349,14 @@ export const listRewards = async (
 
 export const claimRewardByFarm = async (farm_id: string): Promise<any> => {
   return refFarmFunctionCall({
-    methodName: 'claim_and_withdraw_by_farm',
-    args: { farm_id: farm_id, withdraw_all_tokens: true },
+    methodName: 'claim_reward_by_farm',
+    args: { farm_id: farm_id },
   });
 };
 
 export const claimRewardBySeed = async (seed_id: string): Promise<any> => {
   return refFarmFunctionCall({
-    methodName: 'claim_and_withdraw_by_seed',
+    methodName: 'claim_reward_by_seed',
     args: { seed_id: seed_id },
   });
 };
