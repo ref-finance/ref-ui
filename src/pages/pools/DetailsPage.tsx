@@ -740,8 +740,6 @@ function MyShares({
         userTotalShare
           .toNumber()
           .toLocaleString('fullwide', { useGrouping: false }) ?? '0',
-      precision: 4,
-      withCommas: false,
     })} (${displayPercent}%)`}</div>
   );
 }
@@ -1325,8 +1323,7 @@ export function PoolDetailsPage() {
                 </div>
                 <div className=" text-white">
                   {toInternationalCurrencySystem(
-                    toReadableNumber(24, pool?.shareSupply),
-                    4
+                    toReadableNumber(24, pool?.shareSupply)
                   )}
                 </div>
               </div>
