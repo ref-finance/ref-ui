@@ -339,7 +339,9 @@ export const getSharesInPool = (id: number): Promise<string> => {
 };
 
 export const canFarm = async (pool_id: number): Promise<Number> => {
-  const farms = await db.queryFarms();
+  const farms = (await db.queryFarms()).filter(
+    (farm) => farm.status !== 'Ended'
+  );
 
   const count = farms.reduce((pre, cur) => {
     if (Number(cur.pool_id) === pool_id) return pre + 1;
