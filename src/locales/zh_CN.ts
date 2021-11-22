@@ -84,6 +84,7 @@ const zh_CN = {
   enter_token_address: '输入代币地址',
   you_are_not_providing_liquidity_to_any_pools: '你未提供任何池子的流动性',
   remove: '移除',
+  select: '选择代币',
   select_token: '选择代币',
   basis_points: '基点',
   total_fee: '总费用 % ',

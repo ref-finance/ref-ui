@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import MicroModal from 'react-micro-modal';
 import { TokenMetadata } from '../../services/ft-contract';
-import { ArrowDownGreen } from '../icon';
+import { ArrowDownGreen, ArrowDownWhite } from '../icon';
 import { isMobile } from '~utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { TokenBalancesView } from '~services/token';
@@ -134,20 +134,20 @@ export default function SelectToken({
         >
           {selected || (
             <section
-              className={`flex justify-between items-center px-3 py-3 ${
+              className={`flex justify-between items-center px-3 py-2 ${
                 standalone
-                  ? 'bg-inputDarkBg text-white relative flex overflow-hidden rounded-lg align-center my-2 border border-greenLight'
+                  ? 'bg-inputDarkBg text-white relative flex overflow-hidden rounded align-center my-2'
                   : ''
               }`}
             >
               <p
-                className="text-lg font-semibold leading-none"
+                className="text-lg text-gray-400 font-semibold leading-none"
                 style={{ lineHeight: 'unset' }}
               >
                 {placeholder ?? 'Select'}
               </p>
               <div className="pl-2">
-                <ArrowDownGreen />
+                <ArrowDownWhite />
               </div>
             </section>
           )}

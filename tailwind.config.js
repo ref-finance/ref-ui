@@ -49,6 +49,7 @@ module.exports = {
         farmSplitLine: '#314351',
         farmDark: '#2B3A44',
         framBorder: '#00C6A2',
+        feeSelectorBg: '#637684',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

@@ -5,7 +5,7 @@ import Loading from '~components/layout/Loading';
 import SelectToken from '~components/forms/SelectToken';
 import { TokenMetadata } from '~services/ft-contract';
 import { toRoundedReadableNumber } from '~utils/numbers';
-import { ArrowDownGreen } from '~components/icon';
+import { ArrowDownGreen, ArrowDownWhite } from '~components/icon';
 import Icon from '~components/tokens/Icon';
 import { ConnectToNearBtn } from '~components/button/Button';
 import { wallet } from '~services/near';
@@ -13,6 +13,7 @@ import { addSimpleLiquidityPool } from '~services/pool';
 import { Toggle } from '~components/toggle';
 import Alert from '~components/alert/Alert';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { toRealSymbol } from '~utils/token';
 
 export function AddPoolPage() {
   const tokens = useWhitelistTokens();
@@ -33,12 +34,29 @@ export function AddPoolPage() {
   };
 
   const Selected = (props: { token: TokenMetadata }) => {
+    const Icon = ({ token }: { token: TokenMetadata }) => {
+      return (
+        <div className="flex items-center">
+          <div>
+            <img
+              key={token.id}
+              className="mx-1 h-7 w-7 border rounded-full border-greenLight"
+              src={token.icon}
+            />
+          </div>
+
+          <div className="mx-1 font-semibold">{toRealSymbol(token.symbol)}</div>
+        </div>
+      );
+    };
+
     return (
-      <div className="flex h-12 justify-between items-center px-3 py-3 bg-inputDarkBg text-white relative flex overflow-hidden rounded-lg align-center my-2 border border-greenLight">
+      <div className="flex h-10 justify-between items-center px-3 py-3 bg-inputDarkBg text-white relative flex overflow-hidden rounded align-center my-2">
+        {/* <Icon token={props.token} /> */}
         <Icon token={props.token} />
         {tokens.length > 1 && (
           <div className="pl-2 text-xs">
-            <ArrowDownGreen />
+            <ArrowDownWhite />
           </div>
         )}
       </div>
@@ -48,51 +66,59 @@ export function AddPoolPage() {
 
   return (
     <div className="flex items-center flex-col xl:w-1/3 2xl:w-1/3 3xl:w-1/4 lg:w-1/2 md:w-5/6 xs:w-full xs:p-2 m-auto">
-      <Card width="w-full" bgcolor="bg-dark">
-        <h2 className="formTitle font-bold text-xl text-white text-left pb-4">
+      <Card width="w-full" bgcolor="bg-cardBg">
+        <div className="formTitle text-xl text-white text-left pb-6">
           <FormattedMessage
             id="Create_New_Pool"
             defaultMessage="Create New Pool"
           />
-        </h2>
-        <div className="text-xs font-semibold text-primaryText">
-          <FormattedMessage id="token" defaultMessage="Token" />
         </div>
         <div className="w-full flex justify-center">
           {error && <Alert level="error" message={error.message} />}
         </div>
-        <SelectToken
-          standalone
-          placeholder={intl.formatMessage({ id: 'select_token' })}
-          tokens={tokens}
-          render={render}
-          selected={token1 && <Selected token={token1} />}
-          onSelect={setToken1}
-          balances={balances}
-        />
-        <div className="text-xs font-semibold text-primaryText pt-2">
-          <FormattedMessage id="pair" defaultMessage="Pair" />
+
+        <div className="flex flex-col lg:flex-row items-center lg:justify-between pb-6">
+          <div className="w-full lg:mr-1 xs:mb-4 md:mb-4">
+            <div className="text-xs text-primaryText">
+              <FormattedMessage id="token" defaultMessage="Token" />
+            </div>
+            <SelectToken
+              standalone
+              placeholder={intl.formatMessage({ id: 'select' })}
+              tokens={tokens}
+              render={render}
+              selected={token1 && <Selected token={token1} />}
+              onSelect={setToken1}
+              balances={balances}
+            />
+          </div>
+          <div className="w-full lg:ml-1">
+            <div className="text-xs text-primaryText">
+              <FormattedMessage id="pair" defaultMessage="Pair" />
+            </div>
+            <SelectToken
+              standalone
+              placeholder={intl.formatMessage({ id: 'select' })}
+              tokens={tokens}
+              render={render}
+              selected={token2 && <Selected token={token2} />}
+              onSelect={setToken2}
+              balances={balances}
+            />
+          </div>
         </div>
-        <SelectToken
-          standalone
-          placeholder={intl.formatMessage({ id: 'select_token' })}
-          tokens={tokens}
-          render={render}
-          selected={token2 && <Selected token={token2} />}
-          onSelect={setToken2}
-          balances={balances}
-        />
-        <div className="text-xs font-semibold pt-2 flex items-center justify-between">
+
+        <div className="text-xs py-2 flex items-center justify-between">
           <div>
-            <span className="pr-1 text-primaryText">
+            <span className="pr-1 text-white">
               <FormattedMessage id="fee" defaultMessage="Fee" /> %
             </span>
           </div>
           <Toggle
             opts={[
-              { label: '0.15', value: '0.15' },
-              { label: '0.25', value: '0.25' },
-              { label: '0.55', value: '0.55' },
+              { label: '0.15%', value: '0.15' },
+              { label: '0.25%', value: '0.25' },
+              { label: '0.555', value: '0.55' },
             ]}
             onChange={(v) =>
               setFee((parseFloat(v) + 0.05 + Number.EPSILON).toFixed(2))
@@ -100,9 +126,9 @@ export function AddPoolPage() {
             value="0.25"
           />
         </div>
-        <div className="text-xs font-semibold pt-4 flex items-center justify-between">
+        <div className="text-xs py-2 flex items-center justify-between">
           <div>
-            <span className="pr-1 text-primaryText">
+            <span className="pr-1 text-white">
               <FormattedMessage id="total_fee" defaultMessage="Total Fee %" />(
               <FormattedMessage
                 id="protocol_fee_is"
@@ -111,7 +137,7 @@ export function AddPoolPage() {
               0.05%)
             </span>
           </div>
-          <div className="inline-block w-20 border border-greenLight bg-inputDarkBg p-2 px-3 rounded-lg">
+          <div className="inline-block w-16 border border-gradientFrom bg-inputDarkBg p-1 px-3 rounded">
             <input
               className="text-right text-white"
               type="number"
@@ -122,11 +148,11 @@ export function AddPoolPage() {
             />
           </div>
         </div>
-        <div className="pt-4 flex items-center justify-center w-full">
+        <div className="pt-6 flex w-full">
           {wallet.isSignedIn() ? (
             <button
               disabled={!canSubmit}
-              className={`rounded-full w-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold ${
+              className={`rounded-full w-full text-lg text-white px-5 py-2.5 focus:outline-none font-semibold ${
                 canSubmit ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
               }`}
               style={

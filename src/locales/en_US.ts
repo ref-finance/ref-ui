@@ -82,6 +82,7 @@ const en_US = {
   you_are_not_providing_liquidity_to_any_pools:
     'You aren’t providing liquidity to any pools',
   remove: 'Remove',
+  select: 'Select',
   select_token: 'Select Token',
   basis_points: 'Basis points',
   total_fee: 'Total fee % ',
