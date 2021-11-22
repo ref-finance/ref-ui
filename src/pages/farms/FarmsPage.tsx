@@ -9,7 +9,7 @@ import {
   ArrowDown,
   Dots,
   Light,
-  Pyramid,
+  QuestionMark,
 } from '~components/icon';
 import {
   GreenLButton,
@@ -424,7 +424,6 @@ export function FarmsPage() {
     withdrawAllReward(rewardList);
   }
   function valueOfRewardsTip() {
-    const intl = useIntl();
     const tip = intl.formatMessage({ id: 'farmRewardsCopy' });
     let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
@@ -1212,7 +1211,11 @@ function FarmView({
     const hLine = index === 1 ? '' : '-';
     return `${toRealSymbol(symbol)}${hLine}`;
   });
-
+  function valueOfRewardsTip() {
+    const tip = intl.formatMessage({ id: 'farmRewardsCopy' });
+    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    return result;
+  }
   return (
     <Card
       width="w-full"
@@ -1349,11 +1352,28 @@ function FarmView({
             />
           </div>
           <div className="flex items-center justify-between text-sm py-2 text-farmText">
-            <div className="pr-1">
+            <div className="flex items-center pr-1">
               <FormattedMessage
                 id="rewards_per_week"
                 defaultMessage="Rewards per week"
               />
+              <div
+                className="text-white text-right ml-1"
+                data-class="reactTip"
+                data-for={'rewardPerWeekQId' + data.farm_id}
+                data-place="top"
+                data-html={true}
+                data-tip={valueOfRewardsTip()}
+              >
+                <QuestionMark></QuestionMark>
+                <ReactTooltip
+                  id={'rewardPerWeekQId' + data.farm_id}
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
+              </div>
             </div>
             <div
               className="text-white text-right"
@@ -1401,11 +1421,28 @@ function FarmView({
             </div>
           ) : null}
           <div className="flex items-center justify-between text-sm py-2 text-farmText">
-            <div className="pr-1">
+            <div className="flex items-center pr-1">
               <FormattedMessage
                 id="unclaimed_rewards"
                 defaultMessage="Unclaimed rewards"
               />
+              <div
+                className="text-white text-right ml-1"
+                data-class="reactTip"
+                data-for={'unclaimedRewardQId' + data.farm_id}
+                data-place="top"
+                data-html={true}
+                data-tip={valueOfRewardsTip()}
+              >
+                <QuestionMark></QuestionMark>
+                <ReactTooltip
+                  id={'unclaimedRewardQId' + data.farm_id}
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
+              </div>
             </div>
             <div
               className="text-white text-right"
