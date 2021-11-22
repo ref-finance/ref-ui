@@ -156,8 +156,7 @@ const en_US = {
   getLPTokenCopy: 'Click here to jump to the corresponding pool',
   airdropCopy:
     ' Please claim your airdrop at least once before the expiration date otherwise your balance would be donated into the treasury',
-  farmRewardsCopy:
-    'What you have claimed but not withdrawn to your NEAR Wallet yet',
+  farmRewardsCopy: 'Indicative value based on prices and not actual execution',
   totalValueLockedCopy: 'Total Value Locked',
   topPoolsCopy: 'For every pair, only display the highest pool TVL',
   you_do_not_have_enough: "You don't have enough",
@@ -204,8 +203,7 @@ const en_US = {
     'Select [Near Wallet] to swap directly tokens available in your Near wallet',
   near_wallet: 'Near Wallet',
   ref_account: 'Ref Account',
-  swap_tip:
-    'Swap directly from your Ref account by selecting Ref Account in Settings',
+  swap_tip: 'Swap from your Ref account by selecting Ref Account in Settings',
   attention: 'Attention',
   live: 'Live',
   ended_search: 'Ended',
@@ -221,7 +219,7 @@ const en_US = {
   value_rewards: 'Value of Rewards',
   stake_unstake_tip:
     'You have rewards unclaimed,stake / unstake will claim your unclaimed rewards first automatically.',
-  over_tip: 'Supporting 7 kinds of token to be withdrawn at one time.',
+  over_tip: 'Only 7 tokens can be withdrawn at once.',
   no_token_tip: 'No reward token',
   getToken_tip: 'You can claim your rewards or stake your LP Tokens now!',
 };

@@ -151,7 +151,7 @@ const zh_CN = {
   addTokenCopy: '添加NEP-141代币。',
   getLPTokenCopy: '单击此处跳转到相应的池。',
   airdropCopy: '请在截止日期前至少领取一次空投，否则您的余额将捐给财政部。',
-  farmRewardsCopy: '您已领取但尚未提取到您的NEAR钱包中的代币。',
+  farmRewardsCopy: '这是基于价格的指示性值而非实际结果',
   totalValueLockedCopy: '总锁定价值',
   topPoolsCopy: '对每一个交易对, 只展示最高锁仓量的流动池',
   myWatchList: '我的收藏列表',

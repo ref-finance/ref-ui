@@ -423,6 +423,12 @@ export function FarmsPage() {
     setWithdrawLoading(true);
     withdrawAllReward(rewardList);
   }
+  function valueOfRewardsTip() {
+    const intl = useIntl();
+    const tip = intl.formatMessage({ id: 'farmRewardsCopy' });
+    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    return result;
+  }
   return (
     <div className="xs:w-full md:w-full xs:mt-4 md:mt-4">
       <div className="w-1/3 xs:w-full md:w-full flex m-auto justify-center">
@@ -436,9 +442,29 @@ export function FarmsPage() {
           <div className="rounded-2xl bg-cardBg pt-5 pb-8 relative overflow-hidden">
             <div className="flex justify-between px-5 pb-12 relative">
               <div className="flex flex-col items-center">
-                <label className="text-white text-sm text-center mb-1.5">
+                <div className="flex items-center text-white text-sm text-center mb-1.5">
                   <FormattedMessage id="value_rewards"></FormattedMessage>
-                </label>
+                  <div
+                    className="ml-2 text-sm"
+                    data-type="info"
+                    data-place="right"
+                    data-multiline={true}
+                    data-class="reactTip"
+                    data-html={true}
+                    data-tip={valueOfRewardsTip()}
+                    data-for="yourRewardsId"
+                  >
+                    <FaRegQuestionCircle />
+                    <ReactTooltip
+                      className="w-20"
+                      id="yourRewardsId"
+                      backgroundColor="#1D2932"
+                      border
+                      borderColor="#7e8a93"
+                      effect="solid"
+                    />
+                  </div>
+                </div>
                 <label className="text-white text-2xl text-center font-semibold">
                   {yourReward}
                 </label>
