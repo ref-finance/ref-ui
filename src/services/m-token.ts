@@ -25,7 +25,7 @@ import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 import { utils } from 'near-api-js';
 
 export const LP_TOKEN_DECIMALS = 24;
-export const FARM_STORAGE_BALANCE = '0.03';
+export const FARM_STORAGE_BALANCE = '0.045';
 
 export const checkTokenNeedsStorageDeposit = async (page?: string) => {
   let storageNeeded: math.MathType = 0;
