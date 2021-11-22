@@ -635,7 +635,7 @@ function WithdrawView({ data }: { data: any }) {
           {toRealSymbol(token.symbol)}
         </span>
         <label className="text-sm text-white">
-          {toPrecision(toReadableNumber(token.decimals, data[1]), 6)}{' '}
+          {toPrecision(toReadableNumber(token.decimals, data[1]), 3)}{' '}
         </label>
       </div>
     </div>
