@@ -212,7 +212,7 @@ const zh_CN = {
   unstake_tip_b: '你将要继续取消质押吗?',
   value_rewards: '奖励币总价值',
   stake_unstake_tip: '你有未领取的奖励, 质押/取消质押操作将会自动领取',
-  over_tip: '一次支持提取7种代币',
+  over_tip: '支持一次提取7种代币',
   no_token_tip: '没有可提取的代币',
   getToken_tip: '你可以现在认领你的奖励或质押代币！',
 };

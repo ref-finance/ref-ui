@@ -434,7 +434,7 @@ export function FarmsPage() {
             <FormattedMessage id="farms" defaultMessage="Farms" />
           </div>
           <div className="rounded-2xl bg-cardBg pt-5 pb-8 relative overflow-hidden">
-            <div className="flex justify-between px-5 pb-11 relative">
+            <div className="flex justify-between px-5 pb-12 relative">
               <div className="flex flex-col items-center">
                 <label className="text-white text-sm text-center mb-1.5">
                   <FormattedMessage id="value_rewards"></FormattedMessage>
@@ -455,7 +455,7 @@ export function FarmsPage() {
             </div>
             {Object.entries(rewardList).length > 0 ? (
               <>
-                <div className="px-5 pt-1.5 pb-7 h-96 overflow-auto">
+                <div className="px-5 pt-1.5 pb-7 max-h-96 overflow-auto">
                   {Object.entries(rewardList).map((rewardToken: any, index) => (
                     <WithdrawView key={index} data={rewardToken} />
                   ))}
@@ -995,7 +995,7 @@ function FarmView({
       const icon = (
         <img
           key={farm_id}
-          className="h-5 w-5 ml-1.5 rounded-full"
+          className="h-5 w-5 ml-1.5 my-px rounded-full"
           src={rewardToken?.icon}
         />
       );
@@ -1305,7 +1305,7 @@ function FarmView({
               />
             </div>
             <div
-              className="flex"
+              className="flex flex-wrap justify-end"
               data-class="reactTip"
               data-for={'rewardTokens' + data.farm_id}
               data-place="top"
