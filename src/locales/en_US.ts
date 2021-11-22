@@ -134,9 +134,9 @@ const en_US = {
   claim_successful_click_to_view: 'Claim successful. Click to view',
   claim_failed_click_to_view: 'Claim failed. Click to view',
   slippageCopyForMobile:
-    'Slippage means the difference between what you expect to get and what you actually get due to other swaps executing first',
+    'Slippage means the difference between what you expect to get and what you actually get due to other executing first',
   slippageCopy:
-    'Slippage means the difference between what you expect to <br> get and what you actually get due to other swaps executing first',
+    'Slippage means the difference between what <br> you expect to get and what you actually <br> get due to other executing first',
   depositCopy:
     'This deposits your selected tokens into the <br> exchange for swapping or adding to a liquidity pool',
   nearDepositCopy:
