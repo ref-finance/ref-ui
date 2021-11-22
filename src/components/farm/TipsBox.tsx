@@ -6,8 +6,18 @@ import { useState, useEffect } from 'react';
 
 export default function TipsBox(props: any) {
   const [tipShow, setTipShow] = useState<Boolean>(true);
+  useEffect(() => {
+    const swapTipStatus = window.localStorage.getItem('farmTipStatus');
+    if (swapTipStatus && swapTipStatus == '0') {
+      // has closed
+      setTipShow(false);
+    } else {
+      setTipShow(true);
+    }
+  }, [tipShow]);
   function closeTipBox() {
     setTipShow(false);
+    window.localStorage.setItem('farmTipStatus', '0');
   }
   return tipShow ? (
     <div

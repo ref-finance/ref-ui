@@ -221,5 +221,8 @@ const en_US = {
   value_rewards: 'Value of Rewards',
   stake_unstake_tip:
     'You have rewards unclaimed,stake / unstake will claim your unclaimed rewards first automatically.',
+  over_tip: 'Supporting 7 kinds of token to be withdrawn at one time.',
+  no_token_tip: 'No reward token',
+  getToken_tip: 'You can claim your rewards or stake your LP Tokens now!',
 };
 export default en_US;

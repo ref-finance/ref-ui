@@ -9,6 +9,7 @@ import {
   ArrowDown,
   Dots,
   Light,
+  Pyramid,
 } from '~components/icon';
 import {
   GreenLButton,
@@ -432,8 +433,8 @@ export function FarmsPage() {
           <div className="text-white text-3xl h-12">
             <FormattedMessage id="farms" defaultMessage="Farms" />
           </div>
-          <div className="rounded-2xl bg-cardBg pt-5 pb-10 relative overflow-hidden">
-            <div className="flex justify-between px-5 pb-11">
+          <div className="rounded-2xl bg-cardBg pt-5 pb-8 relative overflow-hidden">
+            <div className="flex justify-between px-5 pb-11 relative">
               <div className="flex flex-col items-center">
                 <label className="text-white text-sm text-center mb-1.5">
                   <FormattedMessage id="value_rewards"></FormattedMessage>
@@ -450,16 +451,16 @@ export function FarmsPage() {
                   {yourFarms}
                 </label>
               </div>
+              <Dots></Dots>
             </div>
             {Object.entries(rewardList).length > 0 ? (
               <>
-                <div className="h-px bg-farmSplitLine"></div>
-                <div className="px-5 pt-1.5 pb-7">
+                <div className="px-5 pt-1.5 pb-7 h-96 overflow-auto">
                   {Object.entries(rewardList).map((rewardToken: any, index) => (
                     <WithdrawView key={index} data={rewardToken} />
                   ))}
                 </div>
-                <div className="flex justify-center">
+                <div className="flex flex-col justify-center items-center px-8">
                   <GradientButton
                     color="#fff"
                     className={`w-36 h-9 text-center text-base text-white mt-4 focus:outline-none font-semibold`}
@@ -481,10 +482,23 @@ export function FarmsPage() {
                       </div>
                     )}
                   </GradientButton>
+                  {Object.entries(rewardList).length > 7 ? (
+                    <div className="text-primaryText text-xs text-center mt-3">
+                      <FormattedMessage id="over_tip"></FormattedMessage>
+                    </div>
+                  ) : null}
                 </div>
               </>
-            ) : null}
-            <Dots></Dots>
+            ) : (
+              <div className="flex flex-col justify-center items-center text-center px-7 pt-8">
+                <span className="text-xs text-primaryText">
+                  <FormattedMessage id="no_token_tip"></FormattedMessage>
+                </span>
+                <span className="text-sm text-white mt-1.5">
+                  <FormattedMessage id="getToken_tip"></FormattedMessage>
+                </span>
+              </div>
+            )}
           </div>
         </div>
         <div className="flex flex-col pl-5 pr-8 xs:px-5 md:px-5 xs:mt-8 md:mt-8">
@@ -1386,7 +1400,7 @@ function FarmView({
             />
           </div>
         </div>
-        <div>
+        <div className="absolute inset-x-6 bottom-12">
           {wallet.isSignedIn() ? (
             <div className="flex gap-2 justify-center mt-4">
               {data.userStaked !== '0' ? (
@@ -1440,9 +1454,7 @@ function FarmView({
               ) : null}
             </div>
           ) : (
-            <div className="mt-11">
-              <ConnectToNearBtn />
-            </div>
+            <ConnectToNearBtn />
           )}
         </div>
       </div>
