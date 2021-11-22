@@ -470,6 +470,7 @@ function NavigationBar() {
               <div className="text-white">
                 <div
                   className=" py-1 px-2 border text-sm border-framBorder text-framBorder hover:text-white hover:bg-framBorder hover:border-0 cursor-pointer rounded h-6 items-center flex"
+                  style={{ minWidth: '115px' }}
                   onClick={() => setShowWrapNear(true)}
                 >
                   <WrapNearEnter></WrapNearEnter>
