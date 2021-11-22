@@ -76,7 +76,7 @@ export const useSwap = ({
               </a>,
               {
                 autoClose: 8000,
-                closeOnClick: false,
+                closeOnClick: true,
                 hideProgressBar: false,
                 closeButton: <CloseIcon />,
                 progressStyle: {
