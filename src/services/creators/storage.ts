@@ -11,6 +11,7 @@ export const STORAGE_PER_TOKEN = '0.003';
 export const STORAGE_TO_REGISTER_WITH_FT = '0.1';
 export const STORAGE_TO_REGISTER_WITH_MFT = '0.1';
 export const MIN_DEPOSIT_PER_TOKEN = new BN('3000000000000000000000');
+export const MIN_DEPOSIT_PER_TOKEN_FARM = new BN('30000000000000000000000');
 export const ONE_MORE_DEPOSIT_AMOUNT = '0.01';
 
 interface StorageDepositActionOptions {
