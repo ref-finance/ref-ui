@@ -311,9 +311,13 @@ export function FarmsPage() {
       }
     });
     if (totalUnWithDraw > 0) {
-      setYourReward(
-        `$${toInternationalCurrencySystem(totalUnWithDraw.toString(), 2)}`
-      );
+      let totalUnWithDrawV = toInternationalCurrencySystem(totalUnWithDraw.toString(), 2);
+      if (Number(totalUnWithDrawV) == 0) {
+        totalUnWithDrawV = '<$0.01';
+      } else {
+        totalUnWithDrawV = `$${totalUnWithDrawV}`
+      }
+      setYourReward(totalUnWithDrawV);
     }
   }
   const handleClick = (e: any) => {
@@ -817,17 +821,23 @@ function FarmView({
       const itemHtml = `<div class="flex justify-between items-center h-8">
                           <image class="w-5 h-5 rounded-full mr-7" src="${icon}"/>
                           <label class="text-xs text-navHighLightText">${formatWithCommas(
-                            userUnclaimedReward
+                            toPrecision(userUnclaimedReward, 3)
                           )}</label>
                         </div>`;
       result += itemHtml;
     });
+    let resultPrice = toInternationalCurrencySystem(totalPrice.toString(), 2);
+    if (Number(resultPrice) == 0) {
+      resultPrice = '<$0.01'
+    } else {
+      resultPrice = `$${resultPrice}`
+    }
     setUnclaimed({
       tip: result,
       totalPrice: `${
         totalPrice == 0
           ? '-'
-          : `$${toInternationalCurrencySystem(totalPrice.toString(), 2)}`
+          : `${resultPrice}`
       }`,
     });
   }
@@ -1158,7 +1168,7 @@ function FarmView({
                             token.icon
                           }"/>
                           <label class="text-xs text-navHighLightText">${toInternationalCurrencySystem(
-                            tokenNum
+                            tokenNum, 3
                           )}</label>
                         </div>`;
       result += itemHtml;
