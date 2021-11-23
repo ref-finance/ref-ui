@@ -217,5 +217,6 @@ const zh_CN = {
   no_token_tip: '没有可提取的代币',
   getToken_tip: '你可以现在认领你的奖励或质押代币！',
   my_liquidity: '我的流动池',
+  staking_in_farm: '质押在农场中',
 };
 export default zh_CN;

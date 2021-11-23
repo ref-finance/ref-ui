@@ -745,7 +745,15 @@ export function MyShares({
     return (
       <div className="flex flex-col">
         <div className="mb-1">{`${displayPercent}% of Total`}</div>
-        <div className="text-xs">{`${farmSharePercent}% Staking in Farm`}</div>
+        <div className="text-xs">
+          {`${farmSharePercent}% `}
+          <p>
+            <FormattedMessage
+              id="staking_in_farm"
+              defaultMessage="Staking in Farm"
+            />
+          </p>
+        </div>
       </div>
     );
   }
