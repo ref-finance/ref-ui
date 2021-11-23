@@ -46,6 +46,8 @@ interface EstimateSwapOptions {
   amountIn: string;
   intl?: any;
   setLoadingData?: (loading: boolean) => void;
+  loadingTrigger?: boolean;
+  setLoadingTrigger?: (loadingTrigger: boolean) => void;
 }
 
 export interface EstimateSwapView {
@@ -59,6 +61,8 @@ export const estimateSwap = async ({
   amountIn,
   intl,
   setLoadingData,
+  loadingTrigger,
+  setLoadingTrigger,
 }: EstimateSwapOptions): Promise<EstimateSwapView> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
   if (!parsedAmountIn)
@@ -71,6 +75,8 @@ export const estimateSwap = async ({
     tokenOutId: tokenOut.id,
     amountIn: parsedAmountIn,
     setLoadingData,
+    setLoadingTrigger,
+    loadingTrigger,
   });
 
   if (pools.length < 1) {

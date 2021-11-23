@@ -69,7 +69,7 @@ export default function SwapFormWrap({
               <div
                 onClick={() => {
                   setLoadingData(true);
-                  setLoadingTrigger(!loadingTrigger);
+                  setLoadingTrigger(true);
                 }}
               >
                 <SwapRefresh

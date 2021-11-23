@@ -18,7 +18,8 @@ interface SwapOptions {
   tokenOut: TokenMetadata;
   slippageTolerance: number;
   setLoadingData?: (loading: boolean) => void;
-  loadingTrigger: boolean;
+  loadingTrigger?: boolean;
+  setLoadingTrigger?: (loadingTrigger: boolean) => void;
 }
 
 export const useSwap = ({
@@ -28,6 +29,7 @@ export const useSwap = ({
   slippageTolerance,
   setLoadingData,
   loadingTrigger,
+  setLoadingTrigger,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -117,6 +119,8 @@ export const useSwap = ({
         amountIn: tokenInAmount,
         intl,
         setLoadingData,
+        loadingTrigger,
+        setLoadingTrigger,
       })
         .then(({ estimate, pool }) => {
           if (!estimate || !pool) throw '';

@@ -261,7 +261,9 @@ interface GetPoolOptions {
   tokenInId: string;
   tokenOutId: string;
   amountIn: string;
+  setLoadingTrigger?: (loadingTrigger: boolean) => void;
   setLoadingData?: (loading: boolean) => void;
+  loadingTrigger: boolean;
 }
 
 export const getPoolsByTokens = async ({
@@ -269,12 +271,14 @@ export const getPoolsByTokens = async ({
   tokenOutId,
   amountIn,
   setLoadingData,
+  setLoadingTrigger,
+  loadingTrigger,
 }: GetPoolOptions): Promise<Pool[]> => {
   const amountToTrade = new BN(amountIn);
   let filtered_pools;
   const cache = await db.checkPoolsByTokens(tokenInId, tokenOutId);
 
-  if (cache) {
+  if (cache && !loadingTrigger) {
     const cache_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
     filtered_pools = cache_pools.filter(
       (p) =>
@@ -295,6 +299,7 @@ export const getPoolsByTokens = async ({
         new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
         p.supplies[tokenOutId]
     );
+    setLoadingTrigger(false);
   }
   setLoadingData(false);
   return filtered_pools;

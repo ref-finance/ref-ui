@@ -246,6 +246,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       slippageTolerance,
       setLoadingData,
       loadingTrigger,
+      setLoadingTrigger,
     });
 
   useEffect(() => {
