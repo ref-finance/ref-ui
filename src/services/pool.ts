@@ -261,12 +261,14 @@ interface GetPoolOptions {
   tokenInId: string;
   tokenOutId: string;
   amountIn: string;
+  setLoadingData?: (loading: boolean) => void;
 }
 
 export const getPoolsByTokens = async ({
   tokenInId,
   tokenOutId,
   amountIn,
+  setLoadingData,
 }: GetPoolOptions): Promise<Pool[]> => {
   const amountToTrade = new BN(amountIn);
   let filtered_pools;
@@ -280,6 +282,7 @@ export const getPoolsByTokens = async ({
         p.supplies[tokenOutId]
     );
   } else {
+    setLoadingData(true);
     const totalPools = await getTotalPools();
     const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
     const pools = (
@@ -293,6 +296,7 @@ export const getPoolsByTokens = async ({
         p.supplies[tokenOutId]
     );
   }
+  setLoadingData(false);
   return filtered_pools;
 };
 
@@ -348,7 +352,6 @@ export const canFarm = async (pool_id: number): Promise<Number> => {
     return pre;
   }, 0);
 
-  console.log(count);
   return count;
 };
 

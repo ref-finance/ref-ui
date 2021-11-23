@@ -176,6 +176,9 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenOutBalanceFromNear, setTokenOutBalanceFromNear] =
     useState<string>();
 
+  const [loadingData, setLoadingData] = useState<boolean>(false);
+  const [loadingTrigger, setLoadingTrigger] = useState<boolean>(false);
+
   const intl = useIntl();
   const location = useLocation();
   const history = useHistory();
@@ -234,12 +237,15 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     }
   }, [tokenIn, tokenOut, useNearBalance]);
 
+  // estimate
   const { canSwap, tokenOutAmount, minAmountOut, pool, swapError, makeSwap } =
     useSwap({
       tokenIn: tokenIn,
       tokenInAmount,
       tokenOut: tokenOut,
       slippageTolerance,
+      setLoadingData,
+      loadingTrigger,
     });
 
   useEffect(() => {
@@ -325,6 +331,12 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         onSubmit={handleSubmit}
         info={intl.formatMessage({ id: 'swapCopy' })}
         title={'swap'}
+        loading={{
+          loadingData,
+          setLoadingData,
+          loadingTrigger,
+          setLoadingTrigger,
+        }}
       >
         <TokenAmount
           amount={tokenInAmount}

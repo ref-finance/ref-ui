@@ -8,6 +8,7 @@ import { useHistory, useLocation } from 'react-router';
 import getConfig from '~services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { CloseIcon } from '~components/icon/Actions';
+import db from '../store/RefDatabase';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -16,6 +17,8 @@ interface SwapOptions {
   tokenInAmount: string;
   tokenOut: TokenMetadata;
   slippageTolerance: number;
+  setLoadingData?: (loading: boolean) => void;
+  loadingTrigger: boolean;
 }
 
 export const useSwap = ({
@@ -23,6 +26,8 @@ export const useSwap = ({
   tokenInAmount,
   tokenOut,
   slippageTolerance,
+  setLoadingData,
+  loadingTrigger,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -111,6 +116,7 @@ export const useSwap = ({
         tokenOut,
         amountIn: tokenInAmount,
         intl,
+        setLoadingData,
       })
         .then(({ estimate, pool }) => {
           if (!estimate || !pool) throw '';
@@ -132,7 +138,7 @@ export const useSwap = ({
     ) {
       setTokenOutAmount('0');
     }
-  }, [tokenIn, tokenOut, tokenInAmount]);
+  }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger]);
 
   const makeSwap = (useNearBalance: boolean) => {
     swap({
