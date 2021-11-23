@@ -707,12 +707,14 @@ export function MyShares({
   poolId,
   stakeList = {},
   decimal,
+  yourLP,
 }: {
   shares: string;
   totalShares: string;
   poolId?: number;
   stakeList?: Record<string, string>;
   decimal?: number;
+  yourLP?: boolean;
 }) {
   if (!shares || !totalShares) return <div>-</div>;
   const seedIdList: string[] = Object.keys(stakeList);
@@ -726,6 +728,11 @@ export function MyShares({
   const userTotalShare = BigNumber.sum(shares, farmStake);
   let sharePercent = percent(userTotalShare.valueOf(), totalShares);
 
+  const farmSharePercent = toPrecision(
+    percent(farmStake, totalShares).toString(),
+    2
+  );
+
   let displayPercent;
   if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
   else if (sharePercent < 0.0001)
@@ -733,6 +740,15 @@ export function MyShares({
       decimal ? '0.'.padEnd(decimal + 1, '0') + '1' : '0.0001'
     }`;
   else displayPercent = toPrecision(String(sharePercent), decimal || 4);
+
+  if (yourLP) {
+    return (
+      <div className="flex flex-col">
+        <div className="mb-1">{`${displayPercent}% of Total`}</div>
+        <div className="text-xs">{`${farmSharePercent}% Staking in Farm`}</div>
+      </div>
+    );
+  }
 
   return (
     <div>{`${toRoundedReadableNumber({

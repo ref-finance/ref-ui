@@ -158,6 +158,7 @@ function PoolRow(props: { pool: any; balance: string }) {
             shares={shares}
             totalShares={pool.shareSupply}
             decimal={2}
+            yourLP
           />
         </div>
         <div className="col-span-2 text-right">
@@ -191,6 +192,7 @@ function PoolRow(props: { pool: any; balance: string }) {
               shares={shares}
               totalShares={pool.shareSupply}
               decimal={2}
+              yourLP
             />
           </div>
         </div>
