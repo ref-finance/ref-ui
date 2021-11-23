@@ -59,6 +59,7 @@ module.exports = {
         farmSbg:'#2F3D47',
         farmRound:"#B3C2CC",
         farmTopRight:'#008870'
+        feeSelectorBg: '#637684',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

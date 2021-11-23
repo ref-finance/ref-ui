@@ -374,6 +374,10 @@ input.warn-input:focus {
   overflow-x: hidden;
 }
 
+.bg-height-full {
+  height: calc(100% - 80px);
+}
+
 .recharts-text.recharts-cartesian-axis-tick-value {
   font-size: 12px;
 }

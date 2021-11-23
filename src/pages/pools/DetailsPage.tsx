@@ -701,7 +701,7 @@ export function RemoveLiquidityModal(
   );
 }
 
-function MyShares({
+export function MyShares({
   shares,
   totalShares,
   poolId,
@@ -726,8 +726,11 @@ function MyShares({
 
   let displayPercent;
   if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
-  else if (sharePercent < 0.0001) displayPercent = '< 0.0001';
-  else displayPercent = toPrecision(String(sharePercent), 4);
+  else if (sharePercent < 0.0001)
+    displayPercent = `< ${
+      decimal ? '0.'.padEnd(decimal + 1, '0') + '1' : '0.0001'
+    }`;
+  else displayPercent = toPrecision(String(sharePercent), decimal || 4);
 
   return (
     <div>{`${toRoundedReadableNumber({
@@ -889,7 +892,10 @@ export function VolumeChart({
   const baseColor = '#00967B';
   const hoverColor = '#00c6a2';
 
-  const formatDate = (rawDate: string) => moment(rawDate).format('ll');
+  const formatDate = (rawDate: string) => {
+    const date = rawDate.split('-').map((t) => Number(t));
+    return moment(new Date(date[0], date[1], date[2])).format('ll');
+  };
 
   const BackgroundRender = (targetBar: BarProps & { index?: number }) => {
     const { x, y, width, height, index } = targetBar;

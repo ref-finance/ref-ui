@@ -90,6 +90,7 @@ const zh_CN = {
   enter_token_address: '输入代币地址',
   you_are_not_providing_liquidity_to_any_pools: '你未提供任何池子的流动性',
   remove: '移除',
+  select: '选择代币',
   select_token: '选择代币',
   basis_points: '基点',
   total_fee: '总费用 % ',
@@ -215,5 +216,6 @@ const zh_CN = {
   over_tip: '支持一次提取7种代币',
   no_token_tip: '没有可提取的代币',
   getToken_tip: '你可以现在认领你的奖励或质押代币！',
+  my_liquidity: '我的流动池',
 };
 export default zh_CN;
