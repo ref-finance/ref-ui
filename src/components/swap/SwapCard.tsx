@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
-import { TokenMetadata } from '../../services/ft-contract';
+import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
 import { useTokenBalances } from '../../state/token';
 import { useSwap } from '../../state/swap';
@@ -11,19 +11,21 @@ import {
   toPrecision,
   toReadableNumber,
 } from '../../utils/numbers';
-import NewFormWrap from '../forms/NewFormWrap';
 import TokenAmount from '../forms/TokenAmount';
 import Alert from '../alert/Alert';
-import { SwapArrow } from '../icon/Arrows';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import db from '~store/RefDatabase';
 import { GradientButton } from '~components/button/Button';
+import { wallet } from '~services/near';
+import SwapFormWrap from '../forms/SwapFormWrap';
+import SwapTip from '~components/forms/SwapTip';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
 const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
+export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
 
 function SwapDetail({ title, value }: { title: string; value: string }) {
@@ -165,6 +167,14 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
   const [disableTokenInput, setDisableTokenInput] = useState<boolean>();
+  const [useNearBalance, setUseNearBalance] = useState<boolean>(
+    localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) != 'false'
+  );
+
+  const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
+    useState<string>();
+  const [tokenOutBalanceFromNear, setTokenOutBalanceFromNear] =
+    useState<string>();
 
   const intl = useIntl();
   const location = useLocation();
@@ -195,6 +205,35 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     }
   }, [allTokens]);
 
+  useEffect(() => {
+    if (useNearBalance) {
+      if (tokenIn) {
+        const tokenInId = tokenIn.id;
+        if (tokenInId) {
+          if (wallet.isSignedIn()) {
+            ftGetBalance(tokenInId).then((available) =>
+              setTokenInBalanceFromNear(
+                toReadableNumber(tokenIn?.decimals, available)
+              )
+            );
+          }
+        }
+      }
+      if (tokenOut) {
+        const tokenOutId = tokenOut.id;
+        if (tokenOutId) {
+          if (wallet.isSignedIn()) {
+            ftGetBalance(tokenOutId).then((available) =>
+              setTokenOutBalanceFromNear(
+                toReadableNumber(tokenOut?.decimals, available)
+              )
+            );
+          }
+        }
+      }
+    }
+  }, [tokenIn, tokenOut, useNearBalance]);
+
   const { canSwap, tokenOutAmount, minAmountOut, pool, swapError, makeSwap } =
     useSwap({
       tokenIn: tokenIn,
@@ -211,7 +250,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
     db.checkPoolsByTokens(rememberedIn, rememberedOut).then((cached) => {
       if (!cached) {
-        if (Number(tokenInAmount) === 0 || swapError != null) {
+        if (swapError != null) {
           setDisableTokenInput(false);
         } else {
           setDisableTokenInput(!canSwap);
@@ -227,7 +266,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    makeSwap();
+    makeSwap(useNearBalance);
   };
   const topBall = useRef<HTMLInputElement>();
   const bottomBall = useRef<HTMLInputElement>();
@@ -242,105 +281,118 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     });
   };
 
-  const tokenInMax =
-    toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0';
-  const tokenOutTotal =
-    toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
+  const tokenInMax = useNearBalance
+    ? tokenInBalanceFromNear || '0'
+    : toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0';
+  const tokenOutTotal = useNearBalance
+    ? tokenOutBalanceFromNear || '0'
+    : toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
+  const canSubmit = canSwap && (tokenInMax != '0' || !useNearBalance);
 
   return (
-    <NewFormWrap
-      canSubmit={canSwap}
-      slippageTolerance={slippageTolerance}
-      onChange={(slippage) => {
-        setSlippageTolerance(slippage);
-        localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
-      }}
-      showElseView={tokenInMax === '0'}
-      elseView={
-        <div className="flex justify-center">
-          <GradientButton
-            className={`w-full text-center text-lg text-white mt-4 px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
+    <>
+      <SwapTip></SwapTip>
+      <SwapFormWrap
+        canSubmit={canSubmit}
+        slippageTolerance={slippageTolerance}
+        onChange={(slippage) => {
+          setSlippageTolerance(slippage);
+          localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
+        }}
+        bindUseBalance={(useNearBalance) => {
+          setUseNearBalance(useNearBalance);
+          localStorage.setItem(
+            SWAP_USE_NEAR_BALANCE_KEY,
+            useNearBalance.toString()
+          );
+        }}
+        showElseView={tokenInMax === '0' && !useNearBalance}
+        elseView={
+          <div className="flex justify-center">
+            <GradientButton
+              className={`w-full text-center text-lg text-white mt-4 px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
+              onClick={() => {
+                history.push(`/deposit/${tokenIn.id}`);
+              }}
+            >
+              <FormattedMessage
+                id="deposit_to_swap"
+                defaultMessage="Deposit to swap"
+              />
+            </GradientButton>
+          </div>
+        }
+        onSubmit={handleSubmit}
+        info={intl.formatMessage({ id: 'swapCopy' })}
+        title={'swap'}
+      >
+        <TokenAmount
+          amount={tokenInAmount}
+          total={tokenInMax}
+          max={tokenInMax}
+          tokens={allTokens}
+          selectedToken={tokenIn}
+          balances={balances}
+          onSelectToken={(token) => {
+            localStorage.setItem(SWAP_IN_KEY, token.id);
+            history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
+            setTokenIn(token);
+            setTokenInBalanceFromNear(token.near.toString());
+          }}
+          text={intl.formatMessage({ id: 'from' })}
+          disabled={disableTokenInput}
+          useNearBalance={useNearBalance}
+          onChangeAmount={(amount) => {
+            setTokenInAmount(amount);
+          }}
+        />
+        <div
+          className="flex items-center justify-center border-t mt-12"
+          style={{ borderColor: 'rgba(126, 138, 147, 0.3)' }}
+        >
+          <div
+            className="relative flex items-center -mt-6 mb-4 w-11 h-11 border border-white border-opacity-40 rounded-full cursor-pointer bg-dark"
             onClick={() => {
-              history.push(`/deposit/${tokenIn.id}`);
+              runSwapAnimation();
+              setTokenIn(tokenOut);
+              setTokenOut(tokenIn);
+              setTokenInAmount(toPrecision('1', 6));
             }}
           >
-            <FormattedMessage
-              id="deposit_to_swap"
-              defaultMessage="Deposit to swap"
-            />
-          </GradientButton>
-        </div>
-      }
-      onSubmit={handleSubmit}
-      info={intl.formatMessage({ id: 'swapCopy' })}
-      title={'swap'}
-    >
-      <TokenAmount
-        amount={tokenInAmount}
-        total={tokenInMax}
-        max={tokenInMax}
-        tokens={allTokens}
-        selectedToken={tokenIn}
-        balances={balances}
-        onSelectToken={(token) => {
-          localStorage.setItem(SWAP_IN_KEY, token.id);
-          history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
-          setTokenIn(token);
-        }}
-        text={intl.formatMessage({ id: 'from' })}
-        disabled={disableTokenInput}
-        onChangeAmount={(amount) => {
-          setTokenInAmount(amount);
-        }}
-      />
-      <div
-        className="flex items-center justify-center border-t mt-12"
-        style={{ borderColor: 'rgba(126, 138, 147, 0.3)' }}
-      >
-        <div
-          className="relative flex items-center -mt-6 mb-4 w-14 h-14 border border-white border-opacity-40 rounded-full cursor-pointer bg-dark"
-          onClick={() => {
-            runSwapAnimation();
-            setTokenIn(tokenOut);
-            setTokenOut(tokenIn);
-            setTokenInAmount(toPrecision('1', 6));
-          }}
-        >
-          <div className="swap-wrap">
-            <div className="top-ball" ref={topBall} id="top-ball"></div>
-            <div
-              className="bottom-ball"
-              ref={bottomBall}
-              id="bottom-ball"
-            ></div>
+            <div className="swap-wrap">
+              <div className="top-ball" ref={topBall} id="top-ball" />
+              <div className="bottom-ball" ref={bottomBall} id="bottom-ball" />
+            </div>
           </div>
         </div>
-      </div>
-      <TokenAmount
-        amount={toPrecision(tokenOutAmount, 8)}
-        total={tokenOutTotal}
-        tokens={allTokens}
-        selectedToken={tokenOut}
-        balances={balances}
-        text={intl.formatMessage({ id: 'to' })}
-        onSelectToken={(token) => {
-          localStorage.setItem(SWAP_OUT_KEY, token.id);
-          history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`);
-          setTokenOut(token);
-        }}
-      />
-      <DetailView
-        pool={pool}
-        tokenIn={tokenIn}
-        tokenOut={tokenOut}
-        from={tokenInAmount}
-        to={tokenOutAmount}
-        minAmountOut={minAmountOut}
-      />
+        <TokenAmount
+          amount={toPrecision(tokenOutAmount, 8)}
+          total={tokenOutTotal}
+          tokens={allTokens}
+          selectedToken={tokenOut}
+          balances={balances}
+          text={intl.formatMessage({ id: 'to' })}
+          useNearBalance={useNearBalance}
+          onSelectToken={(token) => {
+            localStorage.setItem(SWAP_OUT_KEY, token.id);
+            history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`);
+            setTokenOut(token);
+            setTokenOutBalanceFromNear(token.near.toString());
+          }}
+        />
+        <DetailView
+          pool={pool}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+          from={tokenInAmount}
+          to={tokenOutAmount}
+          minAmountOut={minAmountOut}
+        />
 
-      <div className="pb-2">
-        {swapError && <Alert level="error" message={swapError.message} />}
-      </div>
-    </NewFormWrap>
+        <div className="pb-2">
+          {swapError && <Alert level="error" message={swapError.message} />}
+        </div>
+      </SwapFormWrap>
+    </>
   );
 }

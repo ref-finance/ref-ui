@@ -25,15 +25,10 @@ import Loading from '~components/layout/Loading';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
 import { FarmStamp } from '~components/icon/FarmStamp';
 import { ChartLoading } from '~components/icon/Loading';
-import {
-  MULTI_MINING_POOLS,
-  REF_FARM_CONTRACT_ID,
-  REF_FI_CONTRACT_ID,
-} from '~services/near';
+import { REF_FARM_CONTRACT_ID, REF_FI_CONTRACT_ID } from '~services/near';
 import { PoolSlippageSelector } from '~components/forms/SlippageSelector';
 import { Link } from 'react-router-dom';
 import { canFarm } from '~services/pool';
-
 import {
   calculateFairShare,
   calculateFeePercent,
@@ -42,6 +37,7 @@ import {
   toPrecision,
   toReadableNumber,
   toInternationalCurrencySystem,
+  toRoundedReadableNumber,
 } from '../../utils/numbers';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import Alert from '~components/alert/Alert';
@@ -67,7 +63,7 @@ import {
 import { OutlineButton, SolidButton } from '~components/button/Button';
 import { wallet } from '~services/near';
 import { BreadCrumb } from '~components/layout/BreadCrumb';
-
+import { LP_TOKEN_DECIMALS } from '../../services/m-token';
 import {
   ResponsiveContainer,
   LineChart,
@@ -646,7 +642,11 @@ export function RemoveLiquidityModal(
                       <span className="m-1 mb-2 text-sm">{token.symbol} </span>
                       <span className="ml-2 text-base font-bold">
                         {toInternationalCurrencySystem(
-                          toReadableNumber(token.decimals, minimumAmount)
+                          toPrecision(
+                            toReadableNumber(token.decimals, minimumAmount),
+                            4
+                          ),
+                          4
                         )}
                       </span>
                     </section>
@@ -704,20 +704,40 @@ export function RemoveLiquidityModal(
 function MyShares({
   shares,
   totalShares,
+  poolId,
+  stakeList = {},
 }: {
   shares: string;
   totalShares: string;
+  poolId: number;
+  stakeList: Record<string, string>;
 }) {
   if (!shares || !totalShares) return <div>-</div>;
-
-  let sharePercent = percent(shares, totalShares);
+  const seedIdList: string[] = Object.keys(stakeList);
+  let farmStake: string | number = '0';
+  seedIdList.forEach((seed) => {
+    const id = Number(seed.split('@')[1]);
+    if (id == poolId) {
+      farmStake = BigNumber.sum(farmStake, stakeList[seed]).valueOf();
+    }
+  });
+  const userTotalShare = BigNumber.sum(shares, farmStake);
+  let sharePercent = percent(userTotalShare.valueOf(), totalShares);
 
   let displayPercent;
   if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
   else if (sharePercent < 0.0001) displayPercent = '< 0.0001';
   else displayPercent = toPrecision(String(sharePercent), 4);
 
-  return <div>{displayPercent}% of Total</div>;
+  return (
+    <div>{`${toRoundedReadableNumber({
+      decimals: LP_TOKEN_DECIMALS,
+      number:
+        userTotalShare
+          .toNumber()
+          .toLocaleString('fullwide', { useGrouping: false }) ?? '0',
+    })} (${displayPercent}%)`}</div>
+  );
 }
 
 const ChartChangeButton = ({
@@ -901,6 +921,7 @@ export function VolumeChart({
         />
       );
   };
+
   if (!data)
     return (
       <EmptyChart
@@ -992,6 +1013,7 @@ export function TVLChart({
         loading={true}
       />
     );
+
   if (data.length === 0)
     return (
       <EmptyChart
@@ -999,6 +1021,7 @@ export function TVLChart({
         chartDisplay={chartDisplay}
       />
     );
+
   return (
     <>
       <div className="flex items-center justify-between self-start w-full">
@@ -1064,7 +1087,7 @@ export function TVLChart({
 export function PoolDetailsPage() {
   const { id } = useParams<ParamTypes>();
   const { state } = useLocation<LocationTypes>();
-  const { pool, shares } = usePool(id);
+  const { pool, shares, stakeList } = usePool(id);
   const dayVolume = useDayVolume(id);
   const tokens = useTokens(pool?.tokenIds);
 
@@ -1079,9 +1102,10 @@ export function PoolDetailsPage() {
   const fromMorePools = localStorage.getItem('fromMorePools') === 'y';
   const morePoolIds: string[] =
     JSON.parse(localStorage.getItem('morePoolIds')) || [];
+  const [farmCount, setFarmCount] = useState<Number>(1);
 
-  const FarmButton = () => {
-    const isMultiMining = MULTI_MINING_POOLS.includes(pool.id);
+  const FarmButton = ({ farmCount }: { farmCount: Number }) => {
+    const isMultiMining = farmCount > 1;
     return (
       <div className="flex items-center">
         <div className="ml-2">
@@ -1118,13 +1142,10 @@ export function PoolDetailsPage() {
         setPoolTVL(pool?.tvl);
       });
     }
-    if (state?.backToFarms) {
-      setBackToFarmsButton(state?.backToFarms);
-    } else {
-      canFarm(Number(id)).then((canFarm) => {
-        setBackToFarmsButton(canFarm);
-      });
-    }
+    canFarm(Number(id)).then((canFarm) => {
+      setBackToFarmsButton(!!canFarm);
+      setFarmCount(canFarm);
+    });
 
     getWatchListFromDb({ pool_id: id }).then((watchlist) => {
       setShowFullStar(watchlist.length > 0);
@@ -1170,11 +1191,10 @@ export function PoolDetailsPage() {
                   <Link
                     to={{
                       pathname: '/farms',
-                      hash: `${pool.id}`,
                     }}
                     target="_blank"
                   >
-                    <FarmButton />
+                    <FarmButton farmCount={farmCount} />
                   </Link>
                 ) : (
                   <span>' '</span>
@@ -1307,7 +1327,12 @@ export function PoolDetailsPage() {
                   <FormattedMessage id="my_shares" defaultMessage="My Shares" />
                 </div>
                 <div className="text-white">
-                  <MyShares shares={shares} totalShares={pool.shareSupply} />
+                  <MyShares
+                    shares={shares}
+                    totalShares={pool.shareSupply}
+                    poolId={pool.id}
+                    stakeList={stakeList}
+                  />
                 </div>
               </div>
             </div>

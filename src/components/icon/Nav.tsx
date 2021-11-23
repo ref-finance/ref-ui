@@ -349,6 +349,7 @@ export function IconZh() {
     </svg>
   );
 }
+
 export function IconBubble() {
   return (
     <svg

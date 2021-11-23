@@ -61,11 +61,13 @@ export const useUserRegisteredTokens = () => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
 
   useEffect(() => {
-    getUserRegisteredTokens()
-      .then((tokenIds) =>
-        Promise.all(tokenIds.map((tokenId) => ftGetTokenMetadata(tokenId)))
-      )
-      .then(setTokens);
+    if (wallet.isSignedIn()) {
+      getUserRegisteredTokens()
+        .then((tokenIds) =>
+          Promise.all(tokenIds.map((tokenId) => ftGetTokenMetadata(tokenId)))
+        )
+        .then(setTokens);
+    }
   }, []);
 
   return tokens;

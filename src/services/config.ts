@@ -20,7 +20,6 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 10,
-        MULTI_MINING_POOLS: [79, 377, 2, 4],
       };
     case 'development':
     case 'testnet':
@@ -30,20 +29,20 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         walletUrl: 'https://wallet.testnet.near.org',
         helperUrl: 'https://helper.testnet.near.org',
         explorerUrl: 'https://explorer.testnet.near.org',
-        indexerUrl: 'https://testnet-indexer.ref-finance.com',
+        indexerUrl: 'https://dev-indexer.ref-finance.com',
         sodakiApiUrl: 'https://sodaki.com/api',
         REF_FI_CONTRACT_ID:
-          process.env.REF_FI_CONTRACT_ID || 'ref-finance-101.testnet',
+          process.env.REF_FI_CONTRACT_ID || 'exchange.ref-dev.testnet',
         WRAP_NEAR_CONTRACT_ID:
           process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.testnet',
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
         REF_FARM_CONTRACT_ID:
-          process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.testnet',
+          process.env.REF_FARM_CONTRACT_ID || 'farm110.ref-dev.testnet',
+
         REF_TOKEN_ID: 'token.ref-finance.testnet',
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 10,
-        MULTI_MINING_POOLS: [79, 377, 2, 4],
       };
     default:
       return {
@@ -64,7 +63,6 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 10,
-        MULTI_MINING_POOLS: [79, 377, 2, 4],
       };
   }
 }

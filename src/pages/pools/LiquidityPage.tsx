@@ -18,7 +18,6 @@ import { getExchangeRate, useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';
 import { canFarm, Pool } from '../../services/pool';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
-import { MULTI_MINING_POOLS, REF_FARM_CONTRACT_ID } from '~services/near';
 import {
   calculateFeePercent,
   toPrecision,
@@ -62,7 +61,7 @@ function MobilePoolRow({
   const history = useHistory();
   useEffect(() => {
     canFarm(pool.id).then((canFarm) => {
-      setSupportFarm(canFarm);
+      setSupportFarm(!!canFarm);
     });
   }, [pool]);
 
@@ -221,7 +220,7 @@ function MobileWatchListCard({ watchPools }: { watchPools: Pool[] }) {
             </div>
           </div>
         </header>
-        <div className="border-b border-gray-700 border-opacity-70"></div>
+        <div className="border-b border-gray-700 border-opacity-70" />
         <div className="max-h-96 overflow-y-auto">
           {watchPools?.map((pool, i) => (
             <div className="w-full hover:bg-poolRowHover" key={i}>
@@ -412,7 +411,7 @@ function MobileLiquidityPage({
               </div>
             </div>
           </header>
-          <div className="border-b border-gray-700 border-opacity-70"></div>
+          <div className="border-b border-gray-700 border-opacity-70" />
           <div className="max-h-96 overflow-y-auto">
             {pools?.map((pool, i) => (
               <div className="w-full hover:bg-poolRowHover" key={i}>
@@ -432,6 +431,7 @@ function MobileLiquidityPage({
 
 function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
+  const [farmCount, setFarmCount] = useState<Number>(1);
   const tokens = useTokens(pool.tokenIds);
   const morePoolIds = useMorePoolIds({ topPool: pool });
   const history = useHistory();
@@ -439,7 +439,8 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
 
   useEffect(() => {
     canFarm(pool.id).then((canFarm) => {
-      setSupportFarm(canFarm);
+      setSupportFarm(!!canFarm);
+      setFarmCount(canFarm);
     });
   }, [pool]);
   // if (!tokens) return <Loading />;
@@ -451,13 +452,13 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
     return a.symbol > b.symbol ? 1 : -1;
   });
 
-  const FarmButton = () => {
+  const FarmButton = ({ farmCount }: { farmCount: Number }) => {
     return (
       <div className="flex items-center">
         <div className="mx-2">
           <FarmStamp />
         </div>
-        <div>{MULTI_MINING_POOLS.includes(pool.id) && <FarmMiningIcon />}</div>
+        <div>{farmCount > 1 && <FarmMiningIcon />}</div>
       </div>
     );
   };
@@ -496,7 +497,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
           </div>
         </div>
 
-        {supportFarm && <FarmButton />}
+        {supportFarm && <FarmButton farmCount={farmCount} />}
       </div>
       <div className="col-span-1 py-1 md:hidden ">
         {calculateFeePercent(pool.fee)}%

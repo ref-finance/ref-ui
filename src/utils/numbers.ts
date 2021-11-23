@@ -68,12 +68,14 @@ export const toRoundedReadableNumber = ({
   decimals,
   number,
   precision = 6,
+  withCommas = true,
 }: {
   decimals: number;
   number?: string;
   precision?: number;
+  withCommas?: boolean;
 }): string => {
-  return toPrecision(toReadableNumber(decimals, number), precision, true);
+  return toPrecision(toReadableNumber(decimals, number), precision, withCommas);
 };
 
 export const convertToPercentDecimal = (percent: number) => {

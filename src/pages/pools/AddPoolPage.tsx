@@ -122,7 +122,7 @@ export function AddPoolPage() {
             />
           </div>
         </div>
-        <div className="pt-4 flex items-center justify-center w-full">
+        <div className="pt-4 w-full">
           {wallet.isSignedIn() ? (
             <button
               disabled={!canSubmit}

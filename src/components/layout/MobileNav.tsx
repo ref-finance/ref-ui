@@ -1,6 +1,5 @@
 import React, {
   createContext,
-  ReactNode,
   useContext,
   useEffect,
   useRef,
@@ -15,6 +14,7 @@ import {
   IconMyLiquidity,
   IconEn,
   IconZh,
+  WrapNearEnter,
 } from '~components/icon';
 import { Link, useLocation } from 'react-router-dom';
 import { wallet } from '~services/near';
@@ -29,6 +29,9 @@ import { useRefPrice } from '~state/account';
 import { toPrecision } from '~utils/numbers';
 import { RefAnalytics } from '~components/icon/RefAnalytics';
 import { moreLinks } from '~utils/menu';
+import WrapNear from '~components/forms/WrapNear';
+import { useDepositableBalance, useWhitelistTokens } from '~state/token';
+import { nearMetadata } from '~services/wrap-near';
 
 export function MobileAnchor({
   to,
@@ -54,7 +57,7 @@ export function MobileAnchor({
     <div>
       <Link onClick={onClick} to={to}>
         <div
-          className={`p-4 text-lg link font-bold p-2 ${className} ${
+          className={`p-4 text-lg link font-bold ${className} ${
             isSelected ? 'text-white bg-navHighLightBg' : 'text-primaryText'
           }`}
         >
@@ -153,8 +156,14 @@ export function MobileNavBar() {
   const [openMenu, setOpenMenu] = useState('');
   const [closeMenu, setCloseMenu] = useState(false);
   const history = useHistory();
+  const [mobileWrapNear, setMobileWrapNear] = useState(false);
+  const allTokens = useWhitelistTokens();
+
   const accountName =
     account.length > 10 ? niceAccountId : wallet.getAccountId();
+  const nearBalance = wallet.isSignedIn()
+    ? useDepositableBalance(nearMetadata.id, nearMetadata.decimals)
+    : '0';
 
   useEffect(() => {
     document.addEventListener('click', handleClick, false);
@@ -163,6 +172,13 @@ export function MobileNavBar() {
       document.addEventListener('click', handleClick, false);
     };
   }, []);
+  useEffect(() => {
+    if (mobileWrapNear) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  }, [mobileWrapNear]);
 
   const handleClick = (e: any) => {
     if (
@@ -283,12 +299,13 @@ export function MobileNavBar() {
             </div>
           </div>
 
-          <div className="p-4 flex">
+          <div className="p-4 flex text-white items-center justify-start">
             <NavLogoLarge />
             <span className="inline-block ml-2 mt-1 text-white">
               ${data && data !== '-' ? toPrecision(data, 2) : '-'}
             </span>
           </div>
+
           <div className="text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
             {wallet.isSignedIn() && (
               <MobileAnchor
@@ -297,6 +314,39 @@ export function MobileNavBar() {
                 name="view_account"
                 onClick={close}
               />
+            )}
+            {wallet.isSignedIn() && (
+              <div className="text-primaryText" onClick={() => setShow(false)}>
+                <div
+                  className="flex p-4 justify-between"
+                  onClick={() => setMobileWrapNear(true)}
+                >
+                  <FormattedMessage id="wrapnear" defaultMessage="Wrap NEAR" />
+                  <div className=" py-1 px-2 border border-framBorder text-framBorder hover:text-white hover:bg-framBorder hover:border-0 cursor-pointer rounded h-6 items-center flex">
+                    <WrapNearEnter></WrapNearEnter>
+                    <span className=" ml-2">
+                      {toPrecision(nearBalance, 3, true)}
+                    </span>
+                  </div>
+                </div>
+                <WrapNear
+                  isOpen={mobileWrapNear}
+                  onRequestClose={() => setMobileWrapNear(false)}
+                  allTokens={allTokens}
+                  style={{
+                    overlay: {
+                      backdropFilter: 'blur(15px)',
+                      WebkitBackdropFilter: 'blur(15px)',
+                    },
+                    content: {
+                      outline: 'none',
+                      position: 'fixed',
+                      width: '90%',
+                      bottom: '50%',
+                    },
+                  }}
+                />
+              </div>
             )}
             {moreLinks.map(
               ({ id, label, subRoute, pattern, url, isExternal, children }) => {

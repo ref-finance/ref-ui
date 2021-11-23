@@ -52,6 +52,12 @@ const en_US = {
   balance: 'Balance',
   from: 'From',
   to: 'To',
+  submit: 'Submit',
+  wrapnear: 'Wrap NEAR',
+  wrapnear_tip_one: 'Wrapping NEAR allows you to trade on REF. Make sure to ',
+  wrapnear_tip_two: 'leave 1 NEAR',
+  wrapnear_tip_three: ' for gas fees to unwrap your NEAR.',
+  wrap_error_msg: 'Not enough balance',
   sign_out: 'Sign out',
   view_account: 'View account',
   deposit_to_swap_and_add_liquidity: 'Deposit to swap and add liquidity',
@@ -128,9 +134,9 @@ const en_US = {
   claim_successful_click_to_view: 'Claim successful. Click to view',
   claim_failed_click_to_view: 'Claim failed. Click to view',
   slippageCopyForMobile:
-    'Slippage means the difference between what you expect to get and what you actually get due to other swaps executing first',
+    'Slippage means the difference between what you expect to get and what you actually get due to other executing first',
   slippageCopy:
-    'Slippage means the difference between what you expect to <br> get and what you actually get due to other swaps executing first',
+    'Slippage means the difference between what <br> you expect to get and what you actually <br> get due to other executing first',
   depositCopy:
     'This deposits your selected tokens into the <br> exchange for swapping or adding to a liquidity pool',
   nearDepositCopy:
@@ -150,8 +156,7 @@ const en_US = {
   getLPTokenCopy: 'Click here to jump to the corresponding pool',
   airdropCopy:
     ' Please claim your airdrop at least once before the expiration date otherwise your balance would be donated into the treasury',
-  farmRewardsCopy:
-    'What you have claimed but not withdrawn to your NEAR Wallet yet',
+  farmRewardsCopy: 'Indicative value based on prices and not actual execution',
   totalValueLockedCopy: 'Total Value Locked',
   topPoolsCopy: 'For every pair, only display the highest pool TVL',
   you_do_not_have_enough: "You don't have enough",
@@ -193,5 +198,29 @@ const en_US = {
   reward_tokens: 'Reward Tokens',
   detail_tip: 'Detail',
   no_data: 'No Data',
+  select_balance: 'Select Balance',
+  selectBalanceCopy:
+    'Select [Near Wallet] to swap directly tokens available in your Near wallet',
+  near_wallet: 'Near Wallet',
+  ref_account: 'Ref Account',
+  swap_tip: 'Swap from your Ref account by selecting Ref Account in Settings',
+  attention: 'Attention',
+  live: 'Live',
+  ended_search: 'Ended',
+  staked_only: 'Staked Only',
+  sort_by: 'Sort by',
+  your_farms_rewards: 'Your Farms Rewards',
+  your_farms: 'Your Farms',
+  new: 'NEW',
+  unstake_tip_t: 'You currently have an active/pending farm.',
+  unstake_tip_m:
+    'Unstaking will remove the stake from all active and pending farms of the same pair.',
+  unstake_tip_b: 'Will you going to unstake?',
+  value_rewards: 'Value of Rewards',
+  stake_unstake_tip:
+    'You have rewards unclaimed,stake / unstake will claim your unclaimed rewards first automatically.',
+  over_tip: 'Only 7 tokens can be withdrawn at once',
+  no_token_tip: 'No reward token',
+  getToken_tip: 'You can claim your rewards or stake your LP Tokens now!',
 };
 export default en_US;
