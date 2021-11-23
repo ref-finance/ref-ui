@@ -11,11 +11,7 @@ import {
   wallet,
 } from './near';
 import { checkTokenNeedsStorageDeposit } from './token';
-import {
-  needDepositStorage,
-  ONE_MORE_DEPOSIT_AMOUNT,
-  storageDepositAction,
-} from '~services/creators/storage';
+import { storageDepositAction } from '../services/creators/storage';
 
 export const { WRAP_NEAR_CONTRACT_ID } = getConfig();
 export const NEW_ACCOUNT_STORAGE_COST = '0.00125';
