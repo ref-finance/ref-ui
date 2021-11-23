@@ -89,19 +89,11 @@ function AccountEntry() {
           setHover(false);
         }}
       >
-        <div
-          className={`inline-flex py-1 items-center justify-center rounded-full px-5 absolute top-5 right-2
-        ${
-          wallet.isSignedIn()
-            ? 'bg-gray-700 text-white'
-            : 'border border-gradientFrom text-gradientFrom '
-        }
-        `}
-        >
+        <div className="inline-flex py-1 items-center justify-center rounded-full bg-gray-700 px-5">
           <div className="pr-1">
-            <Near color={wallet.isSignedIn() ? 'white' : '#00c6a2'} />
+            <Near />
           </div>
-          <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name">
+          <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name text-white">
             {wallet.isSignedIn() ? (
               accountName
             ) : (

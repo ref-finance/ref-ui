@@ -706,11 +706,13 @@ export function MyShares({
   totalShares,
   poolId,
   stakeList = {},
+  decimal,
 }: {
   shares: string;
   totalShares: string;
-  poolId: number;
-  stakeList: Record<string, string>;
+  poolId?: number;
+  stakeList?: Record<string, string>;
+  decimal?: number;
 }) {
   if (!shares || !totalShares) return <div>-</div>;
   const seedIdList: string[] = Object.keys(stakeList);
@@ -739,6 +741,7 @@ export function MyShares({
         userTotalShare
           .toNumber()
           .toLocaleString('fullwide', { useGrouping: false }) ?? '0',
+      precision: decimal || 6,
     })} (${displayPercent}%)`}</div>
   );
 }
