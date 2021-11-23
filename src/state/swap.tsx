@@ -38,6 +38,7 @@ export const useSwap = ({
 
   const { search } = useLocation();
   const history = useHistory();
+  const [count, setCount] = useState<number>(0);
   const txHashes = new URLSearchParams(search)
     .get('transactionHashes')
     ?.split(',');
@@ -51,6 +52,7 @@ export const useSwap = ({
   const minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
     : null;
+  const refreshTime = 10000;
 
   const intl = useIntl();
 
@@ -143,6 +145,14 @@ export const useSwap = ({
       setTokenOutAmount('0');
     }
   }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger]);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setLoadingTrigger(true);
+      setCount(count + 1);
+    }, refreshTime);
+    return () => clearInterval(id);
+  }, [count]);
 
   const makeSwap = (useNearBalance: boolean) => {
     swap({

@@ -237,7 +237,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     }
   }, [tokenIn, tokenOut, useNearBalance]);
 
-  // estimate
   const { canSwap, tokenOutAmount, minAmountOut, pool, swapError, makeSwap } =
     useSwap({
       tokenIn: tokenIn,
@@ -249,27 +248,38 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       setLoadingTrigger,
     });
 
+  // useEffect(() => {
+  //   const [urlTokenIn, urlTokenOut] = decodeURIComponent(
+  //     location.hash.slice(1)
+  //   ).split(TOKEN_URL_SEPARATOR);
+  //   const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
+  //   const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
+  //   db.checkPoolsByTokens(rememberedIn, rememberedOut).then((cached) => {
+  //     if (!cached) {
+  //       if (swapError != null) {
+  //         setDisableTokenInput(false);
+  //       } else {
+  //         setDisableTokenInput(!canSwap);
+  //       }
+  //     } else {
+  //       setDisableTokenInput(false);
+  //     }
+  //     setTimeout(() => {
+  //       document.getElementById('inputAmount').focus();
+  //     }, 100);
+  //   });
+  // }, [canSwap, swapError]);
+
   useEffect(() => {
-    const [urlTokenIn, urlTokenOut] = decodeURIComponent(
-      location.hash.slice(1)
-    ).split(TOKEN_URL_SEPARATOR);
-    const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
-    const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
-    db.checkPoolsByTokens(rememberedIn, rememberedOut).then((cached) => {
-      if (!cached) {
-        if (swapError != null) {
-          setDisableTokenInput(false);
-        } else {
-          setDisableTokenInput(!canSwap);
-        }
-      } else {
-        setDisableTokenInput(false);
-      }
+    if (loadingData) {
+      setDisableTokenInput(true);
+    } else {
+      setDisableTokenInput(false);
       setTimeout(() => {
         document.getElementById('inputAmount').focus();
       }, 100);
-    });
-  }, [canSwap, swapError]);
+    }
+  }, [loadingData]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
