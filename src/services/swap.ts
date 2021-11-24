@@ -28,6 +28,7 @@ import {
   ONE_MORE_DEPOSIT_AMOUNT,
   storageDepositAction,
   storageDepositForTokenAction,
+  STORAGE_TO_REGISTER_WITH_MFT,
 } from './creators/storage';
 import { registerTokenAction } from './creators/token';
 import {
@@ -211,9 +212,12 @@ export const instantSwap = async ({
     if (!tokenOutRegistered || tokenOutRegistered.total === '0') {
       tokenOutActions.push({
         methodName: 'storage_deposit',
-        args: {},
+        args: {
+          registration_only: true,
+          account_id: wallet.getAccountId(),
+        },
         gas: '30000000000000',
-        amount: NEW_ACCOUNT_STORAGE_COST,
+        amount: STORAGE_TO_REGISTER_WITH_MFT,
       });
 
       transactions.push({
@@ -232,7 +236,7 @@ export const instantSwap = async ({
           actions: [swapAction],
         }),
       },
-      gas: '100000000000000',
+      gas: '120000000000000',
       amount: ONE_YOCTO_NEAR,
     });
 

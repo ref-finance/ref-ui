@@ -701,16 +701,20 @@ export function RemoveLiquidityModal(
   );
 }
 
-function MyShares({
+export function MyShares({
   shares,
   totalShares,
   poolId,
   stakeList = {},
+  decimal,
+  yourLP,
 }: {
   shares: string;
   totalShares: string;
-  poolId: number;
-  stakeList: Record<string, string>;
+  poolId?: number;
+  stakeList?: Record<string, string>;
+  decimal?: number;
+  yourLP?: boolean;
 }) {
   if (!shares || !totalShares) return <div>-</div>;
   const seedIdList: string[] = Object.keys(stakeList);
@@ -724,10 +728,33 @@ function MyShares({
   const userTotalShare = BigNumber.sum(shares, farmStake);
   let sharePercent = percent(userTotalShare.valueOf(), totalShares);
 
+  const farmSharePercent = toPrecision(
+    percent(farmStake, totalShares).toString(),
+    2
+  );
+
   let displayPercent;
   if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
-  else if (sharePercent < 0.0001) displayPercent = '< 0.0001';
-  else displayPercent = toPrecision(String(sharePercent), 4);
+  else if (sharePercent < 0.0001)
+    displayPercent = `< ${
+      decimal ? '0.'.padEnd(decimal + 1, '0') + '1' : '0.0001'
+    }`;
+  else displayPercent = toPrecision(String(sharePercent), decimal || 4);
+
+  if (yourLP) {
+    return (
+      <div className="flex flex-col">
+        <div className="mb-1">{`${displayPercent}% of Total`}</div>
+        <div className="text-xs">
+          {`${farmSharePercent}% `}
+          <FormattedMessage
+            id="staking_in_farm"
+            defaultMessage="Staking in Farm"
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>{`${toRoundedReadableNumber({
@@ -736,6 +763,7 @@ function MyShares({
         userTotalShare
           .toNumber()
           .toLocaleString('fullwide', { useGrouping: false }) ?? '0',
+      precision: decimal || 6,
     })} (${displayPercent}%)`}</div>
   );
 }
@@ -753,25 +781,25 @@ const ChartChangeButton = ({
 }) => {
   return (
     <div
-      className={`text-white rounded-2xl flex items-center bg-gray-700 ${className} ${
+      className={`text-white text-xs rounded-2xl flex items-center bg-gray-700 ${className} ${
         noData ? 'z-20 opacity-70' : ''
       }`}
     >
       <button
-        className={`py-1 px-4 w-22 ${
+        className={`py-1 w-16 ${
           chartDisplay === 'tvl'
             ? 'rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo'
-            : ''
+            : 'text-gray-400'
         }`}
         onClick={() => setChartDisplay('tvl')}
       >
         <FormattedMessage id="tvl" defaultMessage="TVL" />
       </button>
       <button
-        className={`py-1 px-4 w-22 ${
+        className={`py-1 w-16 ${
           chartDisplay === 'volume'
             ? 'rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo'
-            : ''
+            : 'text-gray-400'
         }`}
         onClick={() => setChartDisplay('volume')}
       >
@@ -796,6 +824,7 @@ function EmptyChart({
         <div className="flex items-center justify-between">
           <div className="text-gray-400 text-base float-left">$&nbsp;-</div>
           <ChartChangeButton
+            className="self-start"
             noData={true}
             chartDisplay={chartDisplay}
             setChartDisplay={setChartDisplay}
@@ -889,7 +918,10 @@ export function VolumeChart({
   const baseColor = '#00967B';
   const hoverColor = '#00c6a2';
 
-  const formatDate = (rawDate: string) => moment(rawDate).format('ll');
+  const formatDate = (rawDate: string) => {
+    const date = rawDate.split('-').map((t) => Number(t));
+    return moment(new Date(date[0], date[1], date[2])).format('ll');
+  };
 
   const BackgroundRender = (targetBar: BarProps & { index?: number }) => {
     const { x, y, width, height, index } = targetBar;
@@ -956,6 +988,7 @@ export function VolumeChart({
           </div>
         </div>
         <ChartChangeButton
+          className="self-start"
           chartDisplay={chartDisplay}
           setChartDisplay={setChartDisplay}
         />
@@ -1040,6 +1073,7 @@ export function TVLChart({
           </div>
         </div>
         <ChartChangeButton
+          className="self-start"
           chartDisplay={chartDisplay}
           setChartDisplay={setChartDisplay}
         />
@@ -1396,7 +1430,7 @@ export function PoolDetailsPage() {
           <Card
             width="w-full"
             className="relative rounded-2xl h-full flex flex-col justify-center md:hidden xs:hidden items-center"
-            padding="p-7"
+            padding="px-7 py-5"
             bgcolor="bg-cardBg"
             style={{
               height: '397px',

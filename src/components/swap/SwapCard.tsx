@@ -166,7 +166,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
-  const [disableTokenInput, setDisableTokenInput] = useState<boolean>();
   const [useNearBalance, setUseNearBalance] = useState<boolean>(
     localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) != 'false'
   );
@@ -247,39 +246,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       loadingTrigger,
       setLoadingTrigger,
     });
-
-  // useEffect(() => {
-  //   const [urlTokenIn, urlTokenOut] = decodeURIComponent(
-  //     location.hash.slice(1)
-  //   ).split(TOKEN_URL_SEPARATOR);
-  //   const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
-  //   const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
-  //   db.checkPoolsByTokens(rememberedIn, rememberedOut).then((cached) => {
-  //     if (!cached) {
-  //       if (swapError != null) {
-  //         setDisableTokenInput(false);
-  //       } else {
-  //         setDisableTokenInput(!canSwap);
-  //       }
-  //     } else {
-  //       setDisableTokenInput(false);
-  //     }
-  //     setTimeout(() => {
-  //       document.getElementById('inputAmount').focus();
-  //     }, 100);
-  //   });
-  // }, [canSwap, swapError]);
-
-  useEffect(() => {
-    if (loadingData) {
-      setDisableTokenInput(true);
-    } else {
-      setDisableTokenInput(false);
-      setTimeout(() => {
-        document.getElementById('inputAmount').focus();
-      }, 100);
-    }
-  }, [loadingData]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -363,7 +329,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
             setTokenInBalanceFromNear(token.near.toString());
           }}
           text={intl.formatMessage({ id: 'from' })}
-          disabled={disableTokenInput}
           useNearBalance={useNearBalance}
           onChangeAmount={(amount) => {
             setTokenInAmount(amount);
