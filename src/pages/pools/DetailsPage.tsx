@@ -805,7 +805,7 @@ const ChartChangeButton = ({
         }`}
         onClick={() => setChartDisplay('volume')}
       >
-          <FormattedMessage id="volume" defaultMessage="Volume" />
+        <FormattedMessage id="volume" defaultMessage="Volume" />
       </button>
     </div>
   );
