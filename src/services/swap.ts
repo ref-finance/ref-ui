@@ -204,7 +204,7 @@ export const instantSwap = async ({
       tokenOutActions.push({
         methodName: 'storage_deposit',
         args: {
-          registrationOnly: true,
+          registration_only: true,
           account_id: wallet.getAccountId(),
         },
         gas: '30000000000000',
