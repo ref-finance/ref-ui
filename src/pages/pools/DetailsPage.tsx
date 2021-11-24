@@ -783,15 +783,15 @@ const ChartChangeButton = ({
 }) => {
   return (
     <div
-      className={`text-white rounded-2xl flex items-center bg-gray-700 ${className} ${
+      className={`text-white text-xs rounded-2xl flex items-center bg-gray-700 ${className} ${
         noData ? 'z-20 opacity-70' : ''
       }`}
     >
       <button
-        className={`py-1 px-4 w-22 ${
+        className={`py-1 px-6 w-22 ${
           chartDisplay === 'tvl'
             ? 'rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo'
-            : ''
+            : 'text-gray-400'
         }`}
         onClick={() => setChartDisplay('tvl')}
       >
@@ -801,7 +801,7 @@ const ChartChangeButton = ({
         className={`py-1 px-4 w-22 ${
           chartDisplay === 'volume'
             ? 'rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo'
-            : ''
+            : 'text-gray-400'
         }`}
         onClick={() => setChartDisplay('volume')}
       >
@@ -826,6 +826,7 @@ function EmptyChart({
         <div className="flex items-center justify-between">
           <div className="text-gray-400 text-base float-left">$&nbsp;-</div>
           <ChartChangeButton
+            className="self-start"
             noData={true}
             chartDisplay={chartDisplay}
             setChartDisplay={setChartDisplay}
@@ -989,6 +990,7 @@ export function VolumeChart({
           </div>
         </div>
         <ChartChangeButton
+          className="self-start"
           chartDisplay={chartDisplay}
           setChartDisplay={setChartDisplay}
         />
@@ -1073,6 +1075,7 @@ export function TVLChart({
           </div>
         </div>
         <ChartChangeButton
+          className="self-start"
           chartDisplay={chartDisplay}
           setChartDisplay={setChartDisplay}
         />
@@ -1429,7 +1432,7 @@ export function PoolDetailsPage() {
           <Card
             width="w-full"
             className="relative rounded-2xl h-full flex flex-col justify-center md:hidden xs:hidden items-center"
-            padding="p-7"
+            padding="px-7 py-5"
             bgcolor="bg-cardBg"
             style={{
               height: '397px',
