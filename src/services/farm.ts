@@ -210,10 +210,13 @@ export const getFarmInfo = async (
   let userUnclaimedRewardNumber: string = isSignedIn
     ? await getUnclaimedReward(farm.farm_id)
     : '0';
-
-  const userUnclaimedReward = toPrecision(
-    toReadableNumber(rewardToken.decimals, userUnclaimedRewardNumber),
-    2
+  // const userUnclaimedReward = toPrecision(
+  //   toReadableNumber(rewardToken.decimals, userUnclaimedRewardNumber),
+  //   2
+  // );
+  const userUnclaimedReward = toReadableNumber(
+    rewardToken.decimals,
+    userUnclaimedRewardNumber
   );
 
   const totalStaked =
