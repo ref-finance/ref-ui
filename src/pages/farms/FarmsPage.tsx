@@ -311,11 +311,14 @@ export function FarmsPage() {
       }
     });
     if (totalUnWithDraw > 0) {
-      let totalUnWithDrawV = toInternationalCurrencySystem(totalUnWithDraw.toString(), 2);
+      let totalUnWithDrawV = toInternationalCurrencySystem(
+        totalUnWithDraw.toString(),
+        2
+      );
       if (Number(totalUnWithDrawV) == 0) {
         totalUnWithDrawV = '<$0.01';
       } else {
-        totalUnWithDrawV = `$${totalUnWithDrawV}`
+        totalUnWithDrawV = `$${totalUnWithDrawV}`;
       }
       setYourReward(totalUnWithDrawV);
     }
@@ -828,17 +831,13 @@ function FarmView({
     });
     let resultPrice = toInternationalCurrencySystem(totalPrice.toString(), 2);
     if (Number(resultPrice) == 0) {
-      resultPrice = '<$0.01'
+      resultPrice = '<$0.01';
     } else {
-      resultPrice = `$${resultPrice}`
+      resultPrice = `$${resultPrice}`;
     }
     setUnclaimed({
       tip: result,
-      totalPrice: `${
-        totalPrice == 0
-          ? '-'
-          : `${resultPrice}`
-      }`,
+      totalPrice: `${totalPrice == 0 ? '-' : `${resultPrice}`}`,
     });
   }
   async function showUnstakeModal() {
@@ -1168,7 +1167,8 @@ function FarmView({
                             token.icon
                           }"/>
                           <label class="text-xs text-navHighLightText">${toInternationalCurrencySystem(
-                            tokenNum, 3
+                            tokenNum,
+                            3
                           )}</label>
                         </div>`;
       result += itemHtml;

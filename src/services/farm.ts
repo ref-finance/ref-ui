@@ -214,7 +214,10 @@ export const getFarmInfo = async (
   //   toReadableNumber(rewardToken.decimals, userUnclaimedRewardNumber),
   //   2
   // );
-  const userUnclaimedReward = toReadableNumber(rewardToken.decimals, userUnclaimedRewardNumber);
+  const userUnclaimedReward = toReadableNumber(
+    rewardToken.decimals,
+    userUnclaimedRewardNumber
+  );
 
   const totalStaked =
     poolSts === 0
