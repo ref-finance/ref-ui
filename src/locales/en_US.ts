@@ -220,7 +220,7 @@ const en_US = {
   value_rewards: 'Value of Rewards',
   stake_unstake_tip:
     'You have rewards unclaimed,stake / unstake will claim your unclaimed rewards first automatically.',
-  over_tip: 'Only 7 tokens can be withdrawn at once',
+  over_tip: 'Only 5 tokens can be withdrawn at once',
   no_token_tip: 'No reward token',
   getToken_tip: 'You can claim your rewards or stake your LP Tokens now!',
   my_liquidity: 'My Liquidity',
