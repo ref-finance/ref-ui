@@ -104,7 +104,7 @@ export function YourLiquidityPage() {
 }
 
 function PoolRow(props: { pool: any; balance: string }) {
-  const { pool, shares } = usePool(props.pool.id);
+  const { pool, shares, stakeList } = usePool(props.pool.id);
   const { balance } = props;
   const tokens = useTokens(pool?.tokenIds);
   const [showWithdraw, setShowWithdraw] = useState(false);
@@ -159,6 +159,8 @@ function PoolRow(props: { pool: any; balance: string }) {
             totalShares={pool.shareSupply}
             decimal={2}
             yourLP
+            stakeList={stakeList}
+            poolId={pool.id}
           />
         </div>
         <div className="col-span-2 text-right">
@@ -193,6 +195,8 @@ function PoolRow(props: { pool: any; balance: string }) {
               totalShares={pool.shareSupply}
               decimal={2}
               yourLP
+              poolId={pool.id}
+              stakeList={stakeList}
             />
           </div>
         </div>

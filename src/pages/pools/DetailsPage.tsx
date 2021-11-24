@@ -725,12 +725,22 @@ export function MyShares({
       farmStake = BigNumber.sum(farmStake, stakeList[seed]).valueOf();
     }
   });
+
   const userTotalShare = BigNumber.sum(shares, farmStake);
   let sharePercent = percent(userTotalShare.valueOf(), totalShares);
 
+  const farmShare = Number(farmStake).toLocaleString('fullwide', {
+    useGrouping: false,
+  });
+
   const farmSharePercent = toPrecision(
-    percent(farmStake, totalShares).toString(),
-    2
+    percent(
+      farmShare,
+      userTotalShare
+        .toNumber()
+        .toLocaleString('fullwide', { useGrouping: false })
+    ).toString(),
+    0
   );
 
   let displayPercent;
@@ -740,7 +750,6 @@ export function MyShares({
       decimal ? '0.'.padEnd(decimal + 1, '0') + '1' : '0.0001'
     }`;
   else displayPercent = toPrecision(String(sharePercent), decimal || 4);
-
   if (yourLP) {
     return (
       <div className="flex flex-col">
@@ -755,19 +764,16 @@ export function MyShares({
       </div>
     );
   }
-
   return (
     <div>{`${toRoundedReadableNumber({
       decimals: LP_TOKEN_DECIMALS,
-      number:
-        userTotalShare
-          .toNumber()
-          .toLocaleString('fullwide', { useGrouping: false }) ?? '0',
+      number: userTotalShare
+        .toNumber()
+        .toLocaleString('fullwide', { useGrouping: false }),
       precision: decimal || 6,
     })} (${displayPercent}%)`}</div>
   );
 }
-
 const ChartChangeButton = ({
   chartDisplay,
   setChartDisplay,

@@ -148,7 +148,7 @@ export function AddPoolPage() {
             />
           </div>
         </div>
-        <div className="pt-6 flex w-full">
+        <div className="pt-6 w-full">
           {wallet.isSignedIn() ? (
             <button
               disabled={!canSubmit}
