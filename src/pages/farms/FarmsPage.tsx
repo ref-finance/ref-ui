@@ -514,7 +514,7 @@ export function FarmsPage() {
                       </div>
                     )}
                   </GradientButton>
-                  {Object.entries(rewardList).length > 7 ? (
+                  {Object.entries(rewardList).length > 5 ? (
                     <div className="text-primaryText text-xs text-center mt-3">
                       <FormattedMessage id="over_tip"></FormattedMessage>
                     </div>
