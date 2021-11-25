@@ -89,16 +89,21 @@ function MyShares({
     <div className="">
       <div className="px-2 mb-1">{`${displayPercent}% of Total`}</div>
       {supportFarm > 0 && (
-        <div className="inline-flex items-center inline-block text-xs text-gradientFrom rounded-full px-2 py-1 border border-transparent hover:border-gradientFrom">
-          <FarmDot inFarm={Number(farmShare) > 0} className="mr-1" />
-          <div className="mr-2">
-            <span className="text-gradientFrom">
-              {`${farmSharePercent}% `}{' '}
-            </span>
-            &nbsp;
-            <FormattedMessage id="in_farm" defaultMessage="in Farm" />
-          </div>
-        </div>
+        <object>
+          <Link
+            className="inline-flex items-center inline-block text-xs text-gradientFrom rounded-full px-2 py-1 border border-transparent hover:border-gradientFrom"
+            to="/farms"
+          >
+            <FarmDot inFarm={Number(farmShare) > 0} className="mr-1" />
+            <div className="mr-2">
+              <span className="text-gradientFrom">
+                {`${farmSharePercent}% `}{' '}
+              </span>
+              &nbsp;
+              <FormattedMessage id="in_farm" defaultMessage="in Farm" />
+            </div>
+          </Link>
+        </object>
       )}
     </div>
   );
@@ -253,11 +258,9 @@ function PoolRow(props: { pool: any; balance: string }) {
   return (
     <>
       {/* PC */}
-      <div
+      <Link
         className="xs:hidden md:hidden grid grid-cols-10 py-2 content-center items-center text-sm text-white px-6 border-t border-gray-700 border-opacity-70 cursor-pointer"
-        onClick={() => {
-          history.push(`/pool/${pool.id}`);
-        }}
+        to={`/pool/${pool.id}`}
       >
         <div className="col-span-5 inline-flex items-center">
           <div className="w-16 lg:flex lg:items-center lg:justify-between xs:ml-1 md:ml-1">
@@ -293,13 +296,11 @@ function PoolRow(props: { pool: any; balance: string }) {
             <FormattedMessage id="remove" defaultMessage="Remove" />
           </OutlineButton>
         </div>
-      </div>
+      </Link>
       {/* Mobile */}
-      <div
+      <Link
         className="lg:hidden pt-6 pb-4 px-6 text-sm text-white border-b border-gray-700 border-opacity-70 flex flex-col cursor-pointer"
-        onClick={() => {
-          history.push(`/pool/${pool.id}`);
-        }}
+        to={`/pool/${pool.id}`}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center">
@@ -333,7 +334,7 @@ function PoolRow(props: { pool: any; balance: string }) {
             <FormattedMessage id="remove" defaultMessage="Remove" />
           </OutlineButton>
         </div>
-      </div>
+      </Link>
       <RemoveLiquidityModal
         pool={pool}
         shares={balance}
