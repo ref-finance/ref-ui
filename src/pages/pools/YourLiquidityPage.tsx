@@ -67,17 +67,10 @@ function MyShares({
     useGrouping: false,
   });
 
-  const farmSharePercent = toPrecision(
-    percent(
-      farmShare,
-      userTotalShare
-        .toNumber()
-        .toLocaleString('fullwide', { useGrouping: false })
-    ).toString(),
-    1,
-    false,
-    false
-  );
+  const farmSharePercent = percent(
+    farmShare,
+    userTotalShare.toNumber().toLocaleString('fullwide', { useGrouping: false })
+  ).toString();
 
   let displayPercent;
   if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
@@ -108,7 +101,7 @@ function MyShares({
                 {`${
                   Number(farmSharePercent) < 0.1 && Number(farmSharePercent) > 0
                     ? '< 0.1'
-                    : farmSharePercent
+                    : toPrecision(farmSharePercent, 2, false, false)
                 }% `}{' '}
               </span>
               &nbsp;
