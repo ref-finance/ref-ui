@@ -93,6 +93,7 @@ function MyShares({
           <Link
             className="inline-flex items-center inline-block text-xs text-gradientFrom rounded-full px-2 py-1 border border-transparent hover:border-gradientFrom"
             to="/farms"
+            target="_blank"
           >
             <FarmDot inFarm={Number(farmShare) > 0} className="mr-1" />
             <div className="mr-2">
