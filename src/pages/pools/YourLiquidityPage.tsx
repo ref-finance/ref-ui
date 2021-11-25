@@ -74,7 +74,7 @@ function MyShares({
         .toNumber()
         .toLocaleString('fullwide', { useGrouping: false })
     ).toString(),
-    0
+    1
   );
 
   let displayPercent;
@@ -86,7 +86,7 @@ function MyShares({
   else displayPercent = toPrecision(String(sharePercent), decimal || 4);
 
   return (
-    <div className="h-12 inline-flex flex-col items-center justify-center">
+    <div className="h-12 inline-flex flex-col justify-center">
       <div className="px-2 mb-1">{`${displayPercent}% of Total`}</div>
       {supportFarm > 0 && (
         <object>
@@ -101,7 +101,7 @@ function MyShares({
             }}
           >
             <FarmDot inFarm={Number(farmShare) > 0} className="mr-1" />
-            <div className="mr-2">
+            <div className="mr-2 self-start">
               <span className="text-gradientFrom">
                 {`${farmSharePercent}% `}{' '}
               </span>
