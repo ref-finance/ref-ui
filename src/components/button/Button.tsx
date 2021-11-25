@@ -1,6 +1,6 @@
 import React, { HTMLAttributes, useState } from 'react';
 import { wallet, REF_FARM_CONTRACT_ID } from '~services/near';
-import { Near, UnLoginIcon } from '~components/icon';
+import { Near, UnLoginIcon, FarmMiningIcon, FarmStamp } from '~components/icon';
 import { FormattedMessage } from 'react-intl';
 
 export function BorderlessButton(
@@ -240,3 +240,17 @@ export function GreenLButton(
     </button>
   );
 }
+
+export const FarmButton = ({ farmCount }: { farmCount: Number }) => {
+  const isMultiMining = farmCount > 1;
+  return (
+    <div className="flex items-center">
+      <div className="ml-1">
+        <FarmStamp />
+      </div>
+      <div className={isMultiMining ? 'ml-1' : ''}>
+        {isMultiMining && <FarmMiningIcon />}
+      </div>
+    </div>
+  );
+};

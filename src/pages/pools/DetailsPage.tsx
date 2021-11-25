@@ -60,7 +60,11 @@ import {
   WatchListStartEmpty,
   WatchListStartFull,
 } from '~components/icon/WatchListStar';
-import { OutlineButton, SolidButton } from '~components/button/Button';
+import {
+  OutlineButton,
+  SolidButton,
+  FarmButton,
+} from '~components/button/Button';
 import { wallet } from '~services/near';
 import { BreadCrumb } from '~components/layout/BreadCrumb';
 import { LP_TOKEN_DECIMALS } from '../../services/m-token';
@@ -701,13 +705,12 @@ export function RemoveLiquidityModal(
   );
 }
 
-export function MyShares({
+function MyShares({
   shares,
   totalShares,
   poolId,
   stakeList = {},
   decimal,
-  yourLP,
 }: {
   shares: string;
   totalShares: string;
@@ -729,20 +732,6 @@ export function MyShares({
   const userTotalShare = BigNumber.sum(shares, farmStake);
   let sharePercent = percent(userTotalShare.valueOf(), totalShares);
 
-  const farmShare = Number(farmStake).toLocaleString('fullwide', {
-    useGrouping: false,
-  });
-
-  const farmSharePercent = toPrecision(
-    percent(
-      farmShare,
-      userTotalShare
-        .toNumber()
-        .toLocaleString('fullwide', { useGrouping: false })
-    ).toString(),
-    0
-  );
-
   let displayPercent;
   if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
   else if (sharePercent < 0.0001)
@@ -750,20 +739,7 @@ export function MyShares({
       decimal ? '0.'.padEnd(decimal + 1, '0') + '1' : '0.0001'
     }`;
   else displayPercent = toPrecision(String(sharePercent), decimal || 4);
-  if (yourLP) {
-    return (
-      <div className="flex flex-col">
-        <div className="mb-1">{`${displayPercent}% of Total`}</div>
-        <div className="text-xs">
-          {`${farmSharePercent}% `}
-          <FormattedMessage
-            id="staking_in_farm"
-            defaultMessage="Staking in Farm"
-          />
-        </div>
-      </div>
-    );
-  }
+
   return (
     <div>{`${toRoundedReadableNumber({
       decimals: LP_TOKEN_DECIMALS,
@@ -774,6 +750,7 @@ export function MyShares({
     })} (${displayPercent}%)`}</div>
   );
 }
+
 const ChartChangeButton = ({
   chartDisplay,
   setChartDisplay,
@@ -1143,20 +1120,6 @@ export function PoolDetailsPage() {
   const morePoolIds: string[] =
     JSON.parse(localStorage.getItem('morePoolIds')) || [];
   const [farmCount, setFarmCount] = useState<Number>(1);
-
-  const FarmButton = ({ farmCount }: { farmCount: Number }) => {
-    const isMultiMining = farmCount > 1;
-    return (
-      <div className="flex items-center">
-        <div className="ml-2">
-          <FarmStamp />
-        </div>
-        <div className={isMultiMining ? 'ml-2' : ''}>
-          {isMultiMining && <FarmMiningIcon />}
-        </div>
-      </div>
-    );
-  };
 
   const handleSaveWatchList = () => {
     if (!wallet.isSignedIn()) {

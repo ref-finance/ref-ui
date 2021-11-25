@@ -118,7 +118,7 @@ export function AddPoolPage() {
             opts={[
               { label: '0.15%', value: '0.15' },
               { label: '0.25%', value: '0.25' },
-              { label: '0.555', value: '0.55' },
+              { label: '0.55%', value: '0.55' },
             ]}
             onChange={(v) =>
               setFee((parseFloat(v) + 0.05 + Number.EPSILON).toFixed(2))
