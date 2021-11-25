@@ -96,7 +96,9 @@ export function FarmsPage() {
   );
   const [searchData, setSearchData] = useState<SearchData>({
     status: true,
-    staked: false,
+    staked: wallet.isSignedIn()
+      ? !!+localStorage.getItem('farmStakedOnly')
+      : false,
     sort: 'new',
     sortBoxHidden: true,
   });
@@ -423,6 +425,11 @@ export function FarmsPage() {
   }
   function changeStaked() {
     searchData.staked = !searchData.staked;
+    if (searchData.staked) {
+      localStorage.setItem('farmStakedOnly', '1');
+    } else {
+      localStorage.setItem('farmStakedOnly', '0');
+    }
     setSearchData(Object.assign({}, searchData));
     searchByCondition();
   }
