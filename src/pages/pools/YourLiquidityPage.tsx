@@ -106,7 +106,9 @@ function MyShares({
             <div className="mr-2 self-start">
               <span className="text-gradientFrom">
                 {`${
-                  Number(farmSharePercent) < 0.1 ? '< 0.1' : farmSharePercent
+                  Number(farmSharePercent) < 0.1 && Number(farmSharePercent) > 0
+                    ? '< 0.1'
+                    : farmSharePercent
                 }% `}{' '}
               </span>
               &nbsp;
