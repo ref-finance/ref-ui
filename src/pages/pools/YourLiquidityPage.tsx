@@ -195,7 +195,7 @@ function PoolRow(props: { pool: any; balance: string }) {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <div className="ml-1 mr-2">{Images}</div>
+            <div className="ml-1 mr-2 flex items-center">{Images}</div>
             <div className="">
               {toRealSymbol(tokens[0].symbol)}-{toRealSymbol(tokens[1].symbol)}
             </div>
