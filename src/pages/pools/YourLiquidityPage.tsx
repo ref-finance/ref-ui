@@ -86,14 +86,19 @@ function MyShares({
   else displayPercent = toPrecision(String(sharePercent), decimal || 4);
 
   return (
-    <div className="">
+    <div className="h-12 inline-flex flex-col items-center justify-center">
       <div className="px-2 mb-1">{`${displayPercent}% of Total`}</div>
       {supportFarm > 0 && (
         <object>
           <Link
             className="inline-flex items-center inline-block text-xs text-gradientFrom rounded-full px-2 py-1 border border-transparent hover:border-gradientFrom"
-            to="/farms"
+            to={{
+              pathname: '/farms',
+            }}
             target="_blank"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
           >
             <FarmDot inFarm={Number(farmShare) > 0} className="mr-1" />
             <div className="mr-2">
@@ -205,8 +210,6 @@ function PoolRow(props: { pool: any; balance: string }) {
   const [supportFarm, setSupportFarm] = useState<Number>();
   const [farmStake, setFarmStake] = useState<string | number>('0');
 
-  const history = useHistory();
-
   useEffect(() => {
     canFarm(Number(props.pool.id), true).then(setSupportFarm);
   }, [props.pool]);
@@ -261,7 +264,7 @@ function PoolRow(props: { pool: any; balance: string }) {
       {/* PC */}
       <Link
         className="xs:hidden md:hidden grid grid-cols-10 py-2 content-center items-center text-sm text-white px-6 border-t border-gray-700 border-opacity-70 cursor-pointer"
-        to={`/pool/${pool.id}`}
+        to={{ pathname: `/pool/${pool.id}` }}
       >
         <div className="col-span-5 inline-flex items-center">
           <div className="w-16 lg:flex lg:items-center lg:justify-between xs:ml-1 md:ml-1">
@@ -301,7 +304,7 @@ function PoolRow(props: { pool: any; balance: string }) {
       {/* Mobile */}
       <Link
         className="lg:hidden pt-6 pb-4 px-6 text-sm text-white border-b border-gray-700 border-opacity-70 flex flex-col cursor-pointer"
-        to={`/pool/${pool.id}`}
+        to={{ pathname: `/pool/${pool.id}` }}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center">
