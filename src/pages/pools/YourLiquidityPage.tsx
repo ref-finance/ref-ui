@@ -171,9 +171,10 @@ function PoolRow(props: { pool: any; balance: string }) {
             poolId={pool.id}
           />
         </div>
-        <div className="col-span-2 text-right">
+        <div className="col-span-2 text-right z-30">
           <OutlineButton
             onClick={(e) => {
+              e.stopPropagation();
               e.preventDefault();
               setShowWithdraw(true);
             }}
@@ -183,24 +184,6 @@ function PoolRow(props: { pool: any; balance: string }) {
             <FormattedMessage id="remove" defaultMessage="Remove" />
           </OutlineButton>
         </div>
-        <RemoveLiquidityModal
-          pool={pool}
-          shares={balance}
-          tokens={tokens}
-          isOpen={showWithdraw}
-          onRequestClose={() => setShowWithdraw(false)}
-          style={{
-            overlay: {
-              backdropFilter: 'blur(15px)',
-              WebkitBackdropFilter: 'blur(15px)',
-            },
-            content: {
-              outline: 'none',
-              position: 'fixed',
-              bottom: '50%',
-            },
-          }}
-        />
       </Link>
       {/* Mobile */}
       <Link
@@ -237,25 +220,25 @@ function PoolRow(props: { pool: any; balance: string }) {
             <FormattedMessage id="remove" defaultMessage="Remove" />
           </OutlineButton>
         </div>
-        <RemoveLiquidityModal
-          pool={pool}
-          shares={balance}
-          tokens={tokens}
-          isOpen={showWithdraw}
-          onRequestClose={() => setShowWithdraw(false)}
-          style={{
-            overlay: {
-              backdropFilter: 'blur(15px)',
-              WebkitBackdropFilter: 'blur(15px)',
-            },
-            content: {
-              outline: 'none',
-              position: 'fixed',
-              bottom: '50%',
-            },
-          }}
-        />
       </Link>
+      <RemoveLiquidityModal
+        pool={pool}
+        shares={balance}
+        tokens={tokens}
+        isOpen={showWithdraw}
+        onRequestClose={() => setShowWithdraw(false)}
+        style={{
+          overlay: {
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
+          },
+          content: {
+            outline: 'none',
+            position: 'fixed',
+            bottom: '50%',
+          },
+        }}
+      />
     </>
   );
 }
