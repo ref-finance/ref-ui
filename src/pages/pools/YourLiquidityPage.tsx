@@ -17,7 +17,7 @@ import { RemoveLiquidityModal } from './DetailsPage';
 import { getPool, getYourPools } from '~services/indexer';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage } from 'react-intl';
-import { useHistory } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { MyShares } from './DetailsPage';
 
 function Empty() {
@@ -87,7 +87,12 @@ export function YourLiquidityPage() {
               </div>
               <div className="max-h-96 overflow-y-auto">
                 {pools.map((pool, i) => (
-                  <PoolRow key={i} pool={pool} balance={balances[i]} />
+                  <div
+                    key={i}
+                    className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
+                  >
+                    <PoolRow pool={pool} balance={balances[i]} />
+                  </div>
                 ))}
               </div>
             </div>
@@ -143,7 +148,10 @@ function PoolRow(props: { pool: any; balance: string }) {
   return (
     <>
       {/* PC */}
-      <div className="xs:hidden md:hidden grid grid-cols-10 py-2 content-center items-center text-sm text-white px-6 border-t border-gray-700 border-opacity-70">
+      <Link
+        className="xs:hidden md:hidden grid grid-cols-10 py-2 content-center items-center text-sm text-white px-6 border-t border-gray-700 border-opacity-70"
+        to={`/pool/${pool.id}`}
+      >
         <div className="col-span-2">
           <div className="w-16 lg:flex lg:items-center lg:justify-between xs:ml-1 md:ml-1">
             {Images}
@@ -179,9 +187,12 @@ function PoolRow(props: { pool: any; balance: string }) {
           isOpen={showWithdraw}
           onRequestClose={() => setShowWithdraw(false)}
         />
-      </div>
+      </Link>
       {/* Mobile */}
-      <div className="lg:hidden pt-6 pb-4 px-6 text-sm text-white border-b border-gray-700 border-opacity-70 flex flex-col">
+      <Link
+        className="lg:hidden pt-6 pb-4 px-6 text-sm text-white border-b border-gray-700 border-opacity-70 flex flex-col"
+        to={`/pool/${pool.id}`}
+      >
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <div className="ml-1 mr-2">{Images}</div>
@@ -209,7 +220,7 @@ function PoolRow(props: { pool: any; balance: string }) {
             <FormattedMessage id="remove" defaultMessage="Remove" />
           </OutlineButton>
         </div>
-      </div>
+      </Link>
     </>
   );
 }
