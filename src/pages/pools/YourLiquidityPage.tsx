@@ -74,7 +74,9 @@ function MyShares({
         .toNumber()
         .toLocaleString('fullwide', { useGrouping: false })
     ).toString(),
-    1
+    1,
+    false,
+    false
   );
 
   let displayPercent;
@@ -103,7 +105,9 @@ function MyShares({
             <FarmDot inFarm={Number(farmShare) > 0} className="mr-1" />
             <div className="mr-2 self-start">
               <span className="text-gradientFrom">
-                {`${farmSharePercent}% `}{' '}
+                {`${
+                  Number(farmSharePercent) < 0.1 ? '< 0.1' : farmSharePercent
+                }% `}{' '}
               </span>
               &nbsp;
               <FormattedMessage id="in_farm" defaultMessage="in Farm" />
