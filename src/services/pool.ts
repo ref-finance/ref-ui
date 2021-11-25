@@ -385,11 +385,46 @@ export const addLiquidityToPool = async ({
   return refFiManyFunctionCalls(actions);
 };
 
+interface AddLiquidityToStablePoolOptions {
+  id: number;
+  tokenAmounts: { token: TokenMetadata; amount: string }[];
+  min_shares: string;
+}
+
+export const addLiquidityToStablePool = async ({
+  id,
+  tokenAmounts,
+}: AddLiquidityToStablePoolOptions) => {
+  const amounts = tokenAmounts.map(({ token, amount }) =>
+    toNonDivisibleNumber(token.decimals, amount)
+  );
+
+  const actions: RefFiFunctionCallOptions[] = [
+    {
+      methodName: 'add_stable_liquidity',
+      args: { pool_id: id, amounts },
+      amount: LP_STORAGE_AMOUNT,
+    },
+  ];
+
+  const needDeposit = await checkTokenNeedsStorageDeposit();
+  if (needDeposit) {
+    actions.unshift(
+      storageDepositAction({
+        amount: needDeposit,
+      })
+    );
+  }
+
+  return refFiManyFunctionCalls(actions);
+};
+
 interface RemoveLiquidityOptions {
   id: number;
   shares: string;
   minimumAmounts: { [tokenId: string]: string };
 }
+
 export const removeLiquidityFromPool = async ({
   id,
   shares,
