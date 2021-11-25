@@ -173,7 +173,10 @@ function PoolRow(props: { pool: any; balance: string }) {
         </div>
         <div className="col-span-2 text-right">
           <OutlineButton
-            onClick={() => setShowWithdraw(true)}
+            onClick={(e) => {
+              e.preventDefault();
+              setShowWithdraw(true);
+            }}
             className="text-xs px-4"
             padding="py-1"
           >
@@ -186,6 +189,17 @@ function PoolRow(props: { pool: any; balance: string }) {
           tokens={tokens}
           isOpen={showWithdraw}
           onRequestClose={() => setShowWithdraw(false)}
+          style={{
+            overlay: {
+              backdropFilter: 'blur(15px)',
+              WebkitBackdropFilter: 'blur(15px)',
+            },
+            content: {
+              outline: 'none',
+              position: 'fixed',
+              bottom: '50%',
+            },
+          }}
         />
       </Link>
       {/* Mobile */}
@@ -213,13 +227,34 @@ function PoolRow(props: { pool: any; balance: string }) {
         </div>
         <div className="mt-2 self-end">
           <OutlineButton
-            onClick={() => setShowWithdraw(true)}
+            onClick={(e) => {
+              e.preventDefault();
+              setShowWithdraw(true);
+            }}
             className="text-xs px-4 font-semibold"
             padding="py-1"
           >
             <FormattedMessage id="remove" defaultMessage="Remove" />
           </OutlineButton>
         </div>
+        <RemoveLiquidityModal
+          pool={pool}
+          shares={balance}
+          tokens={tokens}
+          isOpen={showWithdraw}
+          onRequestClose={() => setShowWithdraw(false)}
+          style={{
+            overlay: {
+              backdropFilter: 'blur(15px)',
+              WebkitBackdropFilter: 'blur(15px)',
+            },
+            content: {
+              outline: 'none',
+              position: 'fixed',
+              bottom: '50%',
+            },
+          }}
+        />
       </Link>
     </>
   );
