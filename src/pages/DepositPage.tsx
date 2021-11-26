@@ -17,6 +17,7 @@ import { Balances } from '../components/deposit/Deposit';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { ConnectToNearBtn } from '~components/button/Button';
 import { STORAGE_PER_TOKEN } from '~services/creators/storage';
+import { BigNumber } from 'bignumber.js';
 
 function DepositBtn(props: {
   amount?: string;
@@ -24,8 +25,20 @@ function DepositBtn(props: {
   balance?: string;
 }) {
   const { amount, token, balance } = props;
-  const canSubmit = balance !== '0' && !!amount && !!token;
 
+  const nearValidate =
+    token.id === 'NEAR'
+      ? new BigNumber(amount).isLessThanOrEqualTo(
+          new BigNumber(String(Number(balance) - 1))
+        )
+      : true;
+
+  const canSubmit =
+    balance !== '0' &&
+    !!amount &&
+    !!token &&
+    new BigNumber(amount).isLessThanOrEqualTo(new BigNumber(balance)) &&
+    nearValidate;
   return (
     <div className="flex items-center justify-center pt-2 w-full">
       <button

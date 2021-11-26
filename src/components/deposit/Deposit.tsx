@@ -16,6 +16,7 @@ import { toRealSymbol } from '~utils/token';
 import { FormattedMessage } from 'react-intl';
 import { GradientButton } from '~components/button/Button';
 import { IoCloseOutline } from 'react-icons/io5';
+import BigNumber from 'bignumber.js';
 
 export function WithdrawModal(props: ReactModal.Props) {
   const [amount, setAmount] = useState<string>('');
@@ -39,6 +40,11 @@ export function WithdrawModal(props: ReactModal.Props) {
   );
 
   const cardWidth = isMobile() ? '95vw' : '25vw';
+
+  const canSubmit = new BigNumber(amount).isLessThanOrEqualTo(
+    new BigNumber(max)
+  );
+
   const { onRequestClose } = props;
 
   return (
@@ -68,7 +74,10 @@ export function WithdrawModal(props: ReactModal.Props) {
         />
         <div className="flex items-center justify-center pt-5">
           <button
-            className={`flex flex-row w-full justify-center px-5 py-2 mt-6 text-white disabled:cursor-not-allowed mx-auto`}
+            disabled={!canSubmit}
+            className={`flex flex-row w-full justify-center px-5 py-2 mt-6 text-white disabled:cursor-not-allowed mx-auto
+              ${!canSubmit ? 'opacity-40 cursor-not-allowed' : ''}
+            `}
             style={{
               background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
               borderRadius: '5px',

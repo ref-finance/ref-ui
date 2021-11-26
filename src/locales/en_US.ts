@@ -88,6 +88,7 @@ const en_US = {
   you_are_not_providing_liquidity_to_any_pools:
     'You aren’t providing liquidity to any pools',
   remove: 'Remove',
+  select: 'Select',
   select_token: 'Select Token',
   basis_points: 'Basis points',
   total_fee: 'Total fee % ',
@@ -219,8 +220,10 @@ const en_US = {
   value_rewards: 'Value of Rewards',
   stake_unstake_tip:
     'You have rewards unclaimed,stake / unstake will claim your unclaimed rewards first automatically.',
-  over_tip: 'Only 7 tokens can be withdrawn at once',
+  over_tip: 'Only 5 tokens can be withdrawn at once',
   no_token_tip: 'No reward token',
   getToken_tip: 'You can claim your rewards or stake your LP Tokens now!',
+  my_liquidity: 'My Liquidity',
+  in_farm: 'in Farm',
 };
 export default en_US;

@@ -57,7 +57,7 @@ export function MobileAnchor({
     <div>
       <Link onClick={onClick} to={to}>
         <div
-          className={`p-4 text-lg link font-bold ${className} ${
+          className={`p-4 text-lg link ${className} ${
             isSelected ? 'text-white bg-navHighLightBg' : 'text-primaryText'
           }`}
         >
@@ -88,7 +88,7 @@ export function MobileSwitchLanguage() {
         className="flex p-4 items-center text-lg justify-between"
         onClick={handleLanguageMenu}
       >
-        <div className={'font-bold text-primaryText'}>
+        <div className={'text-primaryText'}>
           <FormattedMessage id="language" defaultMessage="Language" />
         </div>
         <FiChevronUp
@@ -100,7 +100,7 @@ export function MobileSwitchLanguage() {
       </div>
       <div className={`${show && !openMenu ? 'block' : 'hidden'}`}>
         <div
-          className={`flex items-center whitespace-nowrap bg-cardBg text-left font-bold text-white p-4 ${
+          className={`flex items-center whitespace-nowrap bg-cardBg text-left text-white p-4 ${
             currentLocal === 'en' ? 'text-white' : 'text-primaryText'
           }`}
           onClick={() => context.selectLanguage('en')}
@@ -111,7 +111,7 @@ export function MobileSwitchLanguage() {
           English
         </div>
         <div
-          className={`flex items-center hitespace-nowrap text-left bg-cardBg font-bold text-white p-4 ${
+          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
             currentLocal === 'zh-CN' ? 'text-white' : 'text-primaryText '
           }`}
           onClick={() => context.selectLanguage('zh-CN')}
@@ -131,7 +131,7 @@ export function Logout() {
     wallet.isSignedIn() && (
       <div
         className={
-          'whitespace-nowrap flex text-left font-bold p-4 text-primaryText bg-cardBg'
+          'whitespace-nowrap flex text-lg text-left p-4 text-primaryText bg-cardBg'
         }
         onClick={() => {
           wallet.signOut();
@@ -321,10 +321,15 @@ export function MobileNavBar() {
                   className="flex p-4 justify-between"
                   onClick={() => setMobileWrapNear(true)}
                 >
-                  <FormattedMessage id="wrapnear" defaultMessage="Wrap NEAR" />
+                  <span className=" text-lg">
+                    <FormattedMessage
+                      id="wrapnear"
+                      defaultMessage="Wrap NEAR"
+                    />
+                  </span>
                   <div className=" py-1 px-2 border border-framBorder text-framBorder hover:text-white hover:bg-framBorder hover:border-0 cursor-pointer rounded h-6 items-center flex">
                     <WrapNearEnter></WrapNearEnter>
-                    <span className=" ml-2">
+                    <span className=" ml-2 text-xs">
                       {toPrecision(nearBalance, 3, true)}
                     </span>
                   </div>

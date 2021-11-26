@@ -96,7 +96,9 @@ export function FarmsPage() {
   );
   const [searchData, setSearchData] = useState<SearchData>({
     status: true,
-    staked: false,
+    staked: wallet.isSignedIn()
+      ? !!+localStorage.getItem('farmStakedOnly')
+      : false,
     sort: 'new',
     sortBoxHidden: true,
   });
@@ -311,9 +313,16 @@ export function FarmsPage() {
       }
     });
     if (totalUnWithDraw > 0) {
-      setYourReward(
-        `$${toInternationalCurrencySystem(totalUnWithDraw.toString(), 2)}`
+      let totalUnWithDrawV = toInternationalCurrencySystem(
+        totalUnWithDraw.toString(),
+        2
       );
+      if (Number(totalUnWithDrawV) == 0) {
+        totalUnWithDrawV = '<$0.01';
+      } else {
+        totalUnWithDrawV = `$${totalUnWithDrawV}`;
+      }
+      setYourReward(totalUnWithDrawV);
     }
   }
   const handleClick = (e: any) => {
@@ -416,6 +425,11 @@ export function FarmsPage() {
   }
   function changeStaked() {
     searchData.staked = !searchData.staked;
+    if (searchData.staked) {
+      localStorage.setItem('farmStakedOnly', '1');
+    } else {
+      localStorage.setItem('farmStakedOnly', '0');
+    }
     setSearchData(Object.assign({}, searchData));
     searchByCondition();
   }
@@ -507,7 +521,7 @@ export function FarmsPage() {
                       </div>
                     )}
                   </GradientButton>
-                  {Object.entries(rewardList).length > 7 ? (
+                  {Object.entries(rewardList).length > 5 ? (
                     <div className="text-primaryText text-xs text-center mt-3">
                       <FormattedMessage id="over_tip"></FormattedMessage>
                     </div>
@@ -817,18 +831,20 @@ function FarmView({
       const itemHtml = `<div class="flex justify-between items-center h-8">
                           <image class="w-5 h-5 rounded-full mr-7" src="${icon}"/>
                           <label class="text-xs text-navHighLightText">${formatWithCommas(
-                            userUnclaimedReward
+                            toPrecision(userUnclaimedReward, 3)
                           )}</label>
                         </div>`;
       result += itemHtml;
     });
+    let resultPrice = toInternationalCurrencySystem(totalPrice.toString(), 2);
+    if (Number(resultPrice) == 0) {
+      resultPrice = '<$0.01';
+    } else {
+      resultPrice = `$${resultPrice}`;
+    }
     setUnclaimed({
       tip: result,
-      totalPrice: `${
-        totalPrice == 0
-          ? '-'
-          : `$${toInternationalCurrencySystem(totalPrice.toString(), 2)}`
-      }`,
+      totalPrice: `${totalPrice == 0 ? '-' : `${resultPrice}`}`,
     });
   }
   async function showUnstakeModal() {
@@ -1158,7 +1174,8 @@ function FarmView({
                             token.icon
                           }"/>
                           <label class="text-xs text-navHighLightText">${toInternationalCurrencySystem(
-                            tokenNum
+                            tokenNum,
+                            3
                           )}</label>
                         </div>`;
       result += itemHtml;

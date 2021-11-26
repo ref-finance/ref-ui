@@ -51,7 +51,7 @@ export default function TokenAmount({
   return (
     <>
       <div className="flex justify-end text-xs font-semibold pb-0.5 w-3/5">
-        <span className="text-primaryText" title={total}>
+        <span className="text-primaryText">
           {useNearBalance ? (
             <span className="mr-2 float-left">
               <SmallWallet />
@@ -59,7 +59,7 @@ export default function TokenAmount({
           ) : null}
           <FormattedMessage id="balance" defaultMessage="Balance" />
           :&nbsp;
-          {toPrecision(total, 3, true)}
+          <span title={total}>{toPrecision(total, 3, true)}</span>
         </span>
       </div>
       <fieldset className="relative flex overflow-hidden align-center my-2">
