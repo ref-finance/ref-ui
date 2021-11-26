@@ -17,6 +17,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { useTokens } from '../../state/token';
 import { TokenMetadata } from '~services/ft-contract';
 import { canFarm, Pool } from '../../services/pool';
+import { FarmButton } from '~components/button/Button';
 
 import {
   calculateFeePercent,
@@ -62,17 +63,6 @@ function PoolRow({
     if (b.symbol === 'wNEAR') return -1;
     return a.symbol > b.symbol ? 1 : -1;
   });
-
-  const FarmButton = ({ farmCount }: { farmCount: Number }) => {
-    return (
-      <div className="flex items-center">
-        <div className="mx-2">
-          <FarmStamp />
-        </div>
-        <div className="">{farmCount > 1 && <FarmMiningIcon />}</div>
-      </div>
-    );
-  };
 
   return (
     <Link
@@ -147,16 +137,6 @@ const MobileRow = ({
 }) => {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const [farmCount, setFarmCount] = useState<Number>(1);
-  const FarmButton = ({ farmCount }: { farmCount: Number }) => {
-    return (
-      <div className="flex items-center">
-        <div className="mx-2">
-          <FarmStamp />
-        </div>
-        <div className="">{farmCount > 1 && <FarmMiningIcon />}</div>
-      </div>
-    );
-  };
 
   useEffect(() => {
     canFarm(pool.id).then((canFarm) => {
