@@ -29,8 +29,8 @@ import { parsePoolView, PoolRPCView } from '~services/api';
 
 export const usePool = (id: number | string) => {
   const [pool, setPool] = useState<PoolDetails>();
-  const [shares, setShares] = useState<string>();
-  const [stakeList, setStakeList] = useState<Record<string, string>>();
+  const [shares, setShares] = useState<string>('0');
+  const [stakeList, setStakeList] = useState<Record<string, string>>({});
   useEffect(() => {
     getPoolDetails(Number(id)).then(setPool);
     getSharesInPool(Number(id))

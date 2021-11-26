@@ -224,6 +224,6 @@ const en_US = {
   no_token_tip: 'No reward token',
   getToken_tip: 'You can claim your rewards or stake your LP Tokens now!',
   my_liquidity: 'My Liquidity',
-  staking_in_farm: 'Staking in Farm',
+  in_farm: 'in Farm',
 };
 export default en_US;
