@@ -384,11 +384,18 @@ function AddLiquidityModal(
           <div className="text-xs text-right mb-1 text-gray-400">
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
-            {toPrecision(
-              toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
-              2,
-              true
-            )}
+            <span
+              title={toReadableNumber(
+                tokens[0].decimals,
+                balances[tokens[0].id]
+              )}
+            >
+              {toPrecision(
+                toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
+                2,
+                true
+              )}
+            </span>
           </div>
           <div className="flex items-center ">
             <div className="flex items-center mr-4 w-1/3">
@@ -426,11 +433,18 @@ function AddLiquidityModal(
             <div className="text-xs text-right mb-1 text-gray-400">
               <FormattedMessage id="balance" defaultMessage="Balance" />
               :&nbsp;
-              {toPrecision(
-                toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
-                2,
-                true
-              )}
+              <span
+                title={toReadableNumber(
+                  tokens[0].decimals,
+                  balances[tokens[0].id]
+                )}
+              >
+                {toPrecision(
+                  toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
+                  2,
+                  true
+                )}
+              </span>
             </div>
           </div>
           <InputAmount
@@ -446,11 +460,18 @@ function AddLiquidityModal(
           <div className="text-xs text-right mb-1 text-gray-400">
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
-            {toPrecision(
-              toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
-              2,
-              true
-            )}
+            <span
+              title={toReadableNumber(
+                tokens[1].decimals,
+                balances[tokens[1].id]
+              )}
+            >
+              {toPrecision(
+                toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
+                2,
+                true
+              )}
+            </span>
           </div>
           <div className="flex items-center">
             <div className="flex items-center mr-4 w-1/3">
@@ -487,11 +508,18 @@ function AddLiquidityModal(
             <div className="text-xs text-right mb-1 text-gray-400">
               <FormattedMessage id="balance" defaultMessage="Balance" />
               :&nbsp;
-              {toPrecision(
-                toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
-                2,
-                true
-              )}
+              <span
+                title={toReadableNumber(
+                  tokens[1].decimals,
+                  balances[tokens[1].id]
+                )}
+              >
+                {toPrecision(
+                  toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
+                  2,
+                  true
+                )}
+              </span>
             </div>
           </div>
           <InputAmount
