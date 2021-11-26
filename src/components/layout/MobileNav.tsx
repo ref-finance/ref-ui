@@ -57,7 +57,7 @@ export function MobileAnchor({
     <div>
       <Link onClick={onClick} to={to}>
         <div
-          className={`p-4 text-lg link font-bold ${className} ${
+          className={`p-4 text-lg link ${className} ${
             isSelected ? 'text-white bg-navHighLightBg' : 'text-primaryText'
           }`}
         >
@@ -321,10 +321,15 @@ export function MobileNavBar() {
                   className="flex p-4 justify-between"
                   onClick={() => setMobileWrapNear(true)}
                 >
-                  <FormattedMessage id="wrapnear" defaultMessage="Wrap NEAR" />
+                  <span className=" text-lg">
+                    <FormattedMessage
+                      id="wrapnear"
+                      defaultMessage="Wrap NEAR"
+                    />
+                  </span>
                   <div className=" py-1 px-2 border border-framBorder text-framBorder hover:text-white hover:bg-framBorder hover:border-0 cursor-pointer rounded h-6 items-center flex">
                     <WrapNearEnter></WrapNearEnter>
-                    <span className=" ml-2">
+                    <span className=" ml-2 text-xs">
                       {toPrecision(nearBalance, 3, true)}
                     </span>
                   </div>
