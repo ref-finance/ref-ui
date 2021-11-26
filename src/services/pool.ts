@@ -338,17 +338,22 @@ export const getSharesInPool = (id: number): Promise<string> => {
   });
 };
 
-export const canFarm = async (pool_id: number): Promise<Number> => {
-  const farms = (await db.queryFarms()).filter(
-    (farm) => farm.status !== 'Ended'
-  );
+export const canFarm = async (
+  pool_id: number,
+  withEnded?: boolean
+): Promise<Number> => {
+  let farms;
+  if (!withEnded) {
+    farms = (await db.queryFarms()).filter((farm) => farm.status !== 'Ended');
+  } else {
+    farms = await db.queryFarms();
+  }
 
   const count = farms.reduce((pre, cur) => {
     if (Number(cur.pool_id) === pool_id) return pre + 1;
     return pre;
   }, 0);
 
-  console.log(count);
   return count;
 };
 

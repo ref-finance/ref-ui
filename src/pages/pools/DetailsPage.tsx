@@ -60,7 +60,11 @@ import {
   WatchListStartEmpty,
   WatchListStartFull,
 } from '~components/icon/WatchListStar';
-import { OutlineButton, SolidButton } from '~components/button/Button';
+import {
+  OutlineButton,
+  SolidButton,
+  FarmButton,
+} from '~components/button/Button';
 import { wallet } from '~services/near';
 import { BreadCrumb } from '~components/layout/BreadCrumb';
 import { LP_TOKEN_DECIMALS } from '../../services/m-token';
@@ -380,11 +384,18 @@ function AddLiquidityModal(
           <div className="text-xs text-right mb-1 text-gray-400">
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
-            {toPrecision(
-              toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
-              2,
-              true
-            )}
+            <span
+              title={toReadableNumber(
+                tokens[0].decimals,
+                balances[tokens[0].id]
+              )}
+            >
+              {toPrecision(
+                toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
+                2,
+                true
+              )}
+            </span>
           </div>
           <div className="flex items-center ">
             <div className="flex items-center mr-4 w-1/3">
@@ -422,11 +433,18 @@ function AddLiquidityModal(
             <div className="text-xs text-right mb-1 text-gray-400">
               <FormattedMessage id="balance" defaultMessage="Balance" />
               :&nbsp;
-              {toPrecision(
-                toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
-                2,
-                true
-              )}
+              <span
+                title={toReadableNumber(
+                  tokens[0].decimals,
+                  balances[tokens[0].id]
+                )}
+              >
+                {toPrecision(
+                  toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
+                  2,
+                  true
+                )}
+              </span>
             </div>
           </div>
           <InputAmount
@@ -442,11 +460,18 @@ function AddLiquidityModal(
           <div className="text-xs text-right mb-1 text-gray-400">
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
-            {toPrecision(
-              toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
-              2,
-              true
-            )}
+            <span
+              title={toReadableNumber(
+                tokens[1].decimals,
+                balances[tokens[1].id]
+              )}
+            >
+              {toPrecision(
+                toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
+                2,
+                true
+              )}
+            </span>
           </div>
           <div className="flex items-center">
             <div className="flex items-center mr-4 w-1/3">
@@ -483,11 +508,18 @@ function AddLiquidityModal(
             <div className="text-xs text-right mb-1 text-gray-400">
               <FormattedMessage id="balance" defaultMessage="Balance" />
               :&nbsp;
-              {toPrecision(
-                toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
-                2,
-                true
-              )}
+              <span
+                title={toReadableNumber(
+                  tokens[1].decimals,
+                  balances[tokens[1].id]
+                )}
+              >
+                {toPrecision(
+                  toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
+                  2,
+                  true
+                )}
+              </span>
             </div>
           </div>
           <InputAmount
@@ -701,13 +733,12 @@ export function RemoveLiquidityModal(
   );
 }
 
-export function MyShares({
+function MyShares({
   shares,
   totalShares,
   poolId,
   stakeList = {},
   decimal,
-  yourLP,
 }: {
   shares: string;
   totalShares: string;
@@ -725,13 +756,9 @@ export function MyShares({
       farmStake = BigNumber.sum(farmStake, stakeList[seed]).valueOf();
     }
   });
+
   const userTotalShare = BigNumber.sum(shares, farmStake);
   let sharePercent = percent(userTotalShare.valueOf(), totalShares);
-
-  const farmSharePercent = toPrecision(
-    percent(farmStake, totalShares).toString(),
-    2
-  );
 
   let displayPercent;
   if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
@@ -741,28 +768,12 @@ export function MyShares({
     }`;
   else displayPercent = toPrecision(String(sharePercent), decimal || 4);
 
-  if (yourLP) {
-    return (
-      <div className="flex flex-col">
-        <div className="mb-1">{`${displayPercent}% of Total`}</div>
-        <div className="text-xs">
-          {`${farmSharePercent}% `}
-          <FormattedMessage
-            id="staking_in_farm"
-            defaultMessage="Staking in Farm"
-          />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div>{`${toRoundedReadableNumber({
       decimals: LP_TOKEN_DECIMALS,
-      number:
-        userTotalShare
-          .toNumber()
-          .toLocaleString('fullwide', { useGrouping: false }) ?? '0',
+      number: userTotalShare
+        .toNumber()
+        .toLocaleString('fullwide', { useGrouping: false }),
       precision: decimal || 6,
     })} (${displayPercent}%)`}</div>
   );
@@ -1137,20 +1148,6 @@ export function PoolDetailsPage() {
   const morePoolIds: string[] =
     JSON.parse(localStorage.getItem('morePoolIds')) || [];
   const [farmCount, setFarmCount] = useState<Number>(1);
-
-  const FarmButton = ({ farmCount }: { farmCount: Number }) => {
-    const isMultiMining = farmCount > 1;
-    return (
-      <div className="flex items-center">
-        <div className="ml-2">
-          <FarmStamp />
-        </div>
-        <div className={isMultiMining ? 'ml-2' : ''}>
-          {isMultiMining && <FarmMiningIcon />}
-        </div>
-      </div>
-    );
-  };
 
   const handleSaveWatchList = () => {
     if (!wallet.isSignedIn()) {

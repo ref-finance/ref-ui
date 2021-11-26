@@ -35,7 +35,7 @@ import {
   UpArrowLight,
 } from '~components/icon';
 import { FarmStamp } from '~components/icon/FarmStamp';
-import { SolidButton } from '~components/button/Button';
+import { SolidButton, FarmButton } from '~components/button/Button';
 import { wallet } from '~services/near';
 import {
   WatchListStartEmpty,
@@ -451,17 +451,6 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
     if (b.symbol === 'wNEAR') return -1;
     return a.symbol > b.symbol ? 1 : -1;
   });
-
-  const FarmButton = ({ farmCount }: { farmCount: Number }) => {
-    return (
-      <div className="flex items-center">
-        <div className="mx-2">
-          <FarmStamp />
-        </div>
-        <div>{farmCount > 1 && <FarmMiningIcon />}</div>
-      </div>
-    );
-  };
 
   return (
     <Link
