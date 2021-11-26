@@ -120,8 +120,9 @@ export const useSwap = ({
 // console.log('amountIn -> tokenInAmount', tokenInAmount);
   const makeSwap = () => {
   // console.log('swapsToDo2', swapsToDo);
-  for(let swapToDo of swapsToDo) {
+  // for(let swapToDo of swapsToDo) {
     // console.log('swap to do amount in', tokenInAmount);
+    // let partialAmountIn = swapToDo.pool.partialAmountIn;
     swap({
       swapsToDo,
       tokenIn,
@@ -130,7 +131,7 @@ export const useSwap = ({
 	  slippageTolerance,
     }).catch(setSwapError);
   };
-  }
+  // }
 
   return {
     canSwap,

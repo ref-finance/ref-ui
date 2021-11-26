@@ -74,6 +74,7 @@ export const estimateSwap = async ({
     tokenOutId: tokenOut.id,
     amountIn: parsedAmountIn,
   });
+  // console.log(pools);
 
 // Added in calculation here to determine the optimal spread of total input token amount amongst relevant pools.
 // This is the main parallel swap algorithm function.
@@ -95,8 +96,11 @@ export const estimateSwap = async ({
   try {
     const estimates = await Promise.all(
       parallelPools.map((pool) => {
+        // console.log('within estimates, amountIn is... ',amountIn)
+        let allocation = Big(pool.partialAmountIn).div(Big(10).pow(tokenOut.decimals)).toString()
 		  // console.log('pool', pool);
-        const amount_with_fee = Number(amountIn) * (FEE_DIVISOR - pool.fee);
+        //const amount_with_fee = Number(amountIn) * (FEE_DIVISOR - pool.fee);
+        const amount_with_fee = Number(allocation) * (FEE_DIVISOR - pool.fee);
         const in_balance = toReadableNumber(
           tokenIn.decimals,
           pool.supplies[tokenIn.id]
@@ -194,6 +198,8 @@ export const directSwap = async ({
 	const swapActions = swapsToDo.map((s2d) => {
 		let tokenOutAmount = s2d.estimate;
 		let minTokenOutAmount = tokenOutAmount ? percentLess(slippageTolerance, tokenOutAmount): null;
+    console.log(s2d.pool.partialAmountIn)
+    let allocation = s2d.pool.partialAmountIn.toString();
 		return {
 			pool_id: s2d.pool.id, 
 			token_in: tokenIn.id, 
@@ -283,13 +289,24 @@ export const depositSwap = async ({
 	// console.log('swapsToDo', swapsToDo);
 	
 	const swapActions = swapsToDo.map((s2d) => {
-		let tokenOutAmount = s2d.estimate;
+		// let tokenOutAmount = s2d.estimate;
+    let dx_float = s2d.pool.partialAmountIn.toNumber();
+    let fpool = formatPoolNew(s2d.pool, tokenIn.id, tokenOut.id);
+    let dy_float = calculate_dy_float(dx_float,fpool, tokenIn.id, tokenOut.id);
+    let tokenOutAmount = dy_float.div(Big(10).pow(tokenOut.decimals)).toString();
+    s2d.estimate = tokenOutAmount;
 		let minTokenOutAmount = tokenOutAmount ? percentLess(slippageTolerance, tokenOutAmount): null;
+    console.log(s2d.pool.partialAmountIn)
+    console.log('token out amount estimate: ',tokenOutAmount)
+    let allocation = s2d.pool.partialAmountIn.div(Big(10).pow(tokenIn.decimals)).toString();
+    console.log(allocation);
+    console.log('type of allocation: ',typeof(allocation), allocation);
+    console.log('type of tokenInAmount: ',typeof(tokenInAmount), tokenInAmount);
 		return {
 			pool_id: s2d.pool.id, 
 			token_in: tokenIn.id, 
 			token_out: tokenOut.id, 
-			amount_in: round(tokenIn.decimals, toNonDivisibleNumber(tokenIn.decimals, tokenInAmount)), 
+			amount_in: round(tokenIn.decimals, toNonDivisibleNumber(tokenIn.decimals, allocation)), 
 			min_amount_out: round(tokenOut.decimals, toNonDivisibleNumber(tokenOut.decimals, minTokenOutAmount))
 		}
 	});
@@ -343,8 +360,8 @@ export const checkTransaction = (txHash: string) => {
  */
 function formatPoolNew(pool, inputToken, outputToken) {
   let p = pool;
-  let x = p.supplies[inputToken]
-  let y = p.supplies[outputToken]
+  let x = p.supplies[inputToken];
+  let y = p.supplies[outputToken];
   p['gamma_bps'] = new Big(10000).minus(p.fee);
   p['x'] = x;
   p['y'] = y;
@@ -473,8 +490,8 @@ for (var i=0; i<dxArray.length; i++) {
 let normalizedDxArray = [];
 for (var i=0; i<dxArray.length; i++) {
   let ndx = new Big(dxArray[i]).times(inputAmount).div(dxArraySum).round()
-  normalizedDxArray.push(BigInt(ndx.toFixed()));
-  pools[i]['partialAmountIn'] = BigNumber(ndx.toFixed());
+  normalizedDxArray.push(BigInt(ndx.toString()));
+  pools[i]['partialAmountIn'] = BigNumber(ndx.toString());
 }
 return normalizedDxArray
 };
