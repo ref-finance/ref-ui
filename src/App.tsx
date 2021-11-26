@@ -13,6 +13,7 @@ import AdboardPage from './pages/Adboard/AdboardPage';
 import NavigationBar from './components/layout/NavigationBar';
 import Footer from './components/layout/Footer';
 import { MorePoolsPage } from '~pages/pools/MorePoolsPage';
+import StableSwapPage from './pages/stable/StableSwapPage';
 import {
   BgShapeLeftTop,
   BgShapeCenter,
@@ -75,6 +76,7 @@ function App() {
           <Route path="/pools" component={AutoHeight(LiquidityPage)} />
           <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
           <Route path="/farms" component={AutoHeight(FarmsPage)} />
+          <Route path="/stableswap" component={AutoHeight(StableSwapPage)} />
           <Route path="/" component={AutoHeight(SwapPage)} />
         </Switch>
         <Footer />
