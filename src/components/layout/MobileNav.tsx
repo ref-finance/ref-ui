@@ -88,7 +88,7 @@ export function MobileSwitchLanguage() {
         className="flex p-4 items-center text-lg justify-between"
         onClick={handleLanguageMenu}
       >
-        <div className={'font-bold text-primaryText'}>
+        <div className={'text-primaryText'}>
           <FormattedMessage id="language" defaultMessage="Language" />
         </div>
         <FiChevronUp
@@ -100,7 +100,7 @@ export function MobileSwitchLanguage() {
       </div>
       <div className={`${show && !openMenu ? 'block' : 'hidden'}`}>
         <div
-          className={`flex items-center whitespace-nowrap bg-cardBg text-left font-bold text-white p-4 ${
+          className={`flex items-center whitespace-nowrap bg-cardBg text-left text-white p-4 ${
             currentLocal === 'en' ? 'text-white' : 'text-primaryText'
           }`}
           onClick={() => context.selectLanguage('en')}
@@ -111,7 +111,7 @@ export function MobileSwitchLanguage() {
           English
         </div>
         <div
-          className={`flex items-center hitespace-nowrap text-left bg-cardBg font-bold text-white p-4 ${
+          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
             currentLocal === 'zh-CN' ? 'text-white' : 'text-primaryText '
           }`}
           onClick={() => context.selectLanguage('zh-CN')}
@@ -131,7 +131,7 @@ export function Logout() {
     wallet.isSignedIn() && (
       <div
         className={
-          'whitespace-nowrap flex text-left font-bold p-4 text-primaryText bg-cardBg'
+          'whitespace-nowrap flex text-lg text-left p-4 text-primaryText bg-cardBg'
         }
         onClick={() => {
           wallet.signOut();
