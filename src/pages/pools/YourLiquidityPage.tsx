@@ -119,8 +119,8 @@ function Empty() {
     <div className="px-6">
       <div className="text-center font-semibold text-xs mb-4 text-primaryText">
         <FormattedMessage
-          id="you_are_not_providing_liquidity_to_any_pools"
-          defaultMessage="You aren’t providing liquidity to any pools"
+          id="your_liquidity_positions_will_appear_here."
+          defaultMessage="Your liquidity positions will appear here."
         />
       </div>
       {wallet.isSignedIn() ? <AddLiquidityButton /> : <ConnectToNearBtn />}
@@ -162,7 +162,10 @@ export function YourLiquidityPage() {
       </div>
       <Card width="w-full" padding="px-0 py-6">
         <div className="text-white text-xl px-6 pb-6">
-          <FormattedMessage id="my_liquidity" defaultMessage="My Liquidity" />
+          <FormattedMessage
+            id="your_liquidity"
+            defaultMessage="Your Liquidity"
+          />
         </div>
         {pools.length > 0 ? (
           <section>
@@ -227,8 +230,9 @@ function PoolRow(props: { pool: any; balance: string }) {
 
   const userTotalShare = BigNumber.sum(shares, farmStake);
 
-  if (!pool || !tokens || tokens.length < 2 || !(userTotalShare.toNumber() > 0))
-    return null;
+  if (!pool || !tokens || tokens.length < 2) return <Loading />;
+
+  if (!(userTotalShare.toNumber() > 0)) return null;
 
   const Images = tokens.map((token, index) => {
     const { icon, id } = token;

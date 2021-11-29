@@ -223,7 +223,8 @@ const en_US = {
   over_tip: 'Only 5 tokens can be withdrawn at once',
   no_token_tip: 'No reward token',
   getToken_tip: 'You can claim your rewards or stake your LP Tokens now!',
-  my_liquidity: 'My Liquidity',
   in_farm: 'in Farm',
+  your_liquidity_positions_will_appear_here:
+    'Your liquidity positions will appear here.',
 };
 export default en_US;
