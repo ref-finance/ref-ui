@@ -65,14 +65,14 @@ export function AddPoolPage() {
   const canSubmit = !!fee && !!token1 && !!token2;
 
   return (
-    <div className="flex items-center flex-col xl:w-1/3 2xl:w-1/3 3xl:w-1/4 lg:w-1/2 md:w-5/6 xs:w-full xs:p-2 m-auto">
+    <div className="flex items flex-col xl:w-1/3 2xl:w-1/3 3xl:w-1/4 lg:w-1/2 md:w-5/6 xs:w-full xs:p-2 m-auto">
+      <div className="formTitle text-2xl text-white pb-4 px-4">
+        <FormattedMessage
+          id="Create_New_Pool"
+          defaultMessage="Create New Pool"
+        />
+      </div>
       <Card width="w-full" bgcolor="bg-cardBg">
-        <div className="formTitle text-xl text-white text-left pb-6">
-          <FormattedMessage
-            id="Create_New_Pool"
-            defaultMessage="Create New Pool"
-          />
-        </div>
         <div className="w-full flex justify-center">
           {error && <Alert level="error" message={error.message} />}
         </div>
