@@ -218,5 +218,6 @@ const zh_CN = {
   getToken_tip: '你可以现在认领你的奖励或质押代币！',
   in_farm: '在农场中',
   your_liquidity_positions_will_appear_here: '你参与的流动池将会出现在这里',
+  price_impact: '价格影响',
 };
 export default zh_CN;

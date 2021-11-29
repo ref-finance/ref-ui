@@ -226,5 +226,6 @@ const en_US = {
   in_farm: 'in Farm',
   your_liquidity_positions_will_appear_here:
     'Your liquidity positions will appear here.',
+  price_impact: 'Price Impact',
 };
 export default en_US;

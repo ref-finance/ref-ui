@@ -8,8 +8,11 @@ import {
   calculateExchangeRate,
   calculateFeeCharge,
   calculateFeePercent,
+  percent,
+  percentLess,
   toPrecision,
   toReadableNumber,
+  subtraction,
 } from '../../utils/numbers';
 import TokenAmount from '../forms/TokenAmount';
 import Alert from '../alert/Alert';
@@ -28,11 +31,21 @@ const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
 
-function SwapDetail({ title, value }: { title: string; value: string }) {
+function SwapDetail({
+  title,
+  value,
+  valueColor,
+}: {
+  title: string;
+  value: string;
+  valueColor?: string;
+}) {
   return (
     <section className="grid grid-cols-2 py-1 text-xs">
       <p className="text-primaryText">{title}</p>
-      <p className="text-right text-white">{value}</p>
+      <p className={`text-right ${valueColor ? valueColor : 'text-white'}`}>
+        {value}
+      </p>
     </section>
   );
 }
@@ -111,6 +124,15 @@ function DetailView({
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
 
+  const getPriceImpact = () => {
+    const value = percent(
+      subtraction(to, minAmountOut),
+      minAmountOut
+    ).toString();
+
+    return Number(value) < 0.01 ? '< 0.01' : toPrecision(value, 2);
+  };
+
   if (!pool || !from || !to) return null;
 
   return (
@@ -131,6 +153,11 @@ function DetailView({
         </div>
       </div>
       <div className={showDetails ? '' : 'hidden'}>
+        <SwapDetail
+          title={intl.formatMessage({ id: 'price_impact' })}
+          value={`≈ ${getPriceImpact()}%`}
+          valueColor="text-greenLight"
+        />
         <SwapDetail
           title={intl.formatMessage({ id: 'minimum_received' })}
           value={toPrecision(minAmountOut, 8, true)}

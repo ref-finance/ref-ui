@@ -299,8 +299,8 @@ export const getPoolsByTokens = async ({
         new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
         p.supplies[tokenOutId]
     );
-    setLoadingTrigger(false);
   }
+  setLoadingTrigger(false);
   setLoadingData(false);
   return filtered_pools;
 };
