@@ -293,7 +293,7 @@ function PoolRow(props: { pool: any; balance: string }) {
           <div className="w-16 flex items-center ml-1">{Images}</div>
         </div>
 
-        <div className="col-span-3 inline-flex flex-col ">
+        <div className="col-span-3 inline-flex flex-col text-xs">
           <div className="grid grid-cols-6 my-1">
             <div className="col-span-3 font-semibold">
               {toRealSymbol(tokens[0].symbol)}
