@@ -139,27 +139,32 @@ export function TokenList(props: {
   const { tokens, balances, hideEmpty, showTokenId = false } = props;
   const [tokensList, setTokensList] = useState<TokenMetadata[]>([]);
   useEffect(() => {
-    const tokensList = tokens?.map((token) => {
-      const item = token;
-      const balance = balances[token.id] || '0';
-      const amountLabel = toPrecision(
-        toReadableNumber(token.decimals, balance),
-        3,
-        true
-      );
-      const amount = Number(toReadableNumber(token.decimals, balance));
-      return {
-        ...item,
-        amountLabel: amountLabel,
-        amount: amount,
-      };
-    });
+    const tokensList =
+      balances &&
+      tokens &&
+      tokens.length > 0 &&
+      tokens.map((token) => {
+        const item = token;
+        const balance = balances[token.id] || '0';
+        const amountLabel = toPrecision(
+          toReadableNumber(token.decimals, balance),
+          3,
+          true
+        );
+        const amount = Number(toReadableNumber(token.decimals, balance));
+        return {
+          ...item,
+          amountLabel: amountLabel,
+          amount: amount,
+        };
+      });
     setTokensList(tokensList);
   }, [tokens]);
 
   return (
     <div className="divide-y divide-gray-600">
-      {tokensList.length > 0 &&
+      {tokensList &&
+        tokensList.length > 0 &&
         tokensList
           .sort((a, b) => {
             return b.amount - a.amount;
