@@ -140,7 +140,7 @@ function DetailView({
     const marketPrice = divide(in_balance, out_balance).toString();
     const newMarketPrice = divide(from, to).toString();
 
-    const value = divide(
+    const value = percent(
       subtraction(newMarketPrice, marketPrice),
       marketPrice
     ).toString();
