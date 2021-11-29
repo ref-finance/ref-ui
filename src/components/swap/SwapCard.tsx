@@ -13,6 +13,7 @@ import {
   toPrecision,
   toReadableNumber,
   subtraction,
+  divide,
 } from '../../utils/numbers';
 import TokenAmount from '../forms/TokenAmount';
 import Alert from '../alert/Alert';
@@ -113,6 +114,7 @@ function DetailView({
   from,
   to,
   minAmountOut,
+  canSwap,
 }: {
   pool: Pool;
   tokenIn: TokenMetadata;
@@ -120,17 +122,30 @@ function DetailView({
   from: string;
   to: string;
   minAmountOut: string;
+  canSwap?: boolean;
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
 
-  const getPriceImpact = () => {
-    const value = percent(
-      subtraction(to, minAmountOut),
-      minAmountOut
+  const calculatePriceImpact = () => {
+    const in_balance = toReadableNumber(
+      tokenIn.decimals,
+      pool.supplies[tokenIn.id]
+    );
+    const out_balance = toReadableNumber(
+      tokenOut.decimals,
+      pool.supplies[tokenOut.id]
+    );
+
+    const marketPrice = divide(in_balance, out_balance).toString();
+    const newMarketPrice = divide(from, to).toString();
+
+    const value = divide(
+      subtraction(newMarketPrice, marketPrice),
+      marketPrice
     ).toString();
 
-    return Number(value) < 0.01 ? '< 0.01' : toPrecision(value, 2);
+    return Number(value) < 0.01 ? '< 0.01%' : `≈ ${toPrecision(value, 2)}%`;
   };
 
   if (!pool || !from || !to) return null;
@@ -155,7 +170,9 @@ function DetailView({
       <div className={showDetails ? '' : 'hidden'}>
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
-          value={`≈ ${getPriceImpact()}%`}
+          value={`${
+            !to || to === '0' || !canSwap ? '-' : calculatePriceImpact()
+          }`}
           valueColor="text-greenLight"
         />
         <SwapDetail
@@ -402,6 +419,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           from={tokenInAmount}
           to={tokenOutAmount}
           minAmountOut={minAmountOut}
+          canSwap={canSwap}
         />
 
         <div className="pb-2">

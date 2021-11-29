@@ -107,6 +107,10 @@ export const subtraction = (initialValue: string, toBeSubtract: string) => {
   });
 };
 
+export const divide = (numerator: string, denominator: string) => {
+  return math.evaluate(`(${numerator} / ${denominator})`);
+};
+
 export const percentOf = (percent: number, num: number | string) => {
   return math.evaluate(`${convertToPercentDecimal(percent)} * ${num}`);
 };
