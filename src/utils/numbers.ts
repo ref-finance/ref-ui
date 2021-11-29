@@ -1,5 +1,7 @@
 import BN from 'bn.js';
 import * as math from 'mathjs';
+import { TokenMetadata } from '~services/ft-contract';
+import { Pool } from '~services/pool';
 
 const BPS_CONVERSION = 10000;
 
@@ -93,6 +95,46 @@ export const calculateFeeCharge = (fee: number, total: string) => {
   );
 };
 
+export const calculatePriceImpact = (
+  pool: Pool,
+  tokenIn: TokenMetadata,
+  tokenOut: TokenMetadata,
+  tokenInAmount: string
+) => {
+  const in_balance = toReadableNumber(
+    tokenIn.decimals,
+    pool.supplies[tokenIn.id]
+  );
+  const out_balance = toReadableNumber(
+    tokenOut.decimals,
+    pool.supplies[tokenOut.id]
+  );
+
+  const constant_product = math.evaluate(`${in_balance} * ${out_balance}`);
+
+  const marketPrice = math.evaluate(`(${in_balance} / ${out_balance})`);
+
+  const new_in_balance = math.evaluate(`${tokenInAmount} + ${in_balance}`);
+
+  const new_out_balance = math.divide(constant_product, new_in_balance);
+
+  const tokenOutReceived = math.subtract(
+    math.evaluate(out_balance),
+    new_out_balance
+  );
+
+  const newMarketPrice = math.evaluate(
+    `${tokenInAmount} / ${tokenOutReceived}`
+  );
+
+  const PriceImpact = percent(
+    subtraction(newMarketPrice, marketPrice),
+    marketPrice
+  ).toString();
+
+  return PriceImpact;
+};
+
 export const calculateExchangeRate = (
   fee: number,
   from: string,
@@ -105,10 +147,6 @@ export const subtraction = (initialValue: string, toBeSubtract: string) => {
   return math.format(math.evaluate(`${initialValue} - ${toBeSubtract}`), {
     notation: 'fixed',
   });
-};
-
-export const divide = (numerator: string, denominator: string) => {
-  return math.evaluate(`(${numerator} / ${denominator})`);
 };
 
 export const percentOf = (percent: number, num: number | string) => {

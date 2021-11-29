@@ -13,7 +13,7 @@ import {
   toPrecision,
   toReadableNumber,
   subtraction,
-  divide,
+  calculatePriceImpact,
 } from '../../utils/numbers';
 import TokenAmount from '../forms/TokenAmount';
 import Alert from '../alert/Alert';
@@ -127,24 +127,13 @@ function DetailView({
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
 
-  const calculatePriceImpact = () => {
-    const in_balance = toReadableNumber(
-      tokenIn.decimals,
-      pool.supplies[tokenIn.id]
-    );
-    const out_balance = toReadableNumber(
-      tokenOut.decimals,
-      pool.supplies[tokenOut.id]
-    );
-
-    const marketPrice = divide(in_balance, out_balance).toString();
-    const newMarketPrice = divide(from, to).toString();
-
-    const value = percent(
-      subtraction(newMarketPrice, marketPrice),
-      marketPrice
-    ).toString();
-
+  const getPriceImpact = (
+    pool: Pool,
+    tokenIn: TokenMetadata,
+    tokenOut: TokenMetadata,
+    from: string
+  ) => {
+    const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
     return Number(value) < 0.01 ? '< 0.01%' : `≈ ${toPrecision(value, 2)}%`;
   };
 
@@ -171,7 +160,9 @@ function DetailView({
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
           value={`${
-            !to || to === '0' || !canSwap ? '-' : calculatePriceImpact()
+            !to || to === '0' || !canSwap
+              ? '-'
+              : getPriceImpact(pool, tokenIn, tokenOut, from)
           }`}
           valueColor="text-greenLight"
         />
