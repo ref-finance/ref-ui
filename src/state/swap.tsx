@@ -8,6 +8,7 @@ import { useHistory, useLocation } from 'react-router';
 import getConfig from '~services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { CloseIcon } from '~components/icon/Actions';
+import Big from 'big.js';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -17,6 +18,11 @@ interface SwapOptions {
   tokenOut: TokenMetadata;
   slippageTolerance: number;
 }
+
+function sumFunction(total, num) {
+  return total + num;
+}
+
 
 export const useSwap = ({
   tokenIn,
@@ -30,6 +36,7 @@ export const useSwap = ({
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
   const [swapError, setSwapError] = useState<Error>();
   const [swapsToDo, setSwapsToDo] = useState();
+  const [avgFee, setAvgFee] = useState<string>('0');
 
   const { search } = useLocation();
   const history = useHistory();
@@ -118,7 +125,20 @@ export const useSwap = ({
           if (!estimates) throw '';
           setCanSwap(true);
 		  setSwapsToDo(estimates.estimates);
-		  // console.log(estimates.estimates);
+
+	  if (swapsToDo) {
+        let medFee = swapsToDo.map((s2d) => {
+	      let fee = s2d.pool.fee;
+		  let numerator = Big(s2d.pool.partialAmountIn).div(Big(10).pow(tokenIn.decimals + 1)).toFixed();
+	      let weight = numerator / tokenInAmount;
+
+	      return fee * weight;
+        };
+        let avgFee = medFee.reduce(sumFunction, 0).toString();
+
+        setAvgFee(avgFee);
+	  };
+
 		  const estimate = (estimates.estimates.reduce((total, value) => total + Number(value.estimate), Number(0));
           setTokenOutAmount(estimate.toString());
           setPool(estimates.estimates[0].pool);
@@ -163,5 +183,6 @@ export const useSwap = ({
     pool,
     swapError,
     makeSwap,
+	avgFee
   };
 };

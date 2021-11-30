@@ -100,6 +100,7 @@ function DetailView({
   from,
   to,
   minAmountOut,
+  fee,
 }: {
   pool: Pool;
   tokenIn: TokenMetadata;
@@ -107,6 +108,7 @@ function DetailView({
   from: string;
   to: string;
   minAmountOut: string;
+  fee: string;
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
@@ -138,7 +140,7 @@ function DetailView({
         <SwapRateDetail
           title={intl.formatMessage({ id: 'swap_rate' })}
           value={`1 ${toRealSymbol(tokenOut.symbol)} ≈ ${calculateExchangeRate(
-            pool.fee,
+            fee,
             to,
             from
           )} ${toRealSymbol(tokenIn.symbol)}`}
@@ -150,10 +152,10 @@ function DetailView({
         />
         <SwapDetail
           title={intl.formatMessage({ id: 'pool_fee' })}
-          value='included' //{`${calculateFeePercent(pool.fee)}% (${calculateFeeCharge(
-           // pool.fee,
-            //from
-         // )})`}
+          value={`${calculateFeePercent(fee)}% (${calculateFeeCharge(
+           fee,
+            from
+         )})`}
         />
       </div>
     </div>
@@ -233,7 +235,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     }
   }, [tokenIn, tokenOut, useNearBalance]);
 
-  const { canSwap, tokenOutAmount, minAmountOut, pool, swapError, makeSwap } =
+  const { canSwap, tokenOutAmount, minAmountOut, pool, swapError, makeSwap, avgFee } =
     useSwap({
       tokenIn: tokenIn,
       tokenInAmount,
@@ -363,6 +365,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           from={tokenInAmount}
           to={tokenOutAmount}
           minAmountOut={minAmountOut}
+		  fee={avgFee}
         />
 
         <div className="pb-2">
