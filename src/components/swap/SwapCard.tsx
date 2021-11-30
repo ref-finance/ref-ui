@@ -35,18 +35,14 @@ const TOKEN_URL_SEPARATOR = '|';
 function SwapDetail({
   title,
   value,
-  valueColor,
 }: {
   title: string;
-  value: string;
-  valueColor?: string;
+  value: string | JSX.Element;
 }) {
   return (
     <section className="grid grid-cols-2 py-1 text-xs">
       <p className="text-primaryText">{title}</p>
-      <p className={`text-right ${valueColor ? valueColor : 'text-white'}`}>
-        {value}
-      </p>
+      <p className="text-right text-white">{value}</p>
     </section>
   );
 }
@@ -127,14 +123,26 @@ function DetailView({
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
 
-  const getPriceImpact = (
+  const GetPriceImpact = (
     pool: Pool,
     tokenIn: TokenMetadata,
     tokenOut: TokenMetadata,
     from: string
   ) => {
-    const value = calculatePriceImpact(pool, tokenIn, tokenOut, from, to);
-    return Number(value) < 0.01 ? '< 0.01%' : `≈ ${toPrecision(value, 2)}%`;
+    const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
+
+    const textColor =
+      Number(value) < 1
+        ? 'text-greenLight'
+        : 1 < Number(value) && Number(value) < 2
+        ? 'text-white'
+        : 'text-white';
+
+    return Number(value) < 0.01 ? (
+      <span className="text-greenLight">{'< -0.01%'}</span>
+    ) : (
+      <span className={`${textColor}`}>{`≈ -${toPrecision(value, 2)}%`}</span>
+    );
   };
 
   if (!pool || !from || !to) return null;
@@ -158,15 +166,6 @@ function DetailView({
       </div>
       <div className={showDetails ? '' : 'hidden'}>
         <SwapDetail
-          title={intl.formatMessage({ id: 'price_impact' })}
-          value={`${
-            !to || to === '0' || !canSwap
-              ? '-'
-              : getPriceImpact(pool, tokenIn, tokenOut, from)
-          }`}
-          valueColor="text-greenLight"
-        />
-        <SwapDetail
           title={intl.formatMessage({ id: 'minimum_received' })}
           value={toPrecision(minAmountOut, 8, true)}
         />
@@ -182,6 +181,14 @@ function DetailView({
           to={to}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
+        />
+        <SwapDetail
+          title={intl.formatMessage({ id: 'price_impact' })}
+          value={
+            !to || to === '0' || !canSwap
+              ? '-'
+              : GetPriceImpact(pool, tokenIn, tokenOut, from)
+          }
         />
         <SwapDetail
           title={intl.formatMessage({ id: 'pool_fee' })}

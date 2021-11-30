@@ -17,6 +17,7 @@ import {
   toPrecision,
   toInternationalCurrencySystem,
   toReadableNumber,
+  calculateFairShare,
 } from '~utils/numbers';
 import { usePool } from '~state/pool';
 import { RemoveLiquidityModal, AddLiquidityModal } from './DetailsPage';
@@ -27,8 +28,9 @@ import { Link, useHistory } from 'react-router-dom';
 import BigNumber from 'bignumber.js';
 import { LP_TOKEN_DECIMALS } from '~services/m-token';
 
-import { canFarm } from '~services/pool';
+import { canFarm, Pool } from '~services/pool';
 import { formatMessage } from '@formatjs/intl';
+import { TokenMetadata } from '~services/ft-contract';
 
 function FarmDot({
   inFarm,
@@ -254,6 +256,10 @@ function PoolRow(props: { pool: any; balance: string }) {
 
   const userTotalShare = BigNumber.sum(shares, farmStake);
 
+  const userTotalShareToString = userTotalShare
+    .toNumber()
+    .toLocaleString('fullwide', { useGrouping: false });
+
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
 
   if (!(userTotalShare.toNumber() > 0)) return null;
@@ -280,6 +286,29 @@ function PoolRow(props: { pool: any; balance: string }) {
     );
   });
 
+  const tokenAmountShare = (
+    pool: Pool,
+    token: TokenMetadata,
+    shares: string
+  ) => {
+    const value = toRoundedReadableNumber({
+      decimals: token.decimals,
+      number: calculateFairShare({
+        shareOf: pool.supplies[token.id],
+        contribution: shares,
+        totalContribution: pool.shareSupply,
+      }),
+      precision: 3,
+      withCommas: false,
+    });
+
+    return Number(value) < 0.001 ? (
+      <span className="whitespace-nowrap">{'< 0.001'}</span>
+    ) : (
+      toInternationalCurrencySystem(value, 3)
+    );
+  };
+
   tokens.sort((a, b) => {
     if (a.symbol === 'wNEAR') return 1;
     if (b.symbol === 'wNEAR') return -1;
@@ -303,13 +332,7 @@ function PoolRow(props: { pool: any; balance: string }) {
               {toRealSymbol(tokens[0].symbol)}
             </div>
             <div className="font-normal">
-              {toInternationalCurrencySystem(
-                toReadableNumber(
-                  tokens[0].decimals,
-                  pool.supplies[tokens[0].id]
-                ),
-                3
-              )}
+              {tokenAmountShare(pool, tokens[0], userTotalShareToString)}
             </div>
           </div>
           <div className="grid grid-cols-6 my-1">
@@ -317,13 +340,7 @@ function PoolRow(props: { pool: any; balance: string }) {
               {toRealSymbol(tokens[1].symbol)}
             </div>
             <div className="font-normal">
-              {toInternationalCurrencySystem(
-                toReadableNumber(
-                  tokens[1].decimals,
-                  pool.supplies[tokens[1].id]
-                ),
-                3
-              )}
+              {tokenAmountShare(pool, tokens[1], userTotalShareToString)}
             </div>
           </div>
         </div>
