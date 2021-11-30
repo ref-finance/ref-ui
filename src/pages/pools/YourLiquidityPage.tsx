@@ -126,7 +126,7 @@ function Empty() {
     <div className="px-6">
       <div className="text-center font-semibold text-xs mb-4 text-primaryText">
         <FormattedMessage
-          id="your_liquidity_positions_will_appear_here."
+          id="your_liquidity_positions_will_appear_here"
           defaultMessage="Your liquidity positions will appear here."
         />
       </div>
