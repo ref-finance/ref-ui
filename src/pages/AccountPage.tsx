@@ -289,19 +289,15 @@ function Actions() {
             <div className="text-white">
               {Object.keys(detail.data).map((k, i) => {
                 if (k === 'Action') return null;
-
+                const value = String((detail.data as any)[k]) || '';
                 return (
                   <div
                     key={i}
                     className="flex items-center justify-between py-3 text-sm"
                   >
                     <div>{k}</div>
-                    <div>{`${(detail.data as any)[k].substring(0, 25)}${
-                      (detail.data as any)[k].length > 25
-                        ? '...'
-                        : ''.length > 25
-                        ? '...'
-                        : ''
+                    <div>{`${value.substring(0, 25)}${
+                      value.length > 25 ? '...' : ''
                     }`}</div>
                   </div>
                 );
@@ -433,19 +429,15 @@ function MobileActions() {
             <div className="border-b">
               {Object.keys(detail.data).map((k, i) => {
                 if (k === 'Action') return null;
-
+                const value = String((detail.data as any)[k]) || '';
                 return (
                   <div
                     key={i}
                     className="flex items-center justify-between  py-3 text-sm"
                   >
                     <div>{k}</div>
-                    <div>{`${(detail.data as any)[k].substring(0, 25)}${
-                      (detail.data as any)[k].length > 25
-                        ? '...'
-                        : ''.length > 25
-                        ? '...'
-                        : ''
+                    <div>{`${value.substring(0, 25)}${
+                      value.length > 25 ? '...' : ''
                     }`}</div>
                   </div>
                 );
