@@ -9,6 +9,7 @@ import {
   GreenButton,
   GrayButton,
   BorderButton,
+  GradientButton,
 } from '~components/button/Button';
 import { mapToView } from '~components/icon/Actions';
 import {
@@ -25,8 +26,8 @@ import { RemoveLiquidityModal } from './pools/DetailsPage';
 import { wallet } from '~services/near';
 import getConfig from '~services/config';
 import { toRealSymbol } from '~utils/token';
-import { TokenMetadata } from '~services/ft-contract';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { TokenList } from '~components/deposit/Deposit';
 
 const config = getConfig();
 
@@ -45,6 +46,10 @@ function useLastActions() {
 function Balances({ hideEmpty }: { hideEmpty?: boolean }) {
   const userTokens = useUserRegisteredTokens();
   const balances = useTokenBalances();
+  const [account, network] = wallet.getAccountId().split('.');
+  const niceAccountId = `${account.slice(0, 10)}...${network || ''}`;
+  const accountName =
+    account.length > 10 ? niceAccountId : wallet.getAccountId();
 
   if (!balances || !userTokens) return <Loading />;
 
@@ -52,73 +57,34 @@ function Balances({ hideEmpty }: { hideEmpty?: boolean }) {
     <Card className="w-full">
       <div className="flex items-center justify-between pb-4">
         <div className="font-semibold text-white">
-          <FormattedMessage id="balance" defaultMessage="Balance" />
+          {wallet.isSignedIn() && accountName}
         </div>
-        <GreenButton
+        <GradientButton
+          className="text-white text-xs py-2 px-5"
           onClick={() => {
             window.open(getConfig().walletUrl, '_blank');
           }}
         >
           <FormattedMessage id="go_to_wallet" defaultMessage="Go to Wallet" />
-        </GreenButton>
+        </GradientButton>
       </div>
       <div>
-        {userTokens.map((token, i) => {
-          return (
-            <TokenRow
-              key={i}
-              token={token}
-              balanceValue={balances[token.id]}
-              hideEmpty={hideEmpty}
-            />
-          );
-        })}
+        <div className="flex text-sm text-primaryText items-center justify-between py-4">
+          <div>
+            <FormattedMessage id="token" defaultMessage="Token" />
+          </div>
+          <div>
+            <FormattedMessage id="balance" defaultMessage="Balance" />
+          </div>
+        </div>
+        <TokenList
+          hideEmpty={true}
+          showTokenId={true}
+          tokens={userTokens}
+          balances={balances}
+        />
       </div>
     </Card>
-  );
-}
-
-function TokenRow({
-  token,
-  balanceValue,
-  hideEmpty,
-}: {
-  token: TokenMetadata;
-  balanceValue: string;
-  hideEmpty?: boolean;
-}) {
-  const balance = balanceValue || '0';
-  if (balance === '0' && hideEmpty) return null;
-
-  const amount = toPrecision(
-    toReadableNumber(token.decimals, balance),
-    6,
-    true
-  );
-
-  return (
-    <div
-      key={token.id}
-      className="flex items-center justify-between py-4"
-      title={toReadableNumber(token.decimals, balance)}
-    >
-      <div className="flex item-center justify-between">
-        {token.icon ? (
-          <img
-            className="h-10 w-10 mr-3"
-            src={token.icon}
-            alt={toRealSymbol(token.symbol)}
-          />
-        ) : (
-          <div className="rounded-full h-10 w-10 bg-gray-300 mr-3"></div>
-        )}
-        <div className="flex flex-col justify-between py-1 text-white">
-          <div>{toRealSymbol(token.symbol)}</div>
-          <div className="text-xs text-gray-400">{token.id}</div>
-        </div>
-      </div>
-      <div className="text-gray-400">{amount}</div>
-    </div>
   );
 }
 
@@ -258,7 +224,7 @@ function Actions() {
         </div>
         <div></div>
       </div>
-      <div className="border-b border-t border-gray-500 border-opacity-30">
+      <div className="border-b border-gray-500 border-opacity-30">
         {actions.map((action, i) => {
           let icon = mapToView(action.data?.Action);
           icon = icon ? (
@@ -287,31 +253,40 @@ function Actions() {
           );
         })}
       </div>
-      <div>
-        <GrayButton
-          className="text-white text-xs w-full justify-center py-2 mt-4"
+      <div className=" text-center pt-4">
+        <div
+          className="h-8 w-36 text-center inline-block rounded border-gradientFrom border py-2 text-xs text-gradientFrom font-semibold cursor-pointer"
           onClick={() => {
             const url = config.walletUrl + '/' + wallet.account().accountId;
             window.open(url, '_blank');
           }}
         >
-          <div>
-            <FormattedMessage id="view_all" defaultMessage="View All" />
-          </div>
-        </GrayButton>
+          <FormattedMessage id="view_all" defaultMessage="View All" />
+        </div>
       </div>
 
       <Modal
         isOpen={!!detail}
         onRequestClose={() => setDetail(null)}
-        style={{ content: { outline: 'none' } }}
+        style={{
+          overlay: {
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
+          },
+          content: {
+            outline: 'none',
+          },
+        }}
       >
         {detail ? (
-          <Card style={{ width: '30vw' }}>
+          <Card
+            style={{ width: '30vw' }}
+            className="outline-none border border-gradientFrom border-opacity-50"
+          >
             <div className="text-white text-center pb-4 font-semibold">
               {detail.data.Action}
             </div>
-            <div className="border-b text-white">
+            <div className="text-white">
               {Object.keys(detail.data).map((k, i) => {
                 if (k === 'Action') return null;
 
@@ -330,8 +305,8 @@ function Actions() {
                 <div>{detail.status ? 'Success' : 'Failed'}</div>
               </div>
             </div>
-            <div className="pt-2">
-              <GrayButton className="text-white text-xs w-full justify-center py-2 mt-4">
+            <div className="pt-2 text-center">
+              <GradientButton className="inline-block w-36 text-white text-xs py-2 mt-4">
                 <div
                   onClick={() => {
                     window.open(detail.txUrl, '_blank');
@@ -339,7 +314,7 @@ function Actions() {
                 >
                   View on Explorer
                 </div>
-              </GrayButton>
+              </GradientButton>
             </div>
           </Card>
         ) : null}
@@ -361,55 +336,6 @@ function Account() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function MobileBalances({ hideEmpty }: { hideEmpty?: boolean }) {
-  const userTokens = useUserRegisteredTokens();
-  const balances = useTokenBalances();
-
-  if (!balances || !userTokens) return <Loading />;
-
-  return (
-    <div className="px-6">
-      <div className="py-4 text-center">
-        <FormattedMessage id="balance" defaultMessage="Balance" />
-      </div>
-      {userTokens.map((token) => {
-        const balance = balances[token.id] || '0';
-        if (balance === '0' && hideEmpty) return null;
-
-        const amount = toPrecision(
-          toReadableNumber(token.decimals, balance),
-          6,
-          true
-        );
-
-        return (
-          <div
-            key={token.id}
-            className="flex items-center justify-between py-4 border-b border-gray-700"
-          >
-            <div className="flex item-center justify-between">
-              {token.icon ? (
-                <img
-                  className="h-10 w-10 mr-3"
-                  src={token.icon}
-                  alt={toRealSymbol(token.symbol)}
-                />
-              ) : (
-                <div className="rounded-full h-10 w-10 bg-gray-300 mr-3"></div>
-              )}
-              <div className="flex flex-col justify-between py-1">
-                <div>{toRealSymbol(token.symbol)}</div>
-                <div className="text-xs text-gray-300">{token.name}</div>
-              </div>
-            </div>
-            <div className="text-white">{amount}</div>
-          </div>
-        );
-      })}
     </div>
   );
 }
@@ -448,8 +374,8 @@ function MobileActions() {
   if (!actions || actions.length === 0) return <Loading />;
 
   return (
-    <div className="px-6 mt-4 overflow-auto">
-      <div className="border-b border-gray-700">
+    <div className="overflow-auto">
+      <div className="bg-cardBg mx-4 rounded-2xl p-6 md:rounded-lg xs:rounded-lg">
         {actions.map((action, i) => {
           let icon = mapToView(action.data.Action, true);
           icon = icon ? (
@@ -478,22 +404,20 @@ function MobileActions() {
             </div>
           );
         })}
-      </div>
-      <div>
-        <BorderButton
-          className=" w-full text-white py-2 mt-6"
-          borderColor="border-gray-500"
-          onClick={() => {
-            const url = config.walletUrl + '/' + wallet.account().accountId;
-            window.open(url, '_blank');
-          }}
-        >
-          <div>
-            <FormattedMessage id="view_all" defaultMessage="View All" />
+        <div className="text-center">
+          <div
+            className="h-8 w-36 text-center inline-block rounded border-gradientFrom border py-2 text-xs text-gradientFrom font-semibold cursor-pointer"
+            onClick={() => {
+              const url = config.walletUrl + '/' + wallet.account().accountId;
+              window.open(url, '_blank');
+            }}
+          >
+            <div>
+              <FormattedMessage id="view_all" defaultMessage="View All" />
+            </div>
           </div>
-        </BorderButton>
+        </div>
       </div>
-
       <ActionSheet ref={ref}>
         {detail ? (
           <div className="text-black px-4 py-6">
@@ -539,6 +463,8 @@ function MobileActions() {
 
 function MobileAccount() {
   const [showRecent, setShowRecent] = useState(false);
+  const userTokens = useUserRegisteredTokens();
+  const balances = useTokenBalances();
   const intl = useIntl();
   return (
     <div className="lg:hidden xl:hidden md:show xs:show relative text-white flex-grow overflow-auto pb-6">
@@ -548,24 +474,38 @@ function MobileAccount() {
           : intl.formatMessage({ id: 'account' })}
       </div>
       <div className="flex items-center justify-center py-4">
-        <GreenButton
+        <GradientButton
+          className="rounded w-52 text-xs text-white py-2 px-5"
+          btnClassName="font-semibold"
+          onClick={() => setShowRecent(!showRecent)}
+        >
+          {showRecent
+            ? intl.formatMessage({ id: 'balance' })
+            : intl.formatMessage({ id: 'recent_activity' })}
+        </GradientButton>
+        <div
+          className="ml-4 h-8 w-28 text-center inline-block rounded border-gradientFrom border py-2 text-xs text-gradientFrom font-semibold cursor-pointer"
           onClick={() => {
             window.open(config.walletUrl, '_blank');
           }}
         >
           <FormattedMessage id="go_to_wallet" defaultMessage="Go to Wallet" />
-        </GreenButton>
-        <div className="w-4"></div>
-        <BorderButton onClick={() => setShowRecent(!showRecent)}>
-          {showRecent
-            ? intl.formatMessage({ id: 'balance' })
-            : intl.formatMessage({ id: 'recent_activity' })}
-        </BorderButton>
+        </div>
       </div>
 
-      {!showRecent ? (
+      {!showRecent && userTokens ? (
         <>
-          <MobileBalances />
+          <div className="bg-cardBg mx-4 rounded-2xl p-6 md:rounded-lg xs:rounded-lg">
+            <div className="py-4 text-center">
+              <FormattedMessage id="balance" defaultMessage="Balance" />
+            </div>
+            <TokenList
+              hideEmpty={true}
+              showTokenId={true}
+              tokens={userTokens}
+              balances={balances}
+            />
+          </div>
         </>
       ) : (
         <MobileActions />

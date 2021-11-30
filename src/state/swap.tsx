@@ -7,6 +7,7 @@ import { checkTransaction, estimateSwap, swap } from '../services/swap';
 import { useHistory, useLocation } from 'react-router';
 import getConfig from '~services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { CloseIcon } from '~components/icon/Actions';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -32,7 +33,15 @@ export const useSwap = ({
 
   const { search } = useLocation();
   const history = useHistory();
-  const txHash = new URLSearchParams(search).get('transactionHashes');
+  const txHashes = new URLSearchParams(search)
+    .get('transactionHashes')
+    ?.split(',');
+
+  const txHash = txHashes
+    ? txHashes.length > 1
+      ? txHashes[1]
+      : txHashes[0]
+    : '';
 
   const minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
@@ -47,6 +56,8 @@ export const useSwap = ({
           return (
             transaction?.actions[1]?.['FunctionCall']?.method_name ===
               'ft_transfer_call' ||
+            transaction?.actions[0]?.['FunctionCall']?.method_name ===
+              'ft_transfer_call' ||
             transaction?.actions[0]?.['FunctionCall']?.method_name === 'swap' ||
             transaction?.actions[0]?.['FunctionCall']?.method_name ===
               'near_withdraw'
@@ -56,7 +67,7 @@ export const useSwap = ({
           if (isSwap) {
             toast(
               <a
-                className="text-primary font-semibold"
+                className="text-white"
                 href={`${getConfig().explorerUrl}/transactions/${txHash}`}
                 target="_blank"
               >
@@ -67,7 +78,18 @@ export const useSwap = ({
               </a>,
               {
                 autoClose: 8000,
-                closeOnClick: false,
+                closeOnClick: true,
+                hideProgressBar: false,
+                closeButton: <CloseIcon />,
+                progressStyle: {
+                  background: '#00FFD1',
+                  borderRadius: '8px',
+                },
+                style: {
+                  background: '#1D2932',
+                  boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
+                  borderRadius: '8px',
+                },
               }
             );
           }
@@ -118,7 +140,7 @@ export const useSwap = ({
   }, [tokenIn, tokenOut, tokenInAmount]);
  
 // console.log('amountIn -> tokenInAmount', tokenInAmount);
-  const makeSwap = () => {
+  const makeSwap = (useNearBalance: boolean) => {
   // console.log('swapsToDo2', swapsToDo);
   // for(let swapToDo of swapsToDo) {
     // console.log('swap to do amount in', tokenInAmount);
@@ -129,6 +151,7 @@ export const useSwap = ({
       tokenOut,
       tokenInAmount,
 	  slippageTolerance,
+      useNearBalance,
     }).catch(setSwapError);
   };
   // }

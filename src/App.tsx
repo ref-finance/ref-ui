@@ -52,7 +52,7 @@ function App() {
   return (
     <Router>
       <ToastContainer />
-      <div className="relative min-h-screen pb-20 xs:flex xs:flex-col md:flex md:flex-col">
+      <div className="relative min-h-screen pb-20 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
         <BgShapeLeftTop />
         <BgShapeCenter />
         <BgShapeCenterSmall />
@@ -89,7 +89,7 @@ function App() {
 function AutoHeight(Comp: any) {
   return (props: any) => {
     return (
-      <div className="xs:flex xs:flex-col md:flex md:flex-col justify-center h-4/5 lg:mt-24 relative">
+      <div className="xs:flex xs:flex-col md:flex md:flex-col justify-center h-4/5 lg:mt-12 relative">
         <Comp {...props} />
       </div>
     );

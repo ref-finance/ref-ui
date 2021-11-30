@@ -41,12 +41,14 @@ export interface PoolDb extends Pool {
 export interface FarmDexie {
   id: string;
   pool_id: string;
+  status: string;
 }
 
 export interface WatchList {
   id: string;
   account: string;
   pool_id: string;
+  update_time: number;
 }
 
 class RefDatabase extends Dexie {
@@ -59,13 +61,13 @@ class RefDatabase extends Dexie {
   public constructor() {
     super('RefDatabase');
 
-    this.version(4.1).stores({
+    this.version(5.1).stores({
       pools: 'id, token1Id, token2Id, token1Supply, token2Supply, fee, shares',
       tokens: 'id, name, symbol, decimals, icon',
-      farms: 'id, pool_id',
+      farms: 'id, pool_id, status',
       pools_tokens:
         'id, token1Id, token2Id, token1Supply, token2Supply, fee, shares, update_time, token0_price',
-      watchList: 'id, account, pool_id',
+      watchList: 'id, account, pool_id, update_time',
     });
 
     this.pools = this.table('pools');

@@ -2,16 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { PoolDb } from '~store/RefDatabase';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { Card } from '~components/card/Card';
-import { BackArrow, DownArrowLight, UpArrowDeep } from '~components/icon';
+import {
+  BackArrowWhite,
+  BackArrowGray,
+  DownArrowLight,
+  UpArrowDeep,
+  UpArrowLight,
+} from '~components/icon';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
-import Loading from '~components/layout/Loading';
+import { BreadCrumb } from '~components/layout/BreadCrumb';
 
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
-// import { PolygonGray, PolygonGreen } from '~components/icon/Polygon';
 import { useTokens } from '../../state/token';
 import { TokenMetadata } from '~services/ft-contract';
 import { canFarm, Pool } from '../../services/pool';
+import { FarmButton } from '~components/button/Button';
 
 import {
   calculateFeePercent,
@@ -22,7 +28,6 @@ import {
 import { useAllWatchList, useMorePools } from '~state/pool';
 import { PoolRPCView } from '~services/api';
 import { FarmStamp } from '~components/icon/FarmStamp';
-import { MULTI_MINING_POOLS } from '~services/near';
 import { divide, find } from 'lodash';
 import { WatchListStartFull } from '~components/icon/WatchListStar';
 
@@ -35,17 +40,21 @@ function PoolRow({
   index,
   tokens,
   watched,
+  morePoolIds,
 }: {
   pool: PoolRPCView;
   index: number;
   tokens: TokenMetadata[];
   watched: Boolean;
+  morePoolIds: string[];
 }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
+  const [farmCount, setFarmCount] = useState<Number>(1);
 
   useEffect(() => {
     canFarm(pool.id).then((canFarm) => {
-      setSupportFarm(canFarm);
+      setSupportFarm(!!canFarm);
+      setFarmCount(canFarm);
     });
   }, [pool]);
 
@@ -55,28 +64,24 @@ function PoolRow({
     return a.symbol > b.symbol ? 1 : -1;
   });
 
-  const FarmButton = () => {
-    return (
-      <div className="flex items-center">
-        <div className="mx-2">
-          <FarmStamp />
-        </div>
-        <div className="">
-          {MULTI_MINING_POOLS.includes(pool.id) && <FarmMiningIcon />}
-        </div>
-      </div>
-    );
-  };
-
   return (
     <Link
-      className="grid grid-cols-12 py-3.5 text-white content-center text-sm text-left mx-8  border-b border-gray-600"
+      className="grid grid-cols-10 py-3.5 text-white content-center text-sm text-left mx-8  border-b border-gray-700 border-opacity-70 hover:opacity-80"
+      onClick={() => {
+        localStorage.setItem('fromMorePools', 'y');
+        localStorage.setItem('morePoolIds', JSON.stringify(morePoolIds));
+      }}
       to={{
         pathname: `/pool/${pool.id}`,
-        state: { tvl: pool?.tvl, backToFarms: supportFarm },
+        state: {
+          tvl: pool?.tvl,
+          backToFarms: supportFarm,
+          tokens,
+          morePoolIds,
+        },
       }}
     >
-      <div className="col-span-8 flex items-center">
+      <div className="col-span-7 flex items-center">
         <div className="mr-12 w-2">{pool?.id}</div>
 
         <div className="flex items-center">
@@ -101,19 +106,16 @@ function PoolRow({
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </div>
         </div>
-        {supportFarm && <FarmButton />}
-        {/* {watched && (
+        {supportFarm && <FarmButton farmCount={farmCount} />}
+        {watched && (
           <div className="mx-2">
             <WatchListStartFull />
           </div>
-        )} */}
+        )}
       </div>
 
-      <div className="col-span-1 py-1  ">
+      <div className="col-span-2 py-1  ">
         {calculateFeePercent(pool?.total_fee)}%
-      </div>
-      <div className="col-span-2  py-1">
-        <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
       </div>
 
       <div className="col-span-1 py-1">
@@ -126,28 +128,20 @@ const MobileRow = ({
   pool,
   tokens,
   watched,
+  morePoolIds,
 }: {
   pool: PoolRPCView;
   tokens: TokenMetadata[];
   watched: Boolean;
+  morePoolIds: string[];
 }) => {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
-  const FarmButton = () => {
-    return (
-      <div className="flex items-center">
-        <div className="mx-2">
-          <FarmStamp />
-        </div>
-        <div className="">
-          {MULTI_MINING_POOLS.includes(pool.id) && <FarmMiningIcon />}
-        </div>
-      </div>
-    );
-  };
+  const [farmCount, setFarmCount] = useState<Number>(1);
 
   useEffect(() => {
     canFarm(pool.id).then((canFarm) => {
-      setSupportFarm(canFarm);
+      setSupportFarm(!!canFarm);
+      setFarmCount(canFarm);
     });
   }, [pool]);
 
@@ -159,9 +153,19 @@ const MobileRow = ({
       padding="p-4"
     >
       <Link
+        onClick={() => {
+          localStorage.setItem('morePoolIds', JSON.stringify(morePoolIds));
+
+          localStorage.setItem('fromMorePools', 'y');
+        }}
         to={{
           pathname: `/pool/${pool.id}`,
-          state: { tvl: pool?.tvl, backToFarms: supportFarm },
+          state: {
+            tvl: pool?.tvl,
+            backToFarms: supportFarm,
+            tokens,
+            morePoolIds,
+          },
         }}
       >
         <div className="flex items-center justify-between">
@@ -186,13 +190,13 @@ const MobileRow = ({
             <div className="text-lg ml-2 font-semibold">
               {tokens[0].symbol + '-' + tokens[1].symbol}
             </div>
-            {/* {watched && (
+            {watched && (
               <div className="ml-2">
                 <WatchListStartFull />
               </div>
-            )} */}
+            )}
           </div>
-          {supportFarm && <FarmButton />}
+          {supportFarm && <FarmButton farmCount={farmCount} />}
         </div>
 
         <div className="flex flex-col text-base">
@@ -202,15 +206,7 @@ const MobileRow = ({
             </div>
             <div>{calculateFeePercent(pool?.total_fee)}%</div>
           </div>
-          <div className="flex items-center justify-between my-3">
-            <div className="text-gray-400">
-              <FormattedMessage id="h24_volume" defaultMessage="24h Volume" />
-            </div>
 
-            <div>
-              <FormattedMessage id="coming_soon" defaultMessage="Coming soon" />
-            </div>
-          </div>
           <div className="flex items-center justify-between my-3">
             <div className="text-gray-400">
               <FormattedMessage id="tvl" defaultMessage="TVL" />
@@ -226,7 +222,6 @@ const MobileRow = ({
 export const FarmMining = () => {
   return (
     <div className="flex items-center">
-      {/*<div className="mr-2">*/}
       <div>
         <FarmStamp />
       </div>
@@ -249,20 +244,24 @@ export const MorePoolsPage = () => {
 
   return (
     <>
+      {/* PC */}
       <div className="xs:hidden md:hidden lg:w-5/6 xl:w-3/4 m-auto text-white">
         <Card width="w-full" bgcolor="bg-cardBg" padding="py-7 px-0">
-          <div className="mx-8">
-            <Link
-              to={{
-                pathname: '/pools',
-              }}
-              className="flex items-center inline-block"
-            >
-              <BackArrow />
-              <p className="ml-3">
-                <FormattedMessage id="pools" defaultMessage="Pools" />
-              </p>
-            </Link>
+          <div className="mx-8 text-gray-400">
+            <BreadCrumb
+              routes={[
+                {
+                  id: 'top_pools',
+                  msg: 'Top Pools',
+                  pathname: '/pools',
+                },
+                {
+                  id: 'more_pools',
+                  msg: 'More Pools',
+                  pathname: `/more_pools`,
+                },
+              ]}
+            />
             <div className="flex items-center mb-14 justify-center">
               <div className="flex items-center">
                 <div className="h-9 w-9 border border-gradientFromHover rounded-full mr-2">
@@ -287,16 +286,16 @@ export const MorePoolsPage = () => {
             </div>
           </div>
 
-          <section className="px-2">
-            <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-600">
-              <div className="col-span-8 flex items-center">
+          <section className="">
+            <header className="grid grid-cols-10 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-700 border-opacity-70">
+              <div className="col-span-7 flex items-center">
                 <div className="mr-3 ">
                   <FormattedMessage id="pool_id" defaultMessage="Pool ID" />
                 </div>
                 <FormattedMessage id="pair" defaultMessage="Pair" />
               </div>
               <div
-                className="col-span-1 md:hidden cursor-pointer flex items-center"
+                className="col-span-2 md:hidden cursor-pointer flex items-center"
                 onClick={() => {
                   setSortBy('total_fee');
                   setOrder(order === 'desc' ? 'asc' : 'desc');
@@ -305,27 +304,12 @@ export const MorePoolsPage = () => {
                 <div className="mr-1">
                   <FormattedMessage id="fee" defaultMessage="Fee" />
                 </div>
-                {sortBy === 'total_fee' && order === 'desc' ? (
-                  <DownArrowLight />
-                ) : (
-                  <UpArrowDeep />
-                )}
-              </div>
-              <div
-                className="col-span-2 flex items-center cursor-pointer "
-                onClick={() => {
-                  setSortBy('h24_volume');
-                  setOrder(order === 'desc' ? 'asc' : 'desc');
-                }}
-              >
-                <div className="mr-1">
-                  <FormattedMessage
-                    id="h24_volume"
-                    defaultMessage="24h Volume"
-                  />
-                </div>
-                {sortBy === '24h_volume' && order === 'desc' ? (
-                  <DownArrowLight />
+                {sortBy === 'total_fee' ? (
+                  order === 'desc' ? (
+                    <DownArrowLight />
+                  ) : (
+                    <UpArrowLight />
+                  )
                 ) : (
                   <UpArrowDeep />
                 )}
@@ -341,8 +325,12 @@ export const MorePoolsPage = () => {
                 <span className="mr-1 ">
                   <FormattedMessage id="tvl" defaultMessage="TVL" />
                 </span>
-                {sortBy === 'tvl' && order === 'desc' ? (
-                  <DownArrowLight />
+                {sortBy === 'tvl' ? (
+                  order === 'desc' ? (
+                    <DownArrowLight />
+                  ) : (
+                    <UpArrowLight />
+                  )
                 ) : (
                   <UpArrowDeep />
                 )}
@@ -350,13 +338,17 @@ export const MorePoolsPage = () => {
             </header>
             <div className="max-h-96 overflow-y-auto">
               {morePools?.map((pool, i) => (
-                <div className="w-full hover:bg-poolRowHover" key={i}>
+                <div
+                  className="w-full hover:bg-poolRowHover hover:bg-opacity-20"
+                  key={i}
+                >
                   <PoolRow
                     key={i}
                     pool={pool}
                     index={i + 1}
                     tokens={tokens}
                     watched={!!find(watchList, { pool_id: pool.id.toString() })}
+                    morePoolIds={morePoolIds}
                   />
                 </div>
               ))}
@@ -364,19 +356,23 @@ export const MorePoolsPage = () => {
           </section>
         </Card>
       </div>
+      {/* Mobile */}
       <div className="w-11/12 lg:hidden m-auto text-white">
-        <Link
-          to={{
-            pathname: '/pools',
-          }}
-          className="flex items-center inline-block"
-        >
-          <BackArrow />
-          <p className="ml-3">
-            <FormattedMessage id="pools" defaultMessage="Pools" />
-          </p>
-        </Link>
-        <div className="flex flex-col items-center mb-12 justify-center">
+        <BreadCrumb
+          routes={[
+            {
+              id: 'top_pools',
+              msg: 'Top Pools',
+              pathname: '/pools',
+            },
+            {
+              id: 'more_pools',
+              msg: 'More Pools',
+              pathname: `/more_pools`,
+            },
+          ]}
+        />
+        <div className="flex flex-col items-center my-4 justify-center">
           <div className="flex items-center">
             <div className="h-9 w-9 border border-gradientFromHover rounded-full mr-2">
               <img
@@ -405,6 +401,7 @@ export const MorePoolsPage = () => {
               key={i}
               pool={pool}
               watched={!!find(watchList, { pool_id: pool.id.toString() })}
+              morePoolIds={morePoolIds}
             />
           );
         })}

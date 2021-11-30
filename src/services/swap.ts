@@ -18,7 +18,7 @@ import {
   Transaction,
   wallet,
 } from './near';
-import { TokenMetadata } from './ft-contract';
+import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { getPoolsByTokens, Pool } from './pool';
 import {
   checkTokenNeedsStorageDeposit,
@@ -28,8 +28,11 @@ import {
 } from './token';
 import { JsonRpcProvider } from 'near-api-js/lib/providers';
 import {
+  needDepositStorage,
+  ONE_MORE_DEPOSIT_AMOUNT,
   storageDepositAction,
   storageDepositForTokenAction,
+  STORAGE_TO_REGISTER_WITH_MFT,
 } from './creators/storage';
 import { registerTokenAction } from './creators/token';
 import {
@@ -74,7 +77,6 @@ export const estimateSwap = async ({
     tokenOutId: tokenOut.id,
     amountIn: parsedAmountIn,
   });
-  // console.log(pools);
 
 // Added in calculation here to determine the optimal spread of total input token amount amongst relevant pools.
 // This is the main parallel swap algorithm function.
@@ -97,9 +99,8 @@ export const estimateSwap = async ({
     const estimates = await Promise.all(
       parallelPools.map((pool) => {
         // console.log('within estimates, amountIn is... ',amountIn)
-        let allocation = Big(pool.partialAmountIn).div(Big(10).pow(tokenOut.decimals)).toString()
+        let allocation = Big(pool.partialAmountIn).div(Big(10).pow(tokenIn.decimals)).toString()
 		  // console.log('pool', pool);
-        //const amount_with_fee = Number(amountIn) * (FEE_DIVISOR - pool.fee);
         const amount_with_fee = Number(allocation) * (FEE_DIVISOR - pool.fee);
         const in_balance = toReadableNumber(
           tokenIn.decimals,
@@ -129,8 +130,6 @@ export const estimateSwap = async ({
 
     return {
 		estimates
-      // estimate: estimate,
-      // pool,
     };
   } catch (err) {
     throw new Error(
@@ -150,132 +149,119 @@ interface SwapOptions extends EstimateSwapOptions {
   minAmountOut: string;
 }
 
-
+interface InstantSwapOption extends SwapOptions {
+  useNearBalance: boolean;
+}
 
 export const swap = async ({
+  useNearBalance,
   swapsToDo,
   tokenIn,
   tokenOut,
   tokenInAmount,
   slippageTolerance,
-}) => {
-	// console.log('Swap...');
-  const maxTokenInAmount = await getTokenBalance(tokenIn?.id);
-
-  if (
-    Number(maxTokenInAmount) <
-    Number(toNonDivisibleNumber(tokenIn.decimals, tokenInAmount))
-  ) {
-	  // console.log('Direct Swap?')
-    await directSwap({
-  swapsToDo,
-  tokenIn,
-  tokenOut,
-  tokenInAmount,
-  slippageTolerance,
-   });
-  } else {
-	  // console.log('Deposit Swap?')
-    await depositSwap({
-  swapsToDo,
-  tokenIn,
-  tokenOut,
-  tokenInAmount,
-  slippageTolerance,
-    });
+}: InstantSwapOption) => {
+  if (swapsToDo) {
+    if (useNearBalance) {
+      await instantSwap({
+        swapsToDo,
+        tokenIn,
+        tokenOut,
+        tokenInAmount,
+        slippageTolerance,
+      });
+    } else {
+      await depositSwap({
+        swapsToDo,
+        tokenIn,
+        tokenOut,
+        tokenInAmount,
+        slippageTolerance,
+      });
+    }
   }
 };
 
-export const directSwap = async ({
+export const instantSwap = async ({
   swapsToDo,
   tokenIn,
   tokenOut,
   tokenInAmount,
   slippageTolerance,
-}) => {
-	// console.log('Direct Swap...');
-  // this operation maps the original swapAction over multiple pools
+  }: SwapOptions) => {
 	const swapActions = swapsToDo.map((s2d) => {
-		let tokenOutAmount = s2d.estimate;
-		let minTokenOutAmount = tokenOutAmount ? percentLess(slippageTolerance, tokenOutAmount): null;
+		// let tokenOutAmount = s2d.estimate;
+    let dx_float = s2d.pool.partialAmountIn.toNumber();
+    let fpool = formatPoolNew(s2d.pool, tokenIn.id, tokenOut.id);
+    let dy_float = calculate_dy_float(dx_float,fpool, tokenIn.id, tokenOut.id);
+    let tokenOutAmount = dy_float.div(Big(10).pow(tokenOut.decimals)).toString();
+    s2d.estimate = tokenOutAmount;
+	let minTokenOutAmount = tokenOutAmount ? percentLess(slippageTolerance, tokenOutAmount): null;
     console.log(s2d.pool.partialAmountIn)
-    let allocation = s2d.pool.partialAmountIn.toString();
+    console.log('token out amount estimate: ',tokenOutAmount)
+    let allocation = s2d.pool.partialAmountIn.div(Big(10).pow(tokenIn.decimals)).toString();
+    console.log(allocation);
+    console.log('type of allocation: ', typeof(allocation), allocation);
+    console.log('type of tokenInAmount: ', typeof(tokenInAmount), tokenInAmount);
 		return {
 			pool_id: s2d.pool.id, 
 			token_in: tokenIn.id, 
 			token_out: tokenOut.id, 
-			amount_in: round(tokenIn.decimals, toNonDivisibleNumber(tokenIn.decimals, tokenInAmount)), 
+			amount_in: round(tokenIn.decimals, toNonDivisibleNumber(tokenIn.decimals, allocation)), 
 			min_amount_out: round(tokenOut.decimals, toNonDivisibleNumber(tokenOut.decimals, minTokenOutAmount))
 		}
 	});
 
   const transactions: Transaction[] = [];
-  const neededStorage = await checkTokenNeedsStorageDeposit(tokenIn.id);
-  if (neededStorage) {
-    transactions.push({
-      receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [storageDepositAction({ amount: neededStorage })],
+  const tokenInActions: RefFiFunctionCallOptions[] = [];
+  const tokenOutActions: RefFiFunctionCallOptions[] = [];
+
+  if (wallet.isSignedIn()) {
+    const tokenOutRegistered = await ftGetStorageBalance(
+      tokenOut.id,
+      wallet.getAccountId()
+    ).catch(() => {
+      throw new Error(`${tokenOut.id} doesn't exist.`);
     });
-  }
 
-  const actions: RefFiFunctionCallOptions[] = [];
-
-  if (tokenIn.symbol === wnearMetadata.symbol) {
-    actions.push({
-      methodName: 'near_deposit',
-      args: {},
-      amount: amountIn,
-    });
-  } else {
-    actions.push({
-      methodName: 'storage_deposit',
-      args: {},
-      gas: '100000000000000',
-      amount: NEW_ACCOUNT_STORAGE_COST,
-    });
-  }
-
-  actions.push({
-    methodName: 'ft_transfer_call',
-    args: {
-      receiver_id: REF_FI_CONTRACT_ID,
-      amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
-      msg: JSON.stringify({
-        force: 0,
-        actions: swapActions,
-      }),
-    },
-    gas: '100000000000000',
-    amount: ONE_YOCTO_NEAR,
-  });
-
-  transactions.push({
-    receiverId: tokenIn.id,
-    functionCalls: actions,
-  });
-
-  if (tokenOut.symbol === wnearMetadata.symbol) {
-    transactions.push({
-      receiverId: WRAP_NEAR_CONTRACT_ID,
-      functionCalls: [
-        {
-          methodName: 'near_withdraw',
-          args: { amount: utils.format.parseNearAmount(minAmountOut) },
-          amount: ONE_YOCTO_NEAR,
+    if (!tokenOutRegistered || tokenOutRegistered.total === '0') {
+      tokenOutActions.push({
+        methodName: 'storage_deposit',
+        args: {
+          registration_only: true,
+          account_id: wallet.getAccountId(),
         },
-      ],
-    });
-  }
+        gas: '30000000000000',
+        amount: STORAGE_TO_REGISTER_WITH_MFT,
+      });
 
-  const whitelist = await getWhitelistedTokens();
-  if (!whitelist.includes(tokenOut.id)) {
-    transactions.unshift({
-      receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [registerTokenAction(tokenOut.id)],
-    });
-  }
+      transactions.push({
+        receiverId: tokenOut.id,
+        functionCalls: tokenOutActions,
+      });
+    }
 
-  return executeMultipleTransactions(transactions);
+    tokenInActions.push({
+      methodName: 'ft_transfer_call',
+      args: {
+        receiver_id: REF_FI_CONTRACT_ID,
+        amount: toNonDivisibleNumber(tokenIn.decimals, tokenInAmount),
+        msg: JSON.stringify({
+          force: 0,
+          actions: swapActions,
+        }),
+      },
+      gas: '150000000000000',
+      amount: ONE_YOCTO_NEAR,
+    });
+
+    transactions.push({
+      receiverId: tokenIn.id,
+      functionCalls: tokenInActions,
+    });
+
+    return executeMultipleTransactions(transactions);
+  }
 };
 
 export const depositSwap = async ({
@@ -295,13 +281,13 @@ export const depositSwap = async ({
     let dy_float = calculate_dy_float(dx_float,fpool, tokenIn.id, tokenOut.id);
     let tokenOutAmount = dy_float.div(Big(10).pow(tokenOut.decimals)).toString();
     s2d.estimate = tokenOutAmount;
-		let minTokenOutAmount = tokenOutAmount ? percentLess(slippageTolerance, tokenOutAmount): null;
+	let minTokenOutAmount = tokenOutAmount ? percentLess(slippageTolerance, tokenOutAmount): null;
     console.log(s2d.pool.partialAmountIn)
     console.log('token out amount estimate: ',tokenOutAmount)
     let allocation = s2d.pool.partialAmountIn.div(Big(10).pow(tokenIn.decimals)).toString();
     console.log(allocation);
-    console.log('type of allocation: ',typeof(allocation), allocation);
-    console.log('type of tokenInAmount: ',typeof(tokenInAmount), tokenInAmount);
+    console.log('type of allocation: ', typeof(allocation), allocation);
+    console.log('type of tokenInAmount: ', typeof(tokenInAmount), tokenInAmount);
 		return {
 			pool_id: s2d.pool.id, 
 			token_in: tokenIn.id, 
@@ -320,24 +306,26 @@ export const depositSwap = async ({
     },
   ];
 
-	// console.log('Deposit Swap...A');
   const whitelist = await getWhitelistedTokens();
   if (!whitelist.includes(tokenOut.id)) {
     actions.unshift(registerTokenAction(tokenOut.id));
   }
 
-	// console.log('Deposit Swap...B');
+<<<<<<< HEAD
   const needsStorageDeposit = await checkTokenNeedsStorageDeposit(tokenOut.id);
   if (needsStorageDeposit) {
     actions.unshift(storageDepositForTokenAction());
+=======
+  const neededStorage = await checkTokenNeedsStorageDeposit();
+  if (neededStorage) {
+    actions.unshift(storageDepositAction({ amount: neededStorage }));
+>>>>>>> main
   }
 
-	// console.log('Deposit Swap...C');
   return refFiManyFunctionCalls(actions);
 };
 
 export const checkTransaction = (txHash: string) => {
-	// console.log('checkTransaction');
   return (near.connection.provider as JsonRpcProvider).sendJsonRpc(
     'EXPERIMENTAL_tx_status',
     [txHash, wallet.getAccountId()]
@@ -490,7 +478,7 @@ for (var i=0; i<dxArray.length; i++) {
 let normalizedDxArray = [];
 for (var i=0; i<dxArray.length; i++) {
   let ndx = new Big(dxArray[i]).times(inputAmount).div(dxArraySum).round()
-  normalizedDxArray.push(BigInt(ndx.toString()));
+  normalizedDxArray.push(BigInt(ndx.toFixed()));
   pools[i]['partialAmountIn'] = BigNumber(ndx.toString());
 }
 return normalizedDxArray

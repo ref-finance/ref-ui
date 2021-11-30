@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import MicroModal from 'react-micro-modal';
 import { TokenMetadata } from '../../services/ft-contract';
-import { ArrowDownGreen } from '../icon';
+import { ArrowDownGreen, ArrowDownWhite } from '../icon';
 import { isMobile } from '~utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { TokenBalancesView } from '~services/token';
@@ -10,6 +10,8 @@ import CommenBasses from '~components/tokens/CommenBasses';
 import Table from '~components/table/Table';
 import { useTokensData } from '~state/token';
 import { toRealSymbol } from '~utils/token';
+import { FaSearch } from 'react-icons/fa';
+import AddToken from './AddToken';
 
 function sort(a: any, b: any) {
   if (typeof a === 'string' && typeof b === 'string') {
@@ -26,7 +28,6 @@ export default function SelectToken({
   selected,
   render,
   onSelect,
-  addToken,
   standalone,
   placeholder,
   balances,
@@ -38,13 +39,13 @@ export default function SelectToken({
   render?: (token: TokenMetadata) => string;
   onSelect?: (token: TokenMetadata) => void;
   onSearch?: (value: string) => void;
-  addToken?: () => JSX.Element;
   balances?: TokenBalancesView;
 }) {
   const [visible, setVisible] = useState(false);
   const [listData, setListData] = useState<TokenMetadata[]>([]);
   const [currentSort, setSort] = useState<string>('down');
   const [sortBy, setSortBy] = useState<string>('near');
+  const addToken = () => <AddToken />;
 
   if (!onSelect) {
     return (
@@ -133,20 +134,20 @@ export default function SelectToken({
         >
           {selected || (
             <section
-              className={`flex justify-between items-center px-3 py-3 ${
+              className={`flex justify-between items-center px-3 py-2 ${
                 standalone
-                  ? 'bg-inputDarkBg text-white relative flex overflow-hidden rounded-lg align-center my-2 border border-greenLight'
+                  ? 'bg-inputDarkBg text-white relative flex overflow-hidden rounded align-center my-2'
                   : ''
               }`}
             >
               <p
-                className="text-lg font-semibold leading-none"
+                className="text-lg text-gray-400 font-semibold leading-none"
                 style={{ lineHeight: 'unset' }}
               >
                 {placeholder ?? 'Select'}
               </p>
               <div className="pl-2">
-                <ArrowDownGreen />
+                <ArrowDownWhite />
               </div>
             </section>
           )}
@@ -182,18 +183,21 @@ export default function SelectToken({
                 defaultMessage="Select Token"
               />
             </h2>
-            {addToken && addToken()}
             <IoCloseOutline
               onClick={() => handleClose()}
-              className="absolute text-gray-400 text-2xl right-6"
+              className="absolute text-gray-400 text-2xl right-6 cursor-pointer"
             />
           </div>
-          <div className="rounded-lg w-full my-2 px-6">
-            <input
-              className={`text-sm min bg-black bg-opacity-25 focus:outline-none rounded-lg w-full py-2 px-3 text-greenLight`}
-              placeholder={intl.formatMessage({ id: 'search_token' })}
-              onChange={(evt) => onSearch(evt.target.value)}
-            />
+          <div className="flex justify-between items-center mb-5 mx-6">
+            <div className="flex-auto rounded text-gray-400 flex items-center pr-2 mr-4 bg-inputDarkBg">
+              <input
+                className={`text-sm outline-none rounded w-full py-2 px-3`}
+                placeholder={intl.formatMessage({ id: 'search_token' })}
+                onChange={(evt) => onSearch(evt.target.value)}
+              />
+              <FaSearch />
+            </div>
+            {addToken()}
           </div>
           <CommenBasses
             tokens={tokensData}

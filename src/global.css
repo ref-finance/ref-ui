@@ -191,12 +191,12 @@ input[type='number'] {
 
 .ended {
   color: #fff;
-  background: #bbb;
+  background: #75818a;
 }
 
 .pending {
   color: #fff;
-  background: #00515a;
+  background: #59c5a6;
 }
 
 @keyframes spin {
@@ -245,6 +245,11 @@ input[type='number'] {
   transform-origin: center;
 }
 
+.inner-loader svg path {
+  animation: spin 1s linear infinite;
+  transform-origin: center;
+}
+
 .loadingScreen.slick-loader-inner,
 .slick-loader.slick-loader-inner {
   position: absolute;
@@ -270,4 +275,109 @@ input.invalid-input:focus {
 input.warn-input:focus {
   border: 1px solid #dea550;
   color: #dea550;
+}
+.reactTip {
+  border-radius: 0.375rem !important;
+  padding: 0.44rem 0.75rem !important;
+  min-width: 7rem !important;
+  opacity: 1 !important;
+}
+.farmEnded .border-gradientFromHover {
+  border-color: #73818b;
+}
+.farmEnded .text-white {
+  color: #73818b;
+}
+.farmEnded img {
+  filter: grayscale(100%);
+}
+
+.swap-wrap {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  top: 6px;
+  left: 26px;
+  perspective: 60vh;
+}
+
+.top-ball {
+  content: ' ';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  left: -18px;
+  top: 10px;
+  border: #88a9a3 solid 1px;
+  background: linear-gradient(-166.57deg, #208170 44.85%, #373f5a 100%);
+  transform: translateZ(0vh);
+  z-index: 2;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+}
+
+.bottom-ball {
+  opacity: 0.9;
+  content: ' ';
+  position: absolute;
+  width: 98%;
+  height: 98%;
+  border-radius: 50%;
+  right: 10px;
+  top: 0;
+  background: linear-gradient(262.02deg, #00d6af 2.13%, #1aa289 91.26%);
+  transform: translateZ(0vh);
+  z-index: 1;
+}
+
+@keyframes rotation1 {
+  25% {
+    left: -18px;
+    top: 10px;
+    transform: translateZ(-5px);
+  }
+  50% {
+    left: -6px;
+    top: 0px;
+    transform: translateZ(0vh);
+  }
+  75% {
+    left: -18px;
+    top: 10px;
+    transform: translateZ(10px);
+    z-index: 2;
+  }
+}
+
+@keyframes rotation2 {
+  25% {
+    right: 10px;
+    top: 0px;
+    transform: translateZ(-5px);
+    z-index: 2;
+  }
+  50% {
+    right: 20px;
+    top: 10px;
+    transform: translateZ(0vh);
+  }
+  75% {
+    right: 10px;
+    top: 0px;
+    transform: translateZ(10px);
+  }
+}
+
+.menu-max-height {
+  max-height: calc(100vh - 80px);
+  overflew-y: scroll;
+  overflow-x: hidden;
+}
+
+.bg-height-full {
+  height: calc(100% - 80px);
+}
+
+.recharts-text.recharts-cartesian-axis-tick-value {
+  font-size: 12px;
 }

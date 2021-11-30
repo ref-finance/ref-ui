@@ -11,6 +11,7 @@ import {
   wallet,
 } from './near';
 import { checkTokenNeedsStorageDeposit } from './token';
+import { storageDepositAction } from '../services/creators/storage';
 
 export const { WRAP_NEAR_CONTRACT_ID } = getConfig();
 export const NEW_ACCOUNT_STORAGE_COST = '0.00125';
@@ -31,11 +32,44 @@ export const nearMetadata: TokenMetadata = {
   icon: 'https://near.org/wp-content/themes/near-19/assets/img/brand-icon.png',
 };
 
+export const nearDeposit = async (amount: string) => {
+  const transactions: Transaction[] = [
+    {
+      receiverId: WRAP_NEAR_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'near_deposit',
+          args: {},
+          gas: '50000000000000',
+          amount,
+        },
+      ],
+    },
+  ];
+
+  return executeMultipleTransactions(transactions);
+};
+
+export const nearWithdraw = async (amount: string) => {
+  const transactions: Transaction[] = [
+    {
+      receiverId: WRAP_NEAR_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'near_withdraw',
+          args: { amount: utils.format.parseNearAmount(amount) },
+          amount: ONE_YOCTO_NEAR,
+        },
+      ],
+    },
+  ];
+
+  return executeMultipleTransactions(transactions);
+};
+
 export const wrapNear = async (amount: string) => {
   const transactions: Transaction[] = [];
-  const neededStorage = await checkTokenNeedsStorageDeposit(
-    WRAP_NEAR_CONTRACT_ID
-  );
+  const neededStorage = await checkTokenNeedsStorageDeposit();
   if (neededStorage) {
     transactions.push({
       receiverId: REF_FI_CONTRACT_ID,
@@ -130,6 +164,14 @@ export const unwrapNear = async (amount: string) => {
       },
     ],
   });
+
+  const needDeposit = await checkTokenNeedsStorageDeposit();
+  if (needDeposit) {
+    transactions.unshift({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: needDeposit })],
+    });
+  }
 
   return executeMultipleTransactions(transactions);
 };

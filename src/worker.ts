@@ -139,11 +139,13 @@ const cacheFarmPools = async () => {
       farms[Number(key)].farm_id.indexOf('@') + 1,
       farms[Number(key)].farm_id.lastIndexOf('#')
     ),
+    status: farms[Number(key)].farm_status,
   }));
   await db.farms.bulkPut(
     farmsArr.map((farm: FarmDexie) => ({
       id: farm.id,
       pool_id: farm.pool_id,
+      status: farm.status,
     }))
   );
 };

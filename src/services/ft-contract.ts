@@ -62,6 +62,8 @@ export interface TokenMetadata {
   ref?: number;
   near?: number;
   total?: number;
+  amountLabel?: string;
+  amount?: number;
 }
 export const ftGetTokenMetadata = async (
   id: string

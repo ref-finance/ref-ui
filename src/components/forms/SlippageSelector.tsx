@@ -5,13 +5,16 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { isMobile } from '~utils/device';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 import { IoCloseOutline, IoWarning } from 'react-icons/io5';
+import { SWAP_USE_NEAR_BALANCE_KEY } from '~components/swap/SwapCard';
 
 export default function SlippageSelector({
   slippageTolerance,
   onChange,
+  bindUseBalance,
 }: {
   slippageTolerance: number;
   onChange: (slippage: number) => void;
+  bindUseBalance: (useNearBalance: boolean) => void;
 }) {
   const ref = useRef<HTMLInputElement>();
   const field = useRef<HTMLFieldSetElement>();
@@ -22,6 +25,9 @@ export default function SlippageSelector({
   const [invalid, setInvalid] = useState(false);
   const [warn, setWarn] = useState(false);
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
+  const useNearBalance =
+    localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) || 'true';
+
   const openToolTip = (e: any) => {
     e.nativeEvent.stopImmediatePropagation();
     setShowSlip(true);
@@ -45,6 +51,7 @@ export default function SlippageSelector({
   const closeToolTip = (e: any) => {
     if (!invalid) setShowSlip(false);
   };
+
   const handleBtnChange = (slippage: number) => {
     setInvalid(false);
     setWarn(false);
@@ -52,8 +59,17 @@ export default function SlippageSelector({
     ref.current.value = slippage.toString();
   };
 
+  const handleBalanceOption = (useBalance: string) => {
+    bindUseBalance(useBalance === 'wallet');
+  };
+
   useEffect(() => {
     document.onclick = (e) => closeToolTip(e);
+    if (showSlip) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
     return () => {
       document.onclick = null;
     };
@@ -61,7 +77,10 @@ export default function SlippageSelector({
 
   return (
     <div className="relative z-10">
-      <div className=" w-7 text-2xl text-white" onClick={(e) => openToolTip(e)}>
+      <div
+        className="w-6 text-2xl text-white cursor-pointer"
+        onClick={(e) => openToolTip(e)}
+      >
         <Slider showSlip={showSlip} />
       </div>
       {showSlip && (
@@ -163,22 +182,81 @@ export default function SlippageSelector({
                   <IoWarning className="inline-block text-lg align-text-top mr-1" />
                   <FormattedMessage
                     id="slip_invalid"
-                    defaultMessage="You might be easier to swap, but also receive less."
+                    defaultMessage="The slippage tolerance is invalid."
                   />
                 </div>
               ) : (
                 <div className="text-warn text-xs py-3">
+                  <IoWarning className="inline-block text-lg align-text-top mr-1" />
                   <FormattedMessage
                     id="slip_wran"
-                    defaultMessage="The slippage tolerance is invalid."
+                    defaultMessage="Be careful, please check the minimum you can receive."
                   />
                 </div>
               )}
             </div>
+            <div className="flex items-center">
+              <label className="text-sm py-5 text-center text-white">
+                <FormattedMessage
+                  id="select_balance"
+                  defaultMessage="Select Balance"
+                />
+              </label>
+              <div className="text-gray-400">
+                <div
+                  className="pl-1 text-white text-base"
+                  data-type="dark"
+                  data-place="right"
+                  data-multiline={true}
+                  data-tip={intl.formatMessage({ id: 'selectBalanceCopy' })}
+                >
+                  <FaRegQuestionCircle />
+                </div>
+                <ReactTooltip
+                  className="text-xs text-left shadow-4xl"
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                  textColor="#c6d1da"
+                />
+              </div>
+            </div>
+            <div
+              className="flex items-center"
+              onChange={({ target }) => handleBalanceOption(target.value)}
+            >
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  className="form-radio w-4 text-green-500"
+                  name="useBalance"
+                  value="wallet"
+                  defaultChecked={useNearBalance === 'true'}
+                  style={{ accentColor: '#00c6a2' }}
+                />
+                <span className="ml-2 text-sm w-18">
+                  {intl.formatMessage({ id: 'near_wallet' })}
+                </span>
+              </label>
+              <label className="inline-flex items-center ml-6">
+                <input
+                  type="radio"
+                  className="form-radio w-4 text-green-500"
+                  name="useBalance"
+                  value="ref"
+                  defaultChecked={useNearBalance === 'false'}
+                  style={{ accentColor: '#00c6a2' }}
+                />
+                <span className="ml-2 text-sm w-18">
+                  {intl.formatMessage({ id: 'ref_account' })}
+                </span>
+              </label>
+            </div>
           </fieldset>
           {showSlip && (
             <IoCloseOutline
-              className="absolute top-12 xs:top-48 xs:right-10 right-3 text-primaryText"
+              className="absolute top-12 xs:top-48 xs:right-10 right-3 text-primaryText cursor-pointer"
               onClick={(e) => closeToolTip(e)}
             />
           )}
@@ -217,7 +295,7 @@ export function PoolSlippageSelector({
               data-multiline={true}
               data-tip={intl.formatMessage({ id: slippageCopyId })}
             >
-              <FaRegQuestionCircle />
+              <FaRegQuestionCircle className="text-sm" />
             </div>
             <ReactTooltip
               className="text-xs text-left shadow-4xl"
@@ -237,7 +315,7 @@ export function PoolSlippageSelector({
               className={`w-12 focus:outline-none text-sm hover:bg-gradientFrom  rounded py-1 px-2 mx-2 ${
                 slippage === slippageTolerance
                   ? 'text-chartBg bg-gradientFrom'
-                  : 'bg-gray-500'
+                  : 'bg-slipBg'
               }`}
               type="button"
               onClick={() => onChange(slippage)}

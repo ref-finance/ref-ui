@@ -15,6 +15,13 @@ module.exports = {
     },
     boxShadow: { '4xl': '0px 0px 10px 4px rgba(0, 0, 0, 0.35)' },
     extend: {
+      backgroundImage: (theme) => ({
+        farmSearch: 'linear-gradient(106.25deg, #00FFD1 6.88%, #00BA98 81.93%)',
+      }),
+      gridTemplateColumns: {
+        farmSearch: '2fr 1fr',
+        farmContainer: '1fr 4fr',
+      },
       colors: {
         primary: '#10B981',
         primaryScale: colors.green,
@@ -34,7 +41,7 @@ module.exports = {
         cardBg: '#1D2932',
         chartBg: '#001320',
         warn: '#DEA550',
-        error:'#DE5050',
+        error: '#DE5050',
         gradientFrom: '#00c6a2',
         gradientTo: '#008b72',
         gradientFromHover: '#00D6AF',
@@ -44,7 +51,14 @@ module.exports = {
         inputDarkBg: 'rgba(0, 0, 0, 0.2)',
         navHighLightBg: '#304452',
         navHighLightText: '#C6D1DA',
-        slipBg: '#637684'
+        slipBg: '#3e4e59',
+        farmText: '#73818B',
+        farmSplitLine: '#314351',
+        farmDark: '#2B3A44',
+        framBorder: '#00C6A2',
+        farmSbg: '#2F3D47',
+        farmRound: '#B3C2CC',
+        farmTopRight: '#008870',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

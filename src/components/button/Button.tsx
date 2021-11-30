@@ -1,6 +1,6 @@
 import React, { HTMLAttributes, useState } from 'react';
 import { wallet, REF_FARM_CONTRACT_ID } from '~services/near';
-import { Near } from '~components/icon';
+import { Near, UnLoginIcon, FarmMiningIcon, FarmStamp } from '~components/icon';
 import { FormattedMessage } from 'react-intl';
 
 export function BorderlessButton(
@@ -21,17 +21,28 @@ export function BorderlessButton(
 export function BorderButton(
   props: HTMLAttributes<HTMLButtonElement> & { borderColor?: string } & {
     disabled?: boolean;
+    rounded?: string;
+    px?: string;
+    py?: string;
   }
 ) {
-  const { className, borderColor, disabled, ...propsWithoutClassName } = props;
+  const {
+    className,
+    borderColor,
+    disabled,
+    rounded,
+    px,
+    py,
+    ...propsWithoutClassName
+  } = props;
   return (
     <button
       disabled={disabled}
-      className={`rounded-full text-xs px-5 py-2.5 focus:outline-none font-semibold border ${
+      className={`text-xs font-semibold border ${
         borderColor ? borderColor : 'border-greenLight'
-      }  focus:outline-none ${className} ${
+      }  ${className} ${
         disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
-      }`}
+      } ${rounded || 'rounded-full'} ${px || 'px-5'} ${py || 'py-2.5'}`}
       {...propsWithoutClassName}
     >
       {props.children}
@@ -40,16 +51,20 @@ export function BorderButton(
 }
 
 export function GreenButton(
-  props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean }
+  props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean } & {
+    rounded?: string;
+    px?: string;
+    py?: string;
+  }
 ) {
-  const { disabled } = props;
+  const { disabled, rounded, px, py } = props;
   const { className, ...propsWithoutClassName } = props;
   return (
     <button
       disabled={disabled}
-      className={`rounded-full text-xs text-white px-5 py-2.5 focus:outline-none font-semibold border border-greenLight bg-greenLight focus:outline-none ${className} ${
+      className={` text-xs text-white px-5 py-2.5 font-semibold border border-greenLight bg-greenLight focus:outline-none ${className} ${
         disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
-      }`}
+      } ${rounded || 'rounded-full'} ${px || 'px-5'} ${py || 'py-2.5'}`}
       {...propsWithoutClassName}
     >
       {props.children}
@@ -93,12 +108,24 @@ export function WithdrawButton(
 
 export function ConnectToNearBtn() {
   return (
-    <GradientButton
-      className={`w-full text-center text-lg text-white mt-4 px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
+    <div
+      className="flex items-center cursor-pointer justify-center rounded-full py-2 text-base"
+      style={{
+        background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+        color: '#fff',
+      }}
       onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
     >
-      <FormattedMessage id="connect_to_near" defaultMessage="Connect to NEAR" />
-    </GradientButton>
+      <div className="mr-3.5">
+        <UnLoginIcon />
+      </div>
+      <button>
+        <FormattedMessage
+          id="connect_to_near"
+          defaultMessage="Connect to NEAR"
+        />
+      </button>
+    </div>
   );
 }
 
@@ -155,11 +182,9 @@ export function OutlineButton(
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`rounded py-2 ${
-        padding ? padding : ''
-      } border border-gradientFromHover text-gradientFrom ${
-        className ? className : ''
-      }`}
+      className={`rounded ${
+        padding ? padding : 'py-2'
+      } border border-gradientFromHover text-gradientFrom ${className}`}
     >
       {props.children}
     </button>
@@ -171,20 +196,61 @@ export function GradientButton(
     disabled?: boolean;
     padding?: string;
     className?: string;
+    color?: string;
+    btnClassName?: string;
   }
 ) {
-  const { disabled, className, onClick } = props;
+  const { disabled, className, color, btnClassName, onClick } = props;
   return (
     <div
       className={`${className ? className : ''}`}
       style={{
         background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
         borderRadius: '5px',
+        color: color || '',
       }}
     >
-      <button onClick={onClick} disabled={disabled} className="w-full">
+      <button
+        onClick={onClick}
+        disabled={disabled}
+        className={`w-full h-full ${btnClassName ? btnClassName : ''}`}
+      >
         {props.children}
       </button>
     </div>
   );
 }
+export function GreenLButton(
+  props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean }
+) {
+  const { disabled } = props;
+  const { className, ...propsWithoutClassName } = props;
+  return (
+    <button
+      disabled={disabled}
+      style={{
+        background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+      }}
+      className={`w-full rounded text-lg text-white font-semibold border-0 px-5 py-2 focus:outline-none ${className} ${
+        disabled ? 'opacity-40 cursor-not-allowed' : ''
+      }`}
+      {...propsWithoutClassName}
+    >
+      {props.children}
+    </button>
+  );
+}
+
+export const FarmButton = ({ farmCount }: { farmCount: Number }) => {
+  const isMultiMining = farmCount > 1;
+  return (
+    <div className="flex items-center">
+      <div className="ml-1">
+        <FarmStamp />
+      </div>
+      <div className={isMultiMining ? 'ml-1' : ''}>
+        {isMultiMining && <FarmMiningIcon />}
+      </div>
+    </div>
+  );
+};
