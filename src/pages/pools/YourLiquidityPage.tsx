@@ -185,10 +185,10 @@ export function YourLiquidityPage() {
                 <div className="col-span-2">
                   <FormattedMessage id="pair" defaultMessage="Pair" />:
                 </div>
-                <div className="col-span-3">
+                <div className="col-span-2">
                   <FormattedMessage id="token" defaultMessage="Token" />
                 </div>
-                <div className="col-span-5 ml-2">
+                <div className="col-span-6 ml-8">
                   <FormattedMessage id="my_shares" defaultMessage="My Shares" />
                 </div>
               </div>
@@ -212,12 +212,16 @@ export function YourLiquidityPage() {
       <div className="text-white text-2xl font-semibold px-4 lg:hidden">
         <FormattedMessage id="your_liquidity" defaultMessage="Your Liquidity" />
       </div>
-      {pools.length > 0 && (
+      {pools.length > 0 ? (
         <div className="lg:hidden">
           {pools.map((pool, i) => {
             return <PoolRow pool={pool} key={i} balance={balances[i]} />;
           })}
         </div>
+      ) : (
+        <Card className="lg:hidden mt-4" width="w-full">
+          <Empty />
+        </Card>
       )}
     </div>
   );
@@ -293,7 +297,7 @@ function PoolRow(props: { pool: any; balance: string }) {
           <div className="w-16 flex items-center ml-1">{Images}</div>
         </div>
 
-        <div className="col-span-3 inline-flex flex-col text-xs">
+        <div className="col-span-2 inline-flex flex-col text-xs">
           <div className="grid grid-cols-6 my-1">
             <div className="col-span-3 font-semibold">
               {toRealSymbol(tokens[0].symbol)}
@@ -324,7 +328,7 @@ function PoolRow(props: { pool: any; balance: string }) {
           </div>
         </div>
 
-        <div className="col-span-2 text-left">
+        <div className="col-span-3 text-left ml-6">
           <MyShares
             shares={shares}
             totalShares={pool.shareSupply}
@@ -336,7 +340,7 @@ function PoolRow(props: { pool: any; balance: string }) {
             farmStake={farmStake}
           />
         </div>
-        <div className="flex items-center justify-end text-center  col-span-3  z-30">
+        <div className="flex items-center justify-end text-center  col-span-3 ">
           <div className="flex items-center">
             <SolidButton
               onClick={(e) => {
@@ -344,9 +348,12 @@ function PoolRow(props: { pool: any; balance: string }) {
                 e.preventDefault();
                 setShowFunding(true);
               }}
-              className="text-xs px-4 col-span-2 mr-4 w-20 text-center"
+              className="text-xs col-span-2 mr-4 w-24 text-center"
             >
-              <FormattedMessage id="add_lp" defaultMessage="Add LP" />
+              <FormattedMessage
+                id="add_liquidity"
+                defaultMessage="Add Liquidity"
+              />
             </SolidButton>
 
             <OutlineButton
@@ -431,9 +438,12 @@ function PoolRow(props: { pool: any; balance: string }) {
                   e.preventDefault();
                   setShowFunding(true);
                 }}
-                className="text-sm px-4  mr-4 w-24 mr-4"
+                className="text-sm w-28 mr-4"
               >
-                <FormattedMessage id="add_lp" defaultMessage="Add LP" />
+                <FormattedMessage
+                  id="add_liquidity"
+                  defaultMessage="Add Liquidity"
+                />
               </SolidButton>
 
               <OutlineButton
@@ -442,7 +452,7 @@ function PoolRow(props: { pool: any; balance: string }) {
                   e.preventDefault();
                   setShowWithdraw(true);
                 }}
-                className="text-sm px-4  w-24"
+                className="text-sm w-24"
               >
                 <FormattedMessage id="remove" defaultMessage="Remove" />
               </OutlineButton>

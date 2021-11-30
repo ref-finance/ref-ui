@@ -66,7 +66,7 @@ export function AddPoolPage() {
 
   return (
     <div className="flex items flex-col xl:w-1/3 2xl:w-1/3 3xl:w-1/4 lg:w-1/2 md:w-5/6 xs:w-full xs:p-2 m-auto">
-      <div className="formTitle text-2xl text-white pb-4 px-4">
+      <div className="formTitle text-2xl text-white pb-4 px-4 lg:hidden">
         <FormattedMessage
           id="Create_New_Pool"
           defaultMessage="Create New Pool"
@@ -76,7 +76,12 @@ export function AddPoolPage() {
         <div className="w-full flex justify-center">
           {error && <Alert level="error" message={error.message} />}
         </div>
-
+        <div className="text-white text-xl pb-6 xs:hidden md:hidden">
+          <FormattedMessage
+            id="Create_New_Pool"
+            defaultMessage="Create New Pool"
+          />
+        </div>
         <div className="flex flex-col lg:flex-row items-center lg:justify-between pb-6">
           <div className="w-full lg:mr-1 xs:mb-4 md:mb-4">
             <div className="text-xs text-primaryText">
