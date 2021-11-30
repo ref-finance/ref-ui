@@ -133,7 +133,7 @@ function DetailView({
     tokenOut: TokenMetadata,
     from: string
   ) => {
-    const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
+    const value = calculatePriceImpact(pool, tokenIn, tokenOut, from, to);
     return Number(value) < 0.01 ? '< 0.01%' : `≈ ${toPrecision(value, 2)}%`;
   };
 

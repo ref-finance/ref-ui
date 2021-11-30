@@ -99,7 +99,8 @@ export const calculatePriceImpact = (
   pool: Pool,
   tokenIn: TokenMetadata,
   tokenOut: TokenMetadata,
-  tokenInAmount: string
+  from: string,
+  to: string
 ) => {
   const in_balance = toReadableNumber(
     tokenIn.decimals,
@@ -110,22 +111,9 @@ export const calculatePriceImpact = (
     pool.supplies[tokenOut.id]
   );
 
-  const constant_product = math.evaluate(`${in_balance} * ${out_balance}`);
-
   const marketPrice = math.evaluate(`(${in_balance} / ${out_balance})`);
 
-  const new_in_balance = math.evaluate(`${tokenInAmount} + ${in_balance}`);
-
-  const new_out_balance = math.divide(constant_product, new_in_balance);
-
-  const tokenOutReceived = math.subtract(
-    math.evaluate(out_balance),
-    new_out_balance
-  );
-
-  const newMarketPrice = math.evaluate(
-    `${tokenInAmount} / ${tokenOutReceived}`
-  );
+  const newMarketPrice = math.evaluate(`${from} / ${to}`);
 
   const PriceImpact = percent(
     subtraction(newMarketPrice, marketPrice),
