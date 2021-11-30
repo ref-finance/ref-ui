@@ -187,10 +187,10 @@ export function YourLiquidityPage() {
                 <div className="col-span-2">
                   <FormattedMessage id="pair" defaultMessage="Pair" />
                 </div>
-                <div className="col-span-2">
+                <div className="col-span-2 2xl:col-span-3">
                   <FormattedMessage id="token" defaultMessage="Token" />
                 </div>
-                <div className="col-span-6 ml-8">
+                <div className="col-span-6 2xl:col-span-3 ml-8 2xl:ml-2">
                   <FormattedMessage id="my_shares" defaultMessage="My Shares" />
                 </div>
               </div>
@@ -326,7 +326,7 @@ function PoolRow(props: { pool: any; balance: string }) {
           <div className="w-16 flex items-center ml-1">{Images}</div>
         </div>
 
-        <div className="col-span-2 inline-flex flex-col text-xs">
+        <div className="col-span-2 2xl:col-span-3 inline-flex flex-col text-xs">
           <div className="inline-flex items-center justify-between my-1 w-32">
             <div className="font-semibold">
               {toRealSymbol(tokens[0].symbol)}
@@ -345,7 +345,7 @@ function PoolRow(props: { pool: any; balance: string }) {
           </div>
         </div>
 
-        <div className="col-span-3 text-left ml-6">
+        <div className="col-span-3 2xl:col-span-2 text-left ml-6 2xl:ml-0">
           <MyShares
             shares={shares}
             totalShares={pool.shareSupply}
@@ -357,7 +357,7 @@ function PoolRow(props: { pool: any; balance: string }) {
             farmStake={farmStake}
           />
         </div>
-        <div className="flex items-center justify-end text-center  col-span-3 ">
+        <div className="flex items-center justify-end 2xl:justify-center text-center  col-span-3 ">
           <div className="flex items-center">
             <SolidButton
               onClick={(e) => {
