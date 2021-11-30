@@ -327,7 +327,7 @@ function PoolRow(props: { pool: any; balance: string }) {
         </div>
 
         <div className="col-span-2 inline-flex flex-col text-xs">
-          <div className="inline-flex items-center justify-between my-1 w-28">
+          <div className="inline-flex items-center justify-between my-1 w-32">
             <div className="font-semibold">
               {toRealSymbol(tokens[0].symbol)}
             </div>
@@ -335,7 +335,7 @@ function PoolRow(props: { pool: any; balance: string }) {
               {tokenAmountShare(pool, tokens[0], userTotalShareToString)}
             </div>
           </div>
-          <div className="inline-flex items-center justify-between my-1 w-28">
+          <div className="inline-flex items-center justify-between my-1 w-32">
             <div className="col-span-3 font-semibold">
               {toRealSymbol(tokens[1].symbol)}
             </div>
