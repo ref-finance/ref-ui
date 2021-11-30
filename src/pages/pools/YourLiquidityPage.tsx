@@ -183,7 +183,7 @@ export function YourLiquidityPage() {
                 xs:border-b xs:border-gray-700 xs:border-opacity-70 md:border-b md:border-gray-700 md:border-opacity-70"
               >
                 <div className="col-span-2">
-                  <FormattedMessage id="pair" defaultMessage="Pair" />:
+                  <FormattedMessage id="pair" defaultMessage="Pair" />
                 </div>
                 <div className="col-span-2">
                   <FormattedMessage id="token" defaultMessage="Token" />
