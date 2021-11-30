@@ -132,9 +132,9 @@ function DetailView({
     const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
 
     const textColor =
-      Number(value) < 1
+      Number(value) <= 1
         ? 'text-greenLight'
-        : 1 < Number(value) && Number(value) < 2
+        : 1 < Number(value) && Number(value) <= 2
         ? 'text-warn'
         : 'text-error';
 
