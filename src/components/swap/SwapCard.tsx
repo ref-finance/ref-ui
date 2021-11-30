@@ -135,8 +135,8 @@ function DetailView({
       Number(value) < 1
         ? 'text-greenLight'
         : 1 < Number(value) && Number(value) < 2
-        ? 'text-white'
-        : 'text-white';
+        ? 'text-warn'
+        : 'text-error';
 
     return Number(value) < 0.01 ? (
       <span className="text-greenLight">{'< -0.01%'}</span>
@@ -145,7 +145,7 @@ function DetailView({
     );
   };
 
-  if (!pool || !from || !to) return null;
+  if (!pool || !from || !to || !(Number(from) > 0)) return null;
 
   return (
     <div className="mt-8">
