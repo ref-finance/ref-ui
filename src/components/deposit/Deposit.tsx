@@ -163,7 +163,7 @@ export function TokenList(props: {
         };
       });
     setTokensList(tokensList);
-  }, [tokens]);
+  }, [tokens, balances]);
 
   return (
     <div className="divide-y divide-gray-600">
