@@ -280,7 +280,7 @@ function Actions() {
       >
         {detail ? (
           <Card
-            style={{ width: '30vw' }}
+            style={{ width: '30vw', minWidth: '200px' }}
             className="outline-none border border-gradientFrom border-opacity-50"
           >
             <div className="text-white text-center pb-4 font-semibold">
@@ -296,7 +296,13 @@ function Actions() {
                     className="flex items-center justify-between py-3 text-sm"
                   >
                     <div>{k}</div>
-                    <div>{(detail.data as any)[k]}</div>
+                    <div>{`${(detail.data as any)[k].substring(0, 25)}${
+                      (detail.data as any)[k].length > 25
+                        ? '...'
+                        : ''.length > 25
+                        ? '...'
+                        : ''
+                    }`}</div>
                   </div>
                 );
               })}
@@ -434,7 +440,13 @@ function MobileActions() {
                     className="flex items-center justify-between  py-3 text-sm"
                   >
                     <div>{k}</div>
-                    <div>{(detail.data as any)[k]}</div>
+                    <div>{`${(detail.data as any)[k].substring(0, 25)}${
+                      (detail.data as any)[k].length > 25
+                        ? '...'
+                        : ''.length > 25
+                        ? '...'
+                        : ''
+                    }`}</div>
                   </div>
                 );
               })}
