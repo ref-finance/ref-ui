@@ -113,7 +113,6 @@ export const useSwap = ({
       tokenIn &&
       tokenOut &&
       tokenInAmount &&
-      !ONLY_ZEROS.test(tokenInAmount) &&
       tokenIn.id !== tokenOut.id
     ) {
       setSwapError(null);
@@ -149,13 +148,14 @@ export const useSwap = ({
   }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger]);
 
   useEffect(() => {
+    let id:any = null;
     if (!loadingTrigger) {
-      const id = setInterval(() => {
+      id = setInterval(() => {
         setLoadingTrigger(true);
         setCount(count + 1);
       }, refreshTime);
-      return () => clearInterval(id);
     }
+    return () => {id = null};
   }, [count, loadingTrigger]);
 
   const makeSwap = (useNearBalance: boolean) => {
