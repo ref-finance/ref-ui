@@ -404,13 +404,7 @@ function PoolRow(props: { pool: any; balance: string }) {
                 {toRealSymbol(tokens[0].symbol)}
               </div>
               <div className="font-normal">
-                {toInternationalCurrencySystem(
-                  toReadableNumber(
-                    tokens[0].decimals,
-                    pool.supplies[tokens[0].id]
-                  ),
-                  3
-                )}
+                {tokenAmountShare(pool, tokens[0], userTotalShareToString)}
               </div>
             </div>
             <div className="flex items-center justify-between my-2">
@@ -418,13 +412,7 @@ function PoolRow(props: { pool: any; balance: string }) {
                 {toRealSymbol(tokens[1].symbol)}
               </div>
               <div className="font-normal">
-                {toInternationalCurrencySystem(
-                  toReadableNumber(
-                    tokens[1].decimals,
-                    pool.supplies[tokens[1].id]
-                  ),
-                  3
-                )}
+                {tokenAmountShare(pool, tokens[1], userTotalShareToString)}
               </div>
             </div>
           </div>
