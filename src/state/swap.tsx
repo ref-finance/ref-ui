@@ -155,10 +155,8 @@ export const useSwap = ({
         setCount(count + 1);
       }, refreshTime);
       return () => clearInterval(id);
-    } else {
-      setCount(count + 1);
     }
-  }, [count]);
+  }, [count, loadingTrigger]);
 
   const makeSwap = (useNearBalance: boolean) => {
     swap({
