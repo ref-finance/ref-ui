@@ -18,6 +18,7 @@ interface SwapOptions {
   tokenOut: TokenMetadata;
   slippageTolerance: number;
   setLoadingData?: (loading: boolean) => void;
+  loadingData?: boolean;
   loadingTrigger?: boolean;
   setLoadingTrigger?: (loadingTrigger: boolean) => void;
 }
@@ -28,6 +29,7 @@ export const useSwap = ({
   tokenOut,
   slippageTolerance,
   setLoadingData,
+  loadingData,
   loadingTrigger,
   setLoadingTrigger,
 }: SwapOptions) => {
@@ -147,11 +149,15 @@ export const useSwap = ({
   }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger]);
 
   useEffect(() => {
-    const id = setInterval(() => {
-      setLoadingTrigger(true);
+    if (!loadingTrigger) {
+      const id = setInterval(() => {
+        setLoadingTrigger(true);
+        setCount(count + 1);
+      }, refreshTime);
+      return () => clearInterval(id);
+    } else {
       setCount(count + 1);
-    }, refreshTime);
-    return () => clearInterval(id);
+    }
   }, [count]);
 
   const makeSwap = (useNearBalance: boolean) => {

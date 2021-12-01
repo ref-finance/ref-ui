@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRef } from 'react';
 
 export const SwapRefresh = ({ className }: { className?: string }) => {
   return (
@@ -30,6 +31,105 @@ export const SwapRefresh = ({ className }: { className?: string }) => {
           d="M3.39755 7.95309C3.66373 7.28662 4.5245 7.1092 5.03253 7.61608L7.84107 10.4183C8.40495 10.9809 8.11678 11.9448 7.33664 12.1056L3.05659 12.9878C2.27645 13.1486 1.6306 12.3772 1.92604 11.6375L3.39755 7.95309Z"
           fill="#00C6A2"
         />
+      </svg>
+    </div>
+  );
+};
+
+export const CountdownTimer = ({
+  size,
+  loadingTrigger,
+  className,
+}: {
+  size: number;
+  loadingTrigger: boolean;
+  className?: string;
+}) => {
+  const radius = size / 2;
+  const circumference = size * Math.PI;
+
+  const [strokeDashoffset, setStrokeDashoffset] =
+    useState<number>(circumference);
+
+  const useValueRef = (params: any) => {
+    const paramsRef = useRef(null);
+    paramsRef.current = params;
+    return paramsRef;
+  };
+
+  const latestCount = useValueRef(strokeDashoffset);
+  const useLoadingRef = useValueRef(loadingTrigger);
+
+  useEffect(() => {
+    if (latestCount.current === circumference && !useLoadingRef.current) {
+      const timer = setInterval(() => {
+        if (latestCount.current <= 0 || useLoadingRef.current) {
+          setStrokeDashoffset(circumference);
+          clearInterval(timer);
+          return;
+        }
+        setStrokeDashoffset(
+          (strokeDashoffset) => strokeDashoffset - (1 / 1000) * circumference
+        );
+      }, 10);
+    }
+  }, [latestCount.current, useLoadingRef.current]);
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'relative',
+        margin: 'auto',
+        height: size,
+        width: size,
+      }}
+      className={className}
+    >
+      <svg
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          transform: 'rotateY(-180deg) rotateZ(-90deg)',
+          overflow: 'visible',
+        }}
+      >
+        <circle
+          cx={radius}
+          cy={radius}
+          r={radius}
+          fill="none"
+          stroke="#001320"
+          strokeWidth="2"
+        ></circle>
+      </svg>
+      <svg
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          transform: 'rotateY(-180deg) rotateZ(-90deg)',
+          overflow: 'visible',
+        }}
+      >
+        <circle
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          r={radius}
+          cx={radius}
+          cy={radius}
+          fill="none"
+          strokeLinecap="round"
+          stroke="#00C6A2"
+          strokeWidth="2"
+        ></circle>
       </svg>
     </div>
   );

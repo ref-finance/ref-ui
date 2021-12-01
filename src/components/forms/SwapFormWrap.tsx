@@ -3,7 +3,7 @@ import Alert from '../alert/Alert';
 import SubmitButton from './SubmitButton';
 import { FormattedMessage } from 'react-intl';
 import SlippageSelector from './SlippageSelector';
-import { SwapRefresh } from '~components/icon';
+import { SwapRefresh, CountdownTimer } from '~components/icon';
 import { wallet } from '~services/near';
 
 interface SwapFormWrapProps {
@@ -71,12 +71,9 @@ export default function SwapFormWrap({
                   setLoadingData(true);
                   setLoadingTrigger(true);
                 }}
+                className="mx-2 cursor-pointer"
               >
-                <SwapRefresh
-                  className={`mx-2 cursor-pointer ${
-                    loadingData ? 'animate-spin' : ''
-                  }`}
-                />
+                <CountdownTimer size={16} loadingTrigger={loadingTrigger} />
               </div>
 
               <SlippageSelector

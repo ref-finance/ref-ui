@@ -287,6 +287,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       setLoadingData,
       loadingTrigger,
       setLoadingTrigger,
+      loadingData,
     });
 
   const handleSubmit = (event: React.FormEvent) => {
