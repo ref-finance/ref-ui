@@ -122,10 +122,11 @@ export const useSwap = ({
       })
         .then(({ estimate, pool }) => {
           if (!estimate || !pool) throw '';
-          if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount))
+          if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
             setCanSwap(true);
-          setTokenOutAmount(estimate);
-          setPool(pool);
+            setTokenOutAmount(estimate);
+            setPool(pool);
+          }
         })
         .catch((err) => {
           setCanSwap(false);
