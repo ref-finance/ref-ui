@@ -189,7 +189,7 @@ export default function SlippageSelector({
                 <div className="text-warn text-xs py-3">
                   <IoWarning className="inline-block text-lg align-text-top mr-1" />
                   <FormattedMessage
-                    id="slip_wran"
+                    id="slip_warn"
                     defaultMessage="Be careful, please check the minimum you can receive."
                   />
                 </div>
@@ -471,7 +471,7 @@ export function StableSlipSelecter({
           <div className="text-warn text-xs py-3">
             <IoWarning className="inline-block text-lg align-text-top mr-1" />
             <FormattedMessage
-              id="slip_wran"
+              id="slip_warn"
               defaultMessage="Be careful, please check the minimum you can receive."
             />
           </div>

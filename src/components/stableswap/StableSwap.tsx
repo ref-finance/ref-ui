@@ -15,7 +15,11 @@ import {
   toReadableNumber,
 } from '~utils/numbers';
 import { toRealSymbol } from '~utils/token';
-import { SwapAnimation, SwapRateDetail, TokensRadio } from './StableSwapComponents';
+import {
+  SwapAnimation,
+  SwapRateDetail,
+  TokensRadio,
+} from './StableSwapComponents';
 interface StableSwapProps {
   balances: TokenBalancesView;
   tokens: TokenMetadata[];
@@ -62,7 +66,7 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
       className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg"
     >
       <h2 className="formTitle flex justify-between font-bold text-xl text-white text-left pb-2">
-        <FormattedMessage id="stable_swap" defaultMessage="Stableswap" />
+        <FormattedMessage id="stable_swap" defaultMessage="StableSwap" />
         <SlippageSelector
           slippageTolerance={slippageTolerance}
           onChange={onChangeSlip}
@@ -70,7 +74,6 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
         />
       </h2>
       <div className=" flex mt-7">
-
         <div className=" flex-1">
           <p className=" text-primaryText text-xs pb-3">
             From:{' '}
@@ -95,7 +98,12 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
           />
         </div>
 
-        <SwapAnimation tokenIn={tokenIn} tokenOut ={tokenOut} setTokenIn={(token:TokenMetadata)=> setTokenIn(token)} setTokenOut={(token:TokenMetadata)=> setTokenOut(token)} />
+        <SwapAnimation
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+          setTokenIn={(token: TokenMetadata) => setTokenIn(token)}
+          setTokenOut={(token: TokenMetadata) => setTokenOut(token)}
+        />
 
         <div className=" flex-1">
           <p className=" text-primaryText text-xs pb-3">
