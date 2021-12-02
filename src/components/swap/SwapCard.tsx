@@ -32,7 +32,13 @@ const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
 
-export function SwapDetail({ title, value }: { title: string; value: string }) {
+export function SwapDetail({
+  title,
+  value,
+}: {
+  title: string;
+  value: string | JSX.Element;
+}) {
   return (
     <section className="grid grid-cols-2 py-1 text-xs">
       <p className="text-primaryText text-left">{title}</p>
