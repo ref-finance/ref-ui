@@ -73,7 +73,26 @@ export default function SwapFormWrap({
                 }}
                 className="mx-2 cursor-pointer"
               >
-                <CountdownTimer size={16} loadingTrigger={loadingTrigger} />
+                <div className="circle_process flex justify-center items-center">
+                  <div className=" w-4 h-4 bg-cardBg rounded-full inline-block"></div>
+                  <div className="wrapper right">
+                    <div
+                      className={`circle ${
+                        !loadingTrigger ? 'rightcircle' : ''
+                      }`}
+                    ></div>
+                  </div>
+
+                  <div className="wrapper left">
+                    <div
+                      className={`circle ${
+                        !loadingTrigger ? 'leftcircle' : ''
+                      }`}
+                      id="leftcircle"
+                    ></div>
+                  </div>
+                </div>
+                {/* <CountdownTimer size={16} loadingTrigger={loadingTrigger} /> */}
               </div>
 
               <SlippageSelector

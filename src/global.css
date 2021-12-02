@@ -381,3 +381,64 @@ input.warn-input:focus {
 .recharts-text.recharts-cartesian-axis-tick-value {
   font-size: 12px;
 }
+
+.circle_process {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  background: #001320;
+  border-radius: 50%;
+}
+
+.circle_process .wrapper {
+  width: 10px;
+  height: 20px;
+  position: absolute;
+  top: 0;
+  overflow: hidden;
+}
+.circle_process .right {
+  right: 0;
+}
+.circle_process .left {
+  left: 0;
+}
+.circle_process .circle {
+  width: 20px;
+  height: 20px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  transform: rotate(-135deg);
+}
+.circle_process .rightcircle {
+  border-top: 2px solid #00d6af;
+  border-right: 2px solid #00d6af;
+  right: 0;
+  -webkit-animation: circle_right 10s linear infinite;
+}
+.circle_process .leftcircle {
+  border-bottom: 2px solid #00d6af;
+  border-left: 2px solid #00d6af;
+  left: 0;
+  -webkit-animation: circle_left 10s linear infinite;
+}
+@-webkit-keyframes circle_right {
+  0% {
+    -webkit-transform: rotate(-135deg);
+  }
+  50%,
+  100% {
+    -webkit-transform: rotate(45deg);
+  }
+}
+@-webkit-keyframes circle_left {
+  0%,
+  50% {
+    -webkit-transform: rotate(-135deg);
+  }
+  100% {
+    -webkit-transform: rotate(45deg);
+  }
+}

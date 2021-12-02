@@ -109,12 +109,7 @@ export const useSwap = ({
 
   useEffect(() => {
     setCanSwap(false);
-    if (
-      tokenIn &&
-      tokenOut &&
-      tokenInAmount &&
-      tokenIn.id !== tokenOut.id
-    ) {
+    if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
       setSwapError(null);
       estimateSwap({
         tokenIn,
@@ -127,7 +122,8 @@ export const useSwap = ({
       })
         .then(({ estimate, pool }) => {
           if (!estimate || !pool) throw '';
-          setCanSwap(true);
+          if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount))
+            setCanSwap(true);
           setTokenOutAmount(estimate);
           setPool(pool);
         })
@@ -148,14 +144,16 @@ export const useSwap = ({
   }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger]);
 
   useEffect(() => {
-    let id:any = null;
+    let id: any = null;
     if (!loadingTrigger) {
       id = setInterval(() => {
         setLoadingTrigger(true);
         setCount(count + 1);
       }, refreshTime);
     }
-    return () => {id = null};
+    return () => {
+      clearInterval(id);
+    };
   }, [count, loadingTrigger]);
 
   const makeSwap = (useNearBalance: boolean) => {
