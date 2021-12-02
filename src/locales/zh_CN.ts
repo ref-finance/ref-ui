@@ -227,7 +227,8 @@ const zh_CN = {
   over_tip: '支持一次提取5种代币',
   no_token_tip: '没有可提取的代币',
   getToken_tip: '你可以现在认领你的奖励或质押代币！',
-  my_liquidity: '我的流动池',
   in_farm: '在农场中',
+  your_liquidity_positions_will_appear_here: '你参与的流动池将会出现在这里',
+  price_impact: '价格影响',
 };
 export default zh_CN;

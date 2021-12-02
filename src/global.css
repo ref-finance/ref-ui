@@ -381,3 +381,58 @@ input.warn-input:focus {
 .recharts-text.recharts-cartesian-axis-tick-value {
   font-size: 12px;
 }
+
+.circle_process {
+  width: 18px;
+  height: 18px;
+}
+.circle_center {
+  width: 14px;
+  height: 14px;
+}
+.circle_process .wrapper {
+  width: 9px;
+  height: 18px;
+}
+.circle_process .circle {
+  width: 18px;
+  height: 18px;
+  border: 2px solid transparent;
+  transform: rotate(-136deg);
+}
+.circleleft {
+  width: 18px;
+  height: 18px;
+  border: 2px solid transparent;
+  transform: rotate(-136deg);
+}
+.circle_process .rightcircle {
+  border-top: 2px solid #00d6af;
+  border-right: 2px solid #00d6af;
+  right: 0;
+  -webkit-animation: circle_right 10s linear 1;
+}
+.circle_process .leftcircle {
+  border-bottom: 2px solid #00d6af;
+  border-left: 2px solid #00d6af;
+  left: 0;
+  -webkit-animation: circle_left 10s linear 1;
+}
+@-webkit-keyframes circle_right {
+  0% {
+    -webkit-transform: rotate(-136deg);
+  }
+  50%,
+  100% {
+    -webkit-transform: rotate(45deg);
+  }
+}
+@-webkit-keyframes circle_left {
+  0%,
+  50% {
+    -webkit-transform: rotate(-136deg);
+  }
+  100% {
+    -webkit-transform: rotate(45deg);
+  }
+}

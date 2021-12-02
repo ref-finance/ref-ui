@@ -261,18 +261,24 @@ interface GetPoolOptions {
   tokenInId: string;
   tokenOutId: string;
   amountIn: string;
+  setLoadingTrigger?: (loadingTrigger: boolean) => void;
+  setLoadingData?: (loading: boolean) => void;
+  loadingTrigger: boolean;
 }
 
 export const getPoolsByTokens = async ({
   tokenInId,
   tokenOutId,
   amountIn,
+  setLoadingData,
+  setLoadingTrigger,
+  loadingTrigger,
 }: GetPoolOptions): Promise<Pool[]> => {
   const amountToTrade = new BN(amountIn);
   let filtered_pools;
   const cache = await db.checkPoolsByTokens(tokenInId, tokenOutId);
 
-  if (cache) {
+  if (cache && !loadingTrigger) {
     const cache_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
     filtered_pools = cache_pools.filter(
       (p) =>
@@ -280,6 +286,7 @@ export const getPoolsByTokens = async ({
         p.supplies[tokenOutId]
     );
   } else {
+    setLoadingData(true);
     const totalPools = await getTotalPools();
     const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
     const pools = (
@@ -293,6 +300,8 @@ export const getPoolsByTokens = async ({
         p.supplies[tokenOutId]
     );
   }
+  setLoadingTrigger(false);
+  setLoadingData(false);
   return filtered_pools;
 };
 
@@ -494,6 +503,6 @@ export const addSimpleLiquidityPool = async (
 
   return executeMultipleTransactions(
     transactions,
-    `${window.location.origin}/pools`
+    `${window.location.origin}/pools/add`
   );
 };
