@@ -192,7 +192,7 @@ const en_US = {
   search_token: 'Search Token',
   language: 'Language',
   deposit_to_add_liquidity: 'Deposit to Add Liquidity',
-  slip_wran: 'Be careful, please check the minimum you can receive.',
+  slip_warn: 'Be careful, please check the minimum you can receive.',
   slip_invalid: 'The slippage tolerance is invalid.',
   press_enter_to_search: 'Press enter to search',
   click_search_bar_to_search: 'Click search bar to search',
@@ -208,7 +208,7 @@ const en_US = {
   share_liquidity: 'Share of liquidity',
   remove_token_confirm: 'You will remove RUST token',
   add_type_all: 'Add all coins in a balanced proportion',
-  add_type_max: 'Use maximum amount of coins availabe',
+  add_type_max: 'Use maximum amount of coins available',
   select_balance: 'Select Balance',
   selectBalanceCopy:
     'Select [Near Wallet] to swap directly tokens available in your Near wallet',
@@ -233,9 +233,11 @@ const en_US = {
   over_tip: 'Only 5 tokens can be withdrawn at once',
   no_token_tip: 'No reward token',
   getToken_tip: 'You can claim your rewards or stake your LP Tokens now!',
-  my_liquidity: 'My Liquidity',
   in_farm: 'in Farm',
   swap_rate_including_fee: 'Swap rate (including fees)',
   percentage: 'Percentage',
+  your_liquidity_positions_will_appear_here:
+    'Your liquidity positions will appear here.',
+  price_impact: 'Price Impact',
 };
 export default en_US;

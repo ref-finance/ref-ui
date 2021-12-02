@@ -280,7 +280,7 @@ function Actions() {
       >
         {detail ? (
           <Card
-            style={{ width: '30vw' }}
+            style={{ width: '30vw', minWidth: '200px' }}
             className="outline-none border border-gradientFrom border-opacity-50"
           >
             <div className="text-white text-center pb-4 font-semibold">
@@ -289,14 +289,16 @@ function Actions() {
             <div className="text-white">
               {Object.keys(detail.data).map((k, i) => {
                 if (k === 'Action') return null;
-
+                const value = String((detail.data as any)[k]) || '';
                 return (
                   <div
                     key={i}
                     className="flex items-center justify-between py-3 text-sm"
                   >
                     <div>{k}</div>
-                    <div>{(detail.data as any)[k]}</div>
+                    <div>{`${value.substring(0, 25)}${
+                      value.length > 25 ? '...' : ''
+                    }`}</div>
                   </div>
                 );
               })}
@@ -427,14 +429,16 @@ function MobileActions() {
             <div className="border-b">
               {Object.keys(detail.data).map((k, i) => {
                 if (k === 'Action') return null;
-
+                const value = String((detail.data as any)[k]) || '';
                 return (
                   <div
                     key={i}
                     className="flex items-center justify-between  py-3 text-sm"
                   >
                     <div>{k}</div>
-                    <div>{(detail.data as any)[k]}</div>
+                    <div>{`${value.substring(0, 25)}${
+                      value.length > 25 ? '...' : ''
+                    }`}</div>
                   </div>
                 );
               })}
