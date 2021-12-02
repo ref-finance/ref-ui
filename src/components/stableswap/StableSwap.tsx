@@ -141,7 +141,7 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
       <div className=" text-primaryText my-5 text-center">
         {pool && tokenInAmount && tokenOutAmount && (
           <SwapRateDetail
-            title={intl.formatMessage({ id: 'exchange_rate' })}
+            title={intl.formatMessage({ id: 'swap_rate' })}
             value={`1 ${toRealSymbol(
               tokenOut.symbol
             )} ≈ ${calculateExchangeRate(
