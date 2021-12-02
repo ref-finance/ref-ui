@@ -150,6 +150,8 @@ export const useSwap = ({
         setLoadingTrigger(true);
         setCount(count + 1);
       }, refreshTime);
+    } else {
+      clearInterval(id);
     }
     return () => {
       clearInterval(id);
