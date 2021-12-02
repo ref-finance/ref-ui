@@ -216,7 +216,6 @@ const zh_CN = {
   over_tip: '因为汽油费的限制一次最多能选择5个代币',
   no_token_tip: '没有可提取的代币',
   getToken_tip: '你可以现在认领你的奖励或质押代币！',
-  my_liquidity: '我的流动池',
   in_farm: '在农场中',
   roi_calculator: 'ROI 计算器',
   lp_staked: '流动代币质押',
@@ -236,5 +235,7 @@ const zh_CN = {
   value_rewards_token: '奖励代币的价值',
   all: '全选',
   all_5: '一次可选5种代币',
+  your_liquidity_positions_will_appear_here: '你参与的流动池将会出现在这里',
+  price_impact: '价格影响',
 };
 export default zh_CN;

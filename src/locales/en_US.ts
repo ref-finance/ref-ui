@@ -224,7 +224,6 @@ const en_US = {
     'Due to the limitation of Gas Fee, only 5 items most can be selected at one time',
   no_token_tip: 'No reward token',
   getToken_tip: 'You can claim your rewards or stake your LP Tokens now!',
-  my_liquidity: 'My Liquidity',
   in_farm: 'in Farm',
   roi_calculator: 'ROI Calculator',
   lp_staked: 'LP staked',
@@ -244,5 +243,8 @@ const en_US = {
   value_rewards_token: 'Value of Reward Token',
   all: 'all',
   all_5: '5 tokens per time',
+  your_liquidity_positions_will_appear_here:
+    'Your liquidity positions will appear here.',
+  price_impact: 'Price Impact',
 };
 export default en_US;

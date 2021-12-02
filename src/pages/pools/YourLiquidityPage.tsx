@@ -11,9 +11,16 @@ import Loading from '~components/layout/Loading';
 import { wallet } from '~services/near';
 import { useTokens } from '~state/token';
 import { getPoolBalance, getPoolsBalances, PoolRPCView } from '~services/api';
-import { toRoundedReadableNumber, percent, toPrecision } from '~utils/numbers';
+import {
+  toRoundedReadableNumber,
+  percent,
+  toPrecision,
+  toInternationalCurrencySystem,
+  toReadableNumber,
+  calculateFairShare,
+} from '~utils/numbers';
 import { usePool } from '~state/pool';
-import { RemoveLiquidityModal } from './DetailsPage';
+import { RemoveLiquidityModal, AddLiquidityModal } from './DetailsPage';
 import { getPool, getYourPools } from '~services/indexer';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage } from 'react-intl';
@@ -21,7 +28,9 @@ import { Link, useHistory } from 'react-router-dom';
 import BigNumber from 'bignumber.js';
 import { LP_TOKEN_DECIMALS } from '~services/m-token';
 
-import { canFarm } from '~services/pool';
+import { canFarm, Pool } from '~services/pool';
+import { formatMessage } from '@formatjs/intl';
+import { TokenMetadata } from '~services/ft-contract';
 
 function FarmDot({
   inFarm,
@@ -82,11 +91,11 @@ function MyShares({
 
   return (
     <div className="h-12 inline-flex flex-col justify-center">
-      <div className="px-2 mb-1">{`${displayPercent}% of Total`}</div>
+      <div className="ml-2 mb-1 text-sm">{`${displayPercent}% of Total`}</div>
       {supportFarm > 0 && (
         <object>
           <Link
-            className="inline-flex items-center inline-block text-xs text-gradientFrom rounded-full px-2 py-1 border border-transparent hover:border-gradientFrom"
+            className="inline-flex items-center inline-block text-xs text-gradientFrom rounded-full py-1 border border-transparent hover:border-gradientFrom px-2"
             to={{
               pathname: '/farms',
             }}
@@ -96,7 +105,7 @@ function MyShares({
             }}
           >
             <FarmDot inFarm={Number(farmShare) > 0} className="mr-1" />
-            <div className="mr-2 self-start">
+            <div className="self-start">
               <span className="text-gradientFrom">
                 {`${
                   Number(farmSharePercent) < 0.1 && Number(farmSharePercent) > 0
@@ -119,8 +128,8 @@ function Empty() {
     <div className="px-6">
       <div className="text-center font-semibold text-xs mb-4 text-primaryText">
         <FormattedMessage
-          id="you_are_not_providing_liquidity_to_any_pools"
-          defaultMessage="You aren’t providing liquidity to any pools"
+          id="your_liquidity_positions_will_appear_here"
+          defaultMessage="Your liquidity positions will appear here."
         />
       </div>
       {wallet.isSignedIn() ? <AddLiquidityButton /> : <ConnectToNearBtn />}
@@ -156,25 +165,32 @@ export function YourLiquidityPage() {
   if (!pools || !balances) return <Loading />;
 
   return (
-    <div className="flex items-center flex-col w-2/5 md:w-5/6 xs:w-11/12 m-auto">
-      <div className="w-full flex justify-center">
+    <div className="flex items flex-col w-1/2 md:w-5/6 xs:w-11/12 m-auto">
+      <div className="w-full flex justify-center self-center">
         {error && <Alert level="error" message={error.message} />}
       </div>
-      <Card width="w-full" padding="px-0 py-6">
-        <div className="text-white text-xl px-6 pb-6">
-          <FormattedMessage id="my_liquidity" defaultMessage="My Liquidity" />
+      {/* PC */}
+      <Card width="w-full" padding="px-0 py-6" className="xs:hidden md:hidden">
+        <div className="text-white text-xl pr-6 pl-6 lg:pl-10 pb-6">
+          <FormattedMessage
+            id="your_liquidity"
+            defaultMessage="Your Liquidity"
+          />
         </div>
         {pools.length > 0 ? (
           <section>
             <div className="">
               <div
-                className="grid grid-cols-10 md:flex xs:flex md:items-center xs:items-center xs:justify-between md:justify-between py-2 content-center items-center text-xs text-primaryText px-6
+                className="grid grid-cols-10 md:flex xs:flex md:items-center xs:items-center xs:justify-between md:justify-between py-2 content-center items-center text-xs text-primaryText pr-6 pl-6 lg:pl-10
                 xs:border-b xs:border-gray-700 xs:border-opacity-70 md:border-b md:border-gray-700 md:border-opacity-70"
               >
-                <div className="grid col-span-5">
+                <div className="col-span-2">
                   <FormattedMessage id="pair" defaultMessage="Pair" />
                 </div>
-                <div className="col-span-5 ml-2">
+                <div className="col-span-2 2xl:col-span-3">
+                  <FormattedMessage id="token" defaultMessage="Token" />
+                </div>
+                <div className="col-span-6 2xl:col-span-3 ml-8 2xl:ml-2">
                   <FormattedMessage id="my_shares" defaultMessage="My Shares" />
                 </div>
               </div>
@@ -189,14 +205,26 @@ export function YourLiquidityPage() {
                 ))}
               </div>
             </div>
-            <div className="flex items-center justify-center mt-4 px-6 xs:mt-12 md:mt-12">
-              <AddLiquidityButton />
-            </div>
           </section>
         ) : (
           <Empty />
         )}
       </Card>
+      {/* Mobile */}
+      <div className="text-white text-2xl font-semibold px-4 lg:hidden">
+        <FormattedMessage id="your_liquidity" defaultMessage="Your Liquidity" />
+      </div>
+      {pools.length > 0 ? (
+        <div className="lg:hidden">
+          {pools.map((pool, i) => {
+            return <PoolRow pool={pool} key={i} balance={balances[i]} />;
+          })}
+        </div>
+      ) : (
+        <Card className="lg:hidden mt-4" width="w-full">
+          <Empty />
+        </Card>
+      )}
     </div>
   );
 }
@@ -206,6 +234,7 @@ function PoolRow(props: { pool: any; balance: string }) {
   const { balance } = props;
   const tokens = useTokens(pool?.tokenIds);
   const [showWithdraw, setShowWithdraw] = useState(false);
+  const [showFunding, setShowFunding] = useState(false);
   const [supportFarm, setSupportFarm] = useState<Number>();
   const [farmStake, setFarmStake] = useState<string | number>('0');
 
@@ -227,8 +256,13 @@ function PoolRow(props: { pool: any; balance: string }) {
 
   const userTotalShare = BigNumber.sum(shares, farmStake);
 
-  if (!pool || !tokens || tokens.length < 2 || !(userTotalShare.toNumber() > 0))
-    return null;
+  const userTotalShareToString = userTotalShare
+    .toNumber()
+    .toLocaleString('fullwide', { useGrouping: false });
+
+  if (!pool || !tokens || tokens.length < 2) return <Loading />;
+
+  if (!(userTotalShare.toNumber() > 0)) return null;
 
   const Images = tokens.map((token, index) => {
     const { icon, id } = token;
@@ -237,7 +271,7 @@ function PoolRow(props: { pool: any; balance: string }) {
         <img
           key={id}
           className={
-            'inline-block h-7 w-7 rounded-full border border-gradientFromHover xs:-ml-1 md:-ml-1'
+            'inline-block h-8 w-8 rounded-full border border-gradientFromHover -ml-1 -ml-1'
           }
           src={icon}
         />
@@ -246,11 +280,34 @@ function PoolRow(props: { pool: any; balance: string }) {
       <div
         key={id}
         className={
-          'inline-block h-7 w-7 rounded-full bg-cardBg border border-gradientFromHover xs:-ml-1 md:-ml-1'
+          'inline-block h-8 w-8 rounded-full bg-cardBg border border-gradientFromHover -ml-1 -ml-1'
         }
       ></div>
     );
   });
+
+  const tokenAmountShare = (
+    pool: Pool,
+    token: TokenMetadata,
+    shares: string
+  ) => {
+    const value = toRoundedReadableNumber({
+      decimals: token.decimals,
+      number: calculateFairShare({
+        shareOf: pool.supplies[token.id],
+        contribution: shares,
+        totalContribution: pool.shareSupply,
+      }),
+      precision: 3,
+      withCommas: false,
+    });
+
+    return Number(value) < 0.001 ? (
+      <span className="whitespace-nowrap">{'< 0.001'}</span>
+    ) : (
+      toInternationalCurrencySystem(value, 3)
+    );
+  };
 
   tokens.sort((a, b) => {
     if (a.symbol === 'wNEAR') return 1;
@@ -262,19 +319,33 @@ function PoolRow(props: { pool: any; balance: string }) {
     <>
       {/* PC */}
       <Link
-        className="xs:hidden md:hidden grid grid-cols-10 py-2 content-center items-center text-sm text-white px-6 border-t border-gray-700 border-opacity-70 cursor-pointer"
+        className="xs:hidden md:hidden grid grid-cols-10 py-5 content-center items-center text-sm text-white pl-10 pr-6 border-t border-gray-700 border-opacity-70 cursor-pointer"
         to={{ pathname: `/pool/${pool.id}` }}
       >
-        <div className="col-span-5 inline-flex items-center">
-          <div className="w-16 lg:flex lg:items-center lg:justify-between xs:ml-1 md:ml-1">
-            {Images}
+        <div className="col-span-2 inline-flex items-center">
+          <div className="w-16 flex items-center ml-1">{Images}</div>
+        </div>
+
+        <div className="col-span-2 2xl:col-span-3 inline-flex flex-col text-xs">
+          <div className="inline-flex items-center justify-between my-1 w-32">
+            <div className="font-semibold">
+              {toRealSymbol(tokens[0].symbol)}
+            </div>
+            <div className="font-normal">
+              {tokenAmountShare(pool, tokens[0], userTotalShareToString)}
+            </div>
           </div>
-          <div className="mx-4 text-left">
-            {toRealSymbol(tokens[0].symbol)}-{toRealSymbol(tokens[1].symbol)}
+          <div className="inline-flex items-center justify-between my-1 w-32">
+            <div className="col-span-3 font-semibold">
+              {toRealSymbol(tokens[1].symbol)}
+            </div>
+            <div className="font-normal">
+              {tokenAmountShare(pool, tokens[1], userTotalShareToString)}
+            </div>
           </div>
         </div>
 
-        <div className="col-span-3 text-left">
+        <div className="col-span-3 2xl:col-span-2 text-left ml-6 2xl:ml-0">
           <MyShares
             shares={shares}
             totalShares={pool.shareSupply}
@@ -286,57 +357,113 @@ function PoolRow(props: { pool: any; balance: string }) {
             farmStake={farmStake}
           />
         </div>
-        <div className="col-span-2 text-right z-30">
-          <OutlineButton
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              setShowWithdraw(true);
-            }}
-            className="text-xs px-4"
-            padding="py-1"
-          >
-            <FormattedMessage id="remove" defaultMessage="Remove" />
-          </OutlineButton>
+        <div className="flex items-center justify-end 2xl:justify-center text-center  col-span-3 ">
+          <div className="flex items-center">
+            <SolidButton
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                setShowFunding(true);
+              }}
+              className="text-xs col-span-2 mr-4 w-24 text-center"
+            >
+              <FormattedMessage
+                id="add_liquidity"
+                defaultMessage="Add Liquidity"
+              />
+            </SolidButton>
+
+            <OutlineButton
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                setShowWithdraw(true);
+              }}
+              className="text-xs px-4 col-span-2 w-20 text-center"
+            >
+              <FormattedMessage id="remove" defaultMessage="Remove" />
+            </OutlineButton>
+          </div>
         </div>
       </Link>
       {/* Mobile */}
       <Link
-        className="lg:hidden pt-6 pb-4 px-6 text-sm text-white border-b border-gray-700 border-opacity-70 flex flex-col cursor-pointer"
+        className="lg:hidden pb-4 px-6 text-sm text-white cursor-pointer"
         to={{ pathname: `/pool/${pool.id}` }}
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <div className="ml-1 mr-2 flex items-center">{Images}</div>
+        <Card width="w-full" padding="py-4 px-0">
+          <div className="flex items-center pb-4 border-b border-gray-700 border-opacity-70 px-6">
+            <div className="ml-1 mr-4 flex items-center">{Images}</div>
             <div className="text-xs font-semibold">
               {toRealSymbol(tokens[0].symbol)}-{toRealSymbol(tokens[1].symbol)}
             </div>
           </div>
-          <div>
-            <MyShares
-              shares={shares}
-              totalShares={pool.shareSupply}
-              decimal={2}
-              poolId={pool.id}
-              stakeList={stakeList}
-              supportFarm={supportFarm}
-              userTotalShare={userTotalShare}
-              farmStake={farmStake}
-            />
+          <div className="flex flex-col text-sm border-b border-gray-700 border-opacity-70 px-6">
+            <div className="flex items-center justify-between my-2">
+              <div className="col-span-3 text-gray-400">
+                {toRealSymbol(tokens[0].symbol)}
+              </div>
+              <div className="font-normal">
+                {tokenAmountShare(pool, tokens[0], userTotalShareToString)}
+              </div>
+            </div>
+            <div className="flex items-center justify-between my-2">
+              <div className="col-span-3 text-gray-400">
+                {toRealSymbol(tokens[1].symbol)}
+              </div>
+              <div className="font-normal">
+                {tokenAmountShare(pool, tokens[1], userTotalShareToString)}
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="mt-2 self-end">
-          <OutlineButton
-            onClick={(e) => {
-              e.preventDefault();
-              setShowWithdraw(true);
-            }}
-            className="text-xs px-4 font-semibold"
-            padding="py-1"
-          >
-            <FormattedMessage id="remove" defaultMessage="Remove" />
-          </OutlineButton>
-        </div>
+
+          <div className="flex items justify-between border-b border-gray-700 border-opacity-70 px-6 py-2">
+            <div className="text-gray-400 text-sm">
+              <FormattedMessage id="my_shares" defaultMessage="Shares" />
+            </div>
+
+            <div>
+              <MyShares
+                shares={shares}
+                totalShares={pool.shareSupply}
+                decimal={2}
+                poolId={pool.id}
+                stakeList={stakeList}
+                supportFarm={supportFarm}
+                userTotalShare={userTotalShare}
+                farmStake={farmStake}
+              />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center justify-center px-6">
+            <div className="">
+              <SolidButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  setShowFunding(true);
+                }}
+                className="text-sm w-28 mr-4"
+              >
+                <FormattedMessage
+                  id="add_liquidity"
+                  defaultMessage="Add Liquidity"
+                />
+              </SolidButton>
+
+              <OutlineButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  setShowWithdraw(true);
+                }}
+                className="text-sm w-24"
+              >
+                <FormattedMessage id="remove" defaultMessage="Remove" />
+              </OutlineButton>
+            </div>
+          </div>
+        </Card>
       </Link>
       <RemoveLiquidityModal
         pool={pool}
@@ -344,6 +471,24 @@ function PoolRow(props: { pool: any; balance: string }) {
         tokens={tokens}
         isOpen={showWithdraw}
         onRequestClose={() => setShowWithdraw(false)}
+        style={{
+          overlay: {
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
+          },
+          content: {
+            outline: 'none',
+            position: 'fixed',
+            bottom: '50%',
+          },
+        }}
+      />
+      <AddLiquidityModal
+        pool={pool}
+        tokens={tokens}
+        isOpen={showFunding}
+        onRequestClose={() => setShowFunding(false)}
+        overlayClassName=""
         style={{
           overlay: {
             backdropFilter: 'blur(15px)',

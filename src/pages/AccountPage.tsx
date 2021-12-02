@@ -26,8 +26,8 @@ import { RemoveLiquidityModal } from './pools/DetailsPage';
 import { wallet } from '~services/near';
 import getConfig from '~services/config';
 import { toRealSymbol } from '~utils/token';
-import { TokenMetadata } from '~services/ft-contract';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { TokenList } from '~components/deposit/Deposit';
 
 const config = getConfig();
 
@@ -77,62 +77,14 @@ function Balances({ hideEmpty }: { hideEmpty?: boolean }) {
             <FormattedMessage id="balance" defaultMessage="Balance" />
           </div>
         </div>
-        {userTokens.map((token, i) => {
-          return (
-            <TokenRow
-              key={i}
-              token={token}
-              balanceValue={balances[token.id]}
-              hideEmpty={hideEmpty}
-            />
-          );
-        })}
+        <TokenList
+          hideEmpty={true}
+          showTokenId={true}
+          tokens={userTokens}
+          balances={balances}
+        />
       </div>
     </Card>
-  );
-}
-
-function TokenRow({
-  token,
-  balanceValue,
-  hideEmpty,
-}: {
-  token: TokenMetadata;
-  balanceValue: string;
-  hideEmpty?: boolean;
-}) {
-  const balance = balanceValue || '0';
-  if (balance === '0' && hideEmpty) return null;
-
-  const amount = toPrecision(
-    toReadableNumber(token.decimals, balance),
-    6,
-    true
-  );
-
-  return (
-    <div
-      key={token.id}
-      className="flex items-center justify-between py-4 border-b border-gray-700"
-      title={toReadableNumber(token.decimals, balance)}
-    >
-      <div className="flex item-center justify-between">
-        {token.icon ? (
-          <img
-            className="h-10 w-10 mr-3 border rounded-full border-greenLight"
-            src={token.icon}
-            alt={toRealSymbol(token.symbol)}
-          />
-        ) : (
-          <div className="rounded-full h-10 w-10 bg-gray-300 mr-3"></div>
-        )}
-        <div className="flex flex-col justify-between py-1 text-white">
-          <div>{toRealSymbol(token.symbol)}</div>
-          <div className="text-xs text-gray-400">{token.id}</div>
-        </div>
-      </div>
-      <div className="text-white">{amount}</div>
-    </div>
   );
 }
 
@@ -316,11 +268,19 @@ function Actions() {
       <Modal
         isOpen={!!detail}
         onRequestClose={() => setDetail(null)}
-        style={{ content: { outline: 'none' } }}
+        style={{
+          overlay: {
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
+          },
+          content: {
+            outline: 'none',
+          },
+        }}
       >
         {detail ? (
           <Card
-            style={{ width: '30vw' }}
+            style={{ width: '30vw', minWidth: '200px' }}
             className="outline-none border border-gradientFrom border-opacity-50"
           >
             <div className="text-white text-center pb-4 font-semibold">
@@ -329,14 +289,16 @@ function Actions() {
             <div className="text-white">
               {Object.keys(detail.data).map((k, i) => {
                 if (k === 'Action') return null;
-
+                const value = String((detail.data as any)[k]) || '';
                 return (
                   <div
                     key={i}
                     className="flex items-center justify-between py-3 text-sm"
                   >
                     <div>{k}</div>
-                    <div>{(detail.data as any)[k]}</div>
+                    <div>{`${value.substring(0, 25)}${
+                      value.length > 25 ? '...' : ''
+                    }`}</div>
                   </div>
                 );
               })}
@@ -376,55 +338,6 @@ function Account() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function MobileBalances({ hideEmpty }: { hideEmpty?: boolean }) {
-  const userTokens = useUserRegisteredTokens();
-  const balances = useTokenBalances();
-
-  if (!balances || !userTokens) return <Loading />;
-
-  return (
-    <div className="bg-cardBg mx-4 rounded-2xl p-6 md:rounded-lg xs:rounded-lg">
-      <div className="py-4 text-center">
-        <FormattedMessage id="balance" defaultMessage="Balance" />
-      </div>
-      {userTokens.map((token) => {
-        const balance = balances[token.id] || '0';
-        if (balance === '0' && hideEmpty) return null;
-
-        const amount = toPrecision(
-          toReadableNumber(token.decimals, balance),
-          6,
-          true
-        );
-
-        return (
-          <div
-            key={token.id}
-            className="flex items-center justify-between py-4 border-b border-gray-700"
-          >
-            <div className="flex item-center justify-between">
-              {token.icon ? (
-                <img
-                  className="h-10 w-10 mr-3 border rounded-full border-greenLight"
-                  src={token.icon}
-                  alt={toRealSymbol(token.symbol)}
-                />
-              ) : (
-                <div className="rounded-full h-10 w-10 bg-gray-300 mr-3"></div>
-              )}
-              <div className="flex flex-col justify-between py-1">
-                <div>{toRealSymbol(token.symbol)}</div>
-                <div className="text-xs text-gray-300">{token.name}</div>
-              </div>
-            </div>
-            <div className="text-white">{amount}</div>
-          </div>
-        );
-      })}
     </div>
   );
 }
@@ -516,14 +429,16 @@ function MobileActions() {
             <div className="border-b">
               {Object.keys(detail.data).map((k, i) => {
                 if (k === 'Action') return null;
-
+                const value = String((detail.data as any)[k]) || '';
                 return (
                   <div
                     key={i}
                     className="flex items-center justify-between  py-3 text-sm"
                   >
                     <div>{k}</div>
-                    <div>{(detail.data as any)[k]}</div>
+                    <div>{`${value.substring(0, 25)}${
+                      value.length > 25 ? '...' : ''
+                    }`}</div>
                   </div>
                 );
               })}
@@ -552,6 +467,8 @@ function MobileActions() {
 
 function MobileAccount() {
   const [showRecent, setShowRecent] = useState(false);
+  const userTokens = useUserRegisteredTokens();
+  const balances = useTokenBalances();
   const intl = useIntl();
   return (
     <div className="lg:hidden xl:hidden md:show xs:show relative text-white flex-grow overflow-auto pb-6">
@@ -580,9 +497,19 @@ function MobileAccount() {
         </div>
       </div>
 
-      {!showRecent ? (
+      {!showRecent && userTokens ? (
         <>
-          <MobileBalances />
+          <div className="bg-cardBg mx-4 rounded-2xl p-6 md:rounded-lg xs:rounded-lg">
+            <div className="py-4 text-center">
+              <FormattedMessage id="balance" defaultMessage="Balance" />
+            </div>
+            <TokenList
+              hideEmpty={true}
+              showTokenId={true}
+              tokens={userTokens}
+              balances={balances}
+            />
+          </div>
         </>
       ) : (
         <MobileActions />

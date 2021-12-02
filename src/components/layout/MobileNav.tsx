@@ -190,6 +190,14 @@ export function MobileNavBar() {
     setShow(false);
   };
 
+  useEffect(() => {
+    if (show) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  }, [show]);
+
   if (wallet.isSignedIn()) {
     moreLinks[2].children[2] = {
       id: 'Your_Liquidity',

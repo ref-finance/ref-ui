@@ -132,7 +132,11 @@ function AccountEntry() {
               </div>
             </div>
             {wallet.isSignedIn() ? (
-              <TokenList tokens={userTokens} balances={balances} />
+              <TokenList
+                tokens={userTokens}
+                balances={balances}
+                hideEmpty={true}
+              />
             ) : null}
             <div className="flex items-center justify-center pt-5">
               <GradientButton

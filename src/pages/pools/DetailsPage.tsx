@@ -96,6 +96,15 @@ interface LocationTypes {
   backToFarms: boolean;
 }
 
+const formatDate = (rawDate: string) => {
+  const date = rawDate
+    .split('-')
+    .map((t) => (t.length >= 2 ? t : t.padStart(2, '0')))
+    .join('-');
+
+  return moment(date).format('ll');
+};
+
 function Icon(props: { icon?: string; className?: string; style?: any }) {
   const { icon, className, style } = props;
   return icon ? (
@@ -112,7 +121,7 @@ function Icon(props: { icon?: string; className?: string; style?: any }) {
   );
 }
 
-function AddLiquidityModal(
+export function AddLiquidityModal(
   props: ReactModal.Props & {
     pool: Pool;
     tokens: TokenMetadata[];
@@ -929,11 +938,6 @@ export function VolumeChart({
   const baseColor = '#00967B';
   const hoverColor = '#00c6a2';
 
-  const formatDate = (rawDate: string) => {
-    const date = rawDate.split('-').map((t) => Number(t));
-    return moment(new Date(date[0], date[1], date[2])).format('ll');
-  };
-
   const BackgroundRender = (targetBar: BarProps & { index?: number }) => {
     const { x, y, width, height, index } = targetBar;
     if (index === hoverIndex)
@@ -1048,7 +1052,6 @@ export function TVLChart({
   setChartDisplay: (display: 'volume' | 'tvl') => void;
 }) {
   const [hoverIndex, setHoverIndex] = useState<number>(null);
-  const formatDate = (rawDate: string) => moment(rawDate).format('ll');
   if (!data)
     return (
       <EmptyChart
