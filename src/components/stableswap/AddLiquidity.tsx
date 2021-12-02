@@ -327,8 +327,6 @@ export default function AddLiquidityComponent(props: {
     });
   }
 
-  const cardWidth = isMobile() ? '95vw' : '40vw';
-
   const ButtonRender = () => {
     if (!wallet.isSignedIn()) {
       return (
@@ -407,14 +405,14 @@ export default function AddLiquidityComponent(props: {
 
       <div className=" text-sm">
         <div className=" text-primaryText">
-          <FormattedMessage
-            id="standard_gas"
-            defaultMessage="Standard Gas fee:"
-          />
-          <span className=" text-white pl-3">不知道fee取什么</span>
+          <FormattedMessage id="fee" defaultMessage="Fee" />:
+          <span className=" text-white pl-3">'-'</span>
         </div>
-        <ChooseAddType addType={addType} setAddType={setAddType}/>
-        <StableSlipSelecter slippageTolerance={slippageTolerance} onChange={onChangeSlip} />
+        <ChooseAddType addType={addType} setAddType={setAddType} />
+        <StableSlipSelecter
+          slippageTolerance={slippageTolerance}
+          onChange={onChangeSlip}
+        />
       </div>
       <div className="flex items-center justify-center">
         <ButtonRender />

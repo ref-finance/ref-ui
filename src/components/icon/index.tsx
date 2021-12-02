@@ -7,3 +7,4 @@ export * from './ModalClose';
 export * from './FarmMining';
 export * from './Farm';
 export * from './FarmStamp';
+export * from './CheckBox';

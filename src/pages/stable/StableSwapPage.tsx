@@ -14,8 +14,8 @@ import { isMobile } from '~utils/device';
 import { RemoveLiquidityComponent } from '~components/stableswap/RemoveLiquidity';
 
 const cardWidth = isMobile() ? '95vw' : '580px';
-const DEFAULT_MODULES = ['stable_swap', 'add_lp', 'remove_lp'];
-const STABLE_TOKENS = ['USDT','USDC','DAI']
+const DEFAULT_MODULES = ['stable_swap', 'add_liquidity', 'remove_liquidity'];
+const STABLE_TOKENS = ['USDT', 'USDC', 'DAI'];
 function StableSwapPage() {
   const { pool } = usePool(10);
   const [moduleName, setModule] = useState<string>(DEFAULT_MODULES[0]);
@@ -24,7 +24,10 @@ function StableSwapPage() {
   const changeModule = (moduleName: string) => {
     setModule(moduleName);
   };
-  const tokens = allTokens && allTokens.length > 0 && allTokens.filter(item=>STABLE_TOKENS.indexOf(item.symbol) > -1)
+  const tokens =
+    allTokens &&
+    allTokens.length > 0 &&
+    allTokens.filter((item) => STABLE_TOKENS.indexOf(item.symbol) > -1);
   const renderModule = (tab: string) => {
     switch (tab) {
       case DEFAULT_MODULES[0]:

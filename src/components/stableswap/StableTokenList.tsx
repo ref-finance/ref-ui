@@ -5,7 +5,11 @@ import { TokenMetadata } from '~services/ft-contract';
 import { TokenBalancesView } from '~services/token';
 import { toPrecision, toReadableNumber } from '~utils/numbers';
 import { toRealSymbol } from '~utils/token';
-export function Icon(props: { icon?: string; className?: string; style?: any }) {
+export function Icon(props: {
+  icon?: string;
+  className?: string;
+  style?: any;
+}) {
   const { icon, className, style } = props;
   return icon ? (
     <img
@@ -27,11 +31,20 @@ export default function StableTokenList(props: {
   firstTokenAmount: string;
   secondTokenAmount: string;
   thirdTokenAmount: string;
-  changeFirstTokenAmount?: (e:string) => void;
-  changeSecondTokenAmount?: (e:string) => void;
-  changeThirdTokenAmount?: (e:string) => void;
+  changeFirstTokenAmount?: (e: string) => void;
+  changeSecondTokenAmount?: (e: string) => void;
+  changeThirdTokenAmount?: (e: string) => void;
 }) {
-  const { tokens, balances, firstTokenAmount, secondTokenAmount, thirdTokenAmount, changeFirstTokenAmount, changeSecondTokenAmount, changeThirdTokenAmount  } = props;
+  const {
+    tokens,
+    balances,
+    firstTokenAmount,
+    secondTokenAmount,
+    thirdTokenAmount,
+    changeFirstTokenAmount,
+    changeSecondTokenAmount,
+    changeThirdTokenAmount,
+  } = props;
   if (tokens.length < 1) return null;
   return (
     <div>
@@ -55,7 +68,9 @@ export default function StableTokenList(props: {
           <InputAmount
             className="w-full border border-transparent rounded"
             max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
-            onChangeAmount={(e)=>{changeFirstTokenAmount(e)}}
+            onChangeAmount={(e) => {
+              changeFirstTokenAmount(e);
+            }}
             value={firstTokenAmount}
           />
         </div>
@@ -120,46 +135,24 @@ export function StableTokensSymbol(props: {
 }) {
   const { tokens, balances } = props;
   return (
-    <div className="flex">
-      <div className="flex-1 flex">
-        <Icon icon={tokens[0].icon} className="inline-block h-9 w-9 mr-2" />
-        <div className=" ml-3 inline-block">
-          {toRealSymbol(tokens[0].symbol)}
-          <div className=" text-xs">
-            {toPrecision(
-              toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
-              2,
-              true
-            )}
+    <div className="flex mb-6">
+      {tokens.map((token, i) => {
+        return (
+          <div className="flex-1 flex" key={i}>
+            <Icon icon={token.icon} className="inline-block h-9 w-9 mr-2" />
+            <div className="ml-3 inline-block">
+              {toRealSymbol(token.symbol)}
+              <div className="text-xs mt-1">
+                {toPrecision(
+                  toReadableNumber(token.decimals, balances[token.id]),
+                  2,
+                  true
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      <div className="flex-1 flex">
-        <Icon icon={tokens[1].icon} className="inline-block h-9 w-9 mr-2" />
-        <div className=" ml-3 inline-block">
-          {toRealSymbol(tokens[1].symbol)}
-          <div className=" text-xs">
-            {toPrecision(
-              toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
-              2,
-              true
-            )}
-          </div>
-        </div>
-      </div>
-      <div className="flex-1 flex">
-        <Icon icon={tokens[2].icon} className="inline-block h-9 w-9 mr-2" />
-        <div className=" ml-3 inline-block">
-          {toRealSymbol(tokens[2].symbol)}
-          <div className=" text-xs">
-            {toPrecision(
-              toReadableNumber(tokens[2].decimals, balances[tokens[2].id]),
-              2,
-              true
-            )}
-          </div>
-        </div>
-      </div>
+        );
+      })}
     </div>
   );
 }

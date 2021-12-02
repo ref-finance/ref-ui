@@ -1,24 +1,18 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
+import { Pool } from '~services/pool';
 import { Icon } from './StableTokenList';
 import { FormattedMessage } from 'react-intl';
 import { TokenMetadata } from '~services/ft-contract';
-
-// stable swap exchange rate
-export function SwapRateDetail({
-  title,
-  value,
-}: {
-  title: string;
-  value: string;
-}) {
-  return (
-    <section className="block py-1">
-      {title}
-      <span className=" text-white inline-block mx-2">{value}</span>
-      <FormattedMessage id="including_fees" defaultMessage="(including fees)" />
-    </section>
-  );
-}
+import { UnCheckedRadio, CheckedRadio, Radio } from '~components/icon';
+import { useIntl } from 'react-intl';
+import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
+import { SwapDetail, SwapRateDetail } from '~components/swap/SwapCard';
+import { toRealSymbol } from '~utils/token';
+import {
+  calculateExchangeRate,
+  toPrecision,
+  toReadableNumber,
+} from '~utils/numbers';
 
 // stable swap radio list
 export function TokensRadio({
@@ -31,46 +25,35 @@ export function TokensRadio({
   tokens: TokenMetadata[];
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
-  handleSwapFrom: (e: any) => void;
-  handleSwapTo: (e: any) => void;
+  handleSwapFrom: (id: string) => void;
+  handleSwapTo: (id: string) => void;
 }) {
   return (
-    <div className=" flex py-7 border-b border-primaryText border-opacity-30">
+    <div className="flex py-7 border-b border-primaryText border-opacity-30">
       <div className=" text-white mr-24 flex-1">
-        {tokens.map((item) => (
-          <div className="flex my-3 items-center" key={item.id}>
-            <input
-              className="w-6"
-              type="radio"
-              checked={item.symbol === tokenIn.symbol ? true : false}
-              id={item.id}
-              name="from"
-              value={item.symbol}
-              onChange={(e) => {
-                handleSwapFrom(e);
-              }}
+        {tokens.map((token) => (
+          <div className="flex my-3 items-center" key={token.id}>
+            <Radio
+              value={token.id}
+              handleSelect={handleSwapFrom}
+              checked={token.symbol === tokenIn.symbol}
             />
-            <Icon icon={item.icon} className="inline-block h-9 w-9 mx-3" />
-            <label>{item.symbol}</label>
+
+            <Icon icon={token.icon} className="inline-block h-9 w-9 mx-3" />
+            <label>{token.symbol}</label>
           </div>
         ))}
       </div>
       <div className=" text-white flex-1">
-        {tokens.map((item) => (
-          <div className="flex my-2 items-center" key={`second-${item.id}`}>
-            <input
-              className=" w-6"
-              type="radio"
-              checked={item.symbol === tokenOut.symbol ? true : false}
-              id={item.id}
-              name="to"
-              value={item.symbol}
-              onChange={(e) => {
-                handleSwapTo(e);
-              }}
+        {tokens.map((token) => (
+          <div className="flex my-2 items-center" key={`second-${token.id}`}>
+            <Radio
+              value={token.id}
+              handleSelect={handleSwapTo}
+              checked={token.symbol === tokenOut.symbol}
             />
-            <Icon icon={item.icon} className="inline-block h-9 w-9 mx-3" />
-            <label>{item.symbol}</label>
+            <Icon icon={token.icon} className="inline-block h-9 w-9 mx-3" />
+            <label>{token.symbol}</label>
           </div>
         ))}
       </div>
@@ -121,6 +104,75 @@ export function SwapAnimation({
             <div className="bottom-ball" ref={bottomBall} id="bottom-ball" />
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+export function DetailView({
+  pool,
+  tokenIn,
+  tokenOut,
+  from,
+  to,
+  minAmountOut,
+}: {
+  pool: Pool;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  from: string;
+  to: string;
+  minAmountOut?: string;
+}) {
+  const intl = useIntl();
+  const [showDetails, setShowDetails] = useState<boolean>(false);
+
+  if (!from || !to || !pool) return null;
+  return (
+    <div className="mt-8">
+      <div
+        className="flex justify-center"
+        onClick={() => {
+          setShowDetails(!showDetails);
+        }}
+      >
+        <div className="flex items-center text-white cursor-pointer">
+          <p className="block text-xs">
+            <FormattedMessage id="details" defaultMessage="Details" />
+          </p>
+          <div className="pl-1 text-sm">
+            {showDetails ? <FaAngleUp /> : <FaAngleDown />}
+          </div>
+        </div>
+      </div>
+      <div className={showDetails ? '' : 'hidden'}>
+        <SwapDetail
+          title={intl.formatMessage({
+            id: 'price_impact',
+            defaultMessage: 'Price Impact',
+          })}
+          value="-"
+        />
+        <SwapRateDetail
+          title={intl.formatMessage({
+            id: 'swap_rate_including_fee',
+            defaultMessage: 'Swap rate (including fees)',
+          })}
+          value={`1 ${toRealSymbol(tokenOut.symbol)} ≈ ${calculateExchangeRate(
+            pool.fee,
+            to,
+            from
+          )} ${toRealSymbol(tokenIn.symbol)}`}
+          pool={pool}
+          from={from}
+          to={to}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+        />
+        <SwapDetail
+          title={intl.formatMessage({ id: 'minimum_received' })}
+          value={toPrecision(minAmountOut, 8, true)}
+        />
       </div>
     </div>
   );

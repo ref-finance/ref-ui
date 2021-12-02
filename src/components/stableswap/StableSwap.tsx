@@ -15,7 +15,7 @@ import {
   toReadableNumber,
 } from '~utils/numbers';
 import { toRealSymbol } from '~utils/token';
-import { SwapAnimation, SwapRateDetail, TokensRadio } from './StableSwapComponents';
+import { DetailView, SwapAnimation, TokensRadio } from './StableSwapComponents';
 interface StableSwapProps {
   balances: TokenBalancesView;
   tokens: TokenMetadata[];
@@ -41,11 +41,11 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
       slippageTolerance,
     });
 
-  const handleSwapFrom = (e: any) => {
-    setTokenIn(tokens.filter((item) => item.symbol === e.target.value)[0]);
+  const handleSwapFrom = (tokenFrom: string) => {
+    setTokenIn(tokens.filter((item) => item.id === tokenFrom)[0]);
   };
-  const handleSwapTo = (e: any) => {
-    setTokenOut(tokens.filter((item) => item.symbol === e.target.value)[0]);
+  const handleSwapTo = (tokenTo: string) => {
+    setTokenOut(tokens.filter((item) => item.id === tokenTo)[0]);
   };
   const handleSubmit = () => {
     event.preventDefault();
@@ -62,7 +62,7 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
       className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg"
     >
       <h2 className="formTitle flex justify-between font-bold text-xl text-white text-left pb-2">
-        <FormattedMessage id="stable_swap" defaultMessage="Stableswap" />
+        <FormattedMessage id="stable_swap" defaultMessage="StableSwap" />
         <SlippageSelector
           slippageTolerance={slippageTolerance}
           onChange={onChangeSlip}
@@ -70,11 +70,11 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
         />
       </h2>
       <div className=" flex mt-7">
-
         <div className=" flex-1">
           <p className=" text-primaryText text-xs pb-3">
             From:{' '}
-            <span className=" float-right">
+            <span className="float-right">
+              <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
               {toPrecision(
                 toReadableNumber(tokenIn.decimals, balances[tokenIn.id]),
                 2,
@@ -95,12 +95,18 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
           />
         </div>
 
-        <SwapAnimation tokenIn={tokenIn} tokenOut ={tokenOut} setTokenIn={(token:TokenMetadata)=> setTokenIn(token)} setTokenOut={(token:TokenMetadata)=> setTokenOut(token)} />
+        <SwapAnimation
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+          setTokenIn={(token: TokenMetadata) => setTokenIn(token)}
+          setTokenOut={(token: TokenMetadata) => setTokenOut(token)}
+        />
 
         <div className=" flex-1">
           <p className=" text-primaryText text-xs pb-3">
             To:{' '}
             <span className=" float-right">
+              <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
               {toPrecision(
                 toReadableNumber(tokenOut.decimals, balances[tokenOut.id]),
                 2,
@@ -122,27 +128,19 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
         tokens={tokens}
         tokenIn={tokenIn}
         tokenOut={tokenOut}
-        handleSwapFrom={(e) => {
-          handleSwapFrom(e);
-        }}
-        handleSwapTo={(e) => {
-          handleSwapTo(e);
-        }}
+        handleSwapFrom={handleSwapFrom}
+        handleSwapTo={handleSwapTo}
       />
 
       <div className=" text-primaryText my-5 text-center">
-        {pool && tokenInAmount && tokenOutAmount && (
-          <SwapRateDetail
-            title={intl.formatMessage({ id: 'exchange_rate' })}
-            value={`1 ${toRealSymbol(
-              tokenOut.symbol
-            )} ≈ ${calculateExchangeRate(
-              pool.fee,
-              tokenOutAmount,
-              tokenInAmount
-            )} ${toRealSymbol(tokenIn.symbol)}`}
-          />
-        )}
+        <DetailView
+          pool={pool}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+          from={tokenInAmount}
+          to={tokenOutAmount}
+          minAmountOut={minAmountOut}
+        />
       </div>
       {wallet.isSignedIn() ? (
         <SubmitButton disabled={!canSwap} label="Swap" />

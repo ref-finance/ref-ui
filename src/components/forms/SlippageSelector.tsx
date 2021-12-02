@@ -387,16 +387,16 @@ export function StableSlipSelecter({
   return (
     <div className="relative z-10">
       <div className="flex justify-between">
-        <div className="flex items-center">
-          <label className="text-sm py-5 text-center text-white">
+        <div className="flex items-center text-gray-400">
+          <label className="text-sm py-5 text-center ">
             <FormattedMessage
               id="slippage"
               defaultMessage="Slippage tolerance"
             />
           </label>
-          <div className="text-gray-400">
+          <div className="">
             <div
-              className="pl-1 text-white text-base"
+              className="pl-1 text-base"
               data-type="dark"
               data-place="right"
               data-multiline={true}
@@ -438,24 +438,25 @@ export function StableSlipSelecter({
             defaultValue={slippageTolerance ? slippageTolerance : 0.5}
             onWheel={() => ref.current.blur()}
             step="any"
-            className={`${
-              slippageTolerance && !invalid && !warn
-                ? 'border border-gradientFrom normal-input text-gradientFrom bg-opacity-0'
-                : ''
-            } focus:text-gradientFrom focus:bg-opacity-0 w-14 h-7 text-center text-sm rounded mx-2 bg-gray-500 ${
-              invalid && !warn
-                ? 'border border-error text-error bg-opacity-0 invalid-input'
-                : ''
-            } ${
-              warn ? 'border border-warn text-warn bg-opacity-0 warn-input' : ''
-            }`}
+            // className={`${
+            //   slippageTolerance && !invalid && !warn
+            //     ? 'border border-gradientFrom normal-input text-gradientFrom bg-opacity-0'
+            //     : ''
+            // } focus:text-gradientFrom focus:bg-opacity-0 w-14 h-7 text-center text-sm rounded mx-2 bg-gray-500 ${
+            //   invalid && !warn
+            //     ? 'border border-error text-error bg-opacity-0 invalid-input'
+            //     : ''
+            // } ${
+            //   warn ? 'border border-warn text-warn bg-opacity-0 warn-input' : ''
+            // }`}
+            className="bg-inputBg text-gray-400 rounded w-14 h-7 bg-inputDarkBg mx-2 px-1"
             type="number"
             required={true}
             placeholder=""
             onChange={({ target }) => handleChange(target.value)}
             onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
           />
-          %
+          <span className="text-white">%</span>
         </div>
       </div>
       <div className={`${invalid || warn ? 'block' : 'hidden'}`}>
@@ -471,7 +472,7 @@ export function StableSlipSelecter({
           <div className="text-warn text-xs py-3">
             <IoWarning className="inline-block text-lg align-text-top mr-1" />
             <FormattedMessage
-              id="slip_wran"
+              id="slip_warn"
               defaultMessage="Be careful, please check the minimum you can receive."
             />
           </div>

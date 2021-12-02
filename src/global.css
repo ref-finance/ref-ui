@@ -282,6 +282,25 @@ input.warn-input:focus {
   min-width: 7rem !important;
   opacity: 1 !important;
 }
+
+input[type='range'] {
+  display: block;
+  -webkit-appearance: none;
+  background-color: rgba(0, 0, 0, 0.2);
+  height: 10px;
+  border-radius: 5px;
+  margin: 0 auto;
+  outline: none;
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  background-color: #00c6a2;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
 .farmEnded .border-gradientFromHover {
   border-color: #73818b;
 }

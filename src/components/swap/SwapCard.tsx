@@ -28,16 +28,16 @@ const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
 
-function SwapDetail({ title, value }: { title: string; value: string }) {
+export function SwapDetail({ title, value }: { title: string; value: string }) {
   return (
     <section className="grid grid-cols-2 py-1 text-xs">
-      <p className="text-primaryText">{title}</p>
+      <p className="text-primaryText text-left">{title}</p>
       <p className="text-right text-white">{value}</p>
     </section>
   );
 }
 
-function SwapRateDetail({
+export function SwapRateDetail({
   title,
   value,
   pool,
@@ -78,10 +78,10 @@ function SwapRateDetail({
   }
 
   return (
-    <section className="flex py-1 text-xs">
-      <p className="text-primaryText w-1/5 xs:w-2/5">{title}</p>
+    <section className="grid grid-cols-2 py-1 text-xs">
+      <p className="text-primaryText text-left">{title}</p>
       <p
-        className="flex justify-end text-white cursor-pointer w-4/5 xs:w-3/5"
+        className="flex justify-end text-white cursor-pointer text-right"
         onClick={switchSwapRate}
       >
         <span className="mr-2" style={{ marginTop: '0.1rem' }}>

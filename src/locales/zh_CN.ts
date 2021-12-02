@@ -195,8 +195,6 @@ const zh_CN = {
   detail_tip: '详情',
   no_data: '暂无数据',
   stable_swap: 'Stableswap',
-  add_lp: 'Add LP',
-  remove_lp: 'Remove LP',
   exchange_rate: 'Exchange rate',
   including_fees: '(including fees)',
   standard_gas: 'Standard Gas fee:',
@@ -232,5 +230,6 @@ const zh_CN = {
   getToken_tip: '你可以现在认领你的奖励或质押代币！',
   my_liquidity: '我的流动池',
   in_farm: '在农场中',
+  swap_rate_including_fee: '汇率 (已包含手续费)',
 };
 export default zh_CN;

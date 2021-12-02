@@ -63,6 +63,8 @@ export function RemoveLiquidityComponent(props: {
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [error, setError] = useState<Error>();
   const intl = useIntl();
+  const [sharePercentage, setSharePercentage] = useState<string>('0');
+  const progressBarIndex = [0, 25, 50, 75, 100];
 
   function submit() {
     const amountBN = new BigNumber(amount?.toString());
@@ -80,8 +82,7 @@ export function RemoveLiquidityComponent(props: {
       );
     }
     //return function of remove the liquidity
-    return ''
-
+    return '';
   }
 
   return (
@@ -99,29 +100,27 @@ export function RemoveLiquidityComponent(props: {
 
       <div className=" text-white flex justify-between text-sm">
         <span className=" text-primaryText">
-          <FormattedMessage id="rst_token" defaultMessage="Your RST token" />
+          <FormattedMessage id="my_shares" defaultMessage="Shares" />
         </span>
         <span>0.999</span>
       </div>
 
       <div className="flex bg-black bg-opacity-20 rounded p-1 text-white">
         <div
-          className={`flex justify-center items-center w-2/4 rounded ${isPercentage ? 'bg-framBorder' :''}  h-9`}
+          className={`flex justify-center items-center w-2/4 rounded ${
+            isPercentage ? 'bg-framBorder' : ''
+          }  h-9`}
           onClick={() => setIsPercentage(true)}
         >
-          <FormattedMessage
-            id="remove_percentage"
-            defaultMessage="Remove as percentage"
-          />
+          <FormattedMessage id="percentage" defaultMessage="Percentage" />
         </div>
         <div
-          className={`flex justify-center items-center w-2/4 rounded ${!isPercentage ? 'bg-framBorder' :''}  h-9`}
+          className={`flex justify-center items-center w-2/4 rounded ${
+            !isPercentage ? 'bg-framBorder' : ''
+          }  h-9`}
           onClick={() => setIsPercentage(false)}
         >
-          <FormattedMessage
-            id="remove_flexible"
-            defaultMessage="Remove Flexible"
-          />
+          <FormattedMessage id="flexible" defaultMessage="Flexible" />
         </div>
       </div>
       {/* Remove as percentage */}
@@ -130,41 +129,60 @@ export function RemoveLiquidityComponent(props: {
           <p className=" text-primaryText text-sm">
             <FormattedMessage
               id="remove_tip"
-              defaultMessage="Romove as percentage will pay 0 fee"
+              defaultMessage="No fee in removing liquidity as percentage"
             />
           </p>
 
           <div>
             <div className="flex">
-              <FormattedMessage
-                id="share_liquidity"
-                defaultMessage="Share of liquidity"
-              />
+              <div className="text-gray-400">
+                <FormattedMessage id="my_shares" defaultMessage="Shares" />
+              </div>
               <input
                 max={99.99999}
                 min={0.000001}
-                defaultValue={25}
+                value={sharePercentage}
                 step="any"
-                className="border border-gradientFrom normal-input text-gradientFrom bg-opacity-0"
+                className="text-white font-semibold bg-inputDarkBg rounded p-2"
                 type="number"
                 placeholder=""
               />
               %
             </div>
-            {/* <Slider marks={marks} included={false} defaultValue={37} /> */}
           </div>
 
           <div className=" text-white flex justify-between text-sm mt-10 mb-5">
             <span className=" text-primaryText">
               <FormattedMessage
                 id="remove_token_confirm"
-                defaultMessage="You will remove RST token"
+                defaultMessage="You will remove RUST token"
               />
             </span>
-            <span>不知道怎么取</span>
+            <span></span>
           </div>
-
-          {/* 横着的一排token， with symbol and balance */}
+          <div className="my-4">
+            <div className="flex items-center justify-between text-gray-400">
+              {progressBarIndex.map((index, i) => {
+                return (
+                  <div className="flex flex-col items-center">
+                    <span>{index}%</span>
+                    <span>∣</span>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="px-2">
+              <input
+                onChange={(e) => setSharePercentage(e.target.value)}
+                value={sharePercentage}
+                type="range"
+                className="w-full"
+                min="0"
+                max="100"
+                step="1"
+              />
+            </div>
+          </div>
           <StableTokensSymbol tokens={tokens} balances={balances} />
         </section>
       )}
