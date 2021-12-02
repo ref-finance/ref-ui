@@ -37,100 +37,29 @@ export const SwapRefresh = ({ className }: { className?: string }) => {
 };
 
 export const CountdownTimer = ({
-  size,
   loadingTrigger,
-  className,
 }: {
-  size: number;
   loadingTrigger: boolean;
-  className?: string;
 }) => {
-  const radius = size / 2;
-  const circumference = size * Math.PI;
-
-  const [strokeDashoffset, setStrokeDashoffset] =
-    useState<number>(circumference);
-
-  const useValueRef = (params: any) => {
-    const paramsRef = useRef(null);
-    paramsRef.current = params;
-    return paramsRef;
-  };
-
-  const latestCount = useValueRef(strokeDashoffset);
-  const useLoadingRef = useValueRef(loadingTrigger);
-
-  useEffect(() => {
-    if (latestCount.current === circumference && !useLoadingRef.current) {
-      const timer = setInterval(() => {
-        if (latestCount.current <= 0 || useLoadingRef.current) {
-          setStrokeDashoffset(circumference);
-          clearInterval(timer);
-          return;
-        }
-        setStrokeDashoffset(
-          (strokeDashoffset) => strokeDashoffset - (1 / 1000) * circumference
-        );
-      }, 10);
-    }
-  }, [latestCount.current, useLoadingRef.current]);
-
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'relative',
-        margin: 'auto',
-        height: size,
-        width: size,
-      }}
-      className={className}
-    >
-      <svg
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          transform: 'rotateY(-180deg) rotateZ(-90deg)',
-          overflow: 'visible',
-        }}
-      >
-        <circle
-          cx={radius}
-          cy={radius}
-          r={radius}
-          fill="none"
-          stroke="#001320"
-          strokeWidth="2"
-        ></circle>
-      </svg>
-      <svg
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          transform: 'rotateY(-180deg) rotateZ(-90deg)',
-          overflow: 'visible',
-        }}
-      >
-        <circle
-          strokeDasharray={circumference}
-          strokeDashoffset={strokeDashoffset}
-          r={radius}
-          cx={radius}
-          cy={radius}
-          fill="none"
-          strokeLinecap="round"
-          stroke="#00C6A2"
-          strokeWidth="2"
-        ></circle>
-      </svg>
+    <div className="circle_process bg-chartBg rounded-full relative flex justify-center items-center">
+      <div className="circle_center bg-cardBg rounded-full inline-block"></div>
+      <div className="wrapper absolute top-0 right-0 overflow-hidden">
+        <div
+          className={`circle  absolute top-0 rounded-full ${
+            !loadingTrigger ? 'rightcircle' : ''
+          }`}
+        ></div>
+      </div>
+
+      <div className="wrapper absolute top-0 left-0 overflow-hidden">
+        <div
+          className={`circleleft absolute top-0 rounded-full ${
+            !loadingTrigger ? 'leftcircle' : ''
+          }`}
+          id="leftcircle"
+        ></div>
+      </div>
     </div>
   );
 };
