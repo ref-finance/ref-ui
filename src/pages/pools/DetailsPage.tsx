@@ -121,7 +121,7 @@ function Icon(props: { icon?: string; className?: string; style?: any }) {
   );
 }
 
-function AddLiquidityModal(
+export function AddLiquidityModal(
   props: ReactModal.Props & {
     pool: Pool;
     tokens: TokenMetadata[];

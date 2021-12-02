@@ -122,7 +122,11 @@ export function Token(
         )}
         <div className="pl-5 font-semibold text-sm">
           <div>{toRealSymbol(symbol)}</div>
-          {showTokenId && <div className="text-xs text-gray-400">{id}</div>}
+          {showTokenId && (
+            <div className="text-xs text-gray-400" title={id}>
+              {`${id.substring(0, 25)}${id.length > 25 ? '...' : ''}`}
+            </div>
+          )}
         </div>
       </div>
       <div className="font-semibold text-sm">{amount}</div>
@@ -159,7 +163,7 @@ export function TokenList(props: {
         };
       });
     setTokensList(tokensList);
-  }, [tokens]);
+  }, [tokens, balances]);
 
   return (
     <div className="divide-y divide-gray-600">

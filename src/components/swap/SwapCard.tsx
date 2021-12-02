@@ -8,8 +8,12 @@ import {
   calculateExchangeRate,
   calculateFeeCharge,
   calculateFeePercent,
+  percent,
+  percentLess,
   toPrecision,
   toReadableNumber,
+  subtraction,
+  calculatePriceImpact,
 } from '../../utils/numbers';
 import TokenAmount from '../forms/TokenAmount';
 import Alert from '../alert/Alert';
@@ -28,7 +32,13 @@ const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
 
-function SwapDetail({ title, value }: { title: string; value: string }) {
+function SwapDetail({
+  title,
+  value,
+}: {
+  title: string;
+  value: string | JSX.Element;
+}) {
   return (
     <section className="grid grid-cols-2 py-1 text-xs">
       <p className="text-primaryText">{title}</p>
@@ -100,6 +110,7 @@ function DetailView({
   from,
   to,
   minAmountOut,
+  canSwap,
 }: {
   pool: Pool;
   tokenIn: TokenMetadata;
@@ -107,11 +118,34 @@ function DetailView({
   from: string;
   to: string;
   minAmountOut: string;
+  canSwap?: boolean;
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
 
-  if (!pool || !from || !to) return null;
+  const GetPriceImpact = (
+    pool: Pool,
+    tokenIn: TokenMetadata,
+    tokenOut: TokenMetadata,
+    from: string
+  ) => {
+    const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
+
+    const textColor =
+      Number(value) <= 1
+        ? 'text-greenLight'
+        : 1 < Number(value) && Number(value) <= 2
+        ? 'text-warn'
+        : 'text-error';
+
+    return Number(value) < 0.01 ? (
+      <span className="text-greenLight">{'< -0.01%'}</span>
+    ) : (
+      <span className={`${textColor}`}>{`≈ -${toPrecision(value, 2)}%`}</span>
+    );
+  };
+
+  if (!pool || !from || !to || !(Number(from) > 0)) return null;
 
   return (
     <div className="mt-8">
@@ -149,6 +183,14 @@ function DetailView({
           tokenOut={tokenOut}
         />
         <SwapDetail
+          title={intl.formatMessage({ id: 'price_impact' })}
+          value={
+            !to || to === '0' || !canSwap
+              ? '-'
+              : GetPriceImpact(pool, tokenIn, tokenOut, from)
+          }
+        />
+        <SwapDetail
           title={intl.formatMessage({ id: 'pool_fee' })}
           value={`${calculateFeePercent(pool.fee)}% (${calculateFeeCharge(
             pool.fee,
@@ -174,6 +216,9 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     useState<string>();
   const [tokenOutBalanceFromNear, setTokenOutBalanceFromNear] =
     useState<string>();
+
+  const [loadingData, setLoadingData] = useState<boolean>(false);
+  const [loadingTrigger, setLoadingTrigger] = useState<boolean>(false);
 
   const intl = useIntl();
   const location = useLocation();
@@ -239,6 +284,10 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       tokenInAmount,
       tokenOut: tokenOut,
       slippageTolerance,
+      setLoadingData,
+      loadingTrigger,
+      setLoadingTrigger,
+      loadingData,
     });
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -302,6 +351,12 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         onSubmit={handleSubmit}
         info={intl.formatMessage({ id: 'swapCopy' })}
         title={'swap'}
+        loading={{
+          loadingData,
+          setLoadingData,
+          loadingTrigger,
+          setLoadingTrigger,
+        }}
       >
         <TokenAmount
           amount={tokenInAmount}
@@ -363,6 +418,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           from={tokenInAmount}
           to={tokenOutAmount}
           minAmountOut={minAmountOut}
+          canSwap={canSwap}
         />
 
         <div className="pb-2">

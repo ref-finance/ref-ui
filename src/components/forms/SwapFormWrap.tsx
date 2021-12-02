@@ -3,6 +3,7 @@ import Alert from '../alert/Alert';
 import SubmitButton from './SubmitButton';
 import { FormattedMessage } from 'react-intl';
 import SlippageSelector from './SlippageSelector';
+import { SwapRefresh, CountdownTimer } from '~components/icon';
 import { wallet } from '~services/near';
 
 interface SwapFormWrapProps {
@@ -16,6 +17,12 @@ interface SwapFormWrapProps {
   elseView?: JSX.Element;
   onChange: (slippage: number) => void;
   bindUseBalance: (useNearBalance: boolean) => void;
+  loading?: {
+    loadingData: boolean;
+    setLoadingData: (loading: boolean) => void;
+    loadingTrigger: boolean;
+    setLoadingTrigger: (loaidngTrigger: boolean) => void;
+  };
 }
 
 export default function SwapFormWrap({
@@ -30,8 +37,11 @@ export default function SwapFormWrap({
   elseView,
   onChange,
   bindUseBalance,
+  loading,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
+  const { loadingData, setLoadingData, loadingTrigger, setLoadingTrigger } =
+    loading;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -55,11 +65,23 @@ export default function SwapFormWrap({
         <>
           <h2 className="formTitle flex justify-between font-bold text-xl text-white text-left pb-2">
             <FormattedMessage id={title} defaultMessage={title} />
-            <SlippageSelector
-              slippageTolerance={slippageTolerance}
-              onChange={onChange}
-              bindUseBalance={bindUseBalance}
-            />
+            <div className="flex items-center">
+              <div
+                onClick={() => {
+                  setLoadingData(true);
+                  setLoadingTrigger(true);
+                }}
+                className="mx-4 cursor-pointer"
+              >
+                <CountdownTimer loadingTrigger={loadingTrigger} />
+              </div>
+
+              <SlippageSelector
+                slippageTolerance={slippageTolerance}
+                onChange={onChange}
+                bindUseBalance={bindUseBalance}
+              />
+            </div>
           </h2>
         </>
       )}
