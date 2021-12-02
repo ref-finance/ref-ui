@@ -26,6 +26,30 @@ export const parseAction = async (methodName: string, params: any) => {
     case 'storage_deposit': {
       return await parseStorageDeposit();
     }
+    case 'mft_transfer_call': {
+      return await parseMtfTransferCall(params);
+    }
+    case 'withdraw_seed': {
+      return await parseWithdrawSeed(params);
+    }
+    case 'claim_reward_by_farm': {
+      return await parseClaimRewardByFarm(params);
+    }
+    case 'claim_reward_by_seed': {
+      return await parseClaimRewardBySeed(params);
+    }
+    case 'withdraw_reward': {
+      return await parseWithdrawReward(params);
+    }
+    case 'near_deposit': {
+      return await parseNearDeposit();
+    }
+    case 'ft_transfer_call': {
+      return await parseFtTransferCall(params);
+    }
+    case 'near_withdraw': {
+      return await parseNearWithdraw(params);
+    }
     default: {
       return await parseDefault();
     }
@@ -111,6 +135,66 @@ const parseAddSimplePool = async (params: any) => {
 const parseStorageDeposit = async () => {
   return {
     Action: 'Storage Deposit',
+  };
+};
+const parseMtfTransferCall = async (params: any) => {
+  const { amount, receiver_id, token_id } = params;
+  return {
+    Action: 'Mft transfer call',
+    Amount: amount,
+    'Receiver Id': receiver_id,
+    'Token Id': token_id,
+  };
+};
+const parseWithdrawSeed = async (params: any) => {
+  const { seed_id, amount } = params;
+  return {
+    Action: 'Withdraw seed',
+    Amount: amount,
+    'Seed Id': seed_id,
+  };
+};
+const parseClaimRewardByFarm = async (params: any) => {
+  const { farm_id } = params;
+  return {
+    Action: 'Claim reward by farm',
+    'Farm Id': farm_id,
+  };
+};
+const parseClaimRewardBySeed = async (params: any) => {
+  const { seed_id } = params;
+  return {
+    Action: 'Claim reward by seed',
+    'Seed Id': seed_id,
+  };
+};
+const parseWithdrawReward = async (params: any) => {
+  const { token_id, amount, unregister } = params;
+  return {
+    Action: 'Withdraw reward',
+    Amount: amount,
+    Unregister: unregister,
+    'Token Id': token_id,
+  };
+};
+const parseNearDeposit = async () => {
+  return {
+    Action: 'Near deposit',
+  };
+};
+const parseFtTransferCall = async (params: any) => {
+  const { receiver_id, amount } = params;
+  return {
+    Action: 'Ft transfer call',
+    Amount: amount,
+    'Receiver Id': receiver_id,
+  };
+};
+const parseNearWithdraw = async (params: any) => {
+  const { amount } = params;
+  return {
+    Action: 'Near withdraw',
+    Amount: amount,
   };
 };
 
