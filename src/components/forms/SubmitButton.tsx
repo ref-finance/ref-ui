@@ -9,9 +9,15 @@ interface SubmitButtonProps {
   onClick?: (event: React.MouseEvent) => void;
   info?: string | JSX.Element;
   label?: string;
+  className?: string;
 }
 
-function SubmitButton({ disabled, onClick, label }: SubmitButtonProps) {
+function SubmitButton({
+  disabled,
+  onClick,
+  label,
+  className,
+}: SubmitButtonProps) {
   return (
     <>
       {wallet.isSignedIn() ? (
@@ -21,7 +27,7 @@ function SubmitButton({ disabled, onClick, label }: SubmitButtonProps) {
           onClick={onClick}
           className={`flex flex-row w-full justify-center px-5 py-2 mt-6 text-white disabled:cursor-not-allowed mx-auto ${
             disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
-          }`}
+          } ${className}`}
           style={
             disabled
               ? {
@@ -48,7 +54,7 @@ function SubmitButton({ disabled, onClick, label }: SubmitButtonProps) {
         </button>
       ) : (
         <div className="mt-4">
-          <ConnectToNearBtn></ConnectToNearBtn>
+          <ConnectToNearBtn />
         </div>
       )}
     </>

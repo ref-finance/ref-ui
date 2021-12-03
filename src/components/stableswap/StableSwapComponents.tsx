@@ -29,30 +29,36 @@ export function TokensRadio({
   handleSwapTo: (id: string) => void;
 }) {
   return (
-    <div className="flex py-7 border-b border-primaryText border-opacity-30">
-      <div className=" text-white mr-24 flex-1">
+    <div className="flex border-b border-primaryText border-opacity-30 px-8">
+      <div className="text-white mr-24 flex-1">
         {tokens.map((token) => (
-          <div className="flex my-3 items-center" key={token.id}>
+          <div className="flex my-4 items-center" key={token.id}>
             <Radio
               value={token.id}
               handleSelect={handleSwapFrom}
               checked={token.symbol === tokenIn.symbol}
             />
 
-            <Icon icon={token.icon} className="inline-block h-9 w-9 mx-3" />
+            <Icon
+              icon={token.icon}
+              className="inline-block h-9 w-9 ml-4 mr-2"
+            />
             <label>{token.symbol}</label>
           </div>
         ))}
       </div>
-      <div className=" text-white flex-1">
+      <div className="text-white flex-1">
         {tokens.map((token) => (
-          <div className="flex my-2 items-center" key={`second-${token.id}`}>
+          <div className="flex my-4 items-center" key={`second-${token.id}`}>
             <Radio
               value={token.id}
               handleSelect={handleSwapTo}
               checked={token.symbol === tokenOut.symbol}
             />
-            <Icon icon={token.icon} className="inline-block h-9 w-9 mx-3" />
+            <Icon
+              icon={token.icon}
+              className="inline-block h-9 w-9 ml-4 mr-2"
+            />
             <label>{token.symbol}</label>
           </div>
         ))}

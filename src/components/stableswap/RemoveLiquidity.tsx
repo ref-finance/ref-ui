@@ -164,14 +164,14 @@ export function RemoveLiquidityComponent(props: {
             <div className="flex items-center justify-between text-gray-400">
               {progressBarIndex.map((index, i) => {
                 return (
-                  <div className="flex flex-col items-center">
+                  <div className="flex flex-col items-center" key={i}>
                     <span>{index}%</span>
                     <span>∣</span>
                   </div>
                 );
               })}
             </div>
-            <div className="py-2">
+            <div className="py-1 pr-2">
               <input
                 onChange={(e) => setSharePercentage(e.target.value)}
                 value={sharePercentage}

@@ -59,19 +59,19 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg"
+      className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl py-6 bg-dark xs:rounded-lg md:rounded-lg"
     >
-      <h2 className="formTitle flex justify-between font-bold text-xl text-white text-left pb-2">
+      <div className="formTitle flex justify-between text-xl text-white text-left px-8">
         <FormattedMessage id="stable_swap" defaultMessage="StableSwap" />
         <SlippageSelector
           slippageTolerance={slippageTolerance}
           onChange={onChangeSlip}
           bindUseBalance={bindUseBalance}
         />
-      </h2>
-      <div className=" flex mt-7">
-        <div className=" flex-1">
-          <p className=" text-primaryText text-xs pb-3">
+      </div>
+      <div className="flex mt-6 px-8">
+        <div className="flex-1">
+          <p className="text-primaryText text-xs pb-2">
             From:{' '}
             <span className="float-right">
               <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
@@ -102,8 +102,8 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
           setTokenOut={(token: TokenMetadata) => setTokenOut(token)}
         />
 
-        <div className=" flex-1">
-          <p className=" text-primaryText text-xs pb-3">
+        <div className="flex-1">
+          <p className="text-primaryText text-xs pb-2">
             To:{' '}
             <span className=" float-right">
               <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
@@ -132,7 +132,7 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
         handleSwapTo={handleSwapTo}
       />
 
-      <div className=" text-primaryText my-5 text-center">
+      <div className="text-primaryText my-4 text-center">
         <DetailView
           pool={pool}
           tokenIn={tokenIn}
@@ -142,11 +142,14 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
           minAmountOut={minAmountOut}
         />
       </div>
-      {wallet.isSignedIn() ? (
+      {/* {wallet.isSignedIn() ? (
         <SubmitButton disabled={!canSwap} label="Swap" />
       ) : (
         <ConnectToNearBtn />
-      )}
+      )} */}
+      <div className="mx-8">
+        <SubmitButton disabled={!canSwap} label="Swap" />
+      </div>
     </form>
   );
 }
