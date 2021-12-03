@@ -10,7 +10,11 @@ import { getMftTokenId } from '~utils/token';
 import { Card } from '~components/card/Card';
 import { LP_TOKEN_DECIMALS } from '~services/m-token';
 import { FarmInfo } from '~services/farm';
-import { toPrecision, toReadableNumber } from '~utils/numbers';
+import {
+  toPrecision,
+  toReadableNumber,
+  toInternationalCurrencySystem,
+} from '~utils/numbers';
 import { isMobile } from '~utils/device';
 import { useTokens } from '~state/token';
 
@@ -23,6 +27,8 @@ export default function CalcModel(
   const { farms, tokenPriceList } = props;
   const [usd, setUsd] = useState('');
   const [lpTokenNum, setLpTokenNum] = useState('');
+  const [usdDisplay, setUsdDisplay] = useState('');
+  const [lpTokenNumDisplay, setLpTokenNumDisplay] = useState('');
   const [userLpTokenNum, setUserLpTokenNum] = useState('');
   const [inputType, setInputType] = useState(true);
   const tokens = useTokens(farms[0].tokenIds) || [];
@@ -41,6 +47,8 @@ export default function CalcModel(
     if (!props.isOpen) {
       setLpTokenNum('');
       setUsd('');
+      setLpTokenNumDisplay('');
+      setUsdDisplay('');
     }
   }, [props.isOpen]);
   const cardWidth = isMobile() ? '90vw' : '40vw';
@@ -53,37 +61,59 @@ export default function CalcModel(
     const lpNum = e.currentTarget.value;
     const { shares_total_supply, tvl } = farms[0].pool;
     const totalShares = Number(toReadableNumber(24, shares_total_supply));
-    const shareUsd = (lpNum * tvl) / totalShares;
-    let result;
+    const shareUsd = ((lpNum * tvl) / totalShares).toString();
+    let actualUsd;
+    let displayUsd;
+    let displayLp;
     if (!lpNum) {
-      result = '';
+      actualUsd = displayUsd = displayLp = '';
     } else if (new BigNumber(0).isEqualTo(lpNum)) {
-      result = '0';
+      actualUsd = displayUsd = displayLp = '0';
+    } else if (new BigNumber('0.001').isGreaterThan(shareUsd)) {
+      displayUsd = '<0.001';
+      actualUsd = shareUsd;
     } else {
-      // result = new BigNumber(shareUsd).toFixed(3).toString();
-      result = shareUsd.toString();
+      displayUsd = toInternationalCurrencySystem(shareUsd, 3);
+      actualUsd = shareUsd;
+    }
+    if (new BigNumber(0.001).isGreaterThan(lpNum)) {
+      displayLp = '<0.001';
+    } else {
+      displayLp = toInternationalCurrencySystem(lpNum, 3);
     }
     setLpTokenNum(lpNum);
-    setUsd(result);
+    setUsd(actualUsd);
+    setLpTokenNumDisplay(displayLp);
+    setUsdDisplay(displayUsd);
   }
   function changeUsd(e: any) {
     const usdV = e.currentTarget.value;
     const { shares_total_supply, tvl } = farms[0].pool;
     const totalShares = Number(toReadableNumber(24, shares_total_supply));
-    const shareV = (usdV * totalShares) / tvl;
-    let result;
+    const shareV = ((usdV * totalShares) / tvl).toString();
+    let actualLp;
+    let displayLp;
+    let displayUsd;
     if (!usdV) {
-      result = '';
+      actualLp = displayLp = displayUsd = '';
     } else if (new BigNumber(0).isEqualTo(usdV)) {
-      result = '0';
-    } /*else if (new BigNumber('0.001').isGreaterThan(shareV)) {
-      result = '<0.001';
-    }*/ else {
-      // result = new BigNumber(shareV).toFixed(3).toString();
-      result = shareV.toString();
+      actualLp = displayLp = displayUsd = '0';
+    } else if (new BigNumber('0.001').isGreaterThan(shareV)) {
+      displayLp = '<0.001';
+      actualLp = shareV;
+    } else {
+      displayLp = toInternationalCurrencySystem(shareV, 3);
+      actualLp = shareV;
     }
-    setLpTokenNum(result);
+    if (new BigNumber('0.001').isGreaterThan(usdV)) {
+      displayUsd = '<0.001';
+    } else {
+      displayUsd = toInternationalCurrencySystem(usdV, 3);
+    }
+    setLpTokenNum(actualLp);
     setUsd(usdV);
+    setLpTokenNumDisplay(displayLp);
+    setUsdDisplay(displayUsd);
   }
   function showMaxLp() {
     changeLp({ currentTarget: { value: userLpTokenNum } });
@@ -125,17 +155,19 @@ export default function CalcModel(
               </div>
               {inputType ? (
                 <LpInput
-                  lpTokenNum={lpTokenNum}
+                  lpTokenNum={lpTokenNumDisplay}
                   changeLp={changeLp}
                   disabled={true}
                   type="text"
+                  title={lpTokenNum}
                 ></LpInput>
               ) : (
                 <UsdInput
-                  usd={usd}
+                  usd={usdDisplay}
                   changeUsd={changeUsd}
                   disabled={true}
                   type="text"
+                  title={usd}
                 ></UsdInput>
               )}
             </div>
@@ -296,7 +328,13 @@ export function CalcEle(props: {
     } else {
       resultPercent = percent.toFixed(3, 1).toString();
     }
-    return `${lpTokenNum} (${resultPercent} %)`;
+    let resultLpToken;
+    if (new BigNumber('0.001').isGreaterThan(lpTokenNum)) {
+      resultLpToken = '<0.001';
+    } else {
+      resultLpToken = toInternationalCurrencySystem(lpTokenNum, 3);
+    }
+    return `${resultLpToken} (${resultPercent} %)`;
   }
   return (
     <div>
@@ -338,7 +376,10 @@ export function CalcEle(props: {
             <label className="text-sm text-farmText mr-2">
               <FormattedMessage id="my_shares"></FormattedMessage>
             </label>
-            <label className="text-xl text-white text-right break-all">
+            <label
+              className="text-xl text-white text-right break-all"
+              title={lpTokenNum}
+            >
               {getMyShare()}
             </label>
           </p>
@@ -405,8 +446,9 @@ function UsdInput(props: {
   usd: string;
   disabled?: boolean;
   type?: string;
+  title?: string;
 }) {
-  const { changeUsd, usd, disabled, type } = props;
+  const { changeUsd, usd, disabled, type, title } = props;
   const usdRef = useRef(null);
   useEffect(() => {
     if (usdRef && !disabled) {
@@ -414,7 +456,7 @@ function UsdInput(props: {
     }
   }, [usdRef, disabled]);
   return (
-    <div className="flex flex-col flex-grow w-1/5">
+    <div className="flex flex-col flex-grow w-1/5" title={title}>
       <span className="flex items-center text-white text-xl">
         <label>$</label>
         <input
@@ -440,8 +482,9 @@ function LpInput(props: {
   lpTokenNum: string;
   disabled?: boolean;
   type?: string;
+  title?: string;
 }) {
-  const { changeLp, lpTokenNum, disabled, type } = props;
+  const { changeLp, lpTokenNum, disabled, type, title } = props;
   const inputRef = useRef(null);
   useEffect(() => {
     if (inputRef && !disabled) {
@@ -449,7 +492,7 @@ function LpInput(props: {
     }
   }, [inputRef, disabled]);
   return (
-    <div className="flex flex-col flex-grow w-1/5">
+    <div className="flex flex-col flex-grow w-1/5" title={title}>
       <span>
         <input
           type={type || 'number'}
