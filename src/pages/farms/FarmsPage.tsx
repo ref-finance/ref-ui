@@ -428,17 +428,18 @@ export function FarmsPage() {
   }
   function updateCheckList(status: boolean, data: any, index: number) {
     const checkedListEntries = Object.entries(checkedList);
-    let needDeletedKey;
-    if (status && checkedListEntries.length == withdrawNumber) {
-      checkedListEntries.sort((a, b) => {
-        if (a[1].index > b[1].index) return 1;
-        else return -1;
-      });
-      needDeletedKey = checkedListEntries[0][0];
-    }
-    if (needDeletedKey) {
-      delete checkedList[needDeletedKey];
-    }
+    // let needDeletedKey;
+    // if (status && checkedListEntries.length == withdrawNumber) {
+    //   checkedListEntries.sort((a, b) => {
+    //     if (a[1].index > b[1].index) return 1;
+    //     else return -1;
+    //   });
+    //   needDeletedKey = checkedListEntries[0][0];
+    // }
+    // if (needDeletedKey) {
+    //   delete checkedList[needDeletedKey];
+    // }
+    if (status && checkedListEntries.length == withdrawNumber) return;
     if (status) {
       checkedList[data[0]] = {
         value: data[1],
@@ -534,7 +535,7 @@ export function FarmsPage() {
             </div>
             {Object.entries(rewardList).length > 0 ? (
               <>
-                <div className="ml-4 mr-5 pt-1.5 pb-7 max-h-96 overflow-auto">
+                <div className="pl-4 pr-5 pt-1.5 pb-7 max-h-96 overflow-auto">
                   {Object.entries(rewardList).map((rewardToken: any, index) => (
                     <WithdrawView
                       key={index}
@@ -546,7 +547,7 @@ export function FarmsPage() {
                     />
                   ))}
                 </div>
-                <div className="flex flex-col">
+                <div className="flex flex-col pt-3">
                   <div className="flex items-center ml-4">
                     <label className="mr-3" onClick={selectAllToken}>
                       {selectAll ? (
@@ -1419,10 +1420,13 @@ function FarmView({
             }`}</div>
           </div>
           <div className="flex items-center justify-between text-sm py-2">
-            <div className="text-sm text-farmText">
+            <div className="flex items-center text-sm text-farmText">
               <FormattedMessage id="apr" defaultMessage="APR" />
+              <div className="ml-1.5 cursor-pointer" onClick={showCalcModel}>
+                <Calc></Calc>
+              </div>
             </div>
-            <div className="flex items-center">
+            <div>
               <div
                 className="text-xl text-white"
                 data-type="info"
@@ -1441,9 +1445,6 @@ function FarmView({
                   borderColor="#7e8a93"
                   effect="solid"
                 />
-              </div>
-              <div className="ml-2.5 cursor-pointer" onClick={showCalcModel}>
-                <Calc></Calc>
               </div>
             </div>
           </div>
