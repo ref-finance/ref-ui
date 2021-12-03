@@ -171,7 +171,7 @@ export function RemoveLiquidityComponent(props: {
                 );
               })}
             </div>
-            <div className="px-2">
+            <div className="py-2">
               <input
                 onChange={(e) => setSharePercentage(e.target.value)}
                 value={sharePercentage}
