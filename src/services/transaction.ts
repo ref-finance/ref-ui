@@ -138,10 +138,11 @@ const parseStorageDeposit = async () => {
   };
 };
 const parseMtfTransferCall = async (params: any) => {
+  // todo
   const { amount, receiver_id, token_id } = params;
   return {
-    Action: 'Mft transfer call',
-    Amount: amount,
+    Action: 'Stake',
+    Amount: toReadableNumber(24, amount),
     'Receiver Id': receiver_id,
     'Token Id': token_id,
   };

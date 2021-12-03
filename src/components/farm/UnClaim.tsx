@@ -37,7 +37,11 @@ export default function UnClaim(props: { unclaimed: any }) {
             <FormattedMessage id="value_rewards_token"></FormattedMessage>
           </label>
           <label className="text-sm text-farmText text-right">
-            {totalPrice}
+            {totalPrice == '-'
+              ? '$ -'
+              : totalPrice.indexOf('<') > -1
+              ? `${totalPrice}`
+              : `~ ${totalPrice}`}
           </label>
         </p>
         <div className="flex flex-col mt-4">
