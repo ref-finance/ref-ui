@@ -483,7 +483,12 @@ function NavigationBar() {
                   onClick={() => setShowWrapNear(true)}
                 >
                   <WrapNearEnter></WrapNearEnter>
-                  <span className=" ml-2 whitespace-nowrap">Wrap Near</span>
+                  <span className=" ml-2 whitespace-nowrap">
+                    <FormattedMessage
+                      id="wrapnear"
+                      defaultMessage="Wrap NEAR"
+                    />
+                  </span>
                 </div>
                 <WrapNear
                   isOpen={showWrapNear}
