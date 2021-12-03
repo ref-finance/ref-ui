@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { Pool } from '../services/pool';
+import { getPool, Pool } from '../services/pool';
 import { TokenMetadata } from '../services/ft-contract';
-import { percentLess } from '../utils/numbers';
+import { percentLess, toReadableNumber } from '../utils/numbers';
 import { checkTransaction, estimateSwap, swap } from '../services/swap';
 import { useHistory, useLocation } from 'react-router';
 import getConfig from '~services/config';
@@ -177,5 +177,57 @@ export const useSwap = ({
     pool,
     swapError,
     makeSwap,
+  };
+};
+
+export const useStableSwap = ({
+  tokenIn,
+  tokenInAmount,
+  tokenOut,
+  slippageTolerance,
+}: {
+  tokenIn: TokenMetadata;
+  tokenInAmount: string;
+  tokenOut: TokenMetadata;
+  slippageTolerance: number;
+}) => {
+  const [pool, setPool] = useState<Pool>();
+  const [tokenOutAmount, setTokenOutAmount] = useState<string>('0');
+  const [canSwap, setCanSwap] = useState<boolean>(false);
+
+  console.log(pool);
+
+  useEffect(() => {
+    getPool(10).then(setPool);
+  }, []);
+
+  useEffect(() => {
+    if (!pool) return;
+    const in_balance = toReadableNumber(
+      tokenIn.decimals,
+      pool.supplies[tokenIn.id]
+    );
+    const out_balance = toReadableNumber(
+      tokenOut.decimals,
+      pool.supplies[tokenOut.id]
+    );
+
+    const newTokenOutAmount = (
+      (Number(tokenInAmount) * Number(out_balance)) /
+      (Number(tokenInAmount) * Number(in_balance))
+    ).toString();
+
+    setTokenOutAmount(newTokenOutAmount);
+
+    if (Number(newTokenOutAmount)) setCanSwap(true);
+  }, [pool]);
+
+  const minAmountOut = percentLess(slippageTolerance, tokenOutAmount);
+
+  return {
+    pool,
+    tokenOutAmount,
+    minAmountOut,
+    canSwap,
   };
 };

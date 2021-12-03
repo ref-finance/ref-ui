@@ -7,7 +7,7 @@ import SubmitButton from '~components/forms/SubmitButton';
 import { TokenMetadata } from '~services/ft-contract';
 import { wallet } from '~services/near';
 import { TokenBalancesView } from '~services/token';
-import { useSwap } from '~state/swap';
+import { useStableSwap, useSwap } from '~state/swap';
 import { isMobile } from '~utils/device';
 import {
   calculateExchangeRate,
@@ -33,13 +33,12 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
     setSlippageTolerance(slippage);
   };
 
-  const { canSwap, tokenOutAmount, minAmountOut, pool, swapError, makeSwap } =
-    useSwap({
-      tokenIn: tokenIn,
-      tokenInAmount: tokenInAmount,
-      tokenOut: tokenOut,
-      slippageTolerance,
-    });
+  const { tokenOutAmount, pool, minAmountOut, canSwap } = useStableSwap({
+    tokenIn,
+    tokenInAmount: tokenInAmount,
+    tokenOut,
+    slippageTolerance,
+  });
 
   const handleSwapFrom = (tokenFrom: string) => {
     setTokenIn(tokens.filter((item) => item.id === tokenFrom)[0]);
@@ -132,7 +131,7 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
         handleSwapTo={handleSwapTo}
       />
 
-      <div className="text-primaryText my-4 text-center">
+      <div className="text-primaryText text-center mx-8">
         <DetailView
           pool={pool}
           tokenIn={tokenIn}
@@ -142,11 +141,6 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
           minAmountOut={minAmountOut}
         />
       </div>
-      {/* {wallet.isSignedIn() ? (
-        <SubmitButton disabled={!canSwap} label="Swap" />
-      ) : (
-        <ConnectToNearBtn />
-      )} */}
       <div className="mx-8">
         <SubmitButton disabled={!canSwap} label="Swap" />
       </div>

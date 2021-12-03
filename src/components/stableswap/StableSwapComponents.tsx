@@ -135,7 +135,7 @@ export function DetailView({
 
   if (!from || !to || !pool) return null;
   return (
-    <div className="mt-8">
+    <div className="mt-4">
       <div
         className="flex justify-center"
         onClick={() => {
