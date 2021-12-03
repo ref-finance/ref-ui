@@ -1792,7 +1792,7 @@ function ActionModal(
           src={icon}
           key={id}
           className={
-            'w-10 h-10 rounded-full border border-gradientFromHover ' +
+            'w-10 h-10 xs:w-9 md:w-9 xs:h-9 md:h-9 rounded-full border border-gradientFromHover ' +
             (index == 1 ? 'relative -left-1.5' : '')
           }
         />
@@ -1867,24 +1867,24 @@ function ActionModal(
             <TipsBox style={{ width: cardWidth }} />
           ) : null}
           <Card
-            style={{ width: cardWidth, maxHeight: '80vh' }}
-            className="outline-none border border-gradientFrom border-opacity-50 overflow-auto"
+            style={{ width: cardWidth, maxHeight: '95vh' }}
+            className="outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:p-4 md:p-4"
           >
-            <div className="flex justify-between items-start text-xl text-white font-semibold mb-7">
+            <div className="flex justify-between items-start text-xl text-white font-semibold mb-4">
               <label>{props.title}</label>
               <div className="cursor-pointer" onClick={props.onRequestClose}>
                 <ModalClose />
               </div>
             </div>
-            <div className="flex items-center justify-between mb-7">
+            <div className="flex items-center justify-between mb-4">
               <div className="flex items-center">
                 {displayTokenData.imgs}
                 <label className="ml-3 text-base text-white">
-                  {displayTokenData.symbols}{' '}
-                  <FormattedMessage id="lp_token"></FormattedMessage>:
+                  {/* {displayTokenData.symbols}{' '} */}
+                  <FormattedMessage id="my_shares"></FormattedMessage>
                 </label>
               </div>
-              <label className="text-2xl text-white font-semibold">
+              <label className="text-base text-white">
                 {toPrecision(max, 6)}
               </label>
             </div>
@@ -1899,7 +1899,7 @@ function ActionModal(
               </div>
             </div>
             {type == 'stake' ? (
-              <div className="mt-6">
+              <div className="mt-4">
                 <div className="flex flex-col items-center justify-center">
                   <div
                     className="flex items-center justify-center mb-2 cursor-pointer"
@@ -1930,7 +1930,7 @@ function ActionModal(
             ) : (
               <UnClaim unclaimed={unclaimed}></UnClaim>
             )}
-            <div className="flex items-center justify-center pt-5">
+            <div className="flex items-center justify-center pt-3">
               <GreenLButton
                 onClick={() => props.onSubmit(amount)}
                 disabled={
@@ -1943,7 +1943,7 @@ function ActionModal(
               </GreenLButton>
             </div>
             {type == 'stake' ? (
-              <div className="mt-5">
+              <div className="mt-3">
                 <LinkPool
                   pooId={farms && farms[0] && farms[0].pool.id}
                 ></LinkPool>

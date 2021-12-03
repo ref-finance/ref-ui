@@ -51,7 +51,7 @@ export default function CalcModel(
       setUsdDisplay('');
     }
   }, [props.isOpen]);
-  const cardWidth = isMobile() ? '90vw' : '40vw';
+  const cardWidth = isMobile() ? '90vw' : '30vw';
   async function getUserLpTokenInPool() {
     const b = await mftGetBalance(getMftTokenId(farms[0].lpTokenId));
     const num = toReadableNumber(LP_TOKEN_DECIMALS, b);
@@ -125,8 +125,8 @@ export default function CalcModel(
   return (
     <Modal {...props}>
       <Card
-        style={{ width: cardWidth, maxHeight: '80vh' }}
-        className="outline-none border border-gradientFrom border-opacity-50 overflow-auto"
+        style={{ width: cardWidth, maxHeight: '95vh' }}
+        className="outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:p-4 md:p-4"
       >
         <div className="lg:px-5 lg:py-1">
           <div className="flex justify-between items-center">
@@ -140,17 +140,20 @@ export default function CalcModel(
               <ModalClose />
             </div>
           </div>
-          <div className="mt-7">
-            <label className="text-sm text-white">
+          <div className="mt-7 xs:mt-4 md:mt-4">
+            <label className="text-sm text-farmText">
               {symbols} <FormattedMessage id="lp_staked"></FormattedMessage>
             </label>
-            <div className="flex items-center rounded px-5 py-2.5 bg-black bg-opacity-25 mt-2.5">
+            <div className="flex items-center rounded px-5 py-2.5 xs:px-3.5 md:px-3.5 bg-black bg-opacity-25 mt-2.5">
               {inputType ? (
                 <UsdInput usd={usd} changeUsd={changeUsd}></UsdInput>
               ) : (
                 <LpInput lpTokenNum={lpTokenNum} changeLp={changeLp}></LpInput>
               )}
-              <div className="cursor-pointer mx-10" onClick={switchInputSort}>
+              <div
+                className="cursor-pointer mx-10 xs:mx-6 md:mx-6"
+                onClick={switchInputSort}
+              >
                 <SwitchBtn></SwitchBtn>
               </div>
               {inputType ? (
@@ -185,18 +188,18 @@ export default function CalcModel(
                 MAX
               </label>
               <span className="text-primaryText text-xs ml-2">
-                <FormattedMessage id="lp_token" />: {userLpTokenNum}
+                <FormattedMessage id="my_shares" />: {userLpTokenNum}
               </span>
             </div>
           </div>
-          <div className="mt-7">
+          <div className="mt-7 xs:mt-4 md:mt-4">
             <CalcEle
               farms={farms}
               tokenPriceList={tokenPriceList}
               lpTokenNum={lpTokenNum}
             ></CalcEle>
           </div>
-          <div className="mt-5">
+          <div className="mt-5 xs:mt-3 md:mt-3">
             <LinkPool pooId={farms[0].pool.id}></LinkPool>
           </div>
         </div>
@@ -275,7 +278,10 @@ export function CalcEle(props: {
         if (new BigNumber('0.001').isGreaterThan(rewardTokenNum)) {
           resultRewardTokenNum = '<0.001';
         } else {
-          resultRewardTokenNum = new BigNumber(rewardTokenNum).toFixed(3, 1);
+          resultRewardTokenNum = toInternationalCurrencySystem(
+            rewardTokenNum.toString(),
+            3
+          );
         }
         tokenTemp.num = resultRewardTokenNum;
         tokenTemp.tokenPrice = tokenPrice;
@@ -292,11 +298,10 @@ export function CalcEle(props: {
       if (new BigNumber('0.001').isGreaterThan(rewardTemp.tokenTotalPrice)) {
         rewardTemp.tokenTotalPrice = '<$ 0.001';
       } else {
-        rewardTemp.tokenTotalPrice = `$ ${new BigNumber(
-          rewardTemp.tokenTotalPrice
-        )
-          .toFixed(3, 1)
-          .toString()}`;
+        rewardTemp.tokenTotalPrice = `~ $${toInternationalCurrencySystem(
+          rewardTemp.tokenTotalPrice,
+          3
+        )}`;
       }
     }
     setRewardData(rewardTemp);
@@ -334,15 +339,22 @@ export function CalcEle(props: {
     } else {
       resultLpToken = toInternationalCurrencySystem(lpTokenNum, 3);
     }
-    return `${resultLpToken} (${resultPercent} %)`;
+    return (
+      <span className="flex flex-wrap justify-end">
+        <label className="w-32 lg:w-36 overflow-hidden whitespace-nowrap overflow-ellipsis">
+          ${resultLpToken}
+        </label>
+        <label>({resultPercent} %)</label>
+      </span>
+    );
   }
   return (
     <div>
       <div>
-        <label className="text-sm text-white">
+        <label className="text-sm text-farmText">
           <FormattedMessage id="stake_for"></FormattedMessage>
         </label>
-        <div className="flex items-center bg-datebg bg-opacity-40 rounded-md h-7 mt-2.5">
+        <div className="flex items-center bg-datebg bg-opacity-40 rounded-md h-7 xs:h-6 md:h-6 mt-2.5">
           {Object.entries(dateList).map(([id, { v }]) => {
             return (
               <label
@@ -352,7 +364,7 @@ export function CalcEle(props: {
                   'flex items-center justify-center flex-grow text-sm rounded-md cursor-pointer h-full ' +
                   (selecteDate == id
                     ? 'bg-gradientFromHover text-chartBg'
-                    : 'text-white')
+                    : 'text-farmText')
                 }
                 key={id}
               >
@@ -362,22 +374,22 @@ export function CalcEle(props: {
           })}
         </div>
       </div>
-      <div className="mt-7">
+      <div className="mt-7 xs:mt-4 md:mt-4">
         <div className="flex justify-between">
-          <label className="text-sm text-white">
+          <label className="text-sm text-farmText">
             <FormattedMessage id="cur_apr"></FormattedMessage>
           </label>
-          <label className="text-sm text-white">{`${
+          <label className="text-sm text-farmText">{`${
             totalApr === '0' ? '-' : `${totalApr}%`
           }`}</label>
         </div>
-        <div className="flex flex-col rounded p-5 bg-black bg-opacity-25 mt-2.5">
+        <div className="flex flex-col rounded p-5 xs:px-3.5 md:px-3.5 bg-black bg-opacity-25 mt-2.5">
           <p className="flex justify-between">
             <label className="text-sm text-farmText mr-2">
               <FormattedMessage id="my_shares"></FormattedMessage>
             </label>
             <label
-              className="text-xl text-white text-right break-all"
+              className="text-sm text-farmText text-right break-all"
               title={lpTokenNum}
             >
               {getMyShare()}
@@ -387,7 +399,7 @@ export function CalcEle(props: {
             <label className="text-sm text-farmText mr-2">
               <FormattedMessage id="value_rewards_token"></FormattedMessage>
             </label>
-            <label className="text-xl text-white text-right break-all">
+            <label className="text-sm text-farmText text-right break-all">
               {rewardData.tokenTotalPrice || '$ -'}
             </label>
           </p>
@@ -395,18 +407,15 @@ export function CalcEle(props: {
             <label className="text-sm text-farmText">
               <FormattedMessage id="reward_token"></FormattedMessage>
             </label>
-            <div className="flex flex-wrap mt-4">
+            <div className="grid grid-cols-3 gap-2 mt-3">
               {(rewardData.tokenList || []).map((item: any) => {
                 return (
-                  <div
-                    className="flex items-center mr-9 mb-2"
-                    key={item.symbol}
-                  >
+                  <div className="flex items-center" key={item.symbol}>
                     <img
-                      className="w-6 h-6 rounded-full border border-gradientFromHover"
+                      className="w-6 h-6 xs:w-5 xs:h-5 md:w-5 md:h-5 rounded-full border border-gradientFromHover"
                       src={item.icon}
                     ></img>
-                    <label className="ml-2 text-sm text-white">
+                    <label className="ml-2 text-sm text-farmText">
                       {item.num || '-'}
                     </label>
                   </div>
@@ -424,10 +433,6 @@ export function LinkPool(props: { pooId: number }) {
   const intl = useIntl();
   return (
     <div className="flex justify-center items-center">
-      <HandIcon></HandIcon>
-      <label className="mx-2 text-sm text-framBorder">
-        <FormattedMessage id="get_lp_token"></FormattedMessage>
-      </label>
       <Link
         title={intl.formatMessage({ id: 'view_pool' })}
         to={{
@@ -435,7 +440,12 @@ export function LinkPool(props: { pooId: number }) {
           state: { backToFarms: true },
         }}
         target="_blank"
+        className="flex items-center"
       >
+        <HandIcon></HandIcon>
+        <label className="mx-2 text-sm text-framBorder cursor-pointer">
+          <FormattedMessage id="get_lp_token"></FormattedMessage>
+        </label>
         <LinkIcon></LinkIcon>
       </Link>
     </div>
@@ -457,12 +467,12 @@ function UsdInput(props: {
   }, [usdRef, disabled]);
   return (
     <div className="flex flex-col flex-grow w-1/5" title={title}>
-      <span className="flex items-center text-white text-xl">
+      <span className="flex items-center text-white text-lg">
         <label>$</label>
         <input
           onChange={changeUsd}
           className={
-            'text-xl ml-2 ' + (disabled ? 'text-farmText' : 'text-white')
+            'text-lg ml-2 ' + (disabled ? 'text-farmText' : 'text-white')
           }
           type={type || 'number'}
           value={usd}
@@ -496,7 +506,7 @@ function LpInput(props: {
       <span>
         <input
           type={type || 'number'}
-          className={'text-xl ' + (disabled ? 'text-farmText' : 'text-white')}
+          className={'text-lg ' + (disabled ? 'text-farmText' : 'text-white')}
           value={lpTokenNum}
           onChange={changeLp}
           disabled={disabled}
@@ -505,7 +515,7 @@ function LpInput(props: {
         ></input>
       </span>
       <label className="text-sm text-farmText">
-        <FormattedMessage id="lp_token" />
+        <FormattedMessage id="my_shares" />
       </label>
     </div>
   );
