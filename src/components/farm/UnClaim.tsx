@@ -60,7 +60,7 @@ export default function UnClaim(props: { unclaimed: any }) {
                       className="w-6 h-6 xs:w-5 xs:h-5 md:w-5 md:h-5 rounded-full border border-gradientFromHover"
                     ></img>{' '}
                     <label className="text-sm text-farmText ml-2.5">
-                      {userUnclaimedReward}
+                      {userUnclaimedReward == '-' ? '' : userUnclaimedReward}
                     </label>
                   </span>
                 );

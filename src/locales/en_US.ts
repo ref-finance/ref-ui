@@ -212,7 +212,7 @@ const en_US = {
   sort_by: 'Sort by',
   your_farms_rewards: 'Your Farms Rewards',
   your_farms: 'Your farms',
-  new: 'NEW',
+  new: 'New',
   unstake_tip_t: 'You currently have an active/pending farm.',
   unstake_tip_m:
     'Unstaking will remove the stake from all active and pending farms of the same pair.',

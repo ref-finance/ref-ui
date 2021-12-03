@@ -3,6 +3,7 @@ import { ModalClose, SwitchBtn, HandIcon, LinkIcon } from '~components/icon';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useState, useEffect, useRef } from 'react';
 import { BigNumber } from 'bignumber.js';
+import { wallet } from '~services/near';
 import { mftGetBalance } from '~services/mft-contract';
 import Modal from 'react-modal';
 import { Link } from 'react-router-dom';
@@ -53,9 +54,13 @@ export default function CalcModel(
   }, [props.isOpen]);
   const cardWidth = isMobile() ? '90vw' : '30vw';
   async function getUserLpTokenInPool() {
-    const b = await mftGetBalance(getMftTokenId(farms[0].lpTokenId));
-    const num = toReadableNumber(LP_TOKEN_DECIMALS, b);
-    setUserLpTokenNum(toPrecision(num, 6));
+    if (wallet.isSignedIn()) {
+      const b = await mftGetBalance(getMftTokenId(farms[0].lpTokenId));
+      const num = toReadableNumber(LP_TOKEN_DECIMALS, b);
+      setUserLpTokenNum(toPrecision(num, 6));
+    } else {
+      setUserLpTokenNum('0');
+    }
   }
   function changeLp(e: any) {
     const lpNum = e.currentTarget.value;
@@ -342,7 +347,7 @@ export function CalcEle(props: {
     return (
       <span className="flex flex-wrap justify-end">
         <label className="w-32 lg:w-36 overflow-hidden whitespace-nowrap overflow-ellipsis">
-          ${resultLpToken}
+          {resultLpToken}
         </label>
         <label>({resultPercent} %)</label>
       </span>
@@ -416,7 +421,7 @@ export function CalcEle(props: {
                       src={item.icon}
                     ></img>
                     <label className="ml-2 text-sm text-farmText">
-                      {item.num || '-'}
+                      {item.num}
                     </label>
                   </div>
                 );
@@ -467,7 +472,12 @@ function UsdInput(props: {
   }, [usdRef, disabled]);
   return (
     <div className="flex flex-col flex-grow w-1/5" title={title}>
-      <span className="flex items-center text-white text-lg">
+      <span
+        className={
+          'flex items-center text-lg ' +
+          (disabled ? 'text-farmText' : 'text-white')
+        }
+      >
         <label>$</label>
         <input
           onChange={changeUsd}

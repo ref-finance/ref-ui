@@ -113,6 +113,7 @@ export function FarmsPage() {
   const [selectAll, setSelectAll] = useState(false);
   const sortRef = useRef(null);
   const sortBoxRef = useRef(null);
+  const rewardRef = useRef(null);
 
   const page = 1;
   const perPage = DEFAULT_PAGE_LIMIT;
@@ -476,6 +477,7 @@ export function FarmsPage() {
     } else {
       setCheckedList({});
     }
+    rewardRef.current.scrollTop = 0;
     setSelectAll(surrentStatus);
   }
   function valueOfWithDrawLimitTip() {
@@ -535,7 +537,10 @@ export function FarmsPage() {
             </div>
             {Object.entries(rewardList).length > 0 ? (
               <>
-                <div className="pl-4 pr-5 pt-1.5 pb-7 max-h-96 overflow-auto">
+                <div
+                  className="pl-4 pr-5 pt-1.5 pb-7 max-h-96 overflow-auto"
+                  ref={rewardRef}
+                >
                   {Object.entries(rewardList).map((rewardToken: any, index) => (
                     <WithdrawView
                       key={index}
@@ -1770,7 +1775,7 @@ function ActionModal(
   );
   const maxToFormat = new BigNumber(max);
   useEffect(() => {
-    if (farm) {
+    if (type == 'unstake') {
       // unstake situation
       const { seed_id } = farm;
       const farms = lps[seed_id];
@@ -1782,6 +1787,10 @@ function ActionModal(
       ) {
         setShowTip(true);
       }
+    }
+    if (!props.isOpen) {
+      setShowCalc(false);
+      setAmount('');
     }
   }, [props.isOpen]);
   useEffect(() => {
@@ -1805,12 +1814,6 @@ function ActionModal(
       symbols: symbols.join('-'),
     });
   }, [tokens]);
-  useEffect(() => {
-    if (!props.isOpen) {
-      setAmount('');
-      setShowCalc(false);
-    }
-  }, [props.isOpen]);
   function isEnded(farmsData: FarmInfo[]) {
     let ended: boolean = true;
     for (let i = 0; i < farmsData.length; i++) {
