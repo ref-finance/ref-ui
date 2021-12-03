@@ -190,7 +190,7 @@ function Quiz() {
           rounded="rounded-md"
           className="border border-primaryText shadow-4xl"
         >
-          <div
+          {/* <div
             className="whitespace-nowrap text-left hover:bg-navHighLightBg text-sm font-semibold flex justify-start text-primaryText hover:text-white cursor-pointer py-4 pl-10 "
             onClick={() =>
               window.open('https://mzko2gfnij6.typeform.com/to/N6jSxnym')
@@ -201,7 +201,7 @@ function Quiz() {
               Hot
             </span>
             <HiOutlineExternalLink className="float-right ml-2 text-xl" />
-          </div>
+          </div> */}
           <div
             className="whitespace-nowrap text-left hover:bg-navHighLightBg text-sm font-semibold flex justify-start text-primaryText hover:text-white cursor-pointer py-4 pl-10"
             onClick={() =>

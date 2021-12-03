@@ -31,6 +31,7 @@ export default function CalcModel(
   const [usdDisplay, setUsdDisplay] = useState('');
   const [lpTokenNumDisplay, setLpTokenNumDisplay] = useState('');
   const [userLpTokenNum, setUserLpTokenNum] = useState('');
+  const [userLpTokenNumActual, setUserLpTokenNumActual] = useState('');
   const [inputType, setInputType] = useState(true);
   const tokens = useTokens(farms[0].tokenIds) || [];
   const [symbols, setSymbols] = useState('');
@@ -58,15 +59,17 @@ export default function CalcModel(
       const b = await mftGetBalance(getMftTokenId(farms[0].lpTokenId));
       const num = toReadableNumber(LP_TOKEN_DECIMALS, b);
       setUserLpTokenNum(toPrecision(num, 6));
+      setUserLpTokenNumActual(num);
     } else {
       setUserLpTokenNum('0');
+      setUserLpTokenNumActual('0');
     }
   }
   function changeLp(e: any) {
     const lpNum = e.currentTarget.value;
     const { shares_total_supply, tvl } = farms[0].pool;
     const totalShares = Number(toReadableNumber(24, shares_total_supply));
-    const shareUsd = ((lpNum * tvl) / totalShares).toString();
+    const shareUsd = new BigNumber((lpNum * tvl) / totalShares).toFixed();
     let actualUsd;
     let displayUsd;
     let displayLp;
@@ -78,13 +81,13 @@ export default function CalcModel(
       displayUsd = '<0.001';
       actualUsd = shareUsd;
     } else {
-      displayUsd = toInternationalCurrencySystem(shareUsd, 3);
+      displayUsd = handleNumber(shareUsd);
       actualUsd = shareUsd;
     }
     if (new BigNumber(0.001).isGreaterThan(lpNum)) {
       displayLp = '<0.001';
     } else {
-      displayLp = toInternationalCurrencySystem(lpNum, 3);
+      displayLp = handleNumber(lpNum);
     }
     setLpTokenNum(lpNum);
     setUsd(actualUsd);
@@ -95,7 +98,7 @@ export default function CalcModel(
     const usdV = e.currentTarget.value;
     const { shares_total_supply, tvl } = farms[0].pool;
     const totalShares = Number(toReadableNumber(24, shares_total_supply));
-    const shareV = ((usdV * totalShares) / tvl).toString();
+    const shareV = new BigNumber((usdV * totalShares) / tvl).toFixed();
     let actualLp;
     let displayLp;
     let displayUsd;
@@ -107,13 +110,13 @@ export default function CalcModel(
       displayLp = '<0.001';
       actualLp = shareV;
     } else {
-      displayLp = toInternationalCurrencySystem(shareV, 3);
+      displayLp = handleNumber(shareV);
       actualLp = shareV;
     }
     if (new BigNumber('0.001').isGreaterThan(usdV)) {
       displayUsd = '<0.001';
     } else {
-      displayUsd = toInternationalCurrencySystem(usdV, 3);
+      displayUsd = handleNumber(usdV);
     }
     setLpTokenNum(actualLp);
     setUsd(usdV);
@@ -121,7 +124,7 @@ export default function CalcModel(
     setUsdDisplay(displayUsd);
   }
   function showMaxLp() {
-    changeLp({ currentTarget: { value: userLpTokenNum } });
+    changeLp({ currentTarget: { value: userLpTokenNumActual } });
     setInputType(false);
   }
   function switchInputSort() {
@@ -342,14 +345,14 @@ export function CalcEle(props: {
     if (new BigNumber('0.001').isGreaterThan(lpTokenNum)) {
       resultLpToken = '<0.001';
     } else {
-      resultLpToken = toInternationalCurrencySystem(lpTokenNum, 3);
+      resultLpToken = handleNumber(lpTokenNum);
     }
     return (
       <span className="flex flex-wrap justify-end">
         <label className="w-32 lg:w-36 overflow-hidden whitespace-nowrap overflow-ellipsis">
           {resultLpToken}
         </label>
-        <label>({resultPercent} %)</label>
+        <label>({resultPercent}%)</label>
       </span>
     );
   }
@@ -421,7 +424,7 @@ export function CalcEle(props: {
                       src={item.icon}
                     ></img>
                     <label className="ml-2 text-sm text-farmText">
-                      {item.num}
+                      {item.num || '-'}
                     </label>
                   </div>
                 );
@@ -455,6 +458,17 @@ export function LinkPool(props: { pooId: number }) {
       </Link>
     </div>
   );
+}
+function handleNumber(number: string) {
+  const temp = toInternationalCurrencySystem(number, 3);
+  const length = temp.length;
+  const left = temp.substring(0, length - 1);
+  const right = temp.substring(length - 1);
+  let result = temp;
+  if (['K', 'M', 'B'].indexOf(right) > -1) {
+    result = new BigNumber(left).toFixed() + right;
+  }
+  return result;
 }
 function UsdInput(props: {
   changeUsd: any;

@@ -230,7 +230,7 @@ const zh_CN = {
   cur_apr: '当前年利率下的ROI',
   reward_token: '奖励代币',
   get_lp_token: '获取流动性代币',
-  calculate_roi: '计算ROI',
+  calculate_roi: 'ROI 计算器',
   rewards_claimed: '可领取的奖励',
   value_rewards_token: '奖励代币的价值',
   all: '全选',
