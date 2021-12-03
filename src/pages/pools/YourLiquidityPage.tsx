@@ -309,12 +309,6 @@ function PoolRow(props: { pool: any; balance: string }) {
     );
   };
 
-  tokens.sort((a, b) => {
-    if (a.symbol === 'wNEAR') return 1;
-    if (b.symbol === 'wNEAR') return -1;
-    return a.symbol > b.symbol ? 1 : -1;
-  });
-
   return (
     <>
       {/* PC */}
