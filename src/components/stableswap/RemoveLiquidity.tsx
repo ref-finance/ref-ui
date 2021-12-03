@@ -87,27 +87,27 @@ export function RemoveLiquidityComponent(props: {
 
   return (
     <Card
-      padding="p-8"
+      padding="py-6 px-8"
       bgcolor="bg-cardBg"
       className="text-white outline-none w-full "
     >
-      <div className="text-base pb-4">
+      <div className="text-xl pb-4">
         <FormattedMessage
           id="remove_liquidity"
           defaultMessage="Remove Liquidity"
         />
       </div>
 
-      <div className=" text-white flex justify-between text-sm">
-        <span className=" text-primaryText">
+      <div className=" text-white flex justify-between text-xs pb-6">
+        <span className="text-primaryText">
           <FormattedMessage id="my_shares" defaultMessage="Shares" />
         </span>
         <span>0.999</span>
       </div>
 
-      <div className="flex bg-black bg-opacity-20 rounded p-1 text-white">
+      <div className="flex bg-inputDarkBg rounded p-1 text-white">
         <div
-          className={`flex justify-center items-center w-2/4 rounded ${
+          className={`flex justify-center items-center w-2/4 rounded cursor-pointer ${
             isPercentage ? 'bg-framBorder' : ''
           }  h-9`}
           onClick={() => setIsPercentage(true)}
@@ -115,7 +115,7 @@ export function RemoveLiquidityComponent(props: {
           <FormattedMessage id="percentage" defaultMessage="Percentage" />
         </div>
         <div
-          className={`flex justify-center items-center w-2/4 rounded ${
+          className={`flex justify-center items-center w-2/4 rounded cursor-pointer ${
             !isPercentage ? 'bg-framBorder' : ''
           }  h-9`}
           onClick={() => setIsPercentage(false)}
@@ -126,7 +126,7 @@ export function RemoveLiquidityComponent(props: {
       {/* Remove as percentage */}
       {isPercentage && (
         <section>
-          <p className=" text-primaryText text-sm">
+          <p className=" text-primaryText text-xs py-6">
             <FormattedMessage
               id="remove_tip"
               defaultMessage="No fee in removing liquidity as percentage"
@@ -135,43 +135,37 @@ export function RemoveLiquidityComponent(props: {
 
           <div>
             <div className="flex">
-              <div className="text-gray-400">
-                <FormattedMessage id="my_shares" defaultMessage="Shares" />
+              <div className="flex items-center justify-between mr-4">
+                <p className="text-gray-400 text-xs">
+                  <FormattedMessage id="my_shares" defaultMessage="Shares" />
+                </p>
               </div>
-              <input
+              {/* <input
                 max={99.99999}
                 min={0.000001}
                 value={sharePercentage}
                 step="any"
-                className="text-white font-semibold bg-inputDarkBg rounded p-2"
+                className="text-white text-xl font-semibold bg-inputDarkBg rounded p-2"
                 type="number"
                 placeholder=""
-              />
-              %
+              /> */}
+              <div className="w-full h-12 text-white text-xl font-semibold bg-inputDarkBg rounded px-2 flex items-center justify-end">
+                <div className="float-right">{sharePercentage}%</div>
+              </div>
             </div>
-          </div>
-
-          <div className=" text-white flex justify-between text-sm mt-10 mb-5">
-            <span className=" text-primaryText">
-              <FormattedMessage
-                id="remove_token_confirm"
-                defaultMessage="You will remove RUST token"
-              />
-            </span>
-            <span></span>
           </div>
           <div className="my-4">
             <div className="flex items-center justify-between text-gray-400">
               {progressBarIndex.map((index, i) => {
                 return (
-                  <div className="flex flex-col items-center" key={i}>
+                  <div className="flex flex-col items-center text-xs" key={i}>
                     <span>{index}%</span>
                     <span>∣</span>
                   </div>
                 );
               })}
             </div>
-            <div className="py-1 pr-2">
+            <div className="py-1 pr-1">
               <input
                 onChange={(e) => setSharePercentage(e.target.value)}
                 value={sharePercentage}
@@ -182,6 +176,15 @@ export function RemoveLiquidityComponent(props: {
                 step="1"
               />
             </div>
+          </div>
+          <div className=" text-white flex justify-between text-xs mt-10 mb-5">
+            <span className=" text-primaryText">
+              <FormattedMessage
+                id="remove_token_confirm"
+                defaultMessage="You will remove RUST token"
+              />
+            </span>
+            <span>-</span>
           </div>
           <StableTokensSymbol tokens={tokens} balances={balances} />
         </section>

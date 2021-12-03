@@ -388,7 +388,7 @@ export function StableSlipSelecter({
     <div className="relative z-10">
       <div className="flex justify-between">
         <div className="flex items-center text-gray-400">
-          <label className="text-sm py-5 text-center ">
+          <label className="text-xs py-5 text-center ">
             <FormattedMessage
               id="slippage"
               defaultMessage="Slippage tolerance"
@@ -415,14 +415,14 @@ export function StableSlipSelecter({
           </div>
         </div>
         <div className="flex text-white items-center">
-          <div className="w-48 flex justify-between bg-slipBg bg-opacity-40 rounded">
+          <div className="w-40 flex justify-between bg-slipBg bg-opacity-40 rounded">
             {validSlippages.map((slippage) => (
               <button
                 key={slippage}
-                className={` w-14 h-7 text-center focus:outline-none text-sm hover:bg-gradientFrom rounded ${
+                className={` w-12 h-6 text-center focus:outline-none text-xs hover:bg-gradientFrom rounded ${
                   slippage === slippageTolerance
                     ? 'text-chartBg bg-gradientFrom'
-                    : ''
+                    : 'text-gray-400'
                 }`}
                 type="button"
                 onClick={() => handleBtnChange(slippage)}

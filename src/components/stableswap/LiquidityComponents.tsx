@@ -13,8 +13,8 @@ export function ChooseAddType({
   setAddType: (e: any) => void;
 }) {
   return (
-    <div className="py-3">
-      <div className="flex items-center">
+    <div className="pt-2">
+      <div className="flex items-center my-2">
         <Radio
           checked={addType === 'addAll'}
           value="addAll"
@@ -28,7 +28,7 @@ export function ChooseAddType({
           />
         </label>
       </div>
-      <div className="flex items-center">
+      <div className="flex items-center my-2">
         <Radio
           checked={addType === 'addMax'}
           value="addMax"
