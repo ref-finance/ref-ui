@@ -87,10 +87,10 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
             name={tokenIn?.id}
             value={tokenInAmount}
             onChangeAmount={(amount) => {
-              console.log(amount);
               setTokenInAmount(amount);
             }}
             disabled={disabled}
+            max={toReadableNumber(tokenIn.decimals, balances[tokenIn.id])}
           />
         </div>
 

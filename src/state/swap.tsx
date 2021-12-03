@@ -195,8 +195,6 @@ export const useStableSwap = ({
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('0');
   const [canSwap, setCanSwap] = useState<boolean>(false);
 
-  console.log(pool);
-
   useEffect(() => {
     getPool(10).then(setPool);
   }, []);
