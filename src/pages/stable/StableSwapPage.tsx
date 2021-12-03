@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import SwapCard from '~components/swap/SwapCard';
 import Loading from '~components/layout/Loading';
 import {
   useTokenBalances,
@@ -13,7 +12,7 @@ import { usePool } from '~state/pool';
 import { isMobile } from '~utils/device';
 import { RemoveLiquidityComponent } from '~components/stableswap/RemoveLiquidity';
 
-const cardWidth = isMobile() ? '95vw' : '580px';
+// const cardWidth = isMobile() ? '95vw' : '580px';
 const DEFAULT_MODULES = ['stable_swap', 'add_liquidity', 'remove_liquidity'];
 const STABLE_TOKENS = ['USDT', 'USDC', 'DAI'];
 function StableSwapPage() {
@@ -53,7 +52,7 @@ function StableSwapPage() {
   if (!allTokens) return <Loading />;
 
   return (
-    <div className="m-auto" style={{ width: cardWidth }}>
+    <div className="m-auto lg:w-2/5 md:4/5 xs:w-full">
       <SquareRadio onChange={changeModule} radios={DEFAULT_MODULES} />
       {renderModule(moduleName)}
     </div>

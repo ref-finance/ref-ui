@@ -1,6 +1,7 @@
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import InputAmount from '~components/forms/InputAmount';
+import { Radio } from '~components/icon';
 import { TokenMetadata } from '~services/ft-contract';
 import { TokenBalancesView } from '~services/token';
 import { toPrecision, toReadableNumber } from '~utils/numbers';
@@ -127,19 +128,76 @@ export default function StableTokenList(props: {
   );
 }
 
+export function FlexibleStableTokenList(props: {
+  tokens: TokenMetadata[];
+  balances: TokenBalancesView;
+  firstTokenAmount: string;
+  secondTokenAmount: string;
+  thirdTokenAmount: string;
+  changeFirstTokenAmount?: (e: string) => void;
+  changeSecondTokenAmount?: (e: string) => void;
+  changeThirdTokenAmount?: (e: string) => void;
+}) {
+  const {
+    tokens,
+    balances,
+    firstTokenAmount,
+    secondTokenAmount,
+    thirdTokenAmount,
+    changeFirstTokenAmount,
+    changeSecondTokenAmount,
+    changeThirdTokenAmount,
+  } = props;
+  if (tokens.length < 1) return null;
+  return (
+    <div className="mt-4">
+      {tokens.map((token, i) => {
+        return (
+          <div className="flex flex-col" key={i}>
+            <div className="w-full flex items-center">
+              <div className="flex items-center mr-4 w-1/4">
+                <Icon icon={token.icon} className="h-9 w-9 mr-2" />
+                <div className="text-white text-sm" title={token.id}>
+                  {toRealSymbol(token.symbol)}
+                </div>
+              </div>
+              <InputAmount
+                className="w-full border border-transparent rounded"
+                max={toReadableNumber(token.decimals, balances[token.id])}
+                onChangeAmount={(e) => {
+                  changeFirstTokenAmount(e);
+                }}
+                value={firstTokenAmount}
+              />
+            </div>
+            <div className="text-xs text-right mt-1 mb-4 text-gray-400">
+              {toPrecision(
+                toReadableNumber(token.decimals, balances[token.id]),
+                2,
+                true
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export function StableTokensSymbol(props: {
   tokens: TokenMetadata[];
   balances: TokenBalancesView;
+  withPlus?: boolean;
 }) {
-  const { tokens, balances } = props;
+  const { tokens, balances, withPlus } = props;
   return (
     <div className="flex mb-6 items-center justify-between">
-      {Array(5)
+      {Array(withPlus ? 5 : 3)
         .fill({})
         .map((t, i) => {
-          if (i % 2) return <div>+</div>;
+          if (i % 2 && withPlus) return <div>+</div>;
           else {
-            const token = tokens[Math.floor(i / 2)];
+            const token = tokens[withPlus ? Math.floor(i / 2) : i];
             return (
               <div className="flex" key={i}>
                 <Icon icon={token.icon} className="inline-block h-9 w-9 mr-2" />
@@ -157,6 +215,38 @@ export function StableTokensSymbol(props: {
             );
           }
         })}
+    </div>
+  );
+}
+
+export function OneTokenSelector({
+  balances,
+  tokens,
+  selecedToken,
+  handleSelect,
+}: {
+  tokens: TokenMetadata[];
+  balances: TokenBalancesView;
+  selecedToken: string;
+  handleSelect: (t: string) => void;
+}) {
+  return (
+    <div className="w-full flex items-center justify-between">
+      {tokens.map((token, i) => {
+        return (
+          <div className="flex items-center" key={i}>
+            <Radio
+              checked={selecedToken === token.id}
+              size="3"
+              handleSelect={handleSelect}
+            />
+            <Icon icon={token.icon} className="inline-block h-9 w-9 mx-2" />
+            <div className="ml-2 inline-block">
+              <p className="text-sm">{toRealSymbol(token.symbol)}</p>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -387,7 +387,7 @@ export function StableSlipSelecter({
   return (
     <div className="relative z-10">
       <div className="flex justify-between">
-        <div className="flex items-center text-gray-400">
+        <div className="flex items-center text-primaryText">
           <label className="text-xs py-5 text-center ">
             <FormattedMessage
               id="slippage"

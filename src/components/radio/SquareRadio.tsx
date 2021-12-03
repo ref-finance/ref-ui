@@ -11,7 +11,7 @@ export default function SquareRadio({
   const [choose, setChoose] = useState(radios[0]);
   const intl = useIntl();
   return (
-    <div className="flex mx-12">
+    <div className="flex justify-between mx-12">
       {radios.map((radio) => {
         return (
           <div

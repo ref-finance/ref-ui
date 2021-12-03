@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { ConnectToNearBtn } from '~components/button/Button';
+import { ConnectToNearBtn, SolidButton } from '~components/button/Button';
 import InputAmount from '~components/forms/InputAmount';
 import SlippageSelector from '~components/forms/SlippageSelector';
 import SubmitButton from '~components/forms/SubmitButton';
@@ -141,8 +141,10 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
           minAmountOut={minAmountOut}
         />
       </div>
-      <div className="mx-8">
-        <SubmitButton disabled={!canSwap} label="Swap" />
+      <div className="mx-8 mt-8">
+        <SolidButton className="w-full text-lg">
+          <FormattedMessage id="swap" defaultMessage="Swap" />
+        </SolidButton>
       </div>
     </form>
   );

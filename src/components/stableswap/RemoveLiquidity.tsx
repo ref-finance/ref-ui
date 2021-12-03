@@ -5,7 +5,10 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import Alert from '~components/alert/Alert';
 import { SolidButton } from '~components/button/Button';
 import { Card } from '~components/card/Card';
-import { PoolSlippageSelector } from '~components/forms/SlippageSelector';
+import {
+  PoolSlippageSelector,
+  StableSlipSelecter,
+} from '~components/forms/SlippageSelector';
 import { Near } from '~components/icon';
 import { TokenMetadata } from '~services/ft-contract';
 import { REF_FARM_CONTRACT_ID, wallet } from '~services/near';
@@ -19,7 +22,11 @@ import {
   toReadableNumber,
 } from '~utils/numbers';
 import { toRealSymbol } from '~utils/token';
-import StableTokenList, { StableTokensSymbol } from './StableTokenList';
+import StableTokenList, {
+  FlexibleStableTokenList,
+  OneTokenSelector,
+  StableTokensSymbol,
+} from './StableTokenList';
 
 function Icon(props: { icon?: string; className?: string; style?: any }) {
   const { icon, className, style } = props;
@@ -65,6 +72,7 @@ export function RemoveLiquidityComponent(props: {
   const intl = useIntl();
   const [sharePercentage, setSharePercentage] = useState<string>('0');
   const progressBarIndex = [0, 25, 50, 75, 100];
+  const [selecedToken, setSelectedToken] = useState<string>();
 
   function submit() {
     const amountBN = new BigNumber(amount?.toString());
@@ -87,25 +95,31 @@ export function RemoveLiquidityComponent(props: {
 
   return (
     <Card
-      padding="py-6 px-8"
+      padding="py-6 px-0"
       bgcolor="bg-cardBg"
       className="text-white outline-none w-full "
     >
-      <div className="text-xl pb-4">
+      <div className="text-xl pb-4 px-8">
         <FormattedMessage
           id="remove_liquidity"
           defaultMessage="Remove Liquidity"
         />
       </div>
 
-      <div className=" text-white flex justify-between text-xs pb-6">
+      <div className=" text-white flex justify-between text-xs pb-4 px-8">
         <span className="text-primaryText">
           <FormattedMessage id="my_shares" defaultMessage="Shares" />
         </span>
         <span>0.999</span>
       </div>
+      <div className=" text-white flex justify-between text-xs pb-6 px-8">
+        <span className="text-primaryText">
+          <FormattedMessage id="shares_left" defaultMessage="Shares left" />
+        </span>
+        <span>0.999</span>
+      </div>
 
-      <div className="flex bg-inputDarkBg rounded p-1 text-white">
+      <div className="flex bg-inputDarkBg rounded text-white mx-8">
         <div
           className={`flex justify-center items-center w-2/4 rounded cursor-pointer ${
             isPercentage ? 'bg-framBorder' : ''
@@ -125,33 +139,22 @@ export function RemoveLiquidityComponent(props: {
       </div>
       {/* Remove as percentage */}
       {isPercentage && (
-        <section>
-          <p className=" text-primaryText text-xs py-6">
+        <section className="mx-8">
+          <p className=" text-primaryText text-xs mt-4 mb-6">
             <FormattedMessage
               id="remove_tip"
               defaultMessage="No fee in removing liquidity as percentage"
             />
           </p>
 
-          <div>
-            <div className="flex">
-              <div className="flex items-center justify-between mr-4">
-                <p className="text-gray-400 text-xs">
-                  <FormattedMessage id="my_shares" defaultMessage="Shares" />
-                </p>
-              </div>
-              {/* <input
-                max={99.99999}
-                min={0.000001}
-                value={sharePercentage}
-                step="any"
-                className="text-white text-xl font-semibold bg-inputDarkBg rounded p-2"
-                type="number"
-                placeholder=""
-              /> */}
-              <div className="w-full h-12 text-white text-xl font-semibold bg-inputDarkBg rounded px-2 flex items-center justify-end">
-                <div className="float-right">{sharePercentage}%</div>
-              </div>
+          <div className="flex">
+            <div className="flex items-center justify-between mr-4">
+              <p className="text-gray-400 text-xs">
+                <FormattedMessage id="my_shares" defaultMessage="Shares" />
+              </p>
+            </div>
+            <div className="w-full h-12 text-white text-xl font-semibold bg-inputDarkBg rounded px-2 flex items-center justify-end">
+              <div className="float-right">{sharePercentage}%</div>
             </div>
           </div>
           <div className="my-4">
@@ -192,23 +195,42 @@ export function RemoveLiquidityComponent(props: {
 
       {!isPercentage && (
         <section>
-          <div>
-            <div className="text-xs mb-1 text-gray-400">
-              <FormattedMessage id="balance" defaultMessage="Balance" />
+          <div className="px-8">
+            <div className="text-primaryText mt-4 mb-6 text-xs">
+              <FormattedMessage
+                id="flexible_tip"
+                defaultMessage="Remove how much you want per token"
+              />
             </div>
-            <StableTokenList
+            <FlexibleStableTokenList
               firstTokenAmount={firstTokenAmount}
               secondTokenAmount={secondTokenAmount}
               thirdTokenAmount={thirdTokenAmount}
               tokens={tokens}
               balances={balances}
-            ></StableTokenList>
+            />
           </div>
-          <div className=" border-t-1 border-b-1">
-            <StableTokensSymbol tokens={tokens} balances={balances} />
+          <div className="flex items-center text-primaryText text-xs pl-8">
+            <span className="whitespace-nowrap mr-2">
+              <FormattedMessage
+                id="remove_as_one_token"
+                defaultMessage="Remove as one token"
+              />
+            </span>
+
+            <div className="border-b w-full border-primaryText border-opacity-30" />
           </div>
-          <div className="pt-4 mb-8">
-            <PoolSlippageSelector
+          <div className="border-b py-6 px-8 border-primaryText border-opacity-30">
+            <OneTokenSelector
+              tokens={tokens}
+              balances={balances}
+              selecedToken={selecedToken}
+              handleSelect={setSelectedToken}
+            />
+          </div>
+
+          <div className="pt-4 px-8">
+            <StableSlipSelecter
               slippageTolerance={slippageTolerance}
               onChange={setSlippageTolerance}
             />
@@ -216,15 +238,15 @@ export function RemoveLiquidityComponent(props: {
         </section>
       )}
 
-      <div className="flex justify-center">
+      <div className="flex justify-center px-8">
         {error && <Alert level="error" message={error.message} />}
       </div>
 
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center mt-4 px-8">
         {wallet.isSignedIn() ? (
           <SolidButton
             disabled={!canSubmit}
-            className={`focus:outline-none px-4 w-full`}
+            className={`focus:outline-none px-4 w-full text-lg`}
             onClick={async () => {
               try {
                 await submit();

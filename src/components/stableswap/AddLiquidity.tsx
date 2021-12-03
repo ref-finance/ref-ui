@@ -363,7 +363,7 @@ export default function AddLiquidityComponent(props: {
         className="focus:outline-none px-4 w-full"
         onClick={handleClick}
       >
-        <div className="flex items-center justify-center w-full m-auto">
+        <div className="flex items-center justify-center w-full m-auto text-lg">
           <div>
             <FormattedMessage id={messageId} defaultMessage={defaultMessage} />
           </div>

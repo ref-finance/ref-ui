@@ -76,7 +76,7 @@ export const UnCheckedRadio = ({ size }: { size?: string }) => {
     <div
       className={`w-${size ? size : '4'} h-${
         size ? size : '4'
-      } rounded-full border border-gradientFrom`}
+      } rounded-full border border-gradientFrom bg-inputDarkBg`}
     />
   );
 };
