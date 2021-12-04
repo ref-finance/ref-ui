@@ -15,7 +15,7 @@ export default function SquareRadio({
       {radios.map((radio) => {
         return (
           <div
-            className={`py-4 w-36 text-center text-sm rounded-tr-lg rounded-tl-lg cursor-pointer ${
+            className={`py-4 px-6 text-center text-sm rounded-tr-lg rounded-tl-lg cursor-pointer ${
               choose === radio ? ' bg-cardBg text-white ' : ' text-primaryText'
             }`}
             key={radio}
