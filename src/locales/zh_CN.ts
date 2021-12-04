@@ -227,7 +227,7 @@ const zh_CN = {
   day_3: '30天',
   day_4: '90天',
   day_5: '1年',
-  cur_apr: '当前年利率下的ROI',
+  cur_apr: 'ROI',
   reward_token: '奖励代币',
   get_lp_token: '获取流动性代币',
   calculate_roi: 'ROI 计算器',

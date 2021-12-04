@@ -205,6 +205,7 @@ export default function CalcModel(
               farms={farms}
               tokenPriceList={tokenPriceList}
               lpTokenNum={lpTokenNum}
+              usd={usd}
             ></CalcEle>
           </div>
           <div className="mt-5 xs:mt-3 md:mt-3">
@@ -219,8 +220,9 @@ export function CalcEle(props: {
   farms: FarmInfo[];
   tokenPriceList: Record<string, string>;
   lpTokenNum: string;
+  usd: string;
 }) {
-  const { farms, tokenPriceList, lpTokenNum } = props;
+  const { farms, tokenPriceList, lpTokenNum, usd } = props;
   const intl = useIntl();
   const [selecteDate, setSelecteDate] = useState('day_2');
   const [totalApr, setTotalApr] = useState('');
@@ -243,9 +245,6 @@ export function CalcEle(props: {
       day: '90',
     },
   });
-  useEffect(() => {
-    getTotalApr();
-  }, []);
   useEffect(() => {
     const rewardTemp: { tokenList: any[]; tokenTotalPrice: string } = {
       tokenList: [],
@@ -302,6 +301,7 @@ export function CalcEle(props: {
       }
     });
     // handle tokenTotalPrice display
+    const tokenTotalPriceActual = rewardTemp.tokenTotalPrice;
     if (rewardTemp.tokenTotalPrice) {
       if (new BigNumber('0.001').isGreaterThan(rewardTemp.tokenTotalPrice)) {
         rewardTemp.tokenTotalPrice = '<$ 0.001';
@@ -313,17 +313,33 @@ export function CalcEle(props: {
       }
     }
     setRewardData(rewardTemp);
+    // get Apr
+    if (usd && usd !== '0') {
+      const aprActual = new BigNumber(tokenTotalPriceActual)
+        .dividedBy(usd)
+        .multipliedBy(100);
+      let aprDisplay;
+      if (new BigNumber('0.001').isGreaterThan(aprActual)) {
+        aprDisplay = '<0.001%';
+      } else {
+        aprDisplay = aprActual.toFixed(3, 1) + '%';
+      }
+      setTotalApr(aprDisplay);
+    } else {
+      setTotalApr('- %');
+    }
   }, [lpTokenNum, selecteDate]);
+
+  // function getTotalApr() {
+  //   let apr = 0;
+  //   farms.forEach(function (item) {
+  //     apr += Number(item.apr);
+  //   });
+  //   setTotalApr(toPrecision(apr.toString(), 2));
+  // }
   function changeDate(e: any) {
     const dateId = e.currentTarget.dataset.id;
     setSelecteDate(dateId);
-  }
-  function getTotalApr() {
-    let apr = 0;
-    farms.forEach(function (item) {
-      apr += Number(item.apr);
-    });
-    setTotalApr(toPrecision(apr.toString(), 2));
   }
   function getMyShare() {
     if (!lpTokenNum || new BigNumber(lpTokenNum).isEqualTo('0')) {
@@ -387,9 +403,7 @@ export function CalcEle(props: {
           <label className="text-sm text-farmText">
             <FormattedMessage id="cur_apr"></FormattedMessage>
           </label>
-          <label className="text-sm text-farmText">{`${
-            totalApr === '0' ? '-' : `${totalApr}%`
-          }`}</label>
+          <label className="text-sm text-farmText">{totalApr}</label>
         </div>
         <div className="flex flex-col rounded p-5 xs:px-3.5 md:px-3.5 bg-black bg-opacity-25 mt-2.5">
           <p className="flex justify-between">
