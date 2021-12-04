@@ -138,16 +138,24 @@ export default function StableTokenList(props: {
 export function FlexibleStableTokenList(props: {
   tokens: TokenMetadata[];
   balances: TokenBalancesView;
-  selectedToken?: string;
   amountsFlexible: string[];
   setAmountsFlexible: ((e: string) => void)[];
+  validate: (e: {
+    firstAmount: string;
+    secondAmount: string;
+    thirdAmount: string;
+    tokens: TokenMetadata[];
+    balances: TokenBalancesView;
+  }) => void;
+  setError: (e: Error) => void;
 }) {
   const {
     tokens,
     balances,
     amountsFlexible,
     setAmountsFlexible,
-    selectedToken,
+    validate,
+    setError,
   } = props;
   if (tokens.length < 1) return null;
 
@@ -167,6 +175,18 @@ export function FlexibleStableTokenList(props: {
                 className="w-full border border-transparent rounded"
                 max={toReadableNumber(token.decimals, balances[token.id])}
                 onChangeAmount={(amount) => {
+                  try {
+                    validate({
+                      tokens,
+                      balances,
+                      firstAmount: i === 0 ? amount : amountsFlexible[0],
+                      secondAmount: i === 1 ? amount : amountsFlexible[1],
+                      thirdAmount: i == 2 ? amount : amountsFlexible[2],
+                    });
+                  } catch (error) {
+                    setError(error);
+                  }
+
                   setAmountsFlexible[i](amount);
                 }}
                 value={amountsFlexible[i]}

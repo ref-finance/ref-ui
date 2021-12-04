@@ -52,6 +52,7 @@ export default function AddLiquidityComponent(props: {
           firstAmount: amount,
           secondAmount: secondTokenAmount,
           thirdAmount: thirdTokenAmount,
+          tokens,
         });
       } catch (error) {
         setError(error);
@@ -87,6 +88,7 @@ export default function AddLiquidityComponent(props: {
           firstAmount: amount,
           secondAmount,
           thirdAmount,
+          tokens,
         });
       } catch (error) {
         setError(error);
@@ -103,6 +105,7 @@ export default function AddLiquidityComponent(props: {
           firstAmount: firstTokenAmount,
           secondAmount: amount,
           thirdAmount: thirdTokenAmount,
+          tokens,
         });
       } catch (error) {
         setError(error);
@@ -138,6 +141,7 @@ export default function AddLiquidityComponent(props: {
           firstAmount,
           secondAmount: amount,
           thirdAmount,
+          tokens,
         });
       } catch (error) {
         setError(error);
@@ -154,6 +158,7 @@ export default function AddLiquidityComponent(props: {
           firstAmount: firstTokenAmount,
           secondAmount: secondTokenAmount,
           thirdAmount: amount,
+          tokens,
         });
       } catch (error) {
         setError(error);
@@ -189,6 +194,7 @@ export default function AddLiquidityComponent(props: {
           firstAmount,
           secondAmount,
           thirdAmount: amount,
+          tokens,
         });
       } catch (error) {
         setError(error);
@@ -204,6 +210,7 @@ export default function AddLiquidityComponent(props: {
     firstAmount: string;
     secondAmount: string;
     thirdAmount: string;
+    tokens: TokenMetadata[];
   }) {
     const firstTokenAmountBN = new BigNumber(firstAmount.toString());
     const firstTokenBalanceBN = new BigNumber(

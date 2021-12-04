@@ -80,6 +80,84 @@ export function RemoveLiquidityComponent(props: {
     setThirdTokenAmount,
   ];
 
+  function validate({
+    firstAmount,
+    secondAmount,
+    thirdAmount,
+    tokens,
+    balances,
+  }: {
+    firstAmount: string;
+    secondAmount: string;
+    thirdAmount: string;
+    tokens: TokenMetadata[];
+    balances: TokenBalancesView;
+  }) {
+    const firstTokenAmountBN = new BigNumber(firstAmount.toString());
+    const firstTokenBalanceBN = new BigNumber(
+      toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+    );
+    const secondTokenAmountBN = new BigNumber(secondAmount.toString());
+    const secondTokenBalanceBN = new BigNumber(
+      toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+    );
+    const thirdTokenAmountBN = new BigNumber(thirdAmount.toString());
+    const thirdTokenBalanceBN = new BigNumber(
+      toReadableNumber(tokens[2].decimals, balances[tokens[2].id])
+    );
+    setError(null);
+    setCanSubmit(false);
+
+    if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
+      throw new Error(
+        `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
+          tokens[0].symbol
+        )}`
+      );
+    }
+
+    if (secondTokenAmountBN.isGreaterThan(secondTokenBalanceBN)) {
+      throw new Error(
+        `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
+          tokens[1].symbol
+        )}`
+      );
+    }
+
+    if (thirdTokenAmountBN.isGreaterThan(thirdTokenBalanceBN)) {
+      throw new Error(
+        `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
+          tokens[2].symbol
+        )}`
+      );
+    }
+
+    if (!tokens[0]) {
+      throw new Error(
+        `${tokens[0].id} ${intl.formatMessage({
+          id: 'is_not_exist',
+        })}`
+      );
+    }
+
+    if (!tokens[1]) {
+      throw new Error(
+        `${tokens[1].id} ${intl.formatMessage({
+          id: 'is_not_exist',
+        })}`
+      );
+    }
+
+    if (!tokens[2]) {
+      throw new Error(
+        `${tokens[2].id} ${intl.formatMessage({
+          id: 'is_not_exist',
+        })}`
+      );
+    }
+    setCanSubmit(true);
+  }
+
   function submit() {
     const amountBN = new BigNumber(amount?.toString());
     const shareBN = new BigNumber(toReadableNumber(24, shares));
@@ -109,10 +187,10 @@ export function RemoveLiquidityComponent(props: {
       }
     });
 
-    if (notZeroTokens.length > 1) {
-      setSelectedToken('');
-    } else if (notZeroTokens.length === 1) {
+    if (notZeroTokens.length === 1) {
       setSelectedToken(notZeroTokens.pop());
+    } else {
+      setSelectedToken('');
     }
   }, [tokens, firstTokenAmount, secondTokenAmount, thirdTokenAmount]);
 
@@ -223,7 +301,7 @@ export function RemoveLiquidityComponent(props: {
           <StableTokensSymbol tokens={tokens} balances={balances} withPlus />
         </section>
       )}
-
+      {/* remove as flexible */}
       {!isPercentage && (
         <section>
           <div className="px-8">
@@ -242,7 +320,8 @@ export function RemoveLiquidityComponent(props: {
               setAmountsFlexible={setAmountsFlexible}
               tokens={tokens}
               balances={balances}
-              selectedToken={selecedToken}
+              validate={validate}
+              setError={setError}
             />
           </div>
           <div className="flex items-center text-primaryText text-xs pl-8">
