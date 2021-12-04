@@ -86,22 +86,19 @@ export const useTokenBalances = () => {
   return balances;
 };
 
-export const useStableTokenBalances = () => {
+export const useWalletTokenBalances = (tokenIds: string[] = []) => {
   const [balances, setBalances] = useState<TokenBalancesView>();
-  const stable_token_ids = getConfig().STABLE_TOKEN_IDS;
 
   useEffect(() => {
-    Promise.all<string>(stable_token_ids.map((id) => ftGetBalance(id))).then(
-      (res) => {
-        let balances = {};
-        res.map((item, index) => {
-          const tokenId: string = stable_token_ids[index];
-          balances[tokenId] = item;
-        });
-        setBalances(balances);
-      }
-    );
-  }, [stable_token_ids.join('')]);
+    Promise.all<string>(tokenIds.map((id) => ftGetBalance(id))).then((res) => {
+      let balances = {};
+      res.map((item, index) => {
+        const tokenId: string = tokenIds[index];
+        balances[tokenId] = item;
+      });
+      setBalances(balances);
+    });
+  }, [tokenIds.join('')]);
 
   return balances;
 };

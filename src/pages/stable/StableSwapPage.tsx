@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Loading from '~components/layout/Loading';
-import { useStableTokenBalances, useWhitelistTokens } from '../../state/token';
+import { useTokenBalances, useWhitelistTokens } from '../../state/token';
 import SquareRadio from '~components/radio/SquareRadio';
 import StableSwap from '~components/stableswap/StableSwap';
 import AddLiquidityComponent from '~components/stableswap/AddLiquidity';
@@ -16,7 +16,7 @@ function StableSwapPage() {
   const { pool } = usePool(10);
   const [actionName, setAction] = useState<string>(DEFAULT_ACTIONS[0]);
   const allTokens = useWhitelistTokens();
-  const stable_tokens_balances = useStableTokenBalances();
+  const balances = useTokenBalances();
   const changeAction = (actionName: string) => {
     setAction(actionName);
   };
@@ -29,13 +29,13 @@ function StableSwapPage() {
   const renderModule = (tab: string) => {
     switch (tab) {
       case DEFAULT_ACTIONS[0]:
-        return <StableSwap tokens={tokens} balances={stable_tokens_balances} />;
+        return <StableSwap tokens={tokens} balances={balances} />;
       case DEFAULT_ACTIONS[1]:
         return (
           <AddLiquidityComponent
             pool={pool}
             tokens={tokens}
-            balances={stable_tokens_balances}
+            balances={balances}
           />
         );
       case DEFAULT_ACTIONS[2]:
@@ -43,7 +43,7 @@ function StableSwapPage() {
           <RemoveLiquidityComponent
             tokens={tokens}
             shares="0"
-            balances={stable_tokens_balances}
+            balances={balances}
           />
         );
     }
