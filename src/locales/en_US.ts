@@ -71,7 +71,7 @@ const en_US = {
   details: 'Details',
   detail: 'Detail',
   liquidity_pools: 'Liquidity Pools',
-  minimum_tokens_out: 'Minimum shares',
+  minimum_tokens_out: 'Minimum received',
   pair: 'Pair',
   tvl: 'TVL',
   search_pools: 'Search Pool',
