@@ -239,5 +239,6 @@ const en_US = {
   your_liquidity_positions_will_appear_here:
     'Your liquidity positions will appear here.',
   price_impact: 'Price Impact',
+  shares_left: 'Shares left',
 };
 export default en_US;

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { ConnectToNearBtn } from '~components/button/Button';
+import { ConnectToNearBtn, SolidButton } from '~components/button/Button';
 import InputAmount from '~components/forms/InputAmount';
 import SlippageSelector from '~components/forms/SlippageSelector';
 import SubmitButton from '~components/forms/SubmitButton';
 import { TokenMetadata } from '~services/ft-contract';
 import { wallet } from '~services/near';
 import { TokenBalancesView } from '~services/token';
-import { useSwap } from '~state/swap';
+import { useStableSwap, useSwap } from '~state/swap';
 import { isMobile } from '~utils/device';
 import {
   calculateExchangeRate,
@@ -33,13 +33,12 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
     setSlippageTolerance(slippage);
   };
 
-  const { canSwap, tokenOutAmount, minAmountOut, pool, swapError, makeSwap } =
-    useSwap({
-      tokenIn: tokenIn,
-      tokenInAmount: tokenInAmount,
-      tokenOut: tokenOut,
-      slippageTolerance,
-    });
+  const { tokenOutAmount, pool, minAmountOut, canSwap } = useStableSwap({
+    tokenIn,
+    tokenInAmount: tokenInAmount,
+    tokenOut,
+    slippageTolerance,
+  });
 
   const handleSwapFrom = (tokenFrom: string) => {
     setTokenIn(tokens.filter((item) => item.id === tokenFrom)[0]);
@@ -59,19 +58,19 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg"
+      className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl py-6 bg-dark xs:rounded-lg md:rounded-lg"
     >
-      <h2 className="formTitle flex justify-between font-bold text-xl text-white text-left pb-2">
+      <div className="formTitle flex justify-between text-xl text-white text-left px-8">
         <FormattedMessage id="stable_swap" defaultMessage="StableSwap" />
         <SlippageSelector
           slippageTolerance={slippageTolerance}
           onChange={onChangeSlip}
           bindUseBalance={bindUseBalance}
         />
-      </h2>
-      <div className=" flex mt-7">
-        <div className=" flex-1">
-          <p className=" text-primaryText text-xs pb-3">
+      </div>
+      <div className="flex mt-6 px-8">
+        <div className="flex-1">
+          <p className="text-primaryText text-xs pb-2">
             From:{' '}
             <span className="float-right">
               <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
@@ -88,10 +87,10 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
             name={tokenIn?.id}
             value={tokenInAmount}
             onChangeAmount={(amount) => {
-              console.log(amount);
               setTokenInAmount(amount);
             }}
             disabled={disabled}
+            max={toReadableNumber(tokenIn.decimals, balances[tokenIn.id])}
           />
         </div>
 
@@ -102,8 +101,8 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
           setTokenOut={(token: TokenMetadata) => setTokenOut(token)}
         />
 
-        <div className=" flex-1">
-          <p className=" text-primaryText text-xs pb-3">
+        <div className="flex-1">
+          <p className="text-primaryText text-xs pb-2">
             To:{' '}
             <span className=" float-right">
               <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
@@ -132,7 +131,7 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
         handleSwapTo={handleSwapTo}
       />
 
-      <div className=" text-primaryText my-5 text-center">
+      <div className="text-primaryText text-center mx-8">
         <DetailView
           pool={pool}
           tokenIn={tokenIn}
@@ -142,11 +141,11 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
           minAmountOut={minAmountOut}
         />
       </div>
-      {wallet.isSignedIn() ? (
-        <SubmitButton disabled={!canSwap} label="Swap" />
-      ) : (
-        <ConnectToNearBtn />
-      )}
+      <div className="mx-8 mt-8">
+        <SolidButton className="w-full text-lg">
+          <FormattedMessage id="swap" defaultMessage="Swap" />
+        </SolidButton>
+      </div>
     </form>
   );
 }

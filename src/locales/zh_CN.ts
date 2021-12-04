@@ -232,5 +232,6 @@ const zh_CN = {
   swap_rate_including_fee: '汇率 (已包含手续费)',
   your_liquidity_positions_will_appear_here: '你参与的流动池将会出现在这里',
   price_impact: '价格影响',
+  shares_left: 'shares left',
 };
 export default zh_CN;

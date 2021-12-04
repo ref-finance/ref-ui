@@ -363,7 +363,7 @@ export default function AddLiquidityComponent(props: {
         className="focus:outline-none px-4 w-full"
         onClick={handleClick}
       >
-        <div className="flex items-center justify-center w-full m-auto">
+        <div className="flex items-center justify-center w-full m-auto text-lg">
           <div>
             <FormattedMessage id={messageId} defaultMessage={defaultMessage} />
           </div>
@@ -378,14 +378,12 @@ export default function AddLiquidityComponent(props: {
 
   return (
     <Card
-      padding="p-8"
+      padding="py-6"
       bgcolor="bg-cardBg"
       className="text-white w-full outline-none "
     >
-      <div className="flex items-start justify-between">
-        <div className="text-base font-bold pb-4">
-          <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
-        </div>
+      <div className="text-xl pb-4 px-8">
+        <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
       </div>
 
       <StableTokenList
@@ -399,14 +397,14 @@ export default function AddLiquidityComponent(props: {
         balances={balances}
       />
 
-      <div className="flex justify-center mb-8 ">
+      <div className="flex justify-center mx-2">
         {error && <Alert level="error" message={error.message} />}
       </div>
 
-      <div className=" text-sm">
+      <div className="text-xs px-8 pb-2">
         <div className=" text-primaryText">
           <FormattedMessage id="fee" defaultMessage="Fee" />:
-          <span className=" text-white pl-3">'-'</span>
+          <span className=" text-white pl-3">-</span>
         </div>
         <ChooseAddType addType={addType} setAddType={setAddType} />
         <StableSlipSelecter
@@ -414,7 +412,7 @@ export default function AddLiquidityComponent(props: {
           onChange={onChangeSlip}
         />
       </div>
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center px-8">
         <ButtonRender />
       </div>
     </Card>
