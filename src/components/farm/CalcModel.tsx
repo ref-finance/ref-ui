@@ -314,9 +314,15 @@ export function CalcEle(props: {
     }
     setRewardData(rewardTemp);
     // get Apr
-    if (usd && usd !== '0') {
-      const aprActual = new BigNumber(tokenTotalPriceActual)
-        .dividedBy(usd)
+    if (lpTokenNum && lpTokenNum !== '0') {
+      const { shares_total_supply, tvl } = farms[0].pool;
+      const totalShares = Number(toReadableNumber(24, shares_total_supply));
+      const shareUsd = new BigNumber(lpTokenNum)
+        .multipliedBy(tvl)
+        .dividedBy(totalShares)
+        .toFixed();
+      let aprActual = new BigNumber(tokenTotalPriceActual)
+        .dividedBy(usd || shareUsd)
         .multipliedBy(100);
       let aprDisplay;
       if (new BigNumber('0.001').isGreaterThan(aprActual)) {
