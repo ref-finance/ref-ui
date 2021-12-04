@@ -398,7 +398,7 @@ input.warn-input:focus {
   width: 18px;
   height: 18px;
   border: 2px solid transparent;
-  transform: rotate(-136deg);
+  transform: rotate(-134deg);
 }
 .circleleft {
   width: 18px;
@@ -420,7 +420,7 @@ input.warn-input:focus {
 }
 @-webkit-keyframes circle_right {
   0% {
-    -webkit-transform: rotate(-136deg);
+    -webkit-transform: rotate(-134deg);
   }
   50%,
   100% {
