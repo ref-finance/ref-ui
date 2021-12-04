@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router-dom';
@@ -372,9 +372,19 @@ export default function AddLiquidityComponent(props: {
     );
   };
 
-  const onChangeSlip = (slippage: number) => {
-    setSlippageTolerance(slippage);
-  };
+  useEffect(() => {
+    if (addType === 'addMax') {
+      setFirstTokenAmount(
+        toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+      );
+      setSecondTokenAmount(
+        toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+      );
+      setThirdTokenAmount(
+        toReadableNumber(tokens[2].decimals, balances[tokens[2].id])
+      );
+    }
+  }, [addType]);
 
   return (
     <Card
@@ -395,13 +405,14 @@ export default function AddLiquidityComponent(props: {
         thirdTokenAmount={thirdTokenAmount}
         tokens={tokens}
         balances={balances}
+        addType={addType}
       />
 
       <div className="flex justify-center mx-2">
         {error && <Alert level="error" message={error.message} />}
       </div>
 
-      <div className="text-xs px-8 pb-2">
+      <div className="text-xs px-8 pb-2 pt-6 mt-6 border-t border-primaryText border-opacity-30">
         <div className=" text-primaryText">
           <FormattedMessage id="fee" defaultMessage="Fee" />:
           <span className=" text-white pl-3">-</span>
@@ -409,7 +420,7 @@ export default function AddLiquidityComponent(props: {
         <ChooseAddType addType={addType} setAddType={setAddType} />
         <StableSlipSelecter
           slippageTolerance={slippageTolerance}
-          onChange={onChangeSlip}
+          onChange={setSlippageTolerance}
         />
       </div>
       <div className="flex items-center justify-center px-8">

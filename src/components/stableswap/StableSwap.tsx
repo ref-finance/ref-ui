@@ -139,12 +139,17 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
           from={tokenInAmount}
           to={tokenOutAmount}
           minAmountOut={minAmountOut}
+          canSwap={canSwap}
         />
       </div>
       <div className="mx-8 mt-8">
-        <SolidButton className="w-full text-lg">
-          <FormattedMessage id="swap" defaultMessage="Swap" />
-        </SolidButton>
+        {wallet.isSignedIn() ? (
+          <SolidButton className="w-full text-lg">
+            <FormattedMessage id="swap" defaultMessage="Swap" />
+          </SolidButton>
+        ) : (
+          <ConnectToNearBtn />
+        )}
       </div>
     </form>
   );

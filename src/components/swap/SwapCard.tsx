@@ -95,13 +95,35 @@ export function SwapRateDetail({
         onClick={switchSwapRate}
       >
         <span className="mr-2" style={{ marginTop: '0.1rem' }}>
-          <FaExchangeAlt />
+          <FaExchangeAlt color="#00C6A2" />
         </span>
         <span>{newValue}</span>
       </p>
     </section>
   );
 }
+
+export const GetPriceImpact = (
+  pool: Pool,
+  tokenIn: TokenMetadata,
+  tokenOut: TokenMetadata,
+  from: string
+) => {
+  const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
+
+  const textColor =
+    Number(value) <= 1
+      ? 'text-greenLight'
+      : 1 < Number(value) && Number(value) <= 2
+      ? 'text-warn'
+      : 'text-error';
+
+  return Number(value) < 0.01 ? (
+    <span className="text-greenLight">{'< -0.01%'}</span>
+  ) : (
+    <span className={`${textColor}`}>{`≈ -${toPrecision(value, 2)}%`}</span>
+  );
+};
 
 function DetailView({
   pool,
@@ -122,28 +144,6 @@ function DetailView({
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
-
-  const GetPriceImpact = (
-    pool: Pool,
-    tokenIn: TokenMetadata,
-    tokenOut: TokenMetadata,
-    from: string
-  ) => {
-    const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
-
-    const textColor =
-      Number(value) <= 1
-        ? 'text-greenLight'
-        : 1 < Number(value) && Number(value) <= 2
-        ? 'text-warn'
-        : 'text-error';
-
-    return Number(value) < 0.01 ? (
-      <span className="text-greenLight">{'< -0.01%'}</span>
-    ) : (
-      <span className={`${textColor}`}>{`≈ -${toPrecision(value, 2)}%`}</span>
-    );
-  };
 
   if (!pool || !from || !to || !(Number(from) > 0)) return null;
 
@@ -317,7 +317,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   return (
     <>
-      <SwapTip></SwapTip>
+      <SwapTip />
       <SwapFormWrap
         canSubmit={canSubmit}
         slippageTolerance={slippageTolerance}

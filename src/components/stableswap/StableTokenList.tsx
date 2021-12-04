@@ -35,6 +35,7 @@ export default function StableTokenList(props: {
   changeFirstTokenAmount?: (e: string) => void;
   changeSecondTokenAmount?: (e: string) => void;
   changeThirdTokenAmount?: (e: string) => void;
+  addType?: string;
 }) {
   const {
     tokens,
@@ -45,8 +46,11 @@ export default function StableTokenList(props: {
     changeFirstTokenAmount,
     changeSecondTokenAmount,
     changeThirdTokenAmount,
+    addType,
   } = props;
   if (tokens.length < 1) return null;
+  const disabled = addType === 'addMax';
+
   return (
     <div className="mt-4 px-8">
       <div className="text-xs text-right mb-1 text-gray-400">
@@ -72,6 +76,7 @@ export default function StableTokenList(props: {
             changeFirstTokenAmount(e);
           }}
           value={firstTokenAmount}
+          disabled={disabled}
         />
       </div>
       <div className=" my-4">
@@ -96,6 +101,7 @@ export default function StableTokenList(props: {
             max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
             onChangeAmount={changeSecondTokenAmount}
             value={secondTokenAmount}
+            disabled={disabled}
           />
         </div>
       </div>
@@ -121,6 +127,7 @@ export default function StableTokenList(props: {
             max={toReadableNumber(tokens[2].decimals, balances[tokens[2].id])}
             onChangeAmount={changeThirdTokenAmount}
             value={thirdTokenAmount}
+            disabled={disabled}
           />
         </div>
       </div>
@@ -131,24 +138,19 @@ export default function StableTokenList(props: {
 export function FlexibleStableTokenList(props: {
   tokens: TokenMetadata[];
   balances: TokenBalancesView;
-  firstTokenAmount: string;
-  secondTokenAmount: string;
-  thirdTokenAmount: string;
-  changeFirstTokenAmount?: (e: string) => void;
-  changeSecondTokenAmount?: (e: string) => void;
-  changeThirdTokenAmount?: (e: string) => void;
+  selectedToken?: string;
+  amountsFlexible: string[];
+  setAmountsFlexible: ((e: string) => void)[];
 }) {
   const {
     tokens,
     balances,
-    firstTokenAmount,
-    secondTokenAmount,
-    thirdTokenAmount,
-    changeFirstTokenAmount,
-    changeSecondTokenAmount,
-    changeThirdTokenAmount,
+    amountsFlexible,
+    setAmountsFlexible,
+    selectedToken,
   } = props;
   if (tokens.length < 1) return null;
+
   return (
     <div className="mt-4">
       {tokens.map((token, i) => {
@@ -164,10 +166,10 @@ export function FlexibleStableTokenList(props: {
               <InputAmount
                 className="w-full border border-transparent rounded"
                 max={toReadableNumber(token.decimals, balances[token.id])}
-                onChangeAmount={(e) => {
-                  changeFirstTokenAmount(e);
+                onChangeAmount={(amount) => {
+                  setAmountsFlexible[i](amount);
                 }}
-                value={firstTokenAmount}
+                value={amountsFlexible[i]}
               />
             </div>
             <div className="text-xs text-right mt-1 mb-4 text-gray-400">
@@ -195,7 +197,7 @@ export function StableTokensSymbol(props: {
       {Array(withPlus ? 5 : 3)
         .fill({})
         .map((t, i) => {
-          if (i % 2 && withPlus) return <div>+</div>;
+          if (i % 2 && withPlus) return <div key={i}>+</div>;
           else {
             const token = tokens[withPlus ? Math.floor(i / 2) : i];
             return (
@@ -239,6 +241,7 @@ export function OneTokenSelector({
               checked={selecedToken === token.id}
               size="3"
               handleSelect={handleSelect}
+              value={token.id}
             />
             <Icon icon={token.icon} className="inline-block h-9 w-9 mx-2" />
             <div className="ml-2 inline-block">

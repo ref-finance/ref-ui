@@ -1,9 +1,9 @@
 import BigNumber from 'bignumber.js';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import Alert from '~components/alert/Alert';
-import { SolidButton } from '~components/button/Button';
+import { ConnectToNearBtn, SolidButton } from '~components/button/Button';
 import { Card } from '~components/card/Card';
 import {
   PoolSlippageSelector,
@@ -72,7 +72,13 @@ export function RemoveLiquidityComponent(props: {
   const intl = useIntl();
   const [sharePercentage, setSharePercentage] = useState<string>('0');
   const progressBarIndex = [0, 25, 50, 75, 100];
-  const [selecedToken, setSelectedToken] = useState<string>();
+  const [selecedToken, setSelectedToken] = useState<string>('');
+
+  const setAmountsFlexible = [
+    setFirstTokenAmount,
+    setSecondTokenAmount,
+    setThirdTokenAmount,
+  ];
 
   function submit() {
     const amountBN = new BigNumber(amount?.toString());
@@ -92,6 +98,31 @@ export function RemoveLiquidityComponent(props: {
     //return function of remove the liquidity
     return '';
   }
+
+  useEffect(() => {
+    const amounts = [firstTokenAmount, secondTokenAmount, thirdTokenAmount];
+    let notZeroTokens: string[] = [];
+
+    amounts.forEach((amount, i) => {
+      if (Number(amount) > 0) {
+        notZeroTokens.push(tokens[i].id);
+      }
+    });
+
+    if (notZeroTokens.length > 1) {
+      setSelectedToken('');
+    } else if (notZeroTokens.length === 1) {
+      setSelectedToken(notZeroTokens.pop());
+    }
+  }, [tokens, firstTokenAmount, secondTokenAmount, thirdTokenAmount]);
+
+  useEffect(() => {
+    if (selecedToken) {
+      tokens.forEach((token, i) => {
+        token.id !== selecedToken && setAmountsFlexible[i]('');
+      });
+    }
+  }, [selecedToken]);
 
   return (
     <Card
@@ -189,7 +220,7 @@ export function RemoveLiquidityComponent(props: {
             </span>
             <span>-</span>
           </div>
-          <StableTokensSymbol tokens={tokens} balances={balances} />
+          <StableTokensSymbol tokens={tokens} balances={balances} withPlus />
         </section>
       )}
 
@@ -203,11 +234,15 @@ export function RemoveLiquidityComponent(props: {
               />
             </div>
             <FlexibleStableTokenList
-              firstTokenAmount={firstTokenAmount}
-              secondTokenAmount={secondTokenAmount}
-              thirdTokenAmount={thirdTokenAmount}
+              amountsFlexible={[
+                firstTokenAmount,
+                secondTokenAmount,
+                thirdTokenAmount,
+              ]}
+              setAmountsFlexible={setAmountsFlexible}
               tokens={tokens}
               balances={balances}
+              selectedToken={selecedToken}
             />
           </div>
           <div className="flex items-center text-primaryText text-xs pl-8">
@@ -241,8 +276,7 @@ export function RemoveLiquidityComponent(props: {
       <div className="flex justify-center px-8">
         {error && <Alert level="error" message={error.message} />}
       </div>
-
-      <div className="flex items-center justify-center mt-4 px-8">
+      <div className="mt-4 px-8 w-full">
         {wallet.isSignedIn() ? (
           <SolidButton
             disabled={!canSubmit}
@@ -261,22 +295,7 @@ export function RemoveLiquidityComponent(props: {
             />
           </SolidButton>
         ) : (
-          <SolidButton
-            className={`focus:outline-none px-4 w-full rounded-3xl`}
-            onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
-          >
-            <div className="w-full m-auto flex items-center justify-center">
-              <div className="mr-2">
-                <Near />
-              </div>
-              <div>
-                <FormattedMessage
-                  id="connect_to_near"
-                  defaultMessage="Connect to NEAR"
-                />
-              </div>
-            </div>
-          </SolidButton>
+          <ConnectToNearBtn />
         )}
       </div>
     </Card>

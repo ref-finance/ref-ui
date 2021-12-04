@@ -6,7 +6,11 @@ import { TokenMetadata } from '~services/ft-contract';
 import { UnCheckedRadio, CheckedRadio, Radio } from '~components/icon';
 import { useIntl } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
-import { SwapDetail, SwapRateDetail } from '~components/swap/SwapCard';
+import {
+  SwapDetail,
+  SwapRateDetail,
+  GetPriceImpact,
+} from '~components/swap/SwapCard';
 import { toRealSymbol } from '~utils/token';
 import {
   calculateExchangeRate,
@@ -122,6 +126,7 @@ export function DetailView({
   from,
   to,
   minAmountOut,
+  canSwap,
 }: {
   pool: Pool;
   tokenIn: TokenMetadata;
@@ -129,6 +134,7 @@ export function DetailView({
   from: string;
   to: string;
   minAmountOut?: string;
+  canSwap?: boolean;
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
@@ -157,7 +163,11 @@ export function DetailView({
             id: 'price_impact',
             defaultMessage: 'Price Impact',
           })}
-          value="-"
+          value={
+            !to || to === '0' || !canSwap
+              ? '-'
+              : GetPriceImpact(pool, tokenIn, tokenOut, from)
+          }
         />
         <SwapRateDetail
           title={intl.formatMessage({
