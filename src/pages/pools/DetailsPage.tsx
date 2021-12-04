@@ -1336,7 +1336,7 @@ export function PoolDetailsPage() {
                 <div>
                   <FormattedMessage
                     id="h24_volume"
-                    defaultMessage="24h Volume"
+                    defaultMessage="24h volume"
                   />
                 </div>
                 <div className="text-white">
