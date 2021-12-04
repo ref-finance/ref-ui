@@ -17,6 +17,7 @@ import {
   toRoundedReadableNumber,
 } from '~utils/numbers';
 import { toRealSymbol } from '~utils/token';
+import getConfig from '~services/config';
 
 export const useToken = (id: string) => {
   const [token, setToken] = useState<TokenMetadata>();
@@ -81,6 +82,26 @@ export const useTokenBalances = () => {
       .then(setBalances)
       .catch(() => setBalances({}));
   }, []);
+
+  return balances;
+};
+
+export const useStableTokenBalances = () => {
+  const [balances, setBalances] = useState<TokenBalancesView>();
+  const stable_token_ids = getConfig().STABLE_TOKEN_IDS;
+
+  useEffect(() => {
+    Promise.all<string>(stable_token_ids.map((id) => ftGetBalance(id))).then(
+      (res) => {
+        let balances = {};
+        res.map((item, index) => {
+          const tokenId: string = stable_token_ids[index];
+          balances[tokenId] = item;
+        });
+        setBalances(balances);
+      }
+    );
+  }, [stable_token_ids.join('')]);
 
   return balances;
 };

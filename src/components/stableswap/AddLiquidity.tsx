@@ -397,7 +397,7 @@ export default function AddLiquidityComponent(props: {
         thirdTokenAmount={thirdTokenAmount}
         tokens={tokens}
         balances={balances}
-      ></StableTokenList>
+      />
 
       <div className="flex justify-center mb-8 ">
         {error && <Alert level="error" message={error.message} />}

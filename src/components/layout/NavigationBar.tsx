@@ -472,6 +472,7 @@ function NavigationBar() {
             <Quiz />
             <Anchor to="/deposit" pattern="/deposit/:id?" name="Deposit" />
             <Anchor to="/" pattern="/" name="Swap" />
+            <Anchor to="/stableswap" pattern="/stableswap" name="StableSwap" />
             <PoolsMenu />
             <Anchor to="/farms" pattern="/farms" name="Farms" />
           </div>

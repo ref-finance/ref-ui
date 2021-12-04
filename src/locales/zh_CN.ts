@@ -195,6 +195,7 @@ const zh_CN = {
   detail_tip: '详情',
   no_data: '暂无数据',
   stable_swap: '稳定币兑换',
+  StableSwap: '稳定币兑换',
   including_fees: '(including fees)',
   standard_gas: 'Standard Gas fee:',
   rst_token: 'Your RST token',
