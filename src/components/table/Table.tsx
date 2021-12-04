@@ -51,7 +51,7 @@ export default function Table({
                 sortBy === 'near' ? 'text-greenLight' : ''
               }`}
             >
-              Near
+              NEAR
               <TiArrowSortedUp
                 onClick={() => onSortChange('near')}
                 className={`inline-block cursor-pointer ${
@@ -66,7 +66,7 @@ export default function Table({
                 sortBy === 'ref' ? 'text-greenLight' : ''
               }`}
             >
-              Ref
+              REF
               <TiArrowSortedUp
                 onClick={() => onSortChange('ref')}
                 className={`inline-block cursor-pointer ${

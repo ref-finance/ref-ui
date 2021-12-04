@@ -360,7 +360,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
             >
               <FormattedMessage
                 id="deposit_to_swap"
-                defaultMessage="Deposit to swap"
+                defaultMessage="Deposit to Swap"
               />
             </GradientButton>
           </div>
