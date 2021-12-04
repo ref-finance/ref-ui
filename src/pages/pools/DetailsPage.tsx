@@ -635,7 +635,7 @@ export function RemoveLiquidityModal(
 
         <div>
           <div className="text-xs text-right mb-1 text-gray-400">
-            <FormattedMessage id="balance" defaultMessage="Balance" />
+            <FormattedMessage id="my_shares" defaultMessage="Shares" />
             :&nbsp;
             {toPrecision(toReadableNumber(24, shares), 2)}
           </div>
@@ -666,7 +666,7 @@ export function RemoveLiquidityModal(
             <p className="my-3 text-left text-sm">
               <FormattedMessage
                 id="minimum_tokens_out"
-                defaultMessage="Minimum Tokens Out"
+                defaultMessage="Minimum shares"
               />
             </p>
             <section className="grid grid-cols-2 mb-6 w-full">
