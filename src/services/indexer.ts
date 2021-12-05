@@ -44,13 +44,13 @@ export const get24hVolume = async (pool_id: string): Promise<string> => {
 };
 
 const parseActionView = async (action: any) => {
-  const data = await parseAction(action[2], action[3]);
+  const data = await parseAction(action[3], action[4], action[2]);
   return {
     datetime: moment.unix(action[0] / 1000000000),
     txUrl: config.explorerUrl + '/transactions/' + action[1],
     data: data,
     // status: action[5] === 'SUCCESS_VALUE',
-    status: action[5] && action[5].indexOf('SUCCESS') > -1,
+    status: action[6] && action[6].indexOf('SUCCESS') > -1,
   };
 };
 
