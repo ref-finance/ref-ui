@@ -219,7 +219,7 @@ const en_US = {
   unstake_tip_b: 'Do you want to unstake?',
   value_rewards: 'Value of rewards',
   stake_unstake_tip:
-    'Unstaking will automatically claim your unstaked rewards.',
+    'Staking or unstaking will automatically claim your rewards.',
   over_tip:
     'Due to the limitation of Gas Fee, only 5 items most can be selected at one time',
   no_token_tip: 'No reward token',

@@ -212,7 +212,7 @@ const zh_CN = {
     '取消质押操作会把所有质押从相同交易对的所有进行中和未开始的农场里移除.',
   unstake_tip_b: '你想取消质押吗?',
   value_rewards: '奖励币总价值',
-  stake_unstake_tip: '取消质押操作将自动领取未领取的奖励',
+  stake_unstake_tip: '质押或取消质押操作将自动领取奖励',
   over_tip: '因为汽油费的限制一次最多能选择5个代币',
   no_token_tip: '没有可提取的代币',
   getToken_tip: '你可以现在认领你的奖励或质押代币！',

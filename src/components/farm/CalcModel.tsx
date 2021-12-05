@@ -220,7 +220,7 @@ export function CalcEle(props: {
   farms: FarmInfo[];
   tokenPriceList: Record<string, string>;
   lpTokenNum: string;
-  usd: string;
+  usd?: string;
 }) {
   const { farms, tokenPriceList, lpTokenNum, usd } = props;
   const intl = useIntl();
