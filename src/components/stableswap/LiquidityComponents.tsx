@@ -57,7 +57,7 @@ export function InfoLine({
 }) {
   return (
     <div
-      className={`flex items-center w-full text-xs text-primaryText ${className}`}
+      className={`flex items-center w-full text-xs text-primaryText my-2 ${className}`}
     >
       <div className="">{title}</div>
       <div className="border-b border-dotted border-primaryText border-opacity-30 w-full flex-1 mx-1" />

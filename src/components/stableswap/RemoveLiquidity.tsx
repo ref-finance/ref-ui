@@ -235,7 +235,7 @@ export function RemoveLiquidityComponent(props: {
 
           <div className="flex">
             <div className="flex items-center justify-between mr-4">
-              <p className="text-gray-400 text-xs">
+              <p className="text-gray-400 text-xs whitespace-nowrap">
                 <FormattedMessage id="my_shares" defaultMessage="Shares" />
               </p>
             </div>

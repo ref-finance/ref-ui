@@ -41,12 +41,8 @@ const InfoCard = ({
       bgcolor="bg-cardBg"
       className="text-white w-full outline-none "
     >
-      <InfoLine title="Shares" value={shares} className="my-2" />
-      <InfoLine
-        title="minimum received"
-        value={minimumReceived}
-        className="my-2"
-      />
+      <InfoLine title="Shares" value={shares} />
+      <InfoLine title="minimum received" value={minimumReceived} />
     </Card>
   );
 };
