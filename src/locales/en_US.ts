@@ -213,13 +213,13 @@ const en_US = {
   your_farms_rewards: 'Your Farms Rewards',
   your_farms: 'Your farms',
   new: 'New',
-  unstake_tip_t: 'You currently have an active/pending farm.',
+  unstake_tip_t: 'you have rewards unclaimed...',
   unstake_tip_m:
     'Unstaking will remove the stake from all active and pending farms of the same pair.',
-  unstake_tip_b: 'Will you going to unstake?',
+  unstake_tip_b: 'Do you want to unstake?',
   value_rewards: 'Value of rewards',
   stake_unstake_tip:
-    'You have rewards unclaimed,stake / unstake will claim your unclaimed rewards first automatically.',
+    'Unstaking will automatically claim your unstaked rewards.',
   over_tip:
     'Due to the limitation of Gas Fee, only 5 items most can be selected at one time',
   no_token_tip: 'No reward token',
