@@ -383,6 +383,9 @@ export function StableSlipSelecter({
       document.onclick = null;
     };
   }, [showSlip, invalid]);
+  useEffect(() => {
+    ref.current.value = slippageTolerance.toString();
+  }, [slippageTolerance]);
 
   return (
     <div className="relative z-10">
@@ -438,17 +441,6 @@ export function StableSlipSelecter({
             defaultValue={slippageTolerance ? slippageTolerance : 0.5}
             onWheel={() => ref.current.blur()}
             step="any"
-            // className={`${
-            //   slippageTolerance && !invalid && !warn
-            //     ? 'border border-gradientFrom normal-input text-gradientFrom bg-opacity-0'
-            //     : ''
-            // } focus:text-gradientFrom focus:bg-opacity-0 w-14 h-7 text-center text-sm rounded mx-2 bg-gray-500 ${
-            //   invalid && !warn
-            //     ? 'border border-error text-error bg-opacity-0 invalid-input'
-            //     : ''
-            // } ${
-            //   warn ? 'border border-warn text-warn bg-opacity-0 warn-input' : ''
-            // }`}
             className="bg-inputBg text-gray-400 rounded w-14 h-7 bg-inputDarkBg mx-2 px-1"
             type="number"
             required={true}

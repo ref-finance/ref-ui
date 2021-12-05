@@ -172,7 +172,7 @@ export default function ({
 
         <InfoLine
           title={intl.formatMessage({ id: 'pool_fee' })}
-          value="-"
+          value={`${pool.fee}%`}
           className="my-4"
         />
         <InfoLine

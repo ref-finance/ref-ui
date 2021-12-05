@@ -28,6 +28,8 @@ import StableTokenList from './StableTokenList';
 import { InfoLine } from './LiquidityComponents';
 import { usePool } from '~state/pool';
 
+const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE';
+
 const InfoCard = ({
   shares,
   minimumReceived,
@@ -63,7 +65,6 @@ function myShares({
 
   return displayPercent + '% of Total';
 }
-
 export default function AddLiquidityComponent(props: {
   pool: Pool;
   tokens: TokenMetadata[];
@@ -452,6 +453,13 @@ export default function AddLiquidityComponent(props: {
     }
   }, [addType]);
 
+  useEffect(() => {
+    const rememberedSlippageTolerance =
+      localStorage.getItem(SWAP_SLIPPAGE_KEY) || slippageTolerance;
+
+    setSlippageTolerance(Number(rememberedSlippageTolerance));
+  }, []);
+
   return (
     <>
       <Card
@@ -487,7 +495,10 @@ export default function AddLiquidityComponent(props: {
           <ChooseAddType addType={addType} setAddType={setAddType} />
           <StableSlipSelecter
             slippageTolerance={slippageTolerance}
-            onChange={setSlippageTolerance}
+            onChange={(slippage) => {
+              setSlippageTolerance(slippage);
+              localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
+            }}
           />
         </div>
         <div className="flex items-center justify-center px-8">

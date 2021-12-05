@@ -28,6 +28,8 @@ import StableTokenList, {
   StableTokensSymbol,
 } from './StableTokenList';
 
+const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
+
 function Icon(props: { icon?: string; className?: string; style?: any }) {
   const { icon, className, style } = props;
   return icon ? (
@@ -55,6 +57,7 @@ const marks = {
     label: <strong>100%</strong>,
   },
 };
+
 export function RemoveLiquidityComponent(props: {
   shares: string;
   balances: TokenBalancesView;
@@ -178,6 +181,13 @@ export function RemoveLiquidityComponent(props: {
       });
     }
   }, [selecedToken]);
+
+  useEffect(() => {
+    const rememberedSlippageTolerance =
+      localStorage.getItem(SWAP_SLIPPAGE_KEY) || slippageTolerance;
+
+    setSlippageTolerance(Number(rememberedSlippageTolerance));
+  }, []);
 
   return (
     <Card
@@ -321,10 +331,13 @@ export function RemoveLiquidityComponent(props: {
             />
           </div>
 
-          <div className="pt-4 px-8">
+          <div className="pt-4 px-8 text-xs">
             <StableSlipSelecter
               slippageTolerance={slippageTolerance}
-              onChange={setSlippageTolerance}
+              onChange={(slippage) => {
+                setSlippageTolerance(slippage);
+                localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
+              }}
             />
           </div>
         </section>

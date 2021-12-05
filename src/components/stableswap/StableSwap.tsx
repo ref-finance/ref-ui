@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { ConnectToNearBtn, SolidButton } from '~components/button/Button';
 import InputAmount from '~components/forms/InputAmount';
@@ -20,7 +20,7 @@ interface StableSwapProps {
   balances: TokenBalancesView;
   tokens: TokenMetadata[];
 }
-const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
+const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_SLIPPAGE_VALUE';
 export default function StableSwap({ tokens, balances }: StableSwapProps) {
   const [tokenIn, setTokenIn] = useState<TokenMetadata>(tokens[0]);
   const [tokenOut, setTokenOut] = useState<TokenMetadata>(tokens[1]);
@@ -31,6 +31,7 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
   const bindUseBalance = () => {};
   const onChangeSlip = (slippage: number) => {
     setSlippageTolerance(slippage);
+    localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
   };
 
   const { tokenOutAmount, pool, minAmountOut, canSwap } = useStableSwap({
@@ -54,6 +55,13 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
       } catch (err) {}
     }
   };
+
+  useEffect(() => {
+    const rememberedSlippageTolerance =
+      localStorage.getItem(SWAP_SLIPPAGE_KEY) || slippageTolerance;
+
+    setSlippageTolerance(Number(rememberedSlippageTolerance));
+  }, []);
 
   return (
     <form
