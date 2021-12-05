@@ -15,12 +15,58 @@ import { TokenBalancesView } from '~services/token';
 import { isMobile } from '~utils/device';
 import {
   calculateFairShare,
+  percent,
+  percentOf,
   toNonDivisibleNumber,
   toReadableNumber,
+  toPrecision,
+  percentLess,
 } from '~utils/numbers';
 import { toRealSymbol } from '~utils/token';
 import { ChooseAddType } from './LiquidityComponents';
 import StableTokenList from './StableTokenList';
+import { InfoLine } from './LiquidityComponents';
+import { usePool } from '~state/pool';
+
+const InfoCard = ({
+  shares,
+  minimumReceived,
+}: {
+  shares: string | JSX.Element;
+  minimumReceived: string | JSX.Element;
+}) => {
+  return (
+    <Card
+      padding="py-4 mt-2 px-8"
+      bgcolor="bg-cardBg"
+      className="text-white w-full outline-none "
+    >
+      <InfoLine title="Shares" value={shares} className="my-2" />
+      <InfoLine
+        title="minimum received"
+        value={minimumReceived}
+        className="my-2"
+      />
+    </Card>
+  );
+};
+
+function myShares({
+  totalShares,
+  userTotalShare,
+}: {
+  totalShares: string;
+  userTotalShare: BigNumber;
+}) {
+  const sharePercent = percent(userTotalShare.valueOf(), totalShares);
+
+  let displayPercent;
+  if (Number(sharePercent) > 0 && Number(sharePercent) < 0.01) {
+    displayPercent = '< 0.01';
+  } else displayPercent = toPrecision(String(sharePercent), 2);
+
+  return displayPercent + '% of Total';
+}
 
 export default function AddLiquidityComponent(props: {
   pool: Pool;
@@ -28,6 +74,8 @@ export default function AddLiquidityComponent(props: {
   balances: TokenBalancesView;
 }) {
   const { pool, tokens, balances } = props;
+  const { shares, stakeList } = usePool(pool.id);
+
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');
@@ -40,6 +88,21 @@ export default function AddLiquidityComponent(props: {
   const history = useHistory();
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [canDeposit, setCanDeposit] = useState<boolean>(false);
+  const [farmStake, setFarmStake] = useState<string | number>('0');
+
+  useEffect(() => {
+    const seedIdList: string[] = Object.keys(stakeList);
+    let tempFarmStake: string | number = '0';
+    seedIdList.forEach((seed) => {
+      const id = Number(seed.split('@')[1]);
+      if (id == props.pool.id) {
+        tempFarmStake = BigNumber.sum(farmStake, stakeList[seed]).valueOf();
+      }
+    });
+    setFarmStake(tempFarmStake);
+  }, [stakeList]);
+
+  const userTotalShare = BigNumber.sum(shares, farmStake);
 
   if (!balances) return null;
 
@@ -394,45 +457,52 @@ export default function AddLiquidityComponent(props: {
   }, [addType]);
 
   return (
-    <Card
-      padding="py-6"
-      bgcolor="bg-cardBg"
-      className="text-white w-full outline-none "
-    >
-      <div className="text-xl pb-4 px-8">
-        <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
-      </div>
-
-      <StableTokenList
-        changeFirstTokenAmount={changeFirstTokenAmount}
-        changeSecondTokenAmount={changeSecondTokenAmount}
-        changeThirdTokenAmount={changeThirdTokenAmount}
-        firstTokenAmount={firstTokenAmount}
-        secondTokenAmount={secondTokenAmount}
-        thirdTokenAmount={thirdTokenAmount}
-        tokens={tokens}
-        balances={balances}
-        addType={addType}
-      />
-
-      <div className="flex justify-center mx-2">
-        {error && <Alert level="error" message={error.message} />}
-      </div>
-
-      <div className="text-xs px-8 pb-2 pt-6 mt-6 border-t border-primaryText border-opacity-30">
-        <div className=" text-primaryText">
-          <FormattedMessage id="fee" defaultMessage="Fee" />:
-          <span className=" text-white pl-3">-</span>
+    <>
+      <Card
+        padding="py-6"
+        bgcolor="bg-cardBg"
+        className="text-white w-full outline-none "
+      >
+        <div className="text-xl pb-4 px-8">
+          <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
         </div>
-        <ChooseAddType addType={addType} setAddType={setAddType} />
-        <StableSlipSelecter
-          slippageTolerance={slippageTolerance}
-          onChange={setSlippageTolerance}
+
+        <StableTokenList
+          changeFirstTokenAmount={changeFirstTokenAmount}
+          changeSecondTokenAmount={changeSecondTokenAmount}
+          changeThirdTokenAmount={changeThirdTokenAmount}
+          firstTokenAmount={firstTokenAmount}
+          secondTokenAmount={secondTokenAmount}
+          thirdTokenAmount={thirdTokenAmount}
+          tokens={tokens}
+          balances={balances}
+          addType={addType}
         />
-      </div>
-      <div className="flex items-center justify-center px-8">
-        <ButtonRender />
-      </div>
-    </Card>
+
+        <div className="flex justify-center mx-2">
+          {error && <Alert level="error" message={error.message} />}
+        </div>
+
+        <div className="text-xs px-8 pb-2 pt-6 mt-6 border-t border-primaryText border-opacity-30">
+          <div className=" text-primaryText">
+            <FormattedMessage id="fee" defaultMessage="Fee" />:
+            <span className=" text-white pl-3">-</span>
+          </div>
+          <ChooseAddType addType={addType} setAddType={setAddType} />
+          <StableSlipSelecter
+            slippageTolerance={slippageTolerance}
+            onChange={setSlippageTolerance}
+          />
+        </div>
+        <div className="flex items-center justify-center px-8">
+          <ButtonRender />
+        </div>
+      </Card>
+
+      <InfoCard
+        shares={myShares({ totalShares: pool.shareSupply, userTotalShare })}
+        minimumReceived={toPrecision(percentLess(slippageTolerance, '100'), 3)}
+      />
+    </>
   );
 }

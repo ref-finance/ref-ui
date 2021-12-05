@@ -4,8 +4,10 @@ import InputAmount from '~components/forms/InputAmount';
 import { Radio } from '~components/icon';
 import { TokenMetadata } from '~services/ft-contract';
 import { TokenBalancesView } from '~services/token';
-import { toPrecision, toReadableNumber } from '~utils/numbers';
+import { subtraction, toPrecision, toReadableNumber } from '~utils/numbers';
 import { toRealSymbol } from '~utils/token';
+import Alert from '~components/alert/Alert';
+
 export function Icon(props: {
   icon?: string;
   className?: string;
@@ -148,6 +150,7 @@ export function FlexibleStableTokenList(props: {
     balances: TokenBalancesView;
   }) => void;
   setError: (e: Error) => void;
+  error: Error;
 }) {
   const {
     tokens,
@@ -156,48 +159,64 @@ export function FlexibleStableTokenList(props: {
     setAmountsFlexible,
     validate,
     setError,
+    error,
   } = props;
   if (tokens.length < 1) return null;
 
   return (
     <div className="mt-4">
       {tokens.map((token, i) => {
+        const isError = error && new RegExp(token.symbol).test(error.message);
+
         return (
           <div className="flex flex-col" key={i}>
-            <div className="w-full flex items-center">
-              <div className="flex items-center mr-4 w-1/4">
+            <div className="w-full flex items-start">
+              <div className="flex items-center mr-4 mt-1 w-1/4">
                 <Icon icon={token.icon} className="h-9 w-9 mr-2" />
                 <div className="text-white text-sm" title={token.id}>
                   {toRealSymbol(token.symbol)}
                 </div>
               </div>
-              <InputAmount
-                className="w-full border border-transparent rounded"
-                max={toReadableNumber(token.decimals, balances[token.id])}
-                onChangeAmount={(amount) => {
-                  try {
-                    validate({
-                      tokens,
-                      balances,
-                      firstAmount: i === 0 ? amount : amountsFlexible[0],
-                      secondAmount: i === 1 ? amount : amountsFlexible[1],
-                      thirdAmount: i == 2 ? amount : amountsFlexible[2],
-                    });
-                  } catch (error) {
-                    setError(error);
-                  }
+              <div className="w-full flex flex-col">
+                <InputAmount
+                  isError={isError}
+                  className="w-full border border-transparent rounded"
+                  max={toReadableNumber(token.decimals, balances[token.id])}
+                  onChangeAmount={(amount) => {
+                    try {
+                      validate({
+                        tokens,
+                        balances,
+                        firstAmount: i === 0 ? amount : amountsFlexible[0],
+                        secondAmount: i === 1 ? amount : amountsFlexible[1],
+                        thirdAmount: i == 2 ? amount : amountsFlexible[2],
+                      });
+                    } catch (error) {
+                      setError(error);
+                    }
+                    setAmountsFlexible[i](amount);
+                  }}
+                  value={amountsFlexible[i]}
+                />
+                <div
+                  className={`w-full flex items-center ${
+                    isError ? 'justify-between' : 'justify-end'
+                  } `}
+                >
+                  {isError && <Alert level="error" message={error.message} />}
 
-                  setAmountsFlexible[i](amount);
-                }}
-                value={amountsFlexible[i]}
-              />
-            </div>
-            <div className="text-xs text-right mt-1 mb-4 text-gray-400">
-              {toPrecision(
-                toReadableNumber(token.decimals, balances[token.id]),
-                2,
-                true
-              )}
+                  <div className="text-xs text-right mt-1 mb-4 text-primaryText">
+                    {toPrecision(
+                      subtraction(
+                        toReadableNumber(token.decimals, balances[token.id]),
+                        amountsFlexible?.[i] || '0'
+                      ),
+                      2,
+                      true
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         );

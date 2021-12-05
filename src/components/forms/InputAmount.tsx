@@ -1,10 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   max?: string;
   maxBorder?: boolean;
   showMaxAsBalance?: boolean;
   onChangeAmount?: (amount: string) => void;
+  isError?: boolean;
 }
 
 export default function InputAmount({
@@ -18,9 +19,11 @@ export default function InputAmount({
   const ref = useRef<HTMLInputElement>();
   const field = useRef<HTMLFieldSetElement>();
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
+  const cachedError = useRef(null);
 
   const handleChange = (amount: string) => {
     if (onChangeAmount) onChangeAmount(amount);
+
     ref.current.value = amount;
   };
 
@@ -32,11 +35,23 @@ export default function InputAmount({
     field.current.className = className + ' border border-transparent rounded';
   };
 
+  useEffect(() => {
+    if (rest?.isError) {
+      field.current.className =
+        className + ' border border-transparent rounded';
+      cachedError.current = rest.isError;
+    } else if (!rest?.isError && cachedError.current) {
+      field.current.className = className + ' border border-greenLight rounded';
+    }
+  }, [rest?.isError]);
+
   return (
     <>
       <fieldset className={className} ref={field}>
         <div
-          className={`relative flex align-center items-center bg-inputDarkBg rounded`}
+          className={`relative flex align-center items-center ${
+            rest?.isError ? 'bg-error bg-opacity-30' : 'bg-inputDarkBg'
+          }  rounded`}
         >
           <input
             ref={ref}
@@ -46,7 +61,11 @@ export default function InputAmount({
             {...rest}
             step="any"
             className={`xs:text-sm text-lg font-bold w-full p-2 ${
-              disabled ? 'text-gray-200 placeholder-gray-200' : 'text-white'
+              disabled
+                ? 'text-gray-200 placeholder-gray-200'
+                : rest?.isError
+                ? 'text-error'
+                : 'text-white'
             }`}
             type="number"
             placeholder="0.0"

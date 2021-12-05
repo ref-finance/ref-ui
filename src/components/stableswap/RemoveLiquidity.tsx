@@ -131,30 +131,6 @@ export function RemoveLiquidityComponent(props: {
         )}`
       );
     }
-
-    if (!tokens[0]) {
-      throw new Error(
-        `${tokens[0].id} ${intl.formatMessage({
-          id: 'is_not_exist',
-        })}`
-      );
-    }
-
-    if (!tokens[1]) {
-      throw new Error(
-        `${tokens[1].id} ${intl.formatMessage({
-          id: 'is_not_exist',
-        })}`
-      );
-    }
-
-    if (!tokens[2]) {
-      throw new Error(
-        `${tokens[2].id} ${intl.formatMessage({
-          id: 'is_not_exist',
-        })}`
-      );
-    }
     setCanSubmit(true);
   }
 
@@ -186,10 +162,7 @@ export function RemoveLiquidityComponent(props: {
         notZeroTokens.push(tokens[i].id);
       }
     });
-
-    if (notZeroTokens.length === 1) {
-      setSelectedToken(notZeroTokens.pop());
-    } else {
+    if (notZeroTokens.length > 1) {
       setSelectedToken('');
     }
   }, [tokens, firstTokenAmount, secondTokenAmount, thirdTokenAmount]);
@@ -198,6 +171,10 @@ export function RemoveLiquidityComponent(props: {
     if (selecedToken) {
       tokens.forEach((token, i) => {
         token.id !== selecedToken && setAmountsFlexible[i]('');
+        token.id === selecedToken &&
+          setAmountsFlexible[i](
+            toReadableNumber(tokens[i].decimals, balances[selecedToken])
+          );
       });
     }
   }, [selecedToken]);
@@ -322,6 +299,7 @@ export function RemoveLiquidityComponent(props: {
               balances={balances}
               validate={validate}
               setError={setError}
+              error={error}
             />
           </div>
           <div className="flex items-center text-primaryText text-xs pl-8">
@@ -352,9 +330,6 @@ export function RemoveLiquidityComponent(props: {
         </section>
       )}
 
-      <div className="flex justify-center px-8">
-        {error && <Alert level="error" message={error.message} />}
-      </div>
       <div className="mt-4 px-8 w-full">
         {wallet.isSignedIn() ? (
           <SolidButton

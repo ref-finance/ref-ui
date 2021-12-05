@@ -13,7 +13,7 @@ const DEFAULT_ACTIONS = ['stable_swap', 'add_liquidity', 'remove_liquidity'];
 const STABLE_TOKENS = ['USDT', 'USDC', 'DAI'];
 
 function StableSwapPage() {
-  const { pool } = usePool(10);
+  const { pool, shares, stakeList } = usePool(10);
   const [actionName, setAction] = useState<string>(DEFAULT_ACTIONS[0]);
   const allTokens = useWhitelistTokens();
   const balances = useTokenBalances();
@@ -48,6 +48,7 @@ function StableSwapPage() {
         );
     }
   };
+
   if (!allTokens) return <Loading />;
 
   return (
