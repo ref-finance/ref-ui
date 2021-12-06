@@ -399,24 +399,31 @@ export const addLiquidityToPool = async ({
   return refFiManyFunctionCalls(actions);
 };
 
+export const predictLiquidityShares = async (
+  pool_id: number,
+  amounts: []
+): Promise<Pool> => {
+  return refFiViewFunction({
+    methodName: 'predict_add_stable_liquidity',
+    args: { pool_id: pool_id, amounts },
+  });
+};
+
 interface AddLiquidityToStablePoolOptions {
   id: number;
-  tokenAmounts: { token: TokenMetadata; amount: string }[];
+  amounts: [string, string, string];
   min_shares: string;
 }
 
 export const addLiquidityToStablePool = async ({
   id,
-  tokenAmounts,
+  amounts,
+  min_shares,
 }: AddLiquidityToStablePoolOptions) => {
-  const amounts = tokenAmounts.map(({ token, amount }) =>
-    toNonDivisibleNumber(token.decimals, amount)
-  );
-
   const actions: RefFiFunctionCallOptions[] = [
     {
       methodName: 'add_stable_liquidity',
-      args: { pool_id: id, amounts },
+      args: { pool_id: id, amounts, min_shares },
       amount: LP_STORAGE_AMOUNT,
     },
   ];

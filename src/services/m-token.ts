@@ -181,11 +181,11 @@ export const withdrawReward = async ({
 };
 
 export const withdrawAllReward = async (
-  rewardList: Record<string, string>,
+  checkedList: Record<string, any>,
   unregister = false
 ) => {
   const transactions: Transaction[] = [];
-  const token_id_list = Object.keys(rewardList).slice(0, 5);
+  const token_id_list = Object.keys(checkedList);
   const ftBalancePromiseList: any[] = [];
   const functionCalls: any[] = [];
   token_id_list.forEach((token_id) => {
@@ -193,7 +193,11 @@ export const withdrawAllReward = async (
     ftBalancePromiseList.push(ftBalance);
     functionCalls.push({
       methodName: 'withdraw_reward',
-      args: { token_id: token_id, amount: rewardList[token_id], unregister },
+      args: {
+        token_id: token_id,
+        amount: checkedList[token_id].value,
+        unregister,
+      },
       gas: '40000000000000',
       amount: ONE_YOCTO_NEAR,
     });
