@@ -45,3 +45,23 @@ export function ChooseAddType({
     </div>
   );
 }
+
+export function InfoLine({
+  title,
+  value,
+  className,
+}: {
+  title: string;
+  value: string | JSX.Element;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`flex items-center w-full text-xs text-primaryText my-2 ${className}`}
+    >
+      <div className="">{title}</div>
+      <div className="border-b border-dotted border-primaryText border-opacity-30 w-full flex-1 mx-1" />
+      <div className="text-white">{value}</div>
+    </div>
+  );
+}

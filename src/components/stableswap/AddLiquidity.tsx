@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router-dom';
@@ -19,19 +19,64 @@ import { TokenBalancesView } from '~services/token';
 import { isMobile } from '~utils/device';
 import {
   calculateFairShare,
+  percent,
+  percentOf,
   toNonDivisibleNumber,
   toReadableNumber,
+  toPrecision,
+  percentLess,
 } from '~utils/numbers';
 import { toRealSymbol } from '~utils/token';
 import { ChooseAddType } from './LiquidityComponents';
 import StableTokenList from './StableTokenList';
+import { InfoLine } from './LiquidityComponents';
+import { usePool } from '~state/pool';
 
+const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE';
+
+const InfoCard = ({
+  shares,
+  minimumReceived,
+}: {
+  shares: string | JSX.Element;
+  minimumReceived: string | JSX.Element;
+}) => {
+  return (
+    <Card
+      padding="py-4 mt-2 px-8"
+      bgcolor="bg-cardBg"
+      className="text-white w-full outline-none "
+    >
+      <InfoLine title="Shares" value={shares} />
+      <InfoLine title="minimum received" value={minimumReceived} />
+    </Card>
+  );
+};
+
+function myShares({
+  totalShares,
+  userTotalShare,
+}: {
+  totalShares: string;
+  userTotalShare: BigNumber;
+}) {
+  const sharePercent = percent(userTotalShare.valueOf(), totalShares);
+
+  let displayPercent;
+  if (Number(sharePercent) > 0 && Number(sharePercent) < 0.01) {
+    displayPercent = '< 0.01';
+  } else displayPercent = toPrecision(String(sharePercent), 2);
+
+  return displayPercent + '% of Total';
+}
 export default function AddLiquidityComponent(props: {
   pool: Pool;
   tokens: TokenMetadata[];
   balances: TokenBalancesView;
 }) {
   const { pool, tokens, balances } = props;
+  const { shares, stakeList } = usePool(pool.id);
+
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');
@@ -44,6 +89,21 @@ export default function AddLiquidityComponent(props: {
   const history = useHistory();
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [canDeposit, setCanDeposit] = useState<boolean>(false);
+  const [farmStake, setFarmStake] = useState<string | number>('0');
+
+  useEffect(() => {
+    const seedIdList: string[] = Object.keys(stakeList);
+    let tempFarmStake: string | number = '0';
+    seedIdList.forEach((seed) => {
+      const id = Number(seed.split('@')[1]);
+      if (id == props.pool.id) {
+        tempFarmStake = BigNumber.sum(farmStake, stakeList[seed]).valueOf();
+      }
+    });
+    setFarmStake(tempFarmStake);
+  }, [stakeList]);
+
+  const userTotalShare = BigNumber.sum(shares, farmStake);
 
   if (!balances) return null;
 
@@ -56,6 +116,7 @@ export default function AddLiquidityComponent(props: {
           firstAmount: amount,
           secondAmount: secondTokenAmount,
           thirdAmount: thirdTokenAmount,
+          tokens,
         });
       } catch (error) {
         setError(error);
@@ -91,6 +152,7 @@ export default function AddLiquidityComponent(props: {
           firstAmount: amount,
           secondAmount,
           thirdAmount,
+          tokens,
         });
       } catch (error) {
         setError(error);
@@ -107,6 +169,7 @@ export default function AddLiquidityComponent(props: {
           firstAmount: firstTokenAmount,
           secondAmount: amount,
           thirdAmount: thirdTokenAmount,
+          tokens,
         });
       } catch (error) {
         setError(error);
@@ -142,6 +205,7 @@ export default function AddLiquidityComponent(props: {
           firstAmount,
           secondAmount: amount,
           thirdAmount,
+          tokens,
         });
       } catch (error) {
         setError(error);
@@ -158,6 +222,7 @@ export default function AddLiquidityComponent(props: {
           firstAmount: firstTokenAmount,
           secondAmount: secondTokenAmount,
           thirdAmount: amount,
+          tokens,
         });
       } catch (error) {
         setError(error);
@@ -193,6 +258,7 @@ export default function AddLiquidityComponent(props: {
           firstAmount,
           secondAmount,
           thirdAmount: amount,
+          tokens,
         });
       } catch (error) {
         setError(error);
@@ -208,6 +274,7 @@ export default function AddLiquidityComponent(props: {
     firstAmount: string;
     secondAmount: string;
     thirdAmount: string;
+    tokens: TokenMetadata[];
   }) {
     const firstTokenAmountBN = new BigNumber(firstAmount.toString());
     const firstTokenBalanceBN = new BigNumber(
@@ -374,49 +441,77 @@ export default function AddLiquidityComponent(props: {
     );
   };
 
-  const onChangeSlip = (slippage: number) => {
-    setSlippageTolerance(slippage);
-  };
+  useEffect(() => {
+    if (addType === 'addMax') {
+      setFirstTokenAmount(
+        toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+      );
+      setSecondTokenAmount(
+        toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+      );
+      setThirdTokenAmount(
+        toReadableNumber(tokens[2].decimals, balances[tokens[2].id])
+      );
+    }
+  }, [addType]);
+
+  useEffect(() => {
+    const rememberedSlippageTolerance =
+      localStorage.getItem(SWAP_SLIPPAGE_KEY) || slippageTolerance;
+
+    setSlippageTolerance(Number(rememberedSlippageTolerance));
+  }, []);
 
   return (
-    <Card
-      padding="py-6"
-      bgcolor="bg-cardBg"
-      className="text-white w-full outline-none "
-    >
-      <div className="text-xl pb-4 px-8">
-        <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
-      </div>
-
-      <StableTokenList
-        changeFirstTokenAmount={changeFirstTokenAmount}
-        changeSecondTokenAmount={changeSecondTokenAmount}
-        changeThirdTokenAmount={changeThirdTokenAmount}
-        firstTokenAmount={firstTokenAmount}
-        secondTokenAmount={secondTokenAmount}
-        thirdTokenAmount={thirdTokenAmount}
-        tokens={tokens}
-        balances={balances}
-      />
-
-      <div className="flex justify-center mx-2">
-        {error && <Alert level="error" message={error.message} />}
-      </div>
-
-      <div className="text-xs px-8 pb-2">
-        <div className=" text-primaryText">
-          <FormattedMessage id="fee" defaultMessage="Fee" />:
-          <span className=" text-white pl-3">-</span>
+    <>
+      <Card
+        padding="py-6"
+        bgcolor="bg-cardBg"
+        className="text-white w-full outline-none "
+      >
+        <div className="text-xl pb-4 px-8">
+          <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
         </div>
-        <ChooseAddType addType={addType} setAddType={setAddType} />
-        <StableSlipSelecter
-          slippageTolerance={slippageTolerance}
-          onChange={onChangeSlip}
+
+        <StableTokenList
+          changeFirstTokenAmount={changeFirstTokenAmount}
+          changeSecondTokenAmount={changeSecondTokenAmount}
+          changeThirdTokenAmount={changeThirdTokenAmount}
+          firstTokenAmount={firstTokenAmount}
+          secondTokenAmount={secondTokenAmount}
+          thirdTokenAmount={thirdTokenAmount}
+          tokens={tokens}
+          balances={balances}
+          addType={addType}
         />
-      </div>
-      <div className="flex items-center justify-center px-8">
-        <ButtonRender />
-      </div>
-    </Card>
+
+        <div className="flex justify-center mx-2">
+          {error && <Alert level="error" message={error.message} />}
+        </div>
+
+        <div className="text-xs px-8 pb-2 pt-6 mt-6 border-t border-primaryText border-opacity-30">
+          <div className=" text-primaryText">
+            <FormattedMessage id="fee" defaultMessage="Fee" />:
+            <span className=" text-white pl-3">-</span>
+          </div>
+          <ChooseAddType addType={addType} setAddType={setAddType} />
+          <StableSlipSelecter
+            slippageTolerance={slippageTolerance}
+            onChange={(slippage) => {
+              setSlippageTolerance(slippage);
+              localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
+            }}
+          />
+        </div>
+        <div className="flex items-center justify-center px-8">
+          <ButtonRender />
+        </div>
+      </Card>
+
+      <InfoCard
+        shares={myShares({ totalShares: pool.shareSupply, userTotalShare })}
+        minimumReceived={toPrecision(percentLess(slippageTolerance, '100'), 3)}
+      />
+    </>
   );
 }

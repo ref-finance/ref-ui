@@ -212,13 +212,12 @@ export const useStableSwap = ({
 
     const newTokenOutAmount = (
       (Number(tokenInAmount) * Number(out_balance)) /
-      (Number(tokenInAmount) * Number(in_balance))
+      (Number(tokenInAmount) + Number(in_balance))
     ).toString();
 
     setTokenOutAmount(newTokenOutAmount);
-
     if (Number(newTokenOutAmount)) setCanSwap(true);
-  }, [pool]);
+  }, [pool, tokenInAmount, tokenIn, tokenOut]);
 
   const minAmountOut = percentLess(slippageTolerance, tokenOutAmount);
 

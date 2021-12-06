@@ -207,6 +207,8 @@ const en_US = {
   remove_tip: 'No fee in removing liquidity as percentage',
   share_liquidity: 'Share of liquidity',
   remove_token_confirm: 'You will remove RUST token',
+  remove_as_one_token: 'Remove as one token',
+  flexible_tip: 'Remove how much you want per token',
   add_type_all: 'Add all coins in a balanced proportion',
   add_type_max: 'Use maximum amount of coins available',
   select_balance: 'Select Balance',
@@ -240,5 +242,9 @@ const en_US = {
     'Your liquidity positions will appear here.',
   price_impact: 'Price Impact',
   shares_left: 'Shares left',
+  total_stable_coins: 'Total stablecoins',
+  daily_volume: 'Daily Volume',
+  liquidity_utilisation: 'Liquidity utilisation',
+  token_reserves: 'Token Reserves',
 };
 export default en_US;

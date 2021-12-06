@@ -63,7 +63,6 @@ function MyShares({
   poolId?: number;
   stakeList?: Record<string, string>;
   decimal?: number;
-  yourLP?: boolean;
   supportFarm: Number;
   farmStake: string | number;
   userTotalShare: BigNumber;
@@ -308,12 +307,6 @@ function PoolRow(props: { pool: any; balance: string }) {
       toInternationalCurrencySystem(value, 3)
     );
   };
-
-  tokens.sort((a, b) => {
-    if (a.symbol === 'wNEAR') return 1;
-    if (b.symbol === 'wNEAR') return -1;
-    return a.symbol > b.symbol ? 1 : -1;
-  });
 
   return (
     <>

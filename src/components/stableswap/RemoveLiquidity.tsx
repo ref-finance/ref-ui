@@ -1,9 +1,9 @@
 import BigNumber from 'bignumber.js';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import Alert from '~components/alert/Alert';
-import { SolidButton } from '~components/button/Button';
+import { ConnectToNearBtn, SolidButton } from '~components/button/Button';
 import { Card } from '~components/card/Card';
 import {
   PoolSlippageSelector,
@@ -27,6 +27,8 @@ import StableTokenList, {
   OneTokenSelector,
   StableTokensSymbol,
 } from './StableTokenList';
+
+const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
 function Icon(props: { icon?: string; className?: string; style?: any }) {
   const { icon, className, style } = props;
@@ -55,6 +57,7 @@ const marks = {
     label: <strong>100%</strong>,
   },
 };
+
 export function RemoveLiquidityComponent(props: {
   shares: string;
   balances: TokenBalancesView;
@@ -72,7 +75,67 @@ export function RemoveLiquidityComponent(props: {
   const intl = useIntl();
   const [sharePercentage, setSharePercentage] = useState<string>('0');
   const progressBarIndex = [0, 25, 50, 75, 100];
-  const [selecedToken, setSelectedToken] = useState<string>();
+  const [selecedToken, setSelectedToken] = useState<string>('');
+
+  const setAmountsFlexible = [
+    setFirstTokenAmount,
+    setSecondTokenAmount,
+    setThirdTokenAmount,
+  ];
+
+  function validate({
+    firstAmount,
+    secondAmount,
+    thirdAmount,
+    tokens,
+    balances,
+  }: {
+    firstAmount: string;
+    secondAmount: string;
+    thirdAmount: string;
+    tokens: TokenMetadata[];
+    balances: TokenBalancesView;
+  }) {
+    const firstTokenAmountBN = new BigNumber(firstAmount.toString());
+    const firstTokenBalanceBN = new BigNumber(
+      toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+    );
+    const secondTokenAmountBN = new BigNumber(secondAmount.toString());
+    const secondTokenBalanceBN = new BigNumber(
+      toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+    );
+    const thirdTokenAmountBN = new BigNumber(thirdAmount.toString());
+    const thirdTokenBalanceBN = new BigNumber(
+      toReadableNumber(tokens[2].decimals, balances[tokens[2].id])
+    );
+    setError(null);
+    setCanSubmit(false);
+
+    if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
+      throw new Error(
+        `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
+          tokens[0].symbol
+        )}`
+      );
+    }
+
+    if (secondTokenAmountBN.isGreaterThan(secondTokenBalanceBN)) {
+      throw new Error(
+        `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
+          tokens[1].symbol
+        )}`
+      );
+    }
+
+    if (thirdTokenAmountBN.isGreaterThan(thirdTokenBalanceBN)) {
+      throw new Error(
+        `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
+          tokens[2].symbol
+        )}`
+      );
+    }
+    setCanSubmit(true);
+  }
 
   function submit() {
     const amountBN = new BigNumber(amount?.toString());
@@ -92,6 +155,39 @@ export function RemoveLiquidityComponent(props: {
     //return function of remove the liquidity
     return '';
   }
+
+  useEffect(() => {
+    const amounts = [firstTokenAmount, secondTokenAmount, thirdTokenAmount];
+    let notZeroTokens: string[] = [];
+
+    amounts.forEach((amount, i) => {
+      if (Number(amount) > 0) {
+        notZeroTokens.push(tokens[i].id);
+      }
+    });
+    if (notZeroTokens.length > 1) {
+      setSelectedToken('');
+    }
+  }, [tokens, firstTokenAmount, secondTokenAmount, thirdTokenAmount]);
+
+  useEffect(() => {
+    if (selecedToken) {
+      tokens.forEach((token, i) => {
+        token.id !== selecedToken && setAmountsFlexible[i]('');
+        token.id === selecedToken &&
+          setAmountsFlexible[i](
+            toReadableNumber(tokens[i].decimals, balances[selecedToken])
+          );
+      });
+    }
+  }, [selecedToken]);
+
+  useEffect(() => {
+    const rememberedSlippageTolerance =
+      localStorage.getItem(SWAP_SLIPPAGE_KEY) || slippageTolerance;
+
+    setSlippageTolerance(Number(rememberedSlippageTolerance));
+  }, []);
 
   return (
     <Card
@@ -119,7 +215,7 @@ export function RemoveLiquidityComponent(props: {
         <span>0.999</span>
       </div>
 
-      <div className="flex bg-inputDarkBg rounded text-white mx-8">
+      <div className="flex bg-inputDarkBg rounded text-white mx-8 p-1">
         <div
           className={`flex justify-center items-center w-2/4 rounded cursor-pointer ${
             isPercentage ? 'bg-framBorder' : ''
@@ -149,7 +245,7 @@ export function RemoveLiquidityComponent(props: {
 
           <div className="flex">
             <div className="flex items-center justify-between mr-4">
-              <p className="text-gray-400 text-xs">
+              <p className="text-gray-400 text-xs whitespace-nowrap">
                 <FormattedMessage id="my_shares" defaultMessage="Shares" />
               </p>
             </div>
@@ -189,10 +285,10 @@ export function RemoveLiquidityComponent(props: {
             </span>
             <span>-</span>
           </div>
-          <StableTokensSymbol tokens={tokens} balances={balances} />
+          <StableTokensSymbol tokens={tokens} balances={balances} withPlus />
         </section>
       )}
-
+      {/* remove as flexible */}
       {!isPercentage && (
         <section>
           <div className="px-8">
@@ -203,11 +299,17 @@ export function RemoveLiquidityComponent(props: {
               />
             </div>
             <FlexibleStableTokenList
-              firstTokenAmount={firstTokenAmount}
-              secondTokenAmount={secondTokenAmount}
-              thirdTokenAmount={thirdTokenAmount}
+              amountsFlexible={[
+                firstTokenAmount,
+                secondTokenAmount,
+                thirdTokenAmount,
+              ]}
+              setAmountsFlexible={setAmountsFlexible}
               tokens={tokens}
               balances={balances}
+              validate={validate}
+              setError={setError}
+              error={error}
             />
           </div>
           <div className="flex items-center text-primaryText text-xs pl-8">
@@ -229,20 +331,19 @@ export function RemoveLiquidityComponent(props: {
             />
           </div>
 
-          <div className="pt-4 px-8">
+          <div className="pt-4 px-8 text-xs">
             <StableSlipSelecter
               slippageTolerance={slippageTolerance}
-              onChange={setSlippageTolerance}
+              onChange={(slippage) => {
+                setSlippageTolerance(slippage);
+                localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
+              }}
             />
           </div>
         </section>
       )}
 
-      <div className="flex justify-center px-8">
-        {error && <Alert level="error" message={error.message} />}
-      </div>
-
-      <div className="flex items-center justify-center mt-4 px-8">
+      <div className="mt-4 px-8 w-full">
         {wallet.isSignedIn() ? (
           <SolidButton
             disabled={!canSubmit}
@@ -261,22 +362,7 @@ export function RemoveLiquidityComponent(props: {
             />
           </SolidButton>
         ) : (
-          <SolidButton
-            className={`focus:outline-none px-4 w-full rounded-3xl`}
-            onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
-          >
-            <div className="w-full m-auto flex items-center justify-center">
-              <div className="mr-2">
-                <Near />
-              </div>
-              <div>
-                <FormattedMessage
-                  id="connect_to_near"
-                  defaultMessage="Connect to NEAR"
-                />
-              </div>
-            </div>
-          </SolidButton>
+          <ConnectToNearBtn />
         )}
       </div>
     </Card>
