@@ -489,21 +489,21 @@ export const predictRemoveLiquidity = async (
   });
 };
 
-interface RemoveLiquidityByTokensFromStablePoolOptions {
+interface RemoveLiquidityFromStablePoolOptions {
   id: number;
-  amounts: [string, string, string];
-  max_burn_shares: string;
+  shares: string;
+  min_amounts: [string, string, string];
 }
 
 export const removeLiquidityFromStablePool = async ({
   id,
-  amounts,
-  max_burn_shares,
-}: RemoveLiquidityByTokensFromStablePoolOptions) => {
+  shares,
+  min_amounts,
+}: RemoveLiquidityFromStablePoolOptions) => {
   const actions: RefFiFunctionCallOptions[] = [
     {
-      methodName: 'remove_liquidity_by_tokens',
-      args: { pool_id: id, amounts, max_burn_shares },
+      methodName: 'remove_liquidity',
+      args: { pool_id: id, shares, min_amounts },
       amount: LP_STORAGE_AMOUNT,
     },
   ];
