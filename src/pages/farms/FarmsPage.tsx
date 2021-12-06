@@ -82,8 +82,8 @@ interface SearchData {
 export function FarmsPage() {
   const intl = useIntl();
   const sortList = {
-    new: intl.formatMessage({ id: 'new' }),
     apr: intl.formatMessage({ id: 'apr' }),
+    new: intl.formatMessage({ id: 'new' }),
     total_staked: intl.formatMessage({ id: 'total_staked' }),
   };
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
@@ -103,7 +103,7 @@ export function FarmsPage() {
     staked: wallet.isSignedIn()
       ? !!+localStorage.getItem('farmStakedOnly')
       : false,
-    sort: 'new',
+    sort: 'apr',
     sortBoxHidden: true,
   });
   const [yourFarms, setYourFarms] = useState<string | number>('-');
