@@ -46,6 +46,7 @@ function StableSwapPage() {
             shares={shares}
             balances={balances}
             pool={pool}
+            stakeList={stakeList}
           />
         );
     }

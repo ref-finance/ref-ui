@@ -22,6 +22,7 @@ import {
 } from '~services/pool';
 import { TokenBalancesView } from '~services/token';
 import { usePredictRemoveShares, useRemoveLiquidity } from '~state/pool';
+import { useFarmStake } from '~state/farm';
 import {
   percent,
   percentLess,
@@ -32,15 +33,17 @@ import {
   toPrecision,
   toReadableNumber,
   toRoundedReadableNumber,
+  percentIncrese,
 } from '~utils/numbers';
 import { toRealSymbol } from '~utils/token';
-import { STABLE_LP_TOKEN_DECIMALS } from './AddLiquidity';
+import { myShares, STABLE_LP_TOKEN_DECIMALS } from './AddLiquidity';
 import { InfoLine } from './LiquidityComponents';
 import StableTokenList, {
   FlexibleStableTokenList,
   OneTokenSelector,
   StableTokensSymbol,
 } from './StableTokenList';
+import { ShareInFarm } from '~components/layout/ShareInFarm';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 const SHARE_PERCENT_KEY = 'SHARE_PERCENT_VALUE';
@@ -60,26 +63,15 @@ function Icon(props: { icon?: string; className?: string; style?: any }) {
     />
   );
 }
-const marks = {
-  0: '0%',
-  25: '26%',
-  50: '50%',
-  75: '75%',
-  100: {
-    style: {
-      color: '#f50',
-    },
-    label: <strong>100%</strong>,
-  },
-};
 
 export function RemoveLiquidityComponent(props: {
   shares: string;
   balances: TokenBalancesView;
   tokens: TokenMetadata[];
   pool: Pool;
+  stakeList: Record<string, string>;
 }) {
-  const { shares, tokens, balances, pool } = props;
+  const { shares, tokens, balances, pool, stakeList } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');
@@ -92,7 +84,10 @@ export function RemoveLiquidityComponent(props: {
   const [sharePercentage, setSharePercentage] = useState<string>('0');
   const progressBarIndex = [0, 25, 50, 75, 100];
   const [receiveAmounts, setReceiveAmounts] = useState<string[]>(['', '', '']);
-
+  const farmStake = useFarmStake({
+    poolId: pool.id,
+    stakeList,
+  });
   const setAmountsFlexible = [
     setFirstTokenAmount,
     setSecondTokenAmount,
@@ -167,13 +162,34 @@ export function RemoveLiquidityComponent(props: {
   }
 
   function submit() {
-    if (isPercentage)
+    if (isPercentage) {
       return removeLiquidityFromStablePool({
         id: pool.id,
         min_amounts: receiveAmounts as [string, string, string],
         shares,
       });
+    } else {
+      const amounts = [
+        firstTokenAmount,
+        secondTokenAmount,
+        thirdTokenAmount,
+      ].map((amount, i) => {
+        return toNonDivisibleNumber(tokens[i].decimals, amount);
+      }) as [string, string, string];
+
+      const max_burn_shares = toPrecision(
+        percentIncrese(slippageTolerance, predicedRemoveShares),
+        0
+      );
+
+      return removeLiquidityByTokensFromStablePool({
+        id: pool.id,
+        amounts,
+        max_burn_shares,
+      });
+    }
   }
+  const userTotalShare = BigNumber.sum(shares, farmStake);
 
   useEffect(() => {
     const rememberedSlippageTolerance =
@@ -234,18 +250,24 @@ export function RemoveLiquidityComponent(props: {
         />
       </div>
 
-      <div className=" text-white flex justify-between text-xs pb-4 px-8">
+      <div className=" text-white flex justify-between text-xs px-8">
         <span className="text-primaryText">
           <FormattedMessage id="my_shares" defaultMessage="Shares" />
         </span>
         <span>
-          {toPrecision(toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares), 3)}
+          {myShares({
+            totalShares: pool.shareSupply,
+            userTotalShare,
+          })}
         </span>
+      </div>
+      <div className="px-8 flex justify-end">
+        <ShareInFarm userTotalShare={userTotalShare} farmStake={farmStake} />
       </div>
       <div
         className={`${
           isPercentage ? 'hidden' : ''
-        } text-white flex justify-between text-xs pb-6 px-8`}
+        } text-white flex justify-between text-xs py-4 px-8`}
       >
         <span className="text-primaryText">
           <FormattedMessage
@@ -275,7 +297,7 @@ export function RemoveLiquidityComponent(props: {
           }  h-9`}
           onClick={() => setIsPercentage(true)}
         >
-          <FormattedMessage id="percentage" defaultMessage="Percentage" />
+          <FormattedMessage id="by_share" defaultMessage="by share" />
         </div>
         <div
           className={`flex justify-center items-center w-2/4 rounded cursor-pointer ${
@@ -283,7 +305,7 @@ export function RemoveLiquidityComponent(props: {
           }  h-9`}
           onClick={() => setIsPercentage(false)}
         >
-          <FormattedMessage id="flexible" defaultMessage="Flexible" />
+          <FormattedMessage id="by_token" defaultMessage="by token" />
         </div>
       </div>
       {/* Remove as percentage */}
@@ -292,7 +314,7 @@ export function RemoveLiquidityComponent(props: {
           <p className=" text-primaryText text-xs mt-4 mb-6">
             <FormattedMessage
               id="remove_tip"
-              defaultMessage="No fee in removing liquidity as percentage"
+              defaultMessage="No fee in removing liquidity by share"
             />
           </p>
 

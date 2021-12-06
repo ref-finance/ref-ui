@@ -545,7 +545,7 @@ export const removeLiquidityByTokensFromStablePool = async ({
     {
       methodName: 'remove_liquidity_by_tokens',
       args: { pool_id: id, amounts, max_burn_shares },
-      amount: LP_STORAGE_AMOUNT,
+      amount: ONE_YOCTO_NEAR,
     },
   ];
 

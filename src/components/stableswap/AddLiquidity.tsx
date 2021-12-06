@@ -18,6 +18,7 @@ import {
 } from '~services/pool';
 import { TokenBalancesView } from '~services/token';
 import { usePredictShares } from '~state/pool';
+import { useFarmStake } from '~state/farm';
 
 import { isMobile } from '~utils/device';
 import {
@@ -28,6 +29,7 @@ import {
   toReadableNumber,
   toPrecision,
   percentLess,
+  toRoundedReadableNumber,
 } from '~utils/numbers';
 import { toRealSymbol } from '~utils/token';
 import { ChooseAddType } from './LiquidityComponents';
@@ -58,7 +60,7 @@ const InfoCard = ({
   );
 };
 
-function myShares({
+export function myShares({
   totalShares,
   userTotalShare,
 }: {
@@ -67,12 +69,25 @@ function myShares({
 }) {
   const sharePercent = percent(userTotalShare.valueOf(), totalShares);
 
-  let displayPercent;
-  if (Number(sharePercent) > 0 && Number(sharePercent) < 0.01) {
-    displayPercent = '< 0.01';
-  } else displayPercent = toPrecision(String(sharePercent), 2);
+  const displayUserTotalShare = userTotalShare
+    .toNumber()
+    .toLocaleString('fullwide', { useGrouping: false });
 
-  return displayPercent + '% of Total';
+  let displayPercent;
+  if (Number(sharePercent) > 0 && Number(sharePercent) < 0.001) {
+    displayPercent = '< 0.001';
+  } else displayPercent = toPrecision(String(sharePercent), 3);
+
+  return (
+    toRoundedReadableNumber({
+      decimals: STABLE_LP_TOKEN_DECIMALS,
+      number: displayUserTotalShare,
+      precision: 6,
+      withCommas: false,
+    }) +
+    ' ' +
+    `(${displayPercent}%)`
+  );
 }
 export default function AddLiquidityComponent(props: {
   pool: Pool;
@@ -94,7 +109,11 @@ export default function AddLiquidityComponent(props: {
   const history = useHistory();
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [canDeposit, setCanDeposit] = useState<boolean>(false);
-  const [farmStake, setFarmStake] = useState<string | number>('0');
+  const farmStake = useFarmStake({
+    poolId: pool.id,
+    stakeList,
+  });
+
   const predicedShares = usePredictShares({
     tokens,
     poolId: pool.id,
@@ -102,17 +121,6 @@ export default function AddLiquidityComponent(props: {
     secondTokenAmount,
     thirdTokenAmount,
   });
-  useEffect(() => {
-    const seedIdList: string[] = Object.keys(stakeList);
-    let tempFarmStake: string | number = '0';
-    seedIdList.forEach((seed) => {
-      const id = Number(seed.split('@')[1]);
-      if (id == props.pool.id) {
-        tempFarmStake = BigNumber.sum(farmStake, stakeList[seed]).valueOf();
-      }
-    });
-    setFarmStake(tempFarmStake);
-  }, [stakeList]);
 
   useEffect(() => {
     if (addType === 'addMax') {

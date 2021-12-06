@@ -157,6 +157,12 @@ export const percentLess = (percent: number, num: number | string) => {
   });
 };
 
+export const percentIncrese = (percent: number, num: number | string) => {
+  return math.format(math.evaluate(`${num} + ${percentOf(percent, num)}`), {
+    notation: 'fixed',
+  });
+};
+
 export function formatWithCommas(value: string): string {
   const pattern = /(-?\d+)(\d{3})/;
   while (pattern.test(value)) {
