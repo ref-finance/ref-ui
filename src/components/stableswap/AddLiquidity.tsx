@@ -464,7 +464,7 @@ export default function AddLiquidityComponent(props: {
         <div className="text-xs px-8 pb-2 pt-6 mt-6 border-t border-primaryText border-opacity-30">
           <div className=" text-primaryText">
             <FormattedMessage id="fee" defaultMessage="Fee" />:
-            <span className=" text-white pl-3">-</span>
+            <span className=" text-white pl-3">0.025%</span>
           </div>
           <ChooseAddType addType={addType} setAddType={setAddType} />
           <StableSlipSelecter

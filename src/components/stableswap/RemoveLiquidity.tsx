@@ -5,6 +5,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import Alert from '~components/alert/Alert';
 import { ConnectToNearBtn, SolidButton } from '~components/button/Button';
 import { Card } from '~components/card/Card';
+import InputAmount from '~components/forms/InputAmount';
 import {
   PoolSlippageSelector,
   StableSlipSelecter,
@@ -12,18 +13,29 @@ import {
 import { Near } from '~components/icon';
 import { TokenMetadata } from '~services/ft-contract';
 import { REF_FARM_CONTRACT_ID, wallet } from '~services/near';
-import { Pool } from '~services/pool';
-import { TokenBalancesView } from '~services/token';
-import { useRemoveLiquidity } from '~state/pool';
 import {
+  Pool,
+  predictRemoveLiquidity,
+  removeLiquidityFromStablePool,
+  removeLiquidityByTokensFromStablePool,
+  removeLiquidityFromPool,
+} from '~services/pool';
+import { TokenBalancesView } from '~services/token';
+import { usePredictRemoveShares, useRemoveLiquidity } from '~state/pool';
+import {
+  percent,
   percentLess,
+  percentOf,
+  subtraction,
   toInternationalCurrencySystem,
   toNonDivisibleNumber,
   toPrecision,
   toReadableNumber,
+  toRoundedReadableNumber,
 } from '~utils/numbers';
 import { toRealSymbol } from '~utils/token';
 import { STABLE_LP_TOKEN_DECIMALS } from './AddLiquidity';
+import { InfoLine } from './LiquidityComponents';
 import StableTokenList, {
   FlexibleStableTokenList,
   OneTokenSelector,
@@ -65,26 +77,33 @@ export function RemoveLiquidityComponent(props: {
   shares: string;
   balances: TokenBalancesView;
   tokens: TokenMetadata[];
+  pool: Pool;
 }) {
-  const { shares, tokens, balances } = props;
+  const { shares, tokens, balances, pool } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');
   const [isPercentage, setIsPercentage] = useState<boolean>(true);
-  const [amount, setAmount] = useState<string>('');
+  const [amountByShare, setAmountByShare] = useState<string>('');
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [error, setError] = useState<Error>();
   const intl = useIntl();
   const [sharePercentage, setSharePercentage] = useState<string>('0');
   const progressBarIndex = [0, 25, 50, 75, 100];
-  const [selecedToken, setSelectedToken] = useState<string>('');
+  const [receiveAmounts, setReceiveAmounts] = useState<string[]>(['', '', '']);
 
   const setAmountsFlexible = [
     setFirstTokenAmount,
     setSecondTokenAmount,
     setThirdTokenAmount,
   ];
+
+  const predicedRemoveShares = usePredictRemoveShares({
+    pool_id: pool.id,
+    amounts: [firstTokenAmount, secondTokenAmount, thirdTokenAmount],
+    tokens,
+  });
 
   function validate({
     firstAmount,
@@ -137,53 +156,24 @@ export function RemoveLiquidityComponent(props: {
         )}`
       );
     }
-    setCanSubmit(true);
+
+    if (
+      Number(firstAmount) > 0 ||
+      Number(secondAmount) > 0 ||
+      Number(thirdAmount) > 0
+    ) {
+      setCanSubmit(true);
+    }
   }
 
   function submit() {
-    const amountBN = new BigNumber(amount?.toString());
-    const shareBN = new BigNumber(toReadableNumber(24, shares));
-    if (Number(amount) === 0) {
-      throw new Error(
-        intl.formatMessage({ id: 'must_input_a_value_greater_than_zero' })
-      );
-    }
-    if (amountBN.isGreaterThan(shareBN)) {
-      throw new Error(
-        intl.formatMessage({
-          id: 'must_input_a_value_not_greater_than_your_balance',
-        })
-      );
-    }
-    //return function of remove the liquidity
-    return '';
-  }
-
-  useEffect(() => {
-    const amounts = [firstTokenAmount, secondTokenAmount, thirdTokenAmount];
-    let notZeroTokens: string[] = [];
-
-    amounts.forEach((amount, i) => {
-      if (Number(amount) > 0) {
-        notZeroTokens.push(tokens[i].id);
-      }
-    });
-    if (notZeroTokens.length > 1) {
-      setSelectedToken('');
-    }
-  }, [tokens, firstTokenAmount, secondTokenAmount, thirdTokenAmount]);
-
-  useEffect(() => {
-    if (selecedToken) {
-      tokens.forEach((token, i) => {
-        token.id !== selecedToken && setAmountsFlexible[i]('');
-        token.id === selecedToken &&
-          setAmountsFlexible[i](
-            toReadableNumber(tokens[i].decimals, balances[selecedToken])
-          );
+    if (isPercentage)
+      return removeLiquidityFromStablePool({
+        id: pool.id,
+        min_amounts: receiveAmounts as [string, string, string],
+        shares,
       });
-    }
-  }, [selecedToken]);
+  }
 
   useEffect(() => {
     const rememberedSlippageTolerance =
@@ -198,16 +188,38 @@ export function RemoveLiquidityComponent(props: {
       localStorage.setItem(SHARE_PERCENT_KEY, sharePercentage);
     } else {
       const sharePercentageNow = localStorage.getItem(SHARE_PERCENT_KEY) || '0';
-
       setCanSubmit(Number(sharePercentageNow) > 0);
-
       setSharePercentage(sharePercentageNow);
+      const sharePercentOf = percentOf(
+        Number(sharePercentageNow),
+        toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares)
+      ).toString();
+      setAmountByShare(sharePercentOf);
     }
   }, [isPercentage]);
 
   useEffect(() => {
-    setCanSubmit(Number(sharePercentage) > 0);
-  }, [sharePercentage]);
+    setCanSubmit(Number(amountByShare) > 0);
+
+    if (Number(amountByShare) === 0) {
+      setReceiveAmounts(['0', '0', '0']);
+      return;
+    }
+
+    const shareParam = toNonDivisibleNumber(
+      STABLE_LP_TOKEN_DECIMALS,
+      amountByShare
+    );
+
+    setCanSubmit(false);
+    predictRemoveLiquidity(pool.id, shareParam).then((res) => {
+      setCanSubmit(true);
+      const finalAmounts = res.map((amount, i) =>
+        toPrecision(percentLess(slippageTolerance, amount), 0)
+      );
+      setReceiveAmounts(finalAmounts);
+    });
+  }, [sharePercentage, tokens, slippageTolerance, amountByShare]);
 
   return (
     <Card
@@ -230,18 +242,29 @@ export function RemoveLiquidityComponent(props: {
           {toPrecision(toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares), 3)}
         </span>
       </div>
-      <div className=" text-white flex justify-between text-xs pb-6 px-8">
+      <div
+        className={`${
+          isPercentage ? 'hidden' : ''
+        } text-white flex justify-between text-xs pb-6 px-8`}
+      >
         <span className="text-primaryText">
-          <FormattedMessage id="shares_left" defaultMessage="Shares left" />
+          <FormattedMessage
+            id="shares_avaliable"
+            defaultMessage="Shares avaliable"
+          />
         </span>
         <span>
-          {toPrecision(
-            toReadableNumber(
-              STABLE_LP_TOKEN_DECIMALS,
-              percentLess(Number(sharePercentage), shares)
+          {toRoundedReadableNumber({
+            decimals: STABLE_LP_TOKEN_DECIMALS,
+            number: subtraction(
+              shares,
+              toPrecision(
+                percentLess(slippageTolerance, predicedRemoveShares),
+                0
+              )
             ),
-            3
-          )}
+            precision: 3,
+          })}
         </span>
       </div>
 
@@ -276,12 +299,31 @@ export function RemoveLiquidityComponent(props: {
           <div className="flex">
             <div className="flex items-center justify-between mr-4">
               <p className="text-gray-400 text-xs whitespace-nowrap">
-                <FormattedMessage id="my_shares" defaultMessage="Shares" />
+                <FormattedMessage
+                  id="shares_removed"
+                  defaultMessage="Shares removed"
+                />
               </p>
             </div>
-            <div className="w-full h-12 text-white text-xl font-semibold bg-inputDarkBg rounded px-2 flex items-center justify-end">
+            {/* <div className="w-full h-12 text-white text-xl font-semibold bg-inputDarkBg rounded px-2 flex items-center justify-end">
               <div className="float-right">{sharePercentage}%</div>
-            </div>
+            </div> */}
+            <InputAmount
+              value={amountByShare}
+              onChangeAmount={(amount) => {
+                setAmountByShare(amount);
+                const percentage = toPrecision(
+                  percent(
+                    amount || '0',
+                    toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares)
+                  ).toString(),
+                  0
+                );
+                setSharePercentage(percentage);
+              }}
+              className="w-full border border-transparent rounded"
+              max={toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares)}
+            />
           </div>
           <div className="my-4">
             <div className="flex items-center justify-between text-gray-400">
@@ -296,7 +338,15 @@ export function RemoveLiquidityComponent(props: {
             </div>
             <div className="py-1 pr-1">
               <input
-                onChange={(e) => setSharePercentage(e.target.value)}
+                onChange={(e) => {
+                  const p = e.target.value;
+                  setSharePercentage(e.target.value);
+                  const sharePercentOf = percentOf(
+                    Number(p),
+                    toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares)
+                  ).toString();
+                  setAmountByShare(sharePercentOf);
+                }}
                 value={sharePercentage}
                 type="range"
                 className="w-full"
@@ -315,7 +365,11 @@ export function RemoveLiquidityComponent(props: {
             </span>
             <span>-</span>
           </div>
-          <StableTokensSymbol tokens={tokens} balances={balances} withPlus />
+          <StableTokensSymbol
+            tokens={tokens}
+            receiveAmounts={receiveAmounts}
+            withPlus
+          />
         </section>
       )}
       {/* remove as flexible */}
@@ -342,38 +396,40 @@ export function RemoveLiquidityComponent(props: {
               error={error}
             />
           </div>
-          <div className="flex items-center text-primaryText text-xs pl-8">
-            <span className="whitespace-nowrap mr-2">
-              <FormattedMessage
-                id="remove_as_one_token"
-                defaultMessage="Remove as one token"
-              />
-            </span>
-
-            <div className="border-b w-full border-primaryText border-opacity-30" />
-          </div>
-          <div className="border-b py-6 px-8 border-primaryText border-opacity-30">
-            <OneTokenSelector
-              tokens={tokens}
-              balances={balances}
-              selecedToken={selecedToken}
-              handleSelect={setSelectedToken}
-            />
-          </div>
-
-          <div className="pt-4 px-8 text-xs">
-            <StableSlipSelecter
-              slippageTolerance={slippageTolerance}
-              onChange={(slippage) => {
-                setSlippageTolerance(slippage);
-                localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
-              }}
-            />
-          </div>
         </section>
       )}
 
-      <div className="mt-4 px-8 w-full">
+      <div className="mt-4 px-8 w-full border-primaryText border-opacity-30 border-t">
+        <div
+          className={`flex items-center justify-between text-xs text-primaryText pt-5 ${
+            isPercentage ? 'hidden' : ''
+          }`}
+        >
+          <div>
+            <FormattedMessage
+              id="shares_removed"
+              defaultMessage="Shares removed"
+            />
+          </div>
+          <div className="text-white">
+            {toRoundedReadableNumber({
+              decimals: STABLE_LP_TOKEN_DECIMALS,
+              number: predicedRemoveShares,
+              precision: 3,
+            })}
+          </div>
+        </div>
+
+        <div className={`${isPercentage ? 'py-4' : 'pb-4'} text-xs`}>
+          <StableSlipSelecter
+            slippageTolerance={slippageTolerance}
+            onChange={(slippage) => {
+              setSlippageTolerance(slippage);
+              localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
+            }}
+          />
+        </div>
+
         {wallet.isSignedIn() ? (
           <SolidButton
             disabled={!canSubmit}

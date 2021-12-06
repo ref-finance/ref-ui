@@ -20,6 +20,7 @@ import {
   PoolDetails,
   removeLiquidityFromPool,
   predictLiquidityShares,
+  predictRemoveLiquidityByTokens,
 } from '../services/pool';
 import db, { PoolDb, WatchList } from '~store/RefDatabase';
 
@@ -402,4 +403,36 @@ export const usePredictShares = ({
   }, [firstTokenAmount, secondTokenAmount, thirdTokenAmount]);
 
   return predicedShares;
+};
+
+export const usePredictRemoveShares = ({
+  pool_id,
+  amounts,
+  tokens,
+}: {
+  pool_id: number;
+  amounts: string[];
+  tokens: TokenMetadata[];
+}) => {
+  const [predictedRemoveShares, setPredictedRemoveShares] =
+    useState<string>('0');
+
+  const zeroValidate = amounts.every((amount) => !(Number(amount) > 0));
+
+  const parsedAmounts = amounts.map((amount, i) => {
+    return toNonDivisibleNumber(tokens[i].decimals, amount || '0');
+  });
+
+  useEffect(() => {
+    if (zeroValidate) {
+      setPredictedRemoveShares('0');
+      return;
+    }
+
+    predictRemoveLiquidityByTokens(pool_id, parsedAmounts).then(
+      setPredictedRemoveShares
+    );
+  }, [...amounts]);
+
+  return predictedRemoveShares;
 };

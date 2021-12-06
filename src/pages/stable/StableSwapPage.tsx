@@ -45,6 +45,7 @@ function StableSwapPage() {
             tokens={tokens}
             shares={shares}
             balances={balances}
+            pool={pool}
           />
         );
     }

@@ -504,7 +504,7 @@ export const removeLiquidityFromStablePool = async ({
     {
       methodName: 'remove_liquidity',
       args: { pool_id: id, shares, min_amounts },
-      amount: LP_STORAGE_AMOUNT,
+      amount: ONE_YOCTO_NEAR,
     },
   ];
 
@@ -522,7 +522,7 @@ export const removeLiquidityFromStablePool = async ({
 
 export const predictRemoveLiquidityByTokens = async (
   pool_id: number,
-  amounts: []
+  amounts: string[]
 ): Promise<string> => {
   return refFiViewFunction({
     methodName: 'predict_remove_liqudity_by_tokens',

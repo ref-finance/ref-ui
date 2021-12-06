@@ -1,5 +1,5 @@
-import React from 'react';
-import { FormattedMessage } from 'react-intl';
+import React, { useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 import InputAmount from '~components/forms/InputAmount';
 import { Radio } from '~components/icon';
 import { TokenMetadata } from '~services/ft-contract';
@@ -163,6 +163,8 @@ export function FlexibleStableTokenList(props: {
   } = props;
   if (tokens.length < 1) return null;
 
+  const intil = useIntl();
+
   return (
     <div className="mt-4">
       {tokens.map((token, i) => {
@@ -179,7 +181,6 @@ export function FlexibleStableTokenList(props: {
               </div>
               <div className="w-full flex flex-col">
                 <InputAmount
-                  iserror={isError}
                   className="w-full border border-transparent rounded"
                   max={toReadableNumber(token.decimals, balances[token.id])}
                   onChangeAmount={(amount) => {
@@ -197,20 +198,25 @@ export function FlexibleStableTokenList(props: {
                     setAmountsFlexible[i](amount);
                   }}
                   value={amountsFlexible[i]}
+                  iserror={isError}
                 />
                 <div
                   className={`w-full flex items-center ${
                     isError ? 'justify-between' : 'justify-end'
                   } `}
                 >
-                  {isError && <Alert level="error" message={error.message} />}
+                  {isError && (
+                    <Alert
+                      level="error"
+                      message={intil.formatMessage({
+                        id: 'out_of_avaliable_shares',
+                      })}
+                    />
+                  )}
 
                   <div className="text-xs text-right mt-1 mb-4 text-primaryText">
                     {toPrecision(
-                      subtraction(
-                        toReadableNumber(token.decimals, balances[token.id]),
-                        amountsFlexible?.[i] || '0'
-                      ),
+                      toReadableNumber(token.decimals, balances[token.id]),
                       2,
                       true
                     )}
@@ -227,10 +233,10 @@ export function FlexibleStableTokenList(props: {
 
 export function StableTokensSymbol(props: {
   tokens: TokenMetadata[];
-  balances: TokenBalancesView;
+  receiveAmounts: string[];
   withPlus?: boolean;
 }) {
-  const { tokens, balances, withPlus } = props;
+  const { tokens, receiveAmounts, withPlus } = props;
   return (
     <div className="flex mb-6 items-center justify-between">
       {Array(withPlus ? 5 : 3)
@@ -246,8 +252,11 @@ export function StableTokensSymbol(props: {
                   <p className="text-sm">{toRealSymbol(token.symbol)}</p>
                   <div className="text-xs">
                     {toPrecision(
-                      toReadableNumber(token.decimals, balances[token.id]),
-                      2,
+                      toReadableNumber(
+                        token.decimals,
+                        receiveAmounts[withPlus ? Math.floor(i / 2) : i]
+                      ),
+                      3,
                       true
                     )}
                   </div>

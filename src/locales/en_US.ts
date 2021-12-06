@@ -265,5 +265,8 @@ const en_US = {
   value_rewards_token: 'Value of rewards',
   all: 'all',
   all_5: '5 tokens per time',
+  out_of_avaliable_shares: 'Out of available shares',
+  shares_removed: 'Shares removed',
+  shares_avaliable: 'Shares avaliable',
 };
 export default en_US;
