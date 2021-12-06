@@ -89,12 +89,20 @@ function MyShares({
   else displayPercent = toPrecision(String(sharePercent), decimal || 4);
 
   return (
-    <div className="h-12 inline-flex flex-col justify-center">
-      <div className="ml-2 mb-1 text-sm">{`${displayPercent}% of Total`}</div>
+    <div className="h-12 inline-flex flex-col justify-center xs:text-right md:text-right">
+      <div className="px-2 pb-1 xs:pr-0 md:pr-0 text-sm">{`${toRoundedReadableNumber(
+        {
+          decimals: LP_TOKEN_DECIMALS,
+          number: userTotalShare
+            .toNumber()
+            .toLocaleString('fullwide', { useGrouping: false }),
+          precision: decimal || 6,
+        }
+      )} (${displayPercent}%)`}</div>
       {supportFarm > 0 && (
         <object>
           <Link
-            className="inline-flex items-center inline-block text-xs text-gradientFrom rounded-full py-1 border border-transparent hover:border-gradientFrom px-2"
+            className="items-center inline-flex text-xs text-gradientFrom rounded-full py-1 border border-transparent hover:border-gradientFrom px-2 xs:pr-0 md:pr-0"
             to={{
               pathname: '/farms',
             }}
