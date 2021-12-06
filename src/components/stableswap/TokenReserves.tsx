@@ -24,26 +24,35 @@ import {
 import { InfoLine } from './LiquidityComponents';
 import _ from 'lodash';
 
-// function customLabel({
-//   cx,
-//   cy,
-//   midAngle,
-//   innerRadius,
-//   outerRadius,
-//   percent,
-//   index,
-//   tokens,
-//   pool,
-// }: any) {
-//   const RADIAN = Math.PI / 180;
-//   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-//   const x = cx + radius * Math.cos(-midAngle * RADIAN);
-//   const y = cy + radius * Math.sin(-midAngle * RADIAN);
+function customLabel({
+  cx,
+  cy,
+  midAngle,
+  innerRadius,
+  outerRadius,
+  percent,
+  index,
+}: any) {
+  const RADIAN = Math.PI / 180;
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
-//   return (
-//     <image width="30" x={x} y={y} height="30" xlinkHref={tokens[index].icon} />
-//   );
-// }
+  // return <image width="30" height="30" xlinkHref={tokens[index].icon} />;
+  return (
+    <g>
+      <text
+        x={x}
+        y={y}
+        fill="white"
+        textAnchor={x > cx ? 'start' : 'end'}
+        dominantBaseline="central"
+      >
+        {`${(percent * 100).toFixed(0)}%`}
+      </text>
+    </g>
+  );
+}
 
 function TokenChart({ tokens, pool }: { tokens: TokenMetadata[]; pool: Pool }) {
   const data = tokens.map((token, i) => {
@@ -67,7 +76,7 @@ function TokenChart({ tokens, pool }: { tokens: TokenMetadata[]; pool: Pool }) {
         outerRadius={80}
         dataKey="value"
         labelLine={false}
-        // label={(props) => customLabel({ ...props, tokens, pool })}
+        label={customLabel}
       >
         {data.map((entry, index) => {
           return (

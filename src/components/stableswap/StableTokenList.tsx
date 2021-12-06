@@ -179,7 +179,7 @@ export function FlexibleStableTokenList(props: {
               </div>
               <div className="w-full flex flex-col">
                 <InputAmount
-                  isError={isError}
+                  iserror={isError}
                   className="w-full border border-transparent rounded"
                   max={toReadableNumber(token.decimals, balances[token.id])}
                   onChangeAmount={(amount) => {

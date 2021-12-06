@@ -5,7 +5,7 @@ interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   maxBorder?: boolean;
   showMaxAsBalance?: boolean;
   onChangeAmount?: (amount: string) => void;
-  isError?: boolean;
+  iserror?: boolean;
 }
 
 export default function InputAmount({
@@ -36,21 +36,21 @@ export default function InputAmount({
   };
 
   useEffect(() => {
-    if (rest?.isError) {
+    if (rest?.iserror) {
       field.current.className =
         className + ' border border-transparent rounded';
-      cachedError.current = rest.isError;
-    } else if (!rest?.isError && cachedError.current) {
+      cachedError.current = rest.iserror;
+    } else if (!rest?.iserror && cachedError.current) {
       field.current.className = className + ' border border-greenLight rounded';
     }
-  }, [rest?.isError]);
+  }, [rest?.iserror]);
 
   return (
     <>
       <fieldset className={className} ref={field}>
         <div
           className={`relative flex align-center items-center ${
-            rest?.isError ? 'bg-error bg-opacity-30' : 'bg-inputDarkBg'
+            rest?.iserror ? 'bg-error bg-opacity-30' : 'bg-inputDarkBg'
           }  rounded`}
         >
           <input
@@ -63,7 +63,7 @@ export default function InputAmount({
             className={`xs:text-sm text-lg font-bold w-full p-2 ${
               disabled
                 ? 'text-gray-200 placeholder-gray-200'
-                : rest?.isError
+                : rest?.iserror
                 ? 'text-error'
                 : 'text-white'
             }`}
