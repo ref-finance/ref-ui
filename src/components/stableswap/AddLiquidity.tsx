@@ -10,7 +10,11 @@ import { StableSlipSelecter } from '~components/forms/SlippageSelector';
 import { Near } from '~components/icon';
 import { TokenMetadata } from '~services/ft-contract';
 import { REF_FARM_CONTRACT_ID, wallet } from '~services/near';
-import { addLiquidityToPool, Pool } from '~services/pool';
+import {
+  addLiquidityToPool,
+  addLiquidityToStablePool,
+  Pool,
+} from '~services/pool';
 import { TokenBalancesView } from '~services/token';
 import { isMobile } from '~utils/device';
 import {
@@ -318,12 +322,10 @@ export default function AddLiquidityComponent(props: {
   }
 
   function submit() {
-    return addLiquidityToPool({
-      id: pool.id,
-      tokenAmounts: [
-        { token: tokens[0], amount: firstTokenAmount },
-        { token: tokens[1], amount: secondTokenAmount },
-      ],
+    return addLiquidityToStablePool({
+      id: 10,
+      amounts: [firstTokenAmount, secondTokenAmount, thirdTokenAmount],
+      min_shares: '1',
     });
   }
 
