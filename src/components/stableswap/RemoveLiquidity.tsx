@@ -215,7 +215,7 @@ export function RemoveLiquidityComponent(props: {
         <span>0.999</span>
       </div>
 
-      <div className="flex bg-inputDarkBg rounded text-white mx-8">
+      <div className="flex bg-inputDarkBg rounded text-white mx-8 p-1">
         <div
           className={`flex justify-center items-center w-2/4 rounded cursor-pointer ${
             isPercentage ? 'bg-framBorder' : ''

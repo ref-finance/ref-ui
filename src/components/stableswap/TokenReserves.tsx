@@ -12,6 +12,8 @@ import {
   Pie,
   LabelListProps,
   LabelProps,
+  Label,
+  LabelList,
 } from 'recharts';
 import {
   toReadableNumber,
@@ -22,7 +24,7 @@ import {
 import { InfoLine } from './LiquidityComponents';
 import _ from 'lodash';
 
-// function LabelRender({
+// function customLabel({
 //   cx,
 //   cy,
 //   midAngle,
@@ -30,21 +32,16 @@ import _ from 'lodash';
 //   outerRadius,
 //   percent,
 //   index,
-//   pool,
 //   tokens,
-//   ...rest
+//   pool,
 // }: any) {
 //   const RADIAN = Math.PI / 180;
 //   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
 //   const x = cx + radius * Math.cos(-midAngle * RADIAN);
 //   const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
 //   return (
-//     <svg>
-//       <image
-//         src={tokens[index].symbol}
-//         className="rounded-full w-7 h-7 border border-gradientFromHover border-solid"
-//       />
-//     </svg>
+//     <image width="30" x={x} y={y} height="30" xlinkHref={tokens[index].icon} />
 //   );
 // }
 
@@ -69,6 +66,8 @@ function TokenChart({ tokens, pool }: { tokens: TokenMetadata[]; pool: Pool }) {
         innerRadius={60}
         outerRadius={80}
         dataKey="value"
+        labelLine={false}
+        // label={(props) => customLabel({ ...props, tokens, pool })}
       >
         {data.map((entry, index) => {
           return (
@@ -103,7 +102,7 @@ const calculateTokenShare = ({
 
   return (
     toInternationalCurrencySystem(value, 2).toString() +
-    `(${toPrecision(percent(value, totalShares.toString()).toString(), 2)}%)`
+    ` (${toPrecision(percent(value, totalShares.toString()).toString(), 2)}%)`
   );
 };
 
@@ -143,7 +142,7 @@ export default function ({
       <Card
         padding="p-8"
         bgcolor="bg-cardBg"
-        className={`text-xs text-primaryText ${showReserves && 'hidden'}`}
+        className={`text-xs text-primaryText ${!showReserves && 'hidden'}`}
         width="w-full"
       >
         <div className="">
@@ -156,15 +155,13 @@ export default function ({
         <div className="flex justify-center">
           <TokenChart tokens={tokens} pool={pool} />
         </div>
-        {tokens.map((token, i) => {
-          return (
-            <InfoLine
-              key={token.symbol}
-              title={token.symbol}
-              value={calculateTokenShare({ pool, token, tokens })}
-            />
-          );
-        })}
+        {tokens.map((token, i) => (
+          <InfoLine
+            key={token.symbol}
+            title={token.symbol}
+            value={calculateTokenShare({ pool, token, tokens })}
+          />
+        ))}
         <InfoLine
           title={intl.formatMessage({ id: 'total_stable_coins' })}
           value={totalStableCoins || '0'}
