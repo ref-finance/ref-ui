@@ -21,6 +21,7 @@ module.exports = {
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
         farmContainer: '1fr 4fr',
+        farmContainerOther: '1.2fr 3fr'
       },
       colors: {
         primary: '#10B981',
@@ -59,6 +60,7 @@ module.exports = {
         farmSbg: '#2F3D47',
         farmRound: '#B3C2CC',
         farmTopRight: '#008870',
+        datebg:'#637684'
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

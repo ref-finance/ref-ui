@@ -25,6 +25,7 @@ import { GradientButton } from '~components/button/Button';
 import { wallet } from '~services/near';
 import SwapFormWrap from '../forms/SwapFormWrap';
 import SwapTip from '~components/forms/SwapTip';
+import { WarnTriangle, ErrorTriangle } from '~components/icon/SwapRefresh';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -130,7 +131,6 @@ function DetailView({
     from: string
   ) => {
     const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
-
     const textColor =
       Number(value) <= 1
         ? 'text-greenLight'
@@ -144,7 +144,21 @@ function DetailView({
       <span className={`${textColor}`}>{`≈ -${toPrecision(value, 2)}%`}</span>
     );
   };
-
+  const getPriceImpactTipType = (
+    pool: Pool,
+    tokenIn: TokenMetadata,
+    tokenOut: TokenMetadata,
+    from: string
+  ) => {
+    const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
+    const reault =
+      Number(value) <= 1 ? null : 1 < Number(value) && Number(value) <= 2 ? (
+        <WarnTriangle></WarnTriangle>
+      ) : (
+        <ErrorTriangle></ErrorTriangle>
+      );
+    return reault;
+  };
   if (!pool || !from || !to || !(Number(from) > 0)) return null;
 
   return (
@@ -156,6 +170,9 @@ function DetailView({
         }}
       >
         <div className="flex items-center text-white cursor-pointer">
+          <label className="mr-2">
+            {getPriceImpactTipType(pool, tokenIn, tokenOut, from)}
+          </label>
           <p className="block text-xs">
             <FormattedMessage id="details" defaultMessage="Details" />
           </p>
@@ -343,7 +360,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
             >
               <FormattedMessage
                 id="deposit_to_swap"
-                defaultMessage="Deposit to swap"
+                defaultMessage="Deposit to Swap"
               />
             </GradientButton>
           </div>
