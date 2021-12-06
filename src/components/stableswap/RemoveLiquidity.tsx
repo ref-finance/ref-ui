@@ -16,12 +16,14 @@ import { Pool } from '~services/pool';
 import { TokenBalancesView } from '~services/token';
 import { useRemoveLiquidity } from '~state/pool';
 import {
+  percentLess,
   toInternationalCurrencySystem,
   toNonDivisibleNumber,
   toPrecision,
   toReadableNumber,
 } from '~utils/numbers';
 import { toRealSymbol } from '~utils/token';
+import { STABLE_LP_TOKEN_DECIMALS } from './AddLiquidity';
 import StableTokenList, {
   FlexibleStableTokenList,
   OneTokenSelector,
@@ -29,6 +31,7 @@ import StableTokenList, {
 } from './StableTokenList';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
+const SHARE_PERCENT_KEY = 'SHARE_PERCENT_VALUE';
 
 function Icon(props: { icon?: string; className?: string; style?: any }) {
   const { icon, className, style } = props;
@@ -189,6 +192,23 @@ export function RemoveLiquidityComponent(props: {
     setSlippageTolerance(Number(rememberedSlippageTolerance));
   }, []);
 
+  useEffect(() => {
+    if (!isPercentage) {
+      setSharePercentage('0');
+      localStorage.setItem(SHARE_PERCENT_KEY, sharePercentage);
+    } else {
+      const sharePercentageNow = localStorage.getItem(SHARE_PERCENT_KEY) || '0';
+
+      setCanSubmit(Number(sharePercentageNow) > 0);
+
+      setSharePercentage(sharePercentageNow);
+    }
+  }, [isPercentage]);
+
+  useEffect(() => {
+    setCanSubmit(Number(sharePercentage) > 0);
+  }, [sharePercentage]);
+
   return (
     <Card
       padding="py-6 px-0"
@@ -206,13 +226,23 @@ export function RemoveLiquidityComponent(props: {
         <span className="text-primaryText">
           <FormattedMessage id="my_shares" defaultMessage="Shares" />
         </span>
-        <span>0.999</span>
+        <span>
+          {toPrecision(toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares), 3)}
+        </span>
       </div>
       <div className=" text-white flex justify-between text-xs pb-6 px-8">
         <span className="text-primaryText">
           <FormattedMessage id="shares_left" defaultMessage="Shares left" />
         </span>
-        <span>0.999</span>
+        <span>
+          {toPrecision(
+            toReadableNumber(
+              STABLE_LP_TOKEN_DECIMALS,
+              percentLess(Number(sharePercentage), shares)
+            ),
+            3
+          )}
+        </span>
       </div>
 
       <div className="flex bg-inputDarkBg rounded text-white mx-8 p-1.5">

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router-dom';
 import Alert from '~components/alert/Alert';
-import { SolidButton } from '~components/button/Button';
+import { ConnectToNearBtn, SolidButton } from '~components/button/Button';
 import { Card } from '~components/card/Card';
 import { StableSlipSelecter } from '~components/forms/SlippageSelector';
 import { Near } from '~components/icon';
@@ -14,8 +14,11 @@ import {
   addLiquidityToPool,
   addLiquidityToStablePool,
   Pool,
+  predictLiquidityShares,
 } from '~services/pool';
 import { TokenBalancesView } from '~services/token';
+import { usePredictShares } from '~state/pool';
+
 import { isMobile } from '~utils/device';
 import {
   calculateFairShare,
@@ -31,7 +34,9 @@ import { ChooseAddType } from './LiquidityComponents';
 import StableTokenList from './StableTokenList';
 import { InfoLine } from './LiquidityComponents';
 import { usePool } from '~state/pool';
+import { LP_TOKEN_DECIMALS } from '~services/m-token';
 
+export const STABLE_LP_TOKEN_DECIMALS = 18;
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE';
 
 const InfoCard = ({
@@ -90,7 +95,13 @@ export default function AddLiquidityComponent(props: {
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [canDeposit, setCanDeposit] = useState<boolean>(false);
   const [farmStake, setFarmStake] = useState<string | number>('0');
-
+  const predicedShares = usePredictShares({
+    tokens,
+    poolId: pool.id,
+    firstTokenAmount,
+    secondTokenAmount,
+    thirdTokenAmount,
+  });
   useEffect(() => {
     const seedIdList: string[] = Object.keys(stakeList);
     let tempFarmStake: string | number = '0';
@@ -103,7 +114,28 @@ export default function AddLiquidityComponent(props: {
     setFarmStake(tempFarmStake);
   }, [stakeList]);
 
-  const userTotalShare = BigNumber.sum(shares, farmStake);
+  useEffect(() => {
+    if (addType === 'addMax') {
+      setFirstTokenAmount(
+        toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+      );
+      setSecondTokenAmount(
+        toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+      );
+      setThirdTokenAmount(
+        toReadableNumber(tokens[2].decimals, balances[tokens[2].id])
+      );
+    }
+  }, [addType]);
+
+  useEffect(() => {
+    const rememberedSlippageTolerance =
+      localStorage.getItem(SWAP_SLIPPAGE_KEY) || slippageTolerance;
+
+    setSlippageTolerance(Number(rememberedSlippageTolerance));
+  }, []);
+
+  const userTotalShare = BigNumber.sum(shares, farmStake, predicedShares);
 
   if (!balances) return null;
 
@@ -389,78 +421,18 @@ export default function AddLiquidityComponent(props: {
   }
 
   function submit() {
+    const min_shares = percentLess(slippageTolerance, predicedShares);
+
+    const amounts = [firstTokenAmount, secondTokenAmount, thirdTokenAmount].map(
+      (amount, i) => toNonDivisibleNumber(tokens[i].decimals, amount)
+    ) as [string, string, string];
+
     return addLiquidityToStablePool({
       id: 10,
-      amounts: [firstTokenAmount, secondTokenAmount, thirdTokenAmount],
-      min_shares: '1',
+      amounts,
+      min_shares,
     });
   }
-
-  const ButtonRender = () => {
-    if (!wallet.isSignedIn()) {
-      return (
-        <SolidButton
-          className="focus:outline-none px-4 w-full rounded-3xl"
-          onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
-        >
-          <div className="flex items-center justify-center w-full m-auto">
-            <div className="mr-2">
-              {' '}
-              <Near />
-            </div>
-            <div>
-              <FormattedMessage
-                id="connect_to_near"
-                defaultMessage="Connect to NEAR"
-              />
-            </div>
-          </div>
-        </SolidButton>
-      );
-    }
-
-    const handleClick = async () => {
-      if (canDeposit) {
-        history.push(`/deposit`);
-      } else if (canSubmit) {
-        submit();
-      }
-    };
-    return (
-      <SolidButton
-        disabled={!canSubmit && !canDeposit}
-        className="focus:outline-none px-4 w-full"
-        onClick={handleClick}
-      >
-        <div className="flex items-center justify-center w-full m-auto text-lg">
-          <div>
-            <FormattedMessage id={messageId} defaultMessage={defaultMessage} />
-          </div>
-        </div>
-      </SolidButton>
-    );
-  };
-
-  useEffect(() => {
-    if (addType === 'addMax') {
-      setFirstTokenAmount(
-        toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
-      );
-      setSecondTokenAmount(
-        toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
-      );
-      setThirdTokenAmount(
-        toReadableNumber(tokens[2].decimals, balances[tokens[2].id])
-      );
-    }
-  }, [addType]);
-
-  useEffect(() => {
-    const rememberedSlippageTolerance =
-      localStorage.getItem(SWAP_SLIPPAGE_KEY) || slippageTolerance;
-
-    setSlippageTolerance(Number(rememberedSlippageTolerance));
-  }, []);
 
   return (
     <>
@@ -503,14 +475,39 @@ export default function AddLiquidityComponent(props: {
             }}
           />
         </div>
-        <div className="flex items-center justify-center px-8">
-          <ButtonRender />
+        <div className="px-8">
+          {wallet.isSignedIn() ? (
+            <SolidButton
+              disabled={!canSubmit}
+              className="focus:outline-none px-4 w-full text-lg"
+              onClick={() => {
+                try {
+                  submit();
+                } catch (error) {
+                  setError(error);
+                }
+              }}
+            >
+              <FormattedMessage
+                id={messageId}
+                defaultMessage={defaultMessage}
+              />
+            </SolidButton>
+          ) : (
+            <ConnectToNearBtn />
+          )}
         </div>
       </Card>
 
       <InfoCard
         shares={myShares({ totalShares: pool.shareSupply, userTotalShare })}
-        minimumReceived={toPrecision(percentLess(slippageTolerance, '100'), 3)}
+        minimumReceived={toPrecision(
+          percentLess(
+            slippageTolerance,
+            toReadableNumber(STABLE_LP_TOKEN_DECIMALS, predicedShares)
+          ),
+          3
+        )}
       />
     </>
   );

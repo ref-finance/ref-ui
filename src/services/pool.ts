@@ -401,10 +401,10 @@ export const addLiquidityToPool = async ({
 
 export const predictLiquidityShares = async (
   pool_id: number,
-  amounts: []
-): Promise<Pool> => {
+  amounts: string[]
+): Promise<string> => {
   return refFiViewFunction({
-    methodName: 'predict_add_stable_liquidity',
+    methodName: 'predict_add_stable_liqudity',
     args: { pool_id: pool_id, amounts },
   });
 };
