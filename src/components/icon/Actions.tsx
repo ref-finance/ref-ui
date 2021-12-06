@@ -700,14 +700,15 @@ const viewMap = {
   'Add Liquidity': AddLiquidity,
   'Remove Liquidity': RemoveLiquidity,
   'Add Pool': AddPool,
-  'Mft transfer call': AddLiquidity,
-  'Withdraw seed': RemoveLiquidity,
+  Stake: AddLiquidity,
+  Unstake: RemoveLiquidity,
   'Claim reward by seed': AddLiquidity,
   'Claim reward by farm': AddLiquidity,
-  'Withdraw reward': AddLiquidity,
+  'Withdraw reward': Withdraw,
   'Near deposit': Deposit,
-  'Ft transfer call': Deposit,
-  'Near withdraw': Swap,
+  Deposit: Deposit,
+  'Instant swap': Swap,
+  'Near withdraw': Withdraw,
 };
 
 const blackViewMap = {
@@ -719,14 +720,15 @@ const blackViewMap = {
   'Add Liquidity': AddLiquidityBlack,
   'Remove Liquidity': RemoveLiquidityBlack,
   'Add Pool': AddPoolBlack,
-  'Mft transfer call': AddLiquidityBlack,
-  'Withdraw seed': RemoveLiquidityBlack,
+  Stake: AddLiquidityBlack,
+  Unstake: RemoveLiquidityBlack,
   'Claim reward by seed': AddLiquidityBlack,
   'Claim reward by farm': AddLiquidityBlack,
-  'Withdraw reward': AddLiquidityBlack,
+  'Withdraw reward': WithdrawBlack,
   'Near deposit': DepositBlack,
-  'Ft transfer call': DepositBlack,
-  'Near withdraw': SwapBlack,
+  Deposit: DepositBlack,
+  'Instant swap': Swap,
+  'Near withdraw': WithdrawBlack,
 };
 
 export function mapToView(action: string, black = false): JSX.Element {

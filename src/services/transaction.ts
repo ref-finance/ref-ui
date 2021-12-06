@@ -142,7 +142,6 @@ const parseStorageDeposit = async () => {
   };
 };
 const parseMtfTransferCall = async (params: any) => {
-  // todo
   const { amount, receiver_id, token_id } = params;
   return {
     Action: 'Stake',
