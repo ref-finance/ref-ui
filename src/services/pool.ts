@@ -479,6 +479,47 @@ export const removeLiquidityFromPool = async ({
   return refFiManyFunctionCalls(actions);
 };
 
+export const predictRemoveLiquidityShares = async (
+  pool_id: number,
+  shares: []
+): Promise<Pool> => {
+  return refFiViewFunction({
+    methodName: 'predict_remove_liqudity',
+    args: { shares: shares },
+  });
+};
+
+interface RemoveLiquidityFromStablePoolOptions {
+  id: number;
+  amounts: [string, string, string];
+  max_burn_shares: string;
+}
+
+export const removeLiquidityFromStablePool = async ({
+  id,
+  amounts,
+  max_burn_shares,
+}: RemoveLiquidityFromStablePoolOptions) => {
+  const actions: RefFiFunctionCallOptions[] = [
+    {
+      methodName: 'remove_liquidity_by_tokens',
+      args: { pool_id: id, amounts, max_burn_shares },
+      amount: LP_STORAGE_AMOUNT,
+    },
+  ];
+
+  const needDeposit = await checkTokenNeedsStorageDeposit();
+  if (needDeposit) {
+    actions.unshift(
+      storageDepositAction({
+        amount: needDeposit,
+      })
+    );
+  }
+
+  return refFiManyFunctionCalls(actions);
+};
+
 export const addSimpleLiquidityPool = async (
   tokenIds: string[],
   fee: number
