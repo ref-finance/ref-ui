@@ -41,6 +41,7 @@ export interface PoolDb extends Pool {
 export interface FarmDexie {
   id: string;
   pool_id: string;
+  status: string;
 }
 
 export interface WatchList {
@@ -60,10 +61,10 @@ class RefDatabase extends Dexie {
   public constructor() {
     super('RefDatabase');
 
-    this.version(5.0).stores({
+    this.version(5.1).stores({
       pools: 'id, token1Id, token2Id, token1Supply, token2Supply, fee, shares',
       tokens: 'id, name, symbol, decimals, icon',
-      farms: 'id, pool_id',
+      farms: 'id, pool_id, status',
       pools_tokens:
         'id, token1Id, token2Id, token1Supply, token2Supply, fee, shares, update_time, token0_price',
       watchList: 'id, account, pool_id, update_time',

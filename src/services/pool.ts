@@ -7,14 +7,22 @@ import {
   REF_FI_CONTRACT_ID,
   Transaction,
   wallet,
+  RefFiFunctionCallOptions,
+  refFiManyFunctionCalls,
 } from './near';
 import BN from 'bn.js';
 import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { toNonDivisibleNumber } from '../utils/numbers';
-import { storageDepositForFTAction } from './creators/storage';
+import {
+  needDepositStorage,
+  ONE_MORE_DEPOSIT_AMOUNT,
+  storageDepositAction,
+  storageDepositForFTAction,
+} from './creators/storage';
 import { getTopPools } from '~services/indexer';
 import { PoolRPCView } from './api';
+import { checkTokenNeedsStorageDeposit } from '~services/token';
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -253,18 +261,24 @@ interface GetPoolOptions {
   tokenInId: string;
   tokenOutId: string;
   amountIn: string;
+  setLoadingTrigger?: (loadingTrigger: boolean) => void;
+  setLoadingData?: (loading: boolean) => void;
+  loadingTrigger: boolean;
 }
 
 export const getPoolsByTokens = async ({
   tokenInId,
   tokenOutId,
   amountIn,
+  setLoadingData,
+  setLoadingTrigger,
+  loadingTrigger,
 }: GetPoolOptions): Promise<Pool[]> => {
   const amountToTrade = new BN(amountIn);
   let filtered_pools;
   const cache = await db.checkPoolsByTokens(tokenInId, tokenOutId);
 
-  if (cache) {
+  if (cache && !loadingTrigger) {
     const cache_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
     filtered_pools = cache_pools.filter(
       (p) =>
@@ -272,6 +286,7 @@ export const getPoolsByTokens = async ({
         p.supplies[tokenOutId]
     );
   } else {
+    setLoadingData(true);
     const totalPools = await getTotalPools();
     const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
     const pools = (
@@ -285,6 +300,8 @@ export const getPoolsByTokens = async ({
         p.supplies[tokenOutId]
     );
   }
+  setLoadingTrigger(false);
+  setLoadingData(false);
   return filtered_pools;
 };
 
@@ -330,14 +347,23 @@ export const getSharesInPool = (id: number): Promise<string> => {
   });
 };
 
-export const canFarm = async (pool_id: number): Promise<Boolean> => {
-  const poolIds: number[] = [];
-  const farms = await db.queryFarms();
-
-  for (const item of farms) {
-    poolIds.push(Number(item.pool_id));
+export const canFarm = async (
+  pool_id: number,
+  withEnded?: boolean
+): Promise<Number> => {
+  let farms;
+  if (!withEnded) {
+    farms = (await db.queryFarms()).filter((farm) => farm.status !== 'Ended');
+  } else {
+    farms = await db.queryFarms();
   }
-  return poolIds.includes(pool_id);
+
+  const count = farms.reduce((pre, cur) => {
+    if (Number(cur.pool_id) === pool_id) return pre + 1;
+    return pre;
+  }, 0);
+
+  return count;
 };
 
 interface AddLiquidityToPoolOptions {
@@ -353,11 +379,24 @@ export const addLiquidityToPool = async ({
     toNonDivisibleNumber(token.decimals, amount)
   );
 
-  return refFiFunctionCall({
-    methodName: 'add_liquidity',
-    args: { pool_id: id, amounts },
-    amount: LP_STORAGE_AMOUNT,
-  });
+  const actions: RefFiFunctionCallOptions[] = [
+    {
+      methodName: 'add_liquidity',
+      args: { pool_id: id, amounts },
+      amount: LP_STORAGE_AMOUNT,
+    },
+  ];
+
+  const needDeposit = await checkTokenNeedsStorageDeposit();
+  if (needDeposit) {
+    actions.unshift(
+      storageDepositAction({
+        amount: needDeposit,
+      })
+    );
+  }
+
+  return refFiManyFunctionCalls(actions);
 };
 
 interface RemoveLiquidityOptions {
@@ -374,15 +413,28 @@ export const removeLiquidityFromPool = async ({
 
   const amounts = pool.tokenIds.map((tokenId) => minimumAmounts[tokenId]);
 
-  return refFiFunctionCall({
-    methodName: 'remove_liquidity',
-    args: {
-      pool_id: id,
-      shares,
-      min_amounts: amounts,
+  const actions: RefFiFunctionCallOptions[] = [
+    {
+      methodName: 'remove_liquidity',
+      args: {
+        pool_id: id,
+        shares,
+        min_amounts: amounts,
+      },
+      amount: ONE_YOCTO_NEAR,
     },
-    amount: ONE_YOCTO_NEAR,
-  });
+  ];
+
+  const needDeposit = await checkTokenNeedsStorageDeposit();
+  if (needDeposit) {
+    actions.unshift(
+      storageDepositAction({
+        amount: needDeposit,
+      })
+    );
+  }
+
+  return refFiManyFunctionCalls(actions);
 };
 
 export const addSimpleLiquidityPool = async (
@@ -416,6 +468,6 @@ export const addSimpleLiquidityPool = async (
 
   return executeMultipleTransactions(
     transactions,
-    `${window.location.origin}/pools`
+    `${window.location.origin}/pools/add`
   );
 };

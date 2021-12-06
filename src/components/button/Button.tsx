@@ -1,6 +1,6 @@
 import React, { HTMLAttributes, useState } from 'react';
 import { wallet, REF_FARM_CONTRACT_ID } from '~services/near';
-import { Near } from '~components/icon';
+import { Near, UnLoginIcon, FarmMiningIcon, FarmStamp } from '~components/icon';
 import { FormattedMessage } from 'react-intl';
 
 export function BorderlessButton(
@@ -108,13 +108,24 @@ export function WithdrawButton(
 
 export function ConnectToNearBtn() {
   return (
-    <GradientButton
-      color="#fff"
-      className={`w-full text-center text-lg text-white mt-4 px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
+    <div
+      className="flex items-center cursor-pointer justify-center rounded-full py-2 text-base"
+      style={{
+        background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+        color: '#fff',
+      }}
       onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
     >
-      <FormattedMessage id="connect_to_near" defaultMessage="Connect to NEAR" />
-    </GradientButton>
+      <div className="mr-3.5">
+        <UnLoginIcon />
+      </div>
+      <button>
+        <FormattedMessage
+          id="connect_to_near"
+          defaultMessage="Connect to NEAR"
+        />
+      </button>
+    </div>
   );
 }
 
@@ -171,11 +182,9 @@ export function OutlineButton(
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`rounded py-2 ${
-        padding ? padding : ''
-      } border border-gradientFromHover text-gradientFrom ${
-        className ? className : ''
-      }`}
+      className={`rounded ${
+        padding ? padding : 'py-2'
+      } border border-gradientFromHover text-gradientFrom ${className}`}
     >
       {props.children}
     </button>
@@ -231,3 +240,17 @@ export function GreenLButton(
     </button>
   );
 }
+
+export const FarmButton = ({ farmCount }: { farmCount: Number }) => {
+  const isMultiMining = farmCount > 1;
+  return (
+    <div className="flex items-center">
+      <div className="ml-1">
+        <FarmStamp />
+      </div>
+      <div className={isMultiMining ? 'ml-1' : ''}>
+        {isMultiMining && <FarmMiningIcon />}
+      </div>
+    </div>
+  );
+};

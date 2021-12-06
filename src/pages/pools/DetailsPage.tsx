@@ -25,15 +25,10 @@ import Loading from '~components/layout/Loading';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
 import { FarmStamp } from '~components/icon/FarmStamp';
 import { ChartLoading } from '~components/icon/Loading';
-import {
-  MULTI_MINING_POOLS,
-  REF_FARM_CONTRACT_ID,
-  REF_FI_CONTRACT_ID,
-} from '~services/near';
+import { REF_FARM_CONTRACT_ID, REF_FI_CONTRACT_ID } from '~services/near';
 import { PoolSlippageSelector } from '~components/forms/SlippageSelector';
 import { Link } from 'react-router-dom';
 import { canFarm } from '~services/pool';
-
 import {
   calculateFairShare,
   calculateFeePercent,
@@ -42,6 +37,7 @@ import {
   toPrecision,
   toReadableNumber,
   toInternationalCurrencySystem,
+  toRoundedReadableNumber,
 } from '../../utils/numbers';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import Alert from '~components/alert/Alert';
@@ -64,10 +60,14 @@ import {
   WatchListStartEmpty,
   WatchListStartFull,
 } from '~components/icon/WatchListStar';
-import { OutlineButton, SolidButton } from '~components/button/Button';
+import {
+  OutlineButton,
+  SolidButton,
+  FarmButton,
+} from '~components/button/Button';
 import { wallet } from '~services/near';
 import { BreadCrumb } from '~components/layout/BreadCrumb';
-
+import { LP_TOKEN_DECIMALS } from '../../services/m-token';
 import {
   ResponsiveContainer,
   LineChart,
@@ -96,6 +96,15 @@ interface LocationTypes {
   backToFarms: boolean;
 }
 
+const formatDate = (rawDate: string) => {
+  const date = rawDate
+    .split('-')
+    .map((t) => (t.length >= 2 ? t : t.padStart(2, '0')))
+    .join('-');
+
+  return moment(date).format('ll');
+};
+
 function Icon(props: { icon?: string; className?: string; style?: any }) {
   const { icon, className, style } = props;
   return icon ? (
@@ -112,7 +121,7 @@ function Icon(props: { icon?: string; className?: string; style?: any }) {
   );
 }
 
-function AddLiquidityModal(
+export function AddLiquidityModal(
   props: ReactModal.Props & {
     pool: Pool;
     tokens: TokenMetadata[];
@@ -384,11 +393,18 @@ function AddLiquidityModal(
           <div className="text-xs text-right mb-1 text-gray-400">
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
-            {toPrecision(
-              toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
-              2,
-              true
-            )}
+            <span
+              title={toReadableNumber(
+                tokens[0].decimals,
+                balances[tokens[0].id]
+              )}
+            >
+              {toPrecision(
+                toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
+                2,
+                true
+              )}
+            </span>
           </div>
           <div className="flex items-center ">
             <div className="flex items-center mr-4 w-1/3">
@@ -426,11 +442,18 @@ function AddLiquidityModal(
             <div className="text-xs text-right mb-1 text-gray-400">
               <FormattedMessage id="balance" defaultMessage="Balance" />
               :&nbsp;
-              {toPrecision(
-                toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
-                2,
-                true
-              )}
+              <span
+                title={toReadableNumber(
+                  tokens[0].decimals,
+                  balances[tokens[0].id]
+                )}
+              >
+                {toPrecision(
+                  toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
+                  2,
+                  true
+                )}
+              </span>
             </div>
           </div>
           <InputAmount
@@ -446,11 +469,18 @@ function AddLiquidityModal(
           <div className="text-xs text-right mb-1 text-gray-400">
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
-            {toPrecision(
-              toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
-              2,
-              true
-            )}
+            <span
+              title={toReadableNumber(
+                tokens[1].decimals,
+                balances[tokens[1].id]
+              )}
+            >
+              {toPrecision(
+                toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
+                2,
+                true
+              )}
+            </span>
           </div>
           <div className="flex items-center">
             <div className="flex items-center mr-4 w-1/3">
@@ -487,11 +517,18 @@ function AddLiquidityModal(
             <div className="text-xs text-right mb-1 text-gray-400">
               <FormattedMessage id="balance" defaultMessage="Balance" />
               :&nbsp;
-              {toPrecision(
-                toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
-                2,
-                true
-              )}
+              <span
+                title={toReadableNumber(
+                  tokens[1].decimals,
+                  balances[tokens[1].id]
+                )}
+              >
+                {toPrecision(
+                  toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
+                  2,
+                  true
+                )}
+              </span>
             </div>
           </div>
           <InputAmount
@@ -598,7 +635,7 @@ export function RemoveLiquidityModal(
 
         <div>
           <div className="text-xs text-right mb-1 text-gray-400">
-            <FormattedMessage id="balance" defaultMessage="Balance" />
+            <FormattedMessage id="my_shares" defaultMessage="Shares" />
             :&nbsp;
             {toPrecision(toReadableNumber(24, shares), 2)}
           </div>
@@ -629,7 +666,7 @@ export function RemoveLiquidityModal(
             <p className="my-3 text-left text-sm">
               <FormattedMessage
                 id="minimum_tokens_out"
-                defaultMessage="Minimum Tokens Out"
+                defaultMessage="Minimum shares"
               />
             </p>
             <section className="grid grid-cols-2 mb-6 w-full">
@@ -646,7 +683,11 @@ export function RemoveLiquidityModal(
                       <span className="m-1 mb-2 text-sm">{token.symbol} </span>
                       <span className="ml-2 text-base font-bold">
                         {toInternationalCurrencySystem(
-                          toReadableNumber(token.decimals, minimumAmount)
+                          toPrecision(
+                            toReadableNumber(token.decimals, minimumAmount),
+                            4
+                          ),
+                          4
                         )}
                       </span>
                     </section>
@@ -704,20 +745,47 @@ export function RemoveLiquidityModal(
 function MyShares({
   shares,
   totalShares,
+  poolId,
+  stakeList = {},
+  decimal,
 }: {
   shares: string;
   totalShares: string;
+  poolId?: number;
+  stakeList?: Record<string, string>;
+  decimal?: number;
+  yourLP?: boolean;
 }) {
   if (!shares || !totalShares) return <div>-</div>;
+  const seedIdList: string[] = Object.keys(stakeList);
+  let farmStake: string | number = '0';
+  seedIdList.forEach((seed) => {
+    const id = Number(seed.split('@')[1]);
+    if (id == poolId) {
+      farmStake = BigNumber.sum(farmStake, stakeList[seed]).valueOf();
+    }
+  });
 
-  let sharePercent = percent(shares, totalShares);
+  const userTotalShare = BigNumber.sum(shares, farmStake);
+  let sharePercent = percent(userTotalShare.valueOf(), totalShares);
 
   let displayPercent;
   if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
-  else if (sharePercent < 0.0001) displayPercent = '< 0.0001';
-  else displayPercent = toPrecision(String(sharePercent), 4);
+  else if (sharePercent < 0.0001)
+    displayPercent = `< ${
+      decimal ? '0.'.padEnd(decimal + 1, '0') + '1' : '0.0001'
+    }`;
+  else displayPercent = toPrecision(String(sharePercent), decimal || 4);
 
-  return <div>{displayPercent}% of Total</div>;
+  return (
+    <div>{`${toRoundedReadableNumber({
+      decimals: LP_TOKEN_DECIMALS,
+      number: userTotalShare
+        .toNumber()
+        .toLocaleString('fullwide', { useGrouping: false }),
+      precision: decimal || 6,
+    })} (${displayPercent}%)`}</div>
+  );
 }
 
 const ChartChangeButton = ({
@@ -733,25 +801,25 @@ const ChartChangeButton = ({
 }) => {
   return (
     <div
-      className={`text-white rounded-2xl flex items-center bg-gray-700 ${className} ${
+      className={`text-white text-xs rounded-2xl flex items-center bg-gray-700 ${className} ${
         noData ? 'z-20 opacity-70' : ''
       }`}
     >
       <button
-        className={`py-1 px-4 w-22 ${
+        className={`py-1 w-16 ${
           chartDisplay === 'tvl'
             ? 'rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo'
-            : ''
+            : 'text-gray-400'
         }`}
         onClick={() => setChartDisplay('tvl')}
       >
         <FormattedMessage id="tvl" defaultMessage="TVL" />
       </button>
       <button
-        className={`py-1 px-4 w-22 ${
+        className={`py-1 w-16 ${
           chartDisplay === 'volume'
             ? 'rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo'
-            : ''
+            : 'text-gray-400'
         }`}
         onClick={() => setChartDisplay('volume')}
       >
@@ -776,6 +844,7 @@ function EmptyChart({
         <div className="flex items-center justify-between">
           <div className="text-gray-400 text-base float-left">$&nbsp;-</div>
           <ChartChangeButton
+            className="self-start"
             noData={true}
             chartDisplay={chartDisplay}
             setChartDisplay={setChartDisplay}
@@ -869,8 +938,6 @@ export function VolumeChart({
   const baseColor = '#00967B';
   const hoverColor = '#00c6a2';
 
-  const formatDate = (rawDate: string) => moment(rawDate).format('ll');
-
   const BackgroundRender = (targetBar: BarProps & { index?: number }) => {
     const { x, y, width, height, index } = targetBar;
     if (index === hoverIndex)
@@ -901,6 +968,7 @@ export function VolumeChart({
         />
       );
   };
+
   if (!data)
     return (
       <EmptyChart
@@ -935,6 +1003,7 @@ export function VolumeChart({
           </div>
         </div>
         <ChartChangeButton
+          className="self-start"
           chartDisplay={chartDisplay}
           setChartDisplay={setChartDisplay}
         />
@@ -983,7 +1052,6 @@ export function TVLChart({
   setChartDisplay: (display: 'volume' | 'tvl') => void;
 }) {
   const [hoverIndex, setHoverIndex] = useState<number>(null);
-  const formatDate = (rawDate: string) => moment(rawDate).format('ll');
   if (!data)
     return (
       <EmptyChart
@@ -992,6 +1060,7 @@ export function TVLChart({
         loading={true}
       />
     );
+
   if (data.length === 0)
     return (
       <EmptyChart
@@ -999,6 +1068,7 @@ export function TVLChart({
         chartDisplay={chartDisplay}
       />
     );
+
   return (
     <>
       <div className="flex items-center justify-between self-start w-full">
@@ -1017,6 +1087,7 @@ export function TVLChart({
           </div>
         </div>
         <ChartChangeButton
+          className="self-start"
           chartDisplay={chartDisplay}
           setChartDisplay={setChartDisplay}
         />
@@ -1064,7 +1135,7 @@ export function TVLChart({
 export function PoolDetailsPage() {
   const { id } = useParams<ParamTypes>();
   const { state } = useLocation<LocationTypes>();
-  const { pool, shares } = usePool(id);
+  const { pool, shares, stakeList } = usePool(id);
   const dayVolume = useDayVolume(id);
   const tokens = useTokens(pool?.tokenIds);
 
@@ -1079,20 +1150,7 @@ export function PoolDetailsPage() {
   const fromMorePools = localStorage.getItem('fromMorePools') === 'y';
   const morePoolIds: string[] =
     JSON.parse(localStorage.getItem('morePoolIds')) || [];
-
-  const FarmButton = () => {
-    const isMultiMining = MULTI_MINING_POOLS.includes(pool.id);
-    return (
-      <div className="flex items-center">
-        <div className="ml-2">
-          <FarmStamp />
-        </div>
-        <div className={isMultiMining ? 'ml-2' : ''}>
-          {isMultiMining && <FarmMiningIcon />}
-        </div>
-      </div>
-    );
-  };
+  const [farmCount, setFarmCount] = useState<Number>(1);
 
   const handleSaveWatchList = () => {
     if (!wallet.isSignedIn()) {
@@ -1118,13 +1176,10 @@ export function PoolDetailsPage() {
         setPoolTVL(pool?.tvl);
       });
     }
-    if (state?.backToFarms) {
-      setBackToFarmsButton(state?.backToFarms);
-    } else {
-      canFarm(Number(id)).then((canFarm) => {
-        setBackToFarmsButton(canFarm);
-      });
-    }
+    canFarm(Number(id)).then((canFarm) => {
+      setBackToFarmsButton(!!canFarm);
+      setFarmCount(canFarm);
+    });
 
     getWatchListFromDb({ pool_id: id }).then((watchlist) => {
       setShowFullStar(watchlist.length > 0);
@@ -1170,11 +1225,10 @@ export function PoolDetailsPage() {
                   <Link
                     to={{
                       pathname: '/farms',
-                      hash: `${pool.id}`,
                     }}
                     target="_blank"
                   >
-                    <FarmButton />
+                    <FarmButton farmCount={farmCount} />
                   </Link>
                 ) : (
                   <span>' '</span>
@@ -1282,7 +1336,7 @@ export function PoolDetailsPage() {
                 <div>
                   <FormattedMessage
                     id="h24_volume"
-                    defaultMessage="24h Volume"
+                    defaultMessage="24h volume"
                   />
                 </div>
                 <div className="text-white">
@@ -1307,7 +1361,12 @@ export function PoolDetailsPage() {
                   <FormattedMessage id="my_shares" defaultMessage="My Shares" />
                 </div>
                 <div className="text-white">
-                  <MyShares shares={shares} totalShares={pool.shareSupply} />
+                  <MyShares
+                    shares={shares}
+                    totalShares={pool.shareSupply}
+                    poolId={pool.id}
+                    stakeList={stakeList}
+                  />
                 </div>
               </div>
             </div>
@@ -1371,7 +1430,7 @@ export function PoolDetailsPage() {
           <Card
             width="w-full"
             className="relative rounded-2xl h-full flex flex-col justify-center md:hidden xs:hidden items-center"
-            padding="p-7"
+            padding="px-7 py-5"
             bgcolor="bg-cardBg"
             style={{
               height: '397px',

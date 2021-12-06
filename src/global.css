@@ -294,10 +294,10 @@ input.warn-input:focus {
 
 .swap-wrap {
   position: absolute;
-  width: 20px;
-  height: 20px;
-  top: 12px;
-  left: 31px;
+  width: 18px;
+  height: 18px;
+  top: 6px;
+  left: 26px;
   perspective: 60vh;
 }
 
@@ -307,7 +307,7 @@ input.warn-input:focus {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  left: -20px;
+  left: -18px;
   top: 10px;
   border: #88a9a3 solid 1px;
   background: linear-gradient(-166.57deg, #208170 44.85%, #373f5a 100%);
@@ -320,8 +320,8 @@ input.warn-input:focus {
   opacity: 0.9;
   content: ' ';
   position: absolute;
-  width: 100%;
-  height: 100%;
+  width: 98%;
+  height: 98%;
   border-radius: 50%;
   right: 10px;
   top: 0;
@@ -332,17 +332,17 @@ input.warn-input:focus {
 
 @keyframes rotation1 {
   25% {
-    left: -20px;
+    left: -18px;
     top: 10px;
     transform: translateZ(-5px);
   }
   50% {
-    left: 0px;
+    left: -6px;
     top: 0px;
     transform: translateZ(0vh);
   }
   75% {
-    left: -20px;
+    left: -18px;
     top: 10px;
     transform: translateZ(10px);
     z-index: 2;
@@ -373,6 +373,66 @@ input.warn-input:focus {
   overflew-y: scroll;
   overflow-x: hidden;
 }
+
+.bg-height-full {
+  height: calc(100% - 80px);
+}
+
 .recharts-text.recharts-cartesian-axis-tick-value {
   font-size: 12px;
+}
+
+.circle_process {
+  width: 18px;
+  height: 18px;
+}
+.circle_center {
+  width: 14px;
+  height: 14px;
+}
+.circle_process .wrapper {
+  width: 9px;
+  height: 18px;
+}
+.circle_process .circle {
+  width: 18px;
+  height: 18px;
+  border: 2px solid transparent;
+  transform: rotate(-136deg);
+}
+.circleleft {
+  width: 18px;
+  height: 18px;
+  border: 2px solid transparent;
+  transform: rotate(-136deg);
+}
+.circle_process .rightcircle {
+  border-top: 2px solid #00d6af;
+  border-right: 2px solid #00d6af;
+  right: 0;
+  -webkit-animation: circle_right 10s linear 1;
+}
+.circle_process .leftcircle {
+  border-bottom: 2px solid #00d6af;
+  border-left: 2px solid #00d6af;
+  left: 0;
+  -webkit-animation: circle_left 10s linear 1;
+}
+@-webkit-keyframes circle_right {
+  0% {
+    -webkit-transform: rotate(-136deg);
+  }
+  50%,
+  100% {
+    -webkit-transform: rotate(45deg);
+  }
+}
+@-webkit-keyframes circle_left {
+  0%,
+  50% {
+    -webkit-transform: rotate(-136deg);
+  }
+  100% {
+    -webkit-transform: rotate(45deg);
+  }
 }

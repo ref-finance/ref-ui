@@ -8,6 +8,7 @@ import { useHistory, useLocation } from 'react-router';
 import getConfig from '~services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { CloseIcon } from '~components/icon/Actions';
+import db from '../store/RefDatabase';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -16,6 +17,10 @@ interface SwapOptions {
   tokenInAmount: string;
   tokenOut: TokenMetadata;
   slippageTolerance: number;
+  setLoadingData?: (loading: boolean) => void;
+  loadingData?: boolean;
+  loadingTrigger?: boolean;
+  setLoadingTrigger?: (loadingTrigger: boolean) => void;
 }
 
 export const useSwap = ({
@@ -23,6 +28,10 @@ export const useSwap = ({
   tokenInAmount,
   tokenOut,
   slippageTolerance,
+  setLoadingData,
+  loadingData,
+  loadingTrigger,
+  setLoadingTrigger,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -31,11 +40,21 @@ export const useSwap = ({
 
   const { search } = useLocation();
   const history = useHistory();
-  const txHash = new URLSearchParams(search).get('transactionHashes');
+  const [count, setCount] = useState<number>(0);
+  const txHashes = new URLSearchParams(search)
+    .get('transactionHashes')
+    ?.split(',');
+
+  const txHash = txHashes
+    ? txHashes.length > 1
+      ? txHashes[1]
+      : txHashes[0]
+    : '';
 
   const minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
     : null;
+  const refreshTime = 10000;
 
   const intl = useIntl();
 
@@ -45,6 +64,8 @@ export const useSwap = ({
         .then(({ transaction }) => {
           return (
             transaction?.actions[1]?.['FunctionCall']?.method_name ===
+              'ft_transfer_call' ||
+            transaction?.actions[0]?.['FunctionCall']?.method_name ===
               'ft_transfer_call' ||
             transaction?.actions[0]?.['FunctionCall']?.method_name === 'swap' ||
             transaction?.actions[0]?.['FunctionCall']?.method_name ===
@@ -66,7 +87,7 @@ export const useSwap = ({
               </a>,
               {
                 autoClose: 8000,
-                closeOnClick: false,
+                closeOnClick: true,
                 hideProgressBar: false,
                 closeButton: <CloseIcon />,
                 progressStyle: {
@@ -88,25 +109,24 @@ export const useSwap = ({
 
   useEffect(() => {
     setCanSwap(false);
-    if (
-      tokenIn &&
-      tokenOut &&
-      tokenInAmount &&
-      !ONLY_ZEROS.test(tokenInAmount) &&
-      tokenIn.id !== tokenOut.id
-    ) {
+    if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
       setSwapError(null);
       estimateSwap({
         tokenIn,
         tokenOut,
         amountIn: tokenInAmount,
         intl,
+        setLoadingData,
+        loadingTrigger,
+        setLoadingTrigger,
       })
         .then(({ estimate, pool }) => {
           if (!estimate || !pool) throw '';
-          setCanSwap(true);
-          setTokenOutAmount(estimate);
-          setPool(pool);
+          if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
+            setCanSwap(true);
+            setTokenOutAmount(estimate);
+            setPool(pool);
+          }
         })
         .catch((err) => {
           setCanSwap(false);
@@ -122,15 +142,31 @@ export const useSwap = ({
     ) {
       setTokenOutAmount('0');
     }
-  }, [tokenIn, tokenOut, tokenInAmount]);
+  }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger]);
 
-  const makeSwap = () => {
+  useEffect(() => {
+    let id: any = null;
+    if (!loadingTrigger) {
+      id = setInterval(() => {
+        setLoadingTrigger(true);
+        setCount(count + 1);
+      }, refreshTime);
+    } else {
+      clearInterval(id);
+    }
+    return () => {
+      clearInterval(id);
+    };
+  }, [count, loadingTrigger]);
+
+  const makeSwap = (useNearBalance: boolean) => {
     swap({
       pool,
       tokenIn,
       amountIn: tokenInAmount,
       tokenOut,
       minAmountOut,
+      useNearBalance,
     }).catch(setSwapError);
   };
 

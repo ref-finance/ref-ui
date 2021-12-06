@@ -4,7 +4,6 @@ import _ from 'lodash';
 import { parsePoolView, PoolRPCView } from './api';
 import moment from 'moment/moment';
 import { parseAction } from '~services/transaction';
-import { Simulate } from 'react-dom/test-utils';
 import { volumeType, TVLType } from '~state/pool';
 
 const config = getConfig();
@@ -14,7 +13,6 @@ export const getPoolMonthVolume = async (
 ): Promise<volumeType[]> => {
   return await fetch(config.sodakiApiUrl + `/pool/${pool_id}/volume`, {
     method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
   })
     .then((res) => res.json())
     .then((monthVolume) => {
@@ -25,7 +23,6 @@ export const getPoolMonthVolume = async (
 export const getPoolMonthTVL = async (pool_id: string): Promise<TVLType[]> => {
   return await fetch(config.sodakiApiUrl + `/pool/${pool_id}/tvl`, {
     method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
   })
     .then((res) => res.json())
     .then((monthTVL) => {
@@ -47,12 +44,13 @@ export const get24hVolume = async (pool_id: string): Promise<string> => {
 };
 
 const parseActionView = async (action: any) => {
-  const data = await parseAction(action[2], action[3]);
+  const data = await parseAction(action[3], action[4], action[2]);
   return {
     datetime: moment.unix(action[0] / 1000000000),
     txUrl: config.explorerUrl + '/transactions/' + action[1],
     data: data,
-    status: action[5] === 'SUCCESS_VALUE',
+    // status: action[5] === 'SUCCESS_VALUE',
+    status: action[6] && action[6].indexOf('SUCCESS') > -1,
   };
 };
 

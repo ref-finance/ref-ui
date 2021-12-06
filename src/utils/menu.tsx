@@ -40,7 +40,7 @@ export const useMenuItems = () => {
       label: (
         <FormattedMessage id="rainbow_bridge" defaultMessage="RainBow Bridge" />
       ),
-      url: 'https://ethereum.bridgetonear.org/',
+      url: 'https://rainbowbridge.app/transfer',
       icon: <HiOutlineExternalLink />,
       isExternal: true,
       id: 2,
@@ -212,7 +212,7 @@ export const moreLinks: MobileMenuItem[] = [
       {
         id: 'rainbow_bridge',
         label: 'RainBow Bridge',
-        url: 'https://ethereum.bridgetonear.org/',
+        url: 'https://rainbowbridge.app/transfer',
         isExternal: true,
         logo: <IconRainbow />,
       },

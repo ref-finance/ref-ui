@@ -14,7 +14,7 @@ import {
   Transaction,
   wallet,
 } from './near';
-import { TokenMetadata } from './ft-contract';
+import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { getPoolsByTokens, Pool } from './pool';
 import {
   checkTokenNeedsStorageDeposit,
@@ -24,8 +24,11 @@ import {
 } from './token';
 import { JsonRpcProvider } from 'near-api-js/lib/providers';
 import {
+  needDepositStorage,
+  ONE_MORE_DEPOSIT_AMOUNT,
   storageDepositAction,
   storageDepositForTokenAction,
+  STORAGE_TO_REGISTER_WITH_MFT,
 } from './creators/storage';
 import { registerTokenAction } from './creators/token';
 import {
@@ -43,6 +46,9 @@ interface EstimateSwapOptions {
   tokenOut: TokenMetadata;
   amountIn: string;
   intl?: any;
+  setLoadingData?: (loading: boolean) => void;
+  loadingTrigger?: boolean;
+  setLoadingTrigger?: (loadingTrigger: boolean) => void;
 }
 
 export interface EstimateSwapView {
@@ -55,6 +61,9 @@ export const estimateSwap = async ({
   tokenOut,
   amountIn,
   intl,
+  setLoadingData,
+  loadingTrigger,
+  setLoadingTrigger,
 }: EstimateSwapOptions): Promise<EstimateSwapView> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
   if (!parsedAmountIn)
@@ -66,6 +75,9 @@ export const estimateSwap = async ({
     tokenInId: tokenIn.id,
     tokenOutId: tokenOut.id,
     amountIn: parsedAmountIn,
+    setLoadingData,
+    setLoadingTrigger,
+    loadingTrigger,
   });
 
   if (pools.length < 1) {
@@ -135,38 +147,40 @@ interface SwapOptions extends EstimateSwapOptions {
   minAmountOut: string;
 }
 
+interface InstantSwapOption extends SwapOptions {
+  useNearBalance: boolean;
+}
+
 export const swap = async ({
+  useNearBalance,
   pool,
   tokenIn,
   tokenOut,
   amountIn,
   minAmountOut,
-}: SwapOptions) => {
-  const maxTokenInAmount = await getTokenBalance(tokenIn?.id);
-
-  if (
-    Number(maxTokenInAmount) <
-    Number(toNonDivisibleNumber(tokenIn.decimals, amountIn))
-  ) {
-    await directSwap({
-      pool,
-      tokenIn,
-      tokenOut,
-      amountIn,
-      minAmountOut,
-    });
-  } else {
-    await depositSwap({
-      pool,
-      tokenIn,
-      tokenOut,
-      amountIn,
-      minAmountOut,
-    });
+}: InstantSwapOption) => {
+  if (pool) {
+    if (useNearBalance) {
+      await instantSwap({
+        pool,
+        tokenIn,
+        tokenOut,
+        amountIn,
+        minAmountOut,
+      });
+    } else {
+      await depositSwap({
+        pool,
+        tokenIn,
+        tokenOut,
+        amountIn,
+        minAmountOut,
+      });
+    }
   }
 };
 
-export const directSwap = async ({
+export const instantSwap = async ({
   pool,
   tokenIn,
   tokenOut,
@@ -174,9 +188,9 @@ export const directSwap = async ({
   minAmountOut,
 }: SwapOptions) => {
   const swapAction = {
-    pool_id: pool.id,
-    token_in: tokenIn.id,
-    token_out: tokenOut.id,
+    pool_id: pool?.id,
+    token_in: tokenIn?.id,
+    token_out: tokenOut?.id,
     min_amount_out: round(
       tokenIn.decimals,
       toNonDivisibleNumber(tokenOut.decimals, minAmountOut)
@@ -184,72 +198,55 @@ export const directSwap = async ({
   };
 
   const transactions: Transaction[] = [];
-  const neededStorage = await checkTokenNeedsStorageDeposit(tokenIn.id);
-  if (neededStorage) {
-    transactions.push({
-      receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [storageDepositAction({ amount: neededStorage })],
+  const tokenInActions: RefFiFunctionCallOptions[] = [];
+  const tokenOutActions: RefFiFunctionCallOptions[] = [];
+
+  if (wallet.isSignedIn()) {
+    const tokenOutRegistered = await ftGetStorageBalance(
+      tokenOut.id,
+      wallet.getAccountId()
+    ).catch(() => {
+      throw new Error(`${tokenOut.id} doesn't exist.`);
     });
-  }
 
-  const actions: RefFiFunctionCallOptions[] = [];
-
-  if (tokenIn.symbol === wnearMetadata.symbol) {
-    actions.push({
-      methodName: 'near_deposit',
-      args: {},
-      amount: amountIn,
-    });
-  } else {
-    actions.push({
-      methodName: 'storage_deposit',
-      args: {},
-      gas: '100000000000000',
-      amount: NEW_ACCOUNT_STORAGE_COST,
-    });
-  }
-
-  actions.push({
-    methodName: 'ft_transfer_call',
-    args: {
-      receiver_id: REF_FI_CONTRACT_ID,
-      amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
-      msg: JSON.stringify({
-        force: 0,
-        actions: [swapAction],
-      }),
-    },
-    gas: '100000000000000',
-    amount: ONE_YOCTO_NEAR,
-  });
-
-  transactions.push({
-    receiverId: tokenIn.id,
-    functionCalls: actions,
-  });
-
-  if (tokenOut.symbol === wnearMetadata.symbol) {
-    transactions.push({
-      receiverId: WRAP_NEAR_CONTRACT_ID,
-      functionCalls: [
-        {
-          methodName: 'near_withdraw',
-          args: { amount: utils.format.parseNearAmount(minAmountOut) },
-          amount: ONE_YOCTO_NEAR,
+    if (!tokenOutRegistered || tokenOutRegistered.total === '0') {
+      tokenOutActions.push({
+        methodName: 'storage_deposit',
+        args: {
+          registration_only: true,
+          account_id: wallet.getAccountId(),
         },
-      ],
-    });
-  }
+        gas: '30000000000000',
+        amount: STORAGE_TO_REGISTER_WITH_MFT,
+      });
 
-  const whitelist = await getWhitelistedTokens();
-  if (!whitelist.includes(tokenOut.id)) {
-    transactions.unshift({
-      receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [registerTokenAction(tokenOut.id)],
-    });
-  }
+      transactions.push({
+        receiverId: tokenOut.id,
+        functionCalls: tokenOutActions,
+      });
+    }
 
-  return executeMultipleTransactions(transactions);
+    tokenInActions.push({
+      methodName: 'ft_transfer_call',
+      args: {
+        receiver_id: REF_FI_CONTRACT_ID,
+        amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
+        msg: JSON.stringify({
+          force: 0,
+          actions: [swapAction],
+        }),
+      },
+      gas: '150000000000000',
+      amount: ONE_YOCTO_NEAR,
+    });
+
+    transactions.push({
+      receiverId: tokenIn.id,
+      functionCalls: tokenInActions,
+    });
+
+    return executeMultipleTransactions(transactions);
+  }
 };
 
 export const depositSwap = async ({
@@ -286,9 +283,9 @@ export const depositSwap = async ({
     actions.unshift(registerTokenAction(tokenOut.id));
   }
 
-  const needsStorageDeposit = await checkTokenNeedsStorageDeposit(tokenOut.id);
-  if (needsStorageDeposit) {
-    actions.unshift(storageDepositForTokenAction());
+  const neededStorage = await checkTokenNeedsStorageDeposit();
+  if (neededStorage) {
+    actions.unshift(storageDepositAction({ amount: neededStorage }));
   }
 
   return refFiManyFunctionCalls(actions);

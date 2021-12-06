@@ -1,6 +1,5 @@
 import React, {
   createContext,
-  ReactNode,
   useContext,
   useEffect,
   useRef,
@@ -15,6 +14,7 @@ import {
   IconMyLiquidity,
   IconEn,
   IconZh,
+  WrapNearEnter,
 } from '~components/icon';
 import { Link, useLocation } from 'react-router-dom';
 import { wallet } from '~services/near';
@@ -29,6 +29,9 @@ import { useRefPrice } from '~state/account';
 import { toPrecision } from '~utils/numbers';
 import { RefAnalytics } from '~components/icon/RefAnalytics';
 import { moreLinks } from '~utils/menu';
+import WrapNear from '~components/forms/WrapNear';
+import { useDepositableBalance, useWhitelistTokens } from '~state/token';
+import { nearMetadata } from '~services/wrap-near';
 
 export function MobileAnchor({
   to,
@@ -54,7 +57,7 @@ export function MobileAnchor({
     <div>
       <Link onClick={onClick} to={to}>
         <div
-          className={`p-4 text-lg link font-bold p-2 ${className} ${
+          className={`p-4 text-lg link ${className} ${
             isSelected ? 'text-white bg-navHighLightBg' : 'text-primaryText'
           }`}
         >
@@ -85,7 +88,7 @@ export function MobileSwitchLanguage() {
         className="flex p-4 items-center text-lg justify-between"
         onClick={handleLanguageMenu}
       >
-        <div className={'font-bold text-primaryText'}>
+        <div className={'text-primaryText'}>
           <FormattedMessage id="language" defaultMessage="Language" />
         </div>
         <FiChevronUp
@@ -97,7 +100,7 @@ export function MobileSwitchLanguage() {
       </div>
       <div className={`${show && !openMenu ? 'block' : 'hidden'}`}>
         <div
-          className={`flex items-center whitespace-nowrap bg-cardBg text-left font-bold text-white p-4 ${
+          className={`flex items-center whitespace-nowrap bg-cardBg text-left text-white p-4 ${
             currentLocal === 'en' ? 'text-white' : 'text-primaryText'
           }`}
           onClick={() => context.selectLanguage('en')}
@@ -108,7 +111,7 @@ export function MobileSwitchLanguage() {
           English
         </div>
         <div
-          className={`flex items-center hitespace-nowrap text-left bg-cardBg font-bold text-white p-4 ${
+          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
             currentLocal === 'zh-CN' ? 'text-white' : 'text-primaryText '
           }`}
           onClick={() => context.selectLanguage('zh-CN')}
@@ -128,7 +131,7 @@ export function Logout() {
     wallet.isSignedIn() && (
       <div
         className={
-          'whitespace-nowrap flex text-left font-bold p-4 text-primaryText bg-cardBg'
+          'whitespace-nowrap flex text-lg text-left p-4 text-primaryText bg-cardBg'
         }
         onClick={() => {
           wallet.signOut();
@@ -153,8 +156,14 @@ export function MobileNavBar() {
   const [openMenu, setOpenMenu] = useState('');
   const [closeMenu, setCloseMenu] = useState(false);
   const history = useHistory();
+  const [mobileWrapNear, setMobileWrapNear] = useState(false);
+  const allTokens = useWhitelistTokens();
+
   const accountName =
     account.length > 10 ? niceAccountId : wallet.getAccountId();
+  const nearBalance = wallet.isSignedIn()
+    ? useDepositableBalance(nearMetadata.id, nearMetadata.decimals)
+    : '0';
 
   useEffect(() => {
     document.addEventListener('click', handleClick, false);
@@ -163,6 +172,13 @@ export function MobileNavBar() {
       document.addEventListener('click', handleClick, false);
     };
   }, []);
+  useEffect(() => {
+    if (mobileWrapNear) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  }, [mobileWrapNear]);
 
   const handleClick = (e: any) => {
     if (
@@ -173,6 +189,14 @@ export function MobileNavBar() {
     }
     setShow(false);
   };
+
+  useEffect(() => {
+    if (show) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  }, [show]);
 
   if (wallet.isSignedIn()) {
     moreLinks[2].children[2] = {
@@ -283,12 +307,13 @@ export function MobileNavBar() {
             </div>
           </div>
 
-          <div className="p-4 flex">
+          <div className="p-4 flex text-white items-center justify-start">
             <NavLogoLarge />
             <span className="inline-block ml-2 mt-1 text-white">
               ${data && data !== '-' ? toPrecision(data, 2) : '-'}
             </span>
           </div>
+
           <div className="text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
             {wallet.isSignedIn() && (
               <MobileAnchor
@@ -297,6 +322,44 @@ export function MobileNavBar() {
                 name="view_account"
                 onClick={close}
               />
+            )}
+            {wallet.isSignedIn() && (
+              <div className="text-primaryText" onClick={() => setShow(false)}>
+                <div
+                  className="flex p-4 justify-between"
+                  onClick={() => setMobileWrapNear(true)}
+                >
+                  <span className=" text-lg">
+                    <FormattedMessage
+                      id="wrapnear"
+                      defaultMessage="Wrap NEAR"
+                    />
+                  </span>
+                  <div className=" py-1 px-2 border border-framBorder text-framBorder hover:text-white hover:bg-framBorder hover:border-0 cursor-pointer rounded h-6 items-center flex">
+                    <WrapNearEnter></WrapNearEnter>
+                    <span className=" ml-2 text-xs">
+                      {toPrecision(nearBalance, 3, true)}
+                    </span>
+                  </div>
+                </div>
+                <WrapNear
+                  isOpen={mobileWrapNear}
+                  onRequestClose={() => setMobileWrapNear(false)}
+                  allTokens={allTokens}
+                  style={{
+                    overlay: {
+                      backdropFilter: 'blur(15px)',
+                      WebkitBackdropFilter: 'blur(15px)',
+                    },
+                    content: {
+                      outline: 'none',
+                      position: 'fixed',
+                      width: '90%',
+                      bottom: '50%',
+                    },
+                  }}
+                />
+              </div>
             )}
             {moreLinks.map(
               ({ id, label, subRoute, pattern, url, isExternal, children }) => {

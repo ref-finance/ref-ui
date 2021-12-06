@@ -16,6 +16,8 @@ import { wallet } from '~services/near';
 import { Balances } from '../components/deposit/Deposit';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { ConnectToNearBtn } from '~components/button/Button';
+import { STORAGE_PER_TOKEN } from '~services/creators/storage';
+import { BigNumber } from 'bignumber.js';
 
 function DepositBtn(props: {
   amount?: string;
@@ -23,8 +25,20 @@ function DepositBtn(props: {
   balance?: string;
 }) {
   const { amount, token, balance } = props;
-  const canSubmit = balance !== '0' && !!amount && !!token;
 
+  const nearValidate =
+    token.id === 'NEAR'
+      ? new BigNumber(amount).isLessThanOrEqualTo(
+          new BigNumber(String(Number(balance) - 1))
+        )
+      : true;
+
+  const canSubmit =
+    balance !== '0' &&
+    !!amount &&
+    !!token &&
+    new BigNumber(amount).isLessThanOrEqualTo(new BigNumber(balance)) &&
+    nearValidate;
   return (
     <div className="flex items-center justify-center pt-2 w-full">
       <button
@@ -66,14 +80,12 @@ export default function DepositPage() {
   const [amount, setAmount] = useState<string>('');
   const balances = useTokenBalances();
 
-  const registeredTokens = useUserRegisteredTokens();
   const tokens = useWhitelistTokens();
-  // const [tokenList, setTokenList] = useState<TokenMetadata[]>([]);
   const [selectedToken, setSelectedToken] = useState<TokenMetadata>(
     id && tokens ? tokens.find((tok) => tok.id === id) : nearMetadata
   );
 
-  const userTokens = useUserRegisteredTokens();
+  const userTokens = useUserRegisteredTokens() || [];
   const max = useDepositableBalance(selectedToken?.id, selectedToken?.decimals);
   const intl = useIntl();
 
@@ -83,8 +95,7 @@ export default function DepositPage() {
     }
   }, [id, tokens]);
 
-  if (!tokens || !userTokens) return <Loading />;
-  if (!registeredTokens || !balances) return <Loading />;
+  if (!tokens || !balances || !userTokens) return <Loading />;
 
   const handleSearch = (value: string) => {
     const result = tokens.filter(
@@ -104,7 +115,13 @@ export default function DepositPage() {
         </h2>
         <TokenAmount
           amount={amount}
-          max={max}
+          max={
+            selectedToken.id !== 'NEAR'
+              ? max
+              : Number(max) <= 1
+              ? '0'
+              : String(Number(max) - 1)
+          }
           total={max}
           tokens={[nearMetadata, ...tokens]}
           selectedToken={selectedToken}
@@ -124,7 +141,7 @@ export default function DepositPage() {
           id="small_storage_fee_is_applied_of"
           defaultMessage="Small storage fee is applied of"
         />{' '}
-        <span className="font-bold">0.00084</span> Ⓝ
+        <span className="font-bold">{STORAGE_PER_TOKEN}</span> Ⓝ
       </div>
 
       <Balances title="Balance" tokens={userTokens} balances={balances} />

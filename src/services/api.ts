@@ -52,6 +52,12 @@ export const getPoolBalance = async (pool_id: number) => {
     });
 };
 
+export const getPoolsBalances = async (pool_ids: number[]) => {
+  return await Promise.all(
+    pool_ids.map(async (pool_id) => await getPoolBalance(Number(pool_id)))
+  );
+};
+
 export const getPools = async (counter: number) => {
   return await fetch(api_url, {
     method: 'POST',
@@ -118,5 +124,22 @@ export const currentRefPrice = async (): Promise<any> => {
     })
     .catch(() => {
       return '-';
+    });
+};
+
+export const currentTokensPrice = async (ids: string): Promise<any> => {
+  return await fetch(
+    config.indexerUrl + '/list-token-price-by-ids?ids=' + ids,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((priceBody) => {
+      return priceBody;
+    })
+    .catch(() => {
+      return [];
     });
 };

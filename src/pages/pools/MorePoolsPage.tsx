@@ -17,6 +17,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { useTokens } from '../../state/token';
 import { TokenMetadata } from '~services/ft-contract';
 import { canFarm, Pool } from '../../services/pool';
+import { FarmButton } from '~components/button/Button';
 
 import {
   calculateFeePercent,
@@ -27,7 +28,6 @@ import {
 import { useAllWatchList, useMorePools } from '~state/pool';
 import { PoolRPCView } from '~services/api';
 import { FarmStamp } from '~components/icon/FarmStamp';
-import { MULTI_MINING_POOLS } from '~services/near';
 import { divide, find } from 'lodash';
 import { WatchListStartFull } from '~components/icon/WatchListStar';
 
@@ -49,9 +49,12 @@ function PoolRow({
   morePoolIds: string[];
 }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
+  const [farmCount, setFarmCount] = useState<Number>(1);
+
   useEffect(() => {
     canFarm(pool.id).then((canFarm) => {
-      setSupportFarm(canFarm);
+      setSupportFarm(!!canFarm);
+      setFarmCount(canFarm);
     });
   }, [pool]);
 
@@ -60,19 +63,6 @@ function PoolRow({
     if (b.symbol === 'wNEAR') return -1;
     return a.symbol > b.symbol ? 1 : -1;
   });
-
-  const FarmButton = () => {
-    return (
-      <div className="flex items-center">
-        <div className="mx-2">
-          <FarmStamp />
-        </div>
-        <div className="">
-          {MULTI_MINING_POOLS.includes(pool.id) && <FarmMiningIcon />}
-        </div>
-      </div>
-    );
-  };
 
   return (
     <Link
@@ -116,7 +106,7 @@ function PoolRow({
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </div>
         </div>
-        {supportFarm && <FarmButton />}
+        {supportFarm && <FarmButton farmCount={farmCount} />}
         {watched && (
           <div className="mx-2">
             <WatchListStartFull />
@@ -146,22 +136,12 @@ const MobileRow = ({
   morePoolIds: string[];
 }) => {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
-  const FarmButton = () => {
-    return (
-      <div className="flex items-center">
-        <div className="mx-2">
-          <FarmStamp />
-        </div>
-        <div className="">
-          {MULTI_MINING_POOLS.includes(pool.id) && <FarmMiningIcon />}
-        </div>
-      </div>
-    );
-  };
+  const [farmCount, setFarmCount] = useState<Number>(1);
 
   useEffect(() => {
     canFarm(pool.id).then((canFarm) => {
-      setSupportFarm(canFarm);
+      setSupportFarm(!!canFarm);
+      setFarmCount(canFarm);
     });
   }, [pool]);
 
@@ -216,7 +196,7 @@ const MobileRow = ({
               </div>
             )}
           </div>
-          {supportFarm && <FarmButton />}
+          {supportFarm && <FarmButton farmCount={farmCount} />}
         </div>
 
         <div className="flex flex-col text-base">
@@ -259,6 +239,7 @@ export const MorePoolsPage = () => {
   const morePoolIds = state?.morePoolIds;
   const tokens = state?.tokens;
   const morePools = useMorePools({ morePoolIds, order, sortBy });
+
   const watchList = useAllWatchList();
 
   return (

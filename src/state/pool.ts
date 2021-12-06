@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { calculateFairShare, percentLess, toPrecision } from '../utils/numbers';
+import { getStakedListByAccountId } from '~services/farm';
 import {
   DEFAULT_PAGE_LIMIT,
   getAllPoolsFromDb,
@@ -28,16 +29,20 @@ import { parsePoolView, PoolRPCView } from '~services/api';
 
 export const usePool = (id: number | string) => {
   const [pool, setPool] = useState<PoolDetails>();
-  const [shares, setShares] = useState<string>();
-
+  const [shares, setShares] = useState<string>('0');
+  const [stakeList, setStakeList] = useState<Record<string, string>>({});
   useEffect(() => {
     getPoolDetails(Number(id)).then(setPool);
     getSharesInPool(Number(id))
       .then(setShares)
       .catch(() => setShares);
+
+    getStakedListByAccountId({}).then((stakeList) => {
+      setStakeList(stakeList);
+    });
   }, [id]);
 
-  return { pool, shares };
+  return { pool, shares, stakeList };
 };
 
 interface LoadPoolsOpts {
