@@ -47,7 +47,7 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
   const { tokenOutAmount, pool, canSwap, minAmountOut, swapError, submit } =
     useStableSwap({
       tokenIn,
-      tokenInAmount: tokenInAmount,
+      tokenInAmount,
       tokenOut,
       slippageTolerance,
       useNearBalance,
@@ -200,7 +200,6 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
             disabled={!canSubmit}
             onClick={(e) => {
               e.preventDefault();
-
               submit();
             }}
           >
