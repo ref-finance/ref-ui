@@ -19,6 +19,7 @@ import {
 } from '~utils/numbers';
 import { toRealSymbol } from '~utils/token';
 import { DetailView, SwapAnimation, TokensRadio } from './StableSwapComponents';
+import { CountdownTimer } from '~components/icon';
 interface StableSwapProps {
   balances: TokenBalancesView;
   tokens: TokenMetadata[];
@@ -44,13 +45,16 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
     localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
   };
 
-  const { tokenOutAmount, pool, canSwap, minAmountOut, swapError, submit } =
+  const [loadingTrigger, setLoadingTrigger] = useState<boolean>(false);
+
+  const { tokenOutAmount, pool, canSwap, minAmountOut, swapError, makeSwap } =
     useStableSwap({
       tokenIn,
       tokenInAmount,
       tokenOut,
       slippageTolerance,
-      useNearBalance,
+      loadingTrigger,
+      setLoadingTrigger,
     });
 
   const handleSwapFrom = (tokenFrom: string) => {
@@ -108,6 +112,14 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
     <form className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl py-6 bg-dark xs:rounded-lg md:rounded-lg">
       <div className="formTitle flex justify-between text-xl text-white text-left px-8">
         <FormattedMessage id="stable_swap" defaultMessage="StableSwap" />
+        <div
+          onClick={() => {
+            setLoadingTrigger(true);
+          }}
+          className="mx-4 cursor-pointer"
+        >
+          <CountdownTimer loadingTrigger={loadingTrigger} />
+        </div>
         <SlippageSelector
           slippageTolerance={slippageTolerance}
           onChange={onChangeSlip}
@@ -200,7 +212,7 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
             disabled={!canSubmit}
             onClick={(e) => {
               e.preventDefault();
-              submit();
+              makeSwap(useNearBalance);
             }}
           >
             <FormattedMessage id="swap" defaultMessage="Swap" />

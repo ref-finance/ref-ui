@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { getPool, Pool } from '../services/pool';
 
-import { estimateSwap } from '~services/stable-swap';
+import { estimateSwap as estimateStableSwap } from '~services/stable-swap';
 
 import { TokenMetadata } from '../services/ft-contract';
 import { percentLess, toReadableNumber } from '../utils/numbers';
-import { checkTransaction } from '../services/swap';
+import { checkTransaction, estimateSwap, swap } from '../services/swap';
 
-import { swap } from '~services/stable-swap';
+import { swap as stableSwap } from '~services/stable-swap';
 
 import { useHistory, useLocation } from 'react-router';
 import getConfig from '~services/config';
@@ -191,59 +191,151 @@ export const useStableSwap = ({
   tokenInAmount,
   tokenOut,
   slippageTolerance,
-  useNearBalance,
-}: {
-  tokenIn: TokenMetadata;
-  tokenInAmount: string;
-  tokenOut: TokenMetadata;
-  slippageTolerance: number;
-  useNearBalance: boolean;
-}) => {
+  loadingTrigger,
+  setLoadingTrigger,
+}: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
-  const [tokenOutAmount, setTokenOutAmount] = useState<string>('0');
-  const [canSwap, setCanSwap] = useState<boolean>(false);
-  const zeroValide = (amount: string) => !amount || Number(amount) === 0;
+  const [canSwap, setCanSwap] = useState<boolean>();
+  const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
   const [swapError, setSwapError] = useState<Error>();
+
+  const { search } = useLocation();
+  const history = useHistory();
+  const [count, setCount] = useState<number>(0);
+  const txHashes = new URLSearchParams(search)
+    .get('transactionHashes')
+    ?.split(',');
+
+  const txHash = txHashes
+    ? txHashes.length > 1
+      ? txHashes[1]
+      : txHashes[0]
+    : '';
+
+  const minAmountOut = tokenOutAmount
+    ? percentLess(slippageTolerance, tokenOutAmount)
+    : null;
+  const refreshTime = 10000;
+
+  const intl = useIntl();
+
+  useEffect(() => {
+    if (txHash) {
+      checkTransaction(txHash)
+        .then(({ transaction }) => {
+          return (
+            transaction?.actions[1]?.['FunctionCall']?.method_name ===
+              'ft_transfer_call' ||
+            transaction?.actions[0]?.['FunctionCall']?.method_name ===
+              'ft_transfer_call' ||
+            transaction?.actions[0]?.['FunctionCall']?.method_name === 'swap' ||
+            transaction?.actions[0]?.['FunctionCall']?.method_name ===
+              'near_withdraw'
+          );
+        })
+        .then((isSwap) => {
+          if (isSwap) {
+            toast(
+              <a
+                className="text-white"
+                href={`${getConfig().explorerUrl}/transactions/${txHash}`}
+                target="_blank"
+              >
+                <FormattedMessage
+                  id="swap_successful_click_to_view"
+                  defaultMessage="Swap successful. Click to view"
+                />
+              </a>,
+              {
+                autoClose: 8000,
+                closeOnClick: true,
+                hideProgressBar: false,
+                closeButton: <CloseIcon />,
+                progressStyle: {
+                  background: '#00FFD1',
+                  borderRadius: '8px',
+                },
+                style: {
+                  background: '#1D2932',
+                  boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
+                  borderRadius: '8px',
+                },
+              }
+            );
+          }
+          history.replace('/stableswap');
+        });
+    }
+  }, [txHash]);
 
   useEffect(() => {
     setCanSwap(false);
-    setSwapError(null);
-    if (!zeroValide(tokenInAmount)) {
-      estimateSwap({ tokenIn, tokenOut, amountIn: tokenInAmount })
-        .then((res) => {
-          setCanSwap(true);
-          setPool(res.pool);
-          setTokenOutAmount(res.estimate);
+    if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
+      setSwapError(null);
+      estimateStableSwap({
+        tokenIn,
+        tokenOut,
+        amountIn: tokenInAmount,
+        intl,
+        loadingTrigger,
+        setLoadingTrigger,
+      })
+        .then(({ estimate, pool }) => {
+          if (!estimate || !pool) throw '';
+          if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
+            setCanSwap(true);
+            setTokenOutAmount(estimate);
+            setPool(pool);
+          }
         })
         .catch((err) => {
           setCanSwap(false);
           setTokenOutAmount('');
           setSwapError(err);
         });
-    } else {
+    } else if (
+      tokenIn &&
+      tokenOut &&
+      !tokenInAmount &&
+      ONLY_ZEROS.test(tokenInAmount) &&
+      tokenIn.id !== tokenOut.id
+    ) {
       setTokenOutAmount('0');
     }
-  }, [tokenIn, tokenOut, tokenInAmount, slippageTolerance]);
+  }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger]);
 
-  const minAmountOut = percentLess(slippageTolerance, tokenOutAmount);
+  useEffect(() => {
+    let id: any = null;
+    if (!loadingTrigger) {
+      id = setInterval(() => {
+        setLoadingTrigger(true);
+        setCount(count + 1);
+      }, refreshTime);
+    } else {
+      clearInterval(id);
+    }
+    return () => {
+      clearInterval(id);
+    };
+  }, [count, loadingTrigger]);
 
-  const submit = () => {
-    swap({
-      useNearBalance,
+  const makeSwap = (useNearBalance: boolean) => {
+    stableSwap({
       pool,
       tokenIn,
+      amountIn: tokenInAmount,
       tokenOut,
       minAmountOut,
-      amountIn: tokenInAmount,
-    });
+      useNearBalance,
+    }).catch(setSwapError);
   };
 
   return {
-    pool,
+    canSwap,
     tokenOutAmount,
     minAmountOut,
-    canSwap,
+    pool,
     swapError,
-    submit,
+    makeSwap,
   };
 };

@@ -10,6 +10,7 @@ import {
   wallet,
   refFiViewFunction,
 } from './near';
+import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { getPool, Pool } from './pool';
 import {
@@ -25,9 +26,12 @@ import {
 import { registerTokenAction } from './creators/token';
 import getConfig from '~services/config';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
-
+import { DBCoreRangeType } from 'dexie';
+import moment from 'moment';
 const FEE_DIVISOR = 10000;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
+const STABLE_POOL_KEY = 'STABLE_POOL_VALUE';
+const STABLE_POOL_RES_KEY = 'STABLE_POOL_RES_KEY';
 
 interface EstimateSwapOptions {
   tokenIn: TokenMetadata;
@@ -49,7 +53,34 @@ export const estimateSwap = async ({
   tokenOut,
   amountIn,
   intl,
+  loadingTrigger,
+  setLoadingTrigger,
 }: EstimateSwapOptions): Promise<EstimateSwapView> => {
+  const getStablePool = async () => {
+    let pool: any = JSON.parse(localStorage.getItem(STABLE_POOL_KEY));
+
+    if (
+      !pool ||
+      Number(pool.update_time) >=
+        Number(moment().unix()) -
+          Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL) ||
+      loadingTrigger
+    ) {
+      pool = await getPool(Number(STABLE_POOL_ID));
+
+      localStorage.setItem(
+        STABLE_POOL_KEY,
+        JSON.stringify({
+          ...pool,
+          update_time: moment().unix(),
+        })
+      );
+    }
+    setLoadingTrigger(false);
+
+    return pool;
+  };
+
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
   if (!parsedAmountIn)
     throw new Error(
@@ -57,7 +88,8 @@ export const estimateSwap = async ({
     );
 
   try {
-    const pool = await getPool(Number(STABLE_POOL_ID));
+    const pool = await getStablePool();
+
     const result = await Promise.resolve(
       refFiViewFunction({
         methodName: 'get_return',
@@ -81,6 +113,7 @@ export const estimateSwap = async ({
       pool,
     };
   } catch (err) {
+    console.log(err);
     throw new Error(
       `${intl.formatMessage({ id: 'no_pool_available_to_make_a_swap_from' })} ${
         tokenIn.symbol
