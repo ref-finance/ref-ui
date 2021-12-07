@@ -174,11 +174,11 @@ function DetailView({
   ) => {
     const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
     const reault =
-      Number(value) <= 1 ? null : 1 < Number(value) && Number(value) <= 2 ? (
+      1 < Number(value) && Number(value) <= 2 ? (
         <WarnTriangle></WarnTriangle>
-      ) : (
+      ) : Number(value) > 2 && Number(value) != Infinity ? (
         <ErrorTriangle></ErrorTriangle>
-      );
+      ) : null;
     return reault;
   };
 
