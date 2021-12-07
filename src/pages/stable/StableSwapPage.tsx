@@ -62,7 +62,14 @@ function StableSwapPage() {
     <div className="m-auto" style={{ width: cardWidth }}>
       <SquareRadio onChange={changeAction} radios={DEFAULT_ACTIONS} />
       {renderModule(actionName)}
-      {<TokenReserves totalStableCoins="100" tokens={tokens} pool={pool} />}
+      {
+        <TokenReserves
+          totalStableCoins="100"
+          tokens={tokens}
+          pool={pool}
+          inSwapPage={actionName === DEFAULT_ACTIONS[0]}
+        />
+      }
     </div>
   );
 }

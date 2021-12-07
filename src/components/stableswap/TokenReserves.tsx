@@ -132,10 +132,12 @@ export default function ({
   totalStableCoins,
   tokens,
   pool,
+  inSwapPage,
 }: {
   totalStableCoins: string;
   tokens: TokenMetadata[];
   pool: Pool;
+  inSwapPage?: boolean;
 }) {
   const [showReserves, setShowReserves] = useState<boolean>(false);
   const intl = useIntl();
@@ -194,7 +196,7 @@ export default function ({
         <InfoLine
           title={intl.formatMessage({ id: 'pool_fee' })}
           value={`${pool.fee}%`}
-          className="my-4"
+          className={`my-4 ${inSwapPage ? 'hidden' : ''}`}
         />
         <InfoLine
           title={intl.formatMessage({ id: 'liquidity_utilisation' })}
