@@ -263,12 +263,12 @@ export function StableTokensSymbol(props: {
 export function OneTokenSelector({
   balances,
   tokens,
-  selecedToken,
+  selectedToken,
   handleSelect,
 }: {
   tokens: TokenMetadata[];
   balances: TokenBalancesView;
-  selecedToken: string;
+  selectedToken: string;
   handleSelect: (t: string) => void;
 }) {
   return (
@@ -277,7 +277,7 @@ export function OneTokenSelector({
         return (
           <div className="flex items-center" key={i}>
             <Radio
-              checked={selecedToken === token.id}
+              checked={selectedToken === token.id}
               size="3"
               handleSelect={handleSelect}
               value={token.id}

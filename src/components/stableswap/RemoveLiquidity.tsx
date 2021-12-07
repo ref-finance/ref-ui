@@ -75,7 +75,7 @@ export function RemoveLiquidityComponent(props: {
   const intl = useIntl();
   const [sharePercentage, setSharePercentage] = useState<string>('0');
   const progressBarIndex = [0, 25, 50, 75, 100];
-  const [selecedToken, setSelectedToken] = useState<string>('');
+  const [selectedToken, setSelectedToken] = useState<string>('');
 
   const setAmountsFlexible = [
     setFirstTokenAmount,
@@ -171,16 +171,16 @@ export function RemoveLiquidityComponent(props: {
   }, [tokens, firstTokenAmount, secondTokenAmount, thirdTokenAmount]);
 
   useEffect(() => {
-    if (selecedToken) {
+    if (selectedToken) {
       tokens.forEach((token, i) => {
-        token.id !== selecedToken && setAmountsFlexible[i]('');
-        token.id === selecedToken &&
+        token.id !== selectedToken && setAmountsFlexible[i]('');
+        token.id === selectedToken &&
           setAmountsFlexible[i](
-            toReadableNumber(tokens[i].decimals, balances[selecedToken])
+            toReadableNumber(tokens[i].decimals, balances[selectedToken])
           );
       });
     }
-  }, [selecedToken]);
+  }, [selectedToken]);
 
   useEffect(() => {
     const rememberedSlippageTolerance =
@@ -326,7 +326,7 @@ export function RemoveLiquidityComponent(props: {
             <OneTokenSelector
               tokens={tokens}
               balances={balances}
-              selecedToken={selecedToken}
+              selectedToken={selectedToken}
               handleSelect={setSelectedToken}
             />
           </div>

@@ -31,6 +31,7 @@ import { ChooseAddType } from './LiquidityComponents';
 import StableTokenList from './StableTokenList';
 import { InfoLine } from './LiquidityComponents';
 import { usePool } from '~state/pool';
+import { shareToAmount } from '~services/stable-swap';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE';
 
@@ -73,10 +74,10 @@ export default function AddLiquidityComponent(props: {
   pool: Pool;
   tokens: TokenMetadata[];
   balances: TokenBalancesView;
+  totalShares: string;
+  stakeList: Record<string, string>;
 }) {
-  const { pool, tokens, balances } = props;
-  const { shares, stakeList } = usePool(pool.id);
-
+  const { pool, tokens, balances, totalShares, stakeList } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');
@@ -92,6 +93,7 @@ export default function AddLiquidityComponent(props: {
   const [farmStake, setFarmStake] = useState<string | number>('0');
 
   useEffect(() => {
+    shareToAmount(pool, '0.01', tokens[1]);
     const seedIdList: string[] = Object.keys(stakeList);
     let tempFarmStake: string | number = '0';
     seedIdList.forEach((seed) => {
@@ -103,7 +105,7 @@ export default function AddLiquidityComponent(props: {
     setFarmStake(tempFarmStake);
   }, [stakeList]);
 
-  const userTotalShare = BigNumber.sum(shares, farmStake);
+  const userTotalShare = BigNumber.sum(totalShares, farmStake);
 
   if (!balances) return null;
 

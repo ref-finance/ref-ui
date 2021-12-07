@@ -247,3 +247,48 @@ export const checkTransaction = (txHash: string) => {
     [txHash, wallet.getAccountId()]
   );
 };
+
+export const shareToAmount = (
+  pool: Pool,
+  share: string,
+  token: TokenMetadata
+) => {
+  const totalShares = pool?.shareSupply;
+  const tokensAmount = pool?.supplies;
+  const shareRate = Number(share) / Number(toReadableNumber(24, totalShares));
+  const tokenMaxAmount = Number(
+    toReadableNumber(token.decimals, tokensAmount[token.id])
+  );
+  return shareRate * tokenMaxAmount;
+};
+
+export const amountToShare = (
+  pool: Pool,
+  amount: string,
+  token: TokenMetadata
+) => {
+  const totalShares = pool?.shareSupply;
+  const tokensAmount = pool?.supplies;
+  const tokenMaxAmount = Number(
+    toReadableNumber(token.decimals, tokensAmount[token.id])
+  );
+  const amountRate = Number(amount) / tokenMaxAmount;
+
+  return toReadableNumber(24, (amountRate * Number(totalShares)).toString());
+};
+
+export const restShare = (pool: Pool, shareOne: string, shareTwo: string) => {
+  const totalShares = pool?.shareSupply;
+
+  return Number(totalShares) - Number(shareOne) - Number(shareTwo);
+};
+
+export const restAmount = (
+  pool: Pool,
+  shareOne: string,
+  shareTwo: string,
+  token: TokenMetadata
+) => {
+  const share = restShare(pool, shareOne, shareTwo);
+  return shareToAmount(pool, share.toString(), token);
+};
