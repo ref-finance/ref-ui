@@ -14,6 +14,7 @@ import {
 } from '~utils/numbers';
 import { InfoLine } from './LiquidityComponents';
 import _ from 'lodash';
+import BigNumber from 'bignumber.js';
 
 function TokenChart({ tokens, pool }: { tokens: TokenMetadata[]; pool: Pool }) {
   const data = tokens.map((token, i) => {
@@ -115,6 +116,18 @@ const calculateTokenShare = ({
   );
 };
 
+const calculateTotalStableCoins = (pool: Pool, tokens: TokenMetadata[]) => {
+  const coinsAmounts = Object.values(pool.supplies).map((amount, i) =>
+    toReadableNumber(tokens[i].decimals, amount)
+  );
+
+  const totalCoins = BigNumber.sum(...coinsAmounts)
+    .toNumber()
+    .toLocaleString('fullwide', { useGrouping: false });
+
+  return toInternationalCurrencySystem(totalCoins, 3);
+};
+
 export default function ({
   totalStableCoins,
   tokens,
@@ -160,7 +173,9 @@ export default function ({
             defaultMessage="Total stablecoins"
           />
         </div>
-        <div className="text-white mt-1">{totalStableCoins}</div>
+        <div className="text-white mt-1">
+          {calculateTotalStableCoins(pool, tokens)}
+        </div>
         <div className="flex justify-center">
           <TokenChart tokens={tokens} pool={pool} />
         </div>
@@ -173,7 +188,7 @@ export default function ({
         ))}
         <InfoLine
           title={intl.formatMessage({ id: 'total_stable_coins' })}
-          value={totalStableCoins || '0'}
+          value={calculateTotalStableCoins(pool, tokens) || '0'}
         />
 
         <InfoLine
