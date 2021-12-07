@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import BigNumber from 'bignumber.js';
+import { canFarm } from '~services/pool';
 
 export const useFarmStake = ({
   poolId,
@@ -23,4 +24,16 @@ export const useFarmStake = ({
   }, [stakeList]);
 
   return farmStake;
+};
+
+export const useCanFarm = (poolId: number) => {
+  const [farmCount, setFarmCount] = useState<Number>(0);
+
+  useEffect(() => {
+    canFarm(poolId).then((canFarm) => {
+      setFarmCount(canFarm);
+    });
+  }, [poolId]);
+
+  return farmCount;
 };

@@ -13,7 +13,7 @@ export function ChooseAddType({
   setAddType: (e: any) => void;
 }) {
   return (
-    <div className="pt-2">
+    <div className="pt-2 text-primaryText">
       <div className="flex items-center my-2">
         <Radio
           checked={addType === 'addAll'}

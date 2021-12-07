@@ -182,7 +182,7 @@ export function FlexibleStableTokenList(props: {
               <div className="w-full flex flex-col">
                 <InputAmount
                   className="w-full border border-transparent rounded"
-                  max={toReadableNumber(token.decimals, balances[token.id])}
+                  max={balances[token.id]}
                   onChangeAmount={(amount) => {
                     try {
                       validate({
@@ -215,11 +215,7 @@ export function FlexibleStableTokenList(props: {
                   )}
 
                   <div className="text-xs text-right mt-1 mb-4 text-primaryText">
-                    {toPrecision(
-                      toReadableNumber(token.decimals, balances[token.id]),
-                      2,
-                      true
-                    )}
+                    {toPrecision(balances[token.id], 2, true)}
                   </div>
                 </div>
               </div>

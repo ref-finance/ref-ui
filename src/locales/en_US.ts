@@ -238,8 +238,8 @@ const en_US = {
   getToken_tip: 'You can claim your rewards or stake your LP Tokens now!',
   in_farm: 'in Farm',
   swap_rate_including_fee: 'Swap rate (including fees)',
-  by_share: 'by share',
-  by_token: 'by token',
+  by_share: 'By Share',
+  by_token: 'By Token',
   your_liquidity_positions_will_appear_here:
     'Your liquidity positions will appear here.',
   price_impact: 'Price Impact',
@@ -269,5 +269,6 @@ const en_US = {
   out_of_avaliable_shares: 'Out of available shares',
   shares_removed: 'Shares removed',
   shares_avaliable: 'Shares avaliable',
+  minimum_shares: 'Minimum shares',
 };
 export default en_US;

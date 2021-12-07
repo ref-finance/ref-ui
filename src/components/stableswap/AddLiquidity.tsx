@@ -36,11 +36,8 @@ import { ChooseAddType } from './LiquidityComponents';
 import StableTokenList from './StableTokenList';
 import { InfoLine } from './LiquidityComponents';
 import { usePool } from '~state/pool';
-<<<<<<< HEAD
 import { shareToAmount } from '~services/stable-swap';
-=======
 import { LP_TOKEN_DECIMALS } from '~services/m-token';
->>>>>>> d6433fd52404c70e3ca6a43ad65928e7b6b5d28f
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE';
@@ -93,6 +90,7 @@ export function myShares({
     `(${displayPercent}%)`
   );
 }
+
 export default function AddLiquidityComponent(props: {
   pool: Pool;
   tokens: TokenMetadata[];
@@ -113,10 +111,6 @@ export default function AddLiquidityComponent(props: {
   const history = useHistory();
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [canDeposit, setCanDeposit] = useState<boolean>(false);
-  const farmStake = useFarmStake({
-    poolId: pool.id,
-    stakeList,
-  });
 
   const predicedShares = usePredictShares({
     tokens,
@@ -146,8 +140,6 @@ export default function AddLiquidityComponent(props: {
 
     setSlippageTolerance(Number(rememberedSlippageTolerance));
   }, []);
-
-  const userTotalShare = BigNumber.sum(totalShares, farmStake, predicedShares);
 
   if (!balances) return null;
 
@@ -474,10 +466,10 @@ export default function AddLiquidityComponent(props: {
         </div>
 
         <div className="text-xs px-8 pb-2 pt-6 mt-6 border-t border-primaryText border-opacity-30">
-          <div className=" text-primaryText">
+          {/* <div className=" text-primaryText">
             <FormattedMessage id="fee" defaultMessage="Fee" />:
             <span className=" text-white pl-3">0.025%</span>
-          </div>
+          </div> */}
           <ChooseAddType addType={addType} setAddType={setAddType} />
           <StableSlipSelecter
             slippageTolerance={slippageTolerance}
@@ -486,6 +478,29 @@ export default function AddLiquidityComponent(props: {
               localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
             }}
           />
+
+          <div className="flex items-center justify-between text-xs  pb-4">
+            <div className="text-primaryText">
+              <FormattedMessage
+                id="minimum_shares"
+                defaultMessage="Minimum shares"
+              />
+            </div>
+            <div>
+              {/* {toPrecision(
+                percentLess(
+                  slippageTolerance,
+                  toReadableNumber(STABLE_LP_TOKEN_DECIMALS, predicedShares)
+                ),
+                3
+              )} */}
+
+              {myShares({
+                totalShares: pool.shareSupply,
+                userTotalShare: new BigNumber(predicedShares),
+              })}
+            </div>
+          </div>
         </div>
         <div className="px-8">
           {wallet.isSignedIn() ? (
@@ -511,7 +526,7 @@ export default function AddLiquidityComponent(props: {
         </div>
       </Card>
 
-      <InfoCard
+      {/* <InfoCard
         shares={myShares({ totalShares: pool.shareSupply, userTotalShare })}
         minimumReceived={toPrecision(
           percentLess(
@@ -520,7 +535,7 @@ export default function AddLiquidityComponent(props: {
           ),
           3
         )}
-      />
+      /> */}
     </>
   );
 }

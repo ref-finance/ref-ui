@@ -4,6 +4,7 @@ import {
   percentLess,
   toPrecision,
   toNonDivisibleNumber,
+  toReadableNumber,
 } from '../utils/numbers';
 import { getStakedListByAccountId } from '~services/farm';
 import {
@@ -34,6 +35,9 @@ import {
 } from '~services/indexer';
 import { parsePoolView, PoolRPCView } from '~services/api';
 import { TokenMetadata } from '~services/ft-contract';
+import { TokenBalancesView } from '~services/token';
+import { shareToAmount } from '~services/stable-swap';
+import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 
 export const usePool = (id: number | string) => {
   const [pool, setPool] = useState<PoolDetails>();
@@ -435,4 +439,31 @@ export const usePredictRemoveShares = ({
   }, [...amounts]);
 
   return predictedRemoveShares;
+};
+
+export const useShareToBalances = ({
+  tokens,
+  shares,
+  pool,
+}: {
+  tokens: TokenMetadata[];
+  shares: string;
+  pool: Pool;
+}) => {
+  const [shareToBalances, setShareToBalances] = useState<TokenBalancesView>({});
+
+  const parsedShares = toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares);
+
+  useEffect(() => {
+    const balances = tokens.reduce((pre: TokenBalancesView, cur) => {
+      return {
+        ...pre,
+        [cur.id]: shareToAmount(pool, parsedShares, cur).toString(),
+      };
+    }, {});
+
+    setShareToBalances(balances);
+  }, [shares]);
+
+  return shareToBalances;
 };

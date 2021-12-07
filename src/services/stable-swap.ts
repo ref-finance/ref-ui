@@ -24,6 +24,7 @@ import {
 } from './creators/storage';
 import { registerTokenAction } from './creators/token';
 import getConfig from '~services/config';
+import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 
 const FEE_DIVISOR = 10000;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
@@ -255,7 +256,9 @@ export const shareToAmount = (
 ) => {
   const totalShares = pool?.shareSupply;
   const tokensAmount = pool?.supplies;
-  const shareRate = Number(share) / Number(toReadableNumber(24, totalShares));
+  const shareRate =
+    Number(share) /
+    Number(toReadableNumber(STABLE_LP_TOKEN_DECIMALS, totalShares));
   const tokenMaxAmount = Number(
     toReadableNumber(token.decimals, tokensAmount[token.id])
   );
@@ -274,7 +277,10 @@ export const amountToShare = (
   );
   const amountRate = Number(amount) / tokenMaxAmount;
 
-  return toReadableNumber(24, (amountRate * Number(totalShares)).toString());
+  return toReadableNumber(
+    STABLE_LP_TOKEN_DECIMALS,
+    (amountRate * Number(totalShares)).toString()
+  );
 };
 
 export const restShare = (pool: Pool, shareOne: string, shareTwo: string) => {

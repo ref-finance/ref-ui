@@ -13,13 +13,16 @@ import {
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FarmDot } from '~components/icon';
 import BigNumber from 'bignumber.js';
+import { canFarm } from '~services/pool';
 
 export const ShareInFarm = ({
   farmStake,
   userTotalShare,
+  forStable,
 }: {
   farmStake: string | number;
   userTotalShare: BigNumber;
+  forStable?: boolean;
 }) => {
   const farmShare = Number(farmStake).toLocaleString('fullwide', {
     useGrouping: false,
@@ -31,10 +34,16 @@ export const ShareInFarm = ({
   ).toString();
 
   return (
-    <div className="items-center inline-flex text-xs text-gradientFrom rounded-full py-0.5 border border-transparent hover:border-gradientFrom px-2 xs:pr-0 md:pr-0 cursor-pointer">
+    <div
+      className={`items-center inline-flex text-xs ${
+        forStable ? 'text-primaryText' : 'text-gradientFrom'
+      } rounded-full py-0.5 border border-${
+        forStable ? 'primaryText' : 'transparent'
+      } hover:border-gradientFrom hover:text-gradientFrom px-2 xs:pr-0 md:pr-0 cursor-pointer`}
+    >
       <FarmDot inFarm={Number(farmShare) > 0} className="mr-1" />
       <div className="self-start">
-        <span className="text-gradientFrom">
+        <span className="">
           {`${
             Number(farmSharePercent) < 0.1 && Number(farmSharePercent) > 0
               ? '< 0.1'

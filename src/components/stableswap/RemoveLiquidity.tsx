@@ -21,7 +21,11 @@ import {
   removeLiquidityFromPool,
 } from '~services/pool';
 import { TokenBalancesView } from '~services/token';
-import { usePredictRemoveShares, useRemoveLiquidity } from '~state/pool';
+import {
+  usePredictRemoveShares,
+  useRemoveLiquidity,
+  useShareToBalances,
+} from '~state/pool';
 import { useFarmStake } from '~state/farm';
 import {
   percent,
@@ -64,6 +68,34 @@ function Icon(props: { icon?: string; className?: string; style?: any }) {
   );
 }
 
+export function shareToUserTotal({
+  shares,
+  userTotalShare,
+}: {
+  shares: string;
+  userTotalShare: BigNumber;
+}) {
+  return (
+    <div className="text-xs">
+      <span className="text-white">
+        {toRoundedReadableNumber({
+          decimals: STABLE_LP_TOKEN_DECIMALS,
+          number: shares,
+          precision: 3,
+        })}
+      </span>
+
+      <span className="text-primaryText">{` / ${toRoundedReadableNumber({
+        decimals: STABLE_LP_TOKEN_DECIMALS,
+        number: userTotalShare
+          .toNumber()
+          .toLocaleString('fullwide', { useGrouping: false }),
+        precision: 3,
+      })}`}</span>
+    </div>
+  );
+}
+
 export function RemoveLiquidityComponent(props: {
   shares: string;
   balances: TokenBalancesView;
@@ -71,7 +103,7 @@ export function RemoveLiquidityComponent(props: {
   pool: Pool;
   stakeList: Record<string, string>;
 }) {
-  const { shares, tokens, balances, pool, stakeList } = props;
+  const { shares, tokens, pool, stakeList } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');
@@ -84,6 +116,7 @@ export function RemoveLiquidityComponent(props: {
   const [sharePercentage, setSharePercentage] = useState<string>('0');
   const progressBarIndex = [0, 25, 50, 75, 100];
   const [receiveAmounts, setReceiveAmounts] = useState<string[]>(['', '', '']);
+
   const farmStake = useFarmStake({
     poolId: pool.id,
     stakeList,
@@ -115,17 +148,11 @@ export function RemoveLiquidityComponent(props: {
     balances: TokenBalancesView;
   }) {
     const firstTokenAmountBN = new BigNumber(firstAmount.toString());
-    const firstTokenBalanceBN = new BigNumber(
-      toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
-    );
+    const firstTokenBalanceBN = new BigNumber(balances[tokens[0].id]);
     const secondTokenAmountBN = new BigNumber(secondAmount.toString());
-    const secondTokenBalanceBN = new BigNumber(
-      toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
-    );
+    const secondTokenBalanceBN = new BigNumber(balances[tokens[1].id]);
     const thirdTokenAmountBN = new BigNumber(thirdAmount.toString());
-    const thirdTokenBalanceBN = new BigNumber(
-      toReadableNumber(tokens[2].decimals, balances[tokens[2].id])
-    );
+    const thirdTokenBalanceBN = new BigNumber(balances[tokens[2].id]);
     setError(null);
     setCanSubmit(false);
 
@@ -192,6 +219,11 @@ export function RemoveLiquidityComponent(props: {
   }
   const userTotalShare = BigNumber.sum(shares, farmStake);
 
+  const shareToBalances = useShareToBalances({
+    tokens,
+    pool,
+    shares,
+  });
   useEffect(() => {
     const rememberedSlippageTolerance =
       localStorage.getItem(SWAP_SLIPPAGE_KEY) || slippageTolerance;
@@ -199,6 +231,7 @@ export function RemoveLiquidityComponent(props: {
     setSlippageTolerance(Number(rememberedSlippageTolerance));
   }, []);
 
+  // change remove lp mode
   useEffect(() => {
     if (!isPercentage) {
       setSharePercentage('0');
@@ -251,21 +284,22 @@ export function RemoveLiquidityComponent(props: {
         />
       </div>
 
-      <div className=" text-white flex justify-between text-xs px-8">
+      <div className=" text-white flex items-center justify-between text-xs px-8 pb-6">
         <span className="text-primaryText">
           <FormattedMessage id="my_shares" defaultMessage="Shares" />
         </span>
-        <span>
-          {myShares({
-            totalShares: pool.shareSupply,
-            userTotalShare,
-          })}
-        </span>
+        <div className="flex items-center">
+          <span>{shareToUserTotal({ shares, userTotalShare })} </span>
+          <span className="ml-2">
+            <ShareInFarm
+              userTotalShare={userTotalShare}
+              farmStake={farmStake}
+              forStable
+            />
+          </span>
+        </div>
       </div>
-      <div className="px-8 flex justify-end">
-        <ShareInFarm userTotalShare={userTotalShare} farmStake={farmStake} />
-      </div>
-      <div
+      {/* <div
         className={`${
           isPercentage ? 'hidden' : ''
         } text-white flex justify-between text-xs py-4 px-8`}
@@ -289,7 +323,7 @@ export function RemoveLiquidityComponent(props: {
             precision: 3,
           })}
         </span>
-      </div>
+      </div> */}
 
       <div className="flex bg-inputDarkBg rounded text-white mx-8 p-1.5">
         <div
@@ -298,7 +332,7 @@ export function RemoveLiquidityComponent(props: {
           }  h-9`}
           onClick={() => setIsPercentage(true)}
         >
-          <FormattedMessage id="by_share" defaultMessage="by share" />
+          <FormattedMessage id="by_share" defaultMessage="By Share" />
         </div>
         <div
           className={`flex justify-center items-center w-2/4 rounded cursor-pointer ${
@@ -306,7 +340,7 @@ export function RemoveLiquidityComponent(props: {
           }  h-9`}
           onClick={() => setIsPercentage(false)}
         >
-          <FormattedMessage id="by_token" defaultMessage="by token" />
+          <FormattedMessage id="by_token" defaultMessage="By Token" />
         </div>
       </div>
       {/* Remove as percentage */}
@@ -328,9 +362,7 @@ export function RemoveLiquidityComponent(props: {
                 />
               </p>
             </div>
-            {/* <div className="w-full h-12 text-white text-xl font-semibold bg-inputDarkBg rounded px-2 flex items-center justify-end">
-              <div className="float-right">{sharePercentage}%</div>
-            </div> */}
+
             <InputAmount
               value={amountByShare}
               onChangeAmount={(amount) => {
@@ -413,7 +445,7 @@ export function RemoveLiquidityComponent(props: {
               ]}
               setAmountsFlexible={setAmountsFlexible}
               tokens={tokens}
-              balances={balances}
+              balances={shareToBalances}
               validate={validate}
               setError={setError}
               error={error}

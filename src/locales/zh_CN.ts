@@ -260,5 +260,6 @@ const zh_CN = {
   out_of_avaliable_shares: '超过了可用的份额',
   shares_removed: '移除的流动性',
   shares_avaliable: '可用的份额',
+  minimum_shares: '最少份额',
 };
 export default zh_CN;
