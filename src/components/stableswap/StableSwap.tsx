@@ -112,25 +112,27 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
     <form className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl py-6 bg-dark xs:rounded-lg md:rounded-lg">
       <div className="formTitle flex justify-between text-xl text-white text-left px-8">
         <FormattedMessage id="stable_swap" defaultMessage="StableSwap" />
-        <div
-          onClick={() => {
-            setLoadingTrigger(true);
-          }}
-          className="mx-4 cursor-pointer"
-        >
-          <CountdownTimer loadingTrigger={loadingTrigger} />
+        <div className="flex items-center">
+          <div
+            onClick={() => {
+              setLoadingTrigger(true);
+            }}
+            className="mx-4 cursor-pointer"
+          >
+            <CountdownTimer loadingTrigger={loadingTrigger} />
+          </div>
+          <SlippageSelector
+            slippageTolerance={slippageTolerance}
+            onChange={onChangeSlip}
+            bindUseBalance={(useNearBalance) => {
+              setUseNearBalance(useNearBalance);
+              localStorage.setItem(
+                SWAP_USE_NEAR_BALANCE_KEY,
+                useNearBalance.toString()
+              );
+            }}
+          />
         </div>
-        <SlippageSelector
-          slippageTolerance={slippageTolerance}
-          onChange={onChangeSlip}
-          bindUseBalance={(useNearBalance) => {
-            setUseNearBalance(useNearBalance);
-            localStorage.setItem(
-              SWAP_USE_NEAR_BALANCE_KEY,
-              useNearBalance.toString()
-            );
-          }}
-        />
       </div>
       <div className="flex mt-6 px-8">
         <div className="flex-1">
