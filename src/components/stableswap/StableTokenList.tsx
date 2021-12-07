@@ -166,7 +166,7 @@ export function FlexibleStableTokenList(props: {
   const intil = useIntl();
 
   return (
-    <div className="mt-4">
+    <div>
       {tokens.map((token, i) => {
         const isError = error && new RegExp(token.symbol).test(error.message);
 

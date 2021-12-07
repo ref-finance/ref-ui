@@ -1,6 +1,9 @@
 import BigNumber from 'bignumber.js';
 import React, { useEffect } from 'react';
 import { useState } from 'react';
+import ReactTooltip from 'react-tooltip';
+
+import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 import { FormattedMessage, useIntl } from 'react-intl';
 import Alert from '~components/alert/Alert';
 import { ConnectToNearBtn, SolidButton } from '~components/button/Button';
@@ -299,33 +302,8 @@ export function RemoveLiquidityComponent(props: {
           </span>
         </div>
       </div>
-      {/* <div
-        className={`${
-          isPercentage ? 'hidden' : ''
-        } text-white flex justify-between text-xs py-4 px-8`}
-      >
-        <span className="text-primaryText">
-          <FormattedMessage
-            id="shares_avaliable"
-            defaultMessage="Shares avaliable"
-          />
-        </span>
-        <span>
-          {toRoundedReadableNumber({
-            decimals: STABLE_LP_TOKEN_DECIMALS,
-            number: subtraction(
-              shares,
-              toPrecision(
-                percentLess(slippageTolerance, predicedRemoveShares),
-                0
-              )
-            ),
-            precision: 3,
-          })}
-        </span>
-      </div> */}
 
-      <div className="flex bg-inputDarkBg rounded text-white mx-8 p-1.5">
+      <div className="flex bg-inputDarkBg rounded text-white mx-8 p-1.5 mb-8">
         <div
           className={`flex justify-center items-center w-2/4 rounded cursor-pointer ${
             isPercentage ? 'bg-framBorder' : ''
@@ -333,7 +311,22 @@ export function RemoveLiquidityComponent(props: {
           onClick={() => setIsPercentage(true)}
         >
           <FormattedMessage id="by_share" defaultMessage="By Share" />
+          <FaRegQuestionCircle
+            data-type="dark"
+            data-place="right"
+            data-multiline={true}
+            data-tip={intl.formatMessage({ id: 'remove_tip' })}
+            className="inline-block ml-2 text-xs"
+          />
+          <ReactTooltip
+            className="text-xs shadow-4xl"
+            backgroundColor="#1D2932"
+            effect="solid"
+            class="tool-tip"
+            textColor="#7E8A93"
+          />
         </div>
+
         <div
           className={`flex justify-center items-center w-2/4 rounded cursor-pointer ${
             !isPercentage ? 'bg-framBorder' : ''
@@ -341,18 +334,25 @@ export function RemoveLiquidityComponent(props: {
           onClick={() => setIsPercentage(false)}
         >
           <FormattedMessage id="by_token" defaultMessage="By Token" />
+          <FaRegQuestionCircle
+            data-type="dark"
+            data-place="right"
+            data-multiline={true}
+            data-tip={intl.formatMessage({ id: 'flexible_tip' })}
+            className="inline-block ml-2 text-xs"
+          />
+          <ReactTooltip
+            className="text-xs shadow-4xl"
+            backgroundColor="#1D2932"
+            effect="solid"
+            class="tool-tip"
+            textColor="#7E8A93"
+          />
         </div>
       </div>
       {/* Remove as percentage */}
       {isPercentage && (
         <section className="mx-8">
-          <p className=" text-primaryText text-xs mt-4 mb-6">
-            <FormattedMessage
-              id="remove_tip"
-              defaultMessage="No fee in removing liquidity by share"
-            />
-          </p>
-
           <div className="flex">
             <div className="flex items-center justify-between mr-4">
               <p className="text-gray-400 text-xs whitespace-nowrap">
@@ -429,28 +429,20 @@ export function RemoveLiquidityComponent(props: {
       )}
       {/* remove as flexible */}
       {!isPercentage && (
-        <section>
-          <div className="px-8">
-            <div className="text-primaryText mt-4 mb-6 text-xs">
-              <FormattedMessage
-                id="flexible_tip"
-                defaultMessage="Remove how much you want per token"
-              />
-            </div>
-            <FlexibleStableTokenList
-              amountsFlexible={[
-                firstTokenAmount,
-                secondTokenAmount,
-                thirdTokenAmount,
-              ]}
-              setAmountsFlexible={setAmountsFlexible}
-              tokens={tokens}
-              balances={shareToBalances}
-              validate={validate}
-              setError={setError}
-              error={error}
-            />
-          </div>
+        <section className="px-8">
+          <FlexibleStableTokenList
+            amountsFlexible={[
+              firstTokenAmount,
+              secondTokenAmount,
+              thirdTokenAmount,
+            ]}
+            setAmountsFlexible={setAmountsFlexible}
+            tokens={tokens}
+            balances={shareToBalances}
+            validate={validate}
+            setError={setError}
+            error={error}
+          />
         </section>
       )}
 
