@@ -1,5 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
-import { calculateFairShare, percentLess, toPrecision } from '../utils/numbers';
+import {
+  calculateFairShare,
+  percentLess,
+  toPrecision,
+  toNonDivisibleNumber,
+} from '../utils/numbers';
 import { getStakedListByAccountId } from '~services/farm';
 import {
   DEFAULT_PAGE_LIMIT,
@@ -14,6 +19,8 @@ import {
   Pool,
   PoolDetails,
   removeLiquidityFromPool,
+  predictLiquidityShares,
+  predictRemoveLiquidityByTokens,
 } from '../services/pool';
 import db, { PoolDb, WatchList } from '~store/RefDatabase';
 
@@ -26,6 +33,7 @@ import {
   get24hVolume,
 } from '~services/indexer';
 import { parsePoolView, PoolRPCView } from '~services/api';
+import { TokenMetadata } from '~services/ft-contract';
 
 export const usePool = (id: number | string) => {
   const [pool, setPool] = useState<PoolDetails>();
@@ -365,4 +373,66 @@ export const useDayVolume = (pool_id: string) => {
     get24hVolume(pool_id).then(setDayVolume);
   }, [pool_id]);
   return dayVolume;
+};
+
+export const usePredictShares = ({
+  tokens,
+  poolId,
+  firstTokenAmount,
+  secondTokenAmount,
+  thirdTokenAmount,
+}: {
+  poolId: number;
+  tokens: TokenMetadata[];
+  firstTokenAmount: string;
+  secondTokenAmount: string;
+  thirdTokenAmount: string;
+}) => {
+  const [predicedShares, setPredictedShares] = useState<string>('0');
+
+  useEffect(() => {
+    const amounts = [firstTokenAmount, secondTokenAmount, thirdTokenAmount].map(
+      (amount, index) => {
+        return toNonDivisibleNumber(tokens[index].decimals, amount);
+      }
+    );
+
+    predictLiquidityShares(poolId, amounts)
+      .then(setPredictedShares)
+      .catch(() => setPredictedShares('0'));
+  }, [firstTokenAmount, secondTokenAmount, thirdTokenAmount]);
+
+  return predicedShares;
+};
+
+export const usePredictRemoveShares = ({
+  pool_id,
+  amounts,
+  tokens,
+}: {
+  pool_id: number;
+  amounts: string[];
+  tokens: TokenMetadata[];
+}) => {
+  const [predictedRemoveShares, setPredictedRemoveShares] =
+    useState<string>('0');
+
+  const zeroValidate = amounts.every((amount) => !(Number(amount) > 0));
+
+  const parsedAmounts = amounts.map((amount, i) => {
+    return toNonDivisibleNumber(tokens[i].decimals, amount || '0');
+  });
+
+  useEffect(() => {
+    if (zeroValidate) {
+      setPredictedRemoveShares('0');
+      return;
+    }
+
+    predictRemoveLiquidityByTokens(pool_id, parsedAmounts).then(
+      setPredictedRemoveShares
+    );
+  }, [...amounts]);
+
+  return predictedRemoveShares;
 };

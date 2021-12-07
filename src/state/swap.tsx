@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { getPool, Pool } from '../services/pool';
+
+import { estimateSwap } from '~services/stable-swap';
+
 import { TokenMetadata } from '../services/ft-contract';
 import { percentLess, toReadableNumber } from '../utils/numbers';
-import { checkTransaction, estimateSwap, swap } from '../services/swap';
+import { checkTransaction } from '../services/swap';
+
+import { swap } from '~services/stable-swap';
+
 import { useHistory, useLocation } from 'react-router';
 import getConfig from '~services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -185,46 +191,59 @@ export const useStableSwap = ({
   tokenInAmount,
   tokenOut,
   slippageTolerance,
+  useNearBalance,
 }: {
   tokenIn: TokenMetadata;
   tokenInAmount: string;
   tokenOut: TokenMetadata;
   slippageTolerance: number;
+  useNearBalance: boolean;
 }) => {
   const [pool, setPool] = useState<Pool>();
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('0');
   const [canSwap, setCanSwap] = useState<boolean>(false);
+  const zeroValide = (amount: string) => !amount || Number(amount) === 0;
+  const [swapError, setSwapError] = useState<Error>();
 
   useEffect(() => {
-    getPool(10).then(setPool);
-  }, []);
-
-  useEffect(() => {
-    if (!pool) return;
-    const in_balance = toReadableNumber(
-      tokenIn.decimals,
-      pool.supplies[tokenIn.id]
-    );
-    const out_balance = toReadableNumber(
-      tokenOut.decimals,
-      pool.supplies[tokenOut.id]
-    );
-
-    const newTokenOutAmount = (
-      (Number(tokenInAmount) * Number(out_balance)) /
-      (Number(tokenInAmount) + Number(in_balance))
-    ).toString();
-
-    setTokenOutAmount(newTokenOutAmount);
-    if (Number(newTokenOutAmount)) setCanSwap(true);
-  }, [pool, tokenInAmount, tokenIn, tokenOut]);
+    setCanSwap(false);
+    setSwapError(null);
+    if (!zeroValide(tokenInAmount)) {
+      estimateSwap({ tokenIn, tokenOut, amountIn: tokenInAmount })
+        .then((res) => {
+          setCanSwap(true);
+          setPool(res.pool);
+          setTokenOutAmount(res.estimate);
+        })
+        .catch((err) => {
+          setCanSwap(false);
+          setTokenOutAmount('');
+          setSwapError(err);
+        });
+    } else {
+      setTokenOutAmount('0');
+    }
+  }, [tokenIn, tokenOut, tokenInAmount, slippageTolerance]);
 
   const minAmountOut = percentLess(slippageTolerance, tokenOutAmount);
+
+  const submit = () => {
+    swap({
+      useNearBalance,
+      pool,
+      tokenIn,
+      tokenOut,
+      minAmountOut,
+      amountIn: tokenInAmount,
+    });
+  };
 
   return {
     pool,
     tokenOutAmount,
     minAmountOut,
     canSwap,
+    swapError,
+    submit,
   };
 };

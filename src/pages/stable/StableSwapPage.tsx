@@ -47,14 +47,16 @@ function StableSwapPage() {
         return (
           <RemoveLiquidityComponent
             tokens={tokens}
-            shares="0"
+            shares={shares}
             balances={balances}
+            pool={pool}
+            stakeList={stakeList}
           />
         );
     }
   };
 
-  if (!allTokens || !pool) return <Loading />;
+  if (!allTokens || !pool || !shares) return <Loading />;
 
   return (
     <div className="m-auto" style={{ width: cardWidth }}>

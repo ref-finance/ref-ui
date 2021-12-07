@@ -5,16 +5,7 @@ import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import { TokenMetadata } from '~services/ft-contract';
 import { Pool } from '~services/pool';
 import { useIntl } from 'react-intl';
-import {
-  ResponsiveContainer,
-  PieChart,
-  Cell,
-  Pie,
-  LabelListProps,
-  LabelProps,
-  Label,
-  LabelList,
-} from 'recharts';
+import { PieChart, Cell, Pie } from 'recharts';
 import {
   toReadableNumber,
   toInternationalCurrencySystem,
@@ -23,27 +14,6 @@ import {
 } from '~utils/numbers';
 import { InfoLine } from './LiquidityComponents';
 import _ from 'lodash';
-
-// function customLabel({
-//   cx,
-//   cy,
-//   midAngle,
-//   innerRadius,
-//   outerRadius,
-//   percent,
-//   index,
-//   tokens,
-//   pool,
-// }: any) {
-//   const RADIAN = Math.PI / 180;
-//   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-//   const x = cx + radius * Math.cos(-midAngle * RADIAN);
-//   const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-//   return (
-//     <image width="30" x={x} y={y} height="30" xlinkHref={tokens[index].icon} />
-//   );
-// }
 
 function TokenChart({ tokens, pool }: { tokens: TokenMetadata[]; pool: Pool }) {
   const data = tokens.map((token, i) => {
@@ -58,6 +28,45 @@ function TokenChart({ tokens, pool }: { tokens: TokenMetadata[]; pool: Pool }) {
     USDC: 'rgba(0, 163, 255, 0.45)',
   };
 
+  function customLabel({
+    cx,
+    cy,
+    midAngle,
+    innerRadius,
+    outerRadius,
+    percent,
+    index,
+    tokens,
+  }: any) {
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    // return <image width="30" height="30" xlinkHref={tokens[index].icon} />;
+
+    return (
+      <g>
+        <text
+          x={x}
+          y={y}
+          fill="white"
+          textAnchor={x > cx ? 'start' : 'end'}
+          dominantBaseline="central"
+        >
+          {`${(percent * 100).toFixed(0)}%`}
+        </text>
+        {/* <image
+          width="30"
+          height="30"
+          x={x}
+          y={y}
+          xlinkHref={tokens[index].icon}
+        /> */}
+      </g>
+    );
+  }
+
   return (
     <PieChart width={200} height={200}>
       <Pie
@@ -67,7 +76,7 @@ function TokenChart({ tokens, pool }: { tokens: TokenMetadata[]; pool: Pool }) {
         outerRadius={80}
         dataKey="value"
         labelLine={false}
-        // label={(props) => customLabel({ ...props, tokens, pool })}
+        label={customLabel}
       >
         {data.map((entry, index) => {
           return (

@@ -401,10 +401,10 @@ export const addLiquidityToPool = async ({
 
 export const predictLiquidityShares = async (
   pool_id: number,
-  amounts: []
-): Promise<Pool> => {
+  amounts: string[]
+): Promise<string> => {
   return refFiViewFunction({
-    methodName: 'predict_add_stable_liquidity',
+    methodName: 'predict_add_stable_liqudity',
     args: { pool_id: pool_id, amounts },
   });
 };
@@ -504,7 +504,7 @@ export const removeLiquidityFromStablePool = async ({
     {
       methodName: 'remove_liquidity',
       args: { pool_id: id, shares, min_amounts },
-      amount: LP_STORAGE_AMOUNT,
+      amount: ONE_YOCTO_NEAR,
     },
   ];
 
@@ -522,7 +522,7 @@ export const removeLiquidityFromStablePool = async ({
 
 export const predictRemoveLiquidityByTokens = async (
   pool_id: number,
-  amounts: []
+  amounts: string[]
 ): Promise<string> => {
   return refFiViewFunction({
     methodName: 'predict_remove_liqudity_by_tokens',
@@ -545,7 +545,7 @@ export const removeLiquidityByTokensFromStablePool = async ({
     {
       methodName: 'remove_liquidity_by_tokens',
       args: { pool_id: id, amounts, max_burn_shares },
-      amount: LP_STORAGE_AMOUNT,
+      amount: ONE_YOCTO_NEAR,
     },
   ];
 

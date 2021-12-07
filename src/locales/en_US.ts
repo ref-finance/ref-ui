@@ -204,7 +204,7 @@ const en_US = {
   including_fees: '(including fees)',
   standard_gas: 'Standard Gas fee:',
   rst_token: 'Your RST token',
-  remove_tip: 'No fee in removing liquidity as percentage',
+  remove_tip: 'No fee in removing liquidity by share',
   share_liquidity: 'Share of liquidity',
   remove_token_confirm: 'You will remove RUST token',
   remove_as_one_token: 'Remove as one token',
@@ -238,7 +238,8 @@ const en_US = {
   getToken_tip: 'You can claim your rewards or stake your LP Tokens now!',
   in_farm: 'in Farm',
   swap_rate_including_fee: 'Swap rate (including fees)',
-  percentage: 'Percentage',
+  by_share: 'by share',
+  by_token: 'by token',
   your_liquidity_positions_will_appear_here:
     'Your liquidity positions will appear here.',
   price_impact: 'Price Impact',
@@ -265,5 +266,8 @@ const en_US = {
   value_rewards_token: 'Value of rewards',
   all: 'all',
   all_5: '5 tokens per time',
+  out_of_avaliable_shares: 'Out of available shares',
+  shares_removed: 'Shares removed',
+  shares_avaliable: 'Shares avaliable',
 };
 export default en_US;

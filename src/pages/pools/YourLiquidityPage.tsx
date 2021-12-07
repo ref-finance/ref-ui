@@ -31,22 +31,8 @@ import { LP_TOKEN_DECIMALS } from '~services/m-token';
 import { canFarm, Pool } from '~services/pool';
 import { formatMessage } from '@formatjs/intl';
 import { TokenMetadata } from '~services/ft-contract';
-
-function FarmDot({
-  inFarm,
-  className,
-}: {
-  inFarm: boolean;
-  className?: string;
-}) {
-  return (
-    <div
-      className={`rounded-full  ${
-        inFarm ? 'bg-gradientFrom' : ''
-      } w-2 h-2 border border-gradientFrom ${className}`}
-    />
-  );
-}
+import { FarmDot } from '~components/icon';
+import { ShareInFarm } from '~components/layout/ShareInFarm';
 
 function MyShares({
   shares,
@@ -71,14 +57,14 @@ function MyShares({
 
   let sharePercent = percent(userTotalShare.valueOf(), totalShares);
 
-  const farmShare = Number(farmStake).toLocaleString('fullwide', {
-    useGrouping: false,
-  });
+  // const farmShare = Number(farmStake).toLocaleString('fullwide', {
+  //   useGrouping: false,
+  // });
 
-  const farmSharePercent = percent(
-    farmShare,
-    userTotalShare.toNumber().toLocaleString('fullwide', { useGrouping: false })
-  ).toString();
+  // const farmSharePercent = percent(
+  //   farmShare,
+  //   userTotalShare.toNumber().toLocaleString('fullwide', { useGrouping: false })
+  // ).toString();
 
   let displayPercent;
   if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
@@ -102,7 +88,6 @@ function MyShares({
       {supportFarm > 0 && (
         <object>
           <Link
-            className="items-center inline-flex text-xs text-gradientFrom rounded-full py-1 border border-transparent hover:border-gradientFrom px-2 xs:pr-0 md:pr-0"
             to={{
               pathname: '/farms',
             }}
@@ -111,18 +96,10 @@ function MyShares({
               e.stopPropagation();
             }}
           >
-            <FarmDot inFarm={Number(farmShare) > 0} className="mr-1" />
-            <div className="self-start">
-              <span className="text-gradientFrom">
-                {`${
-                  Number(farmSharePercent) < 0.1 && Number(farmSharePercent) > 0
-                    ? '< 0.1'
-                    : toPrecision(farmSharePercent, 2, false, false)
-                }% `}{' '}
-              </span>
-              &nbsp;
-              <FormattedMessage id="in_farm" defaultMessage="in Farm" />
-            </div>
+            <ShareInFarm
+              farmStake={farmStake}
+              userTotalShare={userTotalShare}
+            />
           </Link>
         </object>
       )}
