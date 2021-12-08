@@ -174,11 +174,7 @@ export function AddPoolPage() {
                     return;
                   }
                   setError(null);
-
-                  addSimpleLiquidityPool(
-                    [token1.id, token2.id],
-                    parseFloat(fee) * 100 - 5
-                  );
+                  addSimpleLiquidityPool([token1.id, token2.id], v * 100);
                 }
               }}
             >

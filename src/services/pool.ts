@@ -21,7 +21,7 @@ import {
   storageDepositForFTAction,
 } from './creators/storage';
 import { getTopPools } from '~services/indexer';
-import { PoolRPCView } from './api';
+import { parsePoolView, PoolRPCView } from './api';
 import { checkTokenNeedsStorageDeposit } from '~services/token';
 
 export const DEFAULT_PAGE_LIMIT = 100;
@@ -292,6 +292,9 @@ export const getPoolsByTokens = async ({
     const pools = (
       await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
     ).flat();
+    filtered_pools = pools.filter((pool) =>
+      isNotStablePool(parsePoolView(pool))
+    );
 
     await db.cachePoolsByTokens(pools);
     filtered_pools = pools.filter(
@@ -310,6 +313,10 @@ export const getPool = async (id: number): Promise<Pool> => {
     methodName: 'get_pool',
     args: { pool_id: id },
   }).then((pool) => parsePool(pool, id));
+};
+
+export const isNotStablePool = (pool: PoolRPCView) => {
+  return pool.amounts.length < 3;
 };
 
 interface PoolVolumes {
