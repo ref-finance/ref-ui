@@ -60,7 +60,10 @@ export default function StableTokenList(props: {
 
   return (
     <div className="mt-4 px-8">
-      <div className="text-xs text-right mb-1 text-gray-400">
+      <div
+        className="text-xs text-right mb-1 text-gray-400"
+        title={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
+      >
         <FormattedMessage id="balance" defaultMessage="Balance" />
         :&nbsp;
         {toPrecision(
@@ -87,7 +90,10 @@ export default function StableTokenList(props: {
         />
       </div>
       <div className=" my-4">
-        <div className="text-xs text-right mb-1 text-gray-400">
+        <div
+          className="text-xs text-right mb-1 text-gray-400"
+          title={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
+        >
           <FormattedMessage id="balance" defaultMessage="Balance" />
           :&nbsp;
           {toPrecision(
@@ -113,7 +119,10 @@ export default function StableTokenList(props: {
         </div>
       </div>
       <div className="my-4">
-        <div className="text-xs text-right mb-1 text-gray-400">
+        <div
+          className="text-xs text-right mb-1 text-gray-400"
+          title={toReadableNumber(tokens[2].decimals, balances[tokens[2].id])}
+        >
           <FormattedMessage id="balance" defaultMessage="Balance" />
           :&nbsp;
           {toPrecision(
@@ -239,6 +248,7 @@ export function StableTokensSymbol(props: {
   slippageTolerance: number;
 }) {
   const { tokens, receiveAmounts, withPlus, slippageTolerance } = props;
+
   return (
     <div className="flex mb-6 items-center justify-between">
       {Array(withPlus ? 5 : 3)
@@ -247,6 +257,7 @@ export function StableTokensSymbol(props: {
           if (i % 2 && withPlus) return <div key={i}>+</div>;
           else {
             const token = tokens[withPlus ? Math.floor(i / 2) : i];
+
             return (
               <div className="flex" key={i}>
                 <Icon icon={token.icon} className="inline-block h-9 w-9 mr-2" />
@@ -254,12 +265,11 @@ export function StableTokensSymbol(props: {
                   <p className="text-sm">{toRealSymbol(token.symbol)}</p>
                   <div className="text-xs">
                     {toPrecision(
-                      toReadableNumber(
-                        token.decimals,
-                        percentLess(
-                          slippageTolerance,
-                          receiveAmounts[withPlus ? Math.floor(i / 2) : i] ||
-                            '0'
+                      percentLess(
+                        slippageTolerance,
+                        toReadableNumber(
+                          token.decimals,
+                          receiveAmounts[withPlus ? Math.floor(i / 2) : i]
                         )
                       ),
                       3,

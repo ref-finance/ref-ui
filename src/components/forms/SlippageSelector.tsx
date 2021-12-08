@@ -11,10 +11,12 @@ export default function SlippageSelector({
   slippageTolerance,
   onChange,
   bindUseBalance,
+  useNearBalance,
 }: {
   slippageTolerance: number;
   onChange: (slippage: number) => void;
   bindUseBalance: (useNearBalance: boolean) => void;
+  useNearBalance: string;
 }) {
   const ref = useRef<HTMLInputElement>();
   const field = useRef<HTMLFieldSetElement>();
@@ -25,8 +27,8 @@ export default function SlippageSelector({
   const [invalid, setInvalid] = useState(false);
   const [warn, setWarn] = useState(false);
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
-  const useNearBalance =
-    localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) || 'true';
+  // const useNearBalance =
+  //   localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) || 'true';
 
   const openToolTip = (e: any) => {
     e.nativeEvent.stopImmediatePropagation();
@@ -441,7 +443,17 @@ export function StableSlipSelecter({
             defaultValue={slippageTolerance ? slippageTolerance : 0.5}
             onWheel={() => ref.current.blur()}
             step="any"
-            className="bg-inputBg text-center rounded w-14 h-7 bg-inputDarkBg mx-2 px-1 border border-gradientFrom normal-input text-gradientFrom"
+            className={`${
+              slippageTolerance && !invalid && !warn
+                ? 'border border-gradientFrom normal-input text-gradientFrom bg-opacity-0'
+                : ''
+            } focus:text-gradientFrom focus:bg-opacity-0 w-14 h-7 text-center text-sm rounded mx-2 bg-gray-500 ${
+              invalid && !warn
+                ? 'border border-error text-error bg-opacity-0 invalid-input'
+                : ''
+            } ${
+              warn ? 'border border-warn text-warn bg-opacity-0 warn-input' : ''
+            }`}
             type="number"
             required={true}
             placeholder=""

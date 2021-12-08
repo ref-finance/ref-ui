@@ -10,6 +10,7 @@ import {
   SwapDetail,
   SwapRateDetail,
   GetPriceImpact,
+  getPriceImpactTipType,
 } from '~components/swap/SwapCard';
 import { toRealSymbol } from '~utils/token';
 import {
@@ -60,10 +61,10 @@ export function TokensRadio({
       <div className="text-white flex-1">
         {tokens.map((token) => (
           <div
-            className="flex my-4 items-center"
-            key={`second-${token.id} cursor-pointer`}
+            className="flex my-4 items-center cursor-pointer"
+            key={`second-${token.id}`}
             onClick={() => {
-              handleSwapFrom(token.id);
+              handleSwapTo(token.id);
             }}
           >
             <Radio
@@ -89,11 +90,13 @@ export function SwapAnimation({
   tokenIn,
   setTokenIn,
   setTokenOut,
+  setTokenInAmount,
 }: {
   tokenOut: TokenMetadata;
   tokenIn: TokenMetadata;
   setTokenIn: (token: TokenMetadata) => void;
   setTokenOut: (token: TokenMetadata) => void;
+  setTokenInAmount: (amount: string) => void;
 }) {
   const topBall = useRef<HTMLInputElement>();
   const bottomBall = useRef<HTMLInputElement>();
@@ -119,6 +122,7 @@ export function SwapAnimation({
             runSwapAnimation();
             setTokenIn(tokenOut);
             setTokenOut(tokenIn);
+            setTokenInAmount(toPrecision('1', 6));
           }}
         >
           <div className="swap-wrap">
@@ -161,6 +165,9 @@ export function DetailView({
         }}
       >
         <div className="flex items-center text-white cursor-pointer">
+          <label className="mr-2">
+            {getPriceImpactTipType(pool, tokenIn, tokenOut, from)}
+          </label>
           <p className="block text-xs">
             <FormattedMessage id="details" defaultMessage="Details" />
           </p>
