@@ -2,7 +2,6 @@ import {
   executeMultipleTransactions,
   LP_STORAGE_AMOUNT,
   ONE_YOCTO_NEAR,
-  refFiFunctionCall,
   refFiViewFunction,
   REF_FI_CONTRACT_ID,
   Transaction,
@@ -15,13 +14,11 @@ import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { toNonDivisibleNumber } from '../utils/numbers';
 import {
-  needDepositStorage,
-  ONE_MORE_DEPOSIT_AMOUNT,
   storageDepositAction,
   storageDepositForFTAction,
 } from './creators/storage';
 import { getTopPools } from '~services/indexer';
-import { parsePoolView, PoolRPCView } from './api';
+import { PoolRPCView } from './api';
 import { checkTokenNeedsStorageDeposit } from '~services/token';
 
 export const DEFAULT_PAGE_LIMIT = 100;
@@ -257,6 +254,10 @@ export const getAllPools = async (
   return poolData.map((rawPool, i) => parsePool(rawPool, i + index));
 };
 
+export const isNotStablePool = (pool: Pool) => {
+  return pool.tokenIds.length < 3;
+};
+
 interface GetPoolOptions {
   tokenInId: string;
   tokenOutId: string;
@@ -292,9 +293,7 @@ export const getPoolsByTokens = async ({
     const pools = (
       await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
     ).flat();
-    filtered_pools = pools.filter((pool) =>
-      isNotStablePool(parsePoolView(pool))
-    );
+    filtered_pools = pools.filter(isNotStablePool);
 
     await db.cachePoolsByTokens(pools);
     filtered_pools = pools.filter(
@@ -313,10 +312,6 @@ export const getPool = async (id: number): Promise<Pool> => {
     methodName: 'get_pool',
     args: { pool_id: id },
   }).then((pool) => parsePool(pool, id));
-};
-
-export const isNotStablePool = (pool: PoolRPCView) => {
-  return pool.amounts.length < 3;
 };
 
 interface PoolVolumes {

@@ -88,7 +88,6 @@ import {
 import _ from 'lodash';
 import moment from 'moment';
 import { ChartNoData } from '~components/icon/ChartNoData';
-import { isNotStablePool } from '~worker';
 interface ParamTypes {
   id: string;
 }

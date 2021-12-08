@@ -3,7 +3,6 @@ import db, { FarmDexie } from './store/RefDatabase';
 import getConfig from './services/config';
 import { TokenMetadata } from '~services/ft-contract';
 import { Farm } from '~services/farm';
-import { isNotStablePool, Pool } from '~services/pool';
 import { PoolRPCView } from '~services/api';
 
 const config = getConfig();
@@ -82,6 +81,10 @@ const getFarms = (page: number) => {
     methodName: 'list_farms',
     args: { from_index: index, limit: MAX_PER_PAGE },
   });
+};
+
+export const isNotStablePool = (pool: PoolRPCView) => {
+  return pool.amounts.length < 3;
 };
 
 const cachePools = async () => {

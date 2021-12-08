@@ -1,6 +1,7 @@
 import Dexie from 'dexie';
 import _ from 'lodash';
 import moment from 'moment';
+import { isNotStablePool, PoolDetails } from '~services/pool';
 import getConfig from '../services/config';
 
 interface Pool {
@@ -158,8 +159,11 @@ class RefDatabase extends Dexie {
 
   public async cachePoolsByTokens(pools: any) {
     await this.poolsTokens.clear();
+    const filtered_pools = pools.filter(function (pool: PoolDetails) {
+      return pool.tokenIds.length < 3;
+    });
     await this.poolsTokens.bulkPut(
-      pools.map(
+      filtered_pools.map(
         (pool: {
           id: number;
           tokenIds: string[];
@@ -188,7 +192,7 @@ class RefDatabase extends Dexie {
   }
 
   public async getPoolsByTokens(tokenInId: string, tokenOutId: string) {
-    const items = await this.queryPoolsByTokens(tokenInId, tokenOutId);
+    let items = await this.queryPoolsByTokens(tokenInId, tokenOutId);
 
     return items.map((item) => ({
       id: item.id,
