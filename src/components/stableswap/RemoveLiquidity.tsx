@@ -51,6 +51,7 @@ import StableTokenList, {
   StableTokensSymbol,
 } from './StableTokenList';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
+import { Link } from 'react-router-dom';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
@@ -306,13 +307,18 @@ export function RemoveLiquidityComponent(props: {
               userTotalShare,
             })}{' '}
           </span>
-          <span className="ml-2">
+          <Link
+            className="ml-2"
+            to={{
+              pathname: '/farms',
+            }}
+          >
             <ShareInFarm
               userTotalShare={userTotalShare}
               farmStake={farmStake}
               forStable
             />
-          </span>
+          </Link>
         </div>
       </div>
 
