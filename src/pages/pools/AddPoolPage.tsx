@@ -113,36 +113,24 @@ export function AddPoolPage() {
           </div>
         </div>
 
-        <div className="text-xs py-2 flex items-center justify-between">
-          <div>
+        <div className="text-xs py-2 flex items-center justify-end">
+          <div className="flex-grow">
             <span className="pr-1 text-white">
               <FormattedMessage id="fee" defaultMessage="Fee" /> %
             </span>
           </div>
           <Toggle
             opts={[
-              { label: '0.15%', value: '0.15' },
-              { label: '0.25%', value: '0.25' },
-              { label: '0.55%', value: '0.55' },
+              { label: '0.20%', value: '0.20' },
+              { label: '0.30%', value: '0.30' },
+              { label: '0.60%', value: '0.60' },
             ]}
             onChange={(v) =>
-              setFee((parseFloat(v) + 0.05 + Number.EPSILON).toFixed(2))
+              setFee((parseFloat(v) + Number.EPSILON).toFixed(2))
             }
-            value="0.25"
+            value="0.30"
           />
-        </div>
-        <div className="text-xs py-2 flex items-center justify-between">
-          <div>
-            <span className="pr-1 text-white">
-              <FormattedMessage id="total_fee" defaultMessage="Total Fee %" />(
-              <FormattedMessage
-                id="protocol_fee_is"
-                defaultMessage="protocol fee is "
-              />
-              0.05%)
-            </span>
-          </div>
-          <div className="inline-block w-16 border border-gradientFrom bg-inputDarkBg p-1 px-3 rounded">
+          <div className="inline-block w-16 ml-2 border border-gradientFrom bg-inputDarkBg p-1 px-3 rounded">
             <input
               className="text-right text-white"
               type="number"
