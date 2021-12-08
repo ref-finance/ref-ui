@@ -451,9 +451,11 @@ export function StableSlipSelecter({
           <span className="text-white">%</span>
         </div>
       </div>
-      <div className={`${invalid || warn ? 'block' : 'hidden'}`}>
+      <div
+        className={`${invalid || warn ? 'block' : 'hidden'} flex justify-end`}
+      >
         {invalid ? (
-          <div className="text-error text-xs py-3">
+          <div className="text-error text-xs py-2">
             <IoWarning className="inline-block text-lg align-text-top mr-1" />
             <FormattedMessage
               id="slip_invalid"
@@ -461,7 +463,7 @@ export function StableSlipSelecter({
             />
           </div>
         ) : (
-          <div className="text-warn text-xs py-3">
+          <div className="text-warn text-xs py-2">
             <IoWarning className="inline-block text-lg align-text-top mr-1" />
             <FormattedMessage
               id="slip_warn"

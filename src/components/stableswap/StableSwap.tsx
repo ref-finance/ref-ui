@@ -177,7 +177,6 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
             disabled={true}
             name={tokenOut?.id}
             value={tokenOutAmount}
-            max={tokenOutTotal}
           />
         </div>
       </div>
@@ -214,7 +213,8 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
             disabled={!canSubmit}
             onClick={(e) => {
               e.preventDefault();
-              makeSwap(useNearBalance);
+
+              canSubmit && makeSwap(useNearBalance);
             }}
           >
             <FormattedMessage id="swap" defaultMessage="Swap" />

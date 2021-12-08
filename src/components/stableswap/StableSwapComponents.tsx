@@ -36,7 +36,13 @@ export function TokensRadio({
     <div className="flex border-b border-primaryText border-opacity-30 px-8">
       <div className="text-white mr-24 flex-1">
         {tokens.map((token) => (
-          <div className="flex my-4 items-center" key={token.id}>
+          <div
+            className="flex my-4 items-center cursor-pointer"
+            key={token.id}
+            onClick={() => {
+              handleSwapFrom(token.id);
+            }}
+          >
             <Radio
               value={token.id}
               handleSelect={handleSwapFrom}
@@ -47,13 +53,19 @@ export function TokensRadio({
               icon={token.icon}
               className="inline-block h-9 w-9 ml-4 mr-2"
             />
-            <label>{token.symbol}</label>
+            <div>{token.symbol}</div>
           </div>
         ))}
       </div>
       <div className="text-white flex-1">
         {tokens.map((token) => (
-          <div className="flex my-4 items-center" key={`second-${token.id}`}>
+          <div
+            className="flex my-4 items-center"
+            key={`second-${token.id} cursor-pointer`}
+            onClick={() => {
+              handleSwapFrom(token.id);
+            }}
+          >
             <Radio
               value={token.id}
               handleSelect={handleSwapTo}
@@ -63,7 +75,7 @@ export function TokensRadio({
               icon={token.icon}
               className="inline-block h-9 w-9 ml-4 mr-2"
             />
-            <label>{token.symbol}</label>
+            <div>{token.symbol}</div>
           </div>
         ))}
       </div>
@@ -159,15 +171,8 @@ export function DetailView({
       </div>
       <div className={showDetails ? '' : 'hidden'}>
         <SwapDetail
-          title={intl.formatMessage({
-            id: 'price_impact',
-            defaultMessage: 'Price Impact',
-          })}
-          value={
-            !to || to === '0' || !canSwap
-              ? '-'
-              : GetPriceImpact(pool, tokenIn, tokenOut, from)
-          }
+          title={intl.formatMessage({ id: 'minimum_received' })}
+          value={toPrecision(minAmountOut, 8, true)}
         />
         <SwapRateDetail
           title={intl.formatMessage({
@@ -186,8 +191,15 @@ export function DetailView({
           tokenOut={tokenOut}
         />
         <SwapDetail
-          title={intl.formatMessage({ id: 'minimum_received' })}
-          value={toPrecision(minAmountOut, 8, true)}
+          title={intl.formatMessage({
+            id: 'price_impact',
+            defaultMessage: 'Price Impact',
+          })}
+          value={
+            !to || to === '0' || !canSwap
+              ? '-'
+              : GetPriceImpact(pool, tokenIn, tokenOut, from)
+          }
         />
       </div>
     </div>

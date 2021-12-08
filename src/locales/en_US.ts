@@ -270,7 +270,6 @@ const en_US = {
   shares_removed: 'Shares removed',
   shares_avaliable: 'Shares avaliable',
   minimum_shares: 'Minimum shares',
-  shares_tip:
-    'Your individuals in the pool can be used to remove liquidity, <br>and some may be deposited on the farm',
+  shares_tip: 'Shares available / shares you own totally',
 };
 export default en_US;
