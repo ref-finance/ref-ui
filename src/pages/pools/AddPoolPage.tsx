@@ -130,16 +130,6 @@ export function AddPoolPage() {
             }
             value="0.30"
           />
-          <div className="inline-block w-16 ml-2 border border-gradientFrom bg-inputDarkBg p-1 px-3 rounded">
-            <input
-              className="text-right text-white"
-              type="number"
-              value={fee}
-              onChange={(evt) => {
-                setFee(evt.target.value);
-              }}
-            />
-          </div>
         </div>
         <div className="pt-6 w-full">
           {wallet.isSignedIn() ? (
