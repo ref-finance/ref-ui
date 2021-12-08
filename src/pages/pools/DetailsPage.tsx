@@ -18,6 +18,7 @@ import {
   addPoolToWatchList,
   getWatchListFromDb,
   Pool,
+  PoolDetails,
   removePoolFromWatchList,
 } from '~services/pool';
 import { useTokenBalances, useTokens, getExchangeRate } from '~state/token';
@@ -87,6 +88,7 @@ import {
 import _ from 'lodash';
 import moment from 'moment';
 import { ChartNoData } from '~components/icon/ChartNoData';
+import { isNotStablePool } from '~worker';
 interface ParamTypes {
   id: string;
 }
@@ -1151,6 +1153,7 @@ export function PoolDetailsPage() {
   const morePoolIds: string[] =
     JSON.parse(localStorage.getItem('morePoolIds')) || [];
   const [farmCount, setFarmCount] = useState<Number>(1);
+  const history = useHistory();
 
   const handleSaveWatchList = () => {
     if (!wallet.isSignedIn()) {
@@ -1166,6 +1169,10 @@ export function PoolDetailsPage() {
     removePoolFromWatchList({ pool_id: id }).then(() => {
       setShowFullStar(false);
     });
+  };
+
+  const isStablePool = (pool: PoolDetails) => {
+    return pool?.tokenIds.length > 2;
   };
 
   useEffect(() => {
@@ -1187,6 +1194,9 @@ export function PoolDetailsPage() {
   }, []);
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
+  if (isStablePool(pool)) {
+    history.push('/');
+  }
 
   return (
     <div>
