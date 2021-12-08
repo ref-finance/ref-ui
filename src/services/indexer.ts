@@ -76,6 +76,9 @@ export const getTopPools = async (args: any): Promise<PoolRPCView[]> => {
     .then((res) => res.json())
     .then((pools) => {
       pools = pools.map((pool: any) => parsePoolView(pool));
+      pools = pools.filter((pool: { tokenIds: string | any[] }) => {
+        pool.tokenIds.length < 3;
+      });
       return _order(args, _search(args, pools));
     })
     .catch(() => {
