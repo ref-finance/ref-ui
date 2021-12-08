@@ -4,7 +4,12 @@ import InputAmount from '~components/forms/InputAmount';
 import { Radio } from '~components/icon';
 import { TokenMetadata } from '~services/ft-contract';
 import { TokenBalancesView } from '~services/token';
-import { subtraction, toPrecision, toReadableNumber } from '~utils/numbers';
+import {
+  percentLess,
+  subtraction,
+  toPrecision,
+  toReadableNumber,
+} from '~utils/numbers';
 import { toRealSymbol } from '~utils/token';
 import Alert from '~components/alert/Alert';
 
@@ -231,8 +236,9 @@ export function StableTokensSymbol(props: {
   tokens: TokenMetadata[];
   receiveAmounts: string[];
   withPlus?: boolean;
+  slippageTolerance: number;
 }) {
-  const { tokens, receiveAmounts, withPlus } = props;
+  const { tokens, receiveAmounts, withPlus, slippageTolerance } = props;
   return (
     <div className="flex mb-6 items-center justify-between">
       {Array(withPlus ? 5 : 3)
@@ -250,7 +256,11 @@ export function StableTokensSymbol(props: {
                     {toPrecision(
                       toReadableNumber(
                         token.decimals,
-                        receiveAmounts[withPlus ? Math.floor(i / 2) : i]
+                        percentLess(
+                          slippageTolerance,
+                          receiveAmounts[withPlus ? Math.floor(i / 2) : i] ||
+                            '0'
+                        )
                       ),
                       3,
                       true

@@ -258,12 +258,10 @@ export function RemoveLiquidityComponent(props: {
     setCanSubmit(false);
     predictRemoveLiquidity(pool.id, shareParam).then((res) => {
       setCanSubmit(true);
-      const finalAmounts = res.map((amount, i) =>
-        toPrecision(percentLess(slippageTolerance, amount), 0)
-      );
+      const finalAmounts = res.map((amount, i) => toPrecision(amount, 0));
       setReceiveAmounts(finalAmounts);
     });
-  }, [sharePercentage, tokens, slippageTolerance, amountByShare]);
+  }, [sharePercentage, tokens, amountByShare]);
 
   return (
     <Card
@@ -393,7 +391,7 @@ export function RemoveLiquidityComponent(props: {
               max={toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares)}
             />
           </div>
-          <div className="my-4">
+          <div className="my-6 mb-8">
             <div className="flex items-center justify-between text-gray-400">
               {progressBarIndex.map((index, i) => {
                 return (
@@ -446,7 +444,7 @@ export function RemoveLiquidityComponent(props: {
       )}
 
       <div className="mt-4 px-8 w-full border-primaryText border-opacity-30 border-t">
-        <div className="text-xs">
+        <div className="text-xs pt-2">
           <StableSlipSelecter
             slippageTolerance={slippageTolerance}
             onChange={(slippage) => {
@@ -468,6 +466,7 @@ export function RemoveLiquidityComponent(props: {
               tokens={tokens}
               receiveAmounts={receiveAmounts}
               withPlus
+              slippageTolerance={slippageTolerance}
             />
           )}
         </div>
@@ -485,7 +484,7 @@ export function RemoveLiquidityComponent(props: {
           <div className="text-white">
             {toRoundedReadableNumber({
               decimals: STABLE_LP_TOKEN_DECIMALS,
-              number: predicedRemoveShares,
+              number: percentLess(slippageTolerance, predicedRemoveShares),
               precision: 3,
             })}
           </div>

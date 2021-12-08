@@ -261,7 +261,6 @@ const zh_CN = {
   shares_removed: '移除的流动性',
   shares_avaliable: '可用的份额',
   minimum_shares: '最少份额',
-  shares_tip:
-    '你在流动池中的份额可用于移除流动性, <br>部分份额可能质押在农场中',
+  shares_tip: '可用的份额 / 所有的份额',
 };
 export default zh_CN;

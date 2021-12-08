@@ -28,10 +28,14 @@ export const ShareInFarm = ({
     useGrouping: false,
   });
 
-  const farmSharePercent = percent(
-    farmShare,
-    userTotalShare.toNumber().toLocaleString('fullwide', { useGrouping: false })
-  ).toString();
+  const farmSharePercent = userTotalShare.isGreaterThan(0)
+    ? percent(
+        farmShare,
+        userTotalShare
+          .toNumber()
+          .toLocaleString('fullwide', { useGrouping: false })
+      ).toString()
+    : '0';
 
   return (
     <div
