@@ -465,7 +465,12 @@ export default function AddLiquidityComponent(props: {
             </div>
             <div>
               {myShares({
-                totalShares: pool.shareSupply,
+                totalShares: BigNumber.sum(
+                  pool.shareSupply,
+                  percentLess(slippageTolerance, predicedShares)
+                )
+                  .toNumber()
+                  .toLocaleString('fullwide', { useGrouping: false }),
                 userTotalShare: new BigNumber(
                   percentLess(slippageTolerance, predicedShares)
                 ),

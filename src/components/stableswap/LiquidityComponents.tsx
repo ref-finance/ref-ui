@@ -14,19 +14,19 @@ export function ChooseAddType({
 }) {
   return (
     <div className="pt-2 text-primaryText">
-      <div
-        className="flex items-center my-2 cursor-pointer"
-        onClick={() => {
-          setAddType('addAll');
-        }}
-      >
+      <div className="flex items-center my-2 ">
         <Radio
           checked={addType === 'addAll'}
           value="addAll"
           handleSelect={setAddType}
           size="3"
         />
-        <div className="ml-2">
+        <div
+          className="ml-2 cursor-pointer"
+          onClick={() => {
+            setAddType('addAll');
+          }}
+        >
           <FormattedMessage
             id="add_type_all"
             defaultMessage="Add all coins in a balanced proportion"
@@ -45,7 +45,12 @@ export function ChooseAddType({
           handleSelect={setAddType}
           size="3"
         />
-        <div className="ml-2">
+        <div
+          className="ml-2 cursor-pointer"
+          onClick={() => {
+            setAddType('addAll');
+          }}
+        >
           <FormattedMessage
             id="add_type_max"
             defaultMessage="Use maximum amount of coins availabe"

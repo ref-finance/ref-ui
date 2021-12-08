@@ -51,6 +51,7 @@ import StableTokenList, {
   StableTokensSymbol,
 } from './StableTokenList';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
+import { Link } from 'react-router-dom';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
@@ -112,7 +113,9 @@ export function RemoveLiquidityComponent(props: {
   const [isPercentage, setIsPercentage] = useState<boolean>(true);
   const [amountByShare, setAmountByShare] = useState<string>('');
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
-  const [canSubmit, setCanSubmit] = useState<boolean>(false);
+  const [canSubmitByShare, setCanSubmitByShare] = useState<boolean>(false);
+  const [canSubmitByToken, setCanSubmitByToken] = useState<boolean>(false);
+
   const [error, setError] = useState<Error>();
   const intl = useIntl();
   const [sharePercentage, setSharePercentage] = useState<string>('0');
@@ -156,7 +159,7 @@ export function RemoveLiquidityComponent(props: {
     const thirdTokenAmountBN = new BigNumber(thirdAmount.toString());
     const thirdTokenBalanceBN = new BigNumber(balances[tokens[2].id]);
     setError(null);
-    setCanSubmit(false);
+    setCanSubmitByToken(false);
 
     if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
       throw new Error(
@@ -187,7 +190,7 @@ export function RemoveLiquidityComponent(props: {
       Number(secondAmount) > 0 ||
       Number(thirdAmount) > 0
     ) {
-      setCanSubmit(true);
+      setCanSubmitByToken(true);
     }
   }
 
@@ -241,27 +244,30 @@ export function RemoveLiquidityComponent(props: {
   useEffect(() => {
     const readableShares = toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares);
 
-    if (
-      Number(amountByShare) === 0 ||
-      Number(amountByShare) > Number(readableShares)
-    ) {
-      setCanSubmit(false);
-      setReceiveAmounts(['0', '0', '0']);
-      return;
-    }
-
     const shareParam = toNonDivisibleNumber(
       STABLE_LP_TOKEN_DECIMALS,
       amountByShare
     );
 
-    setCanSubmit(false);
+    setCanSubmitByShare(false);
     predictRemoveLiquidity(pool.id, shareParam).then((res) => {
-      setCanSubmit(true);
+      setCanSubmitByShare(true);
+      if (
+        Number(amountByShare) === 0 ||
+        Number(amountByShare) > Number(readableShares)
+      ) {
+        setCanSubmitByShare(false);
+        setReceiveAmounts(['0', '0', '0']);
+        return;
+      }
       const finalAmounts = res.map((amount, i) => toPrecision(amount, 0));
+
       setReceiveAmounts(finalAmounts);
     });
   }, [sharePercentage, tokens, amountByShare]);
+
+  const canSubmit =
+    (isPercentage && canSubmitByShare) || (!isPercentage && canSubmitByToken);
 
   return (
     <Card
@@ -301,13 +307,18 @@ export function RemoveLiquidityComponent(props: {
               userTotalShare,
             })}{' '}
           </span>
-          <span className="ml-2">
+          <Link
+            className="ml-2"
+            to={{
+              pathname: '/farms',
+            }}
+          >
             <ShareInFarm
               userTotalShare={userTotalShare}
               farmStake={farmStake}
               forStable
             />
-          </span>
+          </Link>
         </div>
       </div>
 
@@ -358,7 +369,7 @@ export function RemoveLiquidityComponent(props: {
           />
         </div>
       </div>
-      {/* Remove as percentage */}
+      {/* Remove by share */}
       {isPercentage && (
         <section className="mx-8">
           <div className="flex">
@@ -424,7 +435,7 @@ export function RemoveLiquidityComponent(props: {
           </div>
         </section>
       )}
-      {/* remove as flexible */}
+      {/* remove by token */}
       {!isPercentage && (
         <section className="px-8">
           <FlexibleStableTokenList
@@ -484,7 +495,7 @@ export function RemoveLiquidityComponent(props: {
           <div className="text-white">
             {toRoundedReadableNumber({
               decimals: STABLE_LP_TOKEN_DECIMALS,
-              number: percentLess(slippageTolerance, predicedRemoveShares),
+              number: percentIncrese(slippageTolerance, predicedRemoveShares),
               precision: 3,
             })}
           </div>

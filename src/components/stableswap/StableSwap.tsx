@@ -11,6 +11,7 @@ import { TokenBalancesView } from '~services/token';
 import { useStableSwap, useSwap } from '~state/swap';
 import { isMobile } from '~utils/device';
 import Alert from '../alert/Alert';
+import { SmallWallet } from '~components/icon/SmallWallet';
 
 import {
   calculateExchangeRate,
@@ -25,7 +26,8 @@ interface StableSwapProps {
   tokens: TokenMetadata[];
 }
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_SLIPPAGE_VALUE';
-export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
+export const STABLE_SWAP_USE_NEAR_BALANCE_KEY =
+  'REF_FI_STABLE_USE_NEAR_BALANCE_VALUE';
 export default function StableSwap({ tokens, balances }: StableSwapProps) {
   const [tokenIn, setTokenIn] = useState<TokenMetadata>(tokens[0]);
   const [tokenOut, setTokenOut] = useState<TokenMetadata>(tokens[1]);
@@ -33,7 +35,7 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
   const [disabled, setDisabled] = useState<boolean>(false);
   const [useNearBalance, setUseNearBalance] = useState<boolean>(
-    localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) != 'false'
+    localStorage.getItem(STABLE_SWAP_USE_NEAR_BALANCE_KEY) != 'false'
   );
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();
@@ -124,10 +126,11 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
           <SlippageSelector
             slippageTolerance={slippageTolerance}
             onChange={onChangeSlip}
+            useNearBalance={useNearBalance.toString()}
             bindUseBalance={(useNearBalance) => {
               setUseNearBalance(useNearBalance);
               localStorage.setItem(
-                SWAP_USE_NEAR_BALANCE_KEY,
+                STABLE_SWAP_USE_NEAR_BALANCE_KEY,
                 useNearBalance.toString()
               );
             }}
@@ -138,7 +141,12 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
         <div className="flex-1">
           <p className="text-primaryText text-xs pb-2">
             From:{' '}
-            <span className="float-right">
+            <span className="float-right" title={tokenInMax}>
+              {useNearBalance ? (
+                <span className="mr-2 float-left">
+                  <SmallWallet />
+                </span>
+              ) : null}
               <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
               {toPrecision(tokenInMax, 3)}
             </span>
@@ -161,12 +169,18 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
           tokenOut={tokenOut}
           setTokenIn={(token: TokenMetadata) => setTokenIn(token)}
           setTokenOut={(token: TokenMetadata) => setTokenOut(token)}
+          setTokenInAmount={setTokenInAmount}
         />
 
         <div className="flex-1">
           <p className="text-primaryText text-xs pb-2">
             To:{' '}
-            <span className=" float-right">
+            <span className=" float-right" title={tokenOutTotal}>
+              {useNearBalance ? (
+                <span className="mr-2 float-left">
+                  <SmallWallet />
+                </span>
+              ) : null}
               <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
               {toPrecision(tokenOutTotal, 3)}
             </span>
@@ -189,7 +203,11 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
         handleSwapTo={handleSwapTo}
       />
 
-      <div className="text-primaryText text-center mx-8">
+      <div
+        className={`text-primaryText text-center mx-8 ${
+          tokenIn.id === tokenOut.id ? 'hidden' : ''
+        }`}
+      >
         <DetailView
           pool={pool}
           tokenIn={tokenIn}

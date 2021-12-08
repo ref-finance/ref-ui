@@ -126,6 +126,22 @@ export const GetPriceImpact = (
   );
 };
 
+export const getPriceImpactTipType = (
+  pool: Pool,
+  tokenIn: TokenMetadata,
+  tokenOut: TokenMetadata,
+  from: string
+) => {
+  const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
+  const reault =
+    1 < Number(value) && Number(value) <= 2 ? (
+      <WarnTriangle></WarnTriangle>
+    ) : Number(value) > 2 && Number(value) != Infinity ? (
+      <ErrorTriangle></ErrorTriangle>
+    ) : null;
+  return reault;
+};
+
 function DetailView({
   pool,
   tokenIn,
@@ -165,21 +181,6 @@ function DetailView({
     ) : (
       <span className={`${textColor}`}>{`≈ -${toPrecision(value, 2)}%`}</span>
     );
-  };
-  const getPriceImpactTipType = (
-    pool: Pool,
-    tokenIn: TokenMetadata,
-    tokenOut: TokenMetadata,
-    from: string
-  ) => {
-    const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
-    const reault =
-      1 < Number(value) && Number(value) <= 2 ? (
-        <WarnTriangle></WarnTriangle>
-      ) : Number(value) > 2 && Number(value) != Infinity ? (
-        <ErrorTriangle></ErrorTriangle>
-      ) : null;
-    return reault;
   };
 
   if (!pool || !from || !to || !(Number(from) > 0)) return null;
@@ -359,6 +360,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     <>
       <SwapTip />
       <SwapFormWrap
+        useNearBalance={useNearBalance.toString()}
         canSubmit={canSubmit}
         slippageTolerance={slippageTolerance}
         onChange={(slippage) => {
