@@ -355,7 +355,7 @@ export function RemoveLiquidityComponent(props: {
         <section className="mx-8">
           <div className="flex">
             <div className="flex items-center justify-between mr-4">
-              <p className="text-gray-400 text-xs whitespace-nowrap">
+              <p className="text-primaryText text-xs whitespace-nowrap">
                 <FormattedMessage
                   id="shares_removed"
                   defaultMessage="Shares removed"
@@ -404,27 +404,13 @@ export function RemoveLiquidityComponent(props: {
                 }}
                 value={sharePercentage}
                 type="range"
-                className="w-full"
+                className="w-full cursor-pointer"
                 min="0"
                 max="100"
                 step="1"
               />
             </div>
           </div>
-          <div className=" text-white flex justify-between text-xs mt-10 mb-5">
-            <span className=" text-primaryText">
-              <FormattedMessage
-                id="remove_token_confirm"
-                defaultMessage="You will remove RUST token"
-              />
-            </span>
-            <span>-</span>
-          </div>
-          <StableTokensSymbol
-            tokens={tokens}
-            receiveAmounts={receiveAmounts}
-            withPlus
-          />
         </section>
       )}
       {/* remove as flexible */}
@@ -474,6 +460,18 @@ export function RemoveLiquidityComponent(props: {
               setSlippageTolerance(slippage);
               localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
             }}
+          />
+          <div className="text-xs text-primaryText pb-8 pt-2">
+            <FormattedMessage
+              id="minimum_received"
+              defaultMessage="Minimum received"
+            />
+          </div>
+
+          <StableTokensSymbol
+            tokens={tokens}
+            receiveAmounts={receiveAmounts}
+            withPlus
           />
         </div>
 
