@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { wallet } from '../services/near';
+import { STABLE_TOKEN_IDS, wallet } from '../services/near';
 import {
   ftGetBalance,
   ftGetTokenMetadata,
@@ -48,6 +48,22 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
     getWhitelistedTokens()
       .then((tokenIds) => {
         const allTokenIds = [...new Set([...tokenIds, ...extraTokenIds])];
+        return Promise.all(
+          allTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
+        );
+      })
+      .then(setTokens);
+  }, []);
+
+  return tokens;
+};
+
+export const useWhitelistStableTokens = () => {
+  const [tokens, setTokens] = useState<TokenMetadata[]>();
+  useEffect(() => {
+    getWhitelistedTokens()
+      .then((tokenIds) => {
+        const allTokenIds = STABLE_TOKEN_IDS;
         return Promise.all(
           allTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
         );

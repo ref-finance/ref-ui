@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import Loading from '~components/layout/Loading';
-import { useTokenBalances, useWhitelistTokens } from '../../state/token';
+import {
+  useTokenBalances,
+  useWhitelistStableTokens,
+  useWhitelistTokens,
+} from '../../state/token';
 import SquareRadio from '~components/radio/SquareRadio';
 import StableSwap from '~components/stableswap/StableSwap';
 import AddLiquidityComponent from '~components/stableswap/AddLiquidity';
@@ -18,7 +22,7 @@ const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
 function StableSwapPage() {
   const { pool, shares, stakeList } = usePool(STABLE_POOL_ID);
   const [actionName, setAction] = useState<string>(DEFAULT_ACTIONS[0]);
-  const allTokens = useWhitelistTokens();
+  const allTokens = useWhitelistStableTokens();
   const balances = useTokenBalances();
   const changeAction = (actionName: string) => {
     setAction(actionName);

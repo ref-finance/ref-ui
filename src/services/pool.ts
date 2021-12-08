@@ -404,7 +404,7 @@ export const predictLiquidityShares = async (
   amounts: string[]
 ): Promise<string> => {
   return refFiViewFunction({
-    methodName: 'predict_add_stable_liqudity',
+    methodName: 'predict_add_stable_liquidity',
     args: { pool_id: pool_id, amounts },
   });
 };
@@ -484,7 +484,7 @@ export const predictRemoveLiquidity = async (
   shares: string
 ): Promise<[]> => {
   return refFiViewFunction({
-    methodName: 'predict_remove_liqudity',
+    methodName: 'predict_remove_liquidity',
     args: { pool_id, shares },
   });
 };
@@ -525,7 +525,7 @@ export const predictRemoveLiquidityByTokens = async (
   amounts: string[]
 ): Promise<string> => {
   return refFiViewFunction({
-    methodName: 'predict_remove_liqudity_by_tokens',
+    methodName: 'predict_remove_liquidity_by_tokens',
     args: { pool_id, amounts },
   });
 };

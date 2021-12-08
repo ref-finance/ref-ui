@@ -10,6 +10,10 @@ export const REF_FI_CONTRACT_ID = config.REF_FI_CONTRACT_ID;
 
 export const REF_ADBOARD_CONTRACT_ID = config.REF_ADBOARD_CONTRACT_ID;
 
+export const STABLE_TOKEN_IDS = config.STABLE_TOKEN_IDS;
+
+export const STABLE_POOL_ID = config.STABLE_POOL_ID;
+
 export const REF_FARM_CONTRACT_ID = config.REF_FARM_CONTRACT_ID;
 
 export const REF_AIRDRAOP_CONTRACT_ID = config.REF_AIRDROP_CONTRACT_ID;

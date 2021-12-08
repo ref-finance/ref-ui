@@ -9,7 +9,7 @@ import { Card } from '~components/card/Card';
 import { StableSlipSelecter } from '~components/forms/SlippageSelector';
 import { Near } from '~components/icon';
 import { TokenMetadata } from '~services/ft-contract';
-import { REF_FARM_CONTRACT_ID, wallet } from '~services/near';
+import { REF_FARM_CONTRACT_ID, STABLE_POOL_ID, wallet } from '~services/near';
 import {
   addLiquidityToPool,
   addLiquidityToStablePool,
@@ -41,25 +41,6 @@ import { LP_TOKEN_DECIMALS } from '~services/m-token';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE';
-
-const InfoCard = ({
-  shares,
-  minimumReceived,
-}: {
-  shares: string | JSX.Element;
-  minimumReceived: string | JSX.Element;
-}) => {
-  return (
-    <Card
-      padding="py-4 mt-2 px-8"
-      bgcolor="bg-cardBg"
-      className="text-white w-full outline-none "
-    >
-      <InfoLine title="Shares" value={shares} />
-      <InfoLine title="minimum received" value={minimumReceived} />
-    </Card>
-  );
-};
 
 export function myShares({
   totalShares,
@@ -432,7 +413,7 @@ export default function AddLiquidityComponent(props: {
     ) as [string, string, string];
 
     return addLiquidityToStablePool({
-      id: 10,
+      id: Number(STABLE_POOL_ID),
       amounts,
       min_shares,
     });
