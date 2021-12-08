@@ -296,7 +296,7 @@ export const getPoolsByTokens = async ({
     filtered_pools = pools.filter(isNotStablePool);
 
     await db.cachePoolsByTokens(pools);
-    filtered_pools = pools.filter(
+    filtered_pools = filtered_pools.filter(
       (p) =>
         new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
         p.supplies[tokenOutId]
