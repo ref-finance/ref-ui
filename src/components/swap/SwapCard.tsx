@@ -273,9 +273,9 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
     const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
     const rememberedSlippageTolerance =
+      localStorage.getItem(SWAP_SLIPPAGE_KEY) ||
       slippageTolerance ||
-      urlSlippageTolerance ||
-      localStorage.getItem(SWAP_SLIPPAGE_KEY);
+      urlSlippageTolerance;
 
     setSlippageTolerance(Number(rememberedSlippageTolerance));
 
