@@ -447,10 +447,6 @@ export default function AddLiquidityComponent(props: {
         </div>
 
         <div className="text-xs px-8 pb-2 pt-6 mt-6 border-t border-primaryText border-opacity-30">
-          {/* <div className=" text-primaryText">
-            <FormattedMessage id="fee" defaultMessage="Fee" />:
-            <span className=" text-white pl-3">0.025%</span>
-          </div> */}
           <ChooseAddType addType={addType} setAddType={setAddType} />
           <StableSlipSelecter
             slippageTolerance={slippageTolerance}
@@ -468,17 +464,11 @@ export default function AddLiquidityComponent(props: {
               />
             </div>
             <div>
-              {/* {toPrecision(
-                percentLess(
-                  slippageTolerance,
-                  toReadableNumber(STABLE_LP_TOKEN_DECIMALS, predicedShares)
-                ),
-                3
-              )} */}
-
               {myShares({
                 totalShares: pool.shareSupply,
-                userTotalShare: new BigNumber(predicedShares),
+                userTotalShare: new BigNumber(
+                  percentLess(slippageTolerance, predicedShares)
+                ),
               })}
             </div>
           </div>
@@ -506,17 +496,6 @@ export default function AddLiquidityComponent(props: {
           )}
         </div>
       </Card>
-
-      {/* <InfoCard
-        shares={myShares({ totalShares: pool.shareSupply, userTotalShare })}
-        minimumReceived={toPrecision(
-          percentLess(
-            slippageTolerance,
-            toReadableNumber(STABLE_LP_TOKEN_DECIMALS, predicedShares)
-          ),
-          3
-        )}
-      /> */}
     </>
   );
 }

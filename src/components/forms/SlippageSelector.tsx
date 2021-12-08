@@ -441,7 +441,7 @@ export function StableSlipSelecter({
             defaultValue={slippageTolerance ? slippageTolerance : 0.5}
             onWheel={() => ref.current.blur()}
             step="any"
-            className="bg-inputBg text-gray-400 rounded w-14 h-7 bg-inputDarkBg mx-2 px-1"
+            className="bg-inputBg text-center rounded w-14 h-7 bg-inputDarkBg mx-2 px-1 border border-gradientFrom normal-input text-gradientFrom"
             type="number"
             required={true}
             placeholder=""

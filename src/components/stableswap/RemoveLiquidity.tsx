@@ -194,10 +194,15 @@ export function RemoveLiquidityComponent(props: {
 
   function submit() {
     if (isPercentage) {
+      const removeShares = toNonDivisibleNumber(
+        STABLE_LP_TOKEN_DECIMALS,
+        amountByShare
+      );
+
       return removeLiquidityFromStablePool({
         id: pool.id,
         min_amounts: receiveAmounts as [string, string, string],
-        shares,
+        shares: removeShares,
       });
     } else {
       const amounts = [
@@ -252,9 +257,13 @@ export function RemoveLiquidityComponent(props: {
   }, [isPercentage]);
 
   useEffect(() => {
-    setCanSubmit(Number(amountByShare) > 0);
+    const readableShares = toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares);
 
-    if (Number(amountByShare) === 0) {
+    if (
+      Number(amountByShare) === 0 ||
+      Number(amountByShare) > Number(readableShares)
+    ) {
+      setCanSubmit(false);
       setReceiveAmounts(['0', '0', '0']);
       return;
     }
@@ -290,9 +299,28 @@ export function RemoveLiquidityComponent(props: {
       <div className=" text-white flex items-center justify-between text-xs px-8 pb-6">
         <span className="text-primaryText">
           <FormattedMessage id="my_shares" defaultMessage="Shares" />
+          <FaRegQuestionCircle
+            data-type="dark"
+            data-place="right"
+            data-multiline={true}
+            data-tip={intl.formatMessage({ id: 'shares_tip' })}
+            className="inline-block ml-2 text-xs"
+          />
+          <ReactTooltip
+            className="text-xs shadow-4xl"
+            backgroundColor="#1D2932"
+            effect="solid"
+            class="tool-tip"
+            textColor="#7E8A93"
+          />
         </span>
         <div className="flex items-center">
-          <span>{shareToUserTotal({ shares, userTotalShare })} </span>
+          <span>
+            {shareToUserTotal({
+              shares,
+              userTotalShare,
+            })}{' '}
+          </span>
           <span className="ml-2">
             <ShareInFarm
               userTotalShare={userTotalShare}
