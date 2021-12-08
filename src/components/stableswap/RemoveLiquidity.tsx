@@ -53,7 +53,6 @@ import StableTokenList, {
 import { ShareInFarm } from '~components/layout/ShareInFarm';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
-const SHARE_PERCENT_KEY = 'SHARE_PERCENT_VALUE';
 
 function Icon(props: { icon?: string; className?: string; style?: any }) {
   const { icon, className, style } = props;
@@ -239,23 +238,6 @@ export function RemoveLiquidityComponent(props: {
     setSlippageTolerance(Number(rememberedSlippageTolerance));
   }, []);
 
-  // change remove lp mode
-  useEffect(() => {
-    if (!isPercentage) {
-      setSharePercentage('0');
-      localStorage.setItem(SHARE_PERCENT_KEY, sharePercentage);
-    } else {
-      const sharePercentageNow = localStorage.getItem(SHARE_PERCENT_KEY) || '0';
-      setCanSubmit(Number(sharePercentageNow) > 0);
-      setSharePercentage(sharePercentageNow);
-      const sharePercentOf = percentOf(
-        Number(sharePercentageNow),
-        toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares)
-      ).toString();
-      setAmountByShare(sharePercentOf);
-    }
-  }, [isPercentage]);
-
   useEffect(() => {
     const readableShares = toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares);
 
@@ -395,13 +377,16 @@ export function RemoveLiquidityComponent(props: {
               value={amountByShare}
               onChangeAmount={(amount) => {
                 setAmountByShare(amount);
-                const percentage = toPrecision(
-                  percent(
-                    amount || '0',
-                    toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares)
-                  ).toString(),
-                  0
-                );
+                const percentage =
+                  Number(shares) > 0
+                    ? toPrecision(
+                        percent(
+                          amount || '0',
+                          toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares)
+                        ).toString(),
+                        0
+                      )
+                    : '0';
                 setSharePercentage(percentage);
               }}
               className="w-full border border-transparent rounded"
@@ -461,8 +446,33 @@ export function RemoveLiquidityComponent(props: {
       )}
 
       <div className="mt-4 px-8 w-full border-primaryText border-opacity-30 border-t">
+        <div className="text-xs">
+          <StableSlipSelecter
+            slippageTolerance={slippageTolerance}
+            onChange={(slippage) => {
+              setSlippageTolerance(slippage);
+              localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
+            }}
+          />
+          {isPercentage && (
+            <div className="text-xs text-primaryText pb-8 pt-2">
+              <FormattedMessage
+                id="minimum_received"
+                defaultMessage="Minimum received"
+              />
+            </div>
+          )}
+
+          {isPercentage && (
+            <StableTokensSymbol
+              tokens={tokens}
+              receiveAmounts={receiveAmounts}
+              withPlus
+            />
+          )}
+        </div>
         <div
-          className={`flex items-center justify-between text-xs text-primaryText pt-5 ${
+          className={`flex items-center justify-between text-xs text-primaryText pb-6 ${
             isPercentage ? 'hidden' : ''
           }`}
         >
@@ -479,28 +489,6 @@ export function RemoveLiquidityComponent(props: {
               precision: 3,
             })}
           </div>
-        </div>
-
-        <div className={`${isPercentage ? 'py-4' : 'pb-4'} text-xs`}>
-          <StableSlipSelecter
-            slippageTolerance={slippageTolerance}
-            onChange={(slippage) => {
-              setSlippageTolerance(slippage);
-              localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
-            }}
-          />
-          <div className="text-xs text-primaryText pb-8 pt-2">
-            <FormattedMessage
-              id="minimum_received"
-              defaultMessage="Minimum received"
-            />
-          </div>
-
-          <StableTokensSymbol
-            tokens={tokens}
-            receiveAmounts={receiveAmounts}
-            withPlus
-          />
         </div>
 
         {wallet.isSignedIn() ? (
