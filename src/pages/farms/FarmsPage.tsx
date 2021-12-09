@@ -1374,10 +1374,17 @@ function FarmView({
             <div className="order-2 lg:ml-auto xl:m-0">
               <div>
                 <Link
-                  to={{
-                    pathname: `/pool/${PoolId}`,
-                    state: { backToFarms: true },
-                  }}
+                  to={
+                    PoolId == STABLE_POOL_ID
+                      ? {
+                          pathname: '/stableswap',
+                          state: { backToFarms: true },
+                        }
+                      : {
+                          pathname: `/pool/${PoolId}`,
+                          state: { backToFarms: true },
+                        }
+                  }
                   target="_blank"
                   className="text-lg xs:text-sm text-white"
                 >
