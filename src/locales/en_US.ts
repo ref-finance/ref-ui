@@ -271,5 +271,6 @@ const en_US = {
   shares_avaliable: 'Shares avaliable',
   minimum_shares: 'Minimum shares',
   shares_tip: 'Shares available / shares you own totally',
+  stablecoin_only: 'Stablecoin only',
 };
 export default en_US;

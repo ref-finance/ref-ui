@@ -262,5 +262,6 @@ const zh_CN = {
   shares_avaliable: '可用的份额',
   minimum_shares: '最少份额',
   shares_tip: '可用的份额 / 所有的份额',
+  stablecoin_only: '稳定币',
 };
 export default zh_CN;

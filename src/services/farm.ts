@@ -172,18 +172,22 @@ export const getFarmInfo = async (
   lpTokenId: string
 ): Promise<FarmInfo> => {
   const isSignedIn: boolean = wallet.isSignedIn();
-  const { shares_total_supply, tvl, token_account_ids, id } = pool;
+  const { tvl, token_account_ids, id } = pool;
+  let shares_total_supply;
   if (STABLE_POOL_ID == id) {
-    pool.shares_total_supply = toNonDivisibleNumber(
+    shares_total_supply = toNonDivisibleNumber(
       expand,
-      shares_total_supply
+      pool.shares_total_supply
     );
-    staked = toNonDivisibleNumber(expand, staked);
-    seed = toNonDivisibleNumber(expand, seed);
+    staked = toNonDivisibleNumber(expand, staked ?? '0');
+    seed = toNonDivisibleNumber(expand, seed ?? '0');
+  } else {
+    shares_total_supply = pool.shares_total_supply;
   }
+
   const poolTvl = tvl;
   const poolSts = Number(
-    toReadableNumber(LP_TOKEN_DECIMALS, pool.shares_total_supply)
+    toReadableNumber(LP_TOKEN_DECIMALS, shares_total_supply)
   );
   const userStaked = toReadableNumber(LP_TOKEN_DECIMALS, staked ?? '0');
   const rewardToken = await ftGetTokenMetadata(farm.reward_token);
