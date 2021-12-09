@@ -72,6 +72,9 @@ import parse from 'html-react-parser';
 import { FaArrowCircleRight, FaRegQuestionCircle } from 'react-icons/fa';
 import OldInputAmount from '~components/forms/OldInputAmount';
 import { BigNumber } from 'bignumber.js';
+import getConfig from '~services/config';
+const config = getConfig();
+const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
 interface SearchData {
   status: boolean;
   staked: boolean;
@@ -1320,7 +1323,7 @@ function FarmView({
           key={id}
           className={
             'h-11 w-11 rounded-full border border-gradientFromHover ' +
-            (index == 1 ? '-ml-1.5' : '')
+            (index != 0 ? '-ml-1.5' : '')
           }
           src={icon}
         />
@@ -1337,7 +1340,7 @@ function FarmView({
   });
   const symbols = tokens.map((token, index) => {
     const { symbol } = token;
-    const hLine = index === 1 ? '' : '-';
+    const hLine = index === tokens.length - 1 ? '' : '-';
     return `${toRealSymbol(symbol)}${hLine}`;
   });
   function valueOfRewardsTip() {
@@ -1371,10 +1374,17 @@ function FarmView({
             <div className="order-2 lg:ml-auto xl:m-0">
               <div>
                 <Link
-                  to={{
-                    pathname: `/pool/${PoolId}`,
-                    state: { backToFarms: true },
-                  }}
+                  to={
+                    PoolId == STABLE_POOL_ID
+                      ? {
+                          pathname: '/stableswap',
+                          state: { backToFarms: true },
+                        }
+                      : {
+                          pathname: `/pool/${PoolId}`,
+                          state: { backToFarms: true },
+                        }
+                  }
                   target="_blank"
                   className="text-lg xs:text-sm text-white"
                 >
@@ -1390,7 +1400,11 @@ function FarmView({
           </div>
           <Link
             title={intl.formatMessage({ id: 'view_pool' })}
-            to={{ pathname: `/pool/${PoolId}`, state: { backToFarms: true } }}
+            to={
+              PoolId == STABLE_POOL_ID
+                ? { pathname: '/stableswap', state: { backToFarms: true } }
+                : { pathname: `/pool/${PoolId}`, state: { backToFarms: true } }
+            }
             target="_blank"
           >
             <span
@@ -1812,7 +1826,7 @@ function ActionModal(
           key={id}
           className={
             'w-10 h-10 xs:w-9 md:w-9 xs:h-9 md:h-9 rounded-full border border-gradientFromHover ' +
-            (index == 1 ? 'relative -left-1.5' : '')
+            (index != 0 ? '-ml-1.5' : '')
           }
         />
       );
