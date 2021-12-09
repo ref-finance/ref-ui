@@ -211,7 +211,7 @@ const en_US = {
   flexible_tip: 'Remove how much you want per token',
   add_type_all: 'Add all coins in a balanced proportion',
   add_type_max: 'Use maximum amount of coins available',
-  select_balance: 'Select Balance',
+  select_balance: 'Select balance',
   selectBalanceCopy:
     'Select [NEAR wallet] to swap directly tokens available in your NEAR wallet',
   near_wallet: 'NEAR wallet',
@@ -229,7 +229,7 @@ const en_US = {
   unstake_tip_m:
     'Unstaking will remove the stake from all active and pending farms of the same pair.',
   unstake_tip_b: 'Do you want to unstake?',
-  value_rewards: 'Value of rewards',
+  value_rewards: 'Claimed rewards',
   stake_unstake_tip:
     'Staking or unstaking will automatically claim your rewards.',
   over_tip:
@@ -245,7 +245,7 @@ const en_US = {
   price_impact: 'Price Impact',
   shares_left: 'Shares left',
   total_stable_coins: 'Total stablecoins',
-  daily_volume: 'Daily Volume',
+  daily_volume: 'Daily volume',
   liquidity_utilisation: 'Liquidity utilisation',
   token_reserves: 'Token Reserves',
   roi_calculator: 'ROI Calculator',

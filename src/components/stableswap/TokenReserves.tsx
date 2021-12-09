@@ -18,12 +18,13 @@ import BigNumber from 'bignumber.js';
 import { useDayVolume } from '~state/pool';
 
 function TokenChart({ tokens, pool }: { tokens: TokenMetadata[]; pool: Pool }) {
+  const tokensData = calculateTokenValueAndShare(pool, tokens);
   const data = tokens.map((token, i) => {
     return {
       name: token.symbol,
       value: Number(toReadableNumber(token.decimals, pool.supplies[token.id])),
       token: token,
-      displayV: calculateTokenShareFormat({ token, pool, tokens }),
+      displayV: tokensData[token.id].display2,
     };
   });
   const color = {
@@ -75,7 +76,7 @@ function TokenChart({ tokens, pool }: { tokens: TokenMetadata[]; pool: Pool }) {
   }
 
   return (
-    <PieChart width={360} height={280}>
+    <PieChart width={380} height={280}>
       <Pie
         data={data}
         fill="#8884d8"
@@ -121,28 +122,6 @@ const calculateTokenShare = ({
     ` (${toPrecision(percent(value, totalShares.toString()).toString(), 2)}%)`
   );
 };
-const calculateTokenShareFormat = ({
-  token,
-  pool,
-  tokens,
-}: {
-  pool: Pool;
-  token: TokenMetadata;
-  tokens: TokenMetadata[];
-}) => {
-  const value = toReadableNumber(token.decimals, pool.supplies[token.id]);
-  const totalShares = _.sumBy(
-    Object.values(pool.supplies).map((v, i) =>
-      toReadableNumber(tokens[i].decimals, v)
-    ),
-    (o) => Number(o)
-  );
-
-  return `${toPrecision(
-    percent(value, totalShares.toString()).toString(),
-    2
-  )}% / ${toInternationalCurrencySystem(value, 2).toString()}`;
-};
 
 const calculateTotalStableCoins = (pool: Pool, tokens: TokenMetadata[]) => {
   const coinsAmounts = Object.values(pool.supplies).map((amount, i) =>
@@ -155,7 +134,41 @@ const calculateTotalStableCoins = (pool: Pool, tokens: TokenMetadata[]) => {
 
   return toInternationalCurrencySystem(totalCoins, 3);
 };
+const calculateTokenValueAndShare = (
+  pool: any,
+  tokens: any
+): Record<string, any> => {
+  let result: Record<string, any> = {};
+  const totalShares = _.sumBy(
+    Object.values(pool.supplies).map((v: string, i) =>
+      toReadableNumber(tokens[i].decimals, v)
+    ),
+    (o) => Number(o)
+  );
 
+  let otherTokenNumber = 0;
+  tokens.forEach((token: any, index: number) => {
+    const value = toReadableNumber(token.decimals, pool.supplies[token.id]);
+    let percentStr: string | number;
+    if (index == tokens.length - 1) {
+      percentStr = new BigNumber(100).minus(otherTokenNumber).toFixed();
+    } else {
+      percentStr = toPrecision(
+        percent(value, totalShares.toString()).toString(),
+        2
+      );
+      otherTokenNumber += Number(percentStr);
+    }
+    result[token.id] = {
+      token,
+      value,
+      percentStr,
+      display: `${toInternationalCurrencySystem(value, 2)} (${percentStr}%)`,
+      display2: `${toInternationalCurrencySystem(value, 2)} / ${percentStr}%`,
+    };
+  });
+  return result;
+};
 export default function ({
   totalStableCoins,
   tokens,
@@ -174,7 +187,7 @@ export default function ({
   let utilisationDisplay;
   volume = useDayVolume(id.toString());
   if (volume) {
-    const total = toReadableNumber(24, shareSupply);
+    const total = toReadableNumber(18, shareSupply);
     const utilisation = new BigNumber(volume)
       .dividedBy(total)
       .multipliedBy(100);
@@ -184,6 +197,7 @@ export default function ({
       utilisationDisplay = utilisation.toFixed(2) + '%';
     }
   }
+  const tokensData = calculateTokenValueAndShare(pool, tokens);
   const intl = useIntl();
   useEffect(() => {
     const chart = <TokenChart tokens={tokens} pool={pool} />;
@@ -226,13 +240,11 @@ export default function ({
           {calculateTotalStableCoins(pool, tokens)}
         </div>
         <div className="flex justify-center">{chart}</div>
-        {tokens.map((token, i) => (
-          <InfoLine
-            key={token.symbol}
-            title={token.symbol}
-            value={calculateTokenShare({ pool, token, tokens })}
-          />
-        ))}
+        {Object.values(tokensData).map(({ token, display }) => {
+          return (
+            <InfoLine key={token.symbol} title={token.symbol} value={display} />
+          );
+        })}
         <InfoLine
           title={intl.formatMessage({ id: 'total_stable_coins' })}
           value={calculateTotalStableCoins(pool, tokens) || '0'}
@@ -241,7 +253,7 @@ export default function ({
         <InfoLine
           title={intl.formatMessage({ id: 'pool_fee' })}
           value={`${pool.fee}%`}
-          className={`my-4 ${inSwapPage ? 'hidden' : ''}`}
+          className="my-4"
         />
         <InfoLine
           title={intl.formatMessage({ id: 'liquidity_utilisation' })}
