@@ -115,9 +115,6 @@ export default function AddLiquidityComponent(props: {
         toReadableNumber(tokens[2].decimals, balances[tokens[2].id])
       );
     } else if (addType === 'addAll') {
-      // calculate optimized portion for each token
-      // 如果已经超过最大了, 就用最大值来计算.
-      // 如果
     }
   }, [addType]);
 
