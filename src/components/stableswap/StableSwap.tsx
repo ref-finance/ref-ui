@@ -110,8 +110,20 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
     : toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
   const canSubmit = canSwap && (tokenInMax != '0' || !useNearBalance);
 
+  const handleSubmit = async (event: React.FormEvent<HTMLElement>) => {
+    event.preventDefault();
+    if (wallet.isSignedIn()) {
+      try {
+        canSubmit && makeSwap(useNearBalance);
+      } catch (error) {}
+    }
+  };
+
   return (
-    <form className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl py-6 bg-dark xs:rounded-lg md:rounded-lg">
+    <form
+      className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl py-6 bg-dark xs:rounded-lg md:rounded-lg"
+      onSubmit={handleSubmit}
+    >
       <div className="formTitle flex justify-between text-xl text-white text-left px-8">
         <FormattedMessage id="stable_swap" defaultMessage="StableSwap" />
         <div className="flex items-center">
@@ -231,11 +243,11 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
           <SolidButton
             className="w-full text-lg"
             disabled={!canSubmit}
-            onClick={(e) => {
-              e.preventDefault();
+            // onClick={(e) => {
+            //   e.preventDefault();
 
-              canSubmit && makeSwap(useNearBalance);
-            }}
+            //   canSubmit && makeSwap(useNearBalance);
+            // }}
           >
             <FormattedMessage id="swap" defaultMessage="Swap" />
           </SolidButton>
