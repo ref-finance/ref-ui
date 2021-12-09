@@ -485,7 +485,7 @@ export default function AddLiquidityComponent(props: {
               className="focus:outline-none px-4 w-full text-lg"
               onClick={() => {
                 try {
-                  submit();
+                  canSubmit && submit();
                 } catch (error) {
                   setError(error);
                 }

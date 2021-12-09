@@ -148,7 +148,7 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
                 </span>
               ) : null}
               <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
-              {toPrecision(tokenInMax, 3)}
+              {toPrecision(tokenInMax, 3, true)}
             </span>
           </p>
           <InputAmount
@@ -182,7 +182,7 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
                 </span>
               ) : null}
               <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
-              {toPrecision(tokenOutTotal, 3)}
+              {toPrecision(tokenOutTotal, 3, true)}
             </span>
           </p>
           <InputAmount
