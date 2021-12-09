@@ -6,11 +6,13 @@ import { TokenMetadata } from '~services/ft-contract';
 import { Pool } from '~services/pool';
 import { useIntl } from 'react-intl';
 import { PieChart, Cell, Pie } from 'recharts';
+import { isMobile } from '~utils/device';
 import {
   toReadableNumber,
   toInternationalCurrencySystem,
   toPrecision,
   percent,
+  calculateFeePercent,
 } from '~utils/numbers';
 import { InfoLine } from './LiquidityComponents';
 import _ from 'lodash';
@@ -74,14 +76,21 @@ function TokenChart({ tokens, pool }: { tokens: TokenMetadata[]; pool: Pool }) {
       </g>
     );
   }
-
+  let innerRadius = 55;
+  let outerRadius = 75;
+  let width = 400;
+  if (isMobile()) {
+    innerRadius = 35;
+    outerRadius = 55;
+    width = 380;
+  }
   return (
-    <PieChart width={380} height={280}>
+    <PieChart width={width} height={280}>
       <Pie
         data={data}
         fill="#8884d8"
-        innerRadius={60}
-        outerRadius={80}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius}
         dataKey="value"
         labelLine={false}
         label={customLabel}
@@ -252,7 +261,7 @@ export default function ({
 
         <InfoLine
           title={intl.formatMessage({ id: 'pool_fee' })}
-          value={`${pool.fee}%`}
+          value={`${calculateFeePercent(pool.fee)}%`}
           className="my-4"
         />
         <InfoLine

@@ -5,8 +5,12 @@ import {
   Transaction,
   executeFarmMultipleTransactions,
 } from './near';
-import { toPrecision, toReadableNumber } from '~utils/numbers';
-import { LP_TOKEN_DECIMALS } from '~services/m-token';
+import {
+  toPrecision,
+  toReadableNumber,
+  toNonDivisibleNumber,
+} from '~utils/numbers';
+import { LP_TOKEN_DECIMALS, LP_STABLE_TOKEN_DECIMALS } from '~services/m-token';
 import * as math from 'mathjs';
 import {
   ftGetTokenMetadata,
@@ -23,7 +27,8 @@ import {
 import getConfig from './config';
 const config = getConfig();
 export const DEFAULT_PAGE_LIMIT = 100;
-
+const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
+const expand = 6;
 export interface Seed {
   seed_id: string;
   amount: number;
@@ -167,9 +172,19 @@ export const getFarmInfo = async (
   lpTokenId: string
 ): Promise<FarmInfo> => {
   const isSignedIn: boolean = wallet.isSignedIn();
-  const { shares_total_supply, tvl, token_account_ids } = pool;
+  const { shares_total_supply, tvl, token_account_ids, id } = pool;
+  if (STABLE_POOL_ID == id) {
+    pool.shares_total_supply = toNonDivisibleNumber(
+      expand,
+      shares_total_supply
+    );
+    staked = toNonDivisibleNumber(expand, staked);
+    seed = toNonDivisibleNumber(expand, seed);
+  }
   const poolTvl = tvl;
-  const poolSts = Number(toReadableNumber(24, shares_total_supply));
+  const poolSts = Number(
+    toReadableNumber(LP_TOKEN_DECIMALS, pool.shares_total_supply)
+  );
   const userStaked = toReadableNumber(LP_TOKEN_DECIMALS, staked ?? '0');
   const rewardToken = await ftGetTokenMetadata(farm.reward_token);
   const rewardTokenPrice = tokenPriceList
@@ -210,10 +225,6 @@ export const getFarmInfo = async (
   let userUnclaimedRewardNumber: string = isSignedIn
     ? await getUnclaimedReward(farm.farm_id)
     : '0';
-  // const userUnclaimedReward = toPrecision(
-  //   toReadableNumber(rewardToken.decimals, userUnclaimedRewardNumber),
-  //   2
-  // );
   const userUnclaimedReward = toReadableNumber(
     rewardToken.decimals,
     userUnclaimedRewardNumber
@@ -240,7 +251,6 @@ export const getFarmInfo = async (
         );
 
   if (farm.farm_status === 'Created') farm.farm_status = 'Pending';
-
   return {
     ...farm,
     pool,
