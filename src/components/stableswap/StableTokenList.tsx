@@ -60,17 +60,18 @@ export default function StableTokenList(props: {
 
   return (
     <div className="mt-4 px-8">
-      <div
-        className="text-xs text-right mb-1 text-gray-400"
-        title={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
-      >
+      <div className="text-xs text-right mb-1 text-gray-400">
         <FormattedMessage id="balance" defaultMessage="Balance" />
         :&nbsp;
-        {toPrecision(
-          toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
-          2,
-          true
-        )}
+        <span
+          title={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
+        >
+          {toPrecision(
+            toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
+            2,
+            true
+          )}
+        </span>
       </div>
       <div className="flex items-center ">
         <div className="flex items-center mr-4 w-1/4">
@@ -90,17 +91,18 @@ export default function StableTokenList(props: {
         />
       </div>
       <div className=" my-4">
-        <div
-          className="text-xs text-right mb-1 text-gray-400"
-          title={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
-        >
+        <div className="text-xs text-right mb-1 text-gray-400">
           <FormattedMessage id="balance" defaultMessage="Balance" />
           :&nbsp;
-          {toPrecision(
-            toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
-            2,
-            true
-          )}
+          <span
+            title={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
+          >
+            {toPrecision(
+              toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
+              2,
+              true
+            )}
+          </span>
         </div>
         <div className="flex items-center">
           <div className="flex items-center mr-4 w-1/4">
@@ -119,17 +121,18 @@ export default function StableTokenList(props: {
         </div>
       </div>
       <div className="my-4">
-        <div
-          className="text-xs text-right mb-1 text-gray-400"
-          title={toReadableNumber(tokens[2].decimals, balances[tokens[2].id])}
-        >
+        <div className="text-xs text-right mb-1 text-gray-400">
           <FormattedMessage id="balance" defaultMessage="Balance" />
           :&nbsp;
-          {toPrecision(
-            toReadableNumber(tokens[2].decimals, balances[tokens[2].id]),
-            2,
-            true
-          )}
+          <span
+            title={toReadableNumber(tokens[2].decimals, balances[tokens[2].id])}
+          >
+            {toPrecision(
+              toReadableNumber(tokens[2].decimals, balances[tokens[2].id]),
+              2,
+              true
+            )}{' '}
+          </span>
         </div>
         <div className="flex items-center">
           <div className="flex items-center mr-4 w-1/4">

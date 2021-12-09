@@ -34,7 +34,7 @@ export function ChooseAddType({
         </div>
       </div>
       <div
-        className="flex items-center my-2 cursor-pointer"
+        className="flex items-center my-2"
         onClick={() => {
           setAddType('addMax');
         }}

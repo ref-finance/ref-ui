@@ -141,14 +141,14 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
         <div className="flex-1">
           <p className="text-primaryText text-xs pb-2">
             From:{' '}
-            <span className="float-right" title={tokenInMax}>
+            <span className="float-right">
               {useNearBalance ? (
                 <span className="mr-2 float-left">
                   <SmallWallet />
                 </span>
               ) : null}
               <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
-              {toPrecision(tokenInMax, 3, true)}
+              <span title={tokenInMax}>{toPrecision(tokenInMax, 3, true)}</span>
             </span>
           </p>
           <InputAmount
@@ -175,14 +175,16 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
         <div className="flex-1">
           <p className="text-primaryText text-xs pb-2">
             To:{' '}
-            <span className=" float-right" title={tokenOutTotal}>
+            <span className=" float-right">
               {useNearBalance ? (
                 <span className="mr-2 float-left">
                   <SmallWallet />
                 </span>
               ) : null}
               <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
-              {toPrecision(tokenOutTotal, 3, true)}
+              <span title={tokenOutTotal}>
+                {toPrecision(tokenOutTotal, 3, true)}
+              </span>
             </span>
           </p>
           <InputAmount

@@ -307,6 +307,7 @@ export function RemoveLiquidityComponent(props: {
             to={{
               pathname: '/farms',
             }}
+            target="_blank"
           >
             <ShareInFarm
               userTotalShare={userTotalShare}
