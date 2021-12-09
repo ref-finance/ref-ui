@@ -28,6 +28,7 @@ import getConfig from '~services/config';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import { DBCoreRangeType } from 'dexie';
 import moment from 'moment';
+import BigNumber from 'bignumber.js';
 const FEE_DIVISOR = 10000;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
 const STABLE_POOL_KEY = 'STABLE_POOL_VALUE';
@@ -78,6 +79,21 @@ export const estimateSwap = async ({
     }
     setLoadingTrigger(false);
 
+    if (
+      new BigNumber(amountIn).isGreaterThan(
+        new BigNumber(pool.supplies[tokenIn.id])
+      )
+    ) {
+      throw new Error(
+        `${intl.formatMessage({
+          id: 'no_pool_available_to_make_a_swap_from',
+        })} ${tokenIn.symbol} -> ${tokenOut.symbol} ${intl.formatMessage({
+          id: 'for_the_amount',
+        })} ${amountIn} ${intl.formatMessage({
+          id: 'no_pool_eng_for_chinese',
+        })}`
+      );
+    }
     return pool;
   };
 
