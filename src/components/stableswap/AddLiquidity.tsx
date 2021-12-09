@@ -91,7 +91,6 @@ export default function AddLiquidityComponent(props: {
   const intl = useIntl();
   const history = useHistory();
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
-  const [canDeposit, setCanDeposit] = useState<boolean>(false);
 
   const predicedShares = usePredictShares({
     tokens,
@@ -102,7 +101,10 @@ export default function AddLiquidityComponent(props: {
   });
 
   useEffect(() => {
+    // setError(null);
     if (addType === 'addMax') {
+      setError(null);
+
       setFirstTokenAmount(
         toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
       );
@@ -112,6 +114,10 @@ export default function AddLiquidityComponent(props: {
       setThirdTokenAmount(
         toReadableNumber(tokens[2].decimals, balances[tokens[2].id])
       );
+    } else if (addType === 'addAll') {
+      // calculate optimized portion for each token
+      // 如果已经超过最大了, 就用最大值来计算.
+      // 如果
     }
   }, [addType]);
 
@@ -124,9 +130,28 @@ export default function AddLiquidityComponent(props: {
 
   if (!balances) return null;
 
+  const getFairShare = (amount: string, token: TokenMetadata) => {
+    return calculateFairShare({
+      shareOf: pool.shareSupply,
+      contribution: toNonDivisibleNumber(token.decimals, amount),
+      totalContribution: pool.supplies[token.id],
+    });
+  };
+
+  const getTokenShare = (fairShares: string, token: TokenMetadata) => {
+    return toReadableNumber(
+      token.decimals,
+      calculateFairShare({
+        shareOf: pool.supplies[token.id],
+        contribution: fairShares,
+        totalContribution: pool.shareSupply,
+      })
+    );
+  };
+
   const changeFirstTokenAmount = (amount: string) => {
     setError(null);
-    if (Object.values(pool.supplies).every((s) => s === '0')) {
+    if (addType !== 'addAll') {
       setFirstTokenAmount(amount);
       try {
         validate({
@@ -139,27 +164,9 @@ export default function AddLiquidityComponent(props: {
         setError(error);
       }
     } else {
-      const fairShares = calculateFairShare({
-        shareOf: pool.shareSupply,
-        contribution: toNonDivisibleNumber(tokens[0].decimals, amount),
-        totalContribution: pool.supplies[tokens[0].id],
-      });
-      const secondAmount = toReadableNumber(
-        tokens[1].decimals,
-        calculateFairShare({
-          shareOf: pool.supplies[tokens[1].id],
-          contribution: fairShares,
-          totalContribution: pool.shareSupply,
-        })
-      );
-      const thirdAmount = toReadableNumber(
-        tokens[2].decimals,
-        calculateFairShare({
-          shareOf: pool.supplies[tokens[2].id],
-          contribution: fairShares,
-          totalContribution: pool.shareSupply,
-        })
-      );
+      const fairShares = getFairShare(amount, tokens[0]);
+      const secondAmount = getTokenShare(fairShares, tokens[1]);
+      const thirdAmount = getTokenShare(fairShares, tokens[2]);
 
       setFirstTokenAmount(amount);
       setSecondTokenAmount(secondAmount);
@@ -179,7 +186,7 @@ export default function AddLiquidityComponent(props: {
 
   const changeSecondTokenAmount = (amount: string) => {
     setError(null);
-    if (Object.values(pool.supplies).every((s) => s === '0')) {
+    if (addType !== 'addAll') {
       setSecondTokenAmount(amount);
       try {
         validate({
@@ -192,27 +199,9 @@ export default function AddLiquidityComponent(props: {
         setError(error);
       }
     } else {
-      const fairShares = calculateFairShare({
-        shareOf: pool.shareSupply,
-        contribution: toNonDivisibleNumber(tokens[1].decimals, amount),
-        totalContribution: pool.supplies[tokens[1].id],
-      });
-      const firstAmount = toReadableNumber(
-        tokens[0].decimals,
-        calculateFairShare({
-          shareOf: pool.supplies[tokens[0].id],
-          contribution: fairShares,
-          totalContribution: pool.shareSupply,
-        })
-      );
-      const thirdAmount = toReadableNumber(
-        tokens[2].decimals,
-        calculateFairShare({
-          shareOf: pool.supplies[tokens[2].id],
-          contribution: fairShares,
-          totalContribution: pool.shareSupply,
-        })
-      );
+      const fairShares = getFairShare(amount, tokens[1]);
+      const firstAmount = getTokenShare(fairShares, tokens[0]);
+      const thirdAmount = getTokenShare(fairShares, tokens[2]);
 
       setSecondTokenAmount(amount);
       setFirstTokenAmount(firstAmount);
@@ -232,8 +221,8 @@ export default function AddLiquidityComponent(props: {
 
   const changeThirdTokenAmount = (amount: string) => {
     setError(null);
-    if (Object.values(pool.supplies).every((s) => s === '0')) {
-      setSecondTokenAmount(amount);
+    if (addType !== 'addAll') {
+      setThirdTokenAmount(amount);
       try {
         validate({
           firstAmount: firstTokenAmount,
@@ -245,30 +234,12 @@ export default function AddLiquidityComponent(props: {
         setError(error);
       }
     } else {
-      const fairShares = calculateFairShare({
-        shareOf: pool.shareSupply,
-        contribution: toNonDivisibleNumber(tokens[2].decimals, amount),
-        totalContribution: pool.supplies[tokens[2].id],
-      });
-      const firstAmount = toReadableNumber(
-        tokens[0].decimals,
-        calculateFairShare({
-          shareOf: pool.supplies[tokens[0].id],
-          contribution: fairShares,
-          totalContribution: pool.shareSupply,
-        })
-      );
-      const secondAmount = toReadableNumber(
-        tokens[1].decimals,
-        calculateFairShare({
-          shareOf: pool.supplies[tokens[1].id],
-          contribution: fairShares,
-          totalContribution: pool.shareSupply,
-        })
-      );
+      const fairShares = getFairShare(amount, tokens[2]);
+      const firstAmount = getTokenShare(fairShares, tokens[0]);
+      const secondAmount = getTokenShare(fairShares, tokens[1]);
 
-      setSecondTokenAmount(secondAmount);
       setFirstTokenAmount(firstAmount);
+      setSecondTokenAmount(secondAmount);
       setThirdTokenAmount(amount);
       try {
         validate({
@@ -307,10 +278,8 @@ export default function AddLiquidityComponent(props: {
     );
 
     setCanSubmit(false);
-    setCanDeposit(false);
 
     if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
-      setCanDeposit(true);
       setMessageId('deposit_to_add_liquidity');
       setDefaultMessage('Deposit to Add Liquidity');
 
@@ -322,7 +291,6 @@ export default function AddLiquidityComponent(props: {
     }
 
     if (secondTokenAmountBN.isGreaterThan(secondTokenBalanceBN)) {
-      setCanDeposit(true);
       setMessageId('deposit_to_add_liquidity');
       setDefaultMessage('Deposit to Add Liquidity');
       throw new Error(
@@ -333,7 +301,6 @@ export default function AddLiquidityComponent(props: {
     }
 
     if (thirdTokenAmountBN.isGreaterThan(thirdTokenBalanceBN)) {
-      setCanDeposit(true);
       setMessageId('deposit_to_add_liquidity');
       setDefaultMessage('Deposit to Add Liquidity');
       throw new Error(
@@ -403,6 +370,17 @@ export default function AddLiquidityComponent(props: {
     setCanSubmit(true);
     setMessageId('add_liquidity');
     setDefaultMessage('Add Liquidity');
+
+    if (
+      !(
+        firstTokenAmountBN.isEqualTo(firstTokenBalanceBN) &&
+        secondTokenAmountBN.isEqualTo(secondTokenBalanceBN) &&
+        thirdTokenAmountBN.isEqualTo(thirdTokenBalanceBN)
+      ) &&
+      addType === 'addMax'
+    ) {
+      setAddType('');
+    }
   }
 
   function submit() {
@@ -439,7 +417,6 @@ export default function AddLiquidityComponent(props: {
           thirdTokenAmount={thirdTokenAmount}
           tokens={tokens}
           balances={balances}
-          addType={addType}
         />
 
         <div className="flex justify-center mx-2">

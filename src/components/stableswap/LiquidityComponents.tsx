@@ -24,7 +24,8 @@ export function ChooseAddType({
         <div
           className="ml-2 cursor-pointer"
           onClick={() => {
-            setAddType('addAll');
+            addType !== 'addAll' && setAddType('addAll');
+            addType === 'addAll' && setAddType('');
           }}
         >
           <FormattedMessage
@@ -36,7 +37,8 @@ export function ChooseAddType({
       <div
         className="flex items-center my-2"
         onClick={() => {
-          setAddType('addMax');
+          addType !== 'addMax' && setAddType('addMax');
+          addType === 'addMax' && setAddType('');
         }}
       >
         <Radio

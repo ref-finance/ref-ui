@@ -42,7 +42,6 @@ export default function StableTokenList(props: {
   changeFirstTokenAmount?: (e: string) => void;
   changeSecondTokenAmount?: (e: string) => void;
   changeThirdTokenAmount?: (e: string) => void;
-  addType?: string;
 }) {
   const {
     tokens,
@@ -53,10 +52,8 @@ export default function StableTokenList(props: {
     changeFirstTokenAmount,
     changeSecondTokenAmount,
     changeThirdTokenAmount,
-    addType,
   } = props;
   if (tokens.length < 1) return null;
-  const disabled = addType === 'addMax';
 
   return (
     <div className="mt-4 px-8">
@@ -87,7 +84,6 @@ export default function StableTokenList(props: {
             changeFirstTokenAmount(e);
           }}
           value={firstTokenAmount}
-          disabled={disabled}
         />
       </div>
       <div className=" my-4">
@@ -116,7 +112,6 @@ export default function StableTokenList(props: {
             max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
             onChangeAmount={changeSecondTokenAmount}
             value={secondTokenAmount}
-            disabled={disabled}
           />
         </div>
       </div>
@@ -146,7 +141,6 @@ export default function StableTokenList(props: {
             max={toReadableNumber(tokens[2].decimals, balances[tokens[2].id])}
             onChangeAmount={changeThirdTokenAmount}
             value={thirdTokenAmount}
-            disabled={disabled}
           />
         </div>
       </div>
