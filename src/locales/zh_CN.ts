@@ -225,7 +225,7 @@ const zh_CN = {
   unstake_tip_m:
     '取消质押操作会把所有质押从相同交易对的所有进行中和未开始的农场里移除.',
   unstake_tip_b: '你想取消质押吗?',
-  value_rewards: '奖励币总价值',
+  value_rewards: '已领取的奖励',
   stake_unstake_tip: '质押或取消质押操作将自动领取奖励',
   over_tip: '因为汽油费的限制一次最多能选择5个代币',
   no_token_tip: '没有可提取的代币',
@@ -255,7 +255,7 @@ const zh_CN = {
   shares_left: '剩下的份额',
   total_stable_coins: '稳定币总量',
   daily_volume: '24小时交易量',
-  liquidity_utilisation: 'Liquidity utilisation',
+  liquidity_utilisation: '交易活跃度',
   token_reserves: '稳定币储备详情',
   out_of_avaliable_shares: '超过了可用的份额',
   shares_removed: '移除的流动性',

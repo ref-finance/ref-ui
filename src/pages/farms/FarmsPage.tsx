@@ -779,16 +779,25 @@ function WithdrawView({
         const totalPrice = new BigNumber(price).multipliedBy(
           toReadableNumber(token.decimals, data[1])
         );
-        if (new BigNumber('0.001').isGreaterThan(totalPrice)) {
-          resultTotalPrice = '<$0.001';
+        if (new BigNumber('0.01').isGreaterThan(totalPrice)) {
+          resultTotalPrice = '<$0.01';
         } else {
           resultTotalPrice = `$${toInternationalCurrencySystem(
             totalPrice.toString(),
-            3
+            2
+          )}`;
+        }
+        let displayPrice;
+        if (new BigNumber('0.01').isGreaterThan(price)) {
+          displayPrice = '<$0.01';
+        } else {
+          displayPrice = `$${toInternationalCurrencySystem(
+            price.toString(),
+            2
           )}`;
         }
         setPriceData({
-          price,
+          price: displayPrice,
           totalPrice: resultTotalPrice,
         });
       }
@@ -828,7 +837,7 @@ function WithdrawView({
               {toRealSymbol(token.symbol)}
             </label>
             <label className="text-primaryText text-xs">
-              ${priceData.price || '-'}
+              {priceData.price || '$-'}
             </label>
           </div>
         </div>
