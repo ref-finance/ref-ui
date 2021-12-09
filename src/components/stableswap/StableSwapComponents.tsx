@@ -38,7 +38,7 @@ export function TokensRadio({
       <div className="text-white mr-24 flex-1">
         {tokens.map((token) => (
           <div
-            className="flex my-4 items-center cursor-pointer"
+            className="flex my-4 items-center "
             key={token.id}
             onClick={() => {
               handleSwapFrom(token.id);
@@ -52,16 +52,16 @@ export function TokensRadio({
 
             <Icon
               icon={token.icon}
-              className="inline-block h-9 w-9 ml-4 mr-2"
+              className="inline-block h-9 w-9 ml-4 mr-2 cursor-pointer"
             />
-            <div>{token.symbol}</div>
+            <div className="cursor-pointer">{token.symbol}</div>
           </div>
         ))}
       </div>
       <div className="text-white flex-1">
         {tokens.map((token) => (
           <div
-            className="flex my-4 items-center cursor-pointer"
+            className="flex my-4 items-center"
             key={`second-${token.id}`}
             onClick={() => {
               handleSwapTo(token.id);
@@ -74,9 +74,9 @@ export function TokensRadio({
             />
             <Icon
               icon={token.icon}
-              className="inline-block h-9 w-9 ml-4 mr-2"
+              className="inline-block h-9 w-9 ml-4 mr-2 cursor-pointer"
             />
-            <div>{token.symbol}</div>
+            <div className="cursor-pointer">{token.symbol}</div>
           </div>
         ))}
       </div>

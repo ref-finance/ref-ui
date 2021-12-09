@@ -150,19 +150,16 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
         </div>
       </div>
       <div className="flex mt-6 px-8">
-        <div className="flex-1">
-          <p className="text-primaryText text-xs pb-2">
-            From:{' '}
-            <span className="float-right">
-              {useNearBalance ? (
-                <span className="mr-2 float-left">
-                  <SmallWallet />
-                </span>
-              ) : null}
-              <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
-              <span title={tokenInMax}>{toPrecision(tokenInMax, 3, true)}</span>
-            </span>
-          </p>
+        <div className="flex-1 flex flex-col">
+          <div className="text-primaryText text-xs pb-2 self-end">
+            {useNearBalance ? (
+              <span className="mr-2">
+                <SmallWallet />
+              </span>
+            ) : null}
+            <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
+            <span title={tokenInMax}>{toPrecision(tokenInMax, 3, true)}</span>
+          </div>
           <InputAmount
             className="border border-transparent rounded"
             id="inputAmount"
@@ -184,21 +181,18 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
           setTokenInAmount={setTokenInAmount}
         />
 
-        <div className="flex-1">
-          <p className="text-primaryText text-xs pb-2">
-            To:{' '}
-            <span className=" float-right">
-              {useNearBalance ? (
-                <span className="mr-2 float-left">
-                  <SmallWallet />
-                </span>
-              ) : null}
-              <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
-              <span title={tokenOutTotal}>
-                {toPrecision(tokenOutTotal, 3, true)}
+        <div className="flex-1 flex flex-col">
+          <div className="text-primaryText text-xs pb-2 self-end">
+            {useNearBalance ? (
+              <span className="mr-2 float-left">
+                <SmallWallet />
               </span>
+            ) : null}
+            <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
+            <span title={tokenOutTotal}>
+              {toPrecision(tokenOutTotal, 3, true)}
             </span>
-          </p>
+          </div>
           <InputAmount
             className="border border-transparent rounded"
             id="inputAmount"
@@ -240,15 +234,7 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
 
       <div className="mx-8 mt-8">
         {wallet.isSignedIn() ? (
-          <SolidButton
-            className="w-full text-lg"
-            disabled={!canSubmit}
-            // onClick={(e) => {
-            //   e.preventDefault();
-
-            //   canSubmit && makeSwap(useNearBalance);
-            // }}
-          >
+          <SolidButton className="w-full text-lg" disabled={!canSubmit}>
             <FormattedMessage id="swap" defaultMessage="Swap" />
           </SolidButton>
         ) : (

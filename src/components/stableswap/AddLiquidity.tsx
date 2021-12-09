@@ -88,10 +88,10 @@ export default function AddLiquidityComponent(props: {
   const [messageId, setMessageId] = useState<string>('add_liquidity');
   const [defaultMessage, setDefaultMessage] = useState<string>('Add Liquidity');
   const [error, setError] = useState<Error>();
+  const [canDeposit, setCanDeposit] = useState<boolean>(false);
   const intl = useIntl();
+  const [canAddLP, setCanAddLP] = useState<boolean>(false);
   const history = useHistory();
-  const [canSubmit, setCanSubmit] = useState<boolean>(false);
-
   const predicedShares = usePredictShares({
     tokens,
     poolId: pool.id,
@@ -277,12 +277,12 @@ export default function AddLiquidityComponent(props: {
       toReadableNumber(tokens[2].decimals, balances[tokens[2].id])
     );
 
-    setCanSubmit(false);
+    setCanAddLP(false);
 
     if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
       setMessageId('deposit_to_add_liquidity');
       setDefaultMessage('Deposit to Add Liquidity');
-
+      setCanDeposit(true);
       throw new Error(
         `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
           tokens[0].symbol
@@ -293,6 +293,7 @@ export default function AddLiquidityComponent(props: {
     if (secondTokenAmountBN.isGreaterThan(secondTokenBalanceBN)) {
       setMessageId('deposit_to_add_liquidity');
       setDefaultMessage('Deposit to Add Liquidity');
+      setCanDeposit(true);
       throw new Error(
         `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
           tokens[1].symbol
@@ -303,71 +304,15 @@ export default function AddLiquidityComponent(props: {
     if (thirdTokenAmountBN.isGreaterThan(thirdTokenBalanceBN)) {
       setMessageId('deposit_to_add_liquidity');
       setDefaultMessage('Deposit to Add Liquidity');
+      setCanDeposit(true);
       throw new Error(
         `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
           tokens[2].symbol
         )}`
       );
     }
-
-    if (!firstAmount || firstAmount === '0') {
-      setCanSubmit(false);
-      setMessageId('add_liquidity');
-      setDefaultMessage('Add Liquidity');
-      throw new Error(
-        `${intl.formatMessage({
-          id: 'must_provide_at_least_one_token_for',
-        })} ${toRealSymbol(tokens[0].symbol)}`
-      );
-    }
-
-    if (!secondAmount || secondAmount === '0') {
-      setCanSubmit(false);
-      setMessageId('add_liquidity');
-      setDefaultMessage('Add Liquidity');
-      throw new Error(
-        `${intl.formatMessage({
-          id: 'must_provide_at_least_one_token_for',
-        })} ${toRealSymbol(tokens[1].symbol)}`
-      );
-    }
-
-    if (!thirdAmount || thirdAmount === '0') {
-      setCanSubmit(false);
-      setMessageId('add_liquidity');
-      setDefaultMessage('Add Liquidity');
-      throw new Error(
-        `${intl.formatMessage({
-          id: 'must_provide_at_least_one_token_for',
-        })} ${toRealSymbol(tokens[2].symbol)}`
-      );
-    }
-
-    if (!tokens[0]) {
-      throw new Error(
-        `${tokens[0].id} ${intl.formatMessage({
-          id: 'is_not_exist',
-        })}`
-      );
-    }
-
-    if (!tokens[1]) {
-      throw new Error(
-        `${tokens[1].id} ${intl.formatMessage({
-          id: 'is_not_exist',
-        })}`
-      );
-    }
-
-    if (!tokens[2]) {
-      throw new Error(
-        `${tokens[2].id} ${intl.formatMessage({
-          id: 'is_not_exist',
-        })}`
-      );
-    }
-
-    setCanSubmit(true);
+    setCanDeposit(false);
+    setCanAddLP(true);
     setMessageId('add_liquidity');
     setDefaultMessage('Add Liquidity');
 
@@ -384,6 +329,11 @@ export default function AddLiquidityComponent(props: {
   }
 
   function submit() {
+    if (canDeposit) {
+      history.push('/deposit');
+      return;
+    }
+
     const min_shares = percentLess(slippageTolerance, predicedShares);
 
     const amounts = [firstTokenAmount, secondTokenAmount, thirdTokenAmount].map(
@@ -396,6 +346,8 @@ export default function AddLiquidityComponent(props: {
       min_shares,
     });
   }
+
+  const canSubmit = canDeposit || canAddLP;
 
   return (
     <>

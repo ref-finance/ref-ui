@@ -246,18 +246,17 @@ export function RemoveLiquidityComponent(props: {
 
     setCanSubmitByShare(false);
     predictRemoveLiquidity(pool.id, shareParam).then((res) => {
-      setCanSubmitByShare(true);
       if (
         Number(amountByShare) === 0 ||
         Number(amountByShare) > Number(readableShares)
       ) {
         setCanSubmitByShare(false);
         setReceiveAmounts(['0', '0', '0']);
-        return;
+      } else {
+        setCanSubmitByShare(true);
+        const finalAmounts = res.map((amount, i) => toPrecision(amount, 0));
+        setReceiveAmounts(finalAmounts);
       }
-      const finalAmounts = res.map((amount, i) => toPrecision(amount, 0));
-
-      setReceiveAmounts(finalAmounts);
     });
   }, [sharePercentage, tokens, amountByShare]);
 
