@@ -205,3 +205,21 @@ export const toInternationalCurrencySystem = (
     ? (Math.abs(Number(labelValue)) / 1.0e3).toFixed(percent || 2) + 'K'
     : Math.abs(Number(labelValue)).toFixed(percent || 2);
 };
+
+export function scientificNotationToString(strParam: string) {
+  let flag = /e/.test(strParam);
+  if (!flag) return strParam;
+
+  let sysbol = true;
+  if (/e-/.test(strParam)) {
+    sysbol = false;
+  }
+  let index = Number(strParam.match(/\d+$/)[0]);
+  let basis = strParam.match(/^[\d\.]+/)[0].replace(/\./, '');
+
+  if (sysbol) {
+    return basis.padEnd(index + 1, '0');
+  } else {
+    return basis.padStart(index + basis.length, '0').replace(/^0/, '0.');
+  }
+}

@@ -41,9 +41,10 @@ import {
   toReadableNumber,
   toRoundedReadableNumber,
   percentIncrese,
+  scientificNotationToString,
 } from '~utils/numbers';
 import { toRealSymbol } from '~utils/token';
-import { myShares, STABLE_LP_TOKEN_DECIMALS } from './AddLiquidity';
+import { STABLE_LP_TOKEN_DECIMALS } from './AddLiquidity';
 import { InfoLine } from './LiquidityComponents';
 import StableTokenList, {
   FlexibleStableTokenList,
@@ -54,22 +55,6 @@ import { ShareInFarm } from '~components/layout/ShareInFarm';
 import { Link } from 'react-router-dom';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
-
-function Icon(props: { icon?: string; className?: string; style?: any }) {
-  const { icon, className, style } = props;
-  return icon ? (
-    <img
-      className={`block ${className} rounded-full border border-gradientFromHover border-solid`}
-      src={icon}
-      style={style}
-    />
-  ) : (
-    <div
-      className={`rounded-full ${className} border border-gradientFromHover  border-solid`}
-      style={style}
-    />
-  );
-}
 
 export function shareToUserTotal({
   shares,
@@ -90,9 +75,7 @@ export function shareToUserTotal({
 
       <span className="text-primaryText">{` / ${toRoundedReadableNumber({
         decimals: STABLE_LP_TOKEN_DECIMALS,
-        number: userTotalShare
-          .toNumber()
-          .toLocaleString('fullwide', { useGrouping: false }),
+        number: scientificNotationToString(userTotalShare.toExponential()),
         precision: 3,
       })}`}</span>
     </div>
