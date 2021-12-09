@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
+import { REF_STABLE_SWAP_TAB_KEY } from '~pages/stable/StableSwapPage';
 
 export default function SquareRadio({
   radios,
@@ -8,7 +9,9 @@ export default function SquareRadio({
   radios: string[];
   onChange: (chooseModule: string) => void;
 }) {
-  const [choose, setChoose] = useState(radios[0]);
+  const [choose, setChoose] = useState(
+    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) || radios[0]
+  );
   const intl = useIntl();
   return (
     <div className="flex justify-between mx-12">
@@ -21,6 +24,7 @@ export default function SquareRadio({
             key={radio}
             onClick={() => {
               setChoose(radio);
+              localStorage.setItem(REF_STABLE_SWAP_TAB_KEY, radio);
               onChange(radio);
             }}
           >

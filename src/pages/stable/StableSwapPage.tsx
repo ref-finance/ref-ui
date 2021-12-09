@@ -18,10 +18,13 @@ const cardWidth = isMobile() ? '95vw' : '580px';
 const DEFAULT_ACTIONS = ['stable_swap', 'add_liquidity', 'remove_liquidity'];
 const STABLE_TOKENS = ['USDT', 'USDC', 'DAI'];
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
+export const REF_STABLE_SWAP_TAB_KEY = 'REF_STABLE_SWAP_TAB_VALUE';
 
 function StableSwapPage() {
   const { pool, shares, stakeList } = usePool(STABLE_POOL_ID);
-  const [actionName, setAction] = useState<string>(DEFAULT_ACTIONS[0]);
+  const [actionName, setAction] = useState<string>(
+    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) || DEFAULT_ACTIONS[0]
+  );
   const allTokens = useWhitelistStableTokens();
   const balances = useTokenBalances();
   const changeAction = (actionName: string) => {
