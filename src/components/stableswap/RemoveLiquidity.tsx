@@ -201,9 +201,20 @@ export function RemoveLiquidityComponent(props: {
         amountByShare
       );
 
+      const min_amounts = receiveAmounts.map((amount, i) =>
+        toNonDivisibleNumber(
+          tokens[i].decimals,
+          percentLess(
+            slippageTolerance,
+
+            toReadableNumber(tokens[i].decimals, amount)
+          )
+        )
+      );
+
       return removeLiquidityFromStablePool({
         id: pool.id,
-        min_amounts: receiveAmounts as [string, string, string],
+        min_amounts: min_amounts as [string, string, string],
         shares: removeShares,
       });
     } else {
@@ -234,6 +245,7 @@ export function RemoveLiquidityComponent(props: {
     pool,
     shares,
   });
+
   useEffect(() => {
     const rememberedSlippageTolerance =
       localStorage.getItem(SWAP_SLIPPAGE_KEY) || slippageTolerance;
