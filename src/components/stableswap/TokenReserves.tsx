@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card } from '~components/card/Card';
 import { FormattedMessage } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
@@ -15,12 +15,15 @@ import {
 import { InfoLine } from './LiquidityComponents';
 import _ from 'lodash';
 import BigNumber from 'bignumber.js';
+import { useDayVolume } from '~state/pool';
 
 function TokenChart({ tokens, pool }: { tokens: TokenMetadata[]; pool: Pool }) {
   const data = tokens.map((token, i) => {
     return {
       name: token.symbol,
       value: Number(toReadableNumber(token.decimals, pool.supplies[token.id])),
+      token: token,
+      displayV: calculateTokenShareFormat({ token, pool, tokens }),
     };
   });
   const color = {
@@ -29,47 +32,50 @@ function TokenChart({ tokens, pool }: { tokens: TokenMetadata[]; pool: Pool }) {
     USDC: 'rgba(0, 163, 255, 0.45)',
   };
 
-  function customLabel({
-    cx,
-    cy,
-    midAngle,
-    innerRadius,
-    outerRadius,
-    percent,
-    index,
-    tokens,
-  }: any) {
+  function customLabel(props: any) {
+    const {
+      cx,
+      cy,
+      x,
+      y,
+      midAngle,
+      innerRadius,
+      outerRadius,
+      displayV,
+      token,
+    } = props;
     const RADIAN = Math.PI / 180;
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-    // return <image width="30" height="30" xlinkHref={tokens[index].icon} />;
-
+    const x1 = cx + radius * Math.cos(-midAngle * RADIAN) - 15;
+    const y1 = cy + radius * Math.sin(-midAngle * RADIAN) - 15;
     return (
       <g>
         <text
           x={x}
           y={y}
           fill="white"
+          fontSize="14px"
           textAnchor={x > cx ? 'start' : 'end'}
           dominantBaseline="central"
         >
-          {`${(percent * 100).toFixed(0)}%`}
+          {token.symbol}
         </text>
-        {/* <image
-          width="30"
-          height="30"
+        <text
           x={x}
-          y={y}
-          xlinkHref={tokens[index].icon}
-        /> */}
+          y={y + 15}
+          fill="white"
+          textAnchor={x > cx ? 'start' : 'end'}
+          dominantBaseline="central"
+        >
+          {displayV}
+        </text>
+        <image width="30" height="30" x={x1} y={y1} xlinkHref={token.icon} />
       </g>
     );
   }
 
   return (
-    <PieChart width={200} height={200}>
+    <PieChart width={360} height={280}>
       <Pie
         data={data}
         fill="#8884d8"
@@ -115,6 +121,28 @@ const calculateTokenShare = ({
     ` (${toPrecision(percent(value, totalShares.toString()).toString(), 2)}%)`
   );
 };
+const calculateTokenShareFormat = ({
+  token,
+  pool,
+  tokens,
+}: {
+  pool: Pool;
+  token: TokenMetadata;
+  tokens: TokenMetadata[];
+}) => {
+  const value = toReadableNumber(token.decimals, pool.supplies[token.id]);
+  const totalShares = _.sumBy(
+    Object.values(pool.supplies).map((v, i) =>
+      toReadableNumber(tokens[i].decimals, v)
+    ),
+    (o) => Number(o)
+  );
+
+  return `${toPrecision(
+    percent(value, totalShares.toString()).toString(),
+    2
+  )}% / ${toInternationalCurrencySystem(value, 2).toString()}`;
+};
 
 const calculateTotalStableCoins = (pool: Pool, tokens: TokenMetadata[]) => {
   const coinsAmounts = Object.values(pool.supplies).map((amount, i) =>
@@ -140,8 +168,27 @@ export default function ({
   inSwapPage?: boolean;
 }) {
   const [showReserves, setShowReserves] = useState<boolean>(false);
+  const [chart, setChart] = useState(null);
+  const { id, shareSupply } = pool;
+  let volume;
+  let utilisationDisplay;
+  volume = useDayVolume(id.toString());
+  if (volume) {
+    const total = toReadableNumber(24, shareSupply);
+    const utilisation = new BigNumber(volume)
+      .dividedBy(total)
+      .multipliedBy(100);
+    if (new BigNumber('0.01').isGreaterThan(utilisation)) {
+      utilisationDisplay = '<0.01%';
+    } else {
+      utilisationDisplay = utilisation.toFixed(2) + '%';
+    }
+  }
   const intl = useIntl();
-
+  useEffect(() => {
+    const chart = <TokenChart tokens={tokens} pool={pool} />;
+    setChart(chart);
+  }, []);
   return (
     <>
       <div
@@ -178,9 +225,7 @@ export default function ({
         <div className="text-white mt-1">
           {calculateTotalStableCoins(pool, tokens)}
         </div>
-        <div className="flex justify-center">
-          <TokenChart tokens={tokens} pool={pool} />
-        </div>
+        <div className="flex justify-center">{chart}</div>
         {tokens.map((token, i) => (
           <InfoLine
             key={token.symbol}
@@ -200,11 +245,11 @@ export default function ({
         />
         <InfoLine
           title={intl.formatMessage({ id: 'liquidity_utilisation' })}
-          value="-"
+          value={utilisationDisplay || '-'}
         />
         <InfoLine
           title={intl.formatMessage({ id: 'daily_volume' })}
-          value="-"
+          value={volume ? toInternationalCurrencySystem(volume) : '-'}
         />
       </Card>
     </>
