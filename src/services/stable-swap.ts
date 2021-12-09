@@ -80,9 +80,9 @@ export const estimateSwap = async ({
     setLoadingTrigger(false);
 
     if (
-      new BigNumber(amountIn).isGreaterThan(
-        new BigNumber(pool.supplies[tokenIn.id])
-      )
+      new BigNumber(
+        toNonDivisibleNumber(tokenIn.decimals, amountIn)
+      ).isGreaterThan(new BigNumber(pool.supplies[tokenIn.id]))
     ) {
       throw new Error(
         `${intl.formatMessage({
