@@ -101,10 +101,8 @@ export default function AddLiquidityComponent(props: {
   });
 
   useEffect(() => {
-    // setError(null);
+    setError(null);
     if (addType === 'addMax') {
-      setError(null);
-
       setFirstTokenAmount(
         toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
       );
@@ -115,6 +113,9 @@ export default function AddLiquidityComponent(props: {
         toReadableNumber(tokens[2].decimals, balances[tokens[2].id])
       );
     } else if (addType === 'addAll') {
+      setFirstTokenAmount('');
+      setSecondTokenAmount('');
+      setThirdTokenAmount('');
     }
   }, [addType]);
 
