@@ -7,6 +7,7 @@ import { Pool } from '~services/pool';
 import { useIntl } from 'react-intl';
 import { PieChart, Cell, Pie } from 'recharts';
 import { isMobile } from '~utils/device';
+import { getPoolsByIds } from '~services/indexer';
 import {
   toReadableNumber,
   toInternationalCurrencySystem,
@@ -178,6 +179,16 @@ const calculateTokenValueAndShare = (
   });
   return result;
 };
+const useTvl = (id: string) => {
+  // todo
+  const [tvl, setTvl] = useState(0);
+  useEffect(() => {
+    getPoolsByIds({ pool_ids: [id] }).then((pools) => {
+      setTvl(pools[0].tvl);
+    });
+  }, [id]);
+  return tvl;
+};
 export default function ({
   totalStableCoins,
   tokens,
@@ -191,15 +202,13 @@ export default function ({
 }) {
   const [showReserves, setShowReserves] = useState<boolean>(false);
   const [chart, setChart] = useState(null);
-  const { id, shareSupply } = pool;
+  const { id } = pool;
   let volume;
   let utilisationDisplay;
   volume = useDayVolume(id.toString());
-  if (volume) {
-    const total = toReadableNumber(18, shareSupply);
-    const utilisation = new BigNumber(volume)
-      .dividedBy(total)
-      .multipliedBy(100);
+  const tvl = useTvl(id.toString());
+  if (volume && tvl) {
+    const utilisation = new BigNumber(volume).dividedBy(tvl).multipliedBy(100);
     if (new BigNumber('0.01').isGreaterThan(utilisation)) {
       utilisationDisplay = '<0.01%';
     } else {

@@ -108,7 +108,7 @@ export function FarmsPage() {
       ? !!+localStorage.getItem('farmStakedOnly')
       : false,
     sort: 'apr',
-    stable: false,
+    stable: !!+localStorage.getItem('farmStableOnly'),
     sortBoxHidden: true,
   });
   const [yourFarms, setYourFarms] = useState<string | number>('-');
@@ -430,6 +430,11 @@ export function FarmsPage() {
   }
   function changeStable() {
     searchData.stable = !searchData.stable;
+    if (searchData.stable) {
+      localStorage.setItem('farmStableOnly', '1');
+    } else {
+      localStorage.setItem('farmStableOnly', '0');
+    }
     setSearchData(Object.assign({}, searchData));
     searchByCondition();
   }
@@ -652,10 +657,10 @@ export function FarmsPage() {
           <div className="xs:w-full md:w-full">
             {unclaimedFarmsIsLoading ? null : (
               <div className="flex items-center self-end xs:flex-col md:flex-col mb-3">
-                <div className="flex items-center w-36 xs:w-32 md:w-32 text-farmText rounded-full h-7 bg-farmSbg mr-4">
+                <div className="flex items-center w-36 xs:w-32 md:w-32 text-farmText rounded-full h-5 bg-farmSbg mr-4">
                   <label
                     onClick={() => changeStatus(1)}
-                    className={`flex justify-center items-center w-1/2 rounded-full h-full cursor-pointer ${
+                    className={`flex justify-center items-center w-1/2 rounded-full h-full text-xs cursor-pointer ${
                       searchData.status ? 'text-chartBg bg-farmSearch' : ''
                     }`}
                   >
@@ -663,7 +668,7 @@ export function FarmsPage() {
                   </label>
                   <label
                     onClick={() => changeStatus(0)}
-                    className={`flex justify-center items-center w-1/2 rounded-full h-full cursor-pointer ${
+                    className={`flex justify-center items-center w-1/2 rounded-full h-full text-xs cursor-pointer ${
                       !searchData.status ? 'text-chartBg bg-farmSearch' : ''
                     }`}
                   >
@@ -676,7 +681,7 @@ export function FarmsPage() {
                 <div className="flex xs:w-full md:w-full xs:mt-4 md:mt-4">
                   {wallet.isSignedIn() ? (
                     <div className="flex items-center mr-4 xs:mr-3 md:mr-3">
-                      <label className="text-farmText text-sm xs:text-xs md:text-xs">
+                      <label className="text-farmText text-xs">
                         <FormattedMessage
                           id="staked_only"
                           defaultMessage="Staked Only"
@@ -684,7 +689,7 @@ export function FarmsPage() {
                       </label>
                       <div
                         onClick={changeStaked}
-                        className={`flex items-center w-11 h-7 bg-cardBg rounded-full px-1  ml-2.5 box-border cursor-pointer ${
+                        className={`flex items-center w-11 h-5 bg-cardBg rounded-full px-1  ml-2.5 box-border cursor-pointer ${
                           searchData.staked ? 'justify-end' : ''
                         }`}
                       >
@@ -697,7 +702,7 @@ export function FarmsPage() {
                     </div>
                   ) : null}
                   <div className="flex items-center mr-4 xs:mr-3 md:mr-3">
-                    <label className="text-farmText text-sm xs:text-xs md:text-xs">
+                    <label className="text-farmText text-xs">
                       <FormattedMessage
                         id="stablecoin_only"
                         defaultMessage="Stablecoin Only"
@@ -705,7 +710,7 @@ export function FarmsPage() {
                     </label>
                     <div
                       onClick={changeStable}
-                      className={`flex items-center w-11 h-7 bg-cardBg rounded-full px-1  ml-2.5 box-border cursor-pointer ${
+                      className={`flex items-center w-11 h-5 bg-cardBg rounded-full px-1  ml-2.5 box-border cursor-pointer ${
                         searchData.stable ? 'justify-end' : ''
                       }`}
                     >
@@ -717,13 +722,13 @@ export function FarmsPage() {
                     </div>
                   </div>
                   <div className="flex items-center relative">
-                    <label className="text-farmText text-sm mr-2.5 xs:hidden md:hidden">
+                    <label className="text-farmText text-xs mr-2.5 xs:hidden md:hidden">
                       <FormattedMessage id="sort_by" defaultMessage="Sort by" />
                     </label>
                     <span
                       ref={sortRef}
                       onClick={showSortBox}
-                      className="flex items-center justify-between w-32 h-7 xs:w-8 md:w-8 rounded-full px-3 box-border border border-farmText cursor-pointer text-sm text-gray-200"
+                      className="flex items-center justify-between w-32 h-5 xs:w-8 md:w-8 rounded-full px-3 box-border border border-farmText cursor-pointer text-xs text-gray-200"
                     >
                       <label className="whitespace-nowrap xs:hidden md:hidden">
                         {sortList[searchData.sort]}
@@ -741,7 +746,7 @@ export function FarmsPage() {
                           key={item[0]}
                           onClick={changeSortV}
                           data-id={item[0]}
-                          className={`flex items-center p-4 text-sm h-7 text-white text-opacity-40 my-2 cursor-pointer hover:bg-white hover:bg-opacity-10 hover:text-opacity-100 ${
+                          className={`flex items-center p-4 text-xs h-5 text-white text-opacity-40 my-2 cursor-pointer hover:bg-white hover:bg-opacity-10 hover:text-opacity-100 ${
                             item[0] == searchData.sort
                               ? 'bg-white bg-opacity-10 text-opacity-100'
                               : ''
