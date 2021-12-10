@@ -151,7 +151,7 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
       </div>
       <div className="flex mt-6 px-8">
         <div className="flex-1 flex flex-col">
-          <div className="text-primaryText text-xs pb-2 self-end">
+          <div className="text-primaryText text-xs pb-2 self-end flex items-center">
             {useNearBalance ? (
               <span className="mr-2">
                 <SmallWallet />
@@ -182,7 +182,7 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
         />
 
         <div className="flex-1 flex flex-col">
-          <div className="text-primaryText text-xs pb-2 self-end">
+          <div className="text-primaryText text-xs pb-2 self-end flex items-center">
             {useNearBalance ? (
               <span className="mr-2 float-left">
                 <SmallWallet />
