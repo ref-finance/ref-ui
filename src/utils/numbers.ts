@@ -171,6 +171,18 @@ export function formatWithCommas(value: string): string {
   return value;
 }
 
+export function divide(numerator: string, denominator: string) {
+  return math.format(math.evaluate(`${numerator} / ${denominator}`), {
+    notation: 'fixed',
+  });
+}
+
+export function multiply(factor1: string, factor2: string) {
+  return math.format(math.evaluate(`${factor1} * ${factor2}`), {
+    notation: 'fixed',
+  });
+}
+
 export const percent = (numerator: string, denominator: string) => {
   return math.evaluate(`(${numerator} / ${denominator}) * 100`);
 };

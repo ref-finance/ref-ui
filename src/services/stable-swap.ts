@@ -1,4 +1,10 @@
-import { toNonDivisibleNumber, toReadableNumber } from '../utils/numbers';
+import {
+  divide,
+  multiply,
+  toNonDivisibleNumber,
+  toPrecision,
+  toReadableNumber,
+} from '../utils/numbers';
 import {
   executeMultipleTransactions,
   near,
@@ -322,14 +328,16 @@ export const amountToShare = (
 ) => {
   const totalShares = pool?.shareSupply;
   const tokensAmount = pool?.supplies;
-  const tokenMaxAmount = Number(
-    toReadableNumber(token.decimals, tokensAmount[token.id])
+  const tokenMaxAmount = toReadableNumber(
+    token.decimals,
+    tokensAmount[token.id]
   );
-  const amountRate = Number(amount) / tokenMaxAmount;
+
+  const amountRate = divide(amount, tokenMaxAmount);
 
   return toReadableNumber(
     STABLE_LP_TOKEN_DECIMALS,
-    (amountRate * Number(totalShares)).toString()
+    toPrecision(multiply(amountRate, totalShares), 0)
   );
 };
 
@@ -361,7 +369,7 @@ export const GetAmountToBalances = ({
   userShare: string;
 }) => {
   const tokenShares = amounts.map((amount, i) =>
-    amountToShare(pool, amount, tokens[i])
+    amountToShare(pool, amount || '0', tokens[i])
   );
 
   const leftShares = new BigNumber(
