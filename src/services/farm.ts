@@ -10,7 +10,7 @@ import {
   toReadableNumber,
   toNonDivisibleNumber,
 } from '~utils/numbers';
-import { LP_TOKEN_DECIMALS, LP_STABLE_TOKEN_DECIMALS } from '~services/m-token';
+import { LP_TOKEN_DECIMALS } from '~services/m-token';
 import * as math from 'mathjs';
 import {
   ftGetTokenMetadata,
@@ -130,7 +130,6 @@ export const getFarms = async ({
       {}
     );
   }
-
   const tasks = farms.map(async (f) => {
     const pool: PoolRPCView =
       Object.keys(poolList).length === 0
@@ -173,21 +172,21 @@ export const getFarmInfo = async (
 ): Promise<FarmInfo> => {
   const isSignedIn: boolean = wallet.isSignedIn();
   const { tvl, token_account_ids, id } = pool;
-  let shares_total_supply;
   if (STABLE_POOL_ID == id) {
-    shares_total_supply = toNonDivisibleNumber(
-      expand,
-      pool.shares_total_supply
-    );
     staked = toNonDivisibleNumber(expand, staked ?? '0');
     seed = toNonDivisibleNumber(expand, seed ?? '0');
-  } else {
-    shares_total_supply = pool.shares_total_supply;
+    if (!pool.decimalsHandled) {
+      pool.shares_total_supply = toNonDivisibleNumber(
+        expand,
+        pool.shares_total_supply
+      );
+      pool.decimalsHandled = true;
+    }
   }
 
   const poolTvl = tvl;
   const poolSts = Number(
-    toReadableNumber(LP_TOKEN_DECIMALS, shares_total_supply)
+    toReadableNumber(LP_TOKEN_DECIMALS, pool.shares_total_supply)
   );
   const userStaked = toReadableNumber(LP_TOKEN_DECIMALS, staked ?? '0');
   const rewardToken = await ftGetTokenMetadata(farm.reward_token);

@@ -39,6 +39,7 @@ import {
   unstake,
   LP_TOKEN_DECIMALS,
   withdrawAllReward,
+  LP_STABLE_TOKEN_DECIMALS,
 } from '~services/m-token';
 import {
   formatWithCommas,
@@ -657,7 +658,7 @@ export function FarmsPage() {
           <div className="xs:w-full md:w-full">
             {unclaimedFarmsIsLoading ? null : (
               <div className="flex items-center self-end xs:flex-col md:flex-col mb-3">
-                <div className="flex items-center w-36 xs:w-32 md:w-32 text-farmText rounded-full h-5 bg-farmSbg mr-4">
+                <div className="flex items-center w-36 xs:w-32 md:w-32 text-farmText rounded-full h-5 bg-farmSbg lg:mr-4">
                   <label
                     onClick={() => changeStatus(1)}
                     className={`flex justify-center items-center w-1/2 rounded-full h-full text-xs cursor-pointer ${
@@ -858,7 +859,9 @@ function WithdrawView({
     if (new BigNumber('0.001').isGreaterThan(tokenNumber)) {
       resultDisplay = '<0.001';
     } else {
-      resultDisplay = new BigNumber(tokenNumber).toFixed(3, 1).toString();
+      resultDisplay = formatWithCommas(
+        new BigNumber(tokenNumber).toFixed(3, 1).toString()
+      );
     }
     return resultDisplay;
   }
@@ -1088,8 +1091,13 @@ function FarmView({
   }
 
   async function showStakeModal() {
-    const b = await mftGetBalance(getMftTokenId(data.lpTokenId));
-    setStakeBalance(toReadableNumber(LP_TOKEN_DECIMALS, b));
+    const { lpTokenId } = data;
+    const b = await mftGetBalance(getMftTokenId(lpTokenId));
+    if (STABLE_POOL_ID == lpTokenId) {
+      setStakeBalance(toReadableNumber(LP_STABLE_TOKEN_DECIMALS, b));
+    } else {
+      setStakeBalance(toReadableNumber(LP_TOKEN_DECIMALS, b));
+    }
     setStakeVisible(true);
   }
 
