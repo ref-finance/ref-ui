@@ -65,6 +65,12 @@ module.exports = {
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
       },
+      width: {
+        '25vw': '25vw',
+        '35vw': '35vw',
+        '40vw': '40vw',
+        '95vw': '95vw'
+      }
     },
     plugins: [],
   },
