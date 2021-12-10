@@ -381,24 +381,23 @@ export function RemoveLiquidityComponent(props: {
               value={amountByShare}
               onChangeAmount={(amount) => {
                 setAmountByShare(amount);
+
                 const percentage =
                   Number(shares) > 0
-                    ? toPrecision(
-                        percent(
-                          amount || '0',
-                          toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares)
-                        ).toString(),
-                        0
-                      )
+                    ? percent(
+                        amount || '0',
+                        toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares)
+                      ).toString()
                     : '0';
-                setSharePercentage(percentage);
+
+                setSharePercentage(scientificNotationToString(percentage));
               }}
               className="w-full border border-transparent rounded"
               max={toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares)}
             />
           </div>
           <div className="my-6 mb-8">
-            <div className="flex items-center justify-between text-gray-400">
+            <div className="flex items-center justify-between text-gray-400 pl-0.5">
               {progressBarIndex.map((index, i) => {
                 return (
                   <div className="flex flex-col items-center text-xs" key={i}>
@@ -424,7 +423,7 @@ export function RemoveLiquidityComponent(props: {
                 className="w-full cursor-pointer"
                 min="0"
                 max="100"
-                step="1"
+                step="any"
               />
             </div>
           </div>

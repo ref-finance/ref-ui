@@ -447,7 +447,7 @@ export function StableSlipSelecter({
               slippageTolerance && !invalid && !warn
                 ? 'border border-gradientFrom normal-input text-gradientFrom bg-opacity-0'
                 : ''
-            } focus:text-gradientFrom focus:bg-opacity-0 w-14 h-7 text-center text-sm rounded mx-2 bg-gray-500 ${
+            } focus:text-gradientFrom focus:bg-opacity-0 w-14 h-7 text-center text-xs rounded mx-2 bg-gray-500 ${
               invalid && !warn
                 ? 'border border-error text-error bg-opacity-0 invalid-input'
                 : ''

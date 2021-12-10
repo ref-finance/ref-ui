@@ -13,13 +13,14 @@ export function ChooseAddType({
   setAddType: (e: any) => void;
 }) {
   return (
-    <div className="pt-2 text-primaryText">
-      <div className="flex items-center my-2 ">
+    <div className="pt-2 text-primaryText text-xs flex flex-col px-8">
+      <div className="inline-flex items-center my-1 ">
         <Radio
           checked={addType === 'addAll'}
           value="addAll"
           handleSelect={setAddType}
           size="3"
+          checkOut
         />
         <div
           className="ml-2 cursor-pointer"
@@ -30,32 +31,28 @@ export function ChooseAddType({
         >
           <FormattedMessage
             id="add_type_all"
-            defaultMessage="Add all coins in a balanced proportion"
+            defaultMessage="Add all tokens in a balanced proportion"
           />
         </div>
       </div>
-      <div
-        className="flex items-center my-2"
-        onClick={() => {
-          addType !== 'addMax' && setAddType('addMax');
-          addType === 'addMax' && setAddType('');
-        }}
-      >
+      <div className="inline-flex items-center my-1">
         <Radio
           checked={addType === 'addMax'}
           value="addMax"
           handleSelect={setAddType}
           size="3"
+          checkOut
         />
         <div
           className="ml-2 cursor-pointer"
           onClick={() => {
-            setAddType('addAll');
+            addType !== 'addMax' && setAddType('addMax');
+            addType === 'addMax' && setAddType('');
           }}
         >
           <FormattedMessage
             id="add_type_max"
-            defaultMessage="Use maximum amount of coins availabe"
+            defaultMessage="Use maximum amount of tokens availabe"
           />
         </div>
       </div>

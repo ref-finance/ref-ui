@@ -101,17 +101,20 @@ export function Radio({
   handleSelect,
   value,
   size,
+  checkOut,
 }: {
   checked: boolean;
   handleSelect: (e: string) => void;
   value?: string;
   size?: string;
+  checkOut?: boolean;
 }) {
   return (
     <div
       className="cursor-pointer"
       onClick={() => {
         !checked && handleSelect(value);
+        checkOut && checked && handleSelect('');
       }}
     >
       {checked ? <CheckedRadio size={size} /> : <UnCheckedRadio size={size} />}

@@ -368,12 +368,13 @@ export default function AddLiquidityComponent(props: {
           balances={balances}
         />
 
+        <ChooseAddType addType={addType} setAddType={setAddType} />
+
         <div className="flex justify-center mx-2">
           {error && <Alert level="error" message={error.message} />}
         </div>
 
-        <div className="text-xs px-8 pb-2 pt-6 mt-6 border-t border-primaryText border-opacity-30">
-          <ChooseAddType addType={addType} setAddType={setAddType} />
+        <div className="text-xs px-8 pt-2 mt-6 border-t border-primaryText border-opacity-30">
           <StableSlipSelecter
             slippageTolerance={slippageTolerance}
             onChange={(slippage) => {
@@ -382,7 +383,7 @@ export default function AddLiquidityComponent(props: {
             }}
           />
 
-          <div className="flex items-center justify-between text-xs  pb-4">
+          <div className="flex items-center justify-between text-xs  pt-2 pb-6">
             <div className="text-primaryText">
               <FormattedMessage
                 id="minimum_shares"

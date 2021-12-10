@@ -209,8 +209,8 @@ const en_US = {
   remove_token_confirm: 'You will remove RUST token',
   remove_as_one_token: 'Remove as one token',
   flexible_tip: 'Remove how much you want per token',
-  add_type_all: 'Add all coins in a balanced proportion',
-  add_type_max: 'Use maximum amount of coins available',
+  add_type_all: 'Add all tokens in a balanced proportion',
+  add_type_max: 'Use maximum amount of tokens available',
   select_balance: 'Select balance',
   selectBalanceCopy:
     'Select [NEAR wallet] to swap directly tokens available in your NEAR wallet',
