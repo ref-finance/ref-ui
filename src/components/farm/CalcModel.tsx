@@ -9,7 +9,7 @@ import Modal from 'react-modal';
 import { Link } from 'react-router-dom';
 import { getMftTokenId } from '~utils/token';
 import { Card } from '~components/card/Card';
-import { LP_TOKEN_DECIMALS } from '~services/m-token';
+import { LP_TOKEN_DECIMALS, LP_STABLE_TOKEN_DECIMALS } from '~services/m-token';
 import { FarmInfo } from '~services/farm';
 import {
   toPrecision,
@@ -18,6 +18,9 @@ import {
 } from '~utils/numbers';
 import { isMobile } from '~utils/device';
 import { useTokens } from '~state/token';
+import getConfig from '~services/config';
+const config = getConfig();
+const STABLE_POOL_ID = config.STABLE_POOL_ID;
 
 export default function CalcModel(
   props: ReactModal.Props & {
@@ -56,8 +59,14 @@ export default function CalcModel(
   const cardWidth = isMobile() ? '90vw' : '30vw';
   async function getUserLpTokenInPool() {
     if (wallet.isSignedIn()) {
-      const b = await mftGetBalance(getMftTokenId(farms[0].lpTokenId));
-      const num = toReadableNumber(LP_TOKEN_DECIMALS, b);
+      const lpTokenId = farms[0].lpTokenId;
+      const b = await mftGetBalance(getMftTokenId(lpTokenId));
+      let num;
+      if (STABLE_POOL_ID == lpTokenId) {
+        num = toReadableNumber(LP_STABLE_TOKEN_DECIMALS, b);
+      } else {
+        num = toReadableNumber(LP_TOKEN_DECIMALS, b);
+      }
       setUserLpTokenNum(toPrecision(num, 6));
       setUserLpTokenNumActual(num);
     } else {
@@ -336,13 +345,6 @@ export function CalcEle(props: {
     }
   }, [lpTokenNum, selecteDate]);
 
-  // function getTotalApr() {
-  //   let apr = 0;
-  //   farms.forEach(function (item) {
-  //     apr += Number(item.apr);
-  //   });
-  //   setTotalApr(toPrecision(apr.toString(), 2));
-  // }
   function changeDate(e: any) {
     const dateId = e.currentTarget.dataset.id;
     setSelecteDate(dateId);
@@ -463,10 +465,17 @@ export function LinkPool(props: { pooId: number }) {
     <div className="flex justify-center items-center">
       <Link
         title={intl.formatMessage({ id: 'view_pool' })}
-        to={{
-          pathname: `/pool/${pooId}`,
-          state: { backToFarms: true },
-        }}
+        to={
+          pooId == STABLE_POOL_ID
+            ? {
+                pathname: `/stableswap`,
+                state: { backToFarms: true },
+              }
+            : {
+                pathname: `/pool/${pooId}`,
+                state: { backToFarms: true },
+              }
+        }
         target="_blank"
         className="flex items-center"
       >

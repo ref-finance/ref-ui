@@ -37,21 +37,15 @@ function TokenChart({ tokens, pool }: { tokens: TokenMetadata[]; pool: Pool }) {
   };
 
   function customLabel(props: any) {
-    const {
-      cx,
-      cy,
-      x,
-      y,
-      midAngle,
-      innerRadius,
-      outerRadius,
-      displayV,
-      token,
-    } = props;
+    let { cx, cy, x, y, midAngle, innerRadius, outerRadius, displayV, token } =
+      props;
     const RADIAN = Math.PI / 180;
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x1 = cx + radius * Math.cos(-midAngle * RADIAN) - 15;
     const y1 = cy + radius * Math.sin(-midAngle * RADIAN) - 15;
+    if (y < cy) {
+      y = y - 5;
+    }
     return (
       <g>
         <text
@@ -156,18 +150,18 @@ const calculateTokenValueAndShare = (
     (o) => Number(o)
   );
 
-  let otherTokenNumber = 0;
+  let otherTokenNumber = '0';
   tokens.forEach((token: any, index: number) => {
     const value = toReadableNumber(token.decimals, pool.supplies[token.id]);
     let percentStr: string | number;
     if (index == tokens.length - 1) {
-      percentStr = new BigNumber(100).minus(otherTokenNumber).toFixed();
+      percentStr = new BigNumber(100).minus(otherTokenNumber).toFixed(2);
     } else {
       percentStr = toPrecision(
         percent(value, totalShares.toString()).toString(),
         2
       );
-      otherTokenNumber += Number(percentStr);
+      otherTokenNumber = BigNumber.sum(otherTokenNumber, percentStr).valueOf();
     }
     result[token.id] = {
       token,
@@ -180,7 +174,6 @@ const calculateTokenValueAndShare = (
   return result;
 };
 const useTvl = (id: string) => {
-  // todo
   const [tvl, setTvl] = useState(0);
   useEffect(() => {
     getPoolsByIds({ pool_ids: [id] }).then((pools) => {
