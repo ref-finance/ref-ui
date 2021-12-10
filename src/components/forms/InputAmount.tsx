@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { TokenMetadata } from '~services/ft-contract';
+import { TokenBalancesView } from '~services/token';
 
 interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   max?: string;
   maxBorder?: boolean;
   showMaxAsBalance?: boolean;
-  onChangeAmount?: (amount: string) => void;
+  onChangeAmount?: (amount: string, balances?: TokenBalancesView) => void;
   iserror?: boolean;
 }
 
@@ -21,7 +22,8 @@ export default function InputAmount({
   const ref = useRef<HTMLInputElement>();
   const field = useRef<HTMLFieldSetElement>();
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
-  const cachedError = useRef(null);
+
+  const [isFocus, setIsFocus] = useState<boolean>(false);
 
   const handleChange = (amount: string) => {
     if (onChangeAmount) onChangeAmount(amount);
@@ -29,27 +31,16 @@ export default function InputAmount({
     ref.current.value = amount;
   };
 
-  const handleFocus = () => {
-    field.current.className = className + ' border border-greenLight rounded';
-  };
-
-  const handleFocusOut = () => {
-    field.current.className = className + ' border border-transparent rounded';
-  };
-
-  useEffect(() => {
-    if (iserror) {
-      field.current.className =
-        className + ' border border-transparent rounded';
-      cachedError.current = iserror;
-    } else if (!iserror && cachedError.current) {
-      field.current.className = className + ' border border-greenLight rounded';
-    }
-  }, [iserror]);
-
   return (
     <>
-      <fieldset className={className} ref={field}>
+      <fieldset
+        className={`${className} ${
+          isFocus && !iserror
+            ? ' border border-greenLight rounded'
+            : ' border border-transparent rounded'
+        }`}
+        ref={field}
+      >
         <div
           className={`relative flex align-center items-center ${
             iserror ? 'bg-error bg-opacity-30' : 'bg-inputDarkBg'
@@ -74,8 +65,12 @@ export default function InputAmount({
             onChange={({ target }) => handleChange(target.value)}
             disabled={disabled}
             onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
-            onFocus={() => handleFocus()}
-            onBlur={() => handleFocusOut()}
+            onFocus={() => {
+              setIsFocus(true);
+            }}
+            onBlur={() => {
+              setIsFocus(false);
+            }}
           />
           {max ? (
             <a

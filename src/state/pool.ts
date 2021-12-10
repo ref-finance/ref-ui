@@ -440,30 +440,3 @@ export const usePredictRemoveShares = ({
 
   return predictedRemoveShares;
 };
-
-export const useShareToBalances = ({
-  tokens,
-  shares,
-  pool,
-}: {
-  tokens: TokenMetadata[];
-  shares: string;
-  pool: Pool;
-}) => {
-  const [shareToBalances, setShareToBalances] = useState<TokenBalancesView>({});
-
-  const parsedShares = toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares);
-
-  useEffect(() => {
-    const balances = tokens.reduce((pre: TokenBalancesView, cur) => {
-      return {
-        ...pre,
-        [cur.id]: shareToAmount(pool, parsedShares, cur).toString(),
-      };
-    }, {});
-
-    setShareToBalances(balances);
-  }, [shares]);
-
-  return shareToBalances;
-};

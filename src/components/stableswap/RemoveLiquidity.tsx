@@ -23,12 +23,9 @@ import {
   removeLiquidityByTokensFromStablePool,
   removeLiquidityFromPool,
 } from '~services/pool';
+import { GetAmountToBalances } from '~services/stable-swap';
 import { TokenBalancesView } from '~services/token';
-import {
-  usePredictRemoveShares,
-  useRemoveLiquidity,
-  useShareToBalances,
-} from '~state/pool';
+import { usePredictRemoveShares, useRemoveLiquidity } from '~state/pool';
 import { useFarmStake } from '~state/farm';
 import {
   percent,
@@ -48,7 +45,6 @@ import { STABLE_LP_TOKEN_DECIMALS } from './AddLiquidity';
 import { InfoLine } from './LiquidityComponents';
 import StableTokenList, {
   FlexibleStableTokenList,
-  OneTokenSelector,
   StableTokensSymbol,
 } from './StableTokenList';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
@@ -99,11 +95,17 @@ export function RemoveLiquidityComponent(props: {
   const [canSubmitByShare, setCanSubmitByShare] = useState<boolean>(false);
   const [canSubmitByToken, setCanSubmitByToken] = useState<boolean>(false);
 
-  const [error, setError] = useState<Error>();
   const intl = useIntl();
   const [sharePercentage, setSharePercentage] = useState<string>('0');
   const progressBarIndex = [0, 25, 50, 75, 100];
   const [receiveAmounts, setReceiveAmounts] = useState<string[]>(['', '', '']);
+
+  const balances = GetAmountToBalances({
+    tokens,
+    pool,
+    amounts: [firstTokenAmount, secondTokenAmount, thirdTokenAmount],
+    userShare: shares,
+  });
 
   const farmStake = useFarmStake({
     poolId: pool.id,
@@ -126,45 +128,31 @@ export function RemoveLiquidityComponent(props: {
     firstAmount,
     secondAmount,
     thirdAmount,
-    tokens,
-    balances,
+    token,
+    setError,
+    amount,
+    max,
   }: {
     firstAmount: string;
     secondAmount: string;
     thirdAmount: string;
-    tokens: TokenMetadata[];
-    balances: TokenBalancesView;
+    token: TokenMetadata;
+    index: number;
+    amount: string;
+    max: string;
+    setError: (error: Error) => void;
   }) {
-    const firstTokenAmountBN = new BigNumber(firstAmount.toString());
-    const firstTokenBalanceBN = new BigNumber(balances[tokens[0].id]);
-    const secondTokenAmountBN = new BigNumber(secondAmount.toString());
-    const secondTokenBalanceBN = new BigNumber(balances[tokens[1].id]);
-    const thirdTokenAmountBN = new BigNumber(thirdAmount.toString());
-    const thirdTokenBalanceBN = new BigNumber(balances[tokens[2].id]);
     setError(null);
     setCanSubmitByToken(false);
 
-    if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
+    if (
+      new BigNumber(amount).isGreaterThan(new BigNumber(max)) &&
+      Number(amount) > 0
+    ) {
       throw new Error(
-        `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
-          tokens[0].symbol
-        )}`
-      );
-    }
-
-    if (secondTokenAmountBN.isGreaterThan(secondTokenBalanceBN)) {
-      throw new Error(
-        `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
-          tokens[1].symbol
-        )}`
-      );
-    }
-
-    if (thirdTokenAmountBN.isGreaterThan(thirdTokenBalanceBN)) {
-      throw new Error(
-        `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
-          tokens[2].symbol
-        )}`
+        `${intl.formatMessage({
+          id: 'out_of_avaliable_shares',
+        })} ${toRealSymbol(token.symbol)}`
       );
     }
 
@@ -222,12 +210,6 @@ export function RemoveLiquidityComponent(props: {
     }
   }
   const userTotalShare = BigNumber.sum(shares, farmStake);
-
-  const shareToBalances = useShareToBalances({
-    tokens,
-    pool,
-    shares,
-  });
 
   useEffect(() => {
     const rememberedSlippageTolerance =
@@ -440,10 +422,8 @@ export function RemoveLiquidityComponent(props: {
             ]}
             setAmountsFlexible={setAmountsFlexible}
             tokens={tokens}
-            balances={shareToBalances}
             validate={validate}
-            setError={setError}
-            error={error}
+            balances={balances}
           />
         </section>
       )}
@@ -500,11 +480,7 @@ export function RemoveLiquidityComponent(props: {
             disabled={!canSubmit}
             className={`focus:outline-none px-4 w-full text-lg`}
             onClick={async () => {
-              try {
-                canSubmit && submit();
-              } catch (error) {
-                setError(error);
-              }
+              canSubmit && submit();
             }}
           >
             <FormattedMessage

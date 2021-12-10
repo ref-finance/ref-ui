@@ -311,6 +311,7 @@ export const shareToAmount = (
   const tokenMaxAmount = Number(
     toReadableNumber(token.decimals, tokensAmount[token.id])
   );
+
   return shareRate * tokenMaxAmount;
 };
 
@@ -346,4 +347,36 @@ export const restAmount = (
 ) => {
   const share = restShare(pool, shareOne, shareTwo);
   return shareToAmount(pool, share.toString(), token);
+};
+
+export const GetAmountToBalances = ({
+  tokens,
+  pool,
+  amounts,
+  userShare,
+}: {
+  tokens: TokenMetadata[];
+  pool: Pool;
+  amounts: string[];
+  userShare: string;
+}) => {
+  const tokenShares = amounts.map((amount, i) =>
+    amountToShare(pool, amount, tokens[i])
+  );
+
+  const leftShares = new BigNumber(
+    toReadableNumber(STABLE_LP_TOKEN_DECIMALS, userShare)
+  ).minus(BigNumber.sum(...tokenShares));
+
+  const parsedLeftShares = leftShares.isGreaterThan(0)
+    ? leftShares.toNumber().toLocaleString('fullwide', { useGrouping: false })
+    : '0';
+
+  return tokens.reduce(
+    (pre, cur, i) => ({
+      ...pre,
+      [cur.id]: shareToAmount(pool, parsedLeftShares, tokens[i]).toString(),
+    }),
+    {}
+  );
 };
