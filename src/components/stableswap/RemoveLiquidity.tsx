@@ -91,19 +91,11 @@ export function RemoveLiquidityComponent(props: {
   const [amountByShare, setAmountByShare] = useState<string>('');
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
   const [canSubmitByShare, setCanSubmitByShare] = useState<boolean>(false);
-  const [canSubmitByToken, setCanSubmitByToken] = useState<boolean>(false);
-
-  const intl = useIntl();
+  const [error, setError] = useState<Error>(null);
   const [sharePercentage, setSharePercentage] = useState<string>('0');
   const progressBarIndex = [0, 25, 50, 75, 100];
   const [receiveAmounts, setReceiveAmounts] = useState<string[]>(['', '', '']);
-
-  const balances = GetAmountToBalances({
-    tokens,
-    pool,
-    amounts: [firstTokenAmount, secondTokenAmount, thirdTokenAmount],
-    userShare: shares,
-  });
+  const intl = useIntl();
 
   const farmStake = useFarmStake({
     poolId: pool.id,
@@ -116,52 +108,12 @@ export function RemoveLiquidityComponent(props: {
     setThirdTokenAmount,
   ];
 
-  const predicedRemoveShares = usePredictRemoveShares({
+  const { predictedRemoveShares, canSubmitByToken } = usePredictRemoveShares({
     pool_id: pool.id,
     amounts: [firstTokenAmount, secondTokenAmount, thirdTokenAmount],
     tokens,
-  });
-
-  function validate({
-    firstAmount,
-    secondAmount,
-    thirdAmount,
-    token,
     setError,
-    amount,
-    max,
-  }: {
-    firstAmount: string;
-    secondAmount: string;
-    thirdAmount: string;
-    token: TokenMetadata;
-    index: number;
-    amount: string;
-    max: string;
-    setError: (error: Error) => void;
-  }) {
-    setError(null);
-    setCanSubmitByToken(false);
-
-    if (
-      new BigNumber(amount).isGreaterThan(new BigNumber(max)) &&
-      Number(amount) > 0
-    ) {
-      throw new Error(
-        `${intl.formatMessage({
-          id: 'out_of_avaliable_shares',
-        })} ${toRealSymbol(token.symbol)}`
-      );
-    }
-
-    if (
-      Number(firstAmount) > 0 ||
-      Number(secondAmount) > 0 ||
-      Number(thirdAmount) > 0
-    ) {
-      setCanSubmitByToken(true);
-    }
-  }
+  });
 
   function submit() {
     if (isPercentage) {
@@ -195,10 +147,14 @@ export function RemoveLiquidityComponent(props: {
         return toNonDivisibleNumber(tokens[i].decimals, amount);
       }) as [string, string, string];
 
-      const max_burn_shares = toPrecision(
-        percentIncrese(slippageTolerance, predicedRemoveShares),
+      const predict_burn = toPrecision(
+        percentIncrese(slippageTolerance, predictedRemoveShares),
         0
       );
+
+      const max_burn_shares = new BigNumber(predict_burn).isGreaterThan(shares)
+        ? shares
+        : predict_burn;
 
       return removeLiquidityByTokensFromStablePool({
         id: pool.id,
@@ -207,15 +163,23 @@ export function RemoveLiquidityComponent(props: {
       });
     }
   }
-  const userTotalShare = BigNumber.sum(shares, farmStake);
 
   const calcSharesRemoved = () => {
-    const nonPrecisionValue = percentLess(
+    const nonPrecisionValue = percentIncrese(
       slippageTolerance,
-      toReadableNumber(STABLE_LP_TOKEN_DECIMALS, predicedRemoveShares)
+      toReadableNumber(STABLE_LP_TOKEN_DECIMALS, predictedRemoveShares)
     );
+
+    const myReadableShare = toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares);
+
+    if (error) return '0';
+
     return Number(nonPrecisionValue) > 0 && Number(nonPrecisionValue) < 0.001
       ? '< 0.001'
+      : new BigNumber(nonPrecisionValue).isGreaterThan(
+          new BigNumber(myReadableShare)
+        )
+      ? toPrecision(myReadableShare, 3)
       : toPrecision(nonPrecisionValue, 3);
   };
 
@@ -248,6 +212,8 @@ export function RemoveLiquidityComponent(props: {
       }
     });
   }, [sharePercentage, tokens, amountByShare]);
+
+  const userTotalShare = BigNumber.sum(shares, farmStake);
 
   const canSubmit =
     (isPercentage && canSubmitByShare) || (!isPercentage && canSubmitByToken);
@@ -429,8 +395,6 @@ export function RemoveLiquidityComponent(props: {
             ]}
             setAmountsFlexible={setAmountsFlexible}
             tokens={tokens}
-            validate={validate}
-            balances={balances}
           />
         </section>
       )}
@@ -473,6 +437,15 @@ export function RemoveLiquidityComponent(props: {
             />
           </div>
           <div className="text-white">{calcSharesRemoved()}</div>
+        </div>
+
+        <div className="flex justify-center mx-2">
+          {error && (
+            <Alert
+              level="error"
+              message={intl.formatMessage({ id: error.message })}
+            />
+          )}
         </div>
 
         {wallet.isSignedIn() ? (

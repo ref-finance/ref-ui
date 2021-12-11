@@ -374,9 +374,13 @@ export default function AddLiquidityComponent(props: {
         <ChooseAddType addType={addType} setAddType={setAddType} />
 
         <div className="flex justify-center mx-2">
-          {error && <Alert level="error" message={error.message} />}
+          {error && (
+            <Alert
+              level="error"
+              message={intl.formatMessage({ id: error.message })}
+            />
+          )}
         </div>
-
         <div className="text-xs px-8 pt-2 mt-6 border-t border-primaryText border-opacity-30">
           <StableSlipSelecter
             slippageTolerance={slippageTolerance}

@@ -413,11 +413,15 @@ export const usePredictRemoveShares = ({
   pool_id,
   amounts,
   tokens,
+  setError,
 }: {
   pool_id: number;
   amounts: string[];
   tokens: TokenMetadata[];
+  setError: (e: Error) => void;
 }) => {
+  const [canSubmitByToken, setCanSubmitByToken] = useState<boolean>(false);
+
   const [predictedRemoveShares, setPredictedRemoveShares] =
     useState<string>('0');
 
@@ -432,11 +436,21 @@ export const usePredictRemoveShares = ({
       setPredictedRemoveShares('0');
       return;
     }
-
-    predictRemoveLiquidityByTokens(pool_id, parsedAmounts).then(
-      setPredictedRemoveShares
-    );
+    setError(null);
+    setCanSubmitByToken(false);
+    predictRemoveLiquidityByTokens(pool_id, parsedAmounts)
+      .then((res) => {
+        setPredictedRemoveShares(res);
+        setCanSubmitByToken(true);
+      })
+      .catch(() => {
+        setError(new Error('out_of_avaliable_shares'));
+        setCanSubmitByToken(false);
+      });
   }, [...amounts]);
 
-  return predictedRemoveShares;
+  return {
+    predictedRemoveShares,
+    canSubmitByToken,
+  };
 };

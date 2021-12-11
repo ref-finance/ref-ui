@@ -37,41 +37,17 @@ export function Icon(props: {
 export function FlexibleStableToken({
   token,
   amountsFlexible,
-  balances,
   setAmountFlexible,
   index,
-  validate,
 }: {
   token: TokenMetadata;
   amountsFlexible: string[];
-  balances: TokenBalancesView;
   setAmountFlexible: (e: string) => void;
   index: number;
-  validate: (e: {
-    firstAmount: string;
-    secondAmount: string;
-    thirdAmount: string;
-    token: TokenMetadata;
-    index: number;
-    setError: (error: Error) => void;
-    amount: string;
-    max: string;
-  }) => void;
 }) {
-  const intil = useIntl();
-
-  const [error, setError] = useState<Error>(null);
-
-  const calcMax = (amountIn: string, amountLeft: string) => {
-    const max = BigNumber.sum(amountIn || '0', amountLeft)
-      .toNumber()
-      .toLocaleString('fullwide', { useGrouping: false });
-    return max;
-  };
-
   return (
     <div className="flex flex-col">
-      <div className="w-full flex items-start">
+      <div className="w-full flex items-start mb-8">
         <div className="flex items-center mr-4 mt-1 w-1/4">
           <Icon icon={token.icon} className="h-9 w-9 mr-2" />
           <div className="text-white text-sm" title={token.id}>
@@ -81,45 +57,9 @@ export function FlexibleStableToken({
         <div className="w-full flex flex-col">
           <InputAmount
             className="w-full border border-transparent rounded"
-            max={calcMax(amountsFlexible[index], balances[token.id])}
-            onChangeAmount={(amount) => {
-              try {
-                validate({
-                  token,
-                  firstAmount: index === 0 ? amount : amountsFlexible[0],
-                  secondAmount: index === 1 ? amount : amountsFlexible[1],
-                  thirdAmount: index == 2 ? amount : amountsFlexible[2],
-                  setError,
-                  index,
-                  amount,
-                  max: calcMax(amountsFlexible[index], balances[token.id]),
-                });
-              } catch (error) {
-                setError(error);
-              }
-              setAmountFlexible(amount);
-            }}
+            onChangeAmount={setAmountFlexible}
             value={amountsFlexible[index]}
-            iserror={!!error}
           />
-          <div
-            className={`w-full flex items-center ${
-              !!error ? 'justify-between' : 'justify-end'
-            } `}
-          >
-            {!!error && (
-              <Alert
-                level="error"
-                message={intil.formatMessage({
-                  id: 'out_of_avaliable_shares',
-                })}
-              />
-            )}
-
-            <div className="text-xs text-right mt-1 mb-4 text-primaryText">
-              {toPrecision(balances[token.id], 2, true)}
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -245,22 +185,9 @@ export function FlexibleStableTokenList(props: {
   tokens: TokenMetadata[];
   amountsFlexible: string[];
   setAmountsFlexible: ((e: string) => void)[];
-  validate: (e: {
-    firstAmount: string;
-    secondAmount: string;
-    thirdAmount: string;
-    token: TokenMetadata;
-    index: number;
-    setError: (error: Error) => void;
-    amount: string;
-    max: string;
-  }) => void;
-  balances: TokenBalancesView;
 }) {
-  const { tokens, amountsFlexible, setAmountsFlexible, validate, balances } =
-    props;
+  const { tokens, amountsFlexible, setAmountsFlexible } = props;
   if (tokens.length < 1) return null;
-
   return (
     <div>
       {tokens.map((token, i) => {
@@ -270,8 +197,6 @@ export function FlexibleStableTokenList(props: {
             index={i}
             key={i}
             amountsFlexible={amountsFlexible}
-            validate={validate}
-            balances={balances}
             setAmountFlexible={setAmountsFlexible[i]}
           />
         );

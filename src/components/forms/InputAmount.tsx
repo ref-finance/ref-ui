@@ -7,7 +7,6 @@ interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   maxBorder?: boolean;
   showMaxAsBalance?: boolean;
   onChangeAmount?: (amount: string, balances?: TokenBalancesView) => void;
-  iserror?: boolean;
 }
 
 export default function InputAmount({
@@ -16,7 +15,6 @@ export default function InputAmount({
   onChangeAmount,
   disabled = false,
   maxBorder = true,
-  iserror,
   ...rest
 }: InputAmountProps) {
   const ref = useRef<HTMLInputElement>();
@@ -35,16 +33,14 @@ export default function InputAmount({
     <>
       <fieldset
         className={`${className} ${
-          isFocus && !iserror
+          isFocus
             ? ' border border-greenLight rounded'
             : ' border border-transparent rounded'
         }`}
         ref={field}
       >
         <div
-          className={`relative flex align-center items-center ${
-            iserror ? 'bg-error bg-opacity-30' : 'bg-inputDarkBg'
-          }  rounded`}
+          className={`relative flex align-center items-center bg-inputDarkBg rounded`}
         >
           <input
             ref={ref}
@@ -54,11 +50,7 @@ export default function InputAmount({
             {...rest}
             step="any"
             className={`xs:text-sm text-lg font-bold w-full p-2 ${
-              disabled
-                ? 'text-gray-200 placeholder-gray-200'
-                : iserror
-                ? 'text-error'
-                : 'text-white'
+              disabled ? 'text-gray-200 placeholder-gray-200' : 'text-white'
             }`}
             type="number"
             placeholder="0.0"
