@@ -5,13 +5,13 @@ import Alert from '~components/alert/Alert';
 import TipsBox from '~components/farm/TipsBox';
 import CalcModel, { CalcEle, LinkPool } from '~components/farm/CalcModel';
 import UnClaim from '~components/farm/UnClaim';
+import QuestionMark from '~components/farm/QuestionMark';
 import {
   FarmMiningIcon,
   ModalClose,
   ArrowDown,
   Dots,
   Light,
-  QuestionMark,
   Calc,
   ArrowDownHollow,
   Checkbox,
@@ -531,7 +531,7 @@ export function FarmsPage() {
                     data-tip={valueOfRewardsTip()}
                     data-for="yourRewardsId"
                   >
-                    <FaRegQuestionCircle />
+                    <QuestionMark />
                     <ReactTooltip
                       className="w-20"
                       id="yourRewardsId"
