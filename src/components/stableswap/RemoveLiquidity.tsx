@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 import React, { useEffect } from 'react';
 import { useState } from 'react';
 import ReactTooltip from 'react-tooltip';
-
+import { wallet } from '~services/near';
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 import { FormattedMessage, useIntl } from 'react-intl';
 import Alert from '~components/alert/Alert';
@@ -13,9 +13,7 @@ import {
   PoolSlippageSelector,
   StableSlipSelecter,
 } from '~components/forms/SlippageSelector';
-import { Near } from '~components/icon';
 import { TokenMetadata } from '~services/ft-contract';
-import { REF_FARM_CONTRACT_ID, wallet } from '~services/near';
 import {
   Pool,
   predictRemoveLiquidity,
@@ -211,6 +209,16 @@ export function RemoveLiquidityComponent(props: {
   }
   const userTotalShare = BigNumber.sum(shares, farmStake);
 
+  const calcSharesRemoved = () => {
+    const nonPrecisionValue = percentLess(
+      slippageTolerance,
+      toReadableNumber(STABLE_LP_TOKEN_DECIMALS, predicedRemoveShares)
+    );
+    return Number(nonPrecisionValue) > 0 && Number(nonPrecisionValue) < 0.001
+      ? '< 0.001'
+      : toPrecision(nonPrecisionValue, 3);
+  };
+
   useEffect(() => {
     const rememberedSlippageTolerance =
       localStorage.getItem(SWAP_SLIPPAGE_KEY) || slippageTolerance;
@@ -236,8 +244,7 @@ export function RemoveLiquidityComponent(props: {
         setReceiveAmounts(['0', '0', '0']);
       } else {
         setCanSubmitByShare(true);
-        const finalAmounts = res.map((amount, i) => toPrecision(amount, 0));
-        setReceiveAmounts(finalAmounts);
+        setReceiveAmounts(res);
       }
     });
   }, [sharePercentage, tokens, amountByShare]);
@@ -450,7 +457,6 @@ export function RemoveLiquidityComponent(props: {
             <StableTokensSymbol
               tokens={tokens}
               receiveAmounts={receiveAmounts}
-              withPlus
               slippageTolerance={slippageTolerance}
             />
           )}
@@ -466,13 +472,7 @@ export function RemoveLiquidityComponent(props: {
               defaultMessage="Shares removed"
             />
           </div>
-          <div className="text-white">
-            {toRoundedReadableNumber({
-              decimals: STABLE_LP_TOKEN_DECIMALS,
-              number: percentIncrese(slippageTolerance, predicedRemoveShares),
-              precision: 3,
-            })}
-          </div>
+          <div className="text-white">{calcSharesRemoved()}</div>
         </div>
 
         {wallet.isSignedIn() ? (

@@ -283,43 +283,52 @@ export function FlexibleStableTokenList(props: {
 export function StableTokensSymbol(props: {
   tokens: TokenMetadata[];
   receiveAmounts: string[];
-  withPlus?: boolean;
   slippageTolerance: number;
 }) {
-  const { tokens, receiveAmounts, withPlus, slippageTolerance } = props;
+  const { tokens, receiveAmounts, slippageTolerance } = props;
+
+  const calcTokenReceived = (receiveAmount: string, token: TokenMetadata) => {
+    const nonPrecisionAmount = percentLess(
+      slippageTolerance,
+      toReadableNumber(token.decimals, receiveAmount)
+    );
+
+    return Number(nonPrecisionAmount) < 0.001 && Number(nonPrecisionAmount) > 0
+      ? '< 0.001'
+      : toPrecision(nonPrecisionAmount, 3);
+  };
 
   return (
     <div className="flex mb-6 items-center justify-between">
-      {Array(withPlus ? 5 : 3)
-        .fill({})
-        .map((t, i) => {
-          if (i % 2 && withPlus) return <div key={i}>+</div>;
-          else {
-            const token = tokens[withPlus ? Math.floor(i / 2) : i];
-
-            return (
-              <div className="flex" key={i}>
-                <Icon icon={token.icon} className="inline-block h-9 w-9 mr-2" />
-                <div className="ml-2 inline-block">
-                  <p className="text-sm">{toRealSymbol(token.symbol)}</p>
-                  <div className="text-xs">
-                    {toPrecision(
-                      percentLess(
-                        slippageTolerance,
-                        toReadableNumber(
-                          token.decimals,
-                          receiveAmounts[withPlus ? Math.floor(i / 2) : i]
-                        )
-                      ),
-                      3,
-                      true
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          }
-        })}
+      <div className="flex">
+        <Icon icon={tokens[0].icon} className="inline-block h-9 w-9 mr-2" />
+        <div className="ml-2 inline-block">
+          <p className="text-sm">{toRealSymbol(tokens[0].symbol)}</p>
+          <div className="text-xs">
+            {calcTokenReceived(receiveAmounts[0], tokens[0])}
+          </div>
+        </div>
+      </div>
+      <div> + </div>
+      <div className="flex">
+        <Icon icon={tokens[1].icon} className="inline-block h-9 w-9 mr-2" />
+        <div className="ml-2 inline-block">
+          <p className="text-sm">{toRealSymbol(tokens[1].symbol)}</p>
+          <div className="text-xs">
+            {calcTokenReceived(receiveAmounts[1], tokens[1])}
+          </div>
+        </div>
+      </div>
+      <div> + </div>
+      <div className="flex">
+        <Icon icon={tokens[2].icon} className="inline-block h-9 w-9 mr-2" />
+        <div className="ml-2 inline-block">
+          <p className="text-sm">{toRealSymbol(tokens[2].symbol)}</p>
+          <div className="text-xs">
+            {calcTokenReceived(receiveAmounts[2], tokens[2])}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

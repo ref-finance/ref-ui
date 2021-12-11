@@ -60,16 +60,18 @@ export function myShares({
     displayPercent = '< 0.001';
   } else displayPercent = toPrecision(String(sharePercent), 3);
 
-  return (
-    toRoundedReadableNumber({
-      decimals: STABLE_LP_TOKEN_DECIMALS,
-      number: displayUserTotalShare,
-      precision: 6,
-      withCommas: false,
-    }) +
-    ' ' +
-    `(${displayPercent}%)`
+  const nonPrecisionDisplayUserTotalShares = toReadableNumber(
+    STABLE_LP_TOKEN_DECIMALS,
+    displayUserTotalShare
   );
+
+  const inPrecisionDisplayUserTotalShares =
+    Number(nonPrecisionDisplayUserTotalShares) > 0 &&
+    Number(nonPrecisionDisplayUserTotalShares) < 0.001
+      ? '< 0.001'
+      : toPrecision(nonPrecisionDisplayUserTotalShares, 3);
+
+  return inPrecisionDisplayUserTotalShares + ' ' + `(${displayPercent}%)`;
 }
 
 export default function AddLiquidityComponent(props: {
@@ -400,7 +402,7 @@ export default function AddLiquidityComponent(props: {
                   .toNumber()
                   .toLocaleString('fullwide', { useGrouping: false }),
                 userTotalShare: new BigNumber(
-                  percentLess(slippageTolerance, predicedShares)
+                  toPrecision(percentLess(slippageTolerance, predicedShares), 0)
                 ),
               })}
             </div>
