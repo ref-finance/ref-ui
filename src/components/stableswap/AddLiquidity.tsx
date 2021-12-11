@@ -329,7 +329,10 @@ export default function AddLiquidityComponent(props: {
       return;
     }
 
-    const min_shares = percentLess(slippageTolerance, predicedShares);
+    const min_shares = toPrecision(
+      percentLess(slippageTolerance, predicedShares),
+      0
+    );
 
     const amounts = [firstTokenAmount, secondTokenAmount, thirdTokenAmount].map(
       (amount, i) => toNonDivisibleNumber(tokens[i].decimals, amount)
