@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import { Icon } from './StableTokenList';
 import { FormattedMessage } from 'react-intl';
-import { TokenMetadata } from '~services/ft-contract';
 import { UnCheckedRadio, CheckedRadio, Radio } from '~components/icon';
 
 // stable swap exchange rate

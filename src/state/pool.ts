@@ -38,6 +38,7 @@ import { TokenMetadata } from '~services/ft-contract';
 import { TokenBalancesView } from '~services/token';
 import { shareToAmount } from '~services/stable-swap';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
+import BigNumber from 'bignumber.js';
 
 export const usePool = (id: number | string) => {
   const [pool, setPool] = useState<PoolDetails>();
@@ -414,11 +415,13 @@ export const usePredictRemoveShares = ({
   amounts,
   tokens,
   setError,
+  shares,
 }: {
   pool_id: number;
   amounts: string[];
   tokens: TokenMetadata[];
   setError: (e: Error) => void;
+  shares: string;
 }) => {
   const [canSubmitByToken, setCanSubmitByToken] = useState<boolean>(false);
 
@@ -431,17 +434,27 @@ export const usePredictRemoveShares = ({
     return toNonDivisibleNumber(tokens[i].decimals, amount || '0');
   });
 
+  function validate(predictedShare: string) {
+    if (new BigNumber(predictedShare).isGreaterThan(new BigNumber(shares))) {
+      setCanSubmitByToken(false);
+      setError(new Error('out_of_avaliable_shares'));
+    } else {
+      setCanSubmitByToken(true);
+    }
+  }
+
   useEffect(() => {
+    setError(null);
     if (zeroValidate) {
       setPredictedRemoveShares('0');
+      setCanSubmitByToken(false);
       return;
     }
-    setError(null);
     setCanSubmitByToken(false);
     predictRemoveLiquidityByTokens(pool_id, parsedAmounts)
       .then((res) => {
+        validate(res);
         setPredictedRemoveShares(res);
-        setCanSubmitByToken(true);
       })
       .catch(() => {
         setError(new Error('out_of_avaliable_shares'));

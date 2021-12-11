@@ -93,6 +93,7 @@ export function RemoveLiquidityComponent(props: {
     Number(localStorage.getItem(SWAP_SLIPPAGE_KEY)) || 0.5
   );
   const [canSubmitByShare, setCanSubmitByShare] = useState<boolean>(false);
+
   const [error, setError] = useState<Error>(null);
   const [sharePercentage, setSharePercentage] = useState<string>('0');
   const progressBarIndex = [0, 25, 50, 75, 100];
@@ -115,6 +116,7 @@ export function RemoveLiquidityComponent(props: {
     amounts: [firstTokenAmount, secondTokenAmount, thirdTokenAmount],
     tokens,
     setError,
+    shares,
   });
 
   function submit() {
@@ -434,8 +436,8 @@ export function RemoveLiquidityComponent(props: {
           <div className="text-white">{calcSharesRemoved()}</div>
         </div>
 
-        <div className="flex justify-center mx-2">
-          {error && (
+        <div className="flex justify-center mx-2 mb-1">
+          {error && !isPercentage && (
             <Alert
               level="error"
               message={intl.formatMessage({ id: error.message })}
