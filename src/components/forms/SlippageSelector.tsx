@@ -6,6 +6,7 @@ import { isMobile } from '~utils/device';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 import { IoCloseOutline, IoWarning } from 'react-icons/io5';
 import { SWAP_USE_NEAR_BALANCE_KEY } from '~components/swap/SwapCard';
+import QuestionMark from '~components/farm/QuestionMark';
 
 export default function SlippageSelector({
   slippageTolerance,
@@ -118,7 +119,7 @@ export default function SlippageSelector({
                   data-multiline={true}
                   data-tip={intl.formatMessage({ id: slippageCopyId })}
                 >
-                  <FaRegQuestionCircle />
+                  <QuestionMark />
                 </div>
                 <ReactTooltip
                   className="text-xs text-left shadow-4xl"
@@ -212,7 +213,7 @@ export default function SlippageSelector({
                   data-multiline={true}
                   data-tip={intl.formatMessage({ id: 'selectBalanceCopy' })}
                 >
-                  <FaRegQuestionCircle />
+                  <QuestionMark />
                 </div>
                 <ReactTooltip
                   className="text-xs text-left shadow-4xl"
@@ -297,7 +298,7 @@ export function PoolSlippageSelector({
               data-multiline={true}
               data-tip={intl.formatMessage({ id: slippageCopyId })}
             >
-              <FaRegQuestionCircle className="text-sm" />
+              <QuestionMark />
             </div>
             <ReactTooltip
               className="text-xs text-left shadow-4xl"
@@ -407,7 +408,7 @@ export function StableSlipSelecter({
               data-multiline={true}
               data-tip={intl.formatMessage({ id: slippageCopyId })}
             >
-              <FaRegQuestionCircle />
+              <QuestionMark />
             </div>
             <ReactTooltip
               className="text-xs text-left shadow-4xl"

@@ -43,6 +43,7 @@ import {
 } from '~components/icon/WatchListStar';
 import { PolygonGrayDown } from '~components/icon/Polygon';
 import _, { orderBy, sortBy, filter } from 'lodash';
+import QuestionMark from '~components/farm/QuestionMark';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -168,7 +169,7 @@ function MobileWatchListCard({ watchPools }: { watchPools: Pool[] }) {
             {watchPools.length > 0 ? ` (${watchPools.length})` : ''}
           </div>
           <div>
-            <FaRegQuestionCircle
+            <QuestionMark
               data-type="dark"
               data-place="right"
               data-multiline={true}
@@ -300,7 +301,7 @@ function MobileLiquidityPage({
               Top Pools
             </div>
             <div>
-              <FaRegQuestionCircle
+              <QuestionMark
                 data-type="dark"
                 data-place="right"
                 data-multiline={true}
@@ -528,7 +529,7 @@ function WatchListCard({ watchPools }: { watchPools: Pool[] }) {
           >
             <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
           </div>
-          <FaRegQuestionCircle
+          <QuestionMark
             data-type="dark"
             data-place="right"
             data-multiline={true}
@@ -650,7 +651,7 @@ function LiquidityPage_({
                   (allPools ? allPools : '-')}
               </div>
 
-              <FaRegQuestionCircle
+              <QuestionMark
                 data-type="dark"
                 data-place="right"
                 data-multiline={true}

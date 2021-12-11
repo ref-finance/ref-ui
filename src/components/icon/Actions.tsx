@@ -709,6 +709,7 @@ const viewMap = {
   Deposit: Deposit,
   'Instant swap': Swap,
   'Near withdraw': Withdraw,
+  'Add Stable liquidity': AddLiquidity,
 };
 
 const blackViewMap = {
@@ -729,6 +730,7 @@ const blackViewMap = {
   Deposit: DepositBlack,
   'Instant swap': Swap,
   'Near withdraw': WithdrawBlack,
+  'Add Stable liquidity': AddLiquidityBlack,
 };
 
 export function mapToView(action: string, black = false): JSX.Element {
