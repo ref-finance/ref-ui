@@ -32,7 +32,9 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
   const [tokenIn, setTokenIn] = useState<TokenMetadata>(tokens[0]);
   const [tokenOut, setTokenOut] = useState<TokenMetadata>(tokens[1]);
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
-  const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
+  const [slippageTolerance, setSlippageTolerance] = useState<number>(
+    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY)) || 0.5
+  );
   const [disabled, setDisabled] = useState<boolean>(false);
   const [useNearBalance, setUseNearBalance] = useState<boolean>(
     localStorage.getItem(STABLE_SWAP_USE_NEAR_BALANCE_KEY) != 'false'
@@ -94,13 +96,6 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
       }
     }
   }, [tokenIn, tokenOut, useNearBalance]);
-
-  useEffect(() => {
-    const rememberedSlippageTolerance =
-      localStorage.getItem(SWAP_SLIPPAGE_KEY) || slippageTolerance;
-
-    setSlippageTolerance(Number(rememberedSlippageTolerance));
-  }, []);
 
   const tokenInMax = useNearBalance
     ? tokenInBalanceFromNear || '0'

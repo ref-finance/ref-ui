@@ -28,8 +28,6 @@ export default function SlippageSelector({
   const [invalid, setInvalid] = useState(false);
   const [warn, setWarn] = useState(false);
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
-  // const useNearBalance =
-  //   localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) || 'true';
 
   const openToolTip = (e: any) => {
     e.nativeEvent.stopImmediatePropagation();
@@ -77,6 +75,20 @@ export default function SlippageSelector({
       document.onclick = null;
     };
   }, [showSlip, invalid]);
+
+  useEffect(() => {
+    if (slippageTolerance > 0 && slippageTolerance < 100) {
+      if (slippageTolerance > 1) {
+        setWarn(true);
+      } else {
+        setWarn(false);
+      }
+      setInvalid(false);
+    } else {
+      setInvalid(true);
+      setWarn(false);
+    }
+  }, []);
 
   return (
     <div className="relative z-10">
@@ -388,7 +400,7 @@ export function StableSlipSelecter({
   }, [showSlip, invalid]);
   useEffect(() => {
     handleChange(slippageTolerance.toString());
-  }, [slippageTolerance]);
+  }, []);
 
   return (
     <div className="relative z-10">

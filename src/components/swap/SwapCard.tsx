@@ -248,7 +248,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
-  const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
+
   const [useNearBalance, setUseNearBalance] = useState<boolean>(
     localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) != 'false'
   );
@@ -266,19 +266,25 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const history = useHistory();
 
   const balances = useTokenBalances();
-
+  const [urlTokenIn, urlTokenOut, urlSlippageTolerance] = decodeURIComponent(
+    location.hash.slice(1)
+  ).split(TOKEN_URL_SEPARATOR);
+  const [slippageTolerance, setSlippageTolerance] = useState<number>(
+    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY) || urlSlippageTolerance) ||
+      0.5
+  );
   useEffect(() => {
-    const [urlTokenIn, urlTokenOut, urlSlippageTolerance] = decodeURIComponent(
-      location.hash.slice(1)
-    ).split(TOKEN_URL_SEPARATOR);
+    // const [urlTokenIn, urlTokenOut, urlSlippageTolerance] = decodeURIComponent(
+    //   location.hash.slice(1)
+    // ).split(TOKEN_URL_SEPARATOR);
     const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
     const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
-    const rememberedSlippageTolerance =
-      localStorage.getItem(SWAP_SLIPPAGE_KEY) ||
-      slippageTolerance ||
-      urlSlippageTolerance;
+    // const rememberedSlippageTolerance =
+    //   localStorage.getItem(SWAP_SLIPPAGE_KEY) ||
+    //   slippageTolerance ||
+    //   urlSlippageTolerance;
 
-    setSlippageTolerance(Number(rememberedSlippageTolerance));
+    // setSlippageTolerance(Number(rememberedSlippageTolerance));
 
     if (allTokens) {
       setTokenIn(
