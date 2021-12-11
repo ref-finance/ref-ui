@@ -86,7 +86,9 @@ export default function AddLiquidityComponent(props: {
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');
   const [addType, setAddType] = useState<string>('addAll');
-  const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
+  const [slippageTolerance, setSlippageTolerance] = useState<number>(
+    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY)) || 0.5
+  );
   const [messageId, setMessageId] = useState<string>('add_liquidity');
   const [defaultMessage, setDefaultMessage] = useState<string>('Add Liquidity');
   const [error, setError] = useState<Error>();
@@ -120,13 +122,6 @@ export default function AddLiquidityComponent(props: {
       setThirdTokenAmount('');
     }
   }, [addType]);
-
-  useEffect(() => {
-    const rememberedSlippageTolerance =
-      localStorage.getItem(SWAP_SLIPPAGE_KEY) || slippageTolerance;
-
-    setSlippageTolerance(Number(rememberedSlippageTolerance));
-  }, []);
 
   if (!balances) return null;
 
@@ -374,12 +369,7 @@ export default function AddLiquidityComponent(props: {
         <ChooseAddType addType={addType} setAddType={setAddType} />
 
         <div className="flex justify-center mx-2">
-          {error && (
-            <Alert
-              level="error"
-              message={intl.formatMessage({ id: error.message })}
-            />
-          )}
+          {error && <Alert level="error" message={error.message} />}
         </div>
         <div className="text-xs px-8 pt-2 mt-6 border-t border-primaryText border-opacity-30">
           <StableSlipSelecter

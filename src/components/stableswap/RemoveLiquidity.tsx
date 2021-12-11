@@ -89,7 +89,9 @@ export function RemoveLiquidityComponent(props: {
   const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');
   const [isPercentage, setIsPercentage] = useState<boolean>(true);
   const [amountByShare, setAmountByShare] = useState<string>('');
-  const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
+  const [slippageTolerance, setSlippageTolerance] = useState<number>(
+    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY)) || 0.5
+  );
   const [canSubmitByShare, setCanSubmitByShare] = useState<boolean>(false);
   const [error, setError] = useState<Error>(null);
   const [sharePercentage, setSharePercentage] = useState<string>('0');
@@ -182,13 +184,6 @@ export function RemoveLiquidityComponent(props: {
       ? toPrecision(myReadableShare, 3)
       : toPrecision(nonPrecisionValue, 3);
   };
-
-  useEffect(() => {
-    const rememberedSlippageTolerance =
-      localStorage.getItem(SWAP_SLIPPAGE_KEY) || slippageTolerance;
-
-    setSlippageTolerance(Number(rememberedSlippageTolerance));
-  }, []);
 
   useEffect(() => {
     const readableShares = toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares);

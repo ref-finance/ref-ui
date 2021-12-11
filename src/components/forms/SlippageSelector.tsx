@@ -386,7 +386,7 @@ export function StableSlipSelecter({
     };
   }, [showSlip, invalid]);
   useEffect(() => {
-    ref.current.value = slippageTolerance.toString();
+    handleChange(slippageTolerance.toString());
   }, [slippageTolerance]);
 
   return (
