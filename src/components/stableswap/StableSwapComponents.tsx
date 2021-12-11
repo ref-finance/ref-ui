@@ -6,20 +6,50 @@ import { TokenMetadata } from '~services/ft-contract';
 import { UnCheckedRadio, CheckedRadio, Radio } from '~components/icon';
 import { useIntl } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
-import {
-  SwapDetail,
-  SwapRateDetail,
-  GetPriceImpact,
-  getPriceImpactTipType,
-} from '~components/swap/SwapCard';
+import { SwapDetail, SwapRateDetail } from '~components/swap/SwapCard';
 import { toRealSymbol } from '~utils/token';
+import { WarnTriangle, ErrorTriangle } from '~components/icon/SwapRefresh';
+
 import {
   calculateExchangeRate,
   toPrecision,
   toReadableNumber,
+  calcStableSwapPriceImpact,
 } from '~utils/numbers';
 
-// stable swap radio list
+const GetPriceImpact = (from: string, to: string) => {
+  // TODO: minus fee to calculate to
+
+  const value = calcStableSwapPriceImpact(from, to);
+
+  const textColor =
+    Number(value) <= 1
+      ? 'text-greenLight'
+      : 1 < Number(value) && Number(value) <= 2
+      ? 'text-warn'
+      : 'text-error';
+
+  return Number(value) < 0.01 ? (
+    <span className="text-greenLight">{'< -0.01%'}</span>
+  ) : (
+    <span className={`${textColor}`}>{`≈ -${toPrecision(value, 2)}%`}</span>
+  );
+};
+
+const getPriceImpactTipType = (from: string, to: string) => {
+  // TODO: minus fee to calculate to
+
+  const value = calcStableSwapPriceImpact(from, to);
+
+  const reault =
+    1 < Number(value) && Number(value) <= 2 ? (
+      <WarnTriangle></WarnTriangle>
+    ) : Number(value) > 2 && Number(value) != Infinity ? (
+      <ErrorTriangle></ErrorTriangle>
+    ) : null;
+  return reault;
+};
+
 export function TokensRadio({
   tokens,
   tokenIn,
@@ -85,7 +115,6 @@ export function TokensRadio({
   );
 }
 
-//swap animation
 export function SwapAnimation({
   tokenOut,
   tokenIn,
@@ -166,9 +195,7 @@ export function DetailView({
         }}
       >
         <div className="flex items-center text-white cursor-pointer">
-          <label className="mr-2">
-            {getPriceImpactTipType(pool, tokenIn, tokenOut, from)}
-          </label>
+          <label className="mr-2">{getPriceImpactTipType(from, to)}</label>
           <p className="block text-xs">
             <FormattedMessage id="details" defaultMessage="Details" />
           </p>
@@ -203,11 +230,7 @@ export function DetailView({
             id: 'price_impact',
             defaultMessage: 'Price Impact',
           })}
-          value={
-            !to || to === '0' || !canSwap
-              ? '-'
-              : GetPriceImpact(pool, tokenIn, tokenOut, from)
-          }
+          value={!to || to === '0' || !canSwap ? '-' : GetPriceImpact(from, to)}
         />
       </div>
     </div>

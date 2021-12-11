@@ -235,3 +235,12 @@ export function scientificNotationToString(strParam: string) {
     return basis.padStart(index + basis.length, '0').replace(/^0/, '0.');
   }
 }
+
+export const calcStableSwapPriceImpact = (from: string, to: string) => {
+  return math.format(
+    convertToPercentDecimal(math.evaluate(`(${from} / ${to}) - 1`)),
+    {
+      notation: 'fixed',
+    }
+  );
+};
