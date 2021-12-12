@@ -14,6 +14,7 @@ import { Toggle } from '~components/toggle';
 import Alert from '~components/alert/Alert';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { toRealSymbol } from '~utils/token';
+import BigNumber from 'bignumber.js';
 
 export function AddPoolPage() {
   const tokens = useWhitelistTokens();
@@ -22,8 +23,13 @@ export function AddPoolPage() {
   const [token2, setToken2] = useState<TokenMetadata | null>(null);
   const [fee, setFee] = useState('0.30');
   const [error, setError] = useState<Error>();
+  const [errorKey, setErrorKey] = useState<string>();
   const intl = useIntl();
-
+  const tip: any = {
+    moreThan: intl.formatMessage({ id: 'more_than' }),
+    lessThan: intl.formatMessage({ id: 'less_than' }),
+    noValid: intl.formatMessage({ id: 'no_valid' }),
+  };
   if (!tokens || !balances) return <Loading />;
 
   const render = (token: TokenMetadata) => {
@@ -49,7 +55,6 @@ export function AddPoolPage() {
         </div>
       );
     };
-
     return (
       <div className="flex h-10 justify-between items-center px-3 py-3 bg-inputDarkBg text-white relative flex overflow-hidden rounded align-center my-2">
         {/* <Icon token={props.token} /> */}
@@ -63,7 +68,11 @@ export function AddPoolPage() {
     );
   };
   const canSubmit =
-    !!fee && Number(fee) > 0 && Number(fee) < 20 && !!token1 && !!token2;
+    !!fee &&
+    new BigNumber(fee).isGreaterThanOrEqualTo('0.01') &&
+    new BigNumber(fee).isLessThan('20') &&
+    !!token1 &&
+    !!token2;
 
   return (
     <div className="flex items flex-col xl:w-1/3 2xl:w-1/3 3xl:w-1/4 lg:w-1/2 md:w-5/6 xs:w-full xs:p-2 m-auto">
@@ -124,24 +133,32 @@ export function AddPoolPage() {
               { label: '0.60%', value: '0.60' },
             ]}
             onChange={(v) => {
+              setFee(v);
               if (!v || Number(v) <= 0) {
-                setFee(v);
-                setError(new Error('Please input valid number'));
+                setErrorKey('noValid');
                 return;
               } else {
-                setFee((parseFloat(v) + Number.EPSILON).toFixed(2));
-                if (parseFloat(v) > 20) {
-                  setError(new Error('Please input number that less then 20'));
+                const bigV = new BigNumber(v);
+                if (!bigV.isGreaterThanOrEqualTo('0.01')) {
+                  setErrorKey('moreThan');
                   return;
                 }
+                if (!bigV.isLessThan('20')) {
+                  setErrorKey('lessThan');
+                  return;
+                }
+                // setFee((parseFloat(v) + Number.EPSILON).toFixed(2));
+                setFee(bigV.toString());
               }
-              setError(null);
+              setErrorKey('');
             }}
             value="0.30"
           />
         </div>
         <div className="w-full flex justify-center">
-          {error && <Alert level="error" message={error.message} />}
+          {errorKey && (
+            <Alert level="error" message={new Error(tip[errorKey]).message} />
+          )}
         </div>
         <div className="pt-6 w-full">
           {wallet.isSignedIn() ? (
@@ -164,19 +181,8 @@ export function AddPoolPage() {
               }
               onClick={() => {
                 if (canSubmit) {
-                  const v = parseFloat(fee);
-                  if (!v) {
-                    setError(new Error('Please input valid number'));
-                    return;
-                  }
-                  if (v >= 20) {
-                    setError(
-                      new Error('Please input number that less then 20')
-                    );
-                    return;
-                  }
-                  setError(null);
-                  addSimpleLiquidityPool([token1.id, token2.id], v * 100);
+                  const v = new BigNumber(fee).multipliedBy(100).toFixed(0, 1);
+                  addSimpleLiquidityPool([token1.id, token2.id], Number(v));
                 }
               }}
             >
