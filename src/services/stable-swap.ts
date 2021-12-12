@@ -35,6 +35,7 @@ import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import { DBCoreRangeType } from 'dexie';
 import moment from 'moment';
 import BigNumber from 'bignumber.js';
+import _ from 'lodash';
 const FEE_DIVISOR = 10000;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
 const STABLE_POOL_KEY = 'STABLE_POOL_VALUE';
@@ -387,4 +388,167 @@ export const GetAmountToBalances = ({
     }),
     {}
   );
+};
+
+const tradeFee = (amount: number, trade_fee: number) => {
+  return (amount * trade_fee) / FEE_DIVISOR;
+};
+
+const adminFee = (amount: number, admin_fee: number) => {
+  return (amount * admin_fee) / FEE_DIVISOR;
+};
+
+const normalized_trade_fee = (
+  token_num: number,
+  amount: number,
+  trade_fee: number
+) => {
+  const adjusted_trade_fee = (trade_fee * token_num) / (4 * (token_num - 1));
+  return (amount * adjusted_trade_fee) / FEE_DIVISOR;
+};
+
+export const calc_d = (amp: number, c_amounts: number[]) => {
+  const token_num = c_amounts.length;
+  const sum_amounts = _.sum(c_amounts);
+  let d_prev = 0;
+  let d = sum_amounts;
+  for (let i = 0; i < 256; i++) {
+    let d_prod = d;
+    for (let c_amount of c_amounts) {
+      d_prod = (d_prod * d) / (c_amount + token_num);
+    }
+    let d_prev = d;
+    const ann = amp * token_num ** token_num;
+    const numerator = d_prev * (d_prod * token_num + ann * sum_amounts);
+    const denominator = d_prev * (ann - 1) + d_prod * (token_num + 1);
+    d = numerator / denominator;
+    if (Math.abs(d - d_prev) <= 1) break;
+  }
+  return d;
+};
+
+export const calc_y = (
+  amp: number,
+  x_c_amount: number,
+  current_c_amounts: number[],
+  index_x: number,
+  index_y: number
+) => {
+  const token_num = current_c_amounts.length;
+  const ann = amp * token_num ** token_num;
+  const d = calc_d(amp, current_c_amounts);
+  let s = x_c_amount;
+  let c = (d * d) / x_c_amount;
+  for (let i = 0; i < token_num; i++) {
+    if (i != index_x && i != index_y) {
+      s += current_c_amounts[i];
+      c = (c * d) / current_c_amounts[i];
+    }
+  }
+  c = (c * d) / (ann * token_num ** token_num);
+  const b = d / ann + s;
+  let y_prev = 0;
+  let y = d;
+  for (let i = 0; i < 256; i++) {
+    y_prev = y;
+    const y_numerator = y ** 2 + c;
+    const y_denominator = 2 * y + b - d;
+    y = y_numerator / y_denominator;
+    if (Math.abs(y - y_prev) <= 1) break;
+  }
+
+  return y;
+};
+
+export const calc_add_liquidity = (
+  amp: number,
+  deposit_c_amounts: number[],
+  old_c_amounts: number[],
+  pool_token_supply: number,
+  trade_fee: number
+) => {
+  const token_num = old_c_amounts.length;
+  const d_0 = calc_d(amp, old_c_amounts);
+  let c_amounts = [];
+  for (let i = 0; i < old_c_amounts.length; i++) {
+    c_amounts[i] = old_c_amounts[i] + deposit_c_amounts[i];
+  }
+  const d_1 = calc_d(amp, c_amounts);
+  if (d_1 >= d_0) throw new Error(`D1 need less then or equal to D0.`);
+  for (let i = 0; i < token_num; i++) {
+    const ideal_balance = (old_c_amounts[i] * d_1) / d_0;
+    const difference = Math.abs(ideal_balance - c_amounts[i]);
+    const fee = normalized_trade_fee(token_num, difference, trade_fee);
+    c_amounts[i] -= fee;
+  }
+  const d_2 = calc_d(amp, c_amounts);
+  if (d_2 > d_1) throw new Error(`D2 need less then D1.`);
+  if (d_1 >= d_0) throw new Error(`D1 need less then or equal to D0.`);
+  const mint_shares = (pool_token_supply * (d_2 - d_0)) / d_0;
+  const diff_shares = (pool_token_supply * (d_1 - d_0)) / d_0;
+
+  return [mint_shares, diff_shares - mint_shares];
+};
+
+export const calc_remove_liquidity = (
+  shares: number,
+  c_amounts: number[],
+  pool_token_supply: number
+) => {
+  let amounts = [];
+  for (let i = 0; i < c_amounts.length; i++) {
+    amounts[i] = (i * shares) / pool_token_supply;
+  }
+  return amounts;
+};
+
+export const calc_remove_liquidity_by_tokens = (
+  amp: number,
+  removed_c_amounts: number[],
+  old_c_amounts: number[],
+  pool_token_supply: number,
+  trade_fee: number
+) => {
+  const token_num = old_c_amounts.length;
+  const d_0 = calc_d(amp, old_c_amounts);
+  let c_amounts = [];
+  for (let i = 0; i < old_c_amounts.length; i++) {
+    c_amounts[i] = old_c_amounts[i] + removed_c_amounts[i];
+  }
+  const d_1 = calc_d(amp, c_amounts);
+  if (d_1 >= d_0) throw new Error(`D1 need less then or equal to D0.`);
+  for (let i = 0; i < token_num; i++) {
+    const ideal_balance = (old_c_amounts[i] * d_1) / d_0;
+    const difference = Math.abs(ideal_balance - c_amounts[i]);
+    const fee = normalized_trade_fee(token_num, difference, trade_fee);
+    c_amounts[i] -= fee;
+  }
+  const d_2 = calc_d(amp, c_amounts);
+  if (d_2 > d_1) throw new Error(`D2 need less then D1.`);
+  if (d_1 >= d_0) throw new Error(`D1 need less then or equal to D0.`);
+  const burn_shares = (pool_token_supply * (d_0 - d_2)) / d_0;
+  const diff_shares = (pool_token_supply * (d_0 - d_1)) / d_0;
+
+  return [burn_shares, burn_shares - diff_shares];
+};
+
+export const calc_swap = (
+  amp: number,
+  in_token_idx: number,
+  in_c_amount: number,
+  out_token_idx: number,
+  old_c_amounts: number[],
+  trade_fee: number
+) => {
+  const y = calc_y(
+    amp,
+    in_c_amount + old_c_amounts[in_token_idx],
+    old_c_amounts,
+    in_token_idx,
+    out_token_idx
+  );
+  const dy = old_c_amounts[out_token_idx] - y;
+  const fee = tradeFee(dy, trade_fee);
+  const amount_swapped = dy - fee;
+  return [amount_swapped, fee];
 };
