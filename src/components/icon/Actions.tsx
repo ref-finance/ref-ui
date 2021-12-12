@@ -710,6 +710,7 @@ const viewMap = {
   'Instant swap': Swap,
   'Near withdraw': Withdraw,
   'Add Stable liquidity': AddLiquidity,
+  'Remove Stable liquidity': RemoveLiquidity,
 };
 
 const blackViewMap = {
@@ -731,6 +732,7 @@ const blackViewMap = {
   'Instant swap': Swap,
   'Near withdraw': WithdrawBlack,
   'Add Stable liquidity': AddLiquidityBlack,
+  'Remove Stable liquidity': RemoveLiquidityBlack,
 };
 
 export function mapToView(action: string, black = false): JSX.Element {

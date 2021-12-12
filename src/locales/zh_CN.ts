@@ -263,5 +263,8 @@ const zh_CN = {
   minimum_shares: '最少份额',
   shares_tip: '可用的份额 / 所有的份额',
   stablecoin_only: '稳定币',
+  more_than: '请输入大于0.009的数字',
+  less_than: '请输入小于20的数字',
+  no_valid: '请输入有效数字',
 };
 export default zh_CN;

@@ -61,6 +61,9 @@ export const parseAction = async (
     case 'add_stable_liquidity': {
       return await parseAddStableLiquidity(params);
     }
+    case 'remove_liquidity_by_tokens': {
+      return await parseRemoveStableLiquidity(params);
+    }
     default: {
       return await parseDefault();
     }
@@ -248,6 +251,26 @@ const parseAddStableLiquidity = async (params: any) => {
     'Pool id': pool_id,
     ...tempToken,
     'Min shares': toReadableNumber(LP_STABLE_TOKEN_DECIMALS, min_shares),
+  };
+};
+const parseRemoveStableLiquidity = async (params: any) => {
+  const { amounts, max_burn_shares, pool_id } = params;
+  const pool = await getPoolDetails(params.pool_id);
+  const tokens = await Promise.all<TokenMetadata>(
+    pool.tokenIds.map((id) => ftGetTokenMetadata(id))
+  );
+  const tempToken = {};
+  tokens.forEach((token, index) => {
+    tempToken[token.symbol] = toReadableNumber(token.decimals, amounts[index]);
+  });
+  return {
+    Action: 'Remove Stable liquidity',
+    'Pool id': pool_id,
+    ...tempToken,
+    'Max burn shares': toReadableNumber(
+      LP_STABLE_TOKEN_DECIMALS,
+      max_burn_shares
+    ),
   };
 };
 
