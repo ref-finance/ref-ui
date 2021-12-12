@@ -117,6 +117,7 @@ export default function AddLiquidityComponent(props: {
         toReadableNumber(tokens[2].decimals, balances[tokens[2].id])
       );
     } else if (addType === 'addAll') {
+      setCanAddLP(false);
       setFirstTokenAmount('');
       setSecondTokenAmount('');
       setThirdTokenAmount('');
@@ -272,7 +273,10 @@ export default function AddLiquidityComponent(props: {
       toReadableNumber(tokens[2].decimals, balances[tokens[2].id])
     );
 
-    setCanAddLP(false);
+    setCanAddLP(true);
+    setCanDeposit(false);
+
+    const ONLY_ZEROS = /^0*\.?0*$/;
 
     if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
       setMessageId('deposit_to_add_liquidity');
@@ -306,10 +310,14 @@ export default function AddLiquidityComponent(props: {
         )}`
       );
     }
-    setCanDeposit(false);
-    setCanAddLP(true);
-    setMessageId('add_liquidity');
-    setDefaultMessage('Add Liquidity');
+
+    if (
+      (!firstAmount || ONLY_ZEROS.test(firstAmount)) &&
+      (!secondAmount || ONLY_ZEROS.test(secondAmount)) &&
+      (!thirdAmount || ONLY_ZEROS.test(thirdAmount))
+    ) {
+      setCanAddLP(false);
+    }
 
     if (
       !(
@@ -321,6 +329,9 @@ export default function AddLiquidityComponent(props: {
     ) {
       setAddType('');
     }
+
+    setMessageId('add_liquidity');
+    setDefaultMessage('Add Liquidity');
   }
 
   function submit() {
