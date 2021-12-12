@@ -104,14 +104,17 @@ export default function StableTokenList(props: {
         </span>
       </div>
       <div className="flex items-center ">
-        <div className="flex items-center mr-4 w-1/4">
-          <Icon icon={tokens[0].icon} className="h-9 w-9 mr-2" />
+        <div className="flex items-center w-28 xs:w-24 md:w-24">
+          <Icon
+            icon={tokens[0].icon}
+            className="h-9 w-9 xs:h-7 md:h-7 xs:w-7 md:w-7 mr-2"
+          />
           <div className="text-white text-base" title={tokens[0].id}>
             {toRealSymbol(tokens[0].symbol)}
           </div>
         </div>
         <InputAmount
-          className="w-full border border-transparent rounded"
+          className="flex-grow border border-transparent rounded"
           max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
           onChangeAmount={(e) => {
             changeFirstTokenAmount(e);
@@ -134,14 +137,17 @@ export default function StableTokenList(props: {
           </span>
         </div>
         <div className="flex items-center">
-          <div className="flex items-center mr-4 w-1/4">
-            <Icon icon={tokens[1].icon} className="h-9 w-9 mr-2" />
+          <div className="flex items-center w-28 xs:w-24 md:w-24">
+            <Icon
+              icon={tokens[1].icon}
+              className="h-9 w-9 xs:h-7 md:h-7 xs:w-7 md:w-7 mr-2"
+            />
             <div className="text-white text-base" title={tokens[1].id}>
               {toRealSymbol(tokens[1].symbol)}
             </div>
           </div>
           <InputAmount
-            className="w-full border border-transparent rounded"
+            className="flex-grow border border-transparent rounded"
             max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
             onChangeAmount={changeSecondTokenAmount}
             value={secondTokenAmount}
@@ -163,14 +169,17 @@ export default function StableTokenList(props: {
           </span>
         </div>
         <div className="flex items-center">
-          <div className="flex items-center mr-4 w-1/4">
-            <Icon icon={tokens[2].icon} className="h-9 w-9 mr-2" />
+          <div className="flex items-center w-28 xs:w-24 md:w-24">
+            <Icon
+              icon={tokens[2].icon}
+              className="h-9 w-9 xs:h-7 md:h-7 xs:w-7 md:w-7 mr-2"
+            />
             <div className="text-white text-base" title={tokens[2].id}>
               {toRealSymbol(tokens[2].symbol)}
             </div>
           </div>
           <InputAmount
-            className="w-full border border-transparent rounded"
+            className="flex-grow border border-transparent rounded"
             max={toReadableNumber(tokens[2].decimals, balances[tokens[2].id])}
             onChangeAmount={changeThirdTokenAmount}
             value={thirdTokenAmount}

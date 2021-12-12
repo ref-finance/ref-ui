@@ -404,9 +404,9 @@ export function StableSlipSelecter({
 
   return (
     <div className="relative z-10">
-      <div className="flex justify-between">
+      <div className="flex justify-between xs:flex-col md:flex-col lg:flex-row">
         <div className="flex items-center text-primaryText">
-          <label className="text-xs py-5 text-center ">
+          <label className="text-xs text-center xs:py-2 md:py-2 lg:py-5">
             <FormattedMessage
               id="slippage"
               defaultMessage="Slippage tolerance"

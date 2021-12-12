@@ -285,7 +285,7 @@ export function CalcEle(props: {
         }
         const priceData: any = tokenPriceList[tokenTemp.id];
         let tokenPrice = '0';
-        if (priceData.price) {
+        if (priceData && priceData.price) {
           tokenPrice = new BigNumber(rewardTokenNum)
             .multipliedBy(priceData.price)
             .toString();
@@ -312,7 +312,11 @@ export function CalcEle(props: {
     // handle tokenTotalPrice display
     const tokenTotalPriceActual = rewardTemp.tokenTotalPrice;
     if (rewardTemp.tokenTotalPrice) {
-      if (new BigNumber('0.001').isGreaterThan(rewardTemp.tokenTotalPrice)) {
+      if (new BigNumber('0').isEqualTo(rewardTemp.tokenTotalPrice)) {
+        rewardTemp.tokenTotalPrice = '$ -';
+      } else if (
+        new BigNumber('0.001').isGreaterThan(rewardTemp.tokenTotalPrice)
+      ) {
         rewardTemp.tokenTotalPrice = '<$ 0.001';
       } else {
         rewardTemp.tokenTotalPrice = `~ $${toInternationalCurrencySystem(
