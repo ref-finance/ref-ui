@@ -550,5 +550,5 @@ export const calc_swap = (
   const dy = old_c_amounts[out_token_idx] - y;
   const fee = tradeFee(dy, trade_fee);
   const amount_swapped = dy - fee;
-  return [amount_swapped, fee];
+  return [amount_swapped, fee, dy];
 };
