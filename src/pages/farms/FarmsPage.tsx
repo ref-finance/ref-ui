@@ -1754,6 +1754,7 @@ function FarmView({
           unstake({
             seed_id: data.seed_id,
             amount,
+            poolId: farmData.lpTokenId,
           }).catch(setError);
         }}
         style={{
@@ -1801,9 +1802,11 @@ function FarmView({
         type="stake"
         tokenPriceList={tokenPriceList}
         onSubmit={(amount) => {
-          stake({ token_id: getMftTokenId(data.lpTokenId), amount }).catch(
-            setError
-          );
+          stake({
+            token_id: getMftTokenId(data.lpTokenId),
+            amount,
+            poolId: farmData.lpTokenId,
+          }).catch(setError);
         }}
         style={{
           overlay: {

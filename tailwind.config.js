@@ -17,6 +17,7 @@ module.exports = {
     extend: {
       backgroundImage: (theme) => ({
         farmSearch: 'linear-gradient(106.25deg, #00FFD1 6.88%, #00BA98 81.93%)',
+        stableTab: 'linear-gradient(360deg, #00C6A2 0%, #008B72 100%)',
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',

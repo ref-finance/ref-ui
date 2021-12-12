@@ -199,7 +199,7 @@ export function MobileNavBar() {
   }, [show]);
 
   if (wallet.isSignedIn()) {
-    moreLinks[2].children[2] = {
+    moreLinks[3].children[2] = {
       id: 'Your_Liquidity',
       label: 'Your Liquidity',
       url: '/pools/yours',
@@ -313,7 +313,6 @@ export function MobileNavBar() {
               ${data && data !== '-' ? toPrecision(data, 2) : '-'}
             </span>
           </div>
-
           <div className="text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
             {wallet.isSignedIn() && (
               <MobileAnchor
