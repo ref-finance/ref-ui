@@ -107,6 +107,7 @@ export default function AddLiquidityComponent(props: {
   useEffect(() => {
     setError(null);
     if (addType === 'addMax') {
+      setCanAddLP(true);
       setFirstTokenAmount(
         toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
       );
