@@ -272,7 +272,7 @@ const en_US = {
   minimum_shares: 'Minimum shares',
   shares_tip: 'Shares available / shares you own totally',
   stablecoin_only: 'Stablecoin only',
-  more_than: 'Please input number that more than or equalTo 0.01',
+  more_than: 'Please input number that more than or equal to 0.01',
   less_than: 'Please input number that less than 20',
   no_valid: 'Please input valid number',
 };
