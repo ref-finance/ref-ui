@@ -43,7 +43,7 @@ export const ShareInFarm = ({
         forStable ? 'text-primaryText' : 'text-gradientFrom'
       } rounded-full py-0.5 border border-${
         forStable ? 'primaryText' : 'transparent'
-      } hover:border-gradientFrom hover:text-gradientFrom px-2 xs:pr-0 md:pr-0 cursor-pointer`}
+      } hover:border-gradientFrom hover:text-gradientFrom px-2 cursor-pointer`}
     >
       <FarmDot inFarm={Number(farmShare) > 0} className="mr-1" />
       <div className="self-start">
