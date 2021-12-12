@@ -9,6 +9,8 @@ import Alert from '~components/alert/Alert';
 import { ConnectToNearBtn, SolidButton } from '~components/button/Button';
 import { Card } from '~components/card/Card';
 import InputAmount from '~components/forms/InputAmount';
+import QuestionMark from '~components/farm/QuestionMark';
+
 import {
   PoolSlippageSelector,
   StableSlipSelecter,
@@ -229,9 +231,9 @@ export function RemoveLiquidityComponent(props: {
       </div>
 
       <div className=" text-white flex items-center justify-between text-xs px-8 pb-6">
-        <span className="text-primaryText">
+        <span className="text-primaryText flex items-center ">
           <FormattedMessage id="my_shares" defaultMessage="Shares" />
-          <FaRegQuestionCircle
+          <QuestionMark
             data-type="dark"
             data-place="right"
             data-multiline={true}
@@ -277,12 +279,13 @@ export function RemoveLiquidityComponent(props: {
           onClick={() => setIsPercentage(true)}
         >
           <FormattedMessage id="by_share" defaultMessage="By Share" />
-          <FaRegQuestionCircle
+          <QuestionMark
             data-type="dark"
             data-place="right"
             data-multiline={true}
             data-tip={intl.formatMessage({ id: 'remove_tip' })}
             className="inline-block ml-2 text-xs"
+            color="bright"
           />
           <ReactTooltip
             className="text-xs shadow-4xl"
@@ -300,12 +303,13 @@ export function RemoveLiquidityComponent(props: {
           onClick={() => setIsPercentage(false)}
         >
           <FormattedMessage id="by_token" defaultMessage="By Token" />
-          <FaRegQuestionCircle
+          <QuestionMark
             data-type="dark"
             data-place="right"
             data-multiline={true}
             data-tip={intl.formatMessage({ id: 'flexible_tip' })}
             className="inline-block ml-2 text-xs"
+            color="bright"
           />
           <ReactTooltip
             className="text-xs shadow-4xl"

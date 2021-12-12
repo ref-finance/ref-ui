@@ -1,6 +1,11 @@
 import React from 'react';
 import { useState } from 'react';
-export default function QuestionMark(props: any) {
+export default function QuestionMark(props: {
+  color?: 'bright' | 'dark';
+  className?: string;
+}) {
+  const { color } = props;
+
   const [status, setStatus] = useState(false);
   return (
     <label
@@ -12,7 +17,7 @@ export default function QuestionMark(props: any) {
         setStatus(false);
       }}
     >
-      {status ? (
+      {status || color === 'bright' ? (
         <svg
           width="12"
           height="12"
