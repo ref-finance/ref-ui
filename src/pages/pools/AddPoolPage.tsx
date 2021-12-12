@@ -69,7 +69,7 @@ export function AddPoolPage() {
   };
   const canSubmit =
     !!fee &&
-    new BigNumber(fee).isGreaterThan('0.009') &&
+    new BigNumber(fee).isGreaterThanOrEqualTo('0.01') &&
     new BigNumber(fee).isLessThan('20') &&
     !!token1 &&
     !!token2;
@@ -138,15 +138,17 @@ export function AddPoolPage() {
                 setErrorKey('noValid');
                 return;
               } else {
-                if (!new BigNumber(v).isGreaterThan('0.009')) {
+                const bigV = new BigNumber(v);
+                if (!bigV.isGreaterThanOrEqualTo('0.01')) {
                   setErrorKey('moreThan');
                   return;
                 }
-                if (!new BigNumber(v).isLessThan('20')) {
+                if (!bigV.isLessThan('20')) {
                   setErrorKey('lessThan');
                   return;
                 }
-                setFee((parseFloat(v) + Number.EPSILON).toFixed(2));
+                // setFee((parseFloat(v) + Number.EPSILON).toFixed(2));
+                setFee(bigV.toString());
               }
               setErrorKey('');
             }}
@@ -179,8 +181,8 @@ export function AddPoolPage() {
               }
               onClick={() => {
                 if (canSubmit) {
-                  const v = parseFloat(fee);
-                  addSimpleLiquidityPool([token1.id, token2.id], v * 100);
+                  const v = new BigNumber(fee).multipliedBy(100).toFixed(0, 1);
+                  addSimpleLiquidityPool([token1.id, token2.id], Number(v));
                 }
               }}
             >
