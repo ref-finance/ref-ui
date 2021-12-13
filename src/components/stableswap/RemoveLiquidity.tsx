@@ -230,8 +230,8 @@ export function RemoveLiquidityComponent(props: {
         />
       </div>
 
-      <div className=" text-white flex items-center justify-between text-xs px-8 pb-6">
-        <span className="text-primaryText flex items-center ">
+      <div className=" text-white flex items-center justify-between text-xs px-8 pb-6 xs:items-start md:items-start">
+        <span className="text-primaryText flex items-center">
           <FormattedMessage id="my_shares" defaultMessage="Shares" />
           <QuestionMark
             data-type="dark"
@@ -248,7 +248,7 @@ export function RemoveLiquidityComponent(props: {
             textColor="#7E8A93"
           />
         </span>
-        <div className="flex items-center">
+        <div className="flex items-center xs:flex-col md:flex-col xs:items-end md:items-end">
           <span>
             {shareToUserTotal({
               shares,
@@ -256,7 +256,7 @@ export function RemoveLiquidityComponent(props: {
             })}{' '}
           </span>
           <Link
-            className="ml-2"
+            className="ml-2 xs:mt-2 md:mt-2"
             to={{
               pathname: '/farms',
             }}
@@ -275,7 +275,7 @@ export function RemoveLiquidityComponent(props: {
         <div
           className={`flex justify-center items-center w-2/4 rounded cursor-pointer ${
             isPercentage ? 'bg-framBorder' : ''
-          }  h-9`}
+          }  h-9 xs:h-7 md:h-7`}
           onClick={() => setIsPercentage(true)}
         >
           <FormattedMessage id="by_share" defaultMessage="By Share" />
@@ -299,7 +299,7 @@ export function RemoveLiquidityComponent(props: {
         <div
           className={`flex justify-center items-center w-2/4 rounded cursor-pointer ${
             !isPercentage ? 'bg-framBorder' : ''
-          }  h-9`}
+          }  h-9 xs:h-7 md:h-7`}
           onClick={() => setIsPercentage(false)}
         >
           <FormattedMessage id="by_token" defaultMessage="By Token" />
@@ -410,7 +410,7 @@ export function RemoveLiquidityComponent(props: {
             }}
           />
           {isPercentage && (
-            <div className="text-xs text-primaryText pb-8 pt-2">
+            <div className="text-xs text-primaryText pb-8 pt-2 xs:pt-5 md:pt-5">
               <FormattedMessage
                 id="minimum_received"
                 defaultMessage="Minimum received"
@@ -427,7 +427,7 @@ export function RemoveLiquidityComponent(props: {
           )}
         </div>
         <div
-          className={`flex items-center justify-between text-xs text-primaryText pb-6 ${
+          className={`flex items-center justify-between text-xs text-primaryText pb-6 xs:pt-5 md:pt-5 ${
             isPercentage ? 'hidden' : ''
           }`}
         >

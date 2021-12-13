@@ -48,13 +48,16 @@ export function FlexibleStableToken({
   return (
     <div className="flex flex-col">
       <div className="w-full flex items-start mb-8">
-        <div className="flex items-center mr-4 mt-1 w-1/4">
-          <Icon icon={token.icon} className="h-9 w-9 mr-2" />
-          <div className="text-white text-sm" title={token.id}>
+        <div className="flex items-center mt-1 w-28 xs:w-24 md:w-24">
+          <Icon
+            icon={token.icon}
+            className="h-9 w-9 mr-2 xs:w-7 xs:h-7 md:w-7 md-h-7"
+          />
+          <div className="text-white text-base" title={token.id}>
             {toRealSymbol(token.symbol)}
           </div>
         </div>
-        <div className="w-full flex flex-col">
+        <div className="flex flex-grow flex-col">
           <InputAmount
             className="w-full border border-transparent rounded"
             onChangeAmount={setAmountFlexible}
@@ -235,7 +238,10 @@ export function StableTokensSymbol(props: {
   return (
     <div className="flex mb-6 items-center justify-between">
       <div className="flex">
-        <Icon icon={tokens[0].icon} className="inline-block h-9 w-9 mr-2" />
+        <Icon
+          icon={tokens[0].icon}
+          className="inline-block h-9 w-9 xs:h-7 xs:w-7 md:h-7 md:w-7 mr-2 xs:mr-0.5 md:mr-0.5"
+        />
         <div className="ml-2 inline-block">
           <p className="text-sm">{toRealSymbol(tokens[0].symbol)}</p>
           <div className="text-xs">
@@ -245,7 +251,10 @@ export function StableTokensSymbol(props: {
       </div>
       <div> + </div>
       <div className="flex">
-        <Icon icon={tokens[1].icon} className="inline-block h-9 w-9 mr-2" />
+        <Icon
+          icon={tokens[1].icon}
+          className="inline-block h-9 w-9 xs:h-7 xs:w-7 md:h-7 md:w-7 mr-2 xs:mr-0.5 md:mr-0.5"
+        />
         <div className="ml-2 inline-block">
           <p className="text-sm">{toRealSymbol(tokens[1].symbol)}</p>
           <div className="text-xs">
@@ -255,7 +264,10 @@ export function StableTokensSymbol(props: {
       </div>
       <div> + </div>
       <div className="flex">
-        <Icon icon={tokens[2].icon} className="inline-block h-9 w-9 mr-2" />
+        <Icon
+          icon={tokens[2].icon}
+          className="inline-block h-9 w-9 xs:h-7 xs:w-7 md:h-7 md:w-7 mr-2 xs:mr-0.5 md:mr-0.5"
+        />
         <div className="ml-2 inline-block">
           <p className="text-sm">{toRealSymbol(tokens[2].symbol)}</p>
           <div className="text-xs">

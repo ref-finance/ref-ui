@@ -393,7 +393,7 @@ export default function AddLiquidityComponent(props: {
             }}
           />
 
-          <div className="flex items-center justify-between text-xs  pt-2 pb-6">
+          <div className="flex items-center justify-between text-xs  lg:pt-2 pb-6 xs:pt-5 md:pt-5">
             <div className="text-primaryText">
               <FormattedMessage
                 id="minimum_shares"

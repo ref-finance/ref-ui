@@ -115,6 +115,71 @@ export function TokensRadio({
   );
 }
 
+export function TokensRadioLeft({
+  tokens,
+  tokenIn,
+  handleSwapFrom,
+}: {
+  tokens: TokenMetadata[];
+  tokenIn: TokenMetadata;
+  handleSwapFrom: (id: string) => void;
+}) {
+  return (
+    <div className="flex justify-between">
+      {tokens.map((token) => (
+        <div className="flex my-4 items-center" key={token.id}>
+          <Radio
+            value={token.id}
+            handleSelect={handleSwapFrom}
+            checked={token.symbol === tokenIn.symbol}
+          />
+          <div
+            className="cursor-pointer text-white flex flex-col ml-2"
+            onClick={() => {
+              handleSwapFrom(token.id);
+            }}
+          >
+            <Icon icon={token.icon} className="h-7 w-7" />
+            <label className="text-sm">{token.symbol}</label>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+export function TokensRadioRight({
+  tokens,
+  tokenOut,
+  handleSwapTo,
+}: {
+  tokens: TokenMetadata[];
+  tokenOut: TokenMetadata;
+  handleSwapTo: (id: string) => void;
+}) {
+  return (
+    <div className="flex justify-between">
+      {tokens.map((token) => (
+        <div className="flex my-4 items-center" key={`second-${token.id}`}>
+          <Radio
+            value={token.id}
+            handleSelect={handleSwapTo}
+            checked={token.symbol === tokenOut.symbol}
+          />
+          <div
+            className="cursor-pointer text-white flex flex-col ml-2"
+            onClick={() => {
+              handleSwapTo(token.id);
+            }}
+          >
+            <Icon icon={token.icon} className="h-7 w-7" />
+            <label className="text-sm">{token.symbol}</label>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function SwapAnimation({
   tokenOut,
   tokenIn,
@@ -141,7 +206,7 @@ export function SwapAnimation({
     });
   };
   return (
-    <div className=" w-24">
+    <div className="w-24 xs:w-full md:w-full">
       <div
         className="flex items-center justify-center border-t mt-12"
         style={{ borderColor: 'rgba(126, 138, 147, 0.3)' }}
