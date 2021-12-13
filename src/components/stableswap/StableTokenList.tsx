@@ -236,7 +236,7 @@ export function StableTokensSymbol(props: {
   };
 
   return (
-    <div className="flex mb-6 items-center justify-between">
+    <div className="flex mb-6 items-center justify-between xs:items-start md:items-start">
       <div className="flex xs:flex-col md:flex-col xs:items-center md:items-center">
         <Icon
           icon={tokens[0].icon}
@@ -251,7 +251,7 @@ export function StableTokensSymbol(props: {
           </div>
         </div>
       </div>
-      <div> + </div>
+      <div className="xs:mt-1.5 md:mt-1.5"> + </div>
       <div className="flex xs:flex-col md:flex-col xs:items-center md:items-center">
         <Icon
           icon={tokens[1].icon}
@@ -266,7 +266,7 @@ export function StableTokensSymbol(props: {
           </div>
         </div>
       </div>
-      <div> + </div>
+      <div className="xs:mt-1.5 md:mt-1.5"> + </div>
       <div className="flex xs:flex-col md:flex-col xs:items-center md:items-center">
         <Icon
           icon={tokens[2].icon}
