@@ -33,6 +33,17 @@ export interface Pool {
   token0_ref_price: string;
 }
 
+export interface StablePool {
+  id: number;
+  token_account_ids: string[];
+  decimals: number[];
+  amounts: string[];
+  c_amounts: string[];
+  total_fee: number;
+  shares_total_supply: string;
+  amp: number;
+}
+
 export const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
   id: id >= 0 ? id : pool.id,
   tokenIds: pool.token_account_ids,
@@ -403,7 +414,8 @@ export const addLiquidityToPool = async ({
 
 export const predictLiquidityShares = async (
   pool_id: number,
-  amounts: string[]
+  amounts: string[],
+  stablePool: StablePool
 ): Promise<string> => {
   return refFiViewFunction({
     methodName: 'predict_add_stable_liquidity',
@@ -596,4 +608,16 @@ export const addSimpleLiquidityPool = async (
     transactions,
     `${window.location.origin}/pools/add`
   );
+};
+
+export const getStablePool = async (pool_id: number): Promise<StablePool> => {
+  const pool_info = await refFiViewFunction({
+    methodName: 'get_stable_pool',
+    args: { pool_id },
+  });
+
+  return {
+    ...pool_info,
+    id: pool_id,
+  };
 };

@@ -27,14 +27,20 @@ import {
   TokensRadioRight,
 } from './StableSwapComponents';
 import { CountdownTimer } from '~components/icon';
+import { StablePool } from '~services/pool';
 interface StableSwapProps {
   balances: TokenBalancesView;
   tokens: TokenMetadata[];
+  stablePool: StablePool;
 }
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_SLIPPAGE_VALUE';
 export const STABLE_SWAP_USE_NEAR_BALANCE_KEY =
   'REF_FI_STABLE_USE_NEAR_BALANCE_VALUE';
-export default function StableSwap({ tokens, balances }: StableSwapProps) {
+export default function StableSwap({
+  tokens,
+  balances,
+  stablePool,
+}: StableSwapProps) {
   const [tokenIn, setTokenIn] = useState<TokenMetadata>(tokens[0]);
   const [tokenOut, setTokenOut] = useState<TokenMetadata>(tokens[1]);
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
@@ -57,15 +63,23 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
 
   const [loadingTrigger, setLoadingTrigger] = useState<boolean>(false);
 
-  const { tokenOutAmount, pool, canSwap, minAmountOut, swapError, makeSwap } =
-    useStableSwap({
-      tokenIn,
-      tokenInAmount,
-      tokenOut,
-      slippageTolerance,
-      loadingTrigger,
-      setLoadingTrigger,
-    });
+  const {
+    tokenOutAmount,
+    pool,
+    canSwap,
+    minAmountOut,
+    swapError,
+    makeSwap,
+    noFeeAmount,
+  } = useStableSwap({
+    tokenIn,
+    tokenInAmount,
+    tokenOut,
+    slippageTolerance,
+    loadingTrigger,
+    setLoadingTrigger,
+    stablePool,
+  });
 
   const handleSwapFrom = (tokenFrom: string) => {
     setTokenIn(tokens.filter((item) => item.id === tokenFrom)[0]);
@@ -298,6 +312,7 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
           to={tokenOutAmount}
           minAmountOut={minAmountOut}
           canSwap={canSwap}
+          noFeeAmount={noFeeAmount}
         />
       </div>
       <div className="mx-8">

@@ -8,7 +8,7 @@ import {
 import SquareRadio from '~components/radio/SquareRadio';
 import StableSwap from '~components/stableswap/StableSwap';
 import AddLiquidityComponent from '~components/stableswap/AddLiquidity';
-import { usePool } from '~state/pool';
+import { usePool, useStablePool } from '~state/pool';
 import { isMobile } from '~utils/device';
 import { RemoveLiquidityComponent } from '~components/stableswap/RemoveLiquidity';
 import TokenReserves from '~components/stableswap/TokenReserves';
@@ -26,10 +26,12 @@ function StableSwapPage() {
   );
   const allTokens = useWhitelistStableTokens();
   const balances = useTokenBalances();
+
+  const stablePool = useStablePool();
+
   const changeAction = (actionName: string) => {
     setAction(actionName);
   };
-  // const cardWidth = isMobile() ? '95vw' : '580px';
 
   const tokens =
     allTokens &&
@@ -39,10 +41,17 @@ function StableSwapPage() {
   const renderModule = (tab: string) => {
     switch (tab) {
       case DEFAULT_ACTIONS[0]:
-        return <StableSwap tokens={tokens} balances={balances} />;
+        return (
+          <StableSwap
+            tokens={tokens}
+            balances={balances}
+            stablePool={stablePool}
+          />
+        );
       case DEFAULT_ACTIONS[1]:
         return (
           <AddLiquidityComponent
+            stablePool={stablePool}
             pool={pool}
             tokens={tokens}
             totalShares={shares}
@@ -53,6 +62,7 @@ function StableSwapPage() {
       case DEFAULT_ACTIONS[2]:
         return (
           <RemoveLiquidityComponent
+            stablePool={stablePool}
             tokens={tokens}
             shares={shares}
             balances={balances}
@@ -63,7 +73,7 @@ function StableSwapPage() {
     }
   };
 
-  if (!allTokens || !pool || !shares) return <Loading />;
+  if (!allTokens || !pool || !shares || !stablePool) return <Loading />;
 
   return (
     <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2">

@@ -238,6 +238,7 @@ export function DetailView({
   to,
   minAmountOut,
   canSwap,
+  noFeeAmount,
 }: {
   pool: Pool;
   tokenIn: TokenMetadata;
@@ -246,6 +247,7 @@ export function DetailView({
   to: string;
   minAmountOut?: string;
   canSwap?: boolean;
+  noFeeAmount?: string;
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
@@ -299,7 +301,11 @@ export function DetailView({
             id: 'price_impact',
             defaultMessage: 'Price Impact',
           })}
-          value={!to || to === '0' || !canSwap ? '-' : GetPriceImpact(from, to)}
+          value={
+            !noFeeAmount || noFeeAmount === '0' || !canSwap
+              ? '-'
+              : GetPriceImpact(from, noFeeAmount)
+          }
         />
       </div>
     </div>

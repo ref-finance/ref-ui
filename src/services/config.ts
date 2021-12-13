@@ -26,6 +26,11 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'usdc.fakes.testnet',
           'dai.fakes.testnet',
         ],
+        STABLE_TOKEN_INDEX: {
+          'usdt.fakes.testnet': 0,
+          'usdc.fakes.testnet': 1,
+          'dai.fakes.testnet': 2,
+        },
       };
     case 'development':
     case 'testnet':
@@ -55,6 +60,11 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'usdc.fakes.testnet',
           'dai.fakes.testnet',
         ],
+        STABLE_TOKEN_INDEX: {
+          'usdt.fakes.testnet': 0,
+          'usdc.fakes.testnet': 1,
+          'dai.fakes.testnet': 2,
+        },
       };
     default:
       return {
@@ -81,6 +91,11 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'usdc.fakes.testnet',
           'dai.fakes.testnet',
         ],
+        STABLE_TOKEN_INDEX: {
+          'usdt.fakes.testnet': 0,
+          'usdc.fakes.testnet': 1,
+          'dai.fakes.testnet': 2,
+        },
       };
   }
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { getPool, Pool } from '../services/pool';
+import { getPool, Pool, StablePool } from '../services/pool';
 
 import { estimateSwap as estimateStableSwap } from '~services/stable-swap';
 
@@ -27,6 +27,7 @@ interface SwapOptions {
   loadingData?: boolean;
   loadingTrigger?: boolean;
   setLoadingTrigger?: (loadingTrigger: boolean) => void;
+  stablePool?: StablePool;
 }
 
 export const useSwap = ({
@@ -193,11 +194,13 @@ export const useStableSwap = ({
   slippageTolerance,
   loadingTrigger,
   setLoadingTrigger,
+  stablePool,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
   const [swapError, setSwapError] = useState<Error>();
+  const [noFeeAmount, setNoFeeAmount] = useState<string>('');
 
   const { search } = useLocation();
   const history = useHistory();
@@ -272,6 +275,7 @@ export const useStableSwap = ({
     setCanSwap(false);
     if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
       setSwapError(null);
+
       estimateStableSwap({
         tokenIn,
         tokenOut,
@@ -279,18 +283,21 @@ export const useStableSwap = ({
         intl,
         loadingTrigger,
         setLoadingTrigger,
+        StablePoolInfo: stablePool,
       })
-        .then(({ estimate, pool }) => {
+        .then(({ estimate, pool, dy }) => {
           if (!estimate || !pool) throw '';
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
             setCanSwap(true);
             setTokenOutAmount(estimate);
             setPool(pool);
+            setNoFeeAmount(dy);
           }
         })
         .catch((err) => {
           setCanSwap(false);
           setTokenOutAmount('');
+          setNoFeeAmount('');
           setSwapError(err);
         });
     } else if (
@@ -337,5 +344,6 @@ export const useStableSwap = ({
     pool,
     swapError,
     makeSwap,
+    noFeeAmount,
   };
 };

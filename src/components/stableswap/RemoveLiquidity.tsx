@@ -22,8 +22,12 @@ import {
   removeLiquidityFromStablePool,
   removeLiquidityByTokensFromStablePool,
   removeLiquidityFromPool,
+  StablePool,
 } from '~services/pool';
-import { GetAmountToBalances } from '~services/stable-swap';
+import {
+  GetAmountToBalances,
+  getRemoveLiquidityByShare,
+} from '~services/stable-swap';
 import { TokenBalancesView } from '~services/token';
 import { usePredictRemoveShares, useRemoveLiquidity } from '~state/pool';
 import { useFarmStake } from '~state/farm';
@@ -49,6 +53,7 @@ import StableTokenList, {
 } from './StableTokenList';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
 import { Link } from 'react-router-dom';
+import { LP_TOKEN_DECIMALS } from '~services/m-token';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
@@ -84,10 +89,11 @@ export function RemoveLiquidityComponent(props: {
   tokens: TokenMetadata[];
   pool: Pool;
   stakeList: Record<string, string>;
+  stablePool: StablePool;
 }) {
   const [slippageInvalid, setSlippageInvalid] = useState(false);
 
-  const { shares, tokens, pool, stakeList } = props;
+  const { shares, tokens, pool, stakeList, stablePool } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');
@@ -121,6 +127,7 @@ export function RemoveLiquidityComponent(props: {
     tokens,
     setError,
     shares,
+    stablePool,
   });
 
   function submit() {
@@ -192,6 +199,8 @@ export function RemoveLiquidityComponent(props: {
   };
 
   useEffect(() => {
+    setCanSubmitByShare(true);
+
     const readableShares = toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares);
 
     const shareParam = toNonDivisibleNumber(
@@ -199,19 +208,26 @@ export function RemoveLiquidityComponent(props: {
       amountByShare
     );
 
-    setCanSubmitByShare(false);
-    predictRemoveLiquidity(pool.id, shareParam).then((res) => {
-      if (
-        Number(amountByShare) === 0 ||
-        Number(amountByShare) > Number(readableShares)
-      ) {
-        setCanSubmitByShare(false);
-        setReceiveAmounts(['0', '0', '0']);
-      } else {
-        setCanSubmitByShare(true);
-        setReceiveAmounts(res);
-      }
-    });
+    if (
+      Number(amountByShare) === 0 ||
+      Number(amountByShare) > Number(readableShares)
+    ) {
+      setCanSubmitByShare(false);
+      setReceiveAmounts(['0', '0', '0']);
+      return;
+    }
+    // setCanSubmitByShare(false);
+
+    const receiveAmounts = getRemoveLiquidityByShare(shareParam, stablePool);
+
+    const parsedAmounts = receiveAmounts.map((amount, i) =>
+      amount.substring(
+        0,
+        amount.length - STABLE_LP_TOKEN_DECIMALS + tokens[i].decimals
+      )
+    );
+
+    setReceiveAmounts(parsedAmounts);
   }, [sharePercentage, tokens, amountByShare]);
 
   const userTotalShare = BigNumber.sum(shares, farmStake);

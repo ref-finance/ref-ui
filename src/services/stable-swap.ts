@@ -1,6 +1,7 @@
 import {
   divide,
   multiply,
+  scientificNotationToString,
   toNonDivisibleNumber,
   toPrecision,
   toReadableNumber,
@@ -15,10 +16,11 @@ import {
   Transaction,
   wallet,
   refFiViewFunction,
+  STABLE_TOKEN_INDEX,
 } from './near';
 import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
-import { getPool, Pool } from './pool';
+import { getPool, getStablePool, Pool, StablePool } from './pool';
 import {
   checkTokenNeedsStorageDeposit,
   getWhitelistedTokens,
@@ -39,6 +41,7 @@ import _ from 'lodash';
 const FEE_DIVISOR = 10000;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
 const STABLE_POOL_KEY = 'STABLE_POOL_VALUE';
+const REF_FI_STABLE_Pool_INFO_KEY = 'REF_FI_STABLE_Pool_INFO_VALUE';
 const STABLE_POOL_RES_KEY = 'STABLE_POOL_RES_KEY';
 
 interface EstimateSwapOptions {
@@ -49,12 +52,14 @@ interface EstimateSwapOptions {
   setLoadingData?: (loading: boolean) => void;
   loadingTrigger?: boolean;
   setLoadingTrigger?: (loadingTrigger: boolean) => void;
+  StablePoolInfo?: StablePool;
 }
 
 export interface EstimateSwapView {
   estimate: string;
   pool: Pool;
   intl?: any;
+  dy: string;
 }
 export const estimateSwap = async ({
   tokenIn,
@@ -63,26 +68,15 @@ export const estimateSwap = async ({
   intl,
   loadingTrigger,
   setLoadingTrigger,
+  StablePoolInfo,
 }: EstimateSwapOptions): Promise<EstimateSwapView> => {
-  const getStablePool = async () => {
-    let pool: any = JSON.parse(localStorage.getItem(STABLE_POOL_KEY));
+  const getPoolInfo = async () => {
+    let pool: Pool = JSON.parse(localStorage.getItem(STABLE_POOL_KEY));
 
-    if (
-      !pool ||
-      Number(pool.update_time) >=
-        Number(moment().unix()) -
-          Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL) ||
-      loadingTrigger
-    ) {
+    if (!pool || loadingTrigger) {
       pool = await getPool(Number(STABLE_POOL_ID));
 
-      localStorage.setItem(
-        STABLE_POOL_KEY,
-        JSON.stringify({
-          ...pool,
-          update_time: moment().unix(),
-        })
-      );
+      localStorage.setItem(STABLE_POOL_KEY, JSON.stringify(pool));
     }
     setLoadingTrigger(false);
 
@@ -105,34 +99,28 @@ export const estimateSwap = async ({
   };
 
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
+
   if (!parsedAmountIn)
     throw new Error(
       `${amountIn} ${intl.formatMessage({ id: 'is_not_a_valid_swap_amount' })}`
     );
 
   try {
-    const pool = await getStablePool();
-
-    const result = await Promise.resolve(
-      refFiViewFunction({
-        methodName: 'get_return',
-        args: {
-          pool_id: pool.id,
-          token_in: tokenIn.id,
-          token_out: tokenOut.id,
-          amount_in: parsedAmountIn,
-        },
-      })
-        .then((estimate) => ({
-          estimate,
-          status: 'success',
-          pool,
-        }))
-        .catch(() => ({ status: 'error', estimate: '0', pool }))
+    const pool = await getPoolInfo();
+    const [amount_swapped, fee, dy] = getSwappedAmount(
+      tokenIn.id,
+      tokenOut.id,
+      amountIn,
+      StablePoolInfo
     );
 
+    const amountOut = scientificNotationToString(amount_swapped.toString());
+
+    const dyOut = scientificNotationToString(dy.toString());
+
     return {
-      estimate: toReadableNumber(tokenOut.decimals, result.estimate),
+      estimate: toReadableNumber(STABLE_LP_TOKEN_DECIMALS, amountOut),
+      dy: toReadableNumber(STABLE_LP_TOKEN_DECIMALS, dyOut),
       pool,
     };
   } catch (err) {
@@ -478,6 +466,7 @@ export const calc_add_liquidity = (
 
   if (Number(d_1) <= Number(d_0))
     throw new Error(`D1 need less then or equal to D0.`);
+
   for (let i = 0; i < token_num; i++) {
     const ideal_balance = (old_c_amounts[i] * d_1) / d_0;
     const difference = Math.abs(ideal_balance - c_amounts[i]);
@@ -487,6 +476,7 @@ export const calc_add_liquidity = (
   const d_2 = calc_d(amp, c_amounts);
 
   if (Number(d_1) < Number(d_2)) throw new Error(`D2 need less then D1.`);
+
   if (Number(d_2) <= Number(d_0))
     throw new Error(`D1 need less then or equal to D0.`);
   const mint_shares = (pool_token_supply * (d_2 - d_0)) / d_0;
@@ -556,4 +546,99 @@ export const calc_swap = (
   const fee = tradeFee(dy, trade_fee);
   const amount_swapped = dy - fee;
   return [amount_swapped, fee, dy];
+};
+
+export const getSwappedAmount = (
+  tokenInId: string,
+  tokenOutId: string,
+  amountIn: string,
+  stablePool: StablePool
+) => {
+  const amp = stablePool.amp;
+  const trade_fee = stablePool.total_fee;
+
+  const in_token_idx = STABLE_TOKEN_INDEX[tokenInId];
+  const out_token_idx = STABLE_TOKEN_INDEX[tokenOutId];
+  const old_c_amounts = stablePool.c_amounts.map((amount) => Number(amount));
+  const in_c_amount = Number(
+    toNonDivisibleNumber(STABLE_LP_TOKEN_DECIMALS, amountIn)
+  );
+
+  const [amount_swapped, fee, dy] = calc_swap(
+    amp,
+    in_token_idx,
+    in_c_amount,
+    out_token_idx,
+    old_c_amounts,
+    trade_fee
+  );
+
+  return [amount_swapped, fee, dy];
+};
+
+export const getAddLiquidityShares = (
+  pool_id: number,
+  amounts: string[],
+  stablePool: StablePool
+) => {
+  const amp = stablePool.amp;
+  const trade_fee = stablePool.total_fee;
+
+  const deposit_c_amounts = amounts.map((amount) =>
+    Number(toNonDivisibleNumber(STABLE_LP_TOKEN_DECIMALS, amount))
+  );
+
+  const old_c_amounts = stablePool.c_amounts.map((amount) => Number(amount));
+
+  const pool_token_supply = Number(stablePool.shares_total_supply);
+
+  const [min_shares, fee_ratio] = calc_add_liquidity(
+    amp,
+    deposit_c_amounts,
+    old_c_amounts,
+    pool_token_supply,
+    trade_fee
+  );
+
+  return min_shares.toString();
+};
+
+export const getRemoveLiquidityByShare = (
+  shares: string,
+  stablePool: StablePool
+) => {
+  const c_amounts = stablePool.c_amounts.map((amount) => Number(amount));
+
+  const pool_token_supply = Number(stablePool.shares_total_supply);
+
+  const amounts = calc_remove_liquidity(
+    Number(shares),
+    c_amounts,
+    pool_token_supply
+  );
+
+  return amounts.map((amount) => amount.toString());
+};
+
+export const getRemoveLiquidityByTokens = (
+  amounts: string[],
+  stablePool: StablePool
+) => {
+  const amp = stablePool.amp;
+  const removed_c_amounts = amounts.map((amount) =>
+    Number(toNonDivisibleNumber(STABLE_LP_TOKEN_DECIMALS, amount))
+  );
+  const pool_token_supply = Number(stablePool.shares_total_supply);
+  const old_c_amounts = stablePool.c_amounts.map((amount) => Number(amount));
+  const trade_fee = Number(stablePool.total_fee);
+
+  const [burn_shares, diff] = calc_remove_liquidity_by_tokens(
+    amp,
+    removed_c_amounts,
+    old_c_amounts,
+    pool_token_supply,
+    trade_fee
+  );
+
+  return burn_shares.toString();
 };

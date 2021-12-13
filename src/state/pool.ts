@@ -22,11 +22,13 @@ import {
   removeLiquidityFromPool,
   predictLiquidityShares,
   predictRemoveLiquidityByTokens,
+  StablePool,
+  getStablePool,
 } from '../services/pool';
 import db, { PoolDb, WatchList } from '~store/RefDatabase';
 
 import { useWhitelistTokens } from './token';
-import _, { debounce, min, orderBy } from 'lodash';
+import _, { countBy, debounce, min, orderBy } from 'lodash';
 import {
   getPoolMonthVolume,
   getPoolMonthTVL,
@@ -36,9 +38,16 @@ import {
 import { parsePoolView, PoolRPCView } from '~services/api';
 import { TokenMetadata } from '~services/ft-contract';
 import { TokenBalancesView } from '~services/token';
-import { shareToAmount } from '~services/stable-swap';
+import {
+  shareToAmount,
+  getAddLiquidityShares,
+  getRemoveLiquidityByTokens,
+} from '~services/stable-swap';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import BigNumber from 'bignumber.js';
+import moment from 'moment';
+import { STABLE_POOL_ID } from '~services/near';
+const REF_FI_STABLE_Pool_INFO_KEY = 'REF_FI_STABLE_Pool_INFO_VALUE';
 
 export const usePool = (id: number | string) => {
   const [pool, setPool] = useState<PoolDetails>();
@@ -386,25 +395,34 @@ export const usePredictShares = ({
   firstTokenAmount,
   secondTokenAmount,
   thirdTokenAmount,
+  stablePool,
 }: {
   poolId: number;
   tokens: TokenMetadata[];
   firstTokenAmount: string;
   secondTokenAmount: string;
   thirdTokenAmount: string;
+  stablePool: StablePool;
 }) => {
   const [predicedShares, setPredictedShares] = useState<string>('0');
 
-  useEffect(() => {
-    const amounts = [firstTokenAmount, secondTokenAmount, thirdTokenAmount].map(
-      (amount, index) => {
-        return toNonDivisibleNumber(tokens[index].decimals, amount);
-      }
+  const zeroValidae = () => {
+    return (
+      Number(firstTokenAmount) > 0 ||
+      Number(secondTokenAmount) > 0 ||
+      Number(thirdTokenAmount) > 0
     );
+  };
 
-    predictLiquidityShares(poolId, amounts)
-      .then(setPredictedShares)
-      .catch(() => setPredictedShares('0'));
+  useEffect(() => {
+    if (!zeroValidae()) return;
+
+    const calcShares = getAddLiquidityShares(
+      poolId,
+      [firstTokenAmount, secondTokenAmount, thirdTokenAmount],
+      stablePool
+    );
+    setPredictedShares(calcShares);
   }, [firstTokenAmount, secondTokenAmount, thirdTokenAmount]);
 
   return predicedShares;
@@ -416,12 +434,14 @@ export const usePredictRemoveShares = ({
   tokens,
   setError,
   shares,
+  stablePool,
 }: {
   pool_id: number;
   amounts: string[];
   tokens: TokenMetadata[];
   setError: (e: Error) => void;
   shares: string;
+  stablePool: StablePool;
 }) => {
   const [canSubmitByToken, setCanSubmitByToken] = useState<boolean>(false);
 
@@ -429,10 +449,6 @@ export const usePredictRemoveShares = ({
     useState<string>('0');
 
   const zeroValidate = amounts.every((amount) => !(Number(amount) > 0));
-
-  const parsedAmounts = amounts.map((amount, i) => {
-    return toNonDivisibleNumber(tokens[i].decimals, amount || '0');
-  });
 
   function validate(predictedShare: string) {
     if (new BigNumber(predictedShare).isGreaterThan(new BigNumber(shares))) {
@@ -451,19 +467,48 @@ export const usePredictRemoveShares = ({
       return;
     }
     setCanSubmitByToken(false);
-    predictRemoveLiquidityByTokens(pool_id, parsedAmounts)
-      .then((res) => {
-        validate(res);
-        setPredictedRemoveShares(res);
-      })
-      .catch(() => {
-        setError(new Error('out_of_avaliable_shares'));
-        setCanSubmitByToken(false);
-      });
+
+    try {
+      const burn_shares = getRemoveLiquidityByTokens(amounts, stablePool);
+      console.log(burn_shares);
+
+      validate(burn_shares);
+      setPredictedRemoveShares(burn_shares);
+    } catch (error) {
+      setError(new Error('out_of_avaliable_shares'));
+      setCanSubmitByToken(false);
+    }
+
+    // predictRemoveLiquidityByTokens(pool_id, parsedAmounts)
+    //   .then((res) => {
+    //     validate(res);
+    //     setPredictedRemoveShares(res);
+    //   })
+    //   .catch(() => {
+    //     setError(new Error('out_of_avaliable_shares'));
+    //     setCanSubmitByToken(false);
+    //   });
   }, [...amounts]);
 
   return {
     predictedRemoveShares,
     canSubmitByToken,
   };
+};
+
+export const useStablePool = () => {
+  const [stablePool, setStablePool] = useState<StablePool>();
+  const [count, setCount] = useState(0);
+  const refreshTime = 5000;
+  useEffect(() => {
+    getStablePool(Number(STABLE_POOL_ID)).then((res) => {
+      setStablePool(res);
+    });
+    const id = setInterval(() => {
+      setCount(count + 1);
+    }, refreshTime);
+    return () => clearInterval(id);
+  }, [count]);
+
+  return stablePool;
 };

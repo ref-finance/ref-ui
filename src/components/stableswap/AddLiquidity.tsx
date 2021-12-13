@@ -15,6 +15,7 @@ import {
   addLiquidityToStablePool,
   Pool,
   predictLiquidityShares,
+  StablePool,
 } from '~services/pool';
 import { TokenBalancesView } from '~services/token';
 import { usePredictShares } from '~state/pool';
@@ -80,8 +81,9 @@ export default function AddLiquidityComponent(props: {
   balances: TokenBalancesView;
   totalShares: string;
   stakeList: Record<string, string>;
+  stablePool: StablePool;
 }) {
-  const { pool, tokens, balances, totalShares, stakeList } = props;
+  const { pool, tokens, balances, totalShares, stakeList, stablePool } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');
@@ -102,6 +104,7 @@ export default function AddLiquidityComponent(props: {
     firstTokenAmount,
     secondTokenAmount,
     thirdTokenAmount,
+    stablePool,
   });
   const [slippageInvalid, setSlippageInvalid] = useState(false);
 
