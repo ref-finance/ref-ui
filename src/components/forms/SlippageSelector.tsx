@@ -347,16 +347,19 @@ export function PoolSlippageSelector({
 export function StableSlipSelecter({
   slippageTolerance,
   onChange,
+  setInvalid,
+  invalid,
 }: {
   slippageTolerance: number;
   onChange: (slippage: number) => void;
+  setInvalid: (status: boolean) => void;
+  invalid: boolean;
 }) {
   const ref = useRef<HTMLInputElement>();
   const validSlippages = [0.1, 0.5, 1.0];
   const intl = useIntl();
   const slippageCopyId = isMobile() ? 'slippageCopyForMobile' : 'slippageCopy';
   const [showSlip, setShowSlip] = useState(false);
-  const [invalid, setInvalid] = useState(false);
   const [warn, setWarn] = useState(false);
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
 

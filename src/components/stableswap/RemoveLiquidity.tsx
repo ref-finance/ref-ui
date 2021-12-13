@@ -85,6 +85,8 @@ export function RemoveLiquidityComponent(props: {
   pool: Pool;
   stakeList: Record<string, string>;
 }) {
+  const [slippageInvalid, setSlippageInvalid] = useState(false);
+
   const { shares, tokens, pool, stakeList } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
@@ -215,7 +217,9 @@ export function RemoveLiquidityComponent(props: {
   const userTotalShare = BigNumber.sum(shares, farmStake);
 
   const canSubmit =
-    (isPercentage && canSubmitByShare) || (!isPercentage && canSubmitByToken);
+    ((isPercentage && canSubmitByShare) ||
+      (!isPercentage && canSubmitByToken)) &&
+    !slippageInvalid;
 
   return (
     <Card
@@ -408,6 +412,8 @@ export function RemoveLiquidityComponent(props: {
               setSlippageTolerance(slippage);
               localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
             }}
+            setInvalid={setSlippageInvalid}
+            invalid={slippageInvalid}
           />
           {isPercentage && (
             <div className="text-xs text-primaryText pb-8 pt-2 xs:pt-5 md:pt-5">

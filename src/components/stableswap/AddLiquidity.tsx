@@ -103,6 +103,7 @@ export default function AddLiquidityComponent(props: {
     secondTokenAmount,
     thirdTokenAmount,
   });
+  const [slippageInvalid, setSlippageInvalid] = useState(false);
 
   useEffect(() => {
     if (addType === 'addMax') {
@@ -358,7 +359,7 @@ export default function AddLiquidityComponent(props: {
     });
   }
 
-  const canSubmit = canDeposit || canAddLP;
+  const canSubmit = canDeposit || (canAddLP && !slippageInvalid);
 
   return (
     <>
@@ -391,6 +392,8 @@ export default function AddLiquidityComponent(props: {
               setSlippageTolerance(slippage);
               localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
             }}
+            setInvalid={setSlippageInvalid}
+            invalid={slippageInvalid}
           />
 
           <div className="flex items-center justify-between text-xs  lg:pt-2 pb-6 xs:pt-5 md:pt-5">
