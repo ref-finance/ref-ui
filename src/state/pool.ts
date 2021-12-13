@@ -5,6 +5,7 @@ import {
   toPrecision,
   toNonDivisibleNumber,
   toReadableNumber,
+  scientificNotationToString,
 } from '../utils/numbers';
 import { getStakedListByAccountId } from '~services/farm';
 import {
@@ -470,10 +471,9 @@ export const usePredictRemoveShares = ({
 
     try {
       const burn_shares = getRemoveLiquidityByTokens(amounts, stablePool);
-      console.log(burn_shares);
 
-      validate(burn_shares);
-      setPredictedRemoveShares(burn_shares);
+      validate(scientificNotationToString(burn_shares));
+      setPredictedRemoveShares(scientificNotationToString(burn_shares));
     } catch (error) {
       setError(new Error('out_of_avaliable_shares'));
       setCanSubmitByToken(false);
