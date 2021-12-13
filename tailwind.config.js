@@ -22,7 +22,7 @@ module.exports = {
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
         farmContainer: '1fr 4fr',
-        farmContainerOther: '1.2fr 3fr'
+        farmContainerOther: '1.2fr 3fr',
       },
       colors: {
         primary: '#10B981',
@@ -61,7 +61,7 @@ module.exports = {
         farmSbg: '#2F3D47',
         farmRound: '#B3C2CC',
         farmTopRight: '#008870',
-        datebg:'#637684'
+        datebg: '#637684',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
@@ -70,8 +70,9 @@ module.exports = {
         '25vw': '25vw',
         '35vw': '35vw',
         '40vw': '40vw',
-        '95vw': '95vw'
-      }
+        '95vw': '95vw',
+        '580px': '580px',
+      },
     },
     plugins: [],
   },

@@ -66,7 +66,7 @@ function StableSwapPage() {
   if (!allTokens || !pool || !shares) return <Loading />;
 
   return (
-    <div className="m-auto xl:w-1/3 2xl:w-1/3 3xl:w-1/4 lg:w-1/2 md:w-5/6 xs:w-full xs:p-2 m-auto">
+    <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2">
       <SquareRadio onChange={changeAction} radios={DEFAULT_ACTIONS} />
       {renderModule(actionName)}
       {
