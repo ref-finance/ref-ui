@@ -18,7 +18,9 @@ export default function Alert({
     <div
       className={`inline-flex items-center leading-none p-2 text-teal text-sm`}
     >
-      <FaExclamationTriangle className={`text-${color}-500 text-lg`} />
+      <div>
+        <FaExclamationTriangle className={`text-${color}-500 text-lg`} />
+      </div>
       <span className={`text-${color}-500 inline-flex px-2 leading-4`}>
         {message}
       </span>
