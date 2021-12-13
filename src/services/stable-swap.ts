@@ -403,7 +403,9 @@ const normalized_trade_fee = (
   amount: number,
   trade_fee: number
 ) => {
-  const adjusted_trade_fee = (trade_fee * token_num) / (4 * (token_num - 1));
+  const adjusted_trade_fee = Number(
+    Math.floor((trade_fee * token_num) / (4 * (token_num - 1)))
+  );
   return (amount * adjusted_trade_fee) / FEE_DIVISOR;
 };
 
@@ -415,9 +417,9 @@ export const calc_d = (amp: number, c_amounts: number[]) => {
   for (let i = 0; i < 256; i++) {
     let d_prod = d;
     for (let c_amount of c_amounts) {
-      d_prod = (d_prod * d) / (c_amount + token_num);
+      d_prod = (d_prod * d) / (c_amount * token_num);
     }
-    let d_prev = d;
+    d_prev = d;
     const ann = amp * token_num ** token_num;
     const numerator = d_prev * (d_prod * token_num + ann * sum_amounts);
     const denominator = d_prev * (ann - 1) + d_prod * (token_num + 1);
@@ -474,7 +476,9 @@ export const calc_add_liquidity = (
     c_amounts[i] = old_c_amounts[i] + deposit_c_amounts[i];
   }
   const d_1 = calc_d(amp, c_amounts);
-  if (d_1 >= d_0) throw new Error(`D1 need less then or equal to D0.`);
+
+  if (Number(d_1) <= Number(d_0))
+    throw new Error(`D1 need less then or equal to D0.`);
   for (let i = 0; i < token_num; i++) {
     const ideal_balance = (old_c_amounts[i] * d_1) / d_0;
     const difference = Math.abs(ideal_balance - c_amounts[i]);
@@ -482,8 +486,10 @@ export const calc_add_liquidity = (
     c_amounts[i] -= fee;
   }
   const d_2 = calc_d(amp, c_amounts);
-  if (d_2 > d_1) throw new Error(`D2 need less then D1.`);
-  if (d_1 >= d_0) throw new Error(`D1 need less then or equal to D0.`);
+
+  if (Number(d_1) < Number(d_2)) throw new Error(`D2 need less then D1.`);
+  if (Number(d_2) <= Number(d_0))
+    throw new Error(`D1 need less then or equal to D0.`);
   const mint_shares = (pool_token_supply * (d_2 - d_0)) / d_0;
   const diff_shares = (pool_token_supply * (d_1 - d_0)) / d_0;
 
@@ -497,7 +503,7 @@ export const calc_remove_liquidity = (
 ) => {
   let amounts = [];
   for (let i = 0; i < c_amounts.length; i++) {
-    amounts[i] = (i * shares) / pool_token_supply;
+    amounts[i] = (c_amounts[i] * shares) / pool_token_supply;
   }
   return amounts;
 };
@@ -513,7 +519,7 @@ export const calc_remove_liquidity_by_tokens = (
   const d_0 = calc_d(amp, old_c_amounts);
   let c_amounts = [];
   for (let i = 0; i < old_c_amounts.length; i++) {
-    c_amounts[i] = old_c_amounts[i] + removed_c_amounts[i];
+    c_amounts[i] = old_c_amounts[i] - removed_c_amounts[i];
   }
   const d_1 = calc_d(amp, c_amounts);
   if (d_1 >= d_0) throw new Error(`D1 need less then or equal to D0.`);
