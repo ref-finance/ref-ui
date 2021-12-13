@@ -114,12 +114,15 @@ export const estimateSwap = async ({
       StablePoolInfo
     );
 
-    const amountOut = toPrecision(
-      scientificNotationToString(amount_swapped.toString()),
-      0
-    );
+    const amountOut =
+      amount_swapped < 0
+        ? '0'
+        : toPrecision(scientificNotationToString(amount_swapped.toString()), 0);
 
-    const dyOut = toPrecision(scientificNotationToString(dy.toString()), 0);
+    const dyOut =
+      amount_swapped < 0
+        ? '0'
+        : toPrecision(scientificNotationToString(dy.toString()), 0);
 
     return {
       estimate: toReadableNumber(STABLE_LP_TOKEN_DECIMALS, amountOut),

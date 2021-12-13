@@ -472,13 +472,8 @@ export const usePredictRemoveShares = ({
     try {
       const burn_shares = getRemoveLiquidityByTokens(amounts, stablePool);
 
-      const parsedBurnShares = toPrecision(
-        scientificNotationToString(burn_shares),
-        0
-      );
-
-      validate(parsedBurnShares);
-      setPredictedRemoveShares(parsedBurnShares);
+      validate(burn_shares);
+      setPredictedRemoveShares(burn_shares);
     } catch (error) {
       setError(new Error('out_of_avaliable_shares'));
       setCanSubmitByToken(false);
