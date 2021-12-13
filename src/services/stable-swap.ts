@@ -136,7 +136,6 @@ export const estimateSwap = async ({
       pool,
     };
   } catch (err) {
-    console.log(err);
     throw new Error(
       `${intl.formatMessage({ id: 'no_pool_available_to_make_a_swap_from' })} ${
         tokenIn.symbol
