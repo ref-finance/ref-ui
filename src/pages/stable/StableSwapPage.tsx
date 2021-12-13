@@ -29,7 +29,7 @@ function StableSwapPage() {
   const changeAction = (actionName: string) => {
     setAction(actionName);
   };
-  const cardWidth = isMobile() ? '95vw' : '580px';
+  // const cardWidth = isMobile() ? '95vw' : '580px';
 
   const tokens =
     allTokens &&
@@ -66,7 +66,7 @@ function StableSwapPage() {
   if (!allTokens || !pool || !shares) return <Loading />;
 
   return (
-    <div className="m-auto" style={{ width: cardWidth }}>
+    <div className="m-auto xl:w-1/3 2xl:w-1/3 3xl:w-1/4 lg:w-1/2 md:w-5/6 xs:w-full xs:p-2 m-auto">
       <SquareRadio onChange={changeAction} radios={DEFAULT_ACTIONS} />
       {renderModule(actionName)}
       {
