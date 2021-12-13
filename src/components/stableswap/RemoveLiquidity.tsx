@@ -53,7 +53,7 @@ import StableTokenList, {
 } from './StableTokenList';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
 import { Link } from 'react-router-dom';
-import { LP_TOKEN_DECIMALS } from '~services/m-token';
+import { LP_STABLE_TOKEN_DECIMALS, LP_TOKEN_DECIMALS } from '~services/m-token';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
@@ -221,10 +221,12 @@ export function RemoveLiquidityComponent(props: {
     const receiveAmounts = getRemoveLiquidityByShare(shareParam, stablePool);
 
     const parsedAmounts = receiveAmounts.map((amount, i) =>
-      amount.substring(
-        0,
-        amount.length - STABLE_LP_TOKEN_DECIMALS + tokens[i].decimals
-      )
+      toRoundedReadableNumber({
+        decimals: LP_STABLE_TOKEN_DECIMALS - tokens[i].decimals,
+        number: amount,
+        precision: 0,
+        withCommas: false,
+      })
     );
 
     setReceiveAmounts(parsedAmounts);

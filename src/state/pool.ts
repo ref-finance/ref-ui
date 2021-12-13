@@ -483,16 +483,6 @@ export const usePredictRemoveShares = ({
       setError(new Error('out_of_avaliable_shares'));
       setCanSubmitByToken(false);
     }
-
-    // predictRemoveLiquidityByTokens(pool_id, parsedAmounts)
-    //   .then((res) => {
-    //     validate(res);
-    //     setPredictedRemoveShares(res);
-    //   })
-    //   .catch(() => {
-    //     setError(new Error('out_of_avaliable_shares'));
-    //     setCanSubmitByToken(false);
-    //   });
   }, [...amounts]);
 
   return {
