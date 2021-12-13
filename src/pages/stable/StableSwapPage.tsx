@@ -14,7 +14,6 @@ import { RemoveLiquidityComponent } from '~components/stableswap/RemoveLiquidity
 import TokenReserves from '~components/stableswap/TokenReserves';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import getConfig from '~services/config';
-const cardWidth = isMobile() ? '95vw' : '580px';
 const DEFAULT_ACTIONS = ['stable_swap', 'add_liquidity', 'remove_liquidity'];
 const STABLE_TOKENS = ['USDT', 'USDC', 'DAI'];
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
@@ -30,6 +29,7 @@ function StableSwapPage() {
   const changeAction = (actionName: string) => {
     setAction(actionName);
   };
+  // const cardWidth = isMobile() ? '95vw' : '580px';
 
   const tokens =
     allTokens &&
@@ -66,7 +66,7 @@ function StableSwapPage() {
   if (!allTokens || !pool || !shares) return <Loading />;
 
   return (
-    <div className="m-auto" style={{ width: cardWidth }}>
+    <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2">
       <SquareRadio onChange={changeAction} radios={DEFAULT_ACTIONS} />
       {renderModule(actionName)}
       {

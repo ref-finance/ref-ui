@@ -48,6 +48,7 @@ const en_US = {
   slippage_title: 'Transaction Settings',
   minimum_received: 'Minimum received',
   swap_rate: 'Swap rate',
+  swap_rate_pre: 'Swap rate',
   pool_fee: 'Pool fee',
   balance: 'Balance',
   from: 'From',
@@ -242,7 +243,7 @@ const en_US = {
   by_token: 'By Token',
   your_liquidity_positions_will_appear_here:
     'Your liquidity positions will appear here.',
-  price_impact: 'Price Impact',
+  price_impact: 'Price impact',
   shares_left: 'Shares left',
   total_stable_coins: 'Total stablecoins',
   daily_volume: 'Daily volume',

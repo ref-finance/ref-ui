@@ -50,6 +50,7 @@ export function SwapDetail({
 
 export function SwapRateDetail({
   title,
+  subTitle,
   value,
   pool,
   from,
@@ -58,6 +59,7 @@ export function SwapRateDetail({
   tokenOut,
 }: {
   title: string;
+  subTitle?: string;
   value: string;
   pool: Pool;
   from: string;
@@ -90,7 +92,10 @@ export function SwapRateDetail({
 
   return (
     <section className="grid grid-cols-2 py-1 text-xs">
-      <p className="text-primaryText text-left">{title}</p>
+      <p className="text-primaryText text-left flex xs:flex-col md:flex-col">
+        <label className="mr-1">{title}</label>
+        {subTitle ? <label>{subTitle}</label> : null}
+      </p>
       <p
         className="flex justify-end text-white cursor-pointer text-right"
         onClick={switchSwapRate}
