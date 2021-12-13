@@ -276,8 +276,12 @@ export function DetailView({
         />
         <SwapRateDetail
           title={intl.formatMessage({
-            id: 'swap_rate_including_fee',
-            defaultMessage: 'Swap rate (including fees)',
+            id: 'swap_rate_pre',
+            defaultMessage: 'Swap rate ',
+          })}
+          subTitle={intl.formatMessage({
+            id: 'including_fees',
+            defaultMessage: '(including fees)',
           })}
           value={`1 ${toRealSymbol(tokenOut.symbol)} ≈ ${calculateExchangeRate(
             pool.fee,

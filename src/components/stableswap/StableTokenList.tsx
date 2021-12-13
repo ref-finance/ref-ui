@@ -48,7 +48,7 @@ export function FlexibleStableToken({
   return (
     <div className="flex flex-col">
       <div className="w-full flex items-start mb-8">
-        <div className="flex items-center mt-1 w-28 xs:w-24 md:w-24">
+        <div className="flex items-center mt-1 w-28 xs:w-24 md:w-24 xs:flex-shrink-0 md:xs:flex-shrink-0">
           <Icon
             icon={token.icon}
             className="h-9 w-9 mr-2 xs:w-7 xs:h-7 md:w-7 md-h-7"
@@ -107,7 +107,7 @@ export default function StableTokenList(props: {
         </span>
       </div>
       <div className="flex items-center ">
-        <div className="flex items-center w-28 xs:w-24 md:w-24">
+        <div className="flex items-center w-28 xs:w-24 md:w-24 xs:flex-shrink-0 md:xs:flex-shrink-0">
           <Icon
             icon={tokens[0].icon}
             className="h-9 w-9 xs:h-7 md:h-7 xs:w-7 md:w-7 mr-2"
@@ -140,7 +140,7 @@ export default function StableTokenList(props: {
           </span>
         </div>
         <div className="flex items-center">
-          <div className="flex items-center w-28 xs:w-24 md:w-24">
+          <div className="flex items-center w-28 xs:w-24 md:w-24 xs:flex-shrink-0 md:xs:flex-shrink-0">
             <Icon
               icon={tokens[1].icon}
               className="h-9 w-9 xs:h-7 md:h-7 xs:w-7 md:w-7 mr-2"
@@ -172,7 +172,7 @@ export default function StableTokenList(props: {
           </span>
         </div>
         <div className="flex items-center">
-          <div className="flex items-center w-28 xs:w-24 md:w-24">
+          <div className="flex items-center w-28 xs:w-24 md:w-24 xs:flex-shrink-0 md:xs:flex-shrink-0">
             <Icon
               icon={tokens[2].icon}
               className="h-9 w-9 xs:h-7 md:h-7 xs:w-7 md:w-7 mr-2"
@@ -237,40 +237,46 @@ export function StableTokensSymbol(props: {
 
   return (
     <div className="flex mb-6 items-center justify-between">
-      <div className="flex">
+      <div className="flex xs:flex-col md:flex-col xs:items-center md:items-center">
         <Icon
           icon={tokens[0].icon}
           className="inline-block h-9 w-9 xs:h-7 xs:w-7 md:h-7 md:w-7 mr-2 xs:mr-0.5 md:mr-0.5"
         />
-        <div className="ml-2 inline-block">
-          <p className="text-sm">{toRealSymbol(tokens[0].symbol)}</p>
-          <div className="text-xs">
+        <div className="ml-2 inline-block xs:ml-0 md:ml-0">
+          <p className="text-sm xs:text-center md:text-center xs:my-1 md:my-1">
+            {toRealSymbol(tokens[0].symbol)}
+          </p>
+          <div className="text-xs xs:text-center md:text-center">
             {calcTokenReceived(receiveAmounts[0], tokens[0])}
           </div>
         </div>
       </div>
       <div> + </div>
-      <div className="flex">
+      <div className="flex xs:flex-col md:flex-col xs:items-center md:items-center">
         <Icon
           icon={tokens[1].icon}
           className="inline-block h-9 w-9 xs:h-7 xs:w-7 md:h-7 md:w-7 mr-2 xs:mr-0.5 md:mr-0.5"
         />
-        <div className="ml-2 inline-block">
-          <p className="text-sm">{toRealSymbol(tokens[1].symbol)}</p>
-          <div className="text-xs">
+        <div className="ml-2 inline-block xs:ml-0 md:ml-0">
+          <p className="text-sm xs:text-center md:text-center xs:my-1 md:my-1">
+            {toRealSymbol(tokens[1].symbol)}
+          </p>
+          <div className="text-xs xs:text-center md:text-center">
             {calcTokenReceived(receiveAmounts[1], tokens[1])}
           </div>
         </div>
       </div>
       <div> + </div>
-      <div className="flex">
+      <div className="flex xs:flex-col md:flex-col xs:items-center md:items-center">
         <Icon
           icon={tokens[2].icon}
           className="inline-block h-9 w-9 xs:h-7 xs:w-7 md:h-7 md:w-7 mr-2 xs:mr-0.5 md:mr-0.5"
         />
-        <div className="ml-2 inline-block">
-          <p className="text-sm">{toRealSymbol(tokens[2].symbol)}</p>
-          <div className="text-xs">
+        <div className="ml-2 inline-block xs:ml-0 md:ml-0">
+          <p className="text-sm xs:text-center md:text-center xs:my-1 md:my-1">
+            {toRealSymbol(tokens[2].symbol)}
+          </p>
+          <div className="text-xs xs:text-center md:text-center">
             {calcTokenReceived(receiveAmounts[2], tokens[2])}
           </div>
         </div>

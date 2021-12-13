@@ -163,8 +163,8 @@ export const moreLinks: MobileMenuItem[] = [
     isExternal: false,
   },
   {
-    id: 'Stableswap',
-    label: 'Stableswap',
+    id: 'StableSwap',
+    label: 'StableSwap',
     pattern: '/stableswap',
     url: '/stableswap',
     isExternal: false,
