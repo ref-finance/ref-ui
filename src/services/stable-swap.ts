@@ -617,7 +617,7 @@ export const getRemoveLiquidityByShare = (
     pool_token_supply
   );
 
-  return amounts.map((amount) => amount.toString());
+  return amounts.map((amount) => scientificNotationToString(amount.toString()));
 };
 
 export const getRemoveLiquidityByTokens = (
