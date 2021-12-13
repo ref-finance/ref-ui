@@ -114,9 +114,12 @@ export const estimateSwap = async ({
       StablePoolInfo
     );
 
-    const amountOut = scientificNotationToString(amount_swapped.toString());
+    const amountOut = toPrecision(
+      scientificNotationToString(amount_swapped.toString()),
+      0
+    );
 
-    const dyOut = scientificNotationToString(dy.toString());
+    const dyOut = toPrecision(scientificNotationToString(dy.toString()), 0);
 
     return {
       estimate: toReadableNumber(STABLE_LP_TOKEN_DECIMALS, amountOut),
@@ -600,7 +603,7 @@ export const getAddLiquidityShares = (
     trade_fee
   );
 
-  return min_shares.toString();
+  return toPrecision(scientificNotationToString(min_shares.toString()), 0);
 };
 
 export const getRemoveLiquidityByShare = (
@@ -642,5 +645,5 @@ export const getRemoveLiquidityByTokens = (
     trade_fee
   );
 
-  return burn_shares.toString();
+  return toPrecision(scientificNotationToString(burn_shares.toString()), 0);
 };
