@@ -69,9 +69,19 @@ export default function StableSwap({ tokens, balances }: StableSwapProps) {
 
   const handleSwapFrom = (tokenFrom: string) => {
     setTokenIn(tokens.filter((item) => item.id === tokenFrom)[0]);
+
+    if (tokenFrom === tokenOut.id) {
+      const nextTokenOut = tokens.find((token) => token.id !== tokenFrom);
+      setTokenOut(nextTokenOut);
+    }
   };
   const handleSwapTo = (tokenTo: string) => {
     setTokenOut(tokens.filter((item) => item.id === tokenTo)[0]);
+
+    if (tokenTo === tokenIn.id) {
+      const nextTokenIn = tokens.find((token) => token.id !== tokenTo);
+      setTokenIn(nextTokenIn);
+    }
   };
 
   useEffect(() => {
