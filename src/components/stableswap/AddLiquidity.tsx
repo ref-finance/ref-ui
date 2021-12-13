@@ -110,6 +110,8 @@ export default function AddLiquidityComponent(props: {
       setError(null);
       setCanAddLP(true);
       setCanDeposit(false);
+      setMessageId('add_liquidity');
+      setDefaultMessage('Add Liquidity');
       setFirstTokenAmount(
         toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
       );
@@ -122,6 +124,7 @@ export default function AddLiquidityComponent(props: {
     } else if (addType === 'addAll') {
       setError(null);
       setCanAddLP(false);
+      setCanDeposit(false);
       setFirstTokenAmount('');
       setSecondTokenAmount('');
       setThirdTokenAmount('');
@@ -282,9 +285,28 @@ export default function AddLiquidityComponent(props: {
 
     const ONLY_ZEROS = /^0*\.?0*$/;
 
+    if (
+      !(
+        firstTokenAmountBN.isEqualTo(firstTokenBalanceBN) &&
+        secondTokenAmountBN.isEqualTo(secondTokenBalanceBN) &&
+        thirdTokenAmountBN.isEqualTo(thirdTokenBalanceBN)
+      ) &&
+      addType === 'addMax'
+    ) {
+      setAddType('');
+    } else if (
+      firstTokenAmountBN.isEqualTo(firstTokenBalanceBN) &&
+      secondTokenAmountBN.isEqualTo(secondTokenBalanceBN) &&
+      thirdTokenAmountBN.isEqualTo(thirdTokenBalanceBN) &&
+      !addType
+    ) {
+      setAddType('addMax');
+    }
+
     if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
       setMessageId('deposit_to_add_liquidity');
       setDefaultMessage('Deposit to Add Liquidity');
+      setCanAddLP(false);
       setCanDeposit(true);
       throw new Error(
         `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
@@ -296,6 +318,7 @@ export default function AddLiquidityComponent(props: {
     if (secondTokenAmountBN.isGreaterThan(secondTokenBalanceBN)) {
       setMessageId('deposit_to_add_liquidity');
       setDefaultMessage('Deposit to Add Liquidity');
+      setCanAddLP(false);
       setCanDeposit(true);
       throw new Error(
         `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
@@ -307,6 +330,7 @@ export default function AddLiquidityComponent(props: {
     if (thirdTokenAmountBN.isGreaterThan(thirdTokenBalanceBN)) {
       setMessageId('deposit_to_add_liquidity');
       setDefaultMessage('Deposit to Add Liquidity');
+      setCanAddLP(false);
       setCanDeposit(true);
       throw new Error(
         `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
@@ -321,17 +345,6 @@ export default function AddLiquidityComponent(props: {
       (!thirdAmount || ONLY_ZEROS.test(thirdAmount))
     ) {
       setCanAddLP(false);
-    }
-
-    if (
-      !(
-        firstTokenAmountBN.isEqualTo(firstTokenBalanceBN) &&
-        secondTokenAmountBN.isEqualTo(secondTokenBalanceBN) &&
-        thirdTokenAmountBN.isEqualTo(thirdTokenBalanceBN)
-      ) &&
-      addType === 'addMax'
-    ) {
-      setAddType('');
     }
 
     setMessageId('add_liquidity');
