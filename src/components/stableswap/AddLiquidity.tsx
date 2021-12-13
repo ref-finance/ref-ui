@@ -109,6 +109,7 @@ export default function AddLiquidityComponent(props: {
     if (addType === 'addMax') {
       setError(null);
       setCanAddLP(true);
+      setCanDeposit(false);
       setFirstTokenAmount(
         toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
       );
