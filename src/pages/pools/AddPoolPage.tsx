@@ -15,6 +15,8 @@ import Alert from '~components/alert/Alert';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { toRealSymbol } from '~utils/token';
 import BigNumber from 'bignumber.js';
+import QuestionMark from '~components/farm/QuestionMark';
+import ReactTooltip from 'react-tooltip';
 
 export function AddPoolPage() {
   const tokens = useWhitelistTokens();
@@ -29,6 +31,20 @@ export function AddPoolPage() {
     moreThan: intl.formatMessage({ id: 'more_than' }),
     lessThan: intl.formatMessage({ id: 'less_than' }),
     noValid: intl.formatMessage({ id: 'no_valid' }),
+  };
+  const feeList = {
+    lp_fee: {
+      v: intl.formatMessage({ id: 'lp_fee' }),
+      percent: '80',
+    },
+    protocol_fee: {
+      v: intl.formatMessage({ id: 'protocol_fee' }),
+      percent: '16',
+    },
+    referral_fee: {
+      v: intl.formatMessage({ id: 'referral_fee' }),
+      percent: '4',
+    },
   };
   if (!tokens || !balances) return <Loading />;
 
@@ -73,7 +89,31 @@ export function AddPoolPage() {
     new BigNumber(fee).isLessThan('20') &&
     !!token1 &&
     !!token2;
-
+  const getFeeDetail = () => {
+    let result = '';
+    Object.values(feeList).forEach((item) => {
+      const str = `<div class="flex tems-center text-xs text-primaryText my-1"><label class="mr-2">${item.v}</label><label>${item.percent}%</label></div>`;
+      result += str;
+    });
+    return result;
+  };
+  const getCurFee = (item: any) => {
+    const { v, percent } = item;
+    let result;
+    if (
+      !!fee &&
+      new BigNumber(fee).isGreaterThanOrEqualTo('0.01') &&
+      new BigNumber(fee).isLessThan('20')
+    ) {
+      result = new BigNumber(fee)
+        .multipliedBy(percent)
+        .dividedBy('100')
+        .toFixed();
+    } else {
+      result = '-';
+    }
+    return result + ' %';
+  };
   return (
     <div className="flex items flex-col xl:w-1/3 2xl:w-1/3 3xl:w-1/4 lg:w-1/2 md:w-5/6 xs:w-full xs:p-2 m-auto">
       <div className="formTitle text-2xl text-white pb-4 px-4 lg:hidden">
@@ -121,10 +161,30 @@ export function AddPoolPage() {
         </div>
 
         <div className="text-xs py-2 flex items-center justify-end">
-          <div className="flex-grow">
-            <span className="pr-1 text-white">
-              <FormattedMessage id="fee" defaultMessage="Fee" /> %
+          <div className="flex flex-grow items-center">
+            <span className="text-white text-sm">
+              <FormattedMessage id="total_fee_create" defaultMessage="Fee" />
             </span>
+            <div
+              className="ml-2 text-sm"
+              data-type="info"
+              data-place="right"
+              data-multiline={true}
+              data-class="reactTip"
+              data-html={true}
+              data-tip={getFeeDetail()}
+              data-for="feeDetail"
+            >
+              <QuestionMark />
+              <ReactTooltip
+                className="w-20"
+                id="feeDetail"
+                backgroundColor="#1D2932"
+                border
+                borderColor="#7e8a93"
+                effect="solid"
+              />
+            </div>
           </div>
           <Toggle
             opts={[
@@ -159,6 +219,19 @@ export function AddPoolPage() {
           {errorKey && (
             <Alert level="error" message={new Error(tip[errorKey]).message} />
           )}
+        </div>
+        <div className="rounded-md bg-black bg-opacity-20 px-4 py-2 mt-5">
+          {Object.values(feeList).map((item) => {
+            return (
+              <div
+                className="flex justify-between items-center my-2"
+                key={item.v + 1}
+              >
+                <label className="text-sm text-primaryText">{item.v}</label>
+                <label className="text-sm text-white">{getCurFee(item)}</label>
+              </div>
+            );
+          })}
         </div>
         <div className="pt-6 w-full">
           {wallet.isSignedIn() ? (

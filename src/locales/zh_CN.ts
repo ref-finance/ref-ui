@@ -267,5 +267,9 @@ const zh_CN = {
   more_than: '请输入大于等于0.01的数字',
   less_than: '请输入小于20的数字',
   no_valid: '请输入有效数字',
+  lp_fee: '流动池费',
+  protocol_fee: '协议费',
+  referral_fee: '中介费',
+  total_fee_create: '总共费用',
 };
 export default zh_CN;

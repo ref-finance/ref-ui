@@ -193,7 +193,7 @@ export default function ({
   pool: Pool;
   inSwapPage?: boolean;
 }) {
-  const [showReserves, setShowReserves] = useState<boolean>(false);
+  const [showReserves, setShowReserves] = useState<boolean>(true);
   const [chart, setChart] = useState(null);
   const { id } = pool;
   let volume;

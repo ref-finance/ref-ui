@@ -100,7 +100,7 @@ export function RemoveLiquidityComponent(props: {
   const [isPercentage, setIsPercentage] = useState<boolean>(true);
   const [amountByShare, setAmountByShare] = useState<string>('');
   const [slippageTolerance, setSlippageTolerance] = useState<number>(
-    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY)) || 0.5
+    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY)) || 0.1
   );
   const [canSubmitByShare, setCanSubmitByShare] = useState<boolean>(false);
 

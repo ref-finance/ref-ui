@@ -13,15 +13,17 @@ export default function SlippageSelector({
   onChange,
   bindUseBalance,
   useNearBalance,
+  validSlippageList,
 }: {
   slippageTolerance: number;
   onChange: (slippage: number) => void;
   bindUseBalance: (useNearBalance: boolean) => void;
   useNearBalance: string;
+  validSlippageList?: number[];
 }) {
   const ref = useRef<HTMLInputElement>();
   const field = useRef<HTMLFieldSetElement>();
-  const validSlippages = [0.1, 0.5, 1.0];
+  const validSlippages = validSlippageList || [0.1, 0.5, 1.0];
   const intl = useIntl();
   const slippageCopyId = isMobile() ? 'slippageCopyForMobile' : 'slippageCopy';
   const [showSlip, setShowSlip] = useState(false);
@@ -356,7 +358,7 @@ export function StableSlipSelecter({
   invalid: boolean;
 }) {
   const ref = useRef<HTMLInputElement>();
-  const validSlippages = [0.1, 0.5, 1.0];
+  const validSlippages = [0.05, 0.1, 0.2];
   const intl = useIntl();
   const slippageCopyId = isMobile() ? 'slippageCopyForMobile' : 'slippageCopy';
   const [showSlip, setShowSlip] = useState(false);
@@ -456,7 +458,7 @@ export function StableSlipSelecter({
             ref={ref}
             max={99.99999}
             min={0.000001}
-            defaultValue={slippageTolerance ? slippageTolerance : 0.5}
+            defaultValue={slippageTolerance ? slippageTolerance : 0.1}
             onWheel={() => ref.current.blur()}
             step="any"
             className={`${

@@ -49,7 +49,7 @@ export default function StableSwap({
   const [tokenOut, setTokenOut] = useState<TokenMetadata>(tokens[1]);
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [slippageTolerance, setSlippageTolerance] = useState<number>(
-    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY)) || 0.5
+    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY)) || 0.1
   );
   const [disabled, setDisabled] = useState<boolean>(false);
   const [useNearBalance, setUseNearBalance] = useState<boolean>(
@@ -167,6 +167,7 @@ export default function StableSwap({
             slippageTolerance={slippageTolerance}
             onChange={onChangeSlip}
             useNearBalance={useNearBalance.toString()}
+            validSlippageList={[0.05, 0.1, 0.2]}
             bindUseBalance={(useNearBalance) => {
               setUseNearBalance(useNearBalance);
               localStorage.setItem(

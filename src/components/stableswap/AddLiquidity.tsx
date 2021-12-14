@@ -89,7 +89,7 @@ export default function AddLiquidityComponent(props: {
   const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');
   const [addType, setAddType] = useState<string>('addAll');
   const [slippageTolerance, setSlippageTolerance] = useState<number>(
-    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY)) || 0.5
+    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY)) || 0.1
   );
   const [messageId, setMessageId] = useState<string>('add_liquidity');
   const [defaultMessage, setDefaultMessage] = useState<string>('Add Liquidity');
