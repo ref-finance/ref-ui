@@ -160,7 +160,7 @@ export function AddPoolPage() {
           </div>
         </div>
 
-        <div className="text-xs py-2 flex items-center justify-end">
+        <div className="text-xs py-2 flex items-center justify-end xs:items-start md:items-start">
           <div className="flex flex-grow items-center">
             <span className="text-white text-sm">
               <FormattedMessage id="total_fee_create" defaultMessage="Fee" />

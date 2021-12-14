@@ -276,7 +276,7 @@ const en_US = {
   more_than: 'Please input number that more than or equal to 0.01',
   less_than: 'Please input number that less than 20',
   no_valid: 'Please input valid number',
-  lp_fee: 'Lp fee',
+  lp_fee: 'LP fee',
   protocol_fee: 'Protocol fee',
   referral_fee: 'Referral fee',
   total_fee_create: 'Total fee',
