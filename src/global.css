@@ -455,3 +455,39 @@ input[type='range']::-webkit-slider-thumb {
     -webkit-transform: rotate(45deg);
   }
 }
+.popUpPc {
+  /* width:350px;
+  height:312px; */
+  /* width:300px;
+  height:267px; */
+  width: 320px;
+  height: 285px;
+  background: url(./assets/imgs/popUpPc.png) center no-repeat;
+  background-size: 100% 100%;
+  animation: pushLeftanimation 1.5s ease;
+}
+.popUpMobile {
+  width: 345px;
+  height: 137px;
+  background: url(./assets/imgs/popUpMobile.png) center no-repeat;
+  background-size: 100% 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: pushanimation 1.5s ease;
+}
+@keyframes pushLeftanimation {
+  0% {
+    right: -320px;
+  }
+  100% {
+    right: 0;
+  }
+}
+@keyframes pushanimation {
+  0% {
+    bottom: -137px;
+  }
+  100% {
+    bottom: 0;
+  }
+}
