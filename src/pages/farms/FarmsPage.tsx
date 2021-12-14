@@ -318,6 +318,7 @@ export function FarmsPage() {
   }
   const handleClick = (e: any) => {
     if (
+      sortRef.current &&
       !sortRef.current.contains(e.target) &&
       !sortBoxRef.current.contains(e.target)
     ) {
