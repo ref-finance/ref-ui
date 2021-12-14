@@ -416,7 +416,10 @@ export const usePredictShares = ({
   };
 
   useEffect(() => {
-    if (!zeroValidae()) return;
+    if (!zeroValidae()) {
+      setPredictedShares('0');
+      return;
+    }
 
     const calcShares = getAddLiquidityShares(
       poolId,
