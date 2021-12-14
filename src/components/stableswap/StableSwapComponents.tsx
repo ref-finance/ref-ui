@@ -5,7 +5,12 @@ import { FormattedMessage } from 'react-intl';
 import { TokenMetadata } from '~services/ft-contract';
 import { UnCheckedRadio, CheckedRadio, Radio } from '~components/icon';
 import { useIntl } from 'react-intl';
-import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
+import {
+  FaAngleUp,
+  FaAngleDown,
+  FaExchangeAlt,
+  FaServicestack,
+} from 'react-icons/fa';
 import { SwapDetail, SwapRateDetail } from '~components/swap/SwapCard';
 import { toRealSymbol } from '~utils/token';
 import { WarnTriangle, ErrorTriangle } from '~components/icon/SwapRefresh';
@@ -18,8 +23,6 @@ import {
 } from '~utils/numbers';
 
 const GetPriceImpact = (from: string, to: string) => {
-  // TODO: minus fee to calculate to
-
   const value = calcStableSwapPriceImpact(from, to);
 
   const textColor =
@@ -37,8 +40,6 @@ const GetPriceImpact = (from: string, to: string) => {
 };
 
 const getPriceImpactTipType = (from: string, to: string) => {
-  // TODO: minus fee to calculate to
-
   const value = calcStableSwapPriceImpact(from, to);
 
   const reault =
@@ -253,6 +254,7 @@ export function DetailView({
   const [showDetails, setShowDetails] = useState<boolean>(false);
 
   if (!from || !to || !(Number(from) > 0) || !pool) return null;
+
   return (
     <div className="mt-4">
       <div
@@ -262,7 +264,11 @@ export function DetailView({
         }}
       >
         <div className="flex items-center text-white cursor-pointer">
-          <label className="mr-2">{getPriceImpactTipType(from, to)}</label>
+          <label className="mr-2">
+            {noFeeAmount &&
+              noFeeAmount !== '0' &&
+              getPriceImpactTipType(from, noFeeAmount)}
+          </label>
           <p className="block text-xs">
             <FormattedMessage id="details" defaultMessage="Details" />
           </p>

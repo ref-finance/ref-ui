@@ -53,6 +53,7 @@ interface EstimateSwapOptions {
   loadingTrigger?: boolean;
   setLoadingTrigger?: (loadingTrigger: boolean) => void;
   StablePoolInfo?: StablePool;
+  setCanSwap?: (can: boolean) => void;
 }
 
 export interface EstimateSwapView {
@@ -69,14 +70,15 @@ export const estimateSwap = async ({
   loadingTrigger,
   setLoadingTrigger,
   StablePoolInfo,
+  setCanSwap,
 }: EstimateSwapOptions): Promise<EstimateSwapView> => {
   const getPoolInfo = async () => {
     let pool: Pool = JSON.parse(localStorage.getItem(STABLE_POOL_KEY));
 
     if (!pool || loadingTrigger) {
       pool = await getPool(Number(STABLE_POOL_ID));
-
       localStorage.setItem(STABLE_POOL_KEY, JSON.stringify(pool));
+      setLoadingTrigger(false);
     }
 
     if (
@@ -94,6 +96,7 @@ export const estimateSwap = async ({
         })}`
       );
     }
+
     return pool;
   };
 

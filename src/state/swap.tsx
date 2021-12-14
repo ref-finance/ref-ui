@@ -217,7 +217,6 @@ export const useStableSwap = ({
   const minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
     : null;
-  const refreshTime = 10000;
 
   const intl = useIntl();
 
@@ -283,6 +282,7 @@ export const useStableSwap = ({
         loadingTrigger,
         setLoadingTrigger,
         StablePoolInfo: stablePool,
+        setCanSwap,
       })
         .then(({ estimate, pool, dy }) => {
           if (!estimate || !pool) throw '';

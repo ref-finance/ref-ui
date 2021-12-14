@@ -501,8 +501,8 @@ export const useStablePool = ({
   const refreshTime = 10000;
   useEffect(() => {
     getStablePool(Number(STABLE_POOL_ID)).then((res) => {
-      setLoadingTrigger(false);
       setStablePool(res);
+      localStorage.setItem(REF_FI_STABLE_Pool_INFO_KEY, JSON.stringify(res));
     });
   }, [count, loadingTrigger]);
 
