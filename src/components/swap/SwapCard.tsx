@@ -50,20 +50,20 @@ export function SwapDetail({
 
 export function SwapRateDetail({
   title,
-  subTitle,
   value,
-  pool,
+  subTitle,
   from,
   to,
   tokenIn,
   tokenOut,
+  pool,
 }: {
-  title: string;
-  subTitle?: string;
-  value: string;
   pool: Pool;
+  title: string;
+  value: string;
   from: string;
   to: string;
+  subTitle?: string;
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
 }) {
@@ -155,6 +155,7 @@ function DetailView({
   to,
   minAmountOut,
   canSwap,
+  loadingTrigger,
 }: {
   pool: Pool;
   tokenIn: TokenMetadata;
@@ -163,6 +164,7 @@ function DetailView({
   to: string;
   minAmountOut: string;
   canSwap?: boolean;
+  loadingTrigger?: boolean;
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
@@ -188,7 +190,8 @@ function DetailView({
     );
   };
 
-  if (!pool || !from || !to || !(Number(from) > 0)) return null;
+  if (!pool || !from || !to || !(Number(from) > 0) || loadingTrigger)
+    return null;
 
   return (
     <div className="mt-8">
@@ -222,11 +225,11 @@ function DetailView({
             to,
             from
           )} ${toRealSymbol(tokenIn.symbol)}`}
-          pool={pool}
           from={from}
           to={to}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
+          pool={pool}
         />
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
@@ -279,17 +282,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       0.5
   );
   useEffect(() => {
-    // const [urlTokenIn, urlTokenOut, urlSlippageTolerance] = decodeURIComponent(
-    //   location.hash.slice(1)
-    // ).split(TOKEN_URL_SEPARATOR);
     const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
     const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
-    // const rememberedSlippageTolerance =
-    //   localStorage.getItem(SWAP_SLIPPAGE_KEY) ||
-    //   slippageTolerance ||
-    //   urlSlippageTolerance;
-
-    // setSlippageTolerance(Number(rememberedSlippageTolerance));
 
     if (allTokens) {
       setTokenIn(
@@ -465,6 +459,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           }}
         />
         <DetailView
+          loadingTrigger={loadingTrigger}
           pool={pool}
           tokenIn={tokenIn}
           tokenOut={tokenOut}

@@ -204,7 +204,6 @@ export const useStableSwap = ({
 
   const { search } = useLocation();
   const history = useHistory();
-  const [count, setCount] = useState<number>(0);
   const txHashes = new URLSearchParams(search)
     .get('transactionHashes')
     ?.split(',');
@@ -310,21 +309,6 @@ export const useStableSwap = ({
       setTokenOutAmount('0');
     }
   }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger]);
-
-  useEffect(() => {
-    let id: any = null;
-    if (!loadingTrigger) {
-      id = setInterval(() => {
-        setLoadingTrigger(true);
-        setCount(count + 1);
-      }, refreshTime);
-    } else {
-      clearInterval(id);
-    }
-    return () => {
-      clearInterval(id);
-    };
-  }, [count, loadingTrigger]);
 
   const makeSwap = (useNearBalance: boolean) => {
     stableSwap({

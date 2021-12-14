@@ -252,7 +252,7 @@ export function DetailView({
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
 
-  if (!from || !to || !pool) return null;
+  if (!from || !to || !(Number(from) > 0) || !pool) return null;
   return (
     <div className="mt-4">
       <div

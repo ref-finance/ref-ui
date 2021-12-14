@@ -78,7 +78,6 @@ export const estimateSwap = async ({
 
       localStorage.setItem(STABLE_POOL_KEY, JSON.stringify(pool));
     }
-    setLoadingTrigger(false);
 
     if (
       new BigNumber(

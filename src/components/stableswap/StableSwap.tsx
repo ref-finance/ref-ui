@@ -32,6 +32,8 @@ interface StableSwapProps {
   balances: TokenBalancesView;
   tokens: TokenMetadata[];
   stablePool: StablePool;
+  setLoadingTrigger: (mode: boolean) => void;
+  loadingTrigger: boolean;
 }
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_SLIPPAGE_VALUE';
 export const STABLE_SWAP_USE_NEAR_BALANCE_KEY =
@@ -40,6 +42,8 @@ export default function StableSwap({
   tokens,
   balances,
   stablePool,
+  setLoadingTrigger,
+  loadingTrigger,
 }: StableSwapProps) {
   const [tokenIn, setTokenIn] = useState<TokenMetadata>(tokens[0]);
   const [tokenOut, setTokenOut] = useState<TokenMetadata>(tokens[1]);
@@ -61,16 +65,14 @@ export default function StableSwap({
     localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
   };
 
-  const [loadingTrigger, setLoadingTrigger] = useState<boolean>(false);
-
   const {
     tokenOutAmount,
-    pool,
     canSwap,
     minAmountOut,
     swapError,
     makeSwap,
     noFeeAmount,
+    pool,
   } = useStableSwap({
     tokenIn,
     tokenInAmount,
@@ -133,7 +135,8 @@ export default function StableSwap({
   const tokenOutTotal = useNearBalance
     ? tokenOutBalanceFromNear || '0'
     : toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
-  const canSubmit = canSwap && (tokenInMax != '0' || !useNearBalance);
+  const canSubmit =
+    canSwap && (tokenInMax != '0' || !useNearBalance) && !loadingTrigger;
 
   const handleSubmit = async (event: React.FormEvent<HTMLElement>) => {
     event.preventDefault();
@@ -301,11 +304,10 @@ export default function StableSwap({
       </div>
       <div
         className={`text-primaryText text-center mx-8 ${
-          tokenIn.id === tokenOut.id ? 'hidden' : ''
+          tokenIn.id === tokenOut.id || loadingTrigger ? 'hidden' : ''
         }`}
       >
         <DetailView
-          pool={pool}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
           from={tokenInAmount}
@@ -313,6 +315,7 @@ export default function StableSwap({
           minAmountOut={minAmountOut}
           canSwap={canSwap}
           noFeeAmount={noFeeAmount}
+          pool={pool}
         />
       </div>
       <div className="mx-8">

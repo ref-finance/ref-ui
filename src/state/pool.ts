@@ -489,19 +489,37 @@ export const usePredictRemoveShares = ({
   };
 };
 
-export const useStablePool = () => {
+export const useStablePool = ({
+  loadingTrigger,
+  setLoadingTrigger,
+}: {
+  loadingTrigger: boolean;
+  setLoadingTrigger: (mode: boolean) => void;
+}) => {
   const [stablePool, setStablePool] = useState<StablePool>();
   const [count, setCount] = useState(0);
-  const refreshTime = 5000;
+  const refreshTime = 10000;
   useEffect(() => {
     getStablePool(Number(STABLE_POOL_ID)).then((res) => {
+      setLoadingTrigger(false);
       setStablePool(res);
     });
-    const id = setInterval(() => {
-      setCount(count + 1);
-    }, refreshTime);
-    return () => clearInterval(id);
-  }, [count]);
+  }, [count, loadingTrigger]);
+
+  useEffect(() => {
+    let id: any = null;
+    if (!loadingTrigger) {
+      id = setInterval(() => {
+        setLoadingTrigger(true);
+        setCount(count + 1);
+      }, refreshTime);
+    } else {
+      clearInterval(id);
+    }
+    return () => {
+      clearInterval(id);
+    };
+  }, [count, loadingTrigger]);
 
   return stablePool;
 };

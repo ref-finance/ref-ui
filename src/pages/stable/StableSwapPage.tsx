@@ -24,10 +24,15 @@ function StableSwapPage() {
   const [actionName, setAction] = useState<string>(
     localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) || DEFAULT_ACTIONS[0]
   );
+  const [loadingTrigger, setLoadingTrigger] = useState<boolean>(false);
+
   const allTokens = useWhitelistStableTokens();
   const balances = useTokenBalances();
 
-  const stablePool = useStablePool();
+  const stablePool = useStablePool({
+    loadingTrigger,
+    setLoadingTrigger,
+  });
 
   const changeAction = (actionName: string) => {
     setAction(actionName);
@@ -46,6 +51,8 @@ function StableSwapPage() {
             tokens={tokens}
             balances={balances}
             stablePool={stablePool}
+            loadingTrigger={loadingTrigger}
+            setLoadingTrigger={setLoadingTrigger}
           />
         );
       case DEFAULT_ACTIONS[1]:
