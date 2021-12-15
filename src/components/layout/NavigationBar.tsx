@@ -225,14 +225,16 @@ function QuizOld() {
 }
 function Quiz() {
   return (
-    <div>
-      <a href="https://mzko2gfnij6.typeform.com/to/EPmUetxU" target="_blank">
-        <h2
-          className={`link text-gray-400 hover:text-green-500 text-lg font-bold p-4 cursor-pointer}`}
-        >
-          <FormattedMessage id="Risk" defaultMessage="Risk" />
-        </h2>
-      </a>
+    <div
+      className="flex items-center justify-center cursor-pointer relative p-4"
+      onClick={() =>
+        window.open('https://mzko2gfnij6.typeform.com/to/EPmUetxU')
+      }
+    >
+      <IconBubble />
+      <span className="absolute" style={{ transform: 'translateY(-3px)' }}>
+        <FormattedMessage id="Risk"></FormattedMessage>
+      </span>
     </div>
   );
 }
