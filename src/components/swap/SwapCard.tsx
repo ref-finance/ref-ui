@@ -56,9 +56,9 @@ export function SwapRateDetail({
   to,
   tokenIn,
   tokenOut,
-  pool,
+  fee,
 }: {
-  pool: Pool;
+  fee: number;
   title: string;
   value: string;
   from: string;
@@ -79,7 +79,7 @@ export function SwapRateDetail({
       `1 ${toRealSymbol(
         isRevert ? tokenIn.symbol : tokenOut.symbol
       )} ≈ ${calculateExchangeRate(
-        pool.fee,
+        fee,
         isRevert ? from : to,
         isRevert ? to : from
       )} ${toRealSymbol(isRevert ? tokenOut.symbol : tokenIn.symbol)}`
@@ -110,12 +110,12 @@ export function SwapRateDetail({
 }
 
 export const GetPriceImpact = (
-  pool: Pool,
+  pools: Pool[],
   tokenIn: TokenMetadata,
   tokenOut: TokenMetadata,
   from: string
 ) => {
-  const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
+  const value = calculatePriceImpact(pools, tokenIn, tokenOut, from);
 
   const textColor =
     Number(value) <= 1
@@ -132,12 +132,13 @@ export const GetPriceImpact = (
 };
 
 export const getPriceImpactTipType = (
-  pool: Pool,
+  pools: Pool[],
   tokenIn: TokenMetadata,
   tokenOut: TokenMetadata,
   from: string
 ) => {
-  const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
+  const value = calculatePriceImpact(pools, tokenIn, tokenOut, from);
+
   const reault =
     1 < Number(value) && Number(value) <= 2 ? (
       <WarnTriangle></WarnTriangle>
@@ -148,7 +149,7 @@ export const getPriceImpactTipType = (
 };
 
 function DetailView({
-  pool,
+  pools,
   tokenIn,
   tokenOut,
   from,
@@ -156,8 +157,9 @@ function DetailView({
   minAmountOut,
   canSwap,
   loadingTrigger,
+  fee,
 }: {
-  pool: Pool;
+  pools: Pool[];
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
   from: string;
@@ -165,32 +167,12 @@ function DetailView({
   minAmountOut: string;
   canSwap?: boolean;
   loadingTrigger?: boolean;
+  fee?: number;
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
 
-  const GetPriceImpact = (
-    pool: Pool,
-    tokenIn: TokenMetadata,
-    tokenOut: TokenMetadata,
-    from: string
-  ) => {
-    const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
-    const textColor =
-      Number(value) <= 1
-        ? 'text-greenLight'
-        : 1 < Number(value) && Number(value) <= 2
-        ? 'text-warn'
-        : 'text-error';
-
-    return Number(value) < 0.01 ? (
-      <span className="text-greenLight">{'< -0.01%'}</span>
-    ) : (
-      <span className={`${textColor}`}>{`≈ -${toPrecision(value, 2)}%`}</span>
-    );
-  };
-
-  if (!pool || !from || !to || !(Number(from) > 0) || loadingTrigger)
+  if (!pools || !from || !to || !(Number(from) > 0) || loadingTrigger)
     return null;
 
   return (
@@ -203,7 +185,7 @@ function DetailView({
       >
         <div className="flex items-center text-white cursor-pointer">
           <label className="mr-2">
-            {getPriceImpactTipType(pool, tokenIn, tokenOut, from)}
+            {canSwap && getPriceImpactTipType(pools, tokenIn, tokenOut, from)}
           </label>
           <p className="block text-xs">
             <FormattedMessage id="details" defaultMessage="Details" />
@@ -221,7 +203,7 @@ function DetailView({
         <SwapRateDetail
           title={intl.formatMessage({ id: 'swap_rate' })}
           value={`1 ${toRealSymbol(tokenOut.symbol)} ≈ ${calculateExchangeRate(
-            pool.fee,
+            fee,
             to,
             from
           )} ${toRealSymbol(tokenIn.symbol)}`}
@@ -229,20 +211,20 @@ function DetailView({
           to={to}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
-          pool={pool}
+          fee={fee}
         />
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
           value={
             !to || to === '0' || !canSwap
               ? '-'
-              : GetPriceImpact(pool, tokenIn, tokenOut, from)
+              : GetPriceImpact(pools, tokenIn, tokenOut, from)
           }
         />
         <SwapDetail
           title={intl.formatMessage({ id: 'pool_fee' })}
-          value={`${calculateFeePercent(pool.fee)}% (${calculateFeeCharge(
-            pool.fee,
+          value={`${calculateFeePercent(fee)}% (${calculateFeeCharge(
+            fee,
             from
           )})`}
         />
@@ -324,17 +306,24 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     }
   }, [tokenIn, tokenOut, useNearBalance]);
 
-  const { canSwap, tokenOutAmount, minAmountOut, pool, swapError, makeSwap } =
-    useSwap({
-      tokenIn: tokenIn,
-      tokenInAmount,
-      tokenOut: tokenOut,
-      slippageTolerance,
-      setLoadingData,
-      loadingTrigger,
-      setLoadingTrigger,
-      loadingData,
-    });
+  const {
+    canSwap,
+    tokenOutAmount,
+    minAmountOut,
+    pools,
+    swapError,
+    makeSwap,
+    avgFee,
+  } = useSwap({
+    tokenIn: tokenIn,
+    tokenInAmount,
+    tokenOut: tokenOut,
+    slippageTolerance,
+    setLoadingData,
+    loadingTrigger,
+    setLoadingTrigger,
+    loadingData,
+  });
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -460,13 +449,14 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         />
         <DetailView
           loadingTrigger={loadingTrigger}
-          pool={pool}
+          pools={pools}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
           from={tokenInAmount}
           to={tokenOutAmount}
           minAmountOut={minAmountOut}
           canSwap={canSwap}
+          fee={avgFee}
         />
 
         <div className="pb-2">

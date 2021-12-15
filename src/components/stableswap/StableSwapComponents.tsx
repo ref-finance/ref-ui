@@ -296,7 +296,7 @@ export function DetailView({
             to,
             from
           )} ${toRealSymbol(tokenIn.symbol)}`}
-          pool={pool}
+          fee={pool.fee}
           from={from}
           to={to}
           tokenIn={tokenIn}

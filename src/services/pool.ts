@@ -31,6 +31,7 @@ export interface Pool {
   shareSupply: string;
   tvl: number;
   token0_ref_price: string;
+  partialAmountIn?: string;
 }
 
 export interface StablePool {

@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import BN from 'bn.js';
 import * as math from 'mathjs';
 import { TokenMetadata } from '~services/ft-contract';
@@ -95,42 +96,69 @@ export const calculateFeeCharge = (fee: number, total: string) => {
 };
 
 export const calculatePriceImpact = (
-  pool: Pool,
+  pools: Pool[],
   tokenIn: TokenMetadata,
   tokenOut: TokenMetadata,
   tokenInAmount: string
 ) => {
-  const in_balance = toReadableNumber(
-    tokenIn.decimals,
-    pool.supplies[tokenIn.id]
-  );
-  const out_balance = toReadableNumber(
-    tokenOut.decimals,
-    pool.supplies[tokenOut.id]
-  );
+  let in_balance: string = '0',
+    out_balance: string = '0';
 
-  const constant_product = math.evaluate(`${in_balance} * ${out_balance}`);
+  pools.forEach((pool, i) => {
+    const cur_in_balance = toReadableNumber(
+      tokenIn.decimals,
+      pool.supplies[tokenIn.id]
+    );
 
-  const marketPrice = math.evaluate(`(${in_balance} / ${out_balance})`);
+    const cur_out_balance = toReadableNumber(
+      tokenOut.decimals,
+      pool.supplies[tokenOut.id]
+    );
 
-  const new_in_balance = math.evaluate(`${tokenInAmount} + ${in_balance}`);
+    in_balance = BigNumber.sum(in_balance, cur_in_balance).toString();
+    out_balance = BigNumber.sum(out_balance, cur_out_balance).toString();
+  });
 
-  const new_out_balance = math.divide(constant_product, new_in_balance);
+  const finalMarketPrice = math.evaluate(`(${in_balance} / ${out_balance})`);
 
-  const tokenOutReceived = math.subtract(
-    math.evaluate(out_balance),
-    new_out_balance
-  );
+  const separatedReceivedAmount = pools.map((pool) => {
+    const partialAmountIn = toReadableNumber(
+      tokenIn.decimals,
+      pool.partialAmountIn
+    );
+
+    const in_balance = toReadableNumber(
+      tokenIn.decimals,
+      pool.supplies[tokenIn.id]
+    );
+    const out_balance = toReadableNumber(
+      tokenOut.decimals,
+      pool.supplies[tokenOut.id]
+    );
+
+    const constant_product = math.evaluate(`${in_balance} * ${out_balance}`);
+
+    const new_in_balance = math.evaluate(`${partialAmountIn} + ${in_balance}`);
+
+    const new_out_balance = math.divide(constant_product, new_in_balance);
+
+    const tokenOutReceived = math.subtract(
+      math.evaluate(out_balance),
+      new_out_balance
+    );
+    return Number(tokenOutReceived);
+  });
+
+  const finalTokenOutReceived = math.sum(...separatedReceivedAmount);
 
   const newMarketPrice = math.evaluate(
-    `${tokenInAmount} / ${tokenOutReceived}`
+    `${tokenInAmount} / ${finalTokenOutReceived}`
   );
 
   const PriceImpact = percent(
-    subtraction(newMarketPrice, marketPrice),
-    marketPrice
+    subtraction(newMarketPrice, finalMarketPrice),
+    finalMarketPrice
   ).toString();
-
   return PriceImpact;
 };
 export const calculateExchangeRate = (

@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { getPool, Pool, StablePool } from '../services/pool';
-
-import { estimateSwap as estimateStableSwap } from '~services/stable-swap';
+import BigNumber from 'bignumber.js';
+import {
+  estimateSwap as estimateStableSwap,
+  EstimateSwapView,
+} from '~services/stable-swap';
 
 import { TokenMetadata } from '../services/ft-contract';
-import { percentLess, toReadableNumber } from '../utils/numbers';
+import {
+  percentLess,
+  scientificNotationToString,
+  toReadableNumber,
+} from '../utils/numbers';
 import { checkTransaction, estimateSwap, swap } from '../services/swap';
 
 import { swap as stableSwap } from '~services/stable-swap';
@@ -44,7 +51,9 @@ export const useSwap = ({
   const [canSwap, setCanSwap] = useState<boolean>();
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
   const [swapError, setSwapError] = useState<Error>();
+  const [swapsToDo, setSwapsToDo] = useState<EstimateSwapView[]>();
 
+  const [avgFee, setAvgFee] = useState<number>(0);
   const { search } = useLocation();
   const history = useHistory();
   const [count, setCount] = useState<number>(0);
@@ -64,6 +73,24 @@ export const useSwap = ({
   const refreshTime = 10000;
 
   const intl = useIntl();
+
+  function sumFunction(total: number, num: number) {
+    return total + num;
+  }
+
+  const setAverageFee = (estimates: EstimateSwapView[]) => {
+    const medFee = estimates.map((s2d) => {
+      const fee = s2d.pool.fee;
+      const numerator = Number(
+        toReadableNumber(tokenIn.decimals + 1, s2d.pool.partialAmountIn)
+      );
+      const weight = numerator / Number(tokenInAmount);
+
+      return fee * weight;
+    });
+    const avgFee = medFee.reduce(sumFunction, 0);
+    setAvgFee(avgFee);
+  };
 
   useEffect(() => {
     if (txHash) {
@@ -116,8 +143,14 @@ export const useSwap = ({
 
   useEffect(() => {
     setCanSwap(false);
+
     if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
       setSwapError(null);
+      if (!tokenInAmount || ONLY_ZEROS.test(tokenInAmount)) {
+        setTokenOutAmount('0');
+        return;
+      }
+
       estimateSwap({
         tokenIn,
         tokenOut,
@@ -127,12 +160,21 @@ export const useSwap = ({
         loadingTrigger,
         setLoadingTrigger,
       })
-        .then(({ estimate, pool }) => {
-          if (!estimate || !pool) throw '';
+        .then((estimates) => {
+          if (!estimates) throw '';
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
             setCanSwap(true);
+            setSwapsToDo(estimates);
+            setAverageFee(estimates);
+            const estimate = estimates.reduce((pre, cur) => {
+              return scientificNotationToString(
+                BigNumber.sum(pre, cur.estimate).toString()
+              );
+            }, '0');
+
             setTokenOutAmount(estimate);
-            setPool(pool);
+
+            setPool(estimates[0].pool);
           }
         })
         .catch((err) => {
@@ -168,11 +210,11 @@ export const useSwap = ({
 
   const makeSwap = (useNearBalance: boolean) => {
     swap({
-      pool,
+      slippageTolerance,
+      swapsToDo,
       tokenIn,
       amountIn: tokenInAmount,
       tokenOut,
-      minAmountOut,
       useNearBalance,
     }).catch(setSwapError);
   };
@@ -184,6 +226,8 @@ export const useSwap = ({
     pool,
     swapError,
     makeSwap,
+    avgFee,
+    pools: swapsToDo?.map((estimate) => estimate.pool),
   };
 };
 

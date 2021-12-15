@@ -60,7 +60,7 @@ export interface EstimateSwapView {
   estimate: string;
   pool: Pool;
   intl?: any;
-  dy: string;
+  dy?: string;
 }
 export const estimateSwap = async ({
   tokenIn,
