@@ -266,6 +266,10 @@ interface GetPoolOptions {
   loadingTrigger: boolean;
 }
 
+export const isNotStablePool = (pool: Pool) => {
+  return pool.tokenIds.length < 3;
+};
+
 export const getPoolsByTokens = async ({
   tokenInId,
   tokenOutId,
@@ -292,9 +296,10 @@ export const getPoolsByTokens = async ({
     const pools = (
       await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
     ).flat();
+    filtered_pools = pools.filter(isNotStablePool);
 
     await db.cachePoolsByTokens(pools);
-    filtered_pools = pools.filter(
+    filtered_pools = filtered_pools.filter(
       (p) =>
         new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
         p.supplies[tokenOutId]

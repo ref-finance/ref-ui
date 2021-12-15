@@ -3,6 +3,7 @@ import db, { FarmDexie } from './store/RefDatabase';
 import getConfig from './services/config';
 import { TokenMetadata } from '~services/ft-contract';
 import { Farm } from '~services/farm';
+import { PoolRPCView } from '~services/api';
 
 const config = getConfig();
 
@@ -82,13 +83,18 @@ const getFarms = (page: number) => {
   });
 };
 
+export const isNotStablePool = (pool: PoolRPCView) => {
+  return pool.amounts.length < 3;
+};
+
 const cachePools = async () => {
   const totalPools = await getTotalPools();
   const pages = Math.ceil(totalPools / MAX_PER_PAGE);
   for (let page = 1; page <= pages; page++) {
     const pools = await getPools(page);
+    const filtered_pools = pools.filter(isNotStablePool);
     await db.pools.bulkPut(
-      pools.map(
+      filtered_pools.map(
         (
           pool: {
             token_account_ids: any[];
