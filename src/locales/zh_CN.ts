@@ -237,5 +237,12 @@ const zh_CN = {
   all_5: '一次可选5种代币',
   your_liquidity_positions_will_appear_here: '你参与的流动池将会出现在这里',
   price_impact: '价格影响',
+  more_than: '请输入大于等于0.01的数字',
+  less_than: '请输入小于20的数字',
+  no_valid: '请输入有效数字',
+  lp_fee: '流动性提供者',
+  protocol_fee: '协议费',
+  referral_fee: '中介费',
+  total_fee_create: '总费用',
 };
 export default zh_CN;
