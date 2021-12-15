@@ -14,6 +14,7 @@ import { RemoveLiquidityComponent } from '~components/stableswap/RemoveLiquidity
 import TokenReserves from '~components/stableswap/TokenReserves';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import getConfig from '~services/config';
+import { StableSwapLogo } from '~components/icon/StableSwap';
 const DEFAULT_ACTIONS = ['stable_swap', 'add_liquidity', 'remove_liquidity'];
 const STABLE_TOKENS = ['USDT', 'USDC', 'DAI'];
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
@@ -84,6 +85,12 @@ function StableSwapPage() {
 
   return (
     <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2">
+      <div className="flex justify-center -mt-10 mb-2 xs:hidden md:hidden">
+        <StableSwapLogo></StableSwapLogo>
+      </div>
+      <div className="flex justify-center -mt-10 mb-2 lg:hidden">
+        <StableSwapLogo width="100" height="76"></StableSwapLogo>
+      </div>
       <SquareRadio onChange={changeAction} radios={DEFAULT_ACTIONS} />
       {renderModule(actionName)}
       {
