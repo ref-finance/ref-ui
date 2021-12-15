@@ -228,7 +228,7 @@ function Quiz() {
     <div
       className="flex items-center justify-center cursor-pointer relative p-4"
       onClick={() =>
-        window.open('https://mzko2gfnij6.typeform.com/to/EPmUetxU')
+        window.open('https://form.typeform.com/to/EPmUetxU')
       }
     >
       <IconBubble />
