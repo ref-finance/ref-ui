@@ -48,11 +48,13 @@ import {
 } from '~services/wrap-near';
 import { utils } from 'near-api-js';
 import { BigNumber } from 'bignumber.js';
+import _, { filter } from 'lodash';
 
 Big.DP = 40;
 // Big.strict = false;
 const FEE_DIVISOR = 10000;
-
+const TVL_THRESHOLD = 1000;
+const MAXIMUM_NUMBER_OF_POOLS = 5;
 interface EstimateSwapOptions {
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
@@ -93,18 +95,36 @@ export const estimateSwap = async ({
     loadingTrigger,
   });
 
+  const getTVL = (pool: Pool) => {
+    const amount1 = toReadableNumber(
+      tokenIn.decimals,
+      pool.supplies[tokenIn.id]
+    );
+    const amount2 = toReadableNumber(
+      tokenOut.decimals,
+      pool.supplies[tokenOut.id]
+    );
+
+    return Number(amount1) + Number(amount2);
+  };
+
+  const filterFunc = (pool: Pool, i: number) => getTVL(pool) > TVL_THRESHOLD;
+
+  const filteredPools = _.orderBy(pools, getTVL, ['desc'])
+    .slice(0, MAXIMUM_NUMBER_OF_POOLS)
+    .filter(filterFunc);
+
   const poolAllocations = calculateOptimalOutput(
-    pools,
+    filteredPools,
     parsedAmountIn,
     tokenIn.id,
     tokenOut.id
   );
-  const parallelPoolsWithAllocation = pools.map((pool, i) => ({
+
+  const parallelPoolsWithAllocation = filteredPools.map((pool, i) => ({
     ...pool,
     partialAmountIn: scientificNotationToString(poolAllocations[i].toString()),
   }));
-
-  const filterFunc = (pools: Pool[]) => {};
 
   const parallelPools = parallelPoolsWithAllocation.filter(
     (paraPool) => Number(paraPool.partialAmountIn) > 0
