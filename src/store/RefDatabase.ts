@@ -94,6 +94,10 @@ class RefDatabase extends Dexie {
     return this.farms;
   }
 
+  public allPoolsTokens() {
+    return this.poolsTokens;
+  }
+
   public searchPools(args: any, pools: Pool[]): Pool[] {
     if (args.tokenName === '') return pools;
     return _.filter(pools, (pool: Pool) => {
