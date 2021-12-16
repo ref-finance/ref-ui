@@ -61,7 +61,7 @@ class RefDatabase extends Dexie {
   public constructor() {
     super('RefDatabase');
 
-    this.version(5.1).stores({
+    this.version(5.2).stores({
       pools: 'id, token1Id, token2Id, token1Supply, token2Supply, fee, shares',
       tokens: 'id, name, symbol, decimals, icon',
       farms: 'id, pool_id, status',
@@ -91,6 +91,10 @@ class RefDatabase extends Dexie {
 
   public allFarms() {
     return this.farms;
+  }
+
+  public allPoolsTokens() {
+    return this.poolsTokens;
   }
 
   public searchPools(args: any, pools: Pool[]): Pool[] {
