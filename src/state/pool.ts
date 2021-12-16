@@ -62,7 +62,7 @@ export const usePool = (id: number | string) => {
 
     getStakedListByAccountId({}).then((stakeList) => {
       setStakeList(stakeList);
-    });
+    }).catch(()=>{})
   }, [id]);
 
   return { pool, shares, stakeList };
