@@ -286,6 +286,10 @@ interface GetPoolOptions {
   loadingTrigger: boolean;
 }
 
+export const isNotStablePool = (pool: Pool) => {
+  return pool.tokenIds.length < 3;
+};
+
 export const getPoolsByTokens = async ({
   tokenInId,
   tokenOutId,

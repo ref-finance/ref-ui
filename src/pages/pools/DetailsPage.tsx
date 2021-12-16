@@ -1197,6 +1197,10 @@ export function PoolDetailsPage() {
     history.push('/');
   }
 
+  if (isStablePool(pool)) {
+    history.push('/');
+  }
+
   return (
     <div>
       <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 m-auto">
