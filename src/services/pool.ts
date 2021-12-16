@@ -20,6 +20,7 @@ import {
 import { getTopPools } from '~services/indexer';
 import { PoolRPCView } from './api';
 import { checkTokenNeedsStorageDeposit } from '~services/token';
+import getConfig from '~services/config';
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -238,13 +239,20 @@ export const getCachedPoolsByTokenId = async ({
   token1Id: string;
   token2Id: string;
 }) => {
-  return await db
-    .allPools()
-    .where({
-      token1Id,
-      token2Id,
-    })
+  let normalItems = await db
+    .allPoolsTokens()
+    .where('token1Id')
+    .equals(token1Id)
+    .and((item) => item.token2Id === token2Id)
     .toArray();
+  let reverseItems = await db
+    .allPoolsTokens()
+    .where('token1Id')
+    .equals(token2Id)
+    .and((item) => item.token2Id === token1Id)
+    .toArray();
+
+  return [...normalItems, ...reverseItems];
 };
 
 export const getTotalPools = () => {
@@ -307,7 +315,7 @@ export const getPoolsByTokens = async ({
     ).flat();
     filtered_pools = pools.filter(isNotStablePool);
 
-    await db.cachePoolsByTokens(pools);
+    await db.cachePoolsByTokens(filtered_pools);
     filtered_pools = filtered_pools.filter(
       (p) =>
         new BN(p.supplies[tokenInId]).gte(amountToTrade) &&

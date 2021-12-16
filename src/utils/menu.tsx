@@ -293,7 +293,7 @@ export const moreLinks: MobileMenuItem[] = [
       {
         id: 'Risk',
         label: 'Risk',
-        url: 'https://mzko2gfnij6.typeform.com/to/EPmUetxU',
+        url: 'https://form.typeform.com/to/EPmUetxU',
         isExternal: true,
       },
     ],
