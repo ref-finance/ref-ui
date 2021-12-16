@@ -30,7 +30,7 @@ import {
 } from '~services/stable-swap';
 import { TokenBalancesView } from '~services/token';
 import { usePredictRemoveShares, useRemoveLiquidity } from '~state/pool';
-import { useFarmStake } from '~state/farm';
+import { useCanFarm, useFarmStake } from '~state/farm';
 import {
   percent,
   percentLess,
@@ -109,6 +109,8 @@ export function RemoveLiquidityComponent(props: {
   const progressBarIndex = [0, 25, 50, 75, 100];
   const [receiveAmounts, setReceiveAmounts] = useState<string[]>(['', '', '']);
   const intl = useIntl();
+
+  const canFarm = useCanFarm(pool.id);
 
   const farmStake = useFarmStake({
     poolId: pool.id,
@@ -277,19 +279,21 @@ export function RemoveLiquidityComponent(props: {
               userTotalShare,
             })}{' '}
           </span>
-          <Link
-            className="ml-2 xs:mt-2 md:mt-2"
-            to={{
-              pathname: '/farms',
-            }}
-            target="_blank"
-          >
-            <ShareInFarm
-              userTotalShare={userTotalShare}
-              farmStake={farmStake}
-              forStable
-            />
-          </Link>
+          {canFarm > 0 && (
+            <Link
+              className="ml-2 xs:mt-2 md:mt-2"
+              to={{
+                pathname: '/farms',
+              }}
+              target="_blank"
+            >
+              <ShareInFarm
+                userTotalShare={userTotalShare}
+                farmStake={farmStake}
+                forStable
+              />
+            </Link>
+          )}
         </div>
       </div>
 
