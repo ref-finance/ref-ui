@@ -273,10 +273,6 @@ export const getAllPools = async (
   return poolData.map((rawPool, i) => parsePool(rawPool, i + index));
 };
 
-export const isNotStablePool = (pool: Pool) => {
-  return pool.tokenIds.length < 3;
-};
-
 interface GetPoolOptions {
   tokenInId: string;
   tokenOutId: string;
