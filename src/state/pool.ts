@@ -457,7 +457,7 @@ export const usePredictRemoveShares = ({
   function validate(predictedShare: string) {
     if (new BigNumber(predictedShare).isGreaterThan(new BigNumber(shares))) {
       setCanSubmitByToken(false);
-      setError(new Error('out_of_avaliable_shares'));
+      setError(new Error('insufficient_shares'));
     } else {
       setCanSubmitByToken(true);
     }
@@ -478,7 +478,7 @@ export const usePredictRemoveShares = ({
       validate(burn_shares);
       setPredictedRemoveShares(burn_shares);
     } catch (error) {
-      setError(new Error('out_of_avaliable_shares'));
+      setError(new Error('insufficient_shares'));
       setCanSubmitByToken(false);
     }
   }, [...amounts]);
