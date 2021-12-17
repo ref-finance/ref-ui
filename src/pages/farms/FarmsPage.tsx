@@ -1800,7 +1800,7 @@ function ActionModal(
       imgs.push(
         <img
           src={icon}
-          key={id}
+          key={id + index}
           className={
             'w-10 h-10 xs:w-9 md:w-9 xs:h-9 md:h-9 rounded-full border border-gradientFromHover ' +
             (index == 1 ? 'relative -left-1.5' : '')
