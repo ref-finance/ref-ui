@@ -114,9 +114,17 @@ export const getFarms = async ({
   seeds: Record<string, string>;
 }): Promise<FarmInfo[]> => {
   const index = (page - 1) * perPage;
-  const farms: Farm[] = await refFarmViewFunction({
+  let farms: Farm[] = await refFarmViewFunction({
     methodName: 'list_farms',
     args: { from_index: index, limit: perPage },
+  });
+  // filter  unexpected farm data
+  farms = farms.filter((item) => {
+    const { farm_id } = item;
+    const arr = farm_id.split('@');
+    if (arr[1] != '1371#3') {
+      return true;
+    }
   });
   const pool_ids = farms.map((f) => {
     return getLPTokenId(f.farm_id);
@@ -131,21 +139,18 @@ export const getFarms = async ({
     );
   }
   const tasks = farms.map(async (f) => {
-    const pool: PoolRPCView =
-      Object.keys(poolList).length === 0
-        ? {
-            id: 0,
-            token_account_ids: ['', ''],
-            token_symbols: ['', ''],
-            amounts: ['', ''],
-            total_fee: 0,
-            shares_total_supply: '0',
-            tvl: 0,
-            token0_ref_price: '0',
-            share: '0',
-          }
-        : poolList[getLPTokenId(f.farm_id)];
-
+    const poolId = getLPTokenId(f.farm_id);
+    const pool: PoolRPCView = poolList[poolId] || {
+      id: Number(poolId),
+      token_account_ids: ['', ''],
+      token_symbols: ['', ''],
+      amounts: ['', ''],
+      total_fee: 0,
+      shares_total_supply: '0',
+      tvl: 0,
+      token0_ref_price: '0',
+      share: '0',
+    };
     const fi: FarmInfo = await getFarmInfo(
       f,
       pool,

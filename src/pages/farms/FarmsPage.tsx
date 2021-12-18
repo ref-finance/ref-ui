@@ -1368,7 +1368,7 @@ function FarmView({
     if (icon)
       return (
         <img
-          key={id}
+          key={id + index}
           className={
             'h-11 w-11 rounded-full border border-gradientFromHover ' +
             (index != 0 ? '-ml-1.5' : '')
@@ -1378,7 +1378,7 @@ function FarmView({
       );
     return (
       <div
-        key={id}
+        key={id + index}
         className={
           'h-11 w-11 rounded-full bg-cardBg border border-gradientFromHover ' +
           (index == 1 ? '-ml-1.5' : '')
@@ -1874,7 +1874,7 @@ function ActionModal(
       imgs.push(
         <img
           src={icon}
-          key={id}
+          key={id + index}
           className={
             'w-10 h-10 xs:w-9 md:w-9 xs:h-9 md:h-9 rounded-full border border-gradientFromHover ' +
             (index != 0 ? '-ml-1.5' : '')
@@ -1887,7 +1887,7 @@ function ActionModal(
       imgs,
       symbols: symbols.join('-'),
     });
-  }, [tokens]);
+  }, [tokens.length > 0 && tokens]);
   function isEnded(farmsData: FarmInfo[]) {
     let ended: boolean = true;
     for (let i = 0; i < farmsData.length; i++) {
