@@ -69,7 +69,9 @@ export default function CalcModel(
     const lpNum = e.currentTarget.value;
     const { shares_total_supply, tvl } = farms[0].pool;
     const totalShares = Number(toReadableNumber(24, shares_total_supply));
-    const shareUsd = new BigNumber((lpNum * tvl) / totalShares).toFixed();
+    const shareUsd = Number(tvl)
+      ? new BigNumber((lpNum * tvl) / totalShares).toFixed()
+      : '0';
     let actualUsd;
     let displayUsd;
     let displayLp;
@@ -98,7 +100,9 @@ export default function CalcModel(
     const usdV = e.currentTarget.value;
     const { shares_total_supply, tvl } = farms[0].pool;
     const totalShares = Number(toReadableNumber(24, shares_total_supply));
-    const shareV = new BigNumber((usdV * totalShares) / tvl).toFixed();
+    const shareV = Number(tvl)
+      ? new BigNumber((usdV * totalShares) / tvl).toFixed()
+      : '0';
     let actualLp;
     let displayLp;
     let displayUsd;
@@ -276,7 +280,7 @@ export function CalcEle(props: {
         }
         const priceData: any = tokenPriceList[tokenTemp.id];
         let tokenPrice = '0';
-        if (priceData.price) {
+        if (priceData && priceData.price) {
           tokenPrice = new BigNumber(rewardTokenNum)
             .multipliedBy(priceData.price)
             .toString();
