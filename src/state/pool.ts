@@ -60,9 +60,11 @@ export const usePool = (id: number | string) => {
       .then(setShares)
       .catch(() => setShares);
 
-    getStakedListByAccountId({}).then((stakeList) => {
-      setStakeList(stakeList);
-    }).catch(()=>{})
+    getStakedListByAccountId({})
+      .then((stakeList) => {
+        setStakeList(stakeList);
+      })
+      .catch(() => {});
   }, [id]);
 
   return { pool, shares, stakeList };

@@ -119,10 +119,11 @@ export const getFarms = async ({
     args: { from_index: index, limit: perPage },
   });
   // filter  unexpected farm data
+  const blackFarmList = new Set(config.blackList || []);
   farms = farms.filter((item) => {
     const { farm_id } = item;
     const arr = farm_id.split('@');
-    if (arr[1] != '1371#3') {
+    if (!blackFarmList.has(arr[1])) {
       return true;
     }
   });
