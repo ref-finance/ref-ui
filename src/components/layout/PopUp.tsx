@@ -26,7 +26,8 @@ export default function PopUp() {
     setCloseStatus(true);
   };
   const goStableSwap = () => {
-    history.push('/stableswap');
+    // history.push('/stableswap');
+    window.open(linkUrl);
   };
   const goLearnMore = (e: any) => {
     e.stopPropagation();
