@@ -53,7 +53,7 @@ import _, { filter } from 'lodash';
 Big.DP = 40;
 // Big.strict = false;
 const FEE_DIVISOR = 10000;
-const TVL_THRESHOLD = 1000;
+const LP_THERESHOLD = 0.005;
 const MAXIMUM_NUMBER_OF_POOLS = 5;
 interface EstimateSwapOptions {
   tokenIn: TokenMetadata;
@@ -95,7 +95,21 @@ export const estimateSwap = async ({
     loadingTrigger,
   });
 
-  const getTVL = (pool: Pool) => {
+  const sumOfAmount = pools.reduce((pre, cur) => {
+    const amount1 = toReadableNumber(
+      tokenIn.decimals,
+      cur.supplies[tokenIn.id]
+    );
+
+    const amount2 = toReadableNumber(
+      tokenOut.decimals,
+      cur.supplies[tokenOut.id]
+    );
+
+    return pre + Number(amount1) + Number(amount2);
+  }, 0);
+
+  const getLP = (pool: Pool) => {
     const amount1 = toReadableNumber(
       tokenIn.decimals,
       pool.supplies[tokenIn.id]
@@ -108,11 +122,14 @@ export const estimateSwap = async ({
     return Number(amount1) + Number(amount2);
   };
 
-  const filterFunc = (pool: Pool, i: number) => getTVL(pool) > TVL_THRESHOLD;
+  const filterFunc = (pool: Pool, i: number) =>
+    getLP(pool) / sumOfAmount > LP_THERESHOLD;
 
-  const filteredPools = _.orderBy(pools, getTVL, ['desc'])
+  const filteredPools = _.orderBy(pools, getLP, ['desc'])
     .slice(0, MAXIMUM_NUMBER_OF_POOLS)
     .filter(filterFunc);
+
+  console.log('filteredPools', filteredPools, 'pools', pools);
 
   const poolAllocations = calculateOptimalOutput(
     filteredPools,
@@ -121,11 +138,14 @@ export const estimateSwap = async ({
     tokenOut.id
   );
 
+  console.log(poolAllocations);
+
   const parallelPoolsWithAllocation = filteredPools.map((pool, i) => ({
     ...pool,
     partialAmountIn: scientificNotationToString(poolAllocations[i].toString()),
   }));
 
+  // post-filter
   const parallelPools = parallelPoolsWithAllocation.filter(
     (paraPool) => Number(paraPool.partialAmountIn) > 0
   );

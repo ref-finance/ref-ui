@@ -82,7 +82,7 @@ export const useSwap = ({
     const medFee = estimates.map((s2d) => {
       const fee = s2d.pool.fee;
       const numerator = Number(
-        toReadableNumber(tokenIn.decimals + 1, s2d.pool.partialAmountIn)
+        toReadableNumber(tokenIn.decimals, s2d.pool.partialAmountIn)
       );
       const weight = numerator / Number(tokenInAmount);
 

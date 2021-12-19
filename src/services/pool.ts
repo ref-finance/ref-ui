@@ -301,11 +301,12 @@ export const getPoolsByTokens = async ({
 
   if (cache && !loadingTrigger) {
     const cache_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
-    filtered_pools = cache_pools.filter(
-      (p) =>
-        new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
-        p.supplies[tokenOutId]
-    );
+    filtered_pools = cache_pools;
+    // filtered_pools = cache_pools.filter(
+    //   (p) =>
+    //     new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
+    //     p.supplies[tokenOutId]
+    // );
   } else {
     setLoadingData(true);
     const totalPools = await getTotalPools();
@@ -316,11 +317,11 @@ export const getPoolsByTokens = async ({
     filtered_pools = pools.filter(isNotStablePool);
 
     await db.cachePoolsByTokens(filtered_pools);
-    filtered_pools = filtered_pools.filter(
-      (p) =>
-        new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
-        p.supplies[tokenOutId]
-    );
+    // filtered_pools = filtered_pools.filter(
+    //   (p) =>
+    //     new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
+    //     p.supplies[tokenOutId]
+    // );
   }
   setLoadingTrigger(false);
   setLoadingData(false);
