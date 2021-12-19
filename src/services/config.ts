@@ -31,7 +31,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 1,
           '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near': 2,
         },
-        blackList: ['1371#3'],
+        blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
       };
     case 'development':
     case 'testnet':
@@ -66,7 +66,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'usdc.fakes.testnet': 1,
           'dai.fakes.testnet': 2,
         },
-        blackList: ['1371#3'],
+        blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
       };
     default:
       return {
@@ -98,7 +98,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 1,
           '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near': 2,
         },
-        blackList: ['1371#3'],
+        blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
       };
   }
 }
