@@ -1,12 +1,20 @@
 import Big from 'big.js';
 import { Pool } from './pool';
 import BigNumber from 'bignumber.js';
+import { max } from 'bn.js';
 
 interface FormatedPool extends Pool {
   x?: string;
   y?: string;
   gamma_bps?: Big;
 }
+
+
+// CONSTANTS FOR PRE-FILTERING OF POOLS //
+const MAX_NUMBER_PARALLEL_POOLS = 5; // max number of pools to 5
+const LIQUIDITY_THRESHOLD_FRACTION = 0.05; // 5 %
+// CONSTANTS FOR PRE-FILTERING OF POOLS //
+
 
 ///////////////////////////////
 // Parallel Swap Logic Below //
@@ -143,6 +151,17 @@ export function calculateOptimalOutput(
   inputToken: string,
   outputToken: string
 ) {
+
+  // Before applying parallel-swap logic, first apply 2 filters to the list of pools
+  
+  // Filter 1: total liquidity filter.
+  let pools_f1: Pool[] = applyTotalLiquidityFilterToPools(pools,threshold=LIQUIDITY_THRESHOLD_FRACTION) 
+
+  // Filter 2: pool number limit filter.
+  let pools_f2: Pool[] = applyPoolNumberLimitFilterToPools(pools_f1, maxNumPools=MAX_NUMBER_PARALLEL_POOLS)
+
+  pools = pools_f2;
+
   let mu = solveForMuFloat(pools, inputAmount, inputToken, outputToken);
   let dxArray: Big[] = new Array();
   let negativeDxValsFlag = false;
@@ -232,3 +251,73 @@ export function reducePools(
   }
   return newFullDxVec;
 }
+
+/** applyTotalLiquidityFilterToPools
+ * This utility function takes a list of pools as an input and filters out any pools that have "threshold" fraction 
+ * liquidity compared with the max liquidity pool in the list. 
+ * 
+ * @param pools : list of AMM pool objects.
+ * @param threshold : fraction threshold below which to cull pools. Fraction in form 0.05 (for 5%)
+ * @returns filteredPools: list of AMM pool objects with low-relative-liquidity pools removed.
+ */
+export function applyTotalLiquidityFilterToPools(
+  pools: Pool[],
+  threshold: number = LIQUIDITY_THRESHOLD_FRACTION
+) {
+  //Create list of liquidities to match the same order as list of pools:
+  let liquidities = [];
+  //Also keep track of max liquidity:
+  let maxLiquidity = new Big(0);
+  for (var i=0; i<pools.length; i++) {
+    let currentPool = pools[i]
+    let currentLiquidity = getLiquidityOfPool(currentPool);
+    liquidities.push(currentLiquidity)
+    if (currentLiquidity > maxLiquidity) {
+      maxLiquidity = currentLiquidity;
+    }
+  }
+  let filteredPools = [];
+  //Now loop over pools again, and only append those to filteredPools whose liquidity is >= threshold fraction of max liquidity pool. 
+  for (var i=0; i<pools.length; i++) {
+    let currentLiquidity = liquidities[i];
+    if ( Big(currentLiquidity).div(maxLiquidity).gte(LIQUIDITY_THRESHOLD_FRACTION) ) {
+      filteredPools.push(pools[i]);
+    }
+  }
+  return filteredPools;
+}
+
+
+/** applyPoolNumberLimitFilterToPools
+ * 
+ * @param pools : list of AMM pool objects.
+ * @param maxNumPools : max number of swap pools to consider for the parallel swap
+ * @returns filteredPools: list of AMM pool objects containing, at most, the "maxNumPools" of pools from "pools" input with the 
+ * highest liquidities. 
+ */
+export function applyPoolNumberLimitFilterToPools(
+  pools: Pool[],
+  maxNumPools: number = MAX_NUMBER_PARALLEL_POOLS
+  ) {
+    if (pools.length <= maxNumPools) {
+      return pools;
+    } else {
+      // sort by largest liquidity.
+      return pools.sort(getLiquidityOfPool).reverse().slice(0,maxNumPools);
+    }
+  }
+
+  /**
+   * utility function to calculate the liquidity of the pool, defined here by x*y, where x and y are the 
+   * reserves of each type of token in the pool.
+   * @param pool : AMM pool object
+   * @returns liquidity : Big number whose value is the product of the reserves of each token in "pool"
+   */
+  export function getLiquidityOfPool(
+    pool: Pool
+    ) {
+      let amounts = Object.keys(pool.supplies).map(function(key){return pool.supplies[key]});
+      let liquidity = new Big(amounts[0]).times(amounts[1]);
+      return liquidity;
+    }
+  
