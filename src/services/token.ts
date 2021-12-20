@@ -26,6 +26,8 @@ import {
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from './wrap-near';
 import { registerTokenAction } from './creators/token';
 
+const specialToken = 'pixeltoken.near';
+
 export const checkTokenNeedsStorageDeposit = async () => {
   let storageNeeded: math.MathType = 0;
 
@@ -131,6 +133,9 @@ interface DepositOptions {
 }
 
 export const deposit = async ({ token, amount, msg = '' }: DepositOptions) => {
+  const gasFee =
+    token.id === specialToken ? '150000000000000' : '100000000000000';
+
   const transactions: Transaction[] = [
     {
       receiverId: token.id,
@@ -143,7 +148,7 @@ export const deposit = async ({ token, amount, msg = '' }: DepositOptions) => {
             msg,
           },
           amount: ONE_YOCTO_NEAR,
-          gas: '100000000000000',
+          gas: gasFee,
         },
       ],
     },
