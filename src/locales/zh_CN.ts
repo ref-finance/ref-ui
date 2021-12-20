@@ -36,7 +36,7 @@ const zh_CN = {
   account: '账号',
   Account: '账号',
   New_ui: 'New UI',
-  Risk: 'Risks',
+  Risk: 'Risk',
   Forum: '论坛',
   Discord: 'Discord',
   Telegram: 'Telegram',
