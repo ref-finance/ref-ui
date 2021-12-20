@@ -24,7 +24,7 @@ import {
   getTokenBalance,
 } from '~services/token';
 import getConfig from '~services/config';
-import { registerTokenAction } from '~services/creators/token';
+import { registerTokensAction } from '~services/creators/token';
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -457,10 +457,14 @@ export const addLiquidityToStablePool = async ({
   const balances = await Promise.all(
     allTokenIds.map((tokenId) => getTokenBalance(tokenId))
   );
+  let notRegisteredTokens: string[] = [];
   for (let i = 0; i < balances.length; i++) {
     if (Number(balances[i]) === 0) {
-      actions.unshift(registerTokenAction(allTokenIds[i]));
+      notRegisteredTokens.push(allTokenIds[i]);
     }
+  }
+  if (notRegisteredTokens.length > 0) {
+    actions.unshift(registerTokensAction(notRegisteredTokens));
   }
 
   const needDeposit = await checkTokenNeedsStorageDeposit();
