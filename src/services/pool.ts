@@ -19,8 +19,12 @@ import {
 } from './creators/storage';
 import { getTopPools } from '~services/indexer';
 import { PoolRPCView } from './api';
-import { checkTokenNeedsStorageDeposit } from '~services/token';
+import {
+  checkTokenNeedsStorageDeposit,
+  getTokenBalance,
+} from '~services/token';
 import getConfig from '~services/config';
+import { registerTokenAction } from '~services/creators/token';
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -449,6 +453,15 @@ export const addLiquidityToStablePool = async ({
       amount: LP_STORAGE_AMOUNT,
     },
   ];
+  const allTokenIds = getConfig().STABLE_TOKEN_IDS;
+  const balances = await Promise.all(
+    allTokenIds.map((tokenId) => getTokenBalance(tokenId))
+  );
+  for (let i = 0; i < balances.length; i++) {
+    if (Number(balances[i]) === 0) {
+      actions.unshift(registerTokenAction(allTokenIds[i]));
+    }
+  }
 
   const needDeposit = await checkTokenNeedsStorageDeposit();
   if (needDeposit) {
