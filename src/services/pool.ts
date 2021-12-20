@@ -46,6 +46,17 @@ export interface StablePool {
   amp: number;
 }
 
+export interface StablePool {
+  id: number;
+  token_account_ids: string[];
+  decimals: number[];
+  amounts: string[];
+  c_amounts: string[];
+  total_fee: number;
+  shares_total_supply: string;
+  amp: number;
+}
+
 export const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
   id: id >= 0 ? id : pool.id,
   tokenIds: pool.token_account_ids,

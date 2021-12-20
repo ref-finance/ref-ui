@@ -258,7 +258,7 @@ const zh_CN = {
   daily_volume: '24小时交易量',
   liquidity_utilisation: '交易活跃度',
   token_reserves: '稳定币储备详情',
-  out_of_avaliable_shares: '超过了可用的份额',
+  insufficient_shares: '超过了可用的份额',
   shares_removed: '流动性',
   shares_avaliable: '可用的份额',
   minimum_shares: '最少份额',

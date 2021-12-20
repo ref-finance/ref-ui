@@ -8,7 +8,7 @@ import { TokenMetadata, ftGetBalance } from '~services/ft-contract';
 import { wallet } from '~services/near';
 import { swap } from '~services/stable-swap';
 import { TokenBalancesView } from '~services/token';
-import { useStableSwap } from '~state/swap';
+import { useStableSwap, useSwap } from '~state/swap';
 import { isMobile } from '~utils/device';
 import Alert from '../alert/Alert';
 import { SmallWallet } from '~components/icon/SmallWallet';
