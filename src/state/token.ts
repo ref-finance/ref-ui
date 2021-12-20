@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { wallet } from '../services/near';
+import { STABLE_TOKEN_IDS, wallet } from '../services/near';
 import {
   ftGetBalance,
   ftGetTokenMetadata,
@@ -17,6 +17,7 @@ import {
   toRoundedReadableNumber,
 } from '~utils/numbers';
 import { toRealSymbol } from '~utils/token';
+import getConfig from '~services/config';
 
 export const useToken = (id: string) => {
   const [token, setToken] = useState<TokenMetadata>();
@@ -57,6 +58,22 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
   return tokens;
 };
 
+export const useWhitelistStableTokens = () => {
+  const [tokens, setTokens] = useState<TokenMetadata[]>();
+  useEffect(() => {
+    getWhitelistedTokens()
+      .then((tokenIds) => {
+        const allTokenIds = STABLE_TOKEN_IDS;
+        return Promise.all(
+          allTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
+        );
+      })
+      .then(setTokens);
+  }, []);
+
+  return tokens;
+};
+
 export const useUserRegisteredTokens = () => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
 
@@ -81,6 +98,23 @@ export const useTokenBalances = () => {
       .then(setBalances)
       .catch(() => setBalances({}));
   }, []);
+
+  return balances;
+};
+
+export const useWalletTokenBalances = (tokenIds: string[] = []) => {
+  const [balances, setBalances] = useState<TokenBalancesView>();
+
+  useEffect(() => {
+    Promise.all<string>(tokenIds.map((id) => ftGetBalance(id))).then((res) => {
+      let balances = {};
+      res.map((item, index) => {
+        const tokenId: string = tokenIds[index];
+        balances[tokenId] = item;
+      });
+      setBalances(balances);
+    });
+  }, [tokenIds.join('')]);
 
   return balances;
 };

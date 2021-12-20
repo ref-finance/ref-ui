@@ -15,6 +15,7 @@ import {
   IconEn,
   IconZh,
   WrapNearEnter,
+  IconAirDropGreenTip,
 } from '~components/icon';
 import { Link, useLocation } from 'react-router-dom';
 import { wallet } from '~services/near';
@@ -199,7 +200,7 @@ export function MobileNavBar() {
   }, [show]);
 
   if (wallet.isSignedIn()) {
-    moreLinks[2].children[2] = {
+    moreLinks[3].children[2] = {
       id: 'Your_Liquidity',
       label: 'Your Liquidity',
       url: '/pools/yours',
@@ -313,7 +314,6 @@ export function MobileNavBar() {
               ${data && data !== '-' ? toPrecision(data, 2) : '-'}
             </span>
           </div>
-
           <div className="text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
             {wallet.isSignedIn() && (
               <MobileAnchor
@@ -362,7 +362,16 @@ export function MobileNavBar() {
               </div>
             )}
             {moreLinks.map(
-              ({ id, label, subRoute, pattern, url, isExternal, children }) => {
+              ({
+                id,
+                label,
+                subRoute,
+                pattern,
+                url,
+                isExternal,
+                children,
+                newFunction,
+              }) => {
                 let location = useLocation();
                 let isSelected = subRoute
                   ? subRoute.includes(location.pathname)
@@ -391,8 +400,13 @@ export function MobileNavBar() {
                       }`}
                       onClick={() => handleMenuClick(url, label, isExternal)}
                     >
-                      <div className={`link `}>
+                      <div className={`link relative`}>
                         <FormattedMessage id={id} defaultMessage={label} />
+                        {newFunction ? (
+                          <span className="absolute top-1 -right-2">
+                            <IconAirDropGreenTip />
+                          </span>
+                        ) : null}
                       </div>
                       {children && (
                         <span>

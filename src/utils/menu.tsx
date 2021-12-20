@@ -145,6 +145,7 @@ export type MobileMenuItem = {
   pattern?: string;
   tip?: string;
   subRoute?: string[];
+  newFunction?: boolean;
 };
 
 export const moreLinks: MobileMenuItem[] = [
@@ -161,6 +162,14 @@ export const moreLinks: MobileMenuItem[] = [
     pattern: '/',
     url: '/',
     isExternal: false,
+  },
+  {
+    id: 'StableSwap',
+    label: 'StableSwap',
+    pattern: '/stableswap',
+    url: '/stableswap',
+    isExternal: false,
+    newFunction: true,
   },
   {
     id: 'pools',
@@ -274,17 +283,17 @@ export const moreLinks: MobileMenuItem[] = [
     url: '',
     isExternal: true,
     children: [
-      {
-        id: 'New_ui',
-        label: 'New UI',
-        url: 'https://mzko2gfnij6.typeform.com/to/N6jSxnym',
-        isExternal: true,
-        tip: 'Hot',
-      },
+      // {
+      //   id: 'New_ui',
+      //   label: 'New UI',
+      //   url: 'https://mzko2gfnij6.typeform.com/to/N6jSxnym',
+      //   isExternal: true,
+      //   tip: 'Hot',
+      // },
       {
         id: 'Risk',
         label: 'Risk',
-        url: 'https://mzko2gfnij6.typeform.com/to/EPmUetxU',
+        url: 'https://form.typeform.com/to/EPmUetxU',
         isExternal: true,
       },
     ],

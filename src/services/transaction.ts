@@ -2,6 +2,10 @@ import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import { toReadableNumber } from '~utils/numbers';
 import { getPoolDetails } from '~services/pool';
 import { useIntl } from 'react-intl';
+import getConfig from '~services/config';
+import { LP_TOKEN_DECIMALS, LP_STABLE_TOKEN_DECIMALS } from '~services/m-token';
+const config = getConfig();
+const STABLE_POOL_ID = config.STABLE_POOL_ID;
 
 export const parseAction = async (
   methodName: string,
@@ -53,6 +57,12 @@ export const parseAction = async (
     }
     case 'near_withdraw': {
       return await parseNearWithdraw(params);
+    }
+    case 'add_stable_liquidity': {
+      return await parseAddStableLiquidity(params);
+    }
+    case 'remove_liquidity_by_tokens': {
+      return await parseRemoveStableLiquidity(params);
     }
     default: {
       return await parseDefault();
@@ -117,14 +127,25 @@ const parseRemoveLiquidity = async (params: any) => {
   const tokens = await Promise.all<TokenMetadata>(
     pool.tokenIds.map((id) => ftGetTokenMetadata(id))
   );
-
-  return {
+  const result = {
     Action: 'Remove Liquidity',
     'Pool Id': params.pool_id,
     'Amount One': toReadableNumber(tokens[0].decimals, params.min_amounts[0]),
     'Amount Two': toReadableNumber(tokens[1].decimals, params.min_amounts[1]),
-    Shares: toReadableNumber(24, params.shares),
   };
+  if (pool.id == STABLE_POOL_ID) {
+    result['Amount Three'] = toReadableNumber(
+      tokens[2].decimals,
+      params.min_amounts[2]
+    );
+    result['Shares'] = toReadableNumber(
+      LP_STABLE_TOKEN_DECIMALS,
+      params.shares
+    );
+  } else {
+    result['Shares'] = toReadableNumber(LP_TOKEN_DECIMALS, params.shares);
+  }
+  return result;
 };
 
 const parseAddSimplePool = async (params: any) => {
@@ -213,6 +234,43 @@ const parseNearWithdraw = async (params: any) => {
   return {
     Action: 'Near withdraw',
     Amount: toReadableNumber(24, amount),
+  };
+};
+const parseAddStableLiquidity = async (params: any) => {
+  const { amounts, min_shares, pool_id } = params;
+  const pool = await getPoolDetails(params.pool_id);
+  const tokens = await Promise.all<TokenMetadata>(
+    pool.tokenIds.map((id) => ftGetTokenMetadata(id))
+  );
+  const tempToken = {};
+  tokens.forEach((token, index) => {
+    tempToken[token.symbol] = toReadableNumber(token.decimals, amounts[index]);
+  });
+  return {
+    Action: 'Add Stable liquidity',
+    'Pool id': pool_id,
+    ...tempToken,
+    'Min shares': toReadableNumber(LP_STABLE_TOKEN_DECIMALS, min_shares),
+  };
+};
+const parseRemoveStableLiquidity = async (params: any) => {
+  const { amounts, max_burn_shares, pool_id } = params;
+  const pool = await getPoolDetails(params.pool_id);
+  const tokens = await Promise.all<TokenMetadata>(
+    pool.tokenIds.map((id) => ftGetTokenMetadata(id))
+  );
+  const tempToken = {};
+  tokens.forEach((token, index) => {
+    tempToken[token.symbol] = toReadableNumber(token.decimals, amounts[index]);
+  });
+  return {
+    Action: 'Remove Stable liquidity',
+    'Pool id': pool_id,
+    ...tempToken,
+    'Max burn shares': toReadableNumber(
+      LP_STABLE_TOKEN_DECIMALS,
+      max_burn_shares
+    ),
   };
 };
 

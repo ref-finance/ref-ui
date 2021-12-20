@@ -1,5 +1,12 @@
 import { useEffect, useState, useCallback } from 'react';
-import { calculateFairShare, percentLess, toPrecision } from '../utils/numbers';
+import {
+  calculateFairShare,
+  percentLess,
+  toPrecision,
+  toNonDivisibleNumber,
+  toReadableNumber,
+  scientificNotationToString,
+} from '../utils/numbers';
 import { getStakedListByAccountId } from '~services/farm';
 import {
   DEFAULT_PAGE_LIMIT,
@@ -14,11 +21,15 @@ import {
   Pool,
   PoolDetails,
   removeLiquidityFromPool,
+  predictLiquidityShares,
+  predictRemoveLiquidityByTokens,
+  StablePool,
+  getStablePool,
 } from '../services/pool';
 import db, { PoolDb, WatchList } from '~store/RefDatabase';
 
 import { useWhitelistTokens } from './token';
-import _, { debounce, min, orderBy } from 'lodash';
+import _, { countBy, debounce, min, orderBy } from 'lodash';
 import {
   getPoolMonthVolume,
   getPoolMonthTVL,
@@ -26,6 +37,18 @@ import {
   get24hVolume,
 } from '~services/indexer';
 import { parsePoolView, PoolRPCView } from '~services/api';
+import { TokenMetadata } from '~services/ft-contract';
+import { TokenBalancesView } from '~services/token';
+import {
+  shareToAmount,
+  getAddLiquidityShares,
+  getRemoveLiquidityByTokens,
+} from '~services/stable-swap';
+import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
+import BigNumber from 'bignumber.js';
+import moment from 'moment';
+import { STABLE_POOL_ID } from '~services/near';
+const REF_FI_STABLE_Pool_INFO_KEY = 'REF_FI_STABLE_Pool_INFO_VALUE';
 
 export const usePool = (id: number | string) => {
   const [pool, setPool] = useState<PoolDetails>();
@@ -37,9 +60,11 @@ export const usePool = (id: number | string) => {
       .then(setShares)
       .catch(() => setShares);
 
-    getStakedListByAccountId({}).then((stakeList) => {
-      setStakeList(stakeList);
-    });
+    getStakedListByAccountId({})
+      .then((stakeList) => {
+        setStakeList(stakeList);
+      })
+      .catch(() => {});
   }, [id]);
 
   return { pool, shares, stakeList };
@@ -365,4 +390,138 @@ export const useDayVolume = (pool_id: string) => {
     get24hVolume(pool_id).then(setDayVolume);
   }, [pool_id]);
   return dayVolume;
+};
+
+export const usePredictShares = ({
+  tokens,
+  poolId,
+  firstTokenAmount,
+  secondTokenAmount,
+  thirdTokenAmount,
+  stablePool,
+}: {
+  poolId: number;
+  tokens: TokenMetadata[];
+  firstTokenAmount: string;
+  secondTokenAmount: string;
+  thirdTokenAmount: string;
+  stablePool: StablePool;
+}) => {
+  const [predicedShares, setPredictedShares] = useState<string>('0');
+
+  const zeroValidae = () => {
+    return (
+      Number(firstTokenAmount) > 0 ||
+      Number(secondTokenAmount) > 0 ||
+      Number(thirdTokenAmount) > 0
+    );
+  };
+
+  useEffect(() => {
+    if (!zeroValidae()) {
+      setPredictedShares('0');
+      return;
+    }
+
+    const calcShares = getAddLiquidityShares(
+      poolId,
+      [firstTokenAmount, secondTokenAmount, thirdTokenAmount],
+      stablePool
+    );
+    setPredictedShares(calcShares);
+  }, [firstTokenAmount, secondTokenAmount, thirdTokenAmount]);
+
+  return predicedShares;
+};
+
+export const usePredictRemoveShares = ({
+  pool_id,
+  amounts,
+  tokens,
+  setError,
+  shares,
+  stablePool,
+}: {
+  pool_id: number;
+  amounts: string[];
+  tokens: TokenMetadata[];
+  setError: (e: Error) => void;
+  shares: string;
+  stablePool: StablePool;
+}) => {
+  const [canSubmitByToken, setCanSubmitByToken] = useState<boolean>(false);
+
+  const [predictedRemoveShares, setPredictedRemoveShares] =
+    useState<string>('0');
+
+  const zeroValidate = amounts.every((amount) => !(Number(amount) > 0));
+
+  function validate(predictedShare: string) {
+    if (new BigNumber(predictedShare).isGreaterThan(new BigNumber(shares))) {
+      setCanSubmitByToken(false);
+      setError(new Error('insufficient_shares'));
+    } else {
+      setCanSubmitByToken(true);
+    }
+  }
+
+  useEffect(() => {
+    setError(null);
+    if (zeroValidate) {
+      setPredictedRemoveShares('0');
+      setCanSubmitByToken(false);
+      return;
+    }
+    setCanSubmitByToken(false);
+
+    try {
+      const burn_shares = getRemoveLiquidityByTokens(amounts, stablePool);
+
+      validate(burn_shares);
+      setPredictedRemoveShares(burn_shares);
+    } catch (error) {
+      setError(new Error('insufficient_shares'));
+      setCanSubmitByToken(false);
+    }
+  }, [...amounts]);
+
+  return {
+    predictedRemoveShares,
+    canSubmitByToken,
+  };
+};
+
+export const useStablePool = ({
+  loadingTrigger,
+  setLoadingTrigger,
+}: {
+  loadingTrigger: boolean;
+  setLoadingTrigger: (mode: boolean) => void;
+}) => {
+  const [stablePool, setStablePool] = useState<StablePool>();
+  const [count, setCount] = useState(0);
+  const refreshTime = 10000;
+  useEffect(() => {
+    getStablePool(Number(STABLE_POOL_ID)).then((res) => {
+      setStablePool(res);
+      localStorage.setItem(REF_FI_STABLE_Pool_INFO_KEY, JSON.stringify(res));
+    });
+  }, [count, loadingTrigger]);
+
+  useEffect(() => {
+    let id: any = null;
+    if (!loadingTrigger) {
+      id = setInterval(() => {
+        setLoadingTrigger(true);
+        setCount(count + 1);
+      }, refreshTime);
+    } else {
+      clearInterval(id);
+    }
+    return () => {
+      clearInterval(id);
+    };
+  }, [count, loadingTrigger]);
+
+  return stablePool;
 };

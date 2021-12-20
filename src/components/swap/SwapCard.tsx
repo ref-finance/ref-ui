@@ -33,7 +33,7 @@ const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
 
-function SwapDetail({
+export function SwapDetail({
   title,
   value,
 }: {
@@ -42,26 +42,28 @@ function SwapDetail({
 }) {
   return (
     <section className="grid grid-cols-2 py-1 text-xs">
-      <p className="text-primaryText">{title}</p>
+      <p className="text-primaryText text-left">{title}</p>
       <p className="text-right text-white">{value}</p>
     </section>
   );
 }
 
-function SwapRateDetail({
+export function SwapRateDetail({
   title,
   value,
-  pool,
+  subTitle,
   from,
   to,
   tokenIn,
   tokenOut,
+  pool,
 }: {
+  pool: Pool;
   title: string;
   value: string;
-  pool: Pool;
   from: string;
   to: string;
+  subTitle?: string;
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
 }) {
@@ -89,20 +91,61 @@ function SwapRateDetail({
   }
 
   return (
-    <section className="flex py-1 text-xs">
-      <p className="text-primaryText w-1/5 xs:w-2/5">{title}</p>
+    <section className="grid grid-cols-2 py-1 text-xs">
+      <p className="text-primaryText text-left flex xs:flex-col md:flex-col">
+        <label className="mr-1">{title}</label>
+        {subTitle ? <label>{subTitle}</label> : null}
+      </p>
       <p
-        className="flex justify-end text-white cursor-pointer w-4/5 xs:w-3/5"
+        className="flex justify-end text-white cursor-pointer text-right"
         onClick={switchSwapRate}
       >
         <span className="mr-2" style={{ marginTop: '0.1rem' }}>
-          <FaExchangeAlt />
+          <FaExchangeAlt color="#00C6A2" />
         </span>
         <span>{newValue}</span>
       </p>
     </section>
   );
 }
+
+export const GetPriceImpact = (
+  pool: Pool,
+  tokenIn: TokenMetadata,
+  tokenOut: TokenMetadata,
+  from: string
+) => {
+  const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
+
+  const textColor =
+    Number(value) <= 1
+      ? 'text-greenLight'
+      : 1 < Number(value) && Number(value) <= 2
+      ? 'text-warn'
+      : 'text-error';
+
+  return Number(value) < 0.01 ? (
+    <span className="text-greenLight">{'< -0.01%'}</span>
+  ) : (
+    <span className={`${textColor}`}>{`≈ -${toPrecision(value, 2)}%`}</span>
+  );
+};
+
+export const getPriceImpactTipType = (
+  pool: Pool,
+  tokenIn: TokenMetadata,
+  tokenOut: TokenMetadata,
+  from: string
+) => {
+  const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
+  const reault =
+    1 < Number(value) && Number(value) <= 2 ? (
+      <WarnTriangle></WarnTriangle>
+    ) : Number(value) > 2 && Number(value) != Infinity ? (
+      <ErrorTriangle></ErrorTriangle>
+    ) : null;
+  return reault;
+};
 
 function DetailView({
   pool,
@@ -112,6 +155,7 @@ function DetailView({
   to,
   minAmountOut,
   canSwap,
+  loadingTrigger,
 }: {
   pool: Pool;
   tokenIn: TokenMetadata;
@@ -120,6 +164,7 @@ function DetailView({
   to: string;
   minAmountOut: string;
   canSwap?: boolean;
+  loadingTrigger?: boolean;
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
@@ -144,22 +189,9 @@ function DetailView({
       <span className={`${textColor}`}>{`≈ -${toPrecision(value, 2)}%`}</span>
     );
   };
-  const getPriceImpactTipType = (
-    pool: Pool,
-    tokenIn: TokenMetadata,
-    tokenOut: TokenMetadata,
-    from: string
-  ) => {
-    const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
-    const reault =
-      Number(value) <= 1 ? null : 1 < Number(value) && Number(value) <= 2 ? (
-        <WarnTriangle></WarnTriangle>
-      ) : (
-        <ErrorTriangle></ErrorTriangle>
-      );
-    return reault;
-  };
-  if (!pool || !from || !to || !(Number(from) > 0)) return null;
+
+  if (!pool || !from || !to || !(Number(from) > 0) || loadingTrigger)
+    return null;
 
   return (
     <div className="mt-8">
@@ -193,11 +225,11 @@ function DetailView({
             to,
             from
           )} ${toRealSymbol(tokenIn.symbol)}`}
-          pool={pool}
           from={from}
           to={to}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
+          pool={pool}
         />
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
@@ -224,7 +256,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
-  const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
+
   const [useNearBalance, setUseNearBalance] = useState<boolean>(
     localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) != 'false'
   );
@@ -242,19 +274,16 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const history = useHistory();
 
   const balances = useTokenBalances();
-
+  const [urlTokenIn, urlTokenOut, urlSlippageTolerance] = decodeURIComponent(
+    location.hash.slice(1)
+  ).split(TOKEN_URL_SEPARATOR);
+  const [slippageTolerance, setSlippageTolerance] = useState<number>(
+    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY) || urlSlippageTolerance) ||
+      0.5
+  );
   useEffect(() => {
-    const [urlTokenIn, urlTokenOut, urlSlippageTolerance] = decodeURIComponent(
-      location.hash.slice(1)
-    ).split(TOKEN_URL_SEPARATOR);
     const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
     const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
-    const rememberedSlippageTolerance =
-      slippageTolerance ||
-      urlSlippageTolerance ||
-      localStorage.getItem(SWAP_SLIPPAGE_KEY);
-
-    setSlippageTolerance(Number(rememberedSlippageTolerance));
 
     if (allTokens) {
       setTokenIn(
@@ -334,8 +363,9 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   return (
     <>
-      <SwapTip></SwapTip>
+      <SwapTip />
       <SwapFormWrap
+        useNearBalance={useNearBalance.toString()}
         canSubmit={canSubmit}
         slippageTolerance={slippageTolerance}
         onChange={(slippage) => {
@@ -429,6 +459,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           }}
         />
         <DetailView
+          loadingTrigger={loadingTrigger}
           pool={pool}
           tokenIn={tokenIn}
           tokenOut={tokenOut}

@@ -5,13 +5,13 @@ import Alert from '~components/alert/Alert';
 import TipsBox from '~components/farm/TipsBox';
 import CalcModel, { CalcEle, LinkPool } from '~components/farm/CalcModel';
 import UnClaim from '~components/farm/UnClaim';
+import QuestionMark from '~components/farm/QuestionMark';
 import {
   FarmMiningIcon,
   ModalClose,
   ArrowDown,
   Dots,
   Light,
-  QuestionMark,
   Calc,
   ArrowDownHollow,
   Checkbox,
@@ -39,6 +39,7 @@ import {
   unstake,
   LP_TOKEN_DECIMALS,
   withdrawAllReward,
+  LP_STABLE_TOKEN_DECIMALS,
 } from '~services/m-token';
 import {
   formatWithCommas,
@@ -72,11 +73,15 @@ import parse from 'html-react-parser';
 import { FaArrowCircleRight, FaRegQuestionCircle } from 'react-icons/fa';
 import OldInputAmount from '~components/forms/OldInputAmount';
 import { BigNumber } from 'bignumber.js';
+import getConfig from '~services/config';
+const config = getConfig();
+const STABLE_POOL_ID = config.STABLE_POOL_ID;
 interface SearchData {
   status: boolean;
   staked: boolean;
   sort: string;
   sortBoxHidden: boolean;
+  stable: boolean;
 }
 
 export function FarmsPage() {
@@ -104,6 +109,7 @@ export function FarmsPage() {
       ? !!+localStorage.getItem('farmStakedOnly')
       : false,
     sort: 'apr',
+    stable: !!+localStorage.getItem('farmStableOnly'),
     sortBoxHidden: true,
   });
   const [yourFarms, setYourFarms] = useState<string | number>('-');
@@ -312,6 +318,7 @@ export function FarmsPage() {
   }
   const handleClick = (e: any) => {
     if (
+      sortRef.current &&
       !sortRef.current.contains(e.target) &&
       !sortBoxRef.current.contains(e.target)
     ) {
@@ -320,17 +327,22 @@ export function FarmsPage() {
     }
   };
   function searchByCondition(list?: any) {
-    const { status, staked, sort } = searchData;
+    const { status, staked, sort, stable } = searchData;
     let listAll = list || farms;
     listAll.forEach((item: any) => {
       const isEnd = isEnded(item);
       const useStaked = Number(item[0].userStaked) > 0;
+      const isStableFarm = item[0].lpTokenId == STABLE_POOL_ID;
       const condition1 = status == !isEnd;
       let condition2 = true;
+      let condition3 = true;
       if (staked) {
         condition2 = useStaked;
       }
-      if (condition1 && condition2) {
+      if (stable) {
+        condition3 = isStableFarm;
+      }
+      if (condition1 && condition2 && condition3) {
         item.show = true;
       } else {
         item.show = false;
@@ -414,6 +426,16 @@ export function FarmsPage() {
       localStorage.setItem('farmStakedOnly', '1');
     } else {
       localStorage.setItem('farmStakedOnly', '0');
+    }
+    setSearchData(Object.assign({}, searchData));
+    searchByCondition();
+  }
+  function changeStable() {
+    searchData.stable = !searchData.stable;
+    if (searchData.stable) {
+      localStorage.setItem('farmStableOnly', '1');
+    } else {
+      localStorage.setItem('farmStableOnly', '0');
     }
     setSearchData(Object.assign({}, searchData));
     searchByCondition();
@@ -510,7 +532,7 @@ export function FarmsPage() {
                     data-tip={valueOfRewardsTip()}
                     data-for="yourRewardsId"
                   >
-                    <FaRegQuestionCircle />
+                    <QuestionMark />
                     <ReactTooltip
                       className="w-20"
                       id="yourRewardsId"
@@ -634,13 +656,13 @@ export function FarmsPage() {
           </div>
         </div>
         <div className="flex flex-col pl-5 pr-8 xs:px-5 md:px-5 xs:mt-8 md:mt-8">
-          <div className="h-12 xs:w-full md:w-full">
+          <div className="xs:w-full md:w-full">
             {unclaimedFarmsIsLoading ? null : (
-              <div className="flex items-center self-end">
-                <div className="flex items-center w-36 xs:w-32 md:w-32 text-farmText rounded-full h-7 bg-farmSbg mr-4">
+              <div className="flex items-center self-end xs:flex-col md:flex-col mb-3">
+                <div className="flex items-center w-36 xs:w-32 md:w-32 text-farmText rounded-full h-5 bg-farmSbg lg:mr-4">
                   <label
                     onClick={() => changeStatus(1)}
-                    className={`flex justify-center items-center w-1/2 rounded-full h-full cursor-pointer ${
+                    className={`flex justify-center items-center w-1/2 rounded-full h-full text-xs cursor-pointer ${
                       searchData.status ? 'text-chartBg bg-farmSearch' : ''
                     }`}
                   >
@@ -648,7 +670,7 @@ export function FarmsPage() {
                   </label>
                   <label
                     onClick={() => changeStatus(0)}
-                    className={`flex justify-center items-center w-1/2 rounded-full h-full cursor-pointer ${
+                    className={`flex justify-center items-center w-1/2 rounded-full h-full text-xs cursor-pointer ${
                       !searchData.status ? 'text-chartBg bg-farmSearch' : ''
                     }`}
                   >
@@ -658,62 +680,84 @@ export function FarmsPage() {
                     />
                   </label>
                 </div>
-                {wallet.isSignedIn() ? (
-                  <div className="flex items-center mr-4">
-                    <label className="text-farmText text-sm">
+                <div className="flex xs:w-full md:w-full xs:mt-4 md:mt-4">
+                  {wallet.isSignedIn() ? (
+                    <div className="flex items-center mr-4 xs:mr-3 md:mr-3">
+                      <label className="text-farmText text-xs">
+                        <FormattedMessage
+                          id="staked_only"
+                          defaultMessage="Staked Only"
+                        />
+                      </label>
+                      <div
+                        onClick={changeStaked}
+                        className={`flex items-center w-11 h-5 bg-cardBg rounded-full px-1  ml-2.5 box-border cursor-pointer ${
+                          searchData.staked ? 'justify-end' : ''
+                        }`}
+                      >
+                        <a
+                          className={`h-5 w-5 rounded-full ${
+                            searchData.staked ? 'bg-farmSearch' : 'bg-farmRound'
+                          }`}
+                        ></a>
+                      </div>
+                    </div>
+                  ) : null}
+                  <div className="flex items-center mr-4 xs:mr-3 md:mr-3">
+                    <label className="text-farmText text-xs">
                       <FormattedMessage
-                        id="staked_only"
-                        defaultMessage="Staked Only"
+                        id="stablecoin_only"
+                        defaultMessage="Stablecoin Only"
                       />
                     </label>
                     <div
-                      onClick={changeStaked}
-                      className={`flex items-center w-11 h-7 bg-cardBg rounded-full px-1  ml-2.5 box-border cursor-pointer ${
-                        searchData.staked ? 'justify-end' : ''
+                      onClick={changeStable}
+                      className={`flex items-center w-11 h-5 bg-cardBg rounded-full px-1  ml-2.5 box-border cursor-pointer ${
+                        searchData.stable ? 'justify-end' : ''
                       }`}
                     >
                       <a
                         className={`h-5 w-5 rounded-full ${
-                          searchData.staked ? 'bg-farmSearch' : 'bg-farmRound'
+                          searchData.stable ? 'bg-farmSearch' : 'bg-farmRound'
                         }`}
                       ></a>
                     </div>
                   </div>
-                ) : null}
-                <div className="flex items-center relative">
-                  <label className="text-farmText text-sm mr-2.5 xs:hidden md:hidden">
-                    <FormattedMessage id="sort_by" defaultMessage="Sort by" />
-                  </label>
-                  <span
-                    ref={sortRef}
-                    onClick={showSortBox}
-                    className="flex items-center justify-between w-32 h-7 xs:w-8 md:w-8 rounded-full px-3 box-border border border-farmText cursor-pointer text-sm text-gray-200"
-                  >
-                    <label className="whitespace-nowrap xs:hidden md:hidden">
-                      {sortList[searchData.sort]}
+                  <div className="flex items-center relative">
+                    <label className="text-farmText text-xs mr-2.5 xs:hidden md:hidden">
+                      <FormattedMessage id="sort_by" defaultMessage="Sort by" />
                     </label>
-                    <ArrowDown></ArrowDown>
-                  </span>
-                  <div
-                    ref={sortBoxRef}
-                    className={`absolute z-50 top-8 left-14 xs:left-auto xs:right-0 md:left-auto md:right-0 w-36 border border-farmText bg-cardBg rounded-md ${
-                      searchData.sortBoxHidden ? 'hidden' : ''
-                    }`}
-                  >
-                    {Object.entries(sortList).map((item) => (
-                      <p
-                        key={item[0]}
-                        onClick={changeSortV}
-                        data-id={item[0]}
-                        className={`flex items-center p-4 text-sm h-7 text-white text-opacity-40 my-2 cursor-pointer hover:bg-white hover:bg-opacity-10 hover:text-opacity-100 ${
-                          item[0] == searchData.sort
-                            ? 'bg-white bg-opacity-10 text-opacity-100'
-                            : ''
-                        }`}
-                      >
-                        {item[1]}
-                      </p>
-                    ))}
+                    <span
+                      ref={sortRef}
+                      onClick={showSortBox}
+                      className="flex items-center justify-between w-32 h-5 xs:w-8 md:w-8 rounded-full px-3 box-border border border-farmText cursor-pointer text-xs text-gray-200"
+                    >
+                      <label className="whitespace-nowrap xs:hidden md:hidden">
+                        {sortList[searchData.sort]}
+                      </label>
+                      <ArrowDown></ArrowDown>
+                    </span>
+                    <div
+                      ref={sortBoxRef}
+                      className={`absolute z-50 top-8 left-14 xs:left-auto xs:right-0 md:left-auto md:right-0 w-36 border border-farmText bg-cardBg rounded-md ${
+                        searchData.sortBoxHidden ? 'hidden' : ''
+                      }`}
+                    >
+                      {Object.entries(sortList).map((item) => (
+                        <p
+                          key={item[0]}
+                          onClick={changeSortV}
+                          data-id={item[0]}
+                          className={`flex items-center p-4 text-xs h-5 text-white text-opacity-40 my-2 cursor-pointer hover:bg-white hover:bg-opacity-10 hover:text-opacity-100 ${
+                            item[0] == searchData.sort
+                              ? 'bg-white bg-opacity-10 text-opacity-100'
+                              : ''
+                          }`}
+                        >
+                          {item[1]}
+                        </p>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -779,16 +823,25 @@ function WithdrawView({
         const totalPrice = new BigNumber(price).multipliedBy(
           toReadableNumber(token.decimals, data[1])
         );
-        if (new BigNumber('0.001').isGreaterThan(totalPrice)) {
-          resultTotalPrice = '<$0.001';
+        if (new BigNumber('0.01').isGreaterThan(totalPrice)) {
+          resultTotalPrice = '<$0.01';
         } else {
           resultTotalPrice = `$${toInternationalCurrencySystem(
             totalPrice.toString(),
-            3
+            2
+          )}`;
+        }
+        let displayPrice;
+        if (new BigNumber('0.01').isGreaterThan(price)) {
+          displayPrice = '<$0.01';
+        } else {
+          displayPrice = `$${toInternationalCurrencySystem(
+            price.toString(),
+            2
           )}`;
         }
         setPriceData({
-          price,
+          price: displayPrice,
           totalPrice: resultTotalPrice,
         });
       }
@@ -807,7 +860,9 @@ function WithdrawView({
     if (new BigNumber('0.001').isGreaterThan(tokenNumber)) {
       resultDisplay = '<0.001';
     } else {
-      resultDisplay = new BigNumber(tokenNumber).toFixed(3, 1).toString();
+      resultDisplay = formatWithCommas(
+        new BigNumber(tokenNumber).toFixed(3, 1).toString()
+      );
     }
     return resultDisplay;
   }
@@ -828,7 +883,7 @@ function WithdrawView({
               {toRealSymbol(token.symbol)}
             </label>
             <label className="text-primaryText text-xs">
-              ${priceData.price || '-'}
+              {priceData.price || '$-'}
             </label>
           </div>
         </div>
@@ -1037,8 +1092,13 @@ function FarmView({
   }
 
   async function showStakeModal() {
-    const b = await mftGetBalance(getMftTokenId(data.lpTokenId));
-    setStakeBalance(toReadableNumber(LP_TOKEN_DECIMALS, b));
+    const { lpTokenId } = data;
+    const b = await mftGetBalance(getMftTokenId(lpTokenId));
+    if (STABLE_POOL_ID == lpTokenId) {
+      setStakeBalance(toReadableNumber(LP_STABLE_TOKEN_DECIMALS, b));
+    } else {
+      setStakeBalance(toReadableNumber(LP_TOKEN_DECIMALS, b));
+    }
     setStakeVisible(true);
   }
 
@@ -1301,7 +1361,7 @@ function FarmView({
   tokens.sort((a, b) => {
     if (a.symbol === 'wNEAR') return 1;
     if (b.symbol === 'wNEAR') return -1;
-    return a.symbol > b.symbol ? 1 : -1;
+    return 0;
   });
   const images = tokens.map((token, index) => {
     const { icon, id } = token;
@@ -1311,7 +1371,7 @@ function FarmView({
           key={id + index}
           className={
             'h-11 w-11 rounded-full border border-gradientFromHover ' +
-            (index == 1 ? '-ml-1.5' : '')
+            (index != 0 ? '-ml-1.5' : '')
           }
           src={icon}
         />
@@ -1328,7 +1388,7 @@ function FarmView({
   });
   const symbols = tokens.map((token, index) => {
     const { symbol } = token;
-    const hLine = index === 1 ? '' : '-';
+    const hLine = index === tokens.length - 1 ? '' : '-';
     return `${toRealSymbol(symbol)}${hLine}`;
   });
   function valueOfRewardsTip() {
@@ -1362,10 +1422,17 @@ function FarmView({
             <div className="order-2 lg:ml-auto xl:m-0">
               <div>
                 <Link
-                  to={{
-                    pathname: `/pool/${PoolId}`,
-                    state: { backToFarms: true },
-                  }}
+                  to={
+                    PoolId == STABLE_POOL_ID
+                      ? {
+                          pathname: '/stableswap',
+                          state: { backToFarms: true },
+                        }
+                      : {
+                          pathname: `/pool/${PoolId}`,
+                          state: { backToFarms: true },
+                        }
+                  }
                   target="_blank"
                   className="text-lg xs:text-sm text-white"
                 >
@@ -1381,7 +1448,11 @@ function FarmView({
           </div>
           <Link
             title={intl.formatMessage({ id: 'view_pool' })}
-            to={{ pathname: `/pool/${PoolId}`, state: { backToFarms: true } }}
+            to={
+              PoolId == STABLE_POOL_ID
+                ? { pathname: '/stableswap', state: { backToFarms: true } }
+                : { pathname: `/pool/${PoolId}`, state: { backToFarms: true } }
+            }
             target="_blank"
           >
             <span
@@ -1684,6 +1755,7 @@ function FarmView({
           unstake({
             seed_id: data.seed_id,
             amount,
+            poolId: farmData.lpTokenId,
           }).catch(setError);
         }}
         style={{
@@ -1731,9 +1803,11 @@ function FarmView({
         type="stake"
         tokenPriceList={tokenPriceList}
         onSubmit={(amount) => {
-          stake({ token_id: getMftTokenId(data.lpTokenId), amount }).catch(
-            setError
-          );
+          stake({
+            token_id: getMftTokenId(data.lpTokenId),
+            amount,
+            poolId: farmData.lpTokenId,
+          }).catch(setError);
         }}
         style={{
           overlay: {
@@ -1803,7 +1877,7 @@ function ActionModal(
           key={id + index}
           className={
             'w-10 h-10 xs:w-9 md:w-9 xs:h-9 md:h-9 rounded-full border border-gradientFromHover ' +
-            (index == 1 ? 'relative -left-1.5' : '')
+            (index != 0 ? '-ml-1.5' : '')
           }
         />
       );

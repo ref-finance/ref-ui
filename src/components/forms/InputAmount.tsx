@@ -1,10 +1,12 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { TokenMetadata } from '~services/ft-contract';
+import { TokenBalancesView } from '~services/token';
 
 interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   max?: string;
   maxBorder?: boolean;
   showMaxAsBalance?: boolean;
-  onChangeAmount?: (amount: string) => void;
+  onChangeAmount?: (amount: string, balances?: TokenBalancesView) => void;
 }
 
 export default function InputAmount({
@@ -19,22 +21,24 @@ export default function InputAmount({
   const field = useRef<HTMLFieldSetElement>();
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
 
+  const [isFocus, setIsFocus] = useState<boolean>(false);
+
   const handleChange = (amount: string) => {
     if (onChangeAmount) onChangeAmount(amount);
+
     ref.current.value = amount;
-  };
-
-  const handleFocus = () => {
-    field.current.className = className + ' border border-greenLight rounded';
-  };
-
-  const handleFocusOut = () => {
-    field.current.className = className + ' border border-transparent rounded';
   };
 
   return (
     <>
-      <fieldset className={className} ref={field}>
+      <fieldset
+        className={`${className} ${
+          isFocus
+            ? ' border border-greenLight rounded'
+            : ' border border-transparent rounded'
+        }`}
+        ref={field}
+      >
         <div
           className={`relative flex align-center items-center bg-inputDarkBg rounded`}
         >
@@ -53,8 +57,12 @@ export default function InputAmount({
             onChange={({ target }) => handleChange(target.value)}
             disabled={disabled}
             onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
-            onFocus={() => handleFocus()}
-            onBlur={() => handleFocusOut()}
+            onFocus={() => {
+              setIsFocus(true);
+            }}
+            onBlur={() => {
+              setIsFocus(false);
+            }}
           />
           {max ? (
             <a

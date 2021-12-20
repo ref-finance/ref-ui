@@ -1193,6 +1193,9 @@ export function PoolDetailsPage() {
   }, []);
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
+  if (isStablePool(pool)) {
+    history.push('/');
+  }
 
   if (isStablePool(pool)) {
     history.push('/');

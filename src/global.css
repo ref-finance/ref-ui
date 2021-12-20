@@ -282,6 +282,25 @@ input.warn-input:focus {
   min-width: 7rem !important;
   opacity: 1 !important;
 }
+
+input[type='range'] {
+  display: block;
+  -webkit-appearance: none;
+  background-color: rgba(0, 0, 0, 0.2);
+  height: 10px;
+  border-radius: 5px;
+  margin: 0 auto;
+  outline: none;
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  background-color: #00c6a2;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
 .farmEnded .border-gradientFromHover {
   border-color: #73818b;
 }
@@ -434,5 +453,41 @@ input.warn-input:focus {
   }
   100% {
     -webkit-transform: rotate(45deg);
+  }
+}
+.popUpPc {
+  /* width:350px;
+  height:312px; */
+  /* width:300px;
+  height:267px; */
+  width: 320px;
+  height: 285px;
+  background: url(./assets/imgs/popUpPc.png) center no-repeat;
+  background-size: 100% 100%;
+  animation: pushLeftanimation 1.5s ease;
+}
+.popUpMobile {
+  width: 345px;
+  height: 137px;
+  background: url(./assets/imgs/popUpMobile.png) center no-repeat;
+  background-size: 100% 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: pushanimation 1.5s ease;
+}
+@keyframes pushLeftanimation {
+  0% {
+    right: -320px;
+  }
+  100% {
+    right: 0;
+  }
+}
+@keyframes pushanimation {
+  0% {
+    bottom: -137px;
+  }
+  100% {
+    bottom: 0;
   }
 }
