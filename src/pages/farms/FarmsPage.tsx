@@ -1847,6 +1847,8 @@ function ActionModal(
   const [displayTokenData, setDisplayTokenData] = useState<Record<string, any>>(
     {}
   );
+  const [stakeCheck, setStakeCheck] = useState(false);
+  const intl = useIntl();
   const maxToFormat = new BigNumber(max);
   useEffect(() => {
     if (type == 'unstake') {
@@ -1935,6 +1937,23 @@ function ActionModal(
   function showCalcWrap() {
     setShowCalc(!showCalc);
   }
+  function stakeCheckFun(amount: string) {
+    if (type == 'stake') {
+      const LIMITAOMUNT = '1000000000000000000';
+      let value;
+      if (STABLE_POOL_ID == farm.lpTokenId) {
+        value = toNonDivisibleNumber(LP_STABLE_TOKEN_DECIMALS, amount);
+      } else {
+        value = toNonDivisibleNumber(LP_TOKEN_DECIMALS, amount);
+      }
+      if (new BigNumber(value).isLessThan(LIMITAOMUNT) && amount) {
+        setStakeCheck(true);
+      } else {
+        setStakeCheck(false);
+      }
+    }
+    setAmount(amount);
+  }
   return (
     <Modal {...props}>
       {showTip ? (
@@ -1972,49 +1991,68 @@ function ActionModal(
                   className="flex-grow"
                   max={max}
                   value={amount}
-                  onChangeAmount={setAmount}
+                  onChangeAmount={stakeCheckFun}
                 />
               </div>
             </div>
             {type == 'stake' ? (
-              <div className="mt-4">
-                <div className="flex flex-col items-center justify-center">
-                  <div
-                    className="flex items-center justify-center mb-2 cursor-pointer"
-                    onClick={showCalcWrap}
-                  >
-                    <Calc></Calc>
-                    <label className="text-sm text-white ml-3 mr-4  cursor-pointer">
-                      <FormattedMessage id="calculate_roi"></FormattedMessage>
-                    </label>
-                    <label
-                      className={
-                        'cursor-pointer ' +
-                        (showCalc ? 'transform rotate-180' : '')
+              <>
+                <div className="flex justify-center">
+                  {stakeCheck ? (
+                    <Alert
+                      level="error"
+                      message={
+                        STABLE_POOL_ID == farm.lpTokenId
+                          ? intl.formatMessage({ id: 'more_than_stable_seed' })
+                          : intl.formatMessage({ id: 'more_than_general_seed' })
                       }
+                    />
+                  ) : null}
+                </div>
+                <div className="mt-4">
+                  <div className="flex flex-col items-center justify-center">
+                    <div
+                      className="flex items-center justify-center mb-2 cursor-pointer"
+                      onClick={showCalcWrap}
                     >
-                      <ArrowDownHollow></ArrowDownHollow>
-                    </label>
-                  </div>
-                  <div className={'w-full ' + (showCalc ? 'block' : 'hidden')}>
-                    <CalcEle
-                      farms={farms}
-                      lpTokenNum={amount}
-                      tokenPriceList={tokenPriceList}
-                    ></CalcEle>
+                      <Calc></Calc>
+                      <label className="text-sm text-white ml-3 mr-4  cursor-pointer">
+                        <FormattedMessage id="calculate_roi"></FormattedMessage>
+                      </label>
+                      <label
+                        className={
+                          'cursor-pointer ' +
+                          (showCalc ? 'transform rotate-180' : '')
+                        }
+                      >
+                        <ArrowDownHollow></ArrowDownHollow>
+                      </label>
+                    </div>
+                    <div
+                      className={'w-full ' + (showCalc ? 'block' : 'hidden')}
+                    >
+                      <CalcEle
+                        farms={farms}
+                        lpTokenNum={amount}
+                        tokenPriceList={tokenPriceList}
+                      ></CalcEle>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </>
             ) : (
               <UnClaim unclaimed={unclaimed}></UnClaim>
             )}
             <div className="flex items-center justify-center pt-3">
               <GreenLButton
-                onClick={() => props.onSubmit(amount)}
+                onClick={() => {
+                  props.onSubmit(amount);
+                }}
                 disabled={
                   !amount ||
                   new BigNumber(amount).isEqualTo(0) ||
-                  new BigNumber(amount).isGreaterThan(maxToFormat)
+                  new BigNumber(amount).isGreaterThan(maxToFormat) ||
+                  stakeCheck
                 }
               >
                 {props.btnText}

@@ -271,5 +271,7 @@ const zh_CN = {
   protocol_fee: '协议费',
   referral_fee: '中介费',
   total_fee_create: '总费用',
+  more_than_general_seed: '请输入大于等于0.000001的数',
+  more_than_stable_seed: '请输入大于等于1的数',
 };
 export default zh_CN;
