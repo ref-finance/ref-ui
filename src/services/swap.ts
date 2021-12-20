@@ -95,21 +95,7 @@ export const estimateSwap = async ({
     loadingTrigger,
   });
 
-  const sumOfAmount = pools.reduce((pre, cur) => {
-    const amount1 = toReadableNumber(
-      tokenIn.decimals,
-      cur.supplies[tokenIn.id]
-    );
-
-    const amount2 = toReadableNumber(
-      tokenOut.decimals,
-      cur.supplies[tokenOut.id]
-    );
-
-    return pre + Number(amount1) + Number(amount2);
-  }, 0);
-
-  const getLP = (pool: Pool) => {
+  const getLiquidity = (pool: Pool) => {
     const amount1 = toReadableNumber(
       tokenIn.decimals,
       pool.supplies[tokenIn.id]
@@ -119,13 +105,19 @@ export const estimateSwap = async ({
       pool.supplies[tokenOut.id]
     );
 
-    return Number(amount1) + Number(amount2);
+    const lp = new Big(amount1).times(new Big(amount2));
+
+    return lp.toNumber();
   };
 
-  const filterFunc = (pool: Pool, i: number) =>
-    getLP(pool) / sumOfAmount > LP_THERESHOLD;
+  const maxLPPool = _.maxBy(pools, getLiquidity);
 
-  const filteredPools = _.orderBy(pools, getLP, ['desc'])
+  const filterFunc = (pool: Pool, i: number) =>
+    new Big(getLiquidity(pool))
+      .div(new Big(getLiquidity(maxLPPool)))
+      .gt(LP_THERESHOLD);
+
+  const filteredPools = _.orderBy(pools, getLiquidity, ['desc'])
     .slice(0, MAXIMUM_NUMBER_OF_POOLS)
     .filter(filterFunc);
 
@@ -138,14 +130,13 @@ export const estimateSwap = async ({
     tokenOut.id
   );
 
-  console.log(poolAllocations);
+  console.log('allocations', poolAllocations);
 
   const parallelPoolsWithAllocation = filteredPools.map((pool, i) => ({
     ...pool,
     partialAmountIn: scientificNotationToString(poolAllocations[i].toString()),
   }));
 
-  // post-filter
   const parallelPools = parallelPoolsWithAllocation.filter(
     (paraPool) => Number(paraPool.partialAmountIn) > 0
   );
