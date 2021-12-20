@@ -229,7 +229,7 @@ export default function StableSwap({
               id="inputAmount"
               disabled={true}
               name={tokenOut?.id}
-              value={tokenOutAmount}
+              value={toPrecision(tokenOutAmount, 8)}
             />
           </div>
         </div>

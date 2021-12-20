@@ -34,7 +34,7 @@ const en_US = {
   account: 'Account',
   Account: 'Account',
   New_ui: 'New UI',
-  Risk: 'Risks',
+  Risk: 'Risk',
   Forum: 'Forum',
   Discord: 'Discord',
   Telegram: 'Telegram',
@@ -280,5 +280,8 @@ const en_US = {
   protocol_fee: 'Protocol fee',
   referral_fee: 'Referral fee',
   total_fee_create: 'Total fee',
+  more_than_general_seed:
+    'Please input number that more than or equal to 0.000001',
+  more_than_stable_seed: 'Please input number that more than or equal to 1',
 };
 export default en_US;
