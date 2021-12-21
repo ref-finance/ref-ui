@@ -107,7 +107,7 @@ export const estimateSwap = async ({
 
     const lp = new Big(amount1).times(new Big(amount2));
 
-    return lp.toNumber();
+    return Number(lp);
   };
 
   const maxLPPool = _.maxBy(pools, getLiquidity);
