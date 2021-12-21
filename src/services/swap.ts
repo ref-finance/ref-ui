@@ -112,10 +112,14 @@ export const estimateSwap = async ({
 
   const maxLPPool = _.maxBy(pools, getLiquidity);
 
+  console.log(maxLPPool);
+
   const filterFunc = (pool: Pool, i: number) =>
     new Big(getLiquidity(pool))
       .div(new Big(getLiquidity(maxLPPool)))
       .gt(LP_THERESHOLD);
+
+  console.log('dasda');
 
   const filteredPools = _.orderBy(pools, getLiquidity, ['desc'])
     .slice(0, MAXIMUM_NUMBER_OF_POOLS)
