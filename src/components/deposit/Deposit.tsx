@@ -49,7 +49,7 @@ export function WithdrawModal(props: ReactModal.Props) {
 
   return (
     <Modal {...props}>
-      <Card style={{ width: cardWidth }}>
+      <Card className="xs:w-95vw md:w-95vw lg:w-40vw xl:w-35vw 2xl:w-25vw">
         <div className="flex items-center justify-between  pb-6 relative">
           <h2 className="text-sm font-bold text-center text-white">
             <FormattedMessage

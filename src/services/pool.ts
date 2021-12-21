@@ -2,7 +2,6 @@ import {
   executeMultipleTransactions,
   LP_STORAGE_AMOUNT,
   ONE_YOCTO_NEAR,
-  refFiFunctionCall,
   refFiViewFunction,
   REF_FI_CONTRACT_ID,
   Transaction,
@@ -15,14 +14,17 @@ import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { toNonDivisibleNumber } from '../utils/numbers';
 import {
-  needDepositStorage,
-  ONE_MORE_DEPOSIT_AMOUNT,
   storageDepositAction,
   storageDepositForFTAction,
 } from './creators/storage';
 import { getTopPools } from '~services/indexer';
 import { PoolRPCView } from './api';
-import { checkTokenNeedsStorageDeposit } from '~services/token';
+import {
+  checkTokenNeedsStorageDeposit,
+  getTokenBalance,
+} from '~services/token';
+import getConfig from '~services/config';
+import { registerTokensAction } from '~services/creators/token';
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -34,6 +36,17 @@ export interface Pool {
   shareSupply: string;
   tvl: number;
   token0_ref_price: string;
+}
+
+export interface StablePool {
+  id: number;
+  token_account_ids: string[];
+  decimals: number[];
+  amounts: string[];
+  c_amounts: string[];
+  total_fee: number;
+  shares_total_supply: string;
+  amp: number;
 }
 
 export const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
@@ -229,13 +242,20 @@ export const getCachedPoolsByTokenId = async ({
   token1Id: string;
   token2Id: string;
 }) => {
-  return await db
-    .allPools()
-    .where({
-      token1Id,
-      token2Id,
-    })
+  let normalItems = await db
+    .allPoolsTokens()
+    .where('token1Id')
+    .equals(token1Id)
+    .and((item) => item.token2Id === token2Id)
     .toArray();
+  let reverseItems = await db
+    .allPoolsTokens()
+    .where('token1Id')
+    .equals(token2Id)
+    .and((item) => item.token2Id === token1Id)
+    .toArray();
+
+  return [...normalItems, ...reverseItems];
 };
 
 export const getTotalPools = () => {
@@ -266,6 +286,10 @@ interface GetPoolOptions {
   loadingTrigger: boolean;
 }
 
+export const isNotStablePool = (pool: Pool) => {
+  return pool.tokenIds.length < 3;
+};
+
 export const getPoolsByTokens = async ({
   tokenInId,
   tokenOutId,
@@ -292,9 +316,10 @@ export const getPoolsByTokens = async ({
     const pools = (
       await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
     ).flat();
+    filtered_pools = pools.filter(isNotStablePool);
 
-    await db.cachePoolsByTokens(pools);
-    filtered_pools = pools.filter(
+    await db.cachePoolsByTokens(filtered_pools);
+    filtered_pools = filtered_pools.filter(
       (p) =>
         new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
         p.supplies[tokenOutId]
@@ -399,11 +424,67 @@ export const addLiquidityToPool = async ({
   return refFiManyFunctionCalls(actions);
 };
 
+export const predictLiquidityShares = async (
+  pool_id: number,
+  amounts: string[],
+  stablePool: StablePool
+): Promise<string> => {
+  return refFiViewFunction({
+    methodName: 'predict_add_stable_liquidity',
+    args: { pool_id: pool_id, amounts },
+  });
+};
+
+interface AddLiquidityToStablePoolOptions {
+  id: number;
+  amounts: [string, string, string];
+  min_shares: string;
+}
+
+export const addLiquidityToStablePool = async ({
+  id,
+  amounts,
+  min_shares,
+}: AddLiquidityToStablePoolOptions) => {
+  const actions: RefFiFunctionCallOptions[] = [
+    {
+      methodName: 'add_stable_liquidity',
+      args: { pool_id: id, amounts, min_shares },
+      amount: LP_STORAGE_AMOUNT,
+    },
+  ];
+  const allTokenIds = getConfig().STABLE_TOKEN_IDS;
+  const balances = await Promise.all(
+    allTokenIds.map((tokenId) => getTokenBalance(tokenId))
+  );
+  let notRegisteredTokens: string[] = [];
+  for (let i = 0; i < balances.length; i++) {
+    if (Number(balances[i]) === 0) {
+      notRegisteredTokens.push(allTokenIds[i]);
+    }
+  }
+  if (notRegisteredTokens.length > 0) {
+    actions.unshift(registerTokensAction(notRegisteredTokens));
+  }
+
+  const needDeposit = await checkTokenNeedsStorageDeposit();
+  if (needDeposit) {
+    actions.unshift(
+      storageDepositAction({
+        amount: needDeposit,
+      })
+    );
+  }
+
+  return refFiManyFunctionCalls(actions);
+};
+
 interface RemoveLiquidityOptions {
   id: number;
   shares: string;
   minimumAmounts: { [tokenId: string]: string };
 }
+
 export const removeLiquidityFromPool = async ({
   id,
   shares,
@@ -421,6 +502,88 @@ export const removeLiquidityFromPool = async ({
         shares,
         min_amounts: amounts,
       },
+      amount: ONE_YOCTO_NEAR,
+    },
+  ];
+
+  const needDeposit = await checkTokenNeedsStorageDeposit();
+  if (needDeposit) {
+    actions.unshift(
+      storageDepositAction({
+        amount: needDeposit,
+      })
+    );
+  }
+
+  return refFiManyFunctionCalls(actions);
+};
+
+export const predictRemoveLiquidity = async (
+  pool_id: number,
+  shares: string
+): Promise<[]> => {
+  return refFiViewFunction({
+    methodName: 'predict_remove_liquidity',
+    args: { pool_id, shares },
+  });
+};
+
+interface RemoveLiquidityFromStablePoolOptions {
+  id: number;
+  shares: string;
+  min_amounts: [string, string, string];
+}
+
+export const removeLiquidityFromStablePool = async ({
+  id,
+  shares,
+  min_amounts,
+}: RemoveLiquidityFromStablePoolOptions) => {
+  const actions: RefFiFunctionCallOptions[] = [
+    {
+      methodName: 'remove_liquidity',
+      args: { pool_id: id, shares, min_amounts },
+      amount: ONE_YOCTO_NEAR,
+    },
+  ];
+
+  const needDeposit = await checkTokenNeedsStorageDeposit();
+  if (needDeposit) {
+    actions.unshift(
+      storageDepositAction({
+        amount: needDeposit,
+      })
+    );
+  }
+
+  return refFiManyFunctionCalls(actions);
+};
+
+export const predictRemoveLiquidityByTokens = async (
+  pool_id: number,
+  amounts: string[]
+): Promise<string> => {
+  return refFiViewFunction({
+    methodName: 'predict_remove_liquidity_by_tokens',
+    args: { pool_id, amounts },
+  });
+};
+
+interface RemoveLiquidityByTokensFromStablePoolOptions {
+  id: number;
+  amounts: [string, string, string];
+  max_burn_shares: string;
+}
+
+export const removeLiquidityByTokensFromStablePool = async ({
+  id,
+  amounts,
+  max_burn_shares,
+}: RemoveLiquidityByTokensFromStablePoolOptions) => {
+  const actions: RefFiFunctionCallOptions[] = [
+    {
+      methodName: 'remove_liquidity_by_tokens',
+      args: { pool_id: id, amounts, max_burn_shares },
       amount: ONE_YOCTO_NEAR,
     },
   ];
@@ -470,4 +633,16 @@ export const addSimpleLiquidityPool = async (
     transactions,
     `${window.location.origin}/pools/add`
   );
+};
+
+export const getStablePool = async (pool_id: number): Promise<StablePool> => {
+  const pool_info = await refFiViewFunction({
+    methodName: 'get_stable_pool',
+    args: { pool_id },
+  });
+
+  return {
+    ...pool_info,
+    id: pool_id,
+  };
 };

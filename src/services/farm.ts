@@ -5,7 +5,11 @@ import {
   Transaction,
   executeFarmMultipleTransactions,
 } from './near';
-import { toPrecision, toReadableNumber } from '~utils/numbers';
+import {
+  toPrecision,
+  toReadableNumber,
+  toNonDivisibleNumber,
+} from '~utils/numbers';
 import { LP_TOKEN_DECIMALS } from '~services/m-token';
 import * as math from 'mathjs';
 import {
@@ -23,7 +27,8 @@ import {
 import getConfig from './config';
 const config = getConfig();
 export const DEFAULT_PAGE_LIMIT = 100;
-
+const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
+const expand = 6;
 export interface Seed {
   seed_id: string;
   amount: number;
@@ -109,9 +114,18 @@ export const getFarms = async ({
   seeds: Record<string, string>;
 }): Promise<FarmInfo[]> => {
   const index = (page - 1) * perPage;
-  const farms: Farm[] = await refFarmViewFunction({
+  let farms: Farm[] = await refFarmViewFunction({
     methodName: 'list_farms',
     args: { from_index: index, limit: perPage },
+  });
+  // filter  unexpected farm data
+  const blackFarmList = new Set(config.blackList || []);
+  farms = farms.filter((item) => {
+    const { farm_id } = item;
+    const arr = farm_id.split('@');
+    if (!blackFarmList.has(arr[1])) {
+      return true;
+    }
   });
   const pool_ids = farms.map((f) => {
     return getLPTokenId(f.farm_id);
@@ -125,23 +139,19 @@ export const getFarms = async ({
       {}
     );
   }
-
   const tasks = farms.map(async (f) => {
-    const pool: PoolRPCView =
-      Object.keys(poolList).length === 0
-        ? {
-            id: 0,
-            token_account_ids: ['', ''],
-            token_symbols: ['', ''],
-            amounts: ['', ''],
-            total_fee: 0,
-            shares_total_supply: '0',
-            tvl: 0,
-            token0_ref_price: '0',
-            share: '0',
-          }
-        : poolList[getLPTokenId(f.farm_id)];
-
+    const poolId = getLPTokenId(f.farm_id);
+    const pool: PoolRPCView = poolList[poolId] || {
+      id: Number(poolId),
+      token_account_ids: ['', ''],
+      token_symbols: ['', ''],
+      amounts: ['', ''],
+      total_fee: 0,
+      shares_total_supply: '0',
+      tvl: 0,
+      token0_ref_price: '0',
+      share: '0',
+    };
     const fi: FarmInfo = await getFarmInfo(
       f,
       pool,
@@ -167,9 +177,23 @@ export const getFarmInfo = async (
   lpTokenId: string
 ): Promise<FarmInfo> => {
   const isSignedIn: boolean = wallet.isSignedIn();
-  const { shares_total_supply, tvl, token_account_ids } = pool;
+  const { tvl, token_account_ids, id } = pool;
+  if (STABLE_POOL_ID == id) {
+    staked = toNonDivisibleNumber(expand, staked ?? '0');
+    seed = toNonDivisibleNumber(expand, seed ?? '0');
+    if (!pool.decimalsHandled) {
+      pool.shares_total_supply = toNonDivisibleNumber(
+        expand,
+        pool.shares_total_supply
+      );
+      pool.decimalsHandled = true;
+    }
+  }
+
   const poolTvl = tvl;
-  const poolSts = Number(toReadableNumber(24, shares_total_supply));
+  const poolSts = Number(
+    toReadableNumber(LP_TOKEN_DECIMALS, pool.shares_total_supply)
+  );
   const userStaked = toReadableNumber(LP_TOKEN_DECIMALS, staked ?? '0');
   const rewardToken = await ftGetTokenMetadata(farm.reward_token);
   const rewardTokenPrice = tokenPriceList
@@ -210,10 +234,6 @@ export const getFarmInfo = async (
   let userUnclaimedRewardNumber: string = isSignedIn
     ? await getUnclaimedReward(farm.farm_id)
     : '0';
-  // const userUnclaimedReward = toPrecision(
-  //   toReadableNumber(rewardToken.decimals, userUnclaimedRewardNumber),
-  //   2
-  // );
   const userUnclaimedReward = toReadableNumber(
     rewardToken.decimals,
     userUnclaimedRewardNumber
@@ -240,7 +260,6 @@ export const getFarmInfo = async (
         );
 
   if (farm.farm_status === 'Created') farm.farm_status = 'Pending';
-
   return {
     ...farm,
     pool,

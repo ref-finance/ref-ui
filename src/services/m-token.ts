@@ -23,8 +23,12 @@ import {
 } from '../services/creators/storage';
 import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 import { utils } from 'near-api-js';
+import getConfig from '~services/config';
+const config = getConfig();
+const STABLE_POOL_ID = config.STABLE_POOL_ID;
 
 export const LP_TOKEN_DECIMALS = 24;
+export const LP_STABLE_TOKEN_DECIMALS = 18;
 export const FARM_STORAGE_BALANCE = '0.045';
 
 export const checkTokenNeedsStorageDeposit = async (page?: string) => {
@@ -50,9 +54,15 @@ interface StakeOptions {
   token_id: string;
   amount: string;
   msg?: string;
+  poolId?: string;
 }
 
-export const stake = async ({ token_id, amount, msg = '' }: StakeOptions) => {
+export const stake = async ({
+  token_id,
+  amount,
+  msg = '',
+  poolId = '',
+}: StakeOptions) => {
   const transactions: Transaction[] = [
     {
       receiverId: REF_FI_CONTRACT_ID,
@@ -62,7 +72,10 @@ export const stake = async ({ token_id, amount, msg = '' }: StakeOptions) => {
           args: {
             receiver_id: REF_FARM_CONTRACT_ID,
             token_id: token_id,
-            amount: toNonDivisibleNumber(LP_TOKEN_DECIMALS, amount),
+            amount:
+              STABLE_POOL_ID == poolId
+                ? toNonDivisibleNumber(LP_STABLE_TOKEN_DECIMALS, amount)
+                : toNonDivisibleNumber(LP_TOKEN_DECIMALS, amount),
             msg,
           },
           amount: ONE_YOCTO_NEAR,
@@ -87,11 +100,13 @@ interface UnstakeOptions {
   seed_id: string;
   amount: string;
   msg?: string;
+  poolId?: string;
 }
 export const unstake = async ({
   seed_id,
   amount,
   msg = '',
+  poolId = '',
 }: UnstakeOptions) => {
   const transactions: Transaction[] = [
     {
@@ -101,7 +116,10 @@ export const unstake = async ({
           methodName: 'withdraw_seed',
           args: {
             seed_id: seed_id,
-            amount: toNonDivisibleNumber(LP_TOKEN_DECIMALS, amount),
+            amount:
+              STABLE_POOL_ID == poolId
+                ? toNonDivisibleNumber(LP_STABLE_TOKEN_DECIMALS, amount)
+                : toNonDivisibleNumber(LP_TOKEN_DECIMALS, amount),
             msg,
           },
           amount: ONE_YOCTO_NEAR,

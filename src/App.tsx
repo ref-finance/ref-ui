@@ -13,6 +13,7 @@ import AdboardPage from './pages/Adboard/AdboardPage';
 import NavigationBar from './components/layout/NavigationBar';
 import Footer from './components/layout/Footer';
 import { MorePoolsPage } from '~pages/pools/MorePoolsPage';
+import StableSwapPage from './pages/stable/StableSwapPage';
 import {
   BgShapeLeftTop,
   BgShapeCenter,
@@ -24,6 +25,7 @@ import './global.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { FarmsPage } from '~pages/farms/FarmsPage';
 import { AirdropPage } from '~pages/AirdropPage';
+import PopUp from '~components/layout/PopUp';
 
 Modal.defaultStyles = {
   overlay: {
@@ -75,9 +77,11 @@ function App() {
           <Route path="/pools" component={AutoHeight(LiquidityPage)} />
           <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
           <Route path="/farms" component={AutoHeight(FarmsPage)} />
+          <Route path="/stableswap" component={AutoHeight(StableSwapPage)} />
           <Route path="/" component={AutoHeight(SwapPage)} />
         </Switch>
         <Footer />
+        <PopUp></PopUp>
       </div>
     </Router>
   );

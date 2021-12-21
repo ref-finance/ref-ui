@@ -38,11 +38,13 @@ function Anchor({
   pattern,
   name,
   className,
+  newFuntion,
 }: {
   to: string;
   pattern: string;
   name: string;
   className?: string;
+  newFuntion?: boolean;
 }) {
   const location = useLocation();
   const isSelected = matchPath(location.pathname, {
@@ -54,11 +56,16 @@ function Anchor({
   return (
     <Link to={to}>
       <h2
-        className={`link hover:text-green-500 text-lg font-bold p-4 cursor-pointer ${className} ${
+        className={`link hover:text-green-500 text-lg font-bold p-4 cursor-pointer relative ${className} ${
           isSelected ? 'text-green-500' : 'text-gray-400'
         }`}
       >
         <FormattedMessage id={name} defaultMessage={name} />
+        {newFuntion ? (
+          <span className="absolute top-5 right-2">
+            <IconAirDropGreenTip />
+          </span>
+        ) : null}
       </h2>
     </Link>
   );
@@ -165,7 +172,7 @@ function AccountEntry() {
   );
 }
 
-function Quiz() {
+function QuizOld() {
   const [hoverQuiz, setHoverQuiz] = useState(false);
   return (
     <div
@@ -213,6 +220,19 @@ function Quiz() {
           </div>
         </Card>
       </div>
+    </div>
+  );
+}
+function Quiz() {
+  return (
+    <div
+      className="flex items-center justify-center cursor-pointer relative p-4"
+      onClick={() => window.open('https://form.typeform.com/to/EPmUetxU')}
+    >
+      <IconBubble />
+      <span className="absolute" style={{ transform: 'translateY(-3px)' }}>
+        <FormattedMessage id="Risk"></FormattedMessage>
+      </span>
     </div>
   );
 }
@@ -472,6 +492,12 @@ function NavigationBar() {
             <Quiz />
             <Anchor to="/deposit" pattern="/deposit/:id?" name="Deposit" />
             <Anchor to="/" pattern="/" name="Swap" />
+            <Anchor
+              to="/stableswap"
+              pattern="/stableswap"
+              name="StableSwap"
+              newFuntion={true}
+            />
             <PoolsMenu />
             <Anchor to="/farms" pattern="/farms" name="Farms" />
           </div>

@@ -23,6 +23,7 @@ interface SwapFormWrapProps {
     loadingTrigger: boolean;
     setLoadingTrigger: (loaidngTrigger: boolean) => void;
   };
+  useNearBalance: string;
 }
 
 export default function SwapFormWrap({
@@ -38,6 +39,7 @@ export default function SwapFormWrap({
   onChange,
   bindUseBalance,
   loading,
+  useNearBalance,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
   const { loadingData, setLoadingData, loadingTrigger, setLoadingTrigger } =
@@ -80,6 +82,7 @@ export default function SwapFormWrap({
                 slippageTolerance={slippageTolerance}
                 onChange={onChange}
                 bindUseBalance={bindUseBalance}
+                useNearBalance={useNearBalance}
               />
             </div>
           </h2>

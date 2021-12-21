@@ -70,3 +70,54 @@ export const CheckedEmpty = () => {
     </svg>
   );
 };
+
+export const UnCheckedRadio = ({ size }: { size?: string }) => {
+  return (
+    <div
+      className={`w-${size ? size : '4'} h-${
+        size ? size : '4'
+      } rounded-full border border-gradientFrom bg-inputDarkBg`}
+    />
+  );
+};
+
+export const CheckedRadio = ({ size }: { size?: string }) => {
+  return (
+    <div
+      className={`w-${size ? size : '4'} h-${
+        size ? size : '4'
+      } rounded-full border border-gradientFrom`}
+      style={{
+        padding: `${Math.floor(Number(size || '4') / 2).toString()}px`,
+      }}
+    >
+      <div className="rounded-full bg-gradientFrom w-full h-full" />
+    </div>
+  );
+};
+
+export function Radio({
+  checked,
+  handleSelect,
+  value,
+  size,
+  checkOut,
+}: {
+  checked: boolean;
+  handleSelect: (e: string) => void;
+  value?: string;
+  size?: string;
+  checkOut?: boolean;
+}) {
+  return (
+    <div
+      className="cursor-pointer"
+      onClick={() => {
+        !checked && handleSelect(value);
+        checkOut && checked && handleSelect('');
+      }}
+    >
+      {checked ? <CheckedRadio size={size} /> : <UnCheckedRadio size={size} />}
+    </div>
+  );
+}

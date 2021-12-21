@@ -20,6 +20,18 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 10,
+        STABLE_POOL_ID: process.env.STABLE_POOL_ID || 1910,
+        STABLE_TOKEN_IDS: [
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
+          '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near',
+        ],
+        STABLE_TOKEN_INDEX: {
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 0,
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 1,
+          '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near': 2,
+        },
+        blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
       };
     case 'development':
     case 'testnet':
@@ -42,6 +54,18 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 10,
+        STABLE_POOL_ID: process.env.STABLE_POOL_ID || 79,
+        STABLE_TOKEN_IDS: [
+          'usdt.fakes.testnet',
+          'usdc.fakes.testnet',
+          'dai.fakes.testnet',
+        ],
+        STABLE_TOKEN_INDEX: {
+          'usdt.fakes.testnet': 0,
+          'usdc.fakes.testnet': 1,
+          'dai.fakes.testnet': 2,
+        },
+        blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
       };
     default:
       return {
@@ -62,6 +86,18 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 10,
+        STABLE_POOL_ID: process.env.STABLE_POOL_ID || 1910,
+        STABLE_TOKEN_IDS: [
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
+          '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near',
+        ],
+        STABLE_TOKEN_INDEX: {
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 0,
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 1,
+          '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near': 2,
+        },
+        blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
       };
   }
 }

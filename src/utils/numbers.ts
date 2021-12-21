@@ -157,12 +157,30 @@ export const percentLess = (percent: number, num: number | string) => {
   });
 };
 
+export const percentIncrese = (percent: number, num: number | string) => {
+  return math.format(math.evaluate(`${num} + ${percentOf(percent, num)}`), {
+    notation: 'fixed',
+  });
+};
+
 export function formatWithCommas(value: string): string {
   const pattern = /(-?\d+)(\d{3})/;
   while (pattern.test(value)) {
     value = value.replace(pattern, '$1,$2');
   }
   return value;
+}
+
+export function divide(numerator: string, denominator: string) {
+  return math.format(math.evaluate(`${numerator} / ${denominator}`), {
+    notation: 'fixed',
+  });
+}
+
+export function multiply(factor1: string, factor2: string) {
+  return math.format(math.evaluate(`${factor1} * ${factor2}`), {
+    notation: 'fixed',
+  });
 }
 
 export const percent = (numerator: string, denominator: string) => {
@@ -198,4 +216,28 @@ export const toInternationalCurrencySystem = (
     : Math.abs(Number(labelValue)) >= 1.0e3
     ? (Math.abs(Number(labelValue)) / 1.0e3).toFixed(percent || 2) + 'K'
     : Math.abs(Number(labelValue)).toFixed(percent || 2);
+};
+
+export function scientificNotationToString(strParam: string) {
+  let flag = /e/.test(strParam);
+  if (!flag) return strParam;
+
+  let sysbol = true;
+  if (/e-/.test(strParam)) {
+    sysbol = false;
+  }
+  let index = Number(strParam.match(/\d+$/)[0]);
+  let basis = strParam.match(/^[\d\.]+/)[0].replace(/\./, '');
+
+  if (sysbol) {
+    return basis.padEnd(index + 1, '0');
+  } else {
+    return basis.padStart(index + basis.length, '0').replace(/^0/, '0.');
+  }
+}
+
+export const calcStableSwapPriceImpact = (from: string, to: string) => {
+  return math.format(percent(math.evaluate(`(${from} / ${to}) - 1`), '1'), {
+    notation: 'fixed',
+  });
 };
