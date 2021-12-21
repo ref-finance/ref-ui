@@ -315,8 +315,8 @@ export const getPoolsByTokens = async ({
   const cache = await db.checkPoolsByTokens(tokenInId, tokenOutId);
 
   if (cache && !loadingTrigger) {
-    const cache_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
-    filtered_pools = cache_pools;
+    filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
+    // filtered_pools = cache_pools;
     // filtered_pools = cache_pools.filter(
     //   (p) =>
     //     new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
@@ -332,11 +332,9 @@ export const getPoolsByTokens = async ({
     filtered_pools = pools.filter(isNotStablePool);
 
     await db.cachePoolsByTokens(filtered_pools);
-    // filtered_pools = filtered_pools.filter(
-    //   (p) =>
-    //     new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
-    //     p.supplies[tokenOutId]
-    // );
+    filtered_pools = filtered_pools.filter(
+      (p) => p.supplies[tokenInId] && p.supplies[tokenOutId]
+    );
   }
   setLoadingTrigger(false);
   setLoadingData(false);
