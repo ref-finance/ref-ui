@@ -280,5 +280,17 @@ const en_US = {
   protocol_fee: 'Protocol fee',
   referral_fee: 'Referral fee',
   total_fee_create: 'Total fee',
+  xref_title1: 'Earn more ',
+  xref_title2: 'by staking REF for xREF',
+  xref_introdution:
+    'For every swap on the exchange on every chain, 0.05% of the swap fees are distributed as SUSHI proportional to your share of the SushiBar. When your REF is staked into the SushiBar, you recieve xSUSHI in return for voting rights and a fully composable token that can interact with other protocols. Your xSUSHI is continuously compounding, when you unstake you will receive all the originally deposited SUSHI and any additional from fees.',
+  staking_apr: 'Staking APR',
+  view_stats: 'View Stats',
+  xref: 'xREF',
+  ref: 'REF',
+  unstaked: 'Unstaked',
+  stake_ref: 'Stake REF',
+  confirm_stake: 'Comfirm Staking',
+  confirm_unstake: 'Comfirm Unstaking',
 };
 export default en_US;

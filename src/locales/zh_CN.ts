@@ -271,5 +271,17 @@ const zh_CN = {
   protocol_fee: '协议费',
   referral_fee: '中介费',
   total_fee_create: '总费用',
+  xref_title1: '获取更多收益',
+  xref_title2: '通过质押REF换xREF',
+  xref_introdution:
+    'For every swap on the exchange on every chain, 0.05% of the swap fees are distributed as SUSHI proportional to your share of the SushiBar. When your REF is staked into the SushiBar, you recieve xSUSHI in return for voting rights and a fully composable token that can interact with other protocols. Your xSUSHI is continuously compounding, when you unstake you will receive all the originally deposited SUSHI and any additional from fees.',
+  staking_apr: '质押年化率',
+  view_stats: '统计数据查看',
+  xref: 'xREF',
+  ref: 'REF',
+  unstaked: '取消质押',
+  stake_ref: '质押 REF',
+  confirm_stake: '确定质押',
+  confirm_unstake: '确定取消质押',
 };
 export default zh_CN;

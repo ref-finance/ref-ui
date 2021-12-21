@@ -14,6 +14,7 @@ import NavigationBar from './components/layout/NavigationBar';
 import Footer from './components/layout/Footer';
 import { MorePoolsPage } from '~pages/pools/MorePoolsPage';
 import StableSwapPage from './pages/stable/StableSwapPage';
+import XrefPage from './pages/xref/XrefPage';
 import {
   BgShapeLeftTop,
   BgShapeCenter,
@@ -78,6 +79,7 @@ function App() {
           <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
           <Route path="/farms" component={AutoHeight(FarmsPage)} />
           <Route path="/stableswap" component={AutoHeight(StableSwapPage)} />
+          <Route path="/xref" component={AutoHeight(XrefPage)} />
           <Route path="/" component={AutoHeight(SwapPage)} />
         </Switch>
         <Footer />
