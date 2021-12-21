@@ -21,3 +21,9 @@ export const registerTokenAction = (tokenId: string) => ({
   args: { token_ids: [tokenId] },
   // amount: ONE_YOCTO_NEAR,
 });
+
+export const registerTokensAction = (tokenIds: string[]) => ({
+  methodName: 'register_tokens',
+  args: { token_ids: tokenIds },
+  amount: ONE_YOCTO_NEAR,
+});
