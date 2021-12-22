@@ -68,7 +68,7 @@ export function solveForMuFloat(
     const mu = new Big(numerator).div(denominator);
     return mu;
   } else {
-    console.log('ERROR - could not find pools that satisfy token pair');
+    // console.log('ERROR - could not find pools that satisfy token pair');
     const mu = NaN;
     return mu;
   }

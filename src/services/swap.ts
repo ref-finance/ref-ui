@@ -122,16 +122,12 @@ export const estimateSwap = async ({
     .slice(0, MAXIMUM_NUMBER_OF_POOLS)
     .filter(filterFunc);
 
-  console.log('filteredPools', filteredPools, 'pools', pools);
-
   const poolAllocations = calculateOptimalOutput(
     filteredPools,
     parsedAmountIn,
     tokenIn.id,
     tokenOut.id
   );
-
-  console.log('allocations', poolAllocations);
 
   const parallelPoolsWithAllocation = filteredPools.map((pool, i) => ({
     ...pool,

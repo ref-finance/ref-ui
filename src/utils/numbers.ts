@@ -155,21 +155,11 @@ export const calculatePriceImpact = (
     `${tokenInAmount} / ${finalTokenOutReceived}`
   );
 
-  console.log(
-    'price impact',
-    finalMarketPrice,
-    'new price impact ',
-    newMarketPrice
-  );
-
   const PriceImpact = percent(
     subtraction(newMarketPrice, finalMarketPrice),
     finalMarketPrice
   ).toString();
 
-  console.log(PriceImpact);
-
-  console.log(scientificNotationToString(PriceImpact));
   return scientificNotationToString(PriceImpact);
 };
 export const calculateExchangeRate = (
