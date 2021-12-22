@@ -161,7 +161,7 @@ export function SolidButton(
       onClick={onClick}
       className={`${disabled ? 'cursor-not-allowed opacity-40' : ''} 
         text-white rounded  bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover
-        py-2 ${padding ? padding : ''}
+         ${padding ? padding : 'py-2'}
         ${className ? className : ''}
       `}
     >

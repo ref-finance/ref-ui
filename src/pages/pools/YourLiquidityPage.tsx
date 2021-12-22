@@ -57,15 +57,6 @@ function MyShares({
 
   let sharePercent = percent(userTotalShare.valueOf(), totalShares);
 
-  // const farmShare = Number(farmStake).toLocaleString('fullwide', {
-  //   useGrouping: false,
-  // });
-
-  // const farmSharePercent = percent(
-  //   farmShare,
-  //   userTotalShare.toNumber().toLocaleString('fullwide', { useGrouping: false })
-  // ).toString();
-
   let displayPercent;
   if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
   else if (sharePercent < 0.0001)

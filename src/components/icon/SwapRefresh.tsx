@@ -79,11 +79,11 @@ export const WarnTriangle = () => {
     </svg>
   );
 };
-export const ErrorTriangle = () => {
+export const ErrorTriangle = ({ expand }: { expand?: boolean }) => {
   return (
     <svg
-      width="20"
-      height="18"
+      width={expand ? '46' : '20'}
+      height={expand ? '40' : '18'}
       viewBox="0 0 20 18"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

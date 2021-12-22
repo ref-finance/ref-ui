@@ -53,7 +53,7 @@ import _, { filter } from 'lodash';
 Big.DP = 40;
 // Big.strict = false;
 const FEE_DIVISOR = 10000;
-const LP_THERESHOLD = 0.0002;
+const LP_THERESHOLD = 0.001;
 const MAXIMUM_NUMBER_OF_POOLS = 5;
 interface EstimateSwapOptions {
   tokenIn: TokenMetadata;
