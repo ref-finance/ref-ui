@@ -218,21 +218,19 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
   if (msg) {
     Action = 'Instant swap';
     const actions = JSON.parse(msg).actions || [];
-    let amountIn = '0';
     let amountOut = '0';
     let poolIdArr: (string | number)[] = [];
     const in_token = await ftGetTokenMetadata(actions[0].token_in);
     const out_token = await ftGetTokenMetadata(actions[0].token_out);
     actions.forEach((action: any) => {
-      const { amount_in, min_amount_out, pool_id } = action;
+      const { min_amount_out, pool_id } = action;
       poolIdArr.push(pool_id);
-      amountIn = new BigNumber(amount_in).plus(amountIn).toFixed();
       amountOut = new BigNumber(min_amount_out).plus(amountOut).toFixed();
     });
     return {
       Action,
       'Pool Id': poolIdArr.join(','),
-      'Amount In': toReadableNumber(in_token.decimals, amountIn),
+      'Amount In': (Amount = toReadableNumber(in_token.decimals, amount)),
       'Min Amount Out': toReadableNumber(out_token.decimals, amountOut),
       'Token In': in_token.symbol,
       'Token Out': out_token.symbol,
