@@ -87,17 +87,10 @@ export function DoubleCheckModal(
 
         <div className=" text-xs pt-4 pb-6">
           <span>
-            {Number(priceImpacValue) < 1000 ? (
-              <FormattedMessage
-                id="price_impact_is_about"
-                defaultMessage="Price Impact is about"
-              />
-            ) : (
-              <FormattedMessage
-                id="price_impact_is"
-                defaultMessage="Price Impact is"
-              />
-            )}
+            <FormattedMessage
+              id="price_impact_is_about"
+              defaultMessage="Price impact is about"
+            />
           </span>
           &nbsp;
           <span>-{toPrecision(priceImpacValue, 2)}%</span>

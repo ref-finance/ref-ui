@@ -275,7 +275,6 @@ const zh_CN = {
   more_than_stable_seed: '请输入大于等于1的数',
   are_you_sure: '你确定吗',
   price_impact_is_about: '价格影响大约是',
-  price_impact_is: '价格影响是',
   yes_swap: '确定, 兑换吧',
 };
 export default zh_CN;
