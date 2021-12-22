@@ -124,9 +124,13 @@ export const GetPriceImpact = (
       ? 'text-warn'
       : 'text-error';
 
-  return Number(value) < 0.01 ? (
-    <span className="text-greenLight">{'< -0.01%'}</span>
-  ) : (
+  if (Number(value) < 0.01)
+    return <span className="text-greenLight">{'< -0.01%'}</span>;
+
+  if (Number(value) > 1000)
+    return <span className="text-error">{'< -1000%'}</span>;
+
+  return (
     <span className={`${textColor}`}>{`≈ -${toPrecision(value, 2)}%`}</span>
   );
 };
