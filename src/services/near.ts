@@ -171,3 +171,18 @@ export const executeFarmMultipleTransactions = async (
 
   return wallet.requestSignTransactions(nearTransactions, callbackUrl);
 };
+
+export interface RefContractViewFunctionOptions
+  extends RefFiViewFunctionOptions {
+  gas?: string;
+  amount?: string;
+  contarctId?: string;
+}
+
+export const refContractViewFunction = ({
+  methodName,
+  args,
+  contarctId,
+}: RefContractViewFunctionOptions) => {
+  return wallet.account().viewFunction(contarctId, methodName, args);
+};
