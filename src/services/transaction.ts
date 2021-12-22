@@ -217,20 +217,37 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
   let Amount;
   if (msg) {
     Action = 'Instant swap';
-    const actions = JSON.parse(msg).actions[0];
-    const { token_in } = actions;
-    const token = await ftGetTokenMetadata(token_in);
-    Amount = toReadableNumber(token.decimals, amount);
+    const actions = JSON.parse(msg).actions || [];
+    let amountIn = '0';
+    let amountOut = '0';
+    let poolIdArr: (string | number)[] = [];
+    const in_token = await ftGetTokenMetadata(actions[0].token_in);
+    const out_token = await ftGetTokenMetadata(actions[0].token_out);
+    actions.forEach((action: any) => {
+      const { amount_in, min_amount_out, pool_id } = action;
+      poolIdArr.push(pool_id);
+      amountIn = new BigNumber(amount_in).plus(amountIn).toFixed();
+      amountOut = new BigNumber(min_amount_out).plus(amountOut).toFixed();
+    });
+    return {
+      Action,
+      'Pool Id': poolIdArr.join(','),
+      'Amount In': toReadableNumber(in_token.decimals, amountIn),
+      'Min Amount Out': toReadableNumber(out_token.decimals, amountOut),
+      'Token In': in_token.symbol,
+      'Token Out': out_token.symbol,
+      'Receiver Id': receiver_id,
+    };
   } else {
     Action = 'Deposit';
     const token = await ftGetTokenMetadata(tokenId);
     Amount = toReadableNumber(token.decimals, amount);
+    return {
+      Action,
+      Amount,
+      'Receiver Id': receiver_id,
+    };
   }
-  return {
-    Action,
-    Amount,
-    'Receiver Id': receiver_id,
-  };
 };
 const parseNearWithdraw = async (params: any) => {
   const { amount } = params;
