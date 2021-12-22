@@ -4,6 +4,7 @@ import { getPoolDetails } from '~services/pool';
 import { useIntl } from 'react-intl';
 import getConfig from '~services/config';
 import { LP_TOKEN_DECIMALS, LP_STABLE_TOKEN_DECIMALS } from '~services/m-token';
+import BigNumber from 'bignumber.js';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 
@@ -73,18 +74,20 @@ export const parseAction = async (
 const parseSwap = async (params: any) => {
   const in_token = await ftGetTokenMetadata(params.actions[0].token_in);
   const out_token = await ftGetTokenMetadata(params.actions[0].token_out);
-
+  const poolIdArr: (number | string)[] = [];
+  let amountIn = '0';
+  let amountOut = '0';
+  params.actions.forEach((action: any) => {
+    const { amount_in, min_amount_out, pool_id } = action;
+    poolIdArr.push(pool_id);
+    amountIn = new BigNumber(amount_in).plus(amountIn).toFixed();
+    amountOut = new BigNumber(min_amount_out).plus(amountOut).toFixed();
+  });
   return {
     Action: 'Swap',
-    'Pool Id': params.actions[0].pool_id,
-    'Amount In': toReadableNumber(
-      in_token.decimals,
-      params.actions[0].amount_in
-    ),
-    'Min Amount Out': toReadableNumber(
-      out_token.decimals,
-      params.actions[0].min_amount_out
-    ),
+    'Pool Id': poolIdArr.join(','),
+    'Amount In': toReadableNumber(in_token.decimals, amountIn),
+    'Min Amount Out': toReadableNumber(out_token.decimals, amountOut),
     'Token In': in_token.symbol,
     'Token Out': out_token.symbol,
   };
