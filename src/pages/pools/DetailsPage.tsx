@@ -66,6 +66,7 @@ import {
   SolidButton,
   FarmButton,
   ButtonTextWrapper,
+  ConnectToNearBtn,
 } from '~components/button/Button';
 import { wallet } from '~services/near';
 import { BreadCrumb } from '~components/layout/BreadCrumb';
@@ -322,25 +323,7 @@ export function AddLiquidityModal(
 
   const ButtonRender = () => {
     if (!wallet.isSignedIn()) {
-      return (
-        <SolidButton
-          className="focus:outline-none px-4 w-full rounded-3xl"
-          onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
-        >
-          <div className="flex items-center justify-center w-full m-auto">
-            <div className="mr-2">
-              {' '}
-              <Near />
-            </div>
-            <div>
-              <FormattedMessage
-                id="connect_to_near"
-                defaultMessage="Connect to NEAR"
-              />
-            </div>
-          </div>
-        </SolidButton>
-      );
+      return <ConnectToNearBtn />;
     }
 
     const handleClick = async () => {
@@ -554,7 +537,7 @@ export function AddLiquidityModal(
         <div className="flex justify-center mb-8 ">
           {error && <Alert level="error" message={error.message} />}
         </div>
-        <div className="flex items-center justify-center">
+        <div className="">
           <ButtonRender />
         </div>
       </Card>
@@ -714,7 +697,7 @@ export function RemoveLiquidityModal(
         <div className="flex justify-center">
           {error && <Alert level="error" message={error.message} />}
         </div>
-        <div className="flex items-center justify-center">
+        <div className="">
           {wallet.isSignedIn() ? (
             <SolidButton
               disabled={!canSubmit}
@@ -739,22 +722,7 @@ export function RemoveLiquidityModal(
               />
             </SolidButton>
           ) : (
-            <SolidButton
-              className={`focus:outline-none px-4 w-full rounded-3xl`}
-              onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
-            >
-              <div className="w-full m-auto flex items-center justify-center">
-                <div className="mr-2">
-                  <Near />
-                </div>
-                <div>
-                  <FormattedMessage
-                    id="connect_to_near"
-                    defaultMessage="Connect to NEAR"
-                  />
-                </div>
-              </div>
-            </SolidButton>
+            <ConnectToNearBtn />
           )}
         </div>
       </Card>
