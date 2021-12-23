@@ -233,7 +233,7 @@ function DetailView({
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
           value={
-            !to || to === '0' || !canSwap
+            !to || to === '0'
               ? '-'
               : GetPriceImpact(pool, tokenIn, tokenOut, from)
           }
