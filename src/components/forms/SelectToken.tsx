@@ -6,7 +6,7 @@ import { isMobile } from '~utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { TokenBalancesView } from '~services/token';
 import { IoCloseOutline } from 'react-icons/io5';
-import CommenBasses from '~components/tokens/CommenBasses';
+import CommonBasses from '~components/tokens/CommonBasses';
 import Table from '~components/table/Table';
 import { useTokensData } from '~state/token';
 import { toRealSymbol } from '~utils/token';
@@ -45,6 +45,7 @@ export default function SelectToken({
   const [listData, setListData] = useState<TokenMetadata[]>([]);
   const [currentSort, setSort] = useState<string>('down');
   const [sortBy, setSortBy] = useState<string>('near');
+  const [showCommonBasses, setShowCommonBasses] = useState<boolean>(true);
   const addToken = () => <AddToken />;
 
   if (!onSelect) {
@@ -109,6 +110,7 @@ export default function SelectToken({
   };
 
   const onSearch = (value: string) => {
+    setShowCommonBasses(value.length === 0);
     const result = tokensData.filter(({ symbol }) =>
       toRealSymbol(symbol)
         .toLocaleUpperCase()
@@ -199,13 +201,15 @@ export default function SelectToken({
             </div>
             {addToken()}
           </div>
-          <CommenBasses
-            tokens={tokensData}
-            onClick={(token) => {
-              onSelect && onSelect(token);
-              handleClose();
-            }}
-          />
+          {showCommonBasses && (
+            <CommonBasses
+              tokens={tokensData}
+              onClick={(token) => {
+                onSelect && onSelect(token);
+                handleClose();
+              }}
+            />
+          )}
           <Table
             sortBy={sortBy}
             currentSort={currentSort}
