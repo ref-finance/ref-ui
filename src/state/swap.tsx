@@ -29,6 +29,7 @@ interface SwapOptions {
   loadingTrigger?: boolean;
   setLoadingTrigger?: (loadingTrigger: boolean) => void;
   stablePool?: StablePool;
+  loadingPause?: boolean;
 }
 
 export const useSwap = ({
@@ -40,6 +41,7 @@ export const useSwap = ({
   loadingData,
   loadingTrigger,
   setLoadingTrigger,
+  loadingPause,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -125,7 +127,7 @@ export const useSwap = ({
         amountIn: tokenInAmount,
         intl,
         setLoadingData,
-        loadingTrigger,
+        loadingTrigger: loadingTrigger && !loadingPause,
         setLoadingTrigger,
       })
         .then(({ estimate, pool }) => {
@@ -150,11 +152,11 @@ export const useSwap = ({
     ) {
       setTokenOutAmount('0');
     }
-  }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger]);
+  }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger, loadingPause]);
 
   useEffect(() => {
     let id: any = null;
-    if (!loadingTrigger) {
+    if (!loadingTrigger && !loadingPause) {
       id = setInterval(() => {
         setLoadingTrigger(true);
         setCount(count + 1);
@@ -165,7 +167,7 @@ export const useSwap = ({
     return () => {
       clearInterval(id);
     };
-  }, [count, loadingTrigger]);
+  }, [count, loadingTrigger, loadingPause]);
 
   const makeSwap = (useNearBalance: boolean) => {
     swap({

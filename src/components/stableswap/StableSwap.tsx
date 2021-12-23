@@ -35,6 +35,8 @@ interface StableSwapProps {
   stablePool: StablePool;
   setLoadingTrigger: (mode: boolean) => void;
   loadingTrigger: boolean;
+  setLoadingPause: (pause: boolean) => void;
+  loadingPause: boolean;
 }
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_SLIPPAGE_VALUE';
 export const STABLE_SWAP_USE_NEAR_BALANCE_KEY =
@@ -45,6 +47,8 @@ export default function StableSwap({
   stablePool,
   setLoadingTrigger,
   loadingTrigger,
+  loadingPause,
+  setLoadingPause,
 }: StableSwapProps) {
   const [tokenIn, setTokenIn] = useState<TokenMetadata>(tokens[0]);
   const [tokenOut, setTokenOut] = useState<TokenMetadata>(tokens[1]);
@@ -81,7 +85,7 @@ export default function StableSwap({
     tokenInAmount,
     tokenOut,
     slippageTolerance,
-    loadingTrigger,
+    loadingTrigger: !loadingPause && loadingTrigger,
     setLoadingTrigger,
     stablePool,
   });
@@ -163,11 +167,19 @@ export default function StableSwap({
         <div className="flex items-center">
           <div
             onClick={() => {
-              setLoadingTrigger(true);
+              if (loadingPause) {
+                setLoadingTrigger(true);
+                setLoadingPause(false);
+              } else {
+                setLoadingPause(true);
+              }
             }}
             className="mx-4 cursor-pointer"
           >
-            <CountdownTimer loadingTrigger={loadingTrigger} />
+            <CountdownTimer
+              loadingTrigger={loadingTrigger}
+              loadingPause={loadingPause}
+            />
           </div>
           <SlippageSelector
             slippageTolerance={slippageTolerance}
@@ -336,9 +348,9 @@ export default function StableSwap({
           <SolidButton
             className="w-full text-lg"
             disabled={!canSubmit}
-            loading={showSwapLoading || loadingTrigger}
+            loading={showSwapLoading || (loadingTrigger && !loadingPause)}
           >
-            {showSwapLoading || loadingTrigger ? (
+            {showSwapLoading || (loadingTrigger && !loadingPause) ? (
               <BeatLoader color="#ffffff" size={5} />
             ) : (
               <FormattedMessage id="swap" defaultMessage="Swap" />

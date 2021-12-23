@@ -22,6 +22,8 @@ interface SwapFormWrapProps {
     setLoadingData: (loading: boolean) => void;
     loadingTrigger: boolean;
     setLoadingTrigger: (loaidngTrigger: boolean) => void;
+    loadingPause: boolean;
+    setLoadingPause: (pause: boolean) => void;
   };
   useNearBalance: string;
 }
@@ -42,8 +44,16 @@ export default function SwapFormWrap({
   useNearBalance,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
-  const { loadingData, setLoadingData, loadingTrigger, setLoadingTrigger } =
-    loading;
+  const {
+    loadingData,
+    setLoadingData,
+    loadingTrigger,
+    setLoadingTrigger,
+    loadingPause,
+    setLoadingPause,
+  } = loading;
+
+  console.log(loadingPause);
 
   const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
 
@@ -78,12 +88,21 @@ export default function SwapFormWrap({
             <div className="flex items-center">
               <div
                 onClick={() => {
-                  setLoadingData(true);
-                  setLoadingTrigger(true);
+                  if (loadingPause) {
+                    setLoadingPause(false);
+                    setLoadingTrigger(true);
+                    setLoadingData(true);
+                  } else {
+                    setLoadingPause(true);
+                    setLoadingTrigger(false);
+                  }
                 }}
                 className="mx-4 cursor-pointer"
               >
-                <CountdownTimer loadingTrigger={loadingTrigger} />
+                <CountdownTimer
+                  loadingTrigger={loadingTrigger}
+                  loadingPause={loadingPause}
+                />
               </div>
 
               <SlippageSelector

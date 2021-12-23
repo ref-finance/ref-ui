@@ -38,16 +38,39 @@ export const SwapRefresh = ({ className }: { className?: string }) => {
 
 export const CountdownTimer = ({
   loadingTrigger,
+  loadingPause,
 }: {
   loadingTrigger: boolean;
+  loadingPause?: boolean;
 }) => {
   return (
     <div className="circle_process bg-chartBg rounded-full relative flex justify-center items-center">
-      <div className="circle_center bg-cardBg rounded-full inline-block"></div>
+      <div className="circle_center bg-cardBg rounded-full inline-block flex items-center justift-center">
+        {loadingPause ? (
+          <div className="flex items-center mx-auto">
+            <RefreshTrangle />
+          </div>
+        ) : (
+          <div className="flex items-center mx-auto">
+            <div
+              className="w-0.5 h-1.5 rounded bg-gradientFrom"
+              style={{
+                marginRight: '1px',
+              }}
+            />
+            <div
+              className="w-0.5 h-1.5 rounded bg-gradientFrom "
+              style={{
+                marginLeft: '1px',
+              }}
+            />
+          </div>
+        )}
+      </div>
       <div className="wrapper absolute top-0 right-0 overflow-hidden">
         <div
           className={`circle  absolute top-0 rounded-full ${
-            !loadingTrigger ? 'rightcircle' : ''
+            !loadingTrigger && !loadingPause ? 'rightcircle' : ''
           }`}
         ></div>
       </div>
@@ -55,7 +78,7 @@ export const CountdownTimer = ({
       <div className="wrapper absolute top-0 left-0 overflow-hidden">
         <div
           className={`circleleft absolute top-0 rounded-full ${
-            !loadingTrigger ? 'leftcircle' : ''
+            !loadingTrigger && !loadingPause ? 'leftcircle' : ''
           }`}
           id="leftcircle"
         ></div>
@@ -91,6 +114,23 @@ export const ErrorTriangle = () => {
       <path
         d="M11.1274 6.07879C11.1317 6.04034 11.1339 6.0013 11.1339 5.96175C11.1339 5.36616 10.6336 4.88335 10.0164 4.88335C9.39924 4.88335 8.89893 5.36616 8.89893 5.96175C8.89893 5.96298 8.89893 5.9642 8.89894 5.96543H8.89547L9.1473 11.1058C9.14727 11.1086 9.14726 11.1114 9.14726 11.1141C9.14726 11.5774 9.53639 11.9529 10.0164 11.9529C10.4964 11.9529 10.8855 11.5774 10.8855 11.1141C10.8855 11.1065 10.8854 11.0989 10.8852 11.0913L11.1274 6.07879ZM7.2833 2.47745C8.76956 0.0286533 11.1824 0.0339056 12.6655 2.47745L19.3081 13.4219C20.7943 15.8707 19.6164 17.8559 16.6693 17.8559H3.27955C0.335916 17.8559 -0.842329 15.8655 0.640741 13.4219L7.2833 2.47745ZM10.0164 15.4277C10.6336 15.4277 11.1339 14.9449 11.1339 14.3493C11.1339 13.7537 10.6336 13.2709 10.0164 13.2709C9.39924 13.2709 8.89893 13.7537 8.89893 14.3493C8.89893 14.9449 9.39924 15.4277 10.0164 15.4277Z"
         fill="#DE5050"
+      />
+    </svg>
+  );
+};
+
+export const RefreshTrangle = () => {
+  return (
+    <svg
+      width="5"
+      height="6"
+      viewBox="0 0 5 6"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M4.5 2.13398C5.16667 2.51888 5.16667 3.48113 4.5 3.86603L1.5 5.59808C0.833333 5.98298 1.92632e-07 5.50185 2.26281e-07 4.73205L3.77702e-07 1.26795C4.11351e-07 0.498148 0.833334 0.0170236 1.5 0.401924L4.5 2.13398Z"
+        fill="#00C6A2"
       />
     </svg>
   );
