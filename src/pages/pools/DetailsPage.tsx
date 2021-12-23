@@ -577,6 +577,7 @@ export function RemoveLiquidityModal(
     slippageTolerance,
     shares: amount ? toNonDivisibleNumber(24, amount) : '0',
   });
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [error, setError] = useState<Error>();
   const cardWidth = isMobile() ? '95vw' : '40vw';
@@ -597,7 +598,7 @@ export function RemoveLiquidityModal(
         })
       );
     }
-
+    setButtonLoading(true);
     return removeLiquidity();
   }
 
@@ -725,10 +726,16 @@ export function RemoveLiquidityModal(
                   setError(error);
                 }
               }}
+              loading={buttonLoading}
             >
-              <FormattedMessage
-                id="remove_liquidity"
-                defaultMessage="Remove Liquidity"
+              <ButtonTextWrapper
+                loading={buttonLoading}
+                Text={() => (
+                  <FormattedMessage
+                    id="remove_liquidity"
+                    defaultMessage="Remove Liquidity"
+                  />
+                )}
               />
             </SolidButton>
           ) : (
