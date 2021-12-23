@@ -47,7 +47,7 @@ import {
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
-import { STABLE_POOL_ID } from '~services/near';
+import { POOL_TOKEN_REFRESH_INTERVAL, STABLE_POOL_ID } from '~services/near';
 const REF_FI_STABLE_Pool_INFO_KEY = 'REF_FI_STABLE_Pool_INFO_VALUE';
 
 export const usePool = (id: number | string) => {
@@ -500,7 +500,7 @@ export const useStablePool = ({
 }) => {
   const [stablePool, setStablePool] = useState<StablePool>();
   const [count, setCount] = useState(0);
-  const refreshTime = 10000;
+  const refreshTime = Number(POOL_TOKEN_REFRESH_INTERVAL) * 1000;
   useEffect(() => {
     getStablePool(Number(STABLE_POOL_ID)).then((res) => {
       setStablePool(res);

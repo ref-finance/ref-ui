@@ -429,13 +429,13 @@ input[type='range']::-webkit-slider-thumb {
   border-top: 2px solid #00d6af;
   border-right: 2px solid #00d6af;
   right: 0;
-  -webkit-animation: circle_right 10s linear 1;
+  -webkit-animation: circle_right 20s linear 1;
 }
 .circle_process .leftcircle {
   border-bottom: 2px solid #00d6af;
   border-left: 2px solid #00d6af;
   left: 0;
-  -webkit-animation: circle_left 10s linear 1;
+  -webkit-animation: circle_left 20s linear 1;
 }
 @-webkit-keyframes circle_right {
   0% {

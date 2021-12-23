@@ -15,6 +15,7 @@ import getConfig from '~services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { CloseIcon } from '~components/icon/Actions';
 import db from '../store/RefDatabase';
+import { POOL_TOKEN_REFRESH_INTERVAL } from '~services/near';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -61,7 +62,7 @@ export const useSwap = ({
   const minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
     : null;
-  const refreshTime = 10000;
+  const refreshTime = Number(POOL_TOKEN_REFRESH_INTERVAL) * 1000;
 
   const intl = useIntl();
 
