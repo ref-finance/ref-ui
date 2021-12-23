@@ -190,8 +190,7 @@ function DetailView({
     );
   };
 
-  if (!pool || !from || !to || !(Number(from) > 0) || loadingTrigger)
-    return null;
+  if (!pool || !from || !to || !(Number(from) > 0)) return null;
 
   return (
     <div className="mt-8">

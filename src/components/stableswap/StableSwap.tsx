@@ -1,3 +1,4 @@
+import BeatLoader from 'react-spinners/BeatLoader';
 import React, { useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { ConnectToNearBtn, SolidButton } from '~components/button/Button';
@@ -51,6 +52,8 @@ export default function StableSwap({
   const [slippageTolerance, setSlippageTolerance] = useState<number>(
     Number(localStorage.getItem(SWAP_SLIPPAGE_KEY)) || 0.1
   );
+
+  const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
   const [disabled, setDisabled] = useState<boolean>(false);
   const [useNearBalance, setUseNearBalance] = useState<boolean>(
     localStorage.getItem(STABLE_SWAP_USE_NEAR_BALANCE_KEY) != 'false'
@@ -142,7 +145,10 @@ export default function StableSwap({
     event.preventDefault();
     if (wallet.isSignedIn()) {
       try {
-        canSubmit && makeSwap(useNearBalance);
+        if (canSubmit) {
+          setShowSwapLoading(true);
+          makeSwap(useNearBalance);
+        }
       } catch (error) {}
     }
   };
@@ -305,7 +311,7 @@ export default function StableSwap({
       </div>
       <div
         className={`text-primaryText text-center mx-8 ${
-          tokenIn.id === tokenOut.id || loadingTrigger ? 'hidden' : ''
+          tokenIn.id === tokenOut.id ? 'hidden' : ''
         }`}
       >
         <DetailView
@@ -327,8 +333,16 @@ export default function StableSwap({
 
       <div className="mx-8 mt-8">
         {wallet.isSignedIn() ? (
-          <SolidButton className="w-full text-lg" disabled={!canSubmit}>
-            <FormattedMessage id="swap" defaultMessage="Swap" />
+          <SolidButton
+            className="w-full text-lg"
+            disabled={!canSubmit}
+            loading={showSwapLoading || loadingTrigger}
+          >
+            {showSwapLoading || loadingTrigger ? (
+              <BeatLoader color="#ffffff" size={5} />
+            ) : (
+              <FormattedMessage id="swap" defaultMessage="Swap" />
+            )}
           </SolidButton>
         ) : (
           <ConnectToNearBtn />

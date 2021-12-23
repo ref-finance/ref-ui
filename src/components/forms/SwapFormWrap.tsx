@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Alert from '../alert/Alert';
 import SubmitButton from './SubmitButton';
 import { FormattedMessage } from 'react-intl';
@@ -45,12 +45,20 @@ export default function SwapFormWrap({
   const { loadingData, setLoadingData, loadingTrigger, setLoadingTrigger } =
     loading;
 
+  const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    loadingTrigger && setShowSwapLoading(true);
+    !loadingTrigger && setShowSwapLoading(false);
+  }, [loadingTrigger]);
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
 
     if (wallet.isSignedIn()) {
       try {
+        setShowSwapLoading(true);
         onSubmit(event);
       } catch (err) {
         setError(err);
@@ -94,9 +102,10 @@ export default function SwapFormWrap({
         elseView
       ) : (
         <SubmitButton
-          disabled={!canSubmit}
+          disabled={!canSubmit && !loadingTrigger}
           text={buttonText || title}
           info={info}
+          loading={showSwapLoading}
         />
       )}
     </form>
