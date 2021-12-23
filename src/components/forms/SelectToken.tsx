@@ -123,6 +123,7 @@ export default function SelectToken({
     const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
     setListData(sortedData);
     setVisible(false);
+    setShowCommonBasses(true);
   };
 
   return (
