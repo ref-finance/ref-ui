@@ -6,7 +6,11 @@ import { wallet } from '~services/near';
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 import { FormattedMessage, useIntl } from 'react-intl';
 import Alert from '~components/alert/Alert';
-import { ConnectToNearBtn, SolidButton } from '~components/button/Button';
+import {
+  ButtonTextWrapper,
+  ConnectToNearBtn,
+  SolidButton,
+} from '~components/button/Button';
 import { Card } from '~components/card/Card';
 import InputAmount from '~components/forms/InputAmount';
 import QuestionMark from '~components/farm/QuestionMark';
@@ -92,7 +96,7 @@ export function RemoveLiquidityComponent(props: {
   stablePool: StablePool;
 }) {
   const [slippageInvalid, setSlippageInvalid] = useState(false);
-
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
   const { shares, tokens, pool, stakeList, stablePool } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
@@ -482,12 +486,21 @@ export function RemoveLiquidityComponent(props: {
             disabled={!canSubmit}
             className={`focus:outline-none px-4 w-full text-lg`}
             onClick={async () => {
-              canSubmit && submit();
+              if (canSubmit) {
+                setButtonLoading(true);
+                submit();
+              }
             }}
+            loading={buttonLoading}
           >
-            <FormattedMessage
-              id="remove_liquidity"
-              defaultMessage="Remove Liquidity"
+            <ButtonTextWrapper
+              loading={buttonLoading}
+              Text={() => (
+                <FormattedMessage
+                  id="remove_liquidity"
+                  defaultMessage="Remove Liquidity"
+                />
+              )}
             />
           </SolidButton>
         ) : (

@@ -2,9 +2,13 @@ import React from 'react';
 import { Near } from '../icon';
 import { REF_FARM_CONTRACT_ID, wallet } from '../../services/near';
 import { FormattedMessage } from 'react-intl';
-import { GradientButton, ConnectToNearBtn } from '~components/button/Button';
+import {
+  GradientButton,
+  ConnectToNearBtn,
+  ButtonTextWrapper,
+} from '~components/button/Button';
 
-import BeatLoader from 'react-spinners/BeatLoader';
+import { BeatLoading } from '~components/layout/Loading';
 
 interface SubmitButtonProps {
   text?: string;
@@ -48,16 +52,22 @@ function SubmitButton({
         >
           {!label && (
             <h1 className="text-lg font-inter font-semibold">
-              {loading ? (
-                <BeatLoader color="#ffffff" size={5} />
-              ) : (
-                <FormattedMessage id="swap" defaultMessage="Swap" />
-              )}
+              <ButtonTextWrapper
+                loading={loading}
+                Text={() => (
+                  <FormattedMessage id="swap" defaultMessage="Swap" />
+                )}
+              />
             </h1>
           )}
           {label && (
             <h1 className="text-lg font-inter font-semibold">
-              <FormattedMessage id={label} defaultMessage={label} />
+              <ButtonTextWrapper
+                loading={loading}
+                Text={() => (
+                  <FormattedMessage id={label} defaultMessage={label} />
+                )}
+              />
             </h1>
           )}
         </button>

@@ -29,6 +29,8 @@ function WrapNear(props: ReactModal.Props & { allTokens: TokenMetadata[] }) {
     useState<string>();
   const intl = useIntl();
 
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+
   useEffect(() => {
     if (allTokens) {
       setTokenOut(allTokens.find((token) => token.symbol === WNEAR_SYMBOL));
@@ -93,8 +95,10 @@ function WrapNear(props: ReactModal.Props & { allTokens: TokenMetadata[] }) {
   const handleSubmit = (e: any) => {
     e.preventDefault();
     if (tokenIn?.id === 'NEAR') {
+      setButtonLoading(true);
       return nearDeposit(tokenInAmount);
     } else {
+      setButtonLoading(true);
       return nearWithdraw(tokenInAmount);
     }
   };
@@ -196,7 +200,11 @@ function WrapNear(props: ReactModal.Props & { allTokens: TokenMetadata[] }) {
             />
           )}
         </div>
-        <SubmitButton disabled={!canSubmit} label="submit" />
+        <SubmitButton
+          disabled={!canSubmit}
+          label="submit"
+          loading={buttonLoading}
+        />
       </form>
     </Modal>
   );

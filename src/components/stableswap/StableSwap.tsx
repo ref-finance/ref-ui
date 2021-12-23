@@ -1,7 +1,10 @@
-import BeatLoader from 'react-spinners/BeatLoader';
 import React, { useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { ConnectToNearBtn, SolidButton } from '~components/button/Button';
+import {
+  ButtonTextWrapper,
+  ConnectToNearBtn,
+  SolidButton,
+} from '~components/button/Button';
 import InputAmount from '~components/forms/InputAmount';
 import SlippageSelector from '~components/forms/SlippageSelector';
 import SubmitButton from '~components/forms/SubmitButton';
@@ -29,6 +32,7 @@ import {
 } from './StableSwapComponents';
 import { CountdownTimer } from '~components/icon';
 import { StablePool } from '~services/pool';
+import { BeatLoading } from '~components/layout/Loading';
 interface StableSwapProps {
   balances: TokenBalancesView;
   tokens: TokenMetadata[];
@@ -351,11 +355,10 @@ export default function StableSwap({
             disabled={!canSubmit}
             loading={showSwapLoading || (loadingTrigger && !loadingPause)}
           >
-            {showSwapLoading || (loadingTrigger && !loadingPause) ? (
-              <BeatLoader color="#ffffff" size={5} />
-            ) : (
-              <FormattedMessage id="swap" defaultMessage="Swap" />
-            )}
+            <ButtonTextWrapper
+              loading={showSwapLoading || (loadingTrigger && !loadingPause)}
+              Text={() => <FormattedMessage id="swap" defaultMessage="Swap" />}
+            />
           </SolidButton>
         ) : (
           <ConnectToNearBtn />

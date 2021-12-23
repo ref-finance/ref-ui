@@ -15,7 +15,7 @@ import { deposit } from '../services/token';
 import { wallet } from '~services/near';
 import { Balances } from '../components/deposit/Deposit';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { ConnectToNearBtn } from '~components/button/Button';
+import { ConnectToNearBtn, ButtonTextWrapper } from '~components/button/Button';
 import { STORAGE_PER_TOKEN } from '~services/creators/storage';
 import { BigNumber } from 'bignumber.js';
 
@@ -25,6 +25,7 @@ function DepositBtn(props: {
   balance?: string;
 }) {
   const { amount, token, balance } = props;
+  const [loading, setLoading] = useState<boolean>(false);
 
   const nearValidate =
     token.id === 'NEAR'
@@ -45,7 +46,7 @@ function DepositBtn(props: {
         disabled={!canSubmit}
         className={`w-full rounded-full text-sm text-white px-5 py-2.5 focus:outline-none font-semibold ${
           canSubmit ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
-        }`}
+        } ${loading ? 'opacity-40' : ''}`}
         style={
           canSubmit
             ? {
@@ -59,6 +60,7 @@ function DepositBtn(props: {
         }
         onClick={() => {
           if (canSubmit) {
+            setLoading(true);
             if (token.id === nearMetadata.id) {
               return wrapNear(amount);
             }
@@ -69,7 +71,12 @@ function DepositBtn(props: {
           }
         }}
       >
-        <FormattedMessage id="deposit" defaultMessage="Deposit" />
+        <ButtonTextWrapper
+          loading={loading}
+          Text={() => (
+            <FormattedMessage id="deposit" defaultMessage="Deposit" />
+          )}
+        />
       </button>
     </div>
   );

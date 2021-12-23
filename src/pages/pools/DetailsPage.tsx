@@ -65,6 +65,7 @@ import {
   OutlineButton,
   SolidButton,
   FarmButton,
+  ButtonTextWrapper,
 } from '~components/button/Button';
 import { wallet } from '~services/near';
 import { BreadCrumb } from '~components/layout/BreadCrumb';
@@ -139,6 +140,7 @@ export function AddLiquidityModal(
   const history = useHistory();
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [canDeposit, setCanDeposit] = useState<boolean>(false);
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
   if (!balances) return null;
 
@@ -345,6 +347,7 @@ export function AddLiquidityModal(
       if (canDeposit) {
         history.push(`/deposit`);
       } else if (canSubmit) {
+        setButtonLoading(true);
         submit();
       }
     };
@@ -353,10 +356,19 @@ export function AddLiquidityModal(
         disabled={!canSubmit && !canDeposit}
         className="focus:outline-none px-4 w-full"
         onClick={handleClick}
+        loading={buttonLoading}
       >
         <div className="flex items-center justify-center w-full m-auto">
           <div>
-            <FormattedMessage id={messageId} defaultMessage={defaultMessage} />
+            <ButtonTextWrapper
+              loading={buttonLoading}
+              Text={() => (
+                <FormattedMessage
+                  id={messageId}
+                  defaultMessage={defaultMessage}
+                />
+              )}
+            />
           </div>
         </div>
       </SolidButton>

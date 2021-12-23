@@ -21,6 +21,7 @@ import {
   GreenLButton,
   BorderButton,
   GradientButton,
+  ButtonTextWrapper,
 } from '~components/button/Button';
 import {
   getFarms,
@@ -53,7 +54,7 @@ import {
 } from '~utils/numbers';
 import { mftGetBalance } from '~services/mft-contract';
 import { wallet } from '~services/near';
-import Loading from '~components/layout/Loading';
+import Loading, { BeatLoading } from '~components/layout/Loading';
 import { ConnectToNearBtn } from '~components/button/Button';
 import { useTokens } from '~state/token';
 import { Info } from '~components/icon/Info';
@@ -623,22 +624,19 @@ export function FarmsPage() {
                           ? 'cursor-not-allowed'
                           : ''
                       }
+                      loading={withdrawLoading}
                     >
                       <div>
-                        <ClipLoader
-                          color="#fff"
+                        <ButtonTextWrapper
                           loading={withdrawLoading}
-                          size="12"
+                          Text={() => (
+                            <FormattedMessage
+                              id="withdraw"
+                              defaultMessage="Withdraw"
+                            />
+                          )}
                         />
                       </div>
-                      {withdrawLoading ? null : (
-                        <div>
-                          <FormattedMessage
-                            id="withdraw"
-                            defaultMessage="Withdraw"
-                          />
-                        </div>
-                      )}
                     </GradientButton>
                   </div>
                 </div>
@@ -935,6 +933,8 @@ function FarmView({
   >({});
   const [unclaimed, setUnclaimed] = useState<Record<any, any>>({});
   const [calcVisible, setCalcVisible] = useState(false);
+
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
   const clipColor = '#00c08b';
   const clipSize = 12;
@@ -1701,17 +1701,14 @@ function FarmView({
                   onClick={() => claimReward()}
                   disabled={disableClaim}
                   className="text-white text-base flex-grow  w-20"
+                  loading={claimLoading}
                 >
-                  <ClipLoader
-                    color={claimLoadingColor}
-                    loading={claimLoading}
-                    size={claimLoadingSize}
-                  />
-                  {claimLoading ? null : (
-                    <div>
-                      <FormattedMessage id={getClaimId()} />
-                    </div>
-                  )}
+                  <div>
+                    <ButtonTextWrapper
+                      loading={claimLoading}
+                      Text={() => <FormattedMessage id={getClaimId()} />}
+                    />
+                  </div>
                 </GradientButton>
               ) : null}
             </div>
@@ -1752,6 +1749,7 @@ function FarmView({
         unclaimed={unclaimed}
         type="unstake"
         onSubmit={(amount) => {
+          setButtonLoading(true);
           unstake({
             seed_id: data.seed_id,
             amount,
@@ -1768,6 +1766,7 @@ function FarmView({
             transform: 'translate(-50%, -50%)',
           },
         }}
+        buttonLoading={buttonLoading}
       />
 
       <CalcModel
@@ -1803,6 +1802,7 @@ function FarmView({
         type="stake"
         tokenPriceList={tokenPriceList}
         onSubmit={(amount) => {
+          setButtonLoading(true);
           stake({
             token_id: getMftTokenId(data.lpTokenId),
             amount,
@@ -1819,6 +1819,7 @@ function FarmView({
             transform: 'translate(-50%, -50%)',
           },
         }}
+        buttonLoading={buttonLoading}
       />
     </Card>
   );
@@ -1835,10 +1836,20 @@ function ActionModal(
     type?: string;
     unclaimed?: any;
     tokenPriceList?: any;
+    buttonLoading?: boolean;
     onSubmit: (amount: string) => void;
   }
 ) {
-  const { max, farm, farms, lps, type, unclaimed, tokenPriceList } = props;
+  const {
+    max,
+    farm,
+    farms,
+    lps,
+    type,
+    unclaimed,
+    tokenPriceList,
+    buttonLoading,
+  } = props;
   const [amount, setAmount] = useState<string>('');
   const [showTip, setShowTip] = useState<boolean>(false);
   const [showCalc, setShowCalc] = useState(false);
@@ -2054,8 +2065,9 @@ function ActionModal(
                   new BigNumber(amount).isGreaterThan(maxToFormat) ||
                   stakeCheck
                 }
+                loading={buttonLoading}
               >
-                {props.btnText}
+                {buttonLoading ? <BeatLoading /> : props.btnText}
               </GreenLButton>
             </div>
             {type == 'stake' ? (
