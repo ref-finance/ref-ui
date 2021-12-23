@@ -491,3 +491,12 @@ input[type='range']::-webkit-slider-thumb {
     bottom: 0;
   }
 }
+
+
+
+
+@media screen and (min-width: 1024px){
+  .Toastify__toast-container--top-right{
+    top: auto !important;
+  }
+}
