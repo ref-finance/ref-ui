@@ -151,6 +151,7 @@ export default function StableSwap({
       try {
         if (canSubmit) {
           setShowSwapLoading(true);
+          setLoadingPause(true);
           makeSwap(useNearBalance);
         }
       } catch (error) {}

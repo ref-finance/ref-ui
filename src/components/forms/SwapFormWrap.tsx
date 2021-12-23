@@ -53,8 +53,6 @@ export default function SwapFormWrap({
     setLoadingPause,
   } = loading;
 
-  console.log(loadingPause);
-
   const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -69,6 +67,7 @@ export default function SwapFormWrap({
     if (wallet.isSignedIn()) {
       try {
         setShowSwapLoading(true);
+        setLoadingPause(true);
         onSubmit(event);
       } catch (err) {
         setError(err);
