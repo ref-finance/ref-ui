@@ -123,8 +123,9 @@ export function ConnectToNearBtn() {
         color: '#fff',
       }}
       onClick={(e) => {
-        setButtonLoading(true);
         e.preventDefault();
+        e.stopPropagation();
+        setButtonLoading(true);
         wallet.requestSignIn(REF_FARM_CONTRACT_ID);
       }}
     >
