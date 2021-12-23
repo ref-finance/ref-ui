@@ -7,7 +7,7 @@ import { isMobile } from '~utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { TokenBalancesView } from '~services/token';
 import { IoCloseOutline } from 'react-icons/io5';
-import CommenBasses from '~components/tokens/CommenBasses';
+import CommonBasses from '~components/tokens/CommonBasses';
 import Table from '~components/table/Table';
 import {
   toPrecision,
@@ -156,7 +156,7 @@ export default function OldSelectToken({
               onChange={(evt) => onSearch(evt.target.value)}
             />
           </div>
-          <CommenBasses
+          <CommonBasses
             tokens={tokensData}
             onClick={(token) => {
               onSelect && onSelect(token);
