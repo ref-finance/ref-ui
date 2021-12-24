@@ -160,11 +160,10 @@ const zh_CN = {
   topPoolsCopy: '对每一个交易对, 只展示最高锁仓量的流动池',
   myWatchList: '我的收藏列表',
   you_do_not_have_enough: '你没有足够的',
-  must_provide_at_least_one_token_for: '你提供的币的数量需大于0',
+  amount_must_be_greater_than_0: '你提供的币的数量需大于0',
   is_not_exist: '不存在',
   must_input_a_value_greater_than_zero: '必须输入一个大于0的值',
-  must_input_a_value_not_greater_than_your_balance:
-    '输入的数值不能大于你的余额数量',
+  amount_must_be_less_than_your_balance: '输入的数值不能大于你的余额数量',
   no_pool_available_to_make_a_swap_from: '没有池子能够提供',
   for_the_amount: '数额为',
   no_pool_eng_for_chinese: '的交易',

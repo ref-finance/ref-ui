@@ -142,6 +142,18 @@ export function AddLiquidityModal(
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [canDeposit, setCanDeposit] = useState<boolean>(false);
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+  useEffect(() => {
+    if (
+      balances &&
+      Number(balances[tokens[0].id] || '0') === 0 &&
+      Number(balances[tokens[1].id] || '0') === 0
+    ) {
+      setCanSubmit(false);
+      setCanDeposit(true);
+      setMessageId('deposit_to_add_liquidity');
+      setDefaultMessage('Deposit to Add Liquidity');
+    }
+  }, [firstTokenAmount, secondTokenAmount, balances, tokens]);
 
   if (!balances) return null;
 
@@ -273,7 +285,7 @@ export function AddLiquidityModal(
       setDefaultMessage('Add Liquidity');
       throw new Error(
         `${intl.formatMessage({
-          id: 'must_provide_at_least_one_token_for',
+          id: 'amount_must_be_greater_than_0',
         })} ${toRealSymbol(tokens[0].symbol)}`
       );
     }
@@ -284,7 +296,7 @@ export function AddLiquidityModal(
       setDefaultMessage('Add Liquidity');
       throw new Error(
         `${intl.formatMessage({
-          id: 'must_provide_at_least_one_token_for',
+          id: 'amount_must_be_greater_than_0',
         })} ${toRealSymbol(tokens[1].symbol)}`
       );
     }
@@ -304,6 +316,7 @@ export function AddLiquidityModal(
         })}`
       );
     }
+
     setCanSubmit(true);
     setMessageId('add_liquidity');
     setDefaultMessage('Add Liquidity');
@@ -577,7 +590,7 @@ export function RemoveLiquidityModal(
     if (amountBN.isGreaterThan(shareBN)) {
       throw new Error(
         intl.formatMessage({
-          id: 'must_input_a_value_not_greater_than_your_balance',
+          id: 'amount_must_be_less_than_your_balance',
         })
       );
     }
@@ -594,7 +607,7 @@ export function RemoveLiquidityModal(
     if (amountBN.isGreaterThan(shareBN)) {
       throw new Error(
         intl.formatMessage({
-          id: 'must_input_a_value_not_greater_than_your_balance',
+          id: 'amount_must_be_less_than_your_balance',
         })
       );
     }
