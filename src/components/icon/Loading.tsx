@@ -65,3 +65,20 @@ export function ChartLoading() {
     </div>
   );
 }
+
+export const RefreshTrangle = () => {
+  return (
+    <svg
+      width="5"
+      height="6"
+      viewBox="0 0 5 6"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M4.5 2.13398C5.16667 2.51888 5.16667 3.48113 4.5 3.86603L1.5 5.59808C0.833333 5.98298 1.92632e-07 5.50185 2.26281e-07 4.73205L3.77702e-07 1.26795C4.11351e-07 0.498148 0.833334 0.0170236 1.5 0.401924L4.5 2.13398Z"
+        fill="#00C6A2"
+      />
+    </svg>
+  );
+};

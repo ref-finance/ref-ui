@@ -65,6 +65,8 @@ import {
   OutlineButton,
   SolidButton,
   FarmButton,
+  ButtonTextWrapper,
+  ConnectToNearBtn,
 } from '~components/button/Button';
 import { wallet } from '~services/near';
 import { BreadCrumb } from '~components/layout/BreadCrumb';
@@ -139,6 +141,7 @@ export function AddLiquidityModal(
   const history = useHistory();
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [canDeposit, setCanDeposit] = useState<boolean>(false);
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
   if (!balances) return null;
 
@@ -320,31 +323,14 @@ export function AddLiquidityModal(
 
   const ButtonRender = () => {
     if (!wallet.isSignedIn()) {
-      return (
-        <SolidButton
-          className="focus:outline-none px-4 w-full rounded-3xl"
-          onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
-        >
-          <div className="flex items-center justify-center w-full m-auto">
-            <div className="mr-2">
-              {' '}
-              <Near />
-            </div>
-            <div>
-              <FormattedMessage
-                id="connect_to_near"
-                defaultMessage="Connect to NEAR"
-              />
-            </div>
-          </div>
-        </SolidButton>
-      );
+      return <ConnectToNearBtn />;
     }
 
     const handleClick = async () => {
       if (canDeposit) {
         history.push(`/deposit`);
       } else if (canSubmit) {
+        setButtonLoading(true);
         submit();
       }
     };
@@ -353,10 +339,19 @@ export function AddLiquidityModal(
         disabled={!canSubmit && !canDeposit}
         className="focus:outline-none px-4 w-full"
         onClick={handleClick}
+        loading={buttonLoading}
       >
         <div className="flex items-center justify-center w-full m-auto">
           <div>
-            <FormattedMessage id={messageId} defaultMessage={defaultMessage} />
+            <ButtonTextWrapper
+              loading={buttonLoading}
+              Text={() => (
+                <FormattedMessage
+                  id={messageId}
+                  defaultMessage={defaultMessage}
+                />
+              )}
+            />
           </div>
         </div>
       </SolidButton>
@@ -542,7 +537,7 @@ export function AddLiquidityModal(
         <div className="flex justify-center mb-8 ">
           {error && <Alert level="error" message={error.message} />}
         </div>
-        <div className="flex items-center justify-center">
+        <div className="">
           <ButtonRender />
         </div>
       </Card>
@@ -565,6 +560,7 @@ export function RemoveLiquidityModal(
     slippageTolerance,
     shares: amount ? toNonDivisibleNumber(24, amount) : '0',
   });
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [error, setError] = useState<Error>();
   const cardWidth = isMobile() ? '95vw' : '40vw';
@@ -585,7 +581,7 @@ export function RemoveLiquidityModal(
         })
       );
     }
-
+    setButtonLoading(true);
     return removeLiquidity();
   }
 
@@ -701,7 +697,7 @@ export function RemoveLiquidityModal(
         <div className="flex justify-center">
           {error && <Alert level="error" message={error.message} />}
         </div>
-        <div className="flex items-center justify-center">
+        <div className="">
           {wallet.isSignedIn() ? (
             <SolidButton
               disabled={!canSubmit}
@@ -713,29 +709,20 @@ export function RemoveLiquidityModal(
                   setError(error);
                 }
               }}
+              loading={buttonLoading}
             >
-              <FormattedMessage
-                id="remove_liquidity"
-                defaultMessage="Remove Liquidity"
+              <ButtonTextWrapper
+                loading={buttonLoading}
+                Text={() => (
+                  <FormattedMessage
+                    id="remove_liquidity"
+                    defaultMessage="Remove Liquidity"
+                  />
+                )}
               />
             </SolidButton>
           ) : (
-            <SolidButton
-              className={`focus:outline-none px-4 w-full rounded-3xl`}
-              onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
-            >
-              <div className="w-full m-auto flex items-center justify-center">
-                <div className="mr-2">
-                  <Near />
-                </div>
-                <div>
-                  <FormattedMessage
-                    id="connect_to_near"
-                    defaultMessage="Connect to NEAR"
-                  />
-                </div>
-              </div>
-            </SolidButton>
+            <ConnectToNearBtn />
           )}
         </div>
       </Card>

@@ -305,7 +305,7 @@ function DetailView({
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
           value={
-            !to || to === '0' || !canSwap
+            !to || to === '0'
               ? '-'
               : GetPriceImpact(pools, tokenIn, tokenOut, from)
           }
@@ -340,6 +340,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   const [loadingData, setLoadingData] = useState<boolean>(false);
   const [loadingTrigger, setLoadingTrigger] = useState<boolean>(false);
+  const [loadingPause, setLoadingPause] = useState<boolean>(false);
 
   const intl = useIntl();
   const location = useLocation();
@@ -491,6 +492,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           setLoadingData,
           loadingTrigger,
           setLoadingTrigger,
+          loadingPause,
+          setLoadingPause,
         }}
       >
         <TokenAmount
