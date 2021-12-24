@@ -331,7 +331,7 @@ export function MobileNavBar() {
                   onClick={() => setMobileWrapNear(true)}
                 >
                   <WrapNearIconDark large forMobile />
-                  <span className="text-white">
+                  <span className="text-white text-sm">
                     NEAR:&nbsp;{toPrecision(nearBalance, 3, true)}
                   </span>
                 </div>
