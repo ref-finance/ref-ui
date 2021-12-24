@@ -1773,7 +1773,7 @@ function FarmView({
         onRequestClose={() => {
           setCalcVisible(false);
         }}
-        farms={farmsData}
+        farms={mergeCommonRewardFarms}
         tokenPriceList={tokenPriceList}
         style={{
           overlay: {
