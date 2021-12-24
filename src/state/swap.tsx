@@ -15,6 +15,7 @@ import getConfig from '~services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { CloseIcon } from '~components/icon/Actions';
 import db from '../store/RefDatabase';
+import { POOL_TOKEN_REFRESH_INTERVAL } from '~services/near';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -28,6 +29,7 @@ interface SwapOptions {
   loadingTrigger?: boolean;
   setLoadingTrigger?: (loadingTrigger: boolean) => void;
   stablePool?: StablePool;
+  loadingPause?: boolean;
 }
 
 export const useSwap = ({
@@ -39,6 +41,7 @@ export const useSwap = ({
   loadingData,
   loadingTrigger,
   setLoadingTrigger,
+  loadingPause,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -61,7 +64,7 @@ export const useSwap = ({
   const minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
     : null;
-  const refreshTime = 10000;
+  const refreshTime = Number(POOL_TOKEN_REFRESH_INTERVAL) * 1000;
 
   const intl = useIntl();
 
@@ -124,7 +127,7 @@ export const useSwap = ({
         amountIn: tokenInAmount,
         intl,
         setLoadingData,
-        loadingTrigger,
+        loadingTrigger: loadingTrigger && !loadingPause,
         setLoadingTrigger,
       })
         .then(({ estimate, pool }) => {
@@ -149,11 +152,11 @@ export const useSwap = ({
     ) {
       setTokenOutAmount('0');
     }
-  }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger]);
+  }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger, loadingPause]);
 
   useEffect(() => {
     let id: any = null;
-    if (!loadingTrigger) {
+    if (!loadingTrigger && !loadingPause) {
       id = setInterval(() => {
         setLoadingTrigger(true);
         setCount(count + 1);
@@ -164,7 +167,7 @@ export const useSwap = ({
     return () => {
       clearInterval(id);
     };
-  }, [count, loadingTrigger]);
+  }, [count, loadingTrigger, loadingPause]);
 
   const makeSwap = (useNearBalance: boolean) => {
     swap({

@@ -14,7 +14,7 @@ import { REF_FARM_CONTRACT_ID, wallet } from '~services/near';
 import { isMobile } from '~utils/device';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage } from 'react-intl';
-import { GradientButton } from '~components/button/Button';
+import { ButtonTextWrapper, GradientButton } from '~components/button/Button';
 import { IoCloseOutline } from 'react-icons/io5';
 import BigNumber from 'bignumber.js';
 
@@ -26,6 +26,8 @@ export function WithdrawModal(props: ReactModal.Props) {
   const [selectedToken, setSelectedToken] = useState<TokenMetadata | null>(
     null
   );
+
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (userTokens) setSelectedToken(userTokens[0]);
@@ -76,20 +78,28 @@ export function WithdrawModal(props: ReactModal.Props) {
           <button
             disabled={!canSubmit}
             className={`flex flex-row w-full justify-center px-5 py-2 mt-6 text-white disabled:cursor-not-allowed mx-auto
-              ${!canSubmit ? 'opacity-40 cursor-not-allowed' : ''}
+              ${!canSubmit ? 'opacity-40 cursor-not-allowed' : ''} ${
+              loading ? 'opacity-40' : ''
+            }
             `}
             style={{
               background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
               borderRadius: '5px',
             }}
             onClick={() => {
+              setLoading(true);
               withdraw({
                 token: selectedToken,
                 amount,
               });
             }}
           >
-            <FormattedMessage id="withdraw" defaultMessage="Withdraw" />
+            <ButtonTextWrapper
+              loading={loading}
+              Text={() => (
+                <FormattedMessage id="withdraw" defaultMessage="Withdraw" />
+              )}
+            />
           </button>
         </div>
       </Card>

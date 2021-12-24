@@ -208,14 +208,12 @@ export const getFarmInfo = async (
       `(${farm.reward_per_session} / ${farm.session_interval}) * 604800`
     )
   );
-
-  const rewardsPerWeek = toPrecision(
+  const rewardsPerWeek = new BigNumber(
     toReadableNumber(
       rewardToken.decimals,
       new BigNumber(rewardNumberPerWeek.toString()).toFixed()
-    ),
-    0
-  );
+    )
+  ).toFixed(0);
 
   const userRewardNumberPerWeek =
     seedAmount !== '0'

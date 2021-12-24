@@ -19,7 +19,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_TOKEN_ID: 'token.ref-finance.near',
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         POOL_TOKEN_REFRESH_INTERVAL:
-          process.env.POOL_TOKEN_REFRESH_INTERVAL || 10,
+          process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
         STABLE_POOL_ID: process.env.STABLE_POOL_ID || 1910,
         STABLE_TOKEN_IDS: [
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
@@ -54,7 +54,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_TOKEN_ID: 'token.ref-finance.testnet',
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
         POOL_TOKEN_REFRESH_INTERVAL:
-          process.env.POOL_TOKEN_REFRESH_INTERVAL || 10,
+          process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
         STABLE_POOL_ID: process.env.STABLE_POOL_ID || 79,
         STABLE_TOKEN_IDS: [
           'usdt.fakes.testnet',
@@ -86,7 +86,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_TOKEN_ID: 'token.ref-finance.near',
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         POOL_TOKEN_REFRESH_INTERVAL:
-          process.env.POOL_TOKEN_REFRESH_INTERVAL || 10,
+          process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
         STABLE_POOL_ID: process.env.STABLE_POOL_ID || 1910,
         STABLE_TOKEN_IDS: [
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',

@@ -4,7 +4,11 @@ import { useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router-dom';
 import Alert from '~components/alert/Alert';
-import { ConnectToNearBtn, SolidButton } from '~components/button/Button';
+import {
+  ButtonTextWrapper,
+  ConnectToNearBtn,
+  SolidButton,
+} from '~components/button/Button';
 import { Card } from '~components/card/Card';
 import { StableSlipSelecter } from '~components/forms/SlippageSelector';
 import { Near } from '~components/icon';
@@ -98,6 +102,7 @@ export default function AddLiquidityComponent(props: {
   const intl = useIntl();
   const [canAddLP, setCanAddLP] = useState<boolean>(false);
   const history = useHistory();
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
   const predicedShares = usePredictShares({
     tokens,
     poolId: pool.id,
@@ -443,17 +448,26 @@ export default function AddLiquidityComponent(props: {
             <SolidButton
               disabled={!canSubmit}
               className="focus:outline-none px-4 w-full text-lg"
+              loading={buttonLoading}
               onClick={() => {
                 try {
-                  canSubmit && submit();
+                  if (canSubmit) {
+                    setButtonLoading(true);
+                    submit();
+                  }
                 } catch (error) {
                   setError(error);
                 }
               }}
             >
-              <FormattedMessage
-                id={messageId}
-                defaultMessage={defaultMessage}
+              <ButtonTextWrapper
+                loading={buttonLoading}
+                Text={() => (
+                  <FormattedMessage
+                    id={messageId}
+                    defaultMessage={defaultMessage}
+                  />
+                )}
               />
             </SolidButton>
           ) : (
