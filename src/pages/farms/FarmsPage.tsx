@@ -999,10 +999,10 @@ function FarmView({
       setPending(isPending(data));
     }
 
-    const id = setInterval(() => {
-      setCount(count + 1);
-    }, refreshTime);
-    return () => clearInterval(id);
+    // const id = setInterval(() => {
+    //   setCount(count + 1);
+    // }, refreshTime);
+    // return () => clearInterval(id);
   }, [count]);
 
   function getAllRewardsPerWeek() {
