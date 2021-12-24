@@ -5,6 +5,7 @@ import {
   REF_TOKEN_ID,
   refContractViewFunction,
   Transaction,
+  wallet,
 } from '~services/near';
 import { toNonDivisibleNumber } from '~utils/numbers';
 import { storageDepositAction } from '~services/creators/storage';
@@ -60,7 +61,10 @@ export const stake = async ({ amount, msg = '' }: StakeOptions) => {
       functionCalls: [
         {
           methodName: 'storage_deposit',
-          args: {},
+          args: {
+            account_id: wallet.getAccountId(),
+            registration_only: true,
+          },
           gas: '50000000000000',
           amount: NEW_ACCOUNT_STORAGE_COST,
         },
