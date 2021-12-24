@@ -210,6 +210,7 @@ export function FarmsPage() {
       tempFarms.forEach((arr: any) => {
         const totalApr = getTotalApr(arr);
         arr.totalApr = new BigNumber(totalApr);
+        arr.actualFarmNumber = arr.length;
         const tempMap = {};
         arr.forEach((m: any) => {
           tempMap[m.rewardToken?.id] = tempMap[m.rewardToken?.id] || [];
@@ -1105,7 +1106,7 @@ function FarmView({
   function claimReward() {
     setDisableClaim(true);
     setClaimLoading(true);
-    if (farmsData.length > 1) {
+    if (farmsData.actualFarmNumber > 1) {
       claimRewardBySeed(data.seed_id)
         .then(() => {
           window.location.reload();
@@ -1289,7 +1290,7 @@ function FarmView({
     return result;
   }
   function getClaimId() {
-    if (farmsData.length > 1) {
+    if (farmsData.actualFarmNumber > 1) {
       return 'claim_all';
     } else {
       return 'claim';

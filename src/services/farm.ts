@@ -65,6 +65,7 @@ export interface FarmInfo extends Farm {
   tokenIds: string[];
   show?: boolean;
   seedAmount: string;
+  actualFarmNumber?: number;
 }
 
 export const getSeeds = async ({
