@@ -3,11 +3,11 @@ import { toRealSymbol } from '~utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
 import { FormattedMessage } from 'react-intl';
 
-interface CommenBassesProps {
+interface CommonBassesProps {
   tokens: TokenMetadata[];
   onClick: (token: TokenMetadata) => void;
 }
-const COMMEN_BASSES = [
+const COMMON_BASSES = [
   'REF',
   'wNEAR',
   'SKYWARD',
@@ -22,9 +22,9 @@ const COMMEN_BASSES = [
   'ETH',
 ];
 
-export default function CommenBasses({ tokens, onClick }: CommenBassesProps) {
-  const commenBassesTokens = tokens.filter((item) => {
-    return COMMEN_BASSES.indexOf(item?.symbol) > -1;
+export default function CommonBasses({ tokens, onClick }: CommonBassesProps) {
+  const commonBassesTokens = tokens.filter((item) => {
+    return COMMON_BASSES.indexOf(item?.symbol) > -1;
   });
 
   return (
@@ -33,7 +33,7 @@ export default function CommenBasses({ tokens, onClick }: CommenBassesProps) {
         <FormattedMessage id="popular_tokens" defaultMessage="Popular Tokens" />
       </div>
       <div className="w-full flex flex-wrap text-sm xs:text-xs text-left">
-        {commenBassesTokens.map((token) => {
+        {commonBassesTokens.map((token) => {
           return (
             <div
               className="pt-4 cursor-pointer mr-7"

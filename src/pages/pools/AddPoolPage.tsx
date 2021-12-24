@@ -7,7 +7,7 @@ import { TokenMetadata } from '~services/ft-contract';
 import { toRoundedReadableNumber } from '~utils/numbers';
 import { ArrowDownGreen, ArrowDownWhite } from '~components/icon';
 import Icon from '~components/tokens/Icon';
-import { ConnectToNearBtn } from '~components/button/Button';
+import { ButtonTextWrapper, ConnectToNearBtn } from '~components/button/Button';
 import { wallet } from '~services/near';
 import { addSimpleLiquidityPool } from '~services/pool';
 import { Toggle } from '~components/toggle';
@@ -27,6 +27,8 @@ export function AddPoolPage() {
   const [error, setError] = useState<Error>();
   const [errorKey, setErrorKey] = useState<string>();
   const intl = useIntl();
+  const [buttonLoading, setButtonLoading] = useState(false);
+
   const tip: any = {
     moreThan: intl.formatMessage({ id: 'more_than' }),
     lessThan: intl.formatMessage({ id: 'less_than' }),
@@ -239,7 +241,7 @@ export function AddPoolPage() {
               disabled={!canSubmit}
               className={`rounded-full w-full text-lg text-white px-5 py-2.5 focus:outline-none font-semibold ${
                 canSubmit ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
-              }`}
+              } ${buttonLoading ? 'opacity-40' : ''}`}
               style={
                 canSubmit
                   ? {
@@ -255,13 +257,19 @@ export function AddPoolPage() {
               onClick={() => {
                 if (canSubmit) {
                   const v = new BigNumber(fee).multipliedBy(100).toFixed(0, 1);
+                  setButtonLoading(true);
                   addSimpleLiquidityPool([token1.id, token2.id], Number(v));
                 }
               }}
             >
-              <FormattedMessage
-                id="add_liquidity"
-                defaultMessage="Add Liquidity"
+              <ButtonTextWrapper
+                loading={buttonLoading}
+                Text={() => (
+                  <FormattedMessage
+                    id="add_liquidity"
+                    defaultMessage="Add Liquidity"
+                  />
+                )}
               />
             </button>
           ) : (

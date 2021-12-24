@@ -2,6 +2,7 @@ import React, { HTMLAttributes, useState } from 'react';
 import { wallet, REF_FARM_CONTRACT_ID } from '~services/near';
 import { Near, UnLoginIcon, FarmMiningIcon, FarmStamp } from '~components/icon';
 import { FormattedMessage } from 'react-intl';
+import { BeatLoading } from '~components/layout/Loading';
 
 export function BorderlessButton(
   props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean }
@@ -24,6 +25,7 @@ export function BorderButton(
     rounded?: string;
     px?: string;
     py?: string;
+    loading?: boolean;
   }
 ) {
   const {
@@ -33,6 +35,7 @@ export function BorderButton(
     rounded,
     px,
     py,
+    loading,
     ...propsWithoutClassName
   } = props;
   return (
@@ -42,7 +45,9 @@ export function BorderButton(
         borderColor ? borderColor : 'border-greenLight'
       }  ${className} ${
         disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
-      } ${rounded || 'rounded-full'} ${px || 'px-5'} ${py || 'py-2.5'}`}
+      } ${rounded || 'rounded-full'} ${px || 'px-5'} ${py || 'py-2.5'} ${
+        loading ? 'opacity-40' : ''
+      }`}
       {...propsWithoutClassName}
     >
       {props.children}
@@ -107,22 +112,38 @@ export function WithdrawButton(
 }
 
 export function ConnectToNearBtn() {
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
   return (
     <div
-      className="flex items-center cursor-pointer justify-center rounded-full py-2 text-base"
+      className={`flex items-center cursor-pointer justify-center rounded-full py-2 text-base ${
+        buttonLoading ? 'opacity-40' : ''
+      }`}
       style={{
         background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
         color: '#fff',
       }}
-      onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setButtonLoading(true);
+        wallet.requestSignIn(REF_FARM_CONTRACT_ID);
+      }}
     >
-      <div className="mr-3.5">
-        <UnLoginIcon />
-      </div>
+      {!buttonLoading && (
+        <div className="mr-3.5">
+          <UnLoginIcon />
+        </div>
+      )}
+
       <button>
-        <FormattedMessage
-          id="connect_to_near"
-          defaultMessage="Connect to NEAR"
+        <ButtonTextWrapper
+          loading={buttonLoading}
+          Text={() => (
+            <FormattedMessage
+              id="connect_to_near"
+              defaultMessage="Connect to NEAR"
+            />
+          )}
         />
       </button>
     </div>
@@ -152,14 +173,16 @@ export function SolidButton(
     disabled?: boolean;
     padding?: string;
     className?: string;
+    loading?: boolean;
   }
 ) {
-  const { disabled, padding, className, onClick } = props;
-
+  const { disabled, padding, className, onClick, loading } = props;
   return (
     <button
       onClick={onClick}
-      className={`${disabled ? 'cursor-not-allowed opacity-40' : ''} 
+      className={`${disabled ? 'cursor-not-allowed opacity-40' : ''}  ${
+        loading ? 'opacity-40' : ''
+      }
         text-white rounded  bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover
         py-2 ${padding ? padding : ''}
         ${className ? className : ''}
@@ -198,12 +221,13 @@ export function GradientButton(
     className?: string;
     color?: string;
     btnClassName?: string;
+    loading?: boolean;
   }
 ) {
-  const { disabled, className, color, btnClassName, onClick } = props;
+  const { loading, disabled, className, color, btnClassName, onClick } = props;
   return (
     <div
-      className={`${className ? className : ''}`}
+      className={`${className ? className : ''} ${loading ? 'opacity-40' : ''}`}
       style={{
         background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
         borderRadius: '5px',
@@ -221,9 +245,12 @@ export function GradientButton(
   );
 }
 export function GreenLButton(
-  props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean }
+  props: HTMLAttributes<HTMLButtonElement> & {
+    disabled?: boolean;
+    loading?: boolean;
+  }
 ) {
-  const { disabled } = props;
+  const { disabled, loading } = props;
   const { className, ...propsWithoutClassName } = props;
   return (
     <button
@@ -233,7 +260,7 @@ export function GreenLButton(
       }}
       className={`w-full rounded text-lg text-white font-semibold border-0 px-5 py-2 focus:outline-none ${className} ${
         disabled ? 'opacity-40 cursor-not-allowed' : ''
-      }`}
+      } ${loading ? 'opacity-40' : ''}`}
       {...propsWithoutClassName}
     >
       {props.children}
@@ -254,3 +281,13 @@ export const FarmButton = ({ farmCount }: { farmCount: Number }) => {
     </div>
   );
 };
+
+export function ButtonTextWrapper({
+  Text,
+  loading,
+}: {
+  Text: () => JSX.Element;
+  loading: boolean;
+}) {
+  return <>{loading ? <BeatLoading /> : <Text />}</>;
+}

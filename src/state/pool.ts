@@ -47,7 +47,7 @@ import {
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
-import { STABLE_POOL_ID } from '~services/near';
+import { POOL_TOKEN_REFRESH_INTERVAL, STABLE_POOL_ID } from '~services/near';
 const REF_FI_STABLE_Pool_INFO_KEY = 'REF_FI_STABLE_Pool_INFO_VALUE';
 
 export const usePool = (id: number | string) => {
@@ -494,23 +494,29 @@ export const usePredictRemoveShares = ({
 export const useStablePool = ({
   loadingTrigger,
   setLoadingTrigger,
+  loadingPause,
+  setLoadingPause,
 }: {
   loadingTrigger: boolean;
   setLoadingTrigger: (mode: boolean) => void;
+  loadingPause: boolean;
+  setLoadingPause: (pause: boolean) => void;
 }) => {
   const [stablePool, setStablePool] = useState<StablePool>();
   const [count, setCount] = useState(0);
-  const refreshTime = 10000;
+  const refreshTime = Number(POOL_TOKEN_REFRESH_INTERVAL) * 1000;
   useEffect(() => {
-    getStablePool(Number(STABLE_POOL_ID)).then((res) => {
-      setStablePool(res);
-      localStorage.setItem(REF_FI_STABLE_Pool_INFO_KEY, JSON.stringify(res));
-    });
-  }, [count, loadingTrigger]);
+    if ((loadingTrigger && !loadingPause) || !stablePool) {
+      getStablePool(Number(STABLE_POOL_ID)).then((res) => {
+        setStablePool(res);
+        localStorage.setItem(REF_FI_STABLE_Pool_INFO_KEY, JSON.stringify(res));
+      });
+    }
+  }, [count, loadingTrigger, loadingPause, stablePool]);
 
   useEffect(() => {
     let id: any = null;
-    if (!loadingTrigger) {
+    if (!loadingTrigger && !loadingPause) {
       id = setInterval(() => {
         setLoadingTrigger(true);
         setCount(count + 1);
@@ -521,7 +527,7 @@ export const useStablePool = ({
     return () => {
       clearInterval(id);
     };
-  }, [count, loadingTrigger]);
+  }, [count, loadingTrigger, loadingPause]);
 
   return stablePool;
 };

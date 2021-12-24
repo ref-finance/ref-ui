@@ -27,6 +27,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FarmsPage } from '~pages/farms/FarmsPage';
 import { AirdropPage } from '~pages/AirdropPage';
 import PopUp from '~components/layout/PopUp';
+import { isMobile } from '~utils/device';
 
 Modal.defaultStyles = {
   overlay: {
@@ -54,12 +55,17 @@ Modal.setAppElement('#root');
 function App() {
   return (
     <Router>
-      <ToastContainer />
       <div className="relative min-h-screen pb-20 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
         <BgShapeLeftTop />
         <BgShapeCenter />
         <BgShapeCenterSmall />
         <NavigationBar />
+        <ToastContainer
+          style={{
+            marginTop: isMobile() ? 'none' : '44px',
+          }}
+        />
+
         <Switch>
           <Route path="/deposit/:id?" component={AutoHeight(DepositPage)} />
           <Route path="/account" component={AccountPage} />

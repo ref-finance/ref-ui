@@ -308,7 +308,7 @@ export function DetailView({
             defaultMessage: 'Price Impact',
           })}
           value={
-            !noFeeAmount || noFeeAmount === '0' || !canSwap
+            !noFeeAmount || noFeeAmount === '0'
               ? '-'
               : GetPriceImpact(from, noFeeAmount)
           }

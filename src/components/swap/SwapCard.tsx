@@ -190,8 +190,7 @@ function DetailView({
     );
   };
 
-  if (!pool || !from || !to || !(Number(from) > 0) || loadingTrigger)
-    return null;
+  if (!pool || !from || !to || !(Number(from) > 0)) return null;
 
   return (
     <div className="mt-8">
@@ -234,7 +233,7 @@ function DetailView({
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
           value={
-            !to || to === '0' || !canSwap
+            !to || to === '0'
               ? '-'
               : GetPriceImpact(pool, tokenIn, tokenOut, from)
           }
@@ -268,6 +267,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   const [loadingData, setLoadingData] = useState<boolean>(false);
   const [loadingTrigger, setLoadingTrigger] = useState<boolean>(false);
+  const [loadingPause, setLoadingPause] = useState<boolean>(false);
 
   const intl = useIntl();
   const location = useLocation();
@@ -334,6 +334,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       loadingTrigger,
       setLoadingTrigger,
       loadingData,
+      loadingPause,
     });
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -403,6 +404,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           setLoadingData,
           loadingTrigger,
           setLoadingTrigger,
+          loadingPause,
+          setLoadingPause,
         }}
       >
         <TokenAmount
