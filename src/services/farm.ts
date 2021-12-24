@@ -208,16 +208,6 @@ export const getFarmInfo = async (
       `(${farm.reward_per_session} / ${farm.session_interval}) * 604800`
     )
   );
-  if (id == 2044) {
-    debugger;
-  }
-  console.log(
-    '999999',
-    toReadableNumber(
-      rewardToken.decimals,
-      new BigNumber(rewardNumberPerWeek.toString()).toFixed()
-    )
-  );
   const rewardsPerWeek = new BigNumber(
     toReadableNumber(
       rewardToken.decimals,
