@@ -55,7 +55,7 @@ export const stake = async ({ amount, msg = '' }: StakeOptions) => {
   const balance = await ftGetStorageBalance(XREF_TOKEN_ID);
 
   if (!balance || balance.total === '0') {
-    transactions.push({
+    transactions.unshift({
       receiverId: XREF_TOKEN_ID,
       functionCalls: [
         {
