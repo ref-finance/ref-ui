@@ -4,6 +4,7 @@
   "license": "MIT OR Apache-2.0",
   "scripts": {
     "build": "parcel build src/index.html",
+    "build:testnet": "NEAR_ENV=testnet parcel build src/index.html",
     "start": "parcel src/index.html",
     "start:mainnet": "NEAR_ENV=mainnet parcel src/index.html",
     "start:testnet": "NEAR_ENV=testnet parcel src/index.html",
