@@ -3,7 +3,11 @@ import Loading from '~components/layout/Loading';
 import { XrefLogo, XrefSymbol, RefSymbol } from '~components/icon/Xref';
 import OldInputAmount from '~components/forms/OldInputAmount';
 import { FormattedMessage } from 'react-intl';
-import { GradientButton } from '~components/button/Button';
+import {
+  GradientButton,
+  ButtonTextWrapper,
+  ConnectToNearBtn,
+} from '~components/button/Button';
 import BigNumber from 'bignumber.js';
 import { isMobile } from '~utils/device';
 import { FaExchangeAlt } from 'react-icons/fa';
@@ -212,8 +216,10 @@ function XrefPage() {
 
 function InputView(props: any) {
   const [amount, setAmount] = useState('0');
+  const [loading, setLoading] = useState(false);
   const { tab, max, hidden, isM } = props;
   const onSubmit = () => {
+    setLoading(true);
     if (tab == 0) {
       // stake
       stake({ amount });
@@ -257,21 +263,31 @@ function InputView(props: any) {
           )}
         </div>
       </div>
-      <GradientButton
-        color="#fff"
-        className={`w-full h-11 text-center text-base text-white focus:outline-none font-semibold ${
-          buttonStatus ? 'opacity-40' : ''
-        }`}
-        onClick={onSubmit}
-        disabled={buttonStatus}
-        btnClassName={buttonStatus ? 'cursor-not-allowed' : ''}
-      >
-        {tab == 0 ? (
-          <FormattedMessage id="stake"></FormattedMessage>
-        ) : (
-          <FormattedMessage id="unstake"></FormattedMessage>
-        )}
-      </GradientButton>
+      {wallet.isSignedIn() ? (
+        <GradientButton
+          color="#fff"
+          className={`w-full h-11 text-center text-base text-white focus:outline-none font-semibold ${
+            buttonStatus ? 'opacity-40' : ''
+          }`}
+          onClick={onSubmit}
+          disabled={buttonStatus}
+          btnClassName={buttonStatus ? 'cursor-not-allowed' : ''}
+        >
+          {tab == 0 ? (
+            <ButtonTextWrapper
+              loading={loading}
+              Text={() => <FormattedMessage id="stake"></FormattedMessage>}
+            ></ButtonTextWrapper>
+          ) : (
+            <ButtonTextWrapper
+              loading={loading}
+              Text={() => <FormattedMessage id="unstake"></FormattedMessage>}
+            ></ButtonTextWrapper>
+          )}
+        </GradientButton>
+      ) : (
+        <ConnectToNearBtn></ConnectToNearBtn>
+      )}
     </div>
   );
 }
