@@ -183,7 +183,6 @@ export function FarmsPage() {
     setRewardList(rewardList);
     setTokenPriceList(tokenPriceList);
     setSeeds(seeds);
-
     const composeFarms = (farms: FarmInfo[]) => {
       let tempMap = {};
       let tempFarms = [];
@@ -210,36 +209,6 @@ export function FarmsPage() {
       tempFarms.forEach((arr: any) => {
         const totalApr = getTotalApr(arr);
         arr.totalApr = new BigNumber(totalApr);
-        arr.actualFarmNumber = arr.length;
-        const tempMap = {};
-        arr.forEach((m: any) => {
-          tempMap[m.rewardToken?.id] = tempMap[m.rewardToken?.id] || [];
-          tempMap[m.rewardToken?.id].push(m);
-        });
-        arr.splice(0, arr.length);
-        Object.keys(tempMap).forEach((m: any) => {
-          const commonRewardArr = tempMap[m];
-          if (commonRewardArr.length > 1) {
-            const target = commonRewardArr[0];
-            for (let i = 1; i < commonRewardArr.length; i++) {
-              const commonReward = commonRewardArr[i];
-              target.apr = BigNumber.sum(
-                target.apr,
-                commonReward.apr
-              ).valueOf();
-              target.rewardsPerWeek = BigNumber.sum(
-                target.rewardsPerWeek,
-                commonReward.rewardsPerWeek
-              ).valueOf();
-              target.userUnclaimedReward = BigNumber.sum(
-                target.userUnclaimedReward,
-                commonReward.userUnclaimedReward
-              ).valueOf();
-            }
-            tempMap[m] = [target];
-          }
-          arr.push(tempMap[m][0]);
-        });
       });
       return tempFarms;
     };
@@ -977,7 +946,7 @@ function FarmView({
     getAllRewardsPerWeek();
     getAllUnclaimedReward();
   }, [farmData]);
-
+  const mergeCommonRewardFarms = mergeCommonRewardFarmsFun(farmsData);
   useEffect(() => {
     if (count > 0) {
       setLoading(true);
@@ -1000,16 +969,45 @@ function FarmView({
       setPending(isPending(data));
     }
 
-    // const id = setInterval(() => {
-    //   setCount(count + 1);
-    // }, refreshTime);
-    // return () => clearInterval(id);
+    const id = setInterval(() => {
+      setCount(count + 1);
+    }, refreshTime);
+    return () => clearInterval(id);
   }, [count]);
-
+  function mergeCommonRewardFarmsFun(farmsData: FarmInfo[]) {
+    const arr = JSON.parse(JSON.stringify(farmsData));
+    const tempMap = {};
+    arr.forEach((m: any) => {
+      tempMap[m.rewardToken?.id] = tempMap[m.rewardToken?.id] || [];
+      tempMap[m.rewardToken?.id].push(m);
+    });
+    arr.splice(0, arr.length);
+    Object.keys(tempMap).forEach((m: any) => {
+      const commonRewardArr = tempMap[m];
+      if (commonRewardArr.length > 1) {
+        const target = commonRewardArr[0];
+        for (let i = 1; i < commonRewardArr.length; i++) {
+          const commonReward = commonRewardArr[i];
+          target.apr = BigNumber.sum(target.apr, commonReward.apr).valueOf();
+          target.rewardsPerWeek = BigNumber.sum(
+            target.rewardsPerWeek,
+            commonReward.rewardsPerWeek
+          ).valueOf();
+          target.userUnclaimedReward = BigNumber.sum(
+            target.userUnclaimedReward,
+            commonReward.userUnclaimedReward
+          ).valueOf();
+        }
+        tempMap[m] = [target];
+      }
+      arr.push(tempMap[m][0]);
+    });
+    return arr;
+  }
   function getAllRewardsPerWeek() {
     let result: string = '';
     let totalPrice = 0;
-    farmsData.forEach((item) => {
+    mergeCommonRewardFarms.forEach((item: FarmInfo) => {
       const { rewardToken, rewardsPerWeek } = item;
       const { id, icon } = rewardToken;
       let price = 0;
@@ -1038,7 +1036,7 @@ function FarmView({
     let result: string = '';
     let totalPrice = 0;
     const rewardsList: any[] = [];
-    farmsData.forEach((item) => {
+    mergeCommonRewardFarms.forEach((item: FarmInfo) => {
       const { rewardToken, userUnclaimedReward } = item;
       const { id, icon } = rewardToken;
       let price = 0;
@@ -1106,7 +1104,7 @@ function FarmView({
   function claimReward() {
     setDisableClaim(true);
     setClaimLoading(true);
-    if (farmsData.actualFarmNumber > 1) {
+    if (farmsData.length > 1) {
       claimRewardBySeed(data.seed_id)
         .then(() => {
           window.location.reload();
@@ -1236,7 +1234,7 @@ function FarmView({
   }
   function getRewardTokensSymbol() {
     let result: string = '';
-    farmsData.forEach((item) => {
+    mergeCommonRewardFarms.forEach((item: FarmInfo) => {
       const { rewardToken } = item;
       const itemHtml = `<div class="flex justify-between items-center h-8">
                           <image class="w-5 h-5 rounded-full mr-7" src="${rewardToken.icon}"/>
@@ -1248,7 +1246,7 @@ function FarmView({
   }
   function getRewardTokensIcon() {
     let icons: any[] = [];
-    farmsData.forEach(function (item) {
+    mergeCommonRewardFarms.forEach(function (item: FarmInfo) {
       const { farm_id, rewardToken } = item;
       const icon = (
         <img
@@ -1275,7 +1273,7 @@ function FarmView({
   }
   function getAprList() {
     let result: string = '';
-    farmsData.forEach((item) => {
+    mergeCommonRewardFarms.forEach((item: FarmInfo) => {
       const { rewardToken, apr } = item;
       const itemHtml = `<div class="flex justify-between items-center h-8">
                           <image class="w-5 h-5 rounded-full mr-7" src="${
@@ -1290,7 +1288,7 @@ function FarmView({
     return result;
   }
   function getClaimId() {
-    if (farmsData.actualFarmNumber > 1) {
+    if (farmsData.length > 1) {
       return 'claim_all';
     } else {
       return 'claim';
