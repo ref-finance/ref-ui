@@ -1800,6 +1800,7 @@ function FarmView({
         lps={lps}
         type="stake"
         tokenPriceList={tokenPriceList}
+        mergeCommonRewardFarms={mergeCommonRewardFarms}
         onSubmit={(amount) => {
           setButtonLoading(true);
           stake({
@@ -1836,6 +1837,7 @@ function ActionModal(
     unclaimed?: any;
     tokenPriceList?: any;
     buttonLoading?: boolean;
+    mergeCommonRewardFarms?: FarmInfo[];
     onSubmit: (amount: string) => void;
   }
 ) {
@@ -1848,6 +1850,7 @@ function ActionModal(
     unclaimed,
     tokenPriceList,
     buttonLoading,
+    mergeCommonRewardFarms,
   } = props;
   const [amount, setAmount] = useState<string>('');
   const [showTip, setShowTip] = useState<boolean>(false);
@@ -2042,7 +2045,7 @@ function ActionModal(
                       className={'w-full ' + (showCalc ? 'block' : 'hidden')}
                     >
                       <CalcEle
-                        farms={farms}
+                        farms={mergeCommonRewardFarms}
                         lpTokenNum={amount}
                         tokenPriceList={tokenPriceList}
                       ></CalcEle>
