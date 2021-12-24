@@ -274,15 +274,13 @@ const zh_CN = {
   xref_title1: '获取更多收益',
   xref_title2: '通过质押REF换xREF',
   xref_introdution:
-    'For every swap on the exchange on every chain, 0.05% of the swap fees are distributed as SUSHI proportional to your share of the SushiBar. When your REF is staked into the SushiBar, you recieve xSUSHI in return for voting rights and a fully composable token that can interact with other protocols. Your xSUSHI is continuously compounding, when you unstake you will receive all the originally deposited SUSHI and any additional from fees.',
+    '0.05% of every trade on Ref Finance will be used to buy back REF and be distributed to REF stakers proportionally based on their share of the staking pool. When you stake REF,  you receive xREF. Your xREF is continuously compounding, and when you unstake you will receive all of your originally deposited REF and additional REF earned from fees.',
   staking_apr: '质押年化率',
   view_stats: '统计数据查看',
   xref: 'xREF',
   ref: 'REF',
   unstaked: '取消质押',
   stake_ref: '质押 REF',
-  confirm_stake: '确定质押',
-  confirm_unstake: '确定取消质押',
   more_than_general_seed: '请输入大于等于0.000001的数',
   more_than_stable_seed: '请输入大于等于1的数',
 };
