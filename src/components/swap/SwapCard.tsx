@@ -22,6 +22,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import db from '~store/RefDatabase';
 import {
+  ButtonTextWrapper,
   GradientButton,
   OutlineButton,
   SolidButton,
@@ -54,6 +55,8 @@ export function DoubleCheckModal(
   const cardWidth = isMobile() ? '80vw' : '30vw';
 
   const { pools, tokenIn, tokenOut, from, onSwap } = props;
+
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
   if (!pools || !from || !tokenIn || !tokenOut) return null;
 
@@ -106,12 +109,21 @@ export function DoubleCheckModal(
           </OutlineButton>
           <SolidButton
             onClick={(e) => {
+              setButtonLoading(true);
               onSwap();
             }}
             className="text-xs w-32 text-center h-8"
             padding="px-4 py-1.5"
+            loading={buttonLoading}
           >
-            <FormattedMessage id="yes_swap" defaultMessage="Yes, swap" />!
+            <ButtonTextWrapper
+              loading={buttonLoading}
+              Text={() => (
+                <span>
+                  <FormattedMessage id="yes_swap" defaultMessage="Yes, swap" />!
+                </span>
+              )}
+            />
           </SolidButton>
         </div>
       </Card>
@@ -340,6 +352,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [loadingData, setLoadingData] = useState<boolean>(false);
   const [loadingTrigger, setLoadingTrigger] = useState<boolean>(false);
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
+  const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
 
   const intl = useIntl();
   const location = useLocation();
@@ -493,6 +506,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           setLoadingTrigger,
           loadingPause,
           setLoadingPause,
+          showSwapLoading,
+          setShowSwapLoading,
         }}
       >
         <TokenAmount
@@ -566,7 +581,11 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       </SwapFormWrap>
       <DoubleCheckModal
         isOpen={doubleCheckOpen}
-        onRequestClose={() => setDoubleCheckOpen(false)}
+        onRequestClose={() => {
+          setDoubleCheckOpen(false);
+          setShowSwapLoading(false);
+          setLoadingPause(false);
+        }}
         style={{
           overlay: {
             backdropFilter: 'blur(15px)',
