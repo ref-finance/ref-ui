@@ -165,8 +165,8 @@ const en_US = {
   must_provide_at_least_one_token_for: 'Must provide greater than 0 token for',
   is_not_exist: 'is not exist',
   must_input_a_value_greater_than_zero: 'Must input a value greater than 0',
-  amount_must_be_less_than_your_balance:
-    'Amount must be less than your balance',
+  amount_must_be_not_greater_your_balance:
+    'Amount must be not greater than your balance ',
   no_pool_available_to_make_a_swap_from:
     'No pool available to make a swap from',
   for_the_amount: 'for the amount',
@@ -286,6 +286,6 @@ const en_US = {
   are_you_sure: 'Are you sure',
   price_impact_is_about: 'Price impact is about',
   yes_swap: 'Yes, swap',
-  amount_must_be_greater_than_0: 'Amount must be greater than 0',
+  amount_must_be_greater_than_0: 'amount must be greater than 0',
 };
 export default en_US;

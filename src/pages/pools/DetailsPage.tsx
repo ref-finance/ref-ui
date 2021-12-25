@@ -284,9 +284,9 @@ export function AddLiquidityModal(
       setMessageId('add_liquidity');
       setDefaultMessage('Add Liquidity');
       throw new Error(
-        `${intl.formatMessage({
+        `${toRealSymbol(tokens[0].symbol)} ${intl.formatMessage({
           id: 'amount_must_be_greater_than_0',
-        })} ${toRealSymbol(tokens[0].symbol)}`
+        })} `
       );
     }
 
@@ -295,9 +295,9 @@ export function AddLiquidityModal(
       setMessageId('add_liquidity');
       setDefaultMessage('Add Liquidity');
       throw new Error(
-        `${intl.formatMessage({
+        `${toRealSymbol(tokens[1].symbol)} ${intl.formatMessage({
           id: 'amount_must_be_greater_than_0',
-        })} ${toRealSymbol(tokens[1].symbol)}`
+        })} `
       );
     }
 
@@ -590,7 +590,7 @@ export function RemoveLiquidityModal(
     if (amountBN.isGreaterThan(shareBN)) {
       throw new Error(
         intl.formatMessage({
-          id: 'amount_must_be_less_than_your_balance',
+          id: 'amount_must_be_not_greater_your_balance',
         })
       );
     }
@@ -607,7 +607,7 @@ export function RemoveLiquidityModal(
     if (amountBN.isGreaterThan(shareBN)) {
       throw new Error(
         intl.formatMessage({
-          id: 'amount_must_be_less_than_your_balance',
+          id: 'amount_must_be_not_greater_your_balance',
         })
       );
     }
