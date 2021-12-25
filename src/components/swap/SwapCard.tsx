@@ -262,8 +262,7 @@ function DetailView({
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
 
-  if (!pools || !from || !to || !(Number(from) > 0) || loadingTrigger)
-    return null;
+  if (!pools || !from || !to || !(Number(from) > 0)) return null;
   return (
     <div className="mt-8">
       <div
