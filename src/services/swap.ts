@@ -20,6 +20,7 @@ import {
   checkTokenNeedsStorageDeposit,
   getTokenBalance,
   getWhitelistedTokens,
+  noneNEP141Token,
   round,
 } from './token';
 import { JsonRpcProvider } from 'near-api-js/lib/providers';
@@ -209,7 +210,11 @@ export const instantSwap = async ({
       throw new Error(`${tokenOut.id} doesn't exist.`);
     });
 
-    if (!tokenOutRegistered || tokenOutRegistered.total === '0') {
+    if (
+      !tokenOutRegistered ||
+      tokenOutRegistered.total === '0' ||
+      (tokenOut.id === noneNEP141Token && tokenOutRegistered === null)
+    ) {
       tokenOutActions.push({
         methodName: 'storage_deposit',
         args: {

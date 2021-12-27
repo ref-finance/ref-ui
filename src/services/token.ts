@@ -27,6 +27,7 @@ import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from './wrap-near';
 import { registerTokenAction } from './creators/token';
 
 const specialToken = 'pixeltoken.near';
+export const noneNEP141Token = 'meta-pool.near';
 
 export const checkTokenNeedsStorageDeposit = async () => {
   let storageNeeded: math.MathType = 0;
@@ -196,7 +197,11 @@ export const withdraw = async ({
     ],
   });
 
-  if (!ftBalance || ftBalance.total === '0') {
+  if (
+    !ftBalance ||
+    ftBalance.total === '0' ||
+    (token.id === noneNEP141Token && ftBalance === null)
+  ) {
     transactions.unshift({
       receiverId: token.id,
       functionCalls: [
