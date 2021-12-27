@@ -210,7 +210,7 @@ export const instantSwap = async ({
       throw new Error(`${tokenOut.id} doesn't exist.`);
     });
 
-    if (tokenOutRegistered === null || tokenOutRegistered.total === '0') {
+    if (tokenOutRegistered === null) {
       tokenOutActions.push({
         methodName: 'storage_deposit',
         args: {
