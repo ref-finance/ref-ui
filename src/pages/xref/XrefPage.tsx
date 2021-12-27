@@ -193,7 +193,7 @@ function XrefPage() {
             <label
               onClick={() => switchTab(0)}
               className={`rounded-md flex justify-center items-center text-lg flex-grow h-full cursor-pointer mr-1 ${
-                tab == 0 ? 'bg-cardBg text-white' : 'text-primaryText'
+                tab == 0 ? 'bg-xrefTab text-white' : 'text-primaryText'
               }`}
             >
               <FormattedMessage id="stake_ref"></FormattedMessage>
@@ -201,7 +201,7 @@ function XrefPage() {
             <label
               onClick={() => switchTab(1)}
               className={`rounded-md flex justify-center items-center text-lg flex-grow h-full cursor-pointer ${
-                tab == 1 ? 'bg-cardBg text-white' : 'text-primaryText'
+                tab == 1 ? 'bg-xrefTab text-white' : 'text-primaryText'
               }`}
             >
               <FormattedMessage id="unstake"></FormattedMessage>

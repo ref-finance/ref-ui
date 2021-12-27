@@ -275,7 +275,7 @@ const zh_CN = {
   xref_title1: '赚取更多收益',
   xref_title2: '通过质押REF换xREF',
   xref_introdution:
-    'Ref Finance平台每一笔交易的0.05%将用来回购REF，并且按比例的分给质押的用户。通过质押REF，用户可得到xREF，你的xREF会持续复利增长，当你解压时，你将拿回质押的所有REF并挣得额外的REF。',
+    'Ref Finance平台每一笔交易的0.05%将用来回购REF，并且按比例的分给质押的用户。通过质押REF，用户可得到xREF。你的xREF会持续复利增长，当你解压时，你将拿回质押的所有REF并挣得额外的REF。',
   staking_apr: '质押年化率',
   view_stats: '统计数据查看',
   xref: 'xREF',

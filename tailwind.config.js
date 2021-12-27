@@ -71,7 +71,8 @@ module.exports = {
         farmTopRight: '#008870',
         datebg: '#637684',
         xrefbg: '#0F1D27',
-        greenColor: '#00C6A2'
+        greenColor: '#00C6A2',
+        xrefTab:'#293741'
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
