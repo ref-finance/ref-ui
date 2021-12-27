@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Loading from '~components/layout/Loading';
 import { XrefLogo, XrefSymbol, RefSymbol } from '~components/icon/Xref';
+import { SmallWallet } from '~components/icon/SmallWallet';
 import OldInputAmount from '~components/forms/OldInputAmount';
 import { FormattedMessage } from 'react-intl';
 import {
@@ -24,7 +25,7 @@ const displayBalance = (max: string) => {
   if (formattedMax.isEqualTo('0')) {
     return '0';
   } else {
-    return formatWithCommas(new BigNumber(max).toFixed(3));
+    return formatWithCommas(formattedMax.toFixed(3, 1));
   }
 };
 function XrefPage() {
@@ -64,7 +65,12 @@ function XrefPage() {
     setTab(tab);
   };
   const displayApr = () => {
-    return new BigNumber(apr).toFixed(2);
+    const aprBig = new BigNumber(apr);
+    if (aprBig.isLessThan(0.01)) {
+      return '<0.01';
+    } else {
+      return aprBig.toFixed(2, 1);
+    }
   };
   const rateDisplay = () => {
     const cur_rate_forward = rate;
@@ -103,10 +109,13 @@ function XrefPage() {
         <XrefLogo width={isM ? '140' : ''} height={isM ? '70' : ''}></XrefLogo>
       </div>
       <div className="mb-2.5 mt-5 text-white flex xs:flex-col md:flex-col items-center justify-center">
-        <label className="text-3xl xs:font-black md:font-black lg:mr-1.5">
+        <span className="text-2xl xs:text-3xl md:text-3xl xs:font-black md:font-black lg:mr-1.5">
           <FormattedMessage id="xref_title1"></FormattedMessage>
-        </label>
-        <label className="text-2xl">
+          <label className="xs:hidden md:hidden">
+            <FormattedMessage id="xref_title2"></FormattedMessage>
+          </label>
+        </span>
+        <label className="text-2xl lg:hidden">
           <FormattedMessage id="xref_title2"></FormattedMessage>
         </label>
       </div>
@@ -120,20 +129,21 @@ function XrefPage() {
               <p className="text-base text-primaryText">
                 <FormattedMessage id="staking_apr"></FormattedMessage>
               </p>
-              <p className="text-2xl text-white">{displayApr()}%</p>
+              <p className="text-2xl text-white" title={apr.toString() + '%'}>
+                {displayApr()}%
+              </p>
             </div>
             <div className="flex items-center justify-between w-full ">
               <div className="rounded-md bg-primaryGradient text-sm text-white flex items-center justify-center px-3.5 py-1 cursor-not-allowed opacity-40">
                 <FormattedMessage id="view_stats"></FormattedMessage>
               </div>
-              <div className="flex items-center justify-center text-sm text-white rounded-lg bg-black bg-opacity-20 py-1.5 px-3">
-                <FaExchangeAlt
-                  color="#00C6A2"
-                  className="mr-3 cursor-pointer"
-                  onClick={() => {
-                    setForward(!forward);
-                  }}
-                ></FaExchangeAlt>{' '}
+              <div
+                onClick={() => {
+                  setForward(!forward);
+                }}
+                className="flex items-center justify-center text-sm text-white rounded-lg bg-black bg-opacity-20 py-1.5 px-3 cursor-pointer"
+              >
+                <FaExchangeAlt color="#00C6A2" className="mr-3"></FaExchangeAlt>{' '}
                 {rateDisplay()}
               </div>
             </div>
@@ -151,7 +161,10 @@ function XrefPage() {
             <div className="flex items-center w-full xs:hidden md:hidden">
               <XrefSymbol width="38" height="42"></XrefSymbol>
               <div className="ml-3.5">
-                <p className="text-xl xs:text-base md:text-base text-white">
+                <p
+                  className="text-xl xs:text-base md:text-base text-white"
+                  title={xrefBalance}
+                >
                   {displayBalance(xrefBalance)}
                 </p>
               </div>
@@ -191,7 +204,7 @@ function XrefPage() {
                 tab == 1 ? 'bg-cardBg text-white' : 'text-primaryText'
               }`}
             >
-              <FormattedMessage id="unstaked"></FormattedMessage>
+              <FormattedMessage id="unstake"></FormattedMessage>
             </label>
           </div>
           {/* ref stake*/}
@@ -236,10 +249,13 @@ function InputView(props: any) {
     <div className={`flex flex-col mt-14 ${hidden}`}>
       <div className="flex items-center mb-8 xs:mb-5 md:mb-5 h-16">
         <div className="flex-grow relative">
-          <span className="text-primaryText text-xs absolute right-0 -top-6">
-            <FormattedMessage id="balance"></FormattedMessage>:{' '}
-            <label>{displayBalance(max)}</label>
-          </span>
+          <div className="flex items-center text-primaryText text-xs absolute right-0 -top-6">
+            <SmallWallet></SmallWallet>
+            <span className="ml-2" title={max}>
+              <FormattedMessage id="balance"></FormattedMessage>:{' '}
+              <label>{displayBalance(max)}</label>
+            </span>
+          </div>
           <OldInputAmount max={max} onChangeAmount={setAmount} />
         </div>
         <label className="ml-5 xs:ml-2 ml:mx-2 text-white text-lg xs:text-base md:text-base w-14 text-center">

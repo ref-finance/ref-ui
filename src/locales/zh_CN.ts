@@ -274,12 +274,11 @@ const zh_CN = {
   xref_title1: '获取更多收益',
   xref_title2: '通过质押REF换xREF',
   xref_introdution:
-    '0.05% of every trade on Ref Finance will be used to buy back REF and be distributed to REF stakers proportionally based on their share of the staking pool. When you stake REF,  you receive xREF. Your xREF is continuously compounding, and when you unstake you will receive all of your originally deposited REF and additional REF earned from fees.',
+    'Ref Finance平台每一笔交易的0.05%将用来回购REF，并且按比例的分给质押的用户。通过质押REF，用户可得到xREF，你的xREF会持续复利增长，当你解压时，你将拿回质押的所有REF并挣得额外的REF。',
   staking_apr: '质押年化率',
   view_stats: '统计数据查看',
   xref: 'xREF',
   ref: 'REF',
-  unstaked: '取消质押',
   stake_ref: '质押 REF',
   more_than_general_seed: '请输入大于等于0.000001的数',
   more_than_stable_seed: '请输入大于等于1的数',

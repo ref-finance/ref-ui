@@ -288,7 +288,6 @@ const en_US = {
   view_stats: 'View Stats',
   xref: 'xREF',
   ref: 'REF',
-  unstaked: 'Unstaked',
   stake_ref: 'Stake REF',
   more_than_general_seed:
     'Please input number that more than or equal to 0.000001',
