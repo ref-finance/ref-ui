@@ -277,13 +277,13 @@ function DetailView({
   if (!pools || !from || !to || !(Number(from) > 0)) return null;
   return (
     <div className="mt-8">
-      <div
-        className="flex justify-center"
-        onClick={() => {
-          setShowDetails(!showDetails);
-        }}
-      >
-        <div className="flex items-center text-white cursor-pointer">
+      <div className="flex justify-center">
+        <div
+          className="flex items-center text-white cursor-pointer"
+          onClick={() => {
+            setShowDetails(!showDetails);
+          }}
+        >
           <label className="mr-2">
             {canSwap && getPriceImpactTipType(pools, tokenIn, tokenOut, from)}
           </label>
