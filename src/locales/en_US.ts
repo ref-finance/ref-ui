@@ -280,7 +280,8 @@ const en_US = {
   protocol_fee: 'Protocol fee',
   referral_fee: 'Referral fee',
   total_fee_create: 'Total fee',
-  xref_title1: 'Earn more ',
+  xref_title: 'Earn more by staking REF for xREF',
+  xref_title1: 'Earn more',
   xref_title2: 'by staking REF for xREF',
   xref_introdution:
     '0.05% of every trade on Ref Finance will be used to buy back REF and be distributed to REF stakers proportionally based on their share of the staking pool. When you stake REF,  you receive xREF. Your xREF is continuously compounding, and when you unstake you will receive all of your originally deposited REF and additional REF earned from fees.',

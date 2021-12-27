@@ -109,14 +109,14 @@ function XrefPage() {
         <XrefLogo width={isM ? '140' : ''} height={isM ? '70' : ''}></XrefLogo>
       </div>
       <div className="mb-2.5 mt-5 text-white flex xs:flex-col md:flex-col items-center justify-center">
-        <span className="text-2xl xs:text-3xl md:text-3xl xs:font-black md:font-black lg:mr-1.5">
+        <label className="text-3xl font-black lg:hidden">
           <FormattedMessage id="xref_title1"></FormattedMessage>
-          <label className="xs:hidden md:hidden">
-            <FormattedMessage id="xref_title2"></FormattedMessage>
-          </label>
-        </span>
+        </label>
         <label className="text-2xl lg:hidden">
           <FormattedMessage id="xref_title2"></FormattedMessage>
+        </label>
+        <label className="text-2xl xs:hidden md:hidden">
+          <FormattedMessage id="xref_title"></FormattedMessage>
         </label>
       </div>
       <div className="text-primaryText text-sm mb-7">
@@ -251,9 +251,9 @@ function InputView(props: any) {
         <div className="flex-grow relative">
           <div className="flex items-center text-primaryText text-xs absolute right-0 -top-6">
             <SmallWallet></SmallWallet>
-            <span className="ml-2" title={max}>
+            <span className="ml-2">
               <FormattedMessage id="balance"></FormattedMessage>:{' '}
-              <label>{displayBalance(max)}</label>
+              <span title={max}>{displayBalance(max)}</span>
             </span>
           </div>
           <OldInputAmount max={max} onChangeAmount={setAmount} />
