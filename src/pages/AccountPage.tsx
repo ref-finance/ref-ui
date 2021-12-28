@@ -60,12 +60,14 @@ function Balances({ hideEmpty }: { hideEmpty?: boolean }) {
           {wallet.isSignedIn() && accountName}
         </div>
         <GradientButton
-          className="text-white text-xs py-2 px-5"
+          className="text-white text-xs"
           onClick={() => {
             window.open(getConfig().walletUrl, '_blank');
           }}
         >
-          <FormattedMessage id="go_to_wallet" defaultMessage="Go to Wallet" />
+          <div className="py-2 px-5">
+            <FormattedMessage id="go_to_wallet" defaultMessage="Go to Wallet" />
+          </div>
         </GradientButton>
       </div>
       <div>
