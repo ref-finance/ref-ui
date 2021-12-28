@@ -1,9 +1,4 @@
-import BN from 'bn.js';
-import {
-  toNonDivisibleNumber,
-  toPrecision,
-  toReadableNumber,
-} from '../utils/numbers';
+import { toNonDivisibleNumber, toReadableNumber } from '../utils/numbers';
 import {
   executeMultipleTransactions,
   near,
@@ -18,25 +13,15 @@ import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { getPoolsByTokens, Pool } from './pool';
 import {
   checkTokenNeedsStorageDeposit,
-  getTokenBalance,
   getWhitelistedTokens,
   round,
 } from './token';
 import { JsonRpcProvider } from 'near-api-js/lib/providers';
 import {
-  needDepositStorage,
-  ONE_MORE_DEPOSIT_AMOUNT,
   storageDepositAction,
-  storageDepositForTokenAction,
   STORAGE_TO_REGISTER_WITH_MFT,
 } from './creators/storage';
 import { registerTokenAction } from './creators/token';
-import {
-  NEW_ACCOUNT_STORAGE_COST,
-  WRAP_NEAR_CONTRACT_ID,
-  wnearMetadata,
-} from '~services/wrap-near';
-import { utils } from 'near-api-js';
 import { BigNumber } from 'bignumber.js';
 
 const FEE_DIVISOR = 10000;
@@ -209,7 +194,7 @@ export const instantSwap = async ({
       throw new Error(`${tokenOut.id} doesn't exist.`);
     });
 
-    if (!tokenOutRegistered || tokenOutRegistered.total === '0') {
+    if (tokenOutRegistered === null) {
       tokenOutActions.push({
         methodName: 'storage_deposit',
         args: {
