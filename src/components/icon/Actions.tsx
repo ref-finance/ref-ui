@@ -731,7 +731,7 @@ const blackViewMap = {
   'Withdraw reward': WithdrawBlack,
   'Near deposit': DepositBlack,
   Deposit: DepositBlack,
-  'Instant swap': Swap,
+  'Instant swap': SwapBlack,
   'Near withdraw': WithdrawBlack,
   'Add Stable liquidity': AddLiquidityBlack,
   'Remove Stable liquidity': RemoveLiquidityBlack,
