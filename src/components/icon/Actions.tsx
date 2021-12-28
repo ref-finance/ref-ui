@@ -711,6 +711,8 @@ const viewMap = {
   'Near withdraw': Withdraw,
   'Add Stable liquidity': AddLiquidity,
   'Remove Stable liquidity': RemoveLiquidity,
+  'xREF Unstake': RemoveLiquidity,
+  'xREF Stake': AddLiquidity,
 };
 
 const blackViewMap = {
@@ -733,6 +735,8 @@ const blackViewMap = {
   'Near withdraw': WithdrawBlack,
   'Add Stable liquidity': AddLiquidityBlack,
   'Remove Stable liquidity': RemoveLiquidityBlack,
+  'xREF Unstake': RemoveLiquidityBlack,
+  'xREF Stake': AddLiquidityBlack,
 };
 
 export function mapToView(action: string, black = false): JSX.Element {

@@ -217,7 +217,7 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
   let Action;
   let Amount;
   if (tokenId == config.REF_TOKEN_ID) {
-    Action = 'XREF Stake';
+    Action = 'xREF Stake';
     Amount = toReadableNumber(XREF_TOKEN_DECIMALS, amount);
   } else if (msg) {
     Action = 'Instant swap';
@@ -283,8 +283,8 @@ const parseRemoveStableLiquidity = async (params: any) => {
 const parseUnstake = async (params: any) => {
   const { amount } = params;
   return {
-    Action: 'XREF Unstake',
-    amount: toReadableNumber(XREF_TOKEN_DECIMALS, amount),
+    Action: 'xREF Unstake',
+    Amount: toReadableNumber(XREF_TOKEN_DECIMALS, amount),
   };
 };
 
