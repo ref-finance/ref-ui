@@ -186,14 +186,14 @@ const parseWithdrawSeed = async (params: any) => {
 const parseClaimRewardByFarm = async (params: any) => {
   const { farm_id } = params;
   return {
-    Action: 'Claim reward by farm',
+    Action: 'Claim Reward By Farm',
     'Farm Id': farm_id,
   };
 };
 const parseClaimRewardBySeed = async (params: any) => {
   const { seed_id } = params;
   return {
-    Action: 'Claim reward by seed',
+    Action: 'Claim Reward By Seed',
     'Seed Id': seed_id,
   };
 };
@@ -201,7 +201,7 @@ const parseWithdrawReward = async (params: any) => {
   const { token_id, amount, unregister } = params;
   const token = await ftGetTokenMetadata(token_id);
   return {
-    Action: 'Withdraw reward',
+    Action: 'Withdraw Reward',
     Amount: toReadableNumber(token.decimals, amount),
     Unregister: unregister,
     'Token Id': token_id,
@@ -209,7 +209,7 @@ const parseWithdrawReward = async (params: any) => {
 };
 const parseNearDeposit = async () => {
   return {
-    Action: 'Near deposit',
+    Action: 'Near Deposit',
   };
 };
 const parseFtTransferCall = async (params: any, tokenId: string) => {
@@ -220,7 +220,7 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
     Action = 'xREF Stake';
     Amount = toReadableNumber(XREF_TOKEN_DECIMALS, amount);
   } else if (msg) {
-    Action = 'Instant swap';
+    Action = 'Instant Swap';
     const actions = JSON.parse(msg).actions[0];
     const { token_in } = actions;
     const token = await ftGetTokenMetadata(token_in);
@@ -239,7 +239,7 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
 const parseNearWithdraw = async (params: any) => {
   const { amount } = params;
   return {
-    Action: 'Near withdraw',
+    Action: 'Near Withdraw',
     Amount: toReadableNumber(24, amount),
   };
 };
@@ -254,7 +254,7 @@ const parseAddStableLiquidity = async (params: any) => {
     tempToken[token.symbol] = toReadableNumber(token.decimals, amounts[index]);
   });
   return {
-    Action: 'Add Stable liquidity',
+    Action: 'Add Stable Liquidity',
     'Pool id': pool_id,
     ...tempToken,
     'Min shares': toReadableNumber(LP_STABLE_TOKEN_DECIMALS, min_shares),
@@ -271,7 +271,7 @@ const parseRemoveStableLiquidity = async (params: any) => {
     tempToken[token.symbol] = toReadableNumber(token.decimals, amounts[index]);
   });
   return {
-    Action: 'Remove Stable liquidity',
+    Action: 'Remove Stable Liquidity',
     'Pool id': pool_id,
     ...tempToken,
     'Max burn shares': toReadableNumber(
