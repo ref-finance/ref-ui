@@ -15,7 +15,7 @@ import { ftGetStorageBalance } from '~services/ft-contract';
 import { NEW_ACCOUNT_STORAGE_COST } from '~services/wrap-near';
 
 const XREF_TOKEN_ID = getConfig().XREF_TOKEN_ID;
-const XREF_TOKEN_DECIMALS = 18;
+export const XREF_TOKEN_DECIMALS = 18;
 
 export const metadata = async () => {
   return await refContractViewFunction({

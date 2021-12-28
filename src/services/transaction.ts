@@ -4,6 +4,7 @@ import { getPoolDetails } from '~services/pool';
 import { useIntl } from 'react-intl';
 import getConfig from '~services/config';
 import { LP_TOKEN_DECIMALS, LP_STABLE_TOKEN_DECIMALS } from '~services/m-token';
+import { XREF_TOKEN_DECIMALS } from '~services/xref';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 
@@ -63,6 +64,9 @@ export const parseAction = async (
     }
     case 'remove_liquidity_by_tokens': {
       return await parseRemoveStableLiquidity(params);
+    }
+    case 'unstake': {
+      return await parseUnstake(params);
     }
     default: {
       return await parseDefault();
@@ -212,7 +216,10 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
   const { receiver_id, amount, msg } = params;
   let Action;
   let Amount;
-  if (msg) {
+  if (tokenId == config.REF_TOKEN_ID) {
+    Action = 'XREF Stake';
+    Amount = toReadableNumber(XREF_TOKEN_DECIMALS, amount);
+  } else if (msg) {
     Action = 'Instant swap';
     const actions = JSON.parse(msg).actions[0];
     const { token_in } = actions;
@@ -271,6 +278,13 @@ const parseRemoveStableLiquidity = async (params: any) => {
       LP_STABLE_TOKEN_DECIMALS,
       max_burn_shares
     ),
+  };
+};
+const parseUnstake = async (params: any) => {
+  const { amount } = params;
+  return {
+    Action: 'XREF Unstake',
+    amount: toReadableNumber(XREF_TOKEN_DECIMALS, amount),
   };
 };
 
