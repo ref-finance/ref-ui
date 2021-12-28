@@ -27,7 +27,6 @@ import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from './wrap-near';
 import { registerTokenAction } from './creators/token';
 
 const specialToken = 'pixeltoken.near';
-export const noneNEP141Token = 'meta-pool.near';
 
 export const checkTokenNeedsStorageDeposit = async () => {
   let storageNeeded: math.MathType = 0;
