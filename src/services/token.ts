@@ -154,6 +154,14 @@ export const deposit = async ({ token, amount, msg = '' }: DepositOptions) => {
     },
   ];
 
+  const whitelist = await getWhitelistedTokens();
+  if (!whitelist.includes(token.id)) {
+    transactions.unshift({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [registerTokenAction(token.id)],
+    });
+  }
+
   const neededStorage = await checkTokenNeedsStorageDeposit();
   if (neededStorage) {
     transactions.unshift({
