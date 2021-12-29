@@ -12,7 +12,7 @@ import {
 } from './near';
 import { checkTokenNeedsStorageDeposit } from './token';
 import { storageDepositAction } from '../services/creators/storage';
-import { toNonDivisibleNumber } from '~utils/numbers';
+import { toNonDivisibleNumber, toReadableNumber } from '~utils/numbers';
 
 export const { WRAP_NEAR_CONTRACT_ID } = getConfig();
 export const NEW_ACCOUNT_STORAGE_COST = '0.00125';
@@ -104,7 +104,7 @@ export const wrapNear = async (amount: string) => {
     methodName: 'near_deposit',
     args: {},
     gas: '50000000000000',
-    amount,
+    amount: toReadableNumber(24, toNonDivisibleNumber(24, amount)),
   });
 
   actions.push({
