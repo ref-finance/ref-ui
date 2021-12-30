@@ -149,7 +149,7 @@ export function Logout() {
 export function MobileNavBar() {
   const [show, setShow] = useState(false);
   const intl = useIntl();
-  const { data } = useRefPrice();
+  const { data } = useRefPrice('MobileNav');
   const iconRef = useRef<HTMLSpanElement | null>(null);
   const popupRef = useRef<HTMLDivElement | null>(null);
   const [account, network] = wallet.getAccountId().split('.');
