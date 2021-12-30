@@ -158,7 +158,6 @@ export function MobileNavBar() {
   const [closeMenu, setCloseMenu] = useState(false);
   const history = useHistory();
   const [mobileWrapNear, setMobileWrapNear] = useState(false);
-  const allTokens = useWhitelistTokens();
 
   const accountName =
     account.length > 10 ? niceAccountId : wallet.getAccountId();
@@ -345,7 +344,6 @@ export function MobileNavBar() {
                 <WrapNear
                   isOpen={mobileWrapNear}
                   onRequestClose={() => setMobileWrapNear(false)}
-                  allTokens={allTokens}
                   style={{
                     overlay: {
                       backdropFilter: 'blur(15px)',

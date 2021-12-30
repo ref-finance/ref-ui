@@ -479,7 +479,6 @@ function MoreMenu() {
 }
 
 function NavigationBar() {
-  const allTokens = useWhitelistTokens();
   const [showWrapNear, setShowWrapNear] = useState(false);
   return (
     <>
@@ -519,7 +518,6 @@ function NavigationBar() {
                 <WrapNear
                   isOpen={showWrapNear}
                   onRequestClose={() => setShowWrapNear(false)}
-                  allTokens={allTokens}
                   style={{
                     overlay: {
                       backdropFilter: 'blur(15px)',
