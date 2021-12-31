@@ -352,19 +352,17 @@ function MobileLiquidityPage({
             }}
           />
         </div>
-        <div className=" mb-4 flex items-center mx-6">
+        <div
+          className=" mb-4 inline-flex items-center mx-6 cursor-pointer"
+          onClick={() => {
+            hideLowTVL && onHide(false);
+            !hideLowTVL && onHide(true);
+          }}
+        >
           <div className="mr-2">
-            {hideLowTVL ? (
-              <div onClick={() => onHide(false)}>
-                <CheckedTick />
-              </div>
-            ) : (
-              <div onClick={() => onHide(true)}>
-                <CheckedEmpty />
-              </div>
-            )}
+            {hideLowTVL ? <CheckedTick /> : <CheckedEmpty />}
           </div>
-          <div className="text-gray-400 text-sm mr-4">
+          <div className="text-gray-400 text-sm">
             <FormattedMessage
               id="hide_low_tvl_pools"
               defaultMessage="Hide low TVL pools"
@@ -670,19 +668,17 @@ function LiquidityPage_({
             </div>
           </div>
           <div className="flex items-center w-3/7">
-            <div className="flex items-center">
+            <div
+              className="flex items-center mr-10 cursor-pointer"
+              onClick={() => {
+                hideLowTVL && onHide(false);
+                !hideLowTVL && onHide(true);
+              }}
+            >
               <div className="mr-2">
-                {hideLowTVL ? (
-                  <div onClick={() => onHide(false)}>
-                    <CheckedTick />
-                  </div>
-                ) : (
-                  <div onClick={() => onHide(true)}>
-                    <CheckedEmpty />
-                  </div>
-                )}
+                {hideLowTVL ? <CheckedTick /> : <CheckedEmpty />}
               </div>
-              <div className="text-gray-400 text-sm mr-10">
+              <div className="text-gray-400 text-sm ">
                 <FormattedMessage
                   id="hide_low_tvl_pools"
                   defaultMessage="Hide low TVL pools"
