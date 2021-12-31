@@ -18,7 +18,9 @@ import { toReadableNumber } from '~utils/numbers';
 import SubmitButton from './SubmitButton';
 import TokenAmount from './TokenAmount';
 
-function WrapNear(props: ReactModal.Props) {
+function WrapNear(props: ReactModal.Props & { nearBalance?: string }) {
+  const { nearBalance } = props;
+
   const [showError, setShowError] = useState(false);
   const [tokenOut, setTokenOut] = useState<TokenMetadata>(wnearMetadata);
   const [tokenIn, setTokenIn] = useState<TokenMetadata>(nearMetadata);
@@ -81,12 +83,10 @@ function WrapNear(props: ReactModal.Props) {
 
   const tokenInMax =
     tokenIn?.id === 'NEAR'
-      ? useDepositableBalance(tokenIn?.id, tokenIn?.decimals, props.isOpen)
+      ? nearBalance
       : tokenInBalanceFromNear || tokenOutBalanceFromNear || '0';
   const tokenOutTotal =
-    tokenOut?.id === 'NEAR'
-      ? useDepositableBalance(tokenOut?.id, tokenOut?.decimals, props.isOpen)
-      : tokenOutBalanceFromNear || '0';
+    tokenOut?.id === 'NEAR' ? nearBalance : tokenOutBalanceFromNear || '0';
   const canSubmit =
     tokenInAmount && tokenInAmount !== '0' && !showError && tokenInMax !== '0';
 

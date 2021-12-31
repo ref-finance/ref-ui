@@ -356,6 +356,7 @@ export function MobileNavBar() {
                       bottom: '50%',
                     },
                   }}
+                  nearBalance={nearBalance}
                 />
               </div>
             )}
