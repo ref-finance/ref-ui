@@ -211,7 +211,11 @@ export const useTokensData = (
   };
 };
 
-export const useDepositableBalance = (tokenId: string, decimals?: number) => {
+export const useDepositableBalance = (
+  tokenId: string,
+  decimals?: number,
+  dependabale?: boolean
+) => {
   const [depositable, setDepositable] = useState<string>('');
   const [max, setMax] = useState<string>('');
   useEffect(() => {
@@ -225,7 +229,7 @@ export const useDepositableBalance = (tokenId: string, decimals?: number) => {
         setDepositable('0');
       }
     } else if (tokenId) ftGetBalance(tokenId).then(setDepositable);
-  }, [tokenId]);
+  }, [tokenId, dependabale]);
 
   useEffect(() => {
     const max = toReadableNumber(decimals, depositable) || '0';
