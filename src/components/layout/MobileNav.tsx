@@ -162,7 +162,7 @@ export function MobileNavBar() {
   const accountName =
     account.length > 10 ? niceAccountId : wallet.getAccountId();
   const nearBalance = wallet.isSignedIn()
-    ? useDepositableBalance(nearMetadata.id, nearMetadata.decimals, show)
+    ? useDepositableBalance(nearMetadata.id, nearMetadata.decimals)
     : '0';
 
   useEffect(() => {
@@ -356,7 +356,6 @@ export function MobileNavBar() {
                       bottom: '50%',
                     },
                   }}
-                  nearBalance={nearBalance}
                 />
               </div>
             )}
