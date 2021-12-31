@@ -83,10 +83,12 @@ function WrapNear(props: ReactModal.Props & { nearBalance?: string }) {
 
   const tokenInMax =
     tokenIn?.id === 'NEAR'
-      ? nearBalance
+      ? useDepositableBalance(tokenIn?.id, tokenIn?.decimals, props.isOpen)
       : tokenInBalanceFromNear || tokenOutBalanceFromNear || '0';
   const tokenOutTotal =
-    tokenOut?.id === 'NEAR' ? nearBalance : tokenOutBalanceFromNear || '0';
+    tokenOut?.id === 'NEAR'
+      ? useDepositableBalance(tokenOut?.id, tokenOut?.decimals, props.isOpen)
+      : tokenOutBalanceFromNear || '0';
   const canSubmit =
     tokenInAmount && tokenInAmount !== '0' && !showError && tokenInMax !== '0';
 
