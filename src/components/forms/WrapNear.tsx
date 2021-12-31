@@ -34,6 +34,8 @@ function WrapNear(props: ReactModal.Props) {
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
   useEffect(() => {
+    if (!props.isOpen) return;
+
     if (tokenIn && tokenIn.id !== 'NEAR') {
       const tokenInId = tokenIn.id;
       if (tokenInId) {
@@ -58,7 +60,7 @@ function WrapNear(props: ReactModal.Props) {
         }
       }
     }
-  }, [tokenIn, tokenOut]);
+  }, [tokenIn, tokenOut, props.isOpen]);
 
   useEffect(() => {
     if (tokenInAmount && tokenInAmount !== '0') {
