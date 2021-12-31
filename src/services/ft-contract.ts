@@ -74,6 +74,13 @@ export const ftGetTokenMetadata = async (
       metadata = await ftViewFunction(id, {
         methodName: 'ft_metadata',
       });
+      await db.allTokens().put({
+        id: id,
+        name: metadata.name,
+        symbol: metadata.symbol,
+        decimals: metadata.decimals,
+        icon: metadata.icon,
+      });
     }
     if (
       !metadata.icon ||
