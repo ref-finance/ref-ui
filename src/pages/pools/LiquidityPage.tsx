@@ -14,10 +14,9 @@ import {
   useWatchPools,
 } from '../../state/pool';
 import Loading from '~components/layout/Loading';
-import { getExchangeRate, useTokens } from '../../state/token';
+import { useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';
 import { canFarm, Pool } from '../../services/pool';
-import { FarmMiningIcon } from '~components/icon/FarmMining';
 import {
   calculateFeePercent,
   toPrecision,

@@ -21,7 +21,7 @@ import {
   PoolDetails,
   removePoolFromWatchList,
 } from '~services/pool';
-import { useTokenBalances, useTokens, getExchangeRate } from '~state/token';
+import { useTokenBalances, useTokens } from '~state/token';
 import Loading from '~components/layout/Loading';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
 import { FarmStamp } from '~components/icon/FarmStamp';
@@ -123,6 +123,41 @@ function Icon(props: { icon?: string; className?: string; style?: any }) {
     />
   );
 }
+
+export const GetExchangeRate = ({
+  tokens,
+  pool,
+}: {
+  tokens: any;
+  pool: any;
+}) => {
+  const first_token_num = toReadableNumber(
+    tokens[0].decimals || 24,
+    pool.supplies[tokens[0].id]
+  );
+  const second_token_num = toReadableNumber(
+    tokens[1].decimals || 24,
+    pool.supplies[tokens[1].id]
+  );
+
+  const showRate =
+    Number(second_token_num) / Number(first_token_num) < 0.01
+      ? '< 0.01'
+      : (Number(second_token_num) / Number(first_token_num)).toFixed(2);
+
+  return (
+    <span>
+      {Number(first_token_num) === 0 ? (
+        'N/A'
+      ) : (
+        <span title={`${Number(second_token_num) / Number(first_token_num)}`}>
+          {Number(second_token_num) / Number(first_token_num) < 0.01 ? '' : '≈'}{' '}
+          {showRate}
+        </span>
+      )}
+    </span>
+  );
+};
 
 export function AddLiquidityModal(
   props: ReactModal.Props & {
@@ -1298,16 +1333,19 @@ export function PoolDetailsPage() {
               <div className="flex justify-between text-sm md:text-xs xs:text-xs">
                 <div className="text-white text-center px-1  rounded-sm border border-solid border-gray-400">
                   1&nbsp;{toRealSymbol(tokens[0].symbol)}&nbsp;
-                  {getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
+                  <GetExchangeRate
+                    tokens={[tokens[0], tokens[1]]}
+                    pool={pool}
+                  />
+                  &nbsp;{toRealSymbol(tokens[1].symbol)}
                 </div>
                 <div className="text-white text-center px-1  rounded-sm border border-solid border-gray-400">
                   1&nbsp;{toRealSymbol(tokens[1].symbol)}&nbsp;
-                  {getExchangeRate(
-                    [tokens[1], tokens[0]],
-                    pool,
-                    pool.token0_ref_price,
-                    false
-                  )}
+                  <GetExchangeRate
+                    tokens={[tokens[1], tokens[0]]}
+                    pool={pool}
+                  />
+                  &nbsp;{toRealSymbol(tokens[0].symbol)}
                 </div>
               </div>
             </div>
