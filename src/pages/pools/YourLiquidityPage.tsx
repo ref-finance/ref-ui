@@ -149,7 +149,7 @@ export function YourLiquidityPage() {
   if (!pools || !balances) return <Loading />;
 
   return (
-    <div className="flex items flex-col w-1/2 md:w-5/6 xs:w-11/12 m-auto">
+    <div className="flex items flex-col lg:w-2/3 w-1/2 md:w-5/6 xs:w-11/12 m-auto">
       <div className="w-full flex justify-center self-center">
         {error && <Alert level="error" message={error.message} />}
       </div>

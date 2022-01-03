@@ -271,6 +271,11 @@ export const getExchangeRate = (
     pool.supplies[tokens[1].id]
   );
 
+  const showRate =
+    Number(second_token_num) / Number(first_token_num) < 0.01
+      ? '< 0.01'
+      : (Number(second_token_num) / Number(first_token_num)).toFixed(2);
+
   return use_api_price
     ? first_token_price === 'N/A'
       ? 'N/A'
@@ -282,7 +287,7 @@ export const getExchangeRate = (
         ).toFixed(8)}`
     : Number(first_token_num) === 0
     ? 'N/A'
-    : `≈ ${(Number(second_token_num) / Number(first_token_num)).toFixed(2)} ${
-        tokens[1].symbol
-      }`;
+    : `${
+        Number(second_token_num) / Number(first_token_num) < 0.01 ? '' : '≈'
+      } ${showRate} ${tokens[1].symbol}`;
 };
