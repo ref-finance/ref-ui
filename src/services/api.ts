@@ -39,10 +39,9 @@ export const getPoolBalance = async (pool_id: number) => {
   return refFiViewFunction({
     methodName: 'get_pool_shares',
     args: { pool_id: pool_id, account_id: wallet.getAccountId() },
-  })
-    .then((balance) => {
-      return new BigNumber(balance.toString()).toFixed();
-    });
+  }).then((balance) => {
+    return new BigNumber(balance.toString()).toFixed();
+  });
 };
 
 export const getPoolsBalances = async (pool_ids: number[]) => {
@@ -55,17 +54,16 @@ export const getPools = async (counter: number) => {
   return refFiViewFunction({
     methodName: 'get_pools',
     args: { from_index: counter, limit: 300 },
-  })
-    .then((pools) => {
-      pools.forEach(async (pool: any, i: number) => {
-        pool.id = i + counter;
-        const pool_balance = await getPoolBalance(Number(pool.id) + counter);
-        if (Number(pool_balance) > 0) {
-          pools[i].share = pool_balance;
-        }
-      });
-      return pools;
+  }).then((pools) => {
+    pools.forEach(async (pool: any, i: number) => {
+      pool.id = i + counter;
+      const pool_balance = await getPoolBalance(Number(pool.id) + counter);
+      if (Number(pool_balance) > 0) {
+        pools[i].share = pool_balance;
+      }
     });
+    return pools;
+  });
 };
 
 export const getUserWalletTokens = async (): Promise<any> => {
