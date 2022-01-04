@@ -136,17 +136,34 @@ export const calculatePriceImpact = (
       pool.supplies[tokenOut.id]
     );
 
-    const constant_product = math.evaluate(`${in_balance} * ${out_balance}`);
+    const big_in_balance = math.bignumber(in_balance);
+    const big_out_balance = math.bignumber(out_balance);
 
-    const new_in_balance = math.evaluate(`${partialAmountIn} + ${in_balance}`);
+    const constant_product = big_in_balance.mul(big_out_balance);
 
-    const new_out_balance = math.divide(constant_product, new_in_balance);
+    const new_in_balance = big_in_balance.plus(math.bignumber(partialAmountIn));
 
-    const tokenOutReceived = math.subtract(
-      math.evaluate(out_balance),
-      new_out_balance
-    );
-    return Number(tokenOutReceived);
+    // const new_in_balance = math.evaluate(`${partialAmountIn} + ${in_balance}`);
+
+    const new_out_balance = constant_product.div(new_in_balance);
+
+    // const new_out_balance = math.divide(constant_product, new_in_balance);
+
+    // console.log(
+    //   'outbalance',
+    //   out_balance.toString(),
+    //   new_out_balance.toString()
+    // );
+
+    // const tokenOutReceived = math.subtract(
+    //   math.evaluate(out_balance),
+    //   new_out_balance
+    // );
+    const tokenOutReceived = big_out_balance.minus(new_out_balance);
+
+    // console.log('tokenoutreceived', tokenOutReceived.toString());
+
+    return tokenOutReceived;
   });
 
   const finalTokenOutReceived = math.sum(...separatedReceivedAmount);
