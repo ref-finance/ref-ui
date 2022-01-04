@@ -71,7 +71,8 @@ export const estimateSwap = async ({
   setLoadingTrigger,
 }: EstimateSwapOptions): Promise<EstimateSwapView[]> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
-  if (!parsedAmountIn)
+
+  if (!parsedAmountIn || !(Number(parsedAmountIn) > 0))
     throw new Error(
       `${amountIn} ${intl.formatMessage({ id: 'is_not_a_valid_swap_amount' })}`
     );
