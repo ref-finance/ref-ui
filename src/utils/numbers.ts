@@ -143,25 +143,9 @@ export const calculatePriceImpact = (
 
     const new_in_balance = big_in_balance.plus(math.bignumber(partialAmountIn));
 
-    // const new_in_balance = math.evaluate(`${partialAmountIn} + ${in_balance}`);
-
     const new_out_balance = constant_product.div(new_in_balance);
 
-    // const new_out_balance = math.divide(constant_product, new_in_balance);
-
-    // console.log(
-    //   'outbalance',
-    //   out_balance.toString(),
-    //   new_out_balance.toString()
-    // );
-
-    // const tokenOutReceived = math.subtract(
-    //   math.evaluate(out_balance),
-    //   new_out_balance
-    // );
     const tokenOutReceived = big_out_balance.minus(new_out_balance);
-
-    // console.log('tokenoutreceived', tokenOutReceived.toString());
 
     return tokenOutReceived;
   });
