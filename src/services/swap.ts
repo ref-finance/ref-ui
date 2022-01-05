@@ -236,7 +236,6 @@ export const swap = async ({
 };
 
 export const instantSwap = async ({
-  // pool,
   tokenIn,
   tokenOut,
   amountIn,
@@ -252,9 +251,7 @@ ParaSwapOptions) => {
       tokenOut.decimals,
       scientificNotationToString(dy_float.toString())
     );
-    // dy_float
-    //   .div(Big(10).pow(tokenOut.decimals))
-    //   .toString();
+
     s2d.estimate = tokenOutAmount;
     let minTokenOutAmount = tokenOutAmount
       ? percentLess(slippageTolerance, tokenOutAmount)
@@ -263,9 +260,7 @@ ParaSwapOptions) => {
       tokenIn.decimals,
       scientificNotationToString(s2d.pool.partialAmountIn)
     );
-    // s2d.pool.partialAmountIn
-    //   .div(Big(10).pow(tokenIn.decimals))
-    //   .toString();
+
     return {
       pool_id: s2d.pool.id,
       token_in: tokenIn.id,
@@ -280,16 +275,6 @@ ParaSwapOptions) => {
       ),
     };
   });
-
-  // const swapAction = {
-  //   pool_id: pool?.id,
-  //   token_in: tokenIn?.id,
-  //   token_out: tokenOut?.id,
-  //   min_amount_out: round(
-  //     tokenIn.decimals,
-  //     toNonDivisibleNumber(tokenOut.decimals, minAmountOut)
-  //   ),
-  // };
 
   const transactions: Transaction[] = [];
   const tokenInActions: RefFiFunctionCallOptions[] = [];
@@ -330,7 +315,7 @@ ParaSwapOptions) => {
           actions: swapActions,
         }),
       },
-      gas: '150000000000000',
+      gas: '180000000000000',
       amount: ONE_YOCTO_NEAR,
     });
 
@@ -344,7 +329,6 @@ ParaSwapOptions) => {
 };
 
 export const depositSwap = async ({
-  // pool,
   tokenIn,
   tokenOut,
   amountIn,
@@ -360,9 +344,7 @@ ParaSwapOptions) => {
       tokenOut.decimals,
       scientificNotationToString(dy_float.toString())
     );
-    // dy_float
-    //   .div(Big(10).pow(tokenOut.decimals))
-    //   .toString();
+
     s2d.estimate = tokenOutAmount;
     let minTokenOutAmount = tokenOutAmount
       ? percentLess(slippageTolerance, tokenOutAmount)
@@ -371,9 +353,7 @@ ParaSwapOptions) => {
       tokenIn.decimals,
       scientificNotationToString(s2d.pool.partialAmountIn)
     );
-    // s2d.pool.partialAmountIn
-    //   .div(Big(10).pow(tokenIn.decimals))
-    //   .toString();
+
     return {
       pool_id: s2d.pool.id,
       token_in: tokenIn.id,
