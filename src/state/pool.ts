@@ -5,7 +5,6 @@ import {
   toPrecision,
   toNonDivisibleNumber,
   toReadableNumber,
-  scientificNotationToString,
 } from '../utils/numbers';
 import { getStakedListByAccountId } from '~services/farm';
 import {

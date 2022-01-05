@@ -272,13 +272,55 @@ export function scientificNotationToString(strParam: string) {
   if (/e-/.test(strParam)) {
     sysbol = false;
   }
+
+  const negative = Number(strParam) < 0 ? '-' : '';
+
   let index = Number(strParam.match(/\d+$/)[0]);
-  let basis = strParam.match(/^[\d\.]+/)[0].replace(/\./, '');
+
+  let basis = strParam.match(/[\d\.]+/)[0];
+
+  const ifFraction = basis.includes('.');
+
+  let wholeStr;
+  let fractionStr;
+
+  if (ifFraction) {
+    wholeStr = basis.split('.')[0];
+    fractionStr = basis.split('.')[1];
+  } else {
+    wholeStr = basis;
+    fractionStr = '';
+  }
 
   if (sysbol) {
-    return basis.padEnd(index + 1, '0');
+    if (!ifFraction) {
+      return negative + wholeStr.padEnd(index + wholeStr.length, '0');
+    } else {
+      if (fractionStr.length <= index) {
+        return negative + wholeStr + fractionStr.padEnd(index, '0');
+      } else {
+        return (
+          negative +
+          wholeStr +
+          fractionStr.substring(0, index) +
+          '.' +
+          fractionStr.substring(index)
+        );
+      }
+    }
   } else {
-    return basis.padStart(index + basis.length, '0').replace(/^0/, '0.');
+    if (!ifFraction)
+      return (
+        negative +
+        wholeStr.padStart(index + wholeStr.length, '0').replace(/^0/, '0.')
+      );
+    else {
+      return (
+        negative +
+        wholeStr.padStart(index + wholeStr.length, '0').replace(/^0/, '0.') +
+        fractionStr
+      );
+    }
   }
 }
 
