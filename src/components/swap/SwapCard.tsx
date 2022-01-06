@@ -21,17 +21,115 @@ import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import db from '~store/RefDatabase';
-import { GradientButton } from '~components/button/Button';
+import {
+  ButtonTextWrapper,
+  GradientButton,
+  OutlineButton,
+  SolidButton,
+} from '~components/button/Button';
 import { wallet } from '~services/near';
 import SwapFormWrap from '../forms/SwapFormWrap';
 import SwapTip from '~components/forms/SwapTip';
 import { WarnTriangle, ErrorTriangle } from '~components/icon/SwapRefresh';
-
+import ReactModal from 'react-modal';
+import Modal from 'react-modal';
+import { Card } from '~components/card/Card';
+import { isMobile } from '~utils/device';
+import { ModalClose } from '~components/icon';
+import BigNumber from 'bignumber.js';
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
 const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
+
+export function DoubleCheckModal(
+  props: ReactModal.Props & {
+    pools: Pool[];
+    tokenIn: TokenMetadata;
+    tokenOut: TokenMetadata;
+    from: string;
+    onSwap: (e?: any) => void;
+  }
+) {
+  const cardWidth = isMobile() ? '80vw' : '30vw';
+
+  const { pools, tokenIn, tokenOut, from, onSwap } = props;
+
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+
+  if (!pools || !from || !tokenIn || !tokenOut) return null;
+
+  const priceImpacValue = calculatePriceImpact(pools, tokenIn, tokenOut, from);
+
+  return (
+    <Modal {...props}>
+      <Card
+        padding="p-6"
+        bgcolor="bg-cardBg"
+        className="text-white border border-gradientFromHover outline-none flex flex-col items-center"
+        style={{
+          width: cardWidth,
+          border: '1px solid rgba(0, 198, 162, 0.5)',
+        }}
+      >
+        <div
+          className="ml-2 cursor-pointer p-1 self-end"
+          onClick={props.onRequestClose}
+        >
+          <ModalClose />
+        </div>
+
+        <div className="pb-6">
+          <ErrorTriangle expand />
+        </div>
+
+        <div className="text-base font-semibold">
+          <FormattedMessage id="are_you_sure" defaultMessage="Are you sure" />?
+        </div>
+
+        <div className=" text-xs pt-4 pb-6">
+          <span>
+            <FormattedMessage
+              id="price_impact_is_about"
+              defaultMessage="Price impact is about"
+            />
+          </span>
+          &nbsp;
+          <span>-{toPrecision(priceImpacValue, 2)}%</span>
+        </div>
+
+        <div className="flex items-center pb-2">
+          <OutlineButton
+            onClick={props.onRequestClose}
+            className="text-xs w-20 text-center mx-2 h-8"
+            padding="px-4 py-1"
+          >
+            <FormattedMessage id="cancel" defaultMessage="Cancel" />
+          </OutlineButton>
+          <SolidButton
+            onClick={(e) => {
+              setButtonLoading(true);
+              onSwap();
+            }}
+            className="text-xs w-32 text-center h-8"
+            padding="px-4 py-1.5"
+            loading={buttonLoading}
+          >
+            <ButtonTextWrapper
+              loading={buttonLoading}
+              Text={() => (
+                <span>
+                  <FormattedMessage id="yes_swap" defaultMessage="Yes, swap" />!
+                </span>
+              )}
+            />
+          </SolidButton>
+        </div>
+      </Card>
+    </Modal>
+  );
+}
 
 export function SwapDetail({
   title,
@@ -56,9 +154,9 @@ export function SwapRateDetail({
   to,
   tokenIn,
   tokenOut,
-  pool,
+  fee,
 }: {
-  pool: Pool;
+  fee: number;
   title: string;
   value: string;
   from: string;
@@ -79,7 +177,7 @@ export function SwapRateDetail({
       `1 ${toRealSymbol(
         isRevert ? tokenIn.symbol : tokenOut.symbol
       )} ≈ ${calculateExchangeRate(
-        pool.fee,
+        fee,
         isRevert ? from : to,
         isRevert ? to : from
       )} ${toRealSymbol(isRevert ? tokenOut.symbol : tokenIn.symbol)}`
@@ -110,12 +208,12 @@ export function SwapRateDetail({
 }
 
 export const GetPriceImpact = (
-  pool: Pool,
+  pools: Pool[],
   tokenIn: TokenMetadata,
   tokenOut: TokenMetadata,
   from: string
 ) => {
-  const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
+  const value = calculatePriceImpact(pools, tokenIn, tokenOut, from);
 
   const textColor =
     Number(value) <= 1
@@ -124,20 +222,25 @@ export const GetPriceImpact = (
       ? 'text-warn'
       : 'text-error';
 
-  return Number(value) < 0.01 ? (
-    <span className="text-greenLight">{'< -0.01%'}</span>
-  ) : (
+  if (Number(value) < 0.01)
+    return <span className="text-greenLight">{'< -0.01%'}</span>;
+
+  if (Number(value) > 1000)
+    return <span className="text-error">{'< -1000%'}</span>;
+
+  return (
     <span className={`${textColor}`}>{`≈ -${toPrecision(value, 2)}%`}</span>
   );
 };
 
 export const getPriceImpactTipType = (
-  pool: Pool,
+  pools: Pool[],
   tokenIn: TokenMetadata,
   tokenOut: TokenMetadata,
   from: string
 ) => {
-  const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
+  const value = calculatePriceImpact(pools, tokenIn, tokenOut, from);
+
   const reault =
     1 < Number(value) && Number(value) <= 2 ? (
       <WarnTriangle></WarnTriangle>
@@ -148,7 +251,7 @@ export const getPriceImpactTipType = (
 };
 
 function DetailView({
-  pool,
+  pools,
   tokenIn,
   tokenOut,
   from,
@@ -156,8 +259,9 @@ function DetailView({
   minAmountOut,
   canSwap,
   loadingTrigger,
+  fee,
 }: {
-  pool: Pool;
+  pools: Pool[];
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
   from: string;
@@ -165,44 +269,23 @@ function DetailView({
   minAmountOut: string;
   canSwap?: boolean;
   loadingTrigger?: boolean;
+  fee?: number;
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
 
-  const GetPriceImpact = (
-    pool: Pool,
-    tokenIn: TokenMetadata,
-    tokenOut: TokenMetadata,
-    from: string
-  ) => {
-    const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
-    const textColor =
-      Number(value) <= 1
-        ? 'text-greenLight'
-        : 1 < Number(value) && Number(value) <= 2
-        ? 'text-warn'
-        : 'text-error';
-
-    return Number(value) < 0.01 ? (
-      <span className="text-greenLight">{'< -0.01%'}</span>
-    ) : (
-      <span className={`${textColor}`}>{`≈ -${toPrecision(value, 2)}%`}</span>
-    );
-  };
-
-  if (!pool || !from || !to || !(Number(from) > 0)) return null;
-
+  if (!pools || !from || !to || !(Number(from) > 0)) return null;
   return (
     <div className="mt-8">
-      <div
-        className="flex justify-center"
-        onClick={() => {
-          setShowDetails(!showDetails);
-        }}
-      >
-        <div className="flex items-center text-white cursor-pointer">
+      <div className="flex justify-center">
+        <div
+          className="flex items-center text-white cursor-pointer"
+          onClick={() => {
+            setShowDetails(!showDetails);
+          }}
+        >
           <label className="mr-2">
-            {getPriceImpactTipType(pool, tokenIn, tokenOut, from)}
+            {canSwap && getPriceImpactTipType(pools, tokenIn, tokenOut, from)}
           </label>
           <p className="block text-xs">
             <FormattedMessage id="details" defaultMessage="Details" />
@@ -220,7 +303,7 @@ function DetailView({
         <SwapRateDetail
           title={intl.formatMessage({ id: 'swap_rate' })}
           value={`1 ${toRealSymbol(tokenOut.symbol)} ≈ ${calculateExchangeRate(
-            pool.fee,
+            fee,
             to,
             from
           )} ${toRealSymbol(tokenIn.symbol)}`}
@@ -228,22 +311,22 @@ function DetailView({
           to={to}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
-          pool={pool}
+          fee={fee}
         />
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
           value={
             !to || to === '0'
               ? '-'
-              : GetPriceImpact(pool, tokenIn, tokenOut, from)
+              : GetPriceImpact(pools, tokenIn, tokenOut, from)
           }
         />
         <SwapDetail
           title={intl.formatMessage({ id: 'pool_fee' })}
-          value={`${calculateFeePercent(pool.fee)}% (${calculateFeeCharge(
-            pool.fee,
-            from
-          )})`}
+          value={`${toPrecision(
+            calculateFeePercent(fee).toString(),
+            2
+          )}% (${calculateFeeCharge(fee, from)})`}
         />
       </div>
     </div>
@@ -255,6 +338,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
+  const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
 
   const [useNearBalance, setUseNearBalance] = useState<boolean>(
     localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) != 'false'
@@ -268,6 +352,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [loadingData, setLoadingData] = useState<boolean>(false);
   const [loadingTrigger, setLoadingTrigger] = useState<boolean>(false);
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
+  const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
 
   const intl = useIntl();
   const location = useLocation();
@@ -324,23 +409,25 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     }
   }, [tokenIn, tokenOut, useNearBalance]);
 
-  const { canSwap, tokenOutAmount, minAmountOut, pool, swapError, makeSwap } =
-    useSwap({
-      tokenIn: tokenIn,
-      tokenInAmount,
-      tokenOut: tokenOut,
-      slippageTolerance,
-      setLoadingData,
-      loadingTrigger,
-      setLoadingTrigger,
-      loadingData,
-      loadingPause,
-    });
+  const {
+    canSwap,
+    tokenOutAmount,
+    minAmountOut,
+    pools,
+    swapError,
+    makeSwap,
+    avgFee,
+  } = useSwap({
+    tokenIn: tokenIn,
+    tokenInAmount,
+    tokenOut: tokenOut,
+    slippageTolerance,
+    setLoadingData,
+    loadingTrigger,
+    setLoadingTrigger,
+    loadingData,
+  });
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    makeSwap(useNearBalance);
-  };
   const topBall = useRef<HTMLInputElement>();
   const bottomBall = useRef<HTMLInputElement>();
   const runSwapAnimation = function () {
@@ -361,6 +448,19 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     ? tokenOutBalanceFromNear || '0'
     : toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
   const canSubmit = canSwap && (tokenInMax != '0' || !useNearBalance);
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    const ifDoubleCheck =
+      new BigNumber(tokenInAmount).isLessThanOrEqualTo(
+        new BigNumber(tokenInMax)
+      ) &&
+      Number(calculatePriceImpact(pools, tokenIn, tokenOut, tokenInAmount)) > 2;
+
+    if (ifDoubleCheck) setDoubleCheckOpen(true);
+    else makeSwap(useNearBalance);
+  };
 
   return (
     <>
@@ -406,6 +506,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           setLoadingTrigger,
           loadingPause,
           setLoadingPause,
+          showSwapLoading,
+          setShowSwapLoading,
         }}
       >
         <TokenAmount
@@ -463,19 +565,44 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         />
         <DetailView
           loadingTrigger={loadingTrigger}
-          pool={pool}
+          pools={pools}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
           from={tokenInAmount}
           to={tokenOutAmount}
           minAmountOut={minAmountOut}
           canSwap={canSwap}
+          fee={avgFee}
         />
 
         <div className="pb-2">
           {swapError && <Alert level="error" message={swapError.message} />}
         </div>
       </SwapFormWrap>
+      <DoubleCheckModal
+        isOpen={doubleCheckOpen}
+        onRequestClose={() => {
+          setDoubleCheckOpen(false);
+          setShowSwapLoading(false);
+          setLoadingPause(false);
+        }}
+        style={{
+          overlay: {
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
+          },
+          content: {
+            outline: 'none',
+            position: 'fixed',
+            top: '50%',
+          },
+        }}
+        pools={pools}
+        tokenIn={tokenIn}
+        tokenOut={tokenOut}
+        from={tokenInAmount}
+        onSwap={() => makeSwap(useNearBalance)}
+      />
     </>
   );
 }

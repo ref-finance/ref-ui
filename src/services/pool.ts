@@ -36,6 +36,18 @@ export interface Pool {
   shareSupply: string;
   tvl: number;
   token0_ref_price: string;
+  partialAmountIn?: string;
+}
+
+export interface StablePool {
+  id: number;
+  token_account_ids: string[];
+  decimals: number[];
+  amounts: string[];
+  c_amounts: string[];
+  total_fee: number;
+  shares_total_supply: string;
+  amp: number;
 }
 
 export interface StablePool {
@@ -303,12 +315,13 @@ export const getPoolsByTokens = async ({
   const cache = await db.checkPoolsByTokens(tokenInId, tokenOutId);
 
   if (cache && !loadingTrigger) {
-    const cache_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
-    filtered_pools = cache_pools.filter(
-      (p) =>
-        new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
-        p.supplies[tokenOutId]
-    );
+    filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
+    // filtered_pools = cache_pools;
+    // filtered_pools = cache_pools.filter(
+    //   (p) =>
+    //     new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
+    //     p.supplies[tokenOutId]
+    // );
   } else {
     setLoadingData(true);
     const totalPools = await getTotalPools();
@@ -320,9 +333,7 @@ export const getPoolsByTokens = async ({
 
     await db.cachePoolsByTokens(filtered_pools);
     filtered_pools = filtered_pools.filter(
-      (p) =>
-        new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
-        p.supplies[tokenOutId]
+      (p) => p.supplies[tokenInId] && p.supplies[tokenOutId]
     );
   }
   setLoadingTrigger(false);

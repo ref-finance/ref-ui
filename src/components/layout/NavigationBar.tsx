@@ -10,6 +10,7 @@ import {
   IconPools,
   IconAirDropGreenTip,
   WrapNearEnter,
+  WrapNearIconDark,
 } from '~components/icon';
 import { Link, useLocation } from 'react-router-dom';
 import { wallet } from '~services/near';
@@ -32,6 +33,7 @@ import { useMenuItems } from '~utils/menu';
 import { MobileNavBar } from './MobileNav';
 import WrapNear from '~components/forms/WrapNear';
 import { isMobile } from '~utils/device';
+import { WrapNearIcon } from './WrapNear';
 
 function Anchor({
   to,
@@ -505,16 +507,10 @@ function NavigationBar() {
             {wallet.isSignedIn() && (
               <div className="text-white">
                 <div
-                  className=" py-1 px-2 border text-sm border-framBorder text-framBorder hover:text-white hover:bg-framBorder hover:border-0 cursor-pointer rounded h-6 items-center flex"
+                  className=" py-1 px-1 text-sm text-framBorder  cursor-pointer rounded h-6 items-center flex"
                   onClick={() => setShowWrapNear(true)}
                 >
-                  <WrapNearEnter></WrapNearEnter>
-                  <span className=" ml-2 whitespace-nowrap">
-                    <FormattedMessage
-                      id="wrapnear"
-                      defaultMessage="Wrap NEAR"
-                    />
-                  </span>
+                  <WrapNearIcon />
                 </div>
                 <WrapNear
                   isOpen={showWrapNear}

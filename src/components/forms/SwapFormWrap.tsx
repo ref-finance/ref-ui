@@ -24,6 +24,8 @@ interface SwapFormWrapProps {
     setLoadingTrigger: (loaidngTrigger: boolean) => void;
     loadingPause: boolean;
     setLoadingPause: (pause: boolean) => void;
+    showSwapLoading: boolean;
+    setShowSwapLoading: (swapLoading: boolean) => void;
   };
   useNearBalance: string;
 }
@@ -51,9 +53,9 @@ export default function SwapFormWrap({
     setLoadingTrigger,
     loadingPause,
     setLoadingPause,
+    showSwapLoading,
+    setShowSwapLoading,
   } = loading;
-
-  const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
 
   useEffect(() => {
     loadingTrigger && setShowSwapLoading(true);
