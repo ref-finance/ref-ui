@@ -273,18 +273,21 @@ export const getWhitelistedTokens = async (): Promise<string[]> => {
 export const getWhitelistedTokensAndNearTokens = async (): Promise<
   string[]
 > => {
-  let userWhitelist = [];
-  let walletTokens: any[] = [];
-  const globalWhitelist = await refFiViewFunction({
+  const requestAll = [];
+  const request1 = refFiViewFunction({
     methodName: 'get_whitelisted_tokens',
   });
+  requestAll.push(request1);
   if (wallet.isSignedIn()) {
-    userWhitelist = await refFiViewFunction({
+    const request2 = refFiViewFunction({
       methodName: 'get_user_whitelisted_tokens',
       args: { account_id: wallet.getAccountId() },
     });
-    walletTokens = await getUserWalletTokens();
+    const request3 = getUserWalletTokens();
+    requestAll.push(request2, request3);
   }
+  const [globalWhitelist = [], userWhitelist = [], walletTokens = []] =
+    await Promise.all(requestAll);
 
   return [
     ...new Set<string>([...globalWhitelist, ...userWhitelist, ...walletTokens]),
