@@ -273,5 +273,11 @@ const zh_CN = {
   total_fee_create: '总费用',
   more_than_general_seed: '请输入大于等于0.000001的数',
   more_than_stable_seed: '请输入大于等于1的数',
+  go_to_near_wallet: '跳转到NEAR钱包',
+  deposit_to_ref_account: '存储到REF账户',
+  withdraw_to_near_wallet: '提取到near钱包',
+  insufficient: '不足够的',
+  into_ref_account: '到你的REF账户。',
+  deposit_into_ref_account: '存储到REF账户来添加流动性',
 };
 export default zh_CN;

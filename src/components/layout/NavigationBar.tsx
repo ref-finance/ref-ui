@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { matchPath } from 'react-router';
 import { Context } from '~components/wrapper';
+import getConfig from '~services/config';
 import {
   Logo,
   Near,
@@ -11,6 +12,13 @@ import {
   IconAirDropGreenTip,
   WrapNearEnter,
 } from '~components/icon';
+import { SmallWallet } from '~components/icon/SmallWallet';
+import {
+  AccountIcon,
+  ActivityIcon,
+  WalletIcon,
+  SignoutIcon,
+} from '~components/icon/Common';
 import { Link, useLocation } from 'react-router-dom';
 import { wallet } from '~services/near';
 import { useHistory } from 'react-router';
@@ -32,6 +40,8 @@ import { useMenuItems } from '~utils/menu';
 import { MobileNavBar } from './MobileNav';
 import WrapNear from '~components/forms/WrapNear';
 import { isMobile } from '~utils/device';
+
+const config = getConfig();
 
 function Anchor({
   to,
@@ -72,19 +82,47 @@ function Anchor({
 }
 
 function AccountEntry() {
-  const userTokens = useUserRegisteredTokens();
-  const balances = useTokenBalances();
+  const history = useHistory();
   const [hover, setHover] = useState(false);
   const [account, network] = wallet.getAccountId().split('.');
   const niceAccountId = `${account.slice(0, 10)}...${network || ''}`;
-  const history = useHistory();
-
   const accountName =
     account.length > 10 ? niceAccountId : wallet.getAccountId();
-  if (wallet.isSignedIn()) {
-    if (!userTokens || !balances) return null;
-  }
-
+  const location = useLocation();
+  const accountList = [
+    {
+      icon: <AccountIcon />,
+      textId: 'view_account',
+      selected: location.pathname == '/account',
+      click: () => {
+        history.push('/account');
+      },
+    },
+    {
+      icon: <ActivityIcon />,
+      textId: 'recent_activity',
+      selected: location.pathname == '/recent',
+      click: () => {
+        history.push('/recent');
+      },
+    },
+    {
+      icon: <WalletIcon />,
+      textId: 'go_to_near_wallet',
+      subIcon: <HiOutlineExternalLink />,
+      click: () => {
+        window.open(config.walletUrl, '_blank');
+      },
+    },
+    {
+      icon: <SignoutIcon />,
+      textId: 'sign_out',
+      click: () => {
+        wallet.signOut();
+        window.location.assign('/');
+      },
+    },
+  ];
   return (
     <div className="user text-xs text-center justify-end h-full z-30 ml-2 mx-5">
       <div
@@ -124,49 +162,39 @@ function AccountEntry() {
             )}
           </div>
         </div>
-        <div
-          className={`absolute top-14 pt-2 right-0 w-80 ${
-            wallet.isSignedIn() && hover ? 'block' : 'hidden'
-          }`}
-        >
-          <Card
-            className="menu-max-height cursor-default shadow-4xl  border border-primaryText"
-            width="w-80"
-          >
-            <div className="flex items-center justify-between mb-5 text-primaryText">
-              <div className="text-white">
-                <FormattedMessage id="balance" defaultMessage="Balance" />
-              </div>
-            </div>
-            {wallet.isSignedIn() ? (
-              <TokenList
-                tokens={userTokens}
-                balances={balances}
-                hideEmpty={true}
-              />
-            ) : null}
-            <div className="flex items-center justify-center pt-5">
-              <GradientButton
-                className=" w-36 h-8 text-white cursor-pointer py-2 mr-2"
-                onClick={() => history.push('/account')}
-              >
-                <FormattedMessage
-                  id="view_account"
-                  defaultMessage="View account"
-                />
-              </GradientButton>
-              <div
-                className="h-8 w-20 rounded border-gradientFrom border py-2 text-xs text-gradientFrom font-semibold cursor-pointer"
-                onClick={() => {
-                  wallet.signOut();
-                  window.location.assign('/');
-                }}
-              >
-                <FormattedMessage id="sign_out" defaultMessage="Sign out" />
-              </div>
-            </div>
-          </Card>
-        </div>
+        {wallet.isSignedIn() && hover ? (
+          <div className={`absolute top-14 pt-2 right-0 w-64`}>
+            <Card
+              className="menu-max-height cursor-default shadow-4xl  border border-primaryText"
+              width="w-64"
+              padding="py-4"
+            >
+              {accountList.map((item, index) => {
+                return (
+                  <div
+                    onClick={item.click}
+                    key={item.textId + index}
+                    className={`flex items-center text-sm cursor-pointer font-semibold py-4 pl-7 hover:text-white hover:bg-navHighLightBg ${
+                      item.selected
+                        ? 'text-white bg-navHighLightBg'
+                        : 'text-primaryText'
+                    }`}
+                  >
+                    <label className="w-9 text-left cursor-pointer">
+                      {item.icon}
+                    </label>
+                    <label className="cursor-pointer">
+                      <FormattedMessage id={item.textId}></FormattedMessage>
+                    </label>
+                    {item.subIcon ? (
+                      <label className="text-lg ml-2">{item.subIcon}</label>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </Card>
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -489,7 +517,7 @@ function NavigationBar() {
           </div>
           <div className="flex items-center">
             <Quiz />
-            <Anchor to="/deposit" pattern="/deposit/:id?" name="Deposit" />
+            {/* <Anchor to="/deposit" pattern="/deposit/:id?" name="Deposit" /> */}
             <Anchor to="/" pattern="/" name="Swap" />
             <Anchor
               to="/stableswap"

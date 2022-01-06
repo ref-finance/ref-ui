@@ -283,5 +283,11 @@ const en_US = {
   more_than_general_seed:
     'Please input number that more than or equal to 0.000001',
   more_than_stable_seed: 'Please input number that more than or equal to 1',
+  go_to_near_wallet: 'Go to NEAR Wallet',
+  deposit_to_ref_account: 'Deposit to REF account',
+  withdraw_to_near_wallet: 'Withdraw to NEAR wallet',
+  insufficient: 'Insufficient',
+  into_ref_account: 'into your REF account.',
+  deposit_into_ref_account: 'Deposit into your REF account to add liquidity',
 };
 export default en_US;

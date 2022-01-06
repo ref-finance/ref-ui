@@ -33,6 +33,14 @@ import { moreLinks } from '~utils/menu';
 import WrapNear from '~components/forms/WrapNear';
 import { useDepositableBalance, useWhitelistTokens } from '~state/token';
 import { nearMetadata } from '~services/wrap-near';
+import getConfig from '~services/config';
+import {
+  AccountIcon,
+  ActivityIcon,
+  WalletIcon,
+  SignoutIcon,
+} from '~components/icon/Common';
+const config = getConfig();
 
 export function MobileAnchor({
   to,
@@ -146,6 +154,96 @@ export function Logout() {
   );
 }
 
+export function AccountModel(props: any) {
+  const history = useHistory();
+  const accountWrapRef = useRef(null);
+  const accountList = [
+    {
+      icon: <AccountIcon />,
+      textId: 'view_account',
+      selected: location.pathname == '/account',
+      click: () => {
+        history.push('/account');
+      },
+    },
+    {
+      icon: <ActivityIcon />,
+      textId: 'recent_activity',
+      selected: location.pathname == '/recent',
+      click: () => {
+        history.push('/recent');
+      },
+    },
+    {
+      icon: <WalletIcon />,
+      textId: 'go_to_near_wallet',
+      subIcon: <HiOutlineExternalLink />,
+      click: () => {
+        window.open(config.walletUrl, '_blank');
+      },
+    },
+    {
+      icon: <SignoutIcon />,
+      textId: 'sign_out',
+      click: () => {
+        wallet.signOut();
+        window.location.assign('/');
+      },
+    },
+  ];
+  const handleClick = (e: any) => {
+    if (!accountWrapRef.current.contains(e.target)) {
+      props.closeAccount();
+    }
+  };
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('click', handleClick, false);
+    return () => {
+      document.body.style.overflow = 'auto';
+      document.removeEventListener('click', handleClick, false);
+    };
+  }, []);
+  return (
+    <div
+      className="fixed left-0 bottom-0 w-screen bg-black bg-opacity-70"
+      style={{
+        backdropFilter: 'blur(15px)',
+        WebkitBackdropFilter: 'blur(15px)',
+        top: '4.2rem',
+      }}
+    >
+      <div className="w-full bg-cardBg" ref={accountWrapRef}>
+        {accountList.map((item, index) => {
+          return (
+            <div
+              onClick={() => {
+                item.click();
+                props.closeAccount();
+              }}
+              key={item.textId + index}
+              className={`flex items-center text-sm cursor-pointer font-semibold py-4 pl-7 hover:text-white hover:bg-navHighLightBg ${
+                item.selected
+                  ? 'text-white bg-navHighLightBg'
+                  : 'text-primaryText'
+              }`}
+            >
+              <label className="w-9 text-left cursor-pointer">
+                {item.icon}
+              </label>
+              <label className="cursor-pointer">
+                <FormattedMessage id={item.textId}></FormattedMessage>
+              </label>
+              {item.subIcon ? (
+                <label className="text-lg ml-2">{item.subIcon}</label>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 export function MobileNavBar() {
   const [show, setShow] = useState(false);
   const intl = useIntl();
@@ -164,6 +262,7 @@ export function MobileNavBar() {
   const nearBalance = wallet.isSignedIn()
     ? useDepositableBalance(nearMetadata.id, nearMetadata.decimals)
     : '0';
+  const [accountVisible, setAccountVisible] = useState(false);
 
   useEffect(() => {
     document.addEventListener('click', handleClick, false);
@@ -199,7 +298,7 @@ export function MobileNavBar() {
   }, [show]);
 
   if (wallet.isSignedIn()) {
-    moreLinks[3].children[2] = {
+    moreLinks[2].children[2] = {
       id: 'Your_Liquidity',
       label: 'Your Liquidity',
       url: '/pools/yours',
@@ -223,12 +322,11 @@ export function MobileNavBar() {
       setCloseMenu(true);
     }
   }
-
   return (
     <div
       className="nav-wrap lg:hidden md:show relative xs:mb-6 md:mb-6"
       style={{
-        zIndex: show ? 200 : 10,
+        zIndex: show ? 200 : 20,
       }}
     >
       <div className="flex items-center text-2xl text-white justify-between p-4">
@@ -246,7 +344,20 @@ export function MobileNavBar() {
             </div>
             <div className="overflow-ellipsis overflow-hidden text-xs whitespace-nowrap account-name">
               {wallet.isSignedIn() ? (
-                <div>{accountName}</div>
+                <div className="flex items-center">
+                  <div
+                    onClick={() => {
+                      setAccountVisible(!accountVisible);
+                    }}
+                  >
+                    {accountName}
+                  </div>
+                  {accountVisible ? (
+                    <FiChevronUp className="text-base ml-1" />
+                  ) : (
+                    <FiChevronDown className="text-base ml-1" />
+                  )}
+                </div>
               ) : (
                 <button
                   onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
@@ -314,14 +425,14 @@ export function MobileNavBar() {
             </span>
           </div>
           <div className="text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
-            {wallet.isSignedIn() && (
+            {/* {wallet.isSignedIn() && (
               <MobileAnchor
                 to="/account"
                 pattern="/account"
                 name="view_account"
                 onClick={close}
               />
-            )}
+            )} */}
             {wallet.isSignedIn() && (
               <div className="text-primaryText" onClick={() => setShow(false)}>
                 <div
@@ -503,6 +614,13 @@ export function MobileNavBar() {
           </div>
         </div>
       </div>
+      {accountVisible ? (
+        <AccountModel
+          closeAccount={() => {
+            setAccountVisible(false);
+          }}
+        />
+      ) : null}
     </div>
   );
 }

@@ -149,13 +149,13 @@ export type MobileMenuItem = {
 };
 
 export const moreLinks: MobileMenuItem[] = [
-  {
-    id: 'Deposit',
-    label: 'Deposit',
-    pattern: '/deposit/:id?',
-    url: '/deposit',
-    isExternal: false,
-  },
+  // {
+  //   id: 'Deposit',
+  //   label: 'Deposit',
+  //   pattern: '/deposit/:id?',
+  //   url: '/deposit',
+  //   isExternal: false,
+  // },
   {
     id: 'Swap',
     label: 'Swap',

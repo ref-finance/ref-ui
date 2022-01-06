@@ -18,6 +18,7 @@ module.exports = {
       backgroundImage: (theme) => ({
         farmSearch: 'linear-gradient(106.25deg, #00FFD1 6.88%, #00BA98 81.93%)',
         stableTab: 'linear-gradient(360deg, #00C6A2 0%, #008B72 100%)',
+        buttonBg: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
@@ -62,6 +63,10 @@ module.exports = {
         farmRound: '#B3C2CC',
         farmTopRight: '#008870',
         datebg: '#637684',
+        borderColor: '#7e8a93',
+        warnColor:'#DE9450',
+        acccountTab: '#0F1D27',
+        acccountBlock: '#293741'
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

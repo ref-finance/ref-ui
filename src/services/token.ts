@@ -25,6 +25,7 @@ import {
 } from './creators/storage';
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from './wrap-near';
 import { registerTokenAction } from './creators/token';
+import { getUserWalletTokens } from './api';
 
 const specialToken = 'pixeltoken.near';
 
@@ -267,6 +268,27 @@ export const getWhitelistedTokens = async (): Promise<string[]> => {
   }
 
   return [...new Set<string>([...globalWhitelist, ...userWhitelist])];
+};
+
+export const getWhitelistedTokensAndNearTokens = async (): Promise<
+  string[]
+> => {
+  let userWhitelist = [];
+  let walletTokens: any[] = [];
+  const globalWhitelist = await refFiViewFunction({
+    methodName: 'get_whitelisted_tokens',
+  });
+  if (wallet.isSignedIn()) {
+    userWhitelist = await refFiViewFunction({
+      methodName: 'get_user_whitelisted_tokens',
+      args: { account_id: wallet.getAccountId() },
+    });
+    walletTokens = await getUserWalletTokens();
+  }
+
+  return [
+    ...new Set<string>([...globalWhitelist, ...userWhitelist, ...walletTokens]),
+  ];
 };
 
 export const round = (decimals: number, minAmountOut: string) => {
