@@ -297,5 +297,6 @@ const en_US = {
   price_impact_is_about: 'Price impact is about',
   yes_swap: 'Yes, swap',
   amount_must_be_greater_than_0: 'amount must be greater than 0',
+  volume_ratio: '24h Volume/ Liquidity ratio',
 };
 export default en_US;

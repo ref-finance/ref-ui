@@ -171,18 +171,28 @@ const parseStorageDeposit = async () => {
 };
 const parseMtfTransferCall = async (params: any) => {
   const { amount, receiver_id, token_id } = params;
+  const poolId = token_id.split(':')[1];
+  if (STABLE_POOL_ID == poolId) {
+  }
   return {
     Action: 'Stake',
-    Amount: toReadableNumber(24, amount),
+    Amount:
+      STABLE_POOL_ID == poolId
+        ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, amount)
+        : toReadableNumber(24, amount),
     'Receiver Id': receiver_id,
     'Token Id': token_id,
   };
 };
 const parseWithdrawSeed = async (params: any) => {
   const { seed_id, amount } = params;
+  const poolId = seed_id.split('@')[1];
   return {
     Action: 'Unstake',
-    Amount: toReadableNumber(24, amount),
+    Amount:
+      STABLE_POOL_ID == poolId
+        ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, amount)
+        : toReadableNumber(24, amount),
     'Seed Id': seed_id,
   };
 };
