@@ -215,16 +215,18 @@ export const useDepositableBalance = (tokenId: string, decimals?: number) => {
   const [depositable, setDepositable] = useState<string>('');
   const [max, setMax] = useState<string>('');
   useEffect(() => {
-    if (tokenId === 'NEAR') {
-      if (wallet.isSignedIn()) {
+    if (wallet.isSignedIn()) {
+      if (tokenId === 'NEAR') {
         wallet
           .account()
           .getAccountBalance()
           .then(({ available }) => setDepositable(available));
-      } else {
-        setDepositable('0');
+      } else if (tokenId) {
+        ftGetBalance(tokenId).then(setDepositable);
       }
-    } else if (tokenId) ftGetBalance(tokenId).then(setDepositable);
+    } else {
+      setDepositable('0');
+    }
   }, [tokenId]);
 
   useEffect(() => {

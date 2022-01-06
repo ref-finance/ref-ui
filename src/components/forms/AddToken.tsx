@@ -3,6 +3,8 @@ import MicroModal from 'react-micro-modal';
 import { registerTokenAndExchange } from '../../services/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { IoCloseOutline } from 'react-icons/io5';
+import { wallet } from '~services/near';
+import { ConnectToNearBtn } from '~components/button/Button';
 
 export default function AddToken() {
   const [tokenId, setTokenId] = useState<string>();
@@ -56,22 +58,27 @@ export default function AddToken() {
             className="focus:outline-none shadow bg-black bg-opacity-25 appearance-none rounded-lg w-96 xs:w-72 py-2 px-3 text-sm text-greenLight leading-tight font-bold"
             type="text"
             placeholder={intl.formatMessage({ id: 'enter_token_address' })}
-            value={tokenId}
+            // value={tokenId}
             onChange={({ target }) => setTokenId(target.value)}
           />
-          <div className="flex justify-center">
-            <button
-              onClick={(e) => {
-                handleSubmit(e);
-                close();
-              }}
-              className="flex h-8 flex-row justify-center px-4 mt-5 mb-5 items-center rounded-lg text-buttonText shadow-lg transition-colors focus:outline-none disabled:cursor-not-allowed"
-              style={{
-                background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
-              }}
-            >
-              <FormattedMessage id="add_token" defaultMessage="Add Token" />
-            </button>
+          <div className="my-5">
+            {wallet.isSignedIn() ? (
+              <button
+                onClick={(e) => {
+                  handleSubmit(e);
+                  close();
+                }}
+                className="flex h-8 flex-row justify-center px-4 mx-auto items-center rounded-lg text-buttonText shadow-lg transition-colors focus:outline-none disabled:cursor-not-allowed"
+                style={{
+                  background:
+                    'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+                }}
+              >
+                <FormattedMessage id="add_token" defaultMessage="Add Token" />
+              </button>
+            ) : (
+              <ConnectToNearBtn />
+            )}
           </div>
         </>
       )}

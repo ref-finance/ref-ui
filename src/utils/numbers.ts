@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import BN from 'bn.js';
 import * as math from 'mathjs';
 import { TokenMetadata } from '~services/ft-contract';
@@ -95,43 +96,72 @@ export const calculateFeeCharge = (fee: number, total: string) => {
 };
 
 export const calculatePriceImpact = (
-  pool: Pool,
+  pools: Pool[],
   tokenIn: TokenMetadata,
   tokenOut: TokenMetadata,
   tokenInAmount: string
 ) => {
-  const in_balance = toReadableNumber(
-    tokenIn.decimals,
-    pool.supplies[tokenIn.id]
-  );
-  const out_balance = toReadableNumber(
-    tokenOut.decimals,
-    pool.supplies[tokenOut.id]
-  );
+  let in_balance: string = '0',
+    out_balance: string = '0';
 
-  const constant_product = math.evaluate(`${in_balance} * ${out_balance}`);
+  pools.forEach((pool, i) => {
+    const cur_in_balance = toReadableNumber(
+      tokenIn.decimals,
+      pool.supplies[tokenIn.id]
+    );
 
-  const marketPrice = math.evaluate(`(${in_balance} / ${out_balance})`);
+    const cur_out_balance = toReadableNumber(
+      tokenOut.decimals,
+      pool.supplies[tokenOut.id]
+    );
 
-  const new_in_balance = math.evaluate(`${tokenInAmount} + ${in_balance}`);
+    in_balance = BigNumber.sum(in_balance, cur_in_balance).toString();
+    out_balance = BigNumber.sum(out_balance, cur_out_balance).toString();
+  });
 
-  const new_out_balance = math.divide(constant_product, new_in_balance);
+  const finalMarketPrice = math.evaluate(`(${in_balance} / ${out_balance})`);
 
-  const tokenOutReceived = math.subtract(
-    math.evaluate(out_balance),
-    new_out_balance
-  );
+  const separatedReceivedAmount = pools.map((pool) => {
+    const partialAmountIn = toReadableNumber(
+      tokenIn.decimals,
+      pool.partialAmountIn
+    );
+
+    const in_balance = toReadableNumber(
+      tokenIn.decimals,
+      pool.supplies[tokenIn.id]
+    );
+    const out_balance = toReadableNumber(
+      tokenOut.decimals,
+      pool.supplies[tokenOut.id]
+    );
+
+    const big_in_balance = math.bignumber(in_balance);
+    const big_out_balance = math.bignumber(out_balance);
+
+    const constant_product = big_in_balance.mul(big_out_balance);
+
+    const new_in_balance = big_in_balance.plus(math.bignumber(partialAmountIn));
+
+    const new_out_balance = constant_product.div(new_in_balance);
+
+    const tokenOutReceived = big_out_balance.minus(new_out_balance);
+
+    return tokenOutReceived;
+  });
+
+  const finalTokenOutReceived = math.sum(...separatedReceivedAmount);
 
   const newMarketPrice = math.evaluate(
-    `${tokenInAmount} / ${tokenOutReceived}`
+    `${tokenInAmount} / ${finalTokenOutReceived}`
   );
 
   const PriceImpact = percent(
-    subtraction(newMarketPrice, marketPrice),
-    marketPrice
+    subtraction(newMarketPrice, finalMarketPrice),
+    finalMarketPrice
   ).toString();
 
-  return PriceImpact;
+  return scientificNotationToString(PriceImpact);
 };
 export const calculateExchangeRate = (
   fee: number,
@@ -226,13 +256,55 @@ export function scientificNotationToString(strParam: string) {
   if (/e-/.test(strParam)) {
     sysbol = false;
   }
+
+  const negative = Number(strParam) < 0 ? '-' : '';
+
   let index = Number(strParam.match(/\d+$/)[0]);
-  let basis = strParam.match(/^[\d\.]+/)[0].replace(/\./, '');
+
+  let basis = strParam.match(/[\d\.]+/)[0];
+
+  const ifFraction = basis.includes('.');
+
+  let wholeStr;
+  let fractionStr;
+
+  if (ifFraction) {
+    wholeStr = basis.split('.')[0];
+    fractionStr = basis.split('.')[1];
+  } else {
+    wholeStr = basis;
+    fractionStr = '';
+  }
 
   if (sysbol) {
-    return basis.padEnd(index + 1, '0');
+    if (!ifFraction) {
+      return negative + wholeStr.padEnd(index + wholeStr.length, '0');
+    } else {
+      if (fractionStr.length <= index) {
+        return negative + wholeStr + fractionStr.padEnd(index, '0');
+      } else {
+        return (
+          negative +
+          wholeStr +
+          fractionStr.substring(0, index) +
+          '.' +
+          fractionStr.substring(index)
+        );
+      }
+    }
   } else {
-    return basis.padStart(index + basis.length, '0').replace(/^0/, '0.');
+    if (!ifFraction)
+      return (
+        negative +
+        wholeStr.padStart(index + wholeStr.length, '0').replace(/^0/, '0.')
+      );
+    else {
+      return (
+        negative +
+        wholeStr.padStart(index + wholeStr.length, '0').replace(/^0/, '0.') +
+        fractionStr
+      );
+    }
   }
 }
 

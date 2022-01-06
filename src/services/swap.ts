@@ -1,5 +1,8 @@
 import BN from 'bn.js';
+import Big from 'big.js';
 import {
+  percentLess,
+  scientificNotationToString,
   toNonDivisibleNumber,
   toPrecision,
   toReadableNumber,
@@ -14,33 +17,34 @@ import {
   Transaction,
   wallet,
 } from './near';
+import {
+  calculateOptimalOutput,
+  calculate_dx_float,
+  calculate_dy_float,
+  formatPoolNew,
+} from './parallelSwapLogic';
+
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { getPoolsByTokens, Pool } from './pool';
 import {
   checkTokenNeedsStorageDeposit,
-  getTokenBalance,
   getWhitelistedTokens,
   round,
 } from './token';
 import { JsonRpcProvider } from 'near-api-js/lib/providers';
 import {
-  needDepositStorage,
-  ONE_MORE_DEPOSIT_AMOUNT,
   storageDepositAction,
-  storageDepositForTokenAction,
   STORAGE_TO_REGISTER_WITH_MFT,
 } from './creators/storage';
 import { registerTokenAction } from './creators/token';
-import {
-  NEW_ACCOUNT_STORAGE_COST,
-  WRAP_NEAR_CONTRACT_ID,
-  wnearMetadata,
-} from '~services/wrap-near';
-import { utils } from 'near-api-js';
 import { BigNumber } from 'bignumber.js';
+import _, { filter } from 'lodash';
 
+Big.DP = 40;
+// Big.strict = false;
 const FEE_DIVISOR = 10000;
-
+const LP_THERESHOLD = 0.001;
+const MAXIMUM_NUMBER_OF_POOLS = 5;
 interface EstimateSwapOptions {
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
@@ -56,6 +60,7 @@ export interface EstimateSwapView {
   pool: Pool;
   intl?: any;
 }
+
 export const estimateSwap = async ({
   tokenIn,
   tokenOut,
@@ -64,9 +69,10 @@ export const estimateSwap = async ({
   setLoadingData,
   loadingTrigger,
   setLoadingTrigger,
-}: EstimateSwapOptions): Promise<EstimateSwapView> => {
+}: EstimateSwapOptions): Promise<EstimateSwapView[]> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
-  if (!parsedAmountIn)
+
+  if (!parsedAmountIn || !(Number(parsedAmountIn) > 0))
     throw new Error(
       `${amountIn} ${intl.formatMessage({ id: 'is_not_a_valid_swap_amount' })}`
     );
@@ -80,7 +86,50 @@ export const estimateSwap = async ({
     loadingTrigger,
   });
 
-  if (pools.length < 1) {
+  const getLiquidity = (pool: Pool) => {
+    const amount1 = toReadableNumber(
+      tokenIn.decimals,
+      pool.supplies[tokenIn.id]
+    );
+    const amount2 = toReadableNumber(
+      tokenOut.decimals,
+      pool.supplies[tokenOut.id]
+    );
+
+    const lp = new Big(amount1).times(new Big(amount2));
+
+    return Number(lp);
+  };
+
+  const maxLPPool = _.maxBy(pools, getLiquidity);
+
+  const filterFunc = (pool: Pool, i: number) =>
+    new Big(getLiquidity(maxLPPool)).gt(0) &&
+    new Big(getLiquidity(pool))
+      .div(new Big(getLiquidity(maxLPPool)))
+      .gt(LP_THERESHOLD);
+
+  const filteredPools = _.orderBy(pools, getLiquidity, ['desc'])
+    .slice(0, MAXIMUM_NUMBER_OF_POOLS)
+    .filter(filterFunc);
+
+  const poolAllocations = calculateOptimalOutput(
+    filteredPools,
+    parsedAmountIn,
+    tokenIn.id,
+    tokenOut.id
+  );
+
+  const parallelPoolsWithAllocation = filteredPools.map((pool, i) => ({
+    ...pool,
+    partialAmountIn: scientificNotationToString(poolAllocations[i].toString()),
+  }));
+
+  const parallelPools = parallelPoolsWithAllocation.filter(
+    (paraPool) => Number(paraPool.partialAmountIn) > 0
+  );
+
+  if (parallelPools.length < 1) {
     throw new Error(
       `${intl.formatMessage({ id: 'no_pool_available_to_make_a_swap_from' })} ${
         tokenIn.symbol
@@ -94,8 +143,13 @@ export const estimateSwap = async ({
 
   try {
     const estimates = await Promise.all(
-      pools.map((pool) => {
-        const amount_with_fee = Number(amountIn) * (FEE_DIVISOR - pool.fee);
+      parallelPools.map((pool) => {
+        const allocation = toReadableNumber(
+          tokenIn.decimals,
+          scientificNotationToString(pool.partialAmountIn.toString())
+        );
+
+        const amount_with_fee = Number(allocation) * (FEE_DIVISOR - pool.fee);
         const in_balance = toReadableNumber(
           tokenIn.decimals,
           pool.supplies[tokenIn.id]
@@ -120,15 +174,7 @@ export const estimateSwap = async ({
           .catch(() => ({ status: 'error', estimate: '0', pool }));
       })
     );
-
-    const { estimate, pool } = estimates
-      .filter(({ status }) => status === 'success')
-      .sort((a, b) => (Number(b.estimate) > Number(a.estimate) ? 1 : -1))[0];
-
-    return {
-      estimate: estimate,
-      pool,
-    };
+    return estimates;
   } catch (err) {
     throw new Error(
       `${intl.formatMessage({ id: 'no_pool_available_to_make_a_swap_from' })} ${
@@ -151,51 +197,84 @@ interface InstantSwapOption extends SwapOptions {
   useNearBalance: boolean;
 }
 
+interface ParaSwapOptions {
+  useNearBalance?: boolean;
+  swapsToDo: EstimateSwapView[];
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  amountIn: string;
+  slippageTolerance: number;
+}
+
 export const swap = async ({
   useNearBalance,
-  pool,
   tokenIn,
   tokenOut,
+  swapsToDo,
+  slippageTolerance,
   amountIn,
-  minAmountOut,
-}: InstantSwapOption) => {
-  if (pool) {
+}: ParaSwapOptions) => {
+  if (swapsToDo) {
     if (useNearBalance) {
       await instantSwap({
-        pool,
         tokenIn,
         tokenOut,
         amountIn,
-        minAmountOut,
+        swapsToDo,
+        slippageTolerance,
       });
     } else {
       await depositSwap({
-        pool,
         tokenIn,
         tokenOut,
         amountIn,
-        minAmountOut,
+        slippageTolerance,
+        swapsToDo,
       });
     }
   }
 };
 
 export const instantSwap = async ({
-  pool,
   tokenIn,
   tokenOut,
   amountIn,
-  minAmountOut,
-}: SwapOptions) => {
-  const swapAction = {
-    pool_id: pool?.id,
-    token_in: tokenIn?.id,
-    token_out: tokenOut?.id,
-    min_amount_out: round(
+  swapsToDo,
+  slippageTolerance,
+}: // minAmountOut,
+ParaSwapOptions) => {
+  const swapActions = swapsToDo.map((s2d) => {
+    let dx_float = Number(s2d.pool.partialAmountIn);
+    let fpool = formatPoolNew(s2d.pool, tokenIn.id, tokenOut.id);
+    let dy_float = calculate_dy_float(dx_float, fpool, tokenIn.id, tokenOut.id);
+    let tokenOutAmount = toReadableNumber(
+      tokenOut.decimals,
+      scientificNotationToString(dy_float.toString())
+    );
+
+    s2d.estimate = tokenOutAmount;
+    let minTokenOutAmount = tokenOutAmount
+      ? percentLess(slippageTolerance, tokenOutAmount)
+      : '0';
+    let allocation = toReadableNumber(
       tokenIn.decimals,
-      toNonDivisibleNumber(tokenOut.decimals, minAmountOut)
-    ),
-  };
+      scientificNotationToString(s2d.pool.partialAmountIn)
+    );
+
+    return {
+      pool_id: s2d.pool.id,
+      token_in: tokenIn.id,
+      token_out: tokenOut.id,
+      amount_in: round(
+        tokenIn.decimals,
+        toNonDivisibleNumber(tokenIn.decimals, allocation)
+      ),
+      min_amount_out: round(
+        tokenOut.decimals,
+        toNonDivisibleNumber(tokenOut.decimals, minTokenOutAmount)
+      ),
+    };
+  });
 
   const transactions: Transaction[] = [];
   const tokenInActions: RefFiFunctionCallOptions[] = [];
@@ -209,7 +288,7 @@ export const instantSwap = async ({
       throw new Error(`${tokenOut.id} doesn't exist.`);
     });
 
-    if (!tokenOutRegistered || tokenOutRegistered.total === '0') {
+    if (tokenOutRegistered === null) {
       tokenOutActions.push({
         methodName: 'storage_deposit',
         args: {
@@ -233,10 +312,10 @@ export const instantSwap = async ({
         amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
         msg: JSON.stringify({
           force: 0,
-          actions: [swapAction],
+          actions: swapActions,
         }),
       },
-      gas: '150000000000000',
+      gas: '180000000000000',
       amount: ONE_YOCTO_NEAR,
     });
 
@@ -250,30 +329,50 @@ export const instantSwap = async ({
 };
 
 export const depositSwap = async ({
-  pool,
   tokenIn,
   tokenOut,
   amountIn,
-  minAmountOut,
-}: SwapOptions) => {
-  const swapAction = {
-    pool_id: pool.id,
-    token_in: tokenIn.id,
-    token_out: tokenOut.id,
-    amount_in: round(
+  slippageTolerance,
+  swapsToDo,
+}: // minAmountOut,
+ParaSwapOptions) => {
+  const swapActions = swapsToDo.map((s2d) => {
+    let dx_float = Number(s2d.pool.partialAmountIn);
+    let fpool = formatPoolNew(s2d.pool, tokenIn.id, tokenOut.id);
+    let dy_float = calculate_dy_float(dx_float, fpool, tokenIn.id, tokenOut.id);
+    let tokenOutAmount = toReadableNumber(
+      tokenOut.decimals,
+      scientificNotationToString(dy_float.toString())
+    );
+
+    s2d.estimate = tokenOutAmount;
+    let minTokenOutAmount = tokenOutAmount
+      ? percentLess(slippageTolerance, tokenOutAmount)
+      : '0';
+    let allocation = toReadableNumber(
       tokenIn.decimals,
-      toNonDivisibleNumber(tokenIn.decimals, amountIn)
-    ),
-    min_amount_out: round(
-      tokenIn.decimals,
-      toNonDivisibleNumber(tokenOut.decimals, minAmountOut)
-    ),
-  };
+      scientificNotationToString(s2d.pool.partialAmountIn)
+    );
+
+    return {
+      pool_id: s2d.pool.id,
+      token_in: tokenIn.id,
+      token_out: tokenOut.id,
+      amount_in: round(
+        tokenIn.decimals,
+        toNonDivisibleNumber(tokenIn.decimals, allocation)
+      ),
+      min_amount_out: round(
+        tokenOut.decimals,
+        toNonDivisibleNumber(tokenOut.decimals, minTokenOutAmount)
+      ),
+    };
+  });
 
   const actions: RefFiFunctionCallOptions[] = [
     {
       methodName: 'swap',
-      args: { actions: [swapAction] },
+      args: { actions: swapActions },
       amount: ONE_YOCTO_NEAR,
     },
   ];

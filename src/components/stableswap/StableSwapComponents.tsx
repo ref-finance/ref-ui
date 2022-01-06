@@ -257,13 +257,13 @@ export function DetailView({
 
   return (
     <div className="mt-4">
-      <div
-        className="flex justify-center"
-        onClick={() => {
-          setShowDetails(!showDetails);
-        }}
-      >
-        <div className="flex items-center text-white cursor-pointer">
+      <div className="flex justify-center">
+        <div
+          className="flex items-center text-white cursor-pointer"
+          onClick={() => {
+            setShowDetails(!showDetails);
+          }}
+        >
           <label className="mr-2">
             {noFeeAmount &&
               noFeeAmount !== '0' &&
@@ -296,7 +296,7 @@ export function DetailView({
             to,
             from
           )} ${toRealSymbol(tokenIn.symbol)}`}
-          pool={pool}
+          fee={pool.fee}
           from={from}
           to={to}
           tokenIn={tokenIn}

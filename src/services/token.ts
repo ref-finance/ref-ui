@@ -196,7 +196,7 @@ export const withdraw = async ({
     ],
   });
 
-  if (!ftBalance || ftBalance.total === '0') {
+  if (ftBalance === null) {
     transactions.unshift({
       receiverId: token.id,
       functionCalls: [

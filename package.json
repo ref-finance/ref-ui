@@ -4,6 +4,7 @@
   "license": "MIT OR Apache-2.0",
   "scripts": {
     "build": "parcel build src/index.html",
+    "build:testnet": "NEAR_ENV=testnet parcel build src/index.html",
     "start": "parcel src/index.html",
     "start:mainnet": "NEAR_ENV=mainnet parcel src/index.html",
     "start:testnet": "NEAR_ENV=testnet parcel src/index.html",
@@ -47,8 +48,10 @@
   "dependencies": {
     "@react-icons/all-files": "^4.1.0",
     "@svgr/parcel-plugin-svgr": "^5.5.0",
+    "@types/big.js": "^6.1.2",
     "actionsheet-react": "^1.0.12",
     "axios": "^0.21.1",
+    "big.js": "^6.1.1",
     "bignumber.js": "^9.0.1",
     "bn.js": "^5.2.0",
     "borsh": "^0.3.1",
