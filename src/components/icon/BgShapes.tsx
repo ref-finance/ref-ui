@@ -45,7 +45,7 @@ export function BgShapeCenter() {
       height="862"
       viewBox="0 0 1440 862"
       fill="none"
-      className="absolute block md:hidden xs:hidden w-screen top-20 left-0 bg-height-full max-h-screen"
+      className="absolute block md:hidden xs:hidden w-screen top-20 left-0 max-h-screen"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path

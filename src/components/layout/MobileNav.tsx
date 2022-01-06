@@ -16,9 +16,10 @@ import {
   IconZh,
   WrapNearEnter,
   IconAirDropGreenTip,
+  WrapNearIconDark,
 } from '~components/icon';
 import { Link, useLocation } from 'react-router-dom';
-import { wallet } from '~services/near';
+import { near, wallet } from '~services/near';
 import { useHistory } from 'react-router';
 import { REF_FARM_CONTRACT_ID } from '~services/near';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -325,21 +326,13 @@ export function MobileNavBar() {
             {wallet.isSignedIn() && (
               <div className="text-primaryText" onClick={() => setShow(false)}>
                 <div
-                  className="flex p-4 justify-between"
+                  className="flex p-4 justify-between items-center"
                   onClick={() => setMobileWrapNear(true)}
                 >
-                  <span className=" text-lg">
-                    <FormattedMessage
-                      id="wrapnear"
-                      defaultMessage="Wrap NEAR"
-                    />
+                  <WrapNearIconDark large forMobile />
+                  <span className="text-sm">
+                    NEAR:&nbsp;{toPrecision(nearBalance, 3, true)}
                   </span>
-                  <div className=" py-1 px-2 border border-framBorder text-framBorder hover:text-white hover:bg-framBorder hover:border-0 cursor-pointer rounded h-6 items-center flex">
-                    <WrapNearEnter></WrapNearEnter>
-                    <span className=" ml-2 text-xs">
-                      {toPrecision(nearBalance, 3, true)}
-                    </span>
-                  </div>
                 </div>
                 <WrapNear
                   isOpen={mobileWrapNear}
