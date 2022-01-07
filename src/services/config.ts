@@ -10,6 +10,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         explorerUrl: 'https://explorer.mainnet.near.org',
         indexerUrl: 'https://indexer.ref-finance.net',
         sodakiApiUrl: 'https://sodaki.com/api',
+        blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
         WRAP_NEAR_CONTRACT_ID: process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.near',
@@ -17,6 +18,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.near',
         REF_TOKEN_ID: 'token.ref-finance.near',
+        XREF_TOKEN_ID: 'xref.ref-dev.testnet',
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
@@ -31,7 +33,6 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 1,
           '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near': 2,
         },
-        blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
       };
     case 'development':
     case 'testnet':
@@ -43,6 +44,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         explorerUrl: 'https://explorer.testnet.near.org',
         indexerUrl: 'https://dev-indexer.ref-finance.com',
         sodakiApiUrl: 'https://sodaki.com/api',
+        blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'exchange.ref-dev.testnet',
         WRAP_NEAR_CONTRACT_ID:
@@ -50,8 +52,8 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'farm110.ref-dev.testnet',
-
-        REF_TOKEN_ID: 'token.ref-finance.testnet',
+        REF_TOKEN_ID: 'ref.fakes.testnet',
+        XREF_TOKEN_ID: 'xref.ref-dev.testnet',
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
@@ -66,7 +68,6 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'usdc.fakes.testnet': 1,
           'dai.fakes.testnet': 2,
         },
-        blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
       };
     default:
       return {
@@ -77,6 +78,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         explorerUrl: 'https://explorer.mainnet.near.org',
         indexerUrl: 'https://indexer.ref-finance.net',
         sodakiApiUrl: 'https://sodaki.com/api',
+        blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
         WRAP_NEAR_CONTRACT_ID: process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.near',
@@ -84,6 +86,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.near',
         REF_TOKEN_ID: 'token.ref-finance.near',
+        XREF_TOKEN_ID: 'xref.ref-dev.testnet',
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
@@ -98,7 +101,6 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 1,
           '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near': 2,
         },
-        blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
       };
   }
 }

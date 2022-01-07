@@ -10,6 +10,7 @@ import {
   getTokenBalances,
   getUserRegisteredTokens,
   TokenBalancesView,
+  getWhitelistedTokensAndNearTokens,
 } from '../services/token';
 import {
   toPrecision,
@@ -85,6 +86,23 @@ export const useUserRegisteredTokens = () => {
         )
         .then(setTokens);
     }
+  }, []);
+
+  return tokens;
+};
+export const useUserRegisteredTokensAll = () => {
+  const [tokens, setTokens] = useState<any[]>();
+
+  useEffect(() => {
+    getWhitelistedTokensAndNearTokens()
+      .then((tokenList) => {
+        return Promise.all(
+          tokenList.map((tokenId) => ftGetTokenMetadata(tokenId))
+        );
+      })
+      .then((result) => {
+        setTokens(result);
+      });
   }, []);
 
   return tokens;

@@ -13,16 +13,25 @@ module.exports = {
       '2xl': { min: '1536px' },
       '3xl': { min: '1792px' },
     },
-    boxShadow: { '4xl': '0px 0px 10px 4px rgba(0, 0, 0, 0.35)' },
+    boxShadow: { '4xl': '0px 0px 10px 4px rgba(0, 0, 0, 0.35)', 'green': '0px 0px 2px rgba(0, 198, 162, 0.5)'},
+
     extend: {
       backgroundImage: (theme) => ({
         farmSearch: 'linear-gradient(106.25deg, #00FFD1 6.88%, #00BA98 81.93%)',
         stableTab: 'linear-gradient(360deg, #00C6A2 0%, #008B72 100%)',
+        primaryGradient: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+        buttonBg: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
         farmContainer: '1fr 4fr',
         farmContainerOther: '1.2fr 3fr',
+        xrefColumn: '13fr 7fr'
+      },
+      gridTemplateRows: {
+        xrefContainer: '7fr 18fr',
+        xrefRowM: '3fr 2fr',
+        xrefContainerM: '2fr 3fr',
       },
       colors: {
         primary: '#10B981',
@@ -62,6 +71,13 @@ module.exports = {
         farmRound: '#B3C2CC',
         farmTopRight: '#008870',
         datebg: '#637684',
+        xrefbg: '#0F1D27',
+        greenColor: '#00C6A2',
+        xrefTab:'#293741',
+        borderColor: '#7e8a93',
+        warnColor:'#DE9450',
+        acccountTab: '#0F1D27',
+        acccountBlock: '#293741'
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

@@ -5,6 +5,7 @@ import DepositPage from './pages/DepositPage';
 import { PoolDetailsPage } from './pages/pools/DetailsPage';
 import SwapPage from './pages/SwapPage';
 import { AccountPage } from './pages/AccountPage';
+import { RecentActivityPage } from './pages/RecentActivityPage';
 import { LiquidityPage } from './pages/pools/LiquidityPage';
 import { YourLiquidityPage } from './pages/pools/YourLiquidityPage';
 import { AddPoolPage } from './pages/pools/AddPoolPage';
@@ -14,6 +15,7 @@ import NavigationBar from './components/layout/NavigationBar';
 import Footer from './components/layout/Footer';
 import { MorePoolsPage } from '~pages/pools/MorePoolsPage';
 import StableSwapPage from './pages/stable/StableSwapPage';
+import XrefPage from './pages/xref/XrefPage';
 import {
   BgShapeLeftTop,
   BgShapeCenter,
@@ -68,6 +70,7 @@ function App() {
         <Switch>
           <Route path="/deposit/:id?" component={AutoHeight(DepositPage)} />
           <Route path="/account" component={AccountPage} />
+          <Route path="/recent" component={RecentActivityPage} />
           <Route
             path="/more_pools/:tokenIds"
             component={AutoHeight(MorePoolsPage)}
@@ -84,6 +87,7 @@ function App() {
           <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
           <Route path="/farms" component={AutoHeight(FarmsPage)} />
           <Route path="/stableswap" component={AutoHeight(StableSwapPage)} />
+          <Route path="/xref" component={AutoHeight(XrefPage)} />
           <Route path="/" component={AutoHeight(SwapPage)} />
         </Switch>
         <Footer />

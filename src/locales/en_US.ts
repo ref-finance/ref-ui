@@ -280,6 +280,16 @@ const en_US = {
   protocol_fee: 'Protocol fee',
   referral_fee: 'Referral fee',
   total_fee_create: 'Total fee',
+  xref_title: 'Earn more by staking REF for xREF',
+  xref_title1: 'Earn more',
+  xref_title2: 'by staking REF for xREF',
+  xref_introdution:
+    '0.05% of every trade on Ref Finance will be used to buy back REF and be distributed to REF stakers proportionally based on their share of the staking pool. When you stake REF,  you receive xREF. Your xREF is continuously compounding, and when you unstake you will receive all of your originally deposited REF and additional REF earned from fees.',
+  staking_apr: 'Staking APR',
+  view_stats: 'View Stats',
+  xref: 'xREF',
+  ref: 'REF',
+  stake_ref: 'Stake REF',
   more_than_general_seed:
     'Please input number that more than or equal to 0.000001',
   more_than_stable_seed: 'Please input number that more than or equal to 1',
@@ -287,5 +297,12 @@ const en_US = {
   price_impact_is_about: 'Price impact is about',
   yes_swap: 'Yes, swap',
   amount_must_be_greater_than_0: 'amount must be greater than 0',
+  volume_ratio: '24h Volume/ Liquidity ratio',
+  go_to_near_wallet: 'Go to NEAR Wallet',
+  deposit_to_ref_account: 'Deposit to REF account',
+  withdraw_to_near_wallet: 'Withdraw to NEAR wallet',
+  insufficient: 'Insufficient',
+  into_ref_account: 'into your REF account.',
+  deposit_into_ref_account: 'Deposit into your REF account to add liquidity',
 };
 export default en_US;
