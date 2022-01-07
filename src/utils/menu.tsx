@@ -204,8 +204,8 @@ export const moreLinks: MobileMenuItem[] = [
     isExternal: false,
   },
   {
-    id: 'Xref',
-    label: 'Xref',
+    id: 'xREF',
+    label: 'xREF',
     pattern: '/xref',
     url: '/xref',
     isExternal: false,

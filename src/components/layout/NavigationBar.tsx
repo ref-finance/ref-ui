@@ -528,7 +528,7 @@ function NavigationBar() {
             />
             <PoolsMenu />
             <Anchor to="/farms" pattern="/farms" name="Farms" />
-            <Anchor to="/xref" pattern="/xref" name="Xref" />
+            <Anchor to="/xref" pattern="/xref" name="xREF" />
           </div>
           <div className="flex items-center justify-end flex-1">
             {wallet.isSignedIn() && (
