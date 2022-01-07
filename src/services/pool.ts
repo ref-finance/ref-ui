@@ -126,43 +126,6 @@ export const getPools = async ({
   }
 };
 
-export const getPoolsFromCache = async ({
-  page = 1,
-  perPage = DEFAULT_PAGE_LIMIT,
-  tokenName = '',
-  column = '',
-  order = 'desc',
-  uniquePairName = false,
-}: {
-  page?: number;
-  perPage?: number;
-  tokenName?: string;
-  column?: string;
-  order?: string;
-  uniquePairName?: boolean;
-}) => {
-  const rows = await db.queryPools({
-    page,
-    perPage,
-    tokenName,
-    column,
-    order,
-    uniquePairName,
-  });
-  return rows.map((row) => ({
-    id: row.id,
-    tokenIds: [row.token1Id, row.token2Id],
-    supplies: {
-      [row.token1Id]: row.token1Supply,
-      [row.token2Id]: row.token2Supply,
-    },
-    fee: row.fee,
-    shareSupply: row.shares,
-    tvl: 0,
-    token0_ref_price: '0',
-  }));
-};
-
 export const getPoolsFromIndexer = async ({
   page = 1,
   perPage = DEFAULT_PAGE_LIMIT,

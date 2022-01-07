@@ -286,5 +286,11 @@ const zh_CN = {
   price_impact_is_about: '价格影响大约是',
   yes_swap: '确定, 兑换吧',
   volume_ratio: '24小时交易量/流动性比率',
+  go_to_near_wallet: '跳转到NEAR钱包',
+  deposit_to_ref_account: '存储到REF账户',
+  withdraw_to_near_wallet: '提取到near钱包',
+  insufficient: '不足够的',
+  into_ref_account: '到你的REF账户。',
+  deposit_into_ref_account: '存储到REF账户来添加流动性',
 };
 export default zh_CN;

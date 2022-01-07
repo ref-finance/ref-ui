@@ -29,7 +29,7 @@ const CommunityLinks = [
   },
 ];
 function Footer() {
-  const { data } = useRefPrice();
+  const { data } = useRefPrice('Footer');
   const [hoverLogo, setHoverLogo] = useState(false);
   if (!data) return null;
 

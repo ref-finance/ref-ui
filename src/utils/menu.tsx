@@ -149,13 +149,13 @@ export type MobileMenuItem = {
 };
 
 export const moreLinks: MobileMenuItem[] = [
-  {
-    id: 'Deposit',
-    label: 'Deposit',
-    pattern: '/deposit/:id?',
-    url: '/deposit',
-    isExternal: false,
-  },
+  // {
+  //   id: 'Deposit',
+  //   label: 'Deposit',
+  //   pattern: '/deposit/:id?',
+  //   url: '/deposit',
+  //   isExternal: false,
+  // },
   {
     id: 'Swap',
     label: 'Swap',
@@ -201,6 +201,13 @@ export const moreLinks: MobileMenuItem[] = [
     label: 'Farms',
     pattern: '/farms',
     url: '/farms',
+    isExternal: false,
+  },
+  {
+    id: 'Xref',
+    label: 'Xref',
+    pattern: '/xref',
+    url: '/xref',
     isExternal: false,
   },
   {

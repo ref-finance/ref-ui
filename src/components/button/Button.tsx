@@ -250,8 +250,7 @@ export function GreenLButton(
     loading?: boolean;
   }
 ) {
-  const { disabled, loading } = props;
-  const { className, ...propsWithoutClassName } = props;
+  const { disabled, loading, className, ...propsWithoutClassName } = props;
   return (
     <button
       disabled={disabled}
@@ -290,4 +289,39 @@ export function ButtonTextWrapper({
   loading: boolean;
 }) {
   return <>{loading ? <BeatLoading /> : <Text />}</>;
+}
+
+export function BorderButtonHover(
+  props: HTMLAttributes<HTMLButtonElement> & {
+    disabled?: boolean;
+  }
+) {
+  const { className, disabled } = props;
+  return (
+    <button
+      disabled={disabled}
+      className={`w-24 h-8 border border-greenLight text-xs text-white rounded ${className} ${
+        disabled ? 'cursor-not-allowed' : 'hover:opacity-100 hover:bg-buttonBg'
+      }`}
+    >
+      {props.children}
+    </button>
+  );
+}
+export function BorderButtonMobile(
+  props: HTMLAttributes<HTMLButtonElement> & {
+    disabled?: boolean;
+  }
+) {
+  const { className, disabled } = props;
+  return (
+    <button
+      disabled={disabled}
+      className={`px-2 border border-greenLight text-xs text-framBorder rounded ${
+        className ? className : ''
+      } ${disabled ? 'opacity-40' : ''}`}
+    >
+      {props.children}
+    </button>
+  );
 }

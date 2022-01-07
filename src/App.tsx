@@ -5,6 +5,7 @@ import DepositPage from './pages/DepositPage';
 import { PoolDetailsPage } from './pages/pools/DetailsPage';
 import SwapPage from './pages/SwapPage';
 import { AccountPage } from './pages/AccountPage';
+import { RecentActivityPage } from './pages/RecentActivityPage';
 import { LiquidityPage } from './pages/pools/LiquidityPage';
 import { YourLiquidityPage } from './pages/pools/YourLiquidityPage';
 import { AddPoolPage } from './pages/pools/AddPoolPage';
@@ -69,6 +70,7 @@ function App() {
         <Switch>
           <Route path="/deposit/:id?" component={AutoHeight(DepositPage)} />
           <Route path="/account" component={AccountPage} />
+          <Route path="/recent" component={RecentActivityPage} />
           <Route
             path="/more_pools/:tokenIds"
             component={AutoHeight(MorePoolsPage)}

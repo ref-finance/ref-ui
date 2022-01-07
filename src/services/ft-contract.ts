@@ -59,8 +59,8 @@ export interface TokenMetadata {
   symbol: string;
   decimals: number;
   icon: string;
-  ref?: number;
-  near?: number;
+  ref?: number | string;
+  near?: number | string;
   total?: number;
   amountLabel?: string;
   amount?: number;

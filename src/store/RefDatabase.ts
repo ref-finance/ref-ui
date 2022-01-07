@@ -134,7 +134,7 @@ class RefDatabase extends Dexie {
   }
 
   public async queryPools(args: any) {
-    let pools = await this.allPools().toArray();
+    let pools = await this.allPoolsTokens().toArray();
     return this.paginationPools(
       args,
       this.orderPools(

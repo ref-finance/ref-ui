@@ -298,5 +298,11 @@ const en_US = {
   yes_swap: 'Yes, swap',
   amount_must_be_greater_than_0: 'amount must be greater than 0',
   volume_ratio: '24h Volume/ Liquidity ratio',
+  go_to_near_wallet: 'Go to NEAR Wallet',
+  deposit_to_ref_account: 'Deposit to REF account',
+  withdraw_to_near_wallet: 'Withdraw to NEAR wallet',
+  insufficient: 'Insufficient',
+  into_ref_account: 'into your REF account.',
+  deposit_into_ref_account: 'Deposit into your REF account to add liquidity',
 };
 export default en_US;

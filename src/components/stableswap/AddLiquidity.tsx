@@ -43,6 +43,9 @@ import { InfoLine } from './LiquidityComponents';
 import { usePool } from '~state/pool';
 import { shareToAmount } from '~services/stable-swap';
 import { LP_TOKEN_DECIMALS } from '~services/m-token';
+import { WarnTriangle } from '~components/icon/SwapRefresh';
+import { ActionModel } from '~pages/AccountPage';
+import { getDepositableBalance } from '~state/token';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE';
@@ -91,7 +94,7 @@ export default function AddLiquidityComponent(props: {
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');
-  const [addType, setAddType] = useState<string>('addAll');
+  const [addType, setAddType] = useState<string>('');
   const [slippageTolerance, setSlippageTolerance] = useState<number>(
     Number(localStorage.getItem(SWAP_SLIPPAGE_KEY)) || 0.1
   );
@@ -112,6 +115,8 @@ export default function AddLiquidityComponent(props: {
     stablePool,
   });
   const [slippageInvalid, setSlippageInvalid] = useState(false);
+  const [modal, setModal] = useState(null);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     if (addType === 'addMax') {
@@ -312,39 +317,66 @@ export default function AddLiquidityComponent(props: {
     }
 
     if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
-      setMessageId('deposit_to_add_liquidity');
-      setDefaultMessage('Deposit to Add Liquidity');
+      // setMessageId('deposit_to_add_liquidity');
+      // setDefaultMessage('Deposit to Add Liquidity');
       setCanAddLP(false);
       setCanDeposit(true);
-      throw new Error(
-        `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
-          tokens[0].symbol
-        )}`
-      );
+      const { id, decimals } = tokens[0];
+      getDepositableBalance(id, decimals).then((nearBalance) => {
+        setModal({
+          token: tokens[0],
+          action: 'deposit',
+          max: nearBalance,
+        });
+      });
+      // throw new Error(
+      //   `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
+      //     tokens[0].symbol
+      //   )}`
+      // );
+      return;
     }
 
     if (secondTokenAmountBN.isGreaterThan(secondTokenBalanceBN)) {
-      setMessageId('deposit_to_add_liquidity');
-      setDefaultMessage('Deposit to Add Liquidity');
+      // setMessageId('deposit_to_add_liquidity');
+      // setDefaultMessage('Deposit to Add Liquidity');
       setCanAddLP(false);
       setCanDeposit(true);
-      throw new Error(
-        `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
-          tokens[1].symbol
-        )}`
-      );
+      const { id, decimals } = tokens[1];
+      getDepositableBalance(id, decimals).then((nearBalance) => {
+        setModal({
+          token: tokens[0],
+          action: 'deposit',
+          max: nearBalance,
+        });
+      });
+      // throw new Error(
+      //   `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
+      //     tokens[1].symbol
+      //   )}`
+      // );
+      return;
     }
 
     if (thirdTokenAmountBN.isGreaterThan(thirdTokenBalanceBN)) {
-      setMessageId('deposit_to_add_liquidity');
-      setDefaultMessage('Deposit to Add Liquidity');
+      // setMessageId('deposit_to_add_liquidity');
+      // setDefaultMessage('Deposit to Add Liquidity');
       setCanAddLP(false);
       setCanDeposit(true);
-      throw new Error(
-        `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
-          tokens[2].symbol
-        )}`
-      );
+      const { id, decimals } = tokens[2];
+      getDepositableBalance(id, decimals).then((nearBalance) => {
+        setModal({
+          token: tokens[0],
+          action: 'deposit',
+          max: nearBalance,
+        });
+      });
+      // throw new Error(
+      //   `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
+      //     tokens[2].symbol
+      //   )}`
+      // );
+      return;
     }
 
     if (
@@ -381,7 +413,7 @@ export default function AddLiquidityComponent(props: {
     });
   }
 
-  const canSubmit = canDeposit || (canAddLP && !slippageInvalid);
+  const canSubmit = canAddLP && !slippageInvalid;
 
   return (
     <>
@@ -441,9 +473,35 @@ export default function AddLiquidityComponent(props: {
           </div>
         </div>
         <div className="px-8">
-          <div className="flex justify-center mx-2 mb-1">
-            {error && <Alert level="error" message={error.message} />}
-          </div>
+          {error ? (
+            <div className="flex justify-center mx-2 mb-1">
+              {<Alert level="error" message={error.message} />}
+            </div>
+          ) : null}
+
+          {canDeposit ? (
+            <div className="flex flex-col justify-center items-center rounded-md p-4 mb-5 border border-warnColor">
+              <div className="flex items-center">
+                <WarnTriangle />
+                <label className="ml-2.5 text-base text-warnColor">
+                  <FormattedMessage id="insufficient" /> {modal?.token?.symbol}
+                  ！
+                </label>
+              </div>
+              <div className="text-white text-base mt-3 text-center">
+                <label
+                  onClick={() => {
+                    setVisible(true);
+                  }}
+                  className="font-semibold underline cursor-pointer"
+                >
+                  <FormattedMessage id="deposit" />
+                </label>{' '}
+                {modal?.token?.symbol}{' '}
+                <FormattedMessage id="into_ref_account" />
+              </div>
+            </div>
+          ) : null}
           {wallet.isSignedIn() ? (
             <SolidButton
               disabled={!canSubmit}
@@ -475,6 +533,11 @@ export default function AddLiquidityComponent(props: {
           )}
         </div>
       </Card>
+      <ActionModel
+        modal={modal}
+        visible={visible}
+        onRequestClose={setVisible}
+      ></ActionModel>
     </>
   );
 }

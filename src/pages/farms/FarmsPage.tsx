@@ -125,10 +125,24 @@ export function FarmsPage() {
   const page = 1;
   const perPage = DEFAULT_PAGE_LIMIT;
   const withdrawNumber = 5;
+  // const refreshTime = 120000;
+  const refreshTime = 5000;
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
     loadFarmInfoList().then();
   }, []);
+  useEffect(() => {
+    if (count > 0) {
+      loadFarmInfoList(true);
+    }
+    const intervalId = setInterval(() => {
+      setCount(count + 1);
+    }, refreshTime);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [count]);
 
   useEffect(() => {
     document.addEventListener('click', handleClick, false);
@@ -137,8 +151,12 @@ export function FarmsPage() {
     };
   }, [searchData]);
 
-  async function loadFarmInfoList() {
-    setUnclaimedFarmsIsLoading(true);
+  async function loadFarmInfoList(isUpload?: boolean) {
+    if (isUpload) {
+      setUnclaimedFarmsIsLoading(false);
+    } else {
+      setUnclaimedFarmsIsLoading(true);
+    }
     const isSignedIn: boolean = wallet.isSignedIn();
 
     const emptyObj = async () => {
@@ -910,7 +928,7 @@ function FarmView({
   const clipSize = 12;
   const claimLoadingColor = '#ffffff';
   const claimLoadingSize = 12;
-  const refreshTime = 120000;
+  // const refreshTime = 120000;
 
   const PoolId = farmData.lpTokenId;
   const tokens = useTokens(farmData?.tokenIds);
@@ -947,33 +965,33 @@ function FarmView({
     getAllUnclaimedReward();
   }, [farmData]);
   const mergeCommonRewardFarms = mergeCommonRewardFarmsFun(farmsData);
-  useEffect(() => {
-    if (count > 0) {
-      setLoading(true);
-      getFarmInfo(
-        farmData,
-        farmData.pool,
-        stakedList[farmData.seed_id],
-        tokenPriceList,
-        rewardList[farmData.reward_token],
-        seeds[farmData.seed_id],
-        farmData.lpTokenId
-      ).then((data) => {
-        setData(data);
-        setLoading(false);
-      });
-    }
+  // useEffect(() => {
+  //   if (count > 0) {
+  //     setLoading(true);
+  //     getFarmInfo(
+  //       farmData,
+  //       farmData.pool,
+  //       stakedList[farmData.seed_id],
+  //       tokenPriceList,
+  //       rewardList[farmData.reward_token],
+  //       seeds[farmData.seed_id],
+  //       farmData.lpTokenId
+  //     ).then((data) => {
+  //       setData(data);
+  //       setLoading(false);
+  //     });
+  //   }
 
-    if (data) {
-      setEnded(isEnded(data));
-      setPending(isPending(data));
-    }
+  //   if (data) {
+  //     setEnded(isEnded(data));
+  //     setPending(isPending(data));
+  //   }
 
-    const id = setInterval(() => {
-      setCount(count + 1);
-    }, refreshTime);
-    return () => clearInterval(id);
-  }, [count]);
+  //   const id = setInterval(() => {
+  //     setCount(count + 1);
+  //   }, refreshTime);
+  //   return () => clearInterval(id);
+  // }, [count]);
   function mergeCommonRewardFarmsFun(farmsData: FarmInfo[]) {
     const arr = JSON.parse(JSON.stringify(farmsData));
     const tempMap = {};

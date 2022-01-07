@@ -6,19 +6,21 @@ import { WrapNearEnter } from '~components/icon/Near';
 import Alert from '~components/alert/Alert';
 import { ftGetBalance, TokenMetadata } from '~services/ft-contract';
 import { wallet } from '~services/near';
-import { nearMetadata, nearDeposit, nearWithdraw } from '~services/wrap-near';
-import { useDepositableBalance } from '~state/token';
-import { isMobile } from '~utils/device';
+import {
+  nearMetadata,
+  nearDeposit,
+  nearWithdraw,
+  wnearMetadata,
+  WRAP_NEAR_CONTRACT_ID,
+} from '~services/wrap-near';
+import { useDepositableBalance, useToken } from '~state/token';
 import { toReadableNumber } from '~utils/numbers';
 import SubmitButton from './SubmitButton';
 import TokenAmount from './TokenAmount';
 
-const WNEAR_SYMBOL = 'wNEAR';
-
-function WrapNear(props: ReactModal.Props & { allTokens: TokenMetadata[] }) {
-  const { allTokens } = props;
+function WrapNear(props: ReactModal.Props) {
   const [showError, setShowError] = useState(false);
-  const [tokenOut, setTokenOut] = useState<TokenMetadata>();
+  const [tokenOut, setTokenOut] = useState<TokenMetadata>(wnearMetadata);
   const [tokenIn, setTokenIn] = useState<TokenMetadata>(nearMetadata);
   const [tokenInAmount, setTokenInAmount] = useState<string>('');
   const topBall = useRef<HTMLInputElement>();
@@ -30,12 +32,6 @@ function WrapNear(props: ReactModal.Props & { allTokens: TokenMetadata[] }) {
   const intl = useIntl();
 
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (allTokens) {
-      setTokenOut(allTokens.find((token) => token.symbol === WNEAR_SYMBOL));
-    }
-  }, [allTokens]);
 
   useEffect(() => {
     if (tokenIn && tokenIn.id !== 'NEAR') {
