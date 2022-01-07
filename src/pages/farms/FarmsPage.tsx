@@ -125,8 +125,7 @@ export function FarmsPage() {
   const page = 1;
   const perPage = DEFAULT_PAGE_LIMIT;
   const withdrawNumber = 5;
-  // const refreshTime = 120000;
-  const refreshTime = 5000;
+  const refreshTime = 120000;
   const [count, setCount] = useState(0);
 
   useEffect(() => {
