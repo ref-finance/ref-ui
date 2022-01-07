@@ -388,37 +388,6 @@ export function MobileNavBar() {
           ref={popupRef}
           className="block h-full overflow-y-scroll w-4/6 float-right pt-6 bg-cardBg shadow-4xl"
         >
-          <div className="flex justify-between items-center">
-            <div
-              className={`inline-flex px-1 ml-4 items-center justify-center rounded-full ${
-                wallet.isSignedIn()
-                  ? 'bg-gray-700 text-white'
-                  : 'border border-gradientFrom text-gradientFrom'
-              } pl-3 pr-3`}
-            >
-              <div className="pr-1">
-                <Near color={wallet.isSignedIn() ? 'white' : '#00c6a2'} />
-              </div>
-              <div className="overflow-ellipsis py-1 text-xs overflow-hidden whitespace-nowrap account-name">
-                {wallet.isSignedIn() ? (
-                  <div>{accountName}</div>
-                ) : (
-                  <button
-                    onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
-                    type="button"
-                  >
-                    <span className="ml-2 text-xs">
-                      <FormattedMessage
-                        id="connect_to_near"
-                        defaultMessage="Connect to NEAR"
-                      />
-                    </span>
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
           <div className="p-4 flex text-white items-center justify-start">
             <NavLogoLarge />
             <span className="inline-block ml-2 mt-1 text-white">
@@ -426,14 +395,6 @@ export function MobileNavBar() {
             </span>
           </div>
           <div className="text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
-            {/* {wallet.isSignedIn() && (
-              <MobileAnchor
-                to="/account"
-                pattern="/account"
-                name="view_account"
-                onClick={close}
-              />
-            )} */}
             {wallet.isSignedIn() && (
               <div className="text-primaryText" onClick={() => setShow(false)}>
                 <div
@@ -598,7 +559,6 @@ export function MobileNavBar() {
               <MobileSwitchLanguage />
             </openMenuContext.Provider>
           </div>
-          <Logout />
           <div
             className="p-4 bg-cardBg mb-24"
             onClick={() => window.open('https://sodaki.com/')}

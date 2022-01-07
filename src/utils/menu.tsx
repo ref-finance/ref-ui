@@ -169,7 +169,6 @@ export const moreLinks: MobileMenuItem[] = [
     pattern: '/stableswap',
     url: '/stableswap',
     isExternal: false,
-    newFunction: true,
   },
   {
     id: 'pools',
@@ -209,6 +208,7 @@ export const moreLinks: MobileMenuItem[] = [
     pattern: '/xref',
     url: '/xref',
     isExternal: false,
+    newFunction: true,
   },
   {
     id: 'more',

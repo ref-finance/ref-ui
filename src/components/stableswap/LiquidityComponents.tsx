@@ -82,7 +82,7 @@ export function InfoLine({
         {title}
         {tipShow ? (
           <div
-            className="ml-2 text-sm"
+            className="ml-1 text-sm"
             data-type="info"
             data-place="right"
             data-multiline={true}

@@ -126,7 +126,7 @@ function AccountEntry() {
     },
   ];
   return (
-    <div className="user text-xs text-center justify-end h-full z-30 ml-2 mx-5">
+    <div className="user text-xs text-center justify-end h-full z-30 mx-2">
       <div
         className={`cursor-pointer font-bold items-center justify-end text-center overflow-visible relative h-16 pt-5`}
         onMouseEnter={() => {
@@ -148,13 +148,16 @@ function AccountEntry() {
           </div>
           <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name">
             {wallet.isSignedIn() ? (
-              accountName
+              <span className="flex ml-1">
+                {accountName}
+                <FiChevronDown className="text-base ml-1" />
+              </span>
             ) : (
               <button
                 onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
                 type="button"
               >
-                <span className="ml-2 text-xs">
+                <span className="ml-1 text-xs">
                   <FormattedMessage
                     id="connect_to_near"
                     defaultMessage="Connect to NEAR"
@@ -487,11 +490,11 @@ function MoreMenu() {
                     </span>
                   )}
                   {label}
-                  {id === 1 && (
+                  {/* {id === 1 && (
                     <span className=" -mt-2 ml-1">
                       <IconAirDropGreenTip />{' '}
                     </span>
-                  )}
+                  )} */}
                   <span className="ml-4 text-xl">{icon}</span>
                   {children && (
                     <span className="text-xl absolute right-4">
@@ -520,15 +523,10 @@ function NavigationBar() {
           <div className="flex items-center">
             <Quiz />
             <Anchor to="/" pattern="/" name="Swap" />
-            <Anchor
-              to="/stableswap"
-              pattern="/stableswap"
-              name="StableSwap"
-              newFuntion={true}
-            />
+            <Anchor to="/stableswap" pattern="/stableswap" name="StableSwap" />
             <PoolsMenu />
             <Anchor to="/farms" pattern="/farms" name="Farms" />
-            <Anchor to="/xref" pattern="/xref" name="xREF" />
+            <Anchor to="/xref" pattern="/xref" name="xREF" newFuntion={true} />
           </div>
           <div className="flex items-center justify-end flex-1">
             {wallet.isSignedIn() && (

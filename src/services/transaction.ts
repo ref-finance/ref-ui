@@ -229,7 +229,7 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
   const { receiver_id, amount, msg } = params;
   let Action;
   let Amount;
-  if (tokenId == config.REF_TOKEN_ID) {
+  if (receiver_id == config.XREF_TOKEN_ID) {
     Action = 'xREF Stake';
     Amount = toReadableNumber(XREF_TOKEN_DECIMALS, amount);
     return {
