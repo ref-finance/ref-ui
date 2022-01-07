@@ -19,6 +19,7 @@ import {
 } from '~utils/numbers';
 import { toRealSymbol } from '~utils/token';
 import getConfig from '~services/config';
+import { nearMetadata } from '~/services/wrap-near';
 
 export const useToken = (id: string) => {
   const [token, setToken] = useState<TokenMetadata>();
@@ -90,18 +91,29 @@ export const useUserRegisteredTokens = () => {
 
   return tokens;
 };
-export const useUserRegisteredTokensAll = () => {
+export const useUserRegisteredTokensAllAndNearBalance = () => {
   const [tokens, setTokens] = useState<any[]>();
 
   useEffect(() => {
     getWhitelistedTokensAndNearTokens()
       .then((tokenList) => {
-        return Promise.all(
+        const walletBalancePromise = Promise.all(
+          [nearMetadata.id, ...tokenList].map((tokenId) => {
+            return getDepositableBalance(tokenId);
+          })
+        );
+        const tokenMetadataPromise = Promise.all(
           tokenList.map((tokenId) => ftGetTokenMetadata(tokenId))
         );
+        return Promise.all([tokenMetadataPromise, walletBalancePromise]);
       })
       .then((result) => {
-        setTokens(result);
+        const arr = result[0];
+        arr.unshift(nearMetadata);
+        arr.forEach((token, index) => {
+          token.near = result[1][index];
+        });
+        setTokens(arr);
       });
   }, []);
 
