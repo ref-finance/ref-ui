@@ -68,7 +68,7 @@ function App() {
         />
 
         <Switch>
-          <Route path="/deposit/:id?" component={AutoHeight(DepositPage)} />
+          {/* <Route path="/deposit/:id?" component={AutoHeight(DepositPage)} /> */}
           <Route path="/account" component={AccountPage} />
           <Route path="/recent" component={RecentActivityPage} />
           <Route

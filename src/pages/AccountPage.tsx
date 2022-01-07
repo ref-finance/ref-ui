@@ -516,13 +516,18 @@ export function ActionModel(props: any) {
   const { modal, visible, onRequestClose } = props;
   const [amount, setAmount] = useState('0');
   const [loading, setLoading] = useState<boolean>(false);
-  const { token, action, max } = modal || {};
-  const showBalance = (max: string) => {
-    const big = new BigNumber(max);
+  const { token, action } = modal || {};
+  useEffect(() => {
+    if (!visible) {
+      setAmount('0');
+    }
+  }, [visible]);
+  const showBalance = () => {
+    const big = new BigNumber(modal?.max || '0');
     if (big.isEqualTo('0')) {
       return '0';
     } else {
-      return big.toFixed(5, 1);
+      return big.toFixed(3, 1);
     }
   };
   const onSubmit = () => {
@@ -537,6 +542,20 @@ export function ActionModel(props: any) {
       withdraw({ token, amount });
     }
   };
+  const getRealMax = () => {
+    const bigMax = new BigNumber(modal?.max || 0);
+    let result_max = modal?.max;
+
+    if (action == 'deposit' && modal?.token?.symbol == 'NEAR') {
+      if (bigMax.isGreaterThan('1')) {
+        result_max = bigMax.minus(1);
+      } else {
+        result_max = 0;
+      }
+    }
+    return result_max;
+  };
+  const max = getRealMax();
   return (
     <Modal
       isOpen={visible}
@@ -572,7 +591,7 @@ export function ActionModel(props: any) {
           <div className="relative flex-grow xs:w-3/5 md:w-3/5">
             <div className="text-primaryText text-xs absolute right-0 -top-6">
               <FormattedMessage id="balance"></FormattedMessage>:{' '}
-              <label title={max}>{showBalance(max)}</label>
+              <label title={max}>{showBalance()}</label>
             </div>
             <OldInputAmount max={max} onChangeAmount={setAmount} />
           </div>
