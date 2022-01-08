@@ -145,23 +145,22 @@ export const GetExchangeRate = ({
     tokens[1].decimals || 24,
     pool.supplies[tokens[1].id]
   );
+  const rate = Number(second_token_num) / Number(first_token_num);
 
-  const showRate =
-    Number(second_token_num) / Number(first_token_num) < 0.01
-      ? '< 0.01'
-      : (Number(second_token_num) / Number(first_token_num)).toFixed(2);
+  const showRate = rate < 0.01 ? '< 0.01' : rate.toFixed(2);
 
-  return (
-    <span>
-      {Number(first_token_num) === 0 ? (
-        'N/A'
-      ) : (
-        <span title={`${Number(second_token_num) / Number(first_token_num)}`}>
-          {Number(second_token_num) / Number(first_token_num) < 0.01 ? '' : '≈'}{' '}
-          {showRate}
+  return Number(first_token_num) === 0 ? (
+    <div className="px-1 border border-transparent">&nbsp;</div>
+  ) : (
+    <div className="text-white text-center px-1  rounded-sm border border-solid border-gray-400">
+      <span>
+        1&nbsp;{toRealSymbol(tokens[0].symbol)}&nbsp;
+        <span title={`${rate}`}>
+          {rate < 0.01 ? '' : '≈'} {showRate}
         </span>
-      )}
-    </span>
+        &nbsp;{toRealSymbol(tokens[1].symbol)}
+      </span>
+    </div>
   );
 };
 
@@ -1428,22 +1427,8 @@ export function PoolDetailsPage() {
               </div>
               {/* rate */}
               <div className="flex justify-between text-sm md:text-xs xs:text-xs">
-                <div className="text-white text-center px-1  rounded-sm border border-solid border-gray-400">
-                  1&nbsp;{toRealSymbol(tokens[0].symbol)}&nbsp;
-                  <GetExchangeRate
-                    tokens={[tokens[0], tokens[1]]}
-                    pool={pool}
-                  />
-                  &nbsp;{toRealSymbol(tokens[1].symbol)}
-                </div>
-                <div className="text-white text-center px-1  rounded-sm border border-solid border-gray-400">
-                  1&nbsp;{toRealSymbol(tokens[1].symbol)}&nbsp;
-                  <GetExchangeRate
-                    tokens={[tokens[1], tokens[0]]}
-                    pool={pool}
-                  />
-                  &nbsp;{toRealSymbol(tokens[0].symbol)}
-                </div>
+                <GetExchangeRate tokens={[tokens[0], tokens[1]]} pool={pool} />
+                <GetExchangeRate tokens={[tokens[1], tokens[0]]} pool={pool} />
               </div>
             </div>
             <div className="border-b border-solid border-gray-600" />
