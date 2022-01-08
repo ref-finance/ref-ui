@@ -301,7 +301,9 @@ export function BorderButtonHover(
     <button
       disabled={disabled}
       className={`w-24 h-8 border border-greenLight text-xs text-white rounded ${className} ${
-        disabled ? 'cursor-not-allowed' : 'hover:opacity-100 hover:bg-buttonBg'
+        disabled
+          ? 'cursor-not-allowed'
+          : 'hover:opacity-100 hover:bg-buttonGradientBg'
       }`}
     >
       {props.children}

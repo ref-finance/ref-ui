@@ -29,6 +29,8 @@ import { BeatLoading } from '~components/layout/Loading';
 import { STORAGE_PER_TOKEN } from '~services/creators/storage';
 import { IoCloseOutline } from 'react-icons/io5';
 import { XrefSymbol } from '~components/icon/Xref';
+import ReactTooltip from 'react-tooltip';
+import QuestionMark from '~components/farm/QuestionMark';
 
 const accountSortFun = (
   by: string,
@@ -91,6 +93,31 @@ const getWalletBalance = (item: TokenMetadata) => {
     return toInternationalCurrencySystem(near.toString());
   }
 };
+const NearTip = () => {
+  const intl = useIntl();
+  return (
+    <div
+      className="ml-1.5"
+      data-type="info"
+      data-place="right"
+      data-multiline={true}
+      data-class="reactTip"
+      data-html={true}
+      data-tip={intl.formatMessage({ id: 'deposit_near_tip' })}
+      data-for="nearId"
+    >
+      <QuestionMark />
+      <ReactTooltip
+        className="w-20"
+        id="nearId"
+        backgroundColor="#1D2932"
+        border
+        borderColor="#7e8a93"
+        effect="solid"
+      />
+    </div>
+  );
+};
 function AccountTable(props: any) {
   const { userTokens, getModalData } = props;
   const [tokensSort, setTokensSort] = useState(userTokens);
@@ -111,7 +138,7 @@ function AccountTable(props: any) {
   return (
     <table className="w-full text-sm text-gray-400 mt-8 table-auto">
       <thead>
-        <tr className="h-9 border-b border-borderColor border-opacity-30">
+        <tr className="h-9">
           <th className="pl-6 text-left">
             <FormattedMessage id="tokens"></FormattedMessage>
           </th>
@@ -156,7 +183,7 @@ function AccountTable(props: any) {
         {tokensSort.map((item: TokenMetadata) => {
           return (
             <tr
-              className={`h-16 border-b border-borderColor border-opacity-30 hover:bg-chartBg hover:bg-opacity-20 ${
+              className={`h-16 border-t border-borderColor border-opacity-30 hover:bg-chartBg hover:bg-opacity-20 ${
                 new BigNumber(item.near).isEqualTo('0') &&
                 new BigNumber(item.ref).isEqualTo('0')
                   ? 'hidden'
@@ -176,9 +203,12 @@ function AccountTable(props: any) {
                     </div>
                   )}
                   <div className="flex flex-col">
-                    <label className="text-white text-lg font-semibold">
-                      {item.symbol == 'XREF' ? 'xREF' : item.symbol}
-                    </label>
+                    <div className="flex items-center">
+                      <label className="text-white text-lg font-semibold">
+                        {item.symbol == 'XREF' ? 'xREF' : item.symbol}
+                      </label>
+                      {item.symbol == 'NEAR' ? <NearTip /> : null}
+                    </div>
                     <label className="text-xs text-primaryText break-all">
                       {item.id}
                     </label>
@@ -255,7 +285,7 @@ function MobileAccountTable(props: any) {
   return (
     <table className="text-left w-full text-sm text-gray-400 mt-8 table-auto">
       <thead>
-        <tr className="h-9 border-b border-borderColor border-opacity-30">
+        <tr className="h-9">
           <th className="pl-4">
             <FormattedMessage id="tokens"></FormattedMessage>
           </th>
@@ -299,7 +329,7 @@ function MobileAccountTable(props: any) {
         {tokensSort.map((item: TokenMetadata) => {
           return (
             <tr
-              className={`h-16 border-b border-borderColor border-opacity-30 hover:bg-chartBg hover:bg-opacity-20 ${
+              className={`h-16 border-t border-borderColor border-opacity-30 hover:bg-chartBg hover:bg-opacity-20 ${
                 (type == 'ref' && new BigNumber(item.ref).isEqualTo(0)) ||
                 (type == 'near' && new BigNumber(item.near).isEqualTo(0))
                   ? 'hidden'
@@ -320,9 +350,12 @@ function MobileAccountTable(props: any) {
                   )}
 
                   <div className="flex flex-col">
-                    <label className="text-white text-lg font-semibold">
-                      {item.symbol == 'XREF' ? 'xREF' : item.symbol}
-                    </label>
+                    <div className="flex items-center">
+                      <label className="text-white text-lg font-semibold">
+                        {item.symbol == 'XREF' ? 'xREF' : item.symbol}
+                      </label>
+                      {item.symbol == 'NEAR' ? <NearTip /> : null}
+                    </div>
                     <label className="text-xs text-primaryText break-all">
                       {item.id}
                     </label>
@@ -391,8 +424,8 @@ function Account(props: any) {
     setVisible(true);
   };
   return (
-    <div className="flex justify-center relative w-1/2 m-auto mt-16 xs:hidden md:hidden">
-      <Card className="w-full py-6 px-0">
+    <div className="flex justify-center relative w-3/5 m-auto mt-16 xs:hidden md:hidden">
+      <Card className="w-full pt-6 pb-1.5 px-0">
         <div className="flex items-center justify-between pb-4 px-6">
           <div className="flex items-center font-semibold text-white">
             <NearIcon />

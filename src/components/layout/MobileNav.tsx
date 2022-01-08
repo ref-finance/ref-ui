@@ -223,7 +223,7 @@ export function AccountModel(props: any) {
                 props.closeAccount();
               }}
               key={item.textId + index}
-              className={`flex items-center text-lg cursor-pointer font-semibold py-4 pl-20 hover:text-white hover:bg-navHighLightBg ${
+              className={`flex items-center text-base cursor-pointer font-semibold py-4 pl-20 hover:text-white hover:bg-navHighLightBg ${
                 item.selected
                   ? 'text-white bg-navHighLightBg'
                   : 'text-primaryText'

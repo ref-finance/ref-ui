@@ -292,5 +292,6 @@ const zh_CN = {
   insufficient: '不足够的',
   into_ref_account: '到你的REF账户。',
   deposit_into_ref_account: '存储到REF账户来添加流动性',
+  deposit_near_tip: '存入时至少保留一个NEAR以支付汽油费',
 };
 export default zh_CN;

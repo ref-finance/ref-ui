@@ -304,5 +304,6 @@ const en_US = {
   insufficient: 'Insufficient',
   into_ref_account: 'into your REF account.',
   deposit_into_ref_account: 'Deposit into your REF account to add liquidity',
+  deposit_near_tip: 'To deposit, keep at least 1 NEAR to cover gas fee',
 };
 export default en_US;

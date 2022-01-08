@@ -16,6 +16,7 @@ import {
   calculatePriceImpact,
 } from '../../utils/numbers';
 import TokenAmount from '../forms/TokenAmount';
+import SubmitButton from '../forms/SubmitButton';
 import Alert from '../alert/Alert';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -485,17 +486,21 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         elseView={
           <div className="flex justify-center">
             {wallet.isSignedIn() ? (
-              <GradientButton
-                className={`w-full text-center text-lg text-white mt-4 px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
-                onClick={() => {
-                  history.push(`/deposit/${tokenIn.id}`);
-                }}
-              >
-                <FormattedMessage
-                  id="deposit_to_swap"
-                  defaultMessage="Deposit to Swap"
-                />
-              </GradientButton>
+              // <GradientButton
+              //   className={`w-full text-center text-lg text-white mt-4 px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
+              //   onClick={() => {
+              //     history.push(`/deposit/${tokenIn.id}`);
+              //   }}
+              // >
+              //   <FormattedMessage
+              //     id="deposit_to_swap"
+              //     defaultMessage="Deposit to Swap"
+              //   />
+              // </GradientButton>
+              <SubmitButton
+                disabled={!loadingTrigger}
+                loading={showSwapLoading}
+              />
             ) : (
               <div className="mt-4 w-full">
                 <ConnectToNearBtn />
