@@ -526,7 +526,7 @@ function NavigationBar() {
             <Anchor to="/stableswap" pattern="/stableswap" name="StableSwap" />
             <PoolsMenu />
             <Anchor to="/farms" pattern="/farms" name="Farms" />
-            <Anchor to="/xref" pattern="/xref" name="xREF" newFuntion={true} />
+            <Anchor to="/xref" pattern="/xref" name="xref" newFuntion={true} />
           </div>
           <div className="flex items-center justify-end flex-1">
             {wallet.isSignedIn() && (

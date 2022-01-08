@@ -386,7 +386,7 @@ export function MobileNavBar() {
       >
         <div
           ref={popupRef}
-          className="block h-full overflow-y-scroll w-4/6 float-right pt-6 bg-cardBg shadow-4xl"
+          className="block h-full overflow-y-scroll w-4/6 float-right bg-cardBg shadow-4xl"
         >
           <div className="p-4 flex text-white items-center justify-start">
             <NavLogoLarge />
