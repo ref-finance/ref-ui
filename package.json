@@ -51,6 +51,7 @@
     "@types/big.js": "^6.1.2",
     "actionsheet-react": "^1.0.12",
     "axios": "^0.21.1",
+    "big-integer": "^1.6.51",
     "big.js": "^6.1.1",
     "bignumber.js": "^9.0.1",
     "bn.js": "^5.2.0",
