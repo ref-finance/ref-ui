@@ -8,14 +8,19 @@ import {
   BorderButtonMobile,
   GreenLButton,
 } from '~components/button/Button';
-import { useTokenBalances, useUserRegisteredTokensAll } from '~state/token';
+import {
+  useTokenBalances,
+  useUserRegisteredTokensAllAndNearBalance,
+} from '~state/token';
 import Loading from '~components/layout/Loading';
-import { toPrecision, toReadableNumber } from '~utils/numbers';
 import { wallet } from '~services/near';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { NearIcon, RefIcon, WalletIcon } from '~components/icon/Common';
-import { toInternationalCurrencySystem } from '~utils/numbers';
-import { getDepositableBalance } from '~state/token';
+import {
+  toReadableNumber,
+  toInternationalCurrencySystem,
+  formatWithCommas,
+} from '~utils/numbers';
 import BigNumber from 'bignumber.js';
 import OldInputAmount from '~components/forms/OldInputAmount';
 import { deposit, withdraw } from '~services/token';
@@ -24,102 +29,96 @@ import { BeatLoading } from '~components/layout/Loading';
 import { STORAGE_PER_TOKEN } from '~services/creators/storage';
 import { IoCloseOutline } from 'react-icons/io5';
 
-function useWalletBalance(userTokens: TokenMetadata[]) {
-  const [walletBalances, setWalletBalance] = useState({});
-  useEffect(() => {
-    const promiseList = userTokens.map((item: TokenMetadata) => {
-      const { decimals, id } = item;
-      return getDepositableBalance(id, decimals);
-    });
-    Promise.all(promiseList).then((list) => {
-      const tempMap = {};
-      list.forEach((m, index) => {
-        tempMap[userTokens[index].id] = m;
-      });
-      setWalletBalance(tempMap);
-    });
-  }, []);
-  return walletBalances;
-}
+const accountSortFun = (
+  by: string,
+  currentSort: string,
+  userTokens: TokenMetadata[]
+) => {
+  const sortBy = by || 'near';
+  const sortDirection = currentSort.split('-')[1] == 'down' ? 'up' : 'down';
+  userTokens.sort((token1: TokenMetadata, token2: TokenMetadata) => {
+    const { near: near1, ref: ref1 } = token1;
+    const { near: near2, ref: ref2 } = token2;
+    const near1Balance = new BigNumber(near1);
+    const ref1Balance = new BigNumber(ref1);
+    const near2Balance = new BigNumber(near2);
+    const ref2Balance = new BigNumber(ref2);
+    const a = sortBy == 'near' ? near1Balance : ref1Balance;
+    const b = sortBy == 'near' ? near2Balance : ref2Balance;
+    if (sortDirection == 'down') {
+      if (a.isGreaterThan(b)) {
+        return -1;
+      } else if (a.isLessThan(b)) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } else {
+      if (a.isLessThan(b)) {
+        return -1;
+      } else if (a.isGreaterThan(b)) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
+  });
+  return {
+    sortUserTokens: userTokens,
+    curSort: sortBy + '-' + sortDirection,
+  };
+};
+const getRefBalance = (item: TokenMetadata) => {
+  const { ref } = item;
+  const bigRef = new BigNumber(ref);
+  if (bigRef.isEqualTo('0')) {
+    return '-';
+  } else if (bigRef.isLessThan(0.01)) {
+    return '<0.01';
+  } else {
+    return toInternationalCurrencySystem(bigRef.toString());
+  }
+};
+const getWalletBalance = (item: TokenMetadata) => {
+  const { near } = item;
+  const bigNear = new BigNumber(near);
+  if (bigNear.isEqualTo('0')) {
+    return '-';
+  } else if (bigNear.isLessThan(0.01)) {
+    return '<0.01';
+  } else {
+    return toInternationalCurrencySystem(near.toString());
+  }
+};
 function AccountTable(props: any) {
-  const { userTokens, balances, getModalData } = props;
-  const walletBalances = useWalletBalance(userTokens);
+  const { userTokens, getModalData } = props;
   const [tokensSort, setTokensSort] = useState(userTokens);
   const [currentSort, setCurrentSort] = useState('');
-  const getRefBalance = (item: TokenMetadata) => {
-    const { decimals, id } = item;
-    const result = toInternationalCurrencySystem(
-      toReadableNumber(decimals, balances[id] || '0')
-    );
-    item.ref = toReadableNumber(decimals, balances[id]);
-    return result;
-  };
-  const getWalletBalance = (item: TokenMetadata) => {
-    const { id } = item;
-    const result = toInternationalCurrencySystem(walletBalances[id] || '0');
-    item.near = walletBalances[id];
-    return result;
-  };
   useEffect(() => {
     sort();
-  }, [walletBalances]);
+  }, []);
   const sort = (e?: any) => {
     const sortBy = e?.currentTarget.dataset.sort || 'near';
-    const sort: string[] = [];
-    sort[0] = sortBy || 'near';
-    sort[1] = currentSort.split('-')[1] == 'down' ? 'up' : 'down';
-    const filterUserTokens = userTokens.filter((item: TokenMetadata) => {
-      if (
-        !(
-          new BigNumber(item.near).isEqualTo('0') &&
-          new BigNumber(item.ref).isEqualTo('0')
-        )
-      ) {
-        return true;
-      }
-    });
-    const sortList = filterUserTokens.sort(
-      (token1: TokenMetadata, token2: TokenMetadata) => {
-        const near1 = new BigNumber(token1.near);
-        const near2 = new BigNumber(token2.near);
-        const ref1 = new BigNumber(token1.ref);
-        const ref2 = new BigNumber(token2.ref);
-        const a = sort[0] == 'near' ? near1 : ref1;
-        const b = sort[0] == 'near' ? near2 : ref2;
-        if (sort[1] == 'down') {
-          if (a.isLessThan(b)) {
-            return -1;
-          } else if (a.isGreaterThan(b)) {
-            return 1;
-          } else {
-            return 0;
-          }
-        } else {
-          if (a.isGreaterThan(b)) {
-            return -1;
-          } else if (a.isLessThan(b)) {
-            return 1;
-          } else {
-            return 0;
-          }
-        }
-      }
+    const { sortUserTokens, curSort } = accountSortFun(
+      sortBy,
+      currentSort,
+      userTokens
     );
-    setTokensSort(Array.from(sortList));
-    setCurrentSort(sort[0] + '-' + sort[1]);
+    setTokensSort(Array.from(sortUserTokens));
+    setCurrentSort(curSort);
   };
   return (
-    <table className="text-left w-full text-sm text-gray-400 mt-8 table-auto">
+    <table className="w-full text-sm text-gray-400 mt-8 table-auto">
       <thead>
         <tr className="h-9 border-b border-borderColor border-opacity-30">
-          <th className="pl-6">
+          <th className="pl-6 text-left">
             <FormattedMessage id="tokens"></FormattedMessage>
           </th>
-          <th>
+          <th className="text-right">
             <span
               onClick={sort}
               data-sort="near"
-              className={`flex items-center w-full justify-start ${
+              className={`flex items-center w-full justify-end ${
                 currentSort.indexOf('near') > -1 ? 'text-greenLight' : ''
               }`}
             >
@@ -127,16 +126,16 @@ function AccountTable(props: any) {
               <label className="mx-1 cursor-pointer">NEAR</label>
               <TiArrowSortedUp
                 className={`cursor-pointer ${
-                  currentSort == 'near-up' ? 'transform rotate-180' : ''
+                  currentSort == 'near-down' ? 'transform rotate-180' : ''
                 }`}
               />
             </span>
           </th>
-          <th>
+          <th className="text-right">
             <span
               onClick={sort}
               data-sort="ref"
-              className={`flex items-center w-full justify-start ${
+              className={`flex items-center w-full justify-end ${
                 currentSort.indexOf('ref') > -1 ? 'text-greenLight' : ''
               }`}
             >
@@ -144,7 +143,7 @@ function AccountTable(props: any) {
               <label className="mx-1 cursor-pointer">REF</label>
               <TiArrowSortedUp
                 className={`cursor-pointer ${
-                  currentSort == 'ref-up' ? 'transform rotate-180' : ''
+                  currentSort == 'ref-down' ? 'transform rotate-180' : ''
                 }`}
               />
             </span>
@@ -156,10 +155,15 @@ function AccountTable(props: any) {
         {tokensSort.map((item: TokenMetadata) => {
           return (
             <tr
-              className={`h-16 border-b border-borderColor border-opacity-30 hover:bg-chartBg hover:bg-opacity-20`}
+              className={`h-16 border-b border-borderColor border-opacity-30 hover:bg-chartBg hover:bg-opacity-20 ${
+                new BigNumber(item.near).isEqualTo('0') &&
+                new BigNumber(item.ref).isEqualTo('0')
+                  ? 'hidden'
+                  : ''
+              }`}
               key={item.id}
             >
-              <td width="40%" className="pl-6">
+              <td width="38%" className="pl-6">
                 <div className="flex items-center">
                   <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden">
                     <img src={item.icon} className="w-full h-full"></img>
@@ -176,41 +180,47 @@ function AccountTable(props: any) {
               </td>
               <td
                 width="15%"
-                className="text-left text-white font-semibold text-base"
+                className="text-right text-white font-semibold text-base"
+                title={item.near.toString()}
               >
                 {getWalletBalance(item)}
               </td>
               <td
                 width="15%"
-                className="text-left text-white font-semibold text-base"
+                className="text-right text-white font-semibold text-base"
+                title={item.ref.toString()}
               >
                 {getRefBalance(item)}
               </td>
-              <td width="30%" className="text-center">
-                <span
-                  onClick={() => {
-                    getModalData(item, 'deposit');
-                  }}
-                >
-                  <BorderButtonHover
-                    className="opacity-40 mr-3"
-                    disabled={new BigNumber(item.near).isEqualTo('0')}
+              <td width="32%" className="pl-8">
+                <div className="flex flex-wrap">
+                  <span
+                    onClick={() => {
+                      getModalData(item, 'deposit');
+                    }}
+                    className="mx-2 my-1"
                   >
-                    <FormattedMessage id="deposit"></FormattedMessage>
-                  </BorderButtonHover>
-                </span>
-                <span
-                  onClick={() => {
-                    getModalData(item, 'withdraw');
-                  }}
-                >
-                  <BorderButtonHover
-                    className="opacity-40"
-                    disabled={new BigNumber(item.ref).isEqualTo('0')}
+                    <BorderButtonHover
+                      className="opacity-40"
+                      disabled={new BigNumber(item.near).isEqualTo('0')}
+                    >
+                      <FormattedMessage id="deposit"></FormattedMessage>
+                    </BorderButtonHover>
+                  </span>
+                  <span
+                    onClick={() => {
+                      getModalData(item, 'withdraw');
+                    }}
+                    className="mx-2 my-1"
                   >
-                    <FormattedMessage id="Withdraw"></FormattedMessage>
-                  </BorderButtonHover>
-                </span>
+                    <BorderButtonHover
+                      className="opacity-40"
+                      disabled={new BigNumber(item.ref).isEqualTo('0')}
+                    >
+                      <FormattedMessage id="Withdraw"></FormattedMessage>
+                    </BorderButtonHover>
+                  </span>
+                </div>
               </td>
             </tr>
           );
@@ -220,71 +230,20 @@ function AccountTable(props: any) {
   );
 }
 function MobileAccountTable(props: any) {
-  const { userTokens, balances, getModalData, type } = props;
-  const walletBalances = useWalletBalance(userTokens);
+  const { userTokens, getModalData, type } = props;
   const [tokensSort, setTokensSort] = useState(userTokens);
   const [currentSort, setCurrentSort] = useState('');
-  const getRefBalance = (item: TokenMetadata) => {
-    const { decimals, id } = item;
-    const result = toInternationalCurrencySystem(
-      toReadableNumber(decimals, balances[id] || '0')
-    );
-    item.ref = toReadableNumber(decimals, balances[id]);
-    return result;
-  };
-  const getWalletBalance = (item: TokenMetadata) => {
-    const { id } = item;
-    const result = toInternationalCurrencySystem(walletBalances[id] || '0');
-    item.near = walletBalances[id];
-    return result;
-  };
   useEffect(() => {
-    sort();
-  }, [walletBalances, type]);
-  const sort = (e?: any) => {
-    const sortBy = e?.currentTarget.dataset.sort || type;
-    const sort: string[] = [];
-    sort[0] = sortBy;
-    sort[1] = e ? (currentSort.split('-')[1] == 'down' ? 'up' : 'down') : 'up';
-    const filterUserTokens = userTokens.filter((item: TokenMetadata) => {
-      if (
-        !(
-          new BigNumber(item.near).isEqualTo('0') &&
-          new BigNumber(item.ref).isEqualTo('0')
-        )
-      ) {
-        return true;
-      }
-    });
-    const sortList = filterUserTokens.sort(
-      (token1: TokenMetadata, token2: TokenMetadata) => {
-        const near1 = new BigNumber(token1.near);
-        const near2 = new BigNumber(token2.near);
-        const ref1 = new BigNumber(token1.ref);
-        const ref2 = new BigNumber(token2.ref);
-        const a = sort[0] == 'near' ? near1 : ref1;
-        const b = sort[0] == 'near' ? near2 : ref2;
-        if (sort[1] == 'down') {
-          if (a.isLessThan(b)) {
-            return -1;
-          } else if (a.isGreaterThan(b)) {
-            return 1;
-          } else {
-            return 0;
-          }
-        } else {
-          if (a.isGreaterThan(b)) {
-            return -1;
-          } else if (a.isLessThan(b)) {
-            return 1;
-          } else {
-            return 0;
-          }
-        }
-      }
+    sort(`${type} + '-up'`);
+  }, [type]);
+  const sort = (direction?: string) => {
+    const { sortUserTokens, curSort } = accountSortFun(
+      type,
+      direction || currentSort,
+      userTokens
     );
-    setTokensSort(Array.from(sortList));
-    setCurrentSort(sort[0] + '-' + sort[1]);
+    setTokensSort(Array.from(sortUserTokens));
+    setCurrentSort(curSort);
   };
   return (
     <table className="text-left w-full text-sm text-gray-400 mt-8 table-auto">
@@ -295,7 +254,9 @@ function MobileAccountTable(props: any) {
           </th>
           <th className={`pr-4 ${type == 'ref' ? 'hidden' : ''}`}>
             <span
-              onClick={sort}
+              onClick={() => {
+                sort();
+              }}
               data-sort="near"
               className={`flex items-center w-full justify-end ${
                 currentSort.indexOf('near') > -1 ? 'text-greenLight' : ''
@@ -305,14 +266,16 @@ function MobileAccountTable(props: any) {
               <label className="mx-1 cursor-pointer">NEAR</label>
               <TiArrowSortedUp
                 className={`cursor-pointer ${
-                  currentSort == 'near-up' ? 'transform rotate-180' : ''
+                  currentSort == 'near-down' ? 'transform rotate-180' : ''
                 }`}
               />
             </span>
           </th>
           <th className={`pr-4 ${type == 'near' ? 'hidden' : ''}`}>
             <span
-              onClick={sort}
+              onClick={() => {
+                sort();
+              }}
               data-sort="ref"
               className={`flex items-center w-full justify-end ${
                 currentSort.indexOf('ref') > -1 ? 'text-greenLight' : ''
@@ -322,7 +285,7 @@ function MobileAccountTable(props: any) {
               <label className="mx-1 cursor-pointer">REF</label>
               <TiArrowSortedUp
                 className={`cursor-pointer ${
-                  currentSort == 'ref-up' ? 'transform rotate-180' : ''
+                  currentSort == 'ref-down' ? 'transform rotate-180' : ''
                 }`}
               />
             </span>
@@ -333,7 +296,12 @@ function MobileAccountTable(props: any) {
         {tokensSort.map((item: TokenMetadata) => {
           return (
             <tr
-              className={`h-16 border-b border-borderColor border-opacity-30 hover:bg-chartBg hover:bg-opacity-20`}
+              className={`h-16 border-b border-borderColor border-opacity-30 hover:bg-chartBg hover:bg-opacity-20 ${
+                (type == 'ref' && new BigNumber(item.ref).isEqualTo(0)) ||
+                (type == 'near' && new BigNumber(item.near).isEqualTo(0))
+                  ? 'hidden'
+                  : ''
+              }`}
               key={item.id}
             >
               <td className="pl-4">
@@ -395,7 +363,7 @@ function MobileAccountTable(props: any) {
   );
 }
 function Account(props: any) {
-  const { userTokens, balances } = props;
+  const { userTokens } = props;
   const [account, network] = wallet.getAccountId().split('.');
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
@@ -404,6 +372,7 @@ function Account(props: any) {
     account.length > 10 ? niceAccountId : wallet.getAccountId();
 
   const getModalData = (token: TokenMetadata, action: string) => {
+    const { decimals } = token;
     setModal({
       token,
       action,
@@ -423,8 +392,7 @@ function Account(props: any) {
           </div>
         </div>
         <AccountTable
-          userTokens={[nearMetadata, ...userTokens]}
-          balances={balances}
+          userTokens={userTokens}
           getModalData={getModalData}
         ></AccountTable>
         <ActionModel
@@ -437,7 +405,7 @@ function Account(props: any) {
   );
 }
 function MobileAccount(props: any) {
-  const { userTokens, balances } = props;
+  const { userTokens } = props;
   const [account, network] = wallet.getAccountId().split('.');
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
@@ -499,8 +467,7 @@ function MobileAccount(props: any) {
         </div>
         <MobileAccountTable
           type={activeTab}
-          userTokens={[nearMetadata, ...userTokens]}
-          balances={balances}
+          userTokens={userTokens}
           getModalData={getModalData}
         ></MobileAccountTable>
         <ActionModel
@@ -516,13 +483,20 @@ export function ActionModel(props: any) {
   const { modal, visible, onRequestClose } = props;
   const [amount, setAmount] = useState('0');
   const [loading, setLoading] = useState<boolean>(false);
-  const { token, action, max } = modal || {};
-  const showBalance = (max: string) => {
-    const big = new BigNumber(max);
+  const { token, action } = modal || {};
+  useEffect(() => {
+    if (!visible) {
+      setAmount('0');
+    }
+  }, [visible]);
+  const showBalance = () => {
+    const big = new BigNumber(modal?.max || '0');
     if (big.isEqualTo('0')) {
       return '0';
+    } else if (big.isLessThan('0.001')) {
+      return '<0.001';
     } else {
-      return big.toFixed(5, 1);
+      return formatWithCommas(big.toFixed(3, 1));
     }
   };
   const onSubmit = () => {
@@ -537,6 +511,20 @@ export function ActionModel(props: any) {
       withdraw({ token, amount });
     }
   };
+  const getRealMax = () => {
+    const bigMax = new BigNumber(modal?.max || 0);
+    let result_max = modal?.max;
+
+    if (action == 'deposit' && modal?.token?.symbol == 'NEAR') {
+      if (bigMax.isGreaterThan('1')) {
+        result_max = bigMax.minus(1).toString();
+      } else {
+        result_max = 0;
+      }
+    }
+    return result_max;
+  };
+  const max = getRealMax();
   return (
     <Modal
       isOpen={visible}
@@ -572,7 +560,7 @@ export function ActionModel(props: any) {
           <div className="relative flex-grow xs:w-3/5 md:w-3/5">
             <div className="text-primaryText text-xs absolute right-0 -top-6">
               <FormattedMessage id="balance"></FormattedMessage>:{' '}
-              <label title={max}>{showBalance(max)}</label>
+              <label title={max}>{showBalance()}</label>
             </div>
             <OldInputAmount max={max} onChangeAmount={setAmount} />
           </div>
@@ -618,13 +606,18 @@ export function ActionModel(props: any) {
   );
 }
 export function AccountPage() {
-  const userTokens = useUserRegisteredTokensAll();
+  const userTokens = useUserRegisteredTokensAllAndNearBalance();
   const balances = useTokenBalances();
-  if (!userTokens) return <Loading />;
+  if (!userTokens || !balances) return <Loading />;
+  userTokens.forEach((token: TokenMetadata) => {
+    const { decimals, id, near } = token;
+    token.ref = toReadableNumber(decimals, balances[id] || '0');
+    token.near = toReadableNumber(decimals, (near || '0').toString());
+  });
   return (
     <>
-      <Account userTokens={userTokens} balances={balances} />
-      <MobileAccount userTokens={userTokens} balances={balances} />
+      <Account userTokens={userTokens} />
+      <MobileAccount userTokens={userTokens} />
     </>
   );
 }
