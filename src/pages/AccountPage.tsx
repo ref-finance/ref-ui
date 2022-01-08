@@ -28,6 +28,7 @@ import { nearMetadata, wrapNear } from '~/services/wrap-near';
 import { BeatLoading } from '~components/layout/Loading';
 import { STORAGE_PER_TOKEN } from '~services/creators/storage';
 import { IoCloseOutline } from 'react-icons/io5';
+import { XrefSymbol } from '~components/icon/Xref';
 
 const accountSortFun = (
   by: string,
@@ -165,14 +166,20 @@ function AccountTable(props: any) {
             >
               <td width="38%" className="pl-6">
                 <div className="flex items-center">
-                  <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden">
-                    <img src={item.icon} className="w-full h-full"></img>
-                  </div>
+                  {item.symbol == 'XREF' ? (
+                    <span className="mr-2 -ml-1">
+                      <XrefSymbol width="48" height="53"></XrefSymbol>
+                    </span>
+                  ) : (
+                    <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden flex-shrink-0">
+                      <img src={item.icon} className="w-full h-full"></img>
+                    </div>
+                  )}
                   <div className="flex flex-col">
                     <label className="text-white text-lg font-semibold">
-                      {item.symbol}
+                      {item.symbol == 'XREF' ? 'xREF' : item.symbol}
                     </label>
-                    <label className="text-xs text-primaryText">
+                    <label className="text-xs text-primaryText break-all">
                       {item.id}
                     </label>
                   </div>
@@ -258,9 +265,7 @@ function MobileAccountTable(props: any) {
                 sort();
               }}
               data-sort="near"
-              className={`flex items-center w-full justify-end ${
-                currentSort.indexOf('near') > -1 ? 'text-greenLight' : ''
-              }`}
+              className={`flex items-center w-full justify-end`}
             >
               <WalletIcon />
               <label className="mx-1 cursor-pointer">NEAR</label>
@@ -277,9 +282,7 @@ function MobileAccountTable(props: any) {
                 sort();
               }}
               data-sort="ref"
-              className={`flex items-center w-full justify-end ${
-                currentSort.indexOf('ref') > -1 ? 'text-greenLight' : ''
-              }`}
+              className={`flex items-center w-full justify-end`}
             >
               <RefIcon />
               <label className="mx-1 cursor-pointer">REF</label>
@@ -306,14 +309,21 @@ function MobileAccountTable(props: any) {
             >
               <td className="pl-4">
                 <div className="flex items-center">
-                  <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden">
-                    <img src={item.icon} className="w-full h-full"></img>
-                  </div>
+                  {item.symbol == 'XREF' ? (
+                    <span className="mr-2 -ml-1">
+                      <XrefSymbol width="48" height="53"></XrefSymbol>
+                    </span>
+                  ) : (
+                    <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden flex-shrink-0">
+                      <img src={item.icon} className="w-full h-full"></img>
+                    </div>
+                  )}
+
                   <div className="flex flex-col">
                     <label className="text-white text-lg font-semibold">
-                      {item.symbol}
+                      {item.symbol == 'XREF' ? 'xREF' : item.symbol}
                     </label>
-                    <label className="text-xs text-primaryText">
+                    <label className="text-xs text-primaryText break-all">
                       {item.id}
                     </label>
                   </div>

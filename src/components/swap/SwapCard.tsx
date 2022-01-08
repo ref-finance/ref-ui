@@ -26,6 +26,7 @@ import {
   GradientButton,
   OutlineButton,
   SolidButton,
+  ConnectToNearBtn,
 } from '~components/button/Button';
 import { wallet } from '~services/near';
 import SwapFormWrap from '../forms/SwapFormWrap';
@@ -483,17 +484,23 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         showElseView={tokenInMax === '0' && !useNearBalance}
         elseView={
           <div className="flex justify-center">
-            <GradientButton
-              className={`w-full text-center text-lg text-white mt-4 px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
-              onClick={() => {
-                history.push(`/deposit/${tokenIn.id}`);
-              }}
-            >
-              <FormattedMessage
-                id="deposit_to_swap"
-                defaultMessage="Deposit to Swap"
-              />
-            </GradientButton>
+            {wallet.isSignedIn() ? (
+              <GradientButton
+                className={`w-full text-center text-lg text-white mt-4 px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
+                onClick={() => {
+                  history.push(`/deposit/${tokenIn.id}`);
+                }}
+              >
+                <FormattedMessage
+                  id="deposit_to_swap"
+                  defaultMessage="Deposit to Swap"
+                />
+              </GradientButton>
+            ) : (
+              <div className="mt-4 w-full">
+                <ConnectToNearBtn />
+              </div>
+            )}
           </div>
         }
         onSubmit={handleSubmit}

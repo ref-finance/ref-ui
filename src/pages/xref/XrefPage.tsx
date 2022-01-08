@@ -122,8 +122,8 @@ function XrefPage() {
       <div className="text-primaryText text-sm mb-7">
         <FormattedMessage id="xref_introdution"></FormattedMessage>
       </div>
-      <div className="w-full grid grid-rows-xrefContainer xs:grid-rows-xrefContainerM md:grid-rows-xrefContainerM gap-y-5 xs:gap-y-2.5 md:gap-y-2.5">
-        <div className="grid lg:grid-cols-xrefColumn lg:gap-x-2.5 xs:grid-rows-xrefRowM md:grid-rows-xrefRowM xs:gap-y-2.5 md:gap-y-2.5">
+      <div className="w-full">
+        <div className="xs:mb-2.5 md:mb-2.5 lg:mb-5 grid lg:grid-cols-xrefColumn lg:gap-x-2.5 xs:grid-rows-xrefRowM md:grid-rows-xrefRowM xs:gap-y-2.5 md:gap-y-2.5">
           <div className="flex flex-col justify-between rounded-2xl bg-cardBg py-5 px-6 xs:py-4 md:py-4 xs:flex md:flex xs:justify-between md:justify-between items-center">
             <div className="flex items-center justify-between w-full">
               <p className="text-base text-primaryText">
@@ -133,7 +133,7 @@ function XrefPage() {
                 {displayApr()}%
               </p>
             </div>
-            <div className="flex items-center justify-between w-full ">
+            <div className="flex items-center justify-between w-full mt-3">
               <div className="rounded-md bg-primaryGradient text-sm text-white flex items-center justify-center px-3.5 py-1 cursor-not-allowed opacity-40">
                 <FormattedMessage id="view_stats"></FormattedMessage>
               </div>

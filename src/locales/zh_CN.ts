@@ -64,7 +64,7 @@ const zh_CN = {
   sign_out: '退出',
   view_account: '查看账户',
   deposit_to_swap_and_add_liquidity: '存入代币兑换或增加流动性',
-  small_storage_fee_is_applied_of: '存入手续费为',
+  small_storage_fee_is_applied_of: '存储费为',
   liquidity: '流动性',
   tokens: '代币',
   fee: '手续费',
