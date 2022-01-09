@@ -549,13 +549,13 @@ function WatchListCard({ watchPools }: { watchPools: Pool[] }) {
               <div className="mr-6 w-2">#</div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </div>
-            <div className="col-span-1 md:hidden cursor-pointer flex items-center">
+            <div className="col-span-1 md:hidden flex items-center">
               <div className="mr-1">
                 <FormattedMessage id="fee" defaultMessage="Fee" />
               </div>
             </div>
 
-            <div className="col-span-1 flex items-center cursor-pointer">
+            <div className="col-span-1 flex items-center">
               <span className="mr-1">
                 <FormattedMessage id="tvl" defaultMessage="TVL" />
               </span>
