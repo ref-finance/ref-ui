@@ -240,20 +240,12 @@ export function AddPoolPage() {
             <button
               disabled={!canSubmit}
               className={`rounded-full w-full text-lg text-white px-5 py-2.5 focus:outline-none font-semibold ${
-                canSubmit ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
+                canSubmit ? '' : 'opacity-40 disabled:cursor-not-allowed'
               } ${buttonLoading ? 'opacity-40' : ''}`}
-              style={
-                canSubmit
-                  ? {
-                      background:
-                        'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
-                      borderRadius: '5px',
-                    }
-                  : {
-                      background: '#314351',
-                      borderRadius: '5px',
-                    }
-              }
+              style={{
+                background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+                borderRadius: '5px',
+              }}
               onClick={() => {
                 if (canSubmit) {
                   const v = new BigNumber(fee).multipliedBy(100).toFixed(0, 1);

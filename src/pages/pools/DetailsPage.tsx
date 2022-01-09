@@ -432,22 +432,14 @@ export function AddLiquidityModal(
   const shareDisplay = () => {
     let result = '';
     if (preShare && new BigNumber('0').isLessThan(preShare)) {
-      const poolBig = new BigNumber(toReadableNumber(24, pool.shareSupply));
       const myShareBig = new BigNumber(preShare);
-      const totolShare = poolBig.plus(myShareBig);
-      const percent = myShareBig.dividedBy(totolShare).multipliedBy(100);
       if (myShareBig.isLessThan('0.001')) {
         result = '≈ <0.001';
       } else {
         result = `≈ ${myShareBig.toFixed(3)}`;
       }
-      if (percent.isLessThan('0.001')) {
-        result += ' (<0.001%)';
-      } else {
-        result += ` (${percent.toFixed(3)}%)`;
-      }
     } else {
-      result = '- (-%)';
+      result = '-';
     }
     return result;
   };
@@ -641,7 +633,8 @@ export function AddLiquidityModal(
             <div className="flex items-center">
               <WarnTriangle />
               <label className="ml-2.5 text-base text-warnColor">
-                <FormattedMessage id="insufficient" /> {modal?.token?.symbol}！
+                <FormattedMessage id="you_do_not_have_enough" />{' '}
+                {modal?.token?.symbol}！
               </label>
             </div>
             <div className="text-white text-base mt-3 text-center">
@@ -708,7 +701,7 @@ export function RemoveLiquidityModal(
     if (amountBN.isGreaterThan(shareBN)) {
       throw new Error(
         intl.formatMessage({
-          id: 'amount_must_be_not_greater_your_balance',
+          id: 'input_greater_than_available_shares',
         })
       );
     }
@@ -725,7 +718,7 @@ export function RemoveLiquidityModal(
     if (amountBN.isGreaterThan(shareBN)) {
       throw new Error(
         intl.formatMessage({
-          id: 'amount_must_be_not_greater_your_balance',
+          id: 'input_greater_than_available_shares',
         })
       );
     }

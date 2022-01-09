@@ -68,8 +68,8 @@ function Anchor({
   return (
     <Link to={to}>
       <h2
-        className={`link hover:text-green-500 text-lg font-bold p-4 cursor-pointer relative ${className} ${
-          isSelected ? 'text-green-500' : 'text-gray-400'
+        className={`link hover:text-greenColor text-lg font-bold p-4 cursor-pointer relative ${className} ${
+          isSelected ? 'text-greenColor' : 'text-gray-400'
         }`}
       >
         <FormattedMessage id={name} defaultMessage={name} />

@@ -345,7 +345,7 @@ export default function AddLiquidityComponent(props: {
       const { id, decimals } = tokens[1];
       getDepositableBalance(id, decimals).then((nearBalance) => {
         setModal({
-          token: tokens[0],
+          token: tokens[1],
           action: 'deposit',
           max: nearBalance,
         });
@@ -366,7 +366,7 @@ export default function AddLiquidityComponent(props: {
       const { id, decimals } = tokens[2];
       getDepositableBalance(id, decimals).then((nearBalance) => {
         setModal({
-          token: tokens[0],
+          token: tokens[2],
           action: 'deposit',
           max: nearBalance,
         });
@@ -484,8 +484,8 @@ export default function AddLiquidityComponent(props: {
               <div className="flex items-center">
                 <WarnTriangle />
                 <label className="ml-2.5 text-base text-warnColor">
-                  <FormattedMessage id="insufficient" /> {modal?.token?.symbol}
-                  ！
+                  <FormattedMessage id="you_do_not_have_enough" />{' '}
+                  {modal?.token?.symbol}！
                 </label>
               </div>
               <div className="text-white text-base mt-3 text-center">

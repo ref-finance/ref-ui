@@ -497,10 +497,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
               //     defaultMessage="Deposit to Swap"
               //   />
               // </GradientButton>
-              <SubmitButton
-                disabled={!loadingTrigger}
-                loading={showSwapLoading}
-              />
+              <SubmitButton disabled={true} loading={showSwapLoading} />
             ) : (
               <div className="mt-4 w-full">
                 <ConnectToNearBtn />

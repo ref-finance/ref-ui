@@ -289,9 +289,9 @@ const zh_CN = {
   go_to_near_wallet: '跳转到NEAR钱包',
   deposit_to_ref_account: '存储到REF账户',
   withdraw_to_near_wallet: '提取到NEAR钱包',
-  insufficient: '不足够的',
   into_ref_account: '到你的REF账户。',
   deposit_into_ref_account: '存储到REF账户来添加流动性',
   deposit_near_tip: '存入时至少保留一个NEAR以支付汽油费',
+  input_greater_than_available_shares: '输入大于可用份额',
 };
 export default zh_CN;
