@@ -74,12 +74,14 @@ export const getTopPools = async (args: any): Promise<PoolRPCView[]> => {
 
     if (await db.checkTopPools()) {
       pools = await db.queryTopPools();
+      console.log('pools from cache', pools);
     } else {
       pools = await fetch(config.indexerUrl + '/list-top-pools', {
         method: 'GET',
         headers: { 'Content-type': 'application/json; charset=UTF-8' },
       }).then((res) => res.json());
       await db.cacheTopPools(pools);
+      console.log('pools from indexer', pools);
     }
 
     pools = pools.map((pool: any) => parsePoolView(pool));
