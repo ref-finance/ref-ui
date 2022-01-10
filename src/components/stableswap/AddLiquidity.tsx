@@ -322,13 +322,15 @@ export default function AddLiquidityComponent(props: {
       setCanAddLP(false);
       setCanDeposit(true);
       const { id, decimals } = tokens[0];
+      const modalData: any = {
+        token: tokens[0],
+        action: 'deposit',
+      };
       getDepositableBalance(id, decimals).then((nearBalance) => {
-        setModal({
-          token: tokens[0],
-          action: 'deposit',
-          max: nearBalance,
-        });
+        modalData.max = nearBalance;
+        setModal(Object.assign({}, modalData));
       });
+      setModal(modalData);
       // throw new Error(
       //   `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
       //     tokens[0].symbol
@@ -343,13 +345,15 @@ export default function AddLiquidityComponent(props: {
       setCanAddLP(false);
       setCanDeposit(true);
       const { id, decimals } = tokens[1];
+      const modalData: any = {
+        token: tokens[1],
+        action: 'deposit',
+      };
       getDepositableBalance(id, decimals).then((nearBalance) => {
-        setModal({
-          token: tokens[1],
-          action: 'deposit',
-          max: nearBalance,
-        });
+        modalData.max = nearBalance;
+        setModal(Object.assign({}, modalData));
       });
+      setModal(modalData);
       // throw new Error(
       //   `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
       //     tokens[1].symbol
@@ -364,13 +368,15 @@ export default function AddLiquidityComponent(props: {
       setCanAddLP(false);
       setCanDeposit(true);
       const { id, decimals } = tokens[2];
+      const modalData: any = {
+        token: tokens[2],
+        action: 'deposit',
+      };
       getDepositableBalance(id, decimals).then((nearBalance) => {
-        setModal({
-          token: tokens[2],
-          action: 'deposit',
-          max: nearBalance,
-        });
+        modalData.max = nearBalance;
+        setModal(Object.assign({}, modalData));
       });
+      setModal(modalData);
       // throw new Error(
       //   `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
       //     tokens[2].symbol

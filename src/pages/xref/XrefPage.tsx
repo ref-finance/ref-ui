@@ -30,7 +30,7 @@ const displayBalance = (max: string) => {
 };
 function XrefPage() {
   const [tab, setTab] = useState(0);
-  const [apr, setApr] = useState(0);
+  const [apr, setApr] = useState('');
   const [refBalance, setRefBalance] = useState(null);
   const [xrefBalance, setXrefBalance] = useState(null);
   const [rate, setRate] = useState(null);
@@ -44,10 +44,12 @@ function XrefPage() {
     });
     metadata().then((data) => {
       const { locked_token, locked_token_amount, reward_per_sec } = data;
-      const apr =
-        (1 / locked_token_amount) *
-        (Number(reward_per_sec) * 365 * 24 * 60 * 60 * 100);
-      setApr(apr);
+      if (new BigNumber(locked_token_amount).isGreaterThan('0')) {
+        const apr =
+          (1 / locked_token_amount) *
+          (Number(reward_per_sec) * 365 * 24 * 60 * 60 * 100);
+        setApr(apr.toString());
+      }
       ftGetBalance(locked_token).then(async (data) => {
         const token = await ftGetTokenMetadata(locked_token);
         const { decimals } = token;
@@ -65,11 +67,16 @@ function XrefPage() {
     setTab(tab);
   };
   const displayApr = () => {
+    if (!apr) {
+      return '-';
+    }
     const aprBig = new BigNumber(apr);
-    if (aprBig.isLessThan(0.01)) {
-      return '<0.01';
+    if (aprBig.isEqualTo(0)) {
+      return '0';
+    } else if (aprBig.isLessThan(0.01)) {
+      return '<0.01%';
     } else {
-      return aprBig.toFixed(2, 1);
+      return aprBig.toFixed(2, 1) + '%';
     }
   };
   const rateDisplay = () => {
@@ -130,7 +137,7 @@ function XrefPage() {
                 <FormattedMessage id="staking_apr"></FormattedMessage>
               </p>
               <p className="text-2xl text-white" title={apr.toString() + '%'}>
-                {displayApr()}%
+                {displayApr()}
               </p>
             </div>
             <div className="flex items-center justify-between w-full mt-3">
@@ -159,7 +166,7 @@ function XrefPage() {
               </label>
             </div>
             <div className="flex items-center w-full xs:hidden md:hidden">
-              <XrefSymbol width="38" height="42"></XrefSymbol>
+              <XrefSymbol></XrefSymbol>
               <div className="ml-3.5">
                 <p
                   className="text-xl xs:text-base md:text-base text-white"
@@ -172,7 +179,7 @@ function XrefPage() {
             {/* mobile */}
             <>
               <div className="lg:hidden flex items-center">
-                <XrefSymbol width="38" height="42"></XrefSymbol>
+                <XrefSymbol></XrefSymbol>
                 <div className="text-primaryText text-base ml-2">
                   <label className="mr-1.5">
                     <FormattedMessage id="xref"></FormattedMessage>
@@ -273,8 +280,8 @@ function InputView(props: any) {
             ></RefSymbol>
           ) : (
             <XrefSymbol
-              width={isM ? '38' : ''}
-              height={isM ? '42' : ''}
+              width={isM ? '' : '56'}
+              height={isM ? '' : '60'}
             ></XrefSymbol>
           )}
         </div>

@@ -103,7 +103,7 @@ export function RecentActivityPage() {
                         className="flex items-center justify-between  py-3 text-sm"
                       >
                         <div>{k}</div>
-                        <div>{`${value.substring(0, 25)}${
+                        <div title={value}>{`${value.substring(0, 25)}${
                           value.length > 25 ? '...' : ''
                         }`}</div>
                       </div>
@@ -160,7 +160,7 @@ export function RecentActivityPage() {
                         className="flex items-center justify-between py-3 text-sm"
                       >
                         <div>{k}</div>
-                        <div>{`${value.substring(0, 25)}${
+                        <div title={value}>{`${value.substring(0, 25)}${
                           value.length > 25 ? '...' : ''
                         }`}</div>
                       </div>

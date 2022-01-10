@@ -266,14 +266,19 @@ export function RemoveLiquidityComponent(props: {
             data-place="right"
             data-multiline={true}
             data-tip={intl.formatMessage({ id: 'shares_tip' })}
-            className="inline-block ml-2 text-xs"
+            className="inline-block ml-1 text-xs"
+            data-class="reactTip"
+            data-for="shareTipId"
           />
           <ReactTooltip
             className="text-xs shadow-4xl"
+            id="shareTipId"
             backgroundColor="#1D2932"
             effect="solid"
             class="tool-tip"
             textColor="#7E8A93"
+            border
+            borderColor="#7e8a93"
           />
         </span>
         <div className="flex items-center xs:flex-col md:flex-col xs:items-end md:items-end">
@@ -316,13 +321,18 @@ export function RemoveLiquidityComponent(props: {
             data-tip={intl.formatMessage({ id: 'remove_tip' })}
             className="inline-block ml-2 text-xs"
             color="bright"
+            data-class="reactTip"
+            data-for="by_shareId"
           />
           <ReactTooltip
+            id="by_shareId"
             className="text-xs shadow-4xl"
             backgroundColor="#1D2932"
             effect="solid"
             class="tool-tip"
             textColor="#7E8A93"
+            border
+            borderColor="#7e8a93"
           />
         </div>
 
@@ -340,13 +350,18 @@ export function RemoveLiquidityComponent(props: {
             data-tip={intl.formatMessage({ id: 'flexible_tip' })}
             className="inline-block ml-2 text-xs"
             color="bright"
+            data-class="reactTip"
+            data-for="by_tokenId"
           />
           <ReactTooltip
+            id="by_tokenId"
             className="text-xs shadow-4xl"
             backgroundColor="#1D2932"
             effect="solid"
             class="tool-tip"
             textColor="#7E8A93"
+            border
+            borderColor="#7e8a93"
           />
         </div>
       </div>

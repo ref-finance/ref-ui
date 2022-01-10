@@ -204,6 +204,15 @@ export function AddLiquidityModal(
     setError(null);
     if (Object.values(pool.supplies).every((s) => s === '0')) {
       setFirstTokenAmount(amount);
+      const zero = new BigNumber('0');
+      if (
+        zero.isLessThan(secondTokenAmount || '0') &&
+        zero.isLessThan(amount || '0')
+      ) {
+        setPreShare(1);
+      } else {
+        setPreShare(null);
+      }
       try {
         validate({
           firstAmount: amount,
@@ -245,6 +254,15 @@ export function AddLiquidityModal(
     setError(null);
     if (Object.values(pool.supplies).every((s) => s === '0')) {
       setSecondTokenAmount(amount);
+      const zero = new BigNumber('0');
+      if (
+        zero.isLessThan(firstTokenAmount || '0') &&
+        zero.isLessThan(amount || '0')
+      ) {
+        setPreShare(1);
+      } else {
+        setPreShare(null);
+      }
       try {
         validate({
           firstAmount: firstTokenAmount,
@@ -305,13 +323,15 @@ export function AddLiquidityModal(
       // setMessageId('deposit_to_add_liquidity');
       // setDefaultMessage('Deposit to Add Liquidity');
       const { id, decimals } = tokens[0];
+      const modalData: any = {
+        token: tokens[0],
+        action: 'deposit',
+      };
       getDepositableBalance(id, decimals).then((nearBalance) => {
-        setModal({
-          token: tokens[0],
-          action: 'deposit',
-          max: nearBalance,
-        });
+        modalData.max = nearBalance;
+        setModal(Object.assign({}, modalData));
       });
+      setModal(modalData);
       // throw new Error(
       //   `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
       //     tokens[0].symbol
@@ -325,13 +345,15 @@ export function AddLiquidityModal(
       // setMessageId('deposit_to_add_liquidity');
       // setDefaultMessage('Deposit to Add Liquidity');
       const { id, decimals } = tokens[1];
+      const modalData: any = {
+        token: tokens[1],
+        action: 'deposit',
+      };
       getDepositableBalance(id, decimals).then((nearBalance) => {
-        setModal({
-          token: tokens[1],
-          action: 'deposit',
-          max: nearBalance,
-        });
+        modalData.max = nearBalance;
+        setModal(Object.assign({}, modalData));
       });
+      setModal(modalData);
       // throw new Error(
       //   `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
       //     tokens[1].symbol
@@ -344,22 +366,24 @@ export function AddLiquidityModal(
       setCanSubmit(false);
       setMessageId('add_liquidity');
       setDefaultMessage('Add Liquidity');
-      throw new Error(
-        `${toRealSymbol(tokens[0].symbol)} ${intl.formatMessage({
-          id: 'amount_must_be_greater_than_0',
-        })} `
-      );
+      return;
+      // throw new Error(
+      //   `${toRealSymbol(tokens[0].symbol)} ${intl.formatMessage({
+      //     id: 'amount_must_be_greater_than_0',
+      //   })} `
+      // );
     }
 
     if (!secondAmount || secondAmount === '0') {
       setCanSubmit(false);
       setMessageId('add_liquidity');
       setDefaultMessage('Add Liquidity');
-      throw new Error(
-        `${toRealSymbol(tokens[1].symbol)} ${intl.formatMessage({
-          id: 'amount_must_be_greater_than_0',
-        })} `
-      );
+      return;
+      // throw new Error(
+      //   `${toRealSymbol(tokens[1].symbol)} ${intl.formatMessage({
+      //     id: 'amount_must_be_greater_than_0',
+      //   })} `
+      // );
     }
 
     if (!tokens[0]) {
@@ -716,6 +740,7 @@ export function RemoveLiquidityModal(
     const amountBN = new BigNumber(value.toString());
     const shareBN = new BigNumber(toReadableNumber(24, shares));
     if (amountBN.isGreaterThan(shareBN)) {
+      setCanSubmit(false);
       throw new Error(
         intl.formatMessage({
           id: 'input_greater_than_available_shares',
@@ -782,7 +807,7 @@ export function RemoveLiquidityModal(
             onChange={setSlippageTolerance}
           />
         </div>
-        {amount ? (
+        {amount && Number(pool.shareSupply) != 0 ? (
           <>
             <p className="my-3 text-left text-sm">
               <FormattedMessage
@@ -794,7 +819,6 @@ export function RemoveLiquidityModal(
               {Object.entries(minimumAmounts).map(
                 ([tokenId, minimumAmount], i) => {
                   const token = tokens.find((t) => t.id === tokenId);
-
                   return (
                     <section
                       key={tokenId}

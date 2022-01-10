@@ -195,7 +195,7 @@ function AccountTable(props: any) {
                 <div className="flex items-center">
                   {item.symbol == 'XREF' ? (
                     <span className="mr-2 -ml-1">
-                      <XrefSymbol width="48" height="53"></XrefSymbol>
+                      <XrefSymbol width="49" height="53"></XrefSymbol>
                     </span>
                   ) : (
                     <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden flex-shrink-0">
@@ -239,7 +239,11 @@ function AccountTable(props: any) {
                   >
                     <BorderButtonHover
                       className="opacity-40"
-                      disabled={new BigNumber(item.near).isEqualTo('0')}
+                      disabled={
+                        new BigNumber(item.near).isEqualTo('0') ||
+                        (item.symbol == 'NEAR' &&
+                          new BigNumber(item.near).isLessThanOrEqualTo(1))
+                      }
                     >
                       <FormattedMessage id="deposit"></FormattedMessage>
                     </BorderButtonHover>
@@ -341,7 +345,7 @@ function MobileAccountTable(props: any) {
                 <div className="flex items-center">
                   {item.symbol == 'XREF' ? (
                     <span className="mr-2 -ml-1">
-                      <XrefSymbol width="48" height="53"></XrefSymbol>
+                      <XrefSymbol width="49" height="53"></XrefSymbol>
                     </span>
                   ) : (
                     <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden flex-shrink-0">
@@ -373,7 +377,11 @@ function MobileAccountTable(props: any) {
                     }}
                   >
                     <BorderButtonMobile
-                      disabled={new BigNumber(item.near).isEqualTo('0')}
+                      disabled={
+                        new BigNumber(item.near).isEqualTo('0') ||
+                        (item.symbol == 'NEAR' &&
+                          new BigNumber(item.near).isLessThanOrEqualTo(1))
+                      }
                     >
                       <FormattedMessage id="deposit"></FormattedMessage>
                     </BorderButtonMobile>
