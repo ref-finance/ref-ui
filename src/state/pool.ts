@@ -87,9 +87,6 @@ export const usePools = (props: {
   const [pools, setPools] = useState<Pool[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const tokens = useWhitelistTokens();
-  const tokenIds = tokens?.map((t) => t.id);
-
   const nextPage = () => setPage((page) => page + 1);
 
   function _loadPools({
@@ -131,8 +128,6 @@ export const usePools = (props: {
 
   const loadPools = useCallback(debounce(_loadPools, 500), []);
 
-  // const loadPools = debounce(_loadPools, 500);
-
   useEffect(() => {
     setLoading(true);
     loadPools({
@@ -141,17 +136,7 @@ export const usePools = (props: {
       sortBy: props.sortBy,
       order: props.order,
     });
-  }, [props.searchTrigger]);
-
-  useEffect(() => {
-    setLoading(true);
-    loadPools({
-      accumulate: false,
-      tokenName: props.tokenName,
-      sortBy: props.sortBy,
-      order: props.order,
-    });
-  }, [props.sortBy, props.order]);
+  }, [props.sortBy, props.order, props.searchTrigger]);
 
   useEffect(() => {
     setLoading(true);

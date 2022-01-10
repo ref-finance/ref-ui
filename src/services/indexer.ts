@@ -5,7 +5,7 @@ import { parsePoolView, PoolRPCView } from './api';
 import moment from 'moment/moment';
 import { parseAction } from '~services/transaction';
 import { volumeType, TVLType } from '~state/pool';
-
+import db from '../store/RefDatabase';
 const config = getConfig();
 
 export const getPoolMonthVolume = async (
@@ -69,21 +69,27 @@ export const getYourPools = async (): Promise<PoolRPCView[]> => {
 };
 
 export const getTopPools = async (args: any): Promise<PoolRPCView[]> => {
-  return fetch(config.indexerUrl + '/list-top-pools', {
-    method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  })
-    .then((res) => res.json())
-    .then((pools) => {
-      pools = pools.map((pool: any) => parsePoolView(pool));
-      pools = pools.filter((pool: { token_account_ids: string | any[] }) => {
-        return pool.token_account_ids.length < 3;
-      });
-      return _order(args, _search(args, pools));
-    })
-    .catch(() => {
-      return [];
+  try {
+    let pools;
+
+    if (await db.checkTopPools()) {
+      pools = await db.queryTopPools();
+    } else {
+      pools = await fetch(config.indexerUrl + '/list-top-pools', {
+        method: 'GET',
+        headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      }).then((res) => res.json());
+      await db.cacheTopPools(pools);
+    }
+
+    pools = pools.map((pool: any) => parsePoolView(pool));
+    pools = pools.filter((pool: { token_account_ids: string | any[] }) => {
+      return pool.token_account_ids.length < 3;
     });
+    return _order(args, _search(args, pools));
+  } catch (error) {
+    return [];
+  }
 };
 
 export const getPool = async (pool_id: string): Promise<PoolRPCView> => {

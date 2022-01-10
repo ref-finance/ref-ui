@@ -411,8 +411,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     }
   }, [tokenIn, tokenOut, useNearBalance]);
 
-  console.log(tokenIn, tokenOut);
-
   const {
     canSwap,
     tokenOutAmount,
