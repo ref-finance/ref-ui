@@ -80,7 +80,7 @@ export const registerTokenAndExchange = async (tokenId: string) => {
     tokenId,
     REF_FI_CONTRACT_ID
   );
-  if (!exchangeBalanceAtFt || exchangeBalanceAtFt.total === '0') {
+  if (!exchangeBalanceAtFt) {
     transactions.push({
       receiverId: tokenId,
       functionCalls: [storageDepositForFTAction()],
@@ -154,6 +154,17 @@ export const deposit = async ({ token, amount, msg = '' }: DepositOptions) => {
       ],
     },
   ];
+
+  const exchangeBalanceAtFt = await ftGetStorageBalance(
+    token.id,
+    REF_FI_CONTRACT_ID
+  );
+  if (!exchangeBalanceAtFt) {
+    transactions.push({
+      receiverId: token.id,
+      functionCalls: [storageDepositForFTAction()],
+    });
+  }
 
   const whitelist = await getWhitelistedTokens();
   if (!whitelist.includes(token.id)) {
