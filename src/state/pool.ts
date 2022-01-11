@@ -150,7 +150,7 @@ export const usePools = (props: {
       perPage: DEFAULT_PAGE_LIMIT,
       tokenName: trim(props.tokenName),
       column: props.sortBy,
-      order: props.sortBy,
+      order: props.order,
     };
 
     const newPools = _order(args, _search(args, rawPools)).map((rawPool) =>
