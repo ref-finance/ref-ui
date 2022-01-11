@@ -163,11 +163,15 @@ export const deposit = async ({ token, amount, msg = '' }: DepositOptions) => {
     transactions.unshift({
       receiverId: token.id,
       functionCalls: [
-        storageDepositAction({
-          accountId: REF_FI_CONTRACT_ID,
-          registrationOnly: true,
+        {
+          methodName: 'storage_deposit',
+          args: {
+            account_id: wallet.getAccountId(),
+            registration_only: true,
+          },
           amount: STORAGE_TO_REGISTER_WITH_FT,
-        }),
+          gas: '30000000000000',
+        },
       ],
     });
   }

@@ -20,10 +20,12 @@ export const registerTokenAction = (tokenId: string) => ({
   methodName: 'register_tokens',
   args: { token_ids: [tokenId] },
   amount: ONE_YOCTO_NEAR,
+  gas: '30000000000000',
 });
 
 export const registerTokensAction = (tokenIds: string[]) => ({
   methodName: 'register_tokens',
   args: { token_ids: tokenIds },
   amount: ONE_YOCTO_NEAR,
+  gas: '30000000000000',
 });

@@ -12,7 +12,7 @@ import {
 import BigNumber from 'bignumber.js';
 import { isMobile } from '~utils/device';
 import { FaExchangeAlt } from 'react-icons/fa';
-import { toReadableNumber, formatWithCommas } from '~utils/numbers';
+import { toReadableNumber, toPrecision } from '~utils/numbers';
 import getConfig from '~services/config';
 import { ftGetBalance, ftGetTokenMetadata } from '~services/ft-contract';
 import { metadata, getPrice, stake, unstake } from '~services/xref';
@@ -25,7 +25,7 @@ const displayBalance = (max: string) => {
   if (formattedMax.isEqualTo('0')) {
     return '0';
   } else {
-    return formatWithCommas(formattedMax.toFixed(3, 1));
+    return toPrecision(max, 3, true);
   }
 };
 function XrefPage() {
