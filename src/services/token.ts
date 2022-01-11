@@ -137,32 +137,38 @@ export const deposit = async ({ token, amount, msg = '' }: DepositOptions) => {
   const gasFee =
     token.id === specialToken ? '150000000000000' : '100000000000000';
 
-  const transactions: Transaction[] = [
-    {
-      receiverId: token.id,
-      functionCalls: [
-        {
-          methodName: 'ft_transfer_call',
-          args: {
-            receiver_id: REF_FI_CONTRACT_ID,
-            amount: toNonDivisibleNumber(token.decimals, amount),
-            msg,
-          },
-          amount: ONE_YOCTO_NEAR,
-          gas: gasFee,
+  const transactions: Transaction[] = [];
+
+  transactions.unshift({
+    receiverId: token.id,
+    functionCalls: [
+      {
+        methodName: 'ft_transfer_call',
+        args: {
+          receiver_id: REF_FI_CONTRACT_ID,
+          amount: toNonDivisibleNumber(token.decimals, amount),
+          msg,
         },
-      ],
-    },
-  ];
+        amount: ONE_YOCTO_NEAR,
+        gas: gasFee,
+      },
+    ],
+  });
 
   const exchangeBalanceAtFt = await ftGetStorageBalance(
     token.id,
     REF_FI_CONTRACT_ID
   );
   if (!exchangeBalanceAtFt) {
-    transactions.push({
+    transactions.unshift({
       receiverId: token.id,
-      functionCalls: [storageDepositForFTAction()],
+      functionCalls: [
+        storageDepositAction({
+          accountId: REF_FI_CONTRACT_ID,
+          registrationOnly: true,
+          amount: STORAGE_TO_REGISTER_WITH_FT,
+        }),
+      ],
     });
   }
 
