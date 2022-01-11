@@ -247,6 +247,36 @@ export const toInternationalCurrencySystem = (
     ? (Math.abs(Number(labelValue)) / 1.0e3).toFixed(percent || 2) + 'K'
     : Math.abs(Number(labelValue)).toFixed(percent || 2);
 };
+export const toInternationalCurrencySystemNature = (
+  labelValue: string,
+  percent?: number
+) => {
+  const handle = (str: string) => {
+    let [whole, decimal] = str.split('.');
+    if (Number(decimal) == 0) {
+      return whole;
+    }
+    return str;
+  };
+  return Math.abs(Number(labelValue)) >= 1.0e9
+    ? new BigNumber(Math.abs(Number(labelValue)) / 1.0e9).toFixed(
+        percent || 2,
+        1
+      ) + 'B'
+    : Math.abs(Number(labelValue)) >= 1.0e6
+    ? new BigNumber(Math.abs(Number(labelValue)) / 1.0e6).toFixed(
+        percent || 2,
+        1
+      ) + 'M'
+    : Math.abs(Number(labelValue)) >= 1.0e3
+    ? new BigNumber(Math.abs(Number(labelValue)) / 1.0e3).toFixed(
+        percent || 2,
+        1
+      ) + 'K'
+    : handle(
+        new BigNumber(Math.abs(Number(labelValue))).toFixed(percent || 2, 1)
+      );
+};
 
 export function scientificNotationToString(strParam: string) {
   let flag = /e/.test(strParam);

@@ -18,8 +18,9 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { NearIcon, RefIcon, WalletIcon } from '~components/icon/Common';
 import {
   toReadableNumber,
-  toInternationalCurrencySystem,
-  formatWithCommas,
+  toInternationalCurrencySystemNature,
+  toInternationalCurrencySystemNature,
+  toPrecision,
 } from '~utils/numbers';
 import BigNumber from 'bignumber.js';
 import OldInputAmount from '~components/forms/OldInputAmount';
@@ -80,7 +81,7 @@ const getRefBalance = (item: TokenMetadata) => {
   } else if (bigRef.isLessThan(0.01)) {
     return '<0.01';
   } else {
-    return toInternationalCurrencySystem(bigRef.toString());
+    return toInternationalCurrencySystemNature(bigRef.toString());
   }
 };
 const getWalletBalance = (item: TokenMetadata) => {
@@ -91,7 +92,7 @@ const getWalletBalance = (item: TokenMetadata) => {
   } else if (bigNear.isLessThan(0.01)) {
     return '<0.01';
   } else {
-    return toInternationalCurrencySystem(near.toString());
+    return toInternationalCurrencySystemNature(near.toString());
   }
 };
 const NearTip = () => {
@@ -548,7 +549,7 @@ export function ActionModel(props: any) {
     } else if (big.isLessThan('0.001')) {
       return '<0.001';
     } else {
-      return formatWithCommas(big.toFixed(3, 1));
+      return toPrecision(max, 3, true);
     }
   };
   const onSubmit = () => {
