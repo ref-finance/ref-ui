@@ -189,12 +189,14 @@ function WrapNear(props: ReactModal.Props) {
             selectedToken={tokenOut}
             text={intl.formatMessage({ id: 'to' })}
           />
-          {showError && (
-            <Alert
-              level="error"
-              message={intl.formatMessage({ id: 'wrap_error_msg' })}
-            />
-          )}
+          <div className="flex items-center justify-center relative top-3">
+            {showError && (
+              <Alert
+                level="warn"
+                message={intl.formatMessage({ id: 'wrap_error_msg' })}
+              />
+            )}
+          </div>
         </div>
         <SubmitButton
           disabled={!canSubmit}

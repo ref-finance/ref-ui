@@ -2027,18 +2027,6 @@ function ActionModal(
             </div>
             {type == 'stake' ? (
               <>
-                <div className="flex justify-center">
-                  {stakeCheck ? (
-                    <Alert
-                      level="error"
-                      message={
-                        STABLE_POOL_ID == farm.lpTokenId
-                          ? intl.formatMessage({ id: 'more_than_stable_seed' })
-                          : intl.formatMessage({ id: 'more_than_general_seed' })
-                      }
-                    />
-                  ) : null}
-                </div>
                 <div className="mt-4">
                   <div className="flex flex-col items-center justify-center">
                     <div
@@ -2073,6 +2061,20 @@ function ActionModal(
             ) : (
               <UnClaim unclaimed={unclaimed}></UnClaim>
             )}
+            {type == 'stake' ? (
+              <div className="flex justify-center mt-2">
+                {stakeCheck ? (
+                  <Alert
+                    level="warn"
+                    message={
+                      STABLE_POOL_ID == farm.lpTokenId
+                        ? intl.formatMessage({ id: 'more_than_stable_seed' })
+                        : intl.formatMessage({ id: 'more_than_general_seed' })
+                    }
+                  />
+                ) : null}
+              </div>
+            ) : null}
             <div className="flex items-center justify-center pt-3">
               <GreenLButton
                 onClick={() => {

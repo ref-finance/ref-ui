@@ -9,8 +9,8 @@ export default function Alert({
   message: string;
 }) {
   const levelToColor = {
-    error: 'red',
-    warn: 'yellow',
+    error: 'error',
+    warn: 'warnColor',
   };
   const color = levelToColor[level];
 
@@ -19,9 +19,9 @@ export default function Alert({
       className={`inline-flex items-center leading-none p-2 text-teal text-sm`}
     >
       <div>
-        <FaExclamationTriangle className={`text-${color}-500 text-lg`} />
+        <FaExclamationTriangle className={`text-${color} text-lg`} />
       </div>
-      <span className={`text-${color}-500 inline-flex px-2 leading-4`}>
+      <span className={`text-${color} inline-flex px-2 leading-4 text-base`}>
         {message}
       </span>
     </div>
