@@ -31,6 +31,7 @@ import { IoCloseOutline } from 'react-icons/io5';
 import { XrefSymbol } from '~components/icon/Xref';
 import ReactTooltip from 'react-tooltip';
 import QuestionMark from '~components/farm/QuestionMark';
+import { useHistory } from 'react-router';
 
 const accountSortFun = (
   by: string,
@@ -609,7 +610,14 @@ export function ActionModel(props: any) {
         </div>
         <div className="flex items-center justify-between">
           <div className="relative flex-grow xs:w-3/5 md:w-3/5">
-            <div className="text-primaryText text-xs absolute right-0 -top-6">
+            <div className="flex items-center text-primaryText text-xs absolute right-0 -top-6">
+              <span className="mr-2 text-primaryText">
+                {action == 'deposit' ? (
+                  <WalletIcon></WalletIcon>
+                ) : (
+                  <RefIcon></RefIcon>
+                )}
+              </span>
               <FormattedMessage id="balance"></FormattedMessage>:{' '}
               <label title={max}>{showBalance()}</label>
             </div>
@@ -657,6 +665,11 @@ export function ActionModel(props: any) {
   );
 }
 export function AccountPage() {
+  if (!wallet.isSignedIn()) {
+    const history = useHistory();
+    history.push('/');
+    return null;
+  }
   const userTokens = useUserRegisteredTokensAllAndNearBalance();
   const balances = useTokenBalances();
   if (!userTokens || !balances) return <Loading />;

@@ -9,6 +9,7 @@ import SelectToken from './SelectToken';
 import { toPrecision } from '../../utils/numbers';
 import { FormattedMessage } from 'react-intl';
 import { SmallWallet } from '~components/icon/SmallWallet';
+import { RefIcon } from '~components/icon/Common';
 
 interface TokenAmountProps {
   amount?: string;
@@ -56,7 +57,11 @@ export default function TokenAmount({
             <span className="mr-2 float-left">
               <SmallWallet />
             </span>
-          ) : null}
+          ) : (
+            <span className="mr-2 float-left text-primaryText">
+              <RefIcon></RefIcon>
+            </span>
+          )}
           <FormattedMessage id="balance" defaultMessage="Balance" />
           :&nbsp;
           <span title={total}>{toPrecision(total, 3, true)}</span>

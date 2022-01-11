@@ -24,16 +24,19 @@ import {
   predictRemoveLiquidityByTokens,
   StablePool,
   getStablePool,
+  getPoolsFromCache,
 } from '../services/pool';
 import db, { PoolDb, WatchList } from '~store/RefDatabase';
 
 import { useWhitelistTokens } from './token';
-import _, { countBy, debounce, min, orderBy } from 'lodash';
+import _, { countBy, debounce, min, orderBy, trim } from 'lodash';
 import {
   getPoolMonthVolume,
   getPoolMonthTVL,
   getPoolsByIds,
   get24hVolume,
+  _order,
+  _search,
 } from '~services/indexer';
 import { parsePoolView, PoolRPCView } from '~services/api';
 import { TokenMetadata } from '~services/ft-contract';
@@ -85,6 +88,7 @@ export const usePools = (props: {
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [pools, setPools] = useState<Pool[]>([]);
+  const [rawPools, setRawPools] = useState<PoolRPCView[]>([]);
   const [loading, setLoading] = useState(false);
 
   const nextPage = () => setPage((page) => page + 1);
@@ -101,7 +105,19 @@ export const usePools = (props: {
       column: sortBy,
       order: order,
     })
-      .then((pools) => {
+      .then(async (rawPools) => {
+        const pools =
+          rawPools.length > 0
+            ? rawPools.map((rawPool) => parsePool(rawPool))
+            : await getPoolsFromCache({
+                page,
+                tokenName: tokenName,
+                column: sortBy,
+                order: order,
+              });
+
+        setRawPools(rawPools);
+
         setHasMore(pools.length === DEFAULT_PAGE_LIMIT);
         setPools((currentPools) =>
           pools.reduce<Pool[]>(
@@ -129,14 +145,19 @@ export const usePools = (props: {
   const loadPools = useCallback(debounce(_loadPools, 500), []);
 
   useEffect(() => {
-    setLoading(true);
-    loadPools({
-      accumulate: false,
-      tokenName: props.tokenName,
-      sortBy: props.sortBy,
+    const args = {
+      page,
+      perPage: DEFAULT_PAGE_LIMIT,
+      tokenName: trim(props.tokenName),
+      column: props.sortBy,
       order: props.order,
-    });
-  }, [props.sortBy, props.order, props.searchTrigger]);
+    };
+
+    const newPools = _order(args, _search(args, rawPools)).map((rawPool) =>
+      parsePool(rawPool)
+    );
+    setPools(newPools);
+  }, [props.sortBy, props.order, props.tokenName]);
 
   useEffect(() => {
     setLoading(true);

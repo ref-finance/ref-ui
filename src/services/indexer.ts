@@ -68,7 +68,7 @@ export const getYourPools = async (): Promise<PoolRPCView[]> => {
     });
 };
 
-export const getTopPools = async (args: any): Promise<PoolRPCView[]> => {
+export const getTopPools = async (): Promise<PoolRPCView[]> => {
   try {
     let pools;
 
@@ -85,10 +85,9 @@ export const getTopPools = async (args: any): Promise<PoolRPCView[]> => {
     }
 
     pools = pools.map((pool: any) => parsePoolView(pool));
-    pools = pools.filter((pool: { token_account_ids: string | any[] }) => {
+    return pools.filter((pool: { token_account_ids: string | any[] }) => {
       return pool.token_account_ids.length < 3;
     });
-    return _order(args, _search(args, pools));
   } catch (error) {
     return [];
   }
@@ -136,7 +135,7 @@ export const getTokenPriceList = async (): Promise<any> => {
     });
 };
 
-const _search = (args: any, pools: PoolRPCView[]) => {
+export const _search = (args: any, pools: PoolRPCView[]) => {
   if (args.tokenName === '') return pools;
   return _.filter(pools, (pool: PoolRPCView) => {
     return (
@@ -152,7 +151,7 @@ const _search = (args: any, pools: PoolRPCView[]) => {
   });
 };
 
-const _order = (args: any, pools: PoolRPCView[]) => {
+export const _order = (args: any, pools: PoolRPCView[]) => {
   let column = args.column || 'tvl';
   let order = args.order || 'desc';
   column = args.column === 'fee' ? 'total_fee' : column;

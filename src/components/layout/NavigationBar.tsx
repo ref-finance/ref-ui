@@ -315,11 +315,11 @@ function PoolsMenu() {
     >
       <div
         className={`flex items-center justify-center ${
-          isSelected || hover ? 'text-green-500' : 'text-gray-400'
+          isSelected || hover ? 'text-greenColor' : 'text-gray-400'
         }`}
       >
         <h2
-          className={`link hover:text-green-500 text-lg font-bold p-4 cursor-pointer`}
+          className={`link hover:text-greenColor text-lg font-bold p-4 cursor-pointer`}
         >
           <FormattedMessage id="pools" defaultMessage="Pools" />
         </h2>

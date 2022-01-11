@@ -16,6 +16,7 @@ import { useStableSwap, useSwap } from '~state/swap';
 import { isMobile } from '~utils/device';
 import Alert from '../alert/Alert';
 import { SmallWallet } from '~components/icon/SmallWallet';
+import { RefIcon } from '~components/icon/Common';
 
 import {
   calculateExchangeRate,
@@ -210,7 +211,11 @@ export default function StableSwap({
                 <span className="mr-2">
                   <SmallWallet />
                 </span>
-              ) : null}
+              ) : (
+                <span className="mr-2 text-primaryText">
+                  <RefIcon></RefIcon>
+                </span>
+              )}
               <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
               <span title={tokenInMax}>{toPrecision(tokenInMax, 3, true)}</span>
             </div>
@@ -241,7 +246,11 @@ export default function StableSwap({
                 <span className="mr-2 float-left">
                   <SmallWallet />
                 </span>
-              ) : null}
+              ) : (
+                <span className="mr-2 text-primaryText float-left">
+                  <RefIcon></RefIcon>
+                </span>
+              )}
               <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
               <span title={tokenOutTotal}>
                 {toPrecision(tokenOutTotal, 3, true)}
@@ -272,7 +281,11 @@ export default function StableSwap({
               <span className="mr-2">
                 <SmallWallet />
               </span>
-            ) : null}
+            ) : (
+              <span className="mr-2 text-primaryText">
+                <RefIcon></RefIcon>
+              </span>
+            )}
             <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
             <span title={tokenInMax}>{toPrecision(tokenInMax, 3, true)}</span>
           </div>
@@ -306,7 +319,11 @@ export default function StableSwap({
               <span className="mr-2 float-left">
                 <SmallWallet />
               </span>
-            ) : null}
+            ) : (
+              <span className="mr-2 float-left text-primaryText">
+                <RefIcon></RefIcon>
+              </span>
+            )}
             <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
             <span title={tokenOutTotal}>
               {toPrecision(tokenOutTotal, 3, true)}
@@ -343,7 +360,7 @@ export default function StableSwap({
         />
       </div>
       <div className="mx-8">
-        <div className="pb-2">
+        <div className="pb-2 relative -mb-6 mt-2">
           {swapError && <Alert level="error" message={swapError.message} />}
         </div>
       </div>

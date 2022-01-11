@@ -191,7 +191,7 @@ const zh_CN = {
   deposit_to_add_liquidity: '存入代币以添加流动性',
   slip_warn: '注意，请检查您可以收到的最低金额',
   slip_invalid: '请输入有效的值',
-  press_enter_to_search: '按下回车以搜索',
+  input_to_search: '输入以搜索',
   click_search_bar_to_search: '点击搜索图标以搜索',
   reward_tokens: '奖励币',
   detail_tip: '详情',
@@ -293,5 +293,6 @@ const zh_CN = {
   deposit_into_ref_account: '存储到REF账户来添加流动性',
   deposit_near_tip: '存入时至少保留一个NEAR以支付汽油费',
   input_greater_than_available_shares: '输入大于可用份额',
+  remove_to_ref_account: '移动到REF账户',
 };
 export default zh_CN;

@@ -96,6 +96,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import { ChartNoData } from '~components/icon/ChartNoData';
 import { WarnTriangle } from '~components/icon/SwapRefresh';
+import { RefIcon } from '~components/icon/Common';
 interface ParamTypes {
   id: string;
 }
@@ -502,7 +503,10 @@ export function AddLiquidityModal(
 
         {/* PC display */}
         <div className="mt-8 md:hidden xs:hidden">
-          <div className="text-xs text-right mb-1 text-gray-400">
+          <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
+            <span className="mr-2 text-primaryText">
+              <RefIcon></RefIcon>
+            </span>
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
             <span
@@ -534,7 +538,10 @@ export function AddLiquidityModal(
           </div>
         </div>
         <div className="my-8 md:hidden xs:hidden">
-          <div className="text-xs text-right mb-1 text-gray-400">
+          <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
+            <span className="mr-2 text-primaryText">
+              <RefIcon></RefIcon>
+            </span>
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
             <span
@@ -582,7 +589,10 @@ export function AddLiquidityModal(
                 }`}</div>
               </div>
             </div>
-            <div className="text-xs text-right mb-1 text-gray-400">
+            <div className="flex items-center justify-end text-xs text-right mb-1 text-gray-400">
+              <span className="mr-2 text-primaryText">
+                <RefIcon></RefIcon>
+              </span>
               <FormattedMessage id="balance" defaultMessage="Balance" />
               :&nbsp;
               <span
@@ -623,7 +633,10 @@ export function AddLiquidityModal(
                 }`}</div>
               </div>
             </div>
-            <div className="text-xs text-right mb-1 text-gray-400">
+            <div className="flex justify-end items-end text-xs text-right mb-1 text-gray-400">
+              <span className="mr-2 text-primaryText">
+                <RefIcon></RefIcon>
+              </span>
               <FormattedMessage id="balance" defaultMessage="Balance" />
               :&nbsp;
               <span
@@ -843,8 +856,8 @@ export function RemoveLiquidityModal(
             </section>
           </>
         ) : null}
-        <div className="flex justify-center">
-          {error && <Alert level="error" message={error.message} />}
+        <div className="flex justify-center mb-2">
+          {error && <Alert level="warn" message={error.message} />}
         </div>
         <div className="">
           {wallet.isSignedIn() ? (
@@ -864,8 +877,8 @@ export function RemoveLiquidityModal(
                 loading={buttonLoading}
                 Text={() => (
                   <FormattedMessage
-                    id="remove_liquidity"
-                    defaultMessage="Remove Liquidity"
+                    id="remove_to_ref_account"
+                    defaultMessage="Remove to REF account"
                   />
                 )}
               />
