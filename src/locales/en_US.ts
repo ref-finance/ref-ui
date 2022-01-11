@@ -195,7 +195,7 @@ const en_US = {
   deposit_to_add_liquidity: 'Deposit to Add Liquidity',
   slip_warn: 'Be careful, please check the minimum you can receive',
   slip_invalid: 'The slippage tolerance is invalid',
-  press_enter_to_search: 'Press enter to search',
+  input_to_search: 'Input to search',
   click_search_bar_to_search: 'Click search bar to search',
   reward_tokens: 'Reward tokens',
   detail_tip: 'Detail',

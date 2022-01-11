@@ -251,13 +251,9 @@ function MobileLiquidityPage({
   onHide,
   hideLowTVL,
   allPools,
-  searchTrigger,
-  setSearchTrigger,
 }: {
   pools: Pool[];
-  searchTrigger: Boolean;
   onSortChange: (modeSort: string) => void;
-  setSearchTrigger: (mode: Boolean) => void;
   tokenName: string;
   order: string;
   watchPools: Pool[];
@@ -272,13 +268,7 @@ function MobileLiquidityPage({
 }) {
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>();
-  const [searchValue, setSearchValue] = useState<string>(tokenName);
   const inputRef = useRef(null);
-
-  useEffect(() => {
-    if (searchTrigger === false || searchTrigger === true)
-      inputRef.current.focus();
-  }, [searchTrigger]);
 
   return (
     <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
@@ -330,24 +320,11 @@ function MobileLiquidityPage({
             ref={inputRef}
             className={`text-sm outline-none rounded w-full py-2 px-3`}
             placeholder={intl.formatMessage({
-              id: 'click_search_bar_to_search',
+              id: 'input_to_search',
             })}
-            value={searchValue}
+            value={tokenName}
             onChange={(evt) => {
-              setSearchValue(evt.target.value);
-            }}
-            onKeyUp={(evt) => {
-              if (evt.keyCode === 13) {
-                onSearch(searchValue);
-                setSearchTrigger(!searchTrigger);
-              }
-            }}
-          />
-          <FaSearch
-            className="cursor-pointer"
-            onClick={() => {
-              onSearch(searchValue);
-              setSearchTrigger(!searchTrigger);
+              onSearch(evt.target.value);
             }}
           />
         </div>
@@ -593,8 +570,6 @@ function LiquidityPage_({
   hideLowTVL,
   onSortChange,
   onOrderChange,
-  searchTrigger,
-  setSearchTrigger,
   nextPage,
   allPools,
 }: {
@@ -604,8 +579,6 @@ function LiquidityPage_({
   watchPools: Pool[];
   tokenName: string;
   order: string;
-  searchTrigger: Boolean;
-  setSearchTrigger: (mode: Boolean) => void;
   onHide: (mode: Boolean) => void;
   allPools: number;
   hasMore: boolean;
@@ -615,12 +588,8 @@ function LiquidityPage_({
   nextPage: (...args: []) => void;
 }) {
   const intl = useIntl();
-  const [searchValue, setSearchValue] = useState<string>(tokenName);
   const inputRef = useRef(null);
-  useEffect(() => {
-    if (searchTrigger === false || searchTrigger === true)
-      inputRef.current?.focus();
-  }, [searchTrigger]);
+
   return (
     <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
       <div className="mb-4 mx-8">
@@ -689,24 +658,11 @@ function LiquidityPage_({
                 ref={inputRef}
                 className={`text-sm outline-none rounded w-full py-2 px-3`}
                 placeholder={intl.formatMessage({
-                  id: 'press_enter_to_search',
+                  id: 'input_to_search',
                 })}
-                value={searchValue}
+                value={tokenName}
                 onChange={(evt) => {
-                  setSearchValue(evt.target.value);
-                }}
-                onKeyUp={(evt) => {
-                  if (evt.keyCode === 13) {
-                    onSearch(searchValue);
-                    setSearchTrigger(!searchTrigger);
-                  }
-                }}
-              />
-              <FaSearch
-                className="cursor-pointer"
-                onClick={() => {
-                  onSearch(searchValue);
-                  setSearchTrigger(!searchTrigger);
+                  onSearch(evt.target.value);
                 }}
               />
             </div>
@@ -787,11 +743,9 @@ export function LiquidityPage() {
   const [order, setOrder] = useState('desc');
   const AllPools = useAllPools();
   const watchPools = useWatchPools();
-  const [searchTrigger, setSearchTrigger] = useState<Boolean>(null);
   const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
   const [displayPools, setDisplayPools] = useState<Pool[]>();
   const { pools, hasMore, nextPage, loading } = usePools({
-    searchTrigger,
     tokenName,
     sortBy,
     order,
@@ -816,8 +770,6 @@ export function LiquidityPage() {
     <>
       <LiquidityPage_
         tokenName={tokenName}
-        searchTrigger={searchTrigger}
-        setSearchTrigger={setSearchTrigger}
         pools={displayPools}
         onHide={(isHide) => {
           localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
@@ -835,8 +787,6 @@ export function LiquidityPage() {
         nextPage={nextPage}
       />
       <MobileLiquidityPage
-        searchTrigger={searchTrigger}
-        setSearchTrigger={setSearchTrigger}
         hideLowTVL={hideLowTVL}
         tokenName={tokenName}
         pools={displayPools}

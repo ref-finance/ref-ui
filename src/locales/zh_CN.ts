@@ -191,7 +191,7 @@ const zh_CN = {
   deposit_to_add_liquidity: '存入代币以添加流动性',
   slip_warn: '注意，请检查您可以收到的最低金额',
   slip_invalid: '请输入有效的值',
-  press_enter_to_search: '按下回车以搜索',
+  input_to_search: '输入以搜索',
   click_search_bar_to_search: '点击搜索图标以搜索',
   reward_tokens: '奖励币',
   detail_tip: '详情',
