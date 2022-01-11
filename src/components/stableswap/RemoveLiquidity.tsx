@@ -490,7 +490,7 @@ export function RemoveLiquidityComponent(props: {
         <div className="flex justify-center mx-2 mb-1">
           {error && !isPercentage && (
             <Alert
-              level="error"
+              level="warn"
               message={intl.formatMessage({ id: error.message })}
             />
           )}

@@ -74,9 +74,9 @@ function XrefPage() {
     if (aprBig.isEqualTo(0)) {
       return '0';
     } else if (aprBig.isLessThan(0.01)) {
-      return '<0.01%';
+      return '<0.01';
     } else {
-      return aprBig.toFixed(2, 1) + '%';
+      return aprBig.toFixed(2, 1);
     }
   };
   const rateDisplay = () => {
@@ -137,7 +137,7 @@ function XrefPage() {
                 <FormattedMessage id="staking_apr"></FormattedMessage>
               </p>
               <p className="text-2xl text-white" title={apr.toString() + '%'}>
-                {displayApr()}
+                {displayApr() + '%'}
               </p>
             </div>
             <div className="flex items-center justify-between w-full mt-3">
