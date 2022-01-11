@@ -104,6 +104,7 @@ interface LocationTypes {
   tvl: number;
   backToFarms: boolean;
 }
+const ONLY_ZEROS = /^0*\.?0*$/;
 
 const formatDate = (rawDate: string) => {
   const date = rawDate
@@ -362,7 +363,7 @@ export function AddLiquidityModal(
       return;
     }
 
-    if (!firstAmount || firstAmount === '0') {
+    if (ONLY_ZEROS.test(firstAmount)) {
       setCanSubmit(false);
       setMessageId('add_liquidity');
       setDefaultMessage('Add Liquidity');
@@ -374,7 +375,7 @@ export function AddLiquidityModal(
       // );
     }
 
-    if (!secondAmount || secondAmount === '0') {
+    if (ONLY_ZEROS.test(secondAmount)) {
       setCanSubmit(false);
       setMessageId('add_liquidity');
       setDefaultMessage('Add Liquidity');
@@ -747,7 +748,7 @@ export function RemoveLiquidityModal(
         })
       );
     }
-    if (!value || value === '0') {
+    if (ONLY_ZEROS.test(value)) {
       setCanSubmit(false);
       return;
     }
