@@ -157,7 +157,7 @@ export const usePools = (props: {
       parsePool(rawPool)
     );
     setPools(newPools);
-  }, [props.sortBy, props.order, props.tokenName]);
+  }, [props.sortBy, props.order, props.tokenName, rawPools]);
 
   useEffect(() => {
     setLoading(true);
