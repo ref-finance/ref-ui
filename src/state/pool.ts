@@ -406,13 +406,13 @@ export const usePredictShares = ({
       setPredictedShares('0');
       return;
     }
-
-    const calcShares = getAddLiquidityShares(
+    getAddLiquidityShares(
       poolId,
       [firstTokenAmount, secondTokenAmount, thirdTokenAmount],
       stablePool
-    );
-    setPredictedShares(calcShares);
+    )
+      .then(setPredictedShares)
+      .catch((e) => e);
   }, [firstTokenAmount, secondTokenAmount, thirdTokenAmount]);
 
   return predicedShares;

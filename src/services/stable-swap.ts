@@ -584,7 +584,7 @@ export const getSwappedAmount = (
   return [amount_swapped, fee, dy];
 };
 
-export const getAddLiquidityShares = (
+export const getAddLiquidityShares = async (
   pool_id: number,
   amounts: string[],
   stablePool: StablePool
