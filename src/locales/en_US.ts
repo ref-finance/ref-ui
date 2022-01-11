@@ -305,5 +305,6 @@ const en_US = {
   deposit_into_ref_account: 'Deposit into your REF account to add liquidity',
   deposit_near_tip: 'To deposit, keep at least 1 NEAR to cover gas fee',
   input_greater_than_available_shares: 'Input greater than available shares',
+  remove_to_ref_account: 'Remove to REF account',
 };
 export default en_US;

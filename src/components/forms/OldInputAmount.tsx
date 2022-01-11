@@ -54,14 +54,14 @@ export default function OldInputAmount({
              ${
                inputValue == max
                  ? 'text-gray-400 hover:text-gray-400'
-                 : 'text-greenLight'
+                 : 'text-greenColor'
              }`}
               style={{ lineHeight: 'unset', cursor: 'pointer' }}
               onClick={() => handleChange(max)}
             >
               <label
                 className={`text-xs border rounded-sm px-1 cursor-pointer ${
-                  inputValue == max ? 'border-gray-400' : 'border-framBorder'
+                  inputValue == max ? 'border-gray-400' : 'border-greenColor'
                 }`}
                 style={{ zoom: 0.8 }}
               >

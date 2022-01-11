@@ -13,6 +13,7 @@ import {
 import { toRealSymbol } from '~utils/token';
 import Alert from '~components/alert/Alert';
 import BigNumber from 'bignumber.js';
+import { RefIcon } from '~components/icon/Common';
 
 export function Icon(props: {
   icon?: string;
@@ -93,7 +94,10 @@ export default function StableTokenList(props: {
 
   return (
     <div className="mt-4 px-8">
-      <div className="text-xs text-right mb-1 text-gray-400">
+      <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
+        <span className="mr-2 text-primaryText">
+          <RefIcon></RefIcon>
+        </span>
         <FormattedMessage id="balance" defaultMessage="Balance" />
         :&nbsp;
         <span
@@ -126,7 +130,10 @@ export default function StableTokenList(props: {
         />
       </div>
       <div className=" my-4">
-        <div className="text-xs text-right mb-1 text-gray-400">
+        <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
+          <span className="mr-2 text-primaryText">
+            <RefIcon></RefIcon>
+          </span>
           <FormattedMessage id="balance" defaultMessage="Balance" />
           :&nbsp;
           <span
@@ -158,7 +165,10 @@ export default function StableTokenList(props: {
         </div>
       </div>
       <div className="my-4">
-        <div className="text-xs text-right mb-1 text-gray-400">
+        <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
+          <span className="mr-2 text-primaryText">
+            <RefIcon></RefIcon>
+          </span>
           <FormattedMessage id="balance" defaultMessage="Balance" />
           :&nbsp;
           <span

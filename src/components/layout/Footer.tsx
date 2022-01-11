@@ -57,7 +57,7 @@ function Footer() {
               return (
                 <div
                   key={link.url}
-                  className={`text-2xl font-semibold text-gray-600 cursor-pointer pb-2 last:pb-0 hover:text-greenLight`}
+                  className={`text-2xl font-semibold text-gray-600 cursor-pointer pb-2 last:pb-0 hover:text-greenColor`}
                   onClick={() => window.open(link.url)}
                 >
                   {link.icon}
