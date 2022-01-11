@@ -203,7 +203,7 @@ export default function CalcModel(
                   ' text-xs border  rounded px-1 cursor-pointer ' +
                   (userLpTokenNum == lpTokenNum
                     ? 'border-gray-400 text-gray-400'
-                    : 'text-framBorder border-framBorder')
+                    : 'text-greenColor border-greenColor')
                 }
               >
                 MAX

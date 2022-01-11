@@ -69,7 +69,7 @@ export default function InputAmount({
               className={`rounded border  items-center px-1 mr-2 m-auto focus:outline-none text-xs ${
                 disabled || max === rest.value
                   ? 'text-gray-400 hover:text-gray-400 border-gray-400'
-                  : 'text-greenLight border-greenLight'
+                  : 'text-greenColor border-greenColor'
               }`}
               style={{ lineHeight: 'unset', cursor: 'pointer' }}
               onClick={() => handleChange(max)}

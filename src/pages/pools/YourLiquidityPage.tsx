@@ -126,6 +126,11 @@ export function YourLiquidityPage() {
   const [error, setError] = useState<Error>();
   const [pools, setPools] = useState<PoolRPCView[]>();
   const [balances, setBalances] = useState<string[]>();
+  if (!wallet.isSignedIn()) {
+    const history = useHistory();
+    history.push('/');
+    return null;
+  }
 
   useEffect(() => {
     getYourPools().then(setPools);

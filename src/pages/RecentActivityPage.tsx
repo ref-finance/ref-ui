@@ -12,6 +12,7 @@ import { GradientButton, GrayButton } from '~components/button/Button';
 import Modal from 'react-modal';
 import { isMobile } from '~utils/device';
 const config = getConfig();
+import { useHistory } from 'react-router';
 
 function useLastActions() {
   const [actions, setActions] = useState<ActionData[]>(null);
@@ -25,6 +26,11 @@ function useLastActions() {
   return actions;
 }
 export function RecentActivityPage() {
+  if (!wallet.isSignedIn()) {
+    const history = useHistory();
+    history.push('/');
+    return null;
+  }
   const actions = useLastActions();
   const ref = useRef<ActionSheetRef>();
   const [detail, setDetail] = useState<ActionData | null>(null);
