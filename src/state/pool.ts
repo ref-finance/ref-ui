@@ -37,6 +37,7 @@ import {
   get24hVolume,
   _order,
   _search,
+  getTopPools,
 } from '~services/indexer';
 import { parsePoolView, PoolRPCView } from '~services/api';
 import { TokenMetadata } from '~services/ft-contract';
@@ -99,12 +100,7 @@ export const usePools = (props: {
     sortBy,
     order,
   }: LoadPoolsOpts) {
-    getPools({
-      page,
-      tokenName: tokenName,
-      column: sortBy,
-      order: order,
-    })
+    getTopPools()
       .then(async (rawPools) => {
         const pools =
           rawPools.length > 0
@@ -177,14 +173,19 @@ export const usePools = (props: {
   };
 };
 
-export const useMorePoolIds = (props: { topPool: Pool }) => {
-  const { topPool } = props;
-
+export const useMorePoolIds = ({
+  topPool,
+  inView,
+}: {
+  topPool: Pool;
+  inView: boolean;
+}) => {
   const [token1Id, token2Id] = topPool.tokenIds;
 
-  const [ids, setIds] = useState<string[]>();
+  const [ids, setIds] = useState<string[]>([]);
 
   useEffect(() => {
+    if (!inView) return;
     getCachedPoolsByTokenId({
       token1Id,
       token2Id,
@@ -194,7 +195,7 @@ export const useMorePoolIds = (props: { topPool: Pool }) => {
       });
       setIds(idsFromCachePools);
     });
-  }, [topPool?.id]);
+  }, [topPool?.id, inView]);
   return ids;
 };
 

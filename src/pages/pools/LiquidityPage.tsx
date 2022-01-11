@@ -43,6 +43,7 @@ import {
 import { PolygonGrayDown } from '~components/icon/Polygon';
 import _, { orderBy, sortBy, filter } from 'lodash';
 import QuestionMark from '~components/farm/QuestionMark';
+import { useInView } from 'react-intersection-observer';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -56,7 +57,9 @@ function MobilePoolRow({
   watched: Boolean;
 }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
-  const morePoolIds = useMorePoolIds({ topPool: pool });
+  const { ref, inView } = useInView();
+
+  const morePoolIds = useMorePoolIds({ topPool: pool, inView });
   const tokens = useTokens(pool.tokenIds);
   const history = useHistory();
   useEffect(() => {
@@ -94,6 +97,7 @@ function MobilePoolRow({
 
   return (
     <Link
+      ref={ref}
       className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-4 py-6 text-white"
       onClick={() => localStorage.setItem('fromMorePools', 'n')}
       to={{
@@ -408,7 +412,8 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const [farmCount, setFarmCount] = useState<Number>(1);
   const tokens = useTokens(pool.tokenIds);
-  const morePoolIds = useMorePoolIds({ topPool: pool });
+  const { ref, inView, entry } = useInView();
+  const morePoolIds = useMorePoolIds({ topPool: pool, inView });
   const history = useHistory();
   const [showLinkArrow, setShowLinkArrow] = useState(false);
 
@@ -435,6 +440,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
         pathname: `/pool/${pool.id}`,
         state: { tvl: pool.tvl, backToFarms: supportFarm },
       }}
+      ref={ref}
     >
       <div className="col-span-7 md:col-span-4 flex items-center">
         <div className="mr-6 w-2">{index}</div>
@@ -660,7 +666,6 @@ function LiquidityPage_({
                 placeholder={intl.formatMessage({
                   id: 'input_to_search',
                 })}
-                value={tokenName}
                 onChange={(evt) => {
                   onSearch(evt.target.value);
                 }}
@@ -766,6 +771,8 @@ export function LiquidityPage() {
 
   if (!displayPools || loading || !watchPools) return <Loading />;
 
+  const onSearch = _.debounce(setTokenName, 500);
+
   return (
     <>
       <LiquidityPage_
@@ -782,7 +789,7 @@ export function LiquidityPage() {
         allPools={AllPools}
         onOrderChange={setOrder}
         onSortChange={setSortBy}
-        onSearch={setTokenName}
+        onSearch={onSearch}
         hasMore={hasMore}
         nextPage={nextPage}
       />
@@ -800,7 +807,7 @@ export function LiquidityPage() {
           localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
           setHideLowTVL(isHide);
         }}
-        onSearch={setTokenName}
+        onSearch={onSearch}
         hasMore={hasMore}
         nextPage={nextPage}
       />
