@@ -19,7 +19,7 @@ export const withdrawAction = ({
 export const registerTokenAction = (tokenId: string) => ({
   methodName: 'register_tokens',
   args: { token_ids: [tokenId] },
-  // amount: ONE_YOCTO_NEAR,
+  amount: ONE_YOCTO_NEAR,
 });
 
 export const registerTokensAction = (tokenIds: string[]) => ({
