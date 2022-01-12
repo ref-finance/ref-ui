@@ -84,18 +84,26 @@ function XrefPage() {
     const cur_rate_reverse = 1 / rate;
     if (rate) {
       if (forward) {
+        const displayStr = new BigNumber(cur_rate_forward).toFixed(3);
         return (
           <>
-            1 <FormattedMessage id="xref"></FormattedMessage> ={' '}
-            {new BigNumber(cur_rate_forward).toFixed(3)}{' '}
+            1 <FormattedMessage id="xref"></FormattedMessage> =&nbsp;
+            <span className="cursor-text" title={displayStr}>
+              {displayStr}
+            </span>
+            &nbsp;
             <FormattedMessage id="ref"></FormattedMessage>
           </>
         );
       } else {
+        const displayStr = new BigNumber(cur_rate_reverse).toFixed(3);
         return (
           <>
-            1 <FormattedMessage id="ref"></FormattedMessage> ={' '}
-            {new BigNumber(cur_rate_reverse).toFixed(3)}{' '}
+            1 <FormattedMessage id="ref"></FormattedMessage> =&nbsp;
+            <span className="cursor-text" title={displayStr}>
+              {displayStr}
+            </span>
+            &nbsp;
             <FormattedMessage id="xref"></FormattedMessage>
           </>
         );
@@ -103,7 +111,8 @@ function XrefPage() {
     } else {
       return (
         <>
-          1 <FormattedMessage id="xref"></FormattedMessage> = 1{' '}
+          1 <FormattedMessage id="xref"></FormattedMessage> ={' '}
+          <span title="1">1</span>&nbsp;
           <FormattedMessage id="ref"></FormattedMessage>
         </>
       );

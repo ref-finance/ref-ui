@@ -184,18 +184,6 @@ export function AddLiquidityModal(
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [canDeposit, setCanDeposit] = useState<boolean>(false);
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
-  useEffect(() => {
-    if (
-      balances &&
-      Number(balances[tokens[0].id] || '0') === 0 &&
-      Number(balances[tokens[1].id] || '0') === 0
-    ) {
-      setCanSubmit(false);
-      if (firstTokenAmount || secondTokenAmount) {
-        setCanDeposit(true);
-      }
-    }
-  }, [firstTokenAmount, secondTokenAmount, balances, tokens]);
   const [preShare, setPreShare] = useState(null);
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
@@ -229,15 +217,17 @@ export function AddLiquidityModal(
         contribution: toNonDivisibleNumber(tokens[0].decimals, amount),
         totalContribution: pool.supplies[tokens[0].id],
       });
-      const secondAmount = toReadableNumber(
-        tokens[1].decimals,
-        calculateFairShare({
-          shareOf: pool.supplies[tokens[1].id],
-          contribution: fairShares,
-          totalContribution: pool.shareSupply,
-        })
-      );
-
+      let secondAmount = '';
+      if (amount) {
+        secondAmount = toReadableNumber(
+          tokens[1].decimals,
+          calculateFairShare({
+            shareOf: pool.supplies[tokens[1].id],
+            contribution: fairShares,
+            totalContribution: pool.shareSupply,
+          })
+        );
+      }
       setFirstTokenAmount(amount);
       setSecondTokenAmount(secondAmount);
       setPreShare(toReadableNumber(24, fairShares));
@@ -279,15 +269,17 @@ export function AddLiquidityModal(
         contribution: toNonDivisibleNumber(tokens[1].decimals, amount),
         totalContribution: pool.supplies[tokens[1].id],
       });
-      const firstAmount = toReadableNumber(
-        tokens[0].decimals,
-        calculateFairShare({
-          shareOf: pool.supplies[tokens[0].id],
-          contribution: fairShares,
-          totalContribution: pool.shareSupply,
-        })
-      );
-
+      let firstAmount = '';
+      if (amount) {
+        firstAmount = toReadableNumber(
+          tokens[0].decimals,
+          calculateFairShare({
+            shareOf: pool.supplies[tokens[0].id],
+            contribution: fairShares,
+            totalContribution: pool.shareSupply,
+          })
+        );
+      }
       setSecondTokenAmount(amount);
       setFirstTokenAmount(firstAmount);
       setPreShare(toReadableNumber(24, fairShares));
