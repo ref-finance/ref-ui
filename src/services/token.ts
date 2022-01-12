@@ -159,6 +159,7 @@ export const deposit = async ({ token, amount, msg = '' }: DepositOptions) => {
     token.id,
     REF_FI_CONTRACT_ID
   );
+
   if (!exchangeBalanceAtFt) {
     transactions.unshift({
       receiverId: token.id,
@@ -166,7 +167,7 @@ export const deposit = async ({ token, amount, msg = '' }: DepositOptions) => {
         {
           methodName: 'storage_deposit',
           args: {
-            account_id: wallet.getAccountId(),
+            account_id: REF_FI_CONTRACT_ID,
             registration_only: true,
           },
           amount: STORAGE_TO_REGISTER_WITH_FT,
