@@ -42,7 +42,7 @@ export function BorderButton(
     <button
       disabled={disabled}
       className={`text-xs font-semibold border ${
-        borderColor ? borderColor : 'border-greenLight'
+        borderColor ? borderColor : 'border-greenColor'
       }  ${className} ${
         disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
       } ${rounded || 'rounded-full'} ${px || 'px-5'} ${py || 'py-2.5'} ${

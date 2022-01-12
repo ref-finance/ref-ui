@@ -583,10 +583,11 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           canSwap={canSwap}
           fee={avgFee}
         />
-
-        <div className="pb-2 relative -mb-5">
-          {swapError && <Alert level="error" message={swapError.message} />}
-        </div>
+        {swapError ? (
+          <div className="pb-2 relative -mb-5">
+            <Alert level="error" message={swapError.message} />
+          </div>
+        ) : null}
       </SwapFormWrap>
       <DoubleCheckModal
         isOpen={doubleCheckOpen}

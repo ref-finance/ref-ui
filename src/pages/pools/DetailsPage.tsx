@@ -191,9 +191,9 @@ export function AddLiquidityModal(
       Number(balances[tokens[1].id] || '0') === 0
     ) {
       setCanSubmit(false);
-      setCanDeposit(true);
-      setMessageId('deposit_to_add_liquidity');
-      setDefaultMessage('Deposit to Add Liquidity');
+      if (firstTokenAmount || secondTokenAmount) {
+        setCanDeposit(true);
+      }
     }
   }, [firstTokenAmount, secondTokenAmount, balances, tokens]);
   const [preShare, setPreShare] = useState(null);
@@ -574,19 +574,19 @@ export function AddLiquidityModal(
         </div>
         {/* mobile display */}
         <div className="my-6 lg:hidden">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-end">
+          <div className="flex items-end justify-between mb-2">
+            <div className="flex items-center">
               <Icon icon={tokens[0].icon} className="h-9 w-9 mr-2" />
               <div className="flex items-start flex-col">
                 <div className="text-white text-base">
                   {toRealSymbol(tokens[0].symbol)}
                 </div>
-                <div
+                {/* <div
                   className="text-xs text-gray-400"
                   title={tokens[0].id}
                 >{`${tokens[0].id.substring(0, 25)}${
                   tokens[0].id.length > 25 ? '...' : ''
-                }`}</div>
+                }`}</div> */}
               </div>
             </div>
             <div className="flex items-center justify-end text-xs text-right mb-1 text-gray-400">
@@ -618,19 +618,19 @@ export function AddLiquidityModal(
           />
         </div>
         <div className="my-8 lg:hidden">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-end">
+          <div className="flex items-end justify-between mb-2">
+            <div className="flex items-center">
               <Icon icon={tokens[1].icon} className="h-9 w-9 mr-2" />
               <div className="flex items-start flex-col">
                 <div className="text-white text-base">
                   {toRealSymbol(tokens[1].symbol)}
                 </div>
-                <div
+                {/* <div
                   className="text-xs text-gray-400"
                   title={tokens[1].id}
                 >{`${tokens[1].id.substring(0, 25)}${
                   tokens[1].id.length > 25 ? '...' : ''
-                }`}</div>
+                }`}</div> */}
               </div>
             </div>
             <div className="flex justify-end items-end text-xs text-right mb-1 text-gray-400">
