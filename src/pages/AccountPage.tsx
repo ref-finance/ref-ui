@@ -18,7 +18,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { NearIcon, RefIcon, WalletIcon } from '~components/icon/Common';
 import {
   toReadableNumber,
-  toInternationalCurrencySystemNature,
+  toInternationalCurrencySystem,
   toInternationalCurrencySystemNature,
   toPrecision,
 } from '~utils/numbers';
@@ -220,16 +220,16 @@ function AccountTable(props: any) {
               <td
                 width="15%"
                 className="text-right text-white font-semibold text-base"
-                title={item.near.toString()}
               >
-                {getWalletBalance(item)}
+                <span title={item.near.toString()}>
+                  {getWalletBalance(item)}
+                </span>
               </td>
               <td
                 width="15%"
                 className="text-right text-white font-semibold text-base"
-                title={item.ref.toString()}
               >
-                {getRefBalance(item)}
+                <span title={item.ref.toString()}>{getRefBalance(item)}</span>
               </td>
               <td width="32%" className="pl-8">
                 <div className="flex flex-wrap">
@@ -620,7 +620,7 @@ export function ActionModel(props: any) {
                 )}
               </span>
               <FormattedMessage id="balance"></FormattedMessage>:{' '}
-              <label title={max}>{showBalance()}</label>
+              <span title={max}>{showBalance()}</span>
             </div>
             <OldInputAmount max={max} onChangeAmount={setAmount} />
           </div>

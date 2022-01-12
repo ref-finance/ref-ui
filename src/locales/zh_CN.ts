@@ -294,5 +294,11 @@ const zh_CN = {
   deposit_near_tip: '存入时至少保留一个NEAR以支付汽油费',
   input_greater_than_available_shares: '输入大于可用份额',
   remove_to_ref_account: '移动到REF账户',
+  number_of_unique_stakers: '质押人数',
+  total_ref_staked: '质押的REF总数量',
+  total_xref_minted: '产出的xREF的总数量',
+  total_platform_fee_revenue: '平台总的费用收入',
+  total_fee_Revenue_shared_with_xref_holders: '分给xREF拥有者的总的费用',
+  provision_treasury: '财政收入',
 };
 export default zh_CN;

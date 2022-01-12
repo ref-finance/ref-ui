@@ -306,5 +306,12 @@ const en_US = {
   deposit_near_tip: 'To deposit, keep at least 1 NEAR to cover gas fee',
   input_greater_than_available_shares: 'Input greater than available shares',
   remove_to_ref_account: 'Remove to REF account',
+  number_of_unique_stakers: 'Number of Unique Stakers',
+  total_ref_staked: 'Total REF Staked',
+  total_xref_minted: 'Total xREF Minted',
+  total_platform_fee_revenue: 'Total Platform Fee Revenue',
+  total_fee_Revenue_shared_with_xref_holders:
+    'Total Fee Revenue Shared with xREF Holders',
+  provision_treasury: 'Provision Treasury',
 };
 export default en_US;

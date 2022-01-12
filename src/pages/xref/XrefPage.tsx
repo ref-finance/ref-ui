@@ -3,7 +3,7 @@ import Loading from '~components/layout/Loading';
 import { XrefLogo, XrefSymbol, RefSymbol } from '~components/icon/Xref';
 import { SmallWallet } from '~components/icon/SmallWallet';
 import OldInputAmount from '~components/forms/OldInputAmount';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import {
   GradientButton,
   ButtonTextWrapper,
@@ -15,9 +15,17 @@ import { FaExchangeAlt } from 'react-icons/fa';
 import { toReadableNumber, toPrecision } from '~utils/numbers';
 import getConfig from '~services/config';
 import { ftGetBalance, ftGetTokenMetadata } from '~services/ft-contract';
-import { metadata, getPrice, stake, unstake } from '~services/xref';
+import {
+  metadata,
+  getPrice,
+  stake,
+  unstake,
+  XREF_TOKEN_DECIMALS,
+} from '~services/xref';
 import { wallet } from '~services/near';
-const { XREF_TOKEN_ID, REF_TOKEN_ID } = getConfig();
+import QuestionMark from '~components/farm/QuestionMark';
+import ReactTooltip from 'react-tooltip';
+const { XREF_TOKEN_ID, REF_TOKEN_ID, TOTAL_PLATFORM_FEE_REVENUE } = getConfig();
 const DECIMALS_XREF_REF_TRANSTER = 8;
 
 const displayBalance = (max: string) => {
@@ -35,6 +43,8 @@ function XrefPage() {
   const [xrefBalance, setXrefBalance] = useState(null);
   const [rate, setRate] = useState(null);
   const [forward, setForward] = useState(true);
+  const [totalDataArray, setTotalDataArray] = useState([]);
+  const intl = useIntl();
   useEffect(() => {
     ftGetBalance(XREF_TOKEN_ID).then(async (data) => {
       const token = await ftGetTokenMetadata(XREF_TOKEN_ID);
@@ -43,19 +53,64 @@ function XrefPage() {
       setXrefBalance(balance);
     });
     metadata().then((data) => {
-      const { locked_token, locked_token_amount, reward_per_sec } = data;
+      const {
+        locked_token,
+        locked_token_amount,
+        reward_per_sec,
+        cur_locked_token_amount,
+        supply,
+        account_number,
+      } = data;
       if (new BigNumber(locked_token_amount).isGreaterThan('0')) {
         const apr =
           (1 / locked_token_amount) *
           (Number(reward_per_sec) * 365 * 24 * 60 * 60 * 100);
         setApr(apr.toString());
       }
-      ftGetBalance(locked_token).then(async (data) => {
-        const token = await ftGetTokenMetadata(locked_token);
+      ftGetBalance(REF_TOKEN_ID).then(async (data) => {
+        const token = await ftGetTokenMetadata(REF_TOKEN_ID);
         const { decimals } = token;
         const balance = toReadableNumber(decimals, data);
         setRefBalance(balance);
       });
+      const joinAmount = toPrecision(
+        (account_number || '0').toString(),
+        0,
+        true
+      );
+      const refAmount = toPrecision(
+        toReadableNumber(XREF_TOKEN_DECIMALS, cur_locked_token_amount || '0'),
+        2,
+        true
+      );
+      const xrefAmount = toPrecision(
+        toReadableNumber(XREF_TOKEN_DECIMALS, supply || '0'),
+        2,
+        true
+      );
+      const totalFee = `$${toPrecision(
+        TOTAL_PLATFORM_FEE_REVENUE.toString(),
+        2,
+        true
+      )}`;
+      const xrefGetFee = `$${toPrecision(
+        (Number(TOTAL_PLATFORM_FEE_REVENUE) * 0.75).toString(),
+        2,
+        true
+      )}`;
+      const remainFee = `$${toPrecision(
+        (Number(TOTAL_PLATFORM_FEE_REVENUE) * 0.25).toString(),
+        2,
+        true
+      )}`;
+      setTotalDataArray([
+        joinAmount,
+        refAmount,
+        xrefAmount,
+        totalFee,
+        xrefGetFee,
+        remainFee,
+      ]);
     });
     getPrice().then((data) => {
       const rate = toReadableNumber(DECIMALS_XREF_REF_TRANSTER, data);
@@ -118,6 +173,33 @@ function XrefPage() {
       );
     }
   };
+  const analysisText: any = {
+    first: {
+      title: intl.formatMessage({ id: 'number_of_unique_stakers' }),
+    },
+    second: {
+      title: intl.formatMessage({ id: 'total_ref_staked' }),
+      unit: 'REF',
+    },
+    third: {
+      title: intl.formatMessage({ id: 'total_xref_minted' }),
+      unit: 'xREF',
+    },
+    fourth: {
+      title: intl.formatMessage({ id: 'total_platform_fee_revenue' }),
+      tipContent: 'hello world1',
+    },
+    fifth: {
+      title: intl.formatMessage({
+        id: 'total_fee_Revenue_shared_with_xref_holders',
+      }),
+      tipContent: 'hello world2',
+    },
+    sixth: {
+      title: intl.formatMessage({ id: 'provision_treasury' }),
+      tipContent: 'hello world3',
+    },
+  };
   if (!(refBalance && xrefBalance)) return <Loading></Loading>;
   return (
     <div className="flex flex-col mx-auto items-center -mt-5 xs:px-4 md:px-4 lg:w-3/5 xl:w-3/6 2xl:w-2/5">
@@ -139,7 +221,7 @@ function XrefPage() {
         <FormattedMessage id="xref_introdution"></FormattedMessage>
       </div>
       <div className="w-full">
-        <div className="xs:mb-2.5 md:mb-2.5 lg:mb-5 grid lg:grid-cols-xrefColumn lg:gap-x-2.5 xs:grid-rows-xrefRowM md:grid-rows-xrefRowM xs:gap-y-2.5 md:gap-y-2.5">
+        <div className="xs:mb-2.5 md:mb-2.5 lg:mb-3 grid lg:grid-cols-xrefColumn lg:gap-x-2.5 xs:grid-rows-xrefRowM md:grid-rows-xrefRowM xs:gap-y-2.5 md:gap-y-2.5">
           <div className="flex flex-col justify-between rounded-2xl bg-cardBg py-5 px-6 xs:py-4 md:py-4 xs:flex md:flex xs:justify-between md:justify-between items-center">
             <div className="flex items-center justify-between w-full">
               <p className="text-base text-primaryText">
@@ -239,6 +321,21 @@ function XrefPage() {
           ></InputView>
         </div>
       </div>
+      <div className="w-full grid mt-3 lg:grid-cols-3 lg:grid-rows-2 xs:grid-cols-2 xs:grid-rows-3 md:grid-cols-2 md:grid-rows-3 gap-1.5">
+        {Object.values(analysisText).map(
+          ({ title, tipContent, unit }, index) => {
+            return (
+              <InfoBox
+                key={title}
+                title={title}
+                tip={tipContent}
+                unit={unit}
+                value={totalDataArray[index]}
+              ></InfoBox>
+            );
+          }
+        )}
+      </div>
     </div>
   );
 }
@@ -320,6 +417,44 @@ function InputView(props: any) {
       ) : (
         <ConnectToNearBtn></ConnectToNearBtn>
       )}
+    </div>
+  );
+}
+function InfoBox(props: any) {
+  const { title, value, tip, unit } = props;
+  return (
+    <div className="h-20 rounded-lg bg-darkGradientBg shadow-dark p-2.5">
+      <div className="text-primaryText text-xs mb-1 h-8">
+        {title}
+        {tip ? (
+          <>
+            <span
+              className="relative top-0.5 inline-block ml-1"
+              data-type="info"
+              data-place="right"
+              data-multiline={true}
+              data-class="reactTip"
+              data-html={true}
+              data-tip={tip}
+              data-for="yourRewardsId"
+            >
+              <QuestionMark />
+            </span>
+            <ReactTooltip
+              className="w-20"
+              id="yourRewardsId"
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+            />
+          </>
+        ) : null}
+      </div>
+      <div>
+        <label className="text-xREFColor text-base font-medium">{value}</label>
+        <label className="text-xs text-primaryText ml-1.5">{unit}</label>
+      </div>
     </div>
   );
 }

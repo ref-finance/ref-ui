@@ -13,14 +13,15 @@ module.exports = {
       '2xl': { min: '1536px' },
       '3xl': { min: '1792px' },
     },
-    boxShadow: { '4xl': '0px 0px 10px 4px rgba(0, 0, 0, 0.35)', 'green': '0px 0px 2px rgba(0, 198, 162, 0.5)'},
+    boxShadow: { '4xl': '0px 0px 10px 4px rgba(0, 0, 0, 0.35)', 'green': '0px 0px 2px rgba(0, 198, 162, 0.5)', 'dark': '0px 0px 10px rgba(0, 0, 0, 0.15)'},
 
     extend: {
       backgroundImage: (theme) => ({
         farmSearch: 'linear-gradient(106.25deg, #00FFD1 6.88%, #00BA98 81.93%)',
         stableTab: 'linear-gradient(360deg, #00C6A2 0%, #008B72 100%)',
         primaryGradient: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
-        buttonGradientBg: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'
+        buttonGradientBg: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+        darkGradientBg:'linear-gradient(180deg, #1D2932 0%, #001320 100%)'
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
@@ -77,7 +78,8 @@ module.exports = {
         borderColor: '#7e8a93',
         warnColor:'#DE9450',
         acccountTab: '#0F1D27',
-        acccountBlock: '#293741'
+        acccountBlock: '#293741',
+        xREFColor:'#A7ABAD'
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

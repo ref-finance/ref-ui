@@ -452,7 +452,7 @@ export function AddLiquidityModal(
     if (preShare && new BigNumber('0').isLessThan(preShare)) {
       const myShareBig = new BigNumber(preShare);
       if (myShareBig.isLessThan('0.001')) {
-        result = '≈ <0.001';
+        result = '<0.001';
       } else {
         result = `≈ ${myShareBig.toFixed(3)}`;
       }
