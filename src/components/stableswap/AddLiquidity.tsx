@@ -49,6 +49,7 @@ import { getDepositableBalance } from '~state/token';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE';
+const ONLY_ZEROS = /^0*\.?0*$/;
 
 export function myShares({
   totalShares,
@@ -120,20 +121,35 @@ export default function AddLiquidityComponent(props: {
 
   useEffect(() => {
     if (addType === 'addMax') {
+      const firstAmount = toReadableNumber(
+        tokens[0].decimals,
+        balances[tokens[0].id]
+      );
+
+      const secondAmount = toReadableNumber(
+        tokens[1].decimals,
+        balances[tokens[1].id]
+      );
+
+      const thirdAmount = toReadableNumber(
+        tokens[2].decimals,
+        balances[tokens[2].id]
+      );
+
       setError(null);
-      setCanAddLP(true);
+      setCanAddLP(
+        !(
+          ONLY_ZEROS.test(firstAmount) &&
+          ONLY_ZEROS.test(secondAmount) &&
+          ONLY_ZEROS.test(thirdAmount)
+        )
+      );
       setCanDeposit(false);
       setMessageId('add_liquidity');
       setDefaultMessage('Add Liquidity');
-      setFirstTokenAmount(
-        toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
-      );
-      setSecondTokenAmount(
-        toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
-      );
-      setThirdTokenAmount(
-        toReadableNumber(tokens[2].decimals, balances[tokens[2].id])
-      );
+      setFirstTokenAmount(firstAmount);
+      setSecondTokenAmount(secondAmount);
+      setThirdTokenAmount(thirdAmount);
     } else if (addType === 'addAll') {
       setError(null);
       setCanAddLP(false);
@@ -295,8 +311,6 @@ export default function AddLiquidityComponent(props: {
 
     setCanAddLP(true);
     setCanDeposit(false);
-
-    const ONLY_ZEROS = /^0*\.?0*$/;
 
     if (
       !(
