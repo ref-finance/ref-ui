@@ -302,6 +302,6 @@ const zh_CN = {
   total_fee_Revenue_shared_with_xref_holders: '分给xREF拥有者的总的费用',
   provision_treasury: '财政收入',
   protocol_projected_revenue_tip:
-    '协议的预期收益，即每个池收取总池费的20%佣金(协议费16%，推荐费4%)。',
+    '协议的预期收益，相当于每个池子的总费用的16%。',
 };
 export default zh_CN;

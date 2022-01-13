@@ -314,6 +314,6 @@ const en_US = {
     'Total Fee Revenue Shared with xREF Holders',
   provision_treasury: 'Provision Treasury',
   protocol_projected_revenue_tip:
-    'The expected amount earned by the protocol, which takes 20% (16% protocol and 4% referral) commission of the total pool fee for every pool.',
+    'The expected amount earned by the protocol, which corresponds to 16% of the total pool fee, for every pool.',
 };
 export default en_US;
