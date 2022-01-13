@@ -270,16 +270,13 @@ const zh_CN = {
   protocol_fee: '协议费',
   referral_fee: '中介费',
   total_fee_create: '总费用',
-  xref_title: '通过质押REF换xREF赚取更多收益',
-  xref_title1: '赚取更多收益',
-  xref_title2: '通过质押REF换xREF',
+  xref_title: '赚取更多收益通过',
   xref_introdution:
     '通过质押REF，您有机会赚取协议产生的费用，任何REF持有人都可以分享REF Finance的收入。',
   staking_apr: '质押年化率',
   view_stats: '统计数据查看',
   xref: 'xREF',
   ref: 'REF',
-  stake_ref: '质押 REF',
   more_than_general_seed: '请输入大于等于0.000001的数',
   more_than_stable_seed: '请输入大于等于1的数',
   are_you_sure: '你确定吗',
@@ -303,5 +300,6 @@ const zh_CN = {
   provision_treasury: '财政收入',
   protocol_projected_revenue_tip:
     '协议的预期收益，相当于每个池子的总费用的16%。',
+  stake_ref_to_xref_for_earning_more: '通过质押REF换取xREF来赚取更多！',
 };
 export default zh_CN;

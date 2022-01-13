@@ -434,6 +434,8 @@ export function MobileNavBar() {
                 isExternal,
                 children,
                 newFunction,
+                showIcon,
+                iconElement,
               }) => {
                 let location = useLocation();
                 let isSelected = subRoute
@@ -463,14 +465,24 @@ export function MobileNavBar() {
                       }`}
                       onClick={() => handleMenuClick(url, label, isExternal)}
                     >
-                      <div className={`link relative`}>
-                        <FormattedMessage id={id} defaultMessage={label} />
-                        {newFunction ? (
-                          <span className="absolute top-1 -right-2">
-                            <IconAirDropGreenTip />
-                          </span>
-                        ) : null}
-                      </div>
+                      {showIcon ? (
+                        <span
+                          className={`py-2 ${
+                            isSelected ? 'opacity-100' : 'opacity-50'
+                          }`}
+                        >
+                          {iconElement}
+                        </span>
+                      ) : (
+                        <div className={`link relative`}>
+                          <FormattedMessage id={id} defaultMessage={label} />
+                          {newFunction ? (
+                            <span className="absolute top-1 -right-2">
+                              <IconAirDropGreenTip />
+                            </span>
+                          ) : null}
+                        </div>
+                      )}
                       {children && (
                         <span>
                           <FiChevronUp

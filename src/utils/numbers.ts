@@ -345,3 +345,13 @@ export const calcStableSwapPriceImpact = (from: string, to: string) => {
     notation: 'fixed',
   });
 };
+
+export const niceDecimals = (number: string | number) => {
+  const str = number.toString();
+  const [whole, decimals] = str.split('.');
+  if (decimals && Number(decimals) == 0) {
+    return whole;
+  } else {
+    return number;
+  }
+};

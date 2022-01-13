@@ -15,6 +15,7 @@ import {
   IconRainbow,
   IconZh,
 } from '~components/icon/Nav';
+import { XrefIcon } from '~components/icon/Xref';
 
 export type MenuItem = {
   id: number;
@@ -146,6 +147,8 @@ export type MobileMenuItem = {
   tip?: string;
   subRoute?: string[];
   newFunction?: boolean;
+  showIcon?: boolean;
+  iconElement?: ReactNode;
 };
 
 export const moreLinks: MobileMenuItem[] = [
@@ -209,6 +212,8 @@ export const moreLinks: MobileMenuItem[] = [
     url: '/xref',
     isExternal: false,
     newFunction: true,
+    showIcon: true,
+    iconElement: <XrefIcon></XrefIcon>,
   },
   {
     id: 'more',

@@ -12,6 +12,7 @@ import {
   IconAirDropGreenTip,
   WrapNearEnter,
   WrapNearIconDark,
+  GreenArrowIcon,
 } from '~components/icon';
 import { SmallWallet } from '~components/icon/SmallWallet';
 import {
@@ -42,6 +43,7 @@ import { MobileNavBar } from './MobileNav';
 import WrapNear from '~components/forms/WrapNear';
 import { isMobile } from '~utils/device';
 import { WrapNearIcon } from './WrapNear';
+import { XrefIcon } from '~components/icon/Xref';
 
 const config = getConfig();
 
@@ -58,6 +60,7 @@ function Anchor({
   className?: string;
   newFuntion?: boolean;
 }) {
+  const [hover, setHover] = useState(false);
   const location = useLocation();
   const isSelected = matchPath(location.pathname, {
     path: pattern,
@@ -66,9 +69,18 @@ function Anchor({
   });
 
   return (
-    <Link to={to}>
+    <Link
+      to={to}
+      className="relative"
+      onMouseEnter={() => {
+        setHover(true);
+      }}
+      onMouseLeave={() => {
+        setHover(false);
+      }}
+    >
       <h2
-        className={`link hover:text-greenColor text-lg font-bold p-4 cursor-pointer relative ${className} ${
+        className={`link hover:text-greenColor text-lg font-bold p-4 cursor-pointer relative z-10 ${className} ${
           isSelected ? 'text-greenColor' : 'text-gray-400'
         }`}
       >
@@ -79,6 +91,7 @@ function Anchor({
           </span>
         ) : null}
       </h2>
+      <GreenArrow hover={hover}></GreenArrow>
     </Link>
   );
 }
@@ -269,7 +282,48 @@ function Quiz() {
     </div>
   );
 }
-
+function Xref() {
+  const history = useHistory();
+  const location = useLocation();
+  const [hover, setHover] = useState(false);
+  const goXrefPage = () => {
+    history.push('/xref');
+  };
+  return (
+    <div
+      className={`relative p-4 cursor-pointer hover:opacity-100 ${
+        location.pathname == '/xref' ? 'opacity-100' : 'opacity-60'
+      }`}
+      onClick={goXrefPage}
+      onMouseEnter={() => {
+        setHover(true);
+      }}
+      onMouseLeave={() => {
+        setHover(false);
+      }}
+    >
+      <XrefIcon className="cursor-pointer"></XrefIcon>
+      <GreenArrow hover={hover}></GreenArrow>
+    </div>
+  );
+}
+function GreenArrow(props: any) {
+  const { hover } = props;
+  return (
+    <div
+      className={`flex absolute w-full h-full left-0 top-0 justify-between items-center ${
+        hover ? 'opacity-100' : 'opacity-0'
+      }`}
+    >
+      <span>
+        <GreenArrowIcon></GreenArrowIcon>
+      </span>
+      <span style={{ transform: 'rotateY(180deg)' }}>
+        <GreenArrowIcon></GreenArrowIcon>
+      </span>
+    </div>
+  );
+}
 function PoolsMenu() {
   const location = useLocation();
   const isSelected =
@@ -314,15 +368,18 @@ function PoolsMenu() {
       onMouseLeave={() => setHover(false)}
     >
       <div
-        className={`flex items-center justify-center ${
+        className={`flex items-center justify-center pr-2 ${
           isSelected || hover ? 'text-greenColor' : 'text-gray-400'
         }`}
       >
-        <h2
-          className={`link hover:text-greenColor text-lg font-bold p-4 cursor-pointer`}
-        >
-          <FormattedMessage id="pools" defaultMessage="Pools" />
-        </h2>
+        <div className="relative">
+          <h2
+            className={`link hover:text-greenColor text-lg font-bold p-4 cursor-pointer`}
+          >
+            <FormattedMessage id="pools" defaultMessage="Pools" />
+          </h2>
+          <GreenArrow hover={hover}></GreenArrow>
+        </div>
         <FiChevronDown />
       </div>
       <div
@@ -526,7 +583,7 @@ function NavigationBar() {
             <Anchor to="/stableswap" pattern="/stableswap" name="StableSwap" />
             <PoolsMenu />
             <Anchor to="/farms" pattern="/farms" name="Farms" />
-            <Anchor to="/xref" pattern="/xref" name="xref" newFuntion={true} />
+            <Xref></Xref>
           </div>
           <div className="flex items-center justify-end flex-1">
             {wallet.isSignedIn() && (

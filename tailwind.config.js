@@ -102,6 +102,7 @@ module.exports = {
       backgroundImage: ['hover'],
       cursor: ['disabled'],
       padding: ['last'],
+      display:['hover']
     },
   },
 };

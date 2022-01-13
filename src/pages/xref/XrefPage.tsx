@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import Loading from '~components/layout/Loading';
-import { XrefLogo, XrefSymbol, RefSymbol } from '~components/icon/Xref';
+import {
+  XrefLogo,
+  XrefSymbol,
+  RefSymbol,
+  XrefIconWhole,
+} from '~components/icon/Xref';
 import { SmallWallet } from '~components/icon/SmallWallet';
 import OldInputAmount from '~components/forms/OldInputAmount';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -12,7 +17,7 @@ import {
 import BigNumber from 'bignumber.js';
 import { isMobile } from '~utils/device';
 import { FaExchangeAlt } from 'react-icons/fa';
-import { toReadableNumber, toPrecision } from '~utils/numbers';
+import { toReadableNumber, toPrecision, niceDecimals } from '~utils/numbers';
 import getConfig from '~services/config';
 import { ftGetBalance, ftGetTokenMetadata } from '~services/ft-contract';
 import {
@@ -132,11 +137,13 @@ function XrefPage() {
     const cur_rate_reverse = 1 / rate;
     if (rate) {
       if (forward) {
-        const displayStr = new BigNumber(cur_rate_forward).toFixed(3);
+        const displayStr = niceDecimals(
+          new BigNumber(cur_rate_forward).toFixed(3)
+        );
         return (
           <>
             1 <FormattedMessage id="xref"></FormattedMessage> =&nbsp;
-            <span className="cursor-text" title={displayStr}>
+            <span className="cursor-text" title={cur_rate_forward.toString()}>
               {displayStr}
             </span>
             &nbsp;
@@ -144,11 +151,13 @@ function XrefPage() {
           </>
         );
       } else {
-        const displayStr = new BigNumber(cur_rate_reverse).toFixed(3);
+        const displayStr = niceDecimals(
+          new BigNumber(cur_rate_reverse).toFixed(3)
+        );
         return (
           <>
             1 <FormattedMessage id="ref"></FormattedMessage> =&nbsp;
-            <span className="cursor-text" title={displayStr}>
+            <span className="cursor-text" title={cur_rate_reverse.toString()}>
               {displayStr}
             </span>
             &nbsp;
@@ -201,16 +210,15 @@ function XrefPage() {
       <div>
         <XrefLogo width={isM ? '140' : ''} height={isM ? '70' : ''}></XrefLogo>
       </div>
-      <div className="mb-2.5 mt-5 text-white flex xs:flex-col md:flex-col items-center justify-center">
-        <label className="text-3xl font-black lg:hidden">
-          <FormattedMessage id="xref_title1"></FormattedMessage>
-        </label>
-        <label className="text-2xl lg:hidden">
-          <FormattedMessage id="xref_title2"></FormattedMessage>
-        </label>
-        <label className="text-2xl xs:hidden md:hidden">
+      <div className="mb-5 mt-1.5 text-white flex xs:flex-col md:flex-col items-center justify-center">
+        <label className="text-xl font-black">
           <FormattedMessage id="xref_title"></FormattedMessage>
         </label>
+        <XrefIconWhole
+          width="133"
+          height="20"
+          className="lg:ml-5 xs:mt-4 md:mt-4"
+        ></XrefIconWhole>
       </div>
       <div className="text-primaryText text-sm mb-7">
         <FormattedMessage id="xref_introdution"></FormattedMessage>
@@ -289,7 +297,7 @@ function XrefPage() {
                 tab == 0 ? 'bg-xrefTab text-white' : 'text-primaryText'
               }`}
             >
-              <FormattedMessage id="stake_ref"></FormattedMessage>
+              <FormattedMessage id="stake"></FormattedMessage>
             </label>
             <label
               onClick={() => switchTab(1)}

@@ -280,7 +280,7 @@ const en_US = {
   protocol_fee: 'Protocol fee',
   referral_fee: 'Referral fee',
   total_fee_create: 'Total fee',
-  xref_title: 'Earn more by staking REF for xREF',
+  xref_title: 'EARN MORE BY',
   xref_title1: 'Earn more',
   xref_title2: 'by staking REF for xREF',
   xref_introdution:
@@ -289,7 +289,6 @@ const en_US = {
   view_stats: 'View Stats',
   xref: 'xREF',
   ref: 'REF',
-  stake_ref: 'Stake REF',
   more_than_general_seed:
     'Please input number that more than or equal to 0.000001',
   more_than_stable_seed: 'Please input number that more than or equal to 1',
@@ -315,5 +314,6 @@ const en_US = {
   provision_treasury: 'Provision Treasury',
   protocol_projected_revenue_tip:
     'The expected amount earned by the protocol, which corresponds to 16% of the total pool fee, for every pool.',
+  stake_ref_to_xref_for_earning_more: 'Stake REF to xREF for earning more!',
 };
 export default en_US;
