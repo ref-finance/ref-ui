@@ -14,7 +14,7 @@ import {
   WRAP_NEAR_CONTRACT_ID,
 } from '~services/wrap-near';
 import { useDepositableBalance, useToken } from '~state/token';
-import { toReadableNumber } from '~utils/numbers';
+import { ONLY_ZEROS, toReadableNumber } from '~utils/numbers';
 import SubmitButton from './SubmitButton';
 import TokenAmount from './TokenAmount';
 
@@ -86,7 +86,10 @@ function WrapNear(props: ReactModal.Props) {
       ? useDepositableBalance(tokenOut?.id, tokenOut?.decimals)
       : tokenOutBalanceFromNear || '0';
   const canSubmit =
-    tokenInAmount && tokenInAmount !== '0' && !showError && tokenInMax !== '0';
+    tokenInAmount &&
+    !ONLY_ZEROS.test(tokenInAmount) &&
+    !showError &&
+    !ONLY_ZEROS.test(tokenInMax);
 
   const handleSubmit = (e: any) => {
     e.preventDefault();

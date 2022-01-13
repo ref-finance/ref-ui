@@ -12,6 +12,8 @@ for (let i = 0, offset = new BN(5); i < 24; i++, offset = offset.mul(BN10)) {
   ROUNDING_OFFSETS[i] = offset;
 }
 
+export const ONLY_ZEROS = /^0*\.?0*$/;
+
 export const sumBN = (...args: string[]): string => {
   return args
     .reduce((acc, n) => {
