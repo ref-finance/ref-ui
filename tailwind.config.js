@@ -21,7 +21,8 @@ module.exports = {
         stableTab: 'linear-gradient(360deg, #00C6A2 0%, #008B72 100%)',
         primaryGradient: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
         buttonGradientBg: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
-        darkGradientBg:'linear-gradient(180deg, #1D2932 0%, #001320 100%)'
+        darkGradientBg:'linear-gradient(180deg, #1D2932 0%, #001320 100%)',
+        darkGradientHoverBg: 'linear-gradient(180deg, #24313A 0%, #14212B 100%)'
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',

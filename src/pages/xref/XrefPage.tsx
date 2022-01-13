@@ -93,24 +93,17 @@ function XrefPage() {
         2,
         true
       )}`;
-      const xrefGetFee = `$${toPrecision(
-        (Number(TOTAL_PLATFORM_FEE_REVENUE) * 0.75).toString(),
-        2,
-        true
-      )}`;
-      const remainFee = `$${toPrecision(
-        (Number(TOTAL_PLATFORM_FEE_REVENUE) * 0.25).toString(),
-        2,
-        true
-      )}`;
-      setTotalDataArray([
-        joinAmount,
-        refAmount,
-        xrefAmount,
-        totalFee,
-        xrefGetFee,
-        remainFee,
-      ]);
+      // const xrefGetFee = `$${toPrecision(
+      //   (Number(TOTAL_PLATFORM_FEE_REVENUE) * 0.75).toString(),
+      //   2,
+      //   true
+      // )}`;
+      // const remainFee = `$${toPrecision(
+      //   (Number(TOTAL_PLATFORM_FEE_REVENUE) * 0.25).toString(),
+      //   2,
+      //   true
+      // )}`;
+      setTotalDataArray([joinAmount, totalFee, refAmount, xrefAmount]);
     });
     getPrice().then((data) => {
       const rate = toReadableNumber(DECIMALS_XREF_REF_TRANSTER, data);
@@ -178,27 +171,29 @@ function XrefPage() {
       title: intl.formatMessage({ id: 'number_of_unique_stakers' }),
     },
     second: {
+      title: intl.formatMessage({ id: 'protocol_projected_revenue' }),
+      tipContent: `<p class="text-left lg:w-72 xs:w-48 md:w-48 text-xs">${intl.formatMessage(
+        { id: 'protocol_projected_revenue_tip' }
+      )}</p>`,
+    },
+    third: {
       title: intl.formatMessage({ id: 'total_ref_staked' }),
       unit: 'REF',
     },
-    third: {
+    fourth: {
       title: intl.formatMessage({ id: 'total_xref_minted' }),
       unit: 'xREF',
     },
-    fourth: {
-      title: intl.formatMessage({ id: 'total_platform_fee_revenue' }),
-      tipContent: 'hello world1',
-    },
-    fifth: {
-      title: intl.formatMessage({
-        id: 'total_fee_Revenue_shared_with_xref_holders',
-      }),
-      tipContent: 'hello world2',
-    },
-    sixth: {
-      title: intl.formatMessage({ id: 'provision_treasury' }),
-      tipContent: 'hello world3',
-    },
+    // fifth: {
+    //   title: intl.formatMessage({
+    //     id: 'total_fee_Revenue_shared_with_xref_holders',
+    //   }),
+    //   tipContent: 'hello world2',
+    // },
+    // sixth: {
+    //   title: intl.formatMessage({ id: 'provision_treasury' }),
+    //   tipContent: 'hello world3',
+    // },
   };
   if (!(refBalance && xrefBalance)) return <Loading></Loading>;
   return (
@@ -321,7 +316,7 @@ function XrefPage() {
           ></InputView>
         </div>
       </div>
-      <div className="w-full grid mt-3 lg:grid-cols-3 lg:grid-rows-2 xs:grid-cols-2 xs:grid-rows-3 md:grid-cols-2 md:grid-rows-3 gap-1.5">
+      <div className="w-full grid mt-3 grid-cols-2 lg:grid-rows-2 gap-2">
         {Object.values(analysisText).map(
           ({ title, tipContent, unit }, index) => {
             return (
@@ -422,9 +417,18 @@ function InputView(props: any) {
 }
 function InfoBox(props: any) {
   const { title, value, tip, unit } = props;
+  const [hover, setHover] = useState(false);
   return (
-    <div className="h-20 rounded-lg bg-darkGradientBg shadow-dark p-2.5">
-      <div className="text-primaryText text-xs mb-1 h-8">
+    <div
+      className="lg:h-16 xs:h-20 md:h-20 rounded-lg bg-darkGradientBg shadow-dark p-2.5 hover:bg-darkGradientHoverBg"
+      onMouseEnter={() => {
+        setHover(true);
+      }}
+      onMouseLeave={() => {
+        setHover(false);
+      }}
+    >
+      <div className="text-primaryText text-xs mb-1 xs:h-8 md:h-8 lg:text-center">
         {title}
         {tip ? (
           <>
@@ -451,9 +455,21 @@ function InfoBox(props: any) {
           </>
         ) : null}
       </div>
-      <div>
-        <label className="text-xREFColor text-base font-medium">{value}</label>
-        <label className="text-xs text-primaryText ml-1.5">{unit}</label>
+      <div className="lg:flex lg:justify-center lg:items-center">
+        <label
+          className={`text-base font-medium ${
+            hover ? 'text-white' : 'text-xREFColor'
+          }`}
+        >
+          {value}
+        </label>
+        <label
+          className={`text-xs ml-1.5 ${
+            hover ? 'text-white' : 'text-primaryText'
+          }`}
+        >
+          {unit}
+        </label>
       </div>
     </div>
   );

@@ -274,7 +274,7 @@ const zh_CN = {
   xref_title1: '赚取更多收益',
   xref_title2: '通过质押REF换xREF',
   xref_introdution:
-    'Ref Finance平台每一笔交易的0.05%将用来回购REF，并且按比例的分给质押的用户。通过质押REF，用户可得到xREF。你的xREF会持续复利增长，当你解压时，你将拿回质押的所有REF并挣得额外的REF。',
+    '通过质押REF，您有机会赚取协议产生的费用，任何REF持有人都可以分享REF Finance的收入。',
   staking_apr: '质押年化率',
   view_stats: '统计数据查看',
   xref: 'xREF',
@@ -298,7 +298,10 @@ const zh_CN = {
   total_ref_staked: '质押的REF总数量',
   total_xref_minted: '产出的xREF的总数量',
   total_platform_fee_revenue: '平台总的费用收入',
+  protocol_projected_revenue: '协议预计收入',
   total_fee_Revenue_shared_with_xref_holders: '分给xREF拥有者的总的费用',
   provision_treasury: '财政收入',
+  protocol_projected_revenue_tip:
+    '协议的预期收益，即每个池收取总池费的20%佣金(协议费16%，推荐费4%)。',
 };
 export default zh_CN;
