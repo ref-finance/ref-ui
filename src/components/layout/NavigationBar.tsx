@@ -13,6 +13,7 @@ import {
   WrapNearEnter,
   WrapNearIconDark,
   GreenArrowIcon,
+  MoreMenuIcon,
 } from '~components/icon';
 import { SmallWallet } from '~components/icon/SmallWallet';
 import {
@@ -139,9 +140,9 @@ function AccountEntry() {
     },
   ];
   return (
-    <div className="user text-xs text-center justify-end h-full z-30 mx-2">
+    <div className="user text-xs text-center justify-end z-30 mx-3.5">
       <div
-        className={`cursor-pointer font-bold items-center justify-end text-center overflow-visible relative h-16 pt-5`}
+        className={`cursor-pointer font-bold items-center justify-end text-center overflow-visible relative py-5`}
         onMouseEnter={() => {
           setHover(true);
         }}
@@ -150,7 +151,7 @@ function AccountEntry() {
         }}
       >
         <div
-          className={`inline-flex p-1 mr-2 items-center justify-center rounded-full border border-gray-700 ${
+          className={`inline-flex px-1 py-0.5 items-center justify-center rounded-full border border-gray-700 ${
             hover ? 'border-gradientFrom bg-opacity-0' : ''
           } ${
             wallet.isSignedIn()
@@ -467,19 +468,15 @@ function MoreMenu() {
   const hasSubMenu = curMenuItems.some(({ children }) => !!children?.length);
   return (
     <div
-      className="relative z-30 h-8"
+      className="relative z-30"
       onMouseOver={() => setHover(true)}
       onMouseLeave={() => {
         setHover(false);
         onClickMenuItem?.(menuData, '');
       }}
     >
-      <div className="flex border border-gray-400 hover:border-green-500 rounded-full">
-        <h2
-          className={`link hover:text-green-500 block font-bold cursor-pointer text-gray-400 h-7 w-7`}
-        >
-          ...
-        </h2>
+      <div className="text-primaryText hover:text-greenColor cursor-pointer">
+        <MoreMenuIcon></MoreMenuIcon>
       </div>
       <div
         className={`${
@@ -593,7 +590,7 @@ function NavigationBar() {
             {wallet.isSignedIn() && (
               <div className="text-white">
                 <div
-                  className=" py-1 px-1 text-sm text-framBorder  cursor-pointer rounded h-6 items-center flex"
+                  className=" py-1 cursor-pointer items-center flex"
                   onClick={() => setShowWrapNear(true)}
                 >
                   <WrapNearIcon />

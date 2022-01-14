@@ -149,7 +149,7 @@ function AccountTable(props: any) {
               onClick={sort}
               data-sort="near"
               className={`flex items-center w-full justify-end ${
-                currentSort.indexOf('near') > -1 ? 'text-greenLight' : ''
+                currentSort.indexOf('near') > -1 ? 'text-greenColor' : ''
               }`}
             >
               <WalletIcon />
@@ -166,7 +166,7 @@ function AccountTable(props: any) {
               onClick={sort}
               data-sort="ref"
               className={`flex items-center w-full justify-end ${
-                currentSort.indexOf('ref') > -1 ? 'text-greenLight' : ''
+                currentSort.indexOf('ref') > -1 ? 'text-greenColor' : ''
               }`}
             >
               <RefIcon />
