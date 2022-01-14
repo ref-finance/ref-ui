@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
@@ -209,14 +215,7 @@ export function SwapRateDetail({
   );
 }
 
-export const GetPriceImpact = (
-  pools: Pool[],
-  tokenIn: TokenMetadata,
-  tokenOut: TokenMetadata,
-  from: string
-) => {
-  const value = calculatePriceImpact(pools, tokenIn, tokenOut, from);
-
+export const GetPriceImpact = (value: string) => {
   const textColor =
     Number(value) <= 1
       ? 'text-greenLight'
@@ -235,14 +234,7 @@ export const GetPriceImpact = (
   );
 };
 
-export const getPriceImpactTipType = (
-  pools: Pool[],
-  tokenIn: TokenMetadata,
-  tokenOut: TokenMetadata,
-  from: string
-) => {
-  const value = calculatePriceImpact(pools, tokenIn, tokenOut, from);
-
+export const getPriceImpactTipType = (value: string) => {
   const reault =
     1 < Number(value) && Number(value) <= 2 ? (
       <WarnTriangle></WarnTriangle>
@@ -260,7 +252,6 @@ function DetailView({
   to,
   minAmountOut,
   canSwap,
-  loadingTrigger,
   fee,
 }: {
   pools: Pool[];
@@ -270,15 +261,33 @@ function DetailView({
   to: string;
   minAmountOut: string;
   canSwap?: boolean;
-  loadingTrigger?: boolean;
   fee?: number;
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
 
-  if (!pools || !from || !to || !(Number(from) > 0)) return null;
+  const minAmountOutValue = useMemo(() => {
+    if (!minAmountOut) return '0';
+    else return toPrecision(minAmountOut, 8, true);
+  }, [minAmountOut]);
 
-  const priceImpactvalue = calculatePriceImpact(pools, tokenIn, tokenOut, from);
+  const exchangeRateValue = useMemo(() => {
+    if (!from || !to) return '0';
+    else return calculateExchangeRate(fee, to, from);
+  }, [to]);
+
+  const priceImpactValue = useMemo(() => {
+    if (!pools || !from) return '0';
+    return calculatePriceImpact(pools, tokenIn, tokenOut, from);
+  }, [to]);
+
+  useEffect(() => {
+    if (Number(priceImpactValue) > 1) {
+      setShowDetails(true);
+    }
+  }, [priceImpactValue]);
+
+  if (!pools || !from || !to || !(Number(from) > 0)) return null;
 
   return (
     <div className="mt-8">
@@ -290,34 +299,26 @@ function DetailView({
           }}
         >
           <label className="mr-2">
-            {canSwap && getPriceImpactTipType(pools, tokenIn, tokenOut, from)}
+            {getPriceImpactTipType(priceImpactValue)}
           </label>
           <p className="block text-xs">
             <FormattedMessage id="details" defaultMessage="Details" />
           </p>
           <div className="pl-1 text-sm">
-            {showDetails || Number(priceImpactvalue) > 1 ? (
-              <FaAngleUp />
-            ) : (
-              <FaAngleDown />
-            )}
+            {showDetails ? <FaAngleUp /> : <FaAngleDown />}
           </div>
         </div>
       </div>
-      <div
-        className={showDetails || Number(priceImpactvalue) > 1 ? '' : 'hidden'}
-      >
+      <div className={showDetails ? '' : 'hidden'}>
         <SwapDetail
           title={intl.formatMessage({ id: 'minimum_received' })}
-          value={toPrecision(minAmountOut, 8, true)}
+          value={minAmountOutValue}
         />
         <SwapRateDetail
           title={intl.formatMessage({ id: 'swap_rate' })}
-          value={`1 ${toRealSymbol(tokenOut.symbol)} ≈ ${calculateExchangeRate(
-            fee,
-            to,
-            from
-          )} ${toRealSymbol(tokenIn.symbol)}`}
+          value={`1 ${toRealSymbol(
+            tokenOut.symbol
+          )} ≈ ${exchangeRateValue} ${toRealSymbol(tokenIn.symbol)}`}
           from={from}
           to={to}
           tokenIn={tokenIn}
@@ -326,11 +327,7 @@ function DetailView({
         />
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
-          value={
-            !to || to === '0'
-              ? '-'
-              : GetPriceImpact(pools, tokenIn, tokenOut, from)
-          }
+          value={!to || to === '0' ? '-' : GetPriceImpact(priceImpactValue)}
         />
         <SwapDetail
           title={intl.formatMessage({ id: 'pool_fee' })}
@@ -582,7 +579,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           }}
         />
         <DetailView
-          loadingTrigger={loadingTrigger}
           pools={pools}
           tokenIn={tokenIn}
           tokenOut={tokenOut}

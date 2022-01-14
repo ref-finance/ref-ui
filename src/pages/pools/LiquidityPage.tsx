@@ -773,6 +773,10 @@ export function LiquidityPage() {
 
   const onSearch = _.debounce(setTokenName, 500);
 
+  const onOrderChange = _.debounce(setOrder, 500);
+
+  const onSortChange = _.debounce(setSortBy, 500);
+
   return (
     <>
       <LiquidityPage_
@@ -787,8 +791,8 @@ export function LiquidityPage() {
         order={order}
         sortBy={sortBy}
         allPools={AllPools}
-        onOrderChange={setOrder}
-        onSortChange={setSortBy}
+        onOrderChange={onOrderChange}
+        onSortChange={onSortChange}
         onSearch={onSearch}
         hasMore={hasMore}
         nextPage={nextPage}
@@ -801,8 +805,8 @@ export function LiquidityPage() {
         allPools={AllPools}
         order={order}
         sortBy={sortBy}
-        onOrderChange={setOrder}
-        onSortChange={setSortBy}
+        onOrderChange={onOrderChange}
+        onSortChange={onSortChange}
         onHide={(isHide) => {
           localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
           setHideLowTVL(isHide);
