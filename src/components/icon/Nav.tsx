@@ -412,3 +412,32 @@ export function GreenArrowIcon() {
     </svg>
   );
 }
+
+export function MoreMenuIcon() {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 22 22"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="11" cy="11" r="10.5" stroke="currentColor" />
+      <circle
+        r="1.32"
+        transform="matrix(-1 0 0 1 6.6009 11.0029)"
+        fill="currentColor"
+      />
+      <circle
+        r="1.32"
+        transform="matrix(-1 0 0 1 11.0023 11.0029)"
+        fill="currentColor"
+      />
+      <circle
+        r="1.32"
+        transform="matrix(-1 0 0 1 15.4017 11.0029)"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
