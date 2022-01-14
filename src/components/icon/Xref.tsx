@@ -516,102 +516,26 @@ const XrefIcon = (props: any) => {
     </svg>
   );
 };
-const PopupBox1Mobile = (props: any) => {
-  const { width, height, className, ...rest } = props;
-  return (
-    <svg
-      className={className}
-      {...rest}
-      width={width || '370'}
-      height={height || '116'}
-      viewBox="0 0 370 116"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <g filter="url(#filter0_d_12531_3264)">
-        <path
-          d="M21.7711 10L349.506 9L361 20.0882V115.5L9 116.5V21.0882L21.7711 10Z"
-          fill="#001320"
-          shapeRendering="crispEdges"
-        />
-        <path
-          d="M21.7711 10L349.506 9L361 20.0882V115.5L9 116.5V21.0882L21.7711 10Z"
-          stroke="url(#paint0_linear_12531_3264)"
-          strokeOpacity="0.7"
-          shapeRendering="crispEdges"
-        />
-      </g>
-      <defs>
-        <filter
-          id="filter0_d_12531_3264"
-          x="0.5"
-          y="0.499023"
-          width="369"
-          height="124.502"
-          filterUnits="userSpaceOnUse"
-          colorInterpolationFilters="sRGB"
-        >
-          <feFlood floodOpacity="0" result="BackgroundImageFix" />
-          <feColorMatrix
-            in="SourceAlpha"
-            type="matrix"
-            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-            result="hardAlpha"
-          />
-          <feOffset />
-          <feGaussianBlur stdDeviation="4" />
-          <feComposite in2="hardAlpha" operator="out" />
-          <feColorMatrix
-            type="matrix"
-            values="0 0 0 0 0 0 0 0 0 0.775 0 0 0 0 0.6355 0 0 0 0.2 0"
-          />
-          <feBlend
-            mode="normal"
-            in2="BackgroundImageFix"
-            result="effect1_dropShadow_12531_3264"
-          />
-          <feBlend
-            mode="normal"
-            in="SourceGraphic"
-            in2="effect1_dropShadow_12531_3264"
-            result="shape"
-          />
-        </filter>
-        <linearGradient
-          id="paint0_linear_12531_3264"
-          x1="178.5"
-          y1="8.99999"
-          x2="178.5"
-          y2="97"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stopColor="#00C6A2" />
-          <stop offset="1" stopColor="#00C6A2" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-    </svg>
-  );
-};
 const PopupBox1 = (props: any) => {
   const { width, height, className, ...rest } = props;
   return (
     <svg
-      width={width || '370'}
-      {...rest}
-      height={height || '117'}
       className={className}
-      viewBox="0 0 370 117"
+      {...rest}
+      width={width || '370'}
+      height={height || '120'}
+      viewBox="0 0 370 120"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
       <g filter="url(#filter0_d_12486_2598)">
         <path
-          d="M21.7711 10L349.506 9L361 20.0882V115.5L9 116.5V21.0882L21.7711 10Z"
+          d="M21.7711 9H349.506L361 20.5882V120.5L9 121.5L9 20.5882L21.7711 9Z"
           fill="#001320"
           shapeRendering="crispEdges"
         />
         <path
-          d="M21.7711 10L349.506 9L361 20.0882V115.5L9 116.5V21.0882L21.7711 10Z"
+          d="M21.7711 9H349.506L361 20.5882V120.5L9 121.5L9 20.5882L21.7711 9Z"
           stroke="url(#paint0_linear_12486_2598)"
           strokeOpacity="0.7"
           shapeRendering="crispEdges"
@@ -621,9 +545,9 @@ const PopupBox1 = (props: any) => {
         <filter
           id="filter0_d_12486_2598"
           x="0.5"
-          y="0.499023"
+          y="0.5"
           width="369"
-          height="124.502"
+          height="129.501"
           filterUnits="userSpaceOnUse"
           colorInterpolationFilters="sRGB"
         >
@@ -1205,5 +1129,4 @@ export {
   PopupBox3,
   PopupBox4,
   PopupText,
-  PopupBox1Mobile,
 };

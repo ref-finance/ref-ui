@@ -150,7 +150,9 @@ function AccountEntry() {
         }}
       >
         <div
-          className={`inline-flex p-1 mr-2 items-center justify-center rounded-full ${
+          className={`inline-flex p-1 mr-2 items-center justify-center rounded-full border border-gray-700 ${
+            hover ? 'border-gradientFrom bg-opacity-0' : ''
+          } ${
             wallet.isSignedIn()
               ? 'bg-gray-700 text-white'
               : 'border border-gradientFrom text-gradientFrom'
@@ -368,19 +370,21 @@ function PoolsMenu() {
       onMouseLeave={() => setHover(false)}
     >
       <div
-        className={`flex items-center justify-center pr-2 ${
+        className={`flex items-center justify-center ${
           isSelected || hover ? 'text-greenColor' : 'text-gray-400'
         }`}
       >
         <div className="relative">
           <h2
-            className={`link hover:text-greenColor text-lg font-bold p-4 cursor-pointer`}
+            className={`flex items-center link hover:text-greenColor text-lg font-bold p-4 cursor-pointer`}
           >
             <FormattedMessage id="pools" defaultMessage="Pools" />
+            <label className="text-xl ml-1">
+              <FiChevronDown />
+            </label>
           </h2>
           <GreenArrow hover={hover}></GreenArrow>
         </div>
-        <FiChevronDown />
       </div>
       <div
         className={`${

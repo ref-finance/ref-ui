@@ -1687,7 +1687,7 @@ function FarmView({
                   rounded="rounded-md"
                   px="px-0"
                   py="py-1"
-                  className="flex-grow  w-20 text-base text-greenLight"
+                  className="flex-grow  w-20 text-base text-greenColor"
                 >
                   <FormattedMessage id="unstake" defaultMessage="Unstake" />
                 </BorderButton>
@@ -1698,7 +1698,7 @@ function FarmView({
                   rounded="rounded-md"
                   px="px-0"
                   py="py-1"
-                  className="flex-grow  w-20 text-base text-greenLight"
+                  className="flex-grow  w-20 text-base text-greenColor"
                 >
                   <FormattedMessage id="stake" defaultMessage="Stake" />
                 </BorderButton>
@@ -1949,7 +1949,7 @@ function ActionModal(
             rounded="rounded-md"
             px="px-0"
             py="py-1"
-            className="w-32 h-8 text-sm text-greenLight mx-2"
+            className="w-32 h-8 text-sm text-greenColor mx-2"
           >
             <FormattedMessage id="cancel" defaultMessage="Cancel" />
           </BorderButton>

@@ -506,6 +506,7 @@ input[type='range']::-webkit-slider-thumb {
 }
 .popupBox2 {
   bottom: 101px;
+  transform: translateX(3px);
   animation: popupBox2Ani 0.7s 1s ease both;
   opacity: 0;
 }
@@ -521,6 +522,7 @@ input[type='range']::-webkit-slider-thumb {
 }
 .popupBox2Mobile {
   bottom: 141px;
+  transform: translateX(4px);
   animation: popupBox2AniMobile 0.7s 1s ease both;
   opacity: 0;
 }

@@ -227,9 +227,10 @@ export function GradientButton(
   const { loading, disabled, className, color, btnClassName, onClick } = props;
   return (
     <div
-      className={`${className ? className : ''} ${loading ? 'opacity-40' : ''}`}
+      className={`${className ? className : ''} ${
+        loading ? 'opacity-40' : ''
+      } bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover`}
       style={{
-        background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
         borderRadius: '5px',
         color: color || '',
       }}
@@ -300,7 +301,7 @@ export function BorderButtonHover(
   return (
     <button
       disabled={disabled}
-      className={`w-24 h-8 border border-greenLight text-xs text-white rounded ${className} ${
+      className={`w-24 h-8 border border-greenColor text-xs text-white rounded ${className} ${
         disabled
           ? 'cursor-not-allowed'
           : 'hover:opacity-100 hover:bg-buttonGradientBg'
@@ -319,7 +320,7 @@ export function BorderButtonMobile(
   return (
     <button
       disabled={disabled}
-      className={`px-2 border border-greenLight text-xs text-framBorder rounded ${
+      className={`px-2 border border-greenColor text-xs text-framBorder rounded ${
         className ? className : ''
       } ${disabled ? 'opacity-40' : ''}`}
     >

@@ -334,7 +334,7 @@ export function MobileNavBar() {
         <NavLogo />
         <div className="flex">
           <div
-            className={`inline-flex px-1 mr-2 items-center justify-center rounded-full ${
+            className={`inline-flex px-1 mr-2 items-center justify-center rounded-full border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 ${
               wallet.isSignedIn()
                 ? 'bg-gray-700 text-white'
                 : 'border border-gradientFrom text-gradientFrom'
