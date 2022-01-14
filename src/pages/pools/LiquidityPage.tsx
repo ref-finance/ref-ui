@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 import ReactTooltip from 'react-tooltip';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -423,7 +423,6 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
       setFarmCount(canFarm);
     });
   }, [pool]);
-  // if (!tokens) return <Loading />;
   if (!tokens) return <></>;
 
   tokens.sort((a, b) => {
@@ -685,7 +684,9 @@ function LiquidityPage_({
                 className="pr-1 cursor-pointer"
                 onClick={() => {
                   onSortChange('fee');
-                  onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                  sortBy !== 'fee' && onOrderChange('asc');
+                  sortBy === 'fee' &&
+                    onOrderChange(order === 'desc' ? 'asc' : 'desc');
                 }}
               >
                 <FormattedMessage id="fee" defaultMessage="Fee" />
@@ -727,7 +728,9 @@ function LiquidityPage_({
                 className="cursor-pointer"
                 onClick={() => {
                   onSortChange('tvl');
-                  onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                  sortBy !== 'tvl' && onOrderChange('asc');
+                  sortBy === 'tvl' &&
+                    onOrderChange(order === 'desc' ? 'asc' : 'desc');
                 }}
               >
                 {sortBy === 'tvl' ? (
@@ -789,9 +792,9 @@ export function LiquidityPage() {
     setDisplayPools(tempPools);
   }, [pools, hideLowTVL]);
 
-  if (!displayPools || loading || !watchPools) return <Loading />;
+  const onSearch = useCallback(_.debounce(setTokenName, 500), []);
 
-  const onSearch = _.debounce(setTokenName, 500);
+  if (!displayPools || loading || !watchPools) return <Loading />;
 
   return (
     <>
