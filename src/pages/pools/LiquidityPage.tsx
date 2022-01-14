@@ -680,46 +680,66 @@ function LiquidityPage_({
               <div className="mr-6 w-2">#</div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </div>
-            <div
-              className="col-span-1 md:hidden cursor-pointer flex items-center"
-              onClick={() => {
-                onSortChange('fee');
-                onOrderChange(order === 'desc' ? 'asc' : 'desc');
-              }}
-            >
-              <div className="mr-1">
+            <div className="col-span-1 md:hidden flex items-center">
+              <div
+                className="pr-1 cursor-pointer"
+                onClick={() => {
+                  onSortChange('fee');
+                  onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                }}
+              >
                 <FormattedMessage id="fee" defaultMessage="Fee" />
               </div>
-              {sortBy === 'fee' ? (
-                order === 'desc' ? (
-                  <DownArrowLight />
+              <span
+                className="cursor-pointer"
+                onClick={() => {
+                  onSortChange('fee');
+                  sortBy !== 'fee' && onOrderChange('asc');
+                  sortBy === 'fee' &&
+                    onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                }}
+              >
+                {sortBy === 'fee' ? (
+                  order === 'desc' ? (
+                    <DownArrowLight />
+                  ) : (
+                    <UpArrowLight />
+                  )
                 ) : (
-                  <UpArrowLight />
-                )
-              ) : (
-                <UpArrowDeep />
-              )}
+                  <UpArrowDeep />
+                )}
+              </span>
             </div>
 
-            <div
-              className="col-span-1 flex items-center cursor-pointer"
-              onClick={() => {
-                onSortChange('tvl');
-                onOrderChange(order === 'desc' ? 'asc' : 'desc');
-              }}
-            >
-              <span className="mr-1">
+            <div className="col-span-1 flex items-center">
+              <span
+                className="pr-1 cursor-pointer"
+                onClick={() => {
+                  onSortChange('tvl');
+                  sortBy !== 'tvl' && onOrderChange('asc');
+                  sortBy === 'tvl' &&
+                    onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                }}
+              >
                 <FormattedMessage id="tvl" defaultMessage="TVL" />
               </span>
-              {sortBy === 'tvl' ? (
-                order === 'desc' ? (
-                  <DownArrowLight />
+              <span
+                className="cursor-pointer"
+                onClick={() => {
+                  onSortChange('tvl');
+                  onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                }}
+              >
+                {sortBy === 'tvl' ? (
+                  order === 'desc' ? (
+                    <DownArrowLight />
+                  ) : (
+                    <UpArrowLight />
+                  )
                 ) : (
-                  <UpArrowLight />
-                )
-              ) : (
-                <UpArrowDeep />
-              )}
+                  <UpArrowDeep />
+                )}
+              </span>
             </div>
             <p className="col-span-1">
               <FormattedMessage id="pools" defaultMessage="Pools" />
@@ -773,10 +793,6 @@ export function LiquidityPage() {
 
   const onSearch = _.debounce(setTokenName, 500);
 
-  const onOrderChange = _.debounce(setOrder, 500);
-
-  const onSortChange = _.debounce(setSortBy, 500);
-
   return (
     <>
       <LiquidityPage_
@@ -791,8 +807,8 @@ export function LiquidityPage() {
         order={order}
         sortBy={sortBy}
         allPools={AllPools}
-        onOrderChange={onOrderChange}
-        onSortChange={onSortChange}
+        onOrderChange={setOrder}
+        onSortChange={setSortBy}
         onSearch={onSearch}
         hasMore={hasMore}
         nextPage={nextPage}
@@ -805,8 +821,8 @@ export function LiquidityPage() {
         allPools={AllPools}
         order={order}
         sortBy={sortBy}
-        onOrderChange={onOrderChange}
-        onSortChange={onSortChange}
+        onOrderChange={setOrder}
+        onSortChange={setSortBy}
         onHide={(isHide) => {
           localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
           setHideLowTVL(isHide);
