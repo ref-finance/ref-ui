@@ -148,7 +148,7 @@ export const useSwap = ({
     }
   }, [txHash]);
 
-  const getEstimate = () => {
+  const getEstimate = (ifFetch: boolean) => {
     setCanSwap(false);
 
     if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
@@ -178,8 +178,7 @@ export const useSwap = ({
                 BigNumber.sum(pre, cur.estimate).toString()
               );
             }, '0');
-
-            setTokenOutAmount(estimate);
+            if (ifFetch) setTokenOutAmount(estimate);
 
             setPool(estimates[0].pool);
           }
@@ -204,11 +203,11 @@ export const useSwap = ({
     setTokenInAmountMemo(tokenInAmount);
     if (loadingTrigger && !loadingPause && !ONLY_ZEROS.test(tokenInAmountMemo))
       return;
-    getEstimate();
+    getEstimate(!loadingTrigger);
   }, [tokenIn, tokenOut, tokenInAmount]);
 
   useEffect(() => {
-    getEstimate();
+    getEstimate(!loadingTrigger);
   }, [loadingTrigger, loadingPause]);
 
   useEffect(() => {
