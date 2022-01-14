@@ -601,3 +601,15 @@ input[type='range']::-webkit-slider-thumb {
     bottom: 183px;
   }
 }
+.guidAnimation {
+  opacity: 0;
+  animation: opacityAni 2s ease both;
+}
+@keyframes opacityAni {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
