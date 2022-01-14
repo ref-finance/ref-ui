@@ -13,7 +13,6 @@ import {
   PopupBox3,
   PopupBox4,
   PopupText,
-  PopupBox1Mobile,
 } from '~components/icon/Xref';
 import { ModalCloseAuto } from '~components/icon';
 import { isMobile } from '~utils/device';
@@ -43,7 +42,7 @@ export default function PopUp() {
         <>
           {isMobile() ? (
             <div
-              className="lg:hidden fixed popupBox0 flex flex-col items-center bottom-0 z-50 left-1/2 transform -translate-x-2/4"
+              className="lg:hidden fixed popupBox0 flex flex-col items-center bottom-0 z-20 left-1/2 transform -translate-x-2/4"
               onClick={gotoPage}
             >
               <PopupBox4

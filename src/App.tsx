@@ -28,6 +28,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FarmsPage } from '~pages/farms/FarmsPage';
 import { AirdropPage } from '~pages/AirdropPage';
 import PopUp from '~components/layout/PopUp';
+import { Guide } from '~components/layout/Guide';
 import { isMobile } from '~utils/device';
 
 Modal.defaultStyles = {
@@ -92,6 +93,7 @@ function App() {
         </Switch>
         <Footer />
         <PopUp></PopUp>
+        <Guide></Guide>
       </div>
     </Router>
   );

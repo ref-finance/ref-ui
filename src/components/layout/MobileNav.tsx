@@ -35,6 +35,7 @@ import WrapNear from '~components/forms/WrapNear';
 import { useDepositableBalance, useWhitelistTokens } from '~state/token';
 import { nearMetadata } from '~services/wrap-near';
 import getConfig from '~services/config';
+import { GuideMobile } from '~components/layout/Guide';
 import {
   AccountIcon,
   ActivityIcon,
@@ -42,6 +43,7 @@ import {
   SignoutIcon,
 } from '~components/icon/Common';
 const config = getConfig();
+import { isMobile } from '~utils/device';
 
 export function MobileAnchor({
   to,
@@ -327,7 +329,7 @@ export function MobileNavBar() {
     <div
       className="nav-wrap lg:hidden md:show relative xs:mb-6 md:mb-6"
       style={{
-        zIndex: show ? 200 : 20,
+        zIndex: show ? 200 : 30,
       }}
     >
       <div className="flex items-center text-2xl text-white justify-between p-4">
@@ -585,6 +587,9 @@ export function MobileNavBar() {
             setAccountVisible(false);
           }}
         />
+      ) : null}
+      {isMobile() ? (
+        <GuideMobile close={accountVisible || show}></GuideMobile>
       ) : null}
     </div>
   );
