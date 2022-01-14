@@ -277,6 +277,9 @@ function DetailView({
   const [showDetails, setShowDetails] = useState<boolean>(false);
 
   if (!pools || !from || !to || !(Number(from) > 0)) return null;
+
+  const priceImpactvalue = calculatePriceImpact(pools, tokenIn, tokenOut, from);
+
   return (
     <div className="mt-8">
       <div className="flex justify-center">
@@ -293,11 +296,17 @@ function DetailView({
             <FormattedMessage id="details" defaultMessage="Details" />
           </p>
           <div className="pl-1 text-sm">
-            {showDetails ? <FaAngleUp /> : <FaAngleDown />}
+            {showDetails || Number(priceImpactvalue) > 1 ? (
+              <FaAngleUp />
+            ) : (
+              <FaAngleDown />
+            )}
           </div>
         </div>
       </div>
-      <div className={showDetails ? '' : 'hidden'}>
+      <div
+        className={showDetails || Number(priceImpactvalue) > 1 ? '' : 'hidden'}
+      >
         <SwapDetail
           title={intl.formatMessage({ id: 'minimum_received' })}
           value={toPrecision(minAmountOut, 8, true)}
