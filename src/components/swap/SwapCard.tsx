@@ -434,6 +434,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     loadingTrigger,
     setLoadingTrigger,
     loadingData,
+    loadingPause,
   });
 
   const topBall = useRef<HTMLInputElement>();

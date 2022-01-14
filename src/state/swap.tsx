@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import { getPool, Pool, StablePool } from '../services/pool';
 import BigNumber from 'bignumber.js';
@@ -38,6 +38,7 @@ interface SwapOptions {
   setLoadingTrigger?: (loadingTrigger: boolean) => void;
   stablePool?: StablePool;
   loadingPause?: boolean;
+  setLoadingPause?: (pause: boolean) => void;
 }
 
 export const useSwap = ({
@@ -64,6 +65,8 @@ export const useSwap = ({
   const txHashes = new URLSearchParams(search)
     .get('transactionHashes')
     ?.split(',');
+
+  const [tokenInAmountMemo, setTokenInAmountMemo] = useState<string>('');
 
   const txHash = txHashes
     ? txHashes.length > 1
@@ -145,7 +148,7 @@ export const useSwap = ({
     }
   }, [txHash]);
 
-  useEffect(() => {
+  const getEstimate = () => {
     setCanSwap(false);
 
     if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
@@ -195,7 +198,18 @@ export const useSwap = ({
     ) {
       setTokenOutAmount('0');
     }
-  }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger, loadingPause]);
+  };
+
+  useEffect(() => {
+    setTokenInAmountMemo(tokenInAmount);
+    if (loadingTrigger && !loadingPause && !ONLY_ZEROS.test(tokenInAmountMemo))
+      return;
+    getEstimate();
+  }, [tokenIn, tokenOut, tokenInAmount]);
+
+  useEffect(() => {
+    getEstimate();
+  }, [loadingTrigger, loadingPause]);
 
   useEffect(() => {
     let id: any = null;
