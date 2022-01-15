@@ -20,9 +20,6 @@ export function Guide() {
     e.stopPropagation();
     setCloseStatus(true);
   };
-  const gotoPage = () => {
-    history.push('/account');
-  };
   const mobile = isMobile();
   return (
     <>
@@ -45,7 +42,6 @@ export function Guide() {
           </span>
         </div>
       ) : null}
-      ):{' '}
     </>
   );
 }
@@ -100,7 +96,7 @@ export function GuideMobile(props: any) {
             </span>
           </div>
         </div>
-      )}{' '}
+      )}
     </>
   );
 }

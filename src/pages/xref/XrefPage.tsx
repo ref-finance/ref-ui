@@ -59,7 +59,6 @@ function XrefPage() {
     });
     metadata().then((data) => {
       const {
-        locked_token,
         locked_token_amount,
         reward_per_sec,
         cur_locked_token_amount,
