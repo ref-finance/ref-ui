@@ -20,6 +20,7 @@ import {
   toReadableNumber,
   subtraction,
   calculatePriceImpact,
+  ONLY_ZEROS,
 } from '../../utils/numbers';
 import TokenAmount from '../forms/TokenAmount';
 import SubmitButton from '../forms/SubmitButton';
@@ -176,6 +177,14 @@ export function SwapRateDetail({
   const [newValue, setNewValue] = useState<string>('');
   const [isRevert, setIsRevert] = useState<boolean>(false);
 
+  const exchangeRageValue = useMemo(() => {
+    const fromNow = isRevert ? from : to;
+    const toNow = isRevert ? to : from;
+    if (ONLY_ZEROS.test(fromNow)) return '-';
+
+    return calculateExchangeRate(fee, fromNow, toNow);
+  }, [isRevert, to, from]);
+
   useEffect(() => {
     setNewValue(value);
   }, [value]);
@@ -184,11 +193,9 @@ export function SwapRateDetail({
     setNewValue(
       `1 ${toRealSymbol(
         isRevert ? tokenIn.symbol : tokenOut.symbol
-      )} ≈ ${calculateExchangeRate(
-        fee,
-        isRevert ? from : to,
-        isRevert ? to : from
-      )} ${toRealSymbol(isRevert ? tokenOut.symbol : tokenIn.symbol)}`
+      )} ≈ ${exchangeRageValue} ${toRealSymbol(
+        isRevert ? tokenOut.symbol : tokenIn.symbol
+      )}`
     );
   }, [isRevert]);
 
@@ -272,7 +279,7 @@ function DetailView({
   }, [minAmountOut]);
 
   const exchangeRateValue = useMemo(() => {
-    if (!from || !to) return '0';
+    if (!from || ONLY_ZEROS.test(to)) return '-';
     else return calculateExchangeRate(fee, to, from);
   }, [to]);
 

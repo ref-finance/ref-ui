@@ -260,7 +260,6 @@ export function DetailView({
 
   useEffect(() => {
     if (Number(priceImpactValue) > 1) {
-      console.log(priceImpactValue);
       setShowDetails(true);
     }
   }, [priceImpactValue]);
