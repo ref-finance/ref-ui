@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router-dom';
 import { RefGuideIcon, GroundShadow, CloseBtn } from '~components/icon/Common';
+import { isMobile } from '~utils/device';
 
 export function Guide() {
   const [closeStatus, setCloseStatus] = useState(true);
@@ -22,10 +23,11 @@ export function Guide() {
   const gotoPage = () => {
     history.push('/account');
   };
+  const mobile = isMobile();
   return (
     <>
-      {closeStatus ? null : (
-        <div className="xs:hidden md:hidden fixed right-24 top-24 z-10 guidAnimation">
+      {!closeStatus && !mobile ? (
+        <div className="xs:hidden md:hidden absolute right-8 top-16 z-10 guidAnimation">
           <RefGuideIcon></RefGuideIcon>
           <GroundShadow className="absolute -right-7 -bottom-5"></GroundShadow>
           <CloseBtn
@@ -42,7 +44,7 @@ export function Guide() {
             <label className="text-greenColor">withdraw</label>
           </span>
         </div>
-      )}
+      ) : null}
       ):{' '}
     </>
   );

@@ -42,9 +42,9 @@ import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
 import { useMenuItems } from '~utils/menu';
 import { MobileNavBar } from './MobileNav';
 import WrapNear from '~components/forms/WrapNear';
-import { isMobile } from '~utils/device';
 import { WrapNearIcon } from './WrapNear';
 import { XrefIcon } from '~components/icon/Xref';
+import { Guide } from '~components/layout/Guide';
 
 const config = getConfig();
 
@@ -184,7 +184,7 @@ function AccountEntry() {
           </div>
         </div>
         {wallet.isSignedIn() && hover ? (
-          <div className={`absolute top-14 pt-2 right-0 w-64`}>
+          <div className={`absolute top-14 pt-2 right-0 w-64 z-20`}>
             <Card
               className="menu-max-height cursor-default shadow-4xl  border border-primaryText"
               width="w-64"
@@ -216,6 +216,7 @@ function AccountEntry() {
             </Card>
           </div>
         ) : null}
+        <Guide></Guide>
       </div>
     </div>
   );
