@@ -82,7 +82,7 @@ export function GuideMobile(props: any) {
             top: '4rem',
           }}
         >
-          <div className="fixed top-2 right-20">
+          <div className="absolute top-2 right-20">
             <RefGuideIcon></RefGuideIcon>
             <GroundShadow className="absolute -right-7 -bottom-5"></GroundShadow>
             <CloseBtn
