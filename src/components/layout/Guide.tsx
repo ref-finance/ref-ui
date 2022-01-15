@@ -49,7 +49,7 @@ export function Guide() {
 }
 export function GuideMobile(props: any) {
   const { close } = props;
-  const [closeStatus, setCloseStatus] = useState(false);
+  const [closeStatus, setCloseStatus] = useState(true);
   const history = useHistory();
   useEffect(() => {
     const guideShow = localStorage.getItem('guideShow');
@@ -57,6 +57,7 @@ export function GuideMobile(props: any) {
       localStorage.setItem('guideShow', '1');
       setCloseStatus(true);
     } else {
+      setCloseStatus(false);
       setTimeout(() => {
         document.body.style.overflow = 'hidden';
       }, 500);
@@ -67,9 +68,6 @@ export function GuideMobile(props: any) {
     e.stopPropagation();
     setCloseStatus(true);
     document.body.style.overflow = 'auto';
-  };
-  const gotoPage = () => {
-    history.push('/account');
   };
   return (
     <>

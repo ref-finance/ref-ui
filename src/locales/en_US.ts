@@ -308,12 +308,12 @@ const en_US = {
   number_of_unique_stakers: 'Number of Unique Stakers',
   total_ref_staked: 'Total REF Staked',
   total_xref_minted: 'Total xREF Minted',
-  protocol_projected_revenue: 'Protocol Projected Revenue',
+  protocol_projected_revenue: 'Revenue Shared with xREF Holders',
   total_fee_Revenue_shared_with_xref_holders:
     'Total Fee Revenue Shared with xREF Holders',
   provision_treasury: 'Provision Treasury',
   protocol_projected_revenue_tip:
-    'The expected amount earned by the protocol, which corresponds to 16% of the total pool fee, for every pool.',
+    'This number corresponds to the cumulative shared trading fee revenue to xREF holders. It is equal to 75% of the total platform fee revenue. It will differ from the actual REF token buyback amount due to price fluctuations.',
   stake_ref_to_xref_for_earning_more: 'Stake REF to xREF for earning more!',
 };
 export default en_US;

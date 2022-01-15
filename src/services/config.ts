@@ -18,7 +18,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.near',
         REF_TOKEN_ID: 'token.ref-finance.near',
-        XREF_TOKEN_ID: 'xref.ref-dev.testnet',
+        XREF_TOKEN_ID: 'xtoken.v2.ref-finance.near',
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         TOP_POOLS_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 60,
@@ -36,7 +36,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '407876.72',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '582637',
       };
     case 'development':
     case 'testnet':
@@ -75,7 +75,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'dai.fakes.testnet': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '407876.72',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '582637',
       };
     default:
       return {
@@ -94,7 +94,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.near',
         REF_TOKEN_ID: 'token.ref-finance.near',
-        XREF_TOKEN_ID: 'xref.ref-dev.testnet',
+        XREF_TOKEN_ID: 'xtoken.v2.ref-finance.near',
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         TOP_POOLS_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 60,
@@ -112,7 +112,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '407876.72',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '582637',
       };
   }
 }

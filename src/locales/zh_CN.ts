@@ -295,11 +295,11 @@ const zh_CN = {
   total_ref_staked: '质押的REF总数量',
   total_xref_minted: '产出的xREF的总数量',
   total_platform_fee_revenue: '平台总的费用收入',
-  protocol_projected_revenue: '协议预计收入',
+  protocol_projected_revenue: '和xREF持有者分享的收入',
   total_fee_Revenue_shared_with_xref_holders: '分给xREF拥有者的总的费用',
   provision_treasury: '财政收入',
   protocol_projected_revenue_tip:
-    '协议的预期收益，相当于每个池子的总费用的16%。',
+    '这个数字对应xREF持有人的累计共享交易费用收入。这相当于平台总费用收入的75%。由于价格波动，它将与实际REF代币回购金额不同。',
   stake_ref_to_xref_for_earning_more: '通过质押REF换取xREF来赚取更多！',
 };
 export default zh_CN;
