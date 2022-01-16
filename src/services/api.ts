@@ -1,6 +1,6 @@
 import getConfig from './config';
 import { wallet, refFiViewFunction } from './near';
-import { toPrecision } from '~utils/numbers';
+import { toPrecision } from '../utils/numbers';
 import { BigNumber } from 'bignumber.js';
 import moment from 'moment';
 
