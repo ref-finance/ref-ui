@@ -36,7 +36,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '582637',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '242,633.0475',
       };
     case 'development':
     case 'testnet':
@@ -75,7 +75,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'dai.fakes.testnet': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '582637',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '242,633.0475',
       };
     default:
       return {
@@ -112,7 +112,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '582637',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '242,633.0475',
       };
   }
 }
