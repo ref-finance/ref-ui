@@ -21,7 +21,10 @@ import {
   subtraction,
   calculatePriceImpact,
   ONLY_ZEROS,
+  percentOf,
+  multiply,
 } from '../../utils/numbers';
+import ReactDOMServer from 'react-dom/server';
 import TokenAmount from '../forms/TokenAmount';
 import SubmitButton from '../forms/SubmitButton';
 import Alert from '../alert/Alert';
@@ -46,6 +49,19 @@ import { Card } from '~components/card/Card';
 import { isMobile } from '~utils/device';
 import { ModalClose } from '~components/icon';
 import BigNumber from 'bignumber.js';
+import {
+  AutoRouterText,
+  OneParallelRoute,
+  RouterIcon,
+} from '~components/layout/ParallelSwapRoutes';
+import QuestionMark, {
+  QuestionMarkStaticForParaSwap,
+} from '~components/farm/QuestionMark';
+
+import ReactTooltip from 'react-tooltip';
+import * as math from 'mathjs';
+import { HiOutlineExternalLink } from 'react-icons/hi';
+
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
 const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
@@ -222,7 +238,92 @@ export function SwapRateDetail({
   );
 }
 
-export const GetPriceImpact = (value: string) => {
+export function ParallelSwapRoutesDetail({
+  pools,
+  tokenIn,
+  tokenOut,
+}: {
+  pools: Pool[];
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+}) {
+  const percents = useMemo(() => {
+    console.log(pools);
+    if (pools) {
+      const partialAmounts = pools.map((pool) => {
+        return math.bignumber(pool.partialAmountIn);
+      });
+
+      console.log(partialAmounts);
+
+      const sum =
+        partialAmounts.length === 1
+          ? partialAmounts[0]
+          : math.sum(...partialAmounts);
+      console.log(sum);
+
+      const ps: string[] = [];
+
+      for (let i = 0; i < partialAmounts.length - 1; i++) {
+        const p = toPrecision(
+          math.round(percentOf(partialAmounts[i].toNumber(), sum)).toString(),
+          0
+        );
+
+        ps.push(p);
+      }
+
+      const lastP =
+        ps.length === 0
+          ? '100'
+          : subtraction(
+              '100',
+              ps.length === 1
+                ? Number(ps[0])
+                : math.sum(...ps.map((p) => Number(p)))
+            ).toString();
+
+      ps.push(lastP);
+
+      return ps;
+    } else {
+      return [];
+    }
+  }, [pools]);
+  return (
+    <section className="md:grid lg:grid grid-cols-10 py-1 text-xs">
+      <div className="text-primaryText text-left col-span-4">
+        <div className="inline-flex items-center">
+          <RouterIcon />
+          <AutoRouterText />
+          <QuestionMarkStaticForParaSwap />
+        </div>
+      </div>
+
+      <div className="text-right text-white col-span-6 mt-2">
+        {pools.map((pool, i) => {
+          return (
+            <div className="mb-2" key={pool.id}>
+              <OneParallelRoute
+                tokenIn={tokenIn}
+                tokenOut={tokenOut}
+                poolId={pool.id}
+                p={percents[i]}
+                fee={pool.fee}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+export const GetPriceImpact = (
+  value: string,
+  tokenIn?: TokenMetadata,
+  tokenInAmount?: string
+) => {
   const textColor =
     Number(value) <= 1
       ? 'text-greenLight'
@@ -230,14 +331,31 @@ export const GetPriceImpact = (value: string) => {
       ? 'text-warn'
       : 'text-error';
 
+  const tokenInInfo = ` / -${toPrecision(multiply(tokenInAmount, value), 3)} ${
+    tokenIn.symbol
+  }`;
+
   if (Number(value) < 0.01)
-    return <span className="text-greenLight">{'< -0.01%'}</span>;
+    return (
+      <span className="text-greenLight">
+        {`< -0.01%`}
+        {tokenInInfo}
+      </span>
+    );
 
   if (Number(value) > 1000)
-    return <span className="text-error">{'< -1000%'}</span>;
+    return (
+      <span className="text-error">
+        {`< -1000%`}
+        {tokenInInfo}
+      </span>
+    );
 
   return (
-    <span className={`${textColor}`}>{`≈ -${toPrecision(value, 2)}%`}</span>
+    <span className={`${textColor}`}>
+      {`≈ -${toPrecision(value, 2)}%`}
+      {tokenInInfo}
+    </span>
   );
 };
 
@@ -319,7 +437,15 @@ function DetailView({
       <div className={showDetails ? '' : 'hidden'}>
         <SwapDetail
           title={intl.formatMessage({ id: 'minimum_received' })}
-          value={minAmountOutValue}
+          value={
+            <span>
+              {intl.formatMessage({ id: 'at_least' })}
+              &nbsp;
+              {toPrecision(minAmountOutValue, 3)}
+              &nbsp;
+              {toRealSymbol(tokenOut.symbol)}
+            </span>
+          }
         />
         <SwapRateDetail
           title={intl.formatMessage({ id: 'swap_rate' })}
@@ -334,15 +460,29 @@ function DetailView({
         />
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
-          value={!to || to === '0' ? '-' : GetPriceImpact(priceImpactValue)}
+          value={
+            !to || to === '0'
+              ? '-'
+              : GetPriceImpact(priceImpactValue, tokenIn, from)
+          }
         />
         <SwapDetail
           title={intl.formatMessage({ id: 'pool_fee' })}
           value={`${toPrecision(
             calculateFeePercent(fee).toString(),
             2
-          )}% (${calculateFeeCharge(fee, from)})`}
+          )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(
+            tokenIn.symbol
+          )}`}
         />
+
+        {pools.length && (
+          <ParallelSwapRoutesDetail
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            pools={pools}
+          />
+        )}
       </div>
     </div>
   );

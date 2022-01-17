@@ -451,6 +451,13 @@ input[type='range']::-webkit-slider-thumb {
     -webkit-transform: rotate(45deg);
   }
 }
+
+.valueStyle {
+  background-image: -webkit-linear-gradient(left, #00c6a2, #00c6a2, #8c78ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .popUpPc {
   /* width:350px;
   height:312px; */

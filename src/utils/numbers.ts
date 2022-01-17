@@ -93,7 +93,7 @@ export const calculateFeePercent = (fee: number) => {
 export const calculateFeeCharge = (fee: number, total: string) => {
   return math.round(
     math.evaluate(`(${fee} / ${BPS_CONVERSION}) * ${total}`),
-    2
+    3
   );
 };
 

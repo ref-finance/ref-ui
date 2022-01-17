@@ -301,5 +301,11 @@ const zh_CN = {
   protocol_projected_revenue_tip:
     '这个数字对应xREF持有人的累计共享交易费用收入。这相当于平台总费用收入的75%。由于价格波动，它将与实际REF代币回购金额不同。',
   stake_ref_to_xref_for_earning_more: '通过质押REF换取xREF来赚取更多！',
+  auto_router: '交易路径',
+  auto_router_detail_sub_1: '此路径优化了此次交易,',
+  auto_router_detail_sub_2: '其将当前交易对的所有池子都纳入考虑.',
+  auto_router_detail_sub_3: '详情:',
+  introducing_parallel_swap: '介绍Parallel Swap',
+  at_least: '至少',
 };
 export default zh_CN;
