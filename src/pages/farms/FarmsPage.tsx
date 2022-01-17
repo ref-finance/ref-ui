@@ -125,10 +125,23 @@ export function FarmsPage() {
   const page = 1;
   const perPage = DEFAULT_PAGE_LIMIT;
   const withdrawNumber = 5;
+  const refreshTime = 120000;
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
     loadFarmInfoList().then();
   }, []);
+  useEffect(() => {
+    if (count > 0) {
+      loadFarmInfoList(true);
+    }
+    const intervalId = setInterval(() => {
+      setCount(count + 1);
+    }, refreshTime);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [count]);
 
   useEffect(() => {
     document.addEventListener('click', handleClick, false);
@@ -137,8 +150,12 @@ export function FarmsPage() {
     };
   }, [searchData]);
 
-  async function loadFarmInfoList() {
-    setUnclaimedFarmsIsLoading(true);
+  async function loadFarmInfoList(isUpload?: boolean) {
+    if (isUpload) {
+      setUnclaimedFarmsIsLoading(false);
+    } else {
+      setUnclaimedFarmsIsLoading(true);
+    }
     const isSignedIn: boolean = wallet.isSignedIn();
 
     const emptyObj = async () => {
@@ -910,7 +927,7 @@ function FarmView({
   const clipSize = 12;
   const claimLoadingColor = '#ffffff';
   const claimLoadingSize = 12;
-  const refreshTime = 120000;
+  // const refreshTime = 120000;
 
   const PoolId = farmData.lpTokenId;
   const tokens = useTokens(farmData?.tokenIds);
@@ -947,33 +964,33 @@ function FarmView({
     getAllUnclaimedReward();
   }, [farmData]);
   const mergeCommonRewardFarms = mergeCommonRewardFarmsFun(farmsData);
-  useEffect(() => {
-    if (count > 0) {
-      setLoading(true);
-      getFarmInfo(
-        farmData,
-        farmData.pool,
-        stakedList[farmData.seed_id],
-        tokenPriceList,
-        rewardList[farmData.reward_token],
-        seeds[farmData.seed_id],
-        farmData.lpTokenId
-      ).then((data) => {
-        setData(data);
-        setLoading(false);
-      });
-    }
+  // useEffect(() => {
+  //   if (count > 0) {
+  //     setLoading(true);
+  //     getFarmInfo(
+  //       farmData,
+  //       farmData.pool,
+  //       stakedList[farmData.seed_id],
+  //       tokenPriceList,
+  //       rewardList[farmData.reward_token],
+  //       seeds[farmData.seed_id],
+  //       farmData.lpTokenId
+  //     ).then((data) => {
+  //       setData(data);
+  //       setLoading(false);
+  //     });
+  //   }
 
-    if (data) {
-      setEnded(isEnded(data));
-      setPending(isPending(data));
-    }
+  //   if (data) {
+  //     setEnded(isEnded(data));
+  //     setPending(isPending(data));
+  //   }
 
-    const id = setInterval(() => {
-      setCount(count + 1);
-    }, refreshTime);
-    return () => clearInterval(id);
-  }, [count]);
+  //   const id = setInterval(() => {
+  //     setCount(count + 1);
+  //   }, refreshTime);
+  //   return () => clearInterval(id);
+  // }, [count]);
   function mergeCommonRewardFarmsFun(farmsData: FarmInfo[]) {
     const arr = JSON.parse(JSON.stringify(farmsData));
     const tempMap = {};
@@ -1670,7 +1687,7 @@ function FarmView({
                   rounded="rounded-md"
                   px="px-0"
                   py="py-1"
-                  className="flex-grow  w-20 text-base text-greenLight"
+                  className="flex-grow  w-20 text-base text-greenColor"
                 >
                   <FormattedMessage id="unstake" defaultMessage="Unstake" />
                 </BorderButton>
@@ -1681,7 +1698,7 @@ function FarmView({
                   rounded="rounded-md"
                   px="px-0"
                   py="py-1"
-                  className="flex-grow  w-20 text-base text-greenLight"
+                  className="flex-grow  w-20 text-base text-greenColor"
                 >
                   <FormattedMessage id="stake" defaultMessage="Stake" />
                 </BorderButton>
@@ -1932,7 +1949,7 @@ function ActionModal(
             rounded="rounded-md"
             px="px-0"
             py="py-1"
-            className="w-32 h-8 text-sm text-greenLight mx-2"
+            className="w-32 h-8 text-sm text-greenColor mx-2"
           >
             <FormattedMessage id="cancel" defaultMessage="Cancel" />
           </BorderButton>
@@ -2010,18 +2027,6 @@ function ActionModal(
             </div>
             {type == 'stake' ? (
               <>
-                <div className="flex justify-center">
-                  {stakeCheck ? (
-                    <Alert
-                      level="error"
-                      message={
-                        STABLE_POOL_ID == farm.lpTokenId
-                          ? intl.formatMessage({ id: 'more_than_stable_seed' })
-                          : intl.formatMessage({ id: 'more_than_general_seed' })
-                      }
-                    />
-                  ) : null}
-                </div>
                 <div className="mt-4">
                   <div className="flex flex-col items-center justify-center">
                     <div
@@ -2056,6 +2061,20 @@ function ActionModal(
             ) : (
               <UnClaim unclaimed={unclaimed}></UnClaim>
             )}
+            {type == 'stake' ? (
+              <div className="flex justify-center mt-2">
+                {stakeCheck ? (
+                  <Alert
+                    level="warn"
+                    message={
+                      STABLE_POOL_ID == farm.lpTokenId
+                        ? intl.formatMessage({ id: 'more_than_stable_seed' })
+                        : intl.formatMessage({ id: 'more_than_general_seed' })
+                    }
+                  />
+                ) : null}
+              </div>
+            ) : null}
             <div className="flex items-center justify-center pt-3">
               <GreenLButton
                 onClick={() => {

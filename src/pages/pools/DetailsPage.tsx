@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
+import { ActionModel } from '~pages/AccountPage';
 import {
   useMonthTVL,
   useMonthVolume,
@@ -21,7 +22,11 @@ import {
   PoolDetails,
   removePoolFromWatchList,
 } from '~services/pool';
-import { useTokenBalances, useTokens, getExchangeRate } from '~state/token';
+import {
+  useTokenBalances,
+  useTokens,
+  getDepositableBalance,
+} from '~state/token';
 import Loading from '~components/layout/Loading';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
 import { FarmStamp } from '~components/icon/FarmStamp';
@@ -90,6 +95,8 @@ import {
 import _ from 'lodash';
 import moment from 'moment';
 import { ChartNoData } from '~components/icon/ChartNoData';
+import { WarnTriangle } from '~components/icon/SwapRefresh';
+import { RefIcon } from '~components/icon/Common';
 interface ParamTypes {
   id: string;
 }
@@ -98,6 +105,7 @@ interface LocationTypes {
   tvl: number;
   backToFarms: boolean;
 }
+const ONLY_ZEROS = /^0*\.?0*$/;
 
 const formatDate = (rawDate: string) => {
   const date = rawDate
@@ -124,6 +132,40 @@ function Icon(props: { icon?: string; className?: string; style?: any }) {
   );
 }
 
+export const GetExchangeRate = ({
+  tokens,
+  pool,
+}: {
+  tokens: any;
+  pool: any;
+}) => {
+  const first_token_num = toReadableNumber(
+    tokens[0].decimals || 24,
+    pool.supplies[tokens[0].id]
+  );
+  const second_token_num = toReadableNumber(
+    tokens[1].decimals || 24,
+    pool.supplies[tokens[1].id]
+  );
+  const rate = Number(second_token_num) / Number(first_token_num);
+
+  const showRate = rate < 0.01 ? '< 0.01' : rate.toFixed(2);
+
+  return Number(first_token_num) === 0 ? (
+    <div className="px-1 border border-transparent">&nbsp;</div>
+  ) : (
+    <div className="text-white text-center px-1  rounded-sm border border-solid border-gray-400">
+      <span>
+        1&nbsp;{toRealSymbol(tokens[0].symbol)}&nbsp;
+        <span title={`${rate}`}>
+          {rate < 0.01 ? '' : '≈'} {showRate}
+        </span>
+        &nbsp;{toRealSymbol(tokens[1].symbol)}
+      </span>
+    </div>
+  );
+};
+
 export function AddLiquidityModal(
   props: ReactModal.Props & {
     pool: Pool;
@@ -142,18 +184,9 @@ export function AddLiquidityModal(
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [canDeposit, setCanDeposit] = useState<boolean>(false);
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
-  useEffect(() => {
-    if (
-      balances &&
-      Number(balances[tokens[0].id] || '0') === 0 &&
-      Number(balances[tokens[1].id] || '0') === 0
-    ) {
-      setCanSubmit(false);
-      setCanDeposit(true);
-      setMessageId('deposit_to_add_liquidity');
-      setDefaultMessage('Deposit to Add Liquidity');
-    }
-  }, [firstTokenAmount, secondTokenAmount, balances, tokens]);
+  const [preShare, setPreShare] = useState(null);
+  const [modal, setModal] = useState(null);
+  const [visible, setVisible] = useState(false);
 
   if (!balances) return null;
 
@@ -161,6 +194,15 @@ export function AddLiquidityModal(
     setError(null);
     if (Object.values(pool.supplies).every((s) => s === '0')) {
       setFirstTokenAmount(amount);
+      const zero = new BigNumber('0');
+      if (
+        zero.isLessThan(secondTokenAmount || '0') &&
+        zero.isLessThan(amount || '0')
+      ) {
+        setPreShare(1);
+      } else {
+        setPreShare(null);
+      }
       try {
         validate({
           firstAmount: amount,
@@ -175,17 +217,20 @@ export function AddLiquidityModal(
         contribution: toNonDivisibleNumber(tokens[0].decimals, amount),
         totalContribution: pool.supplies[tokens[0].id],
       });
-      const secondAmount = toReadableNumber(
-        tokens[1].decimals,
-        calculateFairShare({
-          shareOf: pool.supplies[tokens[1].id],
-          contribution: fairShares,
-          totalContribution: pool.shareSupply,
-        })
-      );
-
+      let secondAmount = '';
+      if (amount) {
+        secondAmount = toReadableNumber(
+          tokens[1].decimals,
+          calculateFairShare({
+            shareOf: pool.supplies[tokens[1].id],
+            contribution: fairShares,
+            totalContribution: pool.shareSupply,
+          })
+        );
+      }
       setFirstTokenAmount(amount);
       setSecondTokenAmount(secondAmount);
+      setPreShare(toReadableNumber(24, fairShares));
       try {
         validate({
           firstAmount: amount,
@@ -201,6 +246,15 @@ export function AddLiquidityModal(
     setError(null);
     if (Object.values(pool.supplies).every((s) => s === '0')) {
       setSecondTokenAmount(amount);
+      const zero = new BigNumber('0');
+      if (
+        zero.isLessThan(firstTokenAmount || '0') &&
+        zero.isLessThan(amount || '0')
+      ) {
+        setPreShare(1);
+      } else {
+        setPreShare(null);
+      }
       try {
         validate({
           firstAmount: firstTokenAmount,
@@ -215,17 +269,20 @@ export function AddLiquidityModal(
         contribution: toNonDivisibleNumber(tokens[1].decimals, amount),
         totalContribution: pool.supplies[tokens[1].id],
       });
-      const firstAmount = toReadableNumber(
-        tokens[0].decimals,
-        calculateFairShare({
-          shareOf: pool.supplies[tokens[0].id],
-          contribution: fairShares,
-          totalContribution: pool.shareSupply,
-        })
-      );
-
+      let firstAmount = '';
+      if (amount) {
+        firstAmount = toReadableNumber(
+          tokens[0].decimals,
+          calculateFairShare({
+            shareOf: pool.supplies[tokens[0].id],
+            contribution: fairShares,
+            totalContribution: pool.shareSupply,
+          })
+        );
+      }
       setSecondTokenAmount(amount);
       setFirstTokenAmount(firstAmount);
+      setPreShare(toReadableNumber(24, fairShares));
       try {
         validate({
           firstAmount,
@@ -255,50 +312,72 @@ export function AddLiquidityModal(
 
     setCanSubmit(false);
     setCanDeposit(false);
-
     if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
       setCanDeposit(true);
-      setMessageId('deposit_to_add_liquidity');
-      setDefaultMessage('Deposit to Add Liquidity');
-
-      throw new Error(
-        `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
-          tokens[0].symbol
-        )}`
-      );
+      // setMessageId('deposit_to_add_liquidity');
+      // setDefaultMessage('Deposit to Add Liquidity');
+      const { id, decimals } = tokens[0];
+      const modalData: any = {
+        token: tokens[0],
+        action: 'deposit',
+      };
+      getDepositableBalance(id, decimals).then((nearBalance) => {
+        modalData.max = nearBalance;
+        setModal(Object.assign({}, modalData));
+      });
+      setModal(modalData);
+      // throw new Error(
+      //   `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
+      //     tokens[0].symbol
+      //   )}`
+      // );
+      return;
     }
 
     if (secondTokenAmountBN.isGreaterThan(secondTokenBalanceBN)) {
       setCanDeposit(true);
-      setMessageId('deposit_to_add_liquidity');
-      setDefaultMessage('Deposit to Add Liquidity');
-      throw new Error(
-        `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
-          tokens[1].symbol
-        )}`
-      );
+      // setMessageId('deposit_to_add_liquidity');
+      // setDefaultMessage('Deposit to Add Liquidity');
+      const { id, decimals } = tokens[1];
+      const modalData: any = {
+        token: tokens[1],
+        action: 'deposit',
+      };
+      getDepositableBalance(id, decimals).then((nearBalance) => {
+        modalData.max = nearBalance;
+        setModal(Object.assign({}, modalData));
+      });
+      setModal(modalData);
+      // throw new Error(
+      //   `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
+      //     tokens[1].symbol
+      //   )}`
+      // );
+      return;
     }
 
-    if (!firstAmount || firstAmount === '0') {
+    if (ONLY_ZEROS.test(firstAmount)) {
       setCanSubmit(false);
       setMessageId('add_liquidity');
       setDefaultMessage('Add Liquidity');
-      throw new Error(
-        `${toRealSymbol(tokens[0].symbol)} ${intl.formatMessage({
-          id: 'amount_must_be_greater_than_0',
-        })} `
-      );
+      return;
+      // throw new Error(
+      //   `${toRealSymbol(tokens[0].symbol)} ${intl.formatMessage({
+      //     id: 'amount_must_be_greater_than_0',
+      //   })} `
+      // );
     }
 
-    if (!secondAmount || secondAmount === '0') {
+    if (ONLY_ZEROS.test(secondAmount)) {
       setCanSubmit(false);
       setMessageId('add_liquidity');
       setDefaultMessage('Add Liquidity');
-      throw new Error(
-        `${toRealSymbol(tokens[1].symbol)} ${intl.formatMessage({
-          id: 'amount_must_be_greater_than_0',
-        })} `
-      );
+      return;
+      // throw new Error(
+      //   `${toRealSymbol(tokens[1].symbol)} ${intl.formatMessage({
+      //     id: 'amount_must_be_greater_than_0',
+      //   })} `
+      // );
     }
 
     if (!tokens[0]) {
@@ -340,16 +419,14 @@ export function AddLiquidityModal(
     }
 
     const handleClick = async () => {
-      if (canDeposit) {
-        history.push(`/deposit`);
-      } else if (canSubmit) {
+      if (canSubmit) {
         setButtonLoading(true);
         submit();
       }
     };
     return (
       <SolidButton
-        disabled={!canSubmit && !canDeposit}
+        disabled={!canSubmit || canDeposit}
         className="focus:outline-none px-4 w-full"
         onClick={handleClick}
         loading={buttonLoading}
@@ -370,6 +447,20 @@ export function AddLiquidityModal(
       </SolidButton>
     );
   };
+  const shareDisplay = () => {
+    let result = '';
+    if (preShare && new BigNumber('0').isLessThan(preShare)) {
+      const myShareBig = new BigNumber(preShare);
+      if (myShareBig.isLessThan('0.001')) {
+        result = '<0.001';
+      } else {
+        result = `≈ ${myShareBig.toFixed(3)}`;
+      }
+    } else {
+      result = '-';
+    }
+    return result;
+  };
 
   return (
     <Modal {...props}>
@@ -383,11 +474,16 @@ export function AddLiquidityModal(
         className="text-white outline-none "
       >
         <div className="flex items-start justify-between">
-          <div className="text-base font-bold pb-4">
-            <FormattedMessage
-              id="add_liquidity"
-              defaultMessage="Add Liquidity"
-            />
+          <div>
+            <div className="text-base font-bold pb-2">
+              <FormattedMessage
+                id="add_liquidity"
+                defaultMessage="Add Liquidity"
+              />
+            </div>
+            <p className="text-xs text-primaryText">
+              <FormattedMessage id="deposit_into_ref_account" />
+            </p>
           </div>
           <div
             className="ml-2 cursor-pointer p-1"
@@ -399,7 +495,10 @@ export function AddLiquidityModal(
 
         {/* PC display */}
         <div className="mt-8 md:hidden xs:hidden">
-          <div className="text-xs text-right mb-1 text-gray-400">
+          <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
+            <span className="mr-2 text-primaryText">
+              <RefIcon></RefIcon>
+            </span>
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
             <span
@@ -430,52 +529,11 @@ export function AddLiquidityModal(
             />
           </div>
         </div>
-
-        {/* mobile display */}
-        <div className="my-6 lg:hidden">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-end">
-              <Icon icon={tokens[0].icon} className="h-9 w-9 mr-2" />
-              <div className="flex items-start flex-col">
-                <div className="text-white text-base">
-                  {toRealSymbol(tokens[0].symbol)}
-                </div>
-                <div
-                  className="text-xs text-gray-400"
-                  title={tokens[0].id}
-                >{`${tokens[0].id.substring(0, 25)}${
-                  tokens[0].id.length > 25 ? '...' : ''
-                }`}</div>
-              </div>
-            </div>
-            <div className="text-xs text-right mb-1 text-gray-400">
-              <FormattedMessage id="balance" defaultMessage="Balance" />
-              :&nbsp;
-              <span
-                title={toReadableNumber(
-                  tokens[0].decimals,
-                  balances[tokens[0].id]
-                )}
-              >
-                {toPrecision(
-                  toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
-                  2,
-                  true
-                )}
-              </span>
-            </div>
-          </div>
-          <InputAmount
-            className="w-full border border-transparent rounded"
-            max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
-            onChangeAmount={changeFirstTokenAmount}
-            value={firstTokenAmount}
-            disabled={!wallet.isSignedIn()}
-          />
-        </div>
-
         <div className="my-8 md:hidden xs:hidden">
-          <div className="text-xs text-right mb-1 text-gray-400">
+          <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
+            <span className="mr-2 text-primaryText">
+              <RefIcon></RefIcon>
+            </span>
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
             <span
@@ -506,24 +564,71 @@ export function AddLiquidityModal(
             />
           </div>
         </div>
-
+        {/* mobile display */}
+        <div className="my-6 lg:hidden">
+          <div className="flex items-end justify-between mb-2">
+            <div className="flex items-center">
+              <Icon icon={tokens[0].icon} className="h-9 w-9 mr-2" />
+              <div className="flex items-start flex-col">
+                <div className="text-white text-base">
+                  {toRealSymbol(tokens[0].symbol)}
+                </div>
+                {/* <div
+                  className="text-xs text-gray-400"
+                  title={tokens[0].id}
+                >{`${tokens[0].id.substring(0, 25)}${
+                  tokens[0].id.length > 25 ? '...' : ''
+                }`}</div> */}
+              </div>
+            </div>
+            <div className="flex items-center justify-end text-xs text-right mb-1 text-gray-400">
+              <span className="mr-2 text-primaryText">
+                <RefIcon></RefIcon>
+              </span>
+              <FormattedMessage id="balance" defaultMessage="Balance" />
+              :&nbsp;
+              <span
+                title={toReadableNumber(
+                  tokens[0].decimals,
+                  balances[tokens[0].id]
+                )}
+              >
+                {toPrecision(
+                  toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
+                  2,
+                  true
+                )}
+              </span>
+            </div>
+          </div>
+          <InputAmount
+            className="w-full border border-transparent rounded"
+            max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
+            onChangeAmount={changeFirstTokenAmount}
+            value={firstTokenAmount}
+            disabled={!wallet.isSignedIn()}
+          />
+        </div>
         <div className="my-8 lg:hidden">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-end">
+          <div className="flex items-end justify-between mb-2">
+            <div className="flex items-center">
               <Icon icon={tokens[1].icon} className="h-9 w-9 mr-2" />
               <div className="flex items-start flex-col">
                 <div className="text-white text-base">
                   {toRealSymbol(tokens[1].symbol)}
                 </div>
-                <div
+                {/* <div
                   className="text-xs text-gray-400"
                   title={tokens[1].id}
                 >{`${tokens[1].id.substring(0, 25)}${
                   tokens[1].id.length > 25 ? '...' : ''
-                }`}</div>
+                }`}</div> */}
               </div>
             </div>
-            <div className="text-xs text-right mb-1 text-gray-400">
+            <div className="flex justify-end items-end text-xs text-right mb-1 text-gray-400">
+              <span className="mr-2 text-primaryText">
+                <RefIcon></RefIcon>
+              </span>
               <FormattedMessage id="balance" defaultMessage="Balance" />
               :&nbsp;
               <span
@@ -547,13 +652,49 @@ export function AddLiquidityModal(
             value={secondTokenAmount}
           />
         </div>
-        <div className="flex justify-center mb-8 ">
-          {error && <Alert level="error" message={error.message} />}
+        {error ? (
+          <div className="flex justify-center mb-8 ">
+            <Alert level="error" message={error.message} />
+          </div>
+        ) : null}
+
+        {canDeposit ? (
+          <div className="flex flex-col justify-center items-center rounded-md p-4 border border-warnColor">
+            <div className="flex items-center">
+              <WarnTriangle />
+              <label className="ml-2.5 text-base text-warnColor">
+                <FormattedMessage id="you_do_not_have_enough" />{' '}
+                {modal?.token?.symbol}！
+              </label>
+            </div>
+            <div className="text-white text-base mt-3 text-center">
+              <label
+                onClick={() => {
+                  setVisible(true);
+                }}
+                className="font-semibold underline cursor-pointer"
+              >
+                <FormattedMessage id="deposit" />
+              </label>{' '}
+              {modal?.token?.symbol} <FormattedMessage id="into_ref_account" />
+            </div>
+          </div>
+        ) : null}
+        <div className="flex justify-between text-primaryText text-sm my-6">
+          <label>
+            <FormattedMessage id="my_shares"></FormattedMessage>
+          </label>
+          <span className="text-white text-sm">{shareDisplay()}</span>
         </div>
         <div className="">
           <ButtonRender />
         </div>
       </Card>
+      <ActionModel
+        modal={modal}
+        visible={visible}
+        onRequestClose={setVisible}
+      ></ActionModel>
     </Modal>
   );
 }
@@ -590,7 +731,7 @@ export function RemoveLiquidityModal(
     if (amountBN.isGreaterThan(shareBN)) {
       throw new Error(
         intl.formatMessage({
-          id: 'amount_must_be_not_greater_your_balance',
+          id: 'input_greater_than_available_shares',
         })
       );
     }
@@ -605,13 +746,14 @@ export function RemoveLiquidityModal(
     const amountBN = new BigNumber(value.toString());
     const shareBN = new BigNumber(toReadableNumber(24, shares));
     if (amountBN.isGreaterThan(shareBN)) {
+      setCanSubmit(false);
       throw new Error(
         intl.formatMessage({
-          id: 'amount_must_be_not_greater_your_balance',
+          id: 'input_greater_than_available_shares',
         })
       );
     }
-    if (!value || value === '0') {
+    if (ONLY_ZEROS.test(value)) {
       setCanSubmit(false);
       return;
     }
@@ -671,7 +813,7 @@ export function RemoveLiquidityModal(
             onChange={setSlippageTolerance}
           />
         </div>
-        {amount ? (
+        {amount && Number(pool.shareSupply) != 0 ? (
           <>
             <p className="my-3 text-left text-sm">
               <FormattedMessage
@@ -683,7 +825,6 @@ export function RemoveLiquidityModal(
               {Object.entries(minimumAmounts).map(
                 ([tokenId, minimumAmount], i) => {
                   const token = tokens.find((t) => t.id === tokenId);
-
                   return (
                     <section
                       key={tokenId}
@@ -707,8 +848,8 @@ export function RemoveLiquidityModal(
             </section>
           </>
         ) : null}
-        <div className="flex justify-center">
-          {error && <Alert level="error" message={error.message} />}
+        <div className="flex justify-center mb-2">
+          {error && <Alert level="warn" message={error.message} />}
         </div>
         <div className="">
           {wallet.isSignedIn() ? (
@@ -728,8 +869,8 @@ export function RemoveLiquidityModal(
                 loading={buttonLoading}
                 Text={() => (
                   <FormattedMessage
-                    id="remove_liquidity"
-                    defaultMessage="Remove Liquidity"
+                    id="remove_to_ref_account"
+                    defaultMessage="Remove to REF account"
                   />
                 )}
               />
@@ -1309,19 +1450,8 @@ export function PoolDetailsPage() {
               </div>
               {/* rate */}
               <div className="flex justify-between text-sm md:text-xs xs:text-xs">
-                <div className="text-white text-center px-1  rounded-sm border border-solid border-gray-400">
-                  1&nbsp;{toRealSymbol(tokens[0].symbol)}&nbsp;
-                  {getExchangeRate(tokens, pool, pool.token0_ref_price, false)}
-                </div>
-                <div className="text-white text-center px-1  rounded-sm border border-solid border-gray-400">
-                  1&nbsp;{toRealSymbol(tokens[1].symbol)}&nbsp;
-                  {getExchangeRate(
-                    [tokens[1], tokens[0]],
-                    pool,
-                    pool.token0_ref_price,
-                    false
-                  )}
-                </div>
+                <GetExchangeRate tokens={[tokens[0], tokens[1]]} pool={pool} />
+                <GetExchangeRate tokens={[tokens[1], tokens[0]]} pool={pool} />
               </div>
             </div>
             <div className="border-b border-solid border-gray-600" />

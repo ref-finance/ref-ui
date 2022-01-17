@@ -132,16 +132,19 @@ export default function SlippageSelector({
                   data-place="right"
                   data-multiline={true}
                   data-tip={intl.formatMessage({ id: slippageCopyId })}
+                  data-for="default_lipId"
+                  data-class="reactTip"
                 >
                   <QuestionMark />
                 </div>
                 <ReactTooltip
+                  id="default_lipId"
                   className="text-xs text-left shadow-4xl"
                   backgroundColor="#1D2932"
                   border
                   borderColor="#7e8a93"
                   effect="solid"
-                  textColor="#c6d1da"
+                  textColor="#7E8A93"
                 />
               </div>
             </div>
@@ -226,16 +229,19 @@ export default function SlippageSelector({
                   data-place="right"
                   data-multiline={true}
                   data-tip={intl.formatMessage({ id: 'selectBalanceCopy' })}
+                  data-for="default2_lipId"
+                  data-class="reactTip"
                 >
                   <QuestionMark />
                 </div>
                 <ReactTooltip
+                  id="default2_lipId"
                   className="text-xs text-left shadow-4xl"
                   backgroundColor="#1D2932"
                   border
                   borderColor="#7e8a93"
                   effect="solid"
-                  textColor="#c6d1da"
+                  textColor="#7E8A93"
                 />
               </div>
             </div>
@@ -297,7 +303,7 @@ export function PoolSlippageSelector({
   return (
     <>
       <fieldset className="flex lg:items-center md:flex-col xs:flex-col justify-between mb-4 pt-2">
-        <div className="flex items-center md:mb-4 xs:mb-4 ml-2">
+        <div className="flex items-center md:mb-4 xs:mb-4">
           <label className="text-sm text-center text-white">
             <FormattedMessage
               id="slippage"
@@ -311,16 +317,19 @@ export function PoolSlippageSelector({
               data-place="right"
               data-multiline={true}
               data-tip={intl.formatMessage({ id: slippageCopyId })}
+              data-for="pool_lipId"
+              data-class="reactTip"
             >
               <QuestionMark />
             </div>
             <ReactTooltip
+              id="pool_lipId"
               className="text-xs text-left shadow-4xl"
               backgroundColor="#1D2932"
               border
               borderColor="#7e8a93"
               effect="solid"
-              textColor="#c6d1da"
+              textColor="#7E8A93"
             />
           </div>
         </div>
@@ -424,16 +433,19 @@ export function StableSlipSelecter({
               data-place="right"
               data-multiline={true}
               data-tip={intl.formatMessage({ id: slippageCopyId })}
+              data-for="stable_lipId"
+              data-class="reactTip"
             >
               <QuestionMark />
             </div>
             <ReactTooltip
+              id="stable_lipId"
               className="text-xs text-left shadow-4xl"
               backgroundColor="#1D2932"
               border
               borderColor="#7e8a93"
               effect="solid"
-              textColor="#c6d1da"
+              textColor="#7E8A93"
             />
           </div>
         </div>

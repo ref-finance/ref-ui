@@ -15,6 +15,7 @@ import {
   IconRainbow,
   IconZh,
 } from '~components/icon/Nav';
+import { XrefIcon } from '~components/icon/Xref';
 
 export type MenuItem = {
   id: number;
@@ -146,16 +147,18 @@ export type MobileMenuItem = {
   tip?: string;
   subRoute?: string[];
   newFunction?: boolean;
+  showIcon?: boolean;
+  iconElement?: ReactNode;
 };
 
 export const moreLinks: MobileMenuItem[] = [
-  {
-    id: 'Deposit',
-    label: 'Deposit',
-    pattern: '/deposit/:id?',
-    url: '/deposit',
-    isExternal: false,
-  },
+  // {
+  //   id: 'Deposit',
+  //   label: 'Deposit',
+  //   pattern: '/deposit/:id?',
+  //   url: '/deposit',
+  //   isExternal: false,
+  // },
   {
     id: 'Swap',
     label: 'Swap',
@@ -169,7 +172,6 @@ export const moreLinks: MobileMenuItem[] = [
     pattern: '/stableswap',
     url: '/stableswap',
     isExternal: false,
-    newFunction: true,
   },
   {
     id: 'pools',
@@ -202,6 +204,16 @@ export const moreLinks: MobileMenuItem[] = [
     pattern: '/farms',
     url: '/farms',
     isExternal: false,
+  },
+  {
+    id: 'xref',
+    label: 'xREF',
+    pattern: '/xref',
+    url: '/xref',
+    isExternal: false,
+    newFunction: true,
+    showIcon: true,
+    iconElement: <XrefIcon></XrefIcon>,
   },
   {
     id: 'more',

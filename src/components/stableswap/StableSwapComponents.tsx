@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pool } from '~services/pool';
 import { Icon } from './StableTokenList';
 import { FormattedMessage } from 'react-intl';
@@ -22,8 +22,8 @@ import {
   calcStableSwapPriceImpact,
 } from '~utils/numbers';
 
-const GetPriceImpact = (from: string, to: string) => {
-  const value = calcStableSwapPriceImpact(from, to);
+const GetPriceImpact = (value: string) => {
+  // const value = calcStableSwapPriceImpact(from, to);
 
   const textColor =
     Number(value) <= 1
@@ -39,8 +39,8 @@ const GetPriceImpact = (from: string, to: string) => {
   );
 };
 
-const getPriceImpactTipType = (from: string, to: string) => {
-  const value = calcStableSwapPriceImpact(from, to);
+const getPriceImpactTipType = (value: string) => {
+  // const value = calcStableSwapPriceImpact(from, to);
 
   const reault =
     1 < Number(value) && Number(value) <= 2 ? (
@@ -253,6 +253,17 @@ export function DetailView({
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
 
+  const priceImpactValue = useMemo(() => {
+    if (!from || !noFeeAmount) return '0';
+    return calcStableSwapPriceImpact(from, noFeeAmount);
+  }, [noFeeAmount]);
+
+  useEffect(() => {
+    if (Number(priceImpactValue) > 1) {
+      setShowDetails(true);
+    }
+  }, [priceImpactValue]);
+
   if (!from || !to || !(Number(from) > 0) || !pool) return null;
 
   return (
@@ -267,7 +278,7 @@ export function DetailView({
           <label className="mr-2">
             {noFeeAmount &&
               noFeeAmount !== '0' &&
-              getPriceImpactTipType(from, noFeeAmount)}
+              getPriceImpactTipType(priceImpactValue)}
           </label>
           <p className="block text-xs">
             <FormattedMessage id="details" defaultMessage="Details" />
@@ -310,7 +321,7 @@ export function DetailView({
           value={
             !noFeeAmount || noFeeAmount === '0'
               ? '-'
-              : GetPriceImpact(from, noFeeAmount)
+              : GetPriceImpact(priceImpactValue)
           }
         />
       </div>

@@ -10,6 +10,7 @@ import {
   getTokenBalances,
   getUserRegisteredTokens,
   TokenBalancesView,
+  getWhitelistedTokensAndNearTokens,
 } from '../services/token';
 import {
   toPrecision,
@@ -18,6 +19,7 @@ import {
 } from '~utils/numbers';
 import { toRealSymbol } from '~utils/token';
 import getConfig from '~services/config';
+import { nearMetadata } from '~/services/wrap-near';
 
 export const useToken = (id: string) => {
   const [token, setToken] = useState<TokenMetadata>();
@@ -85,6 +87,34 @@ export const useUserRegisteredTokens = () => {
         )
         .then(setTokens);
     }
+  }, []);
+
+  return tokens;
+};
+export const useUserRegisteredTokensAllAndNearBalance = () => {
+  const [tokens, setTokens] = useState<any[]>();
+
+  useEffect(() => {
+    getWhitelistedTokensAndNearTokens()
+      .then((tokenList) => {
+        const walletBalancePromise = Promise.all(
+          [nearMetadata.id, ...tokenList].map((tokenId) => {
+            return getDepositableBalance(tokenId);
+          })
+        );
+        const tokenMetadataPromise = Promise.all(
+          tokenList.map((tokenId) => ftGetTokenMetadata(tokenId))
+        );
+        return Promise.all([tokenMetadataPromise, walletBalancePromise]);
+      })
+      .then((result) => {
+        const arr = result[0];
+        arr.unshift(nearMetadata);
+        arr.forEach((token, index) => {
+          token.near = result[1][index];
+        });
+        setTokens(arr);
+      });
   }, []);
 
   return tokens;
@@ -211,7 +241,11 @@ export const useTokensData = (
   };
 };
 
-export const useDepositableBalance = (tokenId: string, decimals?: number) => {
+export const useDepositableBalance = (
+  tokenId: string,
+  decimals?: number,
+  dependabale?: boolean
+) => {
   const [depositable, setDepositable] = useState<string>('');
   const [max, setMax] = useState<string>('');
   useEffect(() => {
@@ -252,35 +286,4 @@ export const useUnregisteredTokens = () => {
   }, []);
 
   return tokens;
-};
-
-export const getExchangeRate = (
-  tokens: any,
-  pool: any,
-  first_token_price: any,
-  use_api_price: boolean
-) => {
-  const first_token_num = toReadableNumber(
-    tokens[0].decimals || 24,
-    pool.supplies[tokens[0].id]
-  );
-  const second_token_num = toReadableNumber(
-    tokens[1].decimals || 24,
-    pool.supplies[tokens[1].id]
-  );
-
-  return use_api_price
-    ? first_token_price === 'N/A'
-      ? 'N/A'
-      : Number(first_token_num) === 0
-      ? 'N/A'
-      : `≈$${(
-          (Number(second_token_num) / Number(first_token_num)) *
-          first_token_price
-        ).toFixed(8)}`
-    : Number(first_token_num) === 0
-    ? 'N/A'
-    : `≈ ${(Number(second_token_num) / Number(first_token_num)).toFixed(2)} ${
-        tokens[1].symbol
-      }`;
 };

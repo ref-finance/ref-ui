@@ -34,21 +34,13 @@ function SubmitButton({
           type={onClick ? 'button' : 'submit'}
           disabled={disabled}
           onClick={onClick}
-          className={`flex flex-row w-full items-center justify-center px-5 py-2 mt-6 text-white disabled:cursor-not-allowed mx-auto ${
-            disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
+          className={`flex flex-row w-full items-center justify-center px-5 py-2 mt-6 text-white mx-auto ${
+            disabled ? 'disabled:cursor-not-allowed opacity-40' : ''
           } ${loading ? 'opacity-40' : ''} ${className}`}
-          style={
-            disabled
-              ? {
-                  background: '#314351',
-                  borderRadius: '5px',
-                }
-              : {
-                  background:
-                    'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
-                  borderRadius: '5px',
-                }
-          }
+          style={{
+            background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+            borderRadius: '5px',
+          }}
         >
           {!label && (
             <h1 className="text-lg font-inter font-semibold">

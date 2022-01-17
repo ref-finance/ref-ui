@@ -18,7 +18,7 @@ export const { WRAP_NEAR_CONTRACT_ID } = getConfig();
 export const NEW_ACCOUNT_STORAGE_COST = '0.00125';
 
 export const wnearMetadata: TokenMetadata = {
-  id: 'wNEAR',
+  id: WRAP_NEAR_CONTRACT_ID,
   name: 'wNEAR',
   symbol: 'wNEAR',
   decimals: 24,

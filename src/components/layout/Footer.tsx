@@ -29,7 +29,7 @@ const CommunityLinks = [
   },
 ];
 function Footer() {
-  const { data } = useRefPrice();
+  const { data } = useRefPrice('Footer');
   const [hoverLogo, setHoverLogo] = useState(false);
   if (!data) return null;
 
@@ -57,7 +57,7 @@ function Footer() {
               return (
                 <div
                   key={link.url}
-                  className={`text-2xl font-semibold text-gray-600 cursor-pointer pb-2 last:pb-0 hover:text-greenLight`}
+                  className={`text-2xl font-semibold text-gray-600 cursor-pointer pb-2 last:pb-0 hover:text-greenColor`}
                   onClick={() => window.open(link.url)}
                 >
                   {link.icon}

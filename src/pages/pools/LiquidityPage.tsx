@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 import ReactTooltip from 'react-tooltip';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -14,10 +14,9 @@ import {
   useWatchPools,
 } from '../../state/pool';
 import Loading from '~components/layout/Loading';
-import { getExchangeRate, useTokens } from '../../state/token';
+import { useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';
 import { canFarm, Pool } from '../../services/pool';
-import { FarmMiningIcon } from '~components/icon/FarmMining';
 import {
   calculateFeePercent,
   toPrecision,
@@ -44,6 +43,7 @@ import {
 import { PolygonGrayDown } from '~components/icon/Polygon';
 import _, { orderBy, sortBy, filter } from 'lodash';
 import QuestionMark from '~components/farm/QuestionMark';
+import { useInView } from 'react-intersection-observer';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -57,7 +57,9 @@ function MobilePoolRow({
   watched: Boolean;
 }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
-  const morePoolIds = useMorePoolIds({ topPool: pool });
+  const { ref, inView } = useInView();
+
+  const morePoolIds = useMorePoolIds({ topPool: pool, inView });
   const tokens = useTokens(pool.tokenIds);
   const history = useHistory();
   useEffect(() => {
@@ -95,6 +97,7 @@ function MobilePoolRow({
 
   return (
     <Link
+      ref={ref}
       className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-4 py-6 text-white"
       onClick={() => localStorage.setItem('fromMorePools', 'n')}
       to={{
@@ -252,13 +255,9 @@ function MobileLiquidityPage({
   onHide,
   hideLowTVL,
   allPools,
-  searchTrigger,
-  setSearchTrigger,
 }: {
   pools: Pool[];
-  searchTrigger: Boolean;
   onSortChange: (modeSort: string) => void;
-  setSearchTrigger: (mode: Boolean) => void;
   tokenName: string;
   order: string;
   watchPools: Pool[];
@@ -273,13 +272,7 @@ function MobileLiquidityPage({
 }) {
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>();
-  const [searchValue, setSearchValue] = useState<string>(tokenName);
   const inputRef = useRef(null);
-
-  useEffect(() => {
-    if (searchTrigger === false || searchTrigger === true)
-      inputRef.current.focus();
-  }, [searchTrigger]);
 
   return (
     <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
@@ -331,40 +324,25 @@ function MobileLiquidityPage({
             ref={inputRef}
             className={`text-sm outline-none rounded w-full py-2 px-3`}
             placeholder={intl.formatMessage({
-              id: 'click_search_bar_to_search',
+              id: 'input_to_search',
             })}
-            value={searchValue}
+            value={tokenName}
             onChange={(evt) => {
-              setSearchValue(evt.target.value);
-            }}
-            onKeyUp={(evt) => {
-              if (evt.keyCode === 13) {
-                onSearch(searchValue);
-                setSearchTrigger(!searchTrigger);
-              }
-            }}
-          />
-          <FaSearch
-            className="cursor-pointer"
-            onClick={() => {
-              onSearch(searchValue);
-              setSearchTrigger(!searchTrigger);
+              onSearch(evt.target.value);
             }}
           />
         </div>
-        <div className=" mb-4 flex items-center mx-6">
+        <div
+          className=" mb-4 inline-flex items-center mx-6 cursor-pointer"
+          onClick={() => {
+            hideLowTVL && onHide(false);
+            !hideLowTVL && onHide(true);
+          }}
+        >
           <div className="mr-2">
-            {hideLowTVL ? (
-              <div onClick={() => onHide(false)}>
-                <CheckedTick />
-              </div>
-            ) : (
-              <div onClick={() => onHide(true)}>
-                <CheckedEmpty />
-              </div>
-            )}
+            {hideLowTVL ? <CheckedTick /> : <CheckedEmpty />}
           </div>
-          <div className="text-gray-400 text-sm mr-4">
+          <div className="text-gray-400 text-sm">
             <FormattedMessage
               id="hide_low_tvl_pools"
               defaultMessage="Hide low TVL pools"
@@ -434,7 +412,8 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const [farmCount, setFarmCount] = useState<Number>(1);
   const tokens = useTokens(pool.tokenIds);
-  const morePoolIds = useMorePoolIds({ topPool: pool });
+  const { ref, inView, entry } = useInView();
+  const morePoolIds = useMorePoolIds({ topPool: pool, inView });
   const history = useHistory();
   const [showLinkArrow, setShowLinkArrow] = useState(false);
 
@@ -444,7 +423,6 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
       setFarmCount(canFarm);
     });
   }, [pool]);
-  // if (!tokens) return <Loading />;
   if (!tokens) return <></>;
 
   tokens.sort((a, b) => {
@@ -461,6 +439,7 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
         pathname: `/pool/${pool.id}`,
         state: { tvl: pool.tvl, backToFarms: supportFarm },
       }}
+      ref={ref}
     >
       <div className="col-span-7 md:col-span-4 flex items-center">
         <div className="mr-6 w-2">{index}</div>
@@ -552,13 +531,13 @@ function WatchListCard({ watchPools }: { watchPools: Pool[] }) {
               <div className="mr-6 w-2">#</div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </div>
-            <div className="col-span-1 md:hidden cursor-pointer flex items-center">
+            <div className="col-span-1 md:hidden flex items-center">
               <div className="mr-1">
                 <FormattedMessage id="fee" defaultMessage="Fee" />
               </div>
             </div>
 
-            <div className="col-span-1 flex items-center cursor-pointer">
+            <div className="col-span-1 flex items-center">
               <span className="mr-1">
                 <FormattedMessage id="tvl" defaultMessage="TVL" />
               </span>
@@ -596,8 +575,6 @@ function LiquidityPage_({
   hideLowTVL,
   onSortChange,
   onOrderChange,
-  searchTrigger,
-  setSearchTrigger,
   nextPage,
   allPools,
 }: {
@@ -607,8 +584,6 @@ function LiquidityPage_({
   watchPools: Pool[];
   tokenName: string;
   order: string;
-  searchTrigger: Boolean;
-  setSearchTrigger: (mode: Boolean) => void;
   onHide: (mode: Boolean) => void;
   allPools: number;
   hasMore: boolean;
@@ -618,12 +593,8 @@ function LiquidityPage_({
   nextPage: (...args: []) => void;
 }) {
   const intl = useIntl();
-  const [searchValue, setSearchValue] = useState<string>(tokenName);
   const inputRef = useRef(null);
-  useEffect(() => {
-    if (searchTrigger === false || searchTrigger === true)
-      inputRef.current?.focus();
-  }, [searchTrigger]);
+
   return (
     <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
       <div className="mb-4 mx-8">
@@ -670,19 +641,17 @@ function LiquidityPage_({
             </div>
           </div>
           <div className="flex items-center w-3/7">
-            <div className="flex items-center">
+            <div
+              className="flex items-center mr-10 cursor-pointer"
+              onClick={() => {
+                hideLowTVL && onHide(false);
+                !hideLowTVL && onHide(true);
+              }}
+            >
               <div className="mr-2">
-                {hideLowTVL ? (
-                  <div onClick={() => onHide(false)}>
-                    <CheckedTick />
-                  </div>
-                ) : (
-                  <div onClick={() => onHide(true)}>
-                    <CheckedEmpty />
-                  </div>
-                )}
+                {hideLowTVL ? <CheckedTick /> : <CheckedEmpty />}
               </div>
-              <div className="text-gray-400 text-sm mr-10">
+              <div className="text-gray-400 text-sm ">
                 <FormattedMessage
                   id="hide_low_tvl_pools"
                   defaultMessage="Hide low TVL pools"
@@ -694,24 +663,10 @@ function LiquidityPage_({
                 ref={inputRef}
                 className={`text-sm outline-none rounded w-full py-2 px-3`}
                 placeholder={intl.formatMessage({
-                  id: 'press_enter_to_search',
+                  id: 'input_to_search',
                 })}
-                value={searchValue}
                 onChange={(evt) => {
-                  setSearchValue(evt.target.value);
-                }}
-                onKeyUp={(evt) => {
-                  if (evt.keyCode === 13) {
-                    onSearch(searchValue);
-                    setSearchTrigger(!searchTrigger);
-                  }
-                }}
-              />
-              <FaSearch
-                className="cursor-pointer"
-                onClick={() => {
-                  onSearch(searchValue);
-                  setSearchTrigger(!searchTrigger);
+                  onSearch(evt.target.value);
                 }}
               />
             </div>
@@ -724,46 +679,70 @@ function LiquidityPage_({
               <div className="mr-6 w-2">#</div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </div>
-            <div
-              className="col-span-1 md:hidden cursor-pointer flex items-center"
-              onClick={() => {
-                onSortChange('fee');
-                onOrderChange(order === 'desc' ? 'asc' : 'desc');
-              }}
-            >
-              <div className="mr-1">
+            <div className="col-span-1 md:hidden flex items-center">
+              <div
+                className="pr-1 cursor-pointer"
+                onClick={() => {
+                  onSortChange('fee');
+                  sortBy !== 'fee' && onOrderChange('asc');
+                  sortBy === 'fee' &&
+                    onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                }}
+              >
                 <FormattedMessage id="fee" defaultMessage="Fee" />
               </div>
-              {sortBy === 'fee' ? (
-                order === 'desc' ? (
-                  <DownArrowLight />
+              <span
+                className="cursor-pointer"
+                onClick={() => {
+                  onSortChange('fee');
+                  sortBy !== 'fee' && onOrderChange('asc');
+                  sortBy === 'fee' &&
+                    onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                }}
+              >
+                {sortBy === 'fee' ? (
+                  order === 'desc' ? (
+                    <DownArrowLight />
+                  ) : (
+                    <UpArrowLight />
+                  )
                 ) : (
-                  <UpArrowLight />
-                )
-              ) : (
-                <UpArrowDeep />
-              )}
+                  <UpArrowDeep />
+                )}
+              </span>
             </div>
 
-            <div
-              className="col-span-1 flex items-center cursor-pointer"
-              onClick={() => {
-                onSortChange('tvl');
-                onOrderChange(order === 'desc' ? 'asc' : 'desc');
-              }}
-            >
-              <span className="mr-1">
+            <div className="col-span-1 flex items-center">
+              <span
+                className="pr-1 cursor-pointer"
+                onClick={() => {
+                  onSortChange('tvl');
+                  sortBy !== 'tvl' && onOrderChange('asc');
+                  sortBy === 'tvl' &&
+                    onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                }}
+              >
                 <FormattedMessage id="tvl" defaultMessage="TVL" />
               </span>
-              {sortBy === 'tvl' ? (
-                order === 'desc' ? (
-                  <DownArrowLight />
+              <span
+                className="cursor-pointer"
+                onClick={() => {
+                  onSortChange('tvl');
+                  sortBy !== 'tvl' && onOrderChange('asc');
+                  sortBy === 'tvl' &&
+                    onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                }}
+              >
+                {sortBy === 'tvl' ? (
+                  order === 'desc' ? (
+                    <DownArrowLight />
+                  ) : (
+                    <UpArrowLight />
+                  )
                 ) : (
-                  <UpArrowLight />
-                )
-              ) : (
-                <UpArrowDeep />
-              )}
+                  <UpArrowDeep />
+                )}
+              </span>
             </div>
             <p className="col-span-1">
               <FormattedMessage id="pools" defaultMessage="Pools" />
@@ -792,11 +771,9 @@ export function LiquidityPage() {
   const [order, setOrder] = useState('desc');
   const AllPools = useAllPools();
   const watchPools = useWatchPools();
-  const [searchTrigger, setSearchTrigger] = useState<Boolean>(null);
   const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
   const [displayPools, setDisplayPools] = useState<Pool[]>();
   const { pools, hasMore, nextPage, loading } = usePools({
-    searchTrigger,
     tokenName,
     sortBy,
     order,
@@ -815,14 +792,14 @@ export function LiquidityPage() {
     setDisplayPools(tempPools);
   }, [pools, hideLowTVL]);
 
+  const onSearch = useCallback(_.debounce(setTokenName, 500), []);
+
   if (!displayPools || loading || !watchPools) return <Loading />;
 
   return (
     <>
       <LiquidityPage_
         tokenName={tokenName}
-        searchTrigger={searchTrigger}
-        setSearchTrigger={setSearchTrigger}
         pools={displayPools}
         onHide={(isHide) => {
           localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
@@ -835,13 +812,11 @@ export function LiquidityPage() {
         allPools={AllPools}
         onOrderChange={setOrder}
         onSortChange={setSortBy}
-        onSearch={setTokenName}
+        onSearch={onSearch}
         hasMore={hasMore}
         nextPage={nextPage}
       />
       <MobileLiquidityPage
-        searchTrigger={searchTrigger}
-        setSearchTrigger={setSearchTrigger}
         hideLowTVL={hideLowTVL}
         tokenName={tokenName}
         pools={displayPools}
@@ -855,7 +830,7 @@ export function LiquidityPage() {
           localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
           setHideLowTVL(isHide);
         }}
-        onSearch={setTokenName}
+        onSearch={onSearch}
         hasMore={hasMore}
         nextPage={nextPage}
       />

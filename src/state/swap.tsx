@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import { getPool, Pool, StablePool } from '../services/pool';
 import BigNumber from 'bignumber.js';
@@ -38,6 +38,7 @@ interface SwapOptions {
   setLoadingTrigger?: (loadingTrigger: boolean) => void;
   stablePool?: StablePool;
   loadingPause?: boolean;
+  setLoadingPause?: (pause: boolean) => void;
 }
 
 export const useSwap = ({
@@ -64,6 +65,8 @@ export const useSwap = ({
   const txHashes = new URLSearchParams(search)
     .get('transactionHashes')
     ?.split(',');
+
+  const [tokenInAmountMemo, setTokenInAmountMemo] = useState<string>('');
 
   const txHash = txHashes
     ? txHashes.length > 1
@@ -145,7 +148,7 @@ export const useSwap = ({
     }
   }, [txHash]);
 
-  useEffect(() => {
+  const getEstimate = (ifFetch: boolean) => {
     setCanSwap(false);
 
     if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
@@ -175,8 +178,7 @@ export const useSwap = ({
                 BigNumber.sum(pre, cur.estimate).toString()
               );
             }, '0');
-
-            setTokenOutAmount(estimate);
+            if (ifFetch) setTokenOutAmount(estimate);
 
             setPool(estimates[0].pool);
           }
@@ -195,7 +197,18 @@ export const useSwap = ({
     ) {
       setTokenOutAmount('0');
     }
-  }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger, loadingPause]);
+  };
+
+  useEffect(() => {
+    setTokenInAmountMemo(tokenInAmount);
+    if (loadingTrigger && !loadingPause && !ONLY_ZEROS.test(tokenInAmountMemo))
+      return;
+    getEstimate(!loadingTrigger);
+  }, [tokenIn, tokenOut, tokenInAmount]);
+
+  useEffect(() => {
+    getEstimate(!loadingTrigger);
+  }, [loadingTrigger, loadingPause]);
 
   useEffect(() => {
     let id: any = null;
@@ -249,7 +262,7 @@ export const useStableSwap = ({
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
   const [swapError, setSwapError] = useState<Error>();
   const [noFeeAmount, setNoFeeAmount] = useState<string>('');
-
+  const [tokenInAmountMemo, setTokenInAmountMemo] = useState<string>('');
   const { search } = useLocation();
   const history = useHistory();
   const txHashes = new URLSearchParams(search)
@@ -267,6 +280,49 @@ export const useStableSwap = ({
     : null;
 
   const intl = useIntl();
+
+  const getEstimate = () => {
+    setCanSwap(false);
+    if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
+      setSwapError(null);
+
+      estimateStableSwap({
+        tokenIn,
+        tokenOut,
+        amountIn: tokenInAmount,
+        intl,
+        loadingTrigger,
+        setLoadingTrigger,
+        StablePoolInfo: stablePool,
+        setCanSwap,
+      })
+        .then(({ estimate, pool, dy }) => {
+          if (!estimate || !pool) throw '';
+          if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
+            setCanSwap(true);
+            if (!loadingTrigger) {
+              setTokenOutAmount(estimate);
+              setNoFeeAmount(dy);
+            }
+            setPool(pool);
+          }
+        })
+        .catch((err) => {
+          setCanSwap(false);
+          setTokenOutAmount('');
+          setNoFeeAmount('');
+          setSwapError(err);
+        });
+    } else if (
+      tokenIn &&
+      tokenOut &&
+      !tokenInAmount &&
+      ONLY_ZEROS.test(tokenInAmount) &&
+      tokenIn.id !== tokenOut.id
+    ) {
+      setTokenOutAmount('0');
+    }
+  };
 
   useEffect(() => {
     if (txHash) {
@@ -318,45 +374,15 @@ export const useStableSwap = ({
   }, [txHash]);
 
   useEffect(() => {
-    setCanSwap(false);
-    if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
-      setSwapError(null);
+    setTokenInAmountMemo(tokenInAmount);
+    if (loadingTrigger && !ONLY_ZEROS.test(tokenInAmountMemo)) return;
 
-      estimateStableSwap({
-        tokenIn,
-        tokenOut,
-        amountIn: tokenInAmount,
-        intl,
-        loadingTrigger,
-        setLoadingTrigger,
-        StablePoolInfo: stablePool,
-        setCanSwap,
-      })
-        .then(({ estimate, pool, dy }) => {
-          if (!estimate || !pool) throw '';
-          if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
-            setCanSwap(true);
-            setTokenOutAmount(estimate);
-            setPool(pool);
-            setNoFeeAmount(dy);
-          }
-        })
-        .catch((err) => {
-          setCanSwap(false);
-          setTokenOutAmount('');
-          setNoFeeAmount('');
-          setSwapError(err);
-        });
-    } else if (
-      tokenIn &&
-      tokenOut &&
-      !tokenInAmount &&
-      ONLY_ZEROS.test(tokenInAmount) &&
-      tokenIn.id !== tokenOut.id
-    ) {
-      setTokenOutAmount('0');
-    }
-  }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger]);
+    getEstimate();
+  }, [tokenIn, tokenOut, tokenInAmount]);
+
+  useEffect(() => {
+    getEstimate();
+  }, [loadingTrigger]);
 
   const makeSwap = (useNearBalance: boolean) => {
     stableSwap({

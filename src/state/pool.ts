@@ -24,16 +24,20 @@ import {
   predictRemoveLiquidityByTokens,
   StablePool,
   getStablePool,
+  getPoolsFromCache,
 } from '../services/pool';
 import db, { PoolDb, WatchList } from '~store/RefDatabase';
 
 import { useWhitelistTokens } from './token';
-import _, { countBy, debounce, min, orderBy } from 'lodash';
+import _, { countBy, debounce, min, orderBy, trim } from 'lodash';
 import {
   getPoolMonthVolume,
   getPoolMonthTVL,
   getPoolsByIds,
   get24hVolume,
+  _order,
+  _search,
+  getTopPools,
 } from '~services/indexer';
 import { parsePoolView, PoolRPCView } from '~services/api';
 import { TokenMetadata } from '~services/ft-contract';
@@ -85,10 +89,8 @@ export const usePools = (props: {
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [pools, setPools] = useState<Pool[]>([]);
+  const [rawPools, setRawPools] = useState<PoolRPCView[]>([]);
   const [loading, setLoading] = useState(false);
-
-  const tokens = useWhitelistTokens();
-  const tokenIds = tokens?.map((t) => t.id);
 
   const nextPage = () => setPage((page) => page + 1);
 
@@ -98,13 +100,20 @@ export const usePools = (props: {
     sortBy,
     order,
   }: LoadPoolsOpts) {
-    getPools({
-      page,
-      tokenName: tokenName,
-      column: sortBy,
-      order: order,
-    })
-      .then((pools) => {
+    getTopPools()
+      .then(async (rawPools) => {
+        const pools =
+          rawPools.length > 0
+            ? rawPools.map((rawPool) => parsePool(rawPool))
+            : await getPoolsFromCache({
+                page,
+                tokenName: tokenName,
+                column: sortBy,
+                order: order,
+              });
+
+        setRawPools(rawPools);
+
         setHasMore(pools.length === DEFAULT_PAGE_LIMIT);
         setPools((currentPools) =>
           pools.reduce<Pool[]>(
@@ -131,27 +140,20 @@ export const usePools = (props: {
 
   const loadPools = useCallback(debounce(_loadPools, 500), []);
 
-  // const loadPools = debounce(_loadPools, 500);
-
   useEffect(() => {
-    setLoading(true);
-    loadPools({
-      accumulate: false,
-      tokenName: props.tokenName,
-      sortBy: props.sortBy,
+    const args = {
+      page,
+      perPage: DEFAULT_PAGE_LIMIT,
+      tokenName: trim(props.tokenName),
+      column: props.sortBy,
       order: props.order,
-    });
-  }, [props.searchTrigger]);
+    };
 
-  useEffect(() => {
-    setLoading(true);
-    loadPools({
-      accumulate: false,
-      tokenName: props.tokenName,
-      sortBy: props.sortBy,
-      order: props.order,
-    });
-  }, [props.sortBy, props.order]);
+    const newPools = _order(args, _search(args, rawPools)).map((rawPool) =>
+      parsePool(rawPool)
+    );
+    setPools(newPools);
+  }, [props.sortBy, props.order, props.tokenName, rawPools]);
 
   useEffect(() => {
     setLoading(true);
@@ -171,14 +173,19 @@ export const usePools = (props: {
   };
 };
 
-export const useMorePoolIds = (props: { topPool: Pool }) => {
-  const { topPool } = props;
-
+export const useMorePoolIds = ({
+  topPool,
+  inView,
+}: {
+  topPool: Pool;
+  inView: boolean;
+}) => {
   const [token1Id, token2Id] = topPool.tokenIds;
 
-  const [ids, setIds] = useState<string[]>();
+  const [ids, setIds] = useState<string[]>([]);
 
   useEffect(() => {
+    if (!inView) return;
     getCachedPoolsByTokenId({
       token1Id,
       token2Id,
@@ -188,7 +195,7 @@ export const useMorePoolIds = (props: { topPool: Pool }) => {
       });
       setIds(idsFromCachePools);
     });
-  }, [topPool?.id]);
+  }, [topPool?.id, inView]);
   return ids;
 };
 
@@ -421,13 +428,13 @@ export const usePredictShares = ({
       setPredictedShares('0');
       return;
     }
-
-    const calcShares = getAddLiquidityShares(
+    getAddLiquidityShares(
       poolId,
       [firstTokenAmount, secondTokenAmount, thirdTokenAmount],
       stablePool
-    );
-    setPredictedShares(calcShares);
+    )
+      .then(setPredictedShares)
+      .catch((e) => e);
   }, [firstTokenAmount, secondTokenAmount, thirdTokenAmount]);
 
   return predicedShares;

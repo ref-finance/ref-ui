@@ -126,6 +126,11 @@ export function YourLiquidityPage() {
   const [error, setError] = useState<Error>();
   const [pools, setPools] = useState<PoolRPCView[]>();
   const [balances, setBalances] = useState<string[]>();
+  if (!wallet.isSignedIn()) {
+    const history = useHistory();
+    history.push('/');
+    return null;
+  }
 
   useEffect(() => {
     getYourPools().then(setPools);
@@ -140,7 +145,7 @@ export function YourLiquidityPage() {
   if (!pools || !balances) return <Loading />;
 
   return (
-    <div className="flex items flex-col w-1/2 md:w-5/6 xs:w-11/12 m-auto">
+    <div className="flex items flex-col lg:w-2/3 xl:w-1/2 md:w-5/6 xs:w-11/12 m-auto">
       <div className="w-full flex justify-center self-center">
         {error && <Alert level="error" message={error.message} />}
       </div>

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { AccountStorageView, currentStorageBalance } from '../services/account';
 import { wallet } from '../services/near';
 import { currentRefPrice } from '~services/api';
+import { useMobile } from '~utils/device';
 
 const REFRESH_TIME = 60 * 1000;
 
@@ -15,9 +16,11 @@ export const useCurrentStorageBalance = () => {
   return storageBalance;
 };
 
-export const useRefPrice = () => {
+export const useRefPrice = (position?: 'MobileNav' | 'Footer') => {
   const timer = useRef(null);
   const [data, setData] = useState<string>();
+
+  const mobileWindow = useMobile();
 
   const callback = () =>
     currentRefPrice().then((res) => {
@@ -25,14 +28,15 @@ export const useRefPrice = () => {
     });
 
   useEffect(() => {
-    callback();
+    mobileWindow && position === 'MobileNav' && callback();
+    !mobileWindow && position === 'Footer' && callback();
 
     timer.current = setInterval(callback, REFRESH_TIME);
 
     return () => {
       clearInterval(timer.current);
     };
-  }, []);
+  }, [mobileWindow]);
 
   return { data };
 };

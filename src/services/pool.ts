@@ -17,7 +17,7 @@ import {
   storageDepositAction,
   storageDepositForFTAction,
 } from './creators/storage';
-import { getTopPools } from '~services/indexer';
+import { getTopPools, _search } from '~services/indexer';
 import { PoolRPCView } from './api';
 import {
   checkTokenNeedsStorageDeposit,
@@ -91,39 +91,8 @@ export const getPools = async ({
   column?: string;
   order?: string;
   uniquePairName?: boolean;
-}): Promise<Pool[]> => {
-  const poolData: PoolRPCView[] = await getTopPools({
-    page,
-    perPage,
-    tokenName,
-    column,
-    order,
-    uniquePairName,
-  });
-  if (poolData.length > 0) {
-    return poolData.map((rawPool) => parsePool(rawPool));
-  } else {
-    const rows = await db.queryPools({
-      page,
-      perPage,
-      tokenName,
-      column,
-      order,
-      uniquePairName,
-    });
-    return rows.map((row) => ({
-      id: row.id,
-      tokenIds: [row.token1Id, row.token2Id],
-      supplies: {
-        [row.token1Id]: row.token1Supply,
-        [row.token2Id]: row.token2Supply,
-      },
-      fee: row.fee,
-      shareSupply: row.shares,
-      tvl: 0,
-      token0_ref_price: '0',
-    }));
-  }
+}): Promise<PoolRPCView[]> => {
+  return await getTopPools();
 };
 
 export const getPoolsFromCache = async ({
@@ -161,33 +130,6 @@ export const getPoolsFromCache = async ({
     tvl: 0,
     token0_ref_price: '0',
   }));
-};
-
-export const getPoolsFromIndexer = async ({
-  page = 1,
-  perPage = DEFAULT_PAGE_LIMIT,
-  tokenName = '',
-  column = '',
-  order = 'desc',
-  uniquePairName = false,
-}: {
-  page?: number;
-  perPage?: number;
-  tokenName?: string;
-  column?: string;
-  order?: string;
-  uniquePairName?: boolean;
-}): Promise<Pool[]> => {
-  const poolData: PoolRPCView[] = await getTopPools({
-    page,
-    perPage,
-    tokenName,
-    column,
-    order,
-    uniquePairName,
-  });
-
-  return poolData.map((rawPool) => parsePool(rawPool));
 };
 
 export const getAllPoolsFromDb = async () => {

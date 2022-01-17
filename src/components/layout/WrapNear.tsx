@@ -9,7 +9,10 @@ export function WrapNearIcon() {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      {hover ? <WrapNearIconLight /> : <WrapNearIconDark />}
+      <WrapNearIconLight
+        wrapFillColor={hover ? '' : '#404E58'}
+        textColor={hover ? '' : '#9DA6AD'}
+      />
     </div>
   );
 }

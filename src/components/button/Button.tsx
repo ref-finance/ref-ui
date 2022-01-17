@@ -42,7 +42,7 @@ export function BorderButton(
     <button
       disabled={disabled}
       className={`text-xs font-semibold border ${
-        borderColor ? borderColor : 'border-greenLight'
+        borderColor ? borderColor : 'border-greenColor'
       }  ${className} ${
         disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
       } ${rounded || 'rounded-full'} ${px || 'px-5'} ${py || 'py-2.5'} ${
@@ -227,9 +227,10 @@ export function GradientButton(
   const { loading, disabled, className, color, btnClassName, onClick } = props;
   return (
     <div
-      className={`${className ? className : ''} ${loading ? 'opacity-40' : ''}`}
+      className={`${className ? className : ''} ${
+        loading ? 'opacity-40' : ''
+      } bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover`}
       style={{
-        background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
         borderRadius: '5px',
         color: color || '',
       }}
@@ -250,8 +251,7 @@ export function GreenLButton(
     loading?: boolean;
   }
 ) {
-  const { disabled, loading } = props;
-  const { className, ...propsWithoutClassName } = props;
+  const { disabled, loading, className, ...propsWithoutClassName } = props;
   return (
     <button
       disabled={disabled}
@@ -290,4 +290,41 @@ export function ButtonTextWrapper({
   loading: boolean;
 }) {
   return <>{loading ? <BeatLoading /> : <Text />}</>;
+}
+
+export function BorderButtonHover(
+  props: HTMLAttributes<HTMLButtonElement> & {
+    disabled?: boolean;
+  }
+) {
+  const { className, disabled } = props;
+  return (
+    <button
+      disabled={disabled}
+      className={`w-24 h-8 border border-greenColor text-xs text-white rounded ${className} ${
+        disabled
+          ? 'cursor-not-allowed'
+          : 'hover:opacity-100 hover:bg-buttonGradientBg'
+      }`}
+    >
+      {props.children}
+    </button>
+  );
+}
+export function BorderButtonMobile(
+  props: HTMLAttributes<HTMLButtonElement> & {
+    disabled?: boolean;
+  }
+) {
+  const { className, disabled } = props;
+  return (
+    <button
+      disabled={disabled}
+      className={`px-2 border border-greenColor text-xs text-framBorder rounded ${
+        className ? className : ''
+      } ${disabled ? 'opacity-40' : ''}`}
+    >
+      {props.children}
+    </button>
+  );
 }

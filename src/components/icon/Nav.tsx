@@ -381,3 +381,63 @@ export function IconBubble() {
     </svg>
   );
 }
+
+export function GreenArrowIcon() {
+  return (
+    <svg
+      width="16"
+      height="14"
+      viewBox="0 0 16 14"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M15 1L2 7.159L15 12.5"
+        stroke="url(#paint0_linear_12531_3022)"
+        strokeWidth="1.5"
+      />
+      <defs>
+        <linearGradient
+          id="paint0_linear_12531_3022"
+          x1="3.60494"
+          y1="7.15881"
+          x2="15"
+          y2="7.15881"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#00C6A2" />
+          <stop offset="1" stopColor="#00C6A2" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
+export function MoreMenuIcon() {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 22 22"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="11" cy="11" r="10.5" stroke="currentColor" />
+      <circle
+        r="1.32"
+        transform="matrix(-1 0 0 1 6.6009 11.0029)"
+        fill="currentColor"
+      />
+      <circle
+        r="1.32"
+        transform="matrix(-1 0 0 1 11.0023 11.0029)"
+        fill="currentColor"
+      />
+      <circle
+        r="1.32"
+        transform="matrix(-1 0 0 1 15.4017 11.0029)"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}

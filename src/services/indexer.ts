@@ -5,7 +5,7 @@ import { parsePoolView, PoolRPCView } from './api';
 import moment from 'moment/moment';
 import { parseAction } from '~services/transaction';
 import { volumeType, TVLType } from '~state/pool';
-
+import db from '../store/RefDatabase';
 const config = getConfig();
 
 export const getPoolMonthVolume = async (
@@ -68,22 +68,27 @@ export const getYourPools = async (): Promise<PoolRPCView[]> => {
     });
 };
 
-export const getTopPools = async (args: any): Promise<PoolRPCView[]> => {
-  return fetch(config.indexerUrl + '/list-top-pools', {
-    method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  })
-    .then((res) => res.json())
-    .then((pools) => {
-      pools = pools.map((pool: any) => parsePoolView(pool));
-      pools = pools.filter((pool: { token_account_ids: string | any[] }) => {
-        return pool.token_account_ids.length < 3;
-      });
-      return _order(args, _search(args, pools));
-    })
-    .catch(() => {
-      return [];
+export const getTopPools = async (): Promise<PoolRPCView[]> => {
+  try {
+    let pools;
+
+    if (await db.checkTopPools()) {
+      pools = await db.queryTopPools();
+    } else {
+      pools = await fetch(config.indexerUrl + '/list-top-pools', {
+        method: 'GET',
+        headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      }).then((res) => res.json());
+      await db.cacheTopPools(pools);
+    }
+
+    pools = pools.map((pool: any) => parsePoolView(pool));
+    return pools.filter((pool: { token_account_ids: string | any[] }) => {
+      return pool.token_account_ids.length < 3;
     });
+  } catch (error) {
+    return [];
+  }
 };
 
 export const getPool = async (pool_id: string): Promise<PoolRPCView> => {
@@ -128,7 +133,7 @@ export const getTokenPriceList = async (): Promise<any> => {
     });
 };
 
-const _search = (args: any, pools: PoolRPCView[]) => {
+export const _search = (args: any, pools: PoolRPCView[]) => {
   if (args.tokenName === '') return pools;
   return _.filter(pools, (pool: PoolRPCView) => {
     return (
@@ -144,7 +149,7 @@ const _search = (args: any, pools: PoolRPCView[]) => {
   });
 };
 
-const _order = (args: any, pools: PoolRPCView[]) => {
+export const _order = (args: any, pools: PoolRPCView[]) => {
   let column = args.column || 'tvl';
   let order = args.order || 'desc';
   column = args.column === 'fee' ? 'total_fee' : column;

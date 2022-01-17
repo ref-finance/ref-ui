@@ -36,7 +36,7 @@ export const ftGetBalance = (tokenId: string) => {
   return ftViewFunction(tokenId, {
     methodName: 'ft_balance_of',
     args: { account_id: wallet.getAccountId() },
-  });
+  }).catch(() => '0');
 };
 
 export interface FTStorageBalance {
@@ -59,8 +59,8 @@ export interface TokenMetadata {
   symbol: string;
   decimals: number;
   icon: string;
-  ref?: number;
-  near?: number;
+  ref?: number | string;
+  near?: number | string;
   total?: number;
   amountLabel?: string;
   amount?: number;
@@ -73,6 +73,13 @@ export const ftGetTokenMetadata = async (
     if (!metadata) {
       metadata = await ftViewFunction(id, {
         methodName: 'ft_metadata',
+      });
+      await db.allTokens().put({
+        id: id,
+        name: metadata.name,
+        symbol: metadata.symbol,
+        decimals: metadata.decimals,
+        icon: metadata.icon,
       });
     }
     if (

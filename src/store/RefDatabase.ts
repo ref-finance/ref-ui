@@ -52,23 +52,42 @@ export interface WatchList {
   update_time: number;
 }
 
+export interface TopPool {
+  id: string;
+  amounts: string[];
+  amp: number;
+  farming: boolean;
+  pool_kind: string;
+  shares_total_supply: string;
+  token0_ref_price: string;
+  token_account_ids: string[];
+  token_symbols: string[];
+  total_fee: number;
+  tvl: string;
+  vol01?: { [from: string]: string };
+  vol10?: { [from: string]: string };
+  update_time: number;
+}
+
 class RefDatabase extends Dexie {
   public pools: Dexie.Table<Pool>;
   public tokens: Dexie.Table<TokenMetadata>;
   public farms: Dexie.Table<FarmDexie>;
   public poolsTokens: Dexie.Table<PoolsTokens>;
   public watchList: Dexie.Table<WatchList>;
+  public topPools: Dexie.Table<TopPool>;
 
   public constructor() {
     super('RefDatabase');
 
-    this.version(5.2).stores({
+    this.version(5.3).stores({
       pools: 'id, token1Id, token2Id, token1Supply, token2Supply, fee, shares',
       tokens: 'id, name, symbol, decimals, icon',
       farms: 'id, pool_id, status',
       pools_tokens:
         'id, token1Id, token2Id, token1Supply, token2Supply, fee, shares, update_time, token0_price',
       watchList: 'id, account, pool_id, update_time',
+      topPools: 'id, pool_kind, update_time',
     });
 
     this.pools = this.table('pools');
@@ -76,6 +95,7 @@ class RefDatabase extends Dexie {
     this.farms = this.table('farms');
     this.poolsTokens = this.table('pools_tokens');
     this.watchList = this.table('watchList');
+    this.topPools = this.table('topPools');
   }
 
   public allWatchList() {
@@ -96,6 +116,10 @@ class RefDatabase extends Dexie {
 
   public allPoolsTokens() {
     return this.poolsTokens;
+  }
+
+  public allTopPools() {
+    return this.topPools;
   }
 
   public searchPools(args: any, pools: Pool[]): Pool[] {
@@ -134,7 +158,7 @@ class RefDatabase extends Dexie {
   }
 
   public async queryPools(args: any) {
-    let pools = await this.allPools().toArray();
+    let pools = await this.allPoolsTokens().toArray();
     return this.paginationPools(
       args,
       this.orderPools(
@@ -189,7 +213,6 @@ class RefDatabase extends Dexie {
       )
     );
   }
-
   public async checkPoolsByTokens(tokenInId: string, tokenOutId: string) {
     const items = await this.queryPoolsByTokens(tokenInId, tokenOutId);
     return items.length > 0;
@@ -235,6 +258,38 @@ class RefDatabase extends Dexie {
       .toArray();
 
     return [...normalItems, ...reverseItems];
+  }
+
+  public async cacheTopPools(pools: any) {
+    await this.topPools.clear();
+    await this.topPools.bulkPut(
+      pools.map((topPool: TopPool) => ({
+        ...topPool,
+        update_time: moment().unix(),
+      }))
+    );
+  }
+
+  public async checkTopPools() {
+    const pools = await this.topPools.limit(10).toArray();
+    return (
+      pools.length > 0 &&
+      pools.every(
+        (pool) =>
+          Number(pool.update_time) >=
+          Number(moment().unix()) -
+            Number(getConfig().TOP_POOLS_TOKEN_REFRESH_INTERVAL)
+      )
+    );
+  }
+
+  public async queryTopPools() {
+    const pools = await this.topPools.toArray();
+
+    return pools.map((pool) => {
+      const { update_time, ...poolInfo } = pool;
+      return poolInfo;
+    });
   }
 }
 

@@ -12,6 +12,8 @@ for (let i = 0, offset = new BN(5); i < 24; i++, offset = offset.mul(BN10)) {
   ROUNDING_OFFSETS[i] = offset;
 }
 
+export const ONLY_ZEROS = /^0*\.?0*$/;
+
 export const sumBN = (...args: string[]): string => {
   return args
     .reduce((acc, n) => {
@@ -247,6 +249,36 @@ export const toInternationalCurrencySystem = (
     ? (Math.abs(Number(labelValue)) / 1.0e3).toFixed(percent || 2) + 'K'
     : Math.abs(Number(labelValue)).toFixed(percent || 2);
 };
+export const toInternationalCurrencySystemNature = (
+  labelValue: string,
+  percent?: number
+) => {
+  const handle = (str: string) => {
+    let [whole, decimal] = str.split('.');
+    if (Number(decimal) == 0) {
+      return whole;
+    }
+    return str;
+  };
+  return Math.abs(Number(labelValue)) >= 1.0e9
+    ? new BigNumber(Math.abs(Number(labelValue)) / 1.0e9).toFixed(
+        percent || 2,
+        1
+      ) + 'B'
+    : Math.abs(Number(labelValue)) >= 1.0e6
+    ? new BigNumber(Math.abs(Number(labelValue)) / 1.0e6).toFixed(
+        percent || 2,
+        1
+      ) + 'M'
+    : Math.abs(Number(labelValue)) >= 1.0e3
+    ? new BigNumber(Math.abs(Number(labelValue)) / 1.0e3).toFixed(
+        percent || 2,
+        1
+      ) + 'K'
+    : handle(
+        new BigNumber(Math.abs(Number(labelValue))).toFixed(percent || 2, 1)
+      );
+};
 
 export function scientificNotationToString(strParam: string) {
   let flag = /e/.test(strParam);
@@ -312,4 +344,14 @@ export const calcStableSwapPriceImpact = (from: string, to: string) => {
   return math.format(percent(math.evaluate(`(${from} / ${to}) - 1`), '1'), {
     notation: 'fixed',
   });
+};
+
+export const niceDecimals = (number: string | number) => {
+  const str = number.toString();
+  const [whole, decimals] = str.split('.');
+  if (decimals && Number(decimals) == 0) {
+    return whole;
+  } else {
+    return number;
+  }
 };
