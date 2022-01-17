@@ -18,7 +18,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.near',
         REF_TOKEN_ID: 'token.v2.ref-finance.near',
-        XREF_TOKEN_ID: 'xtoken.v2.ref-finance.near',
+        XREF_TOKEN_ID: 'xtoken.ref-finance.near',
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         TOP_POOLS_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 60,
@@ -94,7 +94,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.near',
         REF_TOKEN_ID: 'token.v2.ref-finance.near',
-        XREF_TOKEN_ID: 'xtoken.v2.ref-finance.near',
+        XREF_TOKEN_ID: 'xtoken.ref-finance.near',
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         TOP_POOLS_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 60,
