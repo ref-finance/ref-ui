@@ -287,7 +287,7 @@ const zh_CN = {
   deposit_to_ref_account: '存储到REF账户',
   withdraw_to_near_wallet: '提取到NEAR钱包',
   into_ref_account: '到你的REF账户。',
-  deposit_into_ref_account: '存储到REF账户来添加流动性',
+  deposit_into_ref_account: '到REF账户来添加流动性',
   deposit_near_tip: '存入时至少保留一个NEAR以支付汽油费',
   input_greater_than_available_shares: '输入大于可用份额',
   remove_to_ref_account: '移动到REF账户',
@@ -301,5 +301,6 @@ const zh_CN = {
   protocol_projected_revenue_tip:
     '这个数字对应xREF持有人的累计共享交易费用收入。这相当于平台总费用收入的75%。由于价格波动，它将与实际REF代币回购金额不同。',
   stake_ref_to_xref_for_earning_more: '通过质押REF换取xREF来赚取更多！',
+  xref_start_time: '开始于 1am UTC, 18th Jan, 2022。',
 };
 export default zh_CN;

@@ -301,7 +301,7 @@ const en_US = {
   deposit_to_ref_account: 'Deposit to REF account',
   withdraw_to_near_wallet: 'Withdraw to NEAR wallet',
   into_ref_account: 'into your REF account.',
-  deposit_into_ref_account: 'Deposit into your REF account to add liquidity',
+  deposit_into_ref_account: 'into your REF account to add liquidity',
   deposit_near_tip: 'To deposit, keep at least 1 NEAR to cover gas fee',
   input_greater_than_available_shares: 'Input greater than available shares',
   remove_to_ref_account: 'Remove to REF account',
@@ -315,5 +315,6 @@ const en_US = {
   protocol_projected_revenue_tip:
     'This number corresponds to the cumulative shared trading fee revenue to xREF holders. It is equal to 75% of the total platform fee revenue. It will differ from the actual REF token buyback amount due to price fluctuations.',
   stake_ref_to_xref_for_earning_more: 'Stake REF to xREF for earning more!',
+  xref_start_time: 'Starts on 1am UTC, 18th Jan, 2022.',
 };
 export default en_US;
