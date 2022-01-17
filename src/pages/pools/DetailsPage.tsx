@@ -482,6 +482,15 @@ export function AddLiquidityModal(
               />
             </div>
             <p className="text-xs text-primaryText">
+              <a
+                className="underline cursor-pointer"
+                onClick={() => {
+                  window.open('/account');
+                }}
+              >
+                <FormattedMessage id="deposit"></FormattedMessage>
+              </a>
+              &nbsp;
               <FormattedMessage id="deposit_into_ref_account" />
             </p>
           </div>
@@ -1293,7 +1302,6 @@ export function PoolDetailsPage() {
   const morePoolIds: string[] =
     JSON.parse(localStorage.getItem('morePoolIds')) || [];
   const [farmCount, setFarmCount] = useState<Number>(1);
-  const history = useHistory();
 
   const handleSaveWatchList = () => {
     if (!wallet.isSignedIn()) {

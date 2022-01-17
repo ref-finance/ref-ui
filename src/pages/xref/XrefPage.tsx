@@ -220,7 +220,10 @@ function XrefPage() {
         ></XrefIconWhole>
       </div>
       <div className="text-primaryText text-sm mb-7">
-        <FormattedMessage id="xref_introdution"></FormattedMessage>
+        <FormattedMessage id="xref_introdution"></FormattedMessage>&nbsp;
+        <label className="text-greenColor">
+          <FormattedMessage id="xref_start_time"></FormattedMessage>
+        </label>
       </div>
       <div className="w-full">
         <div className="xs:mb-2.5 md:mb-2.5 lg:mb-3 grid lg:grid-cols-xrefColumn lg:gap-x-2.5 xs:grid-rows-xrefRowM md:grid-rows-xrefRowM xs:gap-y-2.5 md:gap-y-2.5">

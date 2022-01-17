@@ -112,6 +112,7 @@ export const useUserRegisteredTokensAllAndNearBalance = () => {
         arr.unshift(nearMetadata);
         arr.forEach((token, index) => {
           token.near = result[1][index];
+          token.nearNonVisible = result[1][index];
         });
         setTokens(arr);
       });
