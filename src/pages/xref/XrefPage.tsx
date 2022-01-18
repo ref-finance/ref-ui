@@ -136,7 +136,9 @@ function XrefPage() {
     const cur_rate_reverse = 1 / rate;
     if (rate) {
       if (forward) {
-        const displayStr = new BigNumber(niceDecimals(cur_rate_forward)).toFixed(3, 1)
+        const displayStr = new BigNumber(
+          niceDecimals(cur_rate_forward)
+        ).toFixed(3, 1);
         return (
           <>
             1 <FormattedMessage id="xref"></FormattedMessage> =&nbsp;
@@ -148,7 +150,9 @@ function XrefPage() {
           </>
         );
       } else {
-        const displayStr = new BigNumber(niceDecimals(cur_rate_reverse)).toFixed(3, 1)
+        const displayStr = new BigNumber(
+          niceDecimals(cur_rate_reverse)
+        ).toFixed(3, 1);
         return (
           <>
             1 <FormattedMessage id="ref"></FormattedMessage> =&nbsp;
