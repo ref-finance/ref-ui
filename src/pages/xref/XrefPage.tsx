@@ -136,9 +136,7 @@ function XrefPage() {
     const cur_rate_reverse = 1 / rate;
     if (rate) {
       if (forward) {
-        const displayStr = niceDecimals(
-          new BigNumber(cur_rate_forward).toFixed(3)
-        );
+        const displayStr = new BigNumber(niceDecimals(cur_rate_forward)).toFixed(3, 1)
         return (
           <>
             1 <FormattedMessage id="xref"></FormattedMessage> =&nbsp;
@@ -150,9 +148,7 @@ function XrefPage() {
           </>
         );
       } else {
-        const displayStr = niceDecimals(
-          new BigNumber(cur_rate_reverse).toFixed(3)
-        );
+        const displayStr = new BigNumber(niceDecimals(cur_rate_reverse)).toFixed(3, 1)
         return (
           <>
             1 <FormattedMessage id="ref"></FormattedMessage> =&nbsp;
@@ -221,9 +217,6 @@ function XrefPage() {
       </div>
       <div className="text-primaryText text-sm mb-7">
         <FormattedMessage id="xref_introdution"></FormattedMessage>&nbsp;
-        <label className="text-greenColor">
-          <FormattedMessage id="xref_start_time"></FormattedMessage>
-        </label>
       </div>
       <div className="w-full">
         <div className="xs:mb-2.5 md:mb-2.5 lg:mb-3 grid lg:grid-cols-xrefColumn lg:gap-x-2.5 xs:grid-rows-xrefRowM md:grid-rows-xrefRowM xs:gap-y-2.5 md:gap-y-2.5">
