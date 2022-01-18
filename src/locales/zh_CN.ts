@@ -287,7 +287,7 @@ const zh_CN = {
   deposit_to_ref_account: '存储到REF账户',
   withdraw_to_near_wallet: '提取到NEAR钱包',
   into_ref_account: '到你的REF账户。',
-  deposit_into_ref_account: '存储到REF账户来添加流动性',
+  deposit_into_ref_account: '到REF账户来添加流动性',
   deposit_near_tip: '存入时至少保留一个NEAR以支付汽油费',
   input_greater_than_available_shares: '输入大于可用份额',
   remove_to_ref_account: '移动到REF账户',
@@ -307,5 +307,6 @@ const zh_CN = {
   auto_router_detail_sub_3: '详情:',
   introducing_parallel_swap: '介绍Parallel Swap',
   at_least: '至少',
+  xref_start_time: '开始于 1am UTC, 18th Jan, 2022。',
 };
 export default zh_CN;

@@ -675,9 +675,9 @@ export function AccountPage() {
   const balances = useTokenBalances();
   if (!userTokens || !balances) return <Loading />;
   userTokens.forEach((token: TokenMetadata) => {
-    const { decimals, id, near } = token;
+    const { decimals, id, nearNonVisible } = token;
     token.ref = toReadableNumber(decimals, balances[id] || '0');
-    token.near = toReadableNumber(decimals, (near || '0').toString());
+    token.near = toReadableNumber(decimals, (nearNonVisible || '0').toString());
   });
   return (
     <>
