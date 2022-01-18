@@ -40,7 +40,6 @@ import { registerTokenAction } from './creators/token';
 import { BigNumber } from 'bignumber.js';
 import _, { filter } from 'lodash';
 
-Big.DP = 40;
 // Big.strict = false;
 const FEE_DIVISOR = 10000;
 const LP_THERESHOLD = 0.001;
