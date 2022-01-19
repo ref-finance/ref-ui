@@ -248,19 +248,15 @@ export function ParallelSwapRoutesDetail({
   tokenOut: TokenMetadata;
 }) {
   const percents = useMemo(() => {
-    console.log(pools);
     if (pools) {
       const partialAmounts = pools.map((pool) => {
         return math.bignumber(pool.partialAmountIn);
       });
 
-      console.log(partialAmounts);
-
       const sum =
         partialAmounts.length === 1
           ? partialAmounts[0]
           : math.sum(...partialAmounts);
-      console.log(sum);
 
       const ps: string[] = [];
 
