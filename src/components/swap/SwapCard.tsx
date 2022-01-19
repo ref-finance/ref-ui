@@ -296,7 +296,7 @@ export function ParallelSwapRoutesDetail({
         </div>
       </div>
 
-      <div className="text-right text-white col-span-6 mt-2">
+      <div className="text-right text-white col-span-6 xs:mt-2">
         {pools.map((pool, i) => {
           return (
             <div className="mb-2" key={pool.id}>
