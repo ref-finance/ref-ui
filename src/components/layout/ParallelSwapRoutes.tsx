@@ -97,7 +97,7 @@ export const ParaTokenFrom = ({
 }) => {
   return (
     <div className="rounded-md py-1 px-2 bg-inputDarkBg flex items-center relative grid grid-cols-12">
-      <span className="text-xs text-left text-white pr-2 col-span-8">{p}%</span>
+      <span className="text-xs text-left text-white pr-3 col-span-8">{p}%</span>
       <span className="col-span-4">
         <Icon token={tokenIn} position="absolute" />
       </span>
