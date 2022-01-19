@@ -262,7 +262,7 @@ export function ParallelSwapRoutesDetail({
 
       for (let i = 0; i < partialAmounts.length - 1; i++) {
         const p = toPrecision(
-          math.round(percentOf(partialAmounts[i].toNumber(), sum)).toString(),
+          math.round(percent(partialAmounts[i].toString(), sum)).toString(),
           0
         );
 
@@ -435,8 +435,6 @@ function DetailView({
           title={intl.formatMessage({ id: 'minimum_received' })}
           value={
             <span>
-              {intl.formatMessage({ id: 'at_least' })}
-              &nbsp;
               {toPrecision(minAmountOutValue, 3)}
               &nbsp;
               {toRealSymbol(tokenOut.symbol)}
