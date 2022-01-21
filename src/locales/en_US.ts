@@ -322,5 +322,6 @@ const en_US = {
   introducing_parallel_swap: 'Introducing Parallel Swap',
   at_least: 'At least',
   xref_start_time: 'Starts on 1am UTC, 18th Jan, 2022.',
+  more_expensive_than_best_rate: 'more expensive than the best rate',
 };
 export default en_US;

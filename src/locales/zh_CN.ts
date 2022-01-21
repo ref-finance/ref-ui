@@ -308,5 +308,6 @@ const zh_CN = {
   introducing_parallel_swap: '介绍Parallel Swap',
   at_least: '至少',
   xref_start_time: '开始于 1am UTC, 18th Jan, 2022。',
+  more_expensive_than_best_rate: '比最好汇率更贵',
 };
 export default zh_CN;

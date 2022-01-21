@@ -23,6 +23,8 @@ import {
   ONLY_ZEROS,
   percentOf,
   multiply,
+  divide,
+  scientificNotationToString,
 } from '../../utils/numbers';
 import ReactDOMServer from 'react-dom/server';
 import TokenAmount from '../forms/TokenAmount';
@@ -115,7 +117,7 @@ export function DoubleCheckModal(
           <FormattedMessage id="are_you_sure" defaultMessage="Are you sure" />?
         </div>
 
-        <div className=" text-xs pt-4 pb-6">
+        <div className=" text-xs pt-4 ">
           <span>
             <FormattedMessage
               id="price_impact_is_about"
@@ -123,7 +125,26 @@ export function DoubleCheckModal(
             />
           </span>
           &nbsp;
-          <span>-{toPrecision(priceImpacValue, 2)}%</span>
+          <span className="text-error">
+            -{toPrecision(priceImpacValue, 2)}%
+          </span>
+          <span className="text-error">
+            {' '}
+            {`(${toPrecision(
+              scientificNotationToString(
+                multiply(from, divide(priceImpacValue, '100'))
+              ),
+              3
+            )}${toRealSymbol(tokenIn.symbol)})`}{' '}
+          </span>
+          ,
+        </div>
+        <div className="text-xs pb-6 pt-1">
+          <FormattedMessage
+            id="more_expensive_than_best_rate"
+            defaultMessage="more expensive than the best rate"
+          />
+          !
         </div>
 
         <div className="flex items-center pb-2">
@@ -166,9 +187,9 @@ export function SwapDetail({
   value: string | JSX.Element;
 }) {
   return (
-    <section className="grid grid-cols-2 py-1 text-xs">
-      <p className="text-primaryText text-left">{title}</p>
-      <p className="text-right text-white">{value}</p>
+    <section className="grid grid-cols-12 py-1 text-xs">
+      <p className="text-primaryText text-left col-span-5">{title}</p>
+      <p className="text-right text-white col-span-7">{value}</p>
     </section>
   );
 }
@@ -354,9 +375,10 @@ export const GetPriceImpact = (
       ? 'text-warn'
       : 'text-error';
 
-  const tokenInInfo = ` / -${toPrecision(multiply(tokenInAmount, value), 3)} ${
-    tokenIn.symbol
-  }`;
+  const tokenInInfo = ` / -${toPrecision(
+    scientificNotationToString(multiply(tokenInAmount, divide(value, '100'))),
+    3
+  )} ${tokenIn.symbol}`;
 
   if (Number(value) < 0.01)
     return (
@@ -390,6 +412,18 @@ export const getPriceImpactTipType = (value: string) => {
       <ErrorTriangle></ErrorTriangle>
     ) : null;
   return reault;
+};
+
+export const PriceImpactWarning = ({ value }: { value: string }) => {
+  return (
+    <p className="">
+      <span className="rounded-full bg-acccountTab text-error px-2 py-0.5">
+        {Number(value) > 1000 ? '> 1000' : toPrecision(value, 2)}
+        {'% '}
+        <FormattedMessage id="more_expensive_than_best_rate" />
+      </span>
+    </p>
+  );
 };
 
 function DetailView({
@@ -475,6 +509,12 @@ function DetailView({
           tokenOut={tokenOut}
           fee={fee}
         />
+        {Number(priceImpactValue) > 2 && (
+          <SwapDetail
+            title=""
+            value={<PriceImpactWarning value={priceImpactValue} />}
+          />
+        )}
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
           value={
