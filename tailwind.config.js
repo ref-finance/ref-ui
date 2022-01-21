@@ -80,7 +80,8 @@ module.exports = {
         warnColor:'#DE9450',
         acccountTab: '#0F1D27',
         acccountBlock: '#293741',
-        xREFColor:'#A7ABAD'
+        xREFColor:'#A7ABAD',
+        darkGreenColor: '#009A2B'
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
