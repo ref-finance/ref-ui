@@ -53,7 +53,8 @@ import {
   AutoRouterText,
   OneParallelRoute,
   RouterIcon,
-} from '~components/layout/ParallelSwapRoutes';
+  SmartRoute,
+} from '~components/layout/SwapRoutes';
 import QuestionMark, {
   QuestionMarkStaticForParaSwap,
 } from '~components/farm/QuestionMark';
@@ -61,6 +62,7 @@ import QuestionMark, {
 import ReactTooltip from 'react-tooltip';
 import * as math from 'mathjs';
 import { HiOutlineExternalLink } from 'react-icons/hi';
+import { EstimateSwapView, swap } from '~services/swap';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -237,6 +239,32 @@ export function SwapRateDetail({
     </section>
   );
 }
+export function SmartRoutesDetail({
+  swapsTodo,
+  tokenIn,
+  tokenOut,
+}: {
+  swapsTodo: EstimateSwapView[];
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+}) {
+  console.log(swapsTodo);
+  return (
+    <section className="md:grid lg:grid grid-cols-11 py-1 text-xs">
+      <div className="text-primaryText text-left col-span-5">
+        <div className="inline-flex items-center">
+          <RouterIcon />
+          <AutoRouterText />
+          <QuestionMarkStaticForParaSwap />
+        </div>
+      </div>
+
+      <div className="text-right text-white col-span-6 xs:mt-2">
+        {<SmartRoute tokens={[tokenIn, swapsTodo[1].token, tokenOut]} />}
+      </div>
+    </section>
+  );
+}
 
 export function ParallelSwapRoutesDetail({
   pools,
@@ -374,6 +402,7 @@ function DetailView({
   minAmountOut,
   isParallelSwap,
   fee,
+  swapsTodo,
 }: {
   pools: Pool[];
   tokenIn: TokenMetadata;
@@ -383,6 +412,7 @@ function DetailView({
   minAmountOut: string;
   isParallelSwap?: boolean;
   fee?: number;
+  swapsTodo?: EstimateSwapView[];
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
@@ -475,6 +505,14 @@ function DetailView({
             tokenIn={tokenIn}
             tokenOut={tokenOut}
             pools={pools}
+          />
+        )}
+
+        {!isParallelSwap && (
+          <SmartRoutesDetail
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            swapsTodo={swapsTodo}
           />
         )}
       </div>
@@ -720,6 +758,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           minAmountOut={minAmountOut}
           isParallelSwap={isParallelSwap}
           fee={avgFee}
+          swapsTodo={swapsToDo}
         />
         {swapError ? (
           <div className="pb-2 relative -mb-5">
