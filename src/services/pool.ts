@@ -18,7 +18,7 @@ import {
   storageDepositForFTAction,
 } from './creators/storage';
 import { getTopPools, _search } from '~services/indexer';
-import { PoolRPCView } from './api';
+import { parsePoolView, PoolRPCView } from './api';
 import {
   checkTokenNeedsStorageDeposit,
   getTokenBalance,
@@ -60,6 +60,10 @@ export interface StablePool {
   shares_total_supply: string;
   amp: number;
 }
+
+export const getPoolByToken = async (tokenId: string) => {
+  return await db.queryPoolsBytoken(tokenId);
+};
 
 export const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
   id: id >= 0 ? id : pool.id,

@@ -372,7 +372,7 @@ function DetailView({
   from,
   to,
   minAmountOut,
-  canSwap,
+  isParallelSwap,
   fee,
 }: {
   pools: Pool[];
@@ -381,7 +381,7 @@ function DetailView({
   from: string;
   to: string;
   minAmountOut: string;
-  canSwap?: boolean;
+  isParallelSwap?: boolean;
   fee?: number;
 }) {
   const intl = useIntl();
@@ -470,7 +470,7 @@ function DetailView({
           )}`}
         />
 
-        {pools.length && (
+        {isParallelSwap && pools.length > 0 && (
           <ParallelSwapRoutesDetail
             tokenIn={tokenIn}
             tokenOut={tokenOut}
@@ -566,6 +566,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     swapError,
     makeSwap,
     avgFee,
+    isParallelSwap,
+    swapsToDo,
   } = useSwap({
     tokenIn: tokenIn,
     tokenInAmount,
@@ -634,17 +636,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         elseView={
           <div className="flex justify-center">
             {wallet.isSignedIn() ? (
-              // <GradientButton
-              //   className={`w-full text-center text-lg text-white mt-4 px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
-              //   onClick={() => {
-              //     history.push(`/deposit/${tokenIn.id}`);
-              //   }}
-              // >
-              //   <FormattedMessage
-              //     id="deposit_to_swap"
-              //     defaultMessage="Deposit to Swap"
-              //   />
-              // </GradientButton>
               <SubmitButton disabled={true} loading={showSwapLoading} />
             ) : (
               <div className="mt-4 w-full">
@@ -727,7 +718,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           from={tokenInAmount}
           to={tokenOutAmount}
           minAmountOut={minAmountOut}
-          canSwap={canSwap}
+          isParallelSwap={isParallelSwap}
           fee={avgFee}
         />
         {swapError ? (

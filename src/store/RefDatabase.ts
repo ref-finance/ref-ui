@@ -80,7 +80,7 @@ class RefDatabase extends Dexie {
   public constructor() {
     super('RefDatabase');
 
-    this.version(5.3).stores({
+    this.version(5.4).stores({
       pools: 'id, token1Id, token2Id, token1Supply, token2Supply, fee, shares',
       tokens: 'id, name, symbol, decimals, icon',
       farms: 'id, pool_id, status',
@@ -266,6 +266,8 @@ class RefDatabase extends Dexie {
       pools.map((topPool: TopPool) => ({
         ...topPool,
         update_time: moment().unix(),
+        token1Id: topPool.token_account_ids[0],
+        token2Id: topPool.token_account_ids[1],
       }))
     );
   }
@@ -290,6 +292,30 @@ class RefDatabase extends Dexie {
       const { update_time, ...poolInfo } = pool;
       return poolInfo;
     });
+  }
+
+  public async queryPoolsBytoken(tokenId: string) {
+    let normalItems = await this.poolsTokens
+      .where('token1Id')
+      .equals(tokenId)
+      .toArray();
+    let reverseItems = await this.poolsTokens
+      .where('token2Id')
+      .equals(tokenId)
+      .toArray();
+
+    return [...normalItems, ...reverseItems].map((item) => ({
+      id: item.id,
+      fee: item.fee,
+      tokenIds: [item.token1Id, item.token2Id],
+      supplies: {
+        [item.token1Id]: item.token1Supply,
+        [item.token2Id]: item.token2Supply,
+      },
+      tvl: 0,
+      shareSupply: item.shares,
+      token0_ref_price: item.token0_price,
+    }));
   }
 }
 

@@ -11,10 +11,16 @@ import { TokenMetadata } from '../services/ft-contract';
 import {
   percentLess,
   scientificNotationToString,
+  toNonDivisibleNumber,
   toReadableNumber,
 } from '../utils/numbers';
 
-import { checkTransaction, estimateSwap, swap } from '../services/swap';
+import {
+  checkTransaction,
+  estimateSwap,
+  PoolMode,
+  swap,
+} from '../services/swap';
 
 import { swap as stableSwap } from '~services/stable-swap';
 
@@ -99,6 +105,10 @@ export const useSwap = ({
     setAvgFee(avgFee);
   };
 
+  const setSmartRoutingPoolFee = (estimates: EstimateSwapView[]) => {
+    const fees = estimates.map((s2d) => {});
+  };
+
   useEffect(() => {
     if (txHash) {
       checkTransaction(txHash)
@@ -169,19 +179,32 @@ export const useSwap = ({
       })
         .then((estimates) => {
           if (!estimates) throw '';
-          if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
-            setCanSwap(true);
-            setSwapsToDo(estimates);
-            setAverageFee(estimates);
-            const estimate = estimates.reduce((pre, cur) => {
-              return scientificNotationToString(
-                BigNumber.sum(pre, cur.estimate).toString()
-              );
-            }, '0');
-            if (ifFetch) setTokenOutAmount(estimate);
 
-            setPool(estimates[0].pool);
+          const isParallelSwap = estimates.every(
+            (e) => e.status === PoolMode.PARALLEL
+          );
+
+          if (isParallelSwap) {
+            if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
+              setCanSwap(true);
+              setSwapsToDo(estimates);
+              setAverageFee(estimates);
+              const estimate = estimates.reduce((pre, cur) => {
+                return scientificNotationToString(
+                  BigNumber.sum(pre, cur.estimate).toString()
+                );
+              }, '0');
+              if (ifFetch) setTokenOutAmount(estimate);
+            }
+          } else {
+            if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
+              setCanSwap(true);
+              setSwapsToDo(estimates);
+              setAverageFee(estimates);
+              if (ifFetch) setTokenOutAmount(estimates[1].estimate);
+            }
           }
+          setPool(estimates[0].pool);
         })
         .catch((err) => {
           setCanSwap(false);
@@ -245,6 +268,8 @@ export const useSwap = ({
     makeSwap,
     avgFee,
     pools: swapsToDo?.map((estimate) => estimate.pool),
+    swapsToDo,
+    isParallelSwap: swapsToDo?.every((e) => status === PoolMode.PARALLEL),
   };
 };
 
