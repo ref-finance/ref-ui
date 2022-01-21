@@ -269,7 +269,7 @@ export const useSwap = ({
     avgFee,
     pools: swapsToDo?.map((estimate) => estimate.pool),
     swapsToDo,
-    isParallelSwap: swapsToDo?.every((e) => status === PoolMode.PARALLEL),
+    isParallelSwap: swapsToDo?.every((e) => e.status === PoolMode.PARALLEL),
   };
 };
 
