@@ -28,8 +28,8 @@ export const useRefPrice = (position?: 'MobileNav' | 'Footer') => {
     });
 
   useEffect(() => {
-    mobileWindow && position === 'MobileNav' && callback();
-    !mobileWindow && position === 'Footer' && callback();
+    mobileWindow && callback();
+    !mobileWindow && callback();
 
     timer.current = setInterval(callback, REFRESH_TIME);
 
