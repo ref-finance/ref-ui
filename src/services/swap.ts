@@ -73,18 +73,25 @@ export interface EstimateSwapView {
 }
 
 const getSinglePoolEstimate = (
-  token: TokenMetadata,
+  tokenIn: TokenMetadata,
+  tokenOut: TokenMetadata,
   pool: Pool,
   tokenInAmount: string
 ) => {
   const allocation = toReadableNumber(
-    token.decimals,
+    tokenIn.decimals,
     scientificNotationToString(tokenInAmount)
   );
 
   const amount_with_fee = Number(allocation) * (FEE_DIVISOR - pool.fee);
-  const in_balance = toReadableNumber(token.decimals, pool.supplies[token.id]);
-  const out_balance = toReadableNumber(token.decimals, pool.supplies[token.id]);
+  const in_balance = toReadableNumber(
+    tokenIn.decimals,
+    pool.supplies[tokenIn.id]
+  );
+  const out_balance = toReadableNumber(
+    tokenOut.decimals,
+    pool.supplies[tokenOut.id]
+  );
   const estimate = new BigNumber(
     (
       (amount_with_fee * Number(out_balance)) /
@@ -93,7 +100,7 @@ const getSinglePoolEstimate = (
   ).toFixed();
 
   return {
-    token,
+    token: tokenIn,
     estimate,
     pool,
   };
@@ -211,12 +218,13 @@ export const estimateSwap = async ({
       const tokenMidMeta = await ftGetTokenMetadata(tokenMidId);
 
       const estimate1 = {
-        ...getSinglePoolEstimate(tokenIn, pool1, parsedAmountIn),
+        ...getSinglePoolEstimate(tokenIn, tokenMidMeta, pool1, parsedAmountIn),
         status: PoolMode.SMART,
       };
       const estimate2 = {
         ...getSinglePoolEstimate(
           tokenMidMeta,
+          tokenOut,
           pool2,
           toNonDivisibleNumber(tokenMidMeta.decimals, estimate1.estimate)
         ),
@@ -242,6 +250,7 @@ export const estimateSwap = async ({
       const estimates = parallelPools.map((pool) => ({
         ...getSinglePoolEstimate(
           tokenIn,
+          tokenOut,
           pool,
           pool.partialAmountIn.toString()
         ),
@@ -421,10 +430,7 @@ SwapOptions) => {
             methodName: 'ft_transfer_call',
             args: {
               receiver_id: REF_FI_CONTRACT_ID,
-              amount: toNonDivisibleNumber(
-                tokenIn.decimals,
-                swapsToDo[0].estimate
-              ),
+              amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
               msg: JSON.stringify({
                 force: 0,
                 actions: [
@@ -434,10 +440,7 @@ SwapOptions) => {
                     token_out: tokenMid.id,
                     amountIn: round(
                       tokenIn.decimals,
-                      toNonDivisibleNumber(
-                        tokenIn.decimals,
-                        swapsToDo[0].estimate
-                      )
+                      toNonDivisibleNumber(tokenIn.decimals, amountIn)
                     ),
                     min_amount_out: '0',
                   },
@@ -460,7 +463,7 @@ SwapOptions) => {
               receiver_id: REF_FI_CONTRACT_ID,
               amount: toNonDivisibleNumber(
                 tokenMid.decimals,
-                swapsToDo[1].estimate
+                swapsToDo[0].estimate
               ),
               msg: JSON.stringify({
                 force: 0,
@@ -473,7 +476,7 @@ SwapOptions) => {
                       tokenMid.decimals,
                       toNonDivisibleNumber(
                         tokenMid.decimals,
-                        swapsToDo[1].estimate
+                        swapsToDo[0].estimate
                       )
                     ),
                     min_amount_out: round(
@@ -506,44 +509,49 @@ export const depositSwap = async ({
   swapsToDo,
 }: // minAmountOut,
 SwapOptions) => {
-  const swapActions = swapsToDo.map((s2d) => {
-    let dx_float = Number(s2d.pool.partialAmountIn);
-    let fpool = formatPoolNew(s2d.pool, tokenIn.id, tokenOut.id);
-    let dy_float = calculate_dy_float(dx_float, fpool, tokenIn.id, tokenOut.id);
-    let tokenOutAmount = toReadableNumber(
-      tokenOut.decimals,
-      scientificNotationToString(dy_float.toString())
-    );
-
-    s2d.estimate = tokenOutAmount;
-    let minTokenOutAmount = tokenOutAmount
-      ? percentLess(slippageTolerance, tokenOutAmount)
-      : '0';
-    let allocation = toReadableNumber(
-      tokenIn.decimals,
-      scientificNotationToString(s2d.pool.partialAmountIn)
-    );
-
-    return {
-      pool_id: s2d.pool.id,
-      token_in: tokenIn.id,
-      token_out: tokenOut.id,
-      amount_in: round(
-        tokenIn.decimals,
-        toNonDivisibleNumber(tokenIn.decimals, allocation)
-      ),
-      min_amount_out: round(
-        tokenOut.decimals,
-        toNonDivisibleNumber(tokenOut.decimals, minTokenOutAmount)
-      ),
-    };
-  });
-
   const isParallelSwap = swapsToDo.every(
     (estimate) => estimate.status === PoolMode.PARALLEL
   );
 
   if (isParallelSwap) {
+    const swapActions = swapsToDo.map((s2d) => {
+      let dx_float = Number(s2d.pool.partialAmountIn);
+      let fpool = formatPoolNew(s2d.pool, tokenIn.id, tokenOut.id);
+      let dy_float = calculate_dy_float(
+        dx_float,
+        fpool,
+        tokenIn.id,
+        tokenOut.id
+      );
+      let tokenOutAmount = toReadableNumber(
+        tokenOut.decimals,
+        scientificNotationToString(dy_float.toString())
+      );
+
+      s2d.estimate = tokenOutAmount;
+      let minTokenOutAmount = tokenOutAmount
+        ? percentLess(slippageTolerance, tokenOutAmount)
+        : '0';
+      let allocation = toReadableNumber(
+        tokenIn.decimals,
+        scientificNotationToString(s2d.pool.partialAmountIn)
+      );
+
+      return {
+        pool_id: s2d.pool.id,
+        token_in: tokenIn.id,
+        token_out: tokenOut.id,
+        amount_in: round(
+          tokenIn.decimals,
+          toNonDivisibleNumber(tokenIn.decimals, allocation)
+        ),
+        min_amount_out: round(
+          tokenOut.decimals,
+          toNonDivisibleNumber(tokenOut.decimals, minTokenOutAmount)
+        ),
+      };
+    });
+
     const actions: RefFiFunctionCallOptions[] = [
       {
         methodName: 'swap',
@@ -574,27 +582,26 @@ SwapOptions) => {
           actions: [
             {
               pool_id: swapsToDo[0].pool.id,
-              token_id: tokenIn.id,
+              token_in: tokenIn.id,
               token_out: tokenMid.id,
-              amount_id: round(
+              amount_in: round(
                 tokenIn.decimals,
-                toNonDivisibleNumber(tokenIn.decimals, swapsToDo[0].estimate)
+                toNonDivisibleNumber(tokenIn.decimals, amountIn)
               ),
               min_amount_out: '0',
             },
             {
               pool_id: swapsToDo[1].pool.id,
-              token_id: tokenMid.id,
+              token_in: tokenMid.id,
               token_out: tokenOut.id,
               amount_in: round(
                 tokenMid.decimals,
-                toNonDivisibleNumber(tokenMid.decimals, swapsToDo[1].estimate)
+                toNonDivisibleNumber(tokenMid.decimals, swapsToDo[0].estimate)
               ),
               min_amount_out: round(
                 tokenOut.decimals,
                 toNonDivisibleNumber(
                   tokenOut.decimals,
-
                   percentLess(slippageTolerance, swapsToDo[1].estimate)
                 )
               ),
@@ -614,6 +621,8 @@ SwapOptions) => {
     if (neededStorage) {
       actions.unshift(storageDepositAction({ amount: neededStorage }));
     }
+
+    return refFiManyFunctionCalls(actions);
   }
 };
 
