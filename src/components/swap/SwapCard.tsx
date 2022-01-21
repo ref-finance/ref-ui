@@ -516,10 +516,9 @@ function DetailView({
           fee={fee}
         />
         {Number(priceImpactValue) > 2 && (
-          <SwapDetail
-            title=""
-            value={<PriceImpactWarning value={priceImpactValue} />}
-          />
+          <div className="py-1 text-xs text-right">
+            <PriceImpactWarning value={priceImpactValue} />
+          </div>
         )}
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
