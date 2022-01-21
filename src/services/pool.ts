@@ -256,19 +256,12 @@ export const getPoolsByTokens = async ({
   setLoadingTrigger,
   loadingTrigger,
 }: GetPoolOptions): Promise<Pool[]> => {
-  const amountToTrade = new BN(amountIn);
   let filtered_pools;
   const cache = await db.checkPoolsByTokens(tokenInId, tokenOutId);
 
-  if (cache && !loadingTrigger) {
+  if (cache || !loadingTrigger) {
     filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
-    // filtered_pools = cache_pools;
-    // filtered_pools = cache_pools.filter(
-    //   (p) =>
-    //     new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
-    //     p.supplies[tokenOutId]
-    // );
-  } else {
+  } else if (loadingTrigger) {
     setLoadingData(true);
     const totalPools = await getTotalPools();
     const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
