@@ -648,9 +648,9 @@ export function ActionModel(props: any) {
           {loading ? (
             <BeatLoading />
           ) : action == 'deposit' ? (
-            <FormattedMessage id="deposit_to_ref_account" />
+            <FormattedMessage id="deposit" />
           ) : (
-            <FormattedMessage id="withdraw_to_near_wallet"></FormattedMessage>
+            <FormattedMessage id="withdraw"></FormattedMessage>
           )}
         </GreenLButton>
         <p className="text-primaryText text-xs text-center">

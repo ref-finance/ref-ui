@@ -30,14 +30,17 @@ const RpcList = () => {
   return (
     <>
       {mobile ? (
-        <div className="w-full h-8 px-16 bg-cardBg mt-3">
+        <div
+          style={{ zIndex: 999999 }}
+          className="relative w-full h-8 px-16 bg-cardBg mt-3"
+        >
           <div
             className="flex items-center w-full h-full justify-between"
             onClick={() => {
               setModalVisible(true);
             }}
           >
-            <div className="flex items-center">
+            <div className="flex items-center w-2/3">
               <label className="text-xs text-primaryText mr-5">RPC</label>
               <label className="text-xs text-primaryText cursor-pointer pr-5 whitespace-nowrap overflow-hidden overflow-ellipsis">
                 {rpclist[currentEndPoint].simpleName}
@@ -59,6 +62,7 @@ const RpcList = () => {
               overlay: {
                 backdropFilter: 'blur(15px)',
                 WebkitBackdropFilter: 'blur(15px)',
+                zIndex: '999999',
               },
               content: {
                 outline: 'none',
@@ -69,6 +73,7 @@ const RpcList = () => {
         </div>
       ) : (
         <div
+          style={{ zIndex: 999999 }}
           className="absolute right-8 bottom-1 pt-3"
           onMouseEnter={() => {
             setHover(true);
@@ -103,16 +108,14 @@ const RpcList = () => {
                   }`}
                   style={{ minWidth: minWidth, maxWidth: maxWith }}
                   onClick={() => {
-                    if (responseTimeList[key] && responseTimeList[key] != -1) {
-                      switchPoint(key);
-                    }
+                    switchPoint(key);
                   }}
                 >
                   <label
                     className={`text-xs pr-5 whitespace-nowrap overflow-hidden overflow-ellipsis ${
                       responseTimeList[key] && responseTimeList[key] != -1
                         ? 'cursor-pointer'
-                        : 'cursor-default'
+                        : 'cursor-pointer'
                     }`}
                   >
                     {data.simpleName}
@@ -168,13 +171,8 @@ const ModalBox = (props: any) => {
                   ) : (
                     <span
                       onClick={() => {
-                        if (
-                          responseTimeList[key] &&
-                          responseTimeList[key] != -1
-                        ) {
-                          setSelectCheckbox(key);
-                          switchPoint(key);
-                        }
+                        setSelectCheckbox(key);
+                        switchPoint(key);
                       }}
                     >
                       <Checkbox />
@@ -198,10 +196,10 @@ const displayCurrentRpc = (responseTimeList: any, key: any) => {
   if (responseTimeList[key] == -1) {
     return (
       <>
-        <span className="cursor-default text-error">
+        <span className="cursor-pointer text-error">
           <CircleIcon></CircleIcon>
         </span>
-        <label className="text-xs ml-1.5 mr-2.5 cursor-default text-error">
+        <label className="text-xs ml-1.5 mr-2.5 cursor-pointer text-error whitespace-nowrap">
           time out
         </label>
       </>
@@ -212,14 +210,14 @@ const displayCurrentRpc = (responseTimeList: any, key: any) => {
         <span className="cursor-pointer text-darkGreenColor">
           <CircleIcon></CircleIcon>
         </span>
-        <label className="text-xs text-primaryText ml-1.5 mr-2.5 cursor-pointer">
+        <label className="text-xs text-primaryText ml-1.5 mr-2.5 cursor-pointer whitespace-nowrap">
           {responseTimeList[key]}ms
         </label>
       </>
     );
   } else {
     return (
-      <label className="mr-2.5">
+      <label className="mr-2.5 whitespace-nowrap">
         <BeatLoading />
       </label>
     );

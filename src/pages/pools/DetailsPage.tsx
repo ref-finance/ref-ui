@@ -878,8 +878,8 @@ export function RemoveLiquidityModal(
                 loading={buttonLoading}
                 Text={() => (
                   <FormattedMessage
-                    id="remove_to_ref_account"
-                    defaultMessage="Remove to REF account"
+                    id="remove_liquidity"
+                    defaultMessage="Remove Liquidity"
                   />
                 )}
               />
