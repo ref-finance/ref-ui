@@ -105,10 +105,6 @@ export const useSwap = ({
     setAvgFee(avgFee);
   };
 
-  const setSmartRoutingPoolFee = (estimates: EstimateSwapView[]) => {
-    const fees = estimates.map((s2d) => {});
-  };
-
   useEffect(() => {
     if (txHash) {
       checkTransaction(txHash)
@@ -200,7 +196,10 @@ export const useSwap = ({
             if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
               setCanSwap(true);
               setSwapsToDo(estimates);
-              setAverageFee(estimates);
+
+              setAvgFee(
+                Number(estimates[0].pool.fee) + Number(estimates[1].pool.fee)
+              );
               if (ifFetch) setTokenOutAmount(estimates[1].estimate);
             }
           }
