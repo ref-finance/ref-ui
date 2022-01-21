@@ -562,10 +562,6 @@ SwapOptions) => {
               pool_id: swapsToDo[1].pool.id,
               token_in: tokenMid.id,
               token_out: tokenOut.id,
-              amount_in: round(
-                tokenMid.decimals,
-                toNonDivisibleNumber(tokenMid.decimals, swapsToDo[0].estimate)
-              ),
               min_amount_out: round(
                 tokenOut.decimals,
                 toNonDivisibleNumber(
