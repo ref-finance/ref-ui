@@ -248,7 +248,6 @@ export function SmartRoutesDetail({
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
 }) {
-  console.log(swapsTodo);
   return (
     <section className="md:grid lg:grid grid-cols-11 py-1 text-xs">
       <div className="text-primaryText text-left col-span-5">
@@ -463,13 +462,7 @@ function DetailView({
       <div className={showDetails ? '' : 'hidden'}>
         <SwapDetail
           title={intl.formatMessage({ id: 'minimum_received' })}
-          value={
-            <span>
-              {toPrecision(minAmountOutValue, 3)}
-              &nbsp;
-              {toRealSymbol(tokenOut.symbol)}
-            </span>
-          }
+          value={<span>{toPrecision(minAmountOutValue, 3)}</span>}
         />
         <SwapRateDetail
           title={intl.formatMessage({ id: 'swap_rate' })}
