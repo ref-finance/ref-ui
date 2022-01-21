@@ -231,7 +231,7 @@ export const estimateSwap = async ({
         status: PoolMode.SMART,
       };
 
-      console.log(estimate1, estimate2);
+      console.log('simple smart routing routes', estimate1, estimate2);
       return [estimate1, estimate2];
     }
 
