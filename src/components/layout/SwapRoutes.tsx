@@ -2,6 +2,7 @@ import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { TokenMetadata } from '~services/ft-contract';
 import { calculateFeePercent, toPrecision } from '~utils/numbers';
+import { toRealSymbol } from '~utils/token';
 
 export const RouterIcon = () => {
   return (
@@ -148,6 +149,31 @@ export const OneParallelRoute = ({
       <div className="col-end-12">
         <Icon token={tokenOut} />
       </div>
+    </div>
+  );
+};
+
+export const SmartRoute = ({ tokens }: { tokens: TokenMetadata[] }) => {
+  const Hub = ({ token }: { token: TokenMetadata }) => {
+    return (
+      <div className="flex items-center justify-end">
+        <Icon token={token} />
+        <span className="pl-2">{toRealSymbol(token.symbol)}</span>
+      </div>
+    );
+  };
+
+  return (
+    <div className="text-white flex items-center justify-between">
+      <Hub token={tokens[0]} />
+
+      <ArrowRight />
+
+      <Hub token={tokens[1]} />
+
+      <ArrowRight />
+
+      <Hub token={tokens[2]} />
     </div>
   );
 };

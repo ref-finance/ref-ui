@@ -88,7 +88,7 @@ module.exports = {
         xREFColor: '#A7ABAD',
         purple: '#8c78ff',
         blueTip: '#0A7AFF',
-        darkGreenColor: '#009A2B'
+        darkGreenColor: '#009A2B',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
@@ -99,6 +99,7 @@ module.exports = {
         '40vw': '40vw',
         '95vw': '95vw',
         '580px': '580px',
+        '560px': '560px',
       },
     },
     plugins: [],

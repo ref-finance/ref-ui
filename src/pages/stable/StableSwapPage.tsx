@@ -89,7 +89,7 @@ function StableSwapPage() {
   if (!allTokens || !pool || !shares || !stablePool) return <Loading />;
 
   return (
-    <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2">
+    <div className="m-auto lg:w-580px md:w-4/6 xs:w-full xs:p-2">
       <div className="flex justify-center -mt-10 mb-2 xs:hidden md:hidden">
         <StableSwapLogo></StableSwapLogo>
       </div>

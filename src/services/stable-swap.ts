@@ -38,6 +38,7 @@ import { DBCoreRangeType } from 'dexie';
 import moment from 'moment';
 import BigNumber from 'bignumber.js';
 import _ from 'lodash';
+import { PoolMode } from './swap';
 const FEE_DIVISOR = 10000;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
 const STABLE_POOL_KEY = 'STABLE_POOL_VALUE';
@@ -61,6 +62,8 @@ export interface EstimateSwapView {
   pool: Pool;
   intl?: any;
   dy?: string;
+  token?: TokenMetadata;
+  status?: PoolMode;
 }
 export const estimateSwap = async ({
   tokenIn,

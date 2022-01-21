@@ -23,6 +23,8 @@ import {
   ONLY_ZEROS,
   percentOf,
   multiply,
+  divide,
+  scientificNotationToString,
 } from '../../utils/numbers';
 import ReactDOMServer from 'react-dom/server';
 import TokenAmount from '../forms/TokenAmount';
@@ -53,7 +55,8 @@ import {
   AutoRouterText,
   OneParallelRoute,
   RouterIcon,
-} from '~components/layout/ParallelSwapRoutes';
+  SmartRoute,
+} from '~components/layout/SwapRoutes';
 import QuestionMark, {
   QuestionMarkStaticForParaSwap,
 } from '~components/farm/QuestionMark';
@@ -61,6 +64,7 @@ import QuestionMark, {
 import ReactTooltip from 'react-tooltip';
 import * as math from 'mathjs';
 import { HiOutlineExternalLink } from 'react-icons/hi';
+import { EstimateSwapView, swap } from '~services/swap';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -113,7 +117,7 @@ export function DoubleCheckModal(
           <FormattedMessage id="are_you_sure" defaultMessage="Are you sure" />?
         </div>
 
-        <div className=" text-xs pt-4 pb-6">
+        <div className=" text-xs pt-4 ">
           <span>
             <FormattedMessage
               id="price_impact_is_about"
@@ -121,7 +125,26 @@ export function DoubleCheckModal(
             />
           </span>
           &nbsp;
-          <span>-{toPrecision(priceImpacValue, 2)}%</span>
+          <span className="text-error">
+            -{toPrecision(priceImpacValue, 2)}%
+          </span>
+          <span className="text-error">
+            {' '}
+            {`(${toPrecision(
+              scientificNotationToString(
+                multiply(from, divide(priceImpacValue, '100'))
+              ),
+              3
+            )}${toRealSymbol(tokenIn.symbol)})`}{' '}
+          </span>
+          ,
+        </div>
+        <div className="text-xs pb-6 pt-1">
+          <FormattedMessage
+            id="more_expensive_than_best_rate"
+            defaultMessage="more expensive than the best rate"
+          />
+          !
         </div>
 
         <div className="flex items-center pb-2">
@@ -164,9 +187,9 @@ export function SwapDetail({
   value: string | JSX.Element;
 }) {
   return (
-    <section className="grid grid-cols-2 py-1 text-xs">
-      <p className="text-primaryText text-left">{title}</p>
-      <p className="text-right text-white">{value}</p>
+    <section className="grid grid-cols-12 py-1 text-xs">
+      <p className="text-primaryText text-left col-span-5">{title}</p>
+      <p className="text-right text-white col-span-7">{value}</p>
     </section>
   );
 }
@@ -234,6 +257,31 @@ export function SwapRateDetail({
         </span>
         <span>{newValue}</span>
       </p>
+    </section>
+  );
+}
+export function SmartRoutesDetail({
+  swapsTodo,
+  tokenIn,
+  tokenOut,
+}: {
+  swapsTodo: EstimateSwapView[];
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+}) {
+  return (
+    <section className="md:grid lg:grid grid-cols-11 py-1 text-xs">
+      <div className="text-primaryText text-left col-span-5">
+        <div className="inline-flex items-center">
+          <RouterIcon />
+          <AutoRouterText />
+          <QuestionMarkStaticForParaSwap />
+        </div>
+      </div>
+
+      <div className="text-right text-white col-span-6 xs:mt-2">
+        {<SmartRoute tokens={[tokenIn, swapsTodo[1].token, tokenOut]} />}
+      </div>
     </section>
   );
 }
@@ -327,9 +375,10 @@ export const GetPriceImpact = (
       ? 'text-warn'
       : 'text-error';
 
-  const tokenInInfo = ` / -${toPrecision(multiply(tokenInAmount, value), 3)} ${
-    tokenIn.symbol
-  }`;
+  const tokenInInfo = ` / -${toPrecision(
+    scientificNotationToString(multiply(tokenInAmount, divide(value, '100'))),
+    3
+  )} ${tokenIn.symbol}`;
 
   if (Number(value) < 0.01)
     return (
@@ -365,6 +414,18 @@ export const getPriceImpactTipType = (value: string) => {
   return reault;
 };
 
+export const PriceImpactWarning = ({ value }: { value: string }) => {
+  return (
+    <span className="">
+      <span className="rounded-full bg-acccountTab text-error px-2 py-0.5">
+        {Number(value) > 1000 ? '> 1000' : toPrecision(value, 2)}
+        {'% '}
+        <FormattedMessage id="more_expensive_than_best_rate" />
+      </span>
+    </span>
+  );
+};
+
 function DetailView({
   pools,
   tokenIn,
@@ -372,8 +433,9 @@ function DetailView({
   from,
   to,
   minAmountOut,
-  canSwap,
+  isParallelSwap,
   fee,
+  swapsTodo,
 }: {
   pools: Pool[];
   tokenIn: TokenMetadata;
@@ -381,8 +443,9 @@ function DetailView({
   from: string;
   to: string;
   minAmountOut: string;
-  canSwap?: boolean;
+  isParallelSwap?: boolean;
   fee?: number;
+  swapsTodo?: EstimateSwapView[];
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
@@ -407,6 +470,12 @@ function DetailView({
       setShowDetails(true);
     }
   }, [priceImpactValue]);
+
+  useEffect(() => {
+    if (!isParallelSwap) {
+      setShowDetails(true);
+    }
+  }, [to]);
 
   if (!pools || !from || !to || !(Number(from) > 0)) return null;
 
@@ -433,13 +502,7 @@ function DetailView({
       <div className={showDetails ? '' : 'hidden'}>
         <SwapDetail
           title={intl.formatMessage({ id: 'minimum_received' })}
-          value={
-            <span>
-              {toPrecision(minAmountOutValue, 3)}
-              &nbsp;
-              {toRealSymbol(tokenOut.symbol)}
-            </span>
-          }
+          value={<span>{toPrecision(minAmountOutValue, 3)}</span>}
         />
         <SwapRateDetail
           title={intl.formatMessage({ id: 'swap_rate' })}
@@ -452,6 +515,11 @@ function DetailView({
           tokenOut={tokenOut}
           fee={fee}
         />
+        {Number(priceImpactValue) > 2 && (
+          <div className="py-1 text-xs text-right">
+            <PriceImpactWarning value={priceImpactValue} />
+          </div>
+        )}
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
           value={
@@ -470,11 +538,19 @@ function DetailView({
           )}`}
         />
 
-        {pools.length && (
+        {isParallelSwap && pools.length > 0 && (
           <ParallelSwapRoutesDetail
             tokenIn={tokenIn}
             tokenOut={tokenOut}
             pools={pools}
+          />
+        )}
+
+        {!isParallelSwap && (
+          <SmartRoutesDetail
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            swapsTodo={swapsTodo}
           />
         )}
       </div>
@@ -566,6 +642,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     swapError,
     makeSwap,
     avgFee,
+    isParallelSwap,
+    swapsToDo,
   } = useSwap({
     tokenIn: tokenIn,
     tokenInAmount,
@@ -634,17 +712,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         elseView={
           <div className="flex justify-center">
             {wallet.isSignedIn() ? (
-              // <GradientButton
-              //   className={`w-full text-center text-lg text-white mt-4 px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
-              //   onClick={() => {
-              //     history.push(`/deposit/${tokenIn.id}`);
-              //   }}
-              // >
-              //   <FormattedMessage
-              //     id="deposit_to_swap"
-              //     defaultMessage="Deposit to Swap"
-              //   />
-              // </GradientButton>
               <SubmitButton disabled={true} loading={showSwapLoading} />
             ) : (
               <div className="mt-4 w-full">
@@ -727,8 +794,9 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           from={tokenInAmount}
           to={tokenOutAmount}
           minAmountOut={minAmountOut}
-          canSwap={canSwap}
+          isParallelSwap={isParallelSwap}
           fee={avgFee}
+          swapsTodo={swapsToDo}
         />
         {swapError ? (
           <div className="pb-2 relative -mb-5">
