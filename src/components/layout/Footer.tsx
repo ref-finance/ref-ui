@@ -5,6 +5,7 @@ import { FooterLogo } from '~components/icon/FooterLogo';
 import { RefAnalytics, RefAnalyticsGary } from '~components/icon/RefAnalytics';
 import { useRefPrice } from '~state/account';
 import { toPrecision } from '~utils/numbers';
+import RpcList from '~components/rpc/index';
 
 const CommunityLinks = [
   {
@@ -35,7 +36,7 @@ function Footer() {
 
   return (
     <>
-      <div className="absolute w-full bottom-6">
+      <div className="absolute w-full bottom-6 xs:bottom-0 md:bottom-0">
         <footer className="flex items-center justify-center pl-9 pr-9">
           <div className="fixed left-3 bottom-5 md:hidden xs:hidden">
             <FooterLogo />
@@ -66,6 +67,7 @@ function Footer() {
             })}
           </div>
         </footer>
+        <RpcList></RpcList>
       </div>
     </>
   );
