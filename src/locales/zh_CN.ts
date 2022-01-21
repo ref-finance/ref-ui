@@ -284,13 +284,10 @@ const zh_CN = {
   yes_swap: '确定, 兑换吧',
   volume_ratio: '24小时交易量/流动性比率',
   go_to_near_wallet: '跳转到NEAR钱包',
-  deposit_to_ref_account: '存储到REF账户',
-  withdraw_to_near_wallet: '提取到NEAR钱包',
   into_ref_account: '到你的REF账户。',
   deposit_into_ref_account: '到REF账户来添加流动性',
   deposit_near_tip: '存入时至少保留一个NEAR以支付汽油费',
   input_greater_than_available_shares: '输入大于可用份额',
-  remove_to_ref_account: '移动到REF账户',
   number_of_unique_stakers: '质押人数',
   total_ref_staked: '质押的REF总数量',
   total_xref_minted: '产出的xREF的总数量',
@@ -308,6 +305,8 @@ const zh_CN = {
   introducing_parallel_swap: '介绍Parallel Swap',
   at_least: '至少',
   xref_start_time: '开始于 1am UTC, 18th Jan, 2022。',
+  xref_to_receive: '收到的xREF',
+  ref_to_receive: '收到的REF',
   more_expensive_than_best_rate: '比最好汇率更贵',
 };
 export default zh_CN;

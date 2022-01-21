@@ -6,6 +6,7 @@ import { RefAnalytics, RefAnalyticsGary } from '~components/icon/RefAnalytics';
 import { useRefPrice } from '~state/account';
 import { toPrecision } from '~utils/numbers';
 import RpcList from '~components/rpc/index';
+import { IconForum } from '~components/icon/Nav';
 
 const CommunityLinks = [
   {
@@ -27,6 +28,11 @@ const CommunityLinks = [
     label: 'Medium',
     url: 'https://ref-finance.medium.com/',
     icon: <AiOutlineMedium />,
+  },
+  {
+    label: 'Forum',
+    url: 'https://gov.ref.finance',
+    icon: <IconForum />,
   },
 ];
 function Footer() {
