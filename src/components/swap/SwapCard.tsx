@@ -416,13 +416,13 @@ export const getPriceImpactTipType = (value: string) => {
 
 export const PriceImpactWarning = ({ value }: { value: string }) => {
   return (
-    <p className="">
+    <span className="">
       <span className="rounded-full bg-acccountTab text-error px-2 py-0.5">
         {Number(value) > 1000 ? '> 1000' : toPrecision(value, 2)}
         {'% '}
         <FormattedMessage id="more_expensive_than_best_rate" />
       </span>
-    </p>
+    </span>
   );
 };
 
@@ -470,6 +470,12 @@ function DetailView({
       setShowDetails(true);
     }
   }, [priceImpactValue]);
+
+  useEffect(() => {
+    if (!isParallelSwap) {
+      setShowDetails(true);
+    }
+  }, [to]);
 
   if (!pools || !from || !to || !(Number(from) > 0)) return null;
 
