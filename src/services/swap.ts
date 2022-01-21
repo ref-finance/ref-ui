@@ -422,7 +422,6 @@ SwapOptions) => {
         })
       );
 
-      // step 1
       transactions.push({
         receiverId: tokenIn.id,
         functionCalls: [
@@ -444,41 +443,10 @@ SwapOptions) => {
                     ),
                     min_amount_out: '0',
                   },
-                ],
-              }),
-            },
-            gas: '180000000000000',
-            amount: ONE_YOCTO_NEAR,
-          },
-        ],
-      });
-
-      // step 2
-      transactions.push({
-        receiverId: tokenMid.id,
-        functionCalls: [
-          {
-            methodName: 'ft_transfer_call',
-            args: {
-              receiver_id: REF_FI_CONTRACT_ID,
-              amount: toNonDivisibleNumber(
-                tokenMid.decimals,
-                swapsToDo[0].estimate
-              ),
-              msg: JSON.stringify({
-                force: 0,
-                actions: [
                   {
                     pool_id: swapsToDo[1].pool.id,
                     token_in: tokenMid.id,
                     token_out: tokenOut.id,
-                    amount_in: round(
-                      tokenMid.decimals,
-                      toNonDivisibleNumber(
-                        tokenMid.decimals,
-                        swapsToDo[0].estimate
-                      )
-                    ),
                     min_amount_out: round(
                       tokenOut.decimals,
                       toNonDivisibleNumber(
