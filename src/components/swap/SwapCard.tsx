@@ -269,6 +269,8 @@ export function SmartRoutesDetail({
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
 }) {
+  const tokenMid = useMemo(() => swapsTodo[1].token, [swapsTodo[1].token]);
+
   return (
     <section className="md:grid lg:grid grid-cols-12 py-1 text-xs">
       <div className="text-primaryText text-left col-span-4">
@@ -280,7 +282,7 @@ export function SmartRoutesDetail({
       </div>
 
       <div className="text-right text-white col-span-8 xs:mt-2">
-        {<SmartRoute tokens={[tokenIn, swapsTodo[1].token, tokenOut]} />}
+        {<SmartRoute tokens={[tokenIn, tokenMid, tokenOut]} />}
       </div>
     </section>
   );

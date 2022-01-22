@@ -358,7 +358,7 @@ SwapOptions) => {
       token.id,
       wallet.getAccountId()
     ).catch(() => {
-      throw new Error(`${tokenOut.id} doesn't exist.`);
+      throw new Error(`${token.id} doesn't exist.`);
     });
 
     if (tokenRegistered === null) {
@@ -373,7 +373,7 @@ SwapOptions) => {
       });
 
       transactions.push({
-        receiverId: tokenOut.id,
+        receiverId: token.id,
         functionCalls: tokenOutActions,
       });
     }
@@ -448,11 +448,7 @@ SwapOptions) => {
     } else {
       const tokenMid = swapsToDo[1].token;
 
-      await Promise.all(
-        [tokenMid, tokenOut].map(async (token) => {
-          await registerToken(token);
-        })
-      );
+      await registerToken(tokenOut);
 
       transactions.push({
         receiverId: tokenIn.id,
