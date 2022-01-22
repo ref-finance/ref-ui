@@ -45,7 +45,7 @@ export const AutoRouterText = () => {
 
 export const ArrowRight = () => {
   return (
-    <div className="mx-3">
+    <div className="mx-2">
       <svg
         width="12"
         height="5"
@@ -137,7 +137,7 @@ export const OneParallelRoute = ({
       <div className="col-end-3 col-start-1">
         <ParaTokenFrom tokenIn={tokenIn} p={p} />
       </div>
-      <div className="xs:ml-1 md:ml-1 lg:ml-4">
+      <div className="xs:ml-1.5 md:ml-1.5 lg:ml-4">
         <ArrowRight />
       </div>
       <div className="col-end-9 col-span-4 ml-0.5">
