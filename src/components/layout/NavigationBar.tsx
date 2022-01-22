@@ -21,6 +21,7 @@ import {
   ActivityIcon,
   WalletIcon,
   SignoutIcon,
+  WNEARExchngeIcon,
 } from '~components/icon/Common';
 import { Link, useLocation } from 'react-router-dom';
 import { wallet } from '~services/near';
@@ -594,7 +595,7 @@ function NavigationBar() {
                   className=" py-1 cursor-pointer items-center flex"
                   onClick={() => setShowWrapNear(true)}
                 >
-                  <WrapNearIcon />
+                  <WNEARExchngeIcon />
                 </div>
                 <WrapNear
                   isOpen={showWrapNear}

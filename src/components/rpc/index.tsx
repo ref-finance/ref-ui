@@ -17,7 +17,6 @@ const RpcList = () => {
   const currentEndPoint = localStorage.getItem('endPoint') || 'defaultRpc';
   useEffect(() => {
     Object.entries(rpclist).forEach(([key, data]) => {
-      console.log(data.url);
       ping(data.url).then((time) => {
         responseTimeList[key] = time;
         setResponseTimeList(Object.assign({}, responseTimeList));
