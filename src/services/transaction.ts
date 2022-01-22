@@ -76,17 +76,35 @@ export const parseAction = async (
 };
 
 const parseSwap = async (params: any) => {
-  const in_token = await ftGetTokenMetadata(params.actions[0].token_in);
-  const out_token = await ftGetTokenMetadata(params.actions[0].token_out);
+  const actionStart = params.actions[0];
+  const actionEnd = params.actions[params.actions.length - 1];
+  const in_token = await ftGetTokenMetadata(actionStart.token_in);
+  const out_token = await ftGetTokenMetadata(actionEnd.token_out);
   const poolIdArr: (number | string)[] = [];
   let amountIn = '0';
   let amountOut = '0';
+  if (
+    !actionStart.min_amount_out ||
+    new BigNumber(actionStart.min_amount_out).isEqualTo('0')
+  ) {
+    // smart swap
+    amountIn = actionStart.amount_in;
+    amountOut = actionEnd.min_amount_out;
+  } else {
+    // normal swap (base,parallel)
+    params.actions.forEach((action: any) => {
+      const { amount_in, min_amount_out, pool_id } = action;
+      amountIn = new BigNumber(amount_in || '0').plus(amountIn).toFixed();
+      amountOut = new BigNumber(min_amount_out || '0')
+        .plus(amountOut)
+        .toFixed();
+    });
+  }
   params.actions.forEach((action: any) => {
-    const { amount_in, min_amount_out, pool_id } = action;
+    const { pool_id } = action;
     poolIdArr.push(pool_id);
-    amountIn = new BigNumber(amount_in).plus(amountIn).toFixed();
-    amountOut = new BigNumber(min_amount_out).plus(amountOut).toFixed();
   });
+
   return {
     Action: 'Swap',
     'Pool Id': poolIdArr.join(','),
@@ -249,7 +267,9 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
     actions.forEach((action: any) => {
       const { min_amount_out, pool_id } = action;
       poolIdArr.push(pool_id);
-      amountOut = new BigNumber(min_amount_out).plus(amountOut).toFixed();
+      amountOut = new BigNumber(min_amount_out || '0')
+        .plus(amountOut)
+        .toFixed();
     });
     return {
       Action,
