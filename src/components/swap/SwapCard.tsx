@@ -485,6 +485,8 @@ function DetailView({
     ? priceImpactValueParallelSwap
     : priceImpactValueSmartRouting;
 
+  console.log('price impact', priceImpact);
+
   useEffect(() => {
     if (Number(priceImpact) > 1) {
       setShowDetails(true);
