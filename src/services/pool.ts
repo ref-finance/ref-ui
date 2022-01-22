@@ -260,10 +260,10 @@ export const getPoolsByTokens = async ({
     tokenOutId
   );
 
-  if ((cacheTimeLimit && !loadingTrigger) || !cacheForPair) {
+  if ((!loadingTrigger && cacheTimeLimit) || !cacheForPair) {
     filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
   }
-  if (!cacheTimeLimit || loadingTrigger) {
+  if (loadingTrigger) {
     setLoadingData(true);
     const totalPools = await getTotalPools();
     const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);

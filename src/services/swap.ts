@@ -213,13 +213,24 @@ export const estimateSwap = async ({
       console.log(candidatePools);
 
       [pool1, pool2] = _.maxBy(candidatePools, (poolPair) => {
-        const tokenInSupply = toNonDivisibleNumber(
+        const tokenInSupply = toReadableNumber(
           tokenIn.decimals,
           poolPair[0].supplies[tokenIn.id]
         );
-        const tokenOutSupply = toNonDivisibleNumber(
+        const tokenOutSupply = toReadableNumber(
           tokenOut.decimals,
           poolPair[1].supplies[tokenOut.id]
+        );
+
+        console.log(
+          'tokenInSupply',
+          tokenInSupply,
+          'tokenOutSupply',
+          tokenOutSupply,
+          'pool1 id',
+          poolPair[0].id,
+          'pool2 id',
+          poolPair[1].id
         );
 
         return Number(new Big(tokenInSupply).times(new Big(tokenOutSupply)));
