@@ -521,7 +521,7 @@ function DetailView({
       <div className={showDetails ? '' : 'hidden'}>
         <SwapDetail
           title={intl.formatMessage({ id: 'minimum_received' })}
-          value={<span>{toPrecision(minAmountOutValue, 3)}</span>}
+          value={<span>{toPrecision(minAmountOutValue, 8)}</span>}
         />
         <SwapRateDetail
           title={intl.formatMessage({ id: 'swap_rate' })}
