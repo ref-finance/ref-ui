@@ -1,5 +1,8 @@
 import BN from 'bn.js';
 import Big from 'big.js';
+
+import { getLiquidity } from '~utils/pool';
+
 import {
   ONLY_ZEROS,
   percentLess,
@@ -130,32 +133,23 @@ export const estimateSwap = async ({
     loadingTrigger,
   });
 
-  const getLiquidity = (pool: Pool) => {
-    const amount1 = toReadableNumber(
-      tokenIn.decimals,
-      pool.supplies[tokenIn.id]
-    );
-    const amount2 = toReadableNumber(
-      tokenOut.decimals,
-      pool.supplies[tokenOut.id]
-    );
-
-    const lp = new Big(amount1).times(new Big(amount2));
-
-    return Number(lp);
-  };
-
-  const maxLPPool = _.maxBy(pools, getLiquidity);
+  const maxLPPool = _.maxBy(pools, (p) => getLiquidity(p, tokenIn, tokenOut));
 
   const maxPoolLiquidity = maxLPPool
-    ? new Big(getLiquidity(maxLPPool))
+    ? new Big(getLiquidity(maxLPPool, tokenIn, tokenOut))
     : new Big(0);
 
   const filterFunc = (pool: Pool, i: number) =>
     maxPoolLiquidity.gt(0) &&
-    new Big(getLiquidity(pool)).div(maxPoolLiquidity).gt(LP_THERESHOLD);
+    new Big(getLiquidity(pool, tokenIn, tokenOut))
+      .div(maxPoolLiquidity)
+      .gt(LP_THERESHOLD);
 
-  const filteredPools = _.orderBy(pools, getLiquidity, ['desc'])
+  const filteredPools = _.orderBy(
+    pools,
+    (p) => getLiquidity(p, tokenIn, tokenOut),
+    ['desc']
+  )
     .slice(0, MAXIMUM_NUMBER_OF_POOLS)
     .filter(filterFunc);
 
@@ -209,17 +203,27 @@ export const estimateSwap = async ({
       });
 
       if (pools2.length > 0) {
-        pool2 = _.maxBy(pools2, getLiquidity);
+        pool2 = _.maxBy(pools2, (p) => getLiquidity(p, tokenIn, tokenOut));
         pool1 = tempPool1;
         candidatePools.push([pool1, pool2]);
       }
     }
 
     if (candidatePools.length > 0) {
-      [pool1, pool2] = _.maxBy(
-        candidatePools,
-        (poolPair) => getLiquidity(poolPair[0]) * getLiquidity(poolPair[1])
-      );
+      console.log(candidatePools);
+
+      [pool1, pool2] = _.maxBy(candidatePools, (poolPair) => {
+        const tokenInSupply = toNonDivisibleNumber(
+          tokenIn.decimals,
+          poolPair[0].supplies[tokenIn.id]
+        );
+        const tokenOutSupply = toNonDivisibleNumber(
+          tokenOut.decimals,
+          poolPair[1].supplies[tokenOut.id]
+        );
+
+        return Number(new Big(tokenInSupply).times(new Big(tokenOutSupply)));
+      });
 
       tokenMidId =
         pool1.tokenIds[0] === tokenIn.id
