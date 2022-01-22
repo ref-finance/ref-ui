@@ -14,6 +14,7 @@ import {
   calculateExchangeRate,
   calculateFeeCharge,
   calculateFeePercent,
+  calculateSmartRoutingPriceImpact,
   percent,
   percentLess,
   toPrecision,
@@ -462,16 +463,33 @@ function DetailView({
     else return calculateExchangeRate(fee, to, from);
   }, [to]);
 
-  const priceImpactValue = useMemo(() => {
+  const priceImpactValueParallelSwap = useMemo(() => {
     if (!pools || !from) return '0';
     return calculatePriceImpact(pools, tokenIn, tokenOut, from);
   }, [to]);
 
+  const priceImpactValueSmartRouting = useMemo(() => {
+    {
+      if (!swapsTodo || !from) return '0';
+      return calculateSmartRoutingPriceImpact(
+        from,
+        swapsTodo,
+        tokenIn,
+        swapsTodo[1].token,
+        tokenOut
+      );
+    }
+  }, [to]);
+
+  const priceImpact = isParallelSwap
+    ? priceImpactValueParallelSwap
+    : priceImpactValueSmartRouting;
+
   useEffect(() => {
-    if (Number(priceImpactValue) > 1) {
+    if (Number(priceImpact) > 1) {
       setShowDetails(true);
     }
-  }, [priceImpactValue]);
+  }, [priceImpact]);
 
   useEffect(() => {
     if (swapsTodo?.length > 1) {
@@ -491,9 +509,7 @@ function DetailView({
             setShowDetails(!showDetails);
           }}
         >
-          <label className="mr-2">
-            {getPriceImpactTipType(priceImpactValue)}
-          </label>
+          <label className="mr-2">{getPriceImpactTipType(priceImpact)}</label>
           <p className="block text-xs">
             <FormattedMessage id="details" defaultMessage="Details" />
           </p>
@@ -518,17 +534,15 @@ function DetailView({
           tokenOut={tokenOut}
           fee={fee}
         />
-        {Number(priceImpactValue) > 2 && (
+        {Number(priceImpact) > 2 && (
           <div className="py-1 text-xs text-right">
-            <PriceImpactWarning value={priceImpactValue} />
+            <PriceImpactWarning value={priceImpact} />
           </div>
         )}
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
           value={
-            !to || to === '0'
-              ? '-'
-              : GetPriceImpact(priceImpactValue, tokenIn, from)
+            !to || to === '0' ? '-' : GetPriceImpact(priceImpact, tokenIn, from)
           }
         />
         <SwapDetail

@@ -3,6 +3,7 @@ import BN from 'bn.js';
 import * as math from 'mathjs';
 import { TokenMetadata } from '~services/ft-contract';
 import { Pool } from '~services/pool';
+import { EstimateSwapView } from '~services/swap';
 
 const BPS_CONVERSION = 10000;
 
@@ -97,6 +98,102 @@ export const calculateFeeCharge = (fee: number, total: string) => {
   );
 };
 
+export const calculateAmountReceived = (
+  pool: Pool,
+  amountIn: string,
+  tokenIn: TokenMetadata,
+  tokenOut: TokenMetadata
+) => {
+  const partialAmountIn = toReadableNumber(tokenIn.decimals, amountIn);
+
+  const in_balance = toReadableNumber(
+    tokenIn.decimals,
+    pool.supplies[tokenIn.id]
+  );
+  const out_balance = toReadableNumber(
+    tokenOut.decimals,
+    pool.supplies[tokenOut.id]
+  );
+
+  const big_in_balance = math.bignumber(in_balance);
+  const big_out_balance = math.bignumber(out_balance);
+
+  const constant_product = big_in_balance.mul(big_out_balance);
+
+  const new_in_balance = big_in_balance.plus(math.bignumber(partialAmountIn));
+
+  const new_out_balance = constant_product.div(new_in_balance);
+
+  const tokenOutReceived = big_out_balance.minus(new_out_balance);
+
+  return tokenOutReceived;
+};
+
+export const calculateMarketPrice = (
+  pool: Pool,
+  tokenIn: TokenMetadata,
+  tokenOut: TokenMetadata
+) => {
+  const cur_in_balance = toReadableNumber(
+    tokenIn.decimals,
+    pool.supplies[tokenIn.id]
+  );
+
+  const cur_out_balance = toReadableNumber(
+    tokenOut.decimals,
+    pool.supplies[tokenOut.id]
+  );
+
+  return math.evaluate(`(${cur_in_balance} / ${cur_out_balance})`);
+};
+
+export const calculateSmartRoutingPriceImpact = (
+  tokenInAmount: string,
+  swapTodos: EstimateSwapView[],
+  tokenIn: TokenMetadata,
+  tokenMid: TokenMetadata,
+  tokenOut: TokenMetadata
+) => {
+  const marketPrice1 = calculateMarketPrice(
+    swapTodos[0].pool,
+    tokenIn,
+    tokenMid
+  );
+
+  const marketPrice2 = calculateMarketPrice(
+    swapTodos[1].pool,
+    tokenMid,
+    tokenOut
+  );
+  const generalMarketPrice = math.evaluate(`${marketPrice1} * ${marketPrice2}`);
+  const tokenMidReceived = calculateAmountReceived(
+    swapTodos[0].pool,
+    toNonDivisibleNumber(tokenIn.decimals, tokenInAmount),
+    tokenIn,
+    tokenMid
+  );
+  const formattedTokenMidReceived = scientificNotationToString(
+    tokenMidReceived.toString()
+  );
+
+  const tokenOutReceived = calculateAmountReceived(
+    swapTodos[1].pool,
+    toNonDivisibleNumber(tokenMid.decimals, formattedTokenMidReceived),
+    tokenMid,
+    tokenOut
+  );
+
+  const newMarketPrice = math.evaluate(
+    `${tokenInAmount} / ${tokenOutReceived}`
+  );
+  const PriceImpact = percent(
+    subtraction(newMarketPrice, generalMarketPrice),
+    newMarketPrice
+  ).toString();
+
+  return scientificNotationToString(PriceImpact);
+};
+
 export const calculatePriceImpact = (
   pools: Pool[],
   tokenIn: TokenMetadata,
@@ -124,32 +221,12 @@ export const calculatePriceImpact = (
   const finalMarketPrice = math.evaluate(`(${in_balance} / ${out_balance})`);
 
   const separatedReceivedAmount = pools.map((pool) => {
-    const partialAmountIn = toReadableNumber(
-      tokenIn.decimals,
-      pool.partialAmountIn
+    return calculateAmountReceived(
+      pool,
+      pool.partialAmountIn,
+      tokenIn,
+      tokenOut
     );
-
-    const in_balance = toReadableNumber(
-      tokenIn.decimals,
-      pool.supplies[tokenIn.id]
-    );
-    const out_balance = toReadableNumber(
-      tokenOut.decimals,
-      pool.supplies[tokenOut.id]
-    );
-
-    const big_in_balance = math.bignumber(in_balance);
-    const big_out_balance = math.bignumber(out_balance);
-
-    const constant_product = big_in_balance.mul(big_out_balance);
-
-    const new_in_balance = big_in_balance.plus(math.bignumber(partialAmountIn));
-
-    const new_out_balance = constant_product.div(new_in_balance);
-
-    const tokenOutReceived = big_out_balance.minus(new_out_balance);
-
-    return tokenOutReceived;
   });
 
   const finalTokenOutReceived = math.sum(...separatedReceivedAmount);
