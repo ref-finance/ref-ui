@@ -1,6 +1,7 @@
 import BN from 'bn.js';
 import Big from 'big.js';
 import {
+  ONLY_ZEROS,
   percentLess,
   scientificNotationToString,
   toNonDivisibleNumber,
@@ -116,7 +117,7 @@ export const estimateSwap = async ({
 }: EstimateSwapOptions): Promise<EstimateSwapView[]> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
 
-  if (!parsedAmountIn || !(Number(parsedAmountIn) > 0))
+  if (ONLY_ZEROS.test(parsedAmountIn))
     throw new Error(
       `${amountIn} ${intl.formatMessage({ id: 'is_not_a_valid_swap_amount' })}`
     );
