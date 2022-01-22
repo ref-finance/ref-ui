@@ -243,7 +243,9 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
     let amountOut = '0';
     let poolIdArr: (string | number)[] = [];
     const in_token = await ftGetTokenMetadata(actions[0].token_in);
-    const out_token = await ftGetTokenMetadata(actions[0].token_out);
+    const out_token = await ftGetTokenMetadata(
+      actions[actions.length - 1].token_out
+    );
     actions.forEach((action: any) => {
       const { min_amount_out, pool_id } = action;
       poolIdArr.push(pool_id);

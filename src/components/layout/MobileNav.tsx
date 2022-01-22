@@ -18,6 +18,7 @@ import {
   IconAirDropGreenTip,
   WrapNearIconDark,
 } from '~components/icon';
+import { WNEARExchngeIcon } from '~components/icon/Common';
 import { Link, useLocation } from 'react-router-dom';
 import { near, wallet } from '~services/near';
 import { useHistory } from 'react-router';
@@ -403,7 +404,7 @@ export function MobileNavBar() {
                   className="flex p-4 justify-between items-center"
                   onClick={() => setMobileWrapNear(true)}
                 >
-                  <WrapNearIconDark large forMobile />
+                  <WNEARExchngeIcon width="75" height="32" />
                   <span className="text-sm">
                     NEAR:&nbsp;{toPrecision(nearBalance, 3, true)}
                   </span>

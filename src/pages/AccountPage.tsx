@@ -195,19 +195,13 @@ function AccountTable(props: any) {
             >
               <td width="38%" className="pl-6">
                 <div className="flex items-center">
-                  {item.symbol == 'XREF' ? (
-                    <span className="mr-2 -ml-1">
-                      <XrefSymbol width="49" height="53"></XrefSymbol>
-                    </span>
-                  ) : (
-                    <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden flex-shrink-0">
-                      <img src={item.icon} className="w-full h-full"></img>
-                    </div>
-                  )}
+                  <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden flex-shrink-0">
+                    <img src={item.icon} className="w-full h-full"></img>
+                  </div>
                   <div className="flex flex-col">
                     <div className="flex items-center">
                       <label className="text-white text-lg font-semibold">
-                        {item.symbol == 'XREF' ? 'xREF' : item.symbol}
+                        {item.symbol}
                       </label>
                       {item.symbol == 'NEAR' ? <NearTip /> : null}
                     </div>
@@ -345,20 +339,14 @@ function MobileAccountTable(props: any) {
             >
               <td className="pl-4">
                 <div className="flex items-center">
-                  {item.symbol == 'XREF' ? (
-                    <span className="mr-2 -ml-1">
-                      <XrefSymbol width="49" height="53"></XrefSymbol>
-                    </span>
-                  ) : (
-                    <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden flex-shrink-0">
-                      <img src={item.icon} className="w-full h-full"></img>
-                    </div>
-                  )}
+                  <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden flex-shrink-0">
+                    <img src={item.icon} className="w-full h-full"></img>
+                  </div>
 
                   <div className="flex flex-col">
                     <div className="flex items-center">
                       <label className="text-white text-lg font-semibold">
-                        {item.symbol == 'XREF' ? 'xREF' : item.symbol}
+                        {item.symbol}
                       </label>
                       {item.symbol == 'NEAR' ? <NearTip /> : null}
                     </div>

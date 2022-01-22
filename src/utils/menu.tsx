@@ -55,14 +55,14 @@ export const useMenuItems = () => {
       id: 3,
       logo: <IconDocs />,
     },
-    // {
-    //   label: intl.formatMessage({ id: 'Forum' }),
-    //   url: 'https://gov.ref.finance',
-    //   icon: <HiOutlineExternalLink />,
-    //   isExternal: true,
-    //   id: 4,
-    //   logo: <IconForum />,
-    // },
+    {
+      label: intl.formatMessage({ id: 'Forum' }),
+      url: 'https://gov.ref.finance',
+      icon: <HiOutlineExternalLink />,
+      isExternal: true,
+      id: 4,
+      logo: <IconForum />,
+    },
 
     {
       label: intl.formatMessage({ id: 'Community' }),
@@ -244,13 +244,13 @@ export const moreLinks: MobileMenuItem[] = [
         isExternal: true,
         logo: <IconDocs />,
       },
-      // {
-      //   label: 'Forum',
-      //   id: 'Forum',
-      //   url: 'https://gov.ref.finance',
-      //   isExternal: true,
-      //   logo: <IconForum />,
-      // },
+      {
+        label: 'Forum',
+        id: 'Forum',
+        url: 'https://gov.ref.finance',
+        isExternal: true,
+        logo: <IconForum />,
+      },
     ],
   },
   {
