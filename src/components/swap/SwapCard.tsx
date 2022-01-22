@@ -472,7 +472,7 @@ function DetailView({
   }, [priceImpactValue]);
 
   useEffect(() => {
-    if (!isParallelSwap) {
+    if (swapsTodo?.length > 1) {
       setShowDetails(true);
     }
   }, [to]);
