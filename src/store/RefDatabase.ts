@@ -214,8 +214,13 @@ class RefDatabase extends Dexie {
     );
   }
   public async checkPoolsByTokens(tokenInId: string, tokenOutId: string) {
+    const itemsTimeLimit = await this.queryPoolsByTokensTimeLimit(
+      tokenInId,
+      tokenOutId
+    );
     const items = await this.queryPoolsByTokens(tokenInId, tokenOutId);
-    return items.length > 0;
+
+    return [items.length > 0, itemsTimeLimit.length > 0];
   }
 
   public async getPoolsByTokens(tokenInId: string, tokenOutId: string) {
@@ -233,7 +238,7 @@ class RefDatabase extends Dexie {
     }));
   }
 
-  async queryPoolsByTokens(tokenInId: string, tokenOutId: string) {
+  async queryPoolsByTokensTimeLimit(tokenInId: string, tokenOutId: string) {
     let normalItems = await this.poolsTokens
       .where('token1Id')
       .equals(tokenInId.toString())
@@ -255,6 +260,21 @@ class RefDatabase extends Dexie {
           Number(moment().unix()) -
             Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
       )
+      .toArray();
+
+    return [...normalItems, ...reverseItems];
+  }
+
+  async queryPoolsByTokens(tokenInId: string, tokenOutId: string) {
+    let normalItems = await this.poolsTokens
+      .where('token1Id')
+      .equals(tokenInId.toString())
+      .and((item) => item.token2Id === tokenOutId.toString())
+      .toArray();
+    let reverseItems = await this.poolsTokens
+      .where('token1Id')
+      .equals(tokenOutId.toString())
+      .and((item) => item.token2Id === tokenInId.toString())
       .toArray();
 
     return [...normalItems, ...reverseItems];

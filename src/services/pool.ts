@@ -257,9 +257,14 @@ export const getPoolsByTokens = async ({
   loadingTrigger,
 }: GetPoolOptions): Promise<Pool[]> => {
   let filtered_pools;
-  const cache = await db.checkPoolsByTokens(tokenInId, tokenOutId);
+  const [cacheForPair, cacheTimeLimit] = await db.checkPoolsByTokens(
+    tokenInId,
+    tokenOutId
+  );
 
-  if (cache && !loadingTrigger) {
+  console.log(cacheForPair, cacheTimeLimit);
+
+  if ((cacheTimeLimit && !loadingTrigger) || !cacheForPair) {
     filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
   } else {
     setLoadingData(true);
