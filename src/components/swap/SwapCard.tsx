@@ -270,8 +270,8 @@ export function SmartRoutesDetail({
   tokenOut: TokenMetadata;
 }) {
   return (
-    <section className="md:grid lg:grid grid-cols-11 py-1 text-xs">
-      <div className="text-primaryText text-left col-span-5">
+    <section className="md:grid lg:grid grid-cols-12 py-1 text-xs">
+      <div className="text-primaryText text-left col-span-4">
         <div className="inline-flex items-center">
           <RouterIcon />
           <AutoRouterText />
@@ -279,7 +279,7 @@ export function SmartRoutesDetail({
         </div>
       </div>
 
-      <div className="text-right text-white col-span-6 xs:mt-2">
+      <div className="text-right text-white col-span-8 xs:mt-2">
         {<SmartRoute tokens={[tokenIn, swapsTodo[1].token, tokenOut]} />}
       </div>
     </section>
@@ -335,7 +335,7 @@ export function ParallelSwapRoutesDetail({
     }
   }, [pools]);
   return (
-    <section className="md:grid lg:grid grid-cols-10 py-1 text-xs">
+    <section className="md:grid lg:grid grid-cols-12 py-1 text-xs">
       <div className="text-primaryText text-left col-span-4">
         <div className="inline-flex items-center">
           <RouterIcon />
@@ -344,7 +344,7 @@ export function ParallelSwapRoutesDetail({
         </div>
       </div>
 
-      <div className="text-right text-white col-span-6 xs:mt-2">
+      <div className="text-right text-white col-span-8 xs:mt-2">
         {pools.map((pool, i) => {
           return (
             <div className="mb-2" key={pool.id}>
@@ -477,13 +477,7 @@ function DetailView({
     }
   }, [to]);
 
-  if (
-    !pools ||
-    !from ||
-    !to ||
-    !(Number(from) > 0) ||
-    tokenIn.id === tokenOut.id
-  )
+  if (!pools || ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id)
     return null;
 
   return (
@@ -545,7 +539,7 @@ function DetailView({
           )}`}
         />
 
-        {isParallelSwap && pools.length > 1 && (
+        {isParallelSwap && pools.length > 0 && (
           <ParallelSwapRoutesDetail
             tokenIn={tokenIn}
             tokenOut={tokenOut}
