@@ -129,7 +129,7 @@ export function QuestionMarkStaticForParaSwap(props: {
         )}
       </div>
       <div
-        className={`border bg-cardBg rounded border-borderColor text-navHighLightText p-3 absolute ${
+        className={`border bg-cardBg rounded border-borderColor text-navHighLightText p-1 absolute ${
           status ? 'block' : 'hidden'
         } z-30 transform ${mobile ? 'left-5' : 'left-7 '} translate-y-8`}
         onMouseLeave={() => {

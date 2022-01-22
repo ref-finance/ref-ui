@@ -335,7 +335,7 @@ export function ParallelSwapRoutesDetail({
     }
   }, [pools]);
   return (
-    <section className="md:grid lg:grid grid-cols-12 py-1 text-xs">
+    <section className="lg:grid grid-cols-12 py-1 text-xs">
       <div className="text-primaryText text-left col-span-4">
         <div className="inline-flex items-center">
           <RouterIcon />
@@ -344,7 +344,7 @@ export function ParallelSwapRoutesDetail({
         </div>
       </div>
 
-      <div className="text-right text-white col-span-8 xs:mt-2">
+      <div className="text-right text-white col-span-8 xs:mt-2 md:mt-2">
         {pools.map((pool, i) => {
           return (
             <div className="mb-2" key={pool.id}>

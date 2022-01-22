@@ -45,7 +45,7 @@ export const AutoRouterText = () => {
 
 export const ArrowRight = () => {
   return (
-    <div className="mx-5">
+    <div className="mx-3">
       <svg
         width="12"
         height="5"
@@ -108,13 +108,13 @@ export const ParaTokenFrom = ({
 
 export const PoolInfo = ({ poolId, fee }: { poolId: number; fee: number }) => {
   return (
-    <div className="flex items-center bg-inputDarkBg p-1 text-gray-400 rounded-md grid grid-cols-2">
-      <div className="bg-acccountBlock text-xs font-semibold rounded pl-2 pr-1.5 py-0.5 col-span-1 text-left">
+    <div className="flex items-center bg-inputDarkBg p-1 text-gray-400 rounded-md grid grid-cols-2 w-32">
+      <span className="bg-acccountBlock text-xs font-semibold rounded pl-2 pr-1.5 py-0.5 col-span-1 text-left	">
         {`# ${poolId}`}
-      </div>
-      <div className="col-span-1 text-center">
+      </span>
+      <span className="col-span-1 text-center">
         {toPrecision(calculateFeePercent(fee).toString(), 2)}%
-      </div>
+      </span>
     </div>
   );
 };
@@ -133,20 +133,20 @@ export const OneParallelRoute = ({
   fee: number;
 }) => {
   return (
-    <div className="flex items-center justify-between grid grid-cols-11">
+    <div className="xs:flex items-center xs:justify-between md:flex md:justify-between lg:grid grid-cols-11">
       <div className="col-end-3 col-start-1">
         <ParaTokenFrom tokenIn={tokenIn} p={p} />
       </div>
-      <div className="col-end-4 ml-2">
+      <div className="xs:ml-1 md:ml-1 lg:ml-4">
         <ArrowRight />
       </div>
       <div className="col-end-9 col-span-4 ml-0.5">
         <PoolInfo poolId={poolId} fee={fee} />
       </div>
-      <div className="col-end-10">
+      <div className="lg:ml-4">
         <ArrowRight />
       </div>
-      <div className="col-end-12">
+      <div className="col-end-12 ">
         <Icon token={tokenOut} />
       </div>
     </div>
