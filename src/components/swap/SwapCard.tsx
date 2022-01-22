@@ -539,7 +539,7 @@ function DetailView({
           )}`}
         />
 
-        {isParallelSwap && pools.length > 0 && (
+        {isParallelSwap && pools.length > 1 && (
           <ParallelSwapRoutesDetail
             tokenIn={tokenIn}
             tokenOut={tokenOut}
