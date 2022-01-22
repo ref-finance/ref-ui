@@ -605,9 +605,6 @@ SwapOptions) => {
     if (!whitelist.includes(tokenOut.id)) {
       actions.unshift(registerTokenAction(tokenOut.id));
     }
-    // if (!whitelist.includes(tokenMid.id)) {
-    //   actions.unshift(registerTokenAction(tokenMid.id));
-    // }
 
     const neededStorage = await checkTokenNeedsStorageDeposit();
     if (neededStorage) {
