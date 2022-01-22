@@ -134,7 +134,7 @@ export const OneParallelRoute = ({
 }) => {
   return (
     <div className="xs:flex items-center xs:justify-between md:flex md:justify-between lg:grid grid-cols-11">
-      <div className="col-end-3 col-start-1">
+      <div className="col-end-3 col-start-1 w-14">
         <ParaTokenFrom tokenIn={tokenIn} p={p} />
       </div>
       <div className="xs:ml-1.5 md:ml-1.5 lg:ml-4">
