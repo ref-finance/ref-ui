@@ -184,6 +184,8 @@ export const estimateSwap = async ({
     let pool1, pool2;
     let tokenMidId;
 
+    const candidatePools = [];
+
     const pools1 = (await getPoolByToken(tokenIn.id)).filter((p) => {
       const supplies = Object.values(p.supplies);
 
@@ -207,13 +209,23 @@ export const estimateSwap = async ({
       });
 
       if (pools2.length > 0) {
-        pool2 = pools2[0];
+        pool2 = _.maxBy(pools2, getLiquidity);
         pool1 = tempPool1;
-        break;
+        candidatePools.push([pool1, pool2]);
       }
     }
 
-    if (pool1 && pool2) {
+    if (candidatePools.length > 0) {
+      [pool1, pool2] = _.maxBy(
+        candidatePools,
+        (poolPair) => getLiquidity(poolPair[0]) * getLiquidity(poolPair[1])
+      );
+
+      tokenMidId =
+        pool1.tokenIds[0] === tokenIn.id
+          ? pool1.tokenIds[1]
+          : pool1.tokenIds[0];
+
       const tokenMidMeta = await ftGetTokenMetadata(tokenMidId);
 
       const estimate1 = {
