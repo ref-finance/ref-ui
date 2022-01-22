@@ -251,9 +251,7 @@ export const isNotStablePool = (pool: Pool) => {
 export const getPoolsByTokens = async ({
   tokenInId,
   tokenOutId,
-  amountIn,
   setLoadingData,
-  setLoadingTrigger,
   loadingTrigger,
 }: GetPoolOptions): Promise<Pool[]> => {
   let filtered_pools;
@@ -261,8 +259,6 @@ export const getPoolsByTokens = async ({
     tokenInId,
     tokenOutId
   );
-
-  console.log(cacheForPair, cacheTimeLimit);
 
   if ((cacheTimeLimit && !loadingTrigger) || !cacheForPair) {
     filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
@@ -280,7 +276,6 @@ export const getPoolsByTokens = async ({
       (p) => p.supplies[tokenInId] && p.supplies[tokenOutId]
     );
   }
-  setLoadingTrigger(false);
   setLoadingData(false);
   return filtered_pools;
 };

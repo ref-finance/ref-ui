@@ -72,8 +72,6 @@ export const useSwap = ({
     .get('transactionHashes')
     ?.split(',');
 
-  const [tokenInAmountMemo, setTokenInAmountMemo] = useState<string>('');
-
   const txHash = txHashes
     ? txHashes.length > 1
       ? txHashes[1]
@@ -154,7 +152,7 @@ export const useSwap = ({
     }
   }, [txHash]);
 
-  const getEstimate = (ifFetch: boolean) => {
+  const getEstimate = () => {
     setCanSwap(false);
 
     if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
@@ -171,7 +169,6 @@ export const useSwap = ({
         intl,
         setLoadingData,
         loadingTrigger: loadingTrigger && !loadingPause,
-        setLoadingTrigger,
       })
         .then((estimates) => {
           if (!estimates) throw '';
@@ -190,7 +187,7 @@ export const useSwap = ({
                   BigNumber.sum(pre, cur.estimate).toString()
                 );
               }, '0');
-              if (ifFetch) setTokenOutAmount(estimate);
+              if (!loadingTrigger) setTokenOutAmount(estimate);
             }
           } else {
             if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
@@ -200,7 +197,7 @@ export const useSwap = ({
               setAvgFee(
                 Number(estimates[0].pool.fee) + Number(estimates[1].pool.fee)
               );
-              if (ifFetch) setTokenOutAmount(estimates[1].estimate);
+              if (!loadingTrigger) setTokenOutAmount(estimates[1].estimate);
             }
           }
           setPool(estimates[0].pool);
@@ -209,7 +206,8 @@ export const useSwap = ({
           setCanSwap(false);
           setTokenOutAmount('');
           setSwapError(err);
-        });
+        })
+        .finally(() => setLoadingTrigger(false));
     } else if (
       tokenIn &&
       tokenOut &&
@@ -222,15 +220,8 @@ export const useSwap = ({
   };
 
   useEffect(() => {
-    setTokenInAmountMemo(tokenInAmount);
-    if (loadingTrigger && !loadingPause && !ONLY_ZEROS.test(tokenInAmountMemo))
-      return;
-    getEstimate(!loadingTrigger);
-  }, [tokenIn, tokenOut, tokenInAmount]);
-
-  useEffect(() => {
-    getEstimate(!loadingTrigger);
-  }, [loadingTrigger, loadingPause]);
+    getEstimate();
+  }, [loadingTrigger, loadingPause, tokenIn, tokenOut, tokenInAmount]);
 
   useEffect(() => {
     let id: any = null;

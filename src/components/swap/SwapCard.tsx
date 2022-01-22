@@ -477,7 +477,14 @@ function DetailView({
     }
   }, [to]);
 
-  if (!pools || !from || !to || !(Number(from) > 0)) return null;
+  if (
+    !pools ||
+    !from ||
+    !to ||
+    !(Number(from) > 0) ||
+    tokenIn.id === tokenOut.id
+  )
+    return null;
 
   return (
     <div className="mt-8">

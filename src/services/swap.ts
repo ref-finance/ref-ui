@@ -113,7 +113,6 @@ export const estimateSwap = async ({
   intl,
   setLoadingData,
   loadingTrigger,
-  setLoadingTrigger,
 }: EstimateSwapOptions): Promise<EstimateSwapView[]> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
 
@@ -127,7 +126,6 @@ export const estimateSwap = async ({
     tokenOutId: tokenOut.id,
     amountIn: parsedAmountIn,
     setLoadingData,
-    setLoadingTrigger,
     loadingTrigger,
   });
 
