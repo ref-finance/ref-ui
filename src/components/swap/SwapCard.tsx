@@ -269,7 +269,7 @@ export function SmartRoutesDetail({
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
 }) {
-  const tokenMid = useMemo(() => swapsTodo[1].token, [swapsTodo[1].token]);
+  const tokenMid = useMemo(() => swapsTodo[1].token, [swapsTodo[1].token.id]);
 
   return (
     <section className="md:grid lg:grid grid-cols-12 py-1 text-xs">
