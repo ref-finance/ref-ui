@@ -160,7 +160,7 @@ export const calculatePriceImpact = (
 
   const PriceImpact = percent(
     subtraction(newMarketPrice, finalMarketPrice),
-    finalMarketPrice
+    newMarketPrice
   ).toString();
 
   return scientificNotationToString(PriceImpact);
