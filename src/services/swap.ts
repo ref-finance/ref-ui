@@ -203,7 +203,13 @@ export const estimateSwap = async ({
       });
 
       if (pools2.length > 0) {
-        pool2 = _.maxBy(pools2, (p) => getLiquidity(p, tokenIn, tokenOut));
+        pool2 = _.maxBy(pools2, (p) =>
+          Number(
+            new Big(
+              toReadableNumber(tokenOut.decimals, p.supplies[tokenOut.id])
+            )
+          )
+        );
         pool1 = tempPool1;
         candidatePools.push([pool1, pool2]);
       }
