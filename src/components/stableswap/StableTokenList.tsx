@@ -105,7 +105,7 @@ export default function StableTokenList(props: {
         >
           {toPrecision(
             toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
-            2,
+            3,
             true
           )}
         </span>
@@ -141,7 +141,7 @@ export default function StableTokenList(props: {
           >
             {toPrecision(
               toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
-              2,
+              3,
               true
             )}
           </span>
@@ -176,7 +176,7 @@ export default function StableTokenList(props: {
           >
             {toPrecision(
               toReadableNumber(tokens[2].decimals, balances[tokens[2].id]),
-              2,
+              3,
               true
             )}{' '}
           </span>

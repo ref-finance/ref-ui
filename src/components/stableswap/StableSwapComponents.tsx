@@ -20,9 +20,16 @@ import {
   toPrecision,
   toReadableNumber,
   calcStableSwapPriceImpact,
+  scientificNotationToString,
+  divide,
+  multiply,
 } from '~utils/numbers';
 
-const GetPriceImpact = (value: string) => {
+const GetPriceImpact = (
+  value: string,
+  tokenIn: TokenMetadata,
+  tokenInAmount: string
+) => {
   // const value = calcStableSwapPriceImpact(from, to);
 
   const textColor =
@@ -32,10 +39,21 @@ const GetPriceImpact = (value: string) => {
       ? 'text-warn'
       : 'text-error';
 
+  const tokenInInfo = ` / -${toPrecision(
+    scientificNotationToString(multiply(tokenInAmount, divide(value, '100'))),
+    3
+  )} ${tokenIn.symbol}`;
+
   return Number(value) < 0.01 ? (
-    <span className="text-greenLight">{'< -0.01%'}</span>
+    <span className="text-greenLight">
+      {'< -0.01%'}
+      {tokenInInfo}
+    </span>
   ) : (
-    <span className={`${textColor}`}>{`≈ -${toPrecision(value, 2)}%`}</span>
+    <span className={`${textColor}`}>
+      {`≈ -${toPrecision(value, 2)}%`}
+      {tokenInInfo}
+    </span>
   );
 };
 
@@ -321,7 +339,7 @@ export function DetailView({
           value={
             !noFeeAmount || noFeeAmount === '0'
               ? '-'
-              : GetPriceImpact(priceImpactValue)
+              : GetPriceImpact(priceImpactValue, tokenIn, from)
           }
         />
       </div>

@@ -84,7 +84,15 @@ export const Icon = ({
     );
   } else {
     return (
-      <div className="w-6 h-6 rounded-full border border-gradientFromHover" />
+      <div
+        className={`w-6 h-6 rounded-full border border-gradientFromHover ${
+          position ? `${position} -right-2.5` : ''
+        }`}
+        style={{
+          top: position === 'absolute' ? '0px' : 'auto',
+          backgroundColor: 'rgba(27, 32, 37, 1)',
+        }}
+      />
     );
   }
 };
