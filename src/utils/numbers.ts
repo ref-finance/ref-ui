@@ -1,12 +1,15 @@
 import BigNumber from 'bignumber.js';
 import BN from 'bn.js';
 import * as math from 'mathjs';
+import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import { TokenMetadata } from '~services/ft-contract';
 import { STABLE_POOL_ID, STABLE_TOKEN_IDS } from '~services/near';
 import { Pool } from '~services/pool';
+import { getSwappedAmount } from '~services/stable-swap';
 import { EstimateSwapView } from '~services/swap';
 
 const BPS_CONVERSION = 10000;
+const REF_FI_STABLE_Pool_INFO_KEY = 'REF_FI_STABLE_Pool_INFO_VALUE';
 
 const ROUNDING_OFFSETS: BN[] = [];
 const BN10 = new BN(10);
@@ -186,12 +189,35 @@ export const calculateSmartRoutingPriceImpact = (
         tokenIn,
         tokenMid
       );
+
   const formattedTokenMidReceived = scientificNotationToString(
     tokenMidReceived.toString()
   );
 
+  // const [amount_swapped, fee, dy] = getSwappedAmount(
+  //   tokenIn.id,
+  //   tokenOut.id,
+  //   amountIn,
+  //   stablePoolInfo
+  // );
+
+  let stableOutPool2;
+  if (isPool2StablePool) {
+    const stableOut = getSwappedAmount(
+      tokenMid.id,
+      tokenOut.id,
+      formattedTokenMidReceived,
+      JSON.parse(localStorage.getItem(REF_FI_STABLE_Pool_INFO_KEY))
+    );
+    stableOutPool2 =
+      stableOut[0] < 0
+        ? '0'
+        : toPrecision(scientificNotationToString(stableOut[2].toString()), 0);
+    stableOutPool2 = toReadableNumber(STABLE_LP_TOKEN_DECIMALS, stableOutPool2);
+  }
+
   const tokenOutReceived = isPool2StablePool
-    ? swapTodos[1].noFeeAmountOut
+    ? stableOutPool2
     : calculateAmountReceived(
         swapTodos[1].pool,
         toNonDivisibleNumber(tokenMid.decimals, formattedTokenMidReceived),
