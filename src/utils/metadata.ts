@@ -1,5 +1,5 @@
 const icons: { [tokenId: string]: string } = {
-  'wrap.near': 'https://i.postimg.cc/4xx2KRxt/wNEAR.png',
+  'wrap.near': 'https://i.postimg.cc/hGd6ybKW/w-NEAR2022.png',
   '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near':
     'https://s2.coinmarketcap.com/static/img/coins/64x64/4943.png',
   'berryclub.ek.near': 'https://i.postimg.cc/j263fsf6/banana.png',

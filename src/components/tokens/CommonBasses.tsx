@@ -40,7 +40,7 @@ export default function CommonBasses({ tokens, onClick }: CommonBassesProps) {
         {commonBassesTokens.map((token) => {
           return (
             <div
-              className="pt-4 cursor-pointer mr-7 flex items-center"
+              className="pt-4 cursor-pointer mr-7 xs:mr-5 md:mr-5 flex items-center"
               key={token.id}
               onClick={() => onClick && onClick(token)}
             >
@@ -67,7 +67,7 @@ const Wnear = () => {
   return (
     <>
       {wallet.isSignedIn() && (
-        <div className="text-white pt-4 cursor-pointer mr-7">
+        <div className="text-white pt-4 cursor-pointer xs:mr-5 md:mr-5 mr-7">
           <div
             className="cursor-pointer items-center flex"
             onClick={() => setShowWrapNear(true)}
