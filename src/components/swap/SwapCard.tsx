@@ -373,15 +373,15 @@ export const GetPriceImpact = (
       ? 'text-warn'
       : 'text-error';
 
+  const displayValue = toPrecision(
+    scientificNotationToString(multiply(tokenInAmount, divide(value, '100'))),
+    3
+  );
+
   const tokenInInfo =
-    Number(value) < 0
+    Number(displayValue) <= 0
       ? ` / 0 ${toRealSymbol(tokenIn.symbol)}`
-      : ` / -${toPrecision(
-          scientificNotationToString(
-            multiply(tokenInAmount, divide(value, '100'))
-          ),
-          3
-        )} ${tokenIn.symbol}`;
+      : ` / -${displayValue} ${tokenIn.symbol}`;
 
   if (Number(value) < 0.01)
     return (

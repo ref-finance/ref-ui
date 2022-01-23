@@ -30,6 +30,11 @@ const GetPriceImpact = (
   tokenIn: TokenMetadata,
   tokenInAmount: string
 ) => {
+  const displayValue = toPrecision(
+    scientificNotationToString(multiply(tokenInAmount, divide(value, '100'))),
+    3
+  );
+
   const textColor =
     Number(value) <= 1
       ? 'text-greenLight'
@@ -38,14 +43,9 @@ const GetPriceImpact = (
       : 'text-error';
 
   const tokenInInfo =
-    Number(value) < 0
+    Number(displayValue) <= 0
       ? ` / 0 ${toRealSymbol(tokenIn.symbol)}`
-      : ` / -${toPrecision(
-          scientificNotationToString(
-            multiply(tokenInAmount, divide(value, '100'))
-          ),
-          3
-        )} ${toRealSymbol(tokenIn.symbol)}`;
+      : ` / -${displayValue} ${toRealSymbol(tokenIn.symbol)}`;
 
   return (
     <>
