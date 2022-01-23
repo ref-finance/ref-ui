@@ -1421,7 +1421,13 @@ export function PoolDetailsPage() {
                     }`}</a>
                   </div>
                 </div>
-                <div className="text-white text-sm">
+                <div
+                  className="text-white text-sm"
+                  title={toReadableNumber(
+                    tokens[0].decimals,
+                    pool.supplies[tokens[0].id]
+                  )}
+                >
                   {Number(
                     toReadableNumber(
                       tokens[0].decimals,
@@ -1454,7 +1460,14 @@ export function PoolDetailsPage() {
                     }`}</a>
                   </div>
                 </div>
-                <div className="text-white text-sm">
+                <div
+                  className="text-white text-sm
+                "
+                  title={toReadableNumber(
+                    tokens[1].decimals,
+                    pool.supplies[tokens[1].id]
+                  )}
+                >
                   {Number(
                     toReadableNumber(
                       tokens[1].decimals,
