@@ -166,19 +166,10 @@ export const calculateSmartRoutingPriceImpact = (
     tokenOut
   );
   const generalMarketPrice = math.evaluate(`${marketPrice1} * ${marketPrice2}`);
-  const tokenMidReceived = calculateAmountReceived(
-    swapTodos[0].pool,
-    toNonDivisibleNumber(tokenIn.decimals, tokenInAmount),
-    tokenIn,
-    tokenMid
-  );
-  const formattedTokenMidReceived = scientificNotationToString(
-    tokenMidReceived.toString()
-  );
 
   const tokenOutReceived = calculateAmountReceived(
     swapTodos[1].pool,
-    toNonDivisibleNumber(tokenMid.decimals, formattedTokenMidReceived),
+    toNonDivisibleNumber(tokenMid.decimals, swapTodos[0].estimate),
     tokenMid,
     tokenOut
   );
