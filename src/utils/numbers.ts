@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js';
 import BN from 'bn.js';
 import * as math from 'mathjs';
 import { TokenMetadata } from '~services/ft-contract';
+import { STABLE_TOKEN_IDS } from '~services/near';
 import { Pool } from '~services/pool';
 import { EstimateSwapView } from '~services/swap';
 
@@ -154,34 +155,45 @@ export const calculateSmartRoutingPriceImpact = (
   tokenMid: TokenMetadata,
   tokenOut: TokenMetadata
 ) => {
-  const marketPrice1 = calculateMarketPrice(
-    swapTodos[0].pool,
-    tokenIn,
-    tokenMid
+  const isPool1StablePool = STABLE_TOKEN_IDS.includes(
+    swapTodos[0].pool.id.toString()
+  );
+  const isPool2StablePool = STABLE_TOKEN_IDS.includes(
+    swapTodos[1].pool.id.toString()
   );
 
-  const marketPrice2 = calculateMarketPrice(
-    swapTodos[1].pool,
-    tokenMid,
-    tokenOut
-  );
+  const marketPrice1 = isPool1StablePool
+    ? calcStableSwapPriceImpact(tokenInAmount, swapTodos[0].noFeeAmountOut)
+    : calculateMarketPrice(swapTodos[0].pool, tokenIn, tokenMid);
+
+  const marketPrice2 = isPool2StablePool
+    ? calcStableSwapPriceImpact(
+        swapTodos[0].estimate,
+        swapTodos[1].noFeeAmountOut
+      )
+    : calculateMarketPrice(swapTodos[1].pool, tokenMid, tokenOut);
   const generalMarketPrice = math.evaluate(`${marketPrice1} * ${marketPrice2}`);
-  const tokenMidReceived = calculateAmountReceived(
-    swapTodos[0].pool,
-    toNonDivisibleNumber(tokenIn.decimals, tokenInAmount),
-    tokenIn,
-    tokenMid
-  );
+
+  const tokenMidReceived = isPool1StablePool
+    ? swapTodos[0].noFeeAmountOut
+    : calculateAmountReceived(
+        swapTodos[0].pool,
+        toNonDivisibleNumber(tokenIn.decimals, tokenInAmount),
+        tokenIn,
+        tokenMid
+      );
   const formattedTokenMidReceived = scientificNotationToString(
     tokenMidReceived.toString()
   );
 
-  const tokenOutReceived = calculateAmountReceived(
-    swapTodos[1].pool,
-    toNonDivisibleNumber(tokenMid.decimals, formattedTokenMidReceived),
-    tokenMid,
-    tokenOut
-  );
+  const tokenOutReceived = isPool2StablePool
+    ? swapTodos[1].noFeeAmountOut
+    : calculateAmountReceived(
+        swapTodos[1].pool,
+        toNonDivisibleNumber(tokenMid.decimals, formattedTokenMidReceived),
+        tokenMid,
+        tokenOut
+      );
 
   const newMarketPrice = math.evaluate(
     `${tokenInAmount} / ${tokenOutReceived}`

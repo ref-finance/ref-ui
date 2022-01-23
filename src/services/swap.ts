@@ -20,6 +20,8 @@ import {
   refFiManyFunctionCalls,
   Transaction,
   wallet,
+  STABLE_POOL_ID,
+  STABLE_TOKEN_IDS,
 } from './near';
 import {
   calculateOptimalOutput,
@@ -33,7 +35,15 @@ import {
   ftGetTokenMetadata,
   TokenMetadata,
 } from './ft-contract';
-import { getPoolsByTokens, getPoolByToken, parsePool, Pool } from './pool';
+import {
+  getPoolsByTokens,
+  getPoolByToken,
+  parsePool,
+  Pool,
+  getPool,
+  getStablePool,
+  StablePool,
+} from './pool';
 import {
   checkTokenNeedsStorageDeposit,
   getWhitelistedTokens,
@@ -47,11 +57,15 @@ import {
 import { registerTokenAction } from './creators/token';
 import { BigNumber } from 'bignumber.js';
 import _, { filter } from 'lodash';
+import { getSwappedAmount } from './stable-swap';
+import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 
 // Big.strict = false;
 const FEE_DIVISOR = 10000;
 const LP_THERESHOLD = 0.001;
 const MAXIMUM_NUMBER_OF_POOLS = 5;
+const STABLE_POOL_KEY = 'STABLE_POOL_VALUE';
+const REF_FI_STABLE_Pool_INFO_KEY = 'REF_FI_STABLE_Pool_INFO_VALUE';
 
 export enum PoolMode {
   PARALLEL = 'parallel swap',
@@ -74,7 +88,46 @@ export interface EstimateSwapView {
   intl?: any;
   status?: PoolMode;
   token?: TokenMetadata;
+  noFeeAmountOut?: string;
 }
+
+const getStablePoolEstimate = ({
+  tokenIn,
+  tokenOut,
+  amountIn,
+  stablePoolInfo,
+  stablePool,
+}: {
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  amountIn: string;
+  stablePoolInfo: StablePool;
+  stablePool: Pool;
+}) => {
+  const [amount_swapped, fee, dy] = getSwappedAmount(
+    tokenIn.id,
+    tokenOut.id,
+    amountIn,
+    stablePoolInfo
+  );
+
+  const amountOut =
+    amount_swapped < 0
+      ? '0'
+      : toPrecision(scientificNotationToString(amount_swapped.toString()), 0);
+
+  const dyOut =
+    amount_swapped < 0
+      ? '0'
+      : toPrecision(scientificNotationToString(dy.toString()), 0);
+
+  return {
+    estimate: toReadableNumber(STABLE_LP_TOKEN_DECIMALS, amountOut),
+    noFeeAmountOut: toReadableNumber(STABLE_LP_TOKEN_DECIMALS, dyOut),
+    pool: stablePool,
+    token: tokenIn,
+  };
+};
 
 const getSinglePoolEstimate = (
   tokenIn: TokenMetadata,
@@ -176,49 +229,79 @@ export const estimateSwap = async ({
   // smart routing
   if (parallelPools.length < 1) {
     let pool1, pool2;
-    let tokenMidId;
+    let stablePool;
+    let stablePoolInfo;
+
+    if (
+      STABLE_TOKEN_IDS.includes(tokenIn.id) ||
+      STABLE_TOKEN_IDS.includes(tokenOut.id)
+    ) {
+      [stablePool, stablePoolInfo] = await Promise.all([
+        JSON.parse(localStorage.getItem(STABLE_POOL_KEY)) ||
+          (await getPool(Number(STABLE_POOL_ID))),
+        JSON.parse(localStorage.getItem(REF_FI_STABLE_Pool_INFO_KEY)) ||
+          (await getStablePool(Number(STABLE_POOL_ID))),
+      ]);
+      localStorage.setItem(STABLE_POOL_KEY, JSON.stringify(stablePool));
+      localStorage.setItem(
+        REF_FI_STABLE_Pool_INFO_KEY,
+        JSON.stringify(stablePoolInfo)
+      );
+    }
 
     const candidatePools = [];
 
     const pools1 = (await getPoolByToken(tokenIn.id)).filter((p) => {
       const supplies = Object.values(p.supplies);
-
       return new Big(supplies[0]).times(new Big(supplies[1])).gt(0);
     });
 
+    if (STABLE_TOKEN_IDS.includes(tokenIn.id) && stablePool) {
+      pools1.push(stablePool);
+    }
+
     for (let i = 0; i < pools1.length; i++) {
       const tempPool1 = pools1[i];
-      tokenMidId =
-        tempPool1.tokenIds[0] === tokenIn.id
-          ? tempPool1.tokenIds[1]
-          : tempPool1.tokenIds[0];
+      const tokenMidIds = tempPool1.tokenIds.filter((id) => id !== tokenIn.id);
 
-      const pools2 = (await getPoolByToken(tokenMidId)).filter((p) => {
-        const supplies = Object.values(p.supplies);
+      for (let k = 0; k < tokenMidIds.length; k++) {
+        const tokenMidId = tokenMidIds[k];
 
-        return (
-          new Big(supplies[0]).times(new Big(supplies[1])).gt(0) &&
-          p.tokenIds.includes(tokenOut.id)
-        );
-      });
+        const pools2 = (await getPoolByToken(tokenMidId)).filter((p) => {
+          const supplies = Object.values(p.supplies);
+          return (
+            new Big(supplies[0]).times(new Big(supplies[1])).gt(0) &&
+            p.tokenIds.includes(tokenOut.id)
+          );
+        });
 
-      if (pools2.length > 0) {
-        pool2 = _.maxBy(pools2, (p) =>
-          Number(
-            new Big(
-              toReadableNumber(tokenOut.decimals, p.supplies[tokenOut.id])
+        if (
+          STABLE_TOKEN_IDS.includes(tokenOut.id) &&
+          STABLE_TOKEN_IDS.includes(tokenMidId) &&
+          stablePool &&
+          tokenOut.id !== tokenMidId
+        ) {
+          pools2.push(stablePool);
+        }
+
+        if (pools2.length > 0) {
+          pool2 = _.maxBy(pools2, (p) =>
+            Number(
+              new Big(
+                toReadableNumber(tokenOut.decimals, p.supplies[tokenOut.id])
+              )
             )
-          )
-        );
-        pool1 = tempPool1;
-        candidatePools.push([pool1, pool2]);
+          );
+          pool1 = tempPool1;
+          candidatePools.push([pool1, pool2]);
+        }
       }
     }
 
     if (candidatePools.length > 0) {
       console.log(candidatePools);
 
-      [pool1, pool2] = _.maxBy(candidatePools, (poolPair) => {
+      const BestPoolPair = _.maxBy(candidatePools, (poolPair) => {
         const tokenInSupply = toReadableNumber(
           tokenIn.decimals,
           poolPair[0].supplies[tokenIn.id]
@@ -228,38 +311,49 @@ export const estimateSwap = async ({
           poolPair[1].supplies[tokenOut.id]
         );
 
-        console.log(
-          'tokenInSupply',
-          tokenInSupply,
-          'tokenOutSupply',
-          tokenOutSupply,
-          'pool1 id',
-          poolPair[0].id,
-          'pool2 id',
-          poolPair[1].id
-        );
-
         return Number(new Big(tokenInSupply).times(new Big(tokenOutSupply)));
       });
+      [pool1, pool2] = BestPoolPair;
 
-      tokenMidId =
-        pool1.tokenIds[0] === tokenIn.id
-          ? pool1.tokenIds[1]
-          : pool1.tokenIds[0];
+      const tokenMidId = BestPoolPair[0].tokenIds.find((t) =>
+        BestPoolPair[1].tokenIds.includes(t)
+      );
 
       const tokenMidMeta = await ftGetTokenMetadata(tokenMidId);
 
       const estimate1 = {
-        ...getSinglePoolEstimate(tokenIn, tokenMidMeta, pool1, parsedAmountIn),
+        ...(pool1.id === Number(STABLE_POOL_ID)
+          ? getStablePoolEstimate({
+              tokenIn,
+              tokenOut: tokenMidMeta,
+              amountIn,
+              stablePoolInfo,
+              stablePool,
+            })
+          : getSinglePoolEstimate(
+              tokenIn,
+              tokenMidMeta,
+              pool1,
+              parsedAmountIn
+            )),
         status: PoolMode.SMART,
       };
+
       const estimate2 = {
-        ...getSinglePoolEstimate(
-          tokenMidMeta,
-          tokenOut,
-          pool2,
-          toNonDivisibleNumber(tokenMidMeta.decimals, estimate1.estimate)
-        ),
+        ...(pool2.id === Number(STABLE_POOL_ID)
+          ? getStablePoolEstimate({
+              tokenIn: tokenMidMeta,
+              tokenOut,
+              amountIn: estimate1.estimate,
+              stablePoolInfo,
+              stablePool,
+            })
+          : getSinglePoolEstimate(
+              tokenMidMeta,
+              tokenOut,
+              pool2,
+              toNonDivisibleNumber(tokenMidMeta.decimals, estimate1.estimate)
+            )),
         status: PoolMode.SMART,
       };
 
@@ -277,7 +371,6 @@ export const estimateSwap = async ({
       })}`
     );
   } else {
-    // parallel swap
     try {
       const estimates = parallelPools.map((pool) => ({
         ...getSinglePoolEstimate(
