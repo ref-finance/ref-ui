@@ -30,8 +30,6 @@ const GetPriceImpact = (
   tokenIn: TokenMetadata,
   tokenInAmount: string
 ) => {
-  // const value = calcStableSwapPriceImpact(from, to);
-
   const textColor =
     Number(value) <= 1
       ? 'text-greenLight'
@@ -39,21 +37,25 @@ const GetPriceImpact = (
       ? 'text-warn'
       : 'text-error';
 
-  const tokenInInfo = ` / -${toPrecision(
-    scientificNotationToString(multiply(tokenInAmount, divide(value, '100'))),
-    3
-  )} ${tokenIn.symbol}`;
+  const tokenInInfo =
+    Number(value) < 0
+      ? ` / 0 ${toRealSymbol(tokenIn.symbol)}`
+      : ` / -${toPrecision(
+          scientificNotationToString(
+            multiply(tokenInAmount, divide(value, '100'))
+          ),
+          3
+        )} ${toRealSymbol(tokenIn.symbol)}`;
 
-  return Number(value) < 0.01 ? (
-    <span className="text-greenLight">
-      {'< -0.01%'}
-      {tokenInInfo}
-    </span>
-  ) : (
-    <span className={`${textColor}`}>
-      {`≈ -${toPrecision(value, 2)}%`}
-      {tokenInInfo}
-    </span>
+  return (
+    <>
+      {Number(value) < 0.01 ? (
+        <span className="text-greenLight">{'< -0.01%'}</span>
+      ) : (
+        <span className={`${textColor}`}>{`≈ -${toPrecision(value, 2)}%`}</span>
+      )}
+      <span className="text-greenLight">{tokenInInfo}</span>
+    </>
   );
 };
 
