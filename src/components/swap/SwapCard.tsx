@@ -84,9 +84,6 @@ export function DoubleCheckModal(
     priceImpactValue: string;
   }
 ) {
-  const mobileWindow = useMobile();
-  const cardWidth = mobileWindow ? '80vw' : '30vw';
-
   const { pools, tokenIn, tokenOut, from, onSwap, priceImpactValue } = props;
 
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
@@ -99,10 +96,7 @@ export function DoubleCheckModal(
         padding="p-6"
         bgcolor="bg-cardBg"
         className="text-white border border-gradientFromHover outline-none flex flex-col items-center"
-        style={{
-          width: cardWidth,
-          border: '1px solid rgba(0, 198, 162, 0.5)',
-        }}
+        width="xs:w-80vw md:w-80vw lg:w-30vw"
       >
         <div
           className="ml-2 cursor-pointer p-1 self-end"

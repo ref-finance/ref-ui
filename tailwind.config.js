@@ -100,6 +100,8 @@ module.exports = {
         '95vw': '95vw',
         '580px': '580px',
         '560px': '560px',
+        '80vw': '80vw',
+        '30vw': '30vw',
       },
     },
     plugins: [],
