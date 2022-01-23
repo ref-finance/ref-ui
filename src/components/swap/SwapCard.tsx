@@ -65,7 +65,7 @@ import QuestionMark, {
 import ReactTooltip from 'react-tooltip';
 import * as math from 'mathjs';
 import { HiOutlineExternalLink } from 'react-icons/hi';
-import { EstimateSwapView, swap } from '~services/swap';
+import { EstimateSwapView, PoolMode, swap } from '~services/swap';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -80,17 +80,37 @@ export function DoubleCheckModal(
     tokenOut: TokenMetadata;
     from: string;
     onSwap: (e?: any) => void;
+    swapsTodo: EstimateSwapView[];
   }
 ) {
   const cardWidth = isMobile() ? '80vw' : '30vw';
 
-  const { pools, tokenIn, tokenOut, from, onSwap } = props;
+  const { pools, tokenIn, tokenOut, from, onSwap, swapsTodo } = props;
 
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
-  if (!pools || !from || !tokenIn || !tokenOut) return null;
+  if (!pools || !from || !tokenIn || !tokenOut || !swapsTodo) return null;
 
-  const priceImpacValue = calculatePriceImpact(pools, tokenIn, tokenOut, from);
+  const isParallelSwap = swapsTodo.every((e) => e.status === PoolMode.PARALLEL);
+
+  const priceImpacValueParallelSwap = calculatePriceImpact(
+    pools,
+    tokenIn,
+    tokenOut,
+    from
+  );
+
+  const priceImpactSmartRouting = calculateSmartRoutingPriceImpact(
+    from,
+    swapsTodo,
+    tokenIn,
+    swapsTodo[1].token,
+    tokenOut
+  );
+
+  const priceImpacValue = isParallelSwap
+    ? priceImpacValueParallelSwap
+    : priceImpactSmartRouting;
 
   return (
     <Modal {...props}>
@@ -848,6 +868,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         tokenOut={tokenOut}
         from={tokenInAmount}
         onSwap={() => makeSwap(useNearBalance)}
+        swapsTodo={swapsToDo}
       />
     </>
   );

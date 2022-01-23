@@ -71,11 +71,13 @@ export default function QuestionMark(props: {
 export function QuestionMarkStaticForParaSwap(props: {
   color?: 'bright' | 'dark';
   className?: string;
+  isParallelSwap?: boolean;
 }) {
   const [status, setStatus] = useState<boolean>(false);
   const intl = useIntl();
   const mobile = useMobile();
-  const { color } = props;
+  const { color, isParallelSwap } = props;
+
   return (
     <div
       className="relative flex"

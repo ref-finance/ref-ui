@@ -166,10 +166,19 @@ export const calculateSmartRoutingPriceImpact = (
     tokenOut
   );
   const generalMarketPrice = math.evaluate(`${marketPrice1} * ${marketPrice2}`);
+  const tokenMidReceived = calculateAmountReceived(
+    swapTodos[0].pool,
+    toNonDivisibleNumber(tokenIn.decimals, tokenInAmount),
+    tokenIn,
+    tokenMid
+  );
+  const formattedTokenMidReceived = scientificNotationToString(
+    tokenMidReceived.toString()
+  );
 
   const tokenOutReceived = calculateAmountReceived(
     swapTodos[1].pool,
-    toNonDivisibleNumber(tokenMid.decimals, swapTodos[0].estimate),
+    toNonDivisibleNumber(tokenMid.decimals, formattedTokenMidReceived),
     tokenMid,
     tokenOut
   );
@@ -321,6 +330,13 @@ export const toInternationalCurrencySystemNature = (
   labelValue: string,
   percent?: number
 ) => {
+  const handle = (str: string) => {
+    let [whole, decimal] = str.split('.');
+    if (Number(decimal) == 0) {
+      return whole;
+    }
+    return str;
+  };
   return Math.abs(Number(labelValue)) >= 1.0e9
     ? new BigNumber(Math.abs(Number(labelValue)) / 1.0e9).toFixed(
         percent || 2,
@@ -336,7 +352,9 @@ export const toInternationalCurrencySystemNature = (
         percent || 2,
         1
       ) + 'K'
-    : niceDecimals(labelValue);
+    : handle(
+        new BigNumber(Math.abs(Number(labelValue))).toFixed(percent || 2, 1)
+      );
 };
 
 export function scientificNotationToString(strParam: string) {
@@ -405,12 +423,12 @@ export const calcStableSwapPriceImpact = (from: string, to: string) => {
   });
 };
 
-export const niceDecimals = (number: string | number, precision = 2) => {
+export const niceDecimals = (number: string | number) => {
   const str = number.toString();
   const [whole, decimals] = str.split('.');
-  if (!decimals || Number(decimals) == 0) {
+  if (decimals && Number(decimals) == 0) {
     return whole;
   } else {
-    return new BigNumber(number).toFixed(precision, 1);
+    return number;
   }
 };
