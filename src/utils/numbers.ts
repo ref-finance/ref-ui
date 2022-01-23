@@ -171,6 +171,13 @@ export const calculateSmartRoutingPriceImpact = (
     : calculateMarketPrice(swapTodos[1].pool, tokenMid, tokenOut);
   const generalMarketPrice = math.evaluate(`${marketPrice1} * ${marketPrice2}`);
 
+  console.log(
+    'this is market price 1',
+    marketPrice1.toString(),
+    'this is market price 2',
+    marketPrice2.toString()
+  );
+
   console.log('this is market price', generalMarketPrice.toString());
 
   const tokenMidReceived = isPool1StablePool
@@ -193,6 +200,8 @@ export const calculateSmartRoutingPriceImpact = (
         tokenMid,
         tokenOut
       );
+
+  console.log('this is final tokenout', tokenOutReceived.toString());
 
   const newMarketPrice = math.evaluate(
     `${tokenInAmount} / ${tokenOutReceived}`
