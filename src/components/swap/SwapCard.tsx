@@ -49,7 +49,7 @@ import { WarnTriangle, ErrorTriangle } from '~components/icon/SwapRefresh';
 import ReactModal from 'react-modal';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
-import { isMobile } from '~utils/device';
+import { isMobile, useMobile } from '~utils/device';
 import { ModalClose } from '~components/icon';
 import BigNumber from 'bignumber.js';
 import {
@@ -83,30 +83,33 @@ export function DoubleCheckModal(
     swapsTodo: EstimateSwapView[];
   }
 ) {
-  const cardWidth = isMobile() ? '80vw' : '30vw';
+  const mobileWindow = useMobile();
+  const cardWidth = mobileWindow ? '80vw' : '30vw';
 
   const { pools, tokenIn, tokenOut, from, onSwap, swapsTodo } = props;
 
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+  const isParallelSwap = swapsTodo?.every(
+    (e) => e.status === PoolMode.PARALLEL
+  );
+
+  const priceImpacValueParallelSwap = useMemo(() => {
+    if (!from || !pools) return '0';
+    return calculatePriceImpact(pools, tokenIn, tokenOut, from);
+  }, [from]);
+
+  const priceImpactSmartRouting = useMemo(() => {
+    if (!from || !swapsTodo || isParallelSwap) return '0';
+    return calculateSmartRoutingPriceImpact(
+      from,
+      swapsTodo,
+      tokenIn,
+      swapsTodo[1].token,
+      tokenOut
+    );
+  }, [from]);
 
   if (!pools || !from || !tokenIn || !tokenOut || !swapsTodo) return null;
-
-  const isParallelSwap = swapsTodo.every((e) => e.status === PoolMode.PARALLEL);
-
-  const priceImpacValueParallelSwap = calculatePriceImpact(
-    pools,
-    tokenIn,
-    tokenOut,
-    from
-  );
-
-  const priceImpactSmartRouting = calculateSmartRoutingPriceImpact(
-    from,
-    swapsTodo,
-    tokenIn,
-    swapsTodo[1].token,
-    tokenOut
-  );
 
   const priceImpacValue = isParallelSwap
     ? priceImpacValueParallelSwap
