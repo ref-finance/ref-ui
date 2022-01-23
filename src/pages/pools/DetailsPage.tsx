@@ -1422,12 +1422,19 @@ export function PoolDetailsPage() {
                   </div>
                 </div>
                 <div className="text-white text-sm">
-                  {toInternationalCurrencySystem(
+                  {Number(
                     toReadableNumber(
                       tokens[0].decimals,
                       pool.supplies[tokens[0].id]
                     )
-                  )}
+                  ) > 0.01
+                    ? toInternationalCurrencySystem(
+                        toReadableNumber(
+                          tokens[0].decimals,
+                          pool.supplies[tokens[0].id]
+                        )
+                      )
+                    : '< 0.01'}
                 </div>
               </div>
               <div className="flex items-center justify-between mb-6">
@@ -1448,12 +1455,19 @@ export function PoolDetailsPage() {
                   </div>
                 </div>
                 <div className="text-white text-sm">
-                  {toInternationalCurrencySystem(
+                  {Number(
                     toReadableNumber(
                       tokens[1].decimals,
                       pool.supplies[tokens[1].id]
                     )
-                  )}
+                  ) > 0.01
+                    ? toInternationalCurrencySystem(
+                        toReadableNumber(
+                          tokens[1].decimals,
+                          pool.supplies[tokens[1].id]
+                        )
+                      )
+                    : '< 0.01'}
                 </div>
               </div>
               {/* rate */}
