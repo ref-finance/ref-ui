@@ -126,12 +126,17 @@ export function DoubleCheckModal(
           </span>
           <span className="text-error">
             {' '}
-            {`(${toPrecision(
-              scientificNotationToString(
-                multiply(from, divide(priceImpactValue, '100'))
-              ),
-              3
-            )}${toRealSymbol(tokenIn.symbol)})`}{' '}
+            {`(${
+              Number(priceImpactValue) < 0
+                ? '0'
+                : '-' +
+                  toPrecision(
+                    scientificNotationToString(
+                      multiply(from, divide(priceImpactValue, '100'))
+                    ),
+                    3
+                  )
+            }${toRealSymbol(tokenIn.symbol)})`}{' '}
           </span>
           ,
         </div>
