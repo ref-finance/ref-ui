@@ -81,39 +81,17 @@ export function DoubleCheckModal(
     from: string;
     onSwap: (e?: any) => void;
     swapsTodo: EstimateSwapView[];
+    priceImpactValue: string;
   }
 ) {
   const mobileWindow = useMobile();
   const cardWidth = mobileWindow ? '80vw' : '30vw';
 
-  const { pools, tokenIn, tokenOut, from, onSwap, swapsTodo } = props;
+  const { pools, tokenIn, tokenOut, from, onSwap, priceImpactValue } = props;
 
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
-  const isParallelSwap = swapsTodo?.every(
-    (e) => e.status === PoolMode.PARALLEL
-  );
 
-  const priceImpacValueParallelSwap = useMemo(() => {
-    if (!from || !pools) return '0';
-    return calculatePriceImpact(pools, tokenIn, tokenOut, from);
-  }, [from]);
-
-  const priceImpactSmartRouting = useMemo(() => {
-    if (!from || !swapsTodo || isParallelSwap) return '0';
-    return calculateSmartRoutingPriceImpact(
-      from,
-      swapsTodo,
-      tokenIn,
-      swapsTodo[1].token,
-      tokenOut
-    );
-  }, [from]);
-
-  if (!pools || !from || !tokenIn || !tokenOut || !swapsTodo) return null;
-
-  const priceImpacValue = isParallelSwap
-    ? priceImpacValueParallelSwap
-    : priceImpactSmartRouting;
+  if (!pools || !from || !tokenIn || !tokenOut) return null;
 
   return (
     <Modal {...props}>
@@ -150,13 +128,13 @@ export function DoubleCheckModal(
           </span>
           &nbsp;
           <span className="text-error">
-            -{toPrecision(priceImpacValue, 2)}%
+            -{toPrecision(priceImpactValue, 2)}%
           </span>
           <span className="text-error">
             {' '}
             {`(${toPrecision(
               scientificNotationToString(
-                multiply(from, divide(priceImpacValue, '100'))
+                multiply(from, divide(priceImpactValue, '100'))
               ),
               3
             )}${toRealSymbol(tokenIn.symbol)})`}{' '}
@@ -462,6 +440,7 @@ function DetailView({
   isParallelSwap,
   fee,
   swapsTodo,
+  priceImpact,
 }: {
   pools: Pool[];
   tokenIn: TokenMetadata;
@@ -472,6 +451,7 @@ function DetailView({
   isParallelSwap?: boolean;
   fee?: number;
   swapsTodo?: EstimateSwapView[];
+  priceImpact?: string;
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
@@ -486,28 +466,6 @@ function DetailView({
     else return calculateExchangeRate(fee, to, from);
   }, [to]);
 
-  const priceImpactValueParallelSwap = useMemo(() => {
-    if (!pools || !from) return '0';
-    return calculatePriceImpact(pools, tokenIn, tokenOut, from);
-  }, [to]);
-
-  const priceImpactValueSmartRouting = useMemo(() => {
-    {
-      if (!swapsTodo || !from || isParallelSwap) return '0';
-      return calculateSmartRoutingPriceImpact(
-        from,
-        swapsTodo,
-        tokenIn,
-        swapsTodo[1].token,
-        tokenOut
-      );
-    }
-  }, [to]);
-
-  const priceImpact = isParallelSwap
-    ? priceImpactValueParallelSwap
-    : priceImpactValueSmartRouting;
-
   console.log('price impact', priceImpact);
 
   useEffect(() => {
@@ -517,8 +475,6 @@ function DetailView({
   }, [priceImpact]);
 
   useEffect(() => {
-    console.log(swapsTodo);
-
     if (swapsTodo?.length > 1) {
       setShowDetails(true);
     }
@@ -700,6 +656,28 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     loadingPause,
   });
 
+  const priceImpactValueParallelSwap = useMemo(() => {
+    if (!pools || !tokenOutAmount || !tokenInAmount) return '0';
+    return calculatePriceImpact(pools, tokenIn, tokenOut, tokenInAmount);
+  }, [tokenOutAmount]);
+
+  const priceImpactValueSmartRouting = useMemo(() => {
+    {
+      if (!swapsToDo || !tokenInAmount || isParallelSwap) return '0';
+      return calculateSmartRoutingPriceImpact(
+        tokenInAmount,
+        swapsToDo,
+        tokenIn,
+        swapsToDo[1].token,
+        tokenOut
+      );
+    }
+  }, [tokenOutAmount]);
+
+  const PriceImpactValue = isParallelSwap
+    ? priceImpactValueParallelSwap
+    : priceImpactValueSmartRouting;
+
   const topBall = useRef<HTMLInputElement>();
   const bottomBall = useRef<HTMLInputElement>();
   const runSwapAnimation = function () {
@@ -727,8 +705,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     const ifDoubleCheck =
       new BigNumber(tokenInAmount).isLessThanOrEqualTo(
         new BigNumber(tokenInMax)
-      ) &&
-      Number(calculatePriceImpact(pools, tokenIn, tokenOut, tokenInAmount)) > 2;
+      ) && Number(PriceImpactValue) > 2;
 
     if (ifDoubleCheck) setDoubleCheckOpen(true);
     else makeSwap(useNearBalance);
@@ -841,6 +818,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           isParallelSwap={isParallelSwap}
           fee={avgFee}
           swapsTodo={swapsToDo}
+          priceImpact={PriceImpactValue}
         />
         {swapError ? (
           <div className="pb-2 relative -mb-5">
@@ -872,6 +850,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         from={tokenInAmount}
         onSwap={() => makeSwap(useNearBalance)}
         swapsTodo={swapsToDo}
+        priceImpactValue={PriceImpactValue}
       />
     </>
   );
