@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 import BN from 'bn.js';
 import * as math from 'mathjs';
 import { TokenMetadata } from '~services/ft-contract';
-import { STABLE_TOKEN_IDS } from '~services/near';
+import { STABLE_POOL_ID, STABLE_TOKEN_IDS } from '~services/near';
 import { Pool } from '~services/pool';
 import { EstimateSwapView } from '~services/swap';
 
@@ -155,12 +155,10 @@ export const calculateSmartRoutingPriceImpact = (
   tokenMid: TokenMetadata,
   tokenOut: TokenMetadata
 ) => {
-  const isPool1StablePool = STABLE_TOKEN_IDS.includes(
-    swapTodos[0].pool.id.toString()
-  );
-  const isPool2StablePool = STABLE_TOKEN_IDS.includes(
-    swapTodos[1].pool.id.toString()
-  );
+  const isPool1StablePool = Number(STABLE_POOL_ID) === swapTodos[0].pool.id;
+  const isPool2StablePool = Number(STABLE_POOL_ID) === swapTodos[1].pool.id;
+
+  console.log(isPool1StablePool, isPool2StablePool, 'stable pool');
 
   const marketPrice1 = isPool1StablePool
     ? '1'
