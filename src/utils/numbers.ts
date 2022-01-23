@@ -163,14 +163,11 @@ export const calculateSmartRoutingPriceImpact = (
   );
 
   const marketPrice1 = isPool1StablePool
-    ? calcStableSwapPriceImpact(tokenInAmount, swapTodos[0].noFeeAmountOut)
+    ? '1'
     : calculateMarketPrice(swapTodos[0].pool, tokenIn, tokenMid);
 
   const marketPrice2 = isPool2StablePool
-    ? calcStableSwapPriceImpact(
-        swapTodos[0].estimate,
-        swapTodos[1].noFeeAmountOut
-      )
+    ? '1'
     : calculateMarketPrice(swapTodos[1].pool, tokenMid, tokenOut);
   const generalMarketPrice = math.evaluate(`${marketPrice1} * ${marketPrice2}`);
 
