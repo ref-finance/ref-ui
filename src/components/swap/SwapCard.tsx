@@ -470,7 +470,7 @@ function DetailView({
 
   const priceImpactValueSmartRouting = useMemo(() => {
     {
-      if (!swapsTodo || !from) return '0';
+      if (!swapsTodo || !from || isParallelSwap) return '0';
       return calculateSmartRoutingPriceImpact(
         from,
         swapsTodo,
@@ -494,6 +494,8 @@ function DetailView({
   }, [priceImpact]);
 
   useEffect(() => {
+    console.log(swapsTodo);
+
     if (swapsTodo?.length > 1) {
       setShowDetails(true);
     }
