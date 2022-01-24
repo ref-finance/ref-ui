@@ -381,13 +381,6 @@ export const toInternationalCurrencySystemNature = (
   labelValue: string,
   percent?: number
 ) => {
-  const handle = (str: string) => {
-    let [whole, decimal] = str.split('.');
-    if (Number(decimal) == 0) {
-      return whole;
-    }
-    return str;
-  };
   return Math.abs(Number(labelValue)) >= 1.0e9
     ? new BigNumber(Math.abs(Number(labelValue)) / 1.0e9).toFixed(
         percent || 2,
@@ -403,9 +396,7 @@ export const toInternationalCurrencySystemNature = (
         percent || 2,
         1
       ) + 'K'
-    : handle(
-        new BigNumber(Math.abs(Number(labelValue))).toFixed(percent || 2, 1)
-      );
+    : niceDecimals(labelValue);
 };
 
 export function scientificNotationToString(strParam: string) {
@@ -474,12 +465,12 @@ export const calcStableSwapPriceImpact = (from: string, to: string) => {
   });
 };
 
-export const niceDecimals = (number: string | number) => {
+export const niceDecimals = (number: string | number, precision = 2) => {
   const str = number.toString();
   const [whole, decimals] = str.split('.');
-  if (decimals && Number(decimals) == 0) {
+  if (!decimals || Number(decimals) == 0) {
     return whole;
   } else {
-    return number;
+    return new BigNumber(number).toFixed(precision, 1);
   }
 };
