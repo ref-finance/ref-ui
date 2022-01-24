@@ -323,5 +323,7 @@ const en_US = {
   ref_to_receive: 'REF to receive',
   more_expensive_than_best_rate_en: 'more expensive than the best rate',
   optimal_path_found_by_our_solution: 'Optimal path found by our solution',
+  check_to_stable_banner: 'Check',
+  rates_to_stable_banner: 'Rates',
 };
 export default en_US;

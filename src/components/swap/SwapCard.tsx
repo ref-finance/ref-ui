@@ -42,7 +42,7 @@ import {
   SolidButton,
   ConnectToNearBtn,
 } from '~components/button/Button';
-import { wallet } from '~services/near';
+import { STABLE_TOKEN_IDS, wallet } from '~services/near';
 import SwapFormWrap from '../forms/SwapFormWrap';
 import SwapTip from '~components/forms/SwapTip';
 import { WarnTriangle, ErrorTriangle } from '~components/icon/SwapRefresh';
@@ -726,7 +726,14 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   return (
     <>
-      <SwapTip />
+      <SwapTip
+        bothStableToken={
+          STABLE_TOKEN_IDS.includes(tokenIn?.id) &&
+          STABLE_TOKEN_IDS.includes(tokenOut?.id)
+        }
+        tokenInId={tokenIn?.id}
+        tokenOutId={tokenOut?.id}
+      />
       <SwapFormWrap
         useNearBalance={useNearBalance.toString()}
         canSubmit={canSubmit}

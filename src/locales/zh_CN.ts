@@ -309,5 +309,7 @@ const zh_CN = {
   ref_to_receive: '收到的REF',
   more_expensive_than_best_rate_zh_cn: '比最优汇率高出',
   optimal_path_found_by_our_solution: '我们找到的最好路径',
+  check_to_stable_banner: '查看',
+  rates_to_stable_banner: '汇率',
 };
 export default zh_CN;
