@@ -551,8 +551,10 @@ const RefGuy = () => {
       xmlns="http://www.w3.org/2000/svg"
     >
       <mask
+        style={{
+          maskType: 'alpha',
+        }}
         id="mask0_13239_1396"
-        type="alpha"
         maskUnits="userSpaceOnUse"
         x="11"
         y="0"

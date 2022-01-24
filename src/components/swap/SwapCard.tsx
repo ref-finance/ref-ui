@@ -139,12 +139,11 @@ export function DoubleCheckModal(
                   )
             }${toRealSymbol(tokenIn.symbol)})`}{' '}
           </span>
-          ,
         </div>
         <div className="text-xs pb-6 pt-1">
           <FormattedMessage
-            id="more_expensive_than_best_rate"
-            defaultMessage="more expensive than the best rate"
+            id="make_sure_you_understand_what_you_do"
+            defaultMessage="Make sure you understand what you do"
           />
           !
         </div>

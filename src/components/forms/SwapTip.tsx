@@ -98,7 +98,7 @@ export function ToStableTip({
           to={{
             pathname: '/stableswap',
           }}
-          className="underline font-semibold text-gradientFrom"
+          className="underline text-gradientFrom"
         >
           {intl.formatMessage({ id: 'stable_swap' })}
         </Link>{' '}

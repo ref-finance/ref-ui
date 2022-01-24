@@ -325,5 +325,6 @@ const en_US = {
   optimal_path_found_by_our_solution: 'Optimal path found by our solution',
   check_to_stable_banner: 'Check',
   rates_to_stable_banner: 'Rates',
+  make_sure_you_understand_what_you_do: 'Make sure you understand what you do',
 };
 export default en_US;

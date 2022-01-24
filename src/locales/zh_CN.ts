@@ -311,5 +311,6 @@ const zh_CN = {
   optimal_path_found_by_our_solution: '我们找到的最好路径',
   check_to_stable_banner: '查看',
   rates_to_stable_banner: '汇率',
+  make_sure_you_understand_what_you_do: '请确认你此时所做的事',
 };
 export default zh_CN;
