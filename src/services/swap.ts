@@ -178,6 +178,18 @@ export const estimateSwap = async ({
       `${amountIn} ${intl.formatMessage({ id: 'is_not_a_valid_swap_amount' })}`
     );
 
+  const throwNoPoolError = () => {
+    throw new Error(
+      `${intl.formatMessage({
+        id: 'no_pool_available_to_make_a_swap_from',
+      })} ${tokenIn.symbol} -> ${tokenOut.symbol} ${intl.formatMessage({
+        id: 'for_the_amount',
+      })} ${amountIn} ${intl.formatMessage({
+        id: 'no_pool_eng_for_chinese',
+      })}`
+    );
+  };
+
   const pools = await getPoolsByTokens({
     tokenInId: tokenIn.id,
     tokenOutId: tokenOut.id,
@@ -231,6 +243,14 @@ export const estimateSwap = async ({
     let pool1, pool2;
     let stablePool;
     let stablePoolInfo;
+
+    const bothStableCoin =
+      STABLE_TOKEN_IDS.includes(tokenIn.id) &&
+      STABLE_TOKEN_IDS.includes(tokenOut.id);
+
+    if (bothStableCoin) {
+      throwNoPoolError();
+    }
 
     if (
       STABLE_TOKEN_IDS.includes(tokenIn.id) ||
@@ -361,15 +381,7 @@ export const estimateSwap = async ({
       return [estimate1, estimate2];
     }
 
-    throw new Error(
-      `${intl.formatMessage({
-        id: 'no_pool_available_to_make_a_swap_from',
-      })} ${tokenIn.symbol} -> ${tokenOut.symbol} ${intl.formatMessage({
-        id: 'for_the_amount',
-      })} ${amountIn} ${intl.formatMessage({
-        id: 'no_pool_eng_for_chinese',
-      })}`
-    );
+    throwNoPoolError();
   } else {
     try {
       const estimates = parallelPools.map((pool) => ({
@@ -383,15 +395,7 @@ export const estimateSwap = async ({
       }));
       return estimates;
     } catch (err) {
-      throw new Error(
-        `${intl.formatMessage({
-          id: 'no_pool_available_to_make_a_swap_from',
-        })} ${tokenIn.symbol} -> ${tokenOut.symbol} ${intl.formatMessage({
-          id: 'for_the_amount',
-        })} ${amountIn} ${intl.formatMessage({
-          id: 'no_pool_eng_for_chinese',
-        })}`
-      );
+      throwNoPoolError();
     }
   }
 };
