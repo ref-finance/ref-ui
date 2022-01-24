@@ -50,11 +50,16 @@ const GetPriceImpact = (
   return (
     <>
       {Number(value) < 0.01 ? (
-        <span className="text-greenLight">{'< -0.01%'}</span>
+        <span className="text-greenLight">
+          {'< -0.01%'}
+          {tokenInInfo}
+        </span>
       ) : (
-        <span className={`${textColor}`}>{`≈ -${toPrecision(value, 2)}%`}</span>
+        <span className={`${textColor}`}>
+          {`≈ -${toPrecision(value, 2)}%`}
+          {tokenInInfo}
+        </span>
       )}
-      <span className="text-greenLight">{tokenInInfo}</span>
     </>
   );
 };
