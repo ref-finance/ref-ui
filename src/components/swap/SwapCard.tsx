@@ -346,7 +346,7 @@ export function ParallelSwapRoutesDetail({
         <div className="inline-flex items-center">
           <RouterIcon />
           <AutoRouterText />
-          <QuestionTip id="optimal_path_found_by_our_solution" />
+          <QuestionTip id="optimal_path_found_by_our_solution" width="w-20" />
         </div>
       </div>
 

@@ -8,9 +8,11 @@ import ReactTooltip from 'react-tooltip';
 export function QuestionTip({
   id,
   color,
+  width,
 }: {
   id: string;
   color?: 'bright' | 'dark';
+  width?: string;
 }) {
   const intl = useIntl();
 
@@ -18,7 +20,7 @@ export function QuestionTip({
     const tip = intl.formatMessage({
       id,
     });
-    let result: string = `<div class="text-navHighLightText text-xs text-left">${tip}</div>`;
+    let result: string = `<div class="text-navHighLightText text-xs text-left ${width}">${tip}</div>`;
     return result;
   };
 

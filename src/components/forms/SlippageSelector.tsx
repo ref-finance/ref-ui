@@ -94,7 +94,7 @@ export default function SlippageSelector({
   }, []);
 
   return (
-    <div className="relative z-10">
+    <div className="relative z-10 font-normal">
       <div
         className="w-6 text-2xl text-white cursor-pointer"
         onClick={(e) => openToolTip(e)}
