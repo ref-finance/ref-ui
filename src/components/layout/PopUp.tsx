@@ -42,7 +42,7 @@ export default function PopUp() {
         <>
           {isMobile() ? (
             <div
-              className="lg:hidden fixed popupBox0 flex flex-col items-center bottom-0 z-20 left-1/2 transform -translate-x-2/4"
+              className="lg:hidden fixed popupBox0Mobile flex flex-col items-center bottom-0 z-20 left-1/2 transform -translate-x-2/4"
               onClick={gotoPage}
             >
               <PopupBox4
@@ -71,7 +71,7 @@ export default function PopUp() {
             </div>
           ) : (
             <div
-              className="xs:hidden md:hidden fixed popupBox0 flex flex-col items-center right-8 bottom-0 z-50 cursor-pointer"
+              className="xs:hidden md:hidden fixed popupBox0 flex flex-col items-center right-8 z-50 cursor-pointer"
               onClick={gotoPage}
             >
               <PopupBox4 className="absolute z-20 popupBox3 cursor-pointer"></PopupBox4>

@@ -500,7 +500,7 @@ export default function AddLiquidityComponent(props: {
           ) : null}
 
           {canDeposit ? (
-            <div className="flex flex-col justify-center items-center rounded-md p-4 mb-5 border border-warnColor">
+            <div className="flex justify-between items-center rounded-md p-4 mb-5 border border-warnColor">
               <div className="flex items-center">
                 <WarnTriangle />
                 <label className="ml-2.5 text-base text-warnColor">
@@ -508,18 +508,14 @@ export default function AddLiquidityComponent(props: {
                   {modal?.token?.symbol}！
                 </label>
               </div>
-              <div className="text-white text-base mt-3 text-center">
-                <label
-                  onClick={() => {
-                    setVisible(true);
-                  }}
-                  className="font-semibold underline cursor-pointer"
-                >
-                  <FormattedMessage id="deposit" />
-                </label>{' '}
-                {modal?.token?.symbol}{' '}
-                <FormattedMessage id="into_ref_account" />
-              </div>
+              <SolidButton
+                className="focus:outline-none px-3 py-1.5"
+                onClick={() => {
+                  setVisible(true);
+                }}
+              >
+                <FormattedMessage id="deposit" />
+              </SolidButton>
             </div>
           ) : null}
           {wallet.isSignedIn() ? (

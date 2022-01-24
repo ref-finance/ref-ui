@@ -502,7 +502,7 @@ input[type='range']::-webkit-slider-thumb {
 }
 
 .popupBox0 {
-  bottom: -107px;
+  bottom: 20px;
   animation: popupBox0Ani 0.5s ease both;
   opacity: 0;
 }
@@ -520,6 +520,11 @@ input[type='range']::-webkit-slider-thumb {
 .popupBox3 {
   bottom: 143px;
   animation: popupBox3Ani 0.9s 1.7s ease both;
+  opacity: 0;
+}
+.popupBox0Mobile {
+  bottom: -107px;
+  animation: popupBox0AniMobile 0.5s 0.5s ease both;
   opacity: 0;
 }
 .popupBox1Mobile {
@@ -541,11 +546,11 @@ input[type='range']::-webkit-slider-thumb {
 @keyframes popupBox0Ani {
   0% {
     opacity: 0;
-    bottom: -107px;
+    bottom: 20px;
   }
   100% {
     opacity: 1;
-    bottom: 0;
+    bottom: 40px;
   }
 }
 @keyframes popupBox1Ani {
@@ -576,6 +581,16 @@ input[type='range']::-webkit-slider-thumb {
   100% {
     opacity: 1;
     bottom: 143px;
+  }
+}
+@keyframes popupBox0AniMobile {
+  0% {
+    opacity: 0;
+    bottom: -107px;
+  }
+  100% {
+    opacity: 1;
+    bottom: 0px;
   }
 }
 @keyframes popupBox1AniMobile {
