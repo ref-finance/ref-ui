@@ -43,7 +43,7 @@ function Footer() {
   return (
     <>
       <div className="absolute w-full bottom-6 xs:bottom-0 md:bottom-0">
-        <footer className="flex items-center justify-center pl-9 pr-9">
+        <footer className="flex items-center justify-center pl-9 pr-9 xs:pb-9 md:pb-9">
           <div className="fixed left-3 bottom-5 md:hidden xs:hidden">
             <FooterLogo />
             <div className="flex justify-star items-center pl-14 text-white">

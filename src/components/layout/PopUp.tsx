@@ -57,8 +57,8 @@ export default function PopUp() {
                 style={{ zoom: 0.7 }}
                 className="absolute popupBox1Mobile"
               ></PopupBox2>
-              <PopupText className="absolute bottom-8 cursor-pointer"></PopupText>
-              <span className="text-white text-xs absolute bottom-4">
+              <PopupText className="absolute bottom-20 cursor-pointer"></PopupText>
+              <span className="text-white text-xs absolute bottom-16">
                 <FormattedMessage id="stake_ref_to_xref_for_earning_more"></FormattedMessage>
               </span>
               <PopupBox1></PopupBox1>
@@ -66,19 +66,19 @@ export default function PopUp() {
                 onClick={closePop}
                 width="10"
                 height="10"
-                className="absolute text-primaryText bottom-20 right-6 cursor-pointer hover:text-white"
+                className="absolute text-primaryText top-6 right-6 cursor-pointer hover:text-white"
               ></ModalCloseAuto>
             </div>
           ) : (
             <div
-              className="xs:hidden md:hidden fixed popupBox0 flex flex-col items-center right-8 z-50 cursor-pointer"
+              className="xs:hidden md:hidden fixed popupBox0 flex flex-col items-center right-6 z-50 cursor-pointer"
               onClick={gotoPage}
             >
               <PopupBox4 className="absolute z-20 popupBox3 cursor-pointer"></PopupBox4>
               <PopupBox3 className="absolute z-10 popupBox2 cursor-pointer"></PopupBox3>
               <PopupBox2 className="absolute popupBox1 cursor-pointer"></PopupBox2>
-              <PopupText className="absolute bottom-8 cursor-pointer"></PopupText>
-              <span className="text-white text-xs absolute bottom-4">
+              <PopupText className="absolute bottom-20 cursor-pointer"></PopupText>
+              <span className="text-white text-xs absolute bottom-16">
                 <FormattedMessage id="stake_ref_to_xref_for_earning_more"></FormattedMessage>
               </span>
               <PopupBox1></PopupBox1>
@@ -86,7 +86,7 @@ export default function PopUp() {
                 onClick={closePop}
                 width="10"
                 height="10"
-                className="absolute text-primaryText bottom-20 right-6 cursor-pointer hover:text-white"
+                className="absolute text-primaryText top-6 right-6 cursor-pointer hover:text-white"
               ></ModalCloseAuto>
             </div>
           )}

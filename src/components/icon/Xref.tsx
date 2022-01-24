@@ -520,22 +520,20 @@ const PopupBox1 = (props: any) => {
   const { width, height, className, ...rest } = props;
   return (
     <svg
-      className={className}
-      {...rest}
-      width={width || '370'}
-      height={height || '120'}
-      viewBox="0 0 370 120"
+      width="370"
+      height="155"
+      viewBox="0 0 370 155"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
       <g filter="url(#filter0_d_12486_2598)">
         <path
-          d="M21.7711 9H349.506L361 20.5882V120.5L9 121.5L9 20.5882L21.7711 9Z"
+          d="M21.7711 9H349.506L361 20.5882V155.5L9 156.5L9 20.5882L21.7711 9Z"
           fill="#001320"
           shapeRendering="crispEdges"
         />
         <path
-          d="M21.7711 9H349.506L361 20.5882V120.5L9 121.5L9 20.5882L21.7711 9Z"
+          d="M21.7711 9H349.506L361 20.5882V155.5L9 156.5L9 20.5882L21.7711 9Z"
           stroke="url(#paint0_linear_12486_2598)"
           strokeOpacity="0.7"
           shapeRendering="crispEdges"
@@ -547,7 +545,7 @@ const PopupBox1 = (props: any) => {
           x="0.5"
           y="0.5"
           width="369"
-          height="129.501"
+          height="164.501"
           filterUnits="userSpaceOnUse"
           colorInterpolationFilters="sRGB"
         >

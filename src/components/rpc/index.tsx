@@ -30,8 +30,11 @@ const RpcList = () => {
     <>
       {mobile ? (
         <div
-          style={{ zIndex: 999999 }}
-          className="relative w-full h-8 px-16 bg-cardBg mt-3"
+          style={{
+            zIndex: 999999,
+            boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
+          }}
+          className="fixed bottom-0 left-0 w-full h-8 px-16 bg-cardBg mt-3"
         >
           <div
             className="flex items-center w-full h-full justify-between"
@@ -82,8 +85,12 @@ const RpcList = () => {
           }}
         >
           <div
-            className="flex items-center justify-between px-2 py-1 bg-cardBg rounded cursor-pointer"
-            style={{ minWidth: minWidth, maxWidth: maxWith }}
+            className="flex items-center justify-between px-2 py-1 bg-darkGradientHoverBg rounded cursor-pointer"
+            style={{
+              minWidth: minWidth,
+              maxWidth: maxWith,
+              boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
+            }}
           >
             <label className="text-xs text-primaryText cursor-pointer pr-5 whitespace-nowrap overflow-hidden overflow-ellipsis">
               {rpclist[currentEndPoint].simpleName}
@@ -97,6 +104,7 @@ const RpcList = () => {
             className={`absolute py-2 bottom-8 flex flex-col w-full bg-cardBg rounded ${
               hover ? '' : 'hidden'
             }`}
+            style={{ boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)' }}
           >
             {Object.entries(rpclist).map(([key, data]) => {
               return (

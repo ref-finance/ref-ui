@@ -502,7 +502,7 @@ input[type='range']::-webkit-slider-thumb {
 }
 
 .popupBox0 {
-  bottom: 20px;
+  bottom: -107px;
   animation: popupBox0Ani 0.5s ease both;
   opacity: 0;
 }
@@ -524,7 +524,7 @@ input[type='range']::-webkit-slider-thumb {
 }
 .popupBox0Mobile {
   bottom: -107px;
-  animation: popupBox0AniMobile 0.5s 0.5s ease both;
+  animation: popupBox0AniMobile 0.5s ease both;
   opacity: 0;
 }
 .popupBox1Mobile {
@@ -546,41 +546,41 @@ input[type='range']::-webkit-slider-thumb {
 @keyframes popupBox0Ani {
   0% {
     opacity: 0;
-    bottom: 20px;
+    bottom: -107px;
   }
   100% {
     opacity: 1;
-    bottom: 40px;
+    bottom: 0;
   }
 }
 @keyframes popupBox1Ani {
   0% {
     opacity: 0;
-    bottom: 60px;
+    bottom: 95px;
   }
   100% {
     opacity: 1;
-    bottom: 80px;
+    bottom: 115px;
   }
 }
 @keyframes popupBox2Ani {
   0% {
     opacity: 0;
-    bottom: 91px;
+    bottom: 126px;
   }
   100% {
     opacity: 1;
-    bottom: 101px;
+    bottom: 136px;
   }
 }
 @keyframes popupBox3Ani {
   0% {
     opacity: 0;
-    bottom: 123px;
+    bottom: 158px;
   }
   100% {
     opacity: 1;
-    bottom: 143px;
+    bottom: 178px;
   }
 }
 @keyframes popupBox0AniMobile {
@@ -596,31 +596,31 @@ input[type='range']::-webkit-slider-thumb {
 @keyframes popupBox1AniMobile {
   0% {
     opacity: 0;
-    bottom: 100px;
+    bottom: 160px;
   }
   100% {
     opacity: 1;
-    bottom: 120px;
+    bottom: 180px;
   }
 }
 @keyframes popupBox2AniMobile {
   0% {
     opacity: 0;
-    bottom: 121px;
+    bottom: 181px;
   }
   100% {
     opacity: 1;
-    bottom: 141px;
+    bottom: 201px;
   }
 }
 @keyframes popupBox3AniMobile {
   0% {
     opacity: 0;
-    bottom: 163px;
+    bottom: 223px;
   }
   100% {
     opacity: 1;
-    bottom: 183px;
+    bottom: 243px;
   }
 }
 .guidAnimation {
