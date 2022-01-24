@@ -66,6 +66,7 @@ import ReactTooltip from 'react-tooltip';
 import * as math from 'mathjs';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import { EstimateSwapView, PoolMode, swap } from '~services/swap';
+import { QuestionTip } from '~components/layout/TipWrapper';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -245,12 +246,12 @@ export function SwapRateDetail({
 
   return (
     <section className="grid grid-cols-12 py-1 text-xs">
-      <p className="text-primaryText text-left flex xs:flex-col md:flex-col col-span-3">
+      <p className="text-primaryText text-left flex xs:flex-col md:flex-col col-span-4 whitespace-nowrap">
         <label className="mr-1">{title}</label>
         {subTitle ? <label>{subTitle}</label> : null}
       </p>
       <p
-        className="flex justify-end text-white cursor-pointer text-right col-span-9"
+        className="flex justify-end text-white cursor-pointer text-right col-span-8"
         onClick={switchSwapRate}
       >
         <span className="mr-2" style={{ marginTop: '0.1rem' }}>
@@ -261,6 +262,7 @@ export function SwapRateDetail({
     </section>
   );
 }
+
 export function SmartRoutesDetail({
   swapsTodo,
   tokenIn,
@@ -278,7 +280,7 @@ export function SmartRoutesDetail({
         <div className="inline-flex items-center">
           <RouterIcon />
           <AutoRouterText />
-          <QuestionMarkStaticForParaSwap />
+          <QuestionTip id="optimal_path_found_by_our_solution" />
         </div>
       </div>
 
@@ -337,13 +339,14 @@ export function ParallelSwapRoutesDetail({
       return [];
     }
   }, [pools]);
+
   return (
     <section className="lg:grid grid-cols-12 py-1 text-xs">
       <div className="text-primaryText text-left col-span-4">
         <div className="inline-flex items-center">
           <RouterIcon />
           <AutoRouterText />
-          <QuestionMarkStaticForParaSwap />
+          <QuestionTip id="optimal_path_found_by_our_solution" />
         </div>
       </div>
 
@@ -426,9 +429,16 @@ export const PriceImpactWarning = ({ value }: { value: string }) => {
   return (
     <span className="">
       <span className="rounded-full bg-acccountTab text-error px-2 py-0.5">
+        <FormattedMessage
+          id="more_expensive_than_best_rate_zh_cn"
+          defaultMessage=" "
+        />{' '}
         {Number(value) > 1000 ? '> 1000' : toPrecision(value, 2)}
         {'% '}
-        <FormattedMessage id="more_expensive_than_best_rate" />
+        <FormattedMessage
+          id="more_expensive_than_best_rate_en"
+          defaultMessage=" "
+        />
       </span>
     </span>
   );

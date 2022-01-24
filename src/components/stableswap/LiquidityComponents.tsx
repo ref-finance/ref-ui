@@ -98,7 +98,7 @@ export function InfoLine({
               backgroundColor="#1D2932"
               border
               borderColor="#7e8a93"
-              textColor="#7E8A93"
+              textColor="#C6D1DA"
               effect="solid"
             />
           </div>

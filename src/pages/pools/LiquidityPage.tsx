@@ -44,6 +44,7 @@ import { PolygonGrayDown } from '~components/icon/Polygon';
 import _, { orderBy, sortBy, filter } from 'lodash';
 import QuestionMark from '~components/farm/QuestionMark';
 import { useInView } from 'react-intersection-observer';
+import { QuestionTip } from '~components/layout/TipWrapper';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -171,24 +172,8 @@ function MobileWatchListCard({ watchPools }: { watchPools: Pool[] }) {
             <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
             {watchPools.length > 0 ? ` (${watchPools.length})` : ''}
           </div>
-          <div>
-            <QuestionMark
-              data-type="dark"
-              data-place="right"
-              data-multiline={true}
-              data-tip={intl.formatMessage({ id: 'my_watchlist_copy' })}
-              className="inline-block ml-2 text-xs text-primaryText"
-            />
-            <ReactTooltip
-              className="text-xs shadow-4xl"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-              class="tool-tip"
-              textColor="#c6d1da"
-            />
-          </div>
+          {/* my_watchlist_copy */}
+          <QuestionTip id="my_watchlist_copy" />
         </div>
       </div>
       <section className="w-full">
@@ -293,24 +278,9 @@ function MobileLiquidityPage({
               {/* <FormattedMessage id="top_pools" defaultMessage="Top Pools" /> */}
               Top Pools
             </div>
-            <div>
-              <QuestionMark
-                data-type="dark"
-                data-place="right"
-                data-multiline={true}
-                data-tip={intl.formatMessage({ id: 'topPoolsCopy' })}
-                className="inline-block ml-2 text-xs text-primaryText"
-              />
-              <ReactTooltip
-                className="text-xs shadow-4xl"
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-                class="tool-tip"
-                textColor="#c6d1da"
-              />
-            </div>
+
+            {/* topPoolsCopy */}
+            <QuestionTip id="topPoolsCopy" />
           </div>
 
           <div className="text-gray-400 text-xs">
@@ -508,22 +478,7 @@ function WatchListCard({ watchPools }: { watchPools: Pool[] }) {
           >
             <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
           </div>
-          <QuestionMark
-            data-type="dark"
-            data-place="right"
-            data-multiline={true}
-            data-tip={intl.formatMessage({ id: 'my_watchlist_copy' })}
-            className="inline-block ml-2 text-sm  text-gray-500"
-          />
-          <ReactTooltip
-            className="text-xs shadow-4xl"
-            backgroundColor="#1D2932"
-            border
-            borderColor="#7e8a93"
-            effect="solid"
-            class="tool-tip"
-            textColor="#c6d1da"
-          />
+          <QuestionTip id="my_watchlist_copy" />
         </div>
         <section className="">
           <header className="grid grid-cols-10 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-700 border-opacity-70">
@@ -621,23 +576,7 @@ function LiquidityPage_({
                   ' out of ' +
                   (allPools ? allPools : '-')}
               </div>
-
-              <QuestionMark
-                data-type="dark"
-                data-place="right"
-                data-multiline={true}
-                data-tip={intl.formatMessage({ id: 'topPoolsCopy' })}
-                className="inline-block ml-2 text-sm  text-primaryText"
-              />
-              <ReactTooltip
-                className="text-xs shadow-4xl"
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-                class="tool-tip"
-                textColor="#c6d1da"
-              />
+              <QuestionTip id="topPoolsCopy" />
             </div>
           </div>
           <div className="flex items-center w-3/7">

@@ -7,6 +7,7 @@ import { FaRegQuestionCircle } from 'react-icons/fa';
 import { IoCloseOutline, IoWarning } from 'react-icons/io5';
 import { SWAP_USE_NEAR_BALANCE_KEY } from '~components/swap/SwapCard';
 import QuestionMark from '~components/farm/QuestionMark';
+import { QuestionTip } from '~components/layout/TipWrapper';
 
 export default function SlippageSelector({
   slippageTolerance,
@@ -125,28 +126,7 @@ export default function SlippageSelector({
                   defaultMessage="Slippage tolerance"
                 />
               </label>
-              <div className="text-gray-400">
-                <div
-                  className="pl-1 text-white text-base"
-                  data-type="dark"
-                  data-place="right"
-                  data-multiline={true}
-                  data-tip={intl.formatMessage({ id: slippageCopyId })}
-                  data-for="default_lipId"
-                  data-class="reactTip"
-                >
-                  <QuestionMark />
-                </div>
-                <ReactTooltip
-                  id="default_lipId"
-                  className="text-xs text-left shadow-4xl"
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                  textColor="#7E8A93"
-                />
-              </div>
+              <QuestionTip id={slippageCopyId} />
             </div>
 
             <div className="flex text-white items-center">
@@ -222,28 +202,7 @@ export default function SlippageSelector({
                   defaultMessage="Select Balance"
                 />
               </label>
-              <div className="text-gray-400">
-                <div
-                  className="pl-1 text-white text-base"
-                  data-type="dark"
-                  data-place="right"
-                  data-multiline={true}
-                  data-tip={intl.formatMessage({ id: 'selectBalanceCopy' })}
-                  data-for="default2_lipId"
-                  data-class="reactTip"
-                >
-                  <QuestionMark />
-                </div>
-                <ReactTooltip
-                  id="default2_lipId"
-                  className="text-xs text-left shadow-4xl"
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                  textColor="#7E8A93"
-                />
-              </div>
+              <QuestionTip id="selectBalanceCopy" />
             </div>
             <div
               className="flex items-center"
@@ -311,26 +270,7 @@ export function PoolSlippageSelector({
             />
           </label>
           <div className="text-gray-400">
-            <div
-              className="pl-1"
-              data-type="dark"
-              data-place="right"
-              data-multiline={true}
-              data-tip={intl.formatMessage({ id: slippageCopyId })}
-              data-for="pool_lipId"
-              data-class="reactTip"
-            >
-              <QuestionMark />
-            </div>
-            <ReactTooltip
-              id="pool_lipId"
-              className="text-xs text-left shadow-4xl"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-              textColor="#7E8A93"
-            />
+            <QuestionTip id={slippageCopyId} />
           </div>
         </div>
 
@@ -427,26 +367,7 @@ export function StableSlipSelecter({
             />
           </label>
           <div className="">
-            <div
-              className="pl-1 text-base"
-              data-type="dark"
-              data-place="right"
-              data-multiline={true}
-              data-tip={intl.formatMessage({ id: slippageCopyId })}
-              data-for="stable_lipId"
-              data-class="reactTip"
-            >
-              <QuestionMark />
-            </div>
-            <ReactTooltip
-              id="stable_lipId"
-              className="text-xs text-left shadow-4xl"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-              textColor="#7E8A93"
-            />
+            <QuestionTip id={slippageCopyId} />
           </div>
         </div>
         <div className="flex text-white items-center">

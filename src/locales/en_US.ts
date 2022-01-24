@@ -321,6 +321,7 @@ const en_US = {
   xref_start_time: 'Starts on 1am UTC, 18th Jan, 2022.',
   xref_to_receive: 'xREF to receive',
   ref_to_receive: 'REF to receive',
-  more_expensive_than_best_rate: 'more expensive than the best rate',
+  more_expensive_than_best_rate_en: 'more expensive than the best rate',
+  optimal_path_found_by_our_solution: 'Optimal path found by our solution',
 };
 export default en_US;
