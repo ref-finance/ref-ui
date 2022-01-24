@@ -244,13 +244,13 @@ export function SwapRateDetail({
   }
 
   return (
-    <section className="grid grid-cols-2 py-1 text-xs">
-      <p className="text-primaryText text-left flex xs:flex-col md:flex-col">
+    <section className="grid grid-cols-12 py-1 text-xs">
+      <p className="text-primaryText text-left flex xs:flex-col md:flex-col col-span-3">
         <label className="mr-1">{title}</label>
         {subTitle ? <label>{subTitle}</label> : null}
       </p>
       <p
-        className="flex justify-end text-white cursor-pointer text-right"
+        className="flex justify-end text-white cursor-pointer text-right col-span-9"
         onClick={switchSwapRate}
       >
         <span className="mr-2" style={{ marginTop: '0.1rem' }}>
