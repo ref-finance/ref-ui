@@ -469,7 +469,7 @@ export function scientificNotationToString(strParam: string) {
 }
 
 export const calcStableSwapPriceImpact = (from: string, to: string) => {
-  return math.format(percent(math.evaluate(`(${from} / ${to}) - 1`), '1'), {
+  return math.format(percent(math.evaluate(`1 - (${to} / ${from})`), '1'), {
     notation: 'fixed',
   });
 };
