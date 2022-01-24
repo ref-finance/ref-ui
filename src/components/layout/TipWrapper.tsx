@@ -20,7 +20,9 @@ export function QuestionTip({
     const tip = intl.formatMessage({
       id,
     });
-    let result: string = `<div class="text-navHighLightText text-xs text-left ${width}">${tip}</div>`;
+    let result: string = `<div class="text-navHighLightText text-xs text-left ${
+      width ? width : ''
+    }">${tip}</div>`;
     return result;
   };
 
