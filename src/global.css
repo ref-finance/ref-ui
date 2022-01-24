@@ -459,10 +459,6 @@ input[type='range']::-webkit-slider-thumb {
 }
 
 .popUpPc {
-  /* width:350px;
-  height:312px; */
-  /* width:300px;
-  height:267px; */
   width: 320px;
   height: 285px;
   background: url(./assets/imgs/popUpPc.png) center no-repeat;
@@ -590,37 +586,37 @@ input[type='range']::-webkit-slider-thumb {
   }
   100% {
     opacity: 1;
-    bottom: 0px;
+    bottom: 10px;
   }
 }
 @keyframes popupBox1AniMobile {
   0% {
     opacity: 0;
-    bottom: 160px;
+    bottom: 100px;
   }
   100% {
     opacity: 1;
-    bottom: 180px;
+    bottom: 120px;
   }
 }
 @keyframes popupBox2AniMobile {
   0% {
     opacity: 0;
-    bottom: 181px;
+    bottom: 121px;
   }
   100% {
     opacity: 1;
-    bottom: 201px;
+    bottom: 141px;
   }
 }
 @keyframes popupBox3AniMobile {
   0% {
     opacity: 0;
-    bottom: 223px;
+    bottom: 163px;
   }
   100% {
     opacity: 1;
-    bottom: 243px;
+    bottom: 183px;
   }
 }
 .guidAnimation {

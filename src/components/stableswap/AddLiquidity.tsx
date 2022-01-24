@@ -500,10 +500,12 @@ export default function AddLiquidityComponent(props: {
           ) : null}
 
           {canDeposit ? (
-            <div className="flex justify-between items-center rounded-md p-4 mb-5 border border-warnColor">
-              <div className="flex items-center">
-                <WarnTriangle />
-                <label className="ml-2.5 text-base text-warnColor">
+            <div className="flex xs:flex-col md:flex-col justify-between items-center rounded-md p-4 xs:px-2 md:px-2 mb-5 border border-warnColor">
+              <div className="flex items-center xs:mb-3 md:mb-3">
+                <label className="flex-shrink-0">
+                  <WarnTriangle />
+                </label>
+                <label className="ml-2.5 text-base text-warnColor xs:text-sm md:text-sm">
                   <FormattedMessage id="you_do_not_have_enough" />{' '}
                   {modal?.token?.symbol}！
                 </label>

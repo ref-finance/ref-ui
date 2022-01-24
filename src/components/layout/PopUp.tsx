@@ -13,6 +13,7 @@ import {
   PopupBox3,
   PopupBox4,
   PopupText,
+  PopupBox1Mobile,
 } from '~components/icon/Xref';
 import { ModalCloseAuto } from '~components/icon';
 import { isMobile } from '~utils/device';
@@ -57,11 +58,11 @@ export default function PopUp() {
                 style={{ zoom: 0.7 }}
                 className="absolute popupBox1Mobile"
               ></PopupBox2>
-              <PopupText className="absolute bottom-20 cursor-pointer"></PopupText>
-              <span className="text-white text-xs absolute bottom-16">
+              <PopupText className="absolute bottom-12 cursor-pointer"></PopupText>
+              <span className="text-white text-xs absolute bottom-10">
                 <FormattedMessage id="stake_ref_to_xref_for_earning_more"></FormattedMessage>
               </span>
-              <PopupBox1></PopupBox1>
+              <PopupBox1Mobile></PopupBox1Mobile>
               <ModalCloseAuto
                 onClick={closePop}
                 width="10"
