@@ -612,7 +612,7 @@ export function ActionModel(props: any) {
             </div>
             <OldInputAmount max={max} onChangeAmount={setAmount} />
           </div>
-          <div className="flex rounded-full items-center ml-4 lg:ml-12">
+          <div className="flex flex-shrink-0 rounded-full items-center ml-4 lg:ml-12">
             <label className="text-base lg:text-xl text-white font-semibold mr-2 lg:mr-5">
               {token?.symbol}
             </label>
