@@ -137,7 +137,7 @@ export function DoubleCheckModal(
                     ),
                     3
                   )
-            }${toRealSymbol(tokenIn.symbol)})`}{' '}
+            } ${toRealSymbol(tokenIn.symbol)})`}{' '}
           </span>
         </div>
         <div className="text-xs pb-6 pt-1">
