@@ -314,7 +314,7 @@ export function ParallelSwapRoutesDetail({
 
       for (let i = 0; i < partialAmounts.length - 1; i++) {
         const p = toPrecision(
-          math.round(percent(partialAmounts[i].toString(), sum)).toString(),
+          math.floor(percent(partialAmounts[i].toString(), sum)).toString(),
           0
         );
 
