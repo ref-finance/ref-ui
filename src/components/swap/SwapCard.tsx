@@ -274,8 +274,8 @@ export function SmartRoutesDetail({
   const tokenMid = useMemo(() => swapsTodo[1].token, [swapsTodo[1].token.id]);
 
   return (
-    <section className="md:grid lg:grid grid-cols-12 py-1 text-xs">
-      <div className="text-primaryText text-left col-span-4">
+    <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
+      <div className="text-primaryText text-left ">
         <div className="inline-flex items-center">
           <RouterIcon />
           <AutoRouterText />
@@ -283,7 +283,7 @@ export function SmartRoutesDetail({
         </div>
       </div>
 
-      <div className="text-right text-white col-span-8 xs:mt-2">
+      <div className="text-right text-white col-span-6 xs:mt-2">
         {<SmartRoute tokens={[tokenIn, tokenMid, tokenOut]} />}
       </div>
     </section>
@@ -340,8 +340,8 @@ export function ParallelSwapRoutesDetail({
   }, [pools]);
 
   return (
-    <section className="lg:grid grid-cols-12 py-1 text-xs">
-      <div className="text-primaryText text-left col-span-4">
+    <section className="md:grid lg:grid grid-cols-12 py-1 text-xs">
+      <div className="text-primaryText text-left col-span-5">
         <div className="inline-flex items-center">
           <RouterIcon />
           <AutoRouterText />
@@ -349,7 +349,7 @@ export function ParallelSwapRoutesDetail({
         </div>
       </div>
 
-      <div className="text-right text-white col-span-8 xs:mt-2 md:mt-2">
+      <div className="text-right text-white col-span-7 xs:mt-2 md:mt-2">
         {pools.map((pool, i) => {
           return (
             <div className="mb-2" key={pool.id}>

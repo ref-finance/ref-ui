@@ -62,37 +62,18 @@ export const ArrowRight = () => {
   );
 };
 
-export const Icon = ({
-  token,
-  position,
-}: {
-  token: TokenMetadata;
-  position?: string;
-}) => {
+export const Icon = ({ token }: { token: TokenMetadata }) => {
   if (token.icon) {
     return (
       <img
         src={token.icon}
-        className={`w-6 h-6 rounded-full border border-gradientFromHover ${
-          position ? `${position} -right-2.5` : ''
-        }`}
+        className={`w-4 h-4 rounded-full border border-gradientFromHover`}
         alt=""
-        style={{
-          top: position === 'absolute' ? '0px' : 'auto',
-        }}
       />
     );
   } else {
     return (
-      <div
-        className={`w-6 h-6 rounded-full border border-gradientFromHover ${
-          position ? `${position} -right-2.5` : ''
-        }`}
-        style={{
-          top: position === 'absolute' ? '0px' : 'auto',
-          backgroundColor: 'rgba(27, 32, 37, 1)',
-        }}
-      />
+      <div className={`w-4 h-4 rounded-full border border-gradientFromHover`} />
     );
   }
 };
@@ -105,10 +86,15 @@ export const ParaTokenFrom = ({
   p: string;
 }) => {
   return (
-    <div className="rounded-md py-1 px-2 bg-inputDarkBg flex items-center relative grid grid-cols-12">
-      <span className="text-xs text-left text-white pr-3 col-span-8">{p}%</span>
-      <span className="col-span-4">
-        <Icon token={tokenIn} position="absolute" />
+    <div
+      className="rounded-md py-1 pl-2 pr-1 bg-inputDarkBg flex items-center relative justify-between"
+      style={{
+        width: '60px',
+      }}
+    >
+      <span className="text-xs text-left text-white pr-0.5 ">{p}%</span>
+      <span className="">
+        <Icon token={tokenIn} />
       </span>
     </div>
   );
@@ -116,10 +102,17 @@ export const ParaTokenFrom = ({
 
 export const PoolInfo = ({ poolId, fee }: { poolId: number; fee: number }) => {
   return (
-    <div className="flex items-center bg-inputDarkBg p-1 text-gray-400 rounded-md grid grid-cols-2 w-32">
-      <span className="bg-acccountBlock text-xs font-semibold rounded pl-1.5 pr-1.5 py-0.5 col-span-1 text-left	">
-        {`# ${poolId}`}
-      </span>
+    <div
+      className="flex items-center bg-inputDarkBg px-1 text-gray-400 rounded-md grid grid-cols-2 w-32"
+      style={{
+        paddingTop: '3px',
+        paddingBottom: '3px',
+        height: '24px',
+      }}
+    >
+      <div className="bg-acccountBlock text-xs font-semibold rounded pl-1.5 pr-1.5 col-span-1 text-left	h-full flex items-center">
+        <div>{`# ${poolId}`}</div>
+      </div>
       <span className="col-span-1 text-center">
         {toPrecision(calculateFeePercent(fee).toString(), 2)}%
       </span>
@@ -141,20 +134,16 @@ export const OneParallelRoute = ({
   fee: number;
 }) => {
   return (
-    <div className="xs:flex items-center xs:justify-between md:flex md:justify-between lg:grid grid-cols-11">
-      <div className="col-end-3 col-start-1 w-14">
+    <div className="flex items-center justify-between ">
+      <div className="col-end-3 col-start-1">
         <ParaTokenFrom tokenIn={tokenIn} p={p} />
       </div>
-      <div className="xs:ml-1.5 md:ml-1.5 lg:ml-5">
-        <ArrowRight />
-      </div>
+      <ArrowRight />
       <div className="col-end-9 col-span-4 ml-0.5">
         <PoolInfo poolId={poolId} fee={fee} />
       </div>
-      <div className="lg:ml-6">
-        <ArrowRight />
-      </div>
-      <div className="col-end-12 ">
+      <ArrowRight />
+      <div className="col-end-12">
         <Icon token={tokenOut} />
       </div>
     </div>
@@ -166,7 +155,7 @@ export const SmartRoute = ({ tokens }: { tokens: TokenMetadata[] }) => {
     return (
       <div className="flex items-center justify-end">
         <Icon token={token} />
-        <span className="pl-2">{toRealSymbol(token.symbol)}</span>
+        <span className="pl-1.5">{toRealSymbol(token.symbol)}</span>
       </div>
     );
   };
@@ -174,12 +163,14 @@ export const SmartRoute = ({ tokens }: { tokens: TokenMetadata[] }) => {
   return (
     <div className="text-white flex items-center justify-between">
       <Hub token={tokens[0]} />
-
-      <ArrowRight />
+      <div className="px-3">
+        <ArrowRight />
+      </div>
 
       <Hub token={tokens[1]} />
-
-      <ArrowRight />
+      <div className="px-3">
+        <ArrowRight />
+      </div>
 
       <Hub token={tokens[2]} />
     </div>
