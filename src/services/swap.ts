@@ -218,16 +218,12 @@ export const estimateSwap = async ({
     .slice(0, MAXIMUM_NUMBER_OF_POOLS)
     .filter(filterFunc);
 
-  console.log('filteredPools into algorithm ', filteredPools);
-
   const poolAllocations = calculateOptimalOutput(
     filteredPools,
     parsedAmountIn,
     tokenIn.id,
     tokenOut.id
   );
-
-  console.log('allocations', poolAllocations);
 
   const parallelPoolsWithAllocation = filteredPools.map((pool, i) => ({
     ...pool,
@@ -319,8 +315,6 @@ export const estimateSwap = async ({
     }
 
     if (candidatePools.length > 0) {
-      console.log(candidatePools);
-
       const BestPoolPair = _.maxBy(candidatePools, (poolPair) => {
         const tokenInSupply = toReadableNumber(
           tokenIn.decimals,
@@ -377,7 +371,6 @@ export const estimateSwap = async ({
         status: PoolMode.SMART,
       };
 
-      console.log('simple smart routing routes', estimate1, estimate2);
       return [estimate1, estimate2];
     }
 

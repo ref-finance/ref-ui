@@ -478,7 +478,6 @@ function DetailView({
     if (!from || ONLY_ZEROS.test(to)) return '-';
     else return calculateExchangeRate(fee, to, from);
   }, [to]);
-  console.log('price impact', priceImpact);
 
   useEffect(() => {
     if (Number(priceImpact) > 1) {

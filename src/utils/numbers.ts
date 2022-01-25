@@ -161,8 +161,6 @@ export const calculateSmartRoutingPriceImpact = (
   const isPool1StablePool = Number(STABLE_POOL_ID) === swapTodos[0].pool.id;
   const isPool2StablePool = Number(STABLE_POOL_ID) === swapTodos[1].pool.id;
 
-  console.log(isPool1StablePool, isPool2StablePool, 'stable pool');
-
   const marketPrice1 = isPool1StablePool
     ? '1'
     : calculateMarketPrice(swapTodos[0].pool, tokenIn, tokenMid);
@@ -171,15 +169,6 @@ export const calculateSmartRoutingPriceImpact = (
     ? '1'
     : calculateMarketPrice(swapTodos[1].pool, tokenMid, tokenOut);
   const generalMarketPrice = math.evaluate(`${marketPrice1} * ${marketPrice2}`);
-
-  console.log(
-    'this is market price 1',
-    marketPrice1.toString(),
-    'this is market price 2',
-    marketPrice2.toString()
-  );
-
-  console.log('this is market price', generalMarketPrice.toString());
 
   const tokenMidReceived = isPool1StablePool
     ? swapTodos[0].noFeeAmountOut
@@ -225,15 +214,9 @@ export const calculateSmartRoutingPriceImpact = (
         tokenOut
       );
 
-  console.log('this is final tokenout', tokenOutReceived.toString());
-
-  console.log('token mid amount', tokenMidReceived.toString());
-
   const newMarketPrice = math.evaluate(
     `${tokenInAmount} / ${tokenOutReceived}`
   );
-
-  console.log('this is new market price', newMarketPrice.toString());
 
   const PriceImpact = percent(
     subtraction(newMarketPrice, generalMarketPrice),
@@ -277,8 +260,6 @@ export const calculatePriceImpact = (
       tokenOut
     );
   });
-
-  console.log('market price', finalMarketPrice.toString());
 
   const finalTokenOutReceived = math.sum(...separatedReceivedAmount);
 
