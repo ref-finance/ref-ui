@@ -36,7 +36,7 @@ const zh_CN = {
   account: '账号',
   Account: '账号',
   New_ui: 'New UI',
-  Risk: 'Risk',
+  Risks: '风险',
   Forum: '论坛',
   Discord: 'Discord',
   Telegram: 'Telegram',
@@ -312,5 +312,7 @@ const zh_CN = {
   check_to_stable_banner: '查看',
   rates_to_stable_banner: '汇率',
   make_sure_you_understand_what_you_do: '请确认你此时所做的事',
+  more_expensive_than_best_rate: '比最好汇率更贵',
+  risks: '风险',
 };
 export default zh_CN;

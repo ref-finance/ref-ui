@@ -34,7 +34,7 @@ const en_US = {
   account: 'Account',
   Account: 'Account',
   New_ui: 'New UI',
-  Risk: 'Risk',
+  Risks: 'Risks',
   Forum: 'Forum',
   Discord: 'Discord',
   Telegram: 'Telegram',
