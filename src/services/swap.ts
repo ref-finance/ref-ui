@@ -225,8 +225,6 @@ export const estimateSwap = async ({
     tokenOut.id
   );
 
-  console.log(poolAllocations);
-
   const parallelPoolsWithAllocation = filteredPools.map((pool, i) => ({
     ...pool,
     partialAmountIn: scientificNotationToString(poolAllocations[i].toString()),
