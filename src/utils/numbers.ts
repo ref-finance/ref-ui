@@ -1,12 +1,12 @@
 import BigNumber from 'bignumber.js';
 import BN from 'bn.js';
 import * as math from 'mathjs';
-import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
-import { TokenMetadata } from '~services/ft-contract';
-import { STABLE_POOL_ID, STABLE_TOKEN_IDS } from '~services/near';
-import { Pool } from '~services/pool';
-import { getSwappedAmount } from '~services/stable-swap';
-import { EstimateSwapView } from '~services/swap';
+import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
+import { TokenMetadata } from '../services/ft-contract';
+import { STABLE_POOL_ID, STABLE_TOKEN_IDS } from '../services/near';
+import { Pool } from '../services/pool';
+import { getSwappedAmount } from '../services/stable-swap';
+import { EstimateSwapView } from '../services/swap';
 
 const BPS_CONVERSION = 10000;
 const REF_FI_STABLE_Pool_INFO_KEY = 'REF_FI_STABLE_Pool_INFO_VALUE';

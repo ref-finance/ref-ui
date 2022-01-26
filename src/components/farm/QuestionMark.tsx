@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useIntl } from 'react-intl';
 
 import { HiOutlineExternalLink } from 'react-icons/hi';
-import { useMobile } from '~utils/device';
+import { useMobile } from '../../utils/device';
 export default function QuestionMark(props: {
   color?: 'bright' | 'dark';
   className?: string;

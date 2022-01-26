@@ -16,10 +16,10 @@ import {
   toPrecision,
   toReadableNumber,
   toRoundedReadableNumber,
-} from '~utils/numbers';
-import { toRealSymbol } from '~utils/token';
+} from '../utils/numbers';
+import { toRealSymbol } from '../utils/token';
 import getConfig from '~services/config';
-import { nearMetadata } from '~/services/wrap-near';
+import { nearMetadata } from '../services/wrap-near';
 
 export const useToken = (id: string) => {
   const [token, setToken] = useState<TokenMetadata>();

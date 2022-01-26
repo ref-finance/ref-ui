@@ -139,7 +139,7 @@ describe('calculateFeeCharge', () => {
   test('calculate fee charge from BPS', () => {
     expect(calculateFeeCharge(30, 100)).toEqual(0.3);
     expect(calculateFeeCharge(30, 30)).toEqual(0.09);
-    expect(calculateFeeCharge(30, 12)).toEqual(0.04);
+    expect(calculateFeeCharge(30, 12)).toEqual(0.036);
   });
 });
 

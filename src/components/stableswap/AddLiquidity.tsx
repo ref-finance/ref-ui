@@ -3,49 +3,36 @@ import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router-dom';
-import Alert from '~components/alert/Alert';
+import Alert from '../alert/Alert';
 import {
   ButtonTextWrapper,
   ConnectToNearBtn,
   SolidButton,
-} from '~components/button/Button';
-import { Card } from '~components/card/Card';
-import { StableSlipSelecter } from '~components/forms/SlippageSelector';
-import { Near } from '~components/icon';
-import { TokenMetadata } from '~services/ft-contract';
-import { REF_FARM_CONTRACT_ID, STABLE_POOL_ID, wallet } from '~services/near';
+} from '../button/Button';
+import { Card } from '../card/Card';
+import { StableSlipSelecter } from '../forms/SlippageSelector';
+import { TokenMetadata } from '../../services/ft-contract';
+import { STABLE_POOL_ID, wallet } from '../../services/near';
 import {
-  addLiquidityToPool,
   addLiquidityToStablePool,
   Pool,
-  predictLiquidityShares,
   StablePool,
-} from '~services/pool';
-import { TokenBalancesView } from '~services/token';
-import { usePredictShares } from '~state/pool';
-import { useFarmStake } from '~state/farm';
-
-import { isMobile } from '~utils/device';
+} from '../../services/pool';
+import { TokenBalancesView } from '../../services/token';
+import { usePredictShares } from '../../state/pool';
 import {
   calculateFairShare,
   percent,
-  percentOf,
   toNonDivisibleNumber,
   toReadableNumber,
   toPrecision,
   percentLess,
-  toRoundedReadableNumber,
-} from '~utils/numbers';
-import { toRealSymbol } from '~utils/token';
+} from '../../utils/numbers';
 import { ChooseAddType } from './LiquidityComponents';
 import StableTokenList from './StableTokenList';
-import { InfoLine } from './LiquidityComponents';
-import { usePool } from '~state/pool';
-import { shareToAmount } from '~services/stable-swap';
-import { LP_TOKEN_DECIMALS } from '~services/m-token';
-import { WarnTriangle } from '~components/icon/SwapRefresh';
-import { ActionModel } from '~pages/AccountPage';
-import { getDepositableBalance } from '~state/token';
+import { WarnTriangle } from '../icon/SwapRefresh';
+import { ActionModel } from '../../pages/AccountPage';
+import { getDepositableBalance } from '../../state/token';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE';

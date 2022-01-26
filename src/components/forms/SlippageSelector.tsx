@@ -1,13 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import ReactTooltip from 'react-tooltip';
 import { Slider } from '../icon/Info';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { isMobile } from '~utils/device';
-import { FaRegQuestionCircle } from 'react-icons/fa';
+import { isMobile } from '../../utils/device';
 import { IoCloseOutline, IoWarning } from 'react-icons/io5';
-import { SWAP_USE_NEAR_BALANCE_KEY } from '~components/swap/SwapCard';
-import QuestionMark from '~components/farm/QuestionMark';
-import { QuestionTip } from '~components/layout/TipWrapper';
+import { QuestionTip } from '../../components/layout/TipWrapper';
 
 export default function SlippageSelector({
   slippageTolerance,
@@ -206,7 +202,9 @@ export default function SlippageSelector({
             </div>
             <div
               className="flex items-center"
-              onChange={({ target }) => handleBalanceOption(target.value)}
+              onChange={({ target }) =>
+                handleBalanceOption((target as HTMLInputElement).value)
+              }
             >
               <label className="inline-flex items-center">
                 <input

@@ -17,14 +17,14 @@ import {
   storageDepositAction,
   storageDepositForFTAction,
 } from './creators/storage';
-import { getTopPools, _search } from '~services/indexer';
+import { getTopPools, _search } from '../services/indexer';
 import { parsePoolView, PoolRPCView } from './api';
 import {
   checkTokenNeedsStorageDeposit,
   getTokenBalance,
-} from '~services/token';
-import getConfig from '~services/config';
-import { registerTokensAction } from '~services/creators/token';
+} from '../services/token';
+import getConfig from '../services/config';
+import { registerTokensAction } from '../services/creators/token';
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -278,6 +278,7 @@ export const getPoolsByTokens = async ({
     );
   }
   setLoadingData(false);
+  // @ts-ignore
   return filtered_pools;
 };
 

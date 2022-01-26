@@ -6,13 +6,13 @@ import {
   refContractViewFunction,
   Transaction,
   wallet,
-} from '~services/near';
-import { toNonDivisibleNumber } from '~utils/numbers';
-import { storageDepositAction } from '~services/creators/storage';
-import getConfig from '~services/config';
+} from '../services/near';
+import { toNonDivisibleNumber } from '../utils/numbers';
+import { storageDepositAction } from '../services/creators/storage';
+import getConfig from '../services/config';
 import { checkTokenNeedsStorageDeposit } from './token';
-import { ftGetStorageBalance } from '~services/ft-contract';
-import { NEW_ACCOUNT_STORAGE_COST } from '~services/wrap-near';
+import { ftGetStorageBalance } from '../services/ft-contract';
+import { NEW_ACCOUNT_STORAGE_COST } from '../services/wrap-near';
 
 const XREF_TOKEN_ID = getConfig().XREF_TOKEN_ID;
 export const XREF_TOKEN_DECIMALS = 18;

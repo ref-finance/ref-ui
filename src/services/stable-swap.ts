@@ -32,8 +32,8 @@ import {
   STORAGE_TO_REGISTER_WITH_MFT,
 } from './creators/storage';
 import { registerTokenAction } from './creators/token';
-import getConfig from '~services/config';
-import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
+import getConfig from '../services/config';
+import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
 import { DBCoreRangeType } from 'dexie';
 import moment from 'moment';
 import BigNumber from 'bignumber.js';

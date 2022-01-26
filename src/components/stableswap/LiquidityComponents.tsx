@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
 import { Icon } from './StableTokenList';
 import { FormattedMessage } from 'react-intl';
-import { UnCheckedRadio, CheckedRadio, Radio } from '~components/icon';
-import QuestionMark from '~components/farm/QuestionMark';
+import { UnCheckedRadio, CheckedRadio, Radio } from '../../components/icon';
+import QuestionMark from '../../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 
 // stable swap exchange rate

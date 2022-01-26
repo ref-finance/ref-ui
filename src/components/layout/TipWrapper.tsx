@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useIntl } from 'react-intl';
-import QuestionMark from '~components/farm/QuestionMark';
+import QuestionMark from '../../components/farm/QuestionMark';
 
 import ReactTooltip from 'react-tooltip';
 

@@ -1,10 +1,13 @@
-import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
-import { toReadableNumber } from '~utils/numbers';
-import { getPoolDetails } from '~services/pool';
+import { ftGetTokenMetadata, TokenMetadata } from '../services/ft-contract';
+import { toReadableNumber } from '../utils/numbers';
+import { getPoolDetails } from '../services/pool';
 import { useIntl } from 'react-intl';
-import getConfig from '~services/config';
-import { LP_TOKEN_DECIMALS, LP_STABLE_TOKEN_DECIMALS } from '~services/m-token';
-import { XREF_TOKEN_DECIMALS } from '~services/xref';
+import getConfig from '../services/config';
+import {
+  LP_TOKEN_DECIMALS,
+  LP_STABLE_TOKEN_DECIMALS,
+} from '../services/m-token';
+import { XREF_TOKEN_DECIMALS } from '../services/xref';
 import BigNumber from 'bignumber.js';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
