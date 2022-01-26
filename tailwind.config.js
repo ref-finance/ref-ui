@@ -88,7 +88,8 @@ module.exports = {
         xREFColor: '#A7ABAD',
         purple: '#8c78ff',
         blueTip: '#0A7AFF',
-        darkGreenColor: '#009A2B'
+        darkGreenColor: '#009A2B',
+        riskTextColor: '#BEBEBE',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

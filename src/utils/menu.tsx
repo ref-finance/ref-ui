@@ -218,8 +218,8 @@ export const moreLinks: MobileMenuItem[] = [
   {
     id: 'Risks',
     label: 'Risks',
-    pattern: '/risk',
-    url: '/risk',
+    pattern: '/risks',
+    url: '/risks',
     isExternal: false,
   },
   {

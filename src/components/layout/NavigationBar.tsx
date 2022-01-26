@@ -586,7 +586,7 @@ function NavigationBar() {
             <PoolsMenu />
             <Anchor to="/farms" pattern="/farms" name="Farms" />
             <Xref></Xref>
-            <Anchor to="/risk" pattern="/risks" name="Risks" />
+            <Anchor to="/risks" pattern="/risks" name="Risks" />
           </div>
           <div className="flex items-center justify-end flex-1">
             {wallet.isSignedIn() && (

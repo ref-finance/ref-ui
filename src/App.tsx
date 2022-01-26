@@ -89,7 +89,7 @@ function App() {
           <Route path="/farms" component={AutoHeight(FarmsPage)} />
           <Route path="/stableswap" component={AutoHeight(StableSwapPage)} />
           <Route path="/xref" component={AutoHeight(XrefPage)} />
-          <Route path="/risk" component={AutoHeight(RiskPage)} />
+          <Route path="/risks" component={AutoHeight(RiskPage)} />
           <Route path="/" component={AutoHeight(SwapPage)} />
         </Switch>
         <Footer />
