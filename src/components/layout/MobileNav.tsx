@@ -36,7 +36,6 @@ import WrapNear from '~components/forms/WrapNear';
 import { useDepositableBalance, useWhitelistTokens } from '~state/token';
 import { nearMetadata } from '~services/wrap-near';
 import getConfig from '~services/config';
-import { GuideMobile } from '~components/layout/Guide';
 import {
   AccountIcon,
   ActivityIcon,
@@ -330,7 +329,7 @@ export function MobileNavBar() {
     <div
       className="nav-wrap lg:hidden md:show relative xs:mb-6 md:mb-6"
       style={{
-        zIndex: show ? 200 : 30,
+        zIndex: show ? 200 : 51,
       }}
     >
       <div className="flex items-center text-2xl text-white justify-between p-4">
@@ -348,14 +347,13 @@ export function MobileNavBar() {
             </div>
             <div className="overflow-ellipsis overflow-hidden text-xs whitespace-nowrap account-name">
               {wallet.isSignedIn() ? (
-                <div className="flex items-center">
-                  <div
-                    onClick={() => {
-                      setAccountVisible(!accountVisible);
-                    }}
-                  >
-                    {accountName}
-                  </div>
+                <div
+                  className="flex items-center"
+                  onClick={() => {
+                    setAccountVisible(!accountVisible);
+                  }}
+                >
+                  <div>{accountName}</div>
                   {accountVisible ? (
                     <FiChevronUp className="text-base ml-1" />
                   ) : (
@@ -588,9 +586,6 @@ export function MobileNavBar() {
             setAccountVisible(false);
           }}
         />
-      ) : null}
-      {isMobile() ? (
-        <GuideMobile close={accountVisible || show}></GuideMobile>
       ) : null}
     </div>
   );

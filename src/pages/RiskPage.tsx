@@ -157,21 +157,21 @@ export default function RiskPage() {
             <LangMessage id="admin_keys_paragraph_3" />
           </p>
           <div className="mt-6">
-            <table className="bg-black bg-opacity-20 table-fixed">
-              <thead>
-                <tr className="text-sm text-riskTextColor text-left bg-black bg-opacity-25">
-                  <th className="rounded-t-lg py-2.5 px-4 xs:px-2.5 md:px-2.5">
+            <table className="table-fixed">
+              <thead className="bg-black bg-opacity-20">
+                <tr className="text-sm text-riskTextColor text-left">
+                  <th className="bg-black bg-opacity-25 rounded-tl-lg py-2.5 px-4 xs:px-2.5 md:px-2.5">
                     <LangMessage id="address" />
                   </th>
-                  <th className="py-2.5 px-4 xs:px-2.5 md:px-2.5">
+                  <th className="bg-black bg-opacity-25 py-2.5 px-4 xs:px-2.5 md:px-2.5">
                     <LangMessage id="type" />
                   </th>
-                  <th className=" rounded-t-lg py-2.5 px-4 xs:px-2.5 md:px-2.5">
+                  <th className="bg-black bg-opacity-25 rounded-tr-lg py-2.5 px-4 xs:px-2.5 md:px-2.5">
                     <LangMessage id="mission" />
                   </th>
                 </tr>
               </thead>
-              <tbody className="">
+              <tbody className="bg-black bg-opacity-20">
                 <tr className="text-xs text-riskTextColor border-b border-white border-opacity-10 bg-blend-overlay hover:bg-poolRowHover hover:bg-opacity-20 hover:text-white">
                   <td width="30%" className="py-3 px-4 xs:px-2.5 md:px-2.5">
                     v2.ref-finance.near
@@ -271,14 +271,14 @@ export default function RiskPage() {
                     <LangMessage id="table_body_tr_9" />
                   </td>
                 </tr>
-                <tr className="text-xs text-riskTextColor border-b border-white border-opacity-10 bg-blend-overlay hover:bg-poolRowHover hover:bg-opacity-20 hover:text-white">
-                  <td className="py-3 px-4 xs:px-2.5 md:px-2.5">
+                <tr className="text-xs text-riskTextColor bg-blend-overlay hover:bg-poolRowHover hover:bg-opacity-20 hover:text-white">
+                  <td className="py-3 px-4 xs:px-2.5 md:px-2.5 rounded-bl-lg">
                     token.v2.ref-finance.near{' '}
                   </td>
                   <td className="py-3 px-4 xs:px-2.5 md:px-2.5">
                     <LangMessage id="fungible_token_contract" />
                   </td>
-                  <td className="py-3 px-4 xs:px-2.5 md:px-2.5">
+                  <td className="py-3 px-4 xs:px-2.5 md:px-2.5 rounded-br-lg">
                     <LangMessage id="table_body_tr_10" />
                   </td>
                 </tr>
@@ -433,7 +433,7 @@ const ModuleTemplate = (props: any) => {
 
 const en_US = {
   risks: 'Risks',
-  of_using_ref_finance: 'of using Ref. finance',
+  of_using_ref_finance: 'of Using Ref. finance',
   introduction:
     'Providing liquidity and/or trading on Ref Finance do not come without risks. Before interacting with the protocol, please do research and understand the risks involved.',
   general_risks_quiz: 'General Risks Quiz',

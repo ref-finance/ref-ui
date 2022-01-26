@@ -45,7 +45,6 @@ import { MobileNavBar } from './MobileNav';
 import WrapNear from '~components/forms/WrapNear';
 import { WrapNearIcon } from './WrapNear';
 import { XrefIcon } from '~components/icon/Xref';
-import { Guide } from '~components/layout/Guide';
 
 const config = getConfig();
 
@@ -142,7 +141,6 @@ function AccountEntry() {
   ];
   return (
     <div className="relative user text-xs text-center justify-end z-30 mx-3.5">
-      <Guide></Guide>
       <div
         className={`cursor-pointer font-bold items-center justify-end text-center overflow-visible relative py-5`}
         onMouseEnter={() => {

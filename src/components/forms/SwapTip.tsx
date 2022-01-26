@@ -61,9 +61,7 @@ export default function SwapTip({
       tokenInId={tokenInId}
       tokenOutId={tokenOutId}
     />
-  ) : (
-    <WalletSettingTip />
-  );
+  ) : null;
 }
 
 export function ToStableTip({

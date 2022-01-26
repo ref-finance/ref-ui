@@ -9,7 +9,7 @@ function SwapPage() {
 
   return (
     <div className="swap">
-      <section className="lg:w-560px md:w-5/6 xs:w-full xs:p-2 m-auto ">
+      <section className="lg:w-560px md:w-5/6 xs:w-full xs:p-2 m-auto relative">
         <SwapCard allTokens={allTokens} />
       </section>
     </div>

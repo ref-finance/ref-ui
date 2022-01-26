@@ -67,6 +67,7 @@ import * as math from 'mathjs';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import { EstimateSwapView, PoolMode, swap } from '~services/swap';
 import { QuestionTip } from '~components/layout/TipWrapper';
+import { Guide } from '~components/layout/Guide';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -724,6 +725,12 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   return (
     <>
+      <Guide
+        bothStableToken={
+          STABLE_TOKEN_IDS.includes(tokenIn?.id) &&
+          STABLE_TOKEN_IDS.includes(tokenOut?.id)
+        }
+      ></Guide>
       <SwapTip
         bothStableToken={
           STABLE_TOKEN_IDS.includes(tokenIn?.id) &&
