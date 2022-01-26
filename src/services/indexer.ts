@@ -3,7 +3,7 @@ import { wallet } from './near';
 import _ from 'lodash';
 import { parsePoolView, PoolRPCView } from './api';
 import moment from 'moment/moment';
-import { parseAction } from '~services/transaction';
+import { parseAction } from '../services/transaction';
 import { volumeType, TVLType } from '~state/pool';
 import db from '../store/RefDatabase';
 const config = getConfig();

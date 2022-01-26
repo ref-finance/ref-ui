@@ -6,7 +6,7 @@ import {
   toNonDivisibleNumber,
   toReadableNumber,
 } from '../utils/numbers';
-import { getStakedListByAccountId } from '~services/farm';
+import { getStakedListByAccountId } from '../services/farm';
 import {
   DEFAULT_PAGE_LIMIT,
   getAllPoolsFromDb,
@@ -38,19 +38,19 @@ import {
   _order,
   _search,
   getTopPools,
-} from '~services/indexer';
-import { parsePoolView, PoolRPCView } from '~services/api';
-import { TokenMetadata } from '~services/ft-contract';
-import { TokenBalancesView } from '~services/token';
+} from '../services/indexer';
+import { parsePoolView, PoolRPCView } from '../services/api';
+import { TokenMetadata } from '../services/ft-contract';
+import { TokenBalancesView } from '../services/token';
 import {
   shareToAmount,
   getAddLiquidityShares,
   getRemoveLiquidityByTokens,
-} from '~services/stable-swap';
+} from '../services/stable-swap';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
-import { POOL_TOKEN_REFRESH_INTERVAL, STABLE_POOL_ID } from '~services/near';
+import { POOL_TOKEN_REFRESH_INTERVAL, STABLE_POOL_ID } from '../services/near';
 const REF_FI_STABLE_Pool_INFO_KEY = 'REF_FI_STABLE_Pool_INFO_VALUE';
 
 export const usePool = (id: number | string) => {

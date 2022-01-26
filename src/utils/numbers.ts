@@ -1,10 +1,15 @@
 import BigNumber from 'bignumber.js';
 import BN from 'bn.js';
 import * as math from 'mathjs';
-import { TokenMetadata } from '~services/ft-contract';
-import { Pool } from '~services/pool';
+import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
+import { TokenMetadata } from '../services/ft-contract';
+import { STABLE_POOL_ID, STABLE_TOKEN_IDS } from '../services/near';
+import { Pool } from '../services/pool';
+import { getSwappedAmount } from '../services/stable-swap';
+import { EstimateSwapView } from '../services/swap';
 
 const BPS_CONVERSION = 10000;
+const REF_FI_STABLE_Pool_INFO_KEY = 'REF_FI_STABLE_Pool_INFO_VALUE';
 
 const ROUNDING_OFFSETS: BN[] = [];
 const BN10 = new BN(10);
@@ -93,8 +98,132 @@ export const calculateFeePercent = (fee: number) => {
 export const calculateFeeCharge = (fee: number, total: string) => {
   return math.round(
     math.evaluate(`(${fee} / ${BPS_CONVERSION}) * ${total}`),
-    2
+    3
   );
+};
+
+export const calculateAmountReceived = (
+  pool: Pool,
+  amountIn: string,
+  tokenIn: TokenMetadata,
+  tokenOut: TokenMetadata
+) => {
+  const partialAmountIn = toReadableNumber(tokenIn.decimals, amountIn);
+
+  const in_balance = toReadableNumber(
+    tokenIn.decimals,
+    pool.supplies[tokenIn.id]
+  );
+  const out_balance = toReadableNumber(
+    tokenOut.decimals,
+    pool.supplies[tokenOut.id]
+  );
+
+  const big_in_balance = math.bignumber(in_balance);
+  const big_out_balance = math.bignumber(out_balance);
+
+  const constant_product = big_in_balance.mul(big_out_balance);
+
+  const new_in_balance = big_in_balance.plus(math.bignumber(partialAmountIn));
+
+  const new_out_balance = constant_product.div(new_in_balance);
+
+  const tokenOutReceived = big_out_balance.minus(new_out_balance);
+
+  return tokenOutReceived;
+};
+
+export const calculateMarketPrice = (
+  pool: Pool,
+  tokenIn: TokenMetadata,
+  tokenOut: TokenMetadata
+) => {
+  const cur_in_balance = toReadableNumber(
+    tokenIn.decimals,
+    pool.supplies[tokenIn.id]
+  );
+
+  const cur_out_balance = toReadableNumber(
+    tokenOut.decimals,
+    pool.supplies[tokenOut.id]
+  );
+
+  return math.evaluate(`(${cur_in_balance} / ${cur_out_balance})`);
+};
+
+export const calculateSmartRoutingPriceImpact = (
+  tokenInAmount: string,
+  swapTodos: EstimateSwapView[],
+  tokenIn: TokenMetadata,
+  tokenMid: TokenMetadata,
+  tokenOut: TokenMetadata
+) => {
+  const isPool1StablePool = Number(STABLE_POOL_ID) === swapTodos[0].pool.id;
+  const isPool2StablePool = Number(STABLE_POOL_ID) === swapTodos[1].pool.id;
+
+  const marketPrice1 = isPool1StablePool
+    ? '1'
+    : calculateMarketPrice(swapTodos[0].pool, tokenIn, tokenMid);
+
+  const marketPrice2 = isPool2StablePool
+    ? '1'
+    : calculateMarketPrice(swapTodos[1].pool, tokenMid, tokenOut);
+  const generalMarketPrice = math.evaluate(`${marketPrice1} * ${marketPrice2}`);
+
+  const tokenMidReceived = isPool1StablePool
+    ? swapTodos[0].noFeeAmountOut
+    : calculateAmountReceived(
+        swapTodos[0].pool,
+        toNonDivisibleNumber(tokenIn.decimals, tokenInAmount),
+        tokenIn,
+        tokenMid
+      );
+
+  const formattedTokenMidReceived = scientificNotationToString(
+    tokenMidReceived.toString()
+  );
+
+  // const [amount_swapped, fee, dy] = getSwappedAmount(
+  //   tokenIn.id,
+  //   tokenOut.id,
+  //   amountIn,
+  //   stablePoolInfo
+  // );
+
+  let stableOutPool2;
+  if (isPool2StablePool) {
+    const stableOut = getSwappedAmount(
+      tokenMid.id,
+      tokenOut.id,
+      formattedTokenMidReceived,
+      JSON.parse(localStorage.getItem(REF_FI_STABLE_Pool_INFO_KEY))
+    );
+    stableOutPool2 =
+      stableOut[0] < 0
+        ? '0'
+        : toPrecision(scientificNotationToString(stableOut[2].toString()), 0);
+    stableOutPool2 = toReadableNumber(STABLE_LP_TOKEN_DECIMALS, stableOutPool2);
+  }
+
+  const tokenOutReceived = isPool2StablePool
+    ? stableOutPool2
+    : calculateAmountReceived(
+        swapTodos[1].pool,
+        toNonDivisibleNumber(tokenMid.decimals, formattedTokenMidReceived),
+        tokenMid,
+        tokenOut
+      );
+
+  const newMarketPrice = math.evaluate(
+    `${tokenInAmount} / ${tokenOutReceived}`
+  );
+
+  const PriceImpact = percent(
+    subtraction(newMarketPrice, generalMarketPrice),
+    newMarketPrice
+  ).toString();
+
+  return scientificNotationToString(PriceImpact);
 };
 
 export const calculatePriceImpact = (
@@ -124,32 +253,12 @@ export const calculatePriceImpact = (
   const finalMarketPrice = math.evaluate(`(${in_balance} / ${out_balance})`);
 
   const separatedReceivedAmount = pools.map((pool) => {
-    const partialAmountIn = toReadableNumber(
-      tokenIn.decimals,
-      pool.partialAmountIn
+    return calculateAmountReceived(
+      pool,
+      pool.partialAmountIn,
+      tokenIn,
+      tokenOut
     );
-
-    const in_balance = toReadableNumber(
-      tokenIn.decimals,
-      pool.supplies[tokenIn.id]
-    );
-    const out_balance = toReadableNumber(
-      tokenOut.decimals,
-      pool.supplies[tokenOut.id]
-    );
-
-    const big_in_balance = math.bignumber(in_balance);
-    const big_out_balance = math.bignumber(out_balance);
-
-    const constant_product = big_in_balance.mul(big_out_balance);
-
-    const new_in_balance = big_in_balance.plus(math.bignumber(partialAmountIn));
-
-    const new_out_balance = constant_product.div(new_in_balance);
-
-    const tokenOutReceived = big_out_balance.minus(new_out_balance);
-
-    return tokenOutReceived;
   });
 
   const finalTokenOutReceived = math.sum(...separatedReceivedAmount);
@@ -160,7 +269,7 @@ export const calculatePriceImpact = (
 
   const PriceImpact = percent(
     subtraction(newMarketPrice, finalMarketPrice),
-    finalMarketPrice
+    newMarketPrice
   ).toString();
 
   return scientificNotationToString(PriceImpact);
@@ -253,13 +362,6 @@ export const toInternationalCurrencySystemNature = (
   labelValue: string,
   percent?: number
 ) => {
-  const handle = (str: string) => {
-    let [whole, decimal] = str.split('.');
-    if (Number(decimal) == 0) {
-      return whole;
-    }
-    return str;
-  };
   return Math.abs(Number(labelValue)) >= 1.0e9
     ? new BigNumber(Math.abs(Number(labelValue)) / 1.0e9).toFixed(
         percent || 2,
@@ -275,9 +377,7 @@ export const toInternationalCurrencySystemNature = (
         percent || 2,
         1
       ) + 'K'
-    : handle(
-        new BigNumber(Math.abs(Number(labelValue))).toFixed(percent || 2, 1)
-      );
+    : niceDecimals(labelValue);
 };
 
 export function scientificNotationToString(strParam: string) {
@@ -341,17 +441,17 @@ export function scientificNotationToString(strParam: string) {
 }
 
 export const calcStableSwapPriceImpact = (from: string, to: string) => {
-  return math.format(percent(math.evaluate(`(${from} / ${to}) - 1`), '1'), {
+  return math.format(percent(math.evaluate(`1 - (${to} / ${from})`), '1'), {
     notation: 'fixed',
   });
 };
 
-export const niceDecimals = (number: string | number) => {
+export const niceDecimals = (number: string | number, precision = 2) => {
   const str = number.toString();
   const [whole, decimals] = str.split('.');
-  if (decimals && Number(decimals) == 0) {
+  if (!decimals || Number(decimals) == 0) {
     return whole;
   } else {
-    return number;
+    return new BigNumber(number).toFixed(precision, 1);
   }
 };

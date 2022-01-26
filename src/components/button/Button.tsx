@@ -1,8 +1,13 @@
 import React, { HTMLAttributes, useState } from 'react';
-import { wallet, REF_FARM_CONTRACT_ID } from '~services/near';
-import { Near, UnLoginIcon, FarmMiningIcon, FarmStamp } from '~components/icon';
+import { wallet, REF_FARM_CONTRACT_ID } from '../../services/near';
+import {
+  Near,
+  UnLoginIcon,
+  FarmMiningIcon,
+  FarmStamp,
+} from '../../components/icon';
 import { FormattedMessage } from 'react-intl';
-import { BeatLoading } from '~components/layout/Loading';
+import { BeatLoading } from '../../components/layout/Loading';
 
 export function BorderlessButton(
   props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean }

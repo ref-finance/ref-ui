@@ -2,6 +2,11 @@ import Big from 'big.js';
 import { Pool } from './pool';
 import BigNumber from 'bignumber.js';
 
+Big.RM = 0;
+Big.DP = 40;
+Big.NE = -40;
+Big.PE = 40;
+
 interface FormatedPool extends Pool {
   x?: string;
   y?: string;

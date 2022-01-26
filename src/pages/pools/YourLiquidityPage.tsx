@@ -240,7 +240,7 @@ function PoolRow(props: { pool: any; balance: string }) {
     .toNumber()
     .toLocaleString('fullwide', { useGrouping: false });
 
-  if (!pool || !tokens || tokens.length < 2) return <Loading />;
+  if (!pool || !tokens || tokens.length < 2) return <div />;
 
   if (!(userTotalShare.toNumber() > 0)) return null;
 

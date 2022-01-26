@@ -1,37 +1,36 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Modal from 'react-modal';
-import { Card } from '~components/card/Card';
+import { Card } from '../components/card/Card';
 import { TiArrowSortedUp } from 'react-icons/ti';
-import { TokenMetadata } from '~/services/ft-contract';
+import { TokenMetadata } from '../services/ft-contract';
 import {
   BorderButtonHover,
   BorderButtonMobile,
   GreenLButton,
-} from '~components/button/Button';
+} from '../components/button/Button';
 import {
   useTokenBalances,
   useUserRegisteredTokensAllAndNearBalance,
-} from '~state/token';
-import Loading from '~components/layout/Loading';
-import { wallet } from '~services/near';
+} from '../state/token';
+import Loading from '../components/layout/Loading';
+import { wallet } from '../services/near';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { NearIcon, RefIcon, WalletIcon } from '~components/icon/Common';
+import { NearIcon, RefIcon, WalletIcon } from '../components/icon/Common';
 import {
   toReadableNumber,
-  toInternationalCurrencySystem,
   toInternationalCurrencySystemNature,
   toPrecision,
-} from '~utils/numbers';
+} from '../utils/numbers';
 import BigNumber from 'bignumber.js';
-import OldInputAmount from '~components/forms/OldInputAmount';
-import { deposit, withdraw } from '~services/token';
-import { nearMetadata, wrapNear } from '~/services/wrap-near';
-import { BeatLoading } from '~components/layout/Loading';
-import { STORAGE_PER_TOKEN } from '~services/creators/storage';
+import OldInputAmount from '../components/forms/OldInputAmount';
+import { deposit, withdraw } from '../services/token';
+import { nearMetadata, wrapNear } from '../services/wrap-near';
+import { BeatLoading } from '../components/layout/Loading';
+import { STORAGE_PER_TOKEN } from '../services/creators/storage';
 import { IoCloseOutline } from 'react-icons/io5';
-import { XrefSymbol } from '~components/icon/Xref';
+import { XrefSymbol } from '../components/icon/Xref';
 import ReactTooltip from 'react-tooltip';
-import QuestionMark from '~components/farm/QuestionMark';
+import QuestionMark from '../components/farm/QuestionMark';
 import { useHistory } from 'react-router';
 
 const accountSortFun = (
@@ -195,19 +194,13 @@ function AccountTable(props: any) {
             >
               <td width="38%" className="pl-6">
                 <div className="flex items-center">
-                  {item.symbol == 'XREF' ? (
-                    <span className="mr-2 -ml-1">
-                      <XrefSymbol width="49" height="53"></XrefSymbol>
-                    </span>
-                  ) : (
-                    <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden flex-shrink-0">
-                      <img src={item.icon} className="w-full h-full"></img>
-                    </div>
-                  )}
+                  <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden flex-shrink-0">
+                    <img src={item.icon} className="w-full h-full"></img>
+                  </div>
                   <div className="flex flex-col">
                     <div className="flex items-center">
                       <label className="text-white text-lg font-semibold">
-                        {item.symbol == 'XREF' ? 'xREF' : item.symbol}
+                        {item.symbol}
                       </label>
                       {item.symbol == 'NEAR' ? <NearTip /> : null}
                     </div>
@@ -345,20 +338,14 @@ function MobileAccountTable(props: any) {
             >
               <td className="pl-4">
                 <div className="flex items-center">
-                  {item.symbol == 'XREF' ? (
-                    <span className="mr-2 -ml-1">
-                      <XrefSymbol width="49" height="53"></XrefSymbol>
-                    </span>
-                  ) : (
-                    <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden flex-shrink-0">
-                      <img src={item.icon} className="w-full h-full"></img>
-                    </div>
-                  )}
+                  <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden flex-shrink-0">
+                    <img src={item.icon} className="w-full h-full"></img>
+                  </div>
 
                   <div className="flex flex-col">
                     <div className="flex items-center">
                       <label className="text-white text-lg font-semibold">
-                        {item.symbol == 'XREF' ? 'xREF' : item.symbol}
+                        {item.symbol}
                       </label>
                       {item.symbol == 'NEAR' ? <NearTip /> : null}
                     </div>
@@ -624,7 +611,7 @@ export function ActionModel(props: any) {
             </div>
             <OldInputAmount max={max} onChangeAmount={setAmount} />
           </div>
-          <div className="flex rounded-full items-center ml-4 lg:ml-12">
+          <div className="flex flex-shrink-0 rounded-full items-center ml-4 lg:ml-12">
             <label className="text-base lg:text-xl text-white font-semibold mr-2 lg:mr-5">
               {token?.symbol}
             </label>
@@ -648,9 +635,9 @@ export function ActionModel(props: any) {
           {loading ? (
             <BeatLoading />
           ) : action == 'deposit' ? (
-            <FormattedMessage id="deposit_to_ref_account" />
+            <FormattedMessage id="deposit" />
           ) : (
-            <FormattedMessage id="withdraw_to_near_wallet"></FormattedMessage>
+            <FormattedMessage id="withdraw"></FormattedMessage>
           )}
         </GreenLButton>
         <p className="text-primaryText text-xs text-center">

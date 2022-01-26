@@ -21,6 +21,7 @@ import {
   ActivityIcon,
   WalletIcon,
   SignoutIcon,
+  WNEARExchngeIcon,
 } from '~components/icon/Common';
 import { Link, useLocation } from 'react-router-dom';
 import { wallet } from '~services/near';
@@ -476,13 +477,13 @@ function MoreMenu() {
         onClickMenuItem?.(menuData, '');
       }}
     >
-      <div className="text-primaryText hover:text-greenColor cursor-pointer">
+      <div className="text-primaryText hover:text-greenColor cursor-pointer py-5">
         <MoreMenuIcon></MoreMenuIcon>
       </div>
       <div
         className={`${
           hover ? 'block' : 'hidden'
-        } absolute top-6 -right-4 pt-4 rounded-md`}
+        } absolute top-14 pt-2 -right-4 rounded-md`}
       >
         <Card
           width="w-64"
@@ -594,7 +595,7 @@ function NavigationBar() {
                   className=" py-1 cursor-pointer items-center flex"
                   onClick={() => setShowWrapNear(true)}
                 >
-                  <WrapNearIcon />
+                  <WNEARExchngeIcon />
                 </div>
                 <WrapNear
                   isOpen={showWrapNear}

@@ -1,19 +1,15 @@
 import React, { useState } from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
-import InputAmount from '~components/forms/InputAmount';
-import { Radio } from '~components/icon';
-import { TokenMetadata } from '~services/ft-contract';
-import { TokenBalancesView } from '~services/token';
+import { FormattedMessage } from 'react-intl';
+import InputAmount from '../../components/forms/InputAmount';
+import { TokenMetadata } from '../../services/ft-contract';
+import { TokenBalancesView } from '../../services/token';
 import {
   percentLess,
-  subtraction,
   toPrecision,
   toReadableNumber,
-} from '~utils/numbers';
-import { toRealSymbol } from '~utils/token';
-import Alert from '~components/alert/Alert';
-import BigNumber from 'bignumber.js';
-import { RefIcon } from '~components/icon/Common';
+} from '../../utils/numbers';
+import { toRealSymbol } from '../../utils/token';
+import { RefIcon } from '../../components/icon/Common';
 
 export function Icon(props: {
   icon?: string;
@@ -105,7 +101,7 @@ export default function StableTokenList(props: {
         >
           {toPrecision(
             toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
-            2,
+            3,
             true
           )}
         </span>
@@ -141,7 +137,7 @@ export default function StableTokenList(props: {
           >
             {toPrecision(
               toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
-              2,
+              3,
               true
             )}
           </span>
@@ -176,7 +172,7 @@ export default function StableTokenList(props: {
           >
             {toPrecision(
               toReadableNumber(tokens[2].decimals, balances[tokens[2].id]),
-              2,
+              3,
               true
             )}{' '}
           </span>

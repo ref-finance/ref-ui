@@ -17,14 +17,14 @@ import {
   storageDepositAction,
   storageDepositForFTAction,
 } from './creators/storage';
-import { getTopPools, _search } from '~services/indexer';
-import { PoolRPCView } from './api';
+import { getTopPools, _search } from '../services/indexer';
+import { parsePoolView, PoolRPCView } from './api';
 import {
   checkTokenNeedsStorageDeposit,
   getTokenBalance,
-} from '~services/token';
-import getConfig from '~services/config';
-import { registerTokensAction } from '~services/creators/token';
+} from '../services/token';
+import getConfig from '../services/config';
+import { registerTokensAction } from '../services/creators/token';
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -60,6 +60,10 @@ export interface StablePool {
   shares_total_supply: string;
   amp: number;
 }
+
+export const getPoolByToken = async (tokenId: string) => {
+  return await db.queryPoolsBytoken(tokenId);
+};
 
 export const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
   id: id >= 0 ? id : pool.id,
@@ -247,24 +251,19 @@ export const isNotStablePool = (pool: Pool) => {
 export const getPoolsByTokens = async ({
   tokenInId,
   tokenOutId,
-  amountIn,
   setLoadingData,
-  setLoadingTrigger,
   loadingTrigger,
 }: GetPoolOptions): Promise<Pool[]> => {
-  const amountToTrade = new BN(amountIn);
   let filtered_pools;
-  const cache = await db.checkPoolsByTokens(tokenInId, tokenOutId);
+  const [cacheForPair, cacheTimeLimit] = await db.checkPoolsByTokens(
+    tokenInId,
+    tokenOutId
+  );
 
-  if (cache && !loadingTrigger) {
+  if ((!loadingTrigger && cacheTimeLimit) || !cacheForPair) {
     filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
-    // filtered_pools = cache_pools;
-    // filtered_pools = cache_pools.filter(
-    //   (p) =>
-    //     new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
-    //     p.supplies[tokenOutId]
-    // );
-  } else {
+  }
+  if (loadingTrigger || (!cacheTimeLimit && cacheForPair)) {
     setLoadingData(true);
     const totalPools = await getTotalPools();
     const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
@@ -278,8 +277,8 @@ export const getPoolsByTokens = async ({
       (p) => p.supplies[tokenInId] && p.supplies[tokenOutId]
     );
   }
-  setLoadingTrigger(false);
   setLoadingData(false);
+  // @ts-ignore
   return filtered_pools;
 };
 

@@ -1,10 +1,13 @@
-import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
-import { toReadableNumber } from '~utils/numbers';
-import { getPoolDetails } from '~services/pool';
+import { ftGetTokenMetadata, TokenMetadata } from '../services/ft-contract';
+import { toReadableNumber } from '../utils/numbers';
+import { getPoolDetails } from '../services/pool';
 import { useIntl } from 'react-intl';
-import getConfig from '~services/config';
-import { LP_TOKEN_DECIMALS, LP_STABLE_TOKEN_DECIMALS } from '~services/m-token';
-import { XREF_TOKEN_DECIMALS } from '~services/xref';
+import getConfig from '../services/config';
+import {
+  LP_TOKEN_DECIMALS,
+  LP_STABLE_TOKEN_DECIMALS,
+} from '../services/m-token';
+import { XREF_TOKEN_DECIMALS } from '../services/xref';
 import BigNumber from 'bignumber.js';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
@@ -76,17 +79,35 @@ export const parseAction = async (
 };
 
 const parseSwap = async (params: any) => {
-  const in_token = await ftGetTokenMetadata(params.actions[0].token_in);
-  const out_token = await ftGetTokenMetadata(params.actions[0].token_out);
+  const actionStart = params.actions[0];
+  const actionEnd = params.actions[params.actions.length - 1];
+  const in_token = await ftGetTokenMetadata(actionStart.token_in);
+  const out_token = await ftGetTokenMetadata(actionEnd.token_out);
   const poolIdArr: (number | string)[] = [];
   let amountIn = '0';
   let amountOut = '0';
+  if (
+    !actionStart.min_amount_out ||
+    new BigNumber(actionStart.min_amount_out).isEqualTo('0')
+  ) {
+    // smart swap
+    amountIn = actionStart.amount_in;
+    amountOut = actionEnd.min_amount_out;
+  } else {
+    // normal swap (base,parallel)
+    params.actions.forEach((action: any) => {
+      const { amount_in, min_amount_out, pool_id } = action;
+      amountIn = new BigNumber(amount_in || '0').plus(amountIn).toFixed();
+      amountOut = new BigNumber(min_amount_out || '0')
+        .plus(amountOut)
+        .toFixed();
+    });
+  }
   params.actions.forEach((action: any) => {
-    const { amount_in, min_amount_out, pool_id } = action;
+    const { pool_id } = action;
     poolIdArr.push(pool_id);
-    amountIn = new BigNumber(amount_in).plus(amountIn).toFixed();
-    amountOut = new BigNumber(min_amount_out).plus(amountOut).toFixed();
   });
+
   return {
     Action: 'Swap',
     'Pool Id': poolIdArr.join(','),
@@ -243,11 +264,15 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
     let amountOut = '0';
     let poolIdArr: (string | number)[] = [];
     const in_token = await ftGetTokenMetadata(actions[0].token_in);
-    const out_token = await ftGetTokenMetadata(actions[0].token_out);
+    const out_token = await ftGetTokenMetadata(
+      actions[actions.length - 1].token_out
+    );
     actions.forEach((action: any) => {
       const { min_amount_out, pool_id } = action;
       poolIdArr.push(pool_id);
-      amountOut = new BigNumber(min_amount_out).plus(amountOut).toFixed();
+      amountOut = new BigNumber(min_amount_out || '0')
+        .plus(amountOut)
+        .toFixed();
     });
     return {
       Action,

@@ -668,25 +668,24 @@ export function AddLiquidityModal(
         ) : null}
 
         {canDeposit ? (
-          <div className="flex flex-col justify-center items-center rounded-md p-4 border border-warnColor">
-            <div className="flex items-center">
-              <WarnTriangle />
-              <label className="ml-2.5 text-base text-warnColor">
+          <div className="flex xs:flex-col md:flex-col justify-between items-center rounded-md p-4 xs:px-2 md:px-2 border border-warnColor">
+            <div className="flex items-center xs:mb-3 md:mb-3">
+              <label className="flex-shrink-0">
+                <WarnTriangle />
+              </label>
+              <label className="ml-2.5 text-base text-warnColor xs:text-sm md:text-sm">
                 <FormattedMessage id="you_do_not_have_enough" />{' '}
                 {modal?.token?.symbol}！
               </label>
             </div>
-            <div className="text-white text-base mt-3 text-center">
-              <label
-                onClick={() => {
-                  setVisible(true);
-                }}
-                className="font-semibold underline cursor-pointer"
-              >
-                <FormattedMessage id="deposit" />
-              </label>{' '}
-              {modal?.token?.symbol} <FormattedMessage id="into_ref_account" />
-            </div>
+            <SolidButton
+              className="focus:outline-none px-3 py-1.5 text-sm"
+              onClick={() => {
+                setVisible(true);
+              }}
+            >
+              <FormattedMessage id="deposit" />
+            </SolidButton>
           </div>
         ) : null}
         <div className="flex justify-between text-primaryText text-sm my-6">
@@ -878,8 +877,8 @@ export function RemoveLiquidityModal(
                 loading={buttonLoading}
                 Text={() => (
                   <FormattedMessage
-                    id="remove_to_ref_account"
-                    defaultMessage="Remove to REF account"
+                    id="remove_liquidity"
+                    defaultMessage="Remove Liquidity"
                   />
                 )}
               />
@@ -1421,13 +1420,32 @@ export function PoolDetailsPage() {
                     }`}</a>
                   </div>
                 </div>
-                <div className="text-white text-sm">
-                  {toInternationalCurrencySystem(
+                <div
+                  className="text-white text-sm"
+                  title={toReadableNumber(
+                    tokens[0].decimals,
+                    pool.supplies[tokens[0].id]
+                  )}
+                >
+                  {Number(
                     toReadableNumber(
                       tokens[0].decimals,
                       pool.supplies[tokens[0].id]
                     )
-                  )}
+                  ) < 0.01 &&
+                  Number(
+                    toReadableNumber(
+                      tokens[0].decimals,
+                      pool.supplies[tokens[0].id]
+                    )
+                  ) > 0
+                    ? '< 0.01'
+                    : toInternationalCurrencySystem(
+                        toReadableNumber(
+                          tokens[0].decimals,
+                          pool.supplies[tokens[0].id]
+                        )
+                      )}
                 </div>
               </div>
               <div className="flex items-center justify-between mb-6">
@@ -1447,13 +1465,33 @@ export function PoolDetailsPage() {
                     }`}</a>
                   </div>
                 </div>
-                <div className="text-white text-sm">
-                  {toInternationalCurrencySystem(
+                <div
+                  className="text-white text-sm
+                "
+                  title={toReadableNumber(
+                    tokens[1].decimals,
+                    pool.supplies[tokens[1].id]
+                  )}
+                >
+                  {Number(
                     toReadableNumber(
                       tokens[1].decimals,
                       pool.supplies[tokens[1].id]
                     )
-                  )}
+                  ) < 0.01 &&
+                  Number(
+                    toReadableNumber(
+                      tokens[1].decimals,
+                      pool.supplies[tokens[1].id]
+                    )
+                  ) > 0
+                    ? '< 0.01'
+                    : toInternationalCurrencySystem(
+                        toReadableNumber(
+                          tokens[1].decimals,
+                          pool.supplies[tokens[1].id]
+                        )
+                      )}
                 </div>
               </div>
               {/* rate */}

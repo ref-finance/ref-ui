@@ -94,7 +94,7 @@ export function AddPoolPage() {
   const getFeeDetail = () => {
     let result = '';
     Object.values(feeList).forEach((item) => {
-      const str = `<div class="flex tems-center text-xs text-primaryText my-1"><label class="mr-2">${item.v}</label><label>${item.percent}%</label></div>`;
+      const str = `<div class="flex tems-center text-xs text-navHighLightText my-1"><label class="mr-2">${item.v}</label><label>${item.percent}%</label></div>`;
       result += str;
     });
     return result;
@@ -185,6 +185,7 @@ export function AddPoolPage() {
                 border
                 borderColor="#7e8a93"
                 effect="solid"
+                textColor="#C6D1DA"
               />
             </div>
           </div>

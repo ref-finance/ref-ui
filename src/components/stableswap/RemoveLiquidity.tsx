@@ -58,6 +58,7 @@ import StableTokenList, {
 import { ShareInFarm } from '~components/layout/ShareInFarm';
 import { Link } from 'react-router-dom';
 import { LP_STABLE_TOKEN_DECIMALS, LP_TOKEN_DECIMALS } from '~services/m-token';
+import { QuestionTip } from '~components/layout/TipWrapper';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
@@ -261,25 +262,7 @@ export function RemoveLiquidityComponent(props: {
       <div className=" text-white flex items-center justify-between text-xs px-8 pb-6 xs:items-start md:items-start">
         <span className="text-primaryText flex items-center">
           <FormattedMessage id="my_shares" defaultMessage="Shares" />
-          <QuestionMark
-            data-type="dark"
-            data-place="right"
-            data-multiline={true}
-            data-tip={intl.formatMessage({ id: 'shares_tip' })}
-            className="inline-block ml-1 text-xs"
-            data-class="reactTip"
-            data-for="shareTipId"
-          />
-          <ReactTooltip
-            className="text-xs shadow-4xl"
-            id="shareTipId"
-            backgroundColor="#1D2932"
-            effect="solid"
-            class="tool-tip"
-            textColor="#7E8A93"
-            border
-            borderColor="#7e8a93"
-          />
+          <QuestionTip id="shares_tip" />
         </span>
         <div className="flex items-center xs:flex-col md:flex-col xs:items-end md:items-end">
           <span>
@@ -314,26 +297,7 @@ export function RemoveLiquidityComponent(props: {
           onClick={() => setIsPercentage(true)}
         >
           <FormattedMessage id="by_share" defaultMessage="By Share" />
-          <QuestionMark
-            data-type="dark"
-            data-place="right"
-            data-multiline={true}
-            data-tip={intl.formatMessage({ id: 'remove_tip' })}
-            className="inline-block ml-2 text-xs"
-            color="bright"
-            data-class="reactTip"
-            data-for="by_shareId"
-          />
-          <ReactTooltip
-            id="by_shareId"
-            className="text-xs shadow-4xl"
-            backgroundColor="#1D2932"
-            effect="solid"
-            class="tool-tip"
-            textColor="#7E8A93"
-            border
-            borderColor="#7e8a93"
-          />
+          <QuestionTip color="bright" id="remove_tip" />
         </div>
 
         <div
@@ -343,26 +307,8 @@ export function RemoveLiquidityComponent(props: {
           onClick={() => setIsPercentage(false)}
         >
           <FormattedMessage id="by_token" defaultMessage="By Token" />
-          <QuestionMark
-            data-type="dark"
-            data-place="right"
-            data-multiline={true}
-            data-tip={intl.formatMessage({ id: 'flexible_tip' })}
-            className="inline-block ml-2 text-xs"
-            color="bright"
-            data-class="reactTip"
-            data-for="by_tokenId"
-          />
-          <ReactTooltip
-            id="by_tokenId"
-            className="text-xs shadow-4xl"
-            backgroundColor="#1D2932"
-            effect="solid"
-            class="tool-tip"
-            textColor="#7E8A93"
-            border
-            borderColor="#7e8a93"
-          />
+
+          <QuestionTip id="flexible_tip" color="bright" />
         </div>
       </div>
       {/* Remove by share */}

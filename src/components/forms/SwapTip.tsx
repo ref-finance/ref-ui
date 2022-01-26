@@ -1,10 +1,12 @@
 import React from 'react';
 import { LightBulb, Setting } from '~components/icon/Near';
 import { ModalClose } from '~components/icon';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { useState, useEffect } from 'react';
+import { RefGuy } from '~components/icon/Common';
+import { Link } from 'react-router-dom';
 
-export default function SwapTip() {
+export function WalletSettingTip() {
   const [tipShow, setTipShow] = useState<Boolean>(true);
   useEffect(() => {
     const swapTipStatus = window.localStorage.getItem('swapTipStatus');
@@ -39,6 +41,78 @@ export default function SwapTip() {
       <div className="text-sm text-white">
         <FormattedMessage id="swap_tip"></FormattedMessage>
         <Setting className="inline-block ml-2.5"></Setting>
+      </div>
+    </div>
+  ) : null;
+}
+
+export default function SwapTip({
+  bothStableToken,
+  tokenInId,
+  tokenOutId,
+}: {
+  bothStableToken: boolean;
+  tokenInId: string;
+  tokenOutId: string;
+}) {
+  return bothStableToken ? (
+    <ToStableTip
+      bothStableToken={bothStableToken}
+      tokenInId={tokenInId}
+      tokenOutId={tokenOutId}
+    />
+  ) : (
+    <WalletSettingTip />
+  );
+}
+
+export function ToStableTip({
+  bothStableToken,
+  tokenInId,
+  tokenOutId,
+}: {
+  bothStableToken: boolean;
+  tokenInId: string;
+  tokenOutId: string;
+}) {
+  useEffect(() => {
+    setTipShow(bothStableToken);
+  }, [bothStableToken, tokenInId, tokenOutId]);
+
+  const [tipShow, setTipShow] = useState<Boolean>(false);
+
+  const intl = useIntl();
+
+  return tipShow ? (
+    <div className="flex relative items-center justify-center py-3 border border-framBorder rounded-lg mb-2 pl-6 pr-10 bg-cardBg xs:flex-col md:flex-col xs:mb-2.5 md:mb-2.5 xs:pr-6 md:pr-6 h-10">
+      <div
+        className="absolute top-3.5 right-3.5 cursor-pointer"
+        onClick={() => setTipShow(false)}
+      >
+        <ModalClose />
+      </div>
+
+      <div className="text-white">
+        <span>{intl.formatMessage({ id: 'check_to_stable_banner' })}</span>{' '}
+        <Link
+          to={{
+            pathname: '/stableswap',
+          }}
+          className="underline text-gradientFrom"
+        >
+          {intl.formatMessage({ id: 'stable_swap' })}
+        </Link>{' '}
+        <span>{intl.formatMessage({ id: 'rates_to_stable_banner' })}</span>!
+      </div>
+
+      <div
+        className="z-30 xs:hidden md:left-5 lg:left-12"
+        style={{
+          top: '-18px',
+          position: 'absolute',
+        }}
+      >
+        <RefGuy />
       </div>
     </div>
   ) : null;

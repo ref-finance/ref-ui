@@ -30,6 +30,7 @@ import {
 import { wallet } from '~services/near';
 import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
+import { index } from 'mathjs';
 const { XREF_TOKEN_ID, REF_TOKEN_ID, TOTAL_PLATFORM_FEE_REVENUE } = getConfig();
 const DECIMALS_XREF_REF_TRANSTER = 8;
 
@@ -97,16 +98,6 @@ function XrefPage() {
         2,
         true
       )}`;
-      // const xrefGetFee = `$${toPrecision(
-      //   (Number(TOTAL_PLATFORM_FEE_REVENUE) * 0.75).toString(),
-      //   2,
-      //   true
-      // )}`;
-      // const remainFee = `$${toPrecision(
-      //   (Number(TOTAL_PLATFORM_FEE_REVENUE) * 0.25).toString(),
-      //   2,
-      //   true
-      // )}`;
       setTotalDataArray([joinAmount, totalFee, refAmount, xrefAmount]);
     });
     getPrice().then((data) => {
@@ -136,9 +127,7 @@ function XrefPage() {
     const cur_rate_reverse = 1 / rate;
     if (rate) {
       if (forward) {
-        const displayStr = new BigNumber(
-          niceDecimals(cur_rate_forward)
-        ).toFixed(3, 1);
+        const displayStr = niceDecimals(cur_rate_forward, 4);
         return (
           <>
             1 <FormattedMessage id="xref"></FormattedMessage> =&nbsp;
@@ -150,9 +139,7 @@ function XrefPage() {
           </>
         );
       } else {
-        const displayStr = new BigNumber(
-          niceDecimals(cur_rate_reverse)
-        ).toFixed(3, 1);
+        const displayStr = niceDecimals(cur_rate_reverse, 4);
         return (
           <>
             1 <FormattedMessage id="ref"></FormattedMessage> =&nbsp;
@@ -192,16 +179,6 @@ function XrefPage() {
       title: intl.formatMessage({ id: 'total_xref_minted' }),
       unit: 'xREF',
     },
-    // fifth: {
-    //   title: intl.formatMessage({
-    //     id: 'total_fee_Revenue_shared_with_xref_holders',
-    //   }),
-    //   tipContent: 'hello world2',
-    // },
-    // sixth: {
-    //   title: intl.formatMessage({ id: 'provision_treasury' }),
-    //   tipContent: 'hello world3',
-    // },
   };
   if (!(refBalance && xrefBalance)) return <Loading></Loading>;
   return (
@@ -312,6 +289,7 @@ function XrefPage() {
             tab={tab}
             max={refBalance}
             isM={isM}
+            rate={rate}
             hidden={tab != 0 ? 'hidden' : ''}
           ></InputView>
           {/* xref unstake */}
@@ -319,6 +297,7 @@ function XrefPage() {
             tab={tab}
             max={xrefBalance}
             isM={isM}
+            rate={rate}
             hidden={tab != 1 ? 'hidden' : ''}
           ></InputView>
         </div>
@@ -345,7 +324,7 @@ function XrefPage() {
 function InputView(props: any) {
   const [amount, setAmount] = useState('0');
   const [loading, setLoading] = useState(false);
-  const { tab, max, hidden, isM } = props;
+  const { tab, max, hidden, isM, rate } = props;
   const onSubmit = () => {
     setLoading(true);
     if (tab == 0) {
@@ -360,6 +339,22 @@ function InputView(props: any) {
     !amount ||
     new BigNumber(amount).isEqualTo(0) ||
     new BigNumber(amount).isGreaterThan(max);
+  const exchangeDisplay = () => {
+    const bigAmount = new BigNumber(amount || '0');
+    let receive;
+    if (tab == 0) {
+      receive = bigAmount.dividedBy(rate);
+    } else {
+      receive = bigAmount.multipliedBy(rate);
+    }
+    if (receive.isEqualTo(0)) {
+      return 0;
+    } else if (receive.isLessThan(0.001)) {
+      return '<0.001';
+    } else {
+      return `≈ ${receive.toFixed(3, 1)}`;
+    }
+  };
   return (
     <div className={`flex flex-col mt-14 ${hidden}`}>
       <div className="flex items-center mb-8 xs:mb-5 md:mb-5 h-16">
@@ -393,6 +388,19 @@ function InputView(props: any) {
             ></XrefSymbol>
           )}
         </div>
+      </div>
+      <div className="flex justify-between items-center mb-4">
+        {tab == 0 ? (
+          <label className="text-sm text-primaryText">
+            <FormattedMessage id="xref_to_receive"></FormattedMessage>
+          </label>
+        ) : (
+          <label className="text-sm text-primaryText">
+            <FormattedMessage id="ref_to_receive"></FormattedMessage>
+          </label>
+        )}
+
+        <label className="text-sm text-white"> {exchangeDisplay()}</label>
       </div>
       {wallet.isSignedIn() ? (
         <GradientButton

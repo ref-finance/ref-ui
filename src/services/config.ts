@@ -1,10 +1,60 @@
+export function getExtendConfig(env: string = process.env.NEAR_ENV) {
+  switch (env) {
+    case 'production':
+    case 'mainnet':
+      return {
+        RPC_LIST: {
+          defaultRpc: {
+            url: 'https://rpc.mainnet.near.org',
+            simpleName: 'rpc mainnet',
+          },
+          publicRpc: {
+            url: 'https://public-rpc.blockpi.io/http/near',
+            simpleName: 'rpc public',
+          },
+        },
+      };
+    case 'development':
+    case 'testnet':
+      return {
+        RPC_LIST: {
+          defaultRpc: {
+            url: 'https://rpc.testnet.near.org',
+            simpleName: 'rpc mainnet',
+          },
+          publicRpc: {
+            url: 'https://public-rpc.blockpi.io/http/near-testnet',
+            simpleName: 'rpc public',
+          },
+        },
+      };
+    default:
+      return {
+        RPC_LIST: {
+          defaultRpc: {
+            url: 'https://rpc.mainnet.near.org',
+            simpleName: 'rpc mainnet',
+          },
+          publicRpc: {
+            url: 'https://public-rpc.blockpi.io/http/near',
+            simpleName: 'rpc public',
+          },
+        },
+      };
+  }
+}
 export default function getConfig(env: string = process.env.NEAR_ENV) {
+  const RPC_LIST = getExtendConfig().RPC_LIST;
+  let endPoint = 'defaultRpc';
+  try {
+    endPoint = window.localStorage.getItem('endPoint') || endPoint;
+  } catch (error) {}
   switch (env) {
     case 'production':
     case 'mainnet':
       return {
         networkId: 'mainnet',
-        nodeUrl: 'https://rpc.mainnet.near.org',
+        nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.near.org',
         helperUrl: 'https://helper.mainnet.near.org',
         explorerUrl: 'https://explorer.mainnet.near.org',
@@ -42,7 +92,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
     case 'testnet':
       return {
         networkId: 'testnet',
-        nodeUrl: 'https://rpc.testnet.near.org',
+        nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.testnet.near.org',
         helperUrl: 'https://helper.testnet.near.org',
         explorerUrl: 'https://explorer.testnet.near.org',
@@ -80,7 +130,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
     default:
       return {
         networkId: 'mainnet',
-        nodeUrl: 'https://rpc.mainnet.near.org',
+        nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.near.org',
         helperUrl: 'https://helper.mainnet.near.org',
         explorerUrl: 'https://explorer.mainnet.near.org',

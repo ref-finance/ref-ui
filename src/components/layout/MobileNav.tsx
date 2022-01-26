@@ -18,6 +18,7 @@ import {
   IconAirDropGreenTip,
   WrapNearIconDark,
 } from '~components/icon';
+import { WNEARExchngeIcon } from '~components/icon/Common';
 import { Link, useLocation } from 'react-router-dom';
 import { near, wallet } from '~services/near';
 import { useHistory } from 'react-router';
@@ -382,7 +383,7 @@ export function MobileNavBar() {
         </div>
       </div>
       <div
-        className={`fixed top-0 left-0 z-20 h-screen w-full bg-black bg-opacity-30 backdrop-blur-lg filter-blur backdrop-filter overflow-auto ${
+        className={`fixed top-0 bottom-0 left-0 z-20 w-full bg-black bg-opacity-30 backdrop-blur-lg filter-blur backdrop-filter overflow-auto ${
           show ? 'block' : 'hidden'
         }`}
       >
@@ -403,7 +404,7 @@ export function MobileNavBar() {
                   className="flex p-4 justify-between items-center"
                   onClick={() => setMobileWrapNear(true)}
                 >
-                  <WrapNearIconDark large forMobile />
+                  <WNEARExchngeIcon width="75" height="32" />
                   <span className="text-sm">
                     NEAR:&nbsp;{toPrecision(nearBalance, 3, true)}
                   </span>
@@ -574,7 +575,7 @@ export function MobileNavBar() {
             </openMenuContext.Provider>
           </div>
           <div
-            className="p-4 bg-cardBg mb-24"
+            className="p-4 bg-cardBg pb-16"
             onClick={() => window.open('https://sodaki.com/')}
           >
             <RefAnalytics />

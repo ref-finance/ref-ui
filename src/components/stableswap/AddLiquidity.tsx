@@ -3,49 +3,36 @@ import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router-dom';
-import Alert from '~components/alert/Alert';
+import Alert from '../alert/Alert';
 import {
   ButtonTextWrapper,
   ConnectToNearBtn,
   SolidButton,
-} from '~components/button/Button';
-import { Card } from '~components/card/Card';
-import { StableSlipSelecter } from '~components/forms/SlippageSelector';
-import { Near } from '~components/icon';
-import { TokenMetadata } from '~services/ft-contract';
-import { REF_FARM_CONTRACT_ID, STABLE_POOL_ID, wallet } from '~services/near';
+} from '../button/Button';
+import { Card } from '../card/Card';
+import { StableSlipSelecter } from '../forms/SlippageSelector';
+import { TokenMetadata } from '../../services/ft-contract';
+import { STABLE_POOL_ID, wallet } from '../../services/near';
 import {
-  addLiquidityToPool,
   addLiquidityToStablePool,
   Pool,
-  predictLiquidityShares,
   StablePool,
-} from '~services/pool';
-import { TokenBalancesView } from '~services/token';
-import { usePredictShares } from '~state/pool';
-import { useFarmStake } from '~state/farm';
-
-import { isMobile } from '~utils/device';
+} from '../../services/pool';
+import { TokenBalancesView } from '../../services/token';
+import { usePredictShares } from '../../state/pool';
 import {
   calculateFairShare,
   percent,
-  percentOf,
   toNonDivisibleNumber,
   toReadableNumber,
   toPrecision,
   percentLess,
-  toRoundedReadableNumber,
-} from '~utils/numbers';
-import { toRealSymbol } from '~utils/token';
+} from '../../utils/numbers';
 import { ChooseAddType } from './LiquidityComponents';
 import StableTokenList from './StableTokenList';
-import { InfoLine } from './LiquidityComponents';
-import { usePool } from '~state/pool';
-import { shareToAmount } from '~services/stable-swap';
-import { LP_TOKEN_DECIMALS } from '~services/m-token';
-import { WarnTriangle } from '~components/icon/SwapRefresh';
-import { ActionModel } from '~pages/AccountPage';
-import { getDepositableBalance } from '~state/token';
+import { WarnTriangle } from '../icon/SwapRefresh';
+import { ActionModel } from '../../pages/AccountPage';
+import { getDepositableBalance } from '../../state/token';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE';
@@ -500,26 +487,24 @@ export default function AddLiquidityComponent(props: {
           ) : null}
 
           {canDeposit ? (
-            <div className="flex flex-col justify-center items-center rounded-md p-4 mb-5 border border-warnColor">
-              <div className="flex items-center">
-                <WarnTriangle />
-                <label className="ml-2.5 text-base text-warnColor">
+            <div className="flex xs:flex-col md:flex-col justify-between items-center rounded-md p-4 xs:px-2 md:px-2 mb-5 border border-warnColor">
+              <div className="flex items-center xs:mb-3 md:mb-3">
+                <label className="flex-shrink-0">
+                  <WarnTriangle />
+                </label>
+                <label className="ml-2.5 text-base text-warnColor xs:text-sm md:text-sm">
                   <FormattedMessage id="you_do_not_have_enough" />{' '}
                   {modal?.token?.symbol}！
                 </label>
               </div>
-              <div className="text-white text-base mt-3 text-center">
-                <label
-                  onClick={() => {
-                    setVisible(true);
-                  }}
-                  className="font-semibold underline cursor-pointer"
-                >
-                  <FormattedMessage id="deposit" />
-                </label>{' '}
-                {modal?.token?.symbol}{' '}
-                <FormattedMessage id="into_ref_account" />
-              </div>
+              <SolidButton
+                className="focus:outline-none px-3 py-1.5 text-sm"
+                onClick={() => {
+                  setVisible(true);
+                }}
+              >
+                <FormattedMessage id="deposit" />
+              </SolidButton>
             </div>
           ) : null}
           {wallet.isSignedIn() ? (
