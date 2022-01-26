@@ -575,7 +575,7 @@ export function MobileNavBar() {
             </openMenuContext.Provider>
           </div>
           <div
-            className="p-4 bg-cardBg mb-24"
+            className="p-4 bg-cardBg pb-16"
             onClick={() => window.open('https://sodaki.com/')}
           >
             <RefAnalytics />
