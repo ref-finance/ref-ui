@@ -318,6 +318,6 @@ const zh_CN = {
   deposit_l: '存储',
   withdraw_l: '提取',
   got_it: '知道了',
-  check_the_transaction_settings: '检查交易设置',
+  check_the_transaction_settings: '查看交易设置',
 };
 export default zh_CN;
