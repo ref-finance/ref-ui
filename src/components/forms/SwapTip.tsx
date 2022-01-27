@@ -90,7 +90,7 @@ export function ToStableTip({
         <ModalClose />
       </div>
 
-      <div className="text-white xs:relative xs:left-6 xs:text-xs">
+      <div className="text-white xs:relative xs:left-7 text-sm">
         <span>{intl.formatMessage({ id: 'check_to_stable_banner' })}</span>{' '}
         <Link
           to={{
