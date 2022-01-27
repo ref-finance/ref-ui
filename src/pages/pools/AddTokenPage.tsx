@@ -18,7 +18,7 @@ export function AddTokenPage() {
         </div>
       </div>
       <div className="w-full flex justify-center">
-        {error && <Alert level="error" message={error} />}
+        {error && <Alert level="warn" message={error} />}
       </div>
       <Card width="w-full">
         <div className="text-xs font-semibold">

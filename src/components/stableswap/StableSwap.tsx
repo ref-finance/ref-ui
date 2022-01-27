@@ -361,7 +361,7 @@ export default function StableSwap({
       </div>
       <div className="mx-8">
         <div className="pb-2 relative -mb-6 mt-2">
-          {swapError && <Alert level="error" message={swapError.message} />}
+          {swapError && <Alert level="warn" message={swapError.message} />}
         </div>
       </div>
 

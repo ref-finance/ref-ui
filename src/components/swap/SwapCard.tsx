@@ -857,7 +857,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         />
         {swapError ? (
           <div className="pb-2 relative -mb-5">
-            <Alert level="error" message={swapError.message} />
+            <Alert level="warn" message={swapError.message} />
           </div>
         ) : null}
       </SwapFormWrap>

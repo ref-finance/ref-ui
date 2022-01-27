@@ -498,7 +498,7 @@ export function FarmsPage() {
   return (
     <div className="xs:w-full md:w-full xs:mt-4 md:mt-4">
       <div className="w-1/3 xs:w-full md:w-full flex m-auto justify-center">
-        {error ? <Alert level="error" message={error.message} /> : null}
+        {error ? <Alert level="warn" message={error.message} /> : null}
       </div>
       <div className="grid grid-cols-farmContainerOther 2xl:grid-cols-farmContainer grid-flow-col xs:grid-cols-1 xs:grid-flow-row md:grid-cols-1 md:grid-flow-row">
         <div className="text-white pl-12 xs:px-5 md:px-5">
@@ -1492,7 +1492,7 @@ function FarmView({
       </div>
       <div className="info-list p-6 pt-0">
         <div className="text-center max-w-2xl">
-          {error ? <Alert level="error" message={error.message} /> : null}
+          {error ? <Alert level="warn" message={error.message} /> : null}
         </div>
         <div className="py-2">
           <div className="flex items-center justify-between text-sm py-2">

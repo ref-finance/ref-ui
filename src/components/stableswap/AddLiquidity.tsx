@@ -482,7 +482,7 @@ export default function AddLiquidityComponent(props: {
         <div className="px-8">
           {error ? (
             <div className="flex justify-center mx-2 mb-1">
-              {<Alert level="error" message={error.message} />}
+              {<Alert level="warn" message={error.message} />}
             </div>
           ) : null}
 
