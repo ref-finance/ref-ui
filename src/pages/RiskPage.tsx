@@ -15,20 +15,20 @@ export default function RiskPage() {
         <RiskLogo></RiskLogo>
       </div>
       <div className="flex justify-center text-white font-medium text-2xl">
-        {!local || local == 'en' ? (
+        {local == 'zh-CN' ? (
+          <>
+            <LangMessage id="of_using_ref_finance" />
+            <label className="text-greenColor">
+              <LangMessage id="risks" />
+            </label>
+          </>
+        ) : (
           <>
             <label className="text-greenColor">
               <LangMessage id="risks" />
             </label>
             &nbsp;
             <LangMessage id="of_using_ref_finance" />
-          </>
-        ) : (
-          <>
-            <LangMessage id="of_using_ref_finance" />
-            <label className="text-greenColor">
-              <LangMessage id="risks" />
-            </label>
           </>
         )}
       </div>
@@ -60,7 +60,20 @@ export default function RiskPage() {
       <div className="mt-7">
         <ModuleTemplate title={langFunction('audits')}>
           <p className="text-sm text-riskTextColor mb-4">
-            {!local || local == 'en' ? (
+            {local == 'zh-CN' ? (
+              <>
+                <label
+                  className="underline cursor-pointer text-riskTextColor hover:text-white"
+                  onClick={() => {
+                    window.open('https://jitadigital.com/');
+                  }}
+                >
+                  Jita
+                </label>{' '}
+                正在审核 Ref Finance 智能合约。 一旦第一次审计完成，Ref Finance
+                将积极寻求第二次独立审计。
+              </>
+            ) : (
               <>
                 Ref Finance smart contracts are being audited by{' '}
                 <label
@@ -74,19 +87,6 @@ export default function RiskPage() {
                 . Ref Finance will actively look for a second independant audit
                 once the first audit is completed.
               </>
-            ) : (
-              <>
-                <label
-                  className="underline cursor-pointer text-riskTextColor hover:text-white"
-                  onClick={() => {
-                    window.open('https://jitadigital.com/');
-                  }}
-                >
-                  Jita
-                </label>{' '}
-                正在审核 Ref Finance 智能合约。 一旦第一次审计完成，Ref Finance
-                将积极寻求第二次独立审计。
-              </>
             )}
           </p>
           <p className="text-sm text-riskTextColor">
@@ -95,7 +95,33 @@ export default function RiskPage() {
         </ModuleTemplate>
         <ModuleTemplate title={langFunction('admin_keys')}>
           <p className="text-sm text-riskTextColor mb-4">
-            {!local || local == 'en' ? (
+            {local == 'zh-CN' ? (
+              <>
+                Ref Finance 由{' '}
+                <label
+                  onClick={() => {
+                    window.open(
+                      'https://app.astrodao.com/dao/ref-finance.sputnik-dao.near'
+                    );
+                  }}
+                  className="underline text-riskTextColor hover:text-white cursor-pointer"
+                >
+                  Ref Finance Sputnik DAO
+                </label>{' '}
+                管理。有
+                <label
+                  className="underline text-riskTextColor hover:text-white cursor-pointer"
+                  onClick={() => {
+                    window.open(
+                      'https://gov.ref.finance/t/introducing-the-guardians/253'
+                    );
+                  }}
+                >
+                  监护人
+                </label>
+                ，特定的 NEAR 地址，可以暂停合约。 只有 DAO 可以随时恢复合约。
+              </>
+            ) : (
               <>
                 Ref Finance is managed by the{' '}
                 <label
@@ -121,32 +147,6 @@ export default function RiskPage() {
                 </label>
                 , specific NEAR addresses, which are able to pause the contract.
                 Only the DAO can resume the contract, at any time.
-              </>
-            ) : (
-              <>
-                Ref Finance 由{' '}
-                <label
-                  onClick={() => {
-                    window.open(
-                      'https://app.astrodao.com/dao/ref-finance.sputnik-dao.near'
-                    );
-                  }}
-                  className="underline text-riskTextColor hover:text-white cursor-pointer"
-                >
-                  Ref Finance Sputnik DAO
-                </label>{' '}
-                管理。有
-                <label
-                  className="underline text-riskTextColor hover:text-white cursor-pointer"
-                  onClick={() => {
-                    window.open(
-                      'https://gov.ref.finance/t/introducing-the-guardians/253'
-                    );
-                  }}
-                >
-                  监护人
-                </label>
-                ，特定的 NEAR 地址，可以暂停合约。 只有 DAO 可以随时恢复合约。
               </>
             )}
           </p>
