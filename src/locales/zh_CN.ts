@@ -314,5 +314,10 @@ const zh_CN = {
   make_sure_you_understand_what_you_do: '请确认你此时所做的事',
   more_expensive_than_best_rate: '比最好汇率更贵',
   risks: '风险',
+  go_to_your_account_to: '去你的账户',
+  deposit_l: '存储',
+  withdraw_l: '提取',
+  got_it: '知道了',
+  check_the_transaction_settings: '检查交易设置',
 };
 export default zh_CN;

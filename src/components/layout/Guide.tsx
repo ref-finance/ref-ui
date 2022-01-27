@@ -58,15 +58,20 @@ export function Guide(props: any) {
                   className="absolute right-5 top-3 cursor-pointer"
                 ></ModalClose>
                 <span className="absolute top-2.5 left-2.5 w-54 text-sm text-white">
-                  Go to your account to{' '}
-                  <label className="text-greenColor">deposit</label> &{' '}
-                  <label className="text-greenColor">withdraw</label>
+                  <FormattedMessage id="go_to_your_account_to" />{' '}
+                  <label className="text-greenColor">
+                    <FormattedMessage id="deposit_l" />
+                  </label>{' '}
+                  &{' '}
+                  <label className="text-greenColor">
+                    <FormattedMessage id="withdraw_l" />
+                  </label>
                 </span>
                 <div
                   onClick={closePop}
                   className="cursor-pointer absolute bottom-2.5 right-12 border border-greenColor rounded-3xl text-xs text-greenColor px-5 py-0.5"
                 >
-                  Got it
+                  <FormattedMessage id="got_it" />
                 </div>
               </div>
               <div className="mb-2">
@@ -85,15 +90,20 @@ export function Guide(props: any) {
                   className="absolute right-5 top-3 cursor-pointer"
                 ></ModalClose>
                 <span className="absolute top-2.5 left-2.5 w-54 text-sm text-white">
-                  Go to your account to{' '}
-                  <label className="text-greenColor">deposit</label> &{' '}
-                  <label className="text-greenColor">withdraw</label>
+                  <FormattedMessage id="go_to_your_account_to"></FormattedMessage>{' '}
+                  <label className="text-greenColor">
+                    <FormattedMessage id="deposit_l"></FormattedMessage>
+                  </label>{' '}
+                  &{' '}
+                  <label className="text-greenColor">
+                    <FormattedMessage id="withdraw_l"></FormattedMessage>
+                  </label>
                 </span>
                 <div
                   onClick={closePop}
                   className="cursor-pointer absolute bottom-2.5 right-12 border border-greenColor rounded-3xl text-xs text-greenColor px-5 py-0.5"
                 >
-                  Got it
+                  <FormattedMessage id="got_it" />
                 </div>
               </div>
               <div>
@@ -117,13 +127,13 @@ export function Guide(props: any) {
                   className="absolute right-5 top-3 cursor-pointer"
                 ></ModalClose>
                 <span className="absolute top-2 left-2.5 w-54 text-sm text-white">
-                  Check the transaction settings
+                  <FormattedMessage id="check_the_transaction_settings" />
                 </span>
                 <div
                   onClick={closeSetPop}
                   className="cursor-pointer absolute bottom-2 right-10 border border-greenColor rounded-3xl text-xs text-greenColor px-5 py-0.5"
                 >
-                  Got it
+                  <FormattedMessage id="got_it" />
                 </div>
               </div>
               <div className="-mb-6">
@@ -141,13 +151,13 @@ export function Guide(props: any) {
                   className="absolute right-5 top-3 cursor-pointer"
                 ></ModalClose>
                 <span className="absolute top-2 left-2.5 w-54 text-sm text-white">
-                  Check the transaction settings
+                  <FormattedMessage id="check_the_transaction_settings" />
                 </span>
                 <div
                   onClick={closeSetPop}
                   className="cursor-pointer absolute bottom-2 right-10 border border-greenColor rounded-3xl text-xs text-greenColor px-5 py-0.5"
                 >
-                  Got it
+                  <FormattedMessage id="got_it" />
                 </div>
               </div>
               <div className="xs:ml-3 md:ml-3">
