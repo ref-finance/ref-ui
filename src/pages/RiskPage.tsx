@@ -64,7 +64,7 @@ export default function RiskPage() {
               <>
                 Ref Finance smart contracts are being audited by{' '}
                 <label
-                  className="cursor-pointer text-white"
+                  className="underline cursor-pointer text-riskTextColor hover:text-white"
                   onClick={() => {
                     window.open('https://jitadigital.com/');
                   }}
@@ -77,7 +77,7 @@ export default function RiskPage() {
             ) : (
               <>
                 <label
-                  className="cursor-pointer text-white"
+                  className="underline cursor-pointer text-riskTextColor hover:text-white"
                   onClick={() => {
                     window.open('https://jitadigital.com/');
                   }}
@@ -104,13 +104,13 @@ export default function RiskPage() {
                       'https://app.astrodao.com/dao/ref-finance.sputnik-dao.near'
                     );
                   }}
-                  className="text-white cursor-pointer"
+                  className="underline text-riskTextColor hover:text-white cursor-pointer"
                 >
                   Ref Finance Sputnik DAO
                 </label>
                 . There are{' '}
                 <label
-                  className="text-white cursor-pointer"
+                  className="underline text-riskTextColor hover:text-white cursor-pointer"
                   onClick={() => {
                     window.open(
                       'https://gov.ref.finance/t/introducing-the-guardians/253'
@@ -131,13 +131,13 @@ export default function RiskPage() {
                       'https://app.astrodao.com/dao/ref-finance.sputnik-dao.near'
                     );
                   }}
-                  className="text-white cursor-pointer"
+                  className="underline text-riskTextColor hover:text-white cursor-pointer"
                 >
                   Ref Finance Sputnik DAO
                 </label>{' '}
                 管理。有
                 <label
-                  className="text-white cursor-pointer"
+                  className="underline text-riskTextColor hover:text-white cursor-pointer"
                   onClick={() => {
                     window.open(
                       'https://gov.ref.finance/t/introducing-the-guardians/253'
