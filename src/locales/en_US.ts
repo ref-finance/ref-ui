@@ -34,7 +34,7 @@ const en_US = {
   account: 'Account',
   Account: 'Account',
   New_ui: 'New UI',
-  Risk: 'Risk',
+  Risks: 'Risks',
   Forum: 'Forum',
   Discord: 'Discord',
   Telegram: 'Telegram',
@@ -326,5 +326,10 @@ const en_US = {
   check_to_stable_banner: 'Check',
   rates_to_stable_banner: 'Rates',
   make_sure_you_understand_what_you_do: 'Make sure you understand what you do',
+  go_to_your_account_to: 'Go to your account to',
+  deposit_l: 'deposit',
+  withdraw_l: 'withdraw',
+  got_it: 'Got it',
+  check_the_transaction_settings: 'Check the transaction settings',
 };
 export default en_US;

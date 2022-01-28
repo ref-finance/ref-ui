@@ -61,9 +61,7 @@ export default function SwapTip({
       tokenInId={tokenInId}
       tokenOutId={tokenOutId}
     />
-  ) : (
-    <WalletSettingTip />
-  );
+  ) : null;
 }
 
 export function ToStableTip({
@@ -84,7 +82,7 @@ export function ToStableTip({
   const intl = useIntl();
 
   return tipShow ? (
-    <div className="flex relative items-center justify-center py-3 border border-framBorder rounded-lg mb-2 pl-6 pr-10 bg-cardBg xs:flex-col md:flex-col xs:mb-2.5 md:mb-2.5 xs:pr-6 md:pr-6 h-10">
+    <div className="toStableTipAnimation flex relative items-center justify-center py-3 border border-framBorder rounded-lg mb-2 pl-6 pr-10 bg-cardBg xs:flex-col md:flex-col xs:mb-2.5 md:mb-2.5 xs:pr-6 md:pr-6 h-10">
       <div
         className="absolute top-3.5 right-3.5 cursor-pointer"
         onClick={() => setTipShow(false)}
@@ -92,7 +90,7 @@ export function ToStableTip({
         <ModalClose />
       </div>
 
-      <div className="text-white">
+      <div className="text-white relative xs:left-7 xs:text-sm lg:left-7 ">
         <span>{intl.formatMessage({ id: 'check_to_stable_banner' })}</span>{' '}
         <Link
           to={{
@@ -106,7 +104,7 @@ export function ToStableTip({
       </div>
 
       <div
-        className="z-30 xs:hidden md:left-5 lg:left-12"
+        className="z-30 xs:left-0 md:left-5 lg:left-12"
         style={{
           top: '-18px',
           position: 'absolute',

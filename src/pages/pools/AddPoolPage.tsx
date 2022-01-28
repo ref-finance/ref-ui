@@ -220,7 +220,7 @@ export function AddPoolPage() {
         </div>
         <div className="w-full flex justify-center">
           {errorKey && (
-            <Alert level="error" message={new Error(tip[errorKey]).message} />
+            <Alert level="warn" message={new Error(tip[errorKey]).message} />
           )}
         </div>
         <div className="rounded-md bg-black bg-opacity-20 px-4 py-2 mt-5">

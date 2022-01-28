@@ -36,9 +36,13 @@ export default function Table({
                 sortBy === 'asset' ? 'text-greenLight' : ''
               }`}
             >
-              <FormattedMessage id="asset_label" defaultMessage="Asset" />
-              <TiArrowSortedUp
+              <span
+                className="cursor-pointer"
                 onClick={() => onSortChange('asset')}
+              >
+                <FormattedMessage id="asset_label" defaultMessage="Asset" />
+              </span>
+              <TiArrowSortedUp
                 className={`inline-block cursor-pointer ${
                   sortBy === 'asset' && currentSort === 'down'
                     ? 'transform rotate-180'
@@ -51,45 +55,58 @@ export default function Table({
                 sortBy === 'near' ? 'text-greenLight' : ''
               }`}
             >
-              NEAR
-              <TiArrowSortedUp
+              <span
+                className="cursor-pointer"
                 onClick={() => onSortChange('near')}
-                className={`inline-block cursor-pointer ${
-                  sortBy === 'near' && currentSort === 'down'
-                    ? 'transform rotate-180'
-                    : ''
-                }`}
-              />
+              >
+                {' '}
+                NEAR
+                <TiArrowSortedUp
+                  className={`inline-block cursor-pointer ${
+                    sortBy === 'near' && currentSort === 'down'
+                      ? 'transform rotate-180'
+                      : ''
+                  }`}
+                />
+              </span>
             </th>
             <th
               className={`font-normal pb-2 w-1/5 ${
                 sortBy === 'ref' ? 'text-greenLight' : ''
               }`}
             >
-              REF
-              <TiArrowSortedUp
+              <span
+                className="cursor-pointer"
                 onClick={() => onSortChange('ref')}
-                className={`inline-block cursor-pointer ${
-                  sortBy === 'ref' && currentSort === 'down'
-                    ? 'transform rotate-180'
-                    : ''
-                }`}
-              />
+              >
+                REF
+                <TiArrowSortedUp
+                  className={`inline-block cursor-pointer ${
+                    sortBy === 'ref' && currentSort === 'down'
+                      ? 'transform rotate-180'
+                      : ''
+                  }`}
+                />
+              </span>
             </th>
             <th
               className={`font-normal pb-2 pr-3 w-1/5 ${
                 sortBy === 'total' ? 'text-greenLight' : ''
               }`}
             >
-              <FormattedMessage id="total_label" defaultMessage="Total" />
-              <TiArrowSortedUp
+              <span
+                className="cursor-pointer"
                 onClick={() => onSortChange('total')}
-                className={`inline-block cursor-pointer ${
-                  sortBy === 'total' && currentSort === 'down'
-                    ? 'transform rotate-180'
-                    : ''
-                }`}
-              />
+              >
+                <FormattedMessage id="total_label" defaultMessage="Total" />
+                <TiArrowSortedUp
+                  className={`inline-block cursor-pointer ${
+                    sortBy === 'total' && currentSort === 'down'
+                      ? 'transform rotate-180'
+                      : ''
+                  }`}
+                />
+              </span>
             </th>
           </tr>
         </thead>

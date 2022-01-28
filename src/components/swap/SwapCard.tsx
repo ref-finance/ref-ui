@@ -67,6 +67,8 @@ import * as math from 'mathjs';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import { EstimateSwapView, PoolMode, swap } from '~services/swap';
 import { QuestionTip } from '~components/layout/TipWrapper';
+import { Guide } from '~components/layout/Guide';
+import { sortBy } from 'lodash';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -114,31 +116,32 @@ export function DoubleCheckModal(
           <FormattedMessage id="are_you_sure" defaultMessage="Are you sure" />?
         </div>
 
-        <div className=" text-xs pt-4 ">
-          <span>
+        <div className=" text-xs pt-4 flex-col flex items-center justify-center">
+          <div>
             <FormattedMessage
               id="price_impact_is_about"
               defaultMessage="Price impact is about"
             />
-          </span>
-          &nbsp;
-          <span className="text-error">
-            -{toPrecision(priceImpactValue, 2)}%
-          </span>
-          <span className="text-error">
-            {' '}
-            {`(${
-              Number(priceImpactValue) < 0
-                ? '0'
-                : '-' +
-                  toPrecision(
-                    scientificNotationToString(
-                      multiply(from, divide(priceImpactValue, '100'))
-                    ),
-                    3
-                  )
-            } ${toRealSymbol(tokenIn.symbol)})`}{' '}
-          </span>
+          </div>
+          <div className="pt-1">
+            <span className="text-error">
+              -{toPrecision(priceImpactValue, 2)}%
+            </span>
+            <span className="text-error">
+              {' '}
+              {`(${
+                Number(priceImpactValue) < 0
+                  ? '0'
+                  : '-' +
+                    toPrecision(
+                      scientificNotationToString(
+                        multiply(from, divide(priceImpactValue, '100'))
+                      ),
+                      3
+                    )
+              } ${toRealSymbol(tokenIn.symbol)})`}{' '}
+            </span>
+          </div>
         </div>
         <div className="text-xs pb-6 pt-1">
           <FormattedMessage
@@ -305,33 +308,41 @@ export function ParallelSwapRoutesDetail({
         return math.bignumber(pool.partialAmountIn);
       });
 
+      const ps: string[] = new Array(partialAmounts.length).fill('0');
+
       const sum =
         partialAmounts.length === 1
           ? partialAmounts[0]
           : math.sum(...partialAmounts);
 
-      const ps: string[] = [];
+      const sortedAmount = sortBy(partialAmounts, (p) => Number(p));
 
-      for (let i = 0; i < partialAmounts.length - 1; i++) {
-        const p = toPrecision(
-          math.floor(percent(partialAmounts[i].toString(), sum)).toString(),
-          0
-        );
+      for (let k = 0; k < sortedAmount.length - 1; k++) {
+        let minIndex = -1;
 
-        ps.push(p);
+        for (let j = 0; j < partialAmounts.length; j++) {
+          if (partialAmounts[j].eq(sortedAmount[k])) {
+            minIndex = j;
+            break;
+          }
+        }
+        const res = math
+          .round(percent(partialAmounts[minIndex].toString(), sum))
+          .toString();
+
+        if (Number(res) === 0) {
+          ps[minIndex] = '1';
+        } else {
+          ps[minIndex] = res;
+        }
       }
 
-      const lastP =
-        ps.length === 0
-          ? '100'
-          : subtraction(
-              '100',
-              ps.length === 1
-                ? Number(ps[0])
-                : math.sum(...ps.map((p) => Number(p)))
-            ).toString();
+      const finalPIndex = ps.indexOf('0');
 
-      ps.push(lastP);
+      ps[finalPIndex] = subtraction(
+        '100',
+        ps.length === 1 ? Number(ps[0]) : math.sum(...ps.map((p) => Number(p)))
+      ).toString();
 
       return ps;
     } else {
@@ -549,7 +560,7 @@ function DetailView({
           )}`}
         />
 
-        {isParallelSwap && pools.length > 0 && (
+        {isParallelSwap && pools.length > 1 && (
           <ParallelSwapRoutesDetail
             tokenIn={tokenIn}
             tokenOut={tokenOut}
@@ -724,6 +735,12 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   return (
     <>
+      <Guide
+        bothStableToken={
+          STABLE_TOKEN_IDS.includes(tokenIn?.id) &&
+          STABLE_TOKEN_IDS.includes(tokenOut?.id)
+        }
+      ></Guide>
       <SwapTip
         bothStableToken={
           STABLE_TOKEN_IDS.includes(tokenIn?.id) &&
@@ -840,7 +857,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         />
         {swapError ? (
           <div className="pb-2 relative -mb-5">
-            <Alert level="error" message={swapError.message} />
+            <Alert level="warn" message={swapError.message} />
           </div>
         ) : null}
       </SwapFormWrap>

@@ -153,7 +153,7 @@ const BuyModal = ({ metadata, close }: BuyModalProps) => {
                   onChange={(event) => setPriceFactor(+event.target.value)}
                 />
               </p>
-              {error && <Alert level="error" message={error.message} />}
+              {error && <Alert level="warn" message={error.message} />}
               <div className="flex flex-row justify-around w-full mt-6">
                 <button
                   onClick={() => buyFrame()}

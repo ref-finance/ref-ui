@@ -216,6 +216,13 @@ export const moreLinks: MobileMenuItem[] = [
     iconElement: <XrefIcon></XrefIcon>,
   },
   {
+    id: 'Risks',
+    label: 'Risks',
+    pattern: '/risks',
+    url: '/risks',
+    isExternal: false,
+  },
+  {
     id: 'more',
     label: 'More',
     url: '',
@@ -289,25 +296,25 @@ export const moreLinks: MobileMenuItem[] = [
       },
     ],
   },
-  {
-    id: 'Quiz',
-    label: 'Quiz',
-    url: '',
-    isExternal: true,
-    children: [
-      // {
-      //   id: 'New_ui',
-      //   label: 'New UI',
-      //   url: 'https://mzko2gfnij6.typeform.com/to/N6jSxnym',
-      //   isExternal: true,
-      //   tip: 'Hot',
-      // },
-      {
-        id: 'Risk',
-        label: 'Risk',
-        url: 'https://form.typeform.com/to/EPmUetxU',
-        isExternal: true,
-      },
-    ],
-  },
+  // {
+  //   id: 'Quiz',
+  //   label: 'Quiz',
+  //   url: '',
+  //   isExternal: true,
+  //   children: [
+  //     // {
+  //     //   id: 'New_ui',
+  //     //   label: 'New UI',
+  //     //   url: 'https://mzko2gfnij6.typeform.com/to/N6jSxnym',
+  //     //   isExternal: true,
+  //     //   tip: 'Hot',
+  //     // },
+  //     {
+  //       id: 'Risk',
+  //       label: 'Risk',
+  //       url: 'https://form.typeform.com/to/EPmUetxU',
+  //       isExternal: true,
+  //     },
+  //   ],
+  // },
 ];

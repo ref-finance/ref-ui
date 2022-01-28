@@ -116,7 +116,7 @@ export default function SwapFormWrap({
           </h2>
         </>
       )}
-      {error && <Alert level="error" message={error.message} />}
+      {error && <Alert level="warn" message={error.message} />}
       {children}
       {showElseView && elseView ? (
         elseView

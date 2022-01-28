@@ -85,7 +85,8 @@ export function RecentActivityPage() {
           <div
             className="h-8 w-36 text-center inline-block rounded border-gradientFrom border py-2 text-xs text-gradientFrom font-semibold cursor-pointer"
             onClick={() => {
-              const url = config.walletUrl + '/' + wallet.account().accountId;
+              const url =
+                config.explorerUrl + '/accounts/' + wallet.account().accountId;
               window.open(url, '_blank');
             }}
           >

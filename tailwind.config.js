@@ -89,6 +89,7 @@ module.exports = {
         purple: '#8c78ff',
         blueTip: '#0A7AFF',
         darkGreenColor: '#009A2B',
+        riskTextColor: '#BEBEBE',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
@@ -102,6 +103,7 @@ module.exports = {
         '560px': '560px',
         '80vw': '80vw',
         '30vw': '30vw',
+        '54': '13.5rem'
       },
     },
     plugins: [],

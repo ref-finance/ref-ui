@@ -147,7 +147,7 @@ export function YourLiquidityPage() {
   return (
     <div className="flex items flex-col lg:w-2/3 xl:w-1/2 md:w-5/6 xs:w-11/12 m-auto">
       <div className="w-full flex justify-center self-center">
-        {error && <Alert level="error" message={error.message} />}
+        {error && <Alert level="warn" message={error.message} />}
       </div>
       {/* PC */}
       <Card width="w-full" padding="px-0 py-6" className="xs:hidden md:hidden">

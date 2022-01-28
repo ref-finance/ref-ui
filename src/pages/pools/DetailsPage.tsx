@@ -663,7 +663,7 @@ export function AddLiquidityModal(
         </div>
         {error ? (
           <div className="flex justify-center mb-8 ">
-            <Alert level="error" message={error.message} />
+            <Alert level="warn" message={error.message} />
           </div>
         ) : null}
 
