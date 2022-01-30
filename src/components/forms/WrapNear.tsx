@@ -121,10 +121,7 @@ function WrapNear(props: ReactModal.Props) {
 
   return (
     <Modal {...props}>
-      <form
-        className="border-gradientFrom border border-opacity-50 bg-secondary py-5 shadow-2xl rounded-2xl p-8 pb-9 bg-dark xs:rounded-lg md:rounded-lg"
-        onSubmit={handleSubmit}
-      >
+      <div className="border-gradientFrom border border-opacity-50 bg-secondary py-5 shadow-2xl rounded-2xl p-8 pb-9 bg-dark xs:rounded-lg md:rounded-lg">
         <h2 className="formTitle flex justify-between font-bold text-xl text-white text-left pb-2">
           <FormattedMessage id="wrapnear" defaultMessage="Wrap NEAR" />
           <IoClose onClick={props.onRequestClose} className=" cursor-pointer" />
@@ -202,11 +199,12 @@ function WrapNear(props: ReactModal.Props) {
           </div>
         </div>
         <SubmitButton
+          onClick={handleSubmit}
           disabled={!canSubmit}
           label="submit"
           loading={buttonLoading}
         />
-      </form>
+      </div>
     </Modal>
   );
 }
