@@ -21,6 +21,7 @@ import {
   GreenLButton,
   BorderButton,
   GradientButton,
+  ButtonTextWrapper,
 } from '~components/button/Button';
 import {
   getFarms,
@@ -53,7 +54,7 @@ import {
 } from '~utils/numbers';
 import { mftGetBalance } from '~services/mft-contract';
 import { wallet } from '~services/near';
-import Loading from '~components/layout/Loading';
+import Loading, { BeatLoading } from '~components/layout/Loading';
 import { ConnectToNearBtn } from '~components/button/Button';
 import { useTokens } from '~state/token';
 import { Info } from '~components/icon/Info';
@@ -124,10 +125,23 @@ export function FarmsPage() {
   const page = 1;
   const perPage = DEFAULT_PAGE_LIMIT;
   const withdrawNumber = 5;
+  const refreshTime = 120000;
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
     loadFarmInfoList().then();
   }, []);
+  useEffect(() => {
+    if (count > 0) {
+      loadFarmInfoList(true);
+    }
+    const intervalId = setInterval(() => {
+      setCount(count + 1);
+    }, refreshTime);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [count]);
 
   useEffect(() => {
     document.addEventListener('click', handleClick, false);
@@ -136,8 +150,12 @@ export function FarmsPage() {
     };
   }, [searchData]);
 
-  async function loadFarmInfoList() {
-    setUnclaimedFarmsIsLoading(true);
+  async function loadFarmInfoList(isUpload?: boolean) {
+    if (isUpload) {
+      setUnclaimedFarmsIsLoading(false);
+    } else {
+      setUnclaimedFarmsIsLoading(true);
+    }
     const isSignedIn: boolean = wallet.isSignedIn();
 
     const emptyObj = async () => {
@@ -182,7 +200,6 @@ export function FarmsPage() {
     setRewardList(rewardList);
     setTokenPriceList(tokenPriceList);
     setSeeds(seeds);
-
     const composeFarms = (farms: FarmInfo[]) => {
       let tempMap = {};
       let tempFarms = [];
@@ -209,35 +226,6 @@ export function FarmsPage() {
       tempFarms.forEach((arr: any) => {
         const totalApr = getTotalApr(arr);
         arr.totalApr = new BigNumber(totalApr);
-        const tempMap = {};
-        arr.forEach((m: any) => {
-          tempMap[m.rewardToken?.id] = tempMap[m.rewardToken?.id] || [];
-          tempMap[m.rewardToken?.id].push(m);
-        });
-        arr.splice(0, arr.length);
-        Object.keys(tempMap).forEach((m: any) => {
-          const commonRewardArr = tempMap[m];
-          if (commonRewardArr.length > 1) {
-            const target = commonRewardArr[0];
-            for (let i = 1; i < commonRewardArr.length; i++) {
-              const commonReward = commonRewardArr[i];
-              target.apr = BigNumber.sum(
-                target.apr,
-                commonReward.apr
-              ).valueOf();
-              target.rewardsPerWeek = BigNumber.sum(
-                target.rewardsPerWeek,
-                commonReward.rewardsPerWeek
-              ).valueOf();
-              target.userUnclaimedReward = BigNumber.sum(
-                target.userUnclaimedReward,
-                commonReward.userUnclaimedReward
-              ).valueOf();
-            }
-            tempMap[m] = [target];
-          }
-          arr.push(tempMap[m][0]);
-        });
       });
       return tempFarms;
     };
@@ -510,7 +498,7 @@ export function FarmsPage() {
   return (
     <div className="xs:w-full md:w-full xs:mt-4 md:mt-4">
       <div className="w-1/3 xs:w-full md:w-full flex m-auto justify-center">
-        {error ? <Alert level="error" message={error.message} /> : null}
+        {error ? <Alert level="warn" message={error.message} /> : null}
       </div>
       <div className="grid grid-cols-farmContainerOther 2xl:grid-cols-farmContainer grid-flow-col xs:grid-cols-1 xs:grid-flow-row md:grid-cols-1 md:grid-flow-row">
         <div className="text-white pl-12 xs:px-5 md:px-5">
@@ -623,22 +611,19 @@ export function FarmsPage() {
                           ? 'cursor-not-allowed'
                           : ''
                       }
+                      loading={withdrawLoading}
                     >
                       <div>
-                        <ClipLoader
-                          color="#fff"
+                        <ButtonTextWrapper
                           loading={withdrawLoading}
-                          size="12"
+                          Text={() => (
+                            <FormattedMessage
+                              id="withdraw"
+                              defaultMessage="Withdraw"
+                            />
+                          )}
                         />
                       </div>
-                      {withdrawLoading ? null : (
-                        <div>
-                          <FormattedMessage
-                            id="withdraw"
-                            defaultMessage="Withdraw"
-                          />
-                        </div>
-                      )}
                     </GradientButton>
                   </div>
                 </div>
@@ -936,11 +921,13 @@ function FarmView({
   const [unclaimed, setUnclaimed] = useState<Record<any, any>>({});
   const [calcVisible, setCalcVisible] = useState(false);
 
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+
   const clipColor = '#00c08b';
   const clipSize = 12;
   const claimLoadingColor = '#ffffff';
   const claimLoadingSize = 12;
-  const refreshTime = 120000;
+  // const refreshTime = 120000;
 
   const PoolId = farmData.lpTokenId;
   const tokens = useTokens(farmData?.tokenIds);
@@ -976,39 +963,68 @@ function FarmView({
     getAllRewardsPerWeek();
     getAllUnclaimedReward();
   }, [farmData]);
+  const mergeCommonRewardFarms = mergeCommonRewardFarmsFun(farmsData);
+  // useEffect(() => {
+  //   if (count > 0) {
+  //     setLoading(true);
+  //     getFarmInfo(
+  //       farmData,
+  //       farmData.pool,
+  //       stakedList[farmData.seed_id],
+  //       tokenPriceList,
+  //       rewardList[farmData.reward_token],
+  //       seeds[farmData.seed_id],
+  //       farmData.lpTokenId
+  //     ).then((data) => {
+  //       setData(data);
+  //       setLoading(false);
+  //     });
+  //   }
 
-  useEffect(() => {
-    if (count > 0) {
-      setLoading(true);
-      getFarmInfo(
-        farmData,
-        farmData.pool,
-        stakedList[farmData.seed_id],
-        tokenPriceList,
-        rewardList[farmData.reward_token],
-        seeds[farmData.seed_id],
-        farmData.lpTokenId
-      ).then((data) => {
-        setData(data);
-        setLoading(false);
-      });
-    }
+  //   if (data) {
+  //     setEnded(isEnded(data));
+  //     setPending(isPending(data));
+  //   }
 
-    if (data) {
-      setEnded(isEnded(data));
-      setPending(isPending(data));
-    }
-
-    const id = setInterval(() => {
-      setCount(count + 1);
-    }, refreshTime);
-    return () => clearInterval(id);
-  }, [count]);
-
+  //   const id = setInterval(() => {
+  //     setCount(count + 1);
+  //   }, refreshTime);
+  //   return () => clearInterval(id);
+  // }, [count]);
+  function mergeCommonRewardFarmsFun(farmsData: FarmInfo[]) {
+    const arr = JSON.parse(JSON.stringify(farmsData));
+    const tempMap = {};
+    arr.forEach((m: any) => {
+      tempMap[m.rewardToken?.id] = tempMap[m.rewardToken?.id] || [];
+      tempMap[m.rewardToken?.id].push(m);
+    });
+    arr.splice(0, arr.length);
+    Object.keys(tempMap).forEach((m: any) => {
+      const commonRewardArr = tempMap[m];
+      if (commonRewardArr.length > 1) {
+        const target = commonRewardArr[0];
+        for (let i = 1; i < commonRewardArr.length; i++) {
+          const commonReward = commonRewardArr[i];
+          target.apr = BigNumber.sum(target.apr, commonReward.apr).valueOf();
+          target.rewardsPerWeek = BigNumber.sum(
+            target.rewardsPerWeek,
+            commonReward.rewardsPerWeek
+          ).valueOf();
+          target.userUnclaimedReward = BigNumber.sum(
+            target.userUnclaimedReward,
+            commonReward.userUnclaimedReward
+          ).valueOf();
+        }
+        tempMap[m] = [target];
+      }
+      arr.push(tempMap[m][0]);
+    });
+    return arr;
+  }
   function getAllRewardsPerWeek() {
     let result: string = '';
     let totalPrice = 0;
-    farmsData.forEach((item) => {
+    mergeCommonRewardFarms.forEach((item: FarmInfo) => {
       const { rewardToken, rewardsPerWeek } = item;
       const { id, icon } = rewardToken;
       let price = 0;
@@ -1037,7 +1053,7 @@ function FarmView({
     let result: string = '';
     let totalPrice = 0;
     const rewardsList: any[] = [];
-    farmsData.forEach((item) => {
+    mergeCommonRewardFarms.forEach((item: FarmInfo) => {
       const { rewardToken, userUnclaimedReward } = item;
       const { id, icon } = rewardToken;
       let price = 0;
@@ -1235,7 +1251,7 @@ function FarmView({
   }
   function getRewardTokensSymbol() {
     let result: string = '';
-    farmsData.forEach((item) => {
+    mergeCommonRewardFarms.forEach((item: FarmInfo) => {
       const { rewardToken } = item;
       const itemHtml = `<div class="flex justify-between items-center h-8">
                           <image class="w-5 h-5 rounded-full mr-7" src="${rewardToken.icon}"/>
@@ -1247,7 +1263,7 @@ function FarmView({
   }
   function getRewardTokensIcon() {
     let icons: any[] = [];
-    farmsData.forEach(function (item) {
+    mergeCommonRewardFarms.forEach(function (item: FarmInfo) {
       const { farm_id, rewardToken } = item;
       const icon = (
         <img
@@ -1274,7 +1290,7 @@ function FarmView({
   }
   function getAprList() {
     let result: string = '';
-    farmsData.forEach((item) => {
+    mergeCommonRewardFarms.forEach((item: FarmInfo) => {
       const { rewardToken, apr } = item;
       const itemHtml = `<div class="flex justify-between items-center h-8">
                           <image class="w-5 h-5 rounded-full mr-7" src="${
@@ -1476,7 +1492,7 @@ function FarmView({
       </div>
       <div className="info-list p-6 pt-0">
         <div className="text-center max-w-2xl">
-          {error ? <Alert level="error" message={error.message} /> : null}
+          {error ? <Alert level="warn" message={error.message} /> : null}
         </div>
         <div className="py-2">
           <div className="flex items-center justify-between text-sm py-2">
@@ -1671,7 +1687,7 @@ function FarmView({
                   rounded="rounded-md"
                   px="px-0"
                   py="py-1"
-                  className="flex-grow  w-20 text-base text-greenLight"
+                  className="flex-grow  w-20 text-base text-greenColor"
                 >
                   <FormattedMessage id="unstake" defaultMessage="Unstake" />
                 </BorderButton>
@@ -1682,7 +1698,7 @@ function FarmView({
                   rounded="rounded-md"
                   px="px-0"
                   py="py-1"
-                  className="flex-grow  w-20 text-base text-greenLight"
+                  className="flex-grow  w-20 text-base text-greenColor"
                 >
                   <FormattedMessage id="stake" defaultMessage="Stake" />
                 </BorderButton>
@@ -1701,17 +1717,14 @@ function FarmView({
                   onClick={() => claimReward()}
                   disabled={disableClaim}
                   className="text-white text-base flex-grow  w-20"
+                  loading={claimLoading}
                 >
-                  <ClipLoader
-                    color={claimLoadingColor}
-                    loading={claimLoading}
-                    size={claimLoadingSize}
-                  />
-                  {claimLoading ? null : (
-                    <div>
-                      <FormattedMessage id={getClaimId()} />
-                    </div>
-                  )}
+                  <div>
+                    <ButtonTextWrapper
+                      loading={claimLoading}
+                      Text={() => <FormattedMessage id={getClaimId()} />}
+                    />
+                  </div>
                 </GradientButton>
               ) : null}
             </div>
@@ -1752,6 +1765,7 @@ function FarmView({
         unclaimed={unclaimed}
         type="unstake"
         onSubmit={(amount) => {
+          setButtonLoading(true);
           unstake({
             seed_id: data.seed_id,
             amount,
@@ -1768,6 +1782,7 @@ function FarmView({
             transform: 'translate(-50%, -50%)',
           },
         }}
+        buttonLoading={buttonLoading}
       />
 
       <CalcModel
@@ -1775,7 +1790,7 @@ function FarmView({
         onRequestClose={() => {
           setCalcVisible(false);
         }}
-        farms={farmsData}
+        farms={mergeCommonRewardFarms}
         tokenPriceList={tokenPriceList}
         style={{
           overlay: {
@@ -1802,7 +1817,9 @@ function FarmView({
         lps={lps}
         type="stake"
         tokenPriceList={tokenPriceList}
+        mergeCommonRewardFarms={mergeCommonRewardFarms}
         onSubmit={(amount) => {
+          setButtonLoading(true);
           stake({
             token_id: getMftTokenId(data.lpTokenId),
             amount,
@@ -1819,6 +1836,7 @@ function FarmView({
             transform: 'translate(-50%, -50%)',
           },
         }}
+        buttonLoading={buttonLoading}
       />
     </Card>
   );
@@ -1835,10 +1853,22 @@ function ActionModal(
     type?: string;
     unclaimed?: any;
     tokenPriceList?: any;
+    buttonLoading?: boolean;
+    mergeCommonRewardFarms?: FarmInfo[];
     onSubmit: (amount: string) => void;
   }
 ) {
-  const { max, farm, farms, lps, type, unclaimed, tokenPriceList } = props;
+  const {
+    max,
+    farm,
+    farms,
+    lps,
+    type,
+    unclaimed,
+    tokenPriceList,
+    buttonLoading,
+    mergeCommonRewardFarms,
+  } = props;
   const [amount, setAmount] = useState<string>('');
   const [showTip, setShowTip] = useState<boolean>(false);
   const [showCalc, setShowCalc] = useState(false);
@@ -1919,7 +1949,7 @@ function ActionModal(
             rounded="rounded-md"
             px="px-0"
             py="py-1"
-            className="w-32 h-8 text-sm text-greenLight mx-2"
+            className="w-32 h-8 text-sm text-greenColor mx-2"
           >
             <FormattedMessage id="cancel" defaultMessage="Cancel" />
           </BorderButton>
@@ -1997,18 +2027,6 @@ function ActionModal(
             </div>
             {type == 'stake' ? (
               <>
-                <div className="flex justify-center">
-                  {stakeCheck ? (
-                    <Alert
-                      level="error"
-                      message={
-                        STABLE_POOL_ID == farm.lpTokenId
-                          ? intl.formatMessage({ id: 'more_than_stable_seed' })
-                          : intl.formatMessage({ id: 'more_than_general_seed' })
-                      }
-                    />
-                  ) : null}
-                </div>
                 <div className="mt-4">
                   <div className="flex flex-col items-center justify-center">
                     <div
@@ -2032,7 +2050,7 @@ function ActionModal(
                       className={'w-full ' + (showCalc ? 'block' : 'hidden')}
                     >
                       <CalcEle
-                        farms={farms}
+                        farms={mergeCommonRewardFarms}
                         lpTokenNum={amount}
                         tokenPriceList={tokenPriceList}
                       ></CalcEle>
@@ -2043,6 +2061,20 @@ function ActionModal(
             ) : (
               <UnClaim unclaimed={unclaimed}></UnClaim>
             )}
+            {type == 'stake' ? (
+              <div className="flex justify-center mt-2">
+                {stakeCheck ? (
+                  <Alert
+                    level="warn"
+                    message={
+                      STABLE_POOL_ID == farm.lpTokenId
+                        ? intl.formatMessage({ id: 'more_than_stable_seed' })
+                        : intl.formatMessage({ id: 'more_than_general_seed' })
+                    }
+                  />
+                ) : null}
+              </div>
+            ) : null}
             <div className="flex items-center justify-center pt-3">
               <GreenLButton
                 onClick={() => {
@@ -2054,8 +2086,9 @@ function ActionModal(
                   new BigNumber(amount).isGreaterThan(maxToFormat) ||
                   stakeCheck
                 }
+                loading={buttonLoading}
               >
-                {props.btnText}
+                {buttonLoading ? <BeatLoading /> : props.btnText}
               </GreenLButton>
             </div>
             {type == 'stake' ? (

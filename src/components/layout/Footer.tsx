@@ -5,6 +5,8 @@ import { FooterLogo } from '~components/icon/FooterLogo';
 import { RefAnalytics, RefAnalyticsGary } from '~components/icon/RefAnalytics';
 import { useRefPrice } from '~state/account';
 import { toPrecision } from '~utils/numbers';
+import RpcList from '~components/rpc/index';
+import { IconForum } from '~components/icon/Nav';
 
 const CommunityLinks = [
   {
@@ -27,16 +29,21 @@ const CommunityLinks = [
     url: 'https://ref-finance.medium.com/',
     icon: <AiOutlineMedium />,
   },
+  {
+    label: 'Forum',
+    url: 'https://gov.ref.finance',
+    icon: <IconForum />,
+  },
 ];
 function Footer() {
-  const { data } = useRefPrice();
+  const { data } = useRefPrice('Footer');
   const [hoverLogo, setHoverLogo] = useState(false);
   if (!data) return null;
 
   return (
     <>
-      <div className="absolute w-full bottom-6">
-        <footer className="flex items-center justify-center pl-9 pr-9">
+      <div className="absolute w-full bottom-6 xs:bottom-0 md:bottom-0">
+        <footer className="flex items-center justify-center pl-9 pr-9 xs:pb-9 md:pb-9">
           <div className="fixed left-3 bottom-5 md:hidden xs:hidden">
             <FooterLogo />
             <div className="flex justify-star items-center pl-14 text-white">
@@ -57,7 +64,7 @@ function Footer() {
               return (
                 <div
                   key={link.url}
-                  className={`text-2xl font-semibold text-gray-600 cursor-pointer pb-2 last:pb-0 hover:text-greenLight`}
+                  className={`text-2xl font-semibold text-gray-600 cursor-pointer pb-2 last:pb-0 hover:text-greenColor`}
                   onClick={() => window.open(link.url)}
                 >
                   {link.icon}
@@ -66,6 +73,7 @@ function Footer() {
             })}
           </div>
         </footer>
+        <RpcList></RpcList>
       </div>
     </>
   );

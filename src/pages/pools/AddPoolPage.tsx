@@ -7,7 +7,7 @@ import { TokenMetadata } from '~services/ft-contract';
 import { toRoundedReadableNumber } from '~utils/numbers';
 import { ArrowDownGreen, ArrowDownWhite } from '~components/icon';
 import Icon from '~components/tokens/Icon';
-import { ConnectToNearBtn } from '~components/button/Button';
+import { ButtonTextWrapper, ConnectToNearBtn } from '~components/button/Button';
 import { wallet } from '~services/near';
 import { addSimpleLiquidityPool } from '~services/pool';
 import { Toggle } from '~components/toggle';
@@ -27,6 +27,8 @@ export function AddPoolPage() {
   const [error, setError] = useState<Error>();
   const [errorKey, setErrorKey] = useState<string>();
   const intl = useIntl();
+  const [buttonLoading, setButtonLoading] = useState(false);
+
   const tip: any = {
     moreThan: intl.formatMessage({ id: 'more_than' }),
     lessThan: intl.formatMessage({ id: 'less_than' }),
@@ -92,7 +94,7 @@ export function AddPoolPage() {
   const getFeeDetail = () => {
     let result = '';
     Object.values(feeList).forEach((item) => {
-      const str = `<div class="flex tems-center text-xs text-primaryText my-1"><label class="mr-2">${item.v}</label><label>${item.percent}%</label></div>`;
+      const str = `<div class="flex tems-center text-xs text-navHighLightText my-1"><label class="mr-2">${item.v}</label><label>${item.percent}%</label></div>`;
       result += str;
     });
     return result;
@@ -183,6 +185,7 @@ export function AddPoolPage() {
                 border
                 borderColor="#7e8a93"
                 effect="solid"
+                textColor="#C6D1DA"
               />
             </div>
           </div>
@@ -217,7 +220,7 @@ export function AddPoolPage() {
         </div>
         <div className="w-full flex justify-center">
           {errorKey && (
-            <Alert level="error" message={new Error(tip[errorKey]).message} />
+            <Alert level="warn" message={new Error(tip[errorKey]).message} />
           )}
         </div>
         <div className="rounded-md bg-black bg-opacity-20 px-4 py-2 mt-5">
@@ -238,30 +241,28 @@ export function AddPoolPage() {
             <button
               disabled={!canSubmit}
               className={`rounded-full w-full text-lg text-white px-5 py-2.5 focus:outline-none font-semibold ${
-                canSubmit ? '' : 'bg-opacity-50 disabled:cursor-not-allowed'
-              }`}
-              style={
-                canSubmit
-                  ? {
-                      background:
-                        'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
-                      borderRadius: '5px',
-                    }
-                  : {
-                      background: '#314351',
-                      borderRadius: '5px',
-                    }
-              }
+                canSubmit ? '' : 'opacity-40 disabled:cursor-not-allowed'
+              } ${buttonLoading ? 'opacity-40' : ''}`}
+              style={{
+                background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+                borderRadius: '5px',
+              }}
               onClick={() => {
                 if (canSubmit) {
                   const v = new BigNumber(fee).multipliedBy(100).toFixed(0, 1);
+                  setButtonLoading(true);
                   addSimpleLiquidityPool([token1.id, token2.id], Number(v));
                 }
               }}
             >
-              <FormattedMessage
-                id="add_liquidity"
-                defaultMessage="Add Liquidity"
+              <ButtonTextWrapper
+                loading={buttonLoading}
+                Text={() => (
+                  <FormattedMessage
+                    id="add_liquidity"
+                    defaultMessage="Add Liquidity"
+                  />
+                )}
               />
             </button>
           ) : (

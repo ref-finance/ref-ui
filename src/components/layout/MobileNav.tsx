@@ -16,9 +16,11 @@ import {
   IconZh,
   WrapNearEnter,
   IconAirDropGreenTip,
+  WrapNearIconDark,
 } from '~components/icon';
+import { WNEARExchngeIcon } from '~components/icon/Common';
 import { Link, useLocation } from 'react-router-dom';
-import { wallet } from '~services/near';
+import { near, wallet } from '~services/near';
 import { useHistory } from 'react-router';
 import { REF_FARM_CONTRACT_ID } from '~services/near';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -33,6 +35,15 @@ import { moreLinks } from '~utils/menu';
 import WrapNear from '~components/forms/WrapNear';
 import { useDepositableBalance, useWhitelistTokens } from '~state/token';
 import { nearMetadata } from '~services/wrap-near';
+import getConfig from '~services/config';
+import {
+  AccountIcon,
+  ActivityIcon,
+  WalletIcon,
+  SignoutIcon,
+} from '~components/icon/Common';
+const config = getConfig();
+import { isMobile } from '~utils/device';
 
 export function MobileAnchor({
   to,
@@ -146,10 +157,100 @@ export function Logout() {
   );
 }
 
+export function AccountModel(props: any) {
+  const history = useHistory();
+  const accountWrapRef = useRef(null);
+  const accountList = [
+    {
+      icon: <AccountIcon />,
+      textId: 'view_account',
+      selected: location.pathname == '/account',
+      click: () => {
+        history.push('/account');
+      },
+    },
+    {
+      icon: <ActivityIcon />,
+      textId: 'recent_activity',
+      selected: location.pathname == '/recent',
+      click: () => {
+        history.push('/recent');
+      },
+    },
+    {
+      icon: <WalletIcon />,
+      textId: 'go_to_near_wallet',
+      subIcon: <HiOutlineExternalLink />,
+      click: () => {
+        window.open(config.walletUrl, '_blank');
+      },
+    },
+    {
+      icon: <SignoutIcon />,
+      textId: 'sign_out',
+      click: () => {
+        wallet.signOut();
+        window.location.assign('/');
+      },
+    },
+  ];
+  const handleClick = (e: any) => {
+    if (!accountWrapRef.current.contains(e.target)) {
+      props.closeAccount();
+    }
+  };
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('click', handleClick, false);
+    return () => {
+      document.body.style.overflow = 'auto';
+      document.removeEventListener('click', handleClick, false);
+    };
+  }, []);
+  return (
+    <div
+      className="fixed left-0 bottom-0 w-screen bg-black bg-opacity-70"
+      style={{
+        backdropFilter: 'blur(15px)',
+        WebkitBackdropFilter: 'blur(15px)',
+        top: '4.2rem',
+      }}
+    >
+      <div className="w-full bg-cardBg" ref={accountWrapRef}>
+        {accountList.map((item, index) => {
+          return (
+            <div
+              onClick={() => {
+                item.click();
+                props.closeAccount();
+              }}
+              key={item.textId + index}
+              className={`flex items-center text-base cursor-pointer font-semibold py-4 pl-20 hover:text-white hover:bg-navHighLightBg ${
+                item.selected
+                  ? 'text-white bg-navHighLightBg'
+                  : 'text-primaryText'
+              }`}
+            >
+              <label className="w-9 text-left cursor-pointer">
+                {item.icon}
+              </label>
+              <label className="cursor-pointer">
+                <FormattedMessage id={item.textId}></FormattedMessage>
+              </label>
+              {item.subIcon ? (
+                <label className="text-lg ml-2">{item.subIcon}</label>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 export function MobileNavBar() {
   const [show, setShow] = useState(false);
   const intl = useIntl();
-  const { data } = useRefPrice();
+  const { data } = useRefPrice('MobileNav');
   const iconRef = useRef<HTMLSpanElement | null>(null);
   const popupRef = useRef<HTMLDivElement | null>(null);
   const [account, network] = wallet.getAccountId().split('.');
@@ -158,13 +259,13 @@ export function MobileNavBar() {
   const [closeMenu, setCloseMenu] = useState(false);
   const history = useHistory();
   const [mobileWrapNear, setMobileWrapNear] = useState(false);
-  const allTokens = useWhitelistTokens();
 
   const accountName =
     account.length > 10 ? niceAccountId : wallet.getAccountId();
   const nearBalance = wallet.isSignedIn()
     ? useDepositableBalance(nearMetadata.id, nearMetadata.decimals)
     : '0';
+  const [accountVisible, setAccountVisible] = useState(false);
 
   useEffect(() => {
     document.addEventListener('click', handleClick, false);
@@ -200,7 +301,7 @@ export function MobileNavBar() {
   }, [show]);
 
   if (wallet.isSignedIn()) {
-    moreLinks[3].children[2] = {
+    moreLinks[2].children[2] = {
       id: 'Your_Liquidity',
       label: 'Your Liquidity',
       url: '/pools/yours',
@@ -224,19 +325,18 @@ export function MobileNavBar() {
       setCloseMenu(true);
     }
   }
-
   return (
     <div
       className="nav-wrap lg:hidden md:show relative xs:mb-6 md:mb-6"
       style={{
-        zIndex: show ? 200 : 10,
+        zIndex: show ? 200 : 51,
       }}
     >
       <div className="flex items-center text-2xl text-white justify-between p-4">
         <NavLogo />
         <div className="flex">
           <div
-            className={`inline-flex px-1 mr-2 items-center justify-center rounded-full ${
+            className={`inline-flex px-1 mr-2 items-center justify-center rounded-full border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 ${
               wallet.isSignedIn()
                 ? 'bg-gray-700 text-white'
                 : 'border border-gradientFrom text-gradientFrom'
@@ -247,7 +347,19 @@ export function MobileNavBar() {
             </div>
             <div className="overflow-ellipsis overflow-hidden text-xs whitespace-nowrap account-name">
               {wallet.isSignedIn() ? (
-                <div>{accountName}</div>
+                <div
+                  className="flex items-center"
+                  onClick={() => {
+                    setAccountVisible(!accountVisible);
+                  }}
+                >
+                  <div>{accountName}</div>
+                  {accountVisible ? (
+                    <FiChevronUp className="text-base ml-1" />
+                  ) : (
+                    <FiChevronDown className="text-base ml-1" />
+                  )}
+                </div>
               ) : (
                 <button
                   onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
@@ -269,45 +381,14 @@ export function MobileNavBar() {
         </div>
       </div>
       <div
-        className={`fixed top-0 left-0 z-20 h-screen w-full bg-black bg-opacity-30 backdrop-blur-lg filter-blur backdrop-filter overflow-auto ${
+        className={`fixed top-0 bottom-0 left-0 z-20 w-full bg-black bg-opacity-30 backdrop-blur-lg filter-blur backdrop-filter overflow-auto ${
           show ? 'block' : 'hidden'
         }`}
       >
         <div
           ref={popupRef}
-          className="block h-full overflow-y-scroll w-4/6 float-right pt-6 bg-cardBg shadow-4xl"
+          className="block h-full overflow-y-scroll w-4/6 float-right bg-cardBg shadow-4xl"
         >
-          <div className="flex justify-between items-center">
-            <div
-              className={`inline-flex px-1 ml-4 items-center justify-center rounded-full ${
-                wallet.isSignedIn()
-                  ? 'bg-gray-700 text-white'
-                  : 'border border-gradientFrom text-gradientFrom'
-              } pl-3 pr-3`}
-            >
-              <div className="pr-1">
-                <Near color={wallet.isSignedIn() ? 'white' : '#00c6a2'} />
-              </div>
-              <div className="overflow-ellipsis py-1 text-xs overflow-hidden whitespace-nowrap account-name">
-                {wallet.isSignedIn() ? (
-                  <div>{accountName}</div>
-                ) : (
-                  <button
-                    onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
-                    type="button"
-                  >
-                    <span className="ml-2 text-xs">
-                      <FormattedMessage
-                        id="connect_to_near"
-                        defaultMessage="Connect to NEAR"
-                      />
-                    </span>
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
           <div className="p-4 flex text-white items-center justify-start">
             <NavLogoLarge />
             <span className="inline-block ml-2 mt-1 text-white">
@@ -316,36 +397,19 @@ export function MobileNavBar() {
           </div>
           <div className="text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
             {wallet.isSignedIn() && (
-              <MobileAnchor
-                to="/account"
-                pattern="/account"
-                name="view_account"
-                onClick={close}
-              />
-            )}
-            {wallet.isSignedIn() && (
               <div className="text-primaryText" onClick={() => setShow(false)}>
                 <div
-                  className="flex p-4 justify-between"
+                  className="flex p-4 justify-between items-center"
                   onClick={() => setMobileWrapNear(true)}
                 >
-                  <span className=" text-lg">
-                    <FormattedMessage
-                      id="wrapnear"
-                      defaultMessage="Wrap NEAR"
-                    />
+                  <WNEARExchngeIcon width="75" height="32" />
+                  <span className="text-sm">
+                    NEAR:&nbsp;{toPrecision(nearBalance, 3, true)}
                   </span>
-                  <div className=" py-1 px-2 border border-framBorder text-framBorder hover:text-white hover:bg-framBorder hover:border-0 cursor-pointer rounded h-6 items-center flex">
-                    <WrapNearEnter></WrapNearEnter>
-                    <span className=" ml-2 text-xs">
-                      {toPrecision(nearBalance, 3, true)}
-                    </span>
-                  </div>
                 </div>
                 <WrapNear
                   isOpen={mobileWrapNear}
                   onRequestClose={() => setMobileWrapNear(false)}
-                  allTokens={allTokens}
                   style={{
                     overlay: {
                       backdropFilter: 'blur(15px)',
@@ -371,6 +435,8 @@ export function MobileNavBar() {
                 isExternal,
                 children,
                 newFunction,
+                showIcon,
+                iconElement,
               }) => {
                 let location = useLocation();
                 let isSelected = subRoute
@@ -400,14 +466,24 @@ export function MobileNavBar() {
                       }`}
                       onClick={() => handleMenuClick(url, label, isExternal)}
                     >
-                      <div className={`link relative`}>
-                        <FormattedMessage id={id} defaultMessage={label} />
-                        {newFunction ? (
-                          <span className="absolute top-1 -right-2">
-                            <IconAirDropGreenTip />
-                          </span>
-                        ) : null}
-                      </div>
+                      {showIcon ? (
+                        <span
+                          className={`py-2 ${
+                            isSelected ? 'opacity-100' : 'opacity-50'
+                          }`}
+                        >
+                          {iconElement}
+                        </span>
+                      ) : (
+                        <div className={`link relative`}>
+                          <FormattedMessage id={id} defaultMessage={label} />
+                          {newFunction ? (
+                            <span className="absolute top-1 -right-2">
+                              <IconAirDropGreenTip />
+                            </span>
+                          ) : null}
+                        </div>
+                      )}
                       {children && (
                         <span>
                           <FiChevronUp
@@ -496,15 +572,21 @@ export function MobileNavBar() {
               <MobileSwitchLanguage />
             </openMenuContext.Provider>
           </div>
-          <Logout />
           <div
-            className="p-4 bg-cardBg mb-24"
+            className="p-4 bg-cardBg pb-16"
             onClick={() => window.open('https://sodaki.com/')}
           >
             <RefAnalytics />
           </div>
         </div>
       </div>
+      {accountVisible ? (
+        <AccountModel
+          closeAccount={() => {
+            setAccountVisible(false);
+          }}
+        />
+      ) : null}
     </div>
   );
 }

@@ -5,9 +5,8 @@ import {
   toPrecision,
   toNonDivisibleNumber,
   toReadableNumber,
-  scientificNotationToString,
 } from '../utils/numbers';
-import { getStakedListByAccountId } from '~services/farm';
+import { getStakedListByAccountId } from '../services/farm';
 import {
   DEFAULT_PAGE_LIMIT,
   getAllPoolsFromDb,
@@ -25,29 +24,33 @@ import {
   predictRemoveLiquidityByTokens,
   StablePool,
   getStablePool,
+  getPoolsFromCache,
 } from '../services/pool';
 import db, { PoolDb, WatchList } from '~store/RefDatabase';
 
 import { useWhitelistTokens } from './token';
-import _, { countBy, debounce, min, orderBy } from 'lodash';
+import _, { countBy, debounce, min, orderBy, trim } from 'lodash';
 import {
   getPoolMonthVolume,
   getPoolMonthTVL,
   getPoolsByIds,
   get24hVolume,
-} from '~services/indexer';
-import { parsePoolView, PoolRPCView } from '~services/api';
-import { TokenMetadata } from '~services/ft-contract';
-import { TokenBalancesView } from '~services/token';
+  _order,
+  _search,
+  getTopPools,
+} from '../services/indexer';
+import { parsePoolView, PoolRPCView } from '../services/api';
+import { TokenMetadata } from '../services/ft-contract';
+import { TokenBalancesView } from '../services/token';
 import {
   shareToAmount,
   getAddLiquidityShares,
   getRemoveLiquidityByTokens,
-} from '~services/stable-swap';
+} from '../services/stable-swap';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
-import { STABLE_POOL_ID } from '~services/near';
+import { POOL_TOKEN_REFRESH_INTERVAL, STABLE_POOL_ID } from '../services/near';
 const REF_FI_STABLE_Pool_INFO_KEY = 'REF_FI_STABLE_Pool_INFO_VALUE';
 
 export const usePool = (id: number | string) => {
@@ -86,10 +89,8 @@ export const usePools = (props: {
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [pools, setPools] = useState<Pool[]>([]);
+  const [rawPools, setRawPools] = useState<PoolRPCView[]>([]);
   const [loading, setLoading] = useState(false);
-
-  const tokens = useWhitelistTokens();
-  const tokenIds = tokens?.map((t) => t.id);
 
   const nextPage = () => setPage((page) => page + 1);
 
@@ -99,13 +100,20 @@ export const usePools = (props: {
     sortBy,
     order,
   }: LoadPoolsOpts) {
-    getPools({
-      page,
-      tokenName: tokenName,
-      column: sortBy,
-      order: order,
-    })
-      .then((pools) => {
+    getTopPools()
+      .then(async (rawPools) => {
+        const pools =
+          rawPools.length > 0
+            ? rawPools.map((rawPool) => parsePool(rawPool))
+            : await getPoolsFromCache({
+                page,
+                tokenName: tokenName,
+                column: sortBy,
+                order: order,
+              });
+
+        setRawPools(rawPools);
+
         setHasMore(pools.length === DEFAULT_PAGE_LIMIT);
         setPools((currentPools) =>
           pools.reduce<Pool[]>(
@@ -132,27 +140,20 @@ export const usePools = (props: {
 
   const loadPools = useCallback(debounce(_loadPools, 500), []);
 
-  // const loadPools = debounce(_loadPools, 500);
-
   useEffect(() => {
-    setLoading(true);
-    loadPools({
-      accumulate: false,
-      tokenName: props.tokenName,
-      sortBy: props.sortBy,
+    const args = {
+      page,
+      perPage: DEFAULT_PAGE_LIMIT,
+      tokenName: trim(props.tokenName),
+      column: props.sortBy,
       order: props.order,
-    });
-  }, [props.searchTrigger]);
+    };
 
-  useEffect(() => {
-    setLoading(true);
-    loadPools({
-      accumulate: false,
-      tokenName: props.tokenName,
-      sortBy: props.sortBy,
-      order: props.order,
-    });
-  }, [props.sortBy, props.order]);
+    const newPools = _order(args, _search(args, rawPools)).map((rawPool) =>
+      parsePool(rawPool)
+    );
+    setPools(newPools);
+  }, [props.sortBy, props.order, props.tokenName, rawPools]);
 
   useEffect(() => {
     setLoading(true);
@@ -172,14 +173,19 @@ export const usePools = (props: {
   };
 };
 
-export const useMorePoolIds = (props: { topPool: Pool }) => {
-  const { topPool } = props;
-
+export const useMorePoolIds = ({
+  topPool,
+  inView,
+}: {
+  topPool: Pool;
+  inView: boolean;
+}) => {
   const [token1Id, token2Id] = topPool.tokenIds;
 
-  const [ids, setIds] = useState<string[]>();
+  const [ids, setIds] = useState<string[]>([]);
 
   useEffect(() => {
+    if (!inView) return;
     getCachedPoolsByTokenId({
       token1Id,
       token2Id,
@@ -189,7 +195,7 @@ export const useMorePoolIds = (props: { topPool: Pool }) => {
       });
       setIds(idsFromCachePools);
     });
-  }, [topPool?.id]);
+  }, [topPool?.id, inView]);
   return ids;
 };
 
@@ -422,13 +428,13 @@ export const usePredictShares = ({
       setPredictedShares('0');
       return;
     }
-
-    const calcShares = getAddLiquidityShares(
+    getAddLiquidityShares(
       poolId,
       [firstTokenAmount, secondTokenAmount, thirdTokenAmount],
       stablePool
-    );
-    setPredictedShares(calcShares);
+    )
+      .then(setPredictedShares)
+      .catch((e) => e);
   }, [firstTokenAmount, secondTokenAmount, thirdTokenAmount]);
 
   return predicedShares;
@@ -494,23 +500,29 @@ export const usePredictRemoveShares = ({
 export const useStablePool = ({
   loadingTrigger,
   setLoadingTrigger,
+  loadingPause,
+  setLoadingPause,
 }: {
   loadingTrigger: boolean;
   setLoadingTrigger: (mode: boolean) => void;
+  loadingPause: boolean;
+  setLoadingPause: (pause: boolean) => void;
 }) => {
   const [stablePool, setStablePool] = useState<StablePool>();
   const [count, setCount] = useState(0);
-  const refreshTime = 10000;
+  const refreshTime = Number(POOL_TOKEN_REFRESH_INTERVAL) * 1000;
   useEffect(() => {
-    getStablePool(Number(STABLE_POOL_ID)).then((res) => {
-      setStablePool(res);
-      localStorage.setItem(REF_FI_STABLE_Pool_INFO_KEY, JSON.stringify(res));
-    });
-  }, [count, loadingTrigger]);
+    if ((loadingTrigger && !loadingPause) || !stablePool) {
+      getStablePool(Number(STABLE_POOL_ID)).then((res) => {
+        setStablePool(res);
+        localStorage.setItem(REF_FI_STABLE_Pool_INFO_KEY, JSON.stringify(res));
+      });
+    }
+  }, [count, loadingTrigger, loadingPause, stablePool]);
 
   useEffect(() => {
     let id: any = null;
-    if (!loadingTrigger) {
+    if (!loadingTrigger && !loadingPause) {
       id = setInterval(() => {
         setLoadingTrigger(true);
         setCount(count + 1);
@@ -521,7 +533,7 @@ export const useStablePool = ({
     return () => {
       clearInterval(id);
     };
-  }, [count, loadingTrigger]);
+  }, [count, loadingTrigger, loadingPause]);
 
   return stablePool;
 };

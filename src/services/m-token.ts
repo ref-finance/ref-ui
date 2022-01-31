@@ -9,7 +9,7 @@ import {
   wallet,
 } from '../services/near';
 import { ftGetStorageBalance, TokenMetadata } from '../services/ft-contract';
-import { toNonDivisibleNumber } from '~utils/numbers';
+import { toNonDivisibleNumber } from '../utils/numbers';
 import {
   ACCOUNT_MIN_STORAGE_AMOUNT,
   currentStorageBalanceOfFarm,
@@ -21,9 +21,9 @@ import {
   STORAGE_TO_REGISTER_WITH_MFT,
   MIN_DEPOSIT_PER_TOKEN_FARM,
 } from '../services/creators/storage';
-import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 import { utils } from 'near-api-js';
-import getConfig from '~services/config';
+import getConfig from '../services/config';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 

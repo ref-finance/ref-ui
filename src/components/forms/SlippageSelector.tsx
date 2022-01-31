@@ -1,12 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import ReactTooltip from 'react-tooltip';
 import { Slider } from '../icon/Info';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { isMobile } from '~utils/device';
-import { FaRegQuestionCircle } from 'react-icons/fa';
+import { isMobile } from '../../utils/device';
 import { IoCloseOutline, IoWarning } from 'react-icons/io5';
-import { SWAP_USE_NEAR_BALANCE_KEY } from '~components/swap/SwapCard';
-import QuestionMark from '~components/farm/QuestionMark';
+import { QuestionTip } from '../../components/layout/TipWrapper';
 
 export default function SlippageSelector({
   slippageTolerance,
@@ -93,7 +90,7 @@ export default function SlippageSelector({
   }, []);
 
   return (
-    <div className="relative z-10">
+    <div className="relative z-10 font-normal">
       <div
         className="w-6 text-2xl text-white cursor-pointer"
         onClick={(e) => openToolTip(e)}
@@ -125,25 +122,7 @@ export default function SlippageSelector({
                   defaultMessage="Slippage tolerance"
                 />
               </label>
-              <div className="text-gray-400">
-                <div
-                  className="pl-1 text-white text-base"
-                  data-type="dark"
-                  data-place="right"
-                  data-multiline={true}
-                  data-tip={intl.formatMessage({ id: slippageCopyId })}
-                >
-                  <QuestionMark />
-                </div>
-                <ReactTooltip
-                  className="text-xs text-left shadow-4xl"
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                  textColor="#c6d1da"
-                />
-              </div>
+              <QuestionTip id={slippageCopyId} />
             </div>
 
             <div className="flex text-white items-center">
@@ -219,29 +198,13 @@ export default function SlippageSelector({
                   defaultMessage="Select Balance"
                 />
               </label>
-              <div className="text-gray-400">
-                <div
-                  className="pl-1 text-white text-base"
-                  data-type="dark"
-                  data-place="right"
-                  data-multiline={true}
-                  data-tip={intl.formatMessage({ id: 'selectBalanceCopy' })}
-                >
-                  <QuestionMark />
-                </div>
-                <ReactTooltip
-                  className="text-xs text-left shadow-4xl"
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                  textColor="#c6d1da"
-                />
-              </div>
+              <QuestionTip id="selectBalanceCopy" />
             </div>
             <div
               className="flex items-center"
-              onChange={({ target }) => handleBalanceOption(target.value)}
+              onChange={({ target }) =>
+                handleBalanceOption((target as HTMLInputElement).value)
+              }
             >
               <label className="inline-flex items-center">
                 <input
@@ -297,7 +260,7 @@ export function PoolSlippageSelector({
   return (
     <>
       <fieldset className="flex lg:items-center md:flex-col xs:flex-col justify-between mb-4 pt-2">
-        <div className="flex items-center md:mb-4 xs:mb-4 ml-2">
+        <div className="flex items-center md:mb-4 xs:mb-4">
           <label className="text-sm text-center text-white">
             <FormattedMessage
               id="slippage"
@@ -305,23 +268,7 @@ export function PoolSlippageSelector({
             />
           </label>
           <div className="text-gray-400">
-            <div
-              className="pl-1"
-              data-type="dark"
-              data-place="right"
-              data-multiline={true}
-              data-tip={intl.formatMessage({ id: slippageCopyId })}
-            >
-              <QuestionMark />
-            </div>
-            <ReactTooltip
-              className="text-xs text-left shadow-4xl"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-              textColor="#c6d1da"
-            />
+            <QuestionTip id={slippageCopyId} />
           </div>
         </div>
 
@@ -418,23 +365,7 @@ export function StableSlipSelecter({
             />
           </label>
           <div className="">
-            <div
-              className="pl-1 text-base"
-              data-type="dark"
-              data-place="right"
-              data-multiline={true}
-              data-tip={intl.formatMessage({ id: slippageCopyId })}
-            >
-              <QuestionMark />
-            </div>
-            <ReactTooltip
-              className="text-xs text-left shadow-4xl"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-              textColor="#c6d1da"
-            />
+            <QuestionTip id={slippageCopyId} />
           </div>
         </div>
         <div className="flex text-white items-center">

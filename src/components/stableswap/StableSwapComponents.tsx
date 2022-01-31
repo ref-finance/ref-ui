@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pool } from '~services/pool';
 import { Icon } from './StableTokenList';
 import { FormattedMessage } from 'react-intl';
@@ -20,10 +20,20 @@ import {
   toPrecision,
   toReadableNumber,
   calcStableSwapPriceImpact,
+  scientificNotationToString,
+  divide,
+  multiply,
 } from '~utils/numbers';
 
-const GetPriceImpact = (from: string, to: string) => {
-  const value = calcStableSwapPriceImpact(from, to);
+const GetPriceImpact = (
+  value: string,
+  tokenIn: TokenMetadata,
+  tokenInAmount: string
+) => {
+  const displayValue = toPrecision(
+    scientificNotationToString(multiply(tokenInAmount, divide(value, '100'))),
+    3
+  );
 
   const textColor =
     Number(value) <= 1
@@ -32,15 +42,30 @@ const GetPriceImpact = (from: string, to: string) => {
       ? 'text-warn'
       : 'text-error';
 
-  return Number(value) < 0.01 ? (
-    <span className="text-greenLight">{'< -0.01%'}</span>
-  ) : (
-    <span className={`${textColor}`}>{`≈ -${toPrecision(value, 2)}%`}</span>
+  const tokenInInfo =
+    Number(displayValue) <= 0
+      ? ` / 0 ${toRealSymbol(tokenIn.symbol)}`
+      : ` / -${displayValue} ${toRealSymbol(tokenIn.symbol)}`;
+
+  return (
+    <>
+      {Number(value) < 0.01 ? (
+        <span className="text-greenLight">
+          {'< -0.01%'}
+          {tokenInInfo}
+        </span>
+      ) : (
+        <span className={`${textColor}`}>
+          {`≈ -${toPrecision(value, 2)}%`}
+          {tokenInInfo}
+        </span>
+      )}
+    </>
   );
 };
 
-const getPriceImpactTipType = (from: string, to: string) => {
-  const value = calcStableSwapPriceImpact(from, to);
+const getPriceImpactTipType = (value: string) => {
+  // const value = calcStableSwapPriceImpact(from, to);
 
   const reault =
     1 < Number(value) && Number(value) <= 2 ? (
@@ -253,21 +278,32 @@ export function DetailView({
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
 
+  const priceImpactValue = useMemo(() => {
+    if (!from || !noFeeAmount) return '0';
+    return calcStableSwapPriceImpact(from, noFeeAmount);
+  }, [noFeeAmount]);
+
+  useEffect(() => {
+    if (Number(priceImpactValue) > 1) {
+      setShowDetails(true);
+    }
+  }, [priceImpactValue]);
+
   if (!from || !to || !(Number(from) > 0) || !pool) return null;
 
   return (
     <div className="mt-4">
-      <div
-        className="flex justify-center"
-        onClick={() => {
-          setShowDetails(!showDetails);
-        }}
-      >
-        <div className="flex items-center text-white cursor-pointer">
+      <div className="flex justify-center">
+        <div
+          className="flex items-center text-white cursor-pointer"
+          onClick={() => {
+            setShowDetails(!showDetails);
+          }}
+        >
           <label className="mr-2">
             {noFeeAmount &&
               noFeeAmount !== '0' &&
-              getPriceImpactTipType(from, noFeeAmount)}
+              getPriceImpactTipType(priceImpactValue)}
           </label>
           <p className="block text-xs">
             <FormattedMessage id="details" defaultMessage="Details" />
@@ -296,7 +332,7 @@ export function DetailView({
             to,
             from
           )} ${toRealSymbol(tokenIn.symbol)}`}
-          pool={pool}
+          fee={pool.fee}
           from={from}
           to={to}
           tokenIn={tokenIn}
@@ -308,9 +344,9 @@ export function DetailView({
             defaultMessage: 'Price Impact',
           })}
           value={
-            !noFeeAmount || noFeeAmount === '0' || !canSwap
+            !noFeeAmount || noFeeAmount === '0'
               ? '-'
-              : GetPriceImpact(from, noFeeAmount)
+              : GetPriceImpact(priceImpactValue, tokenIn, from)
           }
         />
       </div>

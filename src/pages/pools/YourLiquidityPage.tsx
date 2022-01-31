@@ -57,15 +57,6 @@ function MyShares({
 
   let sharePercent = percent(userTotalShare.valueOf(), totalShares);
 
-  // const farmShare = Number(farmStake).toLocaleString('fullwide', {
-  //   useGrouping: false,
-  // });
-
-  // const farmSharePercent = percent(
-  //   farmShare,
-  //   userTotalShare.toNumber().toLocaleString('fullwide', { useGrouping: false })
-  // ).toString();
-
   let displayPercent;
   if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
   else if (sharePercent < 0.0001)
@@ -135,6 +126,11 @@ export function YourLiquidityPage() {
   const [error, setError] = useState<Error>();
   const [pools, setPools] = useState<PoolRPCView[]>();
   const [balances, setBalances] = useState<string[]>();
+  if (!wallet.isSignedIn()) {
+    const history = useHistory();
+    history.push('/');
+    return null;
+  }
 
   useEffect(() => {
     getYourPools().then(setPools);
@@ -149,9 +145,9 @@ export function YourLiquidityPage() {
   if (!pools || !balances) return <Loading />;
 
   return (
-    <div className="flex items flex-col w-1/2 md:w-5/6 xs:w-11/12 m-auto">
+    <div className="flex items flex-col lg:w-2/3 xl:w-1/2 md:w-5/6 xs:w-11/12 m-auto">
       <div className="w-full flex justify-center self-center">
-        {error && <Alert level="error" message={error.message} />}
+        {error && <Alert level="warn" message={error.message} />}
       </div>
       {/* PC */}
       <Card width="w-full" padding="px-0 py-6" className="xs:hidden md:hidden">
@@ -244,7 +240,7 @@ function PoolRow(props: { pool: any; balance: string }) {
     .toNumber()
     .toLocaleString('fullwide', { useGrouping: false });
 
-  if (!pool || !tokens || tokens.length < 2) return <Loading />;
+  if (!pool || !tokens || tokens.length < 2) return <div />;
 
   if (!(userTotalShare.toNumber() > 0)) return null;
 

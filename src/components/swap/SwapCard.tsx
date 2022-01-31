@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
@@ -8,30 +14,174 @@ import {
   calculateExchangeRate,
   calculateFeeCharge,
   calculateFeePercent,
+  calculateSmartRoutingPriceImpact,
   percent,
   percentLess,
   toPrecision,
   toReadableNumber,
   subtraction,
   calculatePriceImpact,
+  ONLY_ZEROS,
+  percentOf,
+  multiply,
+  divide,
+  scientificNotationToString,
 } from '../../utils/numbers';
+import ReactDOMServer from 'react-dom/server';
 import TokenAmount from '../forms/TokenAmount';
+import SubmitButton from '../forms/SubmitButton';
 import Alert from '../alert/Alert';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import db from '~store/RefDatabase';
-import { GradientButton } from '~components/button/Button';
-import { wallet } from '~services/near';
+import {
+  ButtonTextWrapper,
+  GradientButton,
+  OutlineButton,
+  SolidButton,
+  ConnectToNearBtn,
+} from '~components/button/Button';
+import { STABLE_TOKEN_IDS, wallet } from '~services/near';
 import SwapFormWrap from '../forms/SwapFormWrap';
 import SwapTip from '~components/forms/SwapTip';
 import { WarnTriangle, ErrorTriangle } from '~components/icon/SwapRefresh';
+import ReactModal from 'react-modal';
+import Modal from 'react-modal';
+import { Card } from '~components/card/Card';
+import { isMobile, useMobile } from '~utils/device';
+import { ModalClose } from '~components/icon';
+import BigNumber from 'bignumber.js';
+import {
+  AutoRouterText,
+  OneParallelRoute,
+  RouterIcon,
+  SmartRoute,
+} from '~components/layout/SwapRoutes';
+import QuestionMark, {
+  QuestionMarkStaticForParaSwap,
+} from '~components/farm/QuestionMark';
+
+import ReactTooltip from 'react-tooltip';
+import * as math from 'mathjs';
+import { HiOutlineExternalLink } from 'react-icons/hi';
+import { EstimateSwapView, PoolMode, swap } from '~services/swap';
+import { QuestionTip } from '~components/layout/TipWrapper';
+import { Guide } from '~components/layout/Guide';
+import { sortBy } from 'lodash';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
 const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
+
+export function DoubleCheckModal(
+  props: ReactModal.Props & {
+    pools: Pool[];
+    tokenIn: TokenMetadata;
+    tokenOut: TokenMetadata;
+    from: string;
+    onSwap: (e?: any) => void;
+    swapsTodo: EstimateSwapView[];
+    priceImpactValue: string;
+  }
+) {
+  const { pools, tokenIn, tokenOut, from, onSwap, priceImpactValue } = props;
+
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+
+  if (!pools || !from || !tokenIn || !tokenOut) return null;
+
+  return (
+    <Modal {...props}>
+      <Card
+        padding="p-6"
+        bgcolor="bg-cardBg"
+        className="text-white border border-gradientFromHover outline-none flex flex-col items-center"
+        width="xs:w-80vw md:w-80vw lg:w-30vw"
+      >
+        <div
+          className="ml-2 cursor-pointer p-1 self-end"
+          onClick={props.onRequestClose}
+        >
+          <ModalClose />
+        </div>
+
+        <div className="pb-6">
+          <ErrorTriangle expand />
+        </div>
+
+        <div className="text-base font-semibold">
+          <FormattedMessage id="are_you_sure" defaultMessage="Are you sure" />?
+        </div>
+
+        <div className=" text-xs pt-4 flex-col flex items-center justify-center">
+          <div>
+            <FormattedMessage
+              id="price_impact_is_about"
+              defaultMessage="Price impact is about"
+            />
+          </div>
+          <div className="pt-1">
+            <span className="text-error">
+              -{toPrecision(priceImpactValue, 2)}%
+            </span>
+            <span className="text-error">
+              {' '}
+              {`(${
+                Number(priceImpactValue) < 0
+                  ? '0'
+                  : '-' +
+                    toPrecision(
+                      scientificNotationToString(
+                        multiply(from, divide(priceImpactValue, '100'))
+                      ),
+                      3
+                    )
+              } ${toRealSymbol(tokenIn.symbol)})`}{' '}
+            </span>
+          </div>
+        </div>
+        <div className="text-xs pb-6 pt-1">
+          <FormattedMessage
+            id="make_sure_you_understand_what_you_do"
+            defaultMessage="Make sure you understand what you do"
+          />
+          !
+        </div>
+
+        <div className="flex items-center pb-2">
+          <OutlineButton
+            onClick={props.onRequestClose}
+            className="text-xs w-20 text-center mx-2 h-8"
+            padding="px-4 py-1"
+          >
+            <FormattedMessage id="cancel" defaultMessage="Cancel" />
+          </OutlineButton>
+          <SolidButton
+            onClick={(e) => {
+              setButtonLoading(true);
+              onSwap();
+            }}
+            className="text-xs w-32 text-center h-8"
+            padding="px-4 py-1.5"
+            loading={buttonLoading}
+          >
+            <ButtonTextWrapper
+              loading={buttonLoading}
+              Text={() => (
+                <span>
+                  <FormattedMessage id="yes_swap" defaultMessage="Yes, swap" />!
+                </span>
+              )}
+            />
+          </SolidButton>
+        </div>
+      </Card>
+    </Modal>
+  );
+}
 
 export function SwapDetail({
   title,
@@ -41,9 +191,9 @@ export function SwapDetail({
   value: string | JSX.Element;
 }) {
   return (
-    <section className="grid grid-cols-2 py-1 text-xs">
-      <p className="text-primaryText text-left">{title}</p>
-      <p className="text-right text-white">{value}</p>
+    <section className="grid grid-cols-12 py-1 text-xs">
+      <p className="text-primaryText text-left col-span-5">{title}</p>
+      <p className="text-right text-white col-span-7">{value}</p>
     </section>
   );
 }
@@ -56,9 +206,9 @@ export function SwapRateDetail({
   to,
   tokenIn,
   tokenOut,
-  pool,
+  fee,
 }: {
-  pool: Pool;
+  fee: number;
   title: string;
   value: string;
   from: string;
@@ -70,6 +220,14 @@ export function SwapRateDetail({
   const [newValue, setNewValue] = useState<string>('');
   const [isRevert, setIsRevert] = useState<boolean>(false);
 
+  const exchangeRageValue = useMemo(() => {
+    const fromNow = isRevert ? from : to;
+    const toNow = isRevert ? to : from;
+    if (ONLY_ZEROS.test(fromNow)) return '-';
+
+    return calculateExchangeRate(fee, fromNow, toNow);
+  }, [isRevert, to, from]);
+
   useEffect(() => {
     setNewValue(value);
   }, [value]);
@@ -78,11 +236,9 @@ export function SwapRateDetail({
     setNewValue(
       `1 ${toRealSymbol(
         isRevert ? tokenIn.symbol : tokenOut.symbol
-      )} ≈ ${calculateExchangeRate(
-        pool.fee,
-        isRevert ? from : to,
-        isRevert ? to : from
-      )} ${toRealSymbol(isRevert ? tokenOut.symbol : tokenIn.symbol)}`
+      )} ≈ ${exchangeRageValue} ${toRealSymbol(
+        isRevert ? tokenOut.symbol : tokenIn.symbol
+      )}`
     );
   }, [isRevert]);
 
@@ -91,13 +247,13 @@ export function SwapRateDetail({
   }
 
   return (
-    <section className="grid grid-cols-2 py-1 text-xs">
-      <p className="text-primaryText text-left flex xs:flex-col md:flex-col">
+    <section className="grid grid-cols-12 py-1 text-xs">
+      <p className="text-primaryText text-left flex xs:flex-col md:flex-col col-span-4 whitespace-nowrap">
         <label className="mr-1">{title}</label>
         {subTitle ? <label>{subTitle}</label> : null}
       </p>
       <p
-        className="flex justify-end text-white cursor-pointer text-right"
+        className="flex justify-end text-white cursor-pointer text-right col-span-8"
         onClick={switchSwapRate}
       >
         <span className="mr-2" style={{ marginTop: '0.1rem' }}>
@@ -109,14 +265,125 @@ export function SwapRateDetail({
   );
 }
 
-export const GetPriceImpact = (
-  pool: Pool,
-  tokenIn: TokenMetadata,
-  tokenOut: TokenMetadata,
-  from: string
-) => {
-  const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
+export function SmartRoutesDetail({
+  swapsTodo,
+  tokenIn,
+  tokenOut,
+}: {
+  swapsTodo: EstimateSwapView[];
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+}) {
+  const tokenMid = useMemo(() => swapsTodo[1].token, [swapsTodo[1].token.id]);
 
+  return (
+    <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
+      <div className="text-primaryText text-left ">
+        <div className="inline-flex items-center">
+          <RouterIcon />
+          <AutoRouterText />
+          <QuestionTip id="optimal_path_found_by_our_solution" width="w-56" />
+        </div>
+      </div>
+
+      <div className="text-right text-white col-span-6 xs:mt-2">
+        {<SmartRoute tokens={[tokenIn, tokenMid, tokenOut]} />}
+      </div>
+    </section>
+  );
+}
+
+export function ParallelSwapRoutesDetail({
+  pools,
+  tokenIn,
+  tokenOut,
+}: {
+  pools: Pool[];
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+}) {
+  const percents = useMemo(() => {
+    if (pools) {
+      const partialAmounts = pools.map((pool) => {
+        return math.bignumber(pool.partialAmountIn);
+      });
+
+      const ps: string[] = new Array(partialAmounts.length).fill('0');
+
+      const sum =
+        partialAmounts.length === 1
+          ? partialAmounts[0]
+          : math.sum(...partialAmounts);
+
+      const sortedAmount = sortBy(partialAmounts, (p) => Number(p));
+
+      for (let k = 0; k < sortedAmount.length - 1; k++) {
+        let minIndex = -1;
+
+        for (let j = 0; j < partialAmounts.length; j++) {
+          if (partialAmounts[j].eq(sortedAmount[k])) {
+            minIndex = j;
+            break;
+          }
+        }
+        const res = math
+          .round(percent(partialAmounts[minIndex].toString(), sum))
+          .toString();
+
+        if (Number(res) === 0) {
+          ps[minIndex] = '1';
+        } else {
+          ps[minIndex] = res;
+        }
+      }
+
+      const finalPIndex = ps.indexOf('0');
+
+      ps[finalPIndex] = subtraction(
+        '100',
+        ps.length === 1 ? Number(ps[0]) : math.sum(...ps.map((p) => Number(p)))
+      ).toString();
+
+      return ps;
+    } else {
+      return [];
+    }
+  }, [pools]);
+
+  return (
+    <section className="md:grid lg:grid grid-cols-12 py-1 text-xs">
+      <div className="text-primaryText text-left col-span-5">
+        <div className="inline-flex items-center">
+          <RouterIcon />
+          <AutoRouterText />
+          <QuestionTip id="optimal_path_found_by_our_solution" width="w-56" />
+        </div>
+      </div>
+
+      <div className="text-right text-white col-span-7 xs:mt-2 md:mt-2">
+        {pools.map((pool, i) => {
+          return (
+            <div className="mb-2" key={pool.id}>
+              <OneParallelRoute
+                tokenIn={tokenIn}
+                tokenOut={tokenOut}
+                poolId={pool.id}
+                p={percents[i]}
+                fee={pool.fee}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+export const GetPriceImpact = (
+  value: string,
+  tokenIn?: TokenMetadata,
+  tokenInAmount?: string
+) => {
   const textColor =
     Number(value) <= 1
       ? 'text-greenLight'
@@ -124,20 +391,41 @@ export const GetPriceImpact = (
       ? 'text-warn'
       : 'text-error';
 
-  return Number(value) < 0.01 ? (
-    <span className="text-greenLight">{'< -0.01%'}</span>
-  ) : (
-    <span className={`${textColor}`}>{`≈ -${toPrecision(value, 2)}%`}</span>
+  const displayValue = toPrecision(
+    scientificNotationToString(multiply(tokenInAmount, divide(value, '100'))),
+    3
+  );
+
+  const tokenInInfo =
+    Number(displayValue) <= 0
+      ? ` / 0 ${toRealSymbol(tokenIn.symbol)}`
+      : ` / -${displayValue} ${tokenIn.symbol}`;
+
+  if (Number(value) < 0.01)
+    return (
+      <span className="text-greenLight">
+        {`< -0.01%`}
+        {tokenInInfo}
+      </span>
+    );
+
+  if (Number(value) > 1000)
+    return (
+      <span className="text-error">
+        {`< -1000%`}
+        {tokenInInfo}
+      </span>
+    );
+
+  return (
+    <span className={`${textColor}`}>
+      {`≈ -${toPrecision(value, 2)}%`}
+      {tokenInInfo}
+    </span>
   );
 };
 
-export const getPriceImpactTipType = (
-  pool: Pool,
-  tokenIn: TokenMetadata,
-  tokenOut: TokenMetadata,
-  from: string
-) => {
-  const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
+export const getPriceImpactTipType = (value: string) => {
   const reault =
     1 < Number(value) && Number(value) <= 2 ? (
       <WarnTriangle></WarnTriangle>
@@ -147,64 +435,86 @@ export const getPriceImpactTipType = (
   return reault;
 };
 
+export const PriceImpactWarning = ({ value }: { value: string }) => {
+  return (
+    <span className="">
+      <span className="rounded-full bg-acccountTab text-error px-2 py-0.5">
+        <FormattedMessage
+          id="more_expensive_than_best_rate_zh_cn"
+          defaultMessage=" "
+        />{' '}
+        {Number(value) > 1000 ? '> 1000' : toPrecision(value, 2)}
+        {'% '}
+        <FormattedMessage
+          id="more_expensive_than_best_rate_en"
+          defaultMessage=" "
+        />
+      </span>
+    </span>
+  );
+};
+
 function DetailView({
-  pool,
+  pools,
   tokenIn,
   tokenOut,
   from,
   to,
   minAmountOut,
-  canSwap,
-  loadingTrigger,
+  isParallelSwap,
+  fee,
+  swapsTodo,
+  priceImpact,
 }: {
-  pool: Pool;
+  pools: Pool[];
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
   from: string;
   to: string;
   minAmountOut: string;
-  canSwap?: boolean;
-  loadingTrigger?: boolean;
+  isParallelSwap?: boolean;
+  fee?: number;
+  swapsTodo?: EstimateSwapView[];
+  priceImpact?: string;
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
 
-  const GetPriceImpact = (
-    pool: Pool,
-    tokenIn: TokenMetadata,
-    tokenOut: TokenMetadata,
-    from: string
-  ) => {
-    const value = calculatePriceImpact(pool, tokenIn, tokenOut, from);
-    const textColor =
-      Number(value) <= 1
-        ? 'text-greenLight'
-        : 1 < Number(value) && Number(value) <= 2
-        ? 'text-warn'
-        : 'text-error';
+  const minAmountOutValue = useMemo(() => {
+    if (!minAmountOut) return '0';
+    else return toPrecision(minAmountOut, 8, true);
+  }, [minAmountOut]);
 
-    return Number(value) < 0.01 ? (
-      <span className="text-greenLight">{'< -0.01%'}</span>
-    ) : (
-      <span className={`${textColor}`}>{`≈ -${toPrecision(value, 2)}%`}</span>
-    );
-  };
+  const exchangeRateValue = useMemo(() => {
+    if (!from || ONLY_ZEROS.test(to)) return '-';
+    else return calculateExchangeRate(fee, to, from);
+  }, [to]);
 
-  if (!pool || !from || !to || !(Number(from) > 0) || loadingTrigger)
+  useEffect(() => {
+    if (Number(priceImpact) > 1) {
+      setShowDetails(true);
+    }
+  }, [priceImpact]);
+
+  useEffect(() => {
+    if (swapsTodo?.length > 1) {
+      setShowDetails(true);
+    }
+  }, [to]);
+
+  if (!pools || ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id)
     return null;
 
   return (
     <div className="mt-8">
-      <div
-        className="flex justify-center"
-        onClick={() => {
-          setShowDetails(!showDetails);
-        }}
-      >
-        <div className="flex items-center text-white cursor-pointer">
-          <label className="mr-2">
-            {getPriceImpactTipType(pool, tokenIn, tokenOut, from)}
-          </label>
+      <div className="flex justify-center">
+        <div
+          className="flex items-center text-white cursor-pointer"
+          onClick={() => {
+            setShowDetails(!showDetails);
+          }}
+        >
+          <label className="mr-2">{getPriceImpactTipType(priceImpact)}</label>
           <p className="block text-xs">
             <FormattedMessage id="details" defaultMessage="Details" />
           </p>
@@ -216,36 +526,55 @@ function DetailView({
       <div className={showDetails ? '' : 'hidden'}>
         <SwapDetail
           title={intl.formatMessage({ id: 'minimum_received' })}
-          value={toPrecision(minAmountOut, 8, true)}
+          value={<span>{toPrecision(minAmountOutValue, 8)}</span>}
         />
         <SwapRateDetail
           title={intl.formatMessage({ id: 'swap_rate' })}
-          value={`1 ${toRealSymbol(tokenOut.symbol)} ≈ ${calculateExchangeRate(
-            pool.fee,
-            to,
-            from
-          )} ${toRealSymbol(tokenIn.symbol)}`}
+          value={`1 ${toRealSymbol(
+            tokenOut.symbol
+          )} ≈ ${exchangeRateValue} ${toRealSymbol(tokenIn.symbol)}`}
           from={from}
           to={to}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
-          pool={pool}
+          fee={fee}
         />
+        {Number(priceImpact) > 2 && (
+          <div className="py-1 text-xs text-right">
+            <PriceImpactWarning value={priceImpact} />
+          </div>
+        )}
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
           value={
-            !to || to === '0' || !canSwap
-              ? '-'
-              : GetPriceImpact(pool, tokenIn, tokenOut, from)
+            !to || to === '0' ? '-' : GetPriceImpact(priceImpact, tokenIn, from)
           }
         />
         <SwapDetail
           title={intl.formatMessage({ id: 'pool_fee' })}
-          value={`${calculateFeePercent(pool.fee)}% (${calculateFeeCharge(
-            pool.fee,
-            from
-          )})`}
+          value={`${toPrecision(
+            calculateFeePercent(fee).toString(),
+            2
+          )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(
+            tokenIn.symbol
+          )}`}
         />
+
+        {isParallelSwap && pools.length > 1 && (
+          <ParallelSwapRoutesDetail
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            pools={pools}
+          />
+        )}
+
+        {!isParallelSwap && (
+          <SmartRoutesDetail
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            swapsTodo={swapsTodo}
+          />
+        )}
       </div>
     </div>
   );
@@ -256,6 +585,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
+  const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
 
   const [useNearBalance, setUseNearBalance] = useState<boolean>(
     localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) != 'false'
@@ -267,7 +597,9 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     useState<string>();
 
   const [loadingData, setLoadingData] = useState<boolean>(false);
-  const [loadingTrigger, setLoadingTrigger] = useState<boolean>(false);
+  const [loadingTrigger, setLoadingTrigger] = useState<boolean>(true);
+  const [loadingPause, setLoadingPause] = useState<boolean>(false);
+  const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
 
   const intl = useIntl();
   const location = useLocation();
@@ -324,22 +656,50 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     }
   }, [tokenIn, tokenOut, useNearBalance]);
 
-  const { canSwap, tokenOutAmount, minAmountOut, pool, swapError, makeSwap } =
-    useSwap({
-      tokenIn: tokenIn,
-      tokenInAmount,
-      tokenOut: tokenOut,
-      slippageTolerance,
-      setLoadingData,
-      loadingTrigger,
-      setLoadingTrigger,
-      loadingData,
-    });
+  const {
+    canSwap,
+    tokenOutAmount,
+    minAmountOut,
+    pools,
+    swapError,
+    makeSwap,
+    avgFee,
+    isParallelSwap,
+    swapsToDo,
+  } = useSwap({
+    tokenIn: tokenIn,
+    tokenInAmount,
+    tokenOut: tokenOut,
+    slippageTolerance,
+    setLoadingData,
+    loadingTrigger,
+    setLoadingTrigger,
+    loadingData,
+    loadingPause,
+  });
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    makeSwap(useNearBalance);
-  };
+  const priceImpactValueParallelSwap = useMemo(() => {
+    if (!pools || !tokenOutAmount || !tokenInAmount) return '0';
+    return calculatePriceImpact(pools, tokenIn, tokenOut, tokenInAmount);
+  }, [tokenOutAmount]);
+
+  const priceImpactValueSmartRouting = useMemo(() => {
+    {
+      if (!swapsToDo || !tokenInAmount || isParallelSwap) return '0';
+      return calculateSmartRoutingPriceImpact(
+        tokenInAmount,
+        swapsToDo,
+        tokenIn,
+        swapsToDo[1].token,
+        tokenOut
+      );
+    }
+  }, [tokenOutAmount]);
+
+  const PriceImpactValue = isParallelSwap
+    ? priceImpactValueParallelSwap
+    : priceImpactValueSmartRouting;
+
   const topBall = useRef<HTMLInputElement>();
   const bottomBall = useRef<HTMLInputElement>();
   const runSwapAnimation = function () {
@@ -361,9 +721,34 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     : toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
   const canSubmit = canSwap && (tokenInMax != '0' || !useNearBalance);
 
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    const ifDoubleCheck =
+      new BigNumber(tokenInAmount).isLessThanOrEqualTo(
+        new BigNumber(tokenInMax)
+      ) && Number(PriceImpactValue) > 2;
+
+    if (ifDoubleCheck) setDoubleCheckOpen(true);
+    else makeSwap(useNearBalance);
+  };
+
   return (
     <>
-      <SwapTip />
+      <Guide
+        bothStableToken={
+          STABLE_TOKEN_IDS.includes(tokenIn?.id) &&
+          STABLE_TOKEN_IDS.includes(tokenOut?.id)
+        }
+      ></Guide>
+      <SwapTip
+        bothStableToken={
+          STABLE_TOKEN_IDS.includes(tokenIn?.id) &&
+          STABLE_TOKEN_IDS.includes(tokenOut?.id)
+        }
+        tokenInId={tokenIn?.id}
+        tokenOutId={tokenOut?.id}
+      />
       <SwapFormWrap
         useNearBalance={useNearBalance.toString()}
         canSubmit={canSubmit}
@@ -382,17 +767,13 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         showElseView={tokenInMax === '0' && !useNearBalance}
         elseView={
           <div className="flex justify-center">
-            <GradientButton
-              className={`w-full text-center text-lg text-white mt-4 px-3 py-2 focus:outline-none font-semibold bg-greenLight`}
-              onClick={() => {
-                history.push(`/deposit/${tokenIn.id}`);
-              }}
-            >
-              <FormattedMessage
-                id="deposit_to_swap"
-                defaultMessage="Deposit to Swap"
-              />
-            </GradientButton>
+            {wallet.isSignedIn() ? (
+              <SubmitButton disabled={true} loading={showSwapLoading} />
+            ) : (
+              <div className="mt-4 w-full">
+                <ConnectToNearBtn />
+              </div>
+            )}
           </div>
         }
         onSubmit={handleSubmit}
@@ -403,6 +784,10 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           setLoadingData,
           loadingTrigger,
           setLoadingTrigger,
+          loadingPause,
+          setLoadingPause,
+          showSwapLoading,
+          setShowSwapLoading,
         }}
       >
         <TokenAmount
@@ -459,20 +844,49 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           }}
         />
         <DetailView
-          loadingTrigger={loadingTrigger}
-          pool={pool}
+          pools={pools}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
           from={tokenInAmount}
           to={tokenOutAmount}
           minAmountOut={minAmountOut}
-          canSwap={canSwap}
+          isParallelSwap={isParallelSwap}
+          fee={avgFee}
+          swapsTodo={swapsToDo}
+          priceImpact={PriceImpactValue}
         />
-
-        <div className="pb-2">
-          {swapError && <Alert level="error" message={swapError.message} />}
-        </div>
+        {swapError ? (
+          <div className="pb-2 relative -mb-5">
+            <Alert level="warn" message={swapError.message} />
+          </div>
+        ) : null}
       </SwapFormWrap>
+      <DoubleCheckModal
+        isOpen={doubleCheckOpen}
+        onRequestClose={() => {
+          setDoubleCheckOpen(false);
+          setShowSwapLoading(false);
+          setLoadingPause(false);
+        }}
+        style={{
+          overlay: {
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
+          },
+          content: {
+            outline: 'none',
+            position: 'fixed',
+            top: '50%',
+          },
+        }}
+        pools={pools}
+        tokenIn={tokenIn}
+        tokenOut={tokenOut}
+        from={tokenInAmount}
+        onSwap={() => makeSwap(useNearBalance)}
+        swapsTodo={swapsToDo}
+        priceImpactValue={PriceImpactValue}
+      />
     </>
   );
 }

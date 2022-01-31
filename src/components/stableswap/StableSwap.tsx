@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { ConnectToNearBtn, SolidButton } from '~components/button/Button';
+import {
+  ButtonTextWrapper,
+  ConnectToNearBtn,
+  SolidButton,
+} from '~components/button/Button';
 import InputAmount from '~components/forms/InputAmount';
 import SlippageSelector from '~components/forms/SlippageSelector';
 import SubmitButton from '~components/forms/SubmitButton';
@@ -12,6 +16,7 @@ import { useStableSwap, useSwap } from '~state/swap';
 import { isMobile } from '~utils/device';
 import Alert from '../alert/Alert';
 import { SmallWallet } from '~components/icon/SmallWallet';
+import { RefIcon } from '~components/icon/Common';
 
 import {
   calculateExchangeRate,
@@ -28,12 +33,15 @@ import {
 } from './StableSwapComponents';
 import { CountdownTimer } from '~components/icon';
 import { StablePool } from '~services/pool';
+import { BeatLoading } from '~components/layout/Loading';
 interface StableSwapProps {
   balances: TokenBalancesView;
   tokens: TokenMetadata[];
   stablePool: StablePool;
   setLoadingTrigger: (mode: boolean) => void;
   loadingTrigger: boolean;
+  setLoadingPause: (pause: boolean) => void;
+  loadingPause: boolean;
 }
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_SLIPPAGE_VALUE';
 export const STABLE_SWAP_USE_NEAR_BALANCE_KEY =
@@ -44,6 +52,8 @@ export default function StableSwap({
   stablePool,
   setLoadingTrigger,
   loadingTrigger,
+  loadingPause,
+  setLoadingPause,
 }: StableSwapProps) {
   const [tokenIn, setTokenIn] = useState<TokenMetadata>(tokens[0]);
   const [tokenOut, setTokenOut] = useState<TokenMetadata>(tokens[1]);
@@ -51,6 +61,8 @@ export default function StableSwap({
   const [slippageTolerance, setSlippageTolerance] = useState<number>(
     Number(localStorage.getItem(SWAP_SLIPPAGE_KEY)) || 0.1
   );
+
+  const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
   const [disabled, setDisabled] = useState<boolean>(false);
   const [useNearBalance, setUseNearBalance] = useState<boolean>(
     localStorage.getItem(STABLE_SWAP_USE_NEAR_BALANCE_KEY) != 'false'
@@ -78,7 +90,7 @@ export default function StableSwap({
     tokenInAmount,
     tokenOut,
     slippageTolerance,
-    loadingTrigger,
+    loadingTrigger: !loadingPause && loadingTrigger,
     setLoadingTrigger,
     stablePool,
   });
@@ -142,7 +154,11 @@ export default function StableSwap({
     event.preventDefault();
     if (wallet.isSignedIn()) {
       try {
-        canSubmit && makeSwap(useNearBalance);
+        if (canSubmit) {
+          setShowSwapLoading(true);
+          setLoadingPause(true);
+          makeSwap(useNearBalance);
+        }
       } catch (error) {}
     }
   };
@@ -157,11 +173,19 @@ export default function StableSwap({
         <div className="flex items-center">
           <div
             onClick={() => {
-              setLoadingTrigger(true);
+              if (loadingPause) {
+                setLoadingTrigger(true);
+                setLoadingPause(false);
+              } else {
+                setLoadingPause(true);
+              }
             }}
             className="mx-4 cursor-pointer"
           >
-            <CountdownTimer loadingTrigger={loadingTrigger} />
+            <CountdownTimer
+              loadingTrigger={loadingTrigger}
+              loadingPause={loadingPause}
+            />
           </div>
           <SlippageSelector
             slippageTolerance={slippageTolerance}
@@ -187,7 +211,11 @@ export default function StableSwap({
                 <span className="mr-2">
                   <SmallWallet />
                 </span>
-              ) : null}
+              ) : (
+                <span className="mr-2 text-primaryText">
+                  <RefIcon></RefIcon>
+                </span>
+              )}
               <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
               <span title={tokenInMax}>{toPrecision(tokenInMax, 3, true)}</span>
             </div>
@@ -218,7 +246,11 @@ export default function StableSwap({
                 <span className="mr-2 float-left">
                   <SmallWallet />
                 </span>
-              ) : null}
+              ) : (
+                <span className="mr-2 text-primaryText float-left">
+                  <RefIcon></RefIcon>
+                </span>
+              )}
               <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
               <span title={tokenOutTotal}>
                 {toPrecision(tokenOutTotal, 3, true)}
@@ -249,7 +281,11 @@ export default function StableSwap({
               <span className="mr-2">
                 <SmallWallet />
               </span>
-            ) : null}
+            ) : (
+              <span className="mr-2 text-primaryText">
+                <RefIcon></RefIcon>
+              </span>
+            )}
             <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
             <span title={tokenInMax}>{toPrecision(tokenInMax, 3, true)}</span>
           </div>
@@ -283,7 +319,11 @@ export default function StableSwap({
               <span className="mr-2 float-left">
                 <SmallWallet />
               </span>
-            ) : null}
+            ) : (
+              <span className="mr-2 float-left text-primaryText">
+                <RefIcon></RefIcon>
+              </span>
+            )}
             <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
             <span title={tokenOutTotal}>
               {toPrecision(tokenOutTotal, 3, true)}
@@ -305,7 +345,7 @@ export default function StableSwap({
       </div>
       <div
         className={`text-primaryText text-center mx-8 ${
-          tokenIn.id === tokenOut.id || loadingTrigger ? 'hidden' : ''
+          tokenIn.id === tokenOut.id ? 'hidden' : ''
         }`}
       >
         <DetailView
@@ -320,15 +360,22 @@ export default function StableSwap({
         />
       </div>
       <div className="mx-8">
-        <div className="pb-2">
-          {swapError && <Alert level="error" message={swapError.message} />}
+        <div className="pb-2 relative -mb-6 mt-2">
+          {swapError && <Alert level="warn" message={swapError.message} />}
         </div>
       </div>
 
       <div className="mx-8 mt-8">
         {wallet.isSignedIn() ? (
-          <SolidButton className="w-full text-lg" disabled={!canSubmit}>
-            <FormattedMessage id="swap" defaultMessage="Swap" />
+          <SolidButton
+            className="w-full text-lg"
+            disabled={!canSubmit}
+            loading={showSwapLoading || (loadingTrigger && !loadingPause)}
+          >
+            <ButtonTextWrapper
+              loading={showSwapLoading || (loadingTrigger && !loadingPause)}
+              Text={() => <FormattedMessage id="swap" defaultMessage="Swap" />}
+            />
           </SolidButton>
         ) : (
           <ConnectToNearBtn />

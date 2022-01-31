@@ -17,14 +17,14 @@ import {
   storageDepositAction,
   storageDepositForFTAction,
 } from './creators/storage';
-import { getTopPools } from '~services/indexer';
-import { PoolRPCView } from './api';
+import { getTopPools, _search } from '../services/indexer';
+import { parsePoolView, PoolRPCView } from './api';
 import {
   checkTokenNeedsStorageDeposit,
   getTokenBalance,
-} from '~services/token';
-import getConfig from '~services/config';
-import { registerTokensAction } from '~services/creators/token';
+} from '../services/token';
+import getConfig from '../services/config';
+import { registerTokensAction } from '../services/creators/token';
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -36,6 +36,7 @@ export interface Pool {
   shareSupply: string;
   tvl: number;
   token0_ref_price: string;
+  partialAmountIn?: string;
 }
 
 export interface StablePool {
@@ -48,6 +49,21 @@ export interface StablePool {
   shares_total_supply: string;
   amp: number;
 }
+
+export interface StablePool {
+  id: number;
+  token_account_ids: string[];
+  decimals: number[];
+  amounts: string[];
+  c_amounts: string[];
+  total_fee: number;
+  shares_total_supply: string;
+  amp: number;
+}
+
+export const getPoolByToken = async (tokenId: string) => {
+  return await db.queryPoolsBytoken(tokenId);
+};
 
 export const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
   id: id >= 0 ? id : pool.id,
@@ -79,39 +95,8 @@ export const getPools = async ({
   column?: string;
   order?: string;
   uniquePairName?: boolean;
-}): Promise<Pool[]> => {
-  const poolData: PoolRPCView[] = await getTopPools({
-    page,
-    perPage,
-    tokenName,
-    column,
-    order,
-    uniquePairName,
-  });
-  if (poolData.length > 0) {
-    return poolData.map((rawPool) => parsePool(rawPool));
-  } else {
-    const rows = await db.queryPools({
-      page,
-      perPage,
-      tokenName,
-      column,
-      order,
-      uniquePairName,
-    });
-    return rows.map((row) => ({
-      id: row.id,
-      tokenIds: [row.token1Id, row.token2Id],
-      supplies: {
-        [row.token1Id]: row.token1Supply,
-        [row.token2Id]: row.token2Supply,
-      },
-      fee: row.fee,
-      shareSupply: row.shares,
-      tvl: 0,
-      token0_ref_price: '0',
-    }));
-  }
+}): Promise<PoolRPCView[]> => {
+  return await getTopPools();
 };
 
 export const getPoolsFromCache = async ({
@@ -149,33 +134,6 @@ export const getPoolsFromCache = async ({
     tvl: 0,
     token0_ref_price: '0',
   }));
-};
-
-export const getPoolsFromIndexer = async ({
-  page = 1,
-  perPage = DEFAULT_PAGE_LIMIT,
-  tokenName = '',
-  column = '',
-  order = 'desc',
-  uniquePairName = false,
-}: {
-  page?: number;
-  perPage?: number;
-  tokenName?: string;
-  column?: string;
-  order?: string;
-  uniquePairName?: boolean;
-}): Promise<Pool[]> => {
-  const poolData: PoolRPCView[] = await getTopPools({
-    page,
-    perPage,
-    tokenName,
-    column,
-    order,
-    uniquePairName,
-  });
-
-  return poolData.map((rawPool) => parsePool(rawPool));
 };
 
 export const getAllPoolsFromDb = async () => {
@@ -293,23 +251,19 @@ export const isNotStablePool = (pool: Pool) => {
 export const getPoolsByTokens = async ({
   tokenInId,
   tokenOutId,
-  amountIn,
   setLoadingData,
-  setLoadingTrigger,
   loadingTrigger,
 }: GetPoolOptions): Promise<Pool[]> => {
-  const amountToTrade = new BN(amountIn);
   let filtered_pools;
-  const cache = await db.checkPoolsByTokens(tokenInId, tokenOutId);
+  const [cacheForPair, cacheTimeLimit] = await db.checkPoolsByTokens(
+    tokenInId,
+    tokenOutId
+  );
 
-  if (cache && !loadingTrigger) {
-    const cache_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
-    filtered_pools = cache_pools.filter(
-      (p) =>
-        new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
-        p.supplies[tokenOutId]
-    );
-  } else {
+  if ((!loadingTrigger && cacheTimeLimit) || !cacheForPair) {
+    filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
+  }
+  if (loadingTrigger || (!cacheTimeLimit && cacheForPair)) {
     setLoadingData(true);
     const totalPools = await getTotalPools();
     const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
@@ -320,13 +274,11 @@ export const getPoolsByTokens = async ({
 
     await db.cachePoolsByTokens(filtered_pools);
     filtered_pools = filtered_pools.filter(
-      (p) =>
-        new BN(p.supplies[tokenInId]).gte(amountToTrade) &&
-        p.supplies[tokenOutId]
+      (p) => p.supplies[tokenInId] && p.supplies[tokenOutId]
     );
   }
-  setLoadingTrigger(false);
   setLoadingData(false);
+  // @ts-ignore
   return filtered_pools;
 };
 

@@ -5,6 +5,7 @@ import DepositPage from './pages/DepositPage';
 import { PoolDetailsPage } from './pages/pools/DetailsPage';
 import SwapPage from './pages/SwapPage';
 import { AccountPage } from './pages/AccountPage';
+import { RecentActivityPage } from './pages/RecentActivityPage';
 import { LiquidityPage } from './pages/pools/LiquidityPage';
 import { YourLiquidityPage } from './pages/pools/YourLiquidityPage';
 import { AddPoolPage } from './pages/pools/AddPoolPage';
@@ -14,6 +15,8 @@ import NavigationBar from './components/layout/NavigationBar';
 import Footer from './components/layout/Footer';
 import { MorePoolsPage } from '~pages/pools/MorePoolsPage';
 import StableSwapPage from './pages/stable/StableSwapPage';
+import XrefPage from './pages/xref/XrefPage';
+import RiskPage from './pages/RiskPage';
 import {
   BgShapeLeftTop,
   BgShapeCenter,
@@ -26,6 +29,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FarmsPage } from '~pages/farms/FarmsPage';
 import { AirdropPage } from '~pages/AirdropPage';
 import PopUp from '~components/layout/PopUp';
+import { isMobile } from '~utils/device';
 
 Modal.defaultStyles = {
   overlay: {
@@ -53,15 +57,21 @@ Modal.setAppElement('#root');
 function App() {
   return (
     <Router>
-      <ToastContainer />
-      <div className="relative min-h-screen pb-20 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
+      <div className="relative min-h-screen pb-24 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
         <BgShapeLeftTop />
         <BgShapeCenter />
         <BgShapeCenterSmall />
         <NavigationBar />
+        <ToastContainer
+          style={{
+            marginTop: isMobile() ? 'none' : '44px',
+          }}
+        />
+
         <Switch>
-          <Route path="/deposit/:id?" component={AutoHeight(DepositPage)} />
+          {/* <Route path="/deposit/:id?" component={AutoHeight(DepositPage)} /> */}
           <Route path="/account" component={AccountPage} />
+          <Route path="/recent" component={RecentActivityPage} />
           <Route
             path="/more_pools/:tokenIds"
             component={AutoHeight(MorePoolsPage)}
@@ -78,6 +88,8 @@ function App() {
           <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
           <Route path="/farms" component={AutoHeight(FarmsPage)} />
           <Route path="/stableswap" component={AutoHeight(StableSwapPage)} />
+          <Route path="/xref" component={AutoHeight(XrefPage)} />
+          <Route path="/risks" component={AutoHeight(RiskPage)} />
           <Route path="/" component={AutoHeight(SwapPage)} />
         </Switch>
         <Footer />

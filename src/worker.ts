@@ -159,7 +159,7 @@ const cacheFarmPools = async () => {
 run();
 
 async function run() {
-  cachePools();
+  // cachePools();
   cacheTokens();
   cacheFarmPools();
 }

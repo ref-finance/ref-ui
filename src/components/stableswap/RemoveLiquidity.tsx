@@ -6,7 +6,11 @@ import { wallet } from '~services/near';
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 import { FormattedMessage, useIntl } from 'react-intl';
 import Alert from '~components/alert/Alert';
-import { ConnectToNearBtn, SolidButton } from '~components/button/Button';
+import {
+  ButtonTextWrapper,
+  ConnectToNearBtn,
+  SolidButton,
+} from '~components/button/Button';
 import { Card } from '~components/card/Card';
 import InputAmount from '~components/forms/InputAmount';
 import QuestionMark from '~components/farm/QuestionMark';
@@ -54,6 +58,7 @@ import StableTokenList, {
 import { ShareInFarm } from '~components/layout/ShareInFarm';
 import { Link } from 'react-router-dom';
 import { LP_STABLE_TOKEN_DECIMALS, LP_TOKEN_DECIMALS } from '~services/m-token';
+import { QuestionTip } from '~components/layout/TipWrapper';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
@@ -92,7 +97,7 @@ export function RemoveLiquidityComponent(props: {
   stablePool: StablePool;
 }) {
   const [slippageInvalid, setSlippageInvalid] = useState(false);
-
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
   const { shares, tokens, pool, stakeList, stablePool } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
@@ -257,20 +262,7 @@ export function RemoveLiquidityComponent(props: {
       <div className=" text-white flex items-center justify-between text-xs px-8 pb-6 xs:items-start md:items-start">
         <span className="text-primaryText flex items-center">
           <FormattedMessage id="my_shares" defaultMessage="Shares" />
-          <QuestionMark
-            data-type="dark"
-            data-place="right"
-            data-multiline={true}
-            data-tip={intl.formatMessage({ id: 'shares_tip' })}
-            className="inline-block ml-2 text-xs"
-          />
-          <ReactTooltip
-            className="text-xs shadow-4xl"
-            backgroundColor="#1D2932"
-            effect="solid"
-            class="tool-tip"
-            textColor="#7E8A93"
-          />
+          <QuestionTip id="shares_tip" />
         </span>
         <div className="flex items-center xs:flex-col md:flex-col xs:items-end md:items-end">
           <span>
@@ -305,21 +297,7 @@ export function RemoveLiquidityComponent(props: {
           onClick={() => setIsPercentage(true)}
         >
           <FormattedMessage id="by_share" defaultMessage="By Share" />
-          <QuestionMark
-            data-type="dark"
-            data-place="right"
-            data-multiline={true}
-            data-tip={intl.formatMessage({ id: 'remove_tip' })}
-            className="inline-block ml-2 text-xs"
-            color="bright"
-          />
-          <ReactTooltip
-            className="text-xs shadow-4xl"
-            backgroundColor="#1D2932"
-            effect="solid"
-            class="tool-tip"
-            textColor="#7E8A93"
-          />
+          <QuestionTip color="bright" id="remove_tip" />
         </div>
 
         <div
@@ -329,21 +307,8 @@ export function RemoveLiquidityComponent(props: {
           onClick={() => setIsPercentage(false)}
         >
           <FormattedMessage id="by_token" defaultMessage="By Token" />
-          <QuestionMark
-            data-type="dark"
-            data-place="right"
-            data-multiline={true}
-            data-tip={intl.formatMessage({ id: 'flexible_tip' })}
-            className="inline-block ml-2 text-xs"
-            color="bright"
-          />
-          <ReactTooltip
-            className="text-xs shadow-4xl"
-            backgroundColor="#1D2932"
-            effect="solid"
-            class="tool-tip"
-            textColor="#7E8A93"
-          />
+
+          <QuestionTip id="flexible_tip" color="bright" />
         </div>
       </div>
       {/* Remove by share */}
@@ -471,7 +436,7 @@ export function RemoveLiquidityComponent(props: {
         <div className="flex justify-center mx-2 mb-1">
           {error && !isPercentage && (
             <Alert
-              level="error"
+              level="warn"
               message={intl.formatMessage({ id: error.message })}
             />
           )}
@@ -482,12 +447,21 @@ export function RemoveLiquidityComponent(props: {
             disabled={!canSubmit}
             className={`focus:outline-none px-4 w-full text-lg`}
             onClick={async () => {
-              canSubmit && submit();
+              if (canSubmit) {
+                setButtonLoading(true);
+                submit();
+              }
             }}
+            loading={buttonLoading}
           >
-            <FormattedMessage
-              id="remove_liquidity"
-              defaultMessage="Remove Liquidity"
+            <ButtonTextWrapper
+              loading={buttonLoading}
+              Text={() => (
+                <FormattedMessage
+                  id="remove_liquidity"
+                  defaultMessage="Remove Liquidity"
+                />
+              )}
             />
           </SolidButton>
         ) : (

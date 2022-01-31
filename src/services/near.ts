@@ -10,6 +10,8 @@ export const REF_FI_CONTRACT_ID = config.REF_FI_CONTRACT_ID;
 
 export const REF_ADBOARD_CONTRACT_ID = config.REF_ADBOARD_CONTRACT_ID;
 
+export const POOL_TOKEN_REFRESH_INTERVAL = config.POOL_TOKEN_REFRESH_INTERVAL;
+
 export const STABLE_TOKEN_IDS = config.STABLE_TOKEN_IDS;
 
 export const STABLE_POOL_ID = config.STABLE_POOL_ID;
@@ -21,6 +23,7 @@ export const REF_FARM_CONTRACT_ID = config.REF_FARM_CONTRACT_ID;
 export const REF_AIRDRAOP_CONTRACT_ID = config.REF_AIRDROP_CONTRACT_ID;
 
 export const REF_TOKEN_ID = config.REF_TOKEN_ID;
+const XREF_TOKEN_ID = getConfig().XREF_TOKEN_ID;
 
 export const LP_STORAGE_AMOUNT = '0.01';
 
@@ -170,4 +173,19 @@ export const executeFarmMultipleTransactions = async (
   );
 
   return wallet.requestSignTransactions(nearTransactions, callbackUrl);
+};
+
+export interface RefContractViewFunctionOptions
+  extends RefFiViewFunctionOptions {
+  gas?: string;
+  amount?: string;
+  contarctId?: string;
+}
+
+export const refContractViewFunction = ({
+  methodName,
+  args,
+}: // contarctId,
+RefContractViewFunctionOptions) => {
+  return wallet.account().viewFunction(XREF_TOKEN_ID, methodName, args);
 };

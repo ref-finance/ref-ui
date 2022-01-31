@@ -12,16 +12,17 @@ import {
 } from './near';
 import { checkTokenNeedsStorageDeposit } from './token';
 import { storageDepositAction } from '../services/creators/storage';
+import { toNonDivisibleNumber, toReadableNumber } from '../utils/numbers';
 
 export const { WRAP_NEAR_CONTRACT_ID } = getConfig();
 export const NEW_ACCOUNT_STORAGE_COST = '0.00125';
 
 export const wnearMetadata: TokenMetadata = {
-  id: 'wNEAR',
+  id: WRAP_NEAR_CONTRACT_ID,
   name: 'wNEAR',
   symbol: 'wNEAR',
   decimals: 24,
-  icon: 'https://i.postimg.cc/4xx2KRxt/wNEAR.png',
+  icon: 'https://i.postimg.cc/DZfHgngm/w-NEAR-no-border.png',
 };
 
 export const nearMetadata: TokenMetadata = {
@@ -103,14 +104,15 @@ export const wrapNear = async (amount: string) => {
     methodName: 'near_deposit',
     args: {},
     gas: '50000000000000',
-    amount,
+    amount: toReadableNumber(24, toNonDivisibleNumber(24, amount)),
   });
 
   actions.push({
     methodName: 'ft_transfer_call',
     args: {
       receiver_id: REF_FI_CONTRACT_ID,
-      amount: utils.format.parseNearAmount(amount),
+      // amount:utils.format.formatNearAmount(amount)
+      amount: toNonDivisibleNumber(24, amount),
       msg: '',
     },
     gas: '50000000000000',
@@ -149,7 +151,8 @@ export const unwrapNear = async (amount: string) => {
     functionCalls: [
       withdrawAction({
         tokenId: WRAP_NEAR_CONTRACT_ID,
-        amount: utils.format.parseNearAmount(amount),
+        // amount: utils.format.parseNearAmount(amount),
+        amount: toNonDivisibleNumber(24, amount),
       }),
     ],
   });
@@ -159,7 +162,10 @@ export const unwrapNear = async (amount: string) => {
     functionCalls: [
       {
         methodName: 'near_withdraw',
-        args: { amount: utils.format.parseNearAmount(amount) },
+        args: {
+          // amount: utils.format.parseNearAmount(amount),
+          amount: toNonDivisibleNumber(24, amount),
+        },
         amount: ONE_YOCTO_NEAR,
       },
     ],

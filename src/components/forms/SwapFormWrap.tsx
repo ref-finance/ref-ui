@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Alert from '../alert/Alert';
 import SubmitButton from './SubmitButton';
 import { FormattedMessage } from 'react-intl';
@@ -22,6 +22,10 @@ interface SwapFormWrapProps {
     setLoadingData: (loading: boolean) => void;
     loadingTrigger: boolean;
     setLoadingTrigger: (loaidngTrigger: boolean) => void;
+    loadingPause: boolean;
+    setLoadingPause: (pause: boolean) => void;
+    showSwapLoading: boolean;
+    setShowSwapLoading: (swapLoading: boolean) => void;
   };
   useNearBalance: string;
 }
@@ -42,8 +46,21 @@ export default function SwapFormWrap({
   useNearBalance,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
-  const { loadingData, setLoadingData, loadingTrigger, setLoadingTrigger } =
-    loading;
+  const {
+    loadingData,
+    setLoadingData,
+    loadingTrigger,
+    setLoadingTrigger,
+    loadingPause,
+    setLoadingPause,
+    showSwapLoading,
+    setShowSwapLoading,
+  } = loading;
+
+  useEffect(() => {
+    loadingTrigger && setShowSwapLoading(true);
+    !loadingTrigger && setShowSwapLoading(false);
+  }, [loadingTrigger]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -51,6 +68,8 @@ export default function SwapFormWrap({
 
     if (wallet.isSignedIn()) {
       try {
+        setShowSwapLoading(true);
+        setLoadingPause(true);
         onSubmit(event);
       } catch (err) {
         setError(err);
@@ -60,7 +79,7 @@ export default function SwapFormWrap({
 
   return (
     <form
-      className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg"
+      className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg overflow-x-hidden"
       onSubmit={handleSubmit}
     >
       {title && (
@@ -70,12 +89,21 @@ export default function SwapFormWrap({
             <div className="flex items-center">
               <div
                 onClick={() => {
-                  setLoadingData(true);
-                  setLoadingTrigger(true);
+                  if (loadingPause) {
+                    setLoadingPause(false);
+                    setLoadingTrigger(true);
+                    setLoadingData(true);
+                  } else {
+                    setLoadingPause(true);
+                    setLoadingTrigger(false);
+                  }
                 }}
                 className="mx-4 cursor-pointer"
               >
-                <CountdownTimer loadingTrigger={loadingTrigger} />
+                <CountdownTimer
+                  loadingTrigger={loadingTrigger}
+                  loadingPause={loadingPause}
+                />
               </div>
 
               <SlippageSelector
@@ -88,15 +116,16 @@ export default function SwapFormWrap({
           </h2>
         </>
       )}
-      {error && <Alert level="error" message={error.message} />}
+      {error && <Alert level="warn" message={error.message} />}
       {children}
       {showElseView && elseView ? (
         elseView
       ) : (
         <SubmitButton
-          disabled={!canSubmit}
+          disabled={!canSubmit && !loadingTrigger}
           text={buttonText || title}
           info={info}
+          loading={showSwapLoading}
         />
       )}
     </form>

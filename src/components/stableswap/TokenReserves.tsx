@@ -269,6 +269,10 @@ export default function ({
         <InfoLine
           title={intl.formatMessage({ id: 'liquidity_utilisation' })}
           value={utilisationDisplay || '-'}
+          tipShow={true}
+          tipContent={`<label class='text-xs'>${intl.formatMessage({
+            id: 'volume_ratio',
+          })}</label>`}
         />
         <InfoLine
           title={intl.formatMessage({ id: 'daily_volume' })}

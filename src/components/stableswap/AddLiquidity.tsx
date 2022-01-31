@@ -3,45 +3,40 @@ import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router-dom';
-import Alert from '~components/alert/Alert';
-import { ConnectToNearBtn, SolidButton } from '~components/button/Button';
-import { Card } from '~components/card/Card';
-import { StableSlipSelecter } from '~components/forms/SlippageSelector';
-import { Near } from '~components/icon';
-import { TokenMetadata } from '~services/ft-contract';
-import { REF_FARM_CONTRACT_ID, STABLE_POOL_ID, wallet } from '~services/near';
+import Alert from '../alert/Alert';
 import {
-  addLiquidityToPool,
+  ButtonTextWrapper,
+  ConnectToNearBtn,
+  SolidButton,
+} from '../button/Button';
+import { Card } from '../card/Card';
+import { StableSlipSelecter } from '../forms/SlippageSelector';
+import { TokenMetadata } from '../../services/ft-contract';
+import { STABLE_POOL_ID, wallet } from '../../services/near';
+import {
   addLiquidityToStablePool,
   Pool,
-  predictLiquidityShares,
   StablePool,
-} from '~services/pool';
-import { TokenBalancesView } from '~services/token';
-import { usePredictShares } from '~state/pool';
-import { useFarmStake } from '~state/farm';
-
-import { isMobile } from '~utils/device';
+} from '../../services/pool';
+import { TokenBalancesView } from '../../services/token';
+import { usePredictShares } from '../../state/pool';
 import {
   calculateFairShare,
   percent,
-  percentOf,
   toNonDivisibleNumber,
   toReadableNumber,
   toPrecision,
   percentLess,
-  toRoundedReadableNumber,
-} from '~utils/numbers';
-import { toRealSymbol } from '~utils/token';
+} from '../../utils/numbers';
 import { ChooseAddType } from './LiquidityComponents';
 import StableTokenList from './StableTokenList';
-import { InfoLine } from './LiquidityComponents';
-import { usePool } from '~state/pool';
-import { shareToAmount } from '~services/stable-swap';
-import { LP_TOKEN_DECIMALS } from '~services/m-token';
+import { WarnTriangle } from '../icon/SwapRefresh';
+import { ActionModel } from '../../pages/AccountPage';
+import { getDepositableBalance } from '../../state/token';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE';
+const ONLY_ZEROS = /^0*\.?0*$/;
 
 export function myShares({
   totalShares,
@@ -87,7 +82,7 @@ export default function AddLiquidityComponent(props: {
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');
-  const [addType, setAddType] = useState<string>('addAll');
+  const [addType, setAddType] = useState<string>('');
   const [slippageTolerance, setSlippageTolerance] = useState<number>(
     Number(localStorage.getItem(SWAP_SLIPPAGE_KEY)) || 0.1
   );
@@ -98,6 +93,7 @@ export default function AddLiquidityComponent(props: {
   const intl = useIntl();
   const [canAddLP, setCanAddLP] = useState<boolean>(false);
   const history = useHistory();
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
   const predicedShares = usePredictShares({
     tokens,
     poolId: pool.id,
@@ -107,23 +103,40 @@ export default function AddLiquidityComponent(props: {
     stablePool,
   });
   const [slippageInvalid, setSlippageInvalid] = useState(false);
+  const [modal, setModal] = useState(null);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     if (addType === 'addMax') {
+      const firstAmount = toReadableNumber(
+        tokens[0].decimals,
+        balances[tokens[0].id]
+      );
+
+      const secondAmount = toReadableNumber(
+        tokens[1].decimals,
+        balances[tokens[1].id]
+      );
+
+      const thirdAmount = toReadableNumber(
+        tokens[2].decimals,
+        balances[tokens[2].id]
+      );
+
       setError(null);
-      setCanAddLP(true);
+      setCanAddLP(
+        !(
+          ONLY_ZEROS.test(firstAmount) &&
+          ONLY_ZEROS.test(secondAmount) &&
+          ONLY_ZEROS.test(thirdAmount)
+        )
+      );
       setCanDeposit(false);
       setMessageId('add_liquidity');
       setDefaultMessage('Add Liquidity');
-      setFirstTokenAmount(
-        toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
-      );
-      setSecondTokenAmount(
-        toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
-      );
-      setThirdTokenAmount(
-        toReadableNumber(tokens[2].decimals, balances[tokens[2].id])
-      );
+      setFirstTokenAmount(firstAmount);
+      setSecondTokenAmount(secondAmount);
+      setThirdTokenAmount(thirdAmount);
     } else if (addType === 'addAll') {
       setError(null);
       setCanAddLP(false);
@@ -286,8 +299,6 @@ export default function AddLiquidityComponent(props: {
     setCanAddLP(true);
     setCanDeposit(false);
 
-    const ONLY_ZEROS = /^0*\.?0*$/;
-
     if (
       !(
         firstTokenAmountBN.isEqualTo(firstTokenBalanceBN) &&
@@ -307,39 +318,72 @@ export default function AddLiquidityComponent(props: {
     }
 
     if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
-      setMessageId('deposit_to_add_liquidity');
-      setDefaultMessage('Deposit to Add Liquidity');
+      // setMessageId('deposit_to_add_liquidity');
+      // setDefaultMessage('Deposit to Add Liquidity');
       setCanAddLP(false);
       setCanDeposit(true);
-      throw new Error(
-        `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
-          tokens[0].symbol
-        )}`
-      );
+      const { id, decimals } = tokens[0];
+      const modalData: any = {
+        token: tokens[0],
+        action: 'deposit',
+      };
+      getDepositableBalance(id, decimals).then((nearBalance) => {
+        modalData.max = nearBalance;
+        setModal(Object.assign({}, modalData));
+      });
+      setModal(modalData);
+      // throw new Error(
+      //   `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
+      //     tokens[0].symbol
+      //   )}`
+      // );
+      return;
     }
 
     if (secondTokenAmountBN.isGreaterThan(secondTokenBalanceBN)) {
-      setMessageId('deposit_to_add_liquidity');
-      setDefaultMessage('Deposit to Add Liquidity');
+      // setMessageId('deposit_to_add_liquidity');
+      // setDefaultMessage('Deposit to Add Liquidity');
       setCanAddLP(false);
       setCanDeposit(true);
-      throw new Error(
-        `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
-          tokens[1].symbol
-        )}`
-      );
+      const { id, decimals } = tokens[1];
+      const modalData: any = {
+        token: tokens[1],
+        action: 'deposit',
+      };
+      getDepositableBalance(id, decimals).then((nearBalance) => {
+        modalData.max = nearBalance;
+        setModal(Object.assign({}, modalData));
+      });
+      setModal(modalData);
+      // throw new Error(
+      //   `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
+      //     tokens[1].symbol
+      //   )}`
+      // );
+      return;
     }
 
     if (thirdTokenAmountBN.isGreaterThan(thirdTokenBalanceBN)) {
-      setMessageId('deposit_to_add_liquidity');
-      setDefaultMessage('Deposit to Add Liquidity');
+      // setMessageId('deposit_to_add_liquidity');
+      // setDefaultMessage('Deposit to Add Liquidity');
       setCanAddLP(false);
       setCanDeposit(true);
-      throw new Error(
-        `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
-          tokens[2].symbol
-        )}`
-      );
+      const { id, decimals } = tokens[2];
+      const modalData: any = {
+        token: tokens[2],
+        action: 'deposit',
+      };
+      getDepositableBalance(id, decimals).then((nearBalance) => {
+        modalData.max = nearBalance;
+        setModal(Object.assign({}, modalData));
+      });
+      setModal(modalData);
+      // throw new Error(
+      //   `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
+      //     tokens[2].symbol
+      //   )}`
+      // );
+      return;
     }
 
     if (
@@ -376,7 +420,7 @@ export default function AddLiquidityComponent(props: {
     });
   }
 
-  const canSubmit = canDeposit || (canAddLP && !slippageInvalid);
+  const canSubmit = canAddLP && !slippageInvalid;
 
   return (
     <>
@@ -436,24 +480,57 @@ export default function AddLiquidityComponent(props: {
           </div>
         </div>
         <div className="px-8">
-          <div className="flex justify-center mx-2 mb-1">
-            {error && <Alert level="error" message={error.message} />}
-          </div>
+          {error ? (
+            <div className="flex justify-center mx-2 mb-1">
+              {<Alert level="warn" message={error.message} />}
+            </div>
+          ) : null}
+
+          {canDeposit ? (
+            <div className="flex xs:flex-col md:flex-col justify-between items-center rounded-md p-4 xs:px-2 md:px-2 mb-5 border border-warnColor">
+              <div className="flex items-center xs:mb-3 md:mb-3">
+                <label className="flex-shrink-0">
+                  <WarnTriangle />
+                </label>
+                <label className="ml-2.5 text-base text-warnColor xs:text-sm md:text-sm">
+                  <FormattedMessage id="you_do_not_have_enough" />{' '}
+                  {modal?.token?.symbol}！
+                </label>
+              </div>
+              <SolidButton
+                className="focus:outline-none px-3 py-1.5 text-sm"
+                onClick={() => {
+                  setVisible(true);
+                }}
+              >
+                <FormattedMessage id="deposit" />
+              </SolidButton>
+            </div>
+          ) : null}
           {wallet.isSignedIn() ? (
             <SolidButton
               disabled={!canSubmit}
               className="focus:outline-none px-4 w-full text-lg"
+              loading={buttonLoading}
               onClick={() => {
                 try {
-                  canSubmit && submit();
+                  if (canSubmit) {
+                    setButtonLoading(true);
+                    submit();
+                  }
                 } catch (error) {
                   setError(error);
                 }
               }}
             >
-              <FormattedMessage
-                id={messageId}
-                defaultMessage={defaultMessage}
+              <ButtonTextWrapper
+                loading={buttonLoading}
+                Text={() => (
+                  <FormattedMessage
+                    id={messageId}
+                    defaultMessage={defaultMessage}
+                  />
+                )}
               />
             </SolidButton>
           ) : (
@@ -461,6 +538,11 @@ export default function AddLiquidityComponent(props: {
           )}
         </div>
       </Card>
+      <ActionModel
+        modal={modal}
+        visible={visible}
+        onRequestClose={setVisible}
+      ></ActionModel>
     </>
   );
 }

@@ -9,17 +9,17 @@ import {
   toPrecision,
   toReadableNumber,
   toNonDivisibleNumber,
-} from '~utils/numbers';
-import { LP_TOKEN_DECIMALS } from '~services/m-token';
+} from '../utils/numbers';
+import { LP_TOKEN_DECIMALS } from '../services/m-token';
 import * as math from 'mathjs';
 import {
   ftGetTokenMetadata,
   TokenMetadata,
   ftGetStorageBalance,
-} from '~services/ft-contract';
-import { PoolRPCView, currentTokensPrice } from '~services/api';
+} from '../services/ft-contract';
+import { PoolRPCView, currentTokensPrice } from '../services/api';
 import { BigNumber } from 'bignumber.js';
-import { getPoolsByIds } from '~services/indexer';
+import { getPoolsByIds } from '../services/indexer';
 import {
   storageDepositAction,
   STORAGE_TO_REGISTER_WITH_MFT,
@@ -208,14 +208,12 @@ export const getFarmInfo = async (
       `(${farm.reward_per_session} / ${farm.session_interval}) * 604800`
     )
   );
-
-  const rewardsPerWeek = toPrecision(
+  const rewardsPerWeek = new BigNumber(
     toReadableNumber(
       rewardToken.decimals,
       new BigNumber(rewardNumberPerWeek.toString()).toFixed()
-    ),
-    0
-  );
+    )
+  ).toFixed(0);
 
   const userRewardNumberPerWeek =
     seedAmount !== '0'

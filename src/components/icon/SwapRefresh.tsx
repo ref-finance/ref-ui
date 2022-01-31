@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRef } from 'react';
+import { RefreshTrangle } from './Loading';
 
 export const SwapRefresh = ({ className }: { className?: string }) => {
   return (
@@ -38,16 +39,39 @@ export const SwapRefresh = ({ className }: { className?: string }) => {
 
 export const CountdownTimer = ({
   loadingTrigger,
+  loadingPause,
 }: {
   loadingTrigger: boolean;
+  loadingPause?: boolean;
 }) => {
   return (
     <div className="circle_process bg-chartBg rounded-full relative flex justify-center items-center">
-      <div className="circle_center bg-cardBg rounded-full inline-block"></div>
+      <div className="circle_center bg-cardBg rounded-full inline-block flex items-center justift-center">
+        {loadingPause ? (
+          <div className="flex items-center mx-auto">
+            <RefreshTrangle />
+          </div>
+        ) : (
+          <div className="flex items-center mx-auto">
+            <div
+              className="w-0.5 h-1.5 rounded bg-gradientFrom"
+              style={{
+                marginRight: '1px',
+              }}
+            />
+            <div
+              className="w-0.5 h-1.5 rounded bg-gradientFrom "
+              style={{
+                marginLeft: '1px',
+              }}
+            />
+          </div>
+        )}
+      </div>
       <div className="wrapper absolute top-0 right-0 overflow-hidden">
         <div
           className={`circle  absolute top-0 rounded-full ${
-            !loadingTrigger ? 'rightcircle' : ''
+            !loadingTrigger && !loadingPause ? 'rightcircle' : ''
           }`}
         ></div>
       </div>
@@ -55,7 +79,7 @@ export const CountdownTimer = ({
       <div className="wrapper absolute top-0 left-0 overflow-hidden">
         <div
           className={`circleleft absolute top-0 rounded-full ${
-            !loadingTrigger ? 'leftcircle' : ''
+            !loadingTrigger && !loadingPause ? 'leftcircle' : ''
           }`}
           id="leftcircle"
         ></div>
@@ -79,11 +103,11 @@ export const WarnTriangle = () => {
     </svg>
   );
 };
-export const ErrorTriangle = () => {
+export const ErrorTriangle = ({ expand }: { expand?: boolean }) => {
   return (
     <svg
-      width="20"
-      height="18"
+      width={expand ? '46' : '20'}
+      height={expand ? '40' : '18'}
       viewBox="0 0 20 18"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
