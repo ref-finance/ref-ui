@@ -131,7 +131,10 @@ export function ConnectToNearBtn() {
         e.preventDefault();
         e.stopPropagation();
         setButtonLoading(true);
-        wallet.requestSignIn(REF_FARM_CONTRACT_ID);
+        wallet.requestSignIn({
+          contractId: REF_FARM_CONTRACT_ID,
+          // methodNames: ['claim_reward_by_farm', 'claim_reward_by_seed'],
+        });
       }}
     >
       {!buttonLoading && (
