@@ -210,7 +210,7 @@ export const estimateSwap = async ({
   console.log('ORPOOLS ARE...');
   console.log(orpools);
   let graph = await getGraphFromPoolList(orpools);
-  console.log(graph);
+  // console.log(graph);
   console.log(`tokenIn is ${tokenIn.id}`);
   console.log(`tokenOut is ${tokenOut.id}`);
 
@@ -234,6 +234,16 @@ export const estimateSwap = async ({
   let allocations = await getBestOptInput(routes, nodeRoutes, parsedAmountIn);
   console.log('ALLOCATIONS ARE...');
   console.log(allocations.map((item) => item.toString()));
+  console.log('actions are...');
+  let actions = await getSmartRouteSwapActions(
+    orpools,
+    tokenIn.id,
+    tokenOut.id,
+    parsedAmountIn,
+    0.001
+  );
+  console.log('FOUND SMART ROUTE ACTIONS TO BE...');
+  console.log(actions);
 
   const maxLPPool = _.maxBy(pools, (p) => getLiquidity(p, tokenIn, tokenOut));
 
@@ -1302,21 +1312,25 @@ function getOptOutputVecRefined(routes, nodeRoutes, totalInput) {
   };
 }
 
-function getBestOptimalAllocationsAndOutputs(
+async function getBestOptimalAllocationsAndOutputs(
   pools,
   inputToken,
   outputToken,
   totalInput
 ) {
+  console.log('INSIDE GET BEST OPTIMAL...');
   var totalInput = new Big(totalInput);
-  let paths = getPathsFromPools(pools, inputToken, outputToken);
-  let poolChains = getPoolChainFromPaths(paths, pools);
-  let routes = getRoutesFromPoolChain(poolChains);
-  let nodeRoutes = getNodeRoutesFromPathsAndPoolChains(paths, poolChains);
-  let allocations = getBestOptInput(routes, nodeRoutes, totalInput);
+  let paths = await getPathsFromPools(pools, inputToken, outputToken);
+  console.log(paths);
+  let poolChains = await getPoolChainFromPaths(paths, pools);
+  console.log(poolChains);
+  let routes = await getRoutesFromPoolChain(poolChains);
+  console.log(routes);
+  let nodeRoutes = await getNodeRoutesFromPathsAndPoolChains(paths, poolChains);
+  console.log(nodeRoutes);
+  let allocations = await getBestOptInput(routes, nodeRoutes, totalInput);
   // fix integer rounding for allocations:
   allocations = checkIntegerSumOfAllocations(allocations, totalInput);
-
   let outputs = getBestOptOutput(routes, nodeRoutes, totalInput);
   return {
     allocations: allocations,
@@ -1336,6 +1350,12 @@ function getActionListFromRoutesAndAllocations(
   // TODO: need to consolidate sub-parallel swap paths - need middle token checks.
   //console.log(allocations.map((item) => item.toString()))
   let actions = [];
+  console.log('INSIDE GETACTIONLIST FUNC');
+  console.log(routes);
+  console.log(nodeRoutes);
+  console.log(allocations);
+  console.log(slippageTolerance);
+
   for (var i in routes) {
     let route = routes[i];
     let nodeRoute = nodeRoutes[i];
@@ -1435,23 +1455,26 @@ function getActionListFromRoutesAndAllocations(
 //     # these common node routes. allocate the total intermediate token output
 //     # toward these 2nd hop routes in the same ratio as their route input allocations.
 
-function getSmartRouteSwapActions(
+async function getSmartRouteSwapActions(
   pools,
   inputToken,
   outputToken,
   totalInput,
   slippageTolerance
 ) {
+  console.log('INSIDE GET SMART ROUTE ACTIONS FUNCTION');
   if (!totalInput) {
     return [];
   }
   var totalInput = new Big(totalInput);
-  let resDict = getBestOptimalAllocationsAndOutputs(
+  let resDict = await getBestOptimalAllocationsAndOutputs(
     pools,
     inputToken,
     outputToken,
     totalInput
   );
+  console.log('RESULT DICTIONARY IS...');
+  console.log(resDict);
   let allocations = resDict.allocations;
   // let outputs = resDict.outputs;
   let routes = resDict.routes;
@@ -1462,17 +1485,26 @@ function getSmartRouteSwapActions(
     allocations,
     slippageTolerance
   );
-  let distilledActions = distillCommonPoolActions(actions, pools);
+  console.log('TEMP ACTIONS ARE...');
+  console.log(actions);
+  let distilledActions = distillCommonPoolActions(
+    actions,
+    pools,
+    slippageTolerance
+  );
+  console.log('RETURNING DISTILLED ACTIONS');
+  console.log(distilledActions);
   return distilledActions;
 }
 
-function distillCommonPoolActions(actions, pools) {
+function distillCommonPoolActions(actions, pools, slippageTolerance) {
   //     #Note, if there are multiple transactions for a single pool, it might lead to sub-optimal
   //     #returns. This is due to the fact that the routes are treated as independent, where
   //     #here, if one transaction goes through in a pool, it changes the price of the asset
   //     #before the second transaction can occur.
 
   //     #combine same-pool transactions into single transaction:
+  console.log('INSIDE DISTILL COMMON POOL ACTIONS');
   let poolsUsedPerAction = actions.map((item) => item.pool_id);
   let axnSet = [];
   let repeats = false;
@@ -1485,6 +1517,7 @@ function distillCommonPoolActions(actions, pools) {
     }
   }
   if (repeats) {
+    console.log('FOUND REPEATING POOL');
     var pid = {};
     for (var ai in actions) {
       let a = actions[ai];
@@ -1529,7 +1562,9 @@ function distillCommonPoolActions(actions, pools) {
       newActions.push(newAction);
     }
   } else {
-    var newActions = actions;
+    console.log('FOUND NO REPEATING POOL');
+    console.log(actions);
+    return actions;
   }
   return newActions;
 }
@@ -1930,13 +1965,13 @@ function getKShortestPaths(g, source, target, k) {
 }
 
 async function getPathsFromPools(pools, inputToken, outputToken) {
-  console.log('INSIDE FUNCTION');
-  console.log(pools);
-  console.log(inputToken);
-  console.log(outputToken);
+  // console.log('INSIDE FUNCTION');
+  // console.log(pools);
+  // console.log(inputToken);
+  // console.log(outputToken);
   let graph = getGraphFromPoolList(pools);
-  console.log(graph);
-  return getKShortestPaths(graph, inputToken, outputToken, 1000);
+  // console.log(graph);
+  return getKShortestPaths(graph, inputToken, outputToken, 100);
 }
 
 // function getAllPathsBelowLengthN(g, source, target, N, limit = 1000) {
