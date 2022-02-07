@@ -133,7 +133,7 @@ export function ConnectToNearBtn() {
         setButtonLoading(true);
         wallet.requestSignIn({
           contractId: REF_FARM_CONTRACT_ID,
-          methodNames: ['claim_reward_by_farm', 'claim_reward_by_seed'],
+          // methodNames: ['claim_reward_by_farm', 'claim_reward_by_seed'],
         });
       }}
     >
