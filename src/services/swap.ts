@@ -213,12 +213,11 @@ export const estimateSwap = async ({
   console.log(graph);
   console.log(`tokenIn is ${tokenIn.id}`);
   console.log(`tokenOut is ${tokenOut.id}`);
-  let routePaths = await getKShortestPaths(
-    graph,
-    tokenIn.id,
-    tokenOut.id,
-    100000
-  );
+
+  // console.log('paths are...');
+  // let paths = await getPathsFromPools(orpools, tokenIn.id, tokenOut.id);
+  // console.log(paths);
+  let routePaths = await getKShortestPaths(graph, tokenIn.id, tokenOut.id, 100);
   ///let routePaths = await getAllPathsBelowLengthN(graph, tokenIn.id, tokenOut.id,3);
   console.log('ROUTE PATHS ARE...');
   console.log(routePaths);
@@ -1814,7 +1813,7 @@ function arrayContains(arr, obj) {
   // checks to see if the input array contains a reference object, obj, using
   // JSON.stringify() .
   let obj_json = JSON.stringify(obj);
-  for (itemInd in arr) {
+  for (var itemInd in arr) {
     if (JSON.stringify(arr[itemInd]) == obj_json) {
       return true;
     }
@@ -1892,14 +1891,20 @@ function getKShortestPaths(g, source, target, k) {
         paths.push(res);
       }
     } catch (e) {
+      console.log(e);
       break;
     }
   }
   return paths;
 }
 
-function getPathsFromPools(pools, inputToken, outputToken) {
+async function getPathsFromPools(pools, inputToken, outputToken) {
+  console.log('INSIDE FUNCTION');
+  console.log(pools);
+  console.log(inputToken);
+  console.log(outputToken);
   let graph = getGraphFromPoolList(pools);
+  console.log(graph);
   return getKShortestPaths(graph, inputToken, outputToken, 1000);
 }
 

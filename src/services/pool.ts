@@ -287,6 +287,7 @@ export const getRefPoolsByToken1ORToken2 = async (
   tokenId2: string
 ) => {
   return await db.queryPoolsByTokens2(tokenId1, tokenId2);
+  //return await db.poolsTokens;
 };
 
 export const getPool = async (id: number): Promise<Pool> => {
