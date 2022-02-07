@@ -11,6 +11,7 @@ const MAX_PER_PAGE = 100;
 
 const near = new Near({
   keyStore: new keyStores.InMemoryKeyStore(),
+  headers: {},
   ...config,
 });
 
