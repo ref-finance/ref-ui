@@ -217,10 +217,23 @@ export const estimateSwap = async ({
   // console.log('paths are...');
   // let paths = await getPathsFromPools(orpools, tokenIn.id, tokenOut.id);
   // console.log(paths);
-  let routePaths = await getKShortestPaths(graph, tokenIn.id, tokenOut.id, 100);
+  let paths = await getKShortestPaths(graph, tokenIn.id, tokenOut.id, 100);
   ///let routePaths = await getAllPathsBelowLengthN(graph, tokenIn.id, tokenOut.id,3);
-  console.log('ROUTE PATHS ARE...');
-  console.log(routePaths);
+  console.log('PATHS ARE...');
+  console.log(paths);
+
+  let poolChains = await getPoolChainFromPaths(paths, orpools);
+  console.log('POOL CHAINS ARE');
+  console.log(poolChains);
+  let routes = await getRoutesFromPoolChain(poolChains);
+  console.log('ROUTES ARE...');
+  console.log(routes);
+  let nodeRoutes = await getNodeRoutesFromPathsAndPoolChains(paths, poolChains);
+  console.log('NODE ROUTES ARE');
+  console.log(nodeRoutes);
+  let allocations = await getBestOptInput(routes, nodeRoutes, parsedAmountIn);
+  console.log('ALLOCATIONS ARE...');
+  console.log(allocations.map((item) => item.toString()));
 
   const maxLPPool = _.maxBy(pools, (p) => getLiquidity(p, tokenIn, tokenOut));
 
@@ -928,8 +941,8 @@ function reduceRoutes(routes, nodeRoutes, allocationVec, totalInput) {
       goodIndices.push(i);
     }
   }
-  console.log('GOOD INDICES ARE...');
-  console.log(goodIndices);
+  // console.log('GOOD INDICES ARE...');
+  // console.log(goodIndices);
   let newRoutes = [];
   let newNodeRoutes = [];
   for (var i in goodIndices) {
@@ -989,7 +1002,9 @@ function getPoolChainFromPaths(paths, pools, threshold = 0.001) {
     }
     for (var pairInd in pairs) {
       let pair = pairs[pairInd];
+      console.log(pair);
       let tokenPools = getPoolsByToken1ANDToken2(pools, pair[0], pair[1]);
+      console.log(tokenPools);
       chain.push(tokenPools);
     }
     poolChains.push(chain);
@@ -1544,12 +1559,22 @@ function getPoolsByToken1ORToken2(pools, token1, token2) {
   return filteredPools;
 }
 
-function getPoolsByToken1ANDToken2(pools, token1, token2) {
+function getPoolsByToken1ANDToken2(
+  pools,
+  token1,
+  token2,
+  cullZeroLiquidityPools = true
+) {
   let filteredPools = pools.filter(
     (item) =>
       (item.token1Id === token1 && item.token2Id === token2) ||
       (item.token1Id === token2 && item.token2Id === token1)
   );
+  if (cullZeroLiquidityPools) {
+    filteredPools = filteredPools.filter(
+      (item) => item.token1Supply != '0' && item.token2Supply != '0'
+    );
+  }
   return filteredPools;
 }
 
@@ -1589,7 +1614,7 @@ function bigMax(arrayOfBigs) {
 function cullPoolsWithInsufficientLiquidity(pools, threshold = 0.001) {
   var thresh = new Big(threshold);
   let normLiq = getNormalizedLiquiditiesFromList(pools);
-  filteredPools = [];
+  let filteredPools = [];
   for (var i = 0; i < normLiq.length; i++) {
     if (normLiq[i] > thresh) {
       filteredPools.push(pools[i]);
