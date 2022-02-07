@@ -1888,6 +1888,12 @@ function getKShortestPaths(g, source, target, k) {
     try {
       let res = gen.next().value;
       if (res && !arrayContains(paths, res)) {
+        if (res.length > 3) {
+          console.log(
+            'found all hops of length 2 or less... breaking out of generator'
+          );
+          break;
+        }
         paths.push(res);
       }
     } catch (e) {
