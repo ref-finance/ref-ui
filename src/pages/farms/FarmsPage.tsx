@@ -86,6 +86,8 @@ interface SearchData {
 }
 
 export function FarmsPage() {
+  console.log('test dev ');
+
   const intl = useIntl();
   const sortList = {
     apr: intl.formatMessage({ id: 'apr' }),
