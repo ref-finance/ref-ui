@@ -192,6 +192,23 @@ export const instantSwap = async ({
   amountIn,
   minAmountOut,
 }: SwapOptions) => {
+  const transactions = await instantSwapGetTransactions({
+    pool,
+    tokenIn,
+    tokenOut,
+    amountIn,
+    minAmountOut,
+  });
+  return executeMultipleTransactions(transactions);
+};
+
+export const instantSwapGetTransactions = async ({
+  pool,
+  tokenIn,
+  tokenOut,
+  amountIn,
+  minAmountOut,
+}: SwapOptions) => {
   const swapAction = {
     pool_id: pool?.id,
     token_in: tokenIn?.id,
@@ -249,8 +266,7 @@ export const instantSwap = async ({
       receiverId: tokenIn.id,
       functionCalls: tokenInActions,
     });
-
-    return executeMultipleTransactions(transactions);
+    return transactions;
   }
 };
 
@@ -297,10 +313,11 @@ export const depositSwap = async ({
 };
 
 export const checkTransaction = (txHash: string) => {
-  return (near.connection.provider as JsonRpcProvider).sendJsonRpc(
-    'EXPERIMENTAL_tx_status',
-    [txHash, wallet.getAccountId()]
-  );
+  return (near.connection
+    .provider as JsonRpcProvider).sendJsonRpc('EXPERIMENTAL_tx_status', [
+    txHash,
+    wallet.getAccountId(),
+  ]);
 };
 
 export const shareToAmount = (
