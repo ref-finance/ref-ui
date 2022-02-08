@@ -28,6 +28,7 @@ import {
   calculate_dx_float,
   calculate_dy_float,
   formatPoolNew,
+  checkIntegerSumOfAllocations,
 } from './parallelSwapLogic';
 
 import {
@@ -1663,33 +1664,6 @@ function cartesianProduct(a) {
     a.flatMap((d) => b.map((e) => [d, e].flat()))
   );
   return result;
-}
-
-function checkIntegerSumOfAllocations(allocations, totalInput) {
-  var totalInput = new Big(totalInput);
-  var allocations = allocations.map((item) => item.round());
-  let alloSum = allocations
-    .map((item) => new Big(item))
-    .reduce((a, b) => a.plus(b), new Big(0));
-  let offset = totalInput.minus(alloSum);
-  //get largest allocation.
-  let currMax = new Big(0);
-  let currMaxInd = 0;
-  for (var i in allocations) {
-    if (allocations[i].gt(currMax)) {
-      currMaxInd = i;
-      currMax = allocations[i];
-    }
-  }
-  let newAllocations = [];
-  for (var j in allocations) {
-    if (j === currMaxInd) {
-      newAllocations.push(allocations[j].plus(offset).toString());
-    } else {
-      newAllocations.push(allocations[j].toString());
-    }
-  }
-  return newAllocations;
 }
 
 function addEdge(g, edge) {
