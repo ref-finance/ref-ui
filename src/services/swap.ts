@@ -1220,9 +1220,11 @@ function getBestOptInput(routes, nodeRoutes, totalInput) {
   let refDict = getOptOutputVecRefined(routes, nodeRoutes, totalInput);
   let outputRefined = refDict.result;
   let inputRefined = refDict.allocations;
+  inputRefined = checkIntegerSumOfAllocations(inputRefined, totalInput);
   let rawDict = getOptOutputVec(routes, nodeRoutes, totalInput);
   let outputRaw = rawDict.result;
   let inputRaw = rawDict.allocations;
+  inputRaw = checkIntegerSumOfAllocations(inputRaw, totalInput);
   let res1 = new Big(0);
   let res2 = new Big(0);
 
