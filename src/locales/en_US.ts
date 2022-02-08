@@ -221,6 +221,7 @@ const en_US = {
   attention: 'Attention',
   live: 'Live',
   ended_search: 'Ended',
+  unclaimed: 'Unclaimed',
   staked_only: 'Staked only',
   sort_by: 'Sort by',
   your_farms_rewards: 'Your Farms Rewards',

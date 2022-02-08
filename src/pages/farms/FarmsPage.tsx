@@ -78,7 +78,7 @@ import getConfig from '~services/config';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 interface SearchData {
-  status: boolean;
+  status: number;
   staked: boolean;
   sort: string;
   sortBoxHidden: boolean;
@@ -105,7 +105,7 @@ export function FarmsPage() {
     {}
   );
   const [searchData, setSearchData] = useState<SearchData>({
-    status: true,
+    status: 1,
     staked: wallet.isSignedIn()
       ? !!+localStorage.getItem('farmStakedOnly')
       : false,
@@ -318,12 +318,21 @@ export function FarmsPage() {
     const { status, staked, sort, stable } = searchData;
     let listAll = list || farms;
     listAll.forEach((item: any) => {
+      const { userStaked, lpTokenId, userUnclaimedReward } = item[0];
       const isEnd = isEnded(item);
-      const useStaked = Number(item[0].userStaked) > 0;
-      const isStableFarm = item[0].lpTokenId == STABLE_POOL_ID;
-      const condition1 = status == !isEnd;
-      let condition2 = true;
-      let condition3 = true;
+      const useStaked = Number(userStaked) > 0;
+      const isStableFarm = lpTokenId == STABLE_POOL_ID;
+      let condition1,
+        condition2 = true,
+        condition3 = true;
+      if (+status == 2) {
+        // 0:ended,1:live,2:Unclaimed
+        condition1 = Number(userUnclaimedReward) > 0;
+      } else if (+status == 0) {
+        condition1 = isEnd;
+      } else if (+status == 1) {
+        condition1 = !isEnd;
+      }
       if (staked) {
         condition2 = useStaked;
       }
@@ -404,7 +413,7 @@ export function FarmsPage() {
     searchByCondition();
   }
   function changeStatus(status: number) {
-    searchData.status = !!status;
+    searchData.status = status;
     setSearchData(Object.assign({}, searchData));
     searchByCondition();
   }
@@ -644,24 +653,41 @@ export function FarmsPage() {
           <div className="xs:w-full md:w-full">
             {unclaimedFarmsIsLoading ? null : (
               <div className="flex items-center self-end xs:flex-col md:flex-col mb-3">
-                <div className="flex items-center w-36 xs:w-32 md:w-32 text-farmText rounded-full h-5 bg-farmSbg lg:mr-4">
+                <div className="flex items-center text-farmText rounded-full h-5 bg-farmSbg lg:mr-4">
                   <label
                     onClick={() => changeStatus(1)}
-                    className={`flex justify-center items-center w-1/2 rounded-full h-full text-xs cursor-pointer ${
-                      searchData.status ? 'text-chartBg bg-farmSearch' : ''
+                    className={`flex justify-center px-5 items-center rounded-full h-full text-xs cursor-pointer ${
+                      +searchData.status == 1
+                        ? 'text-chartBg bg-farmSearch'
+                        : ''
                     }`}
                   >
                     <FormattedMessage id="live" defaultMessage="Live" />
                   </label>
                   <label
                     onClick={() => changeStatus(0)}
-                    className={`flex justify-center items-center w-1/2 rounded-full h-full text-xs cursor-pointer ${
-                      !searchData.status ? 'text-chartBg bg-farmSearch' : ''
+                    className={`flex justify-center px-5 items-center rounded-full h-full text-xs cursor-pointer ${
+                      +searchData.status == 0
+                        ? 'text-chartBg bg-farmSearch'
+                        : ''
                     }`}
                   >
                     <FormattedMessage
                       id="ended_search"
                       defaultMessage="Ended"
+                    />
+                  </label>
+                  <label
+                    onClick={() => changeStatus(2)}
+                    className={`flex justify-center px-5 items-center rounded-full h-full text-xs cursor-pointer ${
+                      +searchData.status == 2
+                        ? 'text-chartBg bg-farmSearch'
+                        : ''
+                    }`}
+                  >
+                    <FormattedMessage
+                      id="unclaimed"
+                      defaultMessage="Unclaimed"
                     />
                   </label>
                 </div>
@@ -964,33 +990,6 @@ function FarmView({
     getAllUnclaimedReward();
   }, [farmData]);
   const mergeCommonRewardFarms = mergeCommonRewardFarmsFun(farmsData);
-  // useEffect(() => {
-  //   if (count > 0) {
-  //     setLoading(true);
-  //     getFarmInfo(
-  //       farmData,
-  //       farmData.pool,
-  //       stakedList[farmData.seed_id],
-  //       tokenPriceList,
-  //       rewardList[farmData.reward_token],
-  //       seeds[farmData.seed_id],
-  //       farmData.lpTokenId
-  //     ).then((data) => {
-  //       setData(data);
-  //       setLoading(false);
-  //     });
-  //   }
-
-  //   if (data) {
-  //     setEnded(isEnded(data));
-  //     setPending(isPending(data));
-  //   }
-
-  //   const id = setInterval(() => {
-  //     setCount(count + 1);
-  //   }, refreshTime);
-  //   return () => clearInterval(id);
-  // }, [count]);
   function mergeCommonRewardFarmsFun(farmsData: FarmInfo[]) {
     const arr = JSON.parse(JSON.stringify(farmsData));
     const tempMap = {};
