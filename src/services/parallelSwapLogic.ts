@@ -179,7 +179,7 @@ export function calculateOptimalOutput(
   let normalizedDxArray = [];
   for (var i = 0; i < allocationsArray.length; i++) {
     let ndx = allocationsArray[i];
-    normalizedDxArray.push(BigInt(ndx.toFixed()));
+    normalizedDxArray.push(BigInt(ndx));
     pools[i]['partialAmountIn'] = ndx.toString();
   }
   return normalizedDxArray;
@@ -248,11 +248,14 @@ export function reducePools(
 }
 
 export function checkIntegerSumOfAllocations(
-  allocations: Big[] | string[],
-  totalInput: Big | string
+  allocations: Big[] | string[] | BigInt[],
+  totalInput: Big | string | BigInt
 ) {
   var totalInput = new Big(totalInput);
-  var allocations: Big[] | string[] = allocations.map((item: Big | string) =>
+  var allocations:
+    | Big[]
+    | string[]
+    | BigInt[] = allocations.map((item: Big | string | BigInt) =>
     new Big(item).round()
   );
   let alloSum = allocations
