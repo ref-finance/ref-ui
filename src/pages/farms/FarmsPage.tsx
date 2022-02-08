@@ -677,19 +677,21 @@ export function FarmsPage() {
                       defaultMessage="Ended"
                     />
                   </label>
-                  <label
-                    onClick={() => changeStatus(2)}
-                    className={`flex justify-center px-5 items-center rounded-full h-full text-xs cursor-pointer ${
-                      +searchData.status == 2
-                        ? 'text-chartBg bg-farmSearch'
-                        : ''
-                    }`}
-                  >
-                    <FormattedMessage
-                      id="unclaimed"
-                      defaultMessage="Unclaimed"
-                    />
-                  </label>
+                  {
+                    wallet.isSignedIn() ? (<label
+                      onClick={() => changeStatus(2)}
+                      className={`flex justify-center px-5 items-center rounded-full h-full text-xs cursor-pointer ${
+                        +searchData.status == 2
+                          ? 'text-chartBg bg-farmSearch'
+                          : ''
+                      }`}
+                    >
+                      <FormattedMessage
+                        id="unclaimed"
+                        defaultMessage="Unclaimed"
+                      />
+                    </label>):null
+                  }
                 </div>
                 <div className="flex xs:w-full md:w-full xs:mt-4 md:mt-4">
                   {wallet.isSignedIn() ? (
