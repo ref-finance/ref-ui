@@ -238,7 +238,7 @@ export const estimateSwap = async ({
     tokenIn.id,
     tokenOut.id,
     parsedAmountIn,
-    0.001
+    0.1 //TODO -- put in the slippageTolerance value HERE!!!
   );
   console.log('FOUND SMART ROUTE ACTIONS TO BE...');
   console.log(actions);
