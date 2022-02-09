@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////
 // SMART ROUTE SWAP LOGIC
 ////////////////////////////////////////////////////////////////////////////
-
-// const { default: Big } = require('big.js');
+import { STABLE_POOL_ID, STABLE_TOKEN_IDS } from './near';
 import Big from 'big.js';
+import { checkIntegerSumOfAllocations } from './parallelSwapLogic';
 
 Big.RM = 0;
 Big.DP = 40;
@@ -614,7 +614,7 @@ function getActionListFromRoutesAndAllocations(
         allocation
       );
       let minimumAmountOut = expectedAmountOut
-        .times(new Big(1).minus(slippageTolerance))
+        .times(new Big(1).minus(new Big(slippageTolerance).div(100)))
         .round()
         .toString(); //Here, assume slippage tolerance is a fraction. So 1% would be 0.01
       let action = {
@@ -641,7 +641,7 @@ function getActionListFromRoutesAndAllocations(
         allocation
       );
       let minimumAmountOutFirstHop = expectedAmountOutFirstHop
-        .times(new Big(1).minus(slippageTolerance))
+        .times(new Big(1).minus(new Big(slippageTolerance).div(100)))
         .round()
         .toString(); //Here, assume slippage tolerance is a fraction. So 1% would be 0.01
 
@@ -659,7 +659,7 @@ function getActionListFromRoutesAndAllocations(
         minimumAmountOutFirstHop
       );
       let minimumAMountOutSecondHop = expectedFinalAmountOut
-        .times(new Big(1).minus(slippageTolerance))
+        .times(new Big(1).minus(new Big(slippageTolerance).div(100)))
         .round()
         .toString();
       let action2 = {
@@ -786,7 +786,7 @@ function distillCommonPoolActions(actions, pools, slippageTolerance) {
         inputToken,
         outputToken,
         poolTotalInput
-      ).times(new Big(1).minus(new Big(slippageTolerance)));
+      ).times(new Big(1).minus(new Big(slippageTolerance).div(100)));
       let newAction = {
         pool_id: poolId,
         token_in: inputToken,
@@ -1263,19 +1263,18 @@ function getGraphFromPoolList(poolList) {
 
 ////////////////////////////////////
 
-// TESTS
+// MAIN FUNCTION
 
 ////////////////////////////////////
 
-// check for stableswap.
-function stableSmart(inputToken, outputToken, totalInput, slippageTolerance) {
-  //   let stableCoins = [
-  //     'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
-  //     'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
-  //     '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near',
-  //   ]
-  //   NOTE -- I found that the Ref UI codebase has these as a constant already. -- STABLE_TOKEN_IDS, STABLE_POOL_ID
+// TODO -- incorporate the following integrated function, which tries to
+// account for stablecoins within the context of smart routing.
 
+//TODO -- need the right API / hooks for GETSTABLESWAPACTION function and GETPARALLELSWAPACTIONS functions.
+
+//TODO -- transform the actions generated in this function into tranaction to execute.
+
+function stableSmart(inputToken, outputToken, totalInput, slippageTolerance) {
   if (
     STABLE_TOKEN_IDS.includes(inputToken) &&
     STABLE_TOKEN_IDS.includes(outputToken)
@@ -1329,7 +1328,7 @@ function stableSmart(inputToken, outputToken, totalInput, slippageTolerance) {
       let middleTokenAmount = firstAction.min_amount_out;
       //scale to get minimum_amount_out
       let minMiddleTokenAmount = new Big(middleTokenAmount)
-        .times(new Big(1).minus(slippageTolerance))
+        .times(new Big(1).minus(new Big(slippageTolerance).div(100)))
         .round()
         .toString();
 
@@ -1453,17 +1452,5 @@ function getExpectedOutputFromActions(actions, outputToken) {
     .map((item) => new Big(item.min_amount_out))
     .reduce((a, b) => a.plus(b), new Big(0));
 }
-
-// let stable1 = 'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near'
-// let stable2 = 'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near'
-// let stable3 = '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near'
-
-// stableSmart(stable1, stable2)
-// stableSmart(stable1, stable3)
-// stableSmart(stable2, stable3)
-
-// stableSmart(stable1, 'wrap.near')
-// stableSmart('wrap.near', stable2)
-// stableSmart('wrap.near', 'dbio.near')
 
 //module.exports = { getSmartRouteSwapActions };
