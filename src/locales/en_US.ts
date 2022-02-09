@@ -332,5 +332,12 @@ const en_US = {
   withdraw_l: 'withdraw',
   got_it: 'Got it',
   check_the_transaction_settings: 'Check the transaction settings',
+  filter_by: 'Filter by',
+  allOption: 'All',
+  stablecoin: 'Stablecoin',
+  near_ecosystem: 'Near ecosystem',
+  bridged_tokens: 'Bridged tokens',
+  gaming: 'Gaming',
+  nft: 'NFT',
 };
 export default en_US;

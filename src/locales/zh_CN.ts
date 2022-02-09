@@ -320,5 +320,12 @@ const zh_CN = {
   withdraw_l: '提取',
   got_it: '知道了',
   check_the_transaction_settings: '查看交易设置',
+  filter_by: '过滤',
+  allOption: '全部',
+  stablecoin: '稳定币',
+  near_ecosystem: 'Near生态',
+  bridged_tokens: '桥接代币',
+  gaming: '游戏',
+  nft: 'NFT',
 };
 export default zh_CN;

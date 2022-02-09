@@ -34,6 +34,8 @@ import {
   DEFAULT_PAGE_LIMIT,
   claimRewardBySeed,
   getAllSinglePriceByTokenIds,
+  classificationOfCoins,
+  classificationOfCoins_key,
 } from '~services/farm';
 import {
   stake,
@@ -83,6 +85,7 @@ interface SearchData {
   sort: string;
   sortBoxHidden: boolean;
   stable: boolean;
+  coin: string;
 }
 
 export function FarmsPage() {
@@ -92,6 +95,11 @@ export function FarmsPage() {
     new: intl.formatMessage({ id: 'new' }),
     total_staked: intl.formatMessage({ id: 'total_staked' }),
   };
+  const filterList = { all: intl.formatMessage({ id: 'allOption' }) };
+  classificationOfCoins_key.forEach((key) => {
+    filterList[key] = intl.formatMessage({ id: key });
+  });
+  const [sortSelectId, setSortSelectId] = useState('new');
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
   const [farms, setFarms] = useState<FarmInfo[]>([]);
   const [error, setError] = useState<Error>();
@@ -110,6 +118,7 @@ export function FarmsPage() {
       ? !!+localStorage.getItem('farmStakedOnly')
       : false,
     sort: 'apr',
+    coin: 'all',
     stable: !!+localStorage.getItem('farmStableOnly'),
     sortBoxHidden: true,
   });
@@ -118,8 +127,6 @@ export function FarmsPage() {
   const [lps, setLps] = useState<Record<string, FarmInfo[]>>({});
   const [checkedList, setCheckedList] = useState<Record<string, any>>({});
   const [selectAll, setSelectAll] = useState(false);
-  const sortRef = useRef(null);
-  const sortBoxRef = useRef(null);
   const rewardRef = useRef(null);
 
   const page = 1;
@@ -142,14 +149,6 @@ export function FarmsPage() {
       clearInterval(intervalId);
     };
   }, [count]);
-
-  useEffect(() => {
-    document.addEventListener('click', handleClick, false);
-    return () => {
-      document.removeEventListener('click', handleClick, false);
-    };
-  }, [searchData]);
-
   async function loadFarmInfoList(isUpload?: boolean) {
     if (isUpload) {
       setUnclaimedFarmsIsLoading(false);
@@ -304,27 +303,19 @@ export function FarmsPage() {
       setYourReward(totalUnWithDrawV);
     }
   }
-  const handleClick = (e: any) => {
-    if (
-      sortRef.current &&
-      !sortRef.current.contains(e.target) &&
-      !sortBoxRef.current.contains(e.target)
-    ) {
-      searchData.sortBoxHidden = true;
-      setSearchData(Object.assign({}, searchData));
-    }
-  };
   function searchByCondition(list?: any) {
-    const { status, staked, sort, stable } = searchData;
+    // todo
+    const { status, staked, sort, stable, coin } = searchData;
     let listAll = list || farms;
     listAll.forEach((item: any) => {
-      const { userStaked, lpTokenId, userUnclaimedReward } = item[0];
+      const { userStaked, lpTokenId, userUnclaimedReward, pool } = item[0];
       const isEnd = isEnded(item);
       const useStaked = Number(userStaked) > 0;
-      const isStableFarm = lpTokenId == STABLE_POOL_ID;
+      // const isStableFarm = lpTokenId == STABLE_POOL_ID;
+      const { token_symbols, token_account_ids } = pool;
       let condition1,
         condition2 = true,
-        condition3 = true;
+        condition3 = false;
       if (+status == 2) {
         // 0:ended,1:live,2:Unclaimed
         condition1 = Number(userUnclaimedReward) > 0;
@@ -336,8 +327,16 @@ export function FarmsPage() {
       if (staked) {
         condition2 = useStaked;
       }
-      if (stable) {
-        condition3 = isStableFarm;
+      if (coin != 'all') {
+        const satisfiedTokenList = classificationOfCoins[coin];
+        for (let i = 0; i < token_symbols.length; i++) {
+          if (satisfiedTokenList.indexOf(token_symbols[i]) > -1) {
+            condition3 = true;
+            break;
+          }
+        }
+      } else {
+        condition3 = true;
       }
       if (condition1 && condition2 && condition3) {
         item.show = true;
@@ -391,16 +390,6 @@ export function FarmsPage() {
       }
     }
     return ended;
-  }
-  function showSortBox() {
-    searchData.sortBoxHidden = !searchData.sortBoxHidden;
-    setSearchData(Object.assign({}, searchData));
-  }
-  function changeSortV(e: any) {
-    searchData.sortBoxHidden = !searchData.sortBoxHidden;
-    searchData.sort = e.target.dataset.id;
-    setSearchData(Object.assign({}, searchData));
-    searchByCondition();
   }
   function changeStatus(status: number) {
     searchData.status = status;
@@ -494,6 +483,18 @@ export function FarmsPage() {
     let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
   }
+  const changeSortOption = (option: any) => {
+    const [id] = option;
+    searchData.sort = id;
+    setSearchData(Object.assign({}, searchData));
+    searchByCondition();
+  };
+  const changeCoinOption = (option: any) => {
+    const [id] = option;
+    searchData.coin = id;
+    setSearchData(Object.assign({}, searchData));
+    searchByCondition();
+  };
   return (
     <div className="xs:w-full md:w-full xs:mt-4 md:mt-4">
       <div className="w-1/3 xs:w-full md:w-full flex m-auto justify-center">
@@ -642,11 +643,11 @@ export function FarmsPage() {
         <div className="flex flex-col pl-5 pr-8 xs:px-5 md:px-5 xs:mt-8 md:mt-8">
           <div className="xs:w-full md:w-full">
             {unclaimedFarmsIsLoading ? null : (
-              <div className="flex items-center self-end xs:flex-col md:flex-col mb-3">
-                <div className="flex items-center text-farmText rounded-full h-5 bg-farmSbg lg:mr-4">
+              <div className="flex items-center justify-between xs:flex-col md:flex-col mb-3">
+                <div className="flex items-center text-farmText rounded-full h-6 bg-farmSbg lg:mr-4">
                   <label
                     onClick={() => changeStatus(1)}
-                    className={`flex justify-center px-5 items-center rounded-full h-full text-xs cursor-pointer ${
+                    className={`flex justify-center w-28 items-center rounded-full h-full text-sm cursor-pointer ${
                       +searchData.status == 1
                         ? 'text-chartBg bg-farmSearch'
                         : ''
@@ -656,7 +657,7 @@ export function FarmsPage() {
                   </label>
                   <label
                     onClick={() => changeStatus(0)}
-                    className={`flex justify-center px-5 items-center rounded-full h-full text-xs cursor-pointer ${
+                    className={`flex justify-center w-28 items-center rounded-full h-full text-sm cursor-pointer ${
                       +searchData.status == 0
                         ? 'text-chartBg bg-farmSearch'
                         : ''
@@ -670,7 +671,7 @@ export function FarmsPage() {
                   {wallet.isSignedIn() ? (
                     <label
                       onClick={() => changeStatus(2)}
-                      className={`flex justify-center px-5 items-center rounded-full h-full text-xs cursor-pointer ${
+                      className={`flex justify-center  w-28 items-center rounded-full h-full text-sm cursor-pointer ${
                         +searchData.status == 2
                           ? 'text-chartBg bg-farmSearch'
                           : ''
@@ -706,61 +707,30 @@ export function FarmsPage() {
                       </div>
                     </div>
                   ) : null}
-                  <div className="flex items-center mr-4 xs:mr-3 md:mr-3">
-                    <label className="text-farmText text-xs">
+                  <div className="flex items-center relative mr-4 xs:mr-3 md:mr-3">
+                    <label className="text-farmText text-xs mr-2.5 xs:hidden md:hidden">
                       <FormattedMessage
-                        id="stablecoin_only"
-                        defaultMessage="Stablecoin Only"
+                        id="filter_by"
+                        defaultMessage="Filter by"
                       />
                     </label>
-                    <div
-                      onClick={changeStable}
-                      className={`flex items-center w-11 h-5 bg-cardBg rounded-full px-1  ml-2.5 box-border cursor-pointer ${
-                        searchData.stable ? 'justify-end' : ''
-                      }`}
-                    >
-                      <a
-                        className={`h-5 w-5 rounded-full ${
-                          searchData.stable ? 'bg-farmSearch' : 'bg-farmRound'
-                        }`}
-                      ></a>
-                    </div>
+                    <SelectUi
+                      id={searchData.coin}
+                      list={filterList}
+                      onChange={changeCoinOption}
+                      className="w-36"
+                    ></SelectUi>
                   </div>
                   <div className="flex items-center relative">
                     <label className="text-farmText text-xs mr-2.5 xs:hidden md:hidden">
                       <FormattedMessage id="sort_by" defaultMessage="Sort by" />
                     </label>
-                    <span
-                      ref={sortRef}
-                      onClick={showSortBox}
-                      className="flex items-center justify-between w-32 h-5 xs:w-8 md:w-8 rounded-full px-3 box-border border border-farmText cursor-pointer text-xs text-gray-200"
-                    >
-                      <label className="whitespace-nowrap xs:hidden md:hidden">
-                        {sortList[searchData.sort]}
-                      </label>
-                      <ArrowDown></ArrowDown>
-                    </span>
-                    <div
-                      ref={sortBoxRef}
-                      className={`absolute z-50 top-8 left-14 xs:left-auto xs:right-0 md:left-auto md:right-0 w-36 border border-farmText bg-cardBg rounded-md ${
-                        searchData.sortBoxHidden ? 'hidden' : ''
-                      }`}
-                    >
-                      {Object.entries(sortList).map((item) => (
-                        <p
-                          key={item[0]}
-                          onClick={changeSortV}
-                          data-id={item[0]}
-                          className={`flex items-center p-4 text-xs h-5 text-white text-opacity-40 my-2 cursor-pointer hover:bg-white hover:bg-opacity-10 hover:text-opacity-100 ${
-                            item[0] == searchData.sort
-                              ? 'bg-white bg-opacity-10 text-opacity-100'
-                              : ''
-                          }`}
-                        >
-                          {item[1]}
-                        </p>
-                      ))}
-                    </div>
+                    <SelectUi
+                      id={searchData.sort}
+                      list={sortList}
+                      onChange={changeSortOption}
+                      shrink={isMobile() ? true : false}
+                    ></SelectUi>
                   </div>
                 </div>
               </div>
@@ -795,6 +765,65 @@ export function FarmsPage() {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function SelectUi(props: any) {
+  const { id, onChange, list, className, shrink } = props;
+  const [showSelectBox, setShowSelectBox] = useState(false);
+  const switchSelectBoxStatus = () => {
+    setShowSelectBox(!showSelectBox);
+  };
+  const hideSelectBox = () => {
+    setShowSelectBox(false);
+  };
+  return (
+    <div
+      className={
+        `relative flex flex-col ${
+          shrink ? 'items-end' : 'items-center w-32'
+        } ` + className
+      }
+    >
+      <span
+        onClick={switchSelectBoxStatus}
+        tabIndex={-1}
+        onBlur={hideSelectBox}
+        className={`flex items-center justify-between w-full h-5 rounded-full px-3 box-border border cursor-pointer text-xs ${
+          shrink ? 'xs:w-8 md:w-8' : ''
+        } ${
+          showSelectBox
+            ? 'border-greenColor text-white'
+            : 'border-farmText text-farmText'
+        }`}
+      >
+        <label
+          className={`whitespace-nowrap ${shrink ? 'xs:hidden md:hidden' : ''}`}
+        >
+          {list[id]}
+        </label>
+        <ArrowDown></ArrowDown>
+      </span>
+      <div
+        className={`absolute z-50 top-8 xs:right-0 md:right-0 border border-farmText bg-cardBg rounded-md ${
+          shrink ? 'w-32' : 'w-full'
+        } ${showSelectBox ? '' : 'hidden'}`}
+      >
+        {Object.entries(list).map((item: any, index) => (
+          <p
+            key={item[0] + item[1]}
+            onMouseDown={() => {
+              onChange(item);
+            }}
+            className={`flex items-center p-4 text-xs h-5 text-white text-opacity-40 my-2 cursor-pointer hover:bg-white hover:bg-opacity-10 hover:text-opacity-100 ${
+              item[0] == id ? 'bg-white bg-opacity-10 text-opacity-100' : ''
+            }`}
+          >
+            {item[1]}
+          </p>
+        ))}
       </div>
     </div>
   );

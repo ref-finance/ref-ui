@@ -439,3 +439,17 @@ export const claimAndWithDrawReward = async (
   }
   return executeFarmMultipleTransactions(transactions);
 };
+export const classificationOfCoins = {
+  stablecoin: ['USDT', 'USDC', 'DAI'],
+  near_ecosystem: ['REF'],
+  bridged_tokens: [''],
+  gaming: ['PXT'],
+  nft: ['PARAS'],
+};
+export const classificationOfCoins_key = [
+  'stablecoin',
+  'near_ecosystem',
+  'bridged_tokens',
+  'gaming',
+  'nft',
+];
