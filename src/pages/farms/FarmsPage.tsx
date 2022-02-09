@@ -225,7 +225,7 @@ export function FarmsPage() {
       });
       tempFarms.forEach((arr: any) => {
         const totalApr = getTotalApr(arr);
-        arr.totalApr = new BigNumber(totalApr);
+        arr.totalApr = totalApr;
       });
       return tempFarms;
     };
@@ -362,21 +362,11 @@ export function FarmsPage() {
     }
     if (sort == 'apr') {
       listAll.sort((item1: any, item2: any) => {
-        if (item1.totalApr.isGreaterThan(item2.totalApr)) {
-          return -1;
-        } else {
-          return 1;
-        }
+        return Number(item2.totalApr) - Number(item1.totalApr);
       });
     } else if (sort == 'total_staked') {
       listAll.sort((item1: any, item2: any) => {
-        const big1 = new BigNumber(item1[0].totalStaked);
-        const big2 = new BigNumber(item2[0].totalStaked);
-        if (big1.isGreaterThan(big2)) {
-          return -1;
-        } else {
-          return 1;
-        }
+        return Number(item2[0].totalStaked) - Number(item1[0].totalStaked);
       });
     }
     setFarms(listAll);
@@ -677,8 +667,8 @@ export function FarmsPage() {
                       defaultMessage="Ended"
                     />
                   </label>
-                  {
-                    wallet.isSignedIn() ? (<label
+                  {wallet.isSignedIn() ? (
+                    <label
                       onClick={() => changeStatus(2)}
                       className={`flex justify-center px-5 items-center rounded-full h-full text-xs cursor-pointer ${
                         +searchData.status == 2
@@ -690,8 +680,8 @@ export function FarmsPage() {
                         id="unclaimed"
                         defaultMessage="Unclaimed"
                       />
-                    </label>):null
-                  }
+                    </label>
+                  ) : null}
                 </div>
                 <div className="flex xs:w-full md:w-full xs:mt-4 md:mt-4">
                   {wallet.isSignedIn() ? (
