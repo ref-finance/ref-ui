@@ -14,6 +14,12 @@ import {
   IconPools,
   IconRainbow,
   IconZh,
+  IconBridge,
+  IconEthereum,
+  IconAurora,
+  IconSolana,
+  IconTerra,
+  IconCelo,
 } from '~components/icon/Nav';
 import { XrefIcon } from '~components/icon/Xref';
 
@@ -38,14 +44,53 @@ export const useMenuItems = () => {
       logo: <IconAirDrop />,
     },
     {
-      label: (
-        <FormattedMessage id="rainbow_bridge" defaultMessage="RainBow Bridge" />
-      ),
-      url: 'https://rainbowbridge.app/transfer',
-      icon: <HiOutlineExternalLink />,
-      isExternal: true,
+      label: intl.formatMessage({ id: 'bridge' }),
+      url: '',
       id: 2,
-      logo: <IconRainbow />,
+      isExternal: false,
+      logo: <IconBridge />,
+      children: [
+        {
+          label: intl.formatMessage({ id: 'from_ethereum' }),
+          url: 'https://rainbowbridge.app/transfer',
+          isExternal: true,
+          icon: <HiOutlineExternalLink />,
+          id: '2-1',
+          logo: <IconEthereum />,
+        },
+        {
+          label: intl.formatMessage({ id: 'from_aurora' }),
+          url: 'https://rainbowbridge.app/transfer',
+          isExternal: true,
+          icon: <HiOutlineExternalLink />,
+          id: '2-2',
+          logo: <IconAurora />,
+        },
+        {
+          label: intl.formatMessage({ id: 'from_solana' }),
+          url: 'https://app.allbridge.io/bridge',
+          isExternal: true,
+          icon: <HiOutlineExternalLink />,
+          id: '2-3',
+          logo: <IconSolana />,
+        },
+        {
+          label: intl.formatMessage({ id: 'from_terra' }),
+          url: 'https://app.allbridge.io/bridge',
+          isExternal: true,
+          icon: <HiOutlineExternalLink />,
+          id: '2-4',
+          logo: <IconTerra />,
+        },
+        {
+          label: intl.formatMessage({ id: 'from_celo' }),
+          url: 'https://app.allbridge.io/bridge',
+          isExternal: true,
+          icon: <HiOutlineExternalLink />,
+          id: '2-5',
+          logo: <IconCelo />,
+        },
+      ],
     },
     {
       label: intl.formatMessage({ id: 'docs' }),
@@ -150,15 +195,7 @@ export type MobileMenuItem = {
   showIcon?: boolean;
   iconElement?: ReactNode;
 };
-
 export const moreLinks: MobileMenuItem[] = [
-  // {
-  //   id: 'Deposit',
-  //   label: 'Deposit',
-  //   pattern: '/deposit/:id?',
-  //   url: '/deposit',
-  //   isExternal: false,
-  // },
   {
     id: 'Swap',
     label: 'Swap',
@@ -223,6 +260,49 @@ export const moreLinks: MobileMenuItem[] = [
     isExternal: false,
   },
   {
+    id: 'bridge',
+    label: 'bridge',
+    url: '',
+    isExternal: false,
+    children: [
+      {
+        id: 'from_ethereum',
+        label: 'From Ethereum',
+        url: 'https://rainbowbridge.app/transfer',
+        isExternal: true,
+        logo: <IconEthereum />,
+      },
+      {
+        id: 'from_aurora',
+        label: 'From Aurora',
+        url: 'https://rainbowbridge.app/transfer',
+        isExternal: true,
+        logo: <IconAurora />,
+      },
+      {
+        id: 'from_solana',
+        label: 'From Solana',
+        url: 'https://app.allbridge.io/bridge',
+        isExternal: true,
+        logo: <IconSolana />,
+      },
+      {
+        id: 'from_terra',
+        label: 'From Terra',
+        url: 'https://app.allbridge.io/bridgef',
+        isExternal: true,
+        logo: <IconTerra />,
+      },
+      {
+        id: 'from_celo',
+        label: 'From Celo',
+        url: 'https://app.allbridge.io/bridge',
+        isExternal: true,
+        logo: <IconCelo />,
+      },
+    ],
+  },
+  {
     id: 'more',
     label: 'More',
     url: '',
@@ -236,13 +316,6 @@ export const moreLinks: MobileMenuItem[] = [
         pattern: '/airdrop',
         isExternal: false,
         logo: <IconAirDrop />,
-      },
-      {
-        id: 'rainbow_bridge',
-        label: 'RainBow Bridge',
-        url: 'https://rainbowbridge.app/transfer',
-        isExternal: true,
-        logo: <IconRainbow />,
       },
       {
         id: 'docs',
@@ -296,25 +369,4 @@ export const moreLinks: MobileMenuItem[] = [
       },
     ],
   },
-  // {
-  //   id: 'Quiz',
-  //   label: 'Quiz',
-  //   url: '',
-  //   isExternal: true,
-  //   children: [
-  //     // {
-  //     //   id: 'New_ui',
-  //     //   label: 'New UI',
-  //     //   url: 'https://mzko2gfnij6.typeform.com/to/N6jSxnym',
-  //     //   isExternal: true,
-  //     //   tip: 'Hot',
-  //     // },
-  //     {
-  //       id: 'Risk',
-  //       label: 'Risk',
-  //       url: 'https://form.typeform.com/to/EPmUetxU',
-  //       isExternal: true,
-  //     },
-  //   ],
-  // },
 ];
