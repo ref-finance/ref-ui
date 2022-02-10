@@ -22,7 +22,7 @@ import {
 import Loading from '~components/layout/Loading';
 import { useTokens } from '../../state/token';
 import { Link } from 'react-router-dom';
-import { canFarm, Pool } from '../../services/pool';
+import { canFarm, Pool, isNotStablePool } from '../../services/pool';
 import {
   calculateFeePercent,
   toPrecision,
@@ -54,6 +54,79 @@ import { QuestionTip } from '~components/layout/TipWrapper';
 import { FilterIcon } from '../../components/icon/PoolFilter';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
+
+function SelectUi({
+  onChange,
+  list,
+  curvalue,
+  shrink,
+  className,
+}: {
+  onChange: (e: any) => void;
+  list: any;
+  curvalue: string;
+  shrink?: string;
+  className?: string;
+}) {
+  const [showSelectBox, setShowSelectBox] = useState(false);
+  const switchSelectBoxStatus = () => {
+    setShowSelectBox(!showSelectBox);
+  };
+  const hideSelectBox = () => {
+    setShowSelectBox(false);
+  };
+  return (
+    <div
+      className={`relative flex ${
+        shrink ? 'items-end' : 'items-center '
+      } lg:mr-4`}
+    >
+      <span className="lg:hidden mr-4">
+        <FilterIcon onShow={showSelectBox} />
+      </span>
+      <span className="text-farmText text-xs mr-2.5 xs:hidden md:hidden">
+        <FormattedMessage id="filter_by" defaultMessage="Filter by" />
+      </span>
+
+      <span
+        onClick={switchSelectBoxStatus}
+        tabIndex={-1}
+        onBlur={hideSelectBox}
+        className={`flex items-center justify-between w-36 h-5 rounded-full px-3 box-border border cursor-pointer text-xs ${
+          shrink ? 'xs:w-8 md:w-8' : ''
+        } ${
+          showSelectBox
+            ? 'border-greenColor text-white'
+            : 'border-farmText text-farmText'
+        }`}
+      >
+        <label
+          className={`whitespace-nowrap ${shrink ? 'xs:hidden md:hidden' : ''}`}
+        >
+          {curvalue ? list[curvalue] : null}
+        </label>
+        <ArrowDownLarge />
+      </span>
+      <div
+        className={`absolute z-50 top-8 xs:right-0 md:right-0 border border-farmText bg-cardBg rounded-md ${
+          shrink ? 'w-32' : 'w-full'
+        } ${showSelectBox ? '' : 'hidden'}`}
+      >
+        {Object.entries(list).map((item: any, index) => (
+          <p
+            key={item[0] + item[1]}
+            onMouseDown={() => {
+              onChange(item[0]);
+            }}
+            className={`flex items-center p-4 text-xs h-5 text-white text-opacity-40 my-2 cursor-pointer hover:bg-white hover:bg-opacity-10 hover:text-opacity-100`}
+          >
+            {item[1]}
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function MobilePoolRow({
   pool,
@@ -286,74 +359,6 @@ function MobileLiquidityPage({
 
   const [selectCoinClass, setSelectCoinClass] = useState<string>('all');
 
-  function SelectUi(props: any) {
-    const { className, shrink } = props;
-
-    const [showSelectBox, setShowSelectBox] = useState(false);
-    const switchSelectBoxStatus = () => {
-      setShowSelectBox(!showSelectBox);
-    };
-    const hideSelectBox = () => {
-      setShowSelectBox(false);
-    };
-    return (
-      <div
-        className={
-          `relative flex flex-col ${
-            shrink ? 'items-end' : 'items-center w-36'
-          } ` + className
-        }
-      >
-        <div
-          className="absolute top-1"
-          style={{
-            right: '152px',
-          }}
-        >
-          <FilterIcon onShow={showSelectBox} />
-        </div>
-        <span
-          onClick={switchSelectBoxStatus}
-          tabIndex={-1}
-          onBlur={hideSelectBox}
-          className={`flex items-center justify-between w-full h-5 rounded-full px-3 box-border border cursor-pointer text-xs ${
-            shrink ? 'xs:w-8 md:w-8' : ''
-          } ${
-            showSelectBox
-              ? 'border-greenColor text-white'
-              : 'border-farmText text-farmText'
-          }`}
-        >
-          <label
-            className={`whitespace-nowrap ${
-              shrink ? 'xs:hidden md:hidden' : ''
-            }`}
-          >
-            {selectCoinClass ? filterList[selectCoinClass] : null}
-          </label>
-          <ArrowDownLarge />
-        </span>
-        <div
-          className={`absolute z-50 top-8 xs:right-0 md:right-0 border border-farmText bg-cardBg rounded-md ${
-            shrink ? 'w-32' : 'w-full'
-          } ${showSelectBox ? '' : 'hidden'}`}
-        >
-          {Object.entries(filterList).map((item: any, index) => (
-            <p
-              key={item[0] + item[1]}
-              onMouseDown={() => {
-                setSelectCoinClass(item[0]);
-              }}
-              className={`flex items-center p-4 text-xs h-5 text-white text-opacity-40 my-2 cursor-pointer hover:bg-white hover:bg-opacity-10 hover:text-opacity-100`}
-            >
-              {item[1]}
-            </p>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
       <div className="mx-4 mb-6 mt-3">
@@ -412,7 +417,11 @@ function MobileLiquidityPage({
             </div>
           </div>
 
-          <SelectUi filterList={filterList} />
+          <SelectUi
+            list={filterList}
+            onChange={setSelectCoinClass}
+            curvalue={selectCoinClass}
+          />
         </div>
 
         <section className="w-full">
@@ -479,7 +488,15 @@ function MobileLiquidityPage({
   );
 }
 
-function PoolRow({ pool, index }: { pool: Pool; index: number }) {
+function PoolRow({
+  pool,
+  index,
+  selectCoinClass,
+}: {
+  pool: Pool;
+  index: number;
+  selectCoinClass?: string;
+}) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const [farmCount, setFarmCount] = useState<Number>(1);
   const tokens = useTokens(pool.tokenIds);
@@ -494,7 +511,15 @@ function PoolRow({ pool, index }: { pool: Pool; index: number }) {
       setFarmCount(canFarm);
     });
   }, [pool]);
-  if (!tokens) return <></>;
+  if (
+    !tokens ||
+    (selectCoinClass &&
+      selectCoinClass !== 'all' &&
+      !tokens.some((tk) =>
+        classificationOfCoins[selectCoinClass].includes(tk.symbol)
+      ))
+  )
+    return <></>;
 
   tokens.sort((a, b) => {
     if (a.symbol === 'wNEAR') return 1;
@@ -650,6 +675,11 @@ function LiquidityPage_({
 }) {
   const intl = useIntl();
   const inputRef = useRef(null);
+  const filterList = { all: intl.formatMessage({ id: 'allOption' }) };
+  classificationOfCoins_key.forEach((key) => {
+    filterList[key] = intl.formatMessage({ id: key });
+  });
+  const [selectCoinClass, setSelectCoinClass] = useState<string>('all');
 
   return (
     <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
@@ -681,6 +711,14 @@ function LiquidityPage_({
             </div>
           </div>
           <div className="flex items-center w-3/7">
+            <div className="flex items-center">
+              <SelectUi
+                list={filterList}
+                onChange={setSelectCoinClass}
+                curvalue={selectCoinClass}
+              />
+            </div>
+
             <div
               className="flex items-center mr-10 cursor-pointer"
               onClick={() => {
@@ -795,7 +833,11 @@ function LiquidityPage_({
                 className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20"
                 key={i}
               >
-                <PoolRow pool={pool} index={i + 1} />
+                <PoolRow
+                  pool={pool}
+                  index={i + 1}
+                  selectCoinClass={selectCoinClass}
+                />
               </div>
             ))}
           </div>
