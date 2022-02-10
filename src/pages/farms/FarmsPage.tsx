@@ -304,11 +304,11 @@ export function FarmsPage() {
     }
   }
   function searchByCondition(list?: any) {
-    // todo
+    // TODO
     const { status, staked, sort, stable, coin } = searchData;
     let listAll = list || farms;
     listAll.forEach((item: any) => {
-      const { userStaked, lpTokenId, userUnclaimedReward, pool } = item[0];
+      const { userStaked, lpTokenId, pool } = item[0];
       const isEnd = isEnded(item);
       const useStaked = Number(userStaked) > 0;
       // const isStableFarm = lpTokenId == STABLE_POOL_ID;
@@ -318,7 +318,11 @@ export function FarmsPage() {
         condition3 = false;
       if (+status == 2) {
         // 0:ended,1:live,2:Unclaimed
-        condition1 = Number(userUnclaimedReward) > 0;
+        let total_userUnclaimedReward = 0;
+        item.forEach((farm: any) => {
+          total_userUnclaimedReward += Number(farm.userUnclaimedReward);
+        });
+        condition1 = Number(total_userUnclaimedReward) > 0;
       } else if (+status == 0) {
         condition1 = isEnd;
       } else if (+status == 1) {
