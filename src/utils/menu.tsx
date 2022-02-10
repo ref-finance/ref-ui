@@ -68,7 +68,7 @@ export const useMenuItems = () => {
         },
         {
           label: intl.formatMessage({ id: 'from_solana' }),
-          url: 'https://app.allbridge.io/bridge',
+          url: 'https://app.allbridge.io/bridge?from=SOL&to=NEAR&asset=ABR',
           isExternal: true,
           icon: <HiOutlineExternalLink />,
           id: '2-3',
@@ -76,7 +76,7 @@ export const useMenuItems = () => {
         },
         {
           label: intl.formatMessage({ id: 'from_terra' }),
-          url: 'https://app.allbridge.io/bridge',
+          url: 'https://app.allbridge.io/bridge?from=TRA&to=NEAR&asset=ABR',
           isExternal: true,
           icon: <HiOutlineExternalLink />,
           id: '2-4',
@@ -84,7 +84,7 @@ export const useMenuItems = () => {
         },
         {
           label: intl.formatMessage({ id: 'from_celo' }),
-          url: 'https://app.allbridge.io/bridge',
+          url: 'https://app.allbridge.io/bridge?from=CELO&to=NEAR&asset=ABR',
           isExternal: true,
           icon: <HiOutlineExternalLink />,
           id: '2-5',
@@ -282,21 +282,21 @@ export const moreLinks: MobileMenuItem[] = [
       {
         id: 'from_solana',
         label: 'From Solana',
-        url: 'https://app.allbridge.io/bridge',
+        url: 'https://app.allbridge.io/bridge?from=SOL&to=NEAR&asset=ABR',
         isExternal: true,
         logo: <IconSolana />,
       },
       {
         id: 'from_terra',
         label: 'From Terra',
-        url: 'https://app.allbridge.io/bridgef',
+        url: 'https://app.allbridge.io/bridge?from=TRA&to=NEAR&asset=ABR',
         isExternal: true,
         logo: <IconTerra />,
       },
       {
         id: 'from_celo',
         label: 'From Celo',
-        url: 'https://app.allbridge.io/bridge',
+        url: 'https://app.allbridge.io/bridge?from=CELO&to=NEAR&asset=ABR',
         isExternal: true,
         logo: <IconCelo />,
       },
