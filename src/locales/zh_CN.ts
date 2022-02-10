@@ -327,5 +327,11 @@ const zh_CN = {
   bridged_tokens: '桥接代币',
   gaming: '游戏',
   nft: 'NFT',
+  bridge: '桥接 到/来自',
+  from_ethereum: 'Ethereum',
+  from_aurora: 'Aurora',
+  from_solana: 'Solana',
+  from_terra: 'Terra',
+  from_celo: 'Celo',
 };
 export default zh_CN;

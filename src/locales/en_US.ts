@@ -339,5 +339,11 @@ const en_US = {
   bridged_tokens: 'Bridged tokens',
   gaming: 'Gaming',
   nft: 'NFT',
+  bridge: 'Bridge to/from',
+  from_ethereum: 'Ethereum',
+  from_aurora: 'Aurora',
+  from_solana: 'Solana',
+  from_terra: 'Terra',
+  from_celo: 'Celo',
 };
 export default en_US;
