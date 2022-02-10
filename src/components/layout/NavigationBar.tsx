@@ -527,7 +527,7 @@ function MoreMenu() {
                      ? 'bg-navHighLightBg text-white'
                      : 'text-primaryText'
                  }
-                 cursor-pointer py-4 pl-7 ${parentLabel ? 'pl-16' : ''}`}
+                 cursor-pointer py-4 pl-7 ${parentLabel ? 'pl-14' : ''}`}
                   onClick={() =>
                     handleMoreMenuClick(
                       url,
@@ -539,7 +539,11 @@ function MoreMenu() {
                   }
                 >
                   {logo && (
-                    <span className={`text-xl w-9 text-left`}>{logo}</span>
+                    <span
+                      className={`text-xl w-8 text-left flex justify-center mr-2`}
+                    >
+                      {logo}
+                    </span>
                   )}
                   {label}
                   <span className="ml-4 text-xl">{icon}</span>
