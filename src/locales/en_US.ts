@@ -185,7 +185,7 @@ const en_US = {
   more_pools: 'More pools',
   my_watchlist: 'My Watchlist',
   h24_volume: '24h volume',
-  hide_low_tvl_pools: 'Hide low TVL pools',
+  hide_low_tvl_pools: 'Hide low TVL',
   watchlist_title: 'My watchlist on the top',
   add_watchlist: 'Add Watchlist',
   remove_watchlist: 'Remove Watchlist',

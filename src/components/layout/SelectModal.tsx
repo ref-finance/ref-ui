@@ -14,7 +14,7 @@ export const SelectModal = ({
   return (
     <Card
       width="w-36 absolute"
-      className={`rounded border border-gray-400 flex text-sm flex-col items-start ${className}`}
+      className={`rounded border border-farmText flex text-xs text-white text-opacity-40 flex-col items-start ${className}`}
       padding="py-1 px-0"
     >
       <div
@@ -24,7 +24,7 @@ export const SelectModal = ({
         }}
       />
       <div
-        className="py-2 px-2 w-full hover:bg-poolRowHover hover:text-white rounded-lg hover:opacity-80 z-30"
+        className="py-2 px-2 w-full hover:bg-poolRowHover  rounded-lg hover:opacity-80 z-30"
         onClick={() => {
           onSortChange('tvl');
           setShowModal(false);
@@ -33,7 +33,7 @@ export const SelectModal = ({
         <FormattedMessage id="tvl" defaultMessage="TVL" />
       </div>
       <div
-        className="py-2 px-2   w-full hover:bg-poolRowHover hover:text-white rounded-lg hover:opacity-80 z-30"
+        className="py-2 px-2   w-full hover:bg-poolRowHover  rounded-lg hover:opacity-80 z-30"
         onClick={() => {
           onSortChange('fee');
           setShowModal(false);

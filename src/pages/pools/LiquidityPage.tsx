@@ -2,6 +2,12 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 import ReactTooltip from 'react-tooltip';
 import InfiniteScroll from 'react-infinite-scroll-component';
+
+import {
+  classificationOfCoins_key,
+  classificationOfCoins,
+} from '~services/farm';
+import { ArrowDown, ArrowDownLarge } from '~components/icon';
 import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
 import { find, values } from 'lodash';
@@ -45,6 +51,7 @@ import _, { orderBy, sortBy, filter } from 'lodash';
 import QuestionMark from '~components/farm/QuestionMark';
 import { useInView } from 'react-intersection-observer';
 import { QuestionTip } from '~components/layout/TipWrapper';
+import { FilterIcon } from '../../components/icon/PoolFilter';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -52,10 +59,12 @@ function MobilePoolRow({
   pool,
   sortBy,
   watched,
+  selectCoinClass,
 }: {
   pool: Pool;
   sortBy: string;
   watched: Boolean;
+  selectCoinClass?: string;
 }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const { ref, inView } = useInView();
@@ -69,7 +78,15 @@ function MobilePoolRow({
     });
   }, [pool]);
 
-  if (!tokens) return <></>;
+  if (
+    !tokens ||
+    (selectCoinClass &&
+      selectCoinClass !== 'all' &&
+      !tokens.some((tk) =>
+        classificationOfCoins[selectCoinClass].includes(tk.symbol)
+      ))
+  )
+    return <></>;
 
   tokens.sort((a, b) => {
     if (a.symbol === 'wNEAR') return 1;
@@ -182,28 +199,32 @@ function MobileWatchListCard({ watchPools }: { watchPools: Pool[] }) {
             <FormattedMessage id="pair" defaultMessage="Pair" />
           </div>
           <div className="flex items-center">
-            <div className="relative rounded text-gray-400 flex items-center border border-gray-400 w-36">
-              <div
-                className="p-1 border-r border-gray-400 w-32"
+            <div
+              className={`relative rounded-full flex items-center border    ${
+                showSelectModal
+                  ? 'border-greenColor text-white'
+                  : 'border-farmText text-farmText'
+              } w-32`}
+            >
+              <span
+                className={`px-3 w-full text-xs h-5
+                    flex items-center justify-between
+                  `}
                 onClick={() => {
                   setShowSelectModal(true);
                 }}
               >
-                <FormattedMessage id={sortBy} defaultMessage={sortBy} />
-              </div>
-              <div
-                className="p-1"
-                onClick={() => {
-                  setShowSelectModal(true);
-                }}
-              >
-                <PolygonGrayDown />
-              </div>
+                <label>
+                  <FormattedMessage id={sortBy} defaultMessage={sortBy} />
+                </label>
+                <ArrowDownLarge />
+              </span>
+
               {showSelectModal && (
                 <SelectModal
                   onSortChange={onSortChange}
                   setShowModal={setShowSelectModal}
-                  className="top-10"
+                  className="top-8"
                 />
               )}
             </div>
@@ -258,6 +279,80 @@ function MobileLiquidityPage({
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>();
   const inputRef = useRef(null);
+  const filterList = { all: intl.formatMessage({ id: 'allOption' }) };
+  classificationOfCoins_key.forEach((key) => {
+    filterList[key] = intl.formatMessage({ id: key });
+  });
+
+  const [selectCoinClass, setSelectCoinClass] = useState<string>('all');
+
+  function SelectUi(props: any) {
+    const { className, shrink } = props;
+
+    const [showSelectBox, setShowSelectBox] = useState(false);
+    const switchSelectBoxStatus = () => {
+      setShowSelectBox(!showSelectBox);
+    };
+    const hideSelectBox = () => {
+      setShowSelectBox(false);
+    };
+    return (
+      <div
+        className={
+          `relative flex flex-col ${
+            shrink ? 'items-end' : 'items-center w-36'
+          } ` + className
+        }
+      >
+        <div
+          className="absolute top-1"
+          style={{
+            right: '152px',
+          }}
+        >
+          <FilterIcon onShow={showSelectBox} />
+        </div>
+        <span
+          onClick={switchSelectBoxStatus}
+          tabIndex={-1}
+          onBlur={hideSelectBox}
+          className={`flex items-center justify-between w-full h-5 rounded-full px-3 box-border border cursor-pointer text-xs ${
+            shrink ? 'xs:w-8 md:w-8' : ''
+          } ${
+            showSelectBox
+              ? 'border-greenColor text-white'
+              : 'border-farmText text-farmText'
+          }`}
+        >
+          <label
+            className={`whitespace-nowrap ${
+              shrink ? 'xs:hidden md:hidden' : ''
+            }`}
+          >
+            {selectCoinClass ? filterList[selectCoinClass] : null}
+          </label>
+          <ArrowDownLarge />
+        </span>
+        <div
+          className={`absolute z-50 top-8 xs:right-0 md:right-0 border border-farmText bg-cardBg rounded-md ${
+            shrink ? 'w-32' : 'w-full'
+          } ${showSelectBox ? '' : 'hidden'}`}
+        >
+          {Object.entries(filterList).map((item: any, index) => (
+            <p
+              key={item[0] + item[1]}
+              onMouseDown={() => {
+                setSelectCoinClass(item[0]);
+              }}
+              className={`flex items-center p-4 text-xs h-5 text-white text-opacity-40 my-2 cursor-pointer hover:bg-white hover:bg-opacity-10 hover:text-opacity-100`}
+            >
+              {item[1]}
+            </p>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
@@ -274,12 +369,7 @@ function MobileLiquidityPage({
       <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4">
         <div className="mx-4 flex items-center justify-between my-4">
           <div className="flex items-center">
-            <div className="text-white text-base">
-              {/* <FormattedMessage id="top_pools" defaultMessage="Top Pools" /> */}
-              Top Pools
-            </div>
-
-            {/* topPoolsCopy */}
+            <div className="text-white text-base">Top Pools</div>
             <QuestionTip id="topPoolsCopy" />
           </div>
 
@@ -302,23 +392,29 @@ function MobileLiquidityPage({
             }}
           />
         </div>
-        <div
-          className=" mb-4 inline-flex items-center mx-6 cursor-pointer"
-          onClick={() => {
-            hideLowTVL && onHide(false);
-            !hideLowTVL && onHide(true);
-          }}
-        >
-          <div className="mr-2">
-            {hideLowTVL ? <CheckedTick /> : <CheckedEmpty />}
+
+        <div className="flex items-center justify-between mx-4 mb-2">
+          <div
+            className=" inline-flex items-center cursor-pointer"
+            onClick={() => {
+              hideLowTVL && onHide(false);
+              !hideLowTVL && onHide(true);
+            }}
+          >
+            <div className="mr-2">
+              {hideLowTVL ? <CheckedTick /> : <CheckedEmpty />}
+            </div>
+            <div className="text-gray-400 text-sm">
+              <FormattedMessage
+                id="hide_low_tvl_pools"
+                defaultMessage="Hide low TVL pools"
+              />
+            </div>
           </div>
-          <div className="text-gray-400 text-sm">
-            <FormattedMessage
-              id="hide_low_tvl_pools"
-              defaultMessage="Hide low TVL pools"
-            />
-          </div>
+
+          <SelectUi filterList={filterList} />
         </div>
+
         <section className="w-full">
           <header className="p-4 text-gray-400 flex items-center justify-between text-sm">
             <div>
@@ -333,28 +429,32 @@ function MobileLiquidityPage({
               >
                 {order === 'desc' ? <DownArrowLightMobile /> : <UpArrowDeep />}
               </div>
-              <div className="relative rounded text-gray-400 flex items-center border border-gray-400 w-36">
-                <div
-                  className="p-1 border-r border-gray-400 w-32"
+              <div
+                className={`relative rounded-full flex items-center border    ${
+                  showSelectModal
+                    ? 'border-greenColor text-white'
+                    : 'border-farmText text-farmText'
+                } w-32`}
+              >
+                <span
+                  className={`px-3 w-full text-xs h-5
+                    flex items-center justify-between
+                  `}
                   onClick={() => {
                     setShowSelectModal(true);
                   }}
                 >
-                  <FormattedMessage id={sortBy} defaultMessage={sortBy} />
-                </div>
-                <div
-                  className="p-1"
-                  onClick={() => {
-                    setShowSelectModal(true);
-                  }}
-                >
-                  <PolygonGrayDown />
-                </div>
+                  <label>
+                    <FormattedMessage id={sortBy} defaultMessage={sortBy} />
+                  </label>
+                  <ArrowDownLarge />
+                </span>
+
                 {showSelectModal && (
                   <SelectModal
                     onSortChange={onSortChange}
                     setShowModal={setShowSelectModal}
-                    className="top-10"
+                    className="top-8"
                   />
                 )}
               </div>
@@ -365,6 +465,7 @@ function MobileLiquidityPage({
             {pools?.map((pool, i) => (
               <div className="w-full hover:bg-poolRowHover" key={i}>
                 <MobilePoolRow
+                  selectCoinClass={selectCoinClass}
                   pool={pool}
                   sortBy={sortBy}
                   watched={!!find(watchPools, { id: pool.id })}

@@ -17,6 +17,23 @@ const ArrowDown = () => {
   );
 };
 
+const ArrowDownLarge = () => {
+  return (
+    <svg
+      width="12"
+      height="6"
+      viewBox="0 0 9 5"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M4.84337 4.1756C4.65066 4.35766 4.34934 4.35766 4.15663 4.1756L0.650801 0.863449C0.322001 0.552814 0.541841 -7.62444e-07 0.994173 -7.229e-07L8.00583 -1.09922e-07C8.45816 -7.03775e-08 8.678 0.552815 8.3492 0.86345L4.84337 4.1756Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};
+
 const Dots = () => {
   return (
     <div className="absolute left-0 bottom-0">
@@ -2688,4 +2705,5 @@ export {
   ArrowDownHollow,
   Checkbox,
   CheckboxSelected,
+  ArrowDownLarge,
 };
