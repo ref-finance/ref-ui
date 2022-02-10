@@ -6,10 +6,10 @@ import TipsBox from '~components/farm/TipsBox';
 import CalcModel, { CalcEle, LinkPool } from '~components/farm/CalcModel';
 import UnClaim from '~components/farm/UnClaim';
 import QuestionMark from '~components/farm/QuestionMark';
+import SelectUi from '~components/farm/SelectUi';
 import {
   FarmMiningIcon,
   ModalClose,
-  ArrowDown,
   Dots,
   Light,
   Calc,
@@ -431,17 +431,6 @@ export function FarmsPage() {
   }
   function updateCheckList(status: boolean, data: any, index: number) {
     const checkedListEntries = Object.entries(checkedList);
-    // let needDeletedKey;
-    // if (status && checkedListEntries.length == withdrawNumber) {
-    //   checkedListEntries.sort((a, b) => {
-    //     if (a[1].index > b[1].index) return 1;
-    //     else return -1;
-    //   });
-    //   needDeletedKey = checkedListEntries[0][0];
-    // }
-    // if (needDeletedKey) {
-    //   delete checkedList[needDeletedKey];
-    // }
     if (status && checkedListEntries.length == withdrawNumber) return;
     if (status) {
       checkedList[data[0]] = {
@@ -773,66 +762,6 @@ export function FarmsPage() {
     </div>
   );
 }
-
-function SelectUi(props: any) {
-  const { id, onChange, list, className, shrink } = props;
-  const [showSelectBox, setShowSelectBox] = useState(false);
-  const switchSelectBoxStatus = () => {
-    setShowSelectBox(!showSelectBox);
-  };
-  const hideSelectBox = () => {
-    setShowSelectBox(false);
-  };
-  return (
-    <div
-      className={
-        `relative flex flex-col ${
-          shrink ? 'items-end' : 'items-center w-32'
-        } ` + className
-      }
-    >
-      <span
-        onClick={switchSelectBoxStatus}
-        tabIndex={-1}
-        onBlur={hideSelectBox}
-        className={`flex items-center justify-between w-full h-5 rounded-full px-3 box-border border cursor-pointer text-xs ${
-          shrink ? 'xs:w-8 md:w-8' : ''
-        } ${
-          showSelectBox
-            ? 'border-greenColor text-white'
-            : 'border-farmText text-farmText'
-        }`}
-      >
-        <label
-          className={`whitespace-nowrap ${shrink ? 'xs:hidden md:hidden' : ''}`}
-        >
-          {list[id]}
-        </label>
-        <ArrowDown></ArrowDown>
-      </span>
-      <div
-        className={`absolute z-50 top-8 xs:right-0 md:right-0 border border-farmText bg-cardBg rounded-md ${
-          shrink ? 'w-32' : 'w-full'
-        } ${showSelectBox ? '' : 'hidden'}`}
-      >
-        {Object.entries(list).map((item: any, index) => (
-          <p
-            key={item[0] + item[1]}
-            onMouseDown={() => {
-              onChange(item);
-            }}
-            className={`flex items-center p-4 text-xs h-5 text-white text-opacity-40 my-2 cursor-pointer hover:bg-white hover:bg-opacity-10 hover:text-opacity-100 ${
-              item[0] == id ? 'bg-white bg-opacity-10 text-opacity-100' : ''
-            }`}
-          >
-            {item[1]}
-          </p>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function WithdrawView({
   data,
   tokenPriceList,
