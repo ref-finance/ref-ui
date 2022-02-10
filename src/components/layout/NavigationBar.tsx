@@ -527,7 +527,7 @@ function MoreMenu() {
                      ? 'bg-navHighLightBg text-white'
                      : 'text-primaryText'
                  }
-                 cursor-pointer py-4 pl-7`}
+                 cursor-pointer py-4 pl-7 ${parentLabel ? 'pl-14' : ''}`}
                   onClick={() =>
                     handleMoreMenuClick(
                       url,
@@ -540,19 +540,12 @@ function MoreMenu() {
                 >
                   {logo && (
                     <span
-                      className={`${
-                        parentLabel ? 'ml-10' : ''
-                      } text-xl w-9 text-left`}
+                      className={`text-xl w-8 text-left flex justify-center mr-2`}
                     >
                       {logo}
                     </span>
                   )}
                   {label}
-                  {/* {id === 1 && (
-                    <span className=" -mt-2 ml-1">
-                      <IconAirDropGreenTip />{' '}
-                    </span>
-                  )} */}
                   <span className="ml-4 text-xl">{icon}</span>
                   {children && (
                     <span className="text-xl absolute right-4">

@@ -529,7 +529,7 @@ export function MobileNavBar() {
                           return (
                             <div
                               key={link.id}
-                              className={`whitespace-nowrap text-left items-center p-4 flex justify-start ${
+                              className={`whitespace-nowrap text-left items-center p-4 pl-2 flex justify-start ${
                                 !link.isExternal && isSubMenuSelected
                                   ? 'text-white bg-navHighLightBg'
                                   : 'text-primaryText'
@@ -542,7 +542,7 @@ export function MobileNavBar() {
                               }}
                             >
                               {link.logo && (
-                                <span className="text-xl text-left w-9">
+                                <span className="text-xl text-left w-8 flex justify-center mr-2">
                                   {link.logo}
                                 </span>
                               )}

@@ -319,5 +319,11 @@ const zh_CN = {
   withdraw_l: '提取',
   got_it: '知道了',
   check_the_transaction_settings: '查看交易设置',
+  bridge: '桥接 到/来自',
+  from_ethereum: 'Ethereum',
+  from_aurora: 'Aurora',
+  from_solana: 'Solana',
+  from_terra: 'Terra',
+  from_celo: 'Celo',
 };
 export default zh_CN;

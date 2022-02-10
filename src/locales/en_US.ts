@@ -331,5 +331,11 @@ const en_US = {
   withdraw_l: 'withdraw',
   got_it: 'Got it',
   check_the_transaction_settings: 'Check the transaction settings',
+  bridge: 'Bridge to/from',
+  from_ethereum: 'Ethereum',
+  from_aurora: 'Aurora',
+  from_solana: 'Solana',
+  from_terra: 'Terra',
+  from_celo: 'Celo',
 };
 export default en_US;
