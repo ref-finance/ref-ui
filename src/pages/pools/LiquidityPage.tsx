@@ -83,7 +83,7 @@ function SelectUi({
         shrink ? 'items-end' : 'items-center '
       } lg:mr-5 outline-none`}
     >
-      <span className="lg:hidden mr-4">
+      <span className="lg:hidden mr-2">
         <FilterIcon onShow={showSelectBox} />
       </span>
       <span className="text-farmText text-xs mr-2.5 xs:hidden md:hidden">
