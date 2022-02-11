@@ -538,7 +538,7 @@ function PoolRow({
   return (
     <div className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
       <Link
-        className="grid grid-cols-12 py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-700 border-opacity-70 hover:opacity-80"
+        className="grid grid-cols-8 py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-700 border-opacity-70 hover:opacity-80"
         onClick={() => localStorage.setItem('fromMorePools', 'n')}
         to={{
           pathname: `/pool/${pool.id}`,
@@ -546,7 +546,7 @@ function PoolRow({
         }}
         ref={ref}
       >
-        <div className="col-span-7 md:col-span-4 flex items-center">
+        <div className="col-span-5 md:col-span-4 flex items-center">
           <div className="mr-6 w-2">{index}</div>
           <div className="flex items-center">
             <div className="flex items-center">
@@ -573,11 +573,11 @@ function PoolRow({
 
           {supportFarm && <FarmButton farmCount={farmCount} />}
         </div>
-        <div className="col-span-2 py-1 md:hidden ">
+        <div className="col-span-1 py-1 md:hidden ">
           {calculateFeePercent(pool.fee)}%
         </div>
 
-        <div className="col-span-2 py-1">
+        <div className="col-span-1 py-1">
           ${toInternationalCurrencySystem(pool.tvl.toString())}
         </div>
 
@@ -617,8 +617,8 @@ function WatchListCard({ watchPools }: { watchPools: Pool[] }) {
           <QuestionTip id="my_watchlist_copy" />
         </div>
         <section className="">
-          <header className="grid grid-cols-10 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-700 border-opacity-70">
-            <div className="col-span-7 md:col-span-4 flex">
+          <header className="grid grid-cols-8 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-700 border-opacity-70">
+            <div className="col-span-5 md:col-span-4 flex">
               <div className="mr-6 w-2">#</div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </div>
@@ -774,12 +774,12 @@ function LiquidityPage_({
         </div>
 
         <section className="">
-          <header className="grid grid-cols-12 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-700 border-opacity-70">
-            <div className="col-span-7 md:col-span-4 flex">
+          <header className="grid grid-cols-8 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-700 border-opacity-70">
+            <div className="col-span-5 md:col-span-4 flex">
               <div className="mr-6 w-2">#</div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </div>
-            <div className="col-span-2 md:hidden flex items-center">
+            <div className="col-span-1 md:hidden flex items-center">
               <div
                 className="pr-1 cursor-pointer"
                 onClick={() => {
@@ -812,7 +812,7 @@ function LiquidityPage_({
               </span>
             </div>
 
-            <div className="col-span-2 flex items-center">
+            <div className="col-span-1 flex items-center">
               <span
                 className="pr-1 cursor-pointer"
                 onClick={() => {
