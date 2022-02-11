@@ -307,6 +307,7 @@ function MobileWatchListCard({
                   onSortChange={onSortChange}
                   setShowModal={setShowSelectModal}
                   className="top-8"
+                  sortMode={sortBy}
                 />
               )}
             </div>
@@ -483,6 +484,7 @@ function MobileLiquidityPage({
 
                 {showSelectModal && (
                   <SelectModal
+                    sortMode={sortBy}
                     onSortChange={onSortChange}
                     setShowModal={setShowSelectModal}
                     className="top-8"

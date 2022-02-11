@@ -45,6 +45,7 @@ export const usePoolTokens = (pools: Pool[]) => {
   }, [poolTokensList.length]);
 
   useEffect(() => {
+    if (poolTokensList.length) return;
     Promise.all(
       pools.map(async (p) => {
         return await Promise.all(
