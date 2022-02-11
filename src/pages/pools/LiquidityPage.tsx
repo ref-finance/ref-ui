@@ -226,7 +226,7 @@ function MobilePoolRow({
               </div>
             )}
 
-            {morePoolIds?.length && morePoolIds?.length > 1 && (
+            {morePoolIds?.length && morePoolIds?.length > 1 ? (
               <div
                 onClick={(e) => {
                   e.preventDefault();
@@ -239,7 +239,7 @@ function MobilePoolRow({
               >
                 <MobileMoreFarmStamp count={morePoolIds?.length} />
               </div>
-            )}
+            ) : null}
           </div>
           <div>{showSortedValue({ sortBy, value: pool[sortBy] })}</div>
         </div>
@@ -248,7 +248,13 @@ function MobilePoolRow({
   );
 }
 
-function MobileWatchListCard({ watchPools }: { watchPools: Pool[] }) {
+function MobileWatchListCard({
+  watchPools,
+  poolTokenMetas,
+}: {
+  watchPools: Pool[];
+  poolTokenMetas: any;
+}) {
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>(false);
   const [sortBy, onSortChange] = useState<string>('tvl');
@@ -311,6 +317,7 @@ function MobileWatchListCard({ watchPools }: { watchPools: Pool[] }) {
           {watchPools?.map((pool, i) => (
             <div className="w-full hover:bg-poolRowHover" key={i}>
               <MobilePoolRow
+                tokens={poolTokenMetas[pool.id]}
                 sortBy={sortBy}
                 pool={pool}
                 watched={!!find(watchPools, { id: pool.id })}
@@ -337,10 +344,10 @@ function MobileLiquidityPage({
   onHide,
   hideLowTVL,
   allPools,
-  allPoolList,
+  poolTokenMetas,
 }: {
   pools: Pool[];
-  allPoolList: Pool[];
+  poolTokenMetas: any;
   onSortChange: (modeSort: string) => void;
   tokenName: string;
   order: string;
@@ -363,8 +370,6 @@ function MobileLiquidityPage({
   });
   const [selectCoinClass, setSelectCoinClass] = useState<string>('all');
 
-  const poolTokenMetas = usePoolTokens(allPoolList);
-
   const poolFilterFunc = (p: Pool) => {
     if (selectCoinClass === 'all') return true;
 
@@ -372,8 +377,6 @@ function MobileLiquidityPage({
       classificationOfCoins[selectCoinClass].includes(tk.symbol)
     );
   };
-
-  if (!poolTokenMetas) return <Loading />;
 
   return (
     <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
@@ -385,7 +388,10 @@ function MobileLiquidityPage({
           />
         </div>
       </div>
-      <MobileWatchListCard watchPools={watchPools} />
+      <MobileWatchListCard
+        poolTokenMetas={poolTokenMetas}
+        watchPools={watchPools}
+      />
 
       <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4">
         <div className="mx-4 flex items-center justify-between my-4">
@@ -603,7 +609,13 @@ function PoolRow({
   );
 }
 
-function WatchListCard({ watchPools }: { watchPools: Pool[] }) {
+function WatchListCard({
+  watchPools,
+  poolTokenMetas,
+}: {
+  watchPools: Pool[];
+  poolTokenMetas: any;
+}) {
   const intl = useIntl();
   return (
     <>
@@ -646,7 +658,11 @@ function WatchListCard({ watchPools }: { watchPools: Pool[] }) {
                 className="w-full hover:bg-poolRowHover hover:bg-opacity-20"
                 key={i}
               >
-                <PoolRow pool={pool} index={i + 1} />
+                <PoolRow
+                  pool={pool}
+                  index={i + 1}
+                  tokens={poolTokenMetas[pool.id]}
+                />
               </div>
             ))}
           </div>
@@ -670,10 +686,10 @@ function LiquidityPage_({
   onOrderChange,
   nextPage,
   allPools,
-  allPoolList,
+  poolTokenMetas,
 }: {
   pools: Pool[];
-  allPoolList: Pool[];
+  poolTokenMetas: any;
   sortBy: string;
   hideLowTVL: Boolean;
   watchPools: Pool[];
@@ -695,10 +711,6 @@ function LiquidityPage_({
   });
   const [selectCoinClass, setSelectCoinClass] = useState<string>('all');
 
-  const poolTokenMetas = usePoolTokens(allPoolList);
-
-  if (!poolTokenMetas) return <Loading />;
-
   const poolFilterFunc = (p: Pool) => {
     if (selectCoinClass === 'all') return true;
 
@@ -717,7 +729,7 @@ function LiquidityPage_({
           />
         </div>
       </div>
-      <WatchListCard watchPools={watchPools} />
+      <WatchListCard poolTokenMetas={poolTokenMetas} watchPools={watchPools} />
 
       <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
         <div className="flex mx-8 justify-between pb-4">
@@ -896,16 +908,18 @@ export function LiquidityPage() {
     }
     setDisplayPools(tempPools);
   }, [pools, hideLowTVL]);
+  const poolTokenMetas = usePoolTokens(pools);
 
   const onSearch = useCallback(_.debounce(setTokenName, 500), []);
 
-  if (!displayPools || loading || !watchPools) return <Loading />;
+  if (!displayPools || loading || !watchPools || !poolTokenMetas)
+    return <Loading />;
 
   return (
     <>
       <LiquidityPage_
+        poolTokenMetas={poolTokenMetas}
         tokenName={tokenName}
-        allPoolList={pools}
         pools={displayPools}
         onHide={(isHide) => {
           localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
@@ -923,7 +937,7 @@ export function LiquidityPage() {
         nextPage={nextPage}
       />
       <MobileLiquidityPage
-        allPoolList={pools}
+        poolTokenMetas={poolTokenMetas}
         hideLowTVL={hideLowTVL}
         tokenName={tokenName}
         pools={displayPools}

@@ -54,7 +54,7 @@ export const usePoolTokens = (pools: Pool[]) => {
         );
       })
     ).then(setPoolTokensList);
-  }, []);
+  }, [pools]);
 
   return poolTokens;
 };
