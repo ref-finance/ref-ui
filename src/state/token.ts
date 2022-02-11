@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { STABLE_TOKEN_IDS, wallet } from '../services/near';
 import {
   ftGetBalance,
@@ -20,6 +20,7 @@ import {
 import { toRealSymbol } from '../utils/token';
 import getConfig from '~services/config';
 import { nearMetadata } from '../services/wrap-near';
+import { Pool } from '../services/pool';
 
 export const useToken = (id: string) => {
   const [token, setToken] = useState<TokenMetadata>();
@@ -29,6 +30,33 @@ export const useToken = (id: string) => {
   }, [id]);
 
   return token;
+};
+
+export const usePoolTokens = (pools: Pool[]) => {
+  const [poolTokensList, setPoolTokensList] = useState<TokenMetadata[][]>([]);
+
+  const poolTokens = useMemo(() => {
+    return poolTokensList.reduce((pre, cur, i) => {
+      return {
+        ...pre,
+        [pools[i].id]: cur,
+      };
+    }, {});
+  }, [poolTokensList]);
+
+  useEffect(() => {
+    Promise.all(
+      pools.map(async (p) => {
+        return await Promise.all(
+          p.tokenIds.map((id) => {
+            return ftGetTokenMetadata(id);
+          })
+        );
+      })
+    ).then(setPoolTokensList);
+  }, []);
+
+  return poolTokens;
 };
 
 export const useTokens = (ids: string[] = []) => {
