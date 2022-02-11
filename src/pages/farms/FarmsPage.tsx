@@ -670,8 +670,8 @@ export function FarmsPage() {
                 </div>
                 <div className="flex justify-between xs:w-full md:w-full xs:mt-4 md:mt-4">
                   {wallet.isSignedIn() ? (
-                    <div className="flex items-center mr-4 xs:mr-3 md:mr-3">
-                      <label className="text-farmText text-xs">
+                    <div className="flex items-center mr-4 xs:mr-0 md:mr-0">
+                      <label className="text-farmText text-xs mr-2">
                         <FormattedMessage
                           id="staked_only"
                           defaultMessage="Staked"
@@ -679,51 +679,44 @@ export function FarmsPage() {
                       </label>
                       <div
                         onClick={changeStaked}
-                        className={`flex items-center w-11 h-5 bg-cardBg rounded-full px-1  ml-2.5 box-border cursor-pointer ${
+                        className={`flex items-center w-11 h-5 bg-cardBg rounded-full px-1 box-border cursor-pointer ${
                           searchData.staked ? 'justify-end' : ''
                         }`}
                       >
                         <a
-                          className={`h-5 w-5 rounded-full ${
+                          className={`h-4 w-4 rounded-full ${
                             searchData.staked ? 'bg-farmSearch' : 'bg-farmRound'
                           }`}
                         ></a>
                       </div>
                     </div>
                   ) : null}
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center relative mr-4 xs:mr-3 md:mr-3">
-                      <label className="text-farmText text-xs mr-2.5 whitespace-nowrap xs:hidden">
-                        <FormattedMessage
-                          id="filter_by"
-                          defaultMessage="Filter by"
-                        />
-                      </label>
-                      <SelectUi
-                        id={searchData.coin}
-                        list={filterList}
-                        onChange={changeCoinOption}
-                        className="w-36"
-                        Icon={isMobile() ? CoinPropertyIcon : ''}
-                      ></SelectUi>
-                    </div>
-                    <div className="flex items-center relative">
-                      <label className="text-farmText text-xs mr-2.5 xs:hidden md:hidden">
-                        <FormattedMessage
-                          id="sort_by"
-                          defaultMessage="Sort by"
-                        />
-                      </label>
-                      <SelectUi
-                        id={searchData.sort}
-                        list={sortList}
-                        onChange={changeSortOption}
-                        shrink={
-                          isMobile() && wallet.isSignedIn() ? true : false
-                        }
-                        Icon={isMobile() ? SortIcon : ''}
-                      ></SelectUi>
-                    </div>
+                  <div className="flex items-center relative mr-4 xs:mr-0 md:mr-0">
+                    <label className="text-farmText text-xs mr-2 whitespace-nowrap xs:hidden">
+                      <FormattedMessage
+                        id="filter_by"
+                        defaultMessage="Filter by"
+                      />
+                    </label>
+                    <SelectUi
+                      id={searchData.coin}
+                      list={filterList}
+                      onChange={changeCoinOption}
+                      className="w-36"
+                      Icon={isMobile() ? CoinPropertyIcon : ''}
+                    ></SelectUi>
+                  </div>
+                  <div className="flex items-center relative">
+                    <label className="text-farmText text-xs mr-2 xs:hidden md:hidden">
+                      <FormattedMessage id="sort_by" defaultMessage="Sort by" />
+                    </label>
+                    <SelectUi
+                      id={searchData.sort}
+                      list={sortList}
+                      onChange={changeSortOption}
+                      shrink={isMobile() && wallet.isSignedIn() ? true : false}
+                      Icon={isMobile() ? SortIcon : ''}
+                    ></SelectUi>
                   </div>
                 </div>
               </div>
