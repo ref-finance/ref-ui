@@ -15,8 +15,8 @@ const DarkFilterIcon = () => {
         x2="13"
         y2="1"
         stroke="#73818B"
-        stroke-width="2"
-        stroke-linecap="round"
+        strokeWidth="2"
+        strokeLinecap="round"
       />
       <line
         x1="3"
@@ -24,8 +24,8 @@ const DarkFilterIcon = () => {
         x2="11"
         y2="5"
         stroke="#73818B"
-        stroke-width="2"
-        stroke-linecap="round"
+        strokeWidth="2"
+        strokeLinecap="round"
       />
       <line
         x1="5"
@@ -33,8 +33,8 @@ const DarkFilterIcon = () => {
         x2="9"
         y2="9"
         stroke="#73818B"
-        stroke-width="2"
-        stroke-linecap="round"
+        strokeWidth="2"
+        strokeLinecap="round"
       />
     </svg>
   );
@@ -55,8 +55,8 @@ const LightFilterIcon = () => {
         x2="13"
         y2="1"
         stroke="#00C6A2"
-        stroke-width="2"
-        stroke-linecap="round"
+        strokeWidth="2"
+        strokeLinecap="round"
       />
       <line
         x1="3"
@@ -64,8 +64,8 @@ const LightFilterIcon = () => {
         x2="11"
         y2="5"
         stroke="#00C6A2"
-        stroke-width="2"
-        stroke-linecap="round"
+        strokeWidth="2"
+        strokeLinecap="round"
       />
       <line
         x1="5"
@@ -73,8 +73,8 @@ const LightFilterIcon = () => {
         x2="9"
         y2="9"
         stroke="#00C6A2"
-        stroke-width="2"
-        stroke-linecap="round"
+        strokeWidth="2"
+        strokeLinecap="round"
       />
     </svg>
   );

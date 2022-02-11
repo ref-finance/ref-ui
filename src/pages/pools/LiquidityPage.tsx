@@ -79,7 +79,7 @@ function SelectUi({
     <div
       className={`relative flex ${
         shrink ? 'items-end' : 'items-center '
-      } lg:mr-4`}
+      } lg:mr-5 outline-none`}
     >
       <span className="lg:hidden mr-4">
         <FilterIcon onShow={showSelectBox} />
@@ -92,7 +92,7 @@ function SelectUi({
         onClick={switchSelectBoxStatus}
         tabIndex={-1}
         onBlur={hideSelectBox}
-        className={`flex items-center justify-between w-36 h-5 rounded-full px-3 box-border border cursor-pointer text-xs ${
+        className={`flex items-center justify-between w-36 h-5 rounded-full px-3 box-border border cursor-pointer text-xs outline-none ${
           shrink ? 'xs:w-8 md:w-8' : ''
         } ${
           showSelectBox
@@ -108,8 +108,8 @@ function SelectUi({
         <ArrowDownLarge />
       </span>
       <div
-        className={`absolute z-50 top-8 xs:right-0 md:right-0 border border-farmText bg-cardBg rounded-md ${
-          shrink ? 'w-32' : 'w-full'
+        className={`absolute z-50 top-8 right-0 border border-farmText bg-cardBg rounded-md ${
+          shrink ? 'w-32' : 'w-36'
         } ${showSelectBox ? '' : 'hidden'}`}
       >
         {Object.entries(list).map((item: any, index) => (
@@ -118,7 +118,13 @@ function SelectUi({
             onMouseDown={() => {
               onChange(item[0]);
             }}
-            className={`flex items-center p-4 text-xs h-5 text-white text-opacity-40 my-2 cursor-pointer hover:bg-white hover:bg-opacity-10 hover:text-opacity-100`}
+            className={`flex items-center p-4 text-xs h-5 text-white text-opacity-40 my-2 cursor-pointer hover:bg-white hover:bg-opacity-10 hover:text-opacity-100
+            ${
+              item[0] == curvalue
+                ? 'bg-white bg-opacity-10 text-opacity-100'
+                : ''
+            }
+            `}
           >
             {item[1]}
           </p>
@@ -187,61 +193,63 @@ function MobilePoolRow({
   };
 
   return (
-    <Link
-      ref={ref}
-      className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-4 py-6 text-white"
-      onClick={() => localStorage.setItem('fromMorePools', 'n')}
-      to={{
-        pathname: `/pool/${pool.id}`,
-        state: { tvl: pool?.tvl, backToFarms: supportFarm },
-      }}
-    >
-      <div className="flex items-center justify-between text-sm">
-        <div className="flex items-center justify-start">
-          <div className="flex items-center">
-            <div className="h-6 w-6 border border-gradientFromHover rounded-full">
-              <img
-                key={tokens[0].id.substring(0, 12).substring(0, 12)}
-                className="rounded-full w-full"
-                src={tokens[0].icon}
-              />
-            </div>
+    <div className="w-full hover:bg-poolRowHover">
+      <Link
+        ref={ref}
+        className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-4 py-6 text-white"
+        onClick={() => localStorage.setItem('fromMorePools', 'n')}
+        to={{
+          pathname: `/pool/${pool.id}`,
+          state: { tvl: pool?.tvl, backToFarms: supportFarm },
+        }}
+      >
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center justify-start">
+            <div className="flex items-center">
+              <div className="h-6 w-6 border border-gradientFromHover rounded-full">
+                <img
+                  key={tokens[0].id.substring(0, 12).substring(0, 12)}
+                  className="rounded-full w-full"
+                  src={tokens[0].icon}
+                />
+              </div>
 
-            <div className="h-6 w-6 border border-gradientFromHover rounded-full">
-              <img
-                key={tokens[1].id}
-                className="w-full rounded-full"
-                src={tokens[1].icon}
-              />
+              <div className="h-6 w-6 border border-gradientFromHover rounded-full">
+                <img
+                  key={tokens[1].id}
+                  className="w-full rounded-full"
+                  src={tokens[1].icon}
+                />
+              </div>
             </div>
-          </div>
-          <div className="text-sm ml-2 font-semibold">
-            {tokens[0].symbol + '-' + tokens[1].symbol}
-          </div>
-          {watched && (
-            <div className="ml-2">
-              <WatchListStartFull />
+            <div className="text-sm ml-2 font-semibold">
+              {tokens[0].symbol + '-' + tokens[1].symbol}
             </div>
-          )}
+            {watched && (
+              <div className="ml-2">
+                <WatchListStartFull />
+              </div>
+            )}
 
-          {morePoolIds?.length && morePoolIds?.length > 1 && (
-            <div
-              onClick={(e) => {
-                e.preventDefault();
-                history.push(`/more_pools/${pool.tokenIds}`, {
-                  morePoolIds: morePoolIds,
-                  tokens,
-                });
-              }}
-              className="mx-2"
-            >
-              <MobileMoreFarmStamp count={morePoolIds?.length} />
-            </div>
-          )}
+            {morePoolIds?.length && morePoolIds?.length > 1 && (
+              <div
+                onClick={(e) => {
+                  e.preventDefault();
+                  history.push(`/more_pools/${pool.tokenIds}`, {
+                    morePoolIds: morePoolIds,
+                    tokens,
+                  });
+                }}
+                className="mx-2"
+              >
+                <MobileMoreFarmStamp count={morePoolIds?.length} />
+              </div>
+            )}
+          </div>
+          <div>{showSortedValue({ sortBy, value: pool[sortBy] })}</div>
         </div>
-        <div>{showSortedValue({ sortBy, value: pool[sortBy] })}</div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }
 
@@ -356,8 +364,19 @@ function MobileLiquidityPage({
   classificationOfCoins_key.forEach((key) => {
     filterList[key] = intl.formatMessage({ id: key });
   });
-
   const [selectCoinClass, setSelectCoinClass] = useState<string>('all');
+
+  const [poolListLength, setPoolListLength] = useState<string>(
+    pools?.length ? pools?.length.toString() : '-'
+  );
+
+  useEffect(() => {
+    const container = document.getElementsByClassName(
+      'pool-list-container-mobile'
+    )[0];
+
+    setPoolListLength(container.childNodes.length.toString());
+  }, [selectCoinClass]);
 
   return (
     <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
@@ -379,7 +398,11 @@ function MobileLiquidityPage({
           </div>
 
           <div className="text-gray-400 text-xs">
-            {(pools?.length ? pools?.length : '-') +
+            {(selectCoinClass === 'all'
+              ? pools?.length
+                ? pools?.length
+                : '-'
+              : poolListLength) +
               ' out of ' +
               (allPools ? allPools : '-')}
           </div>
@@ -470,16 +493,15 @@ function MobileLiquidityPage({
             </div>
           </header>
           <div className="border-b border-gray-700 border-opacity-70" />
-          <div className="max-h-96 overflow-y-auto">
+          <div className="max-h-96 overflow-y-auto pool-list-container-mobile">
             {pools?.map((pool, i) => (
-              <div className="w-full hover:bg-poolRowHover" key={i}>
-                <MobilePoolRow
-                  selectCoinClass={selectCoinClass}
-                  pool={pool}
-                  sortBy={sortBy}
-                  watched={!!find(watchPools, { id: pool.id })}
-                />
-              </div>
+              <MobilePoolRow
+                selectCoinClass={selectCoinClass}
+                pool={pool}
+                sortBy={sortBy}
+                watched={!!find(watchPools, { id: pool.id })}
+                key={i}
+              />
             ))}
           </div>
         </section>
@@ -528,66 +550,68 @@ function PoolRow({
   });
 
   return (
-    <Link
-      className="grid grid-cols-10 py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-700 border-opacity-70 hover:opacity-80"
-      onClick={() => localStorage.setItem('fromMorePools', 'n')}
-      to={{
-        pathname: `/pool/${pool.id}`,
-        state: { tvl: pool.tvl, backToFarms: supportFarm },
-      }}
-      ref={ref}
-    >
-      <div className="col-span-7 md:col-span-4 flex items-center">
-        <div className="mr-6 w-2">{index}</div>
-        <div className="flex items-center">
+    <div className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
+      <Link
+        className="grid grid-cols-10 py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-700 border-opacity-70 hover:opacity-80"
+        onClick={() => localStorage.setItem('fromMorePools', 'n')}
+        to={{
+          pathname: `/pool/${pool.id}`,
+          state: { tvl: pool.tvl, backToFarms: supportFarm },
+        }}
+        ref={ref}
+      >
+        <div className="col-span-7 md:col-span-4 flex items-center">
+          <div className="mr-6 w-2">{index}</div>
           <div className="flex items-center">
-            <div className="h-9 w-9 border border-gradientFromHover rounded-full mr-2">
-              <img
-                key={tokens[0].id.substring(0, 12).substring(0, 12)}
-                className="rounded-full mr-2 w-full"
-                src={tokens[0].icon}
-              />
-            </div>
+            <div className="flex items-center">
+              <div className="h-9 w-9 border border-gradientFromHover rounded-full mr-2">
+                <img
+                  key={tokens[0].id.substring(0, 12).substring(0, 12)}
+                  className="rounded-full mr-2 w-full"
+                  src={tokens[0].icon}
+                />
+              </div>
 
-            <div className="h-9 w-9 border border-gradientFromHover rounded-full">
-              <img
-                key={tokens[1].id}
-                className="rounded-full mr-2 w-full"
-                src={tokens[1].icon}
-              />
+              <div className="h-9 w-9 border border-gradientFromHover rounded-full">
+                <img
+                  key={tokens[1].id}
+                  className="rounded-full mr-2 w-full"
+                  src={tokens[1].icon}
+                />
+              </div>
+            </div>
+            <div className="text-sm ml-7">
+              {tokens[0].symbol + '-' + tokens[1].symbol}
             </div>
           </div>
-          <div className="text-sm ml-7">
-            {tokens[0].symbol + '-' + tokens[1].symbol}
-          </div>
+
+          {supportFarm && <FarmButton farmCount={farmCount} />}
+        </div>
+        <div className="col-span-1 py-1 md:hidden ">
+          {calculateFeePercent(pool.fee)}%
         </div>
 
-        {supportFarm && <FarmButton farmCount={farmCount} />}
-      </div>
-      <div className="col-span-1 py-1 md:hidden ">
-        {calculateFeePercent(pool.fee)}%
-      </div>
+        <div className="col-span-1 py-1">
+          ${toInternationalCurrencySystem(pool.tvl.toString())}
+        </div>
 
-      <div className="col-span-1 py-1">
-        ${toInternationalCurrencySystem(pool.tvl.toString())}
-      </div>
-
-      <div
-        className="col-span-1 py-1 hover:text-green-500 hover:cursor-pointer"
-        onMouseEnter={() => setShowLinkArrow(true)}
-        onMouseLeave={() => setShowLinkArrow(false)}
-        onClick={(e) => {
-          e.preventDefault();
-          history.push(`/more_pools/${pool.tokenIds}`, {
-            morePoolIds: morePoolIds,
-            tokens,
-          });
-        }}
-      >
-        {morePoolIds?.length ? `${morePoolIds?.length}` : '-'}
-        {showLinkArrow && ' >'}
-      </div>
-    </Link>
+        <div
+          className="col-span-1 py-1 hover:text-green-500 hover:cursor-pointer"
+          onMouseEnter={() => setShowLinkArrow(true)}
+          onMouseLeave={() => setShowLinkArrow(false)}
+          onClick={(e) => {
+            e.preventDefault();
+            history.push(`/more_pools/${pool.tokenIds}`, {
+              morePoolIds: morePoolIds,
+              tokens,
+            });
+          }}
+        >
+          {morePoolIds?.length ? `${morePoolIds?.length}` : '-'}
+          {showLinkArrow && ' >'}
+        </div>
+      </Link>
+    </div>
   );
 }
 
@@ -681,6 +705,18 @@ function LiquidityPage_({
   });
   const [selectCoinClass, setSelectCoinClass] = useState<string>('all');
 
+  const [poolListLength, setPoolListLength] = useState<string>(
+    pools?.length ? pools?.length.toString() : '-'
+  );
+
+  useEffect(() => {
+    const container = document.getElementsByClassName(
+      'pool-list-container-pc'
+    )[0];
+
+    setPoolListLength(container.childNodes.length.toString());
+  }, [selectCoinClass]);
+
   return (
     <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
       <div className="mb-4 mx-8">
@@ -703,7 +739,11 @@ function LiquidityPage_({
 
             <div className="flex items-center">
               <div className="text-gray-400 text-sm">
-                {(pools?.length ? pools?.length : '-') +
+                {(selectCoinClass === 'all'
+                  ? pools?.length
+                    ? pools?.length
+                    : '-'
+                  : poolListLength) +
                   ' out of ' +
                   (allPools ? allPools : '-')}
               </div>
@@ -720,7 +760,7 @@ function LiquidityPage_({
             </div>
 
             <div
-              className="flex items-center mr-10 cursor-pointer"
+              className="flex items-center mr-5 cursor-pointer"
               onClick={() => {
                 hideLowTVL && onHide(false);
                 !hideLowTVL && onHide(true);
@@ -827,18 +867,14 @@ function LiquidityPage_({
             </p>
           </header>
 
-          <div className="max-h-96 overflow-y-auto">
+          <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
             {pools?.map((pool, i) => (
-              <div
-                className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20"
+              <PoolRow
                 key={i}
-              >
-                <PoolRow
-                  pool={pool}
-                  index={i + 1}
-                  selectCoinClass={selectCoinClass}
-                />
-              </div>
+                pool={pool}
+                index={i + 1}
+                selectCoinClass={selectCoinClass}
+              />
             ))}
           </div>
         </section>
