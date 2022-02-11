@@ -60,10 +60,14 @@ export const usePoolTokens = (pools: Pool[]) => {
   return poolTokens;
 };
 
-export const useTokens = (ids: string[] = []) => {
+export const useTokens = (ids: string[] = [], curTokens?: TokenMetadata[]) => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
 
   useEffect(() => {
+    if (curTokens) {
+      setTokens(curTokens);
+      return;
+    }
     Promise.all<TokenMetadata>(ids.map((id) => ftGetTokenMetadata(id))).then(
       setTokens
     );

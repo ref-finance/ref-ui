@@ -152,6 +152,8 @@ function MobilePoolRow({
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const { ref, inView } = useInView();
 
+  const curRowTokens = useTokens(pool.tokenIds, tokens);
+
   const morePoolIds = useMorePoolIds({ topPool: pool, inView });
   const history = useHistory();
   useEffect(() => {
@@ -160,7 +162,9 @@ function MobilePoolRow({
     });
   }, [pool]);
 
-  if (!tokens) return <></>;
+  if (!curRowTokens) return <></>;
+
+  tokens = curRowTokens;
 
   tokens.sort((a, b) => {
     if (a.symbol === 'wNEAR') return 1;
@@ -525,7 +529,7 @@ function PoolRow({
 }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const [farmCount, setFarmCount] = useState<Number>(1);
-  // const tokens = useTokens(pool.tokenIds);
+  const curRowTokens = useTokens(pool.tokenIds, tokens);
   const { ref, inView, entry } = useInView();
   const morePoolIds = useMorePoolIds({ topPool: pool, inView });
   const history = useHistory();
@@ -537,7 +541,10 @@ function PoolRow({
       setFarmCount(canFarm);
     });
   }, [pool]);
-  if (!tokens) return <></>;
+
+  if (!curRowTokens) return <></>;
+
+  tokens = curRowTokens;
 
   tokens.sort((a, b) => {
     if (a.symbol === 'wNEAR') return 1;
