@@ -2692,6 +2692,98 @@ const CheckboxSelected = () => {
     </svg>
   );
 };
+export function CoinPropertyIcon(props: any) {
+  const { className, ...rest } = props;
+  return (
+    <svg
+      className={className}
+      {...rest}
+      width="14"
+      height="10"
+      viewBox="0 0 14 10"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <line
+        x1="0.75"
+        y1="1.25"
+        x2="13.25"
+        y2="1.25"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <line
+        x1="2.75"
+        y1="5.25"
+        x2="11.25"
+        y2="5.25"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <line
+        x1="4.75"
+        y1="9.25"
+        x2="9.25"
+        y2="9.25"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+export function SortIcon(props: any) {
+  const { className, ...rest } = props;
+  return (
+    <svg
+      className={className}
+      {...rest}
+      width="15"
+      height="12"
+      viewBox="0 0 15 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <line
+        x1="0.75"
+        y1="2.25"
+        x2="7.25"
+        y2="2.25"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <line
+        x1="2.75"
+        y1="6.25"
+        x2="7.25"
+        y2="6.25"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <line
+        x1="5.75"
+        y1="10.25"
+        x2="7.25"
+        y2="10.25"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M11 1L11 11L14 8.30769"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 export {
   ArrowDown,
   Dots,
