@@ -337,8 +337,10 @@ function MobileLiquidityPage({
   onHide,
   hideLowTVL,
   allPools,
+  allPoolList,
 }: {
   pools: Pool[];
+  allPoolList: Pool[];
   onSortChange: (modeSort: string) => void;
   tokenName: string;
   order: string;
@@ -361,7 +363,7 @@ function MobileLiquidityPage({
   });
   const [selectCoinClass, setSelectCoinClass] = useState<string>('all');
 
-  const poolTokenMetas = usePoolTokens(pools);
+  const poolTokenMetas = usePoolTokens(allPoolList);
 
   const poolFilterFunc = (p: Pool) => {
     if (selectCoinClass === 'all') return true;
@@ -668,8 +670,10 @@ function LiquidityPage_({
   onOrderChange,
   nextPage,
   allPools,
+  allPoolList,
 }: {
   pools: Pool[];
+  allPoolList: Pool[];
   sortBy: string;
   hideLowTVL: Boolean;
   watchPools: Pool[];
@@ -691,7 +695,9 @@ function LiquidityPage_({
   });
   const [selectCoinClass, setSelectCoinClass] = useState<string>('all');
 
-  const poolTokenMetas = usePoolTokens(pools);
+  const poolTokenMetas = usePoolTokens(allPoolList);
+
+  if (!poolTokenMetas) return <Loading />;
 
   const poolFilterFunc = (p: Pool) => {
     if (selectCoinClass === 'all') return true;
@@ -700,8 +706,6 @@ function LiquidityPage_({
       classificationOfCoins[selectCoinClass].includes(tk.symbol)
     );
   };
-
-  if (!poolTokenMetas) return <Loading />;
 
   return (
     <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
@@ -901,6 +905,7 @@ export function LiquidityPage() {
     <>
       <LiquidityPage_
         tokenName={tokenName}
+        allPoolList={pools}
         pools={displayPools}
         onHide={(isHide) => {
           localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
@@ -918,6 +923,7 @@ export function LiquidityPage() {
         nextPage={nextPage}
       />
       <MobileLiquidityPage
+        allPoolList={pools}
         hideLowTVL={hideLowTVL}
         tokenName={tokenName}
         pools={displayPools}

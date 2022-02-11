@@ -42,7 +42,7 @@ export const usePoolTokens = (pools: Pool[]) => {
         [pools[i].id]: cur,
       };
     }, {});
-  }, [poolTokensList]);
+  }, [poolTokensList.length]);
 
   useEffect(() => {
     Promise.all(
