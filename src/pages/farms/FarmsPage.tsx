@@ -431,7 +431,7 @@ export function FarmsPage() {
     } else {
       delete checkedList[data[0]];
     }
-    setCheckedList(checkedList);
+    setCheckedList(Object.assign({}, checkedList));
     const rewardListStr = Object.keys(rewardList).slice(0, withdrawNumber);
     const compair = rewardListStr.every((item) => {
       return checkedList[item];
