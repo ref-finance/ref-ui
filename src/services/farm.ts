@@ -458,7 +458,7 @@ export const classificationOfCoins = {
     'DBIO',
     '1MIL',
     '$META',
-    ' Cheddar',
+    'Cheddar',
     'ABR',
     'BANANA',
     'POTATO',
