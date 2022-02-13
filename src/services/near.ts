@@ -31,6 +31,7 @@ export const ONE_YOCTO_NEAR = '0.000000000000000000000001';
 
 export const near = new Near({
   keyStore: new keyStores.BrowserLocalStorageKeyStore(),
+  headers: {},
   ...config,
 });
 export const wallet = new SpecialWallet(near, config.REF_FI_CONTRACT_ID);
