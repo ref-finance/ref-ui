@@ -11,18 +11,17 @@ interface CommonBassesProps {
   onClick: (token: TokenMetadata) => void;
 }
 const COMMON_BASSES = [
-  'REF',
   'wNEAR',
+  'REF',
   'SKYWARD',
   'OCT',
-  'DAI',
-  'PARAS',
   'STNEAR',
-  'wETH',
   'USDT',
-  'PULSE',
+  'USDC',
   'AURORA',
   'ETH',
+  'DAI',
+  // 'FLX',
 ];
 
 export default function CommonBasses({ tokens, onClick }: CommonBassesProps) {
