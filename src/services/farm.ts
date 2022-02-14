@@ -487,7 +487,7 @@ export const classificationOfCoins = {
     'BAT',
     '1INCH',
   ],
-  gaming: ['PXT', 'sPXT', 'SHRM'],
+  gaming: ['PXT', 'sPXT', 'SHRM', 'GOLD', 'GEM', 'ELIXIR'],
   nft: ['PARAS', '1MIL'],
 };
 export const classificationOfCoins_key = [
