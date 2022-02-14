@@ -6,11 +6,11 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
         RPC_LIST: {
           defaultRpc: {
             url: 'https://rpc.mainnet.near.org',
-            simpleName: 'rpc mainnet',
+            simpleName: 'official rpc',
           },
           publicRpc: {
             url: 'https://public-rpc.blockpi.io/http/near',
-            simpleName: 'rpc public',
+            simpleName: 'blockpi rpc',
           },
         },
       };
@@ -20,11 +20,11 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
         RPC_LIST: {
           defaultRpc: {
             url: 'https://rpc.testnet.near.org',
-            simpleName: 'rpc mainnet',
+            simpleName: 'official rpc',
           },
           publicRpc: {
             url: 'https://public-rpc.blockpi.io/http/near-testnet',
-            simpleName: 'rpc public',
+            simpleName: 'blockpi rpc',
           },
         },
       };
@@ -33,11 +33,11 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
         RPC_LIST: {
           defaultRpc: {
             url: 'https://rpc.mainnet.near.org',
-            simpleName: 'rpc mainnet',
+            simpleName: 'official rpc',
           },
           publicRpc: {
             url: 'https://public-rpc.blockpi.io/http/near',
-            simpleName: 'rpc public',
+            simpleName: 'blockpi rpc',
           },
         },
       };
