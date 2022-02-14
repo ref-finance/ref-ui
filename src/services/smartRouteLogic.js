@@ -245,9 +245,9 @@ function getPoolChainFromPaths(paths, pools, threshold = 0.001) {
     }
     for (var pairInd in pairs) {
       let pair = pairs[pairInd];
-      console.log(pair);
+      // console.log(pair);
       let tokenPools = getPoolsByToken1ANDToken2(pools, pair[0], pair[1]);
-      console.log(tokenPools);
+      // console.log(tokenPools);
       chain.push(tokenPools);
     }
     poolChains.push(chain);
@@ -553,16 +553,11 @@ async function getBestOptimalAllocationsAndOutputs(
   outputToken,
   totalInput
 ) {
-  // console.log('INSIDE GET BEST OPTIMAL...');
   var totalInput = new Big(totalInput);
   let paths = await getPathsFromPools(pools, inputToken, outputToken);
-  // console.log(paths);
   let poolChains = await getPoolChainFromPaths(paths, pools);
-  // console.log(poolChains);
   let routes = await getRoutesFromPoolChain(poolChains);
-  // console.log(routes);
   let nodeRoutes = await getNodeRoutesFromPathsAndPoolChains(paths, poolChains);
-  // console.log(nodeRoutes);
   let allocations = await getBestOptInput(routes, nodeRoutes, totalInput);
   // fix integer rounding for allocations:
   allocations = checkIntegerSumOfAllocations(allocations, totalInput);
@@ -575,22 +570,218 @@ async function getBestOptimalAllocationsAndOutputs(
   };
 }
 
+function getHopsFromRoutes(routes, nodeRoutes, allocations) {
+  let hops = [];
+  for (var i in routes) {
+    var route = routes[i];
+    var nodeRoute = nodeRoutes[i];
+    var allocation = allocations[i];
+    if (!route.length) {
+      route = [route];
+    }
+    if (!route[0]) {
+      continue;
+    }
+    let hop = {
+      pool: route[0],
+      allocation: allocation,
+      inputToken: nodeRoute[0],
+      outputToken: nodeRoute[1],
+    };
+    hops.push(hop);
+  }
+  return hops;
+}
+
+function distillHopsByPool(hops) {
+  let distilledHops = [];
+  let poolIds = [];
+  let poolId2allocation = {};
+  for (var i in hops) {
+    let hop = hops[i];
+    if (hop.allocation === '0') {
+      continue;
+    }
+    // console.log(`HOP ${i} IS...`);
+    // console.log(hop);
+    let poolId = hop.pool['id'];
+    if (poolIds.includes(poolId)) {
+      poolId2allocation[poolId] = new Big(poolId2allocation[poolId])
+        .plus(new Big(hop.allocation))
+        .toString();
+    } else {
+      poolId2allocation[poolId] = new Big(hop.allocation).toString();
+      poolIds.push(poolId);
+    }
+  }
+  // let poolsWithOrder = [...new Set(...hops.map((item) => item.pool))]
+  let keys = Object.keys(poolId2allocation);
+  for (var j in keys) {
+    let poolId = keys[j];
+    let hop = hops.filter(
+      (item) => item.pool.id.toString() === poolId.toString()
+    )[0];
+    let distilledHop = {
+      pool: hop.pool,
+      allocation: poolId2allocation[poolId],
+      inputToken: hop.inputToken,
+      outputToken: hop.outputToken,
+    };
+    distilledHops.push(distilledHop);
+  }
+  return distilledHops;
+}
+
+function getDistilledHopActions(distilledHops, slippageTolerance) {
+  let actions = [];
+  for (var i in distilledHops) {
+    let hop = distilledHops[i];
+    let expectedAmountOut = getOutputSingleHop(
+      hop.pool,
+      hop.inputToken,
+      hop.outputToken,
+      hop.allocation
+    );
+    let minimumAmountOut = new Big(expectedAmountOut)
+      .times(new Big(1).minus(new Big(slippageTolerance).div(100)))
+      .round()
+      .toString(); //Here, assume slippage tolerance is a percentage. So 1% would be 1.0
+    let action = {
+      pool_id: hop.pool.id,
+      token_in: hop.inputToken,
+      token_out: hop.outputToken,
+      amount_in: hop.allocation,
+      min_amount_out: minimumAmountOut,
+    };
+    actions.push(action);
+  }
+  return actions;
+}
+function getMiddleTokenTotalsFromFirstHopActions(firstHopActions) {
+  let middleTokens = [
+    ...new Set(firstHopActions.map((item) => item.token_out)),
+  ];
+  let middleTokenTotals = {};
+  for (var i in middleTokens) {
+    let middleToken = middleTokens[i];
+    let mtActions = firstHopActions.filter(
+      (item) => item.token_out === middleToken
+    );
+    let mtTotal = mtActions
+      .map((item) => new Big(item.min_amount_out))
+      .reduce((a, b) => a.plus(b), new Big(0))
+      .toString();
+    middleTokenTotals[middleToken] = mtTotal;
+  }
+  return middleTokenTotals;
+}
+function getRoutesAndAllocationsForMiddleToken(
+  routes,
+  nodeRoutes,
+  allocations,
+  middleToken,
+  middleTokenTotal
+) {
+  // get routes that use middle token.
+  // (input route alloction) /sum(input allocations of routes with middle token) * (total_middleToken)
+  let mask = [];
+  for (var i in nodeRoutes) {
+    if (nodeRoutes[i][1] === middleToken) {
+      mask.push(true);
+    } else {
+      mask.push(false);
+    }
+  }
+  let froutes = [];
+  let fallocations = [];
+  let fnoderoutes = [];
+  for (var i in routes) {
+    if (mask[i]) {
+      froutes.push(routes[i]);
+      fallocations.push(allocations[i]);
+      fnoderoutes.push(nodeRoutes[i]);
+    }
+  }
+  let sumfallocations = fallocations.reduce(
+    (a, b) => new Big(a).plus(new Big(b)),
+    new Big(0)
+  );
+  let middleAllocations = fallocations.map((item) =>
+    new Big(item).div(sumfallocations).times(new Big(middleTokenTotal))
+  );
+  let secondHopRoutes = froutes.map((item) => [item[1]]);
+  let secondHopNodeRoutes = fnoderoutes.map((item) => [item[1], item[2]]);
+  middleAllocations = checkIntegerSumOfAllocations(
+    middleAllocations,
+    middleTokenTotal
+  );
+  return {
+    routes: secondHopRoutes,
+    nodeRoutes: secondHopNodeRoutes,
+    allocations: middleAllocations,
+  };
+}
+
 function getActionListFromRoutesAndAllocations(
   routes,
   nodeRoutes,
   allocations,
   slippageTolerance
 ) {
-  // TODO: need to add in minimumAmountOut for each action instead of a hop Multiplier
-  // TODO: need to consolidate sub-parallel swap paths - need middle token checks.
-  //console.log(allocations.map((item) => item.toString()))
-  let actions = [];
-  // console.log('INSIDE GETACTIONLIST FUNC');
-  // console.log(routes);
-  // console.log(nodeRoutes);
-  // console.log(allocations);
-  // console.log(slippageTolerance);
+  var actions = [];
+  let firstHops = getHopsFromRoutes(routes, nodeRoutes, allocations);
+  let distilledFirstHops = distillHopsByPool(firstHops);
+  let firstHopActions = getDistilledHopActions(
+    distilledFirstHops,
+    slippageTolerance
+  );
+  actions.push(...firstHopActions);
+  let middleTokenTotals = getMiddleTokenTotalsFromFirstHopActions(
+    firstHopActions
+  );
+  let middleTokens = Object.keys(middleTokenTotals);
+  for (var tokenIndex in middleTokens) {
+    let middleToken = middleTokens[tokenIndex];
+    let middleTokenTotal = middleTokenTotals[middleToken];
+    let middleTokenRoutesWithAllocations = getRoutesAndAllocationsForMiddleToken(
+      routes,
+      nodeRoutes,
+      allocations,
+      middleToken,
+      middleTokenTotal
+    );
+    let middleTokenRoutes = middleTokenRoutesWithAllocations.routes;
+    let middleTokenAllocations = middleTokenRoutesWithAllocations.allocations;
+    let middleTokenNodeRoutes = middleTokenRoutesWithAllocations.nodeRoutes;
+    let secondHops = getHopsFromRoutes(
+      middleTokenRoutes,
+      middleTokenNodeRoutes,
+      middleTokenAllocations
+    );
+    let distilledSecondHopsForToken = distillHopsByPool(secondHops);
+    let secondHopActionsForToken = getDistilledHopActions(
+      distilledSecondHopsForToken,
+      slippageTolerance
+    );
+    actions.push(...secondHopActionsForToken);
+  }
+  // loop over middle tokens. check routes that use middle token.
+  //use ratio (input route alloction) /sum(input allocations of routes with middle token) * (total_middleToken)
+  // to get 2nd hop allocations.
+  // distilled2ndHopsForToken = distillHopsByPool(secondHopAllocationForToken)
+  // secondHopActionsForToken = getDistilledHopActions(distilled2ndHopsForToken)
 
+  //TODO: NEED TO RUN INTEGER ROUNDING FUNCTION ON MIDDLE TOKEN ALLOCATIONS
+  return actions;
+}
+
+function getActionListFromRoutesAndAllocationsORIG(
+  routes,
+  nodeRoutes,
+  allocations,
+  slippageTolerance
+) {
+  let actions = [];
   for (var i in routes) {
     let route = routes[i];
     let nodeRoute = nodeRoutes[i];
@@ -616,7 +807,7 @@ function getActionListFromRoutesAndAllocations(
       let minimumAmountOut = expectedAmountOut
         .times(new Big(1).minus(new Big(slippageTolerance).div(100)))
         .round()
-        .toString(); //Here, assume slippage tolerance is a fraction. So 1% would be 0.01
+        .toString(); //Here, assume slippage tolerance is a percentage. So 1% would be 1.0
       let action = {
         pool_id: poolId,
         token_in: inputToken,
@@ -643,7 +834,7 @@ function getActionListFromRoutesAndAllocations(
       let minimumAmountOutFirstHop = expectedAmountOutFirstHop
         .times(new Big(1).minus(new Big(slippageTolerance).div(100)))
         .round()
-        .toString(); //Here, assume slippage tolerance is a fraction. So 1% would be 0.01
+        .toString(); //Here, assume slippage tolerance is a percentage. So 1% would be 1.0
 
       let action1 = {
         pool_id: pool1Id,
@@ -697,7 +888,6 @@ export async function getSmartRouteSwapActions(
   totalInput,
   slippageTolerance
 ) {
-  // console.log('INSIDE GET SMART ROUTE ACTIONS FUNCTION');
   if (!totalInput) {
     return [];
   }
@@ -708,8 +898,6 @@ export async function getSmartRouteSwapActions(
     outputToken,
     totalInput
   );
-  // console.log('RESULT DICTIONARY IS...');
-  // console.log(resDict);
   let allocations = resDict.allocations;
   // let outputs = resDict.outputs;
   let routes = resDict.routes;
@@ -720,15 +908,11 @@ export async function getSmartRouteSwapActions(
     allocations,
     slippageTolerance
   );
-  // console.log('TEMP ACTIONS ARE...');
-  // console.log(actions);
   let distilledActions = distillCommonPoolActions(
     actions,
     pools,
     slippageTolerance
   );
-  // console.log('RETURNING DISTILLED ACTIONS');
-  // console.log(distilledActions);
   return distilledActions;
 }
 
@@ -739,7 +923,6 @@ function distillCommonPoolActions(actions, pools, slippageTolerance) {
   //     #before the second transaction can occur.
 
   //     #combine same-pool transactions into single transaction:
-  // console.log('INSIDE DISTILL COMMON POOL ACTIONS');
   let poolsUsedPerAction = actions.map((item) => item.pool_id);
   let axnSet = [];
   let repeats = false;
@@ -768,7 +951,6 @@ function distillCommonPoolActions(actions, pools, slippageTolerance) {
     for (var pi in poolIds) {
       let poolId = poolIds[pi];
       let actionList = pid[poolId];
-      // console.log(actionList);
       if (actionList.length == 1) {
         var poolTotalInput = new Big(actionList[0].amount_in);
       } else {
@@ -798,7 +980,6 @@ function distillCommonPoolActions(actions, pools, slippageTolerance) {
     }
   } else {
     console.log('FOUND NO REPEATING POOL');
-    // console.log(actions);
     return actions;
   }
   return newActions;
@@ -924,7 +1105,6 @@ function addEdge(g, edge) {
 function addEdges(g, edgeList) {
   for (var n in edgeList) {
     let edge = edgeList[n];
-    //console.log(edge);
     addEdge(g, edge);
   }
 }
@@ -1157,9 +1337,9 @@ function getKShortestPaths(g, source, target, k) {
       let res = gen.next().value;
       if (res && !arrayContains(paths, res)) {
         if (res.length > 3) {
-          console.log(
-            'found all hops of length 2 or less... breaking out of generator'
-          );
+          // console.log(
+          //   'found all hops of length 2 or less... breaking out of generator'
+          // );
           break;
         }
         paths.push(res);
@@ -1173,12 +1353,7 @@ function getKShortestPaths(g, source, target, k) {
 }
 
 async function getPathsFromPools(pools, inputToken, outputToken) {
-  // console.log('INSIDE FUNCTION');
-  // console.log(pools);
-  // console.log(inputToken);
-  // console.log(outputToken);
   let graph = getGraphFromPoolList(pools);
-  // console.log(graph);
   return getKShortestPaths(graph, inputToken, outputToken, 100);
 }
 
