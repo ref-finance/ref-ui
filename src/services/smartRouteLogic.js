@@ -1631,7 +1631,7 @@ export async function stableSmart(
         bestStableSwapActions = [firstAction, ...parallelSwapActions];
       }
     }
-    let smartRouteActions = getSmartRouteSwapActions(
+    let smartRouteActions = await getSmartRouteSwapActions(
       pools,
       inputToken,
       outputToken,
@@ -1694,7 +1694,7 @@ export async function stableSmart(
         bestStableSwapActions = [...parallelSwapActions, lastAction];
       }
     }
-    let smartRouteActions = getSmartRouteSwapActions(
+    let smartRouteActions = await getSmartRouteSwapActions(
       pools,
       inputToken,
       outputToken,
@@ -1716,7 +1716,7 @@ export async function stableSmart(
     console.log(
       'NEITHER INPUT NOR OUTPUT IS STABLE. DOING NORMAL SMART ROUTING OVER SIMPLE POOLS'
     );
-    let smartRouteActions = getSmartRouteSwapActions(
+    let smartRouteActions = await getSmartRouteSwapActions(
       pools,
       inputToken,
       outputToken,
