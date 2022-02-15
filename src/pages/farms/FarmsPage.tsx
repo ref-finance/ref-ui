@@ -314,6 +314,7 @@ export function FarmsPage() {
     // TODO
     const { status, staked, sort, stable, coin } = searchData;
     let listAll = list || farms;
+    const tempCommonSeedFarms = JSON.parse(JSON.stringify(commonSeedFarms));
     listAll.forEach((item: any) => {
       const { userStaked, pool, seed_id, farm_id } = item[0];
       const isEnd = isEnded(item);
@@ -328,7 +329,7 @@ export function FarmsPage() {
           total_userUnclaimedReward += Number(farm.userUnclaimedReward);
         });
         if (useStaked) {
-          const commonSeedFarmList = commonSeedFarms[seed_id];
+          const commonSeedFarmList = tempCommonSeedFarms[seed_id];
           if (
             isEnd &&
             !total_userUnclaimedReward &&
