@@ -135,6 +135,7 @@ export function FarmsPage() {
   const withdrawNumber = 5;
   const refreshTime = 120000;
   const [count, setCount] = useState(0);
+  const [liveSeedList, setLiveSeedList] = useState(new Set());
 
   useEffect(() => {
     loadFarmInfoList().then();
@@ -215,9 +216,10 @@ export function FarmsPage() {
         } else {
           tempMap[current.seed_id] = tempMap[current.seed_id] || [];
           tempMap[current.seed_id].push(current);
+          liveSeedList.add(current.seed_id);
         }
       }
-
+      setLiveSeedList(liveSeedList);
       tempFarms = Object.keys(tempMap).map((key) => {
         const ele = tempMap[key];
         ele.key = key;
@@ -309,41 +311,48 @@ export function FarmsPage() {
     const { status, staked, sort, stable, coin } = searchData;
     let listAll = list || farms;
     listAll.forEach((item: any) => {
-      const { userStaked, lpTokenId, pool } = item[0];
+      const { userStaked, pool, seed_id } = item[0];
       const isEnd = isEnded(item);
       const useStaked = Number(userStaked) > 0;
-      // const isStableFarm = lpTokenId == STABLE_POOL_ID;
-      const { token_symbols, token_account_ids } = pool;
+      const { token_symbols } = pool;
       let condition1,
-        condition2 = true,
-        condition3 = false;
+        condition2 = false;
       if (+status == 2) {
-        // 0:ended,1:live,2:Unclaimed
+        // 0:ended,1:live,2:my farms
         let total_userUnclaimedReward = 0;
         item.forEach((farm: any) => {
           total_userUnclaimedReward += Number(farm.userUnclaimedReward);
         });
-        condition1 = Number(total_userUnclaimedReward) > 0;
+
+        if (useStaked) {
+          if (
+            isEnd &&
+            !total_userUnclaimedReward &&
+            liveSeedList.has(seed_id)
+          ) {
+            condition1 = false;
+          } else {
+            condition1 = true;
+          }
+          condition1 = true;
+        }
       } else if (+status == 0) {
         condition1 = isEnd;
       } else if (+status == 1) {
         condition1 = !isEnd;
       }
-      if (staked) {
-        condition2 = useStaked;
-      }
       if (coin != 'all') {
         const satisfiedTokenList = classificationOfCoins[coin];
         for (let i = 0; i < token_symbols.length; i++) {
           if (satisfiedTokenList.indexOf(token_symbols[i]) > -1) {
-            condition3 = true;
+            condition2 = true;
             break;
           }
         }
       } else {
-        condition3 = true;
+        condition2 = true;
       }
-      if (condition1 && condition2 && condition3) {
+      if (condition1 && condition2) {
         item.show = true;
       } else {
         item.show = false;
@@ -401,16 +410,16 @@ export function FarmsPage() {
     setSearchData(Object.assign({}, searchData));
     searchByCondition();
   }
-  function changeStaked() {
-    searchData.staked = !searchData.staked;
-    if (searchData.staked) {
-      localStorage.setItem('farmStakedOnly', '1');
-    } else {
-      localStorage.setItem('farmStakedOnly', '0');
-    }
-    setSearchData(Object.assign({}, searchData));
-    searchByCondition();
-  }
+  // function changeStaked() {
+  //   searchData.staked = !searchData.staked;
+  //   if (searchData.staked) {
+  //     localStorage.setItem('farmStakedOnly', '1');
+  //   } else {
+  //     localStorage.setItem('farmStakedOnly', '0');
+  //   }
+  //   setSearchData(Object.assign({}, searchData));
+  //   searchByCondition();
+  // }
   async function doWithDraw() {
     setWithdrawLoading(true);
     withdrawAllReward(checkedList);
@@ -662,14 +671,14 @@ export function FarmsPage() {
                       }`}
                     >
                       <FormattedMessage
-                        id="unclaimed"
-                        defaultMessage="Unclaimed"
+                        id="my_farms"
+                        defaultMessage="My farms"
                       />
                     </label>
                   ) : null}
                 </div>
                 <div className="flex justify-between xs:w-full md:w-full xs:mt-4 md:mt-4">
-                  {wallet.isSignedIn() ? (
+                  {/* {wallet.isSignedIn() ? (
                     <div className="flex items-center mr-4 xs:mr-0 md:mr-0">
                       <label className="text-farmText text-xs mr-2">
                         <FormattedMessage
@@ -690,7 +699,7 @@ export function FarmsPage() {
                         ></a>
                       </div>
                     </div>
-                  ) : null}
+                  ) : null} */}
                   <div className="flex items-center relative mr-4 xs:mr-0 md:mr-0">
                     <label className="text-farmText text-xs mr-2 whitespace-nowrap xs:hidden">
                       <FormattedMessage
@@ -714,7 +723,6 @@ export function FarmsPage() {
                       id={searchData.sort}
                       list={sortList}
                       onChange={changeSortOption}
-                      shrink={isMobile() && wallet.isSignedIn() ? true : false}
                       Icon={isMobile() ? SortIcon : ''}
                     ></SelectUi>
                   </div>
