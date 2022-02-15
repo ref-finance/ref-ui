@@ -307,7 +307,7 @@ export function FarmsPage() {
   function searchByCondition(list?: any, tempCommonSeedFarms?: any) {
     // TODO
     const { status, sort, coin } = searchData;
-    let listAll = list || farms;
+    let listAll = (list || farms).sort();
     let commonSeedFarmsNew = JSON.parse(
       JSON.stringify(tempCommonSeedFarms || commonSeedFarms)
     );
