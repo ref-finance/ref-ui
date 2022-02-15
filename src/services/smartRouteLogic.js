@@ -1492,7 +1492,11 @@ async function GETSTABLESWAPACTION(
   // let StablePoolInfo = await getPoolInfo() from stable-swap?
   console.log('STABLE POOL VAR IS...');
   console.log(stablePool);
-  const [amount_swapped, fee, dy] = await getStableSwappedAmount(
+  console.log('INPUT TOKEN IS...');
+  console.log(inputToken);
+  console.log('OUTPUT TOKEN IS...');
+  console.log(outputToken);
+  const [amount_swapped, fee, dy] = getStableSwappedAmount(
     inputToken,
     outputToken,
     amountIn.toString(),
@@ -1510,6 +1514,8 @@ async function GETSTABLESWAPACTION(
     amount_in: amountIn.toString(),
     min_amount_out: minAmountOut,
   };
+  console.log('STABLE ACTION IS...');
+  console.log(stableAction);
   return stableAction;
   // return await instantSwapGetTransactions(
   //   pool,
@@ -1520,14 +1526,14 @@ async function GETSTABLESWAPACTION(
   // );
 }
 
-function GETPARALLELSWAPACTIONS(
+async function GETPARALLELSWAPACTIONS(
   pools,
   inputToken,
   outputToken,
   amountIn,
   slippageTolerance
 ) {
-  return getSmartRouteSwapActions(
+  return await getSmartRouteSwapActions(
     pools,
     inputToken,
     outputToken,
@@ -1593,7 +1599,7 @@ export async function stableSmart(
 
       let firstAction = await GETSTABLESWAPACTION(
         inputToken,
-        outputToken,
+        middleToken,
         totalInput,
         slippageTolerance
       );
@@ -1604,13 +1610,17 @@ export async function stableSmart(
         .round()
         .toString();
 
-      let parallelSwapActions = GETPARALLELSWAPACTIONS(
-        (pools = secondHopPools),
-        (inputToken = middleToken),
-        (outputToken = outputToken),
-        (amountIn = minMiddleTokenAmount),
-        (slippageTolerance = slippageTolerance)
+      console.log('NOW ABOUT TO DO PARALLEL SWAP ACTIONS FOR SECOND HOP');
+      console.log(middleTokenAmount);
+      let parallelSwapActions = await GETPARALLELSWAPACTIONS(
+        secondHopPools,
+        middleToken,
+        outputToken,
+        minMiddleTokenAmount,
+        slippageTolerance
       );
+      console.log('PARALLEL SWAP ACTIONS GAVE...');
+      console.log(parallelSwapActions);
       let stableResult = getExpectedOutputFromActions(
         parallelSwapActions,
         outputToken
@@ -1656,10 +1666,10 @@ export async function stableSmart(
     var bestStableSwapActions = [];
     for (var i in STABLE_TOKEN_IDS) {
       let middleToken = STABLE_TOKEN_IDS[i];
-      if (middleToken === inputToken) {
+      if (middleToken === outputToken) {
         continue;
       }
-      let parallelSwapActions = GETPARALLELSWAPACTIONS(
+      let parallelSwapActions = await GETPARALLELSWAPACTIONS(
         (pools = pools),
         (inputToken = inputToken),
         (outputToken = middleToken),
@@ -1671,7 +1681,7 @@ export async function stableSmart(
         middleToken
       );
       let lastAction = await GETSTABLESWAPACTION(
-        inputToken,
+        middleToken,
         outputToken,
         minMiddleTokenAmount,
         slippageTolerance
