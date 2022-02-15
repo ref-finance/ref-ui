@@ -135,8 +135,7 @@ export function FarmsPage() {
   const withdrawNumber = 5;
   const refreshTime = 120000;
   const [count, setCount] = useState(0);
-  const [liveSeedList, setLiveSeedList] = useState(new Set());
-
+  const [commonSeedFarms, setCommonSeedFarms] = useState({});
   useEffect(() => {
     loadFarmInfoList().then();
   }, []);
@@ -216,10 +215,8 @@ export function FarmsPage() {
         } else {
           tempMap[current.seed_id] = tempMap[current.seed_id] || [];
           tempMap[current.seed_id].push(current);
-          liveSeedList.add(current.seed_id);
         }
       }
-      setLiveSeedList(liveSeedList);
       tempFarms = Object.keys(tempMap).map((key) => {
         const ele = tempMap[key];
         ele.key = key;
@@ -229,6 +226,13 @@ export function FarmsPage() {
         const totalApr = getTotalApr(arr);
         arr.totalApr = totalApr;
       });
+
+      tempFarms.forEach((farm) => {
+        commonSeedFarms[farm[0].seed_id] =
+          commonSeedFarms[farm[0].seed_id] || [];
+        commonSeedFarms[farm[0].seed_id].push(farm);
+      });
+      setCommonSeedFarms(commonSeedFarms);
       return tempFarms;
     };
 
@@ -311,7 +315,7 @@ export function FarmsPage() {
     const { status, staked, sort, stable, coin } = searchData;
     let listAll = list || farms;
     listAll.forEach((item: any) => {
-      const { userStaked, pool, seed_id } = item[0];
+      const { userStaked, pool, seed_id, farm_id } = item[0];
       const isEnd = isEnded(item);
       const useStaked = Number(userStaked) > 0;
       const { token_symbols } = pool;
@@ -324,12 +328,19 @@ export function FarmsPage() {
           total_userUnclaimedReward += Number(farm.userUnclaimedReward);
         });
         if (useStaked) {
+          const commonSeedFarmList = commonSeedFarms[seed_id];
           if (
             isEnd &&
             !total_userUnclaimedReward &&
-            liveSeedList.has(seed_id)
+            commonSeedFarmList.length > 1
           ) {
             condition1 = false;
+            for (let i = 0; i < commonSeedFarmList.length; i++) {
+              if (commonSeedFarmList[i][0].farm_id == farm_id) {
+                commonSeedFarmList.splice(i, 1);
+                break;
+              }
+            }
           } else {
             condition1 = true;
           }
