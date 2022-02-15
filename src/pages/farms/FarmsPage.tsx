@@ -323,7 +323,6 @@ export function FarmsPage() {
         item.forEach((farm: any) => {
           total_userUnclaimedReward += Number(farm.userUnclaimedReward);
         });
-
         if (useStaked) {
           if (
             isEnd &&
@@ -334,7 +333,6 @@ export function FarmsPage() {
           } else {
             condition1 = true;
           }
-          condition1 = true;
         }
       } else if (+status == 0) {
         condition1 = isEnd;
