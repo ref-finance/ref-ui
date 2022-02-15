@@ -61,7 +61,7 @@ import { BigNumber } from 'bignumber.js';
 import _, { filter } from 'lodash';
 import { getSwappedAmount } from './stable-swap';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
-import { getSmartRouteSwapActions } from './smartRouteLogic';
+import { getSmartRouteSwapActions, stableSmart } from './smartRouteLogic';
 
 // Big.strict = false;
 const FEE_DIVISOR = 10000;
@@ -242,6 +242,17 @@ export const estimateSwap = async ({
   );
   console.log('FOUND SMART ROUTE ACTIONS TO BE...');
   console.log(actions);
+  console.log(STABLE_POOL_ID);
+  let stableSmartActions = await stableSmart(
+    orpools,
+    tokenIn.id,
+    tokenOut.id,
+    parsedAmountIn,
+    0.1
+  );
+
+  console.log('STABLE SMART HYBRID ACTIONS ARE...');
+  console.log(stableSmartActions);
 
   const maxLPPool = _.maxBy(pools, (p) => getLiquidity(p, tokenIn, tokenOut));
 
