@@ -83,10 +83,8 @@ const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 interface SearchData {
   status: number;
-  staked: boolean;
   sort: string;
   sortBoxHidden: boolean;
-  stable: boolean;
   coin: string;
 }
 
@@ -114,13 +112,9 @@ export function FarmsPage() {
     {}
   );
   const [searchData, setSearchData] = useState<SearchData>({
-    status: 1,
-    staked: wallet.isSignedIn()
-      ? !!+localStorage.getItem('farmStakedOnly')
-      : false,
+    status: +localStorage.getItem('farm_filter_status'),
     sort: 'apr',
     coin: 'all',
-    stable: !!+localStorage.getItem('farmStableOnly'),
     sortBoxHidden: true,
   });
   const [yourFarms, setYourFarms] = useState<string | number>('-');
@@ -203,6 +197,7 @@ export function FarmsPage() {
     const composeFarms = (farms: FarmInfo[]) => {
       let tempMap = {};
       let tempFarms = [];
+      let tempCommonSeedFarms = {};
 
       while (farms.length) {
         let current = farms.pop();
@@ -228,12 +223,11 @@ export function FarmsPage() {
       });
 
       tempFarms.forEach((farm) => {
-        commonSeedFarms[farm[0].seed_id] =
-          commonSeedFarms[farm[0].seed_id] || [];
-        commonSeedFarms[farm[0].seed_id].push(farm);
+        tempCommonSeedFarms[farm[0].seed_id] =
+          tempCommonSeedFarms[farm[0].seed_id] || [];
+        tempCommonSeedFarms[farm[0].seed_id].push(farm);
       });
-      setCommonSeedFarms(commonSeedFarms);
-      return tempFarms;
+      return [tempFarms, tempCommonSeedFarms];
     };
 
     const farms = await getFarms({
@@ -262,8 +256,8 @@ export function FarmsPage() {
     }
     setUnclaimedFarmsIsLoading(false);
     getTokenSinglePrice(farms, rewardList, tokenPriceList);
-    const mergeFarms = composeFarms(farms);
-    searchByCondition(mergeFarms);
+    const [mergeFarms, commonSeedFarms] = composeFarms(farms);
+    searchByCondition(mergeFarms, commonSeedFarms);
   }
   async function getTokenSinglePrice(
     farms: any[],
@@ -310,11 +304,13 @@ export function FarmsPage() {
       setYourReward(totalUnWithDrawV);
     }
   }
-  function searchByCondition(list?: any) {
+  function searchByCondition(list?: any, tempCommonSeedFarms?: any) {
     // TODO
-    const { status, staked, sort, stable, coin } = searchData;
+    const { status, sort, coin } = searchData;
     let listAll = list || farms;
-    const tempCommonSeedFarms = JSON.parse(JSON.stringify(commonSeedFarms));
+    let commonSeedFarmsNew = JSON.parse(
+      JSON.stringify(tempCommonSeedFarms || commonSeedFarms)
+    );
     listAll.forEach((item: any) => {
       const { userStaked, pool, seed_id, farm_id } = item[0];
       const isEnd = isEnded(item);
@@ -329,7 +325,7 @@ export function FarmsPage() {
           total_userUnclaimedReward += Number(farm.userUnclaimedReward);
         });
         if (useStaked) {
-          const commonSeedFarmList = tempCommonSeedFarms[seed_id];
+          const commonSeedFarmList = commonSeedFarmsNew[seed_id] || [];
           if (
             isEnd &&
             !total_userUnclaimedReward &&
@@ -393,6 +389,7 @@ export function FarmsPage() {
       });
     }
     setFarms(listAll);
+    setCommonSeedFarms(tempCommonSeedFarms || commonSeedFarms);
   }
   function getTotalApr(farmsData: FarmInfo[]) {
     let apr = 0;
@@ -417,19 +414,10 @@ export function FarmsPage() {
   }
   function changeStatus(status: number) {
     searchData.status = status;
+    localStorage.setItem('farm_filter_status', status.toString());
     setSearchData(Object.assign({}, searchData));
     searchByCondition();
   }
-  // function changeStaked() {
-  //   searchData.staked = !searchData.staked;
-  //   if (searchData.staked) {
-  //     localStorage.setItem('farmStakedOnly', '1');
-  //   } else {
-  //     localStorage.setItem('farmStakedOnly', '0');
-  //   }
-  //   setSearchData(Object.assign({}, searchData));
-  //   searchByCondition();
-  // }
   async function doWithDraw() {
     setWithdrawLoading(true);
     withdrawAllReward(checkedList);
@@ -688,28 +676,6 @@ export function FarmsPage() {
                   ) : null}
                 </div>
                 <div className="flex justify-between xs:w-full md:w-full xs:mt-4 md:mt-4">
-                  {/* {wallet.isSignedIn() ? (
-                    <div className="flex items-center mr-4 xs:mr-0 md:mr-0">
-                      <label className="text-farmText text-xs mr-2">
-                        <FormattedMessage
-                          id="staked_only"
-                          defaultMessage="Staked"
-                        />
-                      </label>
-                      <div
-                        onClick={changeStaked}
-                        className={`flex items-center w-11 h-5 bg-cardBg rounded-full px-1 box-border cursor-pointer ${
-                          searchData.staked ? 'justify-end' : ''
-                        }`}
-                      >
-                        <a
-                          className={`h-4 w-4 rounded-full ${
-                            searchData.staked ? 'bg-farmSearch' : 'bg-farmRound'
-                          }`}
-                        ></a>
-                      </div>
-                    </div>
-                  ) : null} */}
                   <div className="flex items-center relative mr-4 xs:mr-0 md:mr-0">
                     <label className="text-farmText text-xs mr-2 whitespace-nowrap xs:hidden">
                       <FormattedMessage
@@ -913,13 +879,6 @@ function FarmView({
   const [calcVisible, setCalcVisible] = useState(false);
 
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
-
-  const clipColor = '#00c08b';
-  const clipSize = 12;
-  const claimLoadingColor = '#ffffff';
-  const claimLoadingSize = 12;
-  // const refreshTime = 120000;
-
   const PoolId = farmData.lpTokenId;
   const tokens = useTokens(farmData?.tokenIds);
 
