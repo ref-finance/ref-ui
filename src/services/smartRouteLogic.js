@@ -572,6 +572,14 @@ async function getBestOptimalAllocationsAndOutputs(
     outputToken,
     maxPathLength
   );
+  if (!paths.length) {
+    return {
+      allocations: [],
+      outputs: new Big(0),
+      routes: [],
+      nodeRoutes: [],
+    };
+  }
   let poolChains = await getPoolChainFromPaths(paths, pools);
   let routes = await getRoutesFromPoolChain(poolChains);
   let nodeRoutes = await getNodeRoutesFromPathsAndPoolChains(paths, poolChains);
@@ -910,6 +918,13 @@ export async function getSmartRouteSwapActions(
     return [];
   }
   var totalInput = new Big(totalInput);
+  console.log('about to run bestOpt');
+  console.log(pools);
+  console.log(inputToken);
+  console.log(outputToken);
+  console.log(totalInput.toString());
+  console.log(maxPathLength);
+  console.log('end of inputs');
   let resDict = await getBestOptimalAllocationsAndOutputs(
     pools,
     inputToken,
@@ -918,6 +933,10 @@ export async function getSmartRouteSwapActions(
     maxPathLength
   );
   let allocations = resDict.allocations;
+  if (maxPathLength === 2) {
+    console.log('ALLOCATIONS ARE...');
+    console.log(allocations.map((item) => item.toString()));
+  }
   // let outputs = resDict.outputs;
   let routes = resDict.routes;
   let nodeRoutes = resDict.nodeRoutes;
@@ -1698,6 +1717,9 @@ export async function stableSmart(
         totalInput,
         slippageTolerance
       );
+
+      console.log('GOT PARALLEL SWAP ACTIONS TO BE...');
+      console.log(parallelSwapActions);
       let minMiddleTokenAmount = getExpectedOutputFromActions(
         parallelSwapActions,
         middleToken

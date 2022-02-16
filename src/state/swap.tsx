@@ -31,6 +31,8 @@ import { CloseIcon } from '~components/icon/Actions';
 import db from '../store/RefDatabase';
 import { POOL_TOKEN_REFRESH_INTERVAL } from '~services/near';
 
+import { stableSmart } from './smartRouteLogic.js';
+
 const ONLY_ZEROS = /^0*\.?0*$/;
 
 interface SwapOptions {
