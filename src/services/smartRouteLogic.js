@@ -8,7 +8,13 @@ import {
   instantSwapGetTransactions,
   getSwappedAmount as getStableSwappedAmount,
 } from './stable-swap';
+import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
 import { getStablePool } from './pool';
+import {
+  ftGetStorageBalance,
+  ftGetTokenMetadata,
+  TokenMetadata,
+} from './ft-contract';
 
 Big.RM = 0;
 Big.DP = 40;
@@ -948,7 +954,7 @@ function distillCommonPoolActions(actions, pools, slippageTolerance) {
     }
   }
   if (repeats) {
-    console.log('FOUND REPEATING POOL');
+    // console.log('FOUND REPEATING POOL');
     var pid = {};
     for (var ai in actions) {
       let a = actions[ai];
@@ -992,7 +998,7 @@ function distillCommonPoolActions(actions, pools, slippageTolerance) {
       newActions.push(newAction);
     }
   } else {
-    console.log('FOUND NO REPEATING POOL');
+    // console.log('FOUND NO REPEATING POOL');
     return actions;
   }
   return newActions;
@@ -1356,11 +1362,11 @@ function getKShortestPaths(g, source, target, k, maxPathLength = 3) {
       let res = gen.next().value;
       if (res && !arrayContains(paths, res)) {
         if (res.length > maxPathLength) {
-          console.log(
-            `found all hops of length ${
-              maxPathLength - 1
-            } or less... breaking out of generator`
-          );
+          // console.log(
+          //   `found all hops of length ${
+          //     maxPathLength - 1
+          //   } or less... breaking out of generator`
+          // );
           break;
         }
         paths.push(res);
@@ -1483,29 +1489,42 @@ async function GETSTABLESWAPACTION(
   slippageTolerance
 ) {
   var pool_id = STABLE_POOL_ID;
-  console.log('POOL ID IS...');
-  console.log(pool_id);
+  // console.log('POOL ID IS...');
+  // console.log(pool_id);
   if (!pool_id) {
     var pool_id = STABLE_POOL_ID;
   }
   let stablePool = await getStablePool(pool_id);
   // let StablePoolInfo = await getPoolInfo() from stable-swap?
-  console.log('STABLE POOL VAR IS...');
-  console.log(stablePool);
-  console.log('INPUT TOKEN IS...');
-  console.log(inputToken);
-  console.log('OUTPUT TOKEN IS...');
-  console.log(outputToken);
+  // console.log('STABLE POOL VAR IS...');
+  // console.log(stablePool);
+  // console.log('INPUT TOKEN IS...');
+  // console.log(inputToken);
+  // console.log('OUTPUT TOKEN IS...');
+  // console.log(outputToken);
+  let inputTokenMeta = await ftGetTokenMetadata(inputToken);
+  let amountInScaled = new Big(amountIn)
+    // .div(new Big(10).pow(inputTokenMeta.decimals))
+    // .round()
+    .toString();
+  // console.log('amountInScaled is ...');
+  // console.log(amountInScaled);
   const [amount_swapped, fee, dy] = getStableSwappedAmount(
     inputToken,
     outputToken,
-    amountIn.toString(),
+    amountInScaled,
     stablePool
   );
+  let amount_swapped_scaled = new Big(amount_swapped)
+    .div(new Big(10).pow(STABLE_LP_TOKEN_DECIMALS))
+    .round()
+    .toString();
   console.log('AMOUNT_SWAPPED IS ...');
-  console.log(amount_swapped);
-  let minAmountOut = new Big(amount_swapped)
+  console.log(amount_swapped_scaled);
+
+  let minAmountOut = new Big(amount_swapped_scaled)
     .times(new Big(1).minus(new Big(slippageTolerance).div(100)))
+    .round()
     .toString();
   let stableAction = {
     pool_id: pool_id,
@@ -1539,7 +1558,7 @@ async function GETPARALLELSWAPACTIONS(
     outputToken,
     amountIn,
     slippageTolerance,
-    (maxPathLength = 2)
+    2
   );
 }
 
@@ -1550,10 +1569,6 @@ export async function stableSmart(
   totalInput,
   slippageTolerance
 ) {
-  console.log('STABLE POOL ID IS...');
-  console.log(STABLE_POOL_ID);
-  console.log('totalINput is ...');
-  console.log(totalInput);
   if (
     STABLE_TOKEN_IDS.includes(inputToken) &&
     STABLE_TOKEN_IDS.includes(outputToken)
@@ -1639,13 +1654,20 @@ export async function stableSmart(
       slippageTolerance
     );
     let smartRouteExpectedOutput = getExpectedOutputFromActions(
-      actions,
+      smartRouteActions,
       outputToken
     );
+    console.log('EXPECTED OUTPUT FROM SMART ROUTE ALONE IS...');
+    console.log(smartRouteExpectedOutput.toString());
+
+    console.log('EXPECTED OUTPUT FROM HYBRID STABLE SWAP / PARALLEL IS...');
+    console.log(bestOutput.toString());
     // now choose whichever solution gave the most output.
     if (new Big(smartRouteExpectedOutput).gt(bestOutput)) {
+      console.log('SMART ROUTE WAS BETTER -- USING THAT.');
       return smartRouteActions;
     } else {
+      console.log('HYBRID STABLE ROUTE WAS BETTER -- USING THAT.');
       return bestStableSwapActions;
     }
   } else if (
@@ -1670,14 +1692,14 @@ export async function stableSmart(
         continue;
       }
       let parallelSwapActions = await GETPARALLELSWAPACTIONS(
-        (pools = pools),
-        (inputToken = inputToken),
-        (outputToken = middleToken),
-        (amountIn = totalInput),
-        (slippageTolerance = slippageTolerance)
+        pools,
+        inputToken,
+        outputToken,
+        totalInput,
+        slippageTolerance
       );
       let minMiddleTokenAmount = getExpectedOutputFromActions(
-        firstActions,
+        parallelSwapActions,
         middleToken
       );
       let lastAction = await GETSTABLESWAPACTION(
@@ -1702,13 +1724,15 @@ export async function stableSmart(
       slippageTolerance
     );
     let smartRouteExpectedOutput = getExpectedOutputFromActions(
-      actions,
+      smartRouteActions,
       outputToken
     );
     // now choose whichever solution gave the most output.
     if (new Big(smartRouteExpectedOutput).gt(bestOutput)) {
+      console.log('SMART ROUTE WAS BETTER -- USING THAT.');
       return smartRouteActions;
     } else {
+      console.log('HYBRID STABLE ROUTE WAS BETTER -- USING THAT.');
       return bestStableSwapActions;
     }
   } else {
