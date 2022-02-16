@@ -112,7 +112,7 @@ export function FarmsPage() {
     {}
   );
   const [searchData, setSearchData] = useState<SearchData>({
-    status: +localStorage.getItem('farm_filter_status'),
+    status: null,
     sort: 'apr',
     coin: 'all',
     sortBoxHidden: true,
@@ -179,7 +179,6 @@ export function FarmsPage() {
       any,
       Record<string, string>
     ] = await Promise.all(Params);
-
     const stakedList: Record<string, string> = resolvedParams[0];
     const tokenPriceList: any = resolvedParams[2];
     const seeds: Record<string, string> = resolvedParams[3];
@@ -190,6 +189,12 @@ export function FarmsPage() {
         rewardList[key] = v;
       }
     });
+    const stakedList_being = Object.keys(stakedList).length > 0;
+    searchData.status = Number(
+      localStorage.getItem('farm_filter_status') ||
+        (stakedList_being ? '2' : '1')
+    );
+    setSearchData(searchData);
     setStakedList(stakedList);
     setRewardList(rewardList);
     setTokenPriceList(tokenPriceList);
@@ -318,6 +323,7 @@ export function FarmsPage() {
       const { token_symbols } = pool;
       let condition1,
         condition2 = false;
+
       if (+status == 2) {
         // 0:ended,1:live,2:my farms
         let total_userUnclaimedReward = 0;
@@ -342,7 +348,7 @@ export function FarmsPage() {
             condition1 = true;
           }
         }
-      } else if (+status == 0) {
+      } else if (status != null && +status == 0) {
         condition1 = isEnd;
       } else if (+status == 1) {
         condition1 = !isEnd;
