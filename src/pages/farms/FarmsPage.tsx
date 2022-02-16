@@ -190,10 +190,12 @@ export function FarmsPage() {
       }
     });
     const stakedList_being = Object.keys(stakedList).length > 0;
-    searchData.status = Number(
-      localStorage.getItem('farm_filter_status') ||
-        (stakedList_being ? '2' : '1')
-    );
+    searchData.status = wallet.isSignedIn()
+      ? Number(
+          localStorage.getItem('farm_filter_status') ||
+            (stakedList_being ? '2' : '1')
+        )
+      : 1;
     setSearchData(searchData);
     setStakedList(stakedList);
     setRewardList(rewardList);
@@ -323,7 +325,6 @@ export function FarmsPage() {
       const { token_symbols } = pool;
       let condition1,
         condition2 = false;
-
       if (+status == 2) {
         // 0:ended,1:live,2:my farms
         let total_userUnclaimedReward = 0;
@@ -348,7 +349,7 @@ export function FarmsPage() {
             condition1 = true;
           }
         }
-      } else if (status != null && +status == 0) {
+      } else if (+status == 0) {
         condition1 = isEnd;
       } else if (+status == 1) {
         condition1 = !isEnd;
@@ -655,7 +656,7 @@ export function FarmsPage() {
                   <label
                     onClick={() => changeStatus(0)}
                     className={`flex justify-center w-28 xs:w-24 md:w-24 items-center rounded-full h-full text-sm cursor-pointer ${
-                      +searchData.status == 0
+                      searchData.status != null && +searchData.status == 0
                         ? 'text-chartBg bg-farmSearch'
                         : ''
                     }`}
