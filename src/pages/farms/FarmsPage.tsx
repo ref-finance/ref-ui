@@ -18,6 +18,7 @@ import {
   CheckboxSelected,
   CoinPropertyIcon,
   SortIcon,
+  NoDataIcon,
 } from '~components/icon';
 import {
   GreenLButton,
@@ -122,6 +123,7 @@ export function FarmsPage() {
   const [lps, setLps] = useState<Record<string, FarmInfo[]>>({});
   const [checkedList, setCheckedList] = useState<Record<string, any>>({});
   const [selectAll, setSelectAll] = useState(false);
+  const [noData, setNoData] = useState(false);
   const rewardRef = useRef(null);
 
   const page = 1;
@@ -318,6 +320,7 @@ export function FarmsPage() {
     let commonSeedFarmsNew = JSON.parse(
       JSON.stringify(tempCommonSeedFarms || commonSeedFarms)
     );
+    let noData = true;
     listAll.forEach((item: any) => {
       const { userStaked, pool, seed_id, farm_id } = item[0];
       const isEnd = isEnded(item);
@@ -367,6 +370,7 @@ export function FarmsPage() {
       }
       if (condition1 && condition2) {
         item.show = true;
+        noData = false;
       } else {
         item.show = false;
       }
@@ -396,6 +400,7 @@ export function FarmsPage() {
       });
     }
     setFarms(listAll);
+    setNoData(noData);
     setCommonSeedFarms(tempCommonSeedFarms || commonSeedFarms);
   }
   function getTotalApr(farmsData: FarmInfo[]) {
@@ -714,6 +719,14 @@ export function FarmsPage() {
             )}
           </div>
           <div className="flex-grow xs:flex-none">
+            {noData ? (
+              <div className="flex w-full justify-center items-center relative top-2/3">
+                <NoDataIcon />
+                <span className="text-white text-base ml-6">
+                  <FormattedMessage id="no_result"></FormattedMessage>
+                </span>
+              </div>
+            ) : null}
             <div className="overflow-auto relative pb-4">
               {unclaimedFarmsIsLoading ? (
                 <Loading />
