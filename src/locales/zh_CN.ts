@@ -216,7 +216,7 @@ const zh_CN = {
   attention: '请注意',
   live: '进行',
   ended_search: '结束',
-  my_farms: '我的农场',
+  my_farms: '你的农场',
   staked_only: '按质押',
   sort_by: '按排序',
   your_farms_rewards: '你的农场奖励',
