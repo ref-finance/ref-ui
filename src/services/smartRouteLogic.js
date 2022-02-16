@@ -918,13 +918,13 @@ export async function getSmartRouteSwapActions(
     return [];
   }
   var totalInput = new Big(totalInput);
-  console.log('about to run bestOpt');
-  console.log(pools);
-  console.log(inputToken);
-  console.log(outputToken);
-  console.log(totalInput.toString());
-  console.log(maxPathLength);
-  console.log('end of inputs');
+  // console.log('about to run bestOpt');
+  // console.log(pools);
+  // console.log(inputToken);
+  // console.log(outputToken);
+  // console.log(totalInput.toString());
+  // console.log(maxPathLength);
+  // console.log('end of inputs');
   let resDict = await getBestOptimalAllocationsAndOutputs(
     pools,
     inputToken,
@@ -934,8 +934,8 @@ export async function getSmartRouteSwapActions(
   );
   let allocations = resDict.allocations;
   if (maxPathLength === 2) {
-    console.log('ALLOCATIONS ARE...');
-    console.log(allocations.map((item) => item.toString()));
+    // console.log('ALLOCATIONS ARE...');
+    // console.log(allocations.map((item) => item.toString()));
   }
   // let outputs = resDict.outputs;
   let routes = resDict.routes;
