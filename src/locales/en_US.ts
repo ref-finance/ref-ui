@@ -345,6 +345,6 @@ const en_US = {
   from_solana: 'Solana',
   from_terra: 'Terra',
   from_celo: 'Celo',
-  no_result: 'No result',
+  no_result: 'Sorry, we couldn’t find any matched farm',
 };
 export default en_US;

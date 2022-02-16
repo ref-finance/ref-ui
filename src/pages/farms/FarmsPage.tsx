@@ -720,9 +720,9 @@ export function FarmsPage() {
           </div>
           <div className="flex-grow xs:flex-none">
             {noData ? (
-              <div className="flex w-full justify-center items-center relative top-2/3">
+              <div className="flex flex-col w-full justify-center items-center mt-32 xs:mt-8 md:mt-8">
                 <NoDataIcon />
-                <span className="text-white text-base ml-6">
+                <span className="text-farmText text-base mt-4 text-center w-48">
                   <FormattedMessage id="no_result"></FormattedMessage>
                 </span>
               </div>

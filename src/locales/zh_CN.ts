@@ -333,6 +333,6 @@ const zh_CN = {
   from_solana: 'Solana',
   from_terra: 'Terra',
   from_celo: 'Celo',
-  no_result: '没有数据',
+  no_result: '抱歉, 没有找到匹配的农场',
 };
 export default zh_CN;
