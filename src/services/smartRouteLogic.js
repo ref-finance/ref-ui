@@ -912,7 +912,8 @@ export async function getSmartRouteSwapActions(
   outputToken,
   totalInput,
   slippageTolerance,
-  maxPathLength = 3
+  maxPathLength = 3,
+  numberOfRoutesLimit = 2
 ) {
   if (!totalInput) {
     return [];
@@ -933,17 +934,55 @@ export async function getSmartRouteSwapActions(
     maxPathLength
   );
   let allocations = resDict.allocations;
-  if (maxPathLength === 2) {
-    // console.log('ALLOCATIONS ARE...');
-    // console.log(allocations.map((item) => item.toString()));
-  }
+
   // let outputs = resDict.outputs;
   let routes = resDict.routes;
   let nodeRoutes = resDict.nodeRoutes;
+
+  console.log('initial routes are...');
+  console.log(routes);
+  console.log('initial node routes are...');
+  console.log(nodeRoutes);
+
+  if (routes.length < 1) {
+    return [];
+  }
+
+  // check the top numberOfRoutesLimit
+  console.log(allocations.map((a) => a.toString()));
+
+  //SORT BY ALLOCATIONS
+  let sortedIndices = argsort(
+    allocations.map((a) => new Big(a).toFixed())
+  ).slice(0, numberOfRoutesLimit);
+
+  console.log('sorted Indices are');
+  console.log(sortedIndices);
+  var filteredRoutes = [];
+  var filteredNodeRoutes = [];
+  for (var i in sortedIndices) {
+    let index = sortedIndices[i];
+    filteredRoutes.push(routes[index]);
+    filteredNodeRoutes.push(nodeRoutes[index]);
+  }
+
+  console.log('filteredRoutes are ...');
+  console.log(filteredRoutes);
+  console.log('filtered Node routes are...');
+  console.log(filteredNodeRoutes);
+  let filteredAllocations = getBestOptInput(
+    filteredRoutes,
+    filteredNodeRoutes,
+    totalInput
+  );
+
+  console.log('filtered allocations are ...');
+  console.log(filteredAllocations.map((a) => a.toString()));
+
   let actions = getActionListFromRoutesAndAllocations(
-    routes,
-    nodeRoutes,
-    allocations,
+    filteredRoutes,
+    filteredNodeRoutes,
+    filteredAllocations,
     slippageTolerance
   );
   let distilledActions = distillCommonPoolActions(
@@ -1037,6 +1076,13 @@ function distillCommonPoolActions(actions, pools, slippageTolerance) {
 //////////////////////////////////////////////////////////////
 // UTILITIES
 //////////////////////////////////////////////////////////////
+
+function argsort(arr) {
+  let decor = (v, i) => [v, i]; // set index to value
+  let undecor = (a) => a[1]; // leave only index
+  return arr.map(decor).sort().map(undecor);
+}
+
 function getPoolsByToken1ORToken2(pools, token1, token2) {
   let filteredPools = pools.filter(
     (item) =>
