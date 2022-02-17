@@ -44,17 +44,17 @@ export default function PopUp() {
       {closeStatus ? null : (
         <div
           onClick={gotoPage}
-          className={`fixed xs:w-full md:w-full z-50 lg:right-8 cursor-pointer ${
+          className={`fixed xs:left-1/2 transform -translate-x-1/2 z-50 lg:right-8 cursor-pointer ${
             mobile ? 'farmPopupBoxMobile' : 'farmPopupBox'
           } }`}
         >
-          <IncentivePopup width={mobile ? '100%' : ''}></IncentivePopup>
-          <LoveIcon className="absolute left-1/2 transform -translate-x-1/2 -top-4"></LoveIcon>
+          <IncentivePopup></IncentivePopup>
+          <LoveIcon className="absolute left-10 -top-3"></LoveIcon>
           <CloseButton
             onClick={closePop}
-            className="absolute top-4 right-4 cursor-pointer"
+            className="absolute top-0 right-0 cursor-pointer"
           ></CloseButton>
-          <label className="absolute gold top-6 right-11"></label>
+          <label className="absolute gold top-11 right-4"></label>
         </div>
       )}
     </>

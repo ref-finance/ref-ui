@@ -441,8 +441,8 @@ input[type='range']::-webkit-slider-thumb {
   -webkit-animation: circle_left 20s linear 1;
 }
 .gold {
-  width: 77px;
-  height: 77px;
+  width: 48px;
+  height: 48px;
   cursor: pointer;
   background: url('./assets/imgs/gold.gif') center no-repeat;
   background-size: 100% 100%;
@@ -499,7 +499,7 @@ input[type='range']::-webkit-slider-thumb {
     bottom: -190px;
   }
   to {
-    bottom: 1.5rem;
+    bottom: 0;
   }
 }
 @keyframes showfrombottomMobile {
@@ -507,7 +507,7 @@ input[type='range']::-webkit-slider-thumb {
     bottom: -190px;
   }
   to {
-    bottom: 2rem;
+    bottom: 1rem;
   }
 }
 @keyframes pushLeftanimation {
