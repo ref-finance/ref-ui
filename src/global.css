@@ -202,8 +202,7 @@ input[type='number'] {
   color: #000;
   font-weight: bold;
   background: #f7c945;
-  font-size: 18px;
-  line-height: 28px;
+  line-height: 22px;
 }
 
 @keyframes spin {

@@ -1429,7 +1429,7 @@ function FarmView({
           </div>
         ) : incentiveLpTokenConfig[farmData.pool.id] ? (
           <div className="incentive status-bar">
-            x {incentiveLpTokenConfig[farmData.pool.id]}
+            x{incentiveLpTokenConfig[farmData.pool.id]}
           </div>
         ) : pending ? (
           <div className="pending status-bar">
