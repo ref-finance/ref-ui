@@ -39,6 +39,7 @@ import {
   getAllSinglePriceByTokenIds,
   classificationOfCoins,
   classificationOfCoins_key,
+  incentiveLpTokenConfig,
 } from '~services/farm';
 import {
   stake,
@@ -1426,8 +1427,11 @@ function FarmView({
           <div className="ended status-bar">
             <FormattedMessage id="ended" defaultMessage="ENDED" />
           </div>
-        ) : null}
-        {pending ? (
+        ) : incentiveLpTokenConfig[farmData.pool.id] ? (
+          <div className="incentive status-bar">
+            x {incentiveLpTokenConfig[farmData.pool.id]}
+          </div>
+        ) : pending ? (
           <div className="pending status-bar">
             <FormattedMessage id="pending" defaultMessage="PENDING" />
           </div>

@@ -198,6 +198,13 @@ input[type='number'] {
   color: #fff;
   background: #59c5a6;
 }
+.incentive {
+  color: #000;
+  font-weight: bold;
+  background: #f7c945;
+  font-size: 18px;
+  line-height: 28px;
+}
 
 @keyframes spin {
   from {
@@ -433,6 +440,13 @@ input[type='range']::-webkit-slider-thumb {
   left: 0;
   -webkit-animation: circle_left 20s linear 1;
 }
+.gold {
+  width: 77px;
+  height: 77px;
+  cursor: pointer;
+  background: url('./assets/imgs/gold.gif') center no-repeat;
+  background-size: 100% 100%;
+}
 @-webkit-keyframes circle_right {
   0% {
     -webkit-transform: rotate(-136deg);
@@ -473,6 +487,28 @@ input[type='range']::-webkit-slider-thumb {
   left: 50%;
   transform: translateX(-50%);
   animation: pushanimation 1.5s ease;
+}
+.farmPopupBox {
+  animation: showfrombottom 1s both;
+}
+.farmPopupBoxMobile {
+  animation: showfrombottomMobile 1s both;
+}
+@keyframes showfrombottom {
+  from {
+    bottom: -190px;
+  }
+  to {
+    bottom: 1.5rem;
+  }
+}
+@keyframes showfrombottomMobile {
+  from {
+    bottom: -190px;
+  }
+  to {
+    bottom: 2rem;
+  }
 }
 @keyframes pushLeftanimation {
   0% {
