@@ -44,7 +44,7 @@ export default function PopUp() {
       {closeStatus ? null : (
         <div
           onClick={gotoPage}
-          className={`fixed xs:left-1/2 transform -translate-x-1/2 z-50 lg:right-8 cursor-pointer ${
+          className={`fixed xs:left-1/2 xs:transform xs:-translate-x-1/2 md:left-1/2 md:transform md:-translate-x-1/2 z-50 lg:right-8 cursor-pointer ${
             mobile ? 'farmPopupBoxMobile' : 'farmPopupBox'
           } }`}
         >
