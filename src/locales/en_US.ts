@@ -266,7 +266,7 @@ const en_US = {
   calculate_roi: 'ROI calculator',
   rewards_claimed: 'Rewards claimed',
   value_rewards_token: 'Value of rewards',
-  all: 'all',
+  all: 'All',
   all_5: '5 tokens per time',
   insufficient_shares: 'Insufficient shares',
   shares_removed: 'Shares',
@@ -346,6 +346,6 @@ const en_US = {
   from_terra: 'Terra',
   from_celo: 'Celo',
   no_result: 'Sorry, we couldn’t find any matched farm',
-  mulitple: 'Mulitple',
+  mulitple: 'Multiple',
 };
 export default en_US;
