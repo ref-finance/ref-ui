@@ -105,9 +105,6 @@ module.exports = {
         '30vw': '30vw',
         '54': '13.5rem'
       },
-      height: {
-        '18h': '4.5rem'
-      }
     },
     plugins: [],
   },
