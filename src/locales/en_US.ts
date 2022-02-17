@@ -346,5 +346,6 @@ const en_US = {
   from_terra: 'Terra',
   from_celo: 'Celo',
   no_result: 'Sorry, we couldn’t find any matched farm',
+  mulitple: 'mulitple',
 };
 export default en_US;
