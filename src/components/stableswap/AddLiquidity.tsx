@@ -414,6 +414,7 @@ export default function AddLiquidityComponent(props: {
     ) as [string, string, string];
 
     return addLiquidityToStablePool({
+      tokens: tokens,
       id: Number(STABLE_POOL_ID),
       amounts,
       min_shares,

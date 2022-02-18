@@ -97,6 +97,8 @@ import moment from 'moment';
 import { ChartNoData } from '~components/icon/ChartNoData';
 import { WarnTriangle } from '~components/icon/SwapRefresh';
 import { RefIcon } from '~components/icon/Common';
+import { useWalletTokenBalances } from '../../state/token';
+import { SmallWallet } from '../../components/icon/SmallWallet';
 interface ParamTypes {
   id: string;
 }
@@ -177,7 +179,7 @@ export function AddLiquidityModal(
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [messageId, setMessageId] = useState<string>('add_liquidity');
   const [defaultMessage, setDefaultMessage] = useState<string>('Add Liquidity');
-  const balances = useTokenBalances();
+  const balances = useWalletTokenBalances(tokens.map((token) => token.id));
   const [error, setError] = useState<Error>();
   const intl = useIntl();
   const history = useHistory();
@@ -481,7 +483,7 @@ export function AddLiquidityModal(
                 defaultMessage="Add Liquidity"
               />
             </div>
-            <p className="text-xs text-primaryText">
+            {/* <p className="text-xs text-primaryText">
               <a
                 className="underline cursor-pointer"
                 onClick={() => {
@@ -492,7 +494,7 @@ export function AddLiquidityModal(
               </a>
               &nbsp;
               <FormattedMessage id="deposit_into_ref_account" />
-            </p>
+            </p> */}
           </div>
           <div
             className="ml-2 cursor-pointer p-1"
@@ -506,7 +508,7 @@ export function AddLiquidityModal(
         <div className="mt-8 md:hidden xs:hidden">
           <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
             <span className="mr-2 text-primaryText">
-              <RefIcon></RefIcon>
+              <SmallWallet />
             </span>
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
@@ -541,7 +543,7 @@ export function AddLiquidityModal(
         <div className="my-8 md:hidden xs:hidden">
           <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
             <span className="mr-2 text-primaryText">
-              <RefIcon></RefIcon>
+              <SmallWallet />
             </span>
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
@@ -582,17 +584,11 @@ export function AddLiquidityModal(
                 <div className="text-white text-base">
                   {toRealSymbol(tokens[0].symbol)}
                 </div>
-                {/* <div
-                  className="text-xs text-gray-400"
-                  title={tokens[0].id}
-                >{`${tokens[0].id.substring(0, 25)}${
-                  tokens[0].id.length > 25 ? '...' : ''
-                }`}</div> */}
               </div>
             </div>
             <div className="flex items-center justify-end text-xs text-right mb-1 text-gray-400">
               <span className="mr-2 text-primaryText">
-                <RefIcon></RefIcon>
+                <SmallWallet />
               </span>
               <FormattedMessage id="balance" defaultMessage="Balance" />
               :&nbsp;
@@ -636,7 +632,7 @@ export function AddLiquidityModal(
             </div>
             <div className="flex justify-end items-end text-xs text-right mb-1 text-gray-400">
               <span className="mr-2 text-primaryText">
-                <RefIcon></RefIcon>
+                <SmallWallet />
               </span>
               <FormattedMessage id="balance" defaultMessage="Balance" />
               :&nbsp;
@@ -678,14 +674,14 @@ export function AddLiquidityModal(
                 {modal?.token?.symbol}！
               </label>
             </div>
-            <SolidButton
+            {/* <SolidButton
               className="focus:outline-none px-3 py-1.5 text-sm"
               onClick={() => {
                 setVisible(true);
               }}
             >
               <FormattedMessage id="deposit" />
-            </SolidButton>
+            </SolidButton> */}
           </div>
         ) : null}
         <div className="flex justify-between text-primaryText text-sm my-6">

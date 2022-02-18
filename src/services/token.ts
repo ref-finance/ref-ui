@@ -133,6 +133,81 @@ interface DepositOptions {
   msg?: string;
 }
 
+export const getDepositTransactions = async ({
+  tokens,
+  amounts,
+  msgs,
+}: {
+  tokens: TokenMetadata[];
+  amounts: string[];
+  msgs?: string[];
+}) => {
+  const whitelist = await getWhitelistedTokens();
+
+  const transactions: Transaction[] = [];
+
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    const gasFee =
+      token.id === specialToken ? '150000000000000' : '100000000000000';
+    transactions.unshift({
+      receiverId: token.id,
+      functionCalls: [
+        {
+          methodName: 'ft_transfer_call',
+          args: {
+            receiver_id: REF_FI_CONTRACT_ID,
+            amount: toNonDivisibleNumber(token.decimals, amounts[i]),
+            msg: msgs?.[i] || '',
+          },
+          amount: ONE_YOCTO_NEAR,
+          gas: gasFee,
+        },
+      ],
+    });
+
+    const exchangeBalanceAtFt = await ftGetStorageBalance(
+      token.id,
+      REF_FI_CONTRACT_ID
+    );
+
+    if (!exchangeBalanceAtFt) {
+      transactions.unshift({
+        receiverId: token.id,
+        functionCalls: [
+          {
+            methodName: 'storage_deposit',
+            args: {
+              account_id: REF_FI_CONTRACT_ID,
+              registration_only: true,
+            },
+            amount: STORAGE_TO_REGISTER_WITH_FT,
+            gas: '30000000000000',
+          },
+        ],
+      });
+    }
+
+    if (!whitelist.includes(token.id)) {
+      transactions.unshift({
+        receiverId: REF_FI_CONTRACT_ID,
+        functionCalls: [registerTokenAction(token.id)],
+      });
+    }
+  }
+
+  const neededStorage = await checkTokenNeedsStorageDeposit();
+
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+
+  return transactions;
+};
+
 export const deposit = async ({ token, amount, msg = '' }: DepositOptions) => {
   const gasFee =
     token.id === specialToken ? '150000000000000' : '100000000000000';

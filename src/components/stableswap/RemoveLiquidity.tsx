@@ -156,6 +156,7 @@ export function RemoveLiquidityComponent(props: {
       );
 
       return removeLiquidityFromStablePool({
+        tokens,
         id: pool.id,
         min_amounts: min_amounts as [string, string, string],
         shares: removeShares,
@@ -179,6 +180,7 @@ export function RemoveLiquidityComponent(props: {
         : predict_burn;
 
       return removeLiquidityByTokensFromStablePool({
+        tokens,
         id: pool.id,
         amounts,
         max_burn_shares,

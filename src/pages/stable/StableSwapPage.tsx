@@ -15,6 +15,7 @@ import TokenReserves from '~components/stableswap/TokenReserves';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import getConfig from '~services/config';
 import { StableSwapLogo } from '~components/icon/StableSwap';
+import { useWalletTokenBalances } from '../../state/token';
 const DEFAULT_ACTIONS = ['stable_swap', 'add_liquidity', 'remove_liquidity'];
 const STABLE_TOKENS = ['USDT', 'USDC', 'DAI'];
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
@@ -30,6 +31,14 @@ function StableSwapPage() {
 
   const allTokens = useWhitelistStableTokens();
   const balances = useTokenBalances();
+  const tokens =
+    allTokens &&
+    allTokens.length > 0 &&
+    allTokens.filter((item) => STABLE_TOKENS.indexOf(item.symbol) > -1);
+
+  const nearBalances = useWalletTokenBalances(
+    tokens?.map((token) => token.id) || []
+  );
 
   const stablePool = useStablePool({
     loadingTrigger,
@@ -42,10 +51,15 @@ function StableSwapPage() {
     setAction(actionName);
   };
 
-  const tokens =
-    allTokens &&
-    allTokens.length > 0 &&
-    allTokens.filter((item) => STABLE_TOKENS.indexOf(item.symbol) > -1);
+  if (
+    !allTokens ||
+    !pool ||
+    !shares ||
+    !stablePool ||
+    !balances ||
+    !nearBalances
+  )
+    return <Loading />;
 
   const renderModule = (tab: string) => {
     switch (tab) {
@@ -69,7 +83,7 @@ function StableSwapPage() {
             tokens={tokens}
             totalShares={shares}
             stakeList={stakeList}
-            balances={balances}
+            balances={nearBalances}
           />
         );
       case DEFAULT_ACTIONS[2]:
@@ -85,8 +99,6 @@ function StableSwapPage() {
         );
     }
   };
-
-  if (!allTokens || !pool || !shares || !stablePool) return <Loading />;
 
   return (
     <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2">
