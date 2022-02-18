@@ -15,10 +15,52 @@ import {
   PopupText,
   PopupBox1Mobile,
 } from '~components/icon/Xref';
+import { IncentivePopup, LoveIcon, CloseButton } from '~components/icon/Farm';
 import { ModalCloseAuto } from '~components/icon';
 import { isMobile } from '~utils/device';
 
 export default function PopUp() {
+  const [closeStatus, setCloseStatus] = useState(true);
+  const history = useHistory();
+  useEffect(() => {
+    const farmIncentive = localStorage.getItem('farm-incentive-popup');
+    if (farmIncentive == '1') {
+      setCloseStatus(true);
+    } else {
+      setCloseStatus(false);
+    }
+  }, []);
+  const closePop = (e: any) => {
+    localStorage.setItem('farm-incentive-popup', '1');
+    e.stopPropagation();
+    setCloseStatus(true);
+  };
+  const gotoPage = () => {
+    history.push('/farms');
+  };
+  const mobile = isMobile();
+  return (
+    <>
+      {closeStatus ? null : (
+        <div
+          onClick={gotoPage}
+          className={`fixed xs:left-1/2 xs:transform xs:-translate-x-1/2 md:left-1/2 md:transform md:-translate-x-1/2 z-50 lg:right-8 cursor-pointer ${
+            mobile ? 'farmPopupBoxMobile' : 'farmPopupBox'
+          } }`}
+        >
+          <IncentivePopup></IncentivePopup>
+          <LoveIcon className="absolute left-10 -top-3"></LoveIcon>
+          <CloseButton
+            onClick={closePop}
+            className="absolute top-0 right-0 cursor-pointer"
+          ></CloseButton>
+          <label className="absolute gold top-11 right-4"></label>
+        </div>
+      )}
+    </>
+  );
+}
+export function PopUp_xREF() {
   const [closeStatus, setCloseStatus] = useState(true);
   const history = useHistory();
   useEffect(() => {

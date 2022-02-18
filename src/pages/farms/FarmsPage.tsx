@@ -39,6 +39,7 @@ import {
   getAllSinglePriceByTokenIds,
   classificationOfCoins,
   classificationOfCoins_key,
+  incentiveLpTokenConfig,
 } from '~services/farm';
 import {
   stake,
@@ -92,6 +93,7 @@ interface SearchData {
 export function FarmsPage() {
   const intl = useIntl();
   const sortList = {
+    mulitple: intl.formatMessage({ id: 'mulitple' }),
     apr: intl.formatMessage({ id: 'apr' }),
     new: intl.formatMessage({ id: 'new' }),
     total_staked: intl.formatMessage({ id: 'total_staked' }),
@@ -113,8 +115,8 @@ export function FarmsPage() {
     {}
   );
   const [searchData, setSearchData] = useState<SearchData>({
+    sort: 'mulitple',
     status: null,
-    sort: 'apr',
     coin: 'all',
     sortBoxHidden: true,
   });
@@ -325,7 +327,7 @@ export function FarmsPage() {
       const { userStaked, pool, seed_id, farm_id } = item[0];
       const isEnd = isEnded(item);
       const useStaked = Number(userStaked) > 0;
-      const { token_symbols } = pool;
+      const { token_symbols, id } = pool;
       let condition1,
         condition2 = false;
       if (+status == 2) {
@@ -374,6 +376,7 @@ export function FarmsPage() {
       } else {
         item.show = false;
       }
+      item.mulitple = incentiveLpTokenConfig[id] || '0';
     });
     if (sort == 'new') {
       const tempMap = {};
@@ -397,6 +400,10 @@ export function FarmsPage() {
     } else if (sort == 'total_staked') {
       listAll.sort((item1: any, item2: any) => {
         return Number(item2[0].totalStaked) - Number(item1[0].totalStaked);
+      });
+    } else if (sort == 'mulitple') {
+      listAll.sort((item1: any, item2: any) => {
+        return Number(item2.mulitple) - Number(item1.mulitple);
       });
     }
     setFarms(listAll);
@@ -1426,8 +1433,11 @@ function FarmView({
           <div className="ended status-bar">
             <FormattedMessage id="ended" defaultMessage="ENDED" />
           </div>
-        ) : null}
-        {pending ? (
+        ) : incentiveLpTokenConfig[farmData.pool.id] ? (
+          <div className="incentive status-bar">
+            x{incentiveLpTokenConfig[farmData.pool.id]}
+          </div>
+        ) : pending ? (
           <div className="pending status-bar">
             <FormattedMessage id="pending" defaultMessage="PENDING" />
           </div>
