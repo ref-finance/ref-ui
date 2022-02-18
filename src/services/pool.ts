@@ -601,6 +601,8 @@ export const removeLiquidityFromStablePool = async ({
       amount: ONE_YOCTO_NEAR,
       gas: '30000000000000',
     },
+      ...tokenIds.map((tokenId) =>
+      withdrawAction({ tokenId, amount: '0', unregister }))
   ];
 
   return executeMultipleTransactions([
@@ -609,15 +611,8 @@ export const removeLiquidityFromStablePool = async ({
       receiverId: REF_FI_CONTRACT_ID,
       functionCalls: [...actions],
     },
-    {
-      receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: tokenIds.map((tokenId) =>
-        withdrawAction({ tokenId, amount: '0', unregister })
-      ),
-    },
   ]);
 
-  // return refFiManyFunctionCalls(actions);
 };
 
 export const predictRemoveLiquidityByTokens = async (
