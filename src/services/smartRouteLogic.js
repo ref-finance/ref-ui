@@ -1615,7 +1615,8 @@ async function GETPARALLELSWAPACTIONS(
   inputToken,
   outputToken,
   amountIn,
-  slippageTolerance
+  slippageTolerance,
+  maxNumberParallelSwaps = 3
 ) {
   return await getSmartRouteSwapActions(
     pools,
@@ -1623,7 +1624,8 @@ async function GETPARALLELSWAPACTIONS(
     outputToken,
     amountIn,
     slippageTolerance,
-    2
+    2,
+    maxNumberParallelSwaps
   );
 }
 
