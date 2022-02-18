@@ -12,7 +12,11 @@ import {
 import BN from 'bn.js';
 import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
-import { toNonDivisibleNumber, toReadableNumber } from '../utils/numbers';
+import {
+  toNonDivisibleNumber,
+  toReadableNumber,
+  ONLY_ZEROS,
+} from '../utils/numbers';
 import {
   storageDepositAction,
   storageDepositForFTAction,
@@ -516,20 +520,12 @@ export const removeLiquidityFromPool = async ({
         min_amounts: amounts,
       },
       amount: ONE_YOCTO_NEAR,
+      gas: '30000000000000',
     },
     ...tokenIds.map((tokenId) =>
       withdrawAction({ tokenId, amount: '0', unregister })
     ),
   ];
-
-  // const needDeposit = await checkTokenNeedsStorageDeposit();
-  // if (needDeposit) {
-  //   actions.unshift(
-  //     storageDepositAction({
-  //       amount: needDeposit,
-  //     })
-  //   );
-  // }
 
   return executeMultipleTransactions([
     ...withDrawTransactions,
@@ -603,17 +599,9 @@ export const removeLiquidityFromStablePool = async ({
         min_amounts,
       },
       amount: ONE_YOCTO_NEAR,
+      gas: '30000000000000',
     },
   ];
-
-  // const needDeposit = await checkTokenNeedsStorageDeposit();
-  // if (needDeposit) {
-  //   actions.unshift(
-  //     storageDepositAction({
-  //       amount: needDeposit,
-  //     })
-  //   );
-  // }
 
   return executeMultipleTransactions([
     ...withDrawTransactions,
@@ -662,6 +650,8 @@ export const removeLiquidityByTokensFromStablePool = async ({
   const withDrawTransactions: Transaction[] = [];
 
   for (let i = 0; i < tokenIds.length; i++) {
+    if (ONLY_ZEROS.test(amounts[i])) continue;
+
     const tokenId = tokenIds[i];
 
     const ftBalance = await ftGetStorageBalance(tokenId);
@@ -691,18 +681,12 @@ export const removeLiquidityByTokensFromStablePool = async ({
       methodName: 'remove_liquidity_by_tokens',
       args: { pool_id: id, amounts, max_burn_shares },
       amount: ONE_YOCTO_NEAR,
-      gas: '100000000000000',
+      gas: '30000000000000',
     },
+    ...tokenIds
+      .filter((tk, i) => !ONLY_ZEROS.test(amounts[i]))
+      .map((tokenId) => withdrawAction({ tokenId, amount: '0', unregister })),
   ];
-
-  // const needDeposit = await checkTokenNeedsStorageDeposit();
-  // if (needDeposit) {
-  //   actions.unshift(
-  //     storageDepositAction({
-  //       amount: needDeposit,
-  //     })
-  //   );
-  // }
 
   return executeMultipleTransactions([
     ...withDrawTransactions,
@@ -710,15 +694,7 @@ export const removeLiquidityByTokensFromStablePool = async ({
       receiverId: REF_FI_CONTRACT_ID,
       functionCalls: [...actions],
     },
-    {
-      receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [
-        ...tokenIds.map((tokenId) =>
-          withdrawAction({ tokenId, amount: '0', unregister })
-        ),
-      ],
-    },
-  ]);
+
 
   // return refFiManyFunctionCalls(actions);
 };
