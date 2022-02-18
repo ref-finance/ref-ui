@@ -13,7 +13,7 @@ import {
 } from './near';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { ACCOUNT_MIN_STORAGE_AMOUNT, currentStorageBalance } from './account';
-import { toNonDivisibleNumber } from '../utils/numbers';
+import { toNonDivisibleNumber, ONLY_ZEROS } from '../utils/numbers';
 import {
   MIN_DEPOSIT_PER_TOKEN,
   STORAGE_TO_REGISTER_WITH_FT,
@@ -147,6 +147,7 @@ export const getDepositTransactions = async ({
   const transactions: Transaction[] = [];
 
   for (let i = 0; i < tokens.length; i++) {
+    if (ONLY_ZEROS.test(amounts[i])) continue;
     const token = tokens[i];
     const gasFee =
       token.id === specialToken ? '150000000000000' : '100000000000000';
