@@ -221,7 +221,7 @@ const en_US = {
   attention: 'Attention',
   live: 'Live',
   ended_search: 'Ended',
-  unclaimed: 'Unclaimed',
+  my_farms: 'Your Farms',
   staked_only: 'Staked',
   sort_by: 'Sort by',
   your_farms_rewards: 'Your Farms Rewards',
@@ -266,7 +266,7 @@ const en_US = {
   calculate_roi: 'ROI calculator',
   rewards_claimed: 'Rewards claimed',
   value_rewards_token: 'Value of rewards',
-  all: 'all',
+  all: 'All',
   all_5: '5 tokens per time',
   insufficient_shares: 'Insufficient shares',
   shares_removed: 'Shares',
@@ -345,5 +345,7 @@ const en_US = {
   from_solana: 'Solana',
   from_terra: 'Terra',
   from_celo: 'Celo',
+  no_result: 'Sorry, we couldn’t find any matched farm',
+  mulitple: 'Multiple',
 };
 export default en_US;

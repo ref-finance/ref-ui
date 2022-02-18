@@ -216,7 +216,7 @@ const zh_CN = {
   attention: '请注意',
   live: '进行',
   ended_search: '结束',
-  unclaimed: '未领取',
+  my_farms: '你的农场',
   staked_only: '按质押',
   sort_by: '按排序',
   your_farms_rewards: '你的农场奖励',
@@ -333,5 +333,7 @@ const zh_CN = {
   from_solana: 'Solana',
   from_terra: 'Terra',
   from_celo: 'Celo',
+  no_result: '抱歉, 没有找到匹配的农场',
+  mulitple: '倍率',
 };
 export default zh_CN;

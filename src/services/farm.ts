@@ -497,3 +497,13 @@ export const classificationOfCoins_key = [
   'gaming',
   'nft',
 ];
+export const incentiveLpTokenConfig = {
+  '1207': '4',
+  '4': '4',
+  '79': '2',
+  '1889': '2',
+  [STABLE_POOL_ID]: '5',
+  '3': '5',
+  '2734': '5',
+  '974': '5',
+};
