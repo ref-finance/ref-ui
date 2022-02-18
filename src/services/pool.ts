@@ -27,6 +27,7 @@ import {
 import getConfig from '../services/config';
 import { registerTokensAction } from '../services/creators/token';
 import { STORAGE_TO_REGISTER_WITH_FT } from './creators/storage';
+import { withdrawAction } from './creators/token';
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -516,14 +517,9 @@ export const removeLiquidityFromPool = async ({
       },
       amount: ONE_YOCTO_NEAR,
     },
-    ...tokenIds.map((tokenId) => {
-      return {
-        methodName: 'withdraw',
-        args: { token_id: tokenId, amount: '0', unregister },
-        gas: '100000000000000',
-        amount: ONE_YOCTO_NEAR,
-      };
-    }),
+    ...tokenIds.map((tokenId) =>
+      withdrawAction({ tokenId, amount: '0', unregister })
+    ),
   ];
 
   // const needDeposit = await checkTokenNeedsStorageDeposit();
@@ -608,14 +604,6 @@ export const removeLiquidityFromStablePool = async ({
       },
       amount: ONE_YOCTO_NEAR,
     },
-    ...tokenIds.map((tokenId) => {
-      return {
-        methodName: 'withdraw',
-        args: { token_id: tokenId, amount: '0', unregister },
-        gas: '100000000000000',
-        amount: ONE_YOCTO_NEAR,
-      };
-    }),
   ];
 
   // const needDeposit = await checkTokenNeedsStorageDeposit();
@@ -632,6 +620,12 @@ export const removeLiquidityFromStablePool = async ({
     {
       receiverId: REF_FI_CONTRACT_ID,
       functionCalls: [...actions],
+    },
+    {
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: tokenIds.map((tokenId) =>
+        withdrawAction({ tokenId, amount: '0', unregister })
+      ),
     },
   ]);
 
@@ -699,14 +693,6 @@ export const removeLiquidityByTokensFromStablePool = async ({
       amount: ONE_YOCTO_NEAR,
       gas: '100000000000000',
     },
-    ...tokenIds.map((tokenId) => {
-      return {
-        methodName: 'withdraw',
-        args: { token_id: tokenId, amount: '0', unregister },
-        gas: '100000000000000',
-        amount: ONE_YOCTO_NEAR,
-      };
-    }),
   ];
 
   // const needDeposit = await checkTokenNeedsStorageDeposit();
@@ -723,6 +709,14 @@ export const removeLiquidityByTokensFromStablePool = async ({
     {
       receiverId: REF_FI_CONTRACT_ID,
       functionCalls: [...actions],
+    },
+    {
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [
+        ...tokenIds.map((tokenId) =>
+          withdrawAction({ tokenId, amount: '0', unregister })
+        ),
+      ],
     },
   ]);
 

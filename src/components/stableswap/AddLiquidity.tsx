@@ -498,14 +498,14 @@ export default function AddLiquidityComponent(props: {
                   {modal?.token?.symbol}！
                 </label>
               </div>
-              <SolidButton
+              {/* <SolidButton
                 className="focus:outline-none px-3 py-1.5 text-sm"
                 onClick={() => {
                   setVisible(true);
                 }}
               >
                 <FormattedMessage id="deposit" />
-              </SolidButton>
+              </SolidButton> */}
             </div>
           ) : null}
           {wallet.isSignedIn() ? (

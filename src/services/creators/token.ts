@@ -12,7 +12,7 @@ export const withdrawAction = ({
 }: WithdrawActionOptions) => ({
   methodName: 'withdraw',
   args: { token_id: tokenId, amount, unregister },
-  gas: '100000000000000',
+  gas: '60000000000000',
   amount: ONE_YOCTO_NEAR,
 });
 
