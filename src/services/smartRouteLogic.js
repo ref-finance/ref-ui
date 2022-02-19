@@ -619,6 +619,8 @@ function getHopsFromRoutes(routes, nodeRoutes, allocations) {
 }
 
 function distillHopsByPool(hops) {
+  console.log('some HOPS =');
+  console.log(hops);
   let distilledHops = [];
   let poolIds = [];
   let poolId2allocation = {};
@@ -747,6 +749,7 @@ function getRoutesAndAllocationsForMiddleToken(
   };
 }
 
+// TODO: Clean this function. I don't need all the "actions" just the hops.
 function getActionListFromRoutesAndAllocations(
   routes,
   nodeRoutes,
@@ -754,7 +757,10 @@ function getActionListFromRoutesAndAllocations(
   slippageTolerance
 ) {
   var actions = [];
+  var all_hops = [];
   let firstHops = getHopsFromRoutes(routes, nodeRoutes, allocations);
+  console.log('FIRST HOPS', firstHops);
+  all_hops.push(...firstHops);
   let distilledFirstHops = distillHopsByPool(firstHops);
   let firstHopActions = getDistilledHopActions(
     distilledFirstHops,
@@ -778,11 +784,13 @@ function getActionListFromRoutesAndAllocations(
     let middleTokenRoutes = middleTokenRoutesWithAllocations.routes;
     let middleTokenAllocations = middleTokenRoutesWithAllocations.allocations;
     let middleTokenNodeRoutes = middleTokenRoutesWithAllocations.nodeRoutes;
-    let secondHops = getHopsFromRoutes(
+    var secondHops = getHopsFromRoutes(
       middleTokenRoutes,
       middleTokenNodeRoutes,
       middleTokenAllocations
     );
+    console.log('SECOND HOPS', secondHops);
+    all_hops.push(...secondHops);
     let distilledSecondHopsForToken = distillHopsByPool(secondHops);
     let secondHopActionsForToken = getDistilledHopActions(
       distilledSecondHopsForToken,
@@ -790,6 +798,8 @@ function getActionListFromRoutesAndAllocations(
     );
     actions.push(...secondHopActionsForToken);
   }
+  console.log('ACTIONS 795');
+  console.log(actions);
   // loop over middle tokens. check routes that use middle token.
   //use ratio (input route alloction) /sum(input allocations of routes with middle token) * (total_middleToken)
   // to get 2nd hop allocations.
@@ -797,7 +807,9 @@ function getActionListFromRoutesAndAllocations(
   // secondHopActionsForToken = getDistilledHopActions(distilled2ndHopsForToken)
 
   //TODO: NEED TO RUN INTEGER ROUNDING FUNCTION ON MIDDLE TOKEN ALLOCATIONS
-  return actions;
+  console.log('ALL HOPS', all_hops);
+  return all_hops;
+  // return actions;
 }
 
 function getActionListFromRoutesAndAllocationsORIG(
@@ -933,6 +945,8 @@ export async function getSmartRouteSwapActions(
     totalInput,
     maxPathLength
   );
+  // console.log('resDict:');
+  // console.log(resDict);
   let allocations = resDict.allocations;
 
   // let outputs = resDict.outputs;
@@ -970,27 +984,68 @@ export async function getSmartRouteSwapActions(
   console.log(filteredRoutes);
   console.log('filtered Node routes are...');
   console.log(filteredNodeRoutes);
-  let filteredAllocations = getBestOptInput(
+  // let filteredAllocations_check = getBestOptInput(
+  //   filteredRoutes,
+  //   filteredNodeRoutes,
+  //   totalInput
+  // );
+  let filteredAllocationsAndOutputs = getOptOutputVecRefined(
     filteredRoutes,
     filteredNodeRoutes,
     totalInput
   );
+  
+  let filteredAllocations = filteredAllocationsAndOutputs.allocations;
+  let filteredOutputs = filteredAllocationsAndOutputs.result;
 
-  console.log('filtered allocations are ...');
+  console.log('filtered outputs are ...');
+  console.log('    allocations:');
+  // console.log(filteredAllocations_check.map((a) => a.toString()));
   console.log(filteredAllocations.map((a) => a.toString()));
+  console.log('    result:');
+  console.log(filteredOutputs.map((a) => a.toString()));
 
-  let actions = getActionListFromRoutesAndAllocations(
+  let hops = getActionListFromRoutesAndAllocations(
     filteredRoutes,
     filteredNodeRoutes,
     filteredAllocations,
     slippageTolerance
   );
-  let distilledActions = distillCommonPoolActions(
-    actions,
-    pools,
-    slippageTolerance
-  );
-  return distilledActions;
+
+  var actions = [];
+  for (var i in hops){
+    actions[i] = {
+      "estimate": filteredOutputs[i], // TODO: Divide by token decimals to get a float
+      "pool": {
+        "fee": hops[i].pool.fee,
+        "gamma_bps": hops[i].pool.gamma,
+        "id": hops[i].pool.id,
+        "partialAmountIn": hops[i].allocation,
+        // TODO: IDK how to get this dict populated...
+        // "supplies": {
+        //   hops[i].pool.token1Id: hops[i].pool.token1Supply,
+        //   hops[i].pool.token2Id: hops[i].pool.token2Supply
+        // },
+        "token0_ref_price": hops[i].pool.token0_price,
+        "tokenIds": [hops[i].pool.token1Id, hops[i].pool.token2Id]
+      }
+    };
+    // TODO: Uncomment once I get supplies working...
+    // actions[i].pool.x = actions[i].pool.supplies[hops[i].inputToken];
+    // actions[i].pool.y = actions[i].pool.supplies[hops[i].outputToken];
+  }
+
+  console.log('ACTIONS 1006:');
+  console.log(actions);
+  return actions;
+  // let distilledActions = distillCommonPoolActions(
+  //   actions,
+  //   pools,
+  //   slippageTolerance
+  // );
+  // console.log('DISTILLED ACTIONS:');
+  // console.log(distilledActions);
+  // return distilledActions;
 }
 
 function distillCommonPoolActions(actions, pools, slippageTolerance) {
