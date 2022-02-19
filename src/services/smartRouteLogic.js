@@ -1022,12 +1022,15 @@ export async function getSmartRouteSwapActions(
   console.log('hops are...');
   console.log(hops);
   for (var i in hops) {
+    console.log('hop pool is...');
+    console.log(hops[i].pool);
     // let supplies = {
     //   [hops[i].pool.token1Id]: hops[i].pool.token1Supply,
     //   [hops[i].pool.token2Id]: hops[i].pool.token2Supply,
     // };
     // console.log('supplies are...');
     // console.log(supplies);
+    let hopInputTokenMeta = await ftGetTokenMetadata(hops[i].inputToken);
     let hopOutputTokenMeta = await ftGetTokenMetadata(hops[i].outputToken);
     console.log('hopOutputTokenMeta is');
     console.log(hopOutputTokenMeta);
@@ -1038,12 +1041,12 @@ export async function getSmartRouteSwapActions(
       .div(new Big(10).pow(hopOutputTokenDecimals))
       .toString();
     actions[i] = {
-      estimate: decimalEstimate, // TODO: Divide by token decimals to get a float. DONE
+      estimate: decimalEstimate,
       pool: {
         fee: hops[i].pool.fee,
-        gamma_bps: hops[i].pool.gamma,
+        gamma_bps: new Big(10000).minus(new Big(hops[i].pool.fee)), //.div(new Big(10000)), //hops[i].pool.gamma, //new Big(10000).minus(new Big(hops[i].pool.fee)).div(new Big(10000));
         id: hops[i].pool.id,
-        partialAmountIn: hops[i].allocation,
+        partialAmountIn: hops[i].allocation.round().toString(),
         supplies: {
           [hops[i].pool.token1Id]: hops[i].pool.token1Supply,
           [hops[i].pool.token2Id]: hops[i].pool.token2Supply,
@@ -1051,6 +1054,8 @@ export async function getSmartRouteSwapActions(
         token0_ref_price: hops[i].pool.token0_price,
         tokenIds: [hops[i].pool.token1Id, hops[i].pool.token2Id],
       },
+      status: 'stableSmart',
+      token: hopInputTokenMeta,
     };
     console.log('INPUT TOKEN IS...');
     console.log(hops[i].inputToken);
