@@ -760,6 +760,9 @@ function getActionListFromRoutesAndAllocations(
   var all_hops = [];
   let firstHops = getHopsFromRoutes(routes, nodeRoutes, allocations);
   console.log('FIRST HOPS', firstHops);
+  console.log('filter out zero allocation hops:');
+  firstHops = firstHops.filter((hop) => hop.allocation.gt(new Big(0)));
+  console.log(firstHops);
   all_hops.push(...firstHops);
   let distilledFirstHops = distillHopsByPool(firstHops);
   let firstHopActions = getDistilledHopActions(
@@ -790,6 +793,9 @@ function getActionListFromRoutesAndAllocations(
       middleTokenAllocations
     );
     console.log('SECOND HOPS', secondHops);
+    console.log('filter out zero allocation 2nd hops:');
+    secondHops = secondHops.filter((hop) => hop.allocation.gt(new Big(0)));
+    console.log(secondHops);
     all_hops.push(...secondHops);
     let distilledSecondHopsForToken = distillHopsByPool(secondHops);
     let secondHopActionsForToken = getDistilledHopActions(
@@ -994,7 +1000,7 @@ export async function getSmartRouteSwapActions(
     filteredNodeRoutes,
     totalInput
   );
-  
+
   let filteredAllocations = filteredAllocationsAndOutputs.allocations;
   let filteredOutputs = filteredAllocationsAndOutputs.result;
 
@@ -1013,26 +1019,44 @@ export async function getSmartRouteSwapActions(
   );
 
   var actions = [];
-  for (var i in hops){
+  console.log('hops are...');
+  console.log(hops);
+  for (var i in hops) {
+    // let supplies = {
+    //   [hops[i].pool.token1Id]: hops[i].pool.token1Supply,
+    //   [hops[i].pool.token2Id]: hops[i].pool.token2Supply,
+    // };
+    // console.log('supplies are...');
+    // console.log(supplies);
+    let hopOutputTokenMeta = await ftGetTokenMetadata(hops[i].outputToken);
+    console.log('hopOutputTokenMeta is');
+    console.log(hopOutputTokenMeta);
+    let hopOutputTokenDecimals = hopOutputTokenMeta.decimals;
+    console.log('decimals is');
+    console.log(hopOutputTokenDecimals);
+    let decimalEstimate = new Big(filteredOutputs[i])
+      .div(new Big(10).pow(hopOutputTokenDecimals))
+      .toString();
     actions[i] = {
-      "estimate": filteredOutputs[i], // TODO: Divide by token decimals to get a float
-      "pool": {
-        "fee": hops[i].pool.fee,
-        "gamma_bps": hops[i].pool.gamma,
-        "id": hops[i].pool.id,
-        "partialAmountIn": hops[i].allocation,
-        // TODO: IDK how to get this dict populated...
-        // "supplies": {
-        //   hops[i].pool.token1Id: hops[i].pool.token1Supply,
-        //   hops[i].pool.token2Id: hops[i].pool.token2Supply
-        // },
-        "token0_ref_price": hops[i].pool.token0_price,
-        "tokenIds": [hops[i].pool.token1Id, hops[i].pool.token2Id]
-      }
+      estimate: decimalEstimate, // TODO: Divide by token decimals to get a float. DONE
+      pool: {
+        fee: hops[i].pool.fee,
+        gamma_bps: hops[i].pool.gamma,
+        id: hops[i].pool.id,
+        partialAmountIn: hops[i].allocation,
+        supplies: {
+          [hops[i].pool.token1Id]: hops[i].pool.token1Supply,
+          [hops[i].pool.token2Id]: hops[i].pool.token2Supply,
+        },
+        token0_ref_price: hops[i].pool.token0_price,
+        tokenIds: [hops[i].pool.token1Id, hops[i].pool.token2Id],
+      },
     };
+    console.log('INPUT TOKEN IS...');
+    console.log(hops[i].inputToken);
     // TODO: Uncomment once I get supplies working...
-    // actions[i].pool.x = actions[i].pool.supplies[hops[i].inputToken];
-    // actions[i].pool.y = actions[i].pool.supplies[hops[i].outputToken];
+    actions[i].pool.x = actions[i].pool.supplies[hops[i].inputToken];
+    actions[i].pool.y = actions[i].pool.supplies[hops[i].outputToken];
   }
 
   console.log('ACTIONS 1006:');
