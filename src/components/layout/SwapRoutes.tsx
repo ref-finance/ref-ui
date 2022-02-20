@@ -155,7 +155,8 @@ export const SmartRoute = ({ tokens }: { tokens: TokenMetadata[] }) => {
     return (
       <div className="flex items-center justify-end">
         <Icon token={token} />
-        <span className="pl-1.5">{toRealSymbol(token.symbol)}</span>
+        {/* <span className="pl-1.5">{toRealSymbol(token.symbol)}</span> */}
+        <span className="pl-1.5">{'IDK'}</span>
       </div>
     );
   };

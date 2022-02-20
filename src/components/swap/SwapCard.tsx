@@ -274,7 +274,8 @@ export function SmartRoutesDetail({
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
 }) {
-  const tokenMid = useMemo(() => swapsTodo[1].token, [swapsTodo[1].token.id]);
+  // const tokenMid = useMemo(() => swapsTodo[1].token, [swapsTodo[1].token.id]);
+  const tokenMid = useMemo(() => 'IDK', ['IDK']);
 
   return (
     <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
@@ -679,13 +680,13 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   });
 
   const priceImpactValueParallelSwap = useMemo(() => {
-    if (!pools || !tokenOutAmount || !tokenInAmount) return '0';
-    return calculatePriceImpact(pools, tokenIn, tokenOut, tokenInAmount);
+    if (true) return '0';
+    // return calculatePriceImpact(pools, tokenIn, tokenOut, tokenInAmount);
   }, [tokenOutAmount]);
 
   const priceImpactValueSmartRouting = useMemo(() => {
     {
-      if (!swapsToDo || !tokenInAmount || isParallelSwap) return '0';
+      if (true) return '0';
       return calculateSmartRoutingPriceImpact(
         tokenInAmount,
         swapsToDo,
@@ -696,7 +697,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     }
   }, [tokenOutAmount]);
 
-  const PriceImpactValue = isParallelSwap
+  const PriceImpactValue = true
     ? priceImpactValueParallelSwap
     : priceImpactValueSmartRouting;
 

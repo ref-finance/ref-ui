@@ -31,7 +31,7 @@ import { CloseIcon } from '~components/icon/Actions';
 import db from '../store/RefDatabase';
 import { POOL_TOKEN_REFRESH_INTERVAL } from '~services/near';
 
-import { stableSmart } from './smartRouteLogic.js';
+import { getExpectedOutputFromActions } from '~services/smartRouteLogic';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -175,33 +175,41 @@ export const useSwap = ({
         .then((estimates) => {
           if (!estimates) throw '';
 
-          const isParallelSwap = estimates.every(
-            (e) => e.status === PoolMode.PARALLEL
-          );
-
-          if (isParallelSwap) {
-            if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
-              setCanSwap(true);
-              setSwapsToDo(estimates);
-              setAverageFee(estimates);
-              const estimate = estimates.reduce((pre, cur) => {
-                return scientificNotationToString(
-                  BigNumber.sum(pre, cur.estimate).toString()
-                );
-              }, '0');
-              if (!loadingTrigger) setTokenOutAmount(estimate);
-            }
-          } else {
-            if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
-              setCanSwap(true);
-              setSwapsToDo(estimates);
-
-              setAvgFee(
-                Number(estimates[0].pool.fee) + Number(estimates[1].pool.fee)
-              );
-              if (!loadingTrigger) setTokenOutAmount(estimates[1].estimate);
-            }
+          if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
+            setCanSwap(true);
+            setSwapsToDo(estimates);
+            setAverageFee(estimates);
+            
+            if (!loadingTrigger) setTokenOutAmount(getExpectedOutputFromActions(estimates, tokenOut.id).toString());
           }
+
+          // const isParallelSwap = estimates.every(
+          //   (e) => e.status === PoolMode.PARALLEL
+          // );
+
+          // if (isParallelSwap) {
+          //   if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
+          //     setCanSwap(true);
+          //     setSwapsToDo(estimates);
+          //     setAverageFee(estimates);
+          //     const estimate = estimates.reduce((pre, cur) => {
+          //       return scientificNotationToString(
+          //         BigNumber.sum(pre, cur.estimate).toString()
+          //       );
+          //     }, '0');
+          //     if (!loadingTrigger) setTokenOutAmount(estimate);
+          //   }
+          // } else {
+          //   if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
+          //     setCanSwap(true);
+          //     setSwapsToDo(estimates);
+
+          //     setAvgFee(
+          //       Number(estimates[0].pool.fee) + Number(estimates[1].pool.fee)
+          //     );
+          //     if (!loadingTrigger) setTokenOutAmount(estimates[1].estimate);
+          //   }
+          // }
           setPool(estimates[0].pool);
         })
         .catch((err) => {

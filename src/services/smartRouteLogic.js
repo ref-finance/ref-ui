@@ -1990,7 +1990,7 @@ function getExpectedOutputFromActionsORIG(actions, outputToken) {
     .reduce((a, b) => a.plus(b), new Big(0));
 }
 
-function getExpectedOutputFromActions(actions, outputToken) {
+export function getExpectedOutputFromActions(actions, outputToken) {
   console.log('INSIDE EXPECTED OUTPUT FUNC');
   console.log(outputToken);
   console.log(actions);
