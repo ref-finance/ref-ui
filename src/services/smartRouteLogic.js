@@ -619,8 +619,8 @@ function getHopsFromRoutes(routes, nodeRoutes, allocations) {
 }
 
 function distillHopsByPool(hops) {
-  console.log('some HOPS =');
-  console.log(hops);
+  // console.log('some HOPS =');
+  // console.log(hops);
   let distilledHops = [];
   let poolIds = [];
   let poolId2allocation = {};
@@ -759,8 +759,8 @@ function getActionListFromRoutesAndAllocations(
   var actions = [];
   var all_hops = [];
   let firstHops = getHopsFromRoutes(routes, nodeRoutes, allocations);
-  console.log('FIRST HOPS', firstHops);
-  console.log('filter out zero allocation hops:');
+  // console.log('FIRST HOPS', firstHops);
+  // console.log('filter out zero allocation hops:');
   firstHops = firstHops.filter((hop) => new Big(hop.allocation).gt(new Big(0)));
   console.log(firstHops);
   all_hops.push(...firstHops);
@@ -773,21 +773,21 @@ function getActionListFromRoutesAndAllocations(
   let middleTokenTotals = getMiddleTokenTotalsFromFirstHopActions(
     firstHopActions
   );
-  console.log('first hop actions are...');
-  console.log(firstHopActions);
+  // console.log('first hop actions are...');
+  // console.log(firstHopActions);
   let middleTokens = Object.keys(middleTokenTotals);
-  console.log('middle token totals are...');
-  console.log(middleTokenTotals);
-  console.log('middle tokens are...');
-  console.log(middleTokens);
+  // console.log('middle token totals are...');
+  // console.log(middleTokenTotals);
+  // console.log('middle tokens are...');
+  // console.log(middleTokens);
   for (var tokenIndex in middleTokens) {
     var secondHops = [];
     let middleToken = middleTokens[tokenIndex];
-    console.log('current middle token is ');
-    console.log(middleToken);
+    // console.log('current middle token is ');
+    // console.log(middleToken);
     let middleTokenTotal = middleTokenTotals[middleToken];
-    console.log('current middle token total is...');
-    console.log(middleTokenTotal);
+    // console.log('current middle token total is...');
+    // console.log(middleTokenTotal);
     let middleTokenRoutesWithAllocations = getRoutesAndAllocationsForMiddleToken(
       routes,
       nodeRoutes,
@@ -795,17 +795,17 @@ function getActionListFromRoutesAndAllocations(
       middleToken,
       middleTokenTotal
     );
-    console.log('current middle tokens routes with allocations are...');
-    console.log(middleTokenRoutesWithAllocations);
+    // console.log('current middle tokens routes with allocations are...');
+    // console.log(middleTokenRoutesWithAllocations);
     let middleTokenRoutes = middleTokenRoutesWithAllocations.routes;
     let middleTokenAllocations = middleTokenRoutesWithAllocations.allocations;
     let middleTokenNodeRoutes = middleTokenRoutesWithAllocations.nodeRoutes;
-    console.log('middle token routes are...');
-    console.log(middleTokenRoutes);
-    console.log('middle token allocations are...');
-    console.log(middleTokenAllocations);
-    console.log('middle token node routes are...');
-    console.log(middleTokenNodeRoutes);
+    // console.log('middle token routes are...');
+    // console.log(middleTokenRoutes);
+    // console.log('middle token allocations are...');
+    // console.log(middleTokenAllocations);
+    // console.log('middle token node routes are...');
+    // console.log(middleTokenNodeRoutes);
     secondHops.push(
       ...getHopsFromRoutes(
         middleTokenRoutes,
@@ -813,24 +813,24 @@ function getActionListFromRoutesAndAllocations(
         middleTokenAllocations
       )
     );
-    console.log('CURRENT SECOND HOPS', secondHops);
-    console.log(secondHops.length);
-    console.log(secondHops.map((hop) => hop.allocation));
-    console.log('filter out zero allocation 2nd hops:');
+    // console.log('CURRENT SECOND HOPS', secondHops);
+    // console.log(secondHops.length);
+    // console.log(secondHops.map((hop) => hop.allocation));
+    // console.log('filter out zero allocation 2nd hops:');
     secondHops = secondHops.filter((hop) =>
       new Big(hop.allocation).gt(new Big(0))
     );
-    console.log(secondHops);
+    // console.log(secondHops);
     all_hops.push(...secondHops);
-    console.log('second hops are currently...');
-    console.log(secondHops);
+    // console.log('second hops are currently...');
+    // console.log(secondHops);
     let distilledSecondHopsForToken = distillHopsByPool(secondHops);
-    console.log('distilled second hops are...');
+    // console.log('distilled second hops are...');
     let secondHopActionsForToken = getDistilledHopActions(
       distilledSecondHopsForToken,
       slippageTolerance
     );
-    console.log(secondHopActionsForToken);
+    // console.log(secondHopActionsForToken);
     actions.push(...secondHopActionsForToken);
   }
   console.log('ACTIONS 795');
@@ -1051,8 +1051,8 @@ export async function getSmartRouteSwapActions(
   );
 
   var actions = [];
-  console.log('hops are...');
-  console.log(hops);
+  // console.log('hops are...');
+  // console.log(hops);
 
   for (var i in hops) {
     let hopInputTokenMeta = await ftGetTokenMetadata(hops[i].inputToken);
@@ -1062,11 +1062,11 @@ export async function getSmartRouteSwapActions(
     let hopOutputTokenDecimals = hopOutputTokenMeta.decimals;
     // console.log('decimals is');
     // console.log(hopOutputTokenDecimals);
-    console.log('hop input token is...');
-    console.log(hops[i].inputToken);
-    console.log('hop output token is...');
-    console.log(hops[i].outputToken);
-    // PROBLEM -- HERE, THE FILTERED OUTPUT IS THE TOTAL RESULT OF THE ROUTE, NOT OF THE HOP.
+    // console.log('hop input token is...');
+    // console.log(hops[i].inputToken);
+    // console.log('hop output token is...');
+    // console.log(hops[i].outputToken);
+    // PROBLEM -- HERE, THE FILTERED OUTPUT IS THE TOTAL RESULT OF THE ROUTE, NOT OF THE HOP. FIXED IT!
     let expectedHopOutput = getOutputSingleHop(
       hops[i].pool,
       hops[i].inputToken,
@@ -1076,13 +1076,13 @@ export async function getSmartRouteSwapActions(
     let decimalEstimate = new Big(expectedHopOutput)
       .div(new Big(10).pow(hopOutputTokenDecimals))
       .toString();
-    console.log('decimal estimate is...');
-    console.log(decimalEstimate);
-    console.log('hop pool is...');
-    console.log(hops[i].pool);
+    // console.log('decimal estimate is...');
+    // console.log(decimalEstimate);
+    // console.log('hop pool is...');
+    // console.log(hops[i].pool);
 
-    console.log('hop is...');
-    console.log(hops[i]);
+    // console.log('hop is...');
+    // console.log(hops[i]);
     actions[i] = {
       estimate: decimalEstimate,
       pool: {
@@ -1099,9 +1099,10 @@ export async function getSmartRouteSwapActions(
       },
       status: 'stableSmart',
       token: hopInputTokenMeta,
+      outputToken: hops[i].outputToken,
     };
-    console.log('INPUT TOKEN IS...');
-    console.log(hops[i].inputToken);
+    // console.log('INPUT TOKEN IS...');
+    // console.log(hops[i].inputToken);
     actions[i].pool.x = actions[i].pool.supplies[hops[i].inputToken];
     actions[i].pool.y = actions[i].pool.supplies[hops[i].outputToken];
   }
@@ -1858,6 +1859,9 @@ export async function stableSmart(
       totalInput,
       slippageTolerance
     );
+    console.log('SMART ROUTE SWAP ACTIONS FOUND TO BE');
+    console.log(smartRouteActions);
+
     let smartRouteExpectedOutput = getExpectedOutputFromActions(
       smartRouteActions,
       outputToken
@@ -1936,6 +1940,11 @@ export async function stableSmart(
       outputToken
     );
     // now choose whichever solution gave the most output.
+    console.log('EXPECTED OUTPUT FROM SMART ROUTE ALONE IS...');
+    console.log(smartRouteExpectedOutput.toString());
+
+    console.log('EXPECTED OUTPUT FROM HYBRID STABLE SWAP / PARALLEL IS...');
+    console.log(bestOutput.toString());
     if (new Big(smartRouteExpectedOutput).gt(bestOutput)) {
       console.log('SMART ROUTE WAS BETTER -- USING THAT.');
       return smartRouteActions;
@@ -1959,10 +1968,17 @@ export async function stableSmart(
   }
 }
 
-function getExpectedOutputFromActions(actions, outputToken) {
+function getExpectedOutputFromActionsORIG(actions, outputToken) {
   return actions
     .filter((item) => item.token_out === outputToken)
     .map((item) => new Big(item.min_amount_out))
+    .reduce((a, b) => a.plus(b), new Big(0));
+}
+
+function getExpectedOutputFromActions(actions, outputToken) {
+  return actions
+    .filter((item) => item.outputToken === outputToken)
+    .map((item) => new Big(item.estimate))
     .reduce((a, b) => a.plus(b), new Big(0));
 }
 
