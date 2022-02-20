@@ -9,7 +9,7 @@ import {
   getSwappedAmount as getStableSwappedAmount,
 } from './stable-swap';
 import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
-import { getStablePool } from './pool';
+import { getStablePool, getPool } from './pool';
 import {
   ftGetStorageBalance,
   ftGetTokenMetadata,
@@ -1736,6 +1736,7 @@ async function GETSTABLESWAPACTION(
     token_out: outputToken,
     amount_in: amountIn.toString(),
     min_amount_out: minAmountOut,
+    amount_swapped: amount_swapped,
   };
   console.log('STABLE ACTION IS...');
   console.log(stableAction);
@@ -1787,7 +1788,10 @@ export async function stableSmart(
       totalInput,
       slippageTolerance
     );
-    return [firstAction];
+
+    let stableAction = await convertStableActionToEstimatesFormat(firstAction);
+
+    return [stableAction];
     //STABLESWAP(poolId=STABLE_POOL_ID, inputToken, outputToken, totalInput, slippageTolerance)
   } else if (
     STABLE_TOKEN_IDS.includes(inputToken) &&
@@ -1896,14 +1900,14 @@ export async function stableSmart(
     var bestOutput = new Big(0);
     var bestStableSwapActions = [];
     for (var i in STABLE_TOKEN_IDS) {
-      let middleToken = STABLE_TOKEN_IDS[i];
+      var middleToken = STABLE_TOKEN_IDS[i];
       if (middleToken === outputToken) {
         continue;
       }
       let parallelSwapActions = await GETPARALLELSWAPACTIONS(
         pools,
         inputToken,
-        outputToken,
+        middleToken,
         totalInput,
         slippageTolerance
       );
@@ -1914,10 +1918,19 @@ export async function stableSmart(
         parallelSwapActions,
         middleToken
       );
+      console.log('min middle token amount is...');
+      console.log(minMiddleTokenAmount.toString());
+
+      let middleTokenMeta = await ftGetTokenMetadata(middleToken);
+      let middleTokenDecimals = middleTokenMeta.decimals;
+      let middleTokenInt = new Big(minMiddleTokenAmount)
+        .times(new Big(10).pow(middleTokenDecimals))
+        .round()
+        .toString();
       let lastAction = await GETSTABLESWAPACTION(
         middleToken,
         outputToken,
-        minMiddleTokenAmount,
+        middleTokenInt,
         slippageTolerance
       );
 
@@ -1945,6 +1958,8 @@ export async function stableSmart(
 
     console.log('EXPECTED OUTPUT FROM HYBRID STABLE SWAP / PARALLEL IS...');
     console.log(bestOutput.toString());
+    console.log('HYBRID ACTIONS ARE...');
+    console.log(bestStableSwapActions);
     if (new Big(smartRouteExpectedOutput).gt(bestOutput)) {
       console.log('SMART ROUTE WAS BETTER -- USING THAT.');
       return smartRouteActions;
@@ -1976,10 +1991,57 @@ function getExpectedOutputFromActionsORIG(actions, outputToken) {
 }
 
 function getExpectedOutputFromActions(actions, outputToken) {
+  console.log('INSIDE EXPECTED OUTPUT FUNC');
+  console.log(outputToken);
+  console.log(actions);
   return actions
     .filter((item) => item.outputToken === outputToken)
     .map((item) => new Big(item.estimate))
     .reduce((a, b) => a.plus(b), new Big(0));
+}
+
+async function convertActionToEstimatesFormat(action) {
+  let hopOutputTokenMeta = await ftGetTokenMetadata(action.token_out);
+  let hopOutputTokenDecimals = hopOutputTokenMeta.decimals;
+  let pool = await getPool(action.pool_id);
+}
+
+async function convertStableActionToEstimatesFormat(action) {
+  let hopInputTokenMeta = await ftGetTokenMetadata(action.token_in);
+  let hopOutputTokenMeta = await ftGetTokenMetadata(action.token_out);
+  let hopOutputTokenDecimals = hopOutputTokenMeta.decimals;
+  let pool = await getStablePool(action.pool_id);
+  let amount_swapped = new Big(action.amount_swapped)
+    .div(new Big(10).pow(STABLE_LP_TOKEN_DECIMALS))
+    .div(new Big(10).pow(hopOutputTokenDecimals));
+  console.log('AMOUNT_SWAPPED IS ...');
+  console.log(amount_swapped);
+  let decimalEstimate = amount_swapped;
+  console.log('SWAPPED AMOUNT IN STABLE ACTION WAS...');
+  console.log(amount_swapped);
+  let newAction = {
+    estimate: decimalEstimate,
+    pool: {
+      fee: pool.fee,
+      gamma_bps: new Big(10000).minus(new Big(pool.fee)), //.div(new Big(10000)), //hops[i].pool.gamma, //new Big(10000).minus(new Big(hops[i].pool.fee)).div(new Big(10000));
+      id: pool.id,
+      partialAmountIn: new Big(action.amount_in).round().toString(),
+      supplies: {
+        [pool.token1Id]: pool.token1Supply,
+        [pool.token2Id]: pool.token2Supply,
+      },
+      token0_ref_price: hops[i].pool.token0_price,
+      tokenIds: [pool.token1Id, pool.token2Id],
+    },
+    status: 'stableSmart',
+    token: hopInputTokenMeta,
+    outputToken: hops[i].outputToken,
+  };
+  // console.log('INPUT TOKEN IS...');
+  // console.log(hops[i].inputToken);
+  newAction.pool.x = newAction.pool.supplies[action.token_in];
+  newAction.pool.y = newAction.pool.supplies[action.token_out];
+  return newAction;
 }
 
 //module.exports = { getSmartRouteSwapActions };
