@@ -18,7 +18,7 @@ export default function Token({ token, onClick, sortBy }: TokenProps) {
       className="hover:bg-black hover:bg-opacity-10"
       onClick={() => onClick && onClick(token)}
     >
-      <td className="xs:text-xs text-sm pl-6 py-3 cursor-pointer w-2/5">
+      <td className="xs:text-xs text-sm pl-8 py-3 cursor-pointer w-4/5">
         {icon ? (
           <img
             className="h-6 w-6 mr-3 inline-block border rounded-full border-greenLight"
@@ -31,25 +31,11 @@ export default function Token({ token, onClick, sortBy }: TokenProps) {
         <span className="inline-block text-white">{toRealSymbol(symbol)}</span>
       </td>
       <td
-        className={`py-4 xs:text-xs text-sm w-1/5 ${
+        className={`py-4 xs:text-xs text-sm w-1/5 pl-3 ${
           sortBy === 'near' ? 'text-white' : ''
         }`}
       >
         {toInternationalCurrencySystem(String(near)).replace(/[\,]+/g, '')}
-      </td>
-      <td
-        className={`py-4 xs:text-xs text-sm w-1/5 ${
-          sortBy === 'ref' ? 'text-white' : ''
-        }`}
-      >
-        {toInternationalCurrencySystem(String(ref))}
-      </td>
-      <td
-        className={`pr-6 xs:text-xs text-sm py-4 w-1/5 ${
-          sortBy === 'total' ? 'text-white' : ''
-        }`}
-      >
-        {toInternationalCurrencySystem(String(total))}
       </td>
     </tr>
   );

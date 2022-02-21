@@ -30,7 +30,7 @@ export default function CommonBasses({ tokens, onClick }: CommonBassesProps) {
   });
 
   return (
-    <section className="px-6">
+    <section className="px-8">
       <div className="text-sm font-bold py-2">
         <FormattedMessage id="popular_tokens" defaultMessage="Popular Tokens" />
       </div>

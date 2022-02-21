@@ -55,8 +55,8 @@ export default function SelectToken({
       </button>
     );
   }
-  const dialogWidth = isMobile() ? '75%' : '35%';
-  const dialogMinwidth = isMobile() ? 340 : 490;
+  const dialogWidth = isMobile() ? '75%' : '20%';
+  const dialogMinwidth = isMobile() ? 340 : 380;
   const dialogHidth = isMobile() ? '95%' : '57%';
   const intl = useIntl();
   const {
@@ -179,7 +179,7 @@ export default function SelectToken({
     >
       {() => (
         <section className="text-white">
-          <div className="flex items-center justify-between pb-5 pr-8 px-6 relative">
+          <div className="flex items-center justify-between pb-5 pr-8 px-8 relative">
             <h2 className="text-sm font-bold text-center">
               <FormattedMessage
                 id="select_token"
@@ -191,7 +191,7 @@ export default function SelectToken({
               className="absolute text-gray-400 text-2xl right-6 cursor-pointer"
             />
           </div>
-          <div className="flex justify-between items-center mb-5 mx-6">
+          <div className="flex justify-between items-center mb-5 mx-8">
             <div className="flex-auto rounded text-gray-400 flex items-center pr-2 mr-4 bg-inputDarkBg">
               <input
                 className={`text-sm outline-none rounded w-full py-2 px-3`}
