@@ -224,9 +224,9 @@ function AccountTable(props: any) {
               >
                 <span title={item.ref.toString()}>{getRefBalance(item)}</span>
               </td>
-              <td width="32%" className="pl-8">
+              <td width="16%" className="pl-8">
                 <div className="flex flex-wrap">
-                  <span
+                  {/* <span
                     onClick={() => {
                       getModalData(item, 'deposit');
                     }}
@@ -242,7 +242,7 @@ function AccountTable(props: any) {
                     >
                       <FormattedMessage id="deposit"></FormattedMessage>
                     </BorderButtonHover>
-                  </span>
+                  </span> */}
                   <span
                     onClick={() => {
                       getModalData(item, 'withdraw');
@@ -360,21 +360,6 @@ function MobileAccountTable(props: any) {
                   <label className="text-white font-semibold text-lg mb-1">
                     {getWalletBalance(item)}
                   </label>
-                  <span
-                    onClick={() => {
-                      getModalData(item, 'deposit');
-                    }}
-                  >
-                    <BorderButtonMobile
-                      disabled={
-                        new BigNumber(item.near).isEqualTo('0') ||
-                        (item.symbol == 'NEAR' &&
-                          new BigNumber(item.near).isLessThanOrEqualTo(1))
-                      }
-                    >
-                      <FormattedMessage id="deposit"></FormattedMessage>
-                    </BorderButtonMobile>
-                  </span>
                 </div>
               </td>
               <td className={`pr-4 ${type == 'near' ? 'hidden' : ''}`}>
@@ -421,7 +406,7 @@ function Account(props: any) {
     setVisible(true);
   };
   return (
-    <div className="flex justify-center relative w-3/5 m-auto mt-16 xs:hidden md:hidden">
+    <div className="flex justify-center relative w-1/2 m-auto mt-16 xs:hidden md:hidden">
       <Card className="w-full pt-6 pb-1.5 px-0">
         <div className="flex items-center justify-between pb-4 px-6">
           <div className="flex items-center font-semibold text-white">
