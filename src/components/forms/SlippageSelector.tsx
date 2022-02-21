@@ -191,48 +191,6 @@ export default function SlippageSelector({
                 </div>
               )}
             </div>
-            <div className="flex items-center">
-              <label className="text-sm py-5 text-center text-white">
-                <FormattedMessage
-                  id="select_balance"
-                  defaultMessage="Select Balance"
-                />
-              </label>
-              <QuestionTip id="selectBalanceCopy" />
-            </div>
-            <div
-              className="flex items-center"
-              onChange={({ target }) =>
-                handleBalanceOption((target as HTMLInputElement).value)
-              }
-            >
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  className="form-radio w-4 text-green-500"
-                  name="useBalance"
-                  value="wallet"
-                  defaultChecked={useNearBalance === 'true'}
-                  style={{ accentColor: '#00c6a2' }}
-                />
-                <span className="ml-2 text-sm w-18">
-                  {intl.formatMessage({ id: 'near_wallet' })}
-                </span>
-              </label>
-              <label className="inline-flex items-center ml-6">
-                <input
-                  type="radio"
-                  className="form-radio w-4 text-green-500"
-                  name="useBalance"
-                  value="ref"
-                  defaultChecked={useNearBalance === 'false'}
-                  style={{ accentColor: '#00c6a2' }}
-                />
-                <span className="ml-2 text-sm w-18">
-                  {intl.formatMessage({ id: 'ref_account' })}
-                </span>
-              </label>
-            </div>
           </fieldset>
           {showSlip && (
             <IoCloseOutline
