@@ -226,23 +226,6 @@ function AccountTable(props: any) {
               </td>
               <td width="16%" className="pl-8">
                 <div className="flex flex-wrap">
-                  {/* <span
-                    onClick={() => {
-                      getModalData(item, 'deposit');
-                    }}
-                    className="mx-2 my-1"
-                  >
-                    <BorderButtonHover
-                      className="opacity-40"
-                      disabled={
-                        new BigNumber(item.near).isEqualTo('0') ||
-                        (item.symbol == 'NEAR' &&
-                          new BigNumber(item.near).isLessThanOrEqualTo(1))
-                      }
-                    >
-                      <FormattedMessage id="deposit"></FormattedMessage>
-                    </BorderButtonHover>
-                  </span> */}
                   <span
                     onClick={() => {
                       getModalData(item, 'withdraw');
