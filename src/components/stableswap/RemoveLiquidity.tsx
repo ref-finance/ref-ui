@@ -58,6 +58,7 @@ import { ShareInFarm } from '~components/layout/ShareInFarm';
 import { Link } from 'react-router-dom';
 import { LP_STABLE_TOKEN_DECIMALS, LP_TOKEN_DECIMALS } from '~services/m-token';
 import { QuestionTip } from '~components/layout/TipWrapper';
+import { percentOfBigNumber } from '../../utils/numbers';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
@@ -254,13 +255,12 @@ export function RemoveLiquidityComponent(props: {
 
   const setAmountByShareFromBar = (sharePercent: string) => {
     setSharePercentage(sharePercent);
-    const sharePercentOfValue =
-      sharePercent === '100'
-        ? toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares)
-        : percentOf(
-            Number(sharePercent),
-            toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares)
-          ).toString();
+
+    const sharePercentOfValue = percentOfBigNumber(
+      Number(sharePercent),
+      toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares),
+      STABLE_LP_TOKEN_DECIMALS
+    );
 
     setAmountByShare(sharePercentOfValue);
   };
