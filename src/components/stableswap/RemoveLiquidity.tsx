@@ -363,11 +363,11 @@ export function RemoveLiquidityComponent(props: {
             />
           </div>
           <div className="my-6 mb-8">
-            <div className="flex items-center justify-between text-gray-400 pl-0.5 ">
+            <div className="flex items-center justify-between text-gray-400 px-1.5 ">
               {progressBarIndex.map((index, i) => {
                 return (
                   <div
-                    className="flex flex-col items-center text-xs cursor-pointer"
+                    className="flex flex-col items-center text-xs cursor-pointer w-4"
                     key={i}
                     onClick={() => {
                       setAmountByShareFromBar(index.toString());
@@ -379,7 +379,7 @@ export function RemoveLiquidityComponent(props: {
                 );
               })}
             </div>
-            <div className="py-1 pr-1">
+            <div className="py-1 px-1">
               <input
                 ref={byShareRangeRef}
                 onChange={(e) => {
