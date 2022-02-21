@@ -2146,9 +2146,9 @@ function getExpectedOutputFromActionsORIG(actions, outputToken) {
 }
 
 export function getExpectedOutputFromActions(actions, outputToken) {
-  console.log('INSIDE EXPECTED OUTPUT FUNC');
-  console.log(outputToken);
-  console.log(actions);
+  // console.log('INSIDE EXPECTED OUTPUT FUNC');
+  // console.log(outputToken);
+  // console.log(actions);
   return actions
     .filter((item) => item.outputToken === outputToken)
     .map((item) => new Big(item.estimate))
