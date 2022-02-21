@@ -210,7 +210,6 @@ export function RemoveLiquidityComponent(props: {
 
   useEffect(() => {
     setCanSubmitByShare(true);
-
     const readableShares = toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares);
 
     const shareParam = toNonDivisibleNumber(
@@ -242,6 +241,10 @@ export function RemoveLiquidityComponent(props: {
     setReceiveAmounts(parsedAmounts);
   }, [sharePercentage, tokens, amountByShare]);
 
+  useEffect(() => {
+    byShareRangeRef.current.style.backgroundSize = `${sharePercentage}% 100%`;
+  }, [sharePercentage]);
+
   const userTotalShare = BigNumber.sum(shares, farmStake);
 
   const canSubmit =
@@ -251,11 +254,14 @@ export function RemoveLiquidityComponent(props: {
 
   const setAmountByShareFromBar = (sharePercent: string) => {
     setSharePercentage(sharePercent);
-    const sharePercentOfValue = percentOf(
-      Number(sharePercent),
-      toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares)
-    ).toString();
-    byShareRangeRef.current.style.backgroundSize = `${sharePercent}% 100%`;
+    const sharePercentOfValue =
+      sharePercent === '100'
+        ? toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares)
+        : percentOf(
+            Number(sharePercent),
+            toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares)
+          ).toString();
+
     setAmountByShare(sharePercentOfValue);
   };
 
