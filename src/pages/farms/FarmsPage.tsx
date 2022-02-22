@@ -6,16 +6,19 @@ import TipsBox from '~components/farm/TipsBox';
 import CalcModel, { CalcEle, LinkPool } from '~components/farm/CalcModel';
 import UnClaim from '~components/farm/UnClaim';
 import QuestionMark from '~components/farm/QuestionMark';
+import SelectUi from '~components/farm/SelectUi';
 import {
   FarmMiningIcon,
   ModalClose,
-  ArrowDown,
   Dots,
   Light,
   Calc,
   ArrowDownHollow,
   Checkbox,
   CheckboxSelected,
+  CoinPropertyIcon,
+  SortIcon,
+  NoDataIcon,
 } from '~components/icon';
 import {
   GreenLButton,
@@ -34,6 +37,9 @@ import {
   DEFAULT_PAGE_LIMIT,
   claimRewardBySeed,
   getAllSinglePriceByTokenIds,
+  classificationOfCoins,
+  classificationOfCoins_key,
+  incentiveLpTokenConfig,
 } from '~services/farm';
 import {
   stake,
@@ -78,20 +84,24 @@ import getConfig from '~services/config';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 interface SearchData {
-  status: boolean;
-  staked: boolean;
+  status: number;
   sort: string;
   sortBoxHidden: boolean;
-  stable: boolean;
+  coin: string;
 }
 
 export function FarmsPage() {
   const intl = useIntl();
   const sortList = {
+    mulitple: intl.formatMessage({ id: 'mulitple' }),
     apr: intl.formatMessage({ id: 'apr' }),
     new: intl.formatMessage({ id: 'new' }),
     total_staked: intl.formatMessage({ id: 'total_staked' }),
   };
+  const filterList = { all: intl.formatMessage({ id: 'allOption' }) };
+  classificationOfCoins_key.forEach((key) => {
+    filterList[key] = intl.formatMessage({ id: key });
+  });
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
   const [farms, setFarms] = useState<FarmInfo[]>([]);
   const [error, setError] = useState<Error>();
@@ -105,12 +115,9 @@ export function FarmsPage() {
     {}
   );
   const [searchData, setSearchData] = useState<SearchData>({
-    status: true,
-    staked: wallet.isSignedIn()
-      ? !!+localStorage.getItem('farmStakedOnly')
-      : false,
-    sort: 'apr',
-    stable: !!+localStorage.getItem('farmStableOnly'),
+    sort: 'mulitple',
+    status: null,
+    coin: 'all',
     sortBoxHidden: true,
   });
   const [yourFarms, setYourFarms] = useState<string | number>('-');
@@ -118,8 +125,7 @@ export function FarmsPage() {
   const [lps, setLps] = useState<Record<string, FarmInfo[]>>({});
   const [checkedList, setCheckedList] = useState<Record<string, any>>({});
   const [selectAll, setSelectAll] = useState(false);
-  const sortRef = useRef(null);
-  const sortBoxRef = useRef(null);
+  const [noData, setNoData] = useState(false);
   const rewardRef = useRef(null);
 
   const page = 1;
@@ -127,7 +133,7 @@ export function FarmsPage() {
   const withdrawNumber = 5;
   const refreshTime = 120000;
   const [count, setCount] = useState(0);
-
+  const [commonSeedFarms, setCommonSeedFarms] = useState({});
   useEffect(() => {
     loadFarmInfoList().then();
   }, []);
@@ -142,14 +148,6 @@ export function FarmsPage() {
       clearInterval(intervalId);
     };
   }, [count]);
-
-  useEffect(() => {
-    document.addEventListener('click', handleClick, false);
-    return () => {
-      document.removeEventListener('click', handleClick, false);
-    };
-  }, [searchData]);
-
   async function loadFarmInfoList(isUpload?: boolean) {
     if (isUpload) {
       setUnclaimedFarmsIsLoading(false);
@@ -185,7 +183,6 @@ export function FarmsPage() {
       any,
       Record<string, string>
     ] = await Promise.all(Params);
-
     const stakedList: Record<string, string> = resolvedParams[0];
     const tokenPriceList: any = resolvedParams[2];
     const seeds: Record<string, string> = resolvedParams[3];
@@ -196,6 +193,14 @@ export function FarmsPage() {
         rewardList[key] = v;
       }
     });
+    const stakedList_being = Object.keys(stakedList).length > 0;
+    searchData.status = wallet.isSignedIn()
+      ? Number(
+          localStorage.getItem('farm_filter_status') ||
+            (stakedList_being ? '2' : '1')
+        )
+      : 1;
+    setSearchData(searchData);
     setStakedList(stakedList);
     setRewardList(rewardList);
     setTokenPriceList(tokenPriceList);
@@ -203,6 +208,7 @@ export function FarmsPage() {
     const composeFarms = (farms: FarmInfo[]) => {
       let tempMap = {};
       let tempFarms = [];
+      let tempCommonSeedFarms = {};
 
       while (farms.length) {
         let current = farms.pop();
@@ -217,7 +223,6 @@ export function FarmsPage() {
           tempMap[current.seed_id].push(current);
         }
       }
-
       tempFarms = Object.keys(tempMap).map((key) => {
         const ele = tempMap[key];
         ele.key = key;
@@ -225,9 +230,15 @@ export function FarmsPage() {
       });
       tempFarms.forEach((arr: any) => {
         const totalApr = getTotalApr(arr);
-        arr.totalApr = new BigNumber(totalApr);
+        arr.totalApr = totalApr;
       });
-      return tempFarms;
+
+      tempFarms.forEach((farm) => {
+        tempCommonSeedFarms[farm[0].seed_id] =
+          tempCommonSeedFarms[farm[0].seed_id] || [];
+        tempCommonSeedFarms[farm[0].seed_id].push(farm);
+      });
+      return [tempFarms, tempCommonSeedFarms];
     };
 
     const farms = await getFarms({
@@ -256,8 +267,8 @@ export function FarmsPage() {
     }
     setUnclaimedFarmsIsLoading(false);
     getTokenSinglePrice(farms, rewardList, tokenPriceList);
-    const mergeFarms = composeFarms(farms);
-    searchByCondition(mergeFarms);
+    const [mergeFarms, commonSeedFarms] = composeFarms(farms);
+    searchByCondition(mergeFarms, commonSeedFarms);
   }
   async function getTokenSinglePrice(
     farms: any[],
@@ -304,37 +315,68 @@ export function FarmsPage() {
       setYourReward(totalUnWithDrawV);
     }
   }
-  const handleClick = (e: any) => {
-    if (
-      sortRef.current &&
-      !sortRef.current.contains(e.target) &&
-      !sortBoxRef.current.contains(e.target)
-    ) {
-      searchData.sortBoxHidden = true;
-      setSearchData(Object.assign({}, searchData));
-    }
-  };
-  function searchByCondition(list?: any) {
-    const { status, staked, sort, stable } = searchData;
-    let listAll = list || farms;
+  function searchByCondition(list?: any, tempCommonSeedFarms?: any) {
+    // TODO
+    const { status, sort, coin } = searchData;
+    let listAll = (list || farms).sort();
+    let commonSeedFarmsNew = JSON.parse(
+      JSON.stringify(tempCommonSeedFarms || commonSeedFarms)
+    );
+    let noData = true;
     listAll.forEach((item: any) => {
+      const { userStaked, pool, seed_id, farm_id } = item[0];
       const isEnd = isEnded(item);
-      const useStaked = Number(item[0].userStaked) > 0;
-      const isStableFarm = item[0].lpTokenId == STABLE_POOL_ID;
-      const condition1 = status == !isEnd;
-      let condition2 = true;
-      let condition3 = true;
-      if (staked) {
-        condition2 = useStaked;
+      const useStaked = Number(userStaked) > 0;
+      const { token_symbols, id } = pool;
+      let condition1,
+        condition2 = false;
+      if (+status == 2) {
+        // 0:ended,1:live,2:my farms
+        let total_userUnclaimedReward = 0;
+        item.forEach((farm: any) => {
+          total_userUnclaimedReward += Number(farm.userUnclaimedReward);
+        });
+        if (useStaked) {
+          const commonSeedFarmList = commonSeedFarmsNew[seed_id] || [];
+          if (
+            isEnd &&
+            !total_userUnclaimedReward &&
+            commonSeedFarmList.length > 1
+          ) {
+            condition1 = false;
+            for (let i = 0; i < commonSeedFarmList.length; i++) {
+              if (commonSeedFarmList[i][0].farm_id == farm_id) {
+                commonSeedFarmList.splice(i, 1);
+                break;
+              }
+            }
+          } else {
+            condition1 = true;
+          }
+        }
+      } else if (+status == 0) {
+        condition1 = isEnd;
+      } else if (+status == 1) {
+        condition1 = !isEnd;
       }
-      if (stable) {
-        condition3 = isStableFarm;
+      if (coin != 'all') {
+        const satisfiedTokenList = classificationOfCoins[coin];
+        for (let i = 0; i < token_symbols.length; i++) {
+          if (satisfiedTokenList.indexOf(token_symbols[i]) > -1) {
+            condition2 = true;
+            break;
+          }
+        }
+      } else {
+        condition2 = true;
       }
-      if (condition1 && condition2 && condition3) {
+      if (condition1 && condition2) {
         item.show = true;
+        noData = false;
       } else {
         item.show = false;
       }
+      item.mulitple = incentiveLpTokenConfig[id] || '0';
     });
     if (sort == 'new') {
       const tempMap = {};
@@ -353,24 +395,20 @@ export function FarmsPage() {
     }
     if (sort == 'apr') {
       listAll.sort((item1: any, item2: any) => {
-        if (item1.totalApr.isGreaterThan(item2.totalApr)) {
-          return -1;
-        } else {
-          return 1;
-        }
+        return Number(item2.totalApr) - Number(item1.totalApr);
       });
     } else if (sort == 'total_staked') {
       listAll.sort((item1: any, item2: any) => {
-        const big1 = new BigNumber(item1[0].totalStaked);
-        const big2 = new BigNumber(item2[0].totalStaked);
-        if (big1.isGreaterThan(big2)) {
-          return -1;
-        } else {
-          return 1;
-        }
+        return Number(item2[0].totalStaked) - Number(item1[0].totalStaked);
+      });
+    } else if (sort == 'mulitple') {
+      listAll.sort((item1: any, item2: any) => {
+        return Number(item2.mulitple) - Number(item1.mulitple);
       });
     }
     setFarms(listAll);
+    setNoData(noData);
+    setCommonSeedFarms(tempCommonSeedFarms || commonSeedFarms);
   }
   function getTotalApr(farmsData: FarmInfo[]) {
     let apr = 0;
@@ -393,38 +431,9 @@ export function FarmsPage() {
     }
     return ended;
   }
-  function showSortBox() {
-    searchData.sortBoxHidden = !searchData.sortBoxHidden;
-    setSearchData(Object.assign({}, searchData));
-  }
-  function changeSortV(e: any) {
-    searchData.sortBoxHidden = !searchData.sortBoxHidden;
-    searchData.sort = e.target.dataset.id;
-    setSearchData(Object.assign({}, searchData));
-    searchByCondition();
-  }
   function changeStatus(status: number) {
-    searchData.status = !!status;
-    setSearchData(Object.assign({}, searchData));
-    searchByCondition();
-  }
-  function changeStaked() {
-    searchData.staked = !searchData.staked;
-    if (searchData.staked) {
-      localStorage.setItem('farmStakedOnly', '1');
-    } else {
-      localStorage.setItem('farmStakedOnly', '0');
-    }
-    setSearchData(Object.assign({}, searchData));
-    searchByCondition();
-  }
-  function changeStable() {
-    searchData.stable = !searchData.stable;
-    if (searchData.stable) {
-      localStorage.setItem('farmStableOnly', '1');
-    } else {
-      localStorage.setItem('farmStableOnly', '0');
-    }
+    searchData.status = status;
+    localStorage.setItem('farm_filter_status', status.toString());
     setSearchData(Object.assign({}, searchData));
     searchByCondition();
   }
@@ -439,17 +448,6 @@ export function FarmsPage() {
   }
   function updateCheckList(status: boolean, data: any, index: number) {
     const checkedListEntries = Object.entries(checkedList);
-    // let needDeletedKey;
-    // if (status && checkedListEntries.length == withdrawNumber) {
-    //   checkedListEntries.sort((a, b) => {
-    //     if (a[1].index > b[1].index) return 1;
-    //     else return -1;
-    //   });
-    //   needDeletedKey = checkedListEntries[0][0];
-    // }
-    // if (needDeletedKey) {
-    //   delete checkedList[needDeletedKey];
-    // }
     if (status && checkedListEntries.length == withdrawNumber) return;
     if (status) {
       checkedList[data[0]] = {
@@ -459,7 +457,7 @@ export function FarmsPage() {
     } else {
       delete checkedList[data[0]];
     }
-    setCheckedList(checkedList);
+    setCheckedList(Object.assign({}, checkedList));
     const rewardListStr = Object.keys(rewardList).slice(0, withdrawNumber);
     const compair = rewardListStr.every((item) => {
       return checkedList[item];
@@ -495,6 +493,18 @@ export function FarmsPage() {
     let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
   }
+  const changeSortOption = (option: any) => {
+    const [id] = option;
+    searchData.sort = id;
+    setSearchData(Object.assign({}, searchData));
+    searchByCondition();
+  };
+  const changeCoinOption = (option: any) => {
+    const [id] = option;
+    searchData.coin = id;
+    setSearchData(Object.assign({}, searchData));
+    searchByCondition();
+  };
   return (
     <div className="xs:w-full md:w-full xs:mt-4 md:mt-4">
       <div className="w-1/3 xs:w-full md:w-full flex m-auto justify-center">
@@ -643,20 +653,24 @@ export function FarmsPage() {
         <div className="flex flex-col pl-5 pr-8 xs:px-5 md:px-5 xs:mt-8 md:mt-8">
           <div className="xs:w-full md:w-full">
             {unclaimedFarmsIsLoading ? null : (
-              <div className="flex items-center self-end xs:flex-col md:flex-col mb-3">
-                <div className="flex items-center w-36 xs:w-32 md:w-32 text-farmText rounded-full h-5 bg-farmSbg lg:mr-4">
+              <div className="flex items-center justify-between xs:flex-col md:flex-col mb-3">
+                <div className="flex items-center text-farmText rounded-full h-6 bg-farmSbg lg:mr-4">
                   <label
                     onClick={() => changeStatus(1)}
-                    className={`flex justify-center items-center w-1/2 rounded-full h-full text-xs cursor-pointer ${
-                      searchData.status ? 'text-chartBg bg-farmSearch' : ''
+                    className={`flex justify-center w-28 xs:w-24 md:w-24 items-center rounded-full h-full text-sm cursor-pointer ${
+                      +searchData.status == 1
+                        ? 'text-chartBg bg-farmSearch'
+                        : ''
                     }`}
                   >
                     <FormattedMessage id="live" defaultMessage="Live" />
                   </label>
                   <label
                     onClick={() => changeStatus(0)}
-                    className={`flex justify-center items-center w-1/2 rounded-full h-full text-xs cursor-pointer ${
-                      !searchData.status ? 'text-chartBg bg-farmSearch' : ''
+                    className={`flex justify-center w-28 xs:w-24 md:w-24 items-center rounded-full h-full text-sm cursor-pointer ${
+                      searchData.status != null && +searchData.status == 0
+                        ? 'text-chartBg bg-farmSearch'
+                        : ''
                     }`}
                   >
                     <FormattedMessage
@@ -664,91 +678,62 @@ export function FarmsPage() {
                       defaultMessage="Ended"
                     />
                   </label>
-                </div>
-                <div className="flex xs:w-full md:w-full xs:mt-4 md:mt-4">
                   {wallet.isSignedIn() ? (
-                    <div className="flex items-center mr-4 xs:mr-3 md:mr-3">
-                      <label className="text-farmText text-xs">
-                        <FormattedMessage
-                          id="staked_only"
-                          defaultMessage="Staked Only"
-                        />
-                      </label>
-                      <div
-                        onClick={changeStaked}
-                        className={`flex items-center w-11 h-5 bg-cardBg rounded-full px-1  ml-2.5 box-border cursor-pointer ${
-                          searchData.staked ? 'justify-end' : ''
-                        }`}
-                      >
-                        <a
-                          className={`h-5 w-5 rounded-full ${
-                            searchData.staked ? 'bg-farmSearch' : 'bg-farmRound'
-                          }`}
-                        ></a>
-                      </div>
-                    </div>
-                  ) : null}
-                  <div className="flex items-center mr-4 xs:mr-3 md:mr-3">
-                    <label className="text-farmText text-xs">
+                    <label
+                      onClick={() => changeStatus(2)}
+                      className={`flex justify-center  w-28 xs:w-24 md:w-24 items-center rounded-full h-full text-sm cursor-pointer ${
+                        +searchData.status == 2
+                          ? 'text-chartBg bg-farmSearch'
+                          : ''
+                      }`}
+                    >
                       <FormattedMessage
-                        id="stablecoin_only"
-                        defaultMessage="Stablecoin Only"
+                        id="my_farms"
+                        defaultMessage="My farms"
                       />
                     </label>
-                    <div
-                      onClick={changeStable}
-                      className={`flex items-center w-11 h-5 bg-cardBg rounded-full px-1  ml-2.5 box-border cursor-pointer ${
-                        searchData.stable ? 'justify-end' : ''
-                      }`}
-                    >
-                      <a
-                        className={`h-5 w-5 rounded-full ${
-                          searchData.stable ? 'bg-farmSearch' : 'bg-farmRound'
-                        }`}
-                      ></a>
-                    </div>
+                  ) : null}
+                </div>
+                <div className="flex justify-between xs:w-full md:w-full xs:mt-4 md:mt-4">
+                  <div className="flex items-center relative mr-4 xs:mr-0 md:mr-0">
+                    <label className="text-farmText text-xs mr-2 whitespace-nowrap xs:hidden">
+                      <FormattedMessage
+                        id="filter_by"
+                        defaultMessage="Filter by"
+                      />
+                    </label>
+                    <SelectUi
+                      id={searchData.coin}
+                      list={filterList}
+                      onChange={changeCoinOption}
+                      className="w-36"
+                      Icon={isMobile() ? CoinPropertyIcon : ''}
+                    ></SelectUi>
                   </div>
                   <div className="flex items-center relative">
-                    <label className="text-farmText text-xs mr-2.5 xs:hidden md:hidden">
+                    <label className="text-farmText text-xs mr-2 xs:hidden md:hidden">
                       <FormattedMessage id="sort_by" defaultMessage="Sort by" />
                     </label>
-                    <span
-                      ref={sortRef}
-                      onClick={showSortBox}
-                      className="flex items-center justify-between w-32 h-5 xs:w-8 md:w-8 rounded-full px-3 box-border border border-farmText cursor-pointer text-xs text-gray-200"
-                    >
-                      <label className="whitespace-nowrap xs:hidden md:hidden">
-                        {sortList[searchData.sort]}
-                      </label>
-                      <ArrowDown></ArrowDown>
-                    </span>
-                    <div
-                      ref={sortBoxRef}
-                      className={`absolute z-50 top-8 left-14 xs:left-auto xs:right-0 md:left-auto md:right-0 w-36 border border-farmText bg-cardBg rounded-md ${
-                        searchData.sortBoxHidden ? 'hidden' : ''
-                      }`}
-                    >
-                      {Object.entries(sortList).map((item) => (
-                        <p
-                          key={item[0]}
-                          onClick={changeSortV}
-                          data-id={item[0]}
-                          className={`flex items-center p-4 text-xs h-5 text-white text-opacity-40 my-2 cursor-pointer hover:bg-white hover:bg-opacity-10 hover:text-opacity-100 ${
-                            item[0] == searchData.sort
-                              ? 'bg-white bg-opacity-10 text-opacity-100'
-                              : ''
-                          }`}
-                        >
-                          {item[1]}
-                        </p>
-                      ))}
-                    </div>
+                    <SelectUi
+                      id={searchData.sort}
+                      list={sortList}
+                      onChange={changeSortOption}
+                      Icon={isMobile() ? SortIcon : ''}
+                    ></SelectUi>
                   </div>
                 </div>
               </div>
             )}
           </div>
           <div className="flex-grow xs:flex-none">
+            {noData ? (
+              <div className="flex flex-col w-full justify-center items-center mt-32 xs:mt-8 md:mt-8">
+                <NoDataIcon />
+                <span className="text-farmText text-base mt-4 text-center w-48">
+                  <FormattedMessage id="no_result"></FormattedMessage>
+                </span>
+              </div>
+            ) : null}
             <div className="overflow-auto relative pb-4">
               {unclaimedFarmsIsLoading ? (
                 <Loading />
@@ -781,7 +766,6 @@ export function FarmsPage() {
     </div>
   );
 }
-
 function WithdrawView({
   data,
   tokenPriceList,
@@ -922,13 +906,6 @@ function FarmView({
   const [calcVisible, setCalcVisible] = useState(false);
 
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
-
-  const clipColor = '#00c08b';
-  const clipSize = 12;
-  const claimLoadingColor = '#ffffff';
-  const claimLoadingSize = 12;
-  // const refreshTime = 120000;
-
   const PoolId = farmData.lpTokenId;
   const tokens = useTokens(farmData?.tokenIds);
 
@@ -964,33 +941,6 @@ function FarmView({
     getAllUnclaimedReward();
   }, [farmData]);
   const mergeCommonRewardFarms = mergeCommonRewardFarmsFun(farmsData);
-  // useEffect(() => {
-  //   if (count > 0) {
-  //     setLoading(true);
-  //     getFarmInfo(
-  //       farmData,
-  //       farmData.pool,
-  //       stakedList[farmData.seed_id],
-  //       tokenPriceList,
-  //       rewardList[farmData.reward_token],
-  //       seeds[farmData.seed_id],
-  //       farmData.lpTokenId
-  //     ).then((data) => {
-  //       setData(data);
-  //       setLoading(false);
-  //     });
-  //   }
-
-  //   if (data) {
-  //     setEnded(isEnded(data));
-  //     setPending(isPending(data));
-  //   }
-
-  //   const id = setInterval(() => {
-  //     setCount(count + 1);
-  //   }, refreshTime);
-  //   return () => clearInterval(id);
-  // }, [count]);
   function mergeCommonRewardFarmsFun(farmsData: FarmInfo[]) {
     const arr = JSON.parse(JSON.stringify(farmsData));
     const tempMap = {};
@@ -1483,8 +1433,11 @@ function FarmView({
           <div className="ended status-bar">
             <FormattedMessage id="ended" defaultMessage="ENDED" />
           </div>
-        ) : null}
-        {pending ? (
+        ) : incentiveLpTokenConfig[farmData.pool.id] ? (
+          <div className="incentive status-bar">
+            x{incentiveLpTokenConfig[farmData.pool.id]}
+          </div>
+        ) : pending ? (
           <div className="pending status-bar">
             <FormattedMessage id="pending" defaultMessage="PENDING" />
           </div>

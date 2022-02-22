@@ -76,7 +76,7 @@ const RpcList = () => {
       ) : (
         <div
           style={{ zIndex: 999999 }}
-          className="fixed right-8 bottom-5 pt-3"
+          className="fixed right-8 bottom-0 pt-3"
           onMouseEnter={() => {
             setHover(true);
           }}
