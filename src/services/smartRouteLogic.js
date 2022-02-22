@@ -749,6 +749,75 @@ function getRoutesAndAllocationsForMiddleToken(
   };
 }
 
+function getHopActionsFromRoutes(routes, nodeRoutes, allocations) {
+  // console.log('INSIDE GET HOP ACTIONS FROM ROUTES');
+  // console.log('ROUTES ARE...');
+  // console.log(routes);
+  // console.log('NODE ROUTES ARE...');
+  // console.log(nodeRoutes);
+  // console.log('ALLOCATIONS ARE...');
+  // console.log(allocations);
+
+  let hops = [];
+  for (var i in routes) {
+    var route = routes[i];
+    var nodeRoute = nodeRoutes[i];
+    var allocation = allocations[i];
+    if (new Big(allocation).eq(new Big(0))) {
+      continue;
+    }
+    if (!route.length) {
+      route = [route];
+    }
+    if (!route[0]) {
+      continue;
+    }
+    for (var j in route) {
+      let pool = route[j];
+      // console.log('J IS...');
+      // console.log(j);
+      // console.log('NODE ROUTE IS...');
+      // console.log(nodeRoute);
+      if (j == 0) {
+        //first hop.
+        console.log(nodeRoute[0]);
+        console.log(nodeRoute[1]);
+        var hop = {
+          pool: pool,
+          allocation: allocation.toString(),
+          inputToken: nodeRoute[0],
+          outputToken: nodeRoute[1],
+        };
+        // console.log('FIRST HOP IS...');
+        // console.log(hop);
+        hops.push(hop);
+        if (nodeRoute.length > 2) {
+          var middleTokenAllocation = getOutputSingleHop(
+            pool,
+            nodeRoute[0],
+            nodeRoute[1],
+            allocation
+          );
+        }
+      } else {
+        // second hop
+        var hop = {
+          pool: pool,
+          allocation: middleTokenAllocation.toString(),
+          inputToken: nodeRoute[1],
+          outputToken: nodeRoute[2],
+        };
+        // console.log('SECOND HOP IS...');
+        // console.log(hop);
+        hops.push(hop);
+      }
+    }
+  }
+  console.log('HOP ACTIONS FOUND TO BE');
+  console.log(hops);
+  return hops;
+}
+
 // TODO: Clean this function. I don't need all the "actions" just the hops.
 // TODO: re-order actions to ensure each route is complete with zero input for second hop before starting next route.
 function getActionListFromRoutesAndAllocations(
@@ -757,6 +826,8 @@ function getActionListFromRoutesAndAllocations(
   allocations,
   slippageTolerance
 ) {
+  // REPLACE THE CODE BELOW WITH THE FUNCTION HERE.
+  return getHopActionsFromRoutes(routes, nodeRoutes, allocations);
   var actions = [];
   var all_hops = [];
   let firstHops = getHopsFromRoutes(routes, nodeRoutes, allocations);
@@ -1252,9 +1323,17 @@ export async function getSmartRouteSwapActions(
     actions[i].pool.x = actions[i].pool.supplies[hops[i].inputToken];
     actions[i].pool.y = actions[i].pool.supplies[hops[i].outputToken];
   }
+  // now set partial amount in for second hops equal to zero:
+  for (var i in actions) {
+    let action = actions[i];
+    if (action.outputToken === outputToken && action.inputToken != inputToken) {
+      // only want to set second hop partial amount in to zero
+      action.pool.partialAmountIn = '0';
+    }
+  }
 
-  console.log('ACTIONS 1006:');
-  console.log(actions);
+  // console.log('ACTIONS 1006:');
+  // console.log(actions);
   return actions;
   // let distilledActions = distillCommonPoolActions(
   //   actions,
