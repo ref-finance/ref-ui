@@ -2,6 +2,7 @@ import React from 'react';
 import { toRealSymbol } from '~utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
 import { toInternationalCurrencySystem } from '~utils/numbers';
+import { toPrecision } from '../../utils/numbers';
 
 interface TokenProps {
   token: TokenMetadata;
@@ -12,6 +13,12 @@ interface TokenProps {
 
 export default function Token({ token, onClick, sortBy }: TokenProps) {
   const { icon, symbol, id, near, ref, total } = token;
+
+  const displayBalance =
+    0 < Number(near) && Number(near) < 0.001
+      ? '< 0.001'
+      : toPrecision(String(near), 3);
+
   return (
     <tr
       key={id}
@@ -31,11 +38,11 @@ export default function Token({ token, onClick, sortBy }: TokenProps) {
         <span className="inline-block text-white">{toRealSymbol(symbol)}</span>
       </td>
       <td
-        className={`py-4 xs:text-xs text-sm w-1/5 pl-3 ${
+        className={`py-4 xs:text-xs text-sm w-1/5 pr-10 ${
           sortBy === 'near' ? 'text-white' : ''
         }`}
       >
-        {toInternationalCurrencySystem(String(near)).replace(/[\,]+/g, '')}
+        {displayBalance}
       </td>
     </tr>
   );
