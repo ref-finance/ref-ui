@@ -188,6 +188,31 @@ export function AddLiquidityModal(
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
 
+  useEffect(() => {
+    if (balances) {
+      const firstTokenBalanceBN = new BigNumber(
+        toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+      );
+      const secondTokenBalanceBN = new BigNumber(
+        toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+      );
+
+      if (firstTokenBalanceBN.isZero() && secondTokenBalanceBN.isZero()) {
+        setCanDeposit(true);
+        const { id, decimals } = tokens[0];
+        const modalData: any = {
+          token: tokens[0],
+          action: 'deposit',
+        };
+        getDepositableBalance(id, decimals).then((nearBalance) => {
+          modalData.max = nearBalance;
+          setModal(Object.assign({}, modalData));
+        });
+        setModal(modalData);
+      }
+    }
+  }, [balances]);
+
   if (!balances) return null;
 
   const changeFirstTokenAmount = (amount: string) => {
@@ -310,9 +335,16 @@ export function AddLiquidityModal(
       toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
     );
 
+    const hasDeposited = !(
+      firstTokenBalanceBN.isZero() && secondTokenBalanceBN.isZero()
+    );
+
     setCanSubmit(false);
     setCanDeposit(false);
-    if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
+    if (
+      firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN) ||
+      !hasDeposited
+    ) {
       setCanDeposit(true);
       // setMessageId('deposit_to_add_liquidity');
       // setDefaultMessage('Deposit to Add Liquidity');
