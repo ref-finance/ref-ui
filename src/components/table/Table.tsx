@@ -57,10 +57,12 @@ export default function Table({
               }`}
             >
               <span
-                className="cursor-pointer flex justify-end"
+                className="cursor-pointer flex items-center "
                 onClick={() => onSortChange('near')}
               >
-                <SmallWallet light={sortBy === 'near'} />
+                <span className="self-start">
+                  <SmallWallet light={sortBy === 'near'} />
+                </span>
                 <span className="ml-1">NEAR</span>
                 <TiArrowSortedUp
                   className={`inline-block cursor-pointer ${
