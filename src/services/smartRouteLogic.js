@@ -1219,10 +1219,8 @@ export async function getSmartRouteSwapActions(
   console.log('fixed allocations are...');
   console.log(allocations.map((a) => new Big(a).toFixed()));
   //SORT BY ALLOCATIONS
-  let sortedIndices = argsort(allocations.map((a) => new Big(a))).slice(
-    0,
-    numberOfRoutesLimit
-  );
+  let allSortedIndices = argsort(allocations.map((a) => new Big(a)));
+  let sortedIndices = allSortedIndices.slice(0, numberOfRoutesLimit);
 
   console.log('sorted Indices are');
   console.log(sortedIndices);
@@ -1236,8 +1234,89 @@ export async function getSmartRouteSwapActions(
 
   console.log('filteredRoutes are ...');
   console.log(filteredRoutes);
+  for (var i in filteredRoutes) {
+    if (!filteredRoutes[i].length) {
+      filteredRoutes[i] = [filteredRoutes[i]];
+    }
+  }
   console.log('filtered Node routes are...');
   console.log(filteredNodeRoutes);
+
+  // THE BELOW CODE WILL ENSURE THAT ROUTES ARE INDEPENDENT (e.g. THE ROUTES WILL NOT SHARE A POOL)
+
+  let route1PoolIds = filteredRoutes[0].map((pool) => pool.id);
+  console.log('route 1 pool ids:');
+  console.log(route1PoolIds);
+  if (filteredRoutes.length > 1) {
+    let route2PoolIds = filteredRoutes[1].map((pool) => pool.id);
+    console.log('route 2 pool ids:');
+    console.log(route2PoolIds);
+    var sharedRoute = false;
+    for (var i in route2PoolIds) {
+      if (route1PoolIds.includes(route2PoolIds[i])) {
+        // a pool was shared between routes. need to calculate a new second route.
+        console.log(
+          'a pool was shared between routes. going to calculate a new second route'
+        );
+        sharedRoute = true;
+        break;
+      }
+    }
+  }
+
+  // NOTE -- this is a much simpler solution than that below. Instead of choosing the next best second route that doesn't share a
+  // pool with the first route, we could just use the first route and allocate all inputs to it.
+  // but, for larger transactions, it would be better to have option of two independent routes to spread out slippage.
+
+  // if (sharedRoute) {
+  //   filteredRoutes = [filteredRoutes[0]];
+  //   filteredNodeRoutes = [filteredNodeRoutes[0]];
+  //   // TODO -- later can add in a second route that doesn't share a pool with first.
+  // }
+
+  // We're going to find the next-highest allocation route that doesn't share a pool with the first route.
+  if (sharedRoute) {
+    let allFilteredRoutes = [];
+    let allFilteredNodeRoutes = [];
+    for (var i in allSortedIndices) {
+      allFilteredRoutes.push(routes[allSortedIndices[i]]);
+      allFilteredNodeRoutes.push(nodeRoutes[allSortedIndices[i]]);
+    }
+    let firstRoute = [allFilteredRoutes[0]];
+    let firstRoutePoolIds = firstRoute.map((pool) => pool.id);
+    for (var i in allFilteredRoutes) {
+      if (!allFilteredRoutes[i].length) {
+        allFilteredRoutes[i] = [allFilteredRoutes[i]];
+      }
+    }
+    let allFilteredRouteIds = allFilteredRoutes.map((route) =>
+      route.map((pool) => pool.id)
+    );
+    console.log('allFilteredRouteIds are ...');
+    console.log(allFilteredRouteIds);
+    for (var i in allFilteredRouteIds) {
+      for (var j in allFilteredRouteIds[i]) {
+        if (firstRoutePoolIds.includes(allFilteredRouteIds[j])) {
+          break;
+        }
+        var secondRoute = allFilteredRoutes[i];
+        if (!secondRoute.length) {
+          secondRoute = [secondRoute];
+        }
+        filteredRoutes = [allFilteredRoutes[0], secondRoute];
+        filteredNodeRoutes = [
+          allFilteredNodeRoutes[0],
+          allFilteredNodeRoutes[i],
+        ];
+        break;
+      }
+    }
+    console.log('new filteredRoutes are ...');
+    console.log(filteredRoutes);
+    console.log('new filtered Node routes are...');
+    console.log(filteredNodeRoutes);
+  }
+
   // let filteredAllocations_check = getBestOptInput(
   //   filteredRoutes,
   //   filteredNodeRoutes,
