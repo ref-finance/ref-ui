@@ -688,7 +688,7 @@ export function FarmsPage() {
                   {wallet.isSignedIn() ? (
                     <label
                       onClick={() => changeStatus(2)}
-                      className={`flex justify-center  w-28 xs:w-24 md:w-24 items-center rounded-full h-full text-sm cursor-pointer ${
+                      className={`flex justify-center  w-28  items-center rounded-full h-full text-sm cursor-pointer ${
                         +searchData.status == 2
                           ? 'text-chartBg bg-farmSearch'
                           : ''

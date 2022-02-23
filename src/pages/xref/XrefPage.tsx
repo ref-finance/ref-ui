@@ -211,14 +211,14 @@ function XrefPage() {
               </p>
             </div>
             <div className="flex items-center justify-between w-full mt-3">
-              <div className="rounded-md bg-primaryGradient text-sm text-white flex items-center justify-center px-3.5 py-1 cursor-not-allowed opacity-40">
+              <div className="rounded-md bg-primaryGradient text-sm text-white flex items-center justify-center px-3.5 xs:px-2.5 md:px-2.5 py-1 cursor-not-allowed opacity-40">
                 <FormattedMessage id="view_stats"></FormattedMessage>
               </div>
               <div
                 onClick={() => {
                   setForward(!forward);
                 }}
-                className="flex items-center justify-center text-sm text-white rounded-lg bg-black bg-opacity-20 py-1.5 px-3 cursor-pointer"
+                className="flex items-center justify-center text-sm text-white rounded-lg bg-black bg-opacity-20 py-1.5 px-3 xs:px-2 md:px-2 cursor-pointer"
               >
                 <FaExchangeAlt color="#00C6A2" className="mr-3"></FaExchangeAlt>{' '}
                 {rateDisplay()}

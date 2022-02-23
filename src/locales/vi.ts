@@ -350,6 +350,6 @@ const vi = {
   from_celo: 'Celo',
   no_result: 'Sorry, we couldn’t find any matched farm', // todo
   mulitple: 'Cặp được nhân',
-  default: 'Default',
+  default: 'mặc định',
 };
 export default vi;

@@ -14,7 +14,7 @@ export default function RiskPage() {
       <div className="flex justify-center absolute -top-16 left-1/2 transform -translate-x-1/2">
         <RiskLogo></RiskLogo>
       </div>
-      <div className="flex justify-center text-white font-medium text-2xl">
+      <div className="flex justify-center text-white font-medium text-2xl whitespace-nowrap">
         {local == 'zh-CN' ? (
           <>
             <LangMessage id="of_using_ref_finance" />
