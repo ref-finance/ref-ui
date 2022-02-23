@@ -335,5 +335,6 @@ const zh_CN = {
   from_celo: 'Celo',
   no_result: '抱歉, 没有找到匹配的农场',
   mulitple: '倍率',
+  comprehensive: '综合',
 };
 export default zh_CN;

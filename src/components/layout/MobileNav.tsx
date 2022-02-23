@@ -133,6 +133,17 @@ export function MobileSwitchLanguage() {
           </span>
           中文
         </div>
+        <div
+          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
+            currentLocal === 'vi' ? 'text-white' : 'text-primaryText '
+          }`}
+          onClick={() => context.selectLanguage('vi')}
+        >
+          <span className="text-2xl mr-5">
+            <IconZh />
+          </span>
+          Việt
+        </div>
       </div>
     </div>
   );

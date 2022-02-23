@@ -173,6 +173,14 @@ export const useMenuItems = () => {
           id: 12,
           logo: <IconZh />,
         },
+        {
+          label: 'Việt',
+          isExternal: false,
+          language: 'vi',
+          url: '',
+          id: 13,
+          logo: <IconZh />,
+        },
       ],
     },
   ];

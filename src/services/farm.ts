@@ -507,3 +507,14 @@ export const incentiveLpTokenConfig = {
   '2734': '4',
   '974': '4',
 };
+export const comprehensiveConfig = {
+  '79': '10',
+  '2657': '9',
+  '1207': '4',
+  '4': '4',
+  '1889': '2',
+  [STABLE_POOL_ID]: '5',
+  '3': '4',
+  '2734': '4',
+  '974': '4',
+};

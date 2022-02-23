@@ -40,6 +40,7 @@ import {
   classificationOfCoins,
   classificationOfCoins_key,
   incentiveLpTokenConfig,
+  comprehensiveConfig,
 } from '~services/farm';
 import {
   stake,
@@ -93,6 +94,7 @@ interface SearchData {
 export function FarmsPage() {
   const intl = useIntl();
   const sortList = {
+    comprehensive: intl.formatMessage({ id: 'comprehensive' }),
     mulitple: intl.formatMessage({ id: 'mulitple' }),
     apr: intl.formatMessage({ id: 'apr' }),
     new: intl.formatMessage({ id: 'new' }),
@@ -115,7 +117,7 @@ export function FarmsPage() {
     {}
   );
   const [searchData, setSearchData] = useState<SearchData>({
-    sort: 'mulitple',
+    sort: 'comprehensive',
     status: null,
     coin: 'all',
     sortBoxHidden: true,
@@ -377,6 +379,7 @@ export function FarmsPage() {
         item.show = false;
       }
       item.mulitple = incentiveLpTokenConfig[id] || '0';
+      item.comprehensive = comprehensiveConfig[id] || '0';
     });
     if (sort == 'new') {
       const tempMap = {};
@@ -404,6 +407,10 @@ export function FarmsPage() {
     } else if (sort == 'mulitple') {
       listAll.sort((item1: any, item2: any) => {
         return Number(item2.mulitple) - Number(item1.mulitple);
+      });
+    } else if (sort == 'comprehensive') {
+      listAll.sort((item1: any, item2: any) => {
+        return Number(item2.comprehensive) - Number(item1.comprehensive);
       });
     }
     setFarms(listAll);
@@ -706,7 +713,7 @@ export function FarmsPage() {
                       id={searchData.coin}
                       list={filterList}
                       onChange={changeCoinOption}
-                      className="w-36"
+                      className="w-34"
                       Icon={isMobile() ? CoinPropertyIcon : ''}
                     ></SelectUi>
                   </div>
@@ -719,6 +726,7 @@ export function FarmsPage() {
                       list={sortList}
                       onChange={changeSortOption}
                       Icon={isMobile() ? SortIcon : ''}
+                      className="w-34"
                     ></SelectUi>
                   </div>
                 </div>
@@ -819,7 +827,7 @@ function WithdrawView({
   useEffect(() => {
     setCheckStatus(!!checkedList[data[0]]);
   }, [Object.keys(checkedList)]);
-  if (!token) return Loading();
+  if (!token) return null;
   function changeStatus() {
     updateCheckList(!checkStatus, data, index);
   }
@@ -1322,7 +1330,7 @@ function FarmView({
 
     return { tip: result, percentage };
   }
-  if (!tokens || tokens.length < 2 || farmsIsLoading) return <Loading />;
+  if (!tokens || tokens.length < 2 || farmsIsLoading) return null;
   const yourShare = calculateNumByShare(farmData, tokens);
   tokens.sort((a, b) => {
     if (a.symbol === 'wNEAR') return 1;
