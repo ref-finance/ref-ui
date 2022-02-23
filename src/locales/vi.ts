@@ -1,9 +1,9 @@
 const vi = {
-  deposit: 'Deposit', // todo
-  Deposit: 'Deposit', // todo
+  deposit: 'Nạp',
+  Deposit: 'Nạp',
   withdraw: 'Rút',
   Withdraw: 'Rút',
-  withdraw_token: 'Withdraw Token', // todo
+  withdraw_token: 'Rút Token',
   swap: 'Giao dịch',
   Swap: 'Giao dịch',
   exchange_tokens: 'Exchange Tokens',
@@ -11,8 +11,8 @@ const vi = {
   Pool: 'Pool',
   pools: 'Pools',
   Pools: 'Pools',
-  Quiz: 'Quiz', // todo
-  no_tokens_deposited: 'No Tokens Deposited', // todo
+  Quiz: 'Câu hỏi',
+  no_tokens_deposited: 'Không có token nào được nạp',
   view_pools: 'Xem bể thanh khoản',
   view_pool: 'Xem bể thanh khoản',
   add_token: 'Thêm Token',
@@ -29,20 +29,20 @@ const vi = {
   Docs: 'Tài liệu',
   community: 'Cộng Đồng',
   Community: 'Cộng Đồng',
-  more: 'More', // todo
-  More: 'More', // todo
-  account: 'Account', // todo
-  Account: 'Account', // todo
-  New_ui: 'New UI', // todo
+  more: 'Thêm',
+  More: 'Thêm',
+  account: 'Tài khoản',
+  Account: 'Tài khoản',
+  New_ui: 'Giao diện UI Mới',
   Risks: 'Rủi ro',
   Forum: 'Diễn Đàn',
   Discord: 'Discord',
   Telegram: 'Telegram',
   Twitter: 'Twitter',
   Medium: 'Medium',
-  move_assets_to_from_ethereum: 'Move assets to/from Ethereum', // todo
+  move_assets_to_from_ethereum: 'Chuyển tài sản từ/đến Ethereum',
   rainbow_bridge: 'Rainbow Bridge',
-  deposit_to_swap: 'Deposit to Swap', // todo
+  deposit_to_swap: 'Gửi tài sản để giao dịch',
   connect_to_near: 'Kết nối ví NEAR',
   slippage: 'Độ trượt giá tối đa',
   slippage_title: 'Cài đặt giao dịch',
@@ -51,167 +51,169 @@ const vi = {
   swap_rate_pre: 'Tỉ giá giao dịch',
   pool_fee: 'Phí giao dịch',
   balance: 'Số dư',
-  from: 'From', // todo
-  to: 'To', // todo
-  submit: 'Submit', // todo
+  from: 'Từ',
+  to: 'Đến',
+  submit: 'Xác nhận',
   wrapnear: 'Wrap NEAR',
-  wrapnear_tip_one: 'Wrapping NEAR allows you to trade on REF. Make sure to ', //todo
-  wrapnear_tip_two: 'leave 1 NEAR', //todo
-  wrapnear_tip_three: ' for gas fees to unwrap your NEAR.', //todo
-  wrap_error_msg: 'Not enough balance', //todo
+  wrapnear_tip_one:
+    'Wrapping NEAR cho phép bạn giao dịch trên REF. Hãy chắc chắn là ',
+  wrapnear_tip_two: 'để lại 1 NEAR',
+  wrapnear_tip_three: ' làm gas fee để unwrap NEAR.',
+  wrap_error_msg: 'Tài khoản không đủ',
   sign_out: 'Đăng xuất',
   view_account: 'Theo dõi tài khoản',
-  deposit_to_swap_and_add_liquidity: 'Deposit to swap and add liquidity', // todo
-  small_storage_fee_is_applied_of: 'Small storage fee is applied of', // todo
-  liquidity: 'Liquidity', // todo
-  tokens: 'Tokens', // todo
+  deposit_to_swap_and_add_liquidity:
+    'Nạp thêm để giao dịch và thêm thanh khoản',
+  small_storage_fee_is_applied_of: 'Một lượng phí nhỏ được áp dụng khoảng',
+  liquidity: 'Thanh khoản',
+  tokens: 'Tokens',
   fee: 'Phí',
   fees: 'Phí',
-  view_detail: 'View detail', // todo
-  pool_details: 'Pool details', // todo
+  view_detail: 'Xem chi tiết',
+  pool_details: 'Chi tiết Pool',
   details: 'Chi tiết',
   detail: 'Chi tiết',
   liquidity_pools: 'Bể thanh khoản',
   minimum_tokens_out: 'Tối thiểu nhận được ',
   pair: 'Cặp thanh khoản',
   tvl: 'TVL',
-  search_pools: 'Search Pool', // todo
+  search_pools: 'Tìm Pool',
   add_liquidity: 'Thêm',
   remove_liquidity: 'Gỡ',
-  total_liquidity: 'Total liquidity', // todo
-  coming_soon: 'Coming soon', // todo
-  accumulated_volume: 'Accumulated Volume', // todo
-  underlying_liquidity: 'Underlying liquidity', // todo
+  total_liquidity: 'Total thanh khoản',
+  coming_soon: 'Coming soon',
+  accumulated_volume: 'Volume được tích lũy',
+  underlying_liquidity: 'Thanh khoản cơ bản',
   total_shares: 'Tổng số shares',
   my_shares: 'Shares',
   token: 'Token',
   enter_token_address: 'Thêm địa chỉ token',
   you_are_not_providing_liquidity_to_any_pools:
-    'You aren’t providing liquidity to any pools', // todo
+    'Bạn đang không cung cấp thanh khoản cho bất kì pool nào',
   remove: 'Gỡ',
   select: 'Chọn',
   select_token: 'Chọn token',
-  basis_points: 'Basis points', // todo
-  total_fee: 'Total fee % ', // todo
-  protocol_fee_is: 'protocol fee is ', // todo
-  start_in: 'Start in', // todo
-  start_at: 'Start at', // todo
-  started_at: 'Started at', // todo
-  start_date: 'Start date', // todo
-  end_at: 'End at', // todo
-  end_date: 'End date', // todo
-  earn: 'Earn', // todo
+  basis_points: 'Basis points',
+  total_fee: 'Tổng phí % ',
+  protocol_fee_is: 'Phí protocol là ',
+  start_in: 'Bắt đầu trong',
+  start_at: 'Bắt đầu vào',
+  started_at: 'Đã bắt đầu vào',
+  start_date: 'Ngày bắt đầu',
+  end_at: 'Kết thúc lúc',
+  end_date: 'Ngày kết thúc',
+  earn: 'Earn',
   ended: 'Kết thúc',
-  pending: 'PENDING', // todo
+  pending: 'PENDING',
   rewards_per_week: 'Token thưởng mỗi tuần',
   apr: 'APR',
   total_staked: 'Tổng staked',
   unclaimed_rewards: 'Phần thưởng chưa nhận',
-  claim: 'Claim', // todo
-  claim_all: 'Claim All', // todo
+  claim: 'Nhận',
+  claim_all: 'Nhận tất cả',
   stake: 'Stake',
   unstake: 'Unstake',
-  your_rewards: 'Your rewards', // todo
+  your_rewards: 'Phần thưởng của bạn',
   your_shares: 'Shares',
-  shares_owned: 'Shares Owned', // todo
-  stake_your_liquidity_provider_LP_tokens:
-    'Stake your Liquidity Provider (LP) tokens', // todo
-  go_to_wallet: 'Go to Wallet', // todo
+  shares_owned: 'Lượng Shares sở hữu',
+  stake_your_liquidity_provider_LP_tokens: 'Stake LP tokens của bạn',
+  go_to_wallet: 'Đến ví',
   recent_activity: 'Hoạt động gần đây',
-  view_all: 'View All', // todo
-  cancel: 'Cancel', // todo
-  claim_ref_token: 'Claim Ref Token', // todo
-  has_no_available_claim: 'has no available claim', // todo
-  sorry: 'Sorry', // todo
-  total_ref_token: 'Total Ref Token', // todo
-  locking_ref_token: 'Locked Ref Token', // todo
-  unclaim_ref_token: 'Unclaimed Ref Token', // todo
-  unlocked: 'Unlocked', // todo
-  locking: 'Locked', // todo
-  you_can_claim_from: 'You can claim from', // todo
-  you_have_claimed_all_your_rewards: 'You have claimed all your rewards', // todo
-  ends_in: 'Ends in', // todo
-  days: 'days', // todo
-  swap_successful_click_to_view: 'Swap successful. Click to view', // todo
-  claim_successful_click_to_view: 'Claim successful. Click to view', // todo
-  claim_failed_click_to_view: 'Claim failed. Click to view', // todo
+  view_all: 'Xem tất cả',
+  cancel: 'Hủy',
+  claim_ref_token: 'Nhận Ref Token',
+  has_no_available_claim: 'không nhận được airdrop',
+  sorry: 'Xin lỗi',
+  total_ref_token: 'Tổng Ref Token',
+  locking_ref_token: 'Ref Token bị khóa',
+  unclaim_ref_token: 'Ref Token chưa được nhận',
+  unlocked: 'Mở khóa',
+  locking: 'Khóa',
+  you_can_claim_from: 'Bạn có thể claim từ',
+  you_have_claimed_all_your_rewards: 'Bạn đã claim tất cả reward',
+  ends_in: 'Kết thúc trong',
+  days: 'ngày',
+  swap_successful_click_to_view: 'Giao dịch thành công. Click để xem',
+  claim_successful_click_to_view: 'Nhận thành công. Click để xem',
+  claim_failed_click_to_view: 'Nhân thất bại. Click để xem',
   slippageCopyForMobile:
     'Độ trượt giá có nghĩa là sự thay đổi giữa số lượng token bạn nhìn trên màn hình với tỉ giá bạn nhận được do có người thực hiện giao dịch trước',
   slippageCopy:
-    'Slippage means the difference between what <br> you expect to get and what you actually <br> get due to other executing first', // todo
+    'Độ trượt giá có nghĩa là sự thay đổi  <br> giữa số lượng token bạn nhìn trên màn hình  <br> với tỉ giá bạn nhận được do có người thực hiện giao dịch trước',
   depositCopy:
-    'This deposits your selected tokens into the <br> exchange for swapping or adding to a liquidity pool', // todo
+    'Giao dịch này giúp nạp tài sản của bạn <br> vào trong Ref Finance để thực hiện giao dịch hoặc thêm thanh khoản',
   nearDepositCopy:
-    'This first wraps then deposits your Ⓝ into the <br> exchange for swapping or adding to a liquidity pool', // todo
+    'Cái này đầu tiên sẽ wraps sau đó nạp Ⓝ của bạn vào <br> Ref Finance để giao dịch hoặc thêm vào một bể thanh khoản',
   nearWithdrawCopy:
-    'This will first unwrap your Ⓝ then withdraw it from <br> the exchange and move the tokens to your wallet', // todo
+    'Cái này đầu tiên sẽ unwrap Ⓝ của bạn sau đó rút nó ra từ <br> Ref Finance và chuyển token đến ví của bạn',
   withdrawCopy:
-    'This will withdraw your selected tokens from <br> the exchange and deposit them into your wallet', // todo
+    'Cái này sẽ rút token mà bạn đã chọn từ <br> Ref Finance và nạp chúng vào ví của bạn',
   registerToken:
-    'This registers a new token with the <br> exchange that is not already listed', // todo
-  whitelistTokenCopy: 'Add any NEP-141 token', // todo
+    'Cái này đăng kí một token mới với <br> Ref Finance mà chưa được list',
+  whitelistTokenCopy: 'Thêm bất kì NEP-141 token',
   addLiquidityPoolCopy:
-    'This creates a new liquidity pool for the two tokens selected. The fee is the percentage the pool takes from each transaction', // todo
+    'Cái này tạo ra một pool cho hai tokens được chọn. Phí là phần trăm pool lấy từ mỗi giao dịch',
   swapCopy:
-    'Swap exchanges the first selected token with the second <br> selected token.The pools with the highest available liquidity and the lowest exchange fee will be used', // todo
-  addTokenCopy: 'Add any NEP-141 token', // todo
-  getLPTokenCopy: 'Click here to jump to the corresponding pool', // todo
+    'Giao dịch trao đổi token được chọn đầu tiên với token <br> thứ hai được chọn. Bể với độ thanh khoản khả dụng cao nhất và phí trao đổi thấp nhất sẽ được sử dụng',
+  addTokenCopy: 'Thêm bất kì NEP-141 token',
+  getLPTokenCopy: 'Ấn vào đây để chuyển tới pool tương ứng',
   airdropCopy:
-    ' Please claim your airdrop at least once before the expiration date otherwise your balance would be donated into the treasury', // todo
-  farmRewardsCopy: 'Indicative value based on prices and not actual execution', // todo
-  totalValueLockedCopy: 'Total Value Locked', // todo
+    ' Hãy nhận airdrop của bạn ít nhất một lần trước khi hết hạn nếu không số dư của bạn sẽ bị cho vào quỹ treasury',
+  farmRewardsCopy:
+    'Giá trị biểu thị dựa trên giá và sự thực hiện không thực tế',
+  totalValueLockedCopy: 'Tổng giá trị bị khóa',
   topPoolsCopy:
     'Với mỗi cặp thanh khoản, chỉ hiển thị bể thanh khoản có Tổng giá trị tài sản khóa (TVL) lớn nhất',
   you_do_not_have_enough: 'Bạn không có đủ',
-  must_provide_at_least_one_token_for: 'Must provide greater than 0 token for', // todo
-  is_not_exist: 'is not exist', // todo
-  must_input_a_value_greater_than_zero: 'Must input a value greater than 0', // todo
+  must_provide_at_least_one_token_for: 'Phải cung cấp nhiều hơn 1 token cho',
+  is_not_exist: 'không tồn tại',
+  must_input_a_value_greater_than_zero: 'Phải đưa vào một giá trị lớn hơn 0',
   amount_must_be_not_greater_your_balance:
-    'Amount must be not greater than your balance ', // todo
+    'Khối lượng phải không được lớn hơn số dư của bạn ',
   no_pool_available_to_make_a_swap_from:
-    'No pool available to make a swap from', // todo
-  for_the_amount: 'for the amount', // todo
+    'Không có pool nào khả dụng để thực hiện 1 giao dịch',
+  for_the_amount: 'cho khối lượng',
   no_pool_eng_for_chinese: ' ',
-  is_not_a_valid_swap_amount: 'is not a valid swap amount', // todo
+  is_not_a_valid_swap_amount: 'Khối lượng giao dịch không hợp lệ',
   not_nep_address:
-    'The address you entered is not a NEP-141 address, please check and enter it again. If it is another mainnet contract, go to Rainbow Bridge for bridging processing', // todo
+    'Địa chỉ bạn nhập vào không phải là địa chỉ NEP-141, hãy kiểm tra và nhập lại. Nếu đó là một mainnet contract khác, đi tới Rainbow Bridge để thực hiện quá trình chuyển',
   not_correct_address:
-    'The address you entered is incorrect, please check and enter', // todo
+    'Địa chỉ mà bạn nhập vào không đúng, hãy kiểm tra và nhập lại',
   popular_tokens: 'Token nổi bật',
   asset_label: 'Tài sản',
-  account_label: 'Account', // todo
+  account_label: 'Tài khoản',
   total_label: 'Tổng',
   top_pools: 'Bể thanh khoản nổi bật',
-  pool_id: 'Pool ID', // todo
-  more_pools: 'More pools', // todo
+  pool_id: 'Pool ID',
+  more_pools: 'Nhiều pool hơn',
   my_watchlist: 'Danh sách theo dõi',
   h24_volume: 'Khối lượng giao dịch 24h',
   hide_low_tvl_pools: 'Ẩn TVL thấp',
-  watchlist_title: 'My watchlist on the top', // todo
+  watchlist_title: 'Danh sách xem của tôi ở trên đầu',
   add_watchlist: 'Thêm vào danh sách yêu thích',
-  remove_watchlist: 'Remove Watchlist', // todo
-  my_watchlist_copy: 'Marked pools will appear here', // todo
+  remove_watchlist: 'Xóa danh sách xem',
+  my_watchlist_copy: 'Pool được đánh dấu sẽ xuất hiện ở đây',
   search_token: 'Tìm token',
   language: 'Ngôn Ngữ',
-  deposit_to_add_liquidity: 'Deposit to Add Liquidity', // todo
-  slip_warn: 'Be careful, please check the minimum you can receive', // todo
-  slip_invalid: 'The slippage tolerance is invalid', // todo
+  deposit_to_add_liquidity: 'Nạp để thêm thanh khoản',
+  slip_warn: 'Hãy cẩn thận, kiểm tra tối thiểu bạn có thể nhận',
+  slip_invalid: 'Slippage không hộp lệ',
   input_to_search: 'Tìm kiếm',
-  click_search_bar_to_search: 'Click search bar to search', // todo
+  click_search_bar_to_search: 'Ấn vào thanh tìm kiếm để tìm',
   reward_tokens: 'Token thưởng',
   detail_tip: 'Chi tiết',
-  no_data: 'No Data', // todo
+  no_data: 'Không có dữ liệu',
   stable_swap: 'Stableswap',
   StableSwap: 'Stableswap',
-  exchange_rate: 'Exchange rate', // todo
-  including_fees: '(including fees)', // todo
-  standard_gas: 'Standard Gas fee:', // todo
-  rst_token: 'Your RST token', // todo
+  exchange_rate: 'Tỷ lệ trao đổi',
+  including_fees: '(bao gồm phí)',
+  standard_gas: 'Tiêu chuẩn phí gas:',
+  rst_token: 'RST token của bạn',
   remove_tip: 'Không có phí khi gỡ thanh khoản tính theo share',
-  share_liquidity: 'Share of liquidity', // todo
-  remove_token_confirm: 'You will remove RUST token', // todo
-  remove_as_one_token: 'Remove as one token', // todo
-  flexible_tip: 'Remove how much you want per token', // todo
+  share_liquidity: 'thanh khoản share',
+  remove_token_confirm: 'Bạn sẽ xóa RUST token',
+  remove_as_one_token: 'Remove as one token',
+  flexible_tip: 'Xóa bao nhiêu bạn muốn với mỗi token',
   add_type_all: 'Thêm các token với giá trị ngang bằng',
   add_type_max: 'Thêm tối đa số token khả dụng',
   select_balance: 'Chọn loại ví',
@@ -219,42 +221,42 @@ const vi = {
     'Chọn (Ví Near) để giao dịch trực tiếp token có sẵn trong ví NEAR',
   near_wallet: 'Ví NEAR',
   ref_account: 'Ví Ref',
-  swap_tip: 'Swap from your REF account by selecting REF account in settings', // todo
-  attention: 'Attention', // todo
+  swap_tip:
+    'Giao dịch từ tài khoản REF bằng cách chọn tài khoản REF ở trong cài đặt',
+  attention: 'Chú ý',
   live: 'Hiện có ',
   ended_search: 'Kết thúc',
   my_farms: 'Farms của bạn',
   staked_only: 'Đã stake',
   sort_by: 'Sắp theo',
-  your_farms_rewards: 'Your Farms Rewards', // todo
+  your_farms_rewards: 'Phần thưởng farms của bạn',
   your_farms: 'Hiện Farm',
   new: 'Pool mới',
-  unstake_tip_t: 'you have rewards unclaimed...', // todo
+  unstake_tip_t: 'bạn có phần thưởng chưa nhận...',
   unstake_tip_m:
-    'Unstaking will remove the stake from all active and pending farms of the same pair.', // todo
-  unstake_tip_b: 'Do you want to unstake?', // todo
+    'Unstaking sẽ gỡ stake từ tất cả các farm đang hoạt động và chưa quyết định của cùng một cặp.',
+  unstake_tip_b: 'Bạn có muốn unstake?',
   value_rewards: 'phần thưởng',
   stake_unstake_tip:
-    'Staking or unstaking will automatically claim your rewards.', // todo
-  over_tip:
-    'Due to the limitation of Gas Fee, only 5 items most can be selected at one time', // todo
+    'Staking hay unstaking sẽ tự động nhận phần thưởng của bạn.',
+  over_tip: 'Do giới hạn của phí gas, chỉ chọn được 5 thứ cùng một lúc.',
   no_token_tip: 'Không có token thưởng',
   getToken_tip:
     'Bạn có thể nhận token thưởng hoặc  stake LP token của bạn ngay bây giờ!',
   in_farm: 'trong Farm',
-  swap_rate_including_fee: 'Swap rate (including fees)', // todo
+  swap_rate_including_fee: 'Tỷ lệ giao dịch (bao gồm phí)',
   by_share: 'Tính theo Share',
   by_token: 'Tính theo Token',
   your_liquidity_positions_will_appear_here:
     'Số thanh khoản của bạn sẽ xuất hiện ở đây .',
   price_impact: 'Tác động giá',
-  shares_left: 'Shares left', // todo
+  shares_left: 'Shares left',
   total_stable_coins: 'TTổng stablecoins',
   daily_volume: 'Khối lượng giao dịch theo ngày',
   liquidity_utilisation: 'Hiệu quả sử dụng thanh khoản',
-  token_reserves: 'Token Reserves', // todo
+  token_reserves: 'Token dự trữ',
   roi_calculator: 'Tính ROI',
-  lp_staked: 'LP staked', // todo
+  lp_staked: 'LP staked',
   usd: 'USD',
   lp_token: 'LP token',
   stake_for: 'Thời hạn',
@@ -267,88 +269,89 @@ const vi = {
   reward_token: 'Token thưởng',
   get_lp_token: 'Lấy LP Shares',
   calculate_roi: 'Tính ROI',
-  rewards_claimed: 'Rewards claimed', // todo
+  rewards_claimed: 'Phần thưởng đã được nhận',
   value_rewards_token: 'Gía trị thưởng',
   all: 'Tất cả',
-  all_5: '5 tokens per time', // todo
-  insufficient_shares: 'Insufficient shares', // todo
+  all_5: '5 tokens một lần',
+  insufficient_shares: 'Không đủ shares',
   shares_removed: 'Shares',
-  shares_avaliable: 'Shares avaliable', // todo
+  shares_avaliable: 'Shares khả dụng',
   minimum_shares: 'Số shares tối thiểu (nhận được)',
   shares_tip: 'Số shares khả dụng/ Số share bạn sở hữu hoàn toàn',
-  stablecoin_only: 'Stablecoin only', // todo
-  more_than: 'Please input number that more than or equal to 0.01', // todo
-  less_than: 'Please input number that less than 20', // todo
-  no_valid: 'Please input valid number', // todo
+  stablecoin_only: 'Chỉ Stablecoin',
+  more_than: 'Hãy nhập vào số lớn hơn hoặc bằng 0,01',
+  less_than: 'Hãy nhập vào số nhỏ hơn 20',
+  no_valid: 'Hãy nhập vào số hợp lệ',
   lp_fee: 'Phí cho LP',
   protocol_fee: 'Phí giao thức',
   referral_fee: 'Phí giới thiệu',
   total_fee_create: 'Tổng phí',
   xref_title: 'Kiếm thêm bằng',
-  xref_title1: 'Earn more', // todo
-  xref_title2: 'by staking REF for xREF', // todo
+  xref_title1: 'Kiếm thêm',
+  xref_title2: 'bằng staking REF cho xREF',
   xref_introdution:
     'Bằng cách stake REF, bạn có cơ hội để nhận thêm doanh thu từ phí giao dịch của giao thức. Mọi holders của Ref đều được lời từ  phần doanh thu này.',
-  staking_apr: 'Staking APR', // todo
+  staking_apr: 'Staking APR',
   view_stats: 'Xem thông số',
   xref: 'xREF',
   ref: 'REF',
-  more_than_general_seed:
-    'Please input number that more than or equal to 0.000001', // todo
-  more_than_stable_seed: 'Please input number that more than or equal to 1', // todo
-  are_you_sure: 'Are you sure', // todo
-  price_impact_is_about: 'Price impact is about', // todo
-  yes_swap: 'Yes, swap', // todo
-  amount_must_be_greater_than_0: 'amount must be greater than 0', // todo
-  volume_ratio: '24h Volume/ Liquidity ratio', // todo
+  more_than_general_seed: 'Hãy nhập vào số lớn hơn hoặc bằng 0.000001',
+  more_than_stable_seed: 'Hãy nhập vào số lớn hơn hoặc bằng 1',
+  are_you_sure: 'Bạn đã chắc chưa',
+  price_impact_is_about: 'Ảnh hưởng của giá là do',
+  yes_swap: 'Đồng ý, giao dịch',
+  amount_must_be_greater_than_0: 'khối lượng phải lớn hơn 0',
+  volume_ratio: 'Khối lượng 24h/ Tỷ lệ thanh khoản',
   go_to_near_wallet: 'Ví NEAR',
-  into_ref_account: 'into your REF account.', // todo
-  deposit_into_ref_account: 'into your REF account to add liquidity', // todo
-  deposit_near_tip: 'To deposit, keep at least 1 NEAR to cover gas fee', // todo
-  input_greater_than_available_shares: 'Input greater than available shares', // todo
+  into_ref_account: 'vào tài khoản REF của bạn.',
+  deposit_into_ref_account: 'vào tài khoản REF của bạn để thêm thanh khoản',
+  deposit_near_tip: 'Để nạp, giữ ít nhất 1 NEAR dành cho phí gas',
+  input_greater_than_available_shares: 'Nhập vào nhiều hơn số shares khả dụng',
   number_of_unique_stakers: 'Số cá nhân đã stake',
   total_ref_staked: 'Tổng số ref đã stake',
   total_xref_minted: 'Tổng xREF được tạo',
   protocol_projected_revenue: 'Doanh thu chia sẻ với xRef holders',
   total_fee_Revenue_shared_with_xref_holders:
-    'Total Fee Revenue Shared with xREF Holders', // todo
-  provision_treasury: 'Provision Treasury', // todo
+    'Total Fee Revenue Shared with xREF Holders',
+  provision_treasury: 'Kho dự phòng',
   protocol_projected_revenue_tip:
-    'This number corresponds to the cumulative shared trading fee revenue to xREF holders. It is equal to 75% of the total platform fee revenue. It will differ from the actual REF token buyback amount due to price fluctuations.', // todo
-  stake_ref_to_xref_for_earning_more: 'Stake REF to xREF for earning more!', // todo
-  auto_router: 'Auto Router', // todo
-  auto_router_detail_sub_1: 'This route optimizes your swap by', // todo
-  auto_router_detail_sub_2: 'considering all pools for the same pair.', // todo
+    'Con số này tương ứng với doanh thu phí giao dịch được chia sẻ tích lũy cho người nắm giữ REF. Con số trên bằng 75% tổng doanh thu phí nền tảng. Nó sẽ khác với số tiền mua lại token REF thực tế do biến động giá.', // todo
+  stake_ref_to_xref_for_earning_more: 'Stake REF, nhận xREF để earn thêm REF!',
+  auto_router: 'Router tự động',
+  auto_router_detail_sub_1: 'Tuyến này giúp tối ưu giao dịch của bạn bằng',
+  auto_router_detail_sub_2:
+    'cân nhắc tất cả các pool xuất hiện trong một pair.',
   auto_router_detail_sub_3: 'Chi tiết:',
-  introducing_parallel_swap: 'Introducing Parallel Swap', // todo
-  at_least: 'At least', // todo
-  xref_start_time: 'Starts on 1am UTC, 18th Jan, 2022.', // todo
+  introducing_parallel_swap: 'Giới thiệu Parallel Swap',
+  at_least: 'Ít nhất',
+  xref_start_time: 'Bắt đầu vào 1am UTC, 18th Jan, 2022.',
   xref_to_receive: 'xREF nhận được',
   ref_to_receive: 'REF nhận được ',
-  more_expensive_than_best_rate_en: 'more expensive than the best rate', // todo
-  optimal_path_found_by_our_solution: 'Optimal path found by our solution', // todo
-  check_to_stable_banner: 'Check', // todo
-  rates_to_stable_banner: 'Rates', // todo
-  make_sure_you_understand_what_you_do: 'Make sure you understand what you do', // todo
-  go_to_your_account_to: 'Go to your account to', // todo
-  deposit_l: 'deposit', // todo
+  more_expensive_than_best_rate_en: 'đắt hơn tỉ lệ tốt nhất hiện tại',
+  optimal_path_found_by_our_solution: 'Tuyến tối ưu nhất đã được tìm thấy',
+  check_to_stable_banner: 'Check',
+  rates_to_stable_banner: 'Rates',
+  make_sure_you_understand_what_you_do:
+    'Hãy đảm bảo rằng bạn hiểu những gì bạn sắp làm',
+  go_to_your_account_to: 'Go to your account to',
+  deposit_l: 'Nạp',
   withdraw_l: 'Rút',
-  got_it: 'Got it', // todo
-  check_the_transaction_settings: 'Check the transaction settings', // todo
+  got_it: 'Got it',
+  check_the_transaction_settings: 'Kiểm tra cài đặt giao dịch',
   filter_by: 'Bộ lọc',
   allOption: 'Tất cả',
   stablecoin: 'Stablecoin',
   near_ecosystem: 'Hệ sinh thái NEAR',
-  bridged_tokens: 'Bridged tokens', // todo
+  bridged_tokens: 'Bridged tokens',
   gaming: 'Gaming',
   nft: 'NFT',
-  bridge: 'Bridge to/from', // todo
+  bridge: 'Bridge đến/tới',
   from_ethereum: 'Ethereum',
   from_aurora: 'Aurora',
   from_solana: 'Solana',
   from_terra: 'Terra',
   from_celo: 'Celo',
-  no_result: 'Sorry, we couldn’t find any matched farm', // todo
+  no_result: 'Xin lỗi, chúng tôi không tìm thấy cặp farm nào của bạn',
   mulitple: 'Cặp được nhân',
   default: 'mặc định',
 };

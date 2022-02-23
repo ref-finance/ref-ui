@@ -73,6 +73,20 @@ export default function RiskPage() {
                 正在审核 Ref Finance 智能合约。 一旦第一次审计完成，Ref Finance
                 将积极寻求第二次独立审计。
               </>
+            ) : local == 'vi' ? (
+              <>
+                Smart contracts của Ref.finance hiện đang được kiểm định bởi{' '}
+                <label
+                  className="underline cursor-pointer text-riskTextColor hover:text-white"
+                  onClick={() => {
+                    window.open('https://jitadigital.com/');
+                  }}
+                >
+                  Jita
+                </label>
+                . chúng tôi sẽ tích cực tìm kiếm thêm một bên thẩm định thứ 3
+                nữa ngay sau khi lần kiểm định với Jita kết thúc.
+              </>
             ) : (
               <>
                 Ref Finance smart contracts are being audited by{' '}
@@ -120,6 +134,34 @@ export default function RiskPage() {
                   监护人
                 </label>
                 ，特定的 NEAR 地址，可以暂停合约。 只有 DAO 可以随时恢复合约。
+              </>
+            ) : local == 'vi' ? (
+              <>
+                Ref finance được quản trị bởi{' '}
+                <label
+                  onClick={() => {
+                    window.open(
+                      'https://app.astrodao.com/dao/ref-finance.sputnik-dao.near'
+                    );
+                  }}
+                  className="underline text-riskTextColor hover:text-white cursor-pointer"
+                >
+                  Ref Finance Sputnik DAO.{' '}
+                </label>
+                Thêm vào đó, sẽ có những địa chỉ ví NEAR nhất định{' '}
+                <label
+                  className="underline text-riskTextColor hover:text-white cursor-pointer"
+                  onClick={() => {
+                    window.open(
+                      'https://gov.ref.finance/t/introducing-the-guardians/253'
+                    );
+                  }}
+                >
+                  (được gọi là Guardians){' '}
+                </label>
+                có khả năng dừng contract của Ref.finance lại. Trong trường họp
+                contract bị ngưng lại, chỉ có Ref.finance DAO mới có khả năng mở
+                lại contract
               </>
             ) : (
               <>
@@ -539,7 +581,7 @@ const vi = {
     'Quản lý các chức năng của AMM, cững như việc giao dịch và cung cấp thanh khoản',
   farming_contract: 'Farming Contract',
   table_body_tr_2: 'Quản lý các phần thưởng thanh khoản',
-  staking_contract: 'Staking Contract', // todo
+  staking_contract: 'Staking Contract',
   table_body_tr_3:
     'Tạo thêm/ đốt bỏ xRef, cùng với đó là phân phối phần thưởng theo chu kì',
   sputnik_dao_contract: 'Sputnik DAO Contract',
