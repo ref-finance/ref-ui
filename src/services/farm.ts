@@ -508,6 +508,7 @@ export const incentiveLpTokenConfig = {
   '974': '4',
 };
 export const defaultConfig = {
+  '2800': '11',
   '79': '10',
   '2657': '9',
   '1207': '4',
