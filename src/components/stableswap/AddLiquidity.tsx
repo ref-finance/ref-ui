@@ -107,31 +107,46 @@ export default function AddLiquidityComponent(props: {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    const firstAmount = toReadableNumber(
+      tokens[0].decimals,
+      balances[tokens[0].id]
+    );
+
+    const secondAmount = toReadableNumber(
+      tokens[1].decimals,
+      balances[tokens[1].id]
+    );
+
+    const thirdAmount = toReadableNumber(
+      tokens[2].decimals,
+      balances[tokens[2].id]
+    );
+
+    const hasDeposited = !(
+      ONLY_ZEROS.test(firstAmount) &&
+      ONLY_ZEROS.test(secondAmount) &&
+      ONLY_ZEROS.test(thirdAmount)
+    );
+
+    if (!hasDeposited) {
+      setCanAddLP(false);
+      setCanDeposit(true);
+      const { id, decimals } = tokens[0];
+      const modalData: any = {
+        token: tokens[0],
+        action: 'deposit',
+      };
+      getDepositableBalance(id, decimals).then((nearBalance) => {
+        modalData.max = nearBalance;
+        setModal(Object.assign({}, modalData));
+      });
+      setModal(modalData);
+    }
+
     if (addType === 'addMax') {
-      const firstAmount = toReadableNumber(
-        tokens[0].decimals,
-        balances[tokens[0].id]
-      );
-
-      const secondAmount = toReadableNumber(
-        tokens[1].decimals,
-        balances[tokens[1].id]
-      );
-
-      const thirdAmount = toReadableNumber(
-        tokens[2].decimals,
-        balances[tokens[2].id]
-      );
-
       setError(null);
-      setCanAddLP(
-        !(
-          ONLY_ZEROS.test(firstAmount) &&
-          ONLY_ZEROS.test(secondAmount) &&
-          ONLY_ZEROS.test(thirdAmount)
-        )
-      );
-      setCanDeposit(false);
+      setCanAddLP(hasDeposited);
+      setCanDeposit(!hasDeposited);
       setMessageId('add_liquidity');
       setDefaultMessage('Add Liquidity');
       setFirstTokenAmount(firstAmount);
@@ -140,7 +155,7 @@ export default function AddLiquidityComponent(props: {
     } else if (addType === 'addAll') {
       setError(null);
       setCanAddLP(false);
-      setCanDeposit(false);
+      setCanDeposit(!hasDeposited);
       setFirstTokenAmount('');
       setSecondTokenAmount('');
       setThirdTokenAmount('');
@@ -296,6 +311,12 @@ export default function AddLiquidityComponent(props: {
       toReadableNumber(tokens[2].decimals, balances[tokens[2].id])
     );
 
+    const hasDeposited = !(
+      firstTokenBalanceBN.isZero() &&
+      secondTokenBalanceBN.isZero() &&
+      thirdTokenBalanceBN.isZero()
+    );
+
     setCanAddLP(true);
     setCanDeposit(false);
 
@@ -317,7 +338,10 @@ export default function AddLiquidityComponent(props: {
       setAddType('addMax');
     }
 
-    if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
+    if (
+      firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN) ||
+      !hasDeposited
+    ) {
       // setMessageId('deposit_to_add_liquidity');
       // setDefaultMessage('Deposit to Add Liquidity');
       setCanAddLP(false);
