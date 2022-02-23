@@ -348,6 +348,6 @@ const en_US = {
   from_celo: 'Celo',
   no_result: 'Sorry, we couldn’t find any matched farm',
   mulitple: 'Multiple',
-  comprehensive: 'Comprehensive',
+  default: 'Default',
 };
 export default en_US;

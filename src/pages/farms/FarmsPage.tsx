@@ -40,7 +40,7 @@ import {
   classificationOfCoins,
   classificationOfCoins_key,
   incentiveLpTokenConfig,
-  comprehensiveConfig,
+  defaultConfig,
 } from '~services/farm';
 import {
   stake,
@@ -94,7 +94,7 @@ interface SearchData {
 export function FarmsPage() {
   const intl = useIntl();
   const sortList = {
-    comprehensive: intl.formatMessage({ id: 'comprehensive' }),
+    default: intl.formatMessage({ id: 'default' }),
     mulitple: intl.formatMessage({ id: 'mulitple' }),
     apr: intl.formatMessage({ id: 'apr' }),
     new: intl.formatMessage({ id: 'new' }),
@@ -117,7 +117,7 @@ export function FarmsPage() {
     {}
   );
   const [searchData, setSearchData] = useState<SearchData>({
-    sort: 'comprehensive',
+    sort: 'default',
     status: null,
     coin: 'all',
     sortBoxHidden: true,
@@ -379,7 +379,7 @@ export function FarmsPage() {
         item.show = false;
       }
       item.mulitple = incentiveLpTokenConfig[id] || '0';
-      item.comprehensive = comprehensiveConfig[id] || '0';
+      item.default = defaultConfig[id] || '0';
     });
     if (sort == 'new') {
       const tempMap = {};
@@ -408,9 +408,9 @@ export function FarmsPage() {
       listAll.sort((item1: any, item2: any) => {
         return Number(item2.mulitple) - Number(item1.mulitple);
       });
-    } else if (sort == 'comprehensive') {
+    } else if (sort == 'default') {
       listAll.sort((item1: any, item2: any) => {
-        return Number(item2.comprehensive) - Number(item1.comprehensive);
+        return Number(item2.default) - Number(item1.default);
       });
     }
     setFarms(listAll);

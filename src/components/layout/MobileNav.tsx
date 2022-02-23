@@ -14,6 +14,7 @@ import {
   IconMyLiquidity,
   IconEn,
   IconZh,
+  IconVi,
   WrapNearEnter,
   IconAirDropGreenTip,
   WrapNearIconDark,
@@ -140,7 +141,7 @@ export function MobileSwitchLanguage() {
           onClick={() => context.selectLanguage('vi')}
         >
           <span className="text-2xl mr-5">
-            <IconZh />
+            <IconVi />
           </span>
           Việt
         </div>

@@ -507,7 +507,7 @@ export const incentiveLpTokenConfig = {
   '2734': '4',
   '974': '4',
 };
-export const comprehensiveConfig = {
+export const defaultConfig = {
   '79': '10',
   '2657': '9',
   '1207': '4',
