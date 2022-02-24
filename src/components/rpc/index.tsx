@@ -271,12 +271,18 @@ async function ping(url: string, key: string) {
             localStorage.getItem('rpc_reload_number') || 0
           );
           setTimeout(() => {
-            if (++reloadedTimes > MAXELOADTIMES) {
+            reloadedTimes = reloadedTimes + 1;
+            if (reloadedTimes > MAXELOADTIMES) {
               localStorage.setItem('endPoint', 'defaultRpc');
+              localStorage.setItem('rpc_reload_number', '');
               return -1;
             } else {
               localStorage.setItem('endPoint', availableRpc);
               window.location.reload();
+              localStorage.setItem(
+                'rpc_reload_number',
+                reloadedTimes.toString()
+              );
             }
           }, 1000);
         }
