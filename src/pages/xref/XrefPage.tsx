@@ -48,7 +48,6 @@ function XrefPage() {
   const [refBalance, setRefBalance] = useState(null);
   const [xrefBalance, setXrefBalance] = useState(null);
   const [rate, setRate] = useState(null);
-  const [forward, setForward] = useState(true);
   const [totalDataArray, setTotalDataArray] = useState([]);
   const intl = useIntl();
   useEffect(() => {
@@ -122,45 +121,6 @@ function XrefPage() {
       return aprBig.toFixed(2, 1);
     }
   };
-  const rateDisplay = () => {
-    const cur_rate_forward = rate;
-    const cur_rate_reverse = 1 / rate;
-    if (rate) {
-      if (forward) {
-        const displayStr = niceDecimals(cur_rate_forward, 4);
-        return (
-          <>
-            1 <FormattedMessage id="xref"></FormattedMessage> =&nbsp;
-            <span className="cursor-text" title={cur_rate_forward.toString()}>
-              {displayStr}
-            </span>
-            &nbsp;
-            <FormattedMessage id="ref"></FormattedMessage>
-          </>
-        );
-      } else {
-        const displayStr = niceDecimals(cur_rate_reverse, 4);
-        return (
-          <>
-            1 <FormattedMessage id="ref"></FormattedMessage> =&nbsp;
-            <span className="cursor-text" title={cur_rate_reverse.toString()}>
-              {displayStr}
-            </span>
-            &nbsp;
-            <FormattedMessage id="xref"></FormattedMessage>
-          </>
-        );
-      }
-    } else {
-      return (
-        <>
-          1 <FormattedMessage id="xref"></FormattedMessage> ={' '}
-          <span title="1">1</span>&nbsp;
-          <FormattedMessage id="ref"></FormattedMessage>
-        </>
-      );
-    }
-  };
   const analysisText: any = {
     first: {
       title: intl.formatMessage({ id: 'number_of_unique_stakers' }),
@@ -179,6 +139,19 @@ function XrefPage() {
       title: intl.formatMessage({ id: 'total_xref_minted' }),
       unit: 'xREF',
     },
+  };
+  const displayTotalREF = () => {
+    const bigAmount = new BigNumber(xrefBalance || '0');
+    let receive;
+    receive = bigAmount.multipliedBy(rate);
+    if (receive.isEqualTo(0)) {
+      return 0;
+    } else if (receive.isLessThan(0.001)) {
+      return '<0.001';
+    } else {
+      // return `≈ ${receive.toFixed(3, 1)}`;
+      return `≈ ${toPrecision(receive.valueOf(), 3, true)}`;
+    }
   };
   if (!(refBalance && xrefBalance)) return <Loading></Loading>;
   return (
@@ -201,54 +174,46 @@ function XrefPage() {
       </div>
       <div className="w-full">
         <div className="xs:mb-2.5 md:mb-2.5 lg:mb-3 grid lg:grid-cols-xrefColumn lg:gap-x-2.5 xs:grid-rows-xrefRowM md:grid-rows-xrefRowM xs:gap-y-2.5 md:gap-y-2.5">
-          <div className="flex flex-col justify-between rounded-2xl bg-cardBg py-5 px-6 xs:py-4 md:py-4 xs:flex md:flex xs:justify-between md:justify-between items-center">
-            <div className="flex items-center justify-between w-full">
-              <p className="text-base text-primaryText">
-                <FormattedMessage id="staking_apr"></FormattedMessage>
-              </p>
-              <p className="text-2xl text-white" title={apr.toString() + '%'}>
-                {displayApr() + '%'}
-              </p>
-            </div>
-            <div className="flex items-center justify-between w-full mt-3">
-              <div className="rounded-md bg-primaryGradient text-sm text-white flex items-center justify-center px-3.5 xs:px-2.5 md:px-2.5 py-1 cursor-not-allowed opacity-40">
-                <FormattedMessage id="view_stats"></FormattedMessage>
-              </div>
-              <div
-                onClick={() => {
-                  setForward(!forward);
-                }}
-                className="flex items-center justify-center text-sm text-white rounded-lg bg-black bg-opacity-20 py-1.5 px-3 xs:px-2 md:px-2 cursor-pointer"
-              >
-                <FaExchangeAlt color="#00C6A2" className="mr-3"></FaExchangeAlt>{' '}
-                {rateDisplay()}
-              </div>
-            </div>
+          <div className="flex flex-col xs:flex-row md:flex-row justify-between rounded-2xl bg-cardBg py-5 px-6 xs:py-4 md:py-4 xs:flex md:flex xs:justify-between md:justify-between">
+            <p className="text-base text-primaryText">
+              <FormattedMessage id="staking_apr"></FormattedMessage>
+            </p>
+            <p className="text-2xl text-white" title={apr.toString() + '%'}>
+              {displayApr() + '%'}
+            </p>
           </div>
-          <div className="flex flex-col xs:flex-row md:flex-row xs:items-center md:items-center justify-between rounded-2xl bg-cardBg py-5 px-6 xs:py-3 md:py-3">
+          <div className="rounded-2xl bg-cardBg py-5 px-6 xs:py-3 md:py-3">
             {/* pc */}
-            <div className="text-primaryText text-base w-full xs:hidden md:hidden">
-              <label className="mr-1.5">
-                <FormattedMessage id="xref"></FormattedMessage>
-              </label>
-              <label>
-                <FormattedMessage id="balance"></FormattedMessage>
-              </label>
-            </div>
-            <div className="flex items-center w-full xs:hidden md:hidden">
-              <XrefSymbol></XrefSymbol>
-              <div className="ml-3.5">
-                <p
-                  className="text-xl xs:text-base md:text-base text-white"
-                  title={xrefBalance}
-                >
-                  {displayBalance(xrefBalance)}
-                </p>
+            <div className="flex items-start justify-between xs:hidden md:hidden">
+              <div className="text-primaryText text-base w-full">
+                <label className="mr-1.5">
+                  <FormattedMessage id="xref"></FormattedMessage>
+                </label>
+                <label>
+                  <FormattedMessage id="balance"></FormattedMessage>
+                </label>
+              </div>
+              <div className="relative -mt-1">
+                <div className="flex items-center">
+                  <XrefSymbol></XrefSymbol>
+                  <div className="ml-1.5">
+                    <p
+                      className="text-xl xs:text-base md:text-base text-white"
+                      title={xrefBalance}
+                    >
+                      {displayBalance(xrefBalance)}
+                    </p>
+                  </div>
+                </div>
+                <div className="whitespace-nowrap ml-8 text-white">
+                  {displayTotalREF()}{' '}
+                  <FormattedMessage id="ref"></FormattedMessage>
+                </div>
               </div>
             </div>
             {/* mobile */}
-            <>
-              <div className="lg:hidden flex items-center">
+            <div className="flex items-start justify-between lg:hidden">
+              <div className="flex items-center">
                 <XrefSymbol></XrefSymbol>
                 <div className="text-primaryText text-base ml-2">
                   <label className="mr-1.5">
@@ -259,10 +224,14 @@ function XrefPage() {
                   </label>
                 </div>
               </div>
-              <p className="text-xl xs:text-base md:text-base text-white lg:hidden">
-                {displayBalance(xrefBalance)}
-              </p>
-            </>
+              <div className="flex flex-col items-end text-xl xs:text-base md:text-base text-white relative top-3">
+                <label>{displayBalance(xrefBalance)}</label>
+                <div className="whitespace-nowrap text-white">
+                  {displayTotalREF()}{' '}
+                  <FormattedMessage id="ref"></FormattedMessage>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div className="rounded-2xl bg-cardBg p-5 xs:px-3 md:px-3">
@@ -325,6 +294,10 @@ function InputView(props: any) {
   const [amount, setAmount] = useState('0');
   const [loading, setLoading] = useState(false);
   const { tab, max, hidden, isM, rate } = props;
+  const [forward, setForward] = useState(true);
+  useEffect(() => {
+    setForward(true);
+  }, [tab]);
   const onSubmit = () => {
     setLoading(true);
     if (tab == 0) {
@@ -355,16 +328,76 @@ function InputView(props: any) {
       return `≈ ${receive.toFixed(3, 1)}`;
     }
   };
+  const rateDisplay = (tab: number) => {
+    const cur_rate_forward = rate;
+    const cur_rate_reverse = 1 / rate;
+    if (rate) {
+      if ((tab == 1 && forward) || (tab == 0 && !forward)) {
+        // forward
+        const displayStr = niceDecimals(cur_rate_forward, 4);
+        return (
+          <>
+            1 <FormattedMessage id="xref"></FormattedMessage> =&nbsp;
+            <span className="cursor-text" title={cur_rate_forward.toString()}>
+              {displayStr}
+            </span>
+            &nbsp;
+            <FormattedMessage id="ref"></FormattedMessage>
+          </>
+        );
+      } else {
+        const displayStr = niceDecimals(cur_rate_reverse, 4);
+        return (
+          <>
+            1 <FormattedMessage id="ref"></FormattedMessage> =&nbsp;
+            <span className="cursor-text" title={cur_rate_reverse.toString()}>
+              {displayStr}
+            </span>
+            &nbsp;
+            <FormattedMessage id="xref"></FormattedMessage>
+          </>
+        );
+      }
+    } else {
+      return (
+        <>
+          1 <FormattedMessage id="xref"></FormattedMessage> ={' '}
+          <span title="1">1</span>&nbsp;
+          <FormattedMessage id="ref"></FormattedMessage>
+        </>
+      );
+    }
+  };
   return (
     <div className={`flex flex-col mt-14 ${hidden}`}>
       <div className="flex items-center mb-8 xs:mb-5 md:mb-5 h-16">
         <div className="flex-grow relative">
-          <div className="flex items-center text-primaryText text-xs absolute right-0 -top-6">
-            <SmallWallet></SmallWallet>
-            <span className="ml-2">
-              <FormattedMessage id="balance"></FormattedMessage>:{' '}
-              <span title={max}>{displayBalance(max)}</span>
-            </span>
+          <div className="flex justify-between items-center absolute right-0 lg:-top-8  xs:-top-5 md:-top-5 w-full">
+            <div
+              onClick={() => {
+                setForward(!forward);
+              }}
+              className="xs:hidden md:hidden flex items-center justify-center text-sm text-white rounded-lg bg-black bg-opacity-20 py-1 px-3 xs:px-2 md:px-2 cursor-pointer"
+            >
+              <FaExchangeAlt color="#00C6A2" className="mr-3"></FaExchangeAlt>{' '}
+              {rateDisplay(tab)}
+            </div>
+            <div
+              onClick={() => {
+                setForward(!forward);
+              }}
+              className="lg:hidden absolute -top-10 left-1/4 w-full flex items-center justify-center text-sm text-white rounded-lg bg-black bg-opacity-20 py-1 px-3 xs:px-2 md:px-2 cursor-pointer"
+            >
+              <FaExchangeAlt color="#00C6A2" className="mr-3"></FaExchangeAlt>{' '}
+              {rateDisplay(tab)}
+            </div>
+            <div className="flex items-center text-primaryText text-xs ">
+              <SmallWallet></SmallWallet>
+              <span className="ml-2">
+                <FormattedMessage id="balance"></FormattedMessage>:{' '}
+                <span title={max}>{displayBalance(max)}</span>
+              </span>
+            </div>
           </div>
           <OldInputAmount max={max} onChangeAmount={setAmount} />
         </div>

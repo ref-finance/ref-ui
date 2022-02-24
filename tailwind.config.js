@@ -33,11 +33,11 @@ module.exports = {
         farmSearch: '2fr 1fr',
         farmContainer: '1fr 4fr',
         farmContainerOther: '1.2fr 3fr',
-        xrefColumn: '13fr 7fr',
+        xrefColumn: '7fr 13fr',
       },
       gridTemplateRows: {
         xrefContainer: '7fr 18fr',
-        xrefRowM: '3fr 2fr',
+        xrefRowM: '2fr 3fr',
         xrefContainerM: '2fr 3fr',
       },
       colors: {
