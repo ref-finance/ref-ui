@@ -14,7 +14,7 @@ export default function RiskPage() {
       <div className="flex justify-center absolute -top-16 left-1/2 transform -translate-x-1/2">
         <RiskLogo></RiskLogo>
       </div>
-      <div className="flex justify-center text-white font-medium text-2xl">
+      <div className="flex justify-center text-white font-medium text-2xl whitespace-nowrap">
         {local == 'zh-CN' ? (
           <>
             <LangMessage id="of_using_ref_finance" />
@@ -73,6 +73,20 @@ export default function RiskPage() {
                 正在审核 Ref Finance 智能合约。 一旦第一次审计完成，Ref Finance
                 将积极寻求第二次独立审计。
               </>
+            ) : local == 'vi' ? (
+              <>
+                Smart contracts của Ref.finance hiện đang được kiểm định bởi{' '}
+                <label
+                  className="underline cursor-pointer text-riskTextColor hover:text-white"
+                  onClick={() => {
+                    window.open('https://jitadigital.com/');
+                  }}
+                >
+                  Jita
+                </label>
+                . chúng tôi sẽ tích cực tìm kiếm thêm một bên thẩm định thứ 3
+                nữa ngay sau khi lần kiểm định với Jita kết thúc.
+              </>
             ) : (
               <>
                 Ref Finance smart contracts are being audited by{' '}
@@ -120,6 +134,34 @@ export default function RiskPage() {
                   监护人
                 </label>
                 ，特定的 NEAR 地址，可以暂停合约。 只有 DAO 可以随时恢复合约。
+              </>
+            ) : local == 'vi' ? (
+              <>
+                Ref finance được quản trị bởi{' '}
+                <label
+                  onClick={() => {
+                    window.open(
+                      'https://app.astrodao.com/dao/ref-finance.sputnik-dao.near'
+                    );
+                  }}
+                  className="underline text-riskTextColor hover:text-white cursor-pointer"
+                >
+                  Ref Finance Sputnik DAO.{' '}
+                </label>
+                Thêm vào đó, sẽ có những địa chỉ ví NEAR nhất định{' '}
+                <label
+                  className="underline text-riskTextColor hover:text-white cursor-pointer"
+                  onClick={() => {
+                    window.open(
+                      'https://gov.ref.finance/t/introducing-the-guardians/253'
+                    );
+                  }}
+                >
+                  (được gọi là Guardians){' '}
+                </label>
+                có khả năng dừng contract của Ref.finance lại. Trong trường họp
+                contract bị ngưng lại, chỉ có Ref.finance DAO mới có khả năng mở
+                lại contract
               </>
             ) : (
               <>
@@ -516,6 +558,92 @@ const en_US = {
   crypto_trading_addiction_paragraph_6:
     "'I lost millions through cryptocurrency trading addiction'",
 };
+const vi = {
+  risks: 'Rủi ro',
+  of_using_ref_finance: 'khi sử dụng Ref Finance',
+  introduction:
+    'Cung cấp thanh khoản và/hoặc trading/giao dịch trên Ref.finance sẽ không thể có chuyện không có rủi ro. Trước khi tương tác với giao thức, vui lòng tìm hiểu kĩ những rủi ro đi kèm.',
+  general_risks_quiz: 'Quiz Test cơ bản',
+  amm_core_design: 'Thiết kế AMM',
+  audits: 'Kiểm định',
+  audits_paragraph_2:
+    'Những cuộc kiểm định không thể loại trừ hết rủi ro bảo mật. Vì lẽ đó, xin đừng cung cấp tiền tiết kiệm , hay bất cứ loại tài sản nào mà bạn không thể mất, đặc biệt khi bạn là một người cung cấp thanh khoản.',
+  admin_keys: 'Khóa quản trị',
+  admin_keys_paragraph_2:
+    'HIện tại Ref.finance DAO đang có 26 thành viên. Trong tương lai, chúng tôi sẽ chuyển đổi thành 1 DAO hoàn toàn phi tập trung.',
+  admin_keys_paragraph_3:
+    'Dưới đây là một số các contracts và địa chỉ ví có tác động trực tiếp đến các vấn đề quản trị, hoặc hiện đang quản trị Ref.finance.',
+  address: 'Địa chỉ',
+  type: 'Loại',
+  mission: 'Nhiệm vụ',
+  exchange_contract: 'Exchange Contract',
+  table_body_tr_1:
+    'Quản lý các chức năng của AMM, cững như việc giao dịch và cung cấp thanh khoản',
+  farming_contract: 'Farming Contract',
+  table_body_tr_2: 'Quản lý các phần thưởng thanh khoản',
+  staking_contract: 'Staking Contract',
+  table_body_tr_3:
+    'Tạo thêm/ đốt bỏ xRef, cùng với đó là phân phối phần thưởng theo chu kì',
+  sputnik_dao_contract: 'Sputnik DAO Contract',
+  table_body_tr_4:
+    'Đảm bảo cho sự thành công của Ref bằng cách đưa ra những quyết định mang tính chiến lược',
+  table_body_tr_5:
+    'Quản trị và phân bổ vốn đến những   cộng tác viên trong  cộng đồng',
+  table_body_tr_6: 'Thực hiện theo chiến lược và roadmap',
+  vesting_contract: 'Vesting Contract',
+  table_body_tr_7: 'Quản lý REF vesting contracts của cộng đồng DAO',
+  airdrop_contract: 'Airdrop Contract',
+  table_body_tr_8: 'Quản trị lần airdrop đầu của REF',
+  near_address: 'Địa chỉ ví NEAR',
+  table_body_tr_9: 'Quản trị những chi trả cho bug bounty',
+  fungible_token_contract: 'Fungible Token Contract',
+  table_body_tr_10: 'Tạo Ref Token',
+  rug_pull: 'Rug pull',
+  rug_pull_paragraph_1:
+    'Nếu đội ngũ đứng sau token quyết định bỏ rơi dự án và rời đi với tiền của nhà đầu tư thì gần như chắc chắn là token của dự án sẽ rơi về $0  (mặc cho dự án có được whitelist bởi Ref. hay không).',
+  rug_pull_paragraph_2:
+    'Việc một token được whitelist bởi Ref.finance không đảm bảo là dự án sẽ thành công. Nhà đầu tư khi trước khi đặt tiền cho 1 đồng token nào đó nên hiểu rõ rằng thị trường tiền số là một thị trường rủi ro rất cao.',
+  rug_pull_paragraph_3:
+    'Bạn nên nhận thức được và chuẩn bị tinh thần rằng 1 phần hoặc tất cả số tài sản bạn đầu tư có thể bị mất.',
+  divergence_loss: 'Tổn thất tạm thời',
+  divergence_loss_paragraph_1:
+    'Khi cung cấp thanh khoản, xin lưu ý rằng lựa chọn không cung cấp thanh khoản (không làm gì cả) vẫn  có thể đem lại nhiều lợi nhuận hơn.',
+  divergence_loss_paragraph_2:
+    'Divergence Loss còn có một cái tên khác là  “impermanent loss”- Tổn thất tạm thời. Tính từ (impermanent) có thể bị nhầm thành việc bị mất đi tài sản trong tạm thời, đồng nghĩa với với việc các khoản lỗ được đảm bảo là được hoàn lại, điều mà hoàn toàn không hề đúng.',
+  divergence_loss_paragraph_3: 'Tìm hiểu thêm về Tổn thất tạm thời',
+  staking_risks: 'Rủi ro trong việc staking',
+  staking_risks_paragraph_1:
+    'Khi staking bạn phải sử dụng một cơ số smart contracts, mỗi smart contract đều có rủi ro riêng.',
+  permanent_loss_of_a_peg: 'Tổn thất dài hạn',
+  permanent_loss_of_a_peg_paragraph_1:
+    'Nếu một trong những loại stablecoins trong bể đột nhiên giảm sâu hơn tỷ giá hối đoái neo là 1.0 và không bao giờ quay lại giá neo đó. Điều đó chứng tỏ tài sản của những nhà cung cấp thanh khoản hầu hết đều là loại stablecoin đó.',
+  systemic_issues: 'Lỗi hệ thống',
+  systemic_issues_paragraph_1:
+    'Về cơ bản, các mảnh của DeFi đều có sự kết nối với nhau, vì vậy một lỗi trong 1 mảnh nhỏ của Defi cũng có thể dẫn đến một chuỗi lỗi của nhiều giao thức.',
+  systemic_issues_paragraph_2:
+    'Một lỗi hệ thống có thể làm cho bạn mất tiền ngay cả khi lỗi hệ thống đó không tác động trực tiếp đến khoản đầu tư của bạn.',
+  systemic_issues_paragraph_3:
+    'Những lỗi sau có thể tác động đến bể thanh khoản:',
+  systemic_issues_paragraph_4: 'Smart contract của giao thức cho vay bị lỗi',
+  systemic_issues_paragraph_5: 'Smart contract trong quá trình staking bị lỗi',
+  systemic_issues_paragraph_6:
+    'Lỗi hệ thống của stablecoins trong các bể thanh khoản',
+  systemic_issues_paragraph_7:
+    'Lỗi hệ thống với các ERC20 - native tokens ở trong các bẻ thanh khoản',
+  crypto_trading_addiction: 'Nghiện giao dịch crypto',
+  crypto_trading_addiction_paragraph_1:
+    'Giao dịch tiền điện tử có thể rất dễ gây nghiện và theo nhiều nguồn tin, là một dạng nghiện cờ bạc, có thể hủy hoại cuộc sống.',
+  crypto_trading_addiction_paragraph_2:
+    'Vui lòng tìm dưới đây một bộ sưu tập các câu chuyện liên quan đến vấn đề đó.',
+  crypto_trading_addiction_paragraph_3:
+    "'Trading là cờ bạc, không còn nghi ngờ gì nữa'",
+  crypto_trading_addiction_paragraph_4:
+    "'Tôi đã mất nửa triệu bảng Anh khi giao dịch Bitcoin’'",
+  crypto_trading_addiction_paragraph_5:
+    "'Chúng tôi nói chuyện với một nhà trị liệu chuyên điều trị chứng nghiện giao dịch tiền điện tử’'",
+  crypto_trading_addiction_paragraph_6:
+    "''Tôi đã mất hàng triệu USD do nghiện giao dịch tiền điện tử'",
+};
 
 const zh_CN = {
   risks: '风险',
@@ -612,6 +740,9 @@ const getCurrentLang = () => {
       break;
     case 'zh-CN':
       lang = zh_CN;
+      break;
+    case 'vi':
+      lang = vi;
       break;
     default:
       lang = en_US;

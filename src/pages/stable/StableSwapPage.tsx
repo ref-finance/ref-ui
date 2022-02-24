@@ -42,6 +42,9 @@ function StableSwapPage() {
     setAction(actionName);
   };
 
+  if (!allTokens || !pool || !shares || !stablePool || !balances)
+    return <Loading />;
+
   const tokens =
     allTokens &&
     allTokens.length > 0 &&
@@ -85,8 +88,6 @@ function StableSwapPage() {
         );
     }
   };
-
-  if (!allTokens || !pool || !shares || !stablePool) return <Loading />;
 
   return (
     <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2">
