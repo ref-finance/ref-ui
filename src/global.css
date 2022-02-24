@@ -656,6 +656,19 @@ input[type='range']::-webkit-slider-runnable-track {
     bottom: 141px;
   }
 }
+
+@keyframes arrowUp {
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes arrowDown {
+  50% {
+    transform: translateY(4px);
+  }
+}
+
 @keyframes popupBox3AniMobile {
   0% {
     opacity: 0;

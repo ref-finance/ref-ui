@@ -17,6 +17,7 @@ import { useDepositableBalance, useToken } from '~state/token';
 import { ONLY_ZEROS, toReadableNumber } from '~utils/numbers';
 import SubmitButton from './SubmitButton';
 import TokenAmount from './TokenAmount';
+import { SwapExchange } from '../icon/Arrows';
 
 function WrapNear(props: ReactModal.Props) {
   const [showError, setShowError] = useState(false);
@@ -101,16 +102,7 @@ function WrapNear(props: ReactModal.Props) {
       return nearWithdraw(tokenInAmount);
     }
   };
-  const runSwapAnimation = function () {
-    topBall.current.style.animation = 'rotation1 1s 0s ease-out 1';
-    bottomBall.current.style.animation = 'rotation2 1s 0s ease-out 1';
-    topBall.current.addEventListener('animationend', function () {
-      topBall.current.style.animation = '';
-    });
-    bottomBall.current.addEventListener('animationend', function () {
-      bottomBall.current.style.animation = '';
-    });
-  };
+
   const getMax = function () {
     return tokenIn.id !== 'NEAR'
       ? tokenInMax
@@ -160,25 +152,14 @@ function WrapNear(props: ReactModal.Props) {
             className="flex items-center justify-center border-t mt-12 mb-3"
             style={{ borderColor: 'rgba(126, 138, 147, 0.3)' }}
           >
-            <div
-              className="relative flex items-center -mt-6 mb-4 w-11 h-11 border border-white border-opacity-40 rounded-full cursor-pointer bg-dark"
-              onClick={() => {
-                runSwapAnimation();
+            <SwapExchange
+              onChange={() => {
                 setTokenIn(tokenOut);
                 setTokenOut(tokenIn);
                 setTokenInAmount('');
                 setShowError(false);
               }}
-            >
-              <div className="swap-wrap">
-                <div className="top-ball" ref={topBall} id="top-ball" />
-                <div
-                  className="bottom-ball"
-                  ref={bottomBall}
-                  id="bottom-ball"
-                />
-              </div>
-            </div>
+            />
           </div>
           <TokenAmount
             amount={tokenInAmount}
