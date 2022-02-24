@@ -205,7 +205,7 @@ function XrefPage() {
                     </p>
                   </div>
                 </div>
-                <div className="whitespace-nowrap ml-8 text-white text-sm">
+                <div className="whitespace-nowrap ml-8 text-white text-sm text-right">
                   {displayTotalREF()}{' '}
                   <FormattedMessage id="ref"></FormattedMessage>
                 </div>
