@@ -9,6 +9,7 @@ import Modal from 'react-modal';
 import { ModalClose, Checkbox, CheckboxSelected } from '~components/icon';
 import { BeatLoading } from '~components/layout/Loading';
 const RPCLIST = getExtendConfig().RPC_LIST;
+const MAXELOADTIMES = 3;
 const RpcList = () => {
   const rpclist = RPCLIST;
   const [hover, setHover] = useState(false);
@@ -266,9 +267,17 @@ async function ping(url: string, key: string) {
           const availableRpc = Object.keys(RPCLIST).find((item) => {
             if (item != key) return item;
           });
+          let reloadedTimes = Number(
+            localStorage.getItem('rpc_reload_number') || 0
+          );
           setTimeout(() => {
-            localStorage.setItem('endPoint', availableRpc);
-            window.location.reload();
+            if (++reloadedTimes > MAXELOADTIMES) {
+              localStorage.setItem('endPoint', 'defaultRpc');
+              return -1;
+            } else {
+              localStorage.setItem('endPoint', availableRpc);
+              window.location.reload();
+            }
           }, 1000);
         }
       }

@@ -440,7 +440,7 @@ export const claimAndWithDrawReward = async (
   return executeFarmMultipleTransactions(transactions);
 };
 export const classificationOfCoins = {
-  stablecoin: ['USDT', 'USDC', 'DAI', 'nUSDO', 'cUSD'],
+  stablecoin: ['USDT', 'USDC', 'DAI', 'nUSDO'],
   near_ecosystem: [
     'REF',
     'STNEAR',
@@ -487,6 +487,7 @@ export const classificationOfCoins = {
     'BAT',
     '1INCH',
     'CELO',
+    'cUSD',
   ],
   gaming: ['PXT', 'sPXT', 'SHRM', 'GOLD', 'GEM', 'ELIXIR'],
   nft: ['PARAS', '1MIL'],

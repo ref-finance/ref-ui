@@ -196,16 +196,16 @@ function XrefPage() {
               <div className="relative -mt-1">
                 <div className="flex items-center">
                   <XrefSymbol></XrefSymbol>
-                  <div className="ml-1.5">
+                  <div className="ml-1.5 flex-grow">
                     <p
-                      className="text-xl xs:text-base md:text-base text-white"
+                      className="text-xl xs:text-base md:text-base text-white text-right"
                       title={xrefBalance}
                     >
                       {displayBalance(xrefBalance)}
                     </p>
                   </div>
                 </div>
-                <div className="whitespace-nowrap ml-8 text-white">
+                <div className="whitespace-nowrap ml-8 text-white text-sm">
                   {displayTotalREF()}{' '}
                   <FormattedMessage id="ref"></FormattedMessage>
                 </div>
@@ -226,7 +226,7 @@ function XrefPage() {
               </div>
               <div className="flex flex-col items-end text-xl xs:text-base md:text-base text-white relative top-3">
                 <label>{displayBalance(xrefBalance)}</label>
-                <div className="whitespace-nowrap text-white">
+                <div className="whitespace-nowrap text-white text-sm">
                   {displayTotalREF()}{' '}
                   <FormattedMessage id="ref"></FormattedMessage>
                 </div>
@@ -369,8 +369,17 @@ function InputView(props: any) {
     }
   };
   return (
-    <div className={`flex flex-col mt-14 ${hidden}`}>
-      <div className="flex items-center mb-8 xs:mb-5 md:mb-5 h-16">
+    <div className={`flex flex-col ${hidden} lg:mt-14`}>
+      <div
+        onClick={() => {
+          setForward(!forward);
+        }}
+        className="lg:hidden mt-2.5 mb-6 w-full flex items-center justify-center text-sm text-white rounded-lg bg-black bg-opacity-20 py-1 px-3 xs:px-2 md:px-2 cursor-pointer"
+      >
+        <FaExchangeAlt color="#00C6A2" className="mr-3"></FaExchangeAlt>{' '}
+        {rateDisplay(tab)}
+      </div>
+      <div className="relative flex items-center mb-8 xs:mb-5 md:mb-5 h-16">
         <div className="flex-grow relative">
           <div className="flex justify-between items-center absolute right-0 lg:-top-8  xs:-top-5 md:-top-5 w-full">
             <div
@@ -378,15 +387,6 @@ function InputView(props: any) {
                 setForward(!forward);
               }}
               className="xs:hidden md:hidden flex items-center justify-center text-sm text-white rounded-lg bg-black bg-opacity-20 py-1 px-3 xs:px-2 md:px-2 cursor-pointer"
-            >
-              <FaExchangeAlt color="#00C6A2" className="mr-3"></FaExchangeAlt>{' '}
-              {rateDisplay(tab)}
-            </div>
-            <div
-              onClick={() => {
-                setForward(!forward);
-              }}
-              className="lg:hidden absolute -top-10 left-1/4 w-full flex items-center justify-center text-sm text-white rounded-lg bg-black bg-opacity-20 py-1 px-3 xs:px-2 md:px-2 cursor-pointer"
             >
               <FaExchangeAlt color="#00C6A2" className="mr-3"></FaExchangeAlt>{' '}
               {rateDisplay(tab)}
