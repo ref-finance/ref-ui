@@ -8,16 +8,16 @@ import { isMobile } from '~utils/device';
 import Modal from 'react-modal';
 import { ModalClose, Checkbox, CheckboxSelected } from '~components/icon';
 import { BeatLoading } from '~components/layout/Loading';
-
+const RPCLIST = getExtendConfig().RPC_LIST;
 const RpcList = () => {
-  const rpclist = getExtendConfig().RPC_LIST;
+  const rpclist = RPCLIST;
   const [hover, setHover] = useState(false);
   const [responseTimeList, setResponseTimeList] = useState({});
   const [modalVisible, setModalVisible] = useState(false);
   const currentEndPoint = localStorage.getItem('endPoint') || 'defaultRpc';
   useEffect(() => {
     Object.entries(rpclist).forEach(([key, data]) => {
-      ping(data.url).then((time) => {
+      ping(data.url, key).then((time) => {
         responseTimeList[key] = time;
         setResponseTimeList(Object.assign({}, responseTimeList));
       });
@@ -231,7 +231,7 @@ const displayCurrentRpc = (responseTimeList: any, key: any) => {
   }
 };
 
-async function ping(url: string) {
+async function ping(url: string, key: string) {
   const start = new Date().getTime();
   const businessRequest = fetch(url, {
     method: 'POST',
@@ -246,7 +246,7 @@ async function ping(url: string) {
   const timeoutPromise = new Promise((resolve, reject) => {
     setTimeout(() => {
       reject(-1);
-    }, 5000);
+    }, 8000);
   });
   const responseTime = await Promise.race([businessRequest, timeoutPromise])
     .then(() => {
@@ -254,7 +254,22 @@ async function ping(url: string) {
       return end - start;
     })
     .catch((result) => {
-      return result;
+      if (result == -1) {
+        // timeout
+        return -1;
+      } else {
+        // other exception
+        const currentRpc = localStorage.getItem('endPoint') || 'defaultRpc';
+        if (currentRpc != key) {
+          return -1;
+        } else {
+          const availableRpc = Object.keys(RPCLIST).find((item) => {
+            if (item != key) return item;
+          });
+          localStorage.setItem('endPoint', availableRpc);
+          window.location.reload();
+        }
+      }
     });
   return responseTime;
 }
