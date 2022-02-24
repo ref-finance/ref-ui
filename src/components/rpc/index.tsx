@@ -266,8 +266,10 @@ async function ping(url: string, key: string) {
           const availableRpc = Object.keys(RPCLIST).find((item) => {
             if (item != key) return item;
           });
-          localStorage.setItem('endPoint', availableRpc);
-          window.location.reload();
+          setTimeout(() => {
+            localStorage.setItem('endPoint', availableRpc);
+            window.location.reload();
+          }, 1000);
         }
       }
     });
