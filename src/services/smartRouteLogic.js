@@ -291,6 +291,11 @@ function getRoutesFromPoolChain(poolChains) {
     let newRoutes = cartesianProduct(poolChain);
     routes.push(...newRoutes);
   }
+  for (var i in routes) {
+    if (!routes[i].length) {
+      routes[i] = [routes[i]];
+    }
+  }
   return routes;
 }
 
@@ -587,6 +592,7 @@ async function getBestOptimalAllocationsAndOutputs(
   // fix integer rounding for allocations:
   allocations = checkIntegerSumOfAllocations(allocations, totalInput);
   let outputs = getBestOptOutput(routes, nodeRoutes, totalInput);
+
   return {
     allocations: allocations,
     outputs: outputs,
