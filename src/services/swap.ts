@@ -205,44 +205,16 @@ export const estimateSwap = async ({
   // console.log(pools);
   const orpools = await getRefPoolsByToken1ORToken2(tokenIn.id, tokenOut.id);
 
-  // console.log('ORPOOLS ARE...');
-  // console.log(orpools);
-  // let graph = await getGraphFromPoolList(orpools);
-  // console.log(graph);
-  // console.log(`tokenIn is ${tokenIn.id}`);
-  // console.log(`tokenOut is ${tokenOut.id}`);
-
-  // console.log('paths are...');
-  // let paths = await getPathsFromPools(orpools, tokenIn.id, tokenOut.id);
-  // console.log(paths);
-  // let paths = await getKShortestPaths(graph, tokenIn.id, tokenOut.id, 100);
-  // ///let routePaths = await getAllPathsBelowLengthN(graph, tokenIn.id, tokenOut.id,3);
-  // console.log('PATHS ARE...');
-  // console.log(paths);
-
-  // let poolChains = await getPoolChainFromPaths(paths, orpools);
-  // console.log('POOL CHAINS ARE');
-  // console.log(poolChains);
-  // let routes = await getRoutesFromPoolChain(poolChains);
-  // console.log('ROUTES ARE...');
-  // console.log(routes);
-  // let nodeRoutes = await getNodeRoutesFromPathsAndPoolChains(paths, poolChains);
-  // console.log('NODE ROUTES ARE');
-  // console.log(nodeRoutes);
-  // let allocations = await getBestOptInput(routes, nodeRoutes, parsedAmountIn);
-  // console.log('ALLOCATIONS ARE...');
-  // console.log(allocations.map((item) => item.toString()));
-  // console.log('actions are...');
-  let actions = await getSmartRouteSwapActions(
-    orpools,
-    tokenIn.id,
-    tokenOut.id,
-    parsedAmountIn,
-    0.1 //TODO -- put in the slippageTolerance value HERE!!!
-  );
-  console.log('FOUND SMART ROUTE ACTIONS TO BE...');
-  console.log(actions);
-  console.log(STABLE_POOL_ID);
+  // let actions = await getSmartRouteSwapActions(
+  //   orpools,
+  //   tokenIn.id,
+  //   tokenOut.id,
+  //   parsedAmountIn,
+  //   0.1 //TODO -- put in the slippageTolerance value HERE!!!
+  // );
+  // console.log('FOUND SMART ROUTE ACTIONS TO BE...');
+  // console.log(actions);
+  // console.log(STABLE_POOL_ID);
   let stableSmartActions = await stableSmart(
     orpools,
     tokenIn.id,
@@ -594,7 +566,49 @@ SwapOptions) => {
       });
 
       return executeMultipleTransactions(transactions);
+    } else if (swapsToDo.length == 1) {
+      console.log('DOING SINGLE HOP SMART ROUTE')
+      // added this case when the smart routing determines that the best route is a single hop, direct swap:
+      await registerToken(tokenOut)
+      
+      transactions.push({
+        receiverId: tokenIn.id,
+        functionCalls: [
+          {
+            methodName: 'ft_transfer_call',
+            args: {
+              receiver_id: REF_FI_CONTRACT_ID,
+              amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
+              msg: JSON.stringify({
+                force: 0,
+                actions: [
+                  {
+                    pool_id: swapsToDo[0].pool.id,
+                    token_in: tokenIn.id,
+                    token_out: tokenOut.id,
+                    amountIn: round(
+                      tokenIn.decimals,
+                      toNonDivisibleNumber(tokenIn.decimals, amountIn)
+                    ),
+                    min_amount_out: round(
+                      tokenOut.decimals,
+                      toNonDivisibleNumber(
+                        tokenOut.decimals,
+                        percentLess(slippageTolerance, swapsToDo[0].estimate)
+                      )
+                    )},
+                ],
+              }),
+            },
+            gas: '180000000000000',
+            amount: ONE_YOCTO_NEAR,
+          },
+        ],
+      });
+    }
     } else {
+      console.log('DOING DOUBLE HOP SMART ROUTE')
+
       const tokenMid = swapsToDo[1].token;
 
       await registerToken(tokenOut);
@@ -718,8 +732,38 @@ SwapOptions) => {
     return refFiManyFunctionCalls(actions);
   } else {
     const whitelist = await getWhitelistedTokens();
+    // need to add in condition if smart route solves for direct hop as optimal solution and there is no tokenMid:
+    if (swapsToDo.length == 1) {
+      var actions: RefFiFunctionCallOptions[] = [
+        {
+          methodName: 'swap',
+          amount: ONE_YOCTO_NEAR,
+          args: {
+            actions: [
+              {
+                pool_id: swapsToDo[0].pool.id,
+                token_in: tokenIn.id,
+                token_out: tokenOut.id,
+                amount_in: round(
+                  tokenIn.decimals,
+                  toNonDivisibleNumber(tokenIn.decimals, amountIn)
+                ),
+                min_amount_out: round(
+                  tokenOut.decimals,
+                  toNonDivisibleNumber(
+                    tokenOut.decimals,
+                    percentLess(slippageTolerance, swapsToDo[0].estimate)
+                  )
+                ),
+              },
+            ],
+          },
+        },
+      ];
+    } else {
+
     const tokenMid = swapsToDo[1].token;
-    const actions: RefFiFunctionCallOptions[] = [
+    var actions: RefFiFunctionCallOptions[] = [
       {
         methodName: 'swap',
         amount: ONE_YOCTO_NEAR,
@@ -750,7 +794,8 @@ SwapOptions) => {
           ],
         },
       },
-    ];
+    ]; 
+  }
     if (!whitelist.includes(tokenOut.id)) {
       actions.unshift(registerTokenAction(tokenOut.id));
     }
