@@ -86,7 +86,7 @@ export default function TokenAmount({
             selected={
               selectedToken && (
                 <div
-                  className="flex items-center justify-end font-semibold rounded-full hover:bg-black hover:bg-opacity-20 cursor-pointer pl-4"
+                  className="flex items-center justify-end font-semibold rounded-full hover:bg-black hover:bg-opacity-20 cursor-pointer lg:pl-4"
                   onMouseEnter={() => setHoverSelectToken(true)}
                   onMouseLeave={() => setHoverSelectToken(false)}
                 >

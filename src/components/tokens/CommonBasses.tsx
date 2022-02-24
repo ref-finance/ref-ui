@@ -39,7 +39,7 @@ export default function CommonBasses({ tokens, onClick }: CommonBassesProps) {
         {commonBassesTokens.map((token) => {
           return (
             <div
-              className="mt-4 hover:bg-black hover:bg-opacity-10 rounded-full pr-3 cursor-pointer mr-3 flex items-center"
+              className="mt-4 hover:bg-black hover:bg-opacity-10 rounded-full pr-3 cursor-pointer mr-3 xs:mr-1 md:mr-1 flex items-center"
               key={token.id}
               onClick={() => onClick && onClick(token)}
               style={{
