@@ -595,9 +595,9 @@ const vi = {
   airdrop_contract: 'Airdrop Contract',
   table_body_tr_8: 'Quản trị lần airdrop đầu của REF',
   near_address: 'Địa chỉ ví NEAR',
-  table_body_tr_9: 'Quản trị những lần chi-trả-1-lần cho bug bounty',
+  table_body_tr_9: 'Quản trị những chi trả cho bug bounty',
   fungible_token_contract: 'Fungible Token Contract',
-  table_body_tr_10: 'Tạo thêm Ref token',
+  table_body_tr_10: 'Tạo Ref Token',
   rug_pull: 'Rug pull',
   rug_pull_paragraph_1:
     'Nếu đội ngũ đứng sau token quyết định bỏ rơi dự án và rời đi với tiền của nhà đầu tư thì gần như chắc chắn là token của dự án sẽ rơi về $0  (mặc cho dự án có được whitelist bởi Ref. hay không).',
