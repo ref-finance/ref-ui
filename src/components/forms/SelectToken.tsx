@@ -132,7 +132,9 @@ export default function SelectToken({
       handleClose={handleClose}
       trigger={() => (
         <div
-          className={`focus:outline-none  ${standalone ? 'w-full' : 'w-2/5'}`}
+          className={`focus:outline-none flex items-center justify-end  ${
+            standalone ? 'w-full' : 'w-2/5'
+          }`}
           onClick={() => setVisible(true)}
         >
           {selected || (
