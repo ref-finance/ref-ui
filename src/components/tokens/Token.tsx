@@ -38,7 +38,7 @@ export default function Token({ token, onClick, sortBy }: TokenProps) {
         <span className="inline-block text-white">{toRealSymbol(symbol)}</span>
       </td>
       <td
-        className={`py-4 xs:text-xs text-sm w-1/5 pr-10 ${
+        className={`py-4 xs:text-xs text-sm w-1/5 pr-10 text-right ${
           sortBy === 'near' ? 'text-white' : ''
         }`}
       >

@@ -28,7 +28,7 @@ export default function Table({
     tokens.length > 0 && (
       <table className="text-left w-full text-sm text-gray-400 mt-10 table-auto">
         <thead
-          className="sticky -top-6 z-30"
+          className="sticky -top-6 z-30 text-primaryText"
           style={{ background: 'rgb(29, 41, 50)' }}
         >
           <tr className="font-normal border-b border-gray-500 border-opacity-30">
@@ -37,31 +37,17 @@ export default function Table({
                 sortBy === 'asset' ? 'text-greenLight' : ''
               }`}
             >
-              <span
-                className="cursor-pointer"
-                onClick={() => onSortChange('asset')}
-              >
+              <span className="">
                 <FormattedMessage id="asset_label" defaultMessage="Asset" />
               </span>
-              <TiArrowSortedUp
-                className={`inline-block cursor-pointer ${
-                  sortBy === 'asset' && currentSort === 'down'
-                    ? 'transform rotate-180'
-                    : ''
-                }`}
-              />
             </th>
-            <th
-              className={`font-normal pb-2 pr-7 w-1/5 ${
-                sortBy === 'near' ? 'text-greenLight' : ''
-              }`}
-            >
+            <th className={`font-normal pb-2 pr-9 w-1/5 `}>
               <span
-                className="cursor-pointer flex items-center "
+                className="cursor-pointer flex justify-end items-center "
                 onClick={() => onSortChange('near')}
               >
                 <span className="self-start">
-                  <SmallWallet light={sortBy === 'near'} />
+                  <SmallWallet forSelectToken />
                 </span>
                 <span className="ml-1">NEAR</span>
                 <TiArrowSortedUp
