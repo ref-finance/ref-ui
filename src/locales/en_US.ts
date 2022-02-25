@@ -349,5 +349,6 @@ const en_US = {
   no_result: 'Sorry, we couldn’t find any matched farm',
   mulitple: 'Multiple',
   default: 'Default',
+  vi_go_live: 'Vietnamese goes live!',
 };
 export default en_US;
