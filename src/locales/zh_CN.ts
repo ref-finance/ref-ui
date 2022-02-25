@@ -336,5 +336,6 @@ const zh_CN = {
   no_result: '抱歉, 没有找到匹配的农场',
   mulitple: '倍率',
   default: '默认',
+  vi_go_live: '越南版上线啦',
 };
 export default zh_CN;
