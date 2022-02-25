@@ -21,7 +21,9 @@ export default function Icon({
 }) {
   return (
     <div
-      className="flex items-center text-lg text-white"
+      className={`flex items-center text-lg text-white hover:bg-black hover:bg-opacity-20 cursor-pointer rounded-full ${
+        hover ? 'lg:pl-4' : ''
+      }`}
       style={{ lineHeight: 'unset' }}
     >
       {label && <p className="block text-sm">{toRealSymbol(token.symbol)}</p>}
