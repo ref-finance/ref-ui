@@ -44,7 +44,7 @@ export function Guide(props: any) {
       {!closeStatus ? (
         <>
           {mobile ? (
-            <div className="flex justify-end mr-4 -mt-6 h-28">
+            <div className="flex justify-end mr-4 -mt-8 h-24">
               <div className="relative">
                 <ViGuide></ViGuide>
                 <ModalClose
@@ -91,7 +91,7 @@ export function Guide(props: any) {
       {!closeStatusSet ? (
         <>
           {mobile ? (
-            <div className="flex w-full justify-between items-end relative h-28 -mt-6">
+            <div className="flex w-full justify-between items-end relative h-24 -mt-8">
               <div className="relative mb-5">
                 <TipBox></TipBox>
                 <ModalClose
