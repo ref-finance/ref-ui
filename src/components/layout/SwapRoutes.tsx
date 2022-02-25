@@ -103,7 +103,7 @@ export const ParaTokenFrom = ({
 export const PoolInfo = ({ poolId, fee }: { poolId: number; fee: number }) => {
   return (
     <div
-      className="flex items-center bg-inputDarkBg px-1 text-gray-400 rounded-md grid grid-cols-2 w-32"
+      className="flex items-center bg-inputDarkBg px-1 text-gray-400 rounded-md grid grid-cols-2 w-36"
       style={{
         paddingTop: '3px',
         paddingBottom: '3px',

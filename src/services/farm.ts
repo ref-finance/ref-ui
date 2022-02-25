@@ -440,7 +440,7 @@ export const claimAndWithDrawReward = async (
   return executeFarmMultipleTransactions(transactions);
 };
 export const classificationOfCoins = {
-  stablecoin: ['USDT', 'USDC', 'DAI', 'nUSDO'],
+  stablecoin: ['USDT', 'USDC', 'DAI', 'nUSDO', 'cUSD'],
   near_ecosystem: [
     'REF',
     'STNEAR',
@@ -486,6 +486,8 @@ export const classificationOfCoins = {
     'GWJ',
     'BAT',
     '1INCH',
+    'CELO',
+    'cUSD',
   ],
   gaming: ['PXT', 'sPXT', 'SHRM', 'GOLD', 'GEM', 'ELIXIR'],
   nft: ['PARAS', '1MIL'],
@@ -501,6 +503,18 @@ export const incentiveLpTokenConfig = {
   '1207': '4',
   '4': '4',
   '79': '2',
+  '1889': '2',
+  [STABLE_POOL_ID]: '5',
+  '3': '4',
+  '2734': '4',
+  '974': '4',
+};
+export const defaultConfig = {
+  '2800': '11',
+  '79': '10',
+  '2657': '9',
+  '1207': '4',
+  '4': '4',
   '1889': '2',
   [STABLE_POOL_ID]: '5',
   '3': '4',

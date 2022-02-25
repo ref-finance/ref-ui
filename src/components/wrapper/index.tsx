@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { IntlProvider } from 'react-intl';
 import zh_CN from '../../locales/zh_CN';
 import en_US from '../../locales/en_US';
+import vi from '../../locales/vi';
 
 export const Context = React.createContext(null);
 const local = localStorage.getItem('local') || navigator.language;
@@ -14,6 +15,9 @@ const changeLocale = (local: string) => {
       break;
     case 'zh-CN':
       lang = zh_CN;
+      break;
+    case 'vi':
+      lang = vi;
       break;
     default:
       lang = en_US;

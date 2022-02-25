@@ -201,6 +201,7 @@ const en_US = {
   detail_tip: 'Detail',
   no_data: 'No Data',
   stable_swap: 'StableSwap',
+  StableSwap: 'StableSwap',
   exchange_rate: 'Exchange rate',
   including_fees: '(including fees)',
   standard_gas: 'Standard Gas fee:',
@@ -347,5 +348,6 @@ const en_US = {
   from_celo: 'Celo',
   no_result: 'Sorry, we couldn’t find any matched farm',
   mulitple: 'Multiple',
+  default: 'Default',
 };
 export default en_US;

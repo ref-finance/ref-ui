@@ -56,7 +56,7 @@ function StableSwapPage() {
     !pool ||
     !shares ||
     !stablePool ||
-    !balances ||
+    !Object.entries(balances).length ||
     !Object.entries(nearBalances).length
   )
     return <Loading />;
