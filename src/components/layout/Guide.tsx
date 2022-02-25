@@ -72,7 +72,7 @@ export function Guide(props: any) {
                 onClick={closePop}
                 width="8"
                 height="8"
-                className="absolute right-4 top- cursor-pointer"
+                className="absolute right-4 top-7 cursor-pointer"
               ></ModalClose>
               <div className="flex flex-col absolute left-16 top-6 pl-1">
                 <span className="text-white text-sm">
