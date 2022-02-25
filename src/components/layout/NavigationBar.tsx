@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { matchPath } from 'react-router';
 import { Context } from '~components/wrapper';
 import getConfig from '~services/config';
@@ -45,6 +45,10 @@ import { MobileNavBar } from './MobileNav';
 import WrapNear from '~components/forms/WrapNear';
 import { WrapNearIcon } from './WrapNear';
 import { XrefIcon } from '~components/icon/Xref';
+import {
+  useSenderWallet,
+  senderWalletExtention,
+} from '../../utils/sender-wallet';
 
 const config = getConfig();
 
@@ -100,11 +104,13 @@ function Anchor({
 function AccountEntry() {
   const history = useHistory();
   const [hover, setHover] = useState(false);
-  const [account, network] = wallet.getAccountId().split('.');
-  const niceAccountId = `${account.slice(0, 10)}...${network || ''}`;
-  const accountName =
-    account.length > 10 ? niceAccountId : wallet.getAccountId();
+
+  const { senderWallet, accountName, isSignedIn } = useSenderWallet();
+
+  const sender = useSenderWallet();
+
   const location = useLocation();
+
   const accountList = [
     {
       icon: <AccountIcon />,
@@ -134,11 +140,12 @@ function AccountEntry() {
       icon: <SignoutIcon />,
       textId: 'sign_out',
       click: () => {
-        wallet.signOut();
+        senderWallet.signOut();
         window.location.assign('/');
       },
     },
   ];
+
   return (
     <div className="relative user text-xs text-center justify-end z-30 mx-3.5">
       <div
@@ -154,23 +161,25 @@ function AccountEntry() {
           className={`inline-flex px-1 py-0.5 items-center justify-center rounded-full border border-gray-700 ${
             hover ? 'border-gradientFrom bg-opacity-0' : ''
           } ${
-            wallet.isSignedIn()
+            isSignedIn
               ? 'bg-gray-700 text-white'
               : 'border border-gradientFrom text-gradientFrom'
           } pl-3 pr-3`}
         >
           <div className="pr-1">
-            <Near color={wallet.isSignedIn() ? 'white' : '#00c6a2'} />
+            <Near color={isSignedIn ? 'white' : '#00c6a2'} />
           </div>
           <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name">
-            {wallet.isSignedIn() ? (
+            {isSignedIn ? (
               <span className="flex ml-1">
                 {accountName}
                 <FiChevronDown className="text-base ml-1" />
               </span>
             ) : (
               <button
-                onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
+                onClick={async () => {
+                  senderWallet.requestSignIn(REF_FARM_CONTRACT_ID);
+                }}
                 type="button"
               >
                 <span className="ml-1 text-xs">
@@ -183,7 +192,7 @@ function AccountEntry() {
             )}
           </div>
         </div>
-        {wallet.isSignedIn() && hover ? (
+        {isSignedIn && hover ? (
           <div className={`absolute top-14 pt-2 right-0 w-64 z-20`}>
             <Card
               className="menu-max-height cursor-default shadow-4xl  border border-primaryText"
@@ -564,6 +573,7 @@ function MoreMenu() {
 
 function NavigationBar() {
   const [showWrapNear, setShowWrapNear] = useState(false);
+
   return (
     <>
       <div className="nav-wrap md:hidden xs:hidden text-center relative">
