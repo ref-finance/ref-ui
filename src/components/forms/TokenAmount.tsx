@@ -69,7 +69,7 @@ export default function TokenAmount({
           <span title={total}>{toPrecision(total, 3, true)}</span>
         </span>
       </div>
-      <fieldset className="relative flex overflow-hidden align-center my-2">
+      <fieldset className="relative flex  align-center my-2">
         <InputAmount
           className="w-3/5 border border-transparent rounded"
           id="inputAmount"
