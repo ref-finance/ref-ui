@@ -34,6 +34,7 @@ import {
 import { CountdownTimer } from '~components/icon';
 import { StablePool } from '~services/pool';
 import { BeatLoading } from '~components/layout/Loading';
+import { useSenderWallet, useWallet } from '../../utils/sender-wallet';
 interface StableSwapProps {
   balances: TokenBalancesView;
   tokens: TokenMetadata[];
@@ -76,6 +77,8 @@ export default function StableSwap({
     setSlippageTolerance(slippage);
     localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
   };
+
+  const { wallet } = useWallet();
 
   const {
     tokenOutAmount,

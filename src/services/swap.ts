@@ -59,6 +59,7 @@ import { BigNumber } from 'bignumber.js';
 import _, { filter } from 'lodash';
 import { getSwappedAmount } from './stable-swap';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
+import { getCurrentWallet } from '../utils/sender-wallet';
 
 // Big.strict = false;
 const FEE_DIVISOR = 10000;
@@ -443,6 +444,8 @@ SwapOptions) => {
   const tokenInActions: RefFiFunctionCallOptions[] = [];
   const tokenOutActions: RefFiFunctionCallOptions[] = [];
 
+  const { wallet, wallet_type } = getCurrentWallet();
+
   const registerToken = async (token: TokenMetadata) => {
     const tokenRegistered = await ftGetStorageBalance(
       token.id,
@@ -533,6 +536,8 @@ SwapOptions) => {
         receiverId: tokenIn.id,
         functionCalls: tokenInActions,
       });
+
+      console.log(transactions);
 
       return executeMultipleTransactions(transactions);
     } else {

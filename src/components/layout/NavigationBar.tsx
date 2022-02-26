@@ -45,6 +45,7 @@ import { MobileNavBar } from './MobileNav';
 import WrapNear from '~components/forms/WrapNear';
 import { WrapNearIcon } from './WrapNear';
 import { XrefIcon } from '~components/icon/Xref';
+import { useWallet } from '../../utils/sender-wallet';
 import {
   useSenderWallet,
   senderWalletExtention,
@@ -105,9 +106,7 @@ function AccountEntry() {
   const history = useHistory();
   const [hover, setHover] = useState(false);
 
-  const { senderWallet, accountName, isSignedIn } = useSenderWallet();
-
-  const sender = useSenderWallet();
+  const { wallet, accountName, isSignedIn } = useWallet();
 
   const location = useLocation();
 
@@ -140,7 +139,7 @@ function AccountEntry() {
       icon: <SignoutIcon />,
       textId: 'sign_out',
       click: () => {
-        senderWallet.signOut();
+        wallet.signOut();
         window.location.assign('/');
       },
     },
@@ -178,7 +177,7 @@ function AccountEntry() {
             ) : (
               <button
                 onClick={async () => {
-                  senderWallet.requestSignIn(REF_FARM_CONTRACT_ID);
+                  wallet.requestSignIn(REF_FARM_CONTRACT_ID);
                 }}
                 type="button"
               >

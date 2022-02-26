@@ -82,6 +82,7 @@ import { FaArrowCircleRight, FaRegQuestionCircle } from 'react-icons/fa';
 import OldInputAmount from '~components/forms/OldInputAmount';
 import { BigNumber } from 'bignumber.js';
 import getConfig from '~services/config';
+import { useSenderWallet, useWallet } from '../../utils/sender-wallet';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 interface SearchData {
@@ -136,6 +137,9 @@ export function FarmsPage() {
   const refreshTime = 120000;
   const [count, setCount] = useState(0);
   const [commonSeedFarms, setCommonSeedFarms] = useState({});
+
+  const { wallet } = useWallet();
+
   useEffect(() => {
     loadFarmInfoList().then();
   }, []);
@@ -910,6 +914,8 @@ function FarmView({
   const [rewardsPerWeek, setRewardsPerWeek] = useState<
     Record<string | number, string | number>
   >({});
+
+  const { wallet } = useWallet();
   const [unclaimed, setUnclaimed] = useState<Record<any, any>>({});
   const [calcVisible, setCalcVisible] = useState(false);
 

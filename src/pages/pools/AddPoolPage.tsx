@@ -17,6 +17,7 @@ import { toRealSymbol } from '~utils/token';
 import BigNumber from 'bignumber.js';
 import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
+import { useSenderWallet, useWallet } from '../../utils/sender-wallet';
 
 export function AddPoolPage() {
   const tokens = useWhitelistTokens();
@@ -28,6 +29,7 @@ export function AddPoolPage() {
   const [errorKey, setErrorKey] = useState<string>();
   const intl = useIntl();
   const [buttonLoading, setButtonLoading] = useState(false);
+  const { wallet } = useWallet();
 
   const tip: any = {
     moreThan: intl.formatMessage({ id: 'more_than' }),

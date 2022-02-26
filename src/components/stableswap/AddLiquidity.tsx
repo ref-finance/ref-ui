@@ -33,6 +33,7 @@ import StableTokenList from './StableTokenList';
 import { WarnTriangle } from '../icon/SwapRefresh';
 import { ActionModel } from '../../pages/AccountPage';
 import { getDepositableBalance } from '../../state/token';
+import { useSenderWallet, useWallet } from '../../utils/sender-wallet';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE';
@@ -105,6 +106,8 @@ export default function AddLiquidityComponent(props: {
   const [slippageInvalid, setSlippageInvalid] = useState(false);
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
+
+  const { wallet } = useWallet();
 
   useEffect(() => {
     const firstAmount = toReadableNumber(

@@ -32,6 +32,7 @@ import { XrefSymbol } from '../components/icon/Xref';
 import ReactTooltip from 'react-tooltip';
 import QuestionMark from '../components/farm/QuestionMark';
 import { useHistory } from 'react-router';
+import { useSenderWallet, useWallet } from '../utils/sender-wallet';
 
 const accountSortFun = (
   by: string,
@@ -404,12 +405,10 @@ function MobileAccountTable(props: any) {
 }
 function Account(props: any) {
   const { userTokens } = props;
-  const [account, network] = wallet.getAccountId().split('.');
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
-  const niceAccountId = `${account.slice(0, 10)}...${network || ''}`;
-  const accountName =
-    account.length > 10 ? niceAccountId : wallet.getAccountId();
+
+  const { wallet, accountName } = useWallet();
 
   const getModalData = (token: TokenMetadata, action: string) => {
     const { decimals } = token;
@@ -446,13 +445,11 @@ function Account(props: any) {
 }
 function MobileAccount(props: any) {
   const { userTokens } = props;
-  const [account, network] = wallet.getAccountId().split('.');
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
   const [activeTab, setActiveTab] = useState('near');
-  const niceAccountId = `${account.slice(0, 10)}...${network || ''}`;
-  const accountName =
-    account.length > 10 ? niceAccountId : wallet.getAccountId();
+
+  const { wallet, accountName } = useWallet();
 
   const getModalData = (token: TokenMetadata, action: string) => {
     setModal({
@@ -653,7 +650,9 @@ export function ActionModel(props: any) {
   );
 }
 export function AccountPage() {
-  if (!wallet.isSignedIn()) {
+  const { senderWallet } = useSenderWallet();
+
+  if (!senderWallet.isSignedIn()) {
     const history = useHistory();
     history.push('/');
     return null;

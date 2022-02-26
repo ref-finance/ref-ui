@@ -13,6 +13,7 @@ import Modal from 'react-modal';
 import { isMobile } from '~utils/device';
 const config = getConfig();
 import { useHistory } from 'react-router';
+import { useSenderWallet, useWallet } from '../utils/sender-wallet';
 
 function useLastActions() {
   const [actions, setActions] = useState<ActionData[]>(null);
@@ -26,6 +27,8 @@ function useLastActions() {
   return actions;
 }
 export function RecentActivityPage() {
+  const { wallet } = useWallet();
+
   if (!wallet.isSignedIn()) {
     const history = useHistory();
     history.push('/');

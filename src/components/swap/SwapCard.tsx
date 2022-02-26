@@ -4,6 +4,7 @@ import React, {
   useMemo,
   useRef,
   useState,
+  useContext,
 } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
@@ -69,6 +70,7 @@ import { EstimateSwapView, PoolMode, swap } from '~services/swap';
 import { QuestionTip } from '~components/layout/TipWrapper';
 import { Guide } from '~components/layout/Guide';
 import { sortBy } from 'lodash';
+import { useSenderWallet, useWallet } from '../../utils/sender-wallet';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -591,6 +593,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) != 'false'
   );
 
+  const { wallet } = useWallet();
+
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();
   const [tokenOutBalanceFromNear, setTokenOutBalanceFromNear] =
@@ -633,7 +637,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         const tokenInId = tokenIn.id;
         if (tokenInId) {
           if (wallet.isSignedIn()) {
-            ftGetBalance(tokenInId).then((available) =>
+            ftGetBalance(tokenInId, wallet.getAccountId()).then((available) =>
               setTokenInBalanceFromNear(
                 toReadableNumber(tokenIn?.decimals, available)
               )
@@ -645,7 +649,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         const tokenOutId = tokenOut.id;
         if (tokenOutId) {
           if (wallet.isSignedIn()) {
-            ftGetBalance(tokenOutId).then((available) =>
+            ftGetBalance(tokenOutId, wallet.getAccountId()).then((available) =>
               setTokenOutBalanceFromNear(
                 toReadableNumber(tokenOut?.decimals, available)
               )
@@ -654,7 +658,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         }
       }
     }
-  }, [tokenIn, tokenOut, useNearBalance]);
+  }, [tokenIn, tokenOut, useNearBalance, wallet.isSignedIn()]);
 
   const {
     canSwap,

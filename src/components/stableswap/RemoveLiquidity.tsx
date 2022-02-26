@@ -59,6 +59,7 @@ import { ShareInFarm } from '~components/layout/ShareInFarm';
 import { Link } from 'react-router-dom';
 import { LP_STABLE_TOKEN_DECIMALS, LP_TOKEN_DECIMALS } from '~services/m-token';
 import { QuestionTip } from '~components/layout/TipWrapper';
+import { useSenderWallet, useWallet } from '../../utils/sender-wallet';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
@@ -114,6 +115,7 @@ export function RemoveLiquidityComponent(props: {
   const progressBarIndex = [0, 25, 50, 75, 100];
   const [receiveAmounts, setReceiveAmounts] = useState<string[]>(['', '', '']);
   const intl = useIntl();
+  const { wallet } = useWallet();
 
   const canFarm = useCanFarm(pool.id);
 

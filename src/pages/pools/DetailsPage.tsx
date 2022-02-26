@@ -97,6 +97,7 @@ import moment from 'moment';
 import { ChartNoData } from '~components/icon/ChartNoData';
 import { WarnTriangle } from '~components/icon/SwapRefresh';
 import { RefIcon } from '~components/icon/Common';
+import { useSenderWallet, useWallet } from '../../utils/sender-wallet';
 interface ParamTypes {
   id: string;
 }
@@ -187,6 +188,8 @@ export function AddLiquidityModal(
   const [preShare, setPreShare] = useState(null);
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
+
+  const { wallet } = useWallet();
 
   useEffect(() => {
     if (balances) {
@@ -759,6 +762,7 @@ export function RemoveLiquidityModal(
   const [error, setError] = useState<Error>();
   const cardWidth = isMobile() ? '95vw' : '40vw';
   const intl = useIntl();
+  const { wallet } = useWallet();
 
   function submit() {
     const amountBN = new BigNumber(amount?.toString());
@@ -1333,6 +1337,7 @@ export function PoolDetailsPage() {
   const morePoolIds: string[] =
     JSON.parse(localStorage.getItem('morePoolIds')) || [];
   const [farmCount, setFarmCount] = useState<Number>(1);
+  const { wallet } = useWallet();
 
   const handleSaveWatchList = () => {
     if (!wallet.isSignedIn()) {

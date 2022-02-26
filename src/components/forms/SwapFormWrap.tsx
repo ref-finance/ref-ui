@@ -5,6 +5,7 @@ import { FormattedMessage } from 'react-intl';
 import SlippageSelector from './SlippageSelector';
 import { SwapRefresh, CountdownTimer } from '~components/icon';
 import { wallet } from '~services/near';
+import { useWallet } from '../../utils/sender-wallet';
 
 interface SwapFormWrapProps {
   title?: string;
@@ -61,6 +62,8 @@ export default function SwapFormWrap({
     loadingTrigger && setShowSwapLoading(true);
     !loadingTrigger && setShowSwapLoading(false);
   }, [loadingTrigger]);
+
+  const { wallet } = useWallet();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

@@ -32,10 +32,10 @@ export const ftViewFunction = (
   return wallet.account().viewFunction(tokenId, methodName, args);
 };
 
-export const ftGetBalance = (tokenId: string) => {
+export const ftGetBalance = (tokenId: string, account_id?: string) => {
   return ftViewFunction(tokenId, {
     methodName: 'ft_balance_of',
-    args: { account_id: wallet.getAccountId() },
+    args: { account_id: account_id || wallet.getAccountId() },
   }).catch(() => '0');
 };
 

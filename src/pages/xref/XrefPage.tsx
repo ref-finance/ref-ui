@@ -31,6 +31,7 @@ import { wallet } from '~services/near';
 import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { index } from 'mathjs';
+import { useSenderWallet, useWallet } from '../../utils/sender-wallet';
 const { XREF_TOKEN_ID, REF_TOKEN_ID, TOTAL_PLATFORM_FEE_REVENUE } = getConfig();
 const DECIMALS_XREF_REF_TRANSTER = 8;
 
@@ -298,6 +299,9 @@ function InputView(props: any) {
   useEffect(() => {
     setForward(true);
   }, [tab]);
+
+  const { wallet } = useWallet();
+
   const onSubmit = () => {
     setLoading(true);
     if (tab == 0) {

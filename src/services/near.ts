@@ -3,6 +3,11 @@ import { functionCall } from 'near-api-js/lib/transaction';
 import BN from 'bn.js';
 import getConfig from './config';
 import SpecialWallet from './SpecialWallet';
+import { getCurrentWallet, senderWallet } from '~utils/sender-wallet';
+import {
+  SENDER_WALLET_SIGNEDIN_STATE_KEY,
+  WALLET_TYPE,
+} from '../utils/sender-wallet';
 
 const config = getConfig();
 
@@ -96,24 +101,43 @@ export const executeMultipleTransactions = async (
   transactions: Transaction[],
   callbackUrl?: string
 ) => {
-  const nearTransactions = await Promise.all(
-    transactions.map((t, i) => {
-      return wallet.createTransaction({
-        receiverId: t.receiverId,
-        nonceOffset: i + 1,
-        actions: t.functionCalls.map((fc) =>
-          functionCall(
-            fc.methodName,
-            fc.args,
-            getGas(fc.gas),
-            getAmount(fc.amount)
-          )
-        ),
-      });
-    })
-  );
+  const { wallet, wallet_type } = getCurrentWallet();
 
-  return wallet.requestSignTransactions(nearTransactions, callbackUrl);
+  console.log(wallet, wallet_type);
+
+  // console.log(nearTransactions);
+
+  console.log(transactions);
+
+  // const currentTransactions = transactions.map((item) => {
+  //   return { ...item, actions: item.functionCalls };
+  // });
+
+  const currentTransactions =
+    wallet_type === WALLET_TYPE.SENDER_WALLET
+      ? transactions
+      : await Promise.all(
+          transactions.map((t, i) => {
+            return wallet.createTransaction({
+              receiverId: t.receiverId,
+              nonceOffset: i + 1,
+              actions: t.functionCalls.map((fc) =>
+                functionCall(
+                  fc.methodName,
+                  fc.args,
+                  getGas(fc.gas),
+                  getAmount(fc.amount)
+                )
+              ),
+            });
+          })
+        );
+
+  console.log(transactions);
+
+  return console.log(
+    await wallet.requestSignTransactions(currentTransactions, callbackUrl)
+  );
 };
 
 export const refFarmFunctionCall = ({
