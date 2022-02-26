@@ -177,7 +177,9 @@ function AccountEntry() {
             ) : (
               <button
                 onClick={async () => {
-                  wallet_selector.show();
+                  //TODO:
+                  // wallet_selector.show();
+                  wallet.requestSignIn(REF_FARM_CONTRACT_ID);
                 }}
                 type="button"
               >

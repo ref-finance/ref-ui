@@ -6,6 +6,8 @@ import {
 } from '../services/near';
 
 import NearWalletSelector from 'near-wallet-selector';
+import { getAmount } from '../services/near';
+import { scientificNotationToString } from './numbers';
 
 export const wallet_selector = new NearWalletSelector({
   wallets: ['near-wallet', 'sender-wallet'],
@@ -56,12 +58,20 @@ function senderWalletFunc() {
     callbackUrl?: string
   ) {
     const senderTransaction = transactions.map((item: any) => {
-      return { ...item, actions: item.functionCalls };
+      return {
+        ...item,
+        actions: item.functionCalls.map((fc) => ({
+          ...fc,
+          deposit: scientificNotationToString(getAmount(fc.amount).toString()),
+        })),
+      };
     });
 
-    return senderWalletExtention.requestSignTransactions({
-      transactions: senderTransaction,
-    });
+    return senderWalletExtention
+      .requestSignTransactions({
+        transactions: senderTransaction,
+      })
+      .then(() => window.location.reload());
   };
 
   this.walletType = WALLET_TYPE.SENDER_WALLET;
@@ -114,7 +124,7 @@ export const useSenderWallet = () => {
 
 export const useWallet = () => {
   const [walletType, setWalletType] = useState<WALLET_TYPE>(
-    WALLET_TYPE.WEB_WALLET
+    WALLET_TYPE.SENDER_WALLET
   );
 
   const {
@@ -124,13 +134,13 @@ export const useWallet = () => {
     setIsSignedIn: senderSetIsSignedIn,
   } = useSenderWallet();
 
-  useEffect(() => {
-    if (webWallet.isSignedIn()) {
-      setWalletType(WALLET_TYPE.WEB_WALLET);
-    } else if (senderWallet.isSignedIn()) {
-      setWalletType(WALLET_TYPE.SENDER_WALLET);
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (webWallet.isSignedIn()) {
+  //     setWalletType(WALLET_TYPE.WEB_WALLET);
+  //   } else if (senderWallet.isSignedIn()) {
+  //     setWalletType(WALLET_TYPE.SENDER_WALLET);
+  //   }
+  // }, []);
 
   switch (walletType) {
     case WALLET_TYPE.SENDER_WALLET:
