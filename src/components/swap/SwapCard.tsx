@@ -240,7 +240,7 @@ export function SwapRateDetail({
         isRevert ? tokenOut.symbol : tokenIn.symbol
       )}`
     );
-  }, [isRevert]);
+  }, [isRevert, exchangeRageValue]);
 
   function switchSwapRate() {
     setIsRevert(!isRevert);
