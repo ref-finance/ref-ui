@@ -419,6 +419,13 @@ export const estimateSwap = async ({
 
     const smartRoutingEstimates = [estimate1, estimate2];
 
+    console.log(
+      'smart routing res',
+      smartRoutingEstimates,
+      'parallel swap res',
+      parallelEstimates
+    );
+
     return new BigNumber(estimate2.estimate).gt(
       BigNumber.sum(...parallelEstimates.map((e) => e.estimate))
     ) || parallelEstimates.length === 0
