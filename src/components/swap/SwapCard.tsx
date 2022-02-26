@@ -505,7 +505,7 @@ function DetailView({
   const priceImpactDisplay = useMemo(() => {
     if (!priceImpact || !tokenIn || !from) return null;
     return GetPriceImpact(priceImpact, tokenIn, from);
-  }, [to]);
+  }, [to, priceImpact]);
 
   const poolFeeDisplay = useMemo(() => {
     if (!fee || !from || !tokenIn) return null;
