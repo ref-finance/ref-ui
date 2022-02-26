@@ -180,14 +180,16 @@ export const useSwap = ({
           if (isParallelSwap) {
             if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
               setCanSwap(true);
-              setSwapsToDo(estimates);
               setAverageFee(estimates);
               const estimate = estimates.reduce((pre, cur) => {
                 return scientificNotationToString(
                   BigNumber.sum(pre, cur.estimate).toString()
                 );
               }, '0');
-              if (!loadingTrigger) setTokenOutAmount(estimate);
+              if (!loadingTrigger) {
+                setTokenOutAmount(estimate);
+                setSwapsToDo(estimates);
+              }
             }
           } else {
             if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
