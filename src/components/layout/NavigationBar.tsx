@@ -45,7 +45,7 @@ import { MobileNavBar } from './MobileNav';
 import WrapNear from '~components/forms/WrapNear';
 import { WrapNearIcon } from './WrapNear';
 import { XrefIcon } from '~components/icon/Xref';
-import { useWallet } from '../../utils/sender-wallet';
+import { useWallet, wallet_selector } from '../../utils/sender-wallet';
 import {
   useSenderWallet,
   senderWalletExtention,
@@ -177,7 +177,7 @@ function AccountEntry() {
             ) : (
               <button
                 onClick={async () => {
-                  wallet.requestSignIn(REF_FARM_CONTRACT_ID);
+                  wallet_selector.show();
                 }}
                 type="button"
               >

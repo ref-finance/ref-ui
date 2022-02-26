@@ -8,6 +8,7 @@ import {
 } from '../../components/icon';
 import { FormattedMessage } from 'react-intl';
 import { BeatLoading } from '../../components/layout/Loading';
+import { wallet_selector } from '../../utils/sender-wallet';
 
 export function BorderlessButton(
   props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean }
@@ -131,7 +132,8 @@ export function ConnectToNearBtn() {
         e.preventDefault();
         e.stopPropagation();
         setButtonLoading(true);
-        wallet.requestSignIn(REF_FARM_CONTRACT_ID);
+        // wallet.requestSignIn(REF_FARM_CONTRACT_ID);
+        wallet_selector.show();
       }}
     >
       {!buttonLoading && (

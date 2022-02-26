@@ -4,15 +4,35 @@ import {
   wallet as webWallet,
   wallet,
 } from '../services/near';
+
+import NearWalletSelector from 'near-wallet-selector';
+
+export const wallet_selector = new NearWalletSelector({
+  wallets: ['near-wallet', 'sender-wallet'],
+  networkId: process.env.NEAR_ENV as 'testnet' | 'mainnet',
+  theme: 'light',
+  contract: {
+    accountId: REF_FARM_CONTRACT_ID,
+  },
+  walletSelectorUI: {
+    description: 'Please select a wallet to connect to this dApp:',
+    explanation: [
+      'Wallets are used to send, receive, and store digital assets.',
+      'There are different types of wallets. They can be an extension',
+      'added to your browser, a hardware device plugged into your',
+      'computer, web-based, or as an app on your phone.',
+    ].join(' '),
+  },
+});
+
 export const SENDER_WALLET_SIGNEDIN_STATE_KEY =
   'SENDER_WALLET_SIGNEDIN_STATE_VALUE';
 
 //@ts-ignore
 export const senderWalletExtention = window.near;
 export enum WALLET_TYPE {
-  WEB_WALLET = 'WEB_WALLET',
-  SENDER_WALLET = 'SENDER_WALLET',
-  LEDGER = 'LEDGER',
+  WEB_WALLET = 'near-wallet',
+  SENDER_WALLET = 'sender-wallet',
 }
 
 function senderWalletFunc() {
@@ -94,7 +114,7 @@ export const useSenderWallet = () => {
 
 export const useWallet = () => {
   const [walletType, setWalletType] = useState<WALLET_TYPE>(
-    WALLET_TYPE.SENDER_WALLET
+    WALLET_TYPE.WEB_WALLET
   );
 
   const {
@@ -104,6 +124,14 @@ export const useWallet = () => {
     setIsSignedIn: senderSetIsSignedIn,
   } = useSenderWallet();
 
+  useEffect(() => {
+    if (webWallet.isSignedIn()) {
+      setWalletType(WALLET_TYPE.WEB_WALLET);
+    } else if (senderWallet.isSignedIn()) {
+      setWalletType(WALLET_TYPE.SENDER_WALLET);
+    }
+  }, []);
+
   switch (walletType) {
     case WALLET_TYPE.SENDER_WALLET:
       return {
@@ -112,6 +140,7 @@ export const useWallet = () => {
         isSignedIn: senderIsSignedIn,
         setIsSignedIn: senderSetIsSignedIn,
         setWalletType,
+        walletType: WALLET_TYPE.SENDER_WALLET,
       };
     case WALLET_TYPE.WEB_WALLET:
       return {
@@ -120,14 +149,12 @@ export const useWallet = () => {
         isSignedIn: webWallet.isSignedIn(),
         setIsSignedIn: null,
         setWalletType,
+        walletType: WALLET_TYPE.WEB_WALLET,
       };
-    default:
-      break;
   }
 };
 
 export const getCurrentWallet = () => {
-  // parse wallet
   const SENDER_LOGIN_RES = localStorage.getItem(
     SENDER_WALLET_SIGNEDIN_STATE_KEY
   );

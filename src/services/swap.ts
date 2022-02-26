@@ -530,14 +530,13 @@ SwapOptions) => {
         },
         gas: '180000000000000',
         amount: ONE_YOCTO_NEAR,
+        // deposit: '1',
       });
 
       transactions.push({
         receiverId: tokenIn.id,
         functionCalls: tokenInActions,
       });
-
-      console.log(transactions);
 
       return executeMultipleTransactions(transactions);
     } else {

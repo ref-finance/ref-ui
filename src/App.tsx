@@ -30,6 +30,7 @@ import { FarmsPage } from '~pages/farms/FarmsPage';
 import { AirdropPage } from '~pages/AirdropPage';
 import PopUp from '~components/layout/PopUp';
 import { isMobile } from '~utils/device';
+import { wallet_selector } from './utils/sender-wallet';
 
 Modal.defaultStyles = {
   overlay: {
@@ -55,6 +56,8 @@ Modal.defaultStyles = {
 Modal.setAppElement('#root');
 
 function App() {
+  wallet_selector.init();
+
   return (
     <Router>
       <div className="relative min-h-screen pb-24 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
