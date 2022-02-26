@@ -226,7 +226,7 @@ export function SwapRateDetail({
     if (ONLY_ZEROS.test(fromNow)) return '-';
 
     return calculateExchangeRate(fee, fromNow, toNow);
-  }, [isRevert, to, from]);
+  }, [isRevert, to]);
 
   useEffect(() => {
     setNewValue(value);
