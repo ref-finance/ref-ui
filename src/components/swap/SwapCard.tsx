@@ -681,7 +681,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const priceImpactValueParallelSwap = useMemo(() => {
     if (!pools || !tokenOutAmount || !tokenInAmount) return '0';
     return calculatePriceImpact(pools, tokenIn, tokenOut, tokenInAmount);
-  }, [tokenOutAmount]);
+  }, [tokenOutAmount, swapsToDo]);
 
   const priceImpactValueSmartRouting = useMemo(() => {
     {
@@ -694,7 +694,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         tokenOut
       );
     }
-  }, [tokenOutAmount]);
+  }, [tokenOutAmount, swapsToDo]);
 
   const PriceImpactValue = isParallelSwap
     ? priceImpactValueParallelSwap
