@@ -194,12 +194,14 @@ export const useSwap = ({
           } else {
             if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
               setCanSwap(true);
-              setSwapsToDo(estimates);
 
               setAvgFee(
                 Number(estimates[0].pool.fee) + Number(estimates[1].pool.fee)
               );
-              if (!loadingTrigger) setTokenOutAmount(estimates[1].estimate);
+              if (!loadingTrigger) {
+                setTokenOutAmount(estimates[1].estimate);
+                setSwapsToDo(estimates);
+              }
             }
           }
           setPool(estimates[0].pool);
@@ -318,8 +320,8 @@ export const useStableSwap = ({
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
             setCanSwap(true);
             if (!loadingTrigger) {
-              setTokenOutAmount(estimate);
               setNoFeeAmount(dy);
+              setTokenOutAmount(estimate);
             }
             setPool(pool);
           }
