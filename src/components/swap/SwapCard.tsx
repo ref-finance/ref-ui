@@ -502,6 +502,20 @@ function DetailView({
     }
   }, [to]);
 
+  const priceImpactDisplay = useMemo(() => {
+    if (!priceImpact || !tokenIn || !from) return null;
+    return GetPriceImpact(priceImpact, tokenIn, from);
+  }, [to]);
+
+  const poolFeeDisplay = useMemo(() => {
+    if (!fee || !from || !tokenIn) return null;
+
+    return `${toPrecision(
+      calculateFeePercent(fee).toString(),
+      2
+    )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(tokenIn.symbol)}`;
+  }, [to]);
+
   if (!pools || ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id)
     return null;
 
@@ -546,18 +560,11 @@ function DetailView({
         )}
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
-          value={
-            !to || to === '0' ? '-' : GetPriceImpact(priceImpact, tokenIn, from)
-          }
+          value={!to || to === '0' ? '-' : priceImpactDisplay}
         />
         <SwapDetail
           title={intl.formatMessage({ id: 'pool_fee' })}
-          value={`${toPrecision(
-            calculateFeePercent(fee).toString(),
-            2
-          )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(
-            tokenIn.symbol
-          )}`}
+          value={poolFeeDisplay}
         />
 
         {isParallelSwap && pools.length > 1 && (
