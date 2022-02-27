@@ -39,6 +39,7 @@ import moment from 'moment';
 import BigNumber from 'bignumber.js';
 import _ from 'lodash';
 import { PoolMode } from './swap';
+import { getCurrentWallet } from '../utils/sender-wallet';
 const FEE_DIVISOR = 10000;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
 const STABLE_POOL_KEY = 'STABLE_POOL_VALUE';
@@ -205,6 +206,8 @@ export const instantSwap = async ({
   const transactions: Transaction[] = [];
   const tokenInActions: RefFiFunctionCallOptions[] = [];
   const tokenOutActions: RefFiFunctionCallOptions[] = [];
+
+  const { wallet, wallet_type } = getCurrentWallet();
 
   if (wallet.isSignedIn()) {
     const tokenOutRegistered = await ftGetStorageBalance(

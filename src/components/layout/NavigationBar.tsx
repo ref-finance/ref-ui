@@ -346,6 +346,8 @@ function PoolsMenu() {
   const [hover, setHover] = useState(false);
   const history = useHistory();
 
+  const { wallet } = useWallet();
+
   const links = [
     {
       label: <FormattedMessage id="view_pools" defaultMessage="View Pools" />,

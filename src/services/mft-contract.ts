@@ -1,8 +1,9 @@
 import { wallet, refFiViewFunction } from './near';
+import { getCurrentWallet } from '../utils/sender-wallet';
 
 export const mftGetBalance = async (
   token_id: string,
-  accountId = wallet.getAccountId()
+  accountId = getCurrentWallet().wallet.getAccountId()
 ) => {
   return await refFiViewFunction({
     methodName: 'mft_balance_of',

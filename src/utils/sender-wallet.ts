@@ -6,8 +6,9 @@ import {
 } from '../services/near';
 
 import NearWalletSelector from 'near-wallet-selector';
-import { getAmount } from '../services/near';
+import { getAmount, RefFiFunctionCallOptions } from '../services/near';
 import { scientificNotationToString } from './numbers';
+import { Action } from 'near-api-js/lib/transaction';
 
 export const wallet_selector = new NearWalletSelector({
   wallets: ['near-wallet', 'sender-wallet'],
@@ -60,7 +61,7 @@ function senderWalletFunc() {
     const senderTransaction = transactions.map((item: any) => {
       return {
         ...item,
-        actions: item.functionCalls.map((fc) => ({
+        actions: item.functionCalls.map((fc: any) => ({
           ...fc,
           deposit: scientificNotationToString(getAmount(fc.amount).toString()),
         })),
@@ -72,6 +73,59 @@ function senderWalletFunc() {
         transactions: senderTransaction,
       })
       .then(() => window.location.reload());
+  };
+
+  this.sendTransactionWithActions = function (
+    receiverId: string,
+    functionCalls: RefFiFunctionCallOptions[]
+  ) {
+    return senderWalletExtention
+      .signAndSendTransaction({
+        receiverId,
+        actions: functionCalls.map((fc) => {
+          return {
+            ...fc,
+            deposit: scientificNotationToString(
+              getAmount(fc.amount).toString()
+            ),
+          };
+        }),
+      })
+      .then(() => window.location.reload());
+  };
+  this.viewFunction = async function (
+    contractId: string,
+    methodName: string,
+    args?: any
+  ) {
+    return await senderWalletExtention
+      .viewFunction({
+        contractId,
+        methodName,
+        args,
+      })
+      .then((res) => {
+        return res.response;
+      });
+  };
+  this.viewFunctionCall = async function (
+    contractId: string,
+    methodName: string,
+    args?: any
+  ) {
+    if (!this.isSignedIn()) {
+      await this.requestSignIn(REF_FARM_CONTRACT_ID);
+    }
+
+    return await senderWalletExtention
+      .viewFunctionCall({
+        contractId,
+        methodName,
+        args,
+      })
+      .then((res) => {
+        return res.response;
+      });
   };
 
   this.walletType = WALLET_TYPE.SENDER_WALLET;
@@ -98,6 +152,9 @@ export const useSenderWallet = () => {
     signOut: () => setIsSignedIn(false),
   });
 
+  senderWallet.on('signIn', () => setIsSignedIn(true));
+  senderWallet.on('signOut', () => setIsSignedIn(false));
+
   const [senderAccountName, setSenderAccountName] = useState<string>('');
 
   useEffect(() => {
@@ -109,9 +166,7 @@ export const useSenderWallet = () => {
     const signedInRes = localStorage.getItem(SENDER_WALLET_SIGNEDIN_STATE_KEY);
 
     if (signedInRes && !senderWallet.isSignedIn())
-      senderWallet
-        .requestSignIn(REF_FARM_CONTRACT_ID)
-        .then((res: any) => console.log(res));
+      senderWallet.requestSignIn(REF_FARM_CONTRACT_ID);
   }, []);
 
   return {
@@ -171,5 +226,6 @@ export const getCurrentWallet = () => {
 
   if (SENDER_LOGIN_RES)
     return { wallet: senderWallet, wallet_type: WALLET_TYPE.SENDER_WALLET };
-  else return { wallet: webWallet, wallet_type: WALLET_TYPE.WEB_WALLET };
+
+  return { wallet: webWallet, wallet_type: WALLET_TYPE.WEB_WALLET };
 };

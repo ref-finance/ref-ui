@@ -77,7 +77,11 @@ export const refFiViewFunction = ({
   methodName,
   args,
 }: RefFiViewFunctionOptions) => {
-  return wallet.account().viewFunction(REF_FI_CONTRACT_ID, methodName, args);
+  const { wallet, wallet_type } = getCurrentWallet();
+
+  return wallet_type === WALLET_TYPE.SENDER_WALLET
+    ? wallet.viewFunction(REF_FI_CONTRACT_ID, methodName, args)
+    : wallet.account().viewFunction(REF_FI_CONTRACT_ID, methodName, args);
 };
 
 export const refFiManyFunctionCalls = (
@@ -86,10 +90,11 @@ export const refFiManyFunctionCalls = (
   const actions = functionCalls.map((fc) =>
     functionCall(fc.methodName, fc.args, getGas(fc.gas), getAmount(fc.amount))
   );
+  const { wallet, wallet_type } = getCurrentWallet();
 
-  return wallet
-    .account()
-    .sendTransactionWithActions(REF_FI_CONTRACT_ID, actions);
+  return wallet_type === WALLET_TYPE.SENDER_WALLET
+    ? wallet.sendTransactionWithActions(REF_FI_CONTRACT_ID, functionCalls)
+    : wallet.account().sendTransactionWithActions(REF_FI_CONTRACT_ID, actions);
 };
 
 export interface Transaction {
@@ -102,16 +107,6 @@ export const executeMultipleTransactions = async (
   callbackUrl?: string
 ) => {
   const { wallet, wallet_type } = getCurrentWallet();
-
-  console.log(wallet, wallet_type);
-
-  // console.log(nearTransactions);
-
-  console.log(transactions);
-
-  // const currentTransactions = transactions.map((item) => {
-  //   return { ...item, actions: item.functionCalls };
-  // });
 
   const currentTransactions =
     wallet_type === WALLET_TYPE.SENDER_WALLET
@@ -133,11 +128,7 @@ export const executeMultipleTransactions = async (
           })
         );
 
-  console.log(transactions);
-
-  return console.log(
-    await wallet.requestSignTransactions(currentTransactions, callbackUrl)
-  );
+  return wallet.requestSignTransactions(currentTransactions, callbackUrl);
 };
 
 export const refFarmFunctionCall = ({
@@ -146,22 +137,39 @@ export const refFarmFunctionCall = ({
   gas,
   amount,
 }: RefFiFunctionCallOptions) => {
-  return wallet
-    .account()
-    .functionCall(
-      REF_FARM_CONTRACT_ID,
-      methodName,
-      args,
-      getGas(gas),
-      getAmount(amount)
-    );
+  const { wallet, wallet_type } = getCurrentWallet();
+
+  return wallet_type === WALLET_TYPE.SENDER_WALLET
+    ? wallet.sendTransactionWithActions(REF_FARM_CONTRACT_ID, [
+        {
+          methodName,
+          args,
+          amount,
+          gas,
+        },
+      ])
+    : wallet
+        .account()
+        .functionCall(
+          REF_FARM_CONTRACT_ID,
+          methodName,
+          args,
+          getGas(gas),
+          getAmount(amount)
+        );
 };
 
 export const refFarmViewFunction = ({
   methodName,
   args,
 }: RefFiViewFunctionOptions) => {
-  return wallet.account().viewFunction(REF_FARM_CONTRACT_ID, methodName, args);
+  const { wallet, wallet_type } = getCurrentWallet();
+
+  return wallet_type === WALLET_TYPE.SENDER_WALLET
+    ? wallet.viewFunction(REF_FARM_CONTRACT_ID, methodName, args)
+    : wallet.account().viewFunction(REF_FARM_CONTRACT_ID, methodName, args);
+
+  // return wallet.account().viewFunction(REF_FARM_CONTRACT_ID, methodName, args);
 };
 
 export const refFarmManyFunctionCalls = (
@@ -170,34 +178,46 @@ export const refFarmManyFunctionCalls = (
   const actions = functionCalls.map((fc) =>
     functionCall(fc.methodName, fc.args, getGas(fc.gas), getAmount(fc.amount))
   );
+  const { wallet, wallet_type } = getCurrentWallet();
 
-  return wallet
-    .account()
-    .sendTransactionWithActions(REF_FARM_CONTRACT_ID, actions);
+  return wallet_type === WALLET_TYPE.SENDER_WALLET
+    ? wallet.sendTransactionWithActions(REF_FARM_CONTRACT_ID, functionCalls)
+    : wallet
+        .account()
+        .sendTransactionWithActions(REF_FARM_CONTRACT_ID, actions);
+
+  // return wallet
+  //   .account()
+  //   .sendTransactionWithActions(REF_FARM_CONTRACT_ID, actions);
 };
 
 export const executeFarmMultipleTransactions = async (
   transactions: Transaction[],
   callbackUrl?: string
 ) => {
-  const nearTransactions = await Promise.all(
-    transactions.map((t, i) => {
-      return wallet.createTransaction({
-        receiverId: t.receiverId,
-        nonceOffset: i + 1,
-        actions: t.functionCalls.map((fc) =>
-          functionCall(
-            fc.methodName,
-            fc.args,
-            getGas(fc.gas),
-            getAmount(fc.amount)
-          )
-        ),
-      });
-    })
-  );
+  const { wallet, wallet_type } = getCurrentWallet();
 
-  return wallet.requestSignTransactions(nearTransactions, callbackUrl);
+  const currentTransactions =
+    wallet_type === WALLET_TYPE.SENDER_WALLET
+      ? transactions
+      : await Promise.all(
+          transactions.map((t, i) => {
+            return wallet.createTransaction({
+              receiverId: t.receiverId,
+              nonceOffset: i + 1,
+              actions: t.functionCalls.map((fc) =>
+                functionCall(
+                  fc.methodName,
+                  fc.args,
+                  getGas(fc.gas),
+                  getAmount(fc.amount)
+                )
+              ),
+            });
+          })
+        );
+
+  return wallet.requestSignTransactions(currentTransactions, callbackUrl);
 };
 
 export interface RefContractViewFunctionOptions

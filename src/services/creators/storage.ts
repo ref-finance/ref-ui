@@ -1,4 +1,5 @@
 import BN from 'bn.js';
+import { getCurrentWallet } from '../../utils/sender-wallet';
 import {
   RefFiFunctionCallOptions,
   REF_FI_CONTRACT_ID,
@@ -20,7 +21,7 @@ interface StorageDepositActionOptions {
   amount: string;
 }
 export const storageDepositAction = ({
-  accountId = wallet.getAccountId(),
+  accountId = getCurrentWallet().wallet.getAccountId(),
   registrationOnly = false,
   amount,
 }: StorageDepositActionOptions): RefFiFunctionCallOptions => ({

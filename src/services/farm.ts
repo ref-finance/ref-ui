@@ -25,6 +25,7 @@ import {
   STORAGE_TO_REGISTER_WITH_MFT,
 } from '../services/creators/storage';
 import getConfig from './config';
+import { getCurrentWallet } from '../utils/sender-wallet';
 const config = getConfig();
 export const DEFAULT_PAGE_LIMIT = 100;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
@@ -84,7 +85,7 @@ export const getSeeds = async ({
 };
 
 export const getStakedListByAccountId = async ({
-  accountId = wallet.getAccountId(),
+  accountId = getCurrentWallet().wallet.getAccountId(),
 }): Promise<Record<string, string>> => {
   const stakedList = await refFarmViewFunction({
     methodName: 'list_user_seeds',
@@ -176,7 +177,7 @@ export const getFarmInfo = async (
   seed: string,
   lpTokenId: string
 ): Promise<FarmInfo> => {
-  const isSignedIn: boolean = wallet.isSignedIn();
+  const isSignedIn: boolean = getCurrentWallet().wallet.isSignedIn();
   const { tvl, token_account_ids, id } = pool;
   if (STABLE_POOL_ID == id) {
     staked = toNonDivisibleNumber(expand, staked ?? '0');
@@ -330,7 +331,7 @@ export const getFarm = async (id: number): Promise<Farm> => {
 };
 
 export const getRewards = async ({
-  accountId = wallet.getAccountId(),
+  accountId = getCurrentWallet().wallet.getAccountId(),
 }): Promise<any> => {
   return refFarmViewFunction({
     methodName: 'list_rewards',
@@ -350,7 +351,7 @@ export const getRewardByTokenId = async (
 
 export const getUnclaimedReward = async (
   farm_id: string,
-  accountId = wallet.getAccountId()
+  accountId = getCurrentWallet().wallet.getAccountId()
 ): Promise<any> => {
   return refFarmViewFunction({
     methodName: 'get_unclaimed_reward',
@@ -359,7 +360,7 @@ export const getUnclaimedReward = async (
 };
 
 export const listRewards = async (
-  accountId = wallet.getAccountId()
+  accountId = getCurrentWallet().wallet.getAccountId()
 ): Promise<any> => {
   return refFarmViewFunction({
     methodName: 'list_rewards',

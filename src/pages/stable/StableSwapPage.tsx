@@ -41,14 +41,13 @@ function StableSwapPage() {
   const changeAction = (actionName: string) => {
     setAction(actionName);
   };
-
-  if (!allTokens || !pool || !shares || !stablePool || !balances)
-    return <Loading />;
-
   const tokens =
     allTokens &&
     allTokens.length > 0 &&
     allTokens.filter((item) => STABLE_TOKENS.indexOf(item.symbol) > -1);
+
+  if (!allTokens || !pool || !shares || !stablePool || !balances)
+    return <Loading />;
 
   const renderModule = (tab: string) => {
     switch (tab) {

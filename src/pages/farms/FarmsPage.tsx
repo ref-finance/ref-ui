@@ -142,7 +142,7 @@ export function FarmsPage() {
 
   useEffect(() => {
     loadFarmInfoList().then();
-  }, []);
+  }, [wallet.isSignedIn()]);
   useEffect(() => {
     if (count > 0) {
       loadFarmInfoList(true);
@@ -1661,7 +1661,9 @@ function FarmView({
               ) : null}
               {ended ? null : data.userStaked !== '0' ? (
                 <BorderButton
-                  onClick={() => showStakeModal()}
+                  onClick={() => {
+                    showStakeModal();
+                  }}
                   rounded="rounded-md"
                   px="px-0"
                   py="py-1"

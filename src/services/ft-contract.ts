@@ -8,6 +8,7 @@ import {
 import metadataDefaults from '../utils/metadata';
 import { storageDepositForFTAction } from './creators/storage';
 import db from '../store/RefDatabase';
+import { getCurrentWallet, WALLET_TYPE } from '../utils/sender-wallet';
 
 export const NEAR_ICON =
   'https://near.org/wp-content/themes/near-19/assets/img/brand-icon.png';
@@ -29,7 +30,11 @@ export const ftViewFunction = (
   tokenId: string,
   { methodName, args }: RefFiViewFunctionOptions
 ) => {
-  return wallet.account().viewFunction(tokenId, methodName, args);
+  const { wallet, wallet_type } = getCurrentWallet();
+
+  return wallet_type === WALLET_TYPE.SENDER_WALLET
+    ? wallet.viewFunction(tokenId, methodName, args)
+    : wallet.account().viewFunction(tokenId, methodName, args);
 };
 
 export const ftGetBalance = (tokenId: string, account_id?: string) => {

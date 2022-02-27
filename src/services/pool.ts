@@ -25,6 +25,7 @@ import {
 } from '../services/token';
 import getConfig from '../services/config';
 import { registerTokensAction } from '../services/creators/token';
+import { getCurrentWallet } from '../utils/sender-wallet';
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -216,7 +217,7 @@ export const getCachedPoolsByTokenId = async ({
   return [...normalItems, ...reverseItems];
 };
 
-export const getTotalPools = () => {
+export const getTotalPools = async () => {
   return refFiViewFunction({
     methodName: 'get_number_of_pools',
   });
@@ -227,6 +228,7 @@ export const getAllPools = async (
   perPage: number = DEFAULT_PAGE_LIMIT
 ): Promise<Pool[]> => {
   const index = (page - 1) * perPage;
+
   const poolData: PoolRPCView[] = await refFiViewFunction({
     methodName: 'get_pools',
     args: { from_index: index, limit: perPage },
@@ -270,6 +272,7 @@ export const getPoolsByTokens = async ({
     const pools = (
       await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
     ).flat();
+
     filtered_pools = pools.filter(isNotStablePool);
 
     await db.cachePoolsByTokens(filtered_pools);
@@ -278,6 +281,7 @@ export const getPoolsByTokens = async ({
     );
   }
   setLoadingData(false);
+
   // @ts-ignore
   return filtered_pools;
 };
@@ -320,7 +324,7 @@ export const getPoolVolumes = async (id: number): Promise<PoolVolumes> => {
 export const getSharesInPool = (id: number): Promise<string> => {
   return refFiViewFunction({
     methodName: 'get_pool_shares',
-    args: { pool_id: id, account_id: wallet.getAccountId() },
+    args: { pool_id: id, account_id: getCurrentWallet().wallet.getAccountId() },
   });
 };
 

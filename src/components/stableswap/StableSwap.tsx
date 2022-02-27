@@ -35,6 +35,7 @@ import { CountdownTimer } from '~components/icon';
 import { StablePool } from '~services/pool';
 import { BeatLoading } from '~components/layout/Loading';
 import { useSenderWallet, useWallet } from '../../utils/sender-wallet';
+import { getAccount } from '../../services/airdrop';
 interface StableSwapProps {
   balances: TokenBalancesView;
   tokens: TokenMetadata[];
@@ -121,7 +122,7 @@ export default function StableSwap({
         const tokenInId = tokenIn.id;
         if (tokenInId) {
           if (wallet.isSignedIn()) {
-            ftGetBalance(tokenInId).then((available) =>
+            ftGetBalance(tokenInId, wallet.getAccountId()).then((available) =>
               setTokenInBalanceFromNear(
                 toReadableNumber(tokenIn?.decimals, available)
               )
@@ -133,7 +134,7 @@ export default function StableSwap({
         const tokenOutId = tokenOut.id;
         if (tokenOutId) {
           if (wallet.isSignedIn()) {
-            ftGetBalance(tokenOutId).then((available) =>
+            ftGetBalance(tokenOutId, wallet.getAccountId()).then((available) =>
               setTokenOutBalanceFromNear(
                 toReadableNumber(tokenOut?.decimals, available)
               )
@@ -142,7 +143,7 @@ export default function StableSwap({
         }
       }
     }
-  }, [tokenIn, tokenOut, useNearBalance]);
+  }, [tokenIn, tokenOut, useNearBalance, wallet.isSignedIn()]);
 
   const tokenInMax = useNearBalance
     ? tokenInBalanceFromNear || '0'

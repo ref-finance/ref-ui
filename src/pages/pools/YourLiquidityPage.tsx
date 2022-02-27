@@ -33,6 +33,7 @@ import { formatMessage } from '@formatjs/intl';
 import { TokenMetadata } from '~services/ft-contract';
 import { FarmDot } from '~components/icon';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
+import { useWallet } from '../../utils/sender-wallet';
 
 function MyShares({
   shares,
@@ -99,6 +100,8 @@ function MyShares({
 }
 
 function Empty() {
+  const { wallet } = useWallet();
+
   return (
     <div className="px-6">
       <div className="text-center font-semibold text-xs mb-4 text-primaryText">
@@ -126,6 +129,9 @@ export function YourLiquidityPage() {
   const [error, setError] = useState<Error>();
   const [pools, setPools] = useState<PoolRPCView[]>();
   const [balances, setBalances] = useState<string[]>();
+
+  const { wallet } = useWallet();
+
   if (!wallet.isSignedIn()) {
     const history = useHistory();
     history.push('/');
