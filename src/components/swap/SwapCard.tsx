@@ -500,7 +500,7 @@ function DetailView({
     if (swapsTodo?.length > 1) {
       setShowDetails(true);
     }
-  }, [to]);
+  }, [swapsTodo]);
 
   const priceImpactDisplay = useMemo(() => {
     if (!priceImpact || !tokenIn || !from) return null;
