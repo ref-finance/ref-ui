@@ -43,8 +43,12 @@ import {
   WalletIcon,
   SignoutIcon,
 } from '~components/icon/Common';
+
+import { WalletContext } from '~utils/sender-wallet';
+
 const config = getConfig();
 import { isMobile } from '~utils/device';
+import { getCurrentWallet } from '../../utils/sender-wallet';
 
 export function MobileAnchor({
   to,
@@ -271,6 +275,11 @@ export function MobileNavBar() {
   const [closeMenu, setCloseMenu] = useState(false);
   const history = useHistory();
   const [mobileWrapNear, setMobileWrapNear] = useState(false);
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  // const { wallet } = getCurrentWallet();
 
   const accountName =
     account.length > 10 ? niceAccountId : wallet.getAccountId();

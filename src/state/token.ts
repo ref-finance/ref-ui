@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  useContext,
+} from 'react';
 import { STABLE_TOKEN_IDS, wallet } from '../services/near';
 import {
   ftGetBalance,
@@ -21,6 +28,7 @@ import { toRealSymbol } from '../utils/token';
 import getConfig from '~services/config';
 import { nearMetadata } from '../services/wrap-near';
 import { Pool } from '../services/pool';
+import { WalletContext, getCurrentWallet } from '../utils/sender-wallet';
 
 export const useToken = (id: string) => {
   const [token, setToken] = useState<TokenMetadata>();
@@ -282,8 +290,14 @@ export const useDepositableBalance = (
 ) => {
   const [depositable, setDepositable] = useState<string>('');
   const [max, setMax] = useState<string>('');
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  // const { wallet } = getCurrentWallet();
+
   useEffect(() => {
-    if (wallet.isSignedIn()) {
+    if (isSignedIn) {
       if (tokenId === 'NEAR') {
         wallet
           .account()
@@ -295,7 +309,7 @@ export const useDepositableBalance = (
     } else {
       setDepositable('0');
     }
-  }, [tokenId]);
+  }, [tokenId, isSignedIn]);
 
   useEffect(() => {
     const max = toReadableNumber(decimals, depositable) || '0';

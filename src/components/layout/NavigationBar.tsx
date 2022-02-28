@@ -598,7 +598,8 @@ function MoreMenu() {
 
 function NavigationBar() {
   const [showWrapNear, setShowWrapNear] = useState(false);
-
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
   return (
     <>
       <div className="nav-wrap md:hidden xs:hidden text-center relative">
@@ -615,7 +616,7 @@ function NavigationBar() {
             <Anchor to="/risks" pattern="/risks" name="Risks" />
           </div>
           <div className="flex items-center justify-end flex-1">
-            {wallet.isSignedIn() && (
+            {isSignedIn && (
               <div className="text-white">
                 <div
                   className=" py-1 cursor-pointer items-center flex"
