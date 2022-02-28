@@ -426,6 +426,8 @@ export const estimateSwap = async ({
       : parallelEstimates;
   } else if (parallelEstimates.length === 0) {
     throwNoPoolError();
+  } else if (parallelEstimates.length) {
+    return parallelEstimates;
   }
 };
 
