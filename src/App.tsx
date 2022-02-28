@@ -31,7 +31,6 @@ import { AirdropPage } from '~pages/AirdropPage';
 import PopUp from '~components/layout/PopUp';
 import { isMobile } from '~utils/device';
 import { wallet } from './services/near';
-import { useWallet } from './utils/sender-wallet';
 
 import {
   wallet_selector,

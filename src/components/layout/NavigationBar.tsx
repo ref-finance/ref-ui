@@ -116,8 +116,6 @@ function AccountEntry() {
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
 
-  // const { wallet } = getCurrentWallet();
-
   const { wallet, walletType } = useWallet();
 
   console.log(walletType);
@@ -194,8 +192,6 @@ function AccountEntry() {
               ) : (
                 <button
                   onClick={async () => {
-                    // wallet.requestSignIn(REF_FARM_CONTRACT_ID);
-
                     setShowWalletSelector(true);
 
                     setHover(false);
