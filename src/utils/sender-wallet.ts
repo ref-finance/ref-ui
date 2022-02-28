@@ -12,7 +12,7 @@ import {
 } from '../services/near';
 
 import NearWalletSelector from 'near-wallet-selector';
-import { getAmount, RefFiFunctionCallOptions } from '../services/near';
+import { getAmount, RefFiFunctionCallOptions, getGas } from '../services/near';
 import { scientificNotationToString } from './numbers';
 import { Action } from 'near-api-js/lib/transaction';
 
@@ -73,6 +73,7 @@ function senderWalletFunc() {
         actions: item.functionCalls.map((fc: any) => ({
           ...fc,
           deposit: scientificNotationToString(getAmount(fc.amount).toString()),
+          gas: scientificNotationToString(getGas(fc.gas).toString()),
         })),
       };
     });
@@ -97,6 +98,7 @@ function senderWalletFunc() {
             deposit: scientificNotationToString(
               getAmount(fc.amount).toString()
             ),
+            gas: scientificNotationToString(getGas(fc.gas).toString()),
           };
         }),
       })
@@ -117,25 +119,6 @@ function senderWalletFunc() {
         return res.response;
       });
   };
-  // this.viewFunctionCall = async function (
-  //   contractId: string,
-  //   methodName: string,
-  //   args?: any
-  // ) {
-  //   if (!this.isSignedIn()) {
-  //     await this.requestSignIn(REF_FARM_CONTRACT_ID);
-  //   }
-
-  //   return await senderWalletExtention
-  //     .viewFunctionCall({
-  //       contractId,
-  //       methodName,
-  //       args,
-  //     })
-  //     .then((res) => {
-  //       return res.response;
-  //     });
-  // };
 
   this.walletType = WALLET_TYPE.SENDER_WALLET;
 }
@@ -153,7 +136,7 @@ export const getAccountName = (accountId: string) => {
 
 export const useWallet = () => {
   const [walletType, setWalletType] = useState<WALLET_TYPE>(
-    WALLET_TYPE.SENDER_WALLET
+    WALLET_TYPE.WEB_WALLET
   );
 
   const { signedInState, signedInStatedispatch } = useContext(WalletContext);
@@ -169,6 +152,14 @@ export const useWallet = () => {
       });
     }
   }, []);
+
+  useEffect(() => {
+    if (webWallet.isSignedIn()) {
+      setWalletType(WALLET_TYPE.WEB_WALLET);
+    } else if (senderWallet.isSignedIn()) {
+      setWalletType(WALLET_TYPE.SENDER_WALLET);
+    }
+  }, [signedInState.isSignedIn]);
 
   senderWallet.on('signIn', () => {
     localStorage.setItem(

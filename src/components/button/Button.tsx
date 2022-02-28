@@ -9,6 +9,7 @@ import {
 import { FormattedMessage } from 'react-intl';
 import { BeatLoading } from '../../components/layout/Loading';
 import { wallet_selector } from '../../utils/sender-wallet';
+import { WalletSelectorModal } from '../layout/WalletSelector';
 
 export function BorderlessButton(
   props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean }
@@ -119,41 +120,51 @@ export function WithdrawButton(
 
 export function ConnectToNearBtn() {
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
-  return (
-    <div
-      className={`flex items-center cursor-pointer justify-center rounded-full py-2 text-base ${
-        buttonLoading ? 'opacity-40' : ''
-      }`}
-      style={{
-        background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
-        color: '#fff',
-      }}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setButtonLoading(true);
-        // wallet.requestSignIn(REF_FARM_CONTRACT_ID);
-        wallet_selector.show();
-      }}
-    >
-      {!buttonLoading && (
-        <div className="mr-3.5">
-          <UnLoginIcon />
-        </div>
-      )}
 
-      <button>
-        <ButtonTextWrapper
-          loading={buttonLoading}
-          Text={() => (
-            <FormattedMessage
-              id="connect_to_near"
-              defaultMessage="Connect to NEAR"
-            />
-          )}
-        />
-      </button>
-    </div>
+  const [showWalletSelector, setShowWalletSelector] = useState(false);
+
+  return (
+    <>
+      <div
+        className={`flex items-center cursor-pointer justify-center rounded-full py-2 text-base ${
+          buttonLoading ? 'opacity-40' : ''
+        }`}
+        style={{
+          background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+          color: '#fff',
+        }}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setButtonLoading(true);
+          // wallet.requestSignIn(REF_FARM_CONTRACT_ID);
+          setShowWalletSelector(true);
+        }}
+      >
+        {!buttonLoading && (
+          <div className="mr-3.5">
+            <UnLoginIcon />
+          </div>
+        )}
+
+        <button>
+          <ButtonTextWrapper
+            loading={buttonLoading}
+            Text={() => (
+              <FormattedMessage
+                id="connect_to_near"
+                defaultMessage="Connect to NEAR"
+              />
+            )}
+          />
+        </button>
+      </div>
+      <WalletSelectorModal
+        isOpen={showWalletSelector}
+        onRequestClose={() => setShowWalletSelector(false)}
+        setShowWalletSelector={setShowWalletSelector}
+      />
+    </>
   );
 }
 

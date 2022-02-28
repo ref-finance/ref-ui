@@ -47,6 +47,7 @@ import { WrapNearIcon } from './WrapNear';
 import { XrefIcon } from '~components/icon/Xref';
 import { getAccount } from '../../services/airdrop';
 import { senderWallet, getCurrentWallet } from '../../utils/sender-wallet';
+import { WalletSelectorModal } from './WalletSelector';
 import {
   useWallet,
   wallet_selector,
@@ -115,7 +116,13 @@ function AccountEntry() {
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
 
-  // const { wallet } = useWallet();
+  // const { wallet } = getCurrentWallet();
+
+  const { wallet, walletType } = useWallet();
+
+  console.log(walletType);
+
+  const [showWalletSelector, setShowWalletSelector] = useState(false);
 
   const location = useLocation();
 
@@ -155,87 +162,97 @@ function AccountEntry() {
   ];
 
   return (
-    <div className="relative user text-xs text-center justify-end z-30 mx-3.5">
-      <div
-        className={`cursor-pointer font-bold items-center justify-end text-center overflow-visible relative py-5`}
-        onMouseEnter={() => {
-          setHover(true);
-        }}
-        onMouseLeave={() => {
-          setHover(false);
-        }}
-      >
+    <>
+      <div className="relative user text-xs text-center justify-end z-30 mx-3.5">
         <div
-          className={`inline-flex px-1 py-0.5 items-center justify-center rounded-full border border-gray-700 ${
-            hover ? 'border-gradientFrom bg-opacity-0' : ''
-          } ${
-            isSignedIn
-              ? 'bg-gray-700 text-white'
-              : 'border border-gradientFrom text-gradientFrom'
-          } pl-3 pr-3`}
+          className={`cursor-pointer font-bold items-center justify-end text-center overflow-visible relative py-5`}
+          onMouseEnter={() => {
+            setHover(true);
+          }}
+          onMouseLeave={() => {
+            setHover(false);
+          }}
         >
-          <div className="pr-1">
-            <Near color={isSignedIn ? 'white' : '#00c6a2'} />
-          </div>
-          <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name">
-            {isSignedIn ? (
-              <span className="flex ml-1">
-                {getAccountName(wallet.getAccountId())}
-                <FiChevronDown className="text-base ml-1" />
-              </span>
-            ) : (
-              <button
-                onClick={async () => {
-                  wallet.requestSignIn(REF_FARM_CONTRACT_ID);
-                  setHover(false);
-                }}
-                type="button"
-              >
-                <span className="ml-1 text-xs">
-                  <FormattedMessage
-                    id="connect_to_near"
-                    defaultMessage="Connect to NEAR"
-                  />
+          <div
+            className={`inline-flex px-1 py-0.5 items-center justify-center rounded-full border border-gray-700 ${
+              hover ? 'border-gradientFrom bg-opacity-0' : ''
+            } ${
+              isSignedIn
+                ? 'bg-gray-700 text-white'
+                : 'border border-gradientFrom text-gradientFrom'
+            } pl-3 pr-3`}
+          >
+            <div className="pr-1">
+              <Near color={isSignedIn ? 'white' : '#00c6a2'} />
+            </div>
+            <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name">
+              {isSignedIn ? (
+                <span className="flex ml-1">
+                  {getAccountName(wallet.getAccountId())}
+                  <FiChevronDown className="text-base ml-1" />
                 </span>
-              </button>
-            )}
+              ) : (
+                <button
+                  onClick={async () => {
+                    // wallet.requestSignIn(REF_FARM_CONTRACT_ID);
+
+                    setShowWalletSelector(true);
+
+                    setHover(false);
+                  }}
+                  type="button"
+                >
+                  <span className="ml-1 text-xs">
+                    <FormattedMessage
+                      id="connect_to_near"
+                      defaultMessage="Connect to NEAR"
+                    />
+                  </span>
+                </button>
+              )}
+            </div>
           </div>
+          {isSignedIn && hover ? (
+            <div className={`absolute top-14 pt-2 right-0 w-64 z-20`}>
+              <Card
+                className="menu-max-height cursor-default shadow-4xl  border border-primaryText"
+                width="w-64"
+                padding="py-4"
+              >
+                {accountList.map((item, index) => {
+                  return (
+                    <div
+                      onClick={item.click}
+                      key={item.textId + index}
+                      className={`flex items-center text-sm cursor-pointer font-semibold py-4 pl-7 hover:text-white hover:bg-navHighLightBg ${
+                        item.selected
+                          ? 'text-white bg-navHighLightBg'
+                          : 'text-primaryText'
+                      }`}
+                    >
+                      <label className="w-9 text-left cursor-pointer">
+                        {item.icon}
+                      </label>
+                      <label className="cursor-pointer">
+                        <FormattedMessage id={item.textId}></FormattedMessage>
+                      </label>
+                      {item.subIcon ? (
+                        <label className="text-lg ml-2">{item.subIcon}</label>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </Card>
+            </div>
+          ) : null}
         </div>
-        {isSignedIn && hover ? (
-          <div className={`absolute top-14 pt-2 right-0 w-64 z-20`}>
-            <Card
-              className="menu-max-height cursor-default shadow-4xl  border border-primaryText"
-              width="w-64"
-              padding="py-4"
-            >
-              {accountList.map((item, index) => {
-                return (
-                  <div
-                    onClick={item.click}
-                    key={item.textId + index}
-                    className={`flex items-center text-sm cursor-pointer font-semibold py-4 pl-7 hover:text-white hover:bg-navHighLightBg ${
-                      item.selected
-                        ? 'text-white bg-navHighLightBg'
-                        : 'text-primaryText'
-                    }`}
-                  >
-                    <label className="w-9 text-left cursor-pointer">
-                      {item.icon}
-                    </label>
-                    <label className="cursor-pointer">
-                      <FormattedMessage id={item.textId}></FormattedMessage>
-                    </label>
-                    {item.subIcon ? (
-                      <label className="text-lg ml-2">{item.subIcon}</label>
-                    ) : null}
-                  </div>
-                );
-              })}
-            </Card>
-          </div>
-        ) : null}
       </div>
-    </div>
+      <WalletSelectorModal
+        setShowWalletSelector={setShowWalletSelector}
+        isOpen={showWalletSelector}
+        onRequestClose={() => setShowWalletSelector(false)}
+      />
+    </>
   );
 }
 
