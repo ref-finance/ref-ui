@@ -1,11 +1,12 @@
 import getConfig from './config';
 import { wallet } from './near';
 import _ from 'lodash';
-import { parsePoolView, PoolRPCView } from './api';
+import { parsePoolView, PoolRPCView, getCurrentUnixTime } from './api';
 import moment from 'moment/moment';
 import { parseAction } from '../services/transaction';
 import { volumeType, TVLType } from '~state/pool';
 import db from '../store/RefDatabase';
+import { getCurrentWallet } from '../utils/sender-wallet';
 const config = getConfig();
 
 export const getPoolMonthVolume = async (
@@ -56,7 +57,9 @@ const parseActionView = async (action: any) => {
 
 export const getYourPools = async (): Promise<PoolRPCView[]> => {
   return await fetch(
-    config.indexerUrl + '/liquidity-pools/' + wallet.getAccountId(),
+    config.indexerUrl +
+      '/liquidity-pools/' +
+      getCurrentWallet().wallet.getAccountId(),
     {
       method: 'GET',
       headers: { 'Content-type': 'application/json; charset=UTF-8' },
@@ -170,7 +173,9 @@ type Awaited<T> = T extends Promise<infer P> ? P : never;
 
 export const getLatestActions = async (): Promise<Array<ActionData>> => {
   return await fetch(
-    config.indexerUrl + '/latest-actions/' + wallet.getAccountId(),
+    config.indexerUrl +
+      '/latest-actions/' +
+      getCurrentWallet().wallet.getAccountId(),
     {
       method: 'GET',
       headers: { 'Content-type': 'application/json; charset=UTF-8' },

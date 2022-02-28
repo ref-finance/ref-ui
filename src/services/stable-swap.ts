@@ -210,19 +210,18 @@ export const instantSwap = async ({
   const { wallet, wallet_type } = getCurrentWallet();
 
   if (wallet.isSignedIn()) {
-    const tokenOutRegistered = await ftGetStorageBalance(
-      tokenOut.id,
-      wallet.getAccountId()
-    ).catch(() => {
-      throw new Error(`${tokenOut.id} doesn't exist.`);
-    });
+    const tokenOutRegistered = await ftGetStorageBalance(tokenOut.id).catch(
+      () => {
+        throw new Error(`${tokenOut.id} doesn't exist.`);
+      }
+    );
 
     if (!tokenOutRegistered || tokenOutRegistered.total === '0') {
       tokenOutActions.push({
         methodName: 'storage_deposit',
         args: {
           registration_only: true,
-          account_id: wallet.getAccountId(),
+          account_id: getCurrentWallet().wallet.getAccountId(),
         },
         gas: '30000000000000',
         amount: STORAGE_TO_REGISTER_WITH_MFT,

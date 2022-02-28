@@ -447,10 +447,7 @@ SwapOptions) => {
   const { wallet, wallet_type } = getCurrentWallet();
 
   const registerToken = async (token: TokenMetadata) => {
-    const tokenRegistered = await ftGetStorageBalance(
-      token.id,
-      wallet.getAccountId()
-    ).catch(() => {
+    const tokenRegistered = await ftGetStorageBalance(token.id).catch(() => {
       throw new Error(`${token.id} doesn't exist.`);
     });
 
@@ -459,7 +456,7 @@ SwapOptions) => {
         methodName: 'storage_deposit',
         args: {
           registration_only: true,
-          account_id: wallet.getAccountId(),
+          account_id: getCurrentWallet().wallet.getAccountId(),
         },
         gas: '30000000000000',
         amount: STORAGE_TO_REGISTER_WITH_MFT,

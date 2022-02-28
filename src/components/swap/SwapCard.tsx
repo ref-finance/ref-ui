@@ -70,7 +70,12 @@ import { EstimateSwapView, PoolMode, swap } from '~services/swap';
 import { QuestionTip } from '~components/layout/TipWrapper';
 import { Guide } from '~components/layout/Guide';
 import { sortBy } from 'lodash';
-import { useSenderWallet, useWallet } from '../../utils/sender-wallet';
+import { getCurrentWallet } from '../../utils/sender-wallet';
+import {
+  senderWallet,
+  useWallet,
+  WalletContext,
+} from '../../utils/sender-wallet';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -593,7 +598,11 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) != 'false'
   );
 
-  const { wallet } = useWallet();
+  const { wallet } = getCurrentWallet();
+
+  const { state } = useContext(WalletContext);
+
+  const isSignedIn = { state };
 
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();
@@ -636,8 +645,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       if (tokenIn) {
         const tokenInId = tokenIn.id;
         if (tokenInId) {
-          if (wallet.isSignedIn()) {
-            ftGetBalance(tokenInId, wallet.getAccountId()).then((available) =>
+          if (isSignedIn) {
+            ftGetBalance(tokenInId).then((available: string) =>
               setTokenInBalanceFromNear(
                 toReadableNumber(tokenIn?.decimals, available)
               )
@@ -648,8 +657,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       if (tokenOut) {
         const tokenOutId = tokenOut.id;
         if (tokenOutId) {
-          if (wallet.isSignedIn()) {
-            ftGetBalance(tokenOutId, wallet.getAccountId()).then((available) =>
+          if (isSignedIn) {
+            ftGetBalance(tokenOutId).then((available: string) =>
               setTokenOutBalanceFromNear(
                 toReadableNumber(tokenOut?.decimals, available)
               )
@@ -658,7 +667,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         }
       }
     }
-  }, [tokenIn, tokenOut, useNearBalance, wallet.isSignedIn()]);
+  }, [tokenIn, tokenOut, useNearBalance, isSignedIn]);
 
   const {
     canSwap,
@@ -771,7 +780,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         showElseView={tokenInMax === '0' && !useNearBalance}
         elseView={
           <div className="flex justify-center">
-            {wallet.isSignedIn() ? (
+            {isSignedIn ? (
               <SubmitButton disabled={true} loading={showSwapLoading} />
             ) : (
               <div className="mt-4 w-full">

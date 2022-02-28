@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { useState } from 'react';
 import ReactTooltip from 'react-tooltip';
 import { wallet } from '~services/near';
@@ -59,7 +59,11 @@ import { ShareInFarm } from '~components/layout/ShareInFarm';
 import { Link } from 'react-router-dom';
 import { LP_STABLE_TOKEN_DECIMALS, LP_TOKEN_DECIMALS } from '~services/m-token';
 import { QuestionTip } from '~components/layout/TipWrapper';
-import { useSenderWallet, useWallet } from '../../utils/sender-wallet';
+import {
+  useWallet,
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/sender-wallet';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
@@ -115,7 +119,9 @@ export function RemoveLiquidityComponent(props: {
   const progressBarIndex = [0, 25, 50, 75, 100];
   const [receiveAmounts, setReceiveAmounts] = useState<string[]>(['', '', '']);
   const intl = useIntl();
-  const { wallet } = useWallet();
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
 
   const canFarm = useCanFarm(pool.id);
 
@@ -444,7 +450,7 @@ export function RemoveLiquidityComponent(props: {
           )}
         </div>
 
-        {wallet.isSignedIn() ? (
+        {isSignedIn ? (
           <SolidButton
             disabled={!canSubmit}
             className={`focus:outline-none px-4 w-full text-lg`}

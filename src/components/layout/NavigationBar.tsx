@@ -45,10 +45,16 @@ import { MobileNavBar } from './MobileNav';
 import WrapNear from '~components/forms/WrapNear';
 import { WrapNearIcon } from './WrapNear';
 import { XrefIcon } from '~components/icon/Xref';
-import { useWallet, wallet_selector } from '../../utils/sender-wallet';
+import { getAccount } from '../../services/airdrop';
+import { senderWallet, getCurrentWallet } from '../../utils/sender-wallet';
 import {
-  useSenderWallet,
+  useWallet,
+  wallet_selector,
+  WalletContext,
+} from '../../utils/sender-wallet';
+import {
   senderWalletExtention,
+  getAccountName,
 } from '../../utils/sender-wallet';
 
 const config = getConfig();
@@ -106,7 +112,10 @@ function AccountEntry() {
   const history = useHistory();
   const [hover, setHover] = useState(false);
 
-  const { wallet, accountName, isSignedIn } = useWallet();
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  // const { wallet } = useWallet();
 
   const location = useLocation();
 
@@ -171,15 +180,14 @@ function AccountEntry() {
           <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name">
             {isSignedIn ? (
               <span className="flex ml-1">
-                {accountName}
+                {getAccountName(wallet.getAccountId())}
                 <FiChevronDown className="text-base ml-1" />
               </span>
             ) : (
               <button
                 onClick={async () => {
-                  //TODO:
-                  // wallet_selector.show();
                   wallet.requestSignIn(REF_FARM_CONTRACT_ID);
+                  setHover(false);
                 }}
                 type="button"
               >
@@ -346,7 +354,8 @@ function PoolsMenu() {
   const [hover, setHover] = useState(false);
   const history = useHistory();
 
-  const { wallet } = useWallet();
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
 
   const links = [
     {
@@ -366,7 +375,7 @@ function PoolsMenu() {
     },
   ];
 
-  if (wallet.isSignedIn()) {
+  if (isSignedIn) {
     links.push({
       label: (
         <FormattedMessage id="Your_Liquidity" defaultMessage="Your Liquidity" />

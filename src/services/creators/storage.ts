@@ -34,7 +34,7 @@ export const storageDepositAction = ({
 });
 
 export const storageDepositForTokenAction = (
-  accountId: string = wallet.getAccountId()
+  accountId: string = getCurrentWallet().wallet.getAccountId()
 ): RefFiFunctionCallOptions =>
   storageDepositAction({
     accountId,
@@ -53,7 +53,9 @@ export const storageDepositForMFTAction = () =>
     amount: STORAGE_TO_REGISTER_WITH_MFT,
   });
 
-export const needDepositStorage = async (accountId = wallet.getAccountId()) => {
+export const needDepositStorage = async (
+  accountId = getCurrentWallet().wallet.getAccountId()
+) => {
   const storage = await refFiViewFunction({
     methodName: 'get_user_storage_state',
     args: { account_id: accountId },

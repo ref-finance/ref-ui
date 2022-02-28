@@ -38,7 +38,7 @@ export const checkTokenNeedsStorageDeposit = async () => {
     storageNeeded = Number(ONE_MORE_DEPOSIT_AMOUNT);
   } else {
     const balance = await Promise.resolve(
-      currentStorageBalance(wallet.getAccountId())
+      currentStorageBalance(getCurrentWallet().wallet.getAccountId())
     );
 
     if (!balance) {
@@ -273,7 +273,7 @@ export const getTokenBalance = (tokenId: string): Promise<number> => {
 };
 
 export const getUserRegisteredTokens = (
-  accountId: string = wallet.getAccountId()
+  accountId: string = getCurrentWallet().wallet.getAccountId()
 ): Promise<string[]> => {
   return refFiViewFunction({
     methodName: 'get_user_whitelisted_tokens',
@@ -307,7 +307,7 @@ export const getWhitelistedTokensAndNearTokens = async (): Promise<
   if (wallet.isSignedIn()) {
     const request2 = refFiViewFunction({
       methodName: 'get_user_whitelisted_tokens',
-      args: { account_id: wallet.getAccountId() },
+      args: { account_id: getCurrentWallet().wallet.getAccountId() },
     });
     const request3 = getUserWalletTokens();
     requestAll.push(request2, request3);

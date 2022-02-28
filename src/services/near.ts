@@ -232,5 +232,9 @@ export const refContractViewFunction = ({
   args,
 }: // contarctId,
 RefContractViewFunctionOptions) => {
-  return wallet.account().viewFunction(XREF_TOKEN_ID, methodName, args);
+  const { wallet, wallet_type } = getCurrentWallet();
+
+  return wallet_type === WALLET_TYPE.SENDER_WALLET
+    ? wallet.viewFunction(XREF_TOKEN_ID, methodName, args)
+    : wallet.account().viewFunction(XREF_TOKEN_ID, methodName, args);
 };

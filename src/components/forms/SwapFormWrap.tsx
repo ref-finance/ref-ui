@@ -1,11 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Alert from '../alert/Alert';
 import SubmitButton from './SubmitButton';
 import { FormattedMessage } from 'react-intl';
 import SlippageSelector from './SlippageSelector';
 import { SwapRefresh, CountdownTimer } from '~components/icon';
 import { wallet } from '~services/near';
-import { useWallet } from '../../utils/sender-wallet';
+import {
+  useWallet,
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/sender-wallet';
 
 interface SwapFormWrapProps {
   title?: string;
@@ -63,13 +67,14 @@ export default function SwapFormWrap({
     !loadingTrigger && setShowSwapLoading(false);
   }, [loadingTrigger]);
 
-  const { wallet } = useWallet();
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
 
-    if (wallet.isSignedIn()) {
+    if (isSignedIn) {
       try {
         setShowSwapLoading(true);
         setLoadingPause(true);

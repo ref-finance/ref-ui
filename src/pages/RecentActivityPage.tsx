@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import ActionSheet, { ActionSheetRef } from 'actionsheet-react';
 import { getLatestActions, ActionData } from '~services/indexer';
 import Loading from '~components/layout/Loading';
@@ -13,7 +13,7 @@ import Modal from 'react-modal';
 import { isMobile } from '~utils/device';
 const config = getConfig();
 import { useHistory } from 'react-router';
-import { useSenderWallet, useWallet } from '../utils/sender-wallet';
+import { getCurrentWallet, WalletContext } from '~utils/sender-wallet';
 
 function useLastActions() {
   const [actions, setActions] = useState<ActionData[]>(null);
@@ -27,9 +27,12 @@ function useLastActions() {
   return actions;
 }
 export function RecentActivityPage() {
-  const { wallet } = useWallet();
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
 
-  if (!wallet.isSignedIn()) {
+  const { wallet } = getCurrentWallet();
+
+  if (!isSignedIn) {
     const history = useHistory();
     history.push('/');
     return null;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import Modal from 'react-modal';
 import { Card } from '../components/card/Card';
 import { TiArrowSortedUp } from 'react-icons/ti';
@@ -32,7 +32,12 @@ import { XrefSymbol } from '../components/icon/Xref';
 import ReactTooltip from 'react-tooltip';
 import QuestionMark from '../components/farm/QuestionMark';
 import { useHistory } from 'react-router';
-import { useSenderWallet, useWallet } from '../utils/sender-wallet';
+import {
+  WalletContext,
+  useWallet,
+  getCurrentWallet,
+  getAccountName,
+} from '../utils/sender-wallet';
 
 const accountSortFun = (
   by: string,
@@ -408,7 +413,10 @@ function Account(props: any) {
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
 
-  const { wallet, accountName } = useWallet();
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  const { wallet } = getCurrentWallet();
 
   const getModalData = (token: TokenMetadata, action: string) => {
     const { decimals } = token;
@@ -426,7 +434,7 @@ function Account(props: any) {
           <div className="flex items-center font-semibold text-white">
             <NearIcon />
             <label className="ml-3 text-xl">
-              {wallet.isSignedIn() && accountName}
+              {isSignedIn && getAccountName(wallet.getAccountId())}
             </label>
           </div>
         </div>
@@ -449,7 +457,10 @@ function MobileAccount(props: any) {
   const [visible, setVisible] = useState(false);
   const [activeTab, setActiveTab] = useState('near');
 
-  const { wallet, accountName } = useWallet();
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  const { wallet } = getCurrentWallet();
 
   const getModalData = (token: TokenMetadata, action: string) => {
     setModal({
@@ -471,7 +482,7 @@ function MobileAccount(props: any) {
         <div className="flex text-white items-center justify-center py-6">
           <NearIcon />
           <label className="ml-3 text-xl">
-            {wallet.isSignedIn() && accountName}
+            {isSignedIn && getAccountName(wallet.getAccountId())}
           </label>
         </div>
         <div className="px-3">
@@ -650,9 +661,10 @@ export function ActionModel(props: any) {
   );
 }
 export function AccountPage() {
-  const { senderWallet } = useSenderWallet();
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
 
-  if (!senderWallet.isSignedIn()) {
+  if (!isSignedIn) {
     const history = useHistory();
     history.push('/');
     return null;

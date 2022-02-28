@@ -9,7 +9,11 @@ import {
 } from '~components/button/Button';
 
 import { BeatLoading } from '~components/layout/Loading';
-import { useSenderWallet, useWallet } from '../../utils/sender-wallet';
+import {
+  useWallet,
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/sender-wallet';
 
 interface SubmitButtonProps {
   text?: string;
@@ -28,11 +32,16 @@ function SubmitButton({
   className,
   loading,
 }: SubmitButtonProps) {
-  const { wallet } = useWallet();
+  // const { wallet } = getCurrentWallet();
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  const { wallet } = getCurrentWallet();
 
   return (
     <>
-      {wallet.isSignedIn() ? (
+      {isSignedIn ? (
         <button
           type={onClick ? 'button' : 'submit'}
           disabled={disabled}

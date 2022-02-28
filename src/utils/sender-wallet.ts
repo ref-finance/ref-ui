@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useContext, createContext } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  createContext,
+  useReducer,
+} from 'react';
 import {
   REF_FARM_CONTRACT_ID,
   wallet as webWallet,
@@ -40,13 +46,16 @@ export enum WALLET_TYPE {
 
 function senderWalletFunc() {
   this.requestSignIn = async function (contractId: string) {
-    const signedInRes = await senderWalletExtention.requestSignIn({
-      contractId,
-    });
-    localStorage.setItem(
-      SENDER_WALLET_SIGNEDIN_STATE_KEY,
-      SENDER_WALLET_SIGNEDIN_STATE_KEY + ':' + JSON.stringify(signedInRes)
-    );
+    return senderWalletExtention
+      .requestSignIn({
+        contractId,
+      })
+      .then(() => {
+        localStorage.setItem(
+          SENDER_WALLET_SIGNEDIN_STATE_KEY,
+          SENDER_WALLET_SIGNEDIN_STATE_KEY + ': ' + senderWallet.getAccountId()
+        );
+      });
   };
 
   this.signOut = function () {
@@ -104,29 +113,29 @@ function senderWalletFunc() {
         methodName,
         args,
       })
-      .then((res) => {
+      .then((res: any) => {
         return res.response;
       });
   };
-  this.viewFunctionCall = async function (
-    contractId: string,
-    methodName: string,
-    args?: any
-  ) {
-    if (!this.isSignedIn()) {
-      await this.requestSignIn(REF_FARM_CONTRACT_ID);
-    }
+  // this.viewFunctionCall = async function (
+  //   contractId: string,
+  //   methodName: string,
+  //   args?: any
+  // ) {
+  //   if (!this.isSignedIn()) {
+  //     await this.requestSignIn(REF_FARM_CONTRACT_ID);
+  //   }
 
-    return await senderWalletExtention
-      .viewFunctionCall({
-        contractId,
-        methodName,
-        args,
-      })
-      .then((res) => {
-        return res.response;
-      });
-  };
+  //   return await senderWalletExtention
+  //     .viewFunctionCall({
+  //       contractId,
+  //       methodName,
+  //       args,
+  //     })
+  //     .then((res) => {
+  //       return res.response;
+  //     });
+  // };
 
   this.walletType = WALLET_TYPE.SENDER_WALLET;
 }
@@ -135,46 +144,11 @@ senderWalletFunc.prototype = senderWalletExtention;
 
 export const senderWallet = new (senderWalletFunc as any)();
 
-const getAccountName = (accountId: string = senderWallet.getAccountId()) => {
+export const getAccountName = (accountId: string) => {
   const [account, network] = accountId.split('.');
   const niceAccountId = `${account.slice(0, 10)}...${network || ''}`;
 
   return account.length > 10 ? niceAccountId : accountId;
-};
-
-export const useSenderWallet = () => {
-  const [isSignedIn, setIsSignedIn] = useState<boolean>(
-    senderWallet.isSignedIn()
-  );
-
-  senderWallet.on({
-    signIn: () => setIsSignedIn(true),
-    signOut: () => setIsSignedIn(false),
-  });
-
-  senderWallet.on('signIn', () => setIsSignedIn(true));
-  senderWallet.on('signOut', () => setIsSignedIn(false));
-
-  const [senderAccountName, setSenderAccountName] = useState<string>('');
-
-  useEffect(() => {
-    setSenderAccountName(getAccountName());
-    setIsSignedIn(isSignedIn);
-  }, [isSignedIn]);
-
-  useEffect(() => {
-    const signedInRes = localStorage.getItem(SENDER_WALLET_SIGNEDIN_STATE_KEY);
-
-    if (signedInRes && !senderWallet.isSignedIn())
-      senderWallet.requestSignIn(REF_FARM_CONTRACT_ID);
-  }, []);
-
-  return {
-    senderWallet,
-    senderAccountName,
-    isSignedIn,
-    setIsSignedIn,
-  };
 };
 
 export const useWallet = () => {
@@ -182,37 +156,46 @@ export const useWallet = () => {
     WALLET_TYPE.SENDER_WALLET
   );
 
-  const {
-    senderWallet,
-    senderAccountName,
-    isSignedIn: senderIsSignedIn,
-    setIsSignedIn: senderSetIsSignedIn,
-  } = useSenderWallet();
+  const { signedInState, signedInStatedispatch } = useContext(WalletContext);
 
-  // useEffect(() => {
-  //   if (webWallet.isSignedIn()) {
-  //     setWalletType(WALLET_TYPE.WEB_WALLET);
-  //   } else if (senderWallet.isSignedIn()) {
-  //     setWalletType(WALLET_TYPE.SENDER_WALLET);
-  //   }
-  // }, []);
+  const [senderSignedIn, setSenderSignedIn] = useState<boolean>(false);
+
+  useEffect(() => {
+    const signedInRes = localStorage.getItem(SENDER_WALLET_SIGNEDIN_STATE_KEY);
+
+    if (signedInRes && !senderWallet.isSignedIn()) {
+      senderWallet.requestSignIn(REF_FARM_CONTRACT_ID).then(() => {
+        signedInStatedispatch({ type: 'signIn' });
+      });
+    }
+  }, []);
+
+  senderWallet.on('signIn', () => {
+    localStorage.setItem(
+      SENDER_WALLET_SIGNEDIN_STATE_KEY,
+      SENDER_WALLET_SIGNEDIN_STATE_KEY + ': ' + senderWallet.getAccountId()
+    );
+    signedInStatedispatch({ type: 'signIn' });
+  });
+
+  senderWallet.on('signOut', () => {
+    signedInStatedispatch({ type: 'signOut' });
+  });
 
   switch (walletType) {
     case WALLET_TYPE.SENDER_WALLET:
       return {
         wallet: senderWallet,
-        accountName: senderAccountName,
-        isSignedIn: senderIsSignedIn,
-        setIsSignedIn: senderSetIsSignedIn,
         setWalletType,
+        isSignedIn: senderSignedIn,
+        setIsSigneIn: setSenderSignedIn,
         walletType: WALLET_TYPE.SENDER_WALLET,
       };
+
     case WALLET_TYPE.WEB_WALLET:
       return {
         wallet: webWallet,
-        accountName: getAccountName(webWallet.getAccountId()),
         isSignedIn: webWallet.isSignedIn(),
-        setIsSignedIn: null,
         setWalletType,
         walletType: WALLET_TYPE.WEB_WALLET,
       };
@@ -228,4 +211,22 @@ export const getCurrentWallet = () => {
     return { wallet: senderWallet, wallet_type: WALLET_TYPE.SENDER_WALLET };
 
   return { wallet: webWallet, wallet_type: WALLET_TYPE.WEB_WALLET };
+};
+
+export const WalletContext = createContext(null);
+
+export const signedInStateReducer = (
+  state: { isSignedIn: boolean },
+  action: { type: 'signIn' | 'signOut' }
+) => {
+  switch (action.type) {
+    case 'signIn':
+      return {
+        isSignedIn: true,
+      };
+    case 'signOut':
+      return {
+        isSignedIn: false,
+      };
+  }
 };

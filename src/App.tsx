@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import DepositPage from './pages/DepositPage';
@@ -30,7 +30,14 @@ import { FarmsPage } from '~pages/farms/FarmsPage';
 import { AirdropPage } from '~pages/AirdropPage';
 import PopUp from '~components/layout/PopUp';
 import { isMobile } from '~utils/device';
-import { wallet_selector } from './utils/sender-wallet';
+import { wallet } from './services/near';
+import { useWallet } from './utils/sender-wallet';
+
+import {
+  wallet_selector,
+  WalletContext,
+  signedInStateReducer,
+} from './utils/sender-wallet';
 
 Modal.defaultStyles = {
   overlay: {
@@ -58,47 +65,63 @@ Modal.setAppElement('#root');
 function App() {
   wallet_selector.init();
 
-  return (
-    <Router>
-      <div className="relative min-h-screen pb-24 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
-        <BgShapeLeftTop />
-        <BgShapeCenter />
-        <BgShapeCenterSmall />
-        <NavigationBar />
-        <ToastContainer
-          style={{
-            marginTop: isMobile() ? 'none' : '44px',
-          }}
-        />
+  const SignedInStateReducer = useReducer(signedInStateReducer, {
+    isSignedIn: false,
+  });
 
-        <Switch>
-          {/* <Route path="/deposit/:id?" component={AutoHeight(DepositPage)} /> */}
-          <Route path="/account" component={AccountPage} />
-          <Route path="/recent" component={RecentActivityPage} />
-          <Route
-            path="/more_pools/:tokenIds"
-            component={AutoHeight(MorePoolsPage)}
+  const [signedInState, signedInStatedispatch] = SignedInStateReducer;
+
+  useEffect(() => {
+    if (wallet.isSignedIn()) {
+      signedInStatedispatch({ type: 'signIn' });
+    }
+  }, []);
+
+  return (
+    <WalletContext.Provider value={{ signedInState, signedInStatedispatch }}>
+      <Router>
+        <div className="relative min-h-screen pb-24 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
+          <BgShapeLeftTop />
+          <BgShapeCenter />
+          <BgShapeCenterSmall />
+          <NavigationBar />
+          <ToastContainer
+            style={{
+              marginTop: isMobile() ? 'none' : '44px',
+            }}
           />
-          <Route path="/pool/:id" component={AutoHeight(PoolDetailsPage)} />
-          <Route path="/adboard" component={AutoHeight(AdboardPage)} />
-          <Route path="/pools/add" component={AutoHeight(AddPoolPage)} />
-          <Route path="/pools/add-token" component={AutoHeight(AddTokenPage)} />
-          <Route
-            path="/pools/yours"
-            component={AutoHeight(YourLiquidityPage)}
-          />
-          <Route path="/pools" component={AutoHeight(LiquidityPage)} />
-          <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
-          <Route path="/farms" component={AutoHeight(FarmsPage)} />
-          <Route path="/stableswap" component={AutoHeight(StableSwapPage)} />
-          <Route path="/xref" component={AutoHeight(XrefPage)} />
-          <Route path="/risks" component={AutoHeight(RiskPage)} />
-          <Route path="/" component={AutoHeight(SwapPage)} />
-        </Switch>
-        <Footer />
-        <PopUp></PopUp>
-      </div>
-    </Router>
+
+          <Switch>
+            <Route path="/account" component={AccountPage} />
+            <Route path="/recent" component={RecentActivityPage} />
+            <Route
+              path="/more_pools/:tokenIds"
+              component={AutoHeight(MorePoolsPage)}
+            />
+            <Route path="/pool/:id" component={AutoHeight(PoolDetailsPage)} />
+            <Route path="/adboard" component={AutoHeight(AdboardPage)} />
+            <Route path="/pools/add" component={AutoHeight(AddPoolPage)} />
+            <Route
+              path="/pools/add-token"
+              component={AutoHeight(AddTokenPage)}
+            />
+            <Route
+              path="/pools/yours"
+              component={AutoHeight(YourLiquidityPage)}
+            />
+            <Route path="/pools" component={AutoHeight(LiquidityPage)} />
+            <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
+            <Route path="/farms" component={AutoHeight(FarmsPage)} />
+            <Route path="/stableswap" component={AutoHeight(StableSwapPage)} />
+            <Route path="/xref" component={AutoHeight(XrefPage)} />
+            <Route path="/risks" component={AutoHeight(RiskPage)} />
+            <Route path="/" component={AutoHeight(SwapPage)} />
+          </Switch>
+          <Footer />
+          <PopUp></PopUp>
+        </div>
+      </Router>
+    </WalletContext.Provider>
   );
 }
 

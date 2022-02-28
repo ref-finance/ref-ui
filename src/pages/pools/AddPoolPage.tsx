@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Card } from '~components/card/Card';
 import { useWhitelistTokens, useTokenBalances } from '~state/token';
 import Loading from '~components/layout/Loading';
@@ -17,7 +17,11 @@ import { toRealSymbol } from '~utils/token';
 import BigNumber from 'bignumber.js';
 import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
-import { useSenderWallet, useWallet } from '../../utils/sender-wallet';
+import {
+  useWallet,
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/sender-wallet';
 
 export function AddPoolPage() {
   const tokens = useWhitelistTokens();
@@ -29,7 +33,8 @@ export function AddPoolPage() {
   const [errorKey, setErrorKey] = useState<string>();
   const intl = useIntl();
   const [buttonLoading, setButtonLoading] = useState(false);
-  const { wallet } = useWallet();
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
 
   const tip: any = {
     moreThan: intl.formatMessage({ id: 'more_than' }),
@@ -239,7 +244,7 @@ export function AddPoolPage() {
           })}
         </div>
         <div className="pt-6 w-full">
-          {wallet.isSignedIn() ? (
+          {isSignedIn ? (
             <button
               disabled={!canSubmit}
               className={`rounded-full w-full text-lg text-white px-5 py-2.5 focus:outline-none font-semibold ${

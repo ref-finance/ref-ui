@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Card } from '~components/card/Card';
 import Alert from '~components/alert/Alert';
 import {
@@ -33,7 +33,11 @@ import { formatMessage } from '@formatjs/intl';
 import { TokenMetadata } from '~services/ft-contract';
 import { FarmDot } from '~components/icon';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
-import { useWallet } from '../../utils/sender-wallet';
+import {
+  useWallet,
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/sender-wallet';
 
 function MyShares({
   shares,
@@ -100,7 +104,8 @@ function MyShares({
 }
 
 function Empty() {
-  const { wallet } = useWallet();
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
 
   return (
     <div className="px-6">
@@ -110,7 +115,7 @@ function Empty() {
           defaultMessage="Your liquidity positions will appear here."
         />
       </div>
-      {wallet.isSignedIn() ? <AddLiquidityButton /> : <ConnectToNearBtn />}
+      {isSignedIn ? <AddLiquidityButton /> : <ConnectToNearBtn />}
     </div>
   );
 }
@@ -130,9 +135,10 @@ export function YourLiquidityPage() {
   const [pools, setPools] = useState<PoolRPCView[]>();
   const [balances, setBalances] = useState<string[]>();
 
-  const { wallet } = useWallet();
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
 
-  if (!wallet.isSignedIn()) {
+  if (!isSignedIn) {
     const history = useHistory();
     history.push('/');
     return null;
@@ -257,7 +263,7 @@ function PoolRow(props: { pool: any; balance: string }) {
         <img
           key={id}
           className={
-            'inline-block h-8 w-8 rounded-full border border-gradientFromHover -ml-1 -ml-1'
+            'inline-block h-8 w-8 rounded-full border border-gradientFromHover -ml-1 '
           }
           src={icon}
         />
@@ -266,7 +272,7 @@ function PoolRow(props: { pool: any; balance: string }) {
       <div
         key={id}
         className={
-          'inline-block h-8 w-8 rounded-full bg-cardBg border border-gradientFromHover -ml-1 -ml-1'
+          'inline-block h-8 w-8 rounded-full bg-cardBg border border-gradientFromHover -ml-1'
         }
       ></div>
     );

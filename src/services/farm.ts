@@ -25,7 +25,10 @@ import {
   STORAGE_TO_REGISTER_WITH_MFT,
 } from '../services/creators/storage';
 import getConfig from './config';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  SENDER_WALLET_SIGNEDIN_STATE_KEY,
+} from '../utils/sender-wallet';
 const config = getConfig();
 export const DEFAULT_PAGE_LIMIT = 100;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
@@ -341,7 +344,7 @@ export const getRewards = async ({
 
 export const getRewardByTokenId = async (
   token_id: string,
-  accountId = wallet.getAccountId()
+  accountId = getCurrentWallet().wallet.getAccountId()
 ): Promise<any> => {
   return refFarmViewFunction({
     methodName: 'get_reward',

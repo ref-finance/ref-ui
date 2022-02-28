@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
@@ -97,7 +97,8 @@ import moment from 'moment';
 import { ChartNoData } from '~components/icon/ChartNoData';
 import { WarnTriangle } from '~components/icon/SwapRefresh';
 import { RefIcon } from '~components/icon/Common';
-import { useSenderWallet, useWallet } from '../../utils/sender-wallet';
+import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+
 interface ParamTypes {
   id: string;
 }
@@ -189,7 +190,10 @@ export function AddLiquidityModal(
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
 
-  const { wallet } = useWallet();
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  const { wallet } = getCurrentWallet();
 
   useEffect(() => {
     if (balances) {
@@ -449,7 +453,7 @@ export function AddLiquidityModal(
   const cardWidth = isMobile() ? '95vw' : '40vw';
 
   const ButtonRender = () => {
-    if (!wallet.isSignedIn()) {
+    if (!isSignedIn) {
       return <ConnectToNearBtn />;
     }
 
@@ -650,7 +654,7 @@ export function AddLiquidityModal(
             max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
             onChangeAmount={changeFirstTokenAmount}
             value={firstTokenAmount}
-            disabled={!wallet.isSignedIn()}
+            disabled={!isSignedIn}
           />
         </div>
         <div className="my-8 lg:hidden">
@@ -762,7 +766,11 @@ export function RemoveLiquidityModal(
   const [error, setError] = useState<Error>();
   const cardWidth = isMobile() ? '95vw' : '40vw';
   const intl = useIntl();
-  const { wallet } = useWallet();
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  const { wallet } = getCurrentWallet();
 
   function submit() {
     const amountBN = new BigNumber(amount?.toString());
@@ -896,7 +904,7 @@ export function RemoveLiquidityModal(
           {error && <Alert level="warn" message={error.message} />}
         </div>
         <div className="">
-          {wallet.isSignedIn() ? (
+          {isSignedIn ? (
             <SolidButton
               disabled={!canSubmit}
               className={`focus:outline-none px-4 w-full`}
@@ -1337,10 +1345,13 @@ export function PoolDetailsPage() {
   const morePoolIds: string[] =
     JSON.parse(localStorage.getItem('morePoolIds')) || [];
   const [farmCount, setFarmCount] = useState<Number>(1);
-  const { wallet } = useWallet();
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  const { wallet } = getCurrentWallet();
 
   const handleSaveWatchList = () => {
-    if (!wallet.isSignedIn()) {
+    if (!isSignedIn) {
       wallet.requestSignIn(REF_FARM_CONTRACT_ID);
     } else {
       addPoolToWatchList({ pool_id: id }).then(() => {

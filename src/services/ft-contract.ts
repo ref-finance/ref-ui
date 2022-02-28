@@ -40,7 +40,9 @@ export const ftViewFunction = (
 export const ftGetBalance = (tokenId: string, account_id?: string) => {
   return ftViewFunction(tokenId, {
     methodName: 'ft_balance_of',
-    args: { account_id: account_id || wallet.getAccountId() },
+    args: {
+      account_id: account_id || getCurrentWallet().wallet.getAccountId(),
+    },
   }).catch(() => '0');
 };
 
@@ -50,7 +52,7 @@ export interface FTStorageBalance {
 }
 export const ftGetStorageBalance = (
   tokenId: string,
-  accountId = wallet.getAccountId()
+  accountId = getCurrentWallet().wallet.getAccountId()
 ): Promise<FTStorageBalance | null> => {
   return ftViewFunction(tokenId, {
     methodName: 'storage_balance_of',

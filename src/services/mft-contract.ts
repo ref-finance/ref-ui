@@ -18,7 +18,7 @@ export interface MFTStorageBalance {
 
 export const mftGetStorageBalance = async (
   token_id: string,
-  accountId = wallet.getAccountId()
+  accountId = getCurrentWallet().wallet.getAccountId()
 ): Promise<MFTStorageBalance | null> => {
   return await refFiViewFunction({
     methodName: 'storage_balance_of',

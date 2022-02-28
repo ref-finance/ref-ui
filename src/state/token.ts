@@ -200,10 +200,10 @@ export const getDepositableBalance = async (
     }
   } else if (tokenId) {
     return ftGetBalance(tokenId)
-      .then((res) => {
+      .then((res: string) => {
         return toReadableNumber(decimals, res);
       })
-      .catch((res) => '0');
+      .catch((res: any) => '0');
   } else {
     return '';
   }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Loading from '~components/layout/Loading';
 import {
   XrefLogo,
@@ -31,7 +31,11 @@ import { wallet } from '~services/near';
 import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { index } from 'mathjs';
-import { useSenderWallet, useWallet } from '../../utils/sender-wallet';
+import {
+  senderWallet,
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/sender-wallet';
 const { XREF_TOKEN_ID, REF_TOKEN_ID, TOTAL_PLATFORM_FEE_REVENUE } = getConfig();
 const DECIMALS_XREF_REF_TRANSTER = 8;
 
@@ -51,8 +55,12 @@ function XrefPage() {
   const [rate, setRate] = useState(null);
   const [totalDataArray, setTotalDataArray] = useState([]);
   const intl = useIntl();
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
   useEffect(() => {
-    ftGetBalance(XREF_TOKEN_ID).then(async (data) => {
+    ftGetBalance(XREF_TOKEN_ID).then(async (data: any) => {
       const token = await ftGetTokenMetadata(XREF_TOKEN_ID);
       const { decimals } = token;
       const balance = toReadableNumber(decimals, data);
@@ -72,7 +80,7 @@ function XrefPage() {
           (Number(reward_per_sec) * 365 * 24 * 60 * 60 * 100);
         setApr(apr.toString());
       }
-      ftGetBalance(REF_TOKEN_ID).then(async (data) => {
+      ftGetBalance(REF_TOKEN_ID).then(async (data: any) => {
         const token = await ftGetTokenMetadata(REF_TOKEN_ID);
         const { decimals } = token;
         const balance = toReadableNumber(decimals, data);
@@ -104,7 +112,7 @@ function XrefPage() {
       const rate = toReadableNumber(DECIMALS_XREF_REF_TRANSTER, data);
       setRate(rate);
     });
-  }, []);
+  }, [isSignedIn]);
   const isM = isMobile();
   const switchTab = (tab: number) => {
     setTab(tab);
@@ -300,7 +308,9 @@ function InputView(props: any) {
     setForward(true);
   }, [tab]);
 
-  const { wallet } = useWallet();
+  const { signedInState } = useContext(WalletContext);
+
+  const isSignedIn = signedInState.isSignedIn;
 
   const onSubmit = () => {
     setLoading(true);
@@ -439,7 +449,7 @@ function InputView(props: any) {
 
         <label className="text-sm text-white"> {exchangeDisplay()}</label>
       </div>
-      {wallet.isSignedIn() ? (
+      {isSignedIn ? (
         <GradientButton
           color="#fff"
           className={`w-full h-11 text-center text-base text-white focus:outline-none font-semibold ${
