@@ -119,7 +119,7 @@ const NearTip = () => {
 const WithdrawTip = () => {
   const intl = useIntl();
   const tip = intl.formatMessage({ id: 'over_tip' });
-  const result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+  const result: string = `<div class="text-navHighLightText text-xs w-52 text-left font-normal">${tip}</div>`;
   return (
     <div
       className="ml-2"
