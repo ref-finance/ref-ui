@@ -3,11 +3,7 @@ import Modal from 'react-modal';
 import { Card } from '../components/card/Card';
 import { TiArrowSortedUp } from 'react-icons/ti';
 import { TokenMetadata } from '../services/ft-contract';
-import {
-  BorderButtonHover,
-  BorderButtonMobile,
-  GreenLButton,
-} from '../components/button/Button';
+import { GreenLButton } from '../components/button/Button';
 import {
   useTokenBalances,
   useUserRegisteredTokensAllAndNearBalance,
@@ -32,11 +28,7 @@ import ReactTooltip from 'react-tooltip';
 import QuestionMark from '../components/farm/QuestionMark';
 import { useHistory } from 'react-router';
 import { Checkbox, CheckboxSelected } from '~components/icon';
-import {
-  BorderButton,
-  GradientButton,
-  ButtonTextWrapper,
-} from '~components/button/Button';
+import { GradientButton, ButtonTextWrapper } from '~components/button/Button';
 const withdraw_number_at_once = 5;
 const accountSortFun = (
   by: string,
@@ -116,6 +108,32 @@ const NearTip = () => {
       <ReactTooltip
         className="w-20"
         id="nearId"
+        backgroundColor="#1D2932"
+        border
+        borderColor="#7e8a93"
+        effect="solid"
+      />
+    </div>
+  );
+};
+const WithdrawTip = () => {
+  const intl = useIntl();
+  const tip = intl.formatMessage({ id: 'over_tip' });
+  const result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+  return (
+    <div
+      className="ml-2"
+      data-type="info"
+      data-place="right"
+      data-multiline={true}
+      data-class="reactTip"
+      data-html={true}
+      data-tip={result}
+      data-for="WithdrawTipId"
+    >
+      <QuestionMark />
+      <ReactTooltip
+        id="WithdrawTipId"
         backgroundColor="#1D2932"
         border
         borderColor="#7e8a93"
@@ -238,13 +256,16 @@ function AccountTable(props: any) {
             </span>
           </th>
           <th className={`pl-8 ${refAccountHasToken ? '' : 'hidden'}`}>
-            <label className="cursor-pointer" onClick={clickAllCheckbox}>
-              {checkAll ? (
-                <CheckboxSelected></CheckboxSelected>
-              ) : (
-                <Checkbox></Checkbox>
-              )}
-            </label>
+            <span className="flex items-center">
+              <label className="cursor-pointer" onClick={clickAllCheckbox}>
+                {checkAll ? (
+                  <CheckboxSelected></CheckboxSelected>
+                ) : (
+                  <Checkbox></Checkbox>
+                )}
+              </label>
+              <WithdrawTip />
+            </span>
           </th>
         </tr>
       </thead>
@@ -548,10 +569,19 @@ function MobileAccountTable(props: any) {
           }`}
         >
           <td colSpan={3}>
-            <div className="flex justify-center">
+            <div className="flex flex-col justify-center items-center">
+              <div
+                className={`border border-primaryText p-2.5 text-xs text-navHighLightText text-left rounded-md m-3 mt-4 ${
+                  Object.keys(checkedMap).length >= withdraw_number_at_once
+                    ? ''
+                    : 'hidden'
+                }`}
+              >
+                <FormattedMessage id="over_tip"></FormattedMessage>
+              </div>
               <GradientButton
                 color="#fff"
-                className={`w-36 h-9 text-center text-base text-white mt-4 focus:outline-none font-semibold ${
+                className={`w-36 h-9 text-center text-base text-white mt-2 focus:outline-none font-semibold ${
                   Object.keys(checkedMap).length == 0 ? 'opacity-40' : ''
                 }`}
                 onClick={doWithDraw}
