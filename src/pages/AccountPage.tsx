@@ -150,15 +150,15 @@ function AccountTable(props: any) {
   const [currentSort, setCurrentSort] = useState('');
   const [checkedMap, setCheckedMap] = useState({});
   const [checkAll, setCheckALl] = useState(false);
-  const [refAccountHasToken, setRefAccountHasToken] = useState(false);
+  const [refAccountHasToken, setRefAccountHasToken] = useState();
   const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false);
   useEffect(() => {
     sort();
-    const refAccountHasToken = tokensSort.find((token: TokenMetadata) => {
+    const refAccountHasToken = tokensSort.filter((token: TokenMetadata) => {
       const { ref } = token;
       if (Number(ref) > 0) return true;
     });
-    setRefAccountHasToken(!!refAccountHasToken);
+    setRefAccountHasToken(refAccountHasToken.length);
   }, []);
   const sort = (e?: any) => {
     const sortBy = e?.currentTarget.dataset.sort || 'near';
@@ -205,7 +205,17 @@ function AccountTable(props: any) {
         amount: ref,
       };
     }
-    if (Object.keys(checkedMap).length == withdraw_number_at_once) {
+    console.log(
+      '7777777777777-1',
+      withdraw_number_at_once,
+      refAccountHasToken,
+      Math.min(withdraw_number_at_once, refAccountHasToken)
+    );
+    console.log('7777777777777-2', Object.keys(checkedMap).length);
+    if (
+      Object.keys(checkedMap).length ==
+      Math.min(withdraw_number_at_once, refAccountHasToken)
+    ) {
       setCheckALl(true);
     } else {
       setCheckALl(false);
@@ -393,8 +403,16 @@ function MobileAccountTable(props: any) {
   const [checkedMap, setCheckedMap] = useState({});
   const [checkAll, setCheckALl] = useState(false);
   const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false);
+  const [refAccountHasToken, setRefAccountHasToken] = useState();
   useEffect(() => {
     sort(`${type} + '-up'`);
+    if (type == 'ref') {
+      const refAccountHasToken = tokensSort.filter((token: TokenMetadata) => {
+        const { ref } = token;
+        if (Number(ref) > 0) return true;
+      });
+      setRefAccountHasToken(refAccountHasToken.length);
+    }
   }, [type]);
   const sort = (direction?: string) => {
     const { sortUserTokens, curSort } = accountSortFun(
@@ -440,12 +458,15 @@ function MobileAccountTable(props: any) {
         amount: ref,
       };
     }
-    if (Object.keys(checkedMap).length == withdraw_number_at_once) {
+    if (
+      Object.keys(checkedMap).length ==
+      Math.min(withdraw_number_at_once, refAccountHasToken)
+    ) {
       setCheckALl(true);
     } else {
       setCheckALl(false);
     }
-    setCheckedMap(Object.assign({}, checkedMap));
+    setCheckedMap(JSON.parse(JSON.stringify(checkedMap)));
   }
   function doWithDraw() {
     setWithdrawLoading(true);
