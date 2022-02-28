@@ -354,5 +354,6 @@ const vi = {
   no_result: 'Xin lỗi, chúng tôi không tìm thấy cặp farm nào của bạn',
   mulitple: 'Cặp được nhân',
   default: 'mặc định',
+  vi_go_live: 'Việt phát trực tiếp!',
 };
 export default vi;

@@ -108,6 +108,19 @@ export const ftGetTokenMetadata = async (
   }
 };
 
+export const ftGetTokensMetadata = async (tokenIds: string[]) => {
+  const tokensMetadata = await Promise.all(
+    tokenIds.map((id: string) => ftGetTokenMetadata(id))
+  );
+
+  return tokensMetadata.reduce((pre, cur, i) => {
+    return {
+      ...pre,
+      [tokenIds[i]]: cur,
+    };
+  }, {});
+};
+
 export const ftRegisterExchange = async (tokenId: string) => {
   return ftFunctionCall(tokenId, storageDepositForFTAction());
 };
