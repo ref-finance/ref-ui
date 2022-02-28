@@ -302,7 +302,11 @@ function AccountTable(props: any) {
                 className={`pl-8 ${refAccountHasToken ? '' : 'hidden'}`}
               >
                 <label
-                  className="cursor-pointer"
+                  className={`${
+                    Number(item.ref) > 0
+                      ? 'cursor-pointer'
+                      : 'cursor-not-allowed'
+                  } `}
                   onClick={() => {
                     clickCheckbox(item);
                   }}
@@ -587,15 +591,6 @@ function Account(props: any) {
   const accountName =
     account.length > 10 ? niceAccountId : wallet.getAccountId();
 
-  const getModalData = (token: TokenMetadata, action: string) => {
-    const { decimals } = token;
-    setModal({
-      token,
-      action,
-      max: action == 'deposit' ? token.near : token.ref,
-    });
-    setVisible(true);
-  };
   return (
     <div className="flex justify-center relative w-1/2 m-auto mt-16 xs:hidden md:hidden pb-5">
       <Card className="w-full pt-6 pb-15 px-0">
@@ -623,14 +618,6 @@ function MobileAccount(props: any) {
   const accountName =
     account.length > 10 ? niceAccountId : wallet.getAccountId();
 
-  const getModalData = (token: TokenMetadata, action: string) => {
-    setModal({
-      token,
-      action,
-      max: action == 'deposit' ? token.near : token.ref,
-    });
-    setVisible(true);
-  };
   const switchTab = (type: string) => {
     setActiveTab(type);
   };
