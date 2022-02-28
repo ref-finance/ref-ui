@@ -93,6 +93,8 @@ const getWalletBalance = (item: TokenMetadata) => {
 };
 const NearTip = () => {
   const intl = useIntl();
+  const tip = intl.formatMessage({ id: 'deposit_near_tip' });
+  const result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
   return (
     <div
       className="ml-1.5"
@@ -101,7 +103,7 @@ const NearTip = () => {
       data-multiline={true}
       data-class="reactTip"
       data-html={true}
-      data-tip={intl.formatMessage({ id: 'deposit_near_tip' })}
+      data-tip={result}
       data-for="nearId"
     >
       <QuestionMark />
@@ -503,65 +505,71 @@ function MobileAccountTable(props: any) {
       </thead>
       <tbody>
         {tokensSort.map((item: TokenMetadata) => {
-          return (
-            <tr
-              className={`h-16 border-t border-borderColor border-opacity-30 hover:bg-chartBg hover:bg-opacity-20 ${
-                (type == 'ref' && new BigNumber(item.ref).isEqualTo(0)) ||
-                (type == 'near' && new BigNumber(item.near).isEqualTo(0))
-                  ? 'hidden'
-                  : ''
-              }`}
-              key={item.id}
-            >
-              <td className="pl-4">
-                <div className="flex items-center">
-                  <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden flex-shrink-0">
-                    <img src={item.icon} className="w-full h-full"></img>
-                  </div>
-
-                  <div className="flex flex-col">
-                    <div className="flex items-center">
-                      <label className="text-white text-lg font-semibold">
-                        {item.symbol}
-                      </label>
-                      {item.symbol == 'NEAR' ? <NearTip /> : null}
+          if (
+            (type == 'ref' && new BigNumber(item.ref).isEqualTo(0)) ||
+            (type == 'near' && new BigNumber(item.near).isEqualTo(0))
+          ) {
+            return null;
+          } else
+            return (
+              <tr
+                className={`h-16 border-t border-borderColor border-opacity-30 hover:bg-chartBg hover:bg-opacity-20 ${
+                  (type == 'ref' && new BigNumber(item.ref).isEqualTo(0)) ||
+                  (type == 'near' && new BigNumber(item.near).isEqualTo(0))
+                    ? 'hidden'
+                    : ''
+                }`}
+                key={item.id}
+              >
+                <td className="pl-4">
+                  <div className="flex items-center">
+                    <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden flex-shrink-0">
+                      <img src={item.icon} className="w-full h-full"></img>
                     </div>
-                    <label className="text-xs text-primaryText break-all">
-                      {item.id}
+
+                    <div className="flex flex-col">
+                      <div className="flex items-center">
+                        <label className="text-white text-lg font-semibold">
+                          {item.symbol}
+                        </label>
+                        {item.symbol == 'NEAR' ? <NearTip /> : null}
+                      </div>
+                      <label className="text-xs text-primaryText break-all">
+                        {item.id}
+                      </label>
+                    </div>
+                  </div>
+                </td>
+                <td className={`pr-4 ${type == 'ref' ? 'hidden' : ''}`}>
+                  <div className="flex flex-col items-end py-4">
+                    <label className="text-white font-semibold text-lg mb-1">
+                      {getWalletBalance(item)}
                     </label>
                   </div>
-                </div>
-              </td>
-              <td className={`pr-4 ${type == 'ref' ? 'hidden' : ''}`}>
-                <div className="flex flex-col items-end py-4">
-                  <label className="text-white font-semibold text-lg mb-1">
-                    {getWalletBalance(item)}
+                </td>
+                <td className={`pr-4 ${type == 'near' ? 'hidden' : ''}`}>
+                  <div className="flex flex-col items-end py-4">
+                    <label className="text-white font-semibold text-lg mb-1">
+                      {getRefBalance(item)}
+                    </label>
+                  </div>
+                </td>
+                <td className={`pr-2 ${type == 'near' ? 'hidden' : ''}`}>
+                  <label
+                    className="cursor-pointer"
+                    onClick={() => {
+                      clickCheckbox(item);
+                    }}
+                  >
+                    {checkedMap[item.id]?.amount ? (
+                      <CheckboxSelected></CheckboxSelected>
+                    ) : (
+                      <Checkbox></Checkbox>
+                    )}
                   </label>
-                </div>
-              </td>
-              <td className={`pr-4 ${type == 'near' ? 'hidden' : ''}`}>
-                <div className="flex flex-col items-end py-4">
-                  <label className="text-white font-semibold text-lg mb-1">
-                    {getRefBalance(item)}
-                  </label>
-                </div>
-              </td>
-              <td className={`pr-2 ${type == 'near' ? 'hidden' : ''}`}>
-                <label
-                  className="cursor-pointer"
-                  onClick={() => {
-                    clickCheckbox(item);
-                  }}
-                >
-                  {checkedMap[item.id]?.amount ? (
-                    <CheckboxSelected></CheckboxSelected>
-                  ) : (
-                    <Checkbox></Checkbox>
-                  )}
-                </label>
-              </td>
-            </tr>
-          );
+                </td>
+              </tr>
+            );
         })}
         <tr
           className={`h-16 border-t border-borderColor border-opacity-30  ${
