@@ -205,13 +205,6 @@ function AccountTable(props: any) {
         amount: ref,
       };
     }
-    console.log(
-      '7777777777777-1',
-      withdraw_number_at_once,
-      refAccountHasToken,
-      Math.min(withdraw_number_at_once, refAccountHasToken)
-    );
-    console.log('7777777777777-2', Object.keys(checkedMap).length);
     if (
       Object.keys(checkedMap).length ==
       Math.min(withdraw_number_at_once, refAccountHasToken)
