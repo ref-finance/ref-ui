@@ -382,18 +382,34 @@ export function FarmsPage() {
       item.default = defaultConfig[id] || '0';
     });
     if (sort == 'new') {
-      const tempMap = {};
-      const keyList: any[] = [];
-      listAll.forEach((m: any) => {
-        tempMap[m.key] = m;
-        keyList.push(m.key);
-      });
-      listAll = keyList
-        .sort()
-        .reverse()
-        .map((key) => tempMap[key]);
-      listAll.sort(function (a: any, b: any) {
-        return b.length - a.length;
+      // const tempMap = {};
+      // const keyList: any[] = [];
+      // listAll.forEach((m: any) => {
+      //   tempMap[m.key] = m;
+      //   keyList.push(m.key);
+      // });
+      // listAll = keyList
+      //   .sort()
+      //   .reverse()
+      //   .map((key) => tempMap[key]);
+      // listAll.sort(function (a: any, b: any) {
+      //   return b.length - a.length;
+      // });
+      listAll.sort((item1: any, item2: any) => {
+        const item1List = JSON.parse(JSON.stringify(item1));
+        const item2List = JSON.parse(JSON.stringify(item2));
+        item1List.sort((a: any, b: any) => {
+          return b.start_at - a.start_at;
+        });
+        item2List.sort((a: any, b: any) => {
+          return b.start_at - a.start_at;
+        });
+        const v = item2List[0].start_at - item1List[0].start_at;
+        if (v == 0) {
+          return item2.length - item1.length;
+        } else {
+          return v;
+        }
       });
     }
     if (sort == 'apr') {
