@@ -17,11 +17,7 @@ import { toRealSymbol } from '~utils/token';
 import BigNumber from 'bignumber.js';
 import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
-import {
-  useWallet,
-  getCurrentWallet,
-  WalletContext,
-} from '../../utils/sender-wallet';
+import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 
 export function AddPoolPage() {
   const tokens = useWhitelistTokens();

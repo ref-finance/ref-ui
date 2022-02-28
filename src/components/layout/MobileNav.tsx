@@ -48,7 +48,7 @@ import { WalletContext } from '~utils/sender-wallet';
 
 const config = getConfig();
 import { isMobile } from '~utils/device';
-import { getCurrentWallet } from '../../utils/sender-wallet';
+import { getCurrentWallet, getAccountName } from '../../utils/sender-wallet';
 
 export function MobileAnchor({
   to,
@@ -263,14 +263,12 @@ export function AccountModel(props: any) {
     </div>
   );
 }
-export function MobileNavBar() {
+export function MobileNavBar(props: any) {
   const [show, setShow] = useState(false);
   const intl = useIntl();
   const { data } = useRefPrice('MobileNav');
   const iconRef = useRef<HTMLSpanElement | null>(null);
   const popupRef = useRef<HTMLDivElement | null>(null);
-  const [account, network] = wallet.getAccountId().split('.');
-  const niceAccountId = `${account.slice(0, 10)}...${network || ''}`;
   const [openMenu, setOpenMenu] = useState('');
   const [closeMenu, setCloseMenu] = useState(false);
   const history = useHistory();
@@ -279,13 +277,12 @@ export function MobileNavBar() {
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
 
-  // const { wallet } = getCurrentWallet();
+  const { wallet } = getCurrentWallet();
 
-  const accountName =
-    account.length > 10 ? niceAccountId : wallet.getAccountId();
-  const nearBalance = wallet.isSignedIn()
-    ? useDepositableBalance(nearMetadata.id, nearMetadata.decimals)
-    : '0';
+  const nearBalance = useDepositableBalance(
+    nearMetadata.id,
+    nearMetadata.decimals
+  );
   const [accountVisible, setAccountVisible] = useState(false);
 
   useEffect(() => {
@@ -321,7 +318,7 @@ export function MobileNavBar() {
     }
   }, [show]);
 
-  if (wallet.isSignedIn()) {
+  if (isSignedIn) {
     moreLinks[2].children[2] = {
       id: 'Your_Liquidity',
       label: 'Your Liquidity',
@@ -358,23 +355,23 @@ export function MobileNavBar() {
         <div className="flex">
           <div
             className={`inline-flex px-1 mr-2 items-center justify-center rounded-full border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 ${
-              wallet.isSignedIn()
+              isSignedIn
                 ? 'bg-gray-700 text-white'
                 : 'border border-gradientFrom text-gradientFrom'
             } pl-3 pr-3`}
           >
             <div className="pr-1">
-              <Near color={wallet.isSignedIn() ? 'white' : '#00c6a2'} />
+              <Near color={isSignedIn ? 'white' : '#00c6a2'} />
             </div>
             <div className="overflow-ellipsis overflow-hidden text-xs whitespace-nowrap account-name">
-              {wallet.isSignedIn() ? (
+              {isSignedIn ? (
                 <div
                   className="flex items-center"
                   onClick={() => {
                     setAccountVisible(!accountVisible);
                   }}
                 >
-                  <div>{accountName}</div>
+                  <div>{getAccountName(wallet.getAccountId())}</div>
                   {accountVisible ? (
                     <FiChevronUp className="text-base ml-1" />
                   ) : (
@@ -417,7 +414,7 @@ export function MobileNavBar() {
             </span>
           </div>
           <div className="text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
-            {wallet.isSignedIn() && (
+            {isSignedIn && (
               <div className="text-primaryText" onClick={() => setShow(false)}>
                 <div
                   className="flex p-4 justify-between items-center"

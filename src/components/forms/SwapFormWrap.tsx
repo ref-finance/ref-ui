@@ -5,11 +5,7 @@ import { FormattedMessage } from 'react-intl';
 import SlippageSelector from './SlippageSelector';
 import { SwapRefresh, CountdownTimer } from '~components/icon';
 import { wallet } from '~services/near';
-import {
-  useWallet,
-  getCurrentWallet,
-  WalletContext,
-} from '../../utils/sender-wallet';
+import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 
 interface SwapFormWrapProps {
   title?: string;

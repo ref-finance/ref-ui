@@ -49,9 +49,9 @@ import { getAccount } from '../../services/airdrop';
 import { senderWallet, getCurrentWallet } from '../../utils/sender-wallet';
 import { WalletSelectorModal } from './WalletSelector';
 import {
-  useWallet,
   wallet_selector,
   WalletContext,
+  useWallet,
 } from '../../utils/sender-wallet';
 import {
   senderWalletExtention,
@@ -647,7 +647,7 @@ function NavigationBar() {
           </div>
         </nav>
       </div>
-      <MobileNavBar />
+      <MobileNavBar isSignedIn={isSignedIn} wallet={wallet} />
     </>
   );
 }

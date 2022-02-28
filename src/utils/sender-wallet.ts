@@ -139,6 +139,8 @@ export const useWallet = () => {
     WALLET_TYPE.WEB_WALLET
   );
 
+  const [unlocking, setUnlocking] = useState(false);
+
   const { signedInState, signedInStatedispatch } = useContext(WalletContext);
 
   const [senderSignedIn, setSenderSignedIn] = useState<boolean>(false);
@@ -146,9 +148,11 @@ export const useWallet = () => {
   useEffect(() => {
     const signedInRes = localStorage.getItem(SENDER_WALLET_SIGNEDIN_STATE_KEY);
 
-    if (signedInRes && !senderWallet.isSignedIn()) {
+    if (signedInRes && !senderWallet.isSignedIn() && !unlocking) {
+      setUnlocking(true);
       senderWallet.requestSignIn(REF_FARM_CONTRACT_ID).then(() => {
         signedInStatedispatch({ type: 'signIn' });
+        setUnlocking(false);
       });
     }
   }, []);
@@ -199,9 +203,18 @@ export const getCurrentWallet = () => {
   );
 
   if (SENDER_LOGIN_RES)
-    return { wallet: senderWallet, wallet_type: WALLET_TYPE.SENDER_WALLET };
+    return {
+      wallet: senderWallet,
+      wallet_type: WALLET_TYPE.SENDER_WALLET,
+      accountName: getAccountName(senderWallet.getAccountId()),
+    };
 
-  return { wallet: webWallet, wallet_type: WALLET_TYPE.WEB_WALLET };
+  return {
+    wallet: webWallet,
+    wallet_type: WALLET_TYPE.WEB_WALLET,
+
+    accountName: getAccountName(webWallet.getAccountId()),
+  };
 };
 
 export const WalletContext = createContext(null);

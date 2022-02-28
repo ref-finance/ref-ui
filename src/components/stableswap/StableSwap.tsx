@@ -34,11 +34,7 @@ import {
 import { CountdownTimer } from '~components/icon';
 import { StablePool } from '~services/pool';
 import { BeatLoading } from '~components/layout/Loading';
-import {
-  useWallet,
-  WalletContext,
-  getCurrentWallet,
-} from '../../utils/sender-wallet';
+import { WalletContext, getCurrentWallet } from '../../utils/sender-wallet';
 import { getAccount } from '../../services/airdrop';
 interface StableSwapProps {
   balances: TokenBalancesView;

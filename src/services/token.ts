@@ -26,7 +26,11 @@ import {
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from './wrap-near';
 import { registerTokenAction } from './creators/token';
 import { getUserWalletTokens } from './api';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  WALLET_TYPE,
+  senderWallet,
+} from '../utils/sender-wallet';
 
 const specialToken = 'pixeltoken.near';
 

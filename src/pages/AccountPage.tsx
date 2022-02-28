@@ -34,7 +34,6 @@ import QuestionMark from '../components/farm/QuestionMark';
 import { useHistory } from 'react-router';
 import {
   WalletContext,
-  useWallet,
   getCurrentWallet,
   getAccountName,
 } from '../utils/sender-wallet';

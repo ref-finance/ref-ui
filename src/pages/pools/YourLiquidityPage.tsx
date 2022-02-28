@@ -33,11 +33,7 @@ import { formatMessage } from '@formatjs/intl';
 import { TokenMetadata } from '~services/ft-contract';
 import { FarmDot } from '~components/icon';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
-import {
-  useWallet,
-  getCurrentWallet,
-  WalletContext,
-} from '../../utils/sender-wallet';
+import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 
 function MyShares({
   shares,

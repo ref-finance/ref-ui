@@ -28,7 +28,11 @@ import { toRealSymbol } from '../utils/token';
 import getConfig from '~services/config';
 import { nearMetadata } from '../services/wrap-near';
 import { Pool } from '../services/pool';
-import { WalletContext, getCurrentWallet } from '../utils/sender-wallet';
+import {
+  WalletContext,
+  getCurrentWallet,
+  WALLET_TYPE,
+} from '../utils/sender-wallet';
 
 export const useToken = (id: string) => {
   const [token, setToken] = useState<TokenMetadata>();
@@ -294,22 +298,26 @@ export const useDepositableBalance = (
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
 
-  // const { wallet } = getCurrentWallet();
+  const { wallet, wallet_type } = getCurrentWallet();
 
   useEffect(() => {
-    if (isSignedIn) {
+    if (isSignedIn && wallet.account) {
       if (tokenId === 'NEAR') {
-        wallet
-          .account()
-          .getAccountBalance()
-          .then(({ available }) => setDepositable(available));
+        wallet_type === WALLET_TYPE.WEB_WALLET
+          ? wallet
+              .account()
+              .getAccountBalance()
+              .then(({ available }) => setDepositable(available))
+          : wallet.account
+              .getAccountBalance()
+              .then(({ available }) => setDepositable(available));
       } else if (tokenId) {
         ftGetBalance(tokenId).then(setDepositable);
       }
     } else {
       setDepositable('0');
     }
-  }, [tokenId, isSignedIn]);
+  }, [tokenId, isSignedIn, wallet_type, wallet.account]);
 
   useEffect(() => {
     const max = toReadableNumber(decimals, depositable) || '0';

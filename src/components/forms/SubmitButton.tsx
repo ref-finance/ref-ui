@@ -9,11 +9,7 @@ import {
 } from '~components/button/Button';
 
 import { BeatLoading } from '~components/layout/Loading';
-import {
-  useWallet,
-  getCurrentWallet,
-  WalletContext,
-} from '../../utils/sender-wallet';
+import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 
 interface SubmitButtonProps {
   text?: string;

@@ -71,11 +71,7 @@ import { QuestionTip } from '~components/layout/TipWrapper';
 import { Guide } from '~components/layout/Guide';
 import { sortBy } from 'lodash';
 import { getCurrentWallet } from '../../utils/sender-wallet';
-import {
-  senderWallet,
-  useWallet,
-  WalletContext,
-} from '../../utils/sender-wallet';
+import { senderWallet, WalletContext } from '../../utils/sender-wallet';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
