@@ -634,6 +634,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   }, [allTokens]);
 
   useEffect(() => {
+    console.log('swap card', isSignedIn);
+
     if (useNearBalance) {
       if (tokenIn) {
         const tokenInId = tokenIn.id;
