@@ -32,6 +32,8 @@ import getConfig from '../services/config';
 import { registerTokensAction } from '../services/creators/token';
 import { STORAGE_TO_REGISTER_WITH_FT } from './creators/storage';
 import { withdrawAction } from './creators/token';
+import { getExplorer, ExplorerType } from '../utils/device';
+const explorerType = getExplorer();
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -434,6 +436,7 @@ export const addLiquidityToStablePool = async ({
       amount: LP_STORAGE_AMOUNT,
     },
   ];
+
   const allTokenIds = getConfig().STABLE_TOKEN_IDS;
   const balances = await Promise.all(
     allTokenIds.map((tokenId) => getTokenBalance(tokenId))
@@ -444,25 +447,26 @@ export const addLiquidityToStablePool = async ({
       notRegisteredTokens.push(allTokenIds[i]);
     }
   }
-  if (notRegisteredTokens.length > 0) {
+
+  if (notRegisteredTokens.length > 0 && explorerType !== ExplorerType.Firefox) {
     actions.unshift(registerTokensAction(notRegisteredTokens));
   }
 
-  // const needDeposit = await checkTokenNeedsStorageDeposit();
-  // if (needDeposit) {
-  //   actions.unshift(
-  //     storageDepositAction({
-  //       amount: needDeposit,
-  //     })
-  //   );
-  // }
+  const transactions: Transaction[] = depositTransactions;
 
-  return executeMultipleTransactions([
-    ...depositTransactions,
-    { receiverId: REF_FI_CONTRACT_ID, functionCalls: [...actions] },
-  ]);
+  if (notRegisteredTokens.length > 0 && explorerType === ExplorerType.Firefox) {
+    transactions.push({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [registerTokensAction(notRegisteredTokens)],
+    });
+  }
 
-  // return refFiManyFunctionCalls(actions);
+  transactions.push({
+    receiverId: REF_FI_CONTRACT_ID,
+    functionCalls: [...actions],
+  });
+
+  return executeMultipleTransactions(transactions);
 };
 
 interface RemoveLiquidityOptions {
@@ -590,6 +594,10 @@ export const removeLiquidityFromStablePool = async ({
     });
   }
 
+  const withdrawActions = tokenIds.map((tokenId) =>
+    withdrawAction({ tokenId, amount: '0', unregister })
+  );
+
   const actions: RefFiFunctionCallOptions[] = [
     {
       methodName: 'remove_liquidity',
@@ -601,18 +609,30 @@ export const removeLiquidityFromStablePool = async ({
       amount: ONE_YOCTO_NEAR,
       gas: '30000000000000',
     },
-    ...tokenIds.map((tokenId) =>
-      withdrawAction({ tokenId, amount: '0', unregister })
-    ),
   ];
 
-  return executeMultipleTransactions([
+  if (explorerType !== ExplorerType.Firefox) {
+    withdrawActions.forEach((item) => {
+      actions.push(item);
+    });
+  }
+
+  const transactions: Transaction[] = [
     ...withDrawTransactions,
     {
       receiverId: REF_FI_CONTRACT_ID,
       functionCalls: [...actions],
     },
-  ]);
+  ];
+
+  if (explorerType === ExplorerType.Firefox) {
+    transactions.push({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: withdrawActions,
+    });
+  }
+
+  return executeMultipleTransactions(transactions);
 };
 
 export const predictRemoveLiquidityByTokens = async (
@@ -671,6 +691,10 @@ export const removeLiquidityByTokensFromStablePool = async ({
     });
   }
 
+  const withdrawActions = tokenIds
+    .filter((tk, i) => !ONLY_ZEROS.test(amounts[i]))
+    .map((tokenId) => withdrawAction({ tokenId, amount: '0', unregister }));
+
   const actions: RefFiFunctionCallOptions[] = [
     {
       methodName: 'remove_liquidity_by_tokens',
@@ -678,10 +702,28 @@ export const removeLiquidityByTokensFromStablePool = async ({
       amount: ONE_YOCTO_NEAR,
       gas: '30000000000000',
     },
-    ...tokenIds
-      .filter((tk, i) => !ONLY_ZEROS.test(amounts[i]))
-      .map((tokenId) => withdrawAction({ tokenId, amount: '0', unregister })),
   ];
+
+  if (explorerType !== ExplorerType.Firefox) {
+    withdrawActions.forEach((item) => {
+      actions.push(item);
+    });
+  }
+
+  const transactions: Transaction[] = [
+    ...withDrawTransactions,
+    {
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [...actions],
+    },
+  ];
+
+  if (explorerType === ExplorerType.Firefox) {
+    transactions.push({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: withdrawActions,
+    });
+  }
 
   return executeMultipleTransactions([
     ...withDrawTransactions,
