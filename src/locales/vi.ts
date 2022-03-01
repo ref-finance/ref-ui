@@ -355,5 +355,13 @@ const vi = {
   mulitple: 'Cặp được nhân',
   default: 'mặc định',
   vi_go_live: 'Việt phát trực tiếp!',
+  do_not_need_to_deposit_in_ref:
+    'Bạn không cần phải gửi tiền vào Ref Finance nữa!',
+  you_can_add_liquidity_directly:
+    'Bây giờ bạn có thể thêm thanh khoản trực tiếp bằng ví GẦN của mình.',
+  do_not_need_deposit_anymore: 'Bạn không cần phải đặt cọc nữa!',
+  lightning_swaps: 'Hoán đổi tia chớp',
+  frictionless_add_remove_liquidity:
+    'Các hành động thêm / xóa thanh khoản không ma sát',
 };
 export default vi;

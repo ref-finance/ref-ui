@@ -350,5 +350,13 @@ const en_US = {
   mulitple: 'Multiple',
   default: 'Default',
   vi_go_live: 'Vietnamese goes live!',
+  do_not_need_to_deposit_in_ref:
+    "You don't need to deposit in Ref Finance anymore!",
+  you_can_add_liquidity_directly:
+    'You can now add liquidity directly using your NEAR wallet.',
+  do_not_need_deposit_anymore: "You don't need to deposit anymore!",
+  lightning_swaps: 'Lightning Swaps',
+  frictionless_add_remove_liquidity:
+    'Frictionless Add/Remove Liquidity Actions',
 };
 export default en_US;
