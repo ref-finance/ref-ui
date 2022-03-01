@@ -11,28 +11,8 @@ import {
   wallet,
 } from '../services/near';
 
-import NearWalletSelector from 'near-wallet-selector';
 import { getAmount, RefFiFunctionCallOptions, getGas } from '../services/near';
 import { scientificNotationToString } from './numbers';
-import { Action } from 'near-api-js/lib/transaction';
-
-export const wallet_selector = new NearWalletSelector({
-  wallets: ['near-wallet', 'sender-wallet'],
-  networkId: process.env.NEAR_ENV as 'testnet' | 'mainnet',
-  theme: 'light',
-  contract: {
-    accountId: REF_FARM_CONTRACT_ID,
-  },
-  walletSelectorUI: {
-    description: 'Please select a wallet to connect to this dApp:',
-    explanation: [
-      'Wallets are used to send, receive, and store digital assets.',
-      'There are different types of wallets. They can be an extension',
-      'added to your browser, a hardware device plugged into your',
-      'computer, web-based, or as an app on your phone.',
-    ].join(' '),
-  },
-});
 
 export const SENDER_WALLET_SIGNEDIN_STATE_KEY =
   'SENDER_WALLET_SIGNEDIN_STATE_VALUE';

@@ -37,11 +37,7 @@ import {
   SENDER_WALLET_SIGNEDIN_STATE_KEY,
 } from './utils/sender-wallet';
 
-import {
-  wallet_selector,
-  WalletContext,
-  signedInStateReducer,
-} from './utils/sender-wallet';
+import { WalletContext, signedInStateReducer } from './utils/sender-wallet';
 
 Modal.defaultStyles = {
   overlay: {

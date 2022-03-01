@@ -8,7 +8,6 @@ import {
 } from '../../components/icon';
 import { FormattedMessage } from 'react-intl';
 import { BeatLoading } from '../../components/layout/Loading';
-import { wallet_selector } from '../../utils/sender-wallet';
 import { WalletSelectorModal } from '../layout/WalletSelector';
 
 export function BorderlessButton(

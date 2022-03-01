@@ -48,7 +48,7 @@ import { XrefIcon } from '~components/icon/Xref';
 import { getAccount } from '../../services/airdrop';
 import { senderWallet, getCurrentWallet } from '../../utils/sender-wallet';
 import { WalletSelectorModal } from './WalletSelector';
-import { wallet_selector, WalletContext } from '../../utils/sender-wallet';
+import { WalletContext } from '../../utils/sender-wallet';
 import {
   senderWalletExtention,
   getAccountName,

@@ -5364,9 +5364,9 @@ is-html@^1.1.0:
     html-tags "^1.0.0"
 
 is-mobile@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/is-mobile/-/is-mobile-3.0.0.tgz#683005f3a40adbc0ca5867e1d5e75d7bbf66d764"
-  integrity sha512-UruBjgykgDJ5zRpJ8Zgh9ZUe4jQaHD8klX9FlkOt0oPyu3FpwJpxHvKg4+lhJOWGxSrMKsRuPFk60xeltvyliQ==
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/is-mobile/-/is-mobile-3.1.0.tgz#d1d053ed1bdc97b6bf95843d11ea9eb83380cc29"
+  integrity sha512-BUeEDcth3Mj03fZ+Xo+amAvER9snFH8cx8A5GTHmWFZmKcIPqpQ5fAsDH6EGstRoLGdFnSZWXImK5IPh534enw==
 
 is-negative-zero@^2.0.1:
   version "2.0.1"
@@ -6575,25 +6575,6 @@ near-api-js@0.44.2, near-api-js@^0.44.2:
     node-fetch "^2.6.1"
     text-encoding-utf-8 "^1.0.2"
     tweetnacl "^1.0.1"
-
-near-wallet-selector@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/near-wallet-selector/-/near-wallet-selector-1.0.2.tgz#d6e0f1b34dbd25f9dbcb722b566c3887dcc63105"
-  integrity sha512-90b/696+xkqdxBQflXDL0fB6np2bekt6xHSnJ0tnZRfXK2vgg6ba7FERUlHiTbklkpdPhZKmBhCGhZ62EiZ2Ew==
-  dependencies:
-    "@ledgerhq/hw-transport-webhid" "^6.20.0"
-    "@ledgerhq/hw-transport-webusb" "^6.20.0"
-    "@types/react" "^17.0.37"
-    "@types/react-dom" "^17.0.11"
-    bn.js "^5.2.0"
-    bs58 "^4.0.1"
-    eslint-plugin-react "^7.28.0"
-    eslint-plugin-react-hooks "^4.3.0"
-    is-mobile "^3.0.0"
-    near-api-js "0.44.2"
-    prettier "^2.5.1"
-    react "^17.0.2"
-    react-dom "^17.0.2"
 
 nice-try@^1.0.4:
   version "1.0.5"
