@@ -515,6 +515,10 @@ export const removeLiquidityFromPool = async ({
     });
   }
 
+  const withdrawActions = tokenIds.map((tokenId) =>
+    withdrawAction({ tokenId, amount: '0', unregister })
+  );
+
   const actions: RefFiFunctionCallOptions[] = [
     {
       methodName: 'remove_liquidity',
@@ -526,18 +530,29 @@ export const removeLiquidityFromPool = async ({
       amount: ONE_YOCTO_NEAR,
       gas: '30000000000000',
     },
-    ...tokenIds.map((tokenId) =>
-      withdrawAction({ tokenId, amount: '0', unregister })
-    ),
   ];
+  if (explorerType !== ExplorerType.Firefox) {
+    withdrawActions.forEach((item) => {
+      actions.push(item);
+    });
+  }
 
-  return executeMultipleTransactions([
+  const transactions: Transaction[] = [
     ...withDrawTransactions,
     {
       receiverId: REF_FI_CONTRACT_ID,
       functionCalls: [...actions],
     },
-  ]);
+  ];
+
+  if (explorerType === ExplorerType.Firefox) {
+    transactions.push({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: withdrawActions,
+    });
+  }
+
+  return executeMultipleTransactions(transactions);
 };
 
 export const predictRemoveLiquidity = async (
@@ -725,13 +740,7 @@ export const removeLiquidityByTokensFromStablePool = async ({
     });
   }
 
-  return executeMultipleTransactions([
-    ...withDrawTransactions,
-    {
-      receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [...actions],
-    },
-  ]);
+  return executeMultipleTransactions(transactions);
 };
 
 export const addSimpleLiquidityPool = async (
