@@ -33,8 +33,6 @@ function SubmitButton({
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
 
-  const { wallet } = getCurrentWallet();
-
   return (
     <>
       {isSignedIn ? (

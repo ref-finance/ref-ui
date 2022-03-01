@@ -30,11 +30,7 @@ export const ftViewFunction = (
   tokenId: string,
   { methodName, args }: RefFiViewFunctionOptions
 ) => {
-  const { wallet, wallet_type } = getCurrentWallet();
-
-  return wallet_type === WALLET_TYPE.SENDER_WALLET
-    ? wallet.viewFunction(tokenId, methodName, args)
-    : wallet.account().viewFunction(tokenId, methodName, args);
+  return wallet.account().viewFunction(tokenId, methodName, args);
 };
 
 export const ftGetBalance = (tokenId: string, account_id?: string) => {

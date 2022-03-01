@@ -137,7 +137,6 @@ export function ConnectToNearBtn() {
           e.preventDefault();
           e.stopPropagation();
           setButtonLoading(true);
-          // wallet.requestSignIn(REF_FARM_CONTRACT_ID);
           setShowWalletSelector(true);
         }}
       >

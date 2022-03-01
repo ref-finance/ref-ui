@@ -48,11 +48,7 @@ import { XrefIcon } from '~components/icon/Xref';
 import { getAccount } from '../../services/airdrop';
 import { senderWallet, getCurrentWallet } from '../../utils/sender-wallet';
 import { WalletSelectorModal } from './WalletSelector';
-import {
-  wallet_selector,
-  WalletContext,
-  useWallet,
-} from '../../utils/sender-wallet';
+import { wallet_selector, WalletContext } from '../../utils/sender-wallet';
 import {
   senderWalletExtention,
   getAccountName,
@@ -116,9 +112,7 @@ function AccountEntry() {
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
 
-  const { wallet, walletType } = useWallet();
-
-  console.log(walletType);
+  const { wallet, wallet_type } = getCurrentWallet();
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);
 
@@ -600,6 +594,7 @@ function NavigationBar() {
   const [showWrapNear, setShowWrapNear] = useState(false);
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
+
   return (
     <>
       <div className="nav-wrap md:hidden xs:hidden text-center relative">
@@ -647,7 +642,7 @@ function NavigationBar() {
           </div>
         </nav>
       </div>
-      <MobileNavBar isSignedIn={isSignedIn} wallet={wallet} />
+      <MobileNavBar isSignedIn={isSignedIn} />
     </>
   );
 }

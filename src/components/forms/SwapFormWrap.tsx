@@ -92,7 +92,10 @@ export default function SwapFormWrap({
             <FormattedMessage id={title} defaultMessage={title} />
             <div className="flex items-center">
               <div
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+
                   if (loadingPause) {
                     setLoadingPause(false);
                     setLoadingTrigger(true);

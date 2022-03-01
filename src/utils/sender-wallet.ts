@@ -46,16 +46,9 @@ export enum WALLET_TYPE {
 
 function senderWalletFunc() {
   this.requestSignIn = async function (contractId: string) {
-    return senderWalletExtention
-      .requestSignIn({
-        contractId,
-      })
-      .then(() => {
-        localStorage.setItem(
-          SENDER_WALLET_SIGNEDIN_STATE_KEY,
-          SENDER_WALLET_SIGNEDIN_STATE_KEY + ': ' + senderWallet.getAccountId()
-        );
-      });
+    return senderWalletExtention.requestSignIn({
+      contractId,
+    });
   };
 
   this.signOut = function () {
@@ -63,10 +56,14 @@ function senderWalletFunc() {
     return senderWalletExtention.signOut();
   };
 
-  this.requestSignTransactions = function (
+  this.requestSignTransactions = async function (
     transactions: any,
     callbackUrl?: string
   ) {
+    if (!senderWallet.isSignedIn()) {
+      await this.requestSignIn(REF_FARM_CONTRACT_ID);
+    }
+
     const senderTransaction = transactions.map((item: any) => {
       return {
         ...item,
@@ -85,10 +82,14 @@ function senderWalletFunc() {
       .then(() => window.location.reload());
   };
 
-  this.sendTransactionWithActions = function (
+  this.sendTransactionWithActions = async function (
     receiverId: string,
     functionCalls: RefFiFunctionCallOptions[]
   ) {
+    if (!senderWallet.isSignedIn()) {
+      await this.requestSignIn(REF_FARM_CONTRACT_ID);
+    }
+
     return senderWalletExtention
       .signAndSendTransaction({
         receiverId,
@@ -103,21 +104,6 @@ function senderWalletFunc() {
         }),
       })
       .then(() => window.location.reload());
-  };
-  this.viewFunction = async function (
-    contractId: string,
-    methodName: string,
-    args?: any
-  ) {
-    return await senderWalletExtention
-      .viewFunction({
-        contractId,
-        methodName,
-        args,
-      })
-      .then((res: any) => {
-        return res.response;
-      });
   };
 
   this.walletType = WALLET_TYPE.SENDER_WALLET;
@@ -134,73 +120,12 @@ export const getAccountName = (accountId: string) => {
   return account.length > 10 ? niceAccountId : accountId;
 };
 
-export const useWallet = () => {
-  const [walletType, setWalletType] = useState<WALLET_TYPE>(
-    WALLET_TYPE.SENDER_WALLET
-  );
-
-  const [unlocking, setUnlocking] = useState(false);
-
-  const { signedInState, signedInStatedispatch } = useContext(WalletContext);
-
-  const [senderSignedIn, setSenderSignedIn] = useState<boolean>(false);
-
-  useEffect(() => {
-    const signedInRes = localStorage.getItem(SENDER_WALLET_SIGNEDIN_STATE_KEY);
-
-    if (signedInRes && !senderWallet.isSignedIn() && !unlocking) {
-      setUnlocking(true);
-      senderWallet.requestSignIn(REF_FARM_CONTRACT_ID).then(() => {
-        signedInStatedispatch({ type: 'signIn' });
-        setUnlocking(false);
-      });
-    }
-  }, []);
-
-  useEffect(() => {
-    if (webWallet.isSignedIn()) {
-      setWalletType(WALLET_TYPE.WEB_WALLET);
-    } else if (senderWallet.isSignedIn()) {
-      setWalletType(WALLET_TYPE.SENDER_WALLET);
-    }
-  }, [signedInState.isSignedIn]);
-
-  senderWallet.on('signIn', () => {
-    localStorage.setItem(
-      SENDER_WALLET_SIGNEDIN_STATE_KEY,
-      SENDER_WALLET_SIGNEDIN_STATE_KEY + ': ' + senderWallet.getAccountId()
-    );
-    signedInStatedispatch({ type: 'signIn' });
-  });
-
-  senderWallet.on('signOut', () => {
-    signedInStatedispatch({ type: 'signOut' });
-  });
-
-  switch (walletType) {
-    case WALLET_TYPE.SENDER_WALLET:
-      return {
-        wallet: senderWallet,
-        setWalletType,
-        isSignedIn: senderSignedIn,
-        setIsSigneIn: setSenderSignedIn,
-        walletType: WALLET_TYPE.SENDER_WALLET,
-      };
-
-    case WALLET_TYPE.WEB_WALLET:
-      return {
-        wallet: webWallet,
-        isSignedIn: webWallet.isSignedIn(),
-        setWalletType,
-        walletType: WALLET_TYPE.WEB_WALLET,
-      };
-  }
+export const getSenderLoginRes = () => {
+  return localStorage.getItem(SENDER_WALLET_SIGNEDIN_STATE_KEY);
 };
 
 export const getCurrentWallet = () => {
-  const SENDER_LOGIN_RES = localStorage.getItem(
-    SENDER_WALLET_SIGNEDIN_STATE_KEY
-  );
+  const SENDER_LOGIN_RES = getSenderLoginRes();
 
   if (SENDER_LOGIN_RES)
     return {

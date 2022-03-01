@@ -77,11 +77,7 @@ export const refFiViewFunction = ({
   methodName,
   args,
 }: RefFiViewFunctionOptions) => {
-  const { wallet, wallet_type } = getCurrentWallet();
-
-  return wallet_type === WALLET_TYPE.SENDER_WALLET
-    ? wallet.viewFunction(REF_FI_CONTRACT_ID, methodName, args)
-    : wallet.account().viewFunction(REF_FI_CONTRACT_ID, methodName, args);
+  return wallet.account().viewFunction(REF_FI_CONTRACT_ID, methodName, args);
 };
 
 export const refFiManyFunctionCalls = (
@@ -162,13 +158,7 @@ export const refFarmViewFunction = ({
   methodName,
   args,
 }: RefFiViewFunctionOptions) => {
-  const { wallet, wallet_type } = getCurrentWallet();
-
-  return wallet_type === WALLET_TYPE.SENDER_WALLET
-    ? wallet.viewFunction(REF_FARM_CONTRACT_ID, methodName, args)
-    : wallet.account().viewFunction(REF_FARM_CONTRACT_ID, methodName, args);
-
-  // return wallet.account().viewFunction(REF_FARM_CONTRACT_ID, methodName, args);
+  return wallet.account().viewFunction(REF_FARM_CONTRACT_ID, methodName, args);
 };
 
 export const refFarmManyFunctionCalls = (
@@ -184,10 +174,6 @@ export const refFarmManyFunctionCalls = (
     : wallet
         .account()
         .sendTransactionWithActions(REF_FARM_CONTRACT_ID, actions);
-
-  // return wallet
-  //   .account()
-  //   .sendTransactionWithActions(REF_FARM_CONTRACT_ID, actions);
 };
 
 export const executeFarmMultipleTransactions = async (
@@ -229,11 +215,6 @@ export interface RefContractViewFunctionOptions
 export const refContractViewFunction = ({
   methodName,
   args,
-}: // contarctId,
-RefContractViewFunctionOptions) => {
-  const { wallet, wallet_type } = getCurrentWallet();
-
-  return wallet_type === WALLET_TYPE.SENDER_WALLET
-    ? wallet.viewFunction(XREF_TOKEN_ID, methodName, args)
-    : wallet.account().viewFunction(XREF_TOKEN_ID, methodName, args);
+}: RefContractViewFunctionOptions) => {
+  return wallet.account().viewFunction(XREF_TOKEN_ID, methodName, args);
 };

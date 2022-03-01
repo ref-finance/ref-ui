@@ -594,11 +594,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) != 'false'
   );
 
-  const { wallet } = getCurrentWallet();
-
-  const { state } = useContext(WalletContext);
-
-  const isSignedIn = { state };
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
 
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();

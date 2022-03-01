@@ -6,6 +6,12 @@ import { wallet, REF_FARM_CONTRACT_ID } from '../../services/near';
 import { senderWallet } from '../../utils/sender-wallet';
 import Modal from 'react-modal';
 
+declare global {
+  interface Window {
+    near: any;
+  }
+}
+
 export const WalletSelectorModal = (
   props: ReactModal.Props & { setShowWalletSelector: (show: boolean) => void }
 ) => {
@@ -31,7 +37,7 @@ export const WalletSelectorModal = (
         <div
           className="m-5 w-full cursor-pointer text-white"
           onClick={() => {
-            if (senderWallet.isSender) {
+            if (typeof window.near !== 'undefined' && window.near.isSender) {
               senderWallet.requestSignIn(REF_FARM_CONTRACT_ID).then(() => {
                 setShowWalletSelector(false);
               });

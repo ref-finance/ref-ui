@@ -30,7 +30,12 @@ import { FarmsPage } from '~pages/farms/FarmsPage';
 import { AirdropPage } from '~pages/AirdropPage';
 import PopUp from '~components/layout/PopUp';
 import { isMobile } from '~utils/device';
-import { wallet } from './services/near';
+import { wallet as webWallet, REF_FARM_CONTRACT_ID } from './services/near';
+import { getSenderLoginRes } from './utils/sender-wallet';
+import {
+  senderWallet,
+  SENDER_WALLET_SIGNEDIN_STATE_KEY,
+} from './utils/sender-wallet';
 
 import {
   wallet_selector,
@@ -65,14 +70,43 @@ function App() {
   const SignedInStateReducer = useReducer(signedInStateReducer, {
     isSignedIn: false,
   });
-
   const [signedInState, signedInStatedispatch] = SignedInStateReducer;
 
+  console.log(signedInState);
+
   useEffect(() => {
-    if (wallet.isSignedIn()) {
+    if (webWallet.isSignedIn()) {
       signedInStatedispatch({ type: 'signIn' });
     }
+  }, [webWallet.isSignedIn()]);
+
+  useEffect(() => {
+    const signedInRes = localStorage.getItem(SENDER_WALLET_SIGNEDIN_STATE_KEY);
+
+    if (signedInRes && !senderWallet.isSignedIn()) {
+      senderWallet.requestSignIn(REF_FARM_CONTRACT_ID);
+    }
   }, []);
+
+  senderWallet.on('signIn', () => {
+    localStorage.setItem(
+      SENDER_WALLET_SIGNEDIN_STATE_KEY,
+      SENDER_WALLET_SIGNEDIN_STATE_KEY + ': ' + senderWallet.getAccountId()
+    );
+    signedInStatedispatch({ type: 'signIn' });
+  });
+
+  useEffect(() => {
+    let id = setInterval(() => {
+      if (getSenderLoginRes()) {
+        signedInStatedispatch({ type: 'signOut' });
+
+        senderWallet.requestSignIn(REF_FARM_CONTRACT_ID);
+      }
+    }, 60000);
+
+    return () => clearInterval(id);
+  }, [signedInState.isSignedIn]);
 
   return (
     <WalletContext.Provider value={{ signedInState, signedInStatedispatch }}>
