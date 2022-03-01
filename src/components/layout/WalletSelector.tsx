@@ -31,9 +31,13 @@ export const WalletSelectorModal = (
         <div
           className="m-5 w-full cursor-pointer text-white"
           onClick={() => {
-            senderWallet.requestSignIn(REF_FARM_CONTRACT_ID).then(() => {
-              setShowWalletSelector(false);
-            });
+            if (senderWallet.isSender) {
+              senderWallet.requestSignIn(REF_FARM_CONTRACT_ID).then(() => {
+                setShowWalletSelector(false);
+              });
+            } else {
+              alert('sender wallet not installed');
+            }
           }}
         >
           sender wallet

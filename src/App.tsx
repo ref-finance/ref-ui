@@ -62,8 +62,6 @@ Modal.defaultStyles = {
 Modal.setAppElement('#root');
 
 function App() {
-  wallet_selector.init();
-
   const SignedInStateReducer = useReducer(signedInStateReducer, {
     isSignedIn: false,
   });

@@ -136,7 +136,7 @@ export const getAccountName = (accountId: string) => {
 
 export const useWallet = () => {
   const [walletType, setWalletType] = useState<WALLET_TYPE>(
-    WALLET_TYPE.WEB_WALLET
+    WALLET_TYPE.SENDER_WALLET
   );
 
   const [unlocking, setUnlocking] = useState(false);
