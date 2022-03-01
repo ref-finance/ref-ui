@@ -1215,6 +1215,137 @@ export async function getSmartRouteSwapActions(
   console.log('initial node routes are...');
   console.log(nodeRoutes);
 
+  // TODO: compare pairs of routes to get the best allocation pair-wise.
+  var currentBestOutput = new Big(0);
+  var bestResDict = { routes: [] };
+  var bestAllocations = resDict.allocations;
+  var bestNodeRoutes = resDict.nodeRoutes;
+  var bestRoutes = resDict.routes;
+  // first check parallel swap with 4 actions. store result.
+  var parallelNodeRoutes = [];
+  var parallelRoutes = [];
+  for (var n in bestRoutes) {
+    let currentNodeRoute = bestNodeRoutes[n];
+    if (currentNodeRoute.length == 2) {
+      parallelNodeRoutes.push(currentNodeRoute);
+      parallelRoutes.push(bestRoutes[n]);
+    }
+  }
+  if (parallelNodeRoutes.length > 0) {
+    // first calculate the expected result using only parallel routes.
+    let filteredAllocationsAndOutputs = getOptOutputVecRefined(
+      parallelRoutes,
+      parallelNodeRoutes,
+      totalInput
+    );
+
+    let parallellAllocations = filteredAllocationsAndOutputs.allocations;
+    let parallelOutputs = filteredAllocationsAndOutputs.result;
+
+    if (parallellAllocations.length > 4) {
+      // now sort by allocation value to the top 4 parallel swaps:
+      let sortIndices = argsort(parallellAllocations);
+      sortIndices = sortIndices.slice(0, 4);
+      var filteredParallelRoutes = [];
+      var filteredParallelNodeRoutes = [];
+      for (var i in sortIndices) {
+        filteredParallelRoutes.push(parallelRoutes[sortedIndices[i]]);
+        filteredParallelNodeRoutes.push(parallelNodeRoutes[sortedIndices[i]]);
+      }
+      filteredAllocationsAndOutputs = getOptOutputVecRefined(
+        filteredParallelRoutes,
+        filteredParallelNodeRoutes,
+        totalInput
+      );
+      parallellAllocations = filteredAllocationsAndOutputs.allocations;
+      parallelOutputs = filteredAllocationsAndOutputs.result;
+    }
+
+    let parallelOutput = parallelOutputs.reduce(
+      (a, b) => a.plus(b),
+      new Big(0)
+    );
+    if (new Big(parallelOutput).gt(currentBestOutput)) {
+      bestAllocations = parallellAllocations;
+      currentBestOutput = parallelOutput;
+      console.log(
+        'BEST OUTPUT FROM PARALLEL SWAPS IS NOW... ',
+        currentBestOutput.toString()
+      );
+      bestRoutes = parallelRoutes;
+      bestNodeRoutes = parallelNodeRoutes;
+      // bestResDict = currentResDict
+    }
+  }
+
+  for (var i in routes) {
+    for (var j in routes) {
+      if (j > i) {
+        var route1 = routes[i];
+        var route2 = routes[j];
+        var nodeRoute1 = nodeRoutes[i];
+        var nodeRoute2 = nodeRoutes[j];
+        // check if they share a pool.
+        let route1PoolIds = new Set(route1.map((r) => r.id));
+        let route2PoolIds = new Set(route2.map((r) => r.id));
+        var sharePool = false;
+        for (var route1PoolId of route1PoolIds) {
+          if (route2PoolIds.has(route1PoolId)) {
+            sharePool = true;
+          }
+        }
+        if (sharePool) {
+          // routes are not independent. skip this pair.
+          console.log('skipping this pair because pool was shared.');
+          continue;
+        } else {
+          console.log('No pool was shared.');
+
+          let currentRoutes = [route1, route2];
+          let currentNodeRoutes = [nodeRoute1, nodeRoute2];
+          let filteredAllocationsAndOutputs = getOptOutputVecRefined(
+            currentRoutes,
+            currentNodeRoutes,
+            totalInput
+          );
+
+          let filteredAllocations = filteredAllocationsAndOutputs.allocations;
+          let filteredOutputs = filteredAllocationsAndOutputs.result;
+          console.log(filteredOutputs);
+          let totalOutput = filteredOutputs.reduce(
+            (a, b) => a.plus(b),
+            new Big(0)
+          );
+          if (new Big(totalOutput).gt(currentBestOutput)) {
+            bestAllocations = filteredAllocations;
+            currentBestOutput = totalOutput;
+            console.log('BEST OUTPUT IS NOW... ', currentBestOutput.toString());
+            bestRoutes = currentRoutes;
+            bestNodeRoutes = currentNodeRoutes;
+            // bestResDict = currentResDict
+          }
+
+          // if (currentResDict.outputs.gt(currentBestOutput)) {
+          // console.log('DIFF IS...', currentResDict.outputs.minus(currentBestOutput).toString());
+          // bestResDict = currentResDict;
+          // currentBestOutput = bestResDict.outputs;
+          // console.log('BEST OUTPUT IS NOW... ', currentBestOutput.toString());
+          // console.log(bestResDict.routes);
+          // console.log(bestResDict.allocations.map((i) => i.toString()));
+          // console.log(bestResDict.outputs.toString());
+        }
+      }
+    }
+  }
+
+  // resDict = bestResDict;
+
+  allocations = bestAllocations;
+
+  // let outputs = resDict.outputs;
+  routes = bestRoutes;
+  nodeRoutes = bestNodeRoutes;
+
   if (routes.length < 1) {
     return [];
   }
