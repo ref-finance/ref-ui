@@ -4,15 +4,17 @@ interface WithdrawActionOptions {
   tokenId: string;
   amount: string;
   unregister?: boolean;
+  pos?: number;
 }
 export const withdrawAction = ({
   tokenId,
   amount,
   unregister = false,
+  pos,
 }: WithdrawActionOptions) => ({
   methodName: 'withdraw',
   args: { token_id: tokenId, amount, unregister },
-  gas: '55000000000000',
+  gas: pos === 0 ? '65000000000000' : '55000000000000',
   amount: ONE_YOCTO_NEAR,
 });
 

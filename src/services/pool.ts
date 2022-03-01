@@ -515,8 +515,12 @@ export const removeLiquidityFromPool = async ({
     });
   }
 
-  const withdrawActions = tokenIds.map((tokenId) =>
+  const withdrawActions = tokenIds.map((tokenId, i) =>
     withdrawAction({ tokenId, amount: '0', unregister })
+  );
+
+  const withdrawActionsFireFox = tokenIds.map((tokenId, i) =>
+    withdrawAction({ tokenId, amount: '0', unregister, pos: i })
   );
 
   const actions: RefFiFunctionCallOptions[] = [
@@ -548,7 +552,7 @@ export const removeLiquidityFromPool = async ({
   if (explorerType === ExplorerType.Firefox) {
     transactions.push({
       receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: withdrawActions,
+      functionCalls: withdrawActionsFireFox,
     });
   }
 
@@ -613,6 +617,10 @@ export const removeLiquidityFromStablePool = async ({
     withdrawAction({ tokenId, amount: '0', unregister })
   );
 
+  const withdrawActionsFireFox = tokenIds.map((tokenId, i) =>
+    withdrawAction({ tokenId, amount: '0', unregister, pos: i })
+  );
+
   const actions: RefFiFunctionCallOptions[] = [
     {
       methodName: 'remove_liquidity',
@@ -643,7 +651,7 @@ export const removeLiquidityFromStablePool = async ({
   if (explorerType === ExplorerType.Firefox) {
     transactions.push({
       receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: withdrawActions,
+      functionCalls: withdrawActionsFireFox,
     });
   }
 
@@ -710,6 +718,12 @@ export const removeLiquidityByTokensFromStablePool = async ({
     .filter((tk, i) => !ONLY_ZEROS.test(amounts[i]))
     .map((tokenId) => withdrawAction({ tokenId, amount: '0', unregister }));
 
+  const withdrawActionsFireFox = tokenIds
+    .filter((tk, i) => !ONLY_ZEROS.test(amounts[i]))
+    .map((tokenId, i) =>
+      withdrawAction({ tokenId, amount: '0', unregister, pos: i })
+    );
+
   const actions: RefFiFunctionCallOptions[] = [
     {
       methodName: 'remove_liquidity_by_tokens',
@@ -736,7 +750,7 @@ export const removeLiquidityByTokensFromStablePool = async ({
   if (explorerType === ExplorerType.Firefox) {
     transactions.push({
       receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: withdrawActions,
+      functionCalls: withdrawActionsFireFox,
     });
   }
 
