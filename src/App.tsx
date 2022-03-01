@@ -84,13 +84,15 @@ function App() {
     }
   }, []);
 
-  senderWallet.on('signIn', () => {
-    localStorage.setItem(
-      SENDER_WALLET_SIGNEDIN_STATE_KEY,
-      SENDER_WALLET_SIGNEDIN_STATE_KEY + ': ' + senderWallet.getAccountId()
-    );
-    signedInStatedispatch({ type: 'signIn' });
-  });
+  if (window.near && window.near.isSender) {
+    senderWallet.on('signIn', () => {
+      localStorage.setItem(
+        SENDER_WALLET_SIGNEDIN_STATE_KEY,
+        SENDER_WALLET_SIGNEDIN_STATE_KEY + ': ' + senderWallet.getAccountId()
+      );
+      signedInStatedispatch({ type: 'signIn' });
+    });
+  }
 
   useEffect(() => {
     let id = setInterval(() => {
