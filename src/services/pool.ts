@@ -520,7 +520,7 @@ export const removeLiquidityFromPool = async ({
   );
 
   const withdrawActionsFireFox = tokenIds.map((tokenId, i) =>
-    withdrawAction({ tokenId, amount: '0', unregister, pos: i })
+    withdrawAction({ tokenId, amount: '0', unregister, singleTx: true })
   );
 
   const actions: RefFiFunctionCallOptions[] = [
@@ -618,7 +618,7 @@ export const removeLiquidityFromStablePool = async ({
   );
 
   const withdrawActionsFireFox = tokenIds.map((tokenId, i) =>
-    withdrawAction({ tokenId, amount: '0', unregister, pos: i })
+    withdrawAction({ tokenId, amount: '0', unregister, singleTx: true })
   );
 
   const actions: RefFiFunctionCallOptions[] = [
@@ -721,7 +721,7 @@ export const removeLiquidityByTokensFromStablePool = async ({
   const withdrawActionsFireFox = tokenIds
     .filter((tk, i) => !ONLY_ZEROS.test(amounts[i]))
     .map((tokenId, i) =>
-      withdrawAction({ tokenId, amount: '0', unregister, pos: i })
+      withdrawAction({ tokenId, amount: '0', unregister, singleTx: true })
     );
 
   const actions: RefFiFunctionCallOptions[] = [
