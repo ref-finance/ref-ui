@@ -101,7 +101,7 @@ function App() {
 
         senderWallet.requestSignIn(REF_FARM_CONTRACT_ID);
       }
-    }, 60000);
+    }, 600000);
 
     return () => clearInterval(id);
   }, [signedInState.isSignedIn]);
