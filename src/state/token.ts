@@ -170,10 +170,13 @@ export const useTokenBalances = () => {
   const [balances, setBalances] = useState<TokenBalancesView>();
 
   useEffect(() => {
-    getTokenBalances()
-      .then(setBalances)
-      .catch(() => setBalances({}));
-  }, []);
+    const signedIn = getCurrentWallet().wallet.isSignedIn();
+    if (!signedIn) setBalances({});
+    else
+      getTokenBalances()
+        .then(setBalances)
+        .catch(() => setBalances({}));
+  }, [getCurrentWallet().wallet.isSignedIn()]);
 
   return balances;
 };

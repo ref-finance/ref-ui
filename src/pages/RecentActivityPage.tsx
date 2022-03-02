@@ -20,10 +20,14 @@ function useLastActions() {
   const [actions, setActions] = useState<ActionData[]>(null);
 
   useEffect(() => {
-    getLatestActions().then((resp) => {
-      setActions(resp);
-    });
-  }, []);
+    const isSignedIn = getCurrentWallet().wallet.isSignedIn();
+
+    if (!isSignedIn) return;
+    else
+      getLatestActions().then((resp) => {
+        setActions(resp);
+      });
+  }, [getCurrentWallet().wallet.isSignedIn()]);
 
   return actions;
 }
