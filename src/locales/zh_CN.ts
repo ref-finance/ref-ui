@@ -333,9 +333,14 @@ const zh_CN = {
   from_solana: 'Solana',
   from_terra: 'Terra',
   from_celo: 'Celo',
-  no_result: '抱歉, 没有找到匹配的农场',
+  no_result: '抱歉, 没有找到农场',
   mulitple: '倍率',
   default: '默认',
   vi_go_live: '越南版上线啦',
+  do_not_need_to_deposit_in_ref: '你已经不需要在Ref Finance上进行存入操作了!',
+  you_can_add_liquidity_directly: '你现在可以直接使用NEAR钱包添加流动性了。',
+  do_not_need_deposit_anymore: '你已经不需要再存入了!',
+  lightning_swaps: '轻量的交换操作',
+  frictionless_add_remove_liquidity: '顺滑地进行流动性的添加和移除操作',
 };
 export default zh_CN;

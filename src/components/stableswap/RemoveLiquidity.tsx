@@ -1,6 +1,5 @@
 import BigNumber from 'bignumber.js';
-import React, { useEffect, useContext } from 'react';
-import { useState } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import ReactTooltip from 'react-tooltip';
 import { wallet } from '~services/near';
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
@@ -60,6 +59,7 @@ import { Link } from 'react-router-dom';
 import { LP_STABLE_TOKEN_DECIMALS, LP_TOKEN_DECIMALS } from '~services/m-token';
 import { QuestionTip } from '~components/layout/TipWrapper';
 import { WalletContext, getCurrentWallet } from '../../utils/sender-wallet';
+import { percentOfBigNumber } from '../../utils/numbers';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
@@ -126,6 +126,8 @@ export function RemoveLiquidityComponent(props: {
     stakeList,
   });
 
+  const byShareRangeRef = useRef(null);
+
   const setAmountsFlexible = [
     setFirstTokenAmount,
     setSecondTokenAmount,
@@ -160,6 +162,7 @@ export function RemoveLiquidityComponent(props: {
       );
 
       return removeLiquidityFromStablePool({
+        tokens,
         id: pool.id,
         min_amounts: min_amounts as [string, string, string],
         shares: removeShares,
@@ -183,6 +186,7 @@ export function RemoveLiquidityComponent(props: {
         : predict_burn;
 
       return removeLiquidityByTokensFromStablePool({
+        tokens,
         id: pool.id,
         amounts,
         max_burn_shares,
@@ -211,7 +215,6 @@ export function RemoveLiquidityComponent(props: {
 
   useEffect(() => {
     setCanSubmitByShare(true);
-
     const readableShares = toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares);
 
     const shareParam = toNonDivisibleNumber(
@@ -243,12 +246,28 @@ export function RemoveLiquidityComponent(props: {
     setReceiveAmounts(parsedAmounts);
   }, [sharePercentage, tokens, amountByShare]);
 
+  useEffect(() => {
+    byShareRangeRef.current.style.backgroundSize = `${sharePercentage}% 100%`;
+  }, [sharePercentage]);
+
   const userTotalShare = BigNumber.sum(shares, farmStake);
 
   const canSubmit =
     ((isPercentage && canSubmitByShare) ||
       (!isPercentage && canSubmitByToken)) &&
     !slippageInvalid;
+
+  const setAmountByShareFromBar = (sharePercent: string) => {
+    setSharePercentage(sharePercent);
+
+    const sharePercentOfValue = percentOfBigNumber(
+      Number(sharePercent),
+      toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares),
+      STABLE_LP_TOKEN_DECIMALS
+    );
+
+    setAmountByShare(sharePercentOfValue);
+  };
 
   return (
     <Card
@@ -348,30 +367,31 @@ export function RemoveLiquidityComponent(props: {
             />
           </div>
           <div className="my-6 mb-8">
-            <div className="flex items-center justify-between text-gray-400 pl-0.5">
+            <div className="flex items-center justify-between text-gray-400 px-1.5 ">
               {progressBarIndex.map((index, i) => {
                 return (
-                  <div className="flex flex-col items-center text-xs" key={i}>
+                  <div
+                    className="flex flex-col items-center text-xs cursor-pointer w-4"
+                    key={i}
+                    onClick={() => {
+                      setAmountByShareFromBar(index.toString());
+                    }}
+                  >
                     <span>{index}%</span>
                     <span>∣</span>
                   </div>
                 );
               })}
             </div>
-            <div className="py-1 pr-1">
+            <div className="py-1 px-1">
               <input
+                ref={byShareRangeRef}
                 onChange={(e) => {
-                  const p = e.target.value;
-                  setSharePercentage(e.target.value);
-                  const sharePercentOf = percentOf(
-                    Number(p),
-                    toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares)
-                  ).toString();
-                  setAmountByShare(sharePercentOf);
+                  setAmountByShareFromBar(e.target.value);
                 }}
                 value={sharePercentage}
                 type="range"
-                className="w-full cursor-pointer"
+                className="w-full cursor-pointer remove-by-share-bar"
                 min="0"
                 max="100"
                 step="any"

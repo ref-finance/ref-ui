@@ -66,9 +66,7 @@ export default function StableSwap({
 
   const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
   const [disabled, setDisabled] = useState<boolean>(false);
-  const [useNearBalance, setUseNearBalance] = useState<boolean>(
-    localStorage.getItem(STABLE_SWAP_USE_NEAR_BALANCE_KEY) != 'false'
-  );
+  const [useNearBalance, setUseNearBalance] = useState<boolean>(true);
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();
   const [tokenOutBalanceFromNear, setTokenOutBalanceFromNear] =

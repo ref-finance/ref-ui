@@ -72,6 +72,7 @@ import { Guide } from '~components/layout/Guide';
 import { sortBy } from 'lodash';
 import { getCurrentWallet } from '../../utils/sender-wallet';
 import { senderWallet, WalletContext } from '../../utils/sender-wallet';
+import { SwapArrow, SwapExchange } from '../icon/Arrows';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -597,9 +598,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
 
-  const [useNearBalance, setUseNearBalance] = useState<boolean>(
-    localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) != 'false'
-  );
+  const [useNearBalance, setUseNearBalance] = useState<boolean>(true);
 
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
@@ -715,19 +714,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     ? priceImpactValueParallelSwap
     : priceImpactValueSmartRouting;
 
-  const topBall = useRef<HTMLInputElement>();
-  const bottomBall = useRef<HTMLInputElement>();
-  const runSwapAnimation = function () {
-    topBall.current.style.animation = 'rotation1 1s 0s ease-out 1';
-    bottomBall.current.style.animation = 'rotation2 1s 0s ease-out 1';
-    topBall.current.addEventListener('animationend', function () {
-      topBall.current.style.animation = '';
-    });
-    bottomBall.current.addEventListener('animationend', function () {
-      bottomBall.current.style.animation = '';
-    });
-  };
-
   const tokenInMax = useNearBalance
     ? tokenInBalanceFromNear || '0'
     : toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0';
@@ -828,20 +814,13 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           className="flex items-center justify-center border-t mt-12"
           style={{ borderColor: 'rgba(126, 138, 147, 0.3)' }}
         >
-          <div
-            className="relative flex items-center -mt-6 mb-4 w-11 h-11 border border-white border-opacity-40 rounded-full cursor-pointer bg-dark"
-            onClick={() => {
-              runSwapAnimation();
+          <SwapExchange
+            onChange={() => {
               setTokenIn(tokenOut);
               setTokenOut(tokenIn);
               setTokenInAmount(toPrecision('1', 6));
             }}
-          >
-            <div className="swap-wrap">
-              <div className="top-ball" ref={topBall} id="top-ball" />
-              <div className="bottom-ball" ref={bottomBall} id="bottom-ball" />
-            </div>
-          </div>
+          />
         </div>
         <TokenAmount
           amount={toPrecision(tokenOutAmount, 8)}

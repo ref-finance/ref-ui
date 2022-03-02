@@ -30,27 +30,30 @@ export default function CommonBasses({ tokens, onClick }: CommonBassesProps) {
   });
 
   return (
-    <section className="px-6">
+    <section className="pl-8 pr-6">
       <div className="text-sm font-bold py-2">
         <FormattedMessage id="popular_tokens" defaultMessage="Popular Tokens" />
       </div>
-      <div className="w-full flex flex-wrap text-sm xs:text-xs text-left">
+      <div className="w-full flex flex-wrap items-center text-sm xs:text-xs text-left">
         <Wnear />
         {commonBassesTokens.map((token) => {
           return (
             <div
-              className="pt-4 cursor-pointer mr-7 xs:mr-5 md:mr-5 flex items-center"
+              className="mt-4 hover:bg-black hover:bg-opacity-10 rounded-full pr-3 cursor-pointer mr-3 xs:mr-1 md:mr-1 flex items-center"
               key={token.id}
               onClick={() => onClick && onClick(token)}
+              style={{
+                height: '26px',
+              }}
             >
               {token.icon ? (
                 <img
                   src={token.icon}
                   alt={toRealSymbol(token.symbol)}
-                  className="inline-block w-7 h-7 mr-2 border rounded-full border-greenLight"
+                  className="inline-block w-6 h-6 mr-2 border rounded-full border-greenLight"
                 />
               ) : (
-                <div className="inline-block w-7 h-7 mr-2 border rounded-full border-greenLight"></div>
+                <div className="inline-block w-6 h-6 mr-2 border rounded-full border-greenLight"></div>
               )}
               <span>{toRealSymbol(token.symbol)}</span>
             </div>
@@ -66,7 +69,7 @@ const Wnear = () => {
   return (
     <>
       {wallet.isSignedIn() && (
-        <div className="text-white pt-4 cursor-pointer xs:mr-5 md:mr-5 mr-7">
+        <div className="text-white pt-4 cursor-pointer xs:mr-5 md:mr-5 mr-6">
           <div
             className="cursor-pointer items-center flex"
             onClick={() => setShowWrapNear(true)}

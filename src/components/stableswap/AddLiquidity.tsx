@@ -128,31 +128,16 @@ export default function AddLiquidityComponent(props: {
       balances[tokens[2].id]
     );
 
-    const hasDeposited = !(
-      ONLY_ZEROS.test(firstAmount) &&
-      ONLY_ZEROS.test(secondAmount) &&
-      ONLY_ZEROS.test(thirdAmount)
-    );
-
-    if (!hasDeposited) {
-      setCanAddLP(false);
-      setCanDeposit(true);
-      const { id, decimals } = tokens[0];
-      const modalData: any = {
-        token: tokens[0],
-        action: 'deposit',
-      };
-      getDepositableBalance(id, decimals).then((nearBalance) => {
-        modalData.max = nearBalance;
-        setModal(Object.assign({}, modalData));
-      });
-      setModal(modalData);
-    }
-
     if (addType === 'addMax') {
       setError(null);
-      setCanAddLP(hasDeposited);
-      setCanDeposit(!hasDeposited);
+      setCanAddLP(
+        !(
+          ONLY_ZEROS.test(firstAmount) &&
+          ONLY_ZEROS.test(secondAmount) &&
+          ONLY_ZEROS.test(thirdAmount)
+        )
+      );
+      setCanDeposit(false);
       setMessageId('add_liquidity');
       setDefaultMessage('Add Liquidity');
       setFirstTokenAmount(firstAmount);
@@ -161,7 +146,7 @@ export default function AddLiquidityComponent(props: {
     } else if (addType === 'addAll') {
       setError(null);
       setCanAddLP(false);
-      setCanDeposit(!hasDeposited);
+      setCanDeposit(false);
       setFirstTokenAmount('');
       setSecondTokenAmount('');
       setThirdTokenAmount('');
@@ -317,12 +302,6 @@ export default function AddLiquidityComponent(props: {
       toReadableNumber(tokens[2].decimals, balances[tokens[2].id])
     );
 
-    const hasDeposited = !(
-      firstTokenBalanceBN.isZero() &&
-      secondTokenBalanceBN.isZero() &&
-      thirdTokenBalanceBN.isZero()
-    );
-
     setCanAddLP(true);
     setCanDeposit(false);
 
@@ -344,12 +323,7 @@ export default function AddLiquidityComponent(props: {
       setAddType('addMax');
     }
 
-    if (
-      firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN) ||
-      !hasDeposited
-    ) {
-      // setMessageId('deposit_to_add_liquidity');
-      // setDefaultMessage('Deposit to Add Liquidity');
+    if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
       setCanAddLP(false);
       setCanDeposit(true);
       const { id, decimals } = tokens[0];
@@ -362,17 +336,11 @@ export default function AddLiquidityComponent(props: {
         setModal(Object.assign({}, modalData));
       });
       setModal(modalData);
-      // throw new Error(
-      //   `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
-      //     tokens[0].symbol
-      //   )}`
-      // );
+
       return;
     }
 
     if (secondTokenAmountBN.isGreaterThan(secondTokenBalanceBN)) {
-      // setMessageId('deposit_to_add_liquidity');
-      // setDefaultMessage('Deposit to Add Liquidity');
       setCanAddLP(false);
       setCanDeposit(true);
       const { id, decimals } = tokens[1];
@@ -385,17 +353,11 @@ export default function AddLiquidityComponent(props: {
         setModal(Object.assign({}, modalData));
       });
       setModal(modalData);
-      // throw new Error(
-      //   `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
-      //     tokens[1].symbol
-      //   )}`
-      // );
+
       return;
     }
 
     if (thirdTokenAmountBN.isGreaterThan(thirdTokenBalanceBN)) {
-      // setMessageId('deposit_to_add_liquidity');
-      // setDefaultMessage('Deposit to Add Liquidity');
       setCanAddLP(false);
       setCanDeposit(true);
       const { id, decimals } = tokens[2];
@@ -408,11 +370,7 @@ export default function AddLiquidityComponent(props: {
         setModal(Object.assign({}, modalData));
       });
       setModal(modalData);
-      // throw new Error(
-      //   `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
-      //     tokens[2].symbol
-      //   )}`
-      // );
+
       return;
     }
 
@@ -444,6 +402,7 @@ export default function AddLiquidityComponent(props: {
     ) as [string, string, string];
 
     return addLiquidityToStablePool({
+      tokens: tokens,
       id: Number(STABLE_POOL_ID),
       amounts,
       min_shares,
@@ -527,14 +486,6 @@ export default function AddLiquidityComponent(props: {
                   {modal?.token?.symbol}！
                 </label>
               </div>
-              <SolidButton
-                className="focus:outline-none px-3 py-1.5 text-sm"
-                onClick={() => {
-                  setVisible(true);
-                }}
-              >
-                <FormattedMessage id="deposit" />
-              </SolidButton>
             </div>
           ) : null}
           {isSignedIn ? (

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { wallet } from '../../services/near';
 import { toRoundedReadableNumber } from '../../utils/numbers';
 import { TokenMetadata } from '../../services/ft-contract';
@@ -49,6 +49,8 @@ export default function TokenAmount({
       number: balances ? balances[token.id] : '0',
     });
 
+  const [hoverSelectToken, setHoverSelectToken] = useState<boolean>(false);
+
   return (
     <>
       <div className="flex justify-end text-xs font-semibold pb-0.5 w-3/5">
@@ -67,7 +69,7 @@ export default function TokenAmount({
           <span title={total}>{toPrecision(total, 3, true)}</span>
         </span>
       </div>
-      <fieldset className="relative flex overflow-hidden align-center my-2">
+      <fieldset className="relative flex  align-center my-2">
         <InputAmount
           className="w-3/5 border border-transparent rounded"
           id="inputAmount"
@@ -83,8 +85,12 @@ export default function TokenAmount({
             render={render}
             selected={
               selectedToken && (
-                <div className="flex items-center justify-end font-semibold">
-                  <Icon token={selectedToken} />
+                <div
+                  className="flex items-center justify-end font-semibold "
+                  onMouseEnter={() => setHoverSelectToken(true)}
+                  onMouseLeave={() => setHoverSelectToken(false)}
+                >
+                  <Icon token={selectedToken} hover={hoverSelectToken} />
                 </div>
               )
             }

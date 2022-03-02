@@ -13,7 +13,7 @@ import {
 } from './near';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import { ACCOUNT_MIN_STORAGE_AMOUNT, currentStorageBalance } from './account';
-import { toNonDivisibleNumber } from '../utils/numbers';
+import { toNonDivisibleNumber, ONLY_ZEROS } from '../utils/numbers';
 import {
   MIN_DEPOSIT_PER_TOKEN,
   STORAGE_TO_REGISTER_WITH_FT,
@@ -138,6 +138,82 @@ interface DepositOptions {
   msg?: string;
 }
 
+export const getDepositTransactions = async ({
+  tokens,
+  amounts,
+  msgs,
+}: {
+  tokens: TokenMetadata[];
+  amounts: string[];
+  msgs?: string[];
+}) => {
+  const whitelist = await getWhitelistedTokens();
+
+  const transactions: Transaction[] = [];
+
+  for (let i = 0; i < tokens.length; i++) {
+    if (ONLY_ZEROS.test(amounts[i])) continue;
+    const token = tokens[i];
+    const gasFee =
+      token.id === specialToken ? '150000000000000' : '100000000000000';
+    transactions.unshift({
+      receiverId: token.id,
+      functionCalls: [
+        {
+          methodName: 'ft_transfer_call',
+          args: {
+            receiver_id: REF_FI_CONTRACT_ID,
+            amount: toNonDivisibleNumber(token.decimals, amounts[i]),
+            msg: msgs?.[i] || '',
+          },
+          amount: ONE_YOCTO_NEAR,
+          gas: gasFee,
+        },
+      ],
+    });
+
+    const exchangeBalanceAtFt = await ftGetStorageBalance(
+      token.id,
+      REF_FI_CONTRACT_ID
+    );
+
+    if (!exchangeBalanceAtFt) {
+      transactions.unshift({
+        receiverId: token.id,
+        functionCalls: [
+          {
+            methodName: 'storage_deposit',
+            args: {
+              account_id: REF_FI_CONTRACT_ID,
+              registration_only: true,
+            },
+            amount: STORAGE_TO_REGISTER_WITH_FT,
+            gas: '30000000000000',
+          },
+        ],
+      });
+    }
+
+    if (!whitelist.includes(token.id)) {
+      transactions.unshift({
+        receiverId: REF_FI_CONTRACT_ID,
+        functionCalls: [registerTokenAction(token.id)],
+      });
+    }
+  }
+
+  const neededStorage = await checkTokenNeedsStorageDeposit();
+
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+
+  return transactions;
+};
+
 export const deposit = async ({ token, amount, msg = '' }: DepositOptions) => {
   const gasFee =
     token.id === specialToken ? '150000000000000' : '100000000000000';
@@ -252,6 +328,72 @@ export const withdraw = async ({
     });
   }
 
+  return executeMultipleTransactions(transactions);
+};
+
+export const batchWithdraw = async (tokenMap: any) => {
+  const transactions: Transaction[] = [];
+  const neededStorage = await checkTokenNeedsStorageDeposit();
+  if (neededStorage) {
+    transactions.push({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+  const tokenIdList = Object.keys(tokenMap);
+  const ftBalancePromiseList: any[] = [];
+  tokenIdList.forEach(async (tokenId) => {
+    const promise = ftGetStorageBalance(tokenId);
+    ftBalancePromiseList.push(promise);
+  });
+  const ftBalanceList = await Promise.all(ftBalancePromiseList);
+  ftBalanceList.forEach((ftBalance, index) => {
+    if (!ftBalance || ftBalance.total === '0') {
+      transactions.push({
+        receiverId: tokenIdList[index],
+        functionCalls: [
+          storageDepositAction({
+            registrationOnly: true,
+            amount: STORAGE_TO_REGISTER_WITH_FT,
+          }),
+        ],
+      });
+    }
+  });
+
+  const widthdrawActions: any[] = [];
+  let wNEARAction;
+  tokenIdList.forEach((tokenId) => {
+    const { decimals, amount } = tokenMap[tokenId];
+    const parsedAmount = toNonDivisibleNumber(decimals, amount);
+    widthdrawActions.push({
+      methodName: 'withdraw',
+      args: { token_id: tokenId, amount: parsedAmount, unregister: false },
+      gas: '55000000000000',
+      amount: ONE_YOCTO_NEAR,
+    });
+    if (tokenId === WRAP_NEAR_CONTRACT_ID) {
+      wNEARAction = {
+        receiverId: WRAP_NEAR_CONTRACT_ID,
+        functionCalls: [
+          {
+            methodName: 'near_withdraw',
+            args: {
+              amount: parsedAmount,
+            },
+            amount: ONE_YOCTO_NEAR,
+          },
+        ],
+      };
+    }
+  });
+  transactions.push({
+    receiverId: REF_FI_CONTRACT_ID,
+    functionCalls: widthdrawActions,
+  });
+  if (wNEARAction) {
+    transactions.push(wNEARAction);
+  }
   return executeMultipleTransactions(transactions);
 };
 
