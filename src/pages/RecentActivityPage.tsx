@@ -100,7 +100,9 @@ export function RecentActivityPage() {
             className="h-8 w-36 text-center inline-block rounded border-gradientFrom border py-2 text-xs text-gradientFrom font-semibold cursor-pointer"
             onClick={() => {
               const url =
-                config.explorerUrl + '/accounts/' + wallet.account().accountId;
+                config.explorerUrl +
+                '/accounts/' +
+                getCurrentWallet().wallet.getAccountId();
               window.open(url, '_blank');
             }}
           >
