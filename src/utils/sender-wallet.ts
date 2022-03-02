@@ -22,9 +22,13 @@ export const getSenderLoginRes = () => {
 };
 
 export const saveSenderLoginRes = () => {
+  console.log('my class account id', senderWallet.getAccountId());
+
+  console.log('window.near acount id', window.near.getAccountId());
+
   localStorage.setItem(
     SENDER_WALLET_SIGNEDIN_STATE_KEY,
-    SENDER_WALLET_SIGNEDIN_STATE_KEY + ': ' + senderWallet.accountId
+    SENDER_WALLET_SIGNEDIN_STATE_KEY + ': ' + senderWallet.getAccountId()
   );
 };
 
@@ -123,13 +127,15 @@ export const getAccountName = (accountId: string) => {
 export const getCurrentWallet = () => {
   const SENDER_LOGIN_RES = getSenderLoginRes();
 
-  console.log(window.near);
+  console.log('my class account id', senderWallet.getAccountId());
+
+  console.log('window.near acount id', window.near.getAccountId());
 
   if (SENDER_LOGIN_RES)
     return {
       wallet: senderWallet,
       wallet_type: WALLET_TYPE.SENDER_WALLET,
-      accountName: getAccountName(senderWallet.accountId),
+      accountName: getAccountName(senderWallet.getAccountId()),
     };
 
   return {
