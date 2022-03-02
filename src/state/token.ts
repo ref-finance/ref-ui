@@ -100,7 +100,7 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
         );
       })
       .then(setTokens);
-  }, []);
+  }, [getCurrentWallet().wallet.isSignedIn()]);
 
   return tokens;
 };
@@ -169,16 +169,14 @@ export const useUserRegisteredTokensAllAndNearBalance = (
   return tokens;
 };
 
-export const useTokenBalances = (isSignedIn?: boolean) => {
+export const useTokenBalances = () => {
   const [balances, setBalances] = useState<TokenBalancesView>();
 
   useEffect(() => {
-    if (!isSignedIn) return;
-
     getTokenBalances()
       .then(setBalances)
       .catch(() => setBalances({}));
-  }, [isSignedIn]);
+  }, [getCurrentWallet().wallet.isSignedIn()]);
 
   return balances;
 };
