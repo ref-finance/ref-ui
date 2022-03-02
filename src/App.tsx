@@ -32,7 +32,11 @@ import PopUp from '~components/layout/PopUp';
 import SwapGuide from '~components/layout/SwapGuide';
 import { isMobile } from '~utils/device';
 import { wallet as webWallet, REF_FARM_CONTRACT_ID } from './services/near';
-import { getSenderLoginRes, LOCK_INTERVAL } from './utils/sender-wallet';
+import {
+  getSenderLoginRes,
+  LOCK_INTERVAL,
+  saveSenderLoginRes,
+} from './utils/sender-wallet';
 import {
   senderWallet,
   SENDER_WALLET_SIGNEDIN_STATE_KEY,
@@ -85,10 +89,7 @@ function App() {
 
   if (window.near && window.near.isSender) {
     senderWallet.on('signIn', () => {
-      localStorage.setItem(
-        SENDER_WALLET_SIGNEDIN_STATE_KEY,
-        SENDER_WALLET_SIGNEDIN_STATE_KEY + ': ' + senderWallet.getAccountId()
-      );
+      saveSenderLoginRes();
       signedInStatedispatch({ type: 'signIn' });
     });
   }

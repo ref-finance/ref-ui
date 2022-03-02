@@ -17,6 +17,21 @@ import { scientificNotationToString } from './numbers';
 export const SENDER_WALLET_SIGNEDIN_STATE_KEY =
   'SENDER_WALLET_SIGNEDIN_STATE_VALUE';
 
+export const getSenderLoginRes = () => {
+  return localStorage.getItem(SENDER_WALLET_SIGNEDIN_STATE_KEY);
+};
+
+export const saveSenderLoginRes = () => {
+  localStorage.setItem(
+    SENDER_WALLET_SIGNEDIN_STATE_KEY,
+    SENDER_WALLET_SIGNEDIN_STATE_KEY + ': ' + senderWallet.getAccountId()
+  );
+};
+
+export const removeSenderLoginRes = () => {
+  localStorage.removeItem(SENDER_WALLET_SIGNEDIN_STATE_KEY);
+};
+
 //@ts-ignore
 export const senderWalletExtention = window.near;
 export enum WALLET_TYPE {
@@ -28,13 +43,15 @@ export const LOCK_INTERVAL = 1200000;
 
 function senderWalletFunc() {
   this.requestSignIn = async function (contractId: string) {
-    return senderWalletExtention.requestSignIn({
-      contractId,
-    });
+    return senderWalletExtention
+      .requestSignIn({
+        contractId,
+      })
+      .then(() => saveSenderLoginRes());
   };
 
   this.signOut = function () {
-    localStorage.removeItem(SENDER_WALLET_SIGNEDIN_STATE_KEY);
+    removeSenderLoginRes();
     return senderWalletExtention.signOut();
   };
 
@@ -100,10 +117,6 @@ export const getAccountName = (accountId: string) => {
   const niceAccountId = `${account.slice(0, 10)}...${network || ''}`;
 
   return account.length > 10 ? niceAccountId : accountId;
-};
-
-export const getSenderLoginRes = () => {
-  return localStorage.getItem(SENDER_WALLET_SIGNEDIN_STATE_KEY);
 };
 
 export const getCurrentWallet = () => {
