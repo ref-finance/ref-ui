@@ -125,7 +125,7 @@ export const getCurrentWallet = () => {
 
   if (SENDER_LOGIN_RES)
     return {
-      wallet: window.near,
+      wallet: senderWallet,
       wallet_type: WALLET_TYPE.SENDER_WALLET,
       accountName: getAccountName(window.near.getAccountId()),
     };
