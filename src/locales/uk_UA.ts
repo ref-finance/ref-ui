@@ -80,7 +80,7 @@ const uk_UA = {
   remove_liquidity: 'Видалити ліквідність',
   total_liquidity: 'Загальна ліквідність',
   coming_soon: 'Незабаром',
-  accumulated_volume: 'Накопичений об'єм,
+  accumulated_volume: 'Накопичений об&apos;єм',
   underlying_liquidity: 'Основна ліквідність',
   total_shares: 'Загальна частка',
   my_shares: 'моя частка',
@@ -138,7 +138,7 @@ const uk_UA = {
   slippageCopyForMobile:
     'Прослизання означає різницю між тим, що ви очікуєте отримати, і тим, що ви насправді отримаєте, при виконанні інших ордерів першими',
   slippageCopy:
-    'Прослизання означає різницю між тим, <br> що ви очікуєте отримати, і тим, що ви насправді  <br> отримаєте, при виконанні інших ордерів першими,
+    'Прослизання означає різницю між тим, <br> що ви очікуєте отримати, і тим, що ви насправді  <br> отримаєте, при виконанні інших ордерів першими',
   depositCopy:
     'Перенесення ваших вибраних токенів на <br> біржу для обміну або додавання до пулу ліквідности',
   nearDepositCopy:
@@ -184,7 +184,7 @@ const uk_UA = {
   pool_id:  'ID пулу',
   more_pools: 'Більше пулів',
   my_watchlist: 'Список спостережень',
-  h24_volume: 'Об'єм за 24 години,
+  h24_volume: 'Об&apos;єм за 24 години',
   hide_low_tvl_pools: 'Приховати низький TVL',
   watchlist_title: 'Мій список спостережень вгорі',
   add_watchlist: 'Додати список спостережень',
@@ -244,11 +244,11 @@ const uk_UA = {
   by_share: 'За часткою',
   by_token: 'За токеном',
   your_liquidity_positions_will_appear_here:
-    'Ваші позиції ліквідності з'являться тут.',
+    'Ваші позиції ліквідності з&apos;являться тут.',
   price_impact: 'Вплив ціни',
   shares_left: 'Частки, які залишились',
   total_stable_coins: 'Всього стейблкоїнів',
-  daily_volume: 'Щоденний об'єм',
+  daily_volume: 'Щоденний об&apos;єм',
   liquidity_utilisation: 'Використання ліквідності',
   token_reserves: 'Резерви токенів',
   roi_calculator: 'ROI калькулятор',
@@ -298,7 +298,7 @@ const uk_UA = {
   price_impact_is_about: 'Вплив на ціну становить приблизно',
   yes_swap: 'Так, здійснити своп',
   amount_must_be_greater_than_0: 'сума має бути більше 0',
-  volume_ratio: '24 год. об'єм/ Коефіцієнт ліквідності',
+  volume_ratio: '24 год. об&apos;єм/ Коефіцієнт ліквідності',
   go_to_near_wallet: 'Перейти у NEAR Wallet',
   into_ref_account: 'у ваш акаунт REF.',
   deposit_into_ref_account: 'у ваш акаунт REF, щоб додати ліквідність',
@@ -349,6 +349,6 @@ const uk_UA = {
   no_result: 'На жаль, нам не вдалося знайти відповідний пул фарму',
   mulitple: 'Декілька',
   default: 'За замовчуванням',
-  vi_go_live: 'Доступна В'єтнамська мова!',
+  vi_go_live: 'Доступна В&apos;єтнамська мова!',
 };
 export default uk_UA;
