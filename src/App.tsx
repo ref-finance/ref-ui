@@ -83,7 +83,9 @@ function App() {
     const signedInRes = localStorage.getItem(SENDER_WALLET_SIGNEDIN_STATE_KEY);
 
     if (signedInRes && !senderWallet.isSignedIn()) {
-      senderWallet.requestSignIn(REF_FARM_CONTRACT_ID);
+      senderWallet
+        .requestSignIn(REF_FARM_CONTRACT_ID)
+        .then(() => saveSenderLoginRes());
     }
   }, []);
 
@@ -98,8 +100,6 @@ function App() {
     let id = setInterval(() => {
       if (getSenderLoginRes()) {
         signedInStatedispatch({ type: 'signOut' });
-
-        senderWallet.requestSignIn(REF_FARM_CONTRACT_ID);
       }
     }, LOCK_INTERVAL);
 
