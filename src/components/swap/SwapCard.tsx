@@ -229,7 +229,7 @@ export function SwapRateDetail({
     if (ONLY_ZEROS.test(fromNow)) return '-';
 
     return calculateExchangeRate(fee, fromNow, toNow);
-  }, [isRevert, to, from]);
+  }, [isRevert, to]);
 
   useEffect(() => {
     setNewValue(value);
@@ -243,7 +243,7 @@ export function SwapRateDetail({
         isRevert ? tokenOut.symbol : tokenIn.symbol
       )}`
     );
-  }, [isRevert]);
+  }, [isRevert, exchangeRageValue]);
 
   function switchSwapRate() {
     setIsRevert(!isRevert);
@@ -503,6 +503,20 @@ function DetailView({
     if (swapsTodo?.length > 1) {
       setShowDetails(true);
     }
+  }, [swapsTodo]);
+
+  const priceImpactDisplay = useMemo(() => {
+    if (!priceImpact || !tokenIn || !from) return null;
+    return GetPriceImpact(priceImpact, tokenIn, from);
+  }, [to, priceImpact]);
+
+  const poolFeeDisplay = useMemo(() => {
+    if (!fee || !from || !tokenIn) return null;
+
+    return `${toPrecision(
+      calculateFeePercent(fee).toString(),
+      2
+    )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(tokenIn.symbol)}`;
   }, [to]);
 
   if (!pools || ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id)
@@ -549,18 +563,11 @@ function DetailView({
         )}
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
-          value={
-            !to || to === '0' ? '-' : GetPriceImpact(priceImpact, tokenIn, from)
-          }
+          value={!to || to === '0' ? '-' : priceImpactDisplay}
         />
         <SwapDetail
           title={intl.formatMessage({ id: 'pool_fee' })}
-          value={`${toPrecision(
-            calculateFeePercent(fee).toString(),
-            2
-          )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(
-            tokenIn.symbol
-          )}`}
+          value={poolFeeDisplay}
         />
 
         {isParallelSwap && pools.length > 1 && (
@@ -689,7 +696,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const priceImpactValueParallelSwap = useMemo(() => {
     if (!pools || !tokenOutAmount || !tokenInAmount) return '0';
     return calculatePriceImpact(pools, tokenIn, tokenOut, tokenInAmount);
-  }, [tokenOutAmount]);
+  }, [swapsToDo]);
 
   const priceImpactValueSmartRouting = useMemo(() => {
     {
@@ -702,7 +709,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         tokenOut
       );
     }
-  }, [tokenOutAmount]);
+  }, [swapsToDo]);
 
   const PriceImpactValue = isParallelSwap
     ? priceImpactValueParallelSwap
