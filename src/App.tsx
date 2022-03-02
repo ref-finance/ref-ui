@@ -42,7 +42,11 @@ import {
   SENDER_WALLET_SIGNEDIN_STATE_KEY,
 } from './utils/sender-wallet';
 
-import { WalletContext, signedInStateReducer } from './utils/sender-wallet';
+import {
+  WalletContext,
+  signedInStateReducer,
+  removeSenderLoginRes,
+} from './utils/sender-wallet';
 
 Modal.defaultStyles = {
   overlay: {
@@ -97,17 +101,11 @@ function App() {
     senderWallet.on('accountChanged', (changedAccountId: string) => {
       window.location.reload();
     });
+    senderWallet.on('signOut', () => {
+      removeSenderLoginRes();
+      signedInStatedispatch({ type: 'signOut' });
+    });
   }
-
-  useEffect(() => {
-    let id = setInterval(() => {
-      if (getSenderLoginRes()) {
-        signedInStatedispatch({ type: 'signOut' });
-      }
-    }, LOCK_INTERVAL);
-
-    return () => clearInterval(id);
-  }, [signedInState.isSignedIn]);
 
   return (
     <WalletContext.Provider value={{ signedInState, signedInStatedispatch }}>

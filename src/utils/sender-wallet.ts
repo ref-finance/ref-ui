@@ -40,6 +40,7 @@ export enum WALLET_TYPE {
 }
 
 export const LOCK_INTERVAL = 1000 * 60 * 20;
+// export const LOCK_INTERVAL = 1000 * 60;
 
 function senderWalletFunc() {
   this.requestSignIn = async function (contractId: string) {
