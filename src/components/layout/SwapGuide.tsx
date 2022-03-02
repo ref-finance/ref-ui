@@ -29,7 +29,7 @@ export default function SwapGuide() {
   return (
     <Modal
       isOpen={!closeStatus}
-      onRequestClose={closePop}
+      // onRequestClose={closePop}
       style={{
         overlay: {
           backdropFilter: 'blur(15px)',

@@ -333,7 +333,7 @@ const zh_CN = {
   from_solana: 'Solana',
   from_terra: 'Terra',
   from_celo: 'Celo',
-  no_result: '抱歉, 没有找到匹配的农场',
+  no_result: '抱歉, 没有找到农场',
   mulitple: '倍率',
   default: '默认',
   vi_go_live: '越南版上线啦',

@@ -227,7 +227,7 @@ const en_US = {
   sort_by: 'Sort by',
   your_farms_rewards: 'Your Farms Rewards',
   your_farms: 'Your farms',
-  new: 'New',
+  new: 'Latest',
   unstake_tip_t: 'you have rewards unclaimed...',
   unstake_tip_m:
     'Unstaking will remove the stake from all active and pending farms of the same pair.',
@@ -346,7 +346,7 @@ const en_US = {
   from_solana: 'Solana',
   from_terra: 'Terra',
   from_celo: 'Celo',
-  no_result: 'Sorry, we couldn’t find any matched farm',
+  no_result: 'Sorry, we couldn’t find any farm',
   mulitple: 'Multiple',
   default: 'Default',
   vi_go_live: 'Vietnamese goes live!',
