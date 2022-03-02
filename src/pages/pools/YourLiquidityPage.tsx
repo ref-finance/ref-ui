@@ -8,7 +8,7 @@ import {
   OutlineButton,
 } from '~components/button/Button';
 import Loading from '~components/layout/Loading';
-import { wallet } from '~services/near';
+import { wallet as webWallet } from '~services/near';
 import { useTokens } from '~state/token';
 import { getPoolBalance, getPoolsBalances, PoolRPCView } from '~services/api';
 import {
@@ -33,7 +33,11 @@ import { formatMessage } from '@formatjs/intl';
 import { TokenMetadata } from '~services/ft-contract';
 import { FarmDot } from '~components/icon';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  WalletContext,
+  getSenderLoginRes,
+} from '../../utils/sender-wallet';
 
 function MyShares({
   shares,
@@ -133,9 +137,10 @@ export function YourLiquidityPage() {
 
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
+  const senderLoginRes = getSenderLoginRes();
+  const history = useHistory();
 
-  if (!isSignedIn) {
-    const history = useHistory();
+  if (!senderLoginRes && !webWallet.isSignedIn()) {
     history.push('/');
     return null;
   }
