@@ -9,7 +9,7 @@ import {
   useUserRegisteredTokensAllAndNearBalance,
 } from '../state/token';
 import Loading from '../components/layout/Loading';
-import { wallet } from '../services/near';
+import { wallet as webWallet } from '../services/near';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { NearIcon, RefIcon, WalletIcon } from '../components/icon/Common';
 import {
@@ -35,6 +35,7 @@ import {
 
 import { Checkbox, CheckboxSelected } from '~components/icon';
 import { GradientButton, ButtonTextWrapper } from '~components/button/Button';
+import { getSenderLoginRes } from '../utils/sender-wallet';
 const withdraw_number_at_once = 5;
 const accountSortFun = (
   by: string,
@@ -874,12 +875,15 @@ export function ActionModel(props: any) {
 export function AccountPage() {
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
+  const history = useHistory();
 
-  if (!isSignedIn) {
-    const history = useHistory();
+  const senderLoginRes = getSenderLoginRes();
+
+  if (!senderLoginRes && !webWallet.isSignedIn()) {
     history.push('/');
     return null;
   }
+
   const userTokens = useUserRegisteredTokensAllAndNearBalance();
   const balances = useTokenBalances();
   if (!userTokens || !balances) return <Loading />;

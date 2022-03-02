@@ -6,7 +6,7 @@ import { Card } from '~components/card/Card';
 import { FormattedMessage } from 'react-intl';
 import { mapToView } from '~components/icon/Actions';
 import moment from 'moment';
-import { wallet } from '~services/near';
+import { wallet as webWallet } from '~services/near';
 import getConfig from '~services/config';
 import { GradientButton, GrayButton } from '~components/button/Button';
 import Modal from 'react-modal';
@@ -14,6 +14,7 @@ import { isMobile } from '~utils/device';
 const config = getConfig();
 import { useHistory } from 'react-router';
 import { getCurrentWallet, WalletContext } from '~utils/sender-wallet';
+import { getSenderLoginRes } from '../utils/sender-wallet';
 
 function useLastActions() {
   const [actions, setActions] = useState<ActionData[]>(null);
@@ -31,12 +32,15 @@ export function RecentActivityPage() {
   const isSignedIn = signedInState.isSignedIn;
 
   const { wallet } = getCurrentWallet();
+  const history = useHistory();
 
-  if (!isSignedIn) {
-    const history = useHistory();
+  const senderLoginRes = getSenderLoginRes();
+
+  if (!senderLoginRes && !webWallet.isSignedIn()) {
     history.push('/');
     return null;
   }
+
   const actions = useLastActions();
   const ref = useRef<ActionSheetRef>();
   const [detail, setDetail] = useState<ActionData | null>(null);
