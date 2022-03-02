@@ -38,7 +38,7 @@ export default function SwapGuide() {
         content: {
           outline: 'none',
           transform: `${
-            mobile ? 'translate(-50%, -60%)' : 'translate(-50%, -70%)'
+            mobile ? 'translate(-50%, -50%)' : 'translate(-50%, -70%)'
           }`,
         },
       }}
@@ -51,7 +51,13 @@ export default function SwapGuide() {
           className="flex justify-center"
           style={{ zoom: mobile ? '0.8' : '1' }}
         >
-          <NearIconDirectly></NearIconDirectly>
+          {/* <NearIconDirectly></NearIconDirectly> */}
+          <span>
+            <img
+              style={{ width: '110px' }}
+              src="https://i.postimg.cc/TwrN5Jv1/directly-near.png"
+            ></img>
+          </span>
         </div>
         <p className="flex justify-center text-xl text-white font-bold text-center mt-10 mb-6 xs:text-base md:text-base">
           <FormattedMessage id="do_not_need_to_deposit_in_ref"></FormattedMessage>
@@ -67,7 +73,13 @@ export default function SwapGuide() {
             className="flex-shrink-0"
             style={{ zoom: mobile ? '0.8' : '1' }}
           >
-            <SwitchIcon></SwitchIcon>
+            {/* <SwitchIcon></SwitchIcon> */}
+            <span>
+              <img
+                style={{ width: '59px' }}
+                src="https://i.postimg.cc/J0xTP7nW/directly-two-cricle.png"
+              ></img>
+            </span>
           </span>
           <span className="mx-7">
             <FormattedMessage id="lightning_swaps"></FormattedMessage>
@@ -84,7 +96,13 @@ export default function SwapGuide() {
             className="flex-shrink-0"
             style={{ zoom: mobile ? '0.8' : '1' }}
           >
-            <LiquidityIcon></LiquidityIcon>
+            {/* <LiquidityIcon></LiquidityIcon> */}
+            <span>
+              <img
+                style={{ width: '59px' }}
+                src="https://i.postimg.cc/KjxqP3mN/directly-one-cricle.png"
+              ></img>
+            </span>
           </span>
           <span className="mx-7">
             <FormattedMessage id="frictionless_add_remove_liquidity"></FormattedMessage>

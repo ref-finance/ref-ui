@@ -341,6 +341,6 @@ const zh_CN = {
   you_can_add_liquidity_directly: '你现在可以直接使用NEAR钱包添加流动性了。',
   do_not_need_deposit_anymore: '你已经不需要再存入了!',
   lightning_swaps: '轻量的交换操作',
-  frictionless_add_remove_liquidity: '顺滑地进行除流动性的添加和移除操作',
+  frictionless_add_remove_liquidity: '顺滑地进行流动性的添加和移除操作',
 };
 export default zh_CN;
