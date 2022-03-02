@@ -146,8 +146,8 @@ export function YourLiquidityPage() {
   }
 
   useEffect(() => {
-    getYourPools().then(setPools);
-  }, []);
+    if (isSignedIn) getYourPools().then(setPools);
+  }, [isSignedIn]);
 
   useEffect(() => {
     if (!pools) return;
