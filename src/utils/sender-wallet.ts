@@ -123,6 +123,8 @@ export const getAccountName = (accountId: string) => {
 export const getCurrentWallet = () => {
   const SENDER_LOGIN_RES = getSenderLoginRes();
 
+  console.log(window.near);
+
   if (SENDER_LOGIN_RES)
     return {
       wallet: senderWallet,
