@@ -123,11 +123,10 @@ export default function StableSwap({
         const tokenInId = tokenIn.id;
         if (tokenInId) {
           if (isSignedIn) {
-            ftGetBalance(tokenInId, wallet.getAccountId()).then(
-              (available: string) =>
-                setTokenInBalanceFromNear(
-                  toReadableNumber(tokenIn?.decimals, available)
-                )
+            ftGetBalance(tokenInId).then((available: string) =>
+              setTokenInBalanceFromNear(
+                toReadableNumber(tokenIn?.decimals, available)
+              )
             );
           }
         }
@@ -136,11 +135,10 @@ export default function StableSwap({
         const tokenOutId = tokenOut.id;
         if (tokenOutId) {
           if (isSignedIn) {
-            ftGetBalance(tokenOutId, wallet.getAccountId()).then(
-              (available: string) =>
-                setTokenOutBalanceFromNear(
-                  toReadableNumber(tokenOut?.decimals, available)
-                )
+            ftGetBalance(tokenOutId).then((available: string) =>
+              setTokenOutBalanceFromNear(
+                toReadableNumber(tokenOut?.decimals, available)
+              )
             );
           }
         }

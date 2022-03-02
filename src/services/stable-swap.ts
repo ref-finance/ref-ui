@@ -301,7 +301,7 @@ export const depositSwap = async ({
 export const checkTransaction = (txHash: string) => {
   return (near.connection.provider as JsonRpcProvider).sendJsonRpc(
     'EXPERIMENTAL_tx_status',
-    [txHash, wallet.getAccountId()]
+    [txHash, getCurrentWallet().wallet.getAccountId()]
   );
 };
 
