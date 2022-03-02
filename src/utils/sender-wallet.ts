@@ -24,7 +24,7 @@ export const getSenderLoginRes = () => {
 export const saveSenderLoginRes = () => {
   localStorage.setItem(
     SENDER_WALLET_SIGNEDIN_STATE_KEY,
-    SENDER_WALLET_SIGNEDIN_STATE_KEY + ': ' + senderWallet.getAccountId()
+    SENDER_WALLET_SIGNEDIN_STATE_KEY + ': ' + senderWallet.accountId
   );
 };
 
@@ -127,7 +127,7 @@ export const getCurrentWallet = () => {
     return {
       wallet: senderWallet,
       wallet_type: WALLET_TYPE.SENDER_WALLET,
-      accountName: getAccountName(senderWallet.getAccountId()),
+      accountName: getAccountName(senderWallet.accountId),
     };
 
   return {
