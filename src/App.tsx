@@ -94,6 +94,10 @@ function App() {
       saveSenderLoginRes();
       signedInStatedispatch({ type: 'signIn' });
     });
+    senderWallet.on('accountChanged', (changedAccountId: string) => {
+      // TODO if account has changed
+      window.location.reload();
+    });
   }
 
   useEffect(() => {
