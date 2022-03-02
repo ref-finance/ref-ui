@@ -24,6 +24,8 @@ export enum WALLET_TYPE {
   SENDER_WALLET = 'sender-wallet',
 }
 
+export const LOCK_INTERVAL = 1200000;
+
 function senderWalletFunc() {
   this.requestSignIn = async function (contractId: string) {
     return senderWalletExtention.requestSignIn({

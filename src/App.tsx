@@ -32,7 +32,7 @@ import PopUp from '~components/layout/PopUp';
 import SwapGuide from '~components/layout/SwapGuide';
 import { isMobile } from '~utils/device';
 import { wallet as webWallet, REF_FARM_CONTRACT_ID } from './services/near';
-import { getSenderLoginRes } from './utils/sender-wallet';
+import { getSenderLoginRes, LOCK_INTERVAL } from './utils/sender-wallet';
 import {
   senderWallet,
   SENDER_WALLET_SIGNEDIN_STATE_KEY,
@@ -69,8 +69,6 @@ function App() {
   });
   const [signedInState, signedInStatedispatch] = SignedInStateReducer;
 
-  console.log(signedInState);
-
   useEffect(() => {
     if (webWallet.isSignedIn()) {
       signedInStatedispatch({ type: 'signIn' });
@@ -102,7 +100,7 @@ function App() {
 
         senderWallet.requestSignIn(REF_FARM_CONTRACT_ID);
       }
-    }, 600000);
+    }, LOCK_INTERVAL);
 
     return () => clearInterval(id);
   }, [signedInState.isSignedIn]);
