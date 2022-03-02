@@ -136,10 +136,13 @@ export const useUserRegisteredTokens = () => {
 
   return tokens;
 };
-export const useUserRegisteredTokensAllAndNearBalance = () => {
+export const useUserRegisteredTokensAllAndNearBalance = (
+  isSignedIn?: boolean
+) => {
   const [tokens, setTokens] = useState<any[]>();
 
   useEffect(() => {
+    if (!isSignedIn) return;
     getWhitelistedTokensAndNearTokens()
       .then((tokenList) => {
         const walletBalancePromise = Promise.all(
@@ -161,22 +164,21 @@ export const useUserRegisteredTokensAllAndNearBalance = () => {
         });
         setTokens(arr);
       });
-  }, []);
+  }, [isSignedIn]);
 
   return tokens;
 };
 
-export const useTokenBalances = () => {
+export const useTokenBalances = (isSignedIn?: boolean) => {
   const [balances, setBalances] = useState<TokenBalancesView>();
 
   useEffect(() => {
-    const signedIn = getCurrentWallet().wallet.isSignedIn();
-    if (!signedIn) setBalances({});
-    else
-      getTokenBalances()
-        .then(setBalances)
-        .catch(() => setBalances({}));
-  }, [getCurrentWallet().wallet.isSignedIn()]);
+    if (!isSignedIn) return;
+
+    getTokenBalances()
+      .then(setBalances)
+      .catch(() => setBalances({}));
+  }, [isSignedIn]);
 
   return balances;
 };

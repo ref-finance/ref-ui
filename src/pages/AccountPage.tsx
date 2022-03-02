@@ -884,8 +884,9 @@ export function AccountPage() {
     return null;
   }
 
-  const userTokens = useUserRegisteredTokensAllAndNearBalance();
-  const balances = useTokenBalances();
+  const userTokens = useUserRegisteredTokensAllAndNearBalance(isSignedIn);
+  const balances = useTokenBalances(isSignedIn);
+
   if (!userTokens || !balances) return <Loading />;
   userTokens.forEach((token: TokenMetadata) => {
     const { decimals, id, nearNonVisible } = token;
