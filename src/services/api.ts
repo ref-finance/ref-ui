@@ -3,6 +3,7 @@ import { wallet, refFiViewFunction } from './near';
 import { toPrecision } from '../utils/numbers';
 import { BigNumber } from 'bignumber.js';
 import moment from 'moment';
+import { getCurrentWallet } from '../utils/sender-wallet';
 
 const config = getConfig();
 
@@ -68,7 +69,10 @@ export const getPools = async (counter: number) => {
 
 export const getUserWalletTokens = async (): Promise<any> => {
   return await fetch(
-    config.helperUrl + '/account/' + wallet.getAccountId() + '/likelyTokens',
+    config.helperUrl +
+      '/account/' +
+      getCurrentWallet().wallet.getAccountId() +
+      '/likelyTokens',
     {
       method: 'GET',
       headers: { 'Content-type': 'application/json; charset=UTF-8' },

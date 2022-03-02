@@ -199,14 +199,22 @@ export const getDepositableBalance = async (
   tokenId: string,
   decimals?: number
 ) => {
+  const { wallet, wallet_type } = getCurrentWallet();
+
   if (tokenId === 'NEAR') {
-    if (wallet.isSignedIn()) {
-      return wallet
-        .account()
-        .getAccountBalance()
-        .then(({ available }) => {
+    if (getCurrentWallet().wallet.isSignedIn()) {
+      if (wallet_type === WALLET_TYPE.SENDER_WALLET)
+        return wallet.account.getAccountBalance().then(({ available }) => {
           return toReadableNumber(decimals, available);
         });
+      else {
+        return wallet
+          .account()
+          .getAccountBalance()
+          .then(({ available }) => {
+            return toReadableNumber(decimals, available);
+          });
+      }
     } else {
       return toReadableNumber(decimals, '0');
     }

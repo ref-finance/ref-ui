@@ -450,7 +450,7 @@ export const getWhitelistedTokensAndNearTokens = async (): Promise<
     methodName: 'get_whitelisted_tokens',
   });
   requestAll.push(request1);
-  if (wallet.isSignedIn()) {
+  if (getCurrentWallet().wallet.isSignedIn()) {
     const request2 = refFiViewFunction({
       methodName: 'get_user_whitelisted_tokens',
       args: { account_id: getCurrentWallet().wallet.getAccountId() },
