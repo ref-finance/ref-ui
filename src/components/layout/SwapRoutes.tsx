@@ -177,3 +177,34 @@ export const SmartRoute = ({ tokens }: { tokens: TokenMetadata[] }) => {
     </div>
   );
 };
+
+
+export const SmartRouteV2 = ({ nodeRoutes, allocations }: { nodeRoutes: String[], allocations: Big[] }) => {
+  
+  const Hub = ({ token }: { token: TokenMetadata }) => {
+    return (
+      <div className="flex items-center justify-end">
+        <Icon token={token} />
+        {/* <span className="pl-1.5">{toRealSymbol(token.symbol)}</span> */}
+        <span className="pl-1.5">{'IDK'}</span>
+      </div>
+    );
+  };
+
+  return (
+    <div className="text-white flex items-center justify-between">
+      <Hub token={tokens[0]} />
+      <div className="px-3">
+        <ArrowRight />
+      </div>
+
+      <Hub token={tokens[1]} />
+      <div className="px-3">
+        <ArrowRight />
+      </div>
+
+      <Hub token={tokens[2]} />
+    </div>
+  );
+};
+

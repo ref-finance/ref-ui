@@ -1515,6 +1515,14 @@ export async function getSmartRouteSwapActions(
 
     // console.log('hop is...');
     // console.log(hops[i]);
+    if (
+      hops[i].inputToken == inputToken &&
+      hops[i].outputToken == outputToken
+    ) {
+      var currentStatus = 'parallel swap';
+    } else {
+      var currentStatus = 'stableSmart';
+    }
     actions[i] = {
       estimate: decimalEstimate,
       pool: {
@@ -1529,7 +1537,7 @@ export async function getSmartRouteSwapActions(
         token0_ref_price: hops[i].pool.token0_price,
         tokenIds: [hops[i].pool.token1Id, hops[i].pool.token2Id],
       },
-      status: 'stableSmart',
+      status: currentStatus,
       token: hopInputTokenMeta,
       outputToken: hops[i].outputToken,
       inputToken: hops[i].inputToken,
