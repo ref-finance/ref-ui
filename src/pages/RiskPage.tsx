@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import QuestionMark from '~components/farm/QuestionMark';
+import ReactTooltip from 'react-tooltip';
 import {
   RiskLogo,
   ExternalLinkIcon,
@@ -9,6 +11,29 @@ import {
 export default function RiskPage() {
   const intl = useIntl();
   const local = localStorage.getItem('local') || navigator.language;
+  function lockedTip() {
+    const content = `<div class="text-navHighLightText text-xs w-96 xs:w-60 md:w-60 text-left">
+        <div class="mb-2">
+            ${langFunction('Locked_paragraph_1')}
+        </div>
+        <div class="mb-1">
+            ${langFunction('Locked_paragraph_2')}
+        </div>
+        <div class="mb-1 pl-2">
+            ${langFunction('Locked_paragraph_3')}
+        </div>
+        <div class="mb-2 pl-2">
+            ${langFunction('Locked_paragraph_4')}
+        </div>
+        <div class="mb-2">
+            ${langFunction('Locked_paragraph_5')}
+        </div>
+        <div>
+            ${langFunction('Locked_paragraph_6')}
+        </div>
+    </div>`;
+    return content;
+  }
   return (
     <div className="w-1/2 mx-auto pt-24 relative xs:w-11/12 md:w-11/12">
       <div className="flex justify-center absolute -top-16 left-1/2 transform -translate-x-1/2">
@@ -212,7 +237,31 @@ export default function RiskPage() {
                     <LangMessage id="mission" />
                   </th>
                   <th className="bg-black bg-opacity-25 rounded-tr-lg py-2.5 px-4 xs:px-2.5 md:px-2.5">
-                    <LangMessage id="Locked" />
+                    <div className="flex items-center">
+                      <LangMessage id="Locked" />
+                      <div className="flex items-center text-white text-sm text-center ml-0.5">
+                        <div
+                          className="ml-2 text-sm"
+                          data-type="info"
+                          data-place="right"
+                          data-multiline={true}
+                          data-class="reactTip"
+                          data-html={true}
+                          data-tip={lockedTip()}
+                          data-for="lockedId"
+                        >
+                          <QuestionMark />
+                          <ReactTooltip
+                            className="w-20"
+                            id="lockedId"
+                            backgroundColor="#1D2932"
+                            border
+                            borderColor="#7e8a93"
+                            effect="solid"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </th>
                 </tr>
               </thead>
@@ -416,29 +465,6 @@ export default function RiskPage() {
               </tbody>
             </table>
           </div>
-          <div>
-            <p className="text-base text-riskTextColor font-semibold my-4">
-              <LangMessage id="Locked_title"></LangMessage>
-            </p>
-            <div className="text-sm text-riskTextColor mb-4">
-              <LangMessage id="Locked_paragraph_1"></LangMessage>
-            </div>
-            <div className="text-sm text-riskTextColor">
-              <LangMessage id="Locked_paragraph_2"></LangMessage>
-            </div>
-            <div className="text-sm text-riskTextColor pl-4 mt-2">
-              <LangMessage id="Locked_paragraph_3"></LangMessage>
-            </div>
-            <div className="text-sm text-riskTextColor pl-4 mt-2 mb-4">
-              <LangMessage id="Locked_paragraph_4"></LangMessage>
-            </div>
-            <div className="text-sm text-riskTextColor mb-4">
-              <LangMessage id="Locked_paragraph_5"></LangMessage>
-            </div>
-            <div className="text-sm text-riskTextColor mb-4">
-              <LangMessage id="Locked_paragraph_6"></LangMessage>
-            </div>
-          </div>
         </ModuleTemplate>
         <ModuleTemplate title={langFunction('rug_pull')}>
           <p className="text-sm text-riskTextColor mb-4">
@@ -603,7 +629,7 @@ const en_US = {
   address: 'Address',
   type: 'Type',
   mission: 'Mission',
-  Locked: 'Locked?',
+  Locked: 'Locked',
   exchange_contract: 'Exchange Contract',
   table_body_tr_1:
     'Manage the Automated Market Maker functions; Swap and Provide Liquidity',
@@ -673,7 +699,7 @@ const en_US = {
   no_in_progress: 'No (In Progress)',
   yes: 'Yes',
   no: 'No',
-  NA: 'N/A',
+  NA: '不适用',
   ref_finance_near: 'ref-finance.near',
   ref_finance_near_mission:
     'v1 (depreciated)- Manage the Automated Market Maker functions; Swap and Provide Liquidity',
@@ -714,7 +740,7 @@ const vi = {
   address: 'Địa chỉ',
   type: 'Loại',
   mission: 'Nhiệm vụ',
-  Locked: 'Đã khóa?',
+  Locked: 'Đã khóa',
   exchange_contract: 'Exchange Contract',
   table_body_tr_1:
     'Quản lý các chức năng của AMM, cững như việc giao dịch và cung cấp thanh khoản',
@@ -785,7 +811,7 @@ const vi = {
   no_in_progress: 'Không (Đang xử lý)',
   yes: 'Vâng',
   no: 'Không',
-  NA: 'N/A',
+  NA: '不适用',
   ref_finance_near: 'ref-finance.near',
   ref_finance_near_mission:
     'v1 (đã khấu hao) - Quản lý các chức năng của Nhà tạo thị trường tự động; Hoán đổi và cung cấp tính thanh khoản',
@@ -828,7 +854,7 @@ const zh_CN = {
   address: '地址',
   type: '类型',
   mission: '任务',
-  Locked: '锁住了吗？',
+  Locked: '锁住',
   exchange_contract: '交换合约',
   table_body_tr_1: '管理自动做市商功能； 交换并提供流动性',
   farming_contract: '农场合约',
@@ -887,26 +913,27 @@ const zh_CN = {
     '“我因加密货币交易成瘾损失了数百万美元”',
   no_in_progress: '没（进行中）',
   yes: '是的',
-  no: '无',
-  NA: 'N/A',
+  no: '不是',
+  NA: '不适用',
   ref_finance_near: 'ref-finance.near',
-  ref_finance_near_mission: 'v1（折旧）- 管理自动做市商功能； 交换并提供流动性',
+  ref_finance_near_mission:
+    'v1（旧版本）- 管理自动做市商功能； 交换并提供流动性',
   token_ref_finance_near: 'token.ref-finance.near',
   token_ref_finance_near_type: '可替代代币合约',
-  token_ref_finance_near_mission: 'v1（折旧）- Mint REF 代币',
+  token_ref_finance_near_mission: 'v1（旧版本）- Mint REF 代币',
   refchef_near: 'refchef.near',
   simple_address: '简单地址',
   refchef_near_mission: '管理账户间交易',
   ref_dev_teller_near: 'ref-dev-teller.near',
   Locked_title: '锁定？ 信息框：悬停时显示：',
-  Locked_paragraph_1: '锁定合约意味着没有允许重新部署合约代码的访问密钥.',
-  Locked_paragraph_2: '在一般情况下，可以通过以下方式重新部署代码:',
+  Locked_paragraph_1: '锁定合约意味着没有允许重新部署合约代码的访问密钥。',
+  Locked_paragraph_2: '在一般情况下，可以通过以下方式重新部署代码：',
   Locked_paragraph_3: '1. 具有部署代码操作的事务',
   Locked_paragraph_4: '2. 合约本身可以实现触发部署代码操作的函数调用',
   Locked_paragraph_5:
-    '要使用交易重新部署代码，必须使用完全访问密钥对交易进行签名。 如果合约上没有这样的密钥，除非合约代码本身有专门的支持，否则无法重新部署代码，因此我们将此类合约标记为已锁定.',
+    '要使用交易重新部署代码，必须使用完全访问密钥对交易进行签名。 如果合约上没有这样的密钥，除非合约代码本身有专门的支持，否则无法重新部署代码，因此我们将此类合约标记为已锁定。',
   Locked_paragraph_6:
-    '如果合约账户上至少注册了一个完全访问密钥，则合约不会被锁定.',
+    '如果合约账户上至少注册了一个完全访问密钥，则合约不会被锁定。',
 };
 
 const LangMessage = (props: any) => {
