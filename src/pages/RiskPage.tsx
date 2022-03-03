@@ -243,7 +243,7 @@ export default function RiskPage() {
                         <div
                           className="ml-2 text-sm"
                           data-type="info"
-                          data-place="right"
+                          data-place="left"
                           data-multiline={true}
                           data-class="reactTip"
                           data-html={true}
@@ -699,7 +699,7 @@ const en_US = {
   no_in_progress: 'No (In Progress)',
   yes: 'Yes',
   no: 'No',
-  NA: '不适用',
+  NA: 'N/A',
   ref_finance_near: 'ref-finance.near',
   ref_finance_near_mission:
     'v1 (depreciated)- Manage the Automated Market Maker functions; Swap and Provide Liquidity',
