@@ -92,6 +92,8 @@ export interface EstimateSwapView {
   status?: PoolMode;
   token?: TokenMetadata;
   noFeeAmountOut?: string;
+  inputToken?: string;
+  outputToken?: string;
 }
 
 const getStablePoolEstimate = ({
@@ -566,52 +568,55 @@ SwapOptions) => {
       });
 
       return executeMultipleTransactions(transactions);
-    } else if (swapsToDo.length == 1) {
-      console.log('DOING SINGLE HOP SMART ROUTE')
-      // added this case when the smart routing determines that the best route is a single hop, direct swap:
-      await registerToken(tokenOut)
-      
-      transactions.push({
-        receiverId: tokenIn.id,
-        functionCalls: [
-          {
-            methodName: 'ft_transfer_call',
-            args: {
-              receiver_id: REF_FI_CONTRACT_ID,
-              amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
-              msg: JSON.stringify({
-                force: 0,
-                actions: [
-                  {
-                    pool_id: swapsToDo[0].pool.id,
-                    token_in: tokenIn.id,
-                    token_out: tokenOut.id,
-                    amountIn: round(
-                      tokenIn.decimals,
-                      toNonDivisibleNumber(tokenIn.decimals, amountIn)
-                    ),
-                    min_amount_out: round(
-                      tokenOut.decimals,
-                      toNonDivisibleNumber(
-                        tokenOut.decimals,
-                        percentLess(slippageTolerance, swapsToDo[0].estimate)
-                      )
-                    )},
-                ],
-              }),
-            },
-            gas: '180000000000000',
-            amount: ONE_YOCTO_NEAR,
-          },
-        ],
-      });
-    }
     } else {
-      console.log('DOING DOUBLE HOP SMART ROUTE')
-
-      const tokenMid = swapsToDo[1].token;
-
+      //making sure all actions get included.
       await registerToken(tokenOut);
+      var actionsList = [];
+      let allSwapsTokens = swapsToDo.map((s) => [s.inputToken, s.outputToken]); // to get the hop tokens
+      for (var i in allSwapsTokens) {
+        let swapTokens = allSwapsTokens[i];
+        if (swapTokens[0] == tokenIn.id && swapTokens[1] == tokenOut.id) {
+          // parallel, direct hop route.
+          actionsList.push({
+            pool_id: swapsToDo[i].pool.id,
+            token_in: tokenIn.id,
+            token_out: tokenOut.id,
+            amount_in: swapsToDo[i].pool.partialAmountIn,
+            min_amount_out: round(
+              tokenOut.decimals,
+              toNonDivisibleNumber(
+                tokenOut.decimals,
+                percentLess(slippageTolerance, swapsToDo[i].estimate)
+              )
+            ),
+          });
+        } else if (swapTokens[0] == tokenIn.id) {
+          // first hop in double hop route
+          //TODO -- put in a check to make sure this first hop matches with the next (i+1) hop as a second hop.
+          actionsList.push({
+            pool_id: swapsToDo[i].pool.id,
+            token_in: swapTokens[0],
+            token_out: swapTokens[1],
+            amount_in: swapsToDo[i].pool.partialAmountIn,
+            min_amount_out: '0',
+          });
+        } else {
+          // second hop in double hop route.
+          //TODO -- put in a check to make sure this second hop matches with the previous (i-1) hop as a first hop.
+          actionsList.push({
+            pool_id: swapsToDo[i].pool.id,
+            token_in: swapTokens[0],
+            token_out: swapTokens[1],
+            min_amount_out: round(
+              tokenOut.decimals,
+              toNonDivisibleNumber(
+                tokenOut.decimals,
+                percentLess(slippageTolerance, swapsToDo[i].estimate)
+              )
+            ),
+          });
+        }
+      }
 
       transactions.push({
         receiverId: tokenIn.id,
@@ -623,30 +628,7 @@ SwapOptions) => {
               amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
               msg: JSON.stringify({
                 force: 0,
-                actions: [
-                  {
-                    pool_id: swapsToDo[0].pool.id,
-                    token_in: tokenIn.id,
-                    token_out: tokenMid.id,
-                    amountIn: round(
-                      tokenIn.decimals,
-                      toNonDivisibleNumber(tokenIn.decimals, amountIn)
-                    ),
-                    min_amount_out: '0',
-                  },
-                  {
-                    pool_id: swapsToDo[1].pool.id,
-                    token_in: tokenMid.id,
-                    token_out: tokenOut.id,
-                    min_amount_out: round(
-                      tokenOut.decimals,
-                      toNonDivisibleNumber(
-                        tokenOut.decimals,
-                        percentLess(slippageTolerance, swapsToDo[1].estimate)
-                      )
-                    ),
-                  },
-                ],
+                actions: actionsList,
               }),
             },
             gas: '180000000000000',
@@ -733,69 +715,69 @@ SwapOptions) => {
   } else {
     const whitelist = await getWhitelistedTokens();
     // need to add in condition if smart route solves for direct hop as optimal solution and there is no tokenMid:
-    if (swapsToDo.length == 1) {
-      var actions: RefFiFunctionCallOptions[] = [
-        {
-          methodName: 'swap',
-          amount: ONE_YOCTO_NEAR,
-          args: {
-            actions: [
-              {
-                pool_id: swapsToDo[0].pool.id,
-                token_in: tokenIn.id,
-                token_out: tokenOut.id,
-                amount_in: round(
-                  tokenIn.decimals,
-                  toNonDivisibleNumber(tokenIn.decimals, amountIn)
-                ),
-                min_amount_out: round(
-                  tokenOut.decimals,
-                  toNonDivisibleNumber(
-                    tokenOut.decimals,
-                    percentLess(slippageTolerance, swapsToDo[0].estimate)
-                  )
-                ),
-              },
-            ],
-          },
-        },
-      ];
-    } else {
 
-    const tokenMid = swapsToDo[1].token;
+    // need to do a more robust check on swapsToDo. For each of these, if inputToken and outputToken for swapsToDo[i] match
+    // overall inputToken/outputToken, then that is a single-hop / parallel swap.
+    // otherwise, if the inputToken for swapsToDo[i] matches overall inputToken, then it is a first hop. Can probably assume
+    // that swapsToDo[i+1] will be the corresponding second hop. But need to check this to make sure.
+    // Need to build up full actions list.
+    var actionsList = [];
+    let allSwapsTokens = swapsToDo.map((s) => [s.inputToken, s.outputToken]); // to get the hop tokens
+    for (var i in allSwapsTokens) {
+      let swapTokens = allSwapsTokens[i];
+      if (swapTokens[0] == tokenIn.id && swapTokens[1] == tokenOut.id) {
+        // parallel, direct hop route.
+        actionsList.push({
+          pool_id: swapsToDo[i].pool.id,
+          token_in: tokenIn.id,
+          token_out: tokenOut.id,
+          amount_in: swapsToDo[i].pool.partialAmountIn,
+          min_amount_out: round(
+            tokenOut.decimals,
+            toNonDivisibleNumber(
+              tokenOut.decimals,
+              percentLess(slippageTolerance, swapsToDo[i].estimate)
+            )
+          ),
+        });
+      } else if (swapTokens[0] == tokenIn.id) {
+        // first hop in double hop route
+        //TODO -- put in a check to make sure this first hop matches with the next (i+1) hop as a second hop.
+        actionsList.push({
+          pool_id: swapsToDo[i].pool.id,
+          token_in: swapTokens[0],
+          token_out: swapTokens[1],
+          amount_in: swapsToDo[i].pool.partialAmountIn,
+          min_amount_out: '0',
+        });
+      } else {
+        // second hop in double hop route.
+        //TODO -- put in a check to make sure this second hop matches with the previous (i-1) hop as a first hop.
+        actionsList.push({
+          pool_id: swapsToDo[i].pool.id,
+          token_in: swapTokens[0],
+          token_out: swapTokens[1],
+          min_amount_out: round(
+            tokenOut.decimals,
+            toNonDivisibleNumber(
+              tokenOut.decimals,
+              percentLess(slippageTolerance, swapsToDo[i].estimate)
+            )
+          ),
+        });
+      }
+    }
+
     var actions: RefFiFunctionCallOptions[] = [
       {
         methodName: 'swap',
         amount: ONE_YOCTO_NEAR,
         args: {
-          actions: [
-            {
-              pool_id: swapsToDo[0].pool.id,
-              token_in: tokenIn.id,
-              token_out: tokenMid.id,
-              amount_in: round(
-                tokenIn.decimals,
-                toNonDivisibleNumber(tokenIn.decimals, amountIn)
-              ),
-              min_amount_out: '0',
-            },
-            {
-              pool_id: swapsToDo[1].pool.id,
-              token_in: tokenMid.id,
-              token_out: tokenOut.id,
-              min_amount_out: round(
-                tokenOut.decimals,
-                toNonDivisibleNumber(
-                  tokenOut.decimals,
-                  percentLess(slippageTolerance, swapsToDo[1].estimate)
-                )
-              ),
-            },
-          ],
+          actions: actionsList,
         },
       },
-    ]; 
-  }
+    ];
+
     if (!whitelist.includes(tokenOut.id)) {
       actions.unshift(registerTokenAction(tokenOut.id));
     }

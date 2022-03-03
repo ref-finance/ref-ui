@@ -1231,6 +1231,7 @@ export async function getSmartRouteSwapActions(
       parallelRoutes.push(bestRoutes[n]);
     }
   }
+  var bestRoutesAreParallel = false;
   if (parallelNodeRoutes.length > 0) {
     // first calculate the expected result using only parallel routes.
     let filteredAllocationsAndOutputs = getOptOutputVecRefined(
@@ -1274,7 +1275,7 @@ export async function getSmartRouteSwapActions(
       );
       bestRoutes = parallelRoutes;
       bestNodeRoutes = parallelNodeRoutes;
-      // bestResDict = currentResDict
+      bestRoutesAreParallel = true;
     }
   }
 
@@ -1322,6 +1323,7 @@ export async function getSmartRouteSwapActions(
             console.log('BEST OUTPUT IS NOW... ', currentBestOutput.toString());
             bestRoutes = currentRoutes;
             bestNodeRoutes = currentNodeRoutes;
+            bestRoutesAreParallel = false;
             // bestResDict = currentResDict
           }
 
@@ -1357,6 +1359,9 @@ export async function getSmartRouteSwapActions(
   console.log(allocations.map((a) => new Big(a).toFixed()));
   //SORT BY ALLOCATIONS
   let allSortedIndices = argsort(allocations.map((a) => new Big(a)));
+  if (bestRoutesAreParallel) {
+    numberOfRoutesLimit = 4;
+  }
   let sortedIndices = allSortedIndices.slice(0, numberOfRoutesLimit);
 
   console.log('sorted Indices are');
@@ -1483,8 +1488,8 @@ export async function getSmartRouteSwapActions(
   );
 
   var actions = [];
-  // console.log('hops are...');
-  // console.log(hops);
+  console.log('hops are...');
+  console.log(hops);
 
   for (var i in hops) {
     let hopInputTokenMeta = await ftGetTokenMetadata(hops[i].inputToken);
@@ -1519,10 +1524,11 @@ export async function getSmartRouteSwapActions(
       hops[i].inputToken == inputToken &&
       hops[i].outputToken == outputToken
     ) {
-      var currentStatus = 'parallel swap';
+      var status = 'parallel swap';
     } else {
-      var currentStatus = 'stableSmart';
+      var status = 'stableSmart';
     }
+
     actions[i] = {
       estimate: decimalEstimate,
       pool: {
@@ -1537,7 +1543,7 @@ export async function getSmartRouteSwapActions(
         token0_ref_price: hops[i].pool.token0_price,
         tokenIds: [hops[i].pool.token1Id, hops[i].pool.token2Id],
       },
-      status: currentStatus,
+      status: status,
       token: hopInputTokenMeta,
       outputToken: hops[i].outputToken,
       inputToken: hops[i].inputToken,
@@ -2477,6 +2483,7 @@ async function convertStableActionToEstimatesFormat(action) {
   let decimalEstimate = amount_swapped;
   console.log('SWAPPED AMOUNT IN STABLE ACTION WAS...');
   console.log(amount_swapped);
+
   let newAction = {
     estimate: decimalEstimate,
     pool: {
