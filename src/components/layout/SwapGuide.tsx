@@ -65,9 +65,9 @@ export default function SwapGuide() {
         <p className="text-white text-base text-center xs:text-sm md:text-sm">
           <FormattedMessage id="you_can_add_liquidity_directly"></FormattedMessage>
         </p>
-        <p className="text-white text-base text-center mt-1 xs:text-sm md:text-sm">
+        {/* <p className="text-white text-base text-center mt-1 xs:text-sm md:text-sm">
           <FormattedMessage id="do_not_need_deposit_anymore"></FormattedMessage>
-        </p>
+        </p> */}
         <div className="flex items-center text-xl text-white font-bold mt-10 xs:text-base md:text-base">
           <span
             className="flex-shrink-0"
