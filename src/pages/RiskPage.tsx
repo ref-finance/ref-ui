@@ -12,7 +12,7 @@ export default function RiskPage() {
   const intl = useIntl();
   const local = localStorage.getItem('local') || navigator.language;
   function lockedTip() {
-    const content = `<div class="text-navHighLightText text-xs w-96 xs:w-60 md:w-60 text-left">
+    const content = `<div class="text-navHighLightText text-xs w-96 xs:w-60 md:w-60 font-normal">
         <div class="mb-2">
             ${langFunction('Locked_paragraph_1')}
         </div>
@@ -811,7 +811,7 @@ const vi = {
   no_in_progress: 'Không (Đang xử lý)',
   yes: 'Vâng',
   no: 'Không',
-  NA: '不适用',
+  NA: 'N/A',
   ref_finance_near: 'ref-finance.near',
   ref_finance_near_mission:
     'v1 (đã khấu hao) - Quản lý các chức năng của Nhà tạo thị trường tự động; Hoán đổi và cung cấp tính thanh khoản',
@@ -911,7 +911,7 @@ const zh_CN = {
     '“我们与一位治疗加密货币交易成瘾的治疗师交谈”',
   crypto_trading_addiction_paragraph_6:
     '“我因加密货币交易成瘾损失了数百万美元”',
-  no_in_progress: '没（进行中）',
+  no_in_progress: '不是（进行中）',
   yes: '是的',
   no: '不是',
   NA: '不适用',
