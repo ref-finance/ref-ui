@@ -32,6 +32,7 @@ import PopUp from '~components/layout/PopUp';
 import SwapGuide from '~components/layout/SwapGuide';
 import { isMobile } from '~utils/device';
 import { wallet as webWallet, REF_FARM_CONTRACT_ID } from './services/near';
+import { getSenderWallet } from './utils/sender-wallet';
 import {
   getSenderLoginRes,
   LOCK_INTERVAL,
@@ -84,28 +85,33 @@ function App() {
   }, [webWallet.isSignedIn()]);
 
   useEffect(() => {
-    const signedInRes = localStorage.getItem(SENDER_WALLET_SIGNEDIN_STATE_KEY);
+    setTimeout(() => {
+      window.near.on('signIn', () => {
+        saveSenderLoginRes();
+        signedInStatedispatch({ type: 'signIn' });
+      });
+      window.near.on('accountChanged', (changedAccountId: string) => {
+        window.location.reload();
+        saveSenderLoginRes(changedAccountId);
+      });
+      window.near.on('signOut', () => {
+        removeSenderLoginRes();
+        signedInStatedispatch({ type: 'signOut' });
+      });
+      const signedInRes = localStorage.getItem(
+        SENDER_WALLET_SIGNEDIN_STATE_KEY
+      );
 
-    if (signedInRes && !senderWallet.isSignedIn()) {
-      senderWallet
-        .requestSignIn(REF_FARM_CONTRACT_ID)
-        .then(() => saveSenderLoginRes());
-    }
-  }, []);
-
-  if (window.near && window.near.isSender) {
-    senderWallet.on('signIn', () => {
-      saveSenderLoginRes();
-      signedInStatedispatch({ type: 'signIn' });
-    });
-    senderWallet.on('accountChanged', (changedAccountId: string) => {
-      window.location.reload();
-    });
-    senderWallet.on('signOut', () => {
-      removeSenderLoginRes();
-      signedInStatedispatch({ type: 'signOut' });
-    });
-  }
+      if (window.near && signedInRes && !getSenderWallet(window).isSignedIn()) {
+        console.log(window.near);
+        getSenderWallet(window)
+          .requestSignIn(REF_FARM_CONTRACT_ID)
+          .then(() => {
+            saveSenderLoginRes();
+          });
+      }
+    }, 200);
+  }, [window, window?.near]);
 
   return (
     <WalletContext.Provider value={{ signedInState, signedInStatedispatch }}>

@@ -21,10 +21,11 @@ export const getSenderLoginRes = () => {
   return localStorage.getItem(SENDER_WALLET_SIGNEDIN_STATE_KEY);
 };
 
-export const saveSenderLoginRes = () => {
+export const saveSenderLoginRes = (accountId?: string) => {
   localStorage.setItem(
     SENDER_WALLET_SIGNEDIN_STATE_KEY,
-    SENDER_WALLET_SIGNEDIN_STATE_KEY + ': ' + window.near.getAccountId()
+    SENDER_WALLET_SIGNEDIN_STATE_KEY + ': ' + accountId ||
+      window.near.getAccountId()
   );
 };
 
@@ -33,7 +34,6 @@ export const removeSenderLoginRes = () => {
 };
 
 //@ts-ignore
-export const senderWalletExtention = window.near;
 export enum WALLET_TYPE {
   WEB_WALLET = 'near-wallet',
   SENDER_WALLET = 'sender-wallet',
@@ -42,9 +42,9 @@ export enum WALLET_TYPE {
 export const LOCK_INTERVAL = 1000 * 60 * 20;
 // export const LOCK_INTERVAL = 1000 * 60;
 
-function senderWalletFunc() {
+function senderWalletFunc(window: Window) {
   this.requestSignIn = async function (contractId: string) {
-    return senderWalletExtention
+    return window.near
       .requestSignIn({
         contractId,
       })
@@ -53,7 +53,7 @@ function senderWalletFunc() {
 
   this.signOut = function () {
     removeSenderLoginRes();
-    return senderWalletExtention.signOut();
+    return window.near.signOut();
   };
 
   this.requestSignTransactions = async function (
@@ -75,7 +75,7 @@ function senderWalletFunc() {
       };
     });
 
-    return senderWalletExtention
+    return window.near
       .requestSignTransactions({
         transactions: senderTransaction,
       })
@@ -90,7 +90,7 @@ function senderWalletFunc() {
       await this.requestSignIn(REF_FARM_CONTRACT_ID);
     }
 
-    return senderWalletExtention
+    return window.near
       .signAndSendTransaction({
         receiverId,
         actions: functionCalls.map((fc) => {
@@ -109,9 +109,15 @@ function senderWalletFunc() {
   this.walletType = WALLET_TYPE.SENDER_WALLET;
 }
 
-senderWalletFunc.prototype = senderWalletExtention;
+senderWalletFunc.prototype = window.near;
 
 export const senderWallet = new (senderWalletFunc as any)();
+
+export const getSenderWallet = (window: Window) => {
+  senderWalletFunc.prototype = window.near;
+
+  return new (senderWalletFunc as any)(window);
+};
 
 export const getAccountName = (accountId: string) => {
   const [account, network] = accountId.split('.');
@@ -123,12 +129,15 @@ export const getAccountName = (accountId: string) => {
 export const getCurrentWallet = () => {
   const SENDER_LOGIN_RES = getSenderLoginRes();
 
-  if (SENDER_LOGIN_RES)
+  if (window.near && SENDER_LOGIN_RES && !webWallet.isSignedIn()) {
+    senderWalletFunc.prototype = window.near;
+
     return {
-      wallet: senderWallet || {},
+      wallet: new (senderWalletFunc as any)(window),
       wallet_type: WALLET_TYPE.SENDER_WALLET,
       accountName: getAccountName(window.near.getAccountId()),
     };
+  }
 
   return {
     wallet: webWallet,

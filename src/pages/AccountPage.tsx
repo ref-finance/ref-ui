@@ -885,7 +885,7 @@ export function AccountPage() {
   }
 
   const userTokens = useUserRegisteredTokensAllAndNearBalance(isSignedIn);
-  const balances = useTokenBalances(isSignedIn);
+  const balances = useTokenBalances();
 
   if (!userTokens || !balances) return <Loading />;
   userTokens.forEach((token: TokenMetadata) => {

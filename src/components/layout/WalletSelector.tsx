@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import ReactModal from 'react-modal';
 import { Card } from '../card/Card';
 import { wallet, REF_FARM_CONTRACT_ID } from '../../services/near';
-import { senderWallet } from '../../utils/sender-wallet';
+import {
+  senderWallet,
+  getCurrentWallet,
+  getSenderWallet,
+} from '../../utils/sender-wallet';
 import Modal from 'react-modal';
+import { WalletContext } from '../../utils/sender-wallet';
 
 declare global {
   interface Window {
@@ -16,6 +21,8 @@ export const WalletSelectorModal = (
   props: ReactModal.Props & { setShowWalletSelector: (show: boolean) => void }
 ) => {
   const { setShowWalletSelector } = props;
+
+  const { signedInState, signedInStatedispatch } = useContext(WalletContext);
 
   return (
     <Modal {...props}>
@@ -38,9 +45,12 @@ export const WalletSelectorModal = (
           className="m-5 w-full cursor-pointer text-white"
           onClick={() => {
             if (typeof window.near !== 'undefined' && window.near.isSender) {
-              senderWallet.requestSignIn(REF_FARM_CONTRACT_ID).then(() => {
-                setShowWalletSelector(false);
-              });
+              getSenderWallet(window)
+                .requestSignIn(REF_FARM_CONTRACT_ID)
+                .then(() => {
+                  setShowWalletSelector(false);
+                  signedInStatedispatch({ type: 'signIn' });
+                });
             } else {
               alert('sender wallet not installed');
             }
