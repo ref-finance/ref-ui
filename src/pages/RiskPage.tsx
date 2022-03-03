@@ -12,7 +12,7 @@ export default function RiskPage() {
   const intl = useIntl();
   const local = localStorage.getItem('local') || navigator.language;
   function lockedTip() {
-    const content = `<div class="text-navHighLightText text-xs w-96 xs:w-60 md:w-60 font-normal">
+    const content = `<div class="text-navHighLightText text-xs text-left w-96 xs:w-60 md:w-60 font-normal">
         <div class="mb-2">
             ${langFunction('Locked_paragraph_1')}
         </div>
