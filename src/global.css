@@ -56,6 +56,7 @@ input[type='number'] {
 
 ::-webkit-scrollbar {
   width: 4px;
+  height: 4px;
   border-radius: 3px;
 }
 
