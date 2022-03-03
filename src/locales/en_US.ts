@@ -347,7 +347,7 @@ const en_US = {
   from_terra: 'Terra',
   from_celo: 'Celo',
   no_result: 'Sorry, we couldn’t find any farm',
-  mulitple: 'Multiple',
+  multiple: 'Multiple',
   default: 'Default',
   vi_go_live: 'Vietnamese goes live!',
   do_not_need_to_deposit_in_ref:

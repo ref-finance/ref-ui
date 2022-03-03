@@ -334,7 +334,7 @@ const zh_CN = {
   from_terra: 'Terra',
   from_celo: 'Celo',
   no_result: '抱歉, 没有找到农场',
-  mulitple: '倍率',
+  multiple: '倍率',
   default: '默认',
   vi_go_live: '越南版上线啦',
   do_not_need_to_deposit_in_ref: '你已经不需要在Ref Finance上进行存入操作了!',
