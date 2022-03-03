@@ -135,23 +135,15 @@ export const refFarmFunctionCall = ({
 }: RefFiFunctionCallOptions) => {
   const { wallet, wallet_type } = getCurrentWallet();
 
-  return wallet_type === WALLET_TYPE.SENDER_WALLET
-    ? wallet.account.functionCall(
-        REF_FARM_CONTRACT_ID,
-        methodName,
-        args,
-        getGas(gas),
-        getAmount(amount)
-      )
-    : wallet
-        .account()
-        .functionCall(
-          REF_FARM_CONTRACT_ID,
-          methodName,
-          args,
-          getGas(gas),
-          getAmount(amount)
-        );
+  return wallet
+    .account()
+    .functionCall(
+      REF_FARM_CONTRACT_ID,
+      methodName,
+      args,
+      getGas(gas),
+      getAmount(amount)
+    );
 };
 
 export const refFarmViewFunction = ({

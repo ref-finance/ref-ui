@@ -206,18 +206,12 @@ export const getDepositableBalance = async (
 
   if (tokenId === 'NEAR') {
     if (getCurrentWallet().wallet.isSignedIn()) {
-      if (wallet_type === WALLET_TYPE.SENDER_WALLET)
-        return wallet.account.getAccountBalance().then(({ available }) => {
+      return wallet
+        .account()
+        .getAccountBalance()
+        .then(({ available }) => {
           return toReadableNumber(decimals, available);
         });
-      else {
-        return wallet
-          .account()
-          .getAccountBalance()
-          .then(({ available }) => {
-            return toReadableNumber(decimals, available);
-          });
-      }
     } else {
       return toReadableNumber(decimals, '0');
     }
@@ -314,14 +308,10 @@ export const useDepositableBalance = (
   useEffect(() => {
     if (isSignedIn && wallet.account) {
       if (tokenId === 'NEAR') {
-        wallet_type === WALLET_TYPE.WEB_WALLET
-          ? wallet
-              .account()
-              .getAccountBalance()
-              .then(({ available }) => setDepositable(available))
-          : wallet.account
-              .getAccountBalance()
-              .then(({ available }) => setDepositable(available));
+        wallet
+          .account()
+          .getAccountBalance()
+          .then(({ available }) => setDepositable(available));
       } else if (tokenId) {
         ftGetBalance(tokenId).then(setDepositable);
       }
