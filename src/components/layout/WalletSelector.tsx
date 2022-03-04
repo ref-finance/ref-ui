@@ -29,6 +29,40 @@ declare global {
   }
 }
 
+export const WalletTitle = ({
+  ifBack,
+  closeCallback,
+  backCallback,
+}: {
+  ifBack?: boolean;
+  closeCallback: (e?: any) => void;
+  backCallback?: (e?: any) => void;
+}) => {
+  return (
+    <div
+      className={`flex items-start ${
+        ifBack ? 'justify-between' : 'justify-end'
+      }`}
+    >
+      <span
+        className={`${!ifBack ? 'hidden' : ''} cursor-pointer pb-1 pr-1`}
+        onClick={() => {
+          backCallback && backCallback();
+        }}
+      >
+        <BackArrowGray />
+        {'    '}
+      </span>
+      <span
+        className="cursor-pointer pb-1 pl-1"
+        onClick={() => closeCallback()}
+      >
+        <CloseIcon />
+      </span>
+    </div>
+  );
+};
+
 export const WalletOption = ({
   title,
   Icon,
@@ -140,24 +174,14 @@ const SenderNotInstalledModal = (
           maxWidth: '360px',
         }}
       >
-        <div className="flex items-start justify-between ">
-          <span
-            className="cursor-pointer pb-1 pr-1"
-            onClick={() => {
-              setShowSenderNotInstalled(false);
-              setShowWalletSelector(true);
-            }}
-          >
-            <BackArrowGray />
-            {'    '}
-          </span>
-          <span
-            className="cursor-pointer pb-1 pl-1"
-            onClick={() => setShowSenderNotInstalled(false)}
-          >
-            <CloseIcon />
-          </span>
-        </div>
+        <WalletTitle
+          ifBack
+          backCallback={() => {
+            setShowSenderNotInstalled(false);
+            setShowWalletSelector(true);
+          }}
+          closeCallback={() => setShowSenderNotInstalled(false)}
+        />
 
         <div className="flex justify-center pt-10 pb-6">
           <SenderWalletLarge />
@@ -229,24 +253,14 @@ const ConnectingModal = (
           maxWidth: '360px',
         }}
       >
-        <div className="flex items-start justify-between ">
-          <span
-            className="cursor-pointer pb-1 pr-1"
-            onClick={() => {
-              setShowConnecting(false);
-              setShowWalletSelector(true);
-            }}
-          >
-            <BackArrowGray />
-            {'    '}
-          </span>
-          <span
-            className="cursor-pointer pb-1 pl-1"
-            onClick={() => setShowConnecting(false)}
-          >
-            <CloseIcon />
-          </span>
-        </div>
+        <WalletTitle
+          ifBack
+          backCallback={() => {
+            setShowConnecting(false);
+            setShowWalletSelector(true);
+          }}
+          closeCallback={() => setShowConnecting(false)}
+        />
 
         <div className="mx-auto font-bold pt-11 pb-16 ">
           <span
@@ -324,18 +338,10 @@ export const WalletSelectorModal = (
             maxWidth: '360px',
           }}
         >
-          <div className="flex items-start justify-between">
-            <span>
-              <BackArrowGray />
-              {'    '}
-            </span>
-            <span
-              className="cursor-pointer pb-1 pl-1"
-              onClick={() => setShowWalletSelector(false)}
-            >
-              <CloseIcon />
-            </span>
-          </div>
+          <WalletTitle
+            ifBack={false}
+            closeCallback={() => setShowSenderNotInstalled(false)}
+          />
 
           <div className="pt-10 text-2xl pb-6 mx-auto items-center flex flex-col">
             <span className=" pb-1">
