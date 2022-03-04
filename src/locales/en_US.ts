@@ -291,9 +291,8 @@ const en_US = {
   view_stats: 'View Stats',
   xref: 'xREF',
   ref: 'REF',
-  more_than_general_seed:
-    'Please input number that more than or equal to 0.000001',
-  more_than_stable_seed: 'Please input number that more than or equal to 1',
+  more_than_general_seed: 'Input must be greater than or equal to 0.000001',
+  more_than_stable_seed: 'Input must be greater than or equal to 1',
   are_you_sure: 'Are you sure',
   price_impact_is_about: 'Price impact is about',
   yes_swap: 'Yes, swap',
