@@ -50,6 +50,7 @@ function senderWalletFunc(window: Window) {
       })
       .then((res: any) => {
         !res?.error && saveSenderLoginRes();
+        return res;
       });
   };
 

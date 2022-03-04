@@ -340,7 +340,7 @@ export const WalletSelectorModal = (
         >
           <WalletTitle
             ifBack={false}
-            closeCallback={() => setShowSenderNotInstalled(false)}
+            closeCallback={() => setShowWalletSelector(false)}
           />
 
           <div className="pt-10 text-2xl pb-6 mx-auto items-center flex flex-col">
