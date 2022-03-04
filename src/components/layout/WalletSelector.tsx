@@ -86,7 +86,7 @@ export const WalletOption = ({
 }) => {
   return (
     <div
-      className="pl-5 my-2  pr-4 relative rounded-2xl bg-black bg-opacity-20 hover:bg-opacity-40 flex items-center overflow-hidden"
+      className="pl-5 my-2  pr-4 relative rounded-2xl bg-black bg-opacity-20 hover:bg-opacity-40 flex items-center overflow-hidden cursor-pointer"
       onClick={() => connect()}
       style={{
         height: '62px',
