@@ -56,7 +56,10 @@ export const WalletTitle = ({
       </span>
       <span
         className="cursor-pointer pb-1 pl-1"
-        onClick={() => closeCallback()}
+        onClick={() => {
+          window.location.reload();
+          closeCallback();
+        }}
       >
         <CloseIcon />
       </span>

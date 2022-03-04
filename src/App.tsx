@@ -86,18 +86,21 @@ function App() {
 
   useEffect(() => {
     setTimeout(() => {
-      window.near.on('signIn', () => {
-        saveSenderLoginRes();
-        signedInStatedispatch({ type: 'signIn' });
-      });
-      window.near.on('accountChanged', (changedAccountId: string) => {
-        window.location.reload();
-        saveSenderLoginRes(changedAccountId);
-      });
-      window.near.on('signOut', () => {
-        removeSenderLoginRes();
-        signedInStatedispatch({ type: 'signOut' });
-      });
+      if (window.near) {
+        window.near.on('signIn', () => {
+          saveSenderLoginRes();
+          signedInStatedispatch({ type: 'signIn' });
+        });
+        window.near.on('accountChanged', (changedAccountId: string) => {
+          window.location.reload();
+          saveSenderLoginRes(changedAccountId);
+        });
+        window.near.on('signOut', () => {
+          removeSenderLoginRes();
+          signedInStatedispatch({ type: 'signOut' });
+        });
+      }
+
       const signedInRes = localStorage.getItem(
         SENDER_WALLET_SIGNEDIN_STATE_KEY
       );

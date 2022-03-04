@@ -652,7 +652,10 @@ function NavigationBar() {
       <WalletSelectorModal
         setShowWalletSelector={setShowWalletSelector}
         isOpen={showWalletSelector}
-        onRequestClose={() => setShowWalletSelector(false)}
+        onRequestClose={() => {
+          window.location.reload();
+          setShowWalletSelector(false);
+        }}
       />
     </>
   );

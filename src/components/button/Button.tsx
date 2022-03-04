@@ -159,7 +159,10 @@ export function ConnectToNearBtn() {
       </div>
       <WalletSelectorModal
         isOpen={showWalletSelector}
-        onRequestClose={() => setShowWalletSelector(false)}
+        onRequestClose={() => {
+          window.location.reload();
+          setShowWalletSelector(false);
+        }}
         setShowWalletSelector={setShowWalletSelector}
       />
     </>
