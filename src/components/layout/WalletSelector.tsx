@@ -395,10 +395,6 @@ export const WalletSelectorModal = (
             description="web"
             officialUrl="wallet.near.org"
             connect={() => {
-              setShowWalletSelector(false);
-              setShowConnecting(true);
-              setWalletIcon(<NearWalletLarge />);
-
               wallet.requestSignIn(REF_FARM_CONTRACT_ID);
             }}
           />
