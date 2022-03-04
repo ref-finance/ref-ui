@@ -48,7 +48,9 @@ function senderWalletFunc(window: Window) {
       .requestSignIn({
         contractId,
       })
-      .then(() => saveSenderLoginRes());
+      .then((res: any) => {
+        !res?.error && saveSenderLoginRes();
+      });
   };
 
   this.signOut = function () {

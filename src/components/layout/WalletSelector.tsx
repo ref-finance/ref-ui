@@ -378,18 +378,27 @@ export const WalletSelectorModal = (
             }
             officialUrl="senderwallet.io"
             connect={() => {
-              if (typeof window.near !== 'undefined' && window.near.isSender) {
+              const installed =
+                typeof window.near !== 'undefined' && window.near.isSender;
+
+              // mobile device
+              if (isMobileExplorer()) {
+                return;
+              }
+
+              // PC && installed
+              if (installed) {
                 setShowWalletSelector(false);
                 setShowConnecting(true);
                 setWalletIcon(<SenderWalletLarge />);
 
                 getSenderWallet(window)
                   .requestSignIn(REF_FARM_CONTRACT_ID)
-                  .then(() => {
-                    setShowConnecting(false);
-                    signedInStatedispatch({ type: 'signIn' });
+                  .then((res: any) => {
+                    !res?.error && setShowConnecting(false);
+                    !res?.error && signedInStatedispatch({ type: 'signIn' });
                   });
-              } else if (!isMobileExplorer()) {
+              } else if (!installed) {
                 setShowSenderNotInstalled(true);
                 setShowWalletSelector(false);
               }
