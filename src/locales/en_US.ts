@@ -235,8 +235,7 @@ const en_US = {
   value_rewards: 'Claimed rewards',
   stake_unstake_tip:
     'Staking or unstaking will automatically claim your rewards.',
-  over_tip:
-    'Due to the limitation of Gas Fee, only 5 items most can be selected at one time',
+  over_tip: 'To optimise gas fee, you can withdraw up to 5 tokens at a time',
   no_token_tip: 'No reward token',
   getToken_tip: 'You can claim your rewards or stake your LP Tokens now!',
   in_farm: 'in Farm',
@@ -268,7 +267,7 @@ const en_US = {
   rewards_claimed: 'Rewards claimed',
   value_rewards_token: 'Value of rewards',
   all: 'All',
-  all_5: '5 tokens per time',
+  all_5: 'Max 5 tokens at a time',
   insufficient_shares: 'Insufficient shares',
   shares_removed: 'Shares',
   shares_avaliable: 'Shares avaliable',
