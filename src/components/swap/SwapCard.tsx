@@ -57,6 +57,7 @@ import {
   OneParallelRoute,
   RouterIcon,
   SmartRoute,
+  SmartRouteV2,
 } from '~components/layout/SwapRoutes';
 import QuestionMark, {
   QuestionMarkStaticForParaSwap,
@@ -261,6 +262,44 @@ export function SwapRateDetail({
         </span>
         <span>{newValue}</span>
       </p>
+    </section>
+  );
+}
+
+export function SmartRoutesV2Detail({
+  swapsTodo,
+}: {
+  swapsTodo: EstimateSwapView[];
+}) {
+  // const tokenMid = useMemo(() => swapsTodo[1].token, [swapsTodo[1].token.id]);
+  // const tokenMid = useMemo(() => 'IDK', ['IDK']);
+
+  const tokensPerRoute = swapsTodo
+    .filter((swap) => swap.inputToken == swap.routeInputToken)
+    .map((swap) => swap.tokens);
+
+  return (
+    <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
+      <div className="text-primaryText text-left ">
+        <div className="inline-flex items-center">
+          <RouterIcon />
+          <AutoRouterText />
+          <QuestionTip id="optimal_path_found_by_our_solution" width="w-56" />
+        </div>
+      </div>
+
+      <div className="text-right text-white col-span-7 xs:mt-2 md:mt-2">
+        {tokensPerRoute.map((tokens, index) => (
+          <div className="mb-2">
+            <div
+              key={index}
+              className="text-right text-white col-span-6 xs:mt-2 md:mt-2"
+            >
+              {<SmartRouteV2 tokens={tokens} />}
+            </div>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }
@@ -569,13 +608,14 @@ function DetailView({
           />
         )}
 
-        {!isParallelSwap && (
+        {/* {!isParallelSwap && (
           <SmartRoutesDetail
             tokenIn={tokenIn}
             tokenOut={tokenOut}
             swapsTodo={swapsTodo}
           />
-        )}
+        )} */}
+        {!isParallelSwap && <SmartRoutesV2Detail swapsTodo={swapsTodo} />}
       </div>
     </div>
   );
@@ -592,10 +632,12 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) != 'false'
   );
 
-  const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
-    useState<string>();
-  const [tokenOutBalanceFromNear, setTokenOutBalanceFromNear] =
-    useState<string>();
+  const [tokenInBalanceFromNear, setTokenInBalanceFromNear] = useState<
+    string
+  >();
+  const [tokenOutBalanceFromNear, setTokenOutBalanceFromNear] = useState<
+    string
+  >();
 
   const [loadingData, setLoadingData] = useState<boolean>(false);
   const [loadingTrigger, setLoadingTrigger] = useState<boolean>(true);

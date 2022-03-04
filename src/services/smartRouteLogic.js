@@ -793,6 +793,7 @@ function getHopActionsFromRoutes(routes, nodeRoutes, allocations) {
           allocation: allocation.toString(),
           inputToken: nodeRoute[0],
           outputToken: nodeRoute[1],
+          nodeRoute: nodeRoute,
         };
         // console.log('FIRST HOP IS...');
         // console.log(hop);
@@ -812,6 +813,7 @@ function getHopActionsFromRoutes(routes, nodeRoutes, allocations) {
           allocation: middleTokenAllocation.toString(),
           inputToken: nodeRoute[1],
           outputToken: nodeRoute[2],
+          nodeRoute: nodeRoute,
         };
         // console.log('SECOND HOP IS...');
         // console.log(hop);
@@ -1529,6 +1531,10 @@ export async function getSmartRouteSwapActions(
       var status = 'stableSmart';
     }
 
+    let tokens = await Promise.all(
+      hops[i].nodeRoute.map(async (t) => await ftGetTokenMetadata(t))
+    );
+
     actions[i] = {
       estimate: decimalEstimate,
       pool: {
@@ -1547,6 +1553,9 @@ export async function getSmartRouteSwapActions(
       token: hopInputTokenMeta,
       outputToken: hops[i].outputToken,
       inputToken: hops[i].inputToken,
+      nodeRoute: hops[i].nodeRoute,
+      tokens: tokens,
+      routeInputToken: inputToken,
     };
     // console.log('INPUT TOKEN IS...');
     // console.log(hops[i].inputToken);

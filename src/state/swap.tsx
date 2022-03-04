@@ -179,8 +179,11 @@ export const useSwap = ({
             setCanSwap(true);
             setSwapsToDo(estimates);
             setAverageFee(estimates);
-            
-            if (!loadingTrigger) setTokenOutAmount(getExpectedOutputFromActions(estimates, tokenOut.id).toString());
+
+            if (!loadingTrigger)
+              setTokenOutAmount(
+                getExpectedOutputFromActions(estimates, tokenOut.id).toString()
+              );
           }
 
           // const isParallelSwap = estimates.every(

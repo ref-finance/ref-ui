@@ -94,6 +94,9 @@ export interface EstimateSwapView {
   noFeeAmountOut?: string;
   inputToken?: string;
   outputToken?: string;
+  nodeRoute?: string[];
+  tokens?: TokenMetadata[];
+  routeInputToken: string;
 }
 
 const getStablePoolEstimate = ({

@@ -1,6 +1,6 @@
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { TokenMetadata } from '~services/ft-contract';
+import { TokenMetadata, ftGetTokenMetadata } from '~services/ft-contract';
 import { calculateFeePercent, toPrecision } from '~utils/numbers';
 import { toRealSymbol } from '~utils/token';
 
@@ -178,33 +178,44 @@ export const SmartRoute = ({ tokens }: { tokens: TokenMetadata[] }) => {
   );
 };
 
-
-export const SmartRouteV2 = ({ nodeRoutes, allocations }: { nodeRoutes: String[], allocations: Big[] }) => {
-  
+export const SmartRouteV2 = ({ tokens }: { tokens: TokenMetadata[] }) => {
   const Hub = ({ token }: { token: TokenMetadata }) => {
     return (
       <div className="flex items-center justify-end">
         <Icon token={token} />
-        {/* <span className="pl-1.5">{toRealSymbol(token.symbol)}</span> */}
-        <span className="pl-1.5">{'IDK'}</span>
+        {<span className="pl-1.5">{toRealSymbol(token.symbol)}</span>}
+        {/* <span className="pl-1.5">{'IDK'}</span> */}
       </div>
     );
   };
 
-  return (
-    <div className="text-white flex items-center justify-between">
-      <Hub token={tokens[0]} />
-      <div className="px-3">
-        <ArrowRight />
-      </div>
+  if (tokens.length == 3) {
+    return (
+      <div className="text-white flex items-center justify-between">
+        <Hub token={tokens[0]} />
+        <div className="px-3">
+          <ArrowRight />
+        </div>
 
-      <Hub token={tokens[1]} />
-      <div className="px-3">
-        <ArrowRight />
-      </div>
+        <Hub token={tokens[1]} />
+        <div className="px-3">
+          <ArrowRight />
+        </div>
 
-      <Hub token={tokens[2]} />
-    </div>
-  );
+        <Hub token={tokens[2]} />
+      </div>
+    );
+  } else if (tokens.length == 2) {
+    return (
+      <div className="text-white flex items-center justify-between">
+        <Hub token={tokens[0]} />
+        <div className="px-3">
+          <ArrowRight />
+        </div>
+        <Hub token={tokens[1]} />
+      </div>
+    );
+  } else {
+    return <div></div>;
+  }
 };
-
