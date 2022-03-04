@@ -49,10 +49,7 @@ import { getAccount } from '../../services/airdrop';
 import { senderWallet, getCurrentWallet } from '../../utils/sender-wallet';
 import { WalletSelectorModal } from './WalletSelector';
 import { WalletContext } from '../../utils/sender-wallet';
-import {
-  senderWalletExtention,
-  getAccountName,
-} from '../../utils/sender-wallet';
+import { getAccountName } from '../../utils/sender-wallet';
 
 const config = getConfig();
 
@@ -105,7 +102,13 @@ function Anchor({
   );
 }
 
-function AccountEntry() {
+function AccountEntry({
+  setShowWalletSelector,
+  showWalletSelector,
+}: {
+  setShowWalletSelector: (show: boolean) => void;
+  showWalletSelector: boolean;
+}) {
   const history = useHistory();
   const [hover, setHover] = useState(false);
 
@@ -113,8 +116,6 @@ function AccountEntry() {
   const isSignedIn = signedInState.isSignedIn;
 
   const { wallet, wallet_type } = getCurrentWallet();
-
-  const [showWalletSelector, setShowWalletSelector] = useState(false);
 
   const location = useLocation();
 
@@ -185,7 +186,9 @@ function AccountEntry() {
                 </span>
               ) : (
                 <button
-                  onClick={async () => {
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     setShowWalletSelector(true);
 
                     setHover(false);
@@ -237,11 +240,6 @@ function AccountEntry() {
           ) : null}
         </div>
       </div>
-      <WalletSelectorModal
-        setShowWalletSelector={setShowWalletSelector}
-        isOpen={showWalletSelector}
-        onRequestClose={() => setShowWalletSelector(false)}
-      />
     </>
   );
 }
@@ -594,6 +592,7 @@ function NavigationBar() {
   const [showWrapNear, setShowWrapNear] = useState(false);
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
+  const [showWalletSelector, setShowWalletSelector] = useState(false);
 
   return (
     <>
@@ -637,12 +636,24 @@ function NavigationBar() {
                 />
               </div>
             )}
-            <AccountEntry />
+            <AccountEntry
+              setShowWalletSelector={setShowWalletSelector}
+              showWalletSelector={showWalletSelector}
+            />
             <MoreMenu />
           </div>
         </nav>
       </div>
-      <MobileNavBar isSignedIn={isSignedIn} />
+      <MobileNavBar
+        isSignedIn={isSignedIn}
+        setShowWalletSelector={setShowWalletSelector}
+        showWalletSelector={showWalletSelector}
+      />
+      <WalletSelectorModal
+        setShowWalletSelector={setShowWalletSelector}
+        isOpen={showWalletSelector}
+        onRequestClose={() => setShowWalletSelector(false)}
+      />
     </>
   );
 }

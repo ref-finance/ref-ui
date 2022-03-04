@@ -155,6 +155,8 @@ export function MobileSwitchLanguage() {
 }
 
 export function Logout() {
+  const { wallet } = getCurrentWallet();
+
   return (
     wallet.isSignedIn() && (
       <div
@@ -176,6 +178,9 @@ export function Logout() {
 export function AccountModel(props: any) {
   const history = useHistory();
   const accountWrapRef = useRef(null);
+
+  const { wallet } = getCurrentWallet();
+
   const accountList = [
     {
       icon: <AccountIcon />,
@@ -273,7 +278,9 @@ export function MobileNavBar(props: any) {
   const [closeMenu, setCloseMenu] = useState(false);
   const history = useHistory();
   const [mobileWrapNear, setMobileWrapNear] = useState(false);
+  // const [showWalletSelector, setShowWalletSelector] = useState(false);
 
+  const { setShowWalletSelector, showWalletSelector } = props;
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
 
@@ -380,7 +387,11 @@ export function MobileNavBar(props: any) {
                 </div>
               ) : (
                 <button
-                  onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowWalletSelector(true);
+                  }}
                   type="button"
                 >
                   <span className="ml-2 text-xs">

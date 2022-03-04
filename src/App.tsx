@@ -103,7 +103,6 @@ function App() {
       );
 
       if (window.near && signedInRes && !getSenderWallet(window).isSignedIn()) {
-        console.log(window.near);
         getSenderWallet(window)
           .requestSignIn(REF_FARM_CONTRACT_ID)
           .then(() => {
