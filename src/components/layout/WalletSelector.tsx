@@ -22,6 +22,7 @@ import {
 } from '../icon/Wallet';
 import { getExplorer } from '../../utils/device';
 import { BeatLoader } from 'react-spinners';
+import { FormattedMessage } from 'react-intl';
 
 declare global {
   interface Window {
@@ -66,21 +67,23 @@ export const WalletTitle = ({
 export const WalletOption = ({
   title,
   Icon,
-  decorate,
   description,
   officialUrl,
+  senderTip,
+  decorate,
   connect,
 }: {
   title: string;
-  Icon: JSX.Element;
   decorate?: boolean;
+  Icon: JSX.Element;
+  senderTip?: string | JSX.Element;
   description: string;
   officialUrl: string;
   connect: (e?: any) => void;
 }) => {
   return (
     <div
-      className="pl-5 my-2  pr-4  rounded-2xl bg-black bg-opacity-20 hover:bg-opacity-40 flex items-center "
+      className="pl-5 my-2  pr-4 relative rounded-2xl bg-black bg-opacity-20 hover:bg-opacity-40 flex items-center overflow-hidden"
       onClick={() => connect()}
       style={{
         height: '62px',
@@ -91,19 +94,22 @@ export const WalletOption = ({
         <div className="flex items-center justify-between">
           <div className="text-base text-white flex items-center">
             {title}
-            {decorate ? (
-              <div
-                className="ml-1 px-0.5 text-black rounded bg-senderHot"
-                style={{
-                  fontSize: '10px',
-                  lineHeight: '15px',
-                }}
-              >
-                HOT
-              </div>
-            ) : null}
+            <span className="text-xs text-primaryText ml-2">
+              {' '}
+              {`(${description})`}{' '}
+            </span>
           </div>
-          <span className="text-xs text-primaryText"> {description} </span>
+          {decorate ? (
+            <div
+              className="ml-1 px-0.5 text-black rounded bg-senderHot relative left-1 bottom-1"
+              style={{
+                fontSize: '10px',
+                lineHeight: '15px',
+              }}
+            >
+              HOT
+            </div>
+          ) : null}
         </div>
         <button
           className="text-xs text-primaryText"
@@ -115,6 +121,29 @@ export const WalletOption = ({
         >
           {officialUrl}
         </button>
+      </div>
+      <div
+        className={`${
+          senderTip ? 'block' : 'hidden'
+        } rounded-2xl bg-white bg-opacity-10 px-3 ${
+          senderTip === 'install now' ? ' text-greenLight' : 'text-primaryText'
+        }`}
+        style={{
+          fontSize: '10px',
+          lineHeight: '15px',
+          position: 'absolute',
+          height: '40px',
+          width: senderTip === 'installed' ? '80px' : '120px',
+          left:
+            senderTip === 'installed'
+              ? '245px'
+              : senderTip === 'not supported'
+              ? '210px'
+              : '236px',
+          top: '47px',
+        }}
+      >
+        {senderTip}
       </div>
     </div>
   );
@@ -314,7 +343,8 @@ export const WalletSelectorModal = (
   const [showConnecting, setShowConnecting] = useState<boolean>(false);
 
   const [walletIcon, setWalletIcon] = useState(<SenderWalletLarge />);
-
+  const senderInstalled =
+    typeof window.near !== 'undefined' && window.near.isSender;
   return (
     <>
       <Modal
@@ -345,10 +375,18 @@ export const WalletSelectorModal = (
 
           <div className="pt-10 text-2xl pb-6 mx-auto items-center flex flex-col">
             <span className=" pb-1">
-              select a<span className="font-bold"> NEAR </span>
-              <span>wallet</span>
+              <FormattedMessage id="select_a" defaultMessage="select a" />{' '}
+              <span className="font-bold"> NEAR </span>
+              <span>
+                <FormattedMessage id="wallet" defaultMessage="wallet" />
+              </span>
             </span>
-            <span className="">to use Ref.Finance</span>
+            <span className="">
+              <FormattedMessage
+                id="to_use_ref_finance"
+                defaultMessage="to use Ref.Finance"
+              />
+            </span>
           </div>
 
           <WalletOption
@@ -368,26 +406,24 @@ export const WalletSelectorModal = (
           <WalletOption
             title="Sender"
             Icon={<SenderWallet />}
-            decorate
-            description={
+            senderTip={
               isMobileExplorer()
                 ? 'not supported'
-                : window.near && window.near.isSender
-                ? 'extension'
-                : 'not installed'
+                : senderInstalled
+                ? 'installed'
+                : 'install now'
             }
+            decorate
+            description={'extension'}
             officialUrl="senderwallet.io"
             connect={() => {
-              const installed =
-                typeof window.near !== 'undefined' && window.near.isSender;
-
               // mobile device
               if (isMobileExplorer()) {
                 return;
               }
 
               // PC && installed
-              if (installed) {
+              if (senderInstalled) {
                 setShowWalletSelector(false);
                 setShowConnecting(true);
                 setWalletIcon(<SenderWalletLarge />);
@@ -398,7 +434,7 @@ export const WalletSelectorModal = (
                     !res?.error && setShowConnecting(false);
                     !res?.error && signedInStatedispatch({ type: 'signIn' });
                   });
-              } else if (!installed) {
+              } else if (!senderInstalled) {
                 setShowSenderNotInstalled(true);
                 setShowWalletSelector(false);
               }
