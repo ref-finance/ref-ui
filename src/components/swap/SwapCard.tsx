@@ -290,11 +290,8 @@ export function SmartRoutesV2Detail({
 
       <div className="text-right text-white col-span-7 xs:mt-2 md:mt-2">
         {tokensPerRoute.map((tokens, index) => (
-          <div className="mb-2">
-            <div
-              key={index}
-              className="text-right text-white col-span-6 xs:mt-2 md:mt-2"
-            >
+          <div key={index} className="mb-2">
+            <div className="text-right text-white col-span-6 xs:mt-2 md:mt-2">
               {<SmartRouteV2 tokens={tokens} />}
             </div>
           </div>
