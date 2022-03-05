@@ -84,6 +84,8 @@ export const WalletOption = ({
   officialUrl: string;
   connect: (e?: any) => void;
 }) => {
+  const senderInstalled =
+    typeof window.near !== 'undefined' && window.near.isSender;
   return (
     <div
       className="pl-5 my-2  pr-4 relative rounded-2xl bg-black bg-opacity-20 hover:bg-opacity-40 flex items-center overflow-hidden cursor-pointer"
@@ -127,24 +129,18 @@ export const WalletOption = ({
         </button>
       </div>
       <div
-        className={`${
+        className={`whitespace-nowrap absolute ${
           senderTip ? 'block' : 'hidden'
-        } rounded-2xl bg-white bg-opacity-10 px-3 ${
-          senderTip === 'install now' ? ' text-greenLight' : 'text-primaryText'
+        } rounded-2xl bg-white bg-opacity-10 pl-3 pr-7 ${
+          !senderInstalled ? ' text-greenLight' : 'text-primaryText'
         }`}
         style={{
           fontSize: '10px',
           lineHeight: '15px',
-          position: 'absolute',
-          height: '40px',
-          width: senderTip === 'installed' ? '80px' : '120px',
-          left:
-            senderTip === 'installed'
-              ? '245px'
-              : senderTip === 'not supported'
-              ? '210px'
-              : '236px',
-          top: '47px',
+          height: '30px',
+          right: '-15px',
+          bottom: '-15px',
+          textAlign: 'right',
         }}
       >
         {senderTip}
