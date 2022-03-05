@@ -358,5 +358,21 @@ const en_US = {
   lightning_swaps: 'Lightning Swaps',
   frictionless_add_remove_liquidity:
     'Frictionless Add/Remove Liquidity Actions',
+  select_a: 'Select a',
+  wallet: 'wallet',
+  to_use_ref_finance: 'to use Ref.Finance',
+  not_supported: 'not supported',
+  installed: 'installed',
+  installe_now: 'install now',
+  extension: 'extension',
+  first_time_using_ref: 'First time using Ref',
+  learn_more: 'Learn more',
+  install_sender_now: 'Install Sender Now',
+  connect_to_dapps_with_one_click: 'Connect to dApps with one click.',
+  install: 'install',
+  Connecting: 'Connecting',
+  check_sender_wallet_extension: 'Please check Sender wallet extension.',
+  having_trouble: 'Having trouble?',
+  go_back: 'Go back',
 };
 export default en_US;

@@ -80,7 +80,7 @@ export const WalletOption = ({
   decorate?: boolean;
   Icon: JSX.Element;
   senderTip?: string | JSX.Element;
-  description: string;
+  description: string | JSX.Element;
   officialUrl: string;
   connect: (e?: any) => void;
 }) => {
@@ -98,8 +98,9 @@ export const WalletOption = ({
           <div className="text-base text-white flex items-center">
             {title}
             <span className="text-xs text-primaryText ml-2">
-              {' '}
-              {`(${description})`}{' '}
+              {'('}
+              {description}
+              {')'}
             </span>
           </div>
           {decorate ? (
@@ -157,8 +158,8 @@ export const WalletFooter = ({
   tip,
   callback,
 }: {
-  ques: string;
-  tip: string;
+  ques: string | JSX.Element;
+  tip: string | JSX.Element;
   callback: (e?: any) => void;
 }) => {
   return (
@@ -220,11 +221,21 @@ const SenderNotInstalledModal = (
         </div>
 
         <div className="mx-auto text-lg">
-          <span>Install Sender Now</span>
+          <span>
+            <FormattedMessage
+              id="install_sender_now"
+              defaultMessage={'Install Sender Now'}
+            />
+          </span>
         </div>
 
         <div className="mx-auto text-xs pt-14 pb-4">
-          <span>Connect to dApps with one click.</span>
+          <span>
+            <FormattedMessage
+              id="connect_to_dapps_with_one_click"
+              defaultMessage="Connect to dApps with one click."
+            />
+          </span>
         </div>
 
         <button
@@ -239,13 +250,22 @@ const SenderNotInstalledModal = (
             window.open('https://senderwallet.io', '_blank');
           }}
         >
-          {' '}
-          <span>Install</span>{' '}
+          <span>
+            <FormattedMessage id="install" defaultMessage="Install" />
+          </span>
         </button>
 
         <WalletFooter
-          ques="First time using Ref?"
-          tip="Learn more"
+          ques={
+            <span>
+              <FormattedMessage
+                id="first_time_using_ref"
+                defaultMessage="First time using Ref"
+              />
+              ?
+            </span>
+          }
+          tip={<FormattedMessage id="learn_more" defaultMessage="Learn more" />}
           callback={() => {
             window.open('https://ref.finance', '_blank');
           }}
@@ -301,7 +321,7 @@ const ConnectingModal = (
               lineHeight: '30px',
             }}
           >
-            Connecting
+            <FormattedMessage id="Connecting" defaultMessage="Connecting" />
           </span>
         </div>
 
@@ -317,13 +337,23 @@ const ConnectingModal = (
           <span>{walletIcon}</span>
         </div>
 
-        <div className="mx-auto pt-12 mb-4">
-          <span>Please unlock your Sender wallet.</span>
+        <div className="mx-auto pt-12 mb-4 flex justify-center">
+          <span className="whitespace-nowrap">
+            <FormattedMessage
+              id="check_sender_wallet_extension"
+              defaultMessage="Please check Sender wallet extension."
+            />
+          </span>
         </div>
 
         <WalletFooter
-          ques="Having trouble?"
-          tip="Go back"
+          ques={
+            <FormattedMessage
+              id="having_trouble"
+              defaultMessage="Having trouble?"
+            />
+          }
+          tip={<FormattedMessage id="go_back" defaultMessage="Go back" />}
           callback={() => {
             setShowConnecting(false);
             setShowWalletSelector(true);
@@ -378,7 +408,7 @@ export const WalletSelectorModal = (
 
           <div className="pt-10 text-2xl pb-6 mx-auto items-center flex flex-col">
             <span className=" pb-1">
-              <FormattedMessage id="select_a" defaultMessage="select a" />{' '}
+              <FormattedMessage id="select_a" defaultMessage="Select a" />{' '}
               <span className="font-bold"> NEAR </span>
               <span>
                 <FormattedMessage id="wallet" defaultMessage="wallet" />
@@ -395,7 +425,7 @@ export const WalletSelectorModal = (
           <WalletOption
             title="NEAR"
             Icon={<NearWallet />}
-            description="web"
+            description={<FormattedMessage id="web" defaultMessage="web" />}
             officialUrl="wallet.near.org"
             connect={() => {
               wallet.requestSignIn(REF_FARM_CONTRACT_ID);
@@ -406,14 +436,24 @@ export const WalletSelectorModal = (
             title="Sender"
             Icon={<SenderWallet />}
             senderTip={
-              isMobileExplorer()
-                ? 'not supported'
-                : senderInstalled
-                ? 'installed'
-                : 'install now'
+              isMobileExplorer() ? (
+                <FormattedMessage
+                  id="not_supported"
+                  defaultMessage="not supported"
+                />
+              ) : senderInstalled ? (
+                <FormattedMessage id="installed" defaultMessage="installed" />
+              ) : (
+                <FormattedMessage
+                  id="installe_now"
+                  defaultMessage="install now"
+                />
+              )
             }
             decorate
-            description={'extension'}
+            description={
+              <FormattedMessage id="extension" defaultMessage="extension" />
+            }
             officialUrl="senderwallet.io"
             connect={() => {
               // mobile device
@@ -441,8 +481,18 @@ export const WalletSelectorModal = (
           />
 
           <WalletFooter
-            ques="First time using Ref?"
-            tip="Learn more"
+            ques={
+              <span>
+                <FormattedMessage
+                  id="first_time_using_ref"
+                  defaultMessage="First time using Ref"
+                />
+                ?
+              </span>
+            }
+            tip={
+              <FormattedMessage id="learn_more" defaultMessage="Learn more" />
+            }
             callback={() => {
               window.open('https://ref.finance', '_blank');
             }}
@@ -453,12 +503,18 @@ export const WalletSelectorModal = (
         setShowSenderNotInstalled={setShowSenderNotInstalled}
         setShowWalletSelector={setShowWalletSelector}
         isOpen={showSenderNotInstalled}
-        onRequestClose={() => setShowSenderNotInstalled(false)}
+        onRequestClose={() => {
+          window.location.reload();
+          setShowSenderNotInstalled(false);
+        }}
       />
 
       <ConnectingModal
         isOpen={showConnecting}
-        onRequestClose={() => setShowConnecting(false)}
+        onRequestClose={() => {
+          window.location.reload();
+          setShowConnecting(false);
+        }}
         setShowConnecting={setShowConnecting}
         setShowWalletSelector={setShowWalletSelector}
         walletIcon={walletIcon}
