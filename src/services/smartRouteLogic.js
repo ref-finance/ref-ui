@@ -2262,221 +2262,232 @@ export async function stableSmart(
   totalInput,
   slippageTolerance
 ) {
-  if (
-    STABLE_TOKEN_IDS.includes(inputToken) &&
-    STABLE_TOKEN_IDS.includes(outputToken)
-  ) {
-    //use stable swap only.
-    console.log('USING STABLE SWAP ONLY...');
-    let firstAction = await GETSTABLESWAPACTION(
-      inputToken,
-      outputToken,
-      totalInput,
-      slippageTolerance
-    );
-
-    let stableAction = await convertStableActionToEstimatesFormat(firstAction);
-
-    return [stableAction];
-    //STABLESWAP(poolId=STABLE_POOL_ID, inputToken, outputToken, totalInput, slippageTolerance)
-  } else if (
-    STABLE_TOKEN_IDS.includes(inputToken) &&
-    !STABLE_TOKEN_IDS.includes(outputToken)
-  ) {
-    // input is stable and output is not.
-    console.log(
-      'INPUT STABLE/ OUTPUT NOT, CHECKING STABLE ROUTES STARTING WITH INPUT...'
-    );
-
-    // (A) try route inputToken-->stable2-->outputToken (stablePool-->simple pool)
-    // (B) try route inputTokne-->stable3-->outputToken (stablePool-->simple pool)
-    // (C) try normal smart route. (simple Pool-->simple pool)
-    // compare outputs from A,B,C and use the one with maximum return.
-
-    var partialStableRoutes = [];
-    var bestOutput = new Big(0);
-    var bestStableSwapActions = [];
-    for (var i in STABLE_TOKEN_IDS) {
-      let middleToken = STABLE_TOKEN_IDS[i];
-      if (middleToken === inputToken) {
-        continue;
-      }
-      let secondHopPools = getPoolsByToken1ANDToken2(
-        pools,
-        middleToken,
-        outputToken
-      );
-      console.log('ABOUT TO RUN GETSTABLESWAPACTION');
-
-      let firstAction = await GETSTABLESWAPACTION(
-        inputToken,
-        middleToken,
-        totalInput,
-        slippageTolerance
-      );
-      let middleTokenAmount = firstAction.min_amount_out;
-      //scale to get minimum_amount_out
-      let minMiddleTokenAmount = new Big(middleTokenAmount)
-        .times(new Big(1).minus(new Big(slippageTolerance).div(100)))
-        .round()
-        .toString();
-
-      console.log('NOW ABOUT TO DO PARALLEL SWAP ACTIONS FOR SECOND HOP');
-      console.log(middleTokenAmount);
-      let parallelSwapActions = await GETPARALLELSWAPACTIONS(
-        secondHopPools,
-        middleToken,
-        outputToken,
-        minMiddleTokenAmount,
-        slippageTolerance
-      );
-      console.log('PARALLEL SWAP ACTIONS GAVE...');
-      console.log(parallelSwapActions);
-      let stableResult = getExpectedOutputFromActions(
-        parallelSwapActions,
-        outputToken
-      );
-      partialStableRoutes.push(stableResult);
-      if (new Big(stableResult).gt(bestOutput)) {
-        bestOutput = new Big(stableResult);
-        bestStableSwapActions = [firstAction, ...parallelSwapActions];
-      }
-    }
-    let smartRouteActions = await getSmartRouteSwapActions(
-      pools,
-      inputToken,
-      outputToken,
-      totalInput,
-      slippageTolerance
-    );
-    console.log('SMART ROUTE SWAP ACTIONS FOUND TO BE');
-    console.log(smartRouteActions);
-
-    let smartRouteExpectedOutput = getExpectedOutputFromActions(
-      smartRouteActions,
-      outputToken
-    );
-    console.log('EXPECTED OUTPUT FROM SMART ROUTE ALONE IS...');
-    console.log(smartRouteExpectedOutput.toString());
-
-    console.log('EXPECTED OUTPUT FROM HYBRID STABLE SWAP / PARALLEL IS...');
-    console.log(bestOutput.toString());
-    console.log('stable swap actions are...');
-    console.log(bestStableSwapActions);
-    // TODO: fix hybrid route, and delete following line.
-    return smartRouteActions;
-
-    // now choose whichever solution gave the most output.
-    if (new Big(smartRouteExpectedOutput).gt(bestOutput)) {
-      console.log('SMART ROUTE WAS BETTER -- USING THAT.');
-      return smartRouteActions;
-    } else {
-      console.log('HYBRID STABLE ROUTE WAS BETTER -- USING THAT.');
-      return bestStableSwapActions;
-    }
-  } else if (
-    !STABLE_TOKEN_IDS.includes(inputToken) &&
-    STABLE_TOKEN_IDS.includes(outputToken)
-  ) {
-    console.log(
-      'INPUT NOT STABLE/ OUTPUT IS STABLE, CHECKING STABLE ROUTES ENDING WITH OUTPUT...'
-    );
-
-    // input is not stable, output is.
-    // (A) try route inputToken-->stable2-->outputToken (simple Pool-->stablepool)
-    // (B) try route inputToken-->stable3-->outputToken (simple Pool-->stablepool)
-    // (C) try normal smart route. (simple Pool-->simple pool)
-    // compare outputs from A,B,C and use the one with maximum return.
-    var partialStableRoutes = [];
-    var bestOutput = new Big(0);
-    var bestStableSwapActions = [];
-    for (var i in STABLE_TOKEN_IDS) {
-      var middleToken = STABLE_TOKEN_IDS[i];
-      if (middleToken === outputToken) {
-        continue;
-      }
-      let parallelSwapActions = await GETPARALLELSWAPACTIONS(
-        pools,
-        inputToken,
-        middleToken,
-        totalInput,
-        slippageTolerance
-      );
-
-      console.log('GOT PARALLEL SWAP ACTIONS TO BE...');
-      console.log(parallelSwapActions);
-      let minMiddleTokenAmount = getExpectedOutputFromActions(
-        parallelSwapActions,
-        middleToken
-      );
-      console.log('min middle token amount is...');
-      console.log(minMiddleTokenAmount.toString());
-
-      let middleTokenMeta = await ftGetTokenMetadata(middleToken);
-      let middleTokenDecimals = middleTokenMeta.decimals;
-      let middleTokenInt = new Big(minMiddleTokenAmount)
-        .times(new Big(10).pow(middleTokenDecimals))
-        .round()
-        .toString();
-      let lastAction = await GETSTABLESWAPACTION(
-        middleToken,
-        outputToken,
-        middleTokenInt,
-        slippageTolerance
-      );
-
-      let stableResult = lastAction.min_amount_out;
-      partialStableRoutes.push(stableResult);
-      if (new Big(stableResult).gt(bestOutput)) {
-        bestOutput = new Big(stableResult);
-        bestStableSwapActions = [...parallelSwapActions, lastAction];
-      }
-    }
-    let smartRouteActions = await getSmartRouteSwapActions(
-      pools,
-      inputToken,
-      outputToken,
-      totalInput,
-      slippageTolerance
-    );
-    let smartRouteExpectedOutput = getExpectedOutputFromActions(
-      smartRouteActions,
-      outputToken
-    );
-    // now choose whichever solution gave the most output.
-    console.log('EXPECTED OUTPUT FROM SMART ROUTE ALONE IS...');
-    console.log(smartRouteExpectedOutput.toString());
-
-    console.log('EXPECTED OUTPUT FROM HYBRID STABLE SWAP / PARALLEL IS...');
-    console.log(bestOutput.toString());
-    console.log('HYBRID ACTIONS ARE...');
-    console.log(bestStableSwapActions);
-
-    // TODO: fix hybrid route, and delete following line.
-    return smartRouteActions;
-
-    if (new Big(smartRouteExpectedOutput).gt(bestOutput)) {
-      console.log('SMART ROUTE WAS BETTER -- USING THAT.');
-      return smartRouteActions;
-    } else {
-      console.log('HYBRID STABLE ROUTE WAS BETTER -- USING THAT.');
-      return bestStableSwapActions;
-    }
-  } else {
-    //do normal smart route swap. (simple Pool-->simple pool)
-    console.log(
-      'NEITHER INPUT NOR OUTPUT IS STABLE. DOING NORMAL SMART ROUTING OVER SIMPLE POOLS'
-    );
-    let smartRouteActions = await getSmartRouteSwapActions(
-      pools,
-      inputToken,
-      outputToken,
-      totalInput,
-      slippageTolerance
-    );
-    return smartRouteActions;
-  }
+  let smartRouteActions = await getSmartRouteSwapActions(
+    pools,
+    inputToken,
+    outputToken,
+    totalInput,
+    slippageTolerance
+  );
+  return smartRouteActions;
 }
+// if (
+//   STABLE_TOKEN_IDS.includes(inputToken) &&
+//   STABLE_TOKEN_IDS.includes(outputToken)
+// ) {
+//   //use stable swap only.
+//   console.log('USING STABLE SWAP ONLY...');
+//   let firstAction = await GETSTABLESWAPACTION(
+//     inputToken,
+//     outputToken,
+//     totalInput,
+//     slippageTolerance
+//   );
+
+// let stableAction = await convertStableActionToEstimatesFormat(firstAction);
+
+// return [stableAction];
+// ASSUME USER MUST GO TO STABLE SWAP PAGE...
+// return [];
+//STABLESWAP(poolId=STABLE_POOL_ID, inputToken, outputToken, totalInput, slippageTolerance)
+// } else if (
+//   STABLE_TOKEN_IDS.includes(inputToken) &&
+//   !STABLE_TOKEN_IDS.includes(outputToken)
+// ) {
+//   // input is stable and output is not.
+//   console.log(
+//     'INPUT STABLE/ OUTPUT NOT, CHECKING STABLE ROUTES STARTING WITH INPUT...'
+//   );
+
+//   // (A) try route inputToken-->stable2-->outputToken (stablePool-->simple pool)
+//   // (B) try route inputTokne-->stable3-->outputToken (stablePool-->simple pool)
+//   // (C) try normal smart route. (simple Pool-->simple pool)
+//   // compare outputs from A,B,C and use the one with maximum return.
+
+//   var partialStableRoutes = [];
+//   var bestOutput = new Big(0);
+//   var bestStableSwapActions = [];
+//   for (var i in STABLE_TOKEN_IDS) {
+//     let middleToken = STABLE_TOKEN_IDS[i];
+//     if (middleToken === inputToken) {
+//       continue;
+//     }
+//     let secondHopPools = getPoolsByToken1ANDToken2(
+//       pools,
+//       middleToken,
+//       outputToken
+//     );
+//     console.log('ABOUT TO RUN GETSTABLESWAPACTION');
+
+//     let firstAction = await GETSTABLESWAPACTION(
+//       inputToken,
+//       middleToken,
+//       totalInput,
+//       slippageTolerance
+//     );
+//     let middleTokenAmount = firstAction.min_amount_out;
+//     //scale to get minimum_amount_out
+//     let minMiddleTokenAmount = new Big(middleTokenAmount)
+//       .times(new Big(1).minus(new Big(slippageTolerance).div(100)))
+//       .round()
+//       .toString();
+
+//     console.log('NOW ABOUT TO DO PARALLEL SWAP ACTIONS FOR SECOND HOP');
+//     console.log(middleTokenAmount);
+//     let parallelSwapActions = await GETPARALLELSWAPACTIONS(
+//       secondHopPools,
+//       middleToken,
+//       outputToken,
+//       minMiddleTokenAmount,
+//       slippageTolerance
+//     );
+//     console.log('PARALLEL SWAP ACTIONS GAVE...');
+//     console.log(parallelSwapActions);
+//     let stableResult = getExpectedOutputFromActions(
+//       parallelSwapActions,
+//       outputToken
+//     );
+//     partialStableRoutes.push(stableResult);
+//     if (new Big(stableResult).gt(bestOutput)) {
+//       bestOutput = new Big(stableResult);
+//       bestStableSwapActions = [firstAction, ...parallelSwapActions];
+//     }
+//   }
+//   let smartRouteActions = await getSmartRouteSwapActions(
+//     pools,
+//     inputToken,
+//     outputToken,
+//     totalInput,
+//     slippageTolerance
+//   );
+//   console.log('SMART ROUTE SWAP ACTIONS FOUND TO BE');
+//   console.log(smartRouteActions);
+
+//   let smartRouteExpectedOutput = getExpectedOutputFromActions(
+//     smartRouteActions,
+//     outputToken
+//   );
+//   console.log('EXPECTED OUTPUT FROM SMART ROUTE ALONE IS...');
+//   console.log(smartRouteExpectedOutput.toString());
+
+//   console.log('EXPECTED OUTPUT FROM HYBRID STABLE SWAP / PARALLEL IS...');
+//   console.log(bestOutput.toString());
+//   console.log('stable swap actions are...');
+//   console.log(bestStableSwapActions);
+//   // TODO: fix hybrid route, and delete following line.
+//   return smartRouteActions;
+
+//   // now choose whichever solution gave the most output.
+//   if (new Big(smartRouteExpectedOutput).gt(bestOutput)) {
+//     console.log('SMART ROUTE WAS BETTER -- USING THAT.');
+//     return smartRouteActions;
+//   } else {
+//     console.log('HYBRID STABLE ROUTE WAS BETTER -- USING THAT.');
+//     return bestStableSwapActions;
+//   }
+// } else if (
+//   !STABLE_TOKEN_IDS.includes(inputToken) &&
+//   STABLE_TOKEN_IDS.includes(outputToken)
+// ) {
+//   console.log(
+//     'INPUT NOT STABLE/ OUTPUT IS STABLE, CHECKING STABLE ROUTES ENDING WITH OUTPUT...'
+//   );
+
+//   // input is not stable, output is.
+//   // (A) try route inputToken-->stable2-->outputToken (simple Pool-->stablepool)
+//   // (B) try route inputToken-->stable3-->outputToken (simple Pool-->stablepool)
+//   // (C) try normal smart route. (simple Pool-->simple pool)
+//   // compare outputs from A,B,C and use the one with maximum return.
+//   var partialStableRoutes = [];
+//   var bestOutput = new Big(0);
+//   var bestStableSwapActions = [];
+//   for (var i in STABLE_TOKEN_IDS) {
+//     var middleToken = STABLE_TOKEN_IDS[i];
+//     if (middleToken === outputToken) {
+//       continue;
+//     }
+//     let parallelSwapActions = await GETPARALLELSWAPACTIONS(
+//       pools,
+//       inputToken,
+//       middleToken,
+//       totalInput,
+//       slippageTolerance
+//     );
+
+//     console.log('GOT PARALLEL SWAP ACTIONS TO BE...');
+//     console.log(parallelSwapActions);
+//     let minMiddleTokenAmount = getExpectedOutputFromActions(
+//       parallelSwapActions,
+//       middleToken
+//     );
+//     console.log('min middle token amount is...');
+//     console.log(minMiddleTokenAmount.toString());
+
+//     let middleTokenMeta = await ftGetTokenMetadata(middleToken);
+//     let middleTokenDecimals = middleTokenMeta.decimals;
+//     let middleTokenInt = new Big(minMiddleTokenAmount)
+//       .times(new Big(10).pow(middleTokenDecimals))
+//       .round()
+//       .toString();
+//     let lastAction = await GETSTABLESWAPACTION(
+//       middleToken,
+//       outputToken,
+//       middleTokenInt,
+//       slippageTolerance
+//     );
+
+//     let stableResult = lastAction.min_amount_out;
+//     partialStableRoutes.push(stableResult);
+//     if (new Big(stableResult).gt(bestOutput)) {
+//       bestOutput = new Big(stableResult);
+//       bestStableSwapActions = [...parallelSwapActions, lastAction];
+//     }
+//   }
+//   let smartRouteActions = await getSmartRouteSwapActions(
+//     pools,
+//     inputToken,
+//     outputToken,
+//     totalInput,
+//     slippageTolerance
+//   );
+//   let smartRouteExpectedOutput = getExpectedOutputFromActions(
+//     smartRouteActions,
+//     outputToken
+//   );
+//   // now choose whichever solution gave the most output.
+//   console.log('EXPECTED OUTPUT FROM SMART ROUTE ALONE IS...');
+//   console.log(smartRouteExpectedOutput.toString());
+
+//   console.log('EXPECTED OUTPUT FROM HYBRID STABLE SWAP / PARALLEL IS...');
+//   console.log(bestOutput.toString());
+//   console.log('HYBRID ACTIONS ARE...');
+//   console.log(bestStableSwapActions);
+
+//   // TODO: fix hybrid route, and delete following line.
+//   return smartRouteActions;
+
+//   if (new Big(smartRouteExpectedOutput).gt(bestOutput)) {
+//     console.log('SMART ROUTE WAS BETTER -- USING THAT.');
+//     return smartRouteActions;
+//   } else {
+//     console.log('HYBRID STABLE ROUTE WAS BETTER -- USING THAT.');
+//     return bestStableSwapActions;
+//   }
+//   } else {
+//     //do normal smart route swap. (simple Pool-->simple pool)
+//     console.log(
+//       'NEITHER INPUT NOR OUTPUT IS STABLE. DOING NORMAL SMART ROUTING OVER SIMPLE POOLS'
+//     );
+//     let smartRouteActions = await getSmartRouteSwapActions(
+//       pools,
+//       inputToken,
+//       outputToken,
+//       totalInput,
+//       slippageTolerance
+//     );
+//     return smartRouteActions;
+//   }
+// }
 
 function getExpectedOutputFromActionsORIG(actions, outputToken) {
   return actions
@@ -2505,7 +2516,9 @@ async function convertStableActionToEstimatesFormat(action) {
   let hopInputTokenMeta = await ftGetTokenMetadata(action.token_in);
   let hopOutputTokenMeta = await ftGetTokenMetadata(action.token_out);
   let hopOutputTokenDecimals = hopOutputTokenMeta.decimals;
+  // NEED TO CACHE THIS RESULT!
   let pool = await getStablePool(action.pool_id);
+
   let amount_swapped = new Big(action.amount_swapped)
     .div(new Big(10).pow(STABLE_LP_TOKEN_DECIMALS))
     .div(new Big(10).pow(hopOutputTokenDecimals));
@@ -2514,24 +2527,26 @@ async function convertStableActionToEstimatesFormat(action) {
   let decimalEstimate = amount_swapped;
   console.log('SWAPPED AMOUNT IN STABLE ACTION WAS...');
   console.log(amount_swapped);
-
+  console.log('STABLE POOL IS...');
+  console.log(pool);
+  let poolFee = pool.fee ? pool.fee : pool.total_fee;
   let newAction = {
     estimate: decimalEstimate,
     pool: {
-      fee: pool.fee,
-      gamma_bps: new Big(10000).minus(new Big(pool.fee)), //.div(new Big(10000)), //hops[i].pool.gamma, //new Big(10000).minus(new Big(hops[i].pool.fee)).div(new Big(10000));
+      fee: poolFee,
+      gamma_bps: new Big(10000).minus(new Big(poolFee)), //.div(new Big(10000)), //hops[i].pool.gamma, //new Big(10000).minus(new Big(hops[i].pool.fee)).div(new Big(10000));
       id: pool.id,
       partialAmountIn: new Big(action.amount_in).round().toString(),
       supplies: {
         [pool.token1Id]: pool.token1Supply,
         [pool.token2Id]: pool.token2Supply,
       },
-      token0_ref_price: hops[i].pool.token0_price,
+      token0_ref_price: '', //hops[i].pool.token0_price,
       tokenIds: [pool.token1Id, pool.token2Id],
     },
     status: 'stableSmart',
     token: hopInputTokenMeta,
-    outputToken: hops[i].outputToken,
+    outputToken: action.token_out,
   };
   // console.log('INPUT TOKEN IS...');
   // console.log(hops[i].inputToken);

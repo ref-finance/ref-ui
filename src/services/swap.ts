@@ -73,6 +73,7 @@ const REF_FI_STABLE_Pool_INFO_KEY = 'REF_FI_STABLE_Pool_INFO_VALUE';
 export enum PoolMode {
   PARALLEL = 'parallel swap',
   SMART = 'smart routing',
+  SMART_V2 = 'stableSmart',
 }
 
 interface EstimateSwapOptions {
@@ -197,6 +198,16 @@ export const estimateSwap = async ({
       })}`
     );
   };
+
+  // First check to see if both tokens are stable coins. If so, short circuit to the stable swap pool.
+
+  // const bothStableCoin =
+  //   STABLE_TOKEN_IDS.includes(tokenIn.id) &&
+  //   STABLE_TOKEN_IDS.includes(tokenOut.id);
+
+  // if (bothStableCoin) {
+  //   throwNoPoolError();
+  // }
 
   const pools = await getPoolsByTokens({
     tokenInId: tokenIn.id,

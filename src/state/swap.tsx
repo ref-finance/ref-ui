@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
-import { getPool, Pool, StablePool } from '../services/pool';
+import { getPool, Pool, StablePool, getStablePool } from '../services/pool';
 import BigNumber from 'bignumber.js';
 import {
   estimateSwap as estimateStableSwap,
@@ -29,7 +29,11 @@ import getConfig from '~services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { CloseIcon } from '~components/icon/Actions';
 import db from '../store/RefDatabase';
-import { POOL_TOKEN_REFRESH_INTERVAL } from '~services/near';
+import {
+  POOL_TOKEN_REFRESH_INTERVAL,
+  STABLE_TOKEN_IDS,
+  STABLE_POOL_ID,
+} from '~services/near';
 
 import { getExpectedOutputFromActions } from '~services/smartRouteLogic';
 
@@ -60,6 +64,23 @@ export const useSwap = ({
   setLoadingTrigger,
   loadingPause,
 }: SwapOptions) => {
+  // if (
+  //   STABLE_TOKEN_IDS.includes(tokenIn.id) &&
+  //   STABLE_TOKEN_IDS.includes(tokenOut.id)
+  // ) {
+  //   let stablePool = await getStablePool(Number(STABLE_POOL_ID));
+  //   useStableSwap({
+  //     tokenIn,
+  //     tokenInAmount,
+  //     tokenOut,
+  //     slippageTolerance,
+  //     loadingTrigger,
+  //     setLoadingTrigger,
+  //     stablePool,
+  //     // stablePool,
+  //   });
+  // }
+
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
