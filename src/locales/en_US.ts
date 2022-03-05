@@ -331,5 +331,6 @@ const en_US = {
   withdraw_l: 'withdraw',
   got_it: 'Got it',
   check_the_transaction_settings: 'Check the transaction settings',
+  StableSwap: 'StableSwap'
 };
 export default en_US;

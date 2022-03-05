@@ -2559,4 +2559,31 @@ async function convertStableActionToEstimatesFormat(action) {
   return newAction;
 }
 
+function getFeeForRoute(route) {
+  if (!route.length) {
+    route = [route];
+  }
+  if (route.length == 1) {
+    // Single Hop case
+    let p = route[0];
+    return p.fee;
+  } else if (route.length == 2) {
+    //Double Hop Case
+    let p1 = route[0];
+    let p2 = route[1];
+    let fee1 = p1.fee;
+    let fee2 = p2.fee;
+    return fee1 + fee2;
+  }
+}
+
+export function getAverageFeeForRoutes(routes, nodeRoutes, totalInput) {
+  let normalizedAllocations = getOptimalAllocationForRoutes(routes, nodeRoutes, totalInput);
+  let averageFee = 0;
+  for (var i in routes) {
+    averageFee += normalizedAllocations[i] * getFeeForRoute(routes[i]);
+  }
+  return averageFee;
+}
+
 //module.exports = { getSmartRouteSwapActions };
