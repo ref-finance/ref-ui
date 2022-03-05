@@ -493,6 +493,11 @@ function getBestOptInput(routes, nodeRoutes, totalInput) {
 }
 
 function getOptOutputVecRefined(routes, nodeRoutes, totalInput) {
+  // need to calculate full result.
+  // if direct pools exist, need to calculate parallel result. if not, this portion is set to zero output.
+
+  // need to compare between outputs of the two results above.
+
   let initLengthRoutes = routes.length;
   let directRouteInds = [];
   for (var routeInd in routes) {
@@ -506,21 +511,24 @@ function getOptOutputVecRefined(routes, nodeRoutes, totalInput) {
   }
   // console.log('DIRECT ROUTE INDS ARE')
   // console.log(directRouteInds)
-  if (directRouteInds.length < 1) {
-    var allocations = getOptimalAllocationForRoutes(
-      routes,
-      nodeRoutes,
-      totalInput
-    );
-    var result = [];
-    for (var i in routes) {
-      let r = routes[i];
-      let nr = nodeRoutes[i];
-      let a = allocations[i];
-      let output = getOutputFromRoute(r, nr, a);
-      result.push(output);
-    }
-  } else {
+  // if (directRouteInds.length < 1) {
+  var fullResultAllocations = getOptimalAllocationForRoutes(
+    routes,
+    nodeRoutes,
+    totalInput
+  );
+  var fullResult = [];
+  for (var i in routes) {
+    let r = routes[i];
+    let nr = nodeRoutes[i];
+    let a = fullResultAllocations[i];
+    let output = getOutputFromRoute(r, nr, a);
+    fullResult.push(output);
+  }
+  var fullResultTotal = fullResult.reduce((a, b) => a.plus(b), new Big(0));
+
+  // } else {
+  if (directRouteInds.length > 0) {
     // console.log('DOING SINGLE HOP ONLY')
     let droutes = [];
     let dnodeRoutes = [];
@@ -538,25 +546,36 @@ function getOptOutputVecRefined(routes, nodeRoutes, totalInput) {
     for (var dd in dallocations) {
       dallocDict[directRouteInds[dd]] = dallocations[dd];
     }
-    var allocations = [];
+    var pallocations = [];
 
     for (var ii = 0; ii < initLengthRoutes; ii++) {
       if (directRouteInds.includes(ii.toString())) {
         //console.log('ADDING ALLOCATION FOR SINGLE ROUTE')
-        allocations.push(dallocDict[ii]);
+        pallocations.push(dallocDict[ii]);
       } else {
-        allocations.push(new Big(0));
+        pallocations.push(new Big(0));
       }
     }
-    var result = [];
+    var presult = [];
     for (var j in routes) {
       let route = routes[j];
       let nodeRoute = nodeRoutes[j];
-      let allocation = allocations[j];
+      let allocation = pallocations[j];
       let output = getOutputFromRoute(route, nodeRoute, allocation);
-      result.push(output);
+      presult.push(output);
     }
+    var presultTotal = presult.reduce((a, b) => a.plus(b), new Big(0));
+  } else {
+    var presultTotal = new Big(0);
   }
+  if (presultTotal.gt(fullResultTotal)) {
+    var result = presult;
+    var allocations = pallocations;
+  } else {
+    var result = fullResult;
+    var allocations = fullResultAllocations;
+  }
+  // NEED TO COMPARE BETWEEEN DIRECT AND MULTI HOP TO GET BEST OUTPUT
   return {
     result: result,
     allocations: allocations,
@@ -1252,8 +1271,8 @@ export async function getSmartRouteSwapActions(
       var filteredParallelRoutes = [];
       var filteredParallelNodeRoutes = [];
       for (var i in sortIndices) {
-        filteredParallelRoutes.push(parallelRoutes[sortedIndices[i]]);
-        filteredParallelNodeRoutes.push(parallelNodeRoutes[sortedIndices[i]]);
+        filteredParallelRoutes.push(parallelRoutes[sortIndices[i]]);
+        filteredParallelNodeRoutes.push(parallelNodeRoutes[sortIndices[i]]);
       }
       filteredAllocationsAndOutputs = getOptOutputVecRefined(
         filteredParallelRoutes,
@@ -1299,11 +1318,12 @@ export async function getSmartRouteSwapActions(
         }
         if (sharePool) {
           // routes are not independent. skip this pair.
-          console.log('skipping this pair because pool was shared.');
+          // console.log('skipping this pair because pool was shared.');
           continue;
         } else {
-          console.log('No pool was shared.');
-
+          // console.log('No pool was shared.');
+          console.log('NODE ROUTE 1 IS...', nodeRoute1);
+          console.log('NODE ROUTE 2 IS...', nodeRoute2);
           let currentRoutes = [route1, route2];
           let currentNodeRoutes = [nodeRoute1, nodeRoute2];
           let filteredAllocationsAndOutputs = getOptOutputVecRefined(
@@ -1314,7 +1334,9 @@ export async function getSmartRouteSwapActions(
 
           let filteredAllocations = filteredAllocationsAndOutputs.allocations;
           let filteredOutputs = filteredAllocationsAndOutputs.result;
-          console.log(filteredOutputs);
+          console.log('FILTERED ALLOCATIONS:');
+          console.log(filteredAllocations.map((i) => i.toString()));
+          // console.log(filteredOutputs);
           let totalOutput = filteredOutputs.reduce(
             (a, b) => a.plus(b),
             new Big(0)
