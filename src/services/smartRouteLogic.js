@@ -805,8 +805,8 @@ function getHopActionsFromRoutes(routes, nodeRoutes, allocations) {
       // console.log(nodeRoute);
       if (j == 0) {
         //first hop.
-        console.log(nodeRoute[0]);
-        console.log(nodeRoute[1]);
+        // console.log(nodeRoute[0]);
+        // console.log(nodeRoute[1]);
         var hop = {
           pool: pool,
           allocation: allocation.toString(),
@@ -840,8 +840,8 @@ function getHopActionsFromRoutes(routes, nodeRoutes, allocations) {
       }
     }
   }
-  console.log('HOP ACTIONS FOUND TO BE');
-  console.log(hops);
+  // console.log('HOP ACTIONS FOUND TO BE');
+  // console.log(hops);
   return hops;
 }
 
@@ -1231,10 +1231,10 @@ export async function getSmartRouteSwapActions(
   let routes = resDict.routes;
   let nodeRoutes = resDict.nodeRoutes;
 
-  console.log('initial routes are...');
-  console.log(routes);
-  console.log('initial node routes are...');
-  console.log(nodeRoutes);
+  // console.log('initial routes are...');
+  // console.log(routes);
+  // console.log('initial node routes are...');
+  // console.log(nodeRoutes);
 
   // TODO: compare pairs of routes to get the best allocation pair-wise.
   var currentBestOutput = new Big(0);
@@ -1290,10 +1290,10 @@ export async function getSmartRouteSwapActions(
     if (new Big(parallelOutput).gt(currentBestOutput)) {
       bestAllocations = parallellAllocations;
       currentBestOutput = parallelOutput;
-      console.log(
-        'BEST OUTPUT FROM PARALLEL SWAPS IS NOW... ',
-        currentBestOutput.toString()
-      );
+      // console.log(
+      //   'BEST OUTPUT FROM PARALLEL SWAPS IS NOW... ',
+      //   currentBestOutput.toString()
+      // );
       bestRoutes = parallelRoutes;
       bestNodeRoutes = parallelNodeRoutes;
       bestRoutesAreParallel = true;
@@ -1322,8 +1322,8 @@ export async function getSmartRouteSwapActions(
           continue;
         } else {
           // console.log('No pool was shared.');
-          console.log('NODE ROUTE 1 IS...', nodeRoute1);
-          console.log('NODE ROUTE 2 IS...', nodeRoute2);
+          // console.log('NODE ROUTE 1 IS...', nodeRoute1);
+          // console.log('NODE ROUTE 2 IS...', nodeRoute2);
           let currentRoutes = [route1, route2];
           let currentNodeRoutes = [nodeRoute1, nodeRoute2];
           let filteredAllocationsAndOutputs = getOptOutputVecRefined(
@@ -1334,8 +1334,8 @@ export async function getSmartRouteSwapActions(
 
           let filteredAllocations = filteredAllocationsAndOutputs.allocations;
           let filteredOutputs = filteredAllocationsAndOutputs.result;
-          console.log('FILTERED ALLOCATIONS:');
-          console.log(filteredAllocations.map((i) => i.toString()));
+          // console.log('FILTERED ALLOCATIONS:');
+          // console.log(filteredAllocations.map((i) => i.toString()));
           // console.log(filteredOutputs);
           let totalOutput = filteredOutputs.reduce(
             (a, b) => a.plus(b),
@@ -1344,7 +1344,7 @@ export async function getSmartRouteSwapActions(
           if (new Big(totalOutput).gt(currentBestOutput)) {
             bestAllocations = filteredAllocations;
             currentBestOutput = totalOutput;
-            console.log('BEST OUTPUT IS NOW... ', currentBestOutput.toString());
+            // console.log('BEST OUTPUT IS NOW... ', currentBestOutput.toString());
             bestRoutes = currentRoutes;
             bestNodeRoutes = currentNodeRoutes;
             bestRoutesAreParallel = false;
@@ -1377,10 +1377,10 @@ export async function getSmartRouteSwapActions(
   }
 
   // check the top numberOfRoutesLimit
-  console.log('initial allocations are...');
-  console.log(allocations.map((a) => a.toString()));
-  console.log('fixed allocations are...');
-  console.log(allocations.map((a) => new Big(a).toFixed()));
+  // console.log('initial allocations are...');
+  // console.log(allocations.map((a) => a.toString()));
+  // console.log('fixed allocations are...');
+  // console.log(allocations.map((a) => new Big(a).toFixed()));
   //SORT BY ALLOCATIONS
   let allSortedIndices = argsort(allocations.map((a) => new Big(a)));
   if (bestRoutesAreParallel) {
@@ -1388,8 +1388,8 @@ export async function getSmartRouteSwapActions(
   }
   let sortedIndices = allSortedIndices.slice(0, numberOfRoutesLimit);
 
-  console.log('sorted Indices are');
-  console.log(sortedIndices);
+  // console.log('sorted Indices are');
+  // console.log(sortedIndices);
   var filteredRoutes = [];
   var filteredNodeRoutes = [];
   for (var i in sortedIndices) {
@@ -1398,32 +1398,32 @@ export async function getSmartRouteSwapActions(
     filteredNodeRoutes.push(nodeRoutes[index]);
   }
 
-  console.log('filteredRoutes are ...');
-  console.log(filteredRoutes);
+  // console.log('filteredRoutes are ...');
+  // console.log(filteredRoutes);
   for (var i in filteredRoutes) {
     if (!filteredRoutes[i].length) {
       filteredRoutes[i] = [filteredRoutes[i]];
     }
   }
-  console.log('filtered Node routes are...');
-  console.log(filteredNodeRoutes);
+  // console.log('filtered Node routes are...');
+  // console.log(filteredNodeRoutes);
 
   // THE BELOW CODE WILL ENSURE THAT ROUTES ARE INDEPENDENT (e.g. THE ROUTES WILL NOT SHARE A POOL)
 
   let route1PoolIds = filteredRoutes[0].map((pool) => pool.id);
-  console.log('route 1 pool ids:');
-  console.log(route1PoolIds);
+  // console.log('route 1 pool ids:');
+  // console.log(route1PoolIds);
   if (filteredRoutes.length > 1) {
     let route2PoolIds = filteredRoutes[1].map((pool) => pool.id);
-    console.log('route 2 pool ids:');
-    console.log(route2PoolIds);
+    // console.log('route 2 pool ids:');
+    // console.log(route2PoolIds);
     var sharedRoute = false;
     for (var i in route2PoolIds) {
       if (route1PoolIds.includes(route2PoolIds[i])) {
         // a pool was shared between routes. need to calculate a new second route.
-        console.log(
-          'a pool was shared between routes. going to calculate a new second route'
-        );
+        // console.log(
+        //   'a pool was shared between routes. going to calculate a new second route'
+        // );
         sharedRoute = true;
         break;
       }
@@ -1477,10 +1477,10 @@ export async function getSmartRouteSwapActions(
         break;
       }
     }
-    console.log('new filteredRoutes are ...');
-    console.log(filteredRoutes);
-    console.log('new filtered Node routes are...');
-    console.log(filteredNodeRoutes);
+    // console.log('new filteredRoutes are ...');
+    // console.log(filteredRoutes);
+    // console.log('new filtered Node routes are...');
+    // console.log(filteredNodeRoutes);
   }
 
   // let filteredAllocations_check = getBestOptInput(
@@ -1497,12 +1497,12 @@ export async function getSmartRouteSwapActions(
   let filteredAllocations = filteredAllocationsAndOutputs.allocations;
   let filteredOutputs = filteredAllocationsAndOutputs.result;
 
-  console.log('filtered outputs are ...');
-  console.log('    allocations:');
-  // console.log(filteredAllocations_check.map((a) => a.toString()));
-  console.log(filteredAllocations.map((a) => a.toString()));
-  console.log('    result:');
-  console.log(filteredOutputs.map((a) => a.toString()));
+  // console.log('filtered outputs are ...');
+  // console.log('    allocations:');
+  // // console.log(filteredAllocations_check.map((a) => a.toString()));
+  // console.log(filteredAllocations.map((a) => a.toString()));
+  // console.log('    result:');
+  // console.log(filteredOutputs.map((a) => a.toString()));
 
   let hops = getActionListFromRoutesAndAllocations(
     filteredRoutes,
@@ -1512,8 +1512,8 @@ export async function getSmartRouteSwapActions(
   );
 
   var actions = [];
-  console.log('hops are...');
-  console.log(hops);
+  // console.log('hops are...');
+  // console.log(hops);
 
   for (var i in hops) {
     let hopInputTokenMeta = await ftGetTokenMetadata(hops[i].inputToken);
@@ -1700,9 +1700,9 @@ function decor(arr) {
 function argsort(arr) {
   let undecor = (a) => a[1]; // leave only index
   let decorated = decor(arr);
-  console.log(decorated);
-  console.log('item by item');
-  console.log(decorated.map((a) => a[0].toString()));
+  // console.log(decorated);
+  // console.log('item by item');
+  // console.log(decorated.map((a) => a[0].toString()));
   return decorated
     .sort((a, b) => new Big(b[0]).minus(new Big(a[0])))
     .map(undecor);

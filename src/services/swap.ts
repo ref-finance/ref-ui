@@ -239,9 +239,8 @@ export const estimateSwap = async ({
     0.1
   );
 
-  console.log('STABLE SMART HYBRID ACTIONS ARE...');
-  console.log(stableSmartActions);
-  // TODO: Once I get the smartRouteLogic file finished, I should be able to return stableSmartActions...
+  // console.log('STABLE SMART HYBRID ACTIONS ARE...');
+  // console.log(stableSmartActions);
   return stableSmartActions;
   const maxLPPool = _.maxBy(pools, (p) => getLiquidity(p, tokenIn, tokenOut));
 
