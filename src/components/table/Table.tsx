@@ -49,7 +49,9 @@ export default function Table({
                 <span className="self-start">
                   <SmallWallet forSelectToken />
                 </span>
-                <span className="ml-1">NEAR</span>
+                <span className="ml-1">
+                  <FormattedMessage id="balance" />
+                </span>
                 <TiArrowSortedUp
                   className={`inline-block cursor-pointer ${
                     sortBy === 'near' && currentSort === 'down'
