@@ -19,12 +19,14 @@ export const getURLInfo = () => {
 
   const pathname = window.location.pathname;
 
+  const errorType = new URLSearchParams(search).get('errorType');
+
   const txHashes = (
     new URLSearchParams(search).get(TRANSACTION_WALLET_TYPE.NEAR_WALLET) ||
     new URLSearchParams(search).get(TRANSACTION_WALLET_TYPE.SENDER_WALLET)
   )?.split(',');
 
-  return { txHash: txHashes?.pop() || '', pathname };
+  return { txHash: txHashes?.pop() || '', pathname, errorType };
 };
 
 export const swapToast = (txHash: string) => {

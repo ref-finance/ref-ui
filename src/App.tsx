@@ -38,6 +38,7 @@ import SwapGuide from '~components/layout/SwapGuide';
 import { isMobile } from '~utils/device';
 import { wallet as webWallet, REF_FARM_CONTRACT_ID } from './services/near';
 import { getSenderWallet } from './utils/sender-wallet';
+import { getURLInfo, failToast } from './components/layout/transactionTipPopUp';
 import {
   getSenderLoginRes,
   LOCK_INTERVAL,
@@ -82,6 +83,15 @@ function App() {
     isSignedIn: false,
   });
   const [signedInState, signedInStatedispatch] = SignedInStateReducer;
+
+  const { txHash, pathname, errorType } = getURLInfo();
+
+  useEffect(() => {
+    if (errorType) {
+      failToast(txHash, errorType);
+      window.location.replace(pathname);
+    }
+  }, [errorType]);
 
   useEffect(() => {
     if (webWallet.isSignedIn()) {
