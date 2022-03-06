@@ -364,7 +364,8 @@ const vi = {
   frictionless_add_remove_liquidity:
     'Các hành động thêm / xóa thanh khoản không ma sát',
   select_a: 'Chọn một',
-  wallet: 'ví',
+  wallet_vi: 'ví',
+  wallet: ' ',
   to_use_ref_finance: 'để sử dụng Ref.Finance',
   not_supported: 'không hỗ trợ',
   installed: 'đã cài đặt',
@@ -379,9 +380,9 @@ const vi = {
   check_sender_wallet_extension: 'Hãy kiểm tra Sender Wallet Extention.',
   having_trouble: 'Gặp lỗi?',
   go_back: 'Quay lại',
-  web: 'web',
-  Type: 'Type',
-  click_to_view: 'Click to view',
-  transaction_failed: 'Transaction failed',
+  web: 'Web',
+  Type: 'Kiểu',
+  click_to_view: 'Nhấn để xem',
+  transaction_failed: 'Giao dịch thất bại',
 };
 export default vi;

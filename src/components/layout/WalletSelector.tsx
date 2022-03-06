@@ -405,10 +405,9 @@ export const WalletSelectorModal = (
           <div className="pt-10 text-2xl pb-6 mx-auto items-center flex flex-col">
             <span className=" pb-1">
               <FormattedMessage id="select_a" defaultMessage="Select a" />{' '}
+              <FormattedMessage id="wallet_vi" defaultMessage=" " />
               <span className="font-bold"> NEAR </span>
-              <span>
-                <FormattedMessage id="wallet" defaultMessage="wallet" />
-              </span>
+              <FormattedMessage id="wallet" defaultMessage=" " />
             </span>
             <span className="">
               <FormattedMessage

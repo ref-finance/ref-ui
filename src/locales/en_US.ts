@@ -378,5 +378,6 @@ const en_US = {
   Type: 'Type',
   click_to_view: 'Click to view',
   transaction_failed: 'Transaction failed',
+  wallet_vi: ' ',
 };
 export default en_US;

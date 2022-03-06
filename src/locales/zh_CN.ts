@@ -362,5 +362,6 @@ const zh_CN = {
   Type: '类型',
   click_to_view: '点击查看详情',
   transaction_failed: '交易失败',
+  wallet_vi: ' ',
 };
 export default zh_CN;
