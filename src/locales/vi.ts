@@ -379,5 +379,9 @@ const vi = {
   check_sender_wallet_extension: 'Hãy kiểm tra Sender Wallet Extention.',
   having_trouble: 'Gặp lỗi?',
   go_back: 'Quay lại',
+  web: 'web',
+  Type: 'Type',
+  click_to_view: 'Click to view',
+  transaction_failed: 'Transaction failed',
 };
 export default vi;

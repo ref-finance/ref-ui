@@ -359,5 +359,8 @@ const zh_CN = {
   check_sender_wallet_extension: '请确认Sender钱包插件',
   having_trouble: '有问题?',
   go_back: '返回',
+  Type: '类型',
+  click_to_view: '点击查看详情',
+  transaction_failed: '交易失败',
 };
 export default zh_CN;

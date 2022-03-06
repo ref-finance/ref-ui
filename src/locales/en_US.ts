@@ -374,5 +374,9 @@ const en_US = {
   check_sender_wallet_extension: 'Please check Sender wallet extension.',
   having_trouble: 'Having trouble?',
   go_back: 'Go back',
+  web: 'web',
+  Type: 'Type',
+  click_to_view: 'Click to view',
+  transaction_failed: 'Transaction failed',
 };
 export default en_US;
