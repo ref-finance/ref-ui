@@ -363,5 +363,21 @@ const vi = {
   lightning_swaps: 'Hoán đổi tia chớp',
   frictionless_add_remove_liquidity:
     'Các hành động thêm / xóa thanh khoản không ma sát',
+  select_a: 'Chọn một',
+  wallet: 'ví',
+  to_use_ref_finance: 'để sử dụng Ref.Finance',
+  not_supported: 'không hỗ trợ',
+  installed: 'đã cài đặt',
+  installe_now: 'cài đặt ngay',
+  extension: 'mở rộng',
+  first_time_using_ref: 'Lần đầu sử dụng Ref',
+  learn_more: 'Tìm hiểu ngay',
+  install_sender_now: 'Cài đặt Sender ngay',
+  connect_to_dapps_with_one_click: 'Kết nối tới dApps với một cú click.',
+  install: 'Cài đặt',
+  Connecting: 'Đang kết nối',
+  check_sender_wallet_extension: 'Hãy kiểm tra Sender Wallet Extention.',
+  having_trouble: 'Gặp lỗi?',
+  go_back: 'Quay lại',
 };
 export default vi;

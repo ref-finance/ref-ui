@@ -13,6 +13,10 @@ import {
 
 import { getAmount, RefFiFunctionCallOptions, getGas } from '../services/near';
 import { scientificNotationToString } from './numbers';
+import {
+  TRANSACTION_WALLET_TYPE,
+  TRANSACTION_STATE,
+} from '../components/layout/transactionTipPopUp';
 
 export const SENDER_WALLET_SIGNEDIN_STATE_KEY =
   'SENDER_WALLET_SIGNEDIN_STATE_VALUE';
@@ -33,6 +37,46 @@ export const removeSenderLoginRes = () => {
   localStorage.removeItem(SENDER_WALLET_SIGNEDIN_STATE_KEY);
 };
 
+export function addQueryParams(
+  baseUrl: string,
+  queryParams: {
+    [name: string]: string;
+  }
+) {
+  const url = new URL(baseUrl);
+  for (let key in queryParams) {
+    const param = queryParams[key];
+    if (param) url.searchParams.set(key, param);
+  }
+  return url.toString();
+}
+
+export const getTransactionHashes = (
+  res: any,
+  state: TRANSACTION_STATE
+): string[] => {
+  if (state === TRANSACTION_STATE.SUCCESS) {
+    return res.response?.map((resp: any) => {
+      return resp.transaction.hash;
+    });
+  } else {
+    return res?.response?.error?.context?.transactionHash || '';
+  }
+};
+
+export const setCallbackUrl = (res: any) => {
+  const state = !res?.response?.error
+    ? TRANSACTION_STATE.SUCCESS
+    : TRANSACTION_STATE.FAIL;
+
+  const transactionHashes = getTransactionHashes(res, state);
+
+  window.location.href = addQueryParams(window.location.href, {
+    [TRANSACTION_WALLET_TYPE.SENDER_WALLET]: transactionHashes.join(','),
+    state,
+  });
+};
+
 //@ts-ignore
 export enum WALLET_TYPE {
   WEB_WALLET = 'near-wallet',
@@ -40,7 +84,6 @@ export enum WALLET_TYPE {
 }
 
 export const LOCK_INTERVAL = 1000 * 60 * 20;
-// export const LOCK_INTERVAL = 1000 * 60;
 
 function senderWalletFunc(window: Window) {
   this.requestSignIn = async function (contractId: string) {
@@ -82,7 +125,9 @@ function senderWalletFunc(window: Window) {
       .requestSignTransactions({
         transactions: senderTransaction,
       })
-      .then(() => window.location.reload());
+      .then((res: any) => {
+        setCallbackUrl(res);
+      });
   };
 
   this.sendTransactionWithActions = async function (
@@ -106,7 +151,9 @@ function senderWalletFunc(window: Window) {
           };
         }),
       })
-      .then(() => window.location.reload());
+      .then((res: any) => {
+        setCallbackUrl(res);
+      });
   };
 
   this.walletType = WALLET_TYPE.SENDER_WALLET;

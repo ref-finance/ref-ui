@@ -1,5 +1,10 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  useLocation,
+} from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import DepositPage from './pages/DepositPage';
 import { PoolDetailsPage } from './pages/pools/DetailsPage';
