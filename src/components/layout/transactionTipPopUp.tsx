@@ -32,9 +32,12 @@ export const getURLInfo = () => {
 export const swapToast = (txHash: string) => {
   toast(
     <a
-      className="text-white"
+      className="text-white w-full h-full pl-1.5"
       href={`${getConfig().explorerUrl}/transactions/${txHash}`}
       target="_blank"
+      style={{
+        lineHeight: '48px',
+      }}
     >
       <FormattedMessage
         id="swap_successful_click_to_view"
@@ -62,9 +65,12 @@ export const swapToast = (txHash: string) => {
 export const failToast = (txHash: string, errorType?: string) => {
   toast(
     <a
-      className="text-error"
+      className="text-error w-full h-full pl-1.5 py-1"
       href={`${getConfig().explorerUrl}/transactions/${txHash}`}
       target="_blank"
+      style={{
+        lineHeight: '20px',
+      }}
     >
       <FormattedMessage
         id="transaction_failed"

@@ -505,6 +505,18 @@ input[type='range']::-webkit-slider-runnable-track {
 .farmPopupBoxMobile {
   animation: showfrombottomMobile 1s both;
 }
+
+.Toastify__toast-body {
+  margin: 0 0 !important;
+  padding: 0 0 !important;
+}
+
+.Toastify__toast-body > div:first-child {
+  height: 100%;
+  width: 100%;
+  display: flex;
+}
+
 @keyframes showfrombottom {
   from {
     bottom: -190px;
