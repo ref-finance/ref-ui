@@ -1,13 +1,12 @@
 import BigNumber from 'bignumber.js';
 import BN from 'bn.js';
 import * as math from 'mathjs';
-import { FaWeight } from 'react-icons/fa';
 import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
 import { TokenMetadata } from '../services/ft-contract';
 import { STABLE_POOL_ID, STABLE_TOKEN_IDS } from '../services/near';
 import { Pool } from '../services/pool';
 import { getSwappedAmount } from '../services/stable-swap';
-import { EstimateSwapView, RoutePool } from '../services/swap';
+import { EstimateSwapView } from '../services/swap';
 
 const BPS_CONVERSION = 10000;
 const REF_FI_STABLE_Pool_INFO_KEY = 'REF_FI_STABLE_Pool_INFO_VALUE';
@@ -223,7 +222,7 @@ export const calculateSmartRoutingPriceImpact = (
     subtraction(newMarketPrice, generalMarketPrice),
     newMarketPrice
   ).toString();
-  console.log('225:', PriceImpact);
+
   return scientificNotationToString(PriceImpact);
 };
 
@@ -272,48 +271,9 @@ export const calculatePriceImpact = (
     subtraction(newMarketPrice, finalMarketPrice),
     newMarketPrice
   ).toString();
-console.log('274:', PriceImpact);
+
   return scientificNotationToString(PriceImpact);
 };
-
-// It's a little disconcerting that the above functions convert to a string and then return...
-const getRoutePriceImpact = (
-  route: RoutePool[],
-  tokenIn: TokenMetadata,
-  tokenOut: TokenMetadata,
-  tokenInAmount: string
-) => {
-  if (route.length == 1) { // The one route has only one pool / swap
-    let r = route[0];
-    return calculatePriceImpact([r.pool], tokenIn, tokenOut, tokenInAmount);
-  } else {  // The one route has two pools / swaps
-    let r1 = route[0];
-    let r2 = route[1];
-    for (i in r1.tokenIds) {
-      if (r1.tokenIds[i] != tokenIn) {
-        let tokenMid = r1.tokenIds[i]
-      }
-    }
-    return calculateSmartRoutingPriceImpact(tokenInAmount, route, tokenIn, tokenMid, tokenOut)
-  }
-}
-
-export const getOverallPriceImpact = (
-  tokenInAmount: string,
-  swapsToDo: EstimateSwapView[],
-  tokenIn: TokenMetadata,
-  tokenOut: TokenMetadata
-) => {
-  // Need to get weighted average of each route's price impact
-  let weightedAveragePriceImpact = 0;
-  for (s in swapsToDo) {
-    let fractionAmountIn[s] = swapsToDo[s].partialAmountIn / tokenInAmount;
-    let routePriceImpact[s] = getRoutePriceImpact(swapsToDo[s].route,tokenIn, tokenOut, swapsToDo[s].partialAmountIn);
-    weightedAveragePriceImpact = weightedAveragePriceImpact + fractionAmountIn[s] * routePriceImpact[s];
-  }
-  return weightedAveragePriceImpact;
-}
-
 export const calculateExchangeRate = (
   fee: number,
   from: string,
