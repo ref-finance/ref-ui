@@ -62,6 +62,7 @@ import _, { filter } from 'lodash';
 import { getSwappedAmount } from './stable-swap';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import { getSmartRouteSwapActions, stableSmart } from './smartRouteLogic';
+import { ExtractRouteOptionalParam } from 'react-router';
 
 // Big.strict = false;
 const FEE_DIVISOR = 10000;
@@ -86,10 +87,35 @@ interface EstimateSwapOptions {
   setLoadingTrigger?: (loadingTrigger: boolean) => void;
 }
 
+export interface ReservesMap {
+  [index: string]: string;
+}
+
+export interface RoutePool {
+  amounts: string[];
+  fee: number;
+  id: number;
+  reserves: ReservesMap;
+  shares: string;
+  token0_ref_price: string;
+  token1Id: string;
+  token1Supply: string;
+  token2Id: string;
+  token2Supply: string;
+  updateTime: number;
+  partialAmountIn?: string | number | Big;
+  gamma_bps?: Big;
+  supplies?: ReservesMap;
+  tokenIds?: string[];
+  x?: string;
+  y?: string;
+}
+
 export interface EstimateSwapView {
   estimate: string;
   pool: Pool;
   intl?: any;
+  dy?: string;
   status?: PoolMode;
   token?: TokenMetadata;
   noFeeAmountOut?: string;
@@ -98,6 +124,10 @@ export interface EstimateSwapView {
   nodeRoute?: string[];
   tokens?: TokenMetadata[];
   routeInputToken: string;
+  route?: RoutePool[];
+  allRoutes?: RoutePool[][];
+  allNodeRoutes?: string[][];
+  totalInputAmount?: string;
 }
 
 const getStablePoolEstimate = ({

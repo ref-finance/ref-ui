@@ -1,3 +1,4 @@
+import Big from 'big.js';
 import {
   divide,
   multiply,
@@ -57,14 +58,58 @@ interface EstimateSwapOptions {
   setCanSwap?: (can: boolean) => void;
 }
 
+// export interface EstimateSwapView {
+//   estimate: string;
+//   pool: Pool;
+//   intl?: any;
+//   dy?: string;
+//   token?: TokenMetadata;
+//   status?: PoolMode;
+// }
+
+export interface ReservesMap {
+  [index: string]: string;
+}
+
+export interface RoutePool {
+  amounts: string[];
+  fee: number;
+  id: number;
+  reserves: ReservesMap;
+  shares: string;
+  token0_ref_price: string;
+  token1Id: string;
+  token1Supply: string;
+  token2Id: string;
+  token2Supply: string;
+  updateTime: number;
+  partialAmountIn?: string | number | Big;
+  gamma_bps?: Big;
+  supplies?: ReservesMap;
+  tokenIds?: string[];
+  x?: string;
+  y?: string;
+}
+
 export interface EstimateSwapView {
   estimate: string;
   pool: Pool;
   intl?: any;
   dy?: string;
-  token?: TokenMetadata;
   status?: PoolMode;
+  token?: TokenMetadata;
+  noFeeAmountOut?: string;
+  inputToken?: string;
+  outputToken?: string;
+  nodeRoute?: string[];
+  tokens?: TokenMetadata[];
+  routeInputToken: string;
+  route?: RoutePool[];
+  allRoutes?: RoutePool[][];
+  allNodeRoutes?: string[][];
+  totalInputAmount?: string;
 }
+
 export const estimateSwap = async ({
   tokenIn,
   tokenOut,

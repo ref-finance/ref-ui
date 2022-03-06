@@ -782,7 +782,10 @@ function getHopActionsFromRoutes(routes, nodeRoutes, allocations) {
   // console.log(nodeRoutes);
   // console.log('ALLOCATIONS ARE...');
   // console.log(allocations);
-
+  let totalInput = allocations
+    .map((a) => new Big(a))
+    .reduce((a, b) => a.plus(b), new Big(0))
+    .toString();
   let hops = [];
   for (var i in routes) {
     var route = routes[i];
@@ -813,6 +816,10 @@ function getHopActionsFromRoutes(routes, nodeRoutes, allocations) {
           inputToken: nodeRoute[0],
           outputToken: nodeRoute[1],
           nodeRoute: nodeRoute,
+          route: route,
+          allRoutes: routes,
+          allNodeRoutes: nodeRoutes,
+          totalInputAmount: totalInput,
         };
         // console.log('FIRST HOP IS...');
         // console.log(hop);
@@ -833,6 +840,10 @@ function getHopActionsFromRoutes(routes, nodeRoutes, allocations) {
           inputToken: nodeRoute[1],
           outputToken: nodeRoute[2],
           nodeRoute: nodeRoute,
+          route: route,
+          allRoutes: routes,
+          allNodeRoutes: nodeRoutes,
+          totalInputAmount: totalInput,
         };
         // console.log('SECOND HOP IS...');
         // console.log(hop);
@@ -1576,6 +1587,10 @@ export async function getSmartRouteSwapActions(
       outputToken: hops[i].outputToken,
       inputToken: hops[i].inputToken,
       nodeRoute: hops[i].nodeRoute,
+      route: hops[i].route,
+      allRoutes: hops[i].allRoutes,
+      allNodeRoutes: hops[i].allNodeRoutes,
+      totalInputAmount: hops[i].totalInputAmount,
       tokens: tokens,
       routeInputToken: inputToken,
     };
@@ -2578,7 +2593,11 @@ function getFeeForRoute(route) {
 }
 
 export function getAverageFeeForRoutes(routes, nodeRoutes, totalInput) {
-  let normalizedAllocations = getOptimalAllocationForRoutes(routes, nodeRoutes, totalInput);
+  let normalizedAllocations = getOptimalAllocationForRoutes(
+    routes,
+    nodeRoutes,
+    totalInput
+  ).map((a) => a.div(new Big(totalInput)));
   let averageFee = 0;
   for (var i in routes) {
     averageFee += normalizedAllocations[i] * getFeeForRoute(routes[i]);

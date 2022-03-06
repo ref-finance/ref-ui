@@ -35,7 +35,10 @@ import {
   STABLE_POOL_ID,
 } from '~services/near';
 
-import { getExpectedOutputFromActions } from '~services/smartRouteLogic';
+import {
+  getExpectedOutputFromActions,
+  getAverageFeeForRoutes,
+} from '~services/smartRouteLogic';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -112,17 +115,32 @@ export const useSwap = ({
     return total + num;
   }
 
-  const setAverageFee = (estimates: EstimateSwapView[]) => {
-    const medFee = estimates.map((s2d) => {
-      const fee = s2d.pool.fee;
-      const numerator = Number(
-        toReadableNumber(tokenIn.decimals, s2d.pool.partialAmountIn)
-      );
-      const weight = numerator / Number(tokenInAmount);
+  // const setAverageFeeOrig = (estimates: EstimateSwapView[]) => {
+  //   const medFee = estimates.map((s2d) => {
+  //     const fee = s2d.pool.fee;
+  //     const numerator = Number(
+  //       toReadableNumber(tokenIn.decimals, s2d.pool.partialAmountIn)
+  //     );
+  //     const weight = numerator / Number(tokenInAmount);
 
-      return fee * weight;
-    });
-    const avgFee = medFee.reduce(sumFunction, 0);
+  //     return fee * weight;
+  //   });
+  //   const avgFee = medFee.reduce(sumFunction, 0);
+  //   setAvgFee(avgFee);
+  // };
+
+  const setAverageFee = (estimates: EstimateSwapView[]) => {
+    const estimate = estimates[0];
+    // console.log('USING NEW SET AVERAGE FEE!');
+    // console.log('estimate routes are ...', estimate.allRoutes);
+    // console.log('estimate node routes are ...', estimate.allNodeRoutes);
+    // console.log('estimate totalInputAmount is ...', estimate.totalInputAmount);
+
+    const avgFee = getAverageFeeForRoutes(
+      estimate.allRoutes,
+      estimate.allNodeRoutes,
+      estimate.totalInputAmount
+    );
     setAvgFee(avgFee);
   };
 
