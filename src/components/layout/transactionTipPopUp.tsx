@@ -71,7 +71,9 @@ export const failToast = (txHash: string, errorType?: string) => {
         defaultMessage="Transaction failed"
       />
       {'. '}
-      <FormattedMessage id="Type" defaultMessage="Type" />:{errorType}
+      <br />
+      <FormattedMessage id="Type" defaultMessage="Type" />: {` `}
+      {errorType}
       {'. '}
       <FormattedMessage id="click_to_view" defaultMessage="Click to view" />
     </a>,

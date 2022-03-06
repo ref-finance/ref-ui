@@ -229,7 +229,7 @@ const SenderNotInstalledModal = (
           <span>
             <FormattedMessage
               id="connect_to_dapps_with_one_click"
-              defaultMessage="Connect to dApps with one click."
+              defaultMessage="Connect to dApps with one click"
             />
           </span>
         </div>
@@ -337,7 +337,7 @@ const ConnectingModal = (
           <span className="whitespace-nowrap">
             <FormattedMessage
               id="check_sender_wallet_extension"
-              defaultMessage="Please check Sender wallet extension."
+              defaultMessage="Please check Sender wallet extension"
             />
           </span>
         </div>

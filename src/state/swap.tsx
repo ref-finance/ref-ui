@@ -70,7 +70,7 @@ export const useSwap = ({
   const history = useHistory();
   const [count, setCount] = useState<number>(0);
 
-  const { txHash, pathname } = getURLInfo();
+  const { txHash, pathname, errorType } = getURLInfo();
 
   const minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
@@ -113,7 +113,7 @@ export const useSwap = ({
         })
         .then((isSwap) => {
           if (isSwap) {
-            swapToast(txHash);
+            !errorType && swapToast(txHash);
           }
           history.replace(pathname);
         });
@@ -252,7 +252,7 @@ export const useStableSwap = ({
   const [tokenInAmountMemo, setTokenInAmountMemo] = useState<string>('');
   const history = useHistory();
 
-  const { txHash, pathname } = getURLInfo();
+  const { txHash, pathname, errorType } = getURLInfo();
 
   const minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
@@ -319,7 +319,7 @@ export const useStableSwap = ({
         })
         .then((isSwap) => {
           if (isSwap) {
-            swapToast(txHash);
+            !errorType && swapToast(txHash);
           }
           history.replace(pathname);
         });

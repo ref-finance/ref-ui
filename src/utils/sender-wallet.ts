@@ -60,7 +60,10 @@ export const getTransactionHashes = (
       return resp.transaction.hash;
     });
   } else {
-    return res?.response?.error?.context?.transactionHash || '';
+    return [
+      res?.response?.error?.context?.transactionHash ||
+        res?.response?.error?.transaction_outcome?.id,
+    ];
   }
 };
 
@@ -73,11 +76,13 @@ export const setCallbackUrl = (res: any) => {
     state === TRANSACTION_STATE.FAIL ? res?.response?.error?.type : '';
   const transactionHashes = getTransactionHashes(res, state);
 
-  window.location.href = addQueryParams(window.location.href, {
+  const newHref = addQueryParams(window.location.href, {
     [TRANSACTION_WALLET_TYPE.SENDER_WALLET]: transactionHashes.join(','),
     state,
     errorType,
   });
+
+  window.location.href = newHref;
 };
 
 //@ts-ignore

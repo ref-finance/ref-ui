@@ -89,7 +89,6 @@ function App() {
   useEffect(() => {
     if (errorType) {
       failToast(txHash, errorType);
-      window.location.replace(pathname);
     }
   }, [errorType]);
 
