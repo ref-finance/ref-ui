@@ -89,6 +89,9 @@ function App() {
   useEffect(() => {
     if (errorType) {
       failToast(txHash, errorType);
+      if (pathname !== '/swap' && pathname !== '/stableswap') {
+        window.location.href = pathname;
+      }
     }
   }, [errorType]);
 

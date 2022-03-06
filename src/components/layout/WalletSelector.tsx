@@ -188,6 +188,7 @@ const SenderNotInstalledModal = (
         overlay: {
           backdropFilter: 'blur(15px)',
           WebkitBackdropFilter: 'blur(15px)',
+          zIndex: 160,
         },
         content: {
           outline: 'none',
@@ -286,6 +287,7 @@ const ConnectingModal = (
         overlay: {
           backdropFilter: 'blur(15px)',
           WebkitBackdropFilter: 'blur(15px)',
+          zIndex: 160,
         },
         content: {
           outline: 'none',
@@ -382,6 +384,7 @@ export const WalletSelectorModal = (
           overlay: {
             backdropFilter: 'blur(15px)',
             WebkitBackdropFilter: 'blur(15px)',
+            zIndex: 150,
           },
           content: {
             outline: 'none',
