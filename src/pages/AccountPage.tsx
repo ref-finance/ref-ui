@@ -27,8 +27,8 @@ import { IoCloseOutline } from 'react-icons/io5';
 import ReactTooltip from 'react-tooltip';
 import QuestionMark from '../components/farm/QuestionMark';
 import { useHistory } from 'react-router';
-import { Checkbox, CheckboxSelected } from '~components/icon';
-import { GradientButton, ButtonTextWrapper } from '~components/button/Button';
+import { Checkbox, CheckboxSelected } from '../components/icon';
+import { GradientButton, ButtonTextWrapper } from '../components/button/Button';
 const withdraw_number_at_once = 5;
 const accountSortFun = (
   by: string,
