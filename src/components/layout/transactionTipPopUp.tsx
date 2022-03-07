@@ -1,6 +1,6 @@
 import React from 'react';
 import { toast } from 'react-toastify';
-import getConfig from '~services/config';
+import getConfig from '../../services/config';
 import { FormattedMessage } from 'react-intl';
 import { CloseIcon } from '../icon/Actions';
 

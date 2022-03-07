@@ -209,7 +209,7 @@ export const getDepositableBalance = async (
       return wallet
         .account()
         .getAccountBalance()
-        .then(({ available }) => {
+        .then(({ available }: any) => {
           return toReadableNumber(decimals, available);
         });
     } else {
@@ -311,7 +311,7 @@ export const useDepositableBalance = (
         wallet
           .account()
           .getAccountBalance()
-          .then(({ available }) => setDepositable(available));
+          .then(({ available }: any) => setDepositable(available));
       } else if (tokenId) {
         ftGetBalance(tokenId).then(setDepositable);
       }

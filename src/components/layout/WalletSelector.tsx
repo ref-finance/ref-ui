@@ -10,10 +10,10 @@ import {
 } from '../../utils/sender-wallet';
 import Modal from 'react-modal';
 import { WalletContext } from '../../utils/sender-wallet';
-import { isMobile, isMobileExplorer } from '~utils/device';
+import { isMobile, isMobileExplorer } from '../../utils/device';
 import { BackArrowWhite, BackArrowGray } from '../icon/Arrows';
-import { CloseIcon } from '~components/icon/Actions';
-import { NearWallet } from '~components/icon/Wallet';
+import { CloseIcon } from '../../components/icon/Actions';
+import { NearWallet } from '../../components/icon/Wallet';
 import {
   SenderWallet,
   SenderWalletLarge,

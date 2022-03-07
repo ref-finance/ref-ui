@@ -3,7 +3,7 @@ import { functionCall } from 'near-api-js/lib/transaction';
 import BN from 'bn.js';
 import getConfig from './config';
 import SpecialWallet from './SpecialWallet';
-import { getCurrentWallet, senderWallet } from '~utils/sender-wallet';
+import { getCurrentWallet, senderWallet } from '../utils/sender-wallet';
 import {
   SENDER_WALLET_SIGNEDIN_STATE_KEY,
   WALLET_TYPE,
