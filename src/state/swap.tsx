@@ -368,8 +368,8 @@ export const useStableSwap = ({
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
             setCanSwap(true);
             if (!loadingTrigger) {
-              setTokenOutAmount(estimate);
               setNoFeeAmount(dy);
+              setTokenOutAmount(estimate);
             }
             setPool(pool);
           }

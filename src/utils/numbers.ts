@@ -96,7 +96,7 @@ export const calculateFeePercent = (fee: number) => {
 };
 
 export const calculateFeeCharge = (fee: number, total: string) => {
-  return math.round(
+  return math.floor(
     math.evaluate(`(${fee} / ${BPS_CONVERSION}) * ${total}`),
     3
   );
@@ -279,7 +279,7 @@ export const calculateExchangeRate = (
   from: string,
   to: string
 ) => {
-  return math.round(math.evaluate(`${to} / ${from}`), 4);
+  return math.floor(math.evaluate(`${to} / ${from}`), 4);
 };
 
 export const subtraction = (initialValue: string, toBeSubtract: string) => {
@@ -290,6 +290,20 @@ export const subtraction = (initialValue: string, toBeSubtract: string) => {
 
 export const percentOf = (percent: number, num: number | string) => {
   return math.evaluate(`${convertToPercentDecimal(percent)} * ${num}`);
+};
+
+export const percentOfBigNumber = (
+  percent: number,
+  num: number | string,
+  precision: number
+) => {
+  const valueBig = math.bignumber(num);
+  const percentBig = math.bignumber(percent).div(100);
+
+  return toPrecision(
+    scientificNotationToString(valueBig.mul(percentBig).toString()),
+    precision
+  );
 };
 
 export const percentLess = (percent: number, num: number | string) => {

@@ -70,6 +70,7 @@ import { EstimateSwapView, PoolMode, swap } from '~services/swap';
 import { QuestionTip } from '~components/layout/TipWrapper';
 import { Guide } from '~components/layout/Guide';
 import { sortBy } from 'lodash';
+import { SwapArrow, SwapExchange } from '../icon/Arrows';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -227,7 +228,7 @@ export function SwapRateDetail({
     if (ONLY_ZEROS.test(fromNow)) return '-';
 
     return calculateExchangeRate(fee, fromNow, toNow);
-  }, [isRevert, to, from]);
+  }, [isRevert, to]);
 
   useEffect(() => {
     setNewValue(value);
@@ -241,7 +242,7 @@ export function SwapRateDetail({
         isRevert ? tokenOut.symbol : tokenIn.symbol
       )}`
     );
-  }, [isRevert]);
+  }, [isRevert, exchangeRageValue]);
 
   function switchSwapRate() {
     setIsRevert(!isRevert);
@@ -537,6 +538,20 @@ function DetailView({
     if (swapsTodo?.length > 1) {
       setShowDetails(true);
     }
+  }, [swapsTodo]);
+
+  const priceImpactDisplay = useMemo(() => {
+    if (!priceImpact || !tokenIn || !from) return null;
+    return GetPriceImpact(priceImpact, tokenIn, from);
+  }, [to, priceImpact]);
+
+  const poolFeeDisplay = useMemo(() => {
+    if (!fee || !from || !tokenIn) return null;
+
+    return `${toPrecision(
+      calculateFeePercent(fee).toString(),
+      2
+    )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(tokenIn.symbol)}`;
   }, [to]);
 
   if (!pools || ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id)
@@ -583,18 +598,11 @@ function DetailView({
         )}
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
-          value={
-            !to || to === '0' ? '-' : GetPriceImpact(priceImpact, tokenIn, from)
-          }
+          value={!to || to === '0' ? '-' : priceImpactDisplay}
         />
         <SwapDetail
           title={intl.formatMessage({ id: 'pool_fee' })}
-          value={`${toPrecision(
-            calculateFeePercent(fee).toString(),
-            2
-          )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(
-            tokenIn.symbol
-          )}`}
+          value={poolFeeDisplay}
         />
 
         {isParallelSwap && pools.length > 1 && (
@@ -625,16 +633,12 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
 
-  const [useNearBalance, setUseNearBalance] = useState<boolean>(
-    localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) != 'false'
-  );
+  const [useNearBalance, setUseNearBalance] = useState<boolean>(true);
 
-  const [tokenInBalanceFromNear, setTokenInBalanceFromNear] = useState<
-    string
-  >();
-  const [tokenOutBalanceFromNear, setTokenOutBalanceFromNear] = useState<
-    string
-  >();
+  const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
+    useState<string>();
+  const [tokenOutBalanceFromNear, setTokenOutBalanceFromNear] =
+    useState<string>();
 
   const [loadingData, setLoadingData] = useState<boolean>(false);
   const [loadingTrigger, setLoadingTrigger] = useState<boolean>(true);
@@ -734,7 +738,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         tokenOut
       );
     }
-  }, [tokenOutAmount]);
+  }, [swapsToDo]);
 
   // const PriceImpactValue = true
   //   ? priceImpactValueParallelSwap
@@ -750,19 +754,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   }, [tokenOutAmount]);
 
   const PriceImpactValue = priceImpactValueSmartRoutingV2;
-
-  const topBall = useRef<HTMLInputElement>();
-  const bottomBall = useRef<HTMLInputElement>();
-  const runSwapAnimation = function () {
-    topBall.current.style.animation = 'rotation1 1s 0s ease-out 1';
-    bottomBall.current.style.animation = 'rotation2 1s 0s ease-out 1';
-    topBall.current.addEventListener('animationend', function () {
-      topBall.current.style.animation = '';
-    });
-    bottomBall.current.addEventListener('animationend', function () {
-      bottomBall.current.style.animation = '';
-    });
-  };
 
   const tokenInMax = useNearBalance
     ? tokenInBalanceFromNear || '0'
@@ -864,20 +855,13 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           className="flex items-center justify-center border-t mt-12"
           style={{ borderColor: 'rgba(126, 138, 147, 0.3)' }}
         >
-          <div
-            className="relative flex items-center -mt-6 mb-4 w-11 h-11 border border-white border-opacity-40 rounded-full cursor-pointer bg-dark"
-            onClick={() => {
-              runSwapAnimation();
+          <SwapExchange
+            onChange={() => {
               setTokenIn(tokenOut);
               setTokenOut(tokenIn);
               setTokenInAmount(toPrecision('1', 6));
             }}
-          >
-            <div className="swap-wrap">
-              <div className="top-ball" ref={topBall} id="top-ball" />
-              <div className="bottom-ball" ref={bottomBall} id="bottom-ball" />
-            </div>
-          </div>
+          />
         </div>
         <TokenAmount
           amount={toPrecision(tokenOutAmount, 8)}
