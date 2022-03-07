@@ -97,6 +97,8 @@ import moment from 'moment';
 import { ChartNoData } from '~components/icon/ChartNoData';
 import { WarnTriangle } from '~components/icon/SwapRefresh';
 import { RefIcon } from '~components/icon/Common';
+import { useWalletTokenBalances } from '../../state/token';
+import { SmallWallet } from '../../components/icon/SmallWallet';
 interface ParamTypes {
   id: string;
 }
@@ -177,7 +179,7 @@ export function AddLiquidityModal(
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [messageId, setMessageId] = useState<string>('add_liquidity');
   const [defaultMessage, setDefaultMessage] = useState<string>('Add Liquidity');
-  const balances = useTokenBalances();
+  const balances = useWalletTokenBalances(tokens.map((token) => token.id));
   const [error, setError] = useState<Error>();
   const intl = useIntl();
   const history = useHistory();
@@ -187,31 +189,6 @@ export function AddLiquidityModal(
   const [preShare, setPreShare] = useState(null);
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    if (balances) {
-      const firstTokenBalanceBN = new BigNumber(
-        toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
-      );
-      const secondTokenBalanceBN = new BigNumber(
-        toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
-      );
-
-      if (firstTokenBalanceBN.isZero() && secondTokenBalanceBN.isZero()) {
-        setCanDeposit(true);
-        const { id, decimals } = tokens[0];
-        const modalData: any = {
-          token: tokens[0],
-          action: 'deposit',
-        };
-        getDepositableBalance(id, decimals).then((nearBalance) => {
-          modalData.max = nearBalance;
-          setModal(Object.assign({}, modalData));
-        });
-        setModal(modalData);
-      }
-    }
-  }, [balances]);
 
   if (!balances) return null;
 
@@ -335,19 +312,10 @@ export function AddLiquidityModal(
       toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
     );
 
-    const hasDeposited = !(
-      firstTokenBalanceBN.isZero() && secondTokenBalanceBN.isZero()
-    );
-
     setCanSubmit(false);
     setCanDeposit(false);
-    if (
-      firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN) ||
-      !hasDeposited
-    ) {
+    if (firstTokenAmountBN.isGreaterThan(firstTokenBalanceBN)) {
       setCanDeposit(true);
-      // setMessageId('deposit_to_add_liquidity');
-      // setDefaultMessage('Deposit to Add Liquidity');
       const { id, decimals } = tokens[0];
       const modalData: any = {
         token: tokens[0],
@@ -358,11 +326,7 @@ export function AddLiquidityModal(
         setModal(Object.assign({}, modalData));
       });
       setModal(modalData);
-      // throw new Error(
-      //   `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
-      //     tokens[0].symbol
-      //   )}`
-      // );
+
       return;
     }
 
@@ -513,7 +477,7 @@ export function AddLiquidityModal(
                 defaultMessage="Add Liquidity"
               />
             </div>
-            <p className="text-xs text-primaryText">
+            {/* <p className="text-xs text-primaryText">
               <a
                 className="underline cursor-pointer"
                 onClick={() => {
@@ -524,7 +488,7 @@ export function AddLiquidityModal(
               </a>
               &nbsp;
               <FormattedMessage id="deposit_into_ref_account" />
-            </p>
+            </p> */}
           </div>
           <div
             className="ml-2 cursor-pointer p-1"
@@ -538,7 +502,7 @@ export function AddLiquidityModal(
         <div className="mt-8 md:hidden xs:hidden">
           <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
             <span className="mr-2 text-primaryText">
-              <RefIcon></RefIcon>
+              <SmallWallet />
             </span>
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
@@ -573,7 +537,7 @@ export function AddLiquidityModal(
         <div className="my-8 md:hidden xs:hidden">
           <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
             <span className="mr-2 text-primaryText">
-              <RefIcon></RefIcon>
+              <SmallWallet />
             </span>
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
@@ -614,17 +578,11 @@ export function AddLiquidityModal(
                 <div className="text-white text-base">
                   {toRealSymbol(tokens[0].symbol)}
                 </div>
-                {/* <div
-                  className="text-xs text-gray-400"
-                  title={tokens[0].id}
-                >{`${tokens[0].id.substring(0, 25)}${
-                  tokens[0].id.length > 25 ? '...' : ''
-                }`}</div> */}
               </div>
             </div>
             <div className="flex items-center justify-end text-xs text-right mb-1 text-gray-400">
               <span className="mr-2 text-primaryText">
-                <RefIcon></RefIcon>
+                <SmallWallet />
               </span>
               <FormattedMessage id="balance" defaultMessage="Balance" />
               :&nbsp;
@@ -668,7 +626,7 @@ export function AddLiquidityModal(
             </div>
             <div className="flex justify-end items-end text-xs text-right mb-1 text-gray-400">
               <span className="mr-2 text-primaryText">
-                <RefIcon></RefIcon>
+                <SmallWallet />
               </span>
               <FormattedMessage id="balance" defaultMessage="Balance" />
               :&nbsp;
@@ -710,14 +668,14 @@ export function AddLiquidityModal(
                 {modal?.token?.symbol}！
               </label>
             </div>
-            <SolidButton
+            {/* <SolidButton
               className="focus:outline-none px-3 py-1.5 text-sm"
               onClick={() => {
                 setVisible(true);
               }}
             >
               <FormattedMessage id="deposit" />
-            </SolidButton>
+            </SolidButton> */}
           </div>
         ) : null}
         <div className="flex justify-between text-primaryText text-sm my-6">

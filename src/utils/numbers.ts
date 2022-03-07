@@ -292,6 +292,20 @@ export const percentOf = (percent: number, num: number | string) => {
   return math.evaluate(`${convertToPercentDecimal(percent)} * ${num}`);
 };
 
+export const percentOfBigNumber = (
+  percent: number,
+  num: number | string,
+  precision: number
+) => {
+  const valueBig = math.bignumber(num);
+  const percentBig = math.bignumber(percent).div(100);
+
+  return toPrecision(
+    scientificNotationToString(valueBig.mul(percentBig).toString()),
+    precision
+  );
+};
+
 export const percentLess = (percent: number, num: number | string) => {
   return math.format(math.evaluate(`${num} - ${percentOf(percent, num)}`), {
     notation: 'fixed',

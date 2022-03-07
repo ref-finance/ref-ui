@@ -15,6 +15,7 @@ import TokenReserves from '~components/stableswap/TokenReserves';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import getConfig from '~services/config';
 import { StableSwapLogo } from '~components/icon/StableSwap';
+import { useWalletTokenBalances } from '../../state/token';
 const DEFAULT_ACTIONS = ['stable_swap', 'add_liquidity', 'remove_liquidity'];
 const STABLE_TOKENS = ['USDT', 'USDC', 'DAI'];
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
@@ -29,7 +30,15 @@ function StableSwapPage() {
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
 
   const allTokens = useWhitelistStableTokens();
-  const balances = useTokenBalances();
+  // const balances = useTokenBalances();
+  const tokens =
+    allTokens &&
+    allTokens.length > 0 &&
+    allTokens.filter((item) => STABLE_TOKENS.indexOf(item.symbol) > -1);
+
+  const nearBalances = useWalletTokenBalances(
+    tokens?.map((token) => token.id) || []
+  );
 
   const stablePool = useStablePool({
     loadingTrigger,
@@ -42,13 +51,15 @@ function StableSwapPage() {
     setAction(actionName);
   };
 
-  if (!allTokens || !pool || !shares || !stablePool || !balances)
+  if (
+    !allTokens ||
+    !pool ||
+    !shares ||
+    !stablePool ||
+    // !Object.entries(balances).length ||
+    !Object.entries(nearBalances).length
+  )
     return <Loading />;
-
-  const tokens =
-    allTokens &&
-    allTokens.length > 0 &&
-    allTokens.filter((item) => STABLE_TOKENS.indexOf(item.symbol) > -1);
 
   const renderModule = (tab: string) => {
     switch (tab) {
@@ -56,7 +67,7 @@ function StableSwapPage() {
         return (
           <StableSwap
             tokens={tokens}
-            balances={balances}
+            balances={nearBalances}
             stablePool={stablePool}
             loadingTrigger={loadingTrigger}
             setLoadingTrigger={setLoadingTrigger}
@@ -72,7 +83,7 @@ function StableSwapPage() {
             tokens={tokens}
             totalShares={shares}
             stakeList={stakeList}
-            balances={balances}
+            balances={nearBalances}
           />
         );
       case DEFAULT_ACTIONS[2]:
@@ -81,7 +92,7 @@ function StableSwapPage() {
             stablePool={stablePool}
             tokens={tokens}
             shares={shares}
-            balances={balances}
+            balances={nearBalances}
             pool={pool}
             stakeList={stakeList}
           />

@@ -2668,7 +2668,8 @@ const CheckboxSelected = () => {
         width="15"
         height="15"
         rx="4"
-        fill="url(#paint0_linear_9045_6031)"
+        // fill="url(#paint0_linear_9045_6031)"
+        fill="#00C6A2"
       />
       <path
         d="M4 7.5L6.66667 10L12 5"

@@ -12,7 +12,11 @@ import {
 import BN from 'bn.js';
 import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
-import { toNonDivisibleNumber } from '../utils/numbers';
+import {
+  toNonDivisibleNumber,
+  toReadableNumber,
+  ONLY_ZEROS,
+} from '../utils/numbers';
 import {
   storageDepositAction,
   storageDepositForFTAction,
@@ -21,10 +25,15 @@ import { getTopPools, _search } from '../services/indexer';
 import { parsePoolView, PoolRPCView } from './api';
 import {
   checkTokenNeedsStorageDeposit,
+  getDepositTransactions,
   getTokenBalance,
 } from '../services/token';
 import getConfig from '../services/config';
 import { registerTokensAction } from '../services/creators/token';
+import { STORAGE_TO_REGISTER_WITH_FT } from './creators/storage';
+import { withdrawAction } from './creators/token';
+import { getExplorer, ExplorerType } from '../utils/device';
+const explorerType = getExplorer();
 
 export const DEFAULT_PAGE_LIMIT = 100;
 
@@ -356,6 +365,11 @@ export const addLiquidityToPool = async ({
     toNonDivisibleNumber(token.decimals, amount)
   );
 
+  const depositTransactions = await getDepositTransactions({
+    tokens: tokenAmounts.map(({ token, amount }) => token),
+    amounts: tokenAmounts.map(({ token, amount }) => amount),
+  });
+
   const actions: RefFiFunctionCallOptions[] = [
     {
       methodName: 'add_liquidity',
@@ -364,16 +378,22 @@ export const addLiquidityToPool = async ({
     },
   ];
 
-  const needDeposit = await checkTokenNeedsStorageDeposit();
-  if (needDeposit) {
-    actions.unshift(
-      storageDepositAction({
-        amount: needDeposit,
-      })
-    );
-  }
+  // const needDeposit = await checkTokenNeedsStorageDeposit();
+  // if (needDeposit) {
+  //   actions.unshift(
+  //     storageDepositAction({
+  //       amount: needDeposit,
+  //     })
+  //   );
+  // }
 
-  return refFiManyFunctionCalls(actions);
+  return executeMultipleTransactions([
+    ...depositTransactions,
+    {
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [...actions],
+    },
+  ]);
 };
 
 export const predictLiquidityShares = async (
@@ -391,13 +411,24 @@ interface AddLiquidityToStablePoolOptions {
   id: number;
   amounts: [string, string, string];
   min_shares: string;
+  tokens: TokenMetadata[];
 }
 
 export const addLiquidityToStablePool = async ({
   id,
   amounts,
   min_shares,
+  tokens,
 }: AddLiquidityToStablePoolOptions) => {
+  // const transactions: Transaction[] = [];
+
+  const depositTransactions = await getDepositTransactions({
+    tokens,
+    amounts: amounts.map((amount, i) =>
+      toReadableNumber(tokens[i].decimals, amount)
+    ),
+  });
+
   const actions: RefFiFunctionCallOptions[] = [
     {
       methodName: 'add_stable_liquidity',
@@ -405,6 +436,7 @@ export const addLiquidityToStablePool = async ({
       amount: LP_STORAGE_AMOUNT,
     },
   ];
+
   const allTokenIds = getConfig().STABLE_TOKEN_IDS;
   const balances = await Promise.all(
     allTokenIds.map((tokenId) => getTokenBalance(tokenId))
@@ -415,36 +447,81 @@ export const addLiquidityToStablePool = async ({
       notRegisteredTokens.push(allTokenIds[i]);
     }
   }
-  if (notRegisteredTokens.length > 0) {
+
+  if (notRegisteredTokens.length > 0 && explorerType !== ExplorerType.Firefox) {
     actions.unshift(registerTokensAction(notRegisteredTokens));
   }
 
-  const needDeposit = await checkTokenNeedsStorageDeposit();
-  if (needDeposit) {
-    actions.unshift(
-      storageDepositAction({
-        amount: needDeposit,
-      })
-    );
+  const transactions: Transaction[] = depositTransactions;
+
+  if (notRegisteredTokens.length > 0 && explorerType === ExplorerType.Firefox) {
+    transactions.push({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [registerTokensAction(notRegisteredTokens)],
+    });
   }
 
-  return refFiManyFunctionCalls(actions);
+  transactions.push({
+    receiverId: REF_FI_CONTRACT_ID,
+    functionCalls: [...actions],
+  });
+
+  return executeMultipleTransactions(transactions);
 };
 
 interface RemoveLiquidityOptions {
   id: number;
   shares: string;
   minimumAmounts: { [tokenId: string]: string };
+  unregister?: boolean;
 }
 
 export const removeLiquidityFromPool = async ({
   id,
   shares,
   minimumAmounts,
+  unregister = false,
 }: RemoveLiquidityOptions) => {
   const pool = await getPool(id);
 
   const amounts = pool.tokenIds.map((tokenId) => minimumAmounts[tokenId]);
+
+  const tokenIds = Object.keys(minimumAmounts);
+
+  const withDrawTransactions: Transaction[] = [];
+
+  for (let i = 0; i < tokenIds.length; i++) {
+    const tokenId = tokenIds[i];
+
+    const ftBalance = await ftGetStorageBalance(tokenId);
+    if (ftBalance === null) {
+      withDrawTransactions.unshift({
+        receiverId: tokenId,
+        functionCalls: [
+          storageDepositAction({
+            registrationOnly: true,
+            amount: STORAGE_TO_REGISTER_WITH_FT,
+          }),
+        ],
+      });
+    }
+  }
+
+  const neededStorage = await checkTokenNeedsStorageDeposit();
+  if (neededStorage) {
+    withDrawTransactions.unshift({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+
+  const withdrawActions = tokenIds.map((tokenId, i) =>
+    withdrawAction({ tokenId, amount: '0', unregister })
+  );
+
+  const withdrawActionsFireFox = tokenIds.map((tokenId, i) =>
+    withdrawAction({ tokenId, amount: '0', unregister, singleTx: true })
+  );
 
   const actions: RefFiFunctionCallOptions[] = [
     {
@@ -455,19 +532,31 @@ export const removeLiquidityFromPool = async ({
         min_amounts: amounts,
       },
       amount: ONE_YOCTO_NEAR,
+      gas: '30000000000000',
+    },
+  ];
+  if (explorerType !== ExplorerType.Firefox) {
+    withdrawActions.forEach((item) => {
+      actions.push(item);
+    });
+  }
+
+  const transactions: Transaction[] = [
+    ...withDrawTransactions,
+    {
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [...actions],
     },
   ];
 
-  const needDeposit = await checkTokenNeedsStorageDeposit();
-  if (needDeposit) {
-    actions.unshift(
-      storageDepositAction({
-        amount: needDeposit,
-      })
-    );
+  if (explorerType === ExplorerType.Firefox) {
+    transactions.push({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: withdrawActionsFireFox,
+    });
   }
 
-  return refFiManyFunctionCalls(actions);
+  return executeMultipleTransactions(transactions);
 };
 
 export const predictRemoveLiquidity = async (
@@ -484,31 +573,89 @@ interface RemoveLiquidityFromStablePoolOptions {
   id: number;
   shares: string;
   min_amounts: [string, string, string];
+  tokens: TokenMetadata[];
+  unregister?: boolean;
 }
 
 export const removeLiquidityFromStablePool = async ({
   id,
   shares,
   min_amounts,
+  tokens,
+  unregister = false,
 }: RemoveLiquidityFromStablePoolOptions) => {
+  const tokenIds = tokens.map((token) => token.id);
+
+  const withDrawTransactions: Transaction[] = [];
+
+  for (let i = 0; i < tokenIds.length; i++) {
+    const tokenId = tokenIds[i];
+
+    const ftBalance = await ftGetStorageBalance(tokenId);
+    if (ftBalance === null) {
+      withDrawTransactions.unshift({
+        receiverId: tokenId,
+        functionCalls: [
+          storageDepositAction({
+            registrationOnly: true,
+            amount: STORAGE_TO_REGISTER_WITH_FT,
+          }),
+        ],
+      });
+    }
+  }
+
+  const neededStorage = await checkTokenNeedsStorageDeposit();
+  if (neededStorage) {
+    withDrawTransactions.unshift({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+
+  const withdrawActions = tokenIds.map((tokenId) =>
+    withdrawAction({ tokenId, amount: '0', unregister })
+  );
+
+  const withdrawActionsFireFox = tokenIds.map((tokenId, i) =>
+    withdrawAction({ tokenId, amount: '0', unregister, singleTx: true })
+  );
+
   const actions: RefFiFunctionCallOptions[] = [
     {
       methodName: 'remove_liquidity',
-      args: { pool_id: id, shares, min_amounts },
+      args: {
+        pool_id: id,
+        shares,
+        min_amounts,
+      },
       amount: ONE_YOCTO_NEAR,
+      gas: '30000000000000',
     },
   ];
 
-  const needDeposit = await checkTokenNeedsStorageDeposit();
-  if (needDeposit) {
-    actions.unshift(
-      storageDepositAction({
-        amount: needDeposit,
-      })
-    );
+  if (explorerType !== ExplorerType.Firefox) {
+    withdrawActions.forEach((item) => {
+      actions.push(item);
+    });
   }
 
-  return refFiManyFunctionCalls(actions);
+  const transactions: Transaction[] = [
+    ...withDrawTransactions,
+    {
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [...actions],
+    },
+  ];
+
+  if (explorerType === ExplorerType.Firefox) {
+    transactions.push({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: withdrawActionsFireFox,
+    });
+  }
+
+  return executeMultipleTransactions(transactions);
 };
 
 export const predictRemoveLiquidityByTokens = async (
@@ -525,31 +672,89 @@ interface RemoveLiquidityByTokensFromStablePoolOptions {
   id: number;
   amounts: [string, string, string];
   max_burn_shares: string;
+  tokens: TokenMetadata[];
+  unregister?: boolean;
 }
 
 export const removeLiquidityByTokensFromStablePool = async ({
   id,
   amounts,
   max_burn_shares,
+  tokens,
+  unregister = false,
 }: RemoveLiquidityByTokensFromStablePoolOptions) => {
+  const tokenIds = tokens.map((token) => token.id);
+
+  const withDrawTransactions: Transaction[] = [];
+
+  for (let i = 0; i < tokenIds.length; i++) {
+    if (ONLY_ZEROS.test(amounts[i])) continue;
+
+    const tokenId = tokenIds[i];
+
+    const ftBalance = await ftGetStorageBalance(tokenId);
+    if (ftBalance === null) {
+      withDrawTransactions.unshift({
+        receiverId: tokenId,
+        functionCalls: [
+          storageDepositAction({
+            registrationOnly: true,
+            amount: STORAGE_TO_REGISTER_WITH_FT,
+          }),
+        ],
+      });
+    }
+  }
+
+  const neededStorage = await checkTokenNeedsStorageDeposit();
+  if (neededStorage) {
+    withDrawTransactions.unshift({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+
+  const withdrawActions = tokenIds
+    .filter((tk, i) => !ONLY_ZEROS.test(amounts[i]))
+    .map((tokenId) => withdrawAction({ tokenId, amount: '0', unregister }));
+
+  const withdrawActionsFireFox = tokenIds
+    .filter((tk, i) => !ONLY_ZEROS.test(amounts[i]))
+    .map((tokenId, i) =>
+      withdrawAction({ tokenId, amount: '0', unregister, singleTx: true })
+    );
+
   const actions: RefFiFunctionCallOptions[] = [
     {
       methodName: 'remove_liquidity_by_tokens',
       args: { pool_id: id, amounts, max_burn_shares },
       amount: ONE_YOCTO_NEAR,
+      gas: '30000000000000',
     },
   ];
 
-  const needDeposit = await checkTokenNeedsStorageDeposit();
-  if (needDeposit) {
-    actions.unshift(
-      storageDepositAction({
-        amount: needDeposit,
-      })
-    );
+  if (explorerType !== ExplorerType.Firefox) {
+    withdrawActions.forEach((item) => {
+      actions.push(item);
+    });
   }
 
-  return refFiManyFunctionCalls(actions);
+  const transactions: Transaction[] = [
+    ...withDrawTransactions,
+    {
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [...actions],
+    },
+  ];
+
+  if (explorerType === ExplorerType.Firefox) {
+    transactions.push({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: withdrawActionsFireFox,
+    });
+  }
+
+  return executeMultipleTransactions(transactions);
 };
 
 export const addSimpleLiquidityPool = async (
