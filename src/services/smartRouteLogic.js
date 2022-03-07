@@ -348,35 +348,35 @@ function getOutputDoubleHop(
   if (inputToken === p1.token1Id && middleToken === p1.token2Id) {
     // forward Pool
     p1['reserves'] = {
-      inputToken: new Big(p1.token1Supply),
-      middleToken: new Big(p1.token2Supply),
+      [inputToken]: new Big(p1.token1Supply),
+      [middleToken]: new Big(p1.token2Supply),
     };
   } else if (middleToken === p1.token1Id && inputToken === p1.token2Id) {
     //reverse pool
     p1['reserves'] = {
-      middleToken: new Big(p1.token1Supply),
-      inputToken: new Big(p1.token2Supply),
+      [middleToken]: new Big(p1.token1Supply),
+      [inputToken]: new Big(p1.token2Supply),
     };
   }
 
   if (middleToken === p2.token1Id && outputToken === p2.token2Id) {
     // forward Pool
     p2['reserves'] = {
-      middleToken: new Big(p2.token1Supply),
-      outputToken: new Big(p2.token2Supply),
+      [middleToken]: new Big(p2.token1Supply),
+      [outputToken]: new Big(p2.token2Supply),
     };
   } else if (outputToken === p2.token1Id && middleToken === p2.token2Id) {
     //reverse pool
     p2['reserves'] = {
-      outputToken: new Big(p2.token1Supply),
-      middleToken: new Big(p2.token2Supply),
+      [outputToken]: new Big(p2.token1Supply),
+      [middleToken]: new Big(p2.token2Supply),
     };
   }
 
-  let c1 = new Big(p1.reserves.middleToken);
-  let a1 = new Big(p1.reserves.inputToken);
-  let c2 = new Big(p2.reserves.middleToken);
-  let b2 = new Big(p2.reserves.outputToken);
+  let c1 = new Big(p1.reserves[middleToken]);
+  let a1 = new Big(p1.reserves[inputToken]);
+  let c2 = new Big(p2.reserves[middleToken]);
+  let b2 = new Big(p2.reserves[outputToken]);
   let gamma1 = p1.gamma;
   let gamma2 = p2.gamma;
   let num = totalInput.times(c1).times(b2).times(gamma1).times(gamma2);
@@ -820,6 +820,7 @@ function getHopActionsFromRoutes(routes, nodeRoutes, allocations) {
           allRoutes: routes,
           allNodeRoutes: nodeRoutes,
           totalInputAmount: totalInput,
+          allAllocations: allocations,
         };
         // console.log('FIRST HOP IS...');
         // console.log(hop);
@@ -844,6 +845,7 @@ function getHopActionsFromRoutes(routes, nodeRoutes, allocations) {
           allRoutes: routes,
           allNodeRoutes: nodeRoutes,
           totalInputAmount: totalInput,
+          allAllocations: allocations,
         };
         // console.log('SECOND HOP IS...');
         // console.log(hop);
@@ -1101,97 +1103,97 @@ function orderHops(hops, routes, nodeRoutes, allocations) {
   return hops;
 }
 
-function getActionListFromRoutesAndAllocationsORIG(
-  routes,
-  nodeRoutes,
-  allocations,
-  slippageTolerance
-) {
-  let actions = [];
-  for (var i in routes) {
-    let route = routes[i];
-    let nodeRoute = nodeRoutes[i];
-    let allocation = new Big(allocations[i]);
-    if (allocation.eq(new Big(0))) {
-      continue;
-    }
-    if (!route.length) {
-      route = [route];
-    }
-    if (route.length === 1) {
-      //single hop. only one action.
-      let pool = route[0];
-      let poolId = pool.id;
-      let inputToken = nodeRoute[0];
-      let outputToken = nodeRoute[1];
-      let expectedAmountOut = getOutputSingleHop(
-        pool,
-        inputToken,
-        outputToken,
-        allocation
-      );
-      let minimumAmountOut = expectedAmountOut
-        .times(new Big(1).minus(new Big(slippageTolerance).div(100)))
-        .round()
-        .toString(); //Here, assume slippage tolerance is a percentage. So 1% would be 1.0
-      let action = {
-        pool_id: poolId,
-        token_in: inputToken,
-        token_out: outputToken,
-        amount_in: allocation.round().toString(),
-        min_amount_out: minimumAmountOut.toString(),
-      };
-      actions.push(action);
-    } else if (route.length === 2) {
-      // double hop. two actions.
-      let pool1 = route[0];
-      let pool2 = route[1];
-      let pool1Id = pool1.id;
-      let pool2Id = pool2.id;
-      let inputToken = nodeRoute[0];
-      let middleToken = nodeRoute[1];
-      let outputToken = nodeRoute[2];
-      let expectedAmountOutFirstHop = getOutputSingleHop(
-        pool1,
-        inputToken,
-        middleToken,
-        allocation
-      );
-      let minimumAmountOutFirstHop = expectedAmountOutFirstHop
-        .times(new Big(1).minus(new Big(slippageTolerance).div(100)))
-        .round()
-        .toString(); //Here, assume slippage tolerance is a percentage. So 1% would be 1.0
+// function getActionListFromRoutesAndAllocationsORIG(
+//   routes,
+//   nodeRoutes,
+//   allocations,
+//   slippageTolerance
+// ) {
+//   let actions = [];
+//   for (var i in routes) {
+//     let route = routes[i];
+//     let nodeRoute = nodeRoutes[i];
+//     let allocation = new Big(allocations[i]);
+//     if (allocation.eq(new Big(0))) {
+//       continue;
+//     }
+//     if (!route.length) {
+//       route = [route];
+//     }
+//     if (route.length === 1) {
+//       //single hop. only one action.
+//       let pool = route[0];
+//       let poolId = pool.id;
+//       let inputToken = nodeRoute[0];
+//       let outputToken = nodeRoute[1];
+//       let expectedAmountOut = getOutputSingleHop(
+//         pool,
+//         inputToken,
+//         outputToken,
+//         allocation
+//       );
+//       let minimumAmountOut = expectedAmountOut
+//         .times(new Big(1).minus(new Big(slippageTolerance).div(100)))
+//         .round()
+//         .toString(); //Here, assume slippage tolerance is a percentage. So 1% would be 1.0
+//       let action = {
+//         pool_id: poolId,
+//         token_in: inputToken,
+//         token_out: outputToken,
+//         amount_in: allocation.round().toString(),
+//         min_amount_out: minimumAmountOut.toString(),
+//       };
+//       actions.push(action);
+//     } else if (route.length === 2) {
+//       // double hop. two actions.
+//       let pool1 = route[0];
+//       let pool2 = route[1];
+//       let pool1Id = pool1.id;
+//       let pool2Id = pool2.id;
+//       let inputToken = nodeRoute[0];
+//       let middleToken = nodeRoute[1];
+//       let outputToken = nodeRoute[2];
+//       let expectedAmountOutFirstHop = getOutputSingleHop(
+//         pool1,
+//         inputToken,
+//         middleToken,
+//         allocation
+//       );
+//       let minimumAmountOutFirstHop = expectedAmountOutFirstHop
+//         .times(new Big(1).minus(new Big(slippageTolerance).div(100)))
+//         .round()
+//         .toString(); //Here, assume slippage tolerance is a percentage. So 1% would be 1.0
 
-      let action1 = {
-        pool_id: pool1Id,
-        token_in: inputToken,
-        token_out: middleToken,
-        amount_in: allocation.round().toString(),
-        min_amount_out: minimumAmountOutFirstHop,
-      };
-      let expectedFinalAmountOut = getOutputSingleHop(
-        pool2,
-        middleToken,
-        outputToken,
-        minimumAmountOutFirstHop
-      );
-      let minimumAMountOutSecondHop = expectedFinalAmountOut
-        .times(new Big(1).minus(new Big(slippageTolerance).div(100)))
-        .round()
-        .toString();
-      let action2 = {
-        pool_id: pool2Id,
-        token_in: middleToken,
-        token_out: outputToken,
-        amount_in: minimumAmountOutFirstHop,
-        min_amount_out: minimumAMountOutSecondHop,
-      };
-      actions.push(action1);
-      actions.push(action2);
-    }
-  }
-  return actions;
-}
+//       let action1 = {
+//         pool_id: pool1Id,
+//         token_in: inputToken,
+//         token_out: middleToken,
+//         amount_in: allocation.round().toString(),
+//         min_amount_out: minimumAmountOutFirstHop,
+//       };
+//       let expectedFinalAmountOut = getOutputSingleHop(
+//         pool2,
+//         middleToken,
+//         outputToken,
+//         minimumAmountOutFirstHop
+//       );
+//       let minimumAMountOutSecondHop = expectedFinalAmountOut
+//         .times(new Big(1).minus(new Big(slippageTolerance).div(100)))
+//         .round()
+//         .toString();
+//       let action2 = {
+//         pool_id: pool2Id,
+//         token_in: middleToken,
+//         token_out: outputToken,
+//         amount_in: minimumAmountOutFirstHop,
+//         min_amount_out: minimumAMountOutSecondHop,
+//       };
+//       actions.push(action1);
+//       actions.push(action2);
+//     }
+//   }
+//   return actions;
+// }
 
 //     #middleTokenTotals = getMiddleTokenTotals(routes,nodeRoutes,allocations)
 //     #TODO: complete this function with middle token checks.
@@ -1591,8 +1593,11 @@ export async function getSmartRouteSwapActions(
       allRoutes: hops[i].allRoutes,
       allNodeRoutes: hops[i].allNodeRoutes,
       totalInputAmount: hops[i].totalInputAmount,
+      allAllocations: hops[i].allAllocations,
       tokens: tokens,
       routeInputToken: inputToken,
+      routeOutputToken: outputToken,
+      overallPriceImpact: '0',
     };
     // console.log('INPUT TOKEN IS...');
     // console.log(hops[i].inputToken);
@@ -1600,8 +1605,11 @@ export async function getSmartRouteSwapActions(
     actions[i].pool.y = actions[i].pool.supplies[hops[i].outputToken];
   }
   // now set partial amount in for second hops equal to zero:
+  // also, set the total price impact value.
+  let overallPriceImpact = await calculateSmartRouteV2PriceImpact(actions);
   for (var i in actions) {
     let action = actions[i];
+    action.overallPriceImpact = overallPriceImpact;
     if (action.outputToken === outputToken && action.inputToken != inputToken) {
       // only want to set second hop partial amount in to zero
       action.pool.partialAmountIn = '0';
@@ -1619,6 +1627,113 @@ export async function getSmartRouteSwapActions(
   // console.log('DISTILLED ACTIONS:');
   // console.log(distilledActions);
   // return distilledActions;
+}
+
+async function calculateSmartRouteV2PriceImpact(actions) {
+  // the goal is to take a weighted average of the price impact per route, treating each one at a time.
+  // for single hop (parallel swaps), the price impact is calculated as before.
+  // for double-hop, the market price, P, is determined using reserves of tokens in each pool in the route.
+  // in both cases, we compare the 'market price', P , determined solely by reserves in pools, and the actual
+  // average price, R,  expected to be paid in the transaction.
+  // the price impact is then defined as (P-R)/R * 100 and is a percentage number, returned as a string.
+
+  // console.log('TRYING TO CALCULATE SMART ROUTE V2 PRICE IMPACT');
+  // console.log('actions are...');
+  // console.log(actions);
+
+  let deltaY = actions
+    .filter((a) => a.outputToken == a.routeOutputToken)
+    .map((a) => new Big(a.estimate))
+    .reduce((a, b) => a.plus(b), new Big(0));
+  // console.log('DELTA Y IS...');
+  // console.log(deltaY.toString());
+
+  let inputTokenMeta = actions[0].tokens[0];
+  let deltaX = new Big(actions[0].totalInputAmount).div(
+    new Big(10).pow(inputTokenMeta.decimals)
+  );
+  // console.log('DELTA X IS...');
+  // console.log(deltaX.toString());
+  let R = deltaY.div(deltaX);
+  // console.log('R IS...');
+  // console.log(R.toString());
+  // now we need to calculate P. We do this route by route, and take a weighted average.
+  var P = new Big(0);
+  let routes = actions[0].allRoutes;
+  let nodeRoutes = actions[0].allNodeRoutes;
+  let allocations = actions[0].allAllocations.map((a) => new Big(a));
+  let totalAllocations = allocations
+    .map((a) => new Big(a))
+    .reduce((a, b) => a.plus(b), new Big(0));
+  // console.log('TOTAL ALLOCATIONS ARE...');
+  // console.log(totalAllocations);
+  let weights = allocations.map((a) => a.div(totalAllocations));
+  // console.log('WEIGHTS ARE...');
+  // console.log(weights.map((i) => i.toString()));
+  for (var i in routes) {
+    let route = routes[i];
+    let nodeRoute = nodeRoutes[i];
+    let tokens = await Promise.all(
+      nodeRoute.map(async (t) => await ftGetTokenMetadata(t))
+    );
+    let weight = weights[i];
+    if (route.length == 1) {
+      // single hop.
+      // console.log('route[0] is ...');
+      // console.log(route[0]);
+      // console.log('route[0].reserves are...');
+      // console.log(route[0].reserves);
+      // console.log(tokens.map((t) => t.decimals));
+
+      let num = new Big(route[0].reserves[nodeRoute[0]]).div(
+        new Big(10).pow(tokens[0].decimals)
+      );
+      let denom = new Big(route[0].reserves[nodeRoute[1]]).div(
+        new Big(10).pow(tokens[1].decimals)
+      );
+      var routeMarketPrice = num.div(denom);
+
+      // console.log('ROUTE MARKET PRICE 1 IS...');
+      // console.log(new Big(1).div(routeMarketPrice).toString());
+    } else {
+      /// assume double hop.
+      // console.log('route[0] is ...');
+      // console.log(route[0]);
+      // console.log('route[0].reserves are...');
+      // console.log(route[0].reserves);
+      // console.log('route[1] is ...');
+      // console.log(route[1]);
+      // console.log('route[1].reserves are...');
+      // console.log(route[1].reserves);
+
+      let num1 = new Big(route[0].reserves[nodeRoute[0]]).div(
+        new Big(10).pow(tokens[0].decimals)
+      );
+
+      let denom1 = new Big(route[0].reserves[nodeRoute[1]]).div(
+        new Big(10).pow(tokens[1].decimals)
+      );
+
+      let num2 = new Big(route[1].reserves[nodeRoute[1]]).div(
+        new Big(10).pow(tokens[1].decimals)
+      );
+
+      let denom2 = new Big(route[1].reserves[nodeRoute[2]]).div(
+        new Big(10).pow(tokens[2].decimals)
+      );
+
+      var routeMarketPrice = num1.div(denom1).times(num2).div(denom2);
+
+      // console.log('ROUTE MARKET PRICE 2 IS...');
+      // console.log(new Big(1).div(routeMarketPrice).toString());
+    }
+    P = P.plus(weight.times(new Big(1).div(routeMarketPrice)));
+  }
+  // console.log('P IS...');
+  // console.log(P.toString());
+  // now that we have P and R, we can calculate price impact:
+  let priceImpact = P.minus(R).div(R).times(new Big(100)).toString();
+  return priceImpact;
 }
 
 function distillCommonPoolActions(actions, pools, slippageTolerance) {

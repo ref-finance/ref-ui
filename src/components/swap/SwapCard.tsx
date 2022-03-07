@@ -736,9 +736,20 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     }
   }, [tokenOutAmount]);
 
-  const PriceImpactValue = true
-    ? priceImpactValueParallelSwap
-    : priceImpactValueSmartRouting;
+  // const PriceImpactValue = true
+  //   ? priceImpactValueParallelSwap
+  //   : priceImpactValueSmartRouting;
+  // console.log('SWAPSTODO are ...');
+  // console.log(swapsToDo);
+  const priceImpactValueSmartRoutingV2 = useMemo(() => {
+    try {
+      return swapsToDo[0].overallPriceImpact;
+    } catch {
+      return '0';
+    }
+  }, [tokenOutAmount]);
+
+  const PriceImpactValue = priceImpactValueSmartRoutingV2;
 
   const topBall = useRef<HTMLInputElement>();
   const bottomBall = useRef<HTMLInputElement>();

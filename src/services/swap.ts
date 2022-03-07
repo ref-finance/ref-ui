@@ -128,6 +128,7 @@ export interface EstimateSwapView {
   allRoutes?: RoutePool[][];
   allNodeRoutes?: string[][];
   totalInputAmount?: string;
+  overallPriceImpact?: string;
 }
 
 const getStablePoolEstimate = ({
