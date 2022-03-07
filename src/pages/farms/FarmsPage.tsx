@@ -149,7 +149,7 @@ export function FarmsPage() {
   }, [isSignedIn]);
   useEffect(() => {
     if (count > 0) {
-      loadFarmInfoList(true);
+      loadFarmInfoList(true, isSignedIn);
     }
     const intervalId = setInterval(() => {
       setCount(count + 1);
