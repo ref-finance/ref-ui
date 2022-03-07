@@ -270,6 +270,8 @@ export const estimateSwap = async ({
     0.1
   );
 
+  console.log('actions,', stableSmartActions);
+
   // console.log('STABLE SMART HYBRID ACTIONS ARE...');
   // console.log(stableSmartActions);
   return stableSmartActions;
@@ -836,9 +838,8 @@ SwapOptions) => {
 };
 
 export const checkTransaction = (txHash: string) => {
-  return (near.connection
-    .provider as JsonRpcProvider).sendJsonRpc('EXPERIMENTAL_tx_status', [
-    txHash,
-    wallet.getAccountId(),
-  ]);
+  return (near.connection.provider as JsonRpcProvider).sendJsonRpc(
+    'EXPERIMENTAL_tx_status',
+    [txHash, wallet.getAccountId()]
+  );
 };
