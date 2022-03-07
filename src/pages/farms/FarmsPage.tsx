@@ -77,7 +77,6 @@ import moment from 'moment';
 import { Link, useLocation } from 'react-router-dom';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
-import parse from 'html-react-parser';
 import { FaArrowCircleRight, FaRegQuestionCircle } from 'react-icons/fa';
 import OldInputAmount from '~components/forms/OldInputAmount';
 import { BigNumber } from 'bignumber.js';
@@ -94,13 +93,15 @@ interface SearchData {
 
 export function FarmsPage() {
   const intl = useIntl();
+  const location = useLocation();
   const sortList = {
     default: intl.formatMessage({ id: 'default' }),
-    mulitple: intl.formatMessage({ id: 'mulitple' }),
+    multiple: intl.formatMessage({ id: 'multiple' }),
     apr: intl.formatMessage({ id: 'apr' }),
     new: intl.formatMessage({ id: 'new' }),
     total_staked: intl.formatMessage({ id: 'total_staked' }),
   };
+  const sort_from_url = new URLSearchParams(location.search).get('sort');
   const filterList = { all: intl.formatMessage({ id: 'allOption' }) };
   classificationOfCoins_key.forEach((key) => {
     filterList[key] = intl.formatMessage({ id: key });
@@ -118,7 +119,7 @@ export function FarmsPage() {
     {}
   );
   const [searchData, setSearchData] = useState<SearchData>({
-    sort: 'default',
+    sort: sortList[sort_from_url] ? sort_from_url : 'default',
     status: null,
     coin: 'all',
     sortBoxHidden: true,
@@ -159,6 +160,20 @@ export function FarmsPage() {
   }, [count]);
 
   async function loadFarmInfoList(isUpload?: boolean, isSignedIn?: boolean) {
+  useEffect(() => {
+    const sort_from_url = new URLSearchParams(location.search).get('sort');
+    const status_from_url = +new URLSearchParams(location.search).get('status');
+    if (
+      (sort_from_url && sort_from_url != searchData.sort) ||
+      (status_from_url && status_from_url != searchData.status)
+    ) {
+      searchData.sort = sort_from_url;
+      searchData.status = 1;
+      setSearchData(Object.assign({}, searchData));
+      searchByCondition();
+    }
+  }, [location.search]);
+  async function loadFarmInfoList(isUpload?: boolean) {
     if (isUpload) {
       setUnclaimedFarmsIsLoading(false);
     } else {
@@ -204,7 +219,9 @@ export function FarmsPage() {
       }
     });
     const stakedList_being = Object.keys(stakedList).length > 0;
-    searchData.status = isSignedIn
+    searchData.status = sortList[sort_from_url]
+      ? 1
+      : wallet.isSignedIn()
       ? Number(
           localStorage.getItem('farm_filter_status') ||
             (stakedList_being ? '2' : '1')
@@ -333,7 +350,8 @@ export function FarmsPage() {
     let commonSeedFarmsNew = JSON.parse(
       JSON.stringify(tempCommonSeedFarms || commonSeedFarms)
     );
-    let noData = true;
+    let noData;
+    listAll.length && (noData = true);
     listAll.forEach((item: any) => {
       const { userStaked, pool, seed_id, farm_id } = item[0];
       const isEnd = isEnded(item);
@@ -387,23 +405,10 @@ export function FarmsPage() {
       } else {
         item.show = false;
       }
-      item.mulitple = incentiveLpTokenConfig[id] || '0';
+      item.multiple = incentiveLpTokenConfig[id] || '0';
       item.default = defaultConfig[id] || '0';
     });
     if (sort == 'new') {
-      // const tempMap = {};
-      // const keyList: any[] = [];
-      // listAll.forEach((m: any) => {
-      //   tempMap[m.key] = m;
-      //   keyList.push(m.key);
-      // });
-      // listAll = keyList
-      //   .sort()
-      //   .reverse()
-      //   .map((key) => tempMap[key]);
-      // listAll.sort(function (a: any, b: any) {
-      //   return b.length - a.length;
-      // });
       listAll.sort((item1: any, item2: any) => {
         const item1List = JSON.parse(JSON.stringify(item1));
         const item2List = JSON.parse(JSON.stringify(item2));
@@ -429,9 +434,9 @@ export function FarmsPage() {
       listAll.sort((item1: any, item2: any) => {
         return Number(item2[0].totalStaked) - Number(item1[0].totalStaked);
       });
-    } else if (sort == 'mulitple') {
+    } else if (sort == 'multiple') {
       listAll.sort((item1: any, item2: any) => {
-        return Number(item2.mulitple) - Number(item1.mulitple);
+        return Number(item2.multiple) - Number(item1.multiple);
       });
     } else if (sort == 'default') {
       listAll.sort((item1: any, item2: any) => {

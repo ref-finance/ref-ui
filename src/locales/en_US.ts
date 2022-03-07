@@ -235,8 +235,7 @@ const en_US = {
   value_rewards: 'Claimed rewards',
   stake_unstake_tip:
     'Staking or unstaking will automatically claim your rewards.',
-  over_tip:
-    'Due to the limitation of Gas Fee, only 5 items most can be selected at one time',
+  over_tip: 'To optimise gas fee, you can withdraw up to 5 tokens at a time',
   no_token_tip: 'No reward token',
   getToken_tip: 'You can claim your rewards or stake your LP Tokens now!',
   in_farm: 'in Farm',
@@ -268,7 +267,7 @@ const en_US = {
   rewards_claimed: 'Rewards claimed',
   value_rewards_token: 'Value of rewards',
   all: 'All',
-  all_5: '5 tokens per time',
+  all_5: 'Max 5 tokens at a time',
   insufficient_shares: 'Insufficient shares',
   shares_removed: 'Shares',
   shares_avaliable: 'Shares avaliable',
@@ -291,9 +290,8 @@ const en_US = {
   view_stats: 'View Stats',
   xref: 'xREF',
   ref: 'REF',
-  more_than_general_seed:
-    'Please input number that more than or equal to 0.000001',
-  more_than_stable_seed: 'Please input number that more than or equal to 1',
+  more_than_general_seed: 'Input must be greater than or equal to 0.000001',
+  more_than_stable_seed: 'Input must be greater than or equal to 1',
   are_you_sure: 'Are you sure',
   price_impact_is_about: 'Price impact is about',
   yes_swap: 'Yes, swap',
@@ -347,7 +345,7 @@ const en_US = {
   from_terra: 'Terra',
   from_celo: 'Celo',
   no_result: 'Sorry, we couldn’t find any farm',
-  mulitple: 'Multiple',
+  multiple: 'Multiple',
   default: 'Default',
   vi_go_live: 'Vietnamese goes live!',
   do_not_need_to_deposit_in_ref:

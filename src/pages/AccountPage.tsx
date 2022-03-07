@@ -33,9 +33,9 @@ import {
   getAccountName,
 } from '../utils/sender-wallet';
 
-import { Checkbox, CheckboxSelected } from '~components/icon';
-import { GradientButton, ButtonTextWrapper } from '~components/button/Button';
 import { getSenderLoginRes } from '../utils/sender-wallet';
+import { Checkbox, CheckboxSelected } from '../components/icon';
+import { GradientButton, ButtonTextWrapper } from '../components/button/Button';
 const withdraw_number_at_once = 5;
 const accountSortFun = (
   by: string,

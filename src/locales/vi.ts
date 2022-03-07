@@ -239,7 +239,8 @@ const vi = {
   value_rewards: 'phần thưởng',
   stake_unstake_tip:
     'Staking hay unstaking sẽ tự động nhận phần thưởng của bạn.',
-  over_tip: 'Do giới hạn của phí gas, chỉ chọn được 5 thứ cùng một lúc.',
+  over_tip:
+    'Để tối ưu hóa phí gas, bạn có thể rút tối đa 5 token cùng một lúc.',
   no_token_tip: 'Không có token thưởng',
   getToken_tip:
     'Bạn có thể nhận token thưởng hoặc  stake LP token của bạn ngay bây giờ!',
@@ -352,7 +353,7 @@ const vi = {
   from_terra: 'Terra',
   from_celo: 'Celo',
   no_result: 'Xin lỗi, chúng tôi không tìm thấy cặp farm nào của bạn',
-  mulitple: 'Cặp được nhân',
+  multiple: 'Cặp được nhân',
   default: 'mặc định',
   vi_go_live: 'Việt phát trực tiếp!',
   do_not_need_to_deposit_in_ref:

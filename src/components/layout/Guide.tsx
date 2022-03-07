@@ -88,7 +88,7 @@ export function Guide(props: any) {
           )}
         </>
       ) : null}
-      {!closeStatusSet ? (
+      {/* {!closeStatusSet ? (
         <>
           {mobile ? (
             <div className="flex w-full justify-between items-end relative h-24 -mt-8">
@@ -140,7 +140,7 @@ export function Guide(props: any) {
             </div>
           )}
         </>
-      ) : null}
+      ) : null} */}
     </>
   );
 }

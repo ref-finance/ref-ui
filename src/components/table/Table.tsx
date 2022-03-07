@@ -43,13 +43,15 @@ export default function Table({
             </th>
             <th className={`font-normal pb-2 pr-9 w-1/5 `}>
               <span
-                className="cursor-pointer flex justify-end items-center "
+                className="cursor-pointer flex justify-end items-center whitespace-nowrap"
                 onClick={() => onSortChange('near')}
               >
                 <span className="self-start">
                   <SmallWallet forSelectToken />
                 </span>
-                <span className="ml-1">NEAR</span>
+                <span className="ml-1">
+                  <FormattedMessage id="balance" />
+                </span>
                 <TiArrowSortedUp
                   className={`inline-block cursor-pointer ${
                     sortBy === 'near' && currentSort === 'down'
