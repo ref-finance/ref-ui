@@ -1,4 +1,4 @@
-const uk_UA = {  
+const uk_UA = {
   deposit: 'депозит',
   Deposit: 'Депозит',
   withdraw: 'зняття',
@@ -55,13 +55,15 @@ const uk_UA = {
   to: 'До',
   submit: 'Прийняти',
   wrapnear: 'Обгорнути NEAR',
-  wrapnear_tip_one: 'Обгортання NEAR дозволяє вам торгувати на REF. Переконайтесь що ',
+  wrapnear_tip_one:
+    'Обгортання NEAR дозволяє вам торгувати на REF. Переконайтесь що ',
   wrapnear_tip_two: 'Залиште 1 NEAR',
   wrapnear_tip_three: 'для комісії щоб розгорнути назад ваш NEAR.',
   wrap_error_msg: 'Недостатній баланс',
   sign_out: 'Вийти',
   view_account: 'Огляд акаунта',
-  deposit_to_swap_and_add_liquidity: 'Здійсніть депозит, для обміну та додавання ліквідності',
+  deposit_to_swap_and_add_liquidity:
+    'Здійсніть депозит, для обміну та додавання ліквідності',
   small_storage_fee_is_applied_of: 'Стягується невелика комісія за зберігання',
   liquidity: 'Ліквідність',
   tokens: 'Токени',
@@ -147,8 +149,7 @@ const uk_UA = {
     'Це спочатку розгорне ваші Ⓝ, а потім зніме їх з <br> біржі та перекаже токени на ваш гаманець',
   withdrawCopy:
     'Це зніме ваші вибрані токени з <br> біржі та перенесе їх на ваш гаманець',
-  registerToken:
-    'Це реєструє новий токен на <br> біржі який ще не торгується',
+  registerToken: 'Це реєструє новий токен на <br> біржі який ще не торгується',
   whitelistTokenCopy: 'Додайте будь-який NEP-141 токен',
   addLiquidityPoolCopy:
     'Це створює новий пул ліквідності для двох вибраних токенів. Комісія — це відсоток, який пул бере з кожної транзакції',
@@ -158,17 +159,17 @@ const uk_UA = {
   getLPTokenCopy: 'Натисніть тут, щоб перейти до відповідного пулу',
   airdropCopy:
     'Будь ласка отримайте свій аірдроп хоча б раз до дати закінчення терміну дії, інакше ваш баланс буде перераховано до казначейства',
-  farmRewardsCopy: 'Орієнтовна вартість на основі цін, а не фактичного виконання',
+  farmRewardsCopy:
+    'Орієнтовна вартість на основі цін, а не фактичного виконання',
   totalValueLockedCopy: 'Загальна заблокована вартість',
   topPoolsCopy: 'Відображати лише найвищий пул TVL для кожної пари',
-  you_do_not_have_enough: "У вас недостатньо",
+  you_do_not_have_enough: 'У вас недостатньо',
   must_provide_at_least_one_token_for: 'Необхідно надати більше 0 токенів для',
   is_not_exist: 'не існує',
   must_input_a_value_greater_than_zero: 'Необхідно ввести значення більше 0',
   amount_must_be_not_greater_your_balance:
     'Сума не повинна перевищувати ваш баланс',
-  no_pool_available_to_make_a_swap_from:
-    'Відповідні пули для обміну відсутні',
+  no_pool_available_to_make_a_swap_from: 'Відповідні пули для обміну відсутні',
   for_the_amount: 'на суму',
   no_pool_eng_for_chinese: ' ',
   is_not_a_valid_swap_amount: 'недійсна кількість свопу',
@@ -181,7 +182,7 @@ const uk_UA = {
   account_label: 'Акаунт',
   total_label: 'Всього',
   top_pools: 'Топ пул',
-  pool_id:  'ID пулу',
+  pool_id: 'ID пулу',
   more_pools: 'Більше пулів',
   my_watchlist: 'Список спостережень',
   h24_volume: 'Об&apos;єм за 24 години',
@@ -218,7 +219,8 @@ const uk_UA = {
     'Виберіть [NEAR wallet], щоб напряму обмінювати токени, доступні у вашому гаманці NEAR.',
   near_wallet: 'NEAR гаманець',
   ref_account: 'REF акаунт',
-  swap_tip: 'Здійсніть своп із вашого REF акаунта, вибравши "REF акаунт" в налаштуваннях',
+  swap_tip:
+    'Здійсніть своп із вашого REF акаунта, вибравши "REF акаунт" в налаштуваннях',
   attention: 'Увага',
   live: 'LIVE',
   ended_search: 'Завершено',
@@ -238,7 +240,8 @@ const uk_UA = {
   over_tip:
     'Через обмеження комісії gas, одночасно можна вибрати не більше 5 позицій.',
   no_token_tip: 'Винагорода у токенах відсутня',
-  getToken_tip: 'Ви можете отримати свої винагороди або здійснити стейкінг своїх токенів LP прямо зараз!',
+  getToken_tip:
+    'Ви можете отримати свої винагороди або здійснити стейкінг своїх токенів LP прямо зараз!',
   in_farm: 'У фармі',
   swap_rate_including_fee: 'Ставка свопу (включаючи комісії)',
   by_share: 'За часткою',
@@ -302,7 +305,8 @@ const uk_UA = {
   go_to_near_wallet: 'Перейти у NEAR Wallet',
   into_ref_account: 'у ваш акаунт REF.',
   deposit_into_ref_account: 'у ваш акаунт REF, щоб додати ліквідність',
-  deposit_near_tip: 'Щоб здійснити депозит, утримуйте щонайменше 1 NEAR для покриття комісії gas.',
+  deposit_near_tip:
+    'Щоб здійснити депозит, утримуйте щонайменше 1 NEAR для покриття комісії gas.',
   input_greater_than_available_shares: 'Введіть більше, ніж доступні частки',
   number_of_unique_stakers: 'Кількість унікальних стейкерів',
   total_ref_staked: 'Всього REF стейкінгу',
@@ -313,7 +317,8 @@ const uk_UA = {
   provision_treasury: 'Казначейство забезпечення',
   protocol_projected_revenue_tip:
     'Це число відповідає сукупному загальному прибутку від торгових комісій власникам xREF. Він дорівнює 75% від загального доходу платформи. Воно може відрізнятися від фактичної суми зворотного викупу токена REF через коливання цін.',
-  stake_ref_to_xref_for_earning_more: 'Здійснюйте стейкінг  REF до xREF, щоб заробляти більше!',
+  stake_ref_to_xref_for_earning_more:
+    'Здійснюйте стейкінг  REF до xREF, щоб заробляти більше!',
   auto_router: 'Автоматичний маршрутизатор',
   auto_router_detail_sub_1: 'Цей маршрут оптимізує ваш своп',
   auto_router_detail_sub_2: 'враховуючи всі пули для однієї пари.',
@@ -324,10 +329,12 @@ const uk_UA = {
   xref_to_receive: 'отримати xREF',
   ref_to_receive: 'отримати REF ',
   more_expensive_than_best_rate_en: 'дорожче за найкращу ставку',
-  optimal_path_found_by_our_solution: 'Оптимальний шлях, знайдений нашим рішенням',
+  optimal_path_found_by_our_solution:
+    'Оптимальний шлях, знайдений нашим рішенням',
   check_to_stable_banner: 'Перевірити',
   rates_to_stable_banner: 'Ставки',
-  make_sure_you_understand_what_you_do: 'Переконайтеся, що ви розумієте, що ви робите',
+  make_sure_you_understand_what_you_do:
+    'Переконайтеся, що ви розумієте, що ви робите',
   go_to_your_account_to: 'Перейдіть до свого акаунта для',
   deposit_l: 'Депозит',
   withdraw_l: 'Зняття',
