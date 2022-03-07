@@ -337,7 +337,7 @@ const vi = {
   go_to_your_account_to: 'Go to your account to',
   deposit_l: 'Nạp',
   withdraw_l: 'Rút',
-  got_it: 'Got it',
+  got_it: 'Đã rõ',
   check_the_transaction_settings: 'Kiểm tra cài đặt giao dịch',
   filter_by: 'Bộ lọc',
   allOption: 'Tất cả',
@@ -356,13 +356,11 @@ const vi = {
   multiple: 'Cặp được nhân',
   default: 'mặc định',
   vi_go_live: 'Việt phát trực tiếp!',
-  do_not_need_to_deposit_in_ref:
-    'Bạn không cần phải gửi tiền vào Ref Finance nữa!',
+  do_not_need_to_deposit_in_ref: 'Bạn không cần nạp tiền vào Ref Finance nữa!',
   you_can_add_liquidity_directly:
-    'Bây giờ bạn có thể thêm thanh khoản trực tiếp bằng ví GẦN của mình.',
+    'Bây giờ bạn có thể thêm thanh khoản trực tiếp bằng ví NEAR Wallet.',
   do_not_need_deposit_anymore: 'Bạn không cần phải đặt cọc nữa!',
-  lightning_swaps: 'Hoán đổi tia chớp',
-  frictionless_add_remove_liquidity:
-    'Các hành động thêm / xóa thanh khoản không ma sát',
+  lightning_swaps: 'Giao dịch tức thời',
+  frictionless_add_remove_liquidity: 'Thêm/ Xóa thanh khoản mượt mà hơn',
 };
 export default vi;
