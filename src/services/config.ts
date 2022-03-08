@@ -128,43 +128,43 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '242,633.0475',
       };
     default:
-      return {
-        networkId: 'testnet',
-        nodeUrl: 'https://rpc.testnet.near.org',
-        walletUrl: 'https://wallet.testnet.near.org',
-        helperUrl: 'https://helper.testnet.near.org',
-        explorerUrl: 'https://explorer.testnet.near.org',
-        indexerUrl: 'https://dev-indexer.ref-finance.com',
-        sodakiApiUrl: 'https://sodaki.com/api',
-        blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
-        REF_FI_CONTRACT_ID:
-          process.env.REF_FI_CONTRACT_ID || 'exchange.ref-dev.testnet',
-        WRAP_NEAR_CONTRACT_ID:
-          process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.testnet',
-        REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
-        REF_FARM_CONTRACT_ID:
-          process.env.REF_FARM_CONTRACT_ID || 'farm110.ref-dev.testnet',
-        REF_TOKEN_ID: 'ref.fakes.testnet',
-        XREF_TOKEN_ID: 'xref.ref-dev.testnet',
-        REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
-        TOP_POOLS_TOKEN_REFRESH_INTERVAL:
-          process.env.POOL_TOKEN_REFRESH_INTERVAL || 60,
-        POOL_TOKEN_REFRESH_INTERVAL:
-          process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
-        STABLE_POOL_ID: process.env.STABLE_POOL_ID || 79,
-        STABLE_TOKEN_IDS: [
-          'usdt.fakes.testnet',
-          'usdc.fakes.testnet',
-          'dai.fakes.testnet',
-        ],
-        STABLE_TOKEN_INDEX: {
-          'usdt.fakes.testnet': 0,
-          'usdc.fakes.testnet': 1,
-          'dai.fakes.testnet': 2,
-        },
-        TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '242,633.0475',
-      };
+      // return {
+      //   networkId: 'testnet',
+      //   nodeUrl: 'https://rpc.testnet.near.org',
+      //   walletUrl: 'https://wallet.testnet.near.org',
+      //   helperUrl: 'https://helper.testnet.near.org',
+      //   explorerUrl: 'https://explorer.testnet.near.org',
+      //   indexerUrl: 'https://dev-indexer.ref-finance.com',
+      //   sodakiApiUrl: 'https://sodaki.com/api',
+      //   blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
+      //   REF_FI_CONTRACT_ID:
+      //     process.env.REF_FI_CONTRACT_ID || 'exchange.ref-dev.testnet',
+      //   WRAP_NEAR_CONTRACT_ID:
+      //     process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.testnet',
+      //   REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
+      //   REF_FARM_CONTRACT_ID:
+      //     process.env.REF_FARM_CONTRACT_ID || 'farm110.ref-dev.testnet',
+      //   REF_TOKEN_ID: 'ref.fakes.testnet',
+      //   XREF_TOKEN_ID: 'xref.ref-dev.testnet',
+      //   REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
+      //   TOP_POOLS_TOKEN_REFRESH_INTERVAL:
+      //     process.env.POOL_TOKEN_REFRESH_INTERVAL || 60,
+      //   POOL_TOKEN_REFRESH_INTERVAL:
+      //     process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
+      //   STABLE_POOL_ID: process.env.STABLE_POOL_ID || 79,
+      //   STABLE_TOKEN_IDS: [
+      //     'usdt.fakes.testnet',
+      //     'usdc.fakes.testnet',
+      //     'dai.fakes.testnet',
+      //   ],
+      //   STABLE_TOKEN_INDEX: {
+      //     'usdt.fakes.testnet': 0,
+      //     'usdc.fakes.testnet': 1,
+      //     'dai.fakes.testnet': 2,
+      //   },
+      //   TOTAL_PLATFORM_FEE_REVENUE:
+      //     process.env.TOTAL_PLATFORM_FEE_REVENUE || '242,633.0475',
+      // };
       return {
         networkId: 'mainnet',
         nodeUrl: RPC_LIST[endPoint].url,

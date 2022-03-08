@@ -124,6 +124,7 @@ export interface EstimateSwapView {
   nodeRoute?: string[];
   tokens?: TokenMetadata[];
   routeInputToken: string;
+  routeOutputToken: string;
   route?: RoutePool[];
   allRoutes?: RoutePool[][];
   allNodeRoutes?: string[][];
@@ -252,22 +253,11 @@ export const estimateSwap = async ({
   // console.log(pools);
   const orpools = await getRefPoolsByToken1ORToken2(tokenIn.id, tokenOut.id);
 
-  // let actions = await getSmartRouteSwapActions(
-  //   orpools,
-  //   tokenIn.id,
-  //   tokenOut.id,
-  //   parsedAmountIn,
-  //   0.1 //TODO -- put in the slippageTolerance value HERE!!!
-  // );
-  // console.log('FOUND SMART ROUTE ACTIONS TO BE...');
-  // console.log(actions);
-  // console.log(STABLE_POOL_ID);
   let stableSmartActions = await stableSmart(
     orpools,
     tokenIn.id,
     tokenOut.id,
-    parsedAmountIn,
-    0.1
+    parsedAmountIn
   );
 
   // console.log('STABLE SMART HYBRID ACTIONS ARE...');

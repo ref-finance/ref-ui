@@ -21,6 +21,31 @@ Big.DP = 40;
 Big.NE = -40;
 Big.PE = 40;
 
+function bisqrt(value) {
+  // For some ridiculous reason, the .sqrt() method for Big decimals is extremely slow (~10-20ms),
+  // which isn't so bad until you need to use it a bunch of times.
+  // Since we're dealing with super large numbers anyway, we can convert the Big decimal number into a BigInt,
+  // then run this BigInt Newton iteration square root function instead, and then convert back into a
+  // Big number. And it speeds up the operation by a crazy factor, ~10x faster.
+  if (value < 0n) {
+    throw 'square root of negative numbers is not supported';
+  }
+
+  if (value < 2n) {
+    return value;
+  }
+
+  function newtonIteration(n, x0) {
+    const x1 = (n / x0 + x0) >> 1n;
+    if (x0 === x1 || x0 === x1 - 1n) {
+      return x0;
+    }
+    return newtonIteration(n, x1);
+  }
+
+  return newtonIteration(value, 1n);
+}
+
 function getBetaForRoute(route, path) {
   if (!route.length) {
     route = [route];
@@ -114,7 +139,12 @@ function getAlphaSumFromRoutes(routes, nodeRoutes) {
     let route = routes[i];
     let nodeRoute = nodeRoutes[i];
     let alpha = getAlphaForRoute(route, nodeRoute);
-    let radical = new Big(alpha).sqrt();
+    // console.log('alpha is...');
+    // console.log(alpha.toString());
+    // below, we are replacing the built-in Big sqrt() method with a
+    // newton-iteration BigInt sqrt function, to speed it up by 10x.
+    let radical = new Big(bisqrt(BigInt(new Big(alpha).round().toFixed())));
+    // let radical = new Big(alpha).sqrt();
     let epsilon = getEpsilonForRoute(route, nodeRoute);
     let denom = new Big(epsilon);
     alphaSum = alphaSum.plus(radical.div(denom));
@@ -145,9 +175,11 @@ function getAllocationForRoute(phi, route, path) {
   let alpha = getAlphaForRoute(route, path);
   let beta = getBetaForRoute(route, path);
   let epsilon = getEpsilonForRoute(route, path);
+  // below, we are replacing the built-in Big sqrt() method with a
+  // newton-iteration BigInt sqrt function, to speed it up by 10x.
   let allocation = new Big(phi)
     .abs()
-    .times(new Big(alpha).sqrt())
+    .times(new Big(bisqrt(BigInt(new Big(alpha).round().toFixed()))))
     .minus(beta)
     .div(epsilon);
   return allocation;
@@ -863,8 +895,7 @@ function getHopActionsFromRoutes(routes, nodeRoutes, allocations) {
 function getActionListFromRoutesAndAllocations(
   routes,
   nodeRoutes,
-  allocations,
-  slippageTolerance
+  allocations
 ) {
   // REPLACE THE CODE BELOW WITH THE FUNCTION HERE.
   return getHopActionsFromRoutes(routes, nodeRoutes, allocations);
@@ -1214,7 +1245,6 @@ export async function getSmartRouteSwapActions(
   inputToken,
   outputToken,
   totalInput,
-  slippageTolerance,
   maxPathLength = 3,
   numberOfRoutesLimit = 2
 ) {
@@ -1565,8 +1595,7 @@ export async function getSmartRouteSwapActions(
   let hops = getActionListFromRoutesAndAllocations(
     filteredRoutes,
     filteredNodeRoutes,
-    filteredAllocations,
-    slippageTolerance
+    filteredAllocations
   );
 
   var actions = [];
@@ -1661,8 +1690,8 @@ export async function getSmartRouteSwapActions(
     }
   }
 
-  console.log('ACTIONS 1006:');
-  console.log(actions);
+  // console.log('ACTIONS 1006:');
+  // console.log(actions);
   return actions;
   // let distilledActions = distillCommonPoolActions(
   //   actions,
