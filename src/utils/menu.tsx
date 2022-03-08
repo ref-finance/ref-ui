@@ -182,6 +182,14 @@ export const useMenuItems = () => {
           id: 13,
           logo: <IconVi />,
         },
+        {
+          label: 'український',
+          isExternal: false,
+          language: 'uk',
+          url: '',
+          id: 14,
+          logo: <IconVi />,
+        },
       ],
     },
   ];

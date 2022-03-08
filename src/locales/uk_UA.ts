@@ -354,8 +354,131 @@ const uk_UA = {
   from_terra: 'Terra',
   from_celo: 'Celo',
   no_result: 'На жаль, нам не вдалося знайти відповідний пул фарму',
-  mulitple: 'Декілька',
+  multiple: 'Декілька',
   default: 'За замовчуванням',
   vi_go_live: 'Доступна В&apos;єтнамська мова!',
 };
-export default uk_UA;
+const uk_UA_in_risks_page = {
+  risks: 'Risks',
+  of_using_ref_finance: 'of Using Ref. finance',
+  introduction:
+    'Providing liquidity and/or trading on Ref Finance do not come without risks. Before interacting with the protocol, please do research and understand the risks involved.',
+  general_risks_quiz: 'General Risks Quiz',
+  amm_core_design: 'AMM Core Design',
+  audits: 'Audits',
+  audits_paragraph_2:
+    'Security audits do not eliminate risks completely. Please do not supply your life savings, or assets you cannot afford to lose, to Ref Finance, especially as a liquidity provider.',
+  admin_keys: 'Admin keys',
+  admin_keys_paragraph_2:
+    'The current DAO has 26 members. Ref Finance will be transitioning to a fully decentralized DAO.',
+  admin_keys_paragraph_3:
+    'Please find below the list of contracts and addresses that have directly managed or currently manage the affairs of Ref Finance.',
+  address: 'Address',
+  type: 'Type',
+  mission: 'Mission',
+  Locked: 'Locked',
+  exchange_contract: 'Exchange Contract',
+  table_body_tr_1:
+    'Manage the Automated Market Maker functions; Swap and Provide Liquidity',
+  farming_contract: 'Farming Contract',
+  table_body_tr_2: 'Manage liquidity incentives',
+  staking_contract: 'Staking Contract',
+  table_body_tr_3: 'Mint and burn xREF, and Distribute time-based rewards',
+  sputnik_dao_contract: 'Sputnik DAO Contract',
+  table_body_tr_4:
+    'Ensure the success of Ref by taking strategic decisions (incl. smart contract amendments)',
+  table_body_tr_5:
+    'Manage and allocate funds to specific community contributors',
+  table_body_tr_6: 'Execute the Strategy and Roadmap',
+  vesting_contract: 'Vesting Contract',
+  table_body_tr_7: 'Manage REF vesting contracts of Dev DAO members',
+  airdrop_contract: 'Airdrop Contract',
+  table_body_tr_8: 'Manage first REF airdrop',
+  near_address: 'NEAR Address',
+  table_body_tr_9: 'Manage one-time bug bounty payments',
+  fungible_token_contract: 'Fungible Token Contract',
+  table_body_tr_10: 'Mint REF token',
+  rug_pull: 'Rug pull',
+  rug_pull_paragraph_1:
+    'If the team behind a token, either whitelisted or not, decides to abandon its project and takes the investors’ money, the project’s token will probably be worth $0.',
+  rug_pull_paragraph_2:
+    'If the token is whitelisted on Ref Finance, that does not mean the project will succeed. You are responsible for doing your own due diligence of the project and should understand that crypto are very-high risk, speculative investments.',
+  rug_pull_paragraph_3:
+    'You should be aware and prepared to potentially lose some or all of the money invested.',
+  divergence_loss: 'Divergence Loss',
+  divergence_loss_paragraph_1:
+    'If you provide liquidity, please do note that you can make more money by not providing liquidity.',
+  divergence_loss_paragraph_2:
+    'Divergence Loss is often yet inappropriately called “impermanent loss”. The adjective (impermanent) may assume or create the marketing feeling that losses are only impermanent, meaning that losses are guaranteed to be reversed, which is not true.',
+  divergence_loss_paragraph_3: 'Learn more about Divergence Loss',
+  staking_risks: 'Staking risks',
+  staking_risks_paragraph_1:
+    'When staking you use multiple smart contract products each of which has its own risks.',
+  permanent_loss_of_a_peg: 'Permanent loss of a peg',
+  permanent_loss_of_a_peg_paragraph_1:
+    'If one of the stablecoins in the pool goes significantly down below the peg of 1.0 and never returns to the peg, it will effectively mean that pool liquidity providers hold almost all their liquidity in that currency.',
+  systemic_issues: 'Systemic issues',
+  systemic_issues_paragraph_1:
+    'In general, DeFi or the legos of money is highly connected, meaning that one failure of its component may trigger a succession of failures.',
+  systemic_issues_paragraph_2:
+    'A systematic risk means that you can lose money even if the failure does not directly concern your investment/exposure.',
+  systemic_issues_paragraph_3:
+    'The following risks may have an impact in the liquidity pools:',
+  systemic_issues_paragraph_4: 'Smart contract issues with lending protocols',
+  systemic_issues_paragraph_5: 'Smart contracts issues with staking protocols',
+  systemic_issues_paragraph_6:
+    'Systemic issues with the stablecoins in those pools',
+  systemic_issues_paragraph_7:
+    'Systemic issues with ERC20-native tokens in those pools',
+  crypto_trading_addiction: 'Crypto trading addiction',
+  crypto_trading_addiction_paragraph_1:
+    'Trading crypto can be very addictive and, according to many sources, be a form of gambling addiction, which can destroy lives.',
+  crypto_trading_addiction_paragraph_2:
+    'Please find below a collection of stories relating to that matter.',
+  crypto_trading_addiction_paragraph_3:
+    "'Trading is gambling, no doubt about it'",
+  crypto_trading_addiction_paragraph_4:
+    "'I Lost Half a Million Pounds Trading Bitcoin'",
+  crypto_trading_addiction_paragraph_5:
+    "'We Spoke to a Therapist Who Treats Cryptocurrency Trading Addiction'",
+  crypto_trading_addiction_paragraph_6:
+    "'I lost millions through cryptocurrency trading addiction'",
+  no_in_progress: 'No (In Progress)',
+  yes: 'Yes',
+  no: 'No',
+  NA: 'N/A',
+  ref_finance_near: 'ref-finance.near',
+  ref_finance_near_mission:
+    'v1 (depreciated)- Manage the Automated Market Maker functions; Swap and Provide Liquidity',
+  token_ref_finance_near: 'token.ref-finance.near',
+  token_ref_finance_near_type: 'Fungible Token Contract',
+  token_ref_finance_near_mission: 'v1 (depreciated) - Mint REF token',
+  refchef_near: 'refchef.near',
+  simple_address: 'Simple Address',
+  refchef_near_mission: 'Manage inter-account transactions',
+  ref_dev_teller_near: 'ref-dev-teller.near',
+  Locked_title: 'Locked? information box: when hovering to display:',
+  Locked_paragraph_1:
+    'Locked contract means that there are no access keys allowing the contract code to be re-deployed.',
+  Locked_paragraph_2: 'In general case, the code can be re-deployed by:',
+  Locked_paragraph_3: '1. a transaction with a deploy-code action',
+  Locked_paragraph_4:
+    '2. the contract itself can implement a function call that will trigger deploy-code action',
+  Locked_paragraph_5:
+    'To re-deploy the code with a transaction, the transaction has to be signed with a full-access key. If there is no such key on the contract, there is no way to re-deploy the code unless there is a dedicated support in the contract code itself, and thus we mark such contracts as locked.',
+  Locked_paragraph_6:
+    'If there is at least one full-access key registered on the contract account, the contract is not locked.',
+  audited_first_sentence:
+    'Ref Finance smart contracts are being audited by <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://jitadigital.com/')" +
+    '>Jita</label>. Ref Finance will actively look for a second independant audit once the first audit is completed.',
+  admin_first_sentence:
+    'Ref Finance is managed by the <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
+    '>Ref Finance Sputnik DAO</label>. There are <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
+    '>Guardians</label>, specific NEAR addresses, which are able to pause the contract. Only the DAO can resume the contract, at any time.',
+  risks_of_using_ref_finance:
+    '<label class="text-greenColor">Risks</label> of Using Ref. finance',
+};
+export default Object.assign(uk_UA, uk_UA_in_risks_page);
