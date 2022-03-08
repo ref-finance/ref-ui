@@ -279,7 +279,9 @@ export const getPoolsByTokens = async ({
     const pools = (
       await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
     ).flat();
-    filtered_pools = pools.filter(isNotStablePool);
+    filtered_pools = pools
+      .filter(isNotStablePool)
+      .filter((p) => !p.tokenIds.includes('uxu.leopollum.testnet'));
 
     await db.cachePoolsByTokens(filtered_pools);
     filtered_pools = filtered_pools.filter(
@@ -288,9 +290,7 @@ export const getPoolsByTokens = async ({
   }
   setLoadingData(false);
   // @ts-ignore
-  return filtered_pools.filter(
-    (p) => !p.tokenIds.includes('uxu.leopollum.testnet')
-  );
+  return filtered_pools;
 };
 
 export const getRefPoolsByToken1ORToken2 = async (
