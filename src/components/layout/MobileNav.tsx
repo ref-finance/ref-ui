@@ -157,6 +157,17 @@ export function MobileSwitchLanguage() {
           </span>
           Yкраїнський
         </div>
+        <div
+          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
+            currentLocal === 'ru' ? 'text-white' : 'text-primaryText '
+          }`}
+          onClick={() => context.selectLanguage('ru')}
+        >
+          <span className="text-2xl mr-5">
+            <UkIcon />
+          </span>
+          Pусский
+        </div>
       </div>
     </div>
   );

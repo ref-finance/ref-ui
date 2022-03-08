@@ -258,10 +258,7 @@ export function AddPoolPage() {
               <ButtonTextWrapper
                 loading={buttonLoading}
                 Text={() => (
-                  <FormattedMessage
-                    id="add_liquidity"
-                    defaultMessage="Add Liquidity"
-                  />
+                  <FormattedMessage id="create" defaultMessage="Create" />
                 )}
               />
             </button>

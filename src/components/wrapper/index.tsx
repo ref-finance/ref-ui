@@ -4,6 +4,7 @@ import zh_CN from '../../locales/zh_CN';
 import en_US from '../../locales/en_US';
 import vi from '../../locales/vi';
 import uk from '../../locales/uk_UA';
+import ru from '../../locales/ru';
 
 export const Context = React.createContext(null);
 const local = localStorage.getItem('local') || navigator.language;
@@ -22,6 +23,9 @@ const changeLocale = (local: string) => {
       break;
     case 'uk':
       lang = uk;
+      break;
+    case 'ru':
+      lang = ru;
       break;
     default:
       lang = en_US;

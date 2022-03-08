@@ -191,6 +191,14 @@ export const useMenuItems = () => {
           id: 14,
           logo: <UkIcon />,
         },
+        {
+          label: 'Pусский',
+          isExternal: false,
+          language: 'ru',
+          url: '',
+          id: 15,
+          logo: <UkIcon />,
+        },
       ],
     },
   ];
