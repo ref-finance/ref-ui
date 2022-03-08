@@ -21,6 +21,7 @@ import {
   IconSolana,
   IconTerra,
   IconCelo,
+  UkIcon,
 } from '~components/icon/Nav';
 import { XrefIcon } from '~components/icon/Xref';
 
@@ -183,12 +184,12 @@ export const useMenuItems = () => {
           logo: <IconVi />,
         },
         {
-          label: 'український',
+          label: 'Yкраїнський',
           isExternal: false,
           language: 'uk',
           url: '',
           id: 14,
-          logo: <IconVi />,
+          logo: <UkIcon />,
         },
       ],
     },

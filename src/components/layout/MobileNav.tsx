@@ -18,6 +18,7 @@ import {
   WrapNearEnter,
   IconAirDropGreenTip,
   WrapNearIconDark,
+  UkIcon,
 } from '~components/icon';
 import { WNEARExchngeIcon } from '~components/icon/Common';
 import { Link, useLocation } from 'react-router-dom';
@@ -152,9 +153,9 @@ export function MobileSwitchLanguage() {
           onClick={() => context.selectLanguage('uk')}
         >
           <span className="text-2xl mr-5">
-            <IconVi />
+            <UkIcon />
           </span>
-          український
+          Yкраїнський
         </div>
       </div>
     </div>
