@@ -247,7 +247,7 @@ class RefDatabase extends Dexie {
         (item) =>
           Number(item.update_time) >=
           Number(moment().unix()) -
-            Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL) +
+            Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL) -
             10
       )
       .toArray();
@@ -259,7 +259,7 @@ class RefDatabase extends Dexie {
         (item) =>
           Number(item.update_time) >=
           Number(moment().unix()) -
-            Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL) +
+            Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL) -
             10
       )
       .toArray();
