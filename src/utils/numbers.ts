@@ -488,19 +488,24 @@ export function calculateSmartRoutesV2PriceImpact(
 
   console.log(routes);
 
+  const tokenIn = routes[0][0].token;
+
   const totalInputAmount = routes[0][0].totalInputAmount;
-  const tokenInAmountReadable = toReadableNumber(
-    routes[0][0].token.decimals,
-    totalInputAmount
-  );
+
 
   const priceImpactForRoutes = routes.map((r, i) => {
+    const readablePartialAmountIn = toReadableNumber(
+      tokenIn.decimals,
+      r[0].pool.partialAmountIn
+    );
+
     if (r.length > 1) {
       const tokenIn = r[0].tokens[0];
       const tokenMid = r[0].tokens[1];
       const tokenOut = r[0].tokens[2];
+
       return calculateSmartRoutingPriceImpact(
-        tokenInAmountReadable,
+        readablePartialAmountIn,
         routes[i],
         tokenIn,
         tokenMid,
@@ -511,7 +516,7 @@ export function calculateSmartRoutesV2PriceImpact(
         [r[0].pool],
         r[0].tokens[0],
         r[0].tokens[1],
-        tokenInAmountReadable
+        readablePartialAmountIn
       );
     }
   });
