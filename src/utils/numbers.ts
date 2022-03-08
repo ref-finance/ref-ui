@@ -7,6 +7,7 @@ import { STABLE_POOL_ID, STABLE_TOKEN_IDS } from '../services/near';
 import { Pool } from '../services/pool';
 import { getSwappedAmount } from '../services/stable-swap';
 import { EstimateSwapView } from '../services/swap';
+import Big from 'big.js';
 
 const BPS_CONVERSION = 10000;
 const REF_FI_STABLE_Pool_INFO_KEY = 'REF_FI_STABLE_Pool_INFO_VALUE';
@@ -182,13 +183,6 @@ export const calculateSmartRoutingPriceImpact = (
   const formattedTokenMidReceived = scientificNotationToString(
     tokenMidReceived.toString()
   );
-
-  // const [amount_swapped, fee, dy] = getSwappedAmount(
-  //   tokenIn.id,
-  //   tokenOut.id,
-  //   amountIn,
-  //   stablePoolInfo
-  // );
 
   let stableOutPool2;
   if (isPool2StablePool) {
@@ -469,3 +463,70 @@ export const niceDecimals = (number: string | number, precision = 2) => {
     return new BigNumber(number).toFixed(precision, 1);
   }
 };
+
+export function separateRoutes(actions: any, outputToken: string) {
+  const res = [];
+  let curRoute = [];
+
+  console.log(actions);
+
+  for (let i in actions) {
+    curRoute.push(actions[i]);
+    if (actions[i].outputToken === outputToken) {
+      res.push(curRoute);
+      curRoute = [];
+    }
+  }
+
+  return res;
+}
+export function calculateSmartRoutesV2PriceImpact(
+  actions: any,
+  outputToken: string
+) {
+  const routes = separateRoutes(actions, outputToken);
+
+  console.log(routes);
+
+  const totalInputAmount = routes[0][0].totalInputAmount;
+  const tokenInAmountReadable = toReadableNumber(
+    routes[0][0].token.decimals,
+    totalInputAmount
+  );
+
+  const priceImpactForRoutes = routes.map((r, i) => {
+    if (r.length > 1) {
+      const tokenIn = r[0].tokens[0];
+      const tokenMid = r[0].tokens[1];
+      const tokenOut = r[0].tokens[2];
+      return calculateSmartRoutingPriceImpact(
+        tokenInAmountReadable,
+        routes[i],
+        tokenIn,
+        tokenMid,
+        tokenOut
+      );
+    } else {
+      return calculatePriceImpact(
+        [r[0].pool],
+        r[0].tokens[0],
+        r[0].tokens[1],
+        tokenInAmountReadable
+      );
+    }
+  });
+
+  const rawRes = priceImpactForRoutes.reduce(
+    (pre, cur, i) => {
+      return pre.plus(
+        new Big(routes[i][0].pool.partialAmountIn)
+          .div(new Big(totalInputAmount))
+          .mul(cur)
+      );
+    },
+
+    new Big(0)
+  );
+
+  return scientificNotationToString(rawRes.toString());
+}

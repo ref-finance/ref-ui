@@ -26,6 +26,7 @@ import {
   multiply,
   divide,
   scientificNotationToString,
+  calculateSmartRoutesV2PriceImpact,
 } from '../../utils/numbers';
 import ReactDOMServer from 'react-dom/server';
 import TokenAmount from '../forms/TokenAmount';
@@ -722,36 +723,15 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     loadingPause,
   });
 
-  const priceImpactValueParallelSwap = useMemo(() => {
-    if (true) return '0';
-    // return calculatePriceImpact(pools, tokenIn, tokenOut, tokenInAmount);
-  }, [tokenOutAmount]);
-
-  const priceImpactValueSmartRouting = useMemo(() => {
-    {
-      if (true) return '0';
-      return calculateSmartRoutingPriceImpact(
-        tokenInAmount,
-        swapsToDo,
-        tokenIn,
-        swapsToDo[1].token,
-        tokenOut
-      );
-    }
-  }, [swapsToDo]);
-
-  // const PriceImpactValue = true
-  //   ? priceImpactValueParallelSwap
-  //   : priceImpactValueSmartRouting;
-  // console.log('SWAPSTODO are ...');
-  // console.log(swapsToDo);
   const priceImpactValueSmartRoutingV2 = useMemo(() => {
     try {
-      return swapsToDo[0].overallPriceImpact;
+      const pi = calculateSmartRoutesV2PriceImpact(swapsToDo, tokenOut.id);
+
+      return pi;
     } catch {
       return '0';
     }
-  }, [tokenOutAmount]);
+  }, [tokenOutAmount, swapsToDo]);
 
   const PriceImpactValue = priceImpactValueSmartRoutingV2;
 

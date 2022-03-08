@@ -67,23 +67,6 @@ export const useSwap = ({
   setLoadingTrigger,
   loadingPause,
 }: SwapOptions) => {
-  // if (
-  //   STABLE_TOKEN_IDS.includes(tokenIn.id) &&
-  //   STABLE_TOKEN_IDS.includes(tokenOut.id)
-  // ) {
-  //   let stablePool = await getStablePool(Number(STABLE_POOL_ID));
-  //   useStableSwap({
-  //     tokenIn,
-  //     tokenInAmount,
-  //     tokenOut,
-  //     slippageTolerance,
-  //     loadingTrigger,
-  //     setLoadingTrigger,
-  //     stablePool,
-  //     // stablePool,
-  //   });
-  // }
-
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
@@ -115,26 +98,8 @@ export const useSwap = ({
     return total + num;
   }
 
-  // const setAverageFeeOrig = (estimates: EstimateSwapView[]) => {
-  //   const medFee = estimates.map((s2d) => {
-  //     const fee = s2d.pool.fee;
-  //     const numerator = Number(
-  //       toReadableNumber(tokenIn.decimals, s2d.pool.partialAmountIn)
-  //     );
-  //     const weight = numerator / Number(tokenInAmount);
-
-  //     return fee * weight;
-  //   });
-  //   const avgFee = medFee.reduce(sumFunction, 0);
-  //   setAvgFee(avgFee);
-  // };
-
   const setAverageFee = (estimates: EstimateSwapView[]) => {
     const estimate = estimates[0];
-    // console.log('USING NEW SET AVERAGE FEE!');
-    // console.log('estimate routes are ...', estimate.allRoutes);
-    // console.log('estimate node routes are ...', estimate.allNodeRoutes);
-    // console.log('estimate totalInputAmount is ...', estimate.totalInputAmount);
 
     const avgFee = getAverageFeeForRoutes(
       estimate.allRoutes,
@@ -216,42 +181,16 @@ export const useSwap = ({
 
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
             setCanSwap(true);
-            setSwapsToDo(estimates);
             setAverageFee(estimates);
 
-            if (!loadingTrigger)
+            if (!loadingTrigger) {
               setTokenOutAmount(
                 getExpectedOutputFromActions(estimates, tokenOut.id).toString()
               );
+              setSwapsToDo(estimates);
+            }
           }
 
-          // const isParallelSwap = estimates.every(
-          //   (e) => e.status === PoolMode.PARALLEL
-          // );
-
-          // if (isParallelSwap) {
-          //   if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
-          //     setCanSwap(true);
-          //     setSwapsToDo(estimates);
-          //     setAverageFee(estimates);
-          //     const estimate = estimates.reduce((pre, cur) => {
-          //       return scientificNotationToString(
-          //         BigNumber.sum(pre, cur.estimate).toString()
-          //       );
-          //     }, '0');
-          //     if (!loadingTrigger) setTokenOutAmount(estimate);
-          //   }
-          // } else {
-          //   if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
-          //     setCanSwap(true);
-          //     setSwapsToDo(estimates);
-
-          //     setAvgFee(
-          //       Number(estimates[0].pool.fee) + Number(estimates[1].pool.fee)
-          //     );
-          //     if (!loadingTrigger) setTokenOutAmount(estimates[1].estimate);
-          //   }
-          // }
           setPool(estimates[0].pool);
         })
         .catch((err) => {
