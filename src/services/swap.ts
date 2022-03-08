@@ -125,7 +125,6 @@ export interface EstimateSwapView {
   nodeRoute?: string[];
   tokens?: TokenMetadata[];
   routeInputToken: string;
-  routeOutputToken: string;
   route?: RoutePool[];
   allRoutes?: RoutePool[][];
   allNodeRoutes?: string[][];
@@ -245,7 +244,8 @@ export const estimateSwap = async ({
     orpools,
     tokenIn.id,
     tokenOut.id,
-    parsedAmountIn
+    parsedAmountIn,
+    0.1
   );
 
   if (!stableSmartActions.length) {
