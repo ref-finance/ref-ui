@@ -277,7 +277,7 @@ export default function RiskPage() {
                     <LangMessage id="table_body_tr_1" />
                   </td>
                   <td width="15%" className="py-3 px-4 xs:px-2.5 md:px-2.5">
-                    <LangMessage id="no_in_progress" />
+                    <LangMessage id="yes" />
                   </td>
                 </tr>
                 <tr className="text-xs text-riskTextColor border-b border-white border-opacity-10 bg-blend-overlay hover:bg-poolRowHover hover:bg-opacity-20 hover:text-white">
