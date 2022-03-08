@@ -1312,7 +1312,8 @@ export async function getSmartRouteSwapActions(
       bestRoutesAreParallel = true;
     }
   }
-
+  var canHaveTwoRoutes = false;
+  // initialize this variable to check if we can have two routes, or if all routes share a pool for an edge case.
   for (var i in routes) {
     for (var j in routes) {
       if (j > i) {
@@ -1334,10 +1335,13 @@ export async function getSmartRouteSwapActions(
           // console.log('skipping this pair because pool was shared.');
           continue;
         } else {
+          canHaveTwoRoutes = true;
           // console.log('No pool was shared.');
           // console.log('NODE ROUTE 1 IS...', nodeRoute1);
           // console.log('NODE ROUTE 2 IS...', nodeRoute2);
           let currentRoutes = [route1, route2];
+          // console.log('current Routes are...');
+          // console.log(currentRoutes);
           let currentNodeRoutes = [nodeRoute1, nodeRoute2];
           let filteredAllocationsAndOutputs = getOptOutputVecRefined(
             currentRoutes,
@@ -1373,6 +1377,38 @@ export async function getSmartRouteSwapActions(
           // console.log(bestResDict.allocations.map((i) => i.toString()));
           // console.log(bestResDict.outputs.toString());
         }
+      }
+    }
+  }
+
+  if (!canHaveTwoRoutes) {
+    // now we need to check through the routes in single manner to find the best one:
+    console.log(
+      'ALL ROUTES SHARED A POOL. TRYING TO FIND THE BEST SINGLE ONE...'
+    );
+    for (var i in routes) {
+      let currentRoutes = [routes[i]];
+      let currentNodeRoutes = [nodeRoutes[i]];
+      let filteredAllocationsAndOutputs = getOptOutputVecRefined(
+        currentRoutes,
+        currentNodeRoutes,
+        totalInput
+      );
+
+      let filteredAllocations = filteredAllocationsAndOutputs.allocations;
+      let filteredOutputs = filteredAllocationsAndOutputs.result;
+      // console.log('FILTERED ALLOCATIONS:');
+      // console.log(filteredAllocations.map((i) => i.toString()));
+      // console.log(filteredOutputs);
+      let totalOutput = filteredOutputs.reduce((a, b) => a.plus(b), new Big(0));
+      if (new Big(totalOutput).gt(currentBestOutput)) {
+        bestAllocations = filteredAllocations;
+        currentBestOutput = totalOutput;
+        // console.log('BEST OUTPUT IS NOW... ', currentBestOutput.toString());
+        bestRoutes = currentRoutes;
+        bestNodeRoutes = currentNodeRoutes;
+        bestRoutesAreParallel = false;
+        // bestResDict = currentResDict
       }
     }
   }
@@ -1461,23 +1497,34 @@ export async function getSmartRouteSwapActions(
       allFilteredRoutes.push(routes[allSortedIndices[i]]);
       allFilteredNodeRoutes.push(nodeRoutes[allSortedIndices[i]]);
     }
-    let firstRoute = [allFilteredRoutes[0]];
+    let firstRoute = allFilteredRoutes[0];
+    // console.log('first route is...');
+    // console.log(firstRoute);
     let firstRoutePoolIds = firstRoute.map((pool) => pool.id);
     for (var i in allFilteredRoutes) {
       if (!allFilteredRoutes[i].length) {
         allFilteredRoutes[i] = [allFilteredRoutes[i]];
       }
     }
+    // console.log('FIRST ROUTE POOL IDS ARE');
+    // console.log(firstRoutePoolIds);
     let allFilteredRouteIds = allFilteredRoutes.map((route) =>
       route.map((pool) => pool.id)
     );
-    console.log('allFilteredRouteIds are ...');
-    console.log(allFilteredRouteIds);
+    // console.log('allFilteredRouteIds are ...');
+    // console.log(allFilteredRouteIds);
     for (var i in allFilteredRouteIds) {
+      // console.log('i is', i);
+      // console.log('ALL FILTERED ROUTES [i] IS...');
+      // console.log(allFilteredRouteIds[i]);
       for (var j in allFilteredRouteIds[i]) {
-        if (firstRoutePoolIds.includes(allFilteredRouteIds[j])) {
+        // console.log('j is', j);
+        // console.log('ALL FILTERED ROUTES [i][j] IS...');
+        // console.log(allFilteredRouteIds[i][j]);
+        if (firstRoutePoolIds.includes(allFilteredRouteIds[i][j])) {
           break;
         }
+
         var secondRoute = allFilteredRoutes[i];
         if (!secondRoute.length) {
           secondRoute = [secondRoute];
@@ -1510,12 +1557,10 @@ export async function getSmartRouteSwapActions(
   let filteredAllocations = filteredAllocationsAndOutputs.allocations;
   let filteredOutputs = filteredAllocationsAndOutputs.result;
 
-  // console.log('filtered outputs are ...');
-  // console.log('    allocations:');
-  // // console.log(filteredAllocations_check.map((a) => a.toString()));
-  // console.log(filteredAllocations.map((a) => a.toString()));
-  // console.log('    result:');
-  // console.log(filteredOutputs.map((a) => a.toString()));
+  filteredAllocations = checkIntegerSumOfAllocations(
+    filteredAllocations,
+    totalInput
+  ).map((stringAllo) => new Big(stringAllo));
 
   let hops = getActionListFromRoutesAndAllocations(
     filteredRoutes,
@@ -1616,8 +1661,8 @@ export async function getSmartRouteSwapActions(
     }
   }
 
-  // console.log('ACTIONS 1006:');
-  // console.log(actions);
+  console.log('ACTIONS 1006:');
+  console.log(actions);
   return actions;
   // let distilledActions = distillCommonPoolActions(
   //   actions,
