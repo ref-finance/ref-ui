@@ -283,7 +283,10 @@ export const getPoolsByTokens = async ({
 
     await db.cachePoolsByTokens(filtered_pools);
     filtered_pools = filtered_pools.filter(
-      (p) => p.supplies[tokenInId] && p.supplies[tokenOutId]
+      (p) =>
+        p.supplies[tokenInId] &&
+        p.supplies[tokenOutId] &&
+        !p.tokenIds.includes('uxu.leopollum.testnet')
     );
   }
   setLoadingData(false);
