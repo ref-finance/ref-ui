@@ -113,7 +113,7 @@ export const WalletOption = ({
                 lineHeight: '15px',
               }}
             >
-              HOT
+              Beta
             </div>
           ) : null}
         </div>
