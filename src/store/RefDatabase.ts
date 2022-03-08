@@ -247,7 +247,8 @@ class RefDatabase extends Dexie {
         (item) =>
           Number(item.update_time) >=
           Number(moment().unix()) -
-            Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
+            Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL) +
+            10
       )
       .toArray();
     let reverseItems = await this.poolsTokens
@@ -258,7 +259,8 @@ class RefDatabase extends Dexie {
         (item) =>
           Number(item.update_time) >=
           Number(moment().unix()) -
-            Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
+            Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL) +
+            10
       )
       .toArray();
 
