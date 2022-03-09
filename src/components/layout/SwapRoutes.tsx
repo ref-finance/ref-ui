@@ -70,13 +70,15 @@ export const Icon = ({ token }: { token: TokenMetadata }) => {
     return (
       <img
         src={token.icon}
-        className={`w-4 h-4 rounded-full border border-gradientFromHover`}
+        className={`w-4 h-4 rounded-full border border-gradientFromHover flex-shrink-0`}
         alt=""
       />
     );
   } else {
     return (
-      <div className={`w-4 h-4 rounded-full border border-gradientFromHover`} />
+      <div
+        className={`w-4 h-4 rounded-full border border-gradientFromHover flex-shrink-0	`}
+      />
     );
   }
 };
@@ -92,7 +94,7 @@ export const ParaTokenFrom = ({
     <div
       className="rounded-md py-1 pl-2 pr-1 flex items-center relative justify-between "
       style={{
-        width: '56px',
+        width: '60px',
       }}
     >
       <span className="text-xs text-left text-gray-400 pr-0.5 ">{p}%</span>
