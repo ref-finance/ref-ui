@@ -22,6 +22,7 @@ import {
   IconTerra,
   IconCelo,
   UkIcon,
+  RuIcon,
 } from '~components/icon/Nav';
 import { XrefIcon } from '~components/icon/Xref';
 
@@ -197,7 +198,7 @@ export const useMenuItems = () => {
           language: 'ru',
           url: '',
           id: 15,
-          logo: <UkIcon />,
+          logo: <RuIcon />,
         },
       ],
     },

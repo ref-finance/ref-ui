@@ -19,6 +19,7 @@ import {
   IconAirDropGreenTip,
   WrapNearIconDark,
   UkIcon,
+  RuIcon,
 } from '~components/icon';
 import { WNEARExchngeIcon } from '~components/icon/Common';
 import { Link, useLocation } from 'react-router-dom';
@@ -164,7 +165,7 @@ export function MobileSwitchLanguage() {
           onClick={() => context.selectLanguage('ru')}
         >
           <span className="text-2xl mr-5">
-            <UkIcon />
+            <RuIcon />
           </span>
           Pусский
         </div>
