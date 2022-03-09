@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { TokenMetadata, ftGetTokenMetadata } from '~services/ft-contract';
 import { calculateFeePercent, toPrecision } from '~utils/numbers';
 import { toRealSymbol } from '~utils/token';
+import { EstimateSwapView } from '../../services/stable-swap';
+import { getPoolAllocationPercents } from '../../utils/numbers';
+import { Pool } from '../../services/pool';
 
 export const RouterIcon = () => {
   return (
@@ -87,12 +90,12 @@ export const ParaTokenFrom = ({
 }) => {
   return (
     <div
-      className="rounded-md py-1 pl-2 pr-1 bg-inputDarkBg flex items-center relative justify-between"
+      className="rounded-md py-1 pl-2 pr-1 flex items-center relative justify-between "
       style={{
-        width: '60px',
+        width: '56px',
       }}
     >
-      <span className="text-xs text-left text-white pr-0.5 ">{p}%</span>
+      <span className="text-xs text-left text-gray-400 pr-0.5 ">{p}%</span>
       <span className="">
         <Icon token={tokenIn} />
       </span>
@@ -103,7 +106,7 @@ export const ParaTokenFrom = ({
 export const PoolInfo = ({ poolId, fee }: { poolId: number; fee: number }) => {
   return (
     <div
-      className="flex items-center bg-inputDarkBg px-1 text-gray-400 rounded-md grid grid-cols-2 w-36"
+      className="flex items-center bg-inputDarkBg px-1 text-gray-400 rounded-md grid grid-cols-2 w-32"
       style={{
         paddingTop: '3px',
         paddingBottom: '3px',
@@ -150,41 +153,28 @@ export const OneParallelRoute = ({
   );
 };
 
-export const SmartRoute = ({ tokens }: { tokens: TokenMetadata[] }) => {
-  const Hub = ({ token }: { token: TokenMetadata }) => {
+export const SmartRouteV2 = ({
+  tokens,
+  p,
+  pools,
+}: {
+  tokens: TokenMetadata[];
+  p: string;
+  pools: Pool[];
+}) => {
+  const Hub = ({ token, poolId }: { token: TokenMetadata; poolId: number }) => {
     return (
-      <div className="flex items-center justify-end">
+      <div
+        className="flex items-center bg-inputDarkBg rounded-2xl pr-1"
+        style={{
+          width: '70px',
+          height: '22px',
+        }}
+      >
+        <div className="w-full flex items-center justify-center">
+          <span className="text-gray-400">{`#${poolId}`}</span>
+        </div>
         <Icon token={token} />
-        {/* <span className="pl-1.5">{toRealSymbol(token.symbol)}</span> */}
-        <span className="pl-1.5">{'IDK'}</span>
-      </div>
-    );
-  };
-
-  return (
-    <div className="text-white flex items-center justify-between">
-      <Hub token={tokens[0]} />
-      <div className="px-3">
-        <ArrowRight />
-      </div>
-
-      <Hub token={tokens[1]} />
-      <div className="px-3">
-        <ArrowRight />
-      </div>
-
-      <Hub token={tokens[2]} />
-    </div>
-  );
-};
-
-export const SmartRouteV2 = ({ tokens }: { tokens: TokenMetadata[] }) => {
-  const Hub = ({ token }: { token: TokenMetadata }) => {
-    return (
-      <div className="flex items-center justify-end">
-        <Icon token={token} />
-        {<span className="pl-1.5">{toRealSymbol(token.symbol)}</span>}
-        {/* <span className="pl-1.5">{'IDK'}</span> */}
       </div>
     );
   };
@@ -192,27 +182,29 @@ export const SmartRouteV2 = ({ tokens }: { tokens: TokenMetadata[] }) => {
   if (tokens.length == 3) {
     return (
       <div className="text-white flex items-center justify-between">
-        <Hub token={tokens[0]} />
+        {/* <Hub token={tokens[0]} /> */}
+
+        <ParaTokenFrom tokenIn={tokens[0]} p={p} />
         <div className="px-3">
           <ArrowRight />
         </div>
 
-        <Hub token={tokens[1]} />
+        <Hub token={tokens[1]} poolId={pools?.[0]?.id} />
         <div className="px-3">
           <ArrowRight />
         </div>
 
-        <Hub token={tokens[2]} />
+        <Hub token={tokens[2]} poolId={pools?.[1]?.id} />
       </div>
     );
   } else if (tokens.length == 2) {
     return (
       <div className="text-white flex items-center justify-between">
-        <Hub token={tokens[0]} />
+        <ParaTokenFrom tokenIn={tokens[0]} p={p} />
         <div className="px-3">
           <ArrowRight />
         </div>
-        <Hub token={tokens[1]} />
+        <Hub token={tokens[1]} poolId={pools?.[0]?.id} />
       </div>
     );
   } else {

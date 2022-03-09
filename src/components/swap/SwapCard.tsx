@@ -27,6 +27,7 @@ import {
   divide,
   scientificNotationToString,
   calculateSmartRoutesV2PriceImpact,
+  separateRoutes,
 } from '../../utils/numbers';
 import ReactDOMServer from 'react-dom/server';
 import TokenAmount from '../forms/TokenAmount';
@@ -57,7 +58,6 @@ import {
   AutoRouterText,
   OneParallelRoute,
   RouterIcon,
-  SmartRoute,
   SmartRouteV2,
 } from '~components/layout/SwapRoutes';
 import QuestionMark, {
@@ -72,6 +72,7 @@ import { QuestionTip } from '~components/layout/TipWrapper';
 import { Guide } from '~components/layout/Guide';
 import { sortBy } from 'lodash';
 import { SwapArrow, SwapExchange } from '../icon/Arrows';
+import { getPoolAllocationPercents } from '../../utils/numbers';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -273,12 +274,20 @@ export function SmartRoutesV2Detail({
 }: {
   swapsTodo: EstimateSwapView[];
 }) {
-  // const tokenMid = useMemo(() => swapsTodo[1].token, [swapsTodo[1].token.id]);
-  // const tokenMid = useMemo(() => 'IDK', ['IDK']);
-
   const tokensPerRoute = swapsTodo
     .filter((swap) => swap.inputToken == swap.routeInputToken)
     .map((swap) => swap.tokens);
+
+  const identicalRoutes = separateRoutes(
+    swapsTodo,
+    swapsTodo[swapsTodo.length - 1].outputToken
+  );
+
+  const pools = identicalRoutes.map((r) => r[0]).map((hub) => hub.pool);
+
+  const percents = useMemo(() => {
+    return getPoolAllocationPercents(pools);
+  }, [identicalRoutes, pools]);
 
   return (
     <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
@@ -294,39 +303,16 @@ export function SmartRoutesV2Detail({
         {tokensPerRoute.map((tokens, index) => (
           <div key={index} className="mb-2">
             <div className="text-right text-white col-span-6 xs:mt-2 md:mt-2">
-              {<SmartRouteV2 tokens={tokens} />}
+              {
+                <SmartRouteV2
+                  tokens={tokens}
+                  p={percents[index]}
+                  pools={identicalRoutes[index].map((hub) => hub.pool)}
+                />
+              }
             </div>
           </div>
         ))}
-      </div>
-    </section>
-  );
-}
-
-export function SmartRoutesDetail({
-  swapsTodo,
-  tokenIn,
-  tokenOut,
-}: {
-  swapsTodo: EstimateSwapView[];
-  tokenIn: TokenMetadata;
-  tokenOut: TokenMetadata;
-}) {
-  // const tokenMid = useMemo(() => swapsTodo[1].token, [swapsTodo[1].token.id]);
-  const tokenMid = useMemo(() => 'IDK', ['IDK']);
-
-  return (
-    <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
-      <div className="text-primaryText text-left ">
-        <div className="inline-flex items-center">
-          <RouterIcon />
-          <AutoRouterText />
-          <QuestionTip id="optimal_path_found_by_our_solution" width="w-56" />
-        </div>
-      </div>
-
-      <div className="text-right text-white col-span-6 xs:mt-2">
-        {<SmartRoute tokens={[tokenIn, tokenMid, tokenOut]} />}
       </div>
     </section>
   );
@@ -342,51 +328,7 @@ export function ParallelSwapRoutesDetail({
   tokenOut: TokenMetadata;
 }) {
   const percents = useMemo(() => {
-    if (pools) {
-      const partialAmounts = pools.map((pool) => {
-        return math.bignumber(pool.partialAmountIn);
-      });
-
-      const ps: string[] = new Array(partialAmounts.length).fill('0');
-
-      const sum =
-        partialAmounts.length === 1
-          ? partialAmounts[0]
-          : math.sum(...partialAmounts);
-
-      const sortedAmount = sortBy(partialAmounts, (p) => Number(p));
-
-      for (let k = 0; k < sortedAmount.length - 1; k++) {
-        let minIndex = -1;
-
-        for (let j = 0; j < partialAmounts.length; j++) {
-          if (partialAmounts[j].eq(sortedAmount[k])) {
-            minIndex = j;
-            break;
-          }
-        }
-        const res = math
-          .round(percent(partialAmounts[minIndex].toString(), sum))
-          .toString();
-
-        if (Number(res) === 0) {
-          ps[minIndex] = '1';
-        } else {
-          ps[minIndex] = res;
-        }
-      }
-
-      const finalPIndex = ps.indexOf('0');
-
-      ps[finalPIndex] = subtraction(
-        '100',
-        ps.length === 1 ? Number(ps[0]) : math.sum(...ps.map((p) => Number(p)))
-      ).toString();
-
-      return ps;
-    } else {
-      return [];
-    }
+    return getPoolAllocationPercents(pools);
   }, [pools]);
 
   return (
