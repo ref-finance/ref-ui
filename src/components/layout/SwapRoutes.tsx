@@ -167,9 +167,9 @@ export const SmartRouteV2 = ({
   const Hub = ({ token, poolId }: { token: TokenMetadata; poolId: number }) => {
     return (
       <div
-        className="flex items-center bg-inputDarkBg rounded-2xl pr-1"
+        className="flex items-center bg-inputDarkBg rounded-2xl pr-1 flex-shrink-0"
         style={{
-          width: '70px',
+          width: '72px',
           height: '22px',
         }}
       >
