@@ -553,12 +553,15 @@ export function getPoolAllocationPercents(pools: Pool[]) {
 
     const sortedAmount = sortBy(partialAmounts, (p) => Number(p));
 
+    let minIndexes: number[] = [];
+
     for (let k = 0; k < sortedAmount.length - 1; k++) {
       let minIndex = -1;
 
       for (let j = 0; j < partialAmounts.length; j++) {
-        if (partialAmounts[j].eq(sortedAmount[k])) {
+        if (partialAmounts[j].eq(sortedAmount[k]) && !minIndexes.includes(j)) {
           minIndex = j;
+          minIndexes.push(j);
           break;
         }
       }
