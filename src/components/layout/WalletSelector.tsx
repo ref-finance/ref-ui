@@ -244,7 +244,7 @@ const SenderNotInstalledModal = (
             marginBottom: '5px',
           }}
           onClick={() => {
-            window.open('https://senderwallet.io/', '_blank');
+            window.open('https://senderwallet.io/?origin=ref', '_blank');
           }}
         >
           <span>
