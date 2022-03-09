@@ -244,10 +244,7 @@ const SenderNotInstalledModal = (
             marginBottom: '5px',
           }}
           onClick={() => {
-            window.open(
-              'https://chrome.google.com/webstore/detail/sender-wallet/epapihdplajcdnnkdeiahlgigofloibg?utm_source=chrome-ntp-icon',
-              '_blank'
-            );
+            window.open('https://senderwallet.io/', '_blank');
           }}
         >
           <span>
