@@ -291,7 +291,7 @@ export function SmartRoutesV2Detail({
 
   return (
     <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
-      <div className="text-primaryText text-left ">
+      <div className="text-primaryText text-left self-start">
         <div className="inline-flex items-center">
           <RouterIcon />
           <AutoRouterText />
