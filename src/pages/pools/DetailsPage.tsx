@@ -1291,6 +1291,8 @@ export function PoolDetailsPage() {
   const dayVolume = useDayVolume(id);
   const tokens = useTokens(pool?.tokenIds);
 
+  const history = useHistory();
+
   const monthVolume = useMonthVolume(id);
   const monthTVL = useMonthTVL(id);
   const [showFunding, setShowFunding] = useState(false);
@@ -1348,11 +1350,7 @@ export function PoolDetailsPage() {
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
   if (isStablePool(pool)) {
-    history.push('/');
-  }
-
-  if (isStablePool(pool)) {
-    history.push('/');
+    history.push('/stableswap');
   }
 
   return (
