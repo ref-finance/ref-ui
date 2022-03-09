@@ -76,9 +76,11 @@ export const setCallbackUrl = (res: any) => {
     state === TRANSACTION_STATE.FAIL ? res?.response?.error?.type : '';
   const transactionHashes = getTransactionHashes(res, state);
 
+  const parsedTransactionHashes = transactionHashes?.join(',');
+
   const newHref = addQueryParams(window.location.href, {
-    [TRANSACTION_WALLET_TYPE.SENDER_WALLET]: transactionHashes.join(','),
-    state,
+    [TRANSACTION_WALLET_TYPE.SENDER_WALLET]: parsedTransactionHashes,
+    state: parsedTransactionHashes ? state : '',
     errorType,
   });
 
