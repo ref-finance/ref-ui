@@ -173,7 +173,7 @@ export const SmartRouteV2 = ({
           height: '22px',
         }}
       >
-        <div className="w-full flex items-center justify-center">
+        <div className="w-full flex items-center justify-start pl-1.5">
           <span className="text-gray-400">{`#${poolId}`}</span>
         </div>
         <Icon token={token} />
