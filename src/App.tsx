@@ -142,7 +142,7 @@ function App() {
             saveSenderLoginRes();
           });
       }
-    }, 200);
+    }, 300);
   }, [window, window?.near]);
 
   return (
