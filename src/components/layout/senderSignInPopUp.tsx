@@ -22,7 +22,7 @@ export const senderSignedInToast = (errorType?: string) => {
       />
     </div>,
     {
-      autoClose: 8000,
+      autoClose: false,
       closeOnClick: true,
       hideProgressBar: false,
       closeButton: <CloseIcon />,
