@@ -603,7 +603,7 @@ export function MobileNavBar(props: any) {
           </div>
           <div
             className="p-4 bg-cardBg pb-16"
-            onClick={() => window.open('https://sodaki.com/')}
+            onClick={() => window.open('https://stats.ref.finance/')}
           >
             <RefAnalytics />
           </div>
