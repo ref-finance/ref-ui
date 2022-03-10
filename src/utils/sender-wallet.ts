@@ -121,7 +121,7 @@ function senderWalletFunc(window: Window) {
     transactions: any,
     callbackUrl?: string
   ) {
-    if (!senderWallet.isSignedIn()) {
+    if (!window.near.isSignedIn()) {
       await this.requestSignIn(REF_FARM_CONTRACT_ID);
     }
 
@@ -149,7 +149,7 @@ function senderWalletFunc(window: Window) {
     receiverId: string,
     functionCalls: RefFiFunctionCallOptions[]
   ) {
-    if (!senderWallet.isSignedIn()) {
+    if (!window.near.isSignedIn()) {
       await this.requestSignIn(REF_FARM_CONTRACT_ID);
     }
 
