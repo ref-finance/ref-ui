@@ -39,11 +39,10 @@ import SwapGuide from '~components/layout/SwapGuide';
 import { isMobile } from '~utils/device';
 import { wallet as webWallet, REF_FARM_CONTRACT_ID } from './services/near';
 import { getSenderWallet, WALLET_TYPE } from './utils/sender-wallet';
-import {
-  getURLInfo,
-  failToast,
-  senderSignedInToast,
-} from './components/layout/transactionTipPopUp';
+import { getURLInfo, failToast } from './components/layout/transactionTipPopUp';
+
+import { senderSignedInToast } from '~components/layout/senderSignInPopUp';
+
 import {
   getSenderLoginRes,
   LOCK_INTERVAL,

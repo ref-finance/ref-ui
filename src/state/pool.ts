@@ -52,7 +52,7 @@ import BigNumber from 'bignumber.js';
 import moment from 'moment';
 import { POOL_TOKEN_REFRESH_INTERVAL, STABLE_POOL_ID } from '../services/near';
 import { getCurrentWallet } from '../utils/sender-wallet';
-import getConfig from '~services/config';
+import getConfig from '../services/config';
 const REF_FI_STABLE_Pool_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
   getConfig().STABLE_POOL_ID
 }`;

@@ -107,38 +107,3 @@ export const failToast = (txHash: string, errorType?: string) => {
     }
   );
 };
-
-export const senderSignedInToast = (errorType?: string) => {
-  toast(
-    <div
-      className="text-error w-full h-full pl-1.5 py-1"
-      style={{
-        lineHeight: '20px',
-      }}
-    >
-      <FormattedMessage id="sign_in_error" defaultMessage="Sign in error" />
-      {'. '}
-      <FormattedMessage id="Type" defaultMessage="Type" />: {` `}
-      {errorType} <br />
-      <FormattedMessage
-        id="please_check_your_account_state"
-        defaultMessage="Please check your account state"
-      />
-    </div>,
-    {
-      autoClose: 8000,
-      closeOnClick: true,
-      hideProgressBar: false,
-      closeButton: <CloseIcon />,
-      progressStyle: {
-        background: '#FF7575',
-        borderRadius: '8px',
-      },
-      style: {
-        background: '#1D2932',
-        boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
-        borderRadius: '8px',
-      },
-    }
-  );
-};

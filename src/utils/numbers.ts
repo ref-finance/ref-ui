@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 import BN from 'bn.js';
 import * as math from 'mathjs';
-import getConfig from '~services/config';
+import getConfig from '../services/config';
 import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
 import { TokenMetadata } from '../services/ft-contract';
 import { STABLE_POOL_ID, STABLE_TOKEN_IDS } from '../services/near';
