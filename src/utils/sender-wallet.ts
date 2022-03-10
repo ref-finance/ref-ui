@@ -28,8 +28,9 @@ export const getSenderLoginRes = () => {
 export const saveSenderLoginRes = (accountId?: string) => {
   localStorage.setItem(
     SENDER_WALLET_SIGNEDIN_STATE_KEY,
-    SENDER_WALLET_SIGNEDIN_STATE_KEY + ': ' + accountId ||
-      window.near.getAccountId()
+    `SENDER_WALLET_SIGNEDIN_STATE_KEY: ${
+      accountId || window.near.getAccountId()
+    }`
   );
 };
 
