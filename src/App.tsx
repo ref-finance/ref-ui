@@ -97,6 +97,7 @@ function App() {
     }
     if (signInErrorType) {
       senderSignedInToast(signInErrorType);
+      removeSenderLoginRes();
       window.history.replaceState({}, '', window.location.origin + pathname);
     }
     if (pathname !== '/swap' && pathname !== '/stableswap' && pathname !== '/')
