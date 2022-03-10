@@ -42,7 +42,7 @@ import { PoolMode } from './swap';
 import { getCurrentWallet } from '../utils/sender-wallet';
 const FEE_DIVISOR = 10000;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
-const STABLE_POOL_KEY = 'STABLE_POOL_VALUE';
+const STABLE_POOL_KEY = `STABLE_POOL_VALUE_${getConfig().STABLE_POOL_ID}`;
 const REF_FI_STABLE_Pool_INFO_KEY = 'REF_FI_STABLE_Pool_INFO_VALUE';
 const STABLE_POOL_RES_KEY = 'STABLE_POOL_RES_KEY';
 

@@ -34,10 +34,15 @@ import { getCurrentWallet } from '../utils/sender-wallet';
 import { STORAGE_TO_REGISTER_WITH_FT } from './creators/storage';
 import { withdrawAction } from './creators/token';
 import { getExplorer, ExplorerType } from '../utils/device';
+import { STABLE_POOL_ID, POOL_TOKEN_REFRESH_INTERVAL } from './near';
+import moment from 'moment';
 const explorerType = getExplorer();
 
 export const DEFAULT_PAGE_LIMIT = 100;
-
+const STABLE_POOL_KEY = `STABLE_POOL_VALUE_${getConfig().STABLE_POOL_ID}`;
+const REF_FI_STABLE_Pool_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
+  getConfig().STABLE_POOL_ID
+}`;
 export interface Pool {
   id: number;
   tokenIds: string[];
@@ -806,4 +811,46 @@ export const getStablePool = async (pool_id: number): Promise<StablePool> => {
     ...pool_info,
     id: pool_id,
   };
+};
+
+export const getStablePoolFromCache = async () => {
+  const stablePoolCache = JSON.parse(localStorage.getItem(STABLE_POOL_KEY));
+
+  const stablePoolInfoCache = JSON.parse(
+    localStorage.getItem(REF_FI_STABLE_Pool_INFO_KEY)
+  );
+
+  const isStablePoolCached =
+    stablePoolCache?.update_time &&
+    stablePoolCache.update_time >
+      moment().unix() - Number(POOL_TOKEN_REFRESH_INTERVAL);
+
+  const isStablePoolInfoCached =
+    stablePoolInfoCache?.update_time &&
+    stablePoolInfoCache.update_time >
+      moment().unix() - Number(POOL_TOKEN_REFRESH_INTERVAL);
+
+  const stablePool = isStablePoolCached
+    ? stablePoolCache
+    : await getPool(Number(STABLE_POOL_ID));
+
+  const stablePoolInfo = isStablePoolInfoCached
+    ? stablePoolInfoCache
+    : await getStablePool(Number(STABLE_POOL_ID));
+
+  if (!isStablePoolCached) {
+    localStorage.setItem(
+      STABLE_POOL_KEY,
+      JSON.stringify({ ...stablePool, update_time: moment().unix() })
+    );
+  }
+
+  if (!isStablePoolInfoCached) {
+    localStorage.setItem(
+      REF_FI_STABLE_Pool_INFO_KEY,
+      JSON.stringify({ ...stablePoolInfo, update_time: moment().unix() })
+    );
+  }
+
+  return [stablePool, stablePoolInfo];
 };

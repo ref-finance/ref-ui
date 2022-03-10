@@ -44,6 +44,7 @@ import {
   getPool,
   getStablePool,
   StablePool,
+  getStablePoolFromCache,
 } from './pool';
 import {
   checkTokenNeedsStorageDeposit,
@@ -66,8 +67,6 @@ import { getCurrentWallet } from '../utils/sender-wallet';
 const FEE_DIVISOR = 10000;
 const LP_THERESHOLD = 0.001;
 const MAXIMUM_NUMBER_OF_POOLS = 5;
-const STABLE_POOL_KEY = 'STABLE_POOL_VALUE';
-const REF_FI_STABLE_Pool_INFO_KEY = 'REF_FI_STABLE_Pool_INFO_VALUE';
 
 export enum PoolMode {
   PARALLEL = 'parallel swap',
@@ -263,17 +262,7 @@ export const estimateSwap = async ({
     STABLE_TOKEN_IDS.includes(tokenIn.id) ||
     STABLE_TOKEN_IDS.includes(tokenOut.id)
   ) {
-    [stablePool, stablePoolInfo] = await Promise.all([
-      JSON.parse(localStorage.getItem(STABLE_POOL_KEY)) ||
-        (await getPool(Number(STABLE_POOL_ID))),
-      JSON.parse(localStorage.getItem(REF_FI_STABLE_Pool_INFO_KEY)) ||
-        (await getStablePool(Number(STABLE_POOL_ID))),
-    ]);
-    localStorage.setItem(STABLE_POOL_KEY, JSON.stringify(stablePool));
-    localStorage.setItem(
-      REF_FI_STABLE_Pool_INFO_KEY,
-      JSON.stringify(stablePoolInfo)
-    );
+    [stablePool, stablePoolInfo] = await getStablePoolFromCache();
   }
 
   const candidatePools = [];
