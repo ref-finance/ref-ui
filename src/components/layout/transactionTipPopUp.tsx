@@ -91,7 +91,7 @@ export const failToast = (txHash: string, errorType?: string) => {
       <FormattedMessage id="click_to_view" defaultMessage="Click to view" />
     </a>,
     {
-      autoClose: 8000,
+      autoClose: false,
       closeOnClick: true,
       hideProgressBar: false,
       closeButton: <CloseIcon />,
