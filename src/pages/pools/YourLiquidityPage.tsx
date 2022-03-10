@@ -111,8 +111,8 @@ function Empty() {
     <div className="px-6">
       <div className="text-center font-semibold text-xs mb-4 text-primaryText">
         <FormattedMessage
-          id="your_liquidity_positions_will_appear_here"
-          defaultMessage="Your liquidity positions will appear here."
+          id="your_positions_will_be_displayed_here"
+          defaultMessage="Your position(s) will be displayed here."
         />
       </div>
       {isSignedIn ? <AddLiquidityButton /> : <ConnectToNearBtn />}

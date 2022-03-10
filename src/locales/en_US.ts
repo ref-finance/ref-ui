@@ -242,8 +242,8 @@ const en_US = {
   swap_rate_including_fee: 'Swap rate (including fees)',
   by_share: 'By Share',
   by_token: 'By Token',
-  your_liquidity_positions_will_appear_here:
-    'Your liquidity positions will appear here.',
+  your_positions_will_be_displayed_here:
+    'Your position(s) will be displayed here.',
   price_impact: 'Price impact',
   shares_left: 'Shares left',
   total_stable_coins: 'Total stablecoins',

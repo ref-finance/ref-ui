@@ -248,7 +248,7 @@ const vi = {
   swap_rate_including_fee: 'Tỷ lệ giao dịch (bao gồm phí)',
   by_share: 'Tính theo Share',
   by_token: 'Tính theo Token',
-  your_liquidity_positions_will_appear_here:
+  your_positions_will_be_displayed_here:
     'Số thanh khoản của bạn sẽ xuất hiện ở đây .',
   price_impact: 'Tác động giá',
   shares_left: 'Shares left',
