@@ -102,6 +102,11 @@ function senderWalletFunc(window: Window) {
         contractId,
       })
       .then((res: any) => {
+        if (res?.error && res?.error?.type) {
+          window.location.href = addQueryParams(window.location.href, {
+            signInErrorType: res.error.type,
+          });
+        }
         !res?.error && saveSenderLoginRes();
         return res;
       });

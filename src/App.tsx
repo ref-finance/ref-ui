@@ -38,8 +38,12 @@ import PopUpSwiper from '~components/layout/PopUp';
 import SwapGuide from '~components/layout/SwapGuide';
 import { isMobile } from '~utils/device';
 import { wallet as webWallet, REF_FARM_CONTRACT_ID } from './services/near';
-import { getSenderWallet } from './utils/sender-wallet';
-import { getURLInfo, failToast } from './components/layout/transactionTipPopUp';
+import { getSenderWallet, WALLET_TYPE } from './utils/sender-wallet';
+import {
+  getURLInfo,
+  failToast,
+  senderSignedInToast,
+} from './components/layout/transactionTipPopUp';
 import {
   getSenderLoginRes,
   LOCK_INTERVAL,
@@ -85,15 +89,19 @@ function App() {
   });
   const [signedInState, signedInStatedispatch] = SignedInStateReducer;
 
-  const { txHash, pathname, errorType } = getURLInfo();
+  const { txHash, pathname, errorType, signInErrorType } = getURLInfo();
 
   useEffect(() => {
     if (errorType) {
       failToast(txHash, errorType);
     }
+    if (signInErrorType) {
+      senderSignedInToast(signInErrorType);
+      window.history.replaceState({}, '', window.location.origin + pathname);
+    }
     if (pathname !== '/swap' && pathname !== '/stableswap' && pathname !== '/')
       window.history.replaceState({}, '', window.location.origin + pathname);
-  }, [errorType]);
+  }, [errorType, signInErrorType]);
 
   useEffect(() => {
     if (webWallet.isSignedIn()) {
@@ -122,7 +130,12 @@ function App() {
         SENDER_WALLET_SIGNEDIN_STATE_KEY
       );
 
-      if (window.near && signedInRes && !getSenderWallet(window).isSignedIn()) {
+      if (
+        window.near &&
+        signedInRes &&
+        !getSenderWallet(window).isSignedIn() &&
+        !signInErrorType
+      ) {
         getSenderWallet(window)
           .requestSignIn(REF_FARM_CONTRACT_ID)
           .then(() => {
