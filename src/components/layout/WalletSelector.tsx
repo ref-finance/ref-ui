@@ -75,7 +75,6 @@ export const WalletOption = ({
   senderTip,
   decorate,
   connect,
-  officialUrlLink,
 }: {
   title: string;
   decorate?: boolean;
@@ -83,7 +82,6 @@ export const WalletOption = ({
   senderTip?: string | JSX.Element;
   description: string | JSX.Element;
   officialUrl: string;
-  officialUrlLink?: string;
   connect: (e?: any) => void;
 }) => {
   const senderInstalled =
@@ -119,16 +117,7 @@ export const WalletOption = ({
             </div>
           ) : null}
         </div>
-        <button
-          className="text-xs text-primaryText"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            window.open(`https://${officialUrlLink}`, '_blank');
-          }}
-        >
-          {officialUrl}
-        </button>
+        <button className="text-xs text-primaryText">{officialUrl}</button>
       </div>
       <div
         className={`whitespace-nowrap absolute ${
@@ -427,7 +416,6 @@ export const WalletSelectorModal = (
             Icon={<NearWallet />}
             description={<FormattedMessage id="web" defaultMessage="web" />}
             officialUrl="wallet.near.org"
-            officialUrlLink="wallet.near.org"
             connect={() => {
               wallet.requestSignIn(REF_FARM_CONTRACT_ID);
             }}
@@ -456,7 +444,6 @@ export const WalletSelectorModal = (
               <FormattedMessage id="extension" defaultMessage="extension" />
             }
             officialUrl="senderwallet.io"
-            officialUrlLink="senderwallet.io/?origin=ref"
             connect={() => {
               // mobile device
               if (isMobileExplorer()) {
