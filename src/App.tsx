@@ -33,7 +33,6 @@ import './global.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { FarmsPage } from '~pages/farms/FarmsPage';
 import { AirdropPage } from '~pages/AirdropPage';
-import PopUp from '~components/layout/PopUp';
 import PopUpSwiper from '~components/layout/PopUp';
 import SwapGuide from '~components/layout/SwapGuide';
 import { isMobile } from '~utils/device';
@@ -181,8 +180,6 @@ function App() {
             <Route path="/risks" component={AutoHeight(RiskPage)} />
             <Route path="/" component={AutoHeight(SwapPage)} />
           </Switch>
-          <Footer />
-          <PopUp></PopUp>
           <Footer />
           <SwapGuide></SwapGuide>
           <PopUpSwiper></PopUpSwiper>
