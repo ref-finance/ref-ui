@@ -94,6 +94,10 @@ export enum WALLET_TYPE {
   SENDER_WALLET = 'sender-wallet',
 }
 
+export enum SENDER_ERROR {
+  USER_REJECT = 'User reject',
+}
+
 export const LOCK_INTERVAL = 1000 * 60 * 20;
 
 function senderWalletFunc(window: Window) {
@@ -103,11 +107,19 @@ function senderWalletFunc(window: Window) {
         contractId,
       })
       .then((res: any) => {
+        // Login reject
+        if (res?.error && res?.error === SENDER_ERROR.USER_REJECT) {
+          window.location.reload();
+        }
+
+        // unknown error from near chain
         if (res?.error && res?.error?.type) {
           window.location.href = addQueryParams(window.location.href, {
             signInErrorType: res.error.type,
           });
         }
+
+        // login success
         !res?.error && saveSenderLoginRes();
         return res;
       });
