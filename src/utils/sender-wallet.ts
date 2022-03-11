@@ -109,6 +109,7 @@ function senderWalletFunc(window: Window) {
       .then((res: any) => {
         // Login reject
         if (res?.error && res?.error === SENDER_ERROR.USER_REJECT) {
+          removeSenderLoginRes();
           window.location.reload();
         }
 

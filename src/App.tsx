@@ -112,7 +112,7 @@ function App() {
   useEffect(() => {
     setTimeout(() => {
       if (window.near) {
-        window.near.on('signIn', () => {
+        window.near.on('signIn', (res: any) => {
           saveSenderLoginRes();
           signedInStatedispatch({ type: 'signIn' });
         });
@@ -138,8 +138,8 @@ function App() {
       ) {
         getSenderWallet(window)
           .requestSignIn(REF_FARM_CONTRACT_ID)
-          .then(() => {
-            saveSenderLoginRes();
+          .then((res: any) => {
+            !res?.error && saveSenderLoginRes();
           });
       }
     }, 300);
