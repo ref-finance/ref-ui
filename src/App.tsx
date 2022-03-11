@@ -126,13 +126,9 @@ function App() {
         });
       }
 
-      const signedInRes = localStorage.getItem(
-        SENDER_WALLET_SIGNEDIN_STATE_KEY
-      );
-
       if (
         window.near &&
-        signedInRes &&
+        getSenderLoginRes() &&
         !getSenderWallet(window).isSignedIn() &&
         !signInErrorType
       ) {
