@@ -322,6 +322,7 @@ const en_US = {
   xref_to_receive: 'xREF to receive',
   ref_to_receive: 'REF to receive',
   more_expensive_than_best_rate_en: 'more expensive than the best rate',
+  more_expensive_than_best_rate_zh_cn: 'more expensive than the best rate',
   optimal_path_found_by_our_solution: 'Optimal path found by our solution',
   check_to_stable_banner: 'Check',
   rates_to_stable_banner: 'Rates',
@@ -331,6 +332,6 @@ const en_US = {
   withdraw_l: 'withdraw',
   got_it: 'Got it',
   check_the_transaction_settings: 'Check the transaction settings',
-  StableSwap: 'StableSwap'
+  StableSwap: 'StableSwap',
 };
 export default en_US;

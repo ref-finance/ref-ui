@@ -103,7 +103,7 @@ export interface EstimateSwapView {
   outputToken?: string;
   nodeRoute?: string[];
   tokens?: TokenMetadata[];
-  routeInputToken: string;
+  routeInputToken?: string;
   route?: RoutePool[];
   allRoutes?: RoutePool[][];
   allNodeRoutes?: string[][];

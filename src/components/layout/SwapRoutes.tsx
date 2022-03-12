@@ -189,6 +189,9 @@ export const SmartRouteV2 = ({ tokens }: { tokens: TokenMetadata[] }) => {
     );
   };
 
+  if (!tokens || !tokens.length) {
+    return <div></div>;
+  }
   if (tokens.length == 3) {
     return (
       <div className="text-white flex items-center justify-between">

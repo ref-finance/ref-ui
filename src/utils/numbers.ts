@@ -59,6 +59,9 @@ export const toPrecision = (
   withCommas: boolean = false,
   atLeastOne: boolean = true
 ): string => {
+  if (!number) {
+    return '0.0';
+  }
   const [whole, decimal = ''] = number.split('.');
 
   let str = `${withCommas ? formatWithCommas(whole) : whole}.${decimal.slice(

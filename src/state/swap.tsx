@@ -66,23 +66,41 @@ export const useSwap = ({
   loadingTrigger,
   setLoadingTrigger,
   loadingPause,
+  stablePool,
 }: SwapOptions) => {
-  // if (
-  //   STABLE_TOKEN_IDS.includes(tokenIn.id) &&
-  //   STABLE_TOKEN_IDS.includes(tokenOut.id)
-  // ) {
-  //   let stablePool = await getStablePool(Number(STABLE_POOL_ID));
-  //   useStableSwap({
-  //     tokenIn,
-  //     tokenInAmount,
-  //     tokenOut,
-  //     slippageTolerance,
-  //     loadingTrigger,
-  //     setLoadingTrigger,
-  //     stablePool,
-  //     // stablePool,
-  //   });
-  // }
+  // console.log('INSIDE USESWAP');
+  // console.log(
+  //   tokenIn,
+  //   tokenInAmount,
+  //   tokenOut,
+  //   slippageTolerance,
+  //   setLoadingData,
+  //   loadingData,
+  //   loadingTrigger,
+  //   setLoadingTrigger,
+  //   loadingPause,
+  //   stablePool
+  // );
+  // console.log('.....');
+  // useEffect(() => {
+  //   if (tokenIn && tokenOut) {
+  //     if (
+  //       STABLE_TOKEN_IDS.includes(tokenIn.id) &&
+  //       STABLE_TOKEN_IDS.includes(tokenOut.id)
+  //     ) {
+  //       // let stablePool = await getStablePool(Number(STABLE_POOL_ID));
+  //       return useStableSwap({
+  //         tokenIn,
+  //         tokenInAmount,
+  //         tokenOut,
+  //         slippageTolerance,
+  //         loadingTrigger,
+  //         setLoadingTrigger,
+  //         stablePool,
+  //       });
+  //     }
+  //   }
+  // }, [tokenIn, tokenOut, tokenInAmount]);
 
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -131,16 +149,21 @@ export const useSwap = ({
 
   const setAverageFee = (estimates: EstimateSwapView[]) => {
     const estimate = estimates[0];
-    // console.log('USING NEW SET AVERAGE FEE!');
-    // console.log('estimate routes are ...', estimate.allRoutes);
-    // console.log('estimate node routes are ...', estimate.allNodeRoutes);
-    // console.log('estimate totalInputAmount is ...', estimate.totalInputAmount);
-
-    const avgFee = getAverageFeeForRoutes(
-      estimate.allRoutes,
-      estimate.allNodeRoutes,
-      estimate.totalInputAmount
-    );
+    if (estimate.status === PoolMode.SMART) {
+      // console.log('USED SMART ROUTE V1 FOR HYBRID. SETTING FEE TO...');
+      var avgFee = estimates[0].pool.fee + estimates[1].pool.fee;
+      // console.log(avgFee);
+    } else if (estimate.status === PoolMode.STABLE) {
+      var avgFee = estimate.pool.fee;
+    } else if (estimate.status === PoolMode.SMART_V2) {
+      var avgFee = getAverageFeeForRoutes(
+        estimate.allRoutes,
+        estimate.allNodeRoutes,
+        estimate.totalInputAmount
+      );
+    } else {
+      var avgFee = 0;
+    }
     setAvgFee(avgFee);
   };
 
@@ -312,6 +335,7 @@ export const useSwap = ({
     pools: swapsToDo?.map((estimate) => estimate.pool),
     swapsToDo,
     isParallelSwap: swapsToDo?.every((e) => e.status === PoolMode.PARALLEL),
+    isSmartRouteV2Swap: swapsToDo?.every((e) => e.status === PoolMode.SMART_V2),
   };
 };
 

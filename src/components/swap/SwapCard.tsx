@@ -10,6 +10,7 @@ import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
 import { useTokenBalances } from '../../state/token';
 import { useSwap } from '../../state/swap';
+import { useStablePool } from '~state/pool';
 import {
   calculateExchangeRate,
   calculateFeeCharge,
@@ -66,7 +67,7 @@ import QuestionMark, {
 import ReactTooltip from 'react-tooltip';
 import * as math from 'mathjs';
 import { HiOutlineExternalLink } from 'react-icons/hi';
-import { EstimateSwapView, PoolMode, swap } from '~services/swap';
+import { estimateSwap, EstimateSwapView, PoolMode, swap } from '~services/swap';
 import { QuestionTip } from '~components/layout/TipWrapper';
 import { Guide } from '~components/layout/Guide';
 import { sortBy } from 'lodash';
@@ -93,7 +94,11 @@ export function DoubleCheckModal(
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
   if (!pools || !from || !tokenIn || !tokenOut) return null;
+  // console.log('PRICE IMPACT VALUE IS...', priceImpactValue);
 
+  // console.log('TOKEN IN IS...', tokenIn);
+  // console.log('TOKEN OUT IS...', tokenOut);
+  let piv = priceImpactValue ? priceImpactValue : '0';
   return (
     <Modal {...props}>
       <Card
@@ -125,18 +130,16 @@ export function DoubleCheckModal(
             />
           </div>
           <div className="pt-1">
-            <span className="text-error">
-              -{toPrecision(priceImpactValue, 2)}%
-            </span>
+            <span className="text-error">-{toPrecision(piv, 2)}%</span>
             <span className="text-error">
               {' '}
               {`(${
-                Number(priceImpactValue) < 0
+                Number(piv) < 0
                   ? '0'
                   : '-' +
                     toPrecision(
                       scientificNotationToString(
-                        multiply(from, divide(priceImpactValue, '100'))
+                        multiply(from, divide(piv, '100'))
                       ),
                       3
                     )
@@ -428,10 +431,14 @@ export const GetPriceImpact = (
       ? 'text-warn'
       : 'text-error';
 
-  const displayValue = toPrecision(
-    scientificNotationToString(multiply(tokenInAmount, divide(value, '100'))),
-    3
-  );
+  const displayValue = value
+    ? toPrecision(
+        scientificNotationToString(
+          multiply(tokenInAmount, divide(value, '100'))
+        ),
+        3
+      )
+    : '0';
 
   const tokenInInfo =
     Number(displayValue) <= 0
@@ -696,6 +703,13 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     }
   }, [tokenIn, tokenOut, useNearBalance]);
 
+  const stablePool = useStablePool({
+    loadingTrigger,
+    setLoadingTrigger,
+    loadingPause,
+    setLoadingPause,
+  });
+
   const {
     canSwap,
     tokenOutAmount,
@@ -716,8 +730,11 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     setLoadingTrigger,
     loadingData,
     loadingPause,
+    stablePool,
   });
 
+  console.log('TOKEN OUT AMOUNT IS...');
+  console.log(tokenOutAmount);
   const priceImpactValueParallelSwap = useMemo(() => {
     if (true) return '0';
     // return calculatePriceImpact(pools, tokenIn, tokenOut, tokenInAmount);
@@ -725,14 +742,23 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   const priceImpactValueSmartRouting = useMemo(() => {
     {
-      if (true) return '0';
-      return calculateSmartRoutingPriceImpact(
-        tokenInAmount,
-        swapsToDo,
-        tokenIn,
-        swapsToDo[1].token,
-        tokenOut
-      );
+      // if (true) return '0';
+      // console.log('SWAPS TO DO ARE ...', swapsToDo);
+      if (!swapsToDo) {
+        // console.log('NO SWAPS TO DO...');
+        return '0';
+      }
+      if (swapsToDo[0].status === PoolMode.SMART) {
+        return calculateSmartRoutingPriceImpact(
+          tokenInAmount,
+          swapsToDo,
+          tokenIn,
+          swapsToDo[1].token,
+          tokenOut
+        );
+      } else {
+        return '0';
+      }
     }
   }, [tokenOutAmount]);
 
@@ -749,7 +775,17 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     }
   }, [tokenOutAmount]);
 
-  const PriceImpactValue = priceImpactValueSmartRoutingV2;
+  if (!swapsToDo || !swapsToDo[0]) {
+    var PriceImpactValue = '0';
+  } else if (swapsToDo[0].status === PoolMode.SMART) {
+    var PriceImpactValue = priceImpactValueSmartRouting;
+  } else if (swapsToDo[0].status === PoolMode.STABLE) {
+    var PriceImpactValue = '0';
+  } else if (swapsToDo[0].status === PoolMode.SMART_V2) {
+    var PriceImpactValue = priceImpactValueSmartRoutingV2;
+  } else {
+    var PriceImpactValue = '0';
+  }
 
   const topBall = useRef<HTMLInputElement>();
   const bottomBall = useRef<HTMLInputElement>();
