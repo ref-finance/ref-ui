@@ -273,15 +273,15 @@ export const estimateSwap = async ({
     parsedAmountIn
   );
 
-  console.log('SMART ROUTE V2 ACTIONS ARE...');
-  console.log(smartRouteV2Actions);
+  // console.log('SMART ROUTE V2 ACTIONS ARE...');
+  // console.log(smartRouteV2Actions);
   let smartRouteV2OutputEstimate = smartRouteV2Actions
     .filter((a) => a.outputToken == a.routeOutputToken)
     .map((a) => new Big(a.estimate))
     .reduce((a, b) => a.plus(b), new Big(0))
     .toString();
-  console.log('EXPECTED SMART ROUTE V2 OUTPUT:');
-  console.log(smartRouteV2OutputEstimate);
+  // console.log('EXPECTED SMART ROUTE V2 OUTPUT:');
+  // console.log(smartRouteV2OutputEstimate);
 
   // Check if input or output token is a stabletoken, and test hybrid routes if so.
   if (
@@ -318,8 +318,8 @@ export const estimateSwap = async ({
       return smartRouteV2Actions;
     }
   }
-  console.log('SMART ROUTE V2 ACTIONS ARE...');
-  console.log(smartRouteV2Actions);
+  // console.log('SMART ROUTE V2 ACTIONS ARE...');
+  // console.log(smartRouteV2Actions);
   return smartRouteV2Actions;
   const maxLPPool = _.maxBy(pools, (p) => getLiquidity(p, tokenIn, tokenOut));
 
@@ -965,7 +965,7 @@ SwapOptions) => {
       let allSwapsTokens = swapsToDo.map((s) => [s.inputToken, s.outputToken]); // to get the hop tokens
       for (var i in allSwapsTokens) {
         let swapTokens = allSwapsTokens[i];
-        console.log('SWAP TOKENS ARE...', swapTokens);
+        // console.log('SWAP TOKENS ARE...', swapTokens);
         if (swapTokens[0] == tokenIn.id && swapTokens[1] == tokenOut.id) {
           // parallel, direct hop route.
           actionsList.push({
@@ -1216,7 +1216,7 @@ SwapOptions) => {
     let allSwapsTokens = swapsToDo.map((s) => [s.inputToken, s.outputToken]); // to get the hop tokens
     for (var i in allSwapsTokens) {
       let swapTokens = allSwapsTokens[i];
-      console.log('SWAP TOKENS ARE...', swapTokens);
+      // console.log('SWAP TOKENS ARE...', swapTokens);
       if (swapTokens[0] == tokenIn.id && swapTokens[1] == tokenOut.id) {
         // parallel, direct hop route.
         actionsList.push({

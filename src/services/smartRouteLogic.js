@@ -1332,7 +1332,8 @@ export async function getSmartRouteSwapActions(
   outputToken,
   totalInput,
   maxPathLength = 3,
-  numberOfRoutesLimit = 2
+  numberOfRoutesLimit = 2,
+  MAX_NUMBER_PARALLEL_POOLS = 4
 ) {
   if (!totalInput) {
     return [];
@@ -1399,7 +1400,7 @@ export async function getSmartRouteSwapActions(
       parallelRoutes.push(bestRoutes[n]);
     }
   }
-  console.log(`${parallelNodeRoutes.length} parallel routes found...`);
+  // console.log(`${parallelNodeRoutes.length} parallel routes found...`);
   var bestRoutesAreParallel = false;
   if (parallelNodeRoutes.length > 0) {
     // first calculate the expected result using only parallel routes.
@@ -1412,10 +1413,10 @@ export async function getSmartRouteSwapActions(
     let parallellAllocations = filteredAllocationsAndOutputs.allocations;
     let parallelOutputs = filteredAllocationsAndOutputs.result;
 
-    if (parallellAllocations.length > 4) {
+    if (parallellAllocations.length > MAX_NUMBER_PARALLEL_POOLS) {
       // now sort by allocation value to the top 4 parallel swaps:
       let sortIndices = argsort(parallellAllocations);
-      console.log(sortIndices);
+      // console.log(sortIndices);
 
       // // var indices = [ ...range(0, routes.length) ];
       // sortIndices.slice(0, 6);
@@ -1437,7 +1438,7 @@ export async function getSmartRouteSwapActions(
       // }
       // }
 
-      sortIndices = sortIndices.slice(0, 4);
+      sortIndices = sortIndices.slice(0, MAX_NUMBER_PARALLEL_POOLS);
       var filteredParallelRoutes = [];
       var filteredParallelNodeRoutes = [];
       for (var i in sortIndices) {
@@ -1476,7 +1477,7 @@ export async function getSmartRouteSwapActions(
   }
   var canHaveTwoRoutes = false;
   // initialize this variable to check if we can have two routes, or if all routes share a pool for an edge case.
-  console.log('THE NUMBER OF ROUTES IS...', routes.length);
+  // console.log('THE NUMBER OF ROUTES IS...', routes.length);
 
   for (var i in routes) {
     for (var j in routes) {

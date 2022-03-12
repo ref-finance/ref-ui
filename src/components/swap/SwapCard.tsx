@@ -733,8 +733,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     stablePool,
   });
 
-  console.log('TOKEN OUT AMOUNT IS...');
-  console.log(tokenOutAmount);
+  // console.log('TOKEN OUT AMOUNT IS...');
+  // console.log(tokenOutAmount);
   const priceImpactValueParallelSwap = useMemo(() => {
     if (true) return '0';
     // return calculatePriceImpact(pools, tokenIn, tokenOut, tokenInAmount);
