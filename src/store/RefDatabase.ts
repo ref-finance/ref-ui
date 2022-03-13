@@ -370,8 +370,8 @@ class RefDatabase extends Dexie {
       ...normalItems2,
       ...reverseItems2,
     ];
-    let result = [...new Set(dup.map(JSON.stringify))]
-      .map(JSON.parse)
+    let result = [...new Set(dup.map((d) => JSON.stringify(d)))]
+      .map((d) => JSON.parse(d))
       .sort((a, b) => a['id'] - b['id']);
     return result;
   }

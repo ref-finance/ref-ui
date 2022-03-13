@@ -252,11 +252,8 @@ export function checkIntegerSumOfAllocations(
   totalInput: Big | string | BigInt
 ) {
   var totalInput = new Big(totalInput);
-  var allocations:
-    | Big[]
-    | string[]
-    | BigInt[] = allocations.map((item: Big | string | BigInt) =>
-    new Big(item).round()
+  var allocations: Big[] | string[] | BigInt[] = allocations.map(
+    (item: Big | string | BigInt) => new Big(item).round()
   );
   let alloSum = allocations
     .map((item) => new Big(item))
