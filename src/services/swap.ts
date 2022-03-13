@@ -254,6 +254,8 @@ export const estimateSwap = async ({
     parsedAmountIn
   );
 
+  console.log('stableSmartActionsV2', stableSmartActionsV2);
+
   if (!stableSmartActionsV2.length) {
     throwNoPoolError();
   }
@@ -292,6 +294,9 @@ export const estimateSwap = async ({
       console.log(
         `HYBRID ROUTE GAVE BETTER RETURN OF ${hybridStableSmartOutputEstimate}`
       );
+
+      console.log('hybridStableSmart', hybridStableSmart.actions);
+
       return hybridStableSmart.actions;
     } else {
       // smart route v2 gave better answer. use it!
