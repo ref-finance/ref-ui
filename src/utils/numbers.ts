@@ -469,8 +469,6 @@ export function separateRoutes(actions: any, outputToken: string) {
   const res = [];
   let curRoute = [];
 
-  console.log(actions);
-
   for (let i in actions) {
     curRoute.push(actions[i]);
     if (actions[i].outputToken === outputToken) {

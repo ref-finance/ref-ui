@@ -301,6 +301,8 @@ export const estimateSwap = async ({
       return stableSmartActionsV2;
     }
   }
+
+  return stableSmartActionsV2;
 };
 export async function getHybridStableSmart(
   tokenIn: TokenMetadata,
