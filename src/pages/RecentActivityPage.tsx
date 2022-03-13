@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import ActionSheet, { ActionSheetRef } from 'actionsheet-react';
 import { getLatestActions, ActionData } from '~services/indexer';
 import Loading from '~components/layout/Loading';
@@ -6,31 +6,45 @@ import { Card } from '~components/card/Card';
 import { FormattedMessage } from 'react-intl';
 import { mapToView } from '~components/icon/Actions';
 import moment from 'moment';
-import { wallet } from '~services/near';
+import { wallet as webWallet } from '~services/near';
 import getConfig from '~services/config';
 import { GradientButton, GrayButton } from '~components/button/Button';
 import Modal from 'react-modal';
 import { isMobile } from '~utils/device';
 const config = getConfig();
 import { useHistory } from 'react-router';
+import { getCurrentWallet, WalletContext } from '~utils/sender-wallet';
+import { getSenderLoginRes } from '../utils/sender-wallet';
 
 function useLastActions() {
   const [actions, setActions] = useState<ActionData[]>(null);
 
   useEffect(() => {
-    getLatestActions().then((resp) => {
-      setActions(resp);
-    });
-  }, []);
+    const isSignedIn = getCurrentWallet().wallet.isSignedIn();
+
+    if (!isSignedIn) return;
+    else
+      getLatestActions().then((resp) => {
+        setActions(resp);
+      });
+  }, [getCurrentWallet().wallet.isSignedIn()]);
 
   return actions;
 }
 export function RecentActivityPage() {
-  if (!wallet.isSignedIn()) {
-    const history = useHistory();
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  const { wallet } = getCurrentWallet();
+  const history = useHistory();
+
+  const senderLoginRes = getSenderLoginRes();
+
+  if (!senderLoginRes && !webWallet.isSignedIn()) {
     history.push('/');
     return null;
   }
+
   const actions = useLastActions();
   const ref = useRef<ActionSheetRef>();
   const [detail, setDetail] = useState<ActionData | null>(null);
@@ -86,7 +100,9 @@ export function RecentActivityPage() {
             className="h-8 w-36 text-center inline-block rounded border-gradientFrom border py-2 text-xs text-gradientFrom font-semibold cursor-pointer"
             onClick={() => {
               const url =
-                config.explorerUrl + '/accounts/' + wallet.account().accountId;
+                config.explorerUrl +
+                '/accounts/' +
+                getCurrentWallet().wallet.getAccountId();
               window.open(url, '_blank');
             }}
           >

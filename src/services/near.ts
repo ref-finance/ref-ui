@@ -3,6 +3,11 @@ import { functionCall } from 'near-api-js/lib/transaction';
 import BN from 'bn.js';
 import getConfig from './config';
 import SpecialWallet from './SpecialWallet';
+import { getCurrentWallet, senderWallet } from '../utils/sender-wallet';
+import {
+  SENDER_WALLET_SIGNEDIN_STATE_KEY,
+  WALLET_TYPE,
+} from '../utils/sender-wallet';
 
 const config = getConfig();
 
@@ -81,10 +86,11 @@ export const refFiManyFunctionCalls = (
   const actions = functionCalls.map((fc) =>
     functionCall(fc.methodName, fc.args, getGas(fc.gas), getAmount(fc.amount))
   );
+  const { wallet, wallet_type } = getCurrentWallet();
 
-  return wallet
-    .account()
-    .sendTransactionWithActions(REF_FI_CONTRACT_ID, actions);
+  return wallet_type === WALLET_TYPE.SENDER_WALLET
+    ? wallet.sendTransactionWithActions(REF_FI_CONTRACT_ID, functionCalls)
+    : wallet.account().sendTransactionWithActions(REF_FI_CONTRACT_ID, actions);
 };
 
 export interface Transaction {
@@ -96,24 +102,29 @@ export const executeMultipleTransactions = async (
   transactions: Transaction[],
   callbackUrl?: string
 ) => {
-  const nearTransactions = await Promise.all(
-    transactions.map((t, i) => {
-      return wallet.createTransaction({
-        receiverId: t.receiverId,
-        nonceOffset: i + 1,
-        actions: t.functionCalls.map((fc) =>
-          functionCall(
-            fc.methodName,
-            fc.args,
-            getGas(fc.gas),
-            getAmount(fc.amount)
-          )
-        ),
-      });
-    })
-  );
+  const { wallet, wallet_type } = getCurrentWallet();
 
-  return wallet.requestSignTransactions(nearTransactions, callbackUrl);
+  const currentTransactions =
+    wallet_type === WALLET_TYPE.SENDER_WALLET
+      ? transactions
+      : await Promise.all(
+          transactions.map((t, i) => {
+            return wallet.createTransaction({
+              receiverId: t.receiverId,
+              nonceOffset: i + 1,
+              actions: t.functionCalls.map((fc) =>
+                functionCall(
+                  fc.methodName,
+                  fc.args,
+                  getGas(fc.gas),
+                  getAmount(fc.amount)
+                )
+              ),
+            });
+          })
+        );
+
+  return wallet.requestSignTransactions(currentTransactions, callbackUrl);
 };
 
 export const refFarmFunctionCall = ({
@@ -122,6 +133,8 @@ export const refFarmFunctionCall = ({
   gas,
   amount,
 }: RefFiFunctionCallOptions) => {
+  const { wallet, wallet_type } = getCurrentWallet();
+
   return wallet
     .account()
     .functionCall(
@@ -146,34 +159,42 @@ export const refFarmManyFunctionCalls = (
   const actions = functionCalls.map((fc) =>
     functionCall(fc.methodName, fc.args, getGas(fc.gas), getAmount(fc.amount))
   );
+  const { wallet, wallet_type } = getCurrentWallet();
 
-  return wallet
-    .account()
-    .sendTransactionWithActions(REF_FARM_CONTRACT_ID, actions);
+  return wallet_type === WALLET_TYPE.SENDER_WALLET
+    ? wallet.sendTransactionWithActions(REF_FARM_CONTRACT_ID, functionCalls)
+    : wallet
+        .account()
+        .sendTransactionWithActions(REF_FARM_CONTRACT_ID, actions);
 };
 
 export const executeFarmMultipleTransactions = async (
   transactions: Transaction[],
   callbackUrl?: string
 ) => {
-  const nearTransactions = await Promise.all(
-    transactions.map((t, i) => {
-      return wallet.createTransaction({
-        receiverId: t.receiverId,
-        nonceOffset: i + 1,
-        actions: t.functionCalls.map((fc) =>
-          functionCall(
-            fc.methodName,
-            fc.args,
-            getGas(fc.gas),
-            getAmount(fc.amount)
-          )
-        ),
-      });
-    })
-  );
+  const { wallet, wallet_type } = getCurrentWallet();
 
-  return wallet.requestSignTransactions(nearTransactions, callbackUrl);
+  const currentTransactions =
+    wallet_type === WALLET_TYPE.SENDER_WALLET
+      ? transactions
+      : await Promise.all(
+          transactions.map((t, i) => {
+            return wallet.createTransaction({
+              receiverId: t.receiverId,
+              nonceOffset: i + 1,
+              actions: t.functionCalls.map((fc) =>
+                functionCall(
+                  fc.methodName,
+                  fc.args,
+                  getGas(fc.gas),
+                  getAmount(fc.amount)
+                )
+              ),
+            });
+          })
+        );
+
+  return wallet.requestSignTransactions(currentTransactions, callbackUrl);
 };
 
 export interface RefContractViewFunctionOptions
@@ -186,7 +207,6 @@ export interface RefContractViewFunctionOptions
 export const refContractViewFunction = ({
   methodName,
   args,
-}: // contarctId,
-RefContractViewFunctionOptions) => {
+}: RefContractViewFunctionOptions) => {
   return wallet.account().viewFunction(XREF_TOKEN_ID, methodName, args);
 };

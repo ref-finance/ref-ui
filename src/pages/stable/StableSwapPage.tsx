@@ -30,7 +30,6 @@ function StableSwapPage() {
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
 
   const allTokens = useWhitelistStableTokens();
-  // const balances = useTokenBalances();
   const tokens =
     allTokens &&
     allTokens.length > 0 &&
@@ -56,7 +55,6 @@ function StableSwapPage() {
     !pool ||
     !shares ||
     !stablePool ||
-    // !Object.entries(balances).length ||
     !Object.entries(nearBalances).length
   )
     return <Loading />;

@@ -5,6 +5,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { IoCloseOutline } from 'react-icons/io5';
 import { wallet } from '~services/near';
 import { ConnectToNearBtn } from '~components/button/Button';
+import { getCurrentWallet } from '../../utils/sender-wallet';
 
 export default function AddToken() {
   const [tokenId, setTokenId] = useState<string>();
@@ -62,7 +63,7 @@ export default function AddToken() {
             onChange={({ target }) => setTokenId(target.value)}
           />
           <div className="my-5">
-            {wallet.isSignedIn() ? (
+            {getCurrentWallet().wallet.isSignedIn() ? (
               <button
                 onClick={(e) => {
                   handleSubmit(e);

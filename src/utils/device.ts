@@ -42,3 +42,6 @@ export const getExplorer = () => {
     return ExplorerType.Safari;
   }
 };
+
+export const isMobileExplorer = () =>
+  /Mobi|Android|iPhone/i.test(window.navigator.userAgent);

@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router-dom';
@@ -33,6 +33,7 @@ import StableTokenList from './StableTokenList';
 import { WarnTriangle } from '../icon/SwapRefresh';
 import { ActionModel } from '../../pages/AccountPage';
 import { getDepositableBalance } from '../../state/token';
+import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE';
@@ -105,6 +106,11 @@ export default function AddLiquidityComponent(props: {
   const [slippageInvalid, setSlippageInvalid] = useState(false);
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  const { wallet } = getCurrentWallet();
 
   useEffect(() => {
     const firstAmount = toReadableNumber(
@@ -482,7 +488,7 @@ export default function AddLiquidityComponent(props: {
               </div>
             </div>
           ) : null}
-          {wallet.isSignedIn() ? (
+          {isSignedIn ? (
             <SolidButton
               disabled={!canSubmit}
               className="focus:outline-none px-4 w-full text-lg"

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
   ButtonTextWrapper,
@@ -34,6 +34,8 @@ import {
 import { CountdownTimer } from '~components/icon';
 import { StablePool } from '~services/pool';
 import { BeatLoading } from '~components/layout/Loading';
+import { WalletContext, getCurrentWallet } from '../../utils/sender-wallet';
+import { getAccount } from '../../services/airdrop';
 interface StableSwapProps {
   balances: TokenBalancesView;
   tokens: TokenMetadata[];
@@ -75,6 +77,11 @@ export default function StableSwap({
     localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
   };
 
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  const { wallet } = getCurrentWallet();
+
   const {
     tokenOutAmount,
     canSwap,
@@ -115,8 +122,8 @@ export default function StableSwap({
       if (tokenIn) {
         const tokenInId = tokenIn.id;
         if (tokenInId) {
-          if (wallet.isSignedIn()) {
-            ftGetBalance(tokenInId).then((available) =>
+          if (isSignedIn) {
+            ftGetBalance(tokenInId).then((available: string) =>
               setTokenInBalanceFromNear(
                 toReadableNumber(tokenIn?.decimals, available)
               )
@@ -127,8 +134,8 @@ export default function StableSwap({
       if (tokenOut) {
         const tokenOutId = tokenOut.id;
         if (tokenOutId) {
-          if (wallet.isSignedIn()) {
-            ftGetBalance(tokenOutId).then((available) =>
+          if (isSignedIn) {
+            ftGetBalance(tokenOutId).then((available: string) =>
               setTokenOutBalanceFromNear(
                 toReadableNumber(tokenOut?.decimals, available)
               )
@@ -137,7 +144,7 @@ export default function StableSwap({
         }
       }
     }
-  }, [tokenIn, tokenOut, useNearBalance]);
+  }, [tokenIn, tokenOut, useNearBalance, isSignedIn]);
 
   const tokenInMax = useNearBalance
     ? tokenInBalanceFromNear || '0'
@@ -150,7 +157,7 @@ export default function StableSwap({
 
   const handleSubmit = async (event: React.FormEvent<HTMLElement>) => {
     event.preventDefault();
-    if (wallet.isSignedIn()) {
+    if (isSignedIn) {
       try {
         if (canSubmit) {
           setShowSwapLoading(true);
@@ -364,7 +371,7 @@ export default function StableSwap({
       </div>
 
       <div className="mx-8 mt-8">
-        {wallet.isSignedIn() ? (
+        {isSignedIn ? (
           <SolidButton
             className="w-full text-lg"
             disabled={!canSubmit}
