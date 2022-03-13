@@ -487,8 +487,6 @@ export function calculateSmartRoutesV2PriceImpact(
 ) {
   const routes = separateRoutes(actions, outputToken);
 
-  console.log(routes);
-
   const tokenIn = routes[0][0].token;
 
   const totalInputAmount = routes[0][0].totalInputAmount;

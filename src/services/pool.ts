@@ -33,6 +33,12 @@ import { registerTokensAction } from '../services/creators/token';
 import { STORAGE_TO_REGISTER_WITH_FT } from './creators/storage';
 import { withdrawAction } from './creators/token';
 import { getExplorer, ExplorerType } from '../utils/device';
+import moment from 'moment';
+import { POOL_TOKEN_REFRESH_INTERVAL, STABLE_POOL_ID } from './near';
+
+const STABLE_POOL_KEY = `STABLE_POOL_VALUE`;
+const REF_FI_STABLE_Pool_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE`;
+
 const explorerType = getExplorer();
 
 export const DEFAULT_PAGE_LIMIT = 100;
@@ -273,7 +279,7 @@ export const getPoolsByTokens = async ({
     filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
   }
   if (loadingTrigger || (!cacheTimeLimit && cacheForPair)) {
-    setLoadingData(true);
+    setLoadingData && setLoadingData(true);
     const totalPools = await getTotalPools();
     const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
     const pools = (
@@ -288,7 +294,7 @@ export const getPoolsByTokens = async ({
       (p) => p.supplies[tokenInId] && p.supplies[tokenOutId]
     );
   }
-  setLoadingData(false);
+  setLoadingData && setLoadingData(false);
   // @ts-ignore
   return filtered_pools;
 };
@@ -812,4 +818,46 @@ export const getStablePool = async (pool_id: number): Promise<StablePool> => {
     ...pool_info,
     id: pool_id,
   };
+};
+
+export const getStablePoolFromCache = async () => {
+  const stablePoolCache = JSON.parse(localStorage.getItem(STABLE_POOL_KEY));
+
+  const stablePoolInfoCache = JSON.parse(
+    localStorage.getItem(REF_FI_STABLE_Pool_INFO_KEY)
+  );
+
+  const isStablePoolCached =
+    stablePoolCache?.update_time &&
+    stablePoolCache.update_time >
+      moment().unix() - Number(POOL_TOKEN_REFRESH_INTERVAL);
+
+  const isStablePoolInfoCached =
+    stablePoolInfoCache?.update_time &&
+    stablePoolInfoCache.update_time >
+      moment().unix() - Number(POOL_TOKEN_REFRESH_INTERVAL);
+
+  const stablePool = isStablePoolCached
+    ? stablePoolCache
+    : await getPool(Number(STABLE_POOL_ID));
+
+  const stablePoolInfo = isStablePoolInfoCached
+    ? stablePoolInfoCache
+    : await getStablePool(Number(STABLE_POOL_ID));
+
+  if (!isStablePoolCached) {
+    localStorage.setItem(
+      STABLE_POOL_KEY,
+      JSON.stringify({ ...stablePool, update_time: moment().unix() })
+    );
+  }
+
+  if (!isStablePoolInfoCached) {
+    localStorage.setItem(
+      REF_FI_STABLE_Pool_INFO_KEY,
+      JSON.stringify({ ...stablePoolInfo, update_time: moment().unix() })
+    );
+  }
+
+  return [stablePool, stablePoolInfo];
 };

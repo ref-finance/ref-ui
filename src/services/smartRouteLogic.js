@@ -476,9 +476,62 @@ function getOptOutputVec(routes, nodeRoutes, totalInput) {
   // result field instead of tuple 0 position, and allocations field instead of tuple 1 position.
 }
 
+function getBestOptInputAndOutputSlower(routes, nodeRoutes, totalInput) {
+  let refDict = getOptOutputVecRefined(routes, nodeRoutes, totalInput);
+  let outputRefined = refDict.result;
+  let inputRefined = refDict.allocations;
+  inputRefined = checkIntegerSumOfAllocations(inputRefined, totalInput);
+  let rawDict = getOptOutputVec(routes, nodeRoutes, totalInput);
+  let outputRaw = rawDict.result;
+  let inputRaw = rawDict.allocations;
+  inputRaw = checkIntegerSumOfAllocations(inputRaw, totalInput);
+  let res1 = new Big(0);
+  let res2 = new Big(0);
+
+  for (var n in outputRefined) {
+    res1 = res1.plus(outputRefined[n]);
+  }
+  for (var nn in outputRaw) {
+    res2 = res2.plus(outputRaw[nn]);
+  }
+  // console.log('COMPARING SINGLE HOPS VS DOUBLE')
+  // console.log(res1.toString())
+  // console.log(res2.toString())
+  if (res1.gt(res2)) {
+    return { input: inputRefined, output: res1 };
+  } else {
+    return { input: inputRaw, output: res2 };
+  }
+}
+
+function getBestOptInputAndOutput(routes, nodeRoutes, totalInput) {
+  // let refDict = getOptOutputVecRefined(routes, nodeRoutes, totalInput);
+  // let outputRefined = refDict.result;
+  // let inputRefined = refDict.allocations;
+  // inputRefined = checkIntegerSumOfAllocations(inputRefined, totalInput);
+  let rawDict = getOptOutputVec(routes, nodeRoutes, totalInput);
+  let outputRaw = rawDict.result;
+  let inputRaw = rawDict.allocations;
+  inputRaw = checkIntegerSumOfAllocations(inputRaw, totalInput);
+  let res1 = new Big(0);
+  let res2 = new Big(0);
+
+  let res = outputRaw
+    .map((v) => new Big(v))
+    .reduce((bv1, bv2) => bv1.plus(bv2), new Big(0));
+
+  return {
+    input: inputRaw,
+    output: res,
+  };
+}
+
 function getBestOptOutput(routes, nodeRoutes, totalInput) {
-  let outputRefined = getOptOutputVecRefined(routes, nodeRoutes, totalInput)
-    .result;
+  let outputRefined = getOptOutputVecRefined(
+    routes,
+    nodeRoutes,
+    totalInput
+  ).result;
   let outputRaw = getOptOutputVec(routes, nodeRoutes, totalInput).result;
   let res1 = new Big(0);
   let res2 = new Big(0);
@@ -637,12 +690,21 @@ async function getBestOptimalAllocationsAndOutputs(
     };
   }
   let poolChains = await getPoolChainFromPaths(paths, pools);
+  // console.log('POOL CHAINS ARE...');
+  // console.log(poolChains);
   let routes = await getRoutesFromPoolChain(poolChains);
   let nodeRoutes = await getNodeRoutesFromPathsAndPoolChains(paths, poolChains);
-  let allocations = await getBestOptInput(routes, nodeRoutes, totalInput);
-  // fix integer rounding for allocations:
-  allocations = checkIntegerSumOfAllocations(allocations, totalInput);
-  let outputs = getBestOptOutput(routes, nodeRoutes, totalInput);
+  // let allocations = await getBestOptInput(routes, nodeRoutes, totalInput);
+  // // fix integer rounding for allocations:
+  // allocations = checkIntegerSumOfAllocations(allocations, totalInput);
+  // let outputs = getBestOptOutput(routes, nodeRoutes, totalInput);
+  let inputOutput = await getBestOptInputAndOutput(
+    routes,
+    nodeRoutes,
+    totalInput
+  );
+  let allocations = inputOutput.input;
+  let outputs = inputOutput.output;
 
   return {
     allocations: allocations,
@@ -912,9 +974,8 @@ function getActionListFromRoutesAndAllocations(
     slippageTolerance
   );
   actions.push(...firstHopActions);
-  let middleTokenTotals = getMiddleTokenTotalsFromFirstHopActions(
-    firstHopActions
-  );
+  let middleTokenTotals =
+    getMiddleTokenTotalsFromFirstHopActions(firstHopActions);
   // console.log('first hop actions are...');
   // console.log(firstHopActions);
   let middleTokens = Object.keys(middleTokenTotals);
@@ -930,13 +991,14 @@ function getActionListFromRoutesAndAllocations(
     let middleTokenTotal = middleTokenTotals[middleToken];
     // console.log('current middle token total is...');
     // console.log(middleTokenTotal);
-    let middleTokenRoutesWithAllocations = getRoutesAndAllocationsForMiddleToken(
-      routes,
-      nodeRoutes,
-      allocations,
-      middleToken,
-      middleTokenTotal
-    );
+    let middleTokenRoutesWithAllocations =
+      getRoutesAndAllocationsForMiddleToken(
+        routes,
+        nodeRoutes,
+        allocations,
+        middleToken,
+        middleTokenTotal
+      );
     // console.log('current middle tokens routes with allocations are...');
     // console.log(middleTokenRoutesWithAllocations);
     let middleTokenRoutes = middleTokenRoutesWithAllocations.routes;
@@ -1226,6 +1288,33 @@ function orderHops(hops, routes, nodeRoutes, allocations) {
 //   return actions;
 // }
 
+function* range(start, end) {
+  for (; start <= end; ++start) {
+    yield start;
+  }
+}
+
+function last(arr) {
+  return arr[arr.length - 1];
+}
+
+function* numericCombinations(n, r, loc = []) {
+  var idx = loc.length;
+  if (idx === r) {
+    yield loc;
+    return;
+  }
+  for (let next of range(idx ? last(loc) + 1 : 0, n - r + idx)) {
+    yield* numericCombinations(n, r, loc.concat(next));
+  }
+}
+
+function* combinations(arr, r) {
+  for (let idxs of numericCombinations(arr.length, r)) {
+    yield idxs.map((i) => arr[i]);
+  }
+}
+
 //     #middleTokenTotals = getMiddleTokenTotals(routes,nodeRoutes,allocations)
 //     #TODO: complete this function with middle token checks.
 
@@ -1246,14 +1335,20 @@ export async function getSmartRouteSwapActions(
   outputToken,
   totalInput,
   maxPathLength = 3,
-  numberOfRoutesLimit = 2
+  numberOfRoutesLimit = 2,
+  MAX_NUMBER_PARALLEL_POOLS = 4
 ) {
   if (!totalInput) {
     return [];
   }
   var totalInput = new Big(totalInput);
   // console.log('about to run bestOpt');
-  // console.log(pools);
+  // console.log(pools[0]);
+  // pools = pools.filter((p) => p.token1Supply != '0');
+  // pools.map((p) => (p['token_account_ids'] = [ p.token1Id, p.token2Id ]));
+  // console.log(
+  // pools.filter((p) => p.token_account_ids.includes(inputToken) && p.token_account_ids.includes(outputToken))
+  // );
   // console.log(inputToken);
   // console.log(outputToken);
   // console.log(totalInput.toString());
@@ -1273,6 +1368,19 @@ export async function getSmartRouteSwapActions(
   // let outputs = resDict.outputs;
   let routes = resDict.routes;
   let nodeRoutes = resDict.nodeRoutes;
+
+  // here, we could try only grabbing the top, say, 10 routes from all routes and only comparing combinations of those:
+
+  let sortedIndexValues = argsort(allocations);
+  let topIndices = sortedIndexValues.slice(0, 10);
+  var reducedRoutes = [];
+  var reducedNodeRoutes = [];
+  for (var ind of topIndices) {
+    reducedRoutes.push(routes[ind]);
+    reducedNodeRoutes.push(nodeRoutes[ind]);
+  }
+  routes = reducedRoutes;
+  nodeRoutes = reducedNodeRoutes;
 
   // console.log('initial routes are...');
   // console.log(routes);
@@ -1295,29 +1403,57 @@ export async function getSmartRouteSwapActions(
       parallelRoutes.push(bestRoutes[n]);
     }
   }
+  // console.log(`${parallelNodeRoutes.length} parallel routes found...`);
   var bestRoutesAreParallel = false;
   if (parallelNodeRoutes.length > 0) {
     // first calculate the expected result using only parallel routes.
-    let filteredAllocationsAndOutputs = getOptOutputVecRefined(
+    // let filteredAllocationsAndOutputs = getOptOutputVecRefined(parallelRoutes, parallelNodeRoutes, totalInput);
+    let filteredAllocationsAndOutputs = getOptOutputVec(
       parallelRoutes,
       parallelNodeRoutes,
       totalInput
     );
-
     let parallellAllocations = filteredAllocationsAndOutputs.allocations;
     let parallelOutputs = filteredAllocationsAndOutputs.result;
 
-    if (parallellAllocations.length > 4) {
+    if (parallellAllocations.length > MAX_NUMBER_PARALLEL_POOLS) {
       // now sort by allocation value to the top 4 parallel swaps:
       let sortIndices = argsort(parallellAllocations);
-      sortIndices = sortIndices.slice(0, 4);
+      // console.log(sortIndices);
+
+      // // var indices = [ ...range(0, routes.length) ];
+      // sortIndices.slice(0, 6);
+      // let combos = combinations(indices, 4);
+      // var bestOutput = new Big(0);
+      // var bestAllocations = [];
+      // for (var c of combos) {
+      // let newRoutes = routes.filter((r, i) => c.includes(i));
+      // let newNodeRoutes = nodeRoutes.filter((r, i) => c.includes(i));
+      // // let newPhi = getPhiFromRoutes(routes,nodeRoutes,totalInput)
+      // let newOutput = getBestOptOutput(newRoutes, newNodeRoutes, totalInput);
+      // // console.log('CURRENT COMBO IS... ', c, newOutput.toString());
+
+      // if (newOutput.gt(bestOutput)) {
+      // bestAllocations = getBestOptInput(newRoutes, newNodeRoutes, totalInput);
+      // bestOutput = newOutput;
+      // console.log('NEW BETTER COMBO FOUND:');
+      // console.log(bestOutput.toString());
+      // }
+      // }
+
+      sortIndices = sortIndices.slice(0, MAX_NUMBER_PARALLEL_POOLS);
       var filteredParallelRoutes = [];
       var filteredParallelNodeRoutes = [];
       for (var i in sortIndices) {
         filteredParallelRoutes.push(parallelRoutes[sortIndices[i]]);
         filteredParallelNodeRoutes.push(parallelNodeRoutes[sortIndices[i]]);
       }
-      filteredAllocationsAndOutputs = getOptOutputVecRefined(
+      // filteredAllocationsAndOutputs = getOptOutputVecRefined(
+      // filteredParallelRoutes,
+      // filteredParallelNodeRoutes,
+      // totalInput
+      // );
+      filteredAllocationsAndOutputs = getOptOutputVec(
         filteredParallelRoutes,
         filteredParallelNodeRoutes,
         totalInput
@@ -1344,6 +1480,8 @@ export async function getSmartRouteSwapActions(
   }
   var canHaveTwoRoutes = false;
   // initialize this variable to check if we can have two routes, or if all routes share a pool for an edge case.
+  // console.log('THE NUMBER OF ROUTES IS...', routes.length);
+
   for (var i in routes) {
     for (var j in routes) {
       if (j > i) {
@@ -1373,7 +1511,12 @@ export async function getSmartRouteSwapActions(
           // console.log('current Routes are...');
           // console.log(currentRoutes);
           let currentNodeRoutes = [nodeRoute1, nodeRoute2];
-          let filteredAllocationsAndOutputs = getOptOutputVecRefined(
+          // let filteredAllocationsAndOutputs = getOptOutputVecRefined(
+          // currentRoutes,
+          // currentNodeRoutes,
+          // totalInput
+          // );
+          let filteredAllocationsAndOutputs = getOptOutputVec(
             currentRoutes,
             currentNodeRoutes,
             totalInput
@@ -1419,7 +1562,8 @@ export async function getSmartRouteSwapActions(
     for (var i in routes) {
       let currentRoutes = [routes[i]];
       let currentNodeRoutes = [nodeRoutes[i]];
-      let filteredAllocationsAndOutputs = getOptOutputVecRefined(
+      // let filteredAllocationsAndOutputs = getOptOutputVecRefined(currentRoutes, currentNodeRoutes, totalInput);
+      let filteredAllocationsAndOutputs = getOptOutputVec(
         currentRoutes,
         currentNodeRoutes,
         totalInput
@@ -1578,7 +1722,8 @@ export async function getSmartRouteSwapActions(
   //   filteredNodeRoutes,
   //   totalInput
   // );
-  let filteredAllocationsAndOutputs = getOptOutputVecRefined(
+  // let filteredAllocationsAndOutputs = getOptOutputVecRefined(filteredRoutes, filteredNodeRoutes, totalInput);
+  let filteredAllocationsAndOutputs = getOptOutputVec(
     filteredRoutes,
     filteredNodeRoutes,
     totalInput
@@ -1975,7 +2120,7 @@ function bigMax(arrayOfBigs) {
   return maxElem;
 }
 
-function cullPoolsWithInsufficientLiquidity(pools, threshold = 0.001) {
+function cullPoolsWithInsufficientLiquidity(pools, threshold = 0.0001) {
   var thresh = new Big(threshold);
   let normLiq = getNormalizedLiquiditiesFromList(pools);
   let filteredPools = [];
@@ -2440,24 +2585,24 @@ async function GETSTABLESWAPACTION(
   // );
 }
 
-async function GETPARALLELSWAPACTIONS(
-  pools,
-  inputToken,
-  outputToken,
-  amountIn,
-  slippageTolerance,
-  maxNumberParallelSwaps = 3
-) {
-  return await getSmartRouteSwapActions(
-    pools,
-    inputToken,
-    outputToken,
-    amountIn,
-    slippageTolerance,
-    2,
-    maxNumberParallelSwaps
-  );
-}
+// async function GETPARALLELSWAPACTIONS(
+//   pools,
+//   inputToken,
+//   outputToken,
+//   amountIn,
+//   slippageTolerance,
+//   maxNumberParallelSwaps = 3
+// ) {
+//   return await getSmartRouteSwapActions(
+//     pools,
+//     inputToken,
+//     outputToken,
+//     amountIn,
+//     slippageTolerance,
+//     2,
+//     maxNumberParallelSwaps
+//   );
+// }
 
 export async function stableSmart(
   pools,
@@ -2693,12 +2838,12 @@ export async function stableSmart(
 //   }
 // }
 
-function getExpectedOutputFromActionsORIG(actions, outputToken) {
-  return actions
-    .filter((item) => item.token_out === outputToken)
-    .map((item) => new Big(item.min_amount_out))
-    .reduce((a, b) => a.plus(b), new Big(0));
-}
+// function getExpectedOutputFromActionsORIG(actions, outputToken) {
+//   return actions
+//     .filter((item) => item.token_out === outputToken)
+//     .map((item) => new Big(item.min_amount_out))
+//     .reduce((a, b) => a.plus(b), new Big(0));
+// }
 
 export function getExpectedOutputFromActions(actions, outputToken) {
   // console.log('INSIDE EXPECTED OUTPUT FUNC');

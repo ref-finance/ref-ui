@@ -360,6 +360,40 @@ export function ParallelSwapRoutesDetail({
   );
 }
 
+export function SmartRoutesDetail({
+  swapsTodo,
+  tokenIn,
+  tokenOut,
+}: {
+  swapsTodo: EstimateSwapView[];
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+}) {
+  const tokenMid = useMemo(() => swapsTodo[1].token, [swapsTodo[1].token.id]);
+
+  return (
+    <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
+      <div className="text-primaryText text-left ">
+        <div className="inline-flex items-center">
+          <RouterIcon />
+          <AutoRouterText />
+          <QuestionTip id="optimal_path_found_by_our_solution" width="w-56" />
+        </div>
+      </div>
+
+      <div className="text-right text-white col-span-6 xs:mt-2">
+        {
+          <SmartRouteV2
+            tokens={[tokenIn, tokenMid, tokenOut]}
+            p="100"
+            pools={swapsTodo.map((swapTodo) => swapTodo.pool)}
+          />
+        }
+      </div>
+    </section>
+  );
+}
+
 export const GetPriceImpact = (
   value: string,
   tokenIn?: TokenMetadata,
@@ -556,14 +590,16 @@ function DetailView({
           />
         )}
 
-        {/* {!isParallelSwap && (
+        {swapsTodo[0].status === PoolMode.SMART && (
           <SmartRoutesDetail
             tokenIn={tokenIn}
             tokenOut={tokenOut}
             swapsTodo={swapsTodo}
           />
-        )} */}
-        {!isParallelSwap && <SmartRoutesV2Detail swapsTodo={swapsTodo} />}
+        )}
+        {swapsTodo[0].status === PoolMode.SMART_V2 && (
+          <SmartRoutesV2Detail swapsTodo={swapsTodo} />
+        )}
       </div>
     </div>
   );
@@ -665,6 +701,22 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     loadingPause,
   });
 
+  const priceImpactValueSmartRouting = useMemo(() => {
+    try {
+      if (swapsToDo?.length === 2 && swapsToDo[0].status === PoolMode.SMART) {
+        return calculateSmartRoutingPriceImpact(
+          tokenInAmount,
+          swapsToDo,
+          tokenIn,
+          swapsToDo[1].token,
+          tokenOut
+        );
+      }
+    } catch {
+      return '0';
+    }
+  }, [tokenOutAmount, swapsToDo]);
+
   const priceImpactValueSmartRoutingV2 = useMemo(() => {
     try {
       const pi = calculateSmartRoutesV2PriceImpact(swapsToDo, tokenOut.id);
@@ -675,7 +727,17 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     }
   }, [tokenOutAmount, swapsToDo]);
 
-  const PriceImpactValue = priceImpactValueSmartRoutingV2;
+  let PriceImpactValue: string = '0';
+
+  try {
+    if (swapsToDo[0].status === PoolMode.SMART) {
+      PriceImpactValue = priceImpactValueSmartRouting;
+    } else if (swapsToDo[0].status === PoolMode.SMART_V2) {
+      PriceImpactValue = priceImpactValueSmartRoutingV2;
+    }
+  } catch (error) {
+    PriceImpactValue = '0';
+  }
 
   const tokenInMax = useNearBalance
     ? tokenInBalanceFromNear || '0'

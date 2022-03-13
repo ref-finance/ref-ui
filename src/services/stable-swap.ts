@@ -103,7 +103,7 @@ export interface EstimateSwapView {
   outputToken?: string;
   nodeRoute?: string[];
   tokens?: TokenMetadata[];
-  routeInputToken: string;
+  routeInputToken?: string;
   route?: RoutePool[];
   allRoutes?: RoutePool[][];
   allNodeRoutes?: string[][];
@@ -360,11 +360,10 @@ export const depositSwap = async ({
 };
 
 export const checkTransaction = (txHash: string) => {
-  return (near.connection
-    .provider as JsonRpcProvider).sendJsonRpc('EXPERIMENTAL_tx_status', [
-    txHash,
-    wallet.getAccountId(),
-  ]);
+  return (near.connection.provider as JsonRpcProvider).sendJsonRpc(
+    'EXPERIMENTAL_tx_status',
+    [txHash, wallet.getAccountId()]
+  );
 };
 
 export const shareToAmount = (
