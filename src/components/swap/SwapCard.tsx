@@ -597,9 +597,10 @@ function DetailView({
             swapsTodo={swapsTodo}
           />
         )}
-        {swapsTodo[0].status === PoolMode.SMART_V2 && (
-          <SmartRoutesV2Detail swapsTodo={swapsTodo} />
-        )}
+        {!isParallelSwap &&
+          swapsTodo.every((e) => e.status !== PoolMode.SMART) && (
+            <SmartRoutesV2Detail swapsTodo={swapsTodo} />
+          )}
       </div>
     </div>
   );
@@ -732,7 +733,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   try {
     if (swapsToDo[0].status === PoolMode.SMART) {
       PriceImpactValue = priceImpactValueSmartRouting;
-    } else if (swapsToDo[0].status === PoolMode.SMART_V2) {
+    } else {
       PriceImpactValue = priceImpactValueSmartRoutingV2;
     }
   } catch (error) {

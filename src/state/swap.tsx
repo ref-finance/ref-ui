@@ -97,18 +97,18 @@ export const useSwap = ({
   const setAverageFee = (estimates: EstimateSwapView[]) => {
     const estimate = estimates[0];
 
+    let avgFee: number = 0;
+
     if (estimate.status === PoolMode.SMART) {
       // console.log('USED SMART ROUTE V1 FOR HYBRID. SETTING FEE TO...');
-      var avgFee = estimates[0].pool.fee + estimates[1].pool.fee;
+      avgFee = estimates[0].pool.fee + estimates[1].pool.fee;
       // console.log(avgFee);
-    } else if (estimate.status === PoolMode.SMART_V2) {
-      var avgFee = getAverageFeeForRoutes(
+    } else {
+      avgFee = getAverageFeeForRoutes(
         estimate.allRoutes,
         estimate.allNodeRoutes,
         estimate.totalInputAmount
       );
-    } else {
-      var avgFee = 0;
     }
     setAvgFee(avgFee);
   };
@@ -183,8 +183,6 @@ export const useSwap = ({
         .then((estimates) => {
           if (!estimates) throw '';
 
-          console.log(estimates);
-
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
             setCanSwap(true);
             setAverageFee(estimates);
@@ -193,6 +191,7 @@ export const useSwap = ({
               setTokenOutAmount(
                 getExpectedOutputFromActions(estimates, tokenOut.id).toString()
               );
+
               setSwapsToDo(estimates);
             }
           }
@@ -257,7 +256,7 @@ export const useSwap = ({
     pools: swapsToDo?.map((estimate) => estimate.pool),
     swapsToDo,
     isParallelSwap: swapsToDo?.every((e) => e.status === PoolMode.PARALLEL),
-    isSmartRouteV2Swap: swapsToDo?.every((e) => e.status === PoolMode.SMART_V2),
+    isSmartRouteV2Swap: swapsToDo?.every((e) => e.status !== PoolMode.SMART),
   };
 };
 
