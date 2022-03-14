@@ -35,11 +35,14 @@ import { FarmDot } from '~components/icon';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
 import { usePoolTVL } from '../../state/pool';
 import { multiply, divide } from '../../utils/numbers';
+import { STABLE_POOL_ID } from '../../services/near';
+import { getStablePoolFromCache, isNotStablePool } from '../../services/pool';
 import {
   getCurrentWallet,
   WalletContext,
   getSenderLoginRes,
 } from '../../utils/sender-wallet';
+import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 
 function MyShares({
   shares,
@@ -76,7 +79,10 @@ function MyShares({
     <div className="h-12 inline-flex flex-col justify-center xs:text-right md:text-right">
       <div className="pl-2 pb-1 xs:pr-0 md:pr-0 text-sm whitespace-nowrap">{`${toRoundedReadableNumber(
         {
-          decimals: LP_TOKEN_DECIMALS,
+          decimals:
+            poolId === Number(STABLE_POOL_ID)
+              ? STABLE_LP_TOKEN_DECIMALS
+              : LP_TOKEN_DECIMALS,
           number: userTotalShare
             .toNumber()
             .toLocaleString('fullwide', { useGrouping: false }),
@@ -135,7 +141,8 @@ function AddLiquidityButton() {
 export function YourLiquidityPage() {
   const [error, setError] = useState<Error>();
   const [pools, setPools] = useState<PoolRPCView[]>();
-  const [balances, setBalances] = useState<string[]>();
+
+  const [stablePool, setStablePool] = useState<PoolRPCView>();
 
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
@@ -148,16 +155,13 @@ export function YourLiquidityPage() {
   }
 
   useEffect(() => {
-    if (isSignedIn) getYourPools().then(setPools);
+    if (isSignedIn) {
+      getYourPools().then(setPools);
+      getStablePoolFromCache().then((res) => setStablePool(res[0]));
+    }
   }, [isSignedIn]);
 
-  useEffect(() => {
-    if (!pools) return;
-    const pool_ids = pools?.map((pool) => pool.id);
-    getPoolsBalances(pool_ids).then(setBalances);
-  }, [pools]);
-
-  if (!pools || !balances) return <Loading />;
+  if (!pools || !stablePool) return <Loading />;
 
   return (
     <div className="flex items flex-col lg:w-3/4 xl:w-2/3 md:w-5/6 xs:w-11/12 m-auto">
@@ -190,16 +194,22 @@ export function YourLiquidityPage() {
                   <FormattedMessage id="my_shares" defaultMessage="Shares" />
                 </div>
                 <div className="col-span-5 xl:ml-6 ml-2">
-                  <FormattedMessage id="usd_value" defaultMessage="USD value" />
+                  <FormattedMessage id="value" defaultMessage="Value" />
                 </div>
               </div>
               <div className="max-h-96 overflow-y-auto">
+                <div
+                  className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
+                  key={Number(STABLE_POOL_ID)}
+                >
+                  <PoolRow pool={stablePool} />
+                </div>
                 {pools.map((pool, i) => (
                   <div
                     key={i}
                     className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
                   >
-                    <PoolRow pool={pool} balance={balances[i]} />
+                    <PoolRow pool={pool} />
                   </div>
                 ))}
               </div>
@@ -215,8 +225,10 @@ export function YourLiquidityPage() {
       </div>
       {pools.length > 0 ? (
         <div className="lg:hidden">
+          <PoolRow pool={stablePool} key={Number(STABLE_POOL_ID)} />
+
           {pools.map((pool, i) => {
-            return <PoolRow pool={pool} key={i} balance={balances[i]} />;
+            return <PoolRow pool={pool} key={i} />;
           })}
         </div>
       ) : (
@@ -228,17 +240,18 @@ export function YourLiquidityPage() {
   );
 }
 
-function PoolRow(props: { pool: any; balance: string }) {
+function PoolRow(props: { pool: any }) {
   const { pool, shares, stakeList } = usePool(props.pool.id);
 
   const poolTVL = usePoolTVL(props.pool.id);
 
-  const { balance } = props;
   const tokens = useTokens(pool?.tokenIds);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showFunding, setShowFunding] = useState(false);
   const [supportFarm, setSupportFarm] = useState<Number>();
   const [farmStake, setFarmStake] = useState<string | number>('0');
+
+  const history = useHistory();
 
   useEffect(() => {
     canFarm(Number(props.pool.id), true).then(setSupportFarm);
@@ -302,7 +315,6 @@ function PoolRow(props: { pool: any; balance: string }) {
       ></div>
     );
   });
-
   const tokenAmountShare = (
     pool: Pool,
     token: TokenMetadata,
@@ -326,6 +338,30 @@ function PoolRow(props: { pool: any; balance: string }) {
     );
   };
 
+  const TokenInfoPC = ({ token }: { token: TokenMetadata }) => {
+    return (
+      <div className="inline-flex items-center justify-between my-1 w-28">
+        <div className="font-semibold">{toRealSymbol(token.symbol)}</div>
+        <div className="font-normal">
+          {tokenAmountShare(pool, token, userTotalShareToString)}
+        </div>
+      </div>
+    );
+  };
+
+  const TokenInfoMobile = ({ token }: { token: TokenMetadata }) => {
+    return (
+      <div className="flex items-center justify-between my-2">
+        <div className="col-span-3 text-gray-400">
+          {toRealSymbol(token.symbol)}
+        </div>
+        <div className="font-normal">
+          {tokenAmountShare(pool, token, userTotalShareToString)}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       {/* PC */}
@@ -338,22 +374,9 @@ function PoolRow(props: { pool: any; balance: string }) {
         </div>
 
         <div className="col-span-2 inline-flex flex-col text-xs">
-          <div className="inline-flex items-center justify-between my-1 w-28">
-            <div className="font-semibold">
-              {toRealSymbol(tokens[0].symbol)}
-            </div>
-            <div className="font-normal">
-              {tokenAmountShare(pool, tokens[0], userTotalShareToString)}
-            </div>
-          </div>
-          <div className="inline-flex items-center justify-between my-1 w-28">
-            <div className="col-span-3 font-semibold">
-              {toRealSymbol(tokens[1].symbol)}
-            </div>
-            <div className="font-normal">
-              {tokenAmountShare(pool, tokens[1], userTotalShareToString)}
-            </div>
-          </div>
+          {tokens.map((token) => (
+            <TokenInfoPC token={token} />
+          ))}
         </div>
 
         <div className="col-span-3  text-left pl-8 xl:pl-12">
@@ -377,7 +400,12 @@ function PoolRow(props: { pool: any; balance: string }) {
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                setShowFunding(true);
+
+                if (isNotStablePool(pool)) {
+                  setShowFunding(true);
+                } else {
+                  history.push('/stableswap', { stableTab: 'add_liquidity' });
+                }
               }}
               className="text-xs col-span-2 mr-4 w-24 text-center"
             >
@@ -391,6 +419,15 @@ function PoolRow(props: { pool: any; balance: string }) {
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
+
+                if (isNotStablePool(pool)) {
+                  setShowWithdraw(true);
+                } else {
+                  history.push('/stableswap', {
+                    stableTab: 'remove_liquidity',
+                  });
+                }
+
                 setShowWithdraw(true);
               }}
               className="text-xs px-4 col-span-2 w-20 text-center"
@@ -413,22 +450,9 @@ function PoolRow(props: { pool: any; balance: string }) {
             </div>
           </div>
           <div className="flex flex-col text-sm border-b border-gray-700 border-opacity-70 px-6">
-            <div className="flex items-center justify-between my-2">
-              <div className="col-span-3 text-gray-400">
-                {toRealSymbol(tokens[0].symbol)}
-              </div>
-              <div className="font-normal">
-                {tokenAmountShare(pool, tokens[0], userTotalShareToString)}
-              </div>
-            </div>
-            <div className="flex items-center justify-between my-2">
-              <div className="col-span-3 text-gray-400">
-                {toRealSymbol(tokens[1].symbol)}
-              </div>
-              <div className="font-normal">
-                {tokenAmountShare(pool, tokens[1], userTotalShareToString)}
-              </div>
-            </div>
+            {tokens.map((token) => (
+              <TokenInfoMobile token={token} />
+            ))}
           </div>
 
           <div className="flex items justify-between border-b border-gray-700 border-opacity-70 px-6 py-2">
@@ -463,7 +487,12 @@ function PoolRow(props: { pool: any; balance: string }) {
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
-                  setShowFunding(true);
+
+                  if (isNotStablePool(pool)) {
+                    setShowFunding(true);
+                  } else {
+                    history.push('/stableswap', { stableTab: 'add_liquidity' });
+                  }
                 }}
                 className="text-sm w-28 mr-4"
               >
@@ -477,7 +506,13 @@ function PoolRow(props: { pool: any; balance: string }) {
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
-                  setShowWithdraw(true);
+                  if (isNotStablePool(pool)) {
+                    setShowWithdraw(true);
+                  } else {
+                    history.push('/stableswap', {
+                      stableTab: 'remove_liquidity',
+                    });
+                  }
                 }}
                 className="text-sm w-24"
               >
@@ -489,7 +524,7 @@ function PoolRow(props: { pool: any; balance: string }) {
       </Link>
       <RemoveLiquidityModal
         pool={pool}
-        shares={balance}
+        shares={shares}
         tokens={tokens}
         isOpen={showWithdraw}
         onRequestClose={() => setShowWithdraw(false)}
