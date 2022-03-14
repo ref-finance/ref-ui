@@ -3,15 +3,24 @@ import { toRealSymbol } from '~utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
 import { toInternationalCurrencySystem } from '~utils/numbers';
 import { toPrecision } from '../../utils/numbers';
+import { SingleToken } from '../forms/SelectToken';
 
 interface TokenProps {
   token: TokenMetadata;
   onClick: (token: TokenMetadata) => void;
   totalAmount?: string;
   sortBy?: string;
+  price?: string;
+  index?: number;
 }
 
-export default function Token({ token, onClick, sortBy }: TokenProps) {
+export default function Token({
+  token,
+  onClick,
+  sortBy,
+  price,
+  index,
+}: TokenProps) {
   const { icon, symbol, id, near, ref, total } = token;
 
   const displayBalance =
@@ -25,17 +34,12 @@ export default function Token({ token, onClick, sortBy }: TokenProps) {
       className="hover:bg-black hover:bg-opacity-10"
       onClick={() => onClick && onClick(token)}
     >
-      <td className="xs:text-xs text-sm pl-8 py-3 cursor-pointer w-4/5">
-        {icon ? (
-          <img
-            className="h-6 w-6 mr-3 inline-block border rounded-full border-greenLight"
-            src={icon}
-            alt={toRealSymbol(symbol)}
-          />
-        ) : (
-          <span className="h-6 w-6 mr-3"></span>
-        )}
-        <span className="inline-block text-white">{toRealSymbol(symbol)}</span>
+      <td
+        className={`xs:text-xs text-sm pl-8  ${
+          index === 0 ? 'pt-4 pb-2' : 'py-2'
+        }  cursor-pointer w-4/5 flex items-center`}
+      >
+        <SingleToken token={token} price={price} />
       </td>
       <td
         className={`py-4 xs:text-xs text-sm w-1/5 pr-10 text-right ${

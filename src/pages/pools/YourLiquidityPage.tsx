@@ -164,7 +164,7 @@ export function YourLiquidityPage() {
   if (!pools || !stablePool) return <Loading />;
 
   return (
-    <div className="flex items flex-col lg:w-3/4 xl:w-2/3 md:w-5/6 xs:w-11/12 m-auto">
+    <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
       <div className="w-full flex justify-center self-center">
         {error && <Alert level="warn" message={error.message} />}
       </div>
@@ -190,10 +190,10 @@ export function YourLiquidityPage() {
                   <FormattedMessage id="token" defaultMessage="Token" />
                 </div>
 
-                <div className="col-span-3 text-left ml-10 xl:ml-14">
+                <div className="col-span-3 text-left ml-8 xl:ml-14">
                   <FormattedMessage id="my_shares" defaultMessage="Shares" />
                 </div>
-                <div className="col-span-5 xl:ml-6 ml-2">
+                <div className="col-span-5 xl:ml-8 ml-4">
                   <FormattedMessage id="value" defaultMessage="Value" />
                 </div>
               </div>
@@ -379,7 +379,7 @@ function PoolRow(props: { pool: any }) {
           ))}
         </div>
 
-        <div className="col-span-3  text-left pl-8 xl:pl-12">
+        <div className="col-span-3  text-left pl-6 xl:pl-12">
           <MyShares
             shares={shares}
             totalShares={pool.shareSupply}

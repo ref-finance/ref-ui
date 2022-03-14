@@ -12,6 +12,8 @@ import { useTokensData } from '~state/token';
 import { toRealSymbol } from '~utils/token';
 import { FaSearch } from 'react-icons/fa';
 import AddToken from './AddToken';
+import { getTokenPriceList } from '../../services/indexer';
+import { toPrecision } from '../../utils/numbers';
 
 function sort(a: any, b: any) {
   if (typeof a === 'string' && typeof b === 'string') {
@@ -21,6 +23,63 @@ function sort(a: any, b: any) {
   } else {
     return a;
   }
+}
+export function tokenPrice(price: string) {
+  return (
+    <span className="text-xs text-primaryText">
+      {`$${toPrecision(price, 2)}`}
+    </span>
+  );
+}
+
+export function SingleToken({
+  token,
+  price,
+}: {
+  token: TokenMetadata;
+  price: string;
+}) {
+  return (
+    <>
+      {token.icon ? (
+        <img
+          src={token.icon}
+          alt={toRealSymbol(token.symbol)}
+          style={{
+            width: '25px',
+            height: '25px',
+          }}
+          className="inline-block mr-2 border rounded-full border-greenLight"
+        />
+      ) : (
+        <div
+          className="inline-block mr-2 border rounded-full border-greenLight"
+          style={{
+            width: '25px',
+            height: '25px',
+          }}
+        ></div>
+      )}
+      <span className="text-white">
+        <div
+          style={{
+            position: 'relative',
+            top: `${price ? '3px' : ''}`,
+          }}
+        >
+          {toRealSymbol(token.symbol)}
+        </div>
+        <span
+          style={{
+            position: 'relative',
+            bottom: `${price ? '3px' : ''}`,
+          }}
+        >
+          {price ? tokenPrice(price) : null}
+        </span>
+      </span>
+    </>
+  );
 }
 
 export default function SelectToken({
@@ -47,6 +106,12 @@ export default function SelectToken({
   const [sortBy, setSortBy] = useState<string>('near');
   const [showCommonBasses, setShowCommonBasses] = useState<boolean>(true);
   const addToken = () => <AddToken />;
+
+  const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    if (visible) [getTokenPriceList().then(setTokenPriceList)];
+  }, [visible]);
 
   if (!onSelect) {
     return (
@@ -183,7 +248,7 @@ export default function SelectToken({
     >
       {() => (
         <section className="text-white">
-          <div className="flex items-center justify-between pb-5 pr-8 px-8 relative">
+          <div className="flex items-center justify-between pb-5 px-8 relative">
             <h2 className="text-sm font-bold text-center">
               <FormattedMessage
                 id="select_token"
@@ -198,7 +263,7 @@ export default function SelectToken({
           <div className="flex justify-between items-center mb-5 mx-8">
             <div className="flex-auto rounded text-gray-400 flex items-center pr-2 mr-4 bg-inputDarkBg">
               <input
-                className={`text-sm outline-none rounded w-full py-2 px-3`}
+                className={`text-sm outline-none rounded w-full py-2 px-1`}
                 placeholder={intl.formatMessage({ id: 'search_token' })}
                 onChange={(evt) => onSearch(evt.target.value)}
               />
@@ -213,10 +278,12 @@ export default function SelectToken({
                 onSelect && onSelect(token);
                 handleClose();
               }}
+              tokenPriceList={tokenPriceList}
             />
           )}
           <Table
             sortBy={sortBy}
+            tokenPriceList={tokenPriceList}
             currentSort={currentSort}
             onSortChange={onSortChange}
             tokens={listData}

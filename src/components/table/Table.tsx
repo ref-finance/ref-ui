@@ -14,6 +14,7 @@ interface TokenListProps {
   onSortChange?: (sortBy: string) => void;
   onClick?: (token: TokenMetadata) => void;
   balances?: TokenBalancesView;
+  tokenPriceList: Record<string, any>;
 }
 
 export default function Table({
@@ -23,6 +24,7 @@ export default function Table({
   onSortChange,
   onClick,
   balances,
+  tokenPriceList,
 }: TokenListProps) {
   return (
     tokens.length > 0 && (
@@ -64,11 +66,13 @@ export default function Table({
           </tr>
         </thead>
         <tbody>
-          {tokens.filter(Boolean).map((token) => (
+          {tokens.filter(Boolean).map((token, index) => (
             <Token
+              index={index}
               key={token.id}
               token={token}
               onClick={onClick}
+              price={tokenPriceList[token.id]?.price}
               // render={render}
               sortBy={sortBy}
               totalAmount={
