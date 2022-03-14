@@ -101,6 +101,7 @@ import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 
 import { useWalletTokenBalances } from '../../state/token';
 import { SmallWallet } from '../../components/icon/SmallWallet';
+import { scientificNotationToString } from '../../utils/numbers';
 interface ParamTypes {
   id: string;
 }
@@ -1520,7 +1521,13 @@ export function PoolDetailsPage() {
                 <div>
                   <FormattedMessage id="tvl" defaultMessage="TVL" />
                 </div>
-                <div className="text-base text-white">
+                <div
+                  className="text-base text-white"
+                  title={toPrecision(
+                    scientificNotationToString(poolTVL?.toString() || '0'),
+                    0
+                  )}
+                >
                   {' '}
                   ${toInternationalCurrencySystem(poolTVL?.toString())}
                 </div>

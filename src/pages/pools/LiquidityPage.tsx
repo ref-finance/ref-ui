@@ -54,6 +54,7 @@ import { QuestionTip } from '~components/layout/TipWrapper';
 import { FilterIcon } from '../../components/icon/PoolFilter';
 import useMemo from 'react';
 import { TokenMetadata } from '../../services/ft-contract';
+import { scientificNotationToString } from '../../utils/numbers';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -594,7 +595,13 @@ function PoolRow({
           {calculateFeePercent(pool.fee)}%
         </div>
 
-        <div className="col-span-1 py-1">
+        <div
+          className="col-span-1 py-1"
+          title={toPrecision(
+            scientificNotationToString(pool.tvl.toString()),
+            0
+          )}
+        >
           ${toInternationalCurrencySystem(pool.tvl.toString())}
         </div>
 

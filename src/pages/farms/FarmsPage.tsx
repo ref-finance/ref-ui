@@ -82,6 +82,7 @@ import OldInputAmount from '~components/forms/OldInputAmount';
 import { BigNumber } from 'bignumber.js';
 import getConfig from '~services/config';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import { scientificNotationToString } from '../../utils/numbers';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 interface SearchData {
@@ -1498,7 +1499,17 @@ function FarmView({
                 defaultMessage="Total staked"
               />
             </div>
-            <div className="text-xl text-white">{`${
+            <div
+              className="text-xl text-white"
+              title={
+                data.totalStaked === 0
+                  ? '-'
+                  : toPrecision(
+                      scientificNotationToString(data.totalStaked.toString()),
+                      0
+                    )
+              }
+            >{`${
               data.totalStaked === 0
                 ? '-'
                 : `$${toInternationalCurrencySystem(
