@@ -253,11 +253,9 @@ export const estimateSwap = async ({
     parsedAmountIn
   );
 
-  console.log('stableSmartActionsV2', stableSmartActionsV2);
+  let res = stableSmartActionsV2;
 
-  if (!stableSmartActionsV2.length) {
-    throwNoPoolError();
-  }
+  console.log('stableSmartActionsV2', stableSmartActionsV2);
 
   let smartRouteV2OutputEstimate = stableSmartActionsV2
     .filter((a: any) => a.outputToken == a.routeOutputToken)
@@ -266,7 +264,7 @@ export const estimateSwap = async ({
     .toString();
 
   if (bothStableCoin) {
-    return stableSmartActionsV2;
+    return res;
   }
   if (
     STABLE_TOKEN_IDS.includes(tokenIn.id) ||
@@ -290,19 +288,23 @@ export const estimateSwap = async ({
         `HYBRID ROUTE GAVE BETTER RETURN OF ${hybridStableSmartOutputEstimate}`
       );
 
-      console.log('hybridStableSmart', hybridStableSmart.actions);
+      res = hybridStableSmart.actions;
 
-      return hybridStableSmart.actions;
+      console.log('hybridStableSmart', hybridStableSmart.actions);
     } else {
       // smart route v2 gave better answer. use it!
       console.log(
         `SMART ROUTE V2 GAVE BETTER RETURN OF ${smartRouteV2OutputEstimate.toString()}`
       );
-      return stableSmartActionsV2;
+      res = stableSmartActionsV2;
     }
   }
 
-  return stableSmartActionsV2;
+  if (!res.length) {
+    throwNoPoolError();
+  }
+
+  return res;
 };
 export async function getHybridStableSmart(
   tokenIn: TokenMetadata,

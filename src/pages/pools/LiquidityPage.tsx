@@ -416,7 +416,7 @@ function MobileLiquidityPage({
             ref={inputRef}
             className={`text-sm outline-none rounded w-full py-2 px-3`}
             placeholder={intl.formatMessage({
-              id: 'input_to_search',
+              id: 'token',
             })}
             value={tokenName}
             onChange={(evt) => {
@@ -788,7 +788,7 @@ function LiquidityPage_({
                 ref={inputRef}
                 className={`text-sm outline-none rounded w-full py-2 px-3`}
                 placeholder={intl.formatMessage({
-                  id: 'input_to_search',
+                  id: 'token',
                 })}
                 onChange={(evt) => {
                   onSearch(evt.target.value);

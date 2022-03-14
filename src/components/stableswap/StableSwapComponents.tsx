@@ -260,6 +260,7 @@ export function DetailView({
   minAmountOut,
   canSwap,
   noFeeAmount,
+  priceImpactValue,
 }: {
   pool: Pool;
   tokenIn: TokenMetadata;
@@ -269,14 +270,10 @@ export function DetailView({
   minAmountOut?: string;
   canSwap?: boolean;
   noFeeAmount?: string;
+  priceImpactValue?: string;
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
-
-  const priceImpactValue = useMemo(() => {
-    if (!from || !noFeeAmount) return '0';
-    return calcStableSwapPriceImpact(from, noFeeAmount);
-  }, [noFeeAmount]);
 
   useEffect(() => {
     if (Number(priceImpactValue) > 1) {
