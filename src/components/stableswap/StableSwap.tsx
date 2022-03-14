@@ -38,6 +38,7 @@ import { BeatLoading } from '~components/layout/Loading';
 import { WalletContext, getCurrentWallet } from '../../utils/sender-wallet';
 import { getAccount } from '../../services/airdrop';
 import { DoubleCheckModal } from '../layout/SwapDoubleCheck';
+import BigNumber from 'bignumber.js';
 interface StableSwapProps {
   balances: TokenBalancesView;
   tokens: TokenMetadata[];
@@ -169,12 +170,18 @@ export default function StableSwap({
 
   const handleSubmit = async (event: React.FormEvent<HTMLElement>) => {
     event.preventDefault();
+    const ifDoubleCheck =
+      new BigNumber(tokenInAmount).isLessThanOrEqualTo(
+        new BigNumber(tokenInMax)
+      ) && Number(priceImpactValue) > 2;
+
     if (isSignedIn) {
       try {
         if (canSubmit) {
           setShowSwapLoading(true);
           setLoadingPause(true);
-          makeSwap(useNearBalance);
+          if (ifDoubleCheck) setDoubleCheckOpen(true);
+          else makeSwap(useNearBalance);
         }
       } catch (error) {}
     }
