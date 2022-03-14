@@ -19,6 +19,7 @@ import { InfoLine } from './LiquidityComponents';
 import _ from 'lodash';
 import BigNumber from 'bignumber.js';
 import { useDayVolume } from '~state/pool';
+import { scientificNotationToString } from '../../utils/numbers';
 
 function TokenChart({ tokens, pool }: { tokens: TokenMetadata[]; pool: Pool }) {
   const tokensData = calculateTokenValueAndShare(pool, tokens);
@@ -242,7 +243,15 @@ export default function ({
         <div className="flex justify-center">{chart}</div>
         {Object.values(tokensData).map(({ token, display }) => {
           return (
-            <InfoLine key={token.symbol} title={token.symbol} value={display} />
+            <InfoLine
+              key={token.symbol}
+              title={token.symbol}
+              value={display}
+              valueTitle={toPrecision(
+                toReadableNumber(token.decimals, pool.supplies[token.id]),
+                0
+              )}
+            />
           );
         })}
         <InfoLine
