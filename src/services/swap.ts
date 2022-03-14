@@ -266,11 +266,7 @@ export const estimateSwap = async ({
     .toString();
 
   if (bothStableCoin) {
-    const isParallelSwap = stableSmartActionsV2?.every(
-      (e: EstimateSwapView) => e.status === PoolMode.PARALLEL
-    );
-    if (!isParallelSwap) throwNoPoolError();
-    else return stableSmartActionsV2;
+    return stableSmartActionsV2;
   }
   if (
     STABLE_TOKEN_IDS.includes(tokenIn.id) ||
