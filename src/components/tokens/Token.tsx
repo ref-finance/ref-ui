@@ -33,16 +33,27 @@ export default function Token({
       key={id}
       className="hover:bg-black hover:bg-opacity-10"
       onClick={() => onClick && onClick(token)}
+      style={{
+        height: '56px',
+      }}
     >
       <td
         className={`xs:text-xs text-sm pl-8  ${
-          index === 0 ? 'pt-4 pb-2' : 'py-2'
+          index === 0
+            ? !price
+              ? 'pt-6 pb-4'
+              : 'pt-4 pb-2'
+            : !price
+            ? 'py-4'
+            : 'py-2'
         }  cursor-pointer w-4/5 flex items-center`}
       >
         <SingleToken token={token} price={price} />
       </td>
       <td
-        className={`py-4 xs:text-xs text-sm w-1/5 pr-10 text-right ${
+        className={`${
+          index === 0 ? 'pt-6 pb-4' : 'py-4'
+        } xs:text-xs text-sm w-1/5 pr-10 text-right ${
           sortBy === 'near' ? 'text-white' : ''
         }`}
       >
