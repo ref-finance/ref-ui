@@ -75,6 +75,7 @@ export enum PoolMode {
   PARALLEL = 'parallel swap',
   SMART = 'smart routing',
   SMART_V2 = 'stableSmart',
+  STABLE = 'stable swap',
 }
 
 interface EstimateSwapOptions {
@@ -216,10 +217,6 @@ export const estimateSwap = async ({
 }: EstimateSwapOptions): Promise<EstimateSwapView[]> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
 
-  const bothStableCoin =
-    STABLE_TOKEN_IDS.includes(tokenIn.id) &&
-    STABLE_TOKEN_IDS.includes(tokenOut.id);
-
   if (ONLY_ZEROS.test(parsedAmountIn))
     throw new Error(
       `${amountIn} ${intl.formatMessage({ id: 'is_not_a_valid_swap_amount' })}`
@@ -263,9 +260,6 @@ export const estimateSwap = async ({
     .reduce((a: any, b: any) => a.plus(b), new Big(0))
     .toString();
 
-  if (bothStableCoin) {
-    return res;
-  }
   if (
     STABLE_TOKEN_IDS.includes(tokenIn.id) ||
     STABLE_TOKEN_IDS.includes(tokenOut.id)
@@ -316,6 +310,10 @@ export async function getHybridStableSmart(
   let stablePool;
   let stablePoolInfo;
 
+  const bothStableCoin =
+    STABLE_TOKEN_IDS.includes(tokenIn.id) &&
+    STABLE_TOKEN_IDS.includes(tokenOut.id);
+
   if (
     STABLE_TOKEN_IDS.includes(tokenIn.id) ||
     STABLE_TOKEN_IDS.includes(tokenOut.id)
@@ -323,6 +321,32 @@ export async function getHybridStableSmart(
     [stablePool, stablePoolInfo] = await getStablePoolFromCache();
   } else {
     return { actions: [], estimate: '0' };
+  }
+
+  if (bothStableCoin) {
+    let stableOnlyResult = getStablePoolEstimate({
+      tokenIn,
+      tokenOut: tokenOut,
+      amountIn,
+      stablePoolInfo,
+      stablePool,
+    });
+    console.log('STABLE ONLY RESULT IS...', stableOnlyResult);
+
+    return {
+      actions: [
+        {
+          ...stableOnlyResult,
+          status: PoolMode.STABLE,
+          routeInputToken: tokenIn.id,
+          totalInputAmount: parsedAmountIn,
+          pool: { ...stableOnlyResult.pool, partialAmountIn: parsedAmountIn },
+          tokens: [tokenIn, tokenOut],
+          inputToken: tokenIn.id,
+        },
+      ],
+      estimate: stableOnlyResult.estimate,
+    };
   }
 
   var candidatePools = [];

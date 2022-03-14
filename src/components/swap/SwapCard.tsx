@@ -29,6 +29,7 @@ import {
   scientificNotationToString,
   calculateSmartRoutesV2PriceImpact,
   separateRoutes,
+  calcStableSwapPriceImpact,
 } from '../../utils/numbers';
 import ReactDOMServer from 'react-dom/server';
 import TokenAmount from '../forms/TokenAmount';
@@ -196,9 +197,9 @@ export function SmartRoutesV2Detail({
         </div>
       </div>
 
-      <div className="text-right text-white col-span-7 xs:mt-2 md:mt-2">
+      <div className="text-right text-white col-span-7 xs:mt-2 md:mt-2 self-start">
         {tokensPerRoute.map((tokens, index) => (
-          <div key={index} className="mb-2">
+          <div key={index} className="mb-2 md:w-smartRoute lg:w-smartRoute">
             <div className="text-right text-white col-span-6 xs:mt-2 md:mt-2">
               {
                 <SmartRouteV2
@@ -612,7 +613,15 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           swapsToDo[1].token,
           tokenOut
         );
-      }
+      } else if (
+        swapsToDo?.length === 1 &&
+        swapsToDo[0].status === PoolMode.STABLE
+      ) {
+        return calcStableSwapPriceImpact(
+          toReadableNumber(tokenIn.decimals, swapsToDo[0].totalInputAmount),
+          swapsToDo[0].noFeeAmountOut
+        );
+      } else return '0';
     } catch {
       return '0';
     }
@@ -631,7 +640,10 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   let PriceImpactValue: string = '0';
 
   try {
-    if (swapsToDo[0].status === PoolMode.SMART) {
+    if (
+      swapsToDo[0].status === PoolMode.SMART ||
+      swapsToDo[0].status === PoolMode.STABLE
+    ) {
       PriceImpactValue = priceImpactValueSmartRouting;
     } else {
       PriceImpactValue = priceImpactValueSmartRoutingV2;

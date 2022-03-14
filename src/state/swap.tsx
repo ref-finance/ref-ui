@@ -93,10 +93,11 @@ export const useSwap = ({
 
     let avgFee: number = 0;
 
-    if (estimate.status === PoolMode.SMART) {
-      // console.log('USED SMART ROUTE V1 FOR HYBRID. SETTING FEE TO...');
-      avgFee = estimates[0].pool.fee + estimates[1].pool.fee;
-      // console.log(avgFee);
+    if (
+      estimate.status === PoolMode.SMART ||
+      estimate.status === PoolMode.STABLE
+    ) {
+      avgFee = estimates.reduce((pre, cur) => pre + cur.pool.fee, 0);
     } else {
       avgFee = getAverageFeeForRoutes(
         estimate.allRoutes,
