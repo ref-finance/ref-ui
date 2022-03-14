@@ -24,6 +24,7 @@ import {
 import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 import { utils } from 'near-api-js';
 import getConfig from '../services/config';
+import { getCurrentWallet } from '../utils/sender-wallet';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 
@@ -33,7 +34,9 @@ export const FARM_STORAGE_BALANCE = '0.045';
 
 export const checkTokenNeedsStorageDeposit = async (page?: string) => {
   let storageNeeded: math.MathType = 0;
-  const balance = await currentStorageBalanceOfFarm(wallet.getAccountId());
+  const balance = await currentStorageBalanceOfFarm(
+    getCurrentWallet().wallet.getAccountId()
+  );
 
   if (!balance) {
     storageNeeded = math.add(storageNeeded, Number(ACCOUNT_MIN_STORAGE_AMOUNT));

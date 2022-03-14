@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { toRealSymbol } from '~utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
 import { FormattedMessage } from 'react-intl';
@@ -6,6 +6,7 @@ import { WNEARExchngeIcon } from '~components/icon/Common';
 import WrapNear from '~components/forms/WrapNear';
 import { wallet } from '~services/near';
 import { isMobile } from '~utils/device';
+import { WalletContext, getCurrentWallet } from '../../utils/sender-wallet';
 interface CommonBassesProps {
   tokens: TokenMetadata[];
   onClick: (token: TokenMetadata) => void;
@@ -66,9 +67,13 @@ export default function CommonBasses({ tokens, onClick }: CommonBassesProps) {
 
 const Wnear = () => {
   const [showWrapNear, setShowWrapNear] = useState(false);
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
   return (
     <>
-      {wallet.isSignedIn() && (
+      {isSignedIn && (
         <div className="text-white pt-4 cursor-pointer xs:mr-5 md:mr-5 mr-6">
           <div
             className="cursor-pointer items-center flex"

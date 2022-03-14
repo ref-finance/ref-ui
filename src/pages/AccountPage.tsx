@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import Modal from 'react-modal';
 import { Card } from '../components/card/Card';
 import { TiArrowSortedUp } from 'react-icons/ti';
@@ -9,7 +9,7 @@ import {
   useUserRegisteredTokensAllAndNearBalance,
 } from '../state/token';
 import Loading from '../components/layout/Loading';
-import { wallet } from '../services/near';
+import { wallet as webWallet } from '../services/near';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { NearIcon, RefIcon, WalletIcon } from '../components/icon/Common';
 import {
@@ -27,6 +27,13 @@ import { IoCloseOutline } from 'react-icons/io5';
 import ReactTooltip from 'react-tooltip';
 import QuestionMark from '../components/farm/QuestionMark';
 import { useHistory } from 'react-router';
+import {
+  WalletContext,
+  getCurrentWallet,
+  getAccountName,
+} from '../utils/sender-wallet';
+
+import { getSenderLoginRes } from '../utils/sender-wallet';
 import { Checkbox, CheckboxSelected } from '../components/icon';
 import { GradientButton, ButtonTextWrapper } from '../components/button/Button';
 const withdraw_number_at_once = 5;
@@ -636,12 +643,13 @@ function MobileAccountTable(props: any) {
 }
 function Account(props: any) {
   const { userTokens } = props;
-  const [account, network] = wallet.getAccountId().split('.');
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
-  const niceAccountId = `${account.slice(0, 10)}...${network || ''}`;
-  const accountName =
-    account.length > 10 ? niceAccountId : wallet.getAccountId();
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  const { wallet } = getCurrentWallet();
 
   return (
     <div className="flex justify-center relative w-1/2 m-auto mt-16 xs:hidden md:hidden pb-5">
@@ -650,7 +658,7 @@ function Account(props: any) {
           <div className="flex items-center font-semibold text-white">
             <NearIcon />
             <label className="ml-3 text-xl">
-              {wallet.isSignedIn() && accountName}
+              {isSignedIn && getAccountName(wallet.getAccountId())}
             </label>
           </div>
         </div>
@@ -661,14 +669,15 @@ function Account(props: any) {
 }
 function MobileAccount(props: any) {
   const { userTokens } = props;
-  const [account, network] = wallet.getAccountId().split('.');
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
   const [activeTab, setActiveTab] = useState('near');
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  const { wallet } = getCurrentWallet();
   const [refAccountHasToken, setRefAccountHasToken] = useState(false);
-  const niceAccountId = `${account.slice(0, 10)}...${network || ''}`;
-  const accountName =
-    account.length > 10 ? niceAccountId : wallet.getAccountId();
 
   const switchTab = (type: string) => {
     setActiveTab(type);
@@ -691,7 +700,7 @@ function MobileAccount(props: any) {
         <div className="flex text-white items-center justify-center py-6">
           <NearIcon />
           <label className="ml-3 text-xl">
-            {wallet.isSignedIn() && accountName}
+            {isSignedIn && getAccountName(wallet.getAccountId())}
           </label>
         </div>
         <div className="px-3">
@@ -864,13 +873,20 @@ export function ActionModel(props: any) {
   );
 }
 export function AccountPage() {
-  if (!wallet.isSignedIn()) {
-    const history = useHistory();
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+  const history = useHistory();
+
+  const senderLoginRes = getSenderLoginRes();
+
+  if (!senderLoginRes && !webWallet.isSignedIn()) {
     history.push('/');
     return null;
   }
-  const userTokens = useUserRegisteredTokensAllAndNearBalance();
+
+  const userTokens = useUserRegisteredTokensAllAndNearBalance(isSignedIn);
   const balances = useTokenBalances();
+
   if (!userTokens || !balances) return <Loading />;
   userTokens.forEach((token: TokenMetadata) => {
     const { decimals, id, nearNonVisible } = token;

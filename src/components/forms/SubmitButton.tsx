@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Near } from '../icon';
 import { REF_FARM_CONTRACT_ID, wallet } from '../../services/near';
 import { FormattedMessage } from 'react-intl';
@@ -9,6 +9,7 @@ import {
 } from '~components/button/Button';
 
 import { BeatLoading } from '~components/layout/Loading';
+import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 
 interface SubmitButtonProps {
   text?: string;
@@ -27,9 +28,14 @@ function SubmitButton({
   className,
   loading,
 }: SubmitButtonProps) {
+  // const { wallet } = getCurrentWallet();
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
   return (
     <>
-      {wallet.isSignedIn() ? (
+      {isSignedIn ? (
         <button
           type={onClick ? 'button' : 'submit'}
           disabled={disabled}
