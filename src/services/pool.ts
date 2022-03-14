@@ -30,19 +30,19 @@ import {
 } from '../services/token';
 import getConfig from '../services/config';
 import { registerTokensAction } from '../services/creators/token';
+import { getCurrentWallet } from '../utils/sender-wallet';
 import { STORAGE_TO_REGISTER_WITH_FT } from './creators/storage';
 import { withdrawAction } from './creators/token';
 import { getExplorer, ExplorerType } from '../utils/device';
+import { STABLE_POOL_ID, POOL_TOKEN_REFRESH_INTERVAL } from './near';
 import moment from 'moment';
-import { POOL_TOKEN_REFRESH_INTERVAL, STABLE_POOL_ID } from './near';
-
-const STABLE_POOL_KEY = `STABLE_POOL_VALUE`;
-const REF_FI_STABLE_Pool_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE`;
-
 const explorerType = getExplorer();
 
 export const DEFAULT_PAGE_LIMIT = 100;
-
+const STABLE_POOL_KEY = `STABLE_POOL_VALUE_${getConfig().STABLE_POOL_ID}`;
+const REF_FI_STABLE_Pool_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
+  getConfig().STABLE_POOL_ID
+}`;
 export interface Pool {
   id: number;
   tokenIds: string[];
@@ -156,7 +156,7 @@ export const getAllPoolsFromDb = async () => {
 };
 
 export const getAllWatchListFromDb = async ({
-  account = wallet.getAccountId(),
+  account = getCurrentWallet().wallet.getAccountId(),
 }: {
   account?: string;
 }) => {
@@ -170,7 +170,7 @@ export const getAllWatchListFromDb = async ({
 
 export const getWatchListFromDb = async ({
   pool_id,
-  account = wallet.getAccountId(),
+  account = getCurrentWallet().wallet.getAccountId(),
 }: {
   pool_id: string;
   account?: string;
@@ -186,7 +186,7 @@ export const getWatchListFromDb = async ({
 
 export const addPoolToWatchList = async ({
   pool_id,
-  account = wallet.getAccountId(),
+  account = getCurrentWallet().wallet.getAccountId(),
 }: {
   pool_id: string;
   account?: string;
@@ -200,7 +200,7 @@ export const addPoolToWatchList = async ({
 };
 export const removePoolFromWatchList = async ({
   pool_id,
-  account = wallet.getAccountId(),
+  account = getCurrentWallet().wallet.getAccountId(),
 }: {
   pool_id: string;
   account?: string;
@@ -231,7 +231,7 @@ export const getCachedPoolsByTokenId = async ({
   return [...normalItems, ...reverseItems];
 };
 
-export const getTotalPools = () => {
+export const getTotalPools = async () => {
   return refFiViewFunction({
     methodName: 'get_number_of_pools',
   });
@@ -242,6 +242,7 @@ export const getAllPools = async (
   perPage: number = DEFAULT_PAGE_LIMIT
 ): Promise<Pool[]> => {
   const index = (page - 1) * perPage;
+
   const poolData: PoolRPCView[] = await refFiViewFunction({
     methodName: 'get_pools',
     args: { from_index: index, limit: perPage },
@@ -285,9 +286,8 @@ export const getPoolsByTokens = async ({
     const pools = (
       await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
     ).flat();
-    filtered_pools = pools
-      .filter(isNotStablePool)
-      .filter((p) => !p.tokenIds.includes('uxu.leopollum.testnet'));
+
+    filtered_pools = pools.filter(isNotStablePool);
 
     await db.cachePoolsByTokens(filtered_pools);
     filtered_pools = filtered_pools.filter(
@@ -311,7 +311,7 @@ export const getPool = async (id: number): Promise<Pool> => {
   return refFiViewFunction({
     methodName: 'get_pool',
     args: { pool_id: id },
-  }).then((pool) => parsePool(pool, id));
+  }).then((pool: PoolRPCView) => parsePool(pool, id));
 };
 
 interface PoolVolumes {
@@ -345,7 +345,7 @@ export const getPoolVolumes = async (id: number): Promise<PoolVolumes> => {
 export const getSharesInPool = (id: number): Promise<string> => {
   return refFiViewFunction({
     methodName: 'get_pool_shares',
-    args: { pool_id: id, account_id: wallet.getAccountId() },
+    args: { pool_id: id, account_id: getCurrentWallet().wallet.getAccountId() },
   });
 };
 

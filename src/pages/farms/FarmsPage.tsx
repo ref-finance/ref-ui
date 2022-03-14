@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
 import Alert from '~components/alert/Alert';
@@ -81,6 +81,7 @@ import { FaArrowCircleRight, FaRegQuestionCircle } from 'react-icons/fa';
 import OldInputAmount from '~components/forms/OldInputAmount';
 import { BigNumber } from 'bignumber.js';
 import getConfig from '~services/config';
+import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 interface SearchData {
@@ -137,12 +138,18 @@ export function FarmsPage() {
   const refreshTime = 120000;
   const [count, setCount] = useState(0);
   const [commonSeedFarms, setCommonSeedFarms] = useState({});
+
+  const { wallet } = getCurrentWallet();
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
   useEffect(() => {
-    loadFarmInfoList().then();
-  }, []);
+    loadFarmInfoList(false, isSignedIn).then();
+  }, [isSignedIn]);
   useEffect(() => {
     if (count > 0) {
-      loadFarmInfoList(true);
+      loadFarmInfoList(true, isSignedIn);
     }
     const intervalId = setInterval(() => {
       setCount(count + 1);
@@ -151,6 +158,7 @@ export function FarmsPage() {
       clearInterval(intervalId);
     };
   }, [count]);
+
   useEffect(() => {
     const sort_from_url = new URLSearchParams(location.search).get('sort');
     const status_from_url = +new URLSearchParams(location.search).get('status');
@@ -164,13 +172,12 @@ export function FarmsPage() {
       searchByCondition();
     }
   }, [location.search]);
-  async function loadFarmInfoList(isUpload?: boolean) {
+  async function loadFarmInfoList(isUpload?: boolean, isSignedIn?: boolean) {
     if (isUpload) {
       setUnclaimedFarmsIsLoading(false);
     } else {
       setUnclaimedFarmsIsLoading(true);
     }
-    const isSignedIn: boolean = wallet.isSignedIn();
 
     const emptyObj = async () => {
       return {};
@@ -199,6 +206,7 @@ export function FarmsPage() {
       any,
       Record<string, string>
     ] = await Promise.all(Params);
+
     const stakedList: Record<string, string> = resolvedParams[0];
     const tokenPriceList: any = resolvedParams[2];
     const seeds: Record<string, string> = resolvedParams[3];
@@ -267,6 +275,7 @@ export function FarmsPage() {
       tokenPriceList,
       seeds,
     });
+
     if (isSignedIn) {
       const tempMap = {};
       const mySeeds = new Set();
@@ -705,7 +714,7 @@ export function FarmsPage() {
                       defaultMessage="Ended"
                     />
                   </label>
-                  {wallet.isSignedIn() ? (
+                  {isSignedIn ? (
                     <label
                       onClick={() => changeStatus(2)}
                       className={`flex justify-center  w-28  items-center rounded-full h-full text-sm cursor-pointer ${
@@ -930,6 +939,12 @@ function FarmView({
   const [rewardsPerWeek, setRewardsPerWeek] = useState<
     Record<string | number, string | number>
   >({});
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  const { wallet } = getCurrentWallet();
+
   const [unclaimed, setUnclaimed] = useState<Record<any, any>>({});
   const [calcVisible, setCalcVisible] = useState(false);
 
@@ -1660,7 +1675,7 @@ function FarmView({
           </div>
         </div>
         <div className="absolute inset-x-6 bottom-12">
-          {wallet.isSignedIn() ? (
+          {isSignedIn ? (
             <div className="flex gap-2 justify-center mt-4">
               {data.userStaked !== '0' ? (
                 <BorderButton
@@ -1675,7 +1690,9 @@ function FarmView({
               ) : null}
               {ended ? null : data.userStaked !== '0' ? (
                 <BorderButton
-                  onClick={() => showStakeModal()}
+                  onClick={() => {
+                    showStakeModal();
+                  }}
                   rounded="rounded-md"
                   px="px-0"
                   py="py-1"

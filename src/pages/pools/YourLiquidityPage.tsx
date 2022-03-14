@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Card } from '~components/card/Card';
 import Alert from '~components/alert/Alert';
 import {
@@ -8,7 +8,7 @@ import {
   OutlineButton,
 } from '~components/button/Button';
 import Loading from '~components/layout/Loading';
-import { wallet } from '~services/near';
+import { wallet as webWallet } from '~services/near';
 import { useTokens } from '~state/token';
 import { getPoolBalance, getPoolsBalances, PoolRPCView } from '~services/api';
 import {
@@ -33,6 +33,11 @@ import { formatMessage } from '@formatjs/intl';
 import { TokenMetadata } from '~services/ft-contract';
 import { FarmDot } from '~components/icon';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
+import {
+  getCurrentWallet,
+  WalletContext,
+  getSenderLoginRes,
+} from '../../utils/sender-wallet';
 
 function MyShares({
   shares,
@@ -99,15 +104,18 @@ function MyShares({
 }
 
 function Empty() {
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
   return (
     <div className="px-6">
       <div className="text-center font-semibold text-xs mb-4 text-primaryText">
         <FormattedMessage
-          id="your_liquidity_positions_will_appear_here"
-          defaultMessage="Your liquidity positions will appear here."
+          id="your_positions_will_be_displayed_here"
+          defaultMessage="Your position(s) will be displayed here."
         />
       </div>
-      {wallet.isSignedIn() ? <AddLiquidityButton /> : <ConnectToNearBtn />}
+      {isSignedIn ? <AddLiquidityButton /> : <ConnectToNearBtn />}
     </div>
   );
 }
@@ -126,15 +134,20 @@ export function YourLiquidityPage() {
   const [error, setError] = useState<Error>();
   const [pools, setPools] = useState<PoolRPCView[]>();
   const [balances, setBalances] = useState<string[]>();
-  if (!wallet.isSignedIn()) {
-    const history = useHistory();
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+  const senderLoginRes = getSenderLoginRes();
+  const history = useHistory();
+
+  if (!senderLoginRes && !webWallet.isSignedIn()) {
     history.push('/');
     return null;
   }
 
   useEffect(() => {
-    getYourPools().then(setPools);
-  }, []);
+    if (isSignedIn) getYourPools().then(setPools);
+  }, [isSignedIn]);
 
   useEffect(() => {
     if (!pools) return;
@@ -251,7 +264,7 @@ function PoolRow(props: { pool: any; balance: string }) {
         <img
           key={id}
           className={
-            'inline-block h-8 w-8 rounded-full border border-gradientFromHover -ml-1 -ml-1'
+            'inline-block h-8 w-8 rounded-full border border-gradientFromHover -ml-1 '
           }
           src={icon}
         />
@@ -260,7 +273,7 @@ function PoolRow(props: { pool: any; balance: string }) {
       <div
         key={id}
         className={
-          'inline-block h-8 w-8 rounded-full bg-cardBg border border-gradientFromHover -ml-1 -ml-1'
+          'inline-block h-8 w-8 rounded-full bg-cardBg border border-gradientFromHover -ml-1'
         }
       ></div>
     );

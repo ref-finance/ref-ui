@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { matchPath } from 'react-router';
 import { Context } from '~components/wrapper';
 import getConfig from '~services/config';
@@ -45,6 +45,11 @@ import { MobileNavBar } from './MobileNav';
 import WrapNear from '~components/forms/WrapNear';
 import { WrapNearIcon } from './WrapNear';
 import { XrefIcon } from '~components/icon/Xref';
+import { getAccount } from '../../services/airdrop';
+import { senderWallet, getCurrentWallet } from '../../utils/sender-wallet';
+import { WalletSelectorModal } from './WalletSelector';
+import { WalletContext } from '../../utils/sender-wallet';
+import { getAccountName } from '../../utils/sender-wallet';
 
 const config = getConfig();
 
@@ -97,14 +102,23 @@ function Anchor({
   );
 }
 
-function AccountEntry() {
+function AccountEntry({
+  setShowWalletSelector,
+  showWalletSelector,
+}: {
+  setShowWalletSelector: (show: boolean) => void;
+  showWalletSelector: boolean;
+}) {
   const history = useHistory();
   const [hover, setHover] = useState(false);
-  const [account, network] = wallet.getAccountId().split('.');
-  const niceAccountId = `${account.slice(0, 10)}...${network || ''}`;
-  const accountName =
-    account.length > 10 ? niceAccountId : wallet.getAccountId();
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  const { wallet, wallet_type } = getCurrentWallet();
+
   const location = useLocation();
+
   const accountList = [
     {
       icon: <AccountIcon />,
@@ -139,85 +153,94 @@ function AccountEntry() {
       },
     },
   ];
+
   return (
-    <div className="relative user text-xs text-center justify-end z-30 mx-3.5">
-      <div
-        className={`cursor-pointer font-bold items-center justify-end text-center overflow-visible relative py-5`}
-        onMouseEnter={() => {
-          setHover(true);
-        }}
-        onMouseLeave={() => {
-          setHover(false);
-        }}
-      >
+    <>
+      <div className="relative user text-xs text-center justify-end z-30 mx-3.5">
         <div
-          className={`inline-flex px-1 py-0.5 items-center justify-center rounded-full border border-gray-700 ${
-            hover ? 'border-gradientFrom bg-opacity-0' : ''
-          } ${
-            wallet.isSignedIn()
-              ? 'bg-gray-700 text-white'
-              : 'border border-gradientFrom text-gradientFrom'
-          } pl-3 pr-3`}
+          className={`cursor-pointer font-bold items-center justify-end text-center overflow-visible relative py-5`}
+          onMouseEnter={() => {
+            setHover(true);
+          }}
+          onMouseLeave={() => {
+            setHover(false);
+          }}
         >
-          <div className="pr-1">
-            <Near color={wallet.isSignedIn() ? 'white' : '#00c6a2'} />
-          </div>
-          <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name">
-            {wallet.isSignedIn() ? (
-              <span className="flex ml-1">
-                {accountName}
-                <FiChevronDown className="text-base ml-1" />
-              </span>
-            ) : (
-              <button
-                onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
-                type="button"
-              >
-                <span className="ml-1 text-xs">
-                  <FormattedMessage
-                    id="connect_to_near"
-                    defaultMessage="Connect to NEAR"
-                  />
+          <div
+            className={`inline-flex px-1 py-0.5 items-center justify-center rounded-full border border-gray-700 ${
+              hover ? 'border-gradientFrom bg-opacity-0' : ''
+            } ${
+              isSignedIn
+                ? 'bg-gray-700 text-white'
+                : 'border border-gradientFrom text-gradientFrom'
+            } pl-3 pr-3`}
+          >
+            <div className="pr-1">
+              <Near color={isSignedIn ? 'white' : '#00c6a2'} />
+            </div>
+            <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name">
+              {isSignedIn ? (
+                <span className="flex ml-1">
+                  {getAccountName(wallet.getAccountId())}
+                  <FiChevronDown className="text-base ml-1" />
                 </span>
-              </button>
-            )}
+              ) : (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowWalletSelector(true);
+
+                    setHover(false);
+                  }}
+                  type="button"
+                >
+                  <span className="ml-1 text-xs">
+                    <FormattedMessage
+                      id="connect_to_near"
+                      defaultMessage="Connect to NEAR"
+                    />
+                  </span>
+                </button>
+              )}
+            </div>
           </div>
+          {isSignedIn && hover ? (
+            <div className={`absolute top-14 pt-2 right-0 w-64 z-20`}>
+              <Card
+                className="menu-max-height cursor-default shadow-4xl  border border-primaryText"
+                width="w-64"
+                padding="py-4"
+              >
+                {accountList.map((item, index) => {
+                  return (
+                    <div
+                      onClick={item.click}
+                      key={item.textId + index}
+                      className={`flex items-center text-sm cursor-pointer font-semibold py-4 pl-7 hover:text-white hover:bg-navHighLightBg ${
+                        item.selected
+                          ? 'text-white bg-navHighLightBg'
+                          : 'text-primaryText'
+                      }`}
+                    >
+                      <label className="w-9 text-left cursor-pointer">
+                        {item.icon}
+                      </label>
+                      <label className="cursor-pointer">
+                        <FormattedMessage id={item.textId}></FormattedMessage>
+                      </label>
+                      {item.subIcon ? (
+                        <label className="text-lg ml-2">{item.subIcon}</label>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </Card>
+            </div>
+          ) : null}
         </div>
-        {wallet.isSignedIn() && hover ? (
-          <div className={`absolute top-14 pt-2 right-0 w-64 z-20`}>
-            <Card
-              className="menu-max-height cursor-default shadow-4xl  border border-primaryText"
-              width="w-64"
-              padding="py-4"
-            >
-              {accountList.map((item, index) => {
-                return (
-                  <div
-                    onClick={item.click}
-                    key={item.textId + index}
-                    className={`flex items-center text-sm cursor-pointer font-semibold py-4 pl-7 hover:text-white hover:bg-navHighLightBg ${
-                      item.selected
-                        ? 'text-white bg-navHighLightBg'
-                        : 'text-primaryText'
-                    }`}
-                  >
-                    <label className="w-9 text-left cursor-pointer">
-                      {item.icon}
-                    </label>
-                    <label className="cursor-pointer">
-                      <FormattedMessage id={item.textId}></FormattedMessage>
-                    </label>
-                    {item.subIcon ? (
-                      <label className="text-lg ml-2">{item.subIcon}</label>
-                    ) : null}
-                  </div>
-                );
-              })}
-            </Card>
-          </div>
-        ) : null}
       </div>
-    </div>
+    </>
   );
 }
 
@@ -336,6 +359,9 @@ function PoolsMenu() {
   const [hover, setHover] = useState(false);
   const history = useHistory();
 
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
   const links = [
     {
       label: <FormattedMessage id="view_pools" defaultMessage="View Pools" />,
@@ -354,7 +380,7 @@ function PoolsMenu() {
     },
   ];
 
-  if (wallet.isSignedIn()) {
+  if (isSignedIn) {
     links.push({
       label: (
         <FormattedMessage id="Your_Liquidity" defaultMessage="Your Liquidity" />
@@ -564,6 +590,10 @@ function MoreMenu() {
 
 function NavigationBar() {
   const [showWrapNear, setShowWrapNear] = useState(false);
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+  const [showWalletSelector, setShowWalletSelector] = useState(false);
+
   return (
     <>
       <div className="nav-wrap md:hidden xs:hidden text-center relative">
@@ -580,7 +610,7 @@ function NavigationBar() {
             <Anchor to="/risks" pattern="/risks" name="Risks" />
           </div>
           <div className="flex items-center justify-end flex-1">
-            {wallet.isSignedIn() && (
+            {isSignedIn && (
               <div className="text-white">
                 <div
                   className=" py-1 cursor-pointer items-center flex"
@@ -606,12 +636,27 @@ function NavigationBar() {
                 />
               </div>
             )}
-            <AccountEntry />
+            <AccountEntry
+              setShowWalletSelector={setShowWalletSelector}
+              showWalletSelector={showWalletSelector}
+            />
             <MoreMenu />
           </div>
         </nav>
       </div>
-      <MobileNavBar />
+      <MobileNavBar
+        isSignedIn={isSignedIn}
+        setShowWalletSelector={setShowWalletSelector}
+        showWalletSelector={showWalletSelector}
+      />
+      <WalletSelectorModal
+        setShowWalletSelector={setShowWalletSelector}
+        isOpen={showWalletSelector}
+        onRequestClose={() => {
+          window.location.reload();
+          setShowWalletSelector(false);
+        }}
+      />
     </>
   );
 }

@@ -40,9 +40,10 @@ import moment from 'moment';
 import BigNumber from 'bignumber.js';
 import _ from 'lodash';
 import { PoolMode } from './swap';
+import { getCurrentWallet } from '../utils/sender-wallet';
 const FEE_DIVISOR = 10000;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
-const STABLE_POOL_KEY = 'STABLE_POOL_VALUE';
+const STABLE_POOL_KEY = `STABLE_POOL_VALUE_${getConfig().STABLE_POOL_ID}`;
 const REF_FI_STABLE_Pool_INFO_KEY = 'REF_FI_STABLE_Pool_INFO_VALUE';
 const STABLE_POOL_RES_KEY = 'STABLE_POOL_RES_KEY';
 
@@ -270,20 +271,21 @@ export const instantSwapGetTransactions = async ({
   const tokenInActions: RefFiFunctionCallOptions[] = [];
   const tokenOutActions: RefFiFunctionCallOptions[] = [];
 
+  const { wallet, wallet_type } = getCurrentWallet();
+
   if (wallet.isSignedIn()) {
-    const tokenOutRegistered = await ftGetStorageBalance(
-      tokenOut.id,
-      wallet.getAccountId()
-    ).catch(() => {
-      throw new Error(`${tokenOut.id} doesn't exist.`);
-    });
+    const tokenOutRegistered = await ftGetStorageBalance(tokenOut.id).catch(
+      () => {
+        throw new Error(`${tokenOut.id} doesn't exist.`);
+      }
+    );
 
     if (!tokenOutRegistered || tokenOutRegistered.total === '0') {
       tokenOutActions.push({
         methodName: 'storage_deposit',
         args: {
           registration_only: true,
-          account_id: wallet.getAccountId(),
+          account_id: getCurrentWallet().wallet.getAccountId(),
         },
         gas: '30000000000000',
         amount: STORAGE_TO_REGISTER_WITH_MFT,
@@ -362,7 +364,7 @@ export const depositSwap = async ({
 export const checkTransaction = (txHash: string) => {
   return (near.connection.provider as JsonRpcProvider).sendJsonRpc(
     'EXPERIMENTAL_tx_status',
-    [txHash, wallet.getAccountId()]
+    [txHash, getCurrentWallet().wallet.getAccountId()]
   );
 };
 

@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Alert from '../alert/Alert';
 import SubmitButton from './SubmitButton';
 import { FormattedMessage } from 'react-intl';
 import SlippageSelector from './SlippageSelector';
 import { SwapRefresh, CountdownTimer } from '~components/icon';
 import { wallet } from '~services/near';
+import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 
 interface SwapFormWrapProps {
   title?: string;
@@ -62,11 +63,14 @@ export default function SwapFormWrap({
     !loadingTrigger && setShowSwapLoading(false);
   }, [loadingTrigger]);
 
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
 
-    if (wallet.isSignedIn()) {
+    if (isSignedIn) {
       try {
         setShowSwapLoading(true);
         setLoadingPause(true);
@@ -88,7 +92,10 @@ export default function SwapFormWrap({
             <FormattedMessage id={title} defaultMessage={title} />
             <div className="flex items-center">
               <div
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+
                   if (loadingPause) {
                     setLoadingPause(false);
                     setLoadingTrigger(true);

@@ -39,6 +39,7 @@ import {
   getExpectedOutputFromActions,
   getAverageFeeForRoutes,
 } from '~services/smartRouteLogic';
+import { getURLInfo, swapToast } from '~components/layout/transactionTipPopUp';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -74,18 +75,11 @@ export const useSwap = ({
   const [swapsToDo, setSwapsToDo] = useState<EstimateSwapView[]>();
 
   const [avgFee, setAvgFee] = useState<number>(0);
-  const { search } = useLocation();
+
   const history = useHistory();
   const [count, setCount] = useState<number>(0);
-  const txHashes = new URLSearchParams(search)
-    .get('transactionHashes')
-    ?.split(',');
 
-  const txHash = txHashes
-    ? txHashes.length > 1
-      ? txHashes[1]
-      : txHashes[0]
-    : '';
+  const { txHash, pathname, errorType } = getURLInfo();
 
   const minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
@@ -129,35 +123,9 @@ export const useSwap = ({
         })
         .then((isSwap) => {
           if (isSwap) {
-            toast(
-              <a
-                className="text-white"
-                href={`${getConfig().explorerUrl}/transactions/${txHash}`}
-                target="_blank"
-              >
-                <FormattedMessage
-                  id="swap_successful_click_to_view"
-                  defaultMessage="Swap successful. Click to view"
-                />
-              </a>,
-              {
-                autoClose: 8000,
-                closeOnClick: true,
-                hideProgressBar: false,
-                closeButton: <CloseIcon />,
-                progressStyle: {
-                  background: '#00FFD1',
-                  borderRadius: '8px',
-                },
-                style: {
-                  background: '#1D2932',
-                  boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
-                  borderRadius: '8px',
-                },
-              }
-            );
+            !errorType && swapToast(txHash);
           }
-          history.replace('');
+          history.replace(pathname);
         });
     }
   }, [txHash]);
@@ -275,17 +243,9 @@ export const useStableSwap = ({
   const [swapError, setSwapError] = useState<Error>();
   const [noFeeAmount, setNoFeeAmount] = useState<string>('');
   const [tokenInAmountMemo, setTokenInAmountMemo] = useState<string>('');
-  const { search } = useLocation();
   const history = useHistory();
-  const txHashes = new URLSearchParams(search)
-    .get('transactionHashes')
-    ?.split(',');
 
-  const txHash = txHashes
-    ? txHashes.length > 1
-      ? txHashes[1]
-      : txHashes[0]
-    : '';
+  const { txHash, pathname, errorType } = getURLInfo();
 
   const minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
@@ -352,35 +312,9 @@ export const useStableSwap = ({
         })
         .then((isSwap) => {
           if (isSwap) {
-            toast(
-              <a
-                className="text-white"
-                href={`${getConfig().explorerUrl}/transactions/${txHash}`}
-                target="_blank"
-              >
-                <FormattedMessage
-                  id="swap_successful_click_to_view"
-                  defaultMessage="Swap successful. Click to view"
-                />
-              </a>,
-              {
-                autoClose: 8000,
-                closeOnClick: true,
-                hideProgressBar: false,
-                closeButton: <CloseIcon />,
-                progressStyle: {
-                  background: '#00FFD1',
-                  borderRadius: '8px',
-                },
-                style: {
-                  background: '#1D2932',
-                  boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
-                  borderRadius: '8px',
-                },
-              }
-            );
+            !errorType && swapToast(txHash);
           }
-          history.replace('/stableswap');
+          history.replace(pathname);
         });
     }
   }, [txHash]);

@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  useContext,
+} from 'react';
 import { STABLE_TOKEN_IDS, wallet } from '../services/near';
 import {
   ftGetBalance,
@@ -21,6 +28,11 @@ import { toRealSymbol } from '../utils/token';
 import getConfig from '~services/config';
 import { nearMetadata } from '../services/wrap-near';
 import { Pool } from '../services/pool';
+import {
+  WalletContext,
+  getCurrentWallet,
+  WALLET_TYPE,
+} from '../utils/sender-wallet';
 
 export const useToken = (id: string) => {
   const [token, setToken] = useState<TokenMetadata>();
@@ -88,7 +100,7 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
         );
       })
       .then(setTokens);
-  }, []);
+  }, [getCurrentWallet().wallet.isSignedIn()]);
 
   return tokens;
 };
@@ -124,10 +136,13 @@ export const useUserRegisteredTokens = () => {
 
   return tokens;
 };
-export const useUserRegisteredTokensAllAndNearBalance = () => {
+export const useUserRegisteredTokensAllAndNearBalance = (
+  isSignedIn?: boolean
+) => {
   const [tokens, setTokens] = useState<any[]>();
 
   useEffect(() => {
+    if (!isSignedIn) return;
     getWhitelistedTokensAndNearTokens()
       .then((tokenList) => {
         const walletBalancePromise = Promise.all(
@@ -149,7 +164,7 @@ export const useUserRegisteredTokensAllAndNearBalance = () => {
         });
         setTokens(arr);
       });
-  }, []);
+  }, [isSignedIn]);
 
   return tokens;
 };
@@ -161,7 +176,7 @@ export const useTokenBalances = () => {
     getTokenBalances()
       .then(setBalances)
       .catch(() => setBalances({}));
-  }, []);
+  }, [getCurrentWallet().wallet.isSignedIn()]);
 
   return balances;
 };
@@ -187,12 +202,14 @@ export const getDepositableBalance = async (
   tokenId: string,
   decimals?: number
 ) => {
+  const { wallet, wallet_type } = getCurrentWallet();
+
   if (tokenId === 'NEAR') {
-    if (wallet.isSignedIn()) {
+    if (getCurrentWallet().wallet.isSignedIn()) {
       return wallet
         .account()
         .getAccountBalance()
-        .then(({ available }) => {
+        .then(({ available }: any) => {
           return toReadableNumber(decimals, available);
         });
     } else {
@@ -200,10 +217,10 @@ export const getDepositableBalance = async (
     }
   } else if (tokenId) {
     return ftGetBalance(tokenId)
-      .then((res) => {
+      .then((res: string) => {
         return toReadableNumber(decimals, res);
       })
-      .catch((res) => '0');
+      .catch((res: any) => '0');
   } else {
     return '';
   }
@@ -282,20 +299,26 @@ export const useDepositableBalance = (
 ) => {
   const [depositable, setDepositable] = useState<string>('');
   const [max, setMax] = useState<string>('');
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  const { wallet, wallet_type } = getCurrentWallet();
+
   useEffect(() => {
-    if (wallet.isSignedIn()) {
+    if (isSignedIn && wallet.account) {
       if (tokenId === 'NEAR') {
         wallet
           .account()
           .getAccountBalance()
-          .then(({ available }) => setDepositable(available));
+          .then(({ available }: any) => setDepositable(available));
       } else if (tokenId) {
         ftGetBalance(tokenId).then(setDepositable);
       }
     } else {
       setDepositable('0');
     }
-  }, [tokenId]);
+  }, [tokenId, isSignedIn, wallet_type, wallet.account]);
 
   useEffect(() => {
     const max = toReadableNumber(decimals, depositable) || '0';
