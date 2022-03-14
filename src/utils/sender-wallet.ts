@@ -116,16 +116,14 @@ function senderWalletFunc(window: Window) {
         // unknown error from near chain
         if (res?.error && res?.error?.type) {
           console.log(res?.error);
-
-          // window.location.href = addQueryParams(window.location.href, {
-          //   signInErrorType: res.error.type,
-          // });
-
           console.log(
             addQueryParams(window.location.href, {
               signInErrorType: res.error.type,
             })
           );
+          window.location.href = addQueryParams(window.location.href, {
+            signInErrorType: res.error.type,
+          });
         }
 
         // login success
