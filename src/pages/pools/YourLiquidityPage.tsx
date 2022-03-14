@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useMemo } from 'react';
 import { Card } from '~components/card/Card';
 import Alert from '~components/alert/Alert';
 import {
@@ -33,6 +33,8 @@ import { formatMessage } from '@formatjs/intl';
 import { TokenMetadata } from '~services/ft-contract';
 import { FarmDot } from '~components/icon';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
+import { usePoolTVL } from '../../state/pool';
+import { multiply, divide } from '../../utils/numbers';
 import {
   getCurrentWallet,
   WalletContext,
@@ -72,7 +74,7 @@ function MyShares({
 
   return (
     <div className="h-12 inline-flex flex-col justify-center xs:text-right md:text-right">
-      <div className="px-2 pb-1 xs:pr-0 md:pr-0 text-sm">{`${toRoundedReadableNumber(
+      <div className="pl-2 pb-1 xs:pr-0 md:pr-0 text-sm whitespace-nowrap">{`${toRoundedReadableNumber(
         {
           decimals: LP_TOKEN_DECIMALS,
           number: userTotalShare
@@ -158,7 +160,7 @@ export function YourLiquidityPage() {
   if (!pools || !balances) return <Loading />;
 
   return (
-    <div className="flex items flex-col lg:w-2/3 xl:w-1/2 md:w-5/6 xs:w-11/12 m-auto">
+    <div className="flex items flex-col lg:w-3/4 xl:w-2/3 md:w-5/6 xs:w-11/12 m-auto">
       <div className="w-full flex justify-center self-center">
         {error && <Alert level="warn" message={error.message} />}
       </div>
@@ -174,17 +176,21 @@ export function YourLiquidityPage() {
           <section>
             <div className="">
               <div
-                className="grid grid-cols-10 md:flex xs:flex md:items-center xs:items-center xs:justify-between md:justify-between py-2 content-center items-center text-xs text-primaryText pr-6 pl-6 lg:pl-10
+                className="grid grid-cols-12 md:flex xs:flex md:items-center xs:items-center xs:justify-between md:justify-between py-2 content-center items-center text-xs text-primaryText pr-6 pl-6 lg:pl-10
                 xs:border-b xs:border-gray-700 xs:border-opacity-70 md:border-b md:border-gray-700 md:border-opacity-70"
               >
                 <div className="col-span-2">
                   <FormattedMessage id="pair" defaultMessage="Pair" />
                 </div>
-                <div className="col-span-2 2xl:col-span-3">
+                <div className="col-span-2 ">
                   <FormattedMessage id="token" defaultMessage="Token" />
                 </div>
-                <div className="col-span-6 2xl:col-span-3 ml-8 2xl:ml-2">
-                  <FormattedMessage id="my_shares" defaultMessage="My Shares" />
+
+                <div className="col-span-3 text-left ml-10 xl:ml-14">
+                  <FormattedMessage id="my_shares" defaultMessage="Shares" />
+                </div>
+                <div className="col-span-5 xl:ml-6 ml-2">
+                  <FormattedMessage id="usd_value" defaultMessage="USD value" />
                 </div>
               </div>
               <div className="max-h-96 overflow-y-auto">
@@ -224,6 +230,9 @@ export function YourLiquidityPage() {
 
 function PoolRow(props: { pool: any; balance: string }) {
   const { pool, shares, stakeList } = usePool(props.pool.id);
+
+  const poolTVL = usePoolTVL(props.pool.id);
+
   const { balance } = props;
   const tokens = useTokens(pool?.tokenIds);
   const [showWithdraw, setShowWithdraw] = useState(false);
@@ -252,6 +261,21 @@ function PoolRow(props: { pool: any; balance: string }) {
   const userTotalShareToString = userTotalShare
     .toNumber()
     .toLocaleString('fullwide', { useGrouping: false });
+
+  const usdValue = useMemo(() => {
+    try {
+      if (!userTotalShareToString || typeof poolTVL !== 'number' || !pool)
+        return '-';
+
+      const rawRes = multiply(
+        userTotalShareToString,
+        divide(poolTVL.toString(), pool.shareSupply)
+      );
+      return `$${toInternationalCurrencySystem(rawRes, 2)}`;
+    } catch (error) {
+      return '-';
+    }
+  }, [poolTVL, userTotalShareToString, pool]);
 
   if (!pool || !tokens || tokens.length < 2) return <div />;
 
@@ -306,15 +330,15 @@ function PoolRow(props: { pool: any; balance: string }) {
     <>
       {/* PC */}
       <Link
-        className="xs:hidden md:hidden grid grid-cols-10 py-5 content-center items-center text-sm text-white pl-10 pr-6 border-t border-gray-700 border-opacity-70 cursor-pointer"
+        className="xs:hidden md:hidden grid grid-cols-12 py-5 content-center items-center text-sm text-white pl-10 pr-6 border-t border-gray-700 border-opacity-70 cursor-pointer"
         to={{ pathname: `/pool/${pool.id}` }}
       >
         <div className="col-span-2 inline-flex items-center">
           <div className="w-16 flex items-center ml-1">{Images}</div>
         </div>
 
-        <div className="col-span-2 2xl:col-span-3 inline-flex flex-col text-xs">
-          <div className="inline-flex items-center justify-between my-1 w-32">
+        <div className="col-span-2 inline-flex flex-col text-xs">
+          <div className="inline-flex items-center justify-between my-1 w-28">
             <div className="font-semibold">
               {toRealSymbol(tokens[0].symbol)}
             </div>
@@ -322,7 +346,7 @@ function PoolRow(props: { pool: any; balance: string }) {
               {tokenAmountShare(pool, tokens[0], userTotalShareToString)}
             </div>
           </div>
-          <div className="inline-flex items-center justify-between my-1 w-32">
+          <div className="inline-flex items-center justify-between my-1 w-28">
             <div className="col-span-3 font-semibold">
               {toRealSymbol(tokens[1].symbol)}
             </div>
@@ -332,7 +356,7 @@ function PoolRow(props: { pool: any; balance: string }) {
           </div>
         </div>
 
-        <div className="col-span-3 2xl:col-span-2 text-left ml-6 2xl:ml-0">
+        <div className="col-span-3  text-left pl-8 xl:pl-12">
           <MyShares
             shares={shares}
             totalShares={pool.shareSupply}
@@ -344,6 +368,9 @@ function PoolRow(props: { pool: any; balance: string }) {
             farmStake={farmStake}
           />
         </div>
+
+        <div className="col-span-2 text-left ml-4 xl:ml-8">{usdValue}</div>
+
         <div className="flex items-center justify-end 2xl:justify-center text-center  col-span-3 ">
           <div className="flex items-center">
             <SolidButton
@@ -422,7 +449,15 @@ function PoolRow(props: { pool: any; balance: string }) {
               />
             </div>
           </div>
-          <div className="mt-4 flex items-center justify-center px-6">
+
+          <div className="flex border-b justify-between border-gray-700 border-opacity-70 p-6">
+            <div className="text-gray-400 text-sm">
+              <FormattedMessage id="value" defaultMessage="Value" />
+            </div>
+            <div>{usdValue}</div>
+          </div>
+
+          <div className="mt-4 flex items-center justify-center px-6 py-2">
             <div className="">
               <SolidButton
                 onClick={(e) => {
