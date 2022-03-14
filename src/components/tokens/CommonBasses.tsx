@@ -48,7 +48,7 @@ export default function CommonBasses({
 
           return (
             <div
-              className="mt-2 hover:bg-black hover:bg-opacity-10 rounded-full pr-3 pl-1 py-1 cursor-pointer flex items-center"
+              className="mt-3 hover:bg-black hover:bg-opacity-10 rounded-full pr-3 pl-1 py-1 cursor-pointer flex items-center"
               key={token.id}
               onClick={() => onClick && onClick(token)}
               style={{
