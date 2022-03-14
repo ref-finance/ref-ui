@@ -35,6 +35,7 @@ export const senderSignedInToast = (errorType?: string) => {
         boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
         borderRadius: '8px',
       },
+      className: 'sender-login-fail-toast',
     }
   );
 };

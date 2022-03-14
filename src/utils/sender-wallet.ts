@@ -121,7 +121,13 @@ function senderWalletFunc(window: Window) {
         }
 
         // login success
-        !res?.error && saveSenderLoginRes();
+        if (!res?.error) {
+          saveSenderLoginRes();
+          document
+            .getElementsByClassName('sender-login-fail-toast')[0]
+            .setAttribute('style', 'display:none');
+        }
+
         return res;
       });
   };
