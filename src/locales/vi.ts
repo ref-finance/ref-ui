@@ -384,5 +384,6 @@ const vi = {
   Type: 'Kiểu',
   click_to_view: 'Nhấn để xem',
   transaction_failed: 'Giao dịch thất bại',
+  create: 'Tạo',
 };
 export default vi;

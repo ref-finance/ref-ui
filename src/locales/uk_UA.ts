@@ -357,5 +357,6 @@ const uk_UA = {
   mulitple: 'Декілька',
   default: 'За замовчуванням',
   vi_go_live: 'Доступна В&apos;єтнамська мова!',
+  create: 'Творити',
 };
 export default uk_UA;
