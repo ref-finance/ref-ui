@@ -307,8 +307,8 @@ export async function getHybridStableSmart(
 ) {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
   let pool1, pool2;
-  let stablePool;
-  let stablePoolInfo;
+  let stablePool: any;
+  let stablePoolInfo: any;
 
   const bothStableCoin =
     STABLE_TOKEN_IDS.includes(tokenIn.id) &&
@@ -413,17 +413,55 @@ export async function getHybridStableSmart(
     }
   }
   if (candidatePools.length > 0) {
+    const tokensMedata = await ftGetTokensMetadata(
+      candidatePools.map((cp) => cp.map((p) => p.tokenIds).flat()).flat()
+    );
+
     const BestPoolPair = _.maxBy(candidatePools, (poolPair) => {
-      const tokenInSupply = toReadableNumber(
-        tokenIn.decimals,
-        poolPair[0].supplies[tokenIn.id]
-      );
-      const tokenOutSupply = toReadableNumber(
-        tokenOut.decimals,
-        poolPair[1].supplies[tokenOut.id]
+      const [tmpPool1, tmpPool2] = poolPair;
+      const tokenMidId = poolPair[0].tokenIds.find((t: string) =>
+        poolPair[1].tokenIds.includes(t)
       );
 
-      return Number(new Big(tokenInSupply).times(new Big(tokenOutSupply)));
+      const tokenMidMeta = tokensMedata[tokenMidId];
+
+      const estimate1 = {
+        ...(tmpPool1.id === Number(STABLE_POOL_ID)
+          ? getStablePoolEstimate({
+              tokenIn,
+              tokenOut: tokenMidMeta,
+              amountIn,
+              stablePoolInfo,
+              stablePool,
+            })
+          : getSinglePoolEstimate(
+              tokenIn,
+              tokenMidMeta,
+              tmpPool1,
+              parsedAmountIn
+            )),
+        status: PoolMode.SMART,
+      };
+
+      const estimate2 = {
+        ...(tmpPool2.id === Number(STABLE_POOL_ID)
+          ? getStablePoolEstimate({
+              tokenIn: tokenMidMeta,
+              tokenOut,
+              amountIn: estimate1.estimate,
+              stablePoolInfo,
+              stablePool,
+            })
+          : getSinglePoolEstimate(
+              tokenMidMeta,
+              tokenOut,
+              tmpPool2,
+              toNonDivisibleNumber(tokenMidMeta.decimals, estimate1.estimate)
+            )),
+        status: PoolMode.SMART,
+      };
+
+      return Number(estimate2.estimate);
     });
     [pool1, pool2] = BestPoolPair;
 
@@ -463,6 +501,7 @@ export async function getHybridStableSmart(
           )),
       status: PoolMode.SMART,
     };
+
     console.log('series estimates are...', [estimate1, estimate2]);
 
     return { actions: [estimate1, estimate2], estimate: estimate2.estimate };
