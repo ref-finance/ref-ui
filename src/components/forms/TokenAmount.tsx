@@ -103,7 +103,7 @@ export default function TokenAmount({
       <div
         className={`flex items-center ${
           forSwap ? 'justify-between pl-2' : 'justify-end'
-        } text-xs font-semibold pb-0.5 w-3/5`}
+        } text-xs font-semibold pb-0.5 w-3/5 ${forSwap ? 'xs:w-full' : ''} `}
       >
         <span className="text-primaryText">
           {useNearBalance ? (
