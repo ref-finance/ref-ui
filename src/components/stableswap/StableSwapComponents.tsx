@@ -11,7 +11,11 @@ import {
   FaExchangeAlt,
   FaServicestack,
 } from 'react-icons/fa';
-import { SwapDetail, SwapRateDetail } from '~components/swap/SwapCard';
+import {
+  PriceImpactWarning,
+  SwapDetail,
+  SwapRateDetail,
+} from '~components/swap/SwapCard';
 import { toRealSymbol } from '~utils/token';
 import { WarnTriangle, ErrorTriangle } from '~components/icon/SwapRefresh';
 import { StableSwapExchangePC, SwapExchange } from '../icon/Arrows';
@@ -330,6 +334,11 @@ export function DetailView({
           tokenIn={tokenIn}
           tokenOut={tokenOut}
         />
+        {Number(priceImpactValue) > 2 && (
+          <div className="py-1 text-xs text-right">
+            <PriceImpactWarning value={priceImpactValue} />
+          </div>
+        )}
         <SwapDetail
           title={intl.formatMessage({
             id: 'price_impact',
