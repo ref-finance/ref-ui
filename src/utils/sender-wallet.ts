@@ -162,6 +162,7 @@ function senderWalletFunc(window: Window) {
       })
       .then((res: any) => {
         setCallbackUrl(res);
+        return res;
       });
   };
 
@@ -188,6 +189,7 @@ function senderWalletFunc(window: Window) {
       })
       .then((res: any) => {
         setCallbackUrl(res);
+        return res;
       });
   };
 

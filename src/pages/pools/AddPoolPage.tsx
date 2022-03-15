@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Card } from '~components/card/Card';
 import { useWhitelistTokens, useTokenBalances } from '~state/token';
 import Loading from '~components/layout/Loading';
@@ -18,6 +18,8 @@ import BigNumber from 'bignumber.js';
 import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import { getURLInfo } from '../../components/layout/transactionTipPopUp';
+import { checkTransactionStatus, checkTransaction } from '~services/swap';
 
 export function AddPoolPage() {
   const tokens = useWhitelistTokens();
@@ -51,6 +53,17 @@ export function AddPoolPage() {
       percent: '4',
     },
   };
+
+  const { txHash, pathname, errorType } = getURLInfo();
+
+  useEffect(() => {
+    if (txHash) {
+      checkTransaction(txHash).then((res) => {
+        console.log(res);
+      });
+    }
+  }, [txHash]);
+
   if (!tokens || !balances) return <Loading />;
 
   const render = (token: TokenMetadata) => {
