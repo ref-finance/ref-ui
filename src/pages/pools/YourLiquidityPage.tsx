@@ -362,6 +362,22 @@ function PoolRow(props: { pool: any }) {
     );
   };
 
+  const TokensSymbolsMobile = ({ tokens }: { tokens: TokenMetadata[] }) => {
+    return (
+      <div className="text-xs font-semibold">
+        {tokens.map((token, i) => {
+          return (
+            <>
+              {i ? '-' : ''}
+
+              {toRealSymbol(token.symbol)}
+            </>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <>
       {/* PC */}
@@ -446,7 +462,7 @@ function PoolRow(props: { pool: any }) {
           <div className="flex items-center pb-4 border-b border-gray-700 border-opacity-70 px-6">
             <div className="ml-1 mr-4 flex items-center">{Images}</div>
             <div className="text-xs font-semibold">
-              {toRealSymbol(tokens[0].symbol)}-{toRealSymbol(tokens[1].symbol)}
+              <TokensSymbolsMobile tokens={tokens} />
             </div>
           </div>
           <div className="flex flex-col text-sm border-b border-gray-700 border-opacity-70 px-6">
