@@ -169,6 +169,7 @@ const getStablePoolEstimate = ({
     pool: stablePool,
     token: tokenIn,
     outputToken: tokenOut.id,
+    inputToken: tokenIn.id,
   };
 };
 
@@ -204,6 +205,7 @@ const getSinglePoolEstimate = (
     estimate,
     pool,
     outputToken: tokenOut.id,
+    inputToken: tokenIn.id,
   };
 };
 
@@ -499,6 +501,7 @@ export async function getHybridStableSmart(
             pool2,
             toNonDivisibleNumber(tokenMidMeta.decimals, estimate1.estimate)
           )),
+
       status: PoolMode.SMART,
     };
 
@@ -932,5 +935,12 @@ export const checkTransaction = (txHash: string) => {
   return (near.connection.provider as JsonRpcProvider).sendJsonRpc(
     'EXPERIMENTAL_tx_status',
     [txHash, getCurrentWallet().wallet.getAccountId()]
+  );
+};
+
+export const checkTransactionStatus = (txHash: string) => {
+  return near.connection.provider.txStatus(
+    txHash,
+    getCurrentWallet().wallet.getAccountId()
   );
 };
