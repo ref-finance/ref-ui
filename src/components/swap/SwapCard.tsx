@@ -496,9 +496,8 @@ function DetailView({
           />
         )}
         {!isParallelSwap &&
-          swapsTodo.every((e) => e.status !== PoolMode.SMART) && (
-            <SmartRoutesV2Detail swapsTodo={swapsTodo} />
-          )}
+          swapsTodo.every((e) => e.status !== PoolMode.SMART) &&
+          pools.length > 1 && <SmartRoutesV2Detail swapsTodo={swapsTodo} />}
       </div>
     </div>
   );
