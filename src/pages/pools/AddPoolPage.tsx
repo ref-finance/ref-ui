@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Card } from '~components/card/Card';
 import { useWhitelistTokens, useTokenBalances } from '~state/token';
 import Loading from '~components/layout/Loading';
@@ -18,6 +18,10 @@ import BigNumber from 'bignumber.js';
 import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import { getURLInfo } from '../../components/layout/transactionTipPopUp';
+import { checkTransactionStatus } from '../../services/swap';
+import { decodeBase64 } from 'lzutf8';
+import { useHistory } from 'react-router-dom';
 
 export function AddPoolPage() {
   const tokens = useWhitelistTokens();
@@ -31,6 +35,24 @@ export function AddPoolPage() {
   const [buttonLoading, setButtonLoading] = useState(false);
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
+  const history = useHistory();
+
+  const { txHash } = getURLInfo();
+
+  useEffect(() => {
+    if (txHash) {
+      checkTransactionStatus(txHash).then((res) => {
+        console.log(res);
+        const status: any = res.status;
+        const data: string | undefined = status.SuccessValue;
+        if (data) {
+          const buff = Buffer.from(data, 'base64');
+          const pool_id = buff.toString('ascii');
+          history.push(`/pool/${pool_id}`);
+        }
+      });
+    }
+  }, [txHash]);
 
   const tip: any = {
     moreThan: intl.formatMessage({ id: 'more_than' }),
