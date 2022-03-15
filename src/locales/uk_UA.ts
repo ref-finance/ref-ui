@@ -369,7 +369,7 @@ const uk_UA = {
   swap_rate_including_fee: 'Ставка свопу (включаючи комісії)',
   by_share: 'За часткою',
   by_token: 'За токеном',
-  your_liquidity_positions_will_appear_here:
+  your_positions_will_be_displayed_here:
     'Ваші позиції ліквідності з&apos;являться тут.',
   price_impact: 'Вплив ціни',
   shares_left: 'Частки, які залишились',

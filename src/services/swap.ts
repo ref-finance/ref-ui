@@ -44,6 +44,7 @@ import {
   getPool,
   getStablePool,
   StablePool,
+  getStablePoolFromCache,
 } from './pool';
 import {
   checkTokenNeedsStorageDeposit,
@@ -60,13 +61,12 @@ import { BigNumber } from 'bignumber.js';
 import _, { filter } from 'lodash';
 import { getSwappedAmount } from './stable-swap';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
+import { getCurrentWallet } from '../utils/sender-wallet';
 
 // Big.strict = false;
 const FEE_DIVISOR = 10000;
 const LP_THERESHOLD = 0.001;
 const MAXIMUM_NUMBER_OF_POOLS = 5;
-const STABLE_POOL_KEY = 'STABLE_POOL_VALUE';
-const REF_FI_STABLE_Pool_INFO_KEY = 'REF_FI_STABLE_Pool_INFO_VALUE';
 
 export enum PoolMode {
   PARALLEL = 'parallel swap',
@@ -262,17 +262,7 @@ export const estimateSwap = async ({
     STABLE_TOKEN_IDS.includes(tokenIn.id) ||
     STABLE_TOKEN_IDS.includes(tokenOut.id)
   ) {
-    [stablePool, stablePoolInfo] = await Promise.all([
-      JSON.parse(localStorage.getItem(STABLE_POOL_KEY)) ||
-        (await getPool(Number(STABLE_POOL_ID))),
-      JSON.parse(localStorage.getItem(REF_FI_STABLE_Pool_INFO_KEY)) ||
-        (await getStablePool(Number(STABLE_POOL_ID))),
-    ]);
-    localStorage.setItem(STABLE_POOL_KEY, JSON.stringify(stablePool));
-    localStorage.setItem(
-      REF_FI_STABLE_Pool_INFO_KEY,
-      JSON.stringify(stablePoolInfo)
-    );
+    [stablePool, stablePoolInfo] = await getStablePoolFromCache();
   }
 
   const candidatePools = [];
@@ -481,11 +471,10 @@ SwapOptions) => {
   const tokenInActions: RefFiFunctionCallOptions[] = [];
   const tokenOutActions: RefFiFunctionCallOptions[] = [];
 
+  const { wallet, wallet_type } = getCurrentWallet();
+
   const registerToken = async (token: TokenMetadata) => {
-    const tokenRegistered = await ftGetStorageBalance(
-      token.id,
-      wallet.getAccountId()
-    ).catch(() => {
+    const tokenRegistered = await ftGetStorageBalance(token.id).catch(() => {
       throw new Error(`${token.id} doesn't exist.`);
     });
 
@@ -494,7 +483,7 @@ SwapOptions) => {
         methodName: 'storage_deposit',
         args: {
           registration_only: true,
-          account_id: wallet.getAccountId(),
+          account_id: getCurrentWallet().wallet.getAccountId(),
         },
         gas: '30000000000000',
         amount: STORAGE_TO_REGISTER_WITH_MFT,
@@ -565,6 +554,7 @@ SwapOptions) => {
         },
         gas: '180000000000000',
         amount: ONE_YOCTO_NEAR,
+        // deposit: '1',
       });
 
       transactions.push({
@@ -746,6 +736,6 @@ SwapOptions) => {
 export const checkTransaction = (txHash: string) => {
   return (near.connection.provider as JsonRpcProvider).sendJsonRpc(
     'EXPERIMENTAL_tx_status',
-    [txHash, wallet.getAccountId()]
+    [txHash, getCurrentWallet().wallet.getAccountId()]
   );
 };

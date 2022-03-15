@@ -373,7 +373,7 @@ const vi = {
   swap_rate_including_fee: 'Tỷ lệ giao dịch (bao gồm phí)',
   by_share: 'Tính theo Share',
   by_token: 'Tính theo Token',
-  your_liquidity_positions_will_appear_here:
+  your_positions_will_be_displayed_here:
     'Số thanh khoản của bạn sẽ xuất hiện ở đây .',
   price_impact: 'Tác động giá',
   shares_left: 'Shares left',
@@ -488,5 +488,28 @@ const vi = {
   lightning_swaps: 'Giao dịch tức thời',
   frictionless_add_remove_liquidity: 'Thêm/ Xóa thanh khoản mượt mà hơn',
   create: 'tạo ra',
+    'Các hành động thêm / xóa thanh khoản không ma sát',
+  select_a: 'Chọn một',
+  wallet_vi: 'ví',
+  wallet: ' ',
+  to_use_ref_finance: 'để sử dụng Ref.Finance',
+  not_supported: 'không hỗ trợ',
+  installed: 'đã cài đặt',
+  installe_now: 'cài đặt ngay',
+  extension: 'mở rộng',
+  first_time_using_ref: 'Lần đầu sử dụng Ref',
+  learn_more: 'Tìm hiểu ngay',
+  install_sender_now: 'Cài đặt Sender ngay',
+  connect_to_dapps_with_one_click: 'Kết nối tới dApps với một cú click',
+  install: 'Cài đặt',
+  Connecting: 'Đang kết nối',
+  check_sender_wallet_extension: 'Hãy kiểm tra Sender Wallet Extention',
+  having_trouble: 'Gặp lỗi?',
+  go_back: 'Quay lại',
+  web: 'Web',
+  Type: 'Kiểu',
+  click_to_view: 'Nhấn để xem',
+  transaction_failed: 'Giao dịch thất bại',
+>>>>>>> main
 };
 export default Object.assign(vi, vi_in_risks_page);
