@@ -24,10 +24,10 @@ function sort(a: any, b: any) {
     return a;
   }
 }
-export function tokenPrice(price: string) {
+export function tokenPrice(price: string, error?: boolean) {
   return (
     <span className="text-xs text-primaryText">
-      {`$${toPrecision(price, 2)}`}
+      {`$${error || !price ? '-' : toPrecision(price, 2)}`}
     </span>
   );
 }

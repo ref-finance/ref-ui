@@ -672,6 +672,10 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     else makeSwap(useNearBalance);
   };
 
+  const isError = useMemo(() => {
+    return !canSwap || tokenIn.id === tokenOut.id;
+  }, [tokenOutAmount, tokenIn, tokenOut]);
+
   return (
     <>
       <Guide
@@ -730,6 +734,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         }}
       >
         <TokenAmount
+          forSwap
           amount={tokenInAmount}
           total={tokenInMax}
           max={tokenInMax}
@@ -747,6 +752,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           onChangeAmount={(amount) => {
             setTokenInAmount(amount);
           }}
+          isError={isError}
         />
         <div
           className="flex items-center justify-center border-t mt-12"
@@ -761,6 +767,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           />
         </div>
         <TokenAmount
+          forSwap
           amount={toPrecision(tokenOutAmount, 8)}
           total={tokenOutTotal}
           tokens={allTokens}
@@ -774,6 +781,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
             setTokenOut(token);
             setTokenOutBalanceFromNear(token.near.toString());
           }}
+          isError={isError}
         />
         <DetailView
           pools={pools}
