@@ -365,5 +365,6 @@ const zh_CN = {
   wallet_vi: ' ',
   value: '价值',
   usd_value: '美元价值',
+  create: '创建',
 };
 export default zh_CN;

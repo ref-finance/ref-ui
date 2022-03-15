@@ -22,6 +22,7 @@ import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { checkTransactionStatus } from '../../services/swap';
 import { decodeBase64 } from 'lzutf8';
 import { useHistory } from 'react-router-dom';
+import { getTokenPriceList } from '../../services/indexer';
 
 export function AddPoolPage() {
   const tokens = useWhitelistTokens();
@@ -39,8 +40,16 @@ export function AddPoolPage() {
 
   const { txHash } = getURLInfo();
 
+  const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    getTokenPriceList().then(setTokenPriceList);
+  }, []);
+
   useEffect(() => {
     if (txHash) {
+      console.log(txHash);
+
       checkTransactionStatus(txHash).then((res) => {
         console.log(res);
         const status: any = res.status;
@@ -169,6 +178,7 @@ export function AddPoolPage() {
               selected={token1 && <Selected token={token1} />}
               onSelect={setToken1}
               balances={balances}
+              tokenPriceList={tokenPriceList}
             />
           </div>
           <div className="w-full lg:ml-1">
@@ -183,6 +193,7 @@ export function AddPoolPage() {
               selected={token2 && <Selected token={token2} />}
               onSelect={setToken2}
               balances={balances}
+              tokenPriceList={tokenPriceList}
             />
           </div>
         </div>
@@ -283,10 +294,7 @@ export function AddPoolPage() {
               <ButtonTextWrapper
                 loading={buttonLoading}
                 Text={() => (
-                  <FormattedMessage
-                    id="add_liquidity"
-                    defaultMessage="Add Liquidity"
-                  />
+                  <FormattedMessage id="create" defaultMessage="Create" />
                 )}
               />
             </button>

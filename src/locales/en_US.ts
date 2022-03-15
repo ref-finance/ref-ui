@@ -379,5 +379,6 @@ const en_US = {
   wallet_vi: ' ',
   value: 'Value',
   usd_value: 'USD value',
+  create: 'Create',
 };
 export default en_US;

@@ -367,11 +367,11 @@ function PoolRow(props: { pool: any }) {
       <div className="text-xs font-semibold">
         {tokens.map((token, i) => {
           return (
-            <>
+            <span key={i}>
               {i ? '-' : ''}
 
               {toRealSymbol(token.symbol)}
-            </>
+            </span>
           );
         })}
       </div>
@@ -390,8 +390,8 @@ function PoolRow(props: { pool: any }) {
         </div>
 
         <div className="col-span-2 inline-flex flex-col text-xs">
-          {tokens.map((token) => (
-            <TokenInfoPC token={token} />
+          {tokens.map((token, i) => (
+            <TokenInfoPC key={i} token={token} />
           ))}
         </div>
 
@@ -466,8 +466,8 @@ function PoolRow(props: { pool: any }) {
             </div>
           </div>
           <div className="flex flex-col text-sm border-b border-gray-700 border-opacity-70 px-6">
-            {tokens.map((token) => (
-              <TokenInfoMobile token={token} />
+            {tokens.map((token, i) => (
+              <TokenInfoMobile key={i} token={token} />
             ))}
           </div>
 

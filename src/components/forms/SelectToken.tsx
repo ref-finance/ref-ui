@@ -90,6 +90,7 @@ export default function SelectToken({
   standalone,
   placeholder,
   balances,
+  tokenPriceList,
 }: {
   tokens: TokenMetadata[];
   selected: string | React.ReactElement;
@@ -99,6 +100,7 @@ export default function SelectToken({
   onSelect?: (token: TokenMetadata) => void;
   onSearch?: (value: string) => void;
   balances?: TokenBalancesView;
+  tokenPriceList?: Record<string, any>;
 }) {
   const [visible, setVisible] = useState(false);
   const [listData, setListData] = useState<TokenMetadata[]>([]);
@@ -106,12 +108,6 @@ export default function SelectToken({
   const [sortBy, setSortBy] = useState<string>('near');
   const [showCommonBasses, setShowCommonBasses] = useState<boolean>(true);
   const addToken = () => <AddToken />;
-
-  const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
-
-  useEffect(() => {
-    if (visible) [getTokenPriceList().then(setTokenPriceList)];
-  }, [visible]);
 
   if (!onSelect) {
     return (

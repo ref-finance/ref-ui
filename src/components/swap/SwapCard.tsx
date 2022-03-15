@@ -78,6 +78,7 @@ import { senderWallet, WalletContext } from '../../utils/sender-wallet';
 import { SwapArrow, SwapExchange } from '../icon/Arrows';
 import { getPoolAllocationPercents } from '../../utils/numbers';
 import { DoubleCheckModal } from '~components/layout/SwapDoubleCheck';
+import { getTokenPriceList } from '../../services/indexer';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -537,6 +538,12 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     Number(localStorage.getItem(SWAP_SLIPPAGE_KEY) || urlSlippageTolerance) ||
       0.5
   );
+  const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    getTokenPriceList().then(setTokenPriceList);
+  }, []);
+
   useEffect(() => {
     const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
     const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
@@ -751,6 +758,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           onChangeAmount={(amount) => {
             setTokenInAmount(amount);
           }}
+          tokenPriceList={tokenPriceList}
           isError={isError}
         />
         <div
@@ -781,6 +789,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
             setTokenOutBalanceFromNear(token.near.toString());
           }}
           isError={isError}
+          tokenPriceList={tokenPriceList}
         />
         <DetailView
           pools={pools}

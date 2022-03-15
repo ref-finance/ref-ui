@@ -33,6 +33,7 @@ interface TokenAmountProps {
   useNearBalance?: boolean;
   forSwap?: boolean;
   isError?: boolean;
+  tokenPriceList?: Record<string, any>;
 }
 
 function HalfAndMaxAmount({
@@ -85,6 +86,7 @@ export default function TokenAmount({
   useNearBalance,
   forSwap,
   isError,
+  tokenPriceList,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) =>
     toRoundedReadableNumber({
@@ -94,14 +96,7 @@ export default function TokenAmount({
 
   const [hoverSelectToken, setHoverSelectToken] = useState<boolean>(false);
 
-  const [tokenPrice, setTokenPrice] = useState<string>();
-
-  useEffect(() => {
-    if (selectedToken && forSwap)
-      currentTokensPrice([selectedToken.id].join('|')).then((res) => {
-        setTokenPrice(res[0].toString());
-      });
-  }, [selectedToken]);
+  const tokenPrice = tokenPriceList?.[selectedToken?.id]?.price || null;
 
   return (
     <>
@@ -150,6 +145,7 @@ export default function TokenAmount({
         />
         {showSelectToken && (
           <SelectToken
+            tokenPriceList={tokenPriceList}
             tokens={tokens}
             render={render}
             selected={
