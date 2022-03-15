@@ -488,7 +488,6 @@ const vi = {
   lightning_swaps: 'Giao dịch tức thời',
   frictionless_add_remove_liquidity: 'Thêm/ Xóa thanh khoản mượt mà hơn',
   create: 'tạo ra',
-    'Các hành động thêm / xóa thanh khoản không ma sát',
   select_a: 'Chọn một',
   wallet_vi: 'ví',
   wallet: ' ',
