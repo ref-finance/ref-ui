@@ -64,7 +64,7 @@ export function SingleToken({
         <div
           style={{
             position: 'relative',
-            top: `${price ? '3px' : ''}`,
+            top: `${price ? '2px' : ''}`,
           }}
         >
           {toRealSymbol(token.symbol)}
@@ -72,7 +72,7 @@ export function SingleToken({
         <span
           style={{
             position: 'relative',
-            bottom: `${price ? '3px' : ''}`,
+            bottom: `${price ? '2px' : ''}`,
           }}
         >
           {price ? tokenPrice(price) : null}
