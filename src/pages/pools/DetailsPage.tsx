@@ -1351,7 +1351,7 @@ export function PoolDetailsPage() {
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
   if (isStablePool(pool)) {
-    history.push('/stableswap');
+    history.push('/stableswap', { stableTab: 'stable_swap' });
   }
 
   return (

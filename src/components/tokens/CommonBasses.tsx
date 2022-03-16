@@ -24,6 +24,7 @@ const COMMON_BASSES = [
   'AURORA',
   'ETH',
   'DAI',
+  'WBTC',
   // 'FLX',
 ];
 
