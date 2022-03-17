@@ -562,7 +562,7 @@ export async function getHybridStableSmart(
     const tokenMidMeta = await ftGetTokenMetadata(tokenMidId);
 
     const estimate1 = {
-      ...(pool1.id === Number(STABLE_POOL_ID)
+      ...(isStablePool(pool1.id)
         ? getStablePoolEstimate({
             tokenIn,
             tokenOut: tokenMidMeta,
@@ -575,7 +575,7 @@ export async function getHybridStableSmart(
     };
 
     const estimate2 = {
-      ...(pool2.id === Number(STABLE_POOL_ID)
+      ...(isStablePool(pool2.id)
         ? getStablePoolEstimate({
             tokenIn: tokenMidMeta,
             tokenOut,
