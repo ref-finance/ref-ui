@@ -444,7 +444,7 @@ export const claimAndWithDrawReward = async (
   return executeFarmMultipleTransactions(transactions);
 };
 export const classificationOfCoins = {
-  stablecoin: ['USDT', 'USDC', 'DAI', 'nUSDO', 'cUSD'],
+  stablecoin: ['USDT', 'USDC', 'DAI', 'nUSDO', 'cUSD', 'USN'],
   near_ecosystem: [
     'REF',
     'STNEAR',
