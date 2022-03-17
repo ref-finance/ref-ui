@@ -276,7 +276,7 @@ export const getAllPools = async (
 interface GetPoolOptions {
   tokenInId: string;
   tokenOutId: string;
-  amountIn: string;
+  amountIn?: string;
   setLoadingTrigger?: (loadingTrigger: boolean) => void;
   setLoadingData?: (loading: boolean) => void;
   loadingTrigger: boolean;

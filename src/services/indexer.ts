@@ -1,5 +1,5 @@
 import getConfig from './config';
-import { wallet, isStablePool } from './near';
+import { wallet, isStablePool, STABLE_TOKEN_USN_IDS } from './near';
 import _ from 'lodash';
 import { parsePoolView, PoolRPCView, getCurrentUnixTime } from './api';
 import moment from 'moment/moment';
@@ -7,6 +7,7 @@ import { parseAction } from '../services/transaction';
 import { volumeType, TVLType } from '~state/pool';
 import db from '../store/RefDatabase';
 import { getCurrentWallet } from '../utils/sender-wallet';
+import { getPoolsByTokens } from './pool';
 const config = getConfig();
 
 export const getPoolMonthVolume = async (
@@ -82,6 +83,23 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
         method: 'GET',
         headers: { 'Content-type': 'application/json; charset=UTF-8' },
       }).then((res) => res.json());
+
+      const twoTokenStablePoolIds = (
+        await getPoolsByTokens({
+          tokenInId: STABLE_TOKEN_USN_IDS[0],
+          tokenOutId: STABLE_TOKEN_USN_IDS[1],
+          loadingTrigger: false,
+        })
+      ).map((p) => p.id.toString());
+
+      const twoTokenStablePools = await getPoolsByIds({
+        pool_ids: twoTokenStablePoolIds,
+      });
+
+      if (twoTokenStablePools.length > 1) {
+        pools.push(_.maxBy(twoTokenStablePools, (p) => p.tvl));
+      }
+
       await db.cacheTopPools(pools);
     }
 
