@@ -12,8 +12,8 @@ import InputAmount from './InputAmount';
 import SelectToken from './SelectToken';
 import { toPrecision, multiply } from '../../utils/numbers';
 import { FormattedMessage } from 'react-intl';
-import { SmallWallet } from '~components/icon/SmallWallet';
-import { RefIcon } from '~components/icon/Common';
+import { SmallWallet } from '../../components/icon/SmallWallet';
+import { RefIcon } from '../../components/icon/Common';
 import { currentTokensPrice } from '../../services/api';
 
 interface TokenAmountProps {

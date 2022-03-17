@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { TiArrowSortedUp } from 'react-icons/ti';
 import { TokenMetadata } from '../../services/ft-contract';
 import { TokenBalancesView } from '~services/token';
-import { toReadableNumber } from '~utils/numbers';
-import Token from '~components/tokens/Token';
+import { toReadableNumber } from '../../utils/numbers';
+import Token from '../../components/tokens/Token';
 import { FormattedMessage } from 'react-intl';
 import { SmallWallet } from '../icon/SmallWallet';
 

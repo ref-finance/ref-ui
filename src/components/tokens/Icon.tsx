@@ -1,7 +1,7 @@
 import React from 'react';
-import { toRealSymbol } from '~utils/token';
+import { toRealSymbol } from '../../utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
-import { ArrowDownWhite } from '~components/icon';
+import { ArrowDownWhite } from '../../components/icon';
 import { ArrowDownGreen } from '../icon/Arrows';
 
 export default function Icon({
