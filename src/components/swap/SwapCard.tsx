@@ -158,7 +158,7 @@ export function DoubleCheckModal(
         <div className="flex items-center pb-2">
           <OutlineButton
             onClick={props.onRequestClose}
-            className="text-xs w-20 text-center mx-2 h-8"
+            className="text-xs w-24 text-center mx-2"
             padding="px-4 py-1"
           >
             <FormattedMessage id="cancel" defaultMessage="Cancel" />
@@ -168,7 +168,7 @@ export function DoubleCheckModal(
               setButtonLoading(true);
               onSwap();
             }}
-            className="text-xs w-32 text-center h-8"
+            className="text-xs w-40 text-center"
             padding="px-4 py-1.5"
             loading={buttonLoading}
           >
@@ -196,8 +196,8 @@ export function SwapDetail({
 }) {
   return (
     <section className="grid grid-cols-12 py-1 text-xs">
-      <p className="text-primaryText text-left col-span-5">{title}</p>
-      <p className="text-right text-white col-span-7">{value}</p>
+      <p className="text-primaryText text-left col-span-6">{title}</p>
+      <p className="text-right text-white col-span-6">{value}</p>
     </section>
   );
 }
@@ -740,12 +740,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   return (
     <>
-      <Guide
-        bothStableToken={
-          STABLE_TOKEN_IDS.includes(tokenIn?.id) &&
-          STABLE_TOKEN_IDS.includes(tokenOut?.id)
-        }
-      ></Guide>
       <SwapTip
         bothStableToken={
           STABLE_TOKEN_IDS.includes(tokenIn?.id) &&

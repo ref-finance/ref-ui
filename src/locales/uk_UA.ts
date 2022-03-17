@@ -169,7 +169,7 @@ const uk_UA = {
   connect_to_near: 'Підключитись до NEAR',
   slippage: 'Допуск прослизання',
   slippage_title: 'Налаштування транзакцій',
-  minimum_received: 'мінімальна сума отримання',
+  minimum_received: 'Мінімум отриманий',
   swap_rate: 'Ставка свопу',
   swap_rate_pre: 'Ставка свопу',
   pool_fee: 'Комісія пулу',
@@ -452,6 +452,7 @@ const uk_UA = {
   xref_to_receive: 'отримати xREF',
   ref_to_receive: 'отримати REF ',
   more_expensive_than_best_rate_en: 'дорожче за найкращу ставку',
+  more_expensive_than_best_rate_zh_cn: '',
   optimal_path_found_by_our_solution:
     'Оптимальний шлях, знайдений нашим рішенням',
   check_to_stable_banner: 'Перевірити',

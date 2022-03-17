@@ -454,6 +454,7 @@ const vi = {
   xref_to_receive: 'xREF nhận được',
   ref_to_receive: 'REF nhận được ',
   more_expensive_than_best_rate_en: 'đắt hơn tỉ lệ tốt nhất hiện tại',
+  more_expensive_than_best_rate_zh_cn: '',
   optimal_path_found_by_our_solution: 'Tuyến tối ưu nhất đã được tìm thấy',
   check_to_stable_banner: 'Check',
   rates_to_stable_banner: 'Rates',
@@ -509,6 +510,5 @@ const vi = {
   Type: 'Kiểu',
   click_to_view: 'Nhấn để xem',
   transaction_failed: 'Giao dịch thất bại',
->>>>>>> main
 };
 export default Object.assign(vi, vi_in_risks_page);
