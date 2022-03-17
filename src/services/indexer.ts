@@ -1,5 +1,5 @@
 import getConfig from './config';
-import { wallet } from './near';
+import { wallet, isStablePool } from './near';
 import _ from 'lodash';
 import { parsePoolView, PoolRPCView, getCurrentUnixTime } from './api';
 import moment from 'moment/moment';
@@ -86,9 +86,11 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
     }
 
     pools = pools.map((pool: any) => parsePoolView(pool));
-    return pools.filter((pool: { token_account_ids: string | any[] }) => {
-      return pool.token_account_ids.length < 3;
-    });
+    return pools.filter(
+      (pool: { token_account_ids: string | any[]; id: any }) => {
+        return !isStablePool(pool.id);
+      }
+    );
   } catch (error) {
     return [];
   }

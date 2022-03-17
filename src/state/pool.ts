@@ -54,7 +54,7 @@ import moment from 'moment';
 import { POOL_TOKEN_REFRESH_INTERVAL, STABLE_POOL_ID } from '../services/near';
 import { getCurrentWallet } from '../utils/sender-wallet';
 import getConfig from '../services/config';
-const REF_FI_STABLE_Pool_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
+const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
   getConfig().STABLE_POOL_ID
 }`;
 
@@ -533,7 +533,7 @@ export const useStablePool = ({
     if ((loadingTrigger && !loadingPause) || !stablePool) {
       getStablePool(Number(STABLE_POOL_ID)).then((res) => {
         setStablePool(res);
-        localStorage.setItem(REF_FI_STABLE_Pool_INFO_KEY, JSON.stringify(res));
+        localStorage.setItem(REF_FI_STABLE_POOL_INFO_KEY, JSON.stringify(res));
       });
     }
   }, [count, loadingTrigger, loadingPause, stablePool]);

@@ -34,15 +34,37 @@ import { getCurrentWallet } from '../utils/sender-wallet';
 import { STORAGE_TO_REGISTER_WITH_FT } from './creators/storage';
 import { withdrawAction } from './creators/token';
 import { getExplorer, ExplorerType } from '../utils/device';
-import { STABLE_POOL_ID, POOL_TOKEN_REFRESH_INTERVAL } from './near';
+import {
+  STABLE_POOL_ID,
+  POOL_TOKEN_REFRESH_INTERVAL,
+  STABLE_POOL_USN_ID,
+} from './near';
 import moment from 'moment';
 const explorerType = getExplorer();
 
 export const DEFAULT_PAGE_LIMIT = 100;
 const STABLE_POOL_KEY = `STABLE_POOL_VALUE_${getConfig().STABLE_POOL_ID}`;
-const REF_FI_STABLE_Pool_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
+const STABLE_POOL_USN_KEY = `STABLE_POOL_VALUE_${
+  getConfig().STABLE_POOL_USN_ID
+}`;
+
+const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
   getConfig().STABLE_POOL_ID
 }`;
+const REF_FI_STABLE_POOL_USN_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
+  getConfig().STABLE_POOL_USN_ID
+}`;
+
+export const STABLE_POOL_KEYS_CACHE = {
+  [getConfig().STABLE_POOL_ID]: STABLE_POOL_KEY,
+  [getConfig().STABLE_POOL_USN_ID]: STABLE_POOL_USN_KEY,
+};
+
+export const STABLE_POOL_INFO_CACHE = {
+  [getConfig().STABLE_POOL_ID]: REF_FI_STABLE_POOL_INFO_KEY,
+  [getConfig().STABLE_POOL_USN_ID]: REF_FI_STABLE_POOL_USN_INFO_KEY,
+};
+
 export interface Pool {
   id: number;
   tokenIds: string[];
@@ -261,7 +283,7 @@ interface GetPoolOptions {
 }
 
 export const isNotStablePool = (pool: Pool) => {
-  return pool.tokenIds.length < 3;
+  return !(pool.id === STABLE_POOL_ID || pool.id === STABLE_POOL_USN_ID);
 };
 
 export const getPoolsByTokens = async ({
@@ -820,12 +842,16 @@ export const getStablePool = async (pool_id: number): Promise<StablePool> => {
   };
 };
 
-export const getStablePoolFromCache = async () => {
-  const stablePoolCache = JSON.parse(localStorage.getItem(STABLE_POOL_KEY));
+export const getStablePoolFromCache = async (id?: string) => {
+  const stable_pool_id = id || STABLE_POOL_ID;
 
-  const stablePoolInfoCache = JSON.parse(
-    localStorage.getItem(REF_FI_STABLE_Pool_INFO_KEY)
-  );
+  const pool_key = STABLE_POOL_KEYS_CACHE[stable_pool_id];
+
+  const info = STABLE_POOL_INFO_CACHE[stable_pool_id];
+
+  const stablePoolCache = JSON.parse(localStorage.getItem(pool_key));
+
+  const stablePoolInfoCache = JSON.parse(localStorage.getItem(info));
 
   const isStablePoolCached =
     stablePoolCache?.update_time &&
@@ -839,22 +865,22 @@ export const getStablePoolFromCache = async () => {
 
   const stablePool = isStablePoolCached
     ? stablePoolCache
-    : await getPool(Number(STABLE_POOL_ID));
+    : await getPool(Number(stable_pool_id));
 
   const stablePoolInfo = isStablePoolInfoCached
     ? stablePoolInfoCache
-    : await getStablePool(Number(STABLE_POOL_ID));
+    : await getStablePool(Number(stable_pool_id));
 
   if (!isStablePoolCached) {
     localStorage.setItem(
-      STABLE_POOL_KEY,
+      pool_key,
       JSON.stringify({ ...stablePool, update_time: moment().unix() })
     );
   }
 
   if (!isStablePoolInfoCached) {
     localStorage.setItem(
-      REF_FI_STABLE_Pool_INFO_KEY,
+      info,
       JSON.stringify({ ...stablePoolInfo, update_time: moment().unix() })
     );
   }
