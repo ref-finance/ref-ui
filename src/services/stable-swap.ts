@@ -245,8 +245,7 @@ export const instantSwap = async ({
     amountIn,
     minAmountOut,
   });
-  console.log('STABLESWAP TRANSACTIONS ARE...');
-  console.log(transactions);
+
   return executeMultipleTransactions(transactions);
 };
 

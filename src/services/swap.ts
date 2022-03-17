@@ -254,8 +254,6 @@ export const estimateSwap = async ({
 
   let res = stableSmartActionsV2;
 
-  console.log('stableSmartActionsV2', stableSmartActionsV2);
-
   let smartRouteV2OutputEstimate = stableSmartActionsV2
     .filter((a: any) => a.outputToken == a.routeOutputToken)
     .map((a: any) => new Big(a.estimate))
@@ -272,26 +270,17 @@ export const estimateSwap = async ({
       amountIn
     );
     let hybridStableSmartOutputEstimate = hybridStableSmart.estimate.toString();
-    console.log('EXPECTED HYBRID ROUTE OUTPUT:');
-    console.log(hybridStableSmartOutputEstimate);
     if (
       new Big(hybridStableSmartOutputEstimate).gt(
         new Big(smartRouteV2OutputEstimate)
       )
     ) {
       // then hybrid route gave better answer. Use it!
-      console.log(
-        `HYBRID ROUTE GAVE BETTER RETURN OF ${hybridStableSmartOutputEstimate}`
-      );
 
       res = hybridStableSmart.actions;
-
-      console.log('hybridStableSmart', hybridStableSmart.actions);
     } else {
       // smart route v2 gave better answer. use it!
-      console.log(
-        `SMART ROUTE V2 GAVE BETTER RETURN OF ${smartRouteV2OutputEstimate.toString()}`
-      );
+
       res = stableSmartActionsV2;
     }
   }
@@ -333,7 +322,6 @@ export async function getHybridStableSmart(
       stablePoolInfo,
       stablePool,
     });
-    console.log('STABLE ONLY RESULT IS...', stableOnlyResult);
 
     return {
       actions: [
@@ -504,8 +492,6 @@ export async function getHybridStableSmart(
 
       status: PoolMode.SMART,
     };
-
-    console.log('series estimates are...', [estimate1, estimate2]);
 
     return { actions: [estimate1, estimate2], estimate: estimate2.estimate };
   }
