@@ -199,7 +199,7 @@ export const calculateSmartRoutingPriceImpact = (
       tokenOut.id,
       formattedTokenMidReceived,
       JSON.parse(
-        localStorage.getItem(STABLE_POOL_INFO_CACHE[swapTodos[0].pool.id])
+        localStorage.getItem(STABLE_POOL_INFO_CACHE[swapTodos[1].pool.id])
       )
     );
     stableOutPool2 =
