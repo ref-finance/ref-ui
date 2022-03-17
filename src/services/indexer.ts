@@ -88,7 +88,7 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
     pools = pools.map((pool: any) => parsePoolView(pool));
     return pools.filter(
       (pool: { token_account_ids: string | any[]; id: any }) => {
-        return !isStablePool(pool.id);
+        return !isStablePool(pool.id) && pool.token_account_ids.length < 3;
       }
     );
   } catch (error) {

@@ -102,6 +102,8 @@ import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { useWalletTokenBalances } from '../../state/token';
 import { SmallWallet } from '../../components/icon/SmallWallet';
 import { scientificNotationToString } from '../../utils/numbers';
+import { isNotStablePool } from '../../services/pool';
+import { isStablePool } from '../../services/near';
 interface ParamTypes {
   id: string;
 }
@@ -1327,10 +1329,6 @@ export function PoolDetailsPage() {
     });
   };
 
-  const isStablePool = (pool: PoolDetails) => {
-    return pool?.tokenIds.length > 2;
-  };
-
   useEffect(() => {
     if (state?.tvl > 0) {
       setPoolTVL(state?.tvl);
@@ -1350,7 +1348,7 @@ export function PoolDetailsPage() {
   }, []);
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
-  if (isStablePool(pool)) {
+  if (isStablePool(pool.id)) {
     history.push('/stableswap', { stableTab: 'stable_swap' });
   }
 
