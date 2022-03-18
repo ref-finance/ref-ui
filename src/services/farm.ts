@@ -468,6 +468,7 @@ export const classificationOfCoins = {
     'POTATO',
     'SHRM',
     'CUCUMBER',
+    'USN',
   ],
   bridged_tokens: [
     'ETH',
