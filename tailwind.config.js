@@ -91,6 +91,7 @@ module.exports = {
         darkGreenColor: '#009A2B',
         riskTextColor: '#BEBEBE',
         senderHot: '#00FFD1',
+        tabChosen: '#4A5862',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

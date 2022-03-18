@@ -9,12 +9,13 @@ import { TokenMetadata } from '../../services/ft-contract';
 import { TokenBalancesView } from '../../services/token';
 import Icon from '../tokens/Icon';
 import InputAmount from './InputAmount';
-import SelectToken from './SelectToken';
+import SelectToken, { StableSelectToken } from './SelectToken';
 import { toPrecision, multiply } from '../../utils/numbers';
 import { FormattedMessage } from 'react-intl';
 import { SmallWallet } from '~components/icon/SmallWallet';
 import { RefIcon } from '~components/icon/Common';
 import { currentTokensPrice } from '../../services/api';
+import { SWAP_MODE } from '../../pages/SwapPage';
 
 interface TokenAmountProps {
   amount?: string;
@@ -34,6 +35,7 @@ interface TokenAmountProps {
   forSwap?: boolean;
   isError?: boolean;
   tokenPriceList?: Record<string, any>;
+  swapMode?: SWAP_MODE;
 }
 
 function HalfAndMaxAmount({
@@ -87,6 +89,7 @@ export default function TokenAmount({
   forSwap,
   isError,
   tokenPriceList,
+  swapMode,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) =>
     toRoundedReadableNumber({
@@ -143,7 +146,7 @@ export default function TokenAmount({
               : null
           }
         />
-        {showSelectToken && (
+        {showSelectToken && swapMode === SWAP_MODE.NORMAL ? (
           <SelectToken
             tokenPriceList={tokenPriceList}
             tokens={tokens}
@@ -162,6 +165,22 @@ export default function TokenAmount({
             onSelect={onSelectToken}
             balances={balances}
           />
+        ) : (
+          <StableSelectToken
+            selected={
+              selectedToken && (
+                <div
+                  className="flex items-center justify-end font-semibold "
+                  onMouseEnter={() => setHoverSelectToken(true)}
+                  onMouseLeave={() => setHoverSelectToken(false)}
+                >
+                  <Icon token={selectedToken} hover={hoverSelectToken} />
+                </div>
+              )
+            }
+            tokens={tokens}
+            onSelect={onSelectToken}
+          ></StableSelectToken>
         )}
         {!showSelectToken && selectedToken && (
           <div className="flex items-center justify-end font-semibold w-2/5">

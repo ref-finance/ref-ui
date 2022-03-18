@@ -13,7 +13,9 @@ import { toRealSymbol } from '~utils/token';
 import { FaSearch } from 'react-icons/fa';
 import AddToken from './AddToken';
 import { getTokenPriceList } from '../../services/indexer';
-import { toPrecision } from '../../utils/numbers';
+import { toPrecision, divide } from '../../utils/numbers';
+import { STABLE_TOKEN_USN_IDS } from '~services/near';
+import { STABLE_TOKEN_IDS } from '../../services/near';
 
 function sort(a: any, b: any) {
   if (typeof a === 'string' && typeof b === 'string') {
@@ -81,6 +83,102 @@ export function SingleToken({
     </>
   );
 }
+
+export const StableSelectToken = ({
+  onSelect,
+  tokens,
+  selected,
+}: {
+  tokens: TokenMetadata[];
+  onSelect?: (token: TokenMetadata) => void;
+  selected: string | React.ReactElement;
+}) => {
+  const stableTokensIdList = new Array(
+    ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS))
+  );
+
+  const [visible, setVisible] = useState(false);
+
+  const stableTokens = stableTokensIdList.map((id) =>
+    tokens.find((token) => token.id === id)
+  );
+
+  console.log(stableTokens);
+
+  useEffect(() => {
+    if (visible)
+      document.addEventListener('click', () => {
+        setVisible(false);
+      });
+  }, [visible]);
+
+  return (
+    <div className="w-2/5 outline-none my-auto relative overflow-visible">
+      <div
+        className={`w-full relative `}
+        onClick={(e) => {
+          e.nativeEvent.stopImmediatePropagation();
+          setVisible(!visible);
+        }}
+      >
+        {selected}
+      </div>
+      <div
+        className={`rounded-2xl flex flex-col top-12 p-1.5 ${
+          visible ? 'block' : 'hidden'
+        } absolute`}
+        style={{
+          background: 'rgba(58,69,77,0.6)',
+          backdropFilter: 'blur(15px)',
+          WebkitBackdropFilter: 'blur(15px)',
+          border: '1px solid #415462',
+          width: '162px',
+          zIndex: 999,
+          left: '40px',
+        }}
+      >
+        {stableTokens.map((token) => {
+          return (
+            <div
+              className={`${'hover:bg-black hover:bg-opacity-20'}  rounded-2xl flex items-center justify-between py-2 pl-4 pr-2`}
+              key={token.id}
+              onClick={(e) => {
+                e.nativeEvent.stopImmediatePropagation();
+
+                setVisible(!visible);
+                onSelect(token);
+              }}
+            >
+              <span className="text-white font-semibold text-sm">
+                {toRealSymbol(token.symbol)}
+              </span>
+              <span>
+                {token.icon ? (
+                  <img
+                    className="rounded-full border border-gradientFromHover"
+                    src={token.icon}
+                    style={{
+                      width: '26px',
+                      height: '26px',
+                    }}
+                  />
+                ) : (
+                  <div
+                    className="rounded-full border border-gradientFromHover"
+                    style={{
+                      width: '26px',
+                      height: '26px',
+                    }}
+                  ></div>
+                )}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 export default function SelectToken({
   tokens,

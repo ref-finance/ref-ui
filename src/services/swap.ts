@@ -66,6 +66,7 @@ import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import { getSmartRouteSwapActions, stableSmart } from './smartRouteLogic';
 import { getCurrentWallet } from '../utils/sender-wallet';
 import { isStablePool } from './near';
+import { SWAP_MODE } from '../pages/SwapPage';
 import {
   STABLE_TOKEN_USN_IDS,
   STABLE_POOL_USN_ID,
@@ -92,6 +93,7 @@ interface EstimateSwapOptions {
   setLoadingData?: (loading: boolean) => void;
   loadingTrigger?: boolean;
   setLoadingTrigger?: (loadingTrigger: boolean) => void;
+  swapMode?: SWAP_MODE;
 }
 
 export interface ReservesMap {
@@ -224,6 +226,7 @@ export const estimateSwap = async ({
   intl,
   setLoadingData,
   loadingTrigger,
+  swapMode,
 }: EstimateSwapOptions): Promise<EstimateSwapView[]> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
 
@@ -278,6 +281,7 @@ export const estimateSwap = async ({
     );
     let hybridStableSmartOutputEstimate = hybridStableSmart.estimate.toString();
     if (
+      swapMode === SWAP_MODE.STABLE ||
       new Big(hybridStableSmartOutputEstimate).gt(
         new Big(smartRouteV2OutputEstimate)
       )

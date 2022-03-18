@@ -40,6 +40,7 @@ import {
   getAverageFeeForRoutes,
 } from '~services/smartRouteLogic';
 import { getURLInfo, swapToast } from '~components/layout/transactionTipPopUp';
+import { SWAP_MODE } from '../pages/SwapPage';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -55,6 +56,7 @@ interface SwapOptions {
   stablePool?: StablePool;
   loadingPause?: boolean;
   setLoadingPause?: (pause: boolean) => void;
+  swapMode?: SWAP_MODE;
 }
 
 export const useSwap = ({
@@ -67,6 +69,7 @@ export const useSwap = ({
   loadingTrigger,
   setLoadingTrigger,
   loadingPause,
+  swapMode,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -148,6 +151,7 @@ export const useSwap = ({
         intl,
         setLoadingData,
         loadingTrigger: loadingTrigger && !loadingPause,
+        swapMode,
       })
         .then((estimates) => {
           if (!estimates) throw '';
