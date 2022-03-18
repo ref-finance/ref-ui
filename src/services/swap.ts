@@ -370,7 +370,7 @@ export async function getHybridStableSmart(
       return { actions: [estimate1, estimate2], estimate: estimate2.estimate };
     } else if (
       tokenOut.id === STABLE_TOKEN_USN_IDS[0] &&
-      tokenOut.id !== USDTMeta.id
+      tokenIn.id !== USDTMeta.id
     ) {
       const estimate1 = {
         ...getStablePoolEstimate({
