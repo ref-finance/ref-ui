@@ -756,7 +756,7 @@ export function FarmsPage() {
                       list={sortList}
                       onChange={changeSortOption}
                       Icon={isMobile() ? SortIcon : ''}
-                      className="w-auto"
+                      className="w-56"
                     />
                   </div>
                 </div>
