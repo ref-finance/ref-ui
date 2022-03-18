@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Card } from '~components/card/Card';
 import { FormattedMessage } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
@@ -19,6 +19,7 @@ import { InfoLine } from './LiquidityComponents';
 import _ from 'lodash';
 import BigNumber from 'bignumber.js';
 import { useDayVolume } from '~state/pool';
+import { scientificNotationToString } from '../../utils/numbers';
 
 function TokenChart({ tokens, pool }: { tokens: TokenMetadata[]; pool: Pool }) {
   const tokensData = calculateTokenValueAndShare(pool, tokens);
@@ -104,29 +105,6 @@ function TokenChart({ tokens, pool }: { tokens: TokenMetadata[]; pool: Pool }) {
   );
 }
 
-const calculateTokenShare = ({
-  token,
-  pool,
-  tokens,
-}: {
-  pool: Pool;
-  token: TokenMetadata;
-  tokens: TokenMetadata[];
-}) => {
-  const value = toReadableNumber(token.decimals, pool.supplies[token.id]);
-  const totalShares = _.sumBy(
-    Object.values(pool.supplies).map((v, i) =>
-      toReadableNumber(tokens[i].decimals, v)
-    ),
-    (o) => Number(o)
-  );
-
-  return (
-    toInternationalCurrencySystem(value, 2).toString() +
-    ` (${toPrecision(percent(value, totalShares.toString()).toString(), 2)}%)`
-  );
-};
-
 const calculateTotalStableCoins = (pool: Pool, tokens: TokenMetadata[]) => {
   const coinsAmounts = Object.values(pool.supplies).map((amount, i) =>
     toReadableNumber(tokens[i].decimals, amount)
@@ -136,7 +114,7 @@ const calculateTotalStableCoins = (pool: Pool, tokens: TokenMetadata[]) => {
     .toNumber()
     .toLocaleString('fullwide', { useGrouping: false });
 
-  return toInternationalCurrencySystem(totalCoins, 3);
+  return totalCoins;
 };
 const calculateTokenValueAndShare = (
   pool: any,
@@ -214,6 +192,15 @@ export default function ({
     const chart = <TokenChart tokens={tokens} pool={pool} />;
     setChart(chart);
   }, []);
+
+  const calTotalStableCoins = useMemo(() => {
+    try {
+      return calculateTotalStableCoins(pool, tokens);
+    } catch (error) {
+      return '0';
+    }
+  }, [pool, tokens]);
+
   return (
     <>
       <div
@@ -247,18 +234,30 @@ export default function ({
             defaultMessage="Total stablecoins"
           />
         </div>
-        <div className="text-white mt-1">
-          {calculateTotalStableCoins(pool, tokens)}
+        <div
+          className="text-white mt-1"
+          title={toPrecision(calTotalStableCoins, 3)}
+        >
+          {toInternationalCurrencySystem(calTotalStableCoins, 3)}
         </div>
         <div className="flex justify-center">{chart}</div>
         {Object.values(tokensData).map(({ token, display }) => {
           return (
-            <InfoLine key={token.symbol} title={token.symbol} value={display} />
+            <InfoLine
+              key={token.symbol}
+              title={token.symbol}
+              value={display}
+              valueTitle={toPrecision(
+                toReadableNumber(token.decimals, pool.supplies[token.id]),
+                0
+              )}
+            />
           );
         })}
         <InfoLine
           title={intl.formatMessage({ id: 'total_stable_coins' })}
-          value={calculateTotalStableCoins(pool, tokens) || '0'}
+          value={toInternationalCurrencySystem(calTotalStableCoins, 3) || '0'}
+          valueTitle={toPrecision(calTotalStableCoins, 0)}
         />
 
         <InfoLine

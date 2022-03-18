@@ -501,5 +501,8 @@ const en_US = {
   click_to_view: 'Click to view',
   transaction_failed: 'Transaction failed',
   wallet_vi: ' ',
+  value: 'Value',
+  usd_value: 'USD value',
+  create: 'Create',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

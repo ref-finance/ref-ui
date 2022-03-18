@@ -30,6 +30,7 @@ import { PoolRPCView } from '~services/api';
 import { FarmStamp } from '~components/icon/FarmStamp';
 import { divide, find } from 'lodash';
 import { WatchListStartFull } from '~components/icon/WatchListStar';
+import { scientificNotationToString } from '../../utils/numbers';
 
 interface LocationTypes {
   morePoolIds: string[];
@@ -118,7 +119,13 @@ function PoolRow({
         {calculateFeePercent(pool?.total_fee)}%
       </div>
 
-      <div className="col-span-1 py-1">
+      <div
+        className="col-span-1 py-1"
+        title={toPrecision(
+          scientificNotationToString(pool?.tvl?.toString() || '0'),
+          0
+        )}
+      >
         ${toInternationalCurrencySystem(pool?.tvl.toString())}
       </div>
     </Link>

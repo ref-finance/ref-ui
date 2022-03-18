@@ -280,6 +280,102 @@ class RefDatabase extends Dexie {
     return [...normalItems, ...reverseItems];
   }
 
+  async queryPoolsByTokens2orig(tokenInId: string, tokenOutId: string) {
+    //Queries for any pools that contain either tokenInId OR tokenOutId OR both.
+    let normalItems = await this.poolsTokens
+      .where('token1Id')
+      .equals(tokenInId.toString())
+      .toArray();
+    let reverseItems = await this.poolsTokens
+      .where('token1Id')
+      .equals(tokenOutId.toString())
+      .toArray();
+
+    let normalItems2 = await this.poolsTokens
+      .where('token2Id')
+      .equals(tokenInId.toString())
+      .toArray();
+    let reverseItems2 = await this.poolsTokens
+      .where('token2Id')
+      .equals(tokenOutId.toString())
+      .toArray();
+    //note, there might be some overlap... we'll need to remove the duplicates, then sort by pool id:
+    let dup = [
+      ...normalItems,
+      ...reverseItems,
+      ...normalItems2,
+      ...reverseItems2,
+    ];
+    // let result = [...new Set(dup.map(JSON.stringify))]
+    //   .map(JSON.parse)
+    //   .sort((a, b) => a['id'] - b['id']);
+    let result = dup;
+    return result;
+  }
+
+  async queryPoolsByTokens2(tokenInId: string, tokenOutId: string) {
+    //Queries for any pools that contain either tokenInId OR tokenOutId OR both.
+    let normalItems = await this.poolsTokens.toArray();
+
+    return normalItems;
+  }
+
+  async queryPoolsByTokens3(tokenInId: string, tokenOutId: string) {
+    //Queries for any pools that contain either tokenInId OR tokenOutId OR both.
+    let normalItems = await this.poolsTokens
+      .where('token1Id')
+      .equals(tokenInId.toString())
+      .and(
+        (item) =>
+          Number(item.update_time) >=
+          Number(moment().unix()) -
+            Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
+      )
+      .toArray();
+    let reverseItems = await this.poolsTokens
+      .where('token1Id')
+      .equals(tokenOutId.toString())
+      .and(
+        (item) =>
+          Number(item.update_time) >=
+          Number(moment().unix()) -
+            Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
+      )
+      .toArray();
+
+    let normalItems2 = await this.poolsTokens
+      .where('token2Id')
+      .equals(tokenInId.toString())
+      .and(
+        (item) =>
+          Number(item.update_time) >=
+          Number(moment().unix()) -
+            Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
+      )
+      .toArray();
+    let reverseItems2 = await this.poolsTokens
+      .where('token2Id')
+      .equals(tokenOutId.toString())
+      .and(
+        (item) =>
+          Number(item.update_time) >=
+          Number(moment().unix()) -
+            Number(getConfig().POOL_TOKEN_REFRESH_INTERVAL)
+      )
+      .toArray();
+    //note, there might be some overlap... we'll need to remove the duplicates, then sort by pool id:
+    let dup = [
+      ...normalItems,
+      ...reverseItems,
+      ...normalItems2,
+      ...reverseItems2,
+    ];
+    let result = [...new Set(dup.map((d) => JSON.stringify(d)))]
+      .map((d) => JSON.parse(d))
+      .sort((a, b) => a['id'] - b['id']);
+    return result;
+  }
+
   public async cacheTopPools(pools: any) {
     await this.topPools.clear();
     await this.topPools.bulkPut(
@@ -337,6 +433,18 @@ class RefDatabase extends Dexie {
       token0_ref_price: item.token0_price,
     }));
   }
+
+  // public async queryPoolsByToken1ORToken2(token1Id: string, token2Id: string) {
+  //   let res1 = await this.queryPoolsBytoken(token1Id);
+  //   let res2 = await this.queryPoolsBytoken(token2Id);
+  //   let dup = [...res1, ...res2];
+  //   let result = dup;
+  //   console.log(result);
+  //   // let result = [...new Set(dup.map(JSON.stringify))]
+  //   //   .map(JSON.parse)
+  //   //   .sort((a, b) => a['id'] - b['id']);
+  //   return result;
+  // }
 }
 
 export default new RefDatabase();

@@ -475,5 +475,8 @@ const zh_CN = {
   click_to_view: '点击查看详情',
   transaction_failed: '交易失败',
   wallet_vi: ' ',
+  value: '价值',
+  usd_value: '美元价值',
+  create: '创建',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

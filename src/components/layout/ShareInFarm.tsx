@@ -46,7 +46,7 @@ export const ShareInFarm = ({
       } hover:border-gradientFrom hover:text-gradientFrom px-2 cursor-pointer`}
     >
       <FarmDot inFarm={Number(farmShare) > 0} className="mr-1" />
-      <div className="self-start">
+      <div className="self-start whitespace-nowrap">
         <span className="">
           {`${
             Number(farmSharePercent) < 0.1 && Number(farmSharePercent) > 0

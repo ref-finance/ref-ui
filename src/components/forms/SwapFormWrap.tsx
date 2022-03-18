@@ -88,7 +88,7 @@ export default function SwapFormWrap({
     >
       {title && (
         <>
-          <h2 className="formTitle flex justify-between font-bold text-xl text-white text-left pb-2">
+          <h2 className="formTitle flex justify-between font-bold text-xl text-white text-left pb-4">
             <FormattedMessage id={title} defaultMessage={title} />
             <div className="flex items-center">
               <div

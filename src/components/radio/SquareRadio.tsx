@@ -5,12 +5,14 @@ import { REF_STABLE_SWAP_TAB_KEY } from '~pages/stable/StableSwapPage';
 export default function SquareRadio({
   radios,
   onChange,
+  currentChoose,
 }: {
   radios: string[];
   onChange: (chooseModule: string) => void;
+  currentChoose: string;
 }) {
   const [choose, setChoose] = useState(
-    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) || radios[0]
+    currentChoose || localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) || radios[0]
   );
   const intl = useIntl();
   return (

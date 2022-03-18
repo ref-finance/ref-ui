@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
-import { getPool, Pool, StablePool } from '../services/pool';
+import { getPool, Pool, StablePool, getStablePool } from '../services/pool';
 import BigNumber from 'bignumber.js';
 import {
   estimateSwap as estimateStableSwap,
@@ -29,7 +29,16 @@ import getConfig from '~services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { CloseIcon } from '~components/icon/Actions';
 import db from '../store/RefDatabase';
-import { POOL_TOKEN_REFRESH_INTERVAL } from '~services/near';
+import {
+  POOL_TOKEN_REFRESH_INTERVAL,
+  STABLE_TOKEN_IDS,
+  STABLE_POOL_ID,
+} from '~services/near';
+
+import {
+  getExpectedOutputFromActions,
+  getAverageFeeForRoutes,
+} from '~services/smartRouteLogic';
 import { getURLInfo, swapToast } from '~components/layout/transactionTipPopUp';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
@@ -79,21 +88,23 @@ export const useSwap = ({
 
   const intl = useIntl();
 
-  function sumFunction(total: number, num: number) {
-    return total + num;
-  }
-
   const setAverageFee = (estimates: EstimateSwapView[]) => {
-    const medFee = estimates.map((s2d) => {
-      const fee = s2d.pool.fee;
-      const numerator = Number(
-        toReadableNumber(tokenIn.decimals, s2d.pool.partialAmountIn)
-      );
-      const weight = numerator / Number(tokenInAmount);
+    const estimate = estimates[0];
 
-      return fee * weight;
-    });
-    const avgFee = medFee.reduce(sumFunction, 0);
+    let avgFee: number = 0;
+
+    if (
+      estimate.status === PoolMode.SMART ||
+      estimate.status === PoolMode.STABLE
+    ) {
+      avgFee = estimates.reduce((pre, cur) => pre + cur.pool.fee, 0);
+    } else {
+      avgFee = getAverageFeeForRoutes(
+        estimate.allRoutes,
+        estimate.allNodeRoutes,
+        estimate.totalInputAmount
+      );
+    }
     setAvgFee(avgFee);
   };
 
@@ -141,37 +152,19 @@ export const useSwap = ({
         .then((estimates) => {
           if (!estimates) throw '';
 
-          const isParallelSwap = estimates.every(
-            (e) => e.status === PoolMode.PARALLEL
-          );
+          if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
+            setCanSwap(true);
+            setAverageFee(estimates);
 
-          if (isParallelSwap) {
-            if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
-              setCanSwap(true);
-              setAverageFee(estimates);
-              const estimate = estimates.reduce((pre, cur) => {
-                return scientificNotationToString(
-                  BigNumber.sum(pre, cur.estimate).toString()
-                );
-              }, '0');
-              if (!loadingTrigger) {
-                setTokenOutAmount(estimate);
-                setSwapsToDo(estimates);
-              }
-            }
-          } else {
-            if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
-              setCanSwap(true);
-
-              setAvgFee(
-                Number(estimates[0].pool.fee) + Number(estimates[1].pool.fee)
+            if (!loadingTrigger) {
+              setTokenOutAmount(
+                getExpectedOutputFromActions(estimates, tokenOut.id).toString()
               );
-              if (!loadingTrigger) {
-                setTokenOutAmount(estimates[1].estimate);
-                setSwapsToDo(estimates);
-              }
+
+              setSwapsToDo(estimates);
             }
           }
+
           setPool(estimates[0].pool);
         })
         .catch((err) => {
@@ -232,6 +225,7 @@ export const useSwap = ({
     pools: swapsToDo?.map((estimate) => estimate.pool),
     swapsToDo,
     isParallelSwap: swapsToDo?.every((e) => e.status === PoolMode.PARALLEL),
+    isSmartRouteV2Swap: swapsToDo?.every((e) => e.status !== PoolMode.SMART),
   };
 };
 

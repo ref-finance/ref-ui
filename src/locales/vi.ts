@@ -510,5 +510,6 @@ const vi = {
   Type: 'Kiểu',
   click_to_view: 'Nhấn để xem',
   transaction_failed: 'Giao dịch thất bại',
+  create: 'Tạo',
 };
 export default Object.assign(vi, vi_in_risks_page);

@@ -79,11 +79,14 @@ export const setCallbackUrl = (res: any) => {
 
   const parsedTransactionHashes = transactionHashes?.join(',');
 
-  const newHref = addQueryParams(window.location.href, {
-    [TRANSACTION_WALLET_TYPE.SENDER_WALLET]: parsedTransactionHashes,
-    state: parsedTransactionHashes ? state : '',
-    errorType,
-  });
+  const newHref = addQueryParams(
+    window.location.origin + window.location.pathname,
+    {
+      [TRANSACTION_WALLET_TYPE.SENDER_WALLET]: parsedTransactionHashes,
+      state: parsedTransactionHashes ? state : '',
+      errorType,
+    }
+  );
 
   window.location.href = newHref;
 };
