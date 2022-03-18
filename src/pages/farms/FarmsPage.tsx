@@ -743,9 +743,9 @@ export function FarmsPage() {
                       id={searchData.coin}
                       list={filterList}
                       onChange={changeCoinOption}
-                      className="w-34"
+                      className="w-36"
                       Icon={isMobile() ? CoinPropertyIcon : ''}
-                    ></SelectUi>
+                    />
                   </div>
                   <div className="flex items-center relative">
                     <label className="text-farmText text-xs mr-2 xs:hidden md:hidden">
@@ -756,8 +756,8 @@ export function FarmsPage() {
                       list={sortList}
                       onChange={changeSortOption}
                       Icon={isMobile() ? SortIcon : ''}
-                      className="w-34"
-                    ></SelectUi>
+                      className="w-auto"
+                    />
                   </div>
                 </div>
               </div>
