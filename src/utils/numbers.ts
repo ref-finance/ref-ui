@@ -8,6 +8,8 @@ import { STABLE_POOL_ID, STABLE_TOKEN_IDS } from '../services/near';
 import { Pool } from '../services/pool';
 import { getSwappedAmount } from '../services/stable-swap';
 import { EstimateSwapView } from '../services/swap';
+import Big from 'big.js';
+import { sortBy } from 'lodash';
 
 const BPS_CONVERSION = 10000;
 const REF_FI_STABLE_Pool_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
@@ -185,13 +187,6 @@ export const calculateSmartRoutingPriceImpact = (
   const formattedTokenMidReceived = scientificNotationToString(
     tokenMidReceived.toString()
   );
-
-  // const [amount_swapped, fee, dy] = getSwappedAmount(
-  //   tokenIn.id,
-  //   tokenOut.id,
-  //   amountIn,
-  //   stablePoolInfo
-  // );
 
   let stableOutPool2;
   if (isPool2StablePool) {
@@ -472,3 +467,121 @@ export const niceDecimals = (number: string | number, precision = 2) => {
     return new BigNumber(number).toFixed(precision, 1);
   }
 };
+
+export function separateRoutes(actions: any, outputToken: string) {
+  const res = [];
+  let curRoute = [];
+
+  for (let i in actions) {
+    curRoute.push(actions[i]);
+    if (actions[i].outputToken === outputToken) {
+      res.push(curRoute);
+      curRoute = [];
+    }
+  }
+
+  return res;
+}
+export function calculateSmartRoutesV2PriceImpact(
+  actions: any,
+  outputToken: string
+) {
+  const routes = separateRoutes(actions, outputToken);
+
+  const tokenIn = routes[0][0].token;
+
+  const totalInputAmount = routes[0][0].totalInputAmount;
+
+  const priceImpactForRoutes = routes.map((r, i) => {
+    const readablePartialAmountIn = toReadableNumber(
+      tokenIn.decimals,
+      r[0].pool.partialAmountIn
+    );
+
+    if (r.length > 1) {
+      const tokenIn = r[0].tokens[0];
+      const tokenMid = r[0].tokens[1];
+      const tokenOut = r[0].tokens[2];
+
+      return calculateSmartRoutingPriceImpact(
+        readablePartialAmountIn,
+        routes[i],
+        tokenIn,
+        tokenMid,
+        tokenOut
+      );
+    } else {
+      return calculatePriceImpact(
+        [r[0].pool],
+        r[0].tokens[0],
+        r[0].tokens[1],
+        readablePartialAmountIn
+      );
+    }
+  });
+
+  const rawRes = priceImpactForRoutes.reduce(
+    (pre, cur, i) => {
+      return pre.plus(
+        new Big(routes[i][0].pool.partialAmountIn)
+          .div(new Big(totalInputAmount))
+          .mul(cur)
+      );
+    },
+
+    new Big(0)
+  );
+
+  return scientificNotationToString(rawRes.toString());
+}
+
+export function getPoolAllocationPercents(pools: Pool[]) {
+  if (pools) {
+    const partialAmounts = pools.map((pool) => {
+      return math.bignumber(pool.partialAmountIn);
+    });
+
+    const ps: string[] = new Array(partialAmounts.length).fill('0');
+
+    const sum =
+      partialAmounts.length === 1
+        ? partialAmounts[0]
+        : math.sum(...partialAmounts);
+
+    const sortedAmount = sortBy(partialAmounts, (p) => Number(p));
+
+    let minIndexes: number[] = [];
+
+    for (let k = 0; k < sortedAmount.length - 1; k++) {
+      let minIndex = -1;
+
+      for (let j = 0; j < partialAmounts.length; j++) {
+        if (partialAmounts[j].eq(sortedAmount[k]) && !minIndexes.includes(j)) {
+          minIndex = j;
+          minIndexes.push(j);
+          break;
+        }
+      }
+      const res = math
+        .round(percent(partialAmounts[minIndex].toString(), sum))
+        .toString();
+
+      if (Number(res) === 0) {
+        ps[minIndex] = '1';
+      } else {
+        ps[minIndex] = res;
+      }
+    }
+
+    const finalPIndex = ps.indexOf('0');
+
+    ps[finalPIndex] = subtraction(
+      '100',
+      ps.length === 1 ? Number(ps[0]) : math.sum(...ps.map((p) => Number(p)))
+    ).toString();
+
+    return ps;
+  } else {
+    return [];
+  }
+}

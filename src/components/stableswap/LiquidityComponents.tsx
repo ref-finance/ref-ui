@@ -67,12 +67,14 @@ export function InfoLine({
   className,
   tipShow,
   tipContent,
+  valueTitle,
 }: {
   title: string;
   value: string | JSX.Element;
   className?: string;
   tipShow?: boolean;
   tipContent?: string;
+  valueTitle?: string;
 }) {
   return (
     <div
@@ -105,7 +107,9 @@ export function InfoLine({
         ) : null}
       </div>
       <div className="border-b border-dotted border-primaryText border-opacity-30 w-full flex-1 mx-1" />
-      <div className="text-white">{value}</div>
+      <div className="text-white" title={valueTitle}>
+        {value}
+      </div>
     </div>
   );
 }

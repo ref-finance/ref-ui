@@ -280,7 +280,7 @@ export const getPoolsByTokens = async ({
     filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
   }
   if (loadingTrigger || (!cacheTimeLimit && cacheForPair)) {
-    setLoadingData(true);
+    setLoadingData && setLoadingData(true);
     const totalPools = await getTotalPools();
     const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
     const pools = (
@@ -294,10 +294,17 @@ export const getPoolsByTokens = async ({
       (p) => p.supplies[tokenInId] && p.supplies[tokenOutId]
     );
   }
-  setLoadingData(false);
-
+  setLoadingData && setLoadingData(false);
   // @ts-ignore
   return filtered_pools;
+};
+
+export const getRefPoolsByToken1ORToken2 = async (
+  tokenId1: string,
+  tokenId2: string
+) => {
+  return await db.queryPoolsByTokens2(tokenId1, tokenId2);
+  //return await db.poolsTokens;
 };
 
 export const getPool = async (id: number): Promise<Pool> => {

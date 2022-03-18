@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Card } from '~components/card/Card';
 import { useWhitelistTokens, useTokenBalances } from '~state/token';
 import Loading from '~components/layout/Loading';
@@ -18,6 +18,11 @@ import BigNumber from 'bignumber.js';
 import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import { getURLInfo } from '../../components/layout/transactionTipPopUp';
+import { checkTransactionStatus } from '../../services/swap';
+import { decodeBase64 } from 'lzutf8';
+import { useHistory } from 'react-router-dom';
+import { getTokenPriceList } from '../../services/indexer';
 
 export function AddPoolPage() {
   const tokens = useWhitelistTokens();
@@ -31,6 +36,29 @@ export function AddPoolPage() {
   const [buttonLoading, setButtonLoading] = useState(false);
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
+  const history = useHistory();
+
+  const { txHash } = getURLInfo();
+
+  const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    getTokenPriceList().then(setTokenPriceList);
+  }, []);
+
+  useEffect(() => {
+    if (txHash) {
+      checkTransactionStatus(txHash).then((res) => {
+        const status: any = res.status;
+        const data: string | undefined = status.SuccessValue;
+        if (data) {
+          const buff = Buffer.from(data, 'base64');
+          const pool_id = buff.toString('ascii');
+          history.push(`/pool/${pool_id}`);
+        }
+      });
+    }
+  }, [txHash]);
 
   const tip: any = {
     moreThan: intl.formatMessage({ id: 'more_than' }),
@@ -147,6 +175,7 @@ export function AddPoolPage() {
               selected={token1 && <Selected token={token1} />}
               onSelect={setToken1}
               balances={balances}
+              tokenPriceList={tokenPriceList}
             />
           </div>
           <div className="w-full lg:ml-1">
@@ -161,6 +190,7 @@ export function AddPoolPage() {
               selected={token2 && <Selected token={token2} />}
               onSelect={setToken2}
               balances={balances}
+              tokenPriceList={tokenPriceList}
             />
           </div>
         </div>
@@ -261,10 +291,7 @@ export function AddPoolPage() {
               <ButtonTextWrapper
                 loading={buttonLoading}
                 Text={() => (
-                  <FormattedMessage
-                    id="add_liquidity"
-                    defaultMessage="Add Liquidity"
-                  />
+                  <FormattedMessage id="create" defaultMessage="Create" />
                 )}
               />
             </button>

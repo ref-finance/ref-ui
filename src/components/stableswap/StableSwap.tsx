@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useMemo } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
   ButtonTextWrapper,
@@ -19,6 +19,7 @@ import { SmallWallet } from '~components/icon/SmallWallet';
 import { RefIcon } from '~components/icon/Common';
 
 import {
+  calcStableSwapPriceImpact,
   calculateExchangeRate,
   toPrecision,
   toReadableNumber,
@@ -36,6 +37,8 @@ import { StablePool } from '~services/pool';
 import { BeatLoading } from '~components/layout/Loading';
 import { WalletContext, getCurrentWallet } from '../../utils/sender-wallet';
 import { getAccount } from '../../services/airdrop';
+import { DoubleCheckModal } from '../layout/SwapDoubleCheck';
+import BigNumber from 'bignumber.js';
 interface StableSwapProps {
   balances: TokenBalancesView;
   tokens: TokenMetadata[];
@@ -76,6 +79,8 @@ export default function StableSwap({
     setSlippageTolerance(slippage);
     localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
   };
+
+  const [doubleCheckOpen, setDoubleCheckOpen] = useState(false);
 
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
@@ -146,6 +151,14 @@ export default function StableSwap({
     }
   }, [tokenIn, tokenOut, useNearBalance, isSignedIn]);
 
+  const priceImpactValue = useMemo(() => {
+    try {
+      return calcStableSwapPriceImpact(tokenInAmount, noFeeAmount);
+    } catch (error) {
+      return '0';
+    }
+  }, [noFeeAmount]);
+
   const tokenInMax = useNearBalance
     ? tokenInBalanceFromNear || '0'
     : toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0';
@@ -157,59 +170,140 @@ export default function StableSwap({
 
   const handleSubmit = async (event: React.FormEvent<HTMLElement>) => {
     event.preventDefault();
+    const ifDoubleCheck =
+      new BigNumber(tokenInAmount).isLessThanOrEqualTo(
+        new BigNumber(tokenInMax)
+      ) && Number(priceImpactValue) > 2;
+
     if (isSignedIn) {
       try {
         if (canSubmit) {
           setShowSwapLoading(true);
           setLoadingPause(true);
-          makeSwap(useNearBalance);
+          if (ifDoubleCheck) setDoubleCheckOpen(true);
+          else makeSwap(useNearBalance);
         }
       } catch (error) {}
     }
   };
 
   return (
-    <form
-      className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl py-6 bg-dark xs:rounded-lg md:rounded-lg"
-      onSubmit={handleSubmit}
-    >
-      <div className="formTitle flex justify-between text-xl text-white text-left px-8">
-        <FormattedMessage id="stable_swap" defaultMessage="StableSwap" />
-        <div className="flex items-center">
-          <div
-            onClick={() => {
-              if (loadingPause) {
-                setLoadingTrigger(true);
-                setLoadingPause(false);
-              } else {
-                setLoadingPause(true);
-              }
-            }}
-            className="mx-4 cursor-pointer"
-          >
-            <CountdownTimer
-              loadingTrigger={loadingTrigger}
-              loadingPause={loadingPause}
+    <>
+      <form
+        className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl py-6 bg-dark xs:rounded-lg md:rounded-lg"
+        onSubmit={handleSubmit}
+      >
+        <div className="formTitle flex justify-between text-xl text-white text-left px-8">
+          <FormattedMessage id="stable_swap" defaultMessage="StableSwap" />
+          <div className="flex items-center">
+            <div
+              onClick={() => {
+                if (loadingPause) {
+                  setLoadingTrigger(true);
+                  setLoadingPause(false);
+                } else {
+                  setLoadingPause(true);
+                }
+              }}
+              className="mx-4 cursor-pointer"
+            >
+              <CountdownTimer
+                loadingTrigger={loadingTrigger}
+                loadingPause={loadingPause}
+              />
+            </div>
+            <SlippageSelector
+              slippageTolerance={slippageTolerance}
+              onChange={onChangeSlip}
+              useNearBalance={useNearBalance.toString()}
+              validSlippageList={[0.05, 0.1, 0.2]}
+              bindUseBalance={(useNearBalance) => {
+                setUseNearBalance(useNearBalance);
+                localStorage.setItem(
+                  STABLE_SWAP_USE_NEAR_BALANCE_KEY,
+                  useNearBalance.toString()
+                );
+              }}
             />
           </div>
-          <SlippageSelector
-            slippageTolerance={slippageTolerance}
-            onChange={onChangeSlip}
-            useNearBalance={useNearBalance.toString()}
-            validSlippageList={[0.05, 0.1, 0.2]}
-            bindUseBalance={(useNearBalance) => {
-              setUseNearBalance(useNearBalance);
-              localStorage.setItem(
-                STABLE_SWAP_USE_NEAR_BALANCE_KEY,
-                useNearBalance.toString()
-              );
-            }}
+        </div>
+        {/* for pc */}
+        <div className="xs:hidden md:hidden">
+          <div className="flex mt-6 px-8">
+            <div className="flex-1 flex flex-col">
+              <div className="text-primaryText text-xs pb-2 self-end flex items-center">
+                {useNearBalance ? (
+                  <span className="mr-2">
+                    <SmallWallet />
+                  </span>
+                ) : (
+                  <span className="mr-2 text-primaryText">
+                    <RefIcon></RefIcon>
+                  </span>
+                )}
+                <FormattedMessage id="balance" defaultMessage="Balance" />:
+                &nbsp;
+                <span title={tokenInMax}>
+                  {toPrecision(tokenInMax, 3, true)}
+                </span>
+              </div>
+              <InputAmount
+                className="border border-transparent rounded"
+                id="inputAmount"
+                name={tokenIn?.id}
+                value={tokenInAmount}
+                onChangeAmount={(amount) => {
+                  setTokenInAmount(amount);
+                }}
+                disabled={disabled}
+                max={tokenInMax}
+              />
+            </div>
+
+            <SwapAnimation
+              tokenIn={tokenIn}
+              tokenOut={tokenOut}
+              setTokenIn={(token: TokenMetadata) => setTokenIn(token)}
+              setTokenOut={(token: TokenMetadata) => setTokenOut(token)}
+              setTokenInAmount={setTokenInAmount}
+            />
+
+            <div className="flex-1 flex flex-col">
+              <div className="text-primaryText text-xs pb-2 self-end flex items-center">
+                {useNearBalance ? (
+                  <span className="mr-2 float-left">
+                    <SmallWallet />
+                  </span>
+                ) : (
+                  <span className="mr-2 text-primaryText float-left">
+                    <RefIcon></RefIcon>
+                  </span>
+                )}
+                <FormattedMessage id="balance" defaultMessage="Balance" />:
+                &nbsp;
+                <span title={tokenOutTotal}>
+                  {toPrecision(tokenOutTotal, 3, true)}
+                </span>
+              </div>
+              <InputAmount
+                className="border border-transparent rounded"
+                id="inputAmount"
+                disabled={true}
+                name={tokenOut?.id}
+                value={toPrecision(tokenOutAmount, 8)}
+              />
+            </div>
+          </div>
+          <TokensRadio
+            tokens={tokens}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            handleSwapFrom={handleSwapFrom}
+            handleSwapTo={handleSwapTo}
           />
         </div>
-      </div>
-      {/* for pc */}
-      <div className="xs:hidden md:hidden">
-        <div className="flex mt-6 px-8">
+        {/* for mobile */}
+        <div className="flex flex-col mt-6 px-8 lg:hidden">
           <div className="flex-1 flex flex-col">
             <div className="text-primaryText text-xs pb-2 self-end flex items-center">
               {useNearBalance ? (
@@ -236,7 +330,11 @@ export default function StableSwap({
               max={tokenInMax}
             />
           </div>
-
+          <TokensRadioLeft
+            tokens={tokens}
+            tokenIn={tokenIn}
+            handleSwapFrom={handleSwapFrom}
+          ></TokensRadioLeft>
           <SwapAnimation
             tokenIn={tokenIn}
             tokenOut={tokenOut}
@@ -244,7 +342,6 @@ export default function StableSwap({
             setTokenOut={(token: TokenMetadata) => setTokenOut(token)}
             setTokenInAmount={setTokenInAmount}
           />
-
           <div className="flex-1 flex flex-col">
             <div className="text-primaryText text-xs pb-2 self-end flex items-center">
               {useNearBalance ? (
@@ -252,7 +349,7 @@ export default function StableSwap({
                   <SmallWallet />
                 </span>
               ) : (
-                <span className="mr-2 text-primaryText float-left">
+                <span className="mr-2 float-left text-primaryText">
                   <RefIcon></RefIcon>
                 </span>
               )}
@@ -269,123 +366,67 @@ export default function StableSwap({
               value={toPrecision(tokenOutAmount, 8)}
             />
           </div>
+          <TokensRadioRight
+            tokens={tokens}
+            tokenOut={tokenOut}
+            handleSwapTo={handleSwapTo}
+          ></TokensRadioRight>
         </div>
-        <TokensRadio
-          tokens={tokens}
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
-          handleSwapFrom={handleSwapFrom}
-          handleSwapTo={handleSwapTo}
-        />
-      </div>
-      {/* for mobile */}
-      <div className="flex flex-col mt-6 px-8 lg:hidden">
-        <div className="flex-1 flex flex-col">
-          <div className="text-primaryText text-xs pb-2 self-end flex items-center">
-            {useNearBalance ? (
-              <span className="mr-2">
-                <SmallWallet />
-              </span>
-            ) : (
-              <span className="mr-2 text-primaryText">
-                <RefIcon></RefIcon>
-              </span>
-            )}
-            <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
-            <span title={tokenInMax}>{toPrecision(tokenInMax, 3, true)}</span>
-          </div>
-          <InputAmount
-            className="border border-transparent rounded"
-            id="inputAmount"
-            name={tokenIn?.id}
-            value={tokenInAmount}
-            onChangeAmount={(amount) => {
-              setTokenInAmount(amount);
-            }}
-            disabled={disabled}
-            max={tokenInMax}
+        <div
+          className={`text-primaryText text-center mx-8 ${
+            tokenIn.id === tokenOut.id ? 'hidden' : ''
+          }`}
+        >
+          <DetailView
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            from={tokenInAmount}
+            to={tokenOutAmount}
+            minAmountOut={minAmountOut}
+            canSwap={canSwap}
+            noFeeAmount={noFeeAmount}
+            pool={pool}
+            priceImpactValue={priceImpactValue}
           />
         </div>
-        <TokensRadioLeft
-          tokens={tokens}
-          tokenIn={tokenIn}
-          handleSwapFrom={handleSwapFrom}
-        ></TokensRadioLeft>
-        <SwapAnimation
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
-          setTokenIn={(token: TokenMetadata) => setTokenIn(token)}
-          setTokenOut={(token: TokenMetadata) => setTokenOut(token)}
-          setTokenInAmount={setTokenInAmount}
-        />
-        <div className="flex-1 flex flex-col">
-          <div className="text-primaryText text-xs pb-2 self-end flex items-center">
-            {useNearBalance ? (
-              <span className="mr-2 float-left">
-                <SmallWallet />
-              </span>
-            ) : (
-              <span className="mr-2 float-left text-primaryText">
-                <RefIcon></RefIcon>
-              </span>
-            )}
-            <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
-            <span title={tokenOutTotal}>
-              {toPrecision(tokenOutTotal, 3, true)}
-            </span>
+        <div className="mx-8">
+          <div className="pb-2 relative -mb-6 mt-2">
+            {swapError && <Alert level="warn" message={swapError.message} />}
           </div>
-          <InputAmount
-            className="border border-transparent rounded"
-            id="inputAmount"
-            disabled={true}
-            name={tokenOut?.id}
-            value={toPrecision(tokenOutAmount, 8)}
-          />
         </div>
-        <TokensRadioRight
-          tokens={tokens}
-          tokenOut={tokenOut}
-          handleSwapTo={handleSwapTo}
-        ></TokensRadioRight>
-      </div>
-      <div
-        className={`text-primaryText text-center mx-8 ${
-          tokenIn.id === tokenOut.id ? 'hidden' : ''
-        }`}
-      >
-        <DetailView
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
-          from={tokenInAmount}
-          to={tokenOutAmount}
-          minAmountOut={minAmountOut}
-          canSwap={canSwap}
-          noFeeAmount={noFeeAmount}
-          pool={pool}
-        />
-      </div>
-      <div className="mx-8">
-        <div className="pb-2 relative -mb-6 mt-2">
-          {swapError && <Alert level="warn" message={swapError.message} />}
-        </div>
-      </div>
 
-      <div className="mx-8 mt-8">
-        {isSignedIn ? (
-          <SolidButton
-            className="w-full text-lg"
-            disabled={!canSubmit}
-            loading={showSwapLoading || (loadingTrigger && !loadingPause)}
-          >
-            <ButtonTextWrapper
+        <div className="mx-8 mt-8">
+          {isSignedIn ? (
+            <SolidButton
+              className="w-full text-lg"
+              disabled={!canSubmit}
               loading={showSwapLoading || (loadingTrigger && !loadingPause)}
-              Text={() => <FormattedMessage id="swap" defaultMessage="Swap" />}
-            />
-          </SolidButton>
-        ) : (
-          <ConnectToNearBtn />
-        )}
-      </div>
-    </form>
+            >
+              <ButtonTextWrapper
+                loading={showSwapLoading || (loadingTrigger && !loadingPause)}
+                Text={() => (
+                  <FormattedMessage id="swap" defaultMessage="Swap" />
+                )}
+              />
+            </SolidButton>
+          ) : (
+            <ConnectToNearBtn />
+          )}
+        </div>
+      </form>
+      <DoubleCheckModal
+        isOpen={doubleCheckOpen}
+        onRequestClose={() => {
+          setDoubleCheckOpen(false);
+          setShowSwapLoading(false);
+          setLoadingPause(false);
+        }}
+        tokenIn={tokenIn}
+        tokenOut={tokenOut}
+        from={tokenInAmount}
+        onSwap={() => makeSwap(useNearBalance)}
+        priceImpactValue={priceImpactValue}
+      />
+    </>
   );
 }

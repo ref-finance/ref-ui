@@ -9,8 +9,8 @@ import { IoClose } from 'react-icons/io5';
 import { FormattedMessage, useIntl } from 'react-intl';
 import Modal from 'react-modal';
 import { WrapNearEnter } from '~components/icon/Near';
-import Alert from '~components/alert/Alert';
-import { ftGetBalance, TokenMetadata } from '~services/ft-contract';
+import Alert from '../../components/alert/Alert';
+import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
 import { wallet } from '~services/near';
 import {
   nearMetadata,
@@ -18,12 +18,12 @@ import {
   nearWithdraw,
   wnearMetadata,
   WRAP_NEAR_CONTRACT_ID,
-} from '~services/wrap-near';
-import { useDepositableBalance, useToken } from '~state/token';
-import { ONLY_ZEROS, toReadableNumber } from '~utils/numbers';
+} from '../../services/wrap-near';
+import { useDepositableBalance, useToken } from '../../state/token';
+import { ONLY_ZEROS, toReadableNumber } from '../../utils/numbers';
 import SubmitButton from './SubmitButton';
 import TokenAmount from './TokenAmount';
-import { getCurrentWallet, WalletContext } from '~utils/sender-wallet';
+import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { SwapExchange } from '../icon/Arrows';
 
 function WrapNear(props: ReactModal.Props) {

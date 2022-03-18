@@ -38,6 +38,7 @@ import {
   _order,
   _search,
   getTopPools,
+  getPool,
 } from '../services/indexer';
 import { parsePoolView, PoolRPCView } from '../services/api';
 import { TokenMetadata } from '../services/ft-contract';
@@ -220,6 +221,19 @@ export const useMorePools = ({
     });
   }, [order, sortBy]);
   return morePools;
+};
+
+export const usePoolTVL = (poolId: string | number) => {
+  const [TVL, setTVL] = useState<number>(null);
+
+  useEffect(() => {
+    const id = String(poolId);
+    getPool(id).then((res) => {
+      setTVL(res.tvl);
+    });
+  }, [poolId]);
+
+  return TVL;
 };
 
 export const useAllWatchList = () => {
