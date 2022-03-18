@@ -475,29 +475,29 @@ export const addLiquidityToStablePool = async ({
     },
   ];
 
-  // const allTokenIds = getConfig().STABLE_TOKEN_IDS;
-  // const balances = await Promise.all(
-  //   allTokenIds.map((tokenId) => getTokenBalance(tokenId))
-  // );
-  // let notRegisteredTokens: string[] = [];
-  // for (let i = 0; i < balances.length; i++) {
-  //   if (Number(balances[i]) === 0) {
-  //     notRegisteredTokens.push(allTokenIds[i]);
-  //   }
-  // }
+  const allTokenIds = getConfig().STABLE_TOKEN_IDS;
+  const balances = await Promise.all(
+    allTokenIds.map((tokenId) => getTokenBalance(tokenId))
+  );
+  let notRegisteredTokens: string[] = [];
+  for (let i = 0; i < balances.length; i++) {
+    if (Number(balances[i]) === 0) {
+      notRegisteredTokens.push(allTokenIds[i]);
+    }
+  }
 
-  // if (notRegisteredTokens.length > 0 && explorerType !== ExplorerType.Firefox) {
-  //   actions.unshift(registerTokensAction(notRegisteredTokens));
-  // }
+  if (notRegisteredTokens.length > 0 && explorerType !== ExplorerType.Firefox) {
+    actions.unshift(registerTokensAction(notRegisteredTokens));
+  }
 
   const transactions: Transaction[] = depositTransactions;
 
-  // if (notRegisteredTokens.length > 0 && explorerType === ExplorerType.Firefox) {
-  //   transactions.push({
-  //     receiverId: REF_FI_CONTRACT_ID,
-  //     functionCalls: [registerTokensAction(notRegisteredTokens)],
-  //   });
-  // }
+  if (notRegisteredTokens.length > 0 && explorerType === ExplorerType.Firefox) {
+    transactions.push({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [registerTokensAction(notRegisteredTokens)],
+    });
+  }
 
   transactions.push({
     receiverId: REF_FI_CONTRACT_ID,
