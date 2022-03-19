@@ -239,7 +239,7 @@ export default function ({
         }
       );
     }
-  }, [ids]);
+  }, [pools.map((p) => p.id).join('|')]);
 
   if (volume && tvl) {
     const utilisation = new BigNumber(volume).dividedBy(tvl).multipliedBy(100);
