@@ -293,7 +293,7 @@ export default function ({
   }, []);
 
   return (
-    <div className="relative bottom-10">
+    <div className={`${swapPage ? 'relative bottom-10' : ''}`}>
       {swapPage ? (
         <MagnetToTokenReserves
           showTokenReserves={showReserves}
