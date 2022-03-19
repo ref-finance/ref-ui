@@ -28,6 +28,7 @@ import {
   Images,
 } from '~components/stableswap/CommonComp';
 import BigNumber from 'bignumber.js';
+import { Pool } from '../../services/pool';
 export const DEFAULT_ACTIONS = ['add_liquidity', 'remove_liquidity'];
 const STABLE_TOKENS = ['USDT', 'USDC', 'DAI'];
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
@@ -35,17 +36,34 @@ export const REF_STABLE_SWAP_TAB_KEY = 'REF_STABLE_SWAP_TAB_VALUE';
 
 interface LocationTypes {
   stableTab?: string;
+  shares?: string;
+  stakeList?: Record<string, string>;
+  farmStake?: string | number;
+  pool?: Pool;
 }
 
 function StableSwapPage() {
-  const { pool, shares, stakeList } = usePool(STABLE_POOL_ID);
   const { state } = useLocation<LocationTypes>();
 
+  const stableTab = state?.stableTab;
+
   const [actionName, setAction] = useState<string>(
-    state?.stableTab ||
+    stableTab ||
       localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) ||
       DEFAULT_ACTIONS[0]
   );
+
+  const { pool, shares, stakeList } = state?.pool
+    ? state
+    : usePool(STABLE_POOL_ID);
+
+  const farmStake =
+    state?.farmStake ||
+    useFarmStake({
+      poolId: Number(STABLE_POOL_ID),
+      stakeList,
+    });
+  const userTotalShare = BigNumber.sum(shares, farmStake);
 
   const [loadingTrigger, setLoadingTrigger] = useState<boolean>(false);
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
@@ -71,12 +89,6 @@ function StableSwapPage() {
     localStorage.setItem(REF_STABLE_SWAP_TAB_KEY, actionName);
     setAction(actionName);
   };
-
-  const farmStake = useFarmStake({
-    poolId: Number(STABLE_POOL_ID),
-    stakeList,
-  });
-  const userTotalShare = BigNumber.sum(shares, farmStake);
 
   if (
     !allTokens ||

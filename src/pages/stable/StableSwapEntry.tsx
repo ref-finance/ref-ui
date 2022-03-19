@@ -89,12 +89,14 @@ function formatePoolData({
   farmStake,
   tokens,
   share,
+  stakeList,
 }: {
   pool: Pool;
   userTotalShare: BigNumber;
   farmStake: string | number;
   tokens: TokenMetadata[];
   share: string;
+  stakeList: Record<string, string>;
 }) {
   const tokensMap: {
     [id: string]: TokenMetadata;
@@ -127,6 +129,9 @@ function formatePoolData({
     displayMyShareAmount,
     displaySharePercent,
     displayShareInFarm,
+    shares: share,
+    stakeList,
+    farmStake,
   };
 }
 
@@ -143,8 +148,12 @@ function StablePoolCard({
     displayMyShareAmount: string | JSX.Element;
     displaySharePercent: string | JSX.Element;
     displayShareInFarm: string | JSX.Element;
+    shares: string;
+    stakeList: Record<string, string>;
+    farmStake: string | number;
   };
 }) {
+  const { shares, stakeList, farmStake } = poolData;
   const history = useHistory();
   const LiquidityButton = () => {
     return (
@@ -154,6 +163,10 @@ function StablePoolCard({
           onClick={() =>
             history.push(`stableswap/${stablePool.id}`, {
               stableTab: 'add_liquidity',
+              shares,
+              stakeList,
+              farmStake,
+              pool: stablePool,
             })
           }
         >
@@ -164,6 +177,10 @@ function StablePoolCard({
           onClick={() =>
             history.push(`stableswap/${stablePool.id}`, {
               stableTab: 'remove_liquidity',
+              shares,
+              stakeList,
+              farmStake,
+              pool: stablePool,
             })
           }
         >
@@ -186,7 +203,17 @@ function StablePoolCard({
       >
         <div className="flex items-center justify-between pb-6">
           <Images tokens={tokens} />
-          <Link to={`stableswap/${stablePool.id}`}>
+          <Link
+            to={{
+              pathname: `stableswap/${stablePool.id}`,
+              state: {
+                shares,
+                stakeList,
+                farmStake,
+                pool: stablePool,
+              },
+            }}
+          >
             <Symbols withArrow tokens={tokens} />
           </Link>
         </div>
@@ -294,14 +321,13 @@ export function StableSwapPageEntry() {
   )
     return <Loading />;
 
-  // console.log(shares3token);
-
   const poolData2token = formatePoolData({
     pool: pool2tokens,
     userTotalShare: userTotalShare2token,
     farmStake: farmStake2token,
     tokens: tokens2token,
     share: shares2token,
+    stakeList: stakeList2token,
   });
 
   const poolData3token = formatePoolData({
@@ -310,6 +336,7 @@ export function StableSwapPageEntry() {
     farmStake: farmStake3token,
     tokens: tokens3token,
     share: shares3token,
+    stakeList: stakeList3token,
   });
 
   return (
