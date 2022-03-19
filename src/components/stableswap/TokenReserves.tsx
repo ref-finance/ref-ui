@@ -53,6 +53,44 @@ export function MagnetToTokenReserves({
   );
 }
 
+export function MagnetConditional({
+  swapPage,
+  showReserves,
+  setShowReserves,
+}: {
+  swapPage: boolean;
+  showReserves: boolean;
+  setShowReserves: (e?: any) => void;
+}) {
+  return swapPage ? (
+    <MagnetToTokenReserves
+      showTokenReserves={showReserves}
+      setShowTokenReserves={setShowReserves}
+    />
+  ) : (
+    <div
+      className="flex justify-center my-4"
+      onClick={() => {
+        setShowReserves(!showReserves);
+      }}
+    >
+      <div className="flex items-center text-white cursor-pointer">
+        <p className="block text-sm">
+          <FormattedMessage
+            id="token_reserves"
+            defaultMessage="Token Reserves"
+          />
+        </p>
+        <div className="pl-1 text-sm">
+          {showReserves ? <FaAngleUp /> : <FaAngleDown />}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function OnlyTokenReserves() {}
+
 function TokenChart({
   tokens,
   coinsAmounts,
@@ -150,7 +188,7 @@ function TokenChart({
   );
 }
 
-const calculateTotalStableCoins = (
+export const calculateTotalStableCoins = (
   pools: Pool[],
   tokens: { [id: string]: TokenMetadata }
 ) => {
@@ -206,10 +244,16 @@ export default function ({
   tokens,
   pools,
   swapPage,
+  hiddenChart,
+  hiddenMag,
+  className,
 }: {
   tokens: TokenMetadata[];
   pools: Pool[];
   swapPage?: boolean;
+  hiddenMag?: boolean;
+  hiddenChart?: boolean;
+  className?: string;
 }) {
   const [showReserves, setShowReserves] = useState<boolean>(true);
   const [chart, setChart] = useState(null);
@@ -293,31 +337,13 @@ export default function ({
   }, []);
 
   return (
-    <div className={`${swapPage ? 'relative bottom-10' : ''}`}>
-      {swapPage ? (
-        <MagnetToTokenReserves
-          showTokenReserves={showReserves}
-          setShowTokenReserves={setShowReserves}
+    <div className={`${swapPage ? 'relative bottom-10' : ''} ${className}`}>
+      {hiddenMag ? null : (
+        <MagnetConditional
+          swapPage={swapPage}
+          showReserves={showReserves}
+          setShowReserves={setShowReserves}
         />
-      ) : (
-        <div
-          className="flex justify-center my-4"
-          onClick={() => {
-            setShowReserves(!showReserves);
-          }}
-        >
-          <div className="flex items-center text-white cursor-pointer">
-            <p className="block text-sm">
-              <FormattedMessage
-                id="token_reserves"
-                defaultMessage="Token Reserves"
-              />
-            </p>
-            <div className="pl-1 text-sm">
-              {showReserves ? <FaAngleUp /> : <FaAngleDown />}
-            </div>
-          </div>
-        </div>
       )}
 
       <Card
@@ -338,7 +364,11 @@ export default function ({
         >
           {toInternationalCurrencySystem(calTotalStableCoins, 3)}
         </div>
-        <div className="flex justify-center">{chart}</div>
+        <div
+          className={`${hiddenChart ? 'hidden' : 'block'} flex justify-center`}
+        >
+          {chart}
+        </div>
         {Object.values(tokensData).map(({ token, display }) => {
           return (
             <InfoLine

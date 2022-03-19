@@ -39,7 +39,7 @@ import { isMobile } from '~utils/device';
 import { wallet as webWallet, REF_FARM_CONTRACT_ID } from './services/near';
 import { getSenderWallet, WALLET_TYPE } from './utils/sender-wallet';
 import { getURLInfo, failToast } from './components/layout/transactionTipPopUp';
-
+import { StableSwapPageEntry } from '~pages/stable/StableSwapEntry';
 import { senderSignedInToast } from '~components/layout/senderSignInPopUp';
 
 import {
@@ -180,7 +180,14 @@ function App() {
             <Route path="/pools" component={AutoHeight(LiquidityPage)} />
             <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
             <Route path="/farms" component={AutoHeight(FarmsPage)} />
-            <Route path="/stableswap" component={AutoHeight(StableSwapPage)} />
+            <Route
+              path="/stableswap"
+              component={AutoHeight(StableSwapPageEntry)}
+            />
+            <Route
+              path="/stableswap-79"
+              component={AutoHeight(StableSwapPage)}
+            />
             <Route path="/xref" component={AutoHeight(XrefPage)} />
             <Route path="/risks" component={AutoHeight(RiskPage)} />
             <Route path="/" component={AutoHeight(SwapPage)} />

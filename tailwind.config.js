@@ -92,6 +92,7 @@ module.exports = {
         riskTextColor: '#BEBEBE',
         senderHot: '#00FFD1',
         tabChosen: '#4A5862',
+        liquidityBtb: '#141D24',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
