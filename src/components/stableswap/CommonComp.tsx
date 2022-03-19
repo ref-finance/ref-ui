@@ -111,7 +111,7 @@ export function SharesCard({
         <FormattedMessage id="my_shares" defaultMessage="Shares" />
         <QuestionTip id="shares_tip" />
       </span>
-      <div className="flex items-center xs:flex-col md:flex-col xs:items-end md:items-end mr-1">
+      <div className="flex items-center  mr-1">
         {shareToUserTotal({
           shares,
           userTotalShare,

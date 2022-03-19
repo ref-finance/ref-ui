@@ -218,39 +218,43 @@ function StablePoolCard({
           </Link>
         </div>
 
-        <div className="grid grid-cols-10">
+        <div className="grid grid-cols-10 xs:flex xs:flex-col">
           <div className="col-span-7 text-left">
-            <span className="flex flex-col">
+            <span className="flex flex-col xs:flex-row xs:justify-between">
               <span className="text-sm text-farmText">
                 <FormattedMessage id="tvl" defaultMessage="TVL" />
               </span>
-              <span className="text-lg text-white py-2">
-                {poolData.displayTVL}
-              </span>
-              <span>
-                <RenderDisplayTokensAmounts
-                  tokens={tokens}
-                  coinsAmounts={poolData.coinsAmounts}
-                />
-              </span>
+              <div className="flex flex-col xs:items-end">
+                <span className="text-lg text-white md:py-2 lg:py-2 xs:pb-2">
+                  {poolData.displayTVL}
+                </span>
+                <span>
+                  <RenderDisplayTokensAmounts
+                    tokens={tokens}
+                    coinsAmounts={poolData.coinsAmounts}
+                  />
+                </span>
+              </div>
             </span>
           </div>
 
-          <div className="col-span-3">
-            <span className="flex flex-col">
-              <span className="text-sm text-farmText pl-2">
+          <div className="col-span-3 xs:pt-4">
+            <span className="flex flex-col xs:flex-row xs:justify-between">
+              <span className="text-sm text-farmText md:pl-2 lg:pl-2">
                 <FormattedMessage id="share" defaultMessage="Share" />
               </span>
-              <span className="flex items-center py-2 pl-2">
-                <span className="text-lg text-white">
-                  {poolData.displayMyShareAmount}
+              <div className="flex flex-col xs:items-end">
+                <span className="flex items-center pl-2 md:py-2 lg:py-2 xs:pb-2">
+                  <span className="text-lg text-white ">
+                    {poolData.displayMyShareAmount}
+                  </span>
+                  <span className="text-sm text-farmText pl-3">
+                    {poolData.displaySharePercent}%
+                  </span>
                 </span>
-                <span className="text-sm text-farmText pl-3">
-                  {poolData.displaySharePercent}%
-                </span>
-              </span>
 
-              <span>{poolData.displayShareInFarm}</span>
+                <span>{poolData.displayShareInFarm}</span>
+              </div>
             </span>
           </div>
         </div>
@@ -341,10 +345,10 @@ export function StableSwapPageEntry() {
 
   return (
     <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2 flex flex-col">
-      <div className="flex justify-center -mt-10 mb-2 xs:hidden md:hidden">
-        <StableSwapLogo></StableSwapLogo>
+      <div className="flex justify-center -mt-10 mb-2 ">
+        <StableSwapLogo />
       </div>
-      <span className="text-sm text-primaryText mb-6">
+      <span className="text-sm text-primaryText mb-6 text-center">
         <FormattedMessage
           id="stable_swap_note"
           defaultMessage="SAUCE is designed for liquidity pools with pegged assets, delivering optimal prices."

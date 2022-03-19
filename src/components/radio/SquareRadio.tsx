@@ -17,30 +17,11 @@ export default function SquareRadio({
   const intl = useIntl();
   return (
     <>
-      <div className="flex justify-between bg-cardBg rounded p-1 mb-2.5 lg:hidden">
-        {radios.map((radio) => {
-          return (
-            <div
-              className={`py-1.5 px-3 text-center text-xs rounded cursor-pointer ${
-                choose === radio ? '  text-white ' : ' text-primaryText'
-              }`}
-              key={radio}
-              onClick={() => {
-                setChoose(radio);
-                localStorage.setItem(REF_STABLE_SWAP_TAB_KEY, radio);
-                onChange(radio);
-              }}
-            >
-              {intl.formatMessage({ id: radio })}
-            </div>
-          );
-        })}
-      </div>
-      <div className="flex justify-between xs:hidden md:hidden w-full px-8">
+      <div className="flex justify-between items-center w-full px-8">
         {radios.map((radio) => {
           return (
             <span
-              className={`py-2 px-6 text-center text-base cursor-pointer w-full ${
+              className={`py-2 text-center text-base cursor-pointer w-full ${
                 choose === radio ? ' text-white' : 'text-farmText'
               }`}
               key={radio}
@@ -55,7 +36,7 @@ export default function SquareRadio({
           );
         })}
       </div>
-      <div className="border-b-2 border-black border-opacity-20 mb-10 xs:hidden md:hidden mx-8 flex items-center">
+      <div className="border-b-2 border-black border-opacity-20 mb-10 mx-8 flex items-center">
         <div
           className={`w-full relative top-1 ${
             currentChoose === 'add_liquidity'
