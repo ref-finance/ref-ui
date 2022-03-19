@@ -17,7 +17,18 @@ import getConfig from '~services/config';
 import { StableSwapLogo } from '~components/icon/StableSwap';
 import { useWalletTokenBalances } from '../../state/token';
 import { useLocation } from 'react-router-dom';
-const DEFAULT_ACTIONS = ['stable_swap', 'add_liquidity', 'remove_liquidity'];
+import {
+  SharesCard,
+  StableTokens,
+} from '../../components/stableswap/CommonComp';
+import { TokenMetadata } from '../../services/ft-contract';
+import { useFarmStake } from '../../state/farm';
+import {
+  BackToStablePoolList,
+  Images,
+} from '~components/stableswap/CommonComp';
+import BigNumber from 'bignumber.js';
+export const DEFAULT_ACTIONS = ['add_liquidity', 'remove_liquidity'];
 const STABLE_TOKENS = ['USDT', 'USDC', 'DAI'];
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
 export const REF_STABLE_SWAP_TAB_KEY = 'REF_STABLE_SWAP_TAB_VALUE';
@@ -57,8 +68,15 @@ function StableSwapPage() {
   });
 
   const changeAction = (actionName: string) => {
+    localStorage.setItem(REF_STABLE_SWAP_TAB_KEY, actionName);
     setAction(actionName);
   };
+
+  const farmStake = useFarmStake({
+    poolId: Number(STABLE_POOL_ID),
+    stakeList,
+  });
+  const userTotalShare = BigNumber.sum(shares, farmStake);
 
   if (
     !allTokens ||
@@ -73,19 +91,8 @@ function StableSwapPage() {
     switch (tab) {
       case DEFAULT_ACTIONS[0]:
         return (
-          <StableSwap
-            tokens={tokens}
-            balances={nearBalances}
-            stablePool={stablePool}
-            loadingTrigger={loadingTrigger}
-            setLoadingTrigger={setLoadingTrigger}
-            loadingPause={loadingPause}
-            setLoadingPause={setLoadingPause}
-          />
-        );
-      case DEFAULT_ACTIONS[1]:
-        return (
           <AddLiquidityComponent
+            changeAction={changeAction}
             stablePool={stablePool}
             pool={pool}
             tokens={tokens}
@@ -94,9 +101,10 @@ function StableSwapPage() {
             balances={nearBalances}
           />
         );
-      case DEFAULT_ACTIONS[2]:
+      case DEFAULT_ACTIONS[1]:
         return (
           <RemoveLiquidityComponent
+            changeAction={changeAction}
             stablePool={stablePool}
             tokens={tokens}
             shares={shares}
@@ -110,19 +118,18 @@ function StableSwapPage() {
 
   return (
     <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2">
-      <div className="flex justify-center -mt-10 mb-2 xs:hidden md:hidden">
-        <StableSwapLogo></StableSwapLogo>
-      </div>
-      <div className="flex justify-center -mt-10 mb-2 lg:hidden">
-        <StableSwapLogo width="100" height="76"></StableSwapLogo>
-      </div>
-      <SquareRadio
-        onChange={changeAction}
-        radios={DEFAULT_ACTIONS}
-        currentChoose={actionName}
-      />
+      {<BackToStablePoolList />}
+      {<StableTokens tokens={tokens} />}
+      {
+        <SharesCard
+          shares={shares}
+          userTotalShare={userTotalShare}
+          stakeList={stakeList}
+          pool={pool}
+        />
+      }
       {renderModule(actionName)}
-      {<TokenReserves tokens={tokens} pools={[pool]} />}
+      {<TokenReserves tokens={tokens} pools={[pool]} forPool hiddenChart />}
     </div>
   );
 }

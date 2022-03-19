@@ -22,73 +22,6 @@ import { useDayVolume } from '~state/pool';
 import { scientificNotationToString } from '../../utils/numbers';
 import { get24hVolume } from '../../services/indexer';
 
-export function MagnetToTokenReserves({
-  showTokenReserves,
-  setShowTokenReserves,
-}: {
-  showTokenReserves: boolean;
-  setShowTokenReserves: (e?: any) => void;
-}) {
-  return (
-    <span
-      className={`px-5 rounded-t-xl text-sm text-farmText mx-auto flex items-center cursor-pointer bg-cardBg pt-3 ${
-        showTokenReserves ? 'pb-5' : 'pb-1.5'
-      }`}
-      style={{
-        borderTop: '1px solid #415462',
-        // height: '36px',
-        width: '175px',
-      }}
-      onClick={() => {
-        setShowTokenReserves(!showTokenReserves);
-      }}
-    >
-      <span>
-        <FormattedMessage id="token_reserves" defaultMessage="Token Reserves" />
-      </span>
-      <span className="ml-2">
-        {showTokenReserves ? <FaAngleUp /> : <FaAngleDown />}
-      </span>
-    </span>
-  );
-}
-
-export function MagnetConditional({
-  swapPage,
-  showReserves,
-  setShowReserves,
-}: {
-  swapPage: boolean;
-  showReserves: boolean;
-  setShowReserves: (e?: any) => void;
-}) {
-  return swapPage ? (
-    <MagnetToTokenReserves
-      showTokenReserves={showReserves}
-      setShowTokenReserves={setShowReserves}
-    />
-  ) : (
-    <div
-      className="flex justify-center my-4"
-      onClick={() => {
-        setShowReserves(!showReserves);
-      }}
-    >
-      <div className="flex items-center text-white cursor-pointer">
-        <p className="block text-sm">
-          <FormattedMessage
-            id="token_reserves"
-            defaultMessage="Token Reserves"
-          />
-        </p>
-        <div className="pl-1 text-sm">
-          {showReserves ? <FaAngleUp /> : <FaAngleDown />}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function OnlyTokenReserves() {}
 
 function TokenChart({
@@ -247,6 +180,7 @@ export default function ({
   hiddenChart,
   hiddenMag,
   className,
+  forPool,
 }: {
   tokens: TokenMetadata[];
   pools: Pool[];
@@ -254,6 +188,7 @@ export default function ({
   hiddenMag?: boolean;
   hiddenChart?: boolean;
   className?: string;
+  forPool?: boolean;
 }) {
   const [showReserves, setShowReserves] = useState<boolean>(true);
   const [chart, setChart] = useState(null);
@@ -264,6 +199,9 @@ export default function ({
   const [tvl, setTvl] = useState<number>();
 
   let utilisationDisplay;
+
+  const magId = forPool ? 'pool_details' : 'token_reserves';
+  const magDefaultMessage = forPool ? 'Pool Detail' : 'Token Reserves';
 
   useEffect(() => {
     if (ids) {
@@ -337,13 +275,31 @@ export default function ({
   }, []);
 
   return (
-    <div className={`${swapPage ? 'relative bottom-10' : ''} ${className}`}>
+    <div
+      className={`${
+        swapPage || forPool ? 'relative bottom-10' : ''
+      } ${className}`}
+    >
       {hiddenMag ? null : (
-        <MagnetConditional
-          swapPage={swapPage}
-          showReserves={showReserves}
-          setShowReserves={setShowReserves}
-        />
+        <span
+          className={`px-5 rounded-t-xl text-sm text-farmText mx-auto flex items-center justify-center cursor-pointer bg-cardBg pt-3 ${
+            showReserves ? 'pb-5' : 'pb-1.5'
+          }`}
+          style={{
+            borderTop: '1px solid #415462',
+            width: '175px',
+          }}
+          onClick={() => {
+            setShowReserves(!showReserves);
+          }}
+        >
+          <span>
+            <FormattedMessage id={magId} defaultMessage={magDefaultMessage} />
+          </span>
+          <span className="ml-2">
+            {showReserves ? <FaAngleUp /> : <FaAngleDown />}
+          </span>
+        </span>
       )}
 
       <Card

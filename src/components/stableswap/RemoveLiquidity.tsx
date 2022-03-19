@@ -60,15 +60,21 @@ import { LP_STABLE_TOKEN_DECIMALS, LP_TOKEN_DECIMALS } from '~services/m-token';
 import { QuestionTip } from '~components/layout/TipWrapper';
 import { WalletContext, getCurrentWallet } from '../../utils/sender-wallet';
 import { percentOfBigNumber } from '../../utils/numbers';
+import SquareRadio from '../radio/SquareRadio';
+import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
 export function shareToUserTotal({
   shares,
   userTotalShare,
+  pool,
+  stakeList,
 }: {
   shares: string;
   userTotalShare: BigNumber;
+  stakeList?: Record<string, string>;
+  pool?: Pool;
 }) {
   return (
     <div className="text-xs">
@@ -96,10 +102,11 @@ export function RemoveLiquidityComponent(props: {
   pool: Pool;
   stakeList: Record<string, string>;
   stablePool: StablePool;
+  changeAction?: (actionName: string) => void;
 }) {
   const [slippageInvalid, setSlippageInvalid] = useState(false);
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
-  const { shares, tokens, pool, stakeList, stablePool } = props;
+  const { shares, tokens, pool, stakeList, stablePool, changeAction } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');
@@ -271,51 +278,20 @@ export function RemoveLiquidityComponent(props: {
 
   return (
     <Card
-      padding="py-6 px-0"
+      padding="pt-6 px-0 pb-16"
       bgcolor="bg-cardBg"
       className="text-white outline-none w-full "
     >
-      <div className="text-xl pb-4 px-8">
-        <FormattedMessage
-          id="remove_liquidity"
-          defaultMessage="Remove Liquidity"
-        />
-      </div>
-
-      <div className=" text-white flex items-center justify-between text-xs px-8 pb-6 xs:items-start md:items-start">
-        <span className="text-primaryText flex items-center">
-          <FormattedMessage id="my_shares" defaultMessage="Shares" />
-          <QuestionTip id="shares_tip" />
-        </span>
-        <div className="flex items-center xs:flex-col md:flex-col xs:items-end md:items-end">
-          <span>
-            {shareToUserTotal({
-              shares,
-              userTotalShare,
-            })}{' '}
-          </span>
-          {canFarm > 0 && (
-            <Link
-              className="ml-2 xs:mt-2 md:mt-2"
-              to={{
-                pathname: '/farms',
-              }}
-              target="_blank"
-            >
-              <ShareInFarm
-                userTotalShare={userTotalShare}
-                farmStake={farmStake}
-                forStable
-              />
-            </Link>
-          )}
-        </div>
-      </div>
+      <SquareRadio
+        onChange={changeAction}
+        radios={DEFAULT_ACTIONS}
+        currentChoose={'remove_liquidity'}
+      />
 
       <div className="flex bg-inputDarkBg rounded text-white mx-8 xs:mx-5 md:mx-5 p-1.5 mb-8">
         <div
           className={`flex justify-center items-center w-2/4 rounded cursor-pointer ${
-            isPercentage ? 'bg-framBorder' : ''
+            isPercentage ? 'bg-stableTab' : ''
           }  h-9 xs:h-7 md:h-7`}
           onClick={() => setIsPercentage(true)}
         >
@@ -325,7 +301,7 @@ export function RemoveLiquidityComponent(props: {
 
         <div
           className={`flex justify-center items-center w-2/4 rounded cursor-pointer ${
-            !isPercentage ? 'bg-framBorder' : ''
+            !isPercentage ? 'bg-stableTab' : ''
           }  h-9 xs:h-7 md:h-7`}
           onClick={() => setIsPercentage(false)}
         >

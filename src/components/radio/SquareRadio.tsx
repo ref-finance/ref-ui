@@ -22,9 +22,7 @@ export default function SquareRadio({
           return (
             <div
               className={`py-1.5 px-3 text-center text-xs rounded cursor-pointer ${
-                choose === radio
-                  ? ' bg-stableTab text-white '
-                  : ' text-primaryText'
+                choose === radio ? '  text-white ' : ' text-primaryText'
               }`}
               key={radio}
               onClick={() => {
@@ -38,14 +36,12 @@ export default function SquareRadio({
           );
         })}
       </div>
-      <div className="flex justify-between  lg:mx-12 xs:hidden md:hidden">
+      <div className="flex justify-between xs:hidden md:hidden w-full px-8">
         {radios.map((radio) => {
           return (
-            <div
-              className={`py-4 px-6 text-center text-sm rounded-tr-lg rounded-tl-lg cursor-pointer ${
-                choose === radio
-                  ? ' bg-cardBg text-white '
-                  : ' text-primaryText'
+            <span
+              className={`py-2 px-6 text-center text-base cursor-pointer w-full ${
+                choose === radio ? ' text-white' : 'text-farmText'
               }`}
               key={radio}
               onClick={() => {
@@ -55,9 +51,26 @@ export default function SquareRadio({
               }}
             >
               {intl.formatMessage({ id: radio })}
-            </div>
+            </span>
           );
         })}
+      </div>
+      <div className="border-b-2 border-black border-opacity-20 mb-10 xs:hidden md:hidden mx-8 flex items-center">
+        <div
+          className={`w-full relative top-1 ${
+            currentChoose === 'add_liquidity'
+              ? 'border-b-4  rounded-2xl border-gradientFrom'
+              : ''
+          }`}
+        ></div>
+
+        <div
+          className={`w-full relative top-1 ${
+            currentChoose === 'remove_liquidity'
+              ? 'border-b-4  rounded-2xl border-gradientFrom'
+              : ''
+          }`}
+        ></div>
       </div>
     </>
   );

@@ -18,7 +18,7 @@ import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import getConfig from '~services/config';
 import { StableSwapLogo } from '~components/icon/StableSwap';
 import { useWalletTokenBalances } from '../../state/token';
-import { useLocation } from 'react-router-dom';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { Pool, getStablePoolFromCache } from '../../services/pool';
 import { Card } from '../../components/card/Card';
@@ -46,6 +46,7 @@ import {
 } from '../../utils/numbers';
 import { SolidButton } from '~components/button/Button';
 import { OutlineButton } from '../../components/button/Button';
+import { Images, Symbols } from '~components/stableswap/CommonComp';
 
 const RenderDisplayTokensAmounts = ({
   tokens,
@@ -58,7 +59,7 @@ const RenderDisplayTokensAmounts = ({
     <div className="flex items-center">
       {tokens.map((token, i) => {
         return (
-          <span className="flex">
+          <span className="flex" key={token.id}>
             {i ? <span className="mx-3 text-white">+</span> : null}
             <span className="flex items-center">
               <span className="mr-1.5">
@@ -144,49 +145,28 @@ function StablePoolCard({
     displayShareInFarm: string | JSX.Element;
   };
 }) {
-  const Images = tokens.map((token, index) => {
-    const { icon, id } = token;
-    if (icon)
-      return (
-        <img
-          key={id}
-          className={
-            'inline-block h-10 w-10 rounded-full border border-gradientFromHover -ml-1 '
-          }
-          src={icon}
-        />
-      );
-    return (
-      <div
-        key={id}
-        className={
-          'inline-block h-10 w-10 rounded-full bg-cardBg border border-gradientFromHover -ml-1'
-        }
-      ></div>
-    );
-  });
-
-  const Symbols = () => {
-    return (
-      <div className="text-white font-bold">
-        {tokens.map((token, index) => (
-          <span key={token.id}>
-            {index ? '/' : ''}
-            {toRealSymbol(token.symbol)}
-          </span>
-        ))}
-        <span className="ml-1.5">{'>'}</span>
-      </div>
-    );
-  };
-
+  const history = useHistory();
   const LiquidityButton = () => {
     return (
       <div className="w-full bg-liquidityBtb flex items-center py-4 px-6 rounded-b-2xl mb-2">
-        <SolidButton className="w-full text-center flex items-center justify-center py-3 mr-2 text-sm">
+        <SolidButton
+          className="w-full text-center flex items-center justify-center py-3 mr-2 text-sm"
+          onClick={() =>
+            history.push(`stableswap/${stablePool.id}`, {
+              stableTab: 'add_liquidity',
+            })
+          }
+        >
           <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
         </SolidButton>
-        <OutlineButton className="w-full py-3 ml-2 text-sm">
+        <OutlineButton
+          className="w-full py-3 ml-2 text-sm"
+          onClick={() =>
+            history.push(`stableswap/${stablePool.id}`, {
+              stableTab: 'remove_liquidity',
+            })
+          }
+        >
           <FormattedMessage
             id="remove_liquidity"
             defaultMessage="Remove Liquidity"
@@ -205,8 +185,10 @@ function StablePoolCard({
         className="flex flex-col"
       >
         <div className="flex items-center justify-between pb-6">
-          <div>{Images}</div>
-          <Symbols />
+          <Images tokens={tokens} />
+          <Link to={`stableswap/${stablePool.id}`}>
+            <Symbols withArrow tokens={tokens} />
+          </Link>
         </div>
 
         <div className="grid grid-cols-10">

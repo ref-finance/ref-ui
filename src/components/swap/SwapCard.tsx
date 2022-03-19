@@ -81,9 +81,7 @@ import { DoubleCheckModal } from '~components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
 import { SWAP_MODE } from '~pages/SwapPage';
 import { isStableToken } from '../../services/near';
-import TokenReserves, {
-  MagnetToTokenReserves,
-} from '../stableswap/TokenReserves';
+import TokenReserves from '../stableswap/TokenReserves';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';

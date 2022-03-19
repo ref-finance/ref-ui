@@ -9,7 +9,6 @@ import {
   STABLE_POOL_USN_ID,
 } from '../services/near';
 import { TokenMetadata } from '../services/ft-contract';
-import { MagnetToTokenReserves } from '../components/stableswap/TokenReserves';
 import { Pool, getStablePoolFromCache } from '../services/pool';
 
 const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';

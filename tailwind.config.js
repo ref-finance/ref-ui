@@ -22,7 +22,7 @@ module.exports = {
     extend: {
       backgroundImage: (theme) => ({
         farmSearch: 'linear-gradient(106.25deg, #00FFD1 6.88%, #00BA98 81.93%)',
-        stableTab: 'linear-gradient(360deg, #00C6A2 0%, #008B72 100%)',
+        stableTab: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
         primaryGradient: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
         buttonGradientBg: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
         darkGradientBg: 'linear-gradient(180deg, #1D2932 0%, #001320 100%)',

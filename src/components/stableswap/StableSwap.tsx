@@ -190,7 +190,7 @@ export default function StableSwap({
   return (
     <>
       <form
-        className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl py-6 bg-dark xs:rounded-lg md:rounded-lg"
+        className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl py-6 bg-dark xs:rounded-lg md:rounded-lg pb-16"
         onSubmit={handleSubmit}
       >
         <div className="formTitle flex justify-between text-xl text-white text-left px-8">

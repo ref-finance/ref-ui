@@ -34,6 +34,8 @@ import { WarnTriangle } from '../icon/SwapRefresh';
 import { ActionModel } from '../../pages/AccountPage';
 import { getDepositableBalance } from '../../state/token';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import SquareRadio from '../radio/SquareRadio';
+import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE';
@@ -78,8 +80,17 @@ export default function AddLiquidityComponent(props: {
   totalShares: string;
   stakeList: Record<string, string>;
   stablePool: StablePool;
+  changeAction?: (actionName: string) => void;
 }) {
-  const { pool, tokens, balances, totalShares, stakeList, stablePool } = props;
+  const {
+    pool,
+    tokens,
+    balances,
+    totalShares,
+    stakeList,
+    stablePool,
+    changeAction,
+  } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');
@@ -414,13 +425,15 @@ export default function AddLiquidityComponent(props: {
   return (
     <>
       <Card
-        padding="py-6"
+        padding="pt-6 pb-16"
         bgcolor="bg-cardBg"
         className="text-white w-full outline-none "
       >
-        <div className="text-xl pb-4 px-8">
-          <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
-        </div>
+        <SquareRadio
+          onChange={changeAction}
+          radios={DEFAULT_ACTIONS}
+          currentChoose={'add_liquidity'}
+        />
 
         <StableTokenList
           changeFirstTokenAmount={changeFirstTokenAmount}

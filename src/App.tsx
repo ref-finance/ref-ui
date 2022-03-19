@@ -181,12 +181,12 @@ function App() {
             <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
             <Route path="/farms" component={AutoHeight(FarmsPage)} />
             <Route
-              path="/stableswap"
-              component={AutoHeight(StableSwapPageEntry)}
+              path="/stableswap/:id"
+              component={AutoHeight(StableSwapPage)}
             />
             <Route
-              path="/stableswap-79"
-              component={AutoHeight(StableSwapPage)}
+              path="/stableswap"
+              component={AutoHeight(StableSwapPageEntry)}
             />
             <Route path="/xref" component={AutoHeight(XrefPage)} />
             <Route path="/risks" component={AutoHeight(RiskPage)} />
