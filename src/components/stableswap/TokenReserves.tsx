@@ -20,13 +20,57 @@ import _ from 'lodash';
 import BigNumber from 'bignumber.js';
 import { useDayVolume } from '~state/pool';
 import { scientificNotationToString } from '../../utils/numbers';
+import { get24hVolume } from '../../services/indexer';
 
-function TokenChart({ tokens, pool }: { tokens: TokenMetadata[]; pool: Pool }) {
-  const tokensData = calculateTokenValueAndShare(pool, tokens);
+export function MagnetToTokenReserves({
+  showTokenReserves,
+  setShowTokenReserves,
+}: {
+  showTokenReserves: boolean;
+  setShowTokenReserves: (e?: any) => void;
+}) {
+  return (
+    <span
+      className={`px-5 rounded-t-xl text-sm text-farmText mx-auto flex items-center cursor-pointer bg-cardBg pt-3 ${
+        showTokenReserves ? 'pb-5' : 'pb-1.5'
+      }`}
+      style={{
+        borderTop: '1px solid #415462',
+        // height: '36px',
+        width: '175px',
+      }}
+      onClick={() => {
+        setShowTokenReserves(!showTokenReserves);
+      }}
+    >
+      <span>
+        <FormattedMessage id="token_reserves" defaultMessage="Token Reserves" />
+      </span>
+      <span className="ml-2">
+        {showTokenReserves ? <FaAngleUp /> : <FaAngleDown />}
+      </span>
+    </span>
+  );
+}
+
+function TokenChart({
+  tokens,
+  coinsAmounts,
+  tokensMap,
+}: {
+  tokens: TokenMetadata[];
+  coinsAmounts: { [id: string]: BigNumber };
+  tokensMap: { [id: string]: TokenMetadata };
+}) {
+  const tokensData = calculateTokenValueAndShare(
+    tokens,
+    coinsAmounts,
+    tokensMap
+  );
   const data = tokens.map((token, i) => {
     return {
       name: token.symbol,
-      value: Number(toReadableNumber(token.decimals, pool.supplies[token.id])),
+      value: Number(coinsAmounts[token.id]),
       token: token,
       displayV: tokensData[token.id].display2,
     };
@@ -35,6 +79,7 @@ function TokenChart({ tokens, pool }: { tokens: TokenMetadata[]; pool: Pool }) {
     DAI: 'rgba(255, 199, 0, 0.45)',
     USDT: 'rgba(0, 198, 162, 0.47)',
     USDC: 'rgba(0, 163, 255, 0.45)',
+    USN: 'rgba(255, 255, 255, 0.45)',
   };
 
   function customLabel(props: any) {
@@ -105,32 +150,37 @@ function TokenChart({ tokens, pool }: { tokens: TokenMetadata[]; pool: Pool }) {
   );
 }
 
-const calculateTotalStableCoins = (pool: Pool, tokens: TokenMetadata[]) => {
-  const coinsAmounts = Object.values(pool.supplies).map((amount, i) =>
-    toReadableNumber(tokens[i].decimals, amount)
-  );
+const calculateTotalStableCoins = (
+  pools: Pool[],
+  tokens: { [id: string]: TokenMetadata }
+) => {
+  let coinsAmounts: { [id: string]: BigNumber } = {};
 
-  const totalCoins = BigNumber.sum(...coinsAmounts)
+  pools.forEach((p) => {
+    Object.entries(p.supplies).map(([id, amount]) => {
+      coinsAmounts[id] = (
+        coinsAmounts?.[id] ? coinsAmounts[id] : new BigNumber(0)
+      ).plus(toReadableNumber(tokens[id].decimals, amount));
+    });
+  });
+
+  const totalCoins = BigNumber.sum(...Object.values(coinsAmounts))
     .toNumber()
     .toLocaleString('fullwide', { useGrouping: false });
 
-  return totalCoins;
+  return { totalCoins, coinsAmounts };
 };
 const calculateTokenValueAndShare = (
-  pool: any,
-  tokens: any
+  tokens: TokenMetadata[],
+  coinsAmounts: { [id: string]: BigNumber },
+  tokensMap: { [id: string]: TokenMetadata }
 ): Record<string, any> => {
   let result: Record<string, any> = {};
-  const totalShares = _.sumBy(
-    Object.values(pool.supplies).map((v: string, i) =>
-      toReadableNumber(tokens[i].decimals, v)
-    ),
-    (o) => Number(o)
-  );
+  const totalShares = _.sumBy(Object.values(coinsAmounts), (o) => Number(o));
 
   let otherTokenNumber = '0';
-  tokens.forEach((token: any, index: number) => {
-    const value = toReadableNumber(token.decimals, pool.supplies[token.id]);
+  Object.values(tokensMap).forEach((token: TokenMetadata, index: number) => {
+    const value = scientificNotationToString(coinsAmounts[token.id].toString());
     let percentStr: string | number;
     if (index == tokens.length - 1) {
       percentStr = new BigNumber(100).minus(otherTokenNumber).toFixed(2);
@@ -151,33 +201,46 @@ const calculateTokenValueAndShare = (
   });
   return result;
 };
-const useTvl = (id: string) => {
-  const [tvl, setTvl] = useState(0);
-  useEffect(() => {
-    getPoolsByIds({ pool_ids: [id] }).then((pools) => {
-      setTvl(pools[0].tvl);
-    });
-  }, [id]);
-  return tvl;
-};
+
 export default function ({
-  totalStableCoins,
   tokens,
-  pool,
-  inSwapPage,
+  pools,
+  swapPage,
 }: {
-  totalStableCoins: string;
   tokens: TokenMetadata[];
-  pool: Pool;
-  inSwapPage?: boolean;
+  pools: Pool[];
+  swapPage?: boolean;
 }) {
   const [showReserves, setShowReserves] = useState<boolean>(true);
   const [chart, setChart] = useState(null);
-  const { id } = pool;
-  let volume;
+
+  const ids = pools.map((p) => p.id);
+  const [volume, setVolume] = useState<string>();
+
+  const [tvl, setTvl] = useState<number>();
+
   let utilisationDisplay;
-  volume = useDayVolume(id.toString());
-  const tvl = useTvl(id.toString());
+
+  useEffect(() => {
+    if (ids) {
+      if (ids.length > 1) {
+        Promise.all(ids.map((id) => get24hVolume(id.toString()))).then(
+          (vols) => {
+            setVolume(_.sumBy(vols, (o) => Number(o)).toString());
+          }
+        );
+      } else {
+        get24hVolume(ids[0].toString()).then(setVolume);
+      }
+
+      getPoolsByIds({ pool_ids: ids.map((id) => id.toString()) }).then(
+        (pools) => {
+          setTvl(_.sumBy(pools, (o) => o.tvl));
+        }
+      );
+    }
+  }, [ids]);
+
   if (volume && tvl) {
     const utilisation = new BigNumber(volume).dividedBy(tvl).multipliedBy(100);
     if (new BigNumber('0.01').isGreaterThan(utilisation)) {
@@ -186,41 +249,76 @@ export default function ({
       utilisationDisplay = utilisation.toFixed(2) + '%';
     }
   }
-  const tokensData = calculateTokenValueAndShare(pool, tokens);
+
+  const tokensMap: { [id: string]: TokenMetadata } = tokens.reduce(
+    (pre, cur) => ({ ...pre, [cur.id]: cur }),
+    {}
+  );
+
   const intl = useIntl();
-  useEffect(() => {
-    const chart = <TokenChart tokens={tokens} pool={pool} />;
-    setChart(chart);
-  }, []);
 
   const calTotalStableCoins = useMemo(() => {
     try {
-      return calculateTotalStableCoins(pool, tokens);
+      return calculateTotalStableCoins(pools, tokensMap).totalCoins;
     } catch (error) {
       return '0';
     }
-  }, [pool, tokens]);
+  }, [pools, tokensMap]);
+
+  const coinsAmounts = useMemo(() => {
+    try {
+      return calculateTotalStableCoins(pools, tokensMap).coinsAmounts;
+    } catch (error) {
+      return {};
+    }
+  }, [pools, tokensMap]);
+
+  const tokensData = useMemo(() => {
+    try {
+      return calculateTokenValueAndShare(tokens, coinsAmounts, tokensMap);
+    } catch (error) {
+      return {};
+    }
+  }, [pools, tokens, coinsAmounts, tokensMap]);
+
+  useEffect(() => {
+    const chart = (
+      <TokenChart
+        tokens={tokens}
+        coinsAmounts={coinsAmounts}
+        tokensMap={tokensMap}
+      />
+    );
+    setChart(chart);
+  }, []);
 
   return (
-    <>
-      <div
-        className="flex justify-center my-4"
-        onClick={() => {
-          setShowReserves(!showReserves);
-        }}
-      >
-        <div className="flex items-center text-white cursor-pointer">
-          <p className="block text-xs">
-            <FormattedMessage
-              id="token_reserves"
-              defaultMessage="Token Reserves"
-            />
-          </p>
-          <div className="pl-1 text-sm">
-            {showReserves ? <FaAngleUp /> : <FaAngleDown />}
+    <div className="relative bottom-10">
+      {swapPage ? (
+        <MagnetToTokenReserves
+          showTokenReserves={showReserves}
+          setShowTokenReserves={setShowReserves}
+        />
+      ) : (
+        <div
+          className="flex justify-center my-4"
+          onClick={() => {
+            setShowReserves(!showReserves);
+          }}
+        >
+          <div className="flex items-center text-white cursor-pointer">
+            <p className="block text-sm">
+              <FormattedMessage
+                id="token_reserves"
+                defaultMessage="Token Reserves"
+              />
+            </p>
+            <div className="pl-1 text-sm">
+              {showReserves ? <FaAngleUp /> : <FaAngleDown />}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <Card
         padding="p-8"
@@ -248,7 +346,7 @@ export default function ({
               title={token.symbol}
               value={display}
               valueTitle={toPrecision(
-                toReadableNumber(token.decimals, pool.supplies[token.id]),
+                scientificNotationToString(coinsAmounts[token.id].toString()),
                 0
               )}
             />
@@ -258,12 +356,6 @@ export default function ({
           title={intl.formatMessage({ id: 'total_stable_coins' })}
           value={toInternationalCurrencySystem(calTotalStableCoins, 3) || '0'}
           valueTitle={toPrecision(calTotalStableCoins, 0)}
-        />
-
-        <InfoLine
-          title={intl.formatMessage({ id: 'pool_fee' })}
-          value={`${calculateFeePercent(pool.fee)}%`}
-          className="my-4"
         />
         <InfoLine
           title={intl.formatMessage({ id: 'liquidity_utilisation' })}
@@ -278,6 +370,6 @@ export default function ({
           value={volume ? toInternationalCurrencySystem(volume) : '-'}
         />
       </Card>
-    </>
+    </div>
   );
 }

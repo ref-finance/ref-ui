@@ -3,8 +3,14 @@ import SwapCard from '~components/swap/SwapCard';
 import Loading from '~components/layout/Loading';
 import { useWhitelistTokens } from '../state/token';
 import { FormattedMessage } from 'react-intl';
-import { isStableToken } from '../services/near';
+import {
+  isStableToken,
+  STABLE_POOL_ID,
+  STABLE_POOL_USN_ID,
+} from '../services/near';
 import { TokenMetadata } from '../services/ft-contract';
+import { MagnetToTokenReserves } from '../components/stableswap/TokenReserves';
+import { Pool, getStablePoolFromCache } from '../services/pool';
 
 const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -57,19 +63,31 @@ function SwapPage() {
     (localStorage.getItem(SWAP_MODE_KEY) as SWAP_MODE | null) ||
       SWAP_MODE.NORMAL
   );
-  console.log(localStorage.getItem(SWAP_MODE_KEY));
 
-  console.log(swapMode);
+  const [stablePools, setStablePools] = useState<Pool[]>();
+
+  useEffect(() => {
+    Promise.all([
+      getStablePoolFromCache(STABLE_POOL_ID.toString()),
+      getStablePoolFromCache(STABLE_POOL_USN_ID.toString()),
+    ]).then((rawPoolInfos) => {
+      setStablePools(rawPoolInfos.map((PInfo) => PInfo[0]));
+    });
+  }, []);
 
   const allTokens = useWhitelistTokens();
 
-  if (!allTokens) return <Loading />;
+  if (!allTokens || !stablePools) return <Loading />;
 
   return (
     <div className="swap">
       <section className="lg:w-560px md:w-5/6 xs:w-full xs:p-2 m-auto relative">
         <ChangeSwapMode swapMode={swapMode} setSwapMode={setSwapMode} />
-        <SwapCard allTokens={allTokens} swapMode={swapMode} />
+        <SwapCard
+          allTokens={allTokens}
+          swapMode={swapMode}
+          stablePools={stablePools}
+        />
       </section>
     </div>
   );

@@ -6,6 +6,7 @@ import SlippageSelector from './SlippageSelector';
 import { SwapRefresh, CountdownTimer } from '~components/icon';
 import { wallet } from '~services/near';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import { SWAP_MODE } from '../../pages/SwapPage';
 
 interface SwapFormWrapProps {
   title?: string;
@@ -29,6 +30,7 @@ interface SwapFormWrapProps {
     setShowSwapLoading: (swapLoading: boolean) => void;
   };
   useNearBalance: string;
+  swapMode?: SWAP_MODE;
 }
 
 export default function SwapFormWrap({
@@ -45,6 +47,7 @@ export default function SwapFormWrap({
   bindUseBalance,
   loading,
   useNearBalance,
+  swapMode,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
   const {
@@ -83,7 +86,9 @@ export default function SwapFormWrap({
 
   return (
     <form
-      className="overflow-y-visible bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible"
+      className={`overflow-y-visible bg-secondary shadow-2xl rounded-2xl p-7 ${
+        swapMode === SWAP_MODE.STABLE ? 'pb-16' : ''
+      } bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible`}
       onSubmit={handleSubmit}
     >
       {title && (

@@ -81,6 +81,9 @@ import { DoubleCheckModal } from '~components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
 import { SWAP_MODE } from '~pages/SwapPage';
 import { isStableToken } from '../../services/near';
+import TokenReserves, {
+  MagnetToTokenReserves,
+} from '../stableswap/TokenReserves';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -523,8 +526,9 @@ function DetailView({
 export default function SwapCard(props: {
   allTokens: TokenMetadata[];
   swapMode: SWAP_MODE;
+  stablePools: Pool[];
 }) {
-  const { allTokens, swapMode } = props;
+  const { allTokens, swapMode, stablePools } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
@@ -792,6 +796,7 @@ export default function SwapCard(props: {
             )}
           </div>
         }
+        swapMode={swapMode}
         onSubmit={handleSubmit}
         info={intl.formatMessage({ id: 'swapCopy' })}
         title={'swap'}
@@ -906,6 +911,13 @@ export default function SwapCard(props: {
         onSwap={() => makeSwap(useNearBalance)}
         priceImpactValue={PriceImpactValue}
       />
+      {swapMode === SWAP_MODE.STABLE ? (
+        <TokenReserves
+          tokens={allTokens.filter((token) => isStableToken(token.id))}
+          pools={stablePools}
+          swapPage
+        />
+      ) : null}
     </>
   );
 }

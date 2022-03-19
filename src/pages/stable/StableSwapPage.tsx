@@ -122,14 +122,7 @@ function StableSwapPage() {
         currentChoose={actionName}
       />
       {renderModule(actionName)}
-      {
-        <TokenReserves
-          totalStableCoins="100"
-          tokens={tokens}
-          pool={pool}
-          inSwapPage={actionName === DEFAULT_ACTIONS[0]}
-        />
-      }
+      {<TokenReserves tokens={tokens} pools={[pool]} />}
     </div>
   );
 }
