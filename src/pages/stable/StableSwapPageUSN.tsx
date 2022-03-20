@@ -23,8 +23,8 @@ import BigNumber from 'bignumber.js';
 import { Pool, StablePool, getStablePoolFromCache } from '../../services/pool';
 import AddLiquidityComponentUSN from '../../components/stableswap/AddLiquidityUSN';
 import { RemoveLiquidityComponentUSN } from '../../components/stableswap/RemoveLiquidityUSN';
+import { STABLE_TOKEN_USN_IDS } from '../../services/near';
 export const DEFAULT_ACTIONS = ['add_liquidity', 'remove_liquidity'];
-const STABLE_TOKENS = ['USN', 'USDT'];
 const STABLE_POOL_USN_ID = getConfig().STABLE_POOL_USN_ID;
 export const REF_STABLE_SWAP_TAB_KEY_USN = 'REF_STABLE_SWAP_TAB_VALUE_USN';
 
@@ -43,8 +43,11 @@ function StableSwapPageUSN() {
 
   const [actionName, setAction] = useState<string>(
     stableTab ||
-      localStorage.getItem(REF_STABLE_SWAP_TAB_KEY_USN) ||
-      DEFAULT_ACTIONS[0]
+      DEFAULT_ACTIONS.includes(
+        localStorage.getItem(REF_STABLE_SWAP_TAB_KEY_USN)
+      )
+      ? localStorage.getItem(REF_STABLE_SWAP_TAB_KEY_USN)
+      : false || DEFAULT_ACTIONS[0]
   );
 
   const { pool, shares, stakeList } = state?.pool
@@ -60,10 +63,12 @@ function StableSwapPageUSN() {
   const userTotalShare = BigNumber.sum(shares, farmStake);
 
   const allTokens = useWhitelistStableTokens();
-  const tokens =
-    allTokens &&
-    allTokens.length > 0 &&
-    allTokens.filter((item) => STABLE_TOKENS.indexOf(item.symbol) > -1);
+
+  const tokens = allTokens
+    ? STABLE_TOKEN_USN_IDS.map((id) =>
+        allTokens?.find((token) => token?.id === id)
+      )
+    : [];
 
   const nearBalances = useWalletTokenBalances(
     tokens?.map((token) => token.id) || []

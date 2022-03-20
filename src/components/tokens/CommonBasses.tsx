@@ -14,6 +14,7 @@ interface CommonBassesProps {
   tokenPriceList: Record<string, any>;
 }
 const COMMON_BASSES = [
+  'USN',
   'wNEAR',
   'REF',
   'SKYWARD',
@@ -21,7 +22,6 @@ const COMMON_BASSES = [
   'STNEAR',
   'USDT',
   'USDC',
-  'AURORA',
   'ETH',
   'DAI',
   'WBTC',
@@ -33,14 +33,16 @@ export default function CommonBasses({
   onClick,
   tokenPriceList,
 }: CommonBassesProps) {
-  const commonBassesTokens = tokens.filter((item) => {
-    return COMMON_BASSES.indexOf(item?.symbol) > -1;
-  });
+  const commonBassesTokens = tokens
+    .filter((item) => {
+      return COMMON_BASSES.indexOf(item?.symbol) > -1;
+    })
+    .sort((a, b) => (a.symbol === 'USN' ? -1 : 1));
 
   return (
     <section className="px-6">
       <div className="text-sm font-bold py-2 pl-2">
-        <FormattedMessage id="popular_tokens" defaultMessage="Popular Tokens" />
+        <FormattedMessage id="common_tokens" defaultMessage="Common Tokens" />
       </div>
       <div className="w-full flex flex-wrap items-center text-sm xs:text-xs text-left">
         <Wnear />

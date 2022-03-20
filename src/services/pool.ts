@@ -475,7 +475,10 @@ export const addLiquidityToStablePool = async ({
     },
   ];
 
-  const allTokenIds = getConfig().STABLE_TOKEN_IDS;
+  const allTokenIds =
+    id === Number(STABLE_POOL_ID)
+      ? getConfig().STABLE_TOKEN_IDS
+      : getConfig().STABLE_TOKEN_USN_IDS;
   const balances = await Promise.all(
     allTokenIds.map((tokenId) => getTokenBalance(tokenId))
   );

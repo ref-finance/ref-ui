@@ -1435,7 +1435,7 @@ function FarmView({
                   to={
                     PoolId == STABLE_POOL_ID
                       ? {
-                          pathname: '/stableswap',
+                          pathname: '/sauce',
                           state: { backToFarms: true },
                         }
                       : {
@@ -1460,7 +1460,7 @@ function FarmView({
             title={intl.formatMessage({ id: 'view_pool' })}
             to={
               PoolId == STABLE_POOL_ID
-                ? { pathname: '/stableswap', state: { backToFarms: true } }
+                ? { pathname: '/sauce', state: { backToFarms: true } }
                 : { pathname: `/pool/${PoolId}`, state: { backToFarms: true } }
             }
             target="_blank"

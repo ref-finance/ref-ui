@@ -18,7 +18,7 @@ export function BackToStablePoolList() {
 
   return (
     <div className="flex items-center text-base text-farmText hover:text-white cursor-pointer">
-      <span onClick={() => history.push('/stableswap')}>
+      <span onClick={() => history.push('/sauce')}>
         <span className="mr-1.5">{'<'}</span>
         <span>
           <FormattedMessage id="stableCoins" defaultMessage="StableCoins" />

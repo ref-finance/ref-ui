@@ -603,7 +603,7 @@ function NavigationBar() {
           </div>
           <div className="flex items-center">
             <Anchor to="/" pattern="/" name="Swap" />
-            <Anchor to="/stableswap" pattern="/stableswap" name="Sauce" />
+            <Anchor to="/sauce" pattern="/sauce" name="Sauce" />
             <PoolsMenu />
             <Anchor to="/farms" pattern="/farms" name="Farms" />
             <Xref></Xref>

@@ -94,7 +94,7 @@ export function ToStableTip({
         <span>{intl.formatMessage({ id: 'check_to_stable_banner' })}</span>{' '}
         <Link
           to={{
-            pathname: '/stableswap',
+            pathname: '/sauce',
           }}
           className="underline text-gradientFrom"
         >

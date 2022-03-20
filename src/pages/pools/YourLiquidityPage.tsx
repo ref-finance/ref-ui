@@ -440,7 +440,7 @@ function PoolRow(props: { pool: any }) {
                 if (isNotStablePool(pool)) {
                   setShowFunding(true);
                 } else {
-                  history.push(`/stableswap/${pool.id}`, {
+                  history.push(`/sauce/${pool.id}`, {
                     stableTab: 'add_liquidity',
                   });
                 }
@@ -461,7 +461,7 @@ function PoolRow(props: { pool: any }) {
                 if (isNotStablePool(pool)) {
                   setShowWithdraw(true);
                 } else {
-                  history.push(`/stableswap/${pool.id}`, {
+                  history.push(`/sauce/${pool.id}`, {
                     stableTab: 'remove_liquidity',
                   });
                 }
@@ -538,7 +538,7 @@ function PoolRow(props: { pool: any }) {
                   if (isNotStablePool(pool)) {
                     setShowFunding(true);
                   } else {
-                    history.push('/stableswap', { stableTab: 'add_liquidity' });
+                    history.push('/sauce', { stableTab: 'add_liquidity' });
                   }
                 }}
                 className="text-sm w-28 mr-4"
@@ -556,7 +556,7 @@ function PoolRow(props: { pool: any }) {
                   if (isNotStablePool(pool)) {
                     setShowWithdraw(true);
                   } else {
-                    history.push('/stableswap', {
+                    history.push('/sauce', {
                       stableTab: 'remove_liquidity',
                     });
                   }

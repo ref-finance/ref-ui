@@ -106,7 +106,7 @@ function App() {
     }
     if (
       pathname !== '/swap' &&
-      pathname !== '/stableswap' &&
+      pathname !== '/sauce' &&
       pathname !== '/' &&
       pathname !== '/pools/add'
     )
@@ -187,18 +187,15 @@ function App() {
             <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
             <Route path="/farms" component={AutoHeight(FarmsPage)} />
             <Route
-              path={`/stableswap/${STABLE_POOL_ID}`}
+              path={`/sauce/${STABLE_POOL_ID}`}
               component={AutoHeight(StableSwapPage)}
             />
             <Route
-              path={`/stableswap/${STABLE_POOL_USN_ID}`}
+              path={`/sauce/${STABLE_POOL_USN_ID}`}
               component={AutoHeight(StableSwapPageUSN)}
             />
 
-            <Route
-              path="/stableswap"
-              component={AutoHeight(StableSwapPageEntry)}
-            />
+            <Route path="/sauce" component={AutoHeight(StableSwapPageEntry)} />
 
             <Route path="/xref" component={AutoHeight(XrefPage)} />
             <Route path="/risks" component={AutoHeight(RiskPage)} />

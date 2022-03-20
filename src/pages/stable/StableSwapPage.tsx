@@ -49,8 +49,9 @@ function StableSwapPage() {
 
   const [actionName, setAction] = useState<string>(
     stableTab ||
-      localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) ||
-      DEFAULT_ACTIONS[0]
+      DEFAULT_ACTIONS.includes(localStorage.getItem(REF_STABLE_SWAP_TAB_KEY))
+      ? localStorage.getItem(REF_STABLE_SWAP_TAB_KEY)
+      : false || DEFAULT_ACTIONS[0]
   );
 
   const { pool, shares, stakeList } = state?.pool

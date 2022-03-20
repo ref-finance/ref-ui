@@ -172,7 +172,7 @@ function StablePoolCard({
         <SolidButton
           className="w-full text-center flex items-center justify-center py-3 mr-2 text-sm"
           onClick={() =>
-            history.push(`stableswap/${stablePool.id}`, {
+            history.push(`/sauce/${stablePool.id}`, {
               stableTab: 'add_liquidity',
               shares,
               stakeList,
@@ -186,7 +186,7 @@ function StablePoolCard({
         <OutlineButton
           className="w-full py-3 ml-2 text-sm"
           onClick={() =>
-            history.push(`stableswap/${stablePool.id}`, {
+            history.push(`/sauce/${stablePool.id}`, {
               stableTab: 'remove_liquidity',
               shares,
               stakeList,
@@ -234,7 +234,7 @@ function StablePoolCard({
           <Images tokens={tokens} />
           <Link
             to={{
-              pathname: `stableswap/${stablePool.id}`,
+              pathname: `/sauce/${stablePool.id}`,
               state: {
                 shares,
                 stakeList,
@@ -339,14 +339,6 @@ export function StableSwapPageEntry() {
     });
   }, []);
 
-  const tokens2token = allStableTokens?.filter((token) =>
-    STABLE_TOKEN_USN_IDS.includes(token.id)
-  );
-
-  const tokens3token = allStableTokens?.filter((token) =>
-    STABLE_TOKEN_IDS.includes(token.id)
-  );
-
   if (
     !pool3tokens ||
     !pool2tokens ||
@@ -357,7 +349,13 @@ export function StableSwapPageEntry() {
     !farmStake2token
   )
     return <Loading />;
+  const tokens2token = STABLE_TOKEN_USN_IDS.map((id) =>
+    allStableTokens?.find((token) => token.id === id)
+  );
 
+  const tokens3token = STABLE_TOKEN_IDS.map((id) =>
+    allStableTokens?.find((token) => token.id === id)
+  );
   const poolData2token = formatePoolData({
     pool: pool2tokens,
     userTotalShare: userTotalShare2token,
@@ -389,18 +387,16 @@ export function StableSwapPageEntry() {
           defaultMessage="SAUCE is designed for liquidity pools with pegged assets, delivering optimal prices."
         />
       </span>
-
-      <StablePoolCard
-        stablePool={pool2tokens}
-        tokens={tokens2token}
-        poolData={poolData2token}
-      />
-
       <StablePoolCard
         stablePool={pool3tokens}
         tokens={tokens3token}
         poolData={poolData3token}
         multiReward
+      />
+      <StablePoolCard
+        stablePool={pool2tokens}
+        tokens={tokens2token}
+        poolData={poolData2token}
       />
 
       <TokenReserves

@@ -330,7 +330,7 @@ export default function AddLiquidityComponentUSN(props: {
 
     return addLiquidityToStablePool({
       tokens: tokens,
-      id: Number(STABLE_POOL_ID),
+      id: Number(pool.id),
       amounts,
       min_shares,
     });
