@@ -263,7 +263,9 @@ function StablePoolCard({
                   </span>
                 </span>
 
-                <span>{poolData.displayShareInFarm}</span>
+                <Link to={'/farms'} target="_blank">
+                  {poolData.displayShareInFarm}
+                </Link>
               </div>
             </span>
           </div>
