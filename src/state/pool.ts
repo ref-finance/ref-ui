@@ -417,28 +417,18 @@ export const useDayVolume = (pool_id: string) => {
 };
 
 export const usePredictShares = ({
-  tokens,
   poolId,
-  firstTokenAmount,
-  secondTokenAmount,
-  thirdTokenAmount,
+  tokenAmounts,
   stablePool,
 }: {
   poolId: number;
-  tokens: TokenMetadata[];
-  firstTokenAmount: string;
-  secondTokenAmount: string;
-  thirdTokenAmount: string;
+  tokenAmounts: string[];
   stablePool: StablePool;
 }) => {
   const [predicedShares, setPredictedShares] = useState<string>('0');
 
   const zeroValidae = () => {
-    return (
-      Number(firstTokenAmount) > 0 ||
-      Number(secondTokenAmount) > 0 ||
-      Number(thirdTokenAmount) > 0
-    );
+    return tokenAmounts.some((amount) => Number(amount) > 0);
   };
 
   useEffect(() => {
@@ -446,29 +436,21 @@ export const usePredictShares = ({
       setPredictedShares('0');
       return;
     }
-    getAddLiquidityShares(
-      poolId,
-      [firstTokenAmount, secondTokenAmount, thirdTokenAmount],
-      stablePool
-    )
+    getAddLiquidityShares(poolId, tokenAmounts, stablePool)
       .then(setPredictedShares)
       .catch((e) => e);
-  }, [firstTokenAmount, secondTokenAmount, thirdTokenAmount]);
+  }, [...tokenAmounts]);
 
   return predicedShares;
 };
 
 export const usePredictRemoveShares = ({
-  pool_id,
   amounts,
-  tokens,
   setError,
   shares,
   stablePool,
 }: {
-  pool_id: number;
   amounts: string[];
-  tokens: TokenMetadata[];
   setError: (e: Error) => void;
   shares: string;
   stablePool: StablePool;
@@ -520,11 +502,13 @@ export const useStablePool = ({
   setLoadingTrigger,
   loadingPause,
   setLoadingPause,
+  poolId,
 }: {
   loadingTrigger: boolean;
   setLoadingTrigger: (mode: boolean) => void;
   loadingPause: boolean;
   setLoadingPause: (pause: boolean) => void;
+  poolId: string | number;
 }) => {
   const [stablePool, setStablePool] = useState<StablePool>();
   const [count, setCount] = useState(0);

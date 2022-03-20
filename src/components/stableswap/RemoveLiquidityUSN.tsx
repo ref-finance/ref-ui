@@ -62,8 +62,10 @@ import { WalletContext, getCurrentWallet } from '../../utils/sender-wallet';
 import { percentOfBigNumber } from '../../utils/numbers';
 import SquareRadio from '../radio/SquareRadio';
 import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
+import { StableTokensSymbolUSN } from './StableTokenListUSN';
 
-const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
+const SWAP_SLIPPAGE_KEY_USN =
+  'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE_USN';
 
 export function shareToUserTotal({
   shares,
@@ -95,7 +97,7 @@ export function shareToUserTotal({
   );
 }
 
-export function RemoveLiquidityComponent(props: {
+export function RemoveLiquidityComponentUSN(props: {
   shares: string;
   balances: TokenBalancesView;
   tokens: TokenMetadata[];
@@ -109,11 +111,10 @@ export function RemoveLiquidityComponent(props: {
   const { shares, tokens, pool, stakeList, stablePool, changeAction } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
-  const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');
   const [isPercentage, setIsPercentage] = useState<boolean>(true);
   const [amountByShare, setAmountByShare] = useState<string>('');
   const [slippageTolerance, setSlippageTolerance] = useState<number>(
-    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY)) || 0.1
+    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY_USN)) || 0.1
   );
   const [canSubmitByShare, setCanSubmitByShare] = useState<boolean>(false);
 
@@ -126,21 +127,12 @@ export function RemoveLiquidityComponent(props: {
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
 
-  const farmStake = useFarmStake({
-    poolId: pool.id,
-    stakeList,
-  });
-
   const byShareRangeRef = useRef(null);
 
-  const setAmountsFlexible = [
-    setFirstTokenAmount,
-    setSecondTokenAmount,
-    setThirdTokenAmount,
-  ];
+  const setAmountsFlexible = [setFirstTokenAmount, setSecondTokenAmount];
 
   const { predictedRemoveShares, canSubmitByToken } = usePredictRemoveShares({
-    amounts: [firstTokenAmount, secondTokenAmount, thirdTokenAmount],
+    amounts: [firstTokenAmount, secondTokenAmount],
     setError,
     shares,
     stablePool,
@@ -167,17 +159,13 @@ export function RemoveLiquidityComponent(props: {
       return removeLiquidityFromStablePool({
         tokens,
         id: pool.id,
-        min_amounts: min_amounts as [string, string, string],
+        min_amounts: min_amounts,
         shares: removeShares,
       });
     } else {
-      const amounts = [
-        firstTokenAmount,
-        secondTokenAmount,
-        thirdTokenAmount,
-      ].map((amount, i) => {
+      const amounts = [firstTokenAmount, secondTokenAmount].map((amount, i) => {
         return toNonDivisibleNumber(tokens[i].decimals, amount);
-      }) as [string, string, string];
+      });
 
       const predict_burn = toPrecision(
         percentIncrese(slippageTolerance, predictedRemoveShares),
@@ -374,11 +362,7 @@ export function RemoveLiquidityComponent(props: {
       {!isPercentage && (
         <section className="px-8">
           <FlexibleStableTokenList
-            amountsFlexible={[
-              firstTokenAmount,
-              secondTokenAmount,
-              thirdTokenAmount,
-            ]}
+            amountsFlexible={[firstTokenAmount, secondTokenAmount]}
             setAmountsFlexible={setAmountsFlexible}
             tokens={tokens}
           />
@@ -391,7 +375,7 @@ export function RemoveLiquidityComponent(props: {
             slippageTolerance={slippageTolerance}
             onChange={(slippage) => {
               setSlippageTolerance(slippage);
-              localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
+              localStorage.setItem(SWAP_SLIPPAGE_KEY_USN, slippage?.toString());
             }}
             setInvalid={setSlippageInvalid}
             invalid={slippageInvalid}
@@ -406,7 +390,7 @@ export function RemoveLiquidityComponent(props: {
           )}
 
           {isPercentage && (
-            <StableTokensSymbol
+            <StableTokensSymbolUSN
               tokens={tokens}
               receiveAmounts={receiveAmounts}
               slippageTolerance={slippageTolerance}

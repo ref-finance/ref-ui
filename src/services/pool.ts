@@ -447,7 +447,7 @@ export const predictLiquidityShares = async (
 
 interface AddLiquidityToStablePoolOptions {
   id: number;
-  amounts: [string, string, string];
+  amounts: string[];
   min_shares: string;
   tokens: TokenMetadata[];
 }
@@ -610,7 +610,7 @@ export const predictRemoveLiquidity = async (
 interface RemoveLiquidityFromStablePoolOptions {
   id: number;
   shares: string;
-  min_amounts: [string, string, string];
+  min_amounts: string[];
   tokens: TokenMetadata[];
   unregister?: boolean;
 }
@@ -708,7 +708,7 @@ export const predictRemoveLiquidityByTokens = async (
 
 interface RemoveLiquidityByTokensFromStablePoolOptions {
   id: number;
-  amounts: [string, string, string];
+  amounts: string[];
   max_burn_shares: string;
   tokens: TokenMetadata[];
   unregister?: boolean;

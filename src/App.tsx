@@ -36,7 +36,12 @@ import { AirdropPage } from '~pages/AirdropPage';
 import PopUpSwiper from '~components/layout/PopUp';
 import SwapGuide from '~components/layout/SwapGuide';
 import { isMobile } from '~utils/device';
-import { wallet as webWallet, REF_FARM_CONTRACT_ID } from './services/near';
+import {
+  wallet as webWallet,
+  REF_FARM_CONTRACT_ID,
+  STABLE_POOL_ID,
+  STABLE_POOL_USN_ID,
+} from './services/near';
 import { getSenderWallet, WALLET_TYPE } from './utils/sender-wallet';
 import { getURLInfo, failToast } from './components/layout/transactionTipPopUp';
 import { StableSwapPageEntry } from '~pages/stable/StableSwapEntry';
@@ -57,6 +62,7 @@ import {
   signedInStateReducer,
   removeSenderLoginRes,
 } from './utils/sender-wallet';
+import StableSwapPageUSN from '~pages/stable/StableSwapPageUSN';
 
 Modal.defaultStyles = {
   overlay: {
@@ -181,13 +187,19 @@ function App() {
             <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
             <Route path="/farms" component={AutoHeight(FarmsPage)} />
             <Route
-              path="/stableswap/:id"
+              path={`/stableswap/${STABLE_POOL_ID}`}
               component={AutoHeight(StableSwapPage)}
             />
+            <Route
+              path={`/stableswap/${STABLE_POOL_USN_ID}`}
+              component={AutoHeight(StableSwapPageUSN)}
+            />
+
             <Route
               path="/stableswap"
               component={AutoHeight(StableSwapPageEntry)}
             />
+
             <Route path="/xref" component={AutoHeight(XrefPage)} />
             <Route path="/risks" component={AutoHeight(RiskPage)} />
             <Route path="/" component={AutoHeight(SwapPage)} />
