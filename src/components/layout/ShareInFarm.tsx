@@ -99,12 +99,16 @@ export const ShareInFarmV2 = ({
         <span className="mx-1 text-farmText">
           <FormattedMessage id="in" defaultMessage="in" />
         </span>
-        <Link to={'/farms'} className="flex items-center cursor-pointer">
+        <Link
+          to={'/farms'}
+          target="_blank"
+          className="flex items-center cursor-pointer"
+        >
           <span className="text-gradientFrom mr-1">
             <FormattedMessage id="farm" defaultMessage="farm" />
           </span>
           <span>
-            <HiOutlineExternalLink href="/farms" color="#00c6a2" />
+            <HiOutlineExternalLink color="#00c6a2" />
           </span>
         </Link>
       </div>
