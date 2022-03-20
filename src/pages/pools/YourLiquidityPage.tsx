@@ -35,7 +35,11 @@ import { FarmDot } from '~components/icon';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
 import { usePoolTVL } from '../../state/pool';
 import { multiply, divide } from '../../utils/numbers';
-import { STABLE_POOL_ID, STABLE_POOL_USN_ID } from '../../services/near';
+import {
+  STABLE_POOL_ID,
+  STABLE_POOL_USN_ID,
+  isStablePool,
+} from '../../services/near';
 import { getStablePoolFromCache, isNotStablePool } from '../../services/pool';
 import {
   getCurrentWallet,
@@ -399,7 +403,7 @@ function PoolRow(props: { pool: any }) {
         <div className="col-span-2 inline-flex items-start flex-col relative">
           <div className="w-16 flex items-center ml-1">{Images}</div>
           <div className="absolute text-xs top-10 text-primaryText">
-            {!isNotStablePool(pool) ? (
+            {isStablePool(pool.id) ? (
               <FormattedMessage id="stable_pool" defaultMessage="StablePool" />
             ) : null}
           </div>
@@ -486,7 +490,7 @@ function PoolRow(props: { pool: any }) {
             </div>
             <div
               className={`relative top-2 text-xs text-primaryText ${
-                !isNotStablePool(pool) ? 'block' : 'hidden'
+                isStablePool(pool.id) ? 'block' : 'hidden'
               }`}
             >
               <FormattedMessage id="stable_pool" defaultMessage="StablePool" />
