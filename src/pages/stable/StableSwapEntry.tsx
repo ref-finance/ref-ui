@@ -108,6 +108,8 @@ function formatePoolData({
   stakeList: Record<string, string>;
   farmCount: Number;
 }) {
+  const isSignedIn = getCurrentWallet().wallet.isSignedIn();
+
   const tokensMap: {
     [id: string]: TokenMetadata;
   } = tokens.reduce((pre, cur) => ({ ...pre, [cur.id]: cur }), {});
@@ -121,15 +123,15 @@ function formatePoolData({
 
   const TVLtitle = `${toPrecision(totalCoins, 2)}`;
 
-  const displayMyShareAmount = toPrecision(
-    toReadableNumber(STABLE_LP_TOKEN_DECIMALS, share),
-    2,
-    true
-  );
-  const displaySharePercent = toPrecision(
-    scientificNotationToString(divide(share, pool.shareSupply).toString()),
-    2
-  );
+  const displayMyShareAmount = isSignedIn
+    ? toPrecision(toReadableNumber(STABLE_LP_TOKEN_DECIMALS, share), 2, true)
+    : '-';
+  const displaySharePercent = isSignedIn
+    ? `${toPrecision(
+        scientificNotationToString(divide(share, pool.shareSupply).toString()),
+        2
+      )}%`
+    : '-';
 
   const displayShareInFarm = farmCount ? (
     <ShareInFarm
@@ -257,7 +259,7 @@ function StablePoolCard({
                     {poolData.displayMyShareAmount}
                   </span>
                   <span className="text-sm text-farmText pl-3">
-                    {poolData.displaySharePercent}%
+                    {poolData.displaySharePercent}
                   </span>
                 </span>
 
