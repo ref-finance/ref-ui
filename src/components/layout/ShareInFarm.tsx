@@ -16,6 +16,7 @@ import BigNumber from 'bignumber.js';
 import { canFarm } from '~services/pool';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import { Link } from 'react-router-dom';
+import { isMobile } from '~utils/device';
 
 export const ShareInFarm = ({
   farmStake,
@@ -41,10 +42,8 @@ export const ShareInFarm = ({
 
   return (
     <div
-      className={`items-center inline-flex text-xs ${
-        forStable ? 'text-primaryText' : 'text-gradientFrom'
-      } rounded-full py-0.5 border border-${
-        forStable ? 'primaryText' : 'transparent'
+      className={`items-center inline-flex text-xs text-gradientFrom rounded-full py-0.5 border border-${
+        forStable ? 'gradientFrom' : 'transparent'
       } hover:border-gradientFrom hover:text-gradientFrom px-2 cursor-pointer`}
     >
       <FarmDot inFarm={Number(farmShare) > 0} className="mr-1" />

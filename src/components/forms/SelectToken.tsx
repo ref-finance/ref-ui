@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import MicroModal from 'react-micro-modal';
 import { TokenMetadata } from '../../services/ft-contract';
 import { ArrowDownGreen, ArrowDownWhite } from '../icon';
@@ -97,13 +97,13 @@ export const StableSelectToken = ({
     ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS))
   );
 
+  const ref = useRef(null);
+
   const [visible, setVisible] = useState(false);
 
   const stableTokens = stableTokensIdList.map((id) =>
     tokens.find((token) => token.id === id)
   );
-
-  console.log(stableTokens);
 
   useEffect(() => {
     if (visible)
@@ -118,13 +118,22 @@ export const StableSelectToken = ({
         className={`w-full relative `}
         onClick={(e) => {
           e.nativeEvent.stopImmediatePropagation();
+          if (
+            !visible &&
+            document.getElementsByClassName('stable-token-selector')?.[0]
+          ) {
+            ref.current = document.getElementsByClassName(
+              'stable-token-selector'
+            )?.[0];
+            ref.current.click();
+          }
           setVisible(!visible);
         }}
       >
         {selected}
       </div>
       <div
-        className={`rounded-2xl flex flex-col top-12 p-1.5 ${
+        className={`stable-token-selector rounded-2xl flex flex-col top-12 p-1.5 ${
           visible ? 'block' : 'hidden'
         } absolute`}
         style={{
@@ -134,7 +143,7 @@ export const StableSelectToken = ({
           border: '1px solid #415462',
           width: '162px',
           zIndex: 999,
-          left: '40px',
+          left: isMobile() ? '-20px' : '40px',
         }}
       >
         {stableTokens.map((token) => {

@@ -30,7 +30,7 @@ export function BackToStablePoolList() {
 
 export const Images = ({ tokens }: { tokens: TokenMetadata[] }) => {
   return (
-    <div>
+    <div className="flex items-center">
       {tokens.map((token, index) => {
         const { icon, id } = token;
         if (icon)
@@ -115,6 +115,7 @@ export function SharesCard({
         {shareToUserTotal({
           shares,
           userTotalShare,
+          canFarm,
         })}
         {canFarm > 0 ? (
           <ShareInFarmV2

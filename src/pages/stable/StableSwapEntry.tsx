@@ -44,10 +44,11 @@ import {
   toPrecision,
   scientificNotationToString,
 } from '../../utils/numbers';
-import { SolidButton } from '~components/button/Button';
+import { ConnectToNearBtn, SolidButton } from '~components/button/Button';
 import { OutlineButton } from '../../components/button/Button';
 import { Images, Symbols } from '~components/stableswap/CommonComp';
 import { FarmMiningIcon } from '~components/icon';
+import { getCurrentWallet } from '../../utils/sender-wallet';
 
 const RenderDisplayTokensAmounts = ({
   tokens,
@@ -71,7 +72,13 @@ const RenderDisplayTokensAmounts = ({
                 />
               </span>
 
-              <span className="text-white text-sm">
+              <span
+                className="text-white text-sm"
+                title={toPrecision(
+                  scientificNotationToString(coinsAmounts[token.id].toString()),
+                  2
+                )}
+              >
                 {toInternationalCurrencySystem(
                   scientificNotationToString(coinsAmounts[token.id].toString())
                 )}
@@ -112,6 +119,8 @@ function formatePoolData({
 
   const displayTVL = `$${toInternationalCurrencySystem(totalCoins, 2)}`;
 
+  const TVLtitle = `${toPrecision(totalCoins, 2)}`;
+
   const displayMyShareAmount = toPrecision(
     toReadableNumber(STABLE_LP_TOKEN_DECIMALS, share),
     2,
@@ -141,6 +150,7 @@ function formatePoolData({
     shares: share,
     stakeList,
     farmStake,
+    TVLtitle,
   };
 }
 
@@ -161,48 +171,14 @@ function StablePoolCard({
     shares: string;
     stakeList: Record<string, string>;
     farmStake: string | number;
+    TVLtitle: string;
   };
   multiReward?: boolean;
 }) {
   const { shares, stakeList, farmStake } = poolData;
   const history = useHistory();
-  const LiquidityButton = () => {
-    return (
-      <div className="w-full bg-liquidityBtb flex items-center py-4 px-6 rounded-b-2xl mb-2">
-        <SolidButton
-          className="w-full text-center flex items-center justify-center py-3 mr-2 text-sm"
-          onClick={() =>
-            history.push(`/sauce/${stablePool.id}`, {
-              stableTab: 'add_liquidity',
-              shares,
-              stakeList,
-              farmStake,
-              pool: stablePool,
-            })
-          }
-        >
-          <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
-        </SolidButton>
-        <OutlineButton
-          className="w-full py-3 ml-2 text-sm"
-          onClick={() =>
-            history.push(`/sauce/${stablePool.id}`, {
-              stableTab: 'remove_liquidity',
-              shares,
-              stakeList,
-              farmStake,
-              pool: stablePool,
-            })
-          }
-        >
-          <FormattedMessage
-            id="remove_liquidity"
-            defaultMessage="Remove Liquidity"
-          />
-        </OutlineButton>
-      </div>
-    );
-  };
+
+  const isSignedIn = getCurrentWallet().wallet.isSignedIn();
 
   return (
     <div className="w-full flex flex-col relative overflow-hidden rounded-2xl">
@@ -254,7 +230,10 @@ function StablePoolCard({
                 <FormattedMessage id="tvl" defaultMessage="TVL" />
               </span>
               <div className="flex flex-col xs:items-end">
-                <span className="text-lg text-white md:py-2 lg:py-2 xs:pb-2">
+                <span
+                  className="text-lg text-white md:py-2 lg:py-2 xs:pb-2"
+                  title={poolData.TVLtitle}
+                >
                   {poolData.displayTVL}
                 </span>
                 <span>
@@ -288,7 +267,46 @@ function StablePoolCard({
           </div>
         </div>
       </Card>
-      <LiquidityButton />
+      <div
+        className={`w-full bg-liquidityBtb flex items-center py-4 px-6 rounded-b-2xl mb-2 ${
+          isSignedIn ? 'block' : 'hidden'
+        }`}
+      >
+        <SolidButton
+          className="w-full text-center flex items-center justify-center py-3 mr-2 text-sm"
+          onClick={() =>
+            history.push(`/sauce/${stablePool.id}`, {
+              stableTab: 'add_liquidity',
+              shares,
+              stakeList,
+              farmStake,
+              pool: stablePool,
+            })
+          }
+        >
+          <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
+        </SolidButton>
+        <OutlineButton
+          className="w-full py-3 ml-2 text-sm"
+          onClick={() =>
+            history.push(`/sauce/${stablePool.id}`, {
+              stableTab: 'remove_liquidity',
+              shares,
+              stakeList,
+              farmStake,
+              pool: stablePool,
+            })
+          }
+        >
+          <FormattedMessage
+            id="remove_liquidity"
+            defaultMessage="Remove Liquidity"
+          />
+        </OutlineButton>
+      </div>
+      <div className={isSignedIn ? 'hidden' : ' px-6 py-4 bg-liquidityBtb'}>
+        <ConnectToNearBtn />
+      </div>
     </div>
   );
 }

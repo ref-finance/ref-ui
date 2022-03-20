@@ -203,6 +203,8 @@ export default function ({
   const magId = forPool ? 'pool_details' : 'token_reserves';
   const magDefaultMessage = forPool ? 'Pool Detail' : 'Token Reserves';
 
+  const totalCoinsId = forPool ? 'tvl' : 'total_stable_coins';
+
   useEffect(() => {
     if (ids) {
       if (ids.length > 1) {
@@ -308,14 +310,14 @@ export default function ({
         className={`text-xs text-primaryText ${!showReserves && 'hidden'}`}
         width="w-full"
       >
-        <div className="">
+        <div className={forPool ? 'hidden' : ''}>
           <FormattedMessage
             id="total_stable_coins"
             defaultMessage="Total stablecoins"
           />
         </div>
         <div
-          className="text-white mt-1"
+          className={`text-white mt-1 ${forPool ? 'hidden' : ''}`}
           title={toPrecision(calTotalStableCoins, 3)}
         >
           {toInternationalCurrencySystem(calTotalStableCoins, 3)}
@@ -339,10 +341,12 @@ export default function ({
           );
         })}
         <InfoLine
-          title={intl.formatMessage({ id: 'total_stable_coins' })}
+          title={intl.formatMessage({ id: totalCoinsId })}
           value={toInternationalCurrencySystem(calTotalStableCoins, 3) || '0'}
           valueTitle={toPrecision(calTotalStableCoins, 0)}
         />
+        <div className={forPool ? 'py-0.5' : ''}></div>
+
         <InfoLine
           title={intl.formatMessage({ id: 'liquidity_utilisation' })}
           value={utilisationDisplay || '-'}

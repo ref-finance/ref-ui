@@ -70,27 +70,37 @@ export function shareToUserTotal({
   userTotalShare,
   pool,
   stakeList,
+  canFarm,
 }: {
   shares: string;
   userTotalShare: BigNumber;
   stakeList?: Record<string, string>;
   pool?: Pool;
+  canFarm?: Number;
 }) {
   return (
     <div className="text-xs">
       <span className="text-white">
-        {toRoundedReadableNumber({
-          decimals: STABLE_LP_TOKEN_DECIMALS,
-          number: shares,
-          precision: 3,
-        })}
+        {getCurrentWallet().wallet.isSignedIn()
+          ? toRoundedReadableNumber({
+              decimals: STABLE_LP_TOKEN_DECIMALS,
+              number: shares,
+              precision: 3,
+            })
+          : '- '}
       </span>
 
-      <span className="text-primaryText">{` / ${toRoundedReadableNumber({
-        decimals: STABLE_LP_TOKEN_DECIMALS,
-        number: scientificNotationToString(userTotalShare.toExponential()),
-        precision: 3,
-      })}`}</span>
+      <span className={`text-primaryText ${canFarm == 0 ? 'hidden' : ''}`}>
+        {getCurrentWallet().wallet.isSignedIn()
+          ? ` / ${toRoundedReadableNumber({
+              decimals: STABLE_LP_TOKEN_DECIMALS,
+              number: scientificNotationToString(
+                userTotalShare.toExponential()
+              ),
+              precision: 3,
+            })}`
+          : '/ -'}
+      </span>
     </div>
   );
 }
