@@ -35,7 +35,7 @@ import { FarmDot } from '~components/icon';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
 import { usePoolTVL } from '../../state/pool';
 import { multiply, divide } from '../../utils/numbers';
-import { STABLE_POOL_ID } from '../../services/near';
+import { STABLE_POOL_ID, STABLE_POOL_USN_ID } from '../../services/near';
 import { getStablePoolFromCache, isNotStablePool } from '../../services/pool';
 import {
   getCurrentWallet,
@@ -143,6 +143,7 @@ export function YourLiquidityPage() {
   const [pools, setPools] = useState<PoolRPCView[]>();
 
   const [stablePool, setStablePool] = useState<PoolRPCView>();
+  const [StablePoolUSN, setStablePoolUSN] = useState<PoolRPCView>();
 
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
@@ -158,10 +159,13 @@ export function YourLiquidityPage() {
     if (isSignedIn) {
       getYourPools().then(setPools);
       getStablePoolFromCache().then((res) => setStablePool(res[0]));
+      getStablePoolFromCache(STABLE_POOL_USN_ID.toString()).then((res) =>
+        setStablePoolUSN(res[0])
+      );
     }
   }, [isSignedIn]);
 
-  if (!pools || !stablePool) return <Loading />;
+  if (!pools || !stablePool || !StablePoolUSN) return <Loading />;
 
   return (
     <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
@@ -200,6 +204,12 @@ export function YourLiquidityPage() {
               <div className="max-h-96 overflow-y-auto">
                 <div
                   className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
+                  key={Number(STABLE_POOL_USN_ID)}
+                >
+                  <PoolRow pool={StablePoolUSN} />
+                </div>
+                <div
+                  className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
                   key={Number(STABLE_POOL_ID)}
                 >
                   <PoolRow pool={stablePool} />
@@ -225,6 +235,7 @@ export function YourLiquidityPage() {
       </div>
       {pools.length > 0 ? (
         <div className="lg:hidden">
+          <PoolRow pool={StablePoolUSN} key={Number(STABLE_POOL_USN_ID)} />
           <PoolRow pool={stablePool} key={Number(STABLE_POOL_ID)} />
 
           {pools.map((pool, i) => {
@@ -385,8 +396,13 @@ function PoolRow(props: { pool: any }) {
         className="xs:hidden md:hidden grid grid-cols-12 py-5 content-center items-center text-sm text-white pl-10 pr-6 border-t border-gray-700 border-opacity-70 cursor-pointer"
         to={{ pathname: `/pool/${pool.id}` }}
       >
-        <div className="col-span-2 inline-flex items-center">
+        <div className="col-span-2 inline-flex items-start flex-col relative">
           <div className="w-16 flex items-center ml-1">{Images}</div>
+          <div className="absolute text-xs top-10 text-primaryText">
+            {!isNotStablePool(pool) ? (
+              <FormattedMessage id="stable_pool" defaultMessage="StablePool" />
+            ) : null}
+          </div>
         </div>
 
         <div className="col-span-2 inline-flex flex-col text-xs">
@@ -420,7 +436,9 @@ function PoolRow(props: { pool: any }) {
                 if (isNotStablePool(pool)) {
                   setShowFunding(true);
                 } else {
-                  history.push('/stableswap', { stableTab: 'add_liquidity' });
+                  history.push(`/stableswap/${pool.id}`, {
+                    stableTab: 'add_liquidity',
+                  });
                 }
               }}
               className="text-xs col-span-2 mr-4 w-24 text-center"
@@ -439,7 +457,7 @@ function PoolRow(props: { pool: any }) {
                 if (isNotStablePool(pool)) {
                   setShowWithdraw(true);
                 } else {
-                  history.push('/stableswap', {
+                  history.push(`/stableswap/${pool.id}`, {
                     stableTab: 'remove_liquidity',
                   });
                 }
@@ -459,10 +477,19 @@ function PoolRow(props: { pool: any }) {
         to={{ pathname: `/pool/${pool.id}` }}
       >
         <Card width="w-full" padding="py-4 px-0">
-          <div className="flex items-center pb-4 border-b border-gray-700 border-opacity-70 px-6">
-            <div className="ml-1 mr-4 flex items-center">{Images}</div>
-            <div className="text-xs font-semibold">
-              <TokensSymbolsMobile tokens={tokens} />
+          <div className="flex flex-col items-start pb-4 border-b border-gray-700 border-opacity-70 px-6">
+            <div className="flex items-center">
+              <div className="ml-1 mr-4 flex items-center">{Images}</div>
+              <div className="text-xs font-semibold">
+                <TokensSymbolsMobile tokens={tokens} />
+              </div>
+            </div>
+            <div
+              className={`relative top-2 text-xs text-primaryText ${
+                !isNotStablePool(pool) ? 'block' : 'hidden'
+              }`}
+            >
+              <FormattedMessage id="stable_pool" defaultMessage="StablePool" />
             </div>
           </div>
           <div className="flex flex-col text-sm border-b border-gray-700 border-opacity-70 px-6">

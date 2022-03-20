@@ -31,7 +31,11 @@ import Loading from '~components/layout/Loading';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
 import { FarmStamp } from '~components/icon/FarmStamp';
 import { ChartLoading } from '~components/icon/Loading';
-import { REF_FARM_CONTRACT_ID, REF_FI_CONTRACT_ID } from '~services/near';
+import {
+  REF_FARM_CONTRACT_ID,
+  REF_FI_CONTRACT_ID,
+  STABLE_POOL_ID,
+} from '~services/near';
 import { PoolSlippageSelector } from '~components/forms/SlippageSelector';
 import { Link } from 'react-router-dom';
 import { canFarm } from '~services/pool';
@@ -1349,7 +1353,7 @@ export function PoolDetailsPage() {
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
   if (isStablePool(pool.id)) {
-    history.push('/stableswap', { stableTab: 'stable_swap' });
+    history.push(`/stableswap/${pool.id}`, { stableTab: 'stable_swap' });
   }
 
   return (

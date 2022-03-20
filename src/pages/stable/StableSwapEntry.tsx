@@ -20,7 +20,7 @@ import { StableSwapLogo } from '~components/icon/StableSwap';
 import { useWalletTokenBalances } from '../../state/token';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
-import { Pool, getStablePoolFromCache } from '../../services/pool';
+import { Pool, getStablePoolFromCache, canFarm } from '../../services/pool';
 import { Card } from '../../components/card/Card';
 import {
   TokenMetadata,
@@ -34,7 +34,7 @@ import {
   STABLE_TOKEN_IDS,
   STABLE_TOKEN_USN_IDS,
 } from '../../services/near';
-import { useFarmStake } from '../../state/farm';
+import { useFarmStake, useCanFarm } from '../../state/farm';
 import BigNumber from 'bignumber.js';
 import { divide, toReadableNumber } from '../../utils/numbers';
 import { ShareInFarm } from '../../components/layout/ShareInFarm';
@@ -47,6 +47,7 @@ import {
 import { SolidButton } from '~components/button/Button';
 import { OutlineButton } from '../../components/button/Button';
 import { Images, Symbols } from '~components/stableswap/CommonComp';
+import { FarmMiningIcon } from '~components/icon';
 
 const RenderDisplayTokensAmounts = ({
   tokens,
@@ -90,6 +91,7 @@ function formatePoolData({
   tokens,
   share,
   stakeList,
+  farmCount,
 }: {
   pool: Pool;
   userTotalShare: BigNumber;
@@ -97,6 +99,7 @@ function formatePoolData({
   tokens: TokenMetadata[];
   share: string;
   stakeList: Record<string, string>;
+  farmCount: Number;
 }) {
   const tokensMap: {
     [id: string]: TokenMetadata;
@@ -119,8 +122,14 @@ function formatePoolData({
     2
   );
 
-  const displayShareInFarm = (
-    <ShareInFarm farmStake={farmStake} userTotalShare={userTotalShare} />
+  const displayShareInFarm = farmCount ? (
+    <ShareInFarm
+      farmStake={farmStake}
+      userTotalShare={userTotalShare}
+      forStable
+    />
+  ) : (
+    ''
   );
 
   return {
@@ -139,6 +148,7 @@ function StablePoolCard({
   stablePool,
   tokens,
   poolData,
+  multiReward,
 }: {
   stablePool: Pool;
   tokens: TokenMetadata[];
@@ -152,6 +162,7 @@ function StablePoolCard({
     stakeList: Record<string, string>;
     farmStake: string | number;
   };
+  multiReward?: boolean;
 }) {
   const { shares, stakeList, farmStake } = poolData;
   const history = useHistory();
@@ -194,13 +205,31 @@ function StablePoolCard({
   };
 
   return (
-    <div className="w-full flex flex-col">
+    <div className="w-full flex flex-col relative overflow-hidden rounded-2xl">
       <Card
         width="w-full"
         padding="px-6 pt-8 pb-4"
         rounded="rounded-t-2xl"
         className="flex flex-col"
       >
+        <span
+          className={`${
+            !multiReward ? 'hidden' : ''
+          } pl-3 absolute -right-5 -top-8 pr-8 pt-8   rounded-2xl text-black text-xs bg-gradientFrom `}
+        >
+          <Link to="/farms" target={'_blank'} className="flex items-center">
+            <span className="relative top-px">
+              <FormattedMessage
+                id="multi_rewards"
+                defaultMessage="Multi-Rewards"
+              />
+            </span>
+            <span className="relative top-px">
+              <FarmMiningIcon color="black" w="20" h="20" />
+            </span>
+          </Link>
+        </span>
+
         <div className="flex items-center justify-between pb-6">
           <Images tokens={tokens} />
           <Link
@@ -274,6 +303,10 @@ export function StableSwapPageEntry() {
   const { shares: shares2token, stakeList: stakeList2token } =
     usePool(STABLE_POOL_USN_ID);
 
+  const farmCount2token = useCanFarm(Number(STABLE_POOL_USN_ID));
+
+  const farmCount3token = useCanFarm(Number(STABLE_POOL_ID));
+
   const farmStake3token = useFarmStake({
     poolId: Number(STABLE_POOL_ID),
     stakeList: stakeList3token,
@@ -332,6 +365,7 @@ export function StableSwapPageEntry() {
     tokens: tokens2token,
     share: shares2token,
     stakeList: stakeList2token,
+    farmCount: farmCount2token,
   });
 
   const poolData3token = formatePoolData({
@@ -341,6 +375,7 @@ export function StableSwapPageEntry() {
     tokens: tokens3token,
     share: shares3token,
     stakeList: stakeList3token,
+    farmCount: farmCount3token,
   });
 
   return (
@@ -365,6 +400,7 @@ export function StableSwapPageEntry() {
         stablePool={pool3tokens}
         tokens={tokens3token}
         poolData={poolData3token}
+        multiReward
       />
 
       <TokenReserves
