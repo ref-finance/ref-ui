@@ -51,7 +51,7 @@ const ChangeSwapMode = ({
           localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.STABLE);
         }}
       >
-        <FormattedMessage id="stableSwap" defaultMessage="StableSwap" />
+        <FormattedMessage id="stable_swap" defaultMessage="StableSwap" />
       </span>
     </div>
   );
