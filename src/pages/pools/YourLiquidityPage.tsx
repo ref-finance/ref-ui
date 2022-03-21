@@ -529,43 +529,41 @@ function PoolRow(props: { pool: any }) {
           </div>
 
           <div className="mt-4 flex items-center justify-center px-6 py-2">
-            <div className="">
-              <SolidButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
+            <SolidButton
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
 
-                  if (isNotStablePool(pool)) {
-                    setShowFunding(true);
-                  } else {
-                    history.push('/sauce', { stableTab: 'add_liquidity' });
-                  }
-                }}
-                className="text-sm w-28 mr-4"
-              >
-                <FormattedMessage
-                  id="add_liquidity"
-                  defaultMessage="Add Liquidity"
-                />
-              </SolidButton>
+                if (isNotStablePool(pool)) {
+                  setShowFunding(true);
+                } else {
+                  history.push('/sauce', { stableTab: 'add_liquidity' });
+                }
+              }}
+              className="text-sm w-28 mr-4 h-8 py-0.5"
+            >
+              <FormattedMessage
+                id="add_liquidity"
+                defaultMessage="Add Liquidity"
+              />
+            </SolidButton>
 
-              <OutlineButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  if (isNotStablePool(pool)) {
-                    setShowWithdraw(true);
-                  } else {
-                    history.push('/sauce', {
-                      stableTab: 'remove_liquidity',
-                    });
-                  }
-                }}
-                className="text-sm w-24"
-              >
-                <FormattedMessage id="remove" defaultMessage="Remove" />
-              </OutlineButton>
-            </div>
+            <OutlineButton
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                if (isNotStablePool(pool)) {
+                  setShowWithdraw(true);
+                } else {
+                  history.push('/sauce', {
+                    stableTab: 'remove_liquidity',
+                  });
+                }
+              }}
+              className="text-sm w-24 h-8 py-0.5"
+            >
+              <FormattedMessage id="remove" defaultMessage="Remove" />
+            </OutlineButton>
           </div>
         </Card>
       </Link>
