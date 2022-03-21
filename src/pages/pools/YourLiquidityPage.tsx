@@ -166,10 +166,10 @@ export function YourLiquidityPage() {
     pool: pool_stable_usn,
     shares: shares_usn,
     stakeList: stakeList_usn,
-  } = usePool(STABLE_POOL_ID);
+  } = usePool(STABLE_POOL_USN_ID);
 
   const farmStake_usn = useFarmStake({
-    poolId: Number(STABLE_POOL_ID),
+    poolId: Number(STABLE_POOL_USN_ID),
     stakeList: stakeList_usn,
   });
   const userTotalShare_usn = BigNumber.sum(shares_usn, farmStake_usn);
