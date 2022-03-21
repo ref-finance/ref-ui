@@ -366,5 +366,6 @@ const zh_CN = {
   value: '价值',
   usd_value: '美元价值',
   create: '创建',
+  sauce_note: 'SAUCE专为挂钩资产的流动性池设计, 提供最优价格.',
 };
 export default zh_CN;

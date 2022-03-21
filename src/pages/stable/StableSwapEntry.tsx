@@ -429,7 +429,7 @@ export function StableSwapPageEntry() {
       </div>
       <span className="text-sm text-primaryText mb-6 text-center">
         <FormattedMessage
-          id="stable_swap_note"
+          id="sauce_note"
           defaultMessage="SAUCE is designed for liquidity pools with pegged assets, delivering optimal prices."
         />
       </span>

@@ -380,5 +380,7 @@ const en_US = {
   value: 'Value',
   usd_value: 'USD value',
   create: 'Create',
+  sauce_note:
+    'SAUCE is designed for liquidity pools with pegged assets, delivering optimal prices.',
 };
 export default en_US;
