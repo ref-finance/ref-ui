@@ -96,7 +96,7 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
         pool_ids: twoTokenStablePoolIds,
       });
 
-      if (twoTokenStablePools.length > 1) {
+      if (twoTokenStablePools.length > 0) {
         pools.push(_.maxBy(twoTokenStablePools, (p) => p.tvl));
       }
 
