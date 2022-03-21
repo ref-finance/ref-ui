@@ -42,7 +42,7 @@ export default function CommonBasses({
   return (
     <section className="px-6">
       <div className="text-sm font-bold py-2 pl-2">
-        <FormattedMessage id="common_tokens" defaultMessage="Common Tokens" />
+        <FormattedMessage id="popular_tokens" defaultMessage="Common Tokens" />
       </div>
       <div className="w-full flex flex-wrap items-center text-sm xs:text-xs text-left">
         <Wnear />

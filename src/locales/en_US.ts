@@ -176,7 +176,7 @@ const en_US = {
     'The address you entered is not a NEP-141 address, please check and enter it again. If it is another mainnet contract, go to Rainbow Bridge for bridging processing',
   not_correct_address:
     'The address you entered is incorrect, please check and enter',
-  popular_tokens: 'Popular Tokens',
+  popular_tokens: 'Common Tokens',
   asset_label: 'Asset',
   account_label: 'Account',
   total_label: 'Total',
