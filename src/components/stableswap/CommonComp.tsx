@@ -17,11 +17,14 @@ export function BackToStablePoolList() {
   const history = useHistory();
 
   return (
-    <div className="flex items-center text-base text-farmText hover:text-white cursor-pointer">
-      <span onClick={() => history.push('/sauce')}>
-        <span className="mr-1.5">{'<'}</span>
+    <div className="flex items-center text-base text-farmText ">
+      <span
+        onClick={() => history.push('/sauce')}
+        className="hover:text-white  cursor-pointer"
+      >
+        <span className="pr-1.5">{'<'}</span>
         <span>
-          <FormattedMessage id="stableCoins" defaultMessage="StableCoins" />
+          <FormattedMessage id="sauce" defaultMessage="Sauce" />
         </span>
       </span>
     </div>

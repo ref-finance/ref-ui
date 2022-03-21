@@ -171,6 +171,7 @@ function formatePoolData({
     stakeList,
     farmStake,
     TVLtitle,
+    farmCount,
   };
 }
 
@@ -178,7 +179,6 @@ function StablePoolCard({
   stablePool,
   tokens,
   poolData,
-  multiReward,
 }: {
   stablePool: Pool;
   tokens: TokenMetadata[];
@@ -192,13 +192,17 @@ function StablePoolCard({
     stakeList: Record<string, string>;
     farmStake: string | number;
     TVLtitle: string;
+    farmCount: Number;
   };
-  multiReward?: boolean;
 }) {
   const { shares, stakeList, farmStake } = poolData;
   const history = useHistory();
 
   const isSignedIn = getCurrentWallet().wallet.isSignedIn();
+
+  const haveFarm = poolData.farmCount > 0;
+  const multiMining = poolData.farmCount > 1;
+  // const multiMining = false;
 
   return (
     <div className="w-full flex flex-col relative overflow-hidden rounded-2xl">
@@ -210,17 +214,17 @@ function StablePoolCard({
       >
         <span
           className={`${
-            !multiReward ? 'hidden' : ''
+            !haveFarm ? 'hidden' : ''
           } pl-3 absolute -right-5 -top-8 pr-8 pt-8   rounded-2xl text-black text-xs bg-gradientFrom `}
         >
           <Link to="/farms" target={'_blank'} className="flex items-center">
             <span className="relative top-px">
               <FormattedMessage
-                id="multi_rewards"
-                defaultMessage="Multi-Rewards"
+                id={multiMining ? 'multi_rewards' : 'farms'}
+                defaultMessage={multiMining ? 'Multi-Rewards' : 'Farms'}
               />
             </span>
-            <span className="relative top-px">
+            <span className={!multiMining ? 'hidden' : 'relative top-px'}>
               <FarmMiningIcon color="black" w="20" h="20" />
             </span>
           </Link>
@@ -433,7 +437,6 @@ export function StableSwapPageEntry() {
         stablePool={pool3tokens}
         tokens={tokens3token}
         poolData={poolData3token}
-        multiReward
       />
       <StablePoolCard
         stablePool={pool2tokens}
