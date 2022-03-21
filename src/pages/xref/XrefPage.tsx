@@ -406,7 +406,6 @@ function InputView(props: any) {
               {rateDisplay(tab)}
             </div>
             <div className="flex items-center text-primaryText text-xs ">
-              <SmallWallet></SmallWallet>
               <span className="ml-2">
                 <FormattedMessage id="balance"></FormattedMessage>:{' '}
                 <span title={max}>{displayBalance(max)}</span>

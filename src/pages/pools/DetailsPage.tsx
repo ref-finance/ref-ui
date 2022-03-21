@@ -515,9 +515,6 @@ export function AddLiquidityModal(
         {/* PC display */}
         <div className="mt-8 md:hidden xs:hidden">
           <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
-            <span className="mr-2 text-primaryText">
-              <SmallWallet />
-            </span>
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
             <span
@@ -550,9 +547,6 @@ export function AddLiquidityModal(
         </div>
         <div className="my-8 md:hidden xs:hidden">
           <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
-            <span className="mr-2 text-primaryText">
-              <SmallWallet />
-            </span>
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
             <span
@@ -595,9 +589,6 @@ export function AddLiquidityModal(
               </div>
             </div>
             <div className="flex items-center justify-end text-xs text-right mb-1 text-gray-400">
-              <span className="mr-2 text-primaryText">
-                <SmallWallet />
-              </span>
               <FormattedMessage id="balance" defaultMessage="Balance" />
               :&nbsp;
               <span
@@ -639,9 +630,6 @@ export function AddLiquidityModal(
               </div>
             </div>
             <div className="flex justify-end items-end text-xs text-right mb-1 text-gray-400">
-              <span className="mr-2 text-primaryText">
-                <SmallWallet />
-              </span>
               <FormattedMessage id="balance" defaultMessage="Balance" />
               :&nbsp;
               <span

@@ -50,6 +50,8 @@ function StableSwapPageUSN() {
       : false || DEFAULT_ACTIONS[0]
   );
 
+  console.log(actionName, localStorage.getItem(REF_STABLE_SWAP_TAB_KEY_USN));
+
   const { pool, shares, stakeList } = state?.pool
     ? state
     : usePool(STABLE_POOL_USN_ID);

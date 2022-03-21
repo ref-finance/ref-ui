@@ -52,8 +52,6 @@ export default function SwapFormWrap({
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
 
-  const [inValid, setInvalid] = useState(false);
-
   const {
     loadingData,
     setLoadingData,
@@ -97,8 +95,7 @@ export default function SwapFormWrap({
     >
       {title && (
         <>
-          <h2 className="formTitle flex justify-between font-bold text-xl text-white text-left pb-4">
-            <FormattedMessage id={title} defaultMessage={title} />
+          <h2 className="formTitle flex justify-end font-bold text-xl text-white text-left pb-4">
             <div className="flex items-center">
               <div
                 onClick={(e) => {

@@ -54,6 +54,8 @@ function StableSwapPage() {
       : false || DEFAULT_ACTIONS[0]
   );
 
+  console.log(actionName, localStorage.getItem(REF_STABLE_SWAP_TAB_KEY));
+
   const { pool, shares, stakeList } = state?.pool
     ? state
     : usePool(STABLE_POOL_ID);
