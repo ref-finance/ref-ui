@@ -36,7 +36,12 @@ import {
 } from '../../services/near';
 import { useFarmStake, useCanFarm } from '../../state/farm';
 import BigNumber from 'bignumber.js';
-import { divide, toReadableNumber } from '../../utils/numbers';
+import {
+  divide,
+  toReadableNumber,
+  percentOf,
+  percent,
+} from '../../utils/numbers';
 import { ShareInFarm } from '../../components/layout/ShareInFarm';
 import { STABLE_LP_TOKEN_DECIMALS } from '../../components/stableswap/AddLiquidity';
 import {
@@ -119,24 +124,32 @@ function formatePoolData({
     tokensMap
   );
 
+  const parsedUsertotalShare = scientificNotationToString(
+    userTotalShare.toString()
+  );
+
   const displayTVL = `$${toInternationalCurrencySystem(totalCoins, 2)}`;
 
   const TVLtitle = `${toPrecision(totalCoins, 2)}`;
 
   const displayMyShareAmount = isSignedIn
-    ? toPrecision(toReadableNumber(STABLE_LP_TOKEN_DECIMALS, share), 2, true)
+    ? toPrecision(
+        toReadableNumber(STABLE_LP_TOKEN_DECIMALS, parsedUsertotalShare),
+        2,
+        true
+      )
     : '-';
 
   const sharePercentValue = scientificNotationToString(
-    divide(share, pool.shareSupply).toString()
+    percent(parsedUsertotalShare, pool.shareSupply).toString()
   );
 
   const sharePercent =
-    Number(share) > 0 && Number(sharePercentValue) < 0.01
+    Number(sharePercentValue) > 0 && Number(sharePercentValue) < 0.01
       ? '< 0.01%'
       : `${toPrecision(sharePercentValue, 2)}%`;
 
-  const displaySharePercent = isSignedIn ? sharePercent : '-';
+  const displaySharePercent = isSignedIn ? sharePercent : '';
 
   const displayShareInFarm = farmCount ? (
     <ShareInFarm
@@ -233,7 +246,7 @@ function StablePoolCard({
         <div className="grid grid-cols-10 xs:flex xs:flex-col">
           <div className="col-span-7 text-left">
             <span className="flex flex-col xs:flex-row xs:justify-between">
-              <span className="text-sm text-farmText">
+              <span className="text-sm text-farmText xs:relative xs:top-1">
                 <FormattedMessage id="tvl" defaultMessage="TVL" />
               </span>
               <div className="flex flex-col xs:items-end">
@@ -255,11 +268,11 @@ function StablePoolCard({
 
           <div className="col-span-3 xs:pt-4">
             <span className="flex flex-col xs:flex-row xs:justify-between">
-              <span className="text-sm text-farmText md:pl-2 lg:pl-2">
+              <span className="text-sm text-farmText md:pl-2 lg:pl-2 xs:relative xs:top-1">
                 <FormattedMessage id="share" defaultMessage="Share" />
               </span>
-              <div className="flex flex-col xs:items-end">
-                <span className="flex items-center pl-2 md:py-2 lg:py-2 xs:pb-2">
+              <div className="flex flex-col xs:flex-row">
+                <span className="flex items-center pl-2 md:py-2 lg:py-2 xs:pb-2 xs:pr-2">
                   <span className="text-lg text-white ">
                     {poolData.displayMyShareAmount}
                   </span>
@@ -296,7 +309,7 @@ function StablePoolCard({
           <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
         </SolidButton>
         <OutlineButton
-          className="w-full py-3 ml-2 text-sm"
+          className="w-full py-3 ml-2 text-sm h-11"
           onClick={() =>
             history.push(`/sauce/${stablePool.id}`, {
               stableTab: 'remove_liquidity',

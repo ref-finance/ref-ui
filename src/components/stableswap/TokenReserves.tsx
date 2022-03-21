@@ -345,7 +345,7 @@ export default function ({
           value={toInternationalCurrencySystem(calTotalStableCoins, 3) || '0'}
           valueTitle={toPrecision(calTotalStableCoins, 0)}
         />
-        <div className={forPool ? 'py-0.5' : ''}></div>
+        <div className={'py-0.5'}></div>
 
         <InfoLine
           title={intl.formatMessage({ id: 'liquidity_utilisation' })}

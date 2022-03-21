@@ -83,10 +83,9 @@ function MyShares({
     <div className="h-12 inline-flex flex-col justify-center xs:text-right md:text-right">
       <div className="pl-2 pb-1 xs:pr-0 md:pr-0 text-sm whitespace-nowrap">{`${toRoundedReadableNumber(
         {
-          decimals:
-            poolId === Number(STABLE_POOL_ID)
-              ? STABLE_LP_TOKEN_DECIMALS
-              : LP_TOKEN_DECIMALS,
+          decimals: isStablePool(poolId)
+            ? STABLE_LP_TOKEN_DECIMALS
+            : LP_TOKEN_DECIMALS,
           number: userTotalShare
             .toNumber()
             .toLocaleString('fullwide', { useGrouping: false }),
@@ -447,6 +446,9 @@ function PoolRow(props: { pool: any }) {
                 }
               }}
               className="text-xs col-span-2 mr-4 w-24 text-center"
+              style={{
+                height: '34px',
+              }}
             >
               <FormattedMessage
                 id="add_liquidity"
