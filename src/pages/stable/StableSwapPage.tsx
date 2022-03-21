@@ -47,14 +47,13 @@ function StableSwapPage() {
 
   const stableTab = state?.stableTab;
 
-  const [actionName, setAction] = useState<string>(
-    stableTab ||
-      DEFAULT_ACTIONS.includes(localStorage.getItem(REF_STABLE_SWAP_TAB_KEY))
+  const storageTab =
+    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) === 'add_liquidity' ||
+    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) === 'remove_liquidity'
       ? localStorage.getItem(REF_STABLE_SWAP_TAB_KEY)
-      : false || DEFAULT_ACTIONS[0]
-  );
+      : DEFAULT_ACTIONS[0];
 
-  console.log(actionName, localStorage.getItem(REF_STABLE_SWAP_TAB_KEY));
+  const [actionName, setAction] = useState<string>(stableTab || storageTab);
 
   const { pool, shares, stakeList } = state?.pool
     ? state

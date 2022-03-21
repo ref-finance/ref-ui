@@ -73,9 +73,9 @@ function MyShares({
 
   let displayPercent;
   if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
-  else if (sharePercent < 0.0001)
+  else if (sharePercent < 0.01 && sharePercent > 0)
     displayPercent = `< ${
-      decimal ? '0.'.padEnd(decimal + 1, '0') + '1' : '0.0001'
+      decimal ? '0.'.padEnd(decimal + 1, '0') + '1' : '0.01'
     }`;
   else displayPercent = toPrecision(String(sharePercent), decimal || 4);
 
@@ -445,10 +445,7 @@ function PoolRow(props: { pool: any }) {
                   });
                 }
               }}
-              className="text-xs col-span-2 mr-4 w-24 text-center"
-              style={{
-                height: '34px',
-              }}
+              className="text-xs col-span-2 mr-4 w-24 text-center "
             >
               <FormattedMessage
                 id="add_liquidity"
@@ -471,7 +468,7 @@ function PoolRow(props: { pool: any }) {
 
                 setShowWithdraw(true);
               }}
-              className="text-xs px-4 col-span-2 w-20 text-center"
+              className="text-xs px-4 col-span-2 w-20 text-center h-8"
             >
               <FormattedMessage id="remove" defaultMessage="Remove" />
             </OutlineButton>

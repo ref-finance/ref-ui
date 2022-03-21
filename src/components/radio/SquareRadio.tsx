@@ -27,7 +27,6 @@ export default function SquareRadio({
               key={radio}
               onClick={() => {
                 setChoose(radio);
-                localStorage.setItem(REF_STABLE_SWAP_TAB_KEY, radio);
                 onChange(radio);
               }}
             >
