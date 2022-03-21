@@ -386,6 +386,6 @@ const vi = {
   transaction_failed: 'Giao dịch thất bại',
   create: 'Tạo',
   sauce_note:
-    'SAUCE được thiết kế cung cấp các cặp tài sản pegged với nhau, đưa đến một mức giá tối ưu nhất.',
+    'SAUCE được thiết kế cung cấp các cặp tài sản pegged với nhau, đưa đến mức giá tối ưu nhất.',
 };
 export default vi;
