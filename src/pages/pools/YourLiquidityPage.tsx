@@ -47,6 +47,7 @@ import {
   getSenderLoginRes,
 } from '../../utils/sender-wallet';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
+import { useFarmStake } from '../../state/farm';
 
 function MyShares({
   shares,
@@ -153,6 +154,26 @@ export function YourLiquidityPage() {
   const senderLoginRes = getSenderLoginRes();
   const history = useHistory();
 
+  const { pool: pool_stable, shares, stakeList } = usePool(STABLE_POOL_ID);
+
+  const farmStake = useFarmStake({
+    poolId: Number(STABLE_POOL_ID),
+    stakeList,
+  });
+  const userTotalShare = BigNumber.sum(shares, farmStake);
+
+  const {
+    pool: pool_stable_usn,
+    shares: shares_usn,
+    stakeList: stakeList_usn,
+  } = usePool(STABLE_POOL_ID);
+
+  const farmStake_usn = useFarmStake({
+    poolId: Number(STABLE_POOL_ID),
+    stakeList: stakeList_usn,
+  });
+  const userTotalShare_usn = BigNumber.sum(shares_usn, farmStake_usn);
+
   if (!senderLoginRes && !webWallet.isSignedIn()) {
     history.push('/');
     return null;
@@ -168,7 +189,14 @@ export function YourLiquidityPage() {
     }
   }, [isSignedIn]);
 
-  if (!pools || !stablePool || !StablePoolUSN) return <Loading />;
+  if (
+    !pools ||
+    !stablePool ||
+    !StablePoolUSN ||
+    !pool_stable ||
+    !pool_stable_usn
+  )
+    return <Loading />;
 
   return (
     <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
@@ -183,7 +211,9 @@ export function YourLiquidityPage() {
             defaultMessage="Your Liquidity"
           />
         </div>
-        {pools.length > 0 ? (
+        {pools.length > 0 ||
+        Number(userTotalShare) > 0 ||
+        Number(userTotalShare_usn) > 0 ? (
           <section>
             <div className="">
               <div
@@ -237,7 +267,9 @@ export function YourLiquidityPage() {
       <div className="text-white text-2xl font-semibold px-4 lg:hidden">
         <FormattedMessage id="your_liquidity" defaultMessage="Your Liquidity" />
       </div>
-      {pools.length > 0 ? (
+      {pools.length > 0 ||
+      Number(userTotalShare) > 0 ||
+      Number(userTotalShare_usn) > 0 ? (
         <div className="lg:hidden">
           <PoolRow pool={stablePool} key={Number(STABLE_POOL_ID)} />
           <PoolRow pool={StablePoolUSN} key={Number(STABLE_POOL_USN_ID)} />
