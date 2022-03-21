@@ -5,7 +5,7 @@ import { isMobile } from '../../utils/device';
 import { IoCloseOutline, IoWarning } from 'react-icons/io5';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 
-export default function SlippageSelector({
+export default function SlippageSelectorForStable({
   slippageTolerance,
   onChange,
   bindUseBalance,

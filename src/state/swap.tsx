@@ -190,7 +190,14 @@ export const useSwap = ({
 
   useEffect(() => {
     getEstimate();
-  }, [loadingTrigger, loadingPause, tokenIn, tokenOut, tokenInAmount]);
+  }, [
+    loadingTrigger,
+    loadingPause,
+    tokenIn,
+    tokenOut,
+    tokenInAmount,
+    swapMode,
+  ]);
 
   useEffect(() => {
     let id: any = null;

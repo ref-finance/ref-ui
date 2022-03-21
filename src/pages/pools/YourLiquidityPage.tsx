@@ -208,16 +208,17 @@ export function YourLiquidityPage() {
               <div className="max-h-96 overflow-y-auto">
                 <div
                   className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
-                  key={Number(STABLE_POOL_USN_ID)}
-                >
-                  <PoolRow pool={StablePoolUSN} />
-                </div>
-                <div
-                  className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
                   key={Number(STABLE_POOL_ID)}
                 >
                   <PoolRow pool={stablePool} />
                 </div>
+                <div
+                  className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
+                  key={Number(STABLE_POOL_USN_ID)}
+                >
+                  <PoolRow pool={StablePoolUSN} />
+                </div>
+
                 {pools.map((pool, i) => (
                   <div
                     key={i}
@@ -239,8 +240,8 @@ export function YourLiquidityPage() {
       </div>
       {pools.length > 0 ? (
         <div className="lg:hidden">
-          <PoolRow pool={StablePoolUSN} key={Number(STABLE_POOL_USN_ID)} />
           <PoolRow pool={stablePool} key={Number(STABLE_POOL_ID)} />
+          <PoolRow pool={StablePoolUSN} key={Number(STABLE_POOL_USN_ID)} />
 
           {pools.map((pool, i) => {
             return <PoolRow pool={pool} key={i} />;

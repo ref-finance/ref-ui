@@ -102,7 +102,7 @@ export function SharesCard({
 
   return (
     <Card
-      padding={'px-7 py-4 mb-2'}
+      padding={'px-7 xs:px-4 py-4 mb-2'}
       rounded="rounded-2xl"
       className="text-sm flex items-center justify-between"
       width="w-full"

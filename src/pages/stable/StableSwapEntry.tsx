@@ -126,12 +126,17 @@ function formatePoolData({
   const displayMyShareAmount = isSignedIn
     ? toPrecision(toReadableNumber(STABLE_LP_TOKEN_DECIMALS, share), 2, true)
     : '-';
-  const displaySharePercent = isSignedIn
-    ? `${toPrecision(
-        scientificNotationToString(divide(share, pool.shareSupply).toString()),
-        2
-      )}%`
-    : '-';
+
+  const sharePercentValue = scientificNotationToString(
+    divide(share, pool.shareSupply).toString()
+  );
+
+  const sharePercent =
+    Number(share) > 0 && Number(sharePercentValue) < 0.01
+      ? '< 0.01%'
+      : `${toPrecision(sharePercentValue, 2)}%`;
+
+  const displaySharePercent = isSignedIn ? sharePercent : '-';
 
   const displayShareInFarm = farmCount ? (
     <ShareInFarm
@@ -308,7 +313,9 @@ function StablePoolCard({
           />
         </OutlineButton>
       </div>
-      <div className={isSignedIn ? 'hidden' : ' px-6 py-4 bg-liquidityBtb'}>
+      <div
+        className={isSignedIn ? 'hidden' : ' px-6 py-4 mb-2 bg-liquidityBtb'}
+      >
         <ConnectToNearBtn />
       </div>
     </div>

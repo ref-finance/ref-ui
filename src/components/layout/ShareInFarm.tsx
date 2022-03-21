@@ -85,7 +85,7 @@ export const ShareInFarmV2 = ({
     : '0';
 
   return (
-    <div className={`flex items-center  text-xs ml-4`}>
+    <div className={`flex items-center  text-xs ml-4 xs:ml-2`}>
       <FarmDot inFarm={Number(farmShare) > 0} className="mr-1" />
       <div className="self-start whitespace-nowrap flex items-center">
         <span className="text-farmText">

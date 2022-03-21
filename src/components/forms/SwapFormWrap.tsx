@@ -2,11 +2,12 @@ import React, { useEffect, useState, useContext } from 'react';
 import Alert from '../alert/Alert';
 import SubmitButton from './SubmitButton';
 import { FormattedMessage } from 'react-intl';
-import SlippageSelector from './SlippageSelector';
+import SlippageSelector, { StableSlipSelecter } from './SlippageSelector';
 import { SwapRefresh, CountdownTimer } from '~components/icon';
 import { wallet } from '~services/near';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { SWAP_MODE } from '../../pages/SwapPage';
+import SlippageSelectorForStable from './SlippageSelector';
 
 interface SwapFormWrapProps {
   title?: string;
@@ -50,6 +51,9 @@ export default function SwapFormWrap({
   swapMode,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
+
+  const [inValid, setInvalid] = useState(false);
+
   const {
     loadingData,
     setLoadingData,
@@ -118,12 +122,23 @@ export default function SwapFormWrap({
                 />
               </div>
 
-              <SlippageSelector
-                slippageTolerance={slippageTolerance}
-                onChange={onChange}
-                bindUseBalance={bindUseBalance}
-                useNearBalance={useNearBalance}
-              />
+              {swapMode === SWAP_MODE.NORMAL ? (
+                <SlippageSelector
+                  slippageTolerance={slippageTolerance}
+                  onChange={onChange}
+                  bindUseBalance={bindUseBalance}
+                  useNearBalance={useNearBalance}
+                />
+              ) : null}
+              {swapMode === SWAP_MODE.STABLE ? (
+                <SlippageSelectorForStable
+                  slippageTolerance={slippageTolerance}
+                  onChange={onChange}
+                  validSlippageList={[0.05, 0.1, 0.2]}
+                  useNearBalance={useNearBalance}
+                  bindUseBalance={bindUseBalance}
+                />
+              ) : null}
             </div>
           </h2>
         </>

@@ -90,6 +90,9 @@ const STABLE_SWAP_IN_KEY = 'STABLE_REF_FI_SWAP_IN';
 const STABLE_SWAP_OUT_KEY = 'STABLE_REF_FI_SWAP_OUT';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
+
+const SWAP_SLIPPAGE_KEY_STABLE = 'REF_FI_SLIPPAGE_VALUE_STABLE';
+
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
 
@@ -555,10 +558,17 @@ export default function SwapCard(props: {
   const [urlTokenIn, urlTokenOut, urlSlippageTolerance] = decodeURIComponent(
     location.hash.slice(1)
   ).split(TOKEN_URL_SEPARATOR);
-  const [slippageTolerance, setSlippageTolerance] = useState<number>(
-    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY) || urlSlippageTolerance) ||
-      0.5
-  );
+  const [slippageToleranceNormal, setSlippageToleranceNormal] =
+    useState<number>(
+      Number(localStorage.getItem(SWAP_SLIPPAGE_KEY) || urlSlippageTolerance) ||
+        0.5
+    );
+
+  const [slippageToleranceStable, setSlippageToleranceStable] =
+    useState<number>(
+      Number(localStorage.getItem(SWAP_SLIPPAGE_KEY_STABLE)) || 0.5
+    );
+
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
 
   useEffect(() => {
@@ -624,12 +634,8 @@ export default function SwapCard(props: {
           );
         }
         setTokenOut(candTokenOut);
-
-        // localStorage.setItem(SWAP_OUT_KEY, candTokenOut.id);
-        // history.replace(
-        //   `#${candTokenIn.id}${TOKEN_URL_SEPARATOR}${candTokenOut.id}`
-        // );
       }
+      setTokenInAmount(toPrecision('1', 6));
     }
   }, [allTokens, swapMode]);
 
@@ -661,6 +667,11 @@ export default function SwapCard(props: {
       }
     }
   }, [tokenIn, tokenOut, useNearBalance, isSignedIn]);
+
+  const slippageTolerance =
+    swapMode === SWAP_MODE.NORMAL
+      ? slippageToleranceNormal
+      : slippageToleranceStable;
 
   const {
     canSwap,
@@ -772,8 +783,16 @@ export default function SwapCard(props: {
         canSubmit={canSubmit}
         slippageTolerance={slippageTolerance}
         onChange={(slippage) => {
-          setSlippageTolerance(slippage);
-          localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
+          swapMode === SWAP_MODE.NORMAL
+            ? setSlippageToleranceNormal(slippage)
+            : setSlippageToleranceStable(slippage);
+
+          localStorage.setItem(
+            swapMode === SWAP_MODE.NORMAL
+              ? SWAP_SLIPPAGE_KEY
+              : SWAP_SLIPPAGE_KEY_STABLE,
+            slippage?.toString()
+          );
         }}
         bindUseBalance={(useNearBalance) => {
           setUseNearBalance(useNearBalance);
