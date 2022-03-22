@@ -57,6 +57,7 @@ interface SwapOptions {
   loadingPause?: boolean;
   setLoadingPause?: (pause: boolean) => void;
   swapMode?: SWAP_MODE;
+  reEstimateTrigger?: boolean;
 }
 
 export const useSwap = ({
@@ -70,6 +71,7 @@ export const useSwap = ({
   setLoadingTrigger,
   loadingPause,
   swapMode,
+  reEstimateTrigger,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -196,7 +198,7 @@ export const useSwap = ({
     tokenIn,
     tokenOut,
     tokenInAmount,
-    swapMode,
+    reEstimateTrigger,
   ]);
 
   useEffect(() => {

@@ -545,6 +545,8 @@ export default function SwapCard(props: {
   const [tokenOutBalanceFromNear, setTokenOutBalanceFromNear] =
     useState<string>();
 
+  const [reEstimateTrigger, setReEstimateTrigger] = useState(false);
+
   const [loadingData, setLoadingData] = useState<boolean>(false);
   const [loadingTrigger, setLoadingTrigger] = useState<boolean>(true);
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
@@ -581,12 +583,20 @@ export default function SwapCard(props: {
         const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
         const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
 
-        setTokenIn(
-          allTokens.find((token) => token.id === rememberedIn) || allTokens[0]
-        );
-        setTokenOut(
-          allTokens.find((token) => token.id === rememberedOut) || allTokens[1]
-        );
+        const candTokenIn =
+          allTokens.find((token) => token.id === rememberedIn) || allTokens[0];
+
+        const candTokenOut =
+          allTokens.find((token) => token.id === rememberedOut) || allTokens[1];
+
+        setTokenIn(candTokenIn);
+        setTokenOut(candTokenOut);
+
+        if (
+          tokenOut?.id === candTokenOut?.id &&
+          tokenIn?.id === candTokenIn?.id
+        )
+          setReEstimateTrigger(!reEstimateTrigger);
       } else if (swapMode === SWAP_MODE.STABLE) {
         const rememberedIn = localStorage.getItem(STABLE_SWAP_IN_KEY);
         const rememberedOut = localStorage.getItem(STABLE_SWAP_OUT_KEY);
@@ -600,8 +610,6 @@ export default function SwapCard(props: {
             allTokens.find(
               (token) => isStableToken(token.id) && token.id !== tokenOut?.id
             );
-        } else if (tokenIn && isStableToken(tokenIn.id)) {
-          candTokenIn = tokenIn;
         } else {
           candTokenIn = allTokens.find(
             (token) => isStableToken(token.id) && token.id !== tokenOut?.id
@@ -620,20 +628,18 @@ export default function SwapCard(props: {
               (token) => token.id !== candTokenIn.id && isStableToken(token.id)
             );
           }
-        } else if (tokenOut && isStableToken(tokenOut.id)) {
-          if (tokenOut.id !== tokenIn.id) {
-            candTokenOut = tokenOut;
-          } else {
-            candTokenOut = allTokens.find(
-              (token) => token.id !== candTokenIn.id && isStableToken(token.id)
-            );
-          }
         } else {
           candTokenOut = allTokens.find(
             (token) => token.id !== candTokenIn.id && isStableToken(token.id)
           );
         }
         setTokenOut(candTokenOut);
+
+        if (
+          tokenOut?.id === candTokenOut?.id &&
+          tokenIn?.id === candTokenIn?.id
+        )
+          setReEstimateTrigger(!reEstimateTrigger);
       }
       setTokenInAmount(toPrecision('1', 6));
     }
@@ -694,6 +700,7 @@ export default function SwapCard(props: {
     loadingData,
     loadingPause,
     swapMode,
+    reEstimateTrigger,
   });
 
   const priceImpactValueSmartRouting = useMemo(() => {
@@ -864,7 +871,20 @@ export default function SwapCard(props: {
           <SwapExchange
             onChange={() => {
               setTokenIn(tokenOut);
+              localStorage.setItem(
+                swapMode === SWAP_MODE.NORMAL
+                  ? SWAP_IN_KEY
+                  : STABLE_SWAP_IN_KEY,
+                tokenOut.id
+              );
               setTokenOut(tokenIn);
+              localStorage.setItem(
+                swapMode === SWAP_MODE.NORMAL
+                  ? SWAP_OUT_KEY
+                  : STABLE_SWAP_OUT_KEY,
+                tokenIn.id
+              );
+
               setTokenInAmount(toPrecision('1', 6));
             }}
           />
