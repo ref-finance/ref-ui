@@ -658,22 +658,10 @@ SwapOptions) => {
   if (wallet.isSignedIn()) {
     if (isParallelSwap) {
       const swapActions = swapsToDo.map((s2d) => {
-        let dx_float = Number(s2d.pool.partialAmountIn);
-        let fpool = formatPoolNew(s2d.pool, tokenIn.id, tokenOut.id);
-        let dy_float = calculate_dy_float(
-          dx_float,
-          fpool,
-          tokenIn.id,
-          tokenOut.id
-        );
-        let tokenOutAmount = toReadableNumber(
-          tokenOut.decimals,
-          scientificNotationToString(dy_float.toString())
-        );
+        console.log(s2d.estimate, percentLess(slippageTolerance, s2d.estimate));
 
-        s2d.estimate = tokenOutAmount;
-        let minTokenOutAmount = tokenOutAmount
-          ? percentLess(slippageTolerance, tokenOutAmount)
+        let minTokenOutAmount = s2d.estimate
+          ? percentLess(slippageTolerance, s2d.estimate)
           : '0';
         let allocation = toReadableNumber(
           tokenIn.decimals,
