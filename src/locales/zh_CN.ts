@@ -366,5 +366,6 @@ const zh_CN = {
   value: '价值',
   usd_value: '美元价值',
   create: '创建',
+  support_ledger: '支持 Ledger',
 };
 export default zh_CN;

@@ -9,16 +9,19 @@ export function QuestionTip({
   id,
   color,
   width,
+  defaultMessage,
 }: {
   id: string;
   color?: 'bright' | 'dark';
   width?: string;
+  defaultMessage?: string;
 }) {
   const intl = useIntl();
 
   const getValue = () => {
     const tip = intl.formatMessage({
       id,
+      defaultMessage,
     });
     let result: string = `<div class="text-navHighLightText text-xs text-left ${
       width ? width : ''

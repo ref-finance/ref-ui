@@ -34,7 +34,11 @@ import { getCurrentWallet } from '../utils/sender-wallet';
 import { STORAGE_TO_REGISTER_WITH_FT } from './creators/storage';
 import { withdrawAction } from './creators/token';
 import { getExplorer, ExplorerType } from '../utils/device';
-import { STABLE_POOL_ID, POOL_TOKEN_REFRESH_INTERVAL } from './near';
+import {
+  STABLE_POOL_ID,
+  POOL_TOKEN_REFRESH_INTERVAL,
+  filterBlackListPools,
+} from './near';
 import moment from 'moment';
 const explorerType = getExplorer();
 
@@ -296,7 +300,7 @@ export const getPoolsByTokens = async ({
   }
   setLoadingData && setLoadingData(false);
   // @ts-ignore
-  return filtered_pools;
+  return filtered_pools.filter(filterBlackListPools);
 };
 
 export const getRefPoolsByToken1ORToken2 = async (

@@ -5,18 +5,56 @@ import { isMobile } from '../../utils/device';
 import { IoCloseOutline, IoWarning } from 'react-icons/io5';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 
+function SupportLedgerSwitch({
+  supportLedger,
+  setSupportLedger,
+}: {
+  supportLedger: boolean;
+  setSupportLedger: (e?: any) => void;
+}) {
+  return (
+    <div
+      className={`ml-4 cursor-pointer ${
+        supportLedger ? 'bg-gradientFrom' : 'bg-farmSbg'
+      }  p-0.5 flex items-center`}
+      style={{
+        height: '16px',
+        width: '29px',
+        borderRadius: '20px',
+      }}
+      onClick={() => setSupportLedger(!supportLedger)}
+    >
+      <div
+        className={`rounded-full bg-white transition-all ${
+          supportLedger ? 'transform translate-x-3 relative left-px' : ''
+        }`}
+        style={{
+          width: '12px',
+          height: '12px',
+        }}
+      ></div>
+    </div>
+  );
+}
+
 export default function SlippageSelector({
   slippageTolerance,
   onChange,
   bindUseBalance,
   useNearBalance,
   validSlippageList,
+  normalSwap,
+  supportLedger,
+  setSupportLedger,
 }: {
   slippageTolerance: number;
   onChange: (slippage: number) => void;
   bindUseBalance: (useNearBalance: boolean) => void;
   useNearBalance: string;
   validSlippageList?: number[];
+  normalSwap?: boolean;
+  supportLedger?: boolean;
+  setSupportLedger?: (e?: any) => void;
 }) {
   const ref = useRef<HTMLInputElement>();
   const field = useRef<HTMLFieldSetElement>();
@@ -172,6 +210,29 @@ export default function SlippageSelector({
               />
               %
             </div>
+
+            <div
+              className={
+                normalSwap ? 'flex items-center mt-6 text-sm' : 'hidden'
+              }
+            >
+              <label>
+                <FormattedMessage
+                  id="support_ledger"
+                  defaultMessage={'Support Ledger'}
+                />
+              </label>
+
+              <QuestionTip
+                id="support_ledger_tip"
+                defaultMessage="Support Ledger Tip"
+              />
+              <SupportLedgerSwitch
+                supportLedger={supportLedger}
+                setSupportLedger={setSupportLedger}
+              />
+            </div>
+
             <div className={`${invalid || warn ? 'block' : 'hidden'}`}>
               {invalid ? (
                 <div className="text-error text-xs py-3">

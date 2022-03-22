@@ -55,6 +55,7 @@ interface SwapOptions {
   stablePool?: StablePool;
   loadingPause?: boolean;
   setLoadingPause?: (pause: boolean) => void;
+  supportLedger?: boolean;
 }
 
 export const useSwap = ({
@@ -67,6 +68,7 @@ export const useSwap = ({
   loadingTrigger,
   setLoadingTrigger,
   loadingPause,
+  supportLedger,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -92,8 +94,9 @@ export const useSwap = ({
     const estimate = estimates[0];
 
     let avgFee: number = 0;
-
-    if (
+    if (estimates.length === 1) {
+      avgFee = estimates[0].pool.fee;
+    } else if (
       estimate.status === PoolMode.SMART ||
       estimate.status === PoolMode.STABLE
     ) {
@@ -148,6 +151,7 @@ export const useSwap = ({
         intl,
         setLoadingData,
         loadingTrigger: loadingTrigger && !loadingPause,
+        supportLedger,
       })
         .then((estimates) => {
           if (!estimates) throw '';
@@ -186,7 +190,14 @@ export const useSwap = ({
 
   useEffect(() => {
     getEstimate();
-  }, [loadingTrigger, loadingPause, tokenIn, tokenOut, tokenInAmount]);
+  }, [
+    loadingTrigger,
+    loadingPause,
+    tokenIn,
+    tokenOut,
+    tokenInAmount,
+    supportLedger,
+  ]);
 
   useEffect(() => {
     let id: any = null;

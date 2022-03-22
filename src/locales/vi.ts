@@ -385,5 +385,6 @@ const vi = {
   click_to_view: 'Nhấn để xem',
   transaction_failed: 'Giao dịch thất bại',
   create: 'Tạo',
+  support_ledger: 'ủng hộ Ledger',
 };
 export default vi;

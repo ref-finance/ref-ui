@@ -86,6 +86,7 @@ interface EstimateSwapOptions {
   setLoadingData?: (loading: boolean) => void;
   loadingTrigger?: boolean;
   setLoadingTrigger?: (loadingTrigger: boolean) => void;
+  supportLedger?: boolean;
 }
 
 export interface ReservesMap {
@@ -216,6 +217,7 @@ export const estimateSwap = async ({
   intl,
   setLoadingData,
   loadingTrigger,
+  supportLedger,
 }: EstimateSwapOptions): Promise<EstimateSwapView[]> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
 
@@ -243,6 +245,45 @@ export const estimateSwap = async ({
     setLoadingData,
     loadingTrigger,
   });
+
+  console.log(supportLedger, pools);
+
+  if (supportLedger) {
+    if (pools.length === 0) {
+      throwNoPoolError();
+    }
+
+    const bestPricePool = _.maxBy(pools, (p) => {
+      console.log(p);
+
+      return Number(
+        getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn).estimate
+      );
+    });
+
+    console.log('bestPricePool', bestPricePool);
+
+    const res = [
+      {
+        ...getSinglePoolEstimate(
+          tokenIn,
+          tokenOut,
+          bestPricePool,
+          parsedAmountIn
+        ),
+        status: PoolMode.PARALLEL,
+        routeInputToken: tokenIn.id,
+        totalInputAmount: parsedAmountIn,
+        pool: { ...bestPricePool, partialAmountIn: parsedAmountIn },
+        tokens: [tokenIn, tokenOut],
+        inputToken: tokenIn.id,
+        totalInput: parsedAmountIn,
+      },
+    ];
+
+    console.log(res);
+    return res;
+  }
 
   const orpools = await getRefPoolsByToken1ORToken2(tokenIn.id, tokenOut.id);
   let stableSmartActionsV2 = await stableSmart(

@@ -114,6 +114,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
         STABLE_POOL_ID: process.env.STABLE_POOL_ID || 79,
+        POOLS_BLACK_LIST: process.env.POOLS_BLACK_LIST || [506],
         STABLE_TOKEN_IDS: [
           'usdt.fakes.testnet',
           'usdc.fakes.testnet',

@@ -380,5 +380,6 @@ const en_US = {
   value: 'Value',
   usd_value: 'USD value',
   create: 'Create',
+  support_ledger: 'Support Ledger',
 };
 export default en_US;

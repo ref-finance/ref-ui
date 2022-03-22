@@ -29,6 +29,8 @@ interface SwapFormWrapProps {
     setShowSwapLoading: (swapLoading: boolean) => void;
   };
   useNearBalance: string;
+  supportLedger?: boolean;
+  setSupportLedger?: (e?: any) => void;
 }
 
 export default function SwapFormWrap({
@@ -45,6 +47,8 @@ export default function SwapFormWrap({
   bindUseBalance,
   loading,
   useNearBalance,
+  supportLedger,
+  setSupportLedger,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
   const {
@@ -118,6 +122,9 @@ export default function SwapFormWrap({
                 onChange={onChange}
                 bindUseBalance={bindUseBalance}
                 useNearBalance={useNearBalance}
+                normalSwap
+                supportLedger={supportLedger}
+                setSupportLedger={setSupportLedger}
               />
             </div>
           </h2>

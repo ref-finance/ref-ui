@@ -511,6 +511,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
 
+  const [supportLedger, setSupportLedger] = useState(false);
+
   const [useNearBalance, setUseNearBalance] = useState<boolean>(true);
 
   const { signedInState } = useContext(WalletContext);
@@ -607,6 +609,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     setLoadingTrigger,
     loadingData,
     loadingPause,
+    supportLedger,
   });
 
   const priceImpactValueSmartRouting = useMemo(() => {
@@ -699,6 +702,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         tokenOutId={tokenOut?.id}
       />
       <SwapFormWrap
+        supportLedger={supportLedger}
+        setSupportLedger={setSupportLedger}
         useNearBalance={useNearBalance.toString()}
         canSubmit={canSubmit}
         slippageTolerance={slippageTolerance}
