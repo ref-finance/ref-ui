@@ -6,7 +6,7 @@ import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity'
 import { TokenMetadata } from '../services/ft-contract';
 import { STABLE_POOL_ID, STABLE_TOKEN_IDS } from '../services/near';
 import { Pool } from '../services/pool';
-import { getSwappedAmount } from '../services/stable-swap';
+import { getSwappedAmount, estimateSwap } from '../services/stable-swap';
 import { EstimateSwapView } from '../services/swap';
 import Big from 'big.js';
 import { sortBy } from 'lodash';
@@ -492,6 +492,8 @@ export function calculateSmartRoutesV2PriceImpact(
 
   const totalInputAmount = routes[0][0].totalInputAmount;
 
+  console.log(actions);
+
   const priceImpactForRoutes = routes.map((r, i) => {
     const readablePartialAmountIn = toReadableNumber(
       tokenIn.decimals,
@@ -511,12 +513,14 @@ export function calculateSmartRoutesV2PriceImpact(
         tokenOut
       );
     } else {
-      return calculatePriceImpact(
-        [r[0].pool],
-        r[0].tokens[0],
-        r[0].tokens[1],
-        readablePartialAmountIn
-      );
+      Number(r[0].pool.id) === Number(STABLE_POOL_ID)
+        ? calcStableSwapPriceImpact(readablePartialAmountIn, r[0].estimate)
+        : calculatePriceImpact(
+            [r[0].pool],
+            r[0].tokens[0],
+            r[0].tokens[1],
+            readablePartialAmountIn
+          );
     }
   });
 
