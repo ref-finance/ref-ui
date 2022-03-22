@@ -4,6 +4,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { isMobile } from '../../utils/device';
 import { IoCloseOutline, IoWarning } from 'react-icons/io5';
 import { QuestionTip } from '../../components/layout/TipWrapper';
+import { SUPPORT_LEDGER_KEY } from '../swap/SwapCard';
 
 function SupportLedgerSwitch({
   supportLedger,
@@ -22,7 +23,16 @@ function SupportLedgerSwitch({
         width: '29px',
         borderRadius: '20px',
       }}
-      onClick={() => setSupportLedger(!supportLedger)}
+      onClick={() => {
+        console.log(supportLedger);
+        if (supportLedger) {
+          setSupportLedger(false);
+          localStorage.removeItem(SUPPORT_LEDGER_KEY);
+        } else {
+          setSupportLedger(true);
+          localStorage.setItem(SUPPORT_LEDGER_KEY, '1');
+        }
+      }}
     >
       <div
         className={`rounded-full bg-white transition-all ${

@@ -65,6 +65,7 @@ import { getSwappedAmount } from './stable-swap';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import { getSmartRouteSwapActions, stableSmart } from './smartRouteLogic';
 import { getCurrentWallet } from '../utils/sender-wallet';
+import { multiply } from '../utils/numbers';
 
 // Big.strict = false;
 const FEE_DIVISOR = 10000;
@@ -238,12 +239,16 @@ export const estimateSwap = async ({
     );
   };
 
-  const pools = await getPoolsByTokens({
-    tokenInId: tokenIn.id,
-    tokenOutId: tokenOut.id,
-    amountIn: parsedAmountIn,
-    setLoadingData,
-    loadingTrigger,
+  const pools = (
+    await getPoolsByTokens({
+      tokenInId: tokenIn.id,
+      tokenOutId: tokenOut.id,
+      amountIn: parsedAmountIn,
+      setLoadingData,
+      loadingTrigger,
+    })
+  ).filter((p) => {
+    return getLiquidity(p, tokenIn, tokenOut) > 0;
   });
 
   console.log(supportLedger, pools);

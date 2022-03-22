@@ -85,6 +85,7 @@ const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
 const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
+export const SUPPORT_LEDGER_KEY = 'REF_FI_SUPPORT_LEDGER';
 
 export function SwapDetail({
   title,
@@ -511,7 +512,9 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
 
-  const [supportLedger, setSupportLedger] = useState(false);
+  const [supportLedger, setSupportLedger] = useState(
+    localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
+  );
 
   const [useNearBalance, setUseNearBalance] = useState<boolean>(true);
 
