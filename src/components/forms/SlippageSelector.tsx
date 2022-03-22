@@ -235,7 +235,8 @@ export default function SlippageSelector({
 
               <QuestionTip
                 id="support_ledger_tip"
-                defaultMessage="Support Ledger Tip"
+                defaultMessage="By design, Ledger cannot handle large transactions (i.e. Auto Router: trade across multiple pools at once) because of its memory limitation. When activated, the 'Support Ledger' option will limit transactions to their simplest form (to the detriment of better prices), so transactions of a reasonable size can be signed."
+                dataPlace="bottom"
               />
               <SupportLedgerSwitch
                 supportLedger={supportLedger}

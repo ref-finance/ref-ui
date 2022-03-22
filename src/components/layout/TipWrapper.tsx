@@ -10,11 +10,13 @@ export function QuestionTip({
   color,
   width,
   defaultMessage,
+  dataPlace,
 }: {
   id: string;
   color?: 'bright' | 'dark';
   width?: string;
   defaultMessage?: string;
+  dataPlace?: string;
 }) {
   const intl = useIntl();
 
@@ -32,7 +34,7 @@ export function QuestionTip({
   return (
     <div
       className="pl-1 text-white text-base"
-      data-place="right"
+      data-place={dataPlace ? dataPlace : 'right'}
       data-for="auto_router"
       data-class="reactTip"
       data-html={true}
