@@ -251,7 +251,14 @@ export const estimateSwap = async ({
     return getLiquidity(p, tokenIn, tokenOut) > 0;
   });
 
-  console.log(supportLedger, pools);
+  const [stablePool, stablePoolInfo] = await getStablePoolFromCache();
+
+  if (
+    STABLE_TOKEN_IDS.includes(tokenIn.id) &&
+    STABLE_TOKEN_IDS.includes(tokenOut.id)
+  ) {
+    pools.push(stablePool);
+  }
 
   if (supportLedger) {
     if (pools.length === 0) {
@@ -260,22 +267,43 @@ export const estimateSwap = async ({
 
     const bestPricePool = _.maxBy(pools, (p) => {
       console.log(p);
-
-      return Number(
-        getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn).estimate
-      );
+      if (p.id === Number(STABLE_POOL_ID)) {
+        return Number(
+          getStablePoolEstimate({
+            tokenIn,
+            tokenOut,
+            amountIn,
+            stablePoolInfo,
+            stablePool,
+          }).estimate
+        );
+      } else
+        return Number(
+          getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn).estimate
+        );
     });
 
     console.log('bestPricePool', bestPricePool);
 
+    const estimateRes =
+      bestPricePool.id === Number(STABLE_POOL_ID)
+        ? getStablePoolEstimate({
+            tokenIn,
+            tokenOut,
+            amountIn,
+            stablePool,
+            stablePoolInfo,
+          })
+        : getSinglePoolEstimate(
+            tokenIn,
+            tokenOut,
+            bestPricePool,
+            parsedAmountIn
+          );
+
     const res = [
       {
-        ...getSinglePoolEstimate(
-          tokenIn,
-          tokenOut,
-          bestPricePool,
-          parsedAmountIn
-        ),
+        ...estimateRes,
         status: PoolMode.PARALLEL,
         routeInputToken: tokenIn.id,
         totalInputAmount: parsedAmountIn,
