@@ -258,7 +258,7 @@ export const getAllPools = async (
 interface GetPoolOptions {
   tokenInId: string;
   tokenOutId: string;
-  amountIn: string;
+  amountIn?: string;
   setLoadingTrigger?: (loadingTrigger: boolean) => void;
   setLoadingData?: (loading: boolean) => void;
   loadingTrigger: boolean;
@@ -291,7 +291,7 @@ export const getPoolsByTokens = async ({
       await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
     ).flat();
 
-    filtered_pools = pools.filter(isNotStablePool);
+    filtered_pools = pools.filter(isNotStablePool).filter(filterBlackListPools);
 
     await db.cachePoolsByTokens(filtered_pools);
     filtered_pools = filtered_pools.filter(
@@ -300,7 +300,7 @@ export const getPoolsByTokens = async ({
   }
   setLoadingData && setLoadingData(false);
   // @ts-ignore
-  return filtered_pools.filter(filterBlackListPools);
+  return filtered_pools;
 };
 
 export const getRefPoolsByToken1ORToken2 = async (

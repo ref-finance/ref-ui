@@ -1,5 +1,5 @@
 import getConfig from './config';
-import { wallet, filterBlackListPools } from './near';
+import { wallet, filterBlackListPools, POOLS_BLACK_LIST } from './near';
 import _ from 'lodash';
 import { parsePoolView, PoolRPCView, getCurrentUnixTime } from './api';
 import moment from 'moment/moment';
@@ -7,6 +7,7 @@ import { parseAction } from '../services/transaction';
 import { volumeType, TVLType } from '~state/pool';
 import db from '../store/RefDatabase';
 import { getCurrentWallet } from '../utils/sender-wallet';
+import { getPoolsByTokens } from './pool';
 const config = getConfig();
 
 export const getPoolMonthVolume = async (
@@ -82,6 +83,32 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
         method: 'GET',
         headers: { 'Content-type': 'application/json; charset=UTF-8' },
       }).then((res) => res.json());
+
+      console.log(POOLS_BLACK_LIST);
+
+      const blackListPools = await getPool(POOLS_BLACK_LIST[0].toString());
+      console.log(blackListPools);
+
+      const blacklistTokenIn = blackListPools.token_account_ids[0];
+
+      const blacklistTokenOut = blackListPools.token_account_ids[1];
+
+      const twoTokenStablePoolIds = (
+        await db.getPoolsByTokens(blacklistTokenIn, blacklistTokenOut)
+      ).map((p) => p.id.toString());
+
+      console.log(twoTokenStablePoolIds);
+
+      const twoTokenStablePools = await getPoolsByIds({
+        pool_ids: twoTokenStablePoolIds,
+      });
+
+      if (twoTokenStablePools?.length > 0) {
+        pools.push(_.maxBy(twoTokenStablePools, (p) => p.tvl));
+      }
+
+      console.log(twoTokenStablePools);
+
       await db.cacheTopPools(pools);
     }
 
@@ -92,6 +119,7 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
       })
       .filter(filterBlackListPools);
   } catch (error) {
+    console.log(error);
     return [];
   }
 };

@@ -224,7 +224,7 @@ export const useMorePools = ({
       setMorePools(orderedPools);
     });
   }, [order, sortBy]);
-  return morePools.filter(filterBlackListPools);
+  return morePools;
 };
 
 export const usePoolTVL = (poolId: string | number) => {
