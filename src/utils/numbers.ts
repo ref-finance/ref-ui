@@ -513,8 +513,11 @@ export function calculateSmartRoutesV2PriceImpact(
         tokenOut
       );
     } else {
-      Number(r[0].pool.id) === Number(STABLE_POOL_ID)
-        ? calcStableSwapPriceImpact(readablePartialAmountIn, r[0].estimate)
+      return Number(r[0].pool.id) === Number(STABLE_POOL_ID)
+        ? calcStableSwapPriceImpact(
+            readablePartialAmountIn,
+            r[0].noFeeAmountOut
+          )
         : calculatePriceImpact(
             [r[0].pool],
             r[0].tokens[0],
