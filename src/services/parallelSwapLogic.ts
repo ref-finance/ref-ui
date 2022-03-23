@@ -1,3 +1,4 @@
+//@ts-nocheck
 import Big from 'big.js';
 import { Pool } from './pool';
 import BigNumber from 'bignumber.js';
@@ -167,10 +168,19 @@ export function calculateOptimalOutput(
   for (var i = 0; i < dxArray.length; i++) {
     dxArraySum = dxArraySum.plus(dxArray[i]);
   }
-  let normalizedDxArray = [];
+  let tempAllocationsArray = [];
   for (var i = 0; i < dxArray.length; i++) {
     let ndx = new Big(dxArray[i]).times(inputAmount).div(dxArraySum).round();
-    normalizedDxArray.push(BigInt(ndx.toFixed()));
+    tempAllocationsArray.push(ndx);
+  }
+  let allocationsArray = checkIntegerSumOfAllocations(
+    tempAllocationsArray,
+    inputAmount
+  );
+  let normalizedDxArray = [];
+  for (var i = 0; i < allocationsArray.length; i++) {
+    let ndx = allocationsArray[i];
+    normalizedDxArray.push(BigInt(ndx));
     pools[i]['partialAmountIn'] = ndx.toString();
   }
   return normalizedDxArray;
@@ -236,4 +246,36 @@ export function reducePools(
     }
   }
   return newFullDxVec;
+}
+
+export function checkIntegerSumOfAllocations(
+  allocations: Big[] | string[] | BigInt[],
+  totalInput: Big | string | BigInt
+) {
+  var totalInput = new Big(totalInput);
+  var allocations: Big[] | string[] | BigInt[] = allocations.map(
+    (item: Big | string | BigInt) => new Big(item).round()
+  );
+  let alloSum = allocations
+    .map((item) => new Big(item))
+    .reduce((a, b) => a.plus(b), new Big(0));
+  let offset = totalInput.minus(alloSum);
+  //get largest allocation.
+  let currMax = new Big(0);
+  let currMaxInd = 0;
+  for (var i = 0; i < allocations.length; i++) {
+    if (allocations[i].gt(currMax)) {
+      currMaxInd = i;
+      currMax = allocations[i];
+    }
+  }
+  let newAllocations = [];
+  for (var j = 0; j < allocations.length; j++) {
+    if (j === currMaxInd) {
+      newAllocations.push(allocations[j].plus(offset).toString());
+    } else {
+      newAllocations.push(allocations[j].toString());
+    }
+  }
+  return newAllocations;
 }

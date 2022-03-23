@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
 import Alert from '~components/alert/Alert';
@@ -77,11 +77,12 @@ import moment from 'moment';
 import { Link, useLocation } from 'react-router-dom';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
-import parse from 'html-react-parser';
 import { FaArrowCircleRight, FaRegQuestionCircle } from 'react-icons/fa';
 import OldInputAmount from '~components/forms/OldInputAmount';
 import { BigNumber } from 'bignumber.js';
 import getConfig from '~services/config';
+import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import { scientificNotationToString } from '../../utils/numbers';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 interface SearchData {
@@ -93,13 +94,15 @@ interface SearchData {
 
 export function FarmsPage() {
   const intl = useIntl();
+  const location = useLocation();
   const sortList = {
     default: intl.formatMessage({ id: 'default' }),
-    mulitple: intl.formatMessage({ id: 'mulitple' }),
+    multiple: intl.formatMessage({ id: 'multiple' }),
     apr: intl.formatMessage({ id: 'apr' }),
     new: intl.formatMessage({ id: 'new' }),
     total_staked: intl.formatMessage({ id: 'total_staked' }),
   };
+  const sort_from_url = new URLSearchParams(location.search).get('sort');
   const filterList = { all: intl.formatMessage({ id: 'allOption' }) };
   classificationOfCoins_key.forEach((key) => {
     filterList[key] = intl.formatMessage({ id: key });
@@ -117,7 +120,7 @@ export function FarmsPage() {
     {}
   );
   const [searchData, setSearchData] = useState<SearchData>({
-    sort: 'default',
+    sort: sortList[sort_from_url] ? sort_from_url : 'default',
     status: null,
     coin: 'all',
     sortBoxHidden: true,
@@ -136,12 +139,18 @@ export function FarmsPage() {
   const refreshTime = 120000;
   const [count, setCount] = useState(0);
   const [commonSeedFarms, setCommonSeedFarms] = useState({});
+
+  const { wallet } = getCurrentWallet();
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
   useEffect(() => {
-    loadFarmInfoList().then();
-  }, []);
+    loadFarmInfoList(false, isSignedIn).then();
+  }, [isSignedIn]);
   useEffect(() => {
     if (count > 0) {
-      loadFarmInfoList(true);
+      loadFarmInfoList(true, isSignedIn);
     }
     const intervalId = setInterval(() => {
       setCount(count + 1);
@@ -150,13 +159,26 @@ export function FarmsPage() {
       clearInterval(intervalId);
     };
   }, [count]);
-  async function loadFarmInfoList(isUpload?: boolean) {
+
+  useEffect(() => {
+    const sort_from_url = new URLSearchParams(location.search).get('sort');
+    const status_from_url = +new URLSearchParams(location.search).get('status');
+    if (
+      (sort_from_url && sort_from_url != searchData.sort) ||
+      (status_from_url && status_from_url != searchData.status)
+    ) {
+      searchData.sort = sort_from_url;
+      searchData.status = 1;
+      setSearchData(Object.assign({}, searchData));
+      searchByCondition();
+    }
+  }, [location.search]);
+  async function loadFarmInfoList(isUpload?: boolean, isSignedIn?: boolean) {
     if (isUpload) {
       setUnclaimedFarmsIsLoading(false);
     } else {
       setUnclaimedFarmsIsLoading(true);
     }
-    const isSignedIn: boolean = wallet.isSignedIn();
 
     const emptyObj = async () => {
       return {};
@@ -185,6 +207,7 @@ export function FarmsPage() {
       any,
       Record<string, string>
     ] = await Promise.all(Params);
+
     const stakedList: Record<string, string> = resolvedParams[0];
     const tokenPriceList: any = resolvedParams[2];
     const seeds: Record<string, string> = resolvedParams[3];
@@ -196,7 +219,9 @@ export function FarmsPage() {
       }
     });
     const stakedList_being = Object.keys(stakedList).length > 0;
-    searchData.status = wallet.isSignedIn()
+    searchData.status = sortList[sort_from_url]
+      ? 1
+      : wallet.isSignedIn()
       ? Number(
           localStorage.getItem('farm_filter_status') ||
             (stakedList_being ? '2' : '1')
@@ -251,6 +276,7 @@ export function FarmsPage() {
       tokenPriceList,
       seeds,
     });
+
     if (isSignedIn) {
       const tempMap = {};
       const mySeeds = new Set();
@@ -324,7 +350,8 @@ export function FarmsPage() {
     let commonSeedFarmsNew = JSON.parse(
       JSON.stringify(tempCommonSeedFarms || commonSeedFarms)
     );
-    let noData = true;
+    let noData;
+    listAll.length && (noData = true);
     listAll.forEach((item: any) => {
       const { userStaked, pool, seed_id, farm_id } = item[0];
       const isEnd = isEnded(item);
@@ -378,22 +405,25 @@ export function FarmsPage() {
       } else {
         item.show = false;
       }
-      item.mulitple = incentiveLpTokenConfig[id] || '0';
+      item.multiple = incentiveLpTokenConfig[id] || '0';
       item.default = defaultConfig[id] || '0';
     });
     if (sort == 'new') {
-      const tempMap = {};
-      const keyList: any[] = [];
-      listAll.forEach((m: any) => {
-        tempMap[m.key] = m;
-        keyList.push(m.key);
-      });
-      listAll = keyList
-        .sort()
-        .reverse()
-        .map((key) => tempMap[key]);
-      listAll.sort(function (a: any, b: any) {
-        return b.length - a.length;
+      listAll.sort((item1: any, item2: any) => {
+        const item1List = JSON.parse(JSON.stringify(item1));
+        const item2List = JSON.parse(JSON.stringify(item2));
+        item1List.sort((a: any, b: any) => {
+          return b.start_at - a.start_at;
+        });
+        item2List.sort((a: any, b: any) => {
+          return b.start_at - a.start_at;
+        });
+        const v = item2List[0].start_at - item1List[0].start_at;
+        if (v == 0) {
+          return item2.length - item1.length;
+        } else {
+          return v;
+        }
       });
     }
     if (sort == 'apr') {
@@ -404,9 +434,9 @@ export function FarmsPage() {
       listAll.sort((item1: any, item2: any) => {
         return Number(item2[0].totalStaked) - Number(item1[0].totalStaked);
       });
-    } else if (sort == 'mulitple') {
+    } else if (sort == 'multiple') {
       listAll.sort((item1: any, item2: any) => {
-        return Number(item2.mulitple) - Number(item1.mulitple);
+        return Number(item2.multiple) - Number(item1.multiple);
       });
     } else if (sort == 'default') {
       listAll.sort((item1: any, item2: any) => {
@@ -685,7 +715,7 @@ export function FarmsPage() {
                       defaultMessage="Ended"
                     />
                   </label>
-                  {wallet.isSignedIn() ? (
+                  {isSignedIn ? (
                     <label
                       onClick={() => changeStatus(2)}
                       className={`flex justify-center  w-28  items-center rounded-full h-full text-sm cursor-pointer ${
@@ -910,6 +940,12 @@ function FarmView({
   const [rewardsPerWeek, setRewardsPerWeek] = useState<
     Record<string | number, string | number>
   >({});
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  const { wallet } = getCurrentWallet();
+
   const [unclaimed, setUnclaimed] = useState<Record<any, any>>({});
   const [calcVisible, setCalcVisible] = useState(false);
 
@@ -1463,7 +1499,17 @@ function FarmView({
                 defaultMessage="Total staked"
               />
             </div>
-            <div className="text-xl text-white">{`${
+            <div
+              className="text-xl text-white"
+              title={
+                data.totalStaked === 0
+                  ? '-'
+                  : toPrecision(
+                      scientificNotationToString(data.totalStaked.toString()),
+                      0
+                    )
+              }
+            >{`${
               data.totalStaked === 0
                 ? '-'
                 : `$${toInternationalCurrencySystem(
@@ -1640,7 +1686,7 @@ function FarmView({
           </div>
         </div>
         <div className="absolute inset-x-6 bottom-12">
-          {wallet.isSignedIn() ? (
+          {isSignedIn ? (
             <div className="flex gap-2 justify-center mt-4">
               {data.userStaked !== '0' ? (
                 <BorderButton
@@ -1655,7 +1701,9 @@ function FarmView({
               ) : null}
               {ended ? null : data.userStaked !== '0' ? (
                 <BorderButton
-                  onClick={() => showStakeModal()}
+                  onClick={() => {
+                    showStakeModal();
+                  }}
                   rounded="rounded-md"
                   px="px-0"
                   py="py-1"

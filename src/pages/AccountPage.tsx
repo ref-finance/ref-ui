@@ -1,19 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import Modal from 'react-modal';
 import { Card } from '../components/card/Card';
 import { TiArrowSortedUp } from 'react-icons/ti';
 import { TokenMetadata } from '../services/ft-contract';
-import {
-  BorderButtonHover,
-  BorderButtonMobile,
-  GreenLButton,
-} from '../components/button/Button';
+import { GreenLButton } from '../components/button/Button';
 import {
   useTokenBalances,
   useUserRegisteredTokensAllAndNearBalance,
 } from '../state/token';
 import Loading from '../components/layout/Loading';
-import { wallet } from '../services/near';
+import { wallet as webWallet } from '../services/near';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { NearIcon, RefIcon, WalletIcon } from '../components/icon/Common';
 import {
@@ -23,16 +19,24 @@ import {
 } from '../utils/numbers';
 import BigNumber from 'bignumber.js';
 import OldInputAmount from '../components/forms/OldInputAmount';
-import { deposit, withdraw } from '../services/token';
+import { deposit, withdraw, batchWithdraw } from '../services/token';
 import { nearMetadata, wrapNear } from '../services/wrap-near';
 import { BeatLoading } from '../components/layout/Loading';
 import { STORAGE_PER_TOKEN } from '../services/creators/storage';
 import { IoCloseOutline } from 'react-icons/io5';
-import { XrefSymbol } from '../components/icon/Xref';
 import ReactTooltip from 'react-tooltip';
 import QuestionMark from '../components/farm/QuestionMark';
 import { useHistory } from 'react-router';
+import {
+  WalletContext,
+  getCurrentWallet,
+  getAccountName,
+} from '../utils/sender-wallet';
 
+import { getSenderLoginRes } from '../utils/sender-wallet';
+import { Checkbox, CheckboxSelected } from '../components/icon';
+import { GradientButton, ButtonTextWrapper } from '../components/button/Button';
+const withdraw_number_at_once = 5;
 const accountSortFun = (
   by: string,
   currentSort: string,
@@ -96,6 +100,8 @@ const getWalletBalance = (item: TokenMetadata) => {
 };
 const NearTip = () => {
   const intl = useIntl();
+  const tip = intl.formatMessage({ id: 'deposit_near_tip' });
+  const result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
   return (
     <div
       className="ml-1.5"
@@ -104,7 +110,7 @@ const NearTip = () => {
       data-multiline={true}
       data-class="reactTip"
       data-html={true}
-      data-tip={intl.formatMessage({ id: 'deposit_near_tip' })}
+      data-tip={result}
       data-for="nearId"
     >
       <QuestionMark />
@@ -119,12 +125,47 @@ const NearTip = () => {
     </div>
   );
 };
+const WithdrawTip = () => {
+  const intl = useIntl();
+  const tip = intl.formatMessage({ id: 'over_tip' });
+  const result: string = `<div class="text-navHighLightText text-xs w-52 text-left font-normal">${tip}</div>`;
+  return (
+    <div
+      className="ml-2"
+      data-type="info"
+      data-place="right"
+      data-multiline={true}
+      data-class="reactTip"
+      data-html={true}
+      data-tip={result}
+      data-for="WithdrawTipId"
+    >
+      <QuestionMark />
+      <ReactTooltip
+        id="WithdrawTipId"
+        backgroundColor="#1D2932"
+        border
+        borderColor="#7e8a93"
+        effect="solid"
+      />
+    </div>
+  );
+};
 function AccountTable(props: any) {
-  const { userTokens, getModalData } = props;
+  const { userTokens } = props;
   const [tokensSort, setTokensSort] = useState(userTokens);
   const [currentSort, setCurrentSort] = useState('');
+  const [checkedMap, setCheckedMap] = useState({});
+  const [checkAll, setCheckALl] = useState(false);
+  const [refAccountHasToken, setRefAccountHasToken] = useState();
+  const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false);
   useEffect(() => {
     sort();
+    const refAccountHasToken = tokensSort.filter((token: TokenMetadata) => {
+      const { ref } = token;
+      if (Number(ref) > 0) return true;
+    });
+    setRefAccountHasToken(refAccountHasToken.length);
   }, []);
   const sort = (e?: any) => {
     const sortBy = e?.currentTarget.dataset.sort || 'near';
@@ -136,6 +177,55 @@ function AccountTable(props: any) {
     setTokensSort(Array.from(sortUserTokens));
     setCurrentSort(curSort);
   };
+  function clickAllCheckbox() {
+    const newStatus = !checkAll;
+    let newCheckedMap = {};
+    let count = 0;
+    if (newStatus) {
+      for (let i = 0; i < tokensSort.length; i++) {
+        const { id, ref, decimals } = tokensSort[i];
+        if (count >= withdraw_number_at_once) {
+          break;
+        } else if (Number(ref) > 0) {
+          ++count;
+          newCheckedMap[id] = {
+            id,
+            decimals,
+            amount: ref,
+          };
+        }
+      }
+    } else {
+      newCheckedMap = {};
+    }
+    setCheckALl(newStatus);
+    setCheckedMap(newCheckedMap);
+  }
+  function clickCheckbox(token: TokenMetadata) {
+    const { id, ref, decimals } = token;
+    if (checkedMap[id] || Number(ref) == 0) {
+      delete checkedMap[id];
+    } else if (Object.keys(checkedMap).length < withdraw_number_at_once) {
+      checkedMap[id] = {
+        id,
+        decimals,
+        amount: ref,
+      };
+    }
+    if (
+      Object.keys(checkedMap).length ==
+      Math.min(withdraw_number_at_once, refAccountHasToken)
+    ) {
+      setCheckALl(true);
+    } else {
+      setCheckALl(false);
+    }
+    setCheckedMap(Object.assign({}, checkedMap));
+  }
+  function doWithDraw() {
+    setWithdrawLoading(true);
+    batchWithdraw(checkedMap);
+  }
   return (
     <table className="w-full text-sm text-gray-400 mt-8 table-auto">
       <thead>
@@ -160,13 +250,13 @@ function AccountTable(props: any) {
               />
             </span>
           </th>
-          <th className="text-right">
+          <th className={`text-right`}>
             <span
               onClick={sort}
               data-sort="ref"
               className={`flex items-center w-full justify-end ${
                 currentSort.indexOf('ref') > -1 ? 'text-greenColor' : ''
-              }`}
+              } ${refAccountHasToken ? '' : 'hidden'}`}
             >
               <RefIcon />
               <label className="mx-1 cursor-pointer">REF</label>
@@ -177,7 +267,18 @@ function AccountTable(props: any) {
               />
             </span>
           </th>
-          <th className="text-center"></th>
+          <th className={`pl-8 ${refAccountHasToken ? '' : 'hidden'}`}>
+            <span className="flex items-center">
+              <label className="cursor-pointer" onClick={clickAllCheckbox}>
+                {checkAll ? (
+                  <CheckboxSelected></CheckboxSelected>
+                ) : (
+                  <Checkbox></Checkbox>
+                )}
+              </label>
+              <WithdrawTip />
+            </span>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -192,7 +293,7 @@ function AccountTable(props: any) {
               }`}
               key={item.id}
             >
-              <td width="38%" className="pl-6">
+              <td className="pl-6">
                 <div className="flex items-center">
                   <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden flex-shrink-0">
                     <img src={item.icon} className="w-full h-full"></img>
@@ -222,55 +323,96 @@ function AccountTable(props: any) {
                 width="15%"
                 className="text-right text-white font-semibold text-base"
               >
-                <span title={item.ref.toString()}>{getRefBalance(item)}</span>
+                <span
+                  className={`${refAccountHasToken ? '' : 'hidden'}`}
+                  title={item.ref.toString()}
+                >
+                  {getRefBalance(item)}
+                </span>
               </td>
-              <td width="32%" className="pl-8">
-                <div className="flex flex-wrap">
-                  <span
-                    onClick={() => {
-                      getModalData(item, 'deposit');
-                    }}
-                    className="mx-2 my-1"
-                  >
-                    <BorderButtonHover
-                      className="opacity-40"
-                      disabled={
-                        new BigNumber(item.near).isEqualTo('0') ||
-                        (item.symbol == 'NEAR' &&
-                          new BigNumber(item.near).isLessThanOrEqualTo(1))
-                      }
-                    >
-                      <FormattedMessage id="deposit"></FormattedMessage>
-                    </BorderButtonHover>
-                  </span>
-                  <span
-                    onClick={() => {
-                      getModalData(item, 'withdraw');
-                    }}
-                    className="mx-2 my-1"
-                  >
-                    <BorderButtonHover
-                      className="opacity-40"
-                      disabled={new BigNumber(item.ref).isEqualTo('0')}
-                    >
-                      <FormattedMessage id="Withdraw"></FormattedMessage>
-                    </BorderButtonHover>
-                  </span>
-                </div>
+              <td
+                width="15%"
+                className={`pl-8 ${refAccountHasToken ? '' : 'hidden'}`}
+              >
+                <label
+                  className={`${
+                    Number(item.ref) > 0
+                      ? 'cursor-pointer'
+                      : 'cursor-not-allowed'
+                  } `}
+                  onClick={() => {
+                    clickCheckbox(item);
+                  }}
+                >
+                  {checkedMap[item.id]?.amount ? (
+                    <CheckboxSelected></CheckboxSelected>
+                  ) : (
+                    <Checkbox></Checkbox>
+                  )}
+                </label>
               </td>
             </tr>
           );
         })}
+        <tr
+          className={`h-16 border-t border-borderColor border-opacity-30 ${
+            refAccountHasToken ? '' : 'hidden'
+          }`}
+        >
+          <td></td>
+          <td></td>
+          <td colSpan={2}>
+            <div className="flex justify-center">
+              <GradientButton
+                color="#fff"
+                className={`w-36 h-9 text-center text-base text-white mt-4 focus:outline-none font-semibold ${
+                  Object.keys(checkedMap).length == 0 ? 'opacity-40' : ''
+                }`}
+                onClick={doWithDraw}
+                disabled={Object.keys(checkedMap).length == 0}
+                btnClassName={
+                  Object.keys(checkedMap).length == 0
+                    ? 'cursor-not-allowed'
+                    : ''
+                }
+                loading={withdrawLoading}
+              >
+                <div>
+                  <ButtonTextWrapper
+                    loading={withdrawLoading}
+                    Text={() => (
+                      <FormattedMessage
+                        id="withdraw"
+                        defaultMessage="Withdraw"
+                      />
+                    )}
+                  />
+                </div>
+              </GradientButton>
+            </div>
+          </td>
+        </tr>
       </tbody>
     </table>
   );
 }
 function MobileAccountTable(props: any) {
-  const { userTokens, getModalData, type } = props;
+  const { userTokens, type } = props;
   const [tokensSort, setTokensSort] = useState(userTokens);
   const [currentSort, setCurrentSort] = useState('');
+  const [checkedMap, setCheckedMap] = useState({});
+  const [checkAll, setCheckALl] = useState(false);
+  const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false);
+  const [refAccountHasToken, setRefAccountHasToken] = useState();
   useEffect(() => {
     sort(`${type} + '-up'`);
+    if (type == 'ref') {
+      const refAccountHasToken = tokensSort.filter((token: TokenMetadata) => {
+        const { ref } = token;
+        if (Number(ref) > 0) return true;
+      });
+      setRefAccountHasToken(refAccountHasToken.length);
+    }
   }, [type]);
   const sort = (direction?: string) => {
     const { sortUserTokens, curSort } = accountSortFun(
@@ -281,6 +423,55 @@ function MobileAccountTable(props: any) {
     setTokensSort(Array.from(sortUserTokens));
     setCurrentSort(curSort);
   };
+  function clickAllCheckbox() {
+    const newStatus = !checkAll;
+    let newCheckedMap = {};
+    let count = 0;
+    if (newStatus) {
+      for (let i = 0; i < tokensSort.length; i++) {
+        const { id, ref, decimals } = tokensSort[i];
+        if (count >= withdraw_number_at_once) {
+          break;
+        } else if (Number(ref) > 0) {
+          ++count;
+          newCheckedMap[id] = {
+            id,
+            decimals,
+            amount: ref,
+          };
+        }
+      }
+    } else {
+      newCheckedMap = {};
+    }
+    setCheckALl(newStatus);
+    setCheckedMap(newCheckedMap);
+  }
+  function clickCheckbox(token: TokenMetadata) {
+    const { id, ref, decimals } = token;
+    if (checkedMap[id] || Number(ref) == 0) {
+      delete checkedMap[id];
+    } else if (Object.keys(checkedMap).length < withdraw_number_at_once) {
+      checkedMap[id] = {
+        id,
+        decimals,
+        amount: ref,
+      };
+    }
+    if (
+      Object.keys(checkedMap).length ==
+      Math.min(withdraw_number_at_once, refAccountHasToken)
+    ) {
+      setCheckALl(true);
+    } else {
+      setCheckALl(false);
+    }
+    setCheckedMap(JSON.parse(JSON.stringify(checkedMap)));
+  }
+  function doWithDraw() {
+    setWithdrawLoading(true);
+    batchWithdraw(checkedMap);
+  }
   return (
     <table className="text-left w-full text-sm text-gray-400 mt-8 table-auto">
       <thead>
@@ -322,159 +513,194 @@ function MobileAccountTable(props: any) {
               />
             </span>
           </th>
+          <th className={`pr-2 ${type == 'near' ? 'hidden' : ''}`}>
+            <label className="cursor-pointer" onClick={clickAllCheckbox}>
+              {checkAll ? (
+                <CheckboxSelected></CheckboxSelected>
+              ) : (
+                <Checkbox></Checkbox>
+              )}
+            </label>
+          </th>
         </tr>
       </thead>
       <tbody>
         {tokensSort.map((item: TokenMetadata) => {
-          return (
-            <tr
-              className={`h-16 border-t border-borderColor border-opacity-30 hover:bg-chartBg hover:bg-opacity-20 ${
-                (type == 'ref' && new BigNumber(item.ref).isEqualTo(0)) ||
-                (type == 'near' && new BigNumber(item.near).isEqualTo(0))
-                  ? 'hidden'
-                  : ''
-              }`}
-              key={item.id}
-            >
-              <td className="pl-4">
-                <div className="flex items-center">
-                  <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden flex-shrink-0">
-                    <img src={item.icon} className="w-full h-full"></img>
-                  </div>
-
-                  <div className="flex flex-col">
-                    <div className="flex items-center">
-                      <label className="text-white text-lg font-semibold">
-                        {item.symbol}
-                      </label>
-                      {item.symbol == 'NEAR' ? <NearTip /> : null}
+          if (
+            (type == 'ref' && new BigNumber(item.ref).isEqualTo(0)) ||
+            (type == 'near' && new BigNumber(item.near).isEqualTo(0))
+          ) {
+            return null;
+          } else
+            return (
+              <tr
+                className={`h-16 border-t border-borderColor border-opacity-30 hover:bg-chartBg hover:bg-opacity-20 ${
+                  (type == 'ref' && new BigNumber(item.ref).isEqualTo(0)) ||
+                  (type == 'near' && new BigNumber(item.near).isEqualTo(0))
+                    ? 'hidden'
+                    : ''
+                }`}
+                key={item.id}
+              >
+                <td className="pl-4">
+                  <div className="flex items-center">
+                    <div className="h-10 w-10 rounded-full border border-gradientFromHover mr-2.5 overflow-hidden flex-shrink-0">
+                      <img src={item.icon} className="w-full h-full"></img>
                     </div>
-                    <label className="text-xs text-primaryText break-all">
-                      {item.id}
+
+                    <div className="flex flex-col">
+                      <div className="flex items-center">
+                        <label className="text-white text-lg font-semibold">
+                          {item.symbol}
+                        </label>
+                        {item.symbol == 'NEAR' ? <NearTip /> : null}
+                      </div>
+                      <label className="text-xs text-primaryText break-all">
+                        {item.id}
+                      </label>
+                    </div>
+                  </div>
+                </td>
+                <td className={`pr-4 ${type == 'ref' ? 'hidden' : ''}`}>
+                  <div className="flex flex-col items-end py-4">
+                    <label className="text-white font-semibold text-lg mb-1">
+                      {getWalletBalance(item)}
                     </label>
                   </div>
-                </div>
-              </td>
-              <td className={`pr-4 ${type == 'ref' ? 'hidden' : ''}`}>
-                <div className="flex flex-col items-end py-4">
-                  <label className="text-white font-semibold text-lg mb-1">
-                    {getWalletBalance(item)}
-                  </label>
-                  <span
+                </td>
+                <td className={`pr-4 ${type == 'near' ? 'hidden' : ''}`}>
+                  <div className="flex flex-col items-end py-4">
+                    <label className="text-white font-semibold text-lg mb-1">
+                      {getRefBalance(item)}
+                    </label>
+                  </div>
+                </td>
+                <td className={`pr-2 ${type == 'near' ? 'hidden' : ''}`}>
+                  <label
+                    className="cursor-pointer"
                     onClick={() => {
-                      getModalData(item, 'deposit');
+                      clickCheckbox(item);
                     }}
                   >
-                    <BorderButtonMobile
-                      disabled={
-                        new BigNumber(item.near).isEqualTo('0') ||
-                        (item.symbol == 'NEAR' &&
-                          new BigNumber(item.near).isLessThanOrEqualTo(1))
-                      }
-                    >
-                      <FormattedMessage id="deposit"></FormattedMessage>
-                    </BorderButtonMobile>
-                  </span>
-                </div>
-              </td>
-              <td className={`pr-4 ${type == 'near' ? 'hidden' : ''}`}>
-                <div className="flex flex-col items-end py-4">
-                  <label className="text-white font-semibold text-lg mb-1">
-                    {getRefBalance(item)}
+                    {checkedMap[item.id]?.amount ? (
+                      <CheckboxSelected></CheckboxSelected>
+                    ) : (
+                      <Checkbox></Checkbox>
+                    )}
                   </label>
-                  <span
-                    onClick={() => {
-                      getModalData(item, 'withdraw');
-                    }}
-                  >
-                    <BorderButtonMobile
-                      disabled={new BigNumber(item.ref).isEqualTo('0')}
-                    >
-                      <FormattedMessage id="withdraw"></FormattedMessage>
-                    </BorderButtonMobile>
-                  </span>
-                </div>
-              </td>
-            </tr>
-          );
+                </td>
+              </tr>
+            );
         })}
+        <tr
+          className={`h-16 border-t border-borderColor border-opacity-30  ${
+            type == 'near' ? 'hidden' : ''
+          }`}
+        >
+          <td colSpan={3}>
+            <div className="flex flex-col justify-center items-center">
+              <div
+                className={`border border-primaryText p-2.5 text-xs text-navHighLightText text-left rounded-md m-3 mt-4 ${
+                  Object.keys(checkedMap).length >= withdraw_number_at_once
+                    ? ''
+                    : 'hidden'
+                }`}
+              >
+                <FormattedMessage id="over_tip"></FormattedMessage>
+              </div>
+              <GradientButton
+                color="#fff"
+                className={`w-36 h-9 text-center text-base text-white mt-2 focus:outline-none font-semibold ${
+                  Object.keys(checkedMap).length == 0 ? 'opacity-40' : ''
+                }`}
+                onClick={doWithDraw}
+                disabled={Object.keys(checkedMap).length == 0}
+                btnClassName={
+                  Object.keys(checkedMap).length == 0
+                    ? 'cursor-not-allowed'
+                    : ''
+                }
+                loading={withdrawLoading}
+              >
+                <div>
+                  <ButtonTextWrapper
+                    loading={withdrawLoading}
+                    Text={() => (
+                      <FormattedMessage
+                        id="withdraw"
+                        defaultMessage="Withdraw"
+                      />
+                    )}
+                  />
+                </div>
+              </GradientButton>
+            </div>
+          </td>
+        </tr>
       </tbody>
     </table>
   );
 }
 function Account(props: any) {
   const { userTokens } = props;
-  const [account, network] = wallet.getAccountId().split('.');
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
-  const niceAccountId = `${account.slice(0, 10)}...${network || ''}`;
-  const accountName =
-    account.length > 10 ? niceAccountId : wallet.getAccountId();
 
-  const getModalData = (token: TokenMetadata, action: string) => {
-    const { decimals } = token;
-    setModal({
-      token,
-      action,
-      max: action == 'deposit' ? token.near : token.ref,
-    });
-    setVisible(true);
-  };
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  const { wallet } = getCurrentWallet();
+
   return (
-    <div className="flex justify-center relative w-3/5 m-auto mt-16 xs:hidden md:hidden">
-      <Card className="w-full pt-6 pb-1.5 px-0">
+    <div className="flex justify-center relative w-1/2 m-auto mt-16 xs:hidden md:hidden pb-5">
+      <Card className="w-full pt-6 pb-15 px-0">
         <div className="flex items-center justify-between pb-4 px-6">
           <div className="flex items-center font-semibold text-white">
             <NearIcon />
             <label className="ml-3 text-xl">
-              {wallet.isSignedIn() && accountName}
+              {isSignedIn && getAccountName(wallet.getAccountId())}
             </label>
           </div>
         </div>
-        <AccountTable
-          userTokens={userTokens}
-          getModalData={getModalData}
-        ></AccountTable>
-        <ActionModel
-          modal={modal}
-          visible={visible}
-          onRequestClose={setVisible}
-        ></ActionModel>
+        <AccountTable userTokens={userTokens}></AccountTable>
       </Card>
     </div>
   );
 }
 function MobileAccount(props: any) {
   const { userTokens } = props;
-  const [account, network] = wallet.getAccountId().split('.');
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
   const [activeTab, setActiveTab] = useState('near');
-  const niceAccountId = `${account.slice(0, 10)}...${network || ''}`;
-  const accountName =
-    account.length > 10 ? niceAccountId : wallet.getAccountId();
 
-  const getModalData = (token: TokenMetadata, action: string) => {
-    setModal({
-      token,
-      action,
-      max: action == 'deposit' ? token.near : token.ref,
-    });
-    setVisible(true);
-  };
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  const { wallet } = getCurrentWallet();
+  const [refAccountHasToken, setRefAccountHasToken] = useState(false);
+
   const switchTab = (type: string) => {
     setActiveTab(type);
   };
+  useEffect(() => {
+    const refAccountHasToken = userTokens.find((token: TokenMetadata) => {
+      const { ref } = token;
+      if (Number(ref) > 0) return true;
+    });
+    setRefAccountHasToken(!!refAccountHasToken);
+  }, []);
   return (
     <div className="lg:hidden">
       <div
-        className="bg-cardBg rounded-lg mx-auto relative"
+        className={`bg-cardBg rounded-lg mx-auto relative ${
+          activeTab == 'ref' ? 'pb-10' : ''
+        }`}
         style={{ width: '95vw' }}
       >
         <div className="flex text-white items-center justify-center py-6">
           <NearIcon />
           <label className="ml-3 text-xl">
-            {wallet.isSignedIn() && accountName}
+            {isSignedIn && getAccountName(wallet.getAccountId())}
           </label>
         </div>
         <div className="px-3">
@@ -499,7 +725,7 @@ function MobileAccount(props: any) {
                 activeTab == 'ref'
                   ? 'text-white bg-acccountBlock'
                   : 'text-primaryText'
-              }`}
+              } ${refAccountHasToken ? '' : 'hidden'}`}
             >
               <FormattedMessage id="ref_account"></FormattedMessage>
             </label>
@@ -508,13 +734,7 @@ function MobileAccount(props: any) {
         <MobileAccountTable
           type={activeTab}
           userTokens={userTokens}
-          getModalData={getModalData}
         ></MobileAccountTable>
-        <ActionModel
-          modal={modal}
-          visible={visible}
-          onRequestClose={setVisible}
-        ></ActionModel>
       </div>
     </div>
   );
@@ -653,13 +873,20 @@ export function ActionModel(props: any) {
   );
 }
 export function AccountPage() {
-  if (!wallet.isSignedIn()) {
-    const history = useHistory();
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+  const history = useHistory();
+
+  const senderLoginRes = getSenderLoginRes();
+
+  if (!senderLoginRes && !webWallet.isSignedIn()) {
     history.push('/');
     return null;
   }
-  const userTokens = useUserRegisteredTokensAllAndNearBalance();
+
+  const userTokens = useUserRegisteredTokensAllAndNearBalance(isSignedIn);
   const balances = useTokenBalances();
+
   if (!userTokens || !balances) return <Loading />;
   userTokens.forEach((token: TokenMetadata) => {
     const { decimals, id, nearNonVisible } = token;

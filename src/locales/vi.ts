@@ -239,7 +239,8 @@ const vi = {
   value_rewards: 'phần thưởng',
   stake_unstake_tip:
     'Staking hay unstaking sẽ tự động nhận phần thưởng của bạn.',
-  over_tip: 'Do giới hạn của phí gas, chỉ chọn được 5 thứ cùng một lúc.',
+  over_tip:
+    'Để tối ưu hóa phí gas, bạn có thể rút tối đa 5 token cùng một lúc.',
   no_token_tip: 'Không có token thưởng',
   getToken_tip:
     'Bạn có thể nhận token thưởng hoặc  stake LP token của bạn ngay bây giờ!',
@@ -247,7 +248,7 @@ const vi = {
   swap_rate_including_fee: 'Tỷ lệ giao dịch (bao gồm phí)',
   by_share: 'Tính theo Share',
   by_token: 'Tính theo Token',
-  your_liquidity_positions_will_appear_here:
+  your_positions_will_be_displayed_here:
     'Số thanh khoản của bạn sẽ xuất hiện ở đây .',
   price_impact: 'Tác động giá',
   shares_left: 'Shares left',
@@ -336,7 +337,7 @@ const vi = {
   go_to_your_account_to: 'Go to your account to',
   deposit_l: 'Nạp',
   withdraw_l: 'Rút',
-  got_it: 'Got it',
+  got_it: 'Đã rõ',
   check_the_transaction_settings: 'Kiểm tra cài đặt giao dịch',
   filter_by: 'Bộ lọc',
   allOption: 'Tất cả',
@@ -352,8 +353,40 @@ const vi = {
   from_terra: 'Terra',
   from_celo: 'Celo',
   no_result: 'Xin lỗi, chúng tôi không tìm thấy cặp farm nào của bạn',
-  mulitple: 'Cặp được nhân',
+  multiple: 'Cặp được nhân',
   default: 'mặc định',
   vi_go_live: 'Việt phát trực tiếp!',
+  do_not_need_to_deposit_in_ref: 'Bạn không cần nạp tiền vào Ref Finance nữa!',
+  you_can_add_liquidity_directly:
+    'Bây giờ bạn có thể thêm thanh khoản trực tiếp bằng ví NEAR Wallet.',
+  do_not_need_deposit_anymore: 'Bạn không cần phải đặt cọc nữa!',
+  lightning_swaps: 'Hoán đổi tia chớp',
+  frictionless_add_remove_liquidity:
+    'Các hành động thêm / xóa thanh khoản không ma sát',
+  select_a: 'Chọn một',
+  wallet_vi: 'ví',
+  wallet: ' ',
+  to_use_ref_finance: 'để sử dụng Ref.Finance',
+  not_supported: 'không hỗ trợ',
+  installed: 'đã cài đặt',
+  installe_now: 'cài đặt ngay',
+  extension: 'mở rộng',
+  first_time_using_ref: 'Lần đầu sử dụng Ref',
+  learn_more: 'Tìm hiểu ngay',
+  install_sender_now: 'Cài đặt Sender ngay',
+  connect_to_dapps_with_one_click: 'Kết nối tới dApps với một cú click',
+  install: 'Cài đặt',
+  Connecting: 'Đang kết nối',
+  check_sender_wallet_extension: 'Hãy kiểm tra Sender Wallet Extention',
+  having_trouble: 'Gặp lỗi?',
+  go_back: 'Quay lại',
+  web: 'Web',
+  Type: 'Kiểu',
+  click_to_view: 'Nhấn để xem',
+  transaction_failed: 'Giao dịch thất bại',
+  create: 'Tạo',
+  support_ledger: 'ủng hộ Ledger',
+  support_ledger_tip:
+    "Ở bản thiết kế ban đầu, Ledger<br /> không thể thực hiện số lượng lớn<br /> giao dịch cùng lúc(i.e. Auto Router:<br /> trao đổi qua nhiều pool trong một lần) <br />bởi vì sự giới hạn về bộ nhớ. Khi được<br /> kích hoạt, tuỳ chọn 'Support Ledger'<br /> sẽ giới hạn các giao dịch <br />tới sự đơn giản nhất (dù không có được <br />giá thành tốt nhất), nên các giao <br />dịch của có khối lượng hợp lí mới có thể<br /> được thực hiện",
 };
 export default vi;
