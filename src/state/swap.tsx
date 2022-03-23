@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 import {
   estimateSwap as estimateStableSwap,
   EstimateSwapView,
-} from '~services/stable-swap';
+} from '../services/stable-swap';
 
 import { TokenMetadata } from '../services/ft-contract';
 import {
@@ -22,7 +22,7 @@ import {
   swap,
 } from '../services/swap';
 
-import { swap as stableSwap } from '~services/stable-swap';
+import { swap as stableSwap } from '../services/stable-swap';
 
 import { useHistory, useLocation } from 'react-router';
 import getConfig from '~services/config';
@@ -33,13 +33,17 @@ import {
   POOL_TOKEN_REFRESH_INTERVAL,
   STABLE_TOKEN_IDS,
   STABLE_POOL_ID,
-} from '~services/near';
+} from '../services/near';
 
 import {
   getExpectedOutputFromActions,
   getAverageFeeForRoutes,
-} from '~services/smartRouteLogic';
-import { getURLInfo, swapToast } from '~components/layout/transactionTipPopUp';
+  //@ts-ignore
+} from '../services/smartRouteLogic';
+import {
+  getURLInfo,
+  swapToast,
+} from '../components/layout/transactionTipPopUp';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -55,6 +59,7 @@ interface SwapOptions {
   stablePool?: StablePool;
   loadingPause?: boolean;
   setLoadingPause?: (pause: boolean) => void;
+  supportLedger?: boolean;
 }
 
 export const useSwap = ({
@@ -67,6 +72,7 @@ export const useSwap = ({
   loadingTrigger,
   setLoadingTrigger,
   loadingPause,
+  supportLedger,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -92,8 +98,9 @@ export const useSwap = ({
     const estimate = estimates[0];
 
     let avgFee: number = 0;
-
-    if (
+    if (estimates.length === 1) {
+      avgFee = estimates[0].pool.fee;
+    } else if (
       estimate.status === PoolMode.SMART ||
       estimate.status === PoolMode.STABLE
     ) {
@@ -148,6 +155,7 @@ export const useSwap = ({
         intl,
         setLoadingData,
         loadingTrigger: loadingTrigger && !loadingPause,
+        supportLedger,
       })
         .then((estimates) => {
           if (!estimates) throw '';
@@ -186,7 +194,14 @@ export const useSwap = ({
 
   useEffect(() => {
     getEstimate();
-  }, [loadingTrigger, loadingPause, tokenIn, tokenOut, tokenInAmount]);
+  }, [
+    loadingTrigger,
+    loadingPause,
+    tokenIn,
+    tokenOut,
+    tokenInAmount,
+    supportLedger,
+  ]);
 
   useEffect(() => {
     let id: any = null;
