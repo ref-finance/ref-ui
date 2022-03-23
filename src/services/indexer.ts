@@ -84,10 +84,7 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
         headers: { 'Content-type': 'application/json; charset=UTF-8' },
       }).then((res) => res.json());
 
-      console.log(POOLS_BLACK_LIST);
-
       const blackListPools = await getPool(POOLS_BLACK_LIST[0].toString());
-      console.log(blackListPools);
 
       const blacklistTokenIn = blackListPools.token_account_ids[0];
 
@@ -97,8 +94,6 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
         await db.getPoolsByTokens(blacklistTokenIn, blacklistTokenOut)
       ).map((p) => p.id.toString());
 
-      console.log(twoTokenStablePoolIds);
-
       const twoTokenStablePools = await getPoolsByIds({
         pool_ids: twoTokenStablePoolIds,
       });
@@ -106,8 +101,6 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
       if (twoTokenStablePools?.length > 0) {
         pools.push(_.maxBy(twoTokenStablePools, (p) => p.tvl));
       }
-
-      console.log(twoTokenStablePools);
 
       await db.cacheTopPools(pools);
     }

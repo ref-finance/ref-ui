@@ -24,7 +24,6 @@ function SupportLedgerSwitch({
         borderRadius: '20px',
       }}
       onClick={() => {
-        console.log(supportLedger);
         if (supportLedger) {
           setSupportLedger(false);
           localStorage.removeItem(SUPPORT_LEDGER_KEY);

@@ -266,7 +266,6 @@ export const estimateSwap = async ({
     }
 
     const bestPricePool = _.maxBy(pools, (p) => {
-      console.log(p);
       if (p.id === Number(STABLE_POOL_ID)) {
         return Number(
           getStablePoolEstimate({
@@ -282,8 +281,6 @@ export const estimateSwap = async ({
           getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn).estimate
         );
     });
-
-    console.log('bestPricePool', bestPricePool);
 
     const estimateRes =
       bestPricePool.id === Number(STABLE_POOL_ID)
@@ -314,7 +311,6 @@ export const estimateSwap = async ({
       },
     ];
 
-    console.log(res);
     return res;
   }
 
@@ -658,8 +654,6 @@ SwapOptions) => {
   if (wallet.isSignedIn()) {
     if (isParallelSwap) {
       const swapActions = swapsToDo.map((s2d) => {
-        console.log(s2d.estimate, percentLess(slippageTolerance, s2d.estimate));
-
         let minTokenOutAmount = s2d.estimate
           ? percentLess(slippageTolerance, s2d.estimate)
           : '0';

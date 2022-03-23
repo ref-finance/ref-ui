@@ -492,8 +492,6 @@ export function calculateSmartRoutesV2PriceImpact(
 
   const totalInputAmount = routes[0][0].totalInputAmount;
 
-  console.log(actions);
-
   const priceImpactForRoutes = routes.map((r, i) => {
     const readablePartialAmountIn = toReadableNumber(
       tokenIn.decimals,
