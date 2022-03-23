@@ -55,8 +55,7 @@ const uk_UA = {
   to: 'До',
   submit: 'Прийняти',
   wrapnear: 'Обгорнути NEAR',
-  wrapnear_tip_one:
-    'Обгортання NEAR дозволяє вам торгувати на REF',
+  wrapnear_tip_one: 'Обгортання NEAR дозволяє вам торгувати на REF',
   wrapnear_tip_two: 'Залиште 1 NEAR',
   wrapnear_tip_three: 'для комісії щоб розгорнути назад ваш NEAR.',
   wrap_error_msg: 'Недостатній баланс',
@@ -383,7 +382,8 @@ const uk_UA_in_risks_page = {
   farming_contract: 'Farming Contract',
   table_body_tr_2: 'Керування стимулами ліквідності',
   staking_contract: 'Staking Contract',
-  table_body_tr_3: 'Мінт та спалювання xREF, а також розподілення нагород за часом',
+  table_body_tr_3:
+    'Мінт та спалювання xREF, а також розподілення нагород за часом',
   sputnik_dao_contract: 'Sputnik DAO Contract',
   table_body_tr_4:
     'Забезпечення успіху Ref, приймаючи стратегічні рішення (включаючи зміни до смарт-контракту)',
@@ -395,7 +395,8 @@ const uk_UA_in_risks_page = {
   airdrop_contract: 'Airdrop Contract',
   table_body_tr_8: 'Керування перший аірдропом REF',
   near_address: 'NEAR Address',
-  table_body_tr_9: 'Керування одноразовими виплатами за виправлення помилок (bug bounty)',
+  table_body_tr_9:
+    'Керування одноразовими виплатами за виправлення помилок (bug bounty)',
   fungible_token_contract: 'Fungible Token Contract',
   table_body_tr_10: 'Випуск токена REF ',
   rug_pull: 'Rug pull',
@@ -424,10 +425,11 @@ const uk_UA_in_risks_page = {
     'Систематичний ризик означає, що ви можете втратити гроші, навіть якщо збій безпосередньо не стосується ваших інвестицій/експозицій.',
   systemic_issues_paragraph_3:
     'На пули ліквідності можуть вплинути такі ризики:',
-  systemic_issues_paragraph_4: 'Проблеми смарт-контракту з протоколами кредитування',
-  systemic_issues_paragraph_5: 'Проблеми смарт-контракту з протоколами стейкінгу',
-  systemic_issues_paragraph_6:
-    'Системні проблеми зі стейблкоінами в пулах',
+  systemic_issues_paragraph_4:
+    'Проблеми смарт-контракту з протоколами кредитування',
+  systemic_issues_paragraph_5:
+    'Проблеми смарт-контракту з протоколами стейкінгу',
+  systemic_issues_paragraph_6: 'Системні проблеми зі стейблкоінами в пулах',
   systemic_issues_paragraph_7:
     'Системні проблеми з нативними токенами ERC20 в пулах',
   crypto_trading_addiction: 'Залежність від криптоторгівлі',
@@ -445,4 +447,4 @@ const uk_UA_in_risks_page = {
     "'Я втратив мільйони через залежність від торгівлі криптовалютою'",
 };
 
-export default { uk_UA, uk_UA_in_risks_page } ;
+export default { uk_UA, uk_UA_in_risks_page };
