@@ -33,6 +33,7 @@ const XREF_TOKEN_ID = getConfig().XREF_TOKEN_ID;
 export const POOLS_BLACK_LIST = config.POOLS_BLACK_LIST;
 
 export const filterBlackListPools = (pool: any & { id: any }) =>
+  //@ts-ignore
   !POOLS_BLACK_LIST.includes(pool.id);
 
 export const LP_STORAGE_AMOUNT = '0.01';

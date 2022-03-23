@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router-dom';
-import { TipBox, RefSetPeople, ViGuide } from '~components/icon/Common';
-import { ModalClose } from '~components/icon/ModalClose';
-import { isMobile } from '~utils/device';
-import { IconVi } from '~components/icon/Nav';
+import { TipBox, RefSetPeople, ViGuide } from '../../components/icon/Common';
+import { ModalClose } from '../../components/icon/ModalClose';
+import { isMobile } from '../../utils/device';
+import { IconVi } from '../../components/icon/Nav';
 
 export function Guide(props: any) {
   const { bothStableToken } = props;

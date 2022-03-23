@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import Big from 'big.js';
 
-import { getLiquidity } from '~utils/pool';
+import { getLiquidity } from '../utils/pool';
 
 import {
   ONLY_ZEROS,
@@ -62,7 +62,8 @@ import { registerTokenAction } from './creators/token';
 import { BigNumber } from 'bignumber.js';
 import _, { filter } from 'lodash';
 import { getSwappedAmount } from './stable-swap';
-import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
+import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
+//@ts-ignore
 import { getSmartRouteSwapActions, stableSmart } from './smartRouteLogic';
 import { getCurrentWallet } from '../utils/sender-wallet';
 import { multiply } from '../utils/numbers';

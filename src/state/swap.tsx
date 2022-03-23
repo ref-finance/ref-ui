@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 import {
   estimateSwap as estimateStableSwap,
   EstimateSwapView,
-} from '~services/stable-swap';
+} from '../services/stable-swap';
 
 import { TokenMetadata } from '../services/ft-contract';
 import {
@@ -22,7 +22,7 @@ import {
   swap,
 } from '../services/swap';
 
-import { swap as stableSwap } from '~services/stable-swap';
+import { swap as stableSwap } from '../services/stable-swap';
 
 import { useHistory, useLocation } from 'react-router';
 import getConfig from '~services/config';
@@ -33,13 +33,17 @@ import {
   POOL_TOKEN_REFRESH_INTERVAL,
   STABLE_TOKEN_IDS,
   STABLE_POOL_ID,
-} from '~services/near';
+} from '../services/near';
 
 import {
   getExpectedOutputFromActions,
   getAverageFeeForRoutes,
-} from '~services/smartRouteLogic';
-import { getURLInfo, swapToast } from '~components/layout/transactionTipPopUp';
+  //@ts-ignore
+} from '../services/smartRouteLogic';
+import {
+  getURLInfo,
+  swapToast,
+} from '../components/layout/transactionTipPopUp';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 

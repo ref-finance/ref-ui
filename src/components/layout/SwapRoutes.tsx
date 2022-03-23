@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { TokenMetadata, ftGetTokenMetadata } from '~services/ft-contract';
-import { calculateFeePercent, toPrecision } from '~utils/numbers';
+import { calculateFeePercent, toPrecision } from '../../utils/numbers';
 import { toRealSymbol } from '~utils/token';
 import { EstimateSwapView } from '../../services/stable-swap';
 import { getPoolAllocationPercents } from '../../utils/numbers';
