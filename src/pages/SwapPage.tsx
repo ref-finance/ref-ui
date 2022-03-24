@@ -10,6 +10,7 @@ import {
 } from '../services/near';
 import { TokenMetadata } from '../services/ft-contract';
 import { Pool, getStablePoolFromCache } from '../services/pool';
+import getConfig from '../services/config';
 
 const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -74,7 +75,9 @@ function SwapPage() {
     });
   }, []);
 
-  const allTokens = useWhitelistTokens();
+  const extraTokens = getConfig().networkId === 'mainnet' ? ['usn'] : [];
+
+  const allTokens = useWhitelistTokens(extraTokens);
 
   if (!allTokens || !stablePools) return <Loading />;
 
