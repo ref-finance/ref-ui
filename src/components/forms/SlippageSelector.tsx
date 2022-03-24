@@ -52,7 +52,6 @@ export default function SlippageSelectorForStable({
   bindUseBalance,
   useNearBalance,
   validSlippageList,
-  normalSwap,
   supportLedger,
   setSupportLedger,
 }: {
@@ -61,7 +60,6 @@ export default function SlippageSelectorForStable({
   bindUseBalance: (useNearBalance: boolean) => void;
   useNearBalance: string;
   validSlippageList?: number[];
-  normalSwap?: boolean;
   supportLedger?: boolean;
   setSupportLedger?: (e?: any) => void;
 }) {
@@ -220,11 +218,7 @@ export default function SlippageSelectorForStable({
               %
             </div>
 
-            <div
-              className={
-                normalSwap ? 'flex items-center mt-6 text-sm' : 'hidden'
-              }
-            >
+            <div className={'flex items-center mt-6 text-sm'}>
               <label>
                 <FormattedMessage
                   id="support_ledger"

@@ -131,7 +131,6 @@ export default function SwapFormWrap({
                   useNearBalance={useNearBalance}
                   supportLedger={supportLedger}
                   setSupportLedger={setSupportLedger}
-                  normalSwap
                 />
               ) : null}
               {swapMode === SWAP_MODE.STABLE ? (
