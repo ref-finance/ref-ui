@@ -330,7 +330,9 @@ function StablePoolCard({
           />
         </OutlineButton>
       </div>
-      <div className={isSignedIn ? 'hidden' : ' px-6 py-4 mb-2 bg-liqBtn'}>
+      <div
+        className={` ${isSignedIn ? 'hidden' : ''} px-6 py-4 mb-2 bg-liqBtn `}
+      >
         <ConnectToNearBtn />
       </div>
     </div>
