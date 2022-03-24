@@ -264,6 +264,13 @@ export const estimateSwap = async ({
   });
 
   const [stablePool, stablePoolInfo] = await getStablePoolFromCache();
+  const [stablePoolUSN, stablePoolInfoUSN] = await getStablePoolFromCache(
+    STABLE_POOL_USN_ID.toString()
+  );
+
+  const isUSN =
+    STABLE_TOKEN_USN_IDS.includes(tokenIn.id) &&
+    STABLE_TOKEN_USN_IDS.includes(tokenOut.id);
 
   if (
     STABLE_TOKEN_IDS.includes(tokenIn.id) &&
@@ -272,20 +279,24 @@ export const estimateSwap = async ({
     pools.push(stablePool);
   }
 
+  if (isUSN) {
+    pools.push(stablePoolUSN);
+  }
+
   if (supportLedger) {
     if (pools.length === 0) {
       throwNoPoolError();
     }
 
     const bestPricePool = _.maxBy(pools, (p) => {
-      if (p.id === Number(STABLE_POOL_ID)) {
+      if (isStablePool(p.id)) {
         return Number(
           getStablePoolEstimate({
             tokenIn,
             tokenOut,
             amountIn,
-            stablePoolInfo,
-            stablePool,
+            stablePoolInfo: isUSN ? stablePoolInfoUSN : stablePoolInfo,
+            stablePool: isUSN ? stablePoolUSN : stablePool,
           }).estimate
         );
       } else
@@ -294,21 +305,15 @@ export const estimateSwap = async ({
         );
     });
 
-    const estimateRes =
-      bestPricePool.id === Number(STABLE_POOL_ID)
-        ? getStablePoolEstimate({
-            tokenIn,
-            tokenOut,
-            amountIn,
-            stablePool,
-            stablePoolInfo,
-          })
-        : getSinglePoolEstimate(
-            tokenIn,
-            tokenOut,
-            bestPricePool,
-            parsedAmountIn
-          );
+    const estimateRes = isStablePool(bestPricePool.id)
+      ? getStablePoolEstimate({
+          tokenIn,
+          tokenOut,
+          amountIn,
+          stablePoolInfo: isUSN ? stablePoolInfoUSN : stablePoolInfo,
+          stablePool: isUSN ? stablePoolUSN : stablePool,
+        })
+      : getSinglePoolEstimate(tokenIn, tokenOut, bestPricePool, parsedAmountIn);
 
     const res = [
       {
