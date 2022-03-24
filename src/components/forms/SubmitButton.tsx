@@ -6,7 +6,7 @@ import {
   GradientButton,
   ConnectToNearBtn,
   ButtonTextWrapper,
-} from '~components/button/Button';
+} from '../../components/button/Button';
 
 import { BeatLoading } from '~components/layout/Loading';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';

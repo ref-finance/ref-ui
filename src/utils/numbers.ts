@@ -10,7 +10,7 @@ import {
   isStablePool,
 } from '../services/near';
 import { Pool, STABLE_POOL_INFO_CACHE } from '../services/pool';
-import { getSwappedAmount } from '../services/stable-swap';
+import { getSwappedAmount, estimateSwap } from '../services/stable-swap';
 import { EstimateSwapView } from '../services/swap';
 import Big from 'big.js';
 import { sortBy } from 'lodash';
@@ -517,12 +517,17 @@ export function calculateSmartRoutesV2PriceImpact(
         tokenOut
       );
     } else {
-      return calculatePriceImpact(
-        [r[0].pool],
-        r[0].tokens[0],
-        r[0].tokens[1],
-        readablePartialAmountIn
-      );
+      return isStablePool(r[0].pool.id)
+        ? calcStableSwapPriceImpact(
+            readablePartialAmountIn,
+            r[0].noFeeAmountOut
+          )
+        : calculatePriceImpact(
+            [r[0].pool],
+            r[0].tokens[0],
+            r[0].tokens[1],
+            readablePartialAmountIn
+          );
     }
   });
 

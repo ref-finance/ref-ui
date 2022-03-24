@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import Big from 'big.js';
 
-import { getLiquidity } from '~utils/pool';
+import { getLiquidity } from '../utils/pool';
 
 import {
   ONLY_ZEROS,
@@ -62,9 +62,6 @@ import { registerTokenAction } from './creators/token';
 import { BigNumber } from 'bignumber.js';
 import _, { filter } from 'lodash';
 import { getSwappedAmount } from './stable-swap';
-import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
-import { getSmartRouteSwapActions, stableSmart } from './smartRouteLogic';
-import { getCurrentWallet } from '../utils/sender-wallet';
 import { isStablePool } from './near';
 import { SWAP_MODE } from '../pages/SwapPage';
 import {
@@ -72,6 +69,11 @@ import {
   STABLE_POOL_USN_ID,
   isStableToken,
 } from './near';
+import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
+//@ts-ignore
+import { getSmartRouteSwapActions, stableSmart } from './smartRouteLogic';
+import { getCurrentWallet } from '../utils/sender-wallet';
+import { multiply } from '../utils/numbers';
 
 // Big.strict = false;
 const FEE_DIVISOR = 10000;
@@ -94,6 +96,7 @@ interface EstimateSwapOptions {
   loadingTrigger?: boolean;
   setLoadingTrigger?: (loadingTrigger: boolean) => void;
   swapMode?: SWAP_MODE;
+  supportLedger?: boolean;
 }
 
 export interface ReservesMap {
@@ -227,6 +230,7 @@ export const estimateSwap = async ({
   setLoadingData,
   loadingTrigger,
   swapMode,
+  supportLedger,
 }: EstimateSwapOptions): Promise<EstimateSwapView[]> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
 
@@ -247,13 +251,80 @@ export const estimateSwap = async ({
     );
   };
 
-  const pools = await getPoolsByTokens({
-    tokenInId: tokenIn.id,
-    tokenOutId: tokenOut.id,
-    amountIn: parsedAmountIn,
-    setLoadingData,
-    loadingTrigger,
+  const pools = (
+    await getPoolsByTokens({
+      tokenInId: tokenIn.id,
+      tokenOutId: tokenOut.id,
+      amountIn: parsedAmountIn,
+      setLoadingData,
+      loadingTrigger,
+    })
+  ).filter((p) => {
+    return getLiquidity(p, tokenIn, tokenOut) > 0;
   });
+
+  const [stablePool, stablePoolInfo] = await getStablePoolFromCache();
+
+  if (
+    STABLE_TOKEN_IDS.includes(tokenIn.id) &&
+    STABLE_TOKEN_IDS.includes(tokenOut.id)
+  ) {
+    pools.push(stablePool);
+  }
+
+  if (supportLedger) {
+    if (pools.length === 0) {
+      throwNoPoolError();
+    }
+
+    const bestPricePool = _.maxBy(pools, (p) => {
+      if (p.id === Number(STABLE_POOL_ID)) {
+        return Number(
+          getStablePoolEstimate({
+            tokenIn,
+            tokenOut,
+            amountIn,
+            stablePoolInfo,
+            stablePool,
+          }).estimate
+        );
+      } else
+        return Number(
+          getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn).estimate
+        );
+    });
+
+    const estimateRes =
+      bestPricePool.id === Number(STABLE_POOL_ID)
+        ? getStablePoolEstimate({
+            tokenIn,
+            tokenOut,
+            amountIn,
+            stablePool,
+            stablePoolInfo,
+          })
+        : getSinglePoolEstimate(
+            tokenIn,
+            tokenOut,
+            bestPricePool,
+            parsedAmountIn
+          );
+
+    const res = [
+      {
+        ...estimateRes,
+        status: PoolMode.PARALLEL,
+        routeInputToken: tokenIn.id,
+        totalInputAmount: parsedAmountIn,
+        pool: { ...bestPricePool, partialAmountIn: parsedAmountIn },
+        tokens: [tokenIn, tokenOut],
+        inputToken: tokenIn.id,
+        totalInput: parsedAmountIn,
+      },
+    ];
+
+    return res;
+  }
 
   const orpools = await getRefPoolsByToken1ORToken2(tokenIn.id, tokenOut.id);
   let stableSmartActionsV2 = await stableSmart(
@@ -287,9 +358,6 @@ export const estimateSwap = async ({
       )
     ) {
       // then hybrid route gave better answer. Use it!
-      console.log(
-        `HYBRID ROUTE GAVE BETTER RETURN OF ${hybridStableSmartOutputEstimate}`
-      );
 
       res = hybridStableSmart.actions;
     } else {
@@ -298,8 +366,6 @@ export const estimateSwap = async ({
       res = stableSmartActionsV2;
     }
   }
-
-  console.log(res);
 
   if (!res.length) {
     throwNoPoolError();
@@ -690,22 +756,8 @@ SwapOptions) => {
   if (wallet.isSignedIn()) {
     if (isParallelSwap) {
       const swapActions = swapsToDo.map((s2d) => {
-        let dx_float = Number(s2d.pool.partialAmountIn);
-        let fpool = formatPoolNew(s2d.pool, tokenIn.id, tokenOut.id);
-        let dy_float = calculate_dy_float(
-          dx_float,
-          fpool,
-          tokenIn.id,
-          tokenOut.id
-        );
-        let tokenOutAmount = toReadableNumber(
-          tokenOut.decimals,
-          scientificNotationToString(dy_float.toString())
-        );
-
-        s2d.estimate = tokenOutAmount;
-        let minTokenOutAmount = tokenOutAmount
-          ? percentLess(slippageTolerance, tokenOutAmount)
+        let minTokenOutAmount = s2d.estimate
+          ? percentLess(slippageTolerance, s2d.estimate)
           : '0';
         let allocation = toReadableNumber(
           tokenIn.decimals,

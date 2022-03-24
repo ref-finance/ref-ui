@@ -2,10 +2,10 @@ import React, { useContext, useState } from 'react';
 import { toRealSymbol } from '~utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
 import { FormattedMessage } from 'react-intl';
-import { WNEARExchngeIcon } from '~components/icon/Common';
-import WrapNear from '~components/forms/WrapNear';
+import { WNEARExchngeIcon } from '../../components/icon/Common';
+import WrapNear from '../../components/forms/WrapNear';
 import { wallet } from '~services/near';
-import { isMobile } from '~utils/device';
+import { isMobile } from '../../utils/device';
 import { WalletContext, getCurrentWallet } from '../../utils/sender-wallet';
 import { tokenPrice, SingleToken } from '../forms/SelectToken';
 interface CommonBassesProps {

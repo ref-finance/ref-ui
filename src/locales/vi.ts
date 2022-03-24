@@ -387,5 +387,8 @@ const vi = {
   create: 'Tạo',
   sauce_note:
     'SAUCE được thiết kế cung cấp các cặp tài sản pegged với nhau, đưa đến mức giá tối ưu nhất.',
+  support_ledger: 'ủng hộ Ledger',
+  support_ledger_tip:
+    "Ở bản thiết kế ban đầu, Ledger<br /> không thể thực hiện số lượng lớn<br /> giao dịch cùng lúc(i.e. Auto Router:<br /> trao đổi qua nhiều pool trong một lần) <br />bởi vì sự giới hạn về bộ nhớ. Khi được<br /> kích hoạt, tuỳ chọn 'Support Ledger'<br /> sẽ giới hạn các giao dịch <br />tới sự đơn giản nhất (dù không có được <br />giá thành tốt nhất), nên các giao <br />dịch của có khối lượng hợp lí mới có thể<br /> được thực hiện",
 };
 export default vi;

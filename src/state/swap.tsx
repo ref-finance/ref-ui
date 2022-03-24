@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 import {
   estimateSwap as estimateStableSwap,
   EstimateSwapView,
-} from '~services/stable-swap';
+} from '../services/stable-swap';
 
 import { TokenMetadata } from '../services/ft-contract';
 import {
@@ -22,7 +22,7 @@ import {
   swap,
 } from '../services/swap';
 
-import { swap as stableSwap } from '~services/stable-swap';
+import { swap as stableSwap } from '../services/stable-swap';
 
 import { useHistory, useLocation } from 'react-router';
 import getConfig from '~services/config';
@@ -33,11 +33,12 @@ import {
   POOL_TOKEN_REFRESH_INTERVAL,
   STABLE_TOKEN_IDS,
   STABLE_POOL_ID,
-} from '~services/near';
+} from '../services/near';
 
 import {
   getExpectedOutputFromActions,
   getAverageFeeForRoutes,
+  //@ts-ignore
 } from '~services/smartRouteLogic';
 import { getURLInfo, swapToast } from '~components/layout/transactionTipPopUp';
 import { SWAP_MODE } from '../pages/SwapPage';
@@ -58,6 +59,7 @@ interface SwapOptions {
   setLoadingPause?: (pause: boolean) => void;
   swapMode?: SWAP_MODE;
   reEstimateTrigger?: boolean;
+  supportLedger?: boolean;
 }
 
 export const useSwap = ({
@@ -72,6 +74,7 @@ export const useSwap = ({
   loadingPause,
   swapMode,
   reEstimateTrigger,
+  supportLedger,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -97,8 +100,9 @@ export const useSwap = ({
     const estimate = estimates[0];
 
     let avgFee: number = 0;
-
-    if (
+    if (estimates.length === 1) {
+      avgFee = estimates[0].pool.fee;
+    } else if (
       estimate.status === PoolMode.SMART ||
       estimate.status === PoolMode.STABLE
     ) {
@@ -154,6 +158,7 @@ export const useSwap = ({
         setLoadingData,
         loadingTrigger: loadingTrigger && !loadingPause,
         swapMode,
+        supportLedger,
       })
         .then((estimates) => {
           if (!estimates) throw '';
@@ -199,6 +204,7 @@ export const useSwap = ({
     tokenOut,
     tokenInAmount,
     reEstimateTrigger,
+    supportLedger,
   ]);
 
   useEffect(() => {

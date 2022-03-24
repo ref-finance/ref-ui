@@ -202,7 +202,6 @@ function getOptimalAllocationForRoutes(routes, nodeRoutes, totalInput) {
   // console.log(phi.toString())
   let allocations = getAllocationVectorForRoutes(phi, routes, nodeRoutes);
   if (allocations.every((item) => item.lt(new Big(0)))) {
-    console.log('all allocations were negative...');
     allocations = allocations.map((item) => item.times(new Big(-1.0)));
   }
   if (allocations.some((item) => item.lt(new Big(0)))) {
@@ -347,10 +346,6 @@ function getOutputSingleHop(pool, inputToken, outputToken, totalInput) {
       [inputToken]: new Big(pool.token2Supply),
     };
   } else {
-    //got the wrong pool.
-    console.log(
-      `INPUT TOKENS ${inputToken} and ${outputToken} DO NOT EXIST IN THIS POOL, which contains ${pool.token1Id} and ${pool.token2Id}`
-    );
     return new Big(0);
   }
   let gamma = new Big(10000).minus(new Big(pool.fee)).div(new Big(10000));
@@ -966,7 +961,6 @@ function getActionListFromRoutesAndAllocations(
   let firstHops = getHopsFromRoutes(routes, nodeRoutes, allocations);
 
   firstHops = firstHops.filter((hop) => new Big(hop.allocation).gt(new Big(0)));
-  console.log(firstHops);
   all_hops.push(...firstHops);
   let distilledFirstHops = distillHopsByPool(firstHops);
   let firstHopActions = getDistilledHopActions(
@@ -1037,8 +1031,6 @@ function getActionListFromRoutesAndAllocations(
     // console.log(secondHopActionsForToken);
     actions.push(...secondHopActionsForToken);
   }
-  console.log('ACTIONS 795');
-  console.log(actions);
 
   //TODO: NEED TO RUN INTEGER ROUNDING FUNCTION ON MIDDLE TOKEN ALLOCATIONS
 
@@ -1056,8 +1048,6 @@ function getActionListFromRoutesAndAllocations(
   let orderedHops = orderHops(all_hops, routes, nodeRoutes, allocations);
 
   // console.log('ALL HOPS', all_hops);
-  console.log('ordered hops are...');
-  console.log(orderedHops);
   return orderedHops;
   // return actions;
 }
@@ -1119,10 +1109,8 @@ function orderHops(hops, routes, nodeRoutes, allocations) {
     // [3,3] -- double hop in parallel with double hop. -- case 4
     let orderedHops = [];
     if (arrayEquals(lengthNodeRoutes, [2, 2])) {
-      console.log('parallel swap case');
       return hops;
     } else if (arrayEquals(lengthNodeRoutes, [2, 3])) {
-      console.log(' direct hop in parallel with double hop');
       directNodeRoute = filteredNodeRoutes[0];
       doubleNodeRoute = filteredNodeRoutes[1];
       let firstHop = hops.filter(
@@ -1141,7 +1129,6 @@ function orderHops(hops, routes, nodeRoutes, allocations) {
       orderedHops = [firstHop, secondHop, thirdHop];
       return orderedHops;
     } else if (arrayEquals(lengthNodeRoutes, [3, 2])) {
-      console.log(' double hop in parallel with direct hop');
       directNodeRoute = filteredNodeRoutes[1];
       doubleNodeRoute = filteredNodeRoutes[0];
       let firstHop = hops.filter(
@@ -1160,7 +1147,6 @@ function orderHops(hops, routes, nodeRoutes, allocations) {
       orderedHops = [firstHop, secondHop, thirdHop];
       return orderedHops;
     } else if (arrayEquals(lengthNodeRoutes, [3, 3])) {
-      console.log('double hop in parallel with double hop');
       orderedHops = [];
 
       for (var i in filteredNodeRoutes) {
@@ -1183,7 +1169,6 @@ function orderHops(hops, routes, nodeRoutes, allocations) {
       }
       return orderedHops;
     } else {
-      console.log('SHOULD NOT HAVE GOTTEN HERE...');
       return hops;
     }
     for (var i in filteredNodeRoutes) {
@@ -1556,9 +1541,6 @@ export async function getSmartRouteSwapActions(
 
   if (!canHaveTwoRoutes) {
     // now we need to check through the routes in single manner to find the best one:
-    console.log(
-      'ALL ROUTES SHARED A POOL. TRYING TO FIND THE BEST SINGLE ONE...'
-    );
     for (var i in routes) {
       let currentRoutes = [routes[i]];
       let currentNodeRoutes = [nodeRoutes[i]];
@@ -2390,9 +2372,6 @@ function* yenFromPy(g, source, target) {
 function getKShortestPaths(g, source, target, k, maxPathLength = 3) {
   let paths = [];
   if (maxPathLength < 2) {
-    console.log(
-      'WARNING -- MAX PATH LENGTH MUST BE AT LEAST 2. SETTING IT TO 2.'
-    );
     var maxPathLength = 2;
   }
   let gen = yenFromPy(g, source, target);
@@ -2558,8 +2537,6 @@ async function GETSTABLESWAPACTION(
     .div(new Big(10).pow(STABLE_LP_TOKEN_DECIMALS))
     .round()
     .toString();
-  console.log('AMOUNT_SWAPPED IS ...');
-  console.log(amount_swapped_scaled);
 
   let minAmountOut = new Big(amount_swapped_scaled)
     .times(new Big(1).minus(new Big(slippageTolerance).div(100)))
@@ -2573,8 +2550,6 @@ async function GETSTABLESWAPACTION(
     min_amount_out: minAmountOut,
     amount_swapped: amount_swapped,
   };
-  console.log('STABLE ACTION IS...');
-  console.log(stableAction);
   return stableAction;
   // return await instantSwapGetTransactions(
   //   pool,
@@ -2871,13 +2846,8 @@ async function convertStableActionToEstimatesFormat(action) {
   let amount_swapped = new Big(action.amount_swapped)
     .div(new Big(10).pow(STABLE_LP_TOKEN_DECIMALS))
     .div(new Big(10).pow(hopOutputTokenDecimals));
-  console.log('AMOUNT_SWAPPED IS ...');
-  console.log(amount_swapped);
   let decimalEstimate = amount_swapped;
-  console.log('SWAPPED AMOUNT IN STABLE ACTION WAS...');
-  console.log(amount_swapped);
-  console.log('STABLE POOL IS...');
-  console.log(pool);
+
   let poolFee = pool.fee ? pool.fee : pool.total_fee;
   let newAction = {
     estimate: decimalEstimate,
@@ -2901,9 +2871,6 @@ async function convertStableActionToEstimatesFormat(action) {
   // console.log(hops[i].inputToken);
   newAction.pool.x = newAction.pool.supplies[action.token_in];
   newAction.pool.y = newAction.pool.supplies[action.token_out];
-
-  console.log('STABLE ACTION IS...');
-  console.log(newAction);
 
   return newAction;
 }

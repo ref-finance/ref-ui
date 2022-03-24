@@ -13,9 +13,9 @@ import SelectToken, { StableSelectToken } from './SelectToken';
 import { toPrecision, multiply } from '../../utils/numbers';
 import { FormattedMessage } from 'react-intl';
 import { SmallWallet } from '~components/icon/SmallWallet';
-import { RefIcon } from '~components/icon/Common';
-import { currentTokensPrice } from '../../services/api';
 import { SWAP_MODE } from '../../pages/SwapPage';
+import { RefIcon } from '../../components/icon/Common';
+import { currentTokensPrice } from '../../services/api';
 
 interface TokenAmountProps {
   amount?: string;

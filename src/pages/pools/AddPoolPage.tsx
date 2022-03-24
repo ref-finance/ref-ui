@@ -48,10 +48,7 @@ export function AddPoolPage() {
 
   useEffect(() => {
     if (txHash) {
-      console.log(txHash);
-
       checkTransactionStatus(txHash).then((res) => {
-        console.log(res);
         const status: any = res.status;
         const data: string | undefined = status.SuccessValue;
         if (data) {

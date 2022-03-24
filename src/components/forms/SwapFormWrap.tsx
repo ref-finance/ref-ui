@@ -32,6 +32,8 @@ interface SwapFormWrapProps {
   };
   useNearBalance: string;
   swapMode?: SWAP_MODE;
+  supportLedger?: boolean;
+  setSupportLedger?: (e?: any) => void;
 }
 
 export default function SwapFormWrap({
@@ -49,6 +51,8 @@ export default function SwapFormWrap({
   loading,
   useNearBalance,
   swapMode,
+  supportLedger,
+  setSupportLedger,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
 
@@ -125,6 +129,9 @@ export default function SwapFormWrap({
                   onChange={onChange}
                   bindUseBalance={bindUseBalance}
                   useNearBalance={useNearBalance}
+                  supportLedger={supportLedger}
+                  setSupportLedger={setSupportLedger}
+                  normalSwap
                 />
               ) : null}
               {swapMode === SWAP_MODE.STABLE ? (
@@ -134,6 +141,8 @@ export default function SwapFormWrap({
                   validSlippageList={[0.05, 0.1, 0.2]}
                   useNearBalance={useNearBalance}
                   bindUseBalance={bindUseBalance}
+                  supportLedger={supportLedger}
+                  setSupportLedger={setSupportLedger}
                 />
               ) : null}
             </div>

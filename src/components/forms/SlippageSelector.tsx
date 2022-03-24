@@ -4,6 +4,47 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { isMobile } from '../../utils/device';
 import { IoCloseOutline, IoWarning } from 'react-icons/io5';
 import { QuestionTip } from '../../components/layout/TipWrapper';
+import { SUPPORT_LEDGER_KEY } from '../swap/SwapCard';
+
+function SupportLedgerSwitch({
+  supportLedger,
+  setSupportLedger,
+}: {
+  supportLedger: boolean;
+  setSupportLedger: (e?: any) => void;
+}) {
+  return (
+    <div
+      className={`ml-4 cursor-pointer ${
+        supportLedger ? 'bg-gradientFrom' : 'bg-farmSbg'
+      }  p-0.5 flex items-center`}
+      style={{
+        height: '16px',
+        width: '29px',
+        borderRadius: '20px',
+      }}
+      onClick={() => {
+        if (supportLedger) {
+          setSupportLedger(false);
+          localStorage.removeItem(SUPPORT_LEDGER_KEY);
+        } else {
+          setSupportLedger(true);
+          localStorage.setItem(SUPPORT_LEDGER_KEY, '1');
+        }
+      }}
+    >
+      <div
+        className={`rounded-full bg-white transition-all ${
+          supportLedger ? 'transform translate-x-3 relative left-px' : ''
+        }`}
+        style={{
+          width: '12px',
+          height: '12px',
+        }}
+      ></div>
+    </div>
+  );
+}
 
 export default function SlippageSelectorForStable({
   slippageTolerance,
@@ -11,12 +52,18 @@ export default function SlippageSelectorForStable({
   bindUseBalance,
   useNearBalance,
   validSlippageList,
+  normalSwap,
+  supportLedger,
+  setSupportLedger,
 }: {
   slippageTolerance: number;
   onChange: (slippage: number) => void;
   bindUseBalance: (useNearBalance: boolean) => void;
   useNearBalance: string;
   validSlippageList?: number[];
+  normalSwap?: boolean;
+  supportLedger?: boolean;
+  setSupportLedger?: (e?: any) => void;
 }) {
   const ref = useRef<HTMLInputElement>();
   const field = useRef<HTMLFieldSetElement>();
@@ -172,6 +219,30 @@ export default function SlippageSelectorForStable({
               />
               %
             </div>
+
+            <div
+              className={
+                normalSwap ? 'flex items-center mt-6 text-sm' : 'hidden'
+              }
+            >
+              <label>
+                <FormattedMessage
+                  id="support_ledger"
+                  defaultMessage={'Support Ledger'}
+                />
+              </label>
+
+              <QuestionTip
+                id="support_ledger_tip"
+                defaultMessage="By design, Ledger cannot handle large transactions (i.e. Auto Router: trade across multiple pools at once) because of its memory limitation. When activated, the 'Support Ledger' option will limit transactions to their simplest form (to the detriment of better prices), so transactions of a reasonable size can be signed."
+                dataPlace="bottom"
+              />
+              <SupportLedgerSwitch
+                supportLedger={supportLedger}
+                setSupportLedger={setSupportLedger}
+              />
+            </div>
+
             <div className={`${invalid || warn ? 'block' : 'hidden'}`}>
               {invalid ? (
                 <div className="text-error text-xs py-3">

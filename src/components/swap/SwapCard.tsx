@@ -35,7 +35,7 @@ import ReactDOMServer from 'react-dom/server';
 import TokenAmount from '../forms/TokenAmount';
 import SubmitButton from '../forms/SubmitButton';
 import Alert from '../alert/Alert';
-import { toRealSymbol } from '~utils/token';
+import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import db from '~store/RefDatabase';
@@ -45,11 +45,11 @@ import {
   OutlineButton,
   SolidButton,
   ConnectToNearBtn,
-} from '~components/button/Button';
-import { STABLE_TOKEN_IDS, wallet } from '~services/near';
+} from '../../components/button/Button';
+import { STABLE_TOKEN_IDS, wallet } from '../../services/near';
 import SwapFormWrap from '../forms/SwapFormWrap';
-import SwapTip from '~components/forms/SwapTip';
-import { WarnTriangle, ErrorTriangle } from '~components/icon/SwapRefresh';
+import SwapTip from '../../components/forms/SwapTip';
+import { WarnTriangle, ErrorTriangle } from '../../components/icon/SwapRefresh';
 import ReactModal from 'react-modal';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
@@ -61,7 +61,7 @@ import {
   OneParallelRoute,
   RouterIcon,
   SmartRouteV2,
-} from '~components/layout/SwapRoutes';
+} from '../../components/layout/SwapRoutes';
 import QuestionMark, {
   QuestionMarkStaticForParaSwap,
 } from '~components/farm/QuestionMark';
@@ -69,9 +69,9 @@ import QuestionMark, {
 import ReactTooltip from 'react-tooltip';
 import * as math from 'mathjs';
 import { HiOutlineExternalLink } from 'react-icons/hi';
-import { EstimateSwapView, PoolMode, swap } from '~services/swap';
-import { QuestionTip } from '~components/layout/TipWrapper';
-import { Guide } from '~components/layout/Guide';
+import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
+import { QuestionTip } from '../../components/layout/TipWrapper';
+import { Guide } from '../../components/layout/Guide';
 import { sortBy } from 'lodash';
 import { getCurrentWallet } from '../../utils/sender-wallet';
 import { senderWallet, WalletContext } from '../../utils/sender-wallet';
@@ -95,6 +95,8 @@ const SWAP_SLIPPAGE_KEY_STABLE = 'REF_FI_SLIPPAGE_VALUE_STABLE';
 
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
+
+export const SUPPORT_LEDGER_KEY = 'REF_FI_SUPPORT_LEDGER';
 
 export function SwapDetail({
   title,
@@ -535,6 +537,10 @@ export default function SwapCard(props: {
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
 
+  const [supportLedger, setSupportLedger] = useState(
+    localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
+  );
+
   const [useNearBalance, setUseNearBalance] = useState<boolean>(true);
 
   const { signedInState } = useContext(WalletContext);
@@ -701,6 +707,7 @@ export default function SwapCard(props: {
     loadingPause,
     swapMode,
     reEstimateTrigger,
+    supportLedger,
   });
 
   const priceImpactValueSmartRouting = useMemo(() => {
@@ -786,6 +793,8 @@ export default function SwapCard(props: {
       ></Guide>
 
       <SwapFormWrap
+        supportLedger={supportLedger}
+        setSupportLedger={setSupportLedger}
         useNearBalance={useNearBalance.toString()}
         canSubmit={canSubmit}
         slippageTolerance={slippageTolerance}

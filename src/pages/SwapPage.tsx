@@ -75,7 +75,8 @@ function SwapPage() {
     });
   }, []);
 
-  const extraTokens = getConfig().networkId === 'mainnet' ? ['usn'] : [];
+  const extraTokens =
+    getConfig().networkId === 'mainnet' ? ['usn'] : ['usn.fakes.testnet'];
 
   const allTokens = useWhitelistTokens(extraTokens);
 

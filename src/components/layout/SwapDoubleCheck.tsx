@@ -7,18 +7,18 @@ import {
   divide,
   scientificNotationToString,
 } from '../../utils/numbers';
-import { toRealSymbol } from '~utils/token';
+import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
   ButtonTextWrapper,
   OutlineButton,
   SolidButton,
 } from '~components/button/Button';
-import { WarnTriangle, ErrorTriangle } from '~components/icon/SwapRefresh';
+import { WarnTriangle, ErrorTriangle } from '../../components/icon/SwapRefresh';
 import ReactModal from 'react-modal';
 import Modal from 'react-modal';
-import { Card } from '~components/card/Card';
-import { ModalClose } from '~components/icon';
+import { Card } from '../../components/card/Card';
+import { ModalClose } from '../../components/icon';
 
 import { EstimateSwapView, PoolMode, swap } from '~services/swap';
 

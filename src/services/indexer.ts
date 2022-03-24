@@ -110,6 +110,7 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
       }
     );
   } catch (error) {
+    console.log(error);
     return [];
   }
 };

@@ -1,9 +1,9 @@
 import React from 'react';
-import { LightBulb, Setting } from '~components/icon/Near';
-import { ModalClose } from '~components/icon';
+import { LightBulb, Setting } from '../../components/icon/Near';
+import { ModalClose } from '../../components/icon';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useState, useEffect } from 'react';
-import { RefGuy } from '~components/icon/Common';
+import { RefGuy } from '../../components/icon/Common';
 import { Link } from 'react-router-dom';
 
 export function WalletSettingTip() {
