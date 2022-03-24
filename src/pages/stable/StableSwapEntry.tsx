@@ -209,7 +209,7 @@ function StablePoolCard({
       <Card
         width="w-full"
         padding="px-6 pt-8 pb-4"
-        rounded="rounded-t-2xl"
+        rounded="rounded-t-2xl xs:rounded-b-none md:rounded-b-none"
         className="flex flex-col"
       >
         <span
@@ -331,7 +331,9 @@ function StablePoolCard({
         </OutlineButton>
       </div>
       <div
-        className={` ${isSignedIn ? 'hidden' : ''} px-6 py-4 mb-2 bg-liqBtn `}
+        className={` ${
+          isSignedIn ? 'hidden' : ''
+        } px-6 py-4 mb-2 bg-liqBtn rounded-b-2xl`}
       >
         <ConnectToNearBtn />
       </div>
