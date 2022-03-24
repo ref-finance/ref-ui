@@ -284,12 +284,11 @@ export const estimateSwap = async ({
   }
 
   if (supportLedger) {
+    if (swapMode === SWAP_MODE.STABLE) {
+      pools = pools.filter((p) => isStablePool(p.id));
+    }
     if (pools.length === 0) {
       throwNoPoolError();
-    }
-
-    if(swapMode===SWAP_MODE.STABLE){
-      pools = pools.filter((p)=>isStablePool(p.id))
     }
 
     const bestPricePool = _.maxBy(pools, (p) => {
