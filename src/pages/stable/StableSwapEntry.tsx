@@ -294,7 +294,7 @@ function StablePoolCard({
         </div>
       </Card>
       <div
-        className={`w-full bg-liquidityBtb flex items-center py-4 px-6 rounded-b-2xl mb-2 ${
+        className={`w-full bg-liqBtn flex items-center py-4 px-6 rounded-b-2xl mb-2 ${
           isSignedIn ? 'block' : 'hidden'
         }`}
       >
