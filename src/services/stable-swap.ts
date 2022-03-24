@@ -530,6 +530,11 @@ export const calc_add_liquidity = (
   pool_token_supply: number,
   trade_fee: number
 ) => {
+  if (pool_token_supply === 0) {
+    const d_0 = calc_d(amp, deposit_c_amounts);
+    return [d_0, 0];
+  }
+
   const token_num = old_c_amounts.length;
   const d_0 = calc_d(amp, old_c_amounts);
   let c_amounts = [];
