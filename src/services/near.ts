@@ -30,12 +30,6 @@ export const REF_AIRDRAOP_CONTRACT_ID = config.REF_AIRDROP_CONTRACT_ID;
 export const REF_TOKEN_ID = config.REF_TOKEN_ID;
 const XREF_TOKEN_ID = getConfig().XREF_TOKEN_ID;
 
-export const POOLS_BLACK_LIST = config.POOLS_BLACK_LIST;
-
-export const filterBlackListPools = (pool: any & { id: any }) =>
-  //@ts-ignore
-  !POOLS_BLACK_LIST.includes(pool.id);
-
 export const LP_STORAGE_AMOUNT = '0.01';
 
 export const ONE_YOCTO_NEAR = '0.000000000000000000000001';

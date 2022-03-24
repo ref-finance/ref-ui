@@ -102,7 +102,6 @@ import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { useWalletTokenBalances } from '../../state/token';
 import { SmallWallet } from '../../components/icon/SmallWallet';
 import { scientificNotationToString } from '../../utils/numbers';
-import { POOLS_BLACK_LIST } from '../../services/near';
 interface ParamTypes {
   id: string;
 }
@@ -1354,8 +1353,6 @@ export function PoolDetailsPage() {
   if (isStablePool(pool)) {
     history.push('/stableswap', { stableTab: 'stable_swap' });
   }
-
-  if (POOLS_BLACK_LIST.includes(pool.id)) history.push('/');
 
   return (
     <div>
