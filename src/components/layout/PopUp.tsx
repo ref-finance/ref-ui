@@ -98,7 +98,7 @@ export default function PopUpSwiper() {
               >
                 <CloseButton
                   onClick={closePop}
-                  className="absolute top-0 right-0 cursor-pointer"
+                  className="absolute top-0 right-0 cursor-pointer z-50"
                 ></CloseButton>
                 <ImgC></ImgC>
               </div>
