@@ -447,6 +447,9 @@ const uk_UA_in_risks_page = {
   crypto_trading_addiction_paragraph_6:
     "'Я втратив мільйони через залежність від торгівлі криптовалютою'",
   initialize_account_tip: 'Будь ласка, ініціалізуйте свій обліковий запис.',
+  transaction_failed: 'Не вдалося виконати операцію',
+  click_to_view: 'Клацніть, щоб переглянути',
+  Type: 'Тип',
 };
 
 export default { uk_UA, uk_UA_in_risks_page };
