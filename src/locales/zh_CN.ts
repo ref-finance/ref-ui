@@ -368,6 +368,7 @@ const zh_CN = {
   create: '创建',
   sauce_note: 'SAUCE专为挂钩资产的流动性池设计, 提供最优价格.',
   support_ledger: '支持 Ledger',
+  initialize_account_tip: '请初始化你的账号',
   support_ledger_tip:
     '根据Ledger的设计, 因其内存限制, <br />Ledger不能处理大型交易(即自动路由:<br />一次跨多个池进行交易)。激活后,<br />"支持 Ledger"选项会将交易限制<br />在最简单的形式(不利于更好的价格), <br />因此可以签署合理规模的交易。',
 };

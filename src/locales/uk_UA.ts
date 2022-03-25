@@ -446,6 +446,7 @@ const uk_UA_in_risks_page = {
     "'Ми поговорили з терапевтом, який лікує залежність від торгівлі криптовалютами'",
   crypto_trading_addiction_paragraph_6:
     "'Я втратив мільйони через залежність від торгівлі криптовалютою'",
+  initialize_account_tip: 'Будь ласка, ініціалізуйте свій обліковий запис.',
 };
 
 export default { uk_UA, uk_UA_in_risks_page };

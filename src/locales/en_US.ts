@@ -383,6 +383,7 @@ const en_US = {
   sauce_note:
     'SAUCE is designed for liquidity pools with pegged assets, delivering optimal prices.',
   support_ledger: 'Support Ledger',
+  initialize_account_tip: 'Please initialize your account.',
   support_ledger_tip:
     "By design, Ledger cannot handle<br /> large transactions (i.e. Auto Router: <br />trade across multiple pools at once)<br /> because of its memory limitation.<br /> When activated, the 'Support Ledger' <br />option will limit transactions to their <br />simplest form (to the detriment of <br />potential optimal prices found <br />by our Auto Router), so transactions <br />of a reasonable size can be signed.",
 };
