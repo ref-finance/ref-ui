@@ -194,12 +194,7 @@ export const useMorePoolIds = ({
     getCachedPoolsByTokenId({
       token1Id,
       token2Id,
-    }).then((res) => {
-      const idsFromCachePools: string[] = res.map((p) => {
-        return p.id.toString();
-      });
-      setIds(idsFromCachePools);
-    });
+    }).then(setIds);
   }, [topPool?.id, inView]);
   return ids;
 };

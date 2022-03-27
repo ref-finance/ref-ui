@@ -242,15 +242,15 @@ export const getCachedPoolsByTokenId = async ({
     .where('token1Id')
     .equals(token1Id)
     .and((item) => item.token2Id === token2Id)
-    .toArray();
+    .primaryKeys();
   let reverseItems = await db
     .allPoolsTokens()
     .where('token1Id')
     .equals(token2Id)
     .and((item) => item.token2Id === token1Id)
-    .toArray();
+    .primaryKeys();
 
-  return [...normalItems, ...reverseItems];
+  return [...normalItems, ...reverseItems].map((item) => item.toString());
 };
 
 export const getTotalPools = async () => {
