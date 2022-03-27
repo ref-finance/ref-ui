@@ -77,9 +77,9 @@ import { getCurrentWallet } from '../../utils/sender-wallet';
 import { senderWallet, WalletContext } from '../../utils/sender-wallet';
 import { SwapArrow, SwapExchange } from '../icon/Arrows';
 import { getPoolAllocationPercents } from '../../utils/numbers';
-import { DoubleCheckModal } from '~components/layout/SwapDoubleCheck';
+import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
-import { SWAP_MODE } from '~pages/SwapPage';
+import { SWAP_MODE } from '../../pages/SwapPage';
 import { isStableToken } from '../../services/near';
 import TokenReserves from '../stableswap/TokenReserves';
 

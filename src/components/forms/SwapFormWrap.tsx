@@ -3,7 +3,7 @@ import Alert from '../alert/Alert';
 import SubmitButton from './SubmitButton';
 import { FormattedMessage } from 'react-intl';
 import SlippageSelector, { StableSlipSelecter } from './SlippageSelector';
-import { SwapRefresh, CountdownTimer } from '~components/icon';
+import { SwapRefresh, CountdownTimer } from '../../components/icon';
 import { wallet } from '~services/near';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { SWAP_MODE } from '../../pages/SwapPage';

@@ -13,7 +13,7 @@ import {
   ButtonTextWrapper,
   OutlineButton,
   SolidButton,
-} from '~components/button/Button';
+} from '../../components/button/Button';
 import { WarnTriangle, ErrorTriangle } from '../../components/icon/SwapRefresh';
 import ReactModal from 'react-modal';
 import Modal from 'react-modal';

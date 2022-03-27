@@ -4,21 +4,21 @@ import ReactTooltip from 'react-tooltip';
 import { wallet } from '~services/near';
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 import { FormattedMessage, useIntl } from 'react-intl';
-import Alert from '~components/alert/Alert';
+import Alert from '../../components/alert/Alert';
 import {
   ButtonTextWrapper,
   ConnectToNearBtn,
   SolidButton,
-} from '~components/button/Button';
-import { Card } from '~components/card/Card';
-import InputAmount from '~components/forms/InputAmount';
+} from '../../components/button/Button';
+import { Card } from '../../components/card/Card';
+import InputAmount from '../../components/forms/InputAmount';
 import QuestionMark from '~components/farm/QuestionMark';
 
 import {
   PoolSlippageSelector,
   StableSlipSelecter,
-} from '~components/forms/SlippageSelector';
-import { TokenMetadata } from '~services/ft-contract';
+} from '../../components/forms/SlippageSelector';
+import { TokenMetadata } from '../../services/ft-contract';
 import {
   Pool,
   predictRemoveLiquidity,
@@ -26,14 +26,14 @@ import {
   removeLiquidityByTokensFromStablePool,
   removeLiquidityFromPool,
   StablePool,
-} from '~services/pool';
+} from '../../services/pool';
 import {
   GetAmountToBalances,
   getRemoveLiquidityByShare,
-} from '~services/stable-swap';
-import { TokenBalancesView } from '~services/token';
-import { usePredictRemoveShares, useRemoveLiquidity } from '~state/pool';
-import { useCanFarm, useFarmStake } from '~state/farm';
+} from '../../services/stable-swap';
+import { TokenBalancesView } from '../../services/token';
+import { usePredictRemoveShares, useRemoveLiquidity } from '../../state/pool';
+import { useCanFarm, useFarmStake } from '../../state/farm';
 import {
   percent,
   percentLess,
@@ -46,7 +46,7 @@ import {
   toRoundedReadableNumber,
   percentIncrese,
   scientificNotationToString,
-} from '~utils/numbers';
+} from '../../utils/numbers';
 import { toRealSymbol } from '~utils/token';
 import { STABLE_LP_TOKEN_DECIMALS } from './AddLiquidity';
 import { InfoLine } from './LiquidityComponents';
@@ -56,8 +56,11 @@ import StableTokenList, {
 } from './StableTokenList';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
 import { Link } from 'react-router-dom';
-import { LP_STABLE_TOKEN_DECIMALS, LP_TOKEN_DECIMALS } from '~services/m-token';
-import { QuestionTip } from '~components/layout/TipWrapper';
+import {
+  LP_STABLE_TOKEN_DECIMALS,
+  LP_TOKEN_DECIMALS,
+} from '../../services/m-token';
+import { QuestionTip } from '../../components/layout/TipWrapper';
 import { WalletContext, getCurrentWallet } from '../../utils/sender-wallet';
 import { percentOfBigNumber } from '../../utils/numbers';
 import SquareRadio from '../radio/SquareRadio';

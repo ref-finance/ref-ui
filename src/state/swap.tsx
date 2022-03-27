@@ -39,8 +39,11 @@ import {
   getExpectedOutputFromActions,
   getAverageFeeForRoutes,
   //@ts-ignore
-} from '~services/smartRouteLogic';
-import { getURLInfo, swapToast } from '~components/layout/transactionTipPopUp';
+} from '../services/smartRouteLogic';
+import {
+  getURLInfo,
+  swapToast,
+} from '../components/layout/transactionTipPopUp';
 import { SWAP_MODE } from '../pages/SwapPage';
 import { failToast } from '../components/layout/transactionTipPopUp';
 

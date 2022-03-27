@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Loading from '~components/layout/Loading';
+import Loading from '../../components/layout/Loading';
 import {
   useTokenBalances,
   useWhitelistStableTokens,
@@ -7,13 +7,13 @@ import {
 } from '../../state/token';
 import SquareRadio from '~components/radio/SquareRadio';
 import StableSwap from '~components/stableswap/StableSwap';
-import AddLiquidityComponent from '~components/stableswap/AddLiquidity';
-import { usePool, useStablePool } from '~state/pool';
+import AddLiquidityComponent from '../../components/stableswap/AddLiquidity';
+import { usePool, useStablePool } from '../../state/pool';
 import { isMobile } from '~utils/device';
-import { RemoveLiquidityComponent } from '~components/stableswap/RemoveLiquidity';
-import TokenReserves from '~components/stableswap/TokenReserves';
+import { RemoveLiquidityComponent } from '../../components/stableswap/RemoveLiquidity';
+import TokenReserves from '../../components/stableswap/TokenReserves';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
-import getConfig from '~services/config';
+import getConfig from '../../services/config';
 import { StableSwapLogo } from '~components/icon/StableSwap';
 import { useWalletTokenBalances } from '../../state/token';
 import { useLocation } from 'react-router-dom';
@@ -26,7 +26,7 @@ import { useFarmStake } from '../../state/farm';
 import {
   BackToStablePoolList,
   Images,
-} from '~components/stableswap/CommonComp';
+} from '../../components/stableswap/CommonComp';
 import BigNumber from 'bignumber.js';
 import { getStablePoolFromCache, Pool, StablePool } from '../../services/pool';
 export const DEFAULT_ACTIONS = ['add_liquidity', 'remove_liquidity'];

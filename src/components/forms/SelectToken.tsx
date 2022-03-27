@@ -4,7 +4,7 @@ import { TokenMetadata } from '../../services/ft-contract';
 import { ArrowDownGreen, ArrowDownWhite } from '../icon';
 import { isMobile } from '../../utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { TokenBalancesView } from '~services/token';
+import { TokenBalancesView } from '../../services/token';
 import { IoCloseOutline } from 'react-icons/io5';
 import CommonBasses from '../../components/tokens/CommonBasses';
 import Table from '../../components/table/Table';
@@ -14,7 +14,7 @@ import { FaSearch } from 'react-icons/fa';
 import AddToken from './AddToken';
 import { getTokenPriceList } from '../../services/indexer';
 import { toPrecision, divide } from '../../utils/numbers';
-import { STABLE_TOKEN_USN_IDS } from '~services/near';
+import { STABLE_TOKEN_USN_IDS } from '../../services/near';
 import { STABLE_TOKEN_IDS } from '../../services/near';
 
 function sort(a: any, b: any) {

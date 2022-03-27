@@ -1,20 +1,20 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Card } from '~components/card/Card';
+import { Card } from '../../components/card/Card';
 import { FormattedMessage } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
-import { TokenMetadata } from '~services/ft-contract';
-import { Pool } from '~services/pool';
+import { TokenMetadata } from '../../services/ft-contract';
+import { Pool } from '../../services/pool';
 import { useIntl } from 'react-intl';
 import { PieChart, Cell, Pie } from 'recharts';
-import { isMobile } from '~utils/device';
-import { getPoolsByIds } from '~services/indexer';
+import { isMobile } from '../../utils/device';
+import { getPoolsByIds } from '../../services/indexer';
 import {
   toReadableNumber,
   toInternationalCurrencySystem,
   toPrecision,
   percent,
   calculateFeePercent,
-} from '~utils/numbers';
+} from '../../utils/numbers';
 import { InfoLine } from './LiquidityComponents';
 import _ from 'lodash';
 import BigNumber from 'bignumber.js';

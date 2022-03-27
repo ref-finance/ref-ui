@@ -9,9 +9,9 @@ import {
   toPrecision,
   toReadableNumber,
   toRoundedReadableNumber,
-} from '~utils/numbers';
+} from '../../utils/numbers';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { FarmDot } from '~components/icon';
+import { FarmDot } from '../../components/icon';
 import BigNumber from 'bignumber.js';
 import { canFarm } from '~services/pool';
 import { HiOutlineExternalLink } from 'react-icons/hi';
