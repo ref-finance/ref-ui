@@ -543,6 +543,7 @@ export async function getHybridStableSmart(
           })
         : getSinglePoolEstimate(tokenIn, tokenMidMeta, pool1, parsedAmountIn)),
       status: PoolMode.SMART,
+      tokens: [tokenIn, tokenMidMeta, tokenOut],
     };
 
     const estimate2 = {
@@ -562,6 +563,7 @@ export async function getHybridStableSmart(
           )),
 
       status: PoolMode.SMART,
+      tokens: [tokenIn, tokenMidMeta, tokenOut],
     };
 
     return { actions: [estimate1, estimate2], estimate: estimate2.estimate };
