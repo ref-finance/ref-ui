@@ -602,6 +602,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     avgFee,
     isParallelSwap,
     swapsToDo,
+    setCanSwap,
   } = useSwap({
     tokenIn: tokenIn,
     tokenInAmount,
@@ -759,6 +760,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
             localStorage.setItem(SWAP_IN_KEY, token.id);
             history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
             setTokenIn(token);
+            setCanSwap(false);
             setTokenInBalanceFromNear(token.near.toString());
           }}
           text={intl.formatMessage({ id: 'from' })}
@@ -794,6 +796,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
             localStorage.setItem(SWAP_OUT_KEY, token.id);
             history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`);
             setTokenOut(token);
+            setCanSwap(false);
             setTokenOutBalanceFromNear(token.near.toString());
           }}
           isError={isError}
