@@ -654,6 +654,8 @@ SwapOptions) => {
     (estimate) => estimate.status === PoolMode.SMART
   );
 
+  console.log(swapsToDo);
+
   if (wallet.isSignedIn()) {
     if (isParallelSwap) {
       const swapActions = swapsToDo.map((s2d) => {

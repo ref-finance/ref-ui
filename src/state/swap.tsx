@@ -166,8 +166,8 @@ export const useSwap = ({
               setTokenOutAmount(
                 getExpectedOutputFromActions(estimates, tokenOut.id).toString()
               );
-              setCanSwap(true);
               setSwapsToDo(estimates);
+              setCanSwap(true);
             }
           }
 
