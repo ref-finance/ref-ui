@@ -85,6 +85,8 @@ export default function SwapFormWrap({
     }
   };
 
+  console.log(loadingTrigger);
+
   return (
     <form
       className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg overflow-x-hidden"
@@ -136,7 +138,7 @@ export default function SwapFormWrap({
         elseView
       ) : (
         <SubmitButton
-          disabled={!canSubmit && !loadingTrigger}
+          disabled={!canSubmit || loadingTrigger}
           text={buttonText || title}
           info={info}
           loading={showSwapLoading}
