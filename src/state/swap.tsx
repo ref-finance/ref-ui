@@ -159,9 +159,10 @@ export const useSwap = ({
       })
         .then((estimates) => {
           if (!estimates) throw '';
-          setAverageFee(estimates);
 
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
+            setAverageFee(estimates);
+
             if (!loadingTrigger) {
               setTokenOutAmount(
                 getExpectedOutputFromActions(estimates, tokenOut.id).toString()
