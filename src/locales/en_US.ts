@@ -386,6 +386,6 @@ const en_US = {
   initialize_account_tip: 'Please initialize your account.',
   support_ledger_tip:
     "By design, Ledger cannot handle<br /> large transactions (i.e. Auto Router: <br />trade across multiple pools at once)<br /> because of its memory limitation.<br /> When activated, the 'Support Ledger' <br />option will limit transactions to their <br />simplest form (to the detriment of <br />potential optimal prices found <br />by our Auto Router), so transactions <br />of a reasonable size can be signed.",
-  begins: 'begins',
+  start: 'Start',
 };
 export default en_US;

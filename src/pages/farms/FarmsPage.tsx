@@ -1310,7 +1310,7 @@ function FarmView({
         const { rewardToken, apr, pending_start_time } = item;
         let itemHtml = '';
         if (pending_start_time) {
-          const txt = intl.formatMessage({ id: 'begins' });
+          const txt = intl.formatMessage({ id: 'start' });
           itemHtml = `<div class="flex justify-between items-center h-8 my-1">
                       <image class="w-5 h-5 rounded-full mr-7" style="filter: grayscale(100%)"src="${
                         rewardToken.icon
@@ -1319,7 +1319,7 @@ function FarmView({
                         <label class="text-xs text-farmText">${
                           formatWithCommas(apr) + '%'
                         }</label>
-                        <label class="text-xs text-farmText">${pending_start_time} ${txt}</label>
+                        <label class="text-xs text-farmText">${txt}: ${pending_start_time}</label>
                       </div>
                     </div>`;
         } else {

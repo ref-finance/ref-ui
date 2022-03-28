@@ -450,7 +450,7 @@ const uk_UA_in_risks_page = {
   transaction_failed: 'Не вдалося виконати операцію',
   click_to_view: 'Клацніть, щоб переглянути',
   Type: 'Тип',
-  begins: 'begins',
+  start: 'Start',
 };
 
 export default { uk_UA, uk_UA_in_risks_page };
