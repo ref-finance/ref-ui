@@ -262,15 +262,9 @@ export function ParallelSwapRoutesDetail({
 
 export function SmartRoutesDetail({
   swapsTodo,
-  tokenIn,
-  tokenOut,
 }: {
   swapsTodo: EstimateSwapView[];
-  tokenIn: TokenMetadata;
-  tokenOut: TokenMetadata;
 }) {
-  const tokenMid = useMemo(() => swapsTodo[1].token, [swapsTodo[1].token.id]);
-
   return (
     <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
       <div className="text-primaryText text-left ">
@@ -284,7 +278,7 @@ export function SmartRoutesDetail({
       <div className="text-right text-white col-span-6 xs:mt-2">
         {
           <SmartRouteV2
-            tokens={[tokenIn, tokenMid, tokenOut]}
+            tokens={swapsTodo[0].tokens}
             p="100"
             pools={swapsTodo.map((swapTodo) => swapTodo.pool)}
           />
@@ -491,11 +485,7 @@ function DetailView({
         )}
 
         {swapsTodo[0].status === PoolMode.SMART && (
-          <SmartRoutesDetail
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-            swapsTodo={swapsTodo}
-          />
+          <SmartRoutesDetail swapsTodo={swapsTodo} />
         )}
         {!isParallelSwap &&
           swapsTodo.every((e) => e.status !== PoolMode.SMART) &&
