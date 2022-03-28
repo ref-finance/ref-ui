@@ -159,6 +159,7 @@ export const useSwap = ({
       })
         .then((estimates) => {
           if (!estimates) throw '';
+          setAverageFee(estimates);
 
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
             if (!loadingTrigger) {
@@ -166,7 +167,6 @@ export const useSwap = ({
                 getExpectedOutputFromActions(estimates, tokenOut.id).toString()
               );
               setCanSwap(true);
-              setAverageFee(estimates);
               setSwapsToDo(estimates);
             }
           }
