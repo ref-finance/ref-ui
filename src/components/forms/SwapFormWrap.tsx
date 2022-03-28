@@ -85,8 +85,6 @@ export default function SwapFormWrap({
     }
   };
 
-  console.log(loadingTrigger);
-
   return (
     <form
       className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg overflow-x-hidden"
