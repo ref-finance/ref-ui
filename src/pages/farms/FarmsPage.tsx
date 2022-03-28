@@ -995,10 +995,31 @@ function FarmView({
     arr.splice(0, arr.length);
     Object.keys(tempMap).forEach((m: any) => {
       const commonRewardArr = tempMap[m];
-      if (commonRewardArr.length > 1) {
-        const target = commonRewardArr[0];
-        for (let i = 1; i < commonRewardArr.length; i++) {
+      let target: any;
+      for (let i = 0; i < commonRewardArr.length; i++) {
+        if (i == 0) {
           const commonReward = commonRewardArr[i];
+          target = commonReward;
+          if (commonReward.start_at) {
+            const pending =
+              moment.unix(commonReward.start_at).valueOf() > moment().valueOf();
+            if (pending) {
+              target['pending_start_time'] = moment
+                .unix(commonReward.start_at)
+                .format('YYYY-MM-DD');
+            }
+          }
+        } else {
+          const commonReward = commonRewardArr[i];
+          if (commonReward.start_at) {
+            const pending =
+              moment.unix(commonReward.start_at).valueOf() > moment().valueOf();
+            if (pending) {
+              target['pending_start_time'] = moment
+                .unix(commonReward.start_at)
+                .format('YYYY-MM-DD');
+            }
+          }
           target.apr = BigNumber.sum(target.apr, commonReward.apr).valueOf();
           target.rewardsPerWeek = BigNumber.sum(
             target.rewardsPerWeek,
@@ -1009,8 +1030,8 @@ function FarmView({
             commonReward.userUnclaimedReward
           ).valueOf();
         }
-        tempMap[m] = [target];
       }
+      tempMap[m] = [target];
       arr.push(tempMap[m][0]);
     });
     return arr;
@@ -1284,18 +1305,36 @@ function FarmView({
   }
   function getAprList() {
     let result: string = '';
-    mergeCommonRewardFarms.forEach((item: FarmInfo) => {
-      const { rewardToken, apr } = item;
-      const itemHtml = `<div class="flex justify-between items-center h-8">
-                          <image class="w-5 h-5 rounded-full mr-7" src="${
-                            rewardToken.icon
-                          }"/>
-                          <label class="text-xs text-navHighLightText">${
-                            formatWithCommas(apr) + '%'
-                          }</label>
-                        </div>`;
-      result += itemHtml;
-    });
+    mergeCommonRewardFarms.forEach(
+      (item: FarmInfo & { pending_start_time: string }) => {
+        const { rewardToken, apr, pending_start_time } = item;
+        let itemHtml = '';
+        if (pending_start_time) {
+          const txt = intl.formatMessage({ id: 'begins' });
+          itemHtml = `<div class="flex justify-between items-center h-8 my-1">
+                      <image class="w-5 h-5 rounded-full mr-7" style="filter: grayscale(100%)"src="${
+                        rewardToken.icon
+                      }"/>
+                      <div class="flex flex-col items-end">
+                        <label class="text-xs text-farmText">${
+                          formatWithCommas(apr) + '%'
+                        }</label>
+                        <label class="text-xs text-farmText">${pending_start_time} ${txt}</label>
+                      </div>
+                    </div>`;
+        } else {
+          itemHtml = `<div class="flex justify-between items-center h-8">
+                      <image class="w-5 h-5 rounded-full mr-7" src="${
+                        rewardToken.icon
+                      }"/>
+                        <label class="text-xs text-navHighLightText">${
+                          formatWithCommas(apr) + '%'
+                        }</label>
+                    </div>`;
+        }
+        result += itemHtml;
+      }
+    );
     return result;
   }
   function getClaimId() {

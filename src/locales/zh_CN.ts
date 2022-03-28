@@ -371,5 +371,6 @@ const zh_CN = {
   initialize_account_tip: '请初始化你的账号',
   support_ledger_tip:
     '根据Ledger的设计, 因其内存限制, <br />Ledger不能处理大型交易(即自动路由:<br />一次跨多个池进行交易)。激活后,<br />"支持 Ledger"选项会将交易限制<br />在最简单的形式(不利于更好的价格), <br />因此可以签署合理规模的交易。',
+  begins: '开始',
 };
 export default zh_CN;
