@@ -995,10 +995,37 @@ function FarmView({
     arr.splice(0, arr.length);
     Object.keys(tempMap).forEach((m: any) => {
       const commonRewardArr = tempMap[m];
-      if (commonRewardArr.length > 1) {
-        const target = commonRewardArr[0];
-        for (let i = 1; i < commonRewardArr.length; i++) {
+      let target: any;
+      for (let i = 0; i < commonRewardArr.length; i++) {
+        if (i == 0) {
           const commonReward = commonRewardArr[i];
+          target = commonReward;
+          const pending =
+            moment.unix(commonReward.start_at).valueOf() > moment().valueOf();
+          if (pending) {
+            target['diff_start_time_pending'] =
+              target['diff_start_time_pending'] || [];
+            target['diff_start_time_pending'].push(
+              JSON.parse(JSON.stringify(commonReward))
+            );
+          } else {
+            target['no_pending'] = target['no_pending'] || [];
+            target['no_pending'].push(JSON.parse(JSON.stringify(commonReward)));
+          }
+        } else {
+          const commonReward = commonRewardArr[i];
+          const pending =
+            moment.unix(commonReward.start_at).valueOf() > moment().valueOf();
+          if (pending) {
+            target['diff_start_time_pending'] =
+              target['diff_start_time_pending'] || [];
+            target['diff_start_time_pending'].push(
+              JSON.parse(JSON.stringify(commonReward))
+            );
+          } else {
+            target['no_pending'] = target['no_pending'] || [];
+            target['no_pending'].push(JSON.parse(JSON.stringify(commonReward)));
+          }
           target.apr = BigNumber.sum(target.apr, commonReward.apr).valueOf();
           target.rewardsPerWeek = BigNumber.sum(
             target.rewardsPerWeek,
@@ -1009,8 +1036,8 @@ function FarmView({
             commonReward.userUnclaimedReward
           ).valueOf();
         }
-        tempMap[m] = [target];
       }
+      tempMap[m] = [target];
       arr.push(tempMap[m][0]);
     });
     return arr;
@@ -1018,22 +1045,57 @@ function FarmView({
   function getAllRewardsPerWeek() {
     let result: string = '';
     let totalPrice = 0;
-    mergeCommonRewardFarms.forEach((item: FarmInfo) => {
-      const { rewardToken, rewardsPerWeek } = item;
-      const { id, icon } = rewardToken;
-      let price = 0;
-      if (tokenPriceMap[id] && tokenPriceMap[id] != 'N/A') {
-        price = +rewardsPerWeek * +tokenPriceMap[id];
-        totalPrice += price;
-      }
-      const itemHtml = `<div class="flex justify-between items-center h-8">
+    mergeCommonRewardFarms.forEach(
+      (
+        item: FarmInfo & { diff_start_time_pending: any[]; no_pending: any[] }
+      ) => {
+        const {
+          rewardToken,
+          rewardsPerWeek,
+          diff_start_time_pending,
+          no_pending,
+        } = item;
+        const { id, icon } = rewardToken;
+        let price = 0;
+        if (tokenPriceMap[id] && tokenPriceMap[id] != 'N/A') {
+          price = +rewardsPerWeek * +tokenPriceMap[id];
+          totalPrice += price;
+        }
+        let itemHtml = '';
+        if (diff_start_time_pending) {
+          diff_start_time_pending.forEach((farm: FarmInfo) => {
+            itemHtml += `<div class="flex justify-between items-center h-8">
+            <image class="w-5 h-5 rounded-full mr-7" style="filter: grayscale(100%)" src="${icon}"/>
+            <label class="text-xs text-farmText">${formatWithCommas(
+              farm.rewardsPerWeek
+            )}</label>
+          </div>`;
+          });
+        }
+        if (no_pending) {
+          let target = no_pending[0];
+          for (let i = 1; i < no_pending.length; i++) {
+            target.apr = BigNumber.sum(target.apr, no_pending[i].apr).valueOf();
+            target.rewardsPerWeek = BigNumber.sum(
+              target.rewardsPerWeek,
+              no_pending[i].rewardsPerWeek
+            ).valueOf();
+            target.userUnclaimedReward = BigNumber.sum(
+              target.userUnclaimedReward,
+              no_pending[i].userUnclaimedReward
+            ).valueOf();
+          }
+          itemHtml += `<div class="flex justify-between items-center h-8">
                           <image class="w-5 h-5 rounded-full mr-7" src="${icon}"/>
                           <label class="text-xs text-navHighLightText">${formatWithCommas(
-                            rewardsPerWeek
+                            target.rewardsPerWeek
                           )}</label>
                         </div>`;
-      result += itemHtml;
-    });
+        }
+
+        result += itemHtml;
+      }
+    );
     setRewardsPerWeek({
       tip: result,
       totalPrice: `${
@@ -1284,18 +1346,54 @@ function FarmView({
   }
   function getAprList() {
     let result: string = '';
-    mergeCommonRewardFarms.forEach((item: FarmInfo) => {
-      const { rewardToken, apr } = item;
-      const itemHtml = `<div class="flex justify-between items-center h-8">
-                          <image class="w-5 h-5 rounded-full mr-7" src="${
-                            rewardToken.icon
-                          }"/>
-                          <label class="text-xs text-navHighLightText">${
-                            formatWithCommas(apr) + '%'
-                          }</label>
-                        </div>`;
-      result += itemHtml;
-    });
+    mergeCommonRewardFarms.forEach(
+      (
+        item: FarmInfo & { diff_start_time_pending: any[]; no_pending: any[] }
+      ) => {
+        const { rewardToken, diff_start_time_pending, no_pending } = item;
+        const txt = intl.formatMessage({ id: 'start' });
+        let itemHtml = '';
+        if (diff_start_time_pending) {
+          diff_start_time_pending.forEach((farm: FarmInfo) => {
+            const startTime = moment.unix(farm.start_at).format('YYYY-MM-DD');
+            itemHtml += `<div class="flex justify-between items-center h-8 my-1">
+                      <image class="w-5 h-5 rounded-full mr-7" style="filter: grayscale(100%)"src="${
+                        rewardToken.icon
+                      }"/>
+                      <div class="flex flex-col items-end">
+                        <label class="text-xs text-farmText">${
+                          formatWithCommas(farm.apr) + '%'
+                        }</label>
+                        <label class="text-xs text-farmText">${txt}: ${startTime}</label>
+                      </div>
+                    </div>`;
+          });
+        }
+        if (no_pending) {
+          let target = no_pending[0];
+          for (let i = 1; i < no_pending.length; i++) {
+            target.apr = BigNumber.sum(target.apr, no_pending[i].apr).valueOf();
+            target.rewardsPerWeek = BigNumber.sum(
+              target.rewardsPerWeek,
+              no_pending[i].rewardsPerWeek
+            ).valueOf();
+            target.userUnclaimedReward = BigNumber.sum(
+              target.userUnclaimedReward,
+              no_pending[i].userUnclaimedReward
+            ).valueOf();
+          }
+          itemHtml += `<div class="flex justify-between items-center h-8">
+                      <image class="w-5 h-5 rounded-full mr-7" src="${
+                        rewardToken.icon
+                      }"/>
+                        <label class="text-xs text-navHighLightText">${
+                          formatWithCommas(target.apr) + '%'
+                        }</label>
+                    </div>`;
+        }
+        result += itemHtml;
+      }
+    );
     return result;
   }
   function getClaimId() {
@@ -1408,6 +1506,11 @@ function FarmView({
   }
   function showCalcModel() {
     setCalcVisible(true);
+  }
+  function tipOfApr() {
+    const tip = intl.formatMessage({ id: 'aprTip' });
+    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    return result;
   }
   return (
     <Card
@@ -1525,7 +1628,7 @@ function FarmView({
                 <Calc></Calc>
               </div>
             </div>
-            <div>
+            <div className="flex items-center">
               <div
                 className="text-xl text-white"
                 data-type="info"
@@ -1539,6 +1642,26 @@ function FarmView({
                 {`${getTotalApr() === '0' ? '-' : `${getTotalApr()}%`}`}
                 <ReactTooltip
                   id={'aprId' + data.farm_id}
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
+              </div>
+              <div
+                className="ml-2 text-sm"
+                data-type="info"
+                data-place="right"
+                data-multiline={true}
+                data-class="reactTip"
+                data-html={true}
+                data-tip={tipOfApr()}
+                data-for="aprValueId"
+              >
+                <QuestionMark />
+                <ReactTooltip
+                  className="w-20"
+                  id="aprValueId"
                   backgroundColor="#1D2932"
                   border
                   borderColor="#7e8a93"
