@@ -1448,6 +1448,11 @@ function FarmView({
   function showCalcModel() {
     setCalcVisible(true);
   }
+  function tipOfApr() {
+    const tip = intl.formatMessage({ id: 'aprTip' });
+    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    return result;
+  }
   return (
     <Card
       width="w-full"
@@ -1564,7 +1569,7 @@ function FarmView({
                 <Calc></Calc>
               </div>
             </div>
-            <div>
+            <div className="flex items-center">
               <div
                 className="text-xl text-white"
                 data-type="info"
@@ -1578,6 +1583,26 @@ function FarmView({
                 {`${getTotalApr() === '0' ? '-' : `${getTotalApr()}%`}`}
                 <ReactTooltip
                   id={'aprId' + data.farm_id}
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
+              </div>
+              <div
+                className="ml-2 text-sm"
+                data-type="info"
+                data-place="right"
+                data-multiline={true}
+                data-class="reactTip"
+                data-html={true}
+                data-tip={tipOfApr()}
+                data-for="aprValueId"
+              >
+                <QuestionMark />
+                <ReactTooltip
+                  className="w-20"
+                  id="aprValueId"
                   backgroundColor="#1D2932"
                   border
                   borderColor="#7e8a93"
