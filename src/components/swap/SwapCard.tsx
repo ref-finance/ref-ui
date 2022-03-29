@@ -677,12 +677,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   return (
     <>
-      <Guide
-        bothStableToken={
-          STABLE_TOKEN_IDS.includes(tokenIn?.id) &&
-          STABLE_TOKEN_IDS.includes(tokenOut?.id)
-        }
-      ></Guide>
       <SwapTip
         bothStableToken={
           STABLE_TOKEN_IDS.includes(tokenIn?.id) &&
