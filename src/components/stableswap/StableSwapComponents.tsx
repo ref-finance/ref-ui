@@ -11,9 +11,15 @@ import {
   FaExchangeAlt,
   FaServicestack,
 } from 'react-icons/fa';
-import { SwapDetail, SwapRateDetail } from '~components/swap/SwapCard';
+import {
+  PriceImpactWarning,
+  SwapDetail,
+  SwapRateDetail,
+} from '~components/swap/SwapCard';
 import { toRealSymbol } from '~utils/token';
 import { WarnTriangle, ErrorTriangle } from '~components/icon/SwapRefresh';
+import { StableSwapExchangePC, SwapExchange } from '../icon/Arrows';
+import { isMobile, useMobile } from '../../utils/device';
 
 import {
   calculateExchangeRate,
@@ -219,38 +225,31 @@ export function SwapAnimation({
   setTokenOut: (token: TokenMetadata) => void;
   setTokenInAmount: (amount: string) => void;
 }) {
-  const topBall = useRef<HTMLInputElement>();
-  const bottomBall = useRef<HTMLInputElement>();
-  const runSwapAnimation = function () {
-    topBall.current.style.animation = 'rotation1 1s 0s ease-out 1';
-    bottomBall.current.style.animation = 'rotation2 1s 0s ease-out 1';
-    topBall.current.addEventListener('animationend', function () {
-      topBall.current.style.animation = '';
-    });
-    bottomBall.current.addEventListener('animationend', function () {
-      bottomBall.current.style.animation = '';
-    });
-  };
+  const isMobileDevice = useMobile();
+
   return (
     <div className="w-24 xs:w-full md:w-full">
       <div
         className="flex items-center justify-center border-t mt-12"
         style={{ borderColor: 'rgba(126, 138, 147, 0.3)' }}
       >
-        <div
-          className="relative flex items-center -mt-6 mb-4 w-11 h-11 border border-white border-opacity-40 rounded-full cursor-pointer bg-dark"
-          onClick={() => {
-            runSwapAnimation();
-            setTokenIn(tokenOut);
-            setTokenOut(tokenIn);
-            setTokenInAmount(toPrecision('1', 6));
-          }}
-        >
-          <div className="swap-wrap">
-            <div className="top-ball" ref={topBall} id="top-ball" />
-            <div className="bottom-ball" ref={bottomBall} id="bottom-ball" />
-          </div>
-        </div>
+        {isMobileDevice ? (
+          <SwapExchange
+            onChange={() => {
+              setTokenIn(tokenOut);
+              setTokenOut(tokenIn);
+              setTokenInAmount(toPrecision('1', 6));
+            }}
+          />
+        ) : (
+          <StableSwapExchangePC
+            onChange={() => {
+              setTokenIn(tokenOut);
+              setTokenOut(tokenIn);
+              setTokenInAmount(toPrecision('1', 6));
+            }}
+          />
+        )}
       </div>
     </div>
   );
@@ -265,6 +264,7 @@ export function DetailView({
   minAmountOut,
   canSwap,
   noFeeAmount,
+  priceImpactValue,
 }: {
   pool: Pool;
   tokenIn: TokenMetadata;
@@ -274,14 +274,10 @@ export function DetailView({
   minAmountOut?: string;
   canSwap?: boolean;
   noFeeAmount?: string;
+  priceImpactValue?: string;
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
-
-  const priceImpactValue = useMemo(() => {
-    if (!from || !noFeeAmount) return '0';
-    return calcStableSwapPriceImpact(from, noFeeAmount);
-  }, [noFeeAmount]);
 
   useEffect(() => {
     if (Number(priceImpactValue) > 1) {
@@ -338,6 +334,11 @@ export function DetailView({
           tokenIn={tokenIn}
           tokenOut={tokenOut}
         />
+        {Number(priceImpactValue) > 2 && (
+          <div className="py-1 text-xs text-right">
+            <PriceImpactWarning value={priceImpactValue} />
+          </div>
+        )}
         <SwapDetail
           title={intl.formatMessage({
             id: 'price_impact',

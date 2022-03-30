@@ -4,6 +4,7 @@ import React, {
   useMemo,
   useRef,
   useState,
+  useContext,
 } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
@@ -26,12 +27,15 @@ import {
   multiply,
   divide,
   scientificNotationToString,
+  calculateSmartRoutesV2PriceImpact,
+  separateRoutes,
+  calcStableSwapPriceImpact,
 } from '../../utils/numbers';
 import ReactDOMServer from 'react-dom/server';
 import TokenAmount from '../forms/TokenAmount';
 import SubmitButton from '../forms/SubmitButton';
 import Alert from '../alert/Alert';
-import { toRealSymbol } from '~utils/token';
+import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import db from '~store/RefDatabase';
@@ -41,11 +45,11 @@ import {
   OutlineButton,
   SolidButton,
   ConnectToNearBtn,
-} from '~components/button/Button';
-import { STABLE_TOKEN_IDS, wallet } from '~services/near';
+} from '../../components/button/Button';
+import { STABLE_TOKEN_IDS, wallet } from '../../services/near';
 import SwapFormWrap from '../forms/SwapFormWrap';
-import SwapTip from '~components/forms/SwapTip';
-import { WarnTriangle, ErrorTriangle } from '~components/icon/SwapRefresh';
+import SwapTip from '../../components/forms/SwapTip';
+import { WarnTriangle, ErrorTriangle } from '../../components/icon/SwapRefresh';
 import ReactModal from 'react-modal';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
@@ -56,8 +60,8 @@ import {
   AutoRouterText,
   OneParallelRoute,
   RouterIcon,
-  SmartRoute,
-} from '~components/layout/SwapRoutes';
+  SmartRouteV2,
+} from '../../components/layout/SwapRoutes';
 import QuestionMark, {
   QuestionMarkStaticForParaSwap,
 } from '~components/farm/QuestionMark';
@@ -65,123 +69,23 @@ import QuestionMark, {
 import ReactTooltip from 'react-tooltip';
 import * as math from 'mathjs';
 import { HiOutlineExternalLink } from 'react-icons/hi';
-import { EstimateSwapView, PoolMode, swap } from '~services/swap';
-import { QuestionTip } from '~components/layout/TipWrapper';
-import { Guide } from '~components/layout/Guide';
+import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
+import { QuestionTip } from '../../components/layout/TipWrapper';
+import { Guide } from '../../components/layout/Guide';
 import { sortBy } from 'lodash';
+import { getCurrentWallet } from '../../utils/sender-wallet';
+import { senderWallet, WalletContext } from '../../utils/sender-wallet';
+import { SwapArrow, SwapExchange } from '../icon/Arrows';
+import { getPoolAllocationPercents } from '../../utils/numbers';
+import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
+import { getTokenPriceList } from '../../services/indexer';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
 const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
-
-export function DoubleCheckModal(
-  props: ReactModal.Props & {
-    pools: Pool[];
-    tokenIn: TokenMetadata;
-    tokenOut: TokenMetadata;
-    from: string;
-    onSwap: (e?: any) => void;
-    swapsTodo: EstimateSwapView[];
-    priceImpactValue: string;
-  }
-) {
-  const { pools, tokenIn, tokenOut, from, onSwap, priceImpactValue } = props;
-
-  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
-
-  if (!pools || !from || !tokenIn || !tokenOut) return null;
-
-  return (
-    <Modal {...props}>
-      <Card
-        padding="p-6"
-        bgcolor="bg-cardBg"
-        className="text-white border border-gradientFromHover outline-none flex flex-col items-center"
-        width="xs:w-80vw md:w-80vw lg:w-30vw"
-      >
-        <div
-          className="ml-2 cursor-pointer p-1 self-end"
-          onClick={props.onRequestClose}
-        >
-          <ModalClose />
-        </div>
-
-        <div className="pb-6">
-          <ErrorTriangle expand />
-        </div>
-
-        <div className="text-base font-semibold">
-          <FormattedMessage id="are_you_sure" defaultMessage="Are you sure" />?
-        </div>
-
-        <div className=" text-xs pt-4 flex-col flex items-center justify-center">
-          <div>
-            <FormattedMessage
-              id="price_impact_is_about"
-              defaultMessage="Price impact is about"
-            />
-          </div>
-          <div className="pt-1">
-            <span className="text-error">
-              -{toPrecision(priceImpactValue, 2)}%
-            </span>
-            <span className="text-error">
-              {' '}
-              {`(${
-                Number(priceImpactValue) < 0
-                  ? '0'
-                  : '-' +
-                    toPrecision(
-                      scientificNotationToString(
-                        multiply(from, divide(priceImpactValue, '100'))
-                      ),
-                      3
-                    )
-              } ${toRealSymbol(tokenIn.symbol)})`}{' '}
-            </span>
-          </div>
-        </div>
-        <div className="text-xs pb-6 pt-1">
-          <FormattedMessage
-            id="make_sure_you_understand_what_you_do"
-            defaultMessage="Make sure you understand what you do"
-          />
-          !
-        </div>
-
-        <div className="flex items-center pb-2">
-          <OutlineButton
-            onClick={props.onRequestClose}
-            className="text-xs w-20 text-center mx-2 h-8"
-            padding="px-4 py-1"
-          >
-            <FormattedMessage id="cancel" defaultMessage="Cancel" />
-          </OutlineButton>
-          <SolidButton
-            onClick={(e) => {
-              setButtonLoading(true);
-              onSwap();
-            }}
-            className="text-xs w-32 text-center h-8"
-            padding="px-4 py-1.5"
-            loading={buttonLoading}
-          >
-            <ButtonTextWrapper
-              loading={buttonLoading}
-              Text={() => (
-                <span>
-                  <FormattedMessage id="yes_swap" defaultMessage="Yes, swap" />!
-                </span>
-              )}
-            />
-          </SolidButton>
-        </div>
-      </Card>
-    </Modal>
-  );
-}
+export const SUPPORT_LEDGER_KEY = 'REF_FI_SUPPORT_LEDGER';
 
 export function SwapDetail({
   title,
@@ -226,7 +130,7 @@ export function SwapRateDetail({
     if (ONLY_ZEROS.test(fromNow)) return '-';
 
     return calculateExchangeRate(fee, fromNow, toNow);
-  }, [isRevert, to, from]);
+  }, [isRevert, to]);
 
   useEffect(() => {
     setNewValue(value);
@@ -240,7 +144,7 @@ export function SwapRateDetail({
         isRevert ? tokenOut.symbol : tokenIn.symbol
       )}`
     );
-  }, [isRevert]);
+  }, [isRevert, exchangeRageValue]);
 
   function switchSwapRate() {
     setIsRevert(!isRevert);
@@ -265,20 +169,29 @@ export function SwapRateDetail({
   );
 }
 
-export function SmartRoutesDetail({
+export function SmartRoutesV2Detail({
   swapsTodo,
-  tokenIn,
-  tokenOut,
 }: {
   swapsTodo: EstimateSwapView[];
-  tokenIn: TokenMetadata;
-  tokenOut: TokenMetadata;
 }) {
-  const tokenMid = useMemo(() => swapsTodo[1].token, [swapsTodo[1].token.id]);
+  const tokensPerRoute = swapsTodo
+    .filter((swap) => swap.inputToken == swap.routeInputToken)
+    .map((swap) => swap.tokens);
+
+  const identicalRoutes = separateRoutes(
+    swapsTodo,
+    swapsTodo[swapsTodo.length - 1].outputToken
+  );
+
+  const pools = identicalRoutes.map((r) => r[0]).map((hub) => hub.pool);
+
+  const percents = useMemo(() => {
+    return getPoolAllocationPercents(pools);
+  }, [identicalRoutes, pools]);
 
   return (
     <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
-      <div className="text-primaryText text-left ">
+      <div className="text-primaryText text-left self-start">
         <div className="inline-flex items-center">
           <RouterIcon />
           <AutoRouterText />
@@ -286,8 +199,20 @@ export function SmartRoutesDetail({
         </div>
       </div>
 
-      <div className="text-right text-white col-span-6 xs:mt-2">
-        {<SmartRoute tokens={[tokenIn, tokenMid, tokenOut]} />}
+      <div className="text-right text-white col-span-7 xs:mt-2 md:mt-2 self-start">
+        {tokensPerRoute.map((tokens, index) => (
+          <div key={index} className="mb-2 md:w-smartRoute lg:w-smartRoute">
+            <div className="text-right text-white col-span-6 xs:mt-2 md:mt-2">
+              {
+                <SmartRouteV2
+                  tokens={tokens}
+                  p={percents[index]}
+                  pools={identicalRoutes[index].map((hub) => hub.pool)}
+                />
+              }
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );
@@ -303,51 +228,7 @@ export function ParallelSwapRoutesDetail({
   tokenOut: TokenMetadata;
 }) {
   const percents = useMemo(() => {
-    if (pools) {
-      const partialAmounts = pools.map((pool) => {
-        return math.bignumber(pool.partialAmountIn);
-      });
-
-      const ps: string[] = new Array(partialAmounts.length).fill('0');
-
-      const sum =
-        partialAmounts.length === 1
-          ? partialAmounts[0]
-          : math.sum(...partialAmounts);
-
-      const sortedAmount = sortBy(partialAmounts, (p) => Number(p));
-
-      for (let k = 0; k < sortedAmount.length - 1; k++) {
-        let minIndex = -1;
-
-        for (let j = 0; j < partialAmounts.length; j++) {
-          if (partialAmounts[j].eq(sortedAmount[k])) {
-            minIndex = j;
-            break;
-          }
-        }
-        const res = math
-          .round(percent(partialAmounts[minIndex].toString(), sum))
-          .toString();
-
-        if (Number(res) === 0) {
-          ps[minIndex] = '1';
-        } else {
-          ps[minIndex] = res;
-        }
-      }
-
-      const finalPIndex = ps.indexOf('0');
-
-      ps[finalPIndex] = subtraction(
-        '100',
-        ps.length === 1 ? Number(ps[0]) : math.sum(...ps.map((p) => Number(p)))
-      ).toString();
-
-      return ps;
-    } else {
-      return [];
-    }
+    return getPoolAllocationPercents(pools);
   }, [pools]);
 
   return (
@@ -374,6 +255,34 @@ export function ParallelSwapRoutesDetail({
             </div>
           );
         })}
+      </div>
+    </section>
+  );
+}
+
+export function SmartRoutesDetail({
+  swapsTodo,
+}: {
+  swapsTodo: EstimateSwapView[];
+}) {
+  return (
+    <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
+      <div className="text-primaryText text-left ">
+        <div className="inline-flex items-center">
+          <RouterIcon />
+          <AutoRouterText />
+          <QuestionTip id="optimal_path_found_by_our_solution" width="w-56" />
+        </div>
+      </div>
+
+      <div className="text-right text-white col-span-6 xs:mt-2">
+        {
+          <SmartRouteV2
+            tokens={swapsTodo[0].tokens}
+            p="100"
+            pools={swapsTodo.map((swapTodo) => swapTodo.pool)}
+          />
+        }
       </div>
     </section>
   );
@@ -500,6 +409,20 @@ function DetailView({
     if (swapsTodo?.length > 1) {
       setShowDetails(true);
     }
+  }, [swapsTodo]);
+
+  const priceImpactDisplay = useMemo(() => {
+    if (!priceImpact || !tokenIn || !from) return null;
+    return GetPriceImpact(priceImpact, tokenIn, from);
+  }, [to, priceImpact]);
+
+  const poolFeeDisplay = useMemo(() => {
+    if (!fee || !from || !tokenIn) return null;
+
+    return `${toPrecision(
+      calculateFeePercent(fee).toString(),
+      2
+    )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(tokenIn.symbol)}`;
   }, [to]);
 
   if (!pools || ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id)
@@ -546,18 +469,11 @@ function DetailView({
         )}
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
-          value={
-            !to || to === '0' ? '-' : GetPriceImpact(priceImpact, tokenIn, from)
-          }
+          value={!to || to === '0' ? '-' : priceImpactDisplay}
         />
         <SwapDetail
           title={intl.formatMessage({ id: 'pool_fee' })}
-          value={`${toPrecision(
-            calculateFeePercent(fee).toString(),
-            2
-          )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(
-            tokenIn.symbol
-          )}`}
+          value={poolFeeDisplay}
         />
 
         {isParallelSwap && pools.length > 1 && (
@@ -568,13 +484,12 @@ function DetailView({
           />
         )}
 
-        {!isParallelSwap && (
-          <SmartRoutesDetail
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-            swapsTodo={swapsTodo}
-          />
+        {swapsTodo[0].status === PoolMode.SMART && (
+          <SmartRoutesDetail swapsTodo={swapsTodo} />
         )}
+        {!isParallelSwap &&
+          swapsTodo.every((e) => e.status !== PoolMode.SMART) &&
+          pools.length > 1 && <SmartRoutesV2Detail swapsTodo={swapsTodo} />}
       </div>
     </div>
   );
@@ -587,9 +502,14 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
 
-  const [useNearBalance, setUseNearBalance] = useState<boolean>(
-    localStorage.getItem(SWAP_USE_NEAR_BALANCE_KEY) != 'false'
+  const [supportLedger, setSupportLedger] = useState(
+    localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
   );
+
+  const [useNearBalance, setUseNearBalance] = useState<boolean>(true);
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
 
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();
@@ -613,6 +533,12 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     Number(localStorage.getItem(SWAP_SLIPPAGE_KEY) || urlSlippageTolerance) ||
       0.5
   );
+  const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    getTokenPriceList().then(setTokenPriceList);
+  }, []);
+
   useEffect(() => {
     const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
     const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
@@ -632,8 +558,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       if (tokenIn) {
         const tokenInId = tokenIn.id;
         if (tokenInId) {
-          if (wallet.isSignedIn()) {
-            ftGetBalance(tokenInId).then((available) =>
+          if (isSignedIn) {
+            ftGetBalance(tokenInId).then((available: string) =>
               setTokenInBalanceFromNear(
                 toReadableNumber(tokenIn?.decimals, available)
               )
@@ -644,8 +570,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       if (tokenOut) {
         const tokenOutId = tokenOut.id;
         if (tokenOutId) {
-          if (wallet.isSignedIn()) {
-            ftGetBalance(tokenOutId).then((available) =>
+          if (isSignedIn) {
+            ftGetBalance(tokenOutId).then((available: string) =>
               setTokenOutBalanceFromNear(
                 toReadableNumber(tokenOut?.decimals, available)
               )
@@ -654,7 +580,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         }
       }
     }
-  }, [tokenIn, tokenOut, useNearBalance]);
+  }, [tokenIn, tokenOut, useNearBalance, isSignedIn]);
 
   const {
     canSwap,
@@ -666,6 +592,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     avgFee,
     isParallelSwap,
     swapsToDo,
+    setCanSwap,
   } = useSwap({
     tokenIn: tokenIn,
     tokenInAmount,
@@ -676,42 +603,57 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     setLoadingTrigger,
     loadingData,
     loadingPause,
+    supportLedger,
   });
 
-  const priceImpactValueParallelSwap = useMemo(() => {
-    if (!pools || !tokenOutAmount || !tokenInAmount) return '0';
-    return calculatePriceImpact(pools, tokenIn, tokenOut, tokenInAmount);
-  }, [tokenOutAmount]);
-
   const priceImpactValueSmartRouting = useMemo(() => {
-    {
-      if (!swapsToDo || !tokenInAmount || isParallelSwap) return '0';
-      return calculateSmartRoutingPriceImpact(
-        tokenInAmount,
-        swapsToDo,
-        tokenIn,
-        swapsToDo[1].token,
-        tokenOut
-      );
+    try {
+      if (swapsToDo?.length === 2 && swapsToDo[0].status === PoolMode.SMART) {
+        return calculateSmartRoutingPriceImpact(
+          tokenInAmount,
+          swapsToDo,
+          tokenIn,
+          swapsToDo[1].token,
+          tokenOut
+        );
+      } else if (
+        swapsToDo?.length === 1 &&
+        swapsToDo[0].status === PoolMode.STABLE
+      ) {
+        return calcStableSwapPriceImpact(
+          toReadableNumber(tokenIn.decimals, swapsToDo[0].totalInputAmount),
+          swapsToDo[0].noFeeAmountOut
+        );
+      } else return '0';
+    } catch {
+      return '0';
     }
-  }, [tokenOutAmount]);
+  }, [tokenOutAmount, swapsToDo]);
 
-  const PriceImpactValue = isParallelSwap
-    ? priceImpactValueParallelSwap
-    : priceImpactValueSmartRouting;
+  const priceImpactValueSmartRoutingV2 = useMemo(() => {
+    try {
+      const pi = calculateSmartRoutesV2PriceImpact(swapsToDo, tokenOut.id);
 
-  const topBall = useRef<HTMLInputElement>();
-  const bottomBall = useRef<HTMLInputElement>();
-  const runSwapAnimation = function () {
-    topBall.current.style.animation = 'rotation1 1s 0s ease-out 1';
-    bottomBall.current.style.animation = 'rotation2 1s 0s ease-out 1';
-    topBall.current.addEventListener('animationend', function () {
-      topBall.current.style.animation = '';
-    });
-    bottomBall.current.addEventListener('animationend', function () {
-      bottomBall.current.style.animation = '';
-    });
-  };
+      return pi;
+    } catch {
+      return '0';
+    }
+  }, [tokenOutAmount, swapsToDo]);
+
+  let PriceImpactValue: string = '0';
+
+  try {
+    if (
+      swapsToDo[0].status === PoolMode.SMART ||
+      swapsToDo[0].status === PoolMode.STABLE
+    ) {
+      PriceImpactValue = priceImpactValueSmartRouting;
+    } else {
+      PriceImpactValue = priceImpactValueSmartRoutingV2;
+    }
+  } catch (error) {
+    PriceImpactValue = '0';
+  }
 
   const tokenInMax = useNearBalance
     ? tokenInBalanceFromNear || '0'
@@ -735,12 +677,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   return (
     <>
-      <Guide
-        bothStableToken={
-          STABLE_TOKEN_IDS.includes(tokenIn?.id) &&
-          STABLE_TOKEN_IDS.includes(tokenOut?.id)
-        }
-      ></Guide>
       <SwapTip
         bothStableToken={
           STABLE_TOKEN_IDS.includes(tokenIn?.id) &&
@@ -750,6 +686,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         tokenOutId={tokenOut?.id}
       />
       <SwapFormWrap
+        supportLedger={supportLedger}
+        setSupportLedger={setSupportLedger}
         useNearBalance={useNearBalance.toString()}
         canSubmit={canSubmit}
         slippageTolerance={slippageTolerance}
@@ -767,7 +705,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         showElseView={tokenInMax === '0' && !useNearBalance}
         elseView={
           <div className="flex justify-center">
-            {wallet.isSignedIn() ? (
+            {isSignedIn ? (
               <SubmitButton disabled={true} loading={showSwapLoading} />
             ) : (
               <div className="mt-4 w-full">
@@ -791,6 +729,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         }}
       >
         <TokenAmount
+          forSwap
           amount={tokenInAmount}
           total={tokenInMax}
           max={tokenInMax}
@@ -801,6 +740,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
             localStorage.setItem(SWAP_IN_KEY, token.id);
             history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
             setTokenIn(token);
+            setCanSwap(false);
             setTokenInBalanceFromNear(token.near.toString());
           }}
           text={intl.formatMessage({ id: 'from' })}
@@ -808,27 +748,23 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           onChangeAmount={(amount) => {
             setTokenInAmount(amount);
           }}
+          tokenPriceList={tokenPriceList}
+          isError={tokenIn?.id === tokenOut?.id}
         />
         <div
           className="flex items-center justify-center border-t mt-12"
           style={{ borderColor: 'rgba(126, 138, 147, 0.3)' }}
         >
-          <div
-            className="relative flex items-center -mt-6 mb-4 w-11 h-11 border border-white border-opacity-40 rounded-full cursor-pointer bg-dark"
-            onClick={() => {
-              runSwapAnimation();
+          <SwapExchange
+            onChange={() => {
               setTokenIn(tokenOut);
               setTokenOut(tokenIn);
               setTokenInAmount(toPrecision('1', 6));
             }}
-          >
-            <div className="swap-wrap">
-              <div className="top-ball" ref={topBall} id="top-ball" />
-              <div className="bottom-ball" ref={bottomBall} id="bottom-ball" />
-            </div>
-          </div>
+          />
         </div>
         <TokenAmount
+          forSwap
           amount={toPrecision(tokenOutAmount, 8)}
           total={tokenOutTotal}
           tokens={allTokens}
@@ -840,8 +776,11 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
             localStorage.setItem(SWAP_OUT_KEY, token.id);
             history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`);
             setTokenOut(token);
+            setCanSwap(false);
             setTokenOutBalanceFromNear(token.near.toString());
           }}
+          isError={tokenIn?.id === tokenOut?.id}
+          tokenPriceList={tokenPriceList}
         />
         <DetailView
           pools={pools}
@@ -868,23 +807,10 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           setShowSwapLoading(false);
           setLoadingPause(false);
         }}
-        style={{
-          overlay: {
-            backdropFilter: 'blur(15px)',
-            WebkitBackdropFilter: 'blur(15px)',
-          },
-          content: {
-            outline: 'none',
-            position: 'fixed',
-            top: '50%',
-          },
-        }}
-        pools={pools}
         tokenIn={tokenIn}
         tokenOut={tokenOut}
         from={tokenInAmount}
         onSwap={() => makeSwap(useNearBalance)}
-        swapsTodo={swapsToDo}
         priceImpactValue={PriceImpactValue}
       />
     </>

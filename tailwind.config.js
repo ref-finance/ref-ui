@@ -33,11 +33,11 @@ module.exports = {
         farmSearch: '2fr 1fr',
         farmContainer: '1fr 4fr',
         farmContainerOther: '1.2fr 3fr',
-        xrefColumn: '13fr 7fr',
+        xrefColumn: '7fr 13fr',
       },
       gridTemplateRows: {
         xrefContainer: '7fr 18fr',
-        xrefRowM: '3fr 2fr',
+        xrefRowM: '2fr 3fr',
         xrefContainerM: '2fr 3fr',
       },
       colors: {
@@ -90,6 +90,7 @@ module.exports = {
         blueTip: '#0A7AFF',
         darkGreenColor: '#009A2B',
         riskTextColor: '#BEBEBE',
+        senderHot: '#00FFD1',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
@@ -101,9 +102,12 @@ module.exports = {
         '95vw': '95vw',
         '580px': '580px',
         '560px': '560px',
+        '360px': '360px',
         '80vw': '80vw',
         '30vw': '30vw',
-        '54': '13.5rem'
+        smartRoute: '292px',
+        54: '13.5rem',
+        34: '8.5rem',
       },
     },
     plugins: [],

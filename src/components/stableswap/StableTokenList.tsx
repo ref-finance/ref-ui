@@ -10,6 +10,7 @@ import {
 } from '../../utils/numbers';
 import { toRealSymbol } from '../../utils/token';
 import { RefIcon } from '../../components/icon/Common';
+import { SmallWallet } from '../icon/SmallWallet';
 
 export function Icon(props: {
   icon?: string;
@@ -92,7 +93,8 @@ export default function StableTokenList(props: {
     <div className="mt-4 px-8">
       <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
         <span className="mr-2 text-primaryText">
-          <RefIcon></RefIcon>
+          {/* <RefIcon></RefIcon> */}
+          <SmallWallet />
         </span>
         <FormattedMessage id="balance" defaultMessage="Balance" />
         :&nbsp;
@@ -128,7 +130,8 @@ export default function StableTokenList(props: {
       <div className=" my-4">
         <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
           <span className="mr-2 text-primaryText">
-            <RefIcon></RefIcon>
+            {/* <RefIcon></RefIcon> */}
+            <SmallWallet />
           </span>
           <FormattedMessage id="balance" defaultMessage="Balance" />
           :&nbsp;
@@ -163,7 +166,8 @@ export default function StableTokenList(props: {
       <div className="my-4">
         <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
           <span className="mr-2 text-primaryText">
-            <RefIcon></RefIcon>
+            {/* <RefIcon></RefIcon> */}
+            <SmallWallet />
           </span>
           <FormattedMessage id="balance" defaultMessage="Balance" />
           :&nbsp;

@@ -15,21 +15,39 @@ import TokenReserves from '~components/stableswap/TokenReserves';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import getConfig from '~services/config';
 import { StableSwapLogo } from '~components/icon/StableSwap';
+import { useWalletTokenBalances } from '../../state/token';
+import { useLocation } from 'react-router-dom';
 const DEFAULT_ACTIONS = ['stable_swap', 'add_liquidity', 'remove_liquidity'];
 const STABLE_TOKENS = ['USDT', 'USDC', 'DAI'];
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
 export const REF_STABLE_SWAP_TAB_KEY = 'REF_STABLE_SWAP_TAB_VALUE';
 
+interface LocationTypes {
+  stableTab?: string;
+}
+
 function StableSwapPage() {
   const { pool, shares, stakeList } = usePool(STABLE_POOL_ID);
+  const { state } = useLocation<LocationTypes>();
+
   const [actionName, setAction] = useState<string>(
-    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) || DEFAULT_ACTIONS[0]
+    state?.stableTab ||
+      localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) ||
+      DEFAULT_ACTIONS[0]
   );
+
   const [loadingTrigger, setLoadingTrigger] = useState<boolean>(false);
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
 
   const allTokens = useWhitelistStableTokens();
-  const balances = useTokenBalances();
+  const tokens =
+    allTokens &&
+    allTokens.length > 0 &&
+    allTokens.filter((item) => STABLE_TOKENS.indexOf(item.symbol) > -1);
+
+  const nearBalances = useWalletTokenBalances(
+    tokens?.map((token) => token.id) || []
+  );
 
   const stablePool = useStablePool({
     loadingTrigger,
@@ -42,10 +60,14 @@ function StableSwapPage() {
     setAction(actionName);
   };
 
-  const tokens =
-    allTokens &&
-    allTokens.length > 0 &&
-    allTokens.filter((item) => STABLE_TOKENS.indexOf(item.symbol) > -1);
+  if (
+    !allTokens ||
+    !pool ||
+    !shares ||
+    !stablePool ||
+    !Object.entries(nearBalances).length
+  )
+    return <Loading />;
 
   const renderModule = (tab: string) => {
     switch (tab) {
@@ -53,7 +75,7 @@ function StableSwapPage() {
         return (
           <StableSwap
             tokens={tokens}
-            balances={balances}
+            balances={nearBalances}
             stablePool={stablePool}
             loadingTrigger={loadingTrigger}
             setLoadingTrigger={setLoadingTrigger}
@@ -69,7 +91,7 @@ function StableSwapPage() {
             tokens={tokens}
             totalShares={shares}
             stakeList={stakeList}
-            balances={balances}
+            balances={nearBalances}
           />
         );
       case DEFAULT_ACTIONS[2]:
@@ -78,15 +100,13 @@ function StableSwapPage() {
             stablePool={stablePool}
             tokens={tokens}
             shares={shares}
-            balances={balances}
+            balances={nearBalances}
             pool={pool}
             stakeList={stakeList}
           />
         );
     }
   };
-
-  if (!allTokens || !pool || !shares || !stablePool) return <Loading />;
 
   return (
     <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2">
@@ -96,7 +116,11 @@ function StableSwapPage() {
       <div className="flex justify-center -mt-10 mb-2 lg:hidden">
         <StableSwapLogo width="100" height="76"></StableSwapLogo>
       </div>
-      <SquareRadio onChange={changeAction} radios={DEFAULT_ACTIONS} />
+      <SquareRadio
+        onChange={changeAction}
+        radios={DEFAULT_ACTIONS}
+        currentChoose={actionName}
+      />
       {renderModule(actionName)}
       {
         <TokenReserves

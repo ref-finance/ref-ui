@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
 import Alert from '~components/alert/Alert';
@@ -40,6 +40,8 @@ import {
   classificationOfCoins,
   classificationOfCoins_key,
   incentiveLpTokenConfig,
+  defaultConfig,
+  frontConfig,
 } from '~services/farm';
 import {
   stake,
@@ -76,11 +78,12 @@ import moment from 'moment';
 import { Link, useLocation } from 'react-router-dom';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
-import parse from 'html-react-parser';
 import { FaArrowCircleRight, FaRegQuestionCircle } from 'react-icons/fa';
 import OldInputAmount from '~components/forms/OldInputAmount';
 import { BigNumber } from 'bignumber.js';
 import getConfig from '~services/config';
+import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import { scientificNotationToString } from '../../utils/numbers';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 interface SearchData {
@@ -92,12 +95,15 @@ interface SearchData {
 
 export function FarmsPage() {
   const intl = useIntl();
+  const location = useLocation();
   const sortList = {
-    mulitple: intl.formatMessage({ id: 'mulitple' }),
+    default: intl.formatMessage({ id: 'default' }),
+    multiple: intl.formatMessage({ id: 'multiple' }),
     apr: intl.formatMessage({ id: 'apr' }),
     new: intl.formatMessage({ id: 'new' }),
     total_staked: intl.formatMessage({ id: 'total_staked' }),
   };
+  const sort_from_url = new URLSearchParams(location.search).get('sort');
   const filterList = { all: intl.formatMessage({ id: 'allOption' }) };
   classificationOfCoins_key.forEach((key) => {
     filterList[key] = intl.formatMessage({ id: key });
@@ -115,7 +121,7 @@ export function FarmsPage() {
     {}
   );
   const [searchData, setSearchData] = useState<SearchData>({
-    sort: 'mulitple',
+    sort: sortList[sort_from_url] ? sort_from_url : 'default',
     status: null,
     coin: 'all',
     sortBoxHidden: true,
@@ -134,12 +140,18 @@ export function FarmsPage() {
   const refreshTime = 120000;
   const [count, setCount] = useState(0);
   const [commonSeedFarms, setCommonSeedFarms] = useState({});
+
+  const { wallet } = getCurrentWallet();
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
   useEffect(() => {
-    loadFarmInfoList().then();
-  }, []);
+    loadFarmInfoList(false, isSignedIn).then();
+  }, [isSignedIn]);
   useEffect(() => {
     if (count > 0) {
-      loadFarmInfoList(true);
+      loadFarmInfoList(true, isSignedIn);
     }
     const intervalId = setInterval(() => {
       setCount(count + 1);
@@ -148,13 +160,26 @@ export function FarmsPage() {
       clearInterval(intervalId);
     };
   }, [count]);
-  async function loadFarmInfoList(isUpload?: boolean) {
+
+  useEffect(() => {
+    const sort_from_url = new URLSearchParams(location.search).get('sort');
+    const status_from_url = +new URLSearchParams(location.search).get('status');
+    if (
+      (sort_from_url && sort_from_url != searchData.sort) ||
+      (status_from_url && status_from_url != searchData.status)
+    ) {
+      searchData.sort = sort_from_url;
+      searchData.status = 1;
+      setSearchData(Object.assign({}, searchData));
+      searchByCondition();
+    }
+  }, [location.search]);
+  async function loadFarmInfoList(isUpload?: boolean, isSignedIn?: boolean) {
     if (isUpload) {
       setUnclaimedFarmsIsLoading(false);
     } else {
       setUnclaimedFarmsIsLoading(true);
     }
-    const isSignedIn: boolean = wallet.isSignedIn();
 
     const emptyObj = async () => {
       return {};
@@ -183,6 +208,7 @@ export function FarmsPage() {
       any,
       Record<string, string>
     ] = await Promise.all(Params);
+
     const stakedList: Record<string, string> = resolvedParams[0];
     const tokenPriceList: any = resolvedParams[2];
     const seeds: Record<string, string> = resolvedParams[3];
@@ -194,7 +220,9 @@ export function FarmsPage() {
       }
     });
     const stakedList_being = Object.keys(stakedList).length > 0;
-    searchData.status = wallet.isSignedIn()
+    searchData.status = sortList[sort_from_url]
+      ? 1
+      : wallet.isSignedIn()
       ? Number(
           localStorage.getItem('farm_filter_status') ||
             (stakedList_being ? '2' : '1')
@@ -249,6 +277,7 @@ export function FarmsPage() {
       tokenPriceList,
       seeds,
     });
+
     if (isSignedIn) {
       const tempMap = {};
       const mySeeds = new Set();
@@ -322,7 +351,8 @@ export function FarmsPage() {
     let commonSeedFarmsNew = JSON.parse(
       JSON.stringify(tempCommonSeedFarms || commonSeedFarms)
     );
-    let noData = true;
+    let noData;
+    listAll.length && (noData = true);
     listAll.forEach((item: any) => {
       const { userStaked, pool, seed_id, farm_id } = item[0];
       const isEnd = isEnded(item);
@@ -376,34 +406,60 @@ export function FarmsPage() {
       } else {
         item.show = false;
       }
-      item.mulitple = incentiveLpTokenConfig[id] || '0';
+      item.multiple = incentiveLpTokenConfig[id] || '0';
+      item.default = defaultConfig[id] || '0';
+      if (frontConfig[id]) {
+        item.front = frontConfig[id];
+      }
     });
     if (sort == 'new') {
-      const tempMap = {};
-      const keyList: any[] = [];
-      listAll.forEach((m: any) => {
-        tempMap[m.key] = m;
-        keyList.push(m.key);
-      });
-      listAll = keyList
-        .sort()
-        .reverse()
-        .map((key) => tempMap[key]);
-      listAll.sort(function (a: any, b: any) {
-        return b.length - a.length;
+      listAll.sort((item1: any, item2: any) => {
+        if (item1.front || item2.front) {
+          return Number(item2.front || 0) - Number(item1.front || 0);
+        }
+        const item1List = JSON.parse(JSON.stringify(item1));
+        const item2List = JSON.parse(JSON.stringify(item2));
+        item1List.sort((a: any, b: any) => {
+          return b.start_at - a.start_at;
+        });
+        item2List.sort((a: any, b: any) => {
+          return b.start_at - a.start_at;
+        });
+        const v = item2List[0].start_at - item1List[0].start_at;
+        if (v == 0) {
+          return item2.length - item1.length;
+        } else {
+          return v;
+        }
       });
     }
     if (sort == 'apr') {
       listAll.sort((item1: any, item2: any) => {
+        if (item1.front || item2.front) {
+          return Number(item2.front || 0) - Number(item1.front || 0);
+        }
         return Number(item2.totalApr) - Number(item1.totalApr);
       });
     } else if (sort == 'total_staked') {
       listAll.sort((item1: any, item2: any) => {
+        if (item1.front || item2.front) {
+          return Number(item2.front || 0) - Number(item1.front || 0);
+        }
         return Number(item2[0].totalStaked) - Number(item1[0].totalStaked);
       });
-    } else if (sort == 'mulitple') {
+    } else if (sort == 'multiple') {
       listAll.sort((item1: any, item2: any) => {
-        return Number(item2.mulitple) - Number(item1.mulitple);
+        if (item1.front || item2.front) {
+          return Number(item2.front || 0) - Number(item1.front || 0);
+        }
+        return Number(item2.multiple) - Number(item1.multiple);
+      });
+    } else if (sort == 'default') {
+      listAll.sort((item1: any, item2: any) => {
+        if (item1.front || item2.front) {
+          return Number(item2.front || 0) - Number(item1.front || 0);
+        }
+        return Number(item2.default) - Number(item1.default);
       });
     }
     setFarms(listAll);
@@ -678,10 +734,10 @@ export function FarmsPage() {
                       defaultMessage="Ended"
                     />
                   </label>
-                  {wallet.isSignedIn() ? (
+                  {isSignedIn ? (
                     <label
                       onClick={() => changeStatus(2)}
-                      className={`flex justify-center  w-28 xs:w-24 md:w-24 items-center rounded-full h-full text-sm cursor-pointer ${
+                      className={`flex justify-center  w-28  items-center rounded-full h-full text-sm cursor-pointer ${
                         +searchData.status == 2
                           ? 'text-chartBg bg-farmSearch'
                           : ''
@@ -706,7 +762,7 @@ export function FarmsPage() {
                       id={searchData.coin}
                       list={filterList}
                       onChange={changeCoinOption}
-                      className="w-36"
+                      className="w-34"
                       Icon={isMobile() ? CoinPropertyIcon : ''}
                     ></SelectUi>
                   </div>
@@ -719,6 +775,7 @@ export function FarmsPage() {
                       list={sortList}
                       onChange={changeSortOption}
                       Icon={isMobile() ? SortIcon : ''}
+                      className="w-34"
                     ></SelectUi>
                   </div>
                 </div>
@@ -819,7 +876,7 @@ function WithdrawView({
   useEffect(() => {
     setCheckStatus(!!checkedList[data[0]]);
   }, [Object.keys(checkedList)]);
-  if (!token) return Loading();
+  if (!token) return null;
   function changeStatus() {
     updateCheckList(!checkStatus, data, index);
   }
@@ -902,6 +959,12 @@ function FarmView({
   const [rewardsPerWeek, setRewardsPerWeek] = useState<
     Record<string | number, string | number>
   >({});
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  const { wallet } = getCurrentWallet();
+
   const [unclaimed, setUnclaimed] = useState<Record<any, any>>({});
   const [calcVisible, setCalcVisible] = useState(false);
 
@@ -951,10 +1014,37 @@ function FarmView({
     arr.splice(0, arr.length);
     Object.keys(tempMap).forEach((m: any) => {
       const commonRewardArr = tempMap[m];
-      if (commonRewardArr.length > 1) {
-        const target = commonRewardArr[0];
-        for (let i = 1; i < commonRewardArr.length; i++) {
+      let target: any;
+      for (let i = 0; i < commonRewardArr.length; i++) {
+        if (i == 0) {
           const commonReward = commonRewardArr[i];
+          target = commonReward;
+          const pending =
+            moment.unix(commonReward.start_at).valueOf() > moment().valueOf();
+          if (pending) {
+            target['diff_start_time_pending'] =
+              target['diff_start_time_pending'] || [];
+            target['diff_start_time_pending'].push(
+              JSON.parse(JSON.stringify(commonReward))
+            );
+          } else {
+            target['no_pending'] = target['no_pending'] || [];
+            target['no_pending'].push(JSON.parse(JSON.stringify(commonReward)));
+          }
+        } else {
+          const commonReward = commonRewardArr[i];
+          const pending =
+            moment.unix(commonReward.start_at).valueOf() > moment().valueOf();
+          if (pending) {
+            target['diff_start_time_pending'] =
+              target['diff_start_time_pending'] || [];
+            target['diff_start_time_pending'].push(
+              JSON.parse(JSON.stringify(commonReward))
+            );
+          } else {
+            target['no_pending'] = target['no_pending'] || [];
+            target['no_pending'].push(JSON.parse(JSON.stringify(commonReward)));
+          }
           target.apr = BigNumber.sum(target.apr, commonReward.apr).valueOf();
           target.rewardsPerWeek = BigNumber.sum(
             target.rewardsPerWeek,
@@ -965,8 +1055,8 @@ function FarmView({
             commonReward.userUnclaimedReward
           ).valueOf();
         }
-        tempMap[m] = [target];
       }
+      tempMap[m] = [target];
       arr.push(tempMap[m][0]);
     });
     return arr;
@@ -974,22 +1064,57 @@ function FarmView({
   function getAllRewardsPerWeek() {
     let result: string = '';
     let totalPrice = 0;
-    mergeCommonRewardFarms.forEach((item: FarmInfo) => {
-      const { rewardToken, rewardsPerWeek } = item;
-      const { id, icon } = rewardToken;
-      let price = 0;
-      if (tokenPriceMap[id] && tokenPriceMap[id] != 'N/A') {
-        price = +rewardsPerWeek * +tokenPriceMap[id];
-        totalPrice += price;
-      }
-      const itemHtml = `<div class="flex justify-between items-center h-8">
+    mergeCommonRewardFarms.forEach(
+      (
+        item: FarmInfo & { diff_start_time_pending: any[]; no_pending: any[] }
+      ) => {
+        const {
+          rewardToken,
+          rewardsPerWeek,
+          diff_start_time_pending,
+          no_pending,
+        } = item;
+        const { id, icon } = rewardToken;
+        let price = 0;
+        if (tokenPriceMap[id] && tokenPriceMap[id] != 'N/A') {
+          price = +rewardsPerWeek * +tokenPriceMap[id];
+          totalPrice += price;
+        }
+        let itemHtml = '';
+        if (diff_start_time_pending) {
+          diff_start_time_pending.forEach((farm: FarmInfo) => {
+            itemHtml += `<div class="flex justify-between items-center h-8">
+            <image class="w-5 h-5 rounded-full mr-7" style="filter: grayscale(100%)" src="${icon}"/>
+            <label class="text-xs text-farmText">${formatWithCommas(
+              farm.rewardsPerWeek
+            )}</label>
+          </div>`;
+          });
+        }
+        if (no_pending) {
+          let target = no_pending[0];
+          for (let i = 1; i < no_pending.length; i++) {
+            target.apr = BigNumber.sum(target.apr, no_pending[i].apr).valueOf();
+            target.rewardsPerWeek = BigNumber.sum(
+              target.rewardsPerWeek,
+              no_pending[i].rewardsPerWeek
+            ).valueOf();
+            target.userUnclaimedReward = BigNumber.sum(
+              target.userUnclaimedReward,
+              no_pending[i].userUnclaimedReward
+            ).valueOf();
+          }
+          itemHtml += `<div class="flex justify-between items-center h-8">
                           <image class="w-5 h-5 rounded-full mr-7" src="${icon}"/>
                           <label class="text-xs text-navHighLightText">${formatWithCommas(
-                            rewardsPerWeek
+                            target.rewardsPerWeek
                           )}</label>
                         </div>`;
-      result += itemHtml;
-    });
+        }
+
+        result += itemHtml;
+      }
+    );
     setRewardsPerWeek({
       tip: result,
       totalPrice: `${
@@ -1240,18 +1365,54 @@ function FarmView({
   }
   function getAprList() {
     let result: string = '';
-    mergeCommonRewardFarms.forEach((item: FarmInfo) => {
-      const { rewardToken, apr } = item;
-      const itemHtml = `<div class="flex justify-between items-center h-8">
-                          <image class="w-5 h-5 rounded-full mr-7" src="${
-                            rewardToken.icon
-                          }"/>
-                          <label class="text-xs text-navHighLightText">${
-                            formatWithCommas(apr) + '%'
-                          }</label>
-                        </div>`;
-      result += itemHtml;
-    });
+    mergeCommonRewardFarms.forEach(
+      (
+        item: FarmInfo & { diff_start_time_pending: any[]; no_pending: any[] }
+      ) => {
+        const { rewardToken, diff_start_time_pending, no_pending } = item;
+        const txt = intl.formatMessage({ id: 'start' });
+        let itemHtml = '';
+        if (diff_start_time_pending) {
+          diff_start_time_pending.forEach((farm: FarmInfo) => {
+            const startTime = moment.unix(farm.start_at).format('YYYY-MM-DD');
+            itemHtml += `<div class="flex justify-between items-center h-8 my-1">
+                      <image class="w-5 h-5 rounded-full mr-7" style="filter: grayscale(100%)"src="${
+                        rewardToken.icon
+                      }"/>
+                      <div class="flex flex-col items-end">
+                        <label class="text-xs text-farmText">${
+                          formatWithCommas(farm.apr) + '%'
+                        }</label>
+                        <label class="text-xs text-farmText">${txt}: ${startTime}</label>
+                      </div>
+                    </div>`;
+          });
+        }
+        if (no_pending) {
+          let target = no_pending[0];
+          for (let i = 1; i < no_pending.length; i++) {
+            target.apr = BigNumber.sum(target.apr, no_pending[i].apr).valueOf();
+            target.rewardsPerWeek = BigNumber.sum(
+              target.rewardsPerWeek,
+              no_pending[i].rewardsPerWeek
+            ).valueOf();
+            target.userUnclaimedReward = BigNumber.sum(
+              target.userUnclaimedReward,
+              no_pending[i].userUnclaimedReward
+            ).valueOf();
+          }
+          itemHtml += `<div class="flex justify-between items-center h-8">
+                      <image class="w-5 h-5 rounded-full mr-7" src="${
+                        rewardToken.icon
+                      }"/>
+                        <label class="text-xs text-navHighLightText">${
+                          formatWithCommas(target.apr) + '%'
+                        }</label>
+                    </div>`;
+        }
+        result += itemHtml;
+      }
+    );
     return result;
   }
   function getClaimId() {
@@ -1322,7 +1483,7 @@ function FarmView({
 
     return { tip: result, percentage };
   }
-  if (!tokens || tokens.length < 2 || farmsIsLoading) return <Loading />;
+  if (!tokens || tokens.length < 2 || farmsIsLoading) return null;
   const yourShare = calculateNumByShare(farmData, tokens);
   tokens.sort((a, b) => {
     if (a.symbol === 'wNEAR') return 1;
@@ -1364,6 +1525,11 @@ function FarmView({
   }
   function showCalcModel() {
     setCalcVisible(true);
+  }
+  function tipOfApr() {
+    const tip = intl.formatMessage({ id: 'aprTip' });
+    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    return result;
   }
   return (
     <Card
@@ -1455,7 +1621,17 @@ function FarmView({
                 defaultMessage="Total staked"
               />
             </div>
-            <div className="text-xl text-white">{`${
+            <div
+              className="text-xl text-white"
+              title={
+                data.totalStaked === 0
+                  ? '-'
+                  : toPrecision(
+                      scientificNotationToString(data.totalStaked.toString()),
+                      0
+                    )
+              }
+            >{`${
               data.totalStaked === 0
                 ? '-'
                 : `$${toInternationalCurrencySystem(
@@ -1471,7 +1647,7 @@ function FarmView({
                 <Calc></Calc>
               </div>
             </div>
-            <div>
+            <div className="flex items-center">
               <div
                 className="text-xl text-white"
                 data-type="info"
@@ -1485,6 +1661,26 @@ function FarmView({
                 {`${getTotalApr() === '0' ? '-' : `${getTotalApr()}%`}`}
                 <ReactTooltip
                   id={'aprId' + data.farm_id}
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
+              </div>
+              <div
+                className="ml-2 text-sm"
+                data-type="info"
+                data-place="right"
+                data-multiline={true}
+                data-class="reactTip"
+                data-html={true}
+                data-tip={tipOfApr()}
+                data-for="aprValueId"
+              >
+                <QuestionMark />
+                <ReactTooltip
+                  className="w-20"
+                  id="aprValueId"
                   backgroundColor="#1D2932"
                   border
                   borderColor="#7e8a93"
@@ -1632,7 +1828,7 @@ function FarmView({
           </div>
         </div>
         <div className="absolute inset-x-6 bottom-12">
-          {wallet.isSignedIn() ? (
+          {isSignedIn ? (
             <div className="flex gap-2 justify-center mt-4">
               {data.userStaked !== '0' ? (
                 <BorderButton
@@ -1647,7 +1843,9 @@ function FarmView({
               ) : null}
               {ended ? null : data.userStaked !== '0' ? (
                 <BorderButton
-                  onClick={() => showStakeModal()}
+                  onClick={() => {
+                    showStakeModal();
+                  }}
                   rounded="rounded-md"
                   px="px-0"
                   py="py-1"

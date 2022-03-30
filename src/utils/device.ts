@@ -20,3 +20,28 @@ export const useMobile = () => {
 
   return mobileWindow;
 };
+
+export enum ExplorerType {
+  Chrome = 'Chrome',
+  Firefox = 'Firefox',
+  Opera = 'Opera',
+  Safari = 'Safari',
+}
+
+export const getExplorer = () => {
+  const explorer = window.navigator.userAgent;
+  if (explorer.indexOf('MSIE') >= 0) {
+    return 'ie';
+  } else if (explorer.indexOf('Firefox') >= 0) {
+    return ExplorerType.Firefox;
+  } else if (explorer.indexOf('Chrome') >= 0) {
+    return ExplorerType.Chrome;
+  } else if (explorer.indexOf('Opera') >= 0) {
+    return ExplorerType.Opera;
+  } else if (explorer.indexOf('Safari') >= 0) {
+    return ExplorerType.Safari;
+  }
+};
+
+export const isMobileExplorer = () =>
+  /Mobi|Android|iPhone/i.test(window.navigator.userAgent);

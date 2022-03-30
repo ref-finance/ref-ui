@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Alert from '../alert/Alert';
 import SubmitButton from './SubmitButton';
 import { FormattedMessage } from 'react-intl';
 import SlippageSelector from './SlippageSelector';
-import { SwapRefresh, CountdownTimer } from '~components/icon';
+import { SwapRefresh, CountdownTimer } from '../../components/icon';
 import { wallet } from '~services/near';
+import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 
 interface SwapFormWrapProps {
   title?: string;
@@ -28,6 +29,8 @@ interface SwapFormWrapProps {
     setShowSwapLoading: (swapLoading: boolean) => void;
   };
   useNearBalance: string;
+  supportLedger?: boolean;
+  setSupportLedger?: (e?: any) => void;
 }
 
 export default function SwapFormWrap({
@@ -44,6 +47,8 @@ export default function SwapFormWrap({
   bindUseBalance,
   loading,
   useNearBalance,
+  supportLedger,
+  setSupportLedger,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
   const {
@@ -62,11 +67,14 @@ export default function SwapFormWrap({
     !loadingTrigger && setShowSwapLoading(false);
   }, [loadingTrigger]);
 
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
 
-    if (wallet.isSignedIn()) {
+    if (isSignedIn) {
       try {
         setShowSwapLoading(true);
         setLoadingPause(true);
@@ -84,11 +92,14 @@ export default function SwapFormWrap({
     >
       {title && (
         <>
-          <h2 className="formTitle flex justify-between font-bold text-xl text-white text-left pb-2">
+          <h2 className="formTitle flex justify-between font-bold text-xl text-white text-left pb-4">
             <FormattedMessage id={title} defaultMessage={title} />
             <div className="flex items-center">
               <div
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+
                   if (loadingPause) {
                     setLoadingPause(false);
                     setLoadingTrigger(true);
@@ -111,6 +122,9 @@ export default function SwapFormWrap({
                 onChange={onChange}
                 bindUseBalance={bindUseBalance}
                 useNearBalance={useNearBalance}
+                normalSwap
+                supportLedger={supportLedger}
+                setSupportLedger={setSupportLedger}
               />
             </div>
           </h2>
@@ -122,7 +136,7 @@ export default function SwapFormWrap({
         elseView
       ) : (
         <SubmitButton
-          disabled={!canSubmit && !loadingTrigger}
+          disabled={!canSubmit || loadingTrigger}
           text={buttonText || title}
           info={info}
           loading={showSwapLoading}
