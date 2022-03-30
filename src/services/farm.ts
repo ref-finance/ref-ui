@@ -529,3 +529,7 @@ export const defaultConfig = {
   '2734': '4',
   '974': '4',
 };
+
+export const frontConfig = {
+  '79': '98',
+};

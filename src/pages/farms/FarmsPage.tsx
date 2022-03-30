@@ -41,6 +41,7 @@ import {
   classificationOfCoins_key,
   incentiveLpTokenConfig,
   defaultConfig,
+  frontConfig,
 } from '~services/farm';
 import {
   stake,
@@ -407,9 +408,15 @@ export function FarmsPage() {
       }
       item.multiple = incentiveLpTokenConfig[id] || '0';
       item.default = defaultConfig[id] || '0';
+      if (frontConfig[id]) {
+        item.front = frontConfig[id];
+      }
     });
     if (sort == 'new') {
       listAll.sort((item1: any, item2: any) => {
+        if (item1.front || item2.front) {
+          return Number(item2.front || 0) - Number(item1.front || 0);
+        }
         const item1List = JSON.parse(JSON.stringify(item1));
         const item2List = JSON.parse(JSON.stringify(item2));
         item1List.sort((a: any, b: any) => {
@@ -428,18 +435,30 @@ export function FarmsPage() {
     }
     if (sort == 'apr') {
       listAll.sort((item1: any, item2: any) => {
+        if (item1.front || item2.front) {
+          return Number(item2.front || 0) - Number(item1.front || 0);
+        }
         return Number(item2.totalApr) - Number(item1.totalApr);
       });
     } else if (sort == 'total_staked') {
       listAll.sort((item1: any, item2: any) => {
+        if (item1.front || item2.front) {
+          return Number(item2.front || 0) - Number(item1.front || 0);
+        }
         return Number(item2[0].totalStaked) - Number(item1[0].totalStaked);
       });
     } else if (sort == 'multiple') {
       listAll.sort((item1: any, item2: any) => {
+        if (item1.front || item2.front) {
+          return Number(item2.front || 0) - Number(item1.front || 0);
+        }
         return Number(item2.multiple) - Number(item1.multiple);
       });
     } else if (sort == 'default') {
       listAll.sort((item1: any, item2: any) => {
+        if (item1.front || item2.front) {
+          return Number(item2.front || 0) - Number(item1.front || 0);
+        }
         return Number(item2.default) - Number(item1.default);
       });
     }
