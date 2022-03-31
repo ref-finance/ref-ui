@@ -483,5 +483,10 @@ const uk_UA = {
   default: 'За замовчуванням',
   vi_go_live: 'Доступна В&apos;єтнамська мова!',
   create: 'створювати',
+  support_ledger: 'Support Ledger',
+  support_ledger_tip:
+      "By design, Ledger cannot handle<br /> large transactions (i.e. Auto Router: <br />trade across multiple pools at once)<br /> because of its memory limitation.<br /> When activated, the 'Support Ledger' <br />option will limit transactions to their <br />simplest form (to the detriment of <br />potential optimal prices found <br />by our Auto Router), so transactions <br />of a reasonable size can be signed.",
+  start: 'Початок',
+  aprTip: 'Indicative value based on all rewards (pending and running)',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);
