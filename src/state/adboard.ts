@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import metadata from '~utils/metadata';
 import { AdboardState, getAdboardState } from '../services/adboard';
 import { wallet } from '../services/near';
+import { getCurrentWallet } from '~utils/sender-wallet';
 
 export const useAdboardState = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -14,11 +15,11 @@ export const useAdboardState = () => {
   }, []);
 
   const ownedFrames = adboardState?.metadata.filter(
-    (metadata) => metadata.owner === wallet.getAccountId()
+    (metadata) => metadata.owner === getCurrentWallet().wallet.getAccountId()
   );
 
   const isOwnFrame = (owner: string) => {
-    return owner === wallet.getAccountId();
+    return owner === getCurrentWallet().wallet.getAccountId();
   };
 
   return {

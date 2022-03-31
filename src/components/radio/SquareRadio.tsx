@@ -5,12 +5,14 @@ import { REF_STABLE_SWAP_TAB_KEY } from '~pages/stable/StableSwapPage';
 export default function SquareRadio({
   radios,
   onChange,
+  currentChoose,
 }: {
   radios: string[];
   onChange: (chooseModule: string) => void;
+  currentChoose: string;
 }) {
   const [choose, setChoose] = useState(
-    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) || radios[0]
+    currentChoose || localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) || radios[0]
   );
   const intl = useIntl();
   return (
@@ -19,7 +21,7 @@ export default function SquareRadio({
         {radios.map((radio) => {
           return (
             <div
-              className={`py-1.5 px-3 text-center text-xs rounded cursor-pointer ${
+              className={`flex items-center py-1.5 px-3 text-center text-xs rounded cursor-pointer ${
                 choose === radio
                   ? ' bg-stableTab text-white '
                   : ' text-primaryText'

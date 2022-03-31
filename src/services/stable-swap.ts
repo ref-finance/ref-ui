@@ -1,3 +1,4 @@
+import Big from 'big.js';
 import {
   divide,
   multiply,
@@ -39,9 +40,10 @@ import moment from 'moment';
 import BigNumber from 'bignumber.js';
 import _ from 'lodash';
 import { PoolMode } from './swap';
+import { getCurrentWallet } from '../utils/sender-wallet';
 const FEE_DIVISOR = 10000;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
-const STABLE_POOL_KEY = 'STABLE_POOL_VALUE';
+const STABLE_POOL_KEY = `STABLE_POOL_VALUE_${getConfig().STABLE_POOL_ID}`;
 const REF_FI_STABLE_Pool_INFO_KEY = 'REF_FI_STABLE_Pool_INFO_VALUE';
 const STABLE_POOL_RES_KEY = 'STABLE_POOL_RES_KEY';
 
@@ -57,14 +59,58 @@ interface EstimateSwapOptions {
   setCanSwap?: (can: boolean) => void;
 }
 
+// export interface EstimateSwapView {
+//   estimate: string;
+//   pool: Pool;
+//   intl?: any;
+//   dy?: string;
+//   token?: TokenMetadata;
+//   status?: PoolMode;
+// }
+
+export interface ReservesMap {
+  [index: string]: string;
+}
+
+export interface RoutePool {
+  amounts: string[];
+  fee: number;
+  id: number;
+  reserves: ReservesMap;
+  shares: string;
+  token0_ref_price: string;
+  token1Id: string;
+  token1Supply: string;
+  token2Id: string;
+  token2Supply: string;
+  updateTime: number;
+  partialAmountIn?: string | number | Big;
+  gamma_bps?: Big;
+  supplies?: ReservesMap;
+  tokenIds?: string[];
+  x?: string;
+  y?: string;
+}
+
 export interface EstimateSwapView {
   estimate: string;
   pool: Pool;
   intl?: any;
   dy?: string;
-  token?: TokenMetadata;
   status?: PoolMode;
+  token?: TokenMetadata;
+  noFeeAmountOut?: string;
+  inputToken?: string;
+  outputToken?: string;
+  nodeRoute?: string[];
+  tokens?: TokenMetadata[];
+  routeInputToken?: string;
+  route?: RoutePool[];
+  allRoutes?: RoutePool[][];
+  allNodeRoutes?: string[][];
+  totalInputAmount?: string;
 }
+
 export const estimateSwap = async ({
   tokenIn,
   tokenOut,
@@ -192,6 +238,24 @@ export const instantSwap = async ({
   amountIn,
   minAmountOut,
 }: SwapOptions) => {
+  const transactions = await instantSwapGetTransactions({
+    pool,
+    tokenIn,
+    tokenOut,
+    amountIn,
+    minAmountOut,
+  });
+
+  return executeMultipleTransactions(transactions);
+};
+
+export const instantSwapGetTransactions = async ({
+  pool,
+  tokenIn,
+  tokenOut,
+  amountIn,
+  minAmountOut,
+}: SwapOptions) => {
   const swapAction = {
     pool_id: pool?.id,
     token_in: tokenIn?.id,
@@ -206,20 +270,21 @@ export const instantSwap = async ({
   const tokenInActions: RefFiFunctionCallOptions[] = [];
   const tokenOutActions: RefFiFunctionCallOptions[] = [];
 
+  const { wallet, wallet_type } = getCurrentWallet();
+
   if (wallet.isSignedIn()) {
-    const tokenOutRegistered = await ftGetStorageBalance(
-      tokenOut.id,
-      wallet.getAccountId()
-    ).catch(() => {
-      throw new Error(`${tokenOut.id} doesn't exist.`);
-    });
+    const tokenOutRegistered = await ftGetStorageBalance(tokenOut.id).catch(
+      () => {
+        throw new Error(`${tokenOut.id} doesn't exist.`);
+      }
+    );
 
     if (!tokenOutRegistered || tokenOutRegistered.total === '0') {
       tokenOutActions.push({
         methodName: 'storage_deposit',
         args: {
           registration_only: true,
-          account_id: wallet.getAccountId(),
+          account_id: getCurrentWallet().wallet.getAccountId(),
         },
         gas: '30000000000000',
         amount: STORAGE_TO_REGISTER_WITH_MFT,
@@ -249,8 +314,7 @@ export const instantSwap = async ({
       receiverId: tokenIn.id,
       functionCalls: tokenInActions,
     });
-
-    return executeMultipleTransactions(transactions);
+    return transactions;
   }
 };
 
@@ -299,7 +363,7 @@ export const depositSwap = async ({
 export const checkTransaction = (txHash: string) => {
   return (near.connection.provider as JsonRpcProvider).sendJsonRpc(
     'EXPERIMENTAL_tx_status',
-    [txHash, wallet.getAccountId()]
+    [txHash, getCurrentWallet().wallet.getAccountId()]
   );
 };
 

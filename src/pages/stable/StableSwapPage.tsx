@@ -16,21 +16,30 @@ import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import getConfig from '~services/config';
 import { StableSwapLogo } from '~components/icon/StableSwap';
 import { useWalletTokenBalances } from '../../state/token';
+import { useLocation } from 'react-router-dom';
 const DEFAULT_ACTIONS = ['stable_swap', 'add_liquidity', 'remove_liquidity'];
 const STABLE_TOKENS = ['USDT', 'USDC', 'DAI'];
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
 export const REF_STABLE_SWAP_TAB_KEY = 'REF_STABLE_SWAP_TAB_VALUE';
 
+interface LocationTypes {
+  stableTab?: string;
+}
+
 function StableSwapPage() {
   const { pool, shares, stakeList } = usePool(STABLE_POOL_ID);
+  const { state } = useLocation<LocationTypes>();
+
   const [actionName, setAction] = useState<string>(
-    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) || DEFAULT_ACTIONS[0]
+    state?.stableTab ||
+      localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) ||
+      DEFAULT_ACTIONS[0]
   );
+
   const [loadingTrigger, setLoadingTrigger] = useState<boolean>(false);
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
 
   const allTokens = useWhitelistStableTokens();
-  // const balances = useTokenBalances();
   const tokens =
     allTokens &&
     allTokens.length > 0 &&
@@ -56,7 +65,6 @@ function StableSwapPage() {
     !pool ||
     !shares ||
     !stablePool ||
-    // !Object.entries(balances).length ||
     !Object.entries(nearBalances).length
   )
     return <Loading />;
@@ -108,7 +116,11 @@ function StableSwapPage() {
       <div className="flex justify-center -mt-10 mb-2 lg:hidden">
         <StableSwapLogo width="100" height="76"></StableSwapLogo>
       </div>
-      <SquareRadio onChange={changeAction} radios={DEFAULT_ACTIONS} />
+      <SquareRadio
+        onChange={changeAction}
+        radios={DEFAULT_ACTIONS}
+        currentChoose={actionName}
+      />
       {renderModule(actionName)}
       {
         <TokenReserves

@@ -1,10 +1,16 @@
-import React, { useState, useEffect, useRef, FormEventHandler } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  FormEventHandler,
+  useContext,
+} from 'react';
 import { IoClose } from 'react-icons/io5';
 import { FormattedMessage, useIntl } from 'react-intl';
 import Modal from 'react-modal';
 import { WrapNearEnter } from '~components/icon/Near';
-import Alert from '~components/alert/Alert';
-import { ftGetBalance, TokenMetadata } from '~services/ft-contract';
+import Alert from '../../components/alert/Alert';
+import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
 import { wallet } from '~services/near';
 import {
   nearMetadata,
@@ -12,11 +18,12 @@ import {
   nearWithdraw,
   wnearMetadata,
   WRAP_NEAR_CONTRACT_ID,
-} from '~services/wrap-near';
-import { useDepositableBalance, useToken } from '~state/token';
-import { ONLY_ZEROS, toReadableNumber } from '~utils/numbers';
+} from '../../services/wrap-near';
+import { useDepositableBalance, useToken } from '../../state/token';
+import { ONLY_ZEROS, toReadableNumber } from '../../utils/numbers';
 import SubmitButton from './SubmitButton';
 import TokenAmount from './TokenAmount';
+import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { SwapExchange } from '../icon/Arrows';
 
 function WrapNear(props: ReactModal.Props) {
@@ -34,12 +41,15 @@ function WrapNear(props: ReactModal.Props) {
 
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
   useEffect(() => {
     if (tokenIn && tokenIn.id !== 'NEAR') {
       const tokenInId = tokenIn.id;
       if (tokenInId) {
-        if (wallet.isSignedIn() && wallet.getAccountId()) {
-          ftGetBalance(tokenInId).then((available) =>
+        if (isSignedIn) {
+          ftGetBalance(tokenInId).then((available: string) =>
             setTokenInBalanceFromNear(
               toReadableNumber(tokenIn?.decimals, available)
             )
@@ -50,8 +60,8 @@ function WrapNear(props: ReactModal.Props) {
     if (tokenOut && tokenOut.id !== 'NEAR') {
       const tokenOutId = tokenOut.id;
       if (tokenOutId) {
-        if (wallet.isSignedIn()) {
-          ftGetBalance(tokenOutId).then((available) =>
+        if (isSignedIn) {
+          ftGetBalance(tokenOutId).then((available: string) =>
             setTokenOutBalanceFromNear(
               toReadableNumber(tokenOut?.decimals, available)
             )
@@ -59,7 +69,7 @@ function WrapNear(props: ReactModal.Props) {
         }
       }
     }
-  }, [tokenIn, tokenOut]);
+  }, [tokenIn, tokenOut, isSignedIn]);
 
   useEffect(() => {
     if (tokenInAmount && tokenInAmount !== '0') {

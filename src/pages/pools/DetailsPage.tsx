@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
@@ -97,8 +97,12 @@ import moment from 'moment';
 import { ChartNoData } from '~components/icon/ChartNoData';
 import { WarnTriangle } from '~components/icon/SwapRefresh';
 import { RefIcon } from '~components/icon/Common';
+import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+
 import { useWalletTokenBalances } from '../../state/token';
 import { SmallWallet } from '../../components/icon/SmallWallet';
+import { scientificNotationToString } from '../../utils/numbers';
+import { POOLS_BLACK_LIST } from '../../services/near';
 interface ParamTypes {
   id: string;
 }
@@ -189,6 +193,11 @@ export function AddLiquidityModal(
   const [preShare, setPreShare] = useState(null);
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  const { wallet } = getCurrentWallet();
 
   if (!balances) return null;
 
@@ -410,7 +419,7 @@ export function AddLiquidityModal(
   const cardWidth = isMobile() ? '95vw' : '40vw';
 
   const ButtonRender = () => {
-    if (!wallet.isSignedIn()) {
+    if (!isSignedIn) {
       return <ConnectToNearBtn />;
     }
 
@@ -605,7 +614,7 @@ export function AddLiquidityModal(
             max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
             onChangeAmount={changeFirstTokenAmount}
             value={firstTokenAmount}
-            disabled={!wallet.isSignedIn()}
+            disabled={!isSignedIn}
           />
         </div>
         <div className="my-8 lg:hidden">
@@ -717,6 +726,11 @@ export function RemoveLiquidityModal(
   const [error, setError] = useState<Error>();
   const cardWidth = isMobile() ? '95vw' : '40vw';
   const intl = useIntl();
+
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  const { wallet } = getCurrentWallet();
 
   function submit() {
     const amountBN = new BigNumber(amount?.toString());
@@ -850,7 +864,7 @@ export function RemoveLiquidityModal(
           {error && <Alert level="warn" message={error.message} />}
         </div>
         <div className="">
-          {wallet.isSignedIn() ? (
+          {isSignedIn ? (
             <SolidButton
               disabled={!canSubmit}
               className={`focus:outline-none px-4 w-full`}
@@ -1279,6 +1293,8 @@ export function PoolDetailsPage() {
   const dayVolume = useDayVolume(id);
   const tokens = useTokens(pool?.tokenIds);
 
+  const history = useHistory();
+
   const monthVolume = useMonthVolume(id);
   const monthTVL = useMonthTVL(id);
   const [showFunding, setShowFunding] = useState(false);
@@ -1291,9 +1307,13 @@ export function PoolDetailsPage() {
   const morePoolIds: string[] =
     JSON.parse(localStorage.getItem('morePoolIds')) || [];
   const [farmCount, setFarmCount] = useState<Number>(1);
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
+
+  const { wallet } = getCurrentWallet();
 
   const handleSaveWatchList = () => {
-    if (!wallet.isSignedIn()) {
+    if (!isSignedIn) {
       wallet.requestSignIn(REF_FARM_CONTRACT_ID);
     } else {
       addPoolToWatchList({ pool_id: id }).then(() => {
@@ -1332,12 +1352,10 @@ export function PoolDetailsPage() {
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
   if (isStablePool(pool)) {
-    history.push('/');
+    history.push('/stableswap', { stableTab: 'stable_swap' });
   }
 
-  if (isStablePool(pool)) {
-    history.push('/');
-  }
+  if (POOLS_BLACK_LIST.includes(pool.id)) history.push('/');
 
   return (
     <div>
@@ -1506,7 +1524,13 @@ export function PoolDetailsPage() {
                 <div>
                   <FormattedMessage id="tvl" defaultMessage="TVL" />
                 </div>
-                <div className="text-base text-white">
+                <div
+                  className="text-base text-white"
+                  title={toPrecision(
+                    scientificNotationToString(poolTVL?.toString() || '0'),
+                    0
+                  )}
+                >
                   {' '}
                   ${toInternationalCurrencySystem(poolTVL?.toString())}
                 </div>

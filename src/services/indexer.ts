@@ -1,11 +1,13 @@
 import getConfig from './config';
-import { wallet } from './near';
+import { wallet, filterBlackListPools, POOLS_BLACK_LIST } from './near';
 import _ from 'lodash';
-import { parsePoolView, PoolRPCView } from './api';
+import { parsePoolView, PoolRPCView, getCurrentUnixTime } from './api';
 import moment from 'moment/moment';
 import { parseAction } from '../services/transaction';
 import { volumeType, TVLType } from '~state/pool';
 import db from '../store/RefDatabase';
+import { getCurrentWallet } from '../utils/sender-wallet';
+import { getPoolsByTokens } from './pool';
 const config = getConfig();
 
 export const getPoolMonthVolume = async (
@@ -56,7 +58,9 @@ const parseActionView = async (action: any) => {
 
 export const getYourPools = async (): Promise<PoolRPCView[]> => {
   return await fetch(
-    config.indexerUrl + '/liquidity-pools/' + wallet.getAccountId(),
+    config.indexerUrl +
+      '/liquidity-pools/' +
+      getCurrentWallet().wallet.getAccountId(),
     {
       method: 'GET',
       headers: { 'Content-type': 'application/json; charset=UTF-8' },
@@ -79,14 +83,36 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
         method: 'GET',
         headers: { 'Content-type': 'application/json; charset=UTF-8' },
       }).then((res) => res.json());
+
+      const blackListPools = await getPool(POOLS_BLACK_LIST[0].toString());
+
+      const blacklistTokenIn = blackListPools.token_account_ids[0];
+
+      const blacklistTokenOut = blackListPools.token_account_ids[1];
+
+      const twoTokenStablePoolIds = (
+        await db.getPoolsByTokens(blacklistTokenIn, blacklistTokenOut)
+      ).map((p) => p.id.toString());
+
+      const twoTokenStablePools = await getPoolsByIds({
+        pool_ids: twoTokenStablePoolIds,
+      });
+
+      if (twoTokenStablePools?.length > 0) {
+        pools.push(_.maxBy(twoTokenStablePools, (p) => p.tvl));
+      }
+
       await db.cacheTopPools(pools);
     }
 
     pools = pools.map((pool: any) => parsePoolView(pool));
-    return pools.filter((pool: { token_account_ids: string | any[] }) => {
-      return pool.token_account_ids.length < 3;
-    });
+    return pools
+      .filter((pool: { token_account_ids: string | any[] }) => {
+        return pool.token_account_ids.length < 3;
+      })
+      .filter(filterBlackListPools);
   } catch (error) {
+    console.log(error);
     return [];
   }
 };
@@ -170,7 +196,9 @@ type Awaited<T> = T extends Promise<infer P> ? P : never;
 
 export const getLatestActions = async (): Promise<Array<ActionData>> => {
   return await fetch(
-    config.indexerUrl + '/latest-actions/' + wallet.getAccountId(),
+    config.indexerUrl +
+      '/latest-actions/' +
+      getCurrentWallet().wallet.getAccountId(),
     {
       method: 'GET',
       headers: { 'Content-type': 'application/json; charset=UTF-8' },

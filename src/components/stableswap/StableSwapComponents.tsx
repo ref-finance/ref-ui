@@ -11,7 +11,11 @@ import {
   FaExchangeAlt,
   FaServicestack,
 } from 'react-icons/fa';
-import { SwapDetail, SwapRateDetail } from '~components/swap/SwapCard';
+import {
+  PriceImpactWarning,
+  SwapDetail,
+  SwapRateDetail,
+} from '~components/swap/SwapCard';
 import { toRealSymbol } from '~utils/token';
 import { WarnTriangle, ErrorTriangle } from '~components/icon/SwapRefresh';
 import { StableSwapExchangePC, SwapExchange } from '../icon/Arrows';
@@ -260,6 +264,7 @@ export function DetailView({
   minAmountOut,
   canSwap,
   noFeeAmount,
+  priceImpactValue,
 }: {
   pool: Pool;
   tokenIn: TokenMetadata;
@@ -269,14 +274,10 @@ export function DetailView({
   minAmountOut?: string;
   canSwap?: boolean;
   noFeeAmount?: string;
+  priceImpactValue?: string;
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
-
-  const priceImpactValue = useMemo(() => {
-    if (!from || !noFeeAmount) return '0';
-    return calcStableSwapPriceImpact(from, noFeeAmount);
-  }, [noFeeAmount]);
 
   useEffect(() => {
     if (Number(priceImpactValue) > 1) {
@@ -333,6 +334,11 @@ export function DetailView({
           tokenIn={tokenIn}
           tokenOut={tokenOut}
         />
+        {Number(priceImpactValue) > 2 && (
+          <div className="py-1 text-xs text-right">
+            <PriceImpactWarning value={priceImpactValue} />
+          </div>
+        )}
         <SwapDetail
           title={intl.formatMessage({
             id: 'price_impact',

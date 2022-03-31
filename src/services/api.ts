@@ -3,6 +3,7 @@ import { wallet, refFiViewFunction } from './near';
 import { toPrecision } from '../utils/numbers';
 import { BigNumber } from 'bignumber.js';
 import moment from 'moment';
+import { getCurrentWallet } from '../utils/sender-wallet';
 
 const config = getConfig();
 
@@ -30,7 +31,7 @@ export const parsePoolView = (pool: any): PoolRPCView => ({
   amounts: pool.amounts,
   total_fee: pool.total_fee,
   shares_total_supply: pool.shares_total_supply,
-  tvl: Number(toPrecision(pool?.tvl || '0', 2)),
+  tvl: Number(toPrecision(pool?.tvl.toString() || '0', 2)),
   token0_ref_price: pool.token0_ref_price,
   share: pool.share,
 });
@@ -38,7 +39,10 @@ export const parsePoolView = (pool: any): PoolRPCView => ({
 export const getPoolBalance = async (pool_id: number) => {
   return refFiViewFunction({
     methodName: 'get_pool_shares',
-    args: { pool_id: pool_id, account_id: wallet.getAccountId() },
+    args: {
+      pool_id: pool_id,
+      account_id: getCurrentWallet().wallet.getAccountId(),
+    },
   }).then((balance) => {
     return new BigNumber(balance.toString()).toFixed();
   });
@@ -68,7 +72,10 @@ export const getPools = async (counter: number) => {
 
 export const getUserWalletTokens = async (): Promise<any> => {
   return await fetch(
-    config.helperUrl + '/account/' + wallet.getAccountId() + '/likelyTokens',
+    config.helperUrl +
+      '/account/' +
+      getCurrentWallet().wallet.getAccountId() +
+      '/likelyTokens',
     {
       method: 'GET',
       headers: { 'Content-type': 'application/json; charset=UTF-8' },

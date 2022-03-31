@@ -53,7 +53,7 @@ function Footer() {
               className="mt-5 ml-5 cursor-pointer"
               onMouseOver={() => setHoverLogo(true)}
               onMouseLeave={() => setHoverLogo(false)}
-              onClick={() => window.open('https://sodaki.com/')}
+              onClick={() => window.open('https://stats.ref.finance/')}
             >
               {!hoverLogo && <RefAnalyticsGary />}
               {hoverLogo && <RefAnalytics />}

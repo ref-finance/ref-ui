@@ -373,7 +373,7 @@ const vi = {
   swap_rate_including_fee: 'Tỷ lệ giao dịch (bao gồm phí)',
   by_share: 'Tính theo Share',
   by_token: 'Tính theo Token',
-  your_liquidity_positions_will_appear_here:
+  your_positions_will_be_displayed_here:
     'Số thanh khoản của bạn sẽ xuất hiện ở đây .',
   price_impact: 'Tác động giá',
   shares_left: 'Shares left',
@@ -441,7 +441,7 @@ const vi = {
     'Total Fee Revenue Shared with xREF Holders',
   provision_treasury: 'Kho dự phòng',
   protocol_projected_revenue_tip:
-    'Con số này tương ứng với doanh thu phí giao dịch được chia sẻ tích lũy cho người nắm giữ REF. Con số trên bằng 75% tổng doanh thu phí nền tảng. Nó sẽ khác với số tiền mua lại token REF thực tế do biến động giá.', // todo
+    'Con số này tương ứng với doanh thu phí giao dịch được chia sẻ tích lũy cho người nắm giữ REF. Con số trên bằng 75% tổng doanh thu phí nền tảng. Nó sẽ khác với số tiền mua lại token REF thực tế do biến động giá.',
   stake_ref_to_xref_for_earning_more: 'Stake REF, nhận xREF để earn thêm REF!',
   auto_router: 'Router tự động',
   auto_router_detail_sub_1: 'Tuyến này giúp tối ưu giao dịch của bạn bằng',
@@ -454,6 +454,7 @@ const vi = {
   xref_to_receive: 'xREF nhận được',
   ref_to_receive: 'REF nhận được ',
   more_expensive_than_best_rate_en: 'đắt hơn tỉ lệ tốt nhất hiện tại',
+  more_expensive_than_best_rate_zh_cn: '',
   optimal_path_found_by_our_solution: 'Tuyến tối ưu nhất đã được tìm thấy',
   check_to_stable_banner: 'Check',
   rates_to_stable_banner: 'Rates',
@@ -488,5 +489,32 @@ const vi = {
   lightning_swaps: 'Giao dịch tức thời',
   frictionless_add_remove_liquidity: 'Thêm/ Xóa thanh khoản mượt mà hơn',
   create: 'tạo ra',
+  select_a: 'Chọn một',
+  wallet_vi: 'ví',
+  wallet: ' ',
+  to_use_ref_finance: 'để sử dụng Ref.Finance',
+  not_supported: 'không hỗ trợ',
+  installed: 'đã cài đặt',
+  installe_now: 'cài đặt ngay',
+  extension: 'mở rộng',
+  first_time_using_ref: 'Lần đầu sử dụng Ref',
+  learn_more: 'Tìm hiểu ngay',
+  install_sender_now: 'Cài đặt Sender ngay',
+  connect_to_dapps_with_one_click: 'Kết nối tới dApps với một cú click',
+  install: 'Cài đặt',
+  Connecting: 'Đang kết nối',
+  check_sender_wallet_extension: 'Hãy kiểm tra Sender Wallet Extention',
+  having_trouble: 'Gặp lỗi?',
+  go_back: 'Quay lại',
+  web: 'Web',
+  Type: 'Kiểu',
+  click_to_view: 'Nhấn để xem',
+  transaction_failed: 'Giao dịch thất bại',
+  create: 'Tạo',
+  support_ledger: 'ủng hộ Ledger',
+  support_ledger_tip:
+    "Ở bản thiết kế ban đầu, Ledger<br /> không thể thực hiện số lượng lớn<br /> giao dịch cùng lúc(i.e. Auto Router:<br /> trao đổi qua nhiều pool trong một lần) <br />bởi vì sự giới hạn về bộ nhớ. Khi được<br /> kích hoạt, tuỳ chọn 'Support Ledger'<br /> sẽ giới hạn các giao dịch <br />tới sự đơn giản nhất (dù không có được <br />giá thành tốt nhất), nên các giao <br />dịch của có khối lượng hợp lí mới có thể<br /> được thực hiện",
+  start: 'bắt đầu',
+  aprTip: 'Giá trị được tính dựa trên tổng phần thưởng hiện có (chưa/đã nhận)',
 };
 export default Object.assign(vi, vi_in_risks_page);

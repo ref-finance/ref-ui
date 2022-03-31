@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
-import { getPool, Pool, StablePool } from '../services/pool';
+import { getPool, Pool, StablePool, getStablePool } from '../services/pool';
 import BigNumber from 'bignumber.js';
 import {
   estimateSwap as estimateStableSwap,
   EstimateSwapView,
-} from '~services/stable-swap';
+} from '../services/stable-swap';
 
 import { TokenMetadata } from '../services/ft-contract';
 import {
@@ -22,14 +22,28 @@ import {
   swap,
 } from '../services/swap';
 
-import { swap as stableSwap } from '~services/stable-swap';
+import { swap as stableSwap } from '../services/stable-swap';
 
 import { useHistory, useLocation } from 'react-router';
 import getConfig from '~services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { CloseIcon } from '~components/icon/Actions';
 import db from '../store/RefDatabase';
-import { POOL_TOKEN_REFRESH_INTERVAL } from '~services/near';
+import {
+  POOL_TOKEN_REFRESH_INTERVAL,
+  STABLE_TOKEN_IDS,
+  STABLE_POOL_ID,
+} from '../services/near';
+
+import {
+  getExpectedOutputFromActions,
+  getAverageFeeForRoutes,
+  //@ts-ignore
+} from '../services/smartRouteLogic';
+import {
+  getURLInfo,
+  swapToast,
+} from '../components/layout/transactionTipPopUp';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -45,6 +59,7 @@ interface SwapOptions {
   stablePool?: StablePool;
   loadingPause?: boolean;
   setLoadingPause?: (pause: boolean) => void;
+  supportLedger?: boolean;
 }
 
 export const useSwap = ({
@@ -57,6 +72,7 @@ export const useSwap = ({
   loadingTrigger,
   setLoadingTrigger,
   loadingPause,
+  supportLedger,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -65,18 +81,11 @@ export const useSwap = ({
   const [swapsToDo, setSwapsToDo] = useState<EstimateSwapView[]>();
 
   const [avgFee, setAvgFee] = useState<number>(0);
-  const { search } = useLocation();
+
   const history = useHistory();
   const [count, setCount] = useState<number>(0);
-  const txHashes = new URLSearchParams(search)
-    .get('transactionHashes')
-    ?.split(',');
 
-  const txHash = txHashes
-    ? txHashes.length > 1
-      ? txHashes[1]
-      : txHashes[0]
-    : '';
+  const { txHash, pathname, errorType } = getURLInfo();
 
   const minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
@@ -85,21 +94,24 @@ export const useSwap = ({
 
   const intl = useIntl();
 
-  function sumFunction(total: number, num: number) {
-    return total + num;
-  }
-
   const setAverageFee = (estimates: EstimateSwapView[]) => {
-    const medFee = estimates.map((s2d) => {
-      const fee = s2d.pool.fee;
-      const numerator = Number(
-        toReadableNumber(tokenIn.decimals, s2d.pool.partialAmountIn)
-      );
-      const weight = numerator / Number(tokenInAmount);
+    const estimate = estimates[0];
 
-      return fee * weight;
-    });
-    const avgFee = medFee.reduce(sumFunction, 0);
+    let avgFee: number = 0;
+    if (estimates.length === 1) {
+      avgFee = estimates[0].pool.fee;
+    } else if (
+      estimate.status === PoolMode.SMART ||
+      estimate.status === PoolMode.STABLE
+    ) {
+      avgFee = estimates.reduce((pre, cur) => pre + cur.pool.fee, 0);
+    } else {
+      avgFee = getAverageFeeForRoutes(
+        estimate.allRoutes,
+        estimate.allNodeRoutes,
+        estimate.totalInputAmount
+      );
+    }
     setAvgFee(avgFee);
   };
 
@@ -119,35 +131,9 @@ export const useSwap = ({
         })
         .then((isSwap) => {
           if (isSwap) {
-            toast(
-              <a
-                className="text-white"
-                href={`${getConfig().explorerUrl}/transactions/${txHash}`}
-                target="_blank"
-              >
-                <FormattedMessage
-                  id="swap_successful_click_to_view"
-                  defaultMessage="Swap successful. Click to view"
-                />
-              </a>,
-              {
-                autoClose: 8000,
-                closeOnClick: true,
-                hideProgressBar: false,
-                closeButton: <CloseIcon />,
-                progressStyle: {
-                  background: '#00FFD1',
-                  borderRadius: '8px',
-                },
-                style: {
-                  background: '#1D2932',
-                  boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
-                  borderRadius: '8px',
-                },
-              }
-            );
+            !errorType && swapToast(txHash);
           }
-          history.replace('');
+          history.replace(pathname);
         });
     }
   }, [txHash]);
@@ -169,41 +155,23 @@ export const useSwap = ({
         intl,
         setLoadingData,
         loadingTrigger: loadingTrigger && !loadingPause,
+        supportLedger,
       })
         .then((estimates) => {
           if (!estimates) throw '';
 
-          const isParallelSwap = estimates.every(
-            (e) => e.status === PoolMode.PARALLEL
-          );
+          if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
+            setAverageFee(estimates);
 
-          if (isParallelSwap) {
-            if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
-              setCanSwap(true);
-              setAverageFee(estimates);
-              const estimate = estimates.reduce((pre, cur) => {
-                return scientificNotationToString(
-                  BigNumber.sum(pre, cur.estimate).toString()
-                );
-              }, '0');
-              if (!loadingTrigger) {
-                setTokenOutAmount(estimate);
-                setSwapsToDo(estimates);
-              }
-            }
-          } else {
-            if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
-              setCanSwap(true);
-
-              setAvgFee(
-                Number(estimates[0].pool.fee) + Number(estimates[1].pool.fee)
+            if (!loadingTrigger) {
+              setTokenOutAmount(
+                getExpectedOutputFromActions(estimates, tokenOut.id).toString()
               );
-              if (!loadingTrigger) {
-                setTokenOutAmount(estimates[1].estimate);
-                setSwapsToDo(estimates);
-              }
+              setSwapsToDo(estimates);
+              setCanSwap(true);
             }
           }
+
           setPool(estimates[0].pool);
         })
         .catch((err) => {
@@ -225,7 +193,14 @@ export const useSwap = ({
 
   useEffect(() => {
     getEstimate();
-  }, [loadingTrigger, loadingPause, tokenIn, tokenOut, tokenInAmount]);
+  }, [
+    loadingTrigger,
+    loadingPause,
+    tokenIn,
+    tokenOut,
+    tokenInAmount,
+    supportLedger,
+  ]);
 
   useEffect(() => {
     let id: any = null;
@@ -258,12 +233,14 @@ export const useSwap = ({
     tokenOutAmount,
     minAmountOut,
     pool,
+    setCanSwap,
     swapError,
     makeSwap,
     avgFee,
     pools: swapsToDo?.map((estimate) => estimate.pool),
     swapsToDo,
     isParallelSwap: swapsToDo?.every((e) => e.status === PoolMode.PARALLEL),
+    isSmartRouteV2Swap: swapsToDo?.every((e) => e.status !== PoolMode.SMART),
   };
 };
 
@@ -282,17 +259,9 @@ export const useStableSwap = ({
   const [swapError, setSwapError] = useState<Error>();
   const [noFeeAmount, setNoFeeAmount] = useState<string>('');
   const [tokenInAmountMemo, setTokenInAmountMemo] = useState<string>('');
-  const { search } = useLocation();
   const history = useHistory();
-  const txHashes = new URLSearchParams(search)
-    .get('transactionHashes')
-    ?.split(',');
 
-  const txHash = txHashes
-    ? txHashes.length > 1
-      ? txHashes[1]
-      : txHashes[0]
-    : '';
+  const { txHash, pathname, errorType } = getURLInfo();
 
   const minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
@@ -359,35 +328,9 @@ export const useStableSwap = ({
         })
         .then((isSwap) => {
           if (isSwap) {
-            toast(
-              <a
-                className="text-white"
-                href={`${getConfig().explorerUrl}/transactions/${txHash}`}
-                target="_blank"
-              >
-                <FormattedMessage
-                  id="swap_successful_click_to_view"
-                  defaultMessage="Swap successful. Click to view"
-                />
-              </a>,
-              {
-                autoClose: 8000,
-                closeOnClick: true,
-                hideProgressBar: false,
-                closeButton: <CloseIcon />,
-                progressStyle: {
-                  background: '#00FFD1',
-                  borderRadius: '8px',
-                },
-                style: {
-                  background: '#1D2932',
-                  boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
-                  borderRadius: '8px',
-                },
-              }
-            );
+            !errorType && swapToast(txHash);
           }
-          history.replace('/stableswap');
+          history.replace(pathname);
         });
     }
   }, [txHash]);

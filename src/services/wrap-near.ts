@@ -13,6 +13,7 @@ import {
 import { checkTokenNeedsStorageDeposit } from './token';
 import { storageDepositAction } from '../services/creators/storage';
 import { toNonDivisibleNumber, toReadableNumber } from '../utils/numbers';
+import { getCurrentWallet } from '../utils/sender-wallet';
 
 export const { WRAP_NEAR_CONTRACT_ID } = getConfig();
 export const NEW_ACCOUNT_STORAGE_COST = '0.00125';
@@ -78,7 +79,7 @@ export const wrapNear = async (amount: string) => {
         {
           methodName: 'storage_deposit',
           args: {
-            account_id: wallet.getAccountId(),
+            account_id: getCurrentWallet().wallet.getAccountId(),
             registration_only: false,
           },
           gas: '30000000000000',

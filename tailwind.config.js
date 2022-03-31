@@ -90,6 +90,7 @@ module.exports = {
         blueTip: '#0A7AFF',
         darkGreenColor: '#009A2B',
         riskTextColor: '#BEBEBE',
+        senderHot: '#00FFD1',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
@@ -101,8 +102,10 @@ module.exports = {
         '95vw': '95vw',
         '580px': '580px',
         '560px': '560px',
+        '360px': '360px',
         '80vw': '80vw',
         '30vw': '30vw',
+        smartRoute: '292px',
         54: '13.5rem',
         34: '8.5rem',
       },
