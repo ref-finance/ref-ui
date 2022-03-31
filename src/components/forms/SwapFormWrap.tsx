@@ -3,7 +3,7 @@ import Alert from '../alert/Alert';
 import SubmitButton from './SubmitButton';
 import { FormattedMessage } from 'react-intl';
 import SlippageSelector from './SlippageSelector';
-import { SwapRefresh, CountdownTimer } from '~components/icon';
+import { SwapRefresh, CountdownTimer } from '../../components/icon';
 import { wallet } from '~services/near';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 
@@ -29,6 +29,8 @@ interface SwapFormWrapProps {
     setShowSwapLoading: (swapLoading: boolean) => void;
   };
   useNearBalance: string;
+  supportLedger?: boolean;
+  setSupportLedger?: (e?: any) => void;
 }
 
 export default function SwapFormWrap({
@@ -45,6 +47,8 @@ export default function SwapFormWrap({
   bindUseBalance,
   loading,
   useNearBalance,
+  supportLedger,
+  setSupportLedger,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
   const {
@@ -118,6 +122,9 @@ export default function SwapFormWrap({
                 onChange={onChange}
                 bindUseBalance={bindUseBalance}
                 useNearBalance={useNearBalance}
+                normalSwap
+                supportLedger={supportLedger}
+                setSupportLedger={setSupportLedger}
               />
             </div>
           </h2>
@@ -129,7 +136,7 @@ export default function SwapFormWrap({
         elseView
       ) : (
         <SubmitButton
-          disabled={!canSubmit && !loadingTrigger}
+          disabled={!canSubmit || loadingTrigger}
           text={buttonText || title}
           info={info}
           loading={showSwapLoading}

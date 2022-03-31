@@ -35,7 +35,7 @@ import ReactDOMServer from 'react-dom/server';
 import TokenAmount from '../forms/TokenAmount';
 import SubmitButton from '../forms/SubmitButton';
 import Alert from '../alert/Alert';
-import { toRealSymbol } from '~utils/token';
+import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import db from '~store/RefDatabase';
@@ -45,11 +45,11 @@ import {
   OutlineButton,
   SolidButton,
   ConnectToNearBtn,
-} from '~components/button/Button';
-import { STABLE_TOKEN_IDS, wallet } from '~services/near';
+} from '../../components/button/Button';
+import { STABLE_TOKEN_IDS, wallet } from '../../services/near';
 import SwapFormWrap from '../forms/SwapFormWrap';
-import SwapTip from '~components/forms/SwapTip';
-import { WarnTriangle, ErrorTriangle } from '~components/icon/SwapRefresh';
+import SwapTip from '../../components/forms/SwapTip';
+import { WarnTriangle, ErrorTriangle } from '../../components/icon/SwapRefresh';
 import ReactModal from 'react-modal';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
@@ -61,7 +61,7 @@ import {
   OneParallelRoute,
   RouterIcon,
   SmartRouteV2,
-} from '~components/layout/SwapRoutes';
+} from '../../components/layout/SwapRoutes';
 import QuestionMark, {
   QuestionMarkStaticForParaSwap,
 } from '~components/farm/QuestionMark';
@@ -69,15 +69,15 @@ import QuestionMark, {
 import ReactTooltip from 'react-tooltip';
 import * as math from 'mathjs';
 import { HiOutlineExternalLink } from 'react-icons/hi';
-import { EstimateSwapView, PoolMode, swap } from '~services/swap';
-import { QuestionTip } from '~components/layout/TipWrapper';
-import { Guide } from '~components/layout/Guide';
+import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
+import { QuestionTip } from '../../components/layout/TipWrapper';
+import { Guide } from '../../components/layout/Guide';
 import { sortBy } from 'lodash';
 import { getCurrentWallet } from '../../utils/sender-wallet';
 import { senderWallet, WalletContext } from '../../utils/sender-wallet';
 import { SwapArrow, SwapExchange } from '../icon/Arrows';
 import { getPoolAllocationPercents } from '../../utils/numbers';
-import { DoubleCheckModal } from '~components/layout/SwapDoubleCheck';
+import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
@@ -85,6 +85,7 @@ const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
 const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
+export const SUPPORT_LEDGER_KEY = 'REF_FI_SUPPORT_LEDGER';
 
 export function SwapDetail({
   title,
@@ -261,15 +262,9 @@ export function ParallelSwapRoutesDetail({
 
 export function SmartRoutesDetail({
   swapsTodo,
-  tokenIn,
-  tokenOut,
 }: {
   swapsTodo: EstimateSwapView[];
-  tokenIn: TokenMetadata;
-  tokenOut: TokenMetadata;
 }) {
-  const tokenMid = useMemo(() => swapsTodo[1].token, [swapsTodo[1].token.id]);
-
   return (
     <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
       <div className="text-primaryText text-left ">
@@ -283,7 +278,7 @@ export function SmartRoutesDetail({
       <div className="text-right text-white col-span-6 xs:mt-2">
         {
           <SmartRouteV2
-            tokens={[tokenIn, tokenMid, tokenOut]}
+            tokens={swapsTodo[0].tokens}
             p="100"
             pools={swapsTodo.map((swapTodo) => swapTodo.pool)}
           />
@@ -490,11 +485,7 @@ function DetailView({
         )}
 
         {swapsTodo[0].status === PoolMode.SMART && (
-          <SmartRoutesDetail
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-            swapsTodo={swapsTodo}
-          />
+          <SmartRoutesDetail swapsTodo={swapsTodo} />
         )}
         {!isParallelSwap &&
           swapsTodo.every((e) => e.status !== PoolMode.SMART) &&
@@ -510,6 +501,10 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
+
+  const [supportLedger, setSupportLedger] = useState(
+    localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
+  );
 
   const [useNearBalance, setUseNearBalance] = useState<boolean>(true);
 
@@ -597,6 +592,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     avgFee,
     isParallelSwap,
     swapsToDo,
+    setCanSwap,
   } = useSwap({
     tokenIn: tokenIn,
     tokenInAmount,
@@ -607,6 +603,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     setLoadingTrigger,
     loadingData,
     loadingPause,
+    supportLedger,
   });
 
   const priceImpactValueSmartRouting = useMemo(() => {
@@ -678,10 +675,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     else makeSwap(useNearBalance);
   };
 
-  const isError = useMemo(() => {
-    return !canSwap || tokenIn.id === tokenOut.id;
-  }, [tokenOutAmount, tokenIn, tokenOut]);
-
   return (
     <>
       <SwapTip
@@ -693,6 +686,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         tokenOutId={tokenOut?.id}
       />
       <SwapFormWrap
+        supportLedger={supportLedger}
+        setSupportLedger={setSupportLedger}
         useNearBalance={useNearBalance.toString()}
         canSubmit={canSubmit}
         slippageTolerance={slippageTolerance}
@@ -745,6 +740,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
             localStorage.setItem(SWAP_IN_KEY, token.id);
             history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
             setTokenIn(token);
+            setCanSwap(false);
             setTokenInBalanceFromNear(token.near.toString());
           }}
           text={intl.formatMessage({ id: 'from' })}
@@ -753,7 +749,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
             setTokenInAmount(amount);
           }}
           tokenPriceList={tokenPriceList}
-          isError={isError}
+          isError={tokenIn?.id === tokenOut?.id}
         />
         <div
           className="flex items-center justify-center border-t mt-12"
@@ -780,9 +776,10 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
             localStorage.setItem(SWAP_OUT_KEY, token.id);
             history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`);
             setTokenOut(token);
+            setCanSwap(false);
             setTokenOutBalanceFromNear(token.near.toString());
           }}
-          isError={isError}
+          isError={tokenIn?.id === tokenOut?.id}
           tokenPriceList={tokenPriceList}
         />
         <DetailView
