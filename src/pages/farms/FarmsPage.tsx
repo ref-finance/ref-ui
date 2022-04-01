@@ -1079,6 +1079,21 @@ function FarmView({
   function getAllRewardsPerWeek() {
     let result: string = '';
     let totalPrice = 0;
+    // get total price  start
+    const allPendingFarms = isPending(farmData);
+    farmsData.forEach((farm: FarmInfo) => {
+      const { rewardsPerWeek, rewardToken } = farm;
+      const { id } = rewardToken;
+      const pendingFarm =
+        moment.unix(farm.start_at).valueOf() > moment().valueOf();
+      if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
+        if (tokenPriceMap[id] && tokenPriceMap[id] != 'N/A') {
+          const price = +rewardsPerWeek * +tokenPriceMap[id];
+          totalPrice += price;
+        }
+      }
+    });
+    // get total price  end
     mergeCommonRewardFarms.forEach(
       (
         item: FarmInfo & { diff_start_time_pending: any[]; no_pending: any[] }
@@ -1090,11 +1105,11 @@ function FarmView({
           no_pending,
         } = item;
         const { id, icon } = rewardToken;
-        let price = 0;
-        if (tokenPriceMap[id] && tokenPriceMap[id] != 'N/A') {
-          price = +rewardsPerWeek * +tokenPriceMap[id];
-          totalPrice += price;
-        }
+        // let price = 0;
+        // if (tokenPriceMap[id] && tokenPriceMap[id] != 'N/A') {
+        //   price = +rewardsPerWeek * +tokenPriceMap[id];
+        //   totalPrice += price;
+        // }
         let itemHtml = '';
         if (diff_start_time_pending) {
           diff_start_time_pending.forEach((farm: FarmInfo) => {
