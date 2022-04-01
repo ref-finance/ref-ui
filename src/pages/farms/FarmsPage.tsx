@@ -468,14 +468,29 @@ export function FarmsPage() {
   }
   function getTotalApr(farmsData: FarmInfo[]) {
     let apr = 0;
-    if (farmsData.length > 1) {
-      farmsData.forEach(function (item) {
+    const allPendingFarms = isPending(farmsData);
+    farmsData.forEach(function (item) {
+      const pendingFarm =
+        moment.unix(item.start_at).valueOf() > moment().valueOf();
+      if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
         apr += Number(item.apr);
-      });
-    } else {
-      apr = Number(farmsData[0].apr);
-    }
+      }
+    });
     return toPrecision(apr.toString(), 2);
+  }
+  function isPending(farmsData: FarmInfo[]) {
+    let pending: boolean = true;
+    for (let i = 0; i < farmsData.length; i++) {
+      if (moment.unix(farmsData[i].start_at).valueOf() > moment().valueOf()) {
+        pending = true;
+      } else {
+        if (farmsData[i].farm_status != 'Pending') {
+          pending = false;
+          break;
+        }
+      }
+    }
+    return pending;
   }
   function isEnded(farmsData: FarmInfo[]) {
     let ended: boolean = true;
@@ -1354,13 +1369,14 @@ function FarmView({
 
   function getTotalApr() {
     let apr = 0;
-    if (farmsData.length > 1) {
-      farmsData.forEach(function (item) {
+    const allPendingFarms = isPending(farmData);
+    farmsData.forEach(function (item) {
+      const pendingFarm =
+        moment.unix(item.start_at).valueOf() > moment().valueOf();
+      if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
         apr += Number(item.apr);
-      });
-    } else {
-      apr = Number(data.apr);
-    }
+      }
+    });
     return toPrecision(apr.toString(), 2);
   }
   function getAprList() {
