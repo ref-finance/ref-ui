@@ -107,3 +107,36 @@ export const failToast = (txHash: string, errorType?: string) => {
     }
   );
 };
+
+export const checkAccountTip = () => {
+  toast(
+    <a
+      className="text-white w-full h-full pl-4"
+      href={`/account`}
+      target="_blank"
+      style={{
+        lineHeight: '48px',
+      }}
+    >
+      <FormattedMessage
+        id="return_to_REF_account"
+        defaultMessage="Return to REF account"
+      />
+    </a>,
+    {
+      autoClose: 8000,
+      closeOnClick: true,
+      hideProgressBar: false,
+      closeButton: <CloseIcon />,
+      progressStyle: {
+        background: '#00FFD1',
+        borderRadius: '8px',
+      },
+      style: {
+        background: '#1D2932',
+        boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
+        borderRadius: '8px',
+      },
+    }
+  );
+};
