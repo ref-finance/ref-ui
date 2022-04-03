@@ -101,27 +101,27 @@ const uk_UA_in_risks_page = {
   ref_dev_teller_near: 'ref-dev-teller.near',
   Locked_title: 'Locked? information box: when hovering to display:',
   Locked_paragraph_1:
-    'Locked contract means that there are no access keys allowing the contract code to be re-deployed.',
-  Locked_paragraph_2: 'In general case, the code can be re-deployed by:',
-  Locked_paragraph_3: '1. a transaction with a deploy-code action',
+    'Заблокований контракт означає, що немає ключів доступу, що дозволяють повторно розгорнути код контракту за допомогою.',
+  Locked_paragraph_2: 'У загальному випадку код можна повторно розгорнути за допомогою:',
+  Locked_paragraph_3: '1. транзакції з дією deploy-code',
   Locked_paragraph_4:
-    '2. the contract itself can implement a function call that will trigger deploy-code action',
+    '2. сам контракт може реалізувати функцію виклику, який може викликати дію розгортання коду',
   Locked_paragraph_5:
-    'To re-deploy the code with a transaction, the transaction has to be signed with a full-access key. If there is no such key on the contract, there is no way to re-deploy the code unless there is a dedicated support in the contract code itself, and thus we mark such contracts as locked.',
+    'Для повторного розгортання коду за deploy-code, транзакція повинна бути підписана ключем повного доступу. Якщо в контракті немає такого ключа, то немає можливості розгорнути код, якщо тільки в самому коді контракту немає спеціальної підтримки, і тому ми помічаємо такі контракти, як заблоковані.',
   Locked_paragraph_6:
-    'If there is at least one full-access key registered on the contract account, the contract is not locked.',
+    'Якщо на обліковому записі контракта зареєстровано, хоча б один ключ повного доступу, контракт не блокується.',
   audited_first_sentence:
-    'Ref Finance smart contracts are being audited by <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://jitadigital.com/')" +
-    '>Jita</label>. Ref Finance will actively look for a second independant audit once the first audit is completed.',
+      'Смарт-контракти Ref Finance пройшли аудит <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+      "window.open('https://jitadigital.com/')" +
+      '>Jita</label>. Ref Finance буде активно шукати можливості проведення другого незалежного аудиту після завершення першого.',
   admin_first_sentence:
-    'Ref Finance is managed by the <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label>. There are <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
-    '>Guardians</label>, specific NEAR addresses, which are able to pause the contract. Only the DAO can resume the contract, at any time.',
+      'Управління Ref Finance здійснюється<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+      "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
+      '> Ref Finance Sputnik DAO</label>. Існують <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+      "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
+      '>Guardians</label>, конкретні адреси NEAR, які можуть призупинити контракт. Тільки DAO може відновити контракт у будь-який час.',
   risks_of_using_ref_finance:
-    '<label class="text-greenColor">Risks</label> of Using Ref. finance',
+    '<label class="text-greenColor">Risks</label> Використання Ref. finance',
 };
 const uk_UA = {
   deposit: 'депозит',
@@ -485,7 +485,7 @@ const uk_UA = {
   create: 'створювати',
   support_ledger: 'Support Ledger',
   support_ledger_tip:
-      "By design, Ledger cannot handle<br /> large transactions (i.e. Auto Router: <br />trade across multiple pools at once)<br /> because of its memory limitation.<br /> When activated, the 'Support Ledger' <br />option will limit transactions to their <br />simplest form (to the detriment of <br />potential optimal prices found <br />by our Auto Router), so transactions <br />of a reasonable size can be signed.",
+      "За своєю конструкцією Ledger не дозволяє обробляти великі транзакції <br>(торгівлю через кілька пулів одночасно - Auto Router) через обмеження<br> пам'яті. У разі активації опції \"Support Ledger\" транзакції будуть обмежені<br> до їхнайпростішої форми (оптимальні ціни необхідно обирати самостійно,<br> Auto Router в цьому випадку не працює), і можуть бути підписані.",
   start: 'Початок',
   aprTip: 'Indicative value based on all rewards (pending and running)',
 };
