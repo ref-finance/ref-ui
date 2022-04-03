@@ -233,9 +233,10 @@ export const getFarmInfo = async (
     userRewardNumberPerWeek.toString()
   );
 
-  let userUnclaimedRewardNumber: string = isSignedIn
-    ? await getUnclaimedReward(farm.farm_id)
-    : '0';
+  let userUnclaimedRewardNumber: string =
+    isSignedIn && staked && Number(staked) > 0
+      ? await getUnclaimedReward(farm.farm_id)
+      : '0';
   const userUnclaimedReward = toReadableNumber(
     rewardToken.decimals,
     userUnclaimedRewardNumber

@@ -59,7 +59,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         helperUrl: 'https://helper.mainnet.near.org',
         explorerUrl: 'https://explorer.mainnet.near.org',
         indexerUrl: 'https://indexer.ref-finance.net',
-        sodakiApiUrl: 'https://sodaki.com/api',
+        sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
@@ -98,7 +98,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         helperUrl: 'https://helper.testnet.near.org',
         explorerUrl: 'https://explorer.testnet.near.org',
         indexerUrl: 'https://dev-indexer.ref-finance.com',
-        sodakiApiUrl: 'https://sodaki.com/api',
+        sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'exchange.ref-dev.testnet',
@@ -137,7 +137,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         helperUrl: 'https://helper.mainnet.near.org',
         explorerUrl: 'https://explorer.mainnet.near.org',
         indexerUrl: 'https://indexer.ref-finance.net',
-        sodakiApiUrl: 'https://sodaki.com/api',
+        sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
