@@ -112,17 +112,15 @@ const ru_in_risks_page = {
   // todo
   Locked_paragraph_6:
     'If there is at least one full-access key registered on the contract account, the contract is not locked.',
-  // todo
   audited_first_sentence:
-    'Ref Finance smart contracts are being audited by <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://jitadigital.com/')" +
-    '>Jita</label>. Ref Finance will actively look for a second independant audit once the first audit is completed.',
-  // todo
+      'Смарт-контракты Ref Finance прошли аудит от <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+      "window.open('https://jitadigital.com/')" +
+      '>Jita</label>. Ref Finance планирует заняться активным поиском второго независимого аудита после завершения первого аудита.',
   admin_first_sentence:
-    'Ref Finance is managed by the <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label>. There are <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
+      'Ref Finance управляется <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+      "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
+      '>Ref Finance Sputnik DAO</label>. There are <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+      "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
     '>Guardians</label>, specific NEAR addresses, which are able to pause the contract. Only the DAO can resume the contract, at any time.',
   // todo
   risks_of_using_ref_finance:
@@ -176,7 +174,7 @@ const ru = {
   connect_to_near: 'Подключитесь к NEAR',
   slippage: 'Допустимое проскальзывание',
   slippage_title: 'Настройки транзакции',
-  minimum_received: 'Минимум получен',
+  minimum_received: 'Минимум полученных токенов',
   swap_rate: 'Курс обмена',
   swap_rate_pre: 'Курс обмена',
   pool_fee: 'Комиссия пула',
@@ -243,7 +241,7 @@ const ru = {
   claim: 'Запросить',
   claim_all: 'Запросить все',
   stake: 'Застейкать',
-  unstake: 'Убрать из стейкинга',
+  unstake: 'Забрать из стейкинга',
   your_rewards: 'Ваши награды',
   your_shares: 'Ваша доля',
   shares_owned: 'Принадлежащая доля',
@@ -293,7 +291,7 @@ const ru = {
   airdropCopy:
     ' Пожалуйста, запросите свой эирдроп хотя бы один раз до окончания срока действия, иначе ваш баланс будет пожертвован в казну',
   farmRewardsCopy:
-    'Ориентировочная стоимость, основанная на прайсах, а не на фактическом исполнении',
+    'Ориентировочная стоимость, основанная на цене, а не на фактическом исполнении',
   totalValueLockedCopy: 'Совокупная сумма заблокированных средств',
   topPoolsCopy: 'Для каждой пары отображается только пул с наибольшим TVL',
   you_do_not_have_enough: 'У вас недостаточно',
@@ -320,6 +318,7 @@ const ru = {
   more_pools: 'Больше пулов',
   my_watchlist: 'Мой список отслеживания',
   h24_volume: '24ч объем',
+  volume: 'Объем',
   hide_low_tvl_pools: 'Скрыть с низким TVL',
   watchlist_title: 'Мой список отслеживания сверху',
   add_watchlist: 'Добавить список отслеживания',
@@ -437,7 +436,7 @@ const ru = {
   price_impact_is_about: 'Влияние на цену составляет около',
   yes_swap: 'Да, обменять',
   amount_must_be_greater_than_0: 'сумма должна быть больше 0',
-  volume_ratio: '24ч Соотношение объема/ликвидности',
+  volume_ratio: 'Суточное соотношение объема/ликвидности',
   go_to_near_wallet: 'Перейти к NEAR кошельку',
   into_ref_account: 'на вашем REF аккаунте.',
   deposit_into_ref_account: 'на вашем REF аккаунте, чтобы добавить ликвидности',
@@ -482,10 +481,10 @@ const ru = {
   allOption: 'Все',
   stablecoin: 'Стейблкоин',
   near_ecosystem: 'Экосистема NEAR',
-  bridged_tokens: 'мостовые токены',
-  gaming: 'Gaming',
+  bridged_tokens: 'Токены других сетей',
+  gaming: 'Игровые проекты',
   nft: 'NFT',
-  bridge: 'Перемещение из/в',
+  bridge: 'Перенос из/в сеть',
   from_ethereum: 'Ethereum',
   from_aurora: 'Aurora',
   from_solana: 'Solana',

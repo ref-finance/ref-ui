@@ -310,6 +310,7 @@ const uk_UA = {
   more_pools: 'Більше пулів',
   my_watchlist: 'Список спостережень',
   h24_volume: 'Обсяг за добу',
+  volume: 'Volume',
   hide_low_tvl_pools: 'Приховати низький TVL',
   watchlist_title: 'Мій список спостережень вгорі',
   add_watchlist: 'Додати список спостережень',

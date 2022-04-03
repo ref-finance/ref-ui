@@ -313,6 +313,7 @@ const vi = {
   more_pools: 'Nhiều pool hơn',
   my_watchlist: 'Danh sách theo dõi',
   h24_volume: 'Khối lượng giao dịch 24h',
+  volume: 'Volume',
   hide_low_tvl_pools: 'Ẩn TVL thấp',
   watchlist_title: 'Danh sách xem của tôi ở trên đầu',
   add_watchlist: 'Thêm vào danh sách yêu thích',
@@ -510,7 +511,6 @@ const vi = {
   Type: 'Kiểu',
   click_to_view: 'Nhấn để xem',
   transaction_failed: 'Giao dịch thất bại',
-  create: 'Tạo',
   support_ledger: 'ủng hộ Ledger',
   support_ledger_tip:
     "Ở bản thiết kế ban đầu, Ledger<br /> không thể thực hiện số lượng lớn<br /> giao dịch cùng lúc(i.e. Auto Router:<br /> trao đổi qua nhiều pool trong một lần) <br />bởi vì sự giới hạn về bộ nhớ. Khi được<br /> kích hoạt, tuỳ chọn 'Support Ledger'<br /> sẽ giới hạn các giao dịch <br />tới sự đơn giản nhất (dù không có được <br />giá thành tốt nhất), nên các giao <br />dịch của có khối lượng hợp lí mới có thể<br /> được thực hiện",
