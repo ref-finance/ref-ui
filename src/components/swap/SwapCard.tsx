@@ -772,13 +772,6 @@ export default function SwapCard(props: {
 
   return (
     <>
-      <Guide
-        bothStableToken={
-          STABLE_TOKEN_IDS.includes(tokenIn?.id) &&
-          STABLE_TOKEN_IDS.includes(tokenOut?.id)
-        }
-      ></Guide>
-
       <SwapFormWrap
         supportLedger={supportLedger}
         setSupportLedger={setSupportLedger}
