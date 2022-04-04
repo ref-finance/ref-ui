@@ -650,6 +650,7 @@ export async function getHybridStableSmart(
           })
         : getSinglePoolEstimate(tokenIn, tokenMidMeta, pool1, parsedAmountIn)),
       status: PoolMode.SMART,
+      tokens: [tokenIn, tokenMidMeta, tokenOut],
     };
 
     const estimate2 = {
@@ -669,6 +670,7 @@ export async function getHybridStableSmart(
           )),
 
       status: PoolMode.SMART,
+      tokens: [tokenIn, tokenMidMeta, tokenOut],
     };
 
     console.log('series estimates are...', [estimate1, estimate2]);
@@ -760,6 +762,8 @@ SwapOptions) => {
   const isSmartRouteV1Swap = swapsToDo.every(
     (estimate) => estimate.status === PoolMode.SMART
   );
+
+  console.log(swapsToDo);
 
   if (wallet.isSignedIn()) {
     if (isParallelSwap) {

@@ -202,7 +202,6 @@ function App() {
             <Route path="/" component={AutoHeight(SwapPage)} />
           </Switch>
           <Footer />
-          <SwapGuide></SwapGuide>
           <PopUpSwiper></PopUpSwiper>
         </div>
       </Router>

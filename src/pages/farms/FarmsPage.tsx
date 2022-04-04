@@ -41,6 +41,7 @@ import {
   classificationOfCoins_key,
   incentiveLpTokenConfig,
   defaultConfig,
+  frontConfig,
 } from '~services/farm';
 import {
   stake,
@@ -407,9 +408,15 @@ export function FarmsPage() {
       }
       item.multiple = incentiveLpTokenConfig[id] || '0';
       item.default = defaultConfig[id] || '0';
+      if (frontConfig[id]) {
+        item.front = frontConfig[id];
+      }
     });
     if (sort == 'new') {
       listAll.sort((item1: any, item2: any) => {
+        if (item1.front || item2.front) {
+          return Number(item2.front || 0) - Number(item1.front || 0);
+        }
         const item1List = JSON.parse(JSON.stringify(item1));
         const item2List = JSON.parse(JSON.stringify(item2));
         item1List.sort((a: any, b: any) => {
@@ -428,18 +435,30 @@ export function FarmsPage() {
     }
     if (sort == 'apr') {
       listAll.sort((item1: any, item2: any) => {
+        if (item1.front || item2.front) {
+          return Number(item2.front || 0) - Number(item1.front || 0);
+        }
         return Number(item2.totalApr) - Number(item1.totalApr);
       });
     } else if (sort == 'total_staked') {
       listAll.sort((item1: any, item2: any) => {
+        if (item1.front || item2.front) {
+          return Number(item2.front || 0) - Number(item1.front || 0);
+        }
         return Number(item2[0].totalStaked) - Number(item1[0].totalStaked);
       });
     } else if (sort == 'multiple') {
       listAll.sort((item1: any, item2: any) => {
+        if (item1.front || item2.front) {
+          return Number(item2.front || 0) - Number(item1.front || 0);
+        }
         return Number(item2.multiple) - Number(item1.multiple);
       });
     } else if (sort == 'default') {
       listAll.sort((item1: any, item2: any) => {
+        if (item1.front || item2.front) {
+          return Number(item2.front || 0) - Number(item1.front || 0);
+        }
         return Number(item2.default) - Number(item1.default);
       });
     }
@@ -449,14 +468,29 @@ export function FarmsPage() {
   }
   function getTotalApr(farmsData: FarmInfo[]) {
     let apr = 0;
-    if (farmsData.length > 1) {
-      farmsData.forEach(function (item) {
+    const allPendingFarms = isPending(farmsData);
+    farmsData.forEach(function (item) {
+      const pendingFarm =
+        moment.unix(item.start_at).valueOf() > moment().valueOf();
+      if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
         apr += Number(item.apr);
-      });
-    } else {
-      apr = Number(farmsData[0].apr);
-    }
+      }
+    });
     return toPrecision(apr.toString(), 2);
+  }
+  function isPending(farmsData: FarmInfo[]) {
+    let pending: boolean = true;
+    for (let i = 0; i < farmsData.length; i++) {
+      if (moment.unix(farmsData[i].start_at).valueOf() > moment().valueOf()) {
+        pending = true;
+      } else {
+        if (farmsData[i].farm_status != 'Pending') {
+          pending = false;
+          break;
+        }
+      }
+    }
+    return pending;
   }
   function isEnded(farmsData: FarmInfo[]) {
     let ended: boolean = true;
@@ -1000,25 +1034,31 @@ function FarmView({
         if (i == 0) {
           const commonReward = commonRewardArr[i];
           target = commonReward;
-          if (commonReward.start_at) {
-            const pending =
-              moment.unix(commonReward.start_at).valueOf() > moment().valueOf();
-            if (pending) {
-              target['pending_start_time'] = moment
-                .unix(commonReward.start_at)
-                .format('YYYY-MM-DD');
-            }
+          const pending =
+            moment.unix(commonReward.start_at).valueOf() > moment().valueOf();
+          if (pending) {
+            target['diff_start_time_pending'] =
+              target['diff_start_time_pending'] || [];
+            target['diff_start_time_pending'].push(
+              JSON.parse(JSON.stringify(commonReward))
+            );
+          } else {
+            target['no_pending'] = target['no_pending'] || [];
+            target['no_pending'].push(JSON.parse(JSON.stringify(commonReward)));
           }
         } else {
           const commonReward = commonRewardArr[i];
-          if (commonReward.start_at) {
-            const pending =
-              moment.unix(commonReward.start_at).valueOf() > moment().valueOf();
-            if (pending) {
-              target['pending_start_time'] = moment
-                .unix(commonReward.start_at)
-                .format('YYYY-MM-DD');
-            }
+          const pending =
+            moment.unix(commonReward.start_at).valueOf() > moment().valueOf();
+          if (pending) {
+            target['diff_start_time_pending'] =
+              target['diff_start_time_pending'] || [];
+            target['diff_start_time_pending'].push(
+              JSON.parse(JSON.stringify(commonReward))
+            );
+          } else {
+            target['no_pending'] = target['no_pending'] || [];
+            target['no_pending'].push(JSON.parse(JSON.stringify(commonReward)));
           }
           target.apr = BigNumber.sum(target.apr, commonReward.apr).valueOf();
           target.rewardsPerWeek = BigNumber.sum(
@@ -1039,22 +1079,72 @@ function FarmView({
   function getAllRewardsPerWeek() {
     let result: string = '';
     let totalPrice = 0;
-    mergeCommonRewardFarms.forEach((item: FarmInfo) => {
-      const { rewardToken, rewardsPerWeek } = item;
-      const { id, icon } = rewardToken;
-      let price = 0;
-      if (tokenPriceMap[id] && tokenPriceMap[id] != 'N/A') {
-        price = +rewardsPerWeek * +tokenPriceMap[id];
-        totalPrice += price;
+    // get total price  start
+    const allPendingFarms = isPending(farmData);
+    farmsData.forEach((farm: FarmInfo) => {
+      const { rewardsPerWeek, rewardToken } = farm;
+      const { id } = rewardToken;
+      const pendingFarm =
+        moment.unix(farm.start_at).valueOf() > moment().valueOf();
+      if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
+        if (tokenPriceMap[id] && tokenPriceMap[id] != 'N/A') {
+          const price = +rewardsPerWeek * +tokenPriceMap[id];
+          totalPrice += price;
+        }
       }
-      const itemHtml = `<div class="flex justify-between items-center h-8">
+    });
+    // get total price  end
+    mergeCommonRewardFarms.forEach(
+      (
+        item: FarmInfo & { diff_start_time_pending: any[]; no_pending: any[] }
+      ) => {
+        const {
+          rewardToken,
+          rewardsPerWeek,
+          diff_start_time_pending,
+          no_pending,
+        } = item;
+        const { id, icon } = rewardToken;
+        // let price = 0;
+        // if (tokenPriceMap[id] && tokenPriceMap[id] != 'N/A') {
+        //   price = +rewardsPerWeek * +tokenPriceMap[id];
+        //   totalPrice += price;
+        // }
+        let itemHtml = '';
+        if (diff_start_time_pending) {
+          diff_start_time_pending.forEach((farm: FarmInfo) => {
+            itemHtml += `<div class="flex justify-between items-center h-8">
+            <image class="w-5 h-5 rounded-full mr-7" style="filter: grayscale(100%)" src="${icon}"/>
+            <label class="text-xs text-farmText">${formatWithCommas(
+              farm.rewardsPerWeek
+            )}</label>
+          </div>`;
+          });
+        }
+        if (no_pending) {
+          let target = no_pending[0];
+          for (let i = 1; i < no_pending.length; i++) {
+            target.apr = BigNumber.sum(target.apr, no_pending[i].apr).valueOf();
+            target.rewardsPerWeek = BigNumber.sum(
+              target.rewardsPerWeek,
+              no_pending[i].rewardsPerWeek
+            ).valueOf();
+            target.userUnclaimedReward = BigNumber.sum(
+              target.userUnclaimedReward,
+              no_pending[i].userUnclaimedReward
+            ).valueOf();
+          }
+          itemHtml += `<div class="flex justify-between items-center h-8">
                           <image class="w-5 h-5 rounded-full mr-7" src="${icon}"/>
                           <label class="text-xs text-navHighLightText">${formatWithCommas(
-                            rewardsPerWeek
+                            target.rewardsPerWeek
                           )}</label>
                         </div>`;
-      result += itemHtml;
-    });
+        }
+
+        result += itemHtml;
+      }
+    );
     setRewardsPerWeek({
       tip: result,
       totalPrice: `${
@@ -1294,41 +1384,60 @@ function FarmView({
 
   function getTotalApr() {
     let apr = 0;
-    if (farmsData.length > 1) {
-      farmsData.forEach(function (item) {
+    const allPendingFarms = isPending(farmData);
+    farmsData.forEach(function (item) {
+      const pendingFarm =
+        moment.unix(item.start_at).valueOf() > moment().valueOf();
+      if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
         apr += Number(item.apr);
-      });
-    } else {
-      apr = Number(data.apr);
-    }
+      }
+    });
     return toPrecision(apr.toString(), 2);
   }
   function getAprList() {
     let result: string = '';
     mergeCommonRewardFarms.forEach(
-      (item: FarmInfo & { pending_start_time: string }) => {
-        const { rewardToken, apr, pending_start_time } = item;
+      (
+        item: FarmInfo & { diff_start_time_pending: any[]; no_pending: any[] }
+      ) => {
+        const { rewardToken, diff_start_time_pending, no_pending } = item;
+        const txt = intl.formatMessage({ id: 'start' });
         let itemHtml = '';
-        if (pending_start_time) {
-          const txt = intl.formatMessage({ id: 'start' });
-          itemHtml = `<div class="flex justify-between items-center h-8 my-1">
+        if (diff_start_time_pending) {
+          diff_start_time_pending.forEach((farm: FarmInfo) => {
+            const startTime = moment.unix(farm.start_at).format('YYYY-MM-DD');
+            itemHtml += `<div class="flex justify-between items-center h-8 my-1">
                       <image class="w-5 h-5 rounded-full mr-7" style="filter: grayscale(100%)"src="${
                         rewardToken.icon
                       }"/>
                       <div class="flex flex-col items-end">
                         <label class="text-xs text-farmText">${
-                          formatWithCommas(apr) + '%'
+                          formatWithCommas(farm.apr) + '%'
                         }</label>
-                        <label class="text-xs text-farmText">${txt}: ${pending_start_time}</label>
+                        <label class="text-xs text-farmText">${txt}: ${startTime}</label>
                       </div>
                     </div>`;
-        } else {
-          itemHtml = `<div class="flex justify-between items-center h-8">
+          });
+        }
+        if (no_pending) {
+          let target = no_pending[0];
+          for (let i = 1; i < no_pending.length; i++) {
+            target.apr = BigNumber.sum(target.apr, no_pending[i].apr).valueOf();
+            target.rewardsPerWeek = BigNumber.sum(
+              target.rewardsPerWeek,
+              no_pending[i].rewardsPerWeek
+            ).valueOf();
+            target.userUnclaimedReward = BigNumber.sum(
+              target.userUnclaimedReward,
+              no_pending[i].userUnclaimedReward
+            ).valueOf();
+          }
+          itemHtml += `<div class="flex justify-between items-center h-8">
                       <image class="w-5 h-5 rounded-full mr-7" src="${
                         rewardToken.icon
                       }"/>
                         <label class="text-xs text-navHighLightText">${
-                          formatWithCommas(apr) + '%'
+                          formatWithCommas(target.apr) + '%'
                         }</label>
                     </div>`;
         }

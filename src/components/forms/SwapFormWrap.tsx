@@ -154,7 +154,7 @@ export default function SwapFormWrap({
         elseView
       ) : (
         <SubmitButton
-          disabled={!canSubmit && !loadingTrigger}
+          disabled={!canSubmit || loadingTrigger}
           text={buttonText || title}
           info={info}
           loading={showSwapLoading}

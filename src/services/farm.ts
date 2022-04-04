@@ -233,9 +233,10 @@ export const getFarmInfo = async (
     userRewardNumberPerWeek.toString()
   );
 
-  let userUnclaimedRewardNumber: string = isSignedIn
-    ? await getUnclaimedReward(farm.farm_id)
-    : '0';
+  let userUnclaimedRewardNumber: string =
+    isSignedIn && staked && Number(staked) > 0
+      ? await getUnclaimedReward(farm.farm_id)
+      : '0';
   const userUnclaimedReward = toReadableNumber(
     rewardToken.decimals,
     userUnclaimedRewardNumber
@@ -515,9 +516,11 @@ export const incentiveLpTokenConfig = {
   '974': '4',
 };
 export const defaultConfig = {
-  '2800': '11',
-  '79': '10',
-  '2657': '9',
+  '2800': '99',
+  '79': '98',
+  '2657': '97',
+  '2691': '10',
+  '3019': '9',
   '2799': '8',
   '2801': '7',
   '1207': '4',
@@ -527,4 +530,8 @@ export const defaultConfig = {
   '3': '4',
   '2734': '4',
   '974': '4',
+};
+
+export const frontConfig = {
+  '79': '98',
 };

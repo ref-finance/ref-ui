@@ -182,15 +182,14 @@ export const useSwap = ({
           if (!estimates) throw '';
 
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
-            setCanSwap(true);
             setAverageFee(estimates);
 
             if (!loadingTrigger) {
               setTokenOutAmount(
                 getExpectedOutputFromActions(estimates, tokenOut.id).toString()
               );
-
               setSwapsToDo(estimates);
+              setCanSwap(true);
             }
           }
 
@@ -256,6 +255,7 @@ export const useSwap = ({
     tokenOutAmount,
     minAmountOut,
     pool,
+    setCanSwap,
     swapError,
     makeSwap,
     avgFee,

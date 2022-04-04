@@ -9,8 +9,13 @@ import { TokenMetadata } from '../../services/ft-contract';
 import { TokenBalancesView } from '../../services/token';
 import Icon from '../tokens/Icon';
 import InputAmount from './InputAmount';
+<<<<<<< HEAD
 import SelectToken, { StableSelectToken } from './SelectToken';
 import { toPrecision, multiply } from '../../utils/numbers';
+=======
+import SelectToken from './SelectToken';
+import { toPrecision, multiply, ONLY_ZEROS } from '../../utils/numbers';
+>>>>>>> main
 import { FormattedMessage } from 'react-intl';
 import { SmallWallet } from '~components/icon/SmallWallet';
 import { SWAP_MODE } from '../../pages/SwapPage';
@@ -132,7 +137,7 @@ export default function TokenAmount({
           disabled={disabled}
           forSwap={!!forSwap}
           price={
-            tokenPrice && amount && !isError
+            tokenPrice && !ONLY_ZEROS.test(amount) && !isError
               ? multiply(tokenPrice, amount)
               : null
           }

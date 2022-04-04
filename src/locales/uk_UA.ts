@@ -357,6 +357,12 @@ const uk_UA = {
   default: 'За замовчуванням',
   vi_go_live: 'Доступна В&apos;єтнамська мова!',
   create: 'Творити',
+  initialize_account_tip: 'Будь ласка, ініціалізуйте свій обліковий запис.',
+  transaction_failed: 'Не вдалося виконати операцію',
+  click_to_view: 'Клацніть, щоб переглянути',
+  Type: 'Тип',
+  start: 'Start',
+  aprTip: 'Indicative value based on all rewards (pending and running)',
 };
 
 const uk_UA_in_risks_page = {
