@@ -129,9 +129,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'usdc.fakes.testnet',
           'dai.fakes.testnet',
         ],
-        STABLE_TOKEN_USN_IDS: ['usn.fakes.testnet', 'usdt.fakes.testnet'],
+        STABLE_TOKEN_USN_IDS: ['usdn.testnet', 'usdt.fakes.testnet'],
         STABLE_TOKEN_USN_INDEX: {
-          'usn.fakes.testnet': 0,
+          'usdn.testnet': 0,
           'usdt.fakes.testnet': 1,
         },
         STABLE_TOKEN_INDEX: {

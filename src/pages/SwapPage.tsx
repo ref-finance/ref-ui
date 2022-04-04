@@ -76,7 +76,7 @@ function SwapPage() {
   }, []);
 
   const extraTokens =
-    getConfig().networkId === 'mainnet' ? ['usn'] : ['usn.fakes.testnet'];
+    getConfig().networkId === 'mainnet' ? ['usn'] : ['usdn.testnet'];
 
   const allTokens = useWhitelistTokens(extraTokens);
 
