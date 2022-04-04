@@ -1698,7 +1698,7 @@ function FarmView({
                   effect="solid"
                 />
               </div>
-              <div
+              {/* <div
                 className="ml-2 text-sm"
                 data-type="info"
                 data-place="right"
@@ -1717,7 +1717,7 @@ function FarmView({
                   borderColor="#7e8a93"
                   effect="solid"
                 />
-              </div>
+              </div> */}
             </div>
           </div>
           <div className="my-3.5 border border-t-0 border-farmSplitLine" />
