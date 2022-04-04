@@ -772,23 +772,13 @@ export default function SwapCard(props: {
 
   return (
     <>
-<<<<<<< HEAD
       <Guide
-=======
-      <SwapTip
->>>>>>> main
         bothStableToken={
           STABLE_TOKEN_IDS.includes(tokenIn?.id) &&
           STABLE_TOKEN_IDS.includes(tokenOut?.id)
         }
-<<<<<<< HEAD
       ></Guide>
 
-=======
-        tokenInId={tokenIn?.id}
-        tokenOutId={tokenOut?.id}
-      />
->>>>>>> main
       <SwapFormWrap
         supportLedger={supportLedger}
         setSupportLedger={setSupportLedger}
@@ -860,12 +850,8 @@ export default function SwapCard(props: {
                 `#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`
               );
             setTokenIn(token);
-<<<<<<< HEAD
-            setTokenInBalanceFromNear(token?.near?.toString());
-=======
             setCanSwap(false);
-            setTokenInBalanceFromNear(token.near.toString());
->>>>>>> main
+            setTokenInBalanceFromNear(token?.near?.toString());
           }}
           text={intl.formatMessage({ id: 'from' })}
           useNearBalance={useNearBalance}
@@ -922,12 +908,8 @@ export default function SwapCard(props: {
                 `#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`
               );
             setTokenOut(token);
-<<<<<<< HEAD
-            setTokenOutBalanceFromNear(token?.near?.toString());
-=======
             setCanSwap(false);
-            setTokenOutBalanceFromNear(token.near.toString());
->>>>>>> main
+            setTokenOutBalanceFromNear(token?.near?.toString());
           }}
           isError={tokenIn?.id === tokenOut?.id}
           tokenPriceList={tokenPriceList}
