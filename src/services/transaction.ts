@@ -260,7 +260,14 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
     };
   } else if (msg) {
     Action = 'Instant swap';
-    const actions = JSON.parse(msg).actions || [];
+    let actions = [];
+    try {
+      actions = JSON.parse(msg).actions || [];
+    } catch (error) {
+      return {
+        Action,
+      };
+    }
     let amountOut = '0';
     let poolIdArr: (string | number)[] = [];
     const in_token = await ftGetTokenMetadata(actions[0].token_in);

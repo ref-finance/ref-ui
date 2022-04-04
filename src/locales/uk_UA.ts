@@ -451,6 +451,7 @@ const uk_UA_in_risks_page = {
   click_to_view: 'Клацніть, щоб переглянути',
   Type: 'Тип',
   start: 'Start',
+  aprTip: 'Giá trị được tính dựa trên tổng phần thưởng hiện có (chưa/đã nhận)',
 };
 
 export default { uk_UA, uk_UA_in_risks_page };
