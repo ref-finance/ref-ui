@@ -58,7 +58,7 @@ export function DoubleCheckModal(
         padding="p-6"
         bgcolor="bg-cardBg"
         className="text-white border border-gradientFromHover outline-none flex flex-col items-center"
-        width="xs:w-80vw md:w-80vw lg:w-30vw"
+        width="xs:w-90vw md:w-90vw lg:w-30vw"
       >
         <div
           className="ml-2 cursor-pointer p-1 self-end"

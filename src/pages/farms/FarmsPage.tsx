@@ -765,8 +765,8 @@ export function FarmsPage() {
                     </label>
                   ) : null}
                 </div>
-                <div className="flex justify-between xs:w-full md:w-full xs:mt-4 md:mt-4">
-                  <div className="flex items-center relative mr-4 xs:mr-0 md:mr-0">
+                <div className="flex justify-between flex-wrap xs:w-full md:w-full xs:mt-4 md:mt-4">
+                  <div className="flex items-center relative mr-4 xs:mr-0 md:mr-0 xs:mb-2 md:mb-2">
                     <label className="text-farmText text-xs mr-2 whitespace-nowrap xs:hidden">
                       <FormattedMessage
                         id="filter_by"
@@ -777,11 +777,11 @@ export function FarmsPage() {
                       id={searchData.coin}
                       list={filterList}
                       onChange={changeCoinOption}
-                      className="w-36"
+                      // className="w-36"
                       Icon={isMobile() ? CoinPropertyIcon : ''}
                     />
                   </div>
-                  <div className="flex items-center relative">
+                  <div className="flex items-center relative xs:mb-2 md:mb-2">
                     <label className="text-farmText text-xs mr-2 xs:hidden md:hidden">
                       <FormattedMessage id="sort_by" defaultMessage="Sort by" />
                     </label>
@@ -790,7 +790,7 @@ export function FarmsPage() {
                       list={sortList}
                       onChange={changeSortOption}
                       Icon={isMobile() ? SortIcon : ''}
-                      className="w-56"
+                      // className="w-56"
                     />
                   </div>
                 </div>
