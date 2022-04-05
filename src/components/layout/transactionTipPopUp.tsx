@@ -21,6 +21,8 @@ export const getURLInfo = () => {
 
   const errorType = new URLSearchParams(search).get('errorType');
 
+  const errorCode = new URLSearchParams(search).get('errorCode');
+
   const signInErrorType = new URLSearchParams(search).get('signInErrorType');
 
   const txHashes = (
@@ -33,6 +35,7 @@ export const getURLInfo = () => {
     pathname,
     errorType,
     signInErrorType,
+    errorCode,
   };
 };
 
@@ -110,19 +113,22 @@ export const failToast = (txHash: string, errorType?: string) => {
 
 export const checkAccountTip = () => {
   toast(
-    <a
+    <div
       className="text-white w-full h-full pl-4"
-      href={`/account`}
-      target="_blank"
       style={{
         lineHeight: '48px',
       }}
     >
-      <FormattedMessage
-        id="return_to_REF_account"
-        defaultMessage="Return to REF account"
-      />
-    </a>,
+      <FormattedMessage id="return_to" defaultMessage="Return to " />
+
+      <a
+        href={`/account`}
+        target="_blank"
+        className="text-gradientFrom border-b border-gradientFrom"
+      >
+        <FormattedMessage id="ref_account" defaultMessage="REF account" />
+      </a>
+    </div>,
     {
       autoClose: 8000,
       closeOnClick: true,

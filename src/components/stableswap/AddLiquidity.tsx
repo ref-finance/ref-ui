@@ -114,13 +114,13 @@ export default function AddLiquidityComponent(props: {
 
   const refAccountBalances = useTokenBalances();
 
-  const { txHash } = getURLInfo();
+  const { txHash, errorCode } = getURLInfo();
 
   useEffect(() => {
     if (
       refAccountBalances &&
       tokens &&
-      txHash &&
+      (txHash || errorCode) &&
       tokens.some(
         (token) =>
           Number(
@@ -138,7 +138,7 @@ export default function AddLiquidityComponent(props: {
         window.location.origin + window.location.pathname
       );
     }
-  }, [txHash, refAccountBalances, tokens]);
+  }, [txHash, refAccountBalances, tokens, errorCode]);
 
   useEffect(() => {
     const firstAmount = toReadableNumber(

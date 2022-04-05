@@ -217,13 +217,13 @@ export function RemoveLiquidityComponent(props: {
 
   const refAccountBalances = useTokenBalances();
 
-  const { txHash } = getURLInfo();
+  const { txHash, errorCode } = getURLInfo();
 
   useEffect(() => {
     if (
       refAccountBalances &&
       tokens &&
-      txHash &&
+      (txHash || errorCode) &&
       tokens.some(
         (token) =>
           Number(
@@ -241,7 +241,7 @@ export function RemoveLiquidityComponent(props: {
         window.location.origin + window.location.pathname
       );
     }
-  }, [txHash, refAccountBalances, tokens]);
+  }, [txHash, refAccountBalances, tokens, errorCode]);
 
   useEffect(() => {
     setCanSubmitByShare(true);
