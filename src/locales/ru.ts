@@ -101,17 +101,12 @@ const ru_in_risks_page = {
   refchef_near_mission: 'Manage inter-account transactions', // todo
   ref_dev_teller_near: 'ref-dev-teller.near',
   Locked_title: 'Locked? information box: when hovering to display:', // todo
-  Locked_paragraph_1:
-    'Locked contract means that there are no access keys allowing the contract code to be re-deployed.', // todo
-  Locked_paragraph_2: 'In general case, the code can be re-deployed by:', // todo
-  Locked_paragraph_3: '1. a transaction with a deploy-code action', // todo
-  Locked_paragraph_4:
-    '2. the contract itself can implement a function call that will trigger deploy-code action', // todo
-  Locked_paragraph_5:
-    'To re-deploy the code with a transaction, the transaction has to be signed with a full-access key. If there is no such key on the contract, there is no way to re-deploy the code unless there is a dedicated support in the contract code itself, and thus we mark such contracts as locked.',
-  // todo
-  Locked_paragraph_6:
-    'If there is at least one full-access key registered on the contract account, the contract is not locked.',
+  Locked_paragraph_1: 'Заблокированный контракт означает, что не существует ключей доступа, позволяющих повторно развернуть код контракта.',
+  Locked_paragraph_2: 'В большинстве случаев код может быть повторно развернут:', // todo
+  Locked_paragraph_3: '1. транзакция с помощью действия deploy-code', // todo
+  Locked_paragraph_4: '2. сам контракт может реализовать вызов функции, которая вызовет действие deploy-code', // todo
+  Locked_paragraph_5: 'Для того, чтобы повторно развернуть код с помощью транзакции, транзакция должна быть подписана ключом полного доступа. Если в контракте нет такого ключа, то нет возможности повторно развернуть код, если только в самом коде контракта нет специальной поддержки, и поэтому мы отмечаем такие контракты как заблокированные.',
+  Locked_paragraph_6: 'If there is at least one full-access key registered on the contract account, the contract is not locked.',
   audited_first_sentence:
       'Смарт-контракты Ref Finance прошли аудит от <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
       "window.open('https://jitadigital.com/')" +
@@ -121,7 +116,7 @@ const ru_in_risks_page = {
       "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
       '>Ref Finance Sputnik DAO</label>. There are <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
       "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
-    '>Guardians</label>, specific NEAR addresses, which are able to pause the contract. Only the DAO can resume the contract, at any time.',
+      '>Хранители</label>, определенные адреса NEAR, которые могут приостановить контракт. Только DAO может в любой момент возобновить контракт.',
   // todo
   risks_of_using_ref_finance:
     '<label class="text-greenColor">Risks</label> of Using Ref. finance',
@@ -289,7 +284,7 @@ const ru = {
   addTokenCopy: 'Добавьте любой токен NEP-141',
   getLPTokenCopy: 'Нажмите сюда, чтобы перейти к соответствующему пулу',
   airdropCopy:
-    ' Пожалуйста, запросите свой эирдроп хотя бы один раз до окончания срока действия, иначе ваш баланс будет пожертвован в казну',
+    'Пожалуйста, запросите свой эирдроп хотя бы один раз до окончания срока действия, иначе ваш баланс будет пожертвован в казну',
   farmRewardsCopy:
     'Ориентировочная стоимость, основанная на цене, а не на фактическом исполнении',
   totalValueLockedCopy: 'Совокупная сумма заблокированных средств',
@@ -495,5 +490,19 @@ const ru = {
   default: 'По умолчанию',
   vi_go_live: 'Вьетнамский язык стал доступен!',
   create: 'Создайте',
+  support_ledger: 'Поддержка Ledger',
+  support_ledger_tip:
+      "По своей конструкции Ledger не может обрабатывать<br>" +
+      "большие транзакции (Auto Router: торговля, что <br>" +
+      "использует несколько пулов одновременно) из-за<br>" +
+      " небольшого объема памяти. Функция Support Ledger<br>" +
+      " позволит уменьшить транзакции до их простейшей<br>" +
+      " формы (в ущерб потенциально оптимальным ценам,<br>" +
+      " найденным Auto Router), в результате чего объем<br>" +
+      " tx будет небольшим, что позволит работать вам с Ledger.",
+  start: 'Start',
+  aprTip: 'Indicative value based on all rewards (pending and running)',
+  half: 'Половина',
+  max: 'Макc'
 };
 export default Object.assign(ru, ru_in_risks_page);

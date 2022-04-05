@@ -486,8 +486,10 @@ const uk_UA = {
   create: 'створювати',
   support_ledger: 'Support Ledger',
   support_ledger_tip:
-      "За своєю конструкцією Ledger не дозволяє обробляти великі транзакції <br>(торгівлю через кілька пулів одночасно - Auto Router) через обмеження<br> пам'яті. У разі активації опції \"Support Ledger\" транзакції будуть обмежені<br> до їхнайпростішої форми (оптимальні ціни необхідно обирати самостійно,<br> Auto Router в цьому випадку не працює), і можуть бути підписані.",
+      "За своєю конструкцією Ledger не дозволяє<br> обробляти великі транзакції (торгівлю через<br> кілька пулів одночасно - Auto Router) через<br> обмеження пам'яті. У разі активації опції<br> \"Support Ledger\" транзакції будуть обмежені<br> до їхнайпростішої форми (оптимальні ціни<br> необхідно обирати самостійно, Auto Router<br> в цьому випадку не працює), і можуть<br> бути підписані.",
   start: 'Початок',
   aprTip: 'Indicative value based on all rewards (pending and running)',
+  half: 'Half',
+  max: 'Max'
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);
