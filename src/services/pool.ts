@@ -881,14 +881,14 @@ export const getStablePoolFromCache = async (
       ? stablePoolInfoCache
       : await getStablePool(Number(stable_pool_id));
 
-  if (!isStablePoolCached) {
+  if (!isStablePoolCached && loadingTrigger) {
     localStorage.setItem(
       pool_key,
       JSON.stringify({ ...stablePool, update_time: moment().unix() })
     );
   }
 
-  if (!isStablePoolInfoCached) {
+  if (!isStablePoolInfoCached && loadingTrigger) {
     localStorage.setItem(
       info,
       JSON.stringify({ ...stablePoolInfo, update_time: moment().unix() })
