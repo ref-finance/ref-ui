@@ -263,9 +263,13 @@ export const estimateSwap = async ({
     return getLiquidity(p, tokenIn, tokenOut) > 0;
   });
 
-  const [stablePool, stablePoolInfo] = await getStablePoolFromCache();
+  const [stablePool, stablePoolInfo] = await getStablePoolFromCache(
+    STABLE_POOL_ID.toString(),
+    loadingTrigger
+  );
   const [stablePoolUSN, stablePoolInfoUSN] = await getStablePoolFromCache(
-    STABLE_POOL_USN_ID.toString()
+    STABLE_POOL_USN_ID.toString(),
+    loadingTrigger
   );
 
   const isUSN =
@@ -356,7 +360,8 @@ export const estimateSwap = async ({
     let hybridStableSmart = await getHybridStableSmart(
       tokenIn,
       tokenOut,
-      amountIn
+      amountIn,
+      loadingTrigger
     );
     let hybridStableSmartOutputEstimate = hybridStableSmart.estimate.toString();
     if (
@@ -384,7 +389,8 @@ export const estimateSwap = async ({
 export async function getHybridStableSmart(
   tokenIn: TokenMetadata,
   tokenOut: TokenMetadata,
-  amountIn: string
+  amountIn: string,
+  loadingTrigger: boolean
 ) {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
   let pool1, pool2;
@@ -392,10 +398,14 @@ export async function getHybridStableSmart(
     tokenIn.id === STABLE_TOKEN_USN_IDS[0] ||
     tokenOut.id === STABLE_TOKEN_USN_IDS[0];
 
-  const [stablePool, stablePoolInfo] = await getStablePoolFromCache();
+  const [stablePool, stablePoolInfo] = await getStablePoolFromCache(
+    STABLE_POOL_ID.toString(),
+    loadingTrigger
+  );
 
   const [stablePoolUSN, stablePoolInfoUSN] = await getStablePoolFromCache(
-    STABLE_POOL_USN_ID.toString()
+    STABLE_POOL_USN_ID.toString(),
+    loadingTrigger
   );
 
   const bothStableCoin =

@@ -847,7 +847,10 @@ export const getStablePool = async (pool_id: number): Promise<StablePool> => {
   };
 };
 
-export const getStablePoolFromCache = async (id?: string) => {
+export const getStablePoolFromCache = async (
+  id?: string,
+  loadingTrigger?: boolean
+) => {
   const stable_pool_id = id || STABLE_POOL_ID;
 
   const pool_key = STABLE_POOL_KEYS_CACHE[stable_pool_id];
@@ -868,13 +871,15 @@ export const getStablePoolFromCache = async (id?: string) => {
     stablePoolInfoCache.update_time >
       moment().unix() - Number(POOL_TOKEN_REFRESH_INTERVAL);
 
-  const stablePool = isStablePoolCached
-    ? stablePoolCache
-    : await getPool(Number(stable_pool_id));
+  const stablePool =
+    isStablePoolCached || !loadingTrigger
+      ? stablePoolCache
+      : await getPool(Number(stable_pool_id));
 
-  const stablePoolInfo = isStablePoolInfoCached
-    ? stablePoolInfoCache
-    : await getStablePool(Number(stable_pool_id));
+  const stablePoolInfo =
+    isStablePoolInfoCached || !loadingTrigger
+      ? stablePoolInfoCache
+      : await getStablePool(Number(stable_pool_id));
 
   if (!isStablePoolCached) {
     localStorage.setItem(
