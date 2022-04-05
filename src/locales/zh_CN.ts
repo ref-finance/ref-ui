@@ -483,6 +483,6 @@ const zh_CN = {
   start: '开始',
   aprTip: '基于所有奖励（未开始和进行中）的指示性值',
   half: 'Half',
-  max: 'Max'
+  max: 'Max',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

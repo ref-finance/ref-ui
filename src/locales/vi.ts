@@ -517,6 +517,6 @@ const vi = {
   start: 'bắt đầu',
   aprTip: 'Giá trị được tính dựa trên tổng phần thưởng hiện có (chưa/đã nhận)',
   half: 'Half',
-  max: 'Max'
+  max: 'Max',
 };
 export default Object.assign(vi, vi_in_risks_page);

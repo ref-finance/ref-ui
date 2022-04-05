@@ -510,6 +510,6 @@ const en_US = {
   start: 'Start',
   aprTip: 'Indicative value based on all rewards (pending and running)',
   half: 'Half',
-  max: 'Max'
+  max: 'Max',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

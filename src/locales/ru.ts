@@ -101,22 +101,27 @@ const ru_in_risks_page = {
   refchef_near_mission: 'Manage inter-account transactions', // todo
   ref_dev_teller_near: 'ref-dev-teller.near',
   Locked_title: 'Locked? information box: when hovering to display:', // todo
-  Locked_paragraph_1: 'Заблокированный контракт означает, что не существует ключей доступа, позволяющих повторно развернуть код контракта.',
-  Locked_paragraph_2: 'В большинстве случаев код может быть повторно развернут:', // todo
+  Locked_paragraph_1:
+    'Заблокированный контракт означает, что не существует ключей доступа, позволяющих повторно развернуть код контракта.',
+  Locked_paragraph_2:
+    'В большинстве случаев код может быть повторно развернут:', // todo
   Locked_paragraph_3: '1. транзакция с помощью действия deploy-code', // todo
-  Locked_paragraph_4: '2. сам контракт может реализовать вызов функции, которая вызовет действие deploy-code', // todo
-  Locked_paragraph_5: 'Для того, чтобы повторно развернуть код с помощью транзакции, транзакция должна быть подписана ключом полного доступа. Если в контракте нет такого ключа, то нет возможности повторно развернуть код, если только в самом коде контракта нет специальной поддержки, и поэтому мы отмечаем такие контракты как заблокированные.',
-  Locked_paragraph_6: 'If there is at least one full-access key registered on the contract account, the contract is not locked.',
+  Locked_paragraph_4:
+    '2. сам контракт может реализовать вызов функции, которая вызовет действие deploy-code', // todo
+  Locked_paragraph_5:
+    'Для того, чтобы повторно развернуть код с помощью транзакции, транзакция должна быть подписана ключом полного доступа. Если в контракте нет такого ключа, то нет возможности повторно развернуть код, если только в самом коде контракта нет специальной поддержки, и поэтому мы отмечаем такие контракты как заблокированные.',
+  Locked_paragraph_6:
+    'If there is at least one full-access key registered on the contract account, the contract is not locked.',
   audited_first_sentence:
-      'Смарт-контракты Ref Finance прошли аудит от <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-      "window.open('https://jitadigital.com/')" +
-      '>Jita</label>. Ref Finance планирует заняться активным поиском второго независимого аудита после завершения первого аудита.',
+    'Смарт-контракты Ref Finance прошли аудит от <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://jitadigital.com/')" +
+    '>Jita</label>. Ref Finance планирует заняться активным поиском второго независимого аудита после завершения первого аудита.',
   admin_first_sentence:
-      'Ref Finance управляется <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-      "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-      '>Ref Finance Sputnik DAO</label>. There are <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-      "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
-      '>Хранители</label>, определенные адреса NEAR, которые могут приостановить контракт. Только DAO может в любой момент возобновить контракт.',
+    'Ref Finance управляется <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
+    '>Ref Finance Sputnik DAO</label>. There are <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
+    '>Хранители</label>, определенные адреса NEAR, которые могут приостановить контракт. Только DAO может в любой момент возобновить контракт.',
   // todo
   risks_of_using_ref_finance:
     '<label class="text-greenColor">Risks</label> of Using Ref. finance',
@@ -492,17 +497,17 @@ const ru = {
   create: 'Создайте',
   support_ledger: 'Поддержка Ledger',
   support_ledger_tip:
-      "По своей конструкции Ledger не может обрабатывать<br>" +
-      "большие транзакции (Auto Router: торговля, что <br>" +
-      "использует несколько пулов одновременно) из-за<br>" +
-      " небольшого объема памяти. Функция Support Ledger<br>" +
-      " позволит уменьшить транзакции до их простейшей<br>" +
-      " формы (в ущерб потенциально оптимальным ценам,<br>" +
-      " найденным Auto Router), в результате чего объем<br>" +
-      " tx будет небольшим, что позволит работать вам с Ledger.",
+    'По своей конструкции Ledger не может обрабатывать<br>' +
+    'большие транзакции (Auto Router: торговля, что <br>' +
+    'использует несколько пулов одновременно) из-за<br>' +
+    ' небольшого объема памяти. Функция Support Ledger<br>' +
+    ' позволит уменьшить транзакции до их простейшей<br>' +
+    ' формы (в ущерб потенциально оптимальным ценам,<br>' +
+    ' найденным Auto Router), в результате чего объем<br>' +
+    ' tx будет небольшим, что позволит работать вам с Ledger.',
   start: 'Start',
   aprTip: 'Indicative value based on all rewards (pending and running)',
   half: 'Половина',
-  max: 'Макc'
+  max: 'Макc',
 };
 export default Object.assign(ru, ru_in_risks_page);
