@@ -21,6 +21,8 @@ import {
   IconSolana,
   IconTerra,
   IconCelo,
+  UkIcon,
+  RuIcon,
 } from '~components/icon/Nav';
 import { XrefIcon } from '~components/icon/Xref';
 
@@ -101,56 +103,6 @@ export const useMenuItems = () => {
       id: 3,
       logo: <IconDocs />,
     },
-    // {
-    //   label: intl.formatMessage({ id: 'Forum' }),
-    //   url: 'https://gov.ref.finance',
-    //   icon: <HiOutlineExternalLink />,
-    //   isExternal: true,
-    //   id: 4,
-    //   logo: <IconForum />,
-    // },
-
-    // {
-    //   label: intl.formatMessage({ id: 'Community' }),
-    //   url: '',
-    //   id: 5,
-    //   isExternal: false,
-    //   logo: <IconCommunity />,
-    //   children: [
-    //     {
-    //       logo: <FaTwitter />,
-    //       label: 'Twitter',
-    //       icon: <HiOutlineExternalLink />,
-    //       url: 'https://twitter.com/finance_ref',
-    //       isExternal: true,
-    //       id: 6,
-    //     },
-    //     {
-    //       logo: <FaTelegramPlane />,
-    //       icon: <HiOutlineExternalLink />,
-    //       label: 'Telegram',
-    //       url: 'https://t.me/ref_finance',
-    //       isExternal: true,
-    //       id: 7,
-    //     },
-    //     {
-    //       logo: <FaDiscord />,
-    //       icon: <HiOutlineExternalLink />,
-    //       label: 'Discord',
-    //       url: 'https://discord.gg/SJBGcfMxJz',
-    //       isExternal: true,
-    //       id: 8,
-    //     },
-    //     {
-    //       logo: <AiOutlineMedium />,
-    //       icon: <HiOutlineExternalLink />,
-    //       label: 'Medium',
-    //       url: 'https://ref-finance.medium.com/',
-    //       isExternal: true,
-    //       id: 9,
-    //     },
-    //   ],
-    // },
     {
       label: <FormattedMessage id="language" defaultMessage="Language" />,
       url: '',
@@ -181,6 +133,22 @@ export const useMenuItems = () => {
           url: '',
           id: 13,
           logo: <IconVi />,
+        },
+        {
+          label: 'Yкраїнський',
+          isExternal: false,
+          language: 'uk',
+          url: '',
+          id: 14,
+          logo: <UkIcon />,
+        },
+        {
+          label: 'Pусский',
+          isExternal: false,
+          language: 'ru',
+          url: '',
+          id: 15,
+          logo: <RuIcon />,
         },
       ],
     },

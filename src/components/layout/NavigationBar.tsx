@@ -209,7 +209,7 @@ function AccountEntry({
             <div className={`absolute top-14 pt-2 right-0 w-64 z-20`}>
               <Card
                 className="menu-max-height cursor-default shadow-4xl  border border-primaryText"
-                width="w-64"
+                width="w-72"
                 padding="py-4"
               >
                 {accountList.map((item, index) => {
