@@ -119,7 +119,10 @@ export const checkAccountTip = () => {
         lineHeight: '48px',
       }}
     >
-      <FormattedMessage id="return_to" defaultMessage="Return to " />
+      <FormattedMessage
+        id="found_token_in_your"
+        defaultMessage="Found token in your "
+      />
 
       <a
         href={`/account`}

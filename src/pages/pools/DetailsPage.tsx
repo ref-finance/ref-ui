@@ -108,6 +108,9 @@ import {
   checkAccountTip,
 } from '../../components/layout/transactionTipPopUp';
 import { checkTransaction } from '../../services/swap';
+
+export const REF_FI_PRE_LIQUIDITY_ID_KEY = 'REF_FI_PRE_LIQUIDITY_ID_VALUE';
+
 interface ParamTypes {
   id: string;
 }
@@ -181,9 +184,10 @@ export function AddLiquidityModal(
   props: ReactModal.Props & {
     pool: Pool;
     tokens: TokenMetadata[];
+    closeTip?: boolean;
   }
 ) {
-  const { pool, tokens } = props;
+  const { pool, tokens, closeTip } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [messageId, setMessageId] = useState<string>('add_liquidity');
@@ -207,6 +211,10 @@ export function AddLiquidityModal(
   const { txHash, errorCode } = getURLInfo();
 
   useEffect(() => {
+    if (typeof closeTip !== 'undefined' && closeTip) {
+      return;
+    }
+
     if (
       refAccountBalances &&
       tokens &&
@@ -221,6 +229,7 @@ export function AddLiquidityModal(
           ) > 0.00001
       )
     ) {
+      console.log(tokens);
       checkAccountTip();
       window.history.replaceState(
         {},
@@ -228,7 +237,7 @@ export function AddLiquidityModal(
         window.location.origin + window.location.pathname
       );
     }
-  }, [txHash, refAccountBalances, tokens, errorCode]);
+  }, [txHash, refAccountBalances, tokens, errorCode, closeTip]);
 
   if (!balances) return null;
 
@@ -458,6 +467,7 @@ export function AddLiquidityModal(
       if (canSubmit) {
         setButtonLoading(true);
         submit();
+        localStorage.setItem(REF_FI_PRE_LIQUIDITY_ID_KEY, pool.id.toString());
       }
     };
     return (
@@ -779,6 +789,7 @@ export function RemoveLiquidityModal(
       );
     }
     setButtonLoading(true);
+    localStorage.setItem(REF_FI_PRE_LIQUIDITY_ID_KEY, pool.id.toString());
     return removeLiquidity();
   }
 
