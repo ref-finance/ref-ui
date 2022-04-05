@@ -202,6 +202,34 @@ export function AddLiquidityModal(
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
 
+  const refAccountBalances = useTokenBalances();
+
+  const { txHash } = getURLInfo();
+
+  useEffect(() => {
+    if (
+      refAccountBalances &&
+      tokens &&
+      txHash &&
+      tokens.some(
+        (token) =>
+          Number(
+            toReadableNumber(
+              token.decimals,
+              refAccountBalances?.[token.id] || '0'
+            )
+          ) > 0.00001
+      )
+    ) {
+      checkAccountTip();
+      window.history.replaceState(
+        {},
+        '',
+        window.location.origin + window.location.pathname
+      );
+    }
+  }, [txHash, refAccountBalances, tokens]);
+
   if (!balances) return null;
 
   const changeFirstTokenAmount = (amount: string) => {
@@ -1314,41 +1342,6 @@ export function PoolDetailsPage() {
   const isSignedIn = signedInState.isSignedIn;
 
   const { wallet } = getCurrentWallet();
-
-  const refAccountBalances = useTokenBalances();
-
-  const { txHash } = getURLInfo();
-
-  useEffect(() => {
-    if (!txHash) return;
-
-    checkTransaction(txHash).then(({ transaction }) => {
-      const idAddLiquidity = transaction.actions.some((a: any) => {
-        return a.FunctionCall.method_name === 'add_liquidity';
-      });
-
-      if (
-        idAddLiquidity &&
-        refAccountBalances &&
-        tokens.some(
-          (token) =>
-            Number(
-              toReadableNumber(
-                token.decimals,
-                refAccountBalances?.[token.id] || '0'
-              )
-            ) > 0.00001
-        )
-      ) {
-        checkAccountTip();
-        window.history.replaceState(
-          {},
-          '',
-          window.location.origin + window.location.pathname
-        );
-      }
-    });
-  }, [txHash, refAccountBalances]);
 
   const handleSaveWatchList = () => {
     if (!isSignedIn) {

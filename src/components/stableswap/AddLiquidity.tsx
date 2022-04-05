@@ -112,42 +112,33 @@ export default function AddLiquidityComponent(props: {
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
 
-  const { wallet } = getCurrentWallet();
-
   const refAccountBalances = useTokenBalances();
 
   const { txHash } = getURLInfo();
 
   useEffect(() => {
-    if (!txHash) return;
-
-    checkTransaction(txHash).then(({ transaction }) => {
-      const idAddLiquidity = transaction.actions.some(
-        (a: any) => a.FunctionCall.method_name === 'add_stable_liquidity'
+    if (
+      refAccountBalances &&
+      tokens &&
+      txHash &&
+      tokens.some(
+        (token) =>
+          Number(
+            toReadableNumber(
+              token.decimals,
+              refAccountBalances?.[token.id] || '0'
+            )
+          ) > 0.00001
+      )
+    ) {
+      checkAccountTip();
+      window.history.replaceState(
+        {},
+        '',
+        window.location.origin + window.location.pathname
       );
-
-      if (
-        idAddLiquidity &&
-        refAccountBalances &&
-        tokens.some(
-          (token) =>
-            Number(
-              toReadableNumber(
-                token.decimals,
-                refAccountBalances?.[token.id] || '0'
-              )
-            ) > 0.00001
-        )
-      ) {
-        checkAccountTip();
-        window.history.replaceState(
-          {},
-          '',
-          window.location.origin + window.location.pathname
-        );
-      }
-    });
-  }, [txHash, refAccountBalances]);
+    }
+  }, [txHash, refAccountBalances, tokens]);
 
   useEffect(() => {
     const firstAmount = toReadableNumber(
