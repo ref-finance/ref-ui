@@ -160,62 +160,6 @@ export function YourLiquidityPage() {
     return null;
   }
 
-  const refAccountBalances = useTokenBalances();
-
-  const [tokensMeta, setTokensMeta] = useState<{}>();
-
-  useEffect(() => {
-    ftGetTokensMetadata(
-      pools?.map((p) => p.token_account_ids).flat() || []
-    ).then(setTokensMeta);
-  }, [pools]);
-
-  const { txHash } = getURLInfo();
-
-  useEffect(() => {
-    if (!txHash) return;
-
-    checkTransaction(txHash).then(({ transaction }) => {
-      let tokens: TokenMetadata[];
-
-      const idAddLiquidity = transaction.actions.some((a: any) => {
-        const data: string | undefined = a.FunctionCall.args;
-        if (data) {
-          const buff = Buffer.from(data, 'base64');
-          const args = JSON.parse(buff.toString('ascii'));
-
-          tokens = pools
-            ?.find((p) => Number(p?.id) === Number(args?.pool_id))
-            ?.token_account_ids?.map((id) => tokensMeta?.[id]);
-        }
-
-        return a.FunctionCall.method_name === 'add_liquidity';
-      });
-
-      if (
-        idAddLiquidity &&
-        refAccountBalances &&
-        tokens &&
-        tokens.some(
-          (token) =>
-            Number(
-              toReadableNumber(
-                token.decimals,
-                refAccountBalances?.[token.id] || '0'
-              )
-            ) > 0.00001
-        )
-      ) {
-        checkAccountTip();
-        window.history.replaceState(
-          {},
-          '',
-          window.location.origin + window.location.pathname
-        );
-      }
-    });
-  }, [txHash, refAccountBalances, tokensMeta]);
-
   useEffect(() => {
     if (isSignedIn) {
       getYourPools().then(setPools);
