@@ -479,7 +479,7 @@ const ModuleTemplate = (props: any) => {
     <div className="mb-5">
       <div className="relative">
         <ShapeTitleIcon></ShapeTitleIcon>
-        <label className="text-chartBg text-lg font-medium absolute left-7 top-1.5">
+        <label className="text-chartBg text-lg font-medium absolute left-7 top-1.5 xs:text-base md:text-base">
           {title}
         </label>
       </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { isMobile } from '~utils/device';
 const RiskLogo = (props: any) => {
   const { width, height, className, ...rest } = props;
   return (
@@ -502,34 +503,38 @@ const ExternalLinkIcon = (props: any) => {
     </svg>
   );
 };
+// const ShapeTitleIcon = () => {
+//   return (
+//     <svg
+//       width="295"
+//       height="58"
+//       viewBox="0 0 295 58"
+//       fill="none"
+//       xmlns="http://www.w3.org/2000/svg"
+//     >
+//       <path
+//         d="M0 16C0 7.16345 7.16344 0 16 0H250.598C255.859 0 260.783 2.58578 263.77 6.91627L293.594 50.1613C295.882 53.4782 293.507 58 289.478 58H4.99999C2.23857 58 0 55.7614 0 53V16Z"
+//         fill="url(#paint0_linear_13010_22)"
+//       />
+//       <defs>
+//         <linearGradient
+//           id="paint0_linear_13010_22"
+//           x1="149.5"
+//           y1="0"
+//           x2="149.5"
+//           y2="58"
+//           gradientUnits="userSpaceOnUse"
+//         >
+//           <stop stopColor="#00C6A2" />
+//           <stop offset="1" stopColor="#008B72" />
+//         </linearGradient>
+//       </defs>
+//     </svg>
+//   );
+// };
+const mobile = isMobile();
 const ShapeTitleIcon = () => {
-  return (
-    <svg
-      width="295"
-      height="58"
-      viewBox="0 0 295 58"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M0 16C0 7.16345 7.16344 0 16 0H250.598C255.859 0 260.783 2.58578 263.77 6.91627L293.594 50.1613C295.882 53.4782 293.507 58 289.478 58H4.99999C2.23857 58 0 55.7614 0 53V16Z"
-        fill="url(#paint0_linear_13010_22)"
-      />
-      <defs>
-        <linearGradient
-          id="paint0_linear_13010_22"
-          x1="149.5"
-          y1="0"
-          x2="149.5"
-          y2="58"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stopColor="#00C6A2" />
-          <stop offset="1" stopColor="#008B72" />
-        </linearGradient>
-      </defs>
-    </svg>
-  );
+  return <div className={mobile ? 'riskBanner_m' : 'riskBanner_pc'}></div>;
 };
 
 export { RiskLogo, ExternalLinkIcon, ShapeTitleIcon };

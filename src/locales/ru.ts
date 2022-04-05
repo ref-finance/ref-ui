@@ -85,29 +85,29 @@ const ru_in_risks_page = {
     "'Мы беседовали с психотерапевтом, который помогает лечить зависимость от трейдинга криптовалютами'",
   crypto_trading_addiction_paragraph_6:
     "'Я потерял миллионы из-за зависимости от трейдинга криптовалютами'",
-  Locked: 'Locked', // todo
-  no_in_progress: 'No (In Progress)', // todo
-  yes: 'Yes', // todo
-  no: 'No', // todo
-  NA: 'N/A', // todo
-  ref_finance_near: 'ref-finance.near', // todo
+  Locked: 'Locked',
+  no_in_progress: 'No (In Progress)',
+  yes: 'Yes',
+  no: 'No',
+  NA: 'N/A',
+  ref_finance_near: 'ref-finance.near',
   ref_finance_near_mission:
-    'v1 (depreciated)- Manage the Automated Market Maker functions; Swap and Provide Liquidity', // todo
-  token_ref_finance_near: 'token.ref-finance.near', // todo
-  token_ref_finance_near_type: 'Fungible Token Contract', // todo
-  token_ref_finance_near_mission: 'v1 (depreciated) - Mint REF token', // todo
-  refchef_near: 'refchef.near', // todo
-  simple_address: 'Simple Address', // todo
-  refchef_near_mission: 'Manage inter-account transactions', // todo
+    'v1 (depreciated)- Manage the Automated Market Maker functions; Swap and Provide Liquidity',
+  token_ref_finance_near: 'token.ref-finance.near',
+  token_ref_finance_near_type: 'Fungible Token Contract',
+  token_ref_finance_near_mission: 'v1 (depreciated) - Mint REF token',
+  refchef_near: 'refchef.near',
+  simple_address: 'Simple Address',
+  refchef_near_mission: 'Manage inter-account transactions',
   ref_dev_teller_near: 'ref-dev-teller.near',
-  Locked_title: 'Locked? information box: when hovering to display:', // todo
+  Locked_title: 'Locked? information box: when hovering to display:',
   Locked_paragraph_1:
     'Заблокированный контракт означает, что не существует ключей доступа, позволяющих повторно развернуть код контракта.',
   Locked_paragraph_2:
-    'В большинстве случаев код может быть повторно развернут:', // todo
-  Locked_paragraph_3: '1. транзакция с помощью действия deploy-code', // todo
+    'В большинстве случаев код может быть повторно развернут:',
+  Locked_paragraph_3: '1. транзакция с помощью действия deploy-code',
   Locked_paragraph_4:
-    '2. сам контракт может реализовать вызов функции, которая вызовет действие deploy-code', // todo
+    '2. сам контракт может реализовать вызов функции, которая вызовет действие deploy-code',
   Locked_paragraph_5:
     'Для того, чтобы повторно развернуть код с помощью транзакции, транзакция должна быть подписана ключом полного доступа. Если в контракте нет такого ключа, то нет возможности повторно развернуть код, если только в самом коде контракта нет специальной поддержки, и поэтому мы отмечаем такие контракты как заблокированные.',
   Locked_paragraph_6:
@@ -122,9 +122,8 @@ const ru_in_risks_page = {
     '>Ref Finance Sputnik DAO</label>. There are <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
     '>Хранители</label>, определенные адреса NEAR, которые могут приостановить контракт. Только DAO может в любой момент возобновить контракт.',
-  // todo
   risks_of_using_ref_finance:
-    '<label class="text-greenColor">Risks</label> of Using Ref. finance',
+    '<label class="text-greenColor">Риски</label> использования Ref. finance',
 };
 const ru = {
   deposit: 'Депозит',
