@@ -206,7 +206,8 @@ export function AddLiquidityModal(
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
 
-  const refAccountBalances = useTokenBalances();
+  const refAccountBalances =
+    typeof closeTip !== 'undefined' && closeTip ? {} : useTokenBalances();
 
   const { txHash, errorCode } = getURLInfo();
 
