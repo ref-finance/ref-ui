@@ -21,7 +21,7 @@ export default function SquareRadio({
         {radios.map((radio) => {
           return (
             <div
-              className={`py-1.5 px-3 text-center text-xs rounded cursor-pointer ${
+              className={`flex items-center py-1.5 px-3 text-center text-xs rounded cursor-pointer ${
                 choose === radio
                   ? ' bg-stableTab text-white '
                   : ' text-primaryText'

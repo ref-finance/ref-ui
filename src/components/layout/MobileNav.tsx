@@ -18,6 +18,8 @@ import {
   WrapNearEnter,
   IconAirDropGreenTip,
   WrapNearIconDark,
+  UkIcon,
+  RuIcon,
 } from '~components/icon';
 import { WNEARExchngeIcon } from '~components/icon/Common';
 import { Link, useLocation } from 'react-router-dom';
@@ -148,6 +150,28 @@ export function MobileSwitchLanguage() {
             <IconVi />
           </span>
           Việt
+        </div>
+        <div
+          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
+            currentLocal === 'uk' ? 'text-white' : 'text-primaryText '
+          }`}
+          onClick={() => context.selectLanguage('uk')}
+        >
+          <span className="text-2xl mr-5">
+            <UkIcon />
+          </span>
+          Yкраїнський
+        </div>
+        <div
+          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
+            currentLocal === 'ru' ? 'text-white' : 'text-primaryText '
+          }`}
+          onClick={() => context.selectLanguage('ru')}
+        >
+          <span className="text-2xl mr-5">
+            <RuIcon />
+          </span>
+          Pусский
         </div>
       </div>
     </div>

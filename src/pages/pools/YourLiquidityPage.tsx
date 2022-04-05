@@ -423,7 +423,7 @@ function PoolRow(props: { pool: any }) {
                   history.push('/stableswap', { stableTab: 'add_liquidity' });
                 }
               }}
-              className="text-xs col-span-2 mr-4 w-24 text-center"
+              className="text-xs col-span-2 mr-4 w-36 text-center"
             >
               <FormattedMessage
                 id="add_liquidity"
@@ -446,7 +446,7 @@ function PoolRow(props: { pool: any }) {
 
                 setShowWithdraw(true);
               }}
-              className="text-xs px-4 col-span-2 w-20 text-center"
+              className="text-xs px-4 col-span-2 w-24 text-center"
             >
               <FormattedMessage id="remove" defaultMessage="Remove" />
             </OutlineButton>
@@ -510,7 +510,7 @@ function PoolRow(props: { pool: any }) {
                     history.push('/stableswap', { stableTab: 'add_liquidity' });
                   }
                 }}
-                className="text-sm w-28 mr-4"
+                className="text-sm w-44 mr-4"
               >
                 <FormattedMessage
                   id="add_liquidity"

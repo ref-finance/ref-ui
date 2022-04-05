@@ -96,8 +96,8 @@ export function SwapDetail({
 }) {
   return (
     <section className="grid grid-cols-12 py-1 text-xs">
-      <p className="text-primaryText text-left col-span-5">{title}</p>
-      <p className="text-right text-white col-span-7">{value}</p>
+      <p className="text-primaryText text-left col-span-6">{title}</p>
+      <p className="text-right text-white col-span-6">{value}</p>
     </section>
   );
 }
