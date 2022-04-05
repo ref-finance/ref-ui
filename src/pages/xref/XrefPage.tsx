@@ -482,7 +482,7 @@ function InfoBox(props: any) {
   const [hover, setHover] = useState(false);
   return (
     <div
-      className="lg:h-16 xs:h-20 md:h-20 rounded-lg bg-darkGradientBg shadow-dark p-2.5 hover:bg-darkGradientHoverBg"
+      className="lg:h-16 xs:h-24 md:h-24 rounded-lg bg-darkGradientBg shadow-dark p-2.5 hover:bg-darkGradientHoverBg"
       onMouseEnter={() => {
         setHover(true);
       }}
@@ -490,7 +490,7 @@ function InfoBox(props: any) {
         setHover(false);
       }}
     >
-      <div className="text-primaryText text-xs mb-1 xs:h-8 md:h-8 lg:text-center">
+      <div className="text-primaryText text-xs mb-1 lg:text-center">
         {title}
         {tip ? (
           <>
