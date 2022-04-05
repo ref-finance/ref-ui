@@ -315,6 +315,8 @@ export const getPoolsByTokens = async ({
     filtered_pools = filtered_pools.filter(
       (p) => p.supplies[tokenInId] && p.supplies[tokenOutId]
     );
+    await getStablePoolFromCache();
+    await getStablePoolFromCache(STABLE_POOL_USN_ID.toString());
   }
   setLoadingData && setLoadingData(false);
   // @ts-ignore
