@@ -1,3 +1,129 @@
+const uk_UA_in_risks_page = {
+  risks: 'Ризики',
+  of_using_ref_finance: 'використання Ref. фінанси',
+  introduction:
+    'Надання ліквідності та/або торгівля на Ref Finance не обходяться без ризиків. Перш ніж взаємодіяти з протоколом, будь ласка, проведіть дослідження та проаналізуйте усі ризики.',
+  general_risks_quiz: 'Вікторина про загальні ризики',
+  amm_core_design: 'Основний дизайн AMM',
+  audits: 'Аудити',
+  audits_paragraph_2:
+    'Аудит безпеки не усуває ризики повністю. Будь ласка, не надавайте Ref Finance свої заощадження або активи, які ви не можете дозволити собі втратити, особливо як постачальника ліквідності.',
+  admin_keys: 'Адмін ключі',
+  admin_keys_paragraph_2:
+    'На даний час DAO налічує 26 членів. Ref Finance переходить до повністю децентралізованого DAO.',
+  admin_keys_paragraph_3:
+    'Нижче наведено список контрактів та адрес, які безпосередньо керували або керують справами Ref Finance в даний час.',
+  address: 'Адреса контракту ',
+  type: 'Тип',
+  mission: 'Місія',
+  exchange_contract: 'Exchange Contract',
+  table_body_tr_1:
+    'Керування функціями автоматизованого маркетмейкера; Обмін та надання ліквідності',
+  farming_contract: 'Farming Contract',
+  table_body_tr_2: 'Керування стимулами ліквідності',
+  staking_contract: 'Staking Contract',
+  table_body_tr_3:
+    'Мінт та спалювання xREF, а також розподілення нагород за часом',
+  sputnik_dao_contract: 'Sputnik DAO Contract',
+  table_body_tr_4:
+    'Забезпечення успіху Ref, приймаючи стратегічні рішення (включаючи зміни до смарт-контракту)',
+  table_body_tr_5:
+    'Керування та розподілення коштів певним учасникам спільноти',
+  table_body_tr_6: 'Реалізація стратегії та дорожньої карти',
+  vesting_contract: 'Vesting Contract',
+  table_body_tr_7: 'Керування контрактами щодо передачі REF членам Dev DAO',
+  airdrop_contract: 'Airdrop Contract',
+  table_body_tr_8: 'Керування перший аірдропом REF',
+  near_address: 'NEAR Address',
+  table_body_tr_9:
+    'Керування одноразовими виплатами за виправлення помилок (bug bounty)',
+  fungible_token_contract: 'Fungible Token Contract',
+  table_body_tr_10: 'Випуск токена REF ',
+  rug_pull: 'Rug pull',
+  rug_pull_paragraph_1:
+    'Якщо команда, яка стоїть за токеном, внесеним до білого списку чи ні, вирішить відмовитися від свого проекту і забере гроші інвесторів, токен проекту, ймовірно, буде коштувати 0 доларів.',
+  rug_pull_paragraph_2:
+    'Якщо токен внесено до білого списку Ref Finance, це не означає, що проект буде успішним. Ви несете відповідальність за проведення власної належної перевірки проекту і повинні розуміти, що криптовалюта є спекулятивними інвестиціями з дуже високим ризиком.',
+  rug_pull_paragraph_3:
+    'Ви повинні бути обізнані та готові до можливої втрати частини або усіх вкладених коштів.',
+  divergence_loss: 'Дивергентні втрати',
+  divergence_loss_paragraph_1:
+    'Якщо ви надаєте ліквідність, зверніть увагу, що ви можете заробити більше грошей, не надавши ліквідність.',
+  divergence_loss_paragraph_2:
+    'Дивергенті втрати часто, однак, неправомірно називають «непостійними втратами». Прикметник (непостійний) може припускати або створювати маркетингове відчуття, що втрати є лише тимчасовими, та що вони гарантовано будуть повернуті, що не відповідає дійсності.',
+  divergence_loss_paragraph_3: 'Дізнайтеся більше про дивергентні втрати',
+  staking_risks: 'Ризики стейкінгу',
+  staking_risks_paragraph_1:
+    'Під час стейкингу ви використовуєте декілька смарт-контрактів, кожен з яких має свої ризики.',
+  permanent_loss_of_a_peg: 'Перманентна втрата пегу',
+  permanent_loss_of_a_peg_paragraph_1:
+    'Якщо один із стейблкойнів у пулі значно опуститься нижче прив’язки 1,0 і ніколи не повернеться до прив’язки, це фактично означатиме, що провайдери пулу тримають майже всю свою ліквідність у цій валюті.',
+  systemic_issues: 'Системні проблеми',
+  systemic_issues_paragraph_1:
+    'Загалом, DeFi або Legos of money дуже пов’язані, а це означає, що один збій його компонента може спровокувати низку невдач.',
+  systemic_issues_paragraph_2:
+    'Систематичний ризик означає, що ви можете втратити гроші, навіть якщо збій безпосередньо не стосується ваших інвестицій/експозицій.',
+  systemic_issues_paragraph_3:
+    'На пули ліквідності можуть вплинути такі ризики:',
+  systemic_issues_paragraph_4:
+    'Проблеми смарт-контракту з протоколами кредитування',
+  systemic_issues_paragraph_5:
+    'Проблеми смарт-контракту з протоколами стейкінгу',
+  systemic_issues_paragraph_6: 'Системні проблеми зі стейблкоінами в пулах',
+  systemic_issues_paragraph_7:
+    'Системні проблеми з нативними токенами ERC20 в пулах',
+  crypto_trading_addiction: 'Залежність від криптоторгівлі',
+  crypto_trading_addiction_paragraph_1:
+    'Торгівля криптовалютою може викликати сильне звикання і, за багатьма джерелами, бути формою залежності від азартних ігор, яка може зруйнувати життя.',
+  crypto_trading_addiction_paragraph_2:
+    'Нижче наведено низку історій, пов’язаних із цим питанням.',
+  crypto_trading_addiction_paragraph_3:
+    "'Трейдинг — це азартна гра, без сумніву'",
+  crypto_trading_addiction_paragraph_4:
+    "'Я втратив півмільйона фунтів на торгівлі біткойнами'",
+  crypto_trading_addiction_paragraph_5:
+    "'Ми поговорили з терапевтом, який лікує залежність від торгівлі криптовалютами'",
+  crypto_trading_addiction_paragraph_6:
+    "'Я втратив мільйони через залежність від торгівлі криптовалютою'",
+  no_in_progress: 'No (In Progress)',
+  yes: 'Yes',
+  no: 'No',
+  NA: 'N/A',
+  ref_finance_near: 'ref-finance.near',
+  ref_finance_near_mission:
+    'v1 (depreciated)- Manage the Automated Market Maker functions; Swap and Provide Liquidity',
+  token_ref_finance_near: 'token.ref-finance.near',
+  token_ref_finance_near_type: 'Fungible Token Contract',
+  token_ref_finance_near_mission: 'v1 (depreciated) - Mint REF token',
+  refchef_near: 'refchef.near',
+  simple_address: 'Simple Address',
+  refchef_near_mission: 'Manage inter-account transactions',
+  ref_dev_teller_near: 'ref-dev-teller.near',
+  Locked_title: 'Locked? information box: when hovering to display:',
+  Locked_paragraph_1:
+    'Заблокований контракт означає, що немає ключів доступу, що дозволяють повторно розгорнути код контракту за допомогою.',
+  Locked_paragraph_2:
+    'У загальному випадку код можна повторно розгорнути за допомогою:',
+  Locked_paragraph_3: '1. транзакції з дією deploy-code',
+  Locked_paragraph_4:
+    '2. сам контракт може реалізувати функцію виклику, який може викликати дію розгортання коду',
+  Locked_paragraph_5:
+    'Для повторного розгортання коду за deploy-code, транзакція повинна бути підписана ключем повного доступу. Якщо в контракті немає такого ключа, то немає можливості розгорнути код, якщо тільки в самому коді контракту немає спеціальної підтримки, і тому ми помічаємо такі контракти, як заблоковані.',
+  Locked_paragraph_6:
+    'Якщо на обліковому записі контракта зареєстровано, хоча б один ключ повного доступу, контракт не блокується.',
+  audited_first_sentence:
+    'Смарт-контракти Ref Finance пройшли аудит <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://jitadigital.com/')" +
+    '>Jita</label>. Ref Finance буде активно шукати можливості проведення другого незалежного аудиту після завершення першого.',
+  admin_first_sentence:
+    'Управління Ref Finance здійснюється<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
+    '> Ref Finance Sputnik DAO</label>. Існують <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
+    '>Guardians</label>, конкретні адреси NEAR, які можуть призупинити контракт. Тільки DAO може відновити контракт у будь-який час.',
+  risks_of_using_ref_finance:
+    '<label class="text-greenColor">Risks</label> Використання Ref. finance',
+};
 const uk_UA = {
   deposit: 'депозит',
   Deposit: 'Депозит',
@@ -46,7 +172,7 @@ const uk_UA = {
   connect_to_near: 'Підключитись до NEAR',
   slippage: 'Допуск прослизання',
   slippage_title: 'Налаштування транзакцій',
-  minimum_received: 'Мінімум отримаєте',
+  minimum_received: 'Мінімум отриманий',
   swap_rate: 'Ставка свопу',
   swap_rate_pre: 'Ставка свопу',
   pool_fee: 'Комісія пулу',
@@ -185,6 +311,7 @@ const uk_UA = {
   more_pools: 'Більше пулів',
   my_watchlist: 'Список спостережень',
   h24_volume: 'Обсяг за добу',
+  volume: 'Volume',
   hide_low_tvl_pools: 'Приховати низький TVL',
   watchlist_title: 'Мій список спостережень вгорі',
   add_watchlist: 'Додати список спостережень',
@@ -245,12 +372,12 @@ const uk_UA = {
   swap_rate_including_fee: 'Ставка свопу (включаючи комісії)',
   by_share: 'За часткою',
   by_token: 'За токеном',
-  your_liquidity_positions_will_appear_here:
-    'Ваші позиції відображатимуться тут',
+  your_positions_will_be_displayed_here:
+    "Ваші позиції ліквідності з'являться тут.",
   price_impact: 'Вплив ціни',
   shares_left: 'Частки, які залишились',
   total_stable_coins: 'Всього стейблкоїнів',
-  daily_volume: 'Щоденний обсяг',
+  daily_volume: "Щоденний об'єм",
   liquidity_utilisation: 'Використання ліквідності',
   token_reserves: 'Резерви токенів',
   roi_calculator: 'ROI калькулятор',
@@ -300,7 +427,7 @@ const uk_UA = {
   price_impact_is_about: 'Вплив на ціну становить приблизно',
   yes_swap: 'Так, здійснити своп',
   amount_must_be_greater_than_0: 'сума має бути більше 0',
-  volume_ratio: '24 год. об&apos;єм/ Коефіцієнт ліквідності',
+  volume_ratio: "24 год. об'єм/ Коефіцієнт ліквідності",
   go_to_near_wallet: 'Перейти у NEAR Wallet',
   into_ref_account: 'у ваш акаунт REF.',
   deposit_into_ref_account: 'у ваш акаунт REF, щоб додати ліквідність',
@@ -318,7 +445,7 @@ const uk_UA = {
     'Це число відповідає сукупному загальному прибутку від торгових комісій власникам xREF. Він дорівнює 75% від загального доходу платформи. Воно може відрізнятися від фактичної суми зворотного викупу токена REF через коливання цін.',
   stake_ref_to_xref_for_earning_more:
     'Здійснюйте стейкінг  REF до xREF, щоб заробляти більше!',
-  auto_router: 'Автоматичний маршрутизатор',
+  auto_router: 'Автомобільний роутер',
   auto_router_detail_sub_1: 'Цей маршрут оптимізує ваш своп',
   auto_router_detail_sub_2: 'враховуючи всі пули для однієї пари.',
   auto_router_detail_sub_3: 'Деталі:',
@@ -328,6 +455,7 @@ const uk_UA = {
   xref_to_receive: 'отримати xREF',
   ref_to_receive: 'отримати REF ',
   more_expensive_than_best_rate_en: 'дорожче за найкращу ставку',
+  more_expensive_than_best_rate_zh_cn: '',
   optimal_path_found_by_our_solution:
     'Оптимальний шлях, знайдений нашим рішенням',
   check_to_stable_banner: 'Перевірити',
@@ -353,111 +481,20 @@ const uk_UA = {
   from_terra: 'Terra',
   from_celo: 'Celo',
   no_result: 'На жаль, нам не вдалося знайти відповідний пул фарму',
-  mulitple: 'Декілька',
+  multiple: 'Декілька',
   default: 'За замовчуванням',
   vi_go_live: 'Доступна В&apos;єтнамська мова!',
-  create: 'Творити',
   initialize_account_tip: 'Будь ласка, ініціалізуйте свій обліковий запис.',
   transaction_failed: 'Не вдалося виконати операцію',
   click_to_view: 'Клацніть, щоб переглянути',
   Type: 'Тип',
-  start: 'Start',
+  create: 'створювати',
+  support_ledger: 'Support Ledger',
+  support_ledger_tip:
+    'За своєю конструкцією Ledger не дозволяє<br> обробляти великі транзакції (торгівлю через<br> кілька пулів одночасно - Auto Router) через<br> обмеження пам\'яті. У разі активації опції<br> "Support Ledger" транзакції будуть обмежені<br> до їхнайпростішої форми (оптимальні ціни<br> необхідно обирати самостійно, Auto Router<br> в цьому випадку не працює), і можуть<br> бути підписані.',
+  start: 'Початок',
   aprTip: 'Indicative value based on all rewards (pending and running)',
+  half: 'Half',
+  max: 'Max',
 };
-
-const uk_UA_in_risks_page = {
-  risks: 'Ризики',
-  of_using_ref_finance: 'використання Ref. фінанси',
-  introduction:
-    'Надання ліквідності та/або торгівля на Ref Finance не обходяться без ризиків. Перш ніж взаємодіяти з протоколом, будь ласка, проведіть дослідження та проаналізуйте усі ризики.',
-  general_risks_quiz: 'Вікторина про загальні ризики',
-  amm_core_design: 'Основний дизайн AMM',
-  audits: 'Аудити',
-  audits_paragraph_2:
-    'Аудит безпеки не усуває ризики повністю. Будь ласка, не надавайте Ref Finance свої заощадження або активи, які ви не можете дозволити собі втратити, особливо як постачальника ліквідності.',
-  admin_keys: 'Адмін ключі',
-  admin_keys_paragraph_2:
-    'На даний час DAO налічує 26 членів. Ref Finance переходить до повністю децентралізованого DAO.',
-  admin_keys_paragraph_3:
-    'Нижче наведено список контрактів та адрес, які безпосередньо керували або керують справами Ref Finance в даний час.',
-  address: 'Адреса контракту ',
-  type: 'Тип',
-  mission: 'Місія',
-  exchange_contract: 'Exchange Contract',
-  table_body_tr_1:
-    'Керування функціями автоматизованого маркетмейкера; Обмін та надання ліквідності',
-  farming_contract: 'Farming Contract',
-  table_body_tr_2: 'Керування стимулами ліквідності',
-  staking_contract: 'Staking Contract',
-  table_body_tr_3:
-    'Мінт та спалювання xREF, а також розподілення нагород за часом',
-  sputnik_dao_contract: 'Sputnik DAO Contract',
-  table_body_tr_4:
-    'Забезпечення успіху Ref, приймаючи стратегічні рішення (включаючи зміни до смарт-контракту)',
-  table_body_tr_5:
-    'Керування та розподілення коштів певним учасникам спільноти',
-  table_body_tr_6: 'Реалізація стратегії та дорожньої карти',
-  vesting_contract: 'Vesting Contract',
-  table_body_tr_7: 'Керування контрактами щодо передачі REF членам Dev DAO',
-  airdrop_contract: 'Airdrop Contract',
-  table_body_tr_8: 'Керування перший аірдропом REF',
-  near_address: 'NEAR Address',
-  table_body_tr_9:
-    'Керування одноразовими виплатами за виправлення помилок (bug bounty)',
-  fungible_token_contract: 'Fungible Token Contract',
-  table_body_tr_10: 'Випуск токена REF ',
-  rug_pull: 'Rug pull',
-  rug_pull_paragraph_1:
-    'Якщо команда, яка стоїть за токеном, внесеним до білого списку чи ні, вирішить відмовитися від свого проекту і забере гроші інвесторів, токен проекту, ймовірно, буде коштувати 0 доларів.',
-  rug_pull_paragraph_2:
-    'Якщо токен внесено до білого списку Ref Finance, це не означає, що проект буде успішним. Ви несете відповідальність за проведення власної належної перевірки проекту і повинні розуміти, що криптовалюта є спекулятивними інвестиціями з дуже високим ризиком.',
-  rug_pull_paragraph_3:
-    'Ви повинні бути обізнані та готові до можливої втрати частини або усіх вкладених коштів.',
-  divergence_loss: 'Дивергентні втрати',
-  divergence_loss_paragraph_1:
-    'Якщо ви надаєте ліквідність, зверніть увагу, що ви можете заробити більше грошей, не надавши ліквідність.',
-  divergence_loss_paragraph_2:
-    'Дивергенті втрати часто, однак, неправомірно називають «непостійними втратами». Прикметник (непостійний) може припускати або створювати маркетингове відчуття, що втрати є лише тимчасовими, та що вони гарантовано будуть повернуті, що не відповідає дійсності.',
-  divergence_loss_paragraph_3: 'Дізнайтеся більше про дивергентні втрати',
-  staking_risks: 'Ризики стейкінгу',
-  staking_risks_paragraph_1:
-    'Під час стейкингу ви використовуєте декілька смарт-контрактів, кожен з яких має свої ризики.',
-  permanent_loss_of_a_peg: 'Перманентна втрата пегу',
-  permanent_loss_of_a_peg_paragraph_1:
-    'Якщо один із стейблкойнів у пулі значно опуститься нижче прив’язки 1,0 і ніколи не повернеться до прив’язки, це фактично означатиме, що провайдери пулу тримають майже всю свою ліквідність у цій валюті.',
-  systemic_issues: 'Системні проблеми',
-  systemic_issues_paragraph_1:
-    'Загалом, DeFi або Legos of money дуже пов’язані, а це означає, що один збій його компонента може спровокувати низку невдач.',
-  systemic_issues_paragraph_2:
-    'Систематичний ризик означає, що ви можете втратити гроші, навіть якщо збій безпосередньо не стосується ваших інвестицій/експозицій.',
-  systemic_issues_paragraph_3:
-    'На пули ліквідності можуть вплинути такі ризики:',
-  systemic_issues_paragraph_4:
-    'Проблеми смарт-контракту з протоколами кредитування',
-  systemic_issues_paragraph_5:
-    'Проблеми смарт-контракту з протоколами стейкінгу',
-  systemic_issues_paragraph_6: 'Системні проблеми зі стейблкоінами в пулах',
-  systemic_issues_paragraph_7:
-    'Системні проблеми з нативними токенами ERC20 в пулах',
-  crypto_trading_addiction: 'Залежність від криптоторгівлі',
-  crypto_trading_addiction_paragraph_1:
-    'Торгівля криптовалютою може викликати сильне звикання і, за багатьма джерелами, бути формою залежності від азартних ігор, яка може зруйнувати життя.',
-  crypto_trading_addiction_paragraph_2:
-    'Нижче наведено низку історій, пов’язаних із цим питанням.',
-  crypto_trading_addiction_paragraph_3:
-    "'Трейдинг — це азартна гра, без сумніву'",
-  crypto_trading_addiction_paragraph_4:
-    "'Я втратив півмільйона фунтів на торгівлі біткойнами'",
-  crypto_trading_addiction_paragraph_5:
-    "'Ми поговорили з терапевтом, який лікує залежність від торгівлі криптовалютами'",
-  crypto_trading_addiction_paragraph_6:
-    "'Я втратив мільйони через залежність від торгівлі криптовалютою'",
-  initialize_account_tip: 'Будь ласка, ініціалізуйте свій обліковий запис.',
-  transaction_failed: 'Не вдалося виконати операцію',
-  click_to_view: 'Клацніть, щоб переглянути',
-  Type: 'Тип',
-  start: 'Start',
-  aprTip: 'Giá trị được tính dựa trên tổng phần thưởng hiện có (chưa/đã nhận)',
-};
-
-export default { uk_UA, uk_UA_in_risks_page };
+export default Object.assign(uk_UA, uk_UA_in_risks_page);

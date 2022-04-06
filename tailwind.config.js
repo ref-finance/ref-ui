@@ -106,6 +106,7 @@ module.exports = {
         '560px': '560px',
         '360px': '360px',
         '80vw': '80vw',
+        '90vw': '90vw',
         '30vw': '30vw',
         smartRoute: '292px',
         54: '13.5rem',

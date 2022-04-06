@@ -1,5 +1,115 @@
 import React from 'react';
-
+const zh_CN_in_risks_page = {
+  risks: '风险',
+  of_using_ref_finance: 'Ref. finance的使用',
+  introduction:
+    '在 Ref Finance 上提供流动性和/或交易并非没有风险。 在与协议交互之前，请先进行研究并了解所涉及的风险。',
+  general_risks_quiz: '一般风险测试',
+  amm_core_design: 'AMM核心设计',
+  audits: '审计',
+  audits_paragraph_2:
+    '安全审计并不能完全消除风险。 请不要将您的毕生积蓄或您无法承受损失的资产提供给 Ref Finance，尤其是作为流动性提供者。',
+  admin_keys: '管理员密钥',
+  admin_keys_paragraph_2:
+    '目前的 DAO 有 26 个成员。 Ref Finance 将过渡到完全去中心化的 DAO。',
+  admin_keys_paragraph_3:
+    '请在下方找到直接管理或目前管理 Ref Finance 事务的合同和地址列表。',
+  address: '地址',
+  type: '类型',
+  mission: '任务',
+  Locked: '锁住',
+  exchange_contract: '交换合约',
+  table_body_tr_1: '管理自动做市商功能； 交换并提供流动性',
+  farming_contract: '农场合约',
+  table_body_tr_2: '管理流动性激励措施',
+  staking_contract: '质押合约',
+  table_body_tr_3: '铸造和销毁 xREF，并分发基于时间的奖励',
+  sputnik_dao_contract: 'Sputnik DAO合约',
+  table_body_tr_4: '通过制定战略决策（包括智能合约修订）确保 Ref 的成功',
+  table_body_tr_5: '管理和分配资金给特定的社区贡献者',
+  table_body_tr_6: '执行战略和路线图',
+  vesting_contract: '归属合同',
+  table_body_tr_7: '管理 Dev DAO 成员的 REF 归属合同',
+  airdrop_contract: '空投合约',
+  table_body_tr_8: '管理第一个 REF 空投',
+  near_address: 'NEAR地址',
+  table_body_tr_9: '管理一次性错误赏金支付',
+  fungible_token_contract: '可替代代币合约',
+  table_body_tr_10: '铸造 REF 代币',
+  rug_pull: '地毯拉力',
+  rug_pull_paragraph_1:
+    '如果代币背后的团队（无论是否列入白名单）决定放弃其项目并拿走投资者的钱，那么该项目的代币可能价值 0 美元。',
+  rug_pull_paragraph_2:
+    '如果代币在 Ref Finance 上被列入白名单，这并不意味着该项目会成功。 您有责任对项目进行自己的尽职调查，并且应该了解加密是非常高风险的投机性投资。',
+  rug_pull_paragraph_3: '您应该意识到并准备好可能损失部分或全部投资资金。',
+  divergence_loss: '发散损失',
+  divergence_loss_paragraph_1:
+    '如果您提供流动性，请注意，您可以通过不提供流动性来赚更多的钱。',
+  divergence_loss_paragraph_2:
+    '发散损失通常被不恰当地称为“无常损失”。 形容词（无常）可能会假设或创造一种营销感觉，即损失只是无常的，这意味着损失肯定会被逆转，这是不正确的。',
+  divergence_loss_paragraph_3: '了解有关发散损失的更多信息',
+  staking_risks: '质押风险',
+  staking_risks_paragraph_1:
+    '质押时，您会使用多种智能合约产品，每种产品都有其自身的风险。',
+  permanent_loss_of_a_peg: '永久丢失挂钩',
+  permanent_loss_of_a_peg_paragraph_1:
+    '如果池中的一个稳定币大幅下跌至低于 1.0 的挂钩并且永远不会回到挂钩，这实际上意味着池流动性提供者几乎持有该货币的所有流动性。',
+  systemic_issues: '系统性问题',
+  systemic_issues_paragraph_1:
+    '一般来说，DeFi 或货币的乐高是高度关联的，这意味着其组件的一个故障可能会引发一连串的故障。',
+  systemic_issues_paragraph_2:
+    '系统性风险意味着即使失败与您的投资/风险没有直接关系，您也可能会亏损。',
+  systemic_issues_paragraph_3: '以下风险可能会对流动资金池产生影响：',
+  systemic_issues_paragraph_4: '借贷协议的智能合约问题',
+  systemic_issues_paragraph_5: '权益协议的智能合约问题',
+  systemic_issues_paragraph_6: '这些池中稳定币的系统性问题',
+  systemic_issues_paragraph_7: '这些池中 ERC20 原生代币的系统性问题',
+  crypto_trading_addiction: '加密交易成瘾',
+  crypto_trading_addiction_paragraph_1:
+    '交易加密货币可能会让人上瘾，并且根据许多消息来源，它是一种赌博成瘾的形式，可以摧毁生命。',
+  crypto_trading_addiction_paragraph_2: '请在下面找到与该问题相关的故事集。',
+  crypto_trading_addiction_paragraph_3: '“交易就是赌博，这是毫无疑问的”',
+  crypto_trading_addiction_paragraph_4: '“我在交易比特币时损失了 50 万英镑”',
+  crypto_trading_addiction_paragraph_5:
+    '“我们与一位治疗加密货币交易成瘾的治疗师交谈”',
+  crypto_trading_addiction_paragraph_6:
+    '“我因加密货币交易成瘾损失了数百万美元”',
+  no_in_progress: '不是（进行中）',
+  yes: '是的',
+  no: '不是',
+  NA: '不适用',
+  ref_finance_near: 'ref-finance.near',
+  ref_finance_near_mission:
+    'v1（旧版本）- 管理自动做市商功能； 交换并提供流动性',
+  token_ref_finance_near: 'token.ref-finance.near',
+  token_ref_finance_near_type: '可替代代币合约',
+  token_ref_finance_near_mission: 'v1（旧版本）- Mint REF 代币',
+  refchef_near: 'refchef.near',
+  simple_address: '简单地址',
+  refchef_near_mission: '管理账户间交易',
+  ref_dev_teller_near: 'ref-dev-teller.near',
+  Locked_title: '锁定？ 信息框：悬停时显示：',
+  Locked_paragraph_1: '锁定合约意味着没有允许重新部署合约代码的访问密钥。',
+  Locked_paragraph_2: '在一般情况下，可以通过以下方式重新部署代码：',
+  Locked_paragraph_3: '1. 具有部署代码操作的事务',
+  Locked_paragraph_4: '2. 合约本身可以实现触发部署代码操作的函数调用',
+  Locked_paragraph_5:
+    '要使用交易重新部署代码，必须使用完全访问密钥对交易进行签名。 如果合约上没有这样的密钥，除非合约代码本身有专门的支持，否则无法重新部署代码，因此我们将此类合约标记为已锁定。',
+  Locked_paragraph_6:
+    '如果合约账户上至少注册了一个完全访问密钥，则合约不会被锁定。',
+  audited_first_sentence:
+    '<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://jitadigital.com/')" +
+    '>Jita</label> 正在审核 Ref Finance 智能合约。 一旦第一次审计完成，Ref Finance 将积极寻求第二次独立审计。',
+  admin_first_sentence:
+    'Ref Finance 由 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
+    '>Ref Finance Sputnik DAO</label> 管理。有<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
+    '>监护人</label>，特定的 NEAR 地址，可以暂停合约。 只有 DAO 可以随时恢复合约。',
+  risks_of_using_ref_finance:
+    'Ref. finance的使用<label class="text-greenColor">风险</label>',
+};
 const zh_CN = {
   deposit: '存入',
   Deposit: '存入',
@@ -308,6 +418,7 @@ const zh_CN = {
   xref_start_time: '开始于 1am UTC, 18th Jan, 2022。',
   xref_to_receive: '收到的xREF',
   ref_to_receive: '收到的REF',
+  more_expensive_than_best_rate_en: '',
   more_expensive_than_best_rate_zh_cn: '比最优汇率高出',
   optimal_path_found_by_our_solution: '我们找到的最好路径',
   check_to_stable_banner: '查看',
@@ -342,6 +453,7 @@ const zh_CN = {
   do_not_need_deposit_anymore: '你已经不需要再存入了!',
   lightning_swaps: '轻量的交换操作',
   frictionless_add_remove_liquidity: '顺滑地进行流动性的添加和移除操作',
+  create: '创建',
   select_a: '选择一个',
   wallet: '钱包',
   web: '网页',
@@ -373,5 +485,7 @@ const zh_CN = {
     '根据Ledger的设计, 因其内存限制, <br />Ledger不能处理大型交易(即自动路由:<br />一次跨多个池进行交易)。激活后,<br />"支持 Ledger"选项会将交易限制<br />在最简单的形式(不利于更好的价格), <br />因此可以签署合理规模的交易。',
   start: '开始',
   aprTip: '基于所有奖励（未开始和进行中）的指示性值',
+  half: 'Half',
+  max: 'Max',
 };
-export default zh_CN;
+export default Object.assign(zh_CN, zh_CN_in_risks_page);

@@ -58,7 +58,7 @@ export function DoubleCheckModal(
         padding="p-6"
         bgcolor="bg-cardBg"
         className="text-white border border-gradientFromHover outline-none flex flex-col items-center"
-        width="xs:w-80vw md:w-80vw lg:w-30vw"
+        width="xs:w-90vw md:w-90vw lg:w-30vw"
       >
         <div
           className="ml-2 cursor-pointer p-1 self-end"
@@ -113,7 +113,7 @@ export function DoubleCheckModal(
         <div className="flex items-center pb-2">
           <OutlineButton
             onClick={props.onRequestClose}
-            className="text-xs w-20 text-center mx-2 h-8"
+            className="text-xs w-auto text-center mx-2"
             padding="px-4 py-1"
           >
             <FormattedMessage id="cancel" defaultMessage="Cancel" />
@@ -123,7 +123,7 @@ export function DoubleCheckModal(
               setButtonLoading(true);
               onSwap();
             }}
-            className="text-xs w-32 text-center h-8"
+            className="text-xs w-auto text-center"
             padding="px-4 py-1.5"
             loading={buttonLoading}
           >
