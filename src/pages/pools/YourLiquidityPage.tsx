@@ -477,7 +477,10 @@ function PoolRow(props: { pool: any }) {
                   });
                 }
               }}
-              className="text-xs col-span-2 mr-4 w-24 text-center "
+              className="text-xs col-span-2 mr-3 px-1.5 text-center relative right-2 whitespace-nowrap"
+              style={{
+                minWidth: '96px',
+              }}
             >
               <FormattedMessage
                 id="add_liquidity"
@@ -500,7 +503,10 @@ function PoolRow(props: { pool: any }) {
 
                 setShowWithdraw(true);
               }}
-              className="text-xs px-4 col-span-2 w-20 text-center h-8"
+              className="text-xs px-4 col-span-2 text-center h-8"
+              style={{
+                minWidth: '80px',
+              }}
             >
               <FormattedMessage id="remove" defaultMessage="Remove" />
             </OutlineButton>
@@ -572,7 +578,10 @@ function PoolRow(props: { pool: any }) {
                   history.push('/sauce', { stableTab: 'add_liquidity' });
                 }
               }}
-              className="text-sm w-28 mr-4 h-8 py-0.5"
+              className="text-sm mr-4 h-8 py-0.5 px-1"
+              style={{
+                minWidth: '112px',
+              }}
             >
               <FormattedMessage
                 id="add_liquidity"
@@ -592,7 +601,10 @@ function PoolRow(props: { pool: any }) {
                   });
                 }
               }}
-              className="text-sm w-24 h-8 py-0.5"
+              className="text-sm h-8 py-0.5 px-1"
+              style={{
+                minWidth: '96px',
+              }}
             >
               <FormattedMessage id="remove" defaultMessage="Remove" />
             </OutlineButton>

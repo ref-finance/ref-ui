@@ -195,7 +195,7 @@ export function SolidButton(
     loading?: boolean;
   }
 ) {
-  const { disabled, padding, className, onClick, loading } = props;
+  const { disabled, padding, className, onClick, loading, style } = props;
   return (
     <button
       onClick={onClick}
@@ -206,6 +206,7 @@ export function SolidButton(
          ${padding ? padding : 'py-2'}
         ${className ? className : ''}
       `}
+      style={style}
     >
       {props.children}
     </button>
@@ -219,9 +220,10 @@ export function OutlineButton(
     className?: string;
   }
 ) {
-  const { disabled, padding, className, onClick } = props;
+  const { disabled, padding, className, onClick, style } = props;
   return (
     <button
+      style={style}
       onClick={onClick}
       disabled={disabled}
       className={`rounded ${
