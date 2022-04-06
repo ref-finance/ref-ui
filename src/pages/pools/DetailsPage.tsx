@@ -1003,22 +1003,28 @@ const ChartChangeButton = ({
       }`}
     >
       <button
-        className={`py-1 w-16 ${
+        className={`py-1 px-2 ${
           chartDisplay === 'tvl'
             ? 'rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo'
             : 'text-gray-400'
         }`}
         onClick={() => setChartDisplay('tvl')}
+        style={{
+          minWidth: '64px',
+        }}
       >
         <FormattedMessage id="tvl" defaultMessage="TVL" />
       </button>
       <button
-        className={`py-1 w-16 ${
+        className={`py-1 px-2 ${
           chartDisplay === 'volume'
             ? 'rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo'
             : 'text-gray-400'
         }`}
         onClick={() => setChartDisplay('volume')}
+        style={{
+          minWidth: '64px',
+        }}
       >
         <FormattedMessage id="volume" defaultMessage="Volume" />
       </button>
