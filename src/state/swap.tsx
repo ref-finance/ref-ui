@@ -46,6 +46,7 @@ import {
 } from '../components/layout/transactionTipPopUp';
 import { SWAP_MODE } from '../pages/SwapPage';
 import { failToast } from '../components/layout/transactionTipPopUp';
+import { getCurrentWallet } from '../utils/sender-wallet';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -122,7 +123,9 @@ export const useSwap = ({
   };
 
   useEffect(() => {
-    if (txHash) {
+    if (txHash && getCurrentWallet().wallet.isSignedIn()) {
+      console.log(txHash);
+
       checkTransaction(txHash)
         .then((res: any) => {
           const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
@@ -335,7 +338,7 @@ export const useStableSwap = ({
   };
 
   useEffect(() => {
-    if (txHash) {
+    if (txHash && getCurrentWallet().wallet.isSignedIn()) {
       checkTransaction(txHash)
         .then(({ transaction }) => {
           return (
