@@ -103,6 +103,8 @@ import { useWalletTokenBalances } from '../../state/token';
 import { SmallWallet } from '../../components/icon/SmallWallet';
 import { scientificNotationToString } from '../../utils/numbers';
 import { POOLS_BLACK_LIST } from '../../services/near';
+import { TokenLinks } from '~components/tokens/Token';
+import { OutLinkIcon } from '~components/icon/Common';
 interface ParamTypes {
   id: string;
 }
@@ -1429,7 +1431,7 @@ export function PoolDetailsPage() {
                   </div>
                 </div>
                 <div
-                  className="text-white text-sm"
+                  className="flex items-center text-white text-sm"
                   title={toReadableNumber(
                     tokens[0].decimals,
                     pool.supplies[tokens[0].id]
@@ -1454,6 +1456,17 @@ export function PoolDetailsPage() {
                           pool.supplies[tokens[0].id]
                         )
                       )}
+                  {TokenLinks[tokens[0].symbol] ? (
+                    <a
+                      className="pl-4"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(TokenLinks[tokens[0].symbol]);
+                      }}
+                    >
+                      <OutLinkIcon className="text-primaryText hover:text-greenColor cursor-pointer"></OutLinkIcon>
+                    </a>
+                  ) : null}
                 </div>
               </div>
               <div className="flex items-center justify-between mb-6">
@@ -1474,7 +1487,7 @@ export function PoolDetailsPage() {
                   </div>
                 </div>
                 <div
-                  className="text-white text-sm
+                  className="flex items-center text-white text-sm
                 "
                   title={toReadableNumber(
                     tokens[1].decimals,
@@ -1500,6 +1513,17 @@ export function PoolDetailsPage() {
                           pool.supplies[tokens[1].id]
                         )
                       )}
+                  {TokenLinks[tokens[1].symbol] ? (
+                    <a
+                      className="pl-4"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(TokenLinks[tokens[1].symbol]);
+                      }}
+                    >
+                      <OutLinkIcon className="text-primaryText hover:text-greenColor cursor-pointer"></OutLinkIcon>
+                    </a>
+                  ) : null}
                 </div>
               </div>
               {/* rate */}
