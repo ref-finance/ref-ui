@@ -1,5 +1,5 @@
 import React from 'react';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import getConfig from '../../services/config';
 import { FormattedMessage } from 'react-intl';
 import { CloseIcon } from '../icon/Actions';
@@ -113,30 +113,23 @@ export const failToast = (txHash: string, errorType?: string) => {
 
 export const checkAccountTip = () => {
   toast(
-    <div
-      className="text-white w-full h-full pl-4"
+    <span
+      className="w-full h-full pl-4 text-sm"
       style={{
-        lineHeight: '48px',
+        color: '#C4C4C4',
       }}
     >
       <FormattedMessage
-        id="found_token_in_your"
-        defaultMessage="Found token in your "
+        id="ref_account_balance_tip"
+        defaultMessage="It seems like an error occurred while adding/removing liquidity to the pool"
       />
-
-      <a
-        href={`/account`}
-        target="_blank"
-        className="text-gradientFrom border-b border-gradientFrom"
-      >
-        <FormattedMessage id="ref_account" defaultMessage="REF account" />
-      </a>
-    </div>,
+      .
+    </span>,
     {
-      autoClose: 8000,
+      autoClose: false,
       closeOnClick: true,
       hideProgressBar: false,
-      closeButton: <CloseIcon />,
+      closeButton: <CloseIcon width="15" height="15" />,
       progressStyle: {
         background: '#00FFD1',
         borderRadius: '8px',
@@ -145,6 +138,8 @@ export const checkAccountTip = () => {
         background: '#1D2932',
         boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
         borderRadius: '8px',
+        width: '290px',
+        minHeight: '60px',
       },
     }
   );
