@@ -510,6 +510,6 @@ const ru = {
   max: 'Макc',
   ref_account_balance_tip:
     'Похоже, что произошла ошибка при добавлении/удалении ликвидности в пул',
-  ref_account_tip_2: 'У вас есть токен в вашей учетной записи REF',
+  ref_account_tip_2: 'У вас есть токены в вашей учетной записи REF',
 };
 export default Object.assign(ru, ru_in_risks_page);
