@@ -298,7 +298,7 @@ export function AccountModel(props: any) {
               </div>
               {hasBalanceOnRefAccount && item.textId === 'view_account' ? (
                 <div
-                  className="text-center py-0.5 bg-gradientFrom w-full cursor-pointer"
+                  className="text-center py-0.5 bg-gradientFrom w-full cursor-pointer text-xs"
                   onClick={item.click}
                   style={{
                     color: '#001320',
