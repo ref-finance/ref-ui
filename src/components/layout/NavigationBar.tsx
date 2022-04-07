@@ -637,8 +637,7 @@ function NavigationBar() {
     try {
       return Object.entries(refAccountBalances || {}).some(([id, balance]) => {
         return (
-          Number(toReadableNumber(tokensMeta?.[id]?.decimals, balance)) >
-          0.000001
+          Number(toReadableNumber(tokensMeta?.[id]?.decimals, balance)) > 0.001
         );
       });
     } catch (error) {
