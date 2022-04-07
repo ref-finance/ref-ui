@@ -3,6 +3,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import getConfig from '../../services/config';
 import { FormattedMessage } from 'react-intl';
 import { CloseIcon } from '../icon/Actions';
+import { isMobile } from '../../utils/device';
 
 export enum TRANSACTION_WALLET_TYPE {
   NEAR_WALLET = 'transactionHashes',
@@ -114,7 +115,7 @@ export const failToast = (txHash: string, errorType?: string) => {
 export const checkAccountTip = () => {
   toast(
     <span
-      className="w-full h-full pl-4 text-sm"
+      className="w-full h-full pl-4 text-base"
       style={{
         color: '#C4C4C4',
       }}
@@ -137,8 +138,10 @@ export const checkAccountTip = () => {
         background: '#1D2932',
         boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
         borderRadius: '8px',
-        width: '290px',
+        width: '320px',
         minHeight: '60px',
+        margin: 'auto',
+        top: isMobile() ? '20px' : 'none',
       },
     }
   );

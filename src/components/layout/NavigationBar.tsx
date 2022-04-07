@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { matchPath } from 'react-router';
 import { Context } from '~components/wrapper';
 import getConfig from '~services/config';
@@ -27,14 +27,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { wallet } from '~services/near';
 import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
-import { TokenList } from '~components/deposit/Deposit';
-import {
-  useTokenBalances,
-  useUserRegisteredTokens,
-  useWhitelistTokens,
-} from '~state/token';
-import { REF_FARM_CONTRACT_ID } from '~services/near';
-import { GradientButton } from '~components/button/Button';
+
 import { FormattedMessage } from 'react-intl';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import { IoChevronBack, IoClose } from 'react-icons/io5';
@@ -50,6 +43,10 @@ import { senderWallet, getCurrentWallet } from '../../utils/sender-wallet';
 import { WalletSelectorModal } from './WalletSelector';
 import { WalletContext } from '../../utils/sender-wallet';
 import { getAccountName } from '../../utils/sender-wallet';
+import { ftGetTokensMetadata } from '../../services/ft-contract';
+import { useTokenBalances } from '../../state/token';
+import { toReadableNumber } from '../../utils/numbers';
+import { FarmDot } from '../icon/FarmStamp';
 
 const config = getConfig();
 
@@ -105,9 +102,11 @@ function Anchor({
 function AccountEntry({
   setShowWalletSelector,
   showWalletSelector,
+  hasBalanceOnRefAccount,
 }: {
   setShowWalletSelector: (show: boolean) => void;
   showWalletSelector: boolean;
+  hasBalanceOnRefAccount: boolean;
 }) {
   const history = useHistory();
   const [hover, setHover] = useState(false);
@@ -180,8 +179,11 @@ function AccountEntry({
             </div>
             <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name">
               {isSignedIn ? (
-                <span className="flex ml-1">
+                <span className="flex ml-1 items-center">
                   {getAccountName(wallet.getAccountId())}
+                  <span className="ml-1.5">
+                    <FarmDot inFarm={hasBalanceOnRefAccount} />
+                  </span>
                   <FiChevronDown className="text-base ml-1" />
                 </span>
               ) : (
@@ -214,25 +216,48 @@ function AccountEntry({
               >
                 {accountList.map((item, index) => {
                   return (
-                    <div
-                      onClick={item.click}
-                      key={item.textId + index}
-                      className={`flex items-center text-sm cursor-pointer font-semibold py-4 pl-7 hover:text-white hover:bg-navHighLightBg ${
-                        item.selected
-                          ? 'text-white bg-navHighLightBg'
-                          : 'text-primaryText'
-                      }`}
-                    >
-                      <label className="w-9 text-left cursor-pointer">
-                        {item.icon}
-                      </label>
-                      <label className="cursor-pointer">
-                        <FormattedMessage id={item.textId}></FormattedMessage>
-                      </label>
-                      {item.subIcon ? (
-                        <label className="text-lg ml-2">{item.subIcon}</label>
+                    <>
+                      <div
+                        onClick={item.click}
+                        key={item.textId + index}
+                        className={`flex items-center text-sm cursor-pointer font-semibold py-4 pl-7 hover:text-white hover:bg-navHighLightBg ${
+                          item.selected
+                            ? 'text-white bg-navHighLightBg'
+                            : 'text-primaryText'
+                        }`}
+                      >
+                        <label className="w-9 text-left cursor-pointer">
+                          {item.icon}
+                        </label>
+                        <label className="cursor-pointer">
+                          <FormattedMessage id={item.textId}></FormattedMessage>
+                        </label>
+                        <label htmlFor="" className="ml-1.5">
+                          {item.textId === 'view_account' &&
+                          hasBalanceOnRefAccount ? (
+                            <FarmDot inFarm={hasBalanceOnRefAccount} />
+                          ) : null}
+                        </label>
+                        {item.subIcon ? (
+                          <label className="text-lg ml-2">{item.subIcon}</label>
+                        ) : null}
+                      </div>
+                      {hasBalanceOnRefAccount &&
+                      item.textId === 'view_account' ? (
+                        <div
+                          className="text-center py-0.5 bg-gradientFrom w-full cursor-pointer"
+                          onClick={item.click}
+                          style={{
+                            color: '#001320',
+                          }}
+                        >
+                          <FormattedMessage
+                            id="ref_account_tip_2"
+                            defaultMessage="You have token(s) in your REF Account"
+                          />
+                        </div>
                       ) : null}
-                    </div>
+                    </>
                   );
                 })}
               </Card>
@@ -594,6 +619,28 @@ function NavigationBar() {
   const isSignedIn = signedInState.isSignedIn;
   const [showWalletSelector, setShowWalletSelector] = useState(false);
 
+  const [tokensMeta, setTokensMeta] = useState<{}>();
+
+  const refAccountBalances = useTokenBalances();
+
+  useEffect(() => {
+    if (!refAccountBalances) return;
+
+    const ids = Object.keys(refAccountBalances);
+
+    ftGetTokensMetadata(ids).then(setTokensMeta);
+  }, [refAccountBalances]);
+
+  const hasBalanceOnRefAccount = useMemo(() => {
+    try {
+      return Object.entries(refAccountBalances || {}).some(([id, balance]) => {
+        return Number(toReadableNumber(tokensMeta?.[id]?.decimals, balance));
+      });
+    } catch (error) {
+      return false;
+    }
+  }, [refAccountBalances, tokensMeta]);
+
   return (
     <>
       <div className="nav-wrap md:hidden xs:hidden text-center relative">
@@ -637,6 +684,7 @@ function NavigationBar() {
               </div>
             )}
             <AccountEntry
+              hasBalanceOnRefAccount={hasBalanceOnRefAccount}
               setShowWalletSelector={setShowWalletSelector}
               showWalletSelector={showWalletSelector}
             />
@@ -645,6 +693,7 @@ function NavigationBar() {
         </nav>
       </div>
       <MobileNavBar
+        hasBalanceOnRefAccount={hasBalanceOnRefAccount}
         isSignedIn={isSignedIn}
         setShowWalletSelector={setShowWalletSelector}
         showWalletSelector={showWalletSelector}
