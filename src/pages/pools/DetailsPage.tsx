@@ -229,7 +229,7 @@ export function AddLiquidityModal(
               token.decimals,
               refAccountBalances?.[token.id] || '0'
             )
-          ) > 0.00001
+          ) > 0.001
       )
     ) {
       console.log(tokens);

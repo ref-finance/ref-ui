@@ -128,7 +128,7 @@ export default function AddLiquidityComponent(props: {
               token.decimals,
               refAccountBalances?.[token.id] || '0'
             )
-          ) > 0.00001
+          ) > 0.001
       )
     ) {
       checkAccountTip();
