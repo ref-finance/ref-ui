@@ -123,7 +123,6 @@ export const checkAccountTip = () => {
         id="ref_account_balance_tip"
         defaultMessage="It seems like an error occurred while adding/removing liquidity to the pool"
       />
-      .
     </span>,
     {
       autoClose: false,
