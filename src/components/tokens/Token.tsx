@@ -4,6 +4,7 @@ import { TokenMetadata } from '../../services/ft-contract';
 import { toInternationalCurrencySystem } from '~utils/numbers';
 import { toPrecision } from '../../utils/numbers';
 import { SingleToken } from '../forms/SelectToken';
+import { OutLinkIcon } from '../../components/icon/Common';
 
 interface TokenProps {
   token: TokenMetadata;
@@ -53,12 +54,44 @@ export default function Token({
       <td
         className={`${
           index === 0 ? 'pt-6 pb-4' : 'py-4'
-        } xs:text-xs text-sm w-1/5 pr-10 text-right ${
+        } xs:text-xs text-sm w-1/5 text-right ${
           sortBy === 'near' ? 'text-white' : ''
         }`}
       >
-        {displayBalance}
+        <div className="relative flex items-center justify-end pr-12">
+          {displayBalance}
+          {TokenLinks[symbol] ? (
+            <a
+              className="absolute right-5"
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(TokenLinks[symbol]);
+              }}
+            >
+              <OutLinkIcon className="text-primaryText hover:text-greenColor cursor-pointer"></OutLinkIcon>
+            </a>
+          ) : null}
+        </div>
       </td>
     </tr>
   );
 }
+export const TokenLinks = {
+  NEAR: 'https://awesomenear.com/near-protocol',
+  wNEAR: 'https://awesomenear.com/near-protocol',
+  REF: 'https://awesomenear.com/ref-finance',
+  OCT: 'https://awesomenear.com/octopus-network',
+  PARAS: 'https://awesomenear.com/paras',
+  SKYWARD: 'https://awesomenear.com/skyward-finance',
+  FLX: 'https://awesomenear.com/flux',
+  PULSE: 'https://awesomenear.com/pulse',
+  DBIO: 'https://awesomenear.com/debio-network',
+  MYRIA: 'https://awesomenear.com/myriad-social',
+  PXT: 'https://awesomenear.com/cryptoheroes',
+  HAPI: 'https://awesomenear.com/hapi',
+  OIN: 'https://awesomenear.com/oin-finance',
+  ABR: 'https://awesomenear.com/allbridge',
+  '1MIL': 'https://awesomenear.com/1millionnfts',
+  MARMAJ: 'https://awesomenear.com/marmaj-foundation',
+  marmaj: 'https://awesomenear.com/marmaj-foundation',
+};

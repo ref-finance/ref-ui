@@ -49,7 +49,7 @@ export default function CommonBasses({
 
           return (
             <div
-              className="mt-3 hover:bg-black hover:bg-opacity-10 rounded-full pr-3 pl-1 py-1 cursor-pointer flex items-center"
+              className="w-1/3 mt-3 hover:bg-black hover:bg-opacity-10 rounded-full pr-3 pl-1 py-1 cursor-pointer flex items-center"
               key={token.id}
               onClick={() => onClick && onClick(token)}
               style={{
@@ -74,7 +74,7 @@ const Wnear = () => {
   return (
     <>
       {isSignedIn && (
-        <div className="text-white pt-2 cursor-pointer xs:mr-5 md:mr-5 mr-6">
+        <div className="w-1/3 text-white pt-2 cursor-pointer">
           <div
             className="cursor-pointer items-center flex"
             onClick={() => setShowWrapNear(true)}

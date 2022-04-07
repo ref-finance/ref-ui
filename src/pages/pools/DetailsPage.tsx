@@ -103,6 +103,8 @@ import { useWalletTokenBalances } from '../../state/token';
 import { SmallWallet } from '../../components/icon/SmallWallet';
 import { scientificNotationToString } from '../../utils/numbers';
 import { POOLS_BLACK_LIST } from '../../services/near';
+import { TokenLinks } from '~components/tokens/Token';
+import { OutLinkIcon } from '~components/icon/Common';
 interface ParamTypes {
   id: string;
 }
@@ -1415,8 +1417,19 @@ export function PoolDetailsPage() {
                 <div className="flex items-end">
                   <Icon icon={tokens[0].icon} className="h-10 w-10 mr-2" />
                   <div className="flex items-start flex-col">
-                    <div className="text-white text-base">
+                    <div className="flex items-center text-white text-base">
                       {toRealSymbol(tokens[0].symbol)}
+                      {TokenLinks[tokens[0].symbol] ? (
+                        <a
+                          className="pl-4"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(TokenLinks[tokens[0].symbol]);
+                          }}
+                        >
+                          <OutLinkIcon className="text-greenColor cursor-pointer"></OutLinkIcon>
+                        </a>
+                      ) : null}
                     </div>
                     <a
                       target="_blank"
@@ -1429,7 +1442,7 @@ export function PoolDetailsPage() {
                   </div>
                 </div>
                 <div
-                  className="text-white text-sm"
+                  className="flex items-center text-white text-sm"
                   title={toReadableNumber(
                     tokens[0].decimals,
                     pool.supplies[tokens[0].id]
@@ -1460,8 +1473,19 @@ export function PoolDetailsPage() {
                 <div className="flex items-end">
                   <Icon icon={tokens[1].icon} className="h-10 w-10 mr-2" />
                   <div className="flex items-start flex-col">
-                    <div className="text-white text-base">
+                    <div className="flex items-center text-white text-base">
                       {toRealSymbol(tokens[1].symbol)}
+                      {TokenLinks[tokens[1].symbol] ? (
+                        <a
+                          className="pl-4"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(TokenLinks[tokens[1].symbol]);
+                          }}
+                        >
+                          <OutLinkIcon className="text-greenColor cursor-pointer"></OutLinkIcon>
+                        </a>
+                      ) : null}
                     </div>
                     <a
                       target="_blank"
@@ -1474,7 +1498,7 @@ export function PoolDetailsPage() {
                   </div>
                 </div>
                 <div
-                  className="text-white text-sm
+                  className="flex items-center text-white text-sm
                 "
                   title={toReadableNumber(
                     tokens[1].decimals,
