@@ -170,7 +170,9 @@ export function YourLiquidityPage() {
     if (!pools) return;
 
     ftGetTokensMetadata(
-      pools?.map((p) => p.token_account_ids).flat() || []
+      (pools?.map((p) => p.token_account_ids).flat() || []).concat(
+        STABLE_TOKEN_IDS
+      )
     ).then(setTokensMeta);
   }, [pools]);
 
@@ -264,9 +266,7 @@ export function YourLiquidityPage() {
               <PoolRow
                 pool={pool}
                 key={i}
-                tokens={
-                  pool.token_account_ids.map((id) => tokensMeta[id]) || []
-                }
+                tokens={pool.token_account_ids.map((id) => tokensMeta[id])}
               />
             );
           })}

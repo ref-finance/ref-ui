@@ -430,9 +430,11 @@ export function MobileNavBar(props: any) {
                 >
                   <div>{getAccountName(wallet.getAccountId())}</div>
 
-                  <div className="ml-1.5">
-                    <FarmDot inFarm={hasBalanceOnRefAccount} />
-                  </div>
+                  {hasBalanceOnRefAccount ? (
+                    <span className="ml-1.5">
+                      <FarmDot inFarm={hasBalanceOnRefAccount} />
+                    </span>
+                  ) : null}
 
                   {accountVisible ? (
                     <FiChevronUp className="text-base ml-1" />

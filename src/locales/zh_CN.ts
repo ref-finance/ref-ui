@@ -484,5 +484,7 @@ const zh_CN = {
   aprTip: '基于所有奖励（未开始和进行中）的指示性值',
   half: 'Half',
   max: 'Max',
+  ref_account_balance_tip: '添加/移除流动性的时候似乎发生了错误',
+  ref_account_tip_2: '你的REF账户中有代币',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

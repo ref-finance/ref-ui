@@ -181,9 +181,11 @@ function AccountEntry({
               {isSignedIn ? (
                 <span className="flex ml-1 items-center">
                   {getAccountName(wallet.getAccountId())}
-                  <span className="ml-1.5">
-                    <FarmDot inFarm={hasBalanceOnRefAccount} />
-                  </span>
+                  {hasBalanceOnRefAccount ? (
+                    <span className="ml-1.5">
+                      <FarmDot inFarm={hasBalanceOnRefAccount} />
+                    </span>
+                  ) : null}
                   <FiChevronDown className="text-base ml-1" />
                 </span>
               ) : (
@@ -634,7 +636,10 @@ function NavigationBar() {
   const hasBalanceOnRefAccount = useMemo(() => {
     try {
       return Object.entries(refAccountBalances || {}).some(([id, balance]) => {
-        return Number(toReadableNumber(tokensMeta?.[id]?.decimals, balance));
+        return (
+          Number(toReadableNumber(tokensMeta?.[id]?.decimals, balance)) >
+          0.000001
+        );
       });
     } catch (error) {
       return false;

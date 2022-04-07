@@ -56,7 +56,7 @@ export const swapToast = (txHash: string) => {
       />
     </a>,
     {
-      autoClose: 8000,
+      autoClose: false,
       closeOnClick: true,
       hideProgressBar: false,
       closeButton: <CloseIcon />,
@@ -115,9 +115,10 @@ export const failToast = (txHash: string, errorType?: string) => {
 export const checkAccountTip = () => {
   toast(
     <span
-      className="w-full h-full pl-4 text-base"
+      className="w-full h-full pl-1.5 text-base"
       style={{
         color: '#C4C4C4',
+        width: '286px',
       }}
     >
       <FormattedMessage
@@ -129,7 +130,7 @@ export const checkAccountTip = () => {
       autoClose: false,
       closeOnClick: true,
       hideProgressBar: false,
-      closeButton: <CloseIcon width="15" height="15" />,
+      closeButton: <CloseIcon />,
       progressStyle: {
         background: '#00FFD1',
         borderRadius: '8px',
@@ -139,6 +140,9 @@ export const checkAccountTip = () => {
         boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
         borderRadius: '8px',
         minHeight: '60px',
+        margin: 'auto',
+        marginTop: isMobile() ? '20px' : 'none',
+        width: isMobile() ? '320px' : 'none',
       },
     }
   );
