@@ -54,15 +54,15 @@ export default function Token({
       <td
         className={`${
           index === 0 ? 'pt-6 pb-4' : 'py-4'
-        } xs:text-xs text-sm w-1/5 pr-10 text-right ${
+        } xs:text-xs text-sm w-1/5 text-right ${
           sortBy === 'near' ? 'text-white' : ''
         }`}
       >
-        <div className="relative flex items-center justify-end pr-9">
+        <div className="relative flex items-center justify-end pr-12">
           {displayBalance}
           {TokenLinks[symbol] ? (
             <a
-              className="absolute right-0"
+              className="absolute right-5"
               onClick={(e) => {
                 e.stopPropagation();
                 window.open(TokenLinks[symbol]);

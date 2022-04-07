@@ -1417,8 +1417,19 @@ export function PoolDetailsPage() {
                 <div className="flex items-end">
                   <Icon icon={tokens[0].icon} className="h-10 w-10 mr-2" />
                   <div className="flex items-start flex-col">
-                    <div className="text-white text-base">
+                    <div className="flex items-center text-white text-base">
                       {toRealSymbol(tokens[0].symbol)}
+                      {TokenLinks[tokens[0].symbol] ? (
+                        <a
+                          className="pl-4"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(TokenLinks[tokens[0].symbol]);
+                          }}
+                        >
+                          <OutLinkIcon className="text-greenColor cursor-pointer"></OutLinkIcon>
+                        </a>
+                      ) : null}
                     </div>
                     <a
                       target="_blank"
@@ -1456,25 +1467,25 @@ export function PoolDetailsPage() {
                           pool.supplies[tokens[0].id]
                         )
                       )}
-                  {TokenLinks[tokens[0].symbol] ? (
-                    <a
-                      className="pl-4"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.open(TokenLinks[tokens[0].symbol]);
-                      }}
-                    >
-                      <OutLinkIcon className="text-primaryText hover:text-greenColor cursor-pointer"></OutLinkIcon>
-                    </a>
-                  ) : null}
                 </div>
               </div>
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-end">
                   <Icon icon={tokens[1].icon} className="h-10 w-10 mr-2" />
                   <div className="flex items-start flex-col">
-                    <div className="text-white text-base">
+                    <div className="flex items-center text-white text-base">
                       {toRealSymbol(tokens[1].symbol)}
+                      {TokenLinks[tokens[1].symbol] ? (
+                        <a
+                          className="pl-4"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(TokenLinks[tokens[1].symbol]);
+                          }}
+                        >
+                          <OutLinkIcon className="text-greenColor cursor-pointer"></OutLinkIcon>
+                        </a>
+                      ) : null}
                     </div>
                     <a
                       target="_blank"
@@ -1513,17 +1524,6 @@ export function PoolDetailsPage() {
                           pool.supplies[tokens[1].id]
                         )
                       )}
-                  {TokenLinks[tokens[1].symbol] ? (
-                    <a
-                      className="pl-4"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.open(TokenLinks[tokens[1].symbol]);
-                      }}
-                    >
-                      <OutLinkIcon className="text-primaryText hover:text-greenColor cursor-pointer"></OutLinkIcon>
-                    </a>
-                  ) : null}
                 </div>
               </div>
               {/* rate */}
