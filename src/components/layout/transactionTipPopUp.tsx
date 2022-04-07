@@ -138,10 +138,7 @@ export const checkAccountTip = () => {
         background: '#1D2932',
         boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
         borderRadius: '8px',
-        width: '320px',
         minHeight: '60px',
-        margin: 'auto',
-        top: isMobile() ? '20px' : 'none',
       },
     }
   );
