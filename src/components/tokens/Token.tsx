@@ -93,4 +93,5 @@ export const TokenLinks = {
   ABR: 'https://awesomenear.com/allbridge',
   '1MIL': 'https://awesomenear.com/1millionnfts',
   MARMAJ: 'https://awesomenear.com/marmaj-foundation',
+  marmaj: 'https://awesomenear.com/marmaj-foundation',
 };
