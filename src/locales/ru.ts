@@ -508,5 +508,8 @@ const ru = {
   aprTip: 'Indicative value based on all rewards (pending and running)',
   half: 'Половина',
   max: 'Макc',
+  ref_account_balance_tip:
+    'Похоже, что произошла ошибка при добавлении/удалении ликвидности в пул',
+  ref_account_tip_2: 'У вас есть токены в вашей учетной записи REF',
 };
 export default Object.assign(ru, ru_in_risks_page);

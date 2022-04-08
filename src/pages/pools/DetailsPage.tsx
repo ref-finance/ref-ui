@@ -103,6 +103,14 @@ import { useWalletTokenBalances } from '../../state/token';
 import { SmallWallet } from '../../components/icon/SmallWallet';
 import { scientificNotationToString } from '../../utils/numbers';
 import { POOLS_BLACK_LIST } from '../../services/near';
+import {
+  getURLInfo,
+  checkAccountTip,
+} from '../../components/layout/transactionTipPopUp';
+import { checkTransaction } from '../../services/swap';
+
+export const REF_FI_PRE_LIQUIDITY_ID_KEY = 'REF_FI_PRE_LIQUIDITY_ID_VALUE';
+
 import { TokenLinks } from '~components/tokens/Token';
 import { OutLinkIcon } from '~components/icon/Common';
 interface ParamTypes {
@@ -178,9 +186,10 @@ export function AddLiquidityModal(
   props: ReactModal.Props & {
     pool: Pool;
     tokens: TokenMetadata[];
+    closeTip?: boolean;
   }
 ) {
-  const { pool, tokens } = props;
+  const { pool, tokens, closeTip } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [messageId, setMessageId] = useState<string>('add_liquidity');
@@ -199,7 +208,39 @@ export function AddLiquidityModal(
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
 
-  const { wallet } = getCurrentWallet();
+  const refAccountBalances =
+    typeof closeTip !== 'undefined' && closeTip ? {} : useTokenBalances();
+
+  const { txHash, errorCode } = getURLInfo();
+
+  useEffect(() => {
+    if (typeof closeTip !== 'undefined' && closeTip) {
+      return;
+    }
+
+    if (
+      refAccountBalances &&
+      tokens &&
+      (txHash || errorCode) &&
+      tokens.some(
+        (token) =>
+          Number(
+            toReadableNumber(
+              token.decimals,
+              refAccountBalances?.[token.id] || '0'
+            )
+          ) > 0.001
+      )
+    ) {
+      console.log(tokens);
+      checkAccountTip();
+      window.history.replaceState(
+        {},
+        '',
+        window.location.origin + window.location.pathname
+      );
+    }
+  }, [txHash, refAccountBalances, tokens, errorCode, closeTip]);
 
   if (!balances) return null;
 
@@ -429,6 +470,7 @@ export function AddLiquidityModal(
       if (canSubmit) {
         setButtonLoading(true);
         submit();
+        localStorage.setItem(REF_FI_PRE_LIQUIDITY_ID_KEY, pool.id.toString());
       }
     };
     return (
@@ -750,6 +792,7 @@ export function RemoveLiquidityModal(
       );
     }
     setButtonLoading(true);
+    localStorage.setItem(REF_FI_PRE_LIQUIDITY_ID_KEY, pool.id.toString());
     return removeLiquidity();
   }
 
@@ -962,22 +1005,28 @@ const ChartChangeButton = ({
       }`}
     >
       <button
-        className={`py-1 w-16 ${
+        className={`py-1 px-2 ${
           chartDisplay === 'tvl'
             ? 'rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo'
             : 'text-gray-400'
         }`}
         onClick={() => setChartDisplay('tvl')}
+        style={{
+          minWidth: '64px',
+        }}
       >
         <FormattedMessage id="tvl" defaultMessage="TVL" />
       </button>
       <button
-        className={`py-1 w-16 ${
+        className={`py-1 px-2 ${
           chartDisplay === 'volume'
             ? 'rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo'
             : 'text-gray-400'
         }`}
         onClick={() => setChartDisplay('volume')}
+        style={{
+          minWidth: '64px',
+        }}
       >
         <FormattedMessage id="volume" defaultMessage="Volume" />
       </button>

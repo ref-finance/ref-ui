@@ -60,6 +60,8 @@ import { LP_STABLE_TOKEN_DECIMALS, LP_TOKEN_DECIMALS } from '~services/m-token';
 import { QuestionTip } from '~components/layout/TipWrapper';
 import { WalletContext, getCurrentWallet } from '../../utils/sender-wallet';
 import { percentOfBigNumber } from '../../utils/numbers';
+import { useTokenBalances } from '../../state/token';
+import { getURLInfo, checkAccountTip } from '../layout/transactionTipPopUp';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
@@ -212,6 +214,34 @@ export function RemoveLiquidityComponent(props: {
       ? toPrecision(myReadableShare, 3)
       : toPrecision(nonPrecisionValue, 3);
   };
+
+  const refAccountBalances = useTokenBalances();
+
+  const { txHash, errorCode } = getURLInfo();
+
+  useEffect(() => {
+    if (
+      refAccountBalances &&
+      tokens &&
+      (txHash || errorCode) &&
+      tokens.some(
+        (token) =>
+          Number(
+            toReadableNumber(
+              token.decimals,
+              refAccountBalances?.[token.id] || '0'
+            )
+          ) > 0.001
+      )
+    ) {
+      checkAccountTip();
+      window.history.replaceState(
+        {},
+        '',
+        window.location.origin + window.location.pathname
+      );
+    }
+  }, [txHash, refAccountBalances, tokens, errorCode]);
 
   useEffect(() => {
     setCanSubmitByShare(true);

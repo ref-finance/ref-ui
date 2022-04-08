@@ -492,5 +492,8 @@ const uk_UA = {
   aprTip: 'Indicative value based on all rewards (pending and running)',
   half: 'Half',
   max: 'Max',
+  ref_account_balance_tip:
+    'Здається, сталася помилка під час додавання/видалення ліквідності до пулу',
+  ref_account_tip_2: 'У вашому обліковому записі REF є токен(и)',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

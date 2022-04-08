@@ -103,7 +103,8 @@ export const getCurrentUnixTime = async (): Promise<any> => {
 
 export const currentRefPrice = async (): Promise<any> => {
   return await fetch(
-    config.indexerUrl + '/get-token-price?token_id=token.v2.ref-finance.near',
+    getConfig().indexerUrl +
+      '/get-token-price?token_id=token.v2.ref-finance.near',
     {
       method: 'GET',
       headers: { 'Content-type': 'application/json; charset=UTF-8' },
