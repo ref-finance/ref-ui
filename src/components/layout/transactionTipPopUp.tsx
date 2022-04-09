@@ -56,7 +56,7 @@ export const swapToast = (txHash: string) => {
       />
     </a>,
     {
-      autoClose: false,
+      autoClose: 8000,
       closeOnClick: true,
       hideProgressBar: false,
       closeButton: <CloseIcon />,

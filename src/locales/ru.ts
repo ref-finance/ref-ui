@@ -119,9 +119,9 @@ const ru_in_risks_page = {
   admin_first_sentence:
     'Ref Finance управляется <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label>. There are <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    '>Ref Finance Sputnik DAO</label>. Существуют <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
-    '>Хранители</label>, определенные адреса NEAR, которые могут приостановить контракт. Только DAO может в любой момент возобновить контракт.',
+    '>Хранители</label>— это  определенные адреса NEAR, которые могут приостановить контракт. Только DAO может в любой момент возобновить контракт.',
   risks_of_using_ref_finance:
     '<label class="text-greenColor">Риски</label> использования Ref. finance',
 };
@@ -173,7 +173,7 @@ const ru = {
   connect_to_near: 'Подключитесь к NEAR',
   slippage: 'Допустимое проскальзывание',
   slippage_title: 'Настройки транзакции',
-  minimum_received: 'Минимум полученных токенов',
+  minimum_received: 'Минимальная сумма, которую вы получите',
   swap_rate: 'Курс обмена',
   swap_rate_pre: 'Курс обмена',
   pool_fee: 'Комиссия пула',
