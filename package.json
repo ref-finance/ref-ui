@@ -46,6 +46,7 @@
     "typescript": "^4.2"
   },
   "dependencies": {
+    "@aurora-is-near/engine": "think-in-universe/aurora.js#6db862e",
     "@react-icons/all-files": "^4.1.0",
     "@svgr/parcel-plugin-svgr": "^5.5.0",
     "@types/big.js": "^6.1.2",
@@ -80,7 +81,8 @@
     "react-toastify": "^8.0.2",
     "react-tooltip": "^4.2.17",
     "recharts": "^2.1.6",
-    "swiper": "^6.8.4"
+    "swiper": "^6.8.4",
+    "web3-eth-abi": "^1.7.3"
   },
   "browserslist": [
     "last 2 Chrome versions"

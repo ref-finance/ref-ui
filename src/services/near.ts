@@ -1,4 +1,4 @@
-import { Near, keyStores, utils } from 'near-api-js';
+import { Near, keyStores, utils, WalletConnection } from 'near-api-js';
 import { functionCall } from 'near-api-js/lib/transaction';
 import BN from 'bn.js';
 import getConfig from './config';
@@ -40,8 +40,10 @@ export const LP_STORAGE_AMOUNT = '0.01';
 
 export const ONE_YOCTO_NEAR = '0.000000000000000000000001';
 
+export const keyStore = new keyStores.BrowserLocalStorageKeyStore();
+
 export const near = new Near({
-  keyStore: new keyStores.BrowserLocalStorageKeyStore(),
+  keyStore,
   headers: {},
   ...config,
 });
