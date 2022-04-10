@@ -2309,6 +2309,13 @@
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-2.0.1.tgz#20f18294f797f2209b5f65c8e3b5c8e8261d127c"
   integrity sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==
 
+"@types/web3-eth-abi@^1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@types/web3-eth-abi/-/web3-eth-abi-1.2.2.tgz#97ae0f71860b7cd27d8cc2390d7a2099897dce1c"
+  integrity sha512-wrPCS44bReIfLVGG9RHvK0+v0W3YST1NuX3jQbe92pAyI+6y37Uvcp8HqUzxmzzhgiRLSwzQ42IlWiPrI66ynA==
+  dependencies:
+    web3-eth-abi "*"
+
 "@types/yargs-parser@*":
   version "21.0.0"
   resolved "https://registry.yarnpkg.com/@types/yargs-parser/-/yargs-parser-21.0.0.tgz#0c60e537fa790f5f9472ed2776c2b71ec117351b"
@@ -9843,7 +9850,7 @@ wcwidth@^1.0.1:
   dependencies:
     defaults "^1.0.3"
 
-web3-eth-abi@^1.7.3:
+web3-eth-abi@*:
   version "1.7.3"
   resolved "https://registry.yarnpkg.com/web3-eth-abi/-/web3-eth-abi-1.7.3.tgz#2a1123c7252c37100eecd0b1fb2fb2c51366071f"
   integrity sha512-ZlD8DrJro0ocnbZViZpAoMX44x5aYAb73u2tMq557rMmpiluZNnhcCYF/NnVMy6UIkn7SF/qEA45GXA1ne6Tnw==
