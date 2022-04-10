@@ -88,6 +88,7 @@ function App() {
   });
 
   console.log(aurora);
+
   const [signedInState, signedInStatedispatch] = SignedInStateReducer;
 
   const { txHash, pathname, errorType, signInErrorType } = getURLInfo();

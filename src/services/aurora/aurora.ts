@@ -292,4 +292,37 @@ export async function swapExactTokensforETH({
   // const res = (await aurora.call(toAddress(trisolaris), input)).unwrap();
 }
 
+export async function withdrawFromAurora({
+  token_id,
+  amount,
+  decimal,
+}: {
+  token_id: string;
+  amount: string;
+  decimal: string;
+}) {
+  if (token_id === 'aurora') {
+    const callAddress = toAddress(getAuroraConfig().ethBridgeAddress);
+
+    await aurora.call(
+      callAddress,
+      `0x00${Buffer.from(
+        getCurrentWallet().wallet.getAccountId(),
+        'utf-8'
+      ).toString('hex')}`,
+      Big(ETH_DECIMAL).mul(amount).round(0, 0).toFixed(0)
+    );
+  } else {
+    const input = buildInput(Erc20Abi, 'withdrawToNear', [
+      `0x${Buffer.from(getCurrentWallet().wallet.accountId, 'utf-8').toString(
+        'hex'
+      )}`,
+      Big(decimal).mul(amount).round(0, 0).toFixed(0), // need to check decimals in real case
+    ]);
+    const erc20Addr = await getErc20Addr(token_id);
+
+    const res = (await aurora.call(toAddress(erc20Addr), input)).unwrap();
+  }
+}
+
 // combine transactions to sign once
