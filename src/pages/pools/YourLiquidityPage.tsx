@@ -191,7 +191,7 @@ export function YourLiquidityPage() {
 
     ftGetTokensMetadata(
       (pools?.map((p) => p.token_account_ids).flat() || []).concat(
-        STABLE_TOKEN_IDS
+        STABLE_TOKEN_IDS.concat(STABLE_TOKEN_USN_IDS)
       )
     ).then(setTokensMeta);
   }, [pools]);
