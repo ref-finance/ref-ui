@@ -20,7 +20,11 @@ import {
   calculateFairShare,
 } from '~utils/numbers';
 import { usePool } from '~state/pool';
-import { RemoveLiquidityModal, AddLiquidityModal } from './DetailsPage';
+import {
+  RemoveLiquidityModal,
+  AddLiquidityModal,
+  REF_FI_PRE_LIQUIDITY_ID_KEY,
+} from './DetailsPage';
 import { getPool, getYourPools } from '~services/indexer';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage } from 'react-intl';
@@ -30,15 +34,16 @@ import { LP_TOKEN_DECIMALS } from '~services/m-token';
 
 import { canFarm, Pool } from '~services/pool';
 import { formatMessage } from '@formatjs/intl';
-import { TokenMetadata } from '~services/ft-contract';
+import { ftGetTokensMetadata, TokenMetadata } from '~services/ft-contract';
 import { FarmDot } from '~components/icon';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
 import { usePoolTVL } from '../../state/pool';
 import { multiply, divide } from '../../utils/numbers';
+import { STABLE_POOL_USN_ID, isStablePool } from '../../services/near';
 import {
   STABLE_POOL_ID,
-  STABLE_POOL_USN_ID,
-  isStablePool,
+  STABLE_TOKEN_IDS,
+  STABLE_TOKEN_USN_IDS,
 } from '../../services/near';
 import { getStablePoolFromCache, isNotStablePool } from '../../services/pool';
 import {
@@ -179,6 +184,18 @@ export function YourLiquidityPage() {
     return null;
   }
 
+  const [tokensMeta, setTokensMeta] = useState<{}>();
+
+  useEffect(() => {
+    if (!pools) return;
+
+    ftGetTokensMetadata(
+      (pools?.map((p) => p.token_account_ids).flat() || []).concat(
+        STABLE_TOKEN_IDS
+      )
+    ).then(setTokensMeta);
+  }, [pools]);
+
   useEffect(() => {
     if (isSignedIn) {
       getYourPools().then(setPools);
@@ -194,7 +211,8 @@ export function YourLiquidityPage() {
     !stablePool ||
     !StablePoolUSN ||
     !pool_stable ||
-    !pool_stable_usn
+    !pool_stable_usn ||
+    !tokensMeta
   )
     return <Loading />;
 
@@ -239,13 +257,21 @@ export function YourLiquidityPage() {
                   className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
                   key={Number(STABLE_POOL_ID)}
                 >
-                  <PoolRow pool={stablePool} />
+                  <PoolRow
+                    pool={stablePool}
+                    tokens={STABLE_TOKEN_IDS.map((id) => tokensMeta[id]) || []}
+                  />
                 </div>
                 <div
                   className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
                   key={Number(STABLE_POOL_USN_ID)}
                 >
-                  <PoolRow pool={StablePoolUSN} />
+                  <PoolRow
+                    pool={StablePoolUSN}
+                    tokens={
+                      STABLE_TOKEN_USN_IDS.map((id) => tokensMeta[id]) || []
+                    }
+                  />
                 </div>
 
                 {pools.map((pool, i) => (
@@ -253,7 +279,12 @@ export function YourLiquidityPage() {
                     key={i}
                     className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
                   >
-                    <PoolRow pool={pool} />
+                    <PoolRow
+                      pool={pool}
+                      tokens={
+                        pool.token_account_ids.map((id) => tokensMeta[id]) || []
+                      }
+                    />
                   </div>
                 ))}
               </div>
@@ -271,11 +302,25 @@ export function YourLiquidityPage() {
       Number(userTotalShare) > 0 ||
       Number(userTotalShare_usn) > 0 ? (
         <div className="lg:hidden">
-          <PoolRow pool={stablePool} key={Number(STABLE_POOL_ID)} />
-          <PoolRow pool={StablePoolUSN} key={Number(STABLE_POOL_USN_ID)} />
+          <PoolRow
+            pool={stablePool}
+            key={Number(STABLE_POOL_ID)}
+            tokens={STABLE_TOKEN_IDS.map((id) => tokensMeta[id]) || []}
+          />
+          <PoolRow
+            pool={StablePoolUSN}
+            key={Number(STABLE_POOL_USN_ID)}
+            tokens={STABLE_TOKEN_USN_IDS.map((id) => tokensMeta[id]) || []}
+          />
 
           {pools.map((pool, i) => {
-            return <PoolRow pool={pool} key={i} />;
+            return (
+              <PoolRow
+                pool={pool}
+                key={i}
+                tokens={pool.token_account_ids.map((id) => tokensMeta[id])}
+              />
+            );
           })}
         </div>
       ) : (
@@ -287,12 +332,13 @@ export function YourLiquidityPage() {
   );
 }
 
-function PoolRow(props: { pool: any }) {
+function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
+  const tokens = props.tokens;
+
   const { pool, shares, stakeList } = usePool(props.pool.id);
 
   const poolTVL = usePoolTVL(props.pool.id);
 
-  const tokens = useTokens(pool?.tokenIds);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showFunding, setShowFunding] = useState(false);
   const [supportFarm, setSupportFarm] = useState<Number>();
@@ -337,7 +383,7 @@ function PoolRow(props: { pool: any }) {
     }
   }, [poolTVL, userTotalShareToString, pool]);
 
-  if (!pool || !tokens || tokens.length < 2) return <div />;
+  if (!pool) return <div />;
 
   if (!(userTotalShare.toNumber() > 0)) return null;
 
@@ -630,6 +676,11 @@ function PoolRow(props: { pool: any }) {
         }}
       />
       <AddLiquidityModal
+        closeTip={
+          localStorage.getItem(REF_FI_PRE_LIQUIDITY_ID_KEY) &&
+          pool.id.toString() !==
+            localStorage.getItem(REF_FI_PRE_LIQUIDITY_ID_KEY)
+        }
         pool={pool}
         tokens={tokens}
         isOpen={showFunding}

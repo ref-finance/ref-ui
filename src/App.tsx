@@ -104,13 +104,6 @@ function App() {
       removeSenderLoginRes();
       window.history.replaceState({}, '', window.location.origin + pathname);
     }
-    if (
-      pathname !== '/swap' &&
-      pathname !== '/sauce' &&
-      pathname !== '/' &&
-      pathname !== '/pools/add'
-    )
-      window.history.replaceState({}, '', window.location.origin + pathname);
   }, [errorType, signInErrorType]);
 
   useEffect(() => {

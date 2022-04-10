@@ -32,10 +32,12 @@ import { ChooseAddType } from './LiquidityComponents';
 import StableTokenList from './StableTokenList';
 import { WarnTriangle } from '../icon/SwapRefresh';
 import { ActionModel } from '../../pages/AccountPage';
-import { getDepositableBalance } from '../../state/token';
+import { getDepositableBalance, useTokenBalances } from '../../state/token';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import SquareRadio from '../radio/SquareRadio';
 import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
+import { checkAccountTip, getURLInfo } from '../layout/transactionTipPopUp';
+import { checkTransaction } from '../../services/swap';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE';
@@ -117,6 +119,34 @@ export default function AddLiquidityComponent(props: {
 
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
+
+  const refAccountBalances = useTokenBalances();
+
+  const { txHash, errorCode } = getURLInfo();
+
+  useEffect(() => {
+    if (
+      refAccountBalances &&
+      tokens &&
+      (txHash || errorCode) &&
+      tokens.some(
+        (token) =>
+          Number(
+            toReadableNumber(
+              token.decimals,
+              refAccountBalances?.[token.id] || '0'
+            )
+          ) > 0.001
+      )
+    ) {
+      checkAccountTip();
+      window.history.replaceState(
+        {},
+        '',
+        window.location.origin + window.location.pathname
+      );
+    }
+  }, [txHash, refAccountBalances, tokens, errorCode]);
 
   useEffect(() => {
     const firstAmount = toReadableNumber(

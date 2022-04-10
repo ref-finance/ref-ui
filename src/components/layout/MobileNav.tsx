@@ -51,6 +51,7 @@ import { WalletContext } from '~utils/sender-wallet';
 const config = getConfig();
 import { isMobile } from '~utils/device';
 import { getCurrentWallet, getAccountName } from '../../utils/sender-wallet';
+import { FarmDot } from '../icon/FarmStamp';
 
 export function MobileAnchor({
   to,
@@ -205,6 +206,8 @@ export function AccountModel(props: any) {
 
   const { wallet } = getCurrentWallet();
 
+  const { hasBalanceOnRefAccount } = props;
+
   const accountList = [
     {
       icon: <AccountIcon />,
@@ -264,28 +267,50 @@ export function AccountModel(props: any) {
       <div className="w-full bg-cardBg" ref={accountWrapRef}>
         {accountList.map((item, index) => {
           return (
-            <div
-              onClick={() => {
-                item.click();
-                props.closeAccount();
-              }}
-              key={item.textId + index}
-              className={`flex items-center text-base cursor-pointer font-semibold py-4 pl-20 hover:text-white hover:bg-navHighLightBg ${
-                item.selected
-                  ? 'text-white bg-navHighLightBg'
-                  : 'text-primaryText'
-              }`}
-            >
-              <label className="w-9 text-left cursor-pointer">
-                {item.icon}
-              </label>
-              <label className="cursor-pointer">
-                <FormattedMessage id={item.textId}></FormattedMessage>
-              </label>
-              {item.subIcon ? (
-                <label className="text-lg ml-2">{item.subIcon}</label>
+            <>
+              <div
+                onClick={() => {
+                  item.click();
+                  props.closeAccount();
+                }}
+                key={item.textId + index}
+                className={`flex items-center text-base cursor-pointer font-semibold py-4 pl-20 hover:text-white hover:bg-navHighLightBg ${
+                  item.selected
+                    ? 'text-white bg-navHighLightBg'
+                    : 'text-primaryText'
+                }`}
+              >
+                <label className="w-9 text-left cursor-pointer">
+                  {item.icon}
+                </label>
+                <label className="cursor-pointer">
+                  <FormattedMessage id={item.textId}></FormattedMessage>
+                </label>
+                <label htmlFor="" className="ml-1.5">
+                  {item.textId === 'view_account' && hasBalanceOnRefAccount ? (
+                    <FarmDot inFarm={hasBalanceOnRefAccount} />
+                  ) : null}
+                </label>
+
+                {item.subIcon ? (
+                  <label className="text-lg ml-2">{item.subIcon}</label>
+                ) : null}
+              </div>
+              {hasBalanceOnRefAccount && item.textId === 'view_account' ? (
+                <div
+                  className="text-center py-0.5 bg-gradientFrom w-full cursor-pointer text-xs"
+                  onClick={item.click}
+                  style={{
+                    color: '#001320',
+                  }}
+                >
+                  <FormattedMessage
+                    id="ref_account_tip_2"
+                    defaultMessage="You have token(s) in your REF Account"
+                  />
+                </div>
               ) : null}
-            </div>
+            </>
           );
         })}
       </div>
@@ -304,7 +329,8 @@ export function MobileNavBar(props: any) {
   const [mobileWrapNear, setMobileWrapNear] = useState(false);
   // const [showWalletSelector, setShowWalletSelector] = useState(false);
 
-  const { setShowWalletSelector, showWalletSelector } = props;
+  const { setShowWalletSelector, showWalletSelector, hasBalanceOnRefAccount } =
+    props;
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
 
@@ -403,6 +429,13 @@ export function MobileNavBar(props: any) {
                   }}
                 >
                   <div>{getAccountName(wallet.getAccountId())}</div>
+
+                  {hasBalanceOnRefAccount ? (
+                    <span className="ml-1.5">
+                      <FarmDot inFarm={hasBalanceOnRefAccount} />
+                    </span>
+                  ) : null}
+
                   {accountVisible ? (
                     <FiChevronUp className="text-base ml-1" />
                   ) : (
@@ -635,6 +668,7 @@ export function MobileNavBar(props: any) {
       </div>
       {accountVisible ? (
         <AccountModel
+          hasBalanceOnRefAccount={hasBalanceOnRefAccount}
           closeAccount={() => {
             setAccountVisible(false);
           }}

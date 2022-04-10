@@ -514,5 +514,8 @@ const en_US = {
   aprTip: 'Indicative value based on all rewards (pending and running)',
   half: 'Half',
   max: 'Max',
+  ref_account_balance_tip:
+    'It seems like an error occurred while adding/removing liquidity to the pool',
+  ref_account_tip_2: 'You have token(s) in your REF Account',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

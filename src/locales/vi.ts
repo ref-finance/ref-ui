@@ -521,5 +521,8 @@ const vi = {
   aprTip: 'Giá trị được tính dựa trên tổng phần thưởng hiện có (chưa/đã nhận)',
   half: 'Half',
   max: 'Max',
+  ref_account_balance_tip:
+    'Có vẻ như một lỗi đã xảy ra trong khi thêm / loại bỏ thanh khoản vào hồ bơi',
+  ref_account_tip_2: 'Bạn có mã thông báo trong Tài khoản REF của mình',
 };
 export default Object.assign(vi, vi_in_risks_page);
