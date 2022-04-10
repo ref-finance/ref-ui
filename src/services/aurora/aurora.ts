@@ -3,6 +3,7 @@ import {
   FunctionCallArgsV1,
   parseHexString,
   Engine,
+  AccountID,
 } from '@aurora-is-near/engine';
 
 import { Erc20Abi } from './abi/erc20';
@@ -21,6 +22,7 @@ import Big from 'big.js';
 import { getAuroraConfig } from './config';
 import { near, keyStore } from '../near';
 import getConfig from '../config';
+import { BN } from 'bn.js';
 
 const trisolaris = getAuroraConfig().trisolarisAddress;
 
@@ -31,72 +33,72 @@ export const PAIR_FEE = 3;
 export const ETH_DECIMAL = 18;
 export const TGas = Big(10).pow(12);
 
-const walletConnection = new nearAPI.walletConnection(
-  near.connection,
-  'aurora'
-);
+const AuroraWalletConnection = new nearAPI.WalletConnection(near, 'aurora');
 
-// take effect
+//@ts-ignore
 export const aurora = new Engine(
-  walletConnection,
+  AuroraWalletConnection,
   keyStore,
   near.account,
   getConfig().networkId,
   'aurora'
 );
 
-export const toAddress = (address) => {
+export const toAddress = (address: string | any) => {
   return typeof address === 'string'
     ? Address.parse(address).unwrapOrElse(() => Address.zero())
     : address;
 };
 
-export const getErc20Addr = async (token_id) => {
+export const getErc20Addr = async (token_id: string) => {
   return (await aurora.getAuroraErc20Address(new AccountID(token_id))).unwrap();
 };
 
-export const buildInput = (abi, methodName, params) => {
+export const buildInput = (abi: any[], methodName: string, params: any) => {
   const abiItem = abi.find((a) => a.name === methodName);
   if (!abiItem) {
     return null;
   }
 
+  //@ts-ignore
   return AbiCoder.encodeFunctionCall(abiItem, params);
 };
 
-export const decodeOutput = (abi, methodName, buffer) => {
+export const decodeOutput = (abi: any[], methodName: string, buffer: any) => {
   const abiItem = abi.find((a) => a.name === methodName);
   if (!abiItem) {
     return null;
   }
+
+  //@ts-ignore
   return AbiCoder.decodeParameters(
     abiItem.outputs,
     `0x${buffer.toString('hex')}`
   );
 };
 
-export function prepareInput(args) {
+export function prepareInput(args: any) {
   if (typeof args === 'undefined') return Buffer.alloc(0);
   if (typeof args === 'string') return Buffer.from(parseHexString(args));
   return Buffer.from(args);
 }
 
-export async function auroraCall(toAddress, input, value) {
+export async function auroraCall(toAddress: any, input: any, value: any) {
   if (value) return (await aurora.call(toAddress, input, value)).unwrap();
   else return (await aurora.call(toAddress, input)).unwrap();
 }
 
-export function auroraCallToTransaction(contract, input) {
-  let args = new FunctionCallArgsV1(
-    contract.toBytes(),
-    prepareInput(input)
-  ).encode();
+export function auroraCallToTransaction(contract: any, input: any) {
+  let args = new FunctionCallArgsV1({
+    contract: contract.toBytes(),
+    input: prepareInput(input),
+  }).encode();
 
   const action = nearAPI.transactions.functionCall(
     'call',
     args,
-    TGas.mul(150).toFixed(0),
-    1
+    new BN(TGas.mul(150).toFixed(0)),
+    new BN(1)
   );
 
   return {
@@ -106,7 +108,7 @@ export function auroraCallToTransaction(contract, input) {
 }
 
 // get pair information
-export async function getTotalSupply(pairAdd, address) {
+export async function getTotalSupply(pairAdd: string, address: string) {
   const input = buildInput(UniswapPairAbi, 'totalSupply', []);
   const res = (
     await aurora.view(toAddress(address), toAddress(pairAdd), 0, input)
@@ -114,7 +116,12 @@ export async function getTotalSupply(pairAdd, address) {
   return decodeOutput(UniswapPairAbi, 'totalSupply', res);
 }
 
-export async function getReserves(address, tokenA, tokenB, pairAdd) {
+export async function getReserves(
+  address: string,
+  tokenA: string,
+  tokenB: string,
+  pairAdd: string
+) {
   const input = buildInput(UniswapPairAbi, 'getReserves', []);
 
   // const Erc20A = await getErc20Addr(tokenA);
@@ -134,10 +141,10 @@ export async function getReserves(address, tokenA, tokenB, pairAdd) {
 
 // sign and send transaction
 export function depositToAuroraTransaction(
-  token_id,
-  readableAmount,
-  decimal,
-  address
+  token_id: string,
+  readableAmount: string,
+  decimal: number,
+  address: string
 ) {
   if (token_id === 'aurora') {
     return {
@@ -150,13 +157,13 @@ export function depositToAuroraTransaction(
             amount: Big(readableAmount).mul(ETH_DECIMAL).toFixed(0),
             memo: null,
             msg:
-              account.accountId +
+              getCurrentWallet().wallet.accountId +
               ':' +
               Zero64 + // fee
               address.substring(2),
           },
-          TGas.mul(70).toFixed(0),
-          1
+          new BN(TGas.mul(70).toFixed(0)),
+          new BN(1)
         ),
       ],
     };
@@ -172,8 +179,8 @@ export function depositToAuroraTransaction(
             memo: null,
             msg: address.substring(2),
           },
-          TGas.mul(70).toFixed(0),
-          1
+          new BN(TGas.mul(70).toFixed(0)),
+          new BN(1)
         ),
       ],
     };
@@ -181,7 +188,11 @@ export function depositToAuroraTransaction(
 }
 
 //need to validate before sign and send transaction
-export async function approveERC20(token_id, readableAmount, decimal) {
+export async function approveERC20(
+  token_id: string,
+  readableAmount: string,
+  decimal: number
+) {
   const input = buildInput(Erc20Abi, 'increaseAllowance', [
     trisolaris,
     Big(decimal).mul(readableAmount).round(0, 0).toFixed(0),
@@ -189,10 +200,10 @@ export async function approveERC20(token_id, readableAmount, decimal) {
 
   const erc20Addr = await getErc20Addr(token_id);
 
-  return auroraCallToTransaction(toAddress(erc20Addr, input));
+  return auroraCallToTransaction(toAddress(erc20Addr), input);
 }
 
-export function swapExactTokensForTokens({
+export async function swapExactTokensForTokens({
   from,
   to,
   readabelAmountIn,
@@ -200,6 +211,14 @@ export function swapExactTokensForTokens({
   decimalIn,
   decimalOut,
   address,
+}: {
+  from: string;
+  to: string;
+  readabelAmountIn: string;
+  readableAmountOut: string;
+  decimalIn: number;
+  decimalOut: number;
+  address: string;
 }) {
   const fromErc20 = await getErc20Addr(from);
   const toErc20 = await getErc20Addr(to);
@@ -212,7 +231,7 @@ export function swapExactTokensForTokens({
     (Math.floor(new Date().getTime() / 1000) + 60).toString(), // 60s from now
   ]);
 
-  const toAddress = toAddress(trisolaris);
+  const callAddress = toAddress(trisolaris);
 }
 
 export async function swapExactETHforTokens({
@@ -221,6 +240,12 @@ export async function swapExactETHforTokens({
   readableAmountOut,
   decimalOut,
   address,
+}: {
+  to: string;
+  readableAmountIn: string;
+  readableAmountOut: string;
+  decimalOut: number;
+  address: string;
 }) {
   const toErc20 = await getErc20Addr(to);
   const input = buildInput(UniswapRouterAbi, 'swapExactETHForTokens', [
@@ -232,19 +257,26 @@ export async function swapExactETHforTokens({
 
   const value = Big(ETH_DECIMAL).mul(readableAmountIn).toFixed(0);
 
-  const toAddress = toAddress(trisolaris);
+  const callContract = toAddress(trisolaris);
 
   // transaction or directly call
 }
 
-export const swapExactTokensforETH = async ({
+export async function swapExactTokensforETH({
   from,
   readabelAmountIn,
   readableAmountOut,
   decimalIn,
   decimalOut,
   address,
-}) => {
+}: {
+  from: string;
+  readabelAmountIn: string;
+  readableAmountOut: string;
+  decimalIn: number;
+  decimalOut: number;
+  address: string;
+}) {
   const fromErc20 = await getErc20Addr(from);
 
   const input = buildInput(UniswapRouterAbi, 'swapExactTokensForETH', [
@@ -255,9 +287,9 @@ export const swapExactTokensforETH = async ({
     (Math.floor(new Date().getTime() / 1000) + 60).toString(), // 60s from now
   ]);
 
-  const toAddress = toAddress(trisolaris);
+  const callAddress = toAddress(trisolaris);
 
   // const res = (await aurora.call(toAddress(trisolaris), input)).unwrap();
-};
+}
 
 // combine transactions to sign once

@@ -1,4 +1,4 @@
-export function getAuroraConfig(env = process.env.NEAR_ENV) {
+export function getAuroraConfig(env: string = process.env.NEAR_ENV) {
   switch (env) {
     case 'production':
     case 'testnet':

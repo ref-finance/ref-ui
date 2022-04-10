@@ -22,6 +22,7 @@ import { MorePoolsPage } from '~pages/pools/MorePoolsPage';
 import StableSwapPage from './pages/stable/StableSwapPage';
 import XrefPage from './pages/xref/XrefPage';
 import RiskPage from './pages/RiskPage';
+import { aurora } from './services/aurora/aurora';
 import {
   BgShapeLeftTop,
   BgShapeCenter,
@@ -85,6 +86,8 @@ function App() {
   const SignedInStateReducer = useReducer(signedInStateReducer, {
     isSignedIn: false,
   });
+
+  console.log(aurora);
   const [signedInState, signedInStatedispatch] = SignedInStateReducer;
 
   const { txHash, pathname, errorType, signInErrorType } = getURLInfo();
