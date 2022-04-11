@@ -200,7 +200,8 @@ export default function ({
 
   let utilisationDisplay;
 
-  const magId = forPool ? 'pool_details' : 'token_reserves';
+  // const magId = forPool ? 'pool_details' : 'token_reserves';
+  const magId = 'token_reserves';
   const magDefaultMessage = forPool ? 'Pool Detail' : 'Token Reserves';
 
   const totalCoinsId = forPool ? 'tvl' : 'total_stable_coins';
