@@ -63,6 +63,8 @@ import { percentOfBigNumber } from '../../utils/numbers';
 import SquareRadio from '../radio/SquareRadio';
 import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
 import { StableTokensSymbolUSN } from './StableTokenListUSN';
+import { useTokenBalances } from '../../state/token';
+import { getURLInfo, checkAccountTip } from '../layout/transactionTipPopUp';
 
 const SWAP_SLIPPAGE_KEY_USN =
   'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE_USN';
@@ -137,6 +139,34 @@ export function RemoveLiquidityComponentUSN(props: {
     shares,
     stablePool,
   });
+
+  const refAccountBalances = useTokenBalances();
+
+  const { txHash, errorCode } = getURLInfo();
+
+  useEffect(() => {
+    if (
+      refAccountBalances &&
+      tokens &&
+      (txHash || errorCode) &&
+      tokens.some(
+        (token) =>
+          Number(
+            toReadableNumber(
+              token.decimals,
+              refAccountBalances?.[token.id] || '0'
+            )
+          ) > 0.001
+      )
+    ) {
+      checkAccountTip();
+      window.history.replaceState(
+        {},
+        '',
+        window.location.origin + window.location.pathname
+      );
+    }
+  }, [txHash, refAccountBalances, tokens, errorCode]);
 
   function submit() {
     if (isPercentage) {
