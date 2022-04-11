@@ -23,7 +23,7 @@ import * as nearAPI from 'near-api-js';
 
 import Big from 'big.js';
 import { getAuroraConfig } from './config';
-import { near, keyStore } from '../near';
+import { near, keyStore, wallet } from '../near';
 import getConfig from '../config';
 import { BN } from 'bn.js';
 import { Pool } from '../pool';
@@ -44,7 +44,7 @@ const AuroraWalletConnection = new nearAPI.WalletConnection(near, 'aurora');
 export const aurora = new Engine(
   AuroraWalletConnection,
   keyStore,
-  near.account,
+  getCurrentWallet().wallet.getAccountId(),
   getConfig().networkId,
   'aurora'
 );
@@ -222,8 +222,8 @@ export async function getAuroraPool(
   });
 }
 
-// sign and send transaction
-export function depositToAuroraTransaction(
+// sign and send transaction on token contract
+export function depositToAurora(
   token_id: string,
   readableAmount: string,
   decimal: number,
@@ -270,7 +270,7 @@ export function depositToAuroraTransaction(
   }
 }
 
-//need to validate before sign and send transaction
+// TODO: need to validate before sign and send transaction
 export async function approveERC20(
   token_id: string,
   readableAmount: string,
@@ -416,3 +416,5 @@ export async function withdrawFromAurora({
 }
 
 // combine transactions to sign once
+
+// TODO: get token balance funciton
