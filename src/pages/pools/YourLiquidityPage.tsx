@@ -235,6 +235,9 @@ export function YourLiquidityPage() {
           <section>
             <div className="">
               <div
+                style={{
+                  gridTemplateColumns: 'repeat(13, minmax(0, 1fr))',
+                }}
                 className="grid grid-cols-12 md:flex xs:flex md:items-center xs:items-center xs:justify-between md:justify-between py-2 content-center items-center text-xs text-primaryText pr-6 pl-6 lg:pl-10
                 xs:border-b xs:border-gray-700 xs:border-opacity-70 md:border-b md:border-gray-700 md:border-opacity-70"
               >
@@ -248,7 +251,7 @@ export function YourLiquidityPage() {
                 <div className="col-span-3 text-left ml-8 xl:ml-14">
                   <FormattedMessage id="my_shares" defaultMessage="Shares" />
                 </div>
-                <div className="col-span-5 xl:ml-8 ml-4">
+                <div className="col-span-6 xl:ml-8 ml-4">
                   <FormattedMessage id="value" defaultMessage="Value" />
                 </div>
               </div>
@@ -475,7 +478,10 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
     <>
       {/* PC */}
       <Link
-        className="xs:hidden md:hidden grid grid-cols-12 py-5 content-center items-center text-sm text-white pl-10 pr-6 border-t border-gray-700 border-opacity-70 cursor-pointer"
+        style={{
+          gridTemplateColumns: 'repeat(13, minmax(0, 1fr))',
+        }}
+        className="xs:hidden md:hidden grid  py-5 content-center items-center text-sm text-white pl-10 pr-6 border-t border-gray-700 border-opacity-70 cursor-pointer"
         to={{ pathname: `/pool/${pool.id}` }}
       >
         <div className="col-span-2 inline-flex items-start flex-col relative">
@@ -508,8 +514,8 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
 
         <div className="col-span-2 text-left ml-4 xl:ml-8">{usdValue}</div>
 
-        <div className="flex items-center justify-end 2xl:justify-center text-center  col-span-3 ">
-          <div className="flex items-center">
+        <div className="flex items-center justify-end  text-center  col-span-4 ">
+          <div className="flex items-center justify-end flex-wrap">
             <SolidButton
               onClick={(e) => {
                 e.stopPropagation();
@@ -523,7 +529,7 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
                   });
                 }
               }}
-              className="text-xs col-span-2 mr-3 px-1.5 text-center relative right-2 whitespace-nowrap"
+              className="text-xs col-span-2 px-1.5 text-center whitespace-nowrap mb-1"
               style={{
                 minWidth: '96px',
               }}
@@ -549,7 +555,7 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
 
                 setShowWithdraw(true);
               }}
-              className="text-xs px-4 col-span-2 text-center h-8"
+              className="text-xs px-4 col-span-2 text-center h-8 ml-2 mb-1"
               style={{
                 minWidth: '80px',
               }}
