@@ -477,7 +477,6 @@ const zh_CN = {
   wallet_vi: ' ',
   value: '价值',
   usd_value: '美元价值',
-  create: '创建',
   sauce_note: 'SAUCE专为挂钩资产的流动性池设计, 提供最优价格.',
   support_ledger: '支持 Ledger',
   initialize_account_tip: '请初始化你的账号',

@@ -511,5 +511,7 @@ const ru = {
   ref_account_balance_tip:
     'Похоже, что произошла ошибка при добавлении/удалении ликвидности в пул',
   ref_account_tip_2: 'У вас есть токены в вашей учетной записи REF',
+  sauce_note:
+    'SAUCE is designed for liquidity pools with pegged assets, delivering optimal prices.',
 };
 export default Object.assign(ru, ru_in_risks_page);
