@@ -373,7 +373,7 @@ const en_US = {
   total_stable_coins: 'Total stablecoins',
   daily_volume: 'Daily volume',
   liquidity_utilisation: 'Liquidity utilisation',
-  token_reserves: 'Token Reserves',
+  token_reserves: 'Stats',
   roi_calculator: 'ROI Calculator',
   lp_staked: 'LP staked',
   usd: 'USD',

@@ -367,7 +367,7 @@ const zh_CN = {
   total_stable_coins: '稳定币总量',
   daily_volume: '24小时交易量',
   liquidity_utilisation: '交易活跃度',
-  token_reserves: '稳定币储备详情',
+  token_reserves: '统计',
   insufficient_shares: '超过了可用的份额',
   shares_removed: '流动性',
   shares_avaliable: '可用的份额',

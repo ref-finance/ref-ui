@@ -386,7 +386,7 @@ const ru = {
   total_stable_coins: 'Всего стейблкоинов',
   daily_volume: 'Дневной объем',
   liquidity_utilisation: 'Использование ликвидности',
-  token_reserves: 'Резервы токенов',
+  token_reserves: 'Cтатистика',
   roi_calculator: 'Калькулятор ROI',
   lp_staked: 'LP застейкано',
   usd: 'USD',

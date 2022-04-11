@@ -381,7 +381,7 @@ const vi = {
   total_stable_coins: 'Tổng stablecoins',
   daily_volume: 'Khối lượng giao dịch theo ngày',
   liquidity_utilisation: 'Hiệu quả sử dụng thanh khoản',
-  token_reserves: 'Token dự trữ',
+  token_reserves: 'thống kê',
   roi_calculator: 'Tính ROI',
   lp_staked: 'LP staked',
   usd: 'USD',
