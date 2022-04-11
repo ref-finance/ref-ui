@@ -273,7 +273,7 @@ function StablePoolCard({
           <div className="col-span-3 xs:pt-4">
             <span className="flex flex-col xs:flex-row xs:justify-between">
               <span className="text-sm text-farmText md:pl-2 lg:pl-2 xs:relative xs:top-1">
-                <FormattedMessage id="share" defaultMessage="Shares" />
+                <FormattedMessage id="my_shares" defaultMessage="Shares" />
               </span>
               <div className="flex flex-col xs:flex-row">
                 <span className="flex items-center pl-2 md:py-2 lg:py-2 xs:pb-2 xs:pr-2">

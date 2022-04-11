@@ -379,7 +379,7 @@ const uk_UA = {
   total_stable_coins: 'Всього стейблкоїнів',
   daily_volume: "Щоденний об'єм",
   liquidity_utilisation: 'Використання ліквідності',
-  token_reserves: 'Резерви токенів',
+  token_reserves: 'Cтатистика',
   roi_calculator: 'ROI калькулятор',
   lp_staked: 'LP стейкінгу',
   usd: 'USD',
