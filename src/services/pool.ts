@@ -56,6 +56,7 @@ export interface Pool {
   tvl: number;
   token0_ref_price: string;
   partialAmountIn?: string;
+  fromAurora?: boolean;
 }
 
 export interface StablePool {

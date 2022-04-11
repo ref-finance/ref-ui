@@ -1,10 +1,13 @@
 import {
   Address,
   FunctionCallArgsV1,
+  FunctionCallArgsV2,
   parseHexString,
   Engine,
   AccountID,
 } from '@aurora-is-near/engine';
+
+import { toBufferBE } from 'bigint-buffer';
 
 import { Erc20Abi } from './abi/erc20';
 
@@ -23,15 +26,16 @@ import { getAuroraConfig } from './config';
 import { near, keyStore } from '../near';
 import getConfig from '../config';
 import { BN } from 'bn.js';
+import { Pool } from '../pool';
 
 const trisolaris = getAuroraConfig().trisolarisAddress;
 
 export const Zero64 = '0'.repeat(64);
-
 export const SHARE_DECIMAL = 18;
 export const PAIR_FEE = 3;
 export const ETH_DECIMAL = 18;
 export const TGas = Big(10).pow(12);
+export const AuroraCallGas = new BN(TGas.mul(150).toFixed(0));
 
 const AuroraWalletConnection = new nearAPI.WalletConnection(near, 'aurora');
 
@@ -83,21 +87,39 @@ export function prepareInput(args: any) {
   return Buffer.from(args);
 }
 
+export function prepareAmount(value: any) {
+  if (typeof value === 'undefined') return toBufferBE(BigInt(0), 32);
+  const number = BigInt(value);
+  return toBufferBE(number, 32);
+}
+
 export async function auroraCall(toAddress: any, input: any, value: any) {
   if (value) return (await aurora.call(toAddress, input, value)).unwrap();
   else return (await aurora.call(toAddress, input)).unwrap();
 }
 
-export function auroraCallToTransaction(contract: any, input: any) {
-  let args = new FunctionCallArgsV1({
-    contract: contract.toBytes(),
-    input: prepareInput(input),
-  }).encode();
+export function auroraCallToTransaction(
+  contract: any,
+  input: any,
+  value?: string
+) {
+  let args;
 
+  if (!value)
+    args = new FunctionCallArgsV1({
+      contract: contract.toBytes(),
+      input: prepareInput(input),
+    }).encode();
+  else
+    args = new FunctionCallArgsV2({
+      contract: contract.toBytes(),
+      value: prepareAmount(value),
+      input: prepareInput(input),
+    });
   const action = nearAPI.transactions.functionCall(
     'call',
     args,
-    new BN(TGas.mul(150).toFixed(0)),
+    AuroraCallGas,
     new BN(1)
   );
 
@@ -107,7 +129,47 @@ export function auroraCallToTransaction(contract: any, input: any) {
   };
 }
 
-// get pair information
+export function parseAuroraPool({
+  tokenA,
+  tokenB,
+  auroraAddrA,
+  auroraAddrB,
+  shares,
+  id, // from aurora pool id
+  decodedRes,
+}: {
+  tokenA: string;
+  tokenB: string;
+  shares: string;
+  auroraAddrA: string;
+  auroraAddrB: string;
+  id: number;
+  decodedRes: any;
+}): Pool {
+  const Afirst = auroraAddrA > auroraAddrB;
+
+  const token1Id = Afirst ? tokenA : tokenB;
+  const token1Supply = Afirst ? decodedRes.reserve0 : decodedRes.reserve1;
+
+  const token2Id = Afirst ? tokenB : tokenA;
+  const token2Supply = Afirst ? decodedRes.reserve1 : decodedRes.reserve0;
+
+  return {
+    fromAurora: true,
+    id,
+    fee: 0.3,
+    shareSupply: shares,
+    tvl: 0,
+    token0_ref_price: '0',
+    tokenIds: [token1Id, token2Id],
+    supplies: {
+      [token1Id]: token1Supply,
+      [token2Id]: token2Supply,
+    },
+  };
+}
+
+// get pair information from aurora engine
 export async function getTotalSupply(pairAdd: string, address: string) {
   const input = buildInput(UniswapPairAbi, 'totalSupply', []);
   const res = (
@@ -116,7 +178,7 @@ export async function getTotalSupply(pairAdd: string, address: string) {
   return decodeOutput(UniswapPairAbi, 'totalSupply', res);
 }
 
-export async function getReserves(
+export async function getAuroraPool(
   address: string,
   tokenA: string,
   tokenB: string,
@@ -124,8 +186,10 @@ export async function getReserves(
 ) {
   const input = buildInput(UniswapPairAbi, 'getReserves', []);
 
-  // const Erc20A = await getErc20Addr(tokenA);
-  // const Erc20B = await getErc20Addr(tokenB);
+  const auroraAddrA =
+    tokenA === 'aurora' ? getAuroraConfig().WETH : await getErc20Addr(tokenA);
+  const auroraAddrB =
+    tokenB === 'aurora' ? getAuroraConfig().WETH : await getErc20Addr(tokenB);
 
   const shares = await getTotalSupply(pairAdd, address);
 
@@ -135,9 +199,16 @@ export async function getReserves(
 
   const decodedRes = decodeOutput(UniswapPairAbi, 'getReserves', res);
 
-  return decodedRes;
+  return parseAuroraPool({
+    tokenA,
+    tokenB,
+    shares,
+    auroraAddrA,
+    auroraAddrB,
+    id: 0, // TODO: encode tri pool id
+    decodedRes,
+  });
 }
-// TODO: parse pair infor mation
 
 // sign and send transaction
 export function depositToAuroraTransaction(
@@ -232,6 +303,8 @@ export async function swapExactTokensForTokens({
   ]);
 
   const callAddress = toAddress(trisolaris);
+
+  return auroraCallToTransaction(callAddress, input);
 }
 
 export async function swapExactETHforTokens({
@@ -258,6 +331,8 @@ export async function swapExactETHforTokens({
   const value = Big(ETH_DECIMAL).mul(readableAmountIn).toFixed(0);
 
   const callContract = toAddress(trisolaris);
+
+  return auroraCallToTransaction(callContract, input, value);
 
   // transaction or directly call
 }
@@ -289,9 +364,12 @@ export async function swapExactTokensforETH({
 
   const callAddress = toAddress(trisolaris);
 
+  return auroraCallToTransaction(callAddress, input);
+
   // const res = (await aurora.call(toAddress(trisolaris), input)).unwrap();
 }
 
+// aurora call
 export async function withdrawFromAurora({
   token_id,
   amount,
@@ -321,7 +399,7 @@ export async function withdrawFromAurora({
     ]);
     const erc20Addr = await getErc20Addr(token_id);
 
-    const res = (await aurora.call(toAddress(erc20Addr), input)).unwrap();
+    await aurora.call(toAddress(erc20Addr), input);
   }
 }
 
