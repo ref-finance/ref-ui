@@ -27,6 +27,7 @@ import { near, keyStore } from '../near';
 import getConfig from '../config';
 import { BN } from 'bn.js';
 import { Pool } from '../pool';
+import { ftGetTokenMetadata } from '../ft-contract';
 
 const trisolaris = getAuroraConfig().trisolarisAddress;
 
@@ -185,6 +186,17 @@ export async function getAuroraPool(
   pairAdd: string
 ) {
   const input = buildInput(UniswapPairAbi, 'getReserves', []);
+
+  const tokens = await Promise.all([
+    ftGetTokenMetadata(tokenA),
+    ftGetTokenMetadata(tokenB),
+  ]);
+
+  // TODO: confirm if right to validate symbol
+  const pairId = tokens.map((t) => t.symbol).join('-');
+
+  // no this pair to return null
+  if (!getAuroraConfig().Pairs[pairId]) return null;
 
   const auroraAddrA =
     tokenA === 'aurora' ? getAuroraConfig().WETH : await getErc20Addr(tokenA);
