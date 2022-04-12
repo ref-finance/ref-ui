@@ -234,7 +234,6 @@ export default function ({
       utilisationDisplay = utilisation.toFixed(2) + '%';
     }
   }
-
   const tokensMap: { [id: string]: TokenMetadata } = tokens.reduce(
     (pre, cur) => ({ ...pre, [cur.id]: cur }),
     {}
@@ -265,16 +264,46 @@ export default function ({
       return {};
     }
   }, [pools, tokens, coinsAmounts, tokensMap]);
-
   useEffect(() => {
-    const chart = (
-      <TokenChart
-        tokens={tokens}
-        coinsAmounts={coinsAmounts}
-        tokensMap={tokensMap}
-      />
+    const chartList: any[] = [];
+    pools.forEach((p: Pool) => {
+      const coinsAmountsPerPool = {};
+      const tokensPerPool: TokenMetadata[] = [];
+      const tokensMapPerPool = {};
+      Object.entries(p.supplies).map(([id, amount]) => {
+        coinsAmountsPerPool[id] = toReadableNumber(
+          tokensMap[id].decimals,
+          amount
+        );
+        tokensPerPool.push(tokensMap[id]);
+        tokensMapPerPool[id] = tokensMap[id];
+      });
+      chartList.push({
+        coinsAmountsPerPool,
+        tokensPerPool,
+        tokensMapPerPool,
+      });
+    });
+
+    const chartContainer = (
+      <div className="flex flex-col items-center">
+        {chartList.map((chartData, index) => {
+          return (
+            <div
+              key={index}
+              className={index == 1 ? 'xs:-mt-10 md:-mt-10' : ''}
+            >
+              <TokenChart
+                tokens={chartData.tokensPerPool}
+                coinsAmounts={chartData.coinsAmountsPerPool}
+                tokensMap={chartData.tokensMapPerPool}
+              />
+            </div>
+          );
+        })}
+      </div>
     );
-    setChart(chart);
+    setChart(chartContainer);
   }, []);
 
   return (
@@ -323,11 +352,7 @@ export default function ({
         >
           {toInternationalCurrencySystem(calTotalStableCoins, 3)}
         </div>
-        <div
-          className={`${hiddenChart ? 'hidden' : 'block'} flex justify-center`}
-        >
-          {chart}
-        </div>
+        <div className={`flex justify-center`}>{chart}</div>
         {Object.values(tokensData).map(({ token, display }) => {
           return (
             <InfoLine
