@@ -7,7 +7,7 @@ import { PoolRPCView } from '~services/api';
 
 const config = getConfig();
 
-const MAX_PER_PAGE = 150;
+const MAX_PER_PAGE = 100;
 
 const near = new Near({
   keyStore: new keyStores.InMemoryKeyStore(),
@@ -76,6 +76,7 @@ const getTokens = async () => {
 };
 
 const getFarms = (page: number) => {
+  const MAX_PER_PAGE = 150;
   const index = (page - 1) * MAX_PER_PAGE;
 
   return farmView({
