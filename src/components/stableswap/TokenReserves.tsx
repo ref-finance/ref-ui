@@ -150,26 +150,36 @@ const calculateTokenValueAndShare = (
   const totalShares = _.sumBy(Object.values(coinsAmounts), (o) => Number(o));
 
   let otherTokenNumber = '0';
-  Object.values(tokensMap).forEach((token: TokenMetadata, index: number) => {
-    const value = scientificNotationToString(coinsAmounts[token.id].toString());
-    let percentStr: string | number;
-    if (index == tokens.length - 1) {
-      percentStr = new BigNumber(100).minus(otherTokenNumber).toFixed(2);
-    } else {
-      percentStr = toPrecision(
-        percent(value, totalShares.toString()).toString(),
-        2
+
+  Object.keys(tokensMap)
+    .sort()
+    .reverse()
+    .forEach((key, index: number) => {
+      const token: TokenMetadata = tokensMap[key];
+      const value = scientificNotationToString(
+        coinsAmounts[token.id].toString()
       );
-      otherTokenNumber = BigNumber.sum(otherTokenNumber, percentStr).valueOf();
-    }
-    result[token.id] = {
-      token,
-      value,
-      percentStr,
-      display: `${toInternationalCurrencySystem(value, 2)} (${percentStr}%)`,
-      display2: `${toInternationalCurrencySystem(value, 2)} / ${percentStr}%`,
-    };
-  });
+      let percentStr: string | number;
+      if (index == tokens.length - 1) {
+        percentStr = new BigNumber(100).minus(otherTokenNumber).toFixed(2);
+      } else {
+        percentStr = toPrecision(
+          percent(value, totalShares.toString()).toString(),
+          2
+        );
+        otherTokenNumber = BigNumber.sum(
+          otherTokenNumber,
+          percentStr
+        ).valueOf();
+      }
+      result[token.id] = {
+        token,
+        value,
+        percentStr,
+        display: `${toInternationalCurrencySystem(value, 2)} (${percentStr}%)`,
+        display2: `${toInternationalCurrencySystem(value, 2)} / ${percentStr}%`,
+      };
+    });
   return result;
 };
 
@@ -266,24 +276,28 @@ export default function ({
   }, [pools, tokens, coinsAmounts, tokensMap]);
   useEffect(() => {
     const chartList: any[] = [];
-    pools.forEach((p: Pool) => {
-      const coinsAmountsPerPool = {};
-      const tokensPerPool: TokenMetadata[] = [];
-      const tokensMapPerPool = {};
-      Object.entries(p.supplies).map(([id, amount]) => {
-        coinsAmountsPerPool[id] = toReadableNumber(
-          tokensMap[id].decimals,
-          amount
-        );
-        tokensPerPool.push(tokensMap[id]);
-        tokensMapPerPool[id] = tokensMap[id];
+    pools
+      .sort((a, b) => {
+        return a.id - b.id;
+      })
+      .forEach((p: Pool) => {
+        const coinsAmountsPerPool = {};
+        const tokensPerPool: TokenMetadata[] = [];
+        const tokensMapPerPool = {};
+        Object.entries(p.supplies).map(([id, amount]) => {
+          coinsAmountsPerPool[id] = toReadableNumber(
+            tokensMap[id].decimals,
+            amount
+          );
+          tokensPerPool.push(tokensMap[id]);
+          tokensMapPerPool[id] = tokensMap[id];
+        });
+        chartList.push({
+          coinsAmountsPerPool,
+          tokensPerPool,
+          tokensMapPerPool,
+        });
       });
-      chartList.push({
-        coinsAmountsPerPool,
-        tokensPerPool,
-        tokensMapPerPool,
-      });
-    });
 
     const chartContainer = (
       <div className="flex flex-col items-center">
