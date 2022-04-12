@@ -52,6 +52,7 @@ const config = getConfig();
 import { isMobile } from '~utils/device';
 import { getCurrentWallet, getAccountName } from '../../utils/sender-wallet';
 import { FarmDot } from '../icon/FarmStamp';
+import { AccountTipDownByAccountID } from './NavigationBar';
 
 export function MobileAnchor({
   to,
@@ -334,6 +335,20 @@ export function MobileNavBar(props: any) {
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
 
+  const [showTip, setShowTip] = useState<boolean>(false);
+
+  useEffect(() => {
+    setShowTip(true);
+  }, [hasBalanceOnRefAccount]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowTip(false);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [showTip]);
+
   const { wallet } = getCurrentWallet();
 
   const nearBalance = useDepositableBalance(
@@ -407,6 +422,7 @@ export function MobileNavBar(props: any) {
         zIndex: show ? 200 : 51,
       }}
     >
+      <AccountTipDownByAccountID show={showTip} />
       <div className="flex items-center text-2xl text-white justify-between p-4">
         <NavLogo />
         <div className="flex">
@@ -426,6 +442,7 @@ export function MobileNavBar(props: any) {
                   className="flex items-center"
                   onClick={() => {
                     setAccountVisible(!accountVisible);
+                    setShowTip(false);
                   }}
                 >
                   <div>{getAccountName(wallet.getAccountId())}</div>

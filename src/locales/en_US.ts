@@ -514,5 +514,11 @@ const en_US = {
   ref_account_balance_tip:
     'It seems like an error occurred while adding/removing liquidity to the pool',
   ref_account_tip_2: 'You have token(s) in your REF Account',
+  ref_account_tip_top:
+    'your token(s) may be now in your Ref inner account. Click here to recover them',
+  click_here: 'Click here',
+  to_recover_them: 'to recover them',
+  ref_account_tip_3:
+    'To withdraw token(s) from your REF Account to your NEAR Wallet, please select and withdraw',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

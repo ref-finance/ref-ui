@@ -495,5 +495,11 @@ const uk_UA = {
   ref_account_balance_tip:
     'Здається, сталася помилка під час додавання/видалення ліквідності до пулу',
   ref_account_tip_2: 'У вашому обліковому записі REF є токен(и)',
+  ref_account_tip_top:
+    'ваші токени можуть бути тепер у вашому внутрішньому обліковому записі Ref',
+  click_here: 'Натисніть тут',
+  to_recover_them: 'щоб відновити їх',
+  ref_account_tip_3:
+    'Щоб вивести токени з вашого облікового запису REF на свій гаманець NEAR, виберіть і витягніть',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

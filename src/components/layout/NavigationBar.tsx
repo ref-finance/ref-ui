@@ -1,7 +1,8 @@
-import React, { useContext, useState, useEffect, useMemo } from 'react';
+import React, { useContext, useState, useEffect, useMemo, useRef } from 'react';
 import { matchPath } from 'react-router';
 import { Context } from '~components/wrapper';
 import getConfig from '~services/config';
+import ReactTooltip from 'react-tooltip';
 import {
   Logo,
   Near,
@@ -28,7 +29,7 @@ import { wallet } from '~services/near';
 import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
 
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import { IoChevronBack, IoClose } from 'react-icons/io5';
 
@@ -49,6 +50,20 @@ import { toReadableNumber } from '../../utils/numbers';
 import { FarmDot } from '../icon/FarmStamp';
 
 const config = getConfig();
+
+export function AccountTipDownByAccountID({ show }: { show: boolean }) {
+  return (
+    <div className={`account-tip-popup ${show ? 'block' : 'hidden'} text-xs`}>
+      <span>
+        <em></em>
+      </span>
+      <FormattedMessage
+        id="ref_account_tip_2"
+        defaultMessage="You have token(s) in your REF Account"
+      />
+    </div>
+  );
+}
 
 function Anchor({
   to,
@@ -116,7 +131,21 @@ function AccountEntry({
 
   const { wallet, wallet_type } = getCurrentWallet();
 
+  const [showAccountTip, setShowAccountTip] = useState<boolean>(false);
+
+  useEffect(() => {
+    setShowAccountTip(hasBalanceOnRefAccount);
+  }, [hasBalanceOnRefAccount]);
+
   const location = useLocation();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowAccountTip(false);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [showAccountTip]);
 
   const accountList = [
     {
@@ -154,120 +183,120 @@ function AccountEntry({
   ];
 
   return (
-    <>
-      <div className="relative user text-xs text-center justify-end z-30 mx-3.5">
+    <div className="bubble-box relative user text-xs text-center justify-end z-30 mx-3.5">
+      <AccountTipDownByAccountID show={showAccountTip} />
+      <div
+        className={`cursor-pointer font-bold items-center justify-end text-center overflow-visible relative py-5`}
+        onMouseEnter={() => {
+          setShowAccountTip(false);
+          setHover(true);
+        }}
+        onMouseLeave={() => {
+          setHover(false);
+        }}
+      >
         <div
-          className={`cursor-pointer font-bold items-center justify-end text-center overflow-visible relative py-5`}
-          onMouseEnter={() => {
-            setHover(true);
-          }}
-          onMouseLeave={() => {
-            setHover(false);
-          }}
+          className={`inline-flex px-1 py-0.5 items-center justify-center rounded-full border border-gray-700 ${
+            hover ? 'border-gradientFrom bg-opacity-0' : ''
+          } ${
+            isSignedIn
+              ? 'bg-gray-700 text-white'
+              : 'border border-gradientFrom text-gradientFrom'
+          } pl-3 pr-3`}
         >
-          <div
-            className={`inline-flex px-1 py-0.5 items-center justify-center rounded-full border border-gray-700 ${
-              hover ? 'border-gradientFrom bg-opacity-0' : ''
-            } ${
-              isSignedIn
-                ? 'bg-gray-700 text-white'
-                : 'border border-gradientFrom text-gradientFrom'
-            } pl-3 pr-3`}
-          >
-            <div className="pr-1">
-              <Near color={isSignedIn ? 'white' : '#00c6a2'} />
-            </div>
-            <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name">
-              {isSignedIn ? (
-                <span className="flex ml-1 items-center">
-                  {getAccountName(wallet.getAccountId())}
-                  {hasBalanceOnRefAccount ? (
-                    <span className="ml-1.5">
-                      <FarmDot inFarm={hasBalanceOnRefAccount} />
-                    </span>
-                  ) : null}
-                  <FiChevronDown className="text-base ml-1" />
-                </span>
-              ) : (
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setShowWalletSelector(true);
-
-                    setHover(false);
-                  }}
-                  type="button"
-                >
-                  <span className="ml-1 text-xs">
-                    <FormattedMessage
-                      id="connect_to_near"
-                      defaultMessage="Connect to NEAR"
-                    />
-                  </span>
-                </button>
-              )}
-            </div>
+          <div className="pr-1">
+            <Near color={isSignedIn ? 'white' : '#00c6a2'} />
           </div>
-          {isSignedIn && hover ? (
-            <div className={`absolute top-14 pt-2 right-0 w-64 z-20`}>
-              <Card
-                className="menu-max-height cursor-default shadow-4xl  border border-primaryText"
-                width="w-72"
-                padding="py-4"
+          <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name">
+            {isSignedIn ? (
+              <span className="flex ml-1 items-center">
+                {getAccountName(wallet.getAccountId())}
+                {hasBalanceOnRefAccount ? (
+                  <span className="ml-1.5">
+                    <FarmDot inFarm={hasBalanceOnRefAccount} />
+                  </span>
+                ) : null}
+                <FiChevronDown className="text-base ml-1" />
+              </span>
+            ) : (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowWalletSelector(true);
+
+                  setHover(false);
+                }}
+                type="button"
               >
-                {accountList.map((item, index) => {
-                  return (
-                    <>
-                      <div
-                        onClick={item.click}
-                        key={item.textId + index}
-                        className={`flex items-center text-sm cursor-pointer font-semibold py-4 pl-7 hover:text-white hover:bg-navHighLightBg ${
-                          item.selected
-                            ? 'text-white bg-navHighLightBg'
-                            : 'text-primaryText'
-                        }`}
-                      >
-                        <label className="w-9 text-left cursor-pointer">
-                          {item.icon}
-                        </label>
-                        <label className="cursor-pointer">
-                          <FormattedMessage id={item.textId}></FormattedMessage>
-                        </label>
-                        <label htmlFor="" className="ml-1.5">
-                          {item.textId === 'view_account' &&
-                          hasBalanceOnRefAccount ? (
-                            <FarmDot inFarm={hasBalanceOnRefAccount} />
-                          ) : null}
-                        </label>
-                        {item.subIcon ? (
-                          <label className="text-lg ml-2">{item.subIcon}</label>
-                        ) : null}
-                      </div>
-                      {hasBalanceOnRefAccount &&
-                      item.textId === 'view_account' ? (
-                        <div
-                          className="text-center py-0.5 bg-gradientFrom w-full cursor-pointer text-xs"
-                          onClick={item.click}
-                          style={{
-                            color: '#001320',
-                          }}
-                        >
-                          <FormattedMessage
-                            id="ref_account_tip_2"
-                            defaultMessage="You have token(s) in your REF Account"
-                          />
-                        </div>
-                      ) : null}
-                    </>
-                  );
-                })}
-              </Card>
-            </div>
-          ) : null}
+                <span className="ml-1 text-xs">
+                  <FormattedMessage
+                    id="connect_to_near"
+                    defaultMessage="Connect to NEAR"
+                  />
+                </span>
+              </button>
+            )}
+          </div>
         </div>
+        {isSignedIn && hover ? (
+          <div className={`absolute top-14 pt-2 right-0 w-64 z-20`}>
+            <Card
+              className="menu-max-height cursor-default shadow-4xl  border border-primaryText"
+              width="w-72"
+              padding="py-4"
+            >
+              {accountList.map((item, index) => {
+                return (
+                  <>
+                    <div
+                      onClick={item.click}
+                      key={item.textId + index}
+                      className={`flex items-center text-sm cursor-pointer font-semibold py-4 pl-7 hover:text-white hover:bg-navHighLightBg ${
+                        item.selected
+                          ? 'text-white bg-navHighLightBg'
+                          : 'text-primaryText'
+                      }`}
+                    >
+                      <label className="w-9 text-left cursor-pointer">
+                        {item.icon}
+                      </label>
+                      <label className="cursor-pointer">
+                        <FormattedMessage id={item.textId}></FormattedMessage>
+                      </label>
+                      <label htmlFor="" className="ml-1.5">
+                        {item.textId === 'view_account' &&
+                        hasBalanceOnRefAccount ? (
+                          <FarmDot inFarm={hasBalanceOnRefAccount} />
+                        ) : null}
+                      </label>
+                      {item.subIcon ? (
+                        <label className="text-lg ml-2">{item.subIcon}</label>
+                      ) : null}
+                    </div>
+                    {hasBalanceOnRefAccount &&
+                    item.textId === 'view_account' ? (
+                      <div
+                        className="text-center py-0.5 bg-gradientFrom w-full cursor-pointer text-xs"
+                        onClick={item.click}
+                        style={{
+                          color: '#001320',
+                        }}
+                      >
+                        <FormattedMessage
+                          id="ref_account_tip_2"
+                          defaultMessage="You have token(s) in your REF Account"
+                        />
+                      </div>
+                    ) : null}
+                  </>
+                );
+              })}
+            </Card>
+          </div>
+        ) : null}
       </div>
-    </>
+    </div>
   );
 }
 
@@ -648,6 +677,37 @@ function NavigationBar() {
   return (
     <>
       <div className="nav-wrap md:hidden xs:hidden text-center relative">
+        <div
+          className={`${
+            hasBalanceOnRefAccount ? 'block' : 'hidden'
+          } text-xs py-0.5`}
+          style={{
+            backgroundColor: '#CFCEFE',
+          }}
+        >
+          <span className="mr-1">👀</span>
+          <FormattedMessage
+            id="ref_account_balance_tip"
+            defaultMessage="It seems like an error occurred while adding/removing liquidity to the pool"
+          />
+          {`, `}
+          <FormattedMessage
+            id="ref_account_tip_top"
+            defaultMessage="your token(s) may be now in your Ref inner account"
+          />
+          {`. `}
+          <span
+            className="font-bold underline cursor-pointer"
+            onClick={() => window.open('/account', '_blank')}
+          >
+            <FormattedMessage id="click_here" defaultMessage="Click here" />{' '}
+          </span>
+          <FormattedMessage
+            id="to_recover_them"
+            defaultMessage="to recover them"
+          />
+          .
+        </div>
         <nav className="flex items-center justify-between px-9 pt-6 col-span-8">
           <div className="relative -top-0.5 flex-1">
             <Logo />

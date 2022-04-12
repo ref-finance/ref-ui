@@ -36,6 +36,53 @@ import {
 import { getSenderLoginRes } from '../utils/sender-wallet';
 import { Checkbox, CheckboxSelected } from '../components/icon';
 import { GradientButton, ButtonTextWrapper } from '../components/button/Button';
+import { CloseIcon } from '../components/icon/Actions';
+import { AccountTipMan } from '../components/icon/AccountTipMan';
+
+function RefAccountTipMan({
+  setShowTip,
+}: {
+  setShowTip: (show: boolean) => void;
+}) {
+  return (
+    <div
+      className="absolute RefAccountTipMan"
+      style={{
+        top: '-70px',
+        right: '160px',
+      }}
+    >
+      <span>
+        <em></em>
+      </span>
+      <div
+        className="relative border bg-cardBg rounded-lg border-gradientFrom pl-4 pr-8 py-2 text-sm text-white"
+        style={{
+          width: '430px',
+        }}
+      >
+        <FormattedMessage
+          id="ref_account_tip_3"
+          defaultMessage="To withdraw token(s) from your REF Account to your NEAR Wallet, please select and withdraw"
+        />
+        .
+        <div
+          className="absolute pl-1 cursor-pointer"
+          onClick={() => setShowTip(false)}
+          style={{
+            right: '10px',
+            top: '10px',
+          }}
+        >
+          <CloseIcon />
+        </div>
+      </div>
+
+      <AccountTipMan />
+    </div>
+  );
+}
+
 const withdraw_number_at_once = 5;
 const accountSortFun = (
   by: string,
@@ -643,8 +690,14 @@ function MobileAccountTable(props: any) {
 }
 function Account(props: any) {
   const { userTokens } = props;
-  const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const hasRefBalanceOver = userTokens.some((token: TokenMetadata) => {
+      return Number(token.ref) > 0.001;
+    });
+    setVisible(hasRefBalanceOver);
+  }, []);
 
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
@@ -653,6 +706,8 @@ function Account(props: any) {
 
   return (
     <div className="flex justify-center relative w-1/2 m-auto mt-16 xs:hidden md:hidden pb-5">
+      {visible ? <RefAccountTipMan setShowTip={setVisible} /> : null}
+
       <Card className="w-full pt-6 pb-15 px-0">
         <div className="flex items-center justify-between pb-4 px-6">
           <div className="flex items-center font-semibold text-white">
@@ -687,6 +742,13 @@ function MobileAccount(props: any) {
       const { ref } = token;
       if (Number(ref) > 0) return true;
     });
+
+    const hasRefBalanceOver = userTokens.some((token: TokenMetadata) => {
+      return Number(token.ref) > 0.001;
+    });
+
+    if (hasRefBalanceOver) switchTab('ref');
+
     setRefAccountHasToken(!!refAccountHasToken);
   }, []);
   return (

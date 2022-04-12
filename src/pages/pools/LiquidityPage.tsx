@@ -632,7 +632,6 @@ function WatchListCard({
   watchPools: Pool[];
   poolTokenMetas: any;
 }) {
-  const intl = useIntl();
   return (
     <>
       <Card className=" w-full mb-2" padding="p-0 py-6" bgcolor="bg-cardBg">

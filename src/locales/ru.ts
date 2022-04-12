@@ -511,5 +511,11 @@ const ru = {
   ref_account_balance_tip:
     'Похоже, что произошла ошибка при добавлении/удалении ликвидности в пул',
   ref_account_tip_2: 'У вас есть токены в вашей учетной записи REF',
+  ref_account_tip_top:
+    'Ваши токены теперь могут находиться во внутренней учетной записи Ref',
+  click_here: 'Нажмите здесь',
+  to_recover_them: 'восстановить их',
+  ref_account_tip_3:
+    'Чтобы вывести токен(ы) с вашего счета REF на ваш кошелек NEAR, пожалуйста, выберите и выведите',
 };
 export default Object.assign(ru, ru_in_risks_page);
