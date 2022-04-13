@@ -702,8 +702,8 @@ function NavigationBar() {
             className="font-bold underline cursor-pointer"
             onClick={() => window.open('/account', '_blank')}
           >
-            <FormattedMessage id="click_here" defaultMessage="Click here" />{' '}
-          </span>
+            <FormattedMessage id="click_here" defaultMessage="Click here" />
+          </span>{' '}
           <FormattedMessage
             id="to_recover_them"
             defaultMessage="to recover them"
