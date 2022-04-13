@@ -338,7 +338,7 @@ export function MobileNavBar(props: any) {
   const [showTip, setShowTip] = useState<boolean>(false);
 
   useEffect(() => {
-    setShowTip(true);
+    setShowTip(hasBalanceOnRefAccount);
   }, [hasBalanceOnRefAccount]);
 
   useEffect(() => {
@@ -422,7 +422,7 @@ export function MobileNavBar(props: any) {
         zIndex: show ? 200 : 51,
       }}
     >
-      <AccountTipDownByAccountID show={showTip} />
+      {showTip ? <AccountTipDownByAccountID show={showTip} /> : null}
       <div className="flex items-center text-2xl text-white justify-between p-4">
         <NavLogo />
         <div className="flex">

@@ -87,9 +87,10 @@ const withdraw_number_at_once = 5;
 const accountSortFun = (
   by: string,
   currentSort: string,
-  userTokens: TokenMetadata[]
+  userTokens: TokenMetadata[],
+  hasRefBalanceOver?: boolean
 ) => {
-  const sortBy = by || 'near';
+  const sortBy = by || (hasRefBalanceOver ? 'ref' : 'near');
   const sortDirection = currentSort.split('-')[1] == 'down' ? 'up' : 'down';
   userTokens.sort((token1: TokenMetadata, token2: TokenMetadata) => {
     const { near: near1, ref: ref1 } = token1;
@@ -199,7 +200,7 @@ const WithdrawTip = () => {
   );
 };
 function AccountTable(props: any) {
-  const { userTokens } = props;
+  const { userTokens, hasRefBalanceOver } = props;
   const [tokensSort, setTokensSort] = useState(userTokens);
   const [currentSort, setCurrentSort] = useState('');
   const [checkedMap, setCheckedMap] = useState({});
@@ -219,7 +220,8 @@ function AccountTable(props: any) {
     const { sortUserTokens, curSort } = accountSortFun(
       sortBy,
       currentSort,
-      userTokens
+      userTokens,
+      hasRefBalanceOver
     );
     setTokensSort(Array.from(sortUserTokens));
     setCurrentSort(curSort);
@@ -692,10 +694,13 @@ function Account(props: any) {
   const { userTokens } = props;
   const [visible, setVisible] = useState(false);
 
+  const [hasRefBalanceOver, setHasRefBalanceOver] = useState<boolean>(false);
+
   useEffect(() => {
     const hasRefBalanceOver = userTokens.some((token: TokenMetadata) => {
       return Number(token.ref) > 0.001;
     });
+    setHasRefBalanceOver(hasRefBalanceOver);
     setVisible(hasRefBalanceOver);
   }, []);
 
@@ -717,7 +722,10 @@ function Account(props: any) {
             </label>
           </div>
         </div>
-        <AccountTable userTokens={userTokens}></AccountTable>
+        <AccountTable
+          userTokens={userTokens}
+          hasRefBalanceOver={hasRefBalanceOver}
+        ></AccountTable>
       </Card>
     </div>
   );
