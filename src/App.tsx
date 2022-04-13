@@ -126,7 +126,7 @@ function App() {
       if (
         window.near &&
         getSenderLoginRes() &&
-        !getSenderWallet(window).isSignedIn() &&
+        getSenderWallet(window).isSignedIn() &&
         !signInErrorType
       ) {
         getSenderWallet(window)
