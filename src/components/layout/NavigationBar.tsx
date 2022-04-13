@@ -694,6 +694,9 @@ function NavigationBar() {
     });
   }, []);
 
+  const [hasBalanceOnRefAccount, setHasBalanceOnRefAccount] =
+    useState<boolean>(false);
+
   const refAccountBalances = useTokenBalances();
 
   useEffect(() => {
@@ -704,16 +707,17 @@ function NavigationBar() {
     ftGetTokensMetadata(ids).then(setTokensMeta);
   }, [refAccountBalances]);
 
-  const hasBalanceOnRefAccount = useMemo(() => {
-    try {
-      return Object.entries(refAccountBalances || {}).some(([id, balance]) => {
+  useEffect(() => {
+    if (!refAccountBalances || !tokensMeta) return;
+    const hasRefBalanceOver = Object.entries(refAccountBalances).some(
+      ([id, balance]) => {
         return (
           Number(toReadableNumber(tokensMeta?.[id]?.decimals, balance)) > 0.001
         );
-      });
-    } catch (error) {
-      return false;
-    }
+      }
+    );
+
+    setHasBalanceOnRefAccount(hasRefBalanceOver);
   }, [refAccountBalances, tokensMeta]);
 
   return (
