@@ -39,6 +39,8 @@ import { GradientButton, ButtonTextWrapper } from '../components/button/Button';
 import { CloseIcon } from '../components/icon/Actions';
 import { AccountTipMan } from '../components/icon/AccountTipMan';
 
+const REF_MAN_ACCOUNT_TIP_KEY = 'REF_MAN_ACCOUNT_TIP_VALUE';
+
 function RefAccountTipMan({
   setShowTip,
 }: {
@@ -68,7 +70,10 @@ function RefAccountTipMan({
         .
         <div
           className="absolute pl-1 cursor-pointer"
-          onClick={() => setShowTip(false)}
+          onClick={() => {
+            setShowTip(false);
+            localStorage.setItem(REF_MAN_ACCOUNT_TIP_KEY, '1');
+          }}
           style={{
             right: '10px',
             top: '10px',
@@ -701,7 +706,10 @@ function Account(props: any) {
       return Number(token.ref) > 0.001;
     });
     setHasRefBalanceOver(hasRefBalanceOver);
-    setVisible(hasRefBalanceOver);
+    setVisible(
+      hasRefBalanceOver &&
+        !localStorage.getItem(REF_MAN_ACCOUNT_TIP_KEY).toString()
+    );
   }, []);
 
   const { signedInState } = useContext(WalletContext);
