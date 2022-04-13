@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useContext,
+  useCallback,
+} from 'react';
 import Modal from 'react-modal';
 import { Card } from '../components/card/Card';
 import { TiArrowSortedUp } from 'react-icons/ti';
@@ -95,8 +101,11 @@ const accountSortFun = (
   userTokens: TokenMetadata[],
   hasRefBalanceOver?: boolean
 ) => {
-  const sortBy = by || (hasRefBalanceOver ? 'ref' : 'near');
-  const sortDirection = currentSort.split('-')[1] == 'down' ? 'up' : 'down';
+  const sortBy = by || 'near';
+
+  const sortDirection =
+    currentSort.split('-')[1] == 'down' && !hasRefBalanceOver ? 'up' : 'down';
+
   userTokens.sort((token1: TokenMetadata, token2: TokenMetadata) => {
     const { near: near1, ref: ref1 } = token1;
     const { near: near2, ref: ref2 } = token2;
@@ -213,15 +222,18 @@ function AccountTable(props: any) {
   const [refAccountHasToken, setRefAccountHasToken] = useState();
   const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false);
   useEffect(() => {
-    sort();
+    sort(null, hasRefBalanceOver);
     const refAccountHasToken = tokensSort.filter((token: TokenMetadata) => {
       const { ref } = token;
       if (Number(ref) > 0) return true;
     });
     setRefAccountHasToken(refAccountHasToken.length);
-  }, []);
-  const sort = (e?: any) => {
-    const sortBy = e?.currentTarget.dataset.sort || 'near';
+  }, [hasRefBalanceOver]);
+
+  const sort = (e?: any, hasRefBalanceOver?: boolean) => {
+    const sortBy =
+      e?.currentTarget.dataset.sort || (hasRefBalanceOver ? 'ref' : 'near');
+
     const { sortUserTokens, curSort } = accountSortFun(
       sortBy,
       currentSort,
@@ -289,7 +301,7 @@ function AccountTable(props: any) {
           </th>
           <th className="text-right">
             <span
-              onClick={sort}
+              onClick={(e) => sort(e, false)}
               data-sort="near"
               className={`flex items-center w-full justify-end ${
                 currentSort.indexOf('near') > -1 ? 'text-greenColor' : ''
@@ -306,7 +318,7 @@ function AccountTable(props: any) {
           </th>
           <th className={`text-right`}>
             <span
-              onClick={sort}
+              onClick={(e) => sort(e, false)}
               data-sort="ref"
               className={`flex items-center w-full justify-end ${
                 currentSort.indexOf('ref') > -1 ? 'text-greenColor' : ''

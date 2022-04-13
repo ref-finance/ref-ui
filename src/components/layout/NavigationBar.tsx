@@ -1,4 +1,11 @@
-import React, { useContext, useState, useEffect, useMemo, useRef } from 'react';
+import React, {
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+} from 'react';
 import { matchPath } from 'react-router';
 import { Context } from '~components/wrapper';
 import getConfig from '~services/config';
@@ -654,6 +661,39 @@ function NavigationBar() {
 
   const [tokensMeta, setTokensMeta] = useState<{}>();
 
+  const [pathnameState, setPathnameState] = useState<boolean>(
+    window.location.pathname !== '/account'
+  );
+
+  const setPatheState = () =>
+    setPathnameState(window.location.pathname !== '/account');
+
+  useEffect(() => {
+    const _historyWrap = function (type: any) {
+      const orig = history[type];
+      const e = new Event(type);
+      return function () {
+        const rv = orig.apply(this, arguments);
+        //@ts-ignore
+        e.arguments = arguments;
+        window.dispatchEvent(e);
+        return rv;
+      };
+    };
+    history.pushState = _historyWrap('pushState');
+    history.replaceState = _historyWrap('replaceState');
+
+    window.addEventListener('popstate', (e) => {
+      setPatheState();
+    });
+    window.addEventListener('pushState', function (e) {
+      setPatheState();
+    });
+    window.addEventListener('replaceState', function (e) {
+      setPatheState();
+    });
+  }, []);
+
   const refAccountBalances = useTokenBalances();
 
   useEffect(() => {
@@ -681,8 +721,8 @@ function NavigationBar() {
       <div className="nav-wrap md:hidden xs:hidden text-center relative">
         <div
           className={`${
-            hasBalanceOnRefAccount ? 'block' : 'hidden'
-          } text-xs py-0.5`}
+            hasBalanceOnRefAccount && pathnameState ? 'block' : 'hidden'
+          } text-xs py-1.5`}
           style={{
             backgroundColor: '#CFCEFE',
           }}

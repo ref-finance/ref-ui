@@ -114,12 +114,16 @@ function App() {
           signedInStatedispatch({ type: 'signIn' });
         });
         window.near.on('accountChanged', (changedAccountId: string) => {
-          window.location.reload();
-          saveSenderLoginRes(changedAccountId);
+          if (getSenderWallet(window).isSignedIn()) {
+            window.location.reload();
+            saveSenderLoginRes(changedAccountId);
+          }
         });
         window.near.on('signOut', () => {
-          removeSenderLoginRes();
-          signedInStatedispatch({ type: 'signOut' });
+          if (getSenderWallet(window).isSignedIn()) {
+            removeSenderLoginRes();
+            signedInStatedispatch({ type: 'signOut' });
+          }
         });
       }
 
