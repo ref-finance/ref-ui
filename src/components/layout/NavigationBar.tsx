@@ -710,11 +710,16 @@ function NavigationBar() {
   }, [refAccountBalances]);
 
   useEffect(() => {
-    if (!refAccountBalances || !tokensMeta) return;
+    if (!refAccountBalances || !tokensMeta) {
+      setHasBalanceOnRefAccount(false);
+      return;
+    }
     const hasRefBalanceOver = Object.entries(refAccountBalances).some(
       ([id, balance]) => {
         return (
-          Number(toReadableNumber(tokensMeta?.[id]?.decimals, balance)) > 0.001
+          Number(
+            toReadableNumber(tokensMeta?.[id]?.decimals || 24, balance) || '0'
+          ) > 0.001
         );
       }
     );
