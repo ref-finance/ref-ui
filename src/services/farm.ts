@@ -30,7 +30,7 @@ import {
   SENDER_WALLET_SIGNEDIN_STATE_KEY,
 } from '../utils/sender-wallet';
 const config = getConfig();
-export const DEFAULT_PAGE_LIMIT = 100;
+export const DEFAULT_PAGE_LIMIT = 150;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
 const expand = 6;
 export interface Seed {
