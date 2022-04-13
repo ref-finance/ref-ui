@@ -708,7 +708,7 @@ function Account(props: any) {
     setHasRefBalanceOver(hasRefBalanceOver);
     setVisible(
       hasRefBalanceOver &&
-        !localStorage.getItem(REF_MAN_ACCOUNT_TIP_KEY).toString()
+        !localStorage.getItem(REF_MAN_ACCOUNT_TIP_KEY)?.toString()
     );
   }, []);
 
