@@ -659,6 +659,8 @@ function NavigationBar() {
   const isSignedIn = signedInState.isSignedIn;
   const [showWalletSelector, setShowWalletSelector] = useState(false);
 
+  const [hoverClick, setHoverClick] = useState<boolean>(false);
+
   const [tokensMeta, setTokensMeta] = useState<{}>();
 
   const [pathnameState, setPathnameState] = useState<boolean>(
@@ -731,7 +733,7 @@ function NavigationBar() {
             backgroundColor: '#CFCEFE',
           }}
         >
-          <span className="mr-1">👀</span>
+          👀 &nbsp;
           <FormattedMessage
             id="ref_account_balance_tip"
             defaultMessage="It seems like an error occurred while adding/removing liquidity to the pool"
@@ -741,13 +743,17 @@ function NavigationBar() {
             id="ref_account_tip_top"
             defaultMessage="your token(s) may be now in your Ref inner account"
           />
-          {`. `}
+          {`.`}
           <span
-            className="font-bold underline cursor-pointer"
+            className={`${
+              hoverClick ? 'font-bold' : 'font-normal'
+            } underline cursor-pointer mx-1`}
             onClick={() => window.open('/account', '_blank')}
+            onMouseEnter={() => setHoverClick(true)}
+            onMouseLeave={() => setHoverClick(false)}
           >
             <FormattedMessage id="click_here" defaultMessage="Click here" />
-          </span>{' '}
+          </span>
           <FormattedMessage
             id="to_recover_them"
             defaultMessage="to recover them"
