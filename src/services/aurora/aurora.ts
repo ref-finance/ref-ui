@@ -22,12 +22,13 @@ import AbiCoder from 'web3-eth-abi';
 import * as nearAPI from 'near-api-js';
 
 import Big from 'big.js';
-import { getAuroraConfig } from './config';
+import { getAuroraConfig, defaultTokenList } from './config';
 import { near, keyStore, wallet } from '../near';
 import getConfig from '../config';
 import { BN } from 'bn.js';
 import { Pool } from '../pool';
 import { ftGetTokenMetadata } from '../ft-contract';
+import { useEffect, useState } from 'react';
 
 const trisolaris = getAuroraConfig().trisolarisAddress;
 
@@ -44,7 +45,7 @@ const AuroraWalletConnection = new nearAPI.WalletConnection(near, 'aurora');
 export const aurora = new Engine(
   AuroraWalletConnection,
   keyStore,
-  getCurrentWallet().wallet.getAccountId(),
+  getCurrentWallet().wallet.account(),
   getConfig().networkId,
   'aurora'
 );
@@ -55,6 +56,11 @@ export const toAddress = (address: string | any) => {
     : address;
 };
 
+// OK
+export const auroraAddr = (nearAccount: string) =>
+  new AccountID(nearAccount).toAddress().toString();
+
+// OK
 export const getErc20Addr = async (token_id: string) => {
   return (await aurora.getAuroraErc20Address(new AccountID(token_id))).unwrap();
 };
@@ -170,7 +176,7 @@ export function parseAuroraPool({
   };
 }
 
-// get pair information from aurora engine
+// OK
 export async function getTotalSupply(pairAdd: string, address: string) {
   const input = buildInput(UniswapPairAbi, 'totalSupply', []);
   const res = (
@@ -179,6 +185,7 @@ export async function getTotalSupply(pairAdd: string, address: string) {
   return decodeOutput(UniswapPairAbi, 'totalSupply', res);
 }
 
+// OK
 export async function getAuroraPool(
   address: string,
   tokenA: string,
@@ -203,7 +210,7 @@ export async function getAuroraPool(
   const auroraAddrB =
     tokenB === 'aurora' ? getAuroraConfig().WETH : await getErc20Addr(tokenB);
 
-  const shares = await getTotalSupply(pairAdd, address);
+  const shares = (await getTotalSupply(pairAdd, address))?.[0];
 
   const res = (
     await aurora.view(toAddress(address), toAddress(pairAdd), 0, input)
@@ -381,6 +388,39 @@ export async function swapExactTokensforETH({
   // const res = (await aurora.call(toAddress(trisolaris), input)).unwrap();
 }
 
+// OK
+export const fetchAllowance = async (address: string, tokenAddress: string) => {
+  try {
+    const input = buildInput(Erc20Abi, 'allowance', [
+      address,
+      getAuroraConfig().trisolarisAddress.toString(),
+    ]);
+    const res = (
+      await aurora.view(toAddress(address), toAddress(tokenAddress), 0, input)
+    ).unwrap();
+    const out = decodeOutput(Erc20Abi, 'allowance', res);
+    return Big(out[0]);
+  } catch (e) {
+    console.log(e);
+    return false;
+  }
+};
+
+// OK
+export const useErc20Allowance = (address: string, tokenAddress: string) => {
+  const [allowance, setAllowance] = useState(null);
+
+  useEffect(() => {
+    if (!aurora || !address || !tokenAddress) {
+      return;
+    }
+
+    fetchAllowance(address, tokenAddress).then(setAllowance);
+  }, [tokenAddress, address, aurora]);
+
+  return allowance;
+};
+
 // aurora call
 export async function withdrawFromAurora({
   token_id,
@@ -415,6 +455,84 @@ export async function withdrawFromAurora({
   }
 }
 
-// combine transactions to sign once
+export const fetchErc20Balance = async (
+  address: string,
+  tokenAddress: string
+) => {
+  try {
+    const input = buildInput(Erc20Abi, 'balanceOf', [address]);
+    const res = (
+      await aurora.view(toAddress(address), toAddress(tokenAddress), 0, input)
+    ).unwrap();
 
-// TODO: get token balance funciton
+    const out = decodeOutput(Erc20Abi, 'balanceOf', res);
+
+    return Big(out[0]);
+  } catch (e) {
+    return false;
+  }
+};
+
+export const useAuroraTokens = () => {
+  const [tokens, setTokens] = useState<any>({});
+
+  const tokenList = defaultTokenList;
+
+  useEffect(() => {
+    setTokens(
+      Object.assign(
+        {
+          tokenAddresses: tokenList.tokens.map((t) => t.address),
+          tokensByAddress: tokenList.tokens.reduce((m, t) => {
+            m[t.address] = t;
+            return m;
+          }, {}),
+        },
+        tokenList
+      )
+    );
+  }, [tokenList]);
+
+  return tokens;
+};
+
+// OK
+export const useErc20Balances = (address: string) => {
+  const [tokenBalances, setTokenBalances] = useState(null);
+
+  const tokens = useAuroraTokens();
+
+  useEffect(() => {
+    if (!aurora || !address || !tokens?.tokenAddresses) {
+      setTokenBalances(null);
+      return;
+    }
+
+    setTokenBalances(
+      tokens?.tokenAddresses.reduce((obj: any, tokenAddress: string) => {
+        obj[tokenAddress] = null;
+        return obj;
+      }, {})
+    );
+
+    Promise.all(
+      tokens.tokenAddresses.map((add: string) =>
+        fetchErc20Balance(address, add)
+      )
+    ).then((res) => {
+      setTokenBalances(
+        res.reduce((pre, cur, i) => {
+          if (cur)
+            return {
+              ...pre,
+              [tokens.tokenAddresses[i]]: cur,
+            };
+          else return pre;
+        }, {})
+      );
+    });
+  }, [address, tokens]);
+
+  return tokenBalances;
+};
+// combine transactions to sign once

@@ -22,7 +22,13 @@ import { MorePoolsPage } from '~pages/pools/MorePoolsPage';
 import StableSwapPage from './pages/stable/StableSwapPage';
 import XrefPage from './pages/xref/XrefPage';
 import RiskPage from './pages/RiskPage';
-import { aurora } from './services/aurora/aurora';
+import {
+  aurora,
+  auroraAddr,
+  getAuroraPool,
+  getErc20Addr,
+  useAuroraTokens,
+} from './services/aurora/aurora';
 import {
   BgShapeLeftTop,
   BgShapeCenter,
@@ -38,10 +44,15 @@ import PopUpSwiper from '~components/layout/PopUp';
 import SwapGuide from '~components/layout/SwapGuide';
 import { isMobile } from '~utils/device';
 import { wallet as webWallet, REF_FARM_CONTRACT_ID } from './services/near';
-import { getSenderWallet, WALLET_TYPE } from './utils/sender-wallet';
+import {
+  getSenderWallet,
+  WALLET_TYPE,
+  getCurrentWallet,
+} from './utils/sender-wallet';
 import { getURLInfo, failToast } from './components/layout/transactionTipPopUp';
 
 import { senderSignedInToast } from '~components/layout/senderSignInPopUp';
+import { useErc20Balances, fetchAllowance } from './services/aurora/aurora';
 
 import {
   getSenderLoginRes,
@@ -87,7 +98,28 @@ function App() {
     isSignedIn: false,
   });
 
-  console.log(aurora);
+  const auroraTokens = useAuroraTokens();
+
+  const erc20Balances = useErc20Balances(
+    auroraAddr(getCurrentWallet().wallet.getAccountId())
+  );
+
+  useEffect(() => {
+    const address = auroraAddr(getCurrentWallet().wallet.getAccountId());
+
+    getErc20Addr('wrap.testnet').then((res) =>
+      fetchAllowance(address, res).then((res) => console.log(res))
+    );
+
+    console.log(auroraAddr(getCurrentWallet().wallet.getAccountId()));
+
+    getAuroraPool(
+      address,
+      'wrap.testnet',
+      'usdc.fakes.testnet',
+      '0x0084B7b4C64eDaaB4d7783e5Fe27f796C4783d44'
+    ).then((res) => console.log(res, 'getaurora pool '));
+  }, []);
 
   const [signedInState, signedInStatedispatch] = SignedInStateReducer;
 
