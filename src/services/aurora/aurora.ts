@@ -536,3 +536,5 @@ export const useErc20Balances = (address: string) => {
   return tokenBalances;
 };
 // combine transactions to sign once
+
+// TODO: check token list for the bridge
