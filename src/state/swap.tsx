@@ -29,6 +29,7 @@ import getConfig from '~services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { CloseIcon } from '~components/icon/Actions';
 import db from '../store/RefDatabase';
+import { getCurrentWallet } from '../utils/sender-wallet';
 import {
   POOL_TOKEN_REFRESH_INTERVAL,
   STABLE_TOKEN_IDS,
@@ -41,6 +42,7 @@ import {
   //@ts-ignore
 } from '../services/smartRouteLogic';
 import {
+  failToast,
   getURLInfo,
   swapToast,
 } from '../components/layout/transactionTipPopUp';
@@ -116,22 +118,36 @@ export const useSwap = ({
   };
 
   useEffect(() => {
-    if (txHash) {
+    if (txHash && getCurrentWallet().wallet.isSignedIn()) {
       checkTransaction(txHash)
-        .then(({ transaction }) => {
-          return (
-            transaction?.actions[1]?.['FunctionCall']?.method_name ===
-              'ft_transfer_call' ||
-            transaction?.actions[0]?.['FunctionCall']?.method_name ===
-              'ft_transfer_call' ||
-            transaction?.actions[0]?.['FunctionCall']?.method_name === 'swap' ||
-            transaction?.actions[0]?.['FunctionCall']?.method_name ===
-              'near_withdraw'
-          );
+        .then((res: any) => {
+          const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
+
+          const isSlippageError = res.receipts_outcome.some((outcome: any) => {
+            return slippageErrorPattern.test(
+              outcome?.outcome?.status?.Failure?.ActionError?.kind
+                ?.FunctionCallError?.ExecutionError
+            );
+          });
+
+          const transaction = res.transaction;
+          return {
+            isSwap:
+              transaction?.actions[1]?.['FunctionCall']?.method_name ===
+                'ft_transfer_call' ||
+              transaction?.actions[0]?.['FunctionCall']?.method_name ===
+                'ft_transfer_call' ||
+              transaction?.actions[0]?.['FunctionCall']?.method_name ===
+                'swap' ||
+              transaction?.actions[0]?.['FunctionCall']?.method_name ===
+                'near_withdraw',
+            isSlippageError,
+          };
         })
-        .then((isSwap) => {
+        .then(({ isSwap, isSlippageError }) => {
           if (isSwap) {
-            !errorType && swapToast(txHash);
+            !isSlippageError && !errorType && swapToast(txHash);
+            isSlippageError && failToast(txHash, 'Slippage Violation');
           }
           history.replace(pathname);
         });
@@ -313,22 +329,36 @@ export const useStableSwap = ({
   };
 
   useEffect(() => {
-    if (txHash) {
+    if (txHash && getCurrentWallet().wallet.isSignedIn()) {
       checkTransaction(txHash)
-        .then(({ transaction }) => {
-          return (
-            transaction?.actions[1]?.['FunctionCall']?.method_name ===
-              'ft_transfer_call' ||
-            transaction?.actions[0]?.['FunctionCall']?.method_name ===
-              'ft_transfer_call' ||
-            transaction?.actions[0]?.['FunctionCall']?.method_name === 'swap' ||
-            transaction?.actions[0]?.['FunctionCall']?.method_name ===
-              'near_withdraw'
-          );
+        .then((res: any) => {
+          const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
+
+          const isSlippageError = res.receipts_outcome.some((outcome: any) => {
+            return slippageErrorPattern.test(
+              outcome?.outcome?.status?.Failure?.ActionError?.kind
+                ?.FunctionCallError?.ExecutionError
+            );
+          });
+
+          const transaction = res.transaction;
+          return {
+            isSwap:
+              transaction?.actions[1]?.['FunctionCall']?.method_name ===
+                'ft_transfer_call' ||
+              transaction?.actions[0]?.['FunctionCall']?.method_name ===
+                'ft_transfer_call' ||
+              transaction?.actions[0]?.['FunctionCall']?.method_name ===
+                'swap' ||
+              transaction?.actions[0]?.['FunctionCall']?.method_name ===
+                'near_withdraw',
+            isSlippageError,
+          };
         })
-        .then((isSwap) => {
+        .then(({ isSwap, isSlippageError }) => {
           if (isSwap) {
-            !errorType && swapToast(txHash);
+            !isSlippageError && !errorType && swapToast(txHash);
+            isSlippageError && failToast(txHash, 'Slippage Violation');
           }
           history.replace(pathname);
         });
