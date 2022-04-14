@@ -519,7 +519,12 @@ const vi = {
   half: 'Half',
   max: 'Max',
   ref_account_balance_tip:
-    'Có vẻ như một lỗi đã xảy ra trong khi thêm / loại bỏ thanh khoản vào hồ bơi',
+    'Có vẻ như đã có một lỗi xảy ra trong quá trình thêm / xóa các pool thanh khoản',
   ref_account_tip_2: 'Bạn có mã thông báo trong Tài khoản REF của mình',
+  ref_account_tip_top: 'token(s) của bạn có thể hiện ở trong phần REF Account',
+  click_here: 'Bấm vào đây',
+  to_recover_them: 'để khôi phục chúng',
+  ref_account_tip_3:
+    'Để rút token từ Tài khoản REF của bạn vào Ví GẦN của bạn, vui lòng chọn và rút tiền',
 };
 export default Object.assign(vi, vi_in_risks_page);

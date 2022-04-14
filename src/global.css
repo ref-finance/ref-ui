@@ -268,6 +268,69 @@ input[type='number'] {
   content: none !important;
 }
 
+.account-tip-popup {
+  position: absolute;
+  right: 0;
+  top: 60px;
+  margin-left: -61px;
+  max-width: 260px;
+  padding: 10px 10px;
+  border: 1px solid #7e8a93;
+  border-radius: 8px;
+  color: #c4c4c4;
+  background-color: #1d2932;
+}
+
+.account-tip-popup span {
+  position: absolute;
+  right: 20%;
+  top: -8px;
+  margin-left: -10px;
+  display: block;
+  width: 0;
+  height: 0;
+  border-width: 0 8px 8px;
+  border-style: solid;
+  border-color: transparent transparent #7e8a93;
+}
+.account-tip-popup span em {
+  position: absolute;
+  left: -8px;
+  top: 1.5px;
+  display: block;
+  width: 0;
+  height: 0;
+  border-width: 0 8px 8px;
+  border-style: solid;
+  border-color: transparent transparent #1d2932;
+}
+
+.RefAccountTipMan span {
+  position: absolute;
+  right: -12px;
+  top: 38px;
+  margin-left: -10px;
+  display: block;
+  width: 0;
+  height: 0;
+  border-width: 0 8px 8px;
+  border-style: solid;
+  border-color: transparent transparent #00c6a2;
+  transform: rotate(90deg);
+  z-index: 100;
+}
+.RefAccountTipMan span em {
+  position: absolute;
+  left: -8px;
+  top: 1.5px;
+  display: block;
+  width: 0;
+  height: 0;
+  border-width: 0 8px 8px;
+  border-style: solid;
+  border-color: transparent transparent #1d2932;
+}
+
 .filter-blur {
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
@@ -562,6 +625,12 @@ input[type='range']::-webkit-slider-runnable-track {
 @media screen and (min-width: 1024px) {
   .Toastify__toast-container--top-right {
     top: auto !important;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .account-tip-popup {
+    right: 50px;
   }
 }
 

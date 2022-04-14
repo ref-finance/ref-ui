@@ -37,7 +37,11 @@ import PopUpSwiper from '~components/layout/PopUp';
 import SwapGuide from '~components/layout/SwapGuide';
 import { isMobile } from '~utils/device';
 import { wallet as webWallet, REF_FARM_CONTRACT_ID } from './services/near';
-import { getSenderWallet, WALLET_TYPE } from './utils/sender-wallet';
+import {
+  getSenderWallet,
+  WALLET_TYPE,
+  getCurrentWallet,
+} from './utils/sender-wallet';
 import { getURLInfo, failToast } from './components/layout/transactionTipPopUp';
 
 import { senderSignedInToast } from '~components/layout/senderSignInPopUp';
@@ -114,19 +118,26 @@ function App() {
           signedInStatedispatch({ type: 'signIn' });
         });
         window.near.on('accountChanged', (changedAccountId: string) => {
-          window.location.reload();
+          if (
+            getCurrentWallet().wallet_type === 'near-wallet' &&
+            webWallet.isSignedIn()
+          )
+            return;
           saveSenderLoginRes(changedAccountId);
+          window.location.reload();
         });
         window.near.on('signOut', () => {
-          removeSenderLoginRes();
-          signedInStatedispatch({ type: 'signOut' });
+          if (getCurrentWallet().wallet_type === 'sender-wallet') {
+            removeSenderLoginRes();
+            signedInStatedispatch({ type: 'signOut' });
+          }
         });
       }
 
       if (
         window.near &&
         getSenderLoginRes() &&
-        !getSenderWallet(window).isSignedIn() &&
+        getCurrentWallet().wallet_type === 'sender-wallet' &&
         !signInErrorType
       ) {
         getSenderWallet(window)

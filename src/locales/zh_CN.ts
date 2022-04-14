@@ -486,5 +486,9 @@ const zh_CN = {
   max: 'Max',
   ref_account_balance_tip: '添加/移除流动性的时候似乎发生了错误',
   ref_account_tip_2: '你的REF账户中有代币',
+  ref_account_tip_top: '你的代币可能在REF内部账户里',
+  click_here: '点击这里',
+  to_recover_them: '来取回他们',
+  ref_account_tip_3: '要从您的REF帐户提取代币到您的NEAR钱包,请选择并提取',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
