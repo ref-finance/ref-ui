@@ -31,7 +31,7 @@ export const parsePoolView = (pool: any): PoolRPCView => ({
   amounts: pool.amounts,
   total_fee: pool.total_fee,
   shares_total_supply: pool.shares_total_supply,
-  tvl: Number(toPrecision(pool?.tvl.toString() || '0', 2)),
+  tvl: Number(toPrecision(pool?.tvl?.toString() || '0', 2)),
   token0_ref_price: pool.token0_ref_price,
   share: pool.share,
 });

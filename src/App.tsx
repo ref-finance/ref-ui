@@ -150,19 +150,26 @@ function App() {
           signedInStatedispatch({ type: 'signIn' });
         });
         window.near.on('accountChanged', (changedAccountId: string) => {
-          window.location.reload();
+          if (
+            getCurrentWallet().wallet_type === 'near-wallet' &&
+            webWallet.isSignedIn()
+          )
+            return;
           saveSenderLoginRes(changedAccountId);
+          window.location.reload();
         });
         window.near.on('signOut', () => {
-          removeSenderLoginRes();
-          signedInStatedispatch({ type: 'signOut' });
+          if (getCurrentWallet().wallet_type === 'sender-wallet') {
+            removeSenderLoginRes();
+            signedInStatedispatch({ type: 'signOut' });
+          }
         });
       }
 
       if (
         window.near &&
         getSenderLoginRes() &&
-        !getSenderWallet(window).isSignedIn() &&
+        getCurrentWallet().wallet_type === 'sender-wallet' &&
         !signInErrorType
       ) {
         getSenderWallet(window)

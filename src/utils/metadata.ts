@@ -1,4 +1,6 @@
 const icons: { [tokenId: string]: string } = {
+  '4691937a7508860f876c9c0a2a617e7d9e945d4b.factory.bridge.near':
+    'https://i.postimg.cc/7YPqPyBg/woo-wtrue.png',
   'wrap.near': 'https://i.postimg.cc/DZfHgngm/w-NEAR-no-border.png',
   '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near':
     'https://s2.coinmarketcap.com/static/img/coins/64x64/4943.png',
