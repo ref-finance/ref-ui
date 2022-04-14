@@ -143,8 +143,8 @@ export function FarmsPage() {
 
   const { wallet } = getCurrentWallet();
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   useEffect(() => {
     loadFarmInfoList(false, isSignedIn).then();
@@ -975,8 +975,8 @@ function FarmView({
     Record<string | number, string | number>
   >({});
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const { wallet } = getCurrentWallet();
 

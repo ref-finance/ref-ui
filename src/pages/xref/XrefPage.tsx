@@ -56,8 +56,8 @@ function XrefPage() {
   const [totalDataArray, setTotalDataArray] = useState([]);
   const intl = useIntl();
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   useEffect(() => {
     ftGetBalance(XREF_TOKEN_ID).then(async (data: any) => {
@@ -308,9 +308,9 @@ function InputView(props: any) {
     setForward(true);
   }, [tab]);
 
-  const { signedInState } = useContext(WalletContext);
+  const { globalState } = useContext(WalletContext);
 
-  const isSignedIn = signedInState.isSignedIn;
+  const isSignedIn = globalState.isSignedIn;
 
   const onSubmit = () => {
     setLoading(true);

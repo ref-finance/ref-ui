@@ -724,8 +724,8 @@ function Account(props: any) {
     );
   }, []);
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const { wallet } = getCurrentWallet();
 
@@ -756,8 +756,8 @@ function MobileAccount(props: any) {
   const [visible, setVisible] = useState(false);
   const [activeTab, setActiveTab] = useState('near');
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const { wallet } = getCurrentWallet();
   const [refAccountHasToken, setRefAccountHasToken] = useState(false);
@@ -963,8 +963,8 @@ export function ActionModel(props: any) {
   );
 }
 export function AccountPage() {
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   const history = useHistory();
 
   const senderLoginRes = getSenderLoginRes();

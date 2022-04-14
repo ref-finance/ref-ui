@@ -34,8 +34,8 @@ export function AddPoolPage() {
   const [errorKey, setErrorKey] = useState<string>();
   const intl = useIntl();
   const [buttonLoading, setButtonLoading] = useState(false);
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   const history = useHistory();
 
   const { txHash } = getURLInfo();

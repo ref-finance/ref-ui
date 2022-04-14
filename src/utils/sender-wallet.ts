@@ -237,18 +237,30 @@ export const getCurrentWallet = () => {
 
 export const WalletContext = createContext(null);
 
-export const signedInStateReducer = (
-  state: { isSignedIn: boolean },
-  action: { type: 'signIn' | 'signOut' }
+export const globalStateReducer = (
+  state: { isSignedIn: boolean; crossSwap: boolean },
+  action: { type: 'signIn' | 'signOut' | 'crossSwapOn' | 'crossSwapOff' }
 ) => {
   switch (action.type) {
     case 'signIn':
       return {
+        ...state,
         isSignedIn: true,
       };
     case 'signOut':
       return {
+        ...state,
         isSignedIn: false,
+      };
+    case 'crossSwapOn':
+      return {
+        ...state,
+        crossSwap: true,
+      };
+    case 'crossSwapOff':
+      return {
+        ...state,
+        crossSwap: false,
       };
   }
 };

@@ -332,8 +332,8 @@ export function MobileNavBar(props: any) {
 
   const { setShowWalletSelector, showWalletSelector, hasBalanceOnRefAccount } =
     props;
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const [showTip, setShowTip] = useState<boolean>(false);
 

@@ -55,6 +55,16 @@ import { ftGetTokensMetadata } from '../../services/ft-contract';
 import { useTokenBalances } from '../../state/token';
 import { toReadableNumber } from '../../utils/numbers';
 import { FarmDot } from '../icon/FarmStamp';
+import {
+  ConnectDot,
+  AuroraIcon,
+  HasBalance,
+  CopyIcon,
+} from '../icon/crossSwap';
+import { QuestionTip } from './TipWrapper';
+import { auroraAddr } from '../../services/aurora/aurora';
+
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 const config = getConfig();
 
@@ -133,10 +143,10 @@ function AccountEntry({
   const history = useHistory();
   const [hover, setHover] = useState(false);
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
-  const { wallet, wallet_type } = getCurrentWallet();
+  const { wallet } = getCurrentWallet();
 
   const [showAccountTip, setShowAccountTip] = useState<boolean>(false);
 
@@ -271,7 +281,7 @@ function AccountEntry({
                         {item.icon}
                       </label>
                       <label className="cursor-pointer">
-                        <FormattedMessage id={item.textId}></FormattedMessage>
+                        <FormattedMessage id={item.textId} />
                       </label>
                       <label htmlFor="" className="ml-1.5">
                         {item.textId === 'view_account' &&
@@ -309,70 +319,81 @@ function AccountEntry({
   );
 }
 
-function QuizOld() {
-  const [hoverQuiz, setHoverQuiz] = useState(false);
+function AuroraEntry({
+  hasBalanceOnAurora = true,
+}: {
+  hasBalanceOnAurora?: boolean;
+}) {
+  const nearAccount = getCurrentWallet().wallet.getAccountId();
+
+  const [hover, setHover] = useState(false);
+
+  const auroraAddress = auroraAddr(nearAccount);
+
+  const displayAddr = `${auroraAddress.substring(
+    0,
+    6
+  )}...${auroraAddress.substring(
+    auroraAddress.length - 6,
+    auroraAddress.length
+  )}`;
+
   return (
     <div
-      className="relative z-20"
-      onMouseOver={() => setHoverQuiz(true)}
-      onMouseLeave={() => setHoverQuiz(false)}
+      className="w-11 py-5 relative z-30 flex items-center"
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
     >
-      <span className="relative inline-flex p-4">
-        <IconBubble />
-        <span className={`w-20 h-14 text-gray-800 absolute top-4 left-1`}>
-          Quiz
-        </span>
-      </span>
-      <div
-        className={`${
-          hoverQuiz ? 'block' : 'hidden'
-        } absolute top-12 -left-20 rounded-md`}
-      >
-        <Card
-          width="w-60"
-          padding="py-4"
-          rounded="rounded-md"
-          className="border border-primaryText shadow-4xl"
+      <div className="flex items-center">
+        <div
+          className={`flex items-center rounded-2xl  ${
+            hover ? 'bg-auroraGreen' : 'bg-gray-700'
+          } px-2 py-1 ml-px`}
         >
-          {/* <div
-            className="whitespace-nowrap text-left hover:bg-navHighLightBg text-sm font-semibold flex justify-start text-primaryText hover:text-white cursor-pointer py-4 pl-10 "
-            onClick={() =>
-              window.open('https://mzko2gfnij6.typeform.com/to/N6jSxnym')
-            }
-          >
-            <FormattedMessage id="New_ui" defaultMessage="New UI" />
-            <span className="ml-2 bg-gradientFrom px-2 flex justify-center items-center text-white text-xs rounded-full">
-              Hot
-            </span>
-            <HiOutlineExternalLink className="float-right ml-2 text-xl" />
-          </div> */}
-          <div
-            className="whitespace-nowrap text-left hover:bg-navHighLightBg text-sm font-semibold flex justify-start text-primaryText hover:text-white cursor-pointer py-4 pl-10"
-            onClick={() =>
-              window.open('https://mzko2gfnij6.typeform.com/to/EPmUetxU')
-            }
-          >
-            <FormattedMessage id="Risk" defaultMessage="Risk" />
-            <HiOutlineExternalLink className="float-right ml-2 text-xl" />
-          </div>
-        </Card>
+          <AuroraIcon hover={hover} />
+
+          {hasBalanceOnAurora ? <HasBalance hover={hover} /> : null}
+        </div>
       </div>
+      {hover ? (
+        <div className=" absolute pt-2 right-0 top-14">
+          <div className="bg-cardBg w-64 rounded-lg border border-farmText flex flex-col overflow-hidden">
+            <div className="flex items-center pl-5 pt-4">
+              <span className="text-farmText text-sm">Mapping Account</span>
+
+              <QuestionTip id="unkown" />
+
+              {hasBalanceOnAurora ? <HasBalance /> : null}
+            </div>
+
+            <div className="px-5 flex justify-between items-center py-4">
+              <span className="text-white font-bold">{displayAddr}</span>
+
+              <CopyToClipboard text={auroraAddress}>
+                <div className="bg-black bg-opacity-20 rounded-lg flex items-center justify-center p-1.5 cursor-pointer ">
+                  <CopyIcon />
+                </div>
+              </CopyToClipboard>
+            </div>
+
+            <div
+              className={`w-full px-3 py-1 text-xs bg-auroraGreen text-chartBg whitespace-nowrap cursor-pointer ${
+                hasBalanceOnAurora ? 'block' : 'hidden'
+              }`}
+              onClick={() => window.open('/account', '_blank')}
+            >
+              <FormattedMessage
+                id="mapping_account_tip"
+                defaultMessage="You have token(s) in Mapping Account"
+              />
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
-function Quiz() {
-  return (
-    <div
-      className="flex items-center justify-center cursor-pointer relative p-4"
-      onClick={() => window.open('https://form.typeform.com/to/EPmUetxU')}
-    >
-      <IconBubble />
-      <span className="absolute" style={{ transform: 'translateY(-3px)' }}>
-        <FormattedMessage id="Risk"></FormattedMessage>
-      </span>
-    </div>
-  );
-}
+
 function Xref() {
   const history = useHistory();
   const location = useLocation();
@@ -424,8 +445,8 @@ function PoolsMenu() {
   const [hover, setHover] = useState(false);
   const history = useHistory();
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const links = [
     {
@@ -655,8 +676,8 @@ function MoreMenu() {
 
 function NavigationBar() {
   const [showWrapNear, setShowWrapNear] = useState(false);
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   const [showWalletSelector, setShowWalletSelector] = useState(false);
 
   const [hoverClick, setHoverClick] = useState<boolean>(false);
@@ -809,6 +830,12 @@ function NavigationBar() {
               setShowWalletSelector={setShowWalletSelector}
               showWalletSelector={showWalletSelector}
             />
+            <div className="relative right-3 flex items-center">
+              <ConnectDot />
+              <ConnectDot />
+              <AuroraEntry />
+            </div>
+
             <MoreMenu />
           </div>
         </nav>

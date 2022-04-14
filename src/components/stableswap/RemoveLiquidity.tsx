@@ -118,8 +118,8 @@ export function RemoveLiquidityComponent(props: {
   const [receiveAmounts, setReceiveAmounts] = useState<string[]>(['', '', '']);
   const intl = useIntl();
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const canFarm = useCanFarm(pool.id);
 

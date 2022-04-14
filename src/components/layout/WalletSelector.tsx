@@ -357,7 +357,7 @@ export const WalletSelectorModal = (
   props: ReactModal.Props & { setShowWalletSelector: (show: boolean) => void }
 ) => {
   const { setShowWalletSelector } = props;
-  const { signedInState, signedInStatedispatch } = useContext(WalletContext);
+  const { globalState, globalStatedispatch } = useContext(WalletContext);
 
   const [showSenderNotInstalled, setShowSenderNotInstalled] =
     useState<boolean>(false);
@@ -460,7 +460,7 @@ export const WalletSelectorModal = (
                   .requestSignIn(REF_FARM_CONTRACT_ID)
                   .then((res: any) => {
                     !res?.error && setShowConnecting(false);
-                    !res?.error && signedInStatedispatch({ type: 'signIn' });
+                    !res?.error && globalStatedispatch({ type: 'signIn' });
                   });
               } else if (!senderInstalled) {
                 setShowSenderNotInstalled(true);

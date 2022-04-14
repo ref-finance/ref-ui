@@ -67,8 +67,8 @@ export default function SwapFormWrap({
     !loadingTrigger && setShowSwapLoading(false);
   }, [loadingTrigger]);
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

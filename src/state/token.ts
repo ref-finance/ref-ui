@@ -300,8 +300,8 @@ export const useDepositableBalance = (
   const [depositable, setDepositable] = useState<string>('');
   const [max, setMax] = useState<string>('');
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const { wallet, wallet_type } = getCurrentWallet();
 

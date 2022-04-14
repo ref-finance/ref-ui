@@ -70,7 +70,7 @@ import {
 
 import {
   WalletContext,
-  signedInStateReducer,
+  globalStateReducer,
   removeSenderLoginRes,
 } from './utils/sender-wallet';
 
@@ -98,8 +98,9 @@ Modal.defaultStyles = {
 Modal.setAppElement('#root');
 
 function App() {
-  const SignedInStateReducer = useReducer(signedInStateReducer, {
+  const GlobalStateReducer = useReducer(globalStateReducer, {
     isSignedIn: false,
+    crossSwap: true, // TODO: set default to false
   });
 
   const auroraTokens = useAuroraTokens();
@@ -125,7 +126,7 @@ function App() {
     ).then((res) => console.log(res, 'getaurora pool '));
   }, []);
 
-  const [signedInState, signedInStatedispatch] = SignedInStateReducer;
+  const [globalState, globalStatedispatch] = GlobalStateReducer;
 
   const { txHash, pathname, errorType, signInErrorType } = getURLInfo();
 
@@ -142,7 +143,7 @@ function App() {
 
   useEffect(() => {
     if (webWallet.isSignedIn()) {
-      signedInStatedispatch({ type: 'signIn' });
+      globalStatedispatch({ type: 'signIn' });
     }
   }, [webWallet.isSignedIn()]);
 
@@ -151,7 +152,7 @@ function App() {
       if (window.near) {
         window.near.on('signIn', (res: any) => {
           saveSenderLoginRes();
-          signedInStatedispatch({ type: 'signIn' });
+          globalStatedispatch({ type: 'signIn' });
         });
         window.near.on('accountChanged', (changedAccountId: string) => {
           if (
@@ -165,7 +166,7 @@ function App() {
         window.near.on('signOut', () => {
           if (getCurrentWallet().wallet_type === 'sender-wallet') {
             removeSenderLoginRes();
-            signedInStatedispatch({ type: 'signOut' });
+            globalStatedispatch({ type: 'signOut' });
           }
         });
       }
@@ -186,7 +187,7 @@ function App() {
   }, [window, window?.near]);
 
   return (
-    <WalletContext.Provider value={{ signedInState, signedInStatedispatch }}>
+    <WalletContext.Provider value={{ globalState, globalStatedispatch }}>
       <Router>
         <div className="relative min-h-screen pb-24 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
           <BgShapeLeftTop />

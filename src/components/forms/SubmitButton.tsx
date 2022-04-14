@@ -30,8 +30,8 @@ function SubmitButton({
 }: SubmitButtonProps) {
   // const { wallet } = getCurrentWallet();
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   return (
     <>
