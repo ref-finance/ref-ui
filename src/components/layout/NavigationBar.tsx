@@ -62,7 +62,11 @@ import {
   CopyIcon,
 } from '../icon/crossSwap';
 import { QuestionTip } from './TipWrapper';
-import { auroraAddr } from '../../services/aurora/aurora';
+import {
+  auroraAddr,
+  useAuroraTokens,
+  useErc20Balances,
+} from '../../services/aurora/aurora';
 
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
@@ -325,15 +329,14 @@ function AuroraEntry({
   hasBalanceOnAurora?: boolean;
 }) {
   const nearAccount = getCurrentWallet().wallet.getAccountId();
+  const auroraAddress = auroraAddr(nearAccount);
 
   const [hover, setHover] = useState(false);
 
-  const auroraAddress = auroraAddr(nearAccount);
-
-  const displayAddr = `${auroraAddress.substring(
+  const displayAddr = `${auroraAddress?.substring(
     0,
     6
-  )}...${auroraAddress.substring(
+  )}...${auroraAddress?.substring(
     auroraAddress.length - 6,
     auroraAddress.length
   )}`;
@@ -682,6 +685,34 @@ function NavigationBar() {
 
   const [hoverClick, setHoverClick] = useState<boolean>(false);
 
+  const auroraTokens = useAuroraTokens();
+  const auroraAddress = auroraAddr(getCurrentWallet().wallet.getAccountId());
+
+  const auroraBalances = useErc20Balances(auroraAddress);
+
+  const [hasAuroraBalance, setHasAuroraBalance] = useState(false);
+
+  useEffect(() => {
+    if (!auroraBalances || !auroraTokens) return;
+    console.log(auroraTokens, auroraBalances);
+
+    const balanceOver = Object.entries(auroraBalances).some(
+      ([address, balance]) => {
+        if (!balance) return false;
+
+        return (
+          Number(
+            toReadableNumber(
+              auroraTokens.tokensByAddress[address].decimals,
+              balance as string
+            )
+          ) > 0.001
+        );
+      }
+    );
+    setHasAuroraBalance(balanceOver);
+  }, [auroraTokens, auroraBalances]);
+
   const [tokensMeta, setTokensMeta] = useState<{}>();
 
   const [pathnameState, setPathnameState] = useState<boolean>(
@@ -833,7 +864,8 @@ function NavigationBar() {
             <div className="relative right-3 flex items-center">
               <ConnectDot />
               <ConnectDot />
-              <AuroraEntry />
+
+              <AuroraEntry hasBalanceOnAurora={hasAuroraBalance} />
             </div>
 
             <MoreMenu />
