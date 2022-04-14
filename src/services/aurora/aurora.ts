@@ -48,7 +48,7 @@ console.log(AuroraWalletConnection);
 export const aurora = new Engine(
   AuroraWalletConnection,
   keyStore,
-  getCurrentWallet().wallet.account(),
+  wallet.account(),
   getConfig().networkId,
   'aurora'
 );
