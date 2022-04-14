@@ -52,7 +52,11 @@ import {
 import { getURLInfo, failToast } from './components/layout/transactionTipPopUp';
 
 import { senderSignedInToast } from '~components/layout/senderSignInPopUp';
-import { useErc20Balances, fetchAllowance } from './services/aurora/aurora';
+import {
+  useErc20Balances,
+  fetchAllowance,
+  fetchBalance,
+} from './services/aurora/aurora';
 
 import {
   getSenderLoginRes,
@@ -111,7 +115,7 @@ function App() {
       fetchAllowance(address, res).then((res) => console.log(res))
     );
 
-    console.log(auroraAddr(getCurrentWallet().wallet.getAccountId()));
+    fetchBalance(address).then((res) => console.log(res.toString()));
 
     getAuroraPool(
       address,

@@ -29,6 +29,7 @@ import { BN } from 'bn.js';
 import { Pool } from '../pool';
 import { ftGetTokenMetadata } from '../ft-contract';
 import { useEffect, useState } from 'react';
+import { scientificNotationToString } from '../../utils/numbers';
 
 const trisolaris = getAuroraConfig().trisolarisAddress;
 
@@ -40,6 +41,8 @@ export const TGas = Big(10).pow(12);
 export const AuroraCallGas = new BN(TGas.mul(150).toFixed(0));
 
 const AuroraWalletConnection = new nearAPI.WalletConnection(near, 'aurora');
+
+console.log(AuroraWalletConnection);
 
 //@ts-ignore
 export const aurora = new Engine(
@@ -525,7 +528,9 @@ export const useErc20Balances = (address: string) => {
           if (cur)
             return {
               ...pre,
-              [tokens.tokenAddresses[i]]: cur,
+              [tokens.tokenAddresses[i]]: scientificNotationToString(
+                cur.toString()
+              ),
             };
           else return pre;
         }, {})
@@ -534,6 +539,13 @@ export const useErc20Balances = (address: string) => {
   }, [address, tokens]);
 
   return tokenBalances;
+};
+
+// fetch eth balance
+export const fetchBalance = async (address: string) => {
+  return scientificNotationToString(
+    Big((await aurora.getBalance(toAddress(address))).unwrap()).toString()
+  );
 };
 
 // combine transactions to sign once
