@@ -23,7 +23,7 @@ import * as nearAPI from 'near-api-js';
 
 import Big from 'big.js';
 import { getAuroraConfig, defaultTokenList } from './config';
-import { near, keyStore, wallet } from '../near';
+import { near, wallet, keyStore } from '../near';
 import getConfig from '../config';
 import { BN } from 'bn.js';
 import { Pool } from '../pool';
@@ -535,6 +535,7 @@ export const useErc20Balances = (address: string) => {
 
   return tokenBalances;
 };
+
 // combine transactions to sign once
 
 // TODO: check token list for the bridge
