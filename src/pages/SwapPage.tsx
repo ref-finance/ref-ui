@@ -95,8 +95,6 @@ function SwapPage() {
     });
   }, []);
 
-  console.log(triTokens);
-
   const { globalState } = useContext(WalletContext);
 
   const ifCross = globalState.crossSwap;
@@ -104,8 +102,6 @@ function SwapPage() {
   if (!refTokens || !triTokens) return <Loading />;
 
   const allTokens = getAllTokens(refTokens, triTokens);
-
-  console.log(allTokens.find((tk) => tk.id === 'wrap.testnet'));
 
   return (
     <div className="swap">

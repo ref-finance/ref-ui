@@ -70,7 +70,7 @@ function SubmitButton({
           )}
         </button>
       ) : (
-        <div className="mt-4">
+        <div className="mt-4 w-full">
           <ConnectToNearBtn />
         </div>
       )}
