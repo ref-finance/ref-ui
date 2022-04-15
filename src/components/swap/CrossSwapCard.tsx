@@ -10,7 +10,7 @@ import { useLocation, useHistory } from 'react-router-dom';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
 import { useTokenBalances } from '../../state/token';
-import { useSwap } from '../../state/swap';
+import { useSwap, useCrossSwap } from '../../state/swap';
 import {
   calculateExchangeRate,
   calculateFeeCharge,
@@ -84,6 +84,7 @@ import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
 import { boolean } from 'mathjs';
 import { TokenCardOut } from '../forms/TokenAmount';
+import { CrossSwapFormWrap } from '../forms/SwapFormWrap';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -498,17 +499,11 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
 
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();
-  const [tokenOutBalanceFromNear, setTokenOutBalanceFromNear] =
-    useState<string>();
 
-  const [loadingData, setLoadingData] = useState<boolean>(false);
-  const [loadingTrigger, setLoadingTrigger] = useState<boolean>(true);
-  const [loadingPause, setLoadingPause] = useState<boolean>(false);
   const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
 
   const intl = useIntl();
   const location = useLocation();
-  const history = useHistory();
 
   const balances = useTokenBalances();
   const [urlTokenIn, urlTokenOut, urlSlippageTolerance] = decodeURIComponent(
@@ -539,36 +534,21 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
   }, [allTokens]);
 
   useEffect(() => {
-    if (useNearBalance) {
-      if (tokenIn) {
-        const tokenInId = tokenIn.id;
-        if (tokenInId) {
-          if (isSignedIn) {
-            ftGetBalance(tokenInId).then((available: string) =>
-              setTokenInBalanceFromNear(
-                toReadableNumber(tokenIn?.decimals, available)
-              )
-            );
-          }
-        }
-      }
-      if (tokenOut) {
-        const tokenOutId = tokenOut.id;
-        if (tokenOutId) {
-          if (isSignedIn) {
-            ftGetBalance(tokenOutId).then((available: string) =>
-              setTokenOutBalanceFromNear(
-                toReadableNumber(tokenOut?.decimals, available)
-              )
-            );
-          }
+    if (tokenIn) {
+      const tokenInId = tokenIn.id;
+      if (tokenInId) {
+        if (isSignedIn) {
+          ftGetBalance(tokenInId).then((available: string) =>
+            setTokenInBalanceFromNear(
+              toReadableNumber(tokenIn?.decimals, available)
+            )
+          );
         }
       }
     }
-  }, [tokenIn, tokenOut, useNearBalance, isSignedIn]);
+  }, [tokenIn, isSignedIn]);
 
   const {
-    canSwap,
     tokenOutAmount,
     minAmountOut,
     pools,
@@ -578,16 +558,11 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
     isParallelSwap,
     swapsToDo,
     setCanSwap,
-  } = useSwap({
+  } = useCrossSwap({
     tokenIn: tokenIn,
     tokenInAmount,
     tokenOut: tokenOut,
     slippageTolerance,
-    setLoadingData,
-    loadingTrigger,
-    setLoadingTrigger,
-    loadingData,
-    loadingPause,
     supportLedger,
   });
 
@@ -641,10 +616,11 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
   }
 
   const tokenInMax = tokenInBalanceFromNear || '0';
-  const tokenOutTotal = tokenOutBalanceFromNear || '0';
 
-  const canSubmit =
-    requested && canSwap && (tokenInMax != '0' || !useNearBalance);
+  const canSubmit = requested
+    ? true
+    : !ONLY_ZEROS.test(tokenInMax) &&
+      new BigNumber(tokenInAmount).lte(new BigNumber(tokenInMax));
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -668,7 +644,7 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
         tokenInId={tokenIn?.id}
         tokenOutId={tokenOut?.id}
       />
-      <SwapFormWrap
+      <CrossSwapFormWrap
         supportLedger={supportLedger}
         crossSwap={true}
         setSupportLedger={setSupportLedger}
@@ -690,42 +666,8 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
         elseView={<SubmitButton disabled={true} loading={showSwapLoading} />}
         onSubmit={handleSubmit}
         info={intl.formatMessage({ id: 'swapCopy' })}
-        title={'swap'}
-        loading={{
-          loadingData,
-          setLoadingData,
-          loadingTrigger,
-          setLoadingTrigger,
-          loadingPause,
-          setLoadingPause,
-          showSwapLoading,
-          setShowSwapLoading,
-        }}
+        title={requested ? 'Swap' : 'Request'}
       >
-        {/* <TokenAmount
-          forSwap
-          amount={tokenInAmount}
-          total={tokenInMax}
-          max={tokenInMax}
-          tokens={allTokens}
-          selectedToken={tokenIn}
-          balances={balances}
-          onSelectToken={(token) => {
-            localStorage.setItem(SWAP_IN_KEY, token.id);
-            history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
-            setTokenIn(token);
-            setCanSwap(false);
-            setTokenInBalanceFromNear(token.near.toString());
-          }}
-          text={intl.formatMessage({ id: 'from' })}
-          useNearBalance={useNearBalance}
-          onChangeAmount={(amount) => {
-            setTokenInAmount(amount);
-          }}
-          tokenPriceList={tokenPriceList}
-          isError={tokenIn?.id === tokenOut?.id}
-        /> */}
-
         <TokenCardIn
           tokenIn={tokenIn}
           max={tokenInMax}
@@ -750,25 +692,7 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
             }}
           />
         </div>
-        {/* <TokenAmount
-          forSwap
-          amount={toPrecision(tokenOutAmount, 8)}
-          total={tokenOutTotal}
-          tokens={allTokens}
-          selectedToken={tokenOut}
-          balances={balances}
-          text={intl.formatMessage({ id: 'to' })}
-          useNearBalance={useNearBalance}
-          onSelectToken={(token) => {
-            localStorage.setItem(SWAP_OUT_KEY, token.id);
-            history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`);
-            setTokenOut(token);
-            setCanSwap(false);
-            setTokenOutBalanceFromNear(token.near.toString());
-          }}
-          isError={tokenIn?.id === tokenOut?.id}
-          tokenPriceList={tokenPriceList}
-        /> */}
+
         <TokenCardOut
           tokens={allTokens}
           tokenOut={tokenOut}
@@ -794,7 +718,7 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
             <Alert level="warn" message={swapError.message} />
           </div>
         ) : null}
-      </SwapFormWrap>
+      </CrossSwapFormWrap>
       {/* <DoubleCheckModal
         isOpen={doubleCheckOpen}
         onRequestClose={() => {

@@ -60,6 +60,7 @@ interface SwapOptions {
   loadingPause?: boolean;
   setLoadingPause?: (pause: boolean) => void;
   supportLedger?: boolean;
+  crossSwapTrigger?: boolean;
 }
 
 export const useSwap = ({
@@ -365,5 +366,159 @@ export const useStableSwap = ({
     swapError,
     makeSwap,
     noFeeAmount,
+  };
+};
+
+export const useCrossSwap = ({
+  tokenIn,
+  tokenInAmount,
+  tokenOut,
+  slippageTolerance,
+  supportLedger,
+  crossSwapTrigger,
+}: SwapOptions) => {
+  const [pool, setPool] = useState<Pool>();
+  const [canSwap, setCanSwap] = useState<boolean>();
+  const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
+  const [swapError, setSwapError] = useState<Error>();
+  const [swapsToDo, setSwapsToDo] = useState<EstimateSwapView[]>();
+
+  const [avgFee, setAvgFee] = useState<number>(0);
+
+  const history = useHistory();
+
+  const { txHash, pathname, errorType } = getURLInfo();
+
+  const minAmountOut = tokenOutAmount
+    ? percentLess(slippageTolerance, tokenOutAmount)
+    : null;
+
+  const intl = useIntl();
+
+  const setAverageFee = (estimates: EstimateSwapView[]) => {
+    const estimate = estimates[0];
+
+    let avgFee: number = 0;
+    if (estimates.length === 1) {
+      avgFee = estimates[0].pool.fee;
+    } else if (
+      estimate.status === PoolMode.SMART ||
+      estimate.status === PoolMode.STABLE
+    ) {
+      avgFee = estimates.reduce((pre, cur) => pre + cur.pool.fee, 0);
+    } else {
+      avgFee = getAverageFeeForRoutes(
+        estimate.allRoutes,
+        estimate.allNodeRoutes,
+        estimate.totalInputAmount
+      );
+    }
+    setAvgFee(avgFee);
+  };
+
+  useEffect(() => {
+    if (txHash) {
+      checkTransaction(txHash)
+        .then(({ transaction }) => {
+          return (
+            transaction?.actions[1]?.['FunctionCall']?.method_name ===
+              'ft_transfer_call' ||
+            transaction?.actions[0]?.['FunctionCall']?.method_name ===
+              'ft_transfer_call' ||
+            transaction?.actions[0]?.['FunctionCall']?.method_name === 'swap' ||
+            transaction?.actions[0]?.['FunctionCall']?.method_name ===
+              'near_withdraw'
+          );
+        })
+        .then((isSwap) => {
+          if (isSwap) {
+            !errorType && swapToast(txHash);
+          }
+          history.replace(pathname);
+        });
+    }
+  }, [txHash]);
+
+  const getEstimate = () => {
+    setCanSwap(false);
+
+    if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
+      setSwapError(null);
+      if (!tokenInAmount || ONLY_ZEROS.test(tokenInAmount)) {
+        setTokenOutAmount('0');
+        return;
+      }
+
+      // estimateSwap({
+      //   tokenIn,
+      //   tokenOut,
+      //   amountIn: tokenInAmount,
+      //   intl,
+      //   setLoadingData,
+      //   loadingTrigger: loadingTrigger && !loadingPause,
+      //   supportLedger,
+      // })
+      //   .then((estimates) => {
+      //     if (!estimates) throw '';
+
+      //     if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
+      //       setAverageFee(estimates);
+
+      //       if (!loadingTrigger) {
+      //         setTokenOutAmount(
+      //           getExpectedOutputFromActions(estimates, tokenOut.id).toString()
+      //         );
+      //         setSwapsToDo(estimates);
+      //         setCanSwap(true);
+      //       }
+      //     }
+
+      //     setPool(estimates[0].pool);
+      //   })
+      //   .catch((err) => {
+      //     setCanSwap(false);
+      //     setTokenOutAmount('');
+      //     setSwapError(err);
+      //   })
+      //   .finally(() => setLoadingTrigger(false));
+    } else if (
+      tokenIn &&
+      tokenOut &&
+      !tokenInAmount &&
+      ONLY_ZEROS.test(tokenInAmount) &&
+      tokenIn.id !== tokenOut.id
+    ) {
+      setTokenOutAmount('0');
+    }
+  };
+
+  useEffect(() => {
+    getEstimate();
+  }, [supportLedger]);
+
+  const makeSwap = (useNearBalance: boolean) => {
+    swap({
+      slippageTolerance,
+      swapsToDo,
+      tokenIn,
+      amountIn: tokenInAmount,
+      tokenOut,
+      useNearBalance,
+    }).catch(setSwapError);
+  };
+
+  return {
+    canSwap,
+    tokenOutAmount,
+    minAmountOut,
+    pool,
+    setCanSwap,
+    swapError,
+    makeSwap,
+    avgFee,
+    pools: swapsToDo?.map((estimate) => estimate.pool),
+    swapsToDo,
+    isParallelSwap: swapsToDo?.every((e) => e.status === PoolMode.PARALLEL),
+    isSmartRouteV2Swap: swapsToDo?.every((e) => e.status !== PoolMode.SMART),
   };
 };
