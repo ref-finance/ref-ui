@@ -150,6 +150,14 @@ export const useMenuItems = () => {
           id: 15,
           logo: <RuIcon />,
         },
+        {
+          label: '日本語',
+          isExternal: false,
+          language: 'ja',
+          url: '',
+          id: 16,
+          logo: <RuIcon />,
+        },
       ],
     },
   ];

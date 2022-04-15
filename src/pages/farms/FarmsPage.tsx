@@ -728,7 +728,7 @@ export function FarmsPage() {
                 <div className="flex items-center text-farmText rounded-full h-6 bg-farmSbg lg:mr-4">
                   <label
                     onClick={() => changeStatus(1)}
-                    className={`flex justify-center w-28 xs:w-24 md:w-24 items-center rounded-full h-full text-sm cursor-pointer ${
+                    className={`flex justify-center w-32 xs:w-24 md:w-24 items-center rounded-full h-full text-sm cursor-pointer ${
                       +searchData.status == 1
                         ? 'text-chartBg bg-farmSearch'
                         : ''
@@ -738,7 +738,7 @@ export function FarmsPage() {
                   </label>
                   <label
                     onClick={() => changeStatus(0)}
-                    className={`flex justify-center w-28 xs:w-24 md:w-24 items-center rounded-full h-full text-sm cursor-pointer ${
+                    className={`flex justify-center w-32 xs:w-24 md:w-24 items-center rounded-full h-full text-sm cursor-pointer ${
                       searchData.status != null && +searchData.status == 0
                         ? 'text-chartBg bg-farmSearch'
                         : ''
@@ -752,7 +752,7 @@ export function FarmsPage() {
                   {isSignedIn ? (
                     <label
                       onClick={() => changeStatus(2)}
-                      className={`flex justify-center  w-28  items-center rounded-full h-full text-sm cursor-pointer ${
+                      className={`flex justify-center  w-32  items-center rounded-full h-full text-sm cursor-pointer ${
                         +searchData.status == 2
                           ? 'text-chartBg bg-farmSearch'
                           : ''
