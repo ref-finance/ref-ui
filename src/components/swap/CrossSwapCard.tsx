@@ -500,6 +500,8 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();
 
+  const [requestingTrigger, setRequestingTrigger] = useState(false);
+
   const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
 
   const intl = useIntl();
@@ -625,6 +627,8 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
+    if (!requested) setRequestingTrigger(true);
+
     const ifDoubleCheck =
       new BigNumber(tokenInAmount).isLessThanOrEqualTo(
         new BigNumber(tokenInMax)
@@ -636,14 +640,6 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
 
   return (
     <>
-      <SwapTip
-        bothStableToken={
-          STABLE_TOKEN_IDS.includes(tokenIn?.id) &&
-          STABLE_TOKEN_IDS.includes(tokenOut?.id)
-        }
-        tokenInId={tokenIn?.id}
-        tokenOutId={tokenOut?.id}
-      />
       <CrossSwapFormWrap
         supportLedger={supportLedger}
         crossSwap={true}
@@ -655,6 +651,7 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
           setSlippageTolerance(slippage);
           localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
         }}
+        requestingTrigger={requestingTrigger}
         bindUseBalance={(useNearBalance) => {
           setUseNearBalance(useNearBalance);
           localStorage.setItem(

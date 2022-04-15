@@ -6,6 +6,7 @@ import SlippageSelector from './SlippageSelector';
 import { SwapRefresh, CountdownTimer } from '../../components/icon';
 import { wallet } from '~services/near';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import { RequestingSmile } from '../icon/CrossSwap';
 
 interface SwapFormWrapProps {
   title?: string;
@@ -19,6 +20,7 @@ interface SwapFormWrapProps {
   crossSwap?: boolean;
   onChange: (slippage: number) => void;
   bindUseBalance: (useNearBalance: boolean) => void;
+  requestingTrigger?: boolean;
   loading?: {
     loadingData: boolean;
     setLoadingData: (loading: boolean) => void;
@@ -166,6 +168,7 @@ export function CrossSwapFormWrap({
   bindUseBalance,
   loading,
   useNearBalance,
+  requestingTrigger,
   supportLedger,
   setSupportLedger,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
@@ -206,9 +209,30 @@ export function CrossSwapFormWrap({
 
   return (
     <form
-      className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg overflow-x-hidden"
+      className="overflow-y-auto relative bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg overflow-x-hidden"
       onSubmit={handleSubmit}
     >
+      {!requestingTrigger ? null : (
+        <div
+          className="absolute w-full h-full flex items-center justify-center bg-cardBg right-0 top-0"
+          style={{
+            zIndex: 999,
+          }}
+        >
+          <div className="flex flex-col items-center">
+            <RequestingSmile />
+            <span
+              className="pt-6"
+              style={{
+                color: '#c4c4c4',
+              }}
+            >
+              <FormattedMessage id="requesting" defaultMessage="Requesting" />
+              ...
+            </span>
+          </div>
+        </div>
+      )}
       {title && (
         <>
           <h2 className="formTitle flex justify-end  font-bold text-xl text-white text-left pb-4">

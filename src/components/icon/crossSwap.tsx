@@ -83,8 +83,8 @@ export const SwapCrossDark = () => {
       <path
         d="M14 23C18.2683 19.3333 32.7805 12 49.8537 12C66.9268 12 79.1626 19.3333 84 23"
         stroke="#001320"
-        stroke-width="4"
-        stroke-linecap="round"
+        strokeWidth="4"
+        strokeLinecap="round"
       />
       <g filter="url(#filter0_d_15561_538)">
         <circle cx="14" cy="23" r="4" fill="#73818B" />
@@ -97,9 +97,9 @@ export const SwapCrossDark = () => {
           width="20"
           height="20"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -150,8 +150,8 @@ export const SwapCrossLight = () => {
         d="M14 22C18.2683 18.3333 32.7805 11 49.8537 11C66.9268 11 79.1626 18.3333 84 22"
         stroke="#00C6A2"
         strokeOpacity="0.3"
-        stroke-width="4"
-        stroke-linecap="round"
+        strokeWidth="4"
+        strokeLinecap="round"
       />
       <g filter="url(#filter1_d_15633_4169)">
         <circle cx="84" cy="22" r="4" fill="#00FFD1" />
@@ -164,9 +164,9 @@ export const SwapCrossLight = () => {
           width="52.2378"
           height="14.1367"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -199,9 +199,9 @@ export const SwapCrossLight = () => {
           width="12"
           height="12"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -234,4 +234,159 @@ export const SwapCrossLight = () => {
 
 export const SwapCross = ({ ifCross }: { ifCross: boolean }) => {
   return ifCross ? <SwapCrossLight /> : <SwapCrossDark />;
+};
+
+export const RequestingSmile = () => {
+  return (
+    <svg
+      width="77"
+      height="46"
+      viewBox="0 0 77 46"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M72 33C67.7317 36.6667 53.2195 44 36.1463 44C19.0732 44 6.8374 36.6667 2 33"
+        stroke="#00C6A2"
+        stroke-opacity="0.3"
+        strokeWidth="4"
+        strokeLinecap="round"
+      />
+      <g filter="url(#filter0_d_15708_1546)">
+        <ellipse
+          cx="71"
+          cy="34"
+          rx="4"
+          ry="4"
+          transform="rotate(-180 71 34)"
+          fill="#00FFD1"
+        />
+      </g>
+      <g filter="url(#filter1_d_15708_1546)">
+        <circle
+          cx="12"
+          cy="6"
+          r="4"
+          transform="rotate(-180 12 6)"
+          fill="#00FFD1"
+        />
+      </g>
+      <g filter="url(#filter2_d_15708_1546)">
+        <circle
+          cx="66"
+          cy="6"
+          r="4"
+          transform="rotate(-180 66 6)"
+          fill="#00FFD1"
+        />
+      </g>
+      <defs>
+        <filter
+          id="filter0_d_15708_1546"
+          x="65"
+          y="28"
+          width="12"
+          height="12"
+          filterUnits="userSpaceOnUse"
+          colorInterpolationFilters="sRGB"
+        >
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset />
+          <feGaussianBlur stdDeviation="1" />
+          <feComposite in2="hardAlpha" operator="out" />
+          <feColorMatrix
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 1 0 0 0 0 0.82 0 0 0 0.6 0"
+          />
+          <feBlend
+            mode="normal"
+            in2="BackgroundImageFix"
+            result="effect1_dropShadow_15708_1546"
+          />
+          <feBlend
+            mode="normal"
+            in="SourceGraphic"
+            in2="effect1_dropShadow_15708_1546"
+            result="shape"
+          />
+        </filter>
+        <filter
+          id="filter1_d_15708_1546"
+          x="6"
+          y="0"
+          width="12"
+          height="12"
+          filterUnits="userSpaceOnUse"
+          colorInterpolationFilters="sRGB"
+        >
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset />
+          <feGaussianBlur stdDeviation="1" />
+          <feComposite in2="hardAlpha" operator="out" />
+          <feColorMatrix
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 1 0 0 0 0 0.82 0 0 0 0.6 0"
+          />
+          <feBlend
+            mode="normal"
+            in2="BackgroundImageFix"
+            result="effect1_dropShadow_15708_1546"
+          />
+          <feBlend
+            mode="normal"
+            in="SourceGraphic"
+            in2="effect1_dropShadow_15708_1546"
+            result="shape"
+          />
+        </filter>
+        <filter
+          id="filter2_d_15708_1546"
+          x="60"
+          y="0"
+          width="12"
+          height="12"
+          filterUnits="userSpaceOnUse"
+          colorInterpolationFilters="sRGB"
+        >
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset />
+          <feGaussianBlur stdDeviation="1" />
+          <feComposite in2="hardAlpha" operator="out" />
+          <feColorMatrix
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 1 0 0 0 0 0.82 0 0 0 0.6 0"
+          />
+          <feBlend
+            mode="normal"
+            in2="BackgroundImageFix"
+            result="effect1_dropShadow_15708_1546"
+          />
+          <feBlend
+            mode="normal"
+            in="SourceGraphic"
+            in2="effect1_dropShadow_15708_1546"
+            result="shape"
+          />
+        </filter>
+      </defs>
+    </svg>
+  );
 };
