@@ -95,7 +95,7 @@ function SelectUi({
         onClick={switchSelectBoxStatus}
         tabIndex={-1}
         onBlur={hideSelectBox}
-        className={`flex items-center justify-between w-40 h-5 rounded-full px-3 box-border border cursor-pointer text-xs outline-none ${
+        className={`flex items-center justify-between w-40 h-5 rounded-full px-2 box-border border cursor-pointer text-xs outline-none ${
           shrink ? 'xs:w-8 md:w-8' : ''
         } ${
           showSelectBox

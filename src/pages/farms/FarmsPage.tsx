@@ -1847,7 +1847,7 @@ function FarmView({
                   rounded="rounded-md"
                   px="px-0"
                   py="py-1"
-                  className="flex-grow  w-20 text-base text-greenColor"
+                  className="flex-grow  w-20 text-sm text-greenColor"
                 >
                   <FormattedMessage id="unstake" defaultMessage="Unstake" />
                 </BorderButton>
@@ -1860,14 +1860,14 @@ function FarmView({
                   rounded="rounded-md"
                   px="px-0"
                   py="py-1"
-                  className="flex-grow  w-20 text-base text-greenColor"
+                  className="flex-grow  w-20 text-sm text-greenColor"
                 >
                   <FormattedMessage id="stake" defaultMessage="Stake" />
                 </BorderButton>
               ) : (
                 <GradientButton
                   color="#fff"
-                  className={`w-full h-10 text-center text-base text-white mt-4 focus:outline-none font-semibold `}
+                  className={`w-full h-10 text-center text-sm text-white mt-4 focus:outline-none font-semibold `}
                   onClick={() => showStakeModal()}
                 >
                   <FormattedMessage id="stake" defaultMessage="Stake" />
@@ -1878,7 +1878,7 @@ function FarmView({
                   color="#fff"
                   onClick={() => claimReward()}
                   disabled={disableClaim}
-                  className="text-white text-base flex-grow  w-20"
+                  className="text-white text-sm flex-grow  w-20"
                   loading={claimLoading}
                 >
                   <div>
