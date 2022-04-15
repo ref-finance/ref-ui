@@ -29,7 +29,7 @@ export default function Table({
   return (
     tokens.length > 0 && (
       <table className="text-left w-full text-sm text-gray-400 mt-10 table-auto">
-        <thead
+        <div
           className="sticky -top-6 z-30 text-primaryText"
           style={{ background: 'rgb(29, 41, 50)' }}
         >
@@ -43,14 +43,17 @@ export default function Table({
                 <FormattedMessage id="asset_label" defaultMessage="Asset" />
               </span>
             </th>
+            <th className="pb-2 w-1/5 font-normal">
+              <span>
+                <FormattedMessage id="support" defaultMessage="Support" />
+              </span>
+            </th>
+
             <th className={`font-normal pb-2 pr-9 w-1/5 `}>
               <span
                 className="cursor-pointer flex justify-end items-center whitespace-nowrap"
                 onClick={() => onSortChange('near')}
               >
-                <span className="self-start">
-                  <SmallWallet forSelectToken />
-                </span>
                 <span className="ml-1">
                   <FormattedMessage id="balance" />
                 </span>
@@ -64,16 +67,15 @@ export default function Table({
               </span>
             </th>
           </tr>
-        </thead>
-        <tbody>
+        </div>
+        <div>
           {tokens.filter(Boolean).map((token, index) => (
             <Token
               index={index}
               key={token.id}
-              token={token}
               onClick={onClick}
+              token={token}
               price={tokenPriceList[token.id]?.price}
-              // render={render}
               sortBy={sortBy}
               totalAmount={
                 balances
@@ -82,7 +84,7 @@ export default function Table({
               }
             />
           ))}
-        </tbody>
+        </div>
       </table>
     )
   );

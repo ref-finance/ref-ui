@@ -550,4 +550,12 @@ export const fetchBalance = async (address: string) => {
 
 // combine transactions to sign once
 
-// TODO: check token list for the bridge
+export const getTokenNearAccount = async (auroraAddress: string) => {
+  return (await aurora.getNEP141Account(toAddress(auroraAddress))).unwrap();
+};
+
+export const getBatchTokenNearAcounts = async (ids: string[]) => {
+  return await Promise.all(
+    ids.map((id) => getTokenNearAccount(id).then((res) => res?.id))
+  );
+};

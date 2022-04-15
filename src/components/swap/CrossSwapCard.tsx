@@ -16,9 +16,14 @@ import {
   calculateFeeCharge,
   calculateFeePercent,
   calculateSmartRoutingPriceImpact,
+  percent,
+  percentLess,
   toPrecision,
   toReadableNumber,
+  subtraction,
+  calculatePriceImpact,
   ONLY_ZEROS,
+  percentOf,
   multiply,
   divide,
   scientificNotationToString,
@@ -57,9 +62,18 @@ import {
   RouterIcon,
   SmartRouteV2,
 } from '../../components/layout/SwapRoutes';
+import QuestionMark, {
+  QuestionMarkStaticForParaSwap,
+} from '~components/farm/QuestionMark';
 
+import ReactTooltip from 'react-tooltip';
+import * as math from 'mathjs';
+import { HiOutlineExternalLink } from 'react-icons/hi';
 import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
 import { QuestionTip } from '../../components/layout/TipWrapper';
+import { Guide } from '../../components/layout/Guide';
+import { sortBy } from 'lodash';
+import { getCurrentWallet } from '../../utils/sender-wallet';
 import { senderWallet, WalletContext } from '../../utils/sender-wallet';
 import { SwapArrow, SwapExchange } from '../icon/Arrows';
 import { getPoolAllocationPercents } from '../../utils/numbers';
@@ -360,6 +374,7 @@ function DetailView({
   fee,
   swapsTodo,
   priceImpact,
+  showDetails = true,
 }: {
   pools: Pool[];
   tokenIn: TokenMetadata;
@@ -371,31 +386,19 @@ function DetailView({
   fee?: number;
   swapsTodo?: EstimateSwapView[];
   priceImpact?: string;
+  showDetails?: boolean;
 }) {
   const intl = useIntl();
-  const [showDetails, setShowDetails] = useState<boolean>(false);
 
-  const minAmountOutValue = useMemo(() => {
-    if (!minAmountOut) return '0';
-    else return toPrecision(minAmountOut, 8, true);
-  }, [minAmountOut]);
+  // const minAmountOutValue = useMemo(() => {
+  //   if (!minAmountOut) return '0';
+  //   else return toPrecision(minAmountOut, 8, true);
+  // }, [minAmountOut]);
 
   const exchangeRateValue = useMemo(() => {
     if (!from || ONLY_ZEROS.test(to)) return '-';
     else return calculateExchangeRate(fee, to, from);
   }, [to]);
-
-  useEffect(() => {
-    if (Number(priceImpact) > 1) {
-      setShowDetails(true);
-    }
-  }, [priceImpact]);
-
-  useEffect(() => {
-    if (swapsTodo?.length > 1) {
-      setShowDetails(true);
-    }
-  }, [swapsTodo]);
 
   const priceImpactDisplay = useMemo(() => {
     if (!priceImpact || !tokenIn || !from) return null;
@@ -416,27 +419,11 @@ function DetailView({
 
   return (
     <div className="mt-8">
-      <div className="flex justify-center">
-        <div
-          className="flex items-center text-white cursor-pointer"
-          onClick={() => {
-            setShowDetails(!showDetails);
-          }}
-        >
-          <label className="mr-2">{getPriceImpactTipType(priceImpact)}</label>
-          <p className="block text-xs">
-            <FormattedMessage id="details" defaultMessage="Details" />
-          </p>
-          <div className="pl-1 text-sm">
-            {showDetails ? <FaAngleUp /> : <FaAngleDown />}
-          </div>
-        </div>
-      </div>
       <div className={showDetails ? '' : 'hidden'}>
-        <SwapDetail
+        {/* <SwapDetail
           title={intl.formatMessage({ id: 'minimum_received' })}
           value={<span>{toPrecision(minAmountOutValue, 8)}</span>}
-        />
+        /> */}
         <SwapRateDetail
           title={intl.formatMessage({ id: 'swap_rate' })}
           value={`1 ${toRealSymbol(
@@ -458,7 +445,10 @@ function DetailView({
           value={!to || to === '0' ? '-' : priceImpactDisplay}
         />
         <SwapDetail
-          title={intl.formatMessage({ id: 'pool_fee' })}
+          title={intl.formatMessage({
+            id: 'pool_fee_cross_swap',
+            defaultMessage: 'Pool/Cross-chain fee',
+          })}
           value={poolFeeDisplay}
         />
 
@@ -481,7 +471,7 @@ function DetailView({
   );
 }
 
-export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
+export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
   const { allTokens } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
@@ -496,6 +486,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+
+  const crossSwap = globalState.crossSwap;
 
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();
@@ -641,12 +633,9 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     PriceImpactValue = '0';
   }
 
-  const tokenInMax = useNearBalance
-    ? tokenInBalanceFromNear || '0'
-    : toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0';
-  const tokenOutTotal = useNearBalance
-    ? tokenOutBalanceFromNear || '0'
-    : toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
+  const tokenInMax = tokenInBalanceFromNear || '0';
+  const tokenOutTotal = tokenOutBalanceFromNear || '0';
+
   const canSubmit = canSwap && (tokenInMax != '0' || !useNearBalance);
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -673,6 +662,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       />
       <SwapFormWrap
         supportLedger={supportLedger}
+        crossSwap={true}
         setSupportLedger={setSupportLedger}
         useNearBalance={useNearBalance.toString()}
         canSubmit={canSubmit}

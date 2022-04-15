@@ -16,6 +16,7 @@ interface SwapFormWrapProps {
   info?: string | JSX.Element;
   showElseView?: boolean;
   elseView?: JSX.Element;
+  crossSwap?: boolean;
   onChange: (slippage: number) => void;
   bindUseBalance: (useNearBalance: boolean) => void;
   loading?: {
@@ -41,6 +42,7 @@ export default function SwapFormWrap({
   canSubmit = true,
   onSubmit,
   info,
+  crossSwap,
   showElseView,
   elseView,
   onChange,
@@ -92,31 +94,31 @@ export default function SwapFormWrap({
     >
       {title && (
         <>
-          <h2 className="formTitle flex justify-between font-bold text-xl text-white text-left pb-4">
-            <FormattedMessage id={title} defaultMessage={title} />
+          <h2 className="formTitle flex justify-end  font-bold text-xl text-white text-left pb-4">
             <div className="flex items-center">
-              <div
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+              {crossSwap ? null : (
+                <div
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
 
-                  if (loadingPause) {
-                    setLoadingPause(false);
-                    setLoadingTrigger(true);
-                    setLoadingData(true);
-                  } else {
-                    setLoadingPause(true);
-                    setLoadingTrigger(false);
-                  }
-                }}
-                className="mx-4 cursor-pointer"
-              >
-                <CountdownTimer
-                  loadingTrigger={loadingTrigger}
-                  loadingPause={loadingPause}
-                />
-              </div>
-
+                    if (loadingPause) {
+                      setLoadingPause(false);
+                      setLoadingTrigger(true);
+                      setLoadingData(true);
+                    } else {
+                      setLoadingPause(true);
+                      setLoadingTrigger(false);
+                    }
+                  }}
+                  className="mx-4 cursor-pointer"
+                >
+                  <CountdownTimer
+                    loadingTrigger={loadingTrigger}
+                    loadingPause={loadingPause}
+                  />
+                </div>
+              )}
               <SlippageSelector
                 slippageTolerance={slippageTolerance}
                 onChange={onChange}

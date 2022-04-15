@@ -60,7 +60,7 @@ import {
   AuroraIcon,
   HasBalance,
   CopyIcon,
-} from '../icon/crossSwap';
+} from '../icon/CrossSwap';
 import { QuestionTip } from './TipWrapper';
 import {
   auroraAddr,
@@ -694,7 +694,6 @@ function NavigationBar() {
 
   useEffect(() => {
     if (!auroraBalances || !auroraTokens) return;
-    console.log(auroraTokens, auroraBalances);
 
     const balanceOver = Object.entries(auroraBalances).some(
       ([address, balance]) => {

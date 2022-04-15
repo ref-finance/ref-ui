@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { toRealSymbol } from '~utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
 import { toInternationalCurrencySystem } from '~utils/numbers';
 import { toPrecision } from '../../utils/numbers';
 import { SingleToken } from '../forms/SelectToken';
 import { OutLinkIcon } from '../../components/icon/Common';
+import { RefIcon } from '~components/icon/DexIcon';
+import { TriIcon } from '../icon/DexIcon';
 
 interface TokenProps {
   token: TokenMetadata;
@@ -22,39 +24,52 @@ export default function Token({
   price,
   index,
 }: TokenProps) {
-  const { icon, symbol, id, near, ref, total } = token;
+  const { icon, symbol, id, near, ref, total, onRef, onTri } = token;
 
   const displayBalance =
     0 < Number(near) && Number(near) < 0.001
       ? '< 0.001'
       : toPrecision(String(near), 3);
 
+  const [hover, setHover] = useState(false);
+
   return (
-    <tr
+    <div
       key={id}
-      className="hover:bg-black hover:bg-opacity-10"
+      className="hover:bg-black hover:bg-opacity-10 flex items-center justify-between w-full"
       onClick={() => onClick && onClick(token)}
       style={{
         height: '56px',
       }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
     >
-      <td
-        className={`xs:text-xs text-sm pl-8  ${
-          index === 0
-            ? !price
-              ? 'pt-6 pb-4'
-              : 'pt-4 pb-2'
-            : !price
-            ? 'py-4'
-            : 'py-2'
-        }  cursor-pointer w-4/5 flex items-center`}
-      >
-        <SingleToken token={token} price={price} />
-      </td>
-      <td
+      <div className="flex items-center">
+        <div
+          className={`xs:text-xs text-sm pl-8 ${
+            index === 0
+              ? !price
+                ? 'pt-6 pb-4'
+                : 'pt-4 pb-2'
+              : !price
+              ? 'py-4'
+              : 'py-2'
+          }  cursor-pointer flex w-36 items-center`}
+        >
+          <SingleToken token={token} price={price} />
+        </div>
+
+        <div className="w-16 flex justify-end relative left-3">
+          {onRef ? <RefIcon lightTrigger={hover} /> : null}
+
+          {onTri ? <TriIcon lightTrigger={hover} /> : null}
+        </div>
+      </div>
+
+      <div
         className={`${
           index === 0 ? 'pt-6 pb-4' : 'py-4'
-        } xs:text-xs text-sm w-1/5 text-right ${
+        } xs:text-xs text-sm w-3/10 text-right ${
           sortBy === 'near' ? 'text-white' : ''
         }`}
       >
@@ -72,8 +87,8 @@ export default function Token({
             </a>
           ) : null}
         </div>
-      </td>
-    </tr>
+      </div>
+    </div>
   );
 }
 export const TokenLinks = {

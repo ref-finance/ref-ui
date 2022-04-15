@@ -103,29 +103,6 @@ function App() {
     crossSwap: true, // TODO: set default to false
   });
 
-  const auroraTokens = useAuroraTokens();
-
-  const erc20Balances = useErc20Balances(
-    auroraAddr(getCurrentWallet().wallet.getAccountId())
-  );
-
-  useEffect(() => {
-    const address = auroraAddr(getCurrentWallet().wallet.getAccountId());
-
-    getErc20Addr('wrap.testnet').then((res) =>
-      fetchAllowance(address, res).then((res) => console.log(res))
-    );
-
-    fetchBalance(address).then((res) => console.log(res.toString()));
-
-    getAuroraPool(
-      address,
-      'wrap.testnet',
-      'usdc.fakes.testnet',
-      '0x0084B7b4C64eDaaB4d7783e5Fe27f796C4783d44'
-    ).then((res) => console.log(res, 'getaurora pool '));
-  }, []);
-
   const [globalState, globalStatedispatch] = GlobalStateReducer;
 
   const { txHash, pathname, errorType, signInErrorType } = getURLInfo();

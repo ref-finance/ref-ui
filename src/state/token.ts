@@ -28,6 +28,8 @@ import { toRealSymbol } from '../utils/token';
 import getConfig from '~services/config';
 import { nearMetadata } from '../services/wrap-near';
 import { Pool } from '../services/pool';
+import { getBatchTokenNearAcounts } from '../services/aurora/aurora';
+import { defaultTokenList } from '../services/aurora/config';
 import {
   WalletContext,
   getCurrentWallet,
@@ -102,7 +104,7 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
       .then(setTokens);
   }, [getCurrentWallet().wallet.isSignedIn()]);
 
-  return tokens;
+  return tokens?.map((t) => ({ ...t, onRef: true }));
 };
 
 export const useWhitelistStableTokens = () => {
