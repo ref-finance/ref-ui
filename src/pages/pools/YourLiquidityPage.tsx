@@ -493,7 +493,7 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
 
                 setShowWithdraw(true);
               }}
-              className="text-xs px-4 col-span-2 w-24 text-center ml-2"
+              className="text-xs px-4 col-span-2 w-24 text-center ml-2 mb-1"
             >
               <FormattedMessage id="remove" defaultMessage="Remove" />
             </OutlineButton>
