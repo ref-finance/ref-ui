@@ -78,12 +78,12 @@ import { Guide } from '../../components/layout/Guide';
 import { sortBy } from 'lodash';
 import { getCurrentWallet } from '../../utils/sender-wallet';
 import { senderWallet, WalletContext } from '../../utils/sender-wallet';
-import { SwapArrow, SwapExchange } from '../icon/Arrows';
+import { SwapArrow, SwapExchange, ExchangeArrow } from '../icon/Arrows';
 import { getPoolAllocationPercents } from '../../utils/numbers';
 import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
 import { boolean } from 'mathjs';
-import { TokenCardOut } from '../forms/TokenAmount';
+import { TokenCardOut, CrossSwapTokens } from '../forms/TokenAmount';
 import { CrossSwapFormWrap } from '../forms/SwapFormWrap';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
@@ -559,13 +559,17 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
     avgFee,
     isParallelSwap,
     swapsToDo,
-    setCanSwap,
+    canSwap,
   } = useCrossSwap({
     tokenIn: tokenIn,
     tokenInAmount,
     tokenOut: tokenOut,
     slippageTolerance,
     supportLedger,
+    requestingTrigger,
+    setRequestingTrigger,
+    requested,
+    setRequested,
   });
 
   const priceImpactValueSmartRouting = useMemo(() => {
@@ -619,10 +623,10 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
 
   const tokenInMax = tokenInBalanceFromNear || '0';
 
-  const canSubmit = requested
-    ? true
-    : !ONLY_ZEROS.test(tokenInMax) &&
-      new BigNumber(tokenInAmount).lte(new BigNumber(tokenInMax));
+  const canSubmit =
+    requested ||
+    (!ONLY_ZEROS.test(tokenInMax) &&
+      new BigNumber(tokenInAmount).lte(new BigNumber(tokenInMax)));
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -645,12 +649,13 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
         crossSwap={true}
         setSupportLedger={setSupportLedger}
         useNearBalance={useNearBalance.toString()}
-        canSubmit={canSubmit}
+        canSubmit={canSubmit && tokenIn?.id !== tokenOut?.id}
         slippageTolerance={slippageTolerance}
         onChange={(slippage) => {
           setSlippageTolerance(slippage);
           localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
         }}
+        requested={requested}
         requestingTrigger={requestingTrigger}
         bindUseBalance={(useNearBalance) => {
           setUseNearBalance(useNearBalance);
@@ -659,6 +664,22 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
             useNearBalance.toString()
           );
         }}
+        tokensTitle={
+          requested ? (
+            <div className="flex items-center  absolute left-6 ">
+              <span
+                className="text-white text-xl pr-2 px-0.5 cursor-pointer"
+                onClick={() => setRequested(false)}
+              >
+                {'<'}
+              </span>
+
+              <span className="mx-1">{toRealSymbol(tokenIn?.symbol)}</span>
+              <ExchangeArrow />
+              <span className="mx-1">{toRealSymbol(tokenOut?.symbol)}</span>
+            </div>
+          ) : null
+        }
         showElseView={tokenInMax === '0' && !useNearBalance}
         elseView={<SubmitButton disabled={true} loading={showSwapLoading} />}
         onSubmit={handleSubmit}
@@ -676,9 +697,12 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
           tokens={allTokens}
           onSelectToken={setTokenIn}
           amount={tokenInAmount}
+          hidden={requested}
         />
         <div
-          className="flex items-center justify-center border-t mt-12"
+          className={`flex items-center justify-center border-t mt-12 ${
+            requested ? 'hidden' : 'block'
+          }`}
           style={{ borderColor: 'rgba(126, 138, 147, 0.3)' }}
         >
           <SwapExchange
@@ -696,9 +720,27 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
           onSelectToken={setTokenOut}
           balances={balances}
           tokenPriceList={tokenPriceList}
+          hidden={requested}
         />
 
-        {/* <DetailView
+        <div className={requested ? 'block' : 'hidden'}>
+          <div className="text-sm text-primaryText pb-2">
+            <FormattedMessage
+              id="minimum_received"
+              defaultMessage="Minimum received"
+            />
+          </div>
+
+          <CrossSwapTokens
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            tokenPriceList={tokenPriceList}
+            amountIn={tokenInAmount}
+            amountOut={tokenOutAmount}
+          />
+        </div>
+
+        <DetailView
           pools={pools}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
@@ -709,7 +751,8 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
           fee={avgFee}
           swapsTodo={swapsToDo}
           priceImpact={PriceImpactValue}
-        /> */}
+          showDetails={requested}
+        />
         {swapError ? (
           <div className="pb-2 relative -mb-5">
             <Alert level="warn" message={swapError.message} />

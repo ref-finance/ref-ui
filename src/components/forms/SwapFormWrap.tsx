@@ -18,6 +18,8 @@ interface SwapFormWrapProps {
   showElseView?: boolean;
   elseView?: JSX.Element;
   crossSwap?: boolean;
+  requested?: boolean;
+  tokensTitle?: JSX.Element;
   onChange: (slippage: number) => void;
   bindUseBalance: (useNearBalance: boolean) => void;
   requestingTrigger?: boolean;
@@ -170,6 +172,8 @@ export function CrossSwapFormWrap({
   useNearBalance,
   requestingTrigger,
   supportLedger,
+  requested,
+  tokensTitle,
   setSupportLedger,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
@@ -237,6 +241,7 @@ export function CrossSwapFormWrap({
         <>
           <h2 className="formTitle flex justify-end  font-bold text-xl text-white text-left pb-4">
             <div className="flex items-center">
+              {tokensTitle}
               {crossSwap ? null : (
                 <div
                   onClick={(e) => {

@@ -182,6 +182,7 @@ export function TokenCardIn({
   onSelectToken,
   balances,
   amount,
+  hidden,
 }: {
   tokenIn: TokenMetadata;
   max: string;
@@ -191,10 +192,13 @@ export function TokenCardIn({
   onSelectToken?: (token: TokenMetadata) => void;
   balances: TokenBalancesView;
   amount: string;
+  hidden: boolean;
 }) {
   const [hoverSelectToken, setHoverSelectToken] = useState(false);
 
   const price = tokenPriceList?.[tokenIn?.id]?.price || null;
+
+  if (hidden) return null;
 
   return (
     <div
@@ -261,16 +265,17 @@ export function TokenCardOut({
   tokenPriceList,
   tokens,
   balances,
+  hidden,
 }: {
   tokenOut: TokenMetadata;
   onSelectToken: (token: TokenMetadata) => void;
-
+  hidden: boolean;
   tokenPriceList?: Record<string, any>;
   tokens: TokenMetadata[];
   balances: TokenBalancesView;
 }) {
   const [hoverSelectToken, setHoverSelectToken] = useState(false);
-
+  if (hidden) return null;
   return (
     <div
       className="bg-black bg-opacity-20 p-5"
@@ -317,6 +322,57 @@ export function TokenCardOut({
         onSelect={onSelectToken}
         balances={balances}
       />
+    </div>
+  );
+}
+
+export function CrossSwapTokens({
+  tokenIn,
+  tokenOut,
+  tokenPriceList,
+  amountIn,
+  amountOut,
+}: {
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  tokenPriceList?: Record<string, any>;
+  amountIn: string;
+  amountOut: string;
+}) {
+  const tokenInPrice = tokenPriceList?.[tokenIn?.id]?.price || null;
+  const tokenOutPrice = tokenPriceList?.[tokenOut?.id]?.price || null;
+
+  if (!tokenIn || !tokenOut || !amountOut) return null;
+
+  console.log(tokenIn, tokenOut);
+
+  return (
+    <div className="py-5 px-4 border bg-cardBg border-gradientFrom rounded-xl flex items-center justify-between relative">
+      <div className="flex flex-col justify-between">
+        <span className="text-white">
+          <span>{toPrecision(amountIn, 3)}</span>
+          <span className="ml-1">{toRealSymbol(tokenIn?.symbol)}</span>
+        </span>
+        <span className="text-sm text-primaryText pt-1">
+          {tokenInPrice ? tokenPrice(multiply(amountIn, tokenInPrice)) : null}
+        </span>
+      </div>
+
+      <div className="text-white text-2xl font-bold absolute left-1/2">
+        {'>'}
+      </div>
+
+      <div className="flex flex-col justify-between items-end">
+        <span className="text-gradientFrom font-bold text-xl">
+          <span>{toPrecision(amountOut, 6)}</span>
+          <span className="ml-1">{toRealSymbol(tokenOut?.symbol)}</span>
+        </span>
+        <span className="text-sm text-primaryText pt-1">
+          {tokenOutPrice
+            ? tokenPrice(multiply(amountOut, tokenOutPrice))
+            : null}
+        </span>
+      </div>
     </div>
   );
 }

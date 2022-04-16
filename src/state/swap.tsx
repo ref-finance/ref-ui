@@ -60,7 +60,10 @@ interface SwapOptions {
   loadingPause?: boolean;
   setLoadingPause?: (pause: boolean) => void;
   supportLedger?: boolean;
-  crossSwapTrigger?: boolean;
+  requestingTrigger?: boolean;
+  requested?: boolean;
+  setRequested?: (requested?: boolean) => void;
+  setRequestingTrigger?: (requestingTrigger?: boolean) => void;
 }
 
 export const useSwap = ({
@@ -375,7 +378,10 @@ export const useCrossSwap = ({
   tokenOut,
   slippageTolerance,
   supportLedger,
-  crossSwapTrigger,
+  requestingTrigger,
+  requested,
+  setRequested,
+  setRequestingTrigger,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -442,59 +448,48 @@ export const useCrossSwap = ({
   const getEstimate = () => {
     setCanSwap(false);
 
-    if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
-      setSwapError(null);
-      if (!tokenInAmount || ONLY_ZEROS.test(tokenInAmount)) {
-        setTokenOutAmount('0');
-        return;
-      }
+    // TODO: 1. get pool from aurora
+    // TODO: 2. get all pools from ref
+    //       3. combine all pools
+    //       4. algorithm to get estimate out: parallel smart routing
+    //       5. calculate price impact, pool fee, auto router
+    //       6. swap
 
-      // estimateSwap({
-      //   tokenIn,
-      //   tokenOut,
-      //   amountIn: tokenInAmount,
-      //   intl,
-      //   setLoadingData,
-      //   loadingTrigger: loadingTrigger && !loadingPause,
-      //   supportLedger,
-      // })
-      //   .then((estimates) => {
-      //     if (!estimates) throw '';
+    estimateSwap({
+      tokenIn,
+      tokenOut,
+      amountIn: tokenInAmount,
+      intl,
+      loadingTrigger: requestingTrigger,
+      supportLedger,
+    })
+      .then((estimates) => {
+        if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
+          setAverageFee(estimates);
 
-      //     if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
-      //       setAverageFee(estimates);
+          setTokenOutAmount(
+            getExpectedOutputFromActions(estimates, tokenOut.id).toString()
+          );
+          setSwapsToDo(estimates);
+          setCanSwap(true);
+        }
 
-      //       if (!loadingTrigger) {
-      //         setTokenOutAmount(
-      //           getExpectedOutputFromActions(estimates, tokenOut.id).toString()
-      //         );
-      //         setSwapsToDo(estimates);
-      //         setCanSwap(true);
-      //       }
-      //     }
-
-      //     setPool(estimates[0].pool);
-      //   })
-      //   .catch((err) => {
-      //     setCanSwap(false);
-      //     setTokenOutAmount('');
-      //     setSwapError(err);
-      //   })
-      //   .finally(() => setLoadingTrigger(false));
-    } else if (
-      tokenIn &&
-      tokenOut &&
-      !tokenInAmount &&
-      ONLY_ZEROS.test(tokenInAmount) &&
-      tokenIn.id !== tokenOut.id
-    ) {
-      setTokenOutAmount('0');
-    }
+        setPool(estimates[0].pool);
+      })
+      .catch((err) => {
+        setCanSwap(false);
+        setTokenOutAmount('');
+        setSwapError(err);
+      })
+      .finally(() => {
+        setRequested(true);
+        setRequestingTrigger(false);
+      });
   };
 
   useEffect(() => {
-    getEstimate();
-  }, [supportLedger]);
+    if (requestingTrigger) getEstimate();
+  }, [requestingTrigger]);
 
   const makeSwap = (useNearBalance: boolean) => {
     swap({
