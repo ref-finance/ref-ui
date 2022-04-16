@@ -20,6 +20,7 @@ import {
   WrapNearIconDark,
   UkIcon,
   RuIcon,
+  JaIcon,
 } from '~components/icon';
 import { WNEARExchngeIcon } from '~components/icon/Common';
 import { Link, useLocation } from 'react-router-dom';
@@ -174,6 +175,17 @@ export function MobileSwitchLanguage() {
             <RuIcon />
           </span>
           Pусский
+        </div>
+        <div
+          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
+            currentLocal === 'ja' ? 'text-white' : 'text-primaryText '
+          }`}
+          onClick={() => context.selectLanguage('ja')}
+        >
+          <span className="text-2xl mr-5">
+            <JaIcon />
+          </span>
+          日本語
         </div>
       </div>
     </div>

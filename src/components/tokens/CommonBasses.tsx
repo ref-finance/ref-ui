@@ -36,7 +36,16 @@ export default function CommonBasses({
   const commonBassesTokens = tokens.filter((item) => {
     return COMMON_BASSES.indexOf(item?.symbol) > -1;
   });
-
+  let REFToken;
+  for (let i = 0; i < commonBassesTokens.length; i++) {
+    if (commonBassesTokens[i].symbol == 'REF') {
+      REFToken = commonBassesTokens.splice(i, 1);
+      break;
+    }
+  }
+  if (REFToken) {
+    commonBassesTokens.unshift(REFToken[0]);
+  }
   return (
     <section className="px-6">
       <div className="text-sm font-bold py-2 pl-2">
