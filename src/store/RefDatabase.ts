@@ -199,6 +199,7 @@ class RefDatabase extends Dexie {
           fee: number;
           shareSupply: string;
           token0_ref_price: string;
+          Dex: string;
         }) => ({
           id: pool.id,
           token1Id: pool.tokenIds[0],
@@ -209,6 +210,7 @@ class RefDatabase extends Dexie {
           shares: pool.shareSupply,
           update_time: moment().unix(),
           token0_price: pool.token0_ref_price || '0',
+          Dex: pool.Dex,
         })
       )
     );

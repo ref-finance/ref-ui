@@ -70,8 +70,6 @@ import { multiply } from '../utils/numbers';
 
 // Big.strict = false;
 const FEE_DIVISOR = 10000;
-const LP_THERESHOLD = 0.001;
-const MAXIMUM_NUMBER_OF_POOLS = 5;
 
 export enum PoolMode {
   PARALLEL = 'parallel swap',
@@ -318,14 +316,19 @@ export const estimateSwap = async ({
   }
 
   const orpools = await getRefPoolsByToken1ORToken2(tokenIn.id, tokenOut.id);
+
   let stableSmartActionsV2 = await stableSmart(
     orpools,
     tokenIn.id,
     tokenOut.id,
-    parsedAmountIn
+    parsedAmountIn,
+    3,
+    0.0000000000001
   );
 
   let res = stableSmartActionsV2;
+
+  console.log(res);
 
   let smartRouteV2OutputEstimate = stableSmartActionsV2
     .filter((a: any) => a.outputToken == a.routeOutputToken)
@@ -610,14 +613,6 @@ export const swap = async ({
         swapsToDo,
         slippageTolerance,
       });
-    } else {
-      await depositSwap({
-        tokenIn,
-        tokenOut,
-        amountIn,
-        slippageTolerance,
-        swapsToDo,
-      });
     }
   }
 };
@@ -628,8 +623,7 @@ export const instantSwap = async ({
   amountIn,
   swapsToDo,
   slippageTolerance,
-}: // minAmountOut,
-SwapOptions) => {
+}: SwapOptions) => {
   const transactions: Transaction[] = [];
   const tokenInActions: RefFiFunctionCallOptions[] = [];
   const tokenOutActions: RefFiFunctionCallOptions[] = [];
@@ -665,8 +659,7 @@ SwapOptions) => {
   const isSmartRouteV1Swap = swapsToDo.every(
     (estimate) => estimate.status === PoolMode.SMART
   );
-
-  console.log(swapsToDo);
+  await registerToken(tokenOut);
 
   if (wallet.isSignedIn()) {
     if (isParallelSwap) {
@@ -694,8 +687,6 @@ SwapOptions) => {
         };
       });
 
-      await registerToken(tokenOut);
-
       tokenInActions.push({
         methodName: 'ft_transfer_call',
         args: {
@@ -719,7 +710,6 @@ SwapOptions) => {
       return executeMultipleTransactions(transactions);
     } else if (isSmartRouteV1Swap) {
       //making sure all actions get included for hybrid stable smart.
-      await registerToken(tokenOut);
       var actionsList = [];
       // let allSwapsTokens = swapsToDo.map((s) => [s.inputToken, s.outputToken]); // to get the hop tokens
       let amountInInt = new Big(amountIn)
@@ -768,8 +758,6 @@ SwapOptions) => {
 
       return executeMultipleTransactions(transactions);
     } else {
-      //making sure all actions get included.
-      await registerToken(tokenOut);
       var actionsList = [];
       let allSwapsTokens = swapsToDo.map((s) => [s.inputToken, s.outputToken]); // to get the hop tokens
       for (var i in allSwapsTokens) {
@@ -790,8 +778,6 @@ SwapOptions) => {
             ),
           });
         } else if (swapTokens[0] == tokenIn.id) {
-          // first hop in double hop route
-          //TODO -- put in a check to make sure this first hop matches with the next (i+1) hop as a second hop.
           actionsList.push({
             pool_id: swapsToDo[i].pool.id,
             token_in: swapTokens[0],

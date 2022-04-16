@@ -449,8 +449,6 @@ export const useCrossSwap = ({
   const getEstimate = () => {
     setCanSwap(false);
 
-    getAllTriPools().then((res) => console.log(res));
-
     // TODO: 1. get pool from aurora
     // TODO: 2. get all pools from ref
     //       3. combine all pools

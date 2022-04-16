@@ -51,12 +51,6 @@ import {
 import { getURLInfo, failToast } from './components/layout/transactionTipPopUp';
 
 import { senderSignedInToast } from '~components/layout/senderSignInPopUp';
-import { getAllTriPools } from './services/aurora/aurora';
-import {
-  useErc20Balances,
-  fetchAllowance,
-  fetchBalance,
-} from './services/aurora/aurora';
 
 import {
   getSenderLoginRes,
@@ -100,7 +94,7 @@ Modal.setAppElement('#root');
 function App() {
   const GlobalStateReducer = useReducer(globalStateReducer, {
     isSignedIn: false,
-    crossSwap: true, // TODO: set default to false
+    crossSwap: false, // TODO: set default to false
   });
 
   const [globalState, globalStatedispatch] = GlobalStateReducer;

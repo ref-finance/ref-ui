@@ -57,7 +57,7 @@ export interface Pool {
   tvl: number;
   token0_ref_price: string;
   partialAmountIn?: string;
-  fromAurora?: boolean;
+  Dex?: string;
 }
 
 export interface StablePool {
@@ -291,11 +291,11 @@ export const getPoolsByTokens = async ({
     const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
     const pools = (
       await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
-    ).flat();
+    )
+      .flat()
+      .map((p) => ({ ...p, Dex: 'ref' }));
 
     const triPools = await getAllTriPools();
-
-    console.log(pools, triPools);
 
     filtered_pools = pools
       .concat(triPools)

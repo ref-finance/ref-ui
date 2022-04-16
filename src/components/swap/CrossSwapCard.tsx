@@ -458,7 +458,7 @@ function DetailView({
           value={poolFeeDisplay}
         />
 
-        {isParallelSwap && pools.length > 1 && (
+        {isParallelSwap && (
           <ParallelSwapRoutesDetail
             tokenIn={tokenIn}
             tokenOut={tokenOut}
@@ -565,6 +565,8 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
     requested,
     setRequested,
   });
+
+  console.log(swapsToDo);
 
   const priceImpactValueSmartRouting = useMemo(() => {
     try {

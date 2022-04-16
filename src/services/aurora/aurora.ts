@@ -23,13 +23,20 @@ import * as nearAPI from 'near-api-js';
 
 import Big from 'big.js';
 import { getAuroraConfig, defaultTokenList } from './config';
-import { near, wallet, keyStore } from '../near';
+import {
+  near,
+  wallet,
+  keyStore,
+  Transaction,
+  RefFiFunctionCallOptions,
+} from '../near';
 import getConfig from '../config';
 import { BN } from 'bn.js';
 import { Pool } from '../pool';
 import { ftGetTokenMetadata, TokenMetadata } from '../ft-contract';
 import { useEffect, useState } from 'react';
 import { scientificNotationToString } from '../../utils/numbers';
+import { utils } from 'near-api-js';
 
 const trisolaris = getAuroraConfig().trisolarisAddress;
 
@@ -123,11 +130,7 @@ export async function auroraCall(toAddress: any, input: any, value: any) {
   else return (await getAurora().call(toAddress, input)).unwrap();
 }
 
-export function auroraCallToTransaction(
-  contract: any,
-  input: any,
-  value?: string
-) {
+export function auroraCallToAction(contract: any, input: any, value?: string) {
   let args;
 
   if (!value)
@@ -141,17 +144,13 @@ export function auroraCallToTransaction(
       value: prepareAmount(value),
       input: prepareInput(input),
     });
-  const action = nearAPI.transactions.functionCall(
-    'call',
+  const action: RefFiFunctionCallOptions = {
+    methodName: 'call',
     args,
-    AuroraCallGas,
-    new BN(1)
-  );
-
-  return {
-    receiverId: 'aurora',
-    functionCalls: [action],
+    gas: scientificNotationToString(AuroraCallGas.toString()),
   };
+
+  return action;
 }
 
 export function parseAuroraPool({
@@ -170,7 +169,7 @@ export function parseAuroraPool({
   auroraAddrB: string;
   id: number;
   decodedRes: any;
-}): Pool {
+}): Pool & { Dex: string } {
   const Afirst = auroraAddrA > auroraAddrB;
 
   const token1Id = Afirst ? tokenA : tokenB;
@@ -180,10 +179,10 @@ export function parseAuroraPool({
   const token2Supply = Afirst ? decodedRes.reserve1 : decodedRes.reserve0;
 
   return {
-    fromAurora: true,
+    Dex: 'tri',
     id,
-    fee: 0.3,
-    shareSupply: shares,
+    fee: 30,
+    shareSupply: shares + '0'.repeat(6),
     tvl: undefined,
     token0_ref_price: undefined,
     tokenIds: [token1Id, token2Id],
@@ -218,10 +217,6 @@ export async function getAuroraPool(
   const pairId = [tokenA.symbol, tokenB.symbol].join('-');
   const pairIdReverse = [tokenB.symbol, tokenA.symbol].join('-');
 
-  console.log(pairId, pairIdReverse);
-
-  console.log(Object.keys(getAuroraConfig().Pairs));
-
   const allPairs = Object.keys(getAuroraConfig().Pairs);
 
   if (!allPairs.find((p) => p === pairId || p === pairIdReverse)) return null;
@@ -255,7 +250,7 @@ export async function getAuroraPool(
 }
 
 // sign and send transaction on token contract
-export function depositToAurora(
+export function depositToAuroraTransaction(
   token_id: string,
   readableAmount: string,
   decimal: number,
@@ -265,46 +260,51 @@ export function depositToAurora(
     return {
       receiverId: 'aurora',
       functionCalls: [
-        nearAPI.transactions.functionCall(
-          'ft_transfer_call',
-          {
+        {
+          methodName: 'ft_transfer_call',
+          args: {
             receiver_id: 'aurora',
-            amount: Big(readableAmount).mul(ETH_DECIMAL).toFixed(0),
-            memo: null,
+            amount: new Big(readableAmount).mul(ETH_DECIMAL).toFixed(0),
+            memo: '',
             msg:
               getCurrentWallet().wallet.accountId +
               ':' +
               Zero64 + // fee
               address.substring(2),
           },
-          new BN(TGas.mul(70).toFixed(0)),
-          new BN(1)
-        ),
+          gas: scientificNotationToString(
+            new BN(TGas.mul(70).toFixed(0)).toString()
+          ),
+          amount: scientificNotationToString(
+            new BN(utils.format.parseNearAmount('1')).toString()
+          ),
+        },
       ],
     };
   } else {
     return {
       receiverId: token_id,
       functionCalls: [
-        nearAPI.transactions.functionCall(
-          'ft_transfer_call',
-          {
+        {
+          methodName: 'ft_transfer_call',
+          args: {
             receiver_id: 'aurora',
             amount: Big(readableAmount).mul(decimal).toFixed(0),
-            memo: null,
+            memo: '',
             msg: address.substring(2),
           },
-          new BN(TGas.mul(70).toFixed(0)),
-          new BN(1)
-        ),
+          gas: scientificNotationToString(
+            new BN(TGas.mul(70).toFixed(0)).toString()
+          ),
+        },
       ],
     };
   }
 }
 
 // TODO: need to validate before sign and send transaction
-export async function approveERC20(
-  token_id: string,
+export function approveERC20(
+  tokenAddresss: string,
   readableAmount: string,
   decimal: number
 ) {
@@ -313,15 +313,13 @@ export async function approveERC20(
     Big(decimal).mul(readableAmount).round(0, 0).toFixed(0),
   ]);
 
-  const erc20Addr = await getErc20Addr(token_id);
-
-  return auroraCallToTransaction(toAddress(erc20Addr), input);
+  return auroraCallToAction(toAddress(tokenAddresss), input);
 }
 
 export async function swapExactTokensForTokens({
   from,
   to,
-  readabelAmountIn,
+  readableAmountIn,
   readableAmountOut,
   decimalIn,
   decimalOut,
@@ -329,7 +327,7 @@ export async function swapExactTokensForTokens({
 }: {
   from: string;
   to: string;
-  readabelAmountIn: string;
+  readableAmountIn: string;
   readableAmountOut: string;
   decimalIn: number;
   decimalOut: number;
@@ -339,8 +337,8 @@ export async function swapExactTokensForTokens({
   const toErc20 = await getErc20Addr(to);
 
   const input = buildInput(UniswapRouterAbi, 'swapExactTokensForTokens', [
-    Big(decimalIn).mul(readabelAmountIn).round(0, 0).toFixed(0), // need to check decimals in real case
-    Big(decimalOut).mul(readableAmountOut).round(0, 0).toFixed(0), // need to check decimals in real case
+    new Big(decimalIn).mul(readableAmountIn).round(0, 0).toFixed(0), // need to check decimals in real case
+    new Big(decimalOut).mul(readableAmountOut).round(0, 0).toFixed(0), // need to check decimals in real case
     [fromErc20.id, toErc20.id],
     address,
     (Math.floor(new Date().getTime() / 1000) + 60).toString(), // 60s from now
@@ -348,7 +346,7 @@ export async function swapExactTokensForTokens({
 
   const callAddress = toAddress(trisolaris);
 
-  return auroraCallToTransaction(callAddress, input);
+  return auroraCallToAction(callAddress, input);
 }
 
 export async function swapExactETHforTokens({
@@ -366,41 +364,39 @@ export async function swapExactETHforTokens({
 }) {
   const toErc20 = await getErc20Addr(to);
   const input = buildInput(UniswapRouterAbi, 'swapExactETHForTokens', [
-    Big(decimalOut).mul(readableAmountOut).round(0, 0).toFixed(0),
+    new Big(decimalOut).mul(readableAmountOut).round(0, 0).toFixed(0),
     [getAuroraConfig().WETH, toErc20.id],
     address,
     (Math.floor(new Date().getTime() / 1000) + 60).toString(), // 60s from now
   ]);
 
-  const value = Big(ETH_DECIMAL).mul(readableAmountIn).toFixed(0);
+  const value = new Big(ETH_DECIMAL).mul(readableAmountIn).toFixed(0);
 
   const callContract = toAddress(trisolaris);
 
-  return auroraCallToTransaction(callContract, input, value);
+  return auroraCallToAction(callContract, input, value);
 
   // transaction or directly call
 }
 
 export async function swapExactTokensforETH({
   from,
-  readabelAmountIn,
+  readableAmountIn,
   readableAmountOut,
   decimalIn,
-  decimalOut,
   address,
 }: {
   from: string;
-  readabelAmountIn: string;
+  readableAmountIn: string;
   readableAmountOut: string;
   decimalIn: number;
-  decimalOut: number;
   address: string;
 }) {
   const fromErc20 = await getErc20Addr(from);
 
   const input = buildInput(UniswapRouterAbi, 'swapExactTokensForETH', [
-    Big(decimalIn).mul(readabelAmountIn).round(0, 0).toFixed(0),
-    Big(decimalOut).mul(readableAmountOut).round(0, 0).toFixed(0),
+    new Big(decimalIn).mul(readableAmountIn).round(0, 0).toFixed(0),
+    new Big(ETH_DECIMAL).mul(readableAmountOut).round(0, 0).toFixed(0),
     [fromErc20.id, getAuroraConfig().WETH],
     address,
     (Math.floor(new Date().getTime() / 1000) + 60).toString(), // 60s from now
@@ -408,9 +404,55 @@ export async function swapExactTokensforETH({
 
   const callAddress = toAddress(trisolaris);
 
-  return auroraCallToTransaction(callAddress, input);
+  return auroraCallToAction(callAddress, input);
 
   // const res = (await aurora.call(toAddress(trisolaris), input)).unwrap();
+}
+
+export async function swap({
+  from,
+  to,
+  readableAmountIn,
+  readableAmountOut,
+  decimalIn,
+  decimalOut,
+  address,
+}: {
+  from: string;
+  to: string;
+  readableAmountIn: string;
+  readableAmountOut: string;
+  decimalIn: number;
+  decimalOut: number;
+  address: string;
+}) {
+  if (from === 'aurora') {
+    return swapExactETHforTokens({
+      to,
+      readableAmountIn,
+      readableAmountOut,
+      decimalOut,
+      address,
+    });
+  } else if (to === 'aurora') {
+    return swapExactTokensforETH({
+      from,
+      readableAmountIn,
+      readableAmountOut,
+      decimalIn,
+      address,
+    });
+  } else {
+    return swapExactTokensForTokens({
+      from,
+      to,
+      readableAmountIn,
+      readableAmountOut,
+      decimalIn,
+      decimalOut,
+      address,
+    });
+  }
 }
 
 // OK
@@ -432,23 +474,26 @@ export const fetchAllowance = async (address: string, tokenAddress: string) => {
     return Big(out[0]);
   } catch (e) {
     console.log(e);
-    return false;
+    return new Big(0);
   }
 };
 
 // OK
-export const useErc20Allowance = (address: string, tokenAddress: string) => {
-  const [allowance, setAllowance] = useState(null);
 
-  useEffect(() => {
-    if (!address || !tokenAddress) {
-      return;
-    }
-
-    fetchAllowance(address, tokenAddress).then(setAllowance);
-  }, [tokenAddress, address]);
-
-  return allowance;
+export const checkAllowanceAndApprove = async (
+  address: string,
+  tokenAddresss: string,
+  readableAmountIn: string,
+  decimal: number
+) => {
+  const allowance = await fetchAllowance(address, tokenAddresss);
+  if (allowance.lt(new Big(readableAmountIn))) {
+    return approveERC20(
+      tokenAddresss,
+      new Big(readableAmountIn).minus(allowance).toFixed(0, 3),
+      decimal
+    );
+  }
 };
 
 // aurora call
@@ -459,19 +504,25 @@ export async function withdrawFromAurora({
 }: {
   token_id: string;
   amount: string;
-  decimal: string;
+  decimal: number;
 }) {
   if (token_id === 'aurora') {
     const callAddress = toAddress(getAuroraConfig().ethBridgeAddress);
 
-    await getAurora().call(
-      callAddress,
-      `0x00${Buffer.from(
-        getCurrentWallet().wallet.getAccountId(),
-        'utf-8'
-      ).toString('hex')}`,
-      Big(ETH_DECIMAL).mul(amount).round(0, 0).toFixed(0)
-    );
+    const input = `0x00${Buffer.from(
+      getCurrentWallet().wallet.getAccountId(),
+      'utf-8'
+    ).toString('hex')}`;
+
+    const value = new Big(ETH_DECIMAL).mul(amount).round(0, 0).toFixed(0);
+
+    // await getAurora().call(
+    //   callAddress,
+    //   input,
+    //   new Big(ETH_DECIMAL).mul(amount).round(0, 0).toFixed(0)
+    // );
+
+    return auroraCallToAction(callAddress, input, value);
   } else {
     const input = buildInput(Erc20Abi, 'withdrawToNear', [
       `0x${Buffer.from(getCurrentWallet().wallet.accountId, 'utf-8').toString(
@@ -481,7 +532,9 @@ export async function withdrawFromAurora({
     ]);
     const erc20Addr = await getErc20Addr(token_id);
 
-    await getAurora().call(toAddress(erc20Addr), input);
+    // await getAurora().call(toAddress(erc20Addr), input);
+
+    return auroraCallToAction(erc20Addr, input);
   }
 }
 
@@ -622,14 +675,10 @@ export const getAllTriPools = async () => {
 
   const allPools = await Promise.all(
     pairAddresses.map(async (pairInfo, i) => {
-      console.log(pairInfo);
-
       const nep141s = await getBatchTokenNearAcounts(pairInfo.ids);
       const tokenMetas = await Promise.all(
         nep141s.map((id: string) => ftGetTokenMetadata(id))
       );
-
-      console.log(tokenMetas);
 
       return getAuroraPool(
         address,
@@ -641,4 +690,73 @@ export const getAllTriPools = async () => {
     })
   );
   return allPools;
+};
+
+// not deposit to aurora
+export const auroraSwapTransactions = async (
+  tokenIn_id: string,
+  tokenOut_id: string,
+  readableMinAmountOut: string,
+  readableAmountIn: string,
+  decimalIn: number,
+  decimalOut: number
+) => {
+  try {
+    const transactions: Transaction[] = [];
+
+    const actions = [];
+
+    const address = auroraAddr(getCurrentWallet().wallet.getAccountId());
+
+    const tokenInAddress = await getErc20Addr(tokenIn_id);
+
+    const depositTransaction = depositToAuroraTransaction(
+      tokenIn_id,
+      readableAmountIn,
+      decimalIn,
+      address
+    );
+
+    transactions.push(depositTransaction);
+
+    const approveAction = await checkAllowanceAndApprove(
+      address,
+      tokenInAddress,
+      readableAmountIn,
+      decimalIn
+    );
+
+    if (approveAction) {
+      actions.push(approveAction);
+    }
+
+    const swapAction = await swap({
+      from: tokenIn_id,
+      to: tokenOut_id,
+      decimalIn,
+      decimalOut,
+      readableAmountIn,
+      readableAmountOut: readableMinAmountOut,
+      address,
+    });
+
+    actions.push(swapAction);
+
+    const withdrawAction = await withdrawFromAurora({
+      token_id: tokenOut_id,
+      amount: readableMinAmountOut,
+      decimal: decimalOut,
+    });
+
+    actions.push(withdrawAction);
+
+    transactions.push({
+      receiverId: 'aurora',
+      functionCalls: actions,
+    });
+
+    return transactions;
+  } catch (error) {
+    throw error;
+  }
 };

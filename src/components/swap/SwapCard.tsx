@@ -462,7 +462,7 @@ function DetailView({
           value={poolFeeDisplay}
         />
 
-        {isParallelSwap && pools.length > 1 && (
+        {isParallelSwap && (
           <ParallelSwapRoutesDetail
             tokenIn={tokenIn}
             tokenOut={tokenOut}
