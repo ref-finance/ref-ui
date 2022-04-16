@@ -89,6 +89,7 @@ interface EstimateSwapOptions {
   loadingTrigger?: boolean;
   setLoadingTrigger?: (loadingTrigger: boolean) => void;
   supportLedger?: boolean;
+  crossSwap?: boolean;
 }
 
 export interface ReservesMap {
@@ -220,6 +221,7 @@ export const estimateSwap = async ({
   setLoadingData,
   loadingTrigger,
   supportLedger,
+  crossSwap,
 }: EstimateSwapOptions): Promise<EstimateSwapView[]> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
 
@@ -340,6 +342,7 @@ export const estimateSwap = async ({
       tokenOut,
       amountIn
     );
+
     let hybridStableSmartOutputEstimate = hybridStableSmart.estimate.toString();
     if (
       new Big(hybridStableSmartOutputEstimate).gt(
@@ -362,6 +365,8 @@ export const estimateSwap = async ({
 
   return res;
 };
+
+// hybrid stable pool
 export async function getHybridStableSmart(
   tokenIn: TokenMetadata,
   tokenOut: TokenMetadata,
@@ -376,6 +381,7 @@ export async function getHybridStableSmart(
     STABLE_TOKEN_IDS.includes(tokenIn.id) &&
     STABLE_TOKEN_IDS.includes(tokenOut.id);
 
+  // cache stable pools
   if (
     STABLE_TOKEN_IDS.includes(tokenIn.id) ||
     STABLE_TOKEN_IDS.includes(tokenOut.id)
@@ -385,6 +391,7 @@ export async function getHybridStableSmart(
     return { actions: [], estimate: '0' };
   }
 
+  // for both stable coin, return
   if (bothStableCoin) {
     let stableOnlyResult = getStablePoolEstimate({
       tokenIn,
@@ -412,6 +419,7 @@ export async function getHybridStableSmart(
 
   var candidatePools = [];
 
+  //
   if (STABLE_TOKEN_IDS.includes(tokenIn.id)) {
     // first hop will be through stable pool.
     var pools1 = [stablePool];
@@ -458,6 +466,8 @@ export async function getHybridStableSmart(
   } else {
     return { actions: [], estimate: '0' };
   }
+
+  // find candidate pools
   for (var p1 of pools1) {
     let middleTokens = p1.tokenIds.filter((id: string) => id !== tokenIn.id);
     for (var middleToken of middleTokens) {
@@ -473,6 +483,8 @@ export async function getHybridStableSmart(
       }
     }
   }
+
+  // return best estimate
   if (candidatePools.length > 0) {
     const tokensMedata = await ftGetTokensMetadata(
       candidatePools.map((cp) => cp.map((p) => p.tokenIds).flat()).flat()

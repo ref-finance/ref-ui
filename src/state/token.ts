@@ -110,14 +110,10 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
 export const useWhitelistStableTokens = () => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
   useEffect(() => {
-    getWhitelistedTokens()
-      .then((tokenIds) => {
-        const allTokenIds = STABLE_TOKEN_IDS;
-        return Promise.all(
-          allTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
-        );
-      })
-      .then(setTokens);
+    const allTokenIds = STABLE_TOKEN_IDS;
+    Promise.all(allTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))).then(
+      setTokens
+    );
   }, []);
 
   return tokens;

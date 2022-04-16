@@ -344,8 +344,6 @@ export function CrossSwapTokens({
 
   if (!tokenIn || !tokenOut || !amountOut) return null;
 
-  console.log(tokenIn, tokenOut);
-
   return (
     <div className="py-5 px-4 border bg-cardBg border-gradientFrom rounded-xl flex items-center justify-between relative">
       <div className="flex flex-col justify-between">

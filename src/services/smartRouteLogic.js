@@ -2586,14 +2586,16 @@ export async function stableSmart(
   inputToken,
   outputToken,
   totalInput,
-  slippageTolerance
+  slippageTolerance,
+  maxPathLength = 3
 ) {
   let smartRouteActions = await getSmartRouteSwapActions(
     pools,
     inputToken,
     outputToken,
     totalInput,
-    slippageTolerance
+    slippageTolerance,
+    maxPathLength
   );
   return smartRouteActions;
 }

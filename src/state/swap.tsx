@@ -29,6 +29,7 @@ import getConfig from '~services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { CloseIcon } from '~components/icon/Actions';
 import db from '../store/RefDatabase';
+import { getAllTriPools } from '../services/aurora/aurora';
 import {
   POOL_TOKEN_REFRESH_INTERVAL,
   STABLE_TOKEN_IDS,
@@ -448,6 +449,8 @@ export const useCrossSwap = ({
   const getEstimate = () => {
     setCanSwap(false);
 
+    getAllTriPools().then((res) => console.log(res));
+
     // TODO: 1. get pool from aurora
     // TODO: 2. get all pools from ref
     //       3. combine all pools
@@ -462,6 +465,7 @@ export const useCrossSwap = ({
       intl,
       loadingTrigger: requestingTrigger,
       supportLedger,
+      crossSwap: true,
     })
       .then((estimates) => {
         if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
@@ -515,5 +519,6 @@ export const useCrossSwap = ({
     swapsToDo,
     isParallelSwap: swapsToDo?.every((e) => e.status === PoolMode.PARALLEL),
     isSmartRouteV2Swap: swapsToDo?.every((e) => e.status !== PoolMode.SMART),
+    setSwapError,
   };
 };

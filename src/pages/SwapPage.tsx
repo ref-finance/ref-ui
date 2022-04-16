@@ -76,7 +76,7 @@ function getAllTokens(refTokens: TokenMetadata[], triTokens: TokenMetadata[]) {
 }
 
 function SwapPage() {
-  const refTokens = useWhitelistTokens();
+  const refTokens = useWhitelistTokens(['aurora']);
 
   const [triTokens, setTriTokens] = useState<TokenMetadata[]>();
 

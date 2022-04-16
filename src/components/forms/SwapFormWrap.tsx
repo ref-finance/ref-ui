@@ -242,7 +242,7 @@ export function CrossSwapFormWrap({
           <h2 className="formTitle flex justify-end  font-bold text-xl text-white text-left pb-4">
             <div className="flex items-center">
               {tokensTitle}
-              {crossSwap ? null : (
+              {!requested ? null : (
                 <div
                   onClick={(e) => {
                     e.preventDefault();

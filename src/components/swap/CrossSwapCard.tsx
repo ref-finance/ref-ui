@@ -536,18 +536,11 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
   }, [allTokens]);
 
   useEffect(() => {
-    if (tokenIn) {
-      const tokenInId = tokenIn.id;
-      if (tokenInId) {
-        if (isSignedIn) {
-          ftGetBalance(tokenInId).then((available: string) =>
-            setTokenInBalanceFromNear(
-              toReadableNumber(tokenIn?.decimals, available)
-            )
-          );
-        }
-      }
-    }
+    if (!tokenIn || !isSignedIn) return;
+    const tokenInId = tokenIn.id;
+    ftGetBalance(tokenInId).then((available: string) =>
+      setTokenInBalanceFromNear(toReadableNumber(tokenIn?.decimals, available))
+    );
   }, [tokenIn, isSignedIn]);
 
   const {
@@ -560,6 +553,7 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
     isParallelSwap,
     swapsToDo,
     canSwap,
+    setSwapError,
   } = useCrossSwap({
     tokenIn: tokenIn,
     tokenInAmount,
@@ -669,7 +663,10 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
             <div className="flex items-center  absolute left-6 ">
               <span
                 className="text-white text-xl pr-2 px-0.5 cursor-pointer"
-                onClick={() => setRequested(false)}
+                onClick={() => {
+                  setRequested(false);
+                  setSwapError(null);
+                }}
               >
                 {'<'}
               </span>

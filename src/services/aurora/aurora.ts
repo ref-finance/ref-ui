@@ -27,7 +27,7 @@ import { near, wallet, keyStore } from '../near';
 import getConfig from '../config';
 import { BN } from 'bn.js';
 import { Pool } from '../pool';
-import { ftGetTokenMetadata } from '../ft-contract';
+import { ftGetTokenMetadata, TokenMetadata } from '../ft-contract';
 import { useEffect, useState } from 'react';
 import { scientificNotationToString } from '../../utils/numbers';
 
@@ -40,18 +40,31 @@ export const ETH_DECIMAL = 18;
 export const TGas = Big(10).pow(12);
 export const AuroraCallGas = new BN(TGas.mul(150).toFixed(0));
 
-const AuroraWalletConnection = new nearAPI.WalletConnection(near, 'aurora');
+// const AuroraWalletConnection = new nearAPI.WalletConnection(near, 'aurora');
 
-console.log(AuroraWalletConnection);
+// console.log(AuroraWalletConnection);
 
-//@ts-ignore
-export const aurora = new Engine(
-  AuroraWalletConnection,
-  keyStore,
-  wallet.account(),
-  getConfig().networkId,
-  'aurora'
-);
+// //@ts-ignore
+// export const aurora = new Engine(
+//   AuroraWalletConnection,
+//   keyStore,
+//   wallet.account(),
+//   getConfig().networkId,
+//   'aurora'
+// );
+
+const getAurora = () => {
+  const AuroraWalletConnection = new nearAPI.WalletConnection(near, 'aurora');
+
+  //@ts-ignore
+  return new Engine(
+    AuroraWalletConnection,
+    keyStore,
+    wallet.account(),
+    getConfig().networkId,
+    'aurora'
+  );
+};
 
 export const toAddress = (address: string | any) => {
   return typeof address === 'string'
@@ -65,7 +78,9 @@ export const auroraAddr = (nearAccount: string) =>
 
 // OK
 export const getErc20Addr = async (token_id: string) => {
-  return (await aurora.getAuroraErc20Address(new AccountID(token_id))).unwrap();
+  return (
+    await getAurora().getAuroraErc20Address(new AccountID(token_id))
+  ).unwrap();
 };
 
 export const buildInput = (abi: any[], methodName: string, params: any) => {
@@ -104,8 +119,8 @@ export function prepareAmount(value: any) {
 }
 
 export async function auroraCall(toAddress: any, input: any, value: any) {
-  if (value) return (await aurora.call(toAddress, input, value)).unwrap();
-  else return (await aurora.call(toAddress, input)).unwrap();
+  if (value) return (await getAurora().call(toAddress, input, value)).unwrap();
+  else return (await getAurora().call(toAddress, input)).unwrap();
 }
 
 export function auroraCallToTransaction(
@@ -169,8 +184,8 @@ export function parseAuroraPool({
     id,
     fee: 0.3,
     shareSupply: shares,
-    tvl: 0,
-    token0_ref_price: '0',
+    tvl: undefined,
+    token0_ref_price: undefined,
     tokenIds: [token1Id, token2Id],
     supplies: {
       [token1Id]: token1Supply,
@@ -183,7 +198,7 @@ export function parseAuroraPool({
 export async function getTotalSupply(pairAdd: string, address: string) {
   const input = buildInput(UniswapPairAbi, 'totalSupply', []);
   const res = (
-    await aurora.view(toAddress(address), toAddress(pairAdd), 0, input)
+    await getAurora().view(toAddress(address), toAddress(pairAdd), 0, input)
   ).unwrap();
   return decodeOutput(UniswapPairAbi, 'totalSupply', res);
 }
@@ -191,43 +206,50 @@ export async function getTotalSupply(pairAdd: string, address: string) {
 // OK
 export async function getAuroraPool(
   address: string,
-  tokenA: string,
-  tokenB: string,
-  pairAdd: string
+  tokenA: TokenMetadata,
+  tokenB: TokenMetadata,
+  pairAdd: string,
+  id: number,
+  pairName?: string
 ) {
   const input = buildInput(UniswapPairAbi, 'getReserves', []);
 
-  const tokens = await Promise.all([
-    ftGetTokenMetadata(tokenA),
-    ftGetTokenMetadata(tokenB),
-  ]);
-
-  // TODO: confirm if right to validate symbol
-  const pairId = tokens.map((t) => t.symbol).join('-');
-
   // no this pair to return null
-  if (!getAuroraConfig().Pairs[pairId]) return null;
+  const pairId = [tokenA.symbol, tokenB.symbol].join('-');
+  const pairIdReverse = [tokenB.symbol, tokenA.symbol].join('-');
+
+  console.log(pairId, pairIdReverse);
+
+  console.log(Object.keys(getAuroraConfig().Pairs));
+
+  const allPairs = Object.keys(getAuroraConfig().Pairs);
+
+  if (!allPairs.find((p) => p === pairId || p === pairIdReverse)) return null;
 
   const auroraAddrA =
-    tokenA === 'aurora' ? getAuroraConfig().WETH : await getErc20Addr(tokenA);
+    tokenA.id === 'aurora'
+      ? getAuroraConfig().WETH
+      : await getErc20Addr(tokenA.id);
   const auroraAddrB =
-    tokenB === 'aurora' ? getAuroraConfig().WETH : await getErc20Addr(tokenB);
+    tokenB.id === 'aurora'
+      ? getAuroraConfig().WETH
+      : await getErc20Addr(tokenB.id);
 
   const shares = (await getTotalSupply(pairAdd, address))?.[0];
 
   const res = (
-    await aurora.view(toAddress(address), toAddress(pairAdd), 0, input)
+    await getAurora().view(toAddress(address), toAddress(pairAdd), 0, input)
   ).unwrap();
 
   const decodedRes = decodeOutput(UniswapPairAbi, 'getReserves', res);
 
   return parseAuroraPool({
-    tokenA,
-    tokenB,
+    tokenA: tokenA.id,
+    tokenB: tokenB.id,
     shares,
     auroraAddrA,
     auroraAddrB,
-    id: 0, // TODO: encode tri pool id
+    id, // TODO: encode tri pool id
     decodedRes,
   });
 }
@@ -399,7 +421,12 @@ export const fetchAllowance = async (address: string, tokenAddress: string) => {
       getAuroraConfig().trisolarisAddress.toString(),
     ]);
     const res = (
-      await aurora.view(toAddress(address), toAddress(tokenAddress), 0, input)
+      await getAurora().view(
+        toAddress(address),
+        toAddress(tokenAddress),
+        0,
+        input
+      )
     ).unwrap();
     const out = decodeOutput(Erc20Abi, 'allowance', res);
     return Big(out[0]);
@@ -414,12 +441,12 @@ export const useErc20Allowance = (address: string, tokenAddress: string) => {
   const [allowance, setAllowance] = useState(null);
 
   useEffect(() => {
-    if (!aurora || !address || !tokenAddress) {
+    if (!address || !tokenAddress) {
       return;
     }
 
     fetchAllowance(address, tokenAddress).then(setAllowance);
-  }, [tokenAddress, address, aurora]);
+  }, [tokenAddress, address]);
 
   return allowance;
 };
@@ -437,7 +464,7 @@ export async function withdrawFromAurora({
   if (token_id === 'aurora') {
     const callAddress = toAddress(getAuroraConfig().ethBridgeAddress);
 
-    await aurora.call(
+    await getAurora().call(
       callAddress,
       `0x00${Buffer.from(
         getCurrentWallet().wallet.getAccountId(),
@@ -454,7 +481,7 @@ export async function withdrawFromAurora({
     ]);
     const erc20Addr = await getErc20Addr(token_id);
 
-    await aurora.call(toAddress(erc20Addr), input);
+    await getAurora().call(toAddress(erc20Addr), input);
   }
 }
 
@@ -465,7 +492,12 @@ export const fetchErc20Balance = async (
   try {
     const input = buildInput(Erc20Abi, 'balanceOf', [address]);
     const res = (
-      await aurora.view(toAddress(address), toAddress(tokenAddress), 0, input)
+      await getAurora().view(
+        toAddress(address),
+        toAddress(tokenAddress),
+        0,
+        input
+      )
     ).unwrap();
 
     const out = decodeOutput(Erc20Abi, 'balanceOf', res);
@@ -506,7 +538,7 @@ export const useErc20Balances = (address: string) => {
   const tokens = useAuroraTokens();
 
   useEffect(() => {
-    if (!aurora || !address || !tokens?.tokenAddresses) {
+    if (!address || !tokens?.tokenAddresses) {
       setTokenBalances(null);
       return;
     }
@@ -544,18 +576,69 @@ export const useErc20Balances = (address: string) => {
 // fetch eth balance
 export const fetchBalance = async (address: string) => {
   return scientificNotationToString(
-    Big((await aurora.getBalance(toAddress(address))).unwrap()).toString()
+    Big((await getAurora().getBalance(toAddress(address))).unwrap()).toString()
   );
 };
 
 // combine transactions to sign once
 
 export const getTokenNearAccount = async (auroraAddress: string) => {
-  return (await aurora.getNEP141Account(toAddress(auroraAddress))).unwrap();
+  return (
+    await getAurora().getNEP141Account(toAddress(auroraAddress))
+  ).unwrap();
 };
 
 export const getBatchTokenNearAcounts = async (ids: string[]) => {
   return await Promise.all(
-    ids.map((id) => getTokenNearAccount(id).then((res) => res?.id))
+    ids.map((id) =>
+      id === getAuroraConfig().WETH
+        ? 'aurora'
+        : getTokenNearAccount(id).then((res) => res?.id)
+    )
   );
+};
+
+export const getAllTriPools = async () => {
+  const allSupportPairs = getAuroraConfig().Pairs;
+  const auroraTokens = defaultTokenList.tokens;
+  const address = auroraAddr(getCurrentWallet().wallet.getAccountId());
+  const symbolToAddress = auroraTokens.reduce((pre, cur, i) => {
+    return {
+      ...pre,
+      [cur.symbol]: cur.address,
+    };
+  }, {});
+  const pairAddresses = Object.keys(allSupportPairs).map((pairName: string) => {
+    const names = pairName.split('-');
+    return {
+      ids: names.map((n) => {
+        if (n === 'ETH') return getAuroraConfig().WETH;
+        else return symbolToAddress[n];
+      }),
+      pairName,
+      pairAdd: allSupportPairs[pairName],
+    };
+  });
+
+  const allPools = await Promise.all(
+    pairAddresses.map(async (pairInfo, i) => {
+      console.log(pairInfo);
+
+      const nep141s = await getBatchTokenNearAcounts(pairInfo.ids);
+      const tokenMetas = await Promise.all(
+        nep141s.map((id: string) => ftGetTokenMetadata(id))
+      );
+
+      console.log(tokenMetas);
+
+      return getAuroraPool(
+        address,
+        tokenMetas[0],
+        tokenMetas[1],
+        pairInfo.pairAdd,
+        -1 * (i + 1)
+      );
+    })
+  );
+  return allPools;
 };

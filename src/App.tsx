@@ -23,7 +23,6 @@ import StableSwapPage from './pages/stable/StableSwapPage';
 import XrefPage from './pages/xref/XrefPage';
 import RiskPage from './pages/RiskPage';
 import {
-  aurora,
   auroraAddr,
   getAuroraPool,
   getErc20Addr,
@@ -52,6 +51,7 @@ import {
 import { getURLInfo, failToast } from './components/layout/transactionTipPopUp';
 
 import { senderSignedInToast } from '~components/layout/senderSignInPopUp';
+import { getAllTriPools } from './services/aurora/aurora';
 import {
   useErc20Balances,
   fetchAllowance,
