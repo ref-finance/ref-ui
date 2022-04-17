@@ -5,6 +5,7 @@ import {
   parseHexString,
   Engine,
   AccountID,
+  CallArgs,
 } from '@aurora-is-near/engine';
 
 import { toBufferBE } from 'bigint-buffer';
@@ -35,30 +36,31 @@ import { BN } from 'bn.js';
 import { Pool } from '../pool';
 import { ftGetTokenMetadata, TokenMetadata } from '../ft-contract';
 import { useEffect, useState } from 'react';
-import { scientificNotationToString } from '../../utils/numbers';
+import {
+  scientificNotationToString,
+  toReadableNumber,
+  percentLess,
+} from '../../utils/numbers';
 import { utils } from 'near-api-js';
+import { EstimateSwapView } from '../swap';
+import BigNumber from 'bignumber.js';
+import { toNonDivisibleNumber } from '../../utils/numbers';
+import { functionCall } from 'near-api-js/lib/transaction';
+import { ONE_YOCTO_NEAR } from '../near';
 
 const trisolaris = getAuroraConfig().trisolarisAddress;
 
 export const Zero64 = '0'.repeat(64);
 export const SHARE_DECIMAL = 18;
 export const PAIR_FEE = 3;
+export const oneETH = new Big(10).pow(18);
 export const ETH_DECIMAL = 18;
-export const TGas = Big(10).pow(12);
-export const AuroraCallGas = new BN(TGas.mul(150).toFixed(0));
+export const TGas = '1000000000000';
+// export const AuroraCallGas =
 
-// const AuroraWalletConnection = new nearAPI.WalletConnection(near, 'aurora');
+export const depositGas = '70000000000000';
 
-// console.log(AuroraWalletConnection);
-
-// //@ts-ignore
-// export const aurora = new Engine(
-//   AuroraWalletConnection,
-//   keyStore,
-//   wallet.account(),
-//   getConfig().networkId,
-//   'aurora'
-// );
+export const AuroraCallGas = '150000000000000';
 
 const getAurora = () => {
   const AuroraWalletConnection = new nearAPI.WalletConnection(near, 'aurora');
@@ -85,6 +87,8 @@ export const auroraAddr = (nearAccount: string) =>
 
 // OK
 export const getErc20Addr = async (token_id: string) => {
+  if (token_id === 'aurora') return getAuroraConfig().WETH;
+
   return (
     await getAurora().getAuroraErc20Address(new AccountID(token_id))
   ).unwrap();
@@ -131,23 +135,20 @@ export async function auroraCall(toAddress: any, input: any, value: any) {
 }
 
 export function auroraCallToAction(contract: any, input: any, value?: string) {
-  let args;
+  const inner_args = new FunctionCallArgsV2({
+    contract: contract.toBytes(),
+    value: prepareAmount(value || '0'),
+    input: prepareInput(input),
+  });
 
-  if (!value)
-    args = new FunctionCallArgsV1({
-      contract: contract.toBytes(),
-      input: prepareInput(input),
-    }).encode();
-  else
-    args = new FunctionCallArgsV2({
-      contract: contract.toBytes(),
-      value: prepareAmount(value),
-      input: prepareInput(input),
-    });
+  const args = new CallArgs({
+    functionCallArgsV2: inner_args,
+  }).encode();
+
   const action: RefFiFunctionCallOptions = {
     methodName: 'call',
-    args,
-    gas: scientificNotationToString(AuroraCallGas.toString()),
+    args: prepareInput(args),
+    gas: AuroraCallGas,
   };
 
   return action;
@@ -250,7 +251,7 @@ export async function getAuroraPool(
 }
 
 // sign and send transaction on token contract
-export function depositToAuroraTransaction(
+export async function depositToAuroraTransaction(
   token_id: string,
   readableAmount: string,
   decimal: number,
@@ -264,23 +265,21 @@ export function depositToAuroraTransaction(
           methodName: 'ft_transfer_call',
           args: {
             receiver_id: 'aurora',
-            amount: new Big(readableAmount).mul(ETH_DECIMAL).toFixed(0),
+            amount: new Big(readableAmount).mul(oneETH).toFixed(0),
             memo: '',
             msg:
-              getCurrentWallet().wallet.accountId +
+              getCurrentWallet().wallet.getAccountId() +
               ':' +
-              Zero64 + // fee
+              Zero64 +
               address.substring(2),
           },
-          gas: scientificNotationToString(
-            new BN(TGas.mul(70).toFixed(0)).toString()
-          ),
-          amount: scientificNotationToString(
-            new BN(utils.format.parseNearAmount('1')).toString()
-          ),
+          gas: depositGas,
+          amount: ONE_YOCTO_NEAR,
         },
       ],
     };
+
+    // return nearAPI.transactions.createTransaction()
   } else {
     return {
       receiverId: token_id,
@@ -289,13 +288,12 @@ export function depositToAuroraTransaction(
           methodName: 'ft_transfer_call',
           args: {
             receiver_id: 'aurora',
-            amount: Big(readableAmount).mul(decimal).toFixed(0),
+            amount: toNonDivisibleNumber(decimal, readableAmount),
             memo: '',
             msg: address.substring(2),
           },
-          gas: scientificNotationToString(
-            new BN(TGas.mul(70).toFixed(0)).toString()
-          ),
+          gas: depositGas,
+          amount: ONE_YOCTO_NEAR,
         },
       ],
     };
@@ -310,7 +308,7 @@ export function approveERC20(
 ) {
   const input = buildInput(Erc20Abi, 'increaseAllowance', [
     trisolaris,
-    Big(decimal).mul(readableAmount).round(0, 0).toFixed(0),
+    toNonDivisibleNumber(decimal, readableAmount),
   ]);
 
   return auroraCallToAction(toAddress(tokenAddresss), input);
@@ -337,8 +335,8 @@ export async function swapExactTokensForTokens({
   const toErc20 = await getErc20Addr(to);
 
   const input = buildInput(UniswapRouterAbi, 'swapExactTokensForTokens', [
-    new Big(decimalIn).mul(readableAmountIn).round(0, 0).toFixed(0), // need to check decimals in real case
-    new Big(decimalOut).mul(readableAmountOut).round(0, 0).toFixed(0), // need to check decimals in real case
+    toNonDivisibleNumber(decimalIn, readableAmountIn), // need to check decimals in real case
+    toNonDivisibleNumber(decimalOut, readableAmountOut), // need to check decimals in real case
     [fromErc20.id, toErc20.id],
     address,
     (Math.floor(new Date().getTime() / 1000) + 60).toString(), // 60s from now
@@ -364,13 +362,13 @@ export async function swapExactETHforTokens({
 }) {
   const toErc20 = await getErc20Addr(to);
   const input = buildInput(UniswapRouterAbi, 'swapExactETHForTokens', [
-    new Big(decimalOut).mul(readableAmountOut).round(0, 0).toFixed(0),
+    toNonDivisibleNumber(decimalOut, readableAmountOut),
     [getAuroraConfig().WETH, toErc20.id],
     address,
     (Math.floor(new Date().getTime() / 1000) + 60).toString(), // 60s from now
   ]);
 
-  const value = new Big(ETH_DECIMAL).mul(readableAmountIn).toFixed(0);
+  const value = toNonDivisibleNumber(ETH_DECIMAL, readableAmountIn);
 
   const callContract = toAddress(trisolaris);
 
@@ -395,8 +393,8 @@ export async function swapExactTokensforETH({
   const fromErc20 = await getErc20Addr(from);
 
   const input = buildInput(UniswapRouterAbi, 'swapExactTokensForETH', [
-    new Big(decimalIn).mul(readableAmountIn).round(0, 0).toFixed(0),
-    new Big(ETH_DECIMAL).mul(readableAmountOut).round(0, 0).toFixed(0),
+    toNonDivisibleNumber(decimalIn, readableAmountIn),
+    toNonDivisibleNumber(ETH_DECIMAL, readableAmountOut),
     [fromErc20.id, getAuroraConfig().WETH],
     address,
     (Math.floor(new Date().getTime() / 1000) + 60).toString(), // 60s from now
@@ -405,8 +403,6 @@ export async function swapExactTokensforETH({
   const callAddress = toAddress(trisolaris);
 
   return auroraCallToAction(callAddress, input);
-
-  // const res = (await aurora.call(toAddress(trisolaris), input)).unwrap();
 }
 
 export async function swap({
@@ -486,7 +482,10 @@ export const checkAllowanceAndApprove = async (
   readableAmountIn: string,
   decimal: number
 ) => {
+  if (tokenAddresss === getAuroraConfig().WETH) return null;
+
   const allowance = await fetchAllowance(address, tokenAddresss);
+
   if (allowance.lt(new Big(readableAmountIn))) {
     return approveERC20(
       tokenAddresss,
@@ -514,21 +513,16 @@ export async function withdrawFromAurora({
       'utf-8'
     ).toString('hex')}`;
 
-    const value = new Big(ETH_DECIMAL).mul(amount).round(0, 0).toFixed(0);
-
-    // await getAurora().call(
-    //   callAddress,
-    //   input,
-    //   new Big(ETH_DECIMAL).mul(amount).round(0, 0).toFixed(0)
-    // );
+    const value = new Big(oneETH).mul(amount).round(0, 0).toFixed(0);
 
     return auroraCallToAction(callAddress, input, value);
   } else {
     const input = buildInput(Erc20Abi, 'withdrawToNear', [
-      `0x${Buffer.from(getCurrentWallet().wallet.accountId, 'utf-8').toString(
-        'hex'
-      )}`,
-      Big(decimal).mul(amount).round(0, 0).toFixed(0), // need to check decimals in real case
+      `0x${Buffer.from(
+        getCurrentWallet().wallet.getAccountId(),
+        'utf-8'
+      ).toString('hex')}`,
+      toNonDivisibleNumber(decimal, amount), // need to check decimals in real case
     ]);
     const erc20Addr = await getErc20Addr(token_id);
 
@@ -693,14 +687,23 @@ export const getAllTriPools = async () => {
 };
 
 // not deposit to aurora
-export const auroraSwapTransactions = async (
-  tokenIn_id: string,
-  tokenOut_id: string,
-  readableMinAmountOut: string,
-  readableAmountIn: string,
-  decimalIn: number,
-  decimalOut: number
-) => {
+export const auroraSwapTransactions = async ({
+  tokenIn_id,
+  tokenOut_id,
+  swapTodos,
+  readableAmountIn,
+  decimalIn,
+  decimalOut,
+  slippageTolerance,
+}: {
+  tokenIn_id: string;
+  tokenOut_id: string;
+  swapTodos: EstimateSwapView[];
+  readableAmountIn: string;
+  decimalIn: number;
+  decimalOut: number;
+  slippageTolerance: number;
+}) => {
   try {
     const transactions: Transaction[] = [];
 
@@ -710,7 +713,7 @@ export const auroraSwapTransactions = async (
 
     const tokenInAddress = await getErc20Addr(tokenIn_id);
 
-    const depositTransaction = depositToAuroraTransaction(
+    const depositTransaction = await depositToAuroraTransaction(
       tokenIn_id,
       readableAmountIn,
       decimalIn,
@@ -730,21 +733,36 @@ export const auroraSwapTransactions = async (
       actions.push(approveAction);
     }
 
-    const swapAction = await swap({
-      from: tokenIn_id,
-      to: tokenOut_id,
-      decimalIn,
-      decimalOut,
-      readableAmountIn,
-      readableAmountOut: readableMinAmountOut,
-      address,
-    });
+    const swapActions = await Promise.all(
+      swapTodos.map((todo) => {
+        return swap({
+          from: tokenIn_id,
+          to: tokenOut_id,
+          decimalIn,
+          decimalOut,
+          readableAmountIn: toReadableNumber(
+            decimalIn,
+            todo.pool.partialAmountIn
+          ),
+          readableAmountOut: percentLess(decimalOut, todo.estimate),
+          address,
+        });
+      })
+    );
 
-    actions.push(swapAction);
+    swapActions.map((a) => actions.push(a));
+
+    const totalMinAmountOut = scientificNotationToString(
+      BigNumber.sum(
+        ...swapTodos.map((todo) =>
+          percentLess(slippageTolerance, todo.estimate)
+        )
+      ).toString()
+    );
 
     const withdrawAction = await withdrawFromAurora({
       token_id: tokenOut_id,
-      amount: readableMinAmountOut,
+      amount: totalMinAmountOut,
       decimal: decimalOut,
     });
 

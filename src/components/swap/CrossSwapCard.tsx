@@ -566,8 +566,6 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
     setRequested,
   });
 
-  console.log(swapsToDo);
-
   const priceImpactValueSmartRouting = useMemo(() => {
     try {
       if (swapsToDo?.length === 2 && swapsToDo[0].status === PoolMode.SMART) {
@@ -629,13 +627,15 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
 
     if (!requested) setRequestingTrigger(true);
 
-    const ifDoubleCheck =
-      new BigNumber(tokenInAmount).isLessThanOrEqualTo(
-        new BigNumber(tokenInMax)
-      ) && Number(PriceImpactValue) > 2;
+    // const ifDoubleCheck =
+    //   new BigNumber(tokenInAmount).isLessThanOrEqualTo(
+    //     new BigNumber(tokenInMax)
+    //   ) && Number(PriceImpactValue) > 2;
 
-    if (ifDoubleCheck) setDoubleCheckOpen(true);
-    else makeSwap(useNearBalance);
+    // if (ifDoubleCheck) setDoubleCheckOpen(true);
+    // else
+
+    makeSwap(useNearBalance);
   };
 
   return (
@@ -758,19 +758,18 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
           </div>
         ) : null}
       </CrossSwapFormWrap>
-      {/* <DoubleCheckModal
+      <DoubleCheckModal
         isOpen={doubleCheckOpen}
         onRequestClose={() => {
           setDoubleCheckOpen(false);
           setShowSwapLoading(false);
-          setLoadingPause(false);
         }}
         tokenIn={tokenIn}
         tokenOut={tokenOut}
         from={tokenInAmount}
         onSwap={() => makeSwap(useNearBalance)}
         priceImpactValue={PriceImpactValue}
-      /> */}
+      />
     </>
   );
 }

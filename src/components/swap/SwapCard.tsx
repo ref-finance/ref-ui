@@ -484,7 +484,7 @@ function DetailView({
 export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const { allTokens } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
-  const [tokenInAmount, setTokenInAmount] = useState<string>('1');
+  const [tokenInAmount, setTokenInAmount] = useState<string>('0.1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
 
@@ -652,13 +652,15 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    const ifDoubleCheck =
-      new BigNumber(tokenInAmount).isLessThanOrEqualTo(
-        new BigNumber(tokenInMax)
-      ) && Number(PriceImpactValue) > 2;
+    // const ifDoubleCheck =
+    //   new BigNumber(tokenInAmount).isLessThanOrEqualTo(
+    //     new BigNumber(tokenInMax)
+    //   ) && Number(PriceImpactValue) > 2;
 
-    if (ifDoubleCheck) setDoubleCheckOpen(true);
-    else makeSwap(useNearBalance);
+    // if (ifDoubleCheck) setDoubleCheckOpen(true);
+    // else
+
+    makeSwap(useNearBalance);
   };
 
   return (

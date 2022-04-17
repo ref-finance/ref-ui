@@ -67,6 +67,7 @@ import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity'
 import { getSmartRouteSwapActions, stableSmart } from './smartRouteLogic';
 import { getCurrentWallet } from '../utils/sender-wallet';
 import { multiply } from '../utils/numbers';
+import { auroraSwapTransactions } from './aurora/aurora';
 
 // Big.strict = false;
 const FEE_DIVISOR = 10000;
@@ -327,8 +328,6 @@ export const estimateSwap = async ({
   );
 
   let res = stableSmartActionsV2;
-
-  console.log(res);
 
   let smartRouteV2OutputEstimate = stableSmartActionsV2
     .filter((a: any) => a.outputToken == a.routeOutputToken)
@@ -662,8 +661,25 @@ export const instantSwap = async ({
   await registerToken(tokenOut);
 
   if (wallet.isSignedIn()) {
+    // parallel swap ok
     if (isParallelSwap) {
-      const swapActions = swapsToDo.map((s2d) => {
+      const refSwapTodos = swapsToDo.filter((e) => e.pool.Dex === 'ref');
+
+      const triSwapTodos = swapsToDo.filter((e) => e.pool.Dex === 'tri');
+
+      const triSwapTransactions = await auroraSwapTransactions({
+        tokenIn_id: tokenIn.id,
+        tokenOut_id: tokenOut.id,
+        swapTodos: triSwapTodos,
+        readableAmountIn: amountIn,
+        decimalIn: tokenIn.decimals,
+        decimalOut: tokenOut.decimals,
+        slippageTolerance,
+      });
+
+      triSwapTransactions.forEach((t) => transactions.push(t));
+
+      const refSwapActions = refSwapTodos.map((s2d) => {
         let minTokenOutAmount = s2d.estimate
           ? percentLess(slippageTolerance, s2d.estimate)
           : '0';
@@ -694,12 +710,11 @@ export const instantSwap = async ({
           amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
           msg: JSON.stringify({
             force: 0,
-            actions: swapActions,
+            actions: refSwapActions,
           }),
         },
         gas: '180000000000000',
         amount: ONE_YOCTO_NEAR,
-        // deposit: '1',
       });
 
       transactions.push({
