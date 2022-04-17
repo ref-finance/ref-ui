@@ -17,7 +17,12 @@ import {
 import Loading from '../components/layout/Loading';
 import { wallet as webWallet } from '../services/near';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { NearIcon, RefIcon, WalletIcon } from '../components/icon/Common';
+import {
+  NearIcon,
+  RefIcon,
+  WalletIcon,
+  MappingAccountIcon,
+} from '../components/icon/Common';
 import {
   toReadableNumber,
   toInternationalCurrencySystemNature,
@@ -40,10 +45,25 @@ import {
 } from '../utils/sender-wallet';
 
 import { getSenderLoginRes } from '../utils/sender-wallet';
-import { Checkbox, CheckboxSelected } from '../components/icon';
+import { Checkbox, CheckboxSelected, Near } from '../components/icon';
 import { GradientButton, ButtonTextWrapper } from '../components/button/Button';
 import { CloseIcon } from '../components/icon/Actions';
 import { AccountTipMan } from '../components/icon/AccountTipMan';
+import { defaultTokenList } from '../services/aurora/config';
+import {
+  batchWithdrawFromAurora,
+  useAuroraBalancesNearMapping,
+} from '../services/aurora/aurora';
+import {
+  SwapCross,
+  AuroraIcon,
+  ConnectDot,
+} from '../components/icon/CrossSwap';
+import {
+  useAuroraBalances,
+  auroraAddr,
+  useAuroraTokens,
+} from '../services/aurora/aurora';
 
 const REF_MAN_ACCOUNT_TIP_KEY = 'REF_MAN_ACCOUNT_TIP_VALUE';
 
@@ -57,7 +77,7 @@ function RefAccountTipMan({
       className="absolute RefAccountTipMan"
       style={{
         top: '-70px',
-        right: '160px',
+        right: '210px',
       }}
     >
       <span>
@@ -107,14 +127,29 @@ const accountSortFun = (
     currentSort.split('-')[1] == 'down' && !hasRefBalanceOver ? 'up' : 'down';
 
   userTokens.sort((token1: TokenMetadata, token2: TokenMetadata) => {
-    const { near: near1, ref: ref1 } = token1;
-    const { near: near2, ref: ref2 } = token2;
+    const { near: near1, ref: ref1, aurora: aurora1 } = token1;
+    const { near: near2, ref: ref2, aurora: aurora2 } = token2;
     const near1Balance = new BigNumber(near1);
     const ref1Balance = new BigNumber(ref1);
+
+    const aurora1Balance = new BigNumber(aurora1);
     const near2Balance = new BigNumber(near2);
     const ref2Balance = new BigNumber(ref2);
-    const a = sortBy == 'near' ? near1Balance : ref1Balance;
-    const b = sortBy == 'near' ? near2Balance : ref2Balance;
+    const aurora2Balance = new BigNumber(aurora2);
+
+    const a =
+      sortBy == 'near'
+        ? near1Balance
+        : sortBy === 'ref'
+        ? ref1Balance
+        : aurora1Balance;
+    const b =
+      sortBy == 'near'
+        ? near2Balance
+        : sortBy === 'ref'
+        ? ref2Balance
+        : aurora2Balance;
+
     if (sortDirection == 'down') {
       if (a.isGreaterThan(b)) {
         return -1;
@@ -149,6 +184,19 @@ const getRefBalance = (item: TokenMetadata) => {
     return toInternationalCurrencySystemNature(bigRef.toString());
   }
 };
+const getAuroraBalance = (item: TokenMetadata) => {
+  const { aurora } = item;
+  const bigAurora = new BigNumber(aurora);
+
+  if (bigAurora.isEqualTo('0')) {
+    return '-';
+  } else if (bigAurora.isLessThan(0.01)) {
+    return '<0.01';
+  } else {
+    return toInternationalCurrencySystemNature(bigAurora.toString());
+  }
+};
+
 const getWalletBalance = (item: TokenMetadata) => {
   const { near } = item;
   const bigNear = new BigNumber(near);
@@ -214,12 +262,14 @@ const WithdrawTip = () => {
   );
 };
 function AccountTable(props: any) {
-  const { userTokens, hasRefBalanceOver } = props;
+  const { userTokens, hasRefBalanceOver, showCrossBalance } = props;
   const [tokensSort, setTokensSort] = useState(userTokens);
   const [currentSort, setCurrentSort] = useState('');
   const [checkedMap, setCheckedMap] = useState({});
   const [checkAll, setCheckALl] = useState(false);
   const [refAccountHasToken, setRefAccountHasToken] = useState();
+  const [auroraAccountHasToken, setAuroraAccountHasToken] = useState();
+
   const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false);
   useEffect(() => {
     sort(null, hasRefBalanceOver);
@@ -227,7 +277,15 @@ function AccountTable(props: any) {
       const { ref } = token;
       if (Number(ref) > 0) return true;
     });
+
+    const auroraAccountHasToken = tokensSort.filter((token: TokenMetadata) => {
+      const { aurora } = token;
+      return Number(aurora) > 0;
+    });
+
     setRefAccountHasToken(refAccountHasToken.length);
+
+    setAuroraAccountHasToken(auroraAccountHasToken.length);
   }, [hasRefBalanceOver]);
 
   const sort = (e?: any, hasRefBalanceOver?: boolean) => {
@@ -249,15 +307,22 @@ function AccountTable(props: any) {
     let count = 0;
     if (newStatus) {
       for (let i = 0; i < tokensSort.length; i++) {
-        const { id, ref, decimals } = tokensSort[i];
+        const { id, ref, aurora, decimals } = tokensSort[i];
         if (count >= withdraw_number_at_once) {
           break;
-        } else if (Number(ref) > 0) {
+        } else if (!showCrossBalance && Number(ref) > 0) {
           ++count;
           newCheckedMap[id] = {
             id,
             decimals,
             amount: ref,
+          };
+        } else if (showCrossBalance && Number(aurora) > 0) {
+          ++count;
+          newCheckedMap[id] = {
+            id,
+            decimals,
+            amount: aurora,
           };
         }
       }
@@ -268,32 +333,55 @@ function AccountTable(props: any) {
     setCheckedMap(newCheckedMap);
   }
   function clickCheckbox(token: TokenMetadata) {
-    const { id, ref, decimals } = token;
-    if (checkedMap[id] || Number(ref) == 0) {
-      delete checkedMap[id];
-    } else if (Object.keys(checkedMap).length < withdraw_number_at_once) {
-      checkedMap[id] = {
-        id,
-        decimals,
-        amount: ref,
-      };
-    }
-    if (
-      Object.keys(checkedMap).length ==
-      Math.min(withdraw_number_at_once, refAccountHasToken)
-    ) {
-      setCheckALl(true);
+    if (!showCrossBalance) {
+      const { id, ref, decimals } = token;
+      if (checkedMap[id] || Number(ref) == 0) {
+        delete checkedMap[id];
+      } else if (Object.keys(checkedMap).length < withdraw_number_at_once) {
+        checkedMap[id] = {
+          id,
+          decimals,
+          amount: ref,
+        };
+      }
+      if (
+        Object.keys(checkedMap).length ==
+        Math.min(withdraw_number_at_once, refAccountHasToken)
+      ) {
+        setCheckALl(true);
+      } else {
+        setCheckALl(false);
+      }
+      setCheckedMap(Object.assign({}, checkedMap));
     } else {
-      setCheckALl(false);
+      const { id, aurora, decimals } = token;
+      if (checkedMap[id] || Number(aurora) == 0) {
+        delete checkedMap[id];
+      } else if (Object.keys(checkedMap).length < withdraw_number_at_once) {
+        checkedMap[id] = {
+          id,
+          decimals,
+          amount: aurora,
+        };
+      }
+      if (
+        Object.keys(checkedMap).length ==
+        Math.min(withdraw_number_at_once, auroraAccountHasToken)
+      ) {
+        setCheckALl(true);
+      } else {
+        setCheckALl(false);
+      }
+      setCheckedMap(Object.assign({}, checkedMap));
     }
-    setCheckedMap(Object.assign({}, checkedMap));
   }
   function doWithDraw() {
     setWithdrawLoading(true);
-    batchWithdraw(checkedMap);
+    if (showCrossBalance) batchWithdrawFromAurora(checkedMap);
+    else batchWithdraw(checkedMap);
   }
   return (
-    <table className="w-full text-sm text-gray-400 mt-8 table-auto">
+    <table className="w-full text-sm text-gray-400 mt-2 table-auto">
       <thead>
         <tr className="h-9">
           <th className="pl-6 text-left">
@@ -316,7 +404,7 @@ function AccountTable(props: any) {
               />
             </span>
           </th>
-          <th className={`text-right`}>
+          <th className={`text-right ${!showCrossBalance ? 'hidden' : ''}`}>
             <span
               onClick={(e) => sort(e, false)}
               data-sort="ref"
@@ -333,7 +421,31 @@ function AccountTable(props: any) {
               />
             </span>
           </th>
-          <th className={`pl-8 ${refAccountHasToken ? '' : 'hidden'}`}>
+          <th className={`text-right ${showCrossBalance ? '' : 'hidden'}`}>
+            <span
+              onClick={(e) => sort(e, false)}
+              data-sort="aurora"
+              className={`flex items-center w-full justify-end ${
+                currentSort.indexOf('aurora') > -1 ? 'text-greenColor' : ''
+              } ${auroraAccountHasToken ? '' : 'hidden'}`}
+            >
+              <MappingAccountIcon />
+              <label className="mx-1 cursor-pointer">Mapping</label>
+              <TiArrowSortedUp
+                className={`cursor-pointer ${
+                  currentSort == 'aurora-down' ? 'transform rotate-180' : ''
+                }`}
+              />
+            </span>
+          </th>
+          <th
+            className={`pl-8 ${
+              (auroraAccountHasToken && showCrossBalance) ||
+              (refAccountHasToken && !showCrossBalance)
+                ? ''
+                : 'hidden'
+            }`}
+          >
             <span className="flex items-center">
               <label className="cursor-pointer" onClick={clickAllCheckbox}>
                 {checkAll ? (
@@ -353,7 +465,8 @@ function AccountTable(props: any) {
             <tr
               className={`h-16 border-t border-borderColor border-opacity-30 hover:bg-chartBg hover:bg-opacity-20 ${
                 new BigNumber(item.near).isEqualTo('0') &&
-                new BigNumber(item.ref).isEqualTo('0')
+                new BigNumber(item.ref).isEqualTo('0') &&
+                new BigNumber(item.aurora)
                   ? 'hidden'
                   : ''
               }`}
@@ -386,23 +499,44 @@ function AccountTable(props: any) {
                 </span>
               </td>
               <td
-                width="15%"
-                className="text-right text-white font-semibold text-base"
+                width={!showCrossBalance ? '15%' : '0'}
+                className={`text-right text-white font-semibold text-base `}
               >
                 <span
-                  className={`${refAccountHasToken ? '' : 'hidden'}`}
                   title={item.ref.toString()}
+                  className={`${
+                    refAccountHasToken && !showCrossBalance ? '' : 'hidden'
+                  }`}
                 >
                   {getRefBalance(item)}
                 </span>
               </td>
               <td
+                width={showCrossBalance ? '15%' : '0'}
+                className={`text-right text-white font-semibold text-base`}
+              >
+                <span
+                  title={item.aurora.toString()}
+                  className={`${
+                    auroraAccountHasToken && showCrossBalance ? '' : 'hidden'
+                  }`}
+                >
+                  {getAuroraBalance(item)}
+                </span>
+              </td>
+
+              <td
                 width="15%"
-                className={`pl-8 ${refAccountHasToken ? '' : 'hidden'}`}
+                className={`pl-8 ${
+                  (auroraAccountHasToken && showCrossBalance) ||
+                  (refAccountHasToken && !showCrossBalance)
+                    ? ''
+                    : 'hidden'
+                }`}
               >
                 <label
                   className={`${
-                    Number(item.ref) > 0
+                    Number(item.ref) || Number(item.aurora) > 0
                       ? 'cursor-pointer'
                       : 'cursor-not-allowed'
                   } `}
@@ -422,11 +556,15 @@ function AccountTable(props: any) {
         })}
         <tr
           className={`h-16 border-t border-borderColor border-opacity-30 ${
-            refAccountHasToken ? '' : 'hidden'
+            (refAccountHasToken && !showCrossBalance) ||
+            (auroraAccountHasToken && showCrossBalance)
+              ? ''
+              : 'hidden'
           }`}
         >
           <td></td>
           <td></td>
+          {showCrossBalance ? <td></td> : null}
           <td colSpan={2}>
             <div className="flex justify-center">
               <GradientButton
@@ -726,26 +864,91 @@ function Account(props: any) {
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const auroraAddress = auroraAddr(getCurrentWallet().wallet.getAccountId());
 
+  const displayAddr = `${auroraAddress?.substring(
+    0,
+    6
+  )}...${auroraAddress?.substring(
+    auroraAddress.length - 6,
+    auroraAddress.length
+  )}`;
   const { wallet } = getCurrentWallet();
 
+  const [showCrossBalance, setShowCrossBalance] = useState(false);
+
+  const accountTitle = !showCrossBalance ? (
+    <>
+      <NearIcon />
+      <label className="ml-3 text-xl">
+        {isSignedIn && getAccountName(wallet.getAccountId())}
+      </label>
+    </>
+  ) : (
+    <div className="flex items-center">
+      <div
+        className="rounded-2xl flex items-center text-sm text-white py-0.5 px-1.5 mr-px"
+        style={{
+          background: 'rgba(255, 255, 255, 0.15)',
+        }}
+      >
+        <div className="mx-1">
+          <Near color="white" />
+        </div>
+
+        <div className="mx-1">{getCurrentWallet().wallet.getAccountId()}</div>
+      </div>
+
+      <ConnectDot />
+      <ConnectDot />
+
+      <div
+        className="rounded-2xl flex items-center text-sm text-white py-0.5 px-1.5 ml-px"
+        style={{
+          background: 'rgba(112, 212, 75, 0.15)',
+        }}
+      >
+        <div className="mx-1">
+          <AuroraIcon />
+        </div>
+
+        <div className="mx-1">{displayAddr}</div>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="flex justify-center relative w-1/2 m-auto mt-16 xs:hidden md:hidden pb-5">
+    <div className="justify-center relative w-1/2 m-auto mt-16 xs:hidden md:hidden pb-5 flex flex-col">
       {visible ? <RefAccountTipMan setShowTip={setVisible} /> : null}
 
-      <Card className="w-full pt-6 pb-15 px-0">
-        <div className="flex items-center justify-between pb-4 px-6">
-          <div className="flex items-center font-semibold text-white">
-            <NearIcon />
-            <label className="ml-3 text-xl">
-              {isSignedIn && getAccountName(wallet.getAccountId())}
-            </label>
+      <div className="flex items-center justify-between ">
+        <div
+          className="flex items-center font-semibold bg-cardBg rounded-t-lg text-white w-full"
+          style={{
+            height: '66px',
+          }}
+        >
+          <div className="relative top-2 left-8 flex items-center">
+            {accountTitle}
           </div>
         </div>
+
+        <div
+          className="pb-4 pl-5 accountPage-pc-top-right relative cursor-pointer"
+          onClick={() => {
+            setShowCrossBalance(!showCrossBalance);
+          }}
+        >
+          <SwapCross ifCross={showCrossBalance} />
+        </div>
+      </div>
+
+      <Card className=" w-full pt-2 pb-15 px-0 rounded-tl-none">
         <AccountTable
           userTokens={userTokens}
           hasRefBalanceOver={hasRefBalanceOver}
-        ></AccountTable>
+          showCrossBalance={showCrossBalance}
+        />
       </Card>
     </div>
   );
@@ -974,14 +1177,23 @@ export function AccountPage() {
     return null;
   }
 
-  const userTokens = useUserRegisteredTokensAllAndNearBalance(isSignedIn);
-  const balances = useTokenBalances();
+  const auroraAddress = auroraAddr(getCurrentWallet().wallet.getAccountId());
 
-  if (!userTokens || !balances) return <Loading />;
+  const userTokens = useUserRegisteredTokensAllAndNearBalance(isSignedIn);
+  const balances = useTokenBalances(); // inner account balance
+
+  const auroaBalances = useAuroraBalancesNearMapping(auroraAddress);
+
+  if (!userTokens || !balances || !auroaBalances) return <Loading />;
+
   userTokens.forEach((token: TokenMetadata) => {
-    const { decimals, id, nearNonVisible } = token;
+    const { decimals, id, nearNonVisible, symbol } = token;
     token.ref = toReadableNumber(decimals, balances[id] || '0');
     token.near = toReadableNumber(decimals, (nearNonVisible || '0').toString());
+    token.aurora = toReadableNumber(
+      decimals,
+      auroaBalances[id] || '0'
+    ).toString();
   });
   return (
     <>

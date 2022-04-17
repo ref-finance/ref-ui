@@ -485,8 +485,6 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
 
-  const crossSwap = globalState.crossSwap;
-
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();
 

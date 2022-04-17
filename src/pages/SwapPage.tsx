@@ -110,7 +110,7 @@ function SwapPage() {
 
   return (
     <div className="swap">
-      <section className="lg:w-560px md:w-5/6 xs:w-full xs:p-2 m-auto relative">
+      <section className="lg:w-560px md:w-5/6 xs:w-full xs:p-2 m-auto relative ">
         <SwapTab ifCross={swapTab === 'cross'} setSwapTab={setSwapTab} />
 
         {swapTab === 'cross' ? (

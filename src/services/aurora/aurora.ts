@@ -46,7 +46,7 @@ import { EstimateSwapView } from '../swap';
 import BigNumber from 'bignumber.js';
 import { toNonDivisibleNumber } from '../../utils/numbers';
 import { functionCall } from 'near-api-js/lib/transaction';
-import { ONE_YOCTO_NEAR } from '../near';
+import { ONE_YOCTO_NEAR, executeMultipleTransactions } from '../near';
 
 const trisolaris = getAuroraConfig().trisolarisAddress;
 
@@ -451,7 +451,6 @@ export async function swap({
   }
 }
 
-// OK
 export const fetchAllowance = async (address: string, tokenAddress: string) => {
   try {
     const input = buildInput(Erc20Abi, 'allowance', [
@@ -473,8 +472,6 @@ export const fetchAllowance = async (address: string, tokenAddress: string) => {
     return new Big(0);
   }
 };
-
-// OK
 
 export const checkAllowanceAndApprove = async (
   address: string,
@@ -622,6 +619,30 @@ export const useAuroraBalances = (address: string) => {
   }, [address, tokens]);
 
   return tokenBalances;
+};
+
+export const useAuroraBalancesNearMapping = (address: string) => {
+  const auroraMapping = useAuroraBalances(address);
+
+  const [nearMapping, setNearMapping] = useState(null);
+
+  useEffect(() => {
+    if (!auroraMapping) return;
+    const auroraAddresses = Object.keys(auroraMapping);
+
+    getBatchTokenNearAcounts(auroraAddresses)
+      .then((nearAccounts) => {
+        return nearAccounts.reduce((pre, cur, i) => {
+          return {
+            ...pre,
+            [cur]: Object.values(auroraMapping)[i],
+          };
+        }, {});
+      })
+      .then(setNearMapping);
+  }, [auroraMapping]);
+
+  return nearMapping;
 };
 
 // fetch eth balance
@@ -781,4 +802,35 @@ export const auroraSwapTransactions = async ({
   } catch (error) {
     throw error;
   }
+};
+
+export const batchWithdrawFromAurora = async (
+  // tokens: TokenMetadata[],
+  // readableAmounts: []
+  tokenMap: any
+) => {
+  const tokenIdList = Object.keys(tokenMap);
+
+  const tokens = await Promise.all(
+    tokenIdList.map((id) => ftGetTokenMetadata(id))
+  );
+
+  const actions = await Promise.all(
+    tokens.map((tk, i) =>
+      withdrawFromAurora({
+        token_id: tk.id,
+        amount: tokenMap[tk.id].amount,
+        decimal: tk.decimals,
+      })
+    )
+  );
+
+  console.log(actions);
+
+  return executeMultipleTransactions([
+    {
+      receiverId: 'aurora',
+      functionCalls: actions,
+    },
+  ]);
 };

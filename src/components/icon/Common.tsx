@@ -390,6 +390,7 @@ const RefGuideIcon = (props: any) => {
     </svg>
   );
 };
+
 const GroundShadow = (props: any) => {
   const { width, height, className, ...rest } = props;
   return (
@@ -1521,6 +1522,48 @@ export function OutLinkIcon(props: any) {
     </svg>
   );
 }
+
+export const MappingAccountIcon = () => {
+  const Unit = () => {
+    return (
+      <svg
+        width="15"
+        height="16"
+        viewBox="0 0 15 16"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <rect
+          x="-0.707107"
+          y="8"
+          width="11.3615"
+          height="11.3615"
+          rx="3.5"
+          transform="rotate(-45 -0.707107 8)"
+          stroke="#00C6A2"
+        />
+      </svg>
+    );
+  };
+
+  return (
+    <div className="w-5 flex items-center justify-end">
+      <div
+        style={{
+          position: 'relative',
+          left: '10px',
+        }}
+      >
+        <Unit />
+      </div>
+
+      <div>
+        <Unit />
+      </div>
+    </div>
+  );
+};
+
 export {
   Learn_more,
   CloseBtn,

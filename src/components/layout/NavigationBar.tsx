@@ -689,8 +689,6 @@ function NavigationBar() {
 
   const [hasAuroraBalance, setHasAuroraBalance] = useState(false);
 
-  console.log(auroraBalances);
-
   useEffect(() => {
     if (!auroraBalances || !auroraTokens) return;
 
@@ -701,7 +699,7 @@ function NavigationBar() {
         return (
           Number(
             toReadableNumber(
-              auroraTokens.tokensByAddress[address].decimals,
+              auroraTokens.tokensByAddress[address]?.decimals,
               balance as string
             )
           ) > 0.001
