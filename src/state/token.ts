@@ -108,12 +108,11 @@ export const useTriTokens = () => {
       ).then(setTriTokens);
     });
   }, []);
-  return triTokens;
+  return triTokens?.filter((token) => token.id);
 };
 
 export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
-
   useEffect(() => {
     getWhitelistedTokens()
       .then((tokenIds) => {
@@ -123,7 +122,7 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
         );
       })
       .then(setTokens);
-  }, [getCurrentWallet().wallet.isSignedIn()]);
+  }, [getCurrentWallet().wallet.isSignedIn(), extraTokenIds.join('-')]);
 
   return tokens?.map((t) => ({ ...t, onRef: true }));
 };
@@ -298,7 +297,7 @@ export const useTokensData = (
           });
       }
     }
-  }, [balances]);
+  }, [balances, tokens.length]);
 
   useEffect(() => {
     trigger();

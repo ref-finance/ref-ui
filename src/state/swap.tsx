@@ -152,7 +152,6 @@ export const useSwap = ({
         setTokenOutAmount('0');
         return;
       }
-      console.log('dot');
 
       estimateSwap({
         tokenIn,
@@ -165,7 +164,6 @@ export const useSwap = ({
       })
         .then((estimates) => {
           if (!estimates) throw '';
-          console.log('dot');
 
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
             setAverageFee(estimates);

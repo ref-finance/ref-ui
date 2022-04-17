@@ -10,6 +10,7 @@ import { SwapCross } from '../components/icon/CrossSwap';
 import {
   getTokenNearAccount,
   getBatchTokenNearAcounts,
+  useTriTokenIdsOnRef,
 } from '../services/aurora/aurora';
 import { TokenMetadata, ftGetTokenMetadata } from '../services/ft-contract';
 import { defaultTokenList } from '../services/aurora/config';
@@ -89,15 +90,17 @@ function getAllTokens(refTokens: TokenMetadata[], triTokens: TokenMetadata[]) {
 }
 
 function SwapPage() {
-  const refTokens = useWhitelistTokens(['aurora']);
+  const triTokenIds = useTriTokenIdsOnRef();
+
+  const refTokens = useWhitelistTokens((triTokenIds || []).concat(['aurora']));
 
   const triTokens = useTriTokens();
 
   const [swapTab, setSwapTab] = useState(
-    localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) || 'normal'
+    localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY).toString() || 'normal'
   );
 
-  if (!refTokens || !triTokens) return <Loading />;
+  if (!refTokens || !triTokens || !triTokenIds) return <Loading />;
 
   const allTokens = getAllTokens(refTokens, triTokens);
 

@@ -297,8 +297,6 @@ export const getPoolsByTokens = async ({
       .flat()
       .map((p) => ({ ...p, Dex: 'ref' }));
 
-    console.log(pools);
-
     // get tripools
     let triPools;
     if (crossSwap) {
@@ -309,8 +307,6 @@ export const getPoolsByTokens = async ({
       .concat(triPools || [])
       .filter(isNotStablePool)
       .filter(filterBlackListPools);
-
-    console.log('dot');
 
     await db.cachePoolsByTokens(filtered_pools);
     filtered_pools = filtered_pools.filter(

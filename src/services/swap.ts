@@ -255,7 +255,6 @@ export const estimateSwap = async ({
   });
 
   const [stablePool, stablePoolInfo] = await getStablePoolFromCache();
-  console.log('dot');
 
   if (
     STABLE_TOKEN_IDS.includes(tokenIn.id) &&
@@ -322,18 +321,12 @@ export const estimateSwap = async ({
 
   let stableSmartActionsV2;
 
-  try {
-    stableSmartActionsV2 = await stableSmart(
-      orpools,
-      tokenIn.id,
-      tokenOut.id,
-      parsedAmountIn,
-      3,
-      0.0000000000001
-    );
-  } catch (error) {
-    throwNoPoolError();
-  }
+  stableSmartActionsV2 = await stableSmart(
+    orpools,
+    tokenIn.id,
+    tokenOut.id,
+    parsedAmountIn
+  );
 
   let res = stableSmartActionsV2;
 

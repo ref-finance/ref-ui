@@ -645,6 +645,18 @@ export const useAuroraBalancesNearMapping = (address: string) => {
   return nearMapping;
 };
 
+export const useTriTokenIdsOnRef = () => {
+  const tokenIds = defaultTokenList.tokens.map((tk) => tk.address);
+
+  const [triTokenIds, setTriTokenIds] = useState(null);
+
+  useEffect(() => {
+    getBatchTokenNearAcounts(tokenIds).then(setTriTokenIds);
+  }, []);
+
+  return triTokenIds?.filter((id: string) => id);
+};
+
 // fetch eth balance
 export const fetchBalance = async (address: string) => {
   return scientificNotationToString(
@@ -655,9 +667,11 @@ export const fetchBalance = async (address: string) => {
 // combine transactions to sign once
 
 export const getTokenNearAccount = async (auroraAddress: string) => {
-  return (
-    await getAurora().getNEP141Account(toAddress(auroraAddress))
-  ).unwrap();
+  try {
+    return (
+      await getAurora().getNEP141Account(toAddress(auroraAddress))
+    ).unwrap();
+  } catch (error) {}
 };
 
 export const getBatchTokenNearAcounts = async (ids: string[]) => {
@@ -804,6 +818,7 @@ export const auroraSwapTransactions = async ({
   }
 };
 
+// TODO: error on sender
 export const batchWithdrawFromAurora = async (
   // tokens: TokenMetadata[],
   // readableAmounts: []
@@ -824,8 +839,6 @@ export const batchWithdrawFromAurora = async (
       })
     )
   );
-
-  console.log(actions);
 
   return executeMultipleTransactions([
     {
