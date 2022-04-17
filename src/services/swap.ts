@@ -248,12 +248,16 @@ export const estimateSwap = async ({
       amountIn: parsedAmountIn,
       setLoadingData,
       loadingTrigger,
+      crossSwap,
     })
   ).filter((p) => {
     return getLiquidity(p, tokenIn, tokenOut) > 0;
   });
 
   const [stablePool, stablePoolInfo] = await getStablePoolFromCache();
+  console.log('dot');
+
+  console.log(pools);
 
   if (
     STABLE_TOKEN_IDS.includes(tokenIn.id) &&
@@ -318,14 +322,22 @@ export const estimateSwap = async ({
 
   const orpools = await getRefPoolsByToken1ORToken2(tokenIn.id, tokenOut.id);
 
-  let stableSmartActionsV2 = await stableSmart(
-    orpools,
-    tokenIn.id,
-    tokenOut.id,
-    parsedAmountIn,
-    3,
-    0.0000000000001
-  );
+  console.log(orpools);
+
+  let stableSmartActionsV2;
+
+  try {
+    stableSmartActionsV2 = await stableSmart(
+      orpools,
+      tokenIn.id,
+      tokenOut.id,
+      parsedAmountIn,
+      3,
+      0.0000000000001
+    );
+  } catch (error) {
+    throwNoPoolError();
+  }
 
   let res = stableSmartActionsV2;
 
@@ -365,6 +377,7 @@ export const estimateSwap = async ({
     throwNoPoolError();
   }
 
+  console.log(res);
   return res;
 };
 

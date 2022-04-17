@@ -3,7 +3,7 @@ import SwapCard from '~components/swap/SwapCard';
 import CrossSwapCard from '~components/swap/CrossSwapCard';
 
 import Loading from '~components/layout/Loading';
-import { useWhitelistTokens } from '../state/token';
+import { useTriTokens, useWhitelistTokens } from '../state/token';
 import { WalletContext } from '../utils/sender-wallet';
 import { FormattedMessage } from 'react-intl';
 import { SwapCross } from '../components/icon/CrossSwap';
@@ -14,7 +14,15 @@ import {
 import { TokenMetadata, ftGetTokenMetadata } from '../services/ft-contract';
 import { defaultTokenList } from '../services/aurora/config';
 
-function SwapTab({ ifCross }: { ifCross: boolean }) {
+const REF_FI_SWAP_SWAPPAGE_TAB_KEY = 'REF_FI_SWAP_SWAPPAGE_TAB_VALUE';
+
+function SwapTab({
+  ifCross,
+  setSwapTab,
+}: {
+  ifCross: boolean;
+  setSwapTab: (tab: string) => void;
+}) {
   const { globalStatedispatch } = useContext(WalletContext);
 
   const TabTitle = () => {
@@ -52,8 +60,8 @@ function SwapTab({ ifCross }: { ifCross: boolean }) {
       <div
         className="cursor-pointer"
         onClick={() => {
-          if (ifCross) globalStatedispatch({ type: 'crossSwapOff' });
-          else globalStatedispatch({ type: 'crossSwapOn' });
+          if (ifCross) setSwapTab('normal');
+          else setSwapTab('cross');
         }}
       >
         <SwapCross ifCross={ifCross} />
@@ -78,40 +86,32 @@ function getAllTokens(refTokens: TokenMetadata[], triTokens: TokenMetadata[]) {
 function SwapPage() {
   const refTokens = useWhitelistTokens(['aurora']);
 
-  const [triTokens, setTriTokens] = useState<TokenMetadata[]>();
+  const triTokens = useTriTokens();
 
-  useEffect(() => {
-    const tokenIds = defaultTokenList.tokens.map((tk) => tk.address);
-
-    getBatchTokenNearAcounts(tokenIds).then((res) => {
-      return Promise.all(
-        res.map((addr: string) =>
-          ftGetTokenMetadata(addr).then((ftmeta) => ({
-            ...ftmeta,
-            onTri: true,
-          }))
-        )
-      ).then(setTriTokens);
-    });
-  }, []);
-
-  const { globalState } = useContext(WalletContext);
-
-  const ifCross = globalState.crossSwap;
+  const [swapTab, setSwapTab] = useState(
+    localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) || 'normal'
+  );
 
   if (!refTokens || !triTokens) return <Loading />;
 
   const allTokens = getAllTokens(refTokens, triTokens);
 
+  const nearSwapTokens = allTokens.filter((token) => token.onRef);
+
+  // asset to ref
+  const crossSwapTokens = allTokens.filter(
+    (token) => token.onTri && token.onRef
+  );
+
   return (
     <div className="swap">
       <section className="lg:w-560px md:w-5/6 xs:w-full xs:p-2 m-auto relative">
-        <SwapTab ifCross={ifCross} />
+        <SwapTab ifCross={swapTab === 'cross'} setSwapTab={setSwapTab} />
 
-        {ifCross ? (
-          <CrossSwapCard allTokens={allTokens} />
+        {swapTab === 'cross' ? (
+          <CrossSwapCard allTokens={crossSwapTokens} />
         ) : (
-          <SwapCard allTokens={allTokens} />
+          <SwapCard allTokens={nearSwapTokens} />
         )}
       </section>
     </div>

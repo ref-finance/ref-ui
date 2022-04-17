@@ -164,16 +164,32 @@ export const SmartRouteV2 = ({
   p: string;
   pools: Pool[];
 }) => {
-  const Hub = ({ token, poolId }: { token: TokenMetadata; poolId: number }) => {
+  const Hub = ({
+    token,
+    poolId,
+    Dex,
+  }: {
+    token: TokenMetadata;
+    poolId: number;
+    Dex: string;
+  }) => {
+    const onTri = Dex && Dex === 'tri';
+
     return (
       <div
-        className="flex items-center bg-inputDarkBg rounded-2xl pr-1 flex-shrink-0"
+        className={`flex items-center ${
+          onTri ? 'bg-transparent justify-end' : 'bg-inputDarkBg'
+        }  rounded-2xl pr-1 flex-shrink-0`}
         style={{
           width: '72px',
           height: '22px',
         }}
       >
-        <div className="w-full flex items-center justify-start pl-2">
+        <div
+          className={`w-full flex items-center justify-start pl-2 ${
+            onTri ? 'hidden' : 'block'
+          }`}
+        >
           <span className="text-gray-400">{`#${poolId}`}</span>
         </div>
         <Icon token={token} />
@@ -191,12 +207,12 @@ export const SmartRouteV2 = ({
           <ArrowRight />
         </div>
 
-        <Hub token={tokens[1]} poolId={pools?.[0]?.id} />
+        <Hub token={tokens[1]} poolId={pools?.[0]?.id} Dex={pools?.[0]?.Dex} />
         <div className="px-3">
           <ArrowRight />
         </div>
 
-        <Hub token={tokens[2]} poolId={pools?.[1]?.id} />
+        <Hub token={tokens[2]} poolId={pools?.[1]?.id} Dex={pools?.[0]?.Dex} />
       </div>
     );
   } else if (tokens.length == 2) {
@@ -206,7 +222,7 @@ export const SmartRouteV2 = ({
         <div className="px-3">
           <ArrowRight />
         </div>
-        <Hub token={tokens[1]} poolId={pools?.[0]?.id} />
+        <Hub token={tokens[1]} poolId={pools?.[0]?.id} Dex={pools?.[0]?.Dex} />
       </div>
     );
   } else {

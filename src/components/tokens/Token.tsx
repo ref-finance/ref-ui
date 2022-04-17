@@ -59,7 +59,7 @@ export default function Token({
           <SingleToken token={token} price={price} />
         </div>
 
-        <div className="w-16 flex justify-end relative left-3">
+        <div className="w-16 flex justify-end relative lg:left-3">
           {onRef ? <RefIcon lightTrigger={hover} /> : null}
 
           {onTri ? <TriIcon lightTrigger={hover} /> : null}

@@ -89,6 +89,27 @@ export const useTokens = (ids: string[] = [], curTokens?: TokenMetadata[]) => {
 
   return tokens;
 };
+export const useTriTokens = () => {
+  const [triTokens, setTriTokens] = useState<TokenMetadata[]>();
+
+  useEffect(() => {
+    const tokenIds = defaultTokenList.tokens.map((tk) => tk.address);
+
+    getBatchTokenNearAcounts(tokenIds).then((res) => {
+      const allIds = res.concat(['aurora']);
+
+      return Promise.all(
+        allIds.map((addr: string) =>
+          ftGetTokenMetadata(addr).then((ftmeta) => ({
+            ...ftmeta,
+            onTri: true,
+          }))
+        )
+      ).then(setTriTokens);
+    });
+  }, []);
+  return triTokens;
+};
 
 export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();

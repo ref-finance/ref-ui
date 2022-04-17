@@ -43,7 +43,7 @@ export default function Table({
                 <FormattedMessage id="asset_label" defaultMessage="Asset" />
               </span>
             </th>
-            <th className="pb-2 w-1/5 font-normal">
+            <th className="pb-2 w-1/5 font-normal relative lg:right-4">
               <span>
                 <FormattedMessage id="support" defaultMessage="Support" />
               </span>

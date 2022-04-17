@@ -94,7 +94,6 @@ Modal.setAppElement('#root');
 function App() {
   const GlobalStateReducer = useReducer(globalStateReducer, {
     isSignedIn: false,
-    crossSwap: false, // TODO: set default to false
   });
 
   const [globalState, globalStatedispatch] = GlobalStateReducer;

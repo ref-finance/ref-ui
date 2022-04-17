@@ -218,7 +218,7 @@ export function TokenCardIn({
             onChangeAmount={onChangeAmount}
             forCrossSwap
           />
-          <span className="ml-2">{max}</span>
+          <span className="ml-2">{toPrecision(max, 3)}</span>
         </div>
       </div>
 

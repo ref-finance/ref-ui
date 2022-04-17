@@ -97,6 +97,8 @@ export const useSwap = ({
     : null;
   const refreshTime = Number(POOL_TOKEN_REFRESH_INTERVAL) * 1000;
 
+  console.log('dot');
+
   const intl = useIntl();
 
   const setAverageFee = (estimates: EstimateSwapView[]) => {
@@ -145,6 +147,7 @@ export const useSwap = ({
 
   const getEstimate = () => {
     setCanSwap(false);
+    console.log('dot');
 
     if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
       setSwapError(null);
@@ -152,6 +155,7 @@ export const useSwap = ({
         setTokenOutAmount('0');
         return;
       }
+      console.log('dot');
 
       estimateSwap({
         tokenIn,
@@ -164,6 +168,7 @@ export const useSwap = ({
       })
         .then((estimates) => {
           if (!estimates) throw '';
+          console.log('dot');
 
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
             setAverageFee(estimates);
@@ -176,6 +181,7 @@ export const useSwap = ({
               setCanSwap(true);
             }
           }
+          console.log('dot');
 
           setPool(estimates[0].pool);
         })

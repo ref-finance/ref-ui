@@ -85,6 +85,7 @@ import { getTokenPriceList } from '../../services/indexer';
 import { boolean } from 'mathjs';
 import { TokenCardOut, CrossSwapTokens } from '../forms/TokenAmount';
 import { CrossSwapFormWrap } from '../forms/SwapFormWrap';
+import { TriIcon, RefIcon } from '../icon/DexIcon';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -248,16 +249,30 @@ export function ParallelSwapRoutesDetail({
       </div>
 
       <div className="text-right text-white col-span-7 xs:mt-2 md:mt-2">
-        {pools.map((pool, i) => {
+        {pools?.map((p, i) => {
           return (
-            <div className="mb-2" key={pool.id}>
-              <OneParallelRoute
-                tokenIn={tokenIn}
-                tokenOut={tokenOut}
-                poolId={pool.id}
-                p={percents[i]}
-                fee={pool.fee}
-              />
+            <div
+              key={i}
+              className="mb-2 md:w-smartRoute lg:w-smartRoute flex items-center relative"
+            >
+              <div className="flex items-center">
+                <span>
+                  {p.Dex === 'tri' ? (
+                    <TriIcon lightTrigger={true} hiddenBg={true} />
+                  ) : (
+                    <RefIcon lightTrigger={true} hiddenBg />
+                  )}
+                </span>
+
+                <span className="text-gray-400">{'|'}</span>
+              </div>
+              <div className="text-right text-white w-full col-span-6 xs:mt-2 md:mt-2">
+                <SmartRouteV2
+                  tokens={[tokenIn, tokenOut]}
+                  p={percents[i]}
+                  pools={[p]}
+                />
+              </div>
             </div>
           );
         })}
@@ -426,10 +441,6 @@ function DetailView({
   return (
     <div className="mt-8">
       <div className={showDetails ? '' : 'hidden'}>
-        {/* <SwapDetail
-          title={intl.formatMessage({ id: 'minimum_received' })}
-          value={<span>{toPrecision(minAmountOutValue, 8)}</span>}
-        /> */}
         <SwapRateDetail
           title={intl.formatMessage({ id: 'swap_rate' })}
           value={`1 ${toRealSymbol(

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const TriIconLight = () => {
+export const TriIconLight = ({ hiddenBg }: { hiddenBg?: boolean }) => {
   const Icon = (
     <svg
       width="14"
@@ -31,13 +31,17 @@ export const TriIconLight = () => {
   );
 
   return (
-    <div className="flex items-center justify-center bg-black rounded-md p-1 w-5 h-5 mx-1">
+    <div
+      className={`flex items-center justify-center ${
+        hiddenBg ? 'bg-transparent' : 'bg-black'
+      } rounded-md p-1 w-5 h-5 mx-1`}
+    >
       {Icon}
     </div>
   );
 };
 
-export const TriIconDark = () => {
+export const TriIconDark = ({ hiddenBg }: { hiddenBg?: boolean }) => {
   const Icon = (
     <svg
       width="14"
@@ -68,13 +72,17 @@ export const TriIconDark = () => {
   );
 
   return (
-    <div className="flex items-center justify-center bg-black rounded-md bg-opacity-20 p-1 w-5 h-5 mx-1">
+    <div
+      className={`flex items-center justify-center ${
+        hiddenBg ? 'bg-transparent' : 'bg-black'
+      } rounded-md bg-opacity-20 p-1 w-5 h-5 mx-1`}
+    >
       {Icon}
     </div>
   );
 };
 
-export const RefIconLight = () => {
+export const RefIconLight = ({ hiddenBg }: { hiddenBg?: boolean }) => {
   const Icon = (
     <svg
       width="12"
@@ -113,13 +121,17 @@ export const RefIconLight = () => {
   );
 
   return (
-    <div className="flex items-center justify-center bg-black rounded-md p-1 w-5 h-5 mx-1">
+    <div
+      className={`flex items-center justify-center ${
+        hiddenBg ? 'bg-transparent' : 'bg-black'
+      } rounded-md p-1 w-5 h-5 mx-1`}
+    >
       {Icon}
     </div>
   );
 };
 
-export const RefIconDark = () => {
+export const RefIconDark = ({ hiddenBg }: { hiddenBg?: boolean }) => {
   const Icon = (
     <svg
       width="12"
@@ -158,16 +170,40 @@ export const RefIconDark = () => {
   );
 
   return (
-    <div className="flex items-center justify-center bg-black rounded-md bg-opacity-20 p-1 mx-1 w-5 h-5">
+    <div
+      className={`flex items-center justify-center ${
+        hiddenBg ? 'bg-transparent' : 'bg-black'
+      } rounded-md bg-opacity-20 p-1 w-5 h-5 mx-1`}
+    >
       {Icon}
     </div>
   );
 };
 
-export const TriIcon = ({ lightTrigger }: { lightTrigger: boolean }) => {
-  return lightTrigger ? <TriIconLight /> : <TriIconDark />;
+export const TriIcon = ({
+  lightTrigger,
+  hiddenBg,
+}: {
+  lightTrigger: boolean;
+  hiddenBg?: boolean;
+}) => {
+  return lightTrigger ? (
+    <TriIconLight hiddenBg={hiddenBg} />
+  ) : (
+    <TriIconDark hiddenBg={hiddenBg} />
+  );
 };
 
-export const RefIcon = ({ lightTrigger }: { lightTrigger: boolean }) => {
-  return lightTrigger ? <RefIconLight /> : <RefIconDark />;
+export const RefIcon = ({
+  lightTrigger,
+  hiddenBg,
+}: {
+  lightTrigger: boolean;
+  hiddenBg?: boolean;
+}) => {
+  return lightTrigger ? (
+    <RefIconLight hiddenBg={hiddenBg} />
+  ) : (
+    <RefIconDark hiddenBg={hiddenBg} />
+  );
 };
