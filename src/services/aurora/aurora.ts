@@ -579,7 +579,7 @@ export const useAuroraTokens = () => {
 };
 
 // OK
-export const useErc20Balances = (address: string) => {
+export const useAuroraBalances = (address: string) => {
   const [tokenBalances, setTokenBalances] = useState(null);
 
   const tokens = useAuroraTokens();
@@ -590,16 +590,22 @@ export const useErc20Balances = (address: string) => {
       return;
     }
 
+    const requestAddress = tokens.tokenAddresses.concat([
+      getAuroraConfig().WETH,
+    ]);
+
     setTokenBalances(
-      tokens?.tokenAddresses.reduce((obj: any, tokenAddress: string) => {
+      requestAddress.reduce((obj: any, tokenAddress: string) => {
         obj[tokenAddress] = null;
         return obj;
       }, {})
     );
 
     Promise.all(
-      tokens.tokenAddresses.map((add: string) =>
-        fetchErc20Balance(address, add)
+      requestAddress.map((add: string) =>
+        add === getAuroraConfig().WETH
+          ? fetchBalance(address)
+          : fetchErc20Balance(address, add)
       )
     ).then((res) => {
       setTokenBalances(
@@ -607,9 +613,7 @@ export const useErc20Balances = (address: string) => {
           if (cur)
             return {
               ...pre,
-              [tokens.tokenAddresses[i]]: scientificNotationToString(
-                cur.toString()
-              ),
+              [requestAddress[i]]: scientificNotationToString(cur.toString()),
             };
           else return pre;
         }, {})

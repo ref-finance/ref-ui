@@ -474,7 +474,7 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
   const [requested, setRequested] = useState<boolean>(false);
 
   const [loadingData, setLoadingData] = useState<boolean>(false);
-  const [loadingTrigger, setLoadingTrigger] = useState<boolean>(true);
+  const [loadingTrigger, setLoadingTrigger] = useState<boolean>(false);
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
   const [supportLedger, setSupportLedger] = useState(
     localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false

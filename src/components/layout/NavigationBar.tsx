@@ -62,13 +62,10 @@ import {
   CopyIcon,
 } from '../icon/CrossSwap';
 import { QuestionTip } from './TipWrapper';
-import {
-  auroraAddr,
-  useAuroraTokens,
-  useErc20Balances,
-} from '../../services/aurora/aurora';
+import { auroraAddr, useAuroraTokens } from '../../services/aurora/aurora';
 
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { useAuroraBalances } from '../../services/aurora/aurora';
 
 const config = getConfig();
 
@@ -688,9 +685,11 @@ function NavigationBar() {
   const auroraTokens = useAuroraTokens();
   const auroraAddress = auroraAddr(getCurrentWallet().wallet.getAccountId());
 
-  const auroraBalances = useErc20Balances(auroraAddress);
+  const auroraBalances = useAuroraBalances(auroraAddress);
 
   const [hasAuroraBalance, setHasAuroraBalance] = useState(false);
+
+  console.log(auroraBalances);
 
   useEffect(() => {
     if (!auroraBalances || !auroraTokens) return;

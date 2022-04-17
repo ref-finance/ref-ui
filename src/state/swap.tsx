@@ -385,6 +385,7 @@ export const useCrossSwap = ({
   loadingTrigger,
   setLoadingTrigger,
   loadingPause,
+  requested,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -492,6 +493,7 @@ export const useCrossSwap = ({
   }, [loadingTrigger]);
 
   useEffect(() => {
+    if (!requested) return;
     let id: any = null;
     if (!loadingTrigger && !loadingPause) {
       id = setInterval(() => {
@@ -504,7 +506,7 @@ export const useCrossSwap = ({
     return () => {
       clearInterval(id);
     };
-  }, [count, loadingTrigger, loadingPause]);
+  }, [count, loadingTrigger, loadingPause, requested]);
 
   const makeSwap = (useNearBalance: boolean) => {
     swap({
