@@ -60,8 +60,13 @@ function SwapTab({
       <div
         className="cursor-pointer"
         onClick={() => {
-          if (ifCross) setSwapTab('normal');
-          else setSwapTab('cross');
+          if (ifCross) {
+            setSwapTab('normal');
+            localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
+          } else {
+            setSwapTab('cross');
+            localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'cross');
+          }
         }}
       >
         <SwapCross ifCross={ifCross} />

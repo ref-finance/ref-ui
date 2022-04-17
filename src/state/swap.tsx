@@ -97,8 +97,6 @@ export const useSwap = ({
     : null;
   const refreshTime = Number(POOL_TOKEN_REFRESH_INTERVAL) * 1000;
 
-  console.log('dot');
-
   const intl = useIntl();
 
   const setAverageFee = (estimates: EstimateSwapView[]) => {
@@ -147,7 +145,6 @@ export const useSwap = ({
 
   const getEstimate = () => {
     setCanSwap(false);
-    console.log('dot');
 
     if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
       setSwapError(null);
@@ -181,7 +178,6 @@ export const useSwap = ({
               setCanSwap(true);
             }
           }
-          console.log('dot');
 
           setPool(estimates[0].pool);
         })
@@ -385,10 +381,10 @@ export const useCrossSwap = ({
   tokenOut,
   slippageTolerance,
   supportLedger,
-  requestingTrigger,
-  requested,
   setRequested,
-  setRequestingTrigger,
+  loadingTrigger,
+  setLoadingTrigger,
+  loadingPause,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -399,6 +395,9 @@ export const useCrossSwap = ({
   const [avgFee, setAvgFee] = useState<number>(0);
 
   const history = useHistory();
+
+  const [count, setCount] = useState<number>(0);
+  const refreshTime = Number(POOL_TOKEN_REFRESH_INTERVAL) * 1000;
 
   const { txHash, pathname, errorType } = getURLInfo();
 
@@ -455,19 +454,12 @@ export const useCrossSwap = ({
   const getEstimate = () => {
     setCanSwap(false);
 
-    // TODO: 1. get pool from aurora
-    // TODO: 2. get all pools from ref
-    //       3. combine all pools
-    //       4. algorithm to get estimate out: parallel smart routing
-    //       5. calculate price impact, pool fee, auto router
-    //       6. swap
-
     estimateSwap({
       tokenIn,
       tokenOut,
       amountIn: tokenInAmount,
       intl,
-      loadingTrigger: requestingTrigger,
+      loadingTrigger: loadingTrigger && !loadingPause,
       supportLedger,
       crossSwap: true,
     })
@@ -491,13 +483,28 @@ export const useCrossSwap = ({
       })
       .finally(() => {
         setRequested(true);
-        setRequestingTrigger(false);
+        setLoadingTrigger(false);
       });
   };
 
   useEffect(() => {
-    if (requestingTrigger) getEstimate();
-  }, [requestingTrigger]);
+    if (loadingTrigger) getEstimate();
+  }, [loadingTrigger]);
+
+  useEffect(() => {
+    let id: any = null;
+    if (!loadingTrigger && !loadingPause) {
+      id = setInterval(() => {
+        setLoadingTrigger(true);
+        setCount(count + 1);
+      }, refreshTime);
+    } else {
+      clearInterval(id);
+    }
+    return () => {
+      clearInterval(id);
+    };
+  }, [count, loadingTrigger, loadingPause]);
 
   const makeSwap = (useNearBalance: boolean) => {
     swap({

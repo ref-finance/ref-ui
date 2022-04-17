@@ -41,23 +41,9 @@ import Alert from '../alert/Alert';
 import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
-import db from '~store/RefDatabase';
-import {
-  ButtonTextWrapper,
-  GradientButton,
-  OutlineButton,
-  SolidButton,
-  ConnectToNearBtn,
-} from '../../components/button/Button';
-import { STABLE_TOKEN_IDS, wallet } from '../../services/near';
-import SwapFormWrap from '../forms/SwapFormWrap';
-import SwapTip from '../../components/forms/SwapTip';
+
 import { WarnTriangle, ErrorTriangle } from '../../components/icon/SwapRefresh';
-import ReactModal from 'react-modal';
-import Modal from 'react-modal';
-import { Card } from '~components/card/Card';
-import { isMobile, useMobile } from '~utils/device';
-import { ModalClose } from '~components/icon';
+
 import BigNumber from 'bignumber.js';
 import {
   AutoRouterText,
@@ -65,24 +51,14 @@ import {
   RouterIcon,
   SmartRouteV2,
 } from '../../components/layout/SwapRoutes';
-import QuestionMark, {
-  QuestionMarkStaticForParaSwap,
-} from '~components/farm/QuestionMark';
 
-import ReactTooltip from 'react-tooltip';
-import * as math from 'mathjs';
-import { HiOutlineExternalLink } from 'react-icons/hi';
 import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
 import { QuestionTip } from '../../components/layout/TipWrapper';
-import { Guide } from '../../components/layout/Guide';
-import { sortBy } from 'lodash';
-import { getCurrentWallet } from '../../utils/sender-wallet';
 import { senderWallet, WalletContext } from '../../utils/sender-wallet';
 import { SwapArrow, SwapExchange, ExchangeArrow } from '../icon/Arrows';
 import { getPoolAllocationPercents } from '../../utils/numbers';
 import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
-import { boolean } from 'mathjs';
 import { TokenCardOut, CrossSwapTokens } from '../forms/TokenAmount';
 import { CrossSwapFormWrap } from '../forms/SwapFormWrap';
 import { TriIcon, RefIcon } from '../icon/DexIcon';
@@ -497,6 +473,9 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
 
   const [requested, setRequested] = useState<boolean>(false);
 
+  const [loadingData, setLoadingData] = useState<boolean>(false);
+  const [loadingTrigger, setLoadingTrigger] = useState<boolean>(true);
+  const [loadingPause, setLoadingPause] = useState<boolean>(false);
   const [supportLedger, setSupportLedger] = useState(
     localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
   );
@@ -510,8 +489,6 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
 
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();
-
-  const [requestingTrigger, setRequestingTrigger] = useState(false);
 
   const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
 
@@ -571,10 +548,11 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
     tokenOut: tokenOut,
     slippageTolerance,
     supportLedger,
-    requestingTrigger,
-    setRequestingTrigger,
     requested,
     setRequested,
+    loadingTrigger,
+    setLoadingTrigger,
+    loadingPause,
   });
 
   const priceImpactValueSmartRouting = useMemo(() => {
@@ -636,7 +614,10 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!requested) setRequestingTrigger(true);
+    if (!requested) {
+      setLoadingTrigger(true);
+      setLoadingPause(false);
+    }
     // const ifDoubleCheck =
     //   new BigNumber(tokenInAmount).isLessThanOrEqualTo(
     //     new BigNumber(tokenInMax)
@@ -653,20 +634,30 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
         crossSwap={true}
         setSupportLedger={setSupportLedger}
         useNearBalance={useNearBalance.toString()}
-        canSubmit={canSubmit && tokenIn?.id !== tokenOut?.id}
+        canSubmit={canSubmit && tokenIn?.id !== tokenOut?.id && !loadingTrigger}
         slippageTolerance={slippageTolerance}
         onChange={(slippage) => {
           setSlippageTolerance(slippage);
           localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
         }}
         requested={requested}
-        requestingTrigger={requestingTrigger}
+        requestingTrigger={loadingTrigger && !requested}
         bindUseBalance={(useNearBalance) => {
           setUseNearBalance(useNearBalance);
           localStorage.setItem(
             SWAP_USE_NEAR_BALANCE_KEY,
             useNearBalance.toString()
           );
+        }}
+        loading={{
+          loadingData,
+          setLoadingData,
+          loadingTrigger,
+          setLoadingTrigger,
+          loadingPause,
+          setLoadingPause,
+          showSwapLoading,
+          setShowSwapLoading,
         }}
         tokensTitle={
           requested ? (
