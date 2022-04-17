@@ -42,7 +42,11 @@ import {
   STABLE_POOL_ID,
   STABLE_POOL_USN_ID,
 } from './services/near';
-import { getSenderWallet, WALLET_TYPE } from './utils/sender-wallet';
+import {
+  getSenderWallet,
+  WALLET_TYPE,
+  getCurrentWallet,
+} from './utils/sender-wallet';
 import { getURLInfo, failToast } from './components/layout/transactionTipPopUp';
 import { StableSwapPageEntry } from '~pages/stable/StableSwapEntry';
 import { senderSignedInToast } from '~components/layout/senderSignInPopUp';
@@ -120,19 +124,26 @@ function App() {
           signedInStatedispatch({ type: 'signIn' });
         });
         window.near.on('accountChanged', (changedAccountId: string) => {
-          window.location.reload();
+          if (
+            getCurrentWallet().wallet_type === 'near-wallet' &&
+            webWallet.isSignedIn()
+          )
+            return;
           saveSenderLoginRes(changedAccountId);
+          window.location.reload();
         });
         window.near.on('signOut', () => {
-          removeSenderLoginRes();
-          signedInStatedispatch({ type: 'signOut' });
+          if (getCurrentWallet().wallet_type === 'sender-wallet') {
+            removeSenderLoginRes();
+            signedInStatedispatch({ type: 'signOut' });
+          }
         });
       }
 
       if (
         window.near &&
         getSenderLoginRes() &&
-        !getSenderWallet(window).isSignedIn() &&
+        getCurrentWallet().wallet_type === 'sender-wallet' &&
         !signInErrorType
       ) {
         getSenderWallet(window)

@@ -20,6 +20,7 @@ import {
   WrapNearIconDark,
   UkIcon,
   RuIcon,
+  JaIcon,
 } from '~components/icon';
 import { WNEARExchngeIcon } from '~components/icon/Common';
 import { Link, useLocation } from 'react-router-dom';
@@ -52,6 +53,7 @@ const config = getConfig();
 import { isMobile } from '~utils/device';
 import { getCurrentWallet, getAccountName } from '../../utils/sender-wallet';
 import { FarmDot } from '../icon/FarmStamp';
+import { AccountTipDownByAccountID } from './NavigationBar';
 
 export function MobileAnchor({
   to,
@@ -173,6 +175,17 @@ export function MobileSwitchLanguage() {
             <RuIcon />
           </span>
           Pусский
+        </div>
+        <div
+          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
+            currentLocal === 'ja' ? 'text-white' : 'text-primaryText '
+          }`}
+          onClick={() => context.selectLanguage('ja')}
+        >
+          <span className="text-2xl mr-5">
+            <JaIcon />
+          </span>
+          日本語
         </div>
       </div>
     </div>
@@ -298,7 +311,7 @@ export function AccountModel(props: any) {
               </div>
               {hasBalanceOnRefAccount && item.textId === 'view_account' ? (
                 <div
-                  className="text-center py-0.5 bg-gradientFrom w-full cursor-pointer text-xs"
+                  className="text-center py-0.5 font-normal bg-gradientFrom w-full cursor-pointer text-xs"
                   onClick={item.click}
                   style={{
                     color: '#001320',
@@ -333,6 +346,20 @@ export function MobileNavBar(props: any) {
     props;
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
+
+  const [showTip, setShowTip] = useState<boolean>(false);
+
+  useEffect(() => {
+    setShowTip(hasBalanceOnRefAccount);
+  }, [hasBalanceOnRefAccount]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowTip(false);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [showTip]);
 
   const { wallet } = getCurrentWallet();
 
@@ -407,6 +434,7 @@ export function MobileNavBar(props: any) {
         zIndex: show ? 200 : 51,
       }}
     >
+      {showTip ? <AccountTipDownByAccountID show={showTip} /> : null}
       <div className="flex items-center text-2xl text-white justify-between p-4">
         <NavLogo />
         <div className="flex">
@@ -426,6 +454,7 @@ export function MobileNavBar(props: any) {
                   className="flex items-center"
                   onClick={() => {
                     setAccountVisible(!accountVisible);
+                    setShowTip(false);
                   }}
                 >
                   <div>{getAccountName(wallet.getAccountId())}</div>

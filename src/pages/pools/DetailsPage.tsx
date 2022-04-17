@@ -213,40 +213,6 @@ export function AddLiquidityModal(
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
 
-  const refAccountBalances =
-    typeof closeTip !== 'undefined' && closeTip ? {} : useTokenBalances();
-
-  const { txHash, errorCode } = getURLInfo();
-
-  useEffect(() => {
-    if (typeof closeTip !== 'undefined' && closeTip) {
-      return;
-    }
-
-    if (
-      refAccountBalances &&
-      tokens &&
-      (txHash || errorCode) &&
-      tokens.some(
-        (token) =>
-          Number(
-            toReadableNumber(
-              token.decimals,
-              refAccountBalances?.[token.id] || '0'
-            )
-          ) > 0.001
-      )
-    ) {
-      console.log(tokens);
-      checkAccountTip();
-      window.history.replaceState(
-        {},
-        '',
-        window.location.origin + window.location.pathname
-      );
-    }
-  }, [txHash, refAccountBalances, tokens, errorCode, closeTip]);
-
   if (!balances) return null;
 
   const changeFirstTokenAmount = (amount: string) => {

@@ -101,7 +101,7 @@ function SelectUi({
         onClick={switchSelectBoxStatus}
         tabIndex={-1}
         onBlur={hideSelectBox}
-        className={`flex items-center justify-between w-36 h-5 rounded-full px-3 box-border border cursor-pointer text-xs outline-none ${
+        className={`flex items-center justify-between w-40 h-5 rounded-full px-2 box-border border cursor-pointer text-xs outline-none ${
           shrink ? 'xs:w-8 md:w-8' : ''
         } ${
           showSelectBox
@@ -118,7 +118,7 @@ function SelectUi({
       </span>
       <div
         className={`absolute z-50 top-8 right-0 border border-farmText bg-cardBg rounded-md ${
-          shrink ? 'w-32' : 'w-36'
+          shrink ? 'w-32' : 'w-40'
         } ${showSelectBox ? '' : 'hidden'}`}
       >
         {Object.entries(list).map((item: any, index) => (
@@ -651,7 +651,6 @@ function WatchListCard({
   watchPools: Pool[];
   poolTokenMetas: any;
 }) {
-  const intl = useIntl();
   return (
     <>
       <Card className=" w-full mb-2" padding="p-0 py-6" bgcolor="bg-cardBg">

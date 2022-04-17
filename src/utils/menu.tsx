@@ -23,6 +23,7 @@ import {
   IconCelo,
   UkIcon,
   RuIcon,
+  JaIcon,
 } from '~components/icon/Nav';
 import { XrefIcon } from '~components/icon/Xref';
 
@@ -149,6 +150,14 @@ export const useMenuItems = () => {
           url: '',
           id: 15,
           logo: <RuIcon />,
+        },
+        {
+          label: '日本語',
+          isExternal: false,
+          language: 'ja',
+          url: '',
+          id: 16,
+          logo: <JaIcon />,
         },
       ],
     },

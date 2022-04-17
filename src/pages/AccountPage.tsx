@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useContext,
+  useCallback,
+} from 'react';
 import Modal from 'react-modal';
 import { Card } from '../components/card/Card';
 import { TiArrowSortedUp } from 'react-icons/ti';
@@ -36,14 +42,70 @@ import {
 import { getSenderLoginRes } from '../utils/sender-wallet';
 import { Checkbox, CheckboxSelected } from '../components/icon';
 import { GradientButton, ButtonTextWrapper } from '../components/button/Button';
+import { CloseIcon } from '../components/icon/Actions';
+import { AccountTipMan } from '../components/icon/AccountTipMan';
+
+const REF_MAN_ACCOUNT_TIP_KEY = 'REF_MAN_ACCOUNT_TIP_VALUE';
+
+function RefAccountTipMan({
+  setShowTip,
+}: {
+  setShowTip: (show: boolean) => void;
+}) {
+  return (
+    <div
+      className="absolute RefAccountTipMan"
+      style={{
+        top: '-70px',
+        right: '160px',
+      }}
+    >
+      <span>
+        <em></em>
+      </span>
+      <div
+        className="relative border bg-cardBg rounded-lg border-gradientFrom pl-4 pr-8 py-2 text-sm text-white"
+        style={{
+          width: '430px',
+        }}
+      >
+        <FormattedMessage
+          id="ref_account_tip_3"
+          defaultMessage="To withdraw token(s) from your REF Account to your NEAR Wallet, please select and withdraw"
+        />
+        .
+        <div
+          className="absolute pl-1 cursor-pointer"
+          onClick={() => {
+            setShowTip(false);
+            localStorage.setItem(REF_MAN_ACCOUNT_TIP_KEY, '1');
+          }}
+          style={{
+            right: '10px',
+            top: '10px',
+          }}
+        >
+          <CloseIcon />
+        </div>
+      </div>
+
+      <AccountTipMan />
+    </div>
+  );
+}
+
 const withdraw_number_at_once = 5;
 const accountSortFun = (
   by: string,
   currentSort: string,
-  userTokens: TokenMetadata[]
+  userTokens: TokenMetadata[],
+  hasRefBalanceOver?: boolean
 ) => {
   const sortBy = by || 'near';
-  const sortDirection = currentSort.split('-')[1] == 'down' ? 'up' : 'down';
+
+  const sortDirection =
+    currentSort.split('-')[1] == 'down' && !hasRefBalanceOver ? 'up' : 'down';
+
   userTokens.sort((token1: TokenMetadata, token2: TokenMetadata) => {
     const { near: near1, ref: ref1 } = token1;
     const { near: near2, ref: ref2 } = token2;
@@ -152,7 +214,7 @@ const WithdrawTip = () => {
   );
 };
 function AccountTable(props: any) {
-  const { userTokens } = props;
+  const { userTokens, hasRefBalanceOver } = props;
   const [tokensSort, setTokensSort] = useState(userTokens);
   const [currentSort, setCurrentSort] = useState('');
   const [checkedMap, setCheckedMap] = useState({});
@@ -160,19 +222,23 @@ function AccountTable(props: any) {
   const [refAccountHasToken, setRefAccountHasToken] = useState();
   const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false);
   useEffect(() => {
-    sort();
+    sort(null, hasRefBalanceOver);
     const refAccountHasToken = tokensSort.filter((token: TokenMetadata) => {
       const { ref } = token;
       if (Number(ref) > 0) return true;
     });
     setRefAccountHasToken(refAccountHasToken.length);
-  }, []);
-  const sort = (e?: any) => {
-    const sortBy = e?.currentTarget.dataset.sort || 'near';
+  }, [hasRefBalanceOver]);
+
+  const sort = (e?: any, hasRefBalanceOver?: boolean) => {
+    const sortBy =
+      e?.currentTarget.dataset.sort || (hasRefBalanceOver ? 'ref' : 'near');
+
     const { sortUserTokens, curSort } = accountSortFun(
       sortBy,
       currentSort,
-      userTokens
+      userTokens,
+      hasRefBalanceOver
     );
     setTokensSort(Array.from(sortUserTokens));
     setCurrentSort(curSort);
@@ -235,7 +301,7 @@ function AccountTable(props: any) {
           </th>
           <th className="text-right">
             <span
-              onClick={sort}
+              onClick={(e) => sort(e, false)}
               data-sort="near"
               className={`flex items-center w-full justify-end ${
                 currentSort.indexOf('near') > -1 ? 'text-greenColor' : ''
@@ -252,7 +318,7 @@ function AccountTable(props: any) {
           </th>
           <th className={`text-right`}>
             <span
-              onClick={sort}
+              onClick={(e) => sort(e, false)}
               data-sort="ref"
               className={`flex items-center w-full justify-end ${
                 currentSort.indexOf('ref') > -1 ? 'text-greenColor' : ''
@@ -643,8 +709,20 @@ function MobileAccountTable(props: any) {
 }
 function Account(props: any) {
   const { userTokens } = props;
-  const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
+
+  const [hasRefBalanceOver, setHasRefBalanceOver] = useState<boolean>(false);
+
+  useEffect(() => {
+    const hasRefBalanceOver = userTokens.some((token: TokenMetadata) => {
+      return Number(token.ref) > 0.001;
+    });
+    setHasRefBalanceOver(hasRefBalanceOver);
+    setVisible(
+      hasRefBalanceOver &&
+        !localStorage.getItem(REF_MAN_ACCOUNT_TIP_KEY)?.toString()
+    );
+  }, []);
 
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
@@ -653,6 +731,8 @@ function Account(props: any) {
 
   return (
     <div className="flex justify-center relative w-1/2 m-auto mt-16 xs:hidden md:hidden pb-5">
+      {visible ? <RefAccountTipMan setShowTip={setVisible} /> : null}
+
       <Card className="w-full pt-6 pb-15 px-0">
         <div className="flex items-center justify-between pb-4 px-6">
           <div className="flex items-center font-semibold text-white">
@@ -662,7 +742,10 @@ function Account(props: any) {
             </label>
           </div>
         </div>
-        <AccountTable userTokens={userTokens}></AccountTable>
+        <AccountTable
+          userTokens={userTokens}
+          hasRefBalanceOver={hasRefBalanceOver}
+        ></AccountTable>
       </Card>
     </div>
   );
@@ -687,6 +770,13 @@ function MobileAccount(props: any) {
       const { ref } = token;
       if (Number(ref) > 0) return true;
     });
+
+    const hasRefBalanceOver = userTokens.some((token: TokenMetadata) => {
+      return Number(token.ref) > 0.001;
+    });
+
+    if (hasRefBalanceOver) switchTab('ref');
+
     setRefAccountHasToken(!!refAccountHasToken);
   }, []);
   return (

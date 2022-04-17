@@ -231,34 +231,6 @@ export function RemoveLiquidityComponent(props: {
       : toPrecision(nonPrecisionValue, 3);
   };
 
-  const refAccountBalances = useTokenBalances();
-
-  const { txHash, errorCode } = getURLInfo();
-
-  useEffect(() => {
-    if (
-      refAccountBalances &&
-      tokens &&
-      (txHash || errorCode) &&
-      tokens.some(
-        (token) =>
-          Number(
-            toReadableNumber(
-              token.decimals,
-              refAccountBalances?.[token.id] || '0'
-            )
-          ) > 0.001
-      )
-    ) {
-      checkAccountTip();
-      window.history.replaceState(
-        {},
-        '',
-        window.location.origin + window.location.pathname
-      );
-    }
-  }, [txHash, refAccountBalances, tokens, errorCode]);
-
   useEffect(() => {
     setCanSubmitByShare(true);
     const readableShares = toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares);

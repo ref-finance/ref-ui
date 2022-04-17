@@ -728,7 +728,7 @@ export function FarmsPage() {
                 <div className="flex items-center text-farmText rounded-full h-6 bg-farmSbg lg:mr-4">
                   <label
                     onClick={() => changeStatus(1)}
-                    className={`flex justify-center w-28 xs:w-24 md:w-24 items-center rounded-full h-full text-sm cursor-pointer ${
+                    className={`flex justify-center w-32 xs:w-24 md:w-24 items-center rounded-full h-full text-sm cursor-pointer ${
                       +searchData.status == 1
                         ? 'text-chartBg bg-farmSearch'
                         : ''
@@ -738,7 +738,7 @@ export function FarmsPage() {
                   </label>
                   <label
                     onClick={() => changeStatus(0)}
-                    className={`flex justify-center w-28 xs:w-24 md:w-24 items-center rounded-full h-full text-sm cursor-pointer ${
+                    className={`flex justify-center w-32 xs:w-24 md:w-24 items-center rounded-full h-full text-sm cursor-pointer ${
                       searchData.status != null && +searchData.status == 0
                         ? 'text-chartBg bg-farmSearch'
                         : ''
@@ -752,7 +752,7 @@ export function FarmsPage() {
                   {isSignedIn ? (
                     <label
                       onClick={() => changeStatus(2)}
-                      className={`flex justify-center  w-28  items-center rounded-full h-full text-sm cursor-pointer ${
+                      className={`flex justify-center  w-32  items-center rounded-full h-full text-sm cursor-pointer ${
                         +searchData.status == 2
                           ? 'text-chartBg bg-farmSearch'
                           : ''
@@ -1867,7 +1867,7 @@ function FarmView({
                   rounded="rounded-md"
                   px="px-0"
                   py="py-1"
-                  className="flex-grow  w-20 text-base text-greenColor"
+                  className="flex-grow  w-20 text-sm text-greenColor"
                 >
                   <FormattedMessage id="unstake" defaultMessage="Unstake" />
                 </BorderButton>
@@ -1880,14 +1880,14 @@ function FarmView({
                   rounded="rounded-md"
                   px="px-0"
                   py="py-1"
-                  className="flex-grow  w-20 text-base text-greenColor"
+                  className="flex-grow  w-20 text-sm text-greenColor"
                 >
                   <FormattedMessage id="stake" defaultMessage="Stake" />
                 </BorderButton>
               ) : (
                 <GradientButton
                   color="#fff"
-                  className={`w-full h-10 text-center text-base text-white mt-4 focus:outline-none font-semibold `}
+                  className={`w-full h-10 text-center text-sm text-white mt-4 focus:outline-none font-semibold `}
                   onClick={() => showStakeModal()}
                 >
                   <FormattedMessage id="stake" defaultMessage="Stake" />
@@ -1898,7 +1898,7 @@ function FarmView({
                   color="#fff"
                   onClick={() => claimReward()}
                   disabled={disableClaim}
-                  className="text-white text-base flex-grow  w-20"
+                  className="text-white text-sm flex-grow  w-20"
                   loading={claimLoading}
                 >
                   <div>
