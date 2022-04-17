@@ -637,16 +637,13 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
     event.preventDefault();
 
     if (!requested) setRequestingTrigger(true);
-
     // const ifDoubleCheck =
     //   new BigNumber(tokenInAmount).isLessThanOrEqualTo(
     //     new BigNumber(tokenInMax)
     //   ) && Number(PriceImpactValue) > 2;
-
     // if (ifDoubleCheck) setDoubleCheckOpen(true);
     // else
-
-    makeSwap(useNearBalance);
+    else makeSwap(useNearBalance);
   };
 
   return (
