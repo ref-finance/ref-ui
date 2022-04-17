@@ -104,6 +104,12 @@ function App() {
   useEffect(() => {
     if (errorType) {
       failToast(txHash, errorType);
+
+      // failing toast only once
+      window.history.replaceState(
+        {},
+        window.location.origin + window.location.pathname
+      );
     }
     if (signInErrorType) {
       senderSignedInToast(signInErrorType);

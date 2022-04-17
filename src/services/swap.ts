@@ -66,7 +66,7 @@ import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity'
 //@ts-ignore
 import { getSmartRouteSwapActions, stableSmart } from './smartRouteLogic';
 import { getCurrentWallet } from '../utils/sender-wallet';
-import { multiply } from '../utils/numbers';
+import { multiply, separateRoutes } from '../utils/numbers';
 import { auroraSwapTransactions } from './aurora/aurora';
 
 // Big.strict = false;
@@ -415,6 +415,7 @@ export async function getHybridStableSmart(
           pool: { ...stableOnlyResult.pool, partialAmountIn: parsedAmountIn },
           tokens: [tokenIn, tokenOut],
           inputToken: tokenIn.id,
+          outputToken: tokenOut.id,
         },
       ],
       estimate: stableOnlyResult.estimate,
@@ -560,6 +561,8 @@ export async function getHybridStableSmart(
         : getSinglePoolEstimate(tokenIn, tokenMidMeta, pool1, parsedAmountIn)),
       status: PoolMode.SMART,
       tokens: [tokenIn, tokenMidMeta, tokenOut],
+      inputToken: tokenIn.id,
+      outputToken: tokenMidMeta.id,
     };
 
     const estimate2 = {
@@ -580,6 +583,8 @@ export async function getHybridStableSmart(
 
       status: PoolMode.SMART,
       tokens: [tokenIn, tokenMidMeta, tokenOut],
+      inputToken: tokenMidMeta.id,
+      outputToken: tokenOut.id,
     };
 
     return { actions: [estimate1, estimate2], estimate: estimate2.estimate };
@@ -625,6 +630,33 @@ export const instantSwap = async ({
   swapsToDo,
   slippageTolerance,
 }: SwapOptions) => {
+  if (swapsToDo.every((todo) => todo.pool.Dex === 'ref'))
+    return nearInstantSwap({
+      tokenIn,
+      tokenOut,
+      amountIn,
+      swapsToDo,
+      slippageTolerance,
+    });
+  else {
+    return crossInstantSwap({
+      tokenIn,
+      tokenOut,
+      amountIn,
+      swapsToDo,
+      slippageTolerance,
+    });
+  }
+};
+
+export const nearInstantSwap = async ({
+  tokenIn,
+  tokenOut,
+  amountIn,
+  swapsToDo,
+  slippageTolerance,
+}: // minAmountOut,
+SwapOptions) => {
   const transactions: Transaction[] = [];
   const tokenInActions: RefFiFunctionCallOptions[] = [];
   const tokenOutActions: RefFiFunctionCallOptions[] = [];
@@ -660,28 +692,12 @@ export const instantSwap = async ({
   const isSmartRouteV1Swap = swapsToDo.every(
     (estimate) => estimate.status === PoolMode.SMART
   );
-  await registerToken(tokenOut);
+
+  console.log(swapsToDo);
 
   if (wallet.isSignedIn()) {
-    // parallel swap ok
     if (isParallelSwap) {
-      const refSwapTodos = swapsToDo.filter((e) => e.pool.Dex === 'ref');
-
-      const triSwapTodos = swapsToDo.filter((e) => e.pool.Dex === 'tri');
-
-      const triSwapTransactions = await auroraSwapTransactions({
-        tokenIn_id: tokenIn.id,
-        tokenOut_id: tokenOut.id,
-        swapTodos: triSwapTodos,
-        readableAmountIn: amountIn,
-        decimalIn: tokenIn.decimals,
-        decimalOut: tokenOut.decimals,
-        slippageTolerance,
-      });
-
-      triSwapTransactions.forEach((t) => transactions.push(t));
-
-      const refSwapActions = refSwapTodos.map((s2d) => {
+      const swapActions = swapsToDo.map((s2d) => {
         let minTokenOutAmount = s2d.estimate
           ? percentLess(slippageTolerance, s2d.estimate)
           : '0';
@@ -705,6 +721,8 @@ export const instantSwap = async ({
         };
       });
 
+      await registerToken(tokenOut);
+
       tokenInActions.push({
         methodName: 'ft_transfer_call',
         args: {
@@ -712,11 +730,12 @@ export const instantSwap = async ({
           amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
           msg: JSON.stringify({
             force: 0,
-            actions: refSwapActions,
+            actions: swapActions,
           }),
         },
         gas: '180000000000000',
         amount: ONE_YOCTO_NEAR,
+        // deposit: '1',
       });
 
       transactions.push({
@@ -727,6 +746,7 @@ export const instantSwap = async ({
       return executeMultipleTransactions(transactions);
     } else if (isSmartRouteV1Swap) {
       //making sure all actions get included for hybrid stable smart.
+      await registerToken(tokenOut);
       var actionsList = [];
       // let allSwapsTokens = swapsToDo.map((s) => [s.inputToken, s.outputToken]); // to get the hop tokens
       let amountInInt = new Big(amountIn)
@@ -775,6 +795,8 @@ export const instantSwap = async ({
 
       return executeMultipleTransactions(transactions);
     } else {
+      //making sure all actions get included.
+      await registerToken(tokenOut);
       var actionsList = [];
       let allSwapsTokens = swapsToDo.map((s) => [s.inputToken, s.outputToken]); // to get the hop tokens
       for (var i in allSwapsTokens) {
@@ -795,6 +817,8 @@ export const instantSwap = async ({
             ),
           });
         } else if (swapTokens[0] == tokenIn.id) {
+          // first hop in double hop route
+          //TODO -- put in a check to make sure this first hop matches with the next (i+1) hop as a second hop.
           actionsList.push({
             pool_id: swapsToDo[i].pool.id,
             token_in: swapTokens[0],
@@ -841,6 +865,74 @@ export const instantSwap = async ({
 
       return executeMultipleTransactions(transactions);
     }
+  }
+};
+
+export const crossInstantSwap = async ({
+  tokenIn,
+  tokenOut,
+  amountIn,
+  swapsToDo,
+  slippageTolerance,
+}: SwapOptions) => {
+  const transactions: Transaction[] = [];
+  const tokenOutActions: RefFiFunctionCallOptions[] = [];
+
+  const { wallet } = getCurrentWallet();
+
+  const registerToken = async (token: TokenMetadata) => {
+    const tokenRegistered = await ftGetStorageBalance(token.id).catch(() => {
+      throw new Error(`${token.id} doesn't exist.`);
+    });
+
+    if (tokenRegistered === null) {
+      tokenOutActions.push({
+        methodName: 'storage_deposit',
+        args: {
+          registration_only: true,
+          account_id: getCurrentWallet().wallet.getAccountId(),
+        },
+        gas: '30000000000000',
+        amount: STORAGE_TO_REGISTER_WITH_MFT,
+      });
+
+      transactions.push({
+        receiverId: token.id,
+        functionCalls: tokenOutActions,
+      });
+    }
+  };
+
+  await registerToken(tokenOut);
+
+  if (wallet.isSignedIn()) {
+    const routes = separateRoutes(swapsToDo, tokenOut.id);
+
+    for (let i = 0; i < routes.length; i++) {
+      const todosThisRoute = routes[i];
+      if (swapsToDo.length === 1) {
+        const curTransactions = await parallelSwapCase({
+          tokenIn,
+          tokenOut,
+          amountIn,
+          swapsToDo: todosThisRoute,
+          slippageTolerance,
+        });
+
+        curTransactions.forEach((t) => transactions.push(t));
+      } else {
+        const curTransactions = await smartRouteSwapCase({
+          tokenIn,
+          tokenOut,
+          amountIn,
+          swapsToDo: todosThisRoute,
+          slippageTolerance,
+        });
+        curTransactions.forEach((t) => transactions.push(t));
+      }
+    }
+
+    return executeMultipleTransactions(transactions);
   }
 };
 
@@ -1005,4 +1097,271 @@ export const checkTransactionStatus = (txHash: string) => {
     txHash,
     getCurrentWallet().wallet.getAccountId()
   );
+};
+
+export const parallelSwapCase = async ({
+  tokenIn,
+  tokenOut,
+  amountIn,
+  swapsToDo,
+  slippageTolerance,
+}: {
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  amountIn: string;
+  swapsToDo: EstimateSwapView[];
+  slippageTolerance: number;
+}) => {
+  const curTransactions: Transaction[] = [];
+
+  // separate todos to different dexes
+  const refSwapTodos = swapsToDo.filter((e) => e.pool.Dex === 'ref');
+
+  const triSwapTodos = swapsToDo.filter((e) => e.pool.Dex === 'tri');
+
+  const triSwapTransactions = await auroraSwapTransactions({
+    tokenIn_id: tokenIn.id,
+    tokenOut_id: tokenOut.id,
+    swapTodos: triSwapTodos,
+    readableAmountIn: toReadableNumber(
+      tokenIn.decimals,
+      scientificNotationToString(
+        BigNumber.sum(
+          ...triSwapTodos.map((todo) => todo.pool.partialAmountIn)
+        ).toString()
+      )
+    ),
+    decimalIn: tokenIn.decimals,
+    decimalOut: tokenOut.decimals,
+    slippageTolerance,
+    swapType: 'parallel',
+  });
+
+  triSwapTransactions.forEach((t) => curTransactions.push(t));
+
+  const refSwapActions = refSwapTodos.map((s2d) => {
+    let minTokenOutAmount = s2d.estimate
+      ? percentLess(slippageTolerance, s2d.estimate)
+      : '0';
+    let allocation = toReadableNumber(
+      tokenIn.decimals,
+      scientificNotationToString(s2d.pool.partialAmountIn)
+    );
+
+    return {
+      pool_id: s2d.pool.id,
+      token_in: tokenIn.id,
+      token_out: tokenOut.id,
+      amount_in: round(
+        tokenIn.decimals,
+        toNonDivisibleNumber(tokenIn.decimals, allocation)
+      ),
+      min_amount_out: round(
+        tokenOut.decimals,
+        toNonDivisibleNumber(tokenOut.decimals, minTokenOutAmount)
+      ),
+    };
+  });
+
+  curTransactions.push({
+    receiverId: tokenIn.id,
+    functionCalls: [
+      {
+        methodName: 'ft_transfer_call',
+        args: {
+          receiver_id: REF_FI_CONTRACT_ID,
+          amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
+          msg: JSON.stringify({
+            force: 0,
+            actions: refSwapActions,
+          }),
+        },
+        gas: '180000000000000',
+        amount: ONE_YOCTO_NEAR,
+      },
+    ],
+  });
+
+  // could be hybrid transactions on difference dexes
+  return curTransactions;
+};
+
+export const smartRouteSwapCase = async ({
+  tokenIn,
+  tokenOut,
+  amountIn,
+  swapsToDo,
+  slippageTolerance,
+}: {
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  amountIn: string;
+  swapsToDo: EstimateSwapView[];
+  slippageTolerance: number;
+}) => {
+  const curTransactions: Transaction[] = [];
+  const actionsList = []; // for ref swap actions
+
+  const amountInInt = toNonDivisibleNumber(tokenIn.decimals, amountIn);
+  const swap1 = swapsToDo[0];
+  const swap2 = swapsToDo[1];
+  const swap1toTri = swap1.pool.Dex === 'tri';
+
+  const swap2toTri = swap2.pool.Dex === 'tri';
+  let triSwapTransactions: Transaction[] = [];
+
+  if (swap1toTri && swap2toTri) {
+    // both pool on tri
+    triSwapTransactions = await auroraSwapTransactions({
+      tokenIn_id: swap1.inputToken,
+      tokenOut_id: swap2.outputToken,
+      swapTodos: swapsToDo,
+      readableAmountIn: amountIn,
+      decimalIn: tokenIn.decimals,
+      decimalOut: tokenOut.decimals,
+      slippageTolerance,
+      swapType: 'smartV1',
+    });
+    triSwapTransactions.forEach((t) => curTransactions.push(t));
+  } else if (swap1toTri) {
+    // first pool on tri
+
+    triSwapTransactions = await auroraSwapTransactions({
+      tokenIn_id: tokenIn.id,
+      tokenOut_id: swap1.outputToken,
+      swapTodos: [swap1],
+      readableAmountIn: amountIn,
+      decimalIn: tokenIn.decimals,
+      decimalOut: swap1.tokens[1].decimals,
+      slippageTolerance,
+      swapType: 'smartV1',
+    });
+    triSwapTransactions.forEach((t) => curTransactions.push(t));
+
+    // slippage tolerance from first action
+    actionsList.push({
+      pool_id: swap2.pool.id,
+      token_in: swap2.inputToken,
+      token_out: swap2.outputToken,
+      amount_in: toNonDivisibleNumber(
+        swap2.tokens[1].decimals,
+        percentLess(slippageTolerance, swap1.estimate)
+      ),
+      min_amount_out: round(
+        tokenOut.decimals,
+        toNonDivisibleNumber(
+          tokenOut.decimals,
+          percentLess(slippageTolerance, swapsToDo[1].estimate)
+        )
+      ),
+    });
+
+    curTransactions.push({
+      receiverId: swap2.inputToken,
+      functionCalls: [
+        {
+          methodName: 'ft_transfer_call',
+          args: {
+            receiver_id: REF_FI_CONTRACT_ID,
+            amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
+            msg: JSON.stringify({
+              force: 0,
+              actions: actionsList,
+            }),
+          },
+          gas: '180000000000000',
+          amount: ONE_YOCTO_NEAR,
+        },
+      ],
+    });
+  } else if (swap2toTri) {
+    // second pool on tri
+    actionsList.push({
+      pool_id: swap1.pool.id,
+      token_in: swap1.inputToken,
+      token_out: swap1.outputToken,
+      amount_in: amountInInt,
+      min_amount_out: round(
+        swap1.tokens[1].decimals,
+        toNonDivisibleNumber(
+          swap1.tokens[1].decimals,
+          percentLess(slippageTolerance, swap1.estimate)
+        )
+      ),
+    });
+
+    curTransactions.push({
+      receiverId: tokenIn.id,
+      functionCalls: [
+        {
+          methodName: 'ft_transfer_call',
+          args: {
+            receiver_id: REF_FI_CONTRACT_ID,
+            amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
+            msg: JSON.stringify({
+              force: 0,
+              actions: actionsList,
+            }),
+          },
+          gas: '180000000000000',
+          amount: ONE_YOCTO_NEAR,
+        },
+      ],
+    });
+
+    triSwapTransactions = await auroraSwapTransactions({
+      tokenIn_id: swap2.inputToken,
+      tokenOut_id: swap2.outputToken,
+      swapTodos: [swap2],
+      readableAmountIn: percentLess(slippageTolerance, swap1.estimate),
+      decimalIn: swap2.tokens[1].decimals,
+      decimalOut: tokenOut.decimals,
+      slippageTolerance,
+      swapType: 'smartV1',
+    });
+    triSwapTransactions.forEach((t) => curTransactions.push(t));
+  } else {
+    // no pool on tri
+    actionsList.push({
+      pool_id: swap1.pool.id,
+      token_in: swap1.inputToken,
+      token_out: swap1.outputToken,
+      amount_in: amountInInt,
+      min_amount_out: '0',
+    });
+    actionsList.push({
+      pool_id: swap2.pool.id,
+      token_in: swap2.inputToken,
+      token_out: swap2.outputToken,
+      min_amount_out: round(
+        tokenOut.decimals,
+        toNonDivisibleNumber(
+          tokenOut.decimals,
+          percentLess(slippageTolerance, swapsToDo[1].estimate)
+        )
+      ),
+    });
+    curTransactions.push({
+      receiverId: tokenIn.id,
+      functionCalls: [
+        {
+          methodName: 'ft_transfer_call',
+          args: {
+            receiver_id: REF_FI_CONTRACT_ID,
+            amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
+            msg: JSON.stringify({
+              force: 0,
+              actions: actionsList,
+            }),
+          },
+          gas: '180000000000000',
+          amount: ONE_YOCTO_NEAR,
+        },
+      ],
+    });
+  }
+
+  // separate todos to different dexes
+
+  return curTransactions;
 };

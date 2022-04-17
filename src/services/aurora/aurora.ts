@@ -733,10 +733,11 @@ export const auroraSwapTransactions = async ({
   tokenIn_id,
   tokenOut_id,
   swapTodos,
-  readableAmountIn,
+  readableAmountIn, // for all deposit and allowance
   decimalIn,
   decimalOut,
   slippageTolerance,
+  swapType,
 }: {
   tokenIn_id: string;
   tokenOut_id: string;
@@ -745,9 +746,11 @@ export const auroraSwapTransactions = async ({
   decimalIn: number;
   decimalOut: number;
   slippageTolerance: number;
+  swapType?: 'parallel' | 'smartV1';
 }) => {
   try {
     const transactions: Transaction[] = [];
+    if (swapTodos.length === 0) return transactions;
 
     const actions = [];
 
@@ -755,6 +758,7 @@ export const auroraSwapTransactions = async ({
 
     const tokenInAddress = await getErc20Addr(tokenIn_id);
 
+    // deposit to aurora, one route case
     const depositTransaction = await depositToAuroraTransaction(
       tokenIn_id,
       readableAmountIn,
@@ -775,25 +779,48 @@ export const auroraSwapTransactions = async ({
       actions.push(approveAction);
     }
 
-    const swapActions = await Promise.all(
-      swapTodos.map((todo) => {
-        return swap({
+    let swapActions = [];
+
+    if (swapType === 'parallel') {
+      swapActions = await Promise.all(
+        swapTodos.map((todo) => {
+          return swap({
+            from: tokenIn_id,
+            to: tokenOut_id,
+            decimalIn,
+            decimalOut,
+            readableAmountIn: toReadableNumber(
+              decimalIn,
+              todo.pool.partialAmountIn
+            ),
+            readableAmountOut: percentLess(decimalOut, todo.estimate),
+            address,
+          });
+        })
+      );
+
+      swapActions.forEach((a) => actions.push(a));
+    } else if (swapType === 'smartV1') {
+      swapActions = [
+        await swap({
           from: tokenIn_id,
           to: tokenOut_id,
           decimalIn,
           decimalOut,
           readableAmountIn: toReadableNumber(
             decimalIn,
-            todo.pool.partialAmountIn
+            swapTodos[0].pool.partialAmountIn
           ),
-          readableAmountOut: percentLess(decimalOut, todo.estimate),
+          readableAmountOut: percentLess(
+            decimalOut,
+            swapTodos[swapTodos.length - 1].estimate
+          ),
           address,
-        });
-      })
-    );
+        }),
+      ];
+    }
 
-    swapActions.map((a) => actions.push(a));
-
+    // one route case
     const totalMinAmountOut = scientificNotationToString(
       BigNumber.sum(
         ...swapTodos.map((todo) =>

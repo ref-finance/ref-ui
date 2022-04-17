@@ -468,7 +468,10 @@ export const niceDecimals = (number: string | number, precision = 2) => {
   }
 };
 
-export function separateRoutes(actions: any, outputToken: string) {
+export function separateRoutes(
+  actions: EstimateSwapView[],
+  outputToken: string
+) {
   const res = [];
   let curRoute = [];
 
