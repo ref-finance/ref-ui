@@ -709,6 +709,9 @@ export const getAllTriPools = async () => {
   const allPools = await Promise.all(
     pairAddresses.map(async (pairInfo, i) => {
       const nep141s = await getBatchTokenNearAcounts(pairInfo.ids);
+      if (nep141s.some((nep) => !nep)) {
+        return null;
+      }
       const tokenMetas = await Promise.all(
         nep141s.map((id: string) => ftGetTokenMetadata(id))
       );
@@ -722,7 +725,7 @@ export const getAllTriPools = async () => {
       );
     })
   );
-  return allPools;
+  return allPools.filter((p) => p);
 };
 
 // not deposit to aurora

@@ -51,6 +51,7 @@ import {
 import { getURLInfo, failToast } from './components/layout/transactionTipPopUp';
 
 import { senderSignedInToast } from '~components/layout/senderSignInPopUp';
+import { getAllTriPools } from './services/aurora/aurora';
 
 import {
   getSenderLoginRes,
@@ -118,6 +119,8 @@ function App() {
   }, [webWallet.isSignedIn()]);
 
   useEffect(() => {
+    getAllTriPools().then((res) => console.log(res));
+
     setTimeout(() => {
       if (window.near) {
         window.near.on('signIn', (res: any) => {
