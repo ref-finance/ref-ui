@@ -120,34 +120,6 @@ export default function AddLiquidityComponentUSN(props: {
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
 
-  const refAccountBalances = useTokenBalances();
-
-  const { txHash, errorCode } = getURLInfo();
-
-  useEffect(() => {
-    if (
-      refAccountBalances &&
-      tokens &&
-      (txHash || errorCode) &&
-      tokens.some(
-        (token) =>
-          Number(
-            toReadableNumber(
-              token.decimals,
-              refAccountBalances?.[token.id] || '0'
-            )
-          ) > 0.001
-      )
-    ) {
-      checkAccountTip();
-      window.history.replaceState(
-        {},
-        '',
-        window.location.origin + window.location.pathname
-      );
-    }
-  }, [txHash, refAccountBalances, tokens, errorCode]);
-
   useEffect(() => {
     const firstAmount = toReadableNumber(
       tokens[0].decimals,

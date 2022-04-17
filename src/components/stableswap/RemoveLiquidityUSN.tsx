@@ -140,34 +140,6 @@ export function RemoveLiquidityComponentUSN(props: {
     stablePool,
   });
 
-  const refAccountBalances = useTokenBalances();
-
-  const { txHash, errorCode } = getURLInfo();
-
-  useEffect(() => {
-    if (
-      refAccountBalances &&
-      tokens &&
-      (txHash || errorCode) &&
-      tokens.some(
-        (token) =>
-          Number(
-            toReadableNumber(
-              token.decimals,
-              refAccountBalances?.[token.id] || '0'
-            )
-          ) > 0.001
-      )
-    ) {
-      checkAccountTip();
-      window.history.replaceState(
-        {},
-        '',
-        window.location.origin + window.location.pathname
-      );
-    }
-  }, [txHash, refAccountBalances, tokens, errorCode]);
-
   function submit() {
     if (isPercentage) {
       const removeShares = toNonDivisibleNumber(
