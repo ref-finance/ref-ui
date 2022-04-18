@@ -366,7 +366,6 @@ export const estimateSwap = async ({
     throwNoPoolError();
   }
 
-  console.log(res);
   return res;
 };
 
@@ -630,7 +629,7 @@ export const instantSwap = async ({
   swapsToDo,
   slippageTolerance,
 }: SwapOptions) => {
-  if (swapsToDo.every((todo) => todo.pool.Dex === 'ref'))
+  if (swapsToDo.every((todo) => todo.pool.Dex === 'ref')) {
     return nearInstantSwap({
       tokenIn,
       tokenOut,
@@ -638,7 +637,7 @@ export const instantSwap = async ({
       swapsToDo,
       slippageTolerance,
     });
-  else {
+  } else {
     return crossInstantSwap({
       tokenIn,
       tokenOut,
@@ -910,7 +909,8 @@ export const crossInstantSwap = async ({
 
     for (let i = 0; i < routes.length; i++) {
       const todosThisRoute = routes[i];
-      if (swapsToDo.length === 1) {
+
+      if (todosThisRoute.length === 1) {
         const curTransactions = await parallelSwapCase({
           tokenIn,
           tokenOut,
@@ -1115,72 +1115,80 @@ export const parallelSwapCase = async ({
   const curTransactions: Transaction[] = [];
 
   // separate todos to different dexes
+  console.log(swapsToDo);
+
   const refSwapTodos = swapsToDo.filter((e) => e.pool.Dex === 'ref');
 
   const triSwapTodos = swapsToDo.filter((e) => e.pool.Dex === 'tri');
 
-  const triSwapTransactions = await auroraSwapTransactions({
-    tokenIn_id: tokenIn.id,
-    tokenOut_id: tokenOut.id,
-    swapTodos: triSwapTodos,
-    readableAmountIn: toReadableNumber(
-      tokenIn.decimals,
-      scientificNotationToString(
-        BigNumber.sum(
-          ...triSwapTodos.map((todo) => todo.pool.partialAmountIn)
-        ).toString()
-      )
-    ),
-    decimalIn: tokenIn.decimals,
-    decimalOut: tokenOut.decimals,
-    slippageTolerance,
-    swapType: 'parallel',
-  });
+  debugger;
 
-  triSwapTransactions.forEach((t) => curTransactions.push(t));
-
-  const refSwapActions = refSwapTodos.map((s2d) => {
-    let minTokenOutAmount = s2d.estimate
-      ? percentLess(slippageTolerance, s2d.estimate)
-      : '0';
-    let allocation = toReadableNumber(
-      tokenIn.decimals,
-      scientificNotationToString(s2d.pool.partialAmountIn)
-    );
-
-    return {
-      pool_id: s2d.pool.id,
-      token_in: tokenIn.id,
-      token_out: tokenOut.id,
-      amount_in: round(
+  if (triSwapTodos.length > 0) {
+    const triSwapTransactions = await auroraSwapTransactions({
+      tokenIn_id: tokenIn.id,
+      tokenOut_id: tokenOut.id,
+      swapTodos: triSwapTodos,
+      readableAmountIn: toReadableNumber(
         tokenIn.decimals,
-        toNonDivisibleNumber(tokenIn.decimals, allocation)
+        scientificNotationToString(
+          BigNumber.sum(
+            ...triSwapTodos.map((todo) => todo.pool.partialAmountIn)
+          ).toString()
+        )
       ),
-      min_amount_out: round(
-        tokenOut.decimals,
-        toNonDivisibleNumber(tokenOut.decimals, minTokenOutAmount)
-      ),
-    };
-  });
+      decimalIn: tokenIn.decimals,
+      decimalOut: tokenOut.decimals,
+      slippageTolerance,
+      swapType: 'parallel',
+    });
 
-  curTransactions.push({
-    receiverId: tokenIn.id,
-    functionCalls: [
-      {
-        methodName: 'ft_transfer_call',
-        args: {
-          receiver_id: REF_FI_CONTRACT_ID,
-          amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
-          msg: JSON.stringify({
-            force: 0,
-            actions: refSwapActions,
-          }),
+    triSwapTransactions.forEach((t) => curTransactions.push(t));
+  }
+
+  if (refSwapTodos.length > 0) {
+    const refSwapActions = refSwapTodos.map((s2d) => {
+      let minTokenOutAmount = s2d.estimate
+        ? percentLess(slippageTolerance, s2d.estimate)
+        : '0';
+      let allocation = toReadableNumber(
+        tokenIn.decimals,
+        scientificNotationToString(s2d.pool.partialAmountIn)
+      );
+
+      return {
+        pool_id: s2d.pool.id,
+        token_in: tokenIn.id,
+        token_out: tokenOut.id,
+        amount_in: round(
+          tokenIn.decimals,
+          toNonDivisibleNumber(tokenIn.decimals, allocation)
+        ),
+        min_amount_out: round(
+          tokenOut.decimals,
+          toNonDivisibleNumber(tokenOut.decimals, minTokenOutAmount)
+        ),
+      };
+    });
+
+    curTransactions.push({
+      receiverId: tokenIn.id,
+      functionCalls: [
+        {
+          methodName: 'ft_transfer_call',
+          args: {
+            receiver_id: REF_FI_CONTRACT_ID,
+            amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
+            msg: JSON.stringify({
+              force: 0,
+              actions: refSwapActions,
+            }),
+          },
+          gas: '180000000000000',
+          amount: ONE_YOCTO_NEAR,
         },
-        gas: '180000000000000',
-        amount: ONE_YOCTO_NEAR,
-      },
-    ],
-  });
+      ],
+    });
+  }
 
   // could be hybrid transactions on difference dexes
   return curTransactions;
@@ -1237,6 +1245,8 @@ export const smartRouteSwapCase = async ({
       swapType: 'smartV1',
     });
     triSwapTransactions.forEach((t) => curTransactions.push(t));
+
+    console.log(triSwapTransactions, 'first is tri');
 
     // slippage tolerance from first action
     actionsList.push({

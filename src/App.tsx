@@ -125,8 +125,6 @@ function App() {
   }, [webWallet.isSignedIn()]);
 
   useEffect(() => {
-    getAllTriPools().then((res) => console.log(res));
-
     setTimeout(() => {
       if (window.near) {
         window.near.on('signIn', (res: any) => {

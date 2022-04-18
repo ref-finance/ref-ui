@@ -33,6 +33,7 @@ interface PoolsTokens {
   shares: string;
   update_time: string;
   token0_price: string;
+  Dex?: string;
 }
 
 export interface PoolDb extends Pool {
@@ -237,6 +238,7 @@ class RefDatabase extends Dexie {
         [item.token2Id]: item.token2Supply,
       },
       token0_ref_price: item.token0_price,
+      Dex: item.Dex,
     }));
   }
 
