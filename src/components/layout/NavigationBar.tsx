@@ -31,9 +31,8 @@ import {
   SignoutIcon,
   WNEARExchngeIcon,
 } from '~components/icon/Common';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useHistory } from 'react-router-dom';
 import { wallet } from '~services/near';
-import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
 
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -376,17 +375,20 @@ function AuroraEntry({
               </CopyToClipboard>
             </div>
 
-            <div
+            <Link
+              to={{
+                pathname: '/account/aurora',
+              }}
+              target="_blank"
               className={`w-full px-3 py-1 text-xs bg-auroraGreen text-chartBg whitespace-nowrap cursor-pointer ${
                 hasBalanceOnAurora ? 'block' : 'hidden'
               }`}
-              onClick={() => window.open('/account', '_blank')}
             >
               <FormattedMessage
                 id="mapping_account_tip"
                 defaultMessage="You have token(s) in Mapping Account"
               />
-            </div>
+            </Link>
           </div>
         </div>
       ) : null}

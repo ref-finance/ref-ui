@@ -332,7 +332,7 @@ export const SwapCross = ({ ifCross }: { ifCross: boolean }) => {
         {ifCross ? <CrossBridgeOn /> : <CrossBrigdeOff />}
       </div>
 
-      <div>{<ChainAurora dark={ifCross} />}</div>
+      <div>{<ChainAurora dark={!ifCross} />}</div>
     </div>
   );
 };

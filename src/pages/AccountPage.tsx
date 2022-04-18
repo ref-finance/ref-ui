@@ -37,7 +37,7 @@ import { STORAGE_PER_TOKEN } from '../services/creators/storage';
 import { IoCloseOutline } from 'react-icons/io5';
 import ReactTooltip from 'react-tooltip';
 import QuestionMark from '../components/farm/QuestionMark';
-import { useHistory } from 'react-router';
+import { useHistory, useLocation, useParams } from 'react-router';
 import {
   WalletContext,
   getCurrentWallet,
@@ -66,6 +66,9 @@ import {
 } from '../services/aurora/aurora';
 
 const REF_MAN_ACCOUNT_TIP_KEY = 'REF_MAN_ACCOUNT_TIP_VALUE';
+interface ParamTypes {
+  tab: string;
+}
 
 function RefAccountTipMan({
   setShowTip,
@@ -874,8 +877,13 @@ function Account(props: any) {
     auroraAddress.length
   )}`;
   const { wallet } = getCurrentWallet();
+  const { tab } = useParams<ParamTypes>();
 
-  const [showCrossBalance, setShowCrossBalance] = useState(false);
+  console.log(tab);
+
+  const [showCrossBalance, setShowCrossBalance] = useState(
+    tab === 'aurora' || false
+  );
 
   const accountTitle = !showCrossBalance ? (
     <>
