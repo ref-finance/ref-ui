@@ -68,6 +68,7 @@ import { getSmartRouteSwapActions, stableSmart } from './smartRouteLogic';
 import { getCurrentWallet } from '../utils/sender-wallet';
 import { multiply, separateRoutes } from '../utils/numbers';
 import { auroraSwapTransactions } from './aurora/aurora';
+export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 
 // Big.strict = false;
 const FEE_DIVISOR = 10000;
@@ -630,6 +631,7 @@ export const instantSwap = async ({
   slippageTolerance,
 }: SwapOptions) => {
   if (swapsToDo.every((todo) => todo.pool.Dex === 'ref')) {
+    localStorage.setItem(REF_FI_SWAP_SIGNAL, 'ref');
     return nearInstantSwap({
       tokenIn,
       tokenOut,
@@ -638,6 +640,8 @@ export const instantSwap = async ({
       slippageTolerance,
     });
   } else {
+    localStorage.setItem(REF_FI_SWAP_SIGNAL, 'tri');
+
     return crossInstantSwap({
       tokenIn,
       tokenOut,

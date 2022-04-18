@@ -41,6 +41,8 @@ export const LP_STORAGE_AMOUNT = '0.01';
 export const ONE_YOCTO_NEAR = '0.000000000000000000000001';
 
 export const keyStore = new keyStores.BrowserLocalStorageKeyStore();
+//@ts-ignore
+keyStore?.reKey = () => {};
 
 export const near = new Near({
   keyStore,

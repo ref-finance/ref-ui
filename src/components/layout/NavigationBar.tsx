@@ -61,10 +61,17 @@ import {
   CopyIcon,
 } from '../icon/CrossSwap';
 import { QuestionTip } from './TipWrapper';
-import { auroraAddr, useAuroraTokens } from '../../services/aurora/aurora';
+import {
+  auroraAddr,
+  useAuroraTokens,
+  batchCallWithdraw,
+} from '../../services/aurora/aurora';
 
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { useAuroraBalances } from '../../services/aurora/aurora';
+import {
+  useAuroraBalances,
+  // withdrawBalanceAfterTransaction,
+} from '../../services/aurora/aurora';
 
 const config = getConfig();
 
@@ -319,11 +326,7 @@ function AccountEntry({
   );
 }
 
-function AuroraEntry({
-  hasBalanceOnAurora = true,
-}: {
-  hasBalanceOnAurora?: boolean;
-}) {
+function AuroraEntry({ hasBalanceOnAurora }: { hasBalanceOnAurora?: boolean }) {
   const nearAccount = getCurrentWallet().wallet.getAccountId();
   const auroraAddress = auroraAddr(nearAccount);
 
@@ -687,12 +690,32 @@ function NavigationBar() {
   const auroraTokens = useAuroraTokens();
   const auroraAddress = auroraAddr(getCurrentWallet().wallet.getAccountId());
 
-  const auroraBalances = useAuroraBalances(auroraAddress);
+  const [withdrawDone, setWithdrawDone] = useState(false);
+
+  const auroraBalances = useAuroraBalances(auroraAddress, withdrawDone);
 
   const [hasAuroraBalance, setHasAuroraBalance] = useState(false);
 
   useEffect(() => {
-    if (!auroraBalances || !auroraTokens) return;
+    // loaidng done aurora balances
+    if (!auroraBalances || !getCurrentWallet().wallet.isSignedIn()) return;
+    const auroraAddresses = Object.keys(auroraBalances);
+
+    const amounts = Object.values(auroraBalances) as string[];
+
+    // withdrawBalanceAfterTransaction(auroraAddresses, amounts).finally(() =>
+    setWithdrawDone(true);
+    // );
+  }, [auroraBalances]);
+
+  useEffect(() => {
+    if (
+      !auroraBalances ||
+      !auroraTokens ||
+      !withdrawDone ||
+      Object.keys(auroraBalances).length === 0
+    )
+      return;
 
     const balanceOver = Object.entries(auroraBalances).some(
       ([address, balance]) => {
@@ -704,12 +727,12 @@ function NavigationBar() {
               auroraTokens.tokensByAddress[address]?.decimals,
               balance as string
             )
-          ) > 0.001
+          ) > 0
         );
       }
     );
     setHasAuroraBalance(balanceOver);
-  }, [auroraTokens, auroraBalances]);
+  }, [auroraTokens, auroraBalances, withdrawDone]);
 
   const [tokensMeta, setTokensMeta] = useState<{}>();
 
@@ -859,7 +882,11 @@ function NavigationBar() {
               setShowWalletSelector={setShowWalletSelector}
               showWalletSelector={showWalletSelector}
             />
-            <div className="relative right-3 flex items-center">
+            <div
+              className={
+                isSignedIn ? ' relative right-3 flex items-center' : 'hidden'
+              }
+            >
               <ConnectDot />
               <ConnectDot />
 

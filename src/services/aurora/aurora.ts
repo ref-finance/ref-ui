@@ -24,13 +24,7 @@ import * as nearAPI from 'near-api-js';
 
 import Big from 'big.js';
 import { getAuroraConfig, defaultTokenList } from './config';
-import {
-  near,
-  wallet,
-  keyStore,
-  Transaction,
-  RefFiFunctionCallOptions,
-} from '../near';
+import { near, keyStore, Transaction, RefFiFunctionCallOptions } from '../near';
 import getConfig from '../config';
 import { BN } from 'bn.js';
 import { Pool } from '../pool';
@@ -46,7 +40,7 @@ import { EstimateSwapView } from '../swap';
 import BigNumber from 'bignumber.js';
 import { toNonDivisibleNumber } from '../../utils/numbers';
 import { functionCall } from 'near-api-js/lib/transaction';
-import { ONE_YOCTO_NEAR, executeMultipleTransactions } from '../near';
+import { ONE_YOCTO_NEAR, executeMultipleTransactions, wallet } from '../near';
 
 const trisolaris = getAuroraConfig().trisolarisAddress;
 
@@ -129,9 +123,8 @@ export function prepareAmount(value: any) {
   return toBufferBE(number, 32);
 }
 
-export async function auroraCall(toAddress: any, input: any, value: any) {
-  if (value) return (await getAurora().call(toAddress, input, value)).unwrap();
-  else return (await getAurora().call(toAddress, input)).unwrap();
+export async function auroraCall(toAddress: any, input: any, value: any = '0') {
+  return getAurora().call(toAddress, input, value);
 }
 
 export function auroraCallToAction(contract: any, input: any, value?: string) {
@@ -492,6 +485,31 @@ export const checkAllowanceAndApprove = async (
 };
 
 // aurora call
+export const withdrawAuroaCall = async (
+  tokenAddress: string,
+  amount: string
+) => {
+  if (tokenAddress === getAuroraConfig().WETH) {
+    const callAddress = toAddress(getAuroraConfig().ethBridgeAddress);
+    const input = `0x00${Buffer.from(
+      getCurrentWallet().wallet.getAccountId(),
+      'utf-8'
+    ).toString('hex')}`;
+    const value = new Big(amount);
+
+    await auroraCall(callAddress, input, value);
+  } else {
+    const input = buildInput(Erc20Abi, 'withdrawToNear', [
+      `0x${Buffer.from(
+        getCurrentWallet().wallet.getAccountId(),
+        'utf-8'
+      ).toString('hex')}`,
+      amount, // need to check decimals in real case
+    ]);
+    await auroraCall(toAddress(tokenAddress), input);
+  }
+};
+
 export async function withdrawFromAurora({
   token_id,
   amount,
@@ -575,13 +593,14 @@ export const useAuroraTokens = () => {
 };
 
 // OK
-export const useAuroraBalances = (address: string) => {
+export const useAuroraBalances = (address: string, withdrawDone?: boolean) => {
   const [tokenBalances, setTokenBalances] = useState(null);
 
   const tokens = useAuroraTokens();
 
   useEffect(() => {
-    if (!address || !tokens?.tokenAddresses) {
+    if (!getCurrentWallet().wallet.isSignedIn()) return;
+    if (!tokens?.tokenAddresses) {
       setTokenBalances(null);
       return;
     }
@@ -590,12 +609,12 @@ export const useAuroraBalances = (address: string) => {
       getAuroraConfig().WETH,
     ]);
 
-    setTokenBalances(
-      requestAddress.reduce((obj: any, tokenAddress: string) => {
-        obj[tokenAddress] = null;
-        return obj;
-      }, {})
-    );
+    // setTokenBalances(
+    //   requestAddress.reduce((obj: any, tokenAddress: string) => {
+    //     obj[tokenAddress] = null;
+    //     return obj;
+    //   }, {})
+    // );
 
     Promise.all(
       requestAddress.map((add: string) =>
@@ -606,7 +625,7 @@ export const useAuroraBalances = (address: string) => {
     ).then((res) => {
       setTokenBalances(
         res.reduce((pre, cur, i) => {
-          if (cur)
+          if (Number(cur) > 0)
             return {
               ...pre,
               [requestAddress[i]]: scientificNotationToString(cur.toString()),
@@ -615,7 +634,7 @@ export const useAuroraBalances = (address: string) => {
         }, {})
       );
     });
-  }, [address, tokens]);
+  }, [tokens, withdrawDone]);
 
   return tokenBalances;
 };
@@ -876,3 +895,56 @@ export const batchWithdrawFromAurora = async (
     },
   ]);
 };
+
+export const batchCallWithdraw = async (
+  auroraIds: string[],
+  amounts: string[]
+) => {
+  if (auroraIds.length === 0) return;
+
+  for (let i = 0; i < auroraIds.length; i++) {
+    const id = auroraIds[i];
+    const amount = amounts[i];
+
+    await withdrawAuroaCall(id, amount);
+  }
+  return;
+};
+
+// export const loginContractValidation = async () => {
+//   const { wallet_type, wallet } = getCurrentWallet();
+
+//   if (wallet_type === 'sender-wallet') {
+//     const loginContracts = Object.keys(window.near.authData.allKeys);
+//     return loginContracts.length === 1 && loginContracts[0] === 'aurora';
+//   }
+//   console.log(wallet);
+//   const currentAccessKey = wallet._authData.allKeys[0];
+
+//   console.log(currentAccessKey);
+
+//   const allKeys = await wallet.account().getAccessKeys();
+
+//   const keyObj = allKeys.find((obj: any) => {
+//     console.log(obj.public_key);
+//     return obj.public_key === currentAccessKey;
+//   });
+//   console.log(keyObj);
+//   return !!(
+//     keyObj?.access_key?.permission?.FunctionCall?.receiver_id === 'aurora'
+//   );
+// };
+
+// export const withdrawBalanceAfterTransaction = async (
+//   auroraAddresses: any,
+//   amounts: any
+// ) => {
+//   const validateRes = await loginContractValidation();
+
+//   console.log(validateRes);
+
+//   if (validateRes && window.location.pathname !== '/acount') {
+//     batchCallWithdraw(auroraAddresses, amounts);
+//   }
+//   return;
+// };

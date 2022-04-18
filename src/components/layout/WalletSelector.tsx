@@ -417,7 +417,8 @@ export const WalletSelectorModal = (
             description={<FormattedMessage id="web" defaultMessage="web" />}
             officialUrl="wallet.near.org"
             connect={() => {
-              wallet.requestSignIn(REF_FARM_CONTRACT_ID);
+              // wallet.requestSignIn(REF_FARM_CONTRACT_ID);
+              wallet.requestSignIn('aurora');
             }}
           />
 
