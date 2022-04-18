@@ -466,14 +466,6 @@ function DetailView({
         />
         <SwapRateDetail
           title={intl.formatMessage({ id: 'swap_rate' })}
-          subTitle={
-            swapMode === SWAP_MODE.STABLE
-              ? intl.formatMessage({
-                  id: 'including_fees',
-                  defaultMessage: '(including fees)',
-                })
-              : null
-          }
           value={`1 ${toRealSymbol(
             tokenOut.symbol
           )} ≈ ${exchangeRateValue} ${toRealSymbol(tokenIn.symbol)}`}

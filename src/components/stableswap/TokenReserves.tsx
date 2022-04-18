@@ -362,7 +362,7 @@ export default function ({
         </div>
         <div
           className={`text-white mt-1 ${forPool ? 'hidden' : ''}`}
-          title={toPrecision(calTotalStableCoins, 3)}
+          title={toPrecision(calTotalStableCoins, 0)}
         >
           {toInternationalCurrencySystem(calTotalStableCoins, 3)}
         </div>
