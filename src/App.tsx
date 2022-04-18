@@ -108,6 +108,7 @@ function App() {
       // failing toast only once
       window.history.replaceState(
         {},
+        '',
         window.location.origin + window.location.pathname
       );
     }
