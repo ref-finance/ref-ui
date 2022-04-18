@@ -281,10 +281,12 @@ function AccountTable(props: any) {
       if (Number(ref) > 0) return true;
     });
 
-    const auroraAccountHasToken = tokensSort.filter((token: TokenMetadata) => {
-      const { aurora } = token;
-      return Number(aurora) > 0;
-    });
+    const auroraAccountHasToken = tokensSort.filter(
+      (token: TokenMetadata & { aurora: string }) => {
+        const { aurora } = token;
+        return Number(aurora) > 0;
+      }
+    );
 
     setRefAccountHasToken(refAccountHasToken.length);
 
@@ -390,7 +392,14 @@ function AccountTable(props: any) {
           <th className="pl-6 text-left">
             <FormattedMessage id="tokens"></FormattedMessage>
           </th>
-          <th className="text-right">
+          <th
+            className={`text-right ${
+              (refAccountHasToken && !showCrossBalance) ||
+              (auroraAccountHasToken && showCrossBalance)
+                ? ''
+                : 'pr-36'
+            }`}
+          >
             <span
               onClick={(e) => sort(e, false)}
               data-sort="near"
@@ -407,13 +416,17 @@ function AccountTable(props: any) {
               />
             </span>
           </th>
-          <th className={`text-right ${!showCrossBalance ? 'hidden' : ''}`}>
+          <th
+            className={`text-right pl-5 ${
+              !showCrossBalance && refAccountHasToken ? '' : 'hidden'
+            }`}
+          >
             <span
               onClick={(e) => sort(e, false)}
               data-sort="ref"
               className={`flex items-center w-full justify-end ${
                 currentSort.indexOf('ref') > -1 ? 'text-greenColor' : ''
-              } ${refAccountHasToken ? '' : 'hidden'}`}
+              }`}
             >
               <RefIcon />
               <label className="mx-1 cursor-pointer">REF</label>
@@ -424,13 +437,17 @@ function AccountTable(props: any) {
               />
             </span>
           </th>
-          <th className={`text-right ${showCrossBalance ? '' : 'hidden'}`}>
+          <th
+            className={`text-right pl-5 ${
+              showCrossBalance && auroraAccountHasToken ? '' : 'hidden'
+            }`}
+          >
             <span
               onClick={(e) => sort(e, false)}
               data-sort="aurora"
               className={`flex items-center w-full justify-end ${
                 currentSort.indexOf('aurora') > -1 ? 'text-greenColor' : ''
-              } ${auroraAccountHasToken ? '' : 'hidden'}`}
+              }`}
             >
               <MappingAccountIcon />
               <label className="mx-1 cursor-pointer">Mapping</label>
@@ -463,13 +480,13 @@ function AccountTable(props: any) {
         </tr>
       </thead>
       <tbody>
-        {tokensSort.map((item: TokenMetadata) => {
+        {tokensSort.map((item: TokenMetadata & { aurora: string }) => {
           return (
             <tr
               className={`h-16 border-t border-borderColor border-opacity-30 hover:bg-chartBg hover:bg-opacity-20 ${
                 new BigNumber(item.near).isEqualTo('0') &&
                 new BigNumber(item.ref).isEqualTo('0') &&
-                new BigNumber(item.aurora)
+                new BigNumber(item.aurora).isEqualTo('0')
                   ? 'hidden'
                   : ''
               }`}
@@ -495,35 +512,32 @@ function AccountTable(props: any) {
               </td>
               <td
                 width="15%"
-                className="text-right text-white font-semibold text-base"
+                className={`text-right text-white font-semibold text-base ${
+                  (refAccountHasToken && !showCrossBalance) ||
+                  (auroraAccountHasToken && showCrossBalance)
+                    ? ''
+                    : 'pr-36'
+                }`}
               >
                 <span title={item.near.toString()}>
                   {getWalletBalance(item)}
                 </span>
               </td>
               <td
-                width={!showCrossBalance ? '15%' : '0'}
-                className={`text-right text-white font-semibold text-base `}
+                width="130px"
+                className={`text-right text-white font-semibold text-base ${
+                  !showCrossBalance && refAccountHasToken ? '' : 'hidden'
+                }`}
               >
-                <span
-                  title={item.ref.toString()}
-                  className={`${
-                    refAccountHasToken && !showCrossBalance ? '' : 'hidden'
-                  }`}
-                >
-                  {getRefBalance(item)}
-                </span>
+                <span title={item.ref.toString()}>{getRefBalance(item)}</span>
               </td>
               <td
-                width={showCrossBalance ? '15%' : '0'}
-                className={`text-right text-white font-semibold text-base`}
+                width="130px"
+                className={`text-right text-white font-semibold text-base ${
+                  showCrossBalance && auroraAccountHasToken ? '' : 'hidden'
+                }`}
               >
-                <span
-                  title={item.aurora.toString()}
-                  className={`${
-                    auroraAccountHasToken && showCrossBalance ? '' : 'hidden'
-                  }`}
-                >
+                <span title={item.aurora.toString()}>
                   {getAuroraBalance(item)}
                 </span>
               </td>
@@ -567,8 +581,7 @@ function AccountTable(props: any) {
         >
           <td></td>
           <td></td>
-          {showCrossBalance ? <td></td> : null}
-          <td colSpan={2}>
+          <td colSpan={3}>
             <div className="flex justify-center">
               <GradientButton
                 color="#fff"

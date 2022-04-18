@@ -160,9 +160,9 @@ export const CrossBridgeOn = () => {
           <path
             d="M2 10C4.31707 7.33333 12.1951 2 21.4634 2C30.7317 2 37.374 7.33333 40 10"
             stroke="#00C6A2"
-            stroke-opacity="0.3"
-            stroke-width="4"
-            stroke-linecap="round"
+            strokeOpacity="0.3"
+            strokeWidth="4"
+            strokeLinecap="round"
           />
         </svg>
       </div>
@@ -192,9 +192,9 @@ export const CrossBridgeOn = () => {
               width="12"
               height="12"
               filterUnits="userSpaceOnUse"
-              color-interpolation-filters="sRGB"
+              colorInterpolationFilters="sRGB"
             >
-              <feFlood flood-opacity="0" result="BackgroundImageFix" />
+              <feFlood floodOpacity="0" result="BackgroundImageFix" />
               <feColorMatrix
                 in="SourceAlpha"
                 type="matrix"
@@ -237,8 +237,8 @@ export const ChainNear = ({ dark }: { dark?: boolean }) => {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M2.68421 3.09557V12.0029L7.15789 8.59976L7.60526 8.99919L3.85378 14.3788C2.4599 15.6808 0 14.7999 0 12.9988V2.00114C0 0.138323 2.60392 -0.710183 3.94783 0.714704L14.3158 11.7074V3.1655L10.2895 6.20317L9.8421 5.80374L13.0329 0.782014C14.3647 -0.669256 17 0.171565 17 2.04776V12.8018C17 14.6646 14.3961 15.5131 13.0522 14.0882L2.68421 3.09557Z"
         fill={dark ? '#001320' : '#00C6A2'}
       />
@@ -256,8 +256,8 @@ export const ChainAurora = ({ dark }: { dark?: boolean }) => {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M4.79288 1.98816C6.13329 -0.662715 9.86671 -0.662725 11.2071 1.98816L15.5975 10.6709C16.8286 13.1056 15.0867 16 12.3904 16H3.60958C0.913266 16 -0.828629 13.1056 0.402464 10.6709L4.79288 1.98816ZM9.06904 3.10181C8.62224 2.21818 7.37776 2.21818 6.93096 3.10181L2.54055 11.7845C2.13018 12.5961 2.71081 13.5609 3.60958 13.5609H12.3904C13.2892 13.5609 13.8698 12.5961 13.4595 11.7845L9.06904 3.10181Z"
         fill="#001320"
       />
@@ -272,8 +272,8 @@ export const ChainAurora = ({ dark }: { dark?: boolean }) => {
     >
       <g filter="url(#filter0_d_5_1658)">
         <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
+          fillRule="evenodd"
+          clipRule="evenodd"
           d="M6.79288 3.98816C8.13329 1.33728 11.8667 1.33728 13.2071 3.98816L17.5975 12.6709C18.8286 15.1056 17.0867 18 14.3904 18H5.60958C2.91327 18 1.17137 15.1056 2.40246 12.6709L6.79288 3.98816ZM11.069 5.10181C10.6222 4.21818 9.37776 4.21818 8.93096 5.10181L4.54055 13.7845C4.13018 14.5961 4.71081 15.5609 5.60958 15.5609H14.3904C15.2892 15.5609 15.8698 14.5961 15.4595 13.7845L11.069 5.10181Z"
           fill="#00C6A2"
         />
@@ -286,9 +286,9 @@ export const ChainAurora = ({ dark }: { dark?: boolean }) => {
           width="20"
           height="20"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -451,7 +451,7 @@ export const RequestingSmile = () => {
       <path
         d="M72 33C67.7317 36.6667 53.2195 44 36.1463 44C19.0732 44 6.8374 36.6667 2 33"
         stroke="#00C6A2"
-        stroke-opacity="0.3"
+        strokeOpacity="0.3"
         strokeWidth="4"
         strokeLinecap="round"
       />
