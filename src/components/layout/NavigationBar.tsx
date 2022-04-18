@@ -377,7 +377,7 @@ function AuroraEntry({
 
             <Link
               to={{
-                pathname: '/account/aurora',
+                pathname: '/account?tab=aurora',
               }}
               target="_blank"
               className={`w-full px-3 py-1 text-xs bg-auroraGreen text-chartBg whitespace-nowrap cursor-pointer ${

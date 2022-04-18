@@ -877,7 +877,7 @@ function Account(props: any) {
     auroraAddress.length
   )}`;
   const { wallet } = getCurrentWallet();
-  const { tab } = useParams<ParamTypes>();
+  const tab = new URLSearchParams(window.location.search).get('tab');
 
   console.log(tab);
 

@@ -178,7 +178,7 @@ function App() {
           />
 
           <Switch>
-            <Route path="/account/:tab" component={AccountPage} />
+            <Route path="/account" component={AccountPage} />
             <Route path="/recent" component={RecentActivityPage} />
             <Route
               path="/more_pools/:tokenIds"
