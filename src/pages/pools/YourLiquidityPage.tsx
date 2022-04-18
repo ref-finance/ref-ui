@@ -627,7 +627,9 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
                 if (isNotStablePool(pool)) {
                   setShowFunding(true);
                 } else {
-                  history.push('/sauce', { stableTab: 'add_liquidity' });
+                  history.push(`/sauce/${pool.id}`, {
+                    stableTab: 'add_liquidity',
+                  });
                 }
               }}
               className="text-sm mr-4 h-8 py-0.5 px-1"
@@ -648,7 +650,7 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
                 if (isNotStablePool(pool)) {
                   setShowWithdraw(true);
                 } else {
-                  history.push('/sauce', {
+                  history.push(`/sauce/${pool.id}`, {
                     stableTab: 'remove_liquidity',
                   });
                 }
