@@ -37,8 +37,9 @@ export default function CommonBasses({
     .filter((item) => {
       return COMMON_BASSES.indexOf(item?.symbol) > -1;
     })
-    .sort((a, b) => (a.symbol === 'REF' ? -1 : 1))
-    .sort((a, b) => (a.symbol === 'USN' ? -1 : 1));
+    .sort((a, b) => (a.symbol === 'USN' ? -1 : 1))
+    .sort((a, b) => (a.symbol === 'wNEAR' ? -1 : 1))
+    .sort((a, b) => (a.symbol === 'REF' ? -1 : 1));
 
   return (
     <section className="px-6">
