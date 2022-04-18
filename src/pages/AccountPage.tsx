@@ -892,8 +892,6 @@ function Account(props: any) {
   const { wallet } = getCurrentWallet();
   const tab = new URLSearchParams(window.location.search).get('tab');
 
-  console.log(tab);
-
   const [showCrossBalance, setShowCrossBalance] = useState(
     tab === 'aurora' || false
   );

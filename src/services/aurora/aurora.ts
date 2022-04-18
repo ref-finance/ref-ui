@@ -599,22 +599,11 @@ export const useAuroraBalances = (address: string, withdrawDone?: boolean) => {
   const tokens = useAuroraTokens();
 
   useEffect(() => {
-    if (!getCurrentWallet().wallet.isSignedIn()) return;
-    if (!tokens?.tokenAddresses) {
-      setTokenBalances(null);
-      return;
-    }
+    if (!tokens?.tokenAddresses) return;
 
     const requestAddress = tokens.tokenAddresses.concat([
       getAuroraConfig().WETH,
     ]);
-
-    // setTokenBalances(
-    //   requestAddress.reduce((obj: any, tokenAddress: string) => {
-    //     obj[tokenAddress] = null;
-    //     return obj;
-    //   }, {})
-    // );
 
     Promise.all(
       requestAddress.map((add: string) =>
@@ -634,7 +623,7 @@ export const useAuroraBalances = (address: string, withdrawDone?: boolean) => {
         }, {})
       );
     });
-  }, [tokens, withdrawDone]);
+  }, [tokens, withdrawDone, getCurrentWallet().wallet.isSignedIn()]);
 
   return tokenBalances;
 };
