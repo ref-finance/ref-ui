@@ -66,40 +66,229 @@ export const CopyIcon = ({ hover }: { hover?: boolean }) => {
   );
 };
 
-export const SwapCrossDark = () => {
+export const CrossBrigdeOff = () => {
+  return (
+    <>
+      <div
+        className="absolute"
+        style={{
+          left: '-5px',
+          top: '-1px',
+          zIndex: '30',
+        }}
+      >
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g filter="url(#filter0_d_2_1235)">
+            <circle cx="10" cy="10" r="4" fill="#73818B" />
+          </g>
+          <defs>
+            <filter
+              id="filter0_d_2_1235"
+              x="0"
+              y="0"
+              width="20"
+              height="20"
+              filterUnits="userSpaceOnUse"
+              colorInterpolationFilters="sRGB"
+            >
+              <feFlood floodOpacity="0" result="BackgroundImageFix" />
+              <feColorMatrix
+                in="SourceAlpha"
+                type="matrix"
+                values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                result="hardAlpha"
+              />
+              <feOffset />
+              <feGaussianBlur stdDeviation="3" />
+              <feComposite in2="hardAlpha" operator="out" />
+              <feColorMatrix
+                type="matrix"
+                values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.65 0"
+              />
+              <feBlend
+                mode="normal"
+                in2="BackgroundImageFix"
+                result="effect1_dropShadow_2_1235"
+              />
+              <feBlend
+                mode="normal"
+                in="SourceGraphic"
+                in2="effect1_dropShadow_2_1235"
+                result="shape"
+              />
+            </filter>
+          </defs>
+        </svg>
+      </div>
+      <div className="absolute">
+        <svg
+          width="42"
+          height="12"
+          viewBox="0 0 42 12"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M2 10C4.31707 7.33333 12.1951 2 21.4634 2C30.7317 2 37.374 7.33333 40 10"
+            stroke="#001320"
+            strokeWidth="4"
+            strokeLinecap="round"
+          />
+        </svg>
+      </div>
+    </>
+  );
+};
+
+export const CrossBridgeOn = () => {
+  return (
+    <>
+      <div className="absolute">
+        <svg
+          width="42"
+          height="12"
+          viewBox="0 0 42 12"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M2 10C4.31707 7.33333 12.1951 2 21.4634 2C30.7317 2 37.374 7.33333 40 10"
+            stroke="#00C6A2"
+            stroke-opacity="0.3"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+        </svg>
+      </div>
+
+      <div
+        className="absolute"
+        style={{
+          left: '32px',
+          top: '3px',
+        }}
+      >
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 12 12"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g filter="url(#filter0_d_5_1656)">
+            <circle cx="6" cy="6" r="4" fill="#00FFD1" />
+          </g>
+          <defs>
+            <filter
+              id="filter0_d_5_1656"
+              x="0"
+              y="0"
+              width="12"
+              height="12"
+              filterUnits="userSpaceOnUse"
+              color-interpolation-filters="sRGB"
+            >
+              <feFlood flood-opacity="0" result="BackgroundImageFix" />
+              <feColorMatrix
+                in="SourceAlpha"
+                type="matrix"
+                values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                result="hardAlpha"
+              />
+              <feOffset />
+              <feGaussianBlur stdDeviation="1" />
+              <feComposite in2="hardAlpha" operator="out" />
+              <feColorMatrix
+                type="matrix"
+                values="0 0 0 0 0 0 0 0 0 1 0 0 0 0 0.82 0 0 0 0.6 0"
+              />
+              <feBlend
+                mode="normal"
+                in2="BackgroundImageFix"
+                result="effect1_dropShadow_5_1656"
+              />
+              <feBlend
+                mode="normal"
+                in="SourceGraphic"
+                in2="effect1_dropShadow_5_1656"
+                result="shape"
+              />
+            </filter>
+          </defs>
+        </svg>
+      </div>
+    </>
+  );
+};
+
+export const ChainNear = ({ dark }: { dark?: boolean }) => {
   return (
     <svg
-      width="100"
-      height="50"
-      viewBox="0 0 100 50"
+      width="17"
+      height="15"
+      viewBox="0 0 17 15"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <rect width="100" height="50" rx="12" fill="#1D2932" />
       <path
-        d="M31.8133 38.168C30.4133 38.168 29.2419 37.6827 28.2993 36.712C27.3659 35.7413 26.8993 34.5467 26.8993 33.128V33.1C26.8993 31.6907 27.3706 30.496 28.3133 29.516C29.2559 28.5267 30.4366 28.032 31.8553 28.032C32.6859 28.032 33.3953 28.1627 33.9833 28.424C34.5713 28.6853 35.1359 29.0727 35.6773 29.586L34.9213 30.398C33.9786 29.502 32.9519 29.054 31.8413 29.054C30.7586 29.054 29.8533 29.4413 29.1253 30.216C28.4066 30.9907 28.0473 31.9427 28.0473 33.072V33.1C28.0473 34.2387 28.4113 35.2 29.1393 35.984C29.8673 36.7587 30.7679 37.146 31.8413 37.146C32.4759 37.146 33.0359 37.0293 33.5213 36.796C34.0066 36.5627 34.5013 36.208 35.0053 35.732L35.7333 36.446C35.1733 37.0153 34.5899 37.4447 33.9833 37.734C33.3766 38.0233 32.6533 38.168 31.8133 38.168ZM37.6692 38V28.2H41.8832C43.0872 28.2 44.0159 28.5267 44.6692 29.18C45.1732 29.684 45.4252 30.328 45.4252 31.112V31.14C45.4252 31.924 45.1825 32.5587 44.6972 33.044C44.2119 33.5293 43.5679 33.8467 42.7652 33.996L45.7752 38H44.4172L41.5752 34.192H41.5472H38.7752V38H37.6692ZM38.7752 33.198H41.7852C42.5319 33.198 43.1385 33.016 43.6052 32.652C44.0719 32.288 44.3052 31.798 44.3052 31.182V31.154C44.3052 30.5473 44.0812 30.076 43.6332 29.74C43.1945 29.3947 42.5832 29.222 41.7992 29.222H38.7752V33.198ZM55.9344 36.684C54.9917 37.6733 53.7924 38.168 52.3364 38.168C50.8804 38.168 49.6857 37.678 48.7524 36.698C47.8191 35.7087 47.3524 34.5187 47.3524 33.128V33.1C47.3524 31.7093 47.8237 30.5193 48.7664 29.53C49.7091 28.5313 50.9084 28.032 52.3644 28.032C53.8204 28.032 55.0151 28.5267 55.9484 29.516C56.8817 30.496 57.3484 31.6813 57.3484 33.072C57.3577 33.0813 57.3577 33.0907 57.3484 33.1C57.3484 34.4907 56.8771 35.6853 55.9344 36.684ZM49.5924 35.97C50.3297 36.754 51.2537 37.146 52.3644 37.146C53.4751 37.146 54.3897 36.7587 55.1084 35.984C55.8364 35.2093 56.2004 34.2573 56.2004 33.128V33.1C56.2004 31.9707 55.8317 31.014 55.0944 30.23C54.3664 29.446 53.4471 29.054 52.3364 29.054C51.2257 29.054 50.3064 29.4413 49.5784 30.216C48.8597 30.9907 48.5004 31.9427 48.5004 33.072V33.1C48.5004 34.2293 48.8644 35.186 49.5924 35.97ZM62.9726 38.14C61.4699 38.14 60.1352 37.6173 58.9686 36.572L59.6546 35.76C60.1772 36.236 60.6999 36.586 61.2226 36.81C61.7546 37.034 62.3519 37.146 63.0146 37.146C63.6679 37.146 64.1952 36.992 64.5966 36.684C64.9979 36.3667 65.1986 35.9653 65.1986 35.48V35.452C65.1986 34.976 65.0212 34.598 64.6666 34.318C64.3119 34.038 63.6399 33.7953 62.6506 33.59C61.4932 33.338 60.6532 33.002 60.1306 32.582C59.6172 32.1527 59.3606 31.546 59.3606 30.762V30.734C59.3606 29.9593 59.6639 29.32 60.2706 28.816C60.8772 28.312 61.6472 28.06 62.5806 28.06C63.8779 28.06 65.0259 28.4613 66.0246 29.264L65.3806 30.118C64.5126 29.4087 63.5699 29.054 62.5526 29.054C61.9272 29.054 61.4232 29.208 61.0406 29.516C60.6579 29.8147 60.4666 30.188 60.4666 30.636V30.664C60.4666 31.1493 60.6486 31.532 61.0126 31.812C61.3859 32.092 62.0906 32.344 63.1266 32.568C64.2372 32.8107 65.0446 33.1513 65.5486 33.59C66.0619 34.0193 66.3186 34.6027 66.3186 35.34V35.368C66.3186 36.1987 66.0059 36.8707 65.3806 37.384C64.7552 37.888 63.9526 38.14 62.9726 38.14ZM71.7909 38.14C70.2883 38.14 68.9536 37.6173 67.7869 36.572L68.4729 35.76C68.9956 36.236 69.5183 36.586 70.0409 36.81C70.5729 37.034 71.1703 37.146 71.8329 37.146C72.4863 37.146 73.0136 36.992 73.4149 36.684C73.8163 36.3667 74.0169 35.9653 74.0169 35.48V35.452C74.0169 34.976 73.8396 34.598 73.4849 34.318C73.1303 34.038 72.4583 33.7953 71.4689 33.59C70.3116 33.338 69.4716 33.002 68.9489 32.582C68.4356 32.1527 68.1789 31.546 68.1789 30.762V30.734C68.1789 29.9593 68.4823 29.32 69.0889 28.816C69.6956 28.312 70.4656 28.06 71.3989 28.06C72.6963 28.06 73.8443 28.4613 74.8429 29.264L74.1989 30.118C73.3309 29.4087 72.3883 29.054 71.3709 29.054C70.7456 29.054 70.2416 29.208 69.8589 29.516C69.4763 29.8147 69.2849 30.188 69.2849 30.636V30.664C69.2849 31.1493 69.4669 31.532 69.8309 31.812C70.2043 32.092 70.9089 32.344 71.9449 32.568C73.0556 32.8107 73.8629 33.1513 74.3669 33.59C74.8803 34.0193 75.1369 34.6027 75.1369 35.34V35.368C75.1369 36.1987 74.8243 36.8707 74.1989 37.384C73.5736 37.888 72.7709 38.14 71.7909 38.14Z"
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M2.68421 3.09557V12.0029L7.15789 8.59976L7.60526 8.99919L3.85378 14.3788C2.4599 15.6808 0 14.7999 0 12.9988V2.00114C0 0.138323 2.60392 -0.710183 3.94783 0.714704L14.3158 11.7074V3.1655L10.2895 6.20317L9.8421 5.80374L13.0329 0.782014C14.3647 -0.669256 17 0.171565 17 2.04776V12.8018C17 14.6646 14.3961 15.5131 13.0522 14.0882L2.68421 3.09557Z"
+        fill={dark ? '#001320' : '#00C6A2'}
+      />
+    </svg>
+  );
+};
+
+export const ChainAurora = ({ dark }: { dark?: boolean }) => {
+  return dark ? (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M4.79288 1.98816C6.13329 -0.662715 9.86671 -0.662725 11.2071 1.98816L15.5975 10.6709C16.8286 13.1056 15.0867 16 12.3904 16H3.60958C0.913266 16 -0.828629 13.1056 0.402464 10.6709L4.79288 1.98816ZM9.06904 3.10181C8.62224 2.21818 7.37776 2.21818 6.93096 3.10181L2.54055 11.7845C2.13018 12.5961 2.71081 13.5609 3.60958 13.5609H12.3904C13.2892 13.5609 13.8698 12.5961 13.4595 11.7845L9.06904 3.10181Z"
         fill="#001320"
       />
-      <path
-        d="M14 23C18.2683 19.3333 32.7805 12 49.8537 12C66.9268 12 79.1626 19.3333 84 23"
-        stroke="#001320"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-      <g filter="url(#filter0_d_15561_538)">
-        <circle cx="14" cy="23" r="4" fill="#73818B" />
+    </svg>
+  ) : (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g filter="url(#filter0_d_5_1658)">
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M6.79288 3.98816C8.13329 1.33728 11.8667 1.33728 13.2071 3.98816L17.5975 12.6709C18.8286 15.1056 17.0867 18 14.3904 18H5.60958C2.91327 18 1.17137 15.1056 2.40246 12.6709L6.79288 3.98816ZM11.069 5.10181C10.6222 4.21818 9.37776 4.21818 8.93096 5.10181L4.54055 13.7845C4.13018 14.5961 4.71081 15.5609 5.60958 15.5609H14.3904C15.2892 15.5609 15.8698 14.5961 15.4595 13.7845L11.069 5.10181Z"
+          fill="#00C6A2"
+        />
       </g>
       <defs>
         <filter
-          id="filter0_d_15561_538"
-          x="4"
-          y="13"
+          id="filter0_d_5_1658"
+          x="0"
+          y="0"
           width="20"
           height="20"
           filterUnits="userSpaceOnUse"
-          colorInterpolationFilters="sRGB"
+          color-interpolation-filters="sRGB"
         >
-          <feFlood floodOpacity="0" result="BackgroundImageFix" />
+          <feFlood flood-opacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -107,26 +296,44 @@ export const SwapCrossDark = () => {
             result="hardAlpha"
           />
           <feOffset />
-          <feGaussianBlur stdDeviation="3" />
+          <feGaussianBlur stdDeviation="1" />
           <feComposite in2="hardAlpha" operator="out" />
           <feColorMatrix
             type="matrix"
-            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.65 0"
+            values="0 0 0 0 0 0 0 0 0 1 0 0 0 0 0.82 0 0 0 0.6 0"
           />
           <feBlend
             mode="normal"
             in2="BackgroundImageFix"
-            result="effect1_dropShadow_15561_538"
+            result="effect1_dropShadow_5_1658"
           />
           <feBlend
             mode="normal"
             in="SourceGraphic"
-            in2="effect1_dropShadow_15561_538"
+            in2="effect1_dropShadow_5_1658"
             result="shape"
           />
         </filter>
       </defs>
     </svg>
+  );
+};
+
+export const SwapCross = ({ ifCross }: { ifCross: boolean }) => {
+  return (
+    <div
+      className="flex items-center justify-between w-28 rounded-xl bg-cardBg px-3"
+      style={{
+        height: '50px',
+      }}
+    >
+      <div>{<ChainNear />}</div>
+      <div className="relative right-5 bottom-2">
+        {ifCross ? <CrossBridgeOn /> : <CrossBrigdeOff />}
+      </div>
+
+      <div>{<ChainAurora dark={ifCross} />}</div>
+    </div>
   );
 };
 
@@ -230,10 +437,6 @@ export const SwapCrossLight = () => {
       </defs>
     </svg>
   );
-};
-
-export const SwapCross = ({ ifCross }: { ifCross: boolean }) => {
-  return ifCross ? <SwapCrossLight /> : <SwapCrossDark />;
 };
 
 export const RequestingSmile = () => {

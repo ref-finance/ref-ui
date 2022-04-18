@@ -61,7 +61,7 @@ import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
 import { TokenCardOut, CrossSwapTokens } from '../forms/TokenAmount';
 import { CrossSwapFormWrap } from '../forms/SwapFormWrap';
-import { TriIcon, RefIcon } from '../icon/DexIcon';
+import { TriIcon, RefIcon, WannaIconDark } from '../icon/DexIcon';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -616,12 +616,11 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
       setLoadingTrigger(true);
       setLoadingPause(false);
     }
-    // const ifDoubleCheck =
-    //   new BigNumber(tokenInAmount).isLessThanOrEqualTo(
-    //     new BigNumber(tokenInMax)
-    //   ) && Number(PriceImpactValue) > 2;
-    // if (ifDoubleCheck) setDoubleCheckOpen(true);
-    // else
+    const ifDoubleCheck =
+      new BigNumber(tokenInAmount).isLessThanOrEqualTo(
+        new BigNumber(tokenInMax)
+      ) && Number(PriceImpactValue) > 2;
+    if (ifDoubleCheck) setDoubleCheckOpen(true);
     else makeSwap(useNearBalance);
   };
 
@@ -674,7 +673,15 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
               <ExchangeArrow />
               <span className="mx-1">{toRealSymbol(tokenOut?.symbol)}</span>
             </div>
-          ) : null
+          ) : (
+            <div className="flex items-center absolute left-8">
+              <RefIcon lightTrigger={true} />
+
+              <TriIcon lightTrigger={true} />
+
+              <WannaIconDark />
+            </div>
+          )
         }
         showElseView={tokenInMax === '0' && !useNearBalance}
         elseView={<SubmitButton disabled={true} loading={showSwapLoading} />}
