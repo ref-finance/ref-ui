@@ -399,7 +399,7 @@ const zh_CN = {
   total_stable_coins: 'ステーブルコインの総数',
   daily_volume: '24時間取引量',
   liquidity_utilisation: '取引活発度',
-  token_reserves: 'ステーブルコインの貯蔵量詳細',
+  token_reserves: '統計',
   insufficient_shares: '使用可能な額を超えています',
   shares_removed: '流動性',
   shares_avaliable: '取得可能額',
