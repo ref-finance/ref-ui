@@ -171,13 +171,12 @@ export function parseAuroraPool({
   id: number;
   decodedRes: any;
 }): Pool & { Dex: string } {
-  const Afirst = auroraAddrA > auroraAddrB;
+  const Afirst =
+    Number(auroraAddrA.toString()) < Number(auroraAddrB.toString());
 
-  const token1Id = Afirst ? tokenA : tokenB;
-  const token1Supply = Afirst ? decodedRes.reserve0 : decodedRes.reserve1;
+  const token1Supply = decodedRes.reserve0;
 
-  const token2Id = Afirst ? tokenB : tokenA;
-  const token2Supply = Afirst ? decodedRes.reserve1 : decodedRes.reserve0;
+  const token2Supply = decodedRes.reserve1;
 
   return {
     Dex: 'tri',
@@ -186,10 +185,10 @@ export function parseAuroraPool({
     shareSupply: shares + '0'.repeat(6),
     tvl: undefined,
     token0_ref_price: undefined,
-    tokenIds: [token1Id, token2Id],
+    tokenIds: [tokenA, tokenB],
     supplies: {
-      [token1Id]: token1Supply,
-      [token2Id]: token2Supply,
+      [tokenA]: Afirst ? token1Supply : token2Supply,
+      [tokenB]: Afirst ? token2Supply : token1Supply,
     },
   };
 }

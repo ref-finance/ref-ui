@@ -315,7 +315,7 @@ export const getPoolsByTokens = async ({
   }
   setLoadingData && setLoadingData(false);
   // @ts-ignore
-  return filtered_pools;
+  return filtered_pools.filter((p) => crossSwap || p.Dex === 'ref');
 };
 
 export const getRefPoolsByToken1ORToken2 = async (
