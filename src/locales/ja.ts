@@ -528,5 +528,8 @@ const zh_CN = {
   to_recover_them: '修復',
   ref_account_tip_3:
     'REFアカウントからトークンを引き出し、自分のNEARウォレットへ送金',
+  aurora_account_tip_4:
+    'To withdraw token(s) from your Mapping Account to your NEAR Wallet, please select and withdraw',
+  mapping_account: 'Mapping account',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

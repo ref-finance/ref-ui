@@ -526,5 +526,8 @@ const vi = {
   to_recover_them: 'để khôi phục chúng',
   ref_account_tip_3:
     'Để rút token từ Tài khoản REF của bạn vào Ví GẦN của bạn, vui lòng chọn và rút tiền',
+  aurora_account_tip_4:
+    'To withdraw token(s) from your Mapping Account to your NEAR Wallet, please select and withdraw',
+  mapping_account: 'Mapping account',
 };
 export default Object.assign(vi, vi_in_risks_page);

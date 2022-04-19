@@ -519,5 +519,8 @@ const en_US = {
   to_recover_them: 'to recover them',
   ref_account_tip_3:
     'To withdraw token(s) from your REF Account to your NEAR Wallet, please select and withdraw',
+  aurora_account_tip_4:
+    'To withdraw token(s) from your Mapping Account to your NEAR Wallet, please select and withdraw',
+  mapping_account: 'Mapping account',
 };
 export default Object.assign(en_US, en_US_in_risks_page);
