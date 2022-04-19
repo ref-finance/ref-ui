@@ -604,8 +604,6 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
 
   const tokenInMax = tokenInBalanceFromNear || '0';
 
-  console.log(requested);
-
   const canSubmit =
     requested ||
     (!ONLY_ZEROS.test(tokenInMax) &&

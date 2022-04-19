@@ -1224,6 +1224,8 @@ export const smartRouteSwapCase = async ({
   const swap2toTri = swap2.pool.Dex === 'tri';
   let triSwapTransactions: Transaction[] = [];
 
+  console.log(swapsToDo);
+
   if (swap1toTri && swap2toTri) {
     // both pool on tri
     triSwapTransactions = await auroraSwapTransactions({

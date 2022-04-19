@@ -414,6 +414,8 @@ export async function swap({
   decimalOut: number;
   address: string;
 }) {
+  console.log(arguments);
+
   if (from === 'aurora') {
     return swapExactETHforTokens({
       to,
@@ -806,6 +808,8 @@ export const auroraSwapTransactions = async ({
         })
       );
 
+      console.log(swapActions);
+
       swapActions.forEach((a) => actions.push(a));
     } else if (swapType === 'smartV1') {
       swapActions = [
@@ -825,6 +829,9 @@ export const auroraSwapTransactions = async ({
           address,
         }),
       ];
+      swapActions.forEach((a) => actions.push(a));
+
+      console.log(swapActions, 'swap actions aurora smart');
     }
 
     // one route case
