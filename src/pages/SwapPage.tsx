@@ -92,7 +92,7 @@ function SwapPage() {
   const triTokens = useTriTokens();
 
   const [swapTab, setSwapTab] = useState(
-    localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY).toString() || 'normal'
+    localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY)?.toString() || 'normal'
   );
 
   if (!refTokens || !triTokens || !triTokenIds) return <Loading />;
