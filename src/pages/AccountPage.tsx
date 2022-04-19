@@ -57,7 +57,7 @@ import {
 import {
   SwapCross,
   ConnectDot,
-  AuroraIconWhite
+  AuroraIconWhite,
 } from '../components/icon/CrossSwapIcons';
 import {
   useAuroraBalances,
@@ -517,8 +517,9 @@ function AccountTable(props: any) {
             <tr
               className={`h-16 border-t border-borderColor border-opacity-30 hover:bg-chartBg hover:bg-opacity-20 ${
                 new BigNumber(item.near).isEqualTo('0') &&
-                new BigNumber(item.ref).isEqualTo('0') &&
-                new BigNumber(item.aurora).isEqualTo('0')
+                ((showCrossBalance &&
+                  new BigNumber(item.aurora).isEqualTo('0')) ||
+                  (!showCrossBalance && new BigNumber(item.ref).isEqualTo('0')))
                   ? 'hidden'
                   : ''
               }`}
@@ -623,7 +624,7 @@ function AccountTable(props: any) {
           );
         })}
         <tr
-          className={`h-16 border-t border-borderColor border-opacity-30 ${
+          className={`h-20 border-t border-borderColor border-opacity-30 ${
             (refAccountTokenNumber && !showCrossBalance) ||
             (mapAccountTokenNumber && showCrossBalance)
               ? ''
