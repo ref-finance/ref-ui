@@ -53,8 +53,8 @@ const config = getConfig();
 import { isMobile } from '~utils/device';
 import { getCurrentWallet, getAccountName } from '../../utils/sender-wallet';
 import { FarmDot } from '../icon/FarmStamp';
-import { AccountTipDownByAccountID } from './NavigationBar';
-
+import { AccountTipDownByAccountID, AuroraEntry } from './NavigationBar';
+import { ConnectDot } from '../icon/CrossSwap';
 export function MobileAnchor({
   to,
   pattern,
@@ -342,8 +342,12 @@ export function MobileNavBar(props: any) {
   const [mobileWrapNear, setMobileWrapNear] = useState(false);
   // const [showWalletSelector, setShowWalletSelector] = useState(false);
 
-  const { setShowWalletSelector, showWalletSelector, hasBalanceOnRefAccount } =
-    props;
+  const {
+    setShowWalletSelector,
+    showWalletSelector,
+    hasBalanceOnRefAccount,
+    hasAuroraBalance,
+  } = props;
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
 
@@ -439,7 +443,9 @@ export function MobileNavBar(props: any) {
         <NavLogo />
         <div className="flex">
           <div
-            className={`inline-flex px-1 mr-2 items-center justify-center rounded-full border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 ${
+            className={`flex px-1 ${
+              hasAuroraBalance ? 'mr-px' : 'mr-2'
+            } items-center justify-center rounded-full border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 ${
               isSignedIn
                 ? 'bg-gray-700 text-white'
                 : 'border border-gradientFrom text-gradientFrom'
@@ -448,7 +454,7 @@ export function MobileNavBar(props: any) {
             <div className="pr-1">
               <Near color={isSignedIn ? 'white' : '#00c6a2'} />
             </div>
-            <div className="overflow-ellipsis overflow-hidden text-xs whitespace-nowrap account-name">
+            <div className="overflow-ellipsis overflow-hidden text-xs whitespace-nowrap account-name relative">
               {isSignedIn ? (
                 <div
                   className="flex items-center"
@@ -490,6 +496,13 @@ export function MobileNavBar(props: any) {
               )}
             </div>
           </div>
+
+          <div className=" flex items-center">
+            <ConnectDot />
+            <ConnectDot />
+
+            <AuroraEntry hasBalanceOnAurora={hasAuroraBalance} />
+          </div>
           <span ref={iconRef} onClick={() => setShow(true)}>
             <HiMenu />
           </span>
@@ -502,7 +515,7 @@ export function MobileNavBar(props: any) {
       >
         <div
           ref={popupRef}
-          className="block h-full overflow-y-scroll w-4/6 float-right bg-cardBg shadow-4xl"
+          className="block h-full overflow-y-scroll w-4/6 float-right bg-cardBg shadow-4xl z-30"
         >
           <div className="p-4 flex text-white items-center justify-start">
             <NavLogoLarge />

@@ -24,7 +24,7 @@ export const AuroraIcon = (props: { hover?: boolean }) => {
 export const ConnectDot = () => {
   return (
     <div
-      className="rounded-full bg-gradientFrom block mx-px z-30"
+      className="rounded-full bg-gradientFrom block mx-px z-20"
       style={{
         height: '3px',
         width: '3px',

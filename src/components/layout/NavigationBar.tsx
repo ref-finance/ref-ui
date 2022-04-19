@@ -68,6 +68,7 @@ import {
 } from '../../services/aurora/aurora';
 
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { isMobile, useMobile } from '../../utils/device';
 import {
   useAuroraBalances,
   // withdrawBalanceAfterTransaction,
@@ -326,9 +327,15 @@ function AccountEntry({
   );
 }
 
-function AuroraEntry({ hasBalanceOnAurora }: { hasBalanceOnAurora?: boolean }) {
+export function AuroraEntry({
+  hasBalanceOnAurora,
+}: {
+  hasBalanceOnAurora?: boolean;
+}) {
   const nearAccount = getCurrentWallet().wallet.getAccountId();
   const auroraAddress = auroraAddr(nearAccount);
+
+  const isMobile = useMobile();
 
   const [hover, setHover] = useState(false);
 
@@ -340,17 +347,31 @@ function AuroraEntry({ hasBalanceOnAurora }: { hasBalanceOnAurora?: boolean }) {
     auroraAddress.length
   )}`;
 
+  useEffect(() => {
+    document.addEventListener('click', () => {
+      if (hover) setHover(false);
+    });
+    return () => document.removeEventListener('click', () => {});
+  }, [isMobile, hover]);
+
+  console.log(hover);
+
   return (
     <div
-      className="w-11 py-5 relative z-30 flex items-center"
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
+      className="lg:py-5 relative z-20 flex items-center"
+      onMouseEnter={() => !isMobile && setHover(true)}
+      onMouseLeave={() => !isMobile && setHover(false)}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (!isMobile) return;
+        setHover(!hover);
+      }}
     >
       <div className="flex items-center">
         <div
           className={`flex items-center rounded-2xl  ${
             hover ? 'bg-auroraGreen' : 'bg-gray-700'
-          } px-2 py-1 ml-px`}
+          } px-2 py-1 ml-px relative `}
         >
           <AuroraIcon hover={hover} />
 
@@ -358,7 +379,10 @@ function AuroraEntry({ hasBalanceOnAurora }: { hasBalanceOnAurora?: boolean }) {
         </div>
       </div>
       {hover ? (
-        <div className=" absolute pt-2 right-0 top-14">
+        <div
+          className=" absolute pt-2 right-0 lg:top-14 xs:top-6 md:top-6"
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="bg-cardBg w-64 rounded-lg border border-farmText flex flex-col overflow-hidden">
             <div className="flex items-center pl-5 pt-4">
               <span className="text-farmText text-sm">Mapping Account</span>
@@ -483,7 +507,7 @@ function PoolsMenu() {
 
   return (
     <div
-      className="relative z-20"
+      className="relative"
       onMouseOver={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
@@ -902,6 +926,7 @@ function NavigationBar() {
         isSignedIn={isSignedIn}
         setShowWalletSelector={setShowWalletSelector}
         showWalletSelector={showWalletSelector}
+        hasAuroraBalance={hasAuroraBalance}
       />
       <WalletSelectorModal
         setShowWalletSelector={setShowWalletSelector}
