@@ -103,7 +103,7 @@ function SwapPage() {
 
   // asset to ref
   const crossSwapTokens = allTokens.filter(
-    (token) => token.onTri && token.onRef
+    (token) => token.onTri || token.onRef
   );
 
   return (
