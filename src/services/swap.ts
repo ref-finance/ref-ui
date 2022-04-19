@@ -1281,7 +1281,10 @@ export const smartRouteSwapCase = async ({
           methodName: 'ft_transfer_call',
           args: {
             receiver_id: REF_FI_CONTRACT_ID,
-            amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
+            amount: toNonDivisibleNumber(
+              swap2.tokens[1].decimals,
+              percentLess(slippageTolerance, swap1.estimate)
+            ),
             msg: JSON.stringify({
               force: 0,
               actions: actionsList,
