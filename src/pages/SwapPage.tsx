@@ -7,13 +7,8 @@ import { useTriTokens, useWhitelistTokens } from '../state/token';
 import { WalletContext } from '../utils/sender-wallet';
 import { FormattedMessage } from 'react-intl';
 import { SwapCross } from '../components/icon/CrossSwap';
-import {
-  getTokenNearAccount,
-  getBatchTokenNearAcounts,
-  useTriTokenIdsOnRef,
-} from '../services/aurora/aurora';
+import { useTriTokenIdsOnRef } from '../services/aurora/aurora';
 import { TokenMetadata, ftGetTokenMetadata } from '../services/ft-contract';
-import { defaultTokenList } from '../services/aurora/config';
 
 const REF_FI_SWAP_SWAPPAGE_TAB_KEY = 'REF_FI_SWAP_SWAPPAGE_TAB_VALUE';
 
