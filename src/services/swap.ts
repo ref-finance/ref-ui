@@ -1127,8 +1127,6 @@ export const parallelSwapCase = async ({
 
   const triSwapTodos = swapsToDo.filter((e) => e.pool.Dex === 'tri');
 
-  debugger;
-
   if (triSwapTodos.length > 0) {
     const triSwapTransactions = await auroraSwapTransactions({
       tokenIn_id: tokenIn.id,
@@ -1176,6 +1174,12 @@ export const parallelSwapCase = async ({
       };
     });
 
+    const nearTransactionAmount = scientificNotationToString(
+      BigNumber.sum(
+        ...refSwapTodos.map((todo) => todo.pool.partialAmountIn)
+      ).toString()
+    );
+
     curTransactions.push({
       receiverId: tokenIn.id,
       functionCalls: [
@@ -1183,7 +1187,7 @@ export const parallelSwapCase = async ({
           methodName: 'ft_transfer_call',
           args: {
             receiver_id: REF_FI_CONTRACT_ID,
-            amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
+            amount: nearTransactionAmount,
             msg: JSON.stringify({
               force: 0,
               actions: refSwapActions,

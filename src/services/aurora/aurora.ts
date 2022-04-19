@@ -257,7 +257,7 @@ export async function depositToAuroraTransaction(
           methodName: 'ft_transfer_call',
           args: {
             receiver_id: 'aurora',
-            amount: new Big(readableAmount).mul(oneETH).toFixed(0),
+            amount: toNonDivisibleNumber(decimal, readableAmount),
             memo: '',
             msg:
               getCurrentWallet().wallet.getAccountId() +

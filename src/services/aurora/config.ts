@@ -3,7 +3,7 @@ export function getAuroraConfig(env: string = process.env.NEAR_ENV) {
     case 'production':
     case 'testnet':
       return {
-        trisolarisAddress: '0x2cb45edb4517d5947afde3beabf95a582506858b',
+        trisolarisAddress: '0x26ec2aFBDFdFB972F106100A3deaE5887353d9B9',
         ethBridgeAddress: '0xe9217bc70b7ed1f598ddd3199e80b093fa71124f',
         WETH: '0x1b6A3d5B5DCdF7a37CFE35CeBC0C4bD28eA7e946',
         Pairs: {
@@ -15,7 +15,7 @@ export function getAuroraConfig(env: string = process.env.NEAR_ENV) {
     case 'development':
     case 'mainnet':
       return {
-        trisolarisAddress: '0x26ec2aFBDFdFB972F106100A3deaE5887353d9B9',
+        trisolarisAddress: '0x2cb45edb4517d5947afde3beabf95a582506858b',
         ethBridgeAddress: '0xe9217bc70b7ed1f598ddd3199e80b093fa71124f',
         WETH: '0xC9BdeEd33CD01541e1eeD10f90519d2C06Fe3feB',
         Pairs: {
@@ -43,7 +43,7 @@ export function getAuroraConfig(env: string = process.env.NEAR_ENV) {
       };
     default:
       return {
-        trisolarisAddress: '0x26ec2aFBDFdFB972F106100A3deaE5887353d9B9',
+        trisolarisAddress: '0x2cb45edb4517d5947afde3beabf95a582506858b',
         ethBridgeAddress: '0xe9217bc70b7ed1f598ddd3199e80b093fa71124f',
         WETH: '0xC9BdeEd33CD01541e1eeD10f90519d2C06Fe3feB',
         Pairs: {
