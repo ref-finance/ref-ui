@@ -303,6 +303,8 @@ export const getPoolsByTokens = async ({
       triPools = await getAllTriPools();
     }
 
+    console.log('aurora pools', triPools);
+
     filtered_pools = pools
       .concat(triPools || [])
       .filter(isNotStablePool)
