@@ -58,7 +58,7 @@ import {
   SwapCross,
   AuroraIcon,
   ConnectDot,
-} from '../components/icon/CrossSwap';
+} from '../components/icon/CrossSwapIcons';
 import {
   useAuroraBalances,
   auroraAddr,

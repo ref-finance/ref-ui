@@ -54,7 +54,7 @@ import { isMobile } from '~utils/device';
 import { getCurrentWallet, getAccountName } from '../../utils/sender-wallet';
 import { FarmDot } from '../icon/FarmStamp';
 import { AccountTipDownByAccountID, AuroraEntry } from './NavigationBar';
-import { ConnectDot } from '../icon/CrossSwap';
+import { ConnectDot } from '../icon/CrossSwapIcons';
 export function MobileAnchor({
   to,
   pattern,

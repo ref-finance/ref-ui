@@ -6,7 +6,7 @@ import Loading from '~components/layout/Loading';
 import { useTriTokens, useWhitelistTokens } from '../state/token';
 import { WalletContext } from '../utils/sender-wallet';
 import { FormattedMessage } from 'react-intl';
-import { SwapCross } from '../components/icon/CrossSwap';
+import { SwapCross } from '../components/icon/CrossSwapIcons';
 import { useTriTokenIdsOnRef } from '../services/aurora/aurora';
 import { TokenMetadata, ftGetTokenMetadata } from '../services/ft-contract';
 

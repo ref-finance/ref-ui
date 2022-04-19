@@ -59,7 +59,7 @@ import {
   AuroraIcon,
   HasBalance,
   CopyIcon,
-} from '../icon/CrossSwap';
+} from '../icon/CrossSwapIcons';
 import { QuestionTip } from './TipWrapper';
 import {
   auroraAddr,

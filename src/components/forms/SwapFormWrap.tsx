@@ -6,7 +6,7 @@ import SlippageSelector from './SlippageSelector';
 import { SwapRefresh, CountdownTimer } from '../../components/icon';
 import { wallet } from '~services/near';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
-import { RequestingSmile } from '../icon/CrossSwap';
+import { RequestingSmile } from '../icon/CrossSwapIcons';
 
 interface SwapFormWrapProps {
   title?: string;
