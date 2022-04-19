@@ -1540,7 +1540,7 @@ export const MappingAccountIcon = () => {
           height="11.3615"
           rx="3.5"
           transform="rotate(-45 -0.707107 8)"
-          stroke="#00C6A2"
+          stroke="currentColor"
         />
       </svg>
     );

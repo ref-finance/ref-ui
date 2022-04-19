@@ -490,5 +490,7 @@ const zh_CN = {
   click_here: '点击这里',
   to_recover_them: '来取回他们',
   ref_account_tip_3: '要从您的REF帐户提取代币到您的NEAR钱包,请选择并提取',
+  aurora_account_tip_4: '要从您的映射帐户提取代币到您的NEAR钱包,请选择并提取',
+  mapping_account: '映射账户',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

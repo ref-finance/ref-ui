@@ -56,8 +56,8 @@ import {
 } from '../services/aurora/aurora';
 import {
   SwapCross,
-  AuroraIcon,
   ConnectDot,
+  AuroraIconWhite
 } from '../components/icon/CrossSwapIcons';
 import {
   useAuroraBalances,
@@ -65,17 +65,19 @@ import {
   useAuroraTokens,
 } from '../services/aurora/aurora';
 
-const REF_FI_ACCOUNT_TAB = 'REF_FI_ACCOUNT_TAB_VALUE';
-
-const REF_MAN_ACCOUNT_TIP_KEY = 'REF_MAN_ACCOUNT_TIP_VALUE';
+const ACCOUNT_PAGE_AURORA_SHOW = 'ACCOUNT_PAGE_AURORA_SHOW';
+const REF_ACCOUNT_WITHDRAW_TIP = 'REF_ACCOUNT_WITHDRAW_TIP';
+const AURORA_ACCOUNT_WITHDRAW_TIP = 'AURORA_ACCOUNT_WITHDRAW_TIP';
 interface ParamTypes {
   tab: string;
 }
 
 function RefAccountTipMan({
   setShowTip,
+  tab,
 }: {
   setShowTip: (show: boolean) => void;
+  tab: string;
 }) {
   return (
     <div
@@ -94,16 +96,28 @@ function RefAccountTipMan({
           width: '430px',
         }}
       >
-        <FormattedMessage
-          id="ref_account_tip_3"
-          defaultMessage="To withdraw token(s) from your REF Account to your NEAR Wallet, please select and withdraw"
-        />
+        {tab == 'aurora' ? (
+          <FormattedMessage
+            id="aurora_account_tip_4"
+            defaultMessage="To withdraw token(s) from your REF Account to your NEAR Wallet, please select and withdraw"
+          />
+        ) : (
+          <FormattedMessage
+            id="ref_account_tip_3"
+            defaultMessage="To withdraw token(s) from your REF Account to your NEAR Wallet, please select and withdraw"
+          />
+        )}
         .
         <div
           className="absolute pl-1 cursor-pointer"
           onClick={() => {
             setShowTip(false);
-            localStorage.setItem(REF_MAN_ACCOUNT_TIP_KEY, '1');
+            if (tab == 'ref') {
+              localStorage.setItem(REF_ACCOUNT_WITHDRAW_TIP, '1');
+            }
+            if (tab == 'aurora') {
+              localStorage.setItem(AURORA_ACCOUNT_WITHDRAW_TIP, '1');
+            }
           }}
           style={{
             right: '10px',
@@ -123,13 +137,11 @@ const withdraw_number_at_once = 5;
 const accountSortFun = (
   by: string,
   currentSort: string,
-  userTokens: TokenMetadata[],
-  hasRefBalanceOver?: boolean
+  userTokens: TokenMetadata[]
 ) => {
   const sortBy = by || 'near';
 
-  const sortDirection =
-    currentSort.split('-')[1] == 'down' && !hasRefBalanceOver ? 'up' : 'down';
+  const sortDirection = currentSort.split('-')[1] == 'down' ? 'up' : 'down';
 
   userTokens.sort((token1: TokenMetadata, token2: TokenMetadata) => {
     const { near: near1, ref: ref1, aurora: aurora1 } = token1;
@@ -267,49 +279,47 @@ const WithdrawTip = () => {
   );
 };
 function AccountTable(props: any) {
-  const { userTokens, hasRefBalanceOver, showCrossBalance } = props;
+  const {
+    userTokens,
+    showCrossBalance,
+    hasRefBalanceOver,
+    hasMapBalanceOver,
+    refAccountTokenNumber,
+    mapAccountTokenNumber,
+  } = props;
   const [tokensSort, setTokensSort] = useState(userTokens);
-  const [currentSort, setCurrentSort] = useState('');
+  let [currentSort, setCurrentSort] = useState('');
   const [checkedMap, setCheckedMap] = useState({});
   const [checkAll, setCheckALl] = useState(false);
-  const [refAccountHasToken, setRefAccountHasToken] = useState();
-  const [auroraAccountHasToken, setAuroraAccountHasToken] = useState();
+  const [checkedAuroraMap, setCheckedAuroraMap] = useState({});
+  const [checkAuroraAll, setCheckAuroraALl] = useState(false);
 
   const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false);
   useEffect(() => {
-    sort(null, hasRefBalanceOver);
-    const refAccountHasToken = tokensSort.filter((token: TokenMetadata) => {
-      const { ref } = token;
-      if (Number(ref) > 0) return true;
-    });
+    if (showCrossBalance && hasMapBalanceOver) {
+      sort(null, 'aurora');
+    } else if (!showCrossBalance && hasRefBalanceOver) {
+      sort(null, 'ref');
+    } else {
+      sort(null, 'near');
+    }
+  }, [hasRefBalanceOver, hasMapBalanceOver, showCrossBalance]);
 
-    const auroraAccountHasToken = tokensSort.filter(
-      (token: TokenMetadata & { aurora: string }) => {
-        const { aurora } = token;
-        return Number(aurora) > 0;
-      }
-    );
-
-    setRefAccountHasToken(refAccountHasToken.length);
-
-    setAuroraAccountHasToken(auroraAccountHasToken.length);
-  }, [hasRefBalanceOver]);
-
-  const sort = (e?: any, hasRefBalanceOver?: boolean) => {
-    const sortBy =
-      e?.currentTarget.dataset.sort || (hasRefBalanceOver ? 'ref' : 'near');
-
+  const sort = (e?: any, by?: string) => {
+    const sortBy = by || e?.currentTarget.dataset.sort || 'near';
+    if (currentSort.indexOf(sortBy) == -1 || by) {
+      currentSort = sortBy + '-' + 'up';
+    }
     const { sortUserTokens, curSort } = accountSortFun(
       sortBy,
       currentSort,
-      userTokens,
-      hasRefBalanceOver
+      userTokens
     );
     setTokensSort(Array.from(sortUserTokens));
     setCurrentSort(curSort);
   };
   function clickAllCheckbox() {
-    const newStatus = !checkAll;
+    const newStatus = showCrossBalance ? !checkAuroraAll : !checkAll;
     let newCheckedMap = {};
     let count = 0;
     if (newStatus) {
@@ -336,8 +346,13 @@ function AccountTable(props: any) {
     } else {
       newCheckedMap = {};
     }
-    setCheckALl(newStatus);
-    setCheckedMap(newCheckedMap);
+    if (showCrossBalance) {
+      setCheckAuroraALl(newStatus);
+      setCheckedAuroraMap(newCheckedMap);
+    } else {
+      setCheckALl(newStatus);
+      setCheckedMap(newCheckedMap);
+    }
   }
   function clickCheckbox(token: TokenMetadata) {
     if (!showCrossBalance) {
@@ -353,7 +368,7 @@ function AccountTable(props: any) {
       }
       if (
         Object.keys(checkedMap).length ==
-        Math.min(withdraw_number_at_once, refAccountHasToken)
+        Math.min(withdraw_number_at_once, refAccountTokenNumber)
       ) {
         setCheckALl(true);
       } else {
@@ -362,29 +377,31 @@ function AccountTable(props: any) {
       setCheckedMap(Object.assign({}, checkedMap));
     } else {
       const { id, aurora, decimals } = token;
-      if (checkedMap[id] || Number(aurora) == 0) {
-        delete checkedMap[id];
-      } else if (Object.keys(checkedMap).length < withdraw_number_at_once) {
-        checkedMap[id] = {
+      if (checkedAuroraMap[id] || Number(aurora) == 0) {
+        delete checkedAuroraMap[id];
+      } else if (
+        Object.keys(checkedAuroraMap).length < withdraw_number_at_once
+      ) {
+        checkedAuroraMap[id] = {
           id,
           decimals,
           amount: aurora,
         };
       }
       if (
-        Object.keys(checkedMap).length ==
-        Math.min(withdraw_number_at_once, auroraAccountHasToken)
+        Object.keys(checkedAuroraMap).length ==
+        Math.min(withdraw_number_at_once, mapAccountTokenNumber)
       ) {
-        setCheckALl(true);
+        setCheckAuroraALl(true);
       } else {
-        setCheckALl(false);
+        setCheckAuroraALl(false);
       }
-      setCheckedMap(Object.assign({}, checkedMap));
+      setCheckedAuroraMap(Object.assign({}, checkedAuroraMap));
     }
   }
   function doWithDraw() {
     setWithdrawLoading(true);
-    if (showCrossBalance) batchWithdrawFromAurora(checkedMap);
+    if (showCrossBalance) batchWithdrawFromAurora(checkedAuroraMap);
     else batchWithdraw(checkedMap);
   }
   return (
@@ -396,8 +413,8 @@ function AccountTable(props: any) {
           </th>
           <th
             className={`text-right ${
-              (refAccountHasToken && !showCrossBalance) ||
-              (auroraAccountHasToken && showCrossBalance)
+              (refAccountTokenNumber && !showCrossBalance) ||
+              (mapAccountTokenNumber && showCrossBalance)
                 ? ''
                 : 'pr-36'
             }`}
@@ -420,7 +437,7 @@ function AccountTable(props: any) {
           </th>
           <th
             className={`text-right pl-5 ${
-              !showCrossBalance && refAccountHasToken ? '' : 'hidden'
+              !showCrossBalance && refAccountTokenNumber ? '' : 'hidden'
             }`}
           >
             <span
@@ -441,7 +458,7 @@ function AccountTable(props: any) {
           </th>
           <th
             className={`text-right pl-5 ${
-              showCrossBalance && auroraAccountHasToken ? '' : 'hidden'
+              showCrossBalance && mapAccountTokenNumber ? '' : 'hidden'
             }`}
           >
             <span
@@ -462,22 +479,35 @@ function AccountTable(props: any) {
           </th>
           <th
             className={`pl-8 ${
-              (auroraAccountHasToken && showCrossBalance) ||
-              (refAccountHasToken && !showCrossBalance)
+              (mapAccountTokenNumber && showCrossBalance) ||
+              (refAccountTokenNumber && !showCrossBalance)
                 ? ''
                 : 'hidden'
             }`}
           >
-            <span className="flex items-center">
-              <label className="cursor-pointer" onClick={clickAllCheckbox}>
-                {checkAll ? (
-                  <CheckboxSelected></CheckboxSelected>
-                ) : (
-                  <Checkbox></Checkbox>
-                )}
-              </label>
-              <WithdrawTip />
-            </span>
+            {showCrossBalance ? (
+              <span className="flex items-center">
+                <label className="cursor-pointer" onClick={clickAllCheckbox}>
+                  {checkAuroraAll ? (
+                    <CheckboxSelected></CheckboxSelected>
+                  ) : (
+                    <Checkbox></Checkbox>
+                  )}
+                </label>
+                <WithdrawTip />
+              </span>
+            ) : (
+              <span className="flex items-center">
+                <label className="cursor-pointer" onClick={clickAllCheckbox}>
+                  {checkAll ? (
+                    <CheckboxSelected></CheckboxSelected>
+                  ) : (
+                    <Checkbox></Checkbox>
+                  )}
+                </label>
+                <WithdrawTip />
+              </span>
+            )}
           </th>
         </tr>
       </thead>
@@ -515,8 +545,8 @@ function AccountTable(props: any) {
               <td
                 width="15%"
                 className={`text-right text-white font-semibold text-base ${
-                  (refAccountHasToken && !showCrossBalance) ||
-                  (auroraAccountHasToken && showCrossBalance)
+                  (refAccountTokenNumber && !showCrossBalance) ||
+                  (mapAccountTokenNumber && showCrossBalance)
                     ? ''
                     : 'pr-36'
                 }`}
@@ -528,7 +558,7 @@ function AccountTable(props: any) {
               <td
                 width="130px"
                 className={`text-right text-white font-semibold text-base ${
-                  !showCrossBalance && refAccountHasToken ? '' : 'hidden'
+                  !showCrossBalance && refAccountTokenNumber ? '' : 'hidden'
                 }`}
               >
                 <span title={item.ref.toString()}>{getRefBalance(item)}</span>
@@ -536,7 +566,7 @@ function AccountTable(props: any) {
               <td
                 width="130px"
                 className={`text-right text-white font-semibold text-base ${
-                  showCrossBalance && auroraAccountHasToken ? '' : 'hidden'
+                  showCrossBalance && mapAccountTokenNumber ? '' : 'hidden'
                 }`}
               >
                 <span title={item.aurora.toString()}>
@@ -547,36 +577,55 @@ function AccountTable(props: any) {
               <td
                 width="15%"
                 className={`pl-8 ${
-                  (auroraAccountHasToken && showCrossBalance) ||
-                  (refAccountHasToken && !showCrossBalance)
+                  (mapAccountTokenNumber && showCrossBalance) ||
+                  (refAccountTokenNumber && !showCrossBalance)
                     ? ''
                     : 'hidden'
                 }`}
               >
-                <label
-                  className={`${
-                    Number(item.ref) || Number(item.aurora) > 0
-                      ? 'cursor-pointer'
-                      : 'cursor-not-allowed'
-                  } `}
-                  onClick={() => {
-                    clickCheckbox(item);
-                  }}
-                >
-                  {checkedMap[item.id]?.amount ? (
-                    <CheckboxSelected></CheckboxSelected>
-                  ) : (
-                    <Checkbox></Checkbox>
-                  )}
-                </label>
+                {showCrossBalance ? (
+                  <label
+                    className={`${
+                      Number(item.aurora) > 0
+                        ? 'cursor-pointer'
+                        : 'cursor-not-allowed'
+                    } `}
+                    onClick={() => {
+                      clickCheckbox(item);
+                    }}
+                  >
+                    {checkedAuroraMap[item.id]?.amount ? (
+                      <CheckboxSelected></CheckboxSelected>
+                    ) : (
+                      <Checkbox></Checkbox>
+                    )}
+                  </label>
+                ) : (
+                  <label
+                    className={`${
+                      Number(item.ref) > 0
+                        ? 'cursor-pointer'
+                        : 'cursor-not-allowed'
+                    } `}
+                    onClick={() => {
+                      clickCheckbox(item);
+                    }}
+                  >
+                    {checkedMap[item.id]?.amount ? (
+                      <CheckboxSelected></CheckboxSelected>
+                    ) : (
+                      <Checkbox></Checkbox>
+                    )}
+                  </label>
+                )}
               </td>
             </tr>
           );
         })}
         <tr
           className={`h-16 border-t border-borderColor border-opacity-30 ${
-            (refAccountHasToken && !showCrossBalance) ||
-            (auroraAccountHasToken && showCrossBalance)
+            (refAccountTokenNumber && !showCrossBalance) ||
+            (mapAccountTokenNumber && showCrossBalance)
               ? ''
               : 'hidden'
           }`}
@@ -585,32 +634,63 @@ function AccountTable(props: any) {
           <td></td>
           <td colSpan={3}>
             <div className="flex justify-center">
-              <GradientButton
-                color="#fff"
-                className={`w-36 h-9 text-center text-base text-white mt-4 focus:outline-none font-semibold ${
-                  Object.keys(checkedMap).length == 0 ? 'opacity-40' : ''
-                }`}
-                onClick={doWithDraw}
-                disabled={Object.keys(checkedMap).length == 0}
-                btnClassName={
-                  Object.keys(checkedMap).length == 0
-                    ? 'cursor-not-allowed'
-                    : ''
-                }
-                loading={withdrawLoading}
-              >
-                <div>
-                  <ButtonTextWrapper
-                    loading={withdrawLoading}
-                    Text={() => (
-                      <FormattedMessage
-                        id="withdraw"
-                        defaultMessage="Withdraw"
-                      />
-                    )}
-                  />
-                </div>
-              </GradientButton>
+              {showCrossBalance ? (
+                <GradientButton
+                  color="#fff"
+                  className={`w-36 h-9 text-center text-base text-white mt-4 focus:outline-none font-semibold ${
+                    Object.keys(checkedAuroraMap).length == 0
+                      ? 'opacity-40'
+                      : ''
+                  }`}
+                  onClick={doWithDraw}
+                  disabled={Object.keys(checkedAuroraMap).length == 0}
+                  btnClassName={
+                    Object.keys(checkedAuroraMap).length == 0
+                      ? 'cursor-not-allowed'
+                      : ''
+                  }
+                  loading={withdrawLoading}
+                >
+                  <div>
+                    <ButtonTextWrapper
+                      loading={withdrawLoading}
+                      Text={() => (
+                        <FormattedMessage
+                          id="withdraw"
+                          defaultMessage="Withdraw"
+                        />
+                      )}
+                    />
+                  </div>
+                </GradientButton>
+              ) : (
+                <GradientButton
+                  color="#fff"
+                  className={`w-36 h-9 text-center text-base text-white mt-4 focus:outline-none font-semibold ${
+                    Object.keys(checkedMap).length == 0 ? 'opacity-40' : ''
+                  }`}
+                  onClick={doWithDraw}
+                  disabled={Object.keys(checkedMap).length == 0}
+                  btnClassName={
+                    Object.keys(checkedMap).length == 0
+                      ? 'cursor-not-allowed'
+                      : ''
+                  }
+                  loading={withdrawLoading}
+                >
+                  <div>
+                    <ButtonTextWrapper
+                      loading={withdrawLoading}
+                      Text={() => (
+                        <FormattedMessage
+                          id="withdraw"
+                          defaultMessage="Withdraw"
+                        />
+                      )}
+                    />
+                  </div>
+                </GradientButton>
+              )}
             </div>
           </td>
         </tr>
@@ -619,22 +699,17 @@ function AccountTable(props: any) {
   );
 }
 function MobileAccountTable(props: any) {
-  const { userTokens, type } = props;
+  const { userTokens, type, refAccountTokenNumber, mapAccountTokenNumber } =
+    props;
   const [tokensSort, setTokensSort] = useState(userTokens);
   const [currentSort, setCurrentSort] = useState('');
   const [checkedMap, setCheckedMap] = useState({});
+  const [checkedAuroraMap, setCheckedAuroraMap] = useState({});
   const [checkAll, setCheckALl] = useState(false);
+  const [checkAuroraAll, setCheckAuroraALl] = useState(false);
   const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false);
-  const [refAccountHasToken, setRefAccountHasToken] = useState();
   useEffect(() => {
     sort(`${type} + '-up'`);
-    if (type == 'ref') {
-      const refAccountHasToken = tokensSort.filter((token: TokenMetadata) => {
-        const { ref } = token;
-        if (Number(ref) > 0) return true;
-      });
-      setRefAccountHasToken(refAccountHasToken.length);
-    }
   }, [type]);
   const sort = (direction?: string) => {
     const { sortUserTokens, curSort } = accountSortFun(
@@ -646,53 +721,87 @@ function MobileAccountTable(props: any) {
     setCurrentSort(curSort);
   };
   function clickAllCheckbox() {
-    const newStatus = !checkAll;
+    const newStatus = type == 'ref' ? !checkAll : !checkAuroraAll;
     let newCheckedMap = {};
     let count = 0;
     if (newStatus) {
       for (let i = 0; i < tokensSort.length; i++) {
-        const { id, ref, decimals } = tokensSort[i];
+        const { id, ref, decimals, aurora } = tokensSort[i];
         if (count >= withdraw_number_at_once) {
           break;
-        } else if (Number(ref) > 0) {
+        }
+        const amount = type == 'ref' ? ref : aurora;
+        if (amount > 0) {
           ++count;
           newCheckedMap[id] = {
             id,
             decimals,
-            amount: ref,
+            amount,
           };
         }
       }
     } else {
       newCheckedMap = {};
     }
-    setCheckALl(newStatus);
-    setCheckedMap(newCheckedMap);
-  }
-  function clickCheckbox(token: TokenMetadata) {
-    const { id, ref, decimals } = token;
-    if (checkedMap[id] || Number(ref) == 0) {
-      delete checkedMap[id];
-    } else if (Object.keys(checkedMap).length < withdraw_number_at_once) {
-      checkedMap[id] = {
-        id,
-        decimals,
-        amount: ref,
-      };
-    }
-    if (
-      Object.keys(checkedMap).length ==
-      Math.min(withdraw_number_at_once, refAccountHasToken)
-    ) {
-      setCheckALl(true);
+    if (type == 'ref') {
+      setCheckALl(newStatus);
+      setCheckedMap(newCheckedMap);
     } else {
-      setCheckALl(false);
+      setCheckAuroraALl(newStatus);
+      setCheckedAuroraMap(newCheckedMap);
     }
-    setCheckedMap(JSON.parse(JSON.stringify(checkedMap)));
+  }
+  function clickCheckbox(token: TokenMetadata & { aurora: string }) {
+    const { id, ref, aurora, decimals } = token;
+    if (type == 'ref') {
+      if (checkedMap[id] || Number(ref) == 0) {
+        delete checkedMap[id];
+      } else if (Object.keys(checkedMap).length < withdraw_number_at_once) {
+        checkedMap[id] = {
+          id,
+          decimals,
+          amount: ref,
+        };
+      }
+      if (
+        Object.keys(checkedMap).length ==
+        Math.min(withdraw_number_at_once, refAccountTokenNumber)
+      ) {
+        setCheckALl(true);
+      } else {
+        setCheckALl(false);
+      }
+      setCheckedMap(JSON.parse(JSON.stringify(checkedMap)));
+    } else if (type == 'map') {
+      if (checkedAuroraMap[id] || Number(aurora) == 0) {
+        delete checkedAuroraMap[id];
+      } else if (
+        Object.keys(checkedAuroraMap).length < withdraw_number_at_once
+      ) {
+        checkedAuroraMap[id] = {
+          id,
+          decimals,
+          amount: aurora,
+        };
+      }
+      if (
+        Object.keys(checkedAuroraMap).length ==
+        Math.min(withdraw_number_at_once, mapAccountTokenNumber)
+      ) {
+        setCheckAuroraALl(true);
+      } else {
+        setCheckAuroraALl(false);
+      }
+      setCheckedAuroraMap(JSON.parse(JSON.stringify(checkedAuroraMap)));
+    }
   }
   function doWithDraw() {
     setWithdrawLoading(true);
-    batchWithdraw(checkedMap);
+    if (type == 'ref') {
+      batchWithdraw(checkedMap);
+    } else if (type == 'map') {
+      batchWithdrawFromAurora(checkedAuroraMap);
+    }
   }
   return (
     <table className="text-left w-full text-sm text-gray-400 mt-8 table-auto">
@@ -701,7 +810,7 @@ function MobileAccountTable(props: any) {
           <th className="pl-4">
             <FormattedMessage id="tokens"></FormattedMessage>
           </th>
-          <th className={`pr-4 ${type == 'ref' ? 'hidden' : ''}`}>
+          <th className={`pr-4 ${type == 'near' ? '' : 'hidden'}`}>
             <span
               onClick={() => {
                 sort();
@@ -718,7 +827,7 @@ function MobileAccountTable(props: any) {
               />
             </span>
           </th>
-          <th className={`pr-4 ${type == 'near' ? 'hidden' : ''}`}>
+          <th className={`pr-4 ${type == 'ref' ? '' : 'hidden'}`}>
             <span
               onClick={() => {
                 sort();
@@ -735,33 +844,58 @@ function MobileAccountTable(props: any) {
               />
             </span>
           </th>
+          <th className={`pr-4 ${type == 'map' ? '' : 'hidden'}`}>
+            <span
+              onClick={() => {
+                sort();
+              }}
+              data-sort="map"
+              className={`flex items-center w-full justify-end`}
+            >
+              <MappingAccountIcon />
+              <label className="mx-1 cursor-pointer">Mapping</label>
+              <TiArrowSortedUp
+                className={`cursor-pointer ${
+                  currentSort == 'map-down' ? 'transform rotate-180' : ''
+                }`}
+              />
+            </span>
+          </th>
           <th className={`pr-2 ${type == 'near' ? 'hidden' : ''}`}>
             <label className="cursor-pointer" onClick={clickAllCheckbox}>
-              {checkAll ? (
-                <CheckboxSelected></CheckboxSelected>
+              {type == 'ref' ? (
+                <>
+                  {checkAll ? (
+                    <CheckboxSelected></CheckboxSelected>
+                  ) : (
+                    <Checkbox></Checkbox>
+                  )}
+                </>
               ) : (
-                <Checkbox></Checkbox>
+                <>
+                  {checkAuroraAll ? (
+                    <CheckboxSelected></CheckboxSelected>
+                  ) : (
+                    <Checkbox></Checkbox>
+                  )}
+                </>
               )}
             </label>
           </th>
         </tr>
       </thead>
       <tbody>
-        {tokensSort.map((item: TokenMetadata) => {
+        {tokensSort.map((item: TokenMetadata & { aurora: string }) => {
           if (
             (type == 'ref' && new BigNumber(item.ref).isEqualTo(0)) ||
-            (type == 'near' && new BigNumber(item.near).isEqualTo(0))
+            (type == 'near' && new BigNumber(item.near).isEqualTo(0)) ||
+            (type == 'map' && new BigNumber(item.aurora).isEqualTo(0))
           ) {
             return null;
           } else
             return (
               <tr
-                className={`h-16 border-t border-borderColor border-opacity-30 hover:bg-chartBg hover:bg-opacity-20 ${
-                  (type == 'ref' && new BigNumber(item.ref).isEqualTo(0)) ||
-                  (type == 'near' && new BigNumber(item.near).isEqualTo(0))
-                    ? 'hidden'
-                    : ''
-                }`}
+                className={`h-16 border-t border-borderColor border-opacity-30 hover:bg-chartBg hover:bg-opacity-20`}
                 key={item.id}
               >
                 <td className="pl-4">
@@ -783,17 +917,24 @@ function MobileAccountTable(props: any) {
                     </div>
                   </div>
                 </td>
-                <td className={`pr-4 ${type == 'ref' ? 'hidden' : ''}`}>
+                <td className={`pr-4 ${type == 'near' ? '' : 'hidden'}`}>
                   <div className="flex flex-col items-end py-4">
                     <label className="text-white font-semibold text-lg mb-1">
                       {getWalletBalance(item)}
                     </label>
                   </div>
                 </td>
-                <td className={`pr-4 ${type == 'near' ? 'hidden' : ''}`}>
+                <td className={`pr-4 ${type == 'ref' ? '' : 'hidden'}`}>
                   <div className="flex flex-col items-end py-4">
                     <label className="text-white font-semibold text-lg mb-1">
                       {getRefBalance(item)}
+                    </label>
+                  </div>
+                </td>
+                <td className={`pr-4 ${type == 'map' ? '' : 'hidden'}`}>
+                  <div className="flex flex-col items-end py-4">
+                    <label className="text-white font-semibold text-lg mb-1">
+                      {getAuroraBalance(item)}
                     </label>
                   </div>
                 </td>
@@ -804,10 +945,22 @@ function MobileAccountTable(props: any) {
                       clickCheckbox(item);
                     }}
                   >
-                    {checkedMap[item.id]?.amount ? (
-                      <CheckboxSelected></CheckboxSelected>
+                    {type == 'ref' ? (
+                      <>
+                        {checkedMap[item.id]?.amount ? (
+                          <CheckboxSelected></CheckboxSelected>
+                        ) : (
+                          <Checkbox></Checkbox>
+                        )}
+                      </>
                     ) : (
-                      <Checkbox></Checkbox>
+                      <>
+                        {checkedAuroraMap[item.id]?.amount ? (
+                          <CheckboxSelected></CheckboxSelected>
+                        ) : (
+                          <Checkbox></Checkbox>
+                        )}
+                      </>
                     )}
                   </label>
                 </td>
@@ -819,44 +972,87 @@ function MobileAccountTable(props: any) {
             type == 'near' ? 'hidden' : ''
           }`}
         >
-          <td colSpan={3}>
-            <div className="flex flex-col justify-center items-center">
-              <div
-                className={`border border-primaryText p-2.5 text-xs text-navHighLightText text-left rounded-md m-3 mt-4 ${
-                  Object.keys(checkedMap).length >= withdraw_number_at_once
-                    ? ''
-                    : 'hidden'
-                }`}
-              >
-                <FormattedMessage id="over_tip"></FormattedMessage>
-              </div>
-              <GradientButton
-                color="#fff"
-                className={`w-36 h-9 text-center text-base text-white mt-2 focus:outline-none font-semibold ${
-                  Object.keys(checkedMap).length == 0 ? 'opacity-40' : ''
-                }`}
-                onClick={doWithDraw}
-                disabled={Object.keys(checkedMap).length == 0}
-                btnClassName={
-                  Object.keys(checkedMap).length == 0
-                    ? 'cursor-not-allowed'
-                    : ''
-                }
-                loading={withdrawLoading}
-              >
-                <div>
-                  <ButtonTextWrapper
-                    loading={withdrawLoading}
-                    Text={() => (
-                      <FormattedMessage
-                        id="withdraw"
-                        defaultMessage="Withdraw"
-                      />
-                    )}
-                  />
+          <td colSpan={5}>
+            {type == 'ref' ? (
+              <div className="flex flex-col justify-center items-center">
+                <div
+                  className={`border border-primaryText p-2.5 text-xs text-navHighLightText text-left rounded-md m-3 mt-4 ${
+                    Object.keys(checkedMap).length >= withdraw_number_at_once
+                      ? ''
+                      : 'hidden'
+                  }`}
+                >
+                  <FormattedMessage id="over_tip"></FormattedMessage>
                 </div>
-              </GradientButton>
-            </div>
+                <GradientButton
+                  color="#fff"
+                  className={`w-36 h-9 text-center text-base text-white mt-2 focus:outline-none font-semibold ${
+                    Object.keys(checkedMap).length == 0 ? 'opacity-40' : ''
+                  }`}
+                  onClick={doWithDraw}
+                  disabled={Object.keys(checkedMap).length == 0}
+                  btnClassName={
+                    Object.keys(checkedMap).length == 0
+                      ? 'cursor-not-allowed'
+                      : ''
+                  }
+                  loading={withdrawLoading}
+                >
+                  <div>
+                    <ButtonTextWrapper
+                      loading={withdrawLoading}
+                      Text={() => (
+                        <FormattedMessage
+                          id="withdraw"
+                          defaultMessage="Withdraw"
+                        />
+                      )}
+                    />
+                  </div>
+                </GradientButton>
+              </div>
+            ) : (
+              <div className="flex flex-col justify-center items-center">
+                <div
+                  className={`border border-primaryText p-2.5 text-xs text-navHighLightText text-left rounded-md m-3 mt-4 ${
+                    Object.keys(checkedAuroraMap).length >=
+                    withdraw_number_at_once
+                      ? ''
+                      : 'hidden'
+                  }`}
+                >
+                  <FormattedMessage id="over_tip"></FormattedMessage>
+                </div>
+                <GradientButton
+                  color="#fff"
+                  className={`w-36 h-9 text-center text-base text-white mt-2 focus:outline-none font-semibold ${
+                    Object.keys(checkedAuroraMap).length == 0
+                      ? 'opacity-40'
+                      : ''
+                  }`}
+                  onClick={doWithDraw}
+                  disabled={Object.keys(checkedAuroraMap).length == 0}
+                  btnClassName={
+                    Object.keys(checkedAuroraMap).length == 0
+                      ? 'cursor-not-allowed'
+                      : ''
+                  }
+                  loading={withdrawLoading}
+                >
+                  <div>
+                    <ButtonTextWrapper
+                      loading={withdrawLoading}
+                      Text={() => (
+                        <FormattedMessage
+                          id="withdraw"
+                          defaultMessage="Withdraw"
+                        />
+                      )}
+                    />
+                  </div>
+                </GradientButton>
+              </div>
+            )}
           </td>
         </tr>
       </tbody>
@@ -866,17 +1062,45 @@ function MobileAccountTable(props: any) {
 function Account(props: any) {
   const { userTokens } = props;
   const [visible, setVisible] = useState(false);
+  const [visibleMap, setVisibleMap] = useState(false);
 
   const [hasRefBalanceOver, setHasRefBalanceOver] = useState<boolean>(false);
+  const [hasMapBalanceOver, setHasMapBalanceOver] = useState<boolean>(false);
+  const [refAccountTokenNumber, setRefAccountTokenNumber] = useState();
+  const [mapAccountTokenNumber, setMapAccountTokenNumber] = useState();
 
   useEffect(() => {
     const hasRefBalanceOver = userTokens.some((token: TokenMetadata) => {
       return Number(token.ref) > 0.001;
     });
+    const hasMapBalanceOver = userTokens.some(
+      (token: TokenMetadata & { aurora: string }) => {
+        return Number(token.aurora) > 0.001;
+      }
+    );
+    const refAccountHasToken = userTokens.filter((token: TokenMetadata) => {
+      const { ref } = token;
+      if (Number(ref) > 0) return true;
+    });
+
+    const mapAccountHasToken = userTokens.filter(
+      (token: TokenMetadata & { aurora: string }) => {
+        const { aurora } = token;
+        return Number(aurora) > 0;
+      }
+    );
+    setRefAccountTokenNumber(refAccountHasToken.length);
+    setMapAccountTokenNumber(mapAccountHasToken.length);
     setHasRefBalanceOver(hasRefBalanceOver);
+    setHasMapBalanceOver(hasMapBalanceOver);
+
     setVisible(
       hasRefBalanceOver &&
-        !localStorage.getItem(REF_MAN_ACCOUNT_TIP_KEY)?.toString()
+        !localStorage.getItem(REF_ACCOUNT_WITHDRAW_TIP)?.toString()
+    );
+    setVisibleMap(
+      hasMapBalanceOver &&
+        !localStorage.getItem(AURORA_ACCOUNT_WITHDRAW_TIP)?.toString()
     );
   }, []);
 
@@ -893,11 +1117,9 @@ function Account(props: any) {
   )}`;
   const { wallet } = getCurrentWallet();
   const tab = new URLSearchParams(window.location.search).get('tab');
-
-  const storageTab = localStorage.getItem(REF_FI_ACCOUNT_TAB)?.toString();
-
+  const crossStatus = localStorage.getItem(ACCOUNT_PAGE_AURORA_SHOW);
   const [showCrossBalance, setShowCrossBalance] = useState(
-    tab === 'aurora' || storageTab === 'aurora' || false
+    tab === 'aurora' || crossStatus == '1' ? true : false
   );
 
   const accountTitle = !showCrossBalance ? (
@@ -932,7 +1154,7 @@ function Account(props: any) {
         }}
       >
         <div className="mx-1">
-          <AuroraIcon />
+          <AuroraIconWhite width="16" height="16" />
         </div>
 
         <div className="mx-1">{displayAddr}</div>
@@ -942,7 +1164,19 @@ function Account(props: any) {
 
   return (
     <div className="justify-center relative w-1/2 m-auto mt-16 xs:hidden md:hidden pb-5 flex flex-col">
-      {visible ? <RefAccountTipMan setShowTip={setVisible} /> : null}
+      {showCrossBalance ? (
+        <>
+          {visibleMap ? (
+            <RefAccountTipMan setShowTip={setVisibleMap} tab="aurora" />
+          ) : null}
+        </>
+      ) : (
+        <>
+          {visible ? (
+            <RefAccountTipMan setShowTip={setVisible} tab="ref" />
+          ) : null}
+        </>
+      )}
 
       <div className="flex items-center justify-between ">
         <div
@@ -959,12 +1193,12 @@ function Account(props: any) {
         <div
           className="pb-4 pl-5 accountPage-pc-top-right relative cursor-pointer"
           onClick={() => {
-            if (showCrossBalance) {
-              localStorage.setItem(REF_FI_ACCOUNT_TAB, 'ref');
-            } else {
-              localStorage.setItem(REF_FI_ACCOUNT_TAB, 'aurora');
-            }
-            setShowCrossBalance(!showCrossBalance);
+            const newCross = !showCrossBalance;
+            localStorage.setItem(
+              ACCOUNT_PAGE_AURORA_SHOW,
+              newCross ? '1' : '0'
+            );
+            setShowCrossBalance(newCross);
           }}
         >
           <SwapCross ifCross={showCrossBalance} />
@@ -975,6 +1209,9 @@ function Account(props: any) {
         <AccountTable
           userTokens={userTokens}
           hasRefBalanceOver={hasRefBalanceOver}
+          hasMapBalanceOver={hasMapBalanceOver}
+          refAccountTokenNumber={refAccountTokenNumber}
+          mapAccountTokenNumber={mapAccountTokenNumber}
           showCrossBalance={showCrossBalance}
         />
       </Card>
@@ -985,77 +1222,213 @@ function MobileAccount(props: any) {
   const { userTokens } = props;
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
-  const [activeTab, setActiveTab] = useState('near');
-
+  const [activeTab, setActiveTab] = useState('');
+  const [showTip, setShowTip] = useState(false);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const auroraAddress = auroraAddr(getCurrentWallet().wallet.getAccountId());
+  const [refAccountTokenNumber, setRefAccountTokenNumber] = useState();
+  const [mapAccountTokenNumber, setMapAccountTokenNumber] = useState();
+  const [hasRefBalanceOver, setHasRefBalanceOver] = useState(false);
+  const [hasMapBalanceOver, setHasMapBalanceOver] = useState(false);
+
+  const displayAddr = `${auroraAddress?.substring(
+    0,
+    6
+  )}...${auroraAddress?.substring(
+    auroraAddress.length - 6,
+    auroraAddress.length
+  )}`;
 
   const { wallet } = getCurrentWallet();
-  const [refAccountHasToken, setRefAccountHasToken] = useState(false);
-
-  const switchTab = (type: string) => {
-    setActiveTab(type);
-  };
+  const tab = new URLSearchParams(window.location.search).get('tab');
+  const crossStatus = localStorage.getItem(ACCOUNT_PAGE_AURORA_SHOW);
+  const [showCrossBalance, setShowCrossBalance] = useState(
+    tab === 'aurora' || crossStatus == '1' ? true : false
+  );
   useEffect(() => {
-    const refAccountHasToken = userTokens.find((token: TokenMetadata) => {
+    const refAccountHasToken = userTokens.filter((token: TokenMetadata) => {
       const { ref } = token;
       if (Number(ref) > 0) return true;
     });
-
+    const mapAccountHasToken = userTokens.filter(
+      (token: TokenMetadata & { aurora: string }) => {
+        const { aurora } = token;
+        if (Number(aurora) > 0) return true;
+      }
+    );
     const hasRefBalanceOver = userTokens.some((token: TokenMetadata) => {
       return Number(token.ref) > 0.001;
     });
-
-    if (hasRefBalanceOver) switchTab('ref');
-
-    setRefAccountHasToken(!!refAccountHasToken);
+    const hasMapBalanceOver = userTokens.some(
+      (token: TokenMetadata & { aurora: string }) => {
+        return Number(token.aurora) > 0.001;
+      }
+    );
+    setHasRefBalanceOver(hasRefBalanceOver);
+    setHasMapBalanceOver(hasMapBalanceOver);
+    setRefAccountTokenNumber(refAccountHasToken.length);
+    setMapAccountTokenNumber(mapAccountHasToken.length);
+    switchCross({ refOver: hasRefBalanceOver, mapOver: hasMapBalanceOver });
   }, []);
+  const accountTitle = !showCrossBalance ? (
+    <>
+      <NearIcon />
+      <label className="text-lg text-white ml-3">
+        {isSignedIn && getAccountName(wallet.getAccountId())}
+      </label>
+    </>
+  ) : (
+    <div className="flex items-center text-white">
+      <AuroraIconWhite />
+      <div className="text-lg text-white  ml-3">{displayAddr}</div>
+    </div>
+  );
+  const switchTab = (type: string) => {
+    setActiveTab(type);
+  };
+  const switchCross = (initData?: any) => {
+    let newCross = !showCrossBalance;
+    let refOver = hasRefBalanceOver;
+    let mapOver = hasMapBalanceOver;
+    if (initData) {
+      newCross = showCrossBalance;
+      refOver = initData.refOver;
+      mapOver = initData.mapOver;
+    } else {
+      // new cross
+      setShowCrossBalance(newCross);
+      localStorage.setItem(ACCOUNT_PAGE_AURORA_SHOW, newCross ? '1' : '0');
+    }
+    // seleced tab
+    setActiveTab('near');
+    if (newCross && mapOver) {
+      setActiveTab('map');
+    }
+    if (!newCross && refOver) {
+      setActiveTab('ref');
+    }
+    // show tip
+    const ref_account_withdraw_tip = localStorage.getItem(
+      REF_ACCOUNT_WITHDRAW_TIP
+    );
+    const aurora_account_withdraw_tip = localStorage.getItem(
+      AURORA_ACCOUNT_WITHDRAW_TIP
+    );
+    const showWithDrawTipBox =
+      (newCross && mapOver && aurora_account_withdraw_tip != '1') ||
+      (!newCross && refOver && ref_account_withdraw_tip != '1');
+    setShowTip(showWithDrawTipBox);
+  };
+  const closeAccountWithdrawTip = () => {
+    setShowTip(false);
+    if (showCrossBalance) {
+      localStorage.setItem(AURORA_ACCOUNT_WITHDRAW_TIP, '1');
+    } else {
+      localStorage.setItem(REF_ACCOUNT_WITHDRAW_TIP, '1');
+    }
+  };
   return (
     <div className="lg:hidden">
       <div
-        className={`bg-cardBg rounded-lg mx-auto relative ${
-          activeTab == 'ref' ? 'pb-10' : ''
-        }`}
+        className={`mx-auto relative ${activeTab == 'near' ? '' : 'pb-10'}`}
         style={{ width: '95vw' }}
       >
-        <div className="flex text-white items-center justify-center py-6">
-          <NearIcon />
-          <label className="ml-3 text-xl">
-            {isSignedIn && getAccountName(wallet.getAccountId())}
-          </label>
-        </div>
-        <div className="px-3">
-          <div className="flex items-center bg-acccountTab rounded-lg p-1">
-            <label
-              onClick={() => {
-                switchTab('near');
-              }}
-              className={`flex items-center justify-center h-10 flex-grow text-base rounded-md  ${
-                activeTab == 'near'
-                  ? 'text-white bg-acccountBlock'
-                  : 'text-primaryText'
-              }`}
-            >
-              <FormattedMessage id="near_wallet"></FormattedMessage>
-            </label>
-            <label
-              onClick={() => {
-                switchTab('ref');
-              }}
-              className={`flex items-center justify-center h-10 flex-grow text-base rounded-md ${
-                activeTab == 'ref'
-                  ? 'text-white bg-acccountBlock'
-                  : 'text-primaryText'
-              } ${refAccountHasToken ? '' : 'hidden'}`}
-            >
-              <FormattedMessage id="ref_account"></FormattedMessage>
-            </label>
+        <div className="flex items-center justify-between ">
+          <div
+            className="flex items-center  justify-center font-semibold bg-cardBg rounded-t-2xl text-white w-full"
+            style={{
+              height: '66px',
+            }}
+          >
+            <div className="flex items-center">{accountTitle}</div>
+          </div>
+
+          <div
+            className="pb-4 pl-5 accountPage-pc-top-right relative cursor-pointer"
+            onClick={() => {
+              switchCross();
+            }}
+          >
+            <SwapCross ifCross={showCrossBalance} />
           </div>
         </div>
-        <MobileAccountTable
-          type={activeTab}
-          userTokens={userTokens}
-        ></MobileAccountTable>
+        <div className="bg-cardBg rounded-lg rounded-tl-none pt-3">
+          <div className="px-3">
+            <div className="flex items-center bg-acccountTab rounded-lg p-1">
+              <label
+                onClick={() => {
+                  switchTab('near');
+                }}
+                className={`flex items-center justify-center h-10 flex-grow text-base rounded-md  ${
+                  activeTab == 'near'
+                    ? 'text-white bg-acccountBlock'
+                    : 'text-primaryText'
+                }`}
+              >
+                <FormattedMessage id="near_wallet"></FormattedMessage>
+              </label>
+              {showCrossBalance ? (
+                <label
+                  onClick={() => {
+                    switchTab('map');
+                  }}
+                  className={`flex items-center justify-center h-10 flex-grow text-base rounded-md ${
+                    activeTab == 'map'
+                      ? 'text-white bg-acccountBlock'
+                      : 'text-primaryText'
+                  } ${mapAccountTokenNumber ? '' : 'hidden'}`}
+                >
+                  <FormattedMessage id="mapping_account"></FormattedMessage>
+                </label>
+              ) : (
+                <label
+                  onClick={() => {
+                    switchTab('ref');
+                  }}
+                  className={`flex items-center justify-center h-10 flex-grow text-base rounded-md ${
+                    activeTab == 'ref'
+                      ? 'text-white bg-acccountBlock'
+                      : 'text-primaryText'
+                  } ${refAccountTokenNumber ? '' : 'hidden'}`}
+                >
+                  <FormattedMessage id="ref_account"></FormattedMessage>
+                </label>
+              )}
+            </div>
+          </div>
+          <MobileAccountTable
+            type={activeTab}
+            userTokens={userTokens}
+            refAccountTokenNumber={refAccountTokenNumber}
+            mapAccountTokenNumber={mapAccountTokenNumber}
+          ></MobileAccountTable>
+          {showTip ? (
+            <div
+              style={{
+                width: '95vw',
+              }}
+              className="fixed z-10 left-1/2 transform -translate-x-1/2 bottom-10 bg-cardBg border border-greenColor rounded-lg p-3.5 pr-5 text-white text-sm"
+            >
+              {showCrossBalance ? (
+                <FormattedMessage id="aurora_account_tip_4"></FormattedMessage>
+              ) : (
+                <FormattedMessage id="ref_account_tip_3"></FormattedMessage>
+              )}
+
+              <div
+                className="absolute pl-1 cursor-pointer"
+                onClick={closeAccountWithdrawTip}
+                style={{
+                  right: '10px',
+                  top: '10px',
+                }}
+              >
+                <CloseIcon />
+              </div>
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   );

@@ -593,3 +593,22 @@ export const RequestingSmile = () => {
     </svg>
   );
 };
+export const AuroraIconWhite = (props: any) => {
+  const { width, height } = props;
+  return (
+    <svg
+      width={width || '22'}
+      height={height || '22'}
+      viewBox="0 0 22 22"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M6.59021 2.73372C8.43328 -0.911234 13.5667 -0.911247 15.4098 2.73372L21.4466 14.6725C23.1394 18.0202 20.7443 22 17.0368 22H4.96318C1.25574 22 -1.13937 18.0202 0.553389 14.6725L6.59021 2.73372ZM12.4699 4.26499C11.8556 3.05 10.1444 3.05 9.53007 4.26499L3.49325 16.2037C2.929 17.3196 3.72737 18.6462 4.96318 18.6462H17.0368C18.2726 18.6462 19.071 17.3196 18.5068 16.2037L12.4699 4.26499Z"
+        fill="white"
+      />
+    </svg>
+  );
+};

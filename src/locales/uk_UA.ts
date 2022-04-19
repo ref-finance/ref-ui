@@ -500,5 +500,8 @@ const uk_UA = {
   to_recover_them: 'щоб їх відновити',
   ref_account_tip_3:
     'Щоб вивести токени з вашого облікового запису REF на свій гаманець NEAR, виберіть і витягніть',
+  aurora_account_tip_4:
+    'To withdraw token(s) from your Mapping Account to your NEAR Wallet, please select and withdraw',
+  mapping_account: 'Mapping account',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);
