@@ -604,6 +604,8 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
 
   const tokenInMax = tokenInBalanceFromNear || '0';
 
+  console.log(requested);
+
   const canSubmit =
     requested ||
     (!ONLY_ZEROS.test(tokenInMax) &&
@@ -615,6 +617,7 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
     if (!requested) {
       setLoadingTrigger(true);
       setLoadingPause(false);
+      return;
     }
     const ifDoubleCheck =
       new BigNumber(tokenInAmount).isLessThanOrEqualTo(
