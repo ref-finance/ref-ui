@@ -521,6 +521,8 @@ export async function withdrawFromAurora({
   amount: string;
   decimal: number;
 }) {
+  console.log(arguments);
+
   if (token_id === 'aurora') {
     const callAddress = toAddress(getAuroraConfig().ethBridgeAddress);
 
@@ -802,7 +804,7 @@ export const auroraSwapTransactions = async ({
               decimalIn,
               todo.pool.partialAmountIn
             ),
-            readableAmountOut: percentLess(decimalOut, todo.estimate),
+            readableAmountOut: percentLess(slippageTolerance, todo.estimate),
             address,
           });
         })
@@ -823,7 +825,7 @@ export const auroraSwapTransactions = async ({
             swapTodos[0].pool.partialAmountIn
           ),
           readableAmountOut: percentLess(
-            decimalOut,
+            slippageTolerance,
             swapTodos[swapTodos.length - 1].estimate
           ),
           address,
@@ -855,6 +857,8 @@ export const auroraSwapTransactions = async ({
       receiverId: 'aurora',
       functionCalls: actions,
     });
+
+    console.log(transactions);
 
     return transactions;
   } catch (error) {
