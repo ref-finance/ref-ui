@@ -65,6 +65,8 @@ import {
   useAuroraTokens,
 } from '../services/aurora/aurora';
 
+const REF_FI_ACCOUNT_TAB = 'REF_FI_ACCOUNT_TAB_VALUE';
+
 const REF_MAN_ACCOUNT_TIP_KEY = 'REF_MAN_ACCOUNT_TIP_VALUE';
 interface ParamTypes {
   tab: string;
@@ -892,8 +894,10 @@ function Account(props: any) {
   const { wallet } = getCurrentWallet();
   const tab = new URLSearchParams(window.location.search).get('tab');
 
+  const storageTab = localStorage.getItem(REF_FI_ACCOUNT_TAB)?.toString();
+
   const [showCrossBalance, setShowCrossBalance] = useState(
-    tab === 'aurora' || false
+    tab === 'aurora' || storageTab === 'aurora' || false
   );
 
   const accountTitle = !showCrossBalance ? (
@@ -955,6 +959,11 @@ function Account(props: any) {
         <div
           className="pb-4 pl-5 accountPage-pc-top-right relative cursor-pointer"
           onClick={() => {
+            if (showCrossBalance) {
+              localStorage.setItem(REF_FI_ACCOUNT_TAB, 'ref');
+            } else {
+              localStorage.setItem(REF_FI_ACCOUNT_TAB, 'aurora');
+            }
             setShowCrossBalance(!showCrossBalance);
           }}
         >

@@ -354,8 +354,6 @@ export function AuroraEntry({
     return () => document.removeEventListener('click', () => {});
   }, [isMobile, hover]);
 
-  console.log(hover);
-
   return (
     <div
       className="lg:py-5 relative z-20 flex items-center"
