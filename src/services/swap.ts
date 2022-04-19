@@ -367,6 +367,8 @@ export const estimateSwap = async ({
     throwNoPoolError();
   }
 
+  console.log('swap actions', res);
+
   return res;
 };
 
