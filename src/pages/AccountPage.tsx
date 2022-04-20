@@ -64,8 +64,9 @@ import {
   auroraAddr,
   useAuroraTokens,
 } from '../services/aurora/aurora';
+import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from './SwapPage';
 
-const ACCOUNT_PAGE_AURORA_SHOW = 'ACCOUNT_PAGE_AURORA_SHOW';
+const ACCOUNT_PAGE_AURORA_SHOW = REF_FI_SWAP_SWAPPAGE_TAB_KEY;
 const REF_ACCOUNT_WITHDRAW_TIP = 'REF_ACCOUNT_WITHDRAW_TIP';
 const AURORA_ACCOUNT_WITHDRAW_TIP = 'AURORA_ACCOUNT_WITHDRAW_TIP';
 interface ParamTypes {
@@ -1119,10 +1120,19 @@ function Account(props: any) {
   )}`;
   const { wallet } = getCurrentWallet();
   const tab = new URLSearchParams(window.location.search).get('tab');
-  const crossStatus = localStorage.getItem(ACCOUNT_PAGE_AURORA_SHOW);
+  const crossStatus =
+    localStorage?.getItem(ACCOUNT_PAGE_AURORA_SHOW)?.toString() === 'cross'
+      ? '1'
+      : '0';
   const [showCrossBalance, setShowCrossBalance] = useState(
     tab === 'aurora' || crossStatus == '1' ? true : false
   );
+
+  useEffect(() => {
+    if (tab !== 'aurora') return;
+
+    localStorage.setItem(ACCOUNT_PAGE_AURORA_SHOW, 'cross');
+  }, [tab]);
 
   const accountTitle = !showCrossBalance ? (
     <>
@@ -1198,7 +1208,7 @@ function Account(props: any) {
             const newCross = !showCrossBalance;
             localStorage.setItem(
               ACCOUNT_PAGE_AURORA_SHOW,
-              newCross ? '1' : '0'
+              newCross ? 'cross' : 'normal'
             );
             setShowCrossBalance(newCross);
           }}
@@ -1244,7 +1254,10 @@ function MobileAccount(props: any) {
 
   const { wallet } = getCurrentWallet();
   const tab = new URLSearchParams(window.location.search).get('tab');
-  const crossStatus = localStorage.getItem(ACCOUNT_PAGE_AURORA_SHOW);
+  const crossStatus =
+    localStorage.getItem(ACCOUNT_PAGE_AURORA_SHOW)?.toString() === 'cross'
+      ? '1'
+      : '0';
   const [showCrossBalance, setShowCrossBalance] = useState(
     tab === 'aurora' || crossStatus == '1' ? true : false
   );
@@ -1300,7 +1313,10 @@ function MobileAccount(props: any) {
     } else {
       // new cross
       setShowCrossBalance(newCross);
-      localStorage.setItem(ACCOUNT_PAGE_AURORA_SHOW, newCross ? '1' : '0');
+      localStorage.setItem(
+        ACCOUNT_PAGE_AURORA_SHOW,
+        newCross ? 'cross' : 'normal'
+      );
     }
     // seleced tab
     setActiveTab('near');

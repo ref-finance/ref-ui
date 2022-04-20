@@ -352,7 +352,7 @@ export function AuroraEntry({
       if (hover) setHover(false);
     });
     return () => document.removeEventListener('click', () => {});
-  }, [isMobile, hover]);
+  }, [hover]);
 
   return (
     <div
@@ -361,8 +361,18 @@ export function AuroraEntry({
       onMouseLeave={() => !isMobile && setHover(false)}
       onClick={(e) => {
         e.stopPropagation();
-        if (!isMobile) return;
-        setHover(!hover);
+        e.preventDefault();
+        if (!isMobile) {
+          window.open('/account?tab=aurora', '_blank');
+          return;
+        }
+        if (isMobile) {
+          if (!hasBalanceOnAurora) {
+            window.open('/account?tab=aurora', '_blank');
+          } else {
+            setHover(!hover);
+          }
+        }
       }}
     >
       <div className="flex items-center">
@@ -378,7 +388,7 @@ export function AuroraEntry({
       </div>
       {hover ? (
         <div
-          className=" absolute pt-2 right-0 lg:top-14 xs:top-6 md:top-6"
+          className=" absolute pt-2 right-0 lg:top-14 xs:top-8 md:top-8"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="bg-cardBg w-64 rounded-lg border border-farmText flex flex-col overflow-hidden">
@@ -391,7 +401,9 @@ export function AuroraEntry({
             </div>
 
             <div className="px-5 flex justify-between items-center py-4">
-              <span className="text-white font-bold">{displayAddr}</span>
+              <span className="text-white font-bold xs:text-base md:text-base">
+                {displayAddr}
+              </span>
 
               <CopyToClipboard text={auroraAddress}>
                 <div className="bg-black bg-opacity-20 rounded-lg flex items-center justify-center p-1.5 cursor-pointer ">

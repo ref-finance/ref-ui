@@ -213,7 +213,7 @@ export function CrossSwapFormWrap({
 
   return (
     <form
-      className="overflow-y-auto relative bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg overflow-x-hidden"
+      className="overflow-visible relative bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg"
       onSubmit={handleSubmit}
     >
       {!requestingTrigger ? null : (

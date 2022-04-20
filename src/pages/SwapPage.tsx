@@ -10,7 +10,7 @@ import { SwapCross } from '../components/icon/CrossSwapIcons';
 import { useTriTokenIdsOnRef } from '../services/aurora/aurora';
 import { TokenMetadata, ftGetTokenMetadata } from '../services/ft-contract';
 
-const REF_FI_SWAP_SWAPPAGE_TAB_KEY = 'REF_FI_SWAP_SWAPPAGE_TAB_VALUE';
+export const REF_FI_SWAP_SWAPPAGE_TAB_KEY = 'REF_FI_SWAP_SWAPPAGE_TAB_VALUE';
 
 function SwapTab({
   ifCross,
@@ -19,21 +19,22 @@ function SwapTab({
   ifCross: boolean;
   setSwapTab: (tab: string) => void;
 }) {
-  const { globalStatedispatch } = useContext(WalletContext);
-
   const TabTitle = () => {
     return !ifCross ? (
       <div>
         <FormattedMessage id="swap" defaultMessage="Swap" />
       </div>
     ) : (
-      <div>
-        <FormattedMessage id="cross_swap" defaultMessage="🤞CrossSwap" />
+      <div className="py-1">
+        <span>
+          <FormattedMessage id="swap_pro" defaultMessage="Swap Pro" />
+        </span>
         <span
-          className="ml-2 px-0.5 bg-farmText rounded-md"
+          className="ml-2 px-0.5 bg-farmText rounded-md relative"
           style={{
             color: '#01121d',
             fontSize: '10px',
+            bottom: '2px',
           }}
         >
           <FormattedMessage id="beta" defaultMessage="beta" />
