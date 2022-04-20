@@ -512,12 +512,12 @@ const ko = {
   half: '절반',
   max: '최대',
   ref_account_balance_tip:
-    'It seems like an error occurred while adding/removing liquidity to the pool',
-  ref_account_tip_2: 'You have token(s) in your REF Account',
-  ref_account_tip_top: 'your token(s) may be now in your REF inner account',
-  click_here: 'Click here',
-  to_recover_them: 'to recover them',
+    '유동성 풀에 추가하는/인출하는 과정에서 에러가 발생한 것 같습니다',
+  ref_account_tip_2: 'Ref 계정에 토큰이 있습니다',
+  ref_account_tip_top: '당신의 토큰은 아마 REF 내부 계정에 있을지도 모릅니다',
+  click_here: '여기를 눌러',
+  to_recover_them: '그것들을 회수하세요',
   ref_account_tip_3:
-    'To withdraw token(s) from your REF Account to your NEAR Wallet, please select and withdraw',
+    'Ref 계정으로부터 NEAR 월렛으로 토큰을 인출하시려면 선택 후 인출을 눌러주세요',
 };
 export default Object.assign(ko, ko_in_risks_page);

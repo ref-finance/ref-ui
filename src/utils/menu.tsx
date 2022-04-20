@@ -24,6 +24,7 @@ import {
   UkIcon,
   RuIcon,
   JaIcon,
+  KoIcon,
 } from '~components/icon/Nav';
 import { XrefIcon } from '~components/icon/Xref';
 
@@ -160,12 +161,12 @@ export const useMenuItems = () => {
           logo: <JaIcon />,
         },
         {
-          label: 'Korean',
+          label: '한국',
           isExternal: false,
           language: 'ko',
           url: '',
           id: 17,
-          logo: <JaIcon />,
+          logo: <KoIcon />,
         },
       ],
     },

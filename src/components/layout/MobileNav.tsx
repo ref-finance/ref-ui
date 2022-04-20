@@ -21,6 +21,7 @@ import {
   UkIcon,
   RuIcon,
   JaIcon,
+  KoIcon,
 } from '~components/icon';
 import { WNEARExchngeIcon } from '~components/icon/Common';
 import { Link, useLocation } from 'react-router-dom';
@@ -194,9 +195,9 @@ export function MobileSwitchLanguage() {
           onClick={() => context.selectLanguage('ko')}
         >
           <span className="text-2xl mr-5">
-            <JaIcon />
+            <KoIcon />
           </span>
-          Korean
+          한국
         </div>
       </div>
     </div>
