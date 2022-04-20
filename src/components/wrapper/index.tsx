@@ -6,6 +6,7 @@ import vi from '../../locales/vi';
 import uk from '../../locales/uk_UA';
 import ru from '../../locales/ru';
 import ja from '../../locales/ja';
+import ko from '../../locales/ko';
 
 export const Context = React.createContext(null);
 const local = localStorage.getItem('local') || navigator.language;
@@ -30,6 +31,9 @@ const changeLocale = (local: string) => {
       break;
     case 'ja':
       lang = ja;
+      break;
+    case 'ko':
+      lang = ko;
       break;
     default:
       lang = en_US;

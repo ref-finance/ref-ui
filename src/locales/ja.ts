@@ -1,4 +1,4 @@
-const zh_CN_in_risks_page = {
+const ja_in_risks_page = {
   risks: 'リスク',
   of_using_ref_finance: 'Ref.financeの利用',
   introduction:
@@ -123,7 +123,7 @@ const zh_CN_in_risks_page = {
   risks_of_using_ref_finance:
     'Ref. financeの利用<label class="text-greenColor">リスク</label>',
 };
-const zh_CN = {
+const ja = {
   deposit: 'デポジット',
   Deposit: 'デポジット',
   withdraw: '抽出',
@@ -529,4 +529,4 @@ const zh_CN = {
   ref_account_tip_3:
     'REFアカウントからトークンを引き出し、自分のNEARウォレットへ送金',
 };
-export default Object.assign(zh_CN, zh_CN_in_risks_page);
+export default Object.assign(ja, ja_in_risks_page);

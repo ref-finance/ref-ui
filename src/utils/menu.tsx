@@ -159,6 +159,14 @@ export const useMenuItems = () => {
           id: 16,
           logo: <JaIcon />,
         },
+        {
+          label: 'Korean',
+          isExternal: false,
+          language: 'ko',
+          url: '',
+          id: 17,
+          logo: <JaIcon />,
+        },
       ],
     },
   ];
