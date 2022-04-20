@@ -41,6 +41,7 @@ import BigNumber from 'bignumber.js';
 import { toNonDivisibleNumber } from '../../utils/numbers';
 import { functionCall } from 'near-api-js/lib/transaction';
 import { ONE_YOCTO_NEAR, executeMultipleTransactions, wallet } from '../near';
+import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 
 const trisolaris = getAuroraConfig().trisolarisAddress;
 
@@ -597,7 +598,7 @@ export const useAuroraTokens = () => {
 };
 
 // OK
-export const useAuroraBalances = (address: string, withdrawDone?: boolean) => {
+export const useAuroraBalances = (address: string) => {
   const [tokenBalances, setTokenBalances] = useState(null);
 
   const tokens = useAuroraTokens();
@@ -627,13 +628,13 @@ export const useAuroraBalances = (address: string, withdrawDone?: boolean) => {
         }, {})
       );
     });
-  }, [tokens, withdrawDone, getCurrentWallet().wallet.isSignedIn()]);
+  }, [tokens, getCurrentWallet().wallet.isSignedIn()]);
 
   return tokenBalances;
 };
 
 export const useAuroraBalancesNearMapping = (address: string) => {
-  const auroraMapping = useAuroraBalances(address);
+  const auroraMapping = useAuroraBalances(address, true);
 
   const [nearMapping, setNearMapping] = useState(null);
 
@@ -935,16 +936,19 @@ export const batchCallWithdraw = async (
 //   );
 // };
 
-// export const withdrawBalanceAfterTransaction = async (
-//   auroraAddresses: any,
-//   amounts: any
-// ) => {
-//   const validateRes = await loginContractValidation();
+export const withdrawBalanceAfterTransaction = async (
+  auroraAddresses: any,
+  amounts: any
+) => {
+  const { txHash, errorCode } = getURLInfo();
 
-//   console.log(validateRes);
-
-//   if (validateRes && window.location.pathname !== '/acount') {
-//     batchCallWithdraw(auroraAddresses, amounts);
-//   }
-//   return;
-// };
+  if (window.location.pathname !== '/acount' && txHash && !errorCode) {
+    try {
+      await batchCallWithdraw(auroraAddresses, amounts);
+      return true;
+    } catch (error) {
+      // not succeed
+      return false;
+    }
+  } else return true;
+};

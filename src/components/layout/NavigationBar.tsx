@@ -70,11 +70,15 @@ import {
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { isMobile, useMobile } from '../../utils/device';
 import { getAuroraConfig } from '../../services/aurora/config';
-import { ETH_DECIMAL } from '../../services/aurora/aurora';
+import {
+  ETH_DECIMAL,
+  withdrawBalanceAfterTransaction,
+} from '../../services/aurora/aurora';
 import {
   useAuroraBalances,
   // withdrawBalanceAfterTransaction,
 } from '../../services/aurora/aurora';
+import { getURLInfo } from './transactionTipPopUp';
 
 const config = getConfig();
 
@@ -726,29 +730,30 @@ function NavigationBar() {
   const auroraTokens = useAuroraTokens();
   const auroraAddress = auroraAddr(getCurrentWallet().wallet.getAccountId());
 
-  const [withdrawDone, setWithdrawDone] = useState(true);
+  const [withdrawDone, setWithdrawDone] = useState<any>();
 
-  const auroraBalances = useAuroraBalances(auroraAddress, withdrawDone);
+  const auroraBalances = useAuroraBalances(auroraAddress);
 
   const [hasAuroraBalance, setHasAuroraBalance] = useState(false);
 
-  // useEffect(() => {
-  //   // loaidng done aurora balances
-  //   if (!auroraBalances || !getCurrentWallet().wallet.isSignedIn()) return;
-  //   // const auroraAddresses = Object.keys(auroraBalances);
+  const { txHash } = getURLInfo();
 
-  //   // const amounts = Object.values(auroraBalances) as string[];
+  useEffect(() => {
+    if (!auroraBalances || !getCurrentWallet().wallet.isSignedIn()) return;
+    const auroraAddresses = Object.keys(auroraBalances);
 
-  //   // withdrawBalanceAfterTransaction(auroraAddresses, amounts).finally(() =>
-  //   setWithdrawDone(true);
-  //   // );
-  // }, [auroraBalances]);
+    const amounts = Object.values(auroraBalances) as string[];
+
+    withdrawBalanceAfterTransaction(auroraAddresses, amounts).then(
+      setWithdrawDone
+    );
+  }, [auroraBalances, txHash]);
 
   useEffect(() => {
     if (
       !auroraBalances ||
       !auroraTokens ||
-      !withdrawDone ||
+      !(typeof withdrawDone === 'boolean' && withdrawDone === false) ||
       Object.keys(auroraBalances).length === 0
     )
       return;
@@ -756,7 +761,6 @@ function NavigationBar() {
     const balanceOver = Object.entries(auroraBalances).some(
       ([address, balance]) => {
         if (!balance) return false;
-
         return (
           Number(
             toReadableNumber(
