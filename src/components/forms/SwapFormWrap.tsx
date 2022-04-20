@@ -231,8 +231,9 @@ export function CrossSwapFormWrap({
                 color: '#c4c4c4',
               }}
             >
-              <FormattedMessage id="requesting" defaultMessage="Requesting" />
-              ...
+              <span className="crossSwap-requesting-loading">
+                <FormattedMessage id="requesting" defaultMessage="Requesting" />
+              </span>
             </span>
           </div>
         </div>
