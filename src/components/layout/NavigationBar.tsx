@@ -208,7 +208,7 @@ function AccountEntry({
       textId: 'sign_out',
       click: () => {
         wallet.signOut();
-        window.location.assign('/');
+        wallet_type === 'near-wallet' && window.location.assign('/');
       },
     },
   ];

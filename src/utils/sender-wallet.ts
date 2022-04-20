@@ -136,7 +136,7 @@ function senderWalletFunc(window: Window) {
   };
 
   this.signOut = function () {
-    removeSenderLoginRes();
+    // removeSenderLoginRes();
     return window.near.signOut();
   };
 

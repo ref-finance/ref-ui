@@ -9,7 +9,7 @@ import {
   getSenderWallet,
 } from '../../utils/sender-wallet';
 import Modal from 'react-modal';
-import { WalletContext } from '../../utils/sender-wallet';
+import { WalletContext, removeSenderLoginRes } from '../../utils/sender-wallet';
 import { isMobile, isMobileExplorer } from '../../utils/device';
 import { BackArrowWhite, BackArrowGray } from '../icon/Arrows';
 import { CloseIcon } from '../../components/icon/Actions';
