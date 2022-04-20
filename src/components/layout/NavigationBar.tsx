@@ -69,6 +69,8 @@ import {
 
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { isMobile, useMobile } from '../../utils/device';
+import { getAuroraConfig } from '../../services/aurora/config';
+import { ETH_DECIMAL } from '../../services/aurora/aurora';
 import {
   useAuroraBalances,
   // withdrawBalanceAfterTransaction,
@@ -724,23 +726,23 @@ function NavigationBar() {
   const auroraTokens = useAuroraTokens();
   const auroraAddress = auroraAddr(getCurrentWallet().wallet.getAccountId());
 
-  const [withdrawDone, setWithdrawDone] = useState(false);
+  const [withdrawDone, setWithdrawDone] = useState(true);
 
   const auroraBalances = useAuroraBalances(auroraAddress, withdrawDone);
 
   const [hasAuroraBalance, setHasAuroraBalance] = useState(false);
 
-  useEffect(() => {
-    // loaidng done aurora balances
-    if (!auroraBalances || !getCurrentWallet().wallet.isSignedIn()) return;
-    // const auroraAddresses = Object.keys(auroraBalances);
+  // useEffect(() => {
+  //   // loaidng done aurora balances
+  //   if (!auroraBalances || !getCurrentWallet().wallet.isSignedIn()) return;
+  //   // const auroraAddresses = Object.keys(auroraBalances);
 
-    // const amounts = Object.values(auroraBalances) as string[];
+  //   // const amounts = Object.values(auroraBalances) as string[];
 
-    // withdrawBalanceAfterTransaction(auroraAddresses, amounts).finally(() =>
-    setWithdrawDone(true);
-    // );
-  }, [auroraBalances]);
+  //   // withdrawBalanceAfterTransaction(auroraAddresses, amounts).finally(() =>
+  //   setWithdrawDone(true);
+  //   // );
+  // }, [auroraBalances]);
 
   useEffect(() => {
     if (
@@ -758,7 +760,9 @@ function NavigationBar() {
         return (
           Number(
             toReadableNumber(
-              auroraTokens.tokensByAddress[address]?.decimals,
+              address === getAuroraConfig().WETH
+                ? ETH_DECIMAL
+                : auroraTokens.tokensByAddress[address]?.decimals,
               balance as string
             )
           ) > 0.01
