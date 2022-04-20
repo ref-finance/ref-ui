@@ -120,6 +120,11 @@ function App() {
     setTimeout(() => {
       if (window.near) {
         window.near.on('signIn', (res: any) => {
+          if (
+            getCurrentWallet().wallet_type === 'near-wallet' &&
+            webWallet.isSignedIn()
+          )
+            return;
           saveSenderLoginRes();
           signedInStatedispatch({ type: 'signIn' });
         });
@@ -139,6 +144,12 @@ function App() {
           }
         });
       }
+
+      console.log(
+        window.near,
+        getSenderLoginRes(),
+        getCurrentWallet().wallet_type
+      );
 
       if (
         window.near &&
