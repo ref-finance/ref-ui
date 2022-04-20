@@ -368,7 +368,7 @@ const ko = {
   by_share: '#by share#',
   by_token: '#By Token#',
   your_positions_will_be_displayed_here: '당신의 포지션은 여기에 표시됩니다',
-  price_impact: '가격 영향(price impact)',
+  price_impact: '가격 영향',
   shares_left: '남은 shares',
   total_stable_coins: '스테이블코인 총합',
   daily_volume: '24시간 거래량',
