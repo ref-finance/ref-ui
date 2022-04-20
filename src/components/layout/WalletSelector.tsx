@@ -9,7 +9,7 @@ import {
   getSenderWallet,
 } from '../../utils/sender-wallet';
 import Modal from 'react-modal';
-import { WalletContext } from '../../utils/sender-wallet';
+import { WalletContext, removeSenderLoginRes } from '../../utils/sender-wallet';
 import { isMobile, isMobileExplorer } from '../../utils/device';
 import { BackArrowWhite, BackArrowGray } from '../icon/Arrows';
 import { CloseIcon } from '../../components/icon/Actions';
@@ -417,6 +417,7 @@ export const WalletSelectorModal = (
             description={<FormattedMessage id="web" defaultMessage="web" />}
             officialUrl="wallet.near.org"
             connect={() => {
+              removeSenderLoginRes();
               wallet.requestSignIn(REF_FARM_CONTRACT_ID);
             }}
           />
