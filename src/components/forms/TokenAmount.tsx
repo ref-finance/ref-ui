@@ -10,7 +10,12 @@ import { TokenBalancesView } from '../../services/token';
 import Icon from '../tokens/Icon';
 import InputAmount from './InputAmount';
 import SelectToken, { tokenPrice } from './SelectToken';
-import { toPrecision, multiply, ONLY_ZEROS } from '../../utils/numbers';
+import {
+  toPrecision,
+  multiply,
+  ONLY_ZEROS,
+  toInternationalCurrencySystem,
+} from '../../utils/numbers';
 import { FormattedMessage } from 'react-intl';
 import { SmallWallet } from '../../components/icon/SmallWallet';
 import { RefIcon } from '../../components/icon/Common';
@@ -197,6 +202,7 @@ export function TokenCardIn({
   const [hoverSelectToken, setHoverSelectToken] = useState(false);
 
   const price = tokenPriceList?.[tokenIn?.id]?.price || null;
+  const [symbolsArr] = useState(['e', 'E', '+', '-']);
 
   if (hidden) return null;
 
@@ -218,7 +224,7 @@ export function TokenCardIn({
             onChangeAmount={onChangeAmount}
             forCrossSwap
           />
-          <span className="ml-2">{toPrecision(max, 3)}</span>
+          <span className="ml-2">{toPrecision(max, 3, true)}</span>
         </div>
       </div>
 
@@ -226,6 +232,7 @@ export function TokenCardIn({
         <SelectToken
           tokenPriceList={tokenPriceList}
           tokens={tokens}
+          forCross
           selected={
             <div
               className="flex font-semibold "
@@ -245,7 +252,11 @@ export function TokenCardIn({
           <input
             className="text-right text-white text-xl"
             value={amount}
+            type="number"
+            min="0"
+            placeholder="0.0"
             onChange={(e) => onChangeAmount(e.target.value)}
+            onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
           />
 
           <div>
@@ -266,6 +277,7 @@ export function TokenCardOut({
   tokens,
   balances,
   hidden,
+  max,
 }: {
   tokenOut: TokenMetadata;
   onSelectToken: (token: TokenMetadata) => void;
@@ -273,6 +285,7 @@ export function TokenCardOut({
   tokenPriceList?: Record<string, any>;
   tokens: TokenMetadata[];
   balances: TokenBalancesView;
+  max: string;
 }) {
   const [hoverSelectToken, setHoverSelectToken] = useState(false);
   if (hidden) return null;
@@ -283,12 +296,17 @@ export function TokenCardOut({
         borderRadius: '20px',
       }}
     >
-      <div className="text-sm text-primaryText pb-4">
-        <FormattedMessage id="to" defaultMessage="To" />
+      <div className="text-sm text-primaryText pb-4 flex items-center justify-between">
+        <span>
+          <FormattedMessage id="to" defaultMessage="To" />
+        </span>
+
+        <span className="ml-2 text-xs">{toPrecision(max, 3, true)}</span>
       </div>
       <SelectToken
         tokenPriceList={tokenPriceList}
         tokens={tokens}
+        forCross
         standalone
         selected={
           <div
@@ -347,17 +365,21 @@ export function CrossSwapTokens({
   return (
     <div className="py-5 px-4 border bg-cardBg border-gradientFrom rounded-xl flex items-center justify-between relative">
       <div className="flex flex-col justify-between">
-        <span className="text-white">
+        <span className="text-white flex items-center">
           <span>{toPrecision(amountIn, 3)}</span>
           <span className="ml-1">{toRealSymbol(tokenIn?.symbol)}</span>
+          <div
+            className=" text-2xl font-bold ml-6"
+            style={{
+              color: '#7e8a93',
+            }}
+          >
+            {'>'}
+          </div>
         </span>
         <span className="text-sm text-primaryText pt-1">
           {tokenInPrice ? tokenPrice(multiply(amountIn, tokenInPrice)) : null}
         </span>
-      </div>
-
-      <div className="text-white text-2xl font-bold absolute left-1/2">
-        {'>'}
       </div>
 
       <div className="flex flex-col justify-between items-end">

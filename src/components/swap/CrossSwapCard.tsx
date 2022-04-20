@@ -488,6 +488,9 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();
 
+  const [tokenOutBalanceFromNear, setTokenOutBalanceFromNear] =
+    useState<string>();
+
   const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
 
   const intl = useIntl();
@@ -522,12 +525,18 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
   }, [allTokens]);
 
   useEffect(() => {
-    if (!tokenIn || !isSignedIn) return;
+    if (!tokenIn || !tokenOut || !isSignedIn) return;
     const tokenInId = tokenIn.id;
+    const tokenOutId = tokenOut.id;
     ftGetBalance(tokenInId).then((available: string) =>
       setTokenInBalanceFromNear(toReadableNumber(tokenIn?.decimals, available))
     );
-  }, [tokenIn, isSignedIn]);
+    ftGetBalance(tokenOutId).then((available: string) =>
+      setTokenOutBalanceFromNear(
+        toReadableNumber(tokenOut?.decimals, available)
+      )
+    );
+  }, [tokenIn, tokenOut, isSignedIn]);
 
   const {
     tokenOutAmount,
@@ -604,10 +613,12 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
 
   const tokenInMax = tokenInBalanceFromNear || '0';
 
-  const canSubmit =
-    requested ||
-    (!ONLY_ZEROS.test(tokenInMax) &&
-      new BigNumber(tokenInAmount).lte(new BigNumber(tokenInMax)));
+  const tokenOutMax = tokenOutBalanceFromNear || '0';
+
+  const canSubmit = requested
+    ? canSwap
+    : !ONLY_ZEROS.test(tokenInMax) &&
+      new BigNumber(tokenInAmount).lte(new BigNumber(tokenInMax));
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -725,9 +736,10 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
           balances={balances}
           tokenPriceList={tokenPriceList}
           hidden={requested}
+          max={tokenOutMax}
         />
 
-        <div className={requested ? 'block' : 'hidden'}>
+        <div className={requested && !swapError ? 'block' : 'hidden'}>
           <div className="text-sm text-primaryText pb-2">
             <FormattedMessage
               id="minimum_received"

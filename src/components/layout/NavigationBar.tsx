@@ -529,7 +529,7 @@ function PoolsMenu() {
       <div
         className={`${
           hover ? 'block' : 'hidden'
-        } absolute top-12 -left-20 rounded-md`}
+        } absolute top-12 -left-20 rounded-md z-40`}
       >
         <Card
           width="w-64"
@@ -721,9 +721,9 @@ function NavigationBar() {
   useEffect(() => {
     // loaidng done aurora balances
     if (!auroraBalances || !getCurrentWallet().wallet.isSignedIn()) return;
-    const auroraAddresses = Object.keys(auroraBalances);
+    // const auroraAddresses = Object.keys(auroraBalances);
 
-    const amounts = Object.values(auroraBalances) as string[];
+    // const amounts = Object.values(auroraBalances) as string[];
 
     // withdrawBalanceAfterTransaction(auroraAddresses, amounts).finally(() =>
     setWithdrawDone(true);
@@ -749,7 +749,7 @@ function NavigationBar() {
               auroraTokens.tokensByAddress[address]?.decimals,
               balance as string
             )
-          ) > 0
+          ) > 0.01
         );
       }
     );

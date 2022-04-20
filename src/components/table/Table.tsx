@@ -15,6 +15,7 @@ interface TokenListProps {
   onClick?: (token: TokenMetadata) => void;
   balances?: TokenBalancesView;
   tokenPriceList: Record<string, any>;
+  forCross?: boolean;
 }
 
 export default function Table({
@@ -25,6 +26,7 @@ export default function Table({
   onClick,
   balances,
   tokenPriceList,
+  forCross,
 }: TokenListProps) {
   return (
     tokens.length > 0 && (
@@ -40,7 +42,11 @@ export default function Table({
               }`}
             >
               <span className="">
-                <FormattedMessage id="asset_label" defaultMessage="Asset" />
+                {forCross ? (
+                  <FormattedMessage id="Token" defaultMessage="Token" />
+                ) : (
+                  <FormattedMessage id="asset_label" defaultMessage="Asset" />
+                )}
               </span>
             </th>
             <th className="pb-2 w-1/5 font-normal relative lg:right-4">

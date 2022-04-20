@@ -91,6 +91,7 @@ export default function SelectToken({
   placeholder,
   balances,
   tokenPriceList,
+  forCross,
 }: {
   tokens: TokenMetadata[];
   selected: string | React.ReactElement;
@@ -101,6 +102,7 @@ export default function SelectToken({
   onSearch?: (value: string) => void;
   balances?: TokenBalancesView;
   tokenPriceList?: Record<string, any>;
+  forCross?: boolean;
 }) {
   const [visible, setVisible] = useState(false);
   const [listData, setListData] = useState<TokenMetadata[]>([]);
@@ -265,9 +267,9 @@ export default function SelectToken({
               />
               <FaSearch />
             </div>
-            {addToken()}
+            {!forCross && addToken()}
           </div>
-          {showCommonBasses && (
+          {showCommonBasses && !forCross && (
             <CommonBasses
               tokens={tokensData}
               onClick={(token) => {
@@ -288,6 +290,7 @@ export default function SelectToken({
               handleClose();
             }}
             balances={balances}
+            forCross={forCross}
           />
         </section>
       )}
