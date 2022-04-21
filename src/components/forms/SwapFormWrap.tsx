@@ -218,7 +218,7 @@ export function CrossSwapFormWrap({
     >
       {!requestingTrigger ? null : (
         <div
-          className="absolute w-full h-full flex items-center justify-center bg-cardBg right-0 top-0"
+          className="absolute w-full h-full flex items-center justify-center bg-cardBg right-0 top-0 rounded-2xl"
           style={{
             zIndex: 999,
           }}

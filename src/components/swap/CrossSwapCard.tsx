@@ -47,6 +47,7 @@ import { WarnTriangle, ErrorTriangle } from '../../components/icon/SwapRefresh';
 import BigNumber from 'bignumber.js';
 import {
   AutoRouterText,
+  CrossSwapRoute,
   OneParallelRoute,
   RouterIcon,
   SmartRouteV2,
@@ -152,64 +153,16 @@ export function SwapRateDetail({
   );
 }
 
-export function SmartRoutesV2Detail({
+function CrossSwapRoutesDetail({
   swapsTodo,
-}: {
-  swapsTodo: EstimateSwapView[];
-}) {
-  const tokensPerRoute = swapsTodo
-    .filter((swap) => swap.inputToken == swap.routeInputToken)
-    .map((swap) => swap.tokens);
-
-  const identicalRoutes = separateRoutes(
-    swapsTodo,
-    swapsTodo[swapsTodo.length - 1].outputToken
-  );
-
-  const pools = identicalRoutes.map((r) => r[0]).map((hub) => hub.pool);
-
-  const percents = useMemo(() => {
-    return getPoolAllocationPercents(pools);
-  }, [identicalRoutes, pools]);
-
-  return (
-    <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
-      <div className="text-primaryText text-left self-start">
-        <div className="inline-flex items-center">
-          <RouterIcon />
-          <AutoRouterText />
-          <QuestionTip id="optimal_path_found_by_our_solution" width="w-56" />
-        </div>
-      </div>
-
-      <div className="text-right text-white col-span-7 xs:mt-2 md:mt-2 self-start">
-        {tokensPerRoute.map((tokens, index) => (
-          <div key={index} className="mb-2 md:w-smartRoute lg:w-smartRoute">
-            <div className="text-right text-white col-span-6 xs:mt-2 md:mt-2">
-              {
-                <SmartRouteV2
-                  tokens={tokens}
-                  p={percents[index]}
-                  pools={identicalRoutes[index].map((hub) => hub.pool)}
-                />
-              }
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-export function ParallelSwapRoutesDetail({
-  pools,
-  tokenIn,
   tokenOut,
 }: {
-  pools: Pool[];
-  tokenIn: TokenMetadata;
+  swapsTodo: EstimateSwapView[];
   tokenOut: TokenMetadata;
 }) {
+  const routes = separateRoutes(swapsTodo, tokenOut.id);
+  const pools = routes.map((todo) => todo[0].pool);
+
   const percents = useMemo(() => {
     return getPoolAllocationPercents(pools);
   }, [pools]);
@@ -225,61 +178,18 @@ export function ParallelSwapRoutesDetail({
       </div>
 
       <div className="text-right text-white col-span-7 xs:mt-2 md:mt-2">
-        {pools?.map((p, i) => {
+        {routes?.map((route, i) => {
           return (
             <div
               key={i}
               className="mb-2 md:w-smartRoute lg:w-smartRoute flex items-center relative"
             >
-              <div className="flex items-center">
-                <span>
-                  {p.Dex === 'tri' ? (
-                    <TriIcon lightTrigger={true} hiddenBg={true} />
-                  ) : (
-                    <RefIcon lightTrigger={true} hiddenBg />
-                  )}
-                </span>
-
-                <span className="text-gray-400">{'|'}</span>
-              </div>
               <div className="text-right text-white w-full col-span-6 xs:mt-2 md:mt-2">
-                <SmartRouteV2
-                  tokens={[tokenIn, tokenOut]}
-                  p={percents[i]}
-                  pools={[p]}
-                />
+                <CrossSwapRoute route={route} p={percents[i]} />
               </div>
             </div>
           );
         })}
-      </div>
-    </section>
-  );
-}
-
-export function SmartRoutesDetail({
-  swapsTodo,
-}: {
-  swapsTodo: EstimateSwapView[];
-}) {
-  return (
-    <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
-      <div className="text-primaryText text-left ">
-        <div className="inline-flex items-center">
-          <RouterIcon />
-          <AutoRouterText />
-          <QuestionTip id="optimal_path_found_by_our_solution" width="w-56" />
-        </div>
-      </div>
-
-      <div className="text-right text-white col-span-6 xs:mt-2">
-        {
-          <SmartRouteV2
-            tokens={swapsTodo[0].tokens}
-            p="100"
-            pools={swapsTodo.map((swapTodo) => swapTodo.pool)}
-          />
-        }
       </div>
     </section>
   );
@@ -366,8 +276,6 @@ function DetailView({
   tokenOut,
   from,
   to,
-  minAmountOut,
-  isParallelSwap,
   fee,
   swapsTodo,
   priceImpact,
@@ -386,11 +294,6 @@ function DetailView({
   showDetails?: boolean;
 }) {
   const intl = useIntl();
-
-  // const minAmountOutValue = useMemo(() => {
-  //   if (!minAmountOut) return '0';
-  //   else return toPrecision(minAmountOut, 8, true);
-  // }, [minAmountOut]);
 
   const exchangeRateValue = useMemo(() => {
     if (!from || ONLY_ZEROS.test(to)) return '-';
@@ -445,20 +348,7 @@ function DetailView({
           value={poolFeeDisplay}
         />
 
-        {isParallelSwap && (
-          <ParallelSwapRoutesDetail
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-            pools={pools}
-          />
-        )}
-
-        {swapsTodo[0].status === PoolMode.SMART && (
-          <SmartRoutesDetail swapsTodo={swapsTodo} />
-        )}
-        {!isParallelSwap &&
-          swapsTodo.every((e) => e.status !== PoolMode.SMART) &&
-          pools.length > 1 && <SmartRoutesV2Detail swapsTodo={swapsTodo} />}
+        <CrossSwapRoutesDetail swapsTodo={swapsTodo} tokenOut={tokenOut} />
       </div>
     </div>
   );

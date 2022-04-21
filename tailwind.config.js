@@ -92,6 +92,8 @@ module.exports = {
         riskTextColor: '#BEBEBE',
         senderHot: '#00FFD1',
         auroraGreen: '#70D44B',
+        triPool: '#329DFF',
+        refPool: '#00C6A2',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

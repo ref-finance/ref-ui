@@ -65,22 +65,54 @@ export const ArrowRight = () => {
   );
 };
 
-export const Icon = ({ token }: { token: TokenMetadata }) => {
+export const Icon = ({
+  token,
+  size,
+}: {
+  token: TokenMetadata;
+  size?: string;
+}) => {
+  const imgSize = size || '4';
+
   if (token.icon) {
     return (
       <img
         src={token.icon}
-        className={`w-4 h-4 rounded-full border border-gradientFromHover flex-shrink-0`}
+        className={`w-${imgSize} h-${imgSize}  rounded-full border border-gradientFromHover flex-shrink-0`}
         alt=""
       />
     );
   } else {
     return (
       <div
-        className={`w-4 h-4 rounded-full border border-gradientFromHover flex-shrink-0	`}
+        className={`w-${imgSize}  h-${imgSize} bg-cardBg  rounded-full border bg-cardBg border-gradientFromHover flex-shrink-0	`}
       />
     );
   }
+};
+
+export const CrossIcon = ({
+  Icon,
+  poolId,
+}: {
+  Icon: JSX.Element;
+  poolId?: number | string;
+}) => {
+  return Number(poolId) > 0 ? (
+    <div className="h-4 relative rounded-xl bg-white bg-opacity-20 pl-2 pr-6 py-0.5 flex items-center">
+      <span>#{poolId}</span>
+      <div
+        className="absolute  right-0 flex-shrink-0"
+        style={{
+          top: '-2px',
+        }}
+      >
+        {Icon}
+      </div>
+    </div>
+  ) : (
+    <div className="flex-shrink-0">{Icon}</div>
+  );
 };
 
 export const ParaTokenFrom = ({
@@ -228,4 +260,107 @@ export const SmartRouteV2 = ({
   } else {
     return <div></div>;
   }
+};
+
+export const PoolName = ({
+  dex,
+  translate,
+}: {
+  dex: string;
+  translate: string;
+}) => {
+  return (
+    <span
+      style={{
+        position: 'relative',
+        fontSize: '10px',
+        right: `${Number(dex === 'tri' ? 20 : 10) + Number(translate)}px`,
+      }}
+    >
+      {dex === 'tri' ? 'Trisolaris' : 'Ref'}
+    </span>
+  );
+};
+
+export const CrossSwapRoute = ({
+  route,
+  p,
+}: {
+  route: EstimateSwapView[];
+  p: string;
+}) => {
+  return (
+    <div className="flex items-center text-xs text-white">
+      <span className="text-right mr-2 w-8">{p}%</span>
+
+      {route.length === 1 ? (
+        <div
+          className={`w-full h-4 flex items-center rounded-xl justify-between relative ${
+            route[0].pool.Dex === 'tri'
+              ? 'bg-triPool bg-opacity-20'
+              : 'bg-refPool bg-opacity-20'
+          }`}
+        >
+          <Icon token={route[0].tokens[0]} size={'5'} />
+          <div
+            style={{
+              fontSize: '10px',
+            }}
+          >
+            {route[0].pool.Dex === 'tri' ? 'Trisolaris' : 'Ref'}
+          </div>
+
+          <CrossIcon
+            Icon={<Icon token={route[0].tokens[1]} size={'5'} />}
+            poolId={route[0].pool.id}
+          />
+        </div>
+      ) : (
+        <div className="flex w-full items-center justify-between relative">
+          <div className="absolute">
+            <Icon token={route[0].tokens[0]} size="5" />
+          </div>
+          <div
+            className={`w-full flex items-center justify-center rounded-l-xl ${
+              route[0].pool.Dex === 'tri'
+                ? 'bg-triPool bg-opacity-20'
+                : 'bg-refPool bg-opacity-20'
+            }`}
+          >
+            {/* <span>{route[0].pool.Dex === 'tri' ? 'Trisolaris' : 'Ref'}</span> */}
+            <PoolName dex={route[0].pool.Dex} translate="0" />
+          </div>
+
+          <div
+            className="absolute"
+            style={{
+              right: '120px',
+            }}
+          >
+            <CrossIcon
+              Icon={<Icon token={route[0].tokens[1]} size="5" />}
+              poolId={route[0].pool.id}
+            />
+          </div>
+
+          <div
+            className={`w-full flex items-center justify-center rounded-r-xl ${
+              route[1].pool.Dex === 'tri'
+                ? 'bg-triPool bg-opacity-20'
+                : 'bg-refPool bg-opacity-20'
+            }`}
+          >
+            <PoolName dex={route[1].pool.Dex} translate="15" />
+          </div>
+
+          <div className="absolute right-0">
+            <CrossIcon
+              Icon={<Icon token={route[0].tokens[2]} size="5" />}
+              poolId={route[1].pool.id}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
