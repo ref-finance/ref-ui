@@ -47,6 +47,7 @@ import { functionCall } from 'near-api-js/lib/transaction';
 import { ONE_YOCTO_NEAR, executeMultipleTransactions, wallet } from '../near';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { STORAGE_TO_REGISTER_WITH_MFT } from '../creators/storage';
+import { ftGetStorageBalance } from '../ft-contract';
 
 const trisolaris = getAuroraConfig().trisolarisAddress;
 
@@ -888,7 +889,7 @@ export const batchWithdrawFromAurora = async (
   const tokenOutActions: RefFiFunctionCallOptions[] = [];
 
   const registerToken = async (tokenId: string) => {
-    const tokenRegistered = await ftGetBalance(tokenId).catch(() => {
+    const tokenRegistered = await ftGetStorageBalance(tokenId).catch(() => {
       throw new Error(`${tokenId} doesn't exist.`);
     });
 
