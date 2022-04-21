@@ -160,7 +160,7 @@ function AccountEntry({
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
 
-  const { wallet } = getCurrentWallet();
+  const { wallet, wallet_type } = getCurrentWallet();
 
   const [showAccountTip, setShowAccountTip] = useState<boolean>(false);
 

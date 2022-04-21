@@ -634,7 +634,7 @@ export const useAuroraBalances = (address: string) => {
 };
 
 export const useAuroraBalancesNearMapping = (address: string) => {
-  const auroraMapping = useAuroraBalances(address, true);
+  const auroraMapping = useAuroraBalances(address);
 
   const [nearMapping, setNearMapping] = useState(null);
 

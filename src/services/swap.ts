@@ -890,7 +890,10 @@ export const crossInstantSwap = async ({
       throw new Error(`${token.id} doesn't exist.`);
     });
 
-    if (tokenRegistered === null) {
+    if (
+      tokenRegistered === null ||
+      ONLY_ZEROS.test(tokenRegistered?.available)
+    ) {
       tokenOutActions.push({
         methodName: 'storage_deposit',
         args: {
