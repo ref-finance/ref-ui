@@ -505,7 +505,7 @@ const ko = {
   value: '가격',
   usd_value: 'USD 가격',
   sauce_note:
-    'SAUCE is designed for liquidity pools with pegged assets, delivering optimal prices.',
+    'SAUCE는 페그된 자산의 유동성 풀을 대상으로 최적의 값을 찾아내 줍니다.',
   support_ledger: '보조 장부(레져)',
   support_ledger_tip:
     "레져는 메모리가 제한되는 구조 탓에 거대한 트랜잭션 양을 감당할 수 없습니다. (예: 오토 라우터 - 여러 풀에서 한번에 거래) 활성화시, '보조 장부' 옵션은 가장 간단한 형상으로 트랜잭션을 제한해서 합리적인 크기의 트랜잭션이 서명 될 수 있게 합니다. (오토 라우터에서 찾은 최적의 값보다 약간 손해를 볼 수 있습니다) ",
