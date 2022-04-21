@@ -764,8 +764,6 @@ export const auroraSwapTransactions = async ({
     const transactions: Transaction[] = [];
     if (swapTodos.length === 0) return transactions;
 
-    const actions = [];
-
     const address = auroraAddr(getCurrentWallet().wallet.getAccountId());
 
     const tokenInAddress = await getErc20Addr(tokenIn_id);
@@ -788,10 +786,13 @@ export const auroraSwapTransactions = async ({
     );
 
     if (approveAction) {
-      actions.push(approveAction);
+      transactions.push({
+        receiverId: 'aurora',
+        functionCalls: [approveAction],
+      });
     }
 
-    let swapActions = [];
+    let swapActions: any[] = [];
 
     if (swapType === 'parallel') {
       swapActions = await Promise.all(
@@ -812,8 +813,6 @@ export const auroraSwapTransactions = async ({
       );
 
       console.log(swapActions);
-
-      swapActions.forEach((a) => actions.push(a));
     } else if (swapType === 'smartV1') {
       swapActions = [
         await swap({
@@ -832,10 +831,14 @@ export const auroraSwapTransactions = async ({
           address,
         }),
       ];
-      swapActions.forEach((a) => actions.push(a));
 
       console.log(swapActions, 'swap actions aurora smart');
     }
+
+    transactions.push({
+      receiverId: 'aurora',
+      functionCalls: swapActions,
+    });
 
     // one route case
     const totalMinAmountOut = scientificNotationToString(
@@ -852,11 +855,9 @@ export const auroraSwapTransactions = async ({
       decimal: decimalOut,
     });
 
-    actions.push(withdrawAction);
-
     transactions.push({
       receiverId: 'aurora',
-      functionCalls: actions,
+      functionCalls: [withdrawAction],
     });
 
     console.log(transactions);
