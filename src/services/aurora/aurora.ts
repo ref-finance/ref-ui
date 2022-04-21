@@ -891,12 +891,11 @@ export const batchWithdrawFromAurora = async (
 
   const transactions: Transaction[] = [];
 
-  const tokenOutActions: RefFiFunctionCallOptions[] = [];
-
   const registerToken = async (tokenId: string) => {
     const tokenRegistered = await ftGetStorageBalance(tokenId).catch(() => {
       throw new Error(`${tokenId} doesn't exist.`);
     });
+    const tokenOutActions: RefFiFunctionCallOptions[] = [];
 
     if (tokenRegistered === null) {
       tokenOutActions.push({
@@ -931,6 +930,8 @@ export const batchWithdrawFromAurora = async (
       })
     )
   );
+
+  console.log(transactions, tokenIdList);
 
   return executeMultipleTransactions(
     transactions.concat([
