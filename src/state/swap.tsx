@@ -458,22 +458,36 @@ export const useCrossSwap = ({
   };
 
   useEffect(() => {
-    if (txHash) {
+    if (txHash && getCurrentWallet().wallet.isSignedIn()) {
       checkTransaction(txHash)
-        .then(({ transaction }) => {
-          return (
-            transaction?.actions[1]?.['FunctionCall']?.method_name ===
-              'ft_transfer_call' ||
-            transaction?.actions[0]?.['FunctionCall']?.method_name ===
-              'ft_transfer_call' ||
-            transaction?.actions[0]?.['FunctionCall']?.method_name === 'swap' ||
-            transaction?.actions[0]?.['FunctionCall']?.method_name ===
-              'near_withdraw'
-          );
+        .then((res: any) => {
+          const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
+
+          const isSlippageError = res.receipts_outcome.some((outcome: any) => {
+            return slippageErrorPattern.test(
+              outcome?.outcome?.status?.Failure?.ActionError?.kind
+                ?.FunctionCallError?.ExecutionError
+            );
+          });
+
+          const transaction = res.transaction;
+          return {
+            isSwap:
+              transaction?.actions[1]?.['FunctionCall']?.method_name ===
+                'ft_transfer_call' ||
+              transaction?.actions[0]?.['FunctionCall']?.method_name ===
+                'ft_transfer_call' ||
+              transaction?.actions[0]?.['FunctionCall']?.method_name ===
+                'swap' ||
+              transaction?.actions[0]?.['FunctionCall']?.method_name ===
+                'near_withdraw',
+            isSlippageError,
+          };
         })
-        .then((isSwap) => {
+        .then(({ isSwap, isSlippageError }) => {
           if (isSwap) {
-            !errorType && swapToast(txHash);
+            !isSlippageError && !errorType && swapToast(txHash);
+            isSlippageError && failToast(txHash, 'Slippage Violation');
           }
           history.replace(pathname);
         });
@@ -511,7 +525,7 @@ export const useCrossSwap = ({
         setSwapError(err);
       })
       .finally(() => {
-        setRequested(true);
+        loadingTrigger && !requested && setRequested(true);
         setLoadingTrigger(false);
       });
   };

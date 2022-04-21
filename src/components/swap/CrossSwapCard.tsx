@@ -567,6 +567,7 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
                 onClick={() => {
                   setRequested(false);
                   setSwapError(null);
+                  setLoadingTrigger(false);
                 }}
               >
                 {'<'}
