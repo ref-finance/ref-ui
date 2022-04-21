@@ -912,17 +912,27 @@ export const crossInstantSwap = async ({
     }
   };
 
-  const toRegisterTokens = new Array(
-    ...new Set(
-      swapsToDo
-        .filter(
-          (todo) => todo.outputToken === tokenOut.id || todo.pool.Dex === 'tri'
-        )
-        .map((todo) => todo.outputToken)
-    )
-  );
+  await registerToken(tokenOut.id);
 
-  await Promise.all(toRegisterTokens.map((tokenId) => registerToken(tokenId)));
+  let toRegisterMiddleTokenId: string;
+
+  const routes = separateRoutes(swapsToDo, tokenOut.id);
+
+  for (let i = 0; i < routes.length; i++) {
+    const curRoute = routes[i];
+    if (
+      curRoute.length === 2 &&
+      curRoute.some((todo) => todo.pool.Dex === 'tri')
+    ) {
+      // await registerTokenAction(curRoute[0].tokens[1].id);
+      toRegisterMiddleTokenId = curRoute[0].tokens[1].id;
+      break;
+    }
+  }
+
+  if (toRegisterMiddleTokenId) {
+    await registerToken(toRegisterMiddleTokenId);
+  }
 
   if (wallet.isSignedIn()) {
     const routes = separateRoutes(swapsToDo, tokenOut.id);
