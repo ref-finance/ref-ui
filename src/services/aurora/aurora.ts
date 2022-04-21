@@ -55,7 +55,7 @@ export const TGas = '1000000000000';
 
 export const depositGas = '70000000000000';
 
-export const AuroraCallGas = '100000000000000';
+export const AuroraCallGas = '150000000000000';
 
 const getAurora = () => {
   const AuroraWalletConnection = new nearAPI.WalletConnection(near, 'aurora');
