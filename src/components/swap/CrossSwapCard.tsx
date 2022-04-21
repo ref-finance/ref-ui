@@ -660,20 +660,22 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
             amountOut={tokenOutAmount}
           />
         </div>
+        {!requested ? null : (
+          <DetailView
+            pools={pools}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            from={tokenInAmount}
+            to={tokenOutAmount}
+            minAmountOut={minAmountOut}
+            isParallelSwap={isParallelSwap}
+            fee={avgFee}
+            swapsTodo={swapsToDo}
+            priceImpact={PriceImpactValue}
+            showDetails={requested}
+          />
+        )}
 
-        <DetailView
-          pools={pools}
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
-          from={tokenInAmount}
-          to={tokenOutAmount}
-          minAmountOut={minAmountOut}
-          isParallelSwap={isParallelSwap}
-          fee={avgFee}
-          swapsTodo={swapsToDo}
-          priceImpact={PriceImpactValue}
-          showDetails={requested}
-        />
         {swapError ? (
           <div className="pb-2 relative -mb-5">
             <Alert level="warn" message={swapError.message} />
