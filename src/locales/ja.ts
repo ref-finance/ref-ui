@@ -1,4 +1,4 @@
-const zh_CN_in_risks_page = {
+const ja_in_risks_page = {
   risks: 'リスク',
   of_using_ref_finance: 'Ref.financeの利用',
   introduction:
@@ -123,7 +123,7 @@ const zh_CN_in_risks_page = {
   risks_of_using_ref_finance:
     'Ref. financeの利用<label class="text-greenColor">リスク</label>',
 };
-const zh_CN = {
+const ja = {
   deposit: 'デポジット',
   Deposit: 'デポジット',
   withdraw: '抽出',
@@ -516,7 +516,7 @@ const zh_CN = {
   usd_value: 'ドル換算額',
   support_ledger: 'Ledgerをサポートする',
   support_ledger_tip:
-    'Ledgerの設計によると、メモリの制限のため、 <br />Ledgerの台帳が大口取引に対応できない（自動ルーティングなど: <br /> 複数のプールにまたがって同時に取引する）。 起動後, <br />Ledgerをサポートする台帳は、トランザクションを次のように制限します。 <br />最もシンプルな形で（価格向上に寄与しない）。 <br />そのため、それなりの規模のコントラクトを結ぶことが可能です。',
+    'Ledgerの設計によると、メモリの制限のため、 <br />Ledgerの台帳が大口取引に対応できない（自動ルーティングなど:複数のプールにまたがって同時に取引する）。 起動後,Ledgerをサポートする台帳は、トランザクションを次のように制限します。最もシンプルな形で（価格向上に寄与しない）。そのため、それなりの規模のコントラクトを結ぶことが可能です。',
   start: 'スタート',
   aprTip: '全リワード製品（未着手・進行中）を対象とした指標値です。',
   half: '半分',
@@ -529,4 +529,4 @@ const zh_CN = {
   ref_account_tip_3:
     'REFアカウントからトークンを引き出し、自分のNEARウォレットへ送金',
 };
-export default Object.assign(zh_CN, zh_CN_in_risks_page);
+export default Object.assign(ja, ja_in_risks_page);

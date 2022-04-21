@@ -513,7 +513,7 @@ const vi = {
   transaction_failed: 'Giao dịch thất bại',
   support_ledger: 'ủng hộ Ledger',
   support_ledger_tip:
-    "Ở bản thiết kế ban đầu, Ledger<br /> không thể thực hiện số lượng lớn<br /> giao dịch cùng lúc(i.e. Auto Router:<br /> trao đổi qua nhiều pool trong một lần) <br />bởi vì sự giới hạn về bộ nhớ. Khi được<br /> kích hoạt, tuỳ chọn 'Support Ledger'<br /> sẽ giới hạn các giao dịch <br />tới sự đơn giản nhất (dù không có được <br />giá thành tốt nhất), nên các giao <br />dịch của có khối lượng hợp lí mới có thể<br /> được thực hiện",
+    "Ở bản thiết kế ban đầu, Ledger không thể thực hiện số lượng lớn giao dịch cùng lúc(i.e. Auto Router: trao đổi qua nhiều pool trong một lần) bởi vì sự giới hạn về bộ nhớ. Khi được kích hoạt, tuỳ chọn 'Support Ledger' sẽ giới hạn các giao dịch tới sự đơn giản nhất (dù không có được giá thành tốt nhất), nên các giao dịch của có khối lượng hợp lí mới có thể được thực hiện",
   start: 'bắt đầu',
   aprTip: 'Giá trị được tính dựa trên tổng phần thưởng hiện có (chưa/đã nhận)',
   half: 'Half',

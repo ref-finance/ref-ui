@@ -11,12 +11,14 @@ export function QuestionTip({
   width,
   defaultMessage,
   dataPlace,
+  uniquenessId,
 }: {
   id: string;
   color?: 'bright' | 'dark';
   width?: string;
   defaultMessage?: string;
   dataPlace?: string;
+  uniquenessId?: string;
 }) {
   const intl = useIntl();
 
@@ -30,19 +32,19 @@ export function QuestionTip({
     }">${tip}</div>`;
     return result;
   };
-
+  const dataPlaceAttribute = dataPlace ? { 'data-place': dataPlace } : {};
   return (
     <div
       className="pl-1 text-white text-base"
-      data-place={dataPlace ? dataPlace : 'right'}
-      data-for="auto_router"
+      {...dataPlaceAttribute}
+      data-for={uniquenessId || 'auto_router'}
       data-class="reactTip"
       data-html={true}
       data-tip={getValue()}
     >
       <QuestionMark color={color} />
       <ReactTooltip
-        id="auto_router"
+        id={uniquenessId || 'auto_router'}
         backgroundColor="#1D2932"
         border
         borderColor="#7e8a93"
