@@ -744,9 +744,11 @@ function NavigationBar() {
 
     const amounts = Object.values(auroraBalances) as string[];
 
-    withdrawBalanceAfterTransaction(auroraAddresses, amounts).then(
-      setWithdrawDone
-    );
+    // withdrawBalanceAfterTransaction(auroraAddresses, amounts).then(
+    //   setWithdrawDone
+    // );
+
+    setWithdrawDone(true);
   }, [auroraBalances, txHash]);
 
   useEffect(() => {
