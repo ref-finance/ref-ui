@@ -486,10 +486,15 @@ export const checkAllowanceAndApprove = async (
 
   const allowance = await fetchAllowance(address, tokenAddresss);
 
-  if (allowance.lt(new Big(readableAmountIn))) {
+  const parsedAllowance = toReadableNumber(
+    decimal,
+    scientificNotationToString(allowance.toString())
+  );
+
+  if (new Big(parsedAllowance).lt(new Big(readableAmountIn))) {
     return approveERC20(
       tokenAddresss,
-      new Big(readableAmountIn).minus(allowance).toFixed(0, 3),
+      new Big(readableAmountIn).minus(parsedAllowance).toFixed(0, 3),
       decimal
     );
   }
