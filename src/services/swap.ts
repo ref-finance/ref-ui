@@ -323,7 +323,7 @@ export const estimateSwap = async ({
   let stableSmartActionsV2;
 
   stableSmartActionsV2 = await stableSmart(
-    orpools,
+    orpools.filter((p) => crossSwap || p.Dex === 'ref'),
     tokenIn.id,
     tokenOut.id,
     parsedAmountIn
@@ -344,7 +344,8 @@ export const estimateSwap = async ({
     let hybridStableSmart = await getHybridStableSmart(
       tokenIn,
       tokenOut,
-      amountIn
+      amountIn,
+      crossSwap
     );
 
     let hybridStableSmartOutputEstimate = hybridStableSmart.estimate.toString();
@@ -376,7 +377,8 @@ export const estimateSwap = async ({
 export async function getHybridStableSmart(
   tokenIn: TokenMetadata,
   tokenOut: TokenMetadata,
-  amountIn: string
+  amountIn: string,
+  crossSwap?: boolean
 ) {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
   let pool1, pool2;
@@ -440,6 +442,7 @@ export async function getHybridStableSmart(
         tokenOutId: tokenOut.id,
         amountIn: parsedAmountIn,
         loadingTrigger: false,
+        crossSwap,
       });
 
       pools2.push(
@@ -462,6 +465,7 @@ export async function getHybridStableSmart(
         tokenOutId: otherStable,
         amountIn: parsedAmountIn,
         loadingTrigger: false,
+        crossSwap,
       });
       pools1.push(
         ...tmpPools.filter((p) => {
