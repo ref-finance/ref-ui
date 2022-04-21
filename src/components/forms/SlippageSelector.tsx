@@ -167,7 +167,11 @@ export default function SlippageSelectorForStable({
                   defaultMessage="Slippage tolerance"
                 />
               </label>
-              <QuestionTip id={slippageCopyId} />
+              <QuestionTip
+                id={slippageCopyId}
+                width="w-60"
+                uniquenessId="slippageId3Id"
+              />
             </div>
 
             <div className="flex text-white items-center">
@@ -230,7 +234,8 @@ export default function SlippageSelectorForStable({
                 id="support_ledger_tip"
                 defaultMessage="By design, Ledger cannot handle large transactions (i.e. Auto Router: trade across multiple pools at once) because of its memory limitation. When activated, the 'Support Ledger' option will limit transactions to their simplest form (to the detriment of better prices), so transactions of a reasonable size can be signed."
                 dataPlace="bottom"
-                width="xs:w-80 md:w-80"
+                uniquenessId="supportId"
+                width="w-60"
               />
               <SupportLedgerSwitch
                 supportLedger={supportLedger}
@@ -292,7 +297,11 @@ export function PoolSlippageSelector({
             />
           </label>
           <div className="text-gray-400">
-            <QuestionTip id={slippageCopyId} />
+            <QuestionTip
+              id={slippageCopyId}
+              width="w-60"
+              uniquenessId="slippageId"
+            />
           </div>
         </div>
 
@@ -389,7 +398,11 @@ export function StableSlipSelecter({
             />
           </label>
           <div className="">
-            <QuestionTip id={slippageCopyId} />
+            <QuestionTip
+              id={slippageCopyId}
+              width="w-60"
+              uniquenessId="slippageId2Id"
+            />
           </div>
         </div>
         <div className="flex text-white items-center">
