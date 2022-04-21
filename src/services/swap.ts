@@ -927,6 +927,7 @@ export const crossInstantSwap = async ({
 
         curTransactions.forEach((t) => transactions.push(t));
       } else {
+        await registerToken(todosThisRoute[0].tokens[1]);
         const curTransactions = await smartRouteSwapCase({
           tokenIn,
           tokenOut,
