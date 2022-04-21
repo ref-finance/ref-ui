@@ -118,7 +118,7 @@ export default function SelectToken({
       </button>
     );
   }
-  const dialogWidth = isMobile() ? '75%' : '25%';
+  const dialogWidth = isMobile() ? '75%' : forCross ? '25%' : '20%';
   const dialogMinwidth = isMobile() ? 340 : 380;
   const dialogHidth = isMobile() ? '95%' : '57%';
   const intl = useIntl();

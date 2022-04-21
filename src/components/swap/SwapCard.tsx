@@ -746,6 +746,11 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
               setTokenIn(tokenOut);
               setTokenOut(tokenIn);
               setTokenInAmount(toPrecision('1', 6));
+              localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
+              localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
+              history.replace(
+                `#${tokenOut.id}${TOKEN_URL_SEPARATOR}${tokenIn.id}`
+              );
             }}
           />
         </div>

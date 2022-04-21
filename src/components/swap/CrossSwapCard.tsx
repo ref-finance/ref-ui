@@ -481,6 +481,7 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
   );
 
   const [useNearBalance, setUseNearBalance] = useState<boolean>(true);
+  const history = useHistory();
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -710,7 +711,11 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
           balances={balances}
           tokenPriceList={tokenPriceList}
           tokens={allTokens}
-          onSelectToken={setTokenIn}
+          onSelectToken={(token) => {
+            localStorage.setItem(SWAP_IN_KEY, token.id);
+            setTokenIn(token);
+            history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
+          }}
           amount={tokenInAmount}
           hidden={requested}
         />
@@ -725,6 +730,11 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
               setTokenIn(tokenOut);
               setTokenOut(tokenIn);
               setTokenInAmount(toPrecision('1', 6));
+              localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
+              localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
+              history.replace(
+                `#${tokenOut.id}${TOKEN_URL_SEPARATOR}${tokenIn.id}`
+              );
             }}
           />
         </div>
@@ -732,7 +742,11 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
         <TokenCardOut
           tokens={allTokens}
           tokenOut={tokenOut}
-          onSelectToken={setTokenOut}
+          onSelectToken={(token) => {
+            setTokenOut(token);
+            localStorage.setItem(SWAP_OUT_KEY, token.id);
+            history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`);
+          }}
           balances={balances}
           tokenPriceList={tokenPriceList}
           hidden={requested}

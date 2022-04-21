@@ -362,7 +362,7 @@ export function AuroraEntry({
 
   return (
     <div
-      className="lg:py-5 relative z-20 flex items-center"
+      className="lg:py-5 relative z-20 flex items-center cursor-pointer"
       onMouseEnter={() => !isMobile && setHover(true)}
       onMouseLeave={() => !isMobile && setHover(false)}
       onClick={(e) => {

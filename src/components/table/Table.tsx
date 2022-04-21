@@ -49,7 +49,13 @@ export default function Table({
                 )}
               </span>
             </th>
-            <th className="pb-2 w-1/5 font-normal relative lg:right-4">
+            <th
+              className={
+                !forCross
+                  ? 'hidden'
+                  : 'pb-2 w-1/5 font-normal relative lg:right-4'
+              }
+            >
               <span>
                 <FormattedMessage id="support" defaultMessage="Support" />
               </span>
@@ -83,6 +89,7 @@ export default function Table({
               token={token}
               price={tokenPriceList[token.id]?.price}
               sortBy={sortBy}
+              forCross={forCross}
               totalAmount={
                 balances
                   ? toReadableNumber(token.decimals, balances[token.id])

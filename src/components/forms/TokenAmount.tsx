@@ -257,6 +257,7 @@ export function TokenCardIn({
             placeholder="0.0"
             onChange={(e) => onChangeAmount(e.target.value)}
             onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
+            step="any"
           />
 
           <div>
@@ -291,12 +292,12 @@ export function TokenCardOut({
   if (hidden) return null;
   return (
     <div
-      className="bg-black bg-opacity-20 p-5"
+      className="bg-black bg-opacity-20 py-5"
       style={{
         borderRadius: '20px',
       }}
     >
-      <div className="text-sm text-primaryText pb-4 flex items-center justify-between">
+      <div className="text-sm text-primaryText pb-4 flex items-center justify-between px-5">
         <span>
           <FormattedMessage id="to" defaultMessage="To" />
         </span>
@@ -310,13 +311,15 @@ export function TokenCardOut({
         standalone
         selected={
           <div
-            className="flex font-semibold w-full cursor-pointer"
+            className="flex font-semibold w-full cursor-pointer pl-4 pr-3"
             onMouseEnter={() => setHoverSelectToken(true)}
             onMouseLeave={() => setHoverSelectToken(false)}
           >
             {tokenOut ? (
               <div
-                className={`flex items-center text-lg text-white justify-between w-full rounded-full flex-shrink-0 `}
+                className={`flex items-center text-lg text-white justify-between w-full rounded-full flex-shrink-0  ${
+                  hoverSelectToken ? 'bg-black bg-opacity-20 ' : ''
+                }`}
                 style={{ lineHeight: 'unset' }}
               >
                 <div className="flex items-center">
@@ -330,7 +333,7 @@ export function TokenCardOut({
                   </p>
                 </div>
 
-                <div className="pl-2 xs:pl-1 text-xs">
+                <div className="pl-2 xs:pl-1 text-xs pr-4">
                   {hoverSelectToken ? <ArrowDownGreen /> : <ArrowDownWhite />}
                 </div>
               </div>

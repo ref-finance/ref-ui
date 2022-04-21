@@ -15,6 +15,7 @@ interface TokenProps {
   sortBy?: string;
   price?: string;
   index?: number;
+  forCross?: boolean;
 }
 
 export default function Token({
@@ -23,6 +24,7 @@ export default function Token({
   sortBy,
   price,
   index,
+  forCross,
 }: TokenProps) {
   const { icon, symbol, id, near, ref, total, onRef, onTri } = token;
 
@@ -59,7 +61,11 @@ export default function Token({
           <SingleToken token={token} price={price} />
         </div>
 
-        <div className="w-16 flex justify-end relative lg:left-3">
+        <div
+          className={
+            !forCross ? 'hidden' : 'w-16 flex justify-end relative lg:left-3'
+          }
+        >
           {onRef ? <RefIcon lightTrigger={hover} /> : null}
 
           {onTri ? <TriIcon lightTrigger={hover} /> : null}
