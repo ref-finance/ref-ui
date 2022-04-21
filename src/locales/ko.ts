@@ -320,7 +320,7 @@ const ko = {
   slip_invalid: '슬리피지(미끄러짐) 허용치가 적절한 수치가 아닙니다.',
   input_to_search: '검색내용을 입력하십시오',
   click_search_bar_to_search: '검색바를 눌러 검색하십시오',
-  reward_tokens: '리워드 토큰 부여 - 형용사야 명사야?',
+  reward_tokens: '보상 토큰',
   detail_tip: '세부사항',
   no_data: '데이터 없음',
   stable_swap: '스테이블스왑',
@@ -333,7 +333,7 @@ const ko = {
   share_liquidity: '유동성 share',
   remove_token_confirm: 'RUST 토큰을 풀에서 꺼냅니다remove',
   remove_as_one_token: '하나의 토큰으로 꺼내기remove',
-  flexible_tip: '토큰당 얼만큼씩 꺼낼remove지 정하세요 ',
+  flexible_tip: '토큰당 얼만큼씩 꺼낼remove지 정하세요',
   add_type_all: '모든 토큰을 균형에 맞게 입금합니다.',
   add_type_max: '가능한 토큰 전부를 사용합니다',
   select_balance: '잔고 선택',
@@ -434,7 +434,7 @@ const ko = {
     'xRef 보유자에게 배당하는 수수료 수익 총액',
   provision_treasury: '준비금',
   protocol_projected_revenue_tip:
-    '이 숫자는 xREF 홀더들에게 지급 예상되는 수수료 누적 금액입니다. 이는 플랫폼 수수료의 75%에 해당합니다. 이 숫자는 실제 REF 토큰 재구입(buyback) 시기의 가격에 따릅니다.',
+    '이 숫자는 xREF 홀더들에게 지급 예상되는 수수료 누적 금액입니다. 이는 플랫폼 수수료의 75%에 해당합니다. 이 숫자는 실제 REF 토큰 재구입 시기의 가격에 따릅니다.',
   stake_ref_to_xref_for_earning_more:
     'xREF에 REF를 스테이크해서 더 큰 수익을 올리세요!',
   auto_router: '자동 라우터',
