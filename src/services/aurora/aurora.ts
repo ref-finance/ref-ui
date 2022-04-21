@@ -45,6 +45,8 @@ import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 
 const trisolaris = getAuroraConfig().trisolarisAddress;
 
+const SECOND_FROM_NOW = 600;
+
 export const Zero64 = '0'.repeat(64);
 export const SHARE_DECIMAL = 18;
 export const PAIR_FEE = 3;
@@ -332,7 +334,7 @@ export async function swapExactTokensForTokens({
     toNonDivisibleNumber(decimalOut, readableAmountOut), // need to check decimals in real case
     [fromErc20.id, toErc20.id],
     address,
-    (Math.floor(new Date().getTime() / 1000) + 60).toString(), // 60s from now
+    (Math.floor(new Date().getTime() / 1000) + SECOND_FROM_NOW).toString(), // 60s from now
   ]);
 
   const callAddress = toAddress(trisolaris);
@@ -358,7 +360,7 @@ export async function swapExactETHforTokens({
     toNonDivisibleNumber(decimalOut, readableAmountOut),
     [getAuroraConfig().WETH, toErc20.id],
     address,
-    (Math.floor(new Date().getTime() / 1000) + 60).toString(), // 60s from now
+    (Math.floor(new Date().getTime() / 1000) + SECOND_FROM_NOW).toString(), // 60s from now
   ]);
 
   const value = toNonDivisibleNumber(ETH_DECIMAL, readableAmountIn);
@@ -390,7 +392,7 @@ export async function swapExactTokensforETH({
     toNonDivisibleNumber(ETH_DECIMAL, readableAmountOut),
     [fromErc20.id, getAuroraConfig().WETH],
     address,
-    (Math.floor(new Date().getTime() / 1000) + 60).toString(), // 60s from now
+    (Math.floor(new Date().getTime() / 1000) + SECOND_FROM_NOW).toString(), // 60s from now
   ]);
 
   const callAddress = toAddress(trisolaris);
