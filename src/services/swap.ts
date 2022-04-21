@@ -885,14 +885,14 @@ export const crossInstantSwap = async ({
   slippageTolerance,
 }: SwapOptions) => {
   const transactions: Transaction[] = [];
-  const tokenOutActions: RefFiFunctionCallOptions[] = [];
 
   const { wallet } = getCurrentWallet();
 
-  const registerToken = async (token: TokenMetadata) => {
-    const tokenRegistered = await ftGetStorageBalance(token.id).catch(() => {
-      throw new Error(`${token.id} doesn't exist.`);
+  const registerToken = async (tokenId: string) => {
+    const tokenRegistered = await ftGetStorageBalance(tokenId).catch(() => {
+      throw new Error(`${tokenId} doesn't exist.`);
     });
+    const tokenOutActions: RefFiFunctionCallOptions[] = [];
 
     if (tokenRegistered === null) {
       tokenOutActions.push({
@@ -906,13 +906,23 @@ export const crossInstantSwap = async ({
       });
 
       transactions.push({
-        receiverId: token.id,
+        receiverId: tokenId,
         functionCalls: tokenOutActions,
       });
     }
   };
 
-  await registerToken(tokenOut);
+  const toRegisterTokens = new Array(
+    ...new Set(
+      swapsToDo
+        .filter(
+          (todo) => todo.outputToken === tokenOut.id || todo.pool.Dex === 'tri'
+        )
+        .map((todo) => todo.outputToken)
+    )
+  );
+
+  await Promise.all(toRegisterTokens.map((tokenId) => registerToken(tokenId)));
 
   if (wallet.isSignedIn()) {
     const routes = separateRoutes(swapsToDo, tokenOut.id);
@@ -934,7 +944,6 @@ export const crossInstantSwap = async ({
 
         curTransactions.forEach((t) => transactions.push(t));
       } else {
-        await registerToken(todosThisRoute[0].tokens[1]);
         const curTransactions = await smartRouteSwapCase({
           tokenIn,
           tokenOut,
