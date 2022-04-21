@@ -99,8 +99,15 @@ export const CrossIcon = ({
   poolId?: number | string;
 }) => {
   return Number(poolId) > 0 ? (
-    <div className="h-4 relative rounded-xl bg-white bg-opacity-20 pl-2 pr-6 py-0.5 flex items-center">
-      <span>#{poolId}</span>
+    <div className="h-4 relative rounded-xl bg-black bg-opacity-20 pl-2 pr-6 py-0.5 flex items-center">
+      <span
+        className="opacity-50"
+        style={{
+          fontSize: '10px',
+        }}
+      >
+        #{poolId}
+      </span>
       <div
         className="absolute  right-0 flex-shrink-0"
         style={{
@@ -305,6 +312,7 @@ export const CrossSwapRoute = ({
           <div
             style={{
               fontSize: '10px',
+              opacity: '0.5',
             }}
           >
             {route[0].pool.Dex === 'tri' ? 'Trisolaris' : 'Ref'}

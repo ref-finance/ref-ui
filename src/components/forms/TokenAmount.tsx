@@ -369,7 +369,7 @@ export function CrossSwapTokens({
   if (!tokenIn || !tokenOut || !amountOut) return null;
 
   return (
-    <div className="py-5 px-4 border bg-cardBg border-gradientFrom rounded-xl flex items-center justify-between relative">
+    <div className="py-5 px-4 border bg-black bg-opacity-20 border-gradientFrom rounded-xl flex items-center justify-between relative">
       <div className="flex flex-col justify-between">
         <span className="text-white flex items-center">
           <span>{toPrecision(amountIn, 3)}</span>

@@ -79,7 +79,7 @@ export function SwapDetail({
   value: string | JSX.Element;
 }) {
   return (
-    <section className="grid grid-cols-12 py-1 text-xs">
+    <section className="grid grid-cols-12 py-2 text-xs">
       <p className="text-primaryText text-left col-span-6">{title}</p>
       <p className="text-right text-white col-span-6">{value}</p>
     </section>
@@ -135,7 +135,7 @@ export function SwapRateDetail({
   }
 
   return (
-    <section className="grid grid-cols-12 py-1 text-xs">
+    <section className="grid grid-cols-12 py-2 text-xs">
       <p className="text-primaryText text-left flex xs:flex-col md:flex-col col-span-4 whitespace-nowrap">
         <label className="mr-1">{title}</label>
         {subTitle ? <label>{subTitle}</label> : null}
@@ -168,7 +168,7 @@ function CrossSwapRoutesDetail({
   }, [pools]);
 
   return (
-    <section className="md:grid lg:grid grid-cols-12 py-1 text-xs">
+    <section className="md:grid lg:grid grid-cols-12 py-2 text-xs">
       <div className="text-primaryText text-left col-span-5">
         <div className="inline-flex items-center">
           <RouterIcon />
@@ -182,7 +182,7 @@ function CrossSwapRoutesDetail({
           return (
             <div
               key={i}
-              className="mb-2 md:w-smartRoute lg:w-smartRoute flex items-center relative"
+              className="mb-5 md:w-smartRoute lg:w-smartRoute flex items-center relative"
             >
               <div className="text-right text-white w-full col-span-6 xs:mt-2 md:mt-2">
                 <CrossSwapRoute route={route} p={percents[i]} />
