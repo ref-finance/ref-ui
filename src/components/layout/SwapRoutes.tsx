@@ -281,7 +281,7 @@ export const PoolName = ({
       style={{
         position: 'relative',
         fontSize: '10px',
-        right: `${Number(dex === 'tri' ? 20 : 10) + Number(translate)}px`,
+        right: `${Number(dex === 'tri' ? 0 : 10) + Number(translate)}px`,
       }}
     >
       {dex === 'tri' ? 'Trisolaris' : 'Ref'}

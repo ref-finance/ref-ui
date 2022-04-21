@@ -509,6 +509,7 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
   const canSubmit = requested
     ? canSwap
     : !ONLY_ZEROS.test(tokenInMax) &&
+      !ONLY_ZEROS.test(tokenInAmount) &&
       new BigNumber(tokenInAmount).lte(new BigNumber(tokenInMax));
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -652,14 +653,16 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
             />
           </div>
 
-          <CrossSwapTokens
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-            tokenPriceList={tokenPriceList}
-            amountIn={tokenInAmount}
-            amountOut={tokenOutAmount}
-            slippageTolerance={slippageTolerance}
-          />
+          {!requested ? null : (
+            <CrossSwapTokens
+              tokenIn={tokenIn}
+              tokenOut={tokenOut}
+              tokenPriceList={tokenPriceList}
+              amountIn={tokenInAmount}
+              amountOut={tokenOutAmount}
+              slippageTolerance={slippageTolerance}
+            />
+          )}
         </div>
         {!requested ? null : (
           <DetailView
