@@ -924,7 +924,10 @@ export const crossInstantSwap = async ({
         const curTransactions = await parallelSwapCase({
           tokenIn,
           tokenOut,
-          amountIn,
+          amountIn: toReadableNumber(
+            tokenIn.decimals,
+            todosThisRoute[0].pool.partialAmountIn
+          ),
           swapsToDo: todosThisRoute,
           slippageTolerance,
         });
@@ -935,7 +938,10 @@ export const crossInstantSwap = async ({
         const curTransactions = await smartRouteSwapCase({
           tokenIn,
           tokenOut,
-          amountIn,
+          amountIn: toReadableNumber(
+            tokenIn.decimals,
+            todosThisRoute[0].pool.partialAmountIn
+          ),
           swapsToDo: todosThisRoute,
           slippageTolerance,
         });
