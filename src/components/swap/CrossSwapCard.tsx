@@ -161,10 +161,18 @@ function CrossSwapRoutesDetail({
   tokenOut: TokenMetadata;
 }) {
   const routes = separateRoutes(swapsTodo, tokenOut.id);
-  const pools = routes.map((todo) => todo[0].pool);
+  const pools = routes?.map((todo) => todo[0].pool);
+
+  console.log(routes);
 
   const percents = useMemo(() => {
-    return getPoolAllocationPercents(pools);
+    try {
+      console.log(pools);
+
+      return getPoolAllocationPercents(pools);
+    } catch (error) {
+      return [];
+    }
   }, [pools]);
 
   return (
