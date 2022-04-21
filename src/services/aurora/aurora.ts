@@ -28,7 +28,11 @@ import { near, keyStore, Transaction, RefFiFunctionCallOptions } from '../near';
 import getConfig from '../config';
 import { BN } from 'bn.js';
 import { Pool } from '../pool';
-import { ftGetTokenMetadata, TokenMetadata } from '../ft-contract';
+import {
+  ftGetTokenMetadata,
+  TokenMetadata,
+  ftGetBalance,
+} from '../ft-contract';
 import { useEffect, useState } from 'react';
 import {
   scientificNotationToString,
@@ -42,6 +46,7 @@ import { toNonDivisibleNumber } from '../../utils/numbers';
 import { functionCall } from 'near-api-js/lib/transaction';
 import { ONE_YOCTO_NEAR, executeMultipleTransactions, wallet } from '../near';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
+import { STORAGE_TO_REGISTER_WITH_MFT } from '../creators/storage';
 
 const trisolaris = getAuroraConfig().trisolarisAddress;
 
@@ -878,6 +883,35 @@ export const batchWithdrawFromAurora = async (
 ) => {
   const tokenIdList = Object.keys(tokenMap);
 
+  const transactions: Transaction[] = [];
+
+  const tokenOutActions: RefFiFunctionCallOptions[] = [];
+
+  const registerToken = async (tokenId: string) => {
+    const tokenRegistered = await ftGetBalance(tokenId).catch(() => {
+      throw new Error(`${tokenId} doesn't exist.`);
+    });
+
+    if (tokenRegistered === null) {
+      tokenOutActions.push({
+        methodName: 'storage_deposit',
+        args: {
+          registration_only: true,
+          account_id: getCurrentWallet().wallet.getAccountId(),
+        },
+        gas: '30000000000000',
+        amount: STORAGE_TO_REGISTER_WITH_MFT,
+      });
+
+      transactions.push({
+        receiverId: tokenId,
+        functionCalls: tokenOutActions,
+      });
+    }
+  };
+
+  await Promise.all(tokenIdList.map((id) => registerToken(id)));
+
   const tokens = await Promise.all(
     tokenIdList.map((id) => ftGetTokenMetadata(id))
   );
@@ -892,12 +926,14 @@ export const batchWithdrawFromAurora = async (
     )
   );
 
-  return executeMultipleTransactions([
-    {
-      receiverId: 'aurora',
-      functionCalls: actions,
-    },
-  ]);
+  return executeMultipleTransactions(
+    transactions.concat([
+      {
+        receiverId: 'aurora',
+        functionCalls: actions,
+      },
+    ])
+  );
 };
 
 export const batchCallWithdraw = async (
