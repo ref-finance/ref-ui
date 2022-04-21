@@ -824,8 +824,6 @@ export const auroraSwapTransactions = async ({
           });
         })
       );
-
-      console.log(swapActions);
     } else if (swapType === 'smartV1') {
       swapActions = [
         await swap({
@@ -833,10 +831,7 @@ export const auroraSwapTransactions = async ({
           to: tokenOut_id,
           decimalIn,
           decimalOut,
-          readableAmountIn: toReadableNumber(
-            decimalIn,
-            swapTodos[0].pool.partialAmountIn
-          ),
+          readableAmountIn,
           readableAmountOut: percentLess(
             slippageTolerance,
             swapTodos[swapTodos.length - 1].estimate
