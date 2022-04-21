@@ -56,15 +56,13 @@ export default function Token({
               : !price
               ? 'py-4'
               : 'py-2'
-          }  cursor-pointer flex w-36 items-center`}
+          }  cursor-pointer flex w-44 items-center`}
         >
           <SingleToken token={token} price={price} />
         </div>
 
         <div
-          className={
-            !forCross ? 'hidden' : 'w-16 flex justify-end relative lg:left-3'
-          }
+          className={!forCross ? 'hidden' : 'w-16 flex justify-start relative'}
         >
           {onRef ? <RefIcon lightTrigger={hover} /> : null}
 
