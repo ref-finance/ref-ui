@@ -23,6 +23,7 @@ import { currentTokensPrice } from '../../services/api';
 import { IconLeft } from '../tokens/Icon';
 import { toRealSymbol } from '../../utils/token';
 import { ArrowDownGreen, ArrowDownWhite } from '../icon/Arrows';
+import { percentLess } from '../../utils/numbers';
 
 interface TokenAmountProps {
   amount?: string;
@@ -353,12 +354,14 @@ export function CrossSwapTokens({
   tokenPriceList,
   amountIn,
   amountOut,
+  slippageTolerance,
 }: {
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
   tokenPriceList?: Record<string, any>;
   amountIn: string;
   amountOut: string;
+  slippageTolerance: number;
 }) {
   const tokenInPrice = tokenPriceList?.[tokenIn?.id]?.price || null;
   const tokenOutPrice = tokenPriceList?.[tokenOut?.id]?.price || null;
@@ -387,7 +390,9 @@ export function CrossSwapTokens({
 
       <div className="flex flex-col justify-between items-end">
         <span className="text-gradientFrom font-bold text-xl">
-          <span>{toPrecision(amountOut, 6)}</span>
+          <span>
+            {toPrecision(percentLess(slippageTolerance, amountOut), 6)}
+          </span>
           <span className="ml-1">{toRealSymbol(tokenOut?.symbol)}</span>
         </span>
         <span className="text-sm text-primaryText pt-1">
