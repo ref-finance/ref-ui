@@ -514,6 +514,8 @@ const ja = {
   wallet_vi: ' ',
   value: '額',
   usd_value: 'ドル換算額',
+  sauce_note:
+    'SAUCE is designed for liquidity pools with pegged assets, delivering optimal prices.',
   support_ledger: 'Ledgerをサポートする',
   support_ledger_tip:
     'Ledgerの設計によると、メモリの制限のため、 <br />Ledgerの台帳が大口取引に対応できない（自動ルーティングなど:複数のプールにまたがって同時に取引する）。 起動後,Ledgerをサポートする台帳は、トランザクションを次のように制限します。最もシンプルな形で（価格向上に寄与しない）。そのため、それなりの規模のコントラクトを結ぶことが可能です。',
