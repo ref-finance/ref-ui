@@ -326,10 +326,10 @@ export function TokenCardOut({
                 <div className="flex items-center">
                   <img
                     key={tokenOut.id}
-                    className="mr-2 xs:ml-1 h-11 w-11 xs:h-9 xs:w-9 border rounded-full border-greenLight"
+                    className="mr-2 xs:ml-0 xs:mr-1  h-11 w-11 xs:h-7 xs:w-7 border rounded-full border-greenLight"
                     src={tokenOut.icon}
                   />
-                  <p className="block text-lg">
+                  <p className="block text-lg xs:text-sm">
                     {toRealSymbol(tokenOut.symbol)}
                   </p>
                 </div>

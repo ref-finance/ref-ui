@@ -65,10 +65,12 @@ export function IconLeft({
     >
       <img
         key={token.id}
-        className="mr-2 xs:ml-1 h-11 w-11 xs:h-9 xs:w-9 border rounded-full border-greenLight"
+        className="mr-2 xs:ml-0 xs:mr-1 xs:relative xs:right-1 h-11 w-11 xs:h-7 xs:w-7 border rounded-full border-greenLight"
         src={token.icon}
       />
-      {label && <p className="block text-lg">{toRealSymbol(token.symbol)}</p>}
+      {label && (
+        <p className="block text-lg xs:text-sm">{toRealSymbol(token.symbol)}</p>
+      )}
       {showArrow && (
         <div className="pl-2 xs:pl-1 text-xs">
           {hover ? <ArrowDownGreen /> : <ArrowDownWhite />}
