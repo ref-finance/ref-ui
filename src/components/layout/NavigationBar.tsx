@@ -751,7 +751,7 @@ function NavigationBar() {
     //   setWithdrawDone
     // );
 
-    setWithdrawDone(true);
+    setWithdrawDone(false);
   }, [auroraBalances, txHash]);
 
   useEffect(() => {
