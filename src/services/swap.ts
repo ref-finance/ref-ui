@@ -213,6 +213,31 @@ const getSinglePoolEstimate = (
   };
 };
 
+const getPoolEstimate = async ({
+  tokenIn,
+  tokenOut,
+  amountIn,
+  Pool,
+}: {
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  amountIn: string;
+  Pool: Pool;
+}) => {
+  if (Number(Pool.id) === Number(STABLE_POOL_ID)) {
+    const stablePoolInfo = (await getStablePoolFromCache())[1];
+    return getStablePoolEstimate({
+      tokenIn,
+      tokenOut,
+      amountIn: toReadableNumber(tokenIn.decimals, amountIn),
+      stablePoolInfo,
+      stablePool: Pool,
+    });
+  } else {
+    return getSinglePoolEstimate(tokenIn, tokenOut, Pool, amountIn);
+  }
+};
+
 export const estimateSwap = async ({
   tokenIn,
   tokenOut,
@@ -1271,10 +1296,28 @@ export const smartRouteSwapCase = async ({
       decimalOut: tokenOut.decimals,
       slippageTolerance,
       swapType: 'smartV1',
+      readableAmountOut: percentLess(
+        tokenOut.decimals,
+        swapsToDo[swapsToDo.length - 1].estimate
+      ),
     });
     triSwapTransactions.forEach((t) => curTransactions.push(t));
   } else if (swap1toTri) {
     // first pool on tri
+    const secondAmountIn = round(
+      swap2.tokens[1].decimals,
+      toNonDivisibleNumber(
+        swap2.tokens[1].decimals,
+        percentLess(slippageTolerance, swap1.estimate)
+      )
+    );
+
+    const secondHopEstimateOut = await getPoolEstimate({
+      tokenIn: swap2.tokens[1],
+      tokenOut,
+      amountIn: secondAmountIn,
+      Pool: swap2.pool,
+    });
 
     triSwapTransactions = await auroraSwapTransactions({
       tokenIn_id: tokenIn.id,
@@ -1285,30 +1328,21 @@ export const smartRouteSwapCase = async ({
       decimalOut: swap1.tokens[1].decimals,
       slippageTolerance,
       swapType: 'smartV1',
+      readableAmountOut: toReadableNumber(
+        swap2.tokens[1].decimals,
+        secondAmountIn
+      ),
     });
     triSwapTransactions.forEach((t) => curTransactions.push(t));
 
     console.log(triSwapTransactions, 'first is tri');
-
-    const secondHopEstimateOut = getSinglePoolEstimate(
-      swap2.token[1],
-      tokenOut,
-      swap2.pool,
-      toNonDivisibleNumber(
-        swap2.tokens[1].decimals,
-        percentLess(slippageTolerance, swap1.estimate)
-      )
-    );
 
     // slippage tolerance from first action
     actionsList.push({
       pool_id: swap2.pool.id,
       token_in: swap2.inputToken,
       token_out: swap2.outputToken,
-      amount_in: toNonDivisibleNumber(
-        swap2.tokens[1].decimals,
-        percentLess(slippageTolerance, swap1.estimate)
-      ),
+      amount_in: secondAmountIn,
       min_amount_out: round(
         tokenOut.decimals,
         toNonDivisibleNumber(
@@ -1325,10 +1359,7 @@ export const smartRouteSwapCase = async ({
           methodName: 'ft_transfer_call',
           args: {
             receiver_id: REF_FI_CONTRACT_ID,
-            amount: toNonDivisibleNumber(
-              swap2.tokens[1].decimals,
-              percentLess(slippageTolerance, swap1.estimate)
-            ),
+            amount: secondAmountIn,
             msg: JSON.stringify({
               force: 0,
               actions: actionsList,
@@ -1341,18 +1372,28 @@ export const smartRouteSwapCase = async ({
     });
   } else if (swap2toTri) {
     // second pool on tri
+
+    const secondAmountIn = round(
+      swap1.tokens[1].decimals,
+      toNonDivisibleNumber(
+        swap1.tokens[1].decimals,
+        percentLess(slippageTolerance, swap1.estimate)
+      )
+    );
+
+    const secondHopEstimateOut = await getPoolEstimate({
+      tokenIn: swap2.tokens[1],
+      tokenOut,
+      amountIn: secondAmountIn,
+      Pool: swap2.pool,
+    });
+
     actionsList.push({
       pool_id: swap1.pool.id,
       token_in: swap1.inputToken,
       token_out: swap1.outputToken,
       amount_in: amountInInt,
-      min_amount_out: round(
-        swap1.tokens[1].decimals,
-        toNonDivisibleNumber(
-          swap1.tokens[1].decimals,
-          percentLess(slippageTolerance, swap1.estimate)
-        )
-      ),
+      min_amount_out: secondAmountIn,
     });
 
     curTransactions.push({
@@ -1362,7 +1403,7 @@ export const smartRouteSwapCase = async ({
           methodName: 'ft_transfer_call',
           args: {
             receiver_id: REF_FI_CONTRACT_ID,
-            amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
+            amount: amountInInt,
             msg: JSON.stringify({
               force: 0,
               actions: actionsList,
@@ -1378,11 +1419,24 @@ export const smartRouteSwapCase = async ({
       tokenIn_id: swap2.inputToken,
       tokenOut_id: swap2.outputToken,
       swapTodos: [swap2],
-      readableAmountIn: percentLess(slippageTolerance, swap1.estimate),
+      readableAmountIn: toReadableNumber(
+        swap1.tokens[1].decimals,
+        secondAmountIn
+      ),
       decimalIn: swap2.tokens[1].decimals,
       decimalOut: tokenOut.decimals,
       slippageTolerance,
       swapType: 'smartV1',
+      readableAmountOut: toReadableNumber(
+        tokenOut.decimals,
+        round(
+          tokenOut.decimals,
+          toNonDivisibleNumber(
+            tokenOut.decimals,
+            percentLess(slippageTolerance, secondHopEstimateOut.estimate)
+          )
+        )
+      ),
     });
     triSwapTransactions.forEach((t) => curTransactions.push(t));
   } else {

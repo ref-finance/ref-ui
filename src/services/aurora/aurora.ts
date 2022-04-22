@@ -759,6 +759,7 @@ export const auroraSwapTransactions = async ({
   tokenOut_id,
   swapTodos,
   readableAmountIn, // for all deposit and allowance
+  readableAmountOut,
   decimalIn,
   decimalOut,
   slippageTolerance,
@@ -768,6 +769,7 @@ export const auroraSwapTransactions = async ({
   tokenOut_id: string;
   swapTodos: EstimateSwapView[];
   readableAmountIn: string;
+  readableAmountOut?: string;
   decimalIn: number;
   decimalOut: number;
   slippageTolerance: number;
@@ -832,15 +834,10 @@ export const auroraSwapTransactions = async ({
           decimalIn,
           decimalOut,
           readableAmountIn,
-          readableAmountOut: percentLess(
-            slippageTolerance,
-            swapTodos[swapTodos.length - 1].estimate
-          ),
+          readableAmountOut,
           address,
         }),
       ];
-
-      console.log(swapActions, 'swap actions aurora smart');
     }
 
     transactions.push({
@@ -849,13 +846,18 @@ export const auroraSwapTransactions = async ({
     });
 
     // one route case
-    const totalMinAmountOut = scientificNotationToString(
-      BigNumber.sum(
-        ...swapTodos.map((todo) =>
-          percentLess(slippageTolerance, todo.estimate)
-        )
-      ).toString()
-    );
+    const totalMinAmountOut =
+      swapType === 'parallel'
+        ? swapTodos.length === 1
+          ? percentLess(slippageTolerance, swapTodos[0].estimate)
+          : scientificNotationToString(
+              BigNumber.sum(
+                ...swapTodos.map((todo) =>
+                  percentLess(slippageTolerance, todo.estimate)
+                )
+              ).toString()
+            )
+        : readableAmountOut;
 
     const withdrawAction = await withdrawFromAurora({
       token_id: tokenOut_id,

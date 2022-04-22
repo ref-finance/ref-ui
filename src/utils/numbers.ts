@@ -544,7 +544,7 @@ export function calculateSmartRoutesV2PriceImpact(
 }
 
 export function getPoolAllocationPercents(pools: Pool[]) {
-  if (pools.length === 1) return [100];
+  if (pools.length === 1) return ['100'];
 
   if (pools) {
     const partialAmounts = pools.map((pool) => {
