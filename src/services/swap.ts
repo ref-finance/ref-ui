@@ -994,10 +994,13 @@ export const crossInstantSwap = async ({
         const curTransactions = await smartRouteSwapCase({
           tokenIn,
           tokenOut,
-          amountIn: toReadableNumber(
-            tokenIn.decimals,
-            todosThisRoute[0].pool.partialAmountIn
-          ),
+          amountIn:
+            routes.length === 1
+              ? amountIn
+              : toReadableNumber(
+                  tokenIn.decimals,
+                  todosThisRoute[0].pool.partialAmountIn
+                ),
           swapsToDo: todosThisRoute,
           slippageTolerance,
         });
@@ -1288,6 +1291,8 @@ export const smartRouteSwapCase = async ({
   const actionsList = []; // for ref swap actions
 
   const amountInInt = toNonDivisibleNumber(tokenIn.decimals, amountIn);
+  console.log(amountInInt, amountIn);
+
   const swap1 = swapsToDo[0];
   const swap2 = swapsToDo[1];
   const swap1toTri = swap1.pool.Dex === 'tri';
