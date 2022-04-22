@@ -1302,7 +1302,6 @@ export const smartRouteSwapCase = async ({
   let triSwapTransactions: Transaction[] = [];
 
   if (swap1toTri && swap2toTri) {
-    // both pool on tri
     triSwapTransactions = await auroraSwapTransactions({
       tokenIn_id: swap1.inputToken,
       tokenOut_id: swap2.outputToken,
@@ -1313,7 +1312,7 @@ export const smartRouteSwapCase = async ({
       slippageTolerance,
       swapType: 'smartV1',
       readableAmountOut: percentLess(
-        tokenOut.decimals,
+        slippageTolerance,
         swapsToDo[swapsToDo.length - 1].estimate
       ),
     });

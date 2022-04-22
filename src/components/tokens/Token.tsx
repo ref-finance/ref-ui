@@ -63,7 +63,9 @@ export default function Token({
 
         <div
           className={
-            !forCross ? 'hidden' : 'w-12 flex justify-start relative xs:left-2'
+            !forCross
+              ? 'hidden'
+              : 'w-12 flex justify-start relative xs:left-2 lg:left-10'
           }
         >
           {onRef ? <RefIcon lightTrigger={hover} /> : null}
