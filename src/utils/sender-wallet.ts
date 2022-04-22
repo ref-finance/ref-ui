@@ -146,8 +146,11 @@ function senderWalletFunc(window: Window) {
       return window.near.signOut({
         contractId: 'aurora',
       });
+    } else {
+      return window.near.signOut({
+        contractId: REF_FARM_CONTRACT_ID,
+      });
     }
-    return window.near.signOut();
   };
 
   this.requestSignTransactions = async function (
