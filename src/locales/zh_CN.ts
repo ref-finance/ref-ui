@@ -479,7 +479,7 @@ const zh_CN = {
   usd_value: '美元价值',
   support_ledger: '支持 Ledger',
   support_ledger_tip:
-    '根据Ledger的设计, 因其内存限制, <br />Ledger不能处理大型交易(即自动路由:<br />一次跨多个池进行交易)。激活后,<br />"支持 Ledger"选项会将交易限制<br />在最简单的形式(不利于更好的价格), <br />因此可以签署合理规模的交易。',
+    '根据Ledger的设计, 因其内存限制, Ledger不能处理大型交易(即自动路由: 一次跨多个池进行交易)。激活后,"支持 Ledger"选项会将交易限制在最简单的形式(不利于更好的价格),因此可以签署合理规模的交易。',
   start: '开始',
   aprTip: '基于所有奖励（未开始和进行中）的指示性值',
   half: 'Half',

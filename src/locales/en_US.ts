@@ -506,7 +506,7 @@ const en_US = {
   usd_value: 'USD value',
   support_ledger: 'Support Ledger',
   support_ledger_tip:
-    "By design, Ledger cannot handle<br /> large transactions (i.e. Auto Router: <br />trade across multiple pools at once)<br /> because of its memory limitation.<br /> When activated, the 'Support Ledger' <br />option will limit transactions to their <br />simplest form (to the detriment of <br />potential optimal prices found <br />by our Auto Router), so transactions <br />of a reasonable size can be signed.",
+    "By design, Ledger cannot handle large transactions (i.e. Auto Router: trade across multiple pools at once) because of its memory limitation. When activated, the 'Support Ledger' option will limit transactions to their simplest form (to the detriment of potential optimal prices found by our Auto Router), so transactions of a reasonable size can be signed.",
   start: 'Start',
   aprTip: 'Indicative value based on all rewards (pending and running)',
   half: 'Half',
