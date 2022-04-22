@@ -2647,6 +2647,7 @@ export async function stableSmart(
 // }
 
 export function getExpectedOutputFromActions(actions, outputToken) {
+  // TODO: on cross swap case
   // console.log('INSIDE EXPECTED OUTPUT FUNC');
   // console.log(outputToken);
   // console.log(actions);

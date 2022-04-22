@@ -421,6 +421,10 @@ export const useCrossSwap = ({
   const [swapError, setSwapError] = useState<Error>();
   const [swapsToDo, setSwapsToDo] = useState<EstimateSwapView[]>();
 
+  const [swapsToDoRef, setSwapsToDoRef] = useState<EstimateSwapView[]>();
+
+  const [swapsToDoTri, setSwapsToDoTri] = useState<EstimateSwapView[]>();
+
   const [avgFee, setAvgFee] = useState<number>(0);
 
   const history = useHistory();
@@ -494,7 +498,43 @@ export const useCrossSwap = ({
     }
   }, [txHash]);
 
-  const getEstimate = () => {
+  const getEstimateTri = async () => {
+    estimateSwap({
+      tokenIn,
+      tokenOut,
+      amountIn: tokenInAmount,
+      intl,
+      loadingTrigger: false,
+      supportLedger,
+      crossSwap: false,
+      onlyTri: true,
+    })
+      .then((estimates) => {
+        setSwapsToDoTri(estimates);
+      })
+      .catch((err) => {
+        setSwapsToDoTri([]);
+      });
+  };
+
+  const getEstimateRef = async () => {
+    estimateSwap({
+      tokenIn,
+      tokenOut,
+      amountIn: tokenInAmount,
+      intl,
+      loadingTrigger: false,
+      supportLedger,
+      crossSwap: false,
+      onlyTri: false,
+    })
+      .then((estimates) => {
+        setSwapsToDoRef(estimates);
+      })
+      .catch((err) => setSwapsToDoRef([]));
+  };
+
+  const getEstimateCrossSwap = () => {
     setCanSwap(false);
 
     estimateSwap({
@@ -506,9 +546,12 @@ export const useCrossSwap = ({
       supportLedger,
       crossSwap: true,
     })
-      .then((estimates) => {
+      .then(async (estimates) => {
         if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
           setAverageFee(estimates);
+
+          await getEstimateRef();
+          await getEstimateTri();
 
           setTokenOutAmount(
             getExpectedOutputFromActions(estimates, tokenOut.id).toString()
@@ -531,7 +574,7 @@ export const useCrossSwap = ({
   };
 
   useEffect(() => {
-    if (loadingTrigger) getEstimate();
+    if (loadingTrigger) getEstimateCrossSwap();
   }, [loadingTrigger]);
 
   useEffect(() => {
@@ -561,6 +604,8 @@ export const useCrossSwap = ({
     }).catch(setSwapError);
   };
 
+  console.log(swapsToDoRef, swapsToDoTri);
+
   return {
     canSwap,
     tokenOutAmount,
@@ -572,8 +617,8 @@ export const useCrossSwap = ({
     avgFee,
     pools: swapsToDo?.map((estimate) => estimate.pool),
     swapsToDo,
-    isParallelSwap: swapsToDo?.every((e) => e.status === PoolMode.PARALLEL),
-    isSmartRouteV2Swap: swapsToDo?.every((e) => e.status !== PoolMode.SMART),
     setSwapError,
+    swapsToDoRef,
+    swapsToDoTri,
   };
 };

@@ -90,6 +90,7 @@ interface EstimateSwapOptions {
   setLoadingTrigger?: (loadingTrigger: boolean) => void;
   supportLedger?: boolean;
   crossSwap?: boolean;
+  onlyTri?: boolean;
 }
 
 export interface ReservesMap {
@@ -247,6 +248,7 @@ export const estimateSwap = async ({
   loadingTrigger,
   supportLedger,
   crossSwap,
+  onlyTri,
 }: EstimateSwapOptions): Promise<EstimateSwapView[]> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
 
@@ -275,6 +277,7 @@ export const estimateSwap = async ({
       setLoadingData,
       loadingTrigger,
       crossSwap,
+      onlyTri,
     })
   ).filter((p) => {
     return getLiquidity(p, tokenIn, tokenOut) > 0;
@@ -348,7 +351,9 @@ export const estimateSwap = async ({
   let stableSmartActionsV2;
 
   stableSmartActionsV2 = await stableSmart(
-    orpools.filter((p) => crossSwap || p.Dex === 'ref'),
+    orpools.filter((p) =>
+      onlyTri ? p.Dex === 'tri' : crossSwap || p.Dex === 'ref'
+    ),
     tokenIn.id,
     tokenOut.id,
     parsedAmountIn
@@ -370,7 +375,8 @@ export const estimateSwap = async ({
       tokenIn,
       tokenOut,
       amountIn,
-      crossSwap
+      crossSwap,
+      onlyTri
     );
 
     let hybridStableSmartOutputEstimate = hybridStableSmart.estimate.toString();
@@ -403,7 +409,8 @@ export async function getHybridStableSmart(
   tokenIn: TokenMetadata,
   tokenOut: TokenMetadata,
   amountIn: string,
-  crossSwap?: boolean
+  crossSwap?: boolean,
+  onlyTri?: boolean
 ) {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
   let pool1, pool2;
@@ -468,6 +475,7 @@ export async function getHybridStableSmart(
         amountIn: parsedAmountIn,
         loadingTrigger: false,
         crossSwap,
+        onlyTri,
       });
 
       pools2.push(
@@ -491,6 +499,7 @@ export async function getHybridStableSmart(
         amountIn: parsedAmountIn,
         loadingTrigger: false,
         crossSwap,
+        onlyTri,
       });
       pools1.push(
         ...tmpPools.filter((p) => {

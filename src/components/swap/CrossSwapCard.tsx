@@ -299,7 +299,6 @@ function DetailView({
   from: string;
   to: string;
   minAmountOut: string;
-  isParallelSwap?: boolean;
   fee?: number;
   swapsTodo?: EstimateSwapView[];
   priceImpact?: string;
@@ -448,10 +447,11 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
     swapError,
     makeSwap,
     avgFee,
-    isParallelSwap,
     swapsToDo,
     canSwap,
     setSwapError,
+    swapsToDoRef,
+    swapsToDoTri,
   } = useCrossSwap({
     tokenIn: tokenIn,
     tokenInAmount,
@@ -464,6 +464,8 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
     setLoadingTrigger,
     loadingPause,
   });
+
+  console.log(swapsToDoRef, swapsToDoTri);
 
   const priceImpactValueSmartRouting = useMemo(() => {
     try {
@@ -688,7 +690,6 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
             from={tokenInAmount}
             to={tokenOutAmount}
             minAmountOut={minAmountOut}
-            isParallelSwap={isParallelSwap}
             fee={avgFee}
             swapsTodo={swapsToDo}
             priceImpact={PriceImpactValue}
