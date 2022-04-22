@@ -22,6 +22,7 @@ import {
   RefIcon,
   WalletIcon,
   MappingAccountIcon,
+  ArcIcon,
 } from '../components/icon/Common';
 import {
   toReadableNumber,
@@ -58,7 +59,9 @@ import {
   SwapCross,
   ConnectDot,
   AuroraIconWhite,
+  CopyIcon,
 } from '../components/icon/CrossSwapIcons';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import {
   useAuroraBalances,
   auroraAddr,
@@ -1144,32 +1147,32 @@ function Account(props: any) {
   ) : (
     <div className="flex items-center">
       <div
-        className="rounded-2xl flex items-center text-sm text-white py-0.5 px-1.5 mr-px"
+        className="rounded-2xl flex items-center text-sm text-white py-0.5 px-3 mr-px"
         style={{
           background: 'rgba(255, 255, 255, 0.15)',
         }}
       >
-        <div className="mx-1">
+        <div className="mr-2">
           <Near color="white" />
         </div>
 
-        <div className="mx-1">{getCurrentWallet().wallet.getAccountId()}</div>
+        <div>{getCurrentWallet().wallet.getAccountId()}</div>
       </div>
 
       <ConnectDot />
       <ConnectDot />
 
-      <div
-        className="rounded-2xl flex items-center text-sm text-white py-0.5 px-1.5 ml-px"
-        style={{
-          background: 'rgba(112, 212, 75, 0.15)',
-        }}
-      >
-        <div className="mx-1">
+      <div className="rounded-2xl flex items-center text-sm text-white py-0.5 px-3 ml-px bg-lightGreenColor bg-opacity-20 hover:bg-opacity-40">
+        <div>
           <AuroraIconWhite width="16" height="16" />
         </div>
 
-        <div className="mx-1">{displayAddr}</div>
+        <div className="mx-2">{displayAddr}</div>
+        <CopyToClipboard text={auroraAddress}>
+          <div className="cursor-pointer">
+            <CopyIcon fillColor="#ffffff" />
+          </div>
+        </CopyToClipboard>
       </div>
     </div>
   );
@@ -1192,13 +1195,16 @@ function Account(props: any) {
 
       <div className="flex items-center justify-between ">
         <div
-          className="flex items-center font-semibold bg-cardBg rounded-t-lg text-white w-full"
+          className="relative flex items-center font-semibold bg-cardBg rounded-t-lg text-white w-full"
           style={{
             height: '66px',
           }}
         >
           <div className="relative top-2 left-8 flex items-center">
             {accountTitle}
+          </div>
+          <div className="absolute bottom-0 -right-4">
+            <ArcIcon></ArcIcon>
           </div>
         </div>
 
@@ -1296,7 +1302,12 @@ function MobileAccount(props: any) {
   ) : (
     <div className="flex items-center text-white">
       <AuroraIconWhite />
-      <div className="text-lg text-white  ml-3">{displayAddr}</div>
+      <div className="text-lg text-white  mx-1.5">{displayAddr}</div>
+      <CopyToClipboard text={auroraAddress}>
+        <div className="bg-black bg-opacity-20 rounded-lg flex items-center justify-center p-1.5 cursor-pointer ">
+          <CopyIcon />
+        </div>
+      </CopyToClipboard>
     </div>
   );
   const switchTab = (type: string) => {
@@ -1352,16 +1363,18 @@ function MobileAccount(props: any) {
         className={`mx-auto relative ${activeTab == 'near' ? '' : 'pb-10'}`}
         style={{ width: '95vw' }}
       >
-        <div className="flex items-center justify-between ">
+        <div className="flex items-center justify-between">
           <div
-            className="flex items-center  justify-center font-semibold bg-cardBg rounded-t-2xl text-white w-full"
+            className="relative flex items-center  justify-center font-semibold bg-cardBg rounded-t-2xl text-white w-full"
             style={{
               height: '66px',
             }}
           >
             <div className="flex items-center">{accountTitle}</div>
+            <div className="absolute bottom-0 -right-4">
+              <ArcIcon></ArcIcon>
+            </div>
           </div>
-
           <div
             className="pb-4 pl-5 accountPage-pc-top-right relative cursor-pointer"
             onClick={() => {

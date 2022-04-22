@@ -94,6 +94,7 @@ module.exports = {
         auroraGreen: '#70D44B',
         triPool: '#329DFF',
         refPool: '#00C6A2',
+        lightGreenColor:"#70d44b"
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
