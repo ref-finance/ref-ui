@@ -563,17 +563,6 @@ export const useCrossSwap = ({
           await getEstimateRef();
           await getEstimateTri();
 
-          const expectedOut = (
-            await getExpectedOutputFromActions(
-              estimates,
-              tokenOut.id,
-              slippageTolerance
-            )
-          ).toString();
-
-          console.log('swap result', estimates);
-
-          setTokenOutAmount(expectedOut);
           setSwapsToDo(estimates);
           setCanSwap(true);
         }
@@ -591,6 +580,15 @@ export const useCrossSwap = ({
         setLoadingTrigger(false);
       });
   };
+
+  useEffect(() => {
+    if (!swapsToDo) return;
+    getExpectedOutputFromActions(
+      swapsToDo,
+      tokenOut.id,
+      slippageTolerance
+    ).then((res: any) => setTokenOutAmount(res.toString()));
+  }, [swapsToDo, slippageTolerance]);
 
   useEffect(() => {
     if (loadingTrigger) getEstimateCrossSwap();

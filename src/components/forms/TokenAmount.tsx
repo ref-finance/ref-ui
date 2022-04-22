@@ -396,7 +396,7 @@ export function CrossSwapTokens({
 
       <div className="flex flex-col justify-between items-end">
         <span className="text-gradientFrom font-bold text-xl xs:text-base">
-          <span>
+          <span title={percentLess(slippageTolerance, amountOut)}>
             {toPrecision(percentLess(slippageTolerance, amountOut), 6)}
           </span>
           <span className="ml-1">{toRealSymbol(tokenOut?.symbol)}</span>

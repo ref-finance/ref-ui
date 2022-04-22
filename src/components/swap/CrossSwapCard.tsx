@@ -17,7 +17,6 @@ import {
   calculateFeePercent,
   calculateSmartRoutingPriceImpact,
   percent,
-  percentLess,
   toPrecision,
   toReadableNumber,
   subtraction,
@@ -62,7 +61,7 @@ import {
   getCurrentWallet,
 } from '../../utils/sender-wallet';
 import { SwapArrow, SwapExchange, ExchangeArrow } from '../icon/Arrows';
-import { getPoolAllocationPercents } from '../../utils/numbers';
+import { getPoolAllocationPercents, percentLess } from '../../utils/numbers';
 import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
 import { TokenCardOut, CrossSwapTokens } from '../forms/TokenAmount';
@@ -461,8 +460,6 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
     setLoadingTrigger,
     loadingPause,
   });
-
-  console.log(swapsToDoRef, swapsToDoTri);
 
   const priceImpactValueSmartRouting = useMemo(() => {
     try {

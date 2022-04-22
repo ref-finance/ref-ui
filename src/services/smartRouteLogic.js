@@ -2664,8 +2664,6 @@ export async function getExpectedOutputFromActions(
 
   let expectedOutput = new Big(0);
 
-  console.log(actions);
-
   if (!actions || actions.length === 0) return expectedOutput;
 
   const routes = separateRoutes(actions, outputToken);
@@ -2692,8 +2690,6 @@ export async function getExpectedOutputFromActions(
           ),
           Pool: curRoute[1].pool,
         });
-
-        console.log(secondEstimateOut, curRoute);
 
         expectedOutput = expectedOutput.plus(secondEstimateOut.estimate);
       }

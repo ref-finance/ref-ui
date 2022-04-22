@@ -483,7 +483,9 @@ export const CrossSwapAllResult = ({
   // const receives = expectedOuts.map((receive) => toPrecision(receive, 6));
   const receives = expectedOuts;
 
-  const bestReceived = _.maxBy(receives, (o) => new Big(o));
+  console.log(receives.map((r) => percentLess(slippageTolerance, r)));
+
+  const bestReceived = _.maxBy(receives, (o) => Number(o));
 
   const diffs = receives.map((r) => {
     if (r === bestReceived) {
@@ -509,9 +511,12 @@ export const CrossSwapAllResult = ({
       if (!result || result?.length === 0) return null;
       return {
         type: Icons[i],
-        rate: toPrecision(receives[i], 6),
+        rate: toPrecision(percentLess(slippageTolerance, receives[i]), 6),
         diff: diffs[i],
-        rateTitle: toPrecision(receives[i], tokenOut.decimals),
+        rateTitle: toPrecision(
+          percentLess(slippageTolerance, receives[i]),
+          tokenOut.decimals
+        ),
       };
     })
     .filter((_) => _)
