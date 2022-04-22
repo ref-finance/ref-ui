@@ -137,6 +137,16 @@ function senderWalletFunc(window: Window) {
 
   this.signOut = function () {
     // removeSenderLoginRes();
+    const signedInContractSize = window?.near?.authData?.allKeys;
+    if (
+      signedInContractSize &&
+      Number(Object.keys(signedInContractSize).length) > 1 &&
+      Object.keys(signedInContractSize).includes('aurora')
+    ) {
+      return window.near.signOut({
+        contractId: 'aurora',
+      });
+    }
     return window.near.signOut();
   };
 
