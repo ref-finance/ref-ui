@@ -1290,6 +1290,16 @@ export const smartRouteSwapCase = async ({
 
     console.log(triSwapTransactions, 'first is tri');
 
+    const secondHopEstimateOut = getSinglePoolEstimate(
+      swap2.token[1],
+      tokenOut,
+      swap2.pool,
+      toNonDivisibleNumber(
+        swap2.tokens[1].decimals,
+        percentLess(slippageTolerance, swap1.estimate)
+      )
+    );
+
     // slippage tolerance from first action
     actionsList.push({
       pool_id: swap2.pool.id,
@@ -1303,7 +1313,7 @@ export const smartRouteSwapCase = async ({
         tokenOut.decimals,
         toNonDivisibleNumber(
           tokenOut.decimals,
-          percentLess(slippageTolerance, swapsToDo[1].estimate)
+          percentLess(slippageTolerance, secondHopEstimateOut.estimate)
         )
       ),
     });
