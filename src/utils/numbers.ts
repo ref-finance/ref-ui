@@ -275,9 +275,10 @@ export const calculatePriceImpact = (
 export const calculateExchangeRate = (
   fee: number,
   from: string,
-  to: string
+  to: string,
+  precision?: number
 ) => {
-  return math.floor(math.evaluate(`${to} / ${from}`), 4);
+  return math.floor(math.evaluate(`${to} / ${from}`), precision || 4);
 };
 
 export const subtraction = (initialValue: string, toBeSubtract: string) => {

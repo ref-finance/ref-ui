@@ -47,6 +47,7 @@ import { WarnTriangle, ErrorTriangle } from '../../components/icon/SwapRefresh';
 import BigNumber from 'bignumber.js';
 import {
   AutoRouterText,
+  CrossSwapAllResult,
   CrossSwapRoute,
   OneParallelRoute,
   RouterIcon,
@@ -703,6 +704,7 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
           </div>
         ) : null}
       </CrossSwapFormWrap>
+
       <DoubleCheckModal
         isOpen={doubleCheckOpen}
         onRequestClose={() => {
@@ -715,6 +717,15 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
         onSwap={() => makeSwap(useNearBalance)}
         priceImpactValue={PriceImpactValue}
       />
+      {!requested ? null : (
+        <CrossSwapAllResult
+          refTodos={swapsToDoRef}
+          triTodos={swapsToDoTri}
+          crossTodos={swapsToDo}
+          tokenInAmount={tokenInAmount}
+          tokenOutId={tokenOut?.id}
+        />
+      )}
     </>
   );
 }

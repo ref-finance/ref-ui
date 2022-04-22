@@ -1,11 +1,29 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { TokenMetadata, ftGetTokenMetadata } from '~services/ft-contract';
-import { calculateFeePercent, toPrecision } from '../../utils/numbers';
+import {
+  calculateFeePercent,
+  toPrecision,
+  divide,
+  calculateExchangeRate,
+} from '../../utils/numbers';
 import { toRealSymbol } from '~utils/token';
 import { EstimateSwapView } from '../../services/stable-swap';
-import { getPoolAllocationPercents } from '../../utils/numbers';
+import {
+  getPoolAllocationPercents,
+  percent,
+  percentOf,
+  convertToPercentDecimal,
+} from '../../utils/numbers';
 import { Pool } from '../../services/pool';
+import { FaAngleUp, FaAngleDown } from 'react-icons/fa';
+import { Card } from '../card/Card';
+import { ArrowDownWhite } from '../icon/Arrows';
+import { RefSwapPro } from '../icon/CrossSwapIcons';
+import _, { result } from 'lodash';
+//@ts-ignore
+import { getExpectedOutputFromActions } from '../../services/smartRouteLogic';
+import { RefIcon, TriIcon } from '../icon/DexIcon';
 
 export const RouterIcon = () => {
   return (
@@ -370,5 +388,166 @@ export const CrossSwapRoute = ({
         </div>
       )}
     </div>
+  );
+};
+
+export const CrossSwapAllResult = ({
+  crossTodos,
+  refTodos,
+  triTodos,
+  tokenInAmount,
+  tokenOutId,
+}: {
+  crossTodos: EstimateSwapView[];
+  refTodos: EstimateSwapView[];
+  triTodos: EstimateSwapView[];
+  tokenInAmount: string;
+  tokenOutId: string;
+}) => {
+  console.log(crossTodos);
+
+  const [showAllResult, setShowAllResult] = useState<boolean>(true);
+
+  const tokenInSymbol = toRealSymbol(crossTodos[0].tokens[0].symbol);
+
+  const tokenOutSymbol = toRealSymbol(
+    crossTodos[0].tokens[crossTodos[0].tokens.length - 1].symbol
+  );
+
+  const OneResult = ({
+    Type,
+    rate,
+    Diff,
+  }: {
+    Type: JSX.Element;
+    rate: string;
+    Diff: JSX.Element | string;
+  }) => {
+    return (
+      <div className="w-full grid grid-cols-3 justify-between pt-5 relative">
+        <div>{Type}</div>
+
+        <div className="justify-self-center relative left-2">{rate}</div>
+
+        <span className="w-14 text-right justify-self-end">{Diff}</span>
+      </div>
+    );
+  };
+
+  const results = [crossTodos, refTodos, triTodos].map((todos) =>
+    todos?.length > 0 ? todos : null
+  );
+
+  if (!result || result?.length === 0 || results.every((r) => !r)) return null;
+
+  console.log(results);
+
+  const rates = results.map((result) =>
+    !result
+      ? null
+      : calculateExchangeRate(
+          0,
+          tokenInAmount,
+          getExpectedOutputFromActions(result, tokenOutId).toString(),
+          6
+        ).toString()
+  );
+
+  const bestRate = _.maxBy(rates, (o) => Number(o));
+
+  const TodoType = ({ Icon, title }: { Icon: JSX.Element; title: string }) => {
+    return (
+      <div className="flex items-center xs:flex-col xs:items-start">
+        <div className="mr-1.5">{Icon}</div>
+
+        <div className="xs:text-xs whitespace-nowrap xs:ml-1 xs:mt-0.5">
+          {title}
+        </div>
+      </div>
+    );
+  };
+
+  const diffs = rates.map((r) => {
+    if (r === bestRate) {
+      return '0';
+    }
+    if (r === null) {
+      return null;
+    }
+    return percent(
+      (Number(bestRate) - Number(r)).toString(),
+      bestRate
+    ).toString();
+  });
+
+  const Icons = [
+    <TodoType Icon={<RefSwapPro />} title="Ref Swap Pro" />,
+    <TodoType Icon={<RefIcon lightTrigger={true} />} title="Ref Normal Swap" />,
+    <TodoType Icon={<TriIcon lightTrigger={true} />} title="Trisolaris" />,
+  ];
+
+  return (
+    <>
+      <span
+        className={`px-5  rounded-t-xl text-sm text-farmText mx-auto relative bottom-10 flex items-center justify-center cursor-pointer bg-cardBg pt-3 ${
+          showAllResult ? 'pb-5' : 'pb-1.5'
+        }`}
+        style={{
+          borderTop: '1px solid #415462',
+          width: '175px',
+        }}
+        onClick={() => {
+          setShowAllResult(!showAllResult);
+        }}
+      >
+        <span>
+          <FormattedMessage id="all_results" defaultMessage="All Results" />
+        </span>
+        <span className="ml-2">
+          {showAllResult ? <FaAngleUp /> : <FaAngleDown />}
+        </span>
+      </span>
+      <Card
+        padding="pr-8  pl-7 xs:px-3 pt-8 pb-5"
+        className={
+          showAllResult ? 'text-sm text-white relative bottom-10' : 'hidden'
+        }
+        width="w-full"
+      >
+        <div className="text-primaryText flex items-center justify-between ml-1">
+          <span>
+            <FormattedMessage id="name" defaultMessage="Name" />
+          </span>
+          <div className="py-0.5 pl-2 pr-3 bg-black bg-opacity-20 rounded-full flex items-center">
+            <span>{tokenInSymbol}</span>
+            <span className="pr0.5">{'/'}</span>
+            <span>{tokenOutSymbol}</span>
+            <span className="pl-2">{<ArrowDownWhite />}</span>
+          </div>
+          <span>
+            <FormattedMessage id="diff" defaultMessage="Diff" />
+          </span>
+        </div>
+        {results?.map((result, i) => {
+          const nullResult = !result || result?.length === 0;
+
+          return nullResult ? null : (
+            <OneResult
+              Type={Icons[i]}
+              rate={rates[i]}
+              Diff={
+                Number(diffs[i]) === 0 ? (
+                  <div className="bg-black bg-opacity-20 border border-gradientFrom rounded-xl text-gradientFrom px-1.5 flex items-center justify-center">
+                    <FormattedMessage id="best" defaultMessage="Best" />
+                  </div>
+                ) : (
+                  `-${toPrecision(diffs[i], 2)}%`
+                )
+              }
+            />
+          );
+        })}
+      </Card>
+    </>
   );
 };

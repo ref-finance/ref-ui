@@ -24,6 +24,7 @@ import { IconLeft } from '../tokens/Icon';
 import { toRealSymbol } from '../../utils/token';
 import { ArrowDownGreen, ArrowDownWhite } from '../icon/Arrows';
 import { percentLess } from '../../utils/numbers';
+import { isMobile } from '../../utils/device';
 
 interface TokenAmountProps {
   amount?: string;
@@ -209,7 +210,7 @@ export function TokenCardIn({
 
   return (
     <div
-      className="bg-black bg-opacity-20 p-5 flex flex-col"
+      className="bg-black bg-opacity-20 p-5 xs:px-4 py-5 flex flex-col"
       style={{
         borderRadius: '20px',
       }}
@@ -249,7 +250,12 @@ export function TokenCardIn({
           balances={balances}
         />
 
-        <div className="flex flex-col items-end w-full xs:w-3/5">
+        <div
+          className="flex flex-col items-end"
+          style={{
+            width: !isMobile() ? '100%' : '55%',
+          }}
+        >
           <input
             className="text-right text-white text-xl xs:text-lg"
             value={amount}
@@ -312,7 +318,7 @@ export function TokenCardOut({
         standalone
         selected={
           <div
-            className="flex font-semibold w-full cursor-pointer pl-4 pr-3"
+            className="flex font-semibold w-full cursor-pointer pl-4 xs:pl-3 pr-3"
             onMouseEnter={() => setHoverSelectToken(true)}
             onMouseLeave={() => setHoverSelectToken(false)}
           >
@@ -371,11 +377,11 @@ export function CrossSwapTokens({
   return (
     <div className="py-5 px-4 border bg-black bg-opacity-20 border-gradientFrom rounded-xl flex items-center justify-between relative">
       <div className="flex flex-col justify-between">
-        <span className="text-white flex items-center">
+        <span className="text-white flex items-center xs:text-sm">
           <span>{toPrecision(amountIn, 3)}</span>
           <span className="ml-1">{toRealSymbol(tokenIn?.symbol)}</span>
           <div
-            className=" text-2xl font-bold ml-6"
+            className=" text-2xl xs:text-xl font-bold ml-6 xs:ml-3"
             style={{
               color: '#7e8a93',
             }}
@@ -383,13 +389,13 @@ export function CrossSwapTokens({
             {'>'}
           </div>
         </span>
-        <span className="text-sm text-primaryText pt-1">
+        <span className="text-sm xs:text-xs text-primaryText pt-1">
           {tokenInPrice ? tokenPrice(multiply(amountIn, tokenInPrice)) : null}
         </span>
       </div>
 
       <div className="flex flex-col justify-between items-end">
-        <span className="text-gradientFrom font-bold text-xl">
+        <span className="text-gradientFrom font-bold text-xl xs:text-base">
           <span>
             {toPrecision(percentLess(slippageTolerance, amountOut), 6)}
           </span>

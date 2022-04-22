@@ -547,13 +547,16 @@ function PoolsMenu() {
       <div
         className={`${
           hover ? 'block' : 'hidden'
-        } absolute top-12 -left-20 rounded-md z-40`}
+        } absolute top-12 -left-20 rounded-md`}
+        style={{
+          zIndex: 999,
+        }}
       >
         <Card
           width="w-64"
           padding="py-4"
           rounded="rounded-md"
-          className="border border-primaryText shadow-4xl"
+          className="border border-primaryText shadow-4xl z-40"
         >
           {links.map((link) => {
             let isSelected = link.path === location.pathname;
@@ -569,7 +572,7 @@ function PoolsMenu() {
             return (
               <div
                 key={link.path}
-                className={`flex justify-start items-center hover:bg-navHighLightBg text-sm font-semibold  hover:text-white cursor-pointer py-4 pl-7 ${
+                className={`flex justify-start items-center hover:bg-navHighLightBg text-sm font-semibold z-40  hover:text-white cursor-pointer py-4 pl-7 ${
                   isSelected
                     ? 'text-white bg-navHighLightBg'
                     : 'text-primaryText'

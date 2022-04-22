@@ -217,12 +217,7 @@ export function CrossSwapFormWrap({
       onSubmit={handleSubmit}
     >
       {!requestingTrigger ? null : (
-        <div
-          className="absolute w-full h-full flex items-center justify-center bg-cardBg right-0 top-0 rounded-2xl"
-          style={{
-            zIndex: 999,
-          }}
-        >
+        <div className="absolute w-full h-full flex items-center justify-center bg-cardBg right-0 top-0 rounded-2xl z-30">
           <div className="flex flex-col items-center">
             <RequestingSmile />
             <span
@@ -282,7 +277,7 @@ export function CrossSwapFormWrap({
       {error && <Alert level="warn" message={error.message} />}
       {children}
 
-      <div className="pt-3">
+      <div className={requested ? 'pb-10' : ''}>
         <SubmitButton
           signedInConfig={!requested}
           disabled={
