@@ -2674,7 +2674,10 @@ export async function getExpectedOutputFromActions(
     if (curRoute.length === 1) {
       expectedOutput = expectedOutput.plus(curRoute[0].estimate);
     } else {
-      if (curRoute.every((r) => r.pool.Dex === 'ref'))
+      if (
+        curRoute.every((r) => r.pool.Dex === 'ref') ||
+        curRoute.every((r) => r.pool.Dex === 'tri')
+      )
         expectedOutput = expectedOutput.plus(curRoute[1].estimate);
       else {
         const secondHopAmountIn = percentLess(

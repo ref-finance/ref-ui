@@ -323,6 +323,7 @@ export async function swapExactTokensForTokens({
   decimalIn,
   decimalOut,
   address,
+  middle,
 }: {
   from: string;
   to: string;
@@ -331,14 +332,20 @@ export async function swapExactTokensForTokens({
   decimalIn: number;
   decimalOut: number;
   address: string;
+  middle?: string;
 }) {
   const fromErc20 = await getErc20Addr(from);
   const toErc20 = await getErc20Addr(to);
+  const middleErc20 = middle ? await getErc20Addr(middle) : '';
+
+  const path = !!middleErc20
+    ? [fromErc20.id, middleErc20.id, toErc20.id]
+    : [fromErc20.id, toErc20.id];
 
   const input = buildInput(UniswapRouterAbi, 'swapExactTokensForTokens', [
     toNonDivisibleNumber(decimalIn, readableAmountIn), // need to check decimals in real case
     toNonDivisibleNumber(decimalOut, readableAmountOut), // need to check decimals in real case
-    [fromErc20.id, toErc20.id],
+    path,
     address,
     (Math.floor(new Date().getTime() / 1000) + SECOND_FROM_NOW).toString(), // 60s from now
   ]);
@@ -354,17 +361,26 @@ export async function swapExactETHforTokens({
   readableAmountOut,
   decimalOut,
   address,
+  middle,
 }: {
   to: string;
   readableAmountIn: string;
   readableAmountOut: string;
   decimalOut: number;
   address: string;
+  middle?: string;
 }) {
   const toErc20 = await getErc20Addr(to);
+
+  const middleErc20 = middle ? await getErc20Addr(middle) : '';
+
+  const path = !!middleErc20
+    ? [getAuroraConfig().WETH, middleErc20.id, toErc20.id]
+    : [getAuroraConfig().WETH, toErc20.id];
+
   const input = buildInput(UniswapRouterAbi, 'swapExactETHForTokens', [
     toNonDivisibleNumber(decimalOut, readableAmountOut),
-    [getAuroraConfig().WETH, toErc20.id],
+    path,
     address,
     (Math.floor(new Date().getTime() / 1000) + SECOND_FROM_NOW).toString(), // 60s from now
   ]);
@@ -384,19 +400,26 @@ export async function swapExactTokensforETH({
   readableAmountOut,
   decimalIn,
   address,
+  middle,
 }: {
   from: string;
   readableAmountIn: string;
   readableAmountOut: string;
   decimalIn: number;
   address: string;
+  middle?: string;
 }) {
   const fromErc20 = await getErc20Addr(from);
+  const middleErc20 = middle ? await getErc20Addr(middle) : '';
+
+  const path = !!middleErc20
+    ? [fromErc20.id, middleErc20.id, getAuroraConfig().WETH]
+    : [fromErc20.id, getAuroraConfig().WETH];
 
   const input = buildInput(UniswapRouterAbi, 'swapExactTokensForETH', [
     toNonDivisibleNumber(decimalIn, readableAmountIn),
     toNonDivisibleNumber(ETH_DECIMAL, readableAmountOut),
-    [fromErc20.id, getAuroraConfig().WETH],
+    path,
     address,
     (Math.floor(new Date().getTime() / 1000) + SECOND_FROM_NOW).toString(), // 60s from now
   ]);
@@ -409,6 +432,7 @@ export async function swapExactTokensforETH({
 export async function swap({
   from,
   to,
+  middle,
   readableAmountIn,
   readableAmountOut,
   decimalIn,
@@ -417,14 +441,13 @@ export async function swap({
 }: {
   from: string;
   to: string;
+  middle?: string;
   readableAmountIn: string;
   readableAmountOut: string;
   decimalIn: number;
   decimalOut: number;
   address: string;
 }) {
-  console.log(arguments);
-
   if (from === 'aurora') {
     return swapExactETHforTokens({
       to,
@@ -432,6 +455,7 @@ export async function swap({
       readableAmountOut,
       decimalOut,
       address,
+      middle,
     });
   } else if (to === 'aurora') {
     return swapExactTokensforETH({
@@ -440,6 +464,7 @@ export async function swap({
       readableAmountOut,
       decimalIn,
       address,
+      middle,
     });
   } else {
     return swapExactTokensForTokens({
@@ -450,6 +475,7 @@ export async function swap({
       decimalIn,
       decimalOut,
       address,
+      middle,
     });
   }
 }
@@ -836,6 +862,7 @@ export const auroraSwapTransactions = async ({
           readableAmountIn,
           readableAmountOut,
           address,
+          middle: swapTodos.length > 1 ? swapTodos[0].tokens[1].id : '',
         }),
       ];
     }
