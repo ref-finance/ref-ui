@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { TokenMetadata, ftGetTokenMetadata } from '~services/ft-contract';
 import {
@@ -25,6 +25,7 @@ import _, { result } from 'lodash';
 import { getExpectedOutputFromActions } from '../../services/smartRouteLogic';
 import { RefIcon, TriIcon } from '../icon/DexIcon';
 import { percentLess } from '../../utils/numbers';
+import Big from 'big.js';
 
 export const RouterIcon = () => {
   return (
@@ -399,6 +400,7 @@ export const CrossSwapAllResult = ({
   tokenInAmount,
   tokenOutId,
   slippageTolerance,
+  tokenOut,
 }: {
   crossTodos: EstimateSwapView[];
   refTodos: EstimateSwapView[];
@@ -406,23 +408,30 @@ export const CrossSwapAllResult = ({
   tokenInAmount: string;
   tokenOutId: string;
   slippageTolerance: number;
+  tokenOut: TokenMetadata;
 }) => {
+  const [expectedOuts, setExpectedOuts] = useState<(string | null)[]>();
+
   const [showAllResult, setShowAllResult] = useState<boolean>(true);
 
   const OneResult = ({
     Type,
     rate,
     Diff,
+    rateTitle,
   }: {
     Type: JSX.Element;
     rate: string;
     Diff: JSX.Element | string;
+    rateTitle?: string;
   }) => {
     return (
       <div className="w-full grid grid-cols-3 justify-between pt-5 relative">
         <div>{Type}</div>
 
-        <div className="justify-self-center relative left-2">{rate}</div>
+        <div className="justify-self-center relative left-2" title={rateTitle}>
+          {rate}
+        </div>
 
         <span className="w-14 text-right justify-self-end">{Diff}</span>
       </div>
@@ -440,25 +449,41 @@ export const CrossSwapAllResult = ({
     );
   };
 
-  const results = [crossTodos, refTodos, triTodos].filter((todos) =>
-    todos?.length > 0 ? todos : null
-  );
+  // return null;
 
-  if (!result || result?.length === 0 || results.every((r) => !r)) return null;
+  const results = useMemo(() => {
+    if (!crossTodos || !refTodos || !triTodos) return null;
+    return [crossTodos, refTodos, triTodos];
+  }, [crossTodos, refTodos, triTodos]);
 
-  const receives = results.map((result) =>
-    !result
-      ? null
-      : toPrecision(
-          percentLess(
-            slippageTolerance,
-            getExpectedOutputFromActions(result, tokenOutId).toString()
-          ),
-          6
-        )
-  );
+  useEffect(() => {
+    if (!results || results?.length === 0) return;
+    Promise.all(
+      results.map((result) => {
+        return getExpectedOutputFromActions(
+          result,
+          tokenOutId,
+          slippageTolerance
+        );
+      })
+    ).then((res) => {
+      setExpectedOuts(res.map((r) => r.toString()));
+    });
+  }, [results, slippageTolerance]);
 
-  const bestReceived = _.maxBy(receives, (o) => Number(o));
+  if (
+    !results ||
+    results?.length === 0 ||
+    results.every((r) => !r) ||
+    !expectedOuts ||
+    expectedOuts.length === 0
+  )
+    return null;
+
+  // const receives = expectedOuts.map((receive) => toPrecision(receive, 6));
+  const receives = expectedOuts;
+
+  const bestReceived = _.maxBy(receives, (o) => new Big(o));
 
   const diffs = receives.map((r) => {
     if (r === bestReceived) {
@@ -468,7 +493,7 @@ export const CrossSwapAllResult = ({
       return null;
     }
     return percent(
-      (Number(bestReceived) - Number(r)).toString(),
+      new Big(bestReceived).minus(new Big(r)).toString(),
       bestReceived
     ).toString();
   });
@@ -484,8 +509,9 @@ export const CrossSwapAllResult = ({
       if (!result || result?.length === 0) return null;
       return {
         type: Icons[i],
-        rate: receives[i],
+        rate: toPrecision(receives[i], 6),
         diff: diffs[i],
+        rateTitle: toPrecision(receives[i], tokenOut.decimals),
       };
     })
     .filter((_) => _)
@@ -536,11 +562,13 @@ export const CrossSwapAllResult = ({
             <FormattedMessage id="diff" defaultMessage="Diff" />
           </span>
         </div>
-        {displayResults?.map((result) => {
+        {displayResults?.map((result, i) => {
           return (
             <OneResult
+              key={i}
               Type={result.type}
               rate={result.rate}
+              rateTitle={result.rateTitle}
               Diff={
                 Number(result.diff) === 0 ? (
                   <div className="bg-black bg-opacity-20 border border-gradientFrom rounded-xl text-gradientFrom px-1.5 flex items-center justify-center">

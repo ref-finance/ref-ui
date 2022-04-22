@@ -15,6 +15,12 @@ import {
   ftGetTokenMetadata,
   TokenMetadata,
 } from './ft-contract';
+import {
+  percentLess,
+  separateRoutes,
+  toNonDivisibleNumber,
+} from '../utils/numbers';
+import { getPoolEstimate } from './swap';
 
 Big.RM = 0;
 Big.DP = 40;
@@ -2646,15 +2652,55 @@ export async function stableSmart(
 //     .reduce((a, b) => a.plus(b), new Big(0));
 // }
 
-export function getExpectedOutputFromActions(actions, outputToken) {
+export async function getExpectedOutputFromActions(
+  actions,
+  outputToken,
+  slippageTolerance
+) {
   // TODO: on cross swap case
   // console.log('INSIDE EXPECTED OUTPUT FUNC');
   // console.log(outputToken);
   // console.log(actions);
-  return actions
-    .filter((item) => item.outputToken === outputToken)
-    .map((item) => new Big(item.estimate))
-    .reduce((a, b) => a.plus(b), new Big(0));
+
+  let expectedOutput = new Big(0);
+
+  console.log(actions);
+
+  if (!actions || actions.length === 0) return expectedOutput;
+
+  const routes = separateRoutes(actions, outputToken);
+
+  for (let i = 0; i < routes.length; i++) {
+    const curRoute = routes[i];
+
+    if (curRoute.length === 1) {
+      expectedOutput = expectedOutput.plus(curRoute[0].estimate);
+    } else {
+      if (curRoute.every((r) => r.pool.Dex === 'ref'))
+        expectedOutput = expectedOutput.plus(curRoute[1].estimate);
+      else {
+        const secondHopAmountIn = percentLess(
+          slippageTolerance,
+          curRoute[0].estimate
+        );
+        const secondEstimateOut = await getPoolEstimate({
+          tokenIn: curRoute[1].tokens[1],
+          tokenOut: curRoute[1].tokens[2],
+          amountIn: toNonDivisibleNumber(
+            curRoute[1].tokens[1].decimals,
+            secondHopAmountIn
+          ),
+          Pool: curRoute[1].pool,
+        });
+
+        console.log(secondEstimateOut, curRoute);
+
+        expectedOutput = expectedOutput.plus(secondEstimateOut.estimate);
+      }
+    }
+  }
+
+  return expectedOutput;
 }
 
 async function convertActionToEstimatesFormat(action) {

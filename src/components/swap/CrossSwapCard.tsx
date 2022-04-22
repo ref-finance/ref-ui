@@ -168,12 +168,8 @@ function CrossSwapRoutesDetail({
   const routes = separateRoutes(swapsTodo, tokenOut.id);
   const pools = routes?.map((todo) => todo[0].pool);
 
-  console.log(routes);
-
   const percents = useMemo(() => {
     try {
-      console.log(pools);
-
       return getPoolAllocationPercents(pools);
     } catch (error) {
       return [];
@@ -717,7 +713,7 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
         onSwap={() => makeSwap(useNearBalance)}
         priceImpactValue={PriceImpactValue}
       />
-      {!requested ? null : (
+      {!requested || swapError ? null : (
         <CrossSwapAllResult
           refTodos={swapsToDoRef}
           triTodos={swapsToDoTri}
@@ -725,6 +721,7 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
           tokenInAmount={tokenInAmount}
           tokenOutId={tokenOut?.id}
           slippageTolerance={slippageTolerance}
+          tokenOut={tokenOut}
         />
       )}
     </>

@@ -214,7 +214,7 @@ const getSinglePoolEstimate = (
   };
 };
 
-const getPoolEstimate = async ({
+export const getPoolEstimate = async ({
   tokenIn,
   tokenOut,
   amountIn,
@@ -226,6 +226,8 @@ const getPoolEstimate = async ({
   Pool: Pool;
 }) => {
   if (Number(Pool.id) === Number(STABLE_POOL_ID)) {
+    console.log('dsadsadsa');
+
     const stablePoolInfo = (await getStablePoolFromCache())[1];
     return getStablePoolEstimate({
       tokenIn,
@@ -368,8 +370,9 @@ export const estimateSwap = async ({
     .toString();
 
   if (
-    STABLE_TOKEN_IDS.includes(tokenIn.id) ||
-    STABLE_TOKEN_IDS.includes(tokenOut.id)
+    (STABLE_TOKEN_IDS.includes(tokenIn.id) ||
+      STABLE_TOKEN_IDS.includes(tokenOut.id)) &&
+    !onlyTri
   ) {
     let hybridStableSmart = await getHybridStableSmart(
       tokenIn,
@@ -399,7 +402,7 @@ export const estimateSwap = async ({
     throwNoPoolError();
   }
 
-  console.log('swap actions', res);
+  console.log(res);
 
   return res;
 };
@@ -1291,8 +1294,6 @@ export const smartRouteSwapCase = async ({
 
   const swap2toTri = swap2.pool.Dex === 'tri';
   let triSwapTransactions: Transaction[] = [];
-
-  console.log(swapsToDo);
 
   if (swap1toTri && swap2toTri) {
     // both pool on tri

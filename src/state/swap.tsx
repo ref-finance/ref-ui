@@ -178,16 +178,22 @@ export const useSwap = ({
         loadingTrigger: loadingTrigger && !loadingPause,
         supportLedger,
       })
-        .then((estimates) => {
+        .then(async (estimates) => {
           if (!estimates) throw '';
 
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
             setAverageFee(estimates);
 
             if (!loadingTrigger) {
-              setTokenOutAmount(
-                getExpectedOutputFromActions(estimates, tokenOut.id).toString()
-              );
+              const expectedOut = (
+                await getExpectedOutputFromActions(
+                  estimates,
+                  tokenOut.id,
+                  slippageTolerance
+                )
+              ).toString();
+
+              setTokenOutAmount(expectedOut);
               setSwapsToDo(estimates);
               setCanSwap(true);
             }
@@ -513,6 +519,7 @@ export const useCrossSwap = ({
         setSwapsToDoTri(estimates);
       })
       .catch((err) => {
+        console.error(err);
         setSwapsToDoTri([]);
       });
   };
@@ -531,7 +538,10 @@ export const useCrossSwap = ({
       .then((estimates) => {
         setSwapsToDoRef(estimates);
       })
-      .catch((err) => setSwapsToDoRef([]));
+      .catch((err) => {
+        console.error(err);
+        setSwapsToDoRef([]);
+      });
   };
 
   const getEstimateCrossSwap = () => {
@@ -553,9 +563,17 @@ export const useCrossSwap = ({
           await getEstimateRef();
           await getEstimateTri();
 
-          setTokenOutAmount(
-            getExpectedOutputFromActions(estimates, tokenOut.id).toString()
-          );
+          const expectedOut = (
+            await getExpectedOutputFromActions(
+              estimates,
+              tokenOut.id,
+              slippageTolerance
+            )
+          ).toString();
+
+          console.log(estimates);
+
+          setTokenOutAmount(expectedOut);
           setSwapsToDo(estimates);
           setCanSwap(true);
         }
@@ -565,6 +583,7 @@ export const useCrossSwap = ({
       .catch((err) => {
         setCanSwap(false);
         setTokenOutAmount('');
+        console.error(err);
         setSwapError(err);
       })
       .finally(() => {
@@ -603,8 +622,6 @@ export const useCrossSwap = ({
       useNearBalance,
     }).catch(setSwapError);
   };
-
-  console.log(swapsToDoRef, swapsToDoTri);
 
   return {
     canSwap,
