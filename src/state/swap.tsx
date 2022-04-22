@@ -571,7 +571,7 @@ export const useCrossSwap = ({
             )
           ).toString();
 
-          console.log(estimates);
+          console.log('swap result', estimates);
 
           setTokenOutAmount(expectedOut);
           setSwapsToDo(estimates);
