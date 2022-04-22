@@ -24,6 +24,7 @@ import _, { result } from 'lodash';
 //@ts-ignore
 import { getExpectedOutputFromActions } from '../../services/smartRouteLogic';
 import { RefIcon, TriIcon } from '../icon/DexIcon';
+import { percentLess } from '../../utils/numbers';
 
 export const RouterIcon = () => {
   return (
@@ -397,22 +398,16 @@ export const CrossSwapAllResult = ({
   triTodos,
   tokenInAmount,
   tokenOutId,
+  slippageTolerance,
 }: {
   crossTodos: EstimateSwapView[];
   refTodos: EstimateSwapView[];
   triTodos: EstimateSwapView[];
   tokenInAmount: string;
   tokenOutId: string;
+  slippageTolerance: number;
 }) => {
-  console.log(crossTodos);
-
   const [showAllResult, setShowAllResult] = useState<boolean>(true);
-
-  const tokenInSymbol = toRealSymbol(crossTodos[0].tokens[0].symbol);
-
-  const tokenOutSymbol = toRealSymbol(
-    crossTodos[0].tokens[crossTodos[0].tokens.length - 1].symbol
-  );
 
   const OneResult = ({
     Type,
@@ -433,28 +428,6 @@ export const CrossSwapAllResult = ({
       </div>
     );
   };
-
-  const results = [crossTodos, refTodos, triTodos].map((todos) =>
-    todos?.length > 0 ? todos : null
-  );
-
-  if (!result || result?.length === 0 || results.every((r) => !r)) return null;
-
-  console.log(results);
-
-  const rates = results.map((result) =>
-    !result
-      ? null
-      : calculateExchangeRate(
-          0,
-          tokenInAmount,
-          getExpectedOutputFromActions(result, tokenOutId).toString(),
-          6
-        ).toString()
-  );
-
-  const bestRate = _.maxBy(rates, (o) => Number(o));
-
   const TodoType = ({ Icon, title }: { Icon: JSX.Element; title: string }) => {
     return (
       <div className="flex items-center xs:flex-col xs:items-start">
@@ -467,16 +440,36 @@ export const CrossSwapAllResult = ({
     );
   };
 
-  const diffs = rates.map((r) => {
-    if (r === bestRate) {
+  const results = [crossTodos, refTodos, triTodos].filter((todos) =>
+    todos?.length > 0 ? todos : null
+  );
+
+  if (!result || result?.length === 0 || results.every((r) => !r)) return null;
+
+  const receives = results.map((result) =>
+    !result
+      ? null
+      : toPrecision(
+          percentLess(
+            slippageTolerance,
+            getExpectedOutputFromActions(result, tokenOutId).toString()
+          ),
+          6
+        )
+  );
+
+  const bestReceived = _.maxBy(receives, (o) => Number(o));
+
+  const diffs = receives.map((r) => {
+    if (r === bestReceived) {
       return '0';
     }
     if (r === null) {
       return null;
     }
     return percent(
-      (Number(bestRate) - Number(r)).toString(),
-      bestRate
+      (Number(bestReceived) - Number(r)).toString(),
+      bestReceived
     ).toString();
   });
 
@@ -485,6 +478,21 @@ export const CrossSwapAllResult = ({
     <TodoType Icon={<RefIcon lightTrigger={true} />} title="Ref Normal Swap" />,
     <TodoType Icon={<TriIcon lightTrigger={true} />} title="Trisolaris" />,
   ];
+
+  const displayResults = results
+    ?.map((result, i) => {
+      if (!result || result?.length === 0) return null;
+      return {
+        type: Icons[i],
+        rate: receives[i],
+        diff: diffs[i],
+      };
+    })
+    .filter((_) => _)
+    .sort((a, b) => {
+      if (Number(a.rate) > Number(b.rate)) return -1;
+      return 1;
+    });
 
   return (
     <>
@@ -518,30 +526,28 @@ export const CrossSwapAllResult = ({
           <span>
             <FormattedMessage id="name" defaultMessage="Name" />
           </span>
-          <div className="py-0.5 pl-2 pr-3 bg-black bg-opacity-20 rounded-full flex items-center">
-            <span>{tokenInSymbol}</span>
-            <span className="pr0.5">{'/'}</span>
-            <span>{tokenOutSymbol}</span>
-            <span className="pl-2">{<ArrowDownWhite />}</span>
-          </div>
           <span>
+            <FormattedMessage
+              id="minimum_received"
+              defaultMessage="Minimum Received"
+            />
+          </span>
+          <span className="relative right-2">
             <FormattedMessage id="diff" defaultMessage="Diff" />
           </span>
         </div>
-        {results?.map((result, i) => {
-          const nullResult = !result || result?.length === 0;
-
-          return nullResult ? null : (
+        {displayResults?.map((result) => {
+          return (
             <OneResult
-              Type={Icons[i]}
-              rate={rates[i]}
+              Type={result.type}
+              rate={result.rate}
               Diff={
-                Number(diffs[i]) === 0 ? (
+                Number(result.diff) === 0 ? (
                   <div className="bg-black bg-opacity-20 border border-gradientFrom rounded-xl text-gradientFrom px-1.5 flex items-center justify-center">
                     <FormattedMessage id="best" defaultMessage="Best" />
                   </div>
                 ) : (
-                  `-${toPrecision(diffs[i], 2)}%`
+                  `-${toPrecision(result.diff, 2)}%`
                 )
               }
             />

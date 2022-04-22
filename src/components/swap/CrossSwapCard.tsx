@@ -724,6 +724,7 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
           crossTodos={swapsToDo}
           tokenInAmount={tokenInAmount}
           tokenOutId={tokenOut?.id}
+          slippageTolerance={slippageTolerance}
         />
       )}
     </>
