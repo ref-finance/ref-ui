@@ -55,7 +55,11 @@ import {
 
 import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
 import { QuestionTip } from '../../components/layout/TipWrapper';
-import { senderWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  senderWallet,
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/sender-wallet';
 import { SwapArrow, SwapExchange, ExchangeArrow } from '../icon/Arrows';
 import { getPoolAllocationPercents } from '../../utils/numbers';
 import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
@@ -515,10 +519,14 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
   const tokenOutMax = tokenOutBalanceFromNear || '0';
 
   const canSubmit = requested
-    ? canSwap
-    : !ONLY_ZEROS.test(tokenInMax) &&
+    ? canSwap &&
+      getCurrentWallet().wallet.isSignedIn() &&
+      !ONLY_ZEROS.test(tokenInMax) &&
       !ONLY_ZEROS.test(tokenInAmount) &&
-      new BigNumber(tokenInAmount).lte(new BigNumber(tokenInMax));
+      new BigNumber(tokenInAmount).lte(new BigNumber(tokenInMax))
+    : tokenIn?.id !== tokenOut?.id &&
+      !loadingTrigger &&
+      !ONLY_ZEROS.test(tokenInAmount);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -543,7 +551,7 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
         crossSwap={true}
         setSupportLedger={setSupportLedger}
         useNearBalance={useNearBalance.toString()}
-        canSubmit={canSubmit && tokenIn?.id !== tokenOut?.id && !loadingTrigger}
+        canSubmit={canSubmit}
         slippageTolerance={slippageTolerance}
         onChange={(slippage) => {
           setSlippageTolerance(slippage);

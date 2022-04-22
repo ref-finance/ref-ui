@@ -19,6 +19,7 @@ interface SubmitButtonProps {
   label?: string;
   className?: string;
   loading?: boolean;
+  signedInConfig?: boolean;
 }
 
 function SubmitButton({
@@ -27,13 +28,14 @@ function SubmitButton({
   label,
   className,
   loading,
+  signedInConfig,
 }: SubmitButtonProps) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
 
   return (
     <>
-      {isSignedIn ? (
+      {isSignedIn || signedInConfig ? (
         <button
           type={onClick ? 'button' : 'submit'}
           disabled={disabled}

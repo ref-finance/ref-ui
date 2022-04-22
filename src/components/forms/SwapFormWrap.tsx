@@ -200,7 +200,7 @@ export function CrossSwapFormWrap({
     event.preventDefault();
     setError(null);
 
-    if (isSignedIn) {
+    if (isSignedIn || !requested) {
       try {
         setShowSwapLoading && setShowSwapLoading(true);
         setShowSwapLoading && setLoadingPause(true);
@@ -281,8 +281,10 @@ export function CrossSwapFormWrap({
       )}
       {error && <Alert level="warn" message={error.message} />}
       {children}
+
       <div className="pt-3">
         <SubmitButton
+          signedInConfig={!requested}
           disabled={
             !canSubmit ||
             (typeof loadingTrigger !== 'undefined' && loadingTrigger)
