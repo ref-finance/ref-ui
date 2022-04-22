@@ -511,7 +511,7 @@ export const CrossSwapAllResult = ({
       if (!result || result?.length === 0) return null;
       return {
         type: Icons[i],
-        rate: toPrecision(percentLess(slippageTolerance, receives[i]), 6),
+        rate: percentLess(slippageTolerance, receives[i]),
         diff: diffs[i],
         rateTitle: toPrecision(
           percentLess(slippageTolerance, receives[i]),
@@ -521,7 +521,7 @@ export const CrossSwapAllResult = ({
     })
     .filter((_) => _)
     .sort((a, b) => {
-      if (Number(a.rate) > Number(b.rate)) return -1;
+      if (new Big(a.rate).gt(new Big(b.rate))) return -1;
       return 1;
     });
 
@@ -572,7 +572,7 @@ export const CrossSwapAllResult = ({
             <OneResult
               key={i}
               Type={result.type}
-              rate={result.rate}
+              rate={toPrecision(result.rate, 6)}
               rateTitle={result.rateTitle}
               Diff={
                 Number(result.diff) === 0 ? (
