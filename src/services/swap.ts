@@ -959,7 +959,8 @@ export const crossInstantSwap = async ({
     const curRoute = routes[i];
     if (
       curRoute.length === 2 &&
-      curRoute.some((todo) => todo.pool.Dex === 'tri')
+      curRoute.some((todo) => todo.pool.Dex === 'tri') &&
+      curRoute.some((todo) => todo.pool.Dex === 'ref')
     ) {
       // await registerTokenAction(curRoute[0].tokens[1].id);
       toRegisterMiddleTokenId = curRoute[0].tokens[1].id;
