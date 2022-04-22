@@ -249,9 +249,9 @@ export function TokenCardIn({
           balances={balances}
         />
 
-        <div className="flex flex-col items-end w-full">
+        <div className="flex flex-col items-end w-full xs:w-3/5">
           <input
-            className="text-right text-white text-xl"
+            className="text-right text-white text-xl xs:text-lg"
             value={amount}
             type="number"
             min="0"

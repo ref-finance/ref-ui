@@ -443,9 +443,7 @@ export function MobileNavBar(props: any) {
         <NavLogo />
         <div className="flex">
           <div
-            className={`flex px-1 ${
-              hasAuroraBalance ? 'mr-px' : 'mr-2'
-            } items-center justify-center rounded-full border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 ${
+            className={`flex px-1 mr-px items-center justify-center rounded-full border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 ${
               isSignedIn
                 ? 'bg-gray-700 text-white'
                 : 'border border-gradientFrom text-gradientFrom'
@@ -497,7 +495,7 @@ export function MobileNavBar(props: any) {
             </div>
           </div>
 
-          <div className=" flex items-center">
+          <div className=" flex items-center mr-2">
             <ConnectDot />
             <ConnectDot />
 
