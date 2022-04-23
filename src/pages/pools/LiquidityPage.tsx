@@ -394,8 +394,6 @@ function MobileLiquidityPage({
 
   const [displayRows, setDisplayRows] = useState([]);
 
-  console.log(mobileDevice);
-
   useEffect(() => {
     if (mobileDevice) {
       setDisplayRows(pools);
@@ -756,8 +754,6 @@ function LiquidityPage_({
   const mobileDevice = useMobile();
 
   const [displayRows, setDisplayRows] = useState([]);
-
-  console.log(mobileDevice);
 
   useEffect(() => {
     if (!mobileDevice) {
