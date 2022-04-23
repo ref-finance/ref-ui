@@ -337,7 +337,12 @@ export async function swapExactTokensForTokens({
 }) {
   const fromErc20 = await getErc20Addr(from);
   const toErc20 = await getErc20Addr(to);
-  const middleErc20 = middle ? await getErc20Addr(middle) : '';
+
+  const middleErc20 = middle
+    ? middle === 'aurora'
+      ? getAuroraConfig().WETH
+      : await getErc20Addr(middle)
+    : '';
 
   const path = !!middleErc20
     ? [fromErc20.id, middleErc20.id, toErc20.id]
@@ -373,7 +378,11 @@ export async function swapExactETHforTokens({
 }) {
   const toErc20 = await getErc20Addr(to);
 
-  const middleErc20 = middle ? await getErc20Addr(middle) : '';
+  const middleErc20 = middle
+    ? middle === 'aurora'
+      ? getAuroraConfig().WETH
+      : await getErc20Addr(middle)
+    : '';
 
   const path = !!middleErc20
     ? [getAuroraConfig().WETH, middleErc20.id, toErc20.id]
@@ -411,7 +420,12 @@ export async function swapExactTokensforETH({
   middle?: string;
 }) {
   const fromErc20 = await getErc20Addr(from);
-  const middleErc20 = middle ? await getErc20Addr(middle) : '';
+
+  const middleErc20 = middle
+    ? middle === 'aurora'
+      ? getAuroraConfig().WETH
+      : await getErc20Addr(middle)
+    : '';
 
   const path = !!middleErc20
     ? [fromErc20.id, middleErc20.id, getAuroraConfig().WETH]
@@ -807,8 +821,10 @@ export const auroraSwapTransactions = async ({
     if (swapTodos.length === 0) return transactions;
 
     const address = auroraAddr(getCurrentWallet().wallet.getAccountId());
-
+    debugger;
     const tokenInAddress = await getErc20Addr(tokenIn_id);
+
+    debugger;
 
     // deposit to aurora, one route case
     const depositTransaction = await depositToAuroraTransaction(
@@ -819,7 +835,7 @@ export const auroraSwapTransactions = async ({
     );
 
     transactions.push(depositTransaction);
-
+    debugger;
     const approveAction = await checkAllowanceAndApprove(
       address,
       tokenInAddress,
@@ -833,6 +849,7 @@ export const auroraSwapTransactions = async ({
         functionCalls: [approveAction],
       });
     }
+    debugger;
 
     let swapActions: any[] = [];
 
