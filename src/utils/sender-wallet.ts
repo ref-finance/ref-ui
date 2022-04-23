@@ -138,6 +138,14 @@ function senderWalletFunc(window: Window) {
   this.signOut = function () {
     // removeSenderLoginRes();
     const signedInContractSize = window?.near?.authData?.allKeys;
+
+    if (
+      signedInContractSize &&
+      Number(Object.keys(signedInContractSize).length === 1)
+    ) {
+      return window.near.signOut();
+    }
+
     if (
       signedInContractSize &&
       Number(Object.keys(signedInContractSize).length) > 1 &&
