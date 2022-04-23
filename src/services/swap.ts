@@ -171,7 +171,7 @@ const getStablePoolEstimate = ({
   return {
     estimate: toReadableNumber(STABLE_LP_TOKEN_DECIMALS, amountOut),
     noFeeAmountOut: toReadableNumber(STABLE_LP_TOKEN_DECIMALS, dyOut),
-    pool: stablePool,
+    pool: { ...stablePool, Dex: 'ref' },
     token: tokenIn,
     outputToken: tokenOut.id,
     inputToken: tokenIn.id,
@@ -951,9 +951,9 @@ export const crossInstantSwap = async ({
 
   await registerToken(tokenOut.id);
 
-  let toRegisterMiddleTokenId: string;
-
   const routes = separateRoutes(swapsToDo, tokenOut.id);
+
+  const middleTokens = [];
 
   for (let i = 0; i < routes.length; i++) {
     const curRoute = routes[i];
@@ -962,15 +962,15 @@ export const crossInstantSwap = async ({
       curRoute.some((todo) => todo.pool.Dex === 'tri') &&
       curRoute.some((todo) => todo.pool.Dex === 'ref')
     ) {
-      // await registerTokenAction(curRoute[0].tokens[1].id);
-      toRegisterMiddleTokenId = curRoute[0].tokens[1].id;
-      break;
+      middleTokens.push(curRoute[0].tokens[1].id);
     }
   }
 
-  if (toRegisterMiddleTokenId) {
-    await registerToken(toRegisterMiddleTokenId);
-  }
+  const toRegisterMiddleTokens = new Array(...new Set(middleTokens));
+
+  await Promise.all(
+    toRegisterMiddleTokens.map((token) => registerToken(token))
+  );
 
   if (wallet.isSignedIn()) {
     const routes = separateRoutes(swapsToDo, tokenOut.id);
