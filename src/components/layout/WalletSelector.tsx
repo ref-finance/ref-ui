@@ -458,7 +458,7 @@ export const WalletSelectorModal = (
                 setWalletIcon(<SenderWalletLarge />);
 
                 getSenderWallet(window)
-                  .requestSignIn(REF_FARM_CONTRACT_ID)
+                  .requestSignIn('aurora')
                   .then((res: any) => {
                     !res?.error && setShowConnecting(false);
                     !res?.error && globalStatedispatch({ type: 'signIn' });
