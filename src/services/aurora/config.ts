@@ -124,6 +124,16 @@ export const tokenListTestnet = {
         'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/usdc.svg',
       tags: ['ethereum'],
     },
+    {
+      chainId: 1313161555,
+      address: '0xE4979CaC5D70F01697f795f0ad56BbcA05912c44',
+      symbol: 'LINEAR',
+      name: 'LiNEAR',
+      decimals: 24,
+      logoURI:
+        'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/linear.svg',
+      tags: [],
+    },
   ],
   version: {
     major: 1,
