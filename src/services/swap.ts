@@ -960,7 +960,7 @@ export const crossInstantSwap = async ({
     if (
       curRoute.length === 2 &&
       curRoute.some((todo) => todo.pool.Dex === 'tri') &&
-      curRoute.some((todo) => todo.pool.Dex === 'ref')
+      curRoute.some((todo) => todo.pool.Dex === 'ref' || !todo?.pool?.Dex)
     ) {
       middleTokens.push(curRoute[0].tokens[1].id);
     }
