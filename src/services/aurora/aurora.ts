@@ -216,6 +216,7 @@ export async function getAuroraPool(
   const input = buildInput(UniswapPairAbi, 'getReserves', []);
 
   // no this pair to return null
+  // check transfered out tokens symbols
   const pairId = [tokenA.symbol, tokenB.symbol].join('-');
   const pairIdReverse = [tokenB.symbol, tokenA.symbol].join('-');
 

@@ -9,6 +9,8 @@ export function getAuroraConfig(env: string = process.env.NEAR_ENV) {
         Pairs: {
           'wNEAR-USDC': '0x37401f53be96E28996d18A1964F47dF9e23b15D2',
           'ETH-USDC': '0x0084B7b4C64eDaaB4d7783e5Fe27f796C4783d44',
+          'WNEAR-LINEAR': '0x75164fb3589c568Ce422Ca99aF9d23dCA410541a',
+          'ETH-LINEAR': '0xF6E611DE9584A95Df64e587E0C67de94f299C717',
         },
         networkId: 'testnet',
       };
@@ -37,7 +39,7 @@ export function getAuroraConfig(env: string = process.env.NEAR_ENV) {
           'wNEAR-MECHA': '0xd62f9ec4C4d323A0C111d5e78b77eA33A2AA862f',
           'wNEAR-SOLACE': '0xdDAdf88b007B95fEb42DDbd110034C9a8e9746F2',
           'XTRI-STNEAR': '0x5913f644A10d98c79F2e0b609988640187256373',
-          'wNEAR-stNEAR': '0x47924Ae4968832984F4091EEC537dfF5c38948a4',
+          'wNEAR-STNEAR': '0x47924Ae4968832984F4091EEC537dfF5c38948a4',
         },
         networkId: 'mainnet',
       };
