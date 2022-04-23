@@ -338,14 +338,14 @@ export async function swapExactTokensForTokens({
   const fromErc20 = await getErc20Addr(from);
   const toErc20 = await getErc20Addr(to);
 
-  const middleErc20 = middle
+  const middleErc20Id = middle
     ? middle === 'aurora'
       ? getAuroraConfig().WETH
-      : await getErc20Addr(middle)
+      : (await getErc20Addr(middle)).id
     : '';
 
-  const path = !!middleErc20
-    ? [fromErc20.id, middleErc20.id, toErc20.id]
+  const path = !!middleErc20Id
+    ? [fromErc20.id, middleErc20Id, toErc20.id]
     : [fromErc20.id, toErc20.id];
 
   const input = buildInput(UniswapRouterAbi, 'swapExactTokensForTokens', [
@@ -378,14 +378,14 @@ export async function swapExactETHforTokens({
 }) {
   const toErc20 = await getErc20Addr(to);
 
-  const middleErc20 = middle
+  const middleErc20Id = middle
     ? middle === 'aurora'
       ? getAuroraConfig().WETH
-      : await getErc20Addr(middle)
+      : (await getErc20Addr(middle)).id
     : '';
 
-  const path = !!middleErc20
-    ? [getAuroraConfig().WETH, middleErc20.id, toErc20.id]
+  const path = !!middleErc20Id
+    ? [getAuroraConfig().WETH, middleErc20Id, toErc20.id]
     : [getAuroraConfig().WETH, toErc20.id];
 
   const input = buildInput(UniswapRouterAbi, 'swapExactETHForTokens', [
@@ -421,14 +421,14 @@ export async function swapExactTokensforETH({
 }) {
   const fromErc20 = await getErc20Addr(from);
 
-  const middleErc20 = middle
+  const middleErc20Id = middle
     ? middle === 'aurora'
       ? getAuroraConfig().WETH
-      : await getErc20Addr(middle)
+      : (await getErc20Addr(middle)).id
     : '';
 
-  const path = !!middleErc20
-    ? [fromErc20.id, middleErc20.id, getAuroraConfig().WETH]
+  const path = !!middleErc20Id
+    ? [fromErc20.id, middleErc20Id, getAuroraConfig().WETH]
     : [fromErc20.id, getAuroraConfig().WETH];
 
   const input = buildInput(UniswapRouterAbi, 'swapExactTokensForETH', [
@@ -821,10 +821,8 @@ export const auroraSwapTransactions = async ({
     if (swapTodos.length === 0) return transactions;
 
     const address = auroraAddr(getCurrentWallet().wallet.getAccountId());
-    debugger;
-    const tokenInAddress = await getErc20Addr(tokenIn_id);
 
-    debugger;
+    const tokenInAddress = await getErc20Addr(tokenIn_id);
 
     // deposit to aurora, one route case
     const depositTransaction = await depositToAuroraTransaction(
@@ -835,7 +833,7 @@ export const auroraSwapTransactions = async ({
     );
 
     transactions.push(depositTransaction);
-    debugger;
+
     const approveAction = await checkAllowanceAndApprove(
       address,
       tokenInAddress,
@@ -849,7 +847,6 @@ export const auroraSwapTransactions = async ({
         functionCalls: [approveAction],
       });
     }
-    debugger;
 
     let swapActions: any[] = [];
 
