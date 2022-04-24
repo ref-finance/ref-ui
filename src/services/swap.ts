@@ -294,7 +294,7 @@ export const estimateSwap = async ({
     pools.push(stablePool);
   }
 
-  if (supportLedger) {
+  if (supportLedger && !crossSwap) {
     if (pools.length === 0) {
       throwNoPoolError();
     }

@@ -148,7 +148,6 @@ function senderWalletFunc(window: Window) {
 
     if (
       signedInContractSize &&
-      Number(Object.keys(signedInContractSize).length) > 1 &&
       Object.keys(signedInContractSize).includes('aurora')
     ) {
       return window.near.signOut({
