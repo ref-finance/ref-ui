@@ -152,6 +152,7 @@ export const AccountTipMan = () => {
     <div
       className="relative"
       style={{
+        zIndex: '40',
         left: '450px',
         bottom: '40px',
       }}

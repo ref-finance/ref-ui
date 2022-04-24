@@ -519,7 +519,6 @@ export const useCrossSwap = ({
         setSwapsToDoTri(estimates);
       })
       .catch((err) => {
-        console.error(err);
         setSwapsToDoTri([]);
       });
   };
@@ -539,7 +538,6 @@ export const useCrossSwap = ({
         setSwapsToDoRef(estimates);
       })
       .catch((err) => {
-        console.error(err);
         setSwapsToDoRef([]);
       });
   };
@@ -572,7 +570,6 @@ export const useCrossSwap = ({
       .catch((err) => {
         setCanSwap(false);
         setTokenOutAmount('');
-        console.error(err);
         setSwapError(err);
       })
       .finally(() => {

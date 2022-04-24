@@ -576,8 +576,6 @@ export async function withdrawFromAurora({
   amount: string;
   decimal: number;
 }) {
-  console.log(arguments);
-
   if (token_id === 'aurora') {
     const callAddress = toAddress(getAuroraConfig().ethBridgeAddress);
 
@@ -970,16 +968,14 @@ export const batchWithdrawFromAurora = async (
     )
   );
 
-  console.log(transactions, tokenIdList);
-
-  return executeMultipleTransactions(
-    transactions.concat([
-      {
-        receiverId: 'aurora',
-        functionCalls: actions,
-      },
-    ])
+  actions.forEach((action) =>
+    transactions.push({
+      receiverId: 'aurora',
+      functionCalls: [action],
+    })
   );
+
+  return executeMultipleTransactions(transactions);
 };
 
 export const batchCallWithdraw = async (
