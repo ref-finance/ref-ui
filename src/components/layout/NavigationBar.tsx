@@ -779,7 +779,7 @@ function NavigationBar() {
       }
     );
     setHasAuroraBalance(balanceOver);
-  }, [auroraTokens, auroraBalances, withdrawDone]);
+  }, [auroraTokens, auroraBalances, withdrawDone, isSignedIn]);
 
   const [tokensMeta, setTokensMeta] = useState<{}>();
 
@@ -827,7 +827,7 @@ function NavigationBar() {
     const ids = Object.keys(refAccountBalances);
 
     ftGetTokensMetadata(ids).then(setTokensMeta);
-  }, [refAccountBalances]);
+  }, [refAccountBalances, isSignedIn]);
 
   useEffect(() => {
     if (!refAccountBalances || !tokensMeta) {
@@ -845,7 +845,7 @@ function NavigationBar() {
     );
 
     setHasBalanceOnRefAccount(hasRefBalanceOver);
-  }, [refAccountBalances, tokensMeta]);
+  }, [refAccountBalances, tokensMeta, isSignedIn]);
 
   return (
     <>

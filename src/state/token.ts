@@ -190,11 +190,15 @@ export const useUserRegisteredTokensAllAndNearBalance = (
 export const useTokenBalances = () => {
   const [balances, setBalances] = useState<TokenBalancesView>();
 
+  const { globalState } = useContext(WalletContext);
+
+  const isSignedIn = globalState.isSignedIn;
+
   useEffect(() => {
     getTokenBalances()
       .then(setBalances)
       .catch(() => setBalances({}));
-  }, [getCurrentWallet().wallet.isSignedIn()]);
+  }, [isSignedIn]);
 
   return balances;
 };
