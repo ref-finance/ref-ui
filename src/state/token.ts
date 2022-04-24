@@ -260,6 +260,10 @@ export const useTokensData = (
     setCount((c) => c + 1);
   };
 
+  const { globalState } = useContext(WalletContext);
+
+  const isSignedIn = globalState.isSignedIn;
+
   const trigger = useCallback(() => {
     if (!!balances) {
       setCount(0);
@@ -276,7 +280,7 @@ export const useTokensData = (
             return max;
           })
           .then((max: string) => {
-            const nearCount = toPrecision(max, 3) || '0';
+            const nearCount = isSignedIn ? toPrecision(max, 3) || '0' : '0';
             const refCount = toRoundedReadableNumber({
               decimals: item.decimals,
               number: balances ? balances[item.id] : '0',
@@ -297,7 +301,7 @@ export const useTokensData = (
           });
       }
     }
-  }, [balances, tokens.length]);
+  }, [balances, tokens.length, isSignedIn]);
 
   useEffect(() => {
     trigger();

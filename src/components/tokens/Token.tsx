@@ -7,6 +7,7 @@ import { SingleToken } from '../forms/SelectToken';
 import { OutLinkIcon } from '../../components/icon/Common';
 import { RefIcon } from '~components/icon/DexIcon';
 import { TriIcon } from '../icon/DexIcon';
+import { getCurrentWallet } from '../../utils/sender-wallet';
 
 interface TokenProps {
   token: TokenMetadata;
@@ -68,7 +69,7 @@ export default function Token({
               : 'w-12 flex justify-start relative xs:left-2 lg:left-10'
           }
         >
-          {onRef ? <RefIcon lightTrigger={hover} /> : null}
+          {onRef || onTri ? <RefIcon lightTrigger={hover} /> : null}
 
           {onTri ? <TriIcon lightTrigger={hover} /> : null}
         </div>
