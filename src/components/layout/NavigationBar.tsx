@@ -406,7 +406,7 @@ export function AuroraEntry({
             e.stopPropagation();
           }}
         >
-          <div className="bg-cardBg w-64 rounded-lg border border-farmText flex flex-col overflow-hidden">
+          <div className="bg-cardBg rounded-lg border border-farmText flex flex-col overflow-hidden">
             <div className="flex items-center pl-5 pt-4">
               <span className="text-farmText text-sm">
                 <FormattedMessage
