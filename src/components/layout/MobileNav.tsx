@@ -197,7 +197,7 @@ export function MobileSwitchLanguage() {
           <span className="text-2xl mr-5">
             <KoIcon />
           </span>
-          한국
+          한국어
         </div>
       </div>
     </div>

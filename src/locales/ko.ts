@@ -322,7 +322,7 @@ const ko = {
   remove_watchlist: '워치리스트에서 제거하기',
   my_watchlist_copy: '워치리스트 된 유동성 풀은 여기에 등장합니다 ',
   search_token: '토큰 검색',
-  language: '한국어',
+  language: '언어',
   deposit_to_add_liquidity: '유동성 추가를 위해 입금',
   slip_warn: '입금 가능한 최소량을 확인 후 신중히 결정하세요.',
   slip_invalid: '슬리피지(미끄러짐) 허용치가 적절한 수치가 아닙니다.',

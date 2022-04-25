@@ -161,7 +161,7 @@ export const useMenuItems = () => {
           logo: <JaIcon />,
         },
         {
-          label: '한국',
+          label: '한국어',
           isExternal: false,
           language: 'ko',
           url: '',
