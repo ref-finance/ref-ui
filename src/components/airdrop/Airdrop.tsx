@@ -261,7 +261,7 @@ export default function AirdropView() {
             toast.error(
               <a
                 className="text-gray font-semibold"
-                href={`${getConfig().explorerUrl}/transactions/${txHash}`}
+                href={`${getConfig().explorerUrl}/txns/${txHash}`}
                 target="_blank"
               >
                 <FormattedMessage
@@ -279,7 +279,7 @@ export default function AirdropView() {
             toast(
               <a
                 className="text-primary font-semibold"
-                href={`${getConfig().explorerUrl}/transactions/${txHash}`}
+                href={`${getConfig().explorerUrl}/txns/${txHash}`}
                 target="_blank"
               >
                 <FormattedMessage

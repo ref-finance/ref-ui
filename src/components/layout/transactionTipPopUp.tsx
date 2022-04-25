@@ -44,7 +44,7 @@ export const swapToast = (txHash: string) => {
   toast(
     <a
       className="text-white w-full h-full pl-1.5"
-      href={`${getConfig().explorerUrl}/transactions/${txHash}`}
+      href={`${getConfig().explorerUrl}/txns/${txHash}`}
       target="_blank"
       style={{
         lineHeight: '48px',
@@ -77,7 +77,7 @@ export const failToast = (txHash: string, errorType?: string) => {
   toast(
     <a
       className="text-error w-full h-full pl-1.5 py-1"
-      href={`${getConfig().explorerUrl}/transactions/${txHash}`}
+      href={`${getConfig().explorerUrl}/txns/${txHash}`}
       target="_blank"
       style={{
         lineHeight: '20px',
