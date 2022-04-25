@@ -65,7 +65,9 @@ export default function PopUpSwiper() {
               <div
                 className="relative cursor-pointer"
                 onClick={() => {
-                  window.open('https://stake.paras.id/'); // todo
+                  window.open(
+                    'https://medium.com/@dcntrlbank/decentral-bank-launches-usn-the-semi-algorthimic-near-native-stablecoin-f6af5cbbba15'
+                  );
                 }}
               >
                 <CircleCloseBtn
