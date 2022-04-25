@@ -335,8 +335,10 @@ function AccountEntry({
 
 export function AuroraEntry({
   hasBalanceOnAurora,
+  extraClick,
 }: {
   hasBalanceOnAurora?: boolean;
+  extraClick?: (e?: any) => void;
 }) {
   const nearAccount = getCurrentWallet().wallet.getAccountId();
   const auroraAddress = auroraAddr(nearAccount);
@@ -368,6 +370,7 @@ export function AuroraEntry({
       onClick={(e) => {
         e.stopPropagation();
         e.preventDefault();
+        extraClick && extraClick();
         if (!isMobile) {
           window.open('/account?tab=aurora', '_blank');
           return;

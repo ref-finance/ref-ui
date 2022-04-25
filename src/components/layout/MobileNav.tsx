@@ -389,7 +389,7 @@ export function MobileNavBar(props: any) {
     document.addEventListener('click', handleClick, false);
 
     return () => {
-      document.addEventListener('click', handleClick, false);
+      document.removeEventListener('click', () => {}, false);
     };
   }, []);
   useEffect(() => {
@@ -507,11 +507,14 @@ export function MobileNavBar(props: any) {
             </div>
           </div>
 
-          <div className=" flex items-center mr-2">
+          <div className={!isSignedIn ? 'hidden' : ' flex items-center mr-2'}>
             <ConnectDot />
             <ConnectDot />
 
-            <AuroraEntry hasBalanceOnAurora={hasAuroraBalance} />
+            <AuroraEntry
+              hasBalanceOnAurora={hasAuroraBalance}
+              extraClick={() => setAccountVisible(false)}
+            />
           </div>
           <span ref={iconRef} onClick={() => setShow(true)}>
             <HiMenu />
