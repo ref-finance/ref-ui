@@ -28,7 +28,10 @@ import { toRealSymbol } from '../utils/token';
 import getConfig from '~services/config';
 import { nearMetadata } from '../services/wrap-near';
 import { Pool } from '../services/pool';
-import { getBatchTokenNearAcounts } from '../services/aurora/aurora';
+import {
+  getBatchTokenNearAcounts,
+  useTriTokenIdsOnRef,
+} from '../services/aurora/aurora';
 import { defaultTokenList } from '../services/aurora/config';
 import {
   WalletContext,
@@ -109,6 +112,26 @@ export const useTriTokens = () => {
     });
   }, []);
   return triTokens?.filter((token) => token.id);
+};
+
+export const useRainbowWhitelistTokens = () => {
+  const [tokens, setTokens] = useState<TokenMetadata[]>();
+  const triTokenIds = useTriTokenIdsOnRef();
+
+  const extraTokenIds = (triTokenIds || []).concat(['aurora']);
+
+  useEffect(() => {
+    getWhitelistedTokens()
+      .then((tokenIds) => {
+        const allTokenIds = [...new Set([...tokenIds, ...extraTokenIds])];
+        return Promise.all(
+          allTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
+        );
+      })
+      .then(setTokens);
+  }, [getCurrentWallet().wallet.isSignedIn(), extraTokenIds.join('-')]);
+
+  return tokens?.map((t) => ({ ...t, onRef: true }));
 };
 
 export const useWhitelistTokens = (extraTokenIds: string[] = []) => {

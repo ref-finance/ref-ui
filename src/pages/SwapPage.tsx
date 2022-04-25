@@ -88,8 +88,6 @@ function getAllTokens(refTokens: TokenMetadata[], triTokens: TokenMetadata[]) {
 function SwapPage() {
   const triTokenIds = useTriTokenIdsOnRef();
 
-  console.log('tri token ids', triTokenIds);
-
   const refTokens = useWhitelistTokens((triTokenIds || []).concat(['aurora']));
 
   const triTokens = useTriTokens();

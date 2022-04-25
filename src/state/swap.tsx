@@ -588,8 +588,8 @@ export const useCrossSwap = ({
   }, [swapsToDo, slippageTolerance]);
 
   useEffect(() => {
-    if (loadingTrigger) getEstimateCrossSwap();
-  }, [loadingTrigger]);
+    if (loadingTrigger || requested) getEstimateCrossSwap();
+  }, [loadingTrigger, supportLedger]);
 
   useEffect(() => {
     if (!requested) return;
