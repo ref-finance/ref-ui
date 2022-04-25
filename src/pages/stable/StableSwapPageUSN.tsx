@@ -1,38 +1,32 @@
 import React, { useEffect, useState } from 'react';
-import Loading from '../../components/layout/Loading';
+import Loading from '~components/layout/Loading';
 import {
   useTokenBalances,
   useWhitelistStableTokens,
   useWhitelistTokens,
 } from '../../state/token';
-import SquareRadio from '~components/radio/SquareRadio';
-import StableSwap from '~components/stableswap/StableSwap';
-import AddLiquidityComponent from '../../components/stableswap/AddLiquidity';
-import { usePool, useStablePool } from '../../state/pool';
-import { isMobile } from '~utils/device';
-import { RemoveLiquidityComponent } from '../../components/stableswap/RemoveLiquidity';
-import TokenReserves from '../../components/stableswap/TokenReserves';
-import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
-import getConfig from '../../services/config';
-import { StableSwapLogo } from '~components/icon/StableSwap';
+import { usePool, useStablePool } from '~state/pool';
+import TokenReserves from '~components/stableswap/TokenReserves';
+import getConfig from '~services/config';
 import { useWalletTokenBalances } from '../../state/token';
 import { useLocation } from 'react-router-dom';
 import {
   SharesCard,
   StableTokens,
 } from '../../components/stableswap/CommonComp';
-import { TokenMetadata } from '../../services/ft-contract';
 import { useFarmStake } from '../../state/farm';
 import {
   BackToStablePoolList,
   Images,
-} from '../../components/stableswap/CommonComp';
+} from '~components/stableswap/CommonComp';
 import BigNumber from 'bignumber.js';
-import { getStablePoolFromCache, Pool, StablePool } from '../../services/pool';
+import { Pool, StablePool, getStablePoolFromCache } from '../../services/pool';
+import AddLiquidityComponentUSN from '../../components/stableswap/AddLiquidityUSN';
+import { RemoveLiquidityComponentUSN } from '../../components/stableswap/RemoveLiquidityUSN';
+import { STABLE_TOKEN_USN_IDS } from '../../services/near';
 export const DEFAULT_ACTIONS = ['add_liquidity', 'remove_liquidity'];
-const STABLE_TOKENS = ['USDT', 'USDC', 'DAI'];
-const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
-export const REF_STABLE_SWAP_TAB_KEY = 'REF_STABLE_SWAP_TAB_VALUE';
+const STABLE_POOL_USN_ID = getConfig().STABLE_POOL_USN_ID;
+export const REF_STABLE_SWAP_TAB_KEY_USN = 'REF_STABLE_SWAP_TAB_VALUE_USN';
 
 interface LocationTypes {
   stableTab?: string;
@@ -42,51 +36,52 @@ interface LocationTypes {
   pool?: Pool;
 }
 
-function StableSwapPage() {
+function StableSwapPageUSN() {
   const { state } = useLocation<LocationTypes>();
 
   const stableTab = state?.stableTab;
 
   const storageTab =
-    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) === 'add_liquidity' ||
-    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) === 'remove_liquidity'
-      ? localStorage.getItem(REF_STABLE_SWAP_TAB_KEY)
+    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY_USN) === 'add_liquidity' ||
+    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY_USN) === 'remove_liquidity'
+      ? localStorage.getItem(REF_STABLE_SWAP_TAB_KEY_USN)
       : DEFAULT_ACTIONS[0];
 
   const [actionName, setAction] = useState<string>(stableTab || storageTab);
 
   const { pool, shares, stakeList } = state?.pool
     ? state
-    : usePool(STABLE_POOL_ID);
+    : usePool(STABLE_POOL_USN_ID);
 
   const farmStake =
     state?.farmStake ||
     useFarmStake({
-      poolId: Number(STABLE_POOL_ID),
+      poolId: Number(STABLE_POOL_USN_ID),
       stakeList,
     });
   const userTotalShare = BigNumber.sum(shares, farmStake);
 
-  const [stablePool, setStablePool] = useState<StablePool>();
-
-  useEffect(() => {
-    getStablePoolFromCache(STABLE_POOL_ID.toString()).then((res) => {
-      setStablePool(res[1]);
-    });
-  }, []);
-
   const allTokens = useWhitelistStableTokens();
-  const tokens =
-    allTokens &&
-    allTokens.length > 0 &&
-    allTokens.filter((item) => STABLE_TOKENS.indexOf(item.symbol) > -1);
+
+  const tokens = allTokens
+    ? STABLE_TOKEN_USN_IDS.map((id) =>
+        allTokens?.find((token) => token?.id === id)
+      )
+    : [];
 
   const nearBalances = useWalletTokenBalances(
     tokens?.map((token) => token.id) || []
   );
+  const [stablePool, setStablePool] = useState<StablePool>();
+
+  useEffect(() => {
+    getStablePoolFromCache(STABLE_POOL_USN_ID.toString()).then((res) => {
+      setStablePool(res[1]);
+    });
+  }, []);
 
   const changeAction = (actionName: string) => {
-    localStorage.setItem(REF_STABLE_SWAP_TAB_KEY, actionName);
+    localStorage.setItem(REF_STABLE_SWAP_TAB_KEY_USN, actionName);
     setAction(actionName);
   };
 
@@ -103,7 +98,7 @@ function StableSwapPage() {
     switch (tab) {
       case DEFAULT_ACTIONS[0]:
         return (
-          <AddLiquidityComponent
+          <AddLiquidityComponentUSN
             changeAction={changeAction}
             stablePool={stablePool}
             pool={pool}
@@ -115,7 +110,7 @@ function StableSwapPage() {
         );
       case DEFAULT_ACTIONS[1]:
         return (
-          <RemoveLiquidityComponent
+          <RemoveLiquidityComponentUSN
             changeAction={changeAction}
             stablePool={stablePool}
             tokens={tokens}
@@ -146,4 +141,4 @@ function StableSwapPage() {
   );
 }
 
-export default StableSwapPage;
+export default StableSwapPageUSN;

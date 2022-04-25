@@ -37,16 +37,34 @@ import { getExplorer, ExplorerType } from '../utils/device';
 import {
   STABLE_POOL_ID,
   POOL_TOKEN_REFRESH_INTERVAL,
-  filterBlackListPools,
+  STABLE_POOL_USN_ID,
 } from './near';
 import moment from 'moment';
 const explorerType = getExplorer();
 
 export const DEFAULT_PAGE_LIMIT = 100;
 const STABLE_POOL_KEY = `STABLE_POOL_VALUE_${getConfig().STABLE_POOL_ID}`;
-const REF_FI_STABLE_Pool_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
+const STABLE_POOL_USN_KEY = `STABLE_POOL_VALUE_${
+  getConfig().STABLE_POOL_USN_ID
+}`;
+
+const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
   getConfig().STABLE_POOL_ID
 }`;
+const REF_FI_STABLE_POOL_USN_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
+  getConfig().STABLE_POOL_USN_ID
+}`;
+
+export const STABLE_POOL_KEYS_CACHE = {
+  [getConfig().STABLE_POOL_ID]: STABLE_POOL_KEY,
+  [getConfig().STABLE_POOL_USN_ID]: STABLE_POOL_USN_KEY,
+};
+
+export const STABLE_POOL_INFO_CACHE = {
+  [getConfig().STABLE_POOL_ID]: REF_FI_STABLE_POOL_INFO_KEY,
+  [getConfig().STABLE_POOL_USN_ID]: REF_FI_STABLE_POOL_USN_INFO_KEY,
+};
+
 export interface Pool {
   id: number;
   tokenIds: string[];
@@ -224,15 +242,15 @@ export const getCachedPoolsByTokenId = async ({
     .where('token1Id')
     .equals(token1Id)
     .and((item) => item.token2Id === token2Id)
-    .toArray();
+    .primaryKeys();
   let reverseItems = await db
     .allPoolsTokens()
     .where('token1Id')
     .equals(token2Id)
     .and((item) => item.token2Id === token1Id)
-    .toArray();
+    .primaryKeys();
 
-  return [...normalItems, ...reverseItems];
+  return [...normalItems, ...reverseItems].map((item) => item.toString());
 };
 
 export const getTotalPools = async () => {
@@ -265,7 +283,7 @@ interface GetPoolOptions {
 }
 
 export const isNotStablePool = (pool: Pool) => {
-  return pool.tokenIds.length < 3;
+  return !(pool.id === STABLE_POOL_ID || pool.id === STABLE_POOL_USN_ID);
 };
 
 export const getPoolsByTokens = async ({
@@ -291,12 +309,14 @@ export const getPoolsByTokens = async ({
       await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
     ).flat();
 
-    filtered_pools = pools.filter(isNotStablePool).filter(filterBlackListPools);
+    filtered_pools = pools.filter(isNotStablePool);
 
     await db.cachePoolsByTokens(filtered_pools);
     filtered_pools = filtered_pools.filter(
       (p) => p.supplies[tokenInId] && p.supplies[tokenOutId]
     );
+    await getStablePoolFromCache();
+    await getStablePoolFromCache(STABLE_POOL_USN_ID.toString());
   }
   setLoadingData && setLoadingData(false);
   // @ts-ignore
@@ -429,7 +449,7 @@ export const predictLiquidityShares = async (
 
 interface AddLiquidityToStablePoolOptions {
   id: number;
-  amounts: [string, string, string];
+  amounts: string[];
   min_shares: string;
   tokens: TokenMetadata[];
 }
@@ -457,7 +477,10 @@ export const addLiquidityToStablePool = async ({
     },
   ];
 
-  const allTokenIds = getConfig().STABLE_TOKEN_IDS;
+  const allTokenIds =
+    id === Number(STABLE_POOL_ID)
+      ? getConfig().STABLE_TOKEN_IDS
+      : getConfig().STABLE_TOKEN_USN_IDS;
   const balances = await Promise.all(
     allTokenIds.map((tokenId) => getTokenBalance(tokenId))
   );
@@ -592,7 +615,7 @@ export const predictRemoveLiquidity = async (
 interface RemoveLiquidityFromStablePoolOptions {
   id: number;
   shares: string;
-  min_amounts: [string, string, string];
+  min_amounts: string[];
   tokens: TokenMetadata[];
   unregister?: boolean;
 }
@@ -690,7 +713,7 @@ export const predictRemoveLiquidityByTokens = async (
 
 interface RemoveLiquidityByTokensFromStablePoolOptions {
   id: number;
-  amounts: [string, string, string];
+  amounts: string[];
   max_burn_shares: string;
   tokens: TokenMetadata[];
   unregister?: boolean;
@@ -824,41 +847,54 @@ export const getStablePool = async (pool_id: number): Promise<StablePool> => {
   };
 };
 
-export const getStablePoolFromCache = async () => {
-  const stablePoolCache = JSON.parse(localStorage.getItem(STABLE_POOL_KEY));
+export const getStablePoolFromCache = async (
+  id?: string,
+  loadingTrigger?: boolean
+) => {
+  const stable_pool_id = id || STABLE_POOL_ID;
 
-  const stablePoolInfoCache = JSON.parse(
-    localStorage.getItem(REF_FI_STABLE_Pool_INFO_KEY)
-  );
+  const pool_key = STABLE_POOL_KEYS_CACHE[stable_pool_id];
+
+  const info = STABLE_POOL_INFO_CACHE[stable_pool_id];
+
+  const stablePoolCache = JSON.parse(localStorage.getItem(pool_key));
+
+  const stablePoolInfoCache = JSON.parse(localStorage.getItem(info));
 
   const isStablePoolCached =
     stablePoolCache?.update_time &&
-    stablePoolCache.update_time >
-      moment().unix() - Number(POOL_TOKEN_REFRESH_INTERVAL);
+    Number(stablePoolCache.update_time) >
+      Number(moment().unix() - Number(POOL_TOKEN_REFRESH_INTERVAL));
 
   const isStablePoolInfoCached =
     stablePoolInfoCache?.update_time &&
-    stablePoolInfoCache.update_time >
-      moment().unix() - Number(POOL_TOKEN_REFRESH_INTERVAL);
+    Number(stablePoolInfoCache.update_time) >
+      Number(moment().unix() - Number(POOL_TOKEN_REFRESH_INTERVAL));
 
-  const stablePool = isStablePoolCached
-    ? stablePoolCache
-    : await getPool(Number(STABLE_POOL_ID));
+  const loadingTriggerSig =
+    typeof loadingTrigger === 'undefined' ||
+    (typeof loadingTrigger !== 'undefined' && loadingTrigger);
 
-  const stablePoolInfo = isStablePoolInfoCached
-    ? stablePoolInfoCache
-    : await getStablePool(Number(STABLE_POOL_ID));
+  const stablePool =
+    isStablePoolCached || !loadingTriggerSig
+      ? stablePoolCache
+      : await getPool(Number(stable_pool_id));
 
-  if (!isStablePoolCached) {
+  const stablePoolInfo =
+    isStablePoolInfoCached || !loadingTriggerSig
+      ? stablePoolInfoCache
+      : await getStablePool(Number(stable_pool_id));
+
+  if (!isStablePoolCached && loadingTriggerSig) {
     localStorage.setItem(
-      STABLE_POOL_KEY,
+      pool_key,
       JSON.stringify({ ...stablePool, update_time: moment().unix() })
     );
   }
 
-  if (!isStablePoolInfoCached) {
+  if (!isStablePoolInfoCached && loadingTriggerSig) {
     localStorage.setItem(
-      REF_FI_STABLE_Pool_INFO_KEY,
+      info,
       JSON.stringify({ ...stablePoolInfo, update_time: moment().unix() })
     );
   }

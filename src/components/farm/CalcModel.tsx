@@ -476,7 +476,7 @@ export function LinkPool(props: { pooId: number }) {
         to={
           pooId == STABLE_POOL_ID
             ? {
-                pathname: `/stableswap`,
+                pathname: `/sauce`,
                 state: { backToFarms: true },
               }
             : {

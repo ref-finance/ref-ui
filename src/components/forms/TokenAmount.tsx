@@ -9,10 +9,11 @@ import { TokenMetadata } from '../../services/ft-contract';
 import { TokenBalancesView } from '../../services/token';
 import Icon from '../tokens/Icon';
 import InputAmount from './InputAmount';
-import SelectToken from './SelectToken';
+import SelectToken, { StableSelectToken } from './SelectToken';
 import { toPrecision, multiply, ONLY_ZEROS } from '../../utils/numbers';
 import { FormattedMessage } from 'react-intl';
-import { SmallWallet } from '../../components/icon/SmallWallet';
+import { SmallWallet } from '~components/icon/SmallWallet';
+import { SWAP_MODE } from '../../pages/SwapPage';
 import { RefIcon } from '../../components/icon/Common';
 import { currentTokensPrice } from '../../services/api';
 
@@ -34,6 +35,7 @@ interface TokenAmountProps {
   forSwap?: boolean;
   isError?: boolean;
   tokenPriceList?: Record<string, any>;
+  swapMode?: SWAP_MODE;
 }
 
 function HalfAndMaxAmount({
@@ -87,6 +89,7 @@ export default function TokenAmount({
   forSwap,
   isError,
   tokenPriceList,
+  swapMode,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) =>
     toRoundedReadableNumber({
@@ -106,15 +109,6 @@ export default function TokenAmount({
         } text-xs font-semibold pb-0.5 w-3/5 ${forSwap ? 'xs:w-full' : ''} `}
       >
         <span className="text-primaryText">
-          {useNearBalance ? (
-            <span className="mr-2 float-left">
-              <SmallWallet />
-            </span>
-          ) : (
-            <span className="mr-2 float-left text-primaryText">
-              <RefIcon></RefIcon>
-            </span>
-          )}
           <FormattedMessage id="balance" defaultMessage="Balance" />
           :&nbsp;
           <span title={total}>{toPrecision(total, 3, true)}</span>
@@ -143,26 +137,43 @@ export default function TokenAmount({
               : null
           }
         />
-        {showSelectToken && (
-          <SelectToken
-            tokenPriceList={tokenPriceList}
-            tokens={tokens}
-            render={render}
-            selected={
-              selectedToken && (
-                <div
-                  className="flex items-center justify-end font-semibold "
-                  onMouseEnter={() => setHoverSelectToken(true)}
-                  onMouseLeave={() => setHoverSelectToken(false)}
-                >
-                  <Icon token={selectedToken} hover={hoverSelectToken} />
-                </div>
-              )
-            }
-            onSelect={onSelectToken}
-            balances={balances}
-          />
-        )}
+        {showSelectToken &&
+          (!swapMode || swapMode === SWAP_MODE.NORMAL ? (
+            <SelectToken
+              tokenPriceList={tokenPriceList}
+              tokens={tokens}
+              render={render}
+              selected={
+                selectedToken && (
+                  <div
+                    className="flex items-center justify-end font-semibold "
+                    onMouseEnter={() => setHoverSelectToken(true)}
+                    onMouseLeave={() => setHoverSelectToken(false)}
+                  >
+                    <Icon token={selectedToken} hover={hoverSelectToken} />
+                  </div>
+                )
+              }
+              onSelect={onSelectToken}
+              balances={balances}
+            />
+          ) : (
+            <StableSelectToken
+              selected={
+                selectedToken && (
+                  <div
+                    className="flex items-center justify-end font-semibold "
+                    onMouseEnter={() => setHoverSelectToken(true)}
+                    onMouseLeave={() => setHoverSelectToken(false)}
+                  >
+                    <Icon token={selectedToken} hover={hoverSelectToken} />
+                  </div>
+                )
+              }
+              tokens={tokens}
+              onSelect={onSelectToken}
+            />
+          ))}
         {!showSelectToken && selectedToken && (
           <div className="flex items-center justify-end font-semibold w-2/5">
             <Icon token={selectedToken} showArrow={false} />

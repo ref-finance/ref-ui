@@ -48,9 +48,6 @@ export default function Table({
                 className="cursor-pointer flex justify-end items-center whitespace-nowrap"
                 onClick={() => onSortChange('near')}
               >
-                <span className="self-start">
-                  <SmallWallet forSelectToken />
-                </span>
                 <span className="ml-1">
                   <FormattedMessage id="balance" />
                 </span>

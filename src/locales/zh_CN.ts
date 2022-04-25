@@ -367,12 +367,12 @@ const zh_CN = {
   total_stable_coins: '稳定币总量',
   daily_volume: '24小时交易量',
   liquidity_utilisation: '交易活跃度',
-  token_reserves: '稳定币储备详情',
+  token_reserves: '统计',
   insufficient_shares: '超过了可用的份额',
   shares_removed: '流动性',
   shares_avaliable: '可用的份额',
   minimum_shares: '最少份额',
-  shares_tip: '可用的份额 / 所有的份额',
+  shares_tip: '可用的份额 / 总的份额',
   stablecoin_only: '稳定币',
   more_than: '请输入大于等于0.01的数字',
   less_than: '请输入小于20的数字',
@@ -477,7 +477,9 @@ const zh_CN = {
   wallet_vi: ' ',
   value: '价值',
   usd_value: '美元价值',
+  sauce_note: 'SAUCE专为挂钩资产的流动性池设计, 提供最优价格.',
   support_ledger: '支持 Ledger',
+  initialize_account_tip: '请初始化你的账号',
   support_ledger_tip:
     '根据Ledger的设计, 因其内存限制, Ledger不能处理大型交易(即自动路由: 一次跨多个池进行交易)。激活后,"支持 Ledger"选项会将交易限制在最简单的形式(不利于更好的价格),因此可以签署合理规模的交易。',
   start: '开始',
@@ -490,5 +492,13 @@ const zh_CN = {
   click_here: '点击这里',
   to_recover_them: '来取回他们',
   ref_account_tip_3: '要从您的REF帐户提取代币到您的NEAR钱包,请选择并提取',
+  admin_sentence_1:
+    'Ref Finance 由  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
+    '>Ref Finance Sputnik DAO</label> 管理，并将过渡到完全去中心化的 DAO。',
+  admin_sentence_2:
+    '有关直接管理或目前管理 Ref Finance 事务的合约和地址的更多信息，请查看我们的<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/contracts')" +
+    '>文档</label>。',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

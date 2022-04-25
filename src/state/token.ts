@@ -6,7 +6,11 @@ import {
   useMemo,
   useContext,
 } from 'react';
-import { STABLE_TOKEN_IDS, wallet } from '../services/near';
+import {
+  STABLE_TOKEN_IDS,
+  wallet,
+  STABLE_TOKEN_USN_IDS,
+} from '../services/near';
 import {
   ftGetBalance,
   ftGetTokenMetadata,
@@ -107,15 +111,15 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
 
 export const useWhitelistStableTokens = () => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
+
+  const stableTokenIds = new Array(
+    ...new Set(STABLE_TOKEN_IDS.concat(STABLE_TOKEN_USN_IDS))
+  );
+
   useEffect(() => {
-    getWhitelistedTokens()
-      .then((tokenIds) => {
-        const allTokenIds = STABLE_TOKEN_IDS;
-        return Promise.all(
-          allTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
-        );
-      })
-      .then(setTokens);
+    Promise.all(
+      stableTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
+    ).then(setTokens);
   }, []);
 
   return tokens;

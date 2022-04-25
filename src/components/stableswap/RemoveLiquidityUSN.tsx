@@ -4,21 +4,21 @@ import ReactTooltip from 'react-tooltip';
 import { wallet } from '~services/near';
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 import { FormattedMessage, useIntl } from 'react-intl';
-import Alert from '../../components/alert/Alert';
+import Alert from '~components/alert/Alert';
 import {
   ButtonTextWrapper,
   ConnectToNearBtn,
   SolidButton,
-} from '../../components/button/Button';
-import { Card } from '../../components/card/Card';
-import InputAmount from '../../components/forms/InputAmount';
+} from '~components/button/Button';
+import { Card } from '~components/card/Card';
+import InputAmount from '~components/forms/InputAmount';
 import QuestionMark from '~components/farm/QuestionMark';
 
 import {
   PoolSlippageSelector,
   StableSlipSelecter,
-} from '../../components/forms/SlippageSelector';
-import { TokenMetadata } from '../../services/ft-contract';
+} from '~components/forms/SlippageSelector';
+import { TokenMetadata } from '~services/ft-contract';
 import {
   Pool,
   predictRemoveLiquidity,
@@ -26,14 +26,14 @@ import {
   removeLiquidityByTokensFromStablePool,
   removeLiquidityFromPool,
   StablePool,
-} from '../../services/pool';
+} from '~services/pool';
 import {
   GetAmountToBalances,
   getRemoveLiquidityByShare,
-} from '../../services/stable-swap';
-import { TokenBalancesView } from '../../services/token';
-import { usePredictRemoveShares, useRemoveLiquidity } from '../../state/pool';
-import { useCanFarm, useFarmStake } from '../../state/farm';
+} from '~services/stable-swap';
+import { TokenBalancesView } from '~services/token';
+import { usePredictRemoveShares, useRemoveLiquidity } from '~state/pool';
+import { useCanFarm, useFarmStake } from '~state/farm';
 import {
   percent,
   percentLess,
@@ -46,7 +46,7 @@ import {
   toRoundedReadableNumber,
   percentIncrese,
   scientificNotationToString,
-} from '../../utils/numbers';
+} from '~utils/numbers';
 import { toRealSymbol } from '~utils/token';
 import { STABLE_LP_TOKEN_DECIMALS } from './AddLiquidity';
 import { InfoLine } from './LiquidityComponents';
@@ -56,61 +56,50 @@ import StableTokenList, {
 } from './StableTokenList';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
 import { Link } from 'react-router-dom';
-import {
-  LP_STABLE_TOKEN_DECIMALS,
-  LP_TOKEN_DECIMALS,
-} from '../../services/m-token';
-import { QuestionTip } from '../../components/layout/TipWrapper';
+import { LP_STABLE_TOKEN_DECIMALS, LP_TOKEN_DECIMALS } from '~services/m-token';
+import { QuestionTip } from '~components/layout/TipWrapper';
 import { WalletContext, getCurrentWallet } from '../../utils/sender-wallet';
 import { percentOfBigNumber } from '../../utils/numbers';
 import SquareRadio from '../radio/SquareRadio';
 import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
+import { StableTokensSymbolUSN } from './StableTokenListUSN';
 import { useTokenBalances } from '../../state/token';
 import { getURLInfo, checkAccountTip } from '../layout/transactionTipPopUp';
 
-const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
+const SWAP_SLIPPAGE_KEY_USN =
+  'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE_USN';
 
 export function shareToUserTotal({
   shares,
   userTotalShare,
   pool,
   stakeList,
-  canFarm,
 }: {
   shares: string;
   userTotalShare: BigNumber;
   stakeList?: Record<string, string>;
   pool?: Pool;
-  canFarm?: Number;
 }) {
   return (
     <div className="text-xs">
       <span className="text-white">
-        {getCurrentWallet().wallet.isSignedIn()
-          ? toRoundedReadableNumber({
-              decimals: STABLE_LP_TOKEN_DECIMALS,
-              number: shares,
-              precision: 3,
-            })
-          : '- '}
+        {toRoundedReadableNumber({
+          decimals: STABLE_LP_TOKEN_DECIMALS,
+          number: shares,
+          precision: 3,
+        })}
       </span>
 
-      <span className={`text-primaryText ${canFarm == 0 ? 'hidden' : ''}`}>
-        {getCurrentWallet().wallet.isSignedIn()
-          ? ` / ${toRoundedReadableNumber({
-              decimals: STABLE_LP_TOKEN_DECIMALS,
-              number: scientificNotationToString(
-                userTotalShare.toExponential()
-              ),
-              precision: 3,
-            })}`
-          : '/ -'}
-      </span>
+      <span className="text-primaryText">{` / ${toRoundedReadableNumber({
+        decimals: STABLE_LP_TOKEN_DECIMALS,
+        number: scientificNotationToString(userTotalShare.toExponential()),
+        precision: 3,
+      })}`}</span>
     </div>
   );
 }
 
-export function RemoveLiquidityComponent(props: {
+export function RemoveLiquidityComponentUSN(props: {
   shares: string;
   balances: TokenBalancesView;
   tokens: TokenMetadata[];
@@ -124,11 +113,10 @@ export function RemoveLiquidityComponent(props: {
   const { shares, tokens, pool, stakeList, stablePool, changeAction } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
-  const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');
   const [isPercentage, setIsPercentage] = useState<boolean>(true);
   const [amountByShare, setAmountByShare] = useState<string>('');
   const [slippageTolerance, setSlippageTolerance] = useState<number>(
-    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY)) || 0.1
+    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY_USN)) || 0.1
   );
   const [canSubmitByShare, setCanSubmitByShare] = useState<boolean>(false);
 
@@ -141,21 +129,12 @@ export function RemoveLiquidityComponent(props: {
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
 
-  const farmStake = useFarmStake({
-    poolId: pool.id,
-    stakeList,
-  });
-
   const byShareRangeRef = useRef(null);
 
-  const setAmountsFlexible = [
-    setFirstTokenAmount,
-    setSecondTokenAmount,
-    setThirdTokenAmount,
-  ];
+  const setAmountsFlexible = [setFirstTokenAmount, setSecondTokenAmount];
 
   const { predictedRemoveShares, canSubmitByToken } = usePredictRemoveShares({
-    amounts: [firstTokenAmount, secondTokenAmount, thirdTokenAmount],
+    amounts: [firstTokenAmount, secondTokenAmount],
     setError,
     shares,
     stablePool,
@@ -182,17 +161,13 @@ export function RemoveLiquidityComponent(props: {
       return removeLiquidityFromStablePool({
         tokens,
         id: pool.id,
-        min_amounts: min_amounts as [string, string, string],
+        min_amounts: min_amounts,
         shares: removeShares,
       });
     } else {
-      const amounts = [
-        firstTokenAmount,
-        secondTokenAmount,
-        thirdTokenAmount,
-      ].map((amount, i) => {
+      const amounts = [firstTokenAmount, secondTokenAmount].map((amount, i) => {
         return toNonDivisibleNumber(tokens[i].decimals, amount);
-      }) as [string, string, string];
+      });
 
       const predict_burn = toPrecision(
         percentIncrese(slippageTolerance, predictedRemoveShares),
@@ -389,11 +364,7 @@ export function RemoveLiquidityComponent(props: {
       {!isPercentage && (
         <section className="px-8">
           <FlexibleStableTokenList
-            amountsFlexible={[
-              firstTokenAmount,
-              secondTokenAmount,
-              thirdTokenAmount,
-            ]}
+            amountsFlexible={[firstTokenAmount, secondTokenAmount]}
             setAmountsFlexible={setAmountsFlexible}
             tokens={tokens}
           />
@@ -406,7 +377,7 @@ export function RemoveLiquidityComponent(props: {
             slippageTolerance={slippageTolerance}
             onChange={(slippage) => {
               setSlippageTolerance(slippage);
-              localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
+              localStorage.setItem(SWAP_SLIPPAGE_KEY_USN, slippage?.toString());
             }}
             setInvalid={setSlippageInvalid}
             invalid={slippageInvalid}
@@ -421,7 +392,7 @@ export function RemoveLiquidityComponent(props: {
           )}
 
           {isPercentage && (
-            <StableTokensSymbol
+            <StableTokensSymbolUSN
               tokens={tokens}
               receiveAmounts={receiveAmounts}
               slippageTolerance={slippageTolerance}

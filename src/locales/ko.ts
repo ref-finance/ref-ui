@@ -118,6 +118,14 @@ const ko_in_risks_page = {
     '>가디언</label>,이라는게 있으며, 이 특정 NEAR 주소들(=가디언)들은 계약을 멈추는게 가능합니다. 이렇게 멈춘 계약은 DAO에 의해서만, 시간에 구애받지 않고 재개 될 수 있습니다. ',
   risks_of_using_ref_finance:
     '<label class="text-greenColor">리스크</label> , Ref. finance 사용시의',
+  admin_sentence_1:
+    'Ref Finance는 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
+    '>Ref Finance Sputnik DAO</label> 가 운영합니다. 우리 DAO는 완전 탈중앙화 DAO로 전환할 예정입니다.',
+  admin_sentence_2:
+    'Ref Finance의 전/현 담당자들의 계약 및 연락 정보를 알고 싶으시다면, <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/contracts')" +
+    '>문서</label> 쪽에서 확인해 주세요.',
 };
 const ko = {
   deposit: '입금',
@@ -260,7 +268,7 @@ const ko = {
   slippageCopyForMobile:
     '슬리피지(미끄러짐)란 당신이 처음에 기대한 수익과, 다른 사람이 우선 실행되는 바람에 달라져버린 실제 수익의 차이를 말합니다. ',
   slippageCopy:
-    '슬리피지(미끄러짐)란 당신이 처음 기대한 수익과 <br> 다른 사람이 우선 실행되는 바람에 달라져버린<br> 실제 수익의 차이를 말합니다 ',
+    '슬리피지(미끄러짐)란 당신이 처음 기대한 수익과 다른 사람이 우선 실행되는 바람에 달라져버린 실제 수익의 차이를 말합니다 ',
   depositCopy:
     '거래소에 선택한 토큰을 입금해 <br> 유동성 풀에 투입 및 교환(스왑)에 씁니다. ',
   nearDepositCopy:
@@ -396,7 +404,7 @@ const ko = {
   shares_removed: '지분',
   shares_avaliable: '가능한 지분',
   minimum_shares: '최소 shares',
-  shares_tip: '가능한 지분 / 당신이 소유한 지분 전체',
+  shares_tip: '가용주식수 / 총주식수',
   stablecoin_only: '스테이블코인 전용',
   more_than: '0.01 이상의 숫자를 입력해 주세요',
   less_than: '20 이상의 숫자를 입력해 주세요',
@@ -504,6 +512,8 @@ const ko = {
   wallet_vi: ' ',
   value: '가격',
   usd_value: 'USD 가격',
+  sauce_note:
+    'SAUCE는 페그된 자산의 유동성 풀을 대상으로 최적의 값을 찾아내 줍니다.',
   support_ledger: '보조 장부(레져)',
   support_ledger_tip:
     "레져는 메모리가 제한되는 구조 탓에 거대한 트랜잭션 양을 감당할 수 없습니다. (예: 오토 라우터 - 여러 풀에서 한번에 거래) 활성화시, '보조 장부' 옵션은 가장 간단한 형상으로 트랜잭션을 제한해서 합리적인 크기의 트랜잭션이 서명 될 수 있게 합니다. (오토 라우터에서 찾은 최적의 값보다 약간 손해를 볼 수 있습니다) ",

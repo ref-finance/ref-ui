@@ -36,14 +36,19 @@ import { AirdropPage } from '~pages/AirdropPage';
 import PopUpSwiper from '~components/layout/PopUp';
 import SwapGuide from '~components/layout/SwapGuide';
 import { isMobile } from '~utils/device';
-import { wallet as webWallet, REF_FARM_CONTRACT_ID } from './services/near';
+import {
+  wallet as webWallet,
+  REF_FARM_CONTRACT_ID,
+  STABLE_POOL_ID,
+  STABLE_POOL_USN_ID,
+} from './services/near';
 import {
   getSenderWallet,
   WALLET_TYPE,
   getCurrentWallet,
 } from './utils/sender-wallet';
 import { getURLInfo, failToast } from './components/layout/transactionTipPopUp';
-
+import { StableSwapPageEntry } from '~pages/stable/StableSwapEntry';
 import { senderSignedInToast } from '~components/layout/senderSignInPopUp';
 
 import {
@@ -61,6 +66,7 @@ import {
   signedInStateReducer,
   removeSenderLoginRes,
 } from './utils/sender-wallet';
+import StableSwapPageUSN from '~pages/stable/StableSwapPageUSN';
 
 Modal.defaultStyles = {
   overlay: {
@@ -139,12 +145,6 @@ function App() {
         });
       }
 
-      console.log(
-        window.near,
-        getSenderLoginRes(),
-        getCurrentWallet().wallet_type
-      );
-
       if (
         window.near &&
         getSenderLoginRes() &&
@@ -195,7 +195,17 @@ function App() {
             <Route path="/pools" component={AutoHeight(LiquidityPage)} />
             <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
             <Route path="/farms" component={AutoHeight(FarmsPage)} />
-            <Route path="/stableswap" component={AutoHeight(StableSwapPage)} />
+            <Route
+              path={`/sauce/${STABLE_POOL_ID}`}
+              component={AutoHeight(StableSwapPage)}
+            />
+            <Route
+              path={`/sauce/${STABLE_POOL_USN_ID}`}
+              component={AutoHeight(StableSwapPageUSN)}
+            />
+
+            <Route path="/sauce" component={AutoHeight(StableSwapPageEntry)} />
+
             <Route path="/xref" component={AutoHeight(XrefPage)} />
             <Route path="/risks" component={AutoHeight(RiskPage)} />
             <Route path="/" component={AutoHeight(SwapPage)} />

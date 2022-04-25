@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from 'react';
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 import ReactTooltip from 'react-tooltip';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -52,9 +58,9 @@ import QuestionMark from '~components/farm/QuestionMark';
 import { useInView } from 'react-intersection-observer';
 import { QuestionTip } from '~components/layout/TipWrapper';
 import { FilterIcon } from '../../components/icon/PoolFilter';
-import useMemo from 'react';
 import { TokenMetadata } from '../../services/ft-contract';
 import { scientificNotationToString } from '../../utils/numbers';
+import { useMobile } from '../../utils/device';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -384,6 +390,16 @@ function MobileLiquidityPage({
     );
   };
 
+  const mobileDevice = useMobile();
+
+  const [displayRows, setDisplayRows] = useState([]);
+
+  useEffect(() => {
+    if (mobileDevice) {
+      setDisplayRows(pools);
+    }
+  }, [mobileDevice, pools]);
+
   return (
     <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
       <div className="mx-4 mb-6 mt-3">
@@ -500,7 +516,7 @@ function MobileLiquidityPage({
           </header>
           <div className="border-b border-gray-700 border-opacity-70" />
           <div className="max-h-96 overflow-y-auto pool-list-container-mobile">
-            {pools?.filter(poolFilterFunc).map((pool, i) => (
+            {displayRows?.filter(poolFilterFunc).map((pool, i) => (
               <MobilePoolRow
                 selectCoinClass={selectCoinClass}
                 tokens={poolTokenMetas[pool.id]}
@@ -530,8 +546,9 @@ function PoolRow({
 }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const [farmCount, setFarmCount] = useState<Number>(1);
-  const curRowTokens = useTokens(pool.tokenIds, tokens);
   const { ref, inView, entry } = useInView();
+
+  const curRowTokens = useTokens(pool.tokenIds, tokens);
   const morePoolIds = useMorePoolIds({ topPool: pool, inView });
   const history = useHistory();
   const [showLinkArrow, setShowLinkArrow] = useState(false);
@@ -734,6 +751,16 @@ function LiquidityPage_({
     );
   };
 
+  const mobileDevice = useMobile();
+
+  const [displayRows, setDisplayRows] = useState([]);
+
+  useEffect(() => {
+    if (!mobileDevice) {
+      setDisplayRows(pools);
+    }
+  }, [mobileDevice, pools]);
+
   return (
     <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
       <div className="mb-4 mx-8">
@@ -881,7 +908,7 @@ function LiquidityPage_({
           </header>
 
           <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
-            {pools?.filter(poolFilterFunc)?.map((pool, i) => (
+            {displayRows?.filter(poolFilterFunc).map((pool, i) => (
               <PoolRow
                 tokens={poolTokenMetas[pool.id]}
                 key={i}

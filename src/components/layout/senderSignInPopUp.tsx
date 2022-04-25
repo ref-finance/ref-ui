@@ -9,16 +9,21 @@ export const senderSignedInToast = (errorType?: string) => {
     <div
       className="text-error w-full h-full pl-1.5 py-1"
       style={{
-        lineHeight: '20px',
+        lineHeight: '40px',
       }}
     >
-      <FormattedMessage id="sign_in_error" defaultMessage="Sign in error" />
+      {/* <FormattedMessage id="sign_in_error" defaultMessage="Sign in error" />
       {'. '}
       <FormattedMessage id="Type" defaultMessage="Type" />: {` `}
       {errorType} <br />
       <FormattedMessage
         id="please_check_your_account_state"
         defaultMessage="Please check your account state"
+      /> */}
+
+      <FormattedMessage
+        id="initialize_account_tip"
+        defaultMessage="Please initialize your account."
       />
     </div>,
     {

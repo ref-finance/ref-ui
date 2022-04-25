@@ -111,7 +111,7 @@ const ru_in_risks_page = {
   Locked_paragraph_5:
     'Для того, чтобы повторно развернуть код с помощью транзакции, транзакция должна быть подписана ключом полного доступа. Если в контракте нет такого ключа, то нет возможности повторно развернуть код, если только в самом коде контракта нет специальной поддержки, и поэтому мы отмечаем такие контракты как заблокированные.',
   Locked_paragraph_6:
-    'If there is at least one full-access key registered on the contract account, the contract is not locked.',
+    'Если в учетной записи контракта зарегистрирован хотя бы один ключ полного доступа, контракт считается не заблокированным.',
   audited_first_sentence:
     'Смарт-контракты Ref Finance прошли аудит от <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://jitadigital.com/')" +
@@ -124,6 +124,14 @@ const ru_in_risks_page = {
     '>Хранители</label>— это  определенные адреса NEAR, которые могут приостановить контракт. Только DAO может в любой момент возобновить контракт.',
   risks_of_using_ref_finance:
     '<label class="text-greenColor">Риски</label> использования Ref. finance',
+  admin_sentence_1:
+    'Ref Finance управляется <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
+    '>Ref Finance Sputnik DAO</label> и будет переходить на полностью децентрализованную DAO.',
+  admin_sentence_2:
+    'Для получения дополнительной информации о контрактах и адресах, которые непосредственно управляли или в настоящее время управляют делами Ref Finance, ознакомьтесь с нашей <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/contracts')" +
+    '>Документацией</label>.',
 };
 const ru = {
   deposit: 'Депозит',
@@ -269,7 +277,7 @@ const ru = {
   slippageCopyForMobile:
     'Проскальзывание означает разницу между тем, что вы ожидаете получить, и тем, что вы фактически получаете из-за других действий',
   slippageCopy:
-    'Проскальзывание означает разницу между тем, что вы ожидаете получить, <br> и тем,что вы фактически получаете из-за других действий',
+    'Проскальзывание означает разницу между тем, что вы ожидаете получить, и тем,что вы фактически получаете из-за других действий',
   depositCopy:
     'В результате выбранные вами токены поступают на <br> биржу для обмена или добавления в пул ликвидности',
   nearDepositCopy:
@@ -386,7 +394,7 @@ const ru = {
   total_stable_coins: 'Всего стейблкоинов',
   daily_volume: 'Дневной объем',
   liquidity_utilisation: 'Использование ликвидности',
-  token_reserves: 'Резервы токенов',
+  token_reserves: 'Cтатистика',
   roi_calculator: 'Калькулятор ROI',
   lp_staked: 'LP застейкано',
   usd: 'USD',
@@ -409,7 +417,7 @@ const ru = {
   shares_removed: 'Доли',
   shares_avaliable: 'Доступные доли',
   minimum_shares: 'Минимальные доли',
-  shares_tip: 'Имеющиеся доли / полностью принадлежащие вам доли',
+  shares_tip: 'Доступные акции / Всего акций',
   stablecoin_only: 'Стейблкоин только',
   more_than: 'Пожалуйста, введите число, которое больше или равно 0,01',
   less_than: 'Пожалуйста, введите число, которое меньше 20',
@@ -511,6 +519,8 @@ const ru = {
   ref_account_balance_tip:
     'Похоже, произошла ошибка при добавлении/удалении ликвидности в пул',
   ref_account_tip_2: 'У вас есть токены в вашей учетной записи REF',
+  sauce_note:
+    'SAUCE разработан для пулов ликвидности с фиксированными активами, обеспечивая оптимальные цены.',
   ref_account_tip_top:
     'ваши токены могут сейчас находиться на вашем внутреннем счете REF',
   click_here: 'Кликните по этой ссылке',

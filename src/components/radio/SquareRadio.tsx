@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
-import { REF_STABLE_SWAP_TAB_KEY } from '~pages/stable/StableSwapPage';
+import { REF_STABLE_SWAP_TAB_KEY } from '../../pages/stable/StableSwapPage';
 
 export default function SquareRadio({
   radios,
@@ -17,47 +17,40 @@ export default function SquareRadio({
   const intl = useIntl();
   return (
     <>
-      <div className="flex justify-between bg-cardBg rounded p-1 mb-2.5 lg:hidden">
+      <div className="flex justify-between items-center w-full px-8">
         {radios.map((radio) => {
           return (
-            <div
-              className={`flex items-center py-1.5 px-3 text-center text-xs rounded cursor-pointer ${
-                choose === radio
-                  ? ' bg-stableTab text-white '
-                  : ' text-primaryText'
+            <span
+              className={`py-2 text-center text-base cursor-pointer w-full ${
+                choose === radio ? ' text-white' : 'text-farmText'
               }`}
               key={radio}
               onClick={() => {
                 setChoose(radio);
-                localStorage.setItem(REF_STABLE_SWAP_TAB_KEY, radio);
                 onChange(radio);
               }}
             >
               {intl.formatMessage({ id: radio })}
-            </div>
+            </span>
           );
         })}
       </div>
-      <div className="flex justify-between  lg:mx-12 xs:hidden md:hidden">
-        {radios.map((radio) => {
-          return (
-            <div
-              className={`py-4 px-6 text-center text-sm rounded-tr-lg rounded-tl-lg cursor-pointer ${
-                choose === radio
-                  ? ' bg-cardBg text-white '
-                  : ' text-primaryText'
-              }`}
-              key={radio}
-              onClick={() => {
-                setChoose(radio);
-                localStorage.setItem(REF_STABLE_SWAP_TAB_KEY, radio);
-                onChange(radio);
-              }}
-            >
-              {intl.formatMessage({ id: radio })}
-            </div>
-          );
-        })}
+      <div className="border-b-2 border-black border-opacity-20 mb-10 mx-8 flex items-center">
+        <div
+          className={`w-full relative top-1 ${
+            currentChoose === 'add_liquidity'
+              ? 'border-b-4  rounded-2xl border-gradientFrom'
+              : ''
+          }`}
+        ></div>
+
+        <div
+          className={`w-full relative top-1 ${
+            currentChoose === 'remove_liquidity'
+              ? 'border-b-4  rounded-2xl border-gradientFrom'
+              : ''
+          }`}
+        ></div>
       </div>
     </>
   );

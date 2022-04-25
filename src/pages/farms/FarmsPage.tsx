@@ -1588,7 +1588,7 @@ function FarmView({
                   to={
                     PoolId == STABLE_POOL_ID
                       ? {
-                          pathname: '/stableswap',
+                          pathname: '/sauce',
                           state: { backToFarms: true },
                         }
                       : {
@@ -1613,7 +1613,7 @@ function FarmView({
             title={intl.formatMessage({ id: 'view_pool' })}
             to={
               PoolId == STABLE_POOL_ID
-                ? { pathname: '/stableswap', state: { backToFarms: true } }
+                ? { pathname: '/sauce', state: { backToFarms: true } }
                 : { pathname: `/pool/${PoolId}`, state: { backToFarms: true } }
             }
             target="_blank"
@@ -1698,6 +1698,26 @@ function FarmView({
                   effect="solid"
                 />
               </div>
+              {/* <div
+                className="ml-2 text-sm"
+                data-type="info"
+                data-place="right"
+                data-multiline={true}
+                data-class="reactTip"
+                data-html={true}
+                data-tip={tipOfApr()}
+                data-for="aprValueId"
+              >
+                <QuestionMark />
+                <ReactTooltip
+                  className="w-20"
+                  id="aprValueId"
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
+              </div> */}
             </div>
           </div>
           <div className="my-3.5 border border-t-0 border-farmSplitLine" />
