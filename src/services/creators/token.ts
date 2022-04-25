@@ -1,4 +1,6 @@
 import { ONE_YOCTO_NEAR } from '../near';
+import { getCurrentWallet } from '../../utils/sender-wallet';
+import { STORAGE_TO_REGISTER_WITH_MFT } from './storage';
 
 interface WithdrawActionOptions {
   tokenId: string;
@@ -31,3 +33,15 @@ export const registerTokensAction = (tokenIds: string[]) => ({
   amount: ONE_YOCTO_NEAR,
   gas: '30000000000000',
 });
+
+export const registerAccountOnToken = () => {
+  return {
+    methodName: 'storage_deposit',
+    args: {
+      registration_only: true,
+      account_id: getCurrentWallet().wallet.getAccountId(),
+    },
+    gas: '30000000000000',
+    amount: STORAGE_TO_REGISTER_WITH_MFT,
+  };
+};

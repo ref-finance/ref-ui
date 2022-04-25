@@ -58,7 +58,7 @@ import {
   storageDepositAction,
   STORAGE_TO_REGISTER_WITH_MFT,
 } from './creators/storage';
-import { registerTokenAction } from './creators/token';
+import { registerTokenAction, registerAccountOnToken } from './creators/token';
 import { BigNumber } from 'bignumber.js';
 import _, { filter } from 'lodash';
 import { getSwappedAmount } from './stable-swap';
@@ -925,6 +925,8 @@ export const crossInstantSwap = async ({
 
   const { wallet } = getCurrentWallet();
 
+  // to register actiosn
+
   const registerToken = async (tokenId: string) => {
     const tokenRegistered = await ftGetStorageBalance(tokenId).catch(() => {
       throw new Error(`${tokenId} doesn't exist.`);
@@ -949,27 +951,54 @@ export const crossInstantSwap = async ({
     }
   };
 
-  await registerToken(tokenOut.id);
+  // await registerToken(tokenOut.id);
 
   const routes = separateRoutes(swapsToDo, tokenOut.id);
 
-  const middleTokens = [];
+  const forceRegisterTokens: string[] = [];
 
   for (let i = 0; i < routes.length; i++) {
     const curRoute = routes[i];
-    if (
+
+    if (curRoute[curRoute.length - 1].pool.Dex === 'tri') {
+      forceRegisterTokens.push(tokenOut.id);
+    } else if (
       curRoute.length === 2 &&
-      curRoute.some((todo) => todo.pool.Dex === 'tri') &&
-      curRoute.some((todo) => todo.pool.Dex === 'ref' || !todo?.pool?.Dex)
+      curRoute[0].pool.Dex === 'tri' &&
+      curRoute[1].pool.Dex !== 'tri'
     ) {
-      middleTokens.push(curRoute[0].tokens[1].id);
+      forceRegisterTokens.push(curRoute[0].tokens[1].id);
     }
   }
 
-  const toRegisterMiddleTokens = new Array(...new Set(middleTokens));
+  // force register
+  new Array(...new Set(forceRegisterTokens)).map((id) =>
+    transactions.push({
+      receiverId: id,
+      functionCalls: [registerAccountOnToken()],
+    })
+  );
+
+  const validateRegisterTokens: string[] = [];
+
+  for (let i = 0; i < routes.length; i++) {
+    const curRoute = routes[i];
+
+    if (curRoute[curRoute.length - 1].pool.Dex === 'ref') {
+      validateRegisterTokens.push(tokenOut.id);
+    } else if (
+      curRoute.length === 2 &&
+      curRoute[0].pool.Dex !== 'tri' &&
+      curRoute[1].pool.Dex === 'tri'
+    ) {
+      validateRegisterTokens.push(curRoute[0].tokens[1].id);
+    }
+  }
 
   await Promise.all(
-    toRegisterMiddleTokens.map((token) => registerToken(token))
+    new Array(...new Set(validateRegisterTokens))
+      .filter((id) => !forceRegisterTokens.includes(id))
+      .map((token) => registerToken(token))
   );
 
   if (wallet.isSignedIn()) {
