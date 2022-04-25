@@ -710,7 +710,7 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
         onSwap={() => makeSwap(useNearBalance)}
         priceImpactValue={PriceImpactValue}
       />
-      {!requested || swapError ? null : (
+      {/* {!requested || swapError ? null : (
         <CrossSwapAllResult
           refTodos={swapsToDoRef}
           triTodos={swapsToDoTri}
@@ -720,7 +720,7 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
           slippageTolerance={slippageTolerance}
           tokenOut={tokenOut}
         />
-      )}
+      )} */}
     </>
   );
 }

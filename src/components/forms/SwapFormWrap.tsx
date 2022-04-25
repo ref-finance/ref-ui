@@ -277,7 +277,7 @@ export function CrossSwapFormWrap({
       {error && <Alert level="warn" message={error.message} />}
       {children}
 
-      <div className={requested ? 'pb-10' : ''}>
+      <div>
         <SubmitButton
           signedInConfig={!requested}
           disabled={
