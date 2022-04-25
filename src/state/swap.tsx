@@ -544,6 +544,7 @@ export const useCrossSwap = ({
 
   const getEstimateCrossSwap = () => {
     setCanSwap(false);
+    setSwapError(null);
 
     estimateSwap({
       tokenIn,
