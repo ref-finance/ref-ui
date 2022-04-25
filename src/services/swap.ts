@@ -961,7 +961,9 @@ export const crossInstantSwap = async ({
     const curRoute = routes[i];
 
     if (curRoute[curRoute.length - 1].pool.Dex === 'tri') {
-      forceRegisterTokens.push(tokenOut.id);
+      forceRegisterTokens.push(
+        curRoute[0].tokens[curRoute[0].tokens.length - 1].id
+      );
     } else if (
       curRoute.length === 2 &&
       curRoute[0].pool.Dex === 'tri' &&
@@ -985,7 +987,9 @@ export const crossInstantSwap = async ({
     const curRoute = routes[i];
 
     if (curRoute[curRoute.length - 1].pool.Dex === 'ref') {
-      validateRegisterTokens.push(tokenOut.id);
+      validateRegisterTokens.push(
+        curRoute[0].tokens[curRoute[0].tokens.length - 1].id
+      );
     } else if (
       curRoute.length === 2 &&
       curRoute[0].pool.Dex !== 'tri' &&
