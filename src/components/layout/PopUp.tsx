@@ -55,10 +55,10 @@ export default function PopUpSwiper() {
           <Swiper
             spaceBetween={30}
             centeredSlides={true}
-            autoplay={{
-              delay: 3500,
-              disableOnInteraction: false,
-            }}
+            // autoplay={{
+            //   delay: 3500,
+            //   disableOnInteraction: false,
+            // }}
             loop={true}
           >
             <SwiperSlide>
@@ -73,48 +73,6 @@ export default function PopUpSwiper() {
                   className="absolute top-4 right-4 cursor-pointer"
                 ></CircleCloseBtn>
                 <ImgBase64D></ImgBase64D>
-              </div>
-            </SwiperSlide>
-            <SwiperSlide>
-              <div
-                className="relative cursor-pointer"
-                onClick={() => {
-                  window.open('https://stake.paras.id/');
-                }}
-              >
-                <CircleCloseBtn
-                  onClick={closePop}
-                  className="absolute top-2 right-2 cursor-pointer"
-                ></CircleCloseBtn>
-                <ImgBase64A></ImgBase64A>
-              </div>
-            </SwiperSlide>
-            <SwiperSlide>
-              <div
-                className="relative cursor-pointer"
-                onClick={() => {
-                  history.push('/farms?sort=default&status=1');
-                }}
-              >
-                <CircleCloseBtn
-                  onClick={closePop}
-                  className="absolute top-2 right-2 cursor-pointer"
-                ></CircleCloseBtn>
-                <ImgBase64B></ImgBase64B>
-              </div>
-            </SwiperSlide>
-            <SwiperSlide>
-              <div
-                className="relative cursor-pointer"
-                onClick={() => {
-                  history.push('/farms?sort=default&status=1');
-                }}
-              >
-                <CircleCloseBtn
-                  onClick={closePop}
-                  className="absolute top-2 right-2 cursor-pointer"
-                ></CircleCloseBtn>
-                <ImgBase64C></ImgBase64C>
               </div>
             </SwiperSlide>
           </Swiper>
