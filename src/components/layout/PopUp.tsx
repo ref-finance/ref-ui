@@ -64,11 +64,11 @@ export default function PopUpSwiper() {
             <SwiperSlide>
               <div
                 className="relative cursor-pointer"
-                // onClick={() => {
-                //   window.open(
-                //     'https://medium.com/@dcntrlbank/decentral-bank-launches-usn-the-semi-algorthimic-near-native-stablecoin-f6af5cbbba15'
-                //   );
-                // }}
+                onClick={() => {
+                  window.open(
+                      'https://medium.com/nearprotocol/decentral-bank-launches-usn-a-near-native-stablecoin-cafe1ec0c5af'
+                  );
+                }}
               >
                 <CircleCloseBtn
                   onClick={closePop}
