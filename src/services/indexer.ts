@@ -49,7 +49,7 @@ const parseActionView = async (action: any) => {
   const data = await parseAction(action[3], action[4], action[2]);
   return {
     datetime: moment.unix(action[0] / 1000000000),
-    txUrl: config.explorerUrl + '/txns/' + action[1],
+    txUrl: config.explorerUrlV2 + '/txns/' + action[1],
     data: data,
     // status: action[5] === 'SUCCESS_VALUE',
     status: action[6] && action[6].indexOf('SUCCESS') > -1,
