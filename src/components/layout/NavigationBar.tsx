@@ -345,6 +345,9 @@ export function AuroraEntry({
 
   const isMobile = useMobile();
 
+  const [copyIconHover, setCopyIconHover] = useState<boolean>(false);
+  const [copyIconBgColor, setCopyIconBgColor] = useState<string>('black');
+
   const [hover, setHover] = useState(false);
 
   const displayAddr = `${auroraAddress?.substring(
@@ -398,7 +401,10 @@ export function AuroraEntry({
       {hover ? (
         <div
           className=" absolute pt-2 right-0 lg:top-14 xs:top-8 md:top-8"
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            window.open('/account?tab=aurora', '_blank');
+            e.stopPropagation();
+          }}
         >
           <div className="bg-cardBg w-64 rounded-lg border border-farmText flex flex-col overflow-hidden">
             <div className="flex items-center pl-5 pt-4">
@@ -420,8 +426,27 @@ export function AuroraEntry({
               </span>
 
               <CopyToClipboard text={auroraAddress}>
-                <div className="bg-black bg-opacity-20 rounded-lg flex items-center justify-center p-1.5 cursor-pointer ">
-                  <CopyIcon />
+                <div
+                  className={`bg-${copyIconBgColor} bg-opacity-20 rounded-lg flex items-center justify-center p-1.5 cursor-pointer`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  onMouseEnter={() => {
+                    if (isMobile) {
+                      setCopyIconBgColor('white');
+                    }
+                    setCopyIconHover(true);
+                  }}
+                  onMouseLeave={() => {
+                    if (isMobile) {
+                      setCopyIconBgColor('black');
+                    }
+                    setCopyIconHover(false);
+                  }}
+                  onMouseDown={() => !isMobile && setCopyIconBgColor('white')}
+                  onMouseUp={() => !isMobile && setCopyIconBgColor('black')}
+                >
+                  <CopyIcon fillColor={copyIconHover ? '#00C6A2' : '#7E8A93'} />
                 </div>
               </CopyToClipboard>
             </div>

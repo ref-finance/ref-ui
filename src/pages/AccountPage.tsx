@@ -99,6 +99,7 @@ function RefAccountTipMan({
         style={{
           width: '430px',
           minHeight: '58px',
+          zIndex: 60,
         }}
       >
         {tab == 'aurora' ? (
@@ -1176,6 +1177,8 @@ function Account(props: any) {
       </div>
     </div>
   );
+
+  console.log(showCrossBalance, visibleMap);
 
   return (
     <div className="justify-center relative w-1/2 m-auto mt-16 xs:hidden md:hidden pb-5 flex flex-col">
