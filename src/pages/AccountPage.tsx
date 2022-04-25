@@ -1168,7 +1168,7 @@ function Account(props: any) {
 
       <div
         className={
-          'rounded-2xl flex items-center text-sm text-white py-0.5  px-3 ml-px  cursor-pointer'
+          'rounded-2xl flex items-center text-sm text-white py-0.5  px-3 ml-px '
         }
         style={{
           background: auroraAccountHover
@@ -1177,10 +1177,6 @@ function Account(props: any) {
               : 'rgba(112, 212, 75, 0.3)'
             : 'rgba(255, 255, 255, 0.15)',
         }}
-        onMouseEnter={() => setAuroraAccountHover(true)}
-        onMouseLeave={() => setAuroraAccountHover(false)}
-        onMouseDown={() => setAuroraAccountCopyDown(true)}
-        onMouseUp={() => setAuroraAccountCopyDown(false)}
       >
         <div>
           <AuroraIconWhite
@@ -1199,7 +1195,13 @@ function Account(props: any) {
           {displayAddr}
         </div>
         <CopyToClipboard text={auroraAddress}>
-          <div className="cursor-pointer">
+          <div
+            className="cursor-pointer"
+            onMouseEnter={() => setAuroraAccountHover(true)}
+            onMouseLeave={() => setAuroraAccountHover(false)}
+            onMouseDown={() => setAuroraAccountCopyDown(true)}
+            onMouseUp={() => setAuroraAccountCopyDown(false)}
+          >
             <CopyIcon
               fillColor={auroraAccountCopyDown ? '#001320' : '#ffffff'}
             />
