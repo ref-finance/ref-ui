@@ -122,6 +122,12 @@ const ja_in_risks_page = {
     '>ガーディアンズ</label>，特定のNEARアドレスはコントラクトを停止することができます。DAOだけが、いつでもコントラクトを再開することができます。',
   risks_of_using_ref_finance:
     'Ref. financeの利用<label class="text-greenColor">リスク</label>',
+  admin_sentence_1:
+    'Ref Finance is managed by the  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
+    '>Ref Finance Sputnik DAO</label> and will be transitioning to a fully decentralized DAO.',
+  admin_sentence_2:
+    'For more information relating to the contracts and addresses that have directly managed or currently manage the affairs of Ref Finance, please check our Documentation (Documentation link: https://guide.ref.finance/developers/contracts).',
 };
 const ja = {
   deposit: 'デポジット',

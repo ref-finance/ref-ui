@@ -118,6 +118,12 @@ const ko_in_risks_page = {
     '>가디언</label>,이라는게 있으며, 이 특정 NEAR 주소들(=가디언)들은 계약을 멈추는게 가능합니다. 이렇게 멈춘 계약은 DAO에 의해서만, 시간에 구애받지 않고 재개 될 수 있습니다. ',
   risks_of_using_ref_finance:
     '<label class="text-greenColor">리스크</label> , Ref. finance 사용시의',
+  admin_sentence_1:
+    'Ref Finance is managed by the  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
+    '>Ref Finance Sputnik DAO</label> and will be transitioning to a fully decentralized DAO.',
+  admin_sentence_2:
+    'For more information relating to the contracts and addresses that have directly managed or currently manage the affairs of Ref Finance, please check our Documentation (Documentation link: https://guide.ref.finance/developers/contracts).',
 };
 const ko = {
   deposit: '입금',

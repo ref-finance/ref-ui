@@ -120,6 +120,12 @@ const en_US_in_risks_page = {
     '>Guardians</label>, specific NEAR addresses, which are able to pause the contract. Only the DAO can resume the contract, at any time.',
   risks_of_using_ref_finance:
     '<label class="text-greenColor">Risks</label> of Using Ref. finance',
+  admin_sentence_1:
+    'Ref Finance is managed by the  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
+    '>Ref Finance Sputnik DAO</label> and will be transitioning to a fully decentralized DAO.',
+  admin_sentence_2:
+    'For more information relating to the contracts and addresses that have directly managed or currently manage the affairs of Ref Finance, please check our Documentation (Documentation link: https://guide.ref.finance/developers/contracts).',
 };
 const en_US = {
   deposit: 'Deposit',
