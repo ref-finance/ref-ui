@@ -264,7 +264,7 @@ const vi = {
   slippageCopyForMobile:
     'Độ trượt giá có nghĩa là sự thay đổi giữa số lượng token bạn nhìn trên màn hình với tỉ giá bạn nhận được do có người thực hiện giao dịch trước',
   slippageCopy:
-    'Độ trượt giá có nghĩa là sự thay đổi  <br> giữa số lượng token bạn nhìn trên màn hình  <br> với tỉ giá bạn nhận được do có người thực hiện giao dịch trước',
+    'Độ trượt giá có nghĩa là sự thay đổi giữa số lượng token bạn nhìn trên màn hình với tỉ giá bạn nhận được do có người thực hiện giao dịch trước',
   depositCopy:
     'Giao dịch này giúp nạp tài sản của bạn <br> vào trong Ref Finance để thực hiện giao dịch hoặc thêm thanh khoản',
   nearDepositCopy:
@@ -534,6 +534,8 @@ const vi = {
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
     '>Ref Finance Sputnik DAO</label> and will be transitioning to a fully decentralized DAO.',
   admin_sentence_2:
-    'For more information relating to the contracts and addresses that have directly managed or currently manage the affairs of Ref Finance, please check our Documentation (Documentation link: https://guide.ref.finance/developers/contracts).',
+    'For more information relating to the contracts and addresses that have directly managed or currently manage the affairs of Ref Finance, please check our <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/contracts')" +
+    '>Documentation</label> (Documentation link: https://guide.ref.finance/developers/contracts).',
 };
 export default Object.assign(vi, vi_in_risks_page);

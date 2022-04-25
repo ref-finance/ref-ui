@@ -125,7 +125,9 @@ const en_US_in_risks_page = {
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
     '>Ref Finance Sputnik DAO</label> and will be transitioning to a fully decentralized DAO.',
   admin_sentence_2:
-    'For more information relating to the contracts and addresses that have directly managed or currently manage the affairs of Ref Finance, please check our Documentation (Documentation link: https://guide.ref.finance/developers/contracts).',
+    'For more information relating to the contracts and addresses that have directly managed or currently manage the affairs of Ref Finance, please check our <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/contracts')" +
+    '>Documentation</label> (Documentation link: https://guide.ref.finance/developers/contracts).',
 };
 const en_US = {
   deposit: 'Deposit',
@@ -267,7 +269,7 @@ const en_US = {
   slippageCopyForMobile:
     'Slippage means the difference between what you expect to get and what you actually get due to other executing first',
   slippageCopy:
-    'Slippage means the difference between what <br> you expect to get and what you actually <br> get due to other executing first',
+    'Slippage means the difference between what you expect to get and what you actually get due to other executing first',
   depositCopy:
     'This deposits your selected tokens into the <br> exchange for swapping or adding to a liquidity pool',
   nearDepositCopy:

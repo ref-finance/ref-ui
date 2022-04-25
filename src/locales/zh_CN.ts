@@ -497,6 +497,8 @@ const zh_CN = {
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
     '>Ref Finance Sputnik DAO</label> 管理，并将过渡到完全去中心化的 DAO。',
   admin_sentence_2:
-    '有关直接管理或目前管理 Ref Finance 事务的合约和地址的更多信息，请查看我们的文档（文档链接：https://guide.ref.finance/developers/contracts）。',
+    '有关直接管理或目前管理 Ref Finance 事务的合约和地址的更多信息，请查看我们的<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/contracts')" +
+    '>文档</label>（文档链接：https://guide.ref.finance/developers/contracts）。',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

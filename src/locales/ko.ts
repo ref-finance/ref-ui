@@ -123,7 +123,9 @@ const ko_in_risks_page = {
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
     '>Ref Finance Sputnik DAO</label> and will be transitioning to a fully decentralized DAO.',
   admin_sentence_2:
-    'For more information relating to the contracts and addresses that have directly managed or currently manage the affairs of Ref Finance, please check our Documentation (Documentation link: https://guide.ref.finance/developers/contracts).',
+    'For more information relating to the contracts and addresses that have directly managed or currently manage the affairs of Ref Finance, please check our <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/contracts')" +
+    '>Documentation</label> (Documentation link: https://guide.ref.finance/developers/contracts).',
 };
 const ko = {
   deposit: '입금',
@@ -266,7 +268,7 @@ const ko = {
   slippageCopyForMobile:
     '슬리피지(미끄러짐)란 당신이 처음에 기대한 수익과, 다른 사람이 우선 실행되는 바람에 달라져버린 실제 수익의 차이를 말합니다. ',
   slippageCopy:
-    '슬리피지(미끄러짐)란 당신이 처음 기대한 수익과 <br> 다른 사람이 우선 실행되는 바람에 달라져버린<br> 실제 수익의 차이를 말합니다 ',
+    '슬리피지(미끄러짐)란 당신이 처음 기대한 수익과 다른 사람이 우선 실행되는 바람에 달라져버린 실제 수익의 차이를 말합니다 ',
   depositCopy:
     '거래소에 선택한 토큰을 입금해 <br> 유동성 풀에 투입 및 교환(스왑)에 씁니다. ',
   nearDepositCopy:
