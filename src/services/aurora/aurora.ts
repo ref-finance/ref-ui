@@ -12,7 +12,7 @@ import { toBufferBE } from 'bigint-buffer';
 
 import { Erc20Abi } from './abi/erc20';
 
-import { getCurrentWallet } from '../../utils/sender-wallet';
+import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 
 import { UniswapRouterAbi } from './abi/IUniswapV2Router02';
 
@@ -33,13 +33,13 @@ import {
   TokenMetadata,
   ftGetBalance,
 } from '../ft-contract';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import {
   scientificNotationToString,
   toReadableNumber,
   percentLess,
 } from '../../utils/numbers';
-import { utils } from 'near-api-js';
+import { utils, WalletConnection } from 'near-api-js';
 import { EstimateSwapView } from '../swap';
 import BigNumber from 'bignumber.js';
 import { toNonDivisibleNumber } from '../../utils/numbers';
@@ -653,10 +653,14 @@ export const useAuroraTokens = () => {
 export const useAuroraBalances = (address: string) => {
   const [tokenBalances, setTokenBalances] = useState(null);
 
+  const { globalState } = useContext(WalletContext);
+
+  const isSignedIn = globalState?.isSignedIn;
+
   const tokens = useAuroraTokens();
 
   useEffect(() => {
-    if (!tokens?.tokenAddresses) return;
+    if (!tokens?.tokenAddresses || !isSignedIn) return;
 
     const requestAddress = tokens.tokenAddresses.concat([
       getAuroraConfig().WETH,
@@ -680,7 +684,7 @@ export const useAuroraBalances = (address: string) => {
         }, {})
       );
     });
-  }, [tokens, getCurrentWallet().wallet.isSignedIn()]);
+  }, [tokens, isSignedIn]);
 
   return tokenBalances;
 };

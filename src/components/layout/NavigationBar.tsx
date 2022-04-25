@@ -789,7 +789,7 @@ function NavigationBar() {
   const { txHash } = getURLInfo();
 
   useEffect(() => {
-    if (!auroraBalances || !getCurrentWallet().wallet.isSignedIn()) return;
+    if (!auroraBalances || !isSignedIn) return;
     const auroraAddresses = Object.keys(auroraBalances);
 
     const amounts = Object.values(auroraBalances) as string[];
@@ -799,7 +799,7 @@ function NavigationBar() {
     // );
 
     setWithdrawDone(false);
-  }, [auroraBalances, txHash]);
+  }, [auroraBalances, txHash, isSignedIn]);
 
   useEffect(() => {
     if (
