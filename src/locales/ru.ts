@@ -518,7 +518,9 @@ const ru = {
   ref_account_tip_3:
     'Чтобы вывести токен(ы) с вашего счета REF на ваш кошелек NEAR, пожалуйста, выберите и выведите',
   aurora_account_tip_4:
-    'To withdraw token(s) from your Mapping Account to your NEAR Wallet, please select and withdraw',
-  mapping_account: 'Mapping account',
+    'Чтобы вывести токен(ы) с Вашего Картографического Счета на Ваш КОШЕЛЕК NEAR, пожалуйста, выберите и выведите',
+  pool_fee_cross_swap: 'Плата за пул/кросс-цепь',
+  mapping_account: 'Картографическая учетная запись',
+  mapping_account_tip: 'У вас есть маркер(ы) в картографической учетной записи',
 };
 export default Object.assign(ru, ru_in_risks_page);

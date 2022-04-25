@@ -521,6 +521,8 @@ const en_US = {
     'To withdraw token(s) from your REF Account to your NEAR Wallet, please select and withdraw',
   aurora_account_tip_4:
     'To withdraw token(s) from your Mapping Account to your NEAR Wallet, please select and withdraw',
+  pool_fee_cross_swap: 'Pool/Cross-chain fee',
   mapping_account: 'Mapping account',
+  mapping_account_tip: 'You have token(s) in Mapping Account',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

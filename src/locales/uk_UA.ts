@@ -501,7 +501,9 @@ const uk_UA = {
   ref_account_tip_3:
     'Щоб вивести токени з вашого облікового запису REF на свій гаманець NEAR, виберіть і витягніть',
   aurora_account_tip_4:
-    'To withdraw token(s) from your Mapping Account to your NEAR Wallet, please select and withdraw',
-  mapping_account: 'Mapping account',
+    'Щоб вивести токени з картографічного облікового запису на свій гаманець NEAR, виберіть і вийдіть',
+  pool_fee_cross_swap: 'Плата за басейн/перехресний ланцюг',
+  mapping_account: 'Картографічний обліковий запис',
+  mapping_account_tip: 'У вас є маркери в картографічному обліковому записі',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

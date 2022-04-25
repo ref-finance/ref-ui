@@ -492,5 +492,7 @@ const zh_CN = {
   ref_account_tip_3: '要从您的REF帐户提取代币到您的NEAR钱包,请选择并提取',
   aurora_account_tip_4: '要从您的映射帐户提取代币到您的NEAR钱包,请选择并提取',
   mapping_account: '映射账户',
+  pool_fee_cross_swap: '流动池/跨链费用',
+  mapping_account_tip: '你的映射账户中存在代币',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

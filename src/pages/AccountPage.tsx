@@ -104,7 +104,7 @@ function RefAccountTipMan({
         {tab == 'aurora' ? (
           <FormattedMessage
             id="aurora_account_tip_4"
-            defaultMessage="To withdraw token(s) from your REF Account to your NEAR Wallet, please select and withdraw"
+            defaultMessage="To withdraw token(s) from your Mapping Account to your NEAR Wallet, please select and withdraw"
           />
         ) : (
           <FormattedMessage

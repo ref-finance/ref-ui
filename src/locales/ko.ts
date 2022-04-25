@@ -519,5 +519,10 @@ const ko = {
   to_recover_them: '그것들을 회수하세요',
   ref_account_tip_3:
     'Ref 계정으로부터 NEAR 월렛으로 토큰을 인출하시려면 선택 후 인출을 눌러주세요',
+  aurora_account_tip_4:
+    '매핑 계정에서 NEAR 지갑으로 토큰을 인출하려면 선택하고 인출하십시오.',
+  pool_fee_cross_swap: '풀/크로스 체인 요금',
+  mapping_account: '매핑 계정',
+  mapping_account_tip: '매핑 계정에 토큰이 있습니다.',
 };
 export default Object.assign(ko, ko_in_risks_page);

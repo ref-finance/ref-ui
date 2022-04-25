@@ -527,7 +527,9 @@ const vi = {
   ref_account_tip_3:
     'Để rút token từ Tài khoản REF của bạn vào Ví GẦN của bạn, vui lòng chọn và rút tiền',
   aurora_account_tip_4:
-    'To withdraw token(s) from your Mapping Account to your NEAR Wallet, please select and withdraw',
-  mapping_account: 'Mapping account',
+    'Để rút token từ Tài khoản Bản đồ của bạn vào Ví GẦN của bạn, vui lòng chọn và rút tiền',
+  pool_fee_cross_swap: 'Phí pool/cross-chain',
+  mapping_account: 'Lập bản đồ tài khoản',
+  mapping_account_tip: 'Bạn có (các) token trong Tài khoản Bản đồ',
 };
 export default Object.assign(vi, vi_in_risks_page);

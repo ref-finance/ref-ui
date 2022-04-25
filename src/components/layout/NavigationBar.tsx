@@ -402,7 +402,12 @@ export function AuroraEntry({
         >
           <div className="bg-cardBg w-64 rounded-lg border border-farmText flex flex-col overflow-hidden">
             <div className="flex items-center pl-5 pt-4">
-              <span className="text-farmText text-sm">Mapping Account</span>
+              <span className="text-farmText text-sm">
+                <FormattedMessage
+                  id="mapping_account"
+                  defaultMessage="Mapping Account"
+                />
+              </span>
 
               <QuestionTip id="unkown" />
 

@@ -529,7 +529,9 @@ const ja = {
   ref_account_tip_3:
     'REFアカウントからトークンを引き出し、自分のNEARウォレットへ送金',
   aurora_account_tip_4:
-    'To withdraw token(s) from your Mapping Account to your NEAR Wallet, please select and withdraw',
-  mapping_account: 'Mapping account',
+    'マッピングアカウントからNEARウォレットにトークンを引き出すには、選択して引き出してください',
+  pool_fee_cross_swap: 'プール/チェーン間 手数料',
+  mapping_account: '口座をマッピングする',
+  mapping_account_tip: 'マッピングアカウントにトークンがあります',
 };
 export default Object.assign(ja, ja_in_risks_page);
