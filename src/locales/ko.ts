@@ -121,11 +121,11 @@ const ko_in_risks_page = {
   admin_sentence_1:
     'Ref Finance는 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label> 에서 관리하며 완전히 분산된 DAO로 전환됩니다.',
+    '>Ref Finance Sputnik DAO</label> 가 운영합니다. 우리 DAO는 완전 탈중앙화 DAO로 전환할 예정입니다.',
   admin_sentence_2:
-    'Ref Finance 업무를 직접 관리하거나 관리하고 있는 계약 및 주소에 대한 자세한 내용은 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    'Ref Finance의 전/현 담당자들의 계약 및 연락 정보를 알고 싶으시다면, <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://guide.ref.finance/developers/contracts')" +
-    '>선적 서류 비치</label> 을 참조하십시오.',
+    '>문서</label> 쪽에서 확인해 주세요.',
 };
 const ko = {
   deposit: '입금',
@@ -322,7 +322,7 @@ const ko = {
   remove_watchlist: '워치리스트에서 제거하기',
   my_watchlist_copy: '워치리스트 된 유동성 풀은 여기에 등장합니다 ',
   search_token: '토큰 검색',
-  language: '언어',
+  language: '한국어',
   deposit_to_add_liquidity: '유동성 추가를 위해 입금',
   slip_warn: '입금 가능한 최소량을 확인 후 신중히 결정하세요.',
   slip_invalid: '슬리피지(미끄러짐) 허용치가 적절한 수치가 아닙니다.',
