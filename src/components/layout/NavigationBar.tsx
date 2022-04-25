@@ -442,19 +442,21 @@ export function AuroraEntry({
                     e.stopPropagation();
                   }}
                   onMouseEnter={() => {
-                    if (isMobile) {
-                      setCopyIconBgColor('white');
-                    }
-                    setCopyIconHover(true);
+                    !isMobile && setCopyIconHover(true);
                   }}
                   onMouseLeave={() => {
-                    if (isMobile) {
-                      setCopyIconBgColor('black');
-                    }
-                    setCopyIconHover(false);
+                    !isMobile && setCopyIconHover(false);
                   }}
                   onMouseDown={() => !isMobile && setCopyIconBgColor('white')}
                   onMouseUp={() => !isMobile && setCopyIconBgColor('black')}
+                  onTouchStart={() => {
+                    setCopyIconBgColor('white');
+                    setCopyIconHover(true);
+                  }}
+                  onTouchEnd={() => {
+                    setCopyIconBgColor('black');
+                    setCopyIconHover(false);
+                  }}
                 >
                   <CopyIcon fillColor={copyIconHover ? '#00C6A2' : '#7E8A93'} />
                 </div>

@@ -1346,11 +1346,11 @@ function MobileAccount(props: any) {
       <CopyToClipboard text={auroraAddress}>
         <div
           className={`bg-${copyIconBgColor} bg-opacity-20 rounded-lg flex items-center justify-center p-1.5 cursor-pointer`}
-          onMouseEnter={() => {
+          onTouchStart={() => {
             setCopyIconBgColor('white');
             setCopyIconHover(true);
           }}
-          onMouseLeave={() => {
+          onTouchEnd={() => {
             setCopyIconBgColor('black');
             setCopyIconHover(false);
           }}
