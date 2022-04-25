@@ -404,7 +404,7 @@ const ko = {
   shares_removed: '지분',
   shares_avaliable: '가능한 지분',
   minimum_shares: '최소 shares',
-  shares_tip: '가능한 지분 / 당신이 소유한 지분 전체',
+  shares_tip: "'총 소유한 주식'에서 '총 주식'으로",
   stablecoin_only: '스테이블코인 전용',
   more_than: '0.01 이상의 숫자를 입력해 주세요',
   less_than: '20 이상의 숫자를 입력해 주세요',

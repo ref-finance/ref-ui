@@ -404,7 +404,7 @@ const en_US = {
   shares_removed: 'Shares',
   shares_avaliable: 'Shares avaliable',
   minimum_shares: 'Minimum shares',
-  shares_tip: 'Shares available / shares you own totally',
+  shares_tip: "'Shares you own totally' to 'Total shares'",
   stablecoin_only: 'Stablecoin only',
   more_than: 'Please input number that more than or equal to 0.01',
   less_than: 'Please input number that less than 20',
