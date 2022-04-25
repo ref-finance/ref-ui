@@ -119,13 +119,13 @@ const ko_in_risks_page = {
   risks_of_using_ref_finance:
     '<label class="text-greenColor">리스크</label> , Ref. finance 사용시의',
   admin_sentence_1:
-    'Ref Finance is managed by the  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    'Ref Finance는 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label> and will be transitioning to a fully decentralized DAO.',
+    '>Ref Finance Sputnik DAO</label> 에서 관리하며 완전히 분산된 DAO로 전환됩니다.',
   admin_sentence_2:
-    'For more information relating to the contracts and addresses that have directly managed or currently manage the affairs of Ref Finance, please check our <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    'Ref Finance 업무를 직접 관리하거나 관리하고 있는 계약 및 주소에 대한 자세한 내용은 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://guide.ref.finance/developers/contracts')" +
-    '>Documentation</label> (Documentation link: https://guide.ref.finance/developers/contracts).',
+    '>선적 서류 비치</label> 을 참조하십시오.',
 };
 const ko = {
   deposit: '입금',

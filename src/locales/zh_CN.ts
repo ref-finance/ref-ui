@@ -499,6 +499,6 @@ const zh_CN = {
   admin_sentence_2:
     '有关直接管理或目前管理 Ref Finance 事务的合约和地址的更多信息，请查看我们的<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://guide.ref.finance/developers/contracts')" +
-    '>文档</label>（文档链接：https://guide.ref.finance/developers/contracts）。',
+    '>文档</label>。',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

@@ -530,12 +530,12 @@ const vi = {
   ref_account_tip_3:
     'Để rút token từ Tài khoản REF của bạn vào Ví GẦN của bạn, vui lòng chọn và rút tiền',
   admin_sentence_1:
-    'Ref Finance is managed by the  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    'Ref Finance được quản lý bởi  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label> and will be transitioning to a fully decentralized DAO.',
+    '>Ref Finance Sputnik DAO</label> và sẽ chuyển đổi sang DAO hoàn toàn phi tập trung.',
   admin_sentence_2:
-    'For more information relating to the contracts and addresses that have directly managed or currently manage the affairs of Ref Finance, please check our <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    'Để biết thêm thông tin liên quan đến các hợp đồng và địa chỉ đã trực tiếp quản lý hoặc hiện đang quản lý các công việc của Ref Finance, vui lòng kiểm tra <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://guide.ref.finance/developers/contracts')" +
-    '>Documentation</label> (Documentation link: https://guide.ref.finance/developers/contracts).',
+    '>Tài liệu</label> của chúng tôi.',
 };
 export default Object.assign(vi, vi_in_risks_page);

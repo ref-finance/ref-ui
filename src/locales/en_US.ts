@@ -127,7 +127,7 @@ const en_US_in_risks_page = {
   admin_sentence_2:
     'For more information relating to the contracts and addresses that have directly managed or currently manage the affairs of Ref Finance, please check our <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://guide.ref.finance/developers/contracts')" +
-    '>Documentation</label> (Documentation link: https://guide.ref.finance/developers/contracts).',
+    '>Documentation</label>.',
 };
 const en_US = {
   deposit: 'Deposit',

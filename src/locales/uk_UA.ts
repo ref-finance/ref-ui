@@ -507,12 +507,12 @@ const uk_UA = {
   ref_account_tip_3:
     'Щоб вивести токени з вашого облікового запису REF на свій гаманець NEAR, виберіть і витягніть',
   admin_sentence_1:
-    'Ref Finance is managed by the  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    'Ref Finance керується  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label> and will be transitioning to a fully decentralized DAO.',
+    '>Ref Finance Sputnik DAO</label> і буде перехід на повністю децентралізовану DAO.',
   admin_sentence_2:
-    'For more information relating to the contracts and addresses that have directly managed or currently manage the affairs of Ref Finance, please check our <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    'Для отримання додаткової інформації про контракти та адреси, які безпосередньо керують або наразі керують справами Ref Finance, перегляньте нашу <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://guide.ref.finance/developers/contracts')" +
-    '>Documentation</label> (Documentation link: https://guide.ref.finance/developers/contracts).',
+    '>документацію</label>.',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

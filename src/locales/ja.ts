@@ -123,13 +123,13 @@ const ja_in_risks_page = {
   risks_of_using_ref_finance:
     'Ref. financeの利用<label class="text-greenColor">リスク</label>',
   admin_sentence_1:
-    'Ref Finance is managed by the  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    'Ref Financeは、<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label> and will be transitioning to a fully decentralized DAO.',
+    '>Ref Finance Sputnik DAO</label> によって管理されており、完全な分散型DAOに移行する予定です。',
   admin_sentence_2:
-    'For more information relating to the contracts and addresses that have directly managed or currently manage the affairs of Ref Finance, please check our <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    'Ref Financeの業務を直接管理している、または現在管理している契約および住所の詳細については、 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://guide.ref.finance/developers/contracts')" +
-    '>Documentation</label> (Documentation link: https://guide.ref.finance/developers/contracts).',
+    '>ドキュメント</label> を確認してください。',
 };
 const ja = {
   deposit: 'デポジット',
@@ -523,7 +523,7 @@ const ja = {
   value: '額',
   usd_value: 'ドル換算額',
   sauce_note:
-    'SAUCE is designed for liquidity pools with pegged assets, delivering optimal prices.',
+    'SAUCEは、資産が固定された流動性プール向けに設計されており、最適な価格を提供します。',
   support_ledger: 'Ledgerをサポートする',
   support_ledger_tip:
     'Ledgerの設計によると、メモリの制限のため、Ledgerの台帳が大口取引に対応できない（自動ルーティングなど:複数のプールにまたがって同時に取引する）。 起動後,Ledgerをサポートする台帳は、トランザクションを次のように制限します。最もシンプルな形で（価格向上に寄与しない）。そのため、それなりの規模のコントラクトを結ぶことが可能です。',
