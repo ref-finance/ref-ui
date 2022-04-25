@@ -1138,6 +1138,9 @@ function Account(props: any) {
     localStorage.setItem(ACCOUNT_PAGE_AURORA_SHOW, 'cross');
   }, [tab]);
 
+  const [auroraAccountHover, setAuroraAccountHover] = useState(false);
+  const [auroraAccountCopyDown, setAuroraAccountCopyDown] = useState(false);
+
   const accountTitle = !showCrossBalance ? (
     <>
       <NearIcon />
@@ -1163,15 +1166,43 @@ function Account(props: any) {
       <ConnectDot />
       <ConnectDot />
 
-      <div className="rounded-2xl flex items-center text-sm text-white py-0.5 px-3 ml-px bg-lightGreenColor bg-opacity-20 hover:bg-opacity-40">
+      <div
+        className={
+          'rounded-2xl flex items-center text-sm text-white py-0.5  px-3 ml-px  cursor-pointer'
+        }
+        style={{
+          background: auroraAccountHover
+            ? auroraAccountCopyDown
+              ? '#70D44B'
+              : 'rgba(112, 212, 75, 0.3)'
+            : 'rgba(255, 255, 255, 0.15)',
+        }}
+        onMouseEnter={() => setAuroraAccountHover(true)}
+        onMouseLeave={() => setAuroraAccountHover(false)}
+        onMouseDown={() => setAuroraAccountCopyDown(true)}
+        onMouseUp={() => setAuroraAccountCopyDown(false)}
+      >
         <div>
-          <AuroraIconWhite width="16" height="16" />
+          <AuroraIconWhite
+            width="16"
+            height="16"
+            color={auroraAccountCopyDown ? '#001320' : ''}
+          />
         </div>
 
-        <div className="mx-2">{displayAddr}</div>
+        <div
+          className="mx-2"
+          style={{
+            color: auroraAccountCopyDown ? '#001320' : 'white',
+          }}
+        >
+          {displayAddr}
+        </div>
         <CopyToClipboard text={auroraAddress}>
           <div className="cursor-pointer">
-            <CopyIcon fillColor="#ffffff" />
+            <CopyIcon
+              fillColor={auroraAccountCopyDown ? '#001320' : '#ffffff'}
+            />
           </div>
         </CopyToClipboard>
       </div>
@@ -1295,6 +1326,10 @@ function MobileAccount(props: any) {
     setMapAccountTokenNumber(mapAccountHasToken.length);
     switchCross({ refOver: hasRefBalanceOver, mapOver: hasMapBalanceOver });
   }, []);
+
+  const [copyIconHover, setCopyIconHover] = useState<boolean>(false);
+  const [copyIconBgColor, setCopyIconBgColor] = useState<string>('black');
+
   const accountTitle = !showCrossBalance ? (
     <>
       <NearIcon />
@@ -1307,8 +1342,18 @@ function MobileAccount(props: any) {
       <AuroraIconWhite />
       <div className="text-lg text-white  mx-1.5">{displayAddr}</div>
       <CopyToClipboard text={auroraAddress}>
-        <div className="bg-black bg-opacity-20 rounded-lg flex items-center justify-center p-1.5 cursor-pointer ">
-          <CopyIcon />
+        <div
+          className={`bg-${copyIconBgColor} bg-opacity-20 rounded-lg flex items-center justify-center p-1.5 cursor-pointer`}
+          onMouseEnter={() => {
+            setCopyIconBgColor('white');
+            setCopyIconHover(true);
+          }}
+          onMouseLeave={() => {
+            setCopyIconBgColor('black');
+            setCopyIconHover(false);
+          }}
+        >
+          <CopyIcon fillColor={copyIconHover ? '#00C6A2' : '#7E8A93'} />
         </div>
       </CopyToClipboard>
     </div>
