@@ -406,9 +406,19 @@ export function AuroraEntry({
             e.stopPropagation();
           }}
         >
-          <div className="bg-cardBg rounded-lg border border-farmText flex flex-col overflow-hidden">
+          <div
+            className="bg-cardBg rounded-lg border border-farmText flex flex-col overflow-hidden"
+            style={{
+              minWidth: '256px',
+            }}
+          >
             <div className="flex items-center pl-5 pt-4">
-              <span className="text-farmText text-sm">
+              <span
+                className="text-farmText text-sm"
+                style={{
+                  maxWidth: '180px',
+                }}
+              >
                 <FormattedMessage
                   id="mapping_account"
                   defaultMessage="Mapping Account"
@@ -456,14 +466,16 @@ export function AuroraEntry({
                 pathname: '/account?tab=aurora',
               }}
               target="_blank"
-              className={`w-full px-3 py-1 text-xs bg-auroraGreen text-chartBg whitespace-nowrap cursor-pointer ${
+              className={`w-full px-3 py-1 text-xs bg-auroraGreen text-chartBg flex items-center justify-center cursor-pointer ${
                 hasBalanceOnAurora ? 'block' : 'hidden'
               }`}
             >
-              <FormattedMessage
-                id="mapping_account_tip"
-                defaultMessage="You have token(s) in Mapping Account"
-              />
+              <span>
+                <FormattedMessage
+                  id="mapping_account_tip"
+                  defaultMessage="You have token(s) in Mapping Account"
+                />
+              </span>
             </Link>
           </div>
         </div>
