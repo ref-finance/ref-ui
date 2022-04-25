@@ -372,7 +372,7 @@ const zh_CN = {
   shares_removed: '流动性',
   shares_avaliable: '可用的份额',
   minimum_shares: '最少份额',
-  shares_tip: '你拥有的份额对所有的份额',
+  shares_tip: '可用的份额 / 总的份额',
   stablecoin_only: '稳定币',
   more_than: '请输入大于等于0.01的数字',
   less_than: '请输入小于20的数字',

@@ -412,7 +412,7 @@ const ja = {
   shares_removed: '流動性',
   shares_avaliable: '取得可能額',
   minimum_shares: 'ミニマム額',
-  shares_tip: '「あなたが完全に所有している株式」から「合計株式」へ',
+  shares_tip: '利用可能株式数/総株式数',
   stablecoin_only: 'ステーブルコイン',
   more_than: '0.01以上の数値を入力してください。',
   less_than: '20未満の数字を入力してください',

@@ -404,7 +404,7 @@ const vi = {
   shares_removed: 'Shares',
   shares_avaliable: 'Shares khả dụng',
   minimum_shares: 'Số shares tối thiểu (nhận được)',
-  shares_tip: "'Tổng số cổ phần bạn sở hữu' thành 'Tổng số cổ phần'",
+  shares_tip: 'Cổ phần có sẵn / Tổng số cổ phần',
   stablecoin_only: 'Chỉ Stablecoin',
   more_than: 'Hãy nhập vào số lớn hơn hoặc bằng 0,01',
   less_than: 'Hãy nhập vào số nhỏ hơn 20',
