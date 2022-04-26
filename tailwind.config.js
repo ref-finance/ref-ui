@@ -2,7 +2,7 @@ const colors = require('tailwindcss/colors');
 const defaultTheme = require('tailwindcss/defaultTheme');
 
 module.exports = {
-  purge: [],
+  purge: false,
   darkMode: false, // or 'media' or 'class'
   theme: {
     screens: {
@@ -94,7 +94,7 @@ module.exports = {
         auroraGreen: '#70D44B',
         triPool: '#329DFF',
         refPool: '#00C6A2',
-        lightGreenColor:"#70d44b"
+        lightGreenColor: '#70d44b',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
