@@ -11,6 +11,7 @@ import { XREF_TOKEN_DECIMALS } from '../services/xref';
 import BigNumber from 'bignumber.js';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
+const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
 
 export const parseAction = async (
   methodName: string,
@@ -161,7 +162,7 @@ const parseRemoveLiquidity = async (params: any) => {
     'Amount One': toReadableNumber(tokens[0].decimals, params.min_amounts[0]),
     'Amount Two': toReadableNumber(tokens[1].decimals, params.min_amounts[1]),
   };
-  if (pool.id == STABLE_POOL_ID) {
+  if (new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())) {
     result['Amount Three'] = toReadableNumber(
       tokens[2].decimals,
       params.min_amounts[2]
@@ -193,14 +194,13 @@ const parseStorageDeposit = async () => {
 const parseMtfTransferCall = async (params: any) => {
   const { amount, receiver_id, token_id } = params;
   const poolId = token_id.split(':')[1];
-  if (STABLE_POOL_ID == poolId) {
+  if (new Set(STABLE_POOL_IDS || []).has(poolId?.toString())) {
   }
   return {
     Action: 'Stake',
-    Amount:
-      STABLE_POOL_ID == poolId
-        ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, amount)
-        : toReadableNumber(24, amount),
+    Amount: new Set(STABLE_POOL_IDS || []).has(poolId?.toString())
+      ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, amount)
+      : toReadableNumber(24, amount),
     'Receiver Id': receiver_id,
     'Token Id': token_id,
   };
@@ -210,10 +210,9 @@ const parseWithdrawSeed = async (params: any) => {
   const poolId = seed_id.split('@')[1];
   return {
     Action: 'Unstake',
-    Amount:
-      STABLE_POOL_ID == poolId
-        ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, amount)
-        : toReadableNumber(24, amount),
+    Amount: new Set(STABLE_POOL_IDS || []).has(poolId?.toString())
+      ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, amount)
+      : toReadableNumber(24, amount),
     'Seed Id': seed_id,
   };
 };

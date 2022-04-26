@@ -86,6 +86,7 @@ import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { scientificNotationToString } from '../../utils/numbers';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
+const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
 interface SearchData {
   status: number;
   sort: string;
@@ -1215,7 +1216,7 @@ function FarmView({
   async function showStakeModal() {
     const { lpTokenId } = data;
     const b = await mftGetBalance(getMftTokenId(lpTokenId));
-    if (STABLE_POOL_ID == lpTokenId) {
+    if (new Set(STABLE_POOL_IDS || []).has(lpTokenId?.toString())) {
       setStakeBalance(toReadableNumber(LP_STABLE_TOKEN_DECIMALS, b));
     } else {
       setStakeBalance(toReadableNumber(LP_TOKEN_DECIMALS, b));
@@ -1586,7 +1587,7 @@ function FarmView({
               <div>
                 <Link
                   to={
-                    PoolId == STABLE_POOL_ID
+                    new Set(STABLE_POOL_IDS || []).has(PoolId?.toString())
                       ? {
                           pathname: '/sauce',
                           state: { backToFarms: true },
@@ -1612,7 +1613,7 @@ function FarmView({
           <Link
             title={intl.formatMessage({ id: 'view_pool' })}
             to={
-              PoolId == STABLE_POOL_ID
+              new Set(STABLE_POOL_IDS || []).has(PoolId?.toString())
                 ? { pathname: '/sauce', state: { backToFarms: true } }
                 : { pathname: `/pool/${PoolId}`, state: { backToFarms: true } }
             }
@@ -2153,7 +2154,7 @@ function ActionModal(
     if (type == 'stake') {
       const LIMITAOMUNT = '1000000000000000000';
       let value;
-      if (STABLE_POOL_ID == farm.lpTokenId) {
+      if (new Set(STABLE_POOL_IDS || []).has(farm.lpTokenId?.toString())) {
         value = toNonDivisibleNumber(LP_STABLE_TOKEN_DECIMALS, amount);
       } else {
         value = toNonDivisibleNumber(LP_TOKEN_DECIMALS, amount);
@@ -2249,7 +2250,9 @@ function ActionModal(
                   <Alert
                     level="warn"
                     message={
-                      STABLE_POOL_ID == farm.lpTokenId
+                      new Set(STABLE_POOL_IDS || []).has(
+                        farm.lpTokenId?.toString()
+                      )
                         ? intl.formatMessage({ id: 'more_than_stable_seed' })
                         : intl.formatMessage({ id: 'more_than_general_seed' })
                     }
