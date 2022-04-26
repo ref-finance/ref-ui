@@ -431,9 +431,9 @@ export async function getHybridStableSmart(
   tokenIn: TokenMetadata,
   tokenOut: TokenMetadata,
   amountIn: string,
+  loadingTrigger: boolean,
   crossSwap?: boolean,
-  onlyTri?: boolean,
-  loadingTrigger: boolean
+  onlyTri?: boolean
 ) {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
   let pool1, pool2;

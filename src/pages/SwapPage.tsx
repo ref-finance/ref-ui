@@ -150,9 +150,7 @@ function getAllTokens(refTokens: TokenMetadata[], triTokens: TokenMetadata[]) {
 function SwapPage() {
   const triTokenIds = useTriTokenIdsOnRef();
   const extraTokens =
-    getConfig().networkId === 'mainnet'
-      ? ['usn']
-      : ['usdn.testnet', 'usn.fakes.testnet'];
+    getConfig().networkId === 'mainnet' ? ['usn'] : ['usdn.testnet'];
 
   const refTokens = useWhitelistTokens(
     (triTokenIds || []).concat(['aurora'].concat(extraTokens))

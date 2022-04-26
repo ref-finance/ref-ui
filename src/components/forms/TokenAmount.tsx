@@ -22,6 +22,7 @@ import { toRealSymbol } from '../../utils/token';
 import { ArrowDownGreen, ArrowDownWhite } from '../icon/Arrows';
 import { percentLess } from '../../utils/numbers';
 import { isMobile } from '../../utils/device';
+import { SWAP_MODE } from '../../pages/SwapPage';
 
 interface TokenAmountProps {
   amount?: string;
