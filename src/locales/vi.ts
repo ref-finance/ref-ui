@@ -182,7 +182,7 @@ const vi = {
   wrapnear: 'Wrap NEAR',
   wrapnear_tip_one:
     'Wrapping NEAR cho phép bạn giao dịch trên REF. Hãy chắc chắn là ',
-  wrapnear_tip_two: 'để lại 1 NEAR',
+  wrapnear_tip_two: 'để lại 0.5 NEAR',
   wrapnear_tip_three: ' làm gas fee để unwrap NEAR.',
   wrap_error_msg: 'Tài khoản không đủ',
   sign_out: 'Đăng xuất',

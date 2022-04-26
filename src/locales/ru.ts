@@ -192,7 +192,7 @@ const ru = {
   wrapnear: 'Обернуть NEAR',
   wrapnear_tip_one:
     'Обернутые NEAR позволят вам торговать на REF. Обязательно ',
-  wrapnear_tip_two: 'оставьте 1 NEAR',
+  wrapnear_tip_two: 'оставьте 0.5 NEAR',
   wrapnear_tip_three: 'для оплаты комиссий за газ, чтобы развернуть ваш NEAR.',
   wrap_error_msg: 'Недостаточный баланс',
   sign_out: 'Выйти',

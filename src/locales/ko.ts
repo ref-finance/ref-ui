@@ -186,7 +186,7 @@ const ko = {
   wrapnear: 'NEAR 래핑',
   wrapnear_tip_one:
     'NEAR 래핑을 해야 REF를 거래할 수 있게 됩니다. 반드시 확인하시고 ',
-  wrapnear_tip_two: 'NEAR 1개는 남기셔야지',
+  wrapnear_tip_two: 'NEAR 0.5개는 남기셔야지',
   wrapnear_tip_three: '래핑을 해제하기 위한 가스(수수료)를 낼 수 있습니다',
   wrap_error_msg: '잔액이 부족합니다',
   sign_out: '로그아웃',

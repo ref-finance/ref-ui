@@ -168,7 +168,7 @@ const zh_CN = {
   submit: '提交',
   wrapnear: 'Wrap NEAR',
   wrapnear_tip_one: 'wNEAR支持您在REF中交易，',
-  wrapnear_tip_two: '请保留至少1个NEAR，',
+  wrapnear_tip_two: '请保留至少0.5个NEAR，',
   wrapnear_tip_three: '以保障gas费充足。',
   wrap_error_msg: '余额不足',
   sign_out: '退出',

@@ -187,7 +187,7 @@ const en_US = {
   submit: 'Submit',
   wrapnear: 'Wrap NEAR',
   wrapnear_tip_one: 'Wrapping NEAR allows you to trade on REF. Make sure to ',
-  wrapnear_tip_two: 'leave 1 NEAR',
+  wrapnear_tip_two: 'leave 0.5 NEAR',
   wrapnear_tip_three: ' for gas fees to unwrap your NEAR.',
   wrap_error_msg: 'Not enough balance',
   sign_out: 'Sign Out',
