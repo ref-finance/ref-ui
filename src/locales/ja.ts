@@ -189,8 +189,8 @@ const ja = {
   submit: '提出',
   wrapnear: 'Wrap NEAR',
   wrapnear_tip_one: 'wNEARは、REFでの取引をサポートします。',
-  wrapnear_tip_two: '最低でも1つはNEARにしてください。',
-  wrapnear_tip_three: 'ガスフィーが十分であることを確認してください。',
+  wrapnear_tip_two: '最低でも0.5つはNEARにしてください。',
+  wrapnear_tip_three: 'ガス料金。',
   wrap_error_msg: 'バランス不足',
   sign_out: '退会',
   view_account: 'アカウントを見る',
@@ -538,5 +538,7 @@ const ja = {
   to_recover_them: '修復',
   ref_account_tip_3:
     'REFアカウントからトークンを引き出し、自分のNEARウォレットへ送金',
+  cumulative_ref_buyback: 'Cumulative REF Buyback',
+  yearly_revenue_booster: 'Yearly Revenue Booster',
 };
 export default Object.assign(ja, ja_in_risks_page);

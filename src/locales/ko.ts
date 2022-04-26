@@ -186,8 +186,8 @@ const ko = {
   wrapnear: 'NEAR 래핑',
   wrapnear_tip_one:
     'NEAR 래핑을 해야 REF를 거래할 수 있게 됩니다. 반드시 확인하시고 ',
-  wrapnear_tip_two: 'NEAR 1개는 남기셔야지',
-  wrapnear_tip_three: '래핑을 해제하기 위한 가스(수수료)를 낼 수 있습니다',
+  wrapnear_tip_two: 'NEAR 0.5개는 남기셔야지',
+  wrapnear_tip_three: '가스 요금',
   wrap_error_msg: '잔액이 부족합니다',
   sign_out: '로그아웃',
   view_account: '계정 보기',
@@ -529,5 +529,7 @@ const ko = {
   to_recover_them: '그것들을 회수하세요',
   ref_account_tip_3:
     'Ref 계정으로부터 NEAR 월렛으로 토큰을 인출하시려면 선택 후 인출을 눌러주세요',
+  cumulative_ref_buyback: 'Cumulative REF Buyback',
+  yearly_revenue_booster: 'Yearly Revenue Booster',
 };
 export default Object.assign(ko, ko_in_risks_page);

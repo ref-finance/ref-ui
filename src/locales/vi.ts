@@ -182,8 +182,8 @@ const vi = {
   wrapnear: 'Wrap NEAR',
   wrapnear_tip_one:
     'Wrapping NEAR cho phép bạn giao dịch trên REF. Hãy chắc chắn là ',
-  wrapnear_tip_two: 'để lại 1 NEAR',
-  wrapnear_tip_three: ' làm gas fee để unwrap NEAR.',
+  wrapnear_tip_two: 'để lại 0.5 NEAR',
+  wrapnear_tip_three: ' làm gas fee.',
   wrap_error_msg: 'Tài khoản không đủ',
   sign_out: 'Đăng xuất',
   view_account: 'Theo dõi tài khoản',
@@ -537,5 +537,7 @@ const vi = {
     'Để biết thêm thông tin liên quan đến các hợp đồng và địa chỉ đã trực tiếp quản lý hoặc hiện đang quản lý các công việc của Ref Finance, vui lòng kiểm tra <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://guide.ref.finance/developers/contracts')" +
     '>Tài liệu</label> của chúng tôi.',
+  cumulative_ref_buyback: 'Cumulative REF Buyback',
+  yearly_revenue_booster: 'Yearly Revenue Booster',
 };
 export default Object.assign(vi, vi_in_risks_page);

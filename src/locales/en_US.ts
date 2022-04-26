@@ -187,8 +187,8 @@ const en_US = {
   submit: 'Submit',
   wrapnear: 'Wrap NEAR',
   wrapnear_tip_one: 'Wrapping NEAR allows you to trade on REF. Make sure to ',
-  wrapnear_tip_two: 'leave 1 NEAR',
-  wrapnear_tip_three: ' for gas fees to unwrap your NEAR.',
+  wrapnear_tip_two: 'leave 0.5 NEAR',
+  wrapnear_tip_three: ' for gas fees.',
   wrap_error_msg: 'Not enough balance',
   sign_out: 'Sign Out',
   view_account: 'View Account',
@@ -530,5 +530,7 @@ const en_US = {
   to_recover_them: 'to recover them',
   ref_account_tip_3:
     'To withdraw token(s) from your REF Account to your NEAR Wallet, please select and withdraw',
+  cumulative_ref_buyback: 'Cumulative REF Buyback',
+  yearly_revenue_booster: 'Yearly Revenue Booster',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

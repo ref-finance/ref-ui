@@ -182,8 +182,8 @@ const uk_UA = {
   submit: 'Прийняти',
   wrapnear: 'Обгорнути NEAR',
   wrapnear_tip_one: 'Обгортання NEAR дозволяє вам торгувати на REF',
-  wrapnear_tip_two: 'Залиште 1 NEAR',
-  wrapnear_tip_three: 'для комісії щоб розгорнути назад ваш NEAR.',
+  wrapnear_tip_two: 'Залиште 0.5 NEAR',
+  wrapnear_tip_three: 'для плати за газ.',
   wrap_error_msg: 'Недостатній баланс',
   sign_out: 'Вийти',
   view_account: 'Огляд акаунта',
@@ -514,5 +514,7 @@ const uk_UA = {
     'Для отримання додаткової інформації про контракти та адреси, які безпосередньо керують або наразі керують справами Ref Finance, перегляньте нашу <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://guide.ref.finance/developers/contracts')" +
     '>документацію</label>.',
+  cumulative_ref_buyback: 'Cumulative REF Buyback',
+  yearly_revenue_booster: 'Yearly Revenue Booster',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

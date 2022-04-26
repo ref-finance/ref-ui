@@ -127,9 +127,9 @@ const ru_in_risks_page = {
   admin_sentence_1:
     'Ref Finance управляется <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label> и будет переходить на полностью децентрализованную DAO.',
+    '>DAO Ref Finance Sputnik</label> и в ближайшее время перейдет к полноценному децентрализованному DAO.',
   admin_sentence_2:
-    'Для получения дополнительной информации о контрактах и адресах, которые непосредственно управляли или в настоящее время управляют делами Ref Finance, ознакомьтесь с нашей <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    'Для получения дополнительной информации, касающейся контрактов и адресов, которые непосредственно управляли или в настоящее время управляют делами Ref Finance, пожалуйста, ознакомьтесь с нашей <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://guide.ref.finance/developers/contracts')" +
     '>Документацией</label>.',
 };
@@ -192,8 +192,8 @@ const ru = {
   wrapnear: 'Обернуть NEAR',
   wrapnear_tip_one:
     'Обернутые NEAR позволят вам торговать на REF. Обязательно ',
-  wrapnear_tip_two: 'оставьте 1 NEAR',
-  wrapnear_tip_three: 'для оплаты комиссий за газ, чтобы развернуть ваш NEAR.',
+  wrapnear_tip_two: 'оставьте 0.5 NEAR',
+  wrapnear_tip_three: 'на оплату газа.',
   wrap_error_msg: 'Недостаточный баланс',
   sign_out: 'Выйти',
   view_account: 'Обзор аккаунта',
@@ -527,5 +527,7 @@ const ru = {
   to_recover_them: 'чтобы восстановить их',
   ref_account_tip_3:
     'Чтобы вывести токен(ы) с вашего счета REF на ваш кошелек NEAR, пожалуйста, выберите и выведите',
+  cumulative_ref_buyback: 'Cumulative REF Buyback',
+  yearly_revenue_booster: 'Yearly Revenue Booster',
 };
 export default Object.assign(ru, ru_in_risks_page);
