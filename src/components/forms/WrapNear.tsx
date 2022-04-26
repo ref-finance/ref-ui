@@ -75,7 +75,7 @@ function WrapNear(props: ReactModal.Props) {
     if (tokenInAmount && tokenInAmount !== '0') {
       if (
         tokenIn.id === 'NEAR' &&
-        Number(tokenInAmount) > Number(tokenInMax) - 1
+        Number(tokenInAmount) > Number(tokenInMax) - 0.5
       ) {
         setShowError(true);
       } else if (Number(tokenInAmount) > Number(tokenInMax)) {
@@ -118,7 +118,7 @@ function WrapNear(props: ReactModal.Props) {
       ? tokenInMax
       : Number(tokenInMax) <= 1
       ? '0'
-      : String(Number(tokenInMax) - 1);
+      : String(Number(tokenInMax) - 0.5);
   };
 
   return (
