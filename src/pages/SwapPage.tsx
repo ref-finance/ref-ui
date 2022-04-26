@@ -35,7 +35,12 @@ const ChangeSwapMode = ({
   setSwapMode: (e?: any) => void;
 }) => {
   return (
-    <div className="rounded-2xl bg-cardBg text-primaryText text-lg flex items-center justify-between p-1 w-4/5 xs:w-11/12 mx-auto mr-5 font-normal">
+    <div
+      className="rounded-2xl bg-cardBg text-primaryText text-lg flex items-center justify-between p-1 w-4/5 xs:w-11/12 mx-auto mr-5 font-normal"
+      style={{
+        height: '50px',
+      }}
+    >
       <span
         className={`py-2 w-1/2 text-center cursor-pointer ${
           swapMode === SWAP_MODE.NORMAL
