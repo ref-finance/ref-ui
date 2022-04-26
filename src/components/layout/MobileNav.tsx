@@ -525,6 +525,9 @@ export function MobileNavBar(props: any) {
         className={`fixed top-0 bottom-0 left-0 z-20 w-full bg-black bg-opacity-30 backdrop-blur-lg filter-blur backdrop-filter overflow-auto ${
           show ? 'block' : 'hidden'
         }`}
+        style={{
+          zIndex: '80',
+        }}
       >
         <div
           ref={popupRef}
