@@ -96,7 +96,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '242,633.0475',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
+        CUMULATIVE_REF_BUYBACK:
+          process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
       };
     case 'development':
     case 'testnet':
@@ -143,7 +145,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'dai.fakes.testnet': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '242,633.0475',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
+        CUMULATIVE_REF_BUYBACK:
+          process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
       };
     default:
       return {
@@ -190,7 +194,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '242,633.0475',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
+        CUMULATIVE_REF_BUYBACK:
+          process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
       };
   }
 }

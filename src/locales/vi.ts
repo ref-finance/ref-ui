@@ -537,5 +537,7 @@ const vi = {
     'Để biết thêm thông tin liên quan đến các hợp đồng và địa chỉ đã trực tiếp quản lý hoặc hiện đang quản lý các công việc của Ref Finance, vui lòng kiểm tra <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://guide.ref.finance/developers/contracts')" +
     '>Tài liệu</label> của chúng tôi.',
+  cumulative_ref_buyback: 'Cumulative REF Buyback',
+  yearly_revenue_booster: 'Yearly Revenue Booster',
 };
 export default Object.assign(vi, vi_in_risks_page);

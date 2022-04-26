@@ -500,5 +500,7 @@ const zh_CN = {
     '有关直接管理或目前管理 Ref Finance 事务的合约和地址的更多信息，请查看我们的<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://guide.ref.finance/developers/contracts')" +
     '>文档</label>。',
+  cumulative_ref_buyback: '累计 REF 回购',
+  yearly_revenue_booster: '年度收入助推器',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

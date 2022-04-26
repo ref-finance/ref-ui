@@ -514,5 +514,7 @@ const uk_UA = {
     'Для отримання додаткової інформації про контракти та адреси, які безпосередньо керують або наразі керують справами Ref Finance, перегляньте нашу <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://guide.ref.finance/developers/contracts')" +
     '>документацію</label>.',
+  cumulative_ref_buyback: 'Cumulative REF Buyback',
+  yearly_revenue_booster: 'Yearly Revenue Booster',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

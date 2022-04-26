@@ -529,5 +529,7 @@ const ko = {
   to_recover_them: '그것들을 회수하세요',
   ref_account_tip_3:
     'Ref 계정으로부터 NEAR 월렛으로 토큰을 인출하시려면 선택 후 인출을 눌러주세요',
+  cumulative_ref_buyback: 'Cumulative REF Buyback',
+  yearly_revenue_booster: 'Yearly Revenue Booster',
 };
 export default Object.assign(ko, ko_in_risks_page);

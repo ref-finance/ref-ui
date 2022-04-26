@@ -538,5 +538,7 @@ const ja = {
   to_recover_them: '修復',
   ref_account_tip_3:
     'REFアカウントからトークンを引き出し、自分のNEARウォレットへ送金',
+  cumulative_ref_buyback: 'Cumulative REF Buyback',
+  yearly_revenue_booster: 'Yearly Revenue Booster',
 };
 export default Object.assign(ja, ja_in_risks_page);
