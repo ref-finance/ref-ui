@@ -32,6 +32,8 @@ import {
 const config = getConfig();
 export const DEFAULT_PAGE_LIMIT = 150;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
+const STABLE_POOL_IDS = getConfig().STABLE_POOL_IDS;
+const STABLE_POOL_USN_ID = getConfig().STABLE_POOL_USN_ID;
 const expand = 6;
 export interface Seed {
   seed_id: string;
@@ -182,7 +184,7 @@ export const getFarmInfo = async (
 ): Promise<FarmInfo> => {
   const isSignedIn: boolean = getCurrentWallet().wallet.isSignedIn();
   const { tvl, token_account_ids, id } = pool;
-  if (STABLE_POOL_ID == id) {
+  if (new Set(STABLE_POOL_IDS || []).has(id?.toString())) {
     staked = toNonDivisibleNumber(expand, staked ?? '0');
     seed = toNonDivisibleNumber(expand, seed ?? '0');
     if (!pool.decimalsHandled) {
@@ -445,7 +447,7 @@ export const claimAndWithDrawReward = async (
   return executeFarmMultipleTransactions(transactions);
 };
 export const classificationOfCoins = {
-  stablecoin: ['USDT', 'USDC', 'DAI', 'nUSDO', 'cUSD'],
+  stablecoin: ['USDT', 'USDC', 'DAI', 'nUSDO', 'cUSD', 'USN'],
   near_ecosystem: [
     'REF',
     'STNEAR',
@@ -469,6 +471,7 @@ export const classificationOfCoins = {
     'POTATO',
     'SHRM',
     'CUCUMBER',
+    'USN',
   ],
   bridged_tokens: [
     'ETH',
@@ -515,8 +518,9 @@ export const incentiveLpTokenConfig = {
   '974': '4',
 };
 export const defaultConfig = {
-  '2800': '99',
-  '79': '98',
+  '2800': '100',
+  '79': '99',
+  [STABLE_POOL_USN_ID]: '98',
   '2657': '97',
   '2691': '10',
   '3019': '9',

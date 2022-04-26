@@ -101,7 +101,7 @@ export function RecentActivityPage() {
             onClick={() => {
               const url =
                 config.explorerUrl +
-                '/accounts/' +
+                '/address/' +
                 getCurrentWallet().wallet.getAccountId();
               window.open(url, '_blank');
             }}

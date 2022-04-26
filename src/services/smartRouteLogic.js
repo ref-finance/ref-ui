@@ -1495,7 +1495,6 @@ export async function getSmartRouteSwapActions(
 
   if (!canHaveTwoRoutes) {
     // now we need to check through the routes in single manner to find the best one:
-
     for (var i in routes) {
       let currentRoutes = [routes[i]];
       let currentNodeRoutes = [nodeRoutes[i]];
@@ -2381,7 +2380,6 @@ async function GETSTABLESWAPACTION(
     min_amount_out: minAmountOut,
     amount_swapped: amount_swapped,
   };
-
   return stableAction;
   // return await instantSwapGetTransactions(
   //   pool,

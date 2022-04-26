@@ -4,15 +4,19 @@ import * as math from 'mathjs';
 import getConfig from '../services/config';
 import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
 import { TokenMetadata } from '../services/ft-contract';
-import { STABLE_POOL_ID, STABLE_TOKEN_IDS } from '../services/near';
-import { Pool } from '../services/pool';
+import {
+  STABLE_POOL_ID,
+  STABLE_TOKEN_IDS,
+  isStablePool,
+} from '../services/near';
+import { Pool, STABLE_POOL_INFO_CACHE } from '../services/pool';
 import { getSwappedAmount, estimateSwap } from '../services/stable-swap';
 import { EstimateSwapView } from '../services/swap';
 import Big from 'big.js';
 import { sortBy } from 'lodash';
 
 const BPS_CONVERSION = 10000;
-const REF_FI_STABLE_Pool_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
+const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
   getConfig().STABLE_POOL_ID
 }`;
 
@@ -163,8 +167,8 @@ export const calculateSmartRoutingPriceImpact = (
   tokenMid: TokenMetadata,
   tokenOut: TokenMetadata
 ) => {
-  const isPool1StablePool = Number(STABLE_POOL_ID) === swapTodos[0].pool.id;
-  const isPool2StablePool = Number(STABLE_POOL_ID) === swapTodos[1].pool.id;
+  const isPool1StablePool = isStablePool(swapTodos[0].pool.id);
+  const isPool2StablePool = isStablePool(swapTodos[1].pool.id);
 
   const marketPrice1 = isPool1StablePool
     ? '1'
@@ -194,7 +198,9 @@ export const calculateSmartRoutingPriceImpact = (
       tokenMid.id,
       tokenOut.id,
       formattedTokenMidReceived,
-      JSON.parse(localStorage.getItem(REF_FI_STABLE_Pool_INFO_KEY))
+      JSON.parse(
+        localStorage.getItem(STABLE_POOL_INFO_CACHE[swapTodos[1].pool.id])
+      )
     );
     stableOutPool2 =
       stableOut[0] < 0
@@ -515,7 +521,7 @@ export function calculateSmartRoutesV2PriceImpact(
         tokenOut
       );
     } else {
-      return Number(r[0].pool.id) === Number(STABLE_POOL_ID)
+      return isStablePool(r[0].pool.id)
         ? calcStableSwapPriceImpact(
             readablePartialAmountIn,
             r[0].noFeeAmountOut

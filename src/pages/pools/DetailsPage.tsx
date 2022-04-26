@@ -31,7 +31,11 @@ import Loading from '~components/layout/Loading';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
 import { FarmStamp } from '~components/icon/FarmStamp';
 import { ChartLoading } from '~components/icon/Loading';
-import { REF_FARM_CONTRACT_ID, REF_FI_CONTRACT_ID } from '~services/near';
+import {
+  REF_FARM_CONTRACT_ID,
+  REF_FI_CONTRACT_ID,
+  STABLE_POOL_ID,
+} from '~services/near';
 import { PoolSlippageSelector } from '~components/forms/SlippageSelector';
 import { Link } from 'react-router-dom';
 import { canFarm } from '~services/pool';
@@ -102,7 +106,8 @@ import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { useWalletTokenBalances } from '../../state/token';
 import { SmallWallet } from '../../components/icon/SmallWallet';
 import { scientificNotationToString } from '../../utils/numbers';
-import { POOLS_BLACK_LIST } from '../../services/near';
+import { isNotStablePool } from '../../services/pool';
+import { isStablePool } from '../../services/near';
 import {
   getURLInfo,
   checkAccountTip,
@@ -362,11 +367,7 @@ export function AddLiquidityModal(
         setModal(Object.assign({}, modalData));
       });
       setModal(modalData);
-      // throw new Error(
-      //   `${intl.formatMessage({ id: 'you_do_not_have_enough' })} ${toRealSymbol(
-      //     tokens[1].symbol
-      //   )}`
-      // );
+
       return;
     }
 
@@ -375,11 +376,6 @@ export function AddLiquidityModal(
       setMessageId('add_liquidity');
       setDefaultMessage('Add Liquidity');
       return;
-      // throw new Error(
-      //   `${toRealSymbol(tokens[0].symbol)} ${intl.formatMessage({
-      //     id: 'amount_must_be_greater_than_0',
-      //   })} `
-      // );
     }
 
     if (ONLY_ZEROS.test(secondAmount)) {
@@ -387,11 +383,6 @@ export function AddLiquidityModal(
       setMessageId('add_liquidity');
       setDefaultMessage('Add Liquidity');
       return;
-      // throw new Error(
-      //   `${toRealSymbol(tokens[1].symbol)} ${intl.formatMessage({
-      //     id: 'amount_must_be_greater_than_0',
-      //   })} `
-      // );
     }
 
     if (!tokens[0]) {
@@ -520,9 +511,6 @@ export function AddLiquidityModal(
         {/* PC display */}
         <div className="mt-8 md:hidden xs:hidden">
           <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
-            <span className="mr-2 text-primaryText">
-              <SmallWallet />
-            </span>
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
             <span
@@ -555,9 +543,6 @@ export function AddLiquidityModal(
         </div>
         <div className="my-8 md:hidden xs:hidden">
           <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
-            <span className="mr-2 text-primaryText">
-              <SmallWallet />
-            </span>
             <FormattedMessage id="balance" defaultMessage="Balance" />
             :&nbsp;
             <span
@@ -600,9 +585,6 @@ export function AddLiquidityModal(
               </div>
             </div>
             <div className="flex items-center justify-end text-xs text-right mb-1 text-gray-400">
-              <span className="mr-2 text-primaryText">
-                <SmallWallet />
-              </span>
               <FormattedMessage id="balance" defaultMessage="Balance" />
               :&nbsp;
               <span
@@ -644,9 +626,6 @@ export function AddLiquidityModal(
               </div>
             </div>
             <div className="flex justify-end items-end text-xs text-right mb-1 text-gray-400">
-              <span className="mr-2 text-primaryText">
-                <SmallWallet />
-              </span>
               <FormattedMessage id="balance" defaultMessage="Balance" />
               :&nbsp;
               <span
@@ -1345,10 +1324,6 @@ export function PoolDetailsPage() {
     });
   };
 
-  const isStablePool = (pool: PoolDetails) => {
-    return pool?.tokenIds.length > 2;
-  };
-
   useEffect(() => {
     if (state?.tvl > 0) {
       setPoolTVL(state?.tvl);
@@ -1368,11 +1343,9 @@ export function PoolDetailsPage() {
   }, []);
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
-  if (isStablePool(pool)) {
-    history.push('/stableswap', { stableTab: 'stable_swap' });
+  if (isStablePool(pool.id)) {
+    history.push(`/sauce/${pool.id}`);
   }
-
-  if (POOLS_BLACK_LIST.includes(pool.id)) history.push('/');
 
   return (
     <div>

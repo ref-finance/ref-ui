@@ -4,6 +4,7 @@ import getConfig from './services/config';
 import { TokenMetadata } from '~services/ft-contract';
 import { Farm } from '~services/farm';
 import { PoolRPCView } from '~services/api';
+import { STABLE_POOL_ID, STABLE_POOL_USN_ID } from './services/near';
 
 const config = getConfig();
 
@@ -14,24 +15,6 @@ const near = new Near({
   headers: {},
   ...config,
 });
-
-const view = ({
-  methodName,
-  args = {},
-}: {
-  methodName: string;
-  args?: object;
-}) => {
-  return near.connection.provider
-    .query({
-      request_type: 'call_function',
-      finality: 'final',
-      account_id: config.REF_FI_CONTRACT_ID,
-      method_name: methodName,
-      args_base64: Buffer.from(JSON.stringify(args)).toString('base64'),
-    })
-    .then(({ result }) => JSON.parse(Buffer.from(result).toString()));
-};
 
 const farmView = ({
   methodName,
@@ -49,19 +32,6 @@ const farmView = ({
       args_base64: Buffer.from(JSON.stringify(args)).toString('base64'),
     })
     .then(({ result }) => JSON.parse(Buffer.from(result).toString()));
-};
-
-const getTotalPools = () => {
-  return view({ methodName: 'get_number_of_pools' });
-};
-
-const getPools = (page: number) => {
-  const index = (page - 1) * MAX_PER_PAGE;
-
-  return view({
-    methodName: 'get_pools',
-    args: { from_index: index, limit: MAX_PER_PAGE },
-  });
 };
 
 const getTokens = async () => {
@@ -83,40 +53,6 @@ const getFarms = (page: number) => {
     methodName: 'list_farms',
     args: { from_index: index, limit: MAX_PER_PAGE },
   });
-};
-
-export const isNotStablePool = (pool: PoolRPCView) => {
-  return pool.amounts.length < 3;
-};
-
-const cachePools = async () => {
-  const totalPools = await getTotalPools();
-  const pages = Math.ceil(totalPools / MAX_PER_PAGE);
-  for (let page = 1; page <= pages; page++) {
-    const pools = await getPools(page);
-    const filtered_pools = pools.filter(isNotStablePool);
-    await db.pools.bulkPut(
-      filtered_pools.map(
-        (
-          pool: {
-            token_account_ids: any[];
-            amounts: any[];
-            total_fee: any;
-            shares_total_supply: any;
-          },
-          i: number
-        ) => ({
-          id: (page - 1) * MAX_PER_PAGE + i,
-          token1Id: pool.token_account_ids[0],
-          token2Id: pool.token_account_ids[1],
-          token1Supply: pool.amounts[0],
-          token2Supply: pool.amounts[1],
-          fee: pool.total_fee,
-          shares: pool.shares_total_supply,
-        })
-      )
-    );
-  }
 };
 
 const cacheTokens = async () => {

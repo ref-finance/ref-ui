@@ -48,7 +48,7 @@ export function AddPoolPage() {
   }, []);
 
   useEffect(() => {
-    if (txHash) {
+    if (txHash && getCurrentWallet().wallet.isSignedIn()) {
       checkTransactionStatus(txHash).then((res) => {
         const status: any = res.status;
         const data: string | undefined = status.SuccessValue;

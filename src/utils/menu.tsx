@@ -161,7 +161,7 @@ export const useMenuItems = () => {
           logo: <JaIcon />,
         },
         {
-          label: '한국',
+          label: '한국어',
           isExternal: false,
           language: 'ko',
           url: '',
@@ -199,10 +199,10 @@ export const moreLinks: MobileMenuItem[] = [
     isExternal: false,
   },
   {
-    id: 'StableSwap',
-    label: 'StableSwap',
-    pattern: '/stableswap',
-    url: '/stableswap',
+    id: 'Sauce',
+    label: 'Sauce',
+    pattern: '/sauce',
+    url: '/sauce',
     isExternal: false,
   },
   {

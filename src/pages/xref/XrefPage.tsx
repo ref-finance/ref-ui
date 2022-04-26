@@ -36,7 +36,12 @@ import {
   WalletContext,
   getCurrentWallet,
 } from '../../utils/sender-wallet';
-const { XREF_TOKEN_ID, REF_TOKEN_ID, TOTAL_PLATFORM_FEE_REVENUE } = getConfig();
+const {
+  XREF_TOKEN_ID,
+  REF_TOKEN_ID,
+  TOTAL_PLATFORM_FEE_REVENUE,
+  CUMULATIVE_REF_BUYBACK,
+} = getConfig();
 const DECIMALS_XREF_REF_TRANSTER = 8;
 
 const displayBalance = (max: string) => {
@@ -91,6 +96,11 @@ function XrefPage() {
         0,
         true
       );
+      const totalFee = `${toPrecision(
+        TOTAL_PLATFORM_FEE_REVENUE.toString(),
+        2,
+        true
+      )}`;
       const refAmount = toPrecision(
         toReadableNumber(XREF_TOKEN_DECIMALS, cur_locked_token_amount || '0'),
         2,
@@ -101,12 +111,20 @@ function XrefPage() {
         2,
         true
       );
-      const totalFee = `$${toPrecision(
-        TOTAL_PLATFORM_FEE_REVENUE.toString(),
+      const totalBuyBack = `${toPrecision(
+        CUMULATIVE_REF_BUYBACK.toString(),
         2,
         true
       )}`;
-      setTotalDataArray([joinAmount, totalFee, refAmount, xrefAmount]);
+      const revenueBooster = 'x2';
+      setTotalDataArray([
+        joinAmount,
+        totalFee,
+        refAmount,
+        xrefAmount,
+        totalBuyBack,
+        revenueBooster,
+      ]);
     });
     getPrice().then((data) => {
       const rate = toReadableNumber(DECIMALS_XREF_REF_TRANSTER, data);
@@ -139,6 +157,7 @@ function XrefPage() {
       tipContent: `<p class="text-left lg:w-72 xs:w-48 md:w-48 text-xs">${intl.formatMessage(
         { id: 'protocol_projected_revenue_tip' }
       )}</p>`,
+      unit: 'REF',
     },
     third: {
       title: intl.formatMessage({ id: 'total_ref_staked' }),
@@ -147,6 +166,13 @@ function XrefPage() {
     fourth: {
       title: intl.formatMessage({ id: 'total_xref_minted' }),
       unit: 'xREF',
+    },
+    fifth: {
+      title: intl.formatMessage({ id: 'cumulative_ref_buyback' }),
+      unit: 'REF',
+    },
+    sixth: {
+      title: intl.formatMessage({ id: 'yearly_revenue_booster' }),
     },
   };
   const displayTotalREF = () => {
@@ -406,7 +432,6 @@ function InputView(props: any) {
               {rateDisplay(tab)}
             </div>
             <div className="flex items-center text-primaryText text-xs ">
-              <SmallWallet></SmallWallet>
               <span className="ml-2">
                 <FormattedMessage id="balance"></FormattedMessage>:{' '}
                 <span title={max}>{displayBalance(max)}</span>

@@ -120,6 +120,14 @@ const en_US_in_risks_page = {
     '>Guardians</label>, specific NEAR addresses, which are able to pause the contract. Only the DAO can resume the contract, at any time.',
   risks_of_using_ref_finance:
     '<label class="text-greenColor">Risks</label> of Using Ref. finance',
+  admin_sentence_1:
+    'Ref Finance is managed by the  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
+    '>Ref Finance Sputnik DAO</label> and will be transitioning to a fully decentralized DAO.',
+  admin_sentence_2:
+    'For more information relating to the contracts and addresses that have directly managed or currently manage the affairs of Ref Finance, please check our <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/contracts')" +
+    '>Documentation</label>.',
 };
 const en_US = {
   deposit: 'Deposit',
@@ -179,8 +187,8 @@ const en_US = {
   submit: 'Submit',
   wrapnear: 'Wrap NEAR',
   wrapnear_tip_one: 'Wrapping NEAR allows you to trade on REF. Make sure to ',
-  wrapnear_tip_two: 'leave 1 NEAR',
-  wrapnear_tip_three: ' for gas fees to unwrap your NEAR.',
+  wrapnear_tip_two: 'leave 0.5 NEAR',
+  wrapnear_tip_three: ' for gas fees.',
   wrap_error_msg: 'Not enough balance',
   sign_out: 'Sign Out',
   view_account: 'View Account',
@@ -261,7 +269,7 @@ const en_US = {
   slippageCopyForMobile:
     'Slippage means the difference between what you expect to get and what you actually get due to other executing first',
   slippageCopy:
-    'Slippage means the difference between what <br> you expect to get and what you actually <br> get due to other executing first',
+    'Slippage means the difference between what you expect to get and what you actually get due to other executing first',
   depositCopy:
     'This deposits your selected tokens into the <br> exchange for swapping or adding to a liquidity pool',
   nearDepositCopy:
@@ -373,7 +381,7 @@ const en_US = {
   total_stable_coins: 'Total stablecoins',
   daily_volume: 'Daily volume',
   liquidity_utilisation: 'Liquidity utilisation',
-  token_reserves: 'Token Reserves',
+  token_reserves: 'Stats',
   roi_calculator: 'ROI Calculator',
   lp_staked: 'LP staked',
   usd: 'USD',
@@ -396,7 +404,7 @@ const en_US = {
   shares_removed: 'Shares',
   shares_avaliable: 'Shares avaliable',
   minimum_shares: 'Minimum shares',
-  shares_tip: 'Shares available / shares you own totally',
+  shares_tip: 'Shares available / Total shares',
   stablecoin_only: 'Stablecoin only',
   more_than: 'Please input number that more than or equal to 0.01',
   less_than: 'Please input number that less than 20',
@@ -504,7 +512,10 @@ const en_US = {
   wallet_vi: ' ',
   value: 'Value',
   usd_value: 'USD value',
+  sauce_note:
+    'SAUCE is designed for liquidity pools with pegged assets, delivering optimal prices.',
   support_ledger: 'Support Ledger',
+  initialize_account_tip: 'Please initialize your account.',
   support_ledger_tip:
     "By design, Ledger cannot handle large transactions (i.e. Auto Router: trade across multiple pools at once) because of its memory limitation. When activated, the 'Support Ledger' option will limit transactions to their simplest form (to the detriment of potential optimal prices found by our Auto Router), so transactions of a reasonable size can be signed.",
   start: 'Start',
@@ -524,5 +535,7 @@ const en_US = {
   pool_fee_cross_swap: 'Pool/Cross-chain fee',
   mapping_account: 'Mapping account',
   mapping_account_tip: 'You have token(s) in Mapping Account',
+  cumulative_ref_buyback: 'Cumulative REF Buyback',
+  yearly_revenue_booster: 'Yearly Revenue Booster',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

@@ -86,6 +86,7 @@ import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { scientificNotationToString } from '../../utils/numbers';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
+const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
 interface SearchData {
   status: number;
   sort: string;
@@ -1215,7 +1216,7 @@ function FarmView({
   async function showStakeModal() {
     const { lpTokenId } = data;
     const b = await mftGetBalance(getMftTokenId(lpTokenId));
-    if (STABLE_POOL_ID == lpTokenId) {
+    if (new Set(STABLE_POOL_IDS || []).has(lpTokenId?.toString())) {
       setStakeBalance(toReadableNumber(LP_STABLE_TOKEN_DECIMALS, b));
     } else {
       setStakeBalance(toReadableNumber(LP_TOKEN_DECIMALS, b));
@@ -1585,17 +1586,10 @@ function FarmView({
             <div className="order-2 lg:ml-auto xl:m-0">
               <div>
                 <Link
-                  to={
-                    PoolId == STABLE_POOL_ID
-                      ? {
-                          pathname: '/stableswap',
-                          state: { backToFarms: true },
-                        }
-                      : {
-                          pathname: `/pool/${PoolId}`,
-                          state: { backToFarms: true },
-                        }
-                  }
+                  to={{
+                    pathname: `/pool/${PoolId}`,
+                    state: { backToFarms: true },
+                  }}
                   target="_blank"
                   className="text-lg xs:text-sm text-white"
                 >
@@ -1611,11 +1605,7 @@ function FarmView({
           </div>
           <Link
             title={intl.formatMessage({ id: 'view_pool' })}
-            to={
-              PoolId == STABLE_POOL_ID
-                ? { pathname: '/stableswap', state: { backToFarms: true } }
-                : { pathname: `/pool/${PoolId}`, state: { backToFarms: true } }
-            }
+            to={{ pathname: `/pool/${PoolId}`, state: { backToFarms: true } }}
             target="_blank"
           >
             <span
@@ -1698,6 +1688,26 @@ function FarmView({
                   effect="solid"
                 />
               </div>
+              {/* <div
+                className="ml-2 text-sm"
+                data-type="info"
+                data-place="right"
+                data-multiline={true}
+                data-class="reactTip"
+                data-html={true}
+                data-tip={tipOfApr()}
+                data-for="aprValueId"
+              >
+                <QuestionMark />
+                <ReactTooltip
+                  className="w-20"
+                  id="aprValueId"
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
+              </div> */}
             </div>
           </div>
           <div className="my-3.5 border border-t-0 border-farmSplitLine" />
@@ -2133,7 +2143,7 @@ function ActionModal(
     if (type == 'stake') {
       const LIMITAOMUNT = '1000000000000000000';
       let value;
-      if (STABLE_POOL_ID == farm.lpTokenId) {
+      if (new Set(STABLE_POOL_IDS || []).has(farm.lpTokenId?.toString())) {
         value = toNonDivisibleNumber(LP_STABLE_TOKEN_DECIMALS, amount);
       } else {
         value = toNonDivisibleNumber(LP_TOKEN_DECIMALS, amount);
@@ -2229,7 +2239,9 @@ function ActionModal(
                   <Alert
                     level="warn"
                     message={
-                      STABLE_POOL_ID == farm.lpTokenId
+                      new Set(STABLE_POOL_IDS || []).has(
+                        farm.lpTokenId?.toString()
+                      )
                         ? intl.formatMessage({ id: 'more_than_stable_seed' })
                         : intl.formatMessage({ id: 'more_than_general_seed' })
                     }

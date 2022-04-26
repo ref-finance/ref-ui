@@ -1,5 +1,5 @@
 import getConfig from './config';
-import { wallet, filterBlackListPools, POOLS_BLACK_LIST } from './near';
+import { wallet, isStablePool, STABLE_TOKEN_USN_IDS } from './near';
 import _ from 'lodash';
 import { parsePoolView, PoolRPCView, getCurrentUnixTime } from './api';
 import moment from 'moment/moment';
@@ -49,7 +49,7 @@ const parseActionView = async (action: any) => {
   const data = await parseAction(action[3], action[4], action[2]);
   return {
     datetime: moment.unix(action[0] / 1000000000),
-    txUrl: config.explorerUrl + '/transactions/' + action[1],
+    txUrl: config.explorerUrl + '/txns/' + action[1],
     data: data,
     // status: action[5] === 'SUCCESS_VALUE',
     status: action[6] && action[6].indexOf('SUCCESS') > -1,
@@ -84,21 +84,19 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
         headers: { 'Content-type': 'application/json; charset=UTF-8' },
       }).then((res) => res.json());
 
-      const blackListPools = await getPool(POOLS_BLACK_LIST[0].toString());
-
-      const blacklistTokenIn = blackListPools.token_account_ids[0];
-
-      const blacklistTokenOut = blackListPools.token_account_ids[1];
-
       const twoTokenStablePoolIds = (
-        await db.getPoolsByTokens(blacklistTokenIn, blacklistTokenOut)
+        await getPoolsByTokens({
+          tokenInId: STABLE_TOKEN_USN_IDS[0],
+          tokenOutId: STABLE_TOKEN_USN_IDS[1],
+          loadingTrigger: false,
+        })
       ).map((p) => p.id.toString());
 
       const twoTokenStablePools = await getPoolsByIds({
         pool_ids: twoTokenStablePoolIds,
       });
 
-      if (twoTokenStablePools?.length > 0) {
+      if (twoTokenStablePools.length > 0) {
         pools.push(_.maxBy(twoTokenStablePools, (p) => p.tvl));
       }
 
@@ -106,11 +104,11 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
     }
 
     pools = pools.map((pool: any) => parsePoolView(pool));
-    return pools
-      .filter((pool: { token_account_ids: string | any[] }) => {
-        return pool.token_account_ids.length < 3;
-      })
-      .filter(filterBlackListPools);
+    return pools.filter(
+      (pool: { token_account_ids: string | any[]; id: any }) => {
+        return !isStablePool(pool.id) && pool.token_account_ids.length < 3;
+      }
+    );
   } catch (error) {
     console.log(error);
     return [];

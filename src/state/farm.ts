@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import BigNumber from 'bignumber.js';
-import { canFarm } from '~services/pool';
+import { canFarm } from '../services/pool';
 
 export const useFarmStake = ({
   poolId,

@@ -122,6 +122,14 @@ const ja_in_risks_page = {
     '>ガーディアンズ</label>，特定のNEARアドレスはコントラクトを停止することができます。DAOだけが、いつでもコントラクトを再開することができます。',
   risks_of_using_ref_finance:
     'Ref. financeの利用<label class="text-greenColor">リスク</label>',
+  admin_sentence_1:
+    'Ref Financeは、<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
+    '>Ref Finance Sputnik DAO</label> によって管理されており、完全な分散型DAOに移行する予定です。',
+  admin_sentence_2:
+    'Ref Financeの業務を直接管理している、または現在管理している契約および住所の詳細については、 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/contracts')" +
+    '>ドキュメント</label> を確認してください。',
 };
 const ja = {
   deposit: 'デポジット',
@@ -181,8 +189,8 @@ const ja = {
   submit: '提出',
   wrapnear: 'Wrap NEAR',
   wrapnear_tip_one: 'wNEARは、REFでの取引をサポートします。',
-  wrapnear_tip_two: '最低でも1つはNEARにしてください。',
-  wrapnear_tip_three: 'ガスフィーが十分であることを確認してください。',
+  wrapnear_tip_two: '最低でも0.5つはNEARにしてください。',
+  wrapnear_tip_three: 'ガス料金。',
   wrap_error_msg: 'バランス不足',
   sign_out: '退会',
   view_account: 'アカウントを見る',
@@ -399,12 +407,12 @@ const ja = {
   total_stable_coins: 'ステーブルコインの総数',
   daily_volume: '24時間取引量',
   liquidity_utilisation: '取引活発度',
-  token_reserves: 'ステーブルコインの貯蔵量詳細',
+  token_reserves: '統計',
   insufficient_shares: '使用可能な額を超えています',
   shares_removed: '流動性',
   shares_avaliable: '取得可能額',
   minimum_shares: 'ミニマム額',
-  shares_tip: '使用可能額／全保有額',
+  shares_tip: '利用可能株式数/総株式数',
   stablecoin_only: 'ステーブルコイン',
   more_than: '0.01以上の数値を入力してください。',
   less_than: '20未満の数字を入力してください',
@@ -514,9 +522,11 @@ const ja = {
   wallet_vi: ' ',
   value: '額',
   usd_value: 'ドル換算額',
+  sauce_note:
+    'SAUCEは、資産が固定された流動性プール向けに設計されており、最適な価格を提供します。',
   support_ledger: 'Ledgerをサポートする',
   support_ledger_tip:
-    'Ledgerの設計によると、メモリの制限のため、 <br />Ledgerの台帳が大口取引に対応できない（自動ルーティングなど:複数のプールにまたがって同時に取引する）。 起動後,Ledgerをサポートする台帳は、トランザクションを次のように制限します。最もシンプルな形で（価格向上に寄与しない）。そのため、それなりの規模のコントラクトを結ぶことが可能です。',
+    'Ledgerの設計によると、メモリの制限のため、Ledgerの台帳が大口取引に対応できない（自動ルーティングなど:複数のプールにまたがって同時に取引する）。 起動後,Ledgerをサポートする台帳は、トランザクションを次のように制限します。最もシンプルな形で（価格向上に寄与しない）。そのため、それなりの規模のコントラクトを結ぶことが可能です。',
   start: 'スタート',
   aprTip: '全リワード製品（未着手・進行中）を対象とした指標値です。',
   half: '半分',
@@ -533,5 +543,7 @@ const ja = {
   pool_fee_cross_swap: 'プール/チェーン間 手数料',
   mapping_account: '口座をマッピングする',
   mapping_account_tip: 'マッピングアカウントにトークンがあります',
+  cumulative_ref_buyback: 'Cumulative REF Buyback',
+  yearly_revenue_booster: 'Yearly Revenue Booster',
 };
 export default Object.assign(ja, ja_in_risks_page);

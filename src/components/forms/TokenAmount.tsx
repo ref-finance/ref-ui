@@ -9,15 +9,12 @@ import { TokenMetadata } from '../../services/ft-contract';
 import { TokenBalancesView } from '../../services/token';
 import Icon from '../tokens/Icon';
 import InputAmount from './InputAmount';
-import SelectToken, { tokenPrice } from './SelectToken';
-import {
-  toPrecision,
-  multiply,
-  ONLY_ZEROS,
-  toInternationalCurrencySystem,
-} from '../../utils/numbers';
+import { tokenPrice } from './SelectToken';
+import { toInternationalCurrencySystem } from '../../utils/numbers';
+import SelectToken, { StableSelectToken } from './SelectToken';
+import { toPrecision, multiply, ONLY_ZEROS } from '../../utils/numbers';
 import { FormattedMessage } from 'react-intl';
-import { SmallWallet } from '../../components/icon/SmallWallet';
+import { SmallWallet } from '~components/icon/SmallWallet';
 import { RefIcon } from '../../components/icon/Common';
 import { currentTokensPrice } from '../../services/api';
 import { IconLeft } from '../tokens/Icon';
@@ -44,6 +41,7 @@ interface TokenAmountProps {
   forSwap?: boolean;
   isError?: boolean;
   tokenPriceList?: Record<string, any>;
+  swapMode?: SWAP_MODE;
 }
 
 export function HalfAndMaxAmount({
@@ -103,6 +101,7 @@ export default function TokenAmount({
   forSwap,
   isError,
   tokenPriceList,
+  swapMode,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) =>
     toRoundedReadableNumber({
@@ -150,26 +149,43 @@ export default function TokenAmount({
               : null
           }
         />
-        {showSelectToken && (
-          <SelectToken
-            tokenPriceList={tokenPriceList}
-            tokens={tokens}
-            render={render}
-            selected={
-              selectedToken && (
-                <div
-                  className="flex items-center justify-end font-semibold "
-                  onMouseEnter={() => setHoverSelectToken(true)}
-                  onMouseLeave={() => setHoverSelectToken(false)}
-                >
-                  <Icon token={selectedToken} hover={hoverSelectToken} />
-                </div>
-              )
-            }
-            onSelect={onSelectToken}
-            balances={balances}
-          />
-        )}
+        {showSelectToken &&
+          (!swapMode || swapMode === SWAP_MODE.NORMAL ? (
+            <SelectToken
+              tokenPriceList={tokenPriceList}
+              tokens={tokens}
+              render={render}
+              selected={
+                selectedToken && (
+                  <div
+                    className="flex items-center justify-end font-semibold "
+                    onMouseEnter={() => setHoverSelectToken(true)}
+                    onMouseLeave={() => setHoverSelectToken(false)}
+                  >
+                    <Icon token={selectedToken} hover={hoverSelectToken} />
+                  </div>
+                )
+              }
+              onSelect={onSelectToken}
+              balances={balances}
+            />
+          ) : (
+            <StableSelectToken
+              selected={
+                selectedToken && (
+                  <div
+                    className="flex items-center justify-end font-semibold "
+                    onMouseEnter={() => setHoverSelectToken(true)}
+                    onMouseLeave={() => setHoverSelectToken(false)}
+                  >
+                    <Icon token={selectedToken} hover={hoverSelectToken} />
+                  </div>
+                )
+              }
+              tokens={tokens}
+              onSelect={onSelectToken}
+            />
+          ))}
         {!showSelectToken && selectedToken && (
           <div className="flex items-center justify-end font-semibold w-2/5">
             <Icon token={selectedToken} showArrow={false} />

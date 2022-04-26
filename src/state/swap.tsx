@@ -47,6 +47,7 @@ import {
   getURLInfo,
   swapToast,
 } from '../components/layout/transactionTipPopUp';
+import { SWAP_MODE } from '../pages/SwapPage';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -62,6 +63,8 @@ interface SwapOptions {
   stablePool?: StablePool;
   loadingPause?: boolean;
   setLoadingPause?: (pause: boolean) => void;
+  swapMode?: SWAP_MODE;
+  reEstimateTrigger?: boolean;
   supportLedger?: boolean;
   requestingTrigger?: boolean;
   requested?: boolean;
@@ -79,6 +82,8 @@ export const useSwap = ({
   loadingTrigger,
   setLoadingTrigger,
   loadingPause,
+  swapMode,
+  reEstimateTrigger,
   supportLedger,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
@@ -176,6 +181,7 @@ export const useSwap = ({
         intl,
         setLoadingData,
         loadingTrigger: loadingTrigger && !loadingPause,
+        swapMode,
         supportLedger,
       })
         .then(async (estimates) => {
@@ -226,6 +232,7 @@ export const useSwap = ({
     tokenIn,
     tokenOut,
     tokenInAmount,
+    reEstimateTrigger,
     supportLedger,
   ]);
 

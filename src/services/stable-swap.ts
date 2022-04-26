@@ -17,7 +17,6 @@ import {
   Transaction,
   wallet,
   refFiViewFunction,
-  STABLE_TOKEN_INDEX,
 } from './near';
 import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
@@ -41,10 +40,11 @@ import BigNumber from 'bignumber.js';
 import _ from 'lodash';
 import { PoolMode } from './swap';
 import { getCurrentWallet } from '../utils/sender-wallet';
+import { getStableTokenIndex } from './near';
 const FEE_DIVISOR = 10000;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
 const STABLE_POOL_KEY = `STABLE_POOL_VALUE_${getConfig().STABLE_POOL_ID}`;
-const REF_FI_STABLE_Pool_INFO_KEY = 'REF_FI_STABLE_Pool_INFO_VALUE';
+const REF_FI_STABLE_POOL_INFO_KEY = 'REF_FI_STABLE_Pool_INFO_VALUE';
 const STABLE_POOL_RES_KEY = 'STABLE_POOL_RES_KEY';
 
 interface EstimateSwapOptions {
@@ -245,7 +245,6 @@ export const instantSwap = async ({
     amountIn,
     minAmountOut,
   });
-
   return executeMultipleTransactions(transactions);
 };
 
@@ -531,6 +530,11 @@ export const calc_add_liquidity = (
   pool_token_supply: number,
   trade_fee: number
 ) => {
+  if (pool_token_supply === 0) {
+    const d_0 = calc_d(amp, deposit_c_amounts);
+    return [d_0, 0];
+  }
+
   const token_num = old_c_amounts.length;
   const d_0 = calc_d(amp, old_c_amounts);
   let c_amounts = [];
@@ -631,6 +635,8 @@ export const getSwappedAmount = (
 ) => {
   const amp = stablePool.amp;
   const trade_fee = stablePool.total_fee;
+
+  const STABLE_TOKEN_INDEX = getStableTokenIndex(stablePool.id);
 
   const in_token_idx = STABLE_TOKEN_INDEX[tokenInId];
   const out_token_idx = STABLE_TOKEN_INDEX[tokenOutId];

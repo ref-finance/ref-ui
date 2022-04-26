@@ -182,8 +182,8 @@ const uk_UA = {
   submit: 'Прийняти',
   wrapnear: 'Обгорнути NEAR',
   wrapnear_tip_one: 'Обгортання NEAR дозволяє вам торгувати на REF',
-  wrapnear_tip_two: 'Залиште 1 NEAR',
-  wrapnear_tip_three: 'для комісії щоб розгорнути назад ваш NEAR.',
+  wrapnear_tip_two: 'Залиште 0.5 NEAR',
+  wrapnear_tip_three: 'для плати за газ.',
   wrap_error_msg: 'Недостатній баланс',
   sign_out: 'Вийти',
   view_account: 'Огляд акаунта',
@@ -265,7 +265,7 @@ const uk_UA = {
   slippageCopyForMobile:
     'Прослизання означає різницю між тим, що ви очікуєте отримати, і тим, що ви насправді отримаєте, при виконанні інших ордерів першими',
   slippageCopy:
-    'Прослизання означає різницю між тим, <br> що ви очікуєте отримати, і тим, що ви насправді  <br> отримаєте, при виконанні інших ордерів першими',
+    'Прослизання означає різницю між тим, що ви очікуєте отримати, і тим, що ви насправді отримаєте, при виконанні інших ордерів першими',
   depositCopy:
     'Перенесення ваших вибраних токенів на <br> біржу для обміну або додавання до пулу ліквідности',
   nearDepositCopy:
@@ -379,7 +379,7 @@ const uk_UA = {
   total_stable_coins: 'Всього стейблкоїнів',
   daily_volume: "Щоденний об'єм",
   liquidity_utilisation: 'Використання ліквідності',
-  token_reserves: 'Резерви токенів',
+  token_reserves: 'Cтатистика',
   roi_calculator: 'ROI калькулятор',
   lp_staked: 'LP стейкінгу',
   usd: 'USD',
@@ -402,7 +402,7 @@ const uk_UA = {
   shares_removed: 'Частки',
   shares_avaliable: 'Доступні частки',
   minimum_shares: 'Мін. частка',
-  shares_tip: 'Доступні частки / частки, якими ви повністю володієте',
+  shares_tip: 'Доступні частки / Усього часток',
   stablecoin_only: 'Лише стейблкоїни',
   more_than: 'Будь ласка, введіть число, яке більше або дорівнює 0,01',
   less_than: 'Будь ласка, введіть число менше 20',
@@ -484,6 +484,10 @@ const uk_UA = {
   multiple: 'Декілька',
   default: 'За замовчуванням',
   vi_go_live: 'Доступна В&apos;єтнамська мова!',
+  initialize_account_tip: 'Будь ласка, ініціалізуйте свій обліковий запис.',
+  transaction_failed: 'Не вдалося виконати операцію',
+  click_to_view: 'Клацніть, щоб переглянути',
+  Type: 'Тип',
   create: 'створювати',
   support_ledger: 'Support Ledger',
   support_ledger_tip:
@@ -495,6 +499,8 @@ const uk_UA = {
   ref_account_balance_tip:
     'Схоже сталася помилка, при додаванні/вилученні ліквідності в пулі',
   ref_account_tip_2: 'У вашому обліковому записі REF є токен(и)',
+  sauce_note:
+    'SAUCE  створений для пулів ліквідності активів з фіксованою вартістю (стейблкоінів), забезпечуючи найоптимальніший обмін.',
   ref_account_tip_top: 'ймовірно токен(и) знаходяться на вашому рахунку REF',
   click_here: 'Натисніть тут',
   to_recover_them: 'щоб їх відновити',
@@ -505,5 +511,15 @@ const uk_UA = {
   pool_fee_cross_swap: 'Плата за басейн/перехресний ланцюг',
   mapping_account: 'Картографічний обліковий запис',
   mapping_account_tip: 'У вас є маркери в картографічному обліковому записі',
+  admin_sentence_1:
+    'Ref Finance керується  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
+    '>Ref Finance Sputnik DAO</label> і буде перехід на повністю децентралізовану DAO.',
+  admin_sentence_2:
+    'Для отримання додаткової інформації про контракти та адреси, які безпосередньо керують або наразі керують справами Ref Finance, перегляньте нашу <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/contracts')" +
+    '>документацію</label>.',
+  cumulative_ref_buyback: 'Cumulative REF Buyback',
+  yearly_revenue_booster: 'Yearly Revenue Booster',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

@@ -36,11 +36,12 @@ import { getDepositableBalance, useTokenBalances } from '../../state/token';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import SquareRadio from '../radio/SquareRadio';
 import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
-import { checkAccountTip, getURLInfo } from '../layout/transactionTipPopUp';
-import { checkTransaction } from '../../services/swap';
+import StableTokenListUSN from './StableTokenListUSN';
+import { getURLInfo, checkAccountTip } from '../layout/transactionTipPopUp';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
-const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE';
+const SWAP_SLIPPAGE_KEY_USN =
+  'REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE_USN';
 const ONLY_ZEROS = /^0*\.?0*$/;
 
 export function myShares({
@@ -75,7 +76,7 @@ export function myShares({
   return inPrecisionDisplayUserTotalShares + ' ' + `(${displayPercent}%)`;
 }
 
-export default function AddLiquidityComponent(props: {
+export default function AddLiquidityComponentUSN(props: {
   pool: Pool;
   tokens: TokenMetadata[];
   balances: TokenBalancesView;
@@ -95,10 +96,9 @@ export default function AddLiquidityComponent(props: {
   } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
-  const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');
   const [addType, setAddType] = useState<string>('');
   const [slippageTolerance, setSlippageTolerance] = useState<number>(
-    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY)) || 0.1
+    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY_USN)) || 0.1
   );
   const [messageId, setMessageId] = useState<string>('add_liquidity');
   const [defaultMessage, setDefaultMessage] = useState<string>('Add Liquidity');
@@ -110,15 +110,15 @@ export default function AddLiquidityComponent(props: {
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
   const predicedShares = usePredictShares({
     poolId: pool.id,
-    tokenAmounts: [firstTokenAmount, secondTokenAmount, thirdTokenAmount],
+    tokenAmounts: [firstTokenAmount, secondTokenAmount],
     stablePool,
   });
   const [slippageInvalid, setSlippageInvalid] = useState(false);
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
 
-  const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
+  const { signedInState } = useContext(WalletContext);
+  const isSignedIn = signedInState.isSignedIn;
 
   useEffect(() => {
     const firstAmount = toReadableNumber(
@@ -131,33 +131,22 @@ export default function AddLiquidityComponent(props: {
       balances[tokens[1].id]
     );
 
-    const thirdAmount = toReadableNumber(
-      tokens[2].decimals,
-      balances[tokens[2].id]
-    );
-
     if (addType === 'addMax') {
       setError(null);
       setCanAddLP(
-        !(
-          ONLY_ZEROS.test(firstAmount) &&
-          ONLY_ZEROS.test(secondAmount) &&
-          ONLY_ZEROS.test(thirdAmount)
-        )
+        !(ONLY_ZEROS.test(firstAmount) && ONLY_ZEROS.test(secondAmount))
       );
       setCanDeposit(false);
       setMessageId('add_liquidity');
       setDefaultMessage('Add Liquidity');
       setFirstTokenAmount(firstAmount);
       setSecondTokenAmount(secondAmount);
-      setThirdTokenAmount(thirdAmount);
     } else if (addType === 'addAll') {
       setError(null);
       setCanAddLP(false);
       setCanDeposit(false);
       setFirstTokenAmount('');
       setSecondTokenAmount('');
-      setThirdTokenAmount('');
     }
   }, [addType]);
 
@@ -190,7 +179,6 @@ export default function AddLiquidityComponent(props: {
         validate({
           firstAmount: amount,
           secondAmount: secondTokenAmount,
-          thirdAmount: thirdTokenAmount,
           tokens,
         });
       } catch (error) {
@@ -199,16 +187,13 @@ export default function AddLiquidityComponent(props: {
     } else {
       const fairShares = getFairShare(amount, tokens[0]);
       const secondAmount = getTokenShare(fairShares, tokens[1]);
-      const thirdAmount = getTokenShare(fairShares, tokens[2]);
 
       setFirstTokenAmount(amount);
       setSecondTokenAmount(secondAmount);
-      setThirdTokenAmount(thirdAmount);
       try {
         validate({
           firstAmount: amount,
           secondAmount,
-          thirdAmount,
           tokens,
         });
       } catch (error) {
@@ -225,7 +210,6 @@ export default function AddLiquidityComponent(props: {
         validate({
           firstAmount: firstTokenAmount,
           secondAmount: amount,
-          thirdAmount: thirdTokenAmount,
           tokens,
         });
       } catch (error) {
@@ -234,51 +218,13 @@ export default function AddLiquidityComponent(props: {
     } else {
       const fairShares = getFairShare(amount, tokens[1]);
       const firstAmount = getTokenShare(fairShares, tokens[0]);
-      const thirdAmount = getTokenShare(fairShares, tokens[2]);
 
       setSecondTokenAmount(amount);
       setFirstTokenAmount(firstAmount);
-      setThirdTokenAmount(thirdAmount);
       try {
         validate({
           firstAmount,
           secondAmount: amount,
-          thirdAmount,
-          tokens,
-        });
-      } catch (error) {
-        setError(error);
-      }
-    }
-  };
-
-  const changeThirdTokenAmount = (amount: string) => {
-    setError(null);
-    if (addType !== 'addAll') {
-      setThirdTokenAmount(amount);
-      try {
-        validate({
-          firstAmount: firstTokenAmount,
-          secondAmount: secondTokenAmount,
-          thirdAmount: amount,
-          tokens,
-        });
-      } catch (error) {
-        setError(error);
-      }
-    } else {
-      const fairShares = getFairShare(amount, tokens[2]);
-      const firstAmount = getTokenShare(fairShares, tokens[0]);
-      const secondAmount = getTokenShare(fairShares, tokens[1]);
-
-      setFirstTokenAmount(firstAmount);
-      setSecondTokenAmount(secondAmount);
-      setThirdTokenAmount(amount);
-      try {
-        validate({
-          firstAmount,
-          secondAmount,
-          thirdAmount: amount,
           tokens,
         });
       } catch (error) {
@@ -290,11 +236,9 @@ export default function AddLiquidityComponent(props: {
   function validate({
     firstAmount,
     secondAmount,
-    thirdAmount,
   }: {
     firstAmount: string;
     secondAmount: string;
-    thirdAmount: string;
     tokens: TokenMetadata[];
   }) {
     const firstTokenAmountBN = new BigNumber(firstAmount.toString());
@@ -305,10 +249,6 @@ export default function AddLiquidityComponent(props: {
     const secondTokenBalanceBN = new BigNumber(
       toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
     );
-    const thirdTokenAmountBN = new BigNumber(thirdAmount.toString());
-    const thirdTokenBalanceBN = new BigNumber(
-      toReadableNumber(tokens[2].decimals, balances[tokens[2].id])
-    );
 
     setCanAddLP(true);
     setCanDeposit(false);
@@ -316,8 +256,7 @@ export default function AddLiquidityComponent(props: {
     if (
       !(
         firstTokenAmountBN.isEqualTo(firstTokenBalanceBN) &&
-        secondTokenAmountBN.isEqualTo(secondTokenBalanceBN) &&
-        thirdTokenAmountBN.isEqualTo(thirdTokenBalanceBN)
+        secondTokenAmountBN.isEqualTo(secondTokenBalanceBN)
       ) &&
       addType === 'addMax'
     ) {
@@ -325,7 +264,6 @@ export default function AddLiquidityComponent(props: {
     } else if (
       firstTokenAmountBN.isEqualTo(firstTokenBalanceBN) &&
       secondTokenAmountBN.isEqualTo(secondTokenBalanceBN) &&
-      thirdTokenAmountBN.isEqualTo(thirdTokenBalanceBN) &&
       !addType
     ) {
       setAddType('addMax');
@@ -365,27 +303,9 @@ export default function AddLiquidityComponent(props: {
       return;
     }
 
-    if (thirdTokenAmountBN.isGreaterThan(thirdTokenBalanceBN)) {
-      setCanAddLP(false);
-      setCanDeposit(true);
-      const { id, decimals } = tokens[2];
-      const modalData: any = {
-        token: tokens[2],
-        action: 'deposit',
-      };
-      getDepositableBalance(id, decimals).then((nearBalance) => {
-        modalData.max = nearBalance;
-        setModal(Object.assign({}, modalData));
-      });
-      setModal(modalData);
-
-      return;
-    }
-
     if (
       (!firstAmount || ONLY_ZEROS.test(firstAmount)) &&
-      (!secondAmount || ONLY_ZEROS.test(secondAmount)) &&
-      (!thirdAmount || ONLY_ZEROS.test(thirdAmount))
+      (!secondAmount || ONLY_ZEROS.test(secondAmount))
     ) {
       setCanAddLP(false);
     }
@@ -405,13 +325,13 @@ export default function AddLiquidityComponent(props: {
       0
     );
 
-    const amounts = [firstTokenAmount, secondTokenAmount, thirdTokenAmount].map(
-      (amount, i) => toNonDivisibleNumber(tokens[i].decimals, amount)
-    ) as [string, string, string];
+    const amounts = [firstTokenAmount, secondTokenAmount].map((amount, i) =>
+      toNonDivisibleNumber(tokens[i].decimals, amount)
+    ) as [string, string];
 
     return addLiquidityToStablePool({
       tokens: tokens,
-      id: Number(STABLE_POOL_ID),
+      id: Number(pool.id),
       amounts,
       min_shares,
     });
@@ -432,13 +352,11 @@ export default function AddLiquidityComponent(props: {
           currentChoose={'add_liquidity'}
         />
 
-        <StableTokenList
+        <StableTokenListUSN
           changeFirstTokenAmount={changeFirstTokenAmount}
           changeSecondTokenAmount={changeSecondTokenAmount}
-          changeThirdTokenAmount={changeThirdTokenAmount}
           firstTokenAmount={firstTokenAmount}
           secondTokenAmount={secondTokenAmount}
-          thirdTokenAmount={thirdTokenAmount}
           tokens={tokens}
           balances={balances}
         />
@@ -450,7 +368,7 @@ export default function AddLiquidityComponent(props: {
             slippageTolerance={slippageTolerance}
             onChange={(slippage) => {
               setSlippageTolerance(slippage);
-              localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
+              localStorage.setItem(SWAP_SLIPPAGE_KEY_USN, slippage?.toString());
             }}
             setInvalid={setSlippageInvalid}
             invalid={slippageInvalid}

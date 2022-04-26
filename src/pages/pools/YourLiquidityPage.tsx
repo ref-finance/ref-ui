@@ -39,7 +39,12 @@ import { FarmDot } from '~components/icon';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
 import { usePoolTVL } from '../../state/pool';
 import { multiply, divide } from '../../utils/numbers';
-import { STABLE_POOL_ID, STABLE_TOKEN_IDS } from '../../services/near';
+import { STABLE_POOL_USN_ID, isStablePool } from '../../services/near';
+import {
+  STABLE_POOL_ID,
+  STABLE_TOKEN_IDS,
+  STABLE_TOKEN_USN_IDS,
+} from '../../services/near';
 import { getStablePoolFromCache, isNotStablePool } from '../../services/pool';
 import {
   getCurrentWallet,
@@ -47,12 +52,7 @@ import {
   getSenderLoginRes,
 } from '../../utils/sender-wallet';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
-import { useTokenBalances } from '../../state/token';
-import {
-  getURLInfo,
-  checkAccountTip,
-} from '../../components/layout/transactionTipPopUp';
-import { checkTransaction } from '../../services/swap';
+import { useFarmStake } from '../../state/farm';
 
 function MyShares({
   shares,
@@ -79,9 +79,9 @@ function MyShares({
 
   let displayPercent;
   if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
-  else if (sharePercent < 0.0001)
+  else if (sharePercent < 0.01 && sharePercent > 0)
     displayPercent = `< ${
-      decimal ? '0.'.padEnd(decimal + 1, '0') + '1' : '0.0001'
+      decimal ? '0.'.padEnd(decimal + 1, '0') + '1' : '0.01'
     }`;
   else displayPercent = toPrecision(String(sharePercent), decimal || 4);
 
@@ -89,10 +89,9 @@ function MyShares({
     <div className="h-12 inline-flex flex-col justify-center xs:text-right md:text-right">
       <div className="pl-2 pb-1 xs:pr-0 md:pr-0 text-sm whitespace-nowrap">{`${toRoundedReadableNumber(
         {
-          decimals:
-            poolId === Number(STABLE_POOL_ID)
-              ? STABLE_LP_TOKEN_DECIMALS
-              : LP_TOKEN_DECIMALS,
+          decimals: isStablePool(poolId)
+            ? STABLE_LP_TOKEN_DECIMALS
+            : LP_TOKEN_DECIMALS,
           number: userTotalShare
             .toNumber()
             .toLocaleString('fullwide', { useGrouping: false }),
@@ -153,11 +152,32 @@ export function YourLiquidityPage() {
   const [pools, setPools] = useState<PoolRPCView[]>();
 
   const [stablePool, setStablePool] = useState<PoolRPCView>();
+  const [StablePoolUSN, setStablePoolUSN] = useState<PoolRPCView>();
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const senderLoginRes = getSenderLoginRes();
   const history = useHistory();
+
+  const { pool: pool_stable, shares, stakeList } = usePool(STABLE_POOL_ID);
+
+  const farmStake = useFarmStake({
+    poolId: Number(STABLE_POOL_ID),
+    stakeList,
+  });
+  const userTotalShare = BigNumber.sum(shares, farmStake);
+
+  const {
+    pool: pool_stable_usn,
+    shares: shares_usn,
+    stakeList: stakeList_usn,
+  } = usePool(STABLE_POOL_USN_ID);
+
+  const farmStake_usn = useFarmStake({
+    poolId: Number(STABLE_POOL_USN_ID),
+    stakeList: stakeList_usn,
+  });
+  const userTotalShare_usn = BigNumber.sum(shares_usn, farmStake_usn);
 
   if (!senderLoginRes && !webWallet.isSignedIn()) {
     history.push('/');
@@ -171,7 +191,7 @@ export function YourLiquidityPage() {
 
     ftGetTokensMetadata(
       (pools?.map((p) => p.token_account_ids).flat() || []).concat(
-        STABLE_TOKEN_IDS
+        STABLE_TOKEN_IDS.concat(STABLE_TOKEN_USN_IDS)
       )
     ).then(setTokensMeta);
   }, [pools]);
@@ -180,10 +200,21 @@ export function YourLiquidityPage() {
     if (isSignedIn) {
       getYourPools().then(setPools);
       getStablePoolFromCache().then((res) => setStablePool(res[0]));
+      getStablePoolFromCache(STABLE_POOL_USN_ID.toString()).then((res) =>
+        setStablePoolUSN(res[0])
+      );
     }
   }, [isSignedIn]);
 
-  if (!pools || !stablePool || !tokensMeta) return <Loading />;
+  if (
+    !pools ||
+    !stablePool ||
+    !StablePoolUSN ||
+    !pool_stable ||
+    !pool_stable_usn ||
+    !tokensMeta
+  )
+    return <Loading />;
 
   return (
     <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
@@ -198,7 +229,9 @@ export function YourLiquidityPage() {
             defaultMessage="Your Liquidity"
           />
         </div>
-        {pools.length > 0 ? (
+        {pools.length > 0 ||
+        Number(userTotalShare) > 0 ||
+        Number(userTotalShare_usn) > 0 ? (
           <section>
             <div className="">
               <div
@@ -232,6 +265,18 @@ export function YourLiquidityPage() {
                     tokens={STABLE_TOKEN_IDS.map((id) => tokensMeta[id]) || []}
                   />
                 </div>
+                <div
+                  className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
+                  key={Number(STABLE_POOL_USN_ID)}
+                >
+                  <PoolRow
+                    pool={StablePoolUSN}
+                    tokens={
+                      STABLE_TOKEN_USN_IDS.map((id) => tokensMeta[id]) || []
+                    }
+                  />
+                </div>
+
                 {pools.map((pool, i) => (
                   <div
                     key={i}
@@ -256,12 +301,19 @@ export function YourLiquidityPage() {
       <div className="text-white text-2xl font-semibold px-4 lg:hidden">
         <FormattedMessage id="your_liquidity" defaultMessage="Your Liquidity" />
       </div>
-      {pools.length > 0 ? (
+      {pools.length > 0 ||
+      Number(userTotalShare) > 0 ||
+      Number(userTotalShare_usn) > 0 ? (
         <div className="lg:hidden">
           <PoolRow
             pool={stablePool}
             key={Number(STABLE_POOL_ID)}
             tokens={STABLE_TOKEN_IDS.map((id) => tokensMeta[id]) || []}
+          />
+          <PoolRow
+            pool={StablePoolUSN}
+            key={Number(STABLE_POOL_USN_ID)}
+            tokens={STABLE_TOKEN_USN_IDS.map((id) => tokensMeta[id]) || []}
           />
 
           {pools.map((pool, i) => {
@@ -429,11 +481,16 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
         style={{
           gridTemplateColumns: 'repeat(13, minmax(0, 1fr))',
         }}
-        className="xs:hidden md:hidden grid grid-cols-12 py-5 content-center items-center text-sm text-white pl-10 pr-6 border-t border-gray-700 border-opacity-70 cursor-pointer"
+        className="xs:hidden md:hidden grid  py-5 content-center items-center text-sm text-white pl-10 pr-6 border-t border-gray-700 border-opacity-70 cursor-pointer"
         to={{ pathname: `/pool/${pool.id}` }}
       >
-        <div className="col-span-2 inline-flex items-center">
+        <div className="col-span-2 inline-flex items-start flex-col relative">
           <div className="w-16 flex items-center ml-1">{Images}</div>
+          <div className="absolute text-xs top-10 text-primaryText">
+            {isStablePool(pool.id) ? (
+              <FormattedMessage id="stable_pool" defaultMessage="StablePool" />
+            ) : null}
+          </div>
         </div>
 
         <div className="col-span-2 inline-flex flex-col text-xs">
@@ -457,7 +514,7 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
 
         <div className="col-span-2 text-left ml-4 xl:ml-8">{usdValue}</div>
 
-        <div className="flex items-center justify-end 2xl:justify-center text-center  col-span-4 ">
+        <div className="flex items-center justify-end  text-center  col-span-4 ">
           <div className="flex items-center justify-end flex-wrap">
             <SolidButton
               onClick={(e) => {
@@ -467,10 +524,15 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
                 if (isNotStablePool(pool)) {
                   setShowFunding(true);
                 } else {
-                  history.push('/stableswap', { stableTab: 'add_liquidity' });
+                  history.push(`/sauce/${pool.id}`, {
+                    stableTab: 'add_liquidity',
+                  });
                 }
               }}
-              className="text-xs col-span-2 w-36 text-center mb-1"
+              className="text-xs col-span-2 px-1.5 text-center whitespace-nowrap mb-1"
+              style={{
+                minWidth: '96px',
+              }}
             >
               <FormattedMessage
                 id="add_liquidity"
@@ -486,14 +548,17 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
                 if (isNotStablePool(pool)) {
                   setShowWithdraw(true);
                 } else {
-                  history.push('/stableswap', {
+                  history.push(`/sauce/${pool.id}`, {
                     stableTab: 'remove_liquidity',
                   });
                 }
 
                 setShowWithdraw(true);
               }}
-              className="text-xs px-4 col-span-2 w-24 text-center ml-2 mb-1"
+              className="text-xs px-4 col-span-2 text-center h-8 ml-2 mb-1"
+              style={{
+                minWidth: '80px',
+              }}
             >
               <FormattedMessage id="remove" defaultMessage="Remove" />
             </OutlineButton>
@@ -506,10 +571,19 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
         to={{ pathname: `/pool/${pool.id}` }}
       >
         <Card width="w-full" padding="py-4 px-0">
-          <div className="flex items-center pb-4 border-b border-gray-700 border-opacity-70 px-6">
-            <div className="ml-1 mr-4 flex items-center">{Images}</div>
-            <div className="text-xs font-semibold">
-              <TokensSymbolsMobile tokens={tokens} />
+          <div className="flex flex-col items-start pb-4 border-b border-gray-700 border-opacity-70 px-6">
+            <div className="flex items-center">
+              <div className="ml-1 mr-4 flex items-center">{Images}</div>
+              <div className="text-xs font-semibold">
+                <TokensSymbolsMobile tokens={tokens} />
+              </div>
+            </div>
+            <div
+              className={`relative top-2 text-xs text-primaryText ${
+                isStablePool(pool.id) ? 'block' : 'hidden'
+              }`}
+            >
+              <FormattedMessage id="stable_pool" defaultMessage="StablePool" />
             </div>
           </div>
           <div className="flex flex-col text-sm border-b border-gray-700 border-opacity-70 px-6">
@@ -545,43 +619,49 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
           </div>
 
           <div className="mt-4 flex items-center justify-center px-6 py-2">
-            <div className="">
-              <SolidButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
+            <SolidButton
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
 
-                  if (isNotStablePool(pool)) {
-                    setShowFunding(true);
-                  } else {
-                    history.push('/stableswap', { stableTab: 'add_liquidity' });
-                  }
-                }}
-                className="text-sm w-44 mr-4"
-              >
-                <FormattedMessage
-                  id="add_liquidity"
-                  defaultMessage="Add Liquidity"
-                />
-              </SolidButton>
+                if (isNotStablePool(pool)) {
+                  setShowFunding(true);
+                } else {
+                  history.push(`/sauce/${pool.id}`, {
+                    stableTab: 'add_liquidity',
+                  });
+                }
+              }}
+              className="text-sm mr-4 h-8 py-0.5 px-1"
+              style={{
+                minWidth: '112px',
+              }}
+            >
+              <FormattedMessage
+                id="add_liquidity"
+                defaultMessage="Add Liquidity"
+              />
+            </SolidButton>
 
-              <OutlineButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  if (isNotStablePool(pool)) {
-                    setShowWithdraw(true);
-                  } else {
-                    history.push('/stableswap', {
-                      stableTab: 'remove_liquidity',
-                    });
-                  }
-                }}
-                className="text-sm w-24"
-              >
-                <FormattedMessage id="remove" defaultMessage="Remove" />
-              </OutlineButton>
-            </div>
+            <OutlineButton
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                if (isNotStablePool(pool)) {
+                  setShowWithdraw(true);
+                } else {
+                  history.push(`/sauce/${pool.id}`, {
+                    stableTab: 'remove_liquidity',
+                  });
+                }
+              }}
+              className="text-sm h-8 py-0.5 px-1"
+              style={{
+                minWidth: '96px',
+              }}
+            >
+              <FormattedMessage id="remove" defaultMessage="Remove" />
+            </OutlineButton>
           </div>
         </Card>
       </Link>

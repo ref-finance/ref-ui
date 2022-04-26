@@ -2,11 +2,13 @@ import React, { useEffect, useState, useContext } from 'react';
 import Alert from '../alert/Alert';
 import SubmitButton from './SubmitButton';
 import { FormattedMessage } from 'react-intl';
-import SlippageSelector from './SlippageSelector';
+import SlippageSelector, { StableSlipSelecter } from './SlippageSelector';
 import { SwapRefresh, CountdownTimer } from '../../components/icon';
 import { wallet } from '~services/near';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { RequestingSmile } from '../icon/CrossSwapIcons';
+import { SWAP_MODE } from '../../pages/SwapPage';
+import SlippageSelectorForStable from './SlippageSelector';
 
 interface SwapFormWrapProps {
   title?: string;
@@ -34,6 +36,7 @@ interface SwapFormWrapProps {
     setShowSwapLoading: (swapLoading: boolean) => void;
   };
   useNearBalance: string;
+  swapMode?: SWAP_MODE;
   supportLedger?: boolean;
   setSupportLedger?: (e?: any) => void;
 }
@@ -53,10 +56,12 @@ export default function SwapFormWrap({
   bindUseBalance,
   loading,
   useNearBalance,
+  swapMode,
   supportLedger,
   setSupportLedger,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
+
   const {
     loadingData,
     setLoadingData,
@@ -93,12 +98,14 @@ export default function SwapFormWrap({
 
   return (
     <form
-      className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg overflow-x-hidden"
+      className={`overflow-y-visible bg-secondary shadow-2xl rounded-2xl p-7 ${
+        swapMode === SWAP_MODE.STABLE ? 'pb-16' : ''
+      } bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible`}
       onSubmit={handleSubmit}
     >
       {title && (
         <>
-          <h2 className="formTitle flex justify-end  font-bold text-xl text-white text-left pb-4">
+          <h2 className="formTitle flex justify-end font-bold text-xl text-white text-left pb-4">
             <div className="flex items-center">
               {crossSwap ? null : (
                 <div
@@ -123,15 +130,28 @@ export default function SwapFormWrap({
                   />
                 </div>
               )}
-              <SlippageSelector
-                slippageTolerance={slippageTolerance}
-                onChange={onChange}
-                bindUseBalance={bindUseBalance}
-                useNearBalance={useNearBalance}
-                normalSwap
-                supportLedger={supportLedger}
-                setSupportLedger={setSupportLedger}
-              />
+
+              {swapMode === SWAP_MODE.NORMAL ? (
+                <SlippageSelector
+                  slippageTolerance={slippageTolerance}
+                  onChange={onChange}
+                  bindUseBalance={bindUseBalance}
+                  useNearBalance={useNearBalance}
+                  supportLedger={supportLedger}
+                  setSupportLedger={setSupportLedger}
+                />
+              ) : null}
+              {swapMode === SWAP_MODE.STABLE ? (
+                <SlippageSelectorForStable
+                  slippageTolerance={slippageTolerance}
+                  onChange={onChange}
+                  validSlippageList={[0.05, 0.1, 0.2]}
+                  useNearBalance={useNearBalance}
+                  bindUseBalance={bindUseBalance}
+                  supportLedger={supportLedger}
+                  setSupportLedger={setSupportLedger}
+                />
+              ) : null}
             </div>
           </h2>
         </>
@@ -266,7 +286,6 @@ export function CrossSwapFormWrap({
                 onChange={onChange}
                 bindUseBalance={bindUseBalance}
                 useNearBalance={useNearBalance}
-                normalSwap
                 supportLedger={supportLedger}
                 setSupportLedger={setSupportLedger}
               />

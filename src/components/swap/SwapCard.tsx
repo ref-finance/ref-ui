@@ -65,12 +65,23 @@ import { SwapArrow, SwapExchange } from '../icon/Arrows';
 import { getPoolAllocationPercents, percentLess } from '../../utils/numbers';
 import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
+import { SWAP_MODE } from '../../pages/SwapPage';
+import { isStableToken } from '../../services/near';
+import TokenReserves from '../stableswap/TokenReserves';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
+
+const STABLE_SWAP_IN_KEY = 'STABLE_REF_FI_SWAP_IN';
+const STABLE_SWAP_OUT_KEY = 'STABLE_REF_FI_SWAP_OUT';
+
 const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
+
+const SWAP_SLIPPAGE_KEY_STABLE = 'REF_FI_SLIPPAGE_VALUE_STABLE';
+
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
+
 export const SUPPORT_LEDGER_KEY = 'REF_FI_SUPPORT_LEDGER';
 
 export function SwapDetail({
@@ -360,6 +371,7 @@ function DetailView({
   fee,
   swapsTodo,
   priceImpact,
+  swapMode,
 }: {
   pools: Pool[];
   tokenIn: TokenMetadata;
@@ -371,6 +383,7 @@ function DetailView({
   fee?: number;
   swapsTodo?: EstimateSwapView[];
   priceImpact?: string;
+  swapMode?: SWAP_MODE;
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
@@ -481,8 +494,12 @@ function DetailView({
   );
 }
 
-export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
-  const { allTokens } = props;
+export default function SwapCard(props: {
+  allTokens: TokenMetadata[];
+  swapMode: SWAP_MODE;
+  stablePools: Pool[];
+}) {
+  const { allTokens, swapMode, stablePools } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
@@ -502,6 +519,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [tokenOutBalanceFromNear, setTokenOutBalanceFromNear] =
     useState<string>();
 
+  const [reEstimateTrigger, setReEstimateTrigger] = useState(false);
+
   const [loadingData, setLoadingData] = useState<boolean>(false);
   const [loadingTrigger, setLoadingTrigger] = useState<boolean>(true);
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
@@ -515,10 +534,17 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   const [urlTokenIn, urlTokenOut, urlSlippageTolerance] = decodeURIComponent(
     location.hash.slice(1)
   ).split(TOKEN_URL_SEPARATOR);
-  const [slippageTolerance, setSlippageTolerance] = useState<number>(
-    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY) || urlSlippageTolerance) ||
-      0.5
-  );
+  const [slippageToleranceNormal, setSlippageToleranceNormal] =
+    useState<number>(
+      Number(localStorage.getItem(SWAP_SLIPPAGE_KEY) || urlSlippageTolerance) ||
+        0.5
+    );
+
+  const [slippageToleranceStable, setSlippageToleranceStable] =
+    useState<number>(
+      Number(localStorage.getItem(SWAP_SLIPPAGE_KEY_STABLE)) || 0.5
+    );
+
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
 
   useEffect(() => {
@@ -526,18 +552,72 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
   }, []);
 
   useEffect(() => {
-    const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
-    const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
-
     if (allTokens) {
-      setTokenIn(
-        allTokens.find((token) => token.id === rememberedIn) || allTokens[0]
-      );
-      setTokenOut(
-        allTokens.find((token) => token.id === rememberedOut) || allTokens[1]
-      );
+      if (swapMode === SWAP_MODE.NORMAL) {
+        const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
+        const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
+
+        const candTokenIn =
+          allTokens.find((token) => token.id === rememberedIn) || allTokens[0];
+
+        const candTokenOut =
+          allTokens.find((token) => token.id === rememberedOut) || allTokens[1];
+
+        setTokenIn(candTokenIn);
+        setTokenOut(candTokenOut);
+
+        if (
+          tokenOut?.id === candTokenOut?.id &&
+          tokenIn?.id === candTokenIn?.id
+        )
+          setReEstimateTrigger(!reEstimateTrigger);
+      } else if (swapMode === SWAP_MODE.STABLE) {
+        const rememberedIn = localStorage.getItem(STABLE_SWAP_IN_KEY);
+        const rememberedOut = localStorage.getItem(STABLE_SWAP_OUT_KEY);
+
+        let candTokenIn: TokenMetadata;
+        let candTokenOut: TokenMetadata;
+
+        if (rememberedIn) {
+          candTokenIn =
+            allTokens.find((token) => token.id === rememberedIn) ||
+            allTokens.find(
+              (token) => isStableToken(token.id) && token.id !== tokenOut?.id
+            );
+        } else {
+          candTokenIn = allTokens.find(
+            (token) => isStableToken(token.id) && token.id !== tokenOut?.id
+          );
+        }
+
+        setTokenIn(candTokenIn);
+
+        if (rememberedOut && rememberedOut !== candTokenIn.id) {
+          const candToken = allTokens.find(
+            (token) => token.id === rememberedOut && isStableToken(token.id)
+          );
+          if (candToken) candTokenOut = candToken;
+          else {
+            candTokenOut = allTokens.find(
+              (token) => token.id !== candTokenIn.id && isStableToken(token.id)
+            );
+          }
+        } else {
+          candTokenOut = allTokens.find(
+            (token) => token.id !== candTokenIn.id && isStableToken(token.id)
+          );
+        }
+        setTokenOut(candTokenOut);
+
+        if (
+          tokenOut?.id === candTokenOut?.id &&
+          tokenIn?.id === candTokenIn?.id
+        )
+          setReEstimateTrigger(!reEstimateTrigger);
+      }
+      setTokenInAmount(toPrecision('1', 6));
     }
-  }, [allTokens]);
+  }, [allTokens, swapMode]);
 
   useEffect(() => {
     if (useNearBalance) {
@@ -568,6 +648,11 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     }
   }, [tokenIn, tokenOut, useNearBalance, isSignedIn]);
 
+  const slippageTolerance =
+    swapMode === SWAP_MODE.NORMAL
+      ? slippageToleranceNormal
+      : slippageToleranceStable;
+
   const {
     canSwap,
     tokenOutAmount,
@@ -589,6 +674,8 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
     setLoadingTrigger,
     loadingData,
     loadingPause,
+    swapMode,
+    reEstimateTrigger,
     supportLedger,
   });
 
@@ -663,14 +750,6 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
 
   return (
     <>
-      <SwapTip
-        bothStableToken={
-          STABLE_TOKEN_IDS.includes(tokenIn?.id) &&
-          STABLE_TOKEN_IDS.includes(tokenOut?.id)
-        }
-        tokenInId={tokenIn?.id}
-        tokenOutId={tokenOut?.id}
-      />
       <SwapFormWrap
         supportLedger={supportLedger}
         setSupportLedger={setSupportLedger}
@@ -678,8 +757,16 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         canSubmit={canSubmit}
         slippageTolerance={slippageTolerance}
         onChange={(slippage) => {
-          setSlippageTolerance(slippage);
-          localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
+          swapMode === SWAP_MODE.NORMAL
+            ? setSlippageToleranceNormal(slippage)
+            : setSlippageToleranceStable(slippage);
+
+          localStorage.setItem(
+            swapMode === SWAP_MODE.NORMAL
+              ? SWAP_SLIPPAGE_KEY
+              : SWAP_SLIPPAGE_KEY_STABLE,
+            slippage?.toString()
+          );
         }}
         bindUseBalance={(useNearBalance) => {
           setUseNearBalance(useNearBalance);
@@ -700,6 +787,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
             )}
           </div>
         }
+        swapMode={swapMode}
         onSubmit={handleSubmit}
         info={intl.formatMessage({ id: 'swapCopy' })}
         title={'swap'}
@@ -716,6 +804,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
       >
         <TokenAmount
           forSwap
+          swapMode={swapMode}
           amount={tokenInAmount}
           total={tokenInMax}
           max={tokenInMax}
@@ -723,11 +812,17 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           selectedToken={tokenIn}
           balances={balances}
           onSelectToken={(token) => {
-            localStorage.setItem(SWAP_IN_KEY, token.id);
-            history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
+            localStorage.setItem(
+              swapMode === SWAP_MODE.NORMAL ? SWAP_IN_KEY : STABLE_SWAP_IN_KEY,
+              token.id
+            );
+            swapMode === SWAP_MODE.NORMAL &&
+              history.replace(
+                `#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`
+              );
             setTokenIn(token);
             setCanSwap(false);
-            setTokenInBalanceFromNear(token.near.toString());
+            setTokenInBalanceFromNear(token?.near?.toString());
           }}
           text={intl.formatMessage({ id: 'from' })}
           useNearBalance={useNearBalance}
@@ -744,7 +839,20 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           <SwapExchange
             onChange={() => {
               setTokenIn(tokenOut);
+              localStorage.setItem(
+                swapMode === SWAP_MODE.NORMAL
+                  ? SWAP_IN_KEY
+                  : STABLE_SWAP_IN_KEY,
+                tokenOut.id
+              );
               setTokenOut(tokenIn);
+              localStorage.setItem(
+                swapMode === SWAP_MODE.NORMAL
+                  ? SWAP_OUT_KEY
+                  : STABLE_SWAP_OUT_KEY,
+                tokenIn.id
+              );
+
               setTokenInAmount(toPrecision('1', 6));
               localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
               localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
@@ -756,6 +864,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         </div>
         <TokenAmount
           forSwap
+          swapMode={swapMode}
           amount={toPrecision(tokenOutAmount, 8)}
           total={tokenOutTotal}
           tokens={allTokens}
@@ -764,11 +873,19 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           text={intl.formatMessage({ id: 'to' })}
           useNearBalance={useNearBalance}
           onSelectToken={(token) => {
-            localStorage.setItem(SWAP_OUT_KEY, token.id);
-            history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`);
+            localStorage.setItem(
+              swapMode === SWAP_MODE.NORMAL
+                ? SWAP_OUT_KEY
+                : STABLE_SWAP_OUT_KEY,
+              token.id
+            );
+            swapMode === SWAP_MODE.NORMAL &&
+              history.replace(
+                `#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`
+              );
             setTokenOut(token);
             setCanSwap(false);
-            setTokenOutBalanceFromNear(token.near.toString());
+            setTokenOutBalanceFromNear(token?.near?.toString());
           }}
           isError={tokenIn?.id === tokenOut?.id}
           tokenPriceList={tokenPriceList}
@@ -784,6 +901,7 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
           fee={avgFee}
           swapsTodo={swapsToDo}
           priceImpact={PriceImpactValue}
+          swapMode={swapMode}
         />
         {swapError ? (
           <div className="pb-2 relative -mb-5">
@@ -804,6 +922,13 @@ export default function SwapCard(props: { allTokens: TokenMetadata[] }) {
         onSwap={() => makeSwap(useNearBalance)}
         priceImpactValue={PriceImpactValue}
       />
+      {swapMode === SWAP_MODE.STABLE ? (
+        <TokenReserves
+          tokens={allTokens.filter((token) => isStableToken(token.id))}
+          pools={stablePools}
+          swapPage
+        />
+      ) : null}
     </>
   );
 }

@@ -21,7 +21,27 @@ export const STABLE_TOKEN_IDS = config.STABLE_TOKEN_IDS;
 
 export const STABLE_POOL_ID = config.STABLE_POOL_ID;
 
+export const STABLE_POOL_USN_ID = config.STABLE_POOL_USN_ID;
+
+export const STABLE_TOKEN_USN_IDS = config.STABLE_TOKEN_USN_IDS;
+
+export const isStableToken = (id: string) => {
+  return STABLE_TOKEN_IDS.includes(id) || STABLE_TOKEN_USN_IDS.includes(id);
+};
+
 export const STABLE_TOKEN_INDEX = config.STABLE_TOKEN_INDEX;
+
+export const STABLE_TOKEN_USN_INDEX = config.STABLE_TOKEN_USN_INDEX;
+
+export const getStableTokenIndex = (stable_pool_id: string | number) => {
+  return Number(stable_pool_id) === Number(STABLE_POOL_ID)
+    ? STABLE_TOKEN_INDEX
+    : STABLE_TOKEN_USN_INDEX;
+};
+
+export const isStablePool = (id: string | number) => {
+  return Number(id) === STABLE_POOL_ID || Number(id) === STABLE_POOL_USN_ID;
+};
 
 export const REF_FARM_CONTRACT_ID = config.REF_FARM_CONTRACT_ID;
 
@@ -29,12 +49,6 @@ export const REF_AIRDRAOP_CONTRACT_ID = config.REF_AIRDROP_CONTRACT_ID;
 
 export const REF_TOKEN_ID = config.REF_TOKEN_ID;
 const XREF_TOKEN_ID = getConfig().XREF_TOKEN_ID;
-
-export const POOLS_BLACK_LIST = config.POOLS_BLACK_LIST;
-
-export const filterBlackListPools = (pool: any & { id: any }) =>
-  //@ts-ignore
-  !POOLS_BLACK_LIST.includes(pool.id);
 
 export const LP_STORAGE_AMOUNT = '0.01';
 
