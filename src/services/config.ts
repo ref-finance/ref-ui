@@ -126,7 +126,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
         STABLE_POOL_ID: process.env.STABLE_POOL_ID || 79,
-        STABLE_POOL_IDS: process.env.STABLE_POOL_IDS || ['218', '3020'],
+        STABLE_POOL_IDS: process.env.STABLE_POOL_IDS || ['79', '506'],
 
         STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 506,
         STABLE_TOKEN_IDS: [
@@ -134,7 +134,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'usdc.fakes.testnet',
           'dai.fakes.testnet',
         ],
-        STABLE_TOKEN_USN_IDS: ['usdn.testnet', 'usdt.fakes.testnet'],
+        STABLE_TOKEN_USN_IDS: ['usn.fakes.testnet', 'usdt.fakes.testnet'],
         STABLE_TOKEN_USN_INDEX: {
           'usn.fakes.testnet': 0,
           'usdt.fakes.testnet': 1,
