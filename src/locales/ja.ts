@@ -190,7 +190,7 @@ const ja = {
   wrapnear: 'Wrap NEAR',
   wrapnear_tip_one: 'wNEARは、REFでの取引をサポートします。',
   wrapnear_tip_two: '最低でも0.5つはNEARにしてください。',
-  wrapnear_tip_three: 'ガスフィーが十分であることを確認してください。',
+  wrapnear_tip_three: 'ガス料金。',
   wrap_error_msg: 'バランス不足',
   sign_out: '退会',
   view_account: 'アカウントを見る',

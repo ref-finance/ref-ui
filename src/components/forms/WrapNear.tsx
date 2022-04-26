@@ -143,7 +143,7 @@ function WrapNear(props: ReactModal.Props) {
 
             <FormattedMessage
               id="wrapnear_tip_three"
-              defaultMessage=" for gas fees to unwrap your NEAR."
+              defaultMessage=" for gas fees."
             />
           </div>
           <TokenAmount

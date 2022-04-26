@@ -183,7 +183,7 @@ const uk_UA = {
   wrapnear: 'Обгорнути NEAR',
   wrapnear_tip_one: 'Обгортання NEAR дозволяє вам торгувати на REF',
   wrapnear_tip_two: 'Залиште 0.5 NEAR',
-  wrapnear_tip_three: 'для комісії щоб розгорнути назад ваш NEAR.',
+  wrapnear_tip_three: 'для плати за газ.',
   wrap_error_msg: 'Недостатній баланс',
   sign_out: 'Вийти',
   view_account: 'Огляд акаунта',
