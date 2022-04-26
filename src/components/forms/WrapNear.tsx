@@ -116,7 +116,7 @@ function WrapNear(props: ReactModal.Props) {
   const getMax = function () {
     return tokenIn.id !== 'NEAR'
       ? tokenInMax
-      : Number(tokenInMax) <= 1
+      : Number(tokenInMax) <= 0.5
       ? '0'
       : String(Number(tokenInMax) - 0.5);
   };
