@@ -30,10 +30,9 @@ function SwapTab({
           <FormattedMessage id="swap_pro" defaultMessage="Swap Pro" />
         </span>
         <span
-          className="ml-2 px-0.5 bg-farmText rounded-md relative"
+          className="ml-2 px-1 rounded-xl relative text-sm bg-gradientFrom"
           style={{
             color: '#01121d',
-            fontSize: '10px',
             bottom: '2px',
           }}
         >
