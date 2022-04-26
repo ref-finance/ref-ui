@@ -1586,17 +1586,10 @@ function FarmView({
             <div className="order-2 lg:ml-auto xl:m-0">
               <div>
                 <Link
-                  to={
-                    new Set(STABLE_POOL_IDS || []).has(PoolId?.toString())
-                      ? {
-                          pathname: '/sauce',
-                          state: { backToFarms: true },
-                        }
-                      : {
-                          pathname: `/pool/${PoolId}`,
-                          state: { backToFarms: true },
-                        }
-                  }
+                  to={{
+                    pathname: `/pool/${PoolId}`,
+                    state: { backToFarms: true },
+                  }}
                   target="_blank"
                   className="text-lg xs:text-sm text-white"
                 >
@@ -1612,11 +1605,7 @@ function FarmView({
           </div>
           <Link
             title={intl.formatMessage({ id: 'view_pool' })}
-            to={
-              new Set(STABLE_POOL_IDS || []).has(PoolId?.toString())
-                ? { pathname: '/sauce', state: { backToFarms: true } }
-                : { pathname: `/pool/${PoolId}`, state: { backToFarms: true } }
-            }
+            to={{ pathname: `/pool/${PoolId}`, state: { backToFarms: true } }}
             target="_blank"
           >
             <span

@@ -474,17 +474,10 @@ export function LinkPool(props: { pooId: number }) {
     <div className="flex justify-center items-center">
       <Link
         title={intl.formatMessage({ id: 'view_pool' })}
-        to={
-          new Set(STABLE_POOL_IDS || []).has(pooId?.toString())
-            ? {
-                pathname: `/sauce`,
-                state: { backToFarms: true },
-              }
-            : {
-                pathname: `/pool/${pooId}`,
-                state: { backToFarms: true },
-              }
-        }
+        to={{
+          pathname: `/pool/${pooId}`,
+          state: { backToFarms: true },
+        }}
         target="_blank"
         className="flex items-center"
       >
