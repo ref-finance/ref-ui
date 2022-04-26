@@ -1441,7 +1441,11 @@ function MobileAccount(props: any) {
                 onClick={() => {
                   switchTab('near');
                 }}
-                className={`flex items-center justify-center h-10 flex-grow text-base rounded-md  ${
+                className={`flex items-center justify-center ${
+                  mapAccountTokenNumber || refAccountTokenNumber
+                    ? 'w-1/2'
+                    : 'w-full'
+                } h-10 flex-grow text-base rounded-md  ${
                   activeTab == 'near'
                     ? 'text-white bg-acccountBlock'
                     : 'text-primaryText'
@@ -1454,7 +1458,7 @@ function MobileAccount(props: any) {
                   onClick={() => {
                     switchTab('map');
                   }}
-                  className={`flex items-center justify-center h-10 flex-grow text-base rounded-md ${
+                  className={`flex w-1/2 items-center justify-center h-10 text-center flex-grow text-base rounded-md ${
                     activeTab == 'map'
                       ? 'text-white bg-acccountBlock'
                       : 'text-primaryText'
@@ -1467,7 +1471,7 @@ function MobileAccount(props: any) {
                   onClick={() => {
                     switchTab('ref');
                   }}
-                  className={`flex items-center justify-center h-10 flex-grow text-base rounded-md ${
+                  className={`flex w-1/2 items-center justify-center text-center h-10 flex-grow text-base rounded-md ${
                     activeTab == 'ref'
                       ? 'text-white bg-acccountBlock'
                       : 'text-primaryText'
