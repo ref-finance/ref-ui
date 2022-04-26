@@ -367,7 +367,7 @@ export function AuroraEntry({
 
   return (
     <div
-      className="lg:py-5 relative z-20 flex items-center cursor-pointer"
+      className="lg:py-5 relative z-50 flex items-center cursor-pointer"
       onMouseEnter={() => !isMobile && setHover(true)}
       onMouseLeave={() => !isMobile && setHover(false)}
       onClick={(e) => {
@@ -407,7 +407,7 @@ export function AuroraEntry({
           }}
         >
           <div
-            className="bg-cardBg rounded-lg border border-farmText flex flex-col overflow-hidden"
+            className="bg-cardBg rounded-lg border border-farmText flex flex-col overflow-hidden  z-50"
             style={{
               minWidth: '256px',
             }}
@@ -821,7 +821,7 @@ function NavigationBar() {
                 : auroraTokens.tokensByAddress[address]?.decimals,
               balance as string
             )
-          ) > 0.01
+          ) > 0
         );
       }
     );
