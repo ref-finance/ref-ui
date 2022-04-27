@@ -4,6 +4,8 @@ import getConfig from '../../services/config';
 import { FormattedMessage } from 'react-intl';
 import { CloseIcon } from '../icon/Actions';
 import { isMobile } from '../../utils/device';
+import { checkTransaction } from '../../services/swap';
+import { getCurrentWallet } from '~utils/sender-wallet';
 
 export enum TRANSACTION_WALLET_TYPE {
   NEAR_WALLET = 'transactionHashes',
@@ -32,11 +34,13 @@ export const getURLInfo = () => {
   )?.split(',');
 
   return {
-    txHash: txHashes?.pop() || '',
+    txHash:
+      txHashes && txHashes.length > 0 ? txHashes[txHashes.length - 1] : '',
     pathname,
     errorType,
     signInErrorType,
     errorCode,
+    txHashes,
   };
 };
 
@@ -146,4 +150,110 @@ export const checkAccountTip = () => {
       },
     }
   );
+};
+
+export const checkCrossSwapTransactions = async (txHashes: string[]) => {
+  const lastTx = txHashes.pop();
+  const txDetail: any = await checkTransaction(lastTx);
+
+  console.log(lastTx, txDetail);
+
+  if (txHashes.length > 1) {
+    // judge if aurora call
+    const isAurora = txDetail.transaction?.receiver_id === 'aurora';
+
+    const ifCall =
+      txDetail.transaction?.actions?.length === 1 &&
+      txDetail.transaction?.actions?.[0]?.FunctionCall?.method_name === 'call';
+
+    console.log(ifCall, isAurora);
+
+    if (isAurora && ifCall) {
+      const parsedOut = parsedTransactionSuccessValue(txDetail);
+
+      const erc20FailPattern = /burn amount exceeds balance/i;
+
+      if (
+        erc20FailPattern.test(parsedOut) ||
+        (parsedOut.toString().trim().length === 14 &&
+          parsedOut.toString().trim().indexOf('lR') !== -1)
+      ) {
+        return {
+          hash: lastTx,
+          status: false,
+          errorType: 'Balance Not Enought',
+        };
+      } else {
+        const secondLastHash = txHashes.pop();
+        const secondDetail = await checkTransaction(secondLastHash);
+
+        const slippageErrprReg = /INSUFFICIENT_OUTPUT_AMOUNT/i;
+        const expiredErrorReg = /EXPIRED/i;
+
+        const parsedOutput = parsedTransactionSuccessValue(secondDetail);
+
+        if (slippageErrprReg.test(parsedOutput)) {
+          return {
+            hash: secondLastHash,
+            status: false,
+            errorType: 'Slippage Violation',
+          };
+        } else if (expiredErrorReg.test(parsedOutput)) {
+          return {
+            hash: secondLastHash,
+            status: false,
+            errorType: 'Expired',
+          };
+        } else {
+          return {
+            hash: lastTx,
+            status: true,
+          };
+        }
+      }
+    } else {
+      // normal swap judgement
+      const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
+
+      const isSlippageError = txDetail.receipts_outcome.some((outcome: any) => {
+        return slippageErrorPattern.test(
+          outcome?.outcome?.status?.Failure?.ActionError?.kind
+            ?.FunctionCallError?.ExecutionError
+        );
+      });
+
+      if (isSlippageError)
+        return {
+          status: false,
+          hash: lastTx,
+          errorType: 'Slippage Violation',
+        };
+      else {
+        return {
+          status: true,
+          hash: lastTx,
+        };
+      }
+    }
+
+    // validate if last tx is success
+  } else {
+    console.log(txDetail);
+
+    console.log(parsedTransactionSuccessValue(txDetail));
+
+    return { hash: lastTx, status: true };
+  }
+};
+
+export const parsedTransactionSuccessValue = (res: any) => {
+  const status: any = res.status;
+
+  const data: string | undefined = status.SuccessValue;
+
+  if (data) {
+    const buff = Buffer.from(data, 'base64');
+    const parsedData = buff.toString('ascii');
+    return parsedData;
+  }
 };

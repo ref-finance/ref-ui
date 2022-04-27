@@ -48,6 +48,10 @@ import {
   swapToast,
 } from '../components/layout/transactionTipPopUp';
 import { SWAP_MODE } from '../pages/SwapPage';
+import {
+  parsedTransactionSuccessValue,
+  checkCrossSwapTransactions,
+} from '../components/layout/transactionTipPopUp';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -445,7 +449,7 @@ export const useCrossSwap = ({
   const [count, setCount] = useState<number>(0);
   const refreshTime = Number(POOL_TOKEN_REFRESH_INTERVAL) * 1000;
 
-  const { txHash, pathname, errorType } = getURLInfo();
+  const { txHash, pathname, errorType, txHashes } = getURLInfo();
 
   const minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
@@ -475,41 +479,25 @@ export const useCrossSwap = ({
   };
 
   useEffect(() => {
-    if (txHash && getCurrentWallet().wallet.isSignedIn()) {
-      checkTransaction(txHash)
-        .then((res: any) => {
-          const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
+    if (
+      txHashes &&
+      txHashes.length > 0 &&
+      getCurrentWallet().wallet.isSignedIn()
+    ) {
+      checkCrossSwapTransactions(txHashes).then(
+        (res: { status: boolean; hash: string; errorType?: string }) => {
+          const { status, hash, errorType } = res;
 
-          const isSlippageError = res.receipts_outcome.some((outcome: any) => {
-            return slippageErrorPattern.test(
-              outcome?.outcome?.status?.Failure?.ActionError?.kind
-                ?.FunctionCallError?.ExecutionError
-            );
-          });
-
-          const transaction = res.transaction;
-          return {
-            isSwap:
-              transaction?.actions[1]?.['FunctionCall']?.method_name ===
-                'ft_transfer_call' ||
-              transaction?.actions[0]?.['FunctionCall']?.method_name ===
-                'ft_transfer_call' ||
-              transaction?.actions[0]?.['FunctionCall']?.method_name ===
-                'swap' ||
-              transaction?.actions[0]?.['FunctionCall']?.method_name ===
-                'near_withdraw',
-            isSlippageError,
-          };
-        })
-        .then(({ isSwap, isSlippageError }) => {
-          if (isSwap) {
-            !isSlippageError && !errorType && swapToast(txHash);
-            isSlippageError && failToast(txHash, 'Slippage Violation');
+          if (errorType || !status) {
+            failToast(hash, errorType);
+          } else {
+            swapToast(hash);
           }
-          history.replace(pathname);
-        });
+        }
+      );
     }
-  }, [txHash]);
+    history.replace(pathname);
+  }, [txHashes]);
 
   const getEstimateTri = async () => {
     estimateSwap({
