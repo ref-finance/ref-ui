@@ -502,5 +502,12 @@ const zh_CN = {
     '>文档</label>。',
   cumulative_ref_buyback: '累计 REF 回购',
   yearly_revenue_booster: '年度收入助推器',
+  buy: '买',
+  sell: '卖',
+  buy_nsn: '买 USN',
+  buy_nsn_tip: 'SN是NEAR经济支持的原生稳定币。',
+  usn_tip_one: 'USN NEAR 允许你在REF上交易 ',
+  rate: '汇率',
+  tading_fee: '交易费',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

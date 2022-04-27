@@ -1,104 +1,31 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useContext,
-} from 'react';
+import React, { useEffect, useMemo, useState, useContext } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
-import { Pool } from '../../services/pool';
-import { useTokenBalances } from '../../state/token';
-import { useSwap } from '../../state/swap';
+import { useDepositableBalance } from '../../state/token';
 import {
   calculateExchangeRate,
-  calculateFeeCharge,
-  calculateFeePercent,
-  calculateSmartRoutingPriceImpact,
-  percent,
-  percentLess,
   toPrecision,
   toReadableNumber,
-  subtraction,
-  calculatePriceImpact,
   ONLY_ZEROS,
-  percentOf,
-  multiply,
-  divide,
-  scientificNotationToString,
-  calculateSmartRoutesV2PriceImpact,
-  separateRoutes,
-  calcStableSwapPriceImpact,
 } from '../../utils/numbers';
-import ReactDOMServer from 'react-dom/server';
 import TokenAmount from '../forms/TokenAmount';
 import SubmitButton from '../forms/SubmitButton';
 import Alert from '../alert/Alert';
 import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
-import db from '~store/RefDatabase';
-import {
-  ButtonTextWrapper,
-  GradientButton,
-  OutlineButton,
-  SolidButton,
-  ConnectToNearBtn,
-} from '../../components/button/Button';
-import { STABLE_TOKEN_IDS, wallet } from '../../services/near';
 import USNFormWrap from '../forms/USNFormWrap';
-import SwapTip from '../../components/forms/SwapTip';
-import { WarnTriangle, ErrorTriangle } from '../../components/icon/SwapRefresh';
-import ReactModal from 'react-modal';
-import Modal from 'react-modal';
-import { Card } from '~components/card/Card';
-import { isMobile, useMobile } from '~utils/device';
-import { ModalClose } from '~components/icon';
 import BigNumber from 'bignumber.js';
-import {
-  AutoRouterText,
-  OneParallelRoute,
-  RouterIcon,
-  SmartRouteV2,
-} from '../../components/layout/SwapRoutes';
-import QuestionMark, {
-  QuestionMarkStaticForParaSwap,
-} from '~components/farm/QuestionMark';
-
-import ReactTooltip from 'react-tooltip';
-import * as math from 'mathjs';
-import { HiOutlineExternalLink } from 'react-icons/hi';
-import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
-import { QuestionTip } from '../../components/layout/TipWrapper';
-import { Guide } from '../../components/layout/Guide';
-import { sortBy } from 'lodash';
-import { getCurrentWallet } from '../../utils/sender-wallet';
 import { senderWallet, WalletContext } from '../../utils/sender-wallet';
 import { SwapArrow, SwapExchange } from '../icon/Arrows';
-import { getPoolAllocationPercents } from '../../utils/numbers';
-import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
-import { SWAP_MODE } from '../../pages/SwapPage';
-import { isStableToken } from '../../services/near';
-import TokenReserves from '../stableswap/TokenReserves';
+import { fetchMultiplier, buyUSN, sellUSN } from '../../services/buy-sell-usn';
+import { POOL_TOKEN_REFRESH_INTERVAL } from '../../services/near';
+import { nearMetadata } from '../../services/wrap-near';
 
-const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
-const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
+const USN_SLIPPAGE_KEY = 'USN_FI_SLIPPAGE_VALUE';
 
-const STABLE_SWAP_IN_KEY = 'STABLE_REF_FI_SWAP_IN';
-const STABLE_SWAP_OUT_KEY = 'STABLE_REF_FI_SWAP_OUT';
-
-const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
-
-const SWAP_SLIPPAGE_KEY_STABLE = 'REF_FI_SLIPPAGE_VALUE_STABLE';
-
-export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
-const TOKEN_URL_SEPARATOR = '|';
-
-export const SUPPORT_LEDGER_KEY = 'REF_FI_SUPPORT_LEDGER';
-
-export function SwapDetail({
+function USNDetail({
   title,
   value,
 }: {
@@ -113,7 +40,7 @@ export function SwapDetail({
   );
 }
 
-export function SwapRateDetail({
+function USNRateDetail({
   title,
   value,
   subTitle,
@@ -125,7 +52,7 @@ export function SwapRateDetail({
 }: {
   fee: number;
   title: string;
-  value: string;
+  value?: string;
   from: string;
   to: string;
   subTitle?: string;
@@ -180,203 +107,27 @@ export function SwapRateDetail({
   );
 }
 
-export function SmartRoutesV2Detail({
-  swapsTodo,
-}: {
-  swapsTodo: EstimateSwapView[];
-}) {
-  const tokensPerRoute = swapsTodo
-    .filter((swap) => swap.inputToken == swap.routeInputToken)
-    .map((swap) => swap.tokens);
-
-  const identicalRoutes = separateRoutes(
-    swapsTodo,
-    swapsTodo[swapsTodo.length - 1].outputToken
-  );
-
-  const pools = identicalRoutes.map((r) => r[0]).map((hub) => hub.pool);
-
-  const percents = useMemo(() => {
-    return getPoolAllocationPercents(pools);
-  }, [identicalRoutes, pools]);
-
-  return (
-    <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
-      <div className="text-primaryText text-left self-start">
-        <div className="inline-flex items-center">
-          <RouterIcon />
-          <AutoRouterText />
-          <QuestionTip id="optimal_path_found_by_our_solution" width="w-56" />
-        </div>
-      </div>
-
-      <div className="text-right text-white col-span-7 xs:mt-2 md:mt-2 self-start">
-        {tokensPerRoute.map((tokens, index) => (
-          <div key={index} className="mb-2 md:w-smartRoute lg:w-smartRoute">
-            <div className="text-right text-white col-span-6 xs:mt-2 md:mt-2">
-              {
-                <SmartRouteV2
-                  tokens={tokens}
-                  p={percents[index]}
-                  pools={identicalRoutes[index].map((hub) => hub.pool)}
-                />
-              }
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-export function ParallelSwapRoutesDetail({
-  pools,
+function DetailView({
   tokenIn,
   tokenOut,
+  from,
+  to,
+  fee,
+  minimumReceived,
+  tradeFeeTokenAmount,
+  tradeFeeRate,
 }: {
-  pools: Pool[];
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
+  from: string;
+  to: string;
+  fee?: number;
+  minimumReceived: string;
+  tradeFeeRate: string;
+  tradeFeeTokenAmount: string;
 }) {
-  const percents = useMemo(() => {
-    return getPoolAllocationPercents(pools);
-  }, [pools]);
-
-  return (
-    <section className="md:grid lg:grid grid-cols-12 py-1 text-xs">
-      <div className="text-primaryText text-left col-span-5">
-        <div className="inline-flex items-center">
-          <RouterIcon />
-          <AutoRouterText />
-          <QuestionTip id="optimal_path_found_by_our_solution" width="w-56" />
-        </div>
-      </div>
-
-      <div className="text-right text-white col-span-7 xs:mt-2 md:mt-2">
-        {pools.map((pool, i) => {
-          return (
-            <div className="mb-2" key={pool.id}>
-              <OneParallelRoute
-                tokenIn={tokenIn}
-                tokenOut={tokenOut}
-                poolId={pool.id}
-                p={percents[i]}
-                fee={pool.fee}
-              />
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-export function SmartRoutesDetail({
-  swapsTodo,
-}: {
-  swapsTodo: EstimateSwapView[];
-}) {
-  return (
-    <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
-      <div className="text-primaryText text-left ">
-        <div className="inline-flex items-center">
-          <RouterIcon />
-          <AutoRouterText />
-          <QuestionTip id="optimal_path_found_by_our_solution" width="w-56" />
-        </div>
-      </div>
-
-      <div className="text-right text-white col-span-6 xs:mt-2">
-        {
-          <SmartRouteV2
-            tokens={swapsTodo[0].tokens}
-            p="100"
-            pools={swapsTodo.map((swapTodo) => swapTodo.pool)}
-          />
-        }
-      </div>
-    </section>
-  );
-}
-
-export const GetPriceImpact = (
-  value: string,
-  tokenIn?: TokenMetadata,
-  tokenInAmount?: string
-) => {
-  const textColor =
-    Number(value) <= 1
-      ? 'text-greenLight'
-      : 1 < Number(value) && Number(value) <= 2
-      ? 'text-warn'
-      : 'text-error';
-
-  const displayValue = toPrecision(
-    scientificNotationToString(multiply(tokenInAmount, divide(value, '100'))),
-    3
-  );
-
-  const tokenInInfo =
-    Number(displayValue) <= 0
-      ? ` / 0 ${toRealSymbol(tokenIn.symbol)}`
-      : ` / -${displayValue} ${tokenIn.symbol}`;
-
-  if (Number(value) < 0.01)
-    return (
-      <span className="text-greenLight">
-        {`< -0.01%`}
-        {tokenInInfo}
-      </span>
-    );
-
-  if (Number(value) > 1000)
-    return (
-      <span className="text-error">
-        {`< -1000%`}
-        {tokenInInfo}
-      </span>
-    );
-
-  return (
-    <span className={`${textColor}`}>
-      {`≈ -${toPrecision(value, 2)}%`}
-      {tokenInInfo}
-    </span>
-  );
-};
-
-export const getPriceImpactTipType = (value: string) => {
-  const reault =
-    1 < Number(value) && Number(value) <= 2 ? (
-      <WarnTriangle></WarnTriangle>
-    ) : Number(value) > 2 && Number(value) != Infinity ? (
-      <ErrorTriangle></ErrorTriangle>
-    ) : null;
-  return reault;
-};
-
-export const PriceImpactWarning = ({ value }: { value: string }) => {
-  return (
-    <span className="">
-      <span className="rounded-full bg-acccountTab text-error px-2 py-0.5">
-        <FormattedMessage
-          id="more_expensive_than_best_rate_zh_cn"
-          defaultMessage=" "
-        />{' '}
-        {Number(value) > 1000 ? '> 1000' : toPrecision(value, 2)}
-        {'% '}
-        <FormattedMessage
-          id="more_expensive_than_best_rate_en"
-          defaultMessage=" "
-        />
-      </span>
-    </span>
-  );
-};
-
-function DetailView({}) {
   const intl = useIntl();
-  const [showDetails, setShowDetails] = useState(false);
+  const [showDetails, setShowDetails] = useState(true);
   return (
     <div className="mt-8">
       <div
@@ -395,327 +146,252 @@ function DetailView({}) {
         </div>
       </div>
       <div className={showDetails ? '' : 'hidden'}>
-        <SwapDetail
+        <USNDetail
           title={intl.formatMessage({ id: 'minimum_received' })}
-          value={<span>{'326.327'}</span>}
+          value={<span>{minimumReceived}</span>}
         />
-        <SwapDetail
+        <USNRateDetail
           title={intl.formatMessage({ id: 'rate' })}
-          value={<span>{''}</span>}
+          from={from}
+          to={to}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+          fee={fee}
         />
-        <SwapDetail
+        <USNDetail
           title={intl.formatMessage({ id: 'tading_fee' })}
-          value={<span>{'0.3% / 2.325'}</span>}
+          value={
+            <span>
+              {tradeFeeRate +
+                ' / ' +
+                tradeFeeTokenAmount +
+                ' ' +
+                tokenIn.symbol}
+            </span>
+          }
         />
       </div>
     </div>
   );
 }
-
-export default function USNCard(props: {
-  allTokens: TokenMetadata[];
-  swapMode: string;
-  stablePools: Pool[];
-}) {
-  const { allTokens, swapMode, stablePools } = props;
+const useUSN = (props: any) => {
+  const {
+    loadingTrigger,
+    loadingPause,
+    setLoadingTrigger,
+    tokenPriceList,
+    setTokenPriceList,
+  } = props;
+  const refreshTime = Number(POOL_TOKEN_REFRESH_INTERVAL) * 1000;
+  const [currentrate, setCurrentRate] = useState(0);
+  useEffect(() => {
+    if (loadingTrigger) {
+      fetchMultiplierData();
+    }
+    let id: any = null;
+    if (!loadingTrigger && !loadingPause) {
+      id = setInterval(() => {
+        setLoadingTrigger(true);
+      }, refreshTime);
+    } else {
+      clearInterval(id);
+    }
+    return () => {
+      clearInterval(id);
+    };
+  }, [loadingTrigger, loadingPause]);
+  useEffect(() => {
+    if (currentrate) {
+      const nearPriceData = JSON.parse(JSON.stringify(nearMetadata));
+      nearPriceData.price = currentrate / 10000;
+      tokenPriceList[nearMetadata.id] = nearPriceData;
+      setTokenPriceList[JSON.parse(JSON.stringify(tokenPriceList))];
+    }
+  }, [currentrate, tokenPriceList]);
+  const fetchMultiplierData = () => {
+    fetchMultiplier().then((result) => {
+      const { multiplier } = result;
+      setCurrentRate(multiplier);
+      setLoadingTrigger(false);
+    });
+  };
+  return currentrate;
+};
+export default function USNCard(props: { allTokens: TokenMetadata[] }) {
+  const { allTokens } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
-  const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
-
-  const [supportLedger, setSupportLedger] = useState(
-    localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
-  );
-
   const [useNearBalance, setUseNearBalance] = useState<boolean>(true);
-
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
-
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();
   const [tokenOutBalanceFromNear, setTokenOutBalanceFromNear] =
     useState<string>();
-
-  const [reEstimateTrigger, setReEstimateTrigger] = useState(false);
-
-  const [loadingData, setLoadingData] = useState<boolean>(false);
   const [loadingTrigger, setLoadingTrigger] = useState<boolean>(true);
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
-  const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
-
+  const [showBuyLoading, setShowBuyLoading] = useState<boolean>(false);
   const intl = useIntl();
   const location = useLocation();
-  const history = useHistory();
 
-  const balances = useTokenBalances();
-  const [urlTokenIn, urlTokenOut, urlSlippageTolerance] = decodeURIComponent(
-    location.hash.slice(1)
-  ).split(TOKEN_URL_SEPARATOR);
   const [slippageToleranceNormal, setSlippageToleranceNormal] =
-    useState<number>(
-      Number(localStorage.getItem(SWAP_SLIPPAGE_KEY) || urlSlippageTolerance) ||
-        0.5
-    );
-
-  const [slippageToleranceStable, setSlippageToleranceStable] =
-    useState<number>(
-      Number(localStorage.getItem(SWAP_SLIPPAGE_KEY_STABLE)) || 0.5
-    );
+    useState<number>(Number(localStorage.getItem(USN_SLIPPAGE_KEY)) || 0.5);
 
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
-
+  const tradeFeeRate = '0.005';
   useEffect(() => {
-    getTokenPriceList().then(setTokenPriceList);
+    getTokenPriceList().then((list) => {
+      setTokenPriceList(Object.assign(tokenPriceList, list));
+    });
   }, []);
 
   useEffect(() => {
     if (allTokens) {
-      if (swapMode === SWAP_MODE.NORMAL) {
-        const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
-        const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
+      const candTokenIn = allTokens[0];
+      const candTokenOut = allTokens[1];
+      setTokenIn(candTokenIn);
+      setTokenOut(candTokenOut);
 
-        const candTokenIn =
-          allTokens.find((token) => token.id === rememberedIn) || allTokens[0];
-
-        const candTokenOut =
-          allTokens.find((token) => token.id === rememberedOut) || allTokens[1];
-
-        setTokenIn(candTokenIn);
-        setTokenOut(candTokenOut);
-
-        if (
-          tokenOut?.id === candTokenOut?.id &&
-          tokenIn?.id === candTokenIn?.id
-        )
-          setReEstimateTrigger(!reEstimateTrigger);
-      } else if (swapMode === SWAP_MODE.STABLE) {
-        const rememberedIn = localStorage.getItem(STABLE_SWAP_IN_KEY);
-        const rememberedOut = localStorage.getItem(STABLE_SWAP_OUT_KEY);
-
-        let candTokenIn: TokenMetadata;
-        let candTokenOut: TokenMetadata;
-
-        if (rememberedIn) {
-          candTokenIn =
-            allTokens.find((token) => token.id === rememberedIn) ||
-            allTokens.find(
-              (token) => isStableToken(token.id) && token.id !== tokenOut?.id
-            );
-        } else {
-          candTokenIn = allTokens.find(
-            (token) => isStableToken(token.id) && token.id !== tokenOut?.id
-          );
-        }
-
-        setTokenIn(candTokenIn);
-
-        if (rememberedOut && rememberedOut !== candTokenIn.id) {
-          const candToken = allTokens.find(
-            (token) => token.id === rememberedOut && isStableToken(token.id)
-          );
-          if (candToken) candTokenOut = candToken;
-          else {
-            candTokenOut = allTokens.find(
-              (token) => token.id !== candTokenIn.id && isStableToken(token.id)
-            );
-          }
-        } else {
-          candTokenOut = allTokens.find(
-            (token) => token.id !== candTokenIn.id && isStableToken(token.id)
-          );
-        }
-        setTokenOut(candTokenOut);
-
-        if (
-          tokenOut?.id === candTokenOut?.id &&
-          tokenIn?.id === candTokenIn?.id
-        )
-          setReEstimateTrigger(!reEstimateTrigger);
-      }
-      setTokenInAmount(toPrecision('1', 6));
+      if (tokenOut?.id === candTokenOut?.id && tokenIn?.id === candTokenIn?.id)
+        setTokenInAmount(toPrecision('1', 6));
     }
-  }, [allTokens, swapMode]);
+  }, [allTokens]);
 
   useEffect(() => {
-    if (useNearBalance) {
-      if (tokenIn) {
-        const tokenInId = tokenIn.id;
-        if (tokenInId) {
-          if (isSignedIn) {
-            ftGetBalance(tokenInId).then((available: string) =>
-              setTokenInBalanceFromNear(
-                toReadableNumber(tokenIn?.decimals, available)
-              )
-            );
-          }
+    if (tokenIn && tokenIn.id !== 'NEAR') {
+      const tokenInId = tokenIn.id;
+      if (tokenInId) {
+        if (isSignedIn) {
+          ftGetBalance(tokenInId).then((available: string) =>
+            setTokenInBalanceFromNear(
+              toReadableNumber(tokenIn?.decimals, available)
+            )
+          );
         }
       }
-      if (tokenOut) {
-        const tokenOutId = tokenOut.id;
-        if (tokenOutId) {
-          if (isSignedIn) {
-            ftGetBalance(tokenOutId).then((available: string) =>
-              setTokenOutBalanceFromNear(
-                toReadableNumber(tokenOut?.decimals, available)
-              )
-            );
-          }
+    }
+    if (tokenOut && tokenOut.id !== 'NEAR') {
+      const tokenOutId = tokenOut.id;
+      if (tokenOutId) {
+        if (isSignedIn) {
+          ftGetBalance(tokenOutId).then((available: string) =>
+            setTokenOutBalanceFromNear(
+              toReadableNumber(tokenOut?.decimals, available)
+            )
+          );
         }
       }
     }
   }, [tokenIn, tokenOut, useNearBalance, isSignedIn]);
-
-  const slippageTolerance =
-    swapMode === SWAP_MODE.NORMAL
-      ? slippageToleranceNormal
-      : slippageToleranceStable;
-
-  const {
-    canSwap,
-    tokenOutAmount,
-    minAmountOut,
-    pools,
-    swapError,
-    makeSwap,
-    avgFee,
-    isParallelSwap,
-    swapsToDo,
-    setCanSwap,
-  } = useSwap({
-    tokenIn: tokenIn,
-    tokenInAmount,
-    tokenOut: tokenOut,
-    slippageTolerance,
-    setLoadingData,
+  const nearBalance = useDepositableBalance(
+    nearMetadata.id,
+    nearMetadata.decimals
+  );
+  const tokenInMax =
+    tokenIn?.id === 'NEAR' ? nearBalance : tokenInBalanceFromNear || '0';
+  const tokenOutTotal =
+    tokenOut?.id === 'NEAR' ? nearBalance : tokenOutBalanceFromNear || '0';
+  const multiplier = useUSN({
+    loadingPause,
     loadingTrigger,
     setLoadingTrigger,
-    loadingData,
-    loadingPause,
-    swapMode,
-    reEstimateTrigger,
-    supportLedger,
+    tokenPriceList,
+    setTokenPriceList,
   });
-
-  const priceImpactValueSmartRouting = useMemo(() => {
-    try {
-      if (swapsToDo?.length === 2 && swapsToDo[0].status === PoolMode.SMART) {
-        return calculateSmartRoutingPriceImpact(
-          tokenInAmount,
-          swapsToDo,
-          tokenIn,
-          swapsToDo[1].token,
-          tokenOut
-        );
-      } else if (
-        swapsToDo?.length === 1 &&
-        swapsToDo[0].status === PoolMode.STABLE
-      ) {
-        return calcStableSwapPriceImpact(
-          toReadableNumber(tokenIn.decimals, swapsToDo[0].totalInputAmount),
-          swapsToDo[0].noFeeAmountOut
-        );
-      } else return '0';
-    } catch {
-      return '0';
-    }
-  }, [tokenOutAmount, swapsToDo]);
-
-  const priceImpactValueSmartRoutingV2 = useMemo(() => {
-    try {
-      const pi = calculateSmartRoutesV2PriceImpact(swapsToDo, tokenOut.id);
-
-      return pi;
-    } catch {
-      return '0';
-    }
-  }, [tokenOutAmount, swapsToDo]);
-
-  let PriceImpactValue: string = '0';
-
-  try {
-    if (
-      swapsToDo[0].status === PoolMode.SMART ||
-      swapsToDo[0].status === PoolMode.STABLE
-    ) {
-      PriceImpactValue = priceImpactValueSmartRouting;
+  const currentRate = multiplier / 10000;
+  let tokenOutAmount = '';
+  let minimumReceived = '';
+  let tradeFeeTokenAmount = '';
+  let tokenInAmountAfterCutFee = '';
+  if (tokenIn) {
+    tokenInAmountAfterCutFee = new BigNumber(tokenInAmount || 0)
+      .multipliedBy(1 - Number(tradeFeeRate))
+      .toFixed()
+      .toString();
+    if (tokenIn.symbol == 'NEAR') {
+      tokenOutAmount = new BigNumber(tokenInAmountAfterCutFee || 0)
+        .multipliedBy(currentRate || 0)
+        .toFixed()
+        .toString();
     } else {
-      PriceImpactValue = priceImpactValueSmartRoutingV2;
+      tokenOutAmount = new BigNumber(tokenInAmountAfterCutFee || 0)
+        .dividedBy(currentRate || 0)
+        .toFixed()
+        .toString();
     }
-  } catch (error) {
-    PriceImpactValue = '0';
+    const tokenOutAmountBig = new BigNumber(tradeFeeRate).multipliedBy(
+      tokenInAmount || 0
+    );
+    if (tokenOutAmountBig.isLessThan('0.001')) {
+      tradeFeeTokenAmount = '0';
+    } else {
+      tradeFeeTokenAmount = tokenOutAmountBig.toFixed().toString();
+    }
+    minimumReceived = new BigNumber(1 - slippageToleranceNormal / 100)
+      .multipliedBy(tokenOutAmount)
+      .toFixed()
+      .toString();
   }
-
-  const tokenInMax = useNearBalance
-    ? tokenInBalanceFromNear || '0'
-    : toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0';
-  const tokenOutTotal = useNearBalance
-    ? tokenOutBalanceFromNear || '0'
-    : toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
-  const canSubmit = canSwap && (tokenInMax != '0' || !useNearBalance);
-
+  const canSubmit =
+    !loadingTrigger &&
+    !showBuyLoading &&
+    tokenInAmountAfterCutFee &&
+    new BigNumber(tokenInAmount).isLessThanOrEqualTo(tokenInMax);
   const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-
-    const ifDoubleCheck =
-      new BigNumber(tokenInAmount).isLessThanOrEqualTo(
-        new BigNumber(tokenInMax)
-      ) && Number(PriceImpactValue) > 2;
-
-    if (ifDoubleCheck) setDoubleCheckOpen(true);
-    else makeSwap(useNearBalance);
+    setShowBuyLoading(true);
+    if (tokenIn.symbol == 'NEAR') {
+      buyUSN({
+        multiplier: multiplier.toString(),
+        slippage: slippageToleranceNormal,
+        amount: tokenInAmount,
+      });
+    } else {
+      sellUSN({
+        multiplier: multiplier.toString(),
+        slippage: slippageToleranceNormal,
+        amount: tokenInAmount,
+      });
+    }
+  };
+  const getMax = function () {
+    if (tokenIn) {
+      return tokenIn.id !== 'NEAR'
+        ? tokenInMax
+        : Number(tokenInMax) <= 0.5
+        ? '0'
+        : String(Number(tokenInMax) - 0.5);
+    }
+    return '0';
   };
   return (
     <>
       <USNFormWrap
-        supportLedger={supportLedger}
-        setSupportLedger={setSupportLedger}
         useNearBalance={useNearBalance.toString()}
-        canSubmit={canSubmit}
-        slippageTolerance={slippageTolerance}
+        slippageTolerance={slippageToleranceNormal}
         onChange={(slippage) => {
-          swapMode === SWAP_MODE.NORMAL
-            ? setSlippageToleranceNormal(slippage)
-            : setSlippageToleranceStable(slippage);
-
-          localStorage.setItem(
-            swapMode === SWAP_MODE.NORMAL
-              ? SWAP_SLIPPAGE_KEY
-              : SWAP_SLIPPAGE_KEY_STABLE,
-            slippage?.toString()
-          );
+          setSlippageToleranceNormal(slippage);
+          localStorage.setItem(USN_SLIPPAGE_KEY, slippage?.toString());
         }}
         bindUseBalance={(useNearBalance) => {
           setUseNearBalance(useNearBalance);
-          localStorage.setItem(
-            SWAP_USE_NEAR_BALANCE_KEY,
-            useNearBalance.toString()
-          );
         }}
-        swapMode={swapMode}
         onSubmit={handleSubmit}
-        info={intl.formatMessage({ id: 'swapCopy' })}
-        title={'swap'}
         loading={{
-          loadingData,
-          setLoadingData,
           loadingTrigger,
-          setLoadingTrigger,
           loadingPause,
           setLoadingPause,
-          showSwapLoading,
-          setShowSwapLoading,
+          setLoadingTrigger,
         }}
       >
         <TokenAmount
           forSwap
           amount={tokenInAmount}
           total={tokenInMax}
-          max={tokenInMax}
+          max={getMax()}
           selectedToken={tokenIn}
           useNearBalance={useNearBalance}
           showSelectToken={false}
-          balances={balances}
           onChangeAmount={(amount) => {
             setTokenInAmount(amount);
           }}
@@ -729,48 +405,34 @@ export default function USNCard(props: {
           <SwapExchange
             onChange={() => {
               setTokenIn(tokenOut);
-              localStorage.setItem(
-                swapMode === SWAP_MODE.NORMAL
-                  ? SWAP_IN_KEY
-                  : STABLE_SWAP_IN_KEY,
-                tokenOut.id
-              );
               setTokenOut(tokenIn);
-              localStorage.setItem(
-                swapMode === SWAP_MODE.NORMAL
-                  ? SWAP_OUT_KEY
-                  : STABLE_SWAP_OUT_KEY,
-                tokenIn.id
-              );
-
               setTokenInAmount(toPrecision('1', 6));
             }}
           />
         </div>
         <TokenAmount
           forSwap
-          amount={toPrecision(tokenOutAmount, 8)}
+          // amount={toPrecision(tokenOutAmount, 8)}
+          amount={tokenOutAmount}
           total={tokenOutTotal}
           selectedToken={tokenOut}
           showSelectToken={false}
-          balances={balances}
           useNearBalance={useNearBalance}
           isError={tokenIn?.id === tokenOut?.id}
           tokenPriceList={tokenPriceList}
         />
-        <DetailView
-          pools={pools}
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
-          from={tokenInAmount}
-          to={tokenOutAmount}
-          minAmountOut={minAmountOut}
-          isParallelSwap={isParallelSwap}
-          fee={avgFee}
-          swapsTodo={swapsToDo}
-          priceImpact={PriceImpactValue}
-          swapMode={swapMode}
-        />
+        {tokenIn && tokenOut && currentRate ? (
+          <DetailView
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            from={tokenIn.symbol == 'NEAR' ? '1' : currentRate?.toString()}
+            to={tokenOut.symbol == 'NEAR' ? '1' : currentRate?.toString()}
+            minimumReceived={toPrecision(minimumReceived, 8)}
+            tradeFeeTokenAmount={toPrecision(tradeFeeTokenAmount, 3)}
+            tradeFeeRate={Number(tradeFeeRate) * 100 + '%'}
+          />
+        ) : null}
+
         {/* {swapError ? (
           <div className="pb-2 relative -mb-5">
             <Alert level="warn" message={swapError.message} />
@@ -778,9 +440,9 @@ export default function USNCard(props: {
         ) : null} */}
         <SubmitButton
           onClick={handleSubmit}
-          disabled={!canSubmit || loadingTrigger}
+          disabled={!canSubmit}
           label={tokenIn?.id == 'NEAR' ? 'buy' : 'sell'}
-          loading={showSwapLoading}
+          loading={showBuyLoading}
         />
       </USNFormWrap>
     </>

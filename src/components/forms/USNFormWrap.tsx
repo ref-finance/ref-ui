@@ -1,13 +1,10 @@
 import React, { useEffect, useState, useContext } from 'react';
 import Alert from '../alert/Alert';
-import SubmitButton from './SubmitButton';
 import { FormattedMessage, useIntl } from 'react-intl';
-import SlippageSelector, { StableSlipSelecter } from './SlippageSelector';
-import { SwapRefresh, CountdownTimer } from '../../components/icon';
-import { wallet } from '~services/near';
+import SlippageSelector from './SlippageSelector';
+import { CountdownTimer } from '../../components/icon';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { SWAP_MODE } from '../../pages/SwapPage';
-import SlippageSelectorForStable from './SlippageSelector';
 import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 
@@ -23,51 +20,27 @@ interface USNFormWrapProps {
   onChange: (slippage: number) => void;
   bindUseBalance: (useNearBalance: boolean) => void;
   loading?: {
-    loadingData: boolean;
-    setLoadingData: (loading: boolean) => void;
     loadingTrigger: boolean;
-    setLoadingTrigger: (loaidngTrigger: boolean) => void;
+    setLoadingTrigger?: (loaidngTrigger: boolean) => void;
     loadingPause: boolean;
     setLoadingPause: (pause: boolean) => void;
-    showSwapLoading: boolean;
-    setShowSwapLoading: (swapLoading: boolean) => void;
   };
   useNearBalance: string;
   swapMode?: SWAP_MODE;
-  supportLedger?: boolean;
-  setSupportLedger?: (e?: any) => void;
 }
 
 export default function USNFormWrap({
   children,
   slippageTolerance,
-  canSubmit = true,
-  onSubmit,
   onChange,
   bindUseBalance,
   loading,
   useNearBalance,
-  swapMode,
-  supportLedger,
-  setSupportLedger,
 }: React.PropsWithChildren<USNFormWrapProps>) {
   const [error, setError] = useState<Error>();
   const intl = useIntl();
-  const {
-    loadingData,
-    setLoadingData,
-    loadingTrigger,
-    setLoadingTrigger,
-    loadingPause,
-    setLoadingPause,
-    showSwapLoading,
-    setShowSwapLoading,
-  } = loading;
-
-  useEffect(() => {
-    loadingTrigger && setShowSwapLoading(true);
-    !loadingTrigger && setShowSwapLoading(false);
-  }, [loadingTrigger]);
+  const { loadingTrigger, loadingPause, setLoadingPause, setLoadingTrigger } =
+    loading;
 
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
@@ -79,9 +52,7 @@ export default function USNFormWrap({
   }
   return (
     <form
-      className={`overflow-y-visible bg-secondary shadow-2xl rounded-2xl p-7 ${
-        swapMode === SWAP_MODE.STABLE ? 'pb-16' : ''
-      } bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible`}
+      className={`overflow-y-visible bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible`}
     >
       <h2 className="formTitle flex justify-between items-center font-bold text-xl text-white text-left pb-4">
         <div className="flex items-center text-2xl text-white">
@@ -116,7 +87,6 @@ export default function USNFormWrap({
               if (loadingPause) {
                 setLoadingPause(false);
                 setLoadingTrigger(true);
-                setLoadingData(true);
               } else {
                 setLoadingPause(true);
                 setLoadingTrigger(false);
@@ -130,27 +100,13 @@ export default function USNFormWrap({
             />
           </div>
 
-          {swapMode === SWAP_MODE.NORMAL ? (
-            <SlippageSelector
-              slippageTolerance={slippageTolerance}
-              onChange={onChange}
-              bindUseBalance={bindUseBalance}
-              useNearBalance={useNearBalance}
-              supportLedger={supportLedger}
-              setSupportLedger={setSupportLedger}
-            />
-          ) : null}
-          {swapMode === SWAP_MODE.STABLE ? (
-            <SlippageSelectorForStable
-              slippageTolerance={slippageTolerance}
-              onChange={onChange}
-              validSlippageList={[0.05, 0.1, 0.2]}
-              useNearBalance={useNearBalance}
-              bindUseBalance={bindUseBalance}
-              supportLedger={supportLedger}
-              setSupportLedger={setSupportLedger}
-            />
-          ) : null}
+          <SlippageSelector
+            slippageTolerance={slippageTolerance}
+            onChange={onChange}
+            bindUseBalance={bindUseBalance}
+            useNearBalance={useNearBalance}
+            hideLedger={true}
+          />
         </div>
       </h2>
       <div className=" text-primaryText text-sm mb-5">

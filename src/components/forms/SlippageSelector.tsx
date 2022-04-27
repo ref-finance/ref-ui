@@ -54,6 +54,7 @@ export default function SlippageSelectorForStable({
   validSlippageList,
   supportLedger,
   setSupportLedger,
+  hideLedger,
 }: {
   slippageTolerance: number;
   onChange: (slippage: number) => void;
@@ -62,6 +63,7 @@ export default function SlippageSelectorForStable({
   validSlippageList?: number[];
   supportLedger?: boolean;
   setSupportLedger?: (e?: any) => void;
+  hideLedger?: boolean;
 }) {
   const ref = useRef<HTMLInputElement>();
   const field = useRef<HTMLFieldSetElement>();
@@ -221,27 +223,28 @@ export default function SlippageSelectorForStable({
               />
               %
             </div>
+            {hideLedger ? null : (
+              <div className={'flex items-center mt-6 text-sm'}>
+                <label>
+                  <FormattedMessage
+                    id="support_ledger"
+                    defaultMessage={'Support Ledger'}
+                  />
+                </label>
 
-            <div className={'flex items-center mt-6 text-sm'}>
-              <label>
-                <FormattedMessage
-                  id="support_ledger"
-                  defaultMessage={'Support Ledger'}
+                <QuestionTip
+                  id="support_ledger_tip"
+                  defaultMessage="By design, Ledger cannot handle large transactions (i.e. Auto Router: trade across multiple pools at once) because of its memory limitation. When activated, the 'Support Ledger' option will limit transactions to their simplest form (to the detriment of better prices), so transactions of a reasonable size can be signed."
+                  dataPlace="bottom"
+                  uniquenessId="supportId"
+                  width="w-60"
                 />
-              </label>
-
-              <QuestionTip
-                id="support_ledger_tip"
-                defaultMessage="By design, Ledger cannot handle large transactions (i.e. Auto Router: trade across multiple pools at once) because of its memory limitation. When activated, the 'Support Ledger' option will limit transactions to their simplest form (to the detriment of better prices), so transactions of a reasonable size can be signed."
-                dataPlace="bottom"
-                uniquenessId="supportId"
-                width="w-60"
-              />
-              <SupportLedgerSwitch
-                supportLedger={supportLedger}
-                setSupportLedger={setSupportLedger}
-              />
-            </div>
+                <SupportLedgerSwitch
+                  supportLedger={supportLedger}
+                  setSupportLedger={setSupportLedger}
+                />
+              </div>
+            )}
 
             <div className={`${invalid || warn ? 'block' : 'hidden'}`}>
               {invalid ? (

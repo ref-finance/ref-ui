@@ -531,5 +531,12 @@ const ko = {
     'Ref 계정으로부터 NEAR 월렛으로 토큰을 인출하시려면 선택 후 인출을 눌러주세요',
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
+  buy: 'Buy',
+  sell: 'Sell',
+  buy_nsn: 'Buy USN',
+  buy_nsn_tip: 'USN is the native stablecoin backed by the NEAR economy. ',
+  usn_tip_one: 'USN NEAR allows you to trade on REF. Make sure to ',
+  rate: 'Rate',
+  tading_fee: 'Tading fee',
 };
 export default Object.assign(ko, ko_in_risks_page);
