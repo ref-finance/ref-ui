@@ -12,6 +12,7 @@ import { TokenMetadata } from '../services/ft-contract';
 import { Pool, getStablePoolFromCache } from '../services/pool';
 import getConfig from '../services/config';
 import { nearMetadata } from '../services/wrap-near';
+import { useTokens } from '~state/token';
 const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
 export enum SWAP_MODE {
@@ -73,15 +74,14 @@ function USNPage() {
   const extraTokens =
     getConfig().networkId === 'mainnet' ? ['usn'] : ['usdn.testnet'];
 
-  const allTokens = useWhitelistTokens(extraTokens);
-  console.log('888888888', allTokens);
-
-  if (!allTokens || !stablePools) return <Loading />;
+  const tokens = useTokens(extraTokens);
+  if (!tokens) return <Loading />;
+  tokens.unshift(nearMetadata);
   return (
     <div className="swap">
       <section className="lg:w-560px md:w-5/6 xs:w-full xs:p-2 m-auto relative">
         <USNCard
-          allTokens={allTokens}
+          allTokens={tokens}
           swapMode="normal"
           stablePools={stablePools}
         />

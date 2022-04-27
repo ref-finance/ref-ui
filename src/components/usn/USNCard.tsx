@@ -32,7 +32,7 @@ import {
   calcStableSwapPriceImpact,
 } from '../../utils/numbers';
 import ReactDOMServer from 'react-dom/server';
-import USNTokenAmount from '../forms/USNTokenAmount';
+import TokenAmount from '../forms/TokenAmount';
 import SubmitButton from '../forms/SubmitButton';
 import Alert from '../alert/Alert';
 import { toRealSymbol } from '../../utils/token';
@@ -374,83 +374,18 @@ export const PriceImpactWarning = ({ value }: { value: string }) => {
   );
 };
 
-function DetailView({
-  pools,
-  tokenIn,
-  tokenOut,
-  from,
-  to,
-  minAmountOut,
-  isParallelSwap,
-  fee,
-  swapsTodo,
-  priceImpact,
-  swapMode,
-}: {
-  pools: Pool[];
-  tokenIn: TokenMetadata;
-  tokenOut: TokenMetadata;
-  from: string;
-  to: string;
-  minAmountOut: string;
-  isParallelSwap?: boolean;
-  fee?: number;
-  swapsTodo?: EstimateSwapView[];
-  priceImpact?: string;
-  swapMode?: SWAP_MODE;
-}) {
+function DetailView({}) {
   const intl = useIntl();
-  const [showDetails, setShowDetails] = useState<boolean>(false);
-
-  const minAmountOutValue = useMemo(() => {
-    if (!minAmountOut) return '0';
-    else return toPrecision(minAmountOut, 8, true);
-  }, [minAmountOut]);
-
-  const exchangeRateValue = useMemo(() => {
-    if (!from || ONLY_ZEROS.test(to)) return '-';
-    else return calculateExchangeRate(fee, to, from);
-  }, [to]);
-
-  useEffect(() => {
-    if (Number(priceImpact) > 1) {
-      setShowDetails(true);
-    }
-  }, [priceImpact]);
-
-  useEffect(() => {
-    if (swapsTodo?.length > 1) {
-      setShowDetails(true);
-    }
-  }, [swapsTodo]);
-
-  const priceImpactDisplay = useMemo(() => {
-    if (!priceImpact || !tokenIn || !from) return null;
-    return GetPriceImpact(priceImpact, tokenIn, from);
-  }, [to, priceImpact]);
-
-  const poolFeeDisplay = useMemo(() => {
-    if (!fee || !from || !tokenIn) return null;
-
-    return `${toPrecision(
-      calculateFeePercent(fee).toString(),
-      2
-    )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(tokenIn.symbol)}`;
-  }, [to]);
-
-  if (!pools || ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id)
-    return null;
-
+  const [showDetails, setShowDetails] = useState(false);
   return (
     <div className="mt-8">
-      <div className="flex justify-center">
-        <div
-          className="flex items-center text-white cursor-pointer"
-          onClick={() => {
-            setShowDetails(!showDetails);
-          }}
-        >
-          <label className="mr-2">{getPriceImpactTipType(priceImpact)}</label>
+      <div
+        className="flex justify-center"
+        onClick={() => {
+          setShowDetails(!showDetails);
+        }}
+      >
+        <div className="flex items-center text-white cursor-pointer">
           <p className="block text-xs">
             <FormattedMessage id="details" defaultMessage="Details" />
           </p>
@@ -462,47 +397,16 @@ function DetailView({
       <div className={showDetails ? '' : 'hidden'}>
         <SwapDetail
           title={intl.formatMessage({ id: 'minimum_received' })}
-          value={<span>{toPrecision(minAmountOutValue, 8)}</span>}
-        />
-        <SwapRateDetail
-          title={intl.formatMessage({ id: 'swap_rate' })}
-          value={`1 ${toRealSymbol(
-            tokenOut.symbol
-          )} ≈ ${exchangeRateValue} ${toRealSymbol(tokenIn.symbol)}`}
-          from={from}
-          to={to}
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
-          fee={fee}
-        />
-        {Number(priceImpact) > 2 && (
-          <div className="py-1 text-xs text-right">
-            <PriceImpactWarning value={priceImpact} />
-          </div>
-        )}
-        <SwapDetail
-          title={intl.formatMessage({ id: 'price_impact' })}
-          value={!to || to === '0' ? '-' : priceImpactDisplay}
+          value={<span>{'326.327'}</span>}
         />
         <SwapDetail
-          title={intl.formatMessage({ id: 'pool_fee' })}
-          value={poolFeeDisplay}
+          title={intl.formatMessage({ id: 'rate' })}
+          value={<span>{''}</span>}
         />
-
-        {isParallelSwap && pools.length > 1 && (
-          <ParallelSwapRoutesDetail
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-            pools={pools}
-          />
-        )}
-
-        {swapsTodo[0].status === PoolMode.SMART && (
-          <SmartRoutesDetail swapsTodo={swapsTodo} />
-        )}
-        {!isParallelSwap &&
-          swapsTodo.every((e) => e.status !== PoolMode.SMART) &&
-          pools.length > 1 && <SmartRoutesV2Detail swapsTodo={swapsTodo} />}
+        <SwapDetail
+          title={intl.formatMessage({ id: 'tading_fee' })}
+          value={<span>{'0.3% / 2.325'}</span>}
+        />
       </div>
     </div>
   );
@@ -761,8 +665,6 @@ export default function USNCard(props: {
     if (ifDoubleCheck) setDoubleCheckOpen(true);
     else makeSwap(useNearBalance);
   };
-  console.log('1111111', allTokens);
-
   return (
     <>
       <USNFormWrap
@@ -790,18 +692,6 @@ export default function USNCard(props: {
             useNearBalance.toString()
           );
         }}
-        showElseView={tokenInMax === '0' && !useNearBalance}
-        elseView={
-          <div className="flex justify-center">
-            {isSignedIn ? (
-              <SubmitButton disabled={true} loading={showSwapLoading} />
-            ) : (
-              <div className="mt-4 w-full">
-                <ConnectToNearBtn />
-              </div>
-            )}
-          </div>
-        }
         swapMode={swapMode}
         onSubmit={handleSubmit}
         info={intl.formatMessage({ id: 'swapCopy' })}
@@ -817,30 +707,15 @@ export default function USNCard(props: {
           setShowSwapLoading,
         }}
       >
-        <USNTokenAmount
+        <TokenAmount
           forSwap
-          swapMode={swapMode}
           amount={tokenInAmount}
           total={tokenInMax}
           max={tokenInMax}
-          tokens={allTokens}
           selectedToken={tokenIn}
-          balances={balances}
-          onSelectToken={(token) => {
-            localStorage.setItem(
-              swapMode === SWAP_MODE.NORMAL ? SWAP_IN_KEY : STABLE_SWAP_IN_KEY,
-              token.id
-            );
-            swapMode === SWAP_MODE.NORMAL &&
-              history.replace(
-                `#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`
-              );
-            setTokenIn(token);
-            setCanSwap(false);
-            setTokenInBalanceFromNear(token?.near?.toString());
-          }}
-          text={intl.formatMessage({ id: 'from' })}
           useNearBalance={useNearBalance}
+          showSelectToken={false}
+          balances={balances}
           onChangeAmount={(amount) => {
             setTokenInAmount(amount);
           }}
@@ -872,31 +747,14 @@ export default function USNCard(props: {
             }}
           />
         </div>
-        <USNTokenAmount
+        <TokenAmount
           forSwap
-          swapMode={swapMode}
           amount={toPrecision(tokenOutAmount, 8)}
           total={tokenOutTotal}
-          tokens={allTokens}
           selectedToken={tokenOut}
+          showSelectToken={false}
           balances={balances}
-          text={intl.formatMessage({ id: 'to' })}
           useNearBalance={useNearBalance}
-          onSelectToken={(token) => {
-            localStorage.setItem(
-              swapMode === SWAP_MODE.NORMAL
-                ? SWAP_OUT_KEY
-                : STABLE_SWAP_OUT_KEY,
-              token.id
-            );
-            swapMode === SWAP_MODE.NORMAL &&
-              history.replace(
-                `#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`
-              );
-            setTokenOut(token);
-            setCanSwap(false);
-            setTokenOutBalanceFromNear(token?.near?.toString());
-          }}
           isError={tokenIn?.id === tokenOut?.id}
           tokenPriceList={tokenPriceList}
         />
@@ -913,32 +771,18 @@ export default function USNCard(props: {
           priceImpact={PriceImpactValue}
           swapMode={swapMode}
         />
-        {swapError ? (
+        {/* {swapError ? (
           <div className="pb-2 relative -mb-5">
             <Alert level="warn" message={swapError.message} />
           </div>
-        ) : null}
-      </USNFormWrap>
-      <DoubleCheckModal
-        isOpen={doubleCheckOpen}
-        onRequestClose={() => {
-          setDoubleCheckOpen(false);
-          setShowSwapLoading(false);
-          setLoadingPause(false);
-        }}
-        tokenIn={tokenIn}
-        tokenOut={tokenOut}
-        from={tokenInAmount}
-        onSwap={() => makeSwap(useNearBalance)}
-        priceImpactValue={PriceImpactValue}
-      />
-      {swapMode === SWAP_MODE.STABLE ? (
-        <TokenReserves
-          tokens={allTokens.filter((token) => isStableToken(token.id))}
-          pools={stablePools}
-          swapPage
+        ) : null} */}
+        <SubmitButton
+          onClick={handleSubmit}
+          disabled={!canSubmit || loadingTrigger}
+          label={tokenIn?.id == 'NEAR' ? 'buy' : 'sell'}
+          loading={showSwapLoading}
         />
-      ) : null}
+      </USNFormWrap>
     </>
   );
 }

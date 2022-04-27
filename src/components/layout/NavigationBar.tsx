@@ -778,16 +778,16 @@ function NavigationBar() {
             <Anchor to="/risks" pattern="/risks" name="Risks" />
           </div>
           <div className="flex items-center justify-end flex-1">
+            <div
+              className="mr-3"
+              onClick={() => {
+                historyInit.push('/usn');
+              }}
+            >
+              <USNBuyComponent />
+            </div>
             {isSignedIn && (
               <div className="flex items-center text-white">
-                <div
-                  className="mr-3"
-                  onClick={() => {
-                    historyInit.push('/usn');
-                  }}
-                >
-                  <USNBuyComponent />
-                </div>
                 <div
                   className=" py-1 cursor-pointer items-center flex"
                   onClick={() => setShowWrapNear(true)}

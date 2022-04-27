@@ -40,14 +40,9 @@ interface USNFormWrapProps {
 
 export default function USNFormWrap({
   children,
-  title,
-  buttonText,
   slippageTolerance,
   canSubmit = true,
   onSubmit,
-  info,
-  showElseView,
-  elseView,
   onChange,
   bindUseBalance,
   loading,
@@ -77,20 +72,6 @@ export default function USNFormWrap({
   const { signedInState } = useContext(WalletContext);
   const isSignedIn = signedInState.isSignedIn;
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setError(null);
-
-    if (isSignedIn) {
-      try {
-        setShowSwapLoading(true);
-        setLoadingPause(true);
-        onSubmit(event);
-      } catch (err) {
-        setError(err);
-      }
-    }
-  };
   function buy_nsn_tip() {
     const tip = intl.formatMessage({ id: 'buy_nsn_tip' });
     let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
@@ -101,7 +82,6 @@ export default function USNFormWrap({
       className={`overflow-y-visible bg-secondary shadow-2xl rounded-2xl p-7 ${
         swapMode === SWAP_MODE.STABLE ? 'pb-16' : ''
       } bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible`}
-      onSubmit={handleSubmit}
     >
       <h2 className="formTitle flex justify-between items-center font-bold text-xl text-white text-left pb-4">
         <div className="flex items-center text-2xl text-white">
@@ -192,16 +172,6 @@ export default function USNFormWrap({
       </div>
       {error && <Alert level="warn" message={error.message} />}
       {children}
-      {showElseView && elseView ? (
-        elseView
-      ) : (
-        <SubmitButton
-          disabled={!canSubmit || loadingTrigger}
-          text={buttonText || title}
-          info={info}
-          loading={showSwapLoading}
-        />
-      )}
     </form>
   );
 }
