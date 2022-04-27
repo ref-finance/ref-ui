@@ -1,6 +1,20 @@
 export function getAuroraConfig(env: string = process.env.NEAR_ENV) {
   switch (env) {
     case 'production':
+    case 'pub-testnet':
+      return {
+        trisolarisAddress: '0x26ec2aFBDFdFB972F106100A3deaE5887353d9B9',
+        ethBridgeAddress: '0xe9217bc70b7ed1f598ddd3199e80b093fa71124f',
+        factoryAddress: '0x60913758635b54e6C9685f92201A5704eEe74748',
+        WETH: '0x1b6A3d5B5DCdF7a37CFE35CeBC0C4bD28eA7e946',
+        Pairs: {
+          'wNEAR-USDC': '0x37401f53be96E28996d18A1964F47dF9e23b15D2',
+          'ETH-USDC': '0x0084B7b4C64eDaaB4d7783e5Fe27f796C4783d44',
+          'wNEAR-LINEAR': '0x75164fb3589c568Ce422Ca99aF9d23dCA410541a',
+          'ETH-LINEAR': '0xF6E611DE9584A95Df64e587E0C67de94f299C717',
+        },
+        networkId: 'testnet',
+      };
     case 'testnet':
       return {
         trisolarisAddress: '0x26ec2aFBDFdFB972F106100A3deaE5887353d9B9',

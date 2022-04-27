@@ -15,6 +15,19 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
         },
       };
     case 'development':
+    case 'pub-testnet':
+      return {
+        RPC_LIST: {
+          defaultRpc: {
+            url: 'https://rpc.testnet.near.org',
+            simpleName: 'official rpc',
+          },
+          publicRpc: {
+            url: 'https://public-rpc.blockpi.io/http/near-testnet',
+            simpleName: 'blockpi rpc',
+          },
+        },
+      };
     case 'testnet':
       return {
         RPC_LIST: {
