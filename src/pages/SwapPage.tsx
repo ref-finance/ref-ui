@@ -153,6 +153,8 @@ function getAllTokens(refTokens: TokenMetadata[], triTokens: TokenMetadata[]) {
 }
 
 function SwapPage() {
+  const [tokenInAmount, setTokenInAmount] = useState<string>('1');
+
   const triTokenIds = useTriTokenIdsOnRef();
   const extraTokens =
     getConfig().networkId === 'mainnet' ? ['usn'] : ['usdn.testnet'];
@@ -193,9 +195,7 @@ function SwapPage() {
   const crossSwapTokens = allTokens.filter(
     (token) => token.onTri || token.onRef
   );
-  {
-    /* <ChangeSwapMode swapMode={swapMode} setSwapMode={setSwapMode} /> */
-  }
+
   return (
     <div className="swap">
       <section className="lg:w-560px md:w-5/6 xs:w-full xs:p-2 m-auto relative ">
@@ -207,12 +207,18 @@ function SwapPage() {
         />
 
         {swapTab === 'cross' ? (
-          <CrossSwapCard allTokens={crossSwapTokens} />
+          <CrossSwapCard
+            allTokens={crossSwapTokens}
+            tokenInAmount={tokenInAmount}
+            setTokenInAmount={setTokenInAmount}
+          />
         ) : (
           <SwapCard
             allTokens={nearSwapTokens}
             swapMode={swapMode}
             stablePools={stablePools}
+            tokenInAmount={tokenInAmount}
+            setTokenInAmount={setTokenInAmount}
           />
         )}
       </section>

@@ -536,5 +536,7 @@ const ko = {
   mapping_account_tip: '매핑 계정에 토큰이 있습니다',
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
+  Confirm: '확인하다',
+  Request_for_Quote: '견적 요청',
 };
 export default Object.assign(ko, ko_in_risks_page);

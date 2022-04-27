@@ -545,5 +545,7 @@ const ja = {
   mapping_account_tip: 'マッピングアカウントにトークンがあります',
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
+  Confirm: '確認',
+  Request_for_Quote: '見積もり依頼',
 };
 export default Object.assign(ja, ja_in_risks_page);

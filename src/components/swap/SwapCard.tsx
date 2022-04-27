@@ -498,10 +498,12 @@ export default function SwapCard(props: {
   allTokens: TokenMetadata[];
   swapMode: SWAP_MODE;
   stablePools: Pool[];
+  tokenInAmount: string;
+  setTokenInAmount: (value: string) => void;
 }) {
-  const { allTokens, swapMode, stablePools } = props;
+  const { allTokens, swapMode, stablePools, tokenInAmount, setTokenInAmount } =
+    props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
-  const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
 
@@ -615,7 +617,6 @@ export default function SwapCard(props: {
         )
           setReEstimateTrigger(!reEstimateTrigger);
       }
-      setTokenInAmount(toPrecision('1', 6));
     }
   }, [allTokens, swapMode]);
 

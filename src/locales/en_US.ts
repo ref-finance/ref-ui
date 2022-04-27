@@ -537,5 +537,7 @@ const en_US = {
   mapping_account_tip: 'You have token(s) in Mapping Account',
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
+  Confirm: 'Confirm',
+  Request_for_Quote: 'Request for Quote',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

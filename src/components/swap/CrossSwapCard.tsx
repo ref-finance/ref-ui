@@ -361,10 +361,13 @@ function DetailView({
   );
 }
 
-export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
-  const { allTokens } = props;
+export default function CrossSwapCard(props: {
+  allTokens: TokenMetadata[];
+  tokenInAmount: string;
+  setTokenInAmount: (amount: string) => void;
+}) {
+  const { allTokens, tokenInAmount, setTokenInAmount } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
-  const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
 
@@ -604,7 +607,7 @@ export default function CrossSwapCard(props: { allTokens: TokenMetadata[] }) {
         elseView={<SubmitButton disabled={true} loading={showSwapLoading} />}
         onSubmit={handleSubmit}
         info={intl.formatMessage({ id: 'swapCopy' })}
-        title={requested ? 'Swap' : 'Request'}
+        title={requested ? 'Confirm' : 'Request_for_Quote'}
       >
         <TokenCardIn
           tokenIn={tokenIn}

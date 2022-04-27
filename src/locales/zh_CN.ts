@@ -506,5 +506,7 @@ const zh_CN = {
     '>文档</label>。',
   cumulative_ref_buyback: '累计 REF 回购',
   yearly_revenue_booster: '年度收入助推器',
+  Confirm: '确认',
+  Request_for_Quote: '请求报价',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

@@ -521,5 +521,7 @@ const uk_UA = {
     '>документацію</label>.',
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
+  Confirm: 'Підтвердьте',
+  Request_for_Quote: 'Запит пропозицій',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

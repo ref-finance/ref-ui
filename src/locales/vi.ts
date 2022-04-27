@@ -544,5 +544,7 @@ const vi = {
     '>Tài liệu</label> của chúng tôi.',
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
+  Confirm: 'Xác nhận',
+  Request_for_Quote: 'Yêu cầu báo giá',
 };
 export default Object.assign(vi, vi_in_risks_page);

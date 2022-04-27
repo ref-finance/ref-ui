@@ -534,5 +534,7 @@ const ru = {
   mapping_account_tip: 'У вас есть маркер(ы) в картографической учетной записи',
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
+  Confirm: 'Подтверждать',
+  Request_for_Quote: 'Запрос на квоту',
 };
 export default Object.assign(ru, ru_in_risks_page);
