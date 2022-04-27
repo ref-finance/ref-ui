@@ -30,6 +30,7 @@ import {
   WalletIcon,
   SignoutIcon,
   WNEARExchngeIcon,
+  USNIcon,
 } from '~components/icon/Common';
 import { Link, useLocation } from 'react-router-dom';
 import { wallet } from '~services/near';
@@ -666,7 +667,7 @@ function NavigationBar() {
   const [pathnameState, setPathnameState] = useState<boolean>(
     window.location.pathname !== '/account'
   );
-
+  const historyInit = useHistory();
   const setPatheState = () =>
     setPathnameState(window.location.pathname !== '/account');
 
@@ -684,7 +685,6 @@ function NavigationBar() {
     };
     history.pushState = _historyWrap('pushState');
     history.replaceState = _historyWrap('replaceState');
-
     window.addEventListener('popstate', (e) => {
       setPatheState();
     });
@@ -779,7 +779,15 @@ function NavigationBar() {
           </div>
           <div className="flex items-center justify-end flex-1">
             {isSignedIn && (
-              <div className="text-white">
+              <div className="flex items-center text-white">
+                <div
+                  className="mr-3"
+                  onClick={() => {
+                    historyInit.push('/usn');
+                  }}
+                >
+                  <USNBuyComponent />
+                </div>
                 <div
                   className=" py-1 cursor-pointer items-center flex"
                   onClick={() => setShowWrapNear(true)}
@@ -828,6 +836,18 @@ function NavigationBar() {
         }}
       />
     </>
+  );
+}
+function USNBuyComponent() {
+  return (
+    <div className="flex items-end cursor-pointer">
+      <div className="relative z-10 flex items-center justify-center bg-black w-6 h-6 rounded-full overflow-hidden border-2 border-greenColor">
+        <USNIcon></USNIcon>
+      </div>
+      <div className="flex items-center text-xs text-chartBg bg-stableTab rounded-md h-5 -ml-4 pl-5 pr-3 relative mb-px">
+        <FormattedMessage id="buy"></FormattedMessage>
+      </div>
+    </div>
   );
 }
 export default NavigationBar;
