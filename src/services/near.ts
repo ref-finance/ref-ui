@@ -63,7 +63,7 @@ export const near = new Near({
   headers: {},
   ...config,
 });
-export const wallet = new SpecialWallet(near, 'aurora');
+export const wallet = new SpecialWallet(near, REF_FARM_CONTRACT_ID);
 
 export const getGas = (gas: string) =>
   gas ? new BN(gas) : new BN('100000000000000');

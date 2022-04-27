@@ -167,7 +167,7 @@ function App() {
         !signInErrorType
       ) {
         getSenderWallet(window)
-          .requestSignIn('aurora')
+          .requestSignIn(REF_FARM_CONTRACT_ID)
           .then((res: any) => {
             !res?.error && saveSenderLoginRes();
           });
