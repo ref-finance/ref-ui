@@ -238,11 +238,27 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
 
     // validate if last tx is success
   } else {
-    console.log(txDetail);
+    const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
 
-    console.log(parsedTransactionSuccessValue(txDetail));
+    const isSlippageError = txDetail.receipts_outcome.some((outcome: any) => {
+      return slippageErrorPattern.test(
+        outcome?.outcome?.status?.Failure?.ActionError?.kind?.FunctionCallError
+          ?.ExecutionError
+      );
+    });
 
-    return { hash: lastTx, status: true };
+    if (isSlippageError)
+      return {
+        status: false,
+        hash: lastTx,
+        errorType: 'Slippage Violation',
+      };
+    else {
+      return {
+        status: true,
+        hash: lastTx,
+      };
+    }
   }
 };
 
