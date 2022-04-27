@@ -85,7 +85,7 @@ export const sellUSN = async ({
             slippage: `${Math.round((Number(multiplier) / 100) * slippage)}`,
             decimals: 28,
           },
-          amount: toNonDivisibleNumber(24, amount),
+          amount: toNonDivisibleNumber(18, amount),
         },
         amount: ONE_YOCTO_NEAR,
         gas: '50000000000000',
