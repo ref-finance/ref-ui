@@ -95,6 +95,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 1,
           '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near': 2,
         },
+        USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
         CUMULATIVE_REF_BUYBACK:
@@ -127,7 +128,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
         STABLE_POOL_ID: process.env.STABLE_POOL_ID || 79,
         STABLE_POOL_IDS: process.env.STABLE_POOL_IDS || ['79', '506'],
-
+        USN_ID: 'usdn.testnet',
         STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 506,
         STABLE_TOKEN_IDS: [
           'usdt.fakes.testnet',
@@ -193,6 +194,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 1,
           '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near': 2,
         },
+        USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
         CUMULATIVE_REF_BUYBACK:
