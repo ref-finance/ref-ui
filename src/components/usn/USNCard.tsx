@@ -137,13 +137,13 @@ function DetailView({
   const [showDetails, setShowDetails] = useState(false);
   return (
     <div className="mt-8">
-      <div
-        className="flex justify-center"
-        onClick={() => {
-          setShowDetails(!showDetails);
-        }}
-      >
-        <div className="flex items-center text-white cursor-pointer">
+      <div className="flex justify-center">
+        <div
+          className="flex items-center text-white cursor-pointer"
+          onClick={() => {
+            setShowDetails(!showDetails);
+          }}
+        >
           <p className="block text-xs">
             <FormattedMessage id="details" defaultMessage="Details" />
           </p>
