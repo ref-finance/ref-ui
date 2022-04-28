@@ -134,7 +134,7 @@ function DetailView({
   tradeFeeTokenAmount: string;
 }) {
   const intl = useIntl();
-  const [showDetails, setShowDetails] = useState(true);
+  const [showDetails, setShowDetails] = useState(false);
   return (
     <div className="mt-8">
       <div

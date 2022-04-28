@@ -548,5 +548,6 @@ const ja = {
   rate: 'Rate',
   trading_fee: 'Trading fee',
   usn_successful_click_to_view: 'Trading successful. Click to view',
+  awesomeNear_verified_token: 'AwesomeNear Verified Token',
 };
 export default Object.assign(ja, ja_in_risks_page);
