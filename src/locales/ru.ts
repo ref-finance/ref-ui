@@ -533,7 +533,7 @@ const ru = {
   sell: 'Sell',
   buy_nsn: 'Buy USN',
   buy_nsn_tip: 'USN is the native stablecoin backed by the NEAR economy. ',
-  usn_tip_one: 'USN NEAR allows you to trade on REF. Make sure to ',
+  usn_tip_one: 'USN allows you to trade on REF. Make sure to ',
   rate: 'Rate',
   tading_fee: 'Tading fee',
 };

@@ -211,6 +211,7 @@ const useUSN = (props: any) => {
   const fetchMultiplierData = () => {
     fetchMultiplier().then((result) => {
       const { multiplier } = result;
+      console.log('汇率汇率汇率汇率汇率汇率汇率汇率汇率', multiplier);
       setCurrentRate(multiplier);
       setLoadingTrigger(false);
     });
