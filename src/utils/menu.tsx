@@ -41,15 +41,15 @@ export type MenuItem = {
 };
 export const useMenuItems = () => {
   const intl = useIntl();
-  const riskItem = {
-    label: <FormattedMessage id="Risks" defaultMessage="Risks" />,
-    url: '/risks',
-    isExternal: false,
-    id: 0,
-    logo: <IconRisk />,
-  };
 
   const menuData: any[] = [
+    {
+      label: <FormattedMessage id="Risks" defaultMessage="Risks" />,
+      url: '/risks',
+      isExternal: false,
+      id: 0,
+      logo: <IconRisk />,
+    },
     {
       label: <FormattedMessage id="airdrop" defaultMessage="Airdrop" />,
       url: '/airdrop',
@@ -180,10 +180,6 @@ export const useMenuItems = () => {
       ],
     },
   ];
-
-  if (window.screen.width >= 1024 && window.screen.width < 1092) {
-    menuData.unshift(riskItem);
-  }
 
   return { menuData };
 };

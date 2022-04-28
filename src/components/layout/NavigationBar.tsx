@@ -98,7 +98,7 @@ function Anchor({
   return (
     <Link
       to={to}
-      className="relative"
+      className={`relative ${name === 'Risks' ? 'lg:hidden lg2:block' : ''}`}
       onMouseEnter={() => {
         setHover(true);
       }}
@@ -614,7 +614,9 @@ function MoreMenu() {
               return (
                 <div
                   key={id}
-                  className={`whitespace-nowrap text-left items-center flex justify-start hover:bg-navHighLightBg text-sm font-semibold hover:text-white
+                  className={`whitespace-nowrap ${
+                    id === 0 ? 'lg:flex lg2:hidden' : ''
+                  } text-left items-center flex justify-start hover:bg-navHighLightBg text-sm font-semibold hover:text-white
                  ${
                    (language && currentLocal === language) || isSelected
                      ? 'bg-navHighLightBg text-white'
@@ -780,9 +782,7 @@ function NavigationBar() {
             <PoolsMenu />
             <Anchor to="/farms" pattern="/farms" name="Farms" />
             <Xref></Xref>
-            <div className="lg:hidden lg2:block">
-              <Anchor to="/risks" pattern="/risks" name="Risks" />
-            </div>
+            <Anchor to="/risks" pattern="/risks" name="Risks" />
           </div>
           <div className="flex items-center justify-end flex-1">
             <div
