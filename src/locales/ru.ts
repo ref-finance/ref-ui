@@ -535,6 +535,7 @@ const ru = {
   buy_nsn_tip: 'USN is the native stablecoin backed by the NEAR economy. ',
   usn_tip_one: 'USN allows you to trade on REF. Make sure to ',
   rate: 'Rate',
-  tading_fee: 'Tading fee',
+  trading_fee: 'Trading fee',
+  usn_successful_click_to_view: 'Trading successful. Click to view',
 };
 export default Object.assign(ru, ru_in_risks_page);

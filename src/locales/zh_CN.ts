@@ -508,6 +508,7 @@ const zh_CN = {
   buy_nsn_tip: 'SN是NEAR经济支持的原生稳定币。',
   usn_tip_one: 'USN 允许你在REF上交易 ',
   rate: '汇率',
-  tading_fee: '交易费',
+  trading_fee: '交易费',
+  usn_successful_click_to_view: '交易成功，点击查看详情',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
