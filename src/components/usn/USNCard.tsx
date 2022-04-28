@@ -22,6 +22,13 @@ import { getTokenPriceList } from '../../services/indexer';
 import { fetchMultiplier, buyUSN, sellUSN } from '../../services/buy-sell-usn';
 import { POOL_TOKEN_REFRESH_INTERVAL } from '../../services/near';
 import { nearMetadata } from '../../services/wrap-near';
+import {
+  failToast,
+  getURLInfo,
+  usnBuyAndSellToast,
+} from '../../components/layout/transactionTipPopUp';
+import { getCurrentWallet } from '../../utils/sender-wallet';
+import { checkTransaction } from '../../services/swap';
 
 const USN_SLIPPAGE_KEY = 'USN_FI_SLIPPAGE_VALUE';
 
@@ -159,7 +166,7 @@ function DetailView({
           fee={fee}
         />
         <USNDetail
-          title={intl.formatMessage({ id: 'tading_fee' })}
+          title={intl.formatMessage({ id: 'trading_fee' })}
           value={
             <span>
               {tradeFeeRate +
@@ -233,8 +240,9 @@ export default function USNCard(props: { allTokens: TokenMetadata[] }) {
   const [loadingTrigger, setLoadingTrigger] = useState<boolean>(true);
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
   const [showBuyLoading, setShowBuyLoading] = useState<boolean>(false);
+  const { txHash, pathname, errorType } = getURLInfo();
   const intl = useIntl();
-  const location = useLocation();
+  const history = useHistory();
 
   const [slippageToleranceNormal, setSlippageToleranceNormal] =
     useState<number>(Number(localStorage.getItem(USN_SLIPPAGE_KEY)) || 0.5);
@@ -258,6 +266,28 @@ export default function USNCard(props: { allTokens: TokenMetadata[] }) {
         setTokenInAmount(toPrecision('1', 6));
     }
   }, [allTokens]);
+
+  useEffect(() => {
+    if (txHash && getCurrentWallet().wallet.isSignedIn()) {
+      checkTransaction(txHash)
+        .then((res: any) => {
+          const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
+
+          const isSlippageError = res.receipts_outcome.some((outcome: any) => {
+            return slippageErrorPattern.test(
+              outcome?.outcome?.status?.Failure?.ActionError?.kind
+                ?.FunctionCallError?.ExecutionError
+            );
+          });
+          return { isSlippageError };
+        })
+        .then(({ isSlippageError }) => {
+          !isSlippageError && !errorType && usnBuyAndSellToast(txHash);
+          isSlippageError && failToast(txHash, 'Slippage Violation');
+          history.replace(pathname);
+        });
+    }
+  }, [txHash]);
 
   useEffect(() => {
     if (tokenIn && tokenIn.id !== 'NEAR') {
@@ -413,8 +443,7 @@ export default function USNCard(props: { allTokens: TokenMetadata[] }) {
         </div>
         <TokenAmount
           forSwap
-          // amount={toPrecision(tokenOutAmount, 8)}
-          amount={tokenOutAmount}
+          amount={toPrecision(tokenOutAmount, 8)}
           total={tokenOutTotal}
           selectedToken={tokenOut}
           showSelectToken={false}
@@ -426,8 +455,8 @@ export default function USNCard(props: { allTokens: TokenMetadata[] }) {
           <DetailView
             tokenIn={tokenIn}
             tokenOut={tokenOut}
-            from={tokenIn.symbol == 'NEAR' ? '1' : currentRate?.toString()}
-            to={tokenOut.symbol == 'NEAR' ? '1' : currentRate?.toString()}
+            from={tokenInAmount}
+            to={tokenOutAmount}
             minimumReceived={toPrecision(minimumReceived, 8)}
             tradeFeeTokenAmount={toPrecision(tradeFeeTokenAmount, 3)}
             tradeFeeRate={Number(tradeFeeRate) * 100 + '%'}
