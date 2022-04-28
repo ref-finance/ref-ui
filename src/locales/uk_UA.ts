@@ -519,7 +519,7 @@ const uk_UA = {
   buy: 'Buy',
   sell: 'Sell',
   buy_nsn: 'Buy USN',
-  buy_nsn_tip: 'USN is the native stablecoin backed by the NEAR economy. ',
+  buy_nsn_tip: 'USN is the native stablecoin backed by the NEAR economy',
   usn_tip_one: 'USN allows you to trade on REF. Make sure to ',
   rate: 'Rate',
   trading_fee: 'Trading fee',

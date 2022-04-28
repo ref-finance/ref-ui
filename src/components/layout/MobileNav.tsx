@@ -556,7 +556,10 @@ export function MobileNavBar(props: any) {
             <div className="text-primaryText">
               <div
                 className="flex p-5 justify-between items-center"
-                onClick={() => history.push('/usn')}
+                onClick={() => {
+                  history.push('/usn');
+                  setShow(false);
+                }}
               >
                 <USNBuyComponent></USNBuyComponent>
               </div>
