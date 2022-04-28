@@ -376,9 +376,7 @@ export default function CrossSwapCard(props: {
   const [loadingData, setLoadingData] = useState<boolean>(false);
   const [loadingTrigger, setLoadingTrigger] = useState<boolean>(false);
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
-  const [supportLedger, setSupportLedger] = useState(
-    localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
-  );
+  const [supportLedger, setSupportLedger] = useState(true);
 
   const [useNearBalance, setUseNearBalance] = useState<boolean>(true);
   const history = useHistory();
