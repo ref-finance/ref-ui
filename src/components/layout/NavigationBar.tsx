@@ -30,7 +30,6 @@ import {
   WalletIcon,
   SignoutIcon,
   WNEARExchngeIcon,
-  USNIcon,
 } from '~components/icon/Common';
 import { Link, useLocation } from 'react-router-dom';
 import { wallet } from '~services/near';
@@ -56,6 +55,7 @@ import { ftGetTokensMetadata } from '../../services/ft-contract';
 import { useTokenBalances } from '../../state/token';
 import { toReadableNumber } from '../../utils/numbers';
 import { FarmDot } from '../icon/FarmStamp';
+import USNBuyComponent from '~components/forms/USNBuyComponent';
 
 const config = getConfig();
 
@@ -836,18 +836,6 @@ function NavigationBar() {
         }}
       />
     </>
-  );
-}
-function USNBuyComponent() {
-  return (
-    <div className="flex items-end cursor-pointer">
-      <div className="relative z-10 flex items-center justify-center bg-black w-6 h-6 rounded-full overflow-hidden border-2 border-greenColor">
-        <USNIcon></USNIcon>
-      </div>
-      <div className="flex items-center text-xs text-chartBg bg-stableTab rounded-md h-5 -ml-4 pl-5 pr-3 relative mb-px">
-        <FormattedMessage id="buy"></FormattedMessage>
-      </div>
-    </div>
   );
 }
 export default NavigationBar;

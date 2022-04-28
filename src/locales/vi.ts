@@ -539,5 +539,12 @@ const vi = {
     '>Tài liệu</label> của chúng tôi.',
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
+  buy: 'Buy',
+  sell: 'Sell',
+  buy_nsn: 'Buy USN',
+  buy_nsn_tip: 'USN is the native stablecoin backed by the NEAR economy. ',
+  usn_tip_one: 'USN allows you to trade on REF. Make sure to ',
+  rate: 'Rate',
+  tading_fee: 'Tading fee',
 };
 export default Object.assign(vi, vi_in_risks_page);

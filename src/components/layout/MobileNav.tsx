@@ -55,6 +55,7 @@ import { isMobile } from '~utils/device';
 import { getCurrentWallet, getAccountName } from '../../utils/sender-wallet';
 import { FarmDot } from '../icon/FarmStamp';
 import { AccountTipDownByAccountID } from './NavigationBar';
+import USNBuyComponent from '~components/forms/USNBuyComponent';
 
 export function MobileAnchor({
   to,
@@ -552,6 +553,14 @@ export function MobileNavBar(props: any) {
                 />
               </div>
             )}
+            <div className="text-primaryText">
+              <div
+                className="flex p-5 justify-between items-center"
+                onClick={() => history.push('/usn')}
+              >
+                <USNBuyComponent></USNBuyComponent>
+              </div>
+            </div>
             {moreLinks.map(
               ({
                 id,
