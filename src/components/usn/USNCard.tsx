@@ -387,7 +387,7 @@ export default function USNCard(props: {
   const canSubmit =
     !loadingTrigger &&
     !showBuyLoading &&
-    tokenInAmountAfterCutFee &&
+    Number(tokenInAmountAfterCutFee) &&
     new BigNumber(tokenInAmount).isLessThanOrEqualTo(getMax());
   const handleSubmit = (event: React.FormEvent) => {
     setShowBuyLoading(true);
