@@ -278,11 +278,19 @@ export default function USNCard(props: { allTokens: TokenMetadata[] }) {
                 ?.FunctionCallError?.ExecutionError
             );
           });
-          return { isSlippageError };
+          const transaction = res.transaction;
+          const methodName =
+            transaction?.actions[0]?.['FunctionCall']?.method_name;
+          return {
+            isUSN: methodName == 'buy' || methodName == 'sell',
+            isSlippageError,
+          };
         })
-        .then(({ isSlippageError }) => {
-          !isSlippageError && !errorType && usnBuyAndSellToast(txHash);
-          isSlippageError && failToast(txHash, 'Slippage Violation');
+        .then(({ isUSN, isSlippageError }) => {
+          if (isUSN) {
+            !isSlippageError && !errorType && usnBuyAndSellToast(txHash);
+            isSlippageError && failToast(txHash, 'Slippage Violation');
+          }
           history.replace(pathname);
         });
     }
