@@ -287,10 +287,12 @@ export default function USNCard(props: { allTokens: TokenMetadata[] }) {
           };
         })
         .then(({ isUSN, isSlippageError }) => {
-          if (isUSN) {
-            !isSlippageError && !errorType && usnBuyAndSellToast(txHash);
-            isSlippageError && failToast(txHash, 'Slippage Violation');
-          }
+          setTimeout(() => {
+            if (isUSN) {
+              !isSlippageError && !errorType && usnBuyAndSellToast(txHash);
+              isSlippageError && failToast(txHash, 'Slippage Violation');
+            }
+          }, 0);
           history.replace(pathname);
         });
     }
