@@ -775,7 +775,9 @@ function NavigationBar() {
             <PoolsMenu />
             <Anchor to="/farms" pattern="/farms" name="Farms" />
             <Xref></Xref>
-            <Anchor to="/risks" pattern="/risks" name="Risks" />
+            <div className="lg:hidden lg2:block">
+              <Anchor to="/risks" pattern="/risks" name="Risks" />
+            </div>
           </div>
           <div className="flex items-center justify-end flex-1">
             <div
