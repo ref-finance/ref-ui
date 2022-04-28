@@ -22,6 +22,7 @@ import {
   WrapNearIconDark,
   GreenArrowIcon,
   MoreMenuIcon,
+  NavLogo,
 } from '~components/icon';
 import { SmallWallet } from '~components/icon/SmallWallet';
 import {
@@ -765,9 +766,13 @@ function NavigationBar() {
           />
           .
         </div>
-        <nav className="flex items-center justify-between px-9 pt-6 col-span-8">
-          <div className="relative -top-0.5 flex-1">
+        <nav className="flex items-center justify-between px-9 pt-6 col-span-8 ">
+          <div className="relative -top-0.5 flex-1 lg:hidden xl:block">
             <Logo />
+          </div>
+
+          <div className="relative -top-0.5 flex-1 lg:block xs:hidden md:hidden xl:hidden">
+            <NavLogo />
           </div>
           <div className="flex items-center">
             <Anchor to="/" pattern="/" name="Swap" />
