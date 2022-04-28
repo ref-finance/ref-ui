@@ -266,9 +266,9 @@ export default function USNCard(props: { allTokens: TokenMetadata[] }) {
         setTokenInAmount(toPrecision('1', 6));
     }
   }, [allTokens]);
-
+  let doAlready = false;
   useEffect(() => {
-    if (txHash && getCurrentWallet().wallet.isSignedIn()) {
+    if (txHash && !doAlready && getCurrentWallet().wallet.isSignedIn()) {
       checkTransaction(txHash)
         .then((res: any) => {
           const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
@@ -285,6 +285,7 @@ export default function USNCard(props: { allTokens: TokenMetadata[] }) {
           !isSlippageError && !errorType && usnBuyAndSellToast(txHash);
           isSlippageError && failToast(txHash, 'Slippage Violation');
           history.replace(pathname);
+          doAlready = true;
         });
     }
   }, [txHash]);
