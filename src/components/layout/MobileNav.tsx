@@ -56,6 +56,7 @@ import { getCurrentWallet, getAccountName } from '../../utils/sender-wallet';
 import { FarmDot } from '../icon/FarmStamp';
 import { AccountTipDownByAccountID } from './NavigationBar';
 import USNBuyComponent from '~components/forms/USNBuyComponent';
+import USNPage from '~components/usn/USNPage';
 
 export function MobileAnchor({
   to,
@@ -361,6 +362,7 @@ export function MobileNavBar(props: any) {
   const isSignedIn = signedInState.isSignedIn;
 
   const [showTip, setShowTip] = useState<boolean>(false);
+  const [showUSN, setShowUSN] = useState(false);
 
   useEffect(() => {
     setShowTip(hasBalanceOnRefAccount);
@@ -557,12 +559,30 @@ export function MobileNavBar(props: any) {
               <div
                 className="flex p-5 justify-between items-center"
                 onClick={() => {
-                  history.push('/usn');
+                  setShowUSN(true);
                   setShow(false);
                 }}
               >
                 <USNBuyComponent></USNBuyComponent>
               </div>
+              <USNPage
+                isOpen={showUSN}
+                onRequestClose={() => {
+                  setShowUSN(false);
+                }}
+                style={{
+                  overlay: {
+                    backdropFilter: 'blur(15px)',
+                    WebkitBackdropFilter: 'blur(15px)',
+                  },
+                  content: {
+                    outline: 'none',
+                    position: 'fixed',
+                    width: '99%',
+                    bottom: '50%',
+                  },
+                }}
+              ></USNPage>
             </div>
             {moreLinks.map(
               ({

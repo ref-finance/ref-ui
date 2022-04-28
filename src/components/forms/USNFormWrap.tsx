@@ -7,6 +7,7 @@ import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
+import { IoClose } from 'react-icons/io5';
 
 interface USNFormWrapProps {
   title?: string;
@@ -27,6 +28,7 @@ interface USNFormWrapProps {
   };
   useNearBalance: string;
   swapMode?: SWAP_MODE;
+  closeFun?: any;
 }
 
 export default function USNFormWrap({
@@ -36,6 +38,7 @@ export default function USNFormWrap({
   bindUseBalance,
   loading,
   useNearBalance,
+  closeFun,
 }: React.PropsWithChildren<USNFormWrapProps>) {
   const [error, setError] = useState<Error>();
   const intl = useIntl();
@@ -52,7 +55,7 @@ export default function USNFormWrap({
   }
   return (
     <form
-      className={`overflow-y-visible bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible`}
+      className={`overflow-y-visible bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible border-gradientFrom border border-opacity-50`}
     >
       <h2 className="formTitle flex justify-between items-center font-bold text-xl text-white text-left pb-4">
         <div className="flex items-center text-2xl text-white">
@@ -106,6 +109,10 @@ export default function USNFormWrap({
             bindUseBalance={bindUseBalance}
             useNearBalance={useNearBalance}
             hideLedger={true}
+          />
+          <IoClose
+            onClick={closeFun}
+            className="text-primaryText cursor-pointer ml-2"
           />
         </div>
       </h2>

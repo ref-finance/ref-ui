@@ -225,8 +225,11 @@ const useUSN = (props: any) => {
   };
   return currentrate;
 };
-export default function USNCard(props: { allTokens: TokenMetadata[] }) {
-  const { allTokens } = props;
+export default function USNCard(props: {
+  allTokens: TokenMetadata[];
+  closeFun: any;
+}) {
+  const { allTokens, closeFun } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
@@ -414,6 +417,7 @@ export default function USNCard(props: { allTokens: TokenMetadata[] }) {
         bindUseBalance={(useNearBalance) => {
           setUseNearBalance(useNearBalance);
         }}
+        closeFun={closeFun}
         onSubmit={handleSubmit}
         loading={{
           loadingTrigger,

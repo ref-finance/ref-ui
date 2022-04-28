@@ -57,6 +57,7 @@ import { useTokenBalances } from '../../state/token';
 import { toReadableNumber } from '../../utils/numbers';
 import { FarmDot } from '../icon/FarmStamp';
 import USNBuyComponent from '~components/forms/USNBuyComponent';
+import USNPage from '~components/usn/USNPage';
 
 const config = getConfig();
 
@@ -673,6 +674,7 @@ function NavigationBar() {
   const historyInit = useHistory();
   const setPatheState = () =>
     setPathnameState(window.location.pathname !== '/account');
+  const [showUSN, setShowUSN] = useState(false);
 
   useEffect(() => {
     const _historyWrap = function (type: any) {
@@ -729,7 +731,6 @@ function NavigationBar() {
 
     setHasBalanceOnRefAccount(hasRefBalanceOver);
   }, [refAccountBalances, tokensMeta]);
-
   return (
     <>
       <div className="nav-wrap md:hidden xs:hidden text-center relative">
@@ -785,14 +786,34 @@ function NavigationBar() {
             <Anchor to="/risks" pattern="/risks" name="Risks" />
           </div>
           <div className="flex items-center justify-end flex-1">
-            <div
-              className="mr-3"
-              onClick={() => {
-                historyInit.push('/usn');
-              }}
-            >
-              <USNBuyComponent />
-            </div>
+            <>
+              <div
+                className="mr-3"
+                onClick={() => {
+                  setShowUSN(true);
+                }}
+              >
+                <USNBuyComponent />
+              </div>
+              <USNPage
+                isOpen={showUSN}
+                onRequestClose={() => {
+                  setShowUSN(false);
+                }}
+                style={{
+                  overlay: {
+                    backdropFilter: 'blur(15px)',
+                    WebkitBackdropFilter: 'blur(15px)',
+                  },
+                  content: {
+                    outline: 'none',
+                    position: 'fixed',
+                    width: 550,
+                    bottom: '50%',
+                  },
+                }}
+              ></USNPage>
+            </>
             {isSignedIn && (
               <div className="flex items-center text-white">
                 <div
