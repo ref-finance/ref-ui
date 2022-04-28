@@ -16,7 +16,8 @@ const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
 export const parseAction = async (
   methodName: string,
   params: any,
-  tokenId?: string
+  tokenId?: string,
+  amount?: string
 ) => {
   switch (methodName) {
     case 'swap': {
@@ -72,6 +73,12 @@ export const parseAction = async (
     }
     case 'unstake': {
       return await parseUnstake(params);
+    }
+    case 'sell': {
+      return await parseUSNSell(params);
+    }
+    case 'buy': {
+      return await parseUSNBuy(amount);
     }
     default: {
       return await parseDefault();
@@ -349,6 +356,19 @@ const parseUnstake = async (params: any) => {
   return {
     Action: 'xREF Unstake',
     Amount: toReadableNumber(XREF_TOKEN_DECIMALS, amount),
+  };
+};
+const parseUSNBuy = async (amount: string) => {
+  return {
+    Action: 'Buy',
+    Amount: toReadableNumber(24, amount),
+  };
+};
+const parseUSNSell = async (params: any) => {
+  const { amount } = params;
+  return {
+    Action: 'Sell',
+    Amount: toReadableNumber(18, amount),
   };
 };
 
