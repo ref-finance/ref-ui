@@ -530,7 +530,10 @@ export function MobileNavBar(props: any) {
               <div className="text-primaryText" onClick={() => setShow(false)}>
                 <div
                   className="flex p-4 justify-between items-center"
-                  onClick={() => setMobileWrapNear(true)}
+                  onClick={() => {
+                    setMobileWrapNear(true);
+                    setShowUSN(false);
+                  }}
                 >
                   <WNEARExchngeIcon width="75" height="32" />
                   <span className="text-sm">
@@ -561,6 +564,7 @@ export function MobileNavBar(props: any) {
                 onClick={() => {
                   setShowUSN(true);
                   setShow(false);
+                  setMobileWrapNear(false);
                 }}
               >
                 <USNBuyComponent></USNBuyComponent>
@@ -578,8 +582,10 @@ export function MobileNavBar(props: any) {
                   content: {
                     outline: 'none',
                     position: 'fixed',
-                    width: '99%',
+                    width: '98%',
+                    left: '1%',
                     bottom: '50%',
+                    transform: null,
                   },
                 }}
               ></USNPage>
