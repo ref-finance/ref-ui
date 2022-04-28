@@ -46,7 +46,7 @@ export const get24hVolume = async (pool_id: string): Promise<string> => {
 };
 
 const parseActionView = async (action: any) => {
-  const data = await parseAction(action[3], action[4], action[2]);
+  const data = await parseAction(action[3], action[4], action[2], action[5]);
   return {
     datetime: moment.unix(action[0] / 1000000000),
     txUrl: config.explorerUrl + '/txns/' + action[1],

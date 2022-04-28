@@ -47,7 +47,7 @@ export default function USNFormWrap({
 
   function buy_nsn_tip() {
     const tip = intl.formatMessage({ id: 'buy_nsn_tip' });
-    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left font-normal">${tip}</div>`;
     return result;
   }
   return (
