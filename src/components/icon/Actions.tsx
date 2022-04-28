@@ -719,8 +719,8 @@ const viewMap = {
   'Remove Stable Liquidity': RemoveLiquidity,
   'xREF Unstake': RemoveLiquidity,
   'xREF Stake': AddLiquidity,
-  Sell: Swap,
-  Buy: Swap,
+  'Sell USN': Swap,
+  'Buy USN': Swap,
 };
 
 const blackViewMap = {
@@ -745,8 +745,8 @@ const blackViewMap = {
   'Remove Stable Liquidity': RemoveLiquidityBlack,
   'xREF Unstake': RemoveLiquidityBlack,
   'xREF Stake': AddLiquidityBlack,
-  Sell: SwapBlack,
-  Buy: SwapBlack,
+  'Sell USN': SwapBlack,
+  'Buy USN': SwapBlack,
 };
 
 export function mapToView(action: string, black = false): JSX.Element {

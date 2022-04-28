@@ -360,14 +360,14 @@ const parseUnstake = async (params: any) => {
 };
 const parseUSNBuy = async (amount: string) => {
   return {
-    Action: 'Buy',
+    Action: 'Buy USN',
     Amount: toReadableNumber(24, amount),
   };
 };
 const parseUSNSell = async (params: any) => {
   const { amount } = params;
   return {
-    Action: 'Sell',
+    Action: 'Sell USN',
     Amount: toReadableNumber(18, amount),
   };
 };
