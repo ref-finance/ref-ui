@@ -266,9 +266,8 @@ export default function USNCard(props: { allTokens: TokenMetadata[] }) {
         setTokenInAmount(toPrecision('1', 6));
     }
   }, [allTokens]);
-  let doAlready = false;
   useEffect(() => {
-    if (txHash && !doAlready && getCurrentWallet().wallet.isSignedIn()) {
+    if (txHash && getCurrentWallet().wallet.isSignedIn()) {
       checkTransaction(txHash)
         .then((res: any) => {
           const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
@@ -285,7 +284,6 @@ export default function USNCard(props: { allTokens: TokenMetadata[] }) {
           !isSlippageError && !errorType && usnBuyAndSellToast(txHash);
           isSlippageError && failToast(txHash, 'Slippage Violation');
           history.replace(pathname);
-          doAlready = true;
         });
     }
   }, [txHash]);
@@ -365,11 +363,21 @@ export default function USNCard(props: { allTokens: TokenMetadata[] }) {
       .toFixed()
       .toString();
   }
+  const getMax = function () {
+    if (tokenIn) {
+      return tokenIn.id !== 'NEAR'
+        ? tokenInMax
+        : Number(tokenInMax) <= 0.5
+        ? '0'
+        : String(Number(tokenInMax) - 0.5);
+    }
+    return '0';
+  };
   const canSubmit =
     !loadingTrigger &&
     !showBuyLoading &&
     tokenInAmountAfterCutFee &&
-    new BigNumber(tokenInAmount).isLessThanOrEqualTo(tokenInMax);
+    new BigNumber(tokenInAmount).isLessThanOrEqualTo(getMax());
   const handleSubmit = (event: React.FormEvent) => {
     setShowBuyLoading(true);
     if (tokenIn.symbol == 'NEAR') {
@@ -385,16 +393,6 @@ export default function USNCard(props: { allTokens: TokenMetadata[] }) {
         amount: tokenInAmount,
       });
     }
-  };
-  const getMax = function () {
-    if (tokenIn) {
-      return tokenIn.id !== 'NEAR'
-        ? tokenInMax
-        : Number(tokenInMax) <= 0.5
-        ? '0'
-        : String(Number(tokenInMax) - 0.5);
-    }
-    return '0';
   };
   return (
     <>
