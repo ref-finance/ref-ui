@@ -4,6 +4,7 @@ import {
   Switch,
   Route,
   useLocation,
+  useHistory,
 } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import DepositPage from './pages/DepositPage';
@@ -103,6 +104,7 @@ function App() {
   useEffect(() => {
     if (errorType) {
       failToast(txHash, errorType);
+      window.history.replaceState({}, '', window.location.origin + pathname);
     }
     if (signInErrorType) {
       senderSignedInToast(signInErrorType);
