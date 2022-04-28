@@ -74,11 +74,11 @@ export const parseAction = async (
     case 'unstake': {
       return await parseUnstake(params);
     }
-    case 'sell': {
+    case 'sell_with_price_callback': {
       return await parseUSNSell(params);
     }
-    case 'buy': {
-      return await parseUSNBuy(amount);
+    case 'buy_with_price_callback': {
+      return await parseUSNBuy(params);
     }
     default: {
       return await parseDefault();
@@ -358,17 +358,18 @@ const parseUnstake = async (params: any) => {
     Amount: toReadableNumber(XREF_TOKEN_DECIMALS, amount),
   };
 };
-const parseUSNBuy = async (amount: string) => {
+const parseUSNBuy = async (params: any) => {
+  const { near } = params;
   return {
     Action: 'Buy USN',
-    Amount: toReadableNumber(24, amount),
+    Amount: toReadableNumber(24, near),
   };
 };
 const parseUSNSell = async (params: any) => {
-  const { amount } = params;
+  const { tokens } = params;
   return {
     Action: 'Sell USN',
-    Amount: toReadableNumber(18, amount),
+    Amount: toReadableNumber(18, tokens),
   };
 };
 
