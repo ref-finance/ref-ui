@@ -179,7 +179,7 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
         return {
           hash: lastTx,
           status: false,
-          errorType: 'Balance Not Enought',
+          errorType: 'Withdraw Failed',
         };
       } else {
         const secondLastHash = txHashes.pop();

@@ -495,9 +495,9 @@ export const useCrossSwap = ({
           } else {
             swapToast(hash);
           }
+          history.replace(pathname);
         }
       );
-      history.replace(pathname);
     }
   }, [txHashes]);
 
