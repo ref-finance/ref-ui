@@ -539,5 +539,7 @@ const en_US = {
   yearly_revenue_booster: 'Yearly Revenue Booster',
   Confirm: 'Confirm',
   Request_for_Quote: 'Request for Quote',
+  mapping_account_explanation:
+    "A mapping address is a 'proxy address', which maps the user's NEAR account with a corresponding ETH address on Aurora.",
 };
 export default Object.assign(en_US, en_US_in_risks_page);

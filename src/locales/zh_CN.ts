@@ -508,5 +508,7 @@ const zh_CN = {
   yearly_revenue_booster: '年度收入助推器',
   Confirm: '确认',
   Request_for_Quote: '请求报价',
+  mapping_account_explanation:
+    '一个映射账户是一个代理地址, 将用户的NEAR账户映射到对应的Aurora上的以太坊地址',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

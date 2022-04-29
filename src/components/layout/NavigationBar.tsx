@@ -425,7 +425,7 @@ export function AuroraEntry({
                 />
               </span>
 
-              <QuestionTip id="unkown" />
+              <QuestionTip id="mapping_account_explanation" />
 
               {hasBalanceOnAurora ? <HasBalance /> : null}
             </div>
