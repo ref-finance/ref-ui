@@ -539,15 +539,14 @@ const vi = {
     '>Tài liệu</label> của chúng tôi.',
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
-  buy: 'Купуйте',
-  sell: 'Продати',
-  buy_nsn: 'Купуйте USN',
-  buy_nsn_tip:
-    'USN є рідною стабільною монетою, яка підтримується економікою NEAR',
+  buy: 'Mua',
+  sell: 'bán',
+  buy_nsn: 'Mua USN',
+  buy_nsn_tip: 'USN là đồng ổn định bản địa được hỗ trợ bởi nền kinh tế GẦN',
   usn_tip_one: 'USN cho phép bạn giao dịch trên REF. Hãy chắc chắn là ',
-  rate: 'Оцінити',
-  trading_fee: 'Комісія за торгівлю',
-  usn_successful_click_to_view: 'Торгівля успішна. Натисніть, щоб переглянути',
-  awesomeNear_verified_token: 'Перевірений маркер AwesomeNear',
+  rate: 'tỷ lệ',
+  trading_fee: 'Phí giao dịch',
+  usn_successful_click_to_view: 'Giao dịch thành công. Bấm để xem',
+  awesomeNear_verified_token: 'Mã thông báo đã xác minh AwesomeNear',
 };
 export default Object.assign(vi, vi_in_risks_page);
