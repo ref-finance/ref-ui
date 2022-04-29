@@ -233,8 +233,8 @@ export default function USNCard(props: {
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [useNearBalance, setUseNearBalance] = useState<boolean>(true);
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();
   const [tokenOutBalanceFromNear, setTokenOutBalanceFromNear] =

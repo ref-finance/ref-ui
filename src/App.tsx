@@ -114,7 +114,7 @@ function App() {
 
   const { txHash, pathname, errorType, signInErrorType } = getURLInfo();
 
-  // console.log(getURLInfo().txHashes);
+  console.log(getURLInfo());
 
   useEffect(() => {
     if (errorType) {
