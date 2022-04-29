@@ -1,5 +1,10 @@
 import getConfig from './config';
-import { wallet, isStablePool, STABLE_TOKEN_USN_IDS } from './near';
+import {
+  wallet,
+  isStablePool,
+  STABLE_TOKEN_USN_IDS,
+  BLACKLIST_POOL_IDS,
+} from './near';
 import _ from 'lodash';
 import { parsePoolView, PoolRPCView, getCurrentUnixTime } from './api';
 import moment from 'moment/moment';
@@ -8,6 +13,7 @@ import { volumeType, TVLType } from '~state/pool';
 import db from '../store/RefDatabase';
 import { getCurrentWallet } from '../utils/sender-wallet';
 import { getPoolsByTokens } from './pool';
+import { filterBlackListPools } from './near';
 const config = getConfig();
 
 export const getPoolMonthVolume = async (
@@ -84,6 +90,24 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
         headers: { 'Content-type': 'application/json; charset=UTF-8' },
       }).then((res) => res.json());
 
+      const blacklistPools = await getPool(BLACKLIST_POOL_IDS[0]);
+
+      const blacklistTokenIn = blacklistPools.token_account_ids[0];
+
+      const blacklistTokenOut = blacklistPools.token_account_ids[1];
+
+      const twoTokenIds = (
+        await db.getPoolsByTokens(blacklistTokenIn, blacklistTokenOut)
+      ).map((p) => p.id.toString());
+
+      const twoTokenPools = await getPoolsByIds({
+        pool_ids: twoTokenIds,
+      });
+
+      if (twoTokenPools?.length > 0) {
+        pools.push(_.maxBy(twoTokenPools, (p) => p.tvl));
+      }
+
       const twoTokenStablePoolIds = (
         await getPoolsByTokens({
           tokenInId: STABLE_TOKEN_USN_IDS[0],
@@ -104,11 +128,11 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
     }
 
     pools = pools.map((pool: any) => parsePoolView(pool));
-    return pools.filter(
-      (pool: { token_account_ids: string | any[]; id: any }) => {
+    return pools
+      .filter((pool: { token_account_ids: string | any[]; id: any }) => {
         return !isStablePool(pool.id) && pool.token_account_ids.length < 3;
-      }
-    );
+      })
+      .filter(filterBlackListPools);
   } catch (error) {
     console.log(error);
     return [];

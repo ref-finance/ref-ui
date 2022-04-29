@@ -40,6 +40,7 @@ import {
   STABLE_POOL_USN_ID,
 } from './near';
 import moment from 'moment';
+import { filterBlackListPools } from './near';
 const explorerType = getExplorer();
 
 export const DEFAULT_PAGE_LIMIT = 100;
@@ -309,7 +310,7 @@ export const getPoolsByTokens = async ({
       await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
     ).flat();
 
-    filtered_pools = pools.filter(isNotStablePool);
+    filtered_pools = pools.filter(isNotStablePool).filter(filterBlackListPools);
 
     await db.cachePoolsByTokens(filtered_pools);
     filtered_pools = filtered_pools.filter(

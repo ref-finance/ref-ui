@@ -107,7 +107,7 @@ import { useWalletTokenBalances } from '../../state/token';
 import { SmallWallet } from '../../components/icon/SmallWallet';
 import { scientificNotationToString } from '../../utils/numbers';
 import { isNotStablePool } from '../../services/pool';
-import { isStablePool } from '../../services/near';
+import { isStablePool, BLACKLIST_POOL_IDS } from '../../services/near';
 import {
   getURLInfo,
   checkAccountTip,
@@ -1341,6 +1341,8 @@ export function PoolDetailsPage() {
       setShowFullStar(watchlist.length > 0);
     });
   }, []);
+
+  if (BLACKLIST_POOL_IDS.includes(pool.id.toString())) history.push('/');
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
   if (isStablePool(pool.id)) {
