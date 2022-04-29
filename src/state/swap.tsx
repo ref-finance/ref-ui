@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import { getPool, Pool, StablePool, getStablePool } from '../services/pool';
 import BigNumber from 'bignumber.js';
@@ -30,7 +30,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { CloseIcon } from '~components/icon/Actions';
 import db from '../store/RefDatabase';
 import { getAllTriPools } from '../services/aurora/aurora';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet, WalletContext } from '../utils/sender-wallet';
 import {
   POOL_TOKEN_REFRESH_INTERVAL,
   STABLE_TOKEN_IDS,
@@ -455,6 +455,10 @@ export const useCrossSwap = ({
     ? percentLess(slippageTolerance, tokenOutAmount)
     : null;
 
+  const { globalState } = useContext(WalletContext);
+
+  const isSignedIn = globalState.isSignedIn;
+
   const intl = useIntl();
 
   const setAverageFee = (estimates: EstimateSwapView[]) => {
@@ -479,11 +483,7 @@ export const useCrossSwap = ({
   };
 
   useEffect(() => {
-    if (
-      txHashes &&
-      txHashes.length > 0 &&
-      getCurrentWallet().wallet.isSignedIn()
-    ) {
+    if (txHashes && txHashes.length > 0 && isSignedIn) {
       checkCrossSwapTransactions(txHashes).then(
         (res: { status: boolean; hash: string; errorType?: string }) => {
           const { status, hash, errorType } = res;
@@ -495,8 +495,8 @@ export const useCrossSwap = ({
           }
         }
       );
+      history.replace(pathname);
     }
-    history.replace(pathname);
   }, [txHashes]);
 
   const getEstimateTri = async () => {
