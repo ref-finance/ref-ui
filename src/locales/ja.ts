@@ -550,5 +550,7 @@ const ja = {
   trading_fee: '取引手数料',
   usn_successful_click_to_view: '取引は成功しました。 クリックして表示',
   awesomeNear_verified_token: 'AwesomeNear検証済みトークン',
+  usn_fee_tip:
+    'Refによって請求されるゼロ料金、ユーザーはUSN料金のみを支払います!',
 };
 export default Object.assign(ja, ja_in_risks_page);
