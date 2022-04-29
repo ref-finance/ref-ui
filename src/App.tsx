@@ -142,12 +142,12 @@ function App() {
         .then(({ isUSN, isSlippageError }) => {
           if (isUSN) {
             !isSlippageError && !errorType && usnBuyAndSellToast(txHash);
+            window.history.replaceState(
+              {},
+              '',
+              window.location.origin + pathname
+            );
           }
-          window.history.replaceState(
-            {},
-            '',
-            window.location.origin + pathname
-          );
         });
     }
   }, [txHash, isSignedIn]);
