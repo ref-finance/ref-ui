@@ -107,23 +107,19 @@ function App() {
 
   const { txHash, pathname, errorType, signInErrorType } = getURLInfo();
 
-  console.log(getURLInfo().txHashes);
+  // console.log(getURLInfo().txHashes);
 
   useEffect(() => {
     if (errorType) {
       failToast(txHash, errorType);
 
       // failing toast only once
-      // window.history.replaceState(
-      //   {},
-      //   '',
-      //   window.location.origin + window.location.pathname
-      // );
+      window.history.replaceState({}, '', window.location.origin + pathname);
     }
     if (signInErrorType) {
       senderSignedInToast(signInErrorType);
       removeSenderLoginRes();
-      // window.history.replaceState({}, '', window.location.origin + pathname);
+      window.history.replaceState({}, '', window.location.origin + pathname);
     }
   }, [errorType, signInErrorType]);
 
@@ -184,7 +180,7 @@ function App() {
           <BgShapeLeftTop />
           <BgShapeCenter />
           <BgShapeCenterSmall />
-          {/* <NavigationBar /> */}
+          <NavigationBar />
           <ToastContainer
             style={{
               marginTop: isMobile() ? 'none' : '44px',

@@ -163,7 +163,7 @@ export const useSwap = ({
             !isSlippageError && !errorType && swapToast(txHash);
             isSlippageError && failToast(txHash, 'Slippage Violation');
           }
-          // history.replace(pathname);
+          history.replace(pathname);
         });
     }
   }, [txHash]);
@@ -382,7 +382,7 @@ export const useStableSwap = ({
             !isSlippageError && !errorType && swapToast(txHash);
             isSlippageError && failToast(txHash, 'Slippage Violation');
           }
-          // history.replace(pathname);
+          history.replace(pathname);
         });
     }
   }, [txHash]);
@@ -497,7 +497,7 @@ export const useCrossSwap = ({
           }
         }
       );
-      // history.replace(pathname);
+      history.replace(pathname);
     }
   }, [txHashes]);
 
