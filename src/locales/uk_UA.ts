@@ -509,12 +509,22 @@ const uk_UA = {
   admin_sentence_1:
     'Ref Finance керується  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
-    '>Ref Finance Sputnik DAO</label> і буде перехід на повністю децентралізовану DAO.',
+    '>Ref Finance Sputnik DAO</label> і незабаром перейде до повністю децентралізованої DAO.',
   admin_sentence_2:
-    'Для отримання додаткової інформації про контракти та адреси, які безпосередньо керують або наразі керують справами Ref Finance, перегляньте нашу <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    'Для отримання додаткової інформації щодо контрактів та адрес, які безпосередньо керували або зараз керують справами Ref Finance, будь ласка, ознайомтесь з нашою  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://guide.ref.finance/developers/contracts')" +
-    '>документацію</label>.',
+    '>Документацією.</label>.',
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
+  buy: 'Купуйте',
+  sell: 'Продати',
+  buy_nsn: 'Купуйте USN',
+  buy_nsn_tip:
+    'USN є рідною стабільною монетою, яка підтримується економікою NEAR',
+  usn_tip_one: "USN дозволяє торгувати на REF. Обов'язково",
+  rate: 'Оцінити',
+  trading_fee: 'Комісія за торгівлю',
+  usn_successful_click_to_view: 'Торгівля успішна. Натисніть, щоб переглянути',
+  awesomeNear_verified_token: 'Перевірений маркер AwesomeNear',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

@@ -531,5 +531,15 @@ const ko = {
     'Ref 계정으로부터 NEAR 월렛으로 토큰을 인출하시려면 선택 후 인출을 눌러주세요',
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
+  buy: '구매',
+  sell: '매각',
+  buy_nsn: 'USN 구매',
+  buy_nsn_tip: 'USN은 NEAR가 보증하는 네이티브 스테이블코인입니다. ',
+  usn_tip_one:
+    'USN은 REF에서 거래가 가능합니다. 반드시 다음 수수료를 지갑에 남기세요. ',
+  rate: '요율',
+  trading_fee: '거래 수수료',
+  usn_successful_click_to_view: '거래 성공. 클릭해서 확인하세요',
+  awesomeNear_verified_token: 'AwesomeNear 인증된 토큰입니다',
 };
 export default Object.assign(ko, ko_in_risks_page);

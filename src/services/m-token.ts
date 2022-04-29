@@ -224,7 +224,7 @@ export const withdrawAllReward = async (
   });
   const resolvedBalanceList = await Promise.all(ftBalancePromiseList);
   resolvedBalanceList.forEach((ftBalance, index) => {
-    if (!ftBalance || ftBalance.total === '0') {
+    if (!ftBalance) {
       transactions.unshift({
         receiverId: token_id_list[index],
         functionCalls: [

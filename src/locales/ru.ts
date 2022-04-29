@@ -529,5 +529,14 @@ const ru = {
     'Чтобы вывести токен(ы) с вашего счета REF на ваш кошелек NEAR, пожалуйста, выберите и выведите',
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
+  buy: 'Купить',
+  sell: 'Продать',
+  buy_nsn: 'Купить USN',
+  buy_nsn_tip: 'USN — это нативный стейблкоин, поддерживаемый экономикой NEAR.',
+  usn_tip_one: 'USN доступен для торговли на REF. Убедитесь, что  ',
+  rate: 'Курс',
+  trading_fee: 'Торговая комиссия',
+  usn_successful_click_to_view: 'Сделка прошла успешно. Кликните для просмотра',
+  awesomeNear_verified_token: 'AwesomeNear верифицированный токен',
 };
 export default Object.assign(ru, ru_in_risks_page);

@@ -16,7 +16,8 @@ const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
 export const parseAction = async (
   methodName: string,
   params: any,
-  tokenId?: string
+  tokenId?: string,
+  amount?: string
 ) => {
   switch (methodName) {
     case 'swap': {
@@ -72,6 +73,12 @@ export const parseAction = async (
     }
     case 'unstake': {
       return await parseUnstake(params);
+    }
+    case 'sell_with_price_callback': {
+      return await parseUSNSell(params);
+    }
+    case 'buy_with_price_callback': {
+      return await parseUSNBuy(params);
     }
     default: {
       return await parseDefault();
@@ -163,10 +170,12 @@ const parseRemoveLiquidity = async (params: any) => {
     'Amount Two': toReadableNumber(tokens[1].decimals, params.min_amounts[1]),
   };
   if (new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())) {
-    result['Amount Three'] = toReadableNumber(
-      tokens[2].decimals,
-      params.min_amounts[2]
-    );
+    if (tokens[2]) {
+      result['Amount Three'] = toReadableNumber(
+        tokens[2].decimals,
+        params.min_amounts[2]
+      );
+    }
     result['Shares'] = toReadableNumber(
       LP_STABLE_TOKEN_DECIMALS,
       params.shares
@@ -349,6 +358,20 @@ const parseUnstake = async (params: any) => {
   return {
     Action: 'xREF Unstake',
     Amount: toReadableNumber(XREF_TOKEN_DECIMALS, amount),
+  };
+};
+const parseUSNBuy = async (params: any) => {
+  const { near } = params;
+  return {
+    Action: 'Buy USN',
+    Amount: toReadableNumber(24, near),
+  };
+};
+const parseUSNSell = async (params: any) => {
+  const { tokens } = params;
+  return {
+    Action: 'Sell USN',
+    Amount: toReadableNumber(18, tokens),
   };
 };
 
