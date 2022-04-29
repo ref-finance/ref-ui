@@ -281,11 +281,14 @@ export default function SelectToken({
 
   const onSearch = (value: string) => {
     setShowCommonBasses(value.length === 0);
-    const result = tokensData.filter(({ symbol }) =>
-      toRealSymbol(symbol)
-        .toLocaleUpperCase()
-        .includes(value.toLocaleUpperCase())
-    );
+    const result =
+      tokensData.length > 0
+        ? tokensData.filter(({ symbol }) =>
+            toRealSymbol(symbol)
+              .toLocaleUpperCase()
+              .includes(value.toLocaleUpperCase())
+          )
+        : [];
     setListData(result);
   };
 
