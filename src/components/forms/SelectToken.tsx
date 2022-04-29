@@ -16,6 +16,7 @@ import { getTokenPriceList } from '../../services/indexer';
 import { toPrecision, divide } from '../../utils/numbers';
 import { STABLE_TOKEN_USN_IDS } from '../../services/near';
 import { STABLE_TOKEN_IDS } from '../../services/near';
+import _ from 'lodash';
 
 function sort(a: any, b: any) {
   if (typeof a === 'string' && typeof b === 'string') {
@@ -281,16 +282,18 @@ export default function SelectToken({
 
   const onSearch = (value: string) => {
     setShowCommonBasses(value.length === 0);
-    const result =
-      tokensData.length > 0
-        ? tokensData.filter(({ symbol }) =>
-            toRealSymbol(symbol)
-              .toLocaleUpperCase()
-              .includes(value.toLocaleUpperCase())
-          )
-        : [];
+
+    const result = tokensData.filter((token) => {
+      const symbol = token?.symbol;
+      if (!symbol) return false;
+      return toRealSymbol(symbol)
+        .toLocaleUpperCase()
+        .includes(value.toLocaleUpperCase());
+    });
     setListData(result);
   };
+
+  const debounceSearch = _.debounce(onSearch, 300);
 
   const handleClose = () => {
     const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
@@ -373,7 +376,7 @@ export default function SelectToken({
               <input
                 className={`text-sm outline-none rounded w-full py-2 px-1`}
                 placeholder={intl.formatMessage({ id: 'search_token' })}
-                onChange={(evt) => onSearch(evt.target.value)}
+                onChange={(evt) => debounceSearch(evt.target.value)}
               />
               <FaSearch />
             </div>
