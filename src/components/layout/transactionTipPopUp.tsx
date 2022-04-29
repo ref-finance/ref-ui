@@ -156,9 +156,7 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
   const lastTx = txHashes.pop();
   const txDetail: any = await checkTransaction(lastTx);
 
-  console.log(lastTx, txDetail);
-
-  if (txHashes.length > 1) {
+  if (txHashes.length > 0) {
     // judge if aurora call
     const isAurora = txDetail.transaction?.receiver_id === 'aurora';
 
@@ -176,7 +174,7 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
       if (
         erc20FailPattern.test(parsedOut) ||
         (parsedOut.toString().trim().length === 14 &&
-          parsedOut.toString().trim().indexOf('lR') !== -1)
+          parsedOut.toString().trim().indexOf('|R') !== -1)
       ) {
         return {
           hash: lastTx,
