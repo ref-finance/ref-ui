@@ -270,6 +270,7 @@ export const parsedTransactionSuccessValue = (res: any) => {
     const parsedData = buff.toString('ascii');
     return parsedData;
   }
+};
 export const usnBuyAndSellToast = (txHash: string) => {
   toast(
     <a
