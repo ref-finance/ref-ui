@@ -189,7 +189,7 @@ const ja = {
   submit: '提出',
   wrapnear: 'Wrap NEAR',
   wrapnear_tip_one: 'wNEARは、REFでの取引をサポートします。',
-  wrapnear_tip_two: '最低でも0.5つはNEARにしてください。',
+  wrapnear_tip_two: '最低でも0.5つはNEARにしてください',
   wrapnear_tip_three: 'ガス料金。',
   wrap_error_msg: 'バランス不足',
   sign_out: '退会',
@@ -549,5 +549,15 @@ const ja = {
   Request_for_Quote: '見積もり依頼',
   mapping_account_explanation:
     "A mapping address is a 'proxy address', which maps the user's NEAR account with a corresponding ETH address on Aurora.",
+  buy: '買う',
+  sell: '卖',
+  buy_nsn: '買う USN',
+  buy_nsn_tip:
+    'USNは、NEARエコノミーに支えられたネイティブのステーブルコインです',
+  usn_tip_one: 'USNを使用すると、REFで取引できます。 必ず ',
+  rate: 'レート',
+  trading_fee: '取引手数料',
+  usn_successful_click_to_view: '取引は成功しました。 クリックして表示',
+  awesomeNear_verified_token: 'AwesomeNear検証済みトークン',
 };
 export default Object.assign(ja, ja_in_risks_page);

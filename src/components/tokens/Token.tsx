@@ -118,4 +118,5 @@ export const TokenLinks = {
   '1MIL': 'https://awesomenear.com/1millionnfts',
   MARMAJ: 'https://awesomenear.com/marmaj-foundation',
   marmaj: 'https://awesomenear.com/marmaj-foundation',
+  USN: 'https://awesomenear.com/decentral-bank',
 };

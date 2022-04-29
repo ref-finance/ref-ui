@@ -112,7 +112,7 @@ export function RecentActivityPage() {
         {isMobile() ? (
           <ActionSheet ref={ref}>
             {detail ? (
-              <div className="text-black px-4 py-6">
+              <div className="text-black px-4 py-6 pb-10">
                 <div className="text-center pb-6 font-semibold">
                   {detail.data.Action}
                 </div>

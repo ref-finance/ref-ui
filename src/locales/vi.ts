@@ -548,5 +548,14 @@ const vi = {
   Request_for_Quote: 'Yêu cầu báo giá',
   mapping_account_explanation:
     "A mapping address is a 'proxy address', which maps the user's NEAR account with a corresponding ETH address on Aurora.",
+  buy: 'Mua',
+  sell: 'Bán',
+  buy_nsn: 'Mua USN',
+  buy_nsn_tip: 'USN là một stablecoin được hỗ trợ bởi hệ sinh thái NEAR. ',
+  usn_tip_one: 'USN cho phép bạn giao dịch trên REF. Hãy chắc chắn rằng ',
+  rate: 'tỉ lệ',
+  trading_fee: 'Phí giao dịch',
+  usn_successful_click_to_view: 'Giao dịch thành công. Nhấn để xem',
+  awesomeNear_verified_token: 'token được xác nhận bởi AwesomeNear',
 };
 export default Object.assign(vi, vi_in_risks_page);

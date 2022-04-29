@@ -22,6 +22,7 @@ import {
   WrapNearIconDark,
   GreenArrowIcon,
   MoreMenuIcon,
+  NavLogo,
 } from '~components/icon';
 import { SmallWallet } from '~components/icon/SmallWallet';
 import {
@@ -79,6 +80,8 @@ import {
   // withdrawBalanceAfterTransaction,
 } from '../../services/aurora/aurora';
 import { getURLInfo } from './transactionTipPopUp';
+import USNBuyComponent from '~components/forms/USNBuyComponent';
+import USNPage from '~components/usn/USNPage';
 
 const config = getConfig();
 
@@ -120,7 +123,7 @@ function Anchor({
   return (
     <Link
       to={to}
-      className="relative"
+      className={`relative ${name === 'Risks' ? 'lg:hidden lg2:block' : ''}`}
       onMouseEnter={() => {
         setHover(true);
       }}
@@ -728,7 +731,9 @@ function MoreMenu() {
               return (
                 <div
                   key={id}
-                  className={`whitespace-nowrap text-left items-center flex justify-start hover:bg-navHighLightBg text-sm font-semibold hover:text-white
+                  className={`whitespace-nowrap ${
+                    id === 0 ? 'lg:flex lg2:hidden' : ''
+                  } text-left items-center flex justify-start hover:bg-navHighLightBg text-sm font-semibold hover:text-white
                  ${
                    (language && currentLocal === language) || isSelected
                      ? 'bg-navHighLightBg text-white'
@@ -833,9 +838,10 @@ function NavigationBar() {
   const [pathnameState, setPathnameState] = useState<boolean>(
     window.location.pathname !== '/account'
   );
-
+  const historyInit = useHistory();
   const setPatheState = () =>
     setPathnameState(window.location.pathname !== '/account');
+  const [showUSN, setShowUSN] = useState(false);
 
   useEffect(() => {
     const _historyWrap = function (type: any) {
@@ -851,7 +857,6 @@ function NavigationBar() {
     };
     history.pushState = _historyWrap('pushState');
     history.replaceState = _historyWrap('replaceState');
-
     window.addEventListener('popstate', (e) => {
       setPatheState();
     });
@@ -932,9 +937,13 @@ function NavigationBar() {
           />
           .
         </div>
-        <nav className="flex items-center justify-between px-9 pt-6 col-span-8">
-          <div className="relative -top-0.5 flex-1">
+        <nav className="flex items-center justify-between px-9 pt-6 col-span-8 ">
+          <div className="relative -top-0.5 flex-1 lg:hidden xl:block">
             <Logo />
+          </div>
+
+          <div className="relative -top-0.5 flex-1 lg:block xs:hidden md:hidden xl:hidden">
+            <NavLogo />
           </div>
           <div className="flex items-center">
             <Anchor to="/" pattern="/" name="Swap" />
@@ -945,8 +954,36 @@ function NavigationBar() {
             <Anchor to="/risks" pattern="/risks" name="Risks" />
           </div>
           <div className="flex items-center justify-end flex-1">
+            <>
+              <div
+                className="mr-3"
+                onClick={() => {
+                  setShowUSN(true);
+                }}
+              >
+                <USNBuyComponent />
+              </div>
+              <USNPage
+                isOpen={showUSN}
+                onRequestClose={() => {
+                  setShowUSN(false);
+                }}
+                style={{
+                  overlay: {
+                    backdropFilter: 'blur(15px)',
+                    WebkitBackdropFilter: 'blur(15px)',
+                  },
+                  content: {
+                    outline: 'none',
+                    position: 'fixed',
+                    width: 550,
+                    bottom: '50%',
+                  },
+                }}
+              ></USNPage>
+            </>
             {isSignedIn && (
-              <div className="text-white">
+              <div className="flex items-center text-white">
                 <div
                   className=" py-1 cursor-pointer items-center flex"
                   onClick={() => setShowWrapNear(true)}

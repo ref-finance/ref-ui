@@ -118,6 +118,7 @@ export const REF_FI_PRE_LIQUIDITY_ID_KEY = 'REF_FI_PRE_LIQUIDITY_ID_VALUE';
 
 import { TokenLinks } from '~components/tokens/Token';
 import { OutLinkIcon } from '~components/icon/Common';
+import ReactTooltip from 'react-tooltip';
 interface ParamTypes {
   id: string;
 }
@@ -1307,6 +1308,7 @@ export function PoolDetailsPage() {
   const isSignedIn = globalState.isSignedIn;
 
   const { wallet } = getCurrentWallet();
+  const intl = useIntl();
 
   const handleSaveWatchList = () => {
     if (!isSignedIn) {
@@ -1346,7 +1348,11 @@ export function PoolDetailsPage() {
   if (isStablePool(pool.id)) {
     history.push(`/sauce/${pool.id}`);
   }
-
+  function valueOfNearTokenTip() {
+    const tip = intl.formatMessage({ id: 'awesomeNear_verified_token' });
+    let result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
+    return result;
+  }
   return (
     <div>
       <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 m-auto">
@@ -1408,15 +1414,34 @@ export function PoolDetailsPage() {
                     <div className="flex items-center text-white text-base">
                       {toRealSymbol(tokens[0].symbol)}
                       {TokenLinks[tokens[0].symbol] ? (
-                        <a
-                          className="pl-4"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(TokenLinks[tokens[0].symbol]);
-                          }}
+                        <div
+                          className="ml-2 text-sm"
+                          data-type="info"
+                          data-place="right"
+                          data-multiline={true}
+                          data-class="reactTip"
+                          data-html={true}
+                          data-tip={valueOfNearTokenTip()}
+                          data-for="nearVerifiedId0"
                         >
-                          <OutLinkIcon className="text-greenColor cursor-pointer"></OutLinkIcon>
-                        </a>
+                          <a
+                            className=""
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(TokenLinks[tokens[0].symbol]);
+                            }}
+                          >
+                            <OutLinkIcon className="text-greenColor cursor-pointer"></OutLinkIcon>
+                          </a>
+                          <ReactTooltip
+                            className="w-20"
+                            id="nearVerifiedId0"
+                            backgroundColor="#1D2932"
+                            border
+                            borderColor="#7e8a93"
+                            effect="solid"
+                          />
+                        </div>
                       ) : null}
                     </div>
                     <a
@@ -1464,15 +1489,33 @@ export function PoolDetailsPage() {
                     <div className="flex items-center text-white text-base">
                       {toRealSymbol(tokens[1].symbol)}
                       {TokenLinks[tokens[1].symbol] ? (
-                        <a
-                          className="pl-4"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(TokenLinks[tokens[1].symbol]);
-                          }}
+                        <div
+                          className="ml-2 text-sm"
+                          data-type="info"
+                          data-place="right"
+                          data-multiline={true}
+                          data-class="reactTip"
+                          data-html={true}
+                          data-tip={valueOfNearTokenTip()}
+                          data-for="nearVerifiedId1"
                         >
-                          <OutLinkIcon className="text-greenColor cursor-pointer"></OutLinkIcon>
-                        </a>
+                          <a
+                            className=""
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(TokenLinks[tokens[1].symbol]);
+                            }}
+                          >
+                            <OutLinkIcon className="text-greenColor cursor-pointer"></OutLinkIcon>
+                          </a>
+                          <ReactTooltip
+                            id="nearVerifiedId1"
+                            backgroundColor="#1D2932"
+                            border
+                            borderColor="#7e8a93"
+                            effect="solid"
+                          />
+                        </div>
                       ) : null}
                     </div>
                     <a

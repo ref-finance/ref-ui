@@ -510,5 +510,14 @@ const zh_CN = {
   Request_for_Quote: '请求报价',
   mapping_account_explanation:
     '一个映射账户是一个代理地址, 将用户的NEAR账户映射到对应的Aurora上的以太坊地址',
+  buy: '买',
+  sell: '卖',
+  buy_nsn: '买 USN',
+  buy_nsn_tip: 'USN是NEAR经济支持的原生稳定币',
+  usn_tip_one: 'USN 允许你在REF上交易，',
+  rate: '汇率',
+  trading_fee: '交易费',
+  usn_successful_click_to_view: '交易成功，点击查看详情',
+  awesomeNear_verified_token: 'AwesomeNear 已认证代币',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

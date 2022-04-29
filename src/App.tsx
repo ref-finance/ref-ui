@@ -4,6 +4,7 @@ import {
   Switch,
   Route,
   useLocation,
+  useHistory,
 } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import DepositPage from './pages/DepositPage';
@@ -22,6 +23,7 @@ import { MorePoolsPage } from '~pages/pools/MorePoolsPage';
 import StableSwapPage from './pages/stable/StableSwapPage';
 import XrefPage from './pages/xref/XrefPage';
 import RiskPage from './pages/RiskPage';
+import USNPage from './pages/USNPage';
 import {
   auroraAddr,
   getAuroraPool,
@@ -53,7 +55,11 @@ import {
   WALLET_TYPE,
   getCurrentWallet,
 } from './utils/sender-wallet';
-import { getURLInfo, failToast } from './components/layout/transactionTipPopUp';
+import {
+  getURLInfo,
+  failToast,
+  usnBuyAndSellToast,
+} from './components/layout/transactionTipPopUp';
 import { StableSwapPageEntry } from '~pages/stable/StableSwapEntry';
 import { senderSignedInToast } from '~components/layout/senderSignInPopUp';
 import { getAllTriPools } from './services/aurora/aurora';
@@ -74,6 +80,7 @@ import {
   removeSenderLoginRes,
 } from './utils/sender-wallet';
 import StableSwapPageUSN from '~pages/stable/StableSwapPageUSN';
+import { checkTransaction } from './services/swap';
 
 Modal.defaultStyles = {
   overlay: {
@@ -122,6 +129,41 @@ function App() {
       window.history.replaceState({}, '', window.location.origin + pathname);
     }
   }, [errorType, signInErrorType]);
+  // for usn start
+  const isSignedIn = globalState.isSignedIn;
+  useEffect(() => {
+    if (txHash && isSignedIn) {
+      checkTransaction(txHash)
+        .then((res: any) => {
+          const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
+
+          const isSlippageError = res.receipts_outcome.some((outcome: any) => {
+            return slippageErrorPattern.test(
+              outcome?.outcome?.status?.Failure?.ActionError?.kind
+                ?.FunctionCallError?.ExecutionError
+            );
+          });
+          const transaction = res.transaction;
+          const methodName =
+            transaction?.actions[0]?.['FunctionCall']?.method_name;
+          return {
+            isUSN: methodName == 'buy' || methodName == 'sell',
+            isSlippageError,
+          };
+        })
+        .then(({ isUSN, isSlippageError }) => {
+          if (isUSN) {
+            !isSlippageError && !errorType && usnBuyAndSellToast(txHash);
+          }
+          window.history.replaceState(
+            {},
+            '',
+            window.location.origin + pathname
+          );
+        });
+    }
+  }, [txHash, isSignedIn]);
+  // for usn end
 
   useEffect(() => {
     if (webWallet.isSignedIn()) {
@@ -221,6 +263,7 @@ function App() {
 
             <Route path="/xref" component={AutoHeight(XrefPage)} />
             <Route path="/risks" component={AutoHeight(RiskPage)} />
+            {/* <Route path="/usn" component={AutoHeight(USNPage)} /> */}
             <Route path="/" component={AutoHeight(SwapPage)} />
           </Switch>
           <Footer />

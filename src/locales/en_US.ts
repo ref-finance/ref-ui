@@ -541,5 +541,14 @@ const en_US = {
   Request_for_Quote: 'Request for Quote',
   mapping_account_explanation:
     "A mapping address is a 'proxy address', which maps the user's NEAR account with a corresponding ETH address on Aurora.",
+  buy: 'Buy',
+  sell: 'Sell',
+  buy_nsn: 'Buy USN',
+  buy_nsn_tip: 'USN is the native stablecoin backed by the NEAR economy',
+  usn_tip_one: 'USN allows you to trade on REF. Make sure to ',
+  rate: 'Rate',
+  trading_fee: 'Trading fee',
+  usn_successful_click_to_view: 'Trading successful. Click to view',
+  awesomeNear_verified_token: 'AwesomeNear Verified Token',
 };
 export default Object.assign(en_US, en_US_in_risks_page);
