@@ -548,5 +548,6 @@ const vi = {
   trading_fee: 'Phí giao dịch',
   usn_successful_click_to_view: 'Giao dịch thành công. Nhấn để xem',
   awesomeNear_verified_token: 'token được xác nhận bởi AwesomeNear',
+  usn_fee_tip: 'Không tính phí theo Ref, người dùng chỉ phải trả phí USN!',
 };
 export default Object.assign(vi, vi_in_risks_page);
