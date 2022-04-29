@@ -20,8 +20,6 @@ import { UniswapPairAbi } from './abi/IUniswapV2Pair';
 
 import AbiCoder from 'web3-eth-abi';
 
-import * as nearAPI from 'near-api-js';
-
 import Big from 'big.js';
 import { getAuroraConfig, defaultTokenList } from './config';
 import { near, keyStore, Transaction, RefFiFunctionCallOptions } from '../near';
@@ -65,12 +63,41 @@ export const depositGas = '70000000000000';
 
 export const AuroraCallGas = '150000000000000';
 
+class AuroraWalletConnection extends WalletConnection {
+  async _completeSignInWithAccessKey() {
+    const currentUrl = new URL(window.location.href);
+    const publicKey = currentUrl.searchParams.get('public_key') || '';
+    const allKeys = (currentUrl.searchParams.get('all_keys') || '').split(',');
+    const accountId = currentUrl.searchParams.get('account_id') || '';
+    // TODO: Handle errors during login
+    if (accountId) {
+      this._authData = {
+        accountId,
+        allKeys,
+      };
+      window.localStorage.setItem(
+        this._authDataKey,
+        JSON.stringify(this._authData)
+      );
+      if (publicKey) {
+        await this._moveKeyFromTempToPermanent(accountId, publicKey);
+      }
+    }
+    // currentUrl.searchParams.delete('public_key');
+    // currentUrl.searchParams.delete('all_keys');
+    // currentUrl.searchParams.delete('account_id');
+    // currentUrl.searchParams.delete('meta');
+    // currentUrl.searchParams.delete('transactionHashes');
+    // window.history.replaceState({}, document.title, currentUrl.toString());
+  }
+}
+
 const getAurora = () => {
-  const AuroraWalletConnection = new nearAPI.WalletConnection(near, 'aurora');
+  const aurora_walletConnection = new AuroraWalletConnection(near, 'aurora');
 
   //@ts-ignore
   return new Engine(
-    AuroraWalletConnection,
+    aurora_walletConnection,
     keyStore,
     wallet.account(),
     getConfig().networkId,
