@@ -84,7 +84,7 @@ export function getAuroraConfig(env: string = process.env.NEAR_ENV) {
           'wNEAR-MECHA': '0xd62f9ec4C4d323A0C111d5e78b77eA33A2AA862f',
           'wNEAR-SOLACE': '0xdDAdf88b007B95fEb42DDbd110034C9a8e9746F2',
           'XTRI-STNEAR': '0x5913f644A10d98c79F2e0b609988640187256373',
-          'wNEAR-stNEAR': '0x47924Ae4968832984F4091EEC537dfF5c38948a4',
+          'wNEAR-STNEAR': '0x47924Ae4968832984F4091EEC537dfF5c38948a4',
         },
         networkId: 'mainnet',
       };
