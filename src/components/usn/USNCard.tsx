@@ -178,7 +178,7 @@ function DetailView({
           }
         />
         <div className="flex items-center justify-end">
-          <div className="text-greenColor text-sm xs:text-xs md:text-xs flex items-center justify-center bg-xrefbg rounded-3xl px-3 py-1 mt-1.5">
+          <div className="text-greenColor text-xs flex items-center justify-center bg-xrefbg rounded-3xl px-3 py-1 mt-1.5">
             <FormattedMessage id="usn_fee_tip"></FormattedMessage>
           </div>
         </div>
