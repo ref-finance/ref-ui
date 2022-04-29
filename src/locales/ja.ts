@@ -545,7 +545,7 @@ const ja = {
   buy_nsn: '買う USN',
   buy_nsn_tip:
     'USNは、NEARエコノミーに支えられたネイティブのステーブルコインです',
-  usn_tip_one: 'USNは、REFでの取引をサポートします ',
+  usn_tip_one: 'USNを使用すると、REFで取引できます。 必ず ',
   rate: 'レート',
   trading_fee: '取引手数料',
   usn_successful_click_to_view: '取引は成功しました。 クリックして表示',

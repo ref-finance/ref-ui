@@ -530,14 +530,13 @@ const ru = {
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
   buy: 'Купить',
-  sell: 'Продавать',
+  sell: 'Продать',
   buy_nsn: 'Купить USN',
-  buy_nsn_tip:
-    'USN — это нативная стабильная монета, поддерживаемая экономикой NEAR',
-  usn_tip_one: 'Обернутые USN позволят вам торговать на REF. Обязательно ',
-  rate: 'Показатель',
+  buy_nsn_tip: 'USN — это нативный стейблкоин, поддерживаемый экономикой NEAR.',
+  usn_tip_one: 'USN доступен для торговли на REF. Убедитесь, что  ',
+  rate: 'Курс',
   trading_fee: 'Торговая комиссия',
-  usn_successful_click_to_view: 'Торговля успешна. Нажмите, чтобы просмотреть',
-  awesomeNear_verified_token: 'Проверенный токен AwesomeNear',
+  usn_successful_click_to_view: 'Сделка прошла успешно. Кликните для просмотра',
+  awesomeNear_verified_token: 'AwesomeNear верифицированный токен',
 };
 export default Object.assign(ru, ru_in_risks_page);

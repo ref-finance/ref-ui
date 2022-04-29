@@ -170,10 +170,12 @@ const parseRemoveLiquidity = async (params: any) => {
     'Amount Two': toReadableNumber(tokens[1].decimals, params.min_amounts[1]),
   };
   if (new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())) {
-    result['Amount Three'] = toReadableNumber(
-      tokens[2].decimals,
-      params.min_amounts[2]
-    );
+    if (tokens[2]) {
+      result['Amount Three'] = toReadableNumber(
+        tokens[2].decimals,
+        params.min_amounts[2]
+      );
+    }
     result['Shares'] = toReadableNumber(
       LP_STABLE_TOKEN_DECIMALS,
       params.shares
