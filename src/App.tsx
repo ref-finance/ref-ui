@@ -114,16 +114,16 @@ function App() {
       failToast(txHash, errorType);
 
       // failing toast only once
-      window.history.replaceState(
-        {},
-        '',
-        window.location.origin + window.location.pathname
-      );
+      // window.history.replaceState(
+      //   {},
+      //   '',
+      //   window.location.origin + window.location.pathname
+      // );
     }
     if (signInErrorType) {
       senderSignedInToast(signInErrorType);
       removeSenderLoginRes();
-      window.history.replaceState({}, '', window.location.origin + pathname);
+      // window.history.replaceState({}, '', window.location.origin + pathname);
     }
   }, [errorType, signInErrorType]);
 
@@ -184,7 +184,7 @@ function App() {
           <BgShapeLeftTop />
           <BgShapeCenter />
           <BgShapeCenterSmall />
-          <NavigationBar />
+          {/* <NavigationBar /> */}
           <ToastContainer
             style={{
               marginTop: isMobile() ? 'none' : '44px',
