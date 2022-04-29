@@ -363,6 +363,7 @@ export const estimateSwap = async ({
         tokens: [tokenIn, tokenOut],
         inputToken: tokenIn.id,
         totalInput: parsedAmountIn,
+        outputToken: tokenOut.id,
       },
     ];
 
