@@ -27,9 +27,10 @@ export function QuestionTip({
       id,
       defaultMessage,
     });
-    let result: string = `<div class="text-navHighLightText text-xs text-left ${
+    let result: string = `<div class="text-navHighLightText whitespace-normal text-xs text-left ${
       width ? width : ''
-    }">${tip}</div>`;
+    }"
+      style="max-width: 200px; ">${tip}</div>`;
     return result;
   };
   const dataPlaceAttribute = dataPlace ? { 'data-place': dataPlace } : {};
@@ -41,6 +42,7 @@ export function QuestionTip({
       data-class="reactTip"
       data-html={true}
       data-tip={getValue()}
+      data-multiline={true}
     >
       <QuestionMark color={color} />
       <ReactTooltip
