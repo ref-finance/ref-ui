@@ -81,22 +81,24 @@ export default function Table({
           </tr>
         </div>
         <div>
-          {tokens.filter(Boolean).map((token, index) => (
-            <Token
-              index={index}
-              key={token.id}
-              onClick={onClick}
-              token={token}
-              price={tokenPriceList[token.id]?.price}
-              sortBy={sortBy}
-              forCross={forCross}
-              totalAmount={
-                balances
-                  ? toReadableNumber(token.decimals, balances[token.id])
-                  : ''
-              }
-            />
-          ))}
+          {tokens
+            .filter((token) => !!token)
+            .map((token, index) => (
+              <Token
+                index={index}
+                key={token.id}
+                onClick={onClick}
+                token={token}
+                price={tokenPriceList[token.id]?.price}
+                sortBy={sortBy}
+                forCross={forCross}
+                totalAmount={
+                  balances
+                    ? toReadableNumber(token.decimals, balances[token.id])
+                    : ''
+                }
+              />
+            ))}
         </div>
       </table>
     )
