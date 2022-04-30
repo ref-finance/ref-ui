@@ -1129,13 +1129,14 @@ function Account(props: any) {
       ? '1'
       : '0';
   const [showCrossBalance, setShowCrossBalance] = useState(
-    tab === 'aurora' || crossStatus == '1' ? true : false
+    tab === 'aurora' ? true : false
   );
-
   useEffect(() => {
-    if (tab !== 'aurora') return;
-
-    localStorage.setItem(ACCOUNT_PAGE_AURORA_SHOW, 'cross');
+    if (tab == 'aurora') {
+      localStorage.setItem(ACCOUNT_PAGE_AURORA_SHOW, 'cross');
+    } else {
+      localStorage.setItem(ACCOUNT_PAGE_AURORA_SHOW, 'normal');
+    }
   }, [tab]);
 
   const [auroraAccountHover, setAuroraAccountHover] = useState(false);
@@ -1301,8 +1302,15 @@ function MobileAccount(props: any) {
       ? '1'
       : '0';
   const [showCrossBalance, setShowCrossBalance] = useState(
-    tab === 'aurora' || crossStatus == '1' ? true : false
+    tab === 'aurora' ? true : false
   );
+  useEffect(() => {
+    if (tab == 'aurora') {
+      localStorage.setItem(ACCOUNT_PAGE_AURORA_SHOW, 'cross');
+    } else {
+      localStorage.setItem(ACCOUNT_PAGE_AURORA_SHOW, 'normal');
+    }
+  }, [tab]);
   useEffect(() => {
     const refAccountHasToken = userTokens.filter((token: TokenMetadata) => {
       const { ref } = token;
