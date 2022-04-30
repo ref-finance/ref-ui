@@ -442,7 +442,7 @@ export const estimateSwap = async ({
       0
     );
 
-    if (new Big(refSmartRes.estimate).gt(new Big(triRes.estimate))) {
+    if (new Big(refSmartRes).gt(new Big(triRes))) {
       return res;
     } else {
       return supportLedgerRes;
