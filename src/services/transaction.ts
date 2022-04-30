@@ -9,6 +9,7 @@ import {
 } from '../services/m-token';
 import { XREF_TOKEN_DECIMALS } from '../services/xref';
 import BigNumber from 'bignumber.js';
+import { ParserDependencies } from 'mathjs';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
@@ -79,6 +80,9 @@ export const parseAction = async (
     }
     case 'buy_with_price_callback': {
       return await parseUSNBuy(params);
+    }
+    case 'call': {
+      return await parseCall(tokenId);
     }
     default: {
       return await parseDefault();
@@ -255,7 +259,11 @@ const parseNearDeposit = async () => {
   };
 };
 const parseFtTransferCall = async (params: any, tokenId: string) => {
-  const { receiver_id, amount, msg } = params;
+  let paramsParse: any = {};
+  try {
+    paramsParse = JSON.parse(params);
+  } catch (error) {}
+  const { receiver_id, amount, msg } = paramsParse;
   let Action;
   let Amount;
   if (receiver_id == config.XREF_TOKEN_ID) {
@@ -361,18 +369,41 @@ const parseUnstake = async (params: any) => {
   };
 };
 const parseUSNBuy = async (params: any) => {
-  const { near } = params;
+  let paramsObj;
+  try {
+    paramsObj = JSON.parse(params);
+  } catch (error) {
+    paramsObj = {};
+  }
+  const { near } = paramsObj;
   return {
     Action: 'Buy USN',
     Amount: toReadableNumber(24, near),
   };
 };
 const parseUSNSell = async (params: any) => {
-  const { tokens } = params;
+  let paramsObj;
+  try {
+    paramsObj = JSON.parse(params);
+  } catch (error) {
+    paramsObj = {};
+  }
+  const { tokens } = paramsObj;
   return {
     Action: 'Sell USN',
     Amount: toReadableNumber(18, tokens),
   };
+};
+const parseCall = async (tokenId: string) => {
+  if (tokenId == 'aurora') {
+    return {
+      Action: 'Aurora Call',
+    };
+  } else {
+    return {
+      Action: 'Call',
+    };
+  }
 };
 
 const parseDefault = async () => {
