@@ -495,43 +495,43 @@ export const useCrossSwap = ({
     }
   }, [txHashes]);
 
-  const getEstimateTri = async () => {
-    estimateSwap({
-      tokenIn,
-      tokenOut,
-      amountIn: tokenInAmount,
-      intl,
-      loadingTrigger: false,
-      supportLedger,
-      crossSwap: false,
-      onlyTri: true,
-    })
-      .then((estimates) => {
-        setSwapsToDoTri(estimates);
-      })
-      .catch((err) => {
-        setSwapsToDoTri([]);
-      });
-  };
+  // const getEstimateTri = async () => {
+  //   estimateSwap({
+  //     tokenIn,
+  //     tokenOut,
+  //     amountIn: tokenInAmount,
+  //     intl,
+  //     loadingTrigger: false,
+  //     supportLedger,
+  //     crossSwap: false,
+  //     onlyTri: true,
+  //   })
+  //     .then((estimates) => {
+  //       setSwapsToDoTri(estimates);
+  //     })
+  //     .catch((err) => {
+  //       setSwapsToDoTri([]);
+  //     });
+  // };
 
-  const getEstimateRef = async () => {
-    estimateSwap({
-      tokenIn,
-      tokenOut,
-      amountIn: tokenInAmount,
-      intl,
-      loadingTrigger: false,
-      supportLedger,
-      crossSwap: false,
-      onlyTri: false,
-    })
-      .then((estimates) => {
-        setSwapsToDoRef(estimates);
-      })
-      .catch((err) => {
-        setSwapsToDoRef([]);
-      });
-  };
+  // const getEstimateRef = async () => {
+  //   estimateSwap({
+  //     tokenIn,
+  //     tokenOut,
+  //     amountIn: tokenInAmount,
+  //     intl,
+  //     loadingTrigger: false,
+  //     supportLedger,
+  //     crossSwap: false,
+  //     onlyTri: false,
+  //   })
+  //     .then((estimates) => {
+  //       setSwapsToDoRef(estimates);
+  //     })
+  //     .catch((err) => {
+  //       setSwapsToDoRef([]);
+  //     });
+  // };
 
   const getEstimateCrossSwap = () => {
     setCanSwap(false);
@@ -544,14 +544,14 @@ export const useCrossSwap = ({
       intl,
       loadingTrigger: loadingTrigger && !loadingPause,
       supportLedger,
-      crossSwap: true,
+      crossSwap: false,
     })
       .then(async (estimates) => {
         if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
           setAverageFee(estimates);
 
-          await getEstimateRef();
-          await getEstimateTri();
+          // await getEstimateRef();
+          // await getEstimateTri();
 
           setSwapsToDo(estimates);
           setCanSwap(true);

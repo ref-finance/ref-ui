@@ -70,8 +70,12 @@ import {
   isStableToken,
 } from './near';
 import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
-//@ts-ignore
-import { getSmartRouteSwapActions, stableSmart } from './smartRouteLogic';
+import {
+  getSmartRouteSwapActions,
+  stableSmart,
+  getExpectedOutputFromActions,
+  //@ts-ignore
+} from './smartRouteLogic';
 import { getCurrentWallet } from '../utils/sender-wallet';
 import { multiply, separateRoutes } from '../utils/numbers';
 import { auroraSwapTransactions } from './aurora/aurora';
@@ -318,6 +322,8 @@ export const estimateSwap = async ({
     pools.push(stablePoolUSN);
   }
 
+  let supportLedgerRes;
+
   if (supportLedger) {
     if (swapMode === SWAP_MODE.STABLE) {
       pools = pools.filter((p) => isStablePool(p.id));
@@ -367,7 +373,11 @@ export const estimateSwap = async ({
       },
     ];
 
-    return res;
+    supportLedgerRes = res;
+  }
+
+  if (supportLedger && typeof crossSwap === 'undefined') {
+    return supportLedgerRes;
   }
 
   const orpools = await getRefPoolsByToken1ORToken2(tokenIn.id, tokenOut.id);
@@ -424,6 +434,20 @@ export const estimateSwap = async ({
 
   console.log(res);
 
+  if (supportLedger && typeof crossSwap !== 'undefined' && !crossSwap) {
+    const refSmartRes = await getExpectedOutputFromActions(res, tokenOut.id, 0);
+    const triRes = await getExpectedOutputFromActions(
+      supportLedgerRes,
+      tokenOut.id,
+      0
+    );
+
+    if (new Big(refSmartRes.estimate).gt(new Big(triRes.estimate))) {
+      return res;
+    } else {
+      return supportLedgerRes;
+    }
+  }
   return res;
 };
 
