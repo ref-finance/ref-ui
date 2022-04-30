@@ -550,5 +550,6 @@ const ko = {
   trading_fee: '거래 수수료',
   usn_successful_click_to_view: '거래 성공. 클릭해서 확인하세요',
   awesomeNear_verified_token: 'AwesomeNear 인증된 토큰입니다',
+  usn_fee_tip: 'Ref에 의해 부과되는 수수료 없음, 사용자는 USN 수수료만 지불!',
 };
 export default Object.assign(ko, ko_in_risks_page);

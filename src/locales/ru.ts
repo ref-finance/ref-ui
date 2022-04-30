@@ -547,5 +547,7 @@ const ru = {
   trading_fee: 'Торговая комиссия',
   usn_successful_click_to_view: 'Сделка прошла успешно. Кликните для просмотра',
   awesomeNear_verified_token: 'AwesomeNear верифицированный токен',
+  usn_fee_tip:
+    'Нулевая комиссия, взимаемая Ref, пользователи платят только комиссию USN!',
 };
 export default Object.assign(ru, ru_in_risks_page);

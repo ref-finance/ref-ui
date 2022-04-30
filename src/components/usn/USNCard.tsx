@@ -177,6 +177,11 @@ function DetailView({
             </span>
           }
         />
+        <div className="flex items-center justify-end">
+          <div className="text-greenColor text-xs flex items-center justify-center bg-xrefbg rounded-3xl px-3 py-1 mt-1.5">
+            <FormattedMessage id="usn_fee_tip"></FormattedMessage>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -268,36 +273,6 @@ export default function USNCard(props: {
         setTokenInAmount(toPrecision('1', 6));
     }
   }, [allTokens]);
-  useEffect(() => {
-    if (txHash && isSignedIn) {
-      checkTransaction(txHash)
-        .then((res: any) => {
-          const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
-
-          const isSlippageError = res.receipts_outcome.some((outcome: any) => {
-            return slippageErrorPattern.test(
-              outcome?.outcome?.status?.Failure?.ActionError?.kind
-                ?.FunctionCallError?.ExecutionError
-            );
-          });
-          const transaction = res.transaction;
-          const methodName =
-            transaction?.actions[0]?.['FunctionCall']?.method_name;
-          return {
-            isUSN: methodName == 'buy' || methodName == 'sell',
-            isSlippageError,
-          };
-        })
-        .then(({ isUSN, isSlippageError }) => {
-          if (isUSN) {
-            !isSlippageError && !errorType && usnBuyAndSellToast(txHash);
-            isSlippageError && failToast(txHash, 'Slippage Violation');
-          }
-          history.replace(pathname);
-        });
-    }
-  }, [txHash]);
-
   useEffect(() => {
     if (tokenIn && tokenIn.id !== 'NEAR') {
       const tokenInId = tokenIn.id;

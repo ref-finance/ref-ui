@@ -535,5 +535,7 @@ const uk_UA = {
   trading_fee: 'Комісія за торгівлю',
   usn_successful_click_to_view: 'Торгівля успішна. Натисніть, щоб переглянути',
   awesomeNear_verified_token: 'Перевірений маркер AwesomeNear',
+  usn_fee_tip:
+    'Ref стягує нульову комісію, користувачі сплачують лише комісію USN!',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);
