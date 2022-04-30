@@ -151,15 +151,18 @@ function App() {
             isUSN: methodName == 'buy' || methodName == 'sell',
             isSlippageError,
             isNearWithdraw: methodName == 'near_withdraw',
+            isNearDeposit: methodName == 'near_deposit',
           };
         })
-        .then(({ isUSN, isSlippageError, isNearWithdraw }) => {
-          if (isUSN || isNearWithdraw) {
+        .then(({ isUSN, isSlippageError, isNearWithdraw, isNearDeposit }) => {
+          if (isUSN || isNearWithdraw || isNearDeposit) {
             isUSN &&
               !isSlippageError &&
               !errorType &&
               usnBuyAndSellToast(txHash);
-            isNearWithdraw && !errorType && swapToast(txHash);
+            (isNearWithdraw || isNearDeposit) &&
+              !errorType &&
+              swapToast(txHash);
             window.history.replaceState(
               {},
               '',
