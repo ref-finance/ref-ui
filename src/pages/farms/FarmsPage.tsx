@@ -84,9 +84,13 @@ import { BigNumber } from 'bignumber.js';
 import getConfig from '~services/config';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { scientificNotationToString } from '../../utils/numbers';
+import { getPrice } from '~services/xref';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
+const XREF_TOKEN_ID = config.XREF_TOKEN_ID;
+const REF_TOKEN_ID = config.REF_TOKEN_ID;
+const DECIMALS_XREF_REF_TRANSTER = 8;
 interface SearchData {
   status: number;
   sort: string;
@@ -189,7 +193,8 @@ export function FarmsPage() {
       Promise<Record<string, string>>,
       Promise<Record<string, string>>,
       Promise<any>,
-      Promise<Record<string, string>>
+      Promise<Record<string, string>>,
+      Promise<any>
     ];
 
     if (isSignedIn) {
@@ -198,16 +203,24 @@ export function FarmsPage() {
         getRewards({}),
         getTokenPriceList(),
         getSeeds({}),
+        getPrice(),
       ];
     } else {
-      Params = [emptyObj(), emptyObj(), getTokenPriceList(), getSeeds({})];
+      Params = [
+        emptyObj(),
+        emptyObj(),
+        getTokenPriceList(),
+        getSeeds({}),
+        getPrice(),
+      ];
     }
 
     const resolvedParams: [
       Record<string, string>,
       Record<string, string>,
       any,
-      Record<string, string>
+      Record<string, string>,
+      any
     ] = await Promise.all(Params);
 
     const stakedList: Record<string, string> = resolvedParams[0];
@@ -220,6 +233,27 @@ export function FarmsPage() {
         rewardList[key] = v;
       }
     });
+    /** get xref price start */
+    const xrefToRefRate = toReadableNumber(
+      DECIMALS_XREF_REF_TRANSTER,
+      resolvedParams[4]
+    );
+    const keyList: any = Object.keys(tokenPriceList);
+    for (let i = 0; i < keyList.length; i++) {
+      const tokenPrice = tokenPriceList[keyList[i]];
+      if (keyList[i] == REF_TOKEN_ID) {
+        const price = new BigNumber(xrefToRefRate)
+          .multipliedBy(tokenPrice.price || 0)
+          .toFixed();
+        tokenPriceList[XREF_TOKEN_ID] = {
+          price,
+          symbol: 'xREF',
+          decimal: tokenPrice.decimal,
+        };
+        break;
+      }
+    }
+    /** get xref price end */
     const stakedList_being = Object.keys(stakedList).length > 0;
     searchData.status = sortList[sort_from_url]
       ? 1
