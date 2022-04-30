@@ -89,6 +89,7 @@ const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
 const XREF_TOKEN_ID = config.XREF_TOKEN_ID;
+const REF_TOKEN_ID = config.REF_TOKEN_ID;
 const DECIMALS_XREF_REF_TRANSTER = 8;
 interface SearchData {
   status: number;
@@ -237,10 +238,10 @@ export function FarmsPage() {
       DECIMALS_XREF_REF_TRANSTER,
       resolvedParams[4]
     );
-    const valueList: any = Object.values(tokenPriceList);
-    for (let i = 0; i < valueList.length; i++) {
-      const tokenPrice = valueList[i];
-      if (tokenPrice.symbol == 'REF') {
+    const keyList: any = Object.keys(tokenPriceList);
+    for (let i = 0; i < keyList.length; i++) {
+      const tokenPrice = tokenPriceList[keyList[i]];
+      if (keyList[i] == REF_TOKEN_ID) {
         const price = new BigNumber(xrefToRefRate)
           .multipliedBy(tokenPrice.price || 0)
           .toFixed();
