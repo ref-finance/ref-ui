@@ -9,6 +9,7 @@ import {
 } from '../services/m-token';
 import { XREF_TOKEN_DECIMALS } from '../services/xref';
 import BigNumber from 'bignumber.js';
+import { ParserDependencies } from 'mathjs';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
@@ -258,7 +259,11 @@ const parseNearDeposit = async () => {
   };
 };
 const parseFtTransferCall = async (params: any, tokenId: string) => {
-  const { receiver_id, amount, msg } = params;
+  let paramsParse: any = {};
+  try {
+    paramsParse = JSON.parse(params);
+  } catch (error) {}
+  const { receiver_id, amount, msg } = paramsParse;
   let Action;
   let Amount;
   if (receiver_id == config.XREF_TOKEN_ID) {
