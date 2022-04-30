@@ -721,6 +721,7 @@ const viewMap = {
   'xREF Stake': AddLiquidity,
   'Sell USN': Swap,
   'Buy USN': Swap,
+  'Aurora Call': Withdraw,
 };
 
 const blackViewMap = {
@@ -747,6 +748,7 @@ const blackViewMap = {
   'xREF Stake': AddLiquidityBlack,
   'Sell USN': SwapBlack,
   'Buy USN': SwapBlack,
+  'Aurora Call': WithdrawBlack,
 };
 
 export function mapToView(action: string, black = false): JSX.Element {

@@ -80,6 +80,9 @@ export const parseAction = async (
     case 'buy_with_price_callback': {
       return await parseUSNBuy(params);
     }
+    case 'call': {
+      return await parseCall(tokenId);
+    }
     default: {
       return await parseDefault();
     }
@@ -361,18 +364,41 @@ const parseUnstake = async (params: any) => {
   };
 };
 const parseUSNBuy = async (params: any) => {
-  const { near } = params;
+  let paramsObj;
+  try {
+    paramsObj = JSON.parse(params);
+  } catch (error) {
+    paramsObj = {};
+  }
+  const { near } = paramsObj;
   return {
     Action: 'Buy USN',
     Amount: toReadableNumber(24, near),
   };
 };
 const parseUSNSell = async (params: any) => {
-  const { tokens } = params;
+  let paramsObj;
+  try {
+    paramsObj = JSON.parse(params);
+  } catch (error) {
+    paramsObj = {};
+  }
+  const { tokens } = paramsObj;
   return {
     Action: 'Sell USN',
     Amount: toReadableNumber(18, tokens),
   };
+};
+const parseCall = async (tokenId: string) => {
+  if (tokenId == 'aurora') {
+    return {
+      Action: 'Aurora Call',
+    };
+  } else {
+    return {
+      Action: 'Call',
+    };
+  }
 };
 
 const parseDefault = async () => {
