@@ -291,7 +291,7 @@ export const estimateSwap = async ({
       amountIn: parsedAmountIn,
       setLoadingData,
       loadingTrigger,
-      crossSwap,
+      crossSwap: true,
       onlyTri,
     })
   ).filter((p) => {
@@ -428,7 +428,8 @@ export const estimateSwap = async ({
     }
   }
 
-  if (!res.length) {
+  if (typeof crossSwap === 'undefined' && !res.length) {
+    console.log('dsdadasd');
     throwNoPoolError();
   }
 
