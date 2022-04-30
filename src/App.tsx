@@ -81,6 +81,7 @@ import {
 } from './utils/sender-wallet';
 import StableSwapPageUSN from '~pages/stable/StableSwapPageUSN';
 import { checkTransaction } from './services/swap';
+import { swapToast } from './components/layout/transactionTipPopUp';
 
 Modal.defaultStyles = {
   overlay: {
@@ -149,11 +150,16 @@ function App() {
           return {
             isUSN: methodName == 'buy' || methodName == 'sell',
             isSlippageError,
+            isNearWithdraw: methodName == 'near_withdraw',
           };
         })
-        .then(({ isUSN, isSlippageError }) => {
-          if (isUSN) {
-            !isSlippageError && !errorType && usnBuyAndSellToast(txHash);
+        .then(({ isUSN, isSlippageError, isNearWithdraw }) => {
+          if (isUSN || isNearWithdraw) {
+            isUSN &&
+              !isSlippageError &&
+              !errorType &&
+              usnBuyAndSellToast(txHash);
+            isNearWithdraw && !errorType && swapToast(txHash);
             window.history.replaceState(
               {},
               '',

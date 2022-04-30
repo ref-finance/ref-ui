@@ -151,10 +151,7 @@ export const useSwap = ({
                 'ft_transfer_call' ||
               transaction?.actions[0]?.['FunctionCall']?.method_name ===
                 'ft_transfer_call' ||
-              transaction?.actions[0]?.['FunctionCall']?.method_name ===
-                'swap' ||
-              transaction?.actions[0]?.['FunctionCall']?.method_name ===
-                'near_withdraw',
+              transaction?.actions[0]?.['FunctionCall']?.method_name === 'swap',
             isSlippageError,
           };
         })
@@ -370,10 +367,7 @@ export const useStableSwap = ({
                 'ft_transfer_call' ||
               transaction?.actions[0]?.['FunctionCall']?.method_name ===
                 'ft_transfer_call' ||
-              transaction?.actions[0]?.['FunctionCall']?.method_name ===
-                'swap' ||
-              transaction?.actions[0]?.['FunctionCall']?.method_name ===
-                'near_withdraw',
+              transaction?.actions[0]?.['FunctionCall']?.method_name === 'swap',
             isSlippageError,
           };
         })
