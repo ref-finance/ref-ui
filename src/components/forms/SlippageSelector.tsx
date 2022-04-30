@@ -54,7 +54,6 @@ export default function SlippageSelectorForStable({
   validSlippageList,
   supportLedger,
   setSupportLedger,
-  crossSwap,
   hideLedger,
 }: {
   slippageTolerance: number;
@@ -64,7 +63,6 @@ export default function SlippageSelectorForStable({
   validSlippageList?: number[];
   supportLedger?: boolean;
   setSupportLedger?: (e?: any) => void;
-  crossSwap?: boolean;
   hideLedger?: boolean;
 }) {
   const ref = useRef<HTMLInputElement>();
@@ -225,7 +223,7 @@ export default function SlippageSelectorForStable({
               />
               %
             </div>
-            {hideLedger || crossSwap ? null : (
+            {hideLedger ? null : (
               <div className={'flex items-center mt-6 text-sm'}>
                 <label>
                   <FormattedMessage

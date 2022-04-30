@@ -284,6 +284,8 @@ export const estimateSwap = async ({
     );
   };
 
+  const swapPro = typeof crossSwap === 'boolean' && !crossSwap;
+
   let pools = (
     await getPoolsByTokens({
       tokenInId: tokenIn.id,
@@ -291,7 +293,7 @@ export const estimateSwap = async ({
       amountIn: parsedAmountIn,
       setLoadingData,
       loadingTrigger,
-      crossSwap: true,
+      crossSwap: swapPro,
       onlyTri,
     })
   ).filter((p) => {
@@ -323,62 +325,74 @@ export const estimateSwap = async ({
   }
 
   let supportLedgerRes;
+  console.log('dot');
 
-  if (supportLedger) {
+  if (supportLedger || swapPro) {
+    console.log('dot');
+
     if (swapMode === SWAP_MODE.STABLE) {
       pools = pools.filter((p) => isStablePool(p.id));
     }
-    if (pools.length === 0) {
+    if (pools.length === 0 && supportLedger) {
       throwNoPoolError();
     }
+    if (pools.length > 0) {
+      const bestPricePool = _.maxBy(pools, (p) => {
+        if (isStablePool(p.id)) {
+          return Number(
+            getStablePoolEstimate({
+              tokenIn,
+              tokenOut,
+              amountIn,
+              stablePoolInfo: isUSN ? stablePoolInfoUSN : stablePoolInfo,
+              stablePool: isUSN ? stablePoolUSN : stablePool,
+            }).estimate
+          );
+        } else
+          return Number(
+            getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn).estimate
+          );
+      });
 
-    const bestPricePool = _.maxBy(pools, (p) => {
-      if (isStablePool(p.id)) {
-        return Number(
-          getStablePoolEstimate({
+      const estimateRes = isStablePool(bestPricePool.id)
+        ? getStablePoolEstimate({
             tokenIn,
             tokenOut,
             amountIn,
             stablePoolInfo: isUSN ? stablePoolInfoUSN : stablePoolInfo,
             stablePool: isUSN ? stablePoolUSN : stablePool,
-          }).estimate
-        );
-      } else
-        return Number(
-          getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn).estimate
-        );
-    });
+          })
+        : getSinglePoolEstimate(
+            tokenIn,
+            tokenOut,
+            bestPricePool,
+            parsedAmountIn
+          );
 
-    const estimateRes = isStablePool(bestPricePool.id)
-      ? getStablePoolEstimate({
-          tokenIn,
-          tokenOut,
-          amountIn,
-          stablePoolInfo: isUSN ? stablePoolInfoUSN : stablePoolInfo,
-          stablePool: isUSN ? stablePoolUSN : stablePool,
-        })
-      : getSinglePoolEstimate(tokenIn, tokenOut, bestPricePool, parsedAmountIn);
+      const res = [
+        {
+          ...estimateRes,
+          status: PoolMode.PARALLEL,
+          routeInputToken: tokenIn.id,
+          totalInputAmount: parsedAmountIn,
+          pool: { ...bestPricePool, partialAmountIn: parsedAmountIn },
+          tokens: [tokenIn, tokenOut],
+          inputToken: tokenIn.id,
+          totalInput: parsedAmountIn,
+          outputToken: tokenOut.id,
+        },
+      ];
 
-    const res = [
-      {
-        ...estimateRes,
-        status: PoolMode.PARALLEL,
-        routeInputToken: tokenIn.id,
-        totalInputAmount: parsedAmountIn,
-        pool: { ...bestPricePool, partialAmountIn: parsedAmountIn },
-        tokens: [tokenIn, tokenOut],
-        inputToken: tokenIn.id,
-        totalInput: parsedAmountIn,
-        outputToken: tokenOut.id,
-      },
-    ];
-
-    supportLedgerRes = res;
+      supportLedgerRes = res;
+    }
   }
 
-  if (supportLedger && typeof crossSwap === 'undefined') {
+  console.log('dot');
+
+  if (supportLedger) {
     return supportLedgerRes;
   }
+  console.log('dot');
 
   const orpools = await getRefPoolsByToken1ORToken2(tokenIn.id, tokenOut.id);
 
@@ -429,13 +443,12 @@ export const estimateSwap = async ({
   }
 
   if (typeof crossSwap === 'undefined' && !res.length) {
-    console.log('dsdadasd');
     throwNoPoolError();
   }
 
-  console.log(res);
+  if (swapPro) {
+    if (!supportLedgerRes && !res.length) throwNoPoolError();
 
-  if (supportLedger && typeof crossSwap !== 'undefined' && !crossSwap) {
     const refSmartRes = await getExpectedOutputFromActions(res, tokenOut.id, 0);
     const triRes = await getExpectedOutputFromActions(
       supportLedgerRes,

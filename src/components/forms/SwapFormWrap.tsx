@@ -288,7 +288,6 @@ export function CrossSwapFormWrap({
                 useNearBalance={useNearBalance}
                 supportLedger={supportLedger}
                 setSupportLedger={setSupportLedger}
-                crossSwap={crossSwap}
               />
             </div>
           </h2>
