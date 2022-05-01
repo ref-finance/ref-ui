@@ -539,7 +539,7 @@ const ko = {
   Confirm: '확인하다',
   Request_for_Quote: '견적 요청',
   mapping_account_explanation:
-    "A mapping address is a 'proxy address', which maps the user's NEAR account with a corresponding ETH address on Aurora.",
+    "맵핑 주소는 '프록시 주소'인데, 이는 유저의 NEAR 계정을 유저의 오로라 ETH 주소와 대응시켜준다는 뜻입니다.",
   buy: '구매',
   sell: '매각',
   buy_nsn: 'USN 구매',

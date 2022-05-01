@@ -524,7 +524,7 @@ const uk_UA = {
   Confirm: 'Підтвердьте',
   Request_for_Quote: 'Запит пропозицій',
   mapping_account_explanation:
-    "A mapping address is a 'proxy address', which maps the user's NEAR account with a corresponding ETH address on Aurora.",
+    'Адреса відображення - це "проксі-адреса", яка зіставляє обліковий запис користувача NEAR з відповідною ETH-адресою на Aurora.',
   buy: 'Купуйте',
   sell: 'Продати',
   buy_nsn: 'Купуйте USN',

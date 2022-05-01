@@ -547,7 +547,7 @@ const vi = {
   Confirm: 'Xác nhận',
   Request_for_Quote: 'Yêu cầu báo giá',
   mapping_account_explanation:
-    "A mapping address is a 'proxy address', which maps the user's NEAR account with a corresponding ETH address on Aurora.",
+    'Địa chỉ ví mapping là một proxy address giúp kết nối đồng thời tài khoản trên NEAR với một địa chỉ ví ETH trên Aurora',
   buy: 'Mua',
   sell: 'Bán',
   buy_nsn: 'Mua USN',

@@ -537,7 +537,7 @@ const ru = {
   Confirm: 'Подтверждать',
   Request_for_Quote: 'Запрос на квоту',
   mapping_account_explanation:
-    "A mapping address is a 'proxy address', which maps the user's NEAR account with a corresponding ETH address on Aurora.",
+    'Mapping" адрес — это "прокси-адрес", который связывает учетную запись пользователя NEAR с соответствующим ETH-адресом на Aurora.',
   buy: 'Купить',
   sell: 'Продать',
   buy_nsn: 'Купить USN',
