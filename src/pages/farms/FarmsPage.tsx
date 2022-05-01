@@ -1431,7 +1431,10 @@ function FarmView({
   }
   function getAprList() {
     let result: string = '';
-    mergeCommonRewardFarms.forEach(
+    const newMergeCommonRewardFarms = JSON.parse(
+      JSON.stringify(mergeCommonRewardFarms)
+    );
+    newMergeCommonRewardFarms.forEach(
       (
         item: FarmInfo & { diff_start_time_pending: any[]; no_pending: any[] }
       ) => {
