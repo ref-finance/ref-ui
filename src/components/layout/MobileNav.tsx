@@ -58,6 +58,7 @@ import { AccountTipDownByAccountID, AuroraEntry } from './NavigationBar';
 import { ConnectDot } from '../icon/CrossSwapIcons';
 import USNBuyComponent from '~components/forms/USNBuyComponent';
 import USNPage from '~components/usn/USNPage';
+import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '../../pages/SwapPage';
 
 export function MobileAnchor({
   to,
@@ -242,7 +243,12 @@ export function AccountModel(props: any) {
       textId: 'view_account',
       selected: location.pathname == '/account',
       click: () => {
-        history.push('/account?tab=ref');
+        if (location.pathname == '/account') {
+          localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
+          window.location.reload();
+        } else {
+          history.push('/account?tab=ref');
+        }
       },
     },
     {
