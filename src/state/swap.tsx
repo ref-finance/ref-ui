@@ -209,9 +209,11 @@ export const useSwap = ({
           setPool(estimates[0].pool);
         })
         .catch((err) => {
-          setCanSwap(false);
-          setTokenOutAmount('');
-          setSwapError(err);
+          if (!loadingTrigger) {
+            setCanSwap(false);
+            setTokenOutAmount('');
+            setSwapError(err);
+          }
         })
         .finally(() => setLoadingTrigger(false));
     } else if (
