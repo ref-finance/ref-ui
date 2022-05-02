@@ -300,6 +300,8 @@ export const estimateSwap = async ({
     return getLiquidity(p, tokenIn, tokenOut) > 0;
   });
 
+  console.log(pools.length);
+
   const [stablePool, stablePoolInfo] = await getStablePoolFromCache(
     STABLE_POOL_ID.toString(),
     loadingTrigger
@@ -334,6 +336,8 @@ export const estimateSwap = async ({
       pools = pools.filter((p) => isStablePool(p.id));
     }
     if (pools.length === 0 && supportLedger) {
+      console.log('dot');
+
       throwNoPoolError();
     }
     if (pools.length > 0) {
@@ -375,7 +379,10 @@ export const estimateSwap = async ({
           status: PoolMode.PARALLEL,
           routeInputToken: tokenIn.id,
           totalInputAmount: parsedAmountIn,
-          pool: { ...bestPricePool, partialAmountIn: parsedAmountIn },
+          pool: {
+            ...bestPricePool,
+            partialAmountIn: parsedAmountIn,
+          },
           tokens: [tokenIn, tokenOut],
           inputToken: tokenIn.id,
           totalInput: parsedAmountIn,
@@ -442,7 +449,7 @@ export const estimateSwap = async ({
     }
   }
 
-  if (typeof crossSwap === 'undefined' && !res.length) {
+  if (!swapPro && !res.length) {
     throwNoPoolError();
   }
 
@@ -462,8 +469,6 @@ export const estimateSwap = async ({
       return supportLedgerRes;
     }
   }
-
-  console.log(res);
 
   return res;
 };
@@ -821,7 +826,7 @@ export const instantSwap = async ({
   swapsToDo,
   slippageTolerance,
 }: SwapOptions) => {
-  if (swapsToDo.every((todo) => todo.pool.Dex === 'ref')) {
+  if (swapsToDo.every((todo) => todo.pool.Dex !== 'ref')) {
     localStorage.setItem(REF_FI_SWAP_SIGNAL, 'ref');
     return nearInstantSwap({
       tokenIn,
@@ -854,6 +859,8 @@ SwapOptions) => {
   const transactions: Transaction[] = [];
   const tokenInActions: RefFiFunctionCallOptions[] = [];
   const tokenOutActions: RefFiFunctionCallOptions[] = [];
+
+  console.log(swapsToDo);
 
   const { wallet, wallet_type } = getCurrentWallet();
 
@@ -889,6 +896,7 @@ SwapOptions) => {
 
   if (wallet.isSignedIn()) {
     if (isParallelSwap) {
+      debugger;
       const swapActions = swapsToDo.map((s2d) => {
         let minTokenOutAmount = s2d.estimate
           ? percentLess(slippageTolerance, s2d.estimate)

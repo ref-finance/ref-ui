@@ -335,10 +335,9 @@ export const getPoolsByTokens = async ({
     await getStablePoolFromCache(STABLE_POOL_USN_ID.toString());
   }
   setLoadingData && setLoadingData(false);
+
   // @ts-ignore
-  return filtered_pools.filter((p) =>
-    onlyTri ? p.Dex === 'tri' : crossSwap || p.Dex === 'ref'
-  );
+  return filtered_pools.filter((p) => crossSwap || p.Dex === 'ref');
 };
 
 export const getRefPoolsByToken1ORToken2 = async (

@@ -475,7 +475,7 @@ function DetailView({
           value={poolFeeDisplay}
         />
 
-        {isParallelSwap && (
+        {isParallelSwap && swapsTodo && swapsTodo.length > 1 && (
           <ParallelSwapRoutesDetail
             tokenIn={tokenIn}
             tokenOut={tokenOut}
