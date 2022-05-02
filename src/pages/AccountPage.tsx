@@ -1125,17 +1125,13 @@ function Account(props: any) {
   const { wallet } = getCurrentWallet();
   const tab = new URLSearchParams(window.location.search).get('tab');
   const crossStatus =
-    localStorage?.getItem(ACCOUNT_PAGE_AURORA_SHOW)?.toString() === 'cross'
-      ? '1'
-      : '0';
+    localStorage?.getItem(ACCOUNT_PAGE_AURORA_SHOW)?.toString() === 'cross';
   const [showCrossBalance, setShowCrossBalance] = useState(
-    tab === 'aurora' ? true : false
+    tab === 'aurora' || crossStatus
   );
   useEffect(() => {
     if (tab == 'aurora') {
       localStorage.setItem(ACCOUNT_PAGE_AURORA_SHOW, 'cross');
-    } else {
-      localStorage.setItem(ACCOUNT_PAGE_AURORA_SHOW, 'normal');
     }
   }, [tab]);
 
@@ -1298,17 +1294,13 @@ function MobileAccount(props: any) {
   const { wallet } = getCurrentWallet();
   const tab = new URLSearchParams(window.location.search).get('tab');
   const crossStatus =
-    localStorage.getItem(ACCOUNT_PAGE_AURORA_SHOW)?.toString() === 'cross'
-      ? '1'
-      : '0';
+    localStorage.getItem(ACCOUNT_PAGE_AURORA_SHOW)?.toString() === 'cross';
   const [showCrossBalance, setShowCrossBalance] = useState(
-    tab === 'aurora' ? true : false
+    tab === 'aurora' || crossStatus
   );
   useEffect(() => {
     if (tab == 'aurora') {
       localStorage.setItem(ACCOUNT_PAGE_AURORA_SHOW, 'cross');
-    } else {
-      localStorage.setItem(ACCOUNT_PAGE_AURORA_SHOW, 'normal');
     }
   }, [tab]);
   useEffect(() => {
