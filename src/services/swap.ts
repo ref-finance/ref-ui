@@ -102,7 +102,6 @@ interface EstimateSwapOptions {
   swapMode?: SWAP_MODE;
   supportLedger?: boolean;
   crossSwap?: boolean;
-  onlyTri?: boolean;
 }
 
 export interface ReservesMap {
@@ -263,7 +262,6 @@ export const estimateSwap = async ({
   swapMode,
   supportLedger,
   crossSwap,
-  onlyTri,
 }: EstimateSwapOptions): Promise<EstimateSwapView[]> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
 
@@ -294,7 +292,6 @@ export const estimateSwap = async ({
       setLoadingData,
       loadingTrigger,
       crossSwap: swapPro,
-      onlyTri,
     })
   ).filter((p) => {
     return getLiquidity(p, tokenIn, tokenOut) > 0;
@@ -394,21 +391,16 @@ export const estimateSwap = async ({
     }
   }
 
-  console.log('dot');
-
   if (supportLedger) {
     return supportLedgerRes;
   }
-  console.log('dot');
 
   const orpools = await getRefPoolsByToken1ORToken2(tokenIn.id, tokenOut.id);
 
   let stableSmartActionsV2;
 
   stableSmartActionsV2 = await stableSmart(
-    orpools.filter((p) =>
-      onlyTri ? p.Dex === 'tri' : crossSwap || p.Dex === 'ref'
-    ),
+    orpools.filter((p) => !p?.Dex || p.Dex !== 'tri'),
     tokenIn.id,
     tokenOut.id,
     parsedAmountIn
@@ -422,13 +414,11 @@ export const estimateSwap = async ({
     .reduce((a: any, b: any) => a.plus(b), new Big(0))
     .toString();
 
-  if ((isStableToken(tokenIn.id) || isStableToken(tokenOut.id)) && !onlyTri) {
+  if (isStableToken(tokenIn.id) || isStableToken(tokenOut.id)) {
     let hybridStableSmart = await getHybridStableSmart(
       tokenIn,
       tokenOut,
       amountIn,
-      crossSwap,
-      onlyTri,
       loadingTrigger
     );
 
@@ -478,9 +468,7 @@ export async function getHybridStableSmart(
   tokenIn: TokenMetadata,
   tokenOut: TokenMetadata,
   amountIn: string,
-  loadingTrigger: boolean,
-  crossSwap?: boolean,
-  onlyTri?: boolean
+  loadingTrigger: boolean
 ) {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
   let pool1, pool2;
@@ -628,8 +616,6 @@ export async function getHybridStableSmart(
         tokenOutId: tokenOut.id,
         amountIn: parsedAmountIn,
         loadingTrigger: false,
-        crossSwap,
-        onlyTri,
       });
       pools2.push(
         ...tmpPools.filter((p) => {
@@ -654,8 +640,6 @@ export async function getHybridStableSmart(
         tokenOutId: otherStable,
         amountIn: parsedAmountIn,
         loadingTrigger: false,
-        crossSwap,
-        onlyTri,
       });
       pools1.push(
         ...tmpPools.filter((p) => {

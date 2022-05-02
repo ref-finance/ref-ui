@@ -283,7 +283,6 @@ interface GetPoolOptions {
   setLoadingData?: (loading: boolean) => void;
   loadingTrigger: boolean;
   crossSwap?: boolean;
-  onlyTri?: boolean;
 }
 
 export const isNotStablePool = (pool: Pool) => {
@@ -296,7 +295,6 @@ export const getPoolsByTokens = async ({
   setLoadingData,
   loadingTrigger,
   crossSwap,
-  onlyTri,
 }: GetPoolOptions): Promise<Pool[]> => {
   let filtered_pools;
   const [cacheForPair, cacheTimeLimit] = await db.checkPoolsByTokens(
@@ -337,7 +335,7 @@ export const getPoolsByTokens = async ({
   setLoadingData && setLoadingData(false);
 
   // @ts-ignore
-  return filtered_pools.filter((p) => crossSwap || p.Dex === 'ref');
+  return filtered_pools.filter((p) => !p?.Dex || p.Dex !== 'tri');
 };
 
 export const getRefPoolsByToken1ORToken2 = async (
