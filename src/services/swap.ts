@@ -826,7 +826,7 @@ export const instantSwap = async ({
   swapsToDo,
   slippageTolerance,
 }: SwapOptions) => {
-  if (swapsToDo.every((todo) => todo.pool.Dex !== 'ref')) {
+  if (swapsToDo.every((todo) => todo.pool.Dex !== 'tri')) {
     localStorage.setItem(REF_FI_SWAP_SIGNAL, 'ref');
     return nearInstantSwap({
       tokenIn,
