@@ -109,27 +109,27 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         walletUrl: 'https://wallet.testnet.near.org',
         helperUrl: 'https://helper.testnet.near.org',
         explorerUrl: 'https://testnet.nearblocks.io',
-        indexerUrl: 'https://dev-indexer.ref-finance.com',
+        indexerUrl: '﻿ https://testnet-indexer.ref-finance.com/',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
-          process.env.REF_FI_CONTRACT_ID || 'ref-finance-101.testnet',
+            process.env.REF_FI_CONTRACT_ID || 'ref-finance-101.testnet',
         WRAP_NEAR_CONTRACT_ID:
-          process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.testnet',
+            process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.testnet',
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
         REF_FARM_CONTRACT_ID:
-          process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.testnet',
+            process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.testnet',
         REF_TOKEN_ID: 'ref.fakes.testnet',
         XREF_TOKEN_ID: 'xref.ref-finance.testnet',
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
         TOP_POOLS_TOKEN_REFRESH_INTERVAL:
-          process.env.POOL_TOKEN_REFRESH_INTERVAL || 60,
+            process.env.POOL_TOKEN_REFRESH_INTERVAL || 60,
         POOL_TOKEN_REFRESH_INTERVAL:
-          process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
-        STABLE_POOL_ID: process.env.STABLE_POOL_ID || 79,
-        STABLE_POOL_IDS: process.env.STABLE_POOL_IDS || ['79', '603'],
+            process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
+        STABLE_POOL_ID: process.env.STABLE_POOL_ID || 218,
+        STABLE_POOL_IDS: process.env.STABLE_POOL_IDS || ['218', '356'],
         USN_ID: 'usdn.testnet',
-        STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 603,
+        STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 356,
         STABLE_TOKEN_IDS: [
           'usdt.fakes.testnet',
           'usdc.fakes.testnet',
@@ -146,9 +146,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'dai.fakes.testnet': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
+            process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
+            process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
       };
     default:
       return {
