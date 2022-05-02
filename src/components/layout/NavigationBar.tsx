@@ -931,7 +931,7 @@ function NavigationBar() {
             className={`${
               hoverClick ? 'font-bold' : 'font-normal'
             } underline cursor-pointer mx-1`}
-            onClick={() => window.open('/account', '_blank')}
+            onClick={() => window.open('/account?tab=ref', '_blank')}
             onMouseEnter={() => setHoverClick(true)}
             onMouseLeave={() => setHoverClick(false)}
           >
