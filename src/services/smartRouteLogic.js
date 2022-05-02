@@ -2673,7 +2673,7 @@ export async function getExpectedOutputFromActions(
       expectedOutput = expectedOutput.plus(curRoute[0].estimate);
     } else {
       if (
-        curRoute.every((r) => r.pool.Dex === 'ref') ||
+        curRoute.every((r) => r.pool.Dex !== 'tri') ||
         curRoute.every((r) => r.pool.Dex === 'tri')
       )
         expectedOutput = expectedOutput.plus(curRoute[1].estimate);

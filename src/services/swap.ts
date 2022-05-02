@@ -462,6 +462,9 @@ export const estimateSwap = async ({
       return supportLedgerRes;
     }
   }
+
+  console.log(res);
+
   return res;
 };
 
@@ -509,7 +512,7 @@ export async function getHybridStableSmart(
         status: PoolMode.SMART,
         routeInputToken: tokenIn.id,
         totalInputAmount: parsedAmountIn,
-        pool: { ...stablePoolUSN, partialAmountIn: parsedAmountIn },
+        pool: { ...stablePoolUSN, partialAmountIn: parsedAmountIn, Dex: 'ref' },
         tokens: [tokenIn, USDTMeta, tokenOut],
         inputToken: tokenIn.id,
       };
@@ -531,6 +534,7 @@ export async function getHybridStableSmart(
             USDTMeta.decimals,
             estimate1.estimate
           ),
+          Dex: 'ref',
         },
         tokens: [tokenIn, USDTMeta, tokenOut],
         inputToken: USDTMeta.id,
@@ -553,7 +557,7 @@ export async function getHybridStableSmart(
         status: PoolMode.SMART,
         routeInputToken: tokenIn.id,
         totalInputAmount: parsedAmountIn,
-        pool: { ...stablePool, partialAmountIn: parsedAmountIn },
+        pool: { ...stablePool, partialAmountIn: parsedAmountIn, Dex: 'ref' },
         tokens: [tokenIn, USDTMeta, tokenOut],
         inputToken: tokenIn.id,
       };
@@ -569,7 +573,7 @@ export async function getHybridStableSmart(
         status: PoolMode.SMART,
         routeInputToken: tokenIn.id,
         totalInputAmount: parsedAmountIn,
-        pool: { ...stablePoolUSN, partialAmountIn: parsedAmountIn },
+        pool: { ...stablePoolUSN, partialAmountIn: parsedAmountIn, Dex: 'ref' },
         tokens: [tokenIn, USDTMeta, tokenOut],
         inputToken: USDTMeta.id,
       };
