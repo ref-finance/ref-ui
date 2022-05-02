@@ -1082,7 +1082,7 @@ function Account(props: any) {
     });
     const hasMapBalanceOver = userTokens.some(
       (token: TokenMetadata & { aurora: string }) => {
-        return Number(token.aurora) > 0.001;
+        return Number(token.aurora) > 0;
       }
     );
     const refAccountHasToken = userTokens.filter((token: TokenMetadata) => {
@@ -1327,7 +1327,7 @@ function MobileAccount(props: any) {
     });
     const hasMapBalanceOver = userTokens.some(
       (token: TokenMetadata & { aurora: string }) => {
-        return Number(token.aurora) > 0.001;
+        return Number(token.aurora) > 0;
       }
     );
     setHasRefBalanceOver(hasRefBalanceOver);
