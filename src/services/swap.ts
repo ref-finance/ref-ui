@@ -101,7 +101,7 @@ interface EstimateSwapOptions {
   setLoadingTrigger?: (loadingTrigger: boolean) => void;
   swapMode?: SWAP_MODE;
   supportLedger?: boolean;
-  crossSwap?: boolean;
+  swapPro?: boolean;
 }
 
 export interface ReservesMap {
@@ -261,7 +261,7 @@ export const estimateSwap = async ({
   loadingTrigger,
   swapMode,
   supportLedger,
-  crossSwap,
+  swapPro,
 }: EstimateSwapOptions): Promise<EstimateSwapView[]> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
 
@@ -281,8 +281,6 @@ export const estimateSwap = async ({
       })}`
     );
   };
-
-  const swapPro = typeof crossSwap === 'boolean' && !crossSwap;
 
   let pools = (
     await getPoolsByTokens({

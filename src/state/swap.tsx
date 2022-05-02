@@ -544,7 +544,7 @@ export const useCrossSwap = ({
       intl,
       loadingTrigger: loadingTrigger && !loadingPause,
       supportLedger,
-      crossSwap: false,
+      swapPro: true,
     })
       .then(async (estimates) => {
         if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
