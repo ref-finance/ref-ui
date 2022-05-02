@@ -187,7 +187,7 @@ function AccountEntry({
       textId: 'view_account',
       selected: location.pathname == '/account',
       click: () => {
-        history.push('/account');
+        history.push('/account?tab=ref');
       },
     },
     {

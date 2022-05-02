@@ -1124,15 +1124,23 @@ function Account(props: any) {
   )}`;
   const { wallet } = getCurrentWallet();
   const tab = new URLSearchParams(window.location.search).get('tab');
-  const crossStatus =
-    localStorage?.getItem(ACCOUNT_PAGE_AURORA_SHOW)?.toString() === 'cross';
+  const crossStatus = localStorage.getItem(ACCOUNT_PAGE_AURORA_SHOW);
   const [showCrossBalance, setShowCrossBalance] = useState(
-    tab === 'aurora' || crossStatus
+    tab === 'aurora' || (crossStatus === 'cross' && tab !== 'ref')
   );
+
   useEffect(() => {
     if (tab == 'aurora') {
       localStorage.setItem(ACCOUNT_PAGE_AURORA_SHOW, 'cross');
     }
+    if (tab === 'ref') {
+      localStorage.setItem(ACCOUNT_PAGE_AURORA_SHOW, 'normal');
+    }
+    window.history.replaceState(
+      {},
+      '',
+      window.location.origin + window.location.pathname
+    );
   }, [tab]);
 
   const [auroraAccountHover, setAuroraAccountHover] = useState(false);
@@ -1293,15 +1301,24 @@ function MobileAccount(props: any) {
 
   const { wallet } = getCurrentWallet();
   const tab = new URLSearchParams(window.location.search).get('tab');
-  const crossStatus =
-    localStorage.getItem(ACCOUNT_PAGE_AURORA_SHOW)?.toString() === 'cross';
+
+  const crossStatus = localStorage.getItem(ACCOUNT_PAGE_AURORA_SHOW);
   const [showCrossBalance, setShowCrossBalance] = useState(
-    tab === 'aurora' || crossStatus
+    tab === 'aurora' || (crossStatus === 'cross' && tab !== 'ref')
   );
+
   useEffect(() => {
     if (tab == 'aurora') {
       localStorage.setItem(ACCOUNT_PAGE_AURORA_SHOW, 'cross');
     }
+    if (tab === 'ref') {
+      localStorage.setItem(ACCOUNT_PAGE_AURORA_SHOW, 'normal');
+    }
+    window.history.replaceState(
+      {},
+      '',
+      window.location.origin + window.location.pathname
+    );
   }, [tab]);
   useEffect(() => {
     const refAccountHasToken = userTokens.filter((token: TokenMetadata) => {
