@@ -60,6 +60,9 @@ export default function SelectUi(props: any) {
           className={`absolute z-50 top-8 xs:right-0 md:right-0 border border-farmText bg-cardBg rounded-md ${
             shrink ? 'w-32' : 'w-auto'
           } ${showSelectBox ? '' : 'invisible'}`}
+          style={{
+            minWidth: '135px',
+          }}
         >
           {Object.entries(list).map((item: any, index) => (
             <p

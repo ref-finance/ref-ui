@@ -168,7 +168,7 @@ const zh_CN = {
   submit: '提交',
   wrapnear: 'Wrap NEAR',
   wrapnear_tip_one: 'wNEAR支持您在REF中交易，',
-  wrapnear_tip_two: '请保留至少1个NEAR，',
+  wrapnear_tip_two: '请保留至少0.5个NEAR，',
   wrapnear_tip_three: '以保障gas费充足。',
   wrap_error_msg: '余额不足',
   sign_out: '退出',
@@ -372,7 +372,7 @@ const zh_CN = {
   shares_removed: '流动性',
   shares_avaliable: '可用的份额',
   minimum_shares: '最少份额',
-  shares_tip: '可用的份额 / 所有的份额',
+  shares_tip: '可用的份额 / 总的份额',
   stablecoin_only: '稳定币',
   more_than: '请输入大于等于0.01的数字',
   less_than: '请输入小于20的数字',
@@ -481,7 +481,7 @@ const zh_CN = {
   support_ledger: '支持 Ledger',
   initialize_account_tip: '请初始化你的账号',
   support_ledger_tip:
-    '根据Ledger的设计, 因其内存限制, <br />Ledger不能处理大型交易(即自动路由:<br />一次跨多个池进行交易)。激活后,<br />"支持 Ledger"选项会将交易限制<br />在最简单的形式(不利于更好的价格), <br />因此可以签署合理规模的交易。',
+    '根据Ledger的设计, 因其内存限制, Ledger不能处理大型交易(即自动路由: 一次跨多个池进行交易)。激活后,"支持 Ledger"选项会将交易限制在最简单的形式(不利于更好的价格),因此可以签署合理规模的交易。',
   start: '开始',
   aprTip: '基于所有奖励（未开始和进行中）的指示性值',
   half: 'Half',
@@ -492,5 +492,25 @@ const zh_CN = {
   click_here: '点击这里',
   to_recover_them: '来取回他们',
   ref_account_tip_3: '要从您的REF帐户提取代币到您的NEAR钱包,请选择并提取',
+  admin_sentence_1:
+    'Ref Finance 由  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
+    '>Ref Finance Sputnik DAO</label> 管理，并将过渡到完全去中心化的 DAO。',
+  admin_sentence_2:
+    '有关直接管理或目前管理 Ref Finance 事务的合约和地址的更多信息，请查看我们的<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/contracts')" +
+    '>文档</label>。',
+  cumulative_ref_buyback: '累计 REF 回购',
+  yearly_revenue_booster: '年度收入助推器',
+  buy: '买',
+  sell: '卖',
+  buy_nsn: '买 USN',
+  buy_nsn_tip: 'USN是NEAR经济支持的原生稳定币',
+  usn_tip_one: 'USN 允许你在REF上交易，',
+  rate: '汇率',
+  trading_fee: '交易费',
+  usn_successful_click_to_view: '交易成功，点击查看详情',
+  awesomeNear_verified_token: 'AwesomeNear 已认证代币',
+  usn_fee_tip: 'Ref收取零费用，用户只需支付USN费用!',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

@@ -124,6 +124,14 @@ const ru_in_risks_page = {
     '>Хранители</label>— это  определенные адреса NEAR, которые могут приостановить контракт. Только DAO может в любой момент возобновить контракт.',
   risks_of_using_ref_finance:
     '<label class="text-greenColor">Риски</label> использования Ref. finance',
+  admin_sentence_1:
+    'Ref Finance управляется <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
+    '>DAO Ref Finance Sputnik</label> и в ближайшее время перейдет к полноценному децентрализованному DAO.',
+  admin_sentence_2:
+    'Для получения дополнительной информации, касающейся контрактов и адресов, которые непосредственно управляли или в настоящее время управляют делами Ref Finance, пожалуйста, ознакомьтесь с нашей <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/contracts')" +
+    '>Документацией</label>.',
 };
 const ru = {
   deposit: 'Депозит',
@@ -184,8 +192,8 @@ const ru = {
   wrapnear: 'Обернуть NEAR',
   wrapnear_tip_one:
     'Обернутые NEAR позволят вам торговать на REF. Обязательно ',
-  wrapnear_tip_two: 'оставьте 1 NEAR',
-  wrapnear_tip_three: 'для оплаты комиссий за газ, чтобы развернуть ваш NEAR.',
+  wrapnear_tip_two: 'оставьте 0.5 NEAR',
+  wrapnear_tip_three: 'на оплату газа.',
   wrap_error_msg: 'Недостаточный баланс',
   sign_out: 'Выйти',
   view_account: 'Обзор аккаунта',
@@ -269,7 +277,7 @@ const ru = {
   slippageCopyForMobile:
     'Проскальзывание означает разницу между тем, что вы ожидаете получить, и тем, что вы фактически получаете из-за других действий',
   slippageCopy:
-    'Проскальзывание означает разницу между тем, что вы ожидаете получить, <br> и тем,что вы фактически получаете из-за других действий',
+    'Проскальзывание означает разницу между тем, что вы ожидаете получить, и тем,что вы фактически получаете из-за других действий',
   depositCopy:
     'В результате выбранные вами токены поступают на <br> биржу для обмена или добавления в пул ликвидности',
   nearDepositCopy:
@@ -409,7 +417,7 @@ const ru = {
   shares_removed: 'Доли',
   shares_avaliable: 'Доступные доли',
   minimum_shares: 'Минимальные доли',
-  shares_tip: 'Имеющиеся доли / полностью принадлежащие вам доли',
+  shares_tip: 'Доступные акции / Всего акций',
   stablecoin_only: 'Стейблкоин только',
   more_than: 'Пожалуйста, введите число, которое больше или равно 0,01',
   less_than: 'Пожалуйста, введите число, которое меньше 20',
@@ -496,13 +504,13 @@ const ru = {
   create: 'Создайте',
   support_ledger: 'Поддержка Ledger',
   support_ledger_tip:
-    'По своей конструкции Ledger не может обрабатывать<br>' +
-    'большие транзакции (Auto Router: торговля, что <br>' +
-    'использует несколько пулов одновременно) из-за<br>' +
-    ' небольшого объема памяти. Функция Support Ledger<br>' +
-    ' позволит уменьшить транзакции до их простейшей<br>' +
-    ' формы (в ущерб потенциально оптимальным ценам,<br>' +
-    ' найденным Auto Router), в результате чего объем<br>' +
+    'По своей конструкции Ledger не может обрабатывать ' +
+    'большие транзакции (Auto Router: торговля, что ' +
+    'использует несколько пулов одновременно) из-за ' +
+    ' небольшого объема памяти. Функция Support Ledger ' +
+    ' позволит уменьшить транзакции до их простейшей ' +
+    ' формы (в ущерб потенциально оптимальным ценам, ' +
+    ' найденным Auto Router), в результате чего объем ' +
     ' tx будет небольшим, что позволит работать вам с Ledger.',
   start: 'Start',
   aprTip: 'Indicative value based on all rewards (pending and running)',
@@ -519,5 +527,18 @@ const ru = {
   to_recover_them: 'чтобы восстановить их',
   ref_account_tip_3:
     'Чтобы вывести токен(ы) с вашего счета REF на ваш кошелек NEAR, пожалуйста, выберите и выведите',
+  cumulative_ref_buyback: 'Cumulative REF Buyback',
+  yearly_revenue_booster: 'Yearly Revenue Booster',
+  buy: 'Купить',
+  sell: 'Продать',
+  buy_nsn: 'Купить USN',
+  buy_nsn_tip: 'USN — это нативный стейблкоин, поддерживаемый экономикой NEAR.',
+  usn_tip_one: 'USN доступен для торговли на REF. Убедитесь, что  ',
+  rate: 'Курс',
+  trading_fee: 'Торговая комиссия',
+  usn_successful_click_to_view: 'Сделка прошла успешно. Кликните для просмотра',
+  awesomeNear_verified_token: 'AwesomeNear верифицированный токен',
+  usn_fee_tip:
+    'Нулевая комиссия, взимаемая Ref, пользователи платят только комиссию USN!',
 };
 export default Object.assign(ru, ru_in_risks_page);

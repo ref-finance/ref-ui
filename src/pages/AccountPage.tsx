@@ -60,9 +60,9 @@ function RefAccountTipMan({
         right: '160px',
       }}
     >
-      <span>
+      {/* <span>
         <em></em>
-      </span>
+      </span> */}
       <div
         className="relative border bg-cardBg rounded-lg border-gradientFrom pl-4 pr-8 py-2 text-sm text-white"
         style={{

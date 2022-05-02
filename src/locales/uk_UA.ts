@@ -182,8 +182,8 @@ const uk_UA = {
   submit: 'Прийняти',
   wrapnear: 'Обгорнути NEAR',
   wrapnear_tip_one: 'Обгортання NEAR дозволяє вам торгувати на REF',
-  wrapnear_tip_two: 'Залиште 1 NEAR',
-  wrapnear_tip_three: 'для комісії щоб розгорнути назад ваш NEAR.',
+  wrapnear_tip_two: 'Залиште 0.5 NEAR',
+  wrapnear_tip_three: 'для плати за газ.',
   wrap_error_msg: 'Недостатній баланс',
   sign_out: 'Вийти',
   view_account: 'Огляд акаунта',
@@ -265,7 +265,7 @@ const uk_UA = {
   slippageCopyForMobile:
     'Прослизання означає різницю між тим, що ви очікуєте отримати, і тим, що ви насправді отримаєте, при виконанні інших ордерів першими',
   slippageCopy:
-    'Прослизання означає різницю між тим, <br> що ви очікуєте отримати, і тим, що ви насправді  <br> отримаєте, при виконанні інших ордерів першими',
+    'Прослизання означає різницю між тим, що ви очікуєте отримати, і тим, що ви насправді отримаєте, при виконанні інших ордерів першими',
   depositCopy:
     'Перенесення ваших вибраних токенів на <br> біржу для обміну або додавання до пулу ліквідности',
   nearDepositCopy:
@@ -402,7 +402,7 @@ const uk_UA = {
   shares_removed: 'Частки',
   shares_avaliable: 'Доступні частки',
   minimum_shares: 'Мін. частка',
-  shares_tip: 'Доступні частки / частки, якими ви повністю володієте',
+  shares_tip: 'Доступні частки / Усього часток',
   stablecoin_only: 'Лише стейблкоїни',
   more_than: 'Будь ласка, введіть число, яке більше або дорівнює 0,01',
   less_than: 'Будь ласка, введіть число менше 20',
@@ -491,7 +491,7 @@ const uk_UA = {
   create: 'створювати',
   support_ledger: 'Support Ledger',
   support_ledger_tip:
-    'За своєю конструкцією Ledger не дозволяє<br> обробляти великі транзакції (торгівлю через<br> кілька пулів одночасно - Auto Router) через<br> обмеження пам\'яті. У разі активації опції<br> "Support Ledger" транзакції будуть обмежені<br> до їхнайпростішої форми (оптимальні ціни<br> необхідно обирати самостійно, Auto Router<br> в цьому випадку не працює), і можуть<br> бути підписані.',
+    'За своєю конструкцією Ledger не дозволяє обробляти великі транзакції (торгівлю через<br> кілька пулів одночасно - Auto Router) через обмеження пам\'яті. У разі активації опції "Support Ledger" транзакції будуть обмежені до їхнайпростішої форми (оптимальні ціни необхідно обирати самостійно, Auto Router в цьому випадку не працює), і можуть бути підписані.',
   start: 'Початок',
   aprTip: 'Indicative value based on all rewards (pending and running)',
   half: 'Half',
@@ -506,5 +506,27 @@ const uk_UA = {
   to_recover_them: 'щоб їх відновити',
   ref_account_tip_3:
     'Щоб вивести токени з вашого облікового запису REF на свій гаманець NEAR, виберіть і витягніть',
+  admin_sentence_1:
+    'Ref Finance керується  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
+    '>Ref Finance Sputnik DAO</label> і незабаром перейде до повністю децентралізованої DAO.',
+  admin_sentence_2:
+    'Для отримання додаткової інформації щодо контрактів та адрес, які безпосередньо керували або зараз керують справами Ref Finance, будь ласка, ознайомтесь з нашою  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/contracts')" +
+    '>Документацією.</label>.',
+  cumulative_ref_buyback: 'Cumulative REF Buyback',
+  yearly_revenue_booster: 'Yearly Revenue Booster',
+  buy: 'Купуйте',
+  sell: 'Продати',
+  buy_nsn: 'Купуйте USN',
+  buy_nsn_tip:
+    'USN є рідною стабільною монетою, яка підтримується економікою NEAR',
+  usn_tip_one: "USN дозволяє торгувати на REF. Обов'язково",
+  rate: 'Оцінити',
+  trading_fee: 'Комісія за торгівлю',
+  usn_successful_click_to_view: 'Торгівля успішна. Натисніть, щоб переглянути',
+  awesomeNear_verified_token: 'Перевірений маркер AwesomeNear',
+  usn_fee_tip:
+    'Ref стягує нульову комісію, користувачі сплачують лише комісію USN!',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

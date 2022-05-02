@@ -11,11 +11,13 @@ import { XREF_TOKEN_DECIMALS } from '../services/xref';
 import BigNumber from 'bignumber.js';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
+const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
 
 export const parseAction = async (
   methodName: string,
   params: any,
-  tokenId?: string
+  tokenId?: string,
+  amount?: string
 ) => {
   switch (methodName) {
     case 'swap': {
@@ -71,6 +73,12 @@ export const parseAction = async (
     }
     case 'unstake': {
       return await parseUnstake(params);
+    }
+    case 'sell_with_price_callback': {
+      return await parseUSNSell(params);
+    }
+    case 'buy_with_price_callback': {
+      return await parseUSNBuy(params);
     }
     default: {
       return await parseDefault();
@@ -161,11 +169,13 @@ const parseRemoveLiquidity = async (params: any) => {
     'Amount One': toReadableNumber(tokens[0].decimals, params.min_amounts[0]),
     'Amount Two': toReadableNumber(tokens[1].decimals, params.min_amounts[1]),
   };
-  if (pool.id == STABLE_POOL_ID) {
-    result['Amount Three'] = toReadableNumber(
-      tokens[2].decimals,
-      params.min_amounts[2]
-    );
+  if (new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())) {
+    if (tokens[2]) {
+      result['Amount Three'] = toReadableNumber(
+        tokens[2].decimals,
+        params.min_amounts[2]
+      );
+    }
     result['Shares'] = toReadableNumber(
       LP_STABLE_TOKEN_DECIMALS,
       params.shares
@@ -193,14 +203,13 @@ const parseStorageDeposit = async () => {
 const parseMtfTransferCall = async (params: any) => {
   const { amount, receiver_id, token_id } = params;
   const poolId = token_id.split(':')[1];
-  if (STABLE_POOL_ID == poolId) {
+  if (new Set(STABLE_POOL_IDS || []).has(poolId?.toString())) {
   }
   return {
     Action: 'Stake',
-    Amount:
-      STABLE_POOL_ID == poolId
-        ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, amount)
-        : toReadableNumber(24, amount),
+    Amount: new Set(STABLE_POOL_IDS || []).has(poolId?.toString())
+      ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, amount)
+      : toReadableNumber(24, amount),
     'Receiver Id': receiver_id,
     'Token Id': token_id,
   };
@@ -210,10 +219,9 @@ const parseWithdrawSeed = async (params: any) => {
   const poolId = seed_id.split('@')[1];
   return {
     Action: 'Unstake',
-    Amount:
-      STABLE_POOL_ID == poolId
-        ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, amount)
-        : toReadableNumber(24, amount),
+    Amount: new Set(STABLE_POOL_IDS || []).has(poolId?.toString())
+      ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, amount)
+      : toReadableNumber(24, amount),
     'Seed Id': seed_id,
   };
 };
@@ -350,6 +358,20 @@ const parseUnstake = async (params: any) => {
   return {
     Action: 'xREF Unstake',
     Amount: toReadableNumber(XREF_TOKEN_DECIMALS, amount),
+  };
+};
+const parseUSNBuy = async (params: any) => {
+  const { near } = params;
+  return {
+    Action: 'Buy USN',
+    Amount: toReadableNumber(24, near),
+  };
+};
+const parseUSNSell = async (params: any) => {
+  const { tokens } = params;
+  return {
+    Action: 'Sell USN',
+    Amount: toReadableNumber(18, tokens),
   };
 };
 

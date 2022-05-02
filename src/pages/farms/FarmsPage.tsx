@@ -84,8 +84,13 @@ import { BigNumber } from 'bignumber.js';
 import getConfig from '~services/config';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { scientificNotationToString } from '../../utils/numbers';
+import { getPrice } from '~services/xref';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
+const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
+const XREF_TOKEN_ID = config.XREF_TOKEN_ID;
+const REF_TOKEN_ID = config.REF_TOKEN_ID;
+const DECIMALS_XREF_REF_TRANSTER = 8;
 interface SearchData {
   status: number;
   sort: string;
@@ -188,7 +193,8 @@ export function FarmsPage() {
       Promise<Record<string, string>>,
       Promise<Record<string, string>>,
       Promise<any>,
-      Promise<Record<string, string>>
+      Promise<Record<string, string>>,
+      Promise<any>
     ];
 
     if (isSignedIn) {
@@ -197,16 +203,24 @@ export function FarmsPage() {
         getRewards({}),
         getTokenPriceList(),
         getSeeds({}),
+        getPrice(),
       ];
     } else {
-      Params = [emptyObj(), emptyObj(), getTokenPriceList(), getSeeds({})];
+      Params = [
+        emptyObj(),
+        emptyObj(),
+        getTokenPriceList(),
+        getSeeds({}),
+        getPrice(),
+      ];
     }
 
     const resolvedParams: [
       Record<string, string>,
       Record<string, string>,
       any,
-      Record<string, string>
+      Record<string, string>,
+      any
     ] = await Promise.all(Params);
 
     const stakedList: Record<string, string> = resolvedParams[0];
@@ -219,6 +233,27 @@ export function FarmsPage() {
         rewardList[key] = v;
       }
     });
+    /** get xref price start */
+    const xrefToRefRate = toReadableNumber(
+      DECIMALS_XREF_REF_TRANSTER,
+      resolvedParams[4]
+    );
+    const keyList: any = Object.keys(tokenPriceList);
+    for (let i = 0; i < keyList.length; i++) {
+      const tokenPrice = tokenPriceList[keyList[i]];
+      if (keyList[i] == REF_TOKEN_ID) {
+        const price = new BigNumber(xrefToRefRate)
+          .multipliedBy(tokenPrice.price || 0)
+          .toFixed();
+        tokenPriceList[XREF_TOKEN_ID] = {
+          price,
+          symbol: 'xREF',
+          decimal: tokenPrice.decimal,
+        };
+        break;
+      }
+    }
+    /** get xref price end */
     const stakedList_being = Object.keys(stakedList).length > 0;
     searchData.status = sortList[sort_from_url]
       ? 1
@@ -1215,7 +1250,7 @@ function FarmView({
   async function showStakeModal() {
     const { lpTokenId } = data;
     const b = await mftGetBalance(getMftTokenId(lpTokenId));
-    if (STABLE_POOL_ID == lpTokenId) {
+    if (new Set(STABLE_POOL_IDS || []).has(lpTokenId?.toString())) {
       setStakeBalance(toReadableNumber(LP_STABLE_TOKEN_DECIMALS, b));
     } else {
       setStakeBalance(toReadableNumber(LP_TOKEN_DECIMALS, b));
@@ -1396,7 +1431,10 @@ function FarmView({
   }
   function getAprList() {
     let result: string = '';
-    mergeCommonRewardFarms.forEach(
+    const newMergeCommonRewardFarms = JSON.parse(
+      JSON.stringify(mergeCommonRewardFarms)
+    );
+    newMergeCommonRewardFarms.forEach(
       (
         item: FarmInfo & { diff_start_time_pending: any[]; no_pending: any[] }
       ) => {
@@ -1585,17 +1623,10 @@ function FarmView({
             <div className="order-2 lg:ml-auto xl:m-0">
               <div>
                 <Link
-                  to={
-                    PoolId == STABLE_POOL_ID
-                      ? {
-                          pathname: '/sauce',
-                          state: { backToFarms: true },
-                        }
-                      : {
-                          pathname: `/pool/${PoolId}`,
-                          state: { backToFarms: true },
-                        }
-                  }
+                  to={{
+                    pathname: `/pool/${PoolId}`,
+                    state: { backToFarms: true },
+                  }}
                   target="_blank"
                   className="text-lg xs:text-sm text-white"
                 >
@@ -1611,11 +1642,7 @@ function FarmView({
           </div>
           <Link
             title={intl.formatMessage({ id: 'view_pool' })}
-            to={
-              PoolId == STABLE_POOL_ID
-                ? { pathname: '/sauce', state: { backToFarms: true } }
-                : { pathname: `/pool/${PoolId}`, state: { backToFarms: true } }
-            }
+            to={{ pathname: `/pool/${PoolId}`, state: { backToFarms: true } }}
             target="_blank"
           >
             <span
@@ -2153,7 +2180,7 @@ function ActionModal(
     if (type == 'stake') {
       const LIMITAOMUNT = '1000000000000000000';
       let value;
-      if (STABLE_POOL_ID == farm.lpTokenId) {
+      if (new Set(STABLE_POOL_IDS || []).has(farm.lpTokenId?.toString())) {
         value = toNonDivisibleNumber(LP_STABLE_TOKEN_DECIMALS, amount);
       } else {
         value = toNonDivisibleNumber(LP_TOKEN_DECIMALS, amount);
@@ -2249,7 +2276,9 @@ function ActionModal(
                   <Alert
                     level="warn"
                     message={
-                      STABLE_POOL_ID == farm.lpTokenId
+                      new Set(STABLE_POOL_IDS || []).has(
+                        farm.lpTokenId?.toString()
+                      )
                         ? intl.formatMessage({ id: 'more_than_stable_seed' })
                         : intl.formatMessage({ id: 'more_than_general_seed' })
                     }

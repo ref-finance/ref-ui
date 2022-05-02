@@ -21,6 +21,7 @@ import {
   UkIcon,
   RuIcon,
   JaIcon,
+  KoIcon,
 } from '~components/icon';
 import { WNEARExchngeIcon } from '~components/icon/Common';
 import { Link, useLocation } from 'react-router-dom';
@@ -54,6 +55,8 @@ import { isMobile } from '~utils/device';
 import { getCurrentWallet, getAccountName } from '../../utils/sender-wallet';
 import { FarmDot } from '../icon/FarmStamp';
 import { AccountTipDownByAccountID } from './NavigationBar';
+import USNBuyComponent from '~components/forms/USNBuyComponent';
+import USNPage from '~components/usn/USNPage';
 
 export function MobileAnchor({
   to,
@@ -186,6 +189,17 @@ export function MobileSwitchLanguage() {
             <JaIcon />
           </span>
           日本語
+        </div>
+        <div
+          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
+            currentLocal === 'ko' ? 'text-white' : 'text-primaryText '
+          }`}
+          onClick={() => context.selectLanguage('ko')}
+        >
+          <span className="text-2xl mr-5">
+            <KoIcon />
+          </span>
+          한국어
         </div>
       </div>
     </div>
@@ -348,6 +362,7 @@ export function MobileNavBar(props: any) {
   const isSignedIn = signedInState.isSignedIn;
 
   const [showTip, setShowTip] = useState<boolean>(false);
+  const [showUSN, setShowUSN] = useState(false);
 
   useEffect(() => {
     setShowTip(hasBalanceOnRefAccount);
@@ -515,7 +530,10 @@ export function MobileNavBar(props: any) {
               <div className="text-primaryText" onClick={() => setShow(false)}>
                 <div
                   className="flex p-4 justify-between items-center"
-                  onClick={() => setMobileWrapNear(true)}
+                  onClick={() => {
+                    setMobileWrapNear(true);
+                    setShowUSN(false);
+                  }}
                 >
                   <WNEARExchngeIcon width="75" height="32" />
                   <span className="text-sm">
@@ -540,6 +558,38 @@ export function MobileNavBar(props: any) {
                 />
               </div>
             )}
+            <div className="text-primaryText">
+              <div
+                className="flex p-5 justify-between items-center"
+                onClick={() => {
+                  setShowUSN(true);
+                  setShow(false);
+                  setMobileWrapNear(false);
+                }}
+              >
+                <USNBuyComponent></USNBuyComponent>
+              </div>
+              <USNPage
+                isOpen={showUSN}
+                onRequestClose={() => {
+                  setShowUSN(false);
+                }}
+                style={{
+                  overlay: {
+                    backdropFilter: 'blur(15px)',
+                    WebkitBackdropFilter: 'blur(15px)',
+                  },
+                  content: {
+                    outline: 'none',
+                    position: 'fixed',
+                    width: '98%',
+                    left: '1%',
+                    bottom: '50%',
+                    transform: null,
+                  },
+                }}
+              ></USNPage>
+            </div>
             {moreLinks.map(
               ({
                 id,

@@ -1,4 +1,4 @@
-const zh_CN_in_risks_page = {
+const ja_in_risks_page = {
   risks: 'リスク',
   of_using_ref_finance: 'Ref.financeの利用',
   introduction:
@@ -122,8 +122,16 @@ const zh_CN_in_risks_page = {
     '>ガーディアンズ</label>，特定のNEARアドレスはコントラクトを停止することができます。DAOだけが、いつでもコントラクトを再開することができます。',
   risks_of_using_ref_finance:
     'Ref. financeの利用<label class="text-greenColor">リスク</label>',
+  admin_sentence_1:
+    'Ref Financeは、<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
+    '>Ref Finance Sputnik DAO</label> によって管理されており、完全な分散型DAOに移行する予定です。',
+  admin_sentence_2:
+    'Ref Financeの業務を直接管理している、または現在管理している契約および住所の詳細については、 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/contracts')" +
+    '>ドキュメント</label> を確認してください。',
 };
-const zh_CN = {
+const ja = {
   deposit: 'デポジット',
   Deposit: 'デポジット',
   withdraw: '抽出',
@@ -181,8 +189,8 @@ const zh_CN = {
   submit: '提出',
   wrapnear: 'Wrap NEAR',
   wrapnear_tip_one: 'wNEARは、REFでの取引をサポートします。',
-  wrapnear_tip_two: '最低でも1つはNEARにしてください。',
-  wrapnear_tip_three: 'ガスフィーが十分であることを確認してください。',
+  wrapnear_tip_two: '最低でも0.5つはNEARにしてください',
+  wrapnear_tip_three: 'ガス料金。',
   wrap_error_msg: 'バランス不足',
   sign_out: '退会',
   view_account: 'アカウントを見る',
@@ -404,7 +412,7 @@ const zh_CN = {
   shares_removed: '流動性',
   shares_avaliable: '取得可能額',
   minimum_shares: 'ミニマム額',
-  shares_tip: '使用可能額／全保有額',
+  shares_tip: '利用可能株式数/総株式数',
   stablecoin_only: 'ステーブルコイン',
   more_than: '0.01以上の数値を入力してください。',
   less_than: '20未満の数字を入力してください',
@@ -514,9 +522,11 @@ const zh_CN = {
   wallet_vi: ' ',
   value: '額',
   usd_value: 'ドル換算額',
+  sauce_note:
+    'SAUCEは、資産が固定された流動性プール向けに設計されており、最適な価格を提供します。',
   support_ledger: 'Ledgerをサポートする',
   support_ledger_tip:
-    'Ledgerの設計によると、メモリの制限のため、 <br />Ledgerの台帳が大口取引に対応できない（自動ルーティングなど: <br /> 複数のプールにまたがって同時に取引する）。 起動後, <br />Ledgerをサポートする台帳は、トランザクションを次のように制限します。 <br />最もシンプルな形で（価格向上に寄与しない）。 <br />そのため、それなりの規模のコントラクトを結ぶことが可能です。',
+    'Ledgerの設計によると、メモリの制限のため、Ledgerの台帳が大口取引に対応できない（自動ルーティングなど:複数のプールにまたがって同時に取引する）。 起動後,Ledgerをサポートする台帳は、トランザクションを次のように制限します。最もシンプルな形で（価格向上に寄与しない）。そのため、それなりの規模のコントラクトを結ぶことが可能です。',
   start: 'スタート',
   aprTip: '全リワード製品（未着手・進行中）を対象とした指標値です。',
   half: '半分',
@@ -528,5 +538,19 @@ const zh_CN = {
   to_recover_them: '修復',
   ref_account_tip_3:
     'REFアカウントからトークンを引き出し、自分のNEARウォレットへ送金',
+  cumulative_ref_buyback: 'Cumulative REF Buyback',
+  yearly_revenue_booster: 'Yearly Revenue Booster',
+  buy: '買う',
+  sell: '卖',
+  buy_nsn: '買う USN',
+  buy_nsn_tip:
+    'USNは、NEARエコノミーに支えられたネイティブのステーブルコインです',
+  usn_tip_one: 'USNを使用すると、REFで取引できます。 必ず ',
+  rate: 'レート',
+  trading_fee: '取引手数料',
+  usn_successful_click_to_view: '取引は成功しました。 クリックして表示',
+  awesomeNear_verified_token: 'AwesomeNear検証済みトークン',
+  usn_fee_tip:
+    'Refによって請求されるゼロ料金、ユーザーはUSN料金のみを支払います!',
 };
-export default Object.assign(zh_CN, zh_CN_in_risks_page);
+export default Object.assign(ja, ja_in_risks_page);

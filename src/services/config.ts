@@ -57,7 +57,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.near.org',
         helperUrl: 'https://helper.mainnet.near.org',
-        explorerUrl: 'https://explorer.mainnet.near.org',
+        explorerUrl: 'https://nearblocks.io',
         indexerUrl: 'https://indexer.ref-finance.net',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
@@ -75,6 +75,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
         STABLE_POOL_ID: process.env.STABLE_POOL_ID || 1910,
+        STABLE_POOL_IDS: process.env.STABLE_POOL_IDS || ['1910', '3020'],
         STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 3020,
         STABLE_TOKEN_USN_IDS: [
           'usn',
@@ -94,8 +95,11 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 1,
           '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near': 2,
         },
+        USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '242,633.0475',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
+        CUMULATIVE_REF_BUYBACK:
+          process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
       };
     case 'development':
     case 'testnet':
@@ -104,8 +108,8 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.testnet.near.org',
         helperUrl: 'https://helper.testnet.near.org',
-        explorerUrl: 'https://explorer.testnet.near.org',
-        indexerUrl: 'https://testnet-indexer.ref-finance.com',
+        explorerUrl: 'https://testnet.nearblocks.io',
+        indexerUrl: 'https://dev-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
@@ -122,8 +126,10 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 60,
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
-        STABLE_POOL_ID: process.env.STABLE_POOL_ID || 218,
-        STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 356,
+        STABLE_POOL_ID: process.env.STABLE_POOL_ID || 79,
+        STABLE_POOL_IDS: process.env.STABLE_POOL_IDS || ['79', '603'],
+        USN_ID: 'usdn.testnet',
+        STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 603,
         STABLE_TOKEN_IDS: [
           'usdt.fakes.testnet',
           'usdc.fakes.testnet',
@@ -140,7 +146,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'dai.fakes.testnet': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '242,633.0475',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
+        CUMULATIVE_REF_BUYBACK:
+          process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
       };
     default:
       return {
@@ -148,7 +156,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.near.org',
         helperUrl: 'https://helper.mainnet.near.org',
-        explorerUrl: 'https://explorer.mainnet.near.org',
+        explorerUrl: 'https://nearblocks.io',
         indexerUrl: 'https://indexer.ref-finance.net',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
@@ -175,6 +183,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 1,
         },
         STABLE_POOL_ID: process.env.STABLE_POOL_ID || 1910,
+        STABLE_POOL_IDS: process.env.STABLE_POOL_IDS || ['1910', '3020'],
         STABLE_TOKEN_IDS: [
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
@@ -185,8 +194,11 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 1,
           '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near': 2,
         },
+        USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '242,633.0475',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
+        CUMULATIVE_REF_BUYBACK:
+          process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
       };
   }
 }

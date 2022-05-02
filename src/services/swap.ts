@@ -453,8 +453,6 @@ export async function getHybridStableSmart(
         inputToken: USDTMeta.id,
       };
 
-      console.log(estimate1, estimate2);
-
       return { actions: [estimate1, estimate2], estimate: estimate2.estimate };
     } else if (
       tokenOut.id === STABLE_TOKEN_USN_IDS[0] &&
@@ -500,7 +498,6 @@ export async function getHybridStableSmart(
         stablePoolInfo: isUSN ? stablePoolInfoUSN : stablePoolInfo,
         stablePool: isUSN ? stablePoolUSN : stablePool,
       });
-      console.log('STABLE ONLY RESULT IS...', stableOnlyResult);
 
       return {
         actions: [
@@ -524,8 +521,6 @@ export async function getHybridStableSmart(
   if (isStableToken(tokenIn.id)) {
     // first hop will be through stable pool.
     var pools1 = [isUSN ? stablePoolUSN : stablePool];
-
-    console.log('dot');
 
     const otherStables = isUSN
       ? STABLE_TOKEN_USN_IDS.slice(1)
@@ -772,8 +767,6 @@ SwapOptions) => {
   const isSmartRouteV1Swap = swapsToDo.every(
     (estimate) => estimate.status === PoolMode.SMART
   );
-
-  console.log(swapsToDo);
 
   if (wallet.isSignedIn()) {
     if (isParallelSwap) {

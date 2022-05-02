@@ -24,6 +24,8 @@ import {
   UkIcon,
   RuIcon,
   JaIcon,
+  KoIcon,
+  IconRisk,
 } from '~components/icon/Nav';
 import { XrefIcon } from '~components/icon/Xref';
 
@@ -39,7 +41,15 @@ export type MenuItem = {
 };
 export const useMenuItems = () => {
   const intl = useIntl();
+
   const menuData: any[] = [
+    {
+      label: <FormattedMessage id="Risks" defaultMessage="Risks" />,
+      url: '/risks',
+      isExternal: false,
+      id: 0,
+      logo: <IconRisk />,
+    },
     {
       label: <FormattedMessage id="airdrop" defaultMessage="Airdrop" />,
       url: '/airdrop',
@@ -158,6 +168,14 @@ export const useMenuItems = () => {
           url: '',
           id: 16,
           logo: <JaIcon />,
+        },
+        {
+          label: '한국어',
+          isExternal: false,
+          language: 'ko',
+          url: '',
+          id: 17,
+          logo: <KoIcon />,
         },
       ],
     },

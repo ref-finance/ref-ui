@@ -44,7 +44,7 @@ export const swapToast = (txHash: string) => {
   toast(
     <a
       className="text-white w-full h-full pl-1.5"
-      href={`${getConfig().explorerUrl}/transactions/${txHash}`}
+      href={`${getConfig().explorerUrl}/txns/${txHash}`}
       target="_blank"
       style={{
         lineHeight: '48px',
@@ -77,7 +77,7 @@ export const failToast = (txHash: string, errorType?: string) => {
   toast(
     <a
       className="text-error w-full h-full pl-1.5 py-1"
-      href={`${getConfig().explorerUrl}/transactions/${txHash}`}
+      href={`${getConfig().explorerUrl}/txns/${txHash}`}
       target="_blank"
       style={{
         lineHeight: '20px',
@@ -143,6 +143,39 @@ export const checkAccountTip = () => {
         margin: 'auto',
         marginTop: isMobile() ? '20px' : 'none',
         width: isMobile() ? '320px' : 'none',
+      },
+    }
+  );
+};
+
+export const usnBuyAndSellToast = (txHash: string) => {
+  toast(
+    <a
+      className="text-white w-full h-full pl-1.5"
+      href={`${getConfig().explorerUrl}/txns/${txHash}`}
+      target="_blank"
+      style={{
+        lineHeight: '48px',
+      }}
+    >
+      <FormattedMessage
+        id="usn_successful_click_to_view"
+        defaultMessage="Swap successful. Click to view"
+      />
+    </a>,
+    {
+      autoClose: 8000,
+      closeOnClick: true,
+      hideProgressBar: false,
+      closeButton: <CloseIcon />,
+      progressStyle: {
+        background: '#00FFD1',
+        borderRadius: '8px',
+      },
+      style: {
+        background: '#1D2932',
+        boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
+        borderRadius: '8px',
       },
     }
   );

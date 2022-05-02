@@ -27,6 +27,7 @@ import getConfig from '../services/config';
 import { getCurrentWallet } from '../utils/sender-wallet';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
+const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
 
 export const LP_TOKEN_DECIMALS = 24;
 export const LP_STABLE_TOKEN_DECIMALS = 18;
@@ -75,10 +76,9 @@ export const stake = async ({
           args: {
             receiver_id: REF_FARM_CONTRACT_ID,
             token_id: token_id,
-            amount:
-              STABLE_POOL_ID == poolId
-                ? toNonDivisibleNumber(LP_STABLE_TOKEN_DECIMALS, amount)
-                : toNonDivisibleNumber(LP_TOKEN_DECIMALS, amount),
+            amount: new Set(STABLE_POOL_IDS || []).has(poolId?.toString())
+              ? toNonDivisibleNumber(LP_STABLE_TOKEN_DECIMALS, amount)
+              : toNonDivisibleNumber(LP_TOKEN_DECIMALS, amount),
             msg,
           },
           amount: ONE_YOCTO_NEAR,
@@ -119,10 +119,9 @@ export const unstake = async ({
           methodName: 'withdraw_seed',
           args: {
             seed_id: seed_id,
-            amount:
-              STABLE_POOL_ID == poolId
-                ? toNonDivisibleNumber(LP_STABLE_TOKEN_DECIMALS, amount)
-                : toNonDivisibleNumber(LP_TOKEN_DECIMALS, amount),
+            amount: new Set(STABLE_POOL_IDS || []).has(poolId?.toString())
+              ? toNonDivisibleNumber(LP_STABLE_TOKEN_DECIMALS, amount)
+              : toNonDivisibleNumber(LP_TOKEN_DECIMALS, amount),
             msg,
           },
           amount: ONE_YOCTO_NEAR,
@@ -225,7 +224,7 @@ export const withdrawAllReward = async (
   });
   const resolvedBalanceList = await Promise.all(ftBalancePromiseList);
   resolvedBalanceList.forEach((ftBalance, index) => {
-    if (!ftBalance || ftBalance.total === '0') {
+    if (!ftBalance) {
       transactions.unshift({
         receiverId: token_id_list[index],
         functionCalls: [

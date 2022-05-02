@@ -182,8 +182,8 @@ const vi = {
   wrapnear: 'Wrap NEAR',
   wrapnear_tip_one:
     'Wrapping NEAR cho phép bạn giao dịch trên REF. Hãy chắc chắn là ',
-  wrapnear_tip_two: 'để lại 1 NEAR',
-  wrapnear_tip_three: ' làm gas fee để unwrap NEAR.',
+  wrapnear_tip_two: 'để lại 0.5 NEAR',
+  wrapnear_tip_three: ' làm gas fee.',
   wrap_error_msg: 'Tài khoản không đủ',
   sign_out: 'Đăng xuất',
   view_account: 'Theo dõi tài khoản',
@@ -264,7 +264,7 @@ const vi = {
   slippageCopyForMobile:
     'Độ trượt giá có nghĩa là sự thay đổi giữa số lượng token bạn nhìn trên màn hình với tỉ giá bạn nhận được do có người thực hiện giao dịch trước',
   slippageCopy:
-    'Độ trượt giá có nghĩa là sự thay đổi  <br> giữa số lượng token bạn nhìn trên màn hình  <br> với tỉ giá bạn nhận được do có người thực hiện giao dịch trước',
+    'Độ trượt giá có nghĩa là sự thay đổi giữa số lượng token bạn nhìn trên màn hình với tỉ giá bạn nhận được do có người thực hiện giao dịch trước',
   depositCopy:
     'Giao dịch này giúp nạp tài sản của bạn <br> vào trong Ref Finance để thực hiện giao dịch hoặc thêm thanh khoản',
   nearDepositCopy:
@@ -404,7 +404,7 @@ const vi = {
   shares_removed: 'Shares',
   shares_avaliable: 'Shares khả dụng',
   minimum_shares: 'Số shares tối thiểu (nhận được)',
-  shares_tip: 'Số shares khả dụng/ Số share bạn sở hữu hoàn toàn',
+  shares_tip: 'Cổ phần có sẵn / Tổng số cổ phần',
   stablecoin_only: 'Chỉ Stablecoin',
   more_than: 'Hãy nhập vào số lớn hơn hoặc bằng 0,01',
   less_than: 'Hãy nhập vào số nhỏ hơn 20',
@@ -516,7 +516,7 @@ const vi = {
   support_ledger: 'ủng hộ Ledger',
   initialize_account_tip: 'Vui lòng khởi tạo tài khoản của bạn.',
   support_ledger_tip:
-    "Ở bản thiết kế ban đầu, Ledger<br /> không thể thực hiện số lượng lớn<br /> giao dịch cùng lúc(i.e. Auto Router:<br /> trao đổi qua nhiều pool trong một lần) <br />bởi vì sự giới hạn về bộ nhớ. Khi được<br /> kích hoạt, tuỳ chọn 'Support Ledger'<br /> sẽ giới hạn các giao dịch <br />tới sự đơn giản nhất (dù không có được <br />giá thành tốt nhất), nên các giao <br />dịch của có khối lượng hợp lí mới có thể<br /> được thực hiện",
+    "Ở bản thiết kế ban đầu, Ledger không thể thực hiện số lượng lớn giao dịch cùng lúc(i.e. Auto Router: trao đổi qua nhiều pool trong một lần) bởi vì sự giới hạn về bộ nhớ. Khi được kích hoạt, tuỳ chọn 'Support Ledger' sẽ giới hạn các giao dịch tới sự đơn giản nhất (dù không có được giá thành tốt nhất), nên các giao dịch của có khối lượng hợp lí mới có thể được thực hiện",
   start: 'bắt đầu',
   aprTip: 'Giá trị được tính dựa trên tổng phần thưởng hiện có (chưa/đã nhận)',
   half: 'Half',
@@ -529,5 +529,25 @@ const vi = {
   to_recover_them: 'để khôi phục chúng',
   ref_account_tip_3:
     'Để rút token từ Tài khoản REF của bạn vào Ví GẦN của bạn, vui lòng chọn và rút tiền',
+  admin_sentence_1:
+    'Ref Finance được quản lí bởi  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
+    '>Ref Finance Sputnik DAO</label> và dần dần sẽ chuyển đổi thành một DAO phi tập chung toàn phần.',
+  admin_sentence_2:
+    'Để biết thêm thông tin liên quan đến các hợp đồng và địa chỉ đã trực tiếp quản lý hoặc hiện đang quản lý các công việc của Ref Finance, vui lòng kiểm tra <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/contracts')" +
+    '>Tài liệu</label> của chúng tôi.',
+  cumulative_ref_buyback: 'Cumulative REF Buyback',
+  yearly_revenue_booster: 'Yearly Revenue Booster',
+  buy: 'Mua',
+  sell: 'Bán',
+  buy_nsn: 'Mua USN',
+  buy_nsn_tip: 'USN là một stablecoin được hỗ trợ bởi hệ sinh thái NEAR. ',
+  usn_tip_one: 'USN cho phép bạn giao dịch trên REF. Hãy chắc chắn rằng ',
+  rate: 'tỉ lệ',
+  trading_fee: 'Phí giao dịch',
+  usn_successful_click_to_view: 'Giao dịch thành công. Nhấn để xem',
+  awesomeNear_verified_token: 'token được xác nhận bởi AwesomeNear',
+  usn_fee_tip: 'Không tính phí theo Ref, người dùng chỉ phải trả phí USN!',
 };
 export default Object.assign(vi, vi_in_risks_page);
