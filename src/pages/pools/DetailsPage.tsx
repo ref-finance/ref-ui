@@ -1344,9 +1344,8 @@ export function PoolDetailsPage() {
     });
   }, []);
 
-  if (BLACKLIST_POOL_IDS.includes(pool.id.toString())) history.push('/');
-
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
+  if (BLACKLIST_POOL_IDS.includes(pool.id.toString())) history.push('/');
   if (isStablePool(pool.id)) {
     history.push(`/sauce/${pool.id}`);
   }
