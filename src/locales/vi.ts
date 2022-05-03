@@ -558,5 +558,8 @@ const vi = {
   usn_successful_click_to_view: 'Giao dịch thành công. Nhấn để xem',
   awesomeNear_verified_token: 'token được xác nhận bởi AwesomeNear',
   usn_fee_tip: 'Không tính phí theo Ref, người dùng chỉ phải trả phí USN!',
+  name: 'Tên',
+  diff: 'Khác biệt',
+  best: 'Tốt nhất',
 };
 export default Object.assign(vi, vi_in_risks_page);

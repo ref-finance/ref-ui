@@ -22,9 +22,9 @@ import { ArrowDownWhite } from '../icon/Arrows';
 import { RefSwapPro } from '../icon/CrossSwapIcons';
 import _, { result } from 'lodash';
 //@ts-ignore
-import { getExpectedOutputFromActions } from '../../services/smartRouteLogic';
+import { getExpectedOutputFromActionsORIG } from '../../services/smartRouteLogic';
 import { RefIcon, TriIcon } from '../icon/DexIcon';
-import { percentLess } from '../../utils/numbers';
+import { percentLess, separateRoutes } from '../../utils/numbers';
 import Big from 'big.js';
 
 export const RouterIcon = () => {
@@ -394,23 +394,29 @@ export const CrossSwapRoute = ({
 };
 
 export const CrossSwapAllResult = ({
-  crossTodos,
   refTodos,
   triTodos,
   tokenInAmount,
   tokenOutId,
   slippageTolerance,
   tokenOut,
+  tokenOutAmount,
+  show,
 }: {
-  crossTodos: EstimateSwapView[];
   refTodos: EstimateSwapView[];
   triTodos: EstimateSwapView[];
   tokenInAmount: string;
   tokenOutId: string;
   slippageTolerance: number;
   tokenOut: TokenMetadata;
+  tokenOutAmount: string;
+  show: boolean;
 }) => {
-  const [expectedOuts, setExpectedOuts] = useState<(string | null)[]>();
+  // const [expectedOuts, setExpectedOuts] = useState<(string | null)[]>();
+
+  if (!show) return null;
+
+  const results = [refTodos, triTodos];
 
   const [showAllResult, setShowAllResult] = useState<boolean>(true);
 
@@ -433,7 +439,7 @@ export const CrossSwapAllResult = ({
           {rate}
         </div>
 
-        <span className="w-14 text-right justify-self-end">{Diff}</span>
+        <span className=" text-right justify-self-end">{Diff}</span>
       </div>
     );
   };
@@ -449,50 +455,20 @@ export const CrossSwapAllResult = ({
     );
   };
 
-  // return null;
-
-  const results = useMemo(() => {
-    if (!crossTodos || !refTodos || !triTodos) return null;
-    return [crossTodos, refTodos, triTodos];
-  }, [crossTodos, refTodos, triTodos]);
-
-  useEffect(() => {
-    if (!results || results?.length === 0) return;
-    Promise.all(
-      results.map((result) => {
-        return getExpectedOutputFromActions(
-          result,
-          tokenOutId,
-          slippageTolerance
-        );
-      })
-    ).then((res) => {
-      setExpectedOuts(res.map((r) => r.toString()));
-    });
-  }, [results, slippageTolerance]);
-
-  if (
-    !results ||
-    results?.length === 0 ||
-    results.every((r) => !r) ||
-    !expectedOuts ||
-    expectedOuts.length === 0
-  )
-    return null;
-
   // const receives = expectedOuts.map((receive) => toPrecision(receive, 6));
-  const receives = expectedOuts;
-
-  console.log(receives.map((r) => percentLess(slippageTolerance, r)));
+  const receives = results.map((result) => {
+    if (result.every((r) => r.pool?.Dex === 'tri')) {
+      return result[result.length - 1].estimate;
+    } else {
+      return getExpectedOutputFromActionsORIG(result, tokenOut.id).toString();
+    }
+  });
 
   const bestReceived = _.maxBy(receives, (o) => Number(o));
 
   const diffs = receives.map((r) => {
     if (r === bestReceived) {
       return '0';
-    }
-    if (r === null) {
-      return null;
     }
     return percent(
       new Big(bestReceived).minus(new Big(r)).toString(),
@@ -501,14 +477,13 @@ export const CrossSwapAllResult = ({
   });
 
   const Icons = [
-    <TodoType Icon={<RefSwapPro />} title="Ref Swap Pro" />,
+    // <TodoType Icon={<RefSwapPro />} title="Ref Swap Pro" />,
     <TodoType Icon={<RefIcon lightTrigger={true} />} title="Ref Normal Swap" />,
     <TodoType Icon={<TriIcon lightTrigger={true} />} title="Trisolaris" />,
   ];
 
   const displayResults = results
-    ?.map((result, i) => {
-      if (!result || result?.length === 0) return null;
+    .map((result, i) => {
       return {
         type: Icons[i],
         rate: percentLess(slippageTolerance, receives[i]),

@@ -520,5 +520,8 @@ const zh_CN = {
   usn_successful_click_to_view: '交易成功，点击查看详情',
   awesomeNear_verified_token: 'AwesomeNear 已认证代币',
   usn_fee_tip: 'Ref收取零费用，用户只需支付USN费用!',
+  name: '名字',
+  diff: '差距',
+  best: '最好',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

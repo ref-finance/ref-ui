@@ -39,6 +39,7 @@ interface SwapFormWrapProps {
   swapMode?: SWAP_MODE;
   supportLedger?: boolean;
   setSupportLedger?: (e?: any) => void;
+  showAllResults?: boolean;
 }
 
 export default function SwapFormWrap({
@@ -186,6 +187,7 @@ export function CrossSwapFormWrap({
   crossSwap,
   showElseView,
   elseView,
+  showAllResults,
   onChange,
   bindUseBalance,
   loading,
@@ -233,7 +235,9 @@ export function CrossSwapFormWrap({
 
   return (
     <form
-      className="overflow-visible relative bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg"
+      className={`overflow-visible relative bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg  ${
+        showAllResults && requested ? 'pb-14' : ''
+      }`}
       onSubmit={handleSubmit}
     >
       {!requestingTrigger ? null : (

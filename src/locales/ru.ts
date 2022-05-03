@@ -549,5 +549,8 @@ const ru = {
   awesomeNear_verified_token: 'AwesomeNear верифицированный токен',
   usn_fee_tip:
     'Нулевая комиссия, взимаемая Ref, пользователи платят только комиссию USN!',
+  name: 'Имя',
+  diff: 'Диф',
+  best: 'Лучший',
 };
 export default Object.assign(ru, ru_in_risks_page);

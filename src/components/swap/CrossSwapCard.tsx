@@ -500,6 +500,8 @@ export default function CrossSwapCard(props: {
 
   let PriceImpactValue: string = '0';
 
+  console.log(swapsToDoRef, swapsToDoTri);
+
   try {
     if (
       swapsToDo[0].status === PoolMode.SMART ||
@@ -542,6 +544,12 @@ export default function CrossSwapCard(props: {
     if (ifDoubleCheck) setDoubleCheckOpen(true);
     else makeSwap(useNearBalance);
   };
+
+  const showAllResults =
+    swapsToDoRef &&
+    swapsToDoRef.length > 0 &&
+    swapsToDoTri &&
+    swapsToDoTri.length > 0;
 
   return (
     <>
@@ -608,6 +616,7 @@ export default function CrossSwapCard(props: {
         onSubmit={handleSubmit}
         info={intl.formatMessage({ id: 'swapCopy' })}
         title={requested ? 'Confirm' : 'Request_for_Quote'}
+        showAllResults={showAllResults}
       >
         <TokenCardIn
           tokenIn={tokenIn}
@@ -713,17 +722,19 @@ export default function CrossSwapCard(props: {
         onSwap={() => makeSwap(useNearBalance)}
         priceImpactValue={PriceImpactValue}
       />
-      {/* {!requested || swapError ? null : (
+      {!requested || swapError ? null : (
         <CrossSwapAllResult
           refTodos={swapsToDoRef}
           triTodos={swapsToDoTri}
-          crossTodos={swapsToDo}
+          // crossTodos={swapsToDo}
           tokenInAmount={tokenInAmount}
           tokenOutId={tokenOut?.id}
           slippageTolerance={slippageTolerance}
           tokenOut={tokenOut}
+          tokenOutAmount={tokenOutAmount}
+          show={showAllResults}
         />
-      )} */}
+      )}
     </>
   );
 }

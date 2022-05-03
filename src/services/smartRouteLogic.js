@@ -2643,12 +2643,12 @@ export async function stableSmart(
 //   }
 // }
 
-// function getExpectedOutputFromActionsORIG(actions, outputToken) {
-//   return actions
-//     .filter((item) => item.token_out === outputToken)
-//     .map((item) => new Big(item.min_amount_out))
-//     .reduce((a, b) => a.plus(b), new Big(0));
-// }
+export function getExpectedOutputFromActionsORIG(actions, outputToken) {
+  return actions
+    .filter((item) => item.outputToken === outputToken)
+    .map((item) => new Big(item.estimate))
+    .reduce((a, b) => a.plus(b), new Big(0));
+}
 
 export async function getExpectedOutputFromActions(
   actions,

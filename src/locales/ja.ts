@@ -561,5 +561,8 @@ const ja = {
   awesomeNear_verified_token: 'AwesomeNear検証済みトークン',
   usn_fee_tip:
     'Refによって請求されるゼロ料金、ユーザーはUSN料金のみを支払います!',
+  name: '名前',
+  diff: '差分',
+  best: '一番',
 };
 export default Object.assign(ja, ja_in_risks_page);

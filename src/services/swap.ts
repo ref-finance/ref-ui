@@ -102,6 +102,8 @@ interface EstimateSwapOptions {
   swapMode?: SWAP_MODE;
   supportLedger?: boolean;
   swapPro?: boolean;
+  setSwapsToDoTri?: (todos: EstimateSwapView[]) => void;
+  setSwapsToDoRef?: (todos: EstimateSwapView[]) => void;
 }
 
 export interface ReservesMap {
@@ -262,6 +264,8 @@ export const estimateSwap = async ({
   swapMode,
   supportLedger,
   swapPro,
+  setSwapsToDoRef,
+  setSwapsToDoTri,
 }: EstimateSwapOptions): Promise<EstimateSwapView[]> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
 
@@ -322,11 +326,20 @@ export const estimateSwap = async ({
   }
 
   let supportLedgerRes;
-  console.log('dot');
 
+  /**
+   * for swap pro, we need to calculate the result on tri pool
+   * to do price comparison on tri result and ref result
+   *
+   */
+
+  let triTodos;
+
+  /**s
+   *  single swap action estimate for support ledger and swap pro mode
+   *
+   */
   if (supportLedger || swapPro) {
-    console.log('dot');
-
     if (swapMode === SWAP_MODE.STABLE) {
       pools = pools.filter((p) => isStablePool(p.id));
     }
@@ -387,6 +400,43 @@ export const estimateSwap = async ({
 
       supportLedgerRes = res;
     }
+
+    // get result on tri pools but just one swap action
+    if (swapPro) {
+      // find tri pool for this pair
+      const triPoolThisPair = pools.find(
+        (p) =>
+          p.Dex === 'tri' &&
+          p.tokenIds &&
+          p.tokenIds.includes(tokenIn.id) &&
+          p.tokenIds.includes(tokenOut.id)
+      );
+      if (triPoolThisPair) {
+        const triPoolEstimateRes = getSinglePoolEstimate(
+          tokenIn,
+          tokenOut,
+          triPoolThisPair,
+          parsedAmountIn
+        );
+
+        triTodos = [
+          {
+            ...triPoolEstimateRes,
+            status: PoolMode.PARALLEL,
+            routeInputToken: tokenIn.id,
+            totalInputAmount: parsedAmountIn,
+            pool: {
+              ...triPoolThisPair,
+              partialAmountIn: parsedAmountIn,
+            },
+            tokens: [tokenIn, tokenOut],
+            inputToken: tokenIn.id,
+            totalInput: parsedAmountIn,
+            outputToken: tokenOut.id,
+          },
+        ];
+      }
+    }
   }
 
   if (supportLedger) {
@@ -443,6 +493,10 @@ export const estimateSwap = async ({
 
   if (swapPro) {
     if (!supportLedgerRes && !res.length) throwNoPoolError();
+
+    // if not both none, we could return res
+    setSwapsToDoRef(res);
+    setSwapsToDoTri(triTodos);
 
     const refSmartRes = await getExpectedOutputFromActions(res, tokenOut.id, 0);
     const triRes = await getExpectedOutputFromActions(
@@ -878,7 +932,6 @@ SwapOptions) => {
 
   if (wallet.isSignedIn()) {
     if (isParallelSwap) {
-      debugger;
       const swapActions = swapsToDo.map((s2d) => {
         let minTokenOutAmount = s2d.estimate
           ? percentLess(slippageTolerance, s2d.estimate)

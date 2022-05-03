@@ -537,5 +537,8 @@ const uk_UA = {
   awesomeNear_verified_token: 'Перевірений маркер AwesomeNear',
   usn_fee_tip:
     'Ref стягує нульову комісію, користувачі сплачують лише комісію USN!',
+  name: "Ім'я",
+  diff: 'Дифs',
+  best: 'Найкращий',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);
