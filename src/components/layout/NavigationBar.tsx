@@ -476,6 +476,7 @@ export function AuroraEntry({
               to={{
                 pathname: '/account?tab=aurora',
               }}
+              onClick={(e) => e.stopPropagation()}
               target="_blank"
               className={`w-full px-3 py-1 text-xs bg-auroraGreen text-chartBg flex items-center justify-center cursor-pointer ${
                 hasBalanceOnAurora ? 'block' : 'hidden'
