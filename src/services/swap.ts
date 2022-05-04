@@ -335,6 +335,8 @@ export const estimateSwap = async ({
 
   let triTodos;
 
+  let refTodos;
+
   /**s
    *  single swap action estimate for support ledger and swap pro mode
    *
@@ -434,12 +436,62 @@ export const estimateSwap = async ({
           },
         ];
       }
+
+      const refPools = pools.filter((p) => p.Dex !== 'tri');
+
+      const refPoolThisPair =
+        refPools.length === 1
+          ? refPools[0]
+          : _.maxBy(refPools, (p) => {
+              if (isStablePool(p.id)) {
+                return Number(
+                  getStablePoolEstimate({
+                    tokenIn,
+                    tokenOut,
+                    amountIn,
+                    stablePoolInfo: isUSN ? stablePoolInfoUSN : stablePoolInfo,
+                    stablePool: isUSN ? stablePoolUSN : stablePool,
+                  }).estimate
+                );
+              } else
+                return Number(
+                  getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn)
+                    .estimate
+                );
+            });
+
+      if (refPoolThisPair) {
+        const refPoolEstimateRes = getSinglePoolEstimate(
+          tokenIn,
+          tokenOut,
+          refPoolThisPair,
+          parsedAmountIn
+        );
+        refTodos = [
+          {
+            ...refPoolEstimateRes,
+            status: PoolMode.PARALLEL,
+            routeInputToken: tokenIn.id,
+            totalInputAmount: parsedAmountIn,
+            pool: {
+              ...refPoolThisPair,
+              partialAmountIn: parsedAmountIn,
+            },
+            tokens: [tokenIn, tokenOut],
+            inputToken: tokenIn.id,
+            outputToken: tokenOut.id,
+          },
+        ];
+      }
     }
   }
 
   if (supportLedger) {
-    setSwapsToDoRef && setSwapsToDoRef(supportLedgerRes);
-    setSwapsToDoTri && setSwapsToDoTri(triTodos);
+    if (swapPro) {
+      setSwapsToDoRef(refTodos);
+      setSwapsToDoTri(triTodos);
+    }
+
     return supportLedgerRes;
   }
 
