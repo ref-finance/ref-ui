@@ -438,8 +438,8 @@ export const estimateSwap = async ({
   }
 
   if (supportLedger) {
-    setSwapsToDoRef(supportLedgerRes);
-    setSwapsToDoTri(triTodos);
+    setSwapsToDoRef && setSwapsToDoRef(supportLedgerRes);
+    setSwapsToDoTri && setSwapsToDoTri(triTodos);
     return supportLedgerRes;
   }
 
