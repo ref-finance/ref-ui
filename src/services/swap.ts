@@ -333,7 +333,7 @@ export const estimateSwap = async ({
     return getLiquidity(p, tokenIn, tokenOut) > 0;
   });
 
-  let { supportLedgerRes, triTodos } = await getOneSwapActionResult(
+  let { supportLedgerRes, triTodos, refTodos } = await getOneSwapActionResult(
     swapPro,
     pools,
     loadingTrigger,
@@ -348,7 +348,7 @@ export const estimateSwap = async ({
 
   if (supportLedger) {
     if (swapPro) {
-      setSwapsToDoRef(supportLedgerRes);
+      setSwapsToDoRef(refTodos);
       setSwapsToDoTri(triTodos);
     }
 
@@ -450,6 +450,7 @@ export const getOneSwapActionResult = async (
    */
 
   let triTodos;
+  let refTodos;
 
   /**s
    *  single swap action estimate for support ledger and swap pro mode
@@ -537,6 +538,42 @@ export const getOneSwapActionResult = async (
             outputToken: tokenOut.id,
           },
         ];
+        const refPools = pools.filter((p) => p.Dex !== 'tri');
+
+        const refPoolThisPair =
+          refPools.length === 1
+            ? refPools[0]
+            : _.maxBy(refPools, (p) => {
+                return Number(
+                  getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn)
+                    .estimate
+                );
+              });
+
+        if (refPoolThisPair) {
+          const refPoolEstimateRes = await getPoolEstimate({
+            tokenIn,
+            tokenOut,
+            amountIn,
+            Pool: refPoolThisPair,
+          });
+
+          refTodos = [
+            {
+              ...refPoolEstimateRes,
+              status: PoolMode.PARALLEL,
+              routeInputToken: tokenIn.id,
+              totalInputAmount: parsedAmountIn,
+              pool: {
+                ...refPoolThisPair,
+                partialAmountIn: parsedAmountIn,
+              },
+              tokens: [tokenIn, tokenOut],
+              inputToken: tokenIn.id,
+              outputToken: tokenOut.id,
+            },
+          ];
+        }
       }
     }
   }
@@ -544,6 +581,7 @@ export const getOneSwapActionResult = async (
   return {
     supportLedgerRes,
     triTodos,
+    refTodos,
   };
 };
 
