@@ -324,10 +324,7 @@ export const getPoolsByTokens = async ({
 
     console.log('aurora pools', triPools);
 
-    filtered_pools = pools
-      .concat(triPools || [])
-      .filter(isNotStablePool)
-      .filter(filterBlackListPools);
+    filtered_pools = pools.concat(triPools || []).filter(isNotStablePool);
 
     await db.cachePoolsByTokens(filtered_pools);
     filtered_pools = filtered_pools.filter(
