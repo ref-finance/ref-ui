@@ -461,12 +461,20 @@ export const estimateSwap = async ({
             });
 
       if (refPoolThisPair) {
-        const refPoolEstimateRes = getSinglePoolEstimate(
-          tokenIn,
-          tokenOut,
-          refPoolThisPair,
-          parsedAmountIn
-        );
+        const refPoolEstimateRes = isStablePool(refPoolThisPair.id)
+          ? getStablePoolEstimate({
+              tokenIn,
+              tokenOut,
+              amountIn,
+              stablePoolInfo: isUSN ? stablePoolInfoUSN : stablePoolInfo,
+              stablePool: isUSN ? stablePoolUSN : stablePool,
+            })
+          : getSinglePoolEstimate(
+              tokenIn,
+              tokenOut,
+              refPoolThisPair,
+              parsedAmountIn
+            );
         refTodos = [
           {
             ...refPoolEstimateRes,
