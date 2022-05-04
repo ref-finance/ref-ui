@@ -355,6 +355,7 @@ export const estimateSwap = async ({
     return supportLedgerRes;
   }
 
+  // ref smart routing
   const orpools = await getRefPoolsByToken1ORToken2(tokenIn.id, tokenOut.id);
 
   let stableSmartActionsV2 = await stableSmart(
@@ -372,6 +373,7 @@ export const estimateSwap = async ({
     .reduce((a: any, b: any) => a.plus(b), new Big(0))
     .toString();
 
+  // hybrid smart routing
   if (isStableToken(tokenIn.id) || isStableToken(tokenOut.id)) {
     let hybridStableSmart = await getHybridStableSmart(
       tokenIn,
@@ -788,13 +790,15 @@ export async function getHybridStableSmart(
       });
 
       return {
-        actions: {
-          ...estimate,
-          status: PoolMode.SMART,
-          tokens: [tokenIn, tokenOut],
-          inputToken: tokenIn.id,
-          outputToken: tokenOut.id,
-        },
+        actions: [
+          {
+            ...estimate,
+            status: PoolMode.SMART,
+            tokens: [tokenIn, tokenOut],
+            inputToken: tokenIn.id,
+            outputToken: tokenOut.id,
+          },
+        ],
         estimate: estimate.estimate,
       };
     }
