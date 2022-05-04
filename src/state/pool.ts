@@ -51,9 +51,14 @@ import {
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
-import { POOL_TOKEN_REFRESH_INTERVAL, STABLE_POOL_ID } from '../services/near';
+import {
+  POOL_TOKEN_REFRESH_INTERVAL,
+  STABLE_POOL_ID,
+  ALL_STABLE_POOL_IDS,
+} from '../services/near';
 import { getCurrentWallet } from '../utils/sender-wallet';
 import getConfig from '../services/config';
+import { getStablePoolFromCache } from '../services/pool';
 const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
   getConfig().STABLE_POOL_ID
 }`;
@@ -533,4 +538,17 @@ export const useStablePool = ({
   }, [count, loadingTrigger, loadingPause]);
 
   return stablePool;
+};
+
+export const useAllStablePools = () => {
+  const [stablePools, setStablePools] = useState<Pool[]>();
+  useEffect(() => {
+    Promise.all(
+      ALL_STABLE_POOL_IDS.map((id) => {
+        return getStablePoolFromCache(id.toString());
+      })
+    ).then((res) => setStablePools(res.map((p) => p[0])));
+  }, []);
+
+  return stablePools;
 };

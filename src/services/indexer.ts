@@ -85,28 +85,8 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
         headers: { 'Content-type': 'application/json; charset=UTF-8' },
       }).then((res) => res.json());
 
-      // await Promise.all(
-      //   BLACKLIST_POOL_IDS.map(async (pool_id) => {
-      //     const blacklistPool = await getPool(pool_id);
-
-      //     const blacklistTokenIn = blacklistPool.token_account_ids[0];
-
-      //     const blacklistTokenOut = blacklistPool.token_account_ids[1];
-
-      //     const twoTokenIds = (
-      //       await db.getPoolsByTokens(blacklistTokenIn, blacklistTokenOut)
-      //     ).map((p) => p.id.toString());
-
-      //     const twoTokenPools = await getPoolsByIds({
-      //       pool_ids: twoTokenIds,
-      //     });
-
-      //     if (twoTokenPools?.length > 0) {
-      //       pools.push(_.maxBy(twoTokenPools, (p) => p.tvl));
-      //     }
-      //   })
-      // );
-
+      // include non-stable pools on top pool list
+      // TODO:
       const twoTokenStablePoolIds = (
         await getPoolsByTokens({
           tokenInId: STABLE_TOKEN_USN_IDS[0],
@@ -127,6 +107,7 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
     }
 
     pools = pools.map((pool: any) => parsePoolView(pool));
+
     return pools.filter(
       (pool: { token_account_ids: string | any[]; id: any }) => {
         return !isStablePool(pool.id) && pool.token_account_ids.length < 3;

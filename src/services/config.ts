@@ -275,10 +275,19 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
         CUSDIDS: [''],
       };
     case 'development':
+    case 'pub-testnet':
+      return {
+        BTCIDS: ['wbtc.fakes.testnet', 'bhtc.fakes.testnet'],
+        BTC_STABLE_POOL_ID: '604',
+        CUSDIDS: ['usdn.testnet', 'cusd.fakes.testnet'],
+        CUSD_STABLE_POOL_ID: '608',
+      };
     case 'testnet':
       return {
         BTCIDS: ['wbtc.fakes.testnet', 'bhtc.fakes.testnet'],
+        BTC_STABLE_POOL_ID: '604',
         CUSDIDS: ['usdn.testnet', 'cusd.fakes.testnet'],
+        CUSD_STABLE_POOL_ID: '608',
       };
     default:
       return {

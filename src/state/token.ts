@@ -140,7 +140,6 @@ export const useRainbowWhitelistTokens = () => {
 
 export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
-
   useEffect(() => {
     getWhitelistedTokens()
       .then((tokenIds) => {

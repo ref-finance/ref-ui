@@ -19,6 +19,8 @@ import {
 } from '../services/near';
 import { Pool, getStablePoolFromCache } from '../services/pool';
 import getConfig from '../services/config';
+import { extraStableTokenIds } from '../services/near';
+import { useAllStablePools } from '../state/pool';
 
 const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -156,12 +158,8 @@ function SwapPage() {
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
 
   const triTokenIds = useTriTokenIdsOnRef();
-  const extraTokens =
-    getConfig().networkId === 'mainnet' ? ['usn'] : ['usdn.testnet'];
 
-  const refTokens = useWhitelistTokens(
-    (triTokenIds || []).concat(['aurora'].concat(extraTokens))
-  );
+  const refTokens = useWhitelistTokens((triTokenIds || []).concat(['aurora']));
 
   const triTokens = useTriTokens();
 
@@ -173,16 +171,7 @@ function SwapPage() {
       SWAP_MODE.NORMAL
   );
 
-  const [stablePools, setStablePools] = useState<Pool[]>();
-
-  useEffect(() => {
-    Promise.all([
-      getStablePoolFromCache(STABLE_POOL_ID.toString()),
-      getStablePoolFromCache(STABLE_POOL_USN_ID.toString()),
-    ]).then((rawPoolInfos) => {
-      setStablePools(rawPoolInfos.map((PInfo) => PInfo[0]));
-    });
-  }, []);
+  const stablePools = useAllStablePools();
 
   if (!refTokens || !triTokens || !triTokenIds || !stablePools)
     return <Loading />;

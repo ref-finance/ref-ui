@@ -1,7 +1,7 @@
 import { Near, keyStores, utils, WalletConnection } from 'near-api-js';
 import { functionCall } from 'near-api-js/lib/transaction';
 import BN from 'bn.js';
-import getConfig from './config';
+import getConfig, { getExtraStablePoolConfig } from './config';
 import SpecialWallet from './SpecialWallet';
 import { getCurrentWallet, senderWallet } from '../utils/sender-wallet';
 import {
@@ -26,8 +26,31 @@ export const STABLE_POOL_USN_ID = config.STABLE_POOL_USN_ID;
 export const STABLE_TOKEN_USN_IDS = config.STABLE_TOKEN_USN_IDS;
 
 export const isStableToken = (id: string) => {
-  return STABLE_TOKEN_IDS.includes(id) || STABLE_TOKEN_USN_IDS.includes(id);
+  return (
+    STABLE_TOKEN_IDS.includes(id) ||
+    STABLE_TOKEN_USN_IDS.includes(id) ||
+    BTCIDS.includes(id) ||
+    CUSDIDS.includes(id)
+  );
 };
+
+export const { BTCIDS, CUSDIDS, BTC_STABLE_POOL_ID, CUSD_STABLE_POOL_ID } =
+  getExtraStablePoolConfig();
+
+export const extraStableTokenIds = BTCIDS.concat(CUSDIDS).filter((_) => !!_);
+
+export const stableTokenIds = new Array(
+  ...new Set(
+    extraStableTokenIds.concat(STABLE_TOKEN_IDS).concat(STABLE_TOKEN_USN_IDS)
+  )
+);
+
+export const ALL_STABLE_POOL_IDS = [
+  STABLE_POOL_ID,
+  STABLE_POOL_USN_ID,
+  BTC_STABLE_POOL_ID,
+  CUSDIDS,
+];
 
 export const BLACKLIST_POOL_IDS = config.BLACKLIST_POOL_IDS;
 
@@ -45,7 +68,7 @@ export const getStableTokenIndex = (stable_pool_id: string | number) => {
 };
 
 export const isStablePool = (id: string | number) => {
-  return Number(id) === STABLE_POOL_ID || Number(id) === STABLE_POOL_USN_ID;
+  return ALL_STABLE_POOL_IDS.includes(id.toString());
 };
 
 export const REF_FARM_CONTRACT_ID = config.REF_FARM_CONTRACT_ID;

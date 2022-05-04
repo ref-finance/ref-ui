@@ -41,7 +41,11 @@ import {
   SolidButton,
   ConnectToNearBtn,
 } from '../../components/button/Button';
-import { STABLE_TOKEN_IDS, wallet } from '../../services/near';
+import {
+  BTC_STABLE_POOL_ID,
+  STABLE_TOKEN_IDS,
+  wallet,
+} from '../../services/near';
 import SwapFormWrap from '../forms/SwapFormWrap';
 import SwapTip from '../../components/forms/SwapTip';
 import { WarnTriangle, ErrorTriangle } from '../../components/icon/SwapRefresh';
@@ -923,13 +927,15 @@ export default function SwapCard(props: {
         onSwap={() => makeSwap(useNearBalance)}
         priceImpactValue={PriceImpactValue}
       />
-      {swapMode === SWAP_MODE.STABLE ? (
+      {/* {swapMode === SWAP_MODE.STABLE ? (
         <TokenReserves
           tokens={allTokens.filter((token) => isStableToken(token.id))}
-          pools={stablePools}
+          pools={stablePools.filter(
+            (p) => Number(p.id) !== Number(BTC_STABLE_POOL_ID)
+          )}
           swapPage
         />
-      ) : null}
+      ) : null} */}
     </>
   );
 }

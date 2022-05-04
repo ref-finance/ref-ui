@@ -213,6 +213,7 @@ export const useSwap = ({
             setCanSwap(false);
             setTokenOutAmount('');
             setSwapError(err);
+            console.error(err);
           }
         })
         .finally(() => setLoadingTrigger(false));
