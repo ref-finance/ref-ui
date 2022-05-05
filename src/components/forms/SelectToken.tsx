@@ -89,10 +89,12 @@ export const StableSelectToken = ({
   onSelect,
   tokens,
   selected,
+  preSelected,
 }: {
   tokens: TokenMetadata[];
   onSelect?: (token: TokenMetadata) => void;
   selected: string | React.ReactElement;
+  preSelected?: TokenMetadata;
 }) => {
   const USDTokenList = new Array(
     ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS))
@@ -100,15 +102,25 @@ export const StableSelectToken = ({
 
   const BTCTokenList = BTCIDS.map((id) => id);
 
-  const stableTokensIdList = USDTokenList.concat(BTCTokenList);
+  // const stableTokensIdList = USDTokenList.concat(BTCTokenList);
 
   const ref = useRef(null);
 
   const [visible, setVisible] = useState(false);
 
-  const stableTokens = stableTokensIdList.map((id) =>
-    tokens.find((token) => token.id === id)
-  );
+  const USDtokens = USDTokenList.map((id) => tokens.find((t) => t.id === id));
+
+  const BTCtokens = BTCTokenList.map((id) => tokens.find((t) => t.id === id));
+
+  const coverUSD =
+    preSelected && BTCtokens.find((token) => token.id === preSelected.id);
+
+  const coverBTC =
+    preSelected && USDtokens.find((token) => token.id === preSelected.id);
+
+  // const stableTokens = stableTokensIdList.map((id) =>
+  //   tokens.find((token) => token.id === id)
+  // );
 
   useEffect(() => {
     if (visible)
@@ -151,44 +163,115 @@ export const StableSelectToken = ({
           left: isMobile() ? '-20px' : '40px',
         }}
       >
-        {stableTokens.map((token) => {
-          return (
-            <div
-              className={`${'hover:bg-black hover:bg-opacity-20'}  rounded-2xl flex items-center justify-between py-2 pl-4 pr-2`}
-              key={token.id}
-              onClick={(e) => {
-                e.nativeEvent.stopImmediatePropagation();
+        <div className={`flex flex-col `}>
+          <div
+            className={`rounded-2xl py-0.5 px-4 mb-1 mt-4 bg-black bg-opacity-20 text-sm text-gradientFrom self-start ${
+              coverUSD ? 'opacity-30' : ''
+            }`}
+            onClick={(e) => {
+              e.nativeEvent.stopImmediatePropagation();
+            }}
+          >
+            USD
+          </div>
+          {USDtokens.map((token) => {
+            return (
+              <div
+                className={`flex items-center justify-between ${
+                  coverUSD
+                    ? 'opacity-30'
+                    : `hover:bg-black hover:bg-opacity-20 cursor-pointer`
+                } py-2 pl-4 pr-2 rounded-2xl `}
+                onClick={(e) => {
+                  e.nativeEvent.stopImmediatePropagation();
+                  if (coverUSD) return;
 
-                setVisible(!visible);
-                onSelect(token);
-              }}
-            >
-              <span className="text-white font-semibold text-sm">
-                {toRealSymbol(token.symbol)}
-              </span>
-              <span>
-                {token.icon ? (
-                  <img
-                    className="rounded-full border border-gradientFromHover"
-                    src={token.icon}
-                    style={{
-                      width: '26px',
-                      height: '26px',
-                    }}
-                  />
-                ) : (
-                  <div
-                    className="rounded-full border border-gradientFromHover"
-                    style={{
-                      width: '26px',
-                      height: '26px',
-                    }}
-                  ></div>
-                )}
-              </span>
-            </div>
-          );
-        })}
+                  setVisible(!visible);
+                  onSelect(token);
+                }}
+              >
+                <span className="text-white font-semibold text-sm">
+                  {toRealSymbol(token.symbol)}
+                </span>
+                <span>
+                  {token.icon ? (
+                    <img
+                      className="rounded-full border border-gradientFromHover"
+                      src={token.icon}
+                      style={{
+                        width: '26px',
+                        height: '26px',
+                      }}
+                    />
+                  ) : (
+                    <div
+                      className="rounded-full border border-gradientFromHover"
+                      style={{
+                        width: '26px',
+                        height: '26px',
+                      }}
+                    ></div>
+                  )}
+                </span>
+              </div>
+            );
+          })}
+          <div
+            className={`rounded-2xl py-0.5 px-4 mb-1 mt-4 bg-black bg-opacity-20 text-sm  self-start
+            ${coverBTC ? 'opacity-30' : ''}
+            `}
+            style={{
+              color: '#F38632',
+            }}
+            onClick={(e) => {
+              e.nativeEvent.stopImmediatePropagation();
+            }}
+          >
+            BTC
+          </div>
+          {BTCtokens.map((token) => {
+            return (
+              <div
+                className={`flex items-center justify-between ${
+                  coverBTC
+                    ? 'opacity-30'
+                    : 'hover:bg-black hover:bg-opacity-20 cursor-pointer'
+                } py-2 pl-4 pr-2 rounded-2xl `}
+                onClick={(e) => {
+                  e.nativeEvent.stopImmediatePropagation();
+                  if (coverBTC) return;
+
+                  setVisible(!visible);
+                  onSelect(token);
+                }}
+              >
+                <span className="text-white font-semibold text-sm">
+                  {toRealSymbol(token.symbol)}
+                </span>
+                <span>
+                  {token.icon ? (
+                    <img
+                      className="rounded-full border border-gradientFromHover"
+                      src={token.icon}
+                      style={{
+                        width: '26px',
+                        height: '26px',
+                      }}
+                    />
+                  ) : (
+                    <div
+                      className="rounded-full border border-gradientFromHover"
+                      style={{
+                        width: '26px',
+                        height: '26px',
+                      }}
+                    ></div>
+                  )}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

@@ -43,6 +43,7 @@ interface TokenAmountProps {
   isError?: boolean;
   tokenPriceList?: Record<string, any>;
   swapMode?: SWAP_MODE;
+  preSelected?: TokenMetadata;
 }
 
 export function HalfAndMaxAmount({
@@ -103,6 +104,7 @@ export default function TokenAmount({
   isError,
   tokenPriceList,
   swapMode,
+  preSelected,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) =>
     toRoundedReadableNumber({
@@ -185,6 +187,7 @@ export default function TokenAmount({
               }
               tokens={tokens}
               onSelect={onSelectToken}
+              preSelected={preSelected}
             />
           ))}
         {!showSelectToken && selectedToken && (

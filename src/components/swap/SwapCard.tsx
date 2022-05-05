@@ -894,6 +894,7 @@ export default function SwapCard(props: {
           }}
           isError={tokenIn?.id === tokenOut?.id}
           tokenPriceList={tokenPriceList}
+          preSelected={tokenIn}
         />
         <DetailView
           pools={pools}
