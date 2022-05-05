@@ -301,6 +301,7 @@ export const PoolName = ({
       style={{
         position: 'relative',
         fontSize: '10px',
+        opacity: '0.5',
         right: `${Number(dex === 'tri' ? 0 : 10) + Number(translate)}px`,
       }}
     >
