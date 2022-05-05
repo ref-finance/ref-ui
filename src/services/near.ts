@@ -49,7 +49,7 @@ export const ALL_STABLE_POOL_IDS = [
   STABLE_POOL_ID,
   STABLE_POOL_USN_ID,
   BTC_STABLE_POOL_ID,
-  CUSDIDS,
+  CUSD_STABLE_POOL_ID,
 ];
 
 export const BLACKLIST_POOL_IDS = config.BLACKLIST_POOL_IDS;
@@ -68,7 +68,7 @@ export const getStableTokenIndex = (stable_pool_id: string | number) => {
 };
 
 export const isStablePool = (id: string | number) => {
-  return ALL_STABLE_POOL_IDS.includes(id.toString());
+  return ALL_STABLE_POOL_IDS.map((id) => id.toString()).includes(id.toString());
 };
 
 export const REF_FARM_CONTRACT_ID = config.REF_FARM_CONTRACT_ID;

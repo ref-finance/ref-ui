@@ -170,7 +170,6 @@ function SwapPage() {
     (localStorage.getItem(SWAP_MODE_KEY) as SWAP_MODE | null) ||
       SWAP_MODE.NORMAL
   );
-
   const stablePools = useAllStablePools();
 
   if (!refTokens || !triTokens || !triTokenIds || !stablePools)
