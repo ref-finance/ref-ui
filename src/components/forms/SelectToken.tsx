@@ -14,7 +14,7 @@ import { FaSearch } from 'react-icons/fa';
 import AddToken from './AddToken';
 import { getTokenPriceList } from '../../services/indexer';
 import { toPrecision, divide } from '../../utils/numbers';
-import { STABLE_TOKEN_USN_IDS } from '../../services/near';
+import { BTCIDS, CUSDIDS, STABLE_TOKEN_USN_IDS } from '../../services/near';
 import { STABLE_TOKEN_IDS } from '../../services/near';
 import _ from 'lodash';
 
@@ -94,9 +94,13 @@ export const StableSelectToken = ({
   onSelect?: (token: TokenMetadata) => void;
   selected: string | React.ReactElement;
 }) => {
-  const stableTokensIdList = new Array(
-    ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS))
+  const USDTokenList = new Array(
+    ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS))
   );
+
+  const BTCTokenList = BTCIDS.map((id) => id);
+
+  const stableTokensIdList = USDTokenList.concat(BTCTokenList);
 
   const ref = useRef(null);
 

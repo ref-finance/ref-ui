@@ -41,7 +41,11 @@ import {
 } from './near';
 import moment from 'moment';
 import { getAllTriPools } from './aurora/aurora';
-import { filterBlackListPools, ALL_STABLE_POOL_IDS } from './near';
+import {
+  filterBlackListPools,
+  ALL_STABLE_POOL_IDS,
+  isStablePool,
+} from './near';
 const explorerType = getExplorer();
 
 export const DEFAULT_PAGE_LIMIT = 100;
@@ -271,7 +275,7 @@ interface GetPoolOptions {
 }
 
 export const isNotStablePool = (pool: Pool) => {
-  return !(pool.id === STABLE_POOL_ID || pool.id === STABLE_POOL_USN_ID);
+  return !isStablePool(pool.id);
 };
 
 export const getPoolsByTokens = async ({
@@ -300,13 +304,10 @@ export const getPoolsByTokens = async ({
       .flat()
       .map((p) => ({ ...p, Dex: 'ref' }));
 
-    // get tripools
     let triPools;
     if (crossSwap) {
       triPools = await getAllTriPools();
     }
-
-    console.log('aurora pools', triPools);
 
     filtered_pools = pools.concat(triPools || []).filter(isNotStablePool);
 
@@ -314,8 +315,7 @@ export const getPoolsByTokens = async ({
     filtered_pools = filtered_pools.filter(
       (p) => p.supplies[tokenInId] && p.supplies[tokenOutId]
     );
-    await getStablePoolFromCache();
-    await getStablePoolFromCache(STABLE_POOL_USN_ID.toString());
+    await getAllStablePoolsFromCache();
   }
   setLoadingData && setLoadingData(false);
 

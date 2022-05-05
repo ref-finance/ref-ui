@@ -62,9 +62,17 @@ export const STABLE_TOKEN_INDEX = config.STABLE_TOKEN_INDEX;
 export const STABLE_TOKEN_USN_INDEX = config.STABLE_TOKEN_USN_INDEX;
 
 export const getStableTokenIndex = (stable_pool_id: string | number) => {
-  return Number(stable_pool_id) === Number(STABLE_POOL_ID)
-    ? STABLE_TOKEN_INDEX
-    : STABLE_TOKEN_USN_INDEX;
+  const id = stable_pool_id.toString();
+  switch (id) {
+    case STABLE_POOL_ID.toString():
+      return STABLE_TOKEN_INDEX;
+    case STABLE_POOL_USN_ID.toString():
+      return STABLE_TOKEN_USN_INDEX;
+    case BTC_STABLE_POOL_ID:
+      return getExtraStablePoolConfig().BTC_STABLE_POOL_INDEX;
+    case CUSD_STABLE_POOL_ID:
+      return getExtraStablePoolConfig().CUSD_STABLE_POOL_INDEX;
+  }
 };
 
 export const isStablePool = (id: string | number) => {

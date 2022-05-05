@@ -168,6 +168,8 @@ const getStablePoolEstimate = ({
   stablePoolInfo: StablePool;
   stablePool: Pool;
 }) => {
+  console.log(tokenIn.id, tokenOut.id, amountIn, stablePoolInfo);
+
   const [amount_swapped, fee, dy] = getSwappedAmount(
     tokenIn.id,
     tokenOut.id,
@@ -246,6 +248,9 @@ export const getPoolEstimate = async ({
     const stablePoolInfo = (
       await getStablePoolFromCache(Pool.id.toString())
     )[1];
+
+    console.log(stablePoolInfo);
+
     return getStablePoolEstimate({
       tokenIn,
       tokenOut,
@@ -387,6 +392,8 @@ export const estimateSwap = async ({
     );
 
     let hybridStableSmartOutputEstimate = hybridStableSmart.estimate.toString();
+    console.log(hybridStableSmartOutputEstimate, smartRouteV2OutputEstimate);
+
     if (
       swapMode === SWAP_MODE.STABLE ||
       new Big(hybridStableSmartOutputEstimate).gt(
@@ -427,6 +434,8 @@ export const estimateSwap = async ({
       return supportLedgerRes;
     }
   }
+
+  console.log(res);
 
   return res;
 };
@@ -607,6 +616,8 @@ export async function getHybridStableSmart(
   const { allStablePools, allStablePoolsById, allStablePoolsInfo } =
     await getAllStablePoolsFromCache(loadingTrigger);
 
+  console.log(allStablePoolsById);
+
   let candidatePools: Pool[][] = [];
 
   /**
@@ -685,6 +696,7 @@ export async function getHybridStableSmart(
   }
 
   // find candidate pools
+
   for (var p1 of pools1) {
     let middleTokens = p1.tokenIds.filter((id: string) => id !== tokenIn.id);
     for (var middleToken of middleTokens) {
@@ -712,6 +724,8 @@ export async function getHybridStableSmart(
   }
 
   // return best estimate
+
+  console.log(candidatePools);
   if (candidatePools.length > 0) {
     const tokensMedata = await ftGetTokensMetadata(
       candidatePools.map((cp) => cp.map((p) => p.tokenIds).flat()).flat()
@@ -782,8 +796,8 @@ export async function getHybridStableSmart(
                     tokenIn: tokenMidMeta,
                     tokenOut,
                     amountIn: estimate1.estimate,
-                    stablePoolInfo: allStablePoolsById[tmpPool1.id][1],
-                    stablePool: allStablePoolsById[tmpPool1.id][0],
+                    stablePoolInfo: allStablePoolsById[tmpPool2.id][1],
+                    stablePool: allStablePoolsById[tmpPool2.id][0],
                   })
                 : getSinglePoolEstimate(
                     tokenMidMeta,
@@ -801,6 +815,9 @@ export async function getHybridStableSmart(
           });
 
     // one pool case only get best price
+
+    console.log(BestPoolPair);
+
     if (BestPoolPair.length === 1) {
       const bestPool = BestPoolPair[0];
       const estimate = await getPoolEstimate({
@@ -809,6 +826,8 @@ export async function getHybridStableSmart(
         amountIn: parsedAmountIn,
         Pool: bestPool,
       });
+
+      console.log(estimate);
 
       return {
         actions: [
