@@ -478,7 +478,7 @@ export const CrossSwapAllResult = ({
 
   const Icons = [
     // <TodoType Icon={<RefSwapPro />} title="Ref Swap Pro" />,
-    <TodoType Icon={<RefIcon lightTrigger={true} />} title="Ref Normal Swap" />,
+    <TodoType Icon={<RefIcon lightTrigger={true} />} title="Ref Finance" />,
     <TodoType Icon={<TriIcon lightTrigger={true} />} title="Trisolaris" />,
   ];
 
