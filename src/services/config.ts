@@ -100,7 +100,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
-        BLACKLIST_POOL_IDS: [''],
+        BLACKLIST_POOL_IDS: ['3364'],
       };
     case 'development':
     case 'testnet':
@@ -201,7 +201,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
-        BLACKLIST_POOL_IDS: [''],
+        BLACKLIST_POOL_IDS: ['3364'],
       };
   }
 }
@@ -217,7 +217,7 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
     case 'development':
     case 'testnet':
       return {
-        BTCIDS: ['wbtc.fakes.testnet', 'bhtc.fakes.testnet'],
+        BTCIDS: ['wbtc.fakes.testnet', 'hbtc.fakes.testnet'],
         CUSDIDS: ['usdn.testnet', 'cusd.fakes.testnet'],
       };
     default:
