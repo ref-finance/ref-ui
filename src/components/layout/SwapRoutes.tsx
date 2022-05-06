@@ -301,6 +301,7 @@ export const PoolName = ({
       style={{
         position: 'relative',
         fontSize: '10px',
+        opacity: '0.5',
         right: `${Number(dex === 'tri' ? 0 : 10) + Number(translate)}px`,
       }}
     >
@@ -478,7 +479,7 @@ export const CrossSwapAllResult = ({
 
   const Icons = [
     // <TodoType Icon={<RefSwapPro />} title="Ref Swap Pro" />,
-    <TodoType Icon={<RefIcon lightTrigger={true} />} title="Ref Normal Swap" />,
+    <TodoType Icon={<RefIcon lightTrigger={true} />} title="Ref Finance" />,
     <TodoType Icon={<TriIcon lightTrigger={true} />} title="Trisolaris" />,
   ];
 

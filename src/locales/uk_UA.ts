@@ -525,16 +525,15 @@ const uk_UA = {
   Request_for_Quote: 'Запит пропозицій',
   mapping_account_explanation:
     'Адреса відображення - це "проксі-адреса", яка зіставляє обліковий запис користувача NEAR з відповідною ETH-адресою на Aurora.',
-  buy: 'Купуйте',
+  buy: 'Купити',
   sell: 'Продати',
-  buy_nsn: 'Купуйте USN',
-  buy_nsn_tip:
-    'USN є рідною стабільною монетою, яка підтримується економікою NEAR',
-  usn_tip_one: "USN дозволяє торгувати на REF. Обов'язково",
-  rate: 'Оцінити',
+  buy_nsn: 'Купити USN',
+  buy_nsn_tip: 'USN це нативна монета забезпечена економікою NEAR. ',
+  usn_tip_one: 'USN дає вам змогу торгувати на REF. Переконайтесь, що  ',
+  rate: 'Рейтинг',
   trading_fee: 'Комісія за торгівлю',
   usn_successful_click_to_view: 'Торгівля успішна. Натисніть, щоб переглянути',
-  awesomeNear_verified_token: 'Перевірений маркер AwesomeNear',
+  awesomeNear_verified_token: 'Токен перевірений AwesomeNear Verified Token',
   usn_fee_tip:
     'Ref стягує нульову комісію, користувачі сплачують лише комісію USN!',
   name: "Ім'я",
