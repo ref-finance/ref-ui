@@ -29,6 +29,11 @@ export const isStableToken = (id: string) => {
   return STABLE_TOKEN_IDS.includes(id) || STABLE_TOKEN_USN_IDS.includes(id);
 };
 
+export const BLACKLIST_POOL_IDS = config.BLACKLIST_POOL_IDS;
+
+export const filterBlackListPools = (pool: any & { id: any }) =>
+  !BLACKLIST_POOL_IDS.includes(pool.id.toString());
+
 export const STABLE_TOKEN_INDEX = config.STABLE_TOKEN_INDEX;
 
 export const STABLE_TOKEN_USN_INDEX = config.STABLE_TOKEN_USN_INDEX;
