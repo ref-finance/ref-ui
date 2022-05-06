@@ -41,6 +41,7 @@ import {
 } from './near';
 import moment from 'moment';
 import { getAllTriPools } from './aurora/aurora';
+import { filterBlackListPools } from './near';
 const explorerType = getExplorer();
 
 export const DEFAULT_PAGE_LIMIT = 100;
@@ -323,7 +324,10 @@ export const getPoolsByTokens = async ({
 
     console.log('aurora pools', triPools);
 
-    filtered_pools = pools.concat(triPools || []).filter(isNotStablePool);
+    filtered_pools = pools
+      .concat(triPools || [])
+      .filter(isNotStablePool)
+      .filter(filterBlackListPools);
 
     await db.cachePoolsByTokens(filtered_pools);
     filtered_pools = filtered_pools.filter(
