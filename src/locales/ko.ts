@@ -554,5 +554,9 @@ const ko = {
   name: '이름',
   diff: '차이',
   best: '최상의',
+  total_bitcoins: '총 비트코인',
+  total_usd_value: '총 미국 달러 가치',
+  bitcoin_value: '비트코인 가치',
+  stable_coin_value: '스테이블코인 가치',
 };
 export default Object.assign(ko, ko_in_risks_page);

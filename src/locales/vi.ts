@@ -561,5 +561,9 @@ const vi = {
   name: 'Tên',
   diff: 'Khác biệt',
   best: 'Tốt nhất',
+  total_bitcoins: 'Tổng số Bitcoin',
+  total_usd_value: 'Tổng giá trị đô la Mỹ',
+  bitcoin_value: 'Giá trị Bitcoin',
+  stable_coin_value: 'Giá trị của StableCoin',
 };
 export default Object.assign(vi, vi_in_risks_page);

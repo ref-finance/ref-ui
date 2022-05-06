@@ -42,6 +42,7 @@ import {
   ConnectToNearBtn,
 } from '../../components/button/Button';
 import {
+  BTCIDS,
   BTC_STABLE_POOL_ID,
   STABLE_TOKEN_IDS,
   wallet,
@@ -511,6 +512,8 @@ export default function SwapCard(props: {
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
 
+  const [reservesType, setReservesType] = useState<string>('USD');
+
   const [supportLedger, setSupportLedger] = useState(
     localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
   );
@@ -928,15 +931,25 @@ export default function SwapCard(props: {
         onSwap={() => makeSwap(useNearBalance)}
         priceImpactValue={PriceImpactValue}
       />
-      {/* {swapMode === SWAP_MODE.STABLE ? (
+      {swapMode === SWAP_MODE.STABLE ? (
         <TokenReserves
-          tokens={allTokens.filter((token) => isStableToken(token.id))}
-          pools={stablePools.filter(
-            (p) => Number(p.id) !== Number(BTC_STABLE_POOL_ID)
-          )}
+          tokens={allTokens
+            .filter((token) => isStableToken(token.id))
+            .filter((token) => {
+              return reservesType === 'BTC'
+                ? BTCIDS.includes(token.id)
+                : !BTCIDS.includes(token.id);
+            })}
+          pools={stablePools.filter((p) => {
+            return reservesType === 'BTC'
+              ? p.id.toString() === BTC_STABLE_POOL_ID
+              : p.id.toString() !== BTC_STABLE_POOL_ID;
+          })}
+          type={reservesType}
+          setType={setReservesType}
           swapPage
         />
-      ) : null} */}
+      ) : null}
     </>
   );
 }

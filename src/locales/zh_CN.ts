@@ -523,5 +523,9 @@ const zh_CN = {
   name: '名字',
   diff: '差距',
   best: '最好',
+  total_bitcoins: '所有比特币',
+  total_usd_value: '美元总值',
+  bitcoin_value: '比特币价值',
+  stable_coin_value: '稳定币价值',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

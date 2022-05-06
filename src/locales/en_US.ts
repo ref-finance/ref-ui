@@ -554,5 +554,9 @@ const en_US = {
   usn_successful_click_to_view: 'Trading successful. Click to view',
   awesomeNear_verified_token: 'AwesomeNear Verified Token',
   usn_fee_tip: 'Zero-fee charged by Ref, users only pay USN fee!',
+  total_bitcoins: 'Total Bitcoins',
+  total_usd_value: 'Total USD value',
+  bitcoin_value: 'Bitcoin value',
+  stable_coin_value: 'StableCoin value',
 };
 export default Object.assign(en_US, en_US_in_risks_page);
