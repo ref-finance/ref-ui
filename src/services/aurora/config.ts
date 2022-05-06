@@ -262,6 +262,36 @@ export const tokenListMainnet = {
     },
     {
       chainId: 1313161554,
+      address: '0x6961775A3Cafa23fcd24Df8F9b72fc98692B9288',
+      symbol: 'GATA',
+      name: 'Gata Protocol Token',
+      decimals: 18,
+      logoURI:
+        'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/gata.svg',
+      tags: [],
+    },
+    {
+      chainId: 1313161554,
+      address: '0x95f09a800e80a17eac1ba746489c48a1e012d855',
+      symbol: 'HBTC',
+      name: 'Huobi BTC',
+      decimals: 18,
+      logoURI:
+        'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/hbtc.svg',
+      tags: ['ethereum'],
+    },
+    {
+      chainId: 1313161554,
+      address: '0x5183e1b1091804bc2602586919e6880ac1cf2896',
+      symbol: 'USN',
+      name: 'USN',
+      decimals: 18,
+      logoURI:
+        'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/usn.svg',
+      tags: [],
+    },
+    {
+      chainId: 1313161554,
       address: '0xC4bdd27c33ec7daa6fcfd8532ddB524Bf4038096',
       symbol: 'atLUNA',
       name: 'Luna Terra - Allbridge',
