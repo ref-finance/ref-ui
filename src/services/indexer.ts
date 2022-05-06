@@ -102,7 +102,11 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
           });
 
           if (twoTokenPools?.length > 0) {
-            pools.push(_.maxBy(twoTokenPools, (p) => p.tvl));
+            const maxTvlPool = _.maxBy(twoTokenPools, 'tvl');
+
+            //@ts-ignore
+            if (!pools.find((p: any) => p.id === maxTvlPool.id))
+              pools.push(maxTvlPool);
           }
         })
       );
