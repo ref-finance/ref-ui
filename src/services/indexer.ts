@@ -75,7 +75,7 @@ export const getYourPools = async (): Promise<PoolRPCView[]> => {
 
 export const getTopPools = async (): Promise<PoolRPCView[]> => {
   try {
-    let pools;
+    let pools: any;
 
     if (await db.checkTopPools()) {
       pools = await db.queryTopPools();
