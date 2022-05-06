@@ -1114,7 +1114,6 @@ function Account(props: any) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const auroraAddress = auroraAddr(getCurrentWallet().wallet.getAccountId());
-
   const displayAddr = `${auroraAddress?.substring(
     0,
     6
@@ -1122,7 +1121,14 @@ function Account(props: any) {
     auroraAddress.length - 6,
     auroraAddress.length
   )}`;
-  const { wallet } = getCurrentWallet();
+
+  const nearAddress: string = getCurrentWallet().wallet.getAccountId();
+
+  const displayAddrNear =
+    nearAddress.indexOf('.') === -1
+      ? `${nearAddress.substring(0, 10)}...`
+      : nearAddress;
+
   const tab = new URLSearchParams(window.location.search).get('tab');
   const crossStatus = localStorage.getItem(ACCOUNT_PAGE_AURORA_SHOW);
   const [showCrossBalance, setShowCrossBalance] = useState(
@@ -1149,9 +1155,7 @@ function Account(props: any) {
   const accountTitle = !showCrossBalance ? (
     <>
       <NearIcon />
-      <label className="ml-3 text-xl">
-        {isSignedIn && getAccountName(wallet.getAccountId())}
-      </label>
+      <label className="ml-3 text-xl">{isSignedIn && displayAddrNear}</label>
     </>
   ) : (
     <div className="flex items-center">
@@ -1165,7 +1169,7 @@ function Account(props: any) {
           <Near color="white" />
         </div>
 
-        <div>{getCurrentWallet().wallet.getAccountId()}</div>
+        <div>{displayAddrNear}</div>
       </div>
 
       <ConnectDot />
@@ -1298,6 +1302,12 @@ function MobileAccount(props: any) {
     auroraAddress.length - 6,
     auroraAddress.length
   )}`;
+  const nearAddress: string = getCurrentWallet().wallet.getAccountId();
+
+  const displayAddrNear =
+    nearAddress.indexOf('.') === -1
+      ? `${nearAddress.substring(0, 10)}...`
+      : nearAddress;
 
   const { wallet } = getCurrentWallet();
   const tab = new URLSearchParams(window.location.search).get('tab');
@@ -1353,7 +1363,7 @@ function MobileAccount(props: any) {
     <>
       <NearIcon />
       <label className="text-lg text-white ml-3">
-        {isSignedIn && getAccountName(wallet.getAccountId())}
+        {isSignedIn && displayAddrNear}
       </label>
     </>
   ) : (
