@@ -105,7 +105,7 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
             const maxTvlPool = _.maxBy(twoTokenPools, 'tvl');
 
             //@ts-ignore
-            if (!pools.find((p: any) => p.id === maxTvlPool.id))
+            if (!pools.find((p: any) => Number(p.id) === Number(maxTvlPool.id)))
               pools.push(maxTvlPool);
           }
         })
