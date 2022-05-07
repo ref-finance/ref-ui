@@ -49,6 +49,7 @@
   "dependencies": {
     "@aurora-is-near/engine": "think-in-universe/aurora.js#6db862e",
     "@babel/plugin-proposal-optional-chaining": "^7.16.7",
+    "@babel/plugin-transform-modules-commonjs": "^7.17.9",
     "@react-icons/all-files": "^4.1.0",
     "@svgr/parcel-plugin-svgr": "^5.5.0",
     "@types/big.js": "^6.1.2",

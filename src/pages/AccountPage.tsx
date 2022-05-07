@@ -426,7 +426,7 @@ function AccountTable(props: any) {
             }`}
           >
             <span
-              onClick={(e) => sort(e, false)}
+              onClick={(e) => sort(e)}
               data-sort="near"
               className={`flex items-center w-full justify-end ${
                 currentSort.indexOf('near') > -1 ? 'text-greenColor' : ''
@@ -447,7 +447,7 @@ function AccountTable(props: any) {
             }`}
           >
             <span
-              onClick={(e) => sort(e, false)}
+              onClick={(e) => sort(e)}
               data-sort="ref"
               className={`flex items-center w-full justify-end ${
                 currentSort.indexOf('ref') > -1 ? 'text-greenColor' : ''
@@ -468,7 +468,7 @@ function AccountTable(props: any) {
             }`}
           >
             <span
-              onClick={(e) => sort(e, false)}
+              onClick={(e) => sort(e)}
               data-sort="aurora"
               className={`flex items-center w-full justify-end ${
                 currentSort.indexOf('aurora') > -1 ? 'text-greenColor' : ''
