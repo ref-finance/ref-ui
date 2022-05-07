@@ -49,7 +49,7 @@ import { ftGetStorageBalance } from '../ft-contract';
 
 const trisolaris = getAuroraConfig().trisolarisAddress;
 
-const SECOND_FROM_NOW = 120;
+const SECOND_FROM_NOW = 60 * 5;
 
 export const Zero64 = '0'.repeat(64);
 export const SHARE_DECIMAL = 18;
@@ -940,8 +940,6 @@ export const auroraSwapTransactions = async ({
       receiverId: 'aurora',
       functionCalls: [withdrawAction],
     });
-
-    console.log(transactions);
 
     return transactions;
   } catch (error) {

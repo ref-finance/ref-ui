@@ -500,8 +500,6 @@ export default function CrossSwapCard(props: {
 
   let PriceImpactValue: string = '0';
 
-  console.log(swapsToDoRef, swapsToDoTri);
-
   try {
     if (
       swapsToDo[0].status === PoolMode.SMART ||

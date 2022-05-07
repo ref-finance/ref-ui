@@ -164,8 +164,6 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
       txDetail.transaction?.actions?.length === 1 &&
       txDetail.transaction?.actions?.[0]?.FunctionCall?.method_name === 'call';
 
-    console.log(ifCall, isAurora);
-
     if (isAurora && ifCall) {
       const parsedOut = parsedTransactionSuccessValue(txDetail);
 

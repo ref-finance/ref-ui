@@ -1326,7 +1326,7 @@ export async function getSmartRouteSwapActions(
   outputToken,
   totalInput,
   maxPathLength = 3,
-  threshold = 0.00000000001,
+  threshold = 0.001,
   numberOfRoutesLimit = 2,
   MAX_NUMBER_PARALLEL_POOLS = 4
 ) {

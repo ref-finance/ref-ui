@@ -422,20 +422,14 @@ export const estimateSwap = async ({
     setSwapsToDoTri(triTodos);
 
     const refSmartRes = await getExpectedOutputFromActions(res, tokenOut.id, 0);
-    const triRes = await getExpectedOutputFromActions(
-      supportLedgerRes,
-      tokenOut.id,
-      0
-    );
+    const triRes = await getExpectedOutputFromActions(triTodos, tokenOut.id, 0);
 
     if (new Big(refSmartRes).gt(new Big(triRes))) {
       return res;
     } else {
-      return supportLedgerRes;
+      return triTodos;
     }
   }
-
-  console.log(res);
 
   return res;
 };
@@ -967,8 +961,6 @@ SwapOptions) => {
   const tokenInActions: RefFiFunctionCallOptions[] = [];
   const tokenOutActions: RefFiFunctionCallOptions[] = [];
 
-  console.log(swapsToDo);
-
   const { wallet, wallet_type } = getCurrentWallet();
 
   const registerToken = async (token: TokenMetadata) => {
@@ -1485,7 +1477,6 @@ export const parallelSwapCase = async ({
   const curTransactions: Transaction[] = [];
 
   // separate todos to different dexes
-  console.log(swapsToDo);
 
   const refSwapTodos = swapsToDo.filter((e) => e.pool.Dex === 'ref');
 
@@ -1585,7 +1576,6 @@ export const smartRouteSwapCase = async ({
   const actionsList = []; // for ref swap actions
 
   const amountInInt = toNonDivisibleNumber(tokenIn.decimals, amountIn);
-  console.log(amountInInt, amountIn);
 
   const swap1 = swapsToDo[0];
   const swap2 = swapsToDo[1];
@@ -1642,8 +1632,6 @@ export const smartRouteSwapCase = async ({
       ),
     });
     triSwapTransactions.forEach((t) => curTransactions.push(t));
-
-    console.log(triSwapTransactions, 'first is tri');
 
     // slippage tolerance from first action
     actionsList.push({
