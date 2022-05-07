@@ -37,6 +37,7 @@ import {
   useTriTokenIdsOnRef,
 } from '../services/aurora/aurora';
 import { defaultTokenList } from '../services/aurora/config';
+import { AllStableTokenIds } from '../services/near';
 import {
   WalletContext,
   getCurrentWallet,
@@ -156,13 +157,10 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
 
 export const useWhitelistStableTokens = () => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
-  const stableTokenIds = new Array(
-    ...new Set(STABLE_TOKEN_IDS.concat(STABLE_TOKEN_USN_IDS))
-  );
 
   useEffect(() => {
     Promise.all(
-      stableTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
+      AllStableTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
     ).then(setTokens);
   }, []);
 

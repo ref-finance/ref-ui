@@ -39,7 +39,7 @@ export const { BTCIDS, CUSDIDS, BTC_STABLE_POOL_ID, CUSD_STABLE_POOL_ID } =
 
 export const extraStableTokenIds = BTCIDS.concat(CUSDIDS).filter((_) => !!_);
 
-export const stableTokenIds = new Array(
+export const AllStableTokenIds = new Array(
   ...new Set(
     extraStableTokenIds.concat(STABLE_TOKEN_IDS).concat(STABLE_TOKEN_USN_IDS)
   )

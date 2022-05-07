@@ -16,7 +16,7 @@ import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import getConfig from '../../services/config';
 import { StableSwapLogo } from '~components/icon/StableSwap';
 import { useWalletTokenBalances } from '../../state/token';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import {
   SharesCard,
   StableTokens,
@@ -31,7 +31,6 @@ import BigNumber from 'bignumber.js';
 import { getStablePoolFromCache, Pool, StablePool } from '../../services/pool';
 export const DEFAULT_ACTIONS = ['add_liquidity', 'remove_liquidity'];
 const STABLE_TOKENS = ['USDT', 'USDC', 'DAI'];
-const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
 export const REF_STABLE_SWAP_TAB_KEY = 'REF_STABLE_SWAP_TAB_VALUE';
 
 interface LocationTypes {
@@ -42,8 +41,13 @@ interface LocationTypes {
   pool?: Pool;
 }
 
-function StableSwapPage() {
+interface ParamTypes {
+  id: string;
+}
+
+function StableSwapPage({ pool }: { pool: Pool }) {
   const { state } = useLocation<LocationTypes>();
+  const { id } = useParams<ParamTypes>();
 
   const stableTab = state?.stableTab;
 
@@ -55,14 +59,12 @@ function StableSwapPage() {
 
   const [actionName, setAction] = useState<string>(stableTab || storageTab);
 
-  const { pool, shares, stakeList } = state?.pool
-    ? state
-    : usePool(STABLE_POOL_ID);
+  const { shares, stakeList } = state?.pool ? state : usePool(id);
 
   const farmStake =
     state?.farmStake ||
     useFarmStake({
-      poolId: Number(STABLE_POOL_ID),
+      poolId: Number(id),
       stakeList,
     });
   const userTotalShare = BigNumber.sum(shares, farmStake);
@@ -70,7 +72,7 @@ function StableSwapPage() {
   const [stablePool, setStablePool] = useState<StablePool>();
 
   useEffect(() => {
-    getStablePoolFromCache(STABLE_POOL_ID.toString()).then((res) => {
+    getStablePoolFromCache(id.toString()).then((res) => {
       setStablePool(res[1]);
     });
   }, []);

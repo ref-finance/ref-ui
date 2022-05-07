@@ -414,8 +414,6 @@ export default function ({
     });
   }, [type]);
 
-  console.log(BTCValue);
-
   const displayTotalValue =
     type === 'BTC' ? BTCValue || '0' : calTotalStableCoins;
 
@@ -453,7 +451,7 @@ export default function ({
         className={`text-xs text-primaryText ${!showReserves && 'hidden'}`}
         width="w-full"
       >
-        <TypeTab type={type} setType={setType} />
+        {forPool ? null : <TypeTab type={type} setType={setType} />}
         <div className={forPool ? 'hidden' : ''}>
           <FormattedMessage
             id={totalValueId}

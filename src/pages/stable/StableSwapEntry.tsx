@@ -33,6 +33,10 @@ import {
   STABLE_POOL_ID,
   STABLE_TOKEN_IDS,
   STABLE_TOKEN_USN_IDS,
+  AllStableTokenIds,
+  BTC_STABLE_POOL_ID,
+  CUSD_STABLE_POOL_ID,
+  BTCIDS,
 } from '../../services/near';
 import { useFarmStake, useCanFarm } from '../../state/farm';
 import BigNumber from 'bignumber.js';
@@ -54,6 +58,7 @@ import { OutlineButton } from '../../components/button/Button';
 import { Images, Symbols } from '~components/stableswap/CommonComp';
 import { FarmMiningIcon } from '~components/icon';
 import { getCurrentWallet } from '../../utils/sender-wallet';
+import { useStabelPoolData, PoolData } from '../../state/sauce';
 
 const RenderDisplayTokensAmounts = ({
   tokens,
@@ -96,12 +101,12 @@ const RenderDisplayTokensAmounts = ({
   );
 };
 
-function formatePoolData({
+export function formatePoolData({
   pool,
   userTotalShare,
   farmStake,
   tokens,
-  share,
+  shares,
   stakeList,
   farmCount,
 }: {
@@ -109,7 +114,7 @@ function formatePoolData({
   userTotalShare: BigNumber;
   farmStake: string | number;
   tokens: TokenMetadata[];
-  share: string;
+  shares: string;
   stakeList: Record<string, string>;
   farmCount: Number;
 }) {
@@ -167,7 +172,7 @@ function formatePoolData({
     displayMyShareAmount,
     displaySharePercent,
     displayShareInFarm,
-    shares: share,
+    shares: shares,
     stakeList,
     farmStake,
     TVLtitle,
@@ -342,87 +347,39 @@ function StablePoolCard({
 }
 
 export function StableSwapPageEntry() {
-  const [pool3tokens, setPool3tokens] = useState<Pool>();
-  const [pool2tokens, setPool2tokens] = useState<Pool>();
+  // const;
+
+  const [reserveType, setReserveType] = useState<string>('USD');
+
+  const { poolData: pool3tokenData } = useStabelPoolData(STABLE_POOL_ID);
+
+  const { poolData: USNPoolData } = useStabelPoolData(STABLE_POOL_USN_ID);
+
+  const { poolData: BTCPoolData } = useStabelPoolData(BTC_STABLE_POOL_ID);
+
+  const { poolData: CUSDPoolData } = useStabelPoolData(CUSD_STABLE_POOL_ID);
+
   const [allStableTokens, setAllStableTokens] = useState<TokenMetadata[]>();
 
-  const { shares: shares3token, stakeList: stakeList3token } =
-    usePool(STABLE_POOL_ID);
-  const { shares: shares2token, stakeList: stakeList2token } =
-    usePool(STABLE_POOL_USN_ID);
-
-  const farmCount2token = useCanFarm(Number(STABLE_POOL_USN_ID));
-
-  const farmCount3token = useCanFarm(Number(STABLE_POOL_ID));
-
-  const farmStake3token = useFarmStake({
-    poolId: Number(STABLE_POOL_ID),
-    stakeList: stakeList3token,
-  });
-  const farmStake2token = useFarmStake({
-    poolId: Number(STABLE_POOL_USN_ID),
-    stakeList: stakeList2token,
-  });
-
-  const allStableTokensIds = new Array(
-    ...new Set(STABLE_TOKEN_IDS.concat(STABLE_TOKEN_USN_IDS))
-  );
-
   useEffect(() => {
-    Promise.all(allStableTokensIds.map((id) => ftGetTokenMetadata(id))).then(
+    Promise.all(AllStableTokenIds.map((id) => ftGetTokenMetadata(id))).then(
       setAllStableTokens
     );
   }, []);
 
-  const userTotalShare3token = BigNumber.sum(shares3token, farmStake3token);
-
-  const userTotalShare2token = BigNumber.sum(shares2token, farmStake2token);
-
-  useEffect(() => {
-    getStablePoolFromCache(STABLE_POOL_USN_ID.toString()).then((res) => {
-      setPool2tokens(res[0]);
-    });
-    getStablePoolFromCache(STABLE_POOL_ID.toString()).then((res) => {
-      setPool3tokens(res[0]);
-    });
-  }, []);
-
   if (
-    !pool3tokens ||
-    !pool2tokens ||
-    !shares2token ||
-    !shares3token ||
-    !allStableTokens ||
-    !farmStake3token ||
-    !farmStake2token
+    !pool3tokenData ||
+    !USNPoolData ||
+    !BTCPoolData ||
+    !CUSDPoolData ||
+    !allStableTokens
   )
     return <Loading />;
-  const tokens2token = STABLE_TOKEN_USN_IDS.map((id) =>
-    allStableTokens?.find((token) => token.id === id)
-  );
 
-  const tokens3token = STABLE_TOKEN_IDS.map((id) =>
-    allStableTokens?.find((token) => token.id === id)
-  );
-  const poolData2token = formatePoolData({
-    pool: pool2tokens,
-    userTotalShare: userTotalShare2token,
-    farmStake: farmStake2token,
-    tokens: tokens2token,
-    share: shares2token,
-    stakeList: stakeList2token,
-    farmCount: farmCount2token,
-  });
-
-  const poolData3token = formatePoolData({
-    pool: pool3tokens,
-    userTotalShare: userTotalShare3token,
-    farmStake: farmStake3token,
-    tokens: tokens3token,
-    share: shares3token,
-    stakeList: stakeList3token,
-    farmCount: farmCount3token,
-  });
+  const formatedPool3tokenData = formatePoolData(pool3tokenData);
+  const formatedUSNPoolData = formatePoolData(USNPoolData);
+  const formatedBTCPoolData = formatePoolData(BTCPoolData);
+  const formatedCUSDPoolData = formatePoolData(CUSDPoolData);
 
   return (
     <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2 flex flex-col">
@@ -436,21 +393,42 @@ export function StableSwapPageEntry() {
         />
       </span>
       <StablePoolCard
-        stablePool={pool3tokens}
-        tokens={tokens3token}
-        poolData={poolData3token}
+        stablePool={pool3tokenData.pool}
+        tokens={pool3tokenData.tokens}
+        poolData={formatedPool3tokenData}
       />
       <StablePoolCard
-        stablePool={pool2tokens}
-        tokens={tokens2token}
-        poolData={poolData2token}
+        stablePool={USNPoolData.pool}
+        tokens={USNPoolData.tokens}
+        poolData={formatedUSNPoolData}
+      />
+      <StablePoolCard
+        stablePool={BTCPoolData.pool}
+        tokens={BTCPoolData.tokens}
+        poolData={formatedBTCPoolData}
+      />
+
+      <StablePoolCard
+        stablePool={CUSDPoolData.pool}
+        tokens={CUSDPoolData.tokens}
+        poolData={formatedCUSDPoolData}
       />
 
       <TokenReserves
-        tokens={allStableTokens}
-        pools={[pool2tokens, pool3tokens]}
+        tokens={allStableTokens.filter((token) => {
+          return reserveType === 'BTC'
+            ? BTCIDS.includes(token.id)
+            : !BTCIDS.includes(token.id);
+        })}
+        pools={
+          reserveType === 'BTC'
+            ? [BTCPoolData.pool]
+            : [USNPoolData.pool, pool3tokenData.pool, CUSDPoolData.pool]
+        }
         hiddenMag={true}
         className="pt-6"
+        type={reserveType}
+        setType={setReserveType}
       />
     </div>
   );
