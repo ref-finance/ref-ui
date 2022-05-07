@@ -1,5 +1,12 @@
 import getConfig from './config';
-import { wallet, isStablePool, STABLE_TOKEN_USN_IDS } from './near';
+import {
+  wallet,
+  isStablePool,
+  STABLE_TOKEN_USN_IDS,
+  AllStableTokenIds,
+  CUSDIDS,
+  BTCIDS,
+} from './near';
 import _ from 'lodash';
 import { parsePoolView, PoolRPCView, getCurrentUnixTime } from './api';
 import moment from 'moment/moment';
@@ -8,7 +15,12 @@ import { volumeType, TVLType } from '~state/pool';
 import db from '../store/RefDatabase';
 import { getCurrentWallet } from '../utils/sender-wallet';
 import { getPoolsByTokens } from './pool';
-import { filterBlackListPools, BLACKLIST_POOL_IDS } from './near';
+import {
+  filterBlackListPools,
+  BLACKLIST_POOL_IDS,
+  ALL_STABLE_POOL_IDS,
+  STABLE_POOL_ID,
+} from './near';
 const config = getConfig();
 
 export const getPoolMonthVolume = async (
@@ -87,21 +99,35 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
 
       // include non-stable pools on top pool list
       // TODO:
-      const twoTokenStablePoolIds = (
-        await getPoolsByTokens({
-          tokenInId: STABLE_TOKEN_USN_IDS[0],
-          tokenOutId: STABLE_TOKEN_USN_IDS[1],
-          loadingTrigger: false,
+
+      await Promise.all(
+        [CUSDIDS, BTCIDS, STABLE_TOKEN_USN_IDS].map(async (ids) => {
+          const twoTokenStablePoolIds = (
+            await getPoolsByTokens({
+              tokenInId: ids[0],
+              tokenOutId: ids[1],
+              loadingTrigger: false,
+            })
+          ).map((p) => p.id.toString());
+
+          const twoTokenStablePools = await getPoolsByIds({
+            pool_ids: twoTokenStablePoolIds,
+          });
+
+          if (twoTokenStablePools.length > 0) {
+            const maxTVLPool = _.maxBy(twoTokenStablePools, (p) => p.tvl);
+
+            if (
+              pools.find(
+                (pool: any) => Number(pool.id) === Number(maxTVLPool.id)
+              )
+            )
+              return;
+
+            pools.push(_.maxBy(twoTokenStablePools, (p) => p.tvl));
+          }
         })
-      ).map((p) => p.id.toString());
-
-      const twoTokenStablePools = await getPoolsByIds({
-        pool_ids: twoTokenStablePoolIds,
-      });
-
-      if (twoTokenStablePools.length > 0) {
-        pools.push(_.maxBy(twoTokenStablePools, (p) => p.tvl));
-      }
+      );
 
       await db.cacheTopPools(pools);
     }

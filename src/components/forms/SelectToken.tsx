@@ -118,10 +118,6 @@ export const StableSelectToken = ({
   const coverBTC =
     preSelected && USDtokens.find((token) => token.id === preSelected.id);
 
-  // const stableTokens = stableTokensIdList.map((id) =>
-  //   tokens.find((token) => token.id === id)
-  // );
-
   useEffect(() => {
     if (visible)
       document.addEventListener('click', () => {
@@ -177,6 +173,7 @@ export const StableSelectToken = ({
           {USDtokens.map((token) => {
             return (
               <div
+                key={`stable-token-${token.id}`}
                 className={`flex items-center justify-between ${
                   coverUSD
                     ? 'opacity-30'
@@ -232,6 +229,7 @@ export const StableSelectToken = ({
           {BTCtokens.map((token) => {
             return (
               <div
+                key={`stable-token-${token.id}`}
                 className={`flex items-center justify-between ${
                   coverBTC
                     ? 'opacity-30'
