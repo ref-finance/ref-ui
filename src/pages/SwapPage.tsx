@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
-import SwapCard from '~components/swap/SwapCard';
-import CrossSwapCard from '~components/swap/CrossSwapCard';
+import SwapCard from '../components/swap/SwapCard';
+import CrossSwapCard from '../components/swap/CrossSwapCard';
 
-import Loading from '~components/layout/Loading';
+import Loading from '../components/layout/Loading';
 import { useTriTokens, useWhitelistTokens } from '../state/token';
 import { WalletContext } from '../utils/sender-wallet';
 import { FormattedMessage } from 'react-intl';

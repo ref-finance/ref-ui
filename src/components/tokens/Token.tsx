@@ -5,7 +5,7 @@ import { toInternationalCurrencySystem } from '~utils/numbers';
 import { toPrecision } from '../../utils/numbers';
 import { SingleToken } from '../forms/SelectToken';
 import { OutLinkIcon } from '../../components/icon/Common';
-import { RefIcon } from '~components/icon/DexIcon';
+import { RefIcon } from '../../components/icon/DexIcon';
 import { TriIcon } from '../icon/DexIcon';
 import { getCurrentWallet } from '../../utils/sender-wallet';
 
