@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import Loading from '~components/layout/Loading';
 import {
   useTokenBalances,
@@ -57,7 +57,7 @@ import { ConnectToNearBtn, SolidButton } from '~components/button/Button';
 import { OutlineButton } from '../../components/button/Button';
 import { Images, Symbols } from '~components/stableswap/CommonComp';
 import { FarmMiningIcon } from '~components/icon';
-import { getCurrentWallet } from '../../utils/sender-wallet';
+import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { useStabelPoolData, PoolData } from '../../state/sauce';
 
 const RenderDisplayTokensAmounts = ({
@@ -203,7 +203,9 @@ function StablePoolCard({
   const { shares, stakeList, farmStake } = poolData;
   const history = useHistory();
 
-  const isSignedIn = getCurrentWallet().wallet.isSignedIn();
+  const { globalState } = useContext(WalletContext);
+
+  const isSignedIn = globalState.isSignedIn;
 
   const haveFarm = poolData.farmCount > 0;
   const multiMining = poolData.farmCount > 1;

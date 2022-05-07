@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useContext } from 'react';
 import {
   calculateFairShare,
   percentLess,
@@ -56,7 +56,7 @@ import {
   STABLE_POOL_ID,
   ALL_STABLE_POOL_IDS,
 } from '../services/near';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet, WalletContext } from '../utils/sender-wallet';
 import getConfig from '../services/config';
 import { getStablePoolFromCache } from '../services/pool';
 const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
@@ -64,10 +64,16 @@ const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
 }`;
 
 export const usePool = (id: number | string) => {
+  const { globalState } = useContext(WalletContext);
+
+  const isSignedIn = globalState.isSignedIn;
+
   const [pool, setPool] = useState<PoolDetails>();
   const [shares, setShares] = useState<string>('0');
   const [stakeList, setStakeList] = useState<Record<string, string>>({});
   useEffect(() => {
+    if (!isSignedIn) return;
+
     getPoolDetails(Number(id)).then(setPool);
     getSharesInPool(Number(id))
       .then(setShares)
@@ -78,7 +84,7 @@ export const usePool = (id: number | string) => {
         setStakeList(stakeList);
       })
       .catch(() => {});
-  }, [id, getCurrentWallet().wallet.isSignedIn()]);
+  }, [id, isSignedIn]);
 
   return { pool, shares, stakeList };
 };

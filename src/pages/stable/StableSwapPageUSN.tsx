@@ -25,7 +25,9 @@ import AddLiquidityComponentUSN from '../../components/stableswap/AddLiquidityUS
 import { RemoveLiquidityComponentUSN } from '../../components/stableswap/RemoveLiquidityUSN';
 import { STABLE_TOKEN_USN_IDS } from '../../services/near';
 export const DEFAULT_ACTIONS = ['add_liquidity', 'remove_liquidity'];
-export const REF_STABLE_SWAP_TAB_KEY_USN = 'REF_STABLE_SWAP_TAB_VALUE_USN';
+
+export const getStableSwapTabKey = (id: string | number) =>
+  `REF_STABLE_SWAP_TAB_VALUE_${id}`;
 
 interface LocationTypes {
   stableTab?: string;
@@ -41,13 +43,13 @@ interface ParamTypes {
 function StableSwapPageUSN({ pool }: { pool: Pool }) {
   const { state } = useLocation<LocationTypes>();
   const { id } = useParams<ParamTypes>();
-
+  const REF_STABLE_SWAP_TAB_KEY = getStableSwapTabKey(pool.id);
   const stableTab = state?.stableTab;
 
   const storageTab =
-    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY_USN) === 'add_liquidity' ||
-    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY_USN) === 'remove_liquidity'
-      ? localStorage.getItem(REF_STABLE_SWAP_TAB_KEY_USN)
+    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) === 'add_liquidity' ||
+    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) === 'remove_liquidity'
+      ? localStorage.getItem(REF_STABLE_SWAP_TAB_KEY)
       : DEFAULT_ACTIONS[0];
 
   const [actionName, setAction] = useState<string>(stableTab || storageTab);
@@ -80,7 +82,7 @@ function StableSwapPageUSN({ pool }: { pool: Pool }) {
   }, []);
 
   const changeAction = (actionName: string) => {
-    localStorage.setItem(REF_STABLE_SWAP_TAB_KEY_USN, actionName);
+    localStorage.setItem(REF_STABLE_SWAP_TAB_KEY, actionName);
     setAction(actionName);
   };
 

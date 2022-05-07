@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Pool, getStablePoolFromCache } from '../services/pool';
 import { usePool } from './pool';
 import { useCanFarm, useFarmStake } from './farm';
@@ -57,7 +57,7 @@ export const useStabelPoolData = (pool_id: string | number) => {
       stakeList,
       tokens,
     });
-  }, [pool, tokens]);
+  }, [pool, tokens, shares, stakeList]);
 
   return { poolData };
 };

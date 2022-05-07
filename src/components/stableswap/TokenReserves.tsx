@@ -246,7 +246,7 @@ export default function ({
   hiddenMag,
   className,
   forPool,
-  type,
+  type = 'USD',
   setType,
 }: {
   tokens: TokenMetadata[];
