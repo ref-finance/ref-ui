@@ -115,8 +115,6 @@ function App() {
 
   const { txHash, pathname, errorType, signInErrorType } = getURLInfo();
 
-  console.log(getURLInfo());
-
   useEffect(() => {
     if (errorType) {
       failToast(txHash, errorType);

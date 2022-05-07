@@ -479,8 +479,6 @@ export const useCrossSwap = ({
   };
 
   useEffect(() => {
-    console.log(txHashes, 'txHashes');
-
     if (txHashes && txHashes.length > 0 && isSignedIn) {
       checkCrossSwapTransactions(txHashes).then(
         (res: { status: boolean; hash: string; errorType?: string }) => {

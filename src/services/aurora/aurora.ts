@@ -941,8 +941,6 @@ export const auroraSwapTransactions = async ({
       functionCalls: [withdrawAction],
     });
 
-    console.log(transactions);
-
     return transactions;
   } catch (error) {
     throw error;

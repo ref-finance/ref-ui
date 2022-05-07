@@ -239,8 +239,6 @@ export const getPoolEstimate = async ({
   Pool: Pool;
 }) => {
   if (Number(Pool.id) === Number(STABLE_POOL_ID)) {
-    console.log('dsadsadsa');
-
     const stablePoolInfo = (await getStablePoolFromCache())[1];
     return getStablePoolEstimate({
       tokenIn,
@@ -299,8 +297,6 @@ export const estimateSwap = async ({
     return getLiquidity(p, tokenIn, tokenOut) > 0;
   });
 
-  console.log(pools.length);
-
   const [stablePool, stablePoolInfo] = await getStablePoolFromCache(
     STABLE_POOL_ID.toString(),
     loadingTrigger
@@ -346,8 +342,6 @@ export const estimateSwap = async ({
       pools = pools.filter((p) => isStablePool(p.id));
     }
     if (pools.length === 0 && supportLedger) {
-      console.log('dot');
-
       throwNoPoolError();
     }
     if (pools.length > 0) {
@@ -557,8 +551,6 @@ export const estimateSwap = async ({
     // if not both none, we could return res
     setSwapsToDoRef(res);
     setSwapsToDoTri(triTodos);
-
-    console.log(res, triTodos);
 
     const refSmartRes = await getExpectedOutputFromActions(res, tokenOut.id, 0);
     const triRes = await getExpectedOutputFromActions(triTodos, tokenOut.id, 0);
@@ -953,8 +945,6 @@ SwapOptions) => {
   const transactions: Transaction[] = [];
   const tokenInActions: RefFiFunctionCallOptions[] = [];
   const tokenOutActions: RefFiFunctionCallOptions[] = [];
-
-  console.log(swapsToDo);
 
   const { wallet, wallet_type } = getCurrentWallet();
 
@@ -1472,7 +1462,6 @@ export const parallelSwapCase = async ({
   const curTransactions: Transaction[] = [];
 
   // separate todos to different dexes
-  console.log(swapsToDo);
 
   const refSwapTodos = swapsToDo.filter((e) => e.pool.Dex === 'ref');
 
@@ -1572,7 +1561,6 @@ export const smartRouteSwapCase = async ({
   const actionsList = []; // for ref swap actions
 
   const amountInInt = toNonDivisibleNumber(tokenIn.decimals, amountIn);
-  console.log(amountInInt, amountIn);
 
   const swap1 = swapsToDo[0];
   const swap2 = swapsToDo[1];
@@ -1629,8 +1617,6 @@ export const smartRouteSwapCase = async ({
       ),
     });
     triSwapTransactions.forEach((t) => curTransactions.push(t));
-
-    console.log(triSwapTransactions, 'first is tri');
 
     // slippage tolerance from first action
     actionsList.push({
