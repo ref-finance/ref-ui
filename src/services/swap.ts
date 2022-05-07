@@ -558,17 +558,15 @@ export const estimateSwap = async ({
     setSwapsToDoRef(res);
     setSwapsToDoTri(triTodos);
 
-    const refSmartRes = await getExpectedOutputFromActions(res, tokenOut.id, 0);
-    const triRes = await getExpectedOutputFromActions(
-      supportLedgerRes,
-      tokenOut.id,
-      0
-    );
+    console.log(res, triTodos);
 
-    if (new Big(refSmartRes).gt(new Big(triRes))) {
+    const refSmartRes = await getExpectedOutputFromActions(res, tokenOut.id, 0);
+    const triRes = await getExpectedOutputFromActions(triTodos, tokenOut.id, 0);
+
+    if (new Big(refSmartRes || '0').gt(new Big(triRes || '0'))) {
       return res;
     } else {
-      return supportLedgerRes;
+      return triTodos;
     }
   }
 
