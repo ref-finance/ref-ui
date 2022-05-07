@@ -71,7 +71,11 @@ import { getPoolAllocationPercents, percentLess } from '../../utils/numbers';
 import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
 import { SWAP_MODE } from '../../pages/SwapPage';
-import { isStableToken } from '../../services/near';
+import {
+  isStableToken,
+  ALL_STABLE_POOL_IDS,
+  AllStableTokenIds,
+} from '../../services/near';
 import TokenReserves from '../stableswap/TokenReserves';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
@@ -933,7 +937,9 @@ export default function SwapCard(props: {
       />
       {swapMode === SWAP_MODE.STABLE ? (
         <TokenReserves
-          tokens={allTokens
+          tokens={AllStableTokenIds.map((id) =>
+            allTokens.find((token) => token.id === id)
+          )
             .filter((token) => isStableToken(token.id))
             .filter((token) => {
               return reservesType === 'BTC'

@@ -41,7 +41,7 @@ export const extraStableTokenIds = BTCIDS.concat(CUSDIDS).filter((_) => !!_);
 
 export const AllStableTokenIds = new Array(
   ...new Set(
-    extraStableTokenIds.concat(STABLE_TOKEN_IDS).concat(STABLE_TOKEN_USN_IDS)
+    STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(extraStableTokenIds)
   )
 );
 
