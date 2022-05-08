@@ -369,6 +369,8 @@ export const estimateSwap = async ({
 
   const orpools = await getRefPoolsByToken1ORToken2(tokenIn.id, tokenOut.id);
 
+  console.log(orpools.length, 'or pool length');
+
   let stableSmartActionsV2 = await stableSmart(
     orpools.filter((p) => !p?.Dex || p.Dex !== 'tri'),
     tokenIn.id,

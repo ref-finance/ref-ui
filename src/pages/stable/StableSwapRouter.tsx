@@ -13,8 +13,6 @@ export const StableSwapRouter = () => {
   const { id } = useParams<ParamTypes>();
   const { pool } = usePool(id);
 
-  console.log(pool);
-
   if (!pool) return <Loading />;
 
   if (pool.tokenIds.length > 2) return <StableSwapPage pool={pool} />;
