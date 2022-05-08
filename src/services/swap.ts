@@ -63,7 +63,12 @@ import { registerTokenAction, registerAccountOnToken } from './creators/token';
 import { BigNumber } from 'bignumber.js';
 import _, { filter, MemoVoidIteratorCapped, StringNullableChain } from 'lodash';
 import { getSwappedAmount } from './stable-swap';
-import { isStablePool, ALL_STABLE_POOL_IDS, STABLE_POOL_ID } from './near';
+import {
+  isStablePool,
+  ALL_STABLE_POOL_IDS,
+  STABLE_POOL_ID,
+  isStableToken,
+} from './near';
 import { SWAP_MODE } from '../pages/SwapPage';
 import {
   STABLE_TOKEN_USN_IDS,
@@ -311,8 +316,6 @@ export const estimateSwap = async ({
 }: EstimateSwapOptions): Promise<EstimateSwapView[]> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
 
-  console.log(swapMode, 'swapmode');
-
   if (ONLY_ZEROS.test(parsedAmountIn))
     throw new Error(
       `${amountIn} ${intl.formatMessage({ id: 'is_not_a_valid_swap_amount' })}`
@@ -388,6 +391,9 @@ export const estimateSwap = async ({
 
   // hybrid smart routing
   if (isStableToken(tokenIn.id) || isStableToken(tokenOut.id)) {
+    const bothStableToken =
+      isStableToken(tokenIn.id) && isStableToken(tokenOut.id);
+
     let hybridStableSmart = await getHybridStableSmart(
       tokenIn,
       tokenOut,
@@ -397,10 +403,10 @@ export const estimateSwap = async ({
     );
 
     let hybridStableSmartOutputEstimate = hybridStableSmart.estimate.toString();
-    console.log(hybridStableSmartOutputEstimate, smartRouteV2OutputEstimate);
 
     if (
       swapMode === SWAP_MODE.STABLE ||
+      bothStableToken ||
       new Big(hybridStableSmartOutputEstimate).gt(
         new Big(smartRouteV2OutputEstimate)
       )
@@ -607,6 +613,10 @@ export async function getHybridStableSmart(
   swapMode: SWAP_MODE
 ) {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
+
+  const bothStableCoin =
+    isStableToken(tokenIn.id) && isStableToken(tokenOut.id);
+
   let pool1: Pool, pool2: Pool;
 
   let pools1: Pool[] = [];
@@ -614,8 +624,6 @@ export async function getHybridStableSmart(
 
   const { allStablePools, allStablePoolsById, allStablePoolsInfo } =
     await getAllStablePoolsFromCache(loadingTrigger);
-
-  console.log(allStablePoolsById);
 
   let candidatePools: Pool[][] = [];
 
@@ -649,9 +657,9 @@ export async function getHybridStableSmart(
         loadingTrigger: false,
       });
       const tobeAddedPools =
-        swapMode === SWAP_MODE.STABLE
+        swapMode === SWAP_MODE.STABLE || bothStableCoin
           ? stablePools
-          : tmpPools.concat(stablePools);
+          : tmpPools;
       pools2.push(
         ...tobeAddedPools.filter((p) => {
           const supplies = Object.values(p.supplies);
@@ -683,9 +691,9 @@ export async function getHybridStableSmart(
       });
 
       const tobeAddedPools =
-        swapMode === SWAP_MODE.STABLE
+        swapMode === SWAP_MODE.STABLE || bothStableCoin
           ? stablePools
-          : tmpPools.concat(stablePools);
+          : tmpPools;
 
       pools1.push(
         ...tobeAddedPools.filter((p) => {
