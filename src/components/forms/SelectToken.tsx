@@ -102,6 +102,8 @@ export const StableSelectToken = ({
 
   const BTCTokenList = BTCIDS.map((id) => id);
 
+  const [stableCoinType, setStableCoinType] = useState<string>('USD');
+
   // const stableTokensIdList = USDTokenList.concat(BTCTokenList);
 
   const ref = useRef(null);
@@ -119,11 +121,71 @@ export const StableSelectToken = ({
     preSelected && USDtokens.find((token) => token.id === preSelected.id);
 
   useEffect(() => {
+    if (coverUSD) {
+      setStableCoinType('BTC');
+    } else if (coverBTC) {
+      setStableCoinType('USD');
+    }
+  }, [coverBTC, coverUSD]);
+
+  useEffect(() => {
     if (visible)
       document.addEventListener('click', () => {
         setVisible(false);
       });
   }, [visible]);
+
+  const ClassTab = ({
+    stableCoinType,
+    setStableCoinType,
+  }: {
+    stableCoinType: string;
+    setStableCoinType: (type: string) => void;
+  }) => {
+    return (
+      <div
+        className="w-full flex items-center justify-between"
+        style={{
+          borderBottom: '1px solid #415462',
+        }}
+      >
+        <div
+          className={`rounded-lg py-1 w-full px-4 mb-2 text-center font-bold mt-1 ml-3 text-sm ${
+            stableCoinType === 'USD'
+              ? 'text-gradientFrom bg-black bg-opacity-20'
+              : 'text-primaryText cursor-pointer'
+          }  self-start ${coverUSD ? 'opacity-30' : ''}`}
+          onClick={(e) => {
+            e.nativeEvent.stopImmediatePropagation();
+            if (coverUSD) return;
+            else setStableCoinType('USD');
+          }}
+        >
+          USD
+        </div>
+        <div
+          className={`rounded-lg w-full py-1 text-center mr-3 font-bold  px-4 mb-2 mt-1
+          ${
+            stableCoinType === 'BTC'
+              ? 'text-BTCColor bg-black bg-opacity-20'
+              : 'text-primaryText cursor-pointer'
+          }
+           text-sm  self-start
+            ${coverBTC ? 'opacity-30' : ''}
+            `}
+          onClick={(e) => {
+            e.nativeEvent.stopImmediatePropagation();
+            if (coverBTC) return;
+            else setStableCoinType('BTC');
+          }}
+        >
+          BTC
+        </div>
+      </div>
+    );
+  };
+
+  const displayList = stableCoinType === 'USD' ? USDtokens : BTCtokens;
 
   return (
     <div className="w-2/5 outline-none my-auto relative overflow-visible">
@@ -146,7 +208,7 @@ export const StableSelectToken = ({
         {selected}
       </div>
       <div
-        className={`stable-token-selector rounded-2xl flex flex-col top-12 p-1.5 ${
+        className={`stable-token-selector rounded-2xl flex flex-col w-54 top-12 py-3 ${
           visible ? 'block' : 'hidden'
         } absolute`}
         style={{
@@ -154,90 +216,27 @@ export const StableSelectToken = ({
           backdropFilter: 'blur(15px)',
           WebkitBackdropFilter: 'blur(15px)',
           border: '1px solid #415462',
-          width: '162px',
           zIndex: 999,
           left: isMobile() ? '-20px' : '40px',
         }}
       >
-        <div className={`flex flex-col `}>
-          <div
-            className={`rounded-2xl py-0.5 px-4 mb-1 mt-4 bg-black bg-opacity-20 text-sm text-gradientFrom self-start ${
-              coverUSD ? 'opacity-30' : ''
-            }`}
-            onClick={(e) => {
-              e.nativeEvent.stopImmediatePropagation();
-            }}
-          >
-            USD
-          </div>
-          {USDtokens.map((token) => {
+        <ClassTab
+          setStableCoinType={setStableCoinType}
+          stableCoinType={stableCoinType}
+        />
+        <div
+          className={`flex flex-col`}
+          style={{
+            height: '270px',
+          }}
+        >
+          {displayList.map((token) => {
             return (
               <div
                 key={`stable-token-${token.id}`}
-                className={`flex items-center justify-between ${
-                  coverUSD
-                    ? 'opacity-30'
-                    : `hover:bg-black hover:bg-opacity-20 cursor-pointer`
-                } py-2 pl-4 pr-2 rounded-2xl `}
+                className={`flex items-center justify-between hover:bg-black hover:bg-opacity-20 cursor-pointer py-2 pl-4 pr-2 mx-3 mt-3 rounded-2xl `}
                 onClick={(e) => {
                   e.nativeEvent.stopImmediatePropagation();
-                  if (coverUSD) return;
-
-                  setVisible(!visible);
-                  onSelect(token);
-                }}
-              >
-                <span className="text-white font-semibold text-sm">
-                  {toRealSymbol(token.symbol)}
-                </span>
-                <span>
-                  {token.icon ? (
-                    <img
-                      className="rounded-full border border-gradientFromHover"
-                      src={token.icon}
-                      style={{
-                        width: '26px',
-                        height: '26px',
-                      }}
-                    />
-                  ) : (
-                    <div
-                      className="rounded-full border border-gradientFromHover"
-                      style={{
-                        width: '26px',
-                        height: '26px',
-                      }}
-                    ></div>
-                  )}
-                </span>
-              </div>
-            );
-          })}
-          <div
-            className={`rounded-2xl py-0.5 px-4 mb-1 mt-4 bg-black bg-opacity-20 text-sm  self-start
-            ${coverBTC ? 'opacity-30' : ''}
-            `}
-            style={{
-              color: '#F38632',
-            }}
-            onClick={(e) => {
-              e.nativeEvent.stopImmediatePropagation();
-            }}
-          >
-            BTC
-          </div>
-          {BTCtokens.map((token) => {
-            return (
-              <div
-                key={`stable-token-${token.id}`}
-                className={`flex items-center justify-between ${
-                  coverBTC
-                    ? 'opacity-30'
-                    : 'hover:bg-black hover:bg-opacity-20 cursor-pointer'
-                } py-2 pl-4 pr-2 rounded-2xl `}
-                onClick={(e) => {
-                  e.nativeEvent.stopImmediatePropagation();
-                  if (coverBTC) return;
 
                   setVisible(!visible);
                   onSelect(token);
