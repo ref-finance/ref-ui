@@ -48,6 +48,8 @@ import {
   swapToast,
 } from '../components/layout/transactionTipPopUp';
 import { SWAP_MODE } from '../pages/SwapPage';
+import { getErrorMessage } from '../components/layout/transactionTipPopUp';
+import { checkTransactionStatus } from '../services/swap';
 import {
   parsedTransactionSuccessValue,
   checkCrossSwapTransactions,
@@ -135,15 +137,7 @@ export const useSwap = ({
     if (txHash && getCurrentWallet().wallet.isSignedIn()) {
       checkTransaction(txHash)
         .then((res: any) => {
-          const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
-
-          const isSlippageError = res.receipts_outcome.some((outcome: any) => {
-            return slippageErrorPattern.test(
-              outcome?.outcome?.status?.Failure?.ActionError?.kind
-                ?.FunctionCallError?.ExecutionError
-            );
-          });
-
+          const transactionErrorType = getErrorMessage(res);
           const transaction = res.transaction;
           return {
             isSwap:
@@ -152,13 +146,13 @@ export const useSwap = ({
               transaction?.actions[0]?.['FunctionCall']?.method_name ===
                 'ft_transfer_call' ||
               transaction?.actions[0]?.['FunctionCall']?.method_name === 'swap',
-            isSlippageError,
+            transactionErrorType,
           };
         })
-        .then(({ isSwap, isSlippageError }) => {
+        .then(({ isSwap, transactionErrorType }) => {
           if (isSwap) {
-            !isSlippageError && !errorType && swapToast(txHash);
-            isSlippageError && failToast(txHash, 'Slippage Violation');
+            !transactionErrorType && !errorType && swapToast(txHash);
+            transactionErrorType && failToast(txHash, transactionErrorType);
           }
           history.replace(pathname);
         });

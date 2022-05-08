@@ -70,11 +70,7 @@ import {
   isStableToken,
 } from './near';
 import { SWAP_MODE } from '../pages/SwapPage';
-import {
-  STABLE_TOKEN_USN_IDS,
-  STABLE_POOL_USN_ID,
-  isStableToken,
-} from './near';
+import { STABLE_TOKEN_USN_IDS, STABLE_POOL_USN_ID } from './near';
 import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
 import {
   getSmartRouteSwapActions,

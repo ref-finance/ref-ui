@@ -50,7 +50,9 @@ export const ALL_STABLE_POOL_IDS = [
   STABLE_POOL_USN_ID,
   BTC_STABLE_POOL_ID,
   CUSD_STABLE_POOL_ID,
-].map((id) => id.toString());
+]
+  .filter((_) => _)
+  .map((id) => id.toString());
 
 export const BLACKLIST_POOL_IDS = config.BLACKLIST_POOL_IDS;
 
