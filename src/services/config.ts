@@ -271,8 +271,21 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
     case 'production':
     case 'mainnet':
       return {
-        BTCIDS: [''],
-        CUSDIDS: [''],
+        BTCIDS: [
+          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near',
+          '0316eb71485b0ab14103307bf65a021042c6d380.factory.bridge.near',
+        ],
+        BTC_STABLE_POOL_INDEX: {
+          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near': 0,
+          '0316eb71485b0ab14103307bf65a021042c6d380.factory.bridge.near': 1,
+        },
+        BTC_STABLE_POOL_ID: '3364',
+        CUSDIDS: ['usn', 'cusd.token.a11bd.near'],
+        CUSD_STABLE_POOL_INDEX: {
+          usn: 0,
+          'cusd.token.a11bd.near': 1,
+        },
+        CUSD_STABLE_POOL_ID: '608', //TODO:
       };
     case 'development':
     case 'pub-testnet':
@@ -307,8 +320,21 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
       };
     default:
       return {
-        BTCIDS: [''],
-        CUSDIDS: [''],
+        BTCIDS: [
+          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near',
+          '0316eb71485b0ab14103307bf65a021042c6d380.factory.bridge.near',
+        ],
+        BTC_STABLE_POOL_INDEX: {
+          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near': 0,
+          '0316eb71485b0ab14103307bf65a021042c6d380.factory.bridge.near': 1,
+        },
+        BTC_STABLE_POOL_ID: '3364',
+        CUSDIDS: ['usn', 'cusd.token.a11bd.near'],
+        CUSD_STABLE_POOL_INDEX: {
+          usn: 0,
+          'cusd.token.a11bd.near': 1,
+        },
+        CUSD_STABLE_POOL_ID: '608', //TODO:
       };
   }
 }
