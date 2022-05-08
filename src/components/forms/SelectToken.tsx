@@ -217,7 +217,7 @@ export const StableSelectToken = ({
           WebkitBackdropFilter: 'blur(15px)',
           border: '1px solid #415462',
           zIndex: 999,
-          left: isMobile() ? '-20px' : '40px',
+          right: 0,
         }}
       >
         <ClassTab
