@@ -496,44 +496,6 @@ export const useCrossSwap = ({
     }
   }, [txHashes]);
 
-  // const getEstimateTri = async () => {
-  //   estimateSwap({
-  //     tokenIn,
-  //     tokenOut,
-  //     amountIn: tokenInAmount,
-  //     intl,
-  //     loadingTrigger: false,
-  //     supportLedger,
-  //     crossSwap: false,
-  //     onlyTri: true,
-  //   })
-  //     .then((estimates) => {
-  //       setSwapsToDoTri(estimates);
-  //     })
-  //     .catch((err) => {
-  //       setSwapsToDoTri([]);
-  //     });
-  // };
-
-  // const getEstimateRef = async () => {
-  //   estimateSwap({
-  //     tokenIn,
-  //     tokenOut,
-  //     amountIn: tokenInAmount,
-  //     intl,
-  //     loadingTrigger: false,
-  //     supportLedger,
-  //     crossSwap: false,
-  //     onlyTri: false,
-  //   })
-  //     .then((estimates) => {
-  //       setSwapsToDoRef(estimates);
-  //     })
-  //     .catch((err) => {
-  //       setSwapsToDoRef([]);
-  //     });
-  // };
-
   const getEstimateCrossSwap = () => {
     setCanSwap(false);
     setSwapError(null);
@@ -553,9 +515,6 @@ export const useCrossSwap = ({
         if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
           setAverageFee(estimates);
 
-          // await getEstimateRef();
-          // await getEstimateTri();
-
           setSwapsToDo(estimates);
           setCanSwap(true);
         }
@@ -566,6 +525,7 @@ export const useCrossSwap = ({
         setCanSwap(false);
         setTokenOutAmount('');
         setSwapError(err);
+        console.error(err);
       })
       .finally(() => {
         loadingTrigger && !requested && setRequested(true);

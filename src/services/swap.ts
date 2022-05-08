@@ -311,6 +311,8 @@ export const estimateSwap = async ({
 }: EstimateSwapOptions): Promise<EstimateSwapView[]> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
 
+  console.log(swapMode, 'swapmode');
+
   if (ONLY_ZEROS.test(parsedAmountIn))
     throw new Error(
       `${amountIn} ${intl.formatMessage({ id: 'is_not_a_valid_swap_amount' })}`
@@ -364,6 +366,7 @@ export const estimateSwap = async ({
   }
 
   // ref smart routing
+
   const orpools = await getRefPoolsByToken1ORToken2(tokenIn.id, tokenOut.id);
 
   let stableSmartActionsV2 = await stableSmart(
@@ -644,7 +647,9 @@ export async function getHybridStableSmart(
         loadingTrigger: false,
       });
       const tobeAddedPools =
-        swapMode === SWAP_MODE.STABLE ? stablePools : tmpPools;
+        swapMode === SWAP_MODE.STABLE
+          ? stablePools
+          : tmpPools.concat(stablePools);
       pools2.push(
         ...tobeAddedPools.filter((p) => {
           const supplies = Object.values(p.supplies);
@@ -676,7 +681,9 @@ export async function getHybridStableSmart(
       });
 
       const tobeAddedPools =
-        swapMode === SWAP_MODE.STABLE ? stablePools : tmpPools;
+        swapMode === SWAP_MODE.STABLE
+          ? stablePools
+          : tmpPools.concat(stablePools);
 
       pools1.push(
         ...tobeAddedPools.filter((p) => {
@@ -718,7 +725,6 @@ export async function getHybridStableSmart(
   }
 
   // return best estimate
-
   console.log(candidatePools);
   if (candidatePools.length > 0) {
     const tokensMedata = await ftGetTokensMetadata(

@@ -463,7 +463,9 @@ export default function ({
           title={toPrecision(displayTotalValue, 0)}
         >
           $
-          {Number(displayTotalValue) < 0.001
+          {type === 'BTC' && !BTCValue
+            ? '-'
+            : Number(displayTotalValue) < 0.001
             ? ' <0.001'
             : toInternationalCurrencySystem(displayTotalValue, 3)}
         </div>
@@ -490,7 +492,9 @@ export default function ({
           <InfoLine
             title={intl.formatMessage({ id: totalUSDValueId })}
             value={
-              Number(displayTotalValue) < 0.001
+              !BTCValue
+                ? '$-'
+                : Number(displayTotalValue) < 0.001
                 ? '$<0.001'
                 : `$${
                     toInternationalCurrencySystem(displayTotalValue, 3) || '0'
