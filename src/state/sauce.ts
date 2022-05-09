@@ -57,7 +57,7 @@ export const useStabelPoolData = (pool_id: string | number) => {
       stakeList,
       tokens,
     });
-  }, [pool, tokens, shares, stakeList]);
+  }, [pool, tokens, shares, stakeList, farmStake]);
 
   return { poolData };
 };
