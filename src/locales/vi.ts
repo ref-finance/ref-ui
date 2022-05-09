@@ -529,6 +529,11 @@ const vi = {
   to_recover_them: 'để khôi phục chúng',
   ref_account_tip_3:
     'Để rút token từ Tài khoản REF của bạn vào Ví GẦN của bạn, vui lòng chọn và rút tiền',
+  aurora_account_tip_4:
+    'Để rút token từ Tài khoản Bản đồ của bạn vào Ví GẦN của bạn, vui lòng chọn và rút tiền',
+  pool_fee_cross_swap: 'Phí pool/cross-chain',
+  mapping_account: 'Lập bản đồ tài khoản',
+  mapping_account_tip: 'Bạn có (các) token trong Tài khoản Bản đồ',
   admin_sentence_1:
     'Ref Finance được quản lí bởi  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
@@ -539,6 +544,10 @@ const vi = {
     '>Tài liệu</label> của chúng tôi.',
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
+  Confirm: 'Xác nhận',
+  Request_for_Quote: 'Yêu cầu báo giá',
+  mapping_account_explanation:
+    'Địa chỉ ví mapping là một proxy address giúp kết nối đồng thời tài khoản trên NEAR với một địa chỉ ví ETH trên Aurora',
   buy: 'Mua',
   sell: 'Bán',
   buy_nsn: 'Mua USN',
@@ -549,5 +558,8 @@ const vi = {
   usn_successful_click_to_view: 'Giao dịch thành công. Nhấn để xem',
   awesomeNear_verified_token: 'token được xác nhận bởi AwesomeNear',
   usn_fee_tip: 'Không tính phí theo Ref, người dùng chỉ phải trả phí USN!',
+  name: 'Tên',
+  diff: 'Khác biệt',
+  best: 'Tốt nhất',
 };
 export default Object.assign(vi, vi_in_risks_page);

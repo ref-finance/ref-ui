@@ -16,14 +16,9 @@ import {
   calculateFeeCharge,
   calculateFeePercent,
   calculateSmartRoutingPriceImpact,
-  percent,
-  percentLess,
   toPrecision,
   toReadableNumber,
-  subtraction,
-  calculatePriceImpact,
   ONLY_ZEROS,
-  percentOf,
   multiply,
   divide,
   scientificNotationToString,
@@ -62,21 +57,12 @@ import {
   RouterIcon,
   SmartRouteV2,
 } from '../../components/layout/SwapRoutes';
-import QuestionMark, {
-  QuestionMarkStaticForParaSwap,
-} from '~components/farm/QuestionMark';
 
-import ReactTooltip from 'react-tooltip';
-import * as math from 'mathjs';
-import { HiOutlineExternalLink } from 'react-icons/hi';
 import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
 import { QuestionTip } from '../../components/layout/TipWrapper';
-import { Guide } from '../../components/layout/Guide';
-import { sortBy } from 'lodash';
-import { getCurrentWallet } from '../../utils/sender-wallet';
 import { senderWallet, WalletContext } from '../../utils/sender-wallet';
 import { SwapArrow, SwapExchange } from '../icon/Arrows';
-import { getPoolAllocationPercents } from '../../utils/numbers';
+import { getPoolAllocationPercents, percentLess } from '../../utils/numbers';
 import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
 import { SWAP_MODE } from '../../pages/SwapPage';
@@ -489,7 +475,7 @@ function DetailView({
           value={poolFeeDisplay}
         />
 
-        {isParallelSwap && pools.length > 1 && (
+        {isParallelSwap && swapsTodo && swapsTodo.length > 1 && (
           <ParallelSwapRoutesDetail
             tokenIn={tokenIn}
             tokenOut={tokenOut}
@@ -512,10 +498,12 @@ export default function SwapCard(props: {
   allTokens: TokenMetadata[];
   swapMode: SWAP_MODE;
   stablePools: Pool[];
+  tokenInAmount: string;
+  setTokenInAmount: (value: string) => void;
 }) {
-  const { allTokens, swapMode, stablePools } = props;
+  const { allTokens, swapMode, stablePools, tokenInAmount, setTokenInAmount } =
+    props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
-  const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
 
@@ -525,8 +513,8 @@ export default function SwapCard(props: {
 
   const [useNearBalance, setUseNearBalance] = useState<boolean>(true);
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();
@@ -629,7 +617,6 @@ export default function SwapCard(props: {
         )
           setReEstimateTrigger(!reEstimateTrigger);
       }
-      setTokenInAmount(toPrecision('1', 6));
     }
   }, [allTokens, swapMode]);
 
@@ -868,6 +855,11 @@ export default function SwapCard(props: {
               );
 
               setTokenInAmount(toPrecision('1', 6));
+              localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
+              localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
+              history.replace(
+                `#${tokenOut.id}${TOKEN_URL_SEPARATOR}${tokenIn.id}`
+              );
             }}
           />
         </div>

@@ -40,6 +40,7 @@ import {
   STABLE_POOL_USN_ID,
 } from './near';
 import moment from 'moment';
+import { getAllTriPools } from './aurora/aurora';
 import { filterBlackListPools } from './near';
 const explorerType = getExplorer();
 
@@ -75,6 +76,7 @@ export interface Pool {
   tvl: number;
   token0_ref_price: string;
   partialAmountIn?: string;
+  Dex?: string;
 }
 
 export interface StablePool {
@@ -281,6 +283,7 @@ interface GetPoolOptions {
   setLoadingTrigger?: (loadingTrigger: boolean) => void;
   setLoadingData?: (loading: boolean) => void;
   loadingTrigger: boolean;
+  crossSwap?: boolean;
 }
 
 export const isNotStablePool = (pool: Pool) => {
@@ -292,6 +295,7 @@ export const getPoolsByTokens = async ({
   tokenOutId,
   setLoadingData,
   loadingTrigger,
+  crossSwap,
 }: GetPoolOptions): Promise<Pool[]> => {
   let filtered_pools;
   const [cacheForPair, cacheTimeLimit] = await db.checkPoolsByTokens(
@@ -308,9 +312,20 @@ export const getPoolsByTokens = async ({
     const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
     const pools = (
       await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
-    ).flat();
+    )
+      .flat()
+      .map((p) => ({ ...p, Dex: 'ref' }));
 
-    filtered_pools = pools.filter(isNotStablePool).filter(filterBlackListPools);
+    // get tripools
+    let triPools;
+    if (crossSwap) {
+      triPools = await getAllTriPools();
+    }
+
+    filtered_pools = pools
+      .concat(triPools || [])
+      .filter(isNotStablePool)
+      .filter(filterBlackListPools);
 
     await db.cachePoolsByTokens(filtered_pools);
     filtered_pools = filtered_pools.filter(
@@ -320,8 +335,9 @@ export const getPoolsByTokens = async ({
     await getStablePoolFromCache(STABLE_POOL_USN_ID.toString());
   }
   setLoadingData && setLoadingData(false);
+
   // @ts-ignore
-  return filtered_pools;
+  return filtered_pools.filter((p) => crossSwap || !p?.Dex || p.Dex !== 'tri');
 };
 
 export const getRefPoolsByToken1ORToken2 = async (

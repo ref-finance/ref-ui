@@ -41,8 +41,8 @@ function WrapNear(props: ReactModal.Props) {
 
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   useEffect(() => {
     if (tokenIn && tokenIn.id !== 'NEAR') {

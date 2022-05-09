@@ -529,8 +529,17 @@ const ko = {
   to_recover_them: '그것들을 회수하세요',
   ref_account_tip_3:
     'Ref 계정으로부터 NEAR 월렛으로 토큰을 인출하시려면 선택 후 인출을 눌러주세요',
+  aurora_account_tip_4:
+    '매핑 계정에서 NEAR 지갑으로 토큰을 인출하려면 선택하고 인출하십시오',
+  pool_fee_cross_swap: '풀/크로스 체인 수수료',
+  mapping_account: '매핑 계정',
+  mapping_account_tip: '매핑 계정에 토큰이 있습니다',
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
+  Confirm: '확인하다',
+  Request_for_Quote: '견적 요청',
+  mapping_account_explanation:
+    "맵핑 주소는 '프록시 주소'인데, 이는 유저의 NEAR 계정을 유저의 오로라 ETH 주소와 대응시켜준다는 뜻입니다.",
   buy: '구매',
   sell: '매각',
   buy_nsn: 'USN 구매',
@@ -542,5 +551,8 @@ const ko = {
   usn_successful_click_to_view: '거래 성공. 클릭해서 확인하세요',
   awesomeNear_verified_token: 'AwesomeNear 인증된 토큰입니다',
   usn_fee_tip: 'Ref에 의해 부과되는 수수료 없음, 사용자는 USN 수수료만 지불!',
+  name: '이름',
+  diff: '차이',
+  best: '최상의',
 };
 export default Object.assign(ko, ko_in_risks_page);

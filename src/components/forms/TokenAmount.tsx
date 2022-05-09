@@ -9,13 +9,20 @@ import { TokenMetadata } from '../../services/ft-contract';
 import { TokenBalancesView } from '../../services/token';
 import Icon from '../tokens/Icon';
 import InputAmount from './InputAmount';
+import { tokenPrice } from './SelectToken';
+import { toInternationalCurrencySystem } from '../../utils/numbers';
 import SelectToken, { StableSelectToken } from './SelectToken';
 import { toPrecision, multiply, ONLY_ZEROS } from '../../utils/numbers';
 import { FormattedMessage } from 'react-intl';
 import { SmallWallet } from '~components/icon/SmallWallet';
-import { SWAP_MODE } from '../../pages/SwapPage';
 import { RefIcon } from '../../components/icon/Common';
 import { currentTokensPrice } from '../../services/api';
+import { IconLeft } from '../tokens/Icon';
+import { toRealSymbol } from '../../utils/token';
+import { ArrowDownGreen, ArrowDownWhite } from '../icon/Arrows';
+import { percentLess } from '../../utils/numbers';
+import { isMobile } from '../../utils/device';
+import { SWAP_MODE } from '../../pages/SwapPage';
 
 interface TokenAmountProps {
   amount?: string;
@@ -38,19 +45,23 @@ interface TokenAmountProps {
   swapMode?: SWAP_MODE;
 }
 
-function HalfAndMaxAmount({
+export function HalfAndMaxAmount({
   max,
   onChangeAmount,
   token,
+  forCrossSwap,
 }: {
   max: string;
   token: TokenMetadata;
   onChangeAmount: (amount: string) => void;
+  forCrossSwap?: boolean;
 }) {
   return (
     <div className="flex items-center">
       <span
-        className="px-2 py-1 hover:bg-black hover:bg-opacity-20 cursor-pointer  rounded-3xl mr-1 text-primaryText text-xs"
+        className={`px-2 py-1 hover:bg-black hover:bg-opacity-20 cursor-pointer ${
+          forCrossSwap ? 'hover:text-gradientFrom' : ''
+        }  rounded-3xl text-primaryText text-xs`}
         onClick={() => {
           const half = percentOfBigNumber(50, max, token.decimals);
 
@@ -61,7 +72,9 @@ function HalfAndMaxAmount({
       </span>
 
       <span
-        className="px-2 py-1 hover:bg-black hover:bg-opacity-20 cursor-pointer rounded-3xl ml-1 text-primaryText text-xs"
+        className={`px-2 py-1 hover:bg-black hover:bg-opacity-20 cursor-pointer rounded-3xl ${
+          forCrossSwap ? 'hover:text-gradientFrom' : ''
+        } text-primaryText text-xs`}
         onClick={() => {
           onChangeAmount(max);
         }}
@@ -181,5 +194,236 @@ export default function TokenAmount({
         )}
       </fieldset>
     </>
+  );
+}
+
+export function TokenCardIn({
+  tokenIn,
+  max,
+  onChangeAmount,
+  tokenPriceList,
+  tokens,
+  onSelectToken,
+  balances,
+  amount,
+  hidden,
+}: {
+  tokenIn: TokenMetadata;
+  max: string;
+  onChangeAmount: (amount: string) => void;
+  tokenPriceList?: Record<string, any>;
+  tokens: TokenMetadata[];
+  onSelectToken?: (token: TokenMetadata) => void;
+  balances: TokenBalancesView;
+  amount: string;
+  hidden: boolean;
+}) {
+  const [hoverSelectToken, setHoverSelectToken] = useState(false);
+
+  const price = tokenPriceList?.[tokenIn?.id]?.price || null;
+  const [symbolsArr] = useState(['e', 'E', '+', '-']);
+
+  if (hidden) return null;
+
+  return (
+    <div
+      className="bg-black bg-opacity-20 p-5 xs:px-4 py-5 flex flex-col"
+      style={{
+        borderRadius: '20px',
+      }}
+    >
+      <div className="flex items-center justify-between pb-4">
+        <span className="text-sm text-primaryText">
+          <FormattedMessage id="from" defaultMessage="From" />
+        </span>
+        <div className="text-xs text-primaryText flex items-center">
+          <HalfAndMaxAmount
+            token={tokenIn}
+            max={max}
+            onChangeAmount={onChangeAmount}
+            forCrossSwap
+          />
+          <span className="ml-2">{toPrecision(max, 3, true)}</span>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <SelectToken
+          tokenPriceList={tokenPriceList}
+          tokens={tokens}
+          forCross
+          selected={
+            <div
+              className="flex font-semibold "
+              onMouseEnter={() => setHoverSelectToken(true)}
+              onMouseLeave={() => setHoverSelectToken(false)}
+            >
+              {tokenIn ? (
+                <IconLeft token={tokenIn} hover={hoverSelectToken} />
+              ) : null}
+            </div>
+          }
+          onSelect={onSelectToken}
+          balances={balances}
+        />
+
+        <div
+          className="flex flex-col items-end"
+          style={{
+            width: !isMobile() ? '100%' : '55%',
+          }}
+        >
+          <input
+            className="text-right text-white text-xl xs:text-lg"
+            value={amount}
+            type="number"
+            min="0"
+            placeholder="0.0"
+            onChange={(e) => onChangeAmount(e.target.value)}
+            onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
+            step="any"
+          />
+
+          <div>
+            {tokenPrice(
+              price && !ONLY_ZEROS.test(amount) ? multiply(price, amount) : null
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function TokenCardOut({
+  tokenOut,
+  onSelectToken,
+  tokenPriceList,
+  tokens,
+  balances,
+  hidden,
+  max,
+}: {
+  tokenOut: TokenMetadata;
+  onSelectToken: (token: TokenMetadata) => void;
+  hidden: boolean;
+  tokenPriceList?: Record<string, any>;
+  tokens: TokenMetadata[];
+  balances: TokenBalancesView;
+  max: string;
+}) {
+  const [hoverSelectToken, setHoverSelectToken] = useState(false);
+  if (hidden) return null;
+  return (
+    <div
+      className="bg-black bg-opacity-20 py-5"
+      style={{
+        borderRadius: '20px',
+      }}
+    >
+      <div className="text-sm text-primaryText pb-4 flex items-center justify-between px-5">
+        <span>
+          <FormattedMessage id="to" defaultMessage="To" />
+        </span>
+
+        <span className="ml-2 text-xs">{toPrecision(max, 3, true)}</span>
+      </div>
+      <SelectToken
+        tokenPriceList={tokenPriceList}
+        tokens={tokens}
+        forCross
+        standalone
+        selected={
+          <div
+            className="flex font-semibold w-full cursor-pointer pl-4 xs:pl-3 pr-3"
+            onMouseEnter={() => setHoverSelectToken(true)}
+            onMouseLeave={() => setHoverSelectToken(false)}
+          >
+            {tokenOut ? (
+              <div
+                className={`flex items-center text-lg text-white justify-between w-full rounded-full flex-shrink-0  ${
+                  hoverSelectToken ? 'bg-black bg-opacity-20 ' : ''
+                }`}
+                style={{ lineHeight: 'unset' }}
+              >
+                <div className="flex items-center">
+                  <img
+                    key={tokenOut.id}
+                    className="mr-2 xs:ml-0 xs:mr-1  h-11 w-11 xs:h-7 xs:w-7 border rounded-full border-greenLight"
+                    src={tokenOut.icon}
+                  />
+                  <p className="block text-lg xs:text-sm">
+                    {toRealSymbol(tokenOut.symbol)}
+                  </p>
+                </div>
+
+                <div className="pl-2 xs:pl-1 text-xs pr-4">
+                  {hoverSelectToken ? <ArrowDownGreen /> : <ArrowDownWhite />}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        }
+        onSelect={onSelectToken}
+        balances={balances}
+      />
+    </div>
+  );
+}
+
+export function CrossSwapTokens({
+  tokenIn,
+  tokenOut,
+  tokenPriceList,
+  amountIn,
+  amountOut,
+  slippageTolerance,
+}: {
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  tokenPriceList?: Record<string, any>;
+  amountIn: string;
+  amountOut: string;
+  slippageTolerance: number;
+}) {
+  const tokenInPrice = tokenPriceList?.[tokenIn?.id]?.price || null;
+  const tokenOutPrice = tokenPriceList?.[tokenOut?.id]?.price || null;
+
+  if (!tokenIn || !tokenOut || !amountOut) return null;
+
+  return (
+    <div className="py-5 px-4 border bg-black bg-opacity-20 border-gradientFrom rounded-xl flex items-center justify-between relative">
+      <div className="flex flex-col justify-between">
+        <span className="text-white flex items-center xs:text-sm">
+          <span>{toPrecision(amountIn, 3)}</span>
+          <span className="ml-1">{toRealSymbol(tokenIn?.symbol)}</span>
+          <div
+            className=" text-2xl xs:text-xl font-bold ml-6 xs:ml-3"
+            style={{
+              color: '#7e8a93',
+            }}
+          >
+            {'>'}
+          </div>
+        </span>
+        <span className="text-sm xs:text-xs text-primaryText pt-1">
+          {tokenInPrice ? tokenPrice(multiply(amountIn, tokenInPrice)) : null}
+        </span>
+      </div>
+
+      <div className="flex flex-col justify-between items-end">
+        <span className="text-gradientFrom font-bold text-xl xs:text-base">
+          <span title={percentLess(slippageTolerance, amountOut)}>
+            {toPrecision(percentLess(slippageTolerance, amountOut), 6)}
+          </span>
+          <span className="ml-1">{toRealSymbol(tokenOut?.symbol)}</span>
+        </span>
+        <span className="text-sm text-primaryText pt-1">
+          {tokenOutPrice
+            ? tokenPrice(multiply(amountOut, tokenOutPrice))
+            : null}
+        </span>
+      </div>
+    </div>
   );
 }

@@ -416,3 +416,16 @@ export function StableSwapExchangePC({
     </div>
   );
 }
+
+export const ExchangeArrow = () => {
+  return (
+    <div className="flex flex-col items-center mx-1">
+      <span>
+        <SwapArrowRight />
+      </span>
+      <span>
+        <SwapArrowLeft />
+      </span>
+    </div>
+  );
+};

@@ -137,7 +137,27 @@ function senderWalletFunc(window: Window) {
 
   this.signOut = function () {
     // removeSenderLoginRes();
-    return window.near.signOut();
+    const signedInContractSize = window?.near?.authData?.allKeys;
+
+    if (
+      signedInContractSize &&
+      Number(Object.keys(signedInContractSize).length === 1)
+    ) {
+      return window.near.signOut();
+    }
+
+    if (
+      signedInContractSize &&
+      Object.keys(signedInContractSize).includes('aurora')
+    ) {
+      return window.near.signOut({
+        contractId: 'aurora',
+      });
+    } else {
+      return window.near.signOut({
+        contractId: REF_FARM_CONTRACT_ID,
+      });
+    }
   };
 
   this.requestSignTransactions = async function (
@@ -237,17 +257,19 @@ export const getCurrentWallet = () => {
 
 export const WalletContext = createContext(null);
 
-export const signedInStateReducer = (
+export const globalStateReducer = (
   state: { isSignedIn: boolean },
   action: { type: 'signIn' | 'signOut' }
 ) => {
   switch (action.type) {
     case 'signIn':
       return {
+        ...state,
         isSignedIn: true,
       };
     case 'signOut':
       return {
+        ...state,
         isSignedIn: false,
       };
   }

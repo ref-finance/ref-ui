@@ -506,6 +506,11 @@ const uk_UA = {
   to_recover_them: 'щоб їх відновити',
   ref_account_tip_3:
     'Щоб вивести токени з вашого облікового запису REF на свій гаманець NEAR, виберіть і витягніть',
+  aurora_account_tip_4:
+    'Щоб вивести токени з картографічного облікового запису на свій гаманець NEAR, виберіть і вийдіть',
+  pool_fee_cross_swap: 'Плата за басейн/перехресний ланцюг',
+  mapping_account: 'Картографічний обліковий запис',
+  mapping_account_tip: 'У вас є маркери в картографічному обліковому записі',
   admin_sentence_1:
     'Ref Finance керується  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
@@ -516,17 +521,23 @@ const uk_UA = {
     '>Документацією.</label>.',
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
-  buy: 'Купуйте',
+  Confirm: 'Підтвердьте',
+  Request_for_Quote: 'Запит пропозицій',
+  mapping_account_explanation:
+    'Адреса відображення - це "проксі-адреса", яка зіставляє обліковий запис користувача NEAR з відповідною ETH-адресою на Aurora.',
+  buy: 'Купити',
   sell: 'Продати',
-  buy_nsn: 'Купуйте USN',
-  buy_nsn_tip:
-    'USN є рідною стабільною монетою, яка підтримується економікою NEAR',
-  usn_tip_one: "USN дозволяє торгувати на REF. Обов'язково",
-  rate: 'Оцінити',
+  buy_nsn: 'Купити USN',
+  buy_nsn_tip: 'USN це нативна монета забезпечена економікою NEAR. ',
+  usn_tip_one: 'USN дає вам змогу торгувати на REF. Переконайтесь, що  ',
+  rate: 'Рейтинг',
   trading_fee: 'Комісія за торгівлю',
   usn_successful_click_to_view: 'Торгівля успішна. Натисніть, щоб переглянути',
-  awesomeNear_verified_token: 'Перевірений маркер AwesomeNear',
+  awesomeNear_verified_token: 'Токен перевірений AwesomeNear Verified Token',
   usn_fee_tip:
     'Ref стягує нульову комісію, користувачі сплачують лише комісію USN!',
+  name: "Ім'я",
+  diff: 'Дифs',
+  best: 'Найкращий',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

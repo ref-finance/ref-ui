@@ -530,6 +530,25 @@ input[type='range']::-webkit-slider-runnable-track {
   background: url('./assets/imgs/gold.gif') center no-repeat;
   background-size: 100% 100%;
 }
+
+@keyframes ellipsis {
+  from {
+    width: 2px;
+  }
+  to {
+    width: 15px;
+  }
+}
+
+.crossSwap-requesting-loading::after {
+  overflow: hidden;
+  position: absolute;
+  display: inline-block;
+  vertical-align: bottom;
+  animation: ellipsis 2s infinite;
+  content: '\2026';
+}
+
 @-webkit-keyframes circle_right {
   0% {
     -webkit-transform: rotate(-136deg);

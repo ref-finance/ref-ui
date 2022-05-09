@@ -281,9 +281,10 @@ export const calculatePriceImpact = (
 export const calculateExchangeRate = (
   fee: number,
   from: string,
-  to: string
+  to: string,
+  precision?: number
 ) => {
-  return math.floor(math.evaluate(`${to} / ${from}`), 4);
+  return math.floor(math.evaluate(`${to} / ${from}`), precision || 4);
 };
 
 export const subtraction = (initialValue: string, toBeSubtract: string) => {
@@ -474,7 +475,10 @@ export const niceDecimals = (number: string | number, precision = 2) => {
   }
 };
 
-export function separateRoutes(actions: any, outputToken: string) {
+export function separateRoutes(
+  actions: EstimateSwapView[],
+  outputToken: string
+) {
   const res = [];
   let curRoute = [];
 
@@ -547,6 +551,8 @@ export function calculateSmartRoutesV2PriceImpact(
 }
 
 export function getPoolAllocationPercents(pools: Pool[]) {
+  if (pools.length === 1) return ['100'];
+
   if (pools) {
     const partialAmounts = pools.map((pool) => {
       return math.bignumber(pool.partialAmountIn);

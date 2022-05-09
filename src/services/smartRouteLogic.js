@@ -15,6 +15,12 @@ import {
   ftGetTokenMetadata,
   TokenMetadata,
 } from './ft-contract';
+import {
+  percentLess,
+  separateRoutes,
+  toNonDivisibleNumber,
+} from '../utils/numbers';
+import { getPoolEstimate } from './swap';
 
 Big.RM = 0;
 Big.DP = 40;
@@ -289,13 +295,13 @@ function getPoolChainFromPaths(paths, pools, threshold = 0.001) {
       let pair = pairs[pairInd];
       // console.log(pair);
       let tokenPools = getPoolsByToken1ANDToken2(pools, pair[0], pair[1]);
-      // console.log(tokenPools);
       chain.push(tokenPools);
     }
     poolChains.push(chain);
   }
   // return poolChains;
   let culledPoolChains = getCulledPoolChains(poolChains, threshold);
+
   return culledPoolChains;
 }
 
@@ -667,7 +673,8 @@ async function getBestOptimalAllocationsAndOutputs(
   inputToken,
   outputToken,
   totalInput,
-  maxPathLength = 3
+  maxPathLength = 3,
+  threshold = 0.001
 ) {
   var totalInput = new Big(totalInput);
   let paths = await getPathsFromPools(
@@ -684,9 +691,8 @@ async function getBestOptimalAllocationsAndOutputs(
       nodeRoutes: [],
     };
   }
-  let poolChains = await getPoolChainFromPaths(paths, pools);
-  // console.log('POOL CHAINS ARE...');
-  // console.log(poolChains);
+  let poolChains = await getPoolChainFromPaths(paths, pools, threshold);
+
   let routes = await getRoutesFromPoolChain(poolChains);
   let nodeRoutes = await getNodeRoutesFromPathsAndPoolChains(paths, poolChains);
   // let allocations = await getBestOptInput(routes, nodeRoutes, totalInput);
@@ -1320,6 +1326,7 @@ export async function getSmartRouteSwapActions(
   outputToken,
   totalInput,
   maxPathLength = 3,
+  threshold = 0.001,
   numberOfRoutesLimit = 2,
   MAX_NUMBER_PARALLEL_POOLS = 4
 ) {
@@ -1327,34 +1334,21 @@ export async function getSmartRouteSwapActions(
     return [];
   }
   var totalInput = new Big(totalInput);
-  // console.log('about to run bestOpt');
-  // console.log(pools[0]);
-  // pools = pools.filter((p) => p.token1Supply != '0');
-  // pools.map((p) => (p['token_account_ids'] = [ p.token1Id, p.token2Id ]));
-  // console.log(
-  // pools.filter((p) => p.token_account_ids.includes(inputToken) && p.token_account_ids.includes(outputToken))
-  // );
-  // console.log(inputToken);
-  // console.log(outputToken);
-  // console.log(totalInput.toString());
-  // console.log(maxPathLength);
-  // console.log('end of inputs');
+
   let resDict = await getBestOptimalAllocationsAndOutputs(
     pools,
     inputToken,
     outputToken,
     totalInput,
-    maxPathLength
+    maxPathLength,
+    threshold
   );
-  // console.log('resDict:');
-  // console.log(resDict);
+
   let allocations = resDict.allocations;
 
   // let outputs = resDict.outputs;
   let routes = resDict.routes;
   let nodeRoutes = resDict.nodeRoutes;
-
-  // here, we could try only grabbing the top, say, 10 routes from all routes and only comparing combinations of those:
 
   let sortedIndexValues = argsort(allocations);
   let topIndices = sortedIndexValues.slice(0, 10);
@@ -1366,11 +1360,6 @@ export async function getSmartRouteSwapActions(
   }
   routes = reducedRoutes;
   nodeRoutes = reducedNodeRoutes;
-
-  // console.log('initial routes are...');
-  // console.log(routes);
-  // console.log('initial node routes are...');
-  // console.log(nodeRoutes);
 
   // TODO: compare pairs of routes to get the best allocation pair-wise.
   var currentBestOutput = new Big(0);
@@ -1404,27 +1393,6 @@ export async function getSmartRouteSwapActions(
     if (parallellAllocations.length > MAX_NUMBER_PARALLEL_POOLS) {
       // now sort by allocation value to the top 4 parallel swaps:
       let sortIndices = argsort(parallellAllocations);
-      // console.log(sortIndices);
-
-      // // var indices = [ ...range(0, routes.length) ];
-      // sortIndices.slice(0, 6);
-      // let combos = combinations(indices, 4);
-      // var bestOutput = new Big(0);
-      // var bestAllocations = [];
-      // for (var c of combos) {
-      // let newRoutes = routes.filter((r, i) => c.includes(i));
-      // let newNodeRoutes = nodeRoutes.filter((r, i) => c.includes(i));
-      // // let newPhi = getPhiFromRoutes(routes,nodeRoutes,totalInput)
-      // let newOutput = getBestOptOutput(newRoutes, newNodeRoutes, totalInput);
-      // // console.log('CURRENT COMBO IS... ', c, newOutput.toString());
-
-      // if (newOutput.gt(bestOutput)) {
-      // bestAllocations = getBestOptInput(newRoutes, newNodeRoutes, totalInput);
-      // bestOutput = newOutput;
-      // console.log('NEW BETTER COMBO FOUND:');
-      // console.log(bestOutput.toString());
-      // }
-      // }
 
       sortIndices = sortIndices.slice(0, MAX_NUMBER_PARALLEL_POOLS);
       var filteredParallelRoutes = [];
@@ -1433,11 +1401,6 @@ export async function getSmartRouteSwapActions(
         filteredParallelRoutes.push(parallelRoutes[sortIndices[i]]);
         filteredParallelNodeRoutes.push(parallelNodeRoutes[sortIndices[i]]);
       }
-      // filteredAllocationsAndOutputs = getOptOutputVecRefined(
-      // filteredParallelRoutes,
-      // filteredParallelNodeRoutes,
-      // totalInput
-      // );
       filteredAllocationsAndOutputs = getOptOutputVec(
         filteredParallelRoutes,
         filteredParallelNodeRoutes,
@@ -1489,18 +1452,9 @@ export async function getSmartRouteSwapActions(
           continue;
         } else {
           canHaveTwoRoutes = true;
-          // console.log('No pool was shared.');
-          // console.log('NODE ROUTE 1 IS...', nodeRoute1);
-          // console.log('NODE ROUTE 2 IS...', nodeRoute2);
           let currentRoutes = [route1, route2];
-          // console.log('current Routes are...');
-          // console.log(currentRoutes);
           let currentNodeRoutes = [nodeRoute1, nodeRoute2];
-          // let filteredAllocationsAndOutputs = getOptOutputVecRefined(
-          // currentRoutes,
-          // currentNodeRoutes,
-          // totalInput
-          // );
+
           let filteredAllocationsAndOutputs = getOptOutputVec(
             currentRoutes,
             currentNodeRoutes,
@@ -1732,16 +1686,8 @@ export async function getSmartRouteSwapActions(
   for (var i in hops) {
     let hopInputTokenMeta = await ftGetTokenMetadata(hops[i].inputToken);
     let hopOutputTokenMeta = await ftGetTokenMetadata(hops[i].outputToken);
-    // console.log('hopOutputTokenMeta is');
-    // console.log(hopOutputTokenMeta);
     let hopOutputTokenDecimals = hopOutputTokenMeta.decimals;
-    // console.log('decimals is');
-    // console.log(hopOutputTokenDecimals);
-    // console.log('hop input token is...');
-    // console.log(hops[i].inputToken);
-    // console.log('hop output token is...');
-    // console.log(hops[i].outputToken);
-    // PROBLEM -- HERE, THE FILTERED OUTPUT IS THE TOTAL RESULT OF THE ROUTE, NOT OF THE HOP. FIXED IT!
+
     let expectedHopOutput = getOutputSingleHop(
       hops[i].pool,
       hops[i].inputToken,
@@ -1751,13 +1697,7 @@ export async function getSmartRouteSwapActions(
     let decimalEstimate = new Big(expectedHopOutput)
       .div(new Big(10).pow(hopOutputTokenDecimals))
       .toString();
-    // console.log('decimal estimate is...');
-    // console.log(decimalEstimate);
-    // console.log('hop pool is...');
-    // console.log(hops[i].pool);
 
-    // console.log('hop is...');
-    // console.log(hops[i]);
     if (
       hops[i].inputToken == inputToken &&
       hops[i].outputToken == outputToken
@@ -1784,6 +1724,7 @@ export async function getSmartRouteSwapActions(
         },
         token0_ref_price: hops[i].pool.token0_price,
         tokenIds: [hops[i].pool.token1Id, hops[i].pool.token2Id],
+        Dex: hops[i].pool.Dex,
       },
       status: status,
       token: hopInputTokenMeta,
@@ -1817,17 +1758,7 @@ export async function getSmartRouteSwapActions(
     }
   }
 
-  // console.log('ACTIONS 1006:');
-  // console.log(actions);
   return actions;
-  // let distilledActions = distillCommonPoolActions(
-  //   actions,
-  //   pools,
-  //   slippageTolerance
-  // );
-  // console.log('DISTILLED ACTIONS:');
-  // console.log(distilledActions);
-  // return distilledActions;
 }
 
 async function calculateSmartRouteV2PriceImpact(actions) {
@@ -1879,13 +1810,6 @@ async function calculateSmartRouteV2PriceImpact(actions) {
     );
     let weight = weights[i];
     if (route.length == 1) {
-      // single hop.
-      // console.log('route[0] is ...');
-      // console.log(route[0]);
-      // console.log('route[0].reserves are...');
-      // console.log(route[0].reserves);
-      // console.log(tokens.map((t) => t.decimals));
-
       let num = new Big(route[0].reserves[nodeRoute[0]]).div(
         new Big(10).pow(tokens[0].decimals)
       );
@@ -1897,16 +1821,6 @@ async function calculateSmartRouteV2PriceImpact(actions) {
       // console.log('ROUTE MARKET PRICE 1 IS...');
       // console.log(new Big(1).div(routeMarketPrice).toString());
     } else {
-      /// assume double hop.
-      // console.log('route[0] is ...');
-      // console.log(route[0]);
-      // console.log('route[0].reserves are...');
-      // console.log(route[0].reserves);
-      // console.log('route[1] is ...');
-      // console.log(route[1]);
-      // console.log('route[1].reserves are...');
-      // console.log(route[1].reserves);
-
       let num1 = new Big(route[0].reserves[nodeRoute[0]]).div(
         new Big(10).pow(tokens[0].decimals)
       );
@@ -1936,90 +1850,6 @@ async function calculateSmartRouteV2PriceImpact(actions) {
   let priceImpact = P.minus(R).div(R).times(new Big(100)).toString();
   return priceImpact;
 }
-
-function distillCommonPoolActions(actions, pools, slippageTolerance) {
-  //     #Note, if there are multiple transactions for a single pool, it might lead to sub-optimal
-  //     #returns. This is due to the fact that the routes are treated as independent, where
-  //     #here, if one transaction goes through in a pool, it changes the price of the asset
-  //     #before the second transaction can occur.
-
-  //     #combine same-pool transactions into single transaction:
-  let poolsUsedPerAction = actions.map((item) => item.pool_id);
-  let axnSet = [];
-  let repeats = false;
-  for (var i in poolsUsedPerAction) {
-    if (axnSet.includes(poolsUsedPerAction[i])) {
-      repeats = true;
-      break;
-    } else {
-      axnSet.push(poolsUsedPerAction[i]);
-    }
-  }
-  if (repeats) {
-    // console.log('FOUND REPEATING POOL');
-    var pid = {};
-    for (var ai in actions) {
-      let a = actions[ai];
-      let currentPoolId = a.pool_id;
-      if (Object.keys(pid).includes(currentPoolId)) {
-        pid.currentPoolId.push(a);
-      } else {
-        pid[currentPoolId] = [a];
-      }
-    }
-    var newActions = [];
-    var poolIds = Object.keys(pid);
-    for (var pi in poolIds) {
-      let poolId = poolIds[pi];
-      let actionList = pid[poolId];
-      if (actionList.length == 1) {
-        var poolTotalInput = new Big(actionList[0].amount_in);
-      } else {
-        var poolTotalInput = actionList.reduce(
-          (a, b) => new Big(a.amount_in) + new Big(b.amount_in),
-          new Big(0)
-        );
-      }
-
-      let inputToken = actionList[0].token_in;
-      let outputToken = actionList[0].token_out;
-      let pool = pools.filter((item) => item.id.toString() === poolId)[0];
-      let expectedMinimumOutput = getOutputSingleHop(
-        pool,
-        inputToken,
-        outputToken,
-        poolTotalInput
-      ).times(new Big(1).minus(new Big(slippageTolerance).div(100)));
-      let newAction = {
-        pool_id: poolId,
-        token_in: inputToken,
-        token_out: outputToken,
-        amount_in: poolTotalInput.round().toString(),
-        min_amount_out: expectedMinimumOutput.round().toString(),
-      };
-      newActions.push(newAction);
-    }
-  } else {
-    // console.log('FOUND NO REPEATING POOL');
-    return actions;
-  }
-  return newActions;
-}
-
-// pool =
-// {"id": 19,
-// "token1Id": "wrap.near",
-// "token2Id": "a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near",
-// "token1Supply": "458507706848275237144751",
-// "token2Supply": "4773827",
-// "fee": 20,
-// "shares": "1433530386500514261296380",
-// "update_time": 1643427419,
-// "token0_price": "0"}
-
-//////////////////////////////////////////////////////////////
-// UTILITIES
-//////////////////////////////////////////////////////////////
 
 function decor(arr) {
   var res = [];
@@ -2813,21 +2643,61 @@ export async function stableSmart(
 //   }
 // }
 
-// function getExpectedOutputFromActionsORIG(actions, outputToken) {
-//   return actions
-//     .filter((item) => item.token_out === outputToken)
-//     .map((item) => new Big(item.min_amount_out))
-//     .reduce((a, b) => a.plus(b), new Big(0));
-// }
-
-export function getExpectedOutputFromActions(actions, outputToken) {
-  // console.log('INSIDE EXPECTED OUTPUT FUNC');
-  // console.log(outputToken);
-  // console.log(actions);
+export function getExpectedOutputFromActionsORIG(actions, outputToken) {
   return actions
     .filter((item) => item.outputToken === outputToken)
     .map((item) => new Big(item.estimate))
     .reduce((a, b) => a.plus(b), new Big(0));
+}
+
+export async function getExpectedOutputFromActions(
+  actions,
+  outputToken,
+  slippageTolerance
+) {
+  // TODO: on cross swap case
+  // console.log('INSIDE EXPECTED OUTPUT FUNC');
+  // console.log(outputToken);
+  // console.log(actions);
+
+  let expectedOutput = new Big(0);
+
+  if (!actions || actions.length === 0) return expectedOutput;
+
+  const routes = separateRoutes(actions, outputToken);
+
+  for (let i = 0; i < routes.length; i++) {
+    const curRoute = routes[i];
+
+    if (curRoute.length === 1) {
+      expectedOutput = expectedOutput.plus(curRoute[0].estimate);
+    } else {
+      if (
+        curRoute.every((r) => r.pool.Dex !== 'tri') ||
+        curRoute.every((r) => r.pool.Dex === 'tri')
+      )
+        expectedOutput = expectedOutput.plus(curRoute[1].estimate);
+      else {
+        const secondHopAmountIn = percentLess(
+          slippageTolerance,
+          curRoute[0].estimate
+        );
+        const secondEstimateOut = await getPoolEstimate({
+          tokenIn: curRoute[1].tokens[1],
+          tokenOut: curRoute[1].tokens[2],
+          amountIn: toNonDivisibleNumber(
+            curRoute[1].tokens[1].decimals,
+            secondHopAmountIn
+          ),
+          Pool: curRoute[1].pool,
+        });
+
+        expectedOutput = expectedOutput.plus(secondEstimateOut.estimate);
+      }
+    }
+  }
+
+  return expectedOutput;
 }
 
 async function convertActionToEstimatesFormat(action) {

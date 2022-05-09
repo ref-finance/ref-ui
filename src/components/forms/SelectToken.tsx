@@ -16,6 +16,7 @@ import { getTokenPriceList } from '../../services/indexer';
 import { toPrecision, divide } from '../../utils/numbers';
 import { STABLE_TOKEN_USN_IDS } from '../../services/near';
 import { STABLE_TOKEN_IDS } from '../../services/near';
+import _ from 'lodash';
 
 function sort(a: any, b: any) {
   if (typeof a === 'string' && typeof b === 'string') {
@@ -198,6 +199,7 @@ export default function SelectToken({
   placeholder,
   balances,
   tokenPriceList,
+  forCross,
 }: {
   tokens: TokenMetadata[];
   selected: string | React.ReactElement;
@@ -208,6 +210,7 @@ export default function SelectToken({
   onSearch?: (value: string) => void;
   balances?: TokenBalancesView;
   tokenPriceList?: Record<string, any>;
+  forCross?: boolean;
 }) {
   const [visible, setVisible] = useState(false);
   const [listData, setListData] = useState<TokenMetadata[]>([]);
@@ -223,7 +226,7 @@ export default function SelectToken({
       </button>
     );
   }
-  const dialogWidth = isMobile() ? '75%' : '20%';
+  const dialogWidth = isMobile() ? '75%' : forCross ? '25%' : '20%';
   const dialogMinwidth = isMobile() ? 340 : 380;
   const dialogHidth = isMobile() ? '95%' : '57%';
   const intl = useIntl();
@@ -279,13 +282,18 @@ export default function SelectToken({
 
   const onSearch = (value: string) => {
     setShowCommonBasses(value.length === 0);
-    const result = tokensData.filter(({ symbol }) =>
-      toRealSymbol(symbol)
+
+    const result = tokensData.filter((token) => {
+      const symbol = token?.symbol;
+      if (!symbol) return false;
+      return toRealSymbol(symbol)
         .toLocaleUpperCase()
-        .includes(value.toLocaleUpperCase())
-    );
+        .includes(value.toLocaleUpperCase());
+    });
     setListData(result);
   };
+
+  const debounceSearch = _.debounce(onSearch, 300);
 
   const handleClose = () => {
     const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
@@ -368,13 +376,13 @@ export default function SelectToken({
               <input
                 className={`text-sm outline-none rounded w-full py-2 px-1`}
                 placeholder={intl.formatMessage({ id: 'search_token' })}
-                onChange={(evt) => onSearch(evt.target.value)}
+                onChange={(evt) => debounceSearch(evt.target.value)}
               />
               <FaSearch />
             </div>
-            {addToken()}
+            {!forCross && addToken()}
           </div>
-          {showCommonBasses && (
+          {showCommonBasses && !forCross && (
             <CommonBasses
               tokens={tokensData}
               onClick={(token) => {
@@ -395,6 +403,7 @@ export default function SelectToken({
               handleClose();
             }}
             balances={balances}
+            forCross={forCross}
           />
         </section>
       )}

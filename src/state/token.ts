@@ -33,6 +33,11 @@ import getConfig from '~services/config';
 import { nearMetadata } from '../services/wrap-near';
 import { Pool } from '../services/pool';
 import {
+  getBatchTokenNearAcounts,
+  useTriTokenIdsOnRef,
+} from '../services/aurora/aurora';
+import { defaultTokenList } from '../services/aurora/config';
+import {
   WalletContext,
   getCurrentWallet,
   WALLET_TYPE,
@@ -91,6 +96,47 @@ export const useTokens = (ids: string[] = [], curTokens?: TokenMetadata[]) => {
 
   return tokens;
 };
+export const useTriTokens = () => {
+  const [triTokens, setTriTokens] = useState<TokenMetadata[]>();
+
+  useEffect(() => {
+    const tokenIds = defaultTokenList.tokens.map((tk) => tk.address);
+
+    getBatchTokenNearAcounts(tokenIds).then((res) => {
+      const allIds = res.concat(['aurora']);
+
+      return Promise.all(
+        allIds.map((addr: string) =>
+          ftGetTokenMetadata(addr).then((ftmeta) => ({
+            ...ftmeta,
+            onTri: true,
+          }))
+        )
+      ).then(setTriTokens);
+    });
+  }, []);
+  return triTokens?.filter((token) => token.id);
+};
+
+export const useRainbowWhitelistTokens = () => {
+  const [tokens, setTokens] = useState<TokenMetadata[]>();
+  const triTokenIds = useTriTokenIdsOnRef();
+
+  const extraTokenIds = (triTokenIds || []).concat(['aurora']);
+
+  useEffect(() => {
+    getWhitelistedTokens()
+      .then((tokenIds) => {
+        const allTokenIds = [...new Set([...tokenIds, ...extraTokenIds])];
+        return Promise.all(
+          allTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
+        );
+      })
+      .then(setTokens);
+  }, [getCurrentWallet().wallet.isSignedIn(), extraTokenIds.join('-')]);
+
+  return tokens?.map((t) => ({ ...t, onRef: true }));
+};
 
 export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
@@ -104,14 +150,13 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
         );
       })
       .then(setTokens);
-  }, [getCurrentWallet().wallet.isSignedIn()]);
+  }, [getCurrentWallet().wallet.isSignedIn(), extraTokenIds.join('-')]);
 
-  return tokens;
+  return tokens?.map((t) => ({ ...t, onRef: true }));
 };
 
 export const useWhitelistStableTokens = () => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
-
   const stableTokenIds = new Array(
     ...new Set(STABLE_TOKEN_IDS.concat(STABLE_TOKEN_USN_IDS))
   );
@@ -176,11 +221,15 @@ export const useUserRegisteredTokensAllAndNearBalance = (
 export const useTokenBalances = () => {
   const [balances, setBalances] = useState<TokenBalancesView>();
 
+  const { globalState } = useContext(WalletContext);
+
+  const isSignedIn = globalState.isSignedIn;
+
   useEffect(() => {
     getTokenBalances()
       .then(setBalances)
       .catch(() => setBalances({}));
-  }, [getCurrentWallet().wallet.isSignedIn()]);
+  }, [isSignedIn]);
 
   return balances;
 };
@@ -246,6 +295,10 @@ export const useTokensData = (
     setCount((c) => c + 1);
   };
 
+  const { globalState } = useContext(WalletContext);
+
+  const isSignedIn = globalState.isSignedIn;
+
   const trigger = useCallback(() => {
     if (!!balances) {
       setCount(0);
@@ -262,7 +315,7 @@ export const useTokensData = (
             return max;
           })
           .then((max: string) => {
-            const nearCount = toPrecision(max, 3) || '0';
+            const nearCount = isSignedIn ? toPrecision(max, 3) || '0' : '0';
             const refCount = toRoundedReadableNumber({
               decimals: item.decimals,
               number: balances ? balances[item.id] : '0',
@@ -283,7 +336,7 @@ export const useTokensData = (
           });
       }
     }
-  }, [balances]);
+  }, [balances, tokens.length, isSignedIn]);
 
   useEffect(() => {
     trigger();
@@ -304,8 +357,8 @@ export const useDepositableBalance = (
   const [depositable, setDepositable] = useState<string>('');
   const [max, setMax] = useState<string>('');
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const { wallet, wallet_type } = getCurrentWallet();
 

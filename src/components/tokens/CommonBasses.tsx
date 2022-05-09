@@ -72,8 +72,8 @@ export default function CommonBasses({
 const Wnear = () => {
   const [showWrapNear, setShowWrapNear] = useState(false);
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   return (
     <>

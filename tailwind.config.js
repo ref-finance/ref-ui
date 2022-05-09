@@ -2,7 +2,7 @@ const colors = require('tailwindcss/colors');
 const defaultTheme = require('tailwindcss/defaultTheme');
 
 module.exports = {
-  purge: [],
+  purge: false,
   darkMode: false, // or 'media' or 'class'
   theme: {
     screens: {
@@ -92,6 +92,10 @@ module.exports = {
         darkGreenColor: '#009A2B',
         riskTextColor: '#BEBEBE',
         senderHot: '#00FFD1',
+        auroraGreen: '#70D44B',
+        triPool: '#329DFF',
+        refPool: '#00C6A2',
+        lightGreenColor: '#70d44b',
         tabChosen: '#4A5862',
         liqBtn: '#141D24',
       },

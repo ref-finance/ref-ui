@@ -54,9 +54,11 @@ const config = getConfig();
 import { isMobile } from '~utils/device';
 import { getCurrentWallet, getAccountName } from '../../utils/sender-wallet';
 import { FarmDot } from '../icon/FarmStamp';
-import { AccountTipDownByAccountID } from './NavigationBar';
+import { AccountTipDownByAccountID, AuroraEntry } from './NavigationBar';
+import { ConnectDot } from '../icon/CrossSwapIcons';
 import USNBuyComponent from '~components/forms/USNBuyComponent';
 import USNPage from '~components/usn/USNPage';
+import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '../../pages/SwapPage';
 
 export function MobileAnchor({
   to,
@@ -241,7 +243,12 @@ export function AccountModel(props: any) {
       textId: 'view_account',
       selected: location.pathname == '/account',
       click: () => {
-        history.push('/account');
+        if (location.pathname == '/account') {
+          localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
+          window.location.reload();
+        } else {
+          history.push('/account?tab=ref');
+        }
       },
     },
     {
@@ -356,10 +363,14 @@ export function MobileNavBar(props: any) {
   const [mobileWrapNear, setMobileWrapNear] = useState(false);
   // const [showWalletSelector, setShowWalletSelector] = useState(false);
 
-  const { setShowWalletSelector, showWalletSelector, hasBalanceOnRefAccount } =
-    props;
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const {
+    setShowWalletSelector,
+    showWalletSelector,
+    hasBalanceOnRefAccount,
+    hasAuroraBalance,
+  } = props;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const [showTip, setShowTip] = useState<boolean>(false);
   const [showUSN, setShowUSN] = useState(false);
@@ -388,7 +399,7 @@ export function MobileNavBar(props: any) {
     document.addEventListener('click', handleClick, false);
 
     return () => {
-      document.addEventListener('click', handleClick, false);
+      document.removeEventListener('click', () => {}, false);
     };
   }, []);
   useEffect(() => {
@@ -454,7 +465,7 @@ export function MobileNavBar(props: any) {
         <NavLogo />
         <div className="flex">
           <div
-            className={`inline-flex px-1 mr-2 items-center justify-center rounded-full border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 ${
+            className={`flex px-1 mr-px items-center justify-center rounded-full border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 ${
               isSignedIn
                 ? 'bg-gray-700 text-white'
                 : 'border border-gradientFrom text-gradientFrom'
@@ -463,7 +474,7 @@ export function MobileNavBar(props: any) {
             <div className="pr-1">
               <Near color={isSignedIn ? 'white' : '#00c6a2'} />
             </div>
-            <div className="overflow-ellipsis overflow-hidden text-xs whitespace-nowrap account-name">
+            <div className="overflow-ellipsis overflow-hidden text-xs whitespace-nowrap account-name relative">
               {isSignedIn ? (
                 <div
                   className="flex items-center"
@@ -505,6 +516,16 @@ export function MobileNavBar(props: any) {
               )}
             </div>
           </div>
+
+          <div className={!isSignedIn ? 'hidden' : ' flex items-center mr-2'}>
+            <ConnectDot />
+            <ConnectDot />
+
+            <AuroraEntry
+              hasBalanceOnAurora={hasAuroraBalance}
+              extraClick={() => setAccountVisible(false)}
+            />
+          </div>
           <span ref={iconRef} onClick={() => setShow(true)}>
             <HiMenu />
           </span>
@@ -514,10 +535,13 @@ export function MobileNavBar(props: any) {
         className={`fixed top-0 bottom-0 left-0 z-20 w-full bg-black bg-opacity-30 backdrop-blur-lg filter-blur backdrop-filter overflow-auto ${
           show ? 'block' : 'hidden'
         }`}
+        style={{
+          zIndex: '80',
+        }}
       >
         <div
           ref={popupRef}
-          className="block h-full overflow-y-scroll w-4/6 float-right bg-cardBg shadow-4xl"
+          className="block h-full overflow-y-scroll w-4/6 float-right bg-cardBg shadow-4xl z-30"
         >
           <div className="p-4 flex text-white items-center justify-start">
             <NavLogoLarge />

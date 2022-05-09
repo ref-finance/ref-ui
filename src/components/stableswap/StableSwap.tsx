@@ -82,8 +82,8 @@ export default function StableSwap({
 
   const [doubleCheckOpen, setDoubleCheckOpen] = useState(false);
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const { wallet } = getCurrentWallet();
 

@@ -9,6 +9,7 @@ import {
 } from '../services/m-token';
 import { XREF_TOKEN_DECIMALS } from '../services/xref';
 import BigNumber from 'bignumber.js';
+import { ParserDependencies } from 'mathjs';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
@@ -80,6 +81,9 @@ export const parseAction = async (
     case 'buy_with_price_callback': {
       return await parseUSNBuy(params);
     }
+    case 'call': {
+      return await parseCall(tokenId);
+    }
     default: {
       return await parseDefault();
     }
@@ -87,6 +91,11 @@ export const parseAction = async (
 };
 
 const parseSwap = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
   const actionStart = params.actions[0];
   const actionEnd = params.actions[params.actions.length - 1];
   const in_token = await ftGetTokenMetadata(actionStart.token_in);
@@ -127,6 +136,11 @@ const parseSwap = async (params: any) => {
 };
 
 const parseWithdraw = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
   const token = await ftGetTokenMetadata(params.token_id);
 
   return {
@@ -138,6 +152,11 @@ const parseWithdraw = async (params: any) => {
 };
 
 const parseRegisterTokens = (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
   return {
     Action: 'Register Tokens',
     'Token Ids': params.token_ids.join(','),
@@ -145,6 +164,11 @@ const parseRegisterTokens = (params: any) => {
 };
 
 const parseAddLiquidity = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
   const pool = await getPoolDetails(params.pool_id);
   const tokens = await Promise.all<TokenMetadata>(
     pool.tokenIds.map((id) => ftGetTokenMetadata(id))
@@ -159,6 +183,11 @@ const parseAddLiquidity = async (params: any) => {
 };
 
 const parseRemoveLiquidity = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
   const pool = await getPoolDetails(params.pool_id);
   const tokens = await Promise.all<TokenMetadata>(
     pool.tokenIds.map((id) => ftGetTokenMetadata(id))
@@ -187,6 +216,11 @@ const parseRemoveLiquidity = async (params: any) => {
 };
 
 const parseAddSimplePool = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
   return {
     Action: 'Add Pool',
     Fee: params.fee,
@@ -201,6 +235,11 @@ const parseStorageDeposit = async () => {
   };
 };
 const parseMtfTransferCall = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
   const { amount, receiver_id, token_id } = params;
   const poolId = token_id.split(':')[1];
   if (new Set(STABLE_POOL_IDS || []).has(poolId?.toString())) {
@@ -215,6 +254,11 @@ const parseMtfTransferCall = async (params: any) => {
   };
 };
 const parseWithdrawSeed = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
   const { seed_id, amount } = params;
   const poolId = seed_id.split('@')[1];
   return {
@@ -226,6 +270,11 @@ const parseWithdrawSeed = async (params: any) => {
   };
 };
 const parseClaimRewardByFarm = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
   const { farm_id } = params;
   return {
     Action: 'Claim Reward By Farm',
@@ -233,6 +282,11 @@ const parseClaimRewardByFarm = async (params: any) => {
   };
 };
 const parseClaimRewardBySeed = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
   const { seed_id } = params;
   return {
     Action: 'Claim Reward By Seed',
@@ -240,6 +294,11 @@ const parseClaimRewardBySeed = async (params: any) => {
   };
 };
 const parseWithdrawReward = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
   const { token_id, amount, unregister } = params;
   const token = await ftGetTokenMetadata(token_id);
   return {
@@ -255,6 +314,11 @@ const parseNearDeposit = async () => {
   };
 };
 const parseFtTransferCall = async (params: any, tokenId: string) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
   const { receiver_id, amount, msg } = params;
   let Action;
   let Amount;
@@ -266,11 +330,11 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
       Amount,
       'Receiver Id': receiver_id,
     };
-  } else if (msg) {
+  } else if (msg && receiver_id !== 'aurora') {
     Action = 'Instant swap';
     let actions = [];
     try {
-      actions = JSON.parse(msg).actions || [];
+      actions = JSON.parse(msg.replace(/\\"/g, '"')).actions || [];
     } catch (error) {
       return {
         Action,
@@ -310,6 +374,11 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
   }
 };
 const parseNearWithdraw = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
   const { amount } = params;
   return {
     Action: 'Near Withdraw',
@@ -317,6 +386,11 @@ const parseNearWithdraw = async (params: any) => {
   };
 };
 const parseAddStableLiquidity = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
   const { amounts, min_shares, pool_id } = params;
   const pool = await getPoolDetails(params.pool_id);
   const tokens = await Promise.all<TokenMetadata>(
@@ -334,6 +408,11 @@ const parseAddStableLiquidity = async (params: any) => {
   };
 };
 const parseRemoveStableLiquidity = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
   const { amounts, max_burn_shares, pool_id } = params;
   const pool = await getPoolDetails(params.pool_id);
   const tokens = await Promise.all<TokenMetadata>(
@@ -354,6 +433,11 @@ const parseRemoveStableLiquidity = async (params: any) => {
   };
 };
 const parseUnstake = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
   const { amount } = params;
   return {
     Action: 'xREF Unstake',
@@ -361,6 +445,11 @@ const parseUnstake = async (params: any) => {
   };
 };
 const parseUSNBuy = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
   const { near } = params;
   return {
     Action: 'Buy USN',
@@ -368,11 +457,27 @@ const parseUSNBuy = async (params: any) => {
   };
 };
 const parseUSNSell = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
   const { tokens } = params;
   return {
     Action: 'Sell USN',
     Amount: toReadableNumber(18, tokens),
   };
+};
+const parseCall = async (tokenId: string) => {
+  if (tokenId == 'aurora') {
+    return {
+      Action: 'Aurora Call',
+    };
+  } else {
+    return {
+      Action: 'Call',
+    };
+  }
 };
 
 const parseDefault = async () => {

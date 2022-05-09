@@ -117,8 +117,8 @@ export default function AddLiquidityComponent(props: {
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   useEffect(() => {
     const firstAmount = toReadableNumber(

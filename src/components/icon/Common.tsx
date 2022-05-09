@@ -390,6 +390,7 @@ const RefGuideIcon = (props: any) => {
     </svg>
   );
 };
+
 const GroundShadow = (props: any) => {
   const { width, height, className, ...rest } = props;
   return (
@@ -1521,6 +1522,52 @@ export function OutLinkIcon(props: any) {
     </svg>
   );
 }
+
+export const MappingAccountIcon = () => {
+  const Unit = () => {
+    return (
+      <svg
+        width="15"
+        height="16"
+        viewBox="0 0 15 16"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <rect
+          x="-0.707107"
+          y="8"
+          width="11.3615"
+          height="11.3615"
+          rx="3.5"
+          transform="rotate(-45 -0.707107 8)"
+          stroke="currentColor"
+        />
+      </svg>
+    );
+  };
+
+  return (
+    <div className="w-5 flex items-center justify-end">
+      <div
+        style={{
+          position: 'relative',
+          left: '10px',
+        }}
+      >
+        <Unit />
+      </div>
+
+      <div>
+        <Unit />
+      </div>
+    </div>
+  );
+};
+export const ArcIcon = () => {
+  return (
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyVpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQ4IDc5LjE2NDAzNiwgMjAxOS8wOC8xMy0wMTowNjo1NyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIxLjAgKE1hY2ludG9zaCkiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6RDUzNTI1MDdCQTJDMTFFQ0E3OTRGREEwQTRFNTg2NkMiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6RDUzNTI1MDhCQTJDMTFFQ0E3OTRGREEwQTRFNTg2NkMiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpENTM1MjUwNUJBMkMxMUVDQTc5NEZEQTBBNEU1ODY2QyIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpENTM1MjUwNkJBMkMxMUVDQTc5NEZEQTBBNEU1ODY2QyIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PnwWoIsAAAHnSURBVHjahFKxbhNBEN3Zu0suMb61FTvRgUNcXIMcpYjbFG7T0bilzhdQQOOeH+AP+APSWKKiNAVBQkJGOIkTR7EJd7ZlC3J7w+xxd1osG1Yazezp5u289wYYY1sUIYVMIkpC1ZjEysPF9rYoFovpHdLcbDYhucO/AExrzdkd3Xbv0h89z2NCCBwOh6C9Dqsm4aa9sU8N2Wvdbhc6nQ7oEyGuZsEtkx8FQZA1VCqVGGgymcS51WoBndUAjBnHYmdPFAoFrhr6/T5Uq9V4ikajoWuzXI/dJ4foegcviIZSUlA8oNgkELter1tUG38eYjylolMCBUDXi/7nD4ealbqdmGaiEzdRRgVC1DAGUB8jGb68+vLxtWoulUqRZVnSMAwkSvo+6HuhMpiZGNx8Xni4d+pfn59LKdloNGKu68qEQkR01BSQz+exXC5jrVZTk4Ahym4rkcleszeO+bp96t/eBOrTdDrNrBwMBpDL5WJH2u12LGiv14OMQnqI2qef4+/P7mfBN9/3cUELpEVTNaN9wUzERWeQ4cU0uHuq6CwCaDUjp5AvWw5g8DjvbL175B2cJBoYmp1ZPZ/PjaUTLE4T/gpf3Xw9e+M4Do7H478c+S+ABhWQ92+jUL5HGZ7NZrNLnP8IfgswAO2T27xIUwP9AAAAAElFTkSuQmCC"></img>
+  );
+};
 export function USNIcon() {
   return (
     <svg

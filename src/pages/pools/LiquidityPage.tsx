@@ -390,18 +390,14 @@ function MobileLiquidityPage({
     );
   };
 
-  const mobileDevice = useMobile();
-
   const [displayRows, setDisplayRows] = useState([]);
 
   useEffect(() => {
-    if (mobileDevice) {
-      setDisplayRows(pools);
-    }
-  }, [mobileDevice, pools]);
+    setDisplayRows(pools);
+  }, []);
 
   return (
-    <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
+    <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:flex lg:hidden xl:hidden xs:flex">
       <div className="mx-4 mb-6 mt-3">
         <div className="text-white text-xl">
           <FormattedMessage

@@ -492,6 +492,10 @@ const zh_CN = {
   click_here: '点击这里',
   to_recover_them: '来取回他们',
   ref_account_tip_3: '要从您的REF帐户提取代币到您的NEAR钱包,请选择并提取',
+  aurora_account_tip_4: '要从您的映射帐户提取代币到您的NEAR钱包,请选择并提取',
+  mapping_account: '映射账户',
+  pool_fee_cross_swap: '流动池/跨链费用',
+  mapping_account_tip: '你的映射账户中存在代币',
   admin_sentence_1:
     'Ref Finance 由  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
@@ -502,6 +506,10 @@ const zh_CN = {
     '>文档</label>。',
   cumulative_ref_buyback: '累计 REF 回购',
   yearly_revenue_booster: '年度收入助推器',
+  Confirm: '确认',
+  Request_for_Quote: '请求报价',
+  mapping_account_explanation:
+    '一个映射账户是一个代理地址, 将用户的NEAR账户映射到对应的Aurora上的以太坊地址',
   buy: '买',
   sell: '卖',
   buy_nsn: '买 USN',
@@ -512,5 +520,8 @@ const zh_CN = {
   usn_successful_click_to_view: '交易成功，点击查看详情',
   awesomeNear_verified_token: 'AwesomeNear 已认证代币',
   usn_fee_tip: 'Ref收取零费用，用户只需支付USN费用!',
+  name: '名字',
+  diff: '差距',
+  best: '最好',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

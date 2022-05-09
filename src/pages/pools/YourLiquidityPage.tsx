@@ -121,8 +121,8 @@ function MyShares({
 }
 
 function Empty() {
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   return (
     <div className="px-6">
@@ -154,8 +154,8 @@ export function YourLiquidityPage() {
   const [stablePool, setStablePool] = useState<PoolRPCView>();
   const [StablePoolUSN, setStablePoolUSN] = useState<PoolRPCView>();
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   const senderLoginRes = getSenderLoginRes();
   const history = useHistory();
 

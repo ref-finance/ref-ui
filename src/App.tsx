@@ -25,6 +25,12 @@ import XrefPage from './pages/xref/XrefPage';
 import RiskPage from './pages/RiskPage';
 import USNPage from './pages/USNPage';
 import {
+  auroraAddr,
+  getAuroraPool,
+  getErc20Addr,
+  useAuroraTokens,
+} from './services/aurora/aurora';
+import {
   BgShapeLeftTop,
   BgShapeCenter,
   BgShapeCenterSmall,
@@ -56,6 +62,7 @@ import {
 } from './components/layout/transactionTipPopUp';
 import { StableSwapPageEntry } from '~pages/stable/StableSwapEntry';
 import { senderSignedInToast } from '~components/layout/senderSignInPopUp';
+import { getAllTriPools } from './services/aurora/aurora';
 
 import {
   getSenderLoginRes,
@@ -69,11 +76,12 @@ import {
 
 import {
   WalletContext,
-  signedInStateReducer,
+  globalStateReducer,
   removeSenderLoginRes,
 } from './utils/sender-wallet';
 import StableSwapPageUSN from '~pages/stable/StableSwapPageUSN';
 import { checkTransaction } from './services/swap';
+import { swapToast } from './components/layout/transactionTipPopUp';
 
 Modal.defaultStyles = {
   overlay: {
@@ -83,7 +91,7 @@ Modal.defaultStyles = {
     right: 0,
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    zIndex: 30,
+    zIndex: 100,
   },
   content: {
     position: 'absolute',
@@ -99,16 +107,19 @@ Modal.defaultStyles = {
 Modal.setAppElement('#root');
 
 function App() {
-  const SignedInStateReducer = useReducer(signedInStateReducer, {
+  const GlobalStateReducer = useReducer(globalStateReducer, {
     isSignedIn: false,
   });
-  const [signedInState, signedInStatedispatch] = SignedInStateReducer;
+
+  const [globalState, globalStatedispatch] = GlobalStateReducer;
 
   const { txHash, pathname, errorType, signInErrorType } = getURLInfo();
 
   useEffect(() => {
     if (errorType) {
       failToast(txHash, errorType);
+
+      // failing toast only once
       window.history.replaceState({}, '', window.location.origin + pathname);
     }
     if (signInErrorType) {
@@ -118,7 +129,7 @@ function App() {
     }
   }, [errorType, signInErrorType]);
   // for usn start
-  const isSignedIn = signedInState.isSignedIn;
+  const isSignedIn = globalState.isSignedIn;
   useEffect(() => {
     if (txHash && isSignedIn) {
       checkTransaction(txHash)
@@ -137,11 +148,19 @@ function App() {
           return {
             isUSN: methodName == 'buy' || methodName == 'sell',
             isSlippageError,
+            isNearWithdraw: methodName == 'near_withdraw',
+            isNearDeposit: methodName == 'near_deposit',
           };
         })
-        .then(({ isUSN, isSlippageError }) => {
-          if (isUSN) {
-            !isSlippageError && !errorType && usnBuyAndSellToast(txHash);
+        .then(({ isUSN, isSlippageError, isNearWithdraw, isNearDeposit }) => {
+          if (isUSN || isNearWithdraw || isNearDeposit) {
+            isUSN &&
+              !isSlippageError &&
+              !errorType &&
+              usnBuyAndSellToast(txHash);
+            (isNearWithdraw || isNearDeposit) &&
+              !errorType &&
+              swapToast(txHash);
             window.history.replaceState(
               {},
               '',
@@ -155,7 +174,7 @@ function App() {
 
   useEffect(() => {
     if (webWallet.isSignedIn()) {
-      signedInStatedispatch({ type: 'signIn' });
+      globalStatedispatch({ type: 'signIn' });
     }
   }, [webWallet.isSignedIn()]);
 
@@ -169,7 +188,7 @@ function App() {
           )
             return;
           saveSenderLoginRes();
-          signedInStatedispatch({ type: 'signIn' });
+          globalStatedispatch({ type: 'signIn' });
         });
         window.near.on('accountChanged', (changedAccountId: string) => {
           if (
@@ -183,7 +202,7 @@ function App() {
         window.near.on('signOut', () => {
           if (getCurrentWallet().wallet_type === 'sender-wallet') {
             removeSenderLoginRes();
-            signedInStatedispatch({ type: 'signOut' });
+            globalStatedispatch({ type: 'signOut' });
           }
         });
       }
@@ -204,7 +223,7 @@ function App() {
   }, [window, window?.near]);
 
   return (
-    <WalletContext.Provider value={{ signedInState, signedInStatedispatch }}>
+    <WalletContext.Provider value={{ globalState, globalStatedispatch }}>
       <Router>
         <div className="relative min-h-screen pb-24 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
           <BgShapeLeftTop />

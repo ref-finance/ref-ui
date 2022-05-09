@@ -46,9 +46,6 @@ export default function USNFormWrap({
   const { loadingTrigger, loadingPause, setLoadingPause, setLoadingTrigger } =
     loading;
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
-
   function buy_nsn_tip() {
     const tip = intl.formatMessage({ id: 'buy_nsn_tip' });
     let result: string = `<div class="text-navHighLightText text-xs w-52 text-left font-normal">${tip}</div>`;
