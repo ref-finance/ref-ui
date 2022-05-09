@@ -565,6 +565,14 @@ export default function SwapCard(props: {
   }, []);
 
   useEffect(() => {
+    if (!tokenIn || !tokenOut) return;
+    if (BTCIDS.includes(tokenIn.id) && BTCIDS.includes(tokenOut.id))
+      setReservesType('BTC');
+    else if (!BTCIDS.includes(tokenIn.id) && !BTCIDS.includes(tokenOut.id))
+      setReservesType('USD');
+  }, [tokenIn, tokenOut]);
+
+  useEffect(() => {
     if (allTokens) {
       if (swapMode === SWAP_MODE.NORMAL) {
         const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
