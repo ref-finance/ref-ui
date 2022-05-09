@@ -470,19 +470,21 @@ export default function ({
             : toInternationalCurrencySystem(displayTotalValue, 3)}
         </div>
         <div className={`flex justify-center`}>{chart}</div>
-        {Object.values(tokensData).map(({ token, display }) => {
-          return (
-            <InfoLine
-              key={token.symbol}
-              title={token.symbol}
-              value={display}
-              valueTitle={toPrecision(
-                scientificNotationToString(coinsAmounts[token.id].toString()),
-                0
-              )}
-            />
-          );
-        })}
+        {Object.values(tokensData)
+          .sort((a, b) => Number(b.value) - Number(a.value))
+          .map(({ token, display }) => {
+            return (
+              <InfoLine
+                key={token.symbol}
+                title={token.symbol}
+                value={display}
+                valueTitle={toPrecision(
+                  scientificNotationToString(coinsAmounts[token.id].toString()),
+                  0
+                )}
+              />
+            );
+          })}
         <InfoLine
           title={intl.formatMessage({ id: totalCoinsId })}
           value={toInternationalCurrencySystem(calTotalStableCoins, 3) || '0'}

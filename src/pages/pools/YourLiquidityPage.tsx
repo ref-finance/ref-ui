@@ -8,7 +8,12 @@ import {
   OutlineButton,
 } from '~components/button/Button';
 import Loading from '~components/layout/Loading';
-import { wallet as webWallet } from '~services/near';
+import {
+  AllStableTokenIds,
+  BTC_STABLE_POOL_ID,
+  CUSD_STABLE_POOL_ID,
+  wallet as webWallet,
+} from '~services/near';
 import { useTokens } from '~state/token';
 import { getPoolBalance, getPoolsBalances, PoolRPCView } from '~services/api';
 import {
@@ -39,13 +44,21 @@ import { FarmDot } from '~components/icon';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
 import { usePoolTVL } from '../../state/pool';
 import { multiply, divide } from '../../utils/numbers';
-import { STABLE_POOL_USN_ID, isStablePool } from '../../services/near';
+import {
+  STABLE_POOL_USN_ID,
+  isStablePool,
+  ALL_STABLE_POOL_IDS,
+} from '../../services/near';
 import {
   STABLE_POOL_ID,
   STABLE_TOKEN_IDS,
   STABLE_TOKEN_USN_IDS,
 } from '../../services/near';
-import { getStablePoolFromCache, isNotStablePool } from '../../services/pool';
+import {
+  getStablePoolFromCache,
+  isNotStablePool,
+  parsePool,
+} from '../../services/pool';
 import {
   getCurrentWallet,
   WalletContext,
@@ -53,6 +66,7 @@ import {
 } from '../../utils/sender-wallet';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import { useFarmStake } from '../../state/farm';
+import { useStabelPoolData } from '../../state/sauce';
 
 function MyShares({
   shares,
@@ -151,33 +165,18 @@ export function YourLiquidityPage() {
   const [error, setError] = useState<Error>();
   const [pools, setPools] = useState<PoolRPCView[]>();
 
-  const [stablePool, setStablePool] = useState<PoolRPCView>();
-  const [StablePoolUSN, setStablePoolUSN] = useState<PoolRPCView>();
-
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const senderLoginRes = getSenderLoginRes();
   const history = useHistory();
 
-  const { pool: pool_stable, shares, stakeList } = usePool(STABLE_POOL_ID);
+  const { poolData: pool3tokenData } = useStabelPoolData(STABLE_POOL_ID);
 
-  const farmStake = useFarmStake({
-    poolId: Number(STABLE_POOL_ID),
-    stakeList,
-  });
-  const userTotalShare = BigNumber.sum(shares, farmStake);
+  const { poolData: USNPoolData } = useStabelPoolData(STABLE_POOL_USN_ID);
 
-  const {
-    pool: pool_stable_usn,
-    shares: shares_usn,
-    stakeList: stakeList_usn,
-  } = usePool(STABLE_POOL_USN_ID);
+  const { poolData: BTCPoolData } = useStabelPoolData(BTC_STABLE_POOL_ID);
 
-  const farmStake_usn = useFarmStake({
-    poolId: Number(STABLE_POOL_USN_ID),
-    stakeList: stakeList_usn,
-  });
-  const userTotalShare_usn = BigNumber.sum(shares_usn, farmStake_usn);
+  const { poolData: CUSDPoolData } = useStabelPoolData(CUSD_STABLE_POOL_ID);
 
   if (!senderLoginRes && !webWallet.isSignedIn()) {
     history.push('/');
@@ -190,8 +189,8 @@ export function YourLiquidityPage() {
     if (!pools) return;
 
     ftGetTokensMetadata(
-      (pools?.map((p) => p.token_account_ids).flat() || []).concat(
-        STABLE_TOKEN_IDS.concat(STABLE_TOKEN_USN_IDS)
+      (pools.map((p) => p.token_account_ids).flat() || []).concat(
+        AllStableTokenIds
       )
     ).then(setTokensMeta);
   }, [pools]);
@@ -199,22 +198,32 @@ export function YourLiquidityPage() {
   useEffect(() => {
     if (isSignedIn) {
       getYourPools().then(setPools);
-      getStablePoolFromCache().then((res) => setStablePool(res[0]));
-      getStablePoolFromCache(STABLE_POOL_USN_ID.toString()).then((res) =>
-        setStablePoolUSN(res[0])
-      );
     }
   }, [isSignedIn]);
 
   if (
     !pools ||
-    !stablePool ||
-    !StablePoolUSN ||
-    !pool_stable ||
-    !pool_stable_usn ||
+    !pool3tokenData ||
+    !USNPoolData ||
+    !BTCPoolData ||
+    !CUSDPoolData ||
     !tokensMeta
   )
     return <Loading />;
+
+  const stablePoolsData = [
+    pool3tokenData,
+    USNPoolData,
+    BTCPoolData,
+    CUSDPoolData,
+  ];
+
+  const stablePools = [
+    pool3tokenData.pool,
+    USNPoolData.pool,
+    BTCPoolData.pool,
+    CUSDPoolData.pool,
+  ];
 
   return (
     <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
@@ -230,8 +239,7 @@ export function YourLiquidityPage() {
           />
         </div>
         {pools.length > 0 ||
-        Number(userTotalShare) > 0 ||
-        Number(userTotalShare_usn) > 0 ? (
+        stablePoolsData.some((pd) => Number(pd.userTotalShare) > 0) ? (
           <section>
             <div className="">
               <div
@@ -256,26 +264,19 @@ export function YourLiquidityPage() {
                 </div>
               </div>
               <div className="max-h-96 overflow-y-auto">
-                <div
-                  className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
-                  key={Number(STABLE_POOL_ID)}
-                >
-                  <PoolRow
-                    pool={stablePool}
-                    tokens={STABLE_TOKEN_IDS.map((id) => tokensMeta[id]) || []}
-                  />
-                </div>
-                <div
-                  className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
-                  key={Number(STABLE_POOL_USN_ID)}
-                >
-                  <PoolRow
-                    pool={StablePoolUSN}
-                    tokens={
-                      STABLE_TOKEN_USN_IDS.map((id) => tokensMeta[id]) || []
-                    }
-                  />
-                </div>
+                {stablePools.map((p) => {
+                  return (
+                    <div
+                      className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
+                      key={Number(p.id)}
+                    >
+                      <PoolRow
+                        pool={p}
+                        tokens={p.tokenIds.map((id) => tokensMeta[id]) || []}
+                      />
+                    </div>
+                  );
+                })}
 
                 {pools.map((pool, i) => (
                   <div
@@ -302,19 +303,17 @@ export function YourLiquidityPage() {
         <FormattedMessage id="your_liquidity" defaultMessage="Your Liquidity" />
       </div>
       {pools.length > 0 ||
-      Number(userTotalShare) > 0 ||
-      Number(userTotalShare_usn) > 0 ? (
+      stablePoolsData.some((pd) => Number(pd.userTotalShare) > 0) ? (
         <div className="lg:hidden">
-          <PoolRow
-            pool={stablePool}
-            key={Number(STABLE_POOL_ID)}
-            tokens={STABLE_TOKEN_IDS.map((id) => tokensMeta[id]) || []}
-          />
-          <PoolRow
-            pool={StablePoolUSN}
-            key={Number(STABLE_POOL_USN_ID)}
-            tokens={STABLE_TOKEN_USN_IDS.map((id) => tokensMeta[id]) || []}
-          />
+          {stablePools.map((p) => {
+            return (
+              <PoolRow
+                pool={p}
+                key={Number(p.id)}
+                tokens={p.tokenIds.map((id) => tokensMeta[id]) || []}
+              />
+            );
+          })}
 
           {pools.map((pool, i) => {
             return (

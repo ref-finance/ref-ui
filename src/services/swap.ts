@@ -839,7 +839,7 @@ export async function getHybridStableSmart(
         actions: [
           {
             ...estimate,
-            status: PoolMode.SMART,
+            status: PoolMode.STABLE,
             tokens: [tokenIn, tokenOut],
             inputToken: tokenIn.id,
             outputToken: tokenOut.id,
