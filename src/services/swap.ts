@@ -387,9 +387,6 @@ export const estimateSwap = async ({
 
   // hybrid smart routing
   if (isStableToken(tokenIn.id) || isStableToken(tokenOut.id)) {
-    const bothStableToken =
-      isStableToken(tokenIn.id) && isStableToken(tokenOut.id);
-
     let hybridStableSmart = await getHybridStableSmart(
       tokenIn,
       tokenOut,
@@ -402,7 +399,6 @@ export const estimateSwap = async ({
 
     if (
       swapMode === SWAP_MODE.STABLE ||
-      bothStableToken ||
       new Big(hybridStableSmartOutputEstimate).gt(
         new Big(smartRouteV2OutputEstimate)
       )
@@ -610,9 +606,6 @@ export async function getHybridStableSmart(
 ) {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
 
-  const bothStableCoin =
-    isStableToken(tokenIn.id) && isStableToken(tokenOut.id);
-
   let pool1: Pool, pool2: Pool;
 
   let pools1: Pool[] = [];
@@ -653,9 +646,9 @@ export async function getHybridStableSmart(
         loadingTrigger: false,
       });
       const tobeAddedPools =
-        swapMode === SWAP_MODE.STABLE || bothStableCoin
+        swapMode === SWAP_MODE.STABLE
           ? stablePools
-          : tmpPools;
+          : tmpPools.concat(stablePools);
       pools2.push(
         ...tobeAddedPools.filter((p) => {
           const supplies = Object.values(p.supplies);
@@ -687,9 +680,9 @@ export async function getHybridStableSmart(
       });
 
       const tobeAddedPools =
-        swapMode === SWAP_MODE.STABLE || bothStableCoin
+        swapMode === SWAP_MODE.STABLE
           ? stablePools
-          : tmpPools;
+          : tmpPools.concat(stablePools);
 
       pools1.push(
         ...tobeAddedPools.filter((p) => {
