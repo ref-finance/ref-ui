@@ -231,12 +231,17 @@ export function RemoveLiquidityComponentUSN(props: {
     const receiveAmounts = getRemoveLiquidityByShare(shareParam, stablePool);
 
     const parsedAmounts = receiveAmounts.map((amount, i) =>
-      toRoundedReadableNumber({
-        decimals: LP_STABLE_TOKEN_DECIMALS - tokens[i].decimals,
-        number: amount,
-        precision: 0,
-        withCommas: false,
-      })
+      tokens[i].decimals > LP_STABLE_TOKEN_DECIMALS
+        ? toNonDivisibleNumber(
+            tokens[i].decimals - LP_STABLE_TOKEN_DECIMALS,
+            amount
+          )
+        : toRoundedReadableNumber({
+            decimals: LP_STABLE_TOKEN_DECIMALS - tokens[i].decimals,
+            number: amount,
+            precision: 0,
+            withCommas: false,
+          })
     );
 
     setReceiveAmounts(parsedAmounts);
