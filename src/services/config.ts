@@ -188,7 +188,12 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
         STABLE_POOL_ID: process.env.STABLE_POOL_ID || 79,
-        STABLE_POOL_IDS: process.env.STABLE_POOL_IDS || ['79', '603'],
+        STABLE_POOL_IDS: process.env.STABLE_POOL_IDS || [
+          '79',
+          '603',
+          '604',
+          '608',
+        ],
         USN_ID: 'usdn.testnet',
         STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 603,
         STABLE_TOKEN_IDS: [
