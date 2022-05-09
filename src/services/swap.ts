@@ -434,12 +434,14 @@ export const estimateSwap = async ({
     }
   }
 
+  console.log(res, 'swap result');
+
   return res;
 };
 
 export const getOneSwapActionResult = async (
   swapPro: boolean,
-  pools: Pool[],
+  poolsOneSwap: Pool[],
   loadingTrigger: boolean,
   tokenIn: TokenMetadata,
   tokenOut: TokenMetadata,
@@ -462,6 +464,17 @@ export const getOneSwapActionResult = async (
 
   let triTodos;
   let refTodos;
+  let pools: Pool[] = poolsOneSwap;
+
+  if (isStableToken(tokenIn.id) && isStableToken(tokenOut.id)) {
+    pools = pools.concat(
+      getStablePoolThisPair({
+        tokenInId: tokenIn.id,
+        tokenOutId: tokenOut.id,
+        stablePools: allStablePools,
+      })
+    );
+  }
 
   /**s
    *  single swap action estimate for support ledger and swap pro mode
@@ -588,6 +601,8 @@ export const getOneSwapActionResult = async (
       }
     }
   }
+
+  console.log(supportLedgerRes, 'support ledger res');
 
   return {
     supportLedgerRes,
