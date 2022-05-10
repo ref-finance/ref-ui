@@ -101,32 +101,34 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
       // TODO:
 
       await Promise.all(
-        [CUSDIDS, BTCIDS, STABLE_TOKEN_USN_IDS].map(async (ids) => {
-          const twoTokenStablePoolIds = (
-            await getPoolsByTokens({
-              tokenInId: ids[0],
-              tokenOutId: ids[1],
-              loadingTrigger: false,
-            })
-          ).map((p) => p.id.toString());
+        ALL_STABLE_POOL_IDS.concat(BLACKLIST_POOL_IDS)
+          .filter((_) => _)
+          .map(async (ids) => {
+            const twoTokenStablePoolIds = (
+              await getPoolsByTokens({
+                tokenInId: ids[0],
+                tokenOutId: ids[1],
+                loadingTrigger: false,
+              })
+            ).map((p) => p.id.toString());
 
-          const twoTokenStablePools = await getPoolsByIds({
-            pool_ids: twoTokenStablePoolIds,
-          });
+            const twoTokenStablePools = await getPoolsByIds({
+              pool_ids: twoTokenStablePoolIds,
+            });
 
-          if (twoTokenStablePools.length > 0) {
-            const maxTVLPool = _.maxBy(twoTokenStablePools, (p) => p.tvl);
+            if (twoTokenStablePools.length > 0) {
+              const maxTVLPool = _.maxBy(twoTokenStablePools, (p) => p.tvl);
 
-            if (
-              pools.find(
-                (pool: any) => Number(pool.id) === Number(maxTVLPool.id)
+              if (
+                pools.find(
+                  (pool: any) => Number(pool.id) === Number(maxTVLPool.id)
+                )
               )
-            )
-              return;
+                return;
 
-            pools.push(_.maxBy(twoTokenStablePools, (p) => p.tvl));
-          }
-        })
+              pools.push(_.maxBy(twoTokenStablePools, (p) => p.tvl));
+            }
+          })
       );
 
       await db.cacheTopPools(pools);
@@ -134,12 +136,11 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
 
     pools = pools.map((pool: any) => parsePoolView(pool));
 
-    return pools.filter(
-      (pool: { token_account_ids: string | any[]; id: any }) => {
+    return pools
+      .filter((pool: { token_account_ids: string | any[]; id: any }) => {
         return !isStablePool(pool.id) && pool.token_account_ids.length < 3;
-      }
-    );
-    // .filter(filterBlackListPools);
+      })
+      .filter(filterBlackListPools);
   } catch (error) {
     console.log(error);
     return [];

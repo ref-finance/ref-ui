@@ -306,7 +306,10 @@ export const getPoolsByTokens = async ({
       triPools = await getAllTriPools();
     }
 
-    filtered_pools = pools.concat(triPools || []).filter(isNotStablePool);
+    filtered_pools = pools
+      .concat(triPools || [])
+      .filter(isNotStablePool)
+      .filter(filterBlackListPools);
 
     await db.cachePoolsByTokens(filtered_pools);
     filtered_pools = filtered_pools.filter(
