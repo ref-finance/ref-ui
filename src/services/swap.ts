@@ -626,6 +626,9 @@ export async function getHybridStableSmart(
   let pools1: Pool[] = [];
   let pools2: Pool[] = [];
 
+  let pools1Right: Pool[] = [];
+  let pools2Right: Pool[] = [];
+
   const { allStablePools, allStablePoolsById, allStablePoolsInfo } =
     await getAllStablePoolsFromCache(loadingTrigger);
 
@@ -636,7 +639,6 @@ export async function getHybridStableSmart(
    *
    *
    */
-
   if (isStableToken(tokenIn.id)) {
     // first hop will be through stable pool.
     pools1 = allStablePools.filter((pool) =>
@@ -671,13 +673,15 @@ export async function getHybridStableSmart(
         })
       );
     }
-  } else if (isStableToken(tokenOut.id)) {
+  }
+
+  if (isStableToken(tokenOut.id)) {
     // second hop will be through stable pool.
-    pools2 = allStablePools.filter((pool) =>
+    pools2Right = allStablePools.filter((pool) =>
       pool.tokenIds.includes(tokenOut.id)
     );
 
-    const otherStables = pools2
+    const otherStables = pools2Right
       .map((pool) => pool.tokenIds.filter((id) => id !== tokenOut.id))
       .flat();
     for (var otherStable of otherStables) {
@@ -699,29 +703,52 @@ export async function getHybridStableSmart(
           ? stablePools
           : tmpPools.concat(stablePools);
 
-      pools1.push(
+      pools1Right.push(
         ...tobeAddedPools.filter((p) => {
           const supplies = Object.values(p.supplies);
           return new Big(supplies[0]).times(new Big(supplies[1])).gt(0);
         })
       );
     }
-  } else {
-    return { actions: [], estimate: '0' };
   }
 
   // find candidate pools
 
-  for (var p1 of pools1) {
+  for (let p1 of pools1) {
     let middleTokens = p1.tokenIds.filter((id: string) => id !== tokenIn.id);
-    for (var middleToken of middleTokens) {
+    for (let middleToken of middleTokens) {
       let p2s = pools2.filter(
         (p) =>
           p.tokenIds.includes(middleToken) &&
           p.tokenIds.includes(tokenOut.id) &&
           middleToken !== tokenOut.id
       );
-      var p2 = _.maxBy(p2s, (p) =>
+      let p2 = _.maxBy(p2s, (p) =>
+        Number(
+          new Big(toReadableNumber(tokenOut.decimals, p.supplies[tokenOut.id]))
+        )
+      );
+
+      if (middleToken === tokenOut.id) {
+        p2 = p1;
+      }
+
+      if (p1 && p2) {
+        if (p1.id === p2.id) candidatePools.push([p1]);
+        else candidatePools.push([p1, p2]);
+      }
+    }
+  }
+  for (let p1 of pools1Right) {
+    let middleTokens = p1.tokenIds.filter((id: string) => id !== tokenIn.id);
+    for (let middleToken of middleTokens) {
+      let p2s = pools2Right.filter(
+        (p) =>
+          p.tokenIds.includes(middleToken) &&
+          p.tokenIds.includes(tokenOut.id) &&
+          middleToken !== tokenOut.id
+      );
+      let p2 = _.maxBy(p2s, (p) =>
         Number(
           new Big(toReadableNumber(tokenOut.decimals, p.supplies[tokenOut.id]))
         )
@@ -829,8 +856,6 @@ export async function getHybridStableSmart(
           });
 
     // one pool case only get best price
-
-    console.log(BestPoolPair);
 
     if (BestPoolPair.length === 1) {
       const bestPool = BestPoolPair[0];
