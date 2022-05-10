@@ -741,12 +741,29 @@ export const useAuroraBalancesNearMapping = (address: string) => {
 };
 
 export const useTriTokenIdsOnRef = () => {
-  const tokenIds = defaultTokenList.tokens.map((tk) => tk.address);
+  const auroraTokens = defaultTokenList.tokens;
+  const allSupportPairs = getAuroraConfig().Pairs;
+  const symbolToAddress = auroraTokens.reduce((pre, cur, i) => {
+    return {
+      ...pre,
+      [cur.symbol]: cur.address,
+    };
+  }, {});
+
+  const idsOnPair = Object.keys(allSupportPairs)
+    .map((pairName: string) => {
+      const names = pairName.split('-');
+      return names.map((n) => {
+        if (n === 'ETH') return getAuroraConfig().WETH;
+        else return symbolToAddress[n];
+      });
+    })
+    .flat();
 
   const [triTokenIds, setTriTokenIds] = useState(null);
 
   useEffect(() => {
-    getBatchTokenNearAcounts(tokenIds).then(setTriTokenIds);
+    getBatchTokenNearAcounts(idsOnPair).then(setTriTokenIds);
   }, []);
 
   return triTokenIds?.filter((id: string) => id);

@@ -36,7 +36,7 @@ import {
   getBatchTokenNearAcounts,
   useTriTokenIdsOnRef,
 } from '../services/aurora/aurora';
-import { defaultTokenList } from '../services/aurora/config';
+import { defaultTokenList, getAuroraConfig } from '../services/aurora/config';
 import {
   WalletContext,
   getCurrentWallet,
@@ -98,10 +98,25 @@ export const useTokens = (ids: string[] = [], curTokens?: TokenMetadata[]) => {
 };
 export const useTriTokens = () => {
   const [triTokens, setTriTokens] = useState<TokenMetadata[]>();
+  const auroraTokens = defaultTokenList.tokens;
+  const allSupportPairs = getAuroraConfig().Pairs;
+  const symbolToAddress = auroraTokens.reduce((pre, cur, i) => {
+    return {
+      ...pre,
+      [cur.symbol]: cur.address,
+    };
+  }, {});
 
+  const tokenIds = Object.keys(allSupportPairs)
+    .map((pairName: string) => {
+      const names = pairName.split('-');
+      return names.map((n) => {
+        if (n === 'ETH') return getAuroraConfig().WETH;
+        else return symbolToAddress[n];
+      });
+    })
+    .flat();
   useEffect(() => {
-    const tokenIds = defaultTokenList.tokens.map((tk) => tk.address);
-
     getBatchTokenNearAcounts(tokenIds).then((res) => {
       const allIds = res.concat(['aurora']);
 
