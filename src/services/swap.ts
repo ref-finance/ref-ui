@@ -356,6 +356,15 @@ export const estimateSwap = async ({
   );
   // ref smart routing
 
+  if (supportLedger) {
+    if (swapPro) {
+      setSwapsToDoRef(refTodos);
+      setSwapsToDoTri(triTodos);
+    }
+
+    return supportLedgerRes;
+  }
+
   const orpools = await getRefPoolsByToken1ORToken2(tokenIn.id, tokenOut.id);
 
   console.log(orpools.length, 'or pool length');
