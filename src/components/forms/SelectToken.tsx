@@ -96,8 +96,12 @@ export const StableSelectToken = ({
   selected: string | React.ReactElement;
   preSelected?: TokenMetadata;
 }) => {
+  // const USDTokenList = new Array(
+  //   ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS))
+  // );
+
   const USDTokenList = new Array(
-    ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS))
+    ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS))
   );
 
   const BTCTokenList = BTCIDS.map((id) => id);
@@ -212,7 +216,7 @@ export const StableSelectToken = ({
         <div
           className={`flex flex-col`}
           style={{
-            height: '270px',
+            height: '220px',
           }}
         >
           {displayList.map((token) => {
