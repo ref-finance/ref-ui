@@ -39,7 +39,7 @@ export default function Token({
   return (
     <div
       key={id}
-      className="hover:bg-black hover:bg-opacity-10 flex items-center justify-between w-full"
+      className="hover:bg-black hover:bg-opacity-10 flex items-center justify-between w-full relative"
       onClick={() => onClick && onClick(token)}
       style={{
         height: '56px',
@@ -47,34 +47,29 @@ export default function Token({
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <div className="flex items-center">
-        <div
-          className={`xs:text-xs text-sm pl-8 ${
-            index === 0
-              ? !price
-                ? 'pt-6 pb-4'
-                : 'pt-4 pb-2'
-              : !price
-              ? 'py-4'
-              : 'py-2'
-          }  cursor-pointer flex w-34 items-center`}
-        >
-          <SingleToken token={token} price={price} />
-        </div>
-
-        <div
-          className={
-            !forCross
-              ? 'hidden'
-              : 'w-12 flex justify-start relative xs:left-2 lg:left-10'
-          }
-        >
-          {onRef || onTri ? <RefIcon lightTrigger={hover} /> : null}
-
-          {onTri ? <TriIcon lightTrigger={hover} /> : null}
-        </div>
+      <div
+        className={`xs:text-xs text-sm pl-8 ${
+          index === 0
+            ? !price
+              ? 'pt-6 pb-4'
+              : 'pt-4 pb-2'
+            : !price
+            ? 'py-4'
+            : 'py-2'
+        }  cursor-pointer flex w-34 items-center`}
+      >
+        <SingleToken token={token} price={price} />
       </div>
+      <div
+        className={!forCross ? 'hidden' : 'w-12 flex justify-start  absolute '}
+        style={{
+          left: '45%',
+        }}
+      >
+        {onRef || onTri ? <RefIcon lightTrigger={hover} /> : null}
 
+        {onTri ? <TriIcon lightTrigger={hover} /> : null}
+      </div>
       <div
         className={`${
           index === 0 ? 'pt-6 pb-4' : 'py-4'

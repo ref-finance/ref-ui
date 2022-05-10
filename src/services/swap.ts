@@ -354,16 +354,6 @@ export const estimateSwap = async ({
     amountIn,
     parsedAmountIn
   );
-
-  if (supportLedger) {
-    if (swapPro) {
-      setSwapsToDoRef(refTodos);
-      setSwapsToDoTri(triTodos);
-    }
-
-    return supportLedgerRes;
-  }
-
   // ref smart routing
 
   const orpools = await getRefPoolsByToken1ORToken2(tokenIn.id, tokenOut.id);
@@ -427,7 +417,7 @@ export const estimateSwap = async ({
     const refSmartRes = await getExpectedOutputFromActions(res, tokenOut.id, 0);
     const triRes = await getExpectedOutputFromActions(triTodos, tokenOut.id, 0);
 
-    if (new Big(refSmartRes).gt(new Big(triRes))) {
+    if (new Big(refSmartRes || '0').gt(new Big(triRes || '0'))) {
       return res;
     } else {
       return triTodos;

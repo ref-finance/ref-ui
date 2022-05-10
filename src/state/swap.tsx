@@ -27,9 +27,7 @@ import { swap as stableSwap } from '../services/stable-swap';
 import { useHistory, useLocation } from 'react-router';
 import getConfig from '~services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { CloseIcon } from '~components/icon/Actions';
-import db from '../store/RefDatabase';
-import { getAllTriPools } from '../services/aurora/aurora';
+
 import { getCurrentWallet, WalletContext } from '../utils/sender-wallet';
 import {
   POOL_TOKEN_REFRESH_INTERVAL,
@@ -207,7 +205,6 @@ export const useSwap = ({
             setCanSwap(false);
             setTokenOutAmount('');
             setSwapError(err);
-            console.error(err);
           }
         })
         .finally(() => setLoadingTrigger(false));
