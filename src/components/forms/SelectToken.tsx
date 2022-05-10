@@ -135,56 +135,6 @@ export const StableSelectToken = ({
       });
   }, [visible]);
 
-  const ClassTab = ({
-    stableCoinType,
-    setStableCoinType,
-  }: {
-    stableCoinType: string;
-    setStableCoinType: (type: string) => void;
-  }) => {
-    return (
-      <div
-        className="w-full flex items-center justify-between"
-        style={{
-          borderBottom: '1px solid #415462',
-        }}
-      >
-        <div
-          className={`rounded-lg py-1 w-full px-4 mb-2 text-center font-bold mt-1 ml-3 text-sm ${
-            stableCoinType === 'USD'
-              ? 'text-gradientFrom bg-black bg-opacity-20'
-              : 'text-primaryText cursor-pointer'
-          }  self-start ${coverUSD ? 'opacity-30' : ''}`}
-          onClick={(e) => {
-            e.nativeEvent.stopImmediatePropagation();
-            if (coverUSD) return;
-            else setStableCoinType('USD');
-          }}
-        >
-          USD
-        </div>
-        <div
-          className={`rounded-lg w-full py-1 text-center mr-3 font-bold  px-4 mb-2 mt-1
-          ${
-            stableCoinType === 'BTC'
-              ? 'text-BTCColor bg-black bg-opacity-20'
-              : 'text-primaryText cursor-pointer'
-          }
-           text-sm  self-start
-            ${coverBTC ? 'opacity-30' : ''}
-            `}
-          onClick={(e) => {
-            e.nativeEvent.stopImmediatePropagation();
-            if (coverBTC) return;
-            else setStableCoinType('BTC');
-          }}
-        >
-          BTC
-        </div>
-      </div>
-    );
-  };
-
   const displayList = stableCoinType === 'USD' ? USDtokens : BTCtokens;
 
   return (
@@ -220,10 +170,45 @@ export const StableSelectToken = ({
           right: 0,
         }}
       >
-        <ClassTab
-          setStableCoinType={setStableCoinType}
-          stableCoinType={stableCoinType}
-        />
+        <div
+          className="w-full flex items-center justify-between"
+          style={{
+            borderBottom: '1px solid #415462',
+          }}
+        >
+          <div
+            className={`rounded-lg py-1 w-full px-4 mb-2 text-center font-bold mt-1 ml-3 text-sm ${
+              stableCoinType === 'USD'
+                ? 'text-gradientFrom bg-black bg-opacity-20'
+                : 'text-primaryText cursor-pointer'
+            }  self-start ${coverUSD ? 'opacity-30' : ''}`}
+            onClick={(e) => {
+              e.nativeEvent.stopImmediatePropagation();
+              if (coverUSD) return;
+              else setStableCoinType('USD');
+            }}
+          >
+            USD
+          </div>
+          <div
+            className={`rounded-lg w-full py-1 text-center mr-3 font-bold  px-4 mb-2 mt-1
+          ${
+            stableCoinType === 'BTC'
+              ? 'text-BTCColor bg-black bg-opacity-20'
+              : 'text-primaryText cursor-pointer'
+          }
+           text-sm  self-start
+            ${coverBTC ? 'opacity-30' : ''}
+            `}
+            onClick={(e) => {
+              e.nativeEvent.stopImmediatePropagation();
+              if (coverBTC) return;
+              else setStableCoinType('BTC');
+            }}
+          >
+            BTC
+          </div>
+        </div>
         <div
           className={`flex flex-col`}
           style={{
