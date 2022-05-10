@@ -497,6 +497,17 @@ export const getOneSwapActionResult = async (
         pools.length === 1
           ? pools[0]
           : _.maxBy(pools, (p) => {
+              if (isStablePool(p.id)) {
+                return Number(
+                  getStablePoolEstimate({
+                    tokenIn,
+                    tokenOut,
+                    stablePool: allStablePoolsById[p.id][0],
+                    stablePoolInfo: allStablePoolsById[p.id][1],
+                    amountIn,
+                  }).estimate
+                );
+              }
               return Number(
                 getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn)
                   .estimate
