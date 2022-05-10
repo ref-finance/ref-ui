@@ -851,6 +851,7 @@ export async function getHybridStableSmart(
             tokens: [tokenIn, tokenOut],
             inputToken: tokenIn.id,
             outputToken: tokenOut.id,
+            totalInputAmount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
           },
         ],
         estimate: estimate.estimate,
