@@ -49,7 +49,7 @@ export const DEFAULT_PAGE_LIMIT = 100;
 
 const getStablePoolKey = (id: string) => `STABLE_POOL_VALUE_${id}`;
 
-const getStablePoolInfoKey = (id: string) =>
+export const getStablePoolInfoKey = (id: string) =>
   `REF_FI_STABLE_Pool_INFO_VALUE_${id}`;
 
 export interface Pool {
