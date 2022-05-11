@@ -539,5 +539,6 @@ const uk_UA = {
   name: "Ім'я",
   diff: 'Дифs',
   best: 'Найкращий',
+  pool_fee_apr: 'Pool Fee APR',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

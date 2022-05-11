@@ -523,5 +523,6 @@ const zh_CN = {
   name: '名字',
   diff: '差距',
   best: '最好',
+  pool_fee_apr: '池子费年化率',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

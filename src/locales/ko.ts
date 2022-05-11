@@ -554,5 +554,6 @@ const ko = {
   name: '이름',
   diff: '차이',
   best: '최상의',
+  pool_fee_apr: 'Pool Fee APR',
 };
 export default Object.assign(ko, ko_in_risks_page);

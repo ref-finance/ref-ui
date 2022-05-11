@@ -561,5 +561,6 @@ const vi = {
   name: 'Tên',
   diff: 'Khác biệt',
   best: 'Tốt nhất',
+  pool_fee_apr: 'Pool Fee APR',
 };
 export default Object.assign(vi, vi_in_risks_page);
