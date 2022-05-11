@@ -386,6 +386,18 @@ export const estimateSwap = async ({
 
   // hybrid smart routing
   if (isStableToken(tokenIn.id) || isStableToken(tokenOut.id)) {
+    try {
+      const hybridStableSmart = await getHybridStableSmart(
+        tokenIn,
+        tokenOut,
+        amountIn,
+        loadingTrigger,
+        swapMode
+      );
+    } catch (error) {
+      console.log(error);
+    }
+
     let hybridStableSmart = await getHybridStableSmart(
       tokenIn,
       tokenOut,
@@ -412,7 +424,9 @@ export const estimateSwap = async ({
     }
   }
 
-  if (!swapPro && !res.length) {
+  console.log(res);
+
+  if (!swapPro && !res?.length) {
     throwNoPoolError();
   }
 
@@ -778,7 +792,14 @@ export async function getHybridStableSmart(
   }
 
   // return best estimate
-  console.log(candidatePools);
+  // console.log(candidatePools, 'candidate pools');
+  candidatePools = candidatePools.filter((pools) => {
+    pools.every((p) =>
+      new Big(p.supplies[p.tokenIds[0]])
+        .times(new Big(p.supplies[p.tokenIds[1]]))
+        .gt(0)
+    );
+  });
   if (candidatePools.length > 0) {
     const tokensMedata = await ftGetTokensMetadata(
       candidatePools.map((cp) => cp.map((p) => p.tokenIds).flat()).flat()
@@ -809,12 +830,14 @@ export async function getHybridStableSmart(
                   }).estimate
                 );
               } else {
-                return getSinglePoolEstimate(
-                  tokenIn,
-                  tokenOut,
-                  poolPair[0],
-                  parsedAmountIn
-                ).estimate;
+                return Number(
+                  getSinglePoolEstimate(
+                    tokenIn,
+                    tokenOut,
+                    poolPair[0],
+                    parsedAmountIn
+                  ).estimate
+                );
               }
             }
 
@@ -864,10 +887,19 @@ export async function getHybridStableSmart(
               status: PoolMode.SMART,
             };
 
+            console.log(estimate1, estimate2);
+
             return Number(estimate2.estimate);
           });
 
     // one pool case only get best price
+
+    console.log(
+      BestPoolPair,
+      'best pool pair',
+      candidatePools,
+      'candidate pools'
+    );
 
     if (BestPoolPair.length === 1) {
       const bestPool = BestPoolPair[0];
@@ -941,6 +973,7 @@ export async function getHybridStableSmart(
       inputToken: tokenMidMeta.id,
       outputToken: tokenOut.id,
     };
+    console.log(estimate1, estimate2);
 
     return { actions: [estimate1, estimate2], estimate: estimate2.estimate };
   }
