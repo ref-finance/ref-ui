@@ -264,15 +264,14 @@ function MobilePoolRow({
 function MobileWatchListCard({
   watchPools,
   poolTokenMetas,
-  poolsMorePoolsIds,
 }: {
   watchPools: Pool[];
   poolTokenMetas: any;
-  poolsMorePoolsIds: Record<string, string[]>;
 }) {
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>(false);
   const [sortBy, onSortChange] = useState<string>('tvl');
+  const poolsMorePoolsIds = usePoolsMorePoolIds({ pools: watchPools });
 
   return (
     <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4 mb-4">
@@ -416,7 +415,6 @@ function MobileLiquidityPage({
       <MobileWatchListCard
         poolTokenMetas={poolTokenMetas}
         watchPools={watchPools}
-        poolsMorePoolsIds={poolsMorePoolsIds}
       />
 
       <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4">
@@ -649,12 +647,12 @@ function PoolRow({
 function WatchListCard({
   watchPools,
   poolTokenMetas,
-  poolsMorePoolsIds,
 }: {
   watchPools: Pool[];
   poolTokenMetas: any;
-  poolsMorePoolsIds: Record<string, string[]>;
 }) {
+  const poolsMorePoolsIds = usePoolsMorePoolIds({ pools: watchPools });
+
   return (
     <>
       <Card className=" w-full mb-2" padding="p-0 py-6" bgcolor="bg-cardBg">
@@ -776,11 +774,7 @@ function LiquidityPage_({
           />
         </div>
       </div>
-      <WatchListCard
-        poolsMorePoolsIds={poolsMorePoolsIds}
-        poolTokenMetas={poolTokenMetas}
-        watchPools={watchPools}
-      />
+      <WatchListCard poolTokenMetas={poolTokenMetas} watchPools={watchPools} />
 
       <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
         <div className="flex mx-8 justify-between pb-4">
