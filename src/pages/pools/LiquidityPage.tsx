@@ -553,7 +553,6 @@ function PoolRow({
 }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
   const [farmCount, setFarmCount] = useState<Number>(1);
-  const { ref, inView, entry } = useInView();
 
   const curRowTokens = useTokens(pool.tokenIds, tokens);
   const history = useHistory();
@@ -585,7 +584,6 @@ function PoolRow({
           pathname: `/pool/${pool.id}`,
           state: { tvl: pool.tvl, backToFarms: supportFarm },
         }}
-        ref={ref}
       >
         <div className="col-span-5 md:col-span-4 flex items-center">
           <div className="mr-6 w-2">{index}</div>

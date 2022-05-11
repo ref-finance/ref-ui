@@ -52,11 +52,7 @@ function PoolRow({
   morePoolIds: string[];
   farmCount: number;
 }) {
-  const [supportFarm, setSupportFarm] = useState<Boolean>(false);
-
-  useEffect(() => {
-    setSupportFarm(!!farmCount);
-  }, [farmCount]);
+  const supportFarm = !!farmCount;
 
   tokens.sort((a, b) => {
     if (a.symbol === 'wNEAR') return 1;
@@ -143,11 +139,7 @@ const MobileRow = ({
   morePoolIds: string[];
   farmCount: number;
 }) => {
-  const [supportFarm, setSupportFarm] = useState<Boolean>(false);
-
-  useEffect(() => {
-    setSupportFarm(!!farmCount);
-  }, [farmCount]);
+  const supportFarm = !!farmCount;
 
   return (
     <Card
@@ -247,8 +239,6 @@ export const MorePoolsPage = () => {
   const watchList = useAllWatchList();
 
   const poolsFarmCount = usePoolsFarmCount({ morePoolIds });
-
-  console.log(poolsFarmCount);
 
   return (
     <>
