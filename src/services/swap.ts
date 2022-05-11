@@ -793,13 +793,14 @@ export async function getHybridStableSmart(
 
   // return best estimate
   // console.log(candidatePools, 'candidate pools');
-  candidatePools = candidatePools.filter((pools) => {
-    pools.every((p) =>
-      new Big(p.supplies[p.tokenIds[0]])
-        .times(new Big(p.supplies[p.tokenIds[1]]))
-        .gt(0)
-    );
-  });
+  // candidatePools = candidatePools.filter((pools) => {
+  //   pools.every((p) =>
+  //     new Big(p.supplies[p.tokenIds[0]])
+  //       .times(new Big(p.supplies[p.tokenIds[1]]))
+  //       .gt(0)
+  //   );
+  // });
+
   if (candidatePools.length > 0) {
     const tokensMedata = await ftGetTokensMetadata(
       candidatePools.map((cp) => cp.map((p) => p.tokenIds).flat()).flat()
@@ -893,6 +894,8 @@ export async function getHybridStableSmart(
           });
 
     // one pool case only get best price
+
+    if (!BestPoolPair) return { actions: [], estimate: '0' };
 
     console.log(
       BestPoolPair,
