@@ -552,5 +552,6 @@ const ru = {
   name: 'Имя',
   diff: 'Диф',
   best: 'Лучший',
+  pool_fee_apr: 'Pool Fee APR',
 };
 export default Object.assign(ru, ru_in_risks_page);

@@ -564,5 +564,6 @@ const ja = {
   name: '名前',
   diff: '差分',
   best: '一番',
+  pool_fee_apr: 'Pool Fee APR',
 };
 export default Object.assign(ja, ja_in_risks_page);

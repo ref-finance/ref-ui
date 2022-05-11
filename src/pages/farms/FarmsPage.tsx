@@ -85,6 +85,8 @@ import getConfig from '~services/config';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { scientificNotationToString } from '../../utils/numbers';
 import { getPrice } from '~services/xref';
+import { useDayVolume } from '~state/pool';
+
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
@@ -1021,6 +1023,7 @@ function FarmView({
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
   const PoolId = farmData.lpTokenId;
   const tokens = useTokens(farmData?.tokenIds);
+  const dayVolume = useDayVolume(farmData.pool.id.toString());
 
   const endTime =
     data?.reward_per_session > 0
@@ -1595,10 +1598,27 @@ function FarmView({
   function showCalcModel() {
     setCalcVisible(true);
   }
-  function tipOfApr() {
-    const tip = intl.formatMessage({ id: 'aprTip' });
-    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+  function poolFeeAprTip() {
+    const tip = intl.formatMessage({ id: 'pool_fee_apr' });
+    let result: string = `<div class="text-navHighLightText text-xs text-left">${tip}</div>`;
     return result;
+  }
+  function getPoolFeeApr() {
+    let display: any = '';
+    if (dayVolume) {
+      const { total_fee, tvl } = farmData.pool;
+      const revenu24h = (total_fee / 10000) * 0.8 * Number(dayVolume);
+      if (tvl > 0 && revenu24h > 0) {
+        const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
+        display = (
+          <div className="flex items-center">
+            {toPrecision(annualisedFeesPrct.toString(), 2)}%{' '}
+            <span className="mx-1.5">+</span>
+          </div>
+        );
+      }
+    }
+    return display;
   }
   return (
     <Card
@@ -1707,6 +1727,25 @@ function FarmView({
             </div>
             <div className="flex items-center">
               <div
+                className="text-sm text-white"
+                data-type="info"
+                data-place="top"
+                data-multiline={true}
+                data-tip={poolFeeAprTip()}
+                data-html={true}
+                data-for={'poolFee' + data.farm_id}
+                data-class="reactTip"
+              >
+                {getPoolFeeApr()}
+                <ReactTooltip
+                  id={'poolFee' + data.farm_id}
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
+              </div>
+              <div
                 className="text-xl text-white"
                 data-type="info"
                 data-place="top"
@@ -1725,26 +1764,6 @@ function FarmView({
                   effect="solid"
                 />
               </div>
-              {/* <div
-                className="ml-2 text-sm"
-                data-type="info"
-                data-place="right"
-                data-multiline={true}
-                data-class="reactTip"
-                data-html={true}
-                data-tip={tipOfApr()}
-                data-for="aprValueId"
-              >
-                <QuestionMark />
-                <ReactTooltip
-                  className="w-20"
-                  id="aprValueId"
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
-              </div> */}
             </div>
           </div>
           <div className="my-3.5 border border-t-0 border-farmSplitLine" />
