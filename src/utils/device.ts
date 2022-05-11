@@ -8,10 +8,27 @@ export const isPC = (): Boolean => {
   return window.screen.width > 1023;
 };
 
+export const isClientMobie = (): Boolean => {
+  return document.documentElement.clientWidth <= 1023;
+};
+
 export const useMobile = () => {
   const [mobileWindow, setMobileWindow] = useState<Boolean>(isMobile());
 
   const handleResize = () => setMobileWindow(isMobile());
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return mobileWindow;
+};
+
+export const useClientMobile = () => {
+  const [mobileWindow, setMobileWindow] = useState<Boolean>(isClientMobie());
+
+  const handleResize = () => setMobileWindow(isClientMobie());
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);

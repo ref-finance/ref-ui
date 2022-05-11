@@ -60,7 +60,7 @@ import { QuestionTip } from '~components/layout/TipWrapper';
 import { FilterIcon } from '../../components/icon/PoolFilter';
 import { TokenMetadata } from '../../services/ft-contract';
 import { scientificNotationToString } from '../../utils/numbers';
-import { useMobile } from '../../utils/device';
+import { useMobile, useClientMobile } from '../../utils/device';
 import { usePoolsMorePoolIds } from '../../state/pool';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
@@ -948,6 +948,8 @@ export function LiquidityPage() {
     order,
   });
 
+  const clientMobileDevice = useClientMobile();
+
   useEffect(() => {
     let tempPools;
 
@@ -991,26 +993,28 @@ export function LiquidityPage() {
         hasMore={hasMore}
         nextPage={nextPage}
       />
-      <MobileLiquidityPage
-        poolTokenMetas={poolTokenMetas}
-        hideLowTVL={hideLowTVL}
-        poolsMorePoolsIds={poolsMorePoolsIds}
-        tokenName={tokenName}
-        pools={displayPools}
-        watchPools={watchPools}
-        allPools={AllPools}
-        order={order}
-        sortBy={sortBy}
-        onOrderChange={setOrder}
-        onSortChange={setSortBy}
-        onHide={(isHide) => {
-          localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
-          setHideLowTVL(isHide);
-        }}
-        onSearch={onSearch}
-        hasMore={hasMore}
-        nextPage={nextPage}
-      />
+      {clientMobileDevice && (
+        <MobileLiquidityPage
+          poolTokenMetas={poolTokenMetas}
+          hideLowTVL={hideLowTVL}
+          poolsMorePoolsIds={poolsMorePoolsIds}
+          tokenName={tokenName}
+          pools={displayPools}
+          watchPools={watchPools}
+          allPools={AllPools}
+          order={order}
+          sortBy={sortBy}
+          onOrderChange={setOrder}
+          onSortChange={setSortBy}
+          onHide={(isHide) => {
+            localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
+            setHideLowTVL(isHide);
+          }}
+          onSearch={onSearch}
+          hasMore={hasMore}
+          nextPage={nextPage}
+        />
+      )}
     </>
   );
 }

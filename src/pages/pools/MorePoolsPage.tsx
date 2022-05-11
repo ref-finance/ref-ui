@@ -32,6 +32,7 @@ import { divide, find } from 'lodash';
 import { WatchListStartFull } from '~components/icon/WatchListStar';
 import { scientificNotationToString } from '../../utils/numbers';
 import { usePoolsFarmCount } from '../../state/pool';
+import { useClientMobile } from '../../utils/device';
 
 interface LocationTypes {
   morePoolIds: string[];
@@ -239,6 +240,7 @@ export const MorePoolsPage = () => {
   const watchList = useAllWatchList();
 
   const poolsFarmCount = usePoolsFarmCount({ morePoolIds });
+  const clientMobileDevice = useClientMobile();
 
   return (
     <>
@@ -356,58 +358,60 @@ export const MorePoolsPage = () => {
         </Card>
       </div>
       {/* Mobile */}
-      <div className="w-11/12 lg:hidden m-auto text-white">
-        <BreadCrumb
-          routes={[
-            {
-              id: 'top_pools',
-              msg: 'Top Pools',
-              pathname: '/pools',
-            },
-            {
-              id: 'more_pools',
-              msg: 'More Pools',
-              pathname: `/more_pools`,
-            },
-          ]}
-        />
-        <div className="flex flex-col items-center my-4 justify-center">
-          <div className="flex items-center">
-            <div className="h-9 w-9 border border-gradientFromHover rounded-full mr-2">
-              <img
-                key={tokens[0].id.substring(0, 12).substring(0, 12)}
-                className="rounded-full w-full mr-2"
-                src={tokens[0].icon}
-              />
-            </div>
+      {clientMobileDevice && (
+        <div className="w-11/12 lg:hidden m-auto text-white">
+          <BreadCrumb
+            routes={[
+              {
+                id: 'top_pools',
+                msg: 'Top Pools',
+                pathname: '/pools',
+              },
+              {
+                id: 'more_pools',
+                msg: 'More Pools',
+                pathname: `/more_pools`,
+              },
+            ]}
+          />
+          <div className="flex flex-col items-center my-4 justify-center">
+            <div className="flex items-center">
+              <div className="h-9 w-9 border border-gradientFromHover rounded-full mr-2">
+                <img
+                  key={tokens[0].id.substring(0, 12).substring(0, 12)}
+                  className="rounded-full w-full mr-2"
+                  src={tokens[0].icon}
+                />
+              </div>
 
-            <div className="h-9 w-9 border border-gradientFromHover rounded-full">
-              <img
-                key={tokens[1].id}
-                className="w-full rounded-full"
-                src={tokens[1].icon}
-              />
+              <div className="h-9 w-9 border border-gradientFromHover rounded-full">
+                <img
+                  key={tokens[1].id}
+                  className="w-full rounded-full"
+                  src={tokens[1].icon}
+                />
+              </div>
+            </div>
+            <div className="text-2xl">
+              {tokens[0].symbol + '-' + tokens[1].symbol}
             </div>
           </div>
-          <div className="text-2xl">
-            {tokens[0].symbol + '-' + tokens[1].symbol}
-          </div>
+          {morePools?.map((pool, i) => {
+            return (
+              <MobileRow
+                tokens={tokens}
+                key={i}
+                pool={pool}
+                watched={
+                  !!watchList.map((p) => p.id).includes(pool.id.toString())
+                }
+                morePoolIds={morePoolIds}
+                farmCount={poolsFarmCount[pool.id]}
+              />
+            );
+          })}
         </div>
-        {morePools?.map((pool, i) => {
-          return (
-            <MobileRow
-              tokens={tokens}
-              key={i}
-              pool={pool}
-              watched={
-                !!watchList.map((p) => p.id).includes(pool.id.toString())
-              }
-              morePoolIds={morePoolIds}
-              farmCount={poolsFarmCount[pool.id]}
-            />
-          );
-        })}
-      </div>
+      )}
     </>
   );
 };
