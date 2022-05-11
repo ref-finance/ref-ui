@@ -588,7 +588,7 @@ export const getOneSwapActionResult = async (
           const refPoolEstimateRes = await getPoolEstimate({
             tokenIn,
             tokenOut,
-            amountIn,
+            amountIn: parsedAmountIn,
             Pool: refPoolThisPair,
           });
 
@@ -613,6 +613,8 @@ export const getOneSwapActionResult = async (
   }
 
   console.log(supportLedgerRes, 'support ledger res');
+
+  console.log(triTodos, refTodos);
 
   return {
     supportLedgerRes,
