@@ -304,7 +304,7 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'wbtc.fakes.testnet': 0,
           'hbtc.fakes.testnet': 1,
         },
-        BTC_STABLE_POOL_ID: '604',
+        BTC_STABLE_POOL_ID: '456',
         CUSDIDS: ['usdn.testnet', 'cusd.fakes.testnet'],
         CUSD_STABLE_POOL_INDEX: {
           'usdn.testnet': 0,
