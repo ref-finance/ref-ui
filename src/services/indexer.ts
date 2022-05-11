@@ -103,8 +103,11 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
       await Promise.all(
         ALL_STABLE_POOL_IDS.concat(BLACKLIST_POOL_IDS)
           .filter((id) => Number(id) !== Number(STABLE_POOL_ID))
+          .filter((_) => _)
           .map(async (id) => {
             const pool = await getPool(id);
+
+            console.log(pool, id);
 
             const ids = pool.token_account_ids;
 
