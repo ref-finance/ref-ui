@@ -58,7 +58,10 @@ import {
 } from '../services/near';
 import { getCurrentWallet, WalletContext } from '../utils/sender-wallet';
 import getConfig from '../services/config';
-import { getStablePoolFromCache } from '../services/pool';
+import {
+  getStablePoolFromCache,
+  getRefPoolsByToken1ORToken2,
+} from '../services/pool';
 const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
   getConfig().STABLE_POOL_ID
 }`;
@@ -210,6 +213,45 @@ export const useMorePoolIds = ({
   return ids;
 };
 
+export const usePoolsMorePoolIds = ({ pools }: { pools: Pool[] }) => {
+  // top pool id to more pool ids:Array
+  const [poolsMorePoolIds, setMorePoolIds] = useState<Record<string, string[]>>(
+    {}
+  );
+
+  const getAllPoolsTokens = async () => {
+    return await db.getAllPoolsTokens();
+  };
+
+  useEffect(() => {
+    if (!pools) return;
+
+    getAllPoolsTokens().then((res) => {
+      const poolsMorePoolIds = pools.map((p) => {
+        const id1 = p.tokenIds[0];
+        const id2 = p.tokenIds[1];
+
+        return res
+          .filter(
+            (resP) => resP.tokenIds.includes(id1) && resP.tokenIds.includes(id2)
+          )
+          .map((a) => a.id.toString());
+      });
+
+      const parsedIds = poolsMorePoolIds.reduce((acc, cur, i) => {
+        return {
+          ...acc,
+          [pools[i].id.toString()]: cur,
+        };
+      }, {});
+
+      setMorePoolIds(parsedIds);
+    });
+  }, [pools]);
+
+  return poolsMorePoolIds;
+};
+
 export const useMorePools = ({
   morePoolIds,
   order,
@@ -227,6 +269,43 @@ export const useMorePools = ({
     });
   }, [order, sortBy]);
   return morePools;
+};
+
+export const usePoolsFarmCount = ({
+  morePoolIds,
+}: {
+  morePoolIds: string[];
+}) => {
+  const [poolsFarmCount, setPoolsFarmCount] = useState<Record<string, number>>(
+    {}
+  );
+
+  const getFarms = async () => {
+    return await db.queryFarms();
+  };
+
+  useEffect(() => {
+    if (!morePoolIds) return;
+    getFarms().then((res) => {
+      const counts = morePoolIds.map((id) => {
+        const count = res.reduce((pre, cur) => {
+          if (Number(cur.pool_id) === Number(id)) return pre + 1;
+          return pre;
+        }, 0);
+        return count;
+      });
+      const parsedCounts = counts.reduce((acc, cur, i) => {
+        return {
+          ...acc,
+          [morePoolIds[i]]: cur,
+        };
+      }, {});
+
+      setPoolsFarmCount(parsedCounts);
+    });
+  }, [morePoolIds]);
+
+  return poolsFarmCount;
 };
 
 export const usePoolTVL = (poolId: string | number) => {

@@ -31,6 +31,7 @@ import { FarmStamp } from '~components/icon/FarmStamp';
 import { divide, find } from 'lodash';
 import { WatchListStartFull } from '~components/icon/WatchListStar';
 import { scientificNotationToString } from '../../utils/numbers';
+import { usePoolsFarmCount } from '../../state/pool';
 
 interface LocationTypes {
   morePoolIds: string[];
@@ -42,22 +43,20 @@ function PoolRow({
   tokens,
   watched,
   morePoolIds,
+  farmCount,
 }: {
   pool: PoolRPCView;
   index: number;
   tokens: TokenMetadata[];
   watched: Boolean;
   morePoolIds: string[];
+  farmCount: number;
 }) {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
-  const [farmCount, setFarmCount] = useState<Number>(1);
 
   useEffect(() => {
-    canFarm(pool.id).then((canFarm) => {
-      setSupportFarm(!!canFarm);
-      setFarmCount(canFarm);
-    });
-  }, [pool]);
+    setSupportFarm(!!farmCount);
+  }, [farmCount]);
 
   tokens.sort((a, b) => {
     if (a.symbol === 'wNEAR') return 1;
@@ -136,21 +135,19 @@ const MobileRow = ({
   tokens,
   watched,
   morePoolIds,
+  farmCount,
 }: {
   pool: PoolRPCView;
   tokens: TokenMetadata[];
   watched: Boolean;
   morePoolIds: string[];
+  farmCount: number;
 }) => {
   const [supportFarm, setSupportFarm] = useState<Boolean>(false);
-  const [farmCount, setFarmCount] = useState<Number>(1);
 
   useEffect(() => {
-    canFarm(pool.id).then((canFarm) => {
-      setSupportFarm(!!canFarm);
-      setFarmCount(canFarm);
-    });
-  }, [pool]);
+    setSupportFarm(!!farmCount);
+  }, [farmCount]);
 
   return (
     <Card
@@ -248,6 +245,10 @@ export const MorePoolsPage = () => {
   const morePools = useMorePools({ morePoolIds, order, sortBy });
 
   const watchList = useAllWatchList();
+
+  const poolsFarmCount = usePoolsFarmCount({ morePoolIds });
+
+  console.log(poolsFarmCount);
 
   return (
     <>
@@ -356,6 +357,7 @@ export const MorePoolsPage = () => {
                     tokens={tokens}
                     watched={!!find(watchList, { pool_id: pool.id.toString() })}
                     morePoolIds={morePoolIds}
+                    farmCount={poolsFarmCount[pool.id]}
                   />
                 </div>
               ))}
@@ -407,8 +409,11 @@ export const MorePoolsPage = () => {
               tokens={tokens}
               key={i}
               pool={pool}
-              watched={!!find(watchList, { pool_id: pool.id.toString() })}
+              watched={
+                !!watchList.map((p) => p.id).includes(pool.id.toString())
+              }
               morePoolIds={morePoolIds}
+              farmCount={poolsFarmCount[pool.id]}
             />
           );
         })}

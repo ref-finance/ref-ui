@@ -107,8 +107,6 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
           .map(async (id) => {
             const pool = await getPool(id);
 
-            console.log(pool, id);
-
             const ids = pool.token_account_ids;
 
             const twoTokenStablePoolIds = (
