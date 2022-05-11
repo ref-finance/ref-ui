@@ -558,5 +558,6 @@ const en_US = {
   total_usd_value: 'Total USD value',
   bitcoin_value: 'Bitcoin value',
   stable_coin_value: 'StableCoin value',
+  pool_fee_apr: 'Pool Fee APR',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

@@ -556,5 +556,6 @@ const ru = {
   total_usd_value: 'Общая стоимость в долларах США',
   bitcoin_value: 'Стоимость биткойнов',
   stable_coin_value: 'Стоимость стейблкоина',
+  pool_fee_apr: 'Pool Fee APR',
 };
 export default Object.assign(ru, ru_in_risks_page);

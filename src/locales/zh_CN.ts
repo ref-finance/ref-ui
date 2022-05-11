@@ -527,5 +527,6 @@ const zh_CN = {
   total_usd_value: '美元总值',
   bitcoin_value: '比特币价值',
   stable_coin_value: '稳定币价值',
+  pool_fee_apr: '流动池手续费年化收益率',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

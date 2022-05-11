@@ -558,5 +558,6 @@ const ko = {
   total_usd_value: '총 미국 달러 가치',
   bitcoin_value: '비트코인 가치',
   stable_coin_value: '스테이블코인 가치',
+  pool_fee_apr: 'Pool Fee APR',
 };
 export default Object.assign(ko, ko_in_risks_page);

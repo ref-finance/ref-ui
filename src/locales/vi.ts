@@ -565,5 +565,6 @@ const vi = {
   total_usd_value: 'Tổng giá trị đô la Mỹ',
   bitcoin_value: 'Giá trị Bitcoin',
   stable_coin_value: 'Giá trị của StableCoin',
+  pool_fee_apr: 'Pool Fee APR',
 };
 export default Object.assign(vi, vi_in_risks_page);

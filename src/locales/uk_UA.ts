@@ -543,5 +543,6 @@ const uk_UA = {
   total_usd_value: 'Загальна вартість доларів США',
   bitcoin_value: 'Вартість біткойна',
   stable_coin_value: 'Вартість стейблкоіна',
+  pool_fee_apr: 'Pool Fee APR',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);
