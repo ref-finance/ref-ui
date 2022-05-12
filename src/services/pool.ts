@@ -41,7 +41,7 @@ import {
 } from './near';
 import moment from 'moment';
 import { getAllTriPools } from './aurora/aurora';
-import { filterBlackListPools, ALL_STABLE_POOL_IDS } from './near';
+import { filterBlackListPools, ALL_STABLE_POOL_IDS, BTC_POOL_ID } from './near';
 const explorerType = getExplorer();
 
 export const DEFAULT_PAGE_LIMIT = 100;
@@ -502,6 +502,8 @@ export const addLiquidityToStablePool = async ({
   const allTokenIds =
     id === Number(STABLE_POOL_ID)
       ? getConfig().STABLE_TOKEN_IDS
+      : id === Number(BTC_POOL_ID)
+      ? getConfig().BTCIDS
       : getConfig().STABLE_TOKEN_USN_IDS;
   const balances = await Promise.all(
     allTokenIds.map((tokenId) => getTokenBalance(tokenId))
