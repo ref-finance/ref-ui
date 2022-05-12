@@ -126,6 +126,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         PRIVATE_ACCOUNTS: [
           'juaner.near',
           'ae03d71382e8621650adfb5706ca430676d9756893b08c1efeae37c92024ef1a',
+          '3c5eba3bd1e3e4f190d63818092d9c348b7e7c1f4063d8e96b264a55cf52efee',
         ],
       };
     case 'pub-testnet':
@@ -294,6 +295,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         PRIVATE_ACCOUNTs: [
           'juaner.near',
           'ae03d71382e8621650adfb5706ca430676d9756893b08c1efeae37c92024ef1a',
+          '3c5eba3bd1e3e4f190d63818092d9c348b7e7c1f4063d8e96b264a55cf52efee',
         ],
       };
   }
