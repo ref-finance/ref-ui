@@ -321,6 +321,10 @@ export default function ({
 
   const intl = useIntl();
 
+  const isGettingBTCPrice =
+    (type && type === 'BTC') ||
+    (forPool && pools[0].id === Number(BTC_STABLE_POOL_ID));
+
   const calTotalStableCoins = useMemo(() => {
     try {
       return calculateTotalStableCoins(pools, tokensMap).totalCoins;
@@ -391,6 +395,8 @@ export default function ({
   }, [type]);
 
   useEffect(() => {
+    if (!isGettingBTCPrice) return;
+
     currentTokensPrice(BTCIDS.join('|')).then((res) => {
       const parsedPrices = res.map((p: string) => (p === 'N/A' ? '0' : p));
       console.log(parsedPrices);
@@ -413,10 +419,9 @@ export default function ({
     });
   }, [type]);
 
-  const displayTotalValue =
-    type === 'BTC' || (forPool && pools[0].id === Number(BTC_STABLE_POOL_ID))
-      ? BTCValue || '0'
-      : calTotalStableCoins;
+  const displayTotalValue = isGettingBTCPrice
+    ? BTCValue || '0'
+    : calTotalStableCoins;
 
   return (
     <div
@@ -488,8 +493,16 @@ export default function ({
           })}
         <InfoLine
           title={intl.formatMessage({ id: totalCoinsId })}
-          value={toInternationalCurrencySystem(displayTotalValue, 3) || '0'}
-          valueTitle={toPrecision(displayTotalValue, 0)}
+          value={
+            toInternationalCurrencySystem(
+              forPool ? displayTotalValue : calTotalStableCoins,
+              3
+            ) || '0'
+          }
+          valueTitle={toPrecision(
+            forPool ? displayTotalValue : calTotalStableCoins,
+            0
+          )}
         />
         {type !== 'USD' && (
           <InfoLine
