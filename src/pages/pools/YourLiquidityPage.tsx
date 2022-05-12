@@ -198,7 +198,9 @@ export function YourLiquidityPage() {
 
   useEffect(() => {
     if (isSignedIn) {
-      getYourPools().then(setPools);
+      getYourPools().then((res) =>
+        setPools(res.filter((p) => !isStablePool(p.id)))
+      );
       getStablePoolFromCache().then((res) => setStablePool(res[0]));
       getStablePoolFromCache(STABLE_POOL_USN_ID.toString()).then((res) =>
         setStablePoolUSN(res[0])
