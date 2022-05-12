@@ -51,6 +51,8 @@ function TokenChart({
     USDT: 'rgba(0, 198, 162, 0.47)',
     USDC: 'rgba(0, 163, 255, 0.45)',
     USN: 'rgba(255, 255, 255, 0.45)',
+    HBTC: '#4D85F8',
+    WBTC: '#ED9234',
   };
 
   function customLabel(props: any) {

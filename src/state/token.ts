@@ -29,7 +29,7 @@ import {
   toRoundedReadableNumber,
 } from '../utils/numbers';
 import { toRealSymbol } from '../utils/token';
-import getConfig from '~services/config';
+import getConfig from '../services/config';
 import { nearMetadata } from '../services/wrap-near';
 import { Pool } from '../services/pool';
 import {
@@ -168,6 +168,18 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
   }, [getCurrentWallet().wallet.isSignedIn(), extraTokenIds.join('-')]);
 
   return tokens?.map((t) => ({ ...t, onRef: true }));
+};
+
+export const useBTCTokens = () => {
+  const [tokens, setTokens] = useState<TokenMetadata[]>();
+
+  useEffect(() => {
+    Promise.all(getConfig().BTCIDS.map((id) => ftGetTokenMetadata(id))).then(
+      setTokens
+    );
+  }, []);
+
+  return tokens;
 };
 
 export const useWhitelistStableTokens = () => {

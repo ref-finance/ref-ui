@@ -41,10 +41,15 @@ import {
 } from './near';
 import moment from 'moment';
 import { getAllTriPools } from './aurora/aurora';
-import { filterBlackListPools } from './near';
+import { filterBlackListPools, ALL_STABLE_POOL_IDS, BTC_POOL_ID } from './near';
 const explorerType = getExplorer();
 
 export const DEFAULT_PAGE_LIMIT = 100;
+const getStablePoolKey = (id: string) => `STABLE_POOL_VALUE_${id}`;
+
+export const getStablePoolInfoKey = (id: string) =>
+  `REF_FI_STABLE_Pool_INFO_VALUE_${id}`;
+
 const STABLE_POOL_KEY = `STABLE_POOL_VALUE_${getConfig().STABLE_POOL_ID}`;
 const STABLE_POOL_USN_KEY = `STABLE_POOL_VALUE_${
   getConfig().STABLE_POOL_USN_ID
@@ -497,6 +502,8 @@ export const addLiquidityToStablePool = async ({
   const allTokenIds =
     id === Number(STABLE_POOL_ID)
       ? getConfig().STABLE_TOKEN_IDS
+      : id === Number(BTC_POOL_ID)
+      ? getConfig().BTCIDS
       : getConfig().STABLE_TOKEN_USN_IDS;
   const balances = await Promise.all(
     allTokenIds.map((tokenId) => getTokenBalance(tokenId))
@@ -868,11 +875,11 @@ export const getStablePoolFromCache = async (
   id?: string,
   loadingTrigger?: boolean
 ) => {
-  const stable_pool_id = id || STABLE_POOL_ID;
+  const stable_pool_id = id || STABLE_POOL_ID.toString();
 
-  const pool_key = STABLE_POOL_KEYS_CACHE[stable_pool_id];
+  const pool_key = getStablePoolKey(stable_pool_id);
 
-  const info = STABLE_POOL_INFO_CACHE[stable_pool_id];
+  const info = getStablePoolInfoKey(stable_pool_id);
 
   const stablePoolCache = JSON.parse(localStorage.getItem(pool_key));
 
@@ -917,4 +924,29 @@ export const getStablePoolFromCache = async (
   }
 
   return [stablePool, stablePoolInfo];
+};
+
+export const getAllStablePoolsFromCache = async (loadingTriger?: boolean) => {
+  const res = await Promise.all(
+    ALL_STABLE_POOL_IDS.map((id) =>
+      getStablePoolFromCache(id.toString(), loadingTriger)
+    )
+  );
+
+  const allStablePoolsById = res.reduce((pre, cur, i) => {
+    return {
+      ...pre,
+      [cur[0].id]: cur,
+    };
+  }, {}) as {
+    [id: string]: [Pool, StablePool];
+  };
+  const allStablePools = Object.values(allStablePoolsById).map((p) => p[0]);
+  const allStablePoolsInfo = Object.values(allStablePoolsById).map((p) => p[1]);
+
+  return {
+    allStablePoolsById,
+    allStablePools,
+    allStablePoolsInfo,
+  };
 };

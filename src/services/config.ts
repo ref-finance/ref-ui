@@ -114,6 +114,20 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
         BLACKLIST_POOL_IDS: ['3364'],
+        BTC_POOL_ID: '3364',
+        BTCIDS: [
+          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near',
+          '0316eb71485b0ab14103307bf65a021042c6d380.factory.bridge.near',
+        ],
+        BTC_IDS_INDEX: {
+          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near': 0,
+          '0316eb71485b0ab14103307bf65a021042c6d380.factory.bridge.near': 1,
+        },
+        PRIVATE_ACCOUNTS: [
+          'juaner.near',
+          'ae03d71382e8621650adfb5706ca430676d9756893b08c1efeae37c92024ef1a',
+          '3c5eba3bd1e3e4f190d63818092d9c348b7e7c1f4063d8e96b264a55cf52efee',
+        ],
       };
     case 'pub-testnet':
       return {
@@ -211,6 +225,13 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
         BLACKLIST_POOL_IDS: ['604', '608'],
+        BTC_POOL_ID: '604',
+        BTCIDS: ['wbtc.fakes.testnet', 'hbtc.fakes.testnet'],
+        BTC_IDS_INDEX: {
+          'wbtc.fakes.testnet': 0,
+          'hbtc.fakes.testnet': 1,
+        },
+        PRIVATE_ACCOUNTs: ['juaner.testnet', 'amyliang.testnet'],
       };
     default:
       return {
@@ -235,6 +256,15 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 60,
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
+        BTC_POOL_ID: '3364',
+        BTCIDS: [
+          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near',
+          '0316eb71485b0ab14103307bf65a021042c6d380.factory.bridge.near',
+        ],
+        BTC_IDS_INDEX: {
+          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near': 0,
+          '0316eb71485b0ab14103307bf65a021042c6d380.factory.bridge.near': 1,
+        },
         STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 3020,
         STABLE_TOKEN_USN_IDS: [
           'usn',
@@ -262,6 +292,11 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
         BLACKLIST_POOL_IDS: ['3364'],
+        PRIVATE_ACCOUNTs: [
+          'juaner.near',
+          'ae03d71382e8621650adfb5706ca430676d9756893b08c1efeae37c92024ef1a',
+          '3c5eba3bd1e3e4f190d63818092d9c348b7e7c1f4063d8e96b264a55cf52efee',
+        ],
       };
   }
 }
