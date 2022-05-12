@@ -29,7 +29,7 @@ import {
   toRoundedReadableNumber,
 } from '../utils/numbers';
 import { toRealSymbol } from '../utils/token';
-import getConfig from '~services/config';
+import getConfig from '../services/config';
 import { nearMetadata } from '../services/wrap-near';
 import { Pool } from '../services/pool';
 import {
