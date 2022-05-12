@@ -83,7 +83,7 @@ import {
 import StableSwapPageUSN from '~pages/stable/StableSwapPageUSN';
 import { checkTransaction } from './services/swap';
 import { swapToast } from './components/layout/transactionTipPopUp';
-import { PRIVATE_ACCOUNT } from './services/near';
+import { PRIVATE_ACCOUNTs } from './services/near';
 import StableSwapPageBTC from './pages/stable/StableSwapPageBTC';
 
 Modal.defaultStyles = {
@@ -269,7 +269,9 @@ function App() {
               component={AutoHeight(StableSwapPageUSN)}
             />
 
-            {getCurrentWallet().wallet.getAccountId() === PRIVATE_ACCOUNT ? (
+            {PRIVATE_ACCOUNTs.includes(
+              getCurrentWallet().wallet.getAccountId()
+            ) ? (
               <Route
                 path={`/sauce/${BTC_POOL_ID}`}
                 component={AutoHeight(StableSwapPageBTC)}

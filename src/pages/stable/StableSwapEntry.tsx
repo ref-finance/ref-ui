@@ -54,7 +54,7 @@ import { OutlineButton } from '../../components/button/Button';
 import { Images, Symbols } from '~components/stableswap/CommonComp';
 import { FarmMiningIcon } from '~components/icon';
 import { getCurrentWallet } from '../../utils/sender-wallet';
-import { BTC_POOL_ID, PRIVATE_ACCOUNT } from '../../services/near';
+import { BTC_POOL_ID, PRIVATE_ACCOUNTs } from '../../services/near';
 
 const RenderDisplayTokensAmounts = ({
   tokens,
@@ -486,7 +486,7 @@ export function StableSwapPageEntry() {
         poolData={poolData2token}
       />
 
-      {getCurrentWallet().wallet.getAccountId() === PRIVATE_ACCOUNT ? (
+      {PRIVATE_ACCOUNTs.includes(getCurrentWallet().wallet.getAccountId()) ? (
         <StablePoolCard
           stablePool={poolBTC}
           tokens={tokensBTC}

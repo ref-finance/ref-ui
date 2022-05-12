@@ -123,7 +123,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near': 0,
           '0316eb71485b0ab14103307bf65a021042c6d380.factory.bridge.near': 1,
         },
-        PRIVATE_ACCOUNT: 'juaner.near',
+        PRIVATE_ACCOUNTS: ['juaner.near'],
       };
     case 'pub-testnet':
       return {
@@ -227,7 +227,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'wbtc.fakes.testnet': 0,
           'hbtc.fakes.testnet': 1,
         },
-        PRIVATE_ACCOUNT: 'juaner.testnet',
+        PRIVATE_ACCOUNTs: ['juaner.testnet'],
       };
     default:
       return {
@@ -288,7 +288,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
         BLACKLIST_POOL_IDS: ['3364'],
-        PRIVATE_ACCOUNT: 'juaner.near',
+        PRIVATE_ACCOUNTs: ['juaner.near'],
       };
   }
 }

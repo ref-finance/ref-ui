@@ -52,7 +52,7 @@ export const isStablePool = (id: string | number) => {
   return Number(id) === STABLE_POOL_ID || Number(id) === STABLE_POOL_USN_ID;
 };
 
-export const PRIVATE_ACCOUNT = config.PRIVATE_ACCOUNT;
+export const PRIVATE_ACCOUNTs = config.PRIVATE_ACCOUNTs;
 
 export const BTC_POOL_ID = config.BTC_POOL_ID;
 
