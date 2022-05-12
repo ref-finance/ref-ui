@@ -38,9 +38,13 @@ export const STABLE_TOKEN_INDEX = config.STABLE_TOKEN_INDEX;
 
 export const STABLE_TOKEN_USN_INDEX = config.STABLE_TOKEN_USN_INDEX;
 
+export const BTC_POOL_INDEX = getConfig().BTC_IDS_INDEX;
+
 export const getStableTokenIndex = (stable_pool_id: string | number) => {
   return Number(stable_pool_id) === Number(STABLE_POOL_ID)
     ? STABLE_TOKEN_INDEX
+    : Number(stable_pool_id) === Number(BTC_POOL_ID)
+    ? BTC_POOL_INDEX
     : STABLE_TOKEN_USN_INDEX;
 };
 
@@ -48,6 +52,18 @@ export const isStablePool = (id: string | number) => {
   return Number(id) === STABLE_POOL_ID || Number(id) === STABLE_POOL_USN_ID;
 };
 
+export const PRIVATE_ACCOUNT = config.PRIVATE_ACCOUNT;
+
+export const BTC_POOL_ID = config.BTC_POOL_ID;
+
+export const ALL_STABLE_POOL_IDS = [
+  STABLE_POOL_ID,
+  STABLE_POOL_USN_ID,
+  BTC_POOL_ID,
+  // CUSD_STABLE_POOL_ID,
+]
+  .filter((_) => _)
+  .map((id) => id.toString());
 export const REF_FARM_CONTRACT_ID = config.REF_FARM_CONTRACT_ID;
 
 export const REF_AIRDRAOP_CONTRACT_ID = config.REF_AIRDROP_CONTRACT_ID;

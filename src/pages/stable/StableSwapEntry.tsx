@@ -14,7 +14,7 @@ import { RemoveLiquidityComponent } from '~components/stableswap/RemoveLiquidity
 import TokenReserves, {
   calculateTotalStableCoins,
 } from '~components/stableswap/TokenReserves';
-import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
+import { FaAngleUp, FaAngleDown, FaExchangeAlt, FaBaby } from 'react-icons/fa';
 import getConfig from '~services/config';
 import { StableSwapLogo } from '~components/icon/StableSwap';
 import { useWalletTokenBalances } from '../../state/token';
@@ -54,6 +54,7 @@ import { OutlineButton } from '../../components/button/Button';
 import { Images, Symbols } from '~components/stableswap/CommonComp';
 import { FarmMiningIcon } from '~components/icon';
 import { getCurrentWallet } from '../../utils/sender-wallet';
+import { BTC_POOL_ID, PRIVATE_ACCOUNT } from '../../services/near';
 
 const RenderDisplayTokensAmounts = ({
   tokens,
@@ -344,6 +345,8 @@ function StablePoolCard({
 export function StableSwapPageEntry() {
   const [pool3tokens, setPool3tokens] = useState<Pool>();
   const [pool2tokens, setPool2tokens] = useState<Pool>();
+  const [poolBTC, setPoolBTC] = useState<Pool>();
+
   const [allStableTokens, setAllStableTokens] = useState<TokenMetadata[]>();
 
   const { shares: shares3token, stakeList: stakeList3token } =
@@ -351,9 +354,13 @@ export function StableSwapPageEntry() {
   const { shares: shares2token, stakeList: stakeList2token } =
     usePool(STABLE_POOL_USN_ID);
 
+  const { shares: sharesBTC, stakeList: stakeListBTC } = usePool(BTC_POOL_ID);
+
   const farmCount2token = useCanFarm(Number(STABLE_POOL_USN_ID));
 
   const farmCount3token = useCanFarm(Number(STABLE_POOL_ID));
+
+  const farmCountBTC = useCanFarm(Number(BTC_POOL_ID));
 
   const farmStake3token = useFarmStake({
     poolId: Number(STABLE_POOL_ID),
@@ -364,19 +371,28 @@ export function StableSwapPageEntry() {
     stakeList: stakeList2token,
   });
 
+  const farmStakeBTC = useFarmStake({
+    poolId: Number(BTC_POOL_ID),
+    stakeList: stakeListBTC,
+  });
+
   const allStableTokensIds = new Array(
     ...new Set(STABLE_TOKEN_IDS.concat(STABLE_TOKEN_USN_IDS))
   );
 
   useEffect(() => {
-    Promise.all(allStableTokensIds.map((id) => ftGetTokenMetadata(id))).then(
-      setAllStableTokens
-    );
+    Promise.all(
+      allStableTokensIds
+        .concat(getConfig().BTCIDS)
+        .map((id) => ftGetTokenMetadata(id))
+    ).then(setAllStableTokens);
   }, []);
 
   const userTotalShare3token = BigNumber.sum(shares3token, farmStake3token);
 
   const userTotalShare2token = BigNumber.sum(shares2token, farmStake2token);
+
+  const userTotalShareBTC = BigNumber.sum(sharesBTC, farmStakeBTC);
 
   useEffect(() => {
     getStablePoolFromCache(STABLE_POOL_USN_ID.toString()).then((res) => {
@@ -385,16 +401,23 @@ export function StableSwapPageEntry() {
     getStablePoolFromCache(STABLE_POOL_ID.toString()).then((res) => {
       setPool3tokens(res[0]);
     });
+
+    getStablePoolFromCache(BTC_POOL_ID.toString()).then((res) => {
+      setPoolBTC(res[0]);
+    });
   }, []);
 
   if (
     !pool3tokens ||
     !pool2tokens ||
+    !poolBTC ||
     !shares2token ||
     !shares3token ||
+    !sharesBTC ||
     !allStableTokens ||
     !farmStake3token ||
-    !farmStake2token
+    !farmStake2token ||
+    !farmStakeBTC
   )
     return <Loading />;
   const tokens2token = STABLE_TOKEN_USN_IDS.map((id) =>
@@ -404,6 +427,11 @@ export function StableSwapPageEntry() {
   const tokens3token = STABLE_TOKEN_IDS.map((id) =>
     allStableTokens?.find((token) => token.id === id)
   );
+
+  const tokensBTC = getConfig().BTCIDS.map((id) =>
+    allStableTokens?.find((token) => token.id === id)
+  );
+
   const poolData2token = formatePoolData({
     pool: pool2tokens,
     userTotalShare: userTotalShare2token,
@@ -422,6 +450,18 @@ export function StableSwapPageEntry() {
     share: shares3token,
     stakeList: stakeList3token,
     farmCount: farmCount3token,
+  });
+
+  const poolDataBTC = formatePoolData({
+    pool: poolBTC,
+    userTotalShare: userTotalShareBTC,
+    farmStake: farmStakeBTC,
+    tokens: getConfig().BTCIDS.map((id) =>
+      allStableTokens.find((token) => token.id === id)
+    ),
+    share: sharesBTC,
+    stakeList: stakeListBTC,
+    farmCount: farmCountBTC,
   });
 
   return (
@@ -446,8 +486,18 @@ export function StableSwapPageEntry() {
         poolData={poolData2token}
       />
 
+      {getCurrentWallet().wallet.getAccountId() === PRIVATE_ACCOUNT ? (
+        <StablePoolCard
+          stablePool={poolBTC}
+          tokens={tokensBTC}
+          poolData={poolDataBTC}
+        />
+      ) : null}
+
       <TokenReserves
-        tokens={allStableTokens}
+        tokens={allStableTokensIds.map((id) =>
+          allStableTokens.find((token) => token.id === id)
+        )}
         pools={[pool2tokens, pool3tokens]}
         hiddenMag={true}
         className="pt-6"

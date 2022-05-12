@@ -170,6 +170,18 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
   return tokens?.map((t) => ({ ...t, onRef: true }));
 };
 
+export const useBTCTokens = () => {
+  const [tokens, setTokens] = useState<TokenMetadata[]>();
+
+  useEffect(() => {
+    Promise.all(getConfig().BTCIDS.map((id) => ftGetTokenMetadata(id))).then(
+      setTokens
+    );
+  }, []);
+
+  return tokens;
+};
+
 export const useWhitelistStableTokens = () => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
   const stableTokenIds = new Array(

@@ -49,6 +49,7 @@ import {
   REF_FARM_CONTRACT_ID,
   STABLE_POOL_ID,
   STABLE_POOL_USN_ID,
+  BTC_POOL_ID,
 } from './services/near';
 import {
   getSenderWallet,
@@ -82,6 +83,8 @@ import {
 import StableSwapPageUSN from '~pages/stable/StableSwapPageUSN';
 import { checkTransaction } from './services/swap';
 import { swapToast } from './components/layout/transactionTipPopUp';
+import { PRIVATE_ACCOUNT } from './services/near';
+import StableSwapPageBTC from './pages/stable/StableSwapPageBTC';
 
 Modal.defaultStyles = {
   overlay: {
@@ -265,6 +268,13 @@ function App() {
               path={`/sauce/${STABLE_POOL_USN_ID}`}
               component={AutoHeight(StableSwapPageUSN)}
             />
+
+            {getCurrentWallet().wallet.getAccountId() === PRIVATE_ACCOUNT ? (
+              <Route
+                path={`/sauce/${BTC_POOL_ID}`}
+                component={AutoHeight(StableSwapPageBTC)}
+              />
+            ) : null}
 
             <Route path="/sauce" component={AutoHeight(StableSwapPageEntry)} />
 

@@ -114,6 +114,16 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
         BLACKLIST_POOL_IDS: ['3364'],
+        BTC_POOL_ID: '3364',
+        BTCIDS: [
+          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near',
+          '0316eb71485b0ab14103307bf65a021042c6d380.factory.bridge.near',
+        ],
+        BTC_IDS_INDEX: {
+          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near': 0,
+          '0316eb71485b0ab14103307bf65a021042c6d380.factory.bridge.near': 1,
+        },
+        PRIVATE_ACCOUNT: 'juaner.near',
       };
     case 'pub-testnet':
       return {
@@ -211,6 +221,13 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
         BLACKLIST_POOL_IDS: ['604', '608'],
+        BTC_POOL_ID: '604',
+        BTCIDS: ['wbtc.fakes.testnet', 'hbtc.fakes.testnet'],
+        BTC_IDS_INDEX: {
+          'wbtc.fakes.testnet': 0,
+          'hbtc.fakes.testnet': 1,
+        },
+        PRIVATE_ACCOUNT: 'juaner.testnet',
       };
     default:
       return {
@@ -235,6 +252,15 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 60,
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
+        BTC_POOL_ID: '3364',
+        BTCIDS: [
+          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near',
+          '0316eb71485b0ab14103307bf65a021042c6d380.factory.bridge.near',
+        ],
+        BTC_IDS_INDEX: {
+          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near': 0,
+          '0316eb71485b0ab14103307bf65a021042c6d380.factory.bridge.near': 1,
+        },
         STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 3020,
         STABLE_TOKEN_USN_IDS: [
           'usn',
@@ -262,6 +288,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
         BLACKLIST_POOL_IDS: ['3364'],
+        PRIVATE_ACCOUNT: 'juaner.near',
       };
   }
 }
