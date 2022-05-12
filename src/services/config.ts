@@ -87,8 +87,15 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 60,
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
-        STABLE_POOL_ID: process.env.STABLE_POOL_ID || 1910,
-        STABLE_POOL_IDS: process.env.STABLE_POOL_IDS || ['1910', '3020'],
+        BTC_POOL_ID: '3364',
+        BTCIDS: [
+          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near',
+          '0316eb71485b0ab14103307bf65a021042c6d380.factory.bridge.near',
+        ],
+        BTC_IDS_INDEX: {
+          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near': 0,
+          '0316eb71485b0ab14103307bf65a021042c6d380.factory.bridge.near': 1,
+        },
         STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 3020,
         STABLE_TOKEN_USN_IDS: [
           'usn',
@@ -98,6 +105,8 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           usn: 0,
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 1,
         },
+        STABLE_POOL_ID: process.env.STABLE_POOL_ID || 1910,
+        STABLE_POOL_IDS: process.env.STABLE_POOL_IDS || ['1910', '3020'],
         STABLE_TOKEN_IDS: [
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
@@ -114,16 +123,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
         BLACKLIST_POOL_IDS: ['3364'],
-        BTC_POOL_ID: '3364',
-        BTCIDS: [
-          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near',
-          '0316eb71485b0ab14103307bf65a021042c6d380.factory.bridge.near',
-        ],
-        BTC_IDS_INDEX: {
-          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near': 0,
-          '0316eb71485b0ab14103307bf65a021042c6d380.factory.bridge.near': 1,
-        },
-        PRIVATE_ACCOUNTS: [
+        PRIVATE_ACCOUNTs: [
           'juaner.near',
           'ae03d71382e8621650adfb5706ca430676d9756893b08c1efeae37c92024ef1a',
           '3c5eba3bd1e3e4f190d63818092d9c348b7e7c1f4063d8e96b264a55cf52efee',
