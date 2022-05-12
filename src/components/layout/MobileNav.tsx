@@ -510,7 +510,7 @@ export function MobileNavBar(props: any) {
         >
           <FormattedMessage id="click" defaultMessage="Click" />
         </span>
-        <FormattedMessage id="to_recover" defaultMessage="to recover." />.
+        <FormattedMessage id="to_recover" defaultMessage="to recover." />
       </div>
       <div
         className="nav-wrap lg:hidden md:show relative xs:mb-6 md:mb-6"
