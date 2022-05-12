@@ -386,18 +386,6 @@ export const estimateSwap = async ({
 
   // hybrid smart routing
   if (isStableToken(tokenIn.id) || isStableToken(tokenOut.id)) {
-    try {
-      const hybridStableSmart = await getHybridStableSmart(
-        tokenIn,
-        tokenOut,
-        amountIn,
-        loadingTrigger,
-        swapMode
-      );
-    } catch (error) {
-      console.log(error);
-    }
-
     let hybridStableSmart = await getHybridStableSmart(
       tokenIn,
       tokenOut,
@@ -592,11 +580,24 @@ export const getOneSwapActionResult = async (
           refPools.length === 1
             ? refPools[0]
             : _.maxBy(refPools, (p) => {
-                return Number(
-                  getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn)
-                    .estimate
-                );
+                if (isStablePool(p.id)) {
+                  return Number(
+                    getStablePoolEstimate({
+                      tokenIn,
+                      tokenOut,
+                      stablePoolInfo: allStablePoolsById[p.id][1],
+                      stablePool: allStablePoolsById[p.id][0],
+                      amountIn,
+                    }).estimate
+                  );
+                } else
+                  return Number(
+                    getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn)
+                      .estimate
+                  );
               });
+
+        console.log(refPoolThisPair);
 
         if (refPoolThisPair) {
           const refPoolEstimateRes = await getPoolEstimate({
