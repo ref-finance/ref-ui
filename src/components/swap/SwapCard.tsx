@@ -859,6 +859,22 @@ export default function SwapCard(props: {
           }}
           tokenPriceList={tokenPriceList}
           isError={tokenIn?.id === tokenOut?.id}
+          postSelected={tokenOut}
+          onSelectPost={(token) => {
+            localStorage.setItem(
+              swapMode === SWAP_MODE.NORMAL
+                ? SWAP_OUT_KEY
+                : STABLE_SWAP_OUT_KEY,
+              token.id
+            );
+            swapMode === SWAP_MODE.NORMAL &&
+              history.replace(
+                `#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`
+              );
+            setTokenOut(token);
+            setCanSwap(false);
+            setTokenOutBalanceFromNear(token?.near?.toString());
+          }}
         />
         <div
           className="flex items-center justify-center border-t mt-12"

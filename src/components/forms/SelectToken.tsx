@@ -90,11 +90,15 @@ export const StableSelectToken = ({
   tokens,
   selected,
   preSelected,
+  postSelected,
+  onSelectPost,
 }: {
   tokens: TokenMetadata[];
   onSelect?: (token: TokenMetadata) => void;
   selected: string | React.ReactElement;
   preSelected?: TokenMetadata;
+  postSelected?: TokenMetadata;
+  onSelectPost?: (t: TokenMetadata) => void;
 }) => {
   // const USDTokenList = new Array(
   //   ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS))
@@ -124,9 +128,28 @@ export const StableSelectToken = ({
   const coverBTC =
     preSelected && USDtokens.find((token) => token.id === preSelected.id);
 
+  const handleSelect = (token: TokenMetadata) => {
+    onSelect(token);
+
+    if (!postSelected || !onSelectPost) {
+      return;
+    }
+
+    const onTokenBTC = BTCtokens.find((t) => t.id === token.id);
+
+    const onTokenUSD = USDtokens.find((t) => t.id === token.id);
+
+    if (onTokenBTC && !BTCtokens.find((t) => t.id === postSelected.id)) {
+      onSelectPost(BTCtokens.find((t) => t.id !== token.id));
+    } else if (onTokenUSD && !USDtokens.find((t) => t.id === postSelected.id)) {
+      onSelectPost(USDtokens.find((t) => t.id !== token.id));
+    }
+  };
+
   useEffect(() => {
     if (coverUSD) {
       setStableCoinType('BTC');
+      // onSelect(BTCtokens.find((token) => token.id !== preSelected.id));
     } else if (coverBTC) {
       setStableCoinType('USD');
     }
@@ -228,7 +251,7 @@ export const StableSelectToken = ({
                   e.nativeEvent.stopImmediatePropagation();
 
                   setVisible(!visible);
-                  onSelect(token);
+                  handleSelect(token);
                 }}
               >
                 <span className="text-white font-semibold text-sm">
