@@ -559,5 +559,8 @@ const ko = {
   bitcoin_value: '비트코인 가치',
   stable_coin_value: '스테이블코인 가치',
   pool_fee_apr: 'Pool Fee APR',
+  ref_account_balance_tip_mobile: 'REF 계정에 토큰이 있습니다.',
+  click: '딸깍 하는 소리',
+  to_recover: '회복.',
 };
 export default Object.assign(ko, ko_in_risks_page);

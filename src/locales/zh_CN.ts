@@ -528,5 +528,8 @@ const zh_CN = {
   bitcoin_value: '比特币价值',
   stable_coin_value: '稳定币价值',
   pool_fee_apr: '流动池手续费年化收益率',
+  ref_account_balance_tip_mobile: '你的REF账户中有代币.',
+  click: '点击',
+  to_recover: '来取回',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

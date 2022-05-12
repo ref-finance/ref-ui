@@ -559,5 +559,8 @@ const en_US = {
   bitcoin_value: 'Bitcoin value',
   stable_coin_value: 'StableCoin value',
   pool_fee_apr: 'Pool Fee APR',
+  ref_account_balance_tip_mobile: 'You have tokens in your REF account.',
+  click: 'Click',
+  to_recover: 'to recover.',
 };
 export default Object.assign(en_US, en_US_in_risks_page);
