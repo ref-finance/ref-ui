@@ -75,7 +75,7 @@ export const usePool = (id: number | string) => {
   const [shares, setShares] = useState<string>('0');
   const [stakeList, setStakeList] = useState<Record<string, string>>({});
   useEffect(() => {
-    if (!isSignedIn) return;
+    // if (!isSignedIn) return;
 
     getPoolDetails(Number(id)).then(setPool);
     getSharesInPool(Number(id))
