@@ -499,7 +499,7 @@ export default function ({
             ) || '0'
           }
           valueTitle={toPrecision(
-            forPool ? tvl?.toString() : calTotalStableCoins,
+            forPool ? tvl?.toString() || '0' : calTotalStableCoins,
             0
           )}
         />
