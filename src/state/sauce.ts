@@ -6,6 +6,8 @@ import BigNumber from 'bignumber.js';
 import { formatePoolData } from '../pages/stable/StableSwapEntry';
 import { TokenMetadata, ftGetTokenMetadata } from '../services/ft-contract';
 
+import { getPool } from '~services/indexer';
+
 export interface PoolData {
   pool: Pool;
   shares: string;
@@ -14,6 +16,7 @@ export interface PoolData {
   userTotalShare: BigNumber;
   stakeList: Record<string, string>;
   tokens: TokenMetadata[];
+  poolTVL: number;
 }
 
 export const useStabelPoolData = (pool_id: string | number) => {
@@ -31,6 +34,15 @@ export const useStabelPoolData = (pool_id: string | number) => {
 
   const userTotalShare = BigNumber.sum(shares, farmStake);
 
+  const [poolTVL, setPoolTVL] = useState<number>();
+
+  useEffect(() => {
+    if (!pool) return;
+    getPool(pool.id.toString()).then((res) => {
+      setPoolTVL(res.tvl);
+    });
+  }, [pool]);
+
   useEffect(() => {
     getStablePoolFromCache(pool_id.toString()).then((res) => {
       setPool(res[0]);
@@ -47,7 +59,7 @@ export const useStabelPoolData = (pool_id: string | number) => {
   }, [pool]);
 
   useEffect(() => {
-    if (!pool || !tokens) return;
+    if (!pool || !tokens || !poolTVL) return;
     setPoolData({
       pool,
       shares,
@@ -56,8 +68,9 @@ export const useStabelPoolData = (pool_id: string | number) => {
       userTotalShare,
       stakeList,
       tokens,
+      poolTVL,
     });
-  }, [pool, tokens, shares, stakeList, farmStake]);
+  }, [pool, tokens, shares, stakeList, farmStake, poolTVL]);
 
   return { poolData };
 };

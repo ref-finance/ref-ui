@@ -81,6 +81,7 @@ export function formatePoolData({
   shares,
   stakeList,
   farmCount,
+  poolTVL,
 }: {
   pool: Pool;
   userTotalShare: BigNumber;
@@ -89,6 +90,7 @@ export function formatePoolData({
   shares: string;
   stakeList: Record<string, string>;
   farmCount: Number;
+  poolTVL: number;
 }) {
   const isSignedIn = getCurrentWallet().wallet.isSignedIn();
 
@@ -96,18 +98,15 @@ export function formatePoolData({
     [id: string]: TokenMetadata;
   } = tokens.reduce((pre, cur) => ({ ...pre, [cur.id]: cur }), {});
 
-  const { totalCoins, coinsAmounts } = calculateTotalStableCoins(
-    [pool],
-    tokensMap
-  );
+  const { coinsAmounts } = calculateTotalStableCoins([pool], tokensMap);
 
   const parsedUsertotalShare = scientificNotationToString(
     userTotalShare.toString()
   );
 
-  const displayTVL = `$${toInternationalCurrencySystem(totalCoins, 2)}`;
+  const displayTVL = `$${toInternationalCurrencySystem(poolTVL.toString(), 2)}`;
 
-  const TVLtitle = `${toPrecision(totalCoins, 2)}`;
+  const TVLtitle = `${toPrecision(poolTVL.toString(), 2)}`;
 
   const displayMyShareAmount = isSignedIn
     ? toPrecision(
