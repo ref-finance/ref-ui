@@ -523,6 +523,13 @@ const zh_CN = {
   name: '名字',
   diff: '差距',
   best: '最好',
+  total_bitcoins: '所有比特币',
+  total_usd_value: '美元总值',
+  bitcoin_value: '比特币价值',
+  stable_coin_value: '稳定币价值',
   pool_fee_apr: '流动池手续费年化收益率',
+  ref_account_balance_tip_mobile: '你的REF账户中有代币.',
+  click: '点击',
+  to_recover: '来取回.',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

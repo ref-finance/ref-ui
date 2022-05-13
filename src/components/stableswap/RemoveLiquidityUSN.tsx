@@ -66,8 +66,8 @@ import { StableTokensSymbolUSN } from './StableTokenListUSN';
 import { useTokenBalances } from '../../state/token';
 import { getURLInfo, checkAccountTip } from '../layout/transactionTipPopUp';
 
-const SWAP_SLIPPAGE_KEY_USN =
-  'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE_USN';
+const getSlippageKey = (id: string | number) =>
+  `REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE_${id}`;
 
 export function shareToUserTotal({
   shares,
@@ -115,6 +115,9 @@ export function RemoveLiquidityComponentUSN(props: {
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [isPercentage, setIsPercentage] = useState<boolean>(true);
   const [amountByShare, setAmountByShare] = useState<string>('');
+
+  const SWAP_SLIPPAGE_KEY_USN = getSlippageKey(pool.id);
+
   const [slippageTolerance, setSlippageTolerance] = useState<number>(
     Number(localStorage.getItem(SWAP_SLIPPAGE_KEY_USN)) || 0.1
   );
@@ -228,12 +231,17 @@ export function RemoveLiquidityComponentUSN(props: {
     const receiveAmounts = getRemoveLiquidityByShare(shareParam, stablePool);
 
     const parsedAmounts = receiveAmounts.map((amount, i) =>
-      toRoundedReadableNumber({
-        decimals: LP_STABLE_TOKEN_DECIMALS - tokens[i].decimals,
-        number: amount,
-        precision: 0,
-        withCommas: false,
-      })
+      tokens[i].decimals > LP_STABLE_TOKEN_DECIMALS
+        ? toNonDivisibleNumber(
+            tokens[i].decimals - LP_STABLE_TOKEN_DECIMALS,
+            amount
+          )
+        : toRoundedReadableNumber({
+            decimals: LP_STABLE_TOKEN_DECIMALS - tokens[i].decimals,
+            number: amount,
+            precision: 0,
+            withCommas: false,
+          })
     );
 
     setReceiveAmounts(parsedAmounts);

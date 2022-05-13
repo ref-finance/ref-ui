@@ -539,6 +539,13 @@ const uk_UA = {
   name: "Ім'я",
   diff: 'Дифs',
   best: 'Найкращий',
+  total_bitcoins: 'Всього біткойнів',
+  total_usd_value: 'Загальна вартість доларів США',
+  bitcoin_value: 'Вартість біткойна',
+  stable_coin_value: 'Вартість стейблкоіна',
   pool_fee_apr: 'Pool Fee APR',
+  ref_account_balance_tip_mobile: 'У вашому обліковому записі REF є токени.',
+  click: 'Натисніть',
+  to_recover: 'для відновлення.',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

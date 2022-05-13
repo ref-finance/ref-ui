@@ -22,7 +22,7 @@ export default function Icon({
   return (
     <div
       className={`flex items-center text-lg text-white   rounded-full ${
-        hover ? 'lg:pl-4 bg-black bg-opacity-20 cursor-pointer' : ''
+        hover ? 'pl-4 bg-black bg-opacity-20 cursor-pointer' : ''
       }`}
       style={{ lineHeight: 'unset' }}
     >

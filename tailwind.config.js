@@ -84,6 +84,7 @@ module.exports = {
         xrefTab: '#293741',
         borderColor: '#7e8a93',
         warnColor: '#DE9450',
+        BTCColor: '#F38632',
         acccountTab: '#0F1D27',
         acccountBlock: '#293741',
         xREFColor: '#A7ABAD',

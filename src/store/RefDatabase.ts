@@ -226,6 +226,22 @@ class RefDatabase extends Dexie {
     return [items.length > 0, itemsTimeLimit.length > 0];
   }
 
+  public async getAllPoolsTokens() {
+    const items = await this.allPoolsTokens().toArray();
+
+    return items.map((item) => ({
+      id: item.id,
+      fee: item.fee,
+      tokenIds: [item.token1Id, item.token2Id],
+      supplies: {
+        [item.token1Id]: item.token1Supply,
+        [item.token2Id]: item.token2Supply,
+      },
+      token0_ref_price: item.token0_price,
+      Dex: item.Dex,
+    }));
+  }
+
   public async getPoolsByTokens(tokenInId: string, tokenOutId: string) {
     let items = await this.queryPoolsByTokens(tokenInId, tokenOutId);
 

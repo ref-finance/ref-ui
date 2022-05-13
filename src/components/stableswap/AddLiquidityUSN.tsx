@@ -40,8 +40,8 @@ import StableTokenListUSN from './StableTokenListUSN';
 import { getURLInfo, checkAccountTip } from '../layout/transactionTipPopUp';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
-const SWAP_SLIPPAGE_KEY_USN =
-  'REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE_USN';
+const getSwapSlippageKey = (id: string | number) =>
+  `REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE_${id}`;
 const ONLY_ZEROS = /^0*\.?0*$/;
 
 export function myShares({
@@ -94,6 +94,9 @@ export default function AddLiquidityComponentUSN(props: {
     stablePool,
     changeAction,
   } = props;
+
+  const SWAP_SLIPPAGE_KEY_USN = getSwapSlippageKey(pool.id);
+
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [addType, setAddType] = useState<string>('');

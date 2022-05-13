@@ -5,11 +5,8 @@ import {
   refFiViewFunction,
   REF_FI_CONTRACT_ID,
   Transaction,
-  wallet,
   RefFiFunctionCallOptions,
-  refFiManyFunctionCalls,
 } from './near';
-import BN from 'bn.js';
 import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import {
@@ -21,8 +18,8 @@ import {
   storageDepositAction,
   storageDepositForFTAction,
 } from './creators/storage';
-import { getTopPools, _search } from '../services/indexer';
-import { parsePoolView, PoolRPCView } from './api';
+import { getTopPools } from '../services/indexer';
+import { PoolRPCView } from './api';
 import {
   checkTokenNeedsStorageDeposit,
   getDepositTransactions,
@@ -41,36 +38,14 @@ import {
 } from './near';
 import moment from 'moment';
 import { getAllTriPools } from './aurora/aurora';
-import { filterBlackListPools, ALL_STABLE_POOL_IDS, BTC_POOL_ID } from './near';
+import { ALL_STABLE_POOL_IDS, isStablePool } from './near';
+import { filterBlackListPools } from './near';
 const explorerType = getExplorer();
-
 export const DEFAULT_PAGE_LIMIT = 100;
 const getStablePoolKey = (id: string) => `STABLE_POOL_VALUE_${id}`;
 
 export const getStablePoolInfoKey = (id: string) =>
   `REF_FI_STABLE_Pool_INFO_VALUE_${id}`;
-
-const STABLE_POOL_KEY = `STABLE_POOL_VALUE_${getConfig().STABLE_POOL_ID}`;
-const STABLE_POOL_USN_KEY = `STABLE_POOL_VALUE_${
-  getConfig().STABLE_POOL_USN_ID
-}`;
-
-const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
-  getConfig().STABLE_POOL_ID
-}`;
-const REF_FI_STABLE_POOL_USN_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
-  getConfig().STABLE_POOL_USN_ID
-}`;
-
-export const STABLE_POOL_KEYS_CACHE = {
-  [getConfig().STABLE_POOL_ID]: STABLE_POOL_KEY,
-  [getConfig().STABLE_POOL_USN_ID]: STABLE_POOL_USN_KEY,
-};
-
-export const STABLE_POOL_INFO_CACHE = {
-  [getConfig().STABLE_POOL_ID]: REF_FI_STABLE_POOL_INFO_KEY,
-  [getConfig().STABLE_POOL_USN_ID]: REF_FI_STABLE_POOL_USN_INFO_KEY,
-};
 
 export interface Pool {
   id: number;
@@ -292,7 +267,7 @@ interface GetPoolOptions {
 }
 
 export const isNotStablePool = (pool: Pool) => {
-  return !(pool.id === STABLE_POOL_ID || pool.id === STABLE_POOL_USN_ID);
+  return !isStablePool(pool.id);
 };
 
 export const getPoolsByTokens = async ({
@@ -321,7 +296,6 @@ export const getPoolsByTokens = async ({
       .flat()
       .map((p) => ({ ...p, Dex: 'ref' }));
 
-    // get tripools
     let triPools;
     if (crossSwap) {
       triPools = await getAllTriPools();
@@ -336,8 +310,7 @@ export const getPoolsByTokens = async ({
     filtered_pools = filtered_pools.filter(
       (p) => p.supplies[tokenInId] && p.supplies[tokenOutId]
     );
-    await getStablePoolFromCache();
-    await getStablePoolFromCache(STABLE_POOL_USN_ID.toString());
+    await getAllStablePoolsFromCache();
   }
   setLoadingData && setLoadingData(false);
 
@@ -499,34 +472,7 @@ export const addLiquidityToStablePool = async ({
     },
   ];
 
-  const allTokenIds =
-    id === Number(STABLE_POOL_ID)
-      ? getConfig().STABLE_TOKEN_IDS
-      : id === Number(BTC_POOL_ID)
-      ? getConfig().BTCIDS
-      : getConfig().STABLE_TOKEN_USN_IDS;
-  const balances = await Promise.all(
-    allTokenIds.map((tokenId) => getTokenBalance(tokenId))
-  );
-  let notRegisteredTokens: string[] = [];
-  for (let i = 0; i < balances.length; i++) {
-    if (Number(balances[i]) === 0) {
-      notRegisteredTokens.push(allTokenIds[i]);
-    }
-  }
-
-  if (notRegisteredTokens.length > 0 && explorerType !== ExplorerType.Firefox) {
-    actions.unshift(registerTokensAction(notRegisteredTokens));
-  }
-
   const transactions: Transaction[] = depositTransactions;
-
-  if (notRegisteredTokens.length > 0 && explorerType === ExplorerType.Firefox) {
-    transactions.push({
-      receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [registerTokensAction(notRegisteredTokens)],
-    });
-  }
 
   transactions.push({
     receiverId: REF_FI_CONTRACT_ID,

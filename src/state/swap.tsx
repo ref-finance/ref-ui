@@ -27,9 +27,7 @@ import { swap as stableSwap } from '../services/stable-swap';
 import { useHistory, useLocation } from 'react-router';
 import getConfig from '~services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { CloseIcon } from '~components/icon/Actions';
-import db from '../store/RefDatabase';
-import { getAllTriPools } from '../services/aurora/aurora';
+
 import { getCurrentWallet, WalletContext } from '../utils/sender-wallet';
 import {
   POOL_TOKEN_REFRESH_INTERVAL,
@@ -48,6 +46,8 @@ import {
   swapToast,
 } from '../components/layout/transactionTipPopUp';
 import { SWAP_MODE } from '../pages/SwapPage';
+import { getErrorMessage } from '../components/layout/transactionTipPopUp';
+import { checkTransactionStatus } from '../services/swap';
 import {
   parsedTransactionSuccessValue,
   checkCrossSwapTransactions,
@@ -135,15 +135,7 @@ export const useSwap = ({
     if (txHash && getCurrentWallet().wallet.isSignedIn()) {
       checkTransaction(txHash)
         .then((res: any) => {
-          const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
-
-          const isSlippageError = res.receipts_outcome.some((outcome: any) => {
-            return slippageErrorPattern.test(
-              outcome?.outcome?.status?.Failure?.ActionError?.kind
-                ?.FunctionCallError?.ExecutionError
-            );
-          });
-
+          const transactionErrorType = getErrorMessage(res);
           const transaction = res.transaction;
           return {
             isSwap:
@@ -152,13 +144,13 @@ export const useSwap = ({
               transaction?.actions[0]?.['FunctionCall']?.method_name ===
                 'ft_transfer_call' ||
               transaction?.actions[0]?.['FunctionCall']?.method_name === 'swap',
-            isSlippageError,
+            transactionErrorType,
           };
         })
-        .then(({ isSwap, isSlippageError }) => {
+        .then(({ isSwap, transactionErrorType }) => {
           if (isSwap) {
-            !isSlippageError && !errorType && swapToast(txHash);
-            isSlippageError && failToast(txHash, 'Slippage Violation');
+            !transactionErrorType && !errorType && swapToast(txHash);
+            transactionErrorType && failToast(txHash, transactionErrorType);
           }
           history.replace(pathname);
         });
@@ -495,44 +487,6 @@ export const useCrossSwap = ({
     }
   }, [txHashes]);
 
-  // const getEstimateTri = async () => {
-  //   estimateSwap({
-  //     tokenIn,
-  //     tokenOut,
-  //     amountIn: tokenInAmount,
-  //     intl,
-  //     loadingTrigger: false,
-  //     supportLedger,
-  //     crossSwap: false,
-  //     onlyTri: true,
-  //   })
-  //     .then((estimates) => {
-  //       setSwapsToDoTri(estimates);
-  //     })
-  //     .catch((err) => {
-  //       setSwapsToDoTri([]);
-  //     });
-  // };
-
-  // const getEstimateRef = async () => {
-  //   estimateSwap({
-  //     tokenIn,
-  //     tokenOut,
-  //     amountIn: tokenInAmount,
-  //     intl,
-  //     loadingTrigger: false,
-  //     supportLedger,
-  //     crossSwap: false,
-  //     onlyTri: false,
-  //   })
-  //     .then((estimates) => {
-  //       setSwapsToDoRef(estimates);
-  //     })
-  //     .catch((err) => {
-  //       setSwapsToDoRef([]);
-  //     });
-  // };
-
   const getEstimateCrossSwap = () => {
     setCanSwap(false);
     setSwapError(null);
@@ -552,9 +506,6 @@ export const useCrossSwap = ({
         if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
           setAverageFee(estimates);
 
-          // await getEstimateRef();
-          // await getEstimateTri();
-
           setSwapsToDo(estimates);
           setCanSwap(true);
         }
@@ -565,6 +516,7 @@ export const useCrossSwap = ({
         setCanSwap(false);
         setTokenOutAmount('');
         setSwapError(err);
+        console.error(err);
       })
       .finally(() => {
         loadingTrigger && !requested && setRequested(true);

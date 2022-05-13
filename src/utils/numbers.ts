@@ -9,7 +9,7 @@ import {
   STABLE_TOKEN_IDS,
   isStablePool,
 } from '../services/near';
-import { Pool, STABLE_POOL_INFO_CACHE } from '../services/pool';
+import { Pool, getStablePoolInfoKey } from '../services/pool';
 import { getSwappedAmount, estimateSwap } from '../services/stable-swap';
 import { EstimateSwapView } from '../services/swap';
 import Big from 'big.js';
@@ -199,7 +199,9 @@ export const calculateSmartRoutingPriceImpact = (
       tokenOut.id,
       formattedTokenMidReceived,
       JSON.parse(
-        localStorage.getItem(STABLE_POOL_INFO_CACHE[swapTodos[1].pool.id])
+        localStorage.getItem(
+          getStablePoolInfoKey(swapTodos[1].pool.id.toString())
+        )
       )
     );
     stableOutPool2 =

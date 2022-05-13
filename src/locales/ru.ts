@@ -552,6 +552,14 @@ const ru = {
   name: 'Имя',
   diff: 'Диф',
   best: 'Лучший',
+  total_bitcoins: 'Всего биткойнов',
+  total_usd_value: 'Общая стоимость в долларах США',
+  bitcoin_value: 'Стоимость биткойнов',
+  stable_coin_value: 'Стоимость стейблкоина',
   pool_fee_apr: 'Pool Fee APR',
+  ref_account_balance_tip_mobile:
+    'У вас есть токены в вашей учетной записи REF.',
+  click: 'Нажмите',
+  to_recover: 'выздороветь.',
 };
 export default Object.assign(ru, ru_in_risks_page);
