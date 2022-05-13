@@ -38,20 +38,10 @@ import { ftGetTokensMetadata, TokenMetadata } from '~services/ft-contract';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
 import { usePoolTVL } from '../../state/pool';
 import { multiply, divide } from '../../utils/numbers';
-import {
-  STABLE_POOL_USN_ID,
-  isStablePool,
-} from '../../services/near';
-import {
-  STABLE_POOL_ID,
-} from '../../services/near';
-import {
-  isNotStablePool,
-} from '../../services/pool';
-import {
-  WalletContext,
-  getSenderLoginRes,
-} from '../../utils/sender-wallet';
+import { STABLE_POOL_USN_ID, isStablePool } from '../../services/near';
+import { STABLE_POOL_ID } from '../../services/near';
+import { isNotStablePool } from '../../services/pool';
+import { WalletContext, getSenderLoginRes } from '../../utils/sender-wallet';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import { useStabelPoolData } from '../../state/sauce';
 
@@ -184,7 +174,9 @@ export function YourLiquidityPage() {
 
   useEffect(() => {
     if (isSignedIn) {
-      getYourPools().then(setPools);
+      getYourPools().then((res) =>
+        setPools(res.filter((p) => !isStablePool(p.id.toString())))
+      );
     }
   }, [isSignedIn]);
 

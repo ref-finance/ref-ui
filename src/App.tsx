@@ -263,19 +263,6 @@ function App() {
               path={`/sauce/:id`}
               component={AutoHeight(StableSwapRouter)}
             />
-            <Route
-              path={`/sauce/${STABLE_POOL_USN_ID}`}
-              component={AutoHeight(StableSwapPageUSN)}
-            />
-
-            {PRIVATE_ACCOUNTs.includes(
-              getCurrentWallet().wallet.getAccountId()
-            ) ? (
-              <Route
-                path={`/sauce/${BTC_POOL_ID}`}
-                component={AutoHeight(StableSwapPageBTC)}
-              />
-            ) : null}
 
             <Route path="/sauce" component={AutoHeight(StableSwapPageEntry)} />
 
