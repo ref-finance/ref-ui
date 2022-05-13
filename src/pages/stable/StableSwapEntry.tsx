@@ -8,10 +8,7 @@ import { Link, useHistory } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { Pool } from '../../services/pool';
 import { Card } from '../../components/card/Card';
-import {
-  TokenMetadata,
-  ftGetTokenMetadata,
-} from '../../services/ft-contract';
+import { TokenMetadata, ftGetTokenMetadata } from '../../services/ft-contract';
 import {
   STABLE_POOL_USN_ID,
   STABLE_POOL_ID,
@@ -20,10 +17,7 @@ import {
   BTCIDS,
 } from '../../services/near';
 import BigNumber from 'bignumber.js';
-import {
-  toReadableNumber,
-  percent,
-} from '../../utils/numbers';
+import { toReadableNumber, percent } from '../../utils/numbers';
 import { ShareInFarm } from '../../components/layout/ShareInFarm';
 import { STABLE_LP_TOKEN_DECIMALS } from '../../components/stableswap/AddLiquidity';
 import {
