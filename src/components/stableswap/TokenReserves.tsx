@@ -7,7 +7,7 @@ import { Pool } from '../../services/pool';
 import { useIntl } from 'react-intl';
 import { PieChart, Cell, Pie } from 'recharts';
 import { isMobile } from '../../utils/device';
-import { getPoolsByIds } from '../../services/indexer';
+import { getPool, getPoolsByIds } from '../../services/indexer';
 import {
   toReadableNumber,
   toInternationalCurrencySystem,
@@ -494,7 +494,7 @@ export default function ({
           title={intl.formatMessage({ id: totalCoinsId })}
           value={
             toInternationalCurrencySystem(
-              forPool ? displayTotalValue : calTotalStableCoins,
+              forPool ? tvl?.toString() : calTotalStableCoins,
               3
             ) || '0'
           }
