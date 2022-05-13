@@ -12,6 +12,16 @@ export enum TRANSACTION_WALLET_TYPE {
   SENDER_WALLET = 'transactionHashesSender',
 }
 
+export enum TRANSACTION_ERROR_TYPE {
+  SLIPPAGE_VIOLATION = 'Slippage Violation',
+  INVALID_PARAMS = 'Invalid Params',
+}
+
+const ERROR_PATTERN = {
+  slippageErrorPattern: /ERR_MIN_AMOUNT|slippage error/i,
+  invaliParamsErrorPattern: /invalid params/i,
+};
+
 export enum TRANSACTION_STATE {
   SUCCESS = 'success',
   FAIL = 'fail',
@@ -209,20 +219,14 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
       }
     } else {
       // normal swap judgement
-      const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
 
-      const isSlippageError = txDetail.receipts_outcome.some((outcome: any) => {
-        return slippageErrorPattern.test(
-          outcome?.outcome?.status?.Failure?.ActionError?.kind
-            ?.FunctionCallError?.ExecutionError
-        );
-      });
+      const errorMessasge = getErrorMessage(txDetail);
 
-      if (isSlippageError)
+      if (errorMessasge)
         return {
           status: false,
           hash: lastTx,
-          errorType: 'Slippage Violation',
+          errorType: errorMessasge,
         };
       else {
         return {
@@ -234,20 +238,13 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
 
     // validate if last tx is success
   } else {
-    const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
+    const errorMessasge = getErrorMessage(txDetail);
 
-    const isSlippageError = txDetail.receipts_outcome.some((outcome: any) => {
-      return slippageErrorPattern.test(
-        outcome?.outcome?.status?.Failure?.ActionError?.kind?.FunctionCallError
-          ?.ExecutionError
-      );
-    });
-
-    if (isSlippageError)
+    if (errorMessasge)
       return {
         status: false,
         hash: lastTx,
-        errorType: 'Slippage Violation',
+        errorType: errorMessasge,
       };
     else {
       return {
@@ -300,4 +297,28 @@ export const usnBuyAndSellToast = (txHash: string) => {
       },
     }
   );
+};
+
+export const getErrorMessage = (res: any) => {
+  const isSlippageError = res.receipts_outcome.some((outcome: any) => {
+    return ERROR_PATTERN.slippageErrorPattern.test(
+      outcome?.outcome?.status?.Failure?.ActionError?.kind?.FunctionCallError
+        ?.ExecutionError
+    );
+  });
+
+  const isInvalidAmountError = res.receipts_outcome.some((outcome: any) => {
+    return ERROR_PATTERN.invaliParamsErrorPattern.test(
+      outcome?.outcome?.status?.Failure?.ActionError?.kind?.FunctionCallError
+        ?.ExecutionError
+    );
+  });
+
+  if (isSlippageError) {
+    return TRANSACTION_ERROR_TYPE.SLIPPAGE_VIOLATION;
+  } else if (isInvalidAmountError) {
+    return TRANSACTION_ERROR_TYPE.INVALID_PARAMS;
+  } else {
+    return null;
+  }
 };

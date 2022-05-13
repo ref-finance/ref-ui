@@ -36,6 +36,7 @@ import {
   getBatchTokenNearAcounts,
   useTriTokenIdsOnRef,
 } from '../services/aurora/aurora';
+import { AllStableTokenIds } from '../services/near';
 import { defaultTokenList, getAuroraConfig } from '../services/aurora/config';
 import {
   WalletContext,
@@ -155,7 +156,6 @@ export const useRainbowWhitelistTokens = () => {
 
 export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
-
   useEffect(() => {
     getWhitelistedTokens()
       .then((tokenIds) => {
@@ -184,13 +184,10 @@ export const useBTCTokens = () => {
 
 export const useWhitelistStableTokens = () => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
-  const stableTokenIds = new Array(
-    ...new Set(STABLE_TOKEN_IDS.concat(STABLE_TOKEN_USN_IDS))
-  );
 
   useEffect(() => {
     Promise.all(
-      stableTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
+      AllStableTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
     ).then(setTokens);
   }, []);
 

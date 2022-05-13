@@ -9,7 +9,7 @@ import { usePool, useStablePool } from '~state/pool';
 import TokenReserves from '~components/stableswap/TokenReserves';
 import getConfig from '~services/config';
 import { useWalletTokenBalances } from '../../state/token';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import {
   SharesCard,
   StableTokens,
@@ -25,8 +25,9 @@ import AddLiquidityComponentUSN from '../../components/stableswap/AddLiquidityUS
 import { RemoveLiquidityComponentUSN } from '../../components/stableswap/RemoveLiquidityUSN';
 import { STABLE_TOKEN_USN_IDS } from '../../services/near';
 export const DEFAULT_ACTIONS = ['add_liquidity', 'remove_liquidity'];
-const STABLE_POOL_USN_ID = getConfig().STABLE_POOL_USN_ID;
-export const REF_STABLE_SWAP_TAB_KEY_USN = 'REF_STABLE_SWAP_TAB_VALUE_USN';
+
+export const getStableSwapTabKey = (id: string | number) =>
+  `REF_STABLE_SWAP_TAB_VALUE_${id}`;
 
 interface LocationTypes {
   stableTab?: string;
@@ -35,28 +36,30 @@ interface LocationTypes {
   farmStake?: string | number;
   pool?: Pool;
 }
+interface ParamTypes {
+  id: string;
+}
 
-function StableSwapPageUSN() {
+function StableSwapPageUSN({ pool }: { pool: Pool }) {
   const { state } = useLocation<LocationTypes>();
-
+  const { id } = useParams<ParamTypes>();
+  const REF_STABLE_SWAP_TAB_KEY = getStableSwapTabKey(pool.id);
   const stableTab = state?.stableTab;
 
   const storageTab =
-    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY_USN) === 'add_liquidity' ||
-    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY_USN) === 'remove_liquidity'
-      ? localStorage.getItem(REF_STABLE_SWAP_TAB_KEY_USN)
+    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) === 'add_liquidity' ||
+    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) === 'remove_liquidity'
+      ? localStorage.getItem(REF_STABLE_SWAP_TAB_KEY)
       : DEFAULT_ACTIONS[0];
 
   const [actionName, setAction] = useState<string>(stableTab || storageTab);
 
-  const { pool, shares, stakeList } = state?.pool
-    ? state
-    : usePool(STABLE_POOL_USN_ID);
+  const { shares, stakeList } = state?.pool ? state : usePool(id);
 
   const farmStake =
     state?.farmStake ||
     useFarmStake({
-      poolId: Number(STABLE_POOL_USN_ID),
+      poolId: Number(id),
       stakeList,
     });
   const userTotalShare = BigNumber.sum(shares, farmStake);
@@ -64,9 +67,7 @@ function StableSwapPageUSN() {
   const allTokens = useWhitelistStableTokens();
 
   const tokens = allTokens
-    ? STABLE_TOKEN_USN_IDS.map((id) =>
-        allTokens?.find((token) => token?.id === id)
-      )
+    ? pool.tokenIds.map((id) => allTokens?.find((token) => token?.id === id))
     : [];
 
   const nearBalances = useWalletTokenBalances(
@@ -75,19 +76,18 @@ function StableSwapPageUSN() {
   const [stablePool, setStablePool] = useState<StablePool>();
 
   useEffect(() => {
-    getStablePoolFromCache(STABLE_POOL_USN_ID.toString()).then((res) => {
+    getStablePoolFromCache(id.toString()).then((res) => {
       setStablePool(res[1]);
     });
   }, []);
 
   const changeAction = (actionName: string) => {
-    localStorage.setItem(REF_STABLE_SWAP_TAB_KEY_USN, actionName);
+    localStorage.setItem(REF_STABLE_SWAP_TAB_KEY, actionName);
     setAction(actionName);
   };
 
   if (
     !allTokens ||
-    !pool ||
     !shares ||
     !stablePool ||
     !Object.entries(nearBalances).length

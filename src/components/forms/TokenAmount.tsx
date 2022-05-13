@@ -43,6 +43,9 @@ interface TokenAmountProps {
   isError?: boolean;
   tokenPriceList?: Record<string, any>;
   swapMode?: SWAP_MODE;
+  preSelected?: TokenMetadata;
+  postSelected?: TokenMetadata;
+  onSelectPost?: (token: TokenMetadata) => void;
 }
 
 export function HalfAndMaxAmount({
@@ -50,18 +53,22 @@ export function HalfAndMaxAmount({
   onChangeAmount,
   token,
   forCrossSwap,
+  amount,
 }: {
   max: string;
   token: TokenMetadata;
   onChangeAmount: (amount: string) => void;
   forCrossSwap?: boolean;
+  amount?: string;
 }) {
+  const halfValue = percentOfBigNumber(50, max, token?.decimals);
+
   return (
     <div className="flex items-center">
       <span
-        className={`px-2 py-1 hover:bg-black hover:bg-opacity-20 cursor-pointer ${
-          forCrossSwap ? 'hover:text-gradientFrom' : ''
-        }  rounded-3xl text-primaryText text-xs`}
+        className={`px-2 py-1 hover:bg-black hover:bg-opacity-20 cursor-pointer ${'hover:text-gradientFrom'}  rounded-3xl ${
+          amount === halfValue ? 'text-gradientFrom' : 'text-primaryText'
+        } text-xs`}
         onClick={() => {
           const half = percentOfBigNumber(50, max, token.decimals);
 
@@ -72,9 +79,9 @@ export function HalfAndMaxAmount({
       </span>
 
       <span
-        className={`px-2 py-1 hover:bg-black hover:bg-opacity-20 cursor-pointer rounded-3xl ${
-          forCrossSwap ? 'hover:text-gradientFrom' : ''
-        } text-primaryText text-xs`}
+        className={`px-2 py-1 hover:bg-black hover:bg-opacity-20 cursor-pointer rounded-3xl ${'hover:text-gradientFrom'} ${
+          amount === max ? 'text-gradientFrom' : 'text-primaryText'
+        } text-xs`}
         onClick={() => {
           onChangeAmount(max);
         }}
@@ -103,6 +110,9 @@ export default function TokenAmount({
   isError,
   tokenPriceList,
   swapMode,
+  preSelected,
+  postSelected,
+  onSelectPost,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) =>
     toRoundedReadableNumber({
@@ -131,6 +141,7 @@ export default function TokenAmount({
             token={selectedToken}
             max={max}
             onChangeAmount={onChangeAmount}
+            amount={amount}
           />
         ) : null}
       </div>
@@ -185,6 +196,9 @@ export default function TokenAmount({
               }
               tokens={tokens}
               onSelect={onSelectToken}
+              preSelected={preSelected}
+              postSelected={postSelected}
+              onSelectPost={onSelectPost}
             />
           ))}
         {!showSelectToken && selectedToken && (
@@ -242,6 +256,7 @@ export function TokenCardIn({
             max={max}
             onChangeAmount={onChangeAmount}
             forCrossSwap
+            amount={amount}
           />
           <span className="ml-2">{toPrecision(max, 3, true)}</span>
         </div>

@@ -295,7 +295,10 @@ export function AccountModel(props: any) {
       style={{
         backdropFilter: 'blur(15px)',
         WebkitBackdropFilter: 'blur(15px)',
-        top: '4.2rem',
+        top:
+          hasBalanceOnRefAccount && window.location.pathname !== '/account'
+            ? '6.3rem'
+            : '4.2rem',
       }}
     >
       <div className="w-full bg-cardBg" ref={accountWrapRef}>
@@ -359,9 +362,12 @@ export function MobileNavBar(props: any) {
   const popupRef = useRef<HTMLDivElement | null>(null);
   const [openMenu, setOpenMenu] = useState('');
   const [closeMenu, setCloseMenu] = useState(false);
-  const history = useHistory();
+  // const history = useHistory();
   const [mobileWrapNear, setMobileWrapNear] = useState(false);
   // const [showWalletSelector, setShowWalletSelector] = useState(false);
+  const [pathnameState, setPathnameState] = useState<boolean>(
+    window.location.pathname !== '/account'
+  );
 
   const {
     setShowWalletSelector,
@@ -402,6 +408,34 @@ export function MobileNavBar(props: any) {
       document.removeEventListener('click', () => {}, false);
     };
   }, []);
+  const setPatheState = () =>
+    setPathnameState(window.location.pathname !== '/account');
+
+  useEffect(() => {
+    const _historyWrap = function (type: any) {
+      const orig = history[type];
+      const e = new Event(type);
+      return function () {
+        const rv = orig.apply(this, arguments);
+        //@ts-ignore
+        e.arguments = arguments;
+        window.dispatchEvent(e);
+        return rv;
+      };
+    };
+    history.pushState = _historyWrap('pushState');
+    history.replaceState = _historyWrap('replaceState');
+    window.addEventListener('popstate', (e) => {
+      setPatheState();
+    });
+    window.addEventListener('pushState', function (e) {
+      setPatheState();
+    });
+    window.addEventListener('replaceState', function (e) {
+      setPatheState();
+    });
+  }, []);
+
   useEffect(() => {
     if (mobileWrapNear) {
       document.body.style.overflow = 'hidden';
@@ -444,7 +478,7 @@ export function MobileNavBar(props: any) {
   }
   function handleMenuClick(url: string, label: string, isExternal: boolean) {
     if (url) {
-      isExternal ? window.open(url) : history.push(url);
+      isExternal ? window.open(url) : window.open(url, '_self');
       close();
     } else if (openMenu === label) {
       setCloseMenu(!closeMenu);
@@ -454,119 +488,177 @@ export function MobileNavBar(props: any) {
     }
   }
   return (
-    <div
-      className="nav-wrap lg:hidden md:show relative xs:mb-6 md:mb-6"
-      style={{
-        zIndex: show ? 200 : 51,
-      }}
-    >
-      {showTip ? <AccountTipDownByAccountID show={showTip} /> : null}
-      <div className="flex items-center text-2xl text-white justify-between p-4">
-        <NavLogo />
-        <div className="flex">
-          <div
-            className={`flex px-1 mr-px items-center justify-center rounded-full border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 ${
-              isSignedIn
-                ? 'bg-gray-700 text-white'
-                : 'border border-gradientFrom text-gradientFrom'
-            } pl-3 pr-3`}
-          >
-            <div className="pr-1">
-              <Near color={isSignedIn ? 'white' : '#00c6a2'} />
-            </div>
-            <div className="overflow-ellipsis overflow-hidden text-xs whitespace-nowrap account-name relative">
-              {isSignedIn ? (
-                <div
-                  className="flex items-center"
-                  onClick={() => {
-                    setAccountVisible(!accountVisible);
-                    setShowTip(false);
-                  }}
-                >
-                  <div>{getAccountName(wallet.getAccountId())}</div>
-
-                  {hasBalanceOnRefAccount ? (
-                    <span className="ml-1.5">
-                      <FarmDot inFarm={hasBalanceOnRefAccount} />
-                    </span>
-                  ) : null}
-
-                  {accountVisible ? (
-                    <FiChevronUp className="text-base ml-1" />
-                  ) : (
-                    <FiChevronDown className="text-base ml-1" />
-                  )}
-                </div>
-              ) : (
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setShowWalletSelector(true);
-                  }}
-                  type="button"
-                >
-                  <span className="ml-2 text-xs">
-                    <FormattedMessage
-                      id="connect_to_near"
-                      defaultMessage="Connect to NEAR"
-                    />
-                  </span>
-                </button>
-              )}
-            </div>
-          </div>
-
-          <div className={!isSignedIn ? 'hidden' : ' flex items-center mr-2'}>
-            <ConnectDot />
-            <ConnectDot />
-
-            <AuroraEntry
-              hasBalanceOnAurora={hasAuroraBalance}
-              extraClick={() => setAccountVisible(false)}
-            />
-          </div>
-          <span ref={iconRef} onClick={() => setShow(true)}>
-            <HiMenu />
-          </span>
-        </div>
-      </div>
+    <>
       <div
-        className={`fixed top-0 bottom-0 left-0 z-20 w-full bg-black bg-opacity-30 backdrop-blur-lg filter-blur backdrop-filter overflow-auto ${
-          show ? 'block' : 'hidden'
-        }`}
+        className={`${
+          hasBalanceOnRefAccount && pathnameState ? 'block' : 'hidden'
+        } text-xs py-1.5 px-2 lg:hidden text-center`}
         style={{
-          zIndex: '80',
+          backgroundColor: '#CFCEFE',
+          zIndex: 100,
         }}
       >
-        <div
-          ref={popupRef}
-          className="block h-full overflow-y-scroll w-4/6 float-right bg-cardBg shadow-4xl z-30"
+        👀 &nbsp;
+        <FormattedMessage
+          id="ref_account_balance_tip_mobile"
+          defaultMessage="You have tokens in your ref account."
+        />
+        {` `}
+        <span
+          className={`font-bold underline cursor-pointer mx-1`}
+          onClick={() => window.open('/account?tab=ref', '_blank')}
         >
-          <div className="p-4 flex text-white items-center justify-start">
-            <NavLogoLarge />
-            <span className="inline-block ml-2 mt-1 text-white">
-              ${data && data !== '-' ? toPrecision(data, 2) : '-'}
+          <FormattedMessage id="click" defaultMessage="Click" />
+        </span>
+        <FormattedMessage id="to_recover" defaultMessage="to recover." />
+      </div>
+      <div
+        className="nav-wrap lg:hidden md:show relative xs:mb-6 md:mb-6"
+        style={{
+          zIndex: show ? 200 : 51,
+        }}
+      >
+        {showTip ? <AccountTipDownByAccountID show={showTip} /> : null}
+        <div className="flex items-center text-2xl text-white justify-between p-4">
+          <NavLogo />
+          <div className="flex">
+            <div
+              className={`flex px-1 mr-px items-center justify-center rounded-full border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 ${
+                isSignedIn
+                  ? 'bg-gray-700 text-white'
+                  : 'border border-gradientFrom text-gradientFrom'
+              } pl-3 pr-3`}
+            >
+              <div className="pr-1">
+                <Near color={isSignedIn ? 'white' : '#00c6a2'} />
+              </div>
+              <div className="overflow-ellipsis overflow-hidden text-xs whitespace-nowrap account-name relative">
+                {isSignedIn ? (
+                  <div
+                    className="flex items-center"
+                    onClick={() => {
+                      setAccountVisible(!accountVisible);
+                      setShowTip(false);
+                    }}
+                  >
+                    <div>{getAccountName(wallet.getAccountId())}</div>
+
+                    {hasBalanceOnRefAccount ? (
+                      <span className="ml-1.5">
+                        <FarmDot inFarm={hasBalanceOnRefAccount} />
+                      </span>
+                    ) : null}
+
+                    {accountVisible ? (
+                      <FiChevronUp className="text-base ml-1" />
+                    ) : (
+                      <FiChevronDown className="text-base ml-1" />
+                    )}
+                  </div>
+                ) : (
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setShowWalletSelector(true);
+                    }}
+                    type="button"
+                  >
+                    <span className="ml-2 text-xs">
+                      <FormattedMessage
+                        id="connect_to_near"
+                        defaultMessage="Connect to NEAR"
+                      />
+                    </span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className={!isSignedIn ? 'hidden' : ' flex items-center mr-2'}>
+              <ConnectDot />
+              <ConnectDot />
+
+              <AuroraEntry
+                hasBalanceOnAurora={hasAuroraBalance}
+                extraClick={() => setAccountVisible(false)}
+              />
+            </div>
+            <span ref={iconRef} onClick={() => setShow(true)}>
+              <HiMenu />
             </span>
           </div>
-          <div className="text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
-            {isSignedIn && (
-              <div className="text-primaryText" onClick={() => setShow(false)}>
+        </div>
+        <div
+          className={`fixed top-0 bottom-0 left-0 z-20 w-full bg-black bg-opacity-30 backdrop-blur-lg filter-blur backdrop-filter overflow-auto ${
+            show ? 'block' : 'hidden'
+          }`}
+          style={{
+            zIndex: '80',
+          }}
+        >
+          <div
+            ref={popupRef}
+            className="block h-full overflow-y-scroll w-4/6 float-right bg-cardBg shadow-4xl z-30"
+          >
+            <div className="p-4 flex text-white items-center justify-start">
+              <NavLogoLarge />
+              <span className="inline-block ml-2 mt-1 text-white">
+                ${data && data !== '-' ? toPrecision(data, 2) : '-'}
+              </span>
+            </div>
+            <div className="text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
+              {isSignedIn && (
                 <div
-                  className="flex p-4 justify-between items-center"
+                  className="text-primaryText"
+                  onClick={() => setShow(false)}
+                >
+                  <div
+                    className="flex p-4 justify-between items-center"
+                    onClick={() => {
+                      setMobileWrapNear(true);
+                      setShowUSN(false);
+                    }}
+                  >
+                    <WNEARExchngeIcon width="75" height="32" />
+                    <span className="text-sm">
+                      NEAR:&nbsp;{toPrecision(nearBalance, 3, true)}
+                    </span>
+                  </div>
+                  <WrapNear
+                    isOpen={mobileWrapNear}
+                    onRequestClose={() => setMobileWrapNear(false)}
+                    style={{
+                      overlay: {
+                        backdropFilter: 'blur(15px)',
+                        WebkitBackdropFilter: 'blur(15px)',
+                      },
+                      content: {
+                        outline: 'none',
+                        position: 'fixed',
+                        width: '90%',
+                        bottom: '50%',
+                      },
+                    }}
+                  />
+                </div>
+              )}
+              <div className="text-primaryText">
+                <div
+                  className="flex p-5 justify-between items-center"
                   onClick={() => {
-                    setMobileWrapNear(true);
-                    setShowUSN(false);
+                    setShowUSN(true);
+                    setShow(false);
+                    setMobileWrapNear(false);
                   }}
                 >
-                  <WNEARExchngeIcon width="75" height="32" />
-                  <span className="text-sm">
-                    NEAR:&nbsp;{toPrecision(nearBalance, 3, true)}
-                  </span>
+                  <USNBuyComponent></USNBuyComponent>
                 </div>
-                <WrapNear
-                  isOpen={mobileWrapNear}
-                  onRequestClose={() => setMobileWrapNear(false)}
+                <USNPage
+                  isOpen={showUSN}
+                  onRequestClose={() => {
+                    setShowUSN(false);
+                  }}
                   style={{
                     overlay: {
                       backdropFilter: 'blur(15px)',
@@ -575,208 +667,178 @@ export function MobileNavBar(props: any) {
                     content: {
                       outline: 'none',
                       position: 'fixed',
-                      width: '90%',
+                      width: '98%',
+                      left: '1%',
                       bottom: '50%',
+                      transform: null,
                     },
                   }}
-                />
+                ></USNPage>
               </div>
-            )}
-            <div className="text-primaryText">
-              <div
-                className="flex p-5 justify-between items-center"
-                onClick={() => {
-                  setShowUSN(true);
-                  setShow(false);
-                  setMobileWrapNear(false);
-                }}
-              >
-                <USNBuyComponent></USNBuyComponent>
-              </div>
-              <USNPage
-                isOpen={showUSN}
-                onRequestClose={() => {
-                  setShowUSN(false);
-                }}
-                style={{
-                  overlay: {
-                    backdropFilter: 'blur(15px)',
-                    WebkitBackdropFilter: 'blur(15px)',
-                  },
-                  content: {
-                    outline: 'none',
-                    position: 'fixed',
-                    width: '98%',
-                    left: '1%',
-                    bottom: '50%',
-                    transform: null,
-                  },
-                }}
-              ></USNPage>
-            </div>
-            {moreLinks.map(
-              ({
-                id,
-                label,
-                subRoute,
-                pattern,
-                url,
-                isExternal,
-                children,
-                newFunction,
-                showIcon,
-                iconElement,
-              }) => {
-                let location = useLocation();
-                let isSelected = subRoute
-                  ? subRoute.includes(location.pathname)
-                  : matchPath(location.pathname, {
-                      path: pattern,
-                      exact: true,
-                      strict: false,
-                    });
-                if (
-                  location.pathname.startsWith('/pool/') ||
-                  location.pathname.startsWith('/more_pools/')
-                ) {
-                  if (id === 'pools') {
-                    isSelected = true;
+              {moreLinks.map(
+                ({
+                  id,
+                  label,
+                  subRoute,
+                  pattern,
+                  url,
+                  isExternal,
+                  children,
+                  newFunction,
+                  showIcon,
+                  iconElement,
+                }) => {
+                  let location = useLocation();
+                  let isSelected = subRoute
+                    ? subRoute.includes(location.pathname)
+                    : matchPath(location.pathname, {
+                        path: pattern,
+                        exact: true,
+                        strict: false,
+                      });
+                  if (
+                    location.pathname.startsWith('/pool/') ||
+                    location.pathname.startsWith('/more_pools/')
+                  ) {
+                    if (id === 'pools') {
+                      isSelected = true;
+                    }
                   }
-                }
-                return (
-                  <div key={id}>
-                    <div
-                      className={`flex p-4 items-center text-lg justify-between ${
-                        isSelected
-                          ? !children
-                            ? 'bg-navHighLightBg text-white'
-                            : 'text-white'
-                          : 'text-primaryText'
-                      }`}
-                      onClick={() => handleMenuClick(url, label, isExternal)}
-                    >
-                      {showIcon ? (
-                        <span
-                          className={`py-2 ${
-                            isSelected ? 'opacity-100' : 'opacity-50'
+                  return (
+                    <div key={id}>
+                      <div
+                        className={`flex p-4 items-center text-lg justify-between ${
+                          isSelected
+                            ? !children
+                              ? 'bg-navHighLightBg text-white'
+                              : 'text-white'
+                            : 'text-primaryText'
+                        }`}
+                        onClick={() => handleMenuClick(url, label, isExternal)}
+                      >
+                        {showIcon ? (
+                          <span
+                            className={`py-2 ${
+                              isSelected ? 'opacity-100' : 'opacity-50'
+                            }`}
+                          >
+                            {iconElement}
+                          </span>
+                        ) : (
+                          <div className={`link relative`}>
+                            <FormattedMessage id={id} defaultMessage={label} />
+                            {newFunction ? (
+                              <span className="absolute top-1 -right-2">
+                                <IconAirDropGreenTip />
+                              </span>
+                            ) : null}
+                          </div>
+                        )}
+                        {children && (
+                          <span>
+                            <FiChevronUp
+                              className={`${
+                                openMenu === label && closeMenu
+                                  ? 'inline-block'
+                                  : 'hidden'
+                              } text-xl`}
+                            />
+                            <FiChevronDown
+                              className={`${
+                                openMenu !== label || !closeMenu
+                                  ? 'inline-block'
+                                  : 'hidden'
+                              } text-xl`}
+                            />
+                          </span>
+                        )}
+                      </div>
+                      {children && (
+                        <div
+                          className={`${
+                            openMenu === label && closeMenu ? 'block' : 'hidden'
                           }`}
                         >
-                          {iconElement}
-                        </span>
-                      ) : (
-                        <div className={`link relative`}>
-                          <FormattedMessage id={id} defaultMessage={label} />
-                          {newFunction ? (
-                            <span className="absolute top-1 -right-2">
-                              <IconAirDropGreenTip />
-                            </span>
-                          ) : null}
+                          {children?.map((link) => {
+                            let isSubMenuSelected: any = matchPath(
+                              location.pathname,
+                              {
+                                path: link.pattern,
+                                exact: true,
+                                strict: false,
+                              }
+                            );
+                            if (
+                              location.pathname.startsWith('/pool/') ||
+                              location.pathname.startsWith('/more_pools/')
+                            ) {
+                              if (link.id === 'view_pools') {
+                                isSubMenuSelected = true;
+                              }
+                            }
+                            return (
+                              <div
+                                key={link.id}
+                                className={`whitespace-nowrap text-left items-center p-4 pl-2 flex justify-start ${
+                                  !link.isExternal && isSubMenuSelected
+                                    ? 'text-white bg-navHighLightBg'
+                                    : 'text-primaryText'
+                                }`}
+                                onClick={() => {
+                                  link.url && link.isExternal
+                                    ? window.open(link.url)
+                                    : window.open(link.url, '_self');
+                                  close();
+                                }}
+                              >
+                                {link.logo && (
+                                  <span className="text-xl text-left w-8 flex justify-center mr-2">
+                                    {link.logo}
+                                  </span>
+                                )}
+                                <FormattedMessage
+                                  id={link.id}
+                                  defaultMessage={link.label}
+                                />
+                                {link.tip && (
+                                  <span className="ml-2 bg-gradientFrom px-2 flex justify-center items-center text-white text-xs rounded-full">
+                                    {link.tip}
+                                  </span>
+                                )}
+
+                                {link.url && link.isExternal && (
+                                  <HiOutlineExternalLink className="float-right ml-2 text-xl opacity-60" />
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
-                      {children && (
-                        <span>
-                          <FiChevronUp
-                            className={`${
-                              openMenu === label && closeMenu
-                                ? 'inline-block'
-                                : 'hidden'
-                            } text-xl`}
-                          />
-                          <FiChevronDown
-                            className={`${
-                              openMenu !== label || !closeMenu
-                                ? 'inline-block'
-                                : 'hidden'
-                            } text-xl`}
-                          />
-                        </span>
-                      )}
                     </div>
-                    {children && (
-                      <div
-                        className={`${
-                          openMenu === label && closeMenu ? 'block' : 'hidden'
-                        }`}
-                      >
-                        {children?.map((link) => {
-                          let isSubMenuSelected: any = matchPath(
-                            location.pathname,
-                            {
-                              path: link.pattern,
-                              exact: true,
-                              strict: false,
-                            }
-                          );
-                          if (
-                            location.pathname.startsWith('/pool/') ||
-                            location.pathname.startsWith('/more_pools/')
-                          ) {
-                            if (link.id === 'view_pools') {
-                              isSubMenuSelected = true;
-                            }
-                          }
-                          return (
-                            <div
-                              key={link.id}
-                              className={`whitespace-nowrap text-left items-center p-4 pl-2 flex justify-start ${
-                                !link.isExternal && isSubMenuSelected
-                                  ? 'text-white bg-navHighLightBg'
-                                  : 'text-primaryText'
-                              }`}
-                              onClick={() => {
-                                link.url && link.isExternal
-                                  ? window.open(link.url)
-                                  : history.push(link.url);
-                                close();
-                              }}
-                            >
-                              {link.logo && (
-                                <span className="text-xl text-left w-8 flex justify-center mr-2">
-                                  {link.logo}
-                                </span>
-                              )}
-                              <FormattedMessage
-                                id={link.id}
-                                defaultMessage={link.label}
-                              />
-                              {link.tip && (
-                                <span className="ml-2 bg-gradientFrom px-2 flex justify-center items-center text-white text-xs rounded-full">
-                                  {link.tip}
-                                </span>
-                              )}
-
-                              {link.url && link.isExternal && (
-                                <HiOutlineExternalLink className="float-right ml-2 text-xl opacity-60" />
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              }
-            )}
-            <openMenuContext.Provider value={{ openMenu, setOpenMenu }}>
-              <MobileSwitchLanguage />
-            </openMenuContext.Provider>
-          </div>
-          <div
-            className="p-4 bg-cardBg pb-16"
-            onClick={() => window.open('https://stats.ref.finance/')}
-          >
-            <RefAnalytics />
+                  );
+                }
+              )}
+              <openMenuContext.Provider value={{ openMenu, setOpenMenu }}>
+                <MobileSwitchLanguage />
+              </openMenuContext.Provider>
+            </div>
+            <div
+              className="p-4 bg-cardBg pb-16"
+              onClick={() => window.open('https://stats.ref.finance/')}
+            >
+              <RefAnalytics />
+            </div>
           </div>
         </div>
+        {accountVisible ? (
+          <AccountModel
+            hasBalanceOnRefAccount={hasBalanceOnRefAccount}
+            closeAccount={() => {
+              setAccountVisible(false);
+            }}
+          />
+        ) : null}
       </div>
-      {accountVisible ? (
-        <AccountModel
-          hasBalanceOnRefAccount={hasBalanceOnRefAccount}
-          closeAccount={() => {
-            setAccountVisible(false);
-          }}
-        />
-      ) : null}
-    </div>
+    </>
   );
 }

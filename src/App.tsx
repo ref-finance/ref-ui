@@ -83,8 +83,7 @@ import {
 import StableSwapPageUSN from '~pages/stable/StableSwapPageUSN';
 import { checkTransaction } from './services/swap';
 import { swapToast } from './components/layout/transactionTipPopUp';
-import { PRIVATE_ACCOUNTs } from './services/near';
-import StableSwapPageBTC from './pages/stable/StableSwapPageBTC';
+import { StableSwapRouter } from './pages/stable/StableSwapRouter';
 
 Modal.defaultStyles = {
   overlay: {
@@ -261,28 +260,14 @@ function App() {
             <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
             <Route path="/farms" component={AutoHeight(FarmsPage)} />
             <Route
-              path={`/sauce/${STABLE_POOL_ID}`}
-              component={AutoHeight(StableSwapPage)}
+              path={`/sauce/:id`}
+              component={AutoHeight(StableSwapRouter)}
             />
-            <Route
-              path={`/sauce/${STABLE_POOL_USN_ID}`}
-              component={AutoHeight(StableSwapPageUSN)}
-            />
-
-            {PRIVATE_ACCOUNTs.includes(
-              getCurrentWallet().wallet.getAccountId()
-            ) ? (
-              <Route
-                path={`/sauce/${BTC_POOL_ID}`}
-                component={AutoHeight(StableSwapPageBTC)}
-              />
-            ) : null}
 
             <Route path="/sauce" component={AutoHeight(StableSwapPageEntry)} />
 
             <Route path="/xref" component={AutoHeight(XrefPage)} />
             <Route path="/risks" component={AutoHeight(RiskPage)} />
-            {/* <Route path="/usn" component={AutoHeight(USNPage)} /> */}
             <Route path="/" component={AutoHeight(SwapPage)} />
           </Switch>
           <Footer />

@@ -564,6 +564,13 @@ const ja = {
   name: '名前',
   diff: '差分',
   best: '一番',
+  total_bitcoins: '総ビットコイン',
+  total_usd_value: '合計米ドル値',
+  bitcoin_value: 'ビットコインの価値',
+  stable_coin_value: 'ステーブルコイン価値',
   pool_fee_apr: 'Pool Fee APR',
+  ref_account_balance_tip_mobile: 'REFアカウントにトークンがあります。',
+  click: 'クリック',
+  to_recover: '回復する。',
 };
 export default Object.assign(ja, ja_in_risks_page);
