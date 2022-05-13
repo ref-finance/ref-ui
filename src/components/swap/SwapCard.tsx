@@ -702,7 +702,6 @@ export default function SwapCard(props: {
   const priceImpactValueSmartRouting = useMemo(() => {
     try {
       if (swapsToDo?.length === 2 && swapsToDo[0].status === PoolMode.SMART) {
-        console.log(swapsToDo);
         return calculateSmartRoutingPriceImpact(
           tokenInAmount,
           swapsToDo,
@@ -720,7 +719,6 @@ export default function SwapCard(props: {
         );
       } else return '0';
     } catch (err) {
-      console.log(err);
       return '0';
     }
   }, [tokenOutAmount, swapsToDo]);
@@ -734,12 +732,6 @@ export default function SwapCard(props: {
       return '0';
     }
   }, [tokenOutAmount, swapsToDo]);
-
-  console.log(
-    priceImpactValueSmartRouting,
-    priceImpactValueSmartRoutingV2,
-    swapsToDo
-  );
 
   let PriceImpactValue: string = '0';
 

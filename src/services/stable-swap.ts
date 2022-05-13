@@ -638,8 +638,6 @@ export const getSwappedAmount = (
 
   const STABLE_TOKEN_INDEX = getStableTokenIndex(stablePool.id);
 
-  console.log(STABLE_TOKEN_INDEX, stablePool.id);
-
   const in_token_idx = STABLE_TOKEN_INDEX[tokenInId];
   const out_token_idx = STABLE_TOKEN_INDEX[tokenOutId];
   const old_c_amounts = stablePool.c_amounts.map((amount) => Number(amount));

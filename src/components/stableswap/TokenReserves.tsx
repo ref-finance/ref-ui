@@ -399,7 +399,6 @@ export default function ({
 
     currentTokensPrice(BTCIDS.join('|')).then((res) => {
       const parsedPrices = res.map((p: string) => (p === 'N/A' ? '0' : p));
-      console.log(parsedPrices);
       const values = parsedPrices.map((p: string, i: number) => {
         const pool = pools.find(
           (pool) => Number(pool.id) === Number(BTC_STABLE_POOL_ID)

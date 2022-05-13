@@ -26,7 +26,7 @@ import {
   getStablePool,
   getPoolsFromCache,
 } from '../services/pool';
-import db, { PoolDb, WatchList } from '~store/RefDatabase';
+import db, { PoolDb, WatchList } from '../store/RefDatabase';
 
 import { useWhitelistTokens } from './token';
 import _, { countBy, debounce, min, orderBy, trim } from 'lodash';

@@ -169,8 +169,6 @@ const getStablePoolEstimate = ({
   stablePoolInfo: StablePool;
   stablePool: Pool;
 }) => {
-  console.log(tokenIn.id, tokenOut.id, amountIn, stablePoolInfo);
-
   const [amount_swapped, fee, dy] = getSwappedAmount(
     tokenIn.id,
     tokenOut.id,
@@ -249,8 +247,6 @@ export const getPoolEstimate = async ({
     const stablePoolInfo = (
       await getStablePoolFromCache(Pool.id.toString())
     )[1];
-
-    console.log(stablePoolInfo);
 
     return getStablePoolEstimate({
       tokenIn,
@@ -367,8 +363,6 @@ export const estimateSwap = async ({
 
   const orpools = await getRefPoolsByToken1ORToken2(tokenIn.id, tokenOut.id);
 
-  console.log(orpools.length, 'or pool length');
-
   let stableSmartActionsV2 = await stableSmart(
     orpools.filter((p) => !p?.Dex || p.Dex !== 'tri'),
     tokenIn.id,
@@ -412,8 +406,6 @@ export const estimateSwap = async ({
     }
   }
 
-  console.log(res);
-
   if (!swapPro && !res?.length) {
     throwNoPoolError();
   }
@@ -434,8 +426,6 @@ export const estimateSwap = async ({
       return triTodos;
     }
   }
-
-  console.log(res, 'swap result');
 
   return res;
 };
@@ -597,8 +587,6 @@ export const getOneSwapActionResult = async (
                   );
               });
 
-        console.log(refPoolThisPair);
-
         if (refPoolThisPair) {
           const refPoolEstimateRes = await getPoolEstimate({
             tokenIn,
@@ -626,10 +614,6 @@ export const getOneSwapActionResult = async (
       }
     }
   }
-
-  console.log(supportLedgerRes, 'support ledger res');
-
-  console.log(triTodos, refTodos);
 
   return {
     supportLedgerRes,
@@ -889,21 +873,12 @@ export async function getHybridStableSmart(
               status: PoolMode.SMART,
             };
 
-            console.log(estimate1, estimate2);
-
             return Number(estimate2.estimate);
           });
 
     // one pool case only get best price
 
     if (!BestPoolPair) return { actions: [], estimate: '0' };
-
-    console.log(
-      BestPoolPair,
-      'best pool pair',
-      candidatePools,
-      'candidate pools'
-    );
 
     if (BestPoolPair.length === 1) {
       const bestPool = BestPoolPair[0];
@@ -913,8 +888,6 @@ export async function getHybridStableSmart(
         amountIn: parsedAmountIn,
         Pool: bestPool,
       });
-
-      console.log(estimate);
 
       return {
         actions: [
@@ -977,7 +950,6 @@ export async function getHybridStableSmart(
       inputToken: tokenMidMeta.id,
       outputToken: tokenOut.id,
     };
-    console.log(estimate1, estimate2);
 
     return { actions: [estimate1, estimate2], estimate: estimate2.estimate };
   }
