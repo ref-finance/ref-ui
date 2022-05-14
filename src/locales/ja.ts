@@ -572,5 +572,6 @@ const ja = {
   ref_account_balance_tip_mobile: 'REFアカウントにトークンがあります。',
   click: 'クリック',
   to_recover: '回復する。',
+  reward_apr: 'Rewards APR',
 };
 export default Object.assign(ja, ja_in_risks_page);

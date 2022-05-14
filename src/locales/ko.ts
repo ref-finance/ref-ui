@@ -562,5 +562,6 @@ const ko = {
   ref_account_balance_tip_mobile: 'REF 계정에 토큰이 있습니다.',
   click: '딸깍 하는 소리',
   to_recover: '회복.',
+  reward_apr: 'Rewards APR',
 };
 export default Object.assign(ko, ko_in_risks_page);

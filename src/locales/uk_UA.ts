@@ -547,5 +547,6 @@ const uk_UA = {
   ref_account_balance_tip_mobile: 'У вашому обліковому записі REF є токени.',
   click: 'Натисніть',
   to_recover: 'для відновлення.',
+  reward_apr: 'Rewards APR',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

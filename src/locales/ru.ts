@@ -561,5 +561,6 @@ const ru = {
     'У вас есть токены в вашей учетной записи REF.',
   click: 'Нажмите',
   to_recover: 'выздороветь.',
+  reward_apr: 'Rewards APR',
 };
 export default Object.assign(ru, ru_in_risks_page);

@@ -570,5 +570,6 @@ const vi = {
     'Bạn có mã thông báo trong tài khoản REF của mình.',
   click: 'Nhấp chuột',
   to_recover: 'để phục hồi.',
+  reward_apr: 'Rewards APR',
 };
 export default Object.assign(vi, vi_in_risks_page);
