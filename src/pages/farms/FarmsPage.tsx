@@ -1471,7 +1471,7 @@ function FarmView({
       }
     });
     const dayVolume = getPoolFeeApr(dayVolumeMap[farmData.pool.id]);
-    if (dayVolume) {
+    if (+dayVolume > 0) {
       apr += Number(dayVolume);
     }
     return toPrecision(apr.toString(), 2);
