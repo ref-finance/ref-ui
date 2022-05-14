@@ -565,7 +565,7 @@ const vi = {
   total_usd_value: 'Tổng giá trị đô la Mỹ',
   bitcoin_value: 'Giá trị Bitcoin',
   stable_coin_value: 'Giá trị của StableCoin',
-  pool_fee_apr: 'Pool Fee APR',
+  pool_fee_apr: 'Pool fee APR',
   ref_account_balance_tip_mobile:
     'Bạn có mã thông báo trong tài khoản REF của mình.',
   click: 'Nhấp chuột',

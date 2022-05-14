@@ -1497,15 +1497,15 @@ function FarmView({
     const txt1 = intl.formatMessage({ id: 'pool_fee_apr' });
     const txt2 = intl.formatMessage({ id: 'reward_apr' });
     result = `
-    <div class="flex items-center justify-between ">
-      <span class="text-xs text-navHighLightText mr-3 text-right">${txt1}</span>
+    <div class="flex items-center justify-between">
+      <span class="text-xs text-navHighLightText mr-3">${txt1}</span>
       <span class="text-sm text-white font-bold">${
         +dayVolume > 0 ? dayVolume + '%' : '-'
       }</span>
     </div>
     <div class="flex justify-end text-white text-sm font-bold ">+</div>
     <div class="flex items-center justify-between ">
-      <span class="text-xs text-navHighLightText mr-3 text-right">${txt2}</span>
+      <span class="text-xs text-navHighLightText mr-3">${txt2}</span>
       <span class="text-sm text-white font-bold">${totalApr}</span>
     </div>
     `;
@@ -1791,7 +1791,6 @@ function FarmView({
               <div
                 className="text-xl text-white"
                 data-type="info"
-                data-place="top"
                 data-multiline={true}
                 data-tip={getAprList()}
                 data-html={true}

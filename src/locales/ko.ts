@@ -558,7 +558,7 @@ const ko = {
   total_usd_value: '총 미국 달러 가치',
   bitcoin_value: '비트코인 가치',
   stable_coin_value: '스테이블코인 가치',
-  pool_fee_apr: 'Pool Fee APR',
+  pool_fee_apr: 'Pool fee APR',
   ref_account_balance_tip_mobile: 'REF 계정에 토큰이 있습니다.',
   click: '딸깍 하는 소리',
   to_recover: '회복.',
