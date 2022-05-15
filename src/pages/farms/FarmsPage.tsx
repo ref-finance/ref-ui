@@ -299,12 +299,7 @@ export function FarmsPage() {
       });
       tempFarms.forEach((arr: any) => {
         const allfarmApr = getTotalApr(arr);
-        const poolId = arr[0]?.pool?.id || '';
-        let poolApr = 0;
-        if (dayVolumeMap[poolId]) {
-          poolApr = getPoolFeeApr(dayVolumeMap[poolId], arr[0].pool);
-        }
-        arr.totalApr = +allfarmApr + poolApr;
+        arr.totalApr = +allfarmApr;
       });
 
       tempFarms.forEach((farm) => {
@@ -484,7 +479,11 @@ export function FarmsPage() {
         if (item1.front || item2.front) {
           return Number(item2.front || 0) - Number(item1.front || 0);
         }
-        return Number(item2.totalApr) - Number(item1.totalApr);
+        const item2APR =
+          Number(item2.totalApr) + Number(getPoolAprValue(item2));
+        const item1APR =
+          Number(item1.totalApr) + Number(getPoolAprValue(item1));
+        return Number(item2APR) - Number(item1APR);
       });
     } else if (sort == 'total_staked') {
       listAll.sort((item1: any, item2: any) => {
@@ -511,6 +510,14 @@ export function FarmsPage() {
     setFarms(listAll);
     setNoData(noData);
     setCommonSeedFarms(tempCommonSeedFarms || commonSeedFarms);
+  }
+  function getPoolAprValue(arr: any) {
+    const poolId = arr[0]?.pool?.id || '';
+    let poolApr = 0;
+    if (dayVolumeMap[poolId]) {
+      poolApr = getPoolFeeApr(dayVolumeMap[poolId], arr[0].pool);
+    }
+    return poolApr;
   }
   function getTotalApr(farmsData: FarmInfo[]) {
     let apr = 0;
