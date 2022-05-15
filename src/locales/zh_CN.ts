@@ -531,5 +531,6 @@ const zh_CN = {
   ref_account_balance_tip_mobile: '你的REF账户中有代币.',
   click: '点击',
   to_recover: '来取回.',
+  reward_apr: '奖励年化收益率',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

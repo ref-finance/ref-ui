@@ -496,6 +496,7 @@ export const classificationOfCoins = {
     '1INCH',
     'CELO',
     'cUSD',
+    'HBTC',
   ],
   gaming: ['PXT', 'sPXT', 'SHRM', 'GOLD', 'GEM', 'ELIXIR'],
   nft: ['PARAS', '1MIL'],

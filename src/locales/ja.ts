@@ -568,9 +568,10 @@ const ja = {
   total_usd_value: '合計米ドル値',
   bitcoin_value: 'ビットコインの価値',
   stable_coin_value: 'ステーブルコイン価値',
-  pool_fee_apr: 'Pool Fee APR',
+  pool_fee_apr: 'Pool fee APR',
   ref_account_balance_tip_mobile: 'REFアカウントにトークンがあります。',
   click: 'クリック',
   to_recover: '回復する。',
+  reward_apr: 'Rewards APR',
 };
 export default Object.assign(ja, ja_in_risks_page);
