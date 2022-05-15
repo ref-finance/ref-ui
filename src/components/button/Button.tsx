@@ -349,3 +349,78 @@ export function BorderButtonMobile(
     </button>
   );
 }
+export function OprationButton(props: any) {
+  const {
+    loading,
+    disabled,
+    className,
+    color,
+    btnClassName,
+    onClick,
+    ...reset
+  } = props;
+  return (
+    <div
+      {...reset}
+      className={`${className ? className : ''} ${loading ? 'opacity-40' : ''}`}
+      style={{
+        borderRadius: '8px',
+        color: color || '',
+      }}
+    >
+      <button
+        onClick={onClick}
+        disabled={disabled}
+        className={`flex items-center justify-center  w-full h-full ${
+          btnClassName ? btnClassName : ''
+        }`}
+      >
+        {props.children}
+      </button>
+    </div>
+  );
+}
+export function ConnectToNearButton(props: any) {
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+  const [showWalletSelector, setShowWalletSelector] = useState(false);
+  const { className = '' } = props;
+  return (
+    <>
+      <div
+        className={`${className} flex items-center cursor-pointer justify-center rounded-lg py-3 text-base ${
+          buttonLoading ? 'opacity-40' : ''
+        }`}
+        style={{
+          background: 'linear-gradient(180deg, #4B5963 0%, #323C43 100%)',
+          color: '#fff',
+        }}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setButtonLoading(true);
+          setShowWalletSelector(true);
+        }}
+      >
+        <button>
+          <ButtonTextWrapper
+            loading={buttonLoading}
+            Text={() => (
+              <FormattedMessage
+                id="connect_to_wallet"
+                defaultMessage="Connect Wallet"
+              />
+            )}
+          />
+        </button>
+      </div>
+      <WalletSelectorModal
+        isOpen={showWalletSelector}
+        onRequestClose={() => {
+          window.location.reload();
+          setShowWalletSelector(false);
+        }}
+        setShowWalletSelector={setShowWalletSelector}
+      />
+    </>
+  );
+}

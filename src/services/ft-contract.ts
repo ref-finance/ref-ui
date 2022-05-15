@@ -9,7 +9,8 @@ import metadataDefaults from '../utils/metadata';
 import { storageDepositForFTAction } from './creators/storage';
 import db from '../store/RefDatabase';
 import { getCurrentWallet, WALLET_TYPE } from '../utils/sender-wallet';
-
+import getConfig from './config';
+import { nearMetadata } from './wrap-near';
 export const NEAR_ICON =
   'https://near.org/wp-content/themes/near-19/assets/img/brand-icon.png';
 const BANANA_ID = 'berryclub.ek.near';
@@ -131,4 +132,10 @@ export const ftGetTokensMetadata = async (tokenIds: string[]) => {
 
 export const ftRegisterExchange = async (tokenId: string) => {
   return ftFunctionCall(tokenId, storageDepositForFTAction());
+};
+
+export const unWrapToken = (token: TokenMetadata, keepId?: boolean) => {
+  if (token.id === getConfig().WRAP_NEAR_CONTRACT_ID)
+    return { ...nearMetadata, id: keepId ? token.id : nearMetadata.id };
+  else return token;
 };

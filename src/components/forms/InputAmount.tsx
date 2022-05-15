@@ -3,6 +3,8 @@ import { TokenMetadata } from '~services/ft-contract';
 import { TokenBalancesView } from '~services/token';
 import { tokenPrice } from './SelectToken';
 import { multiply } from '../../utils/numbers';
+import { FormattedMessage } from 'react-intl';
+import { toPrecision } from '../../utils/numbers';
 
 interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   max?: string;
@@ -11,6 +13,8 @@ interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   onChangeAmount?: (amount: string, balances?: TokenBalancesView) => void;
   forSwap?: boolean;
   price?: string | null;
+  tokenSymbol?: string | JSX.Element;
+  balance?: string;
 }
 
 export default function InputAmount({
@@ -88,5 +92,96 @@ export default function InputAmount({
         </div>
       </fieldset>
     </>
+  );
+}
+export function NewFarmInputAmount({
+  max,
+  className,
+  onChangeAmount,
+  disabled = false,
+  maxBorder = true,
+  tokenSymbol,
+  title,
+  balance,
+  ...rest
+}: InputAmountProps) {
+  const ref = useRef<HTMLInputElement>();
+  const field = useRef<HTMLFieldSetElement>();
+  const [symbolsArr] = useState(['e', 'E', '+', '-']);
+
+  const [isFocus, setIsFocus] = useState<boolean>(false);
+
+  const handleChange = (amount: string) => {
+    if (onChangeAmount) onChangeAmount(amount);
+
+    ref.current.value = amount;
+  };
+
+  return (
+    <fieldset
+      className={`${className} ${
+        isFocus
+          ? ' border border-greenLight rounded-lg'
+          : ' border border-transparent rounded-lg'
+      }`}
+      ref={field}
+    >
+      <div
+        className={`relative flex flex-col align-center bg-inputDarkBg rounded-lg pr-5 `}
+      >
+        <div
+          className={`${
+            title && balance ? 'block' : 'hidden'
+          } flex items-center justify-between text-farmText text-sm pl-5 pt-4`}
+        >
+          <span>{title}</span>
+
+          <div className="flex justify-end items-center text-sm text-right mb-1.5 text-farmText">
+            <FormattedMessage id="balance" defaultMessage="Balance" />
+            {':'}
+            <span className="ml-1" title={balance}>
+              {toPrecision(balance || '0', 2, true)}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center ">
+          <input
+            ref={ref}
+            max={max}
+            min="0"
+            onWheel={() => ref.current.blur()}
+            {...rest}
+            step="any"
+            className={`xs:text-sm text-lg font-bold w-full px-5 py-4 ${
+              disabled ? 'text-gray-200 placeholder-gray-200' : 'text-white'
+            }`}
+            type="number"
+            placeholder="0.0"
+            onChange={({ target }) => handleChange(target.value)}
+            disabled={disabled}
+            onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
+            onFocus={() => {
+              setIsFocus(true);
+            }}
+            onBlur={() => {
+              setIsFocus(false);
+            }}
+          />
+          <span className="flex items-center">
+            <a
+              className={`rounded-lg text-farmText border border-smBtnBorder hover:bg-smBtnBorder items-center px-1 py-0.5 m-auto focus:outline-none text-xs `}
+              style={{ lineHeight: 'unset', cursor: 'pointer' }}
+              onClick={() => handleChange(max)}
+            >
+              <span>Max</span>
+            </a>
+            <span className="text-base font-bold text-white ml-3 whitespace-nowrap">
+              {tokenSymbol}
+            </span>
+          </span>
+        </div>
+      </div>
+    </fieldset>
   );
 }

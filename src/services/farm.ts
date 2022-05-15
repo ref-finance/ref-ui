@@ -4,6 +4,12 @@ import {
   wallet,
   Transaction,
   executeFarmMultipleTransactions,
+  refFarmBoostViewFunction,
+  refFarmBoostFunctionCall,
+  REF_FARM_BOOST_CONTRACT_ID,
+  ONE_YOCTO_NEAR,
+  REF_FI_CONTRACT_ID,
+  near,
 } from './near';
 import {
   toPrecision,
@@ -29,6 +35,9 @@ import {
   getCurrentWallet,
   SENDER_WALLET_SIGNEDIN_STATE_KEY,
 } from '../utils/sender-wallet';
+import { currentStorageBalanceOfFarm_boost } from '../services/account';
+import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
+import { utils } from 'near-api-js';
 const config = getConfig();
 export const DEFAULT_PAGE_LIMIT = 150;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
@@ -446,6 +455,273 @@ export const claimAndWithDrawReward = async (
   }
   return executeFarmMultipleTransactions(transactions);
 };
+// boost farm related function start
+export const list_seeds_info = async () => {
+  return await refFarmBoostViewFunction({
+    methodName: 'list_seeds_info',
+  });
+};
+export const list_seed_farms = async (seed_id: string) => {
+  return await refFarmBoostViewFunction({
+    methodName: 'list_seed_farms',
+    args: { seed_id },
+  });
+};
+export const list_farmer_seeds = async () => {
+  const accountId = getCurrentWallet().wallet.getAccountId();
+  return await refFarmBoostViewFunction({
+    methodName: 'list_farmer_seeds',
+    args: { farmer_id: accountId },
+  });
+};
+export const get_unclaimed_rewards = async (seed_id: string) => {
+  const accountId = getCurrentWallet().wallet.getAccountId();
+  return await refFarmBoostViewFunction({
+    methodName: 'get_unclaimed_rewards',
+    args: { farmer_id: accountId, seed_id: seed_id },
+  });
+};
+export const get_config = async () => {
+  return await refFarmBoostViewFunction({
+    methodName: 'get_config',
+  });
+};
+export const get_unWithDraw_rewards = async () => {
+  const accountId = getCurrentWallet().wallet.getAccountId();
+  return await refFarmBoostViewFunction({
+    methodName: 'list_farmer_rewards',
+    args: { farmer_id: accountId },
+  });
+};
+export const stake_boost = async ({
+  token_id,
+  amount,
+  msg = '',
+}: StakeOptions) => {
+  const transactions: Transaction[] = [
+    {
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'mft_transfer_call',
+          args: {
+            receiver_id: REF_FARM_BOOST_CONTRACT_ID,
+            token_id,
+            amount,
+            msg,
+          },
+          amount: ONE_YOCTO_NEAR,
+          gas: '180000000000000',
+        },
+      ],
+    },
+  ];
+
+  const neededStorage = await checkTokenNeedsStorageDeposit_boost();
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: REF_FARM_BOOST_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+
+  return executeFarmMultipleTransactions(transactions);
+};
+export const unStake_boost = async ({
+  seed_id,
+  unlock_amount,
+  withdraw_amount,
+}: UnStakeOptions) => {
+  const transactions: Transaction[] = [
+    {
+      receiverId: REF_FARM_BOOST_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'unlock_and_withdraw_seed',
+          args: {
+            seed_id: seed_id,
+            unlock_amount,
+            withdraw_amount,
+          },
+          amount: ONE_YOCTO_NEAR,
+          gas: '200000000000000',
+        },
+      ],
+    },
+  ];
+
+  const neededStorage = await checkTokenNeedsStorageDeposit_boost();
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: REF_FARM_BOOST_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+
+  return executeFarmMultipleTransactions(transactions);
+};
+export const checkTokenNeedsStorageDeposit_boost = async () => {
+  let storageNeeded;
+  const balance = await currentStorageBalanceOfFarm_boost(
+    getCurrentWallet().wallet.getAccountId()
+  );
+
+  if (!balance) {
+    storageNeeded = '0.1';
+  }
+  return storageNeeded;
+};
+export const withdrawAllReward_boost = async (
+  checkedList: Record<string, any>
+) => {
+  const transactions: Transaction[] = [];
+  const token_id_list = Object.keys(checkedList);
+  const ftBalancePromiseList: any[] = [];
+  const functionCalls: any[] = [];
+  token_id_list.forEach((token_id) => {
+    const ftBalance = ftGetStorageBalance(token_id);
+    ftBalancePromiseList.push(ftBalance);
+    if (token_id == WRAP_NEAR_CONTRACT_ID) {
+      functionCalls.push({
+        methodName: 'near_withdraw',
+        args: {
+          token_id: token_id,
+          args: {
+            amount: utils.format.parseNearAmount(checkedList[token_id].value),
+          },
+        },
+        gas: '50000000000000',
+        amount: ONE_YOCTO_NEAR,
+      });
+    } else {
+      functionCalls.push({
+        methodName: 'withdraw_reward',
+        args: {
+          token_id: token_id,
+          // amount: checkedList[token_id].value,
+          // unregister,
+        },
+        gas: '50000000000000',
+        // amount: ONE_YOCTO_NEAR,
+      });
+    }
+  });
+  const resolvedBalanceList = await Promise.all(ftBalancePromiseList);
+  resolvedBalanceList.forEach((ftBalance, index) => {
+    if (!ftBalance || ftBalance.total === '0') {
+      transactions.unshift({
+        receiverId: token_id_list[index],
+        functionCalls: [
+          storageDepositAction({
+            registrationOnly: true,
+            amount: STORAGE_TO_REGISTER_WITH_MFT,
+          }),
+        ],
+      });
+    }
+  });
+
+  transactions.push({
+    receiverId: REF_FARM_BOOST_CONTRACT_ID,
+    functionCalls,
+  });
+  return executeFarmMultipleTransactions(transactions);
+};
+export const claimRewardBySeed_boost = async (
+  seed_id: string
+): Promise<any> => {
+  return refFarmBoostFunctionCall({
+    methodName: 'claim_reward_by_seed',
+    args: { seed_id: seed_id },
+  });
+};
+export const lock_free_seed = async ({
+  seed_id,
+  duration_sec,
+  amount,
+}: {
+  seed_id: string;
+  duration_sec: number;
+  amount: string;
+}): Promise<any> => {
+  return refFarmBoostFunctionCall({
+    methodName: 'lock_free_seed',
+    args: { seed_id, duration_sec, amount },
+    amount: ONE_YOCTO_NEAR,
+  });
+};
+export const force_unlock = async ({
+  seed_id,
+  unlock_amount,
+}: {
+  seed_id: string;
+  unlock_amount: string;
+}): Promise<any> => {
+  return refFarmBoostFunctionCall({
+    methodName: 'force_unlock',
+    args: { seed_id, unlock_amount },
+    amount: ONE_YOCTO_NEAR,
+  });
+};
+export const getServerTime = async () => {
+  const result = await near.connection.provider
+    .block({
+      finality: 'final',
+    })
+    .catch(() => {
+      return {
+        header: {
+          timestamp: new Date().getTime() * 100000,
+        },
+      };
+    });
+  const timestamp = result?.header?.timestamp;
+  return timestamp;
+};
+export interface Seed {
+  min_deposit: string;
+  min_locking_duration_sec: number;
+  next_index: number;
+  seed_decimal: number;
+  seed_id: string;
+  slash_rate: number;
+  total_seed_amount: string;
+  total_seed_power: string;
+  farmList?: FarmBoost[];
+  pool?: PoolRPCView;
+  user_seed?: Record<string, any>;
+  unclaimed?: Record<string, string>;
+  seedTvl?: string;
+  hidden?: boolean;
+}
+export interface FarmBoostTerm {
+  daily_reward: string;
+  reward_token: string;
+  start_at: number;
+}
+export interface FarmBoost {
+  amount_of_beneficiary: string;
+  claimed_reward: string;
+  distributed_at: string;
+  distributed_reward: string;
+  farm_id: string;
+  status: string;
+  terms: FarmBoostTerm;
+  total_reward: string;
+  token_meta_data?: TokenMetadata;
+  apr?: string;
+}
+interface StakeOptions {
+  token_id: string;
+  amount: string;
+  msg?: string;
+}
+interface UnStakeOptions {
+  seed_id: string;
+  unlock_amount: string;
+  withdraw_amount: string;
+}
+// boost farm related function end
 export const classificationOfCoins = {
   stablecoin: ['USDT', 'USDC', 'DAI', 'nUSDO', 'cUSD', 'USN'],
   near_ecosystem: [
@@ -537,4 +813,9 @@ export const defaultConfig = {
 
 export const frontConfig = {
   '79': '98',
+};
+export const farmClassification = {
+  starPool: [7],
+  nearPool: [545],
+  stablePool: [79],
 };

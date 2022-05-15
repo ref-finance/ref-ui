@@ -29,6 +29,10 @@ module.exports = {
         darkGradientBg: 'linear-gradient(180deg, #1D2932 0%, #001320 100%)',
         darkGradientHoverBg:
           'linear-gradient(180deg, #24313A 0%, #14212B 100%)',
+        switchButtonGradientBg:
+          'linear-gradient(90deg, #00C6A2 24.14%, #008B72 72.41%)',
+        unLockedbg: 'linear-gradient(180deg, #FFB36D 0%, #D27E00 100%)',
+        boostBg: 'linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 100%)'
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
@@ -99,6 +103,25 @@ module.exports = {
         lightGreenColor: '#70d44b',
         tabChosen: '#4A5862',
         liqBtn: '#141D24',
+        farmV2TabColor: '#4A5862',
+        farmV2SmallTabCOlor: '#1A2329',
+        farmV2BoxBg: '#141D24',
+        farmV2WithDrawBg: '#151E29',
+        farmV2TabColor: '#4A5862',
+        farmV2SmallTabCOlor: '#1A2329',
+        farmV2BoxBg: '#141D24',
+        farmV2WithDrawBg: '#151E29',
+        maxBorderColor: '#373F45',
+        darkBg: '#111518',
+        lightBg: '#C4C4C4',
+        lockedBg: '#323C43',
+        redwarningColor: '#FF7575',
+        deepBlue: '#4627FF',
+        searchBgColor:'rgba(29, 41, 50, 0.5)',
+        lightGreyColor: '#92877D',
+        dashBorderColor: '#6e7c85',
+        freeTitleBg: '#404F59',
+        lockTitleBg:'#0094FF'
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

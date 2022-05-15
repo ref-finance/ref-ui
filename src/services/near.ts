@@ -25,6 +25,8 @@ export const STABLE_POOL_USN_ID = config.STABLE_POOL_USN_ID;
 
 export const STABLE_TOKEN_USN_IDS = config.STABLE_TOKEN_USN_IDS;
 
+export const REF_FARM_BOOST_CONTRACT_ID = config.REF_FARM_BOOST_CONTRACT_ID;
+
 export const isStableToken = (id: string) => {
   return (
     STABLE_TOKEN_IDS.includes(id) ||
@@ -277,4 +279,31 @@ export const refContractViewFunction = ({
   args,
 }: RefContractViewFunctionOptions) => {
   return wallet.account().viewFunction(XREF_TOKEN_ID, methodName, args);
+};
+
+export const refFarmBoostViewFunction = ({
+  methodName,
+  args,
+}: RefFiViewFunctionOptions) => {
+  return wallet
+    .account()
+    .viewFunction(REF_FARM_BOOST_CONTRACT_ID, methodName, args);
+};
+export const refFarmBoostFunctionCall = ({
+  methodName,
+  args,
+  gas,
+  amount,
+}: RefFiFunctionCallOptions) => {
+  const { wallet, wallet_type } = getCurrentWallet();
+
+  return wallet
+    .account()
+    .functionCall(
+      REF_FARM_BOOST_CONTRACT_ID,
+      methodName,
+      args,
+      getGas(gas),
+      getAmount(amount)
+    );
 };

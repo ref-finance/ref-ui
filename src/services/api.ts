@@ -22,6 +22,7 @@ export interface PoolRPCView {
   token0_ref_price: string;
   share: string;
   decimalsHandled?: boolean;
+  tokens_meta_data?: any[];
 }
 
 export const parsePoolView = (pool: any): PoolRPCView => ({

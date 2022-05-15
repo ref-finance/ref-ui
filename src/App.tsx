@@ -64,6 +64,7 @@ import {
 import { StableSwapPageEntry } from '~pages/stable/StableSwapEntry';
 import { senderSignedInToast } from '~components/layout/senderSignInPopUp';
 import { getAllTriPools } from './services/aurora/aurora';
+import FarmsBoosterPage from './pages/farms/FarmsBoostPage';
 
 import {
   getSenderLoginRes,
@@ -229,7 +230,7 @@ function App() {
       <Router>
         <div className="relative min-h-screen pb-24 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
           <BgShapeLeftTop />
-          <BgShapeCenter />
+          {/* <BgShapeCenter /> */}
           <BgShapeCenterSmall />
           <NavigationBar />
           <ToastContainer
@@ -268,6 +269,10 @@ function App() {
 
             <Route path="/xref" component={AutoHeight(XrefPage)} />
             <Route path="/risks" component={AutoHeight(RiskPage)} />
+            <Route
+              path="/farmsBoost/:id?"
+              component={AutoHeight(FarmsBoosterPage)}
+            />
             <Route path="/" component={AutoHeight(SwapPage)} />
           </Switch>
           <Footer />
