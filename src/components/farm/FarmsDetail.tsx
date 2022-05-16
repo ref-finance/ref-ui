@@ -1039,7 +1039,7 @@ function UserStakeBlock(props: {
     }
   }
   function displayBooster() {
-    const rate = Number(xlocked_amount) / Number(lockAmount);
+    const rate = new BigNumber(xlocked_amount).dividedBy(lockAmount).toFixed();
     return toPrecision(rate.toString(), 2);
   }
   function displayDuration() {

@@ -270,13 +270,13 @@ export function CalcEle(props: {
           tokenTemp.decimals,
           farm.terms.daily_reward
         );
-        const seedAmount = toReadableNumber(DECIMALS, seed.total_seed_amount);
-        const totalStake = new BigNumber(lpTokenNum)
-          .plus(seedAmount)
+        const seedPower = toReadableNumber(DECIMALS, seed.total_seed_power);
+        const totalStakePower = new BigNumber(lpTokenNum)
+          .plus(seedPower)
           .toString();
         const day = selecteDate.day;
         const perDayAndLp = new BigNumber(dailyReward).dividedBy(
-          new BigNumber(totalStake)
+          new BigNumber(totalStakePower)
         );
 
         let rewardTokenNum;
@@ -335,7 +335,7 @@ export function CalcEle(props: {
     rewardsTemp.tokenList = Object.values(tokenMap);
     setRewardData(rewardsTemp);
     // get ROI
-    if (lpTokenNum && lpTokenNum !== '0') {
+    if (lpTokenNumAmount && lpTokenNumAmount !== '0') {
       const { shares_total_supply, tvl } = pool;
       const DECIMALS = new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())
         ? LP_STABLE_TOKEN_DECIMALS
@@ -343,7 +343,7 @@ export function CalcEle(props: {
       const totalShares = Number(
         toReadableNumber(DECIMALS, shares_total_supply)
       );
-      const shareUsd = new BigNumber(lpTokenNum)
+      const shareUsd = new BigNumber(lpTokenNumAmount)
         .multipliedBy(tvl)
         .dividedBy(totalShares)
         .toFixed();
@@ -416,7 +416,7 @@ export function CalcEle(props: {
     });
     setFreeDateList(free_date_list);
     setDateList(free_date_list);
-    setSelecteDate(free_date_list[0]);
+    setSelecteDate(free_date_list[1]);
     // get lock date list
     const lock_month_list = [1, 3, 6, 12];
     const lock_month_detail_list = lock_month_list.map(
