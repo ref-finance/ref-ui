@@ -51,7 +51,10 @@ import { usePool } from '~state/pool';
 import { ModalClose, Calc } from '~components/icon';
 import { unWrapToken, TokenMetadata } from '../../services/ft-contract';
 import { addLiquidityToPool, Pool } from '~services/pool';
-import { useWalletTokenBalances } from '../../state/token';
+import {
+  useWalletTokenBalances,
+  useDepositableBalance,
+} from '../../state/token';
 import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 import { useTokens, getDepositableBalance } from '~state/token';
 import { scientificNotationToString } from '../../utils/numbers';
@@ -382,15 +385,15 @@ function CommonModal(props: any) {
   );
 }
 function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
-  let { pool, tokens } = props;
-  tokens = tokens.map((token) => unWrapToken(token, true));
+  const { pool, tokens } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [messageId, setMessageId] = useState<string>('add_liquidity');
   const [defaultMessage, setDefaultMessage] = useState<string>('Add Liquidity');
-  const balances = useWalletTokenBalances(
-    tokens.map((token) => unWrapToken(token).id)
-  );
+  const balances = useWalletTokenBalances(tokens.map((token) => token.id));
+
+  const nearBalance = useDepositableBalance('NEAR');
+
   const [error, setError] = useState<Error>();
   const intl = useIntl();
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
@@ -404,7 +407,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
 
   if (!balances) return null;
 
-  balances[WRAP_NEAR_CONTRACT_ID] = balances['NEAR'];
+  balances[WRAP_NEAR_CONTRACT_ID] = nearBalance;
 
   const changeFirstTokenAmount = (amount: string) => {
     setError(null);
@@ -691,9 +694,9 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
   const getMax = function (id: string, amount: string) {
     return id !== WRAP_NEAR_CONTRACT_ID
       ? amount
-      : Number(amount) <= 1
+      : Number(amount) <= 0.5
       ? '0'
-      : String(Number(amount) - 1);
+      : String(Number(amount) - 0.5);
   };
 
   return (
