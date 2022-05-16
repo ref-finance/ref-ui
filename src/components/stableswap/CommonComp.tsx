@@ -41,7 +41,7 @@ export const Images = ({ tokens }: { tokens: TokenMetadata[] }) => {
             <img
               key={id}
               className={
-                'inline-block h-10 w-10 rounded-full border border-gradientFromHover -ml-1 '
+                'inline-block h-10 w-10 rounded-full border border-gradientFromHover -ml-1 bg-cardBg'
               }
               src={icon}
             />
@@ -50,7 +50,7 @@ export const Images = ({ tokens }: { tokens: TokenMetadata[] }) => {
           <div
             key={id}
             className={
-              'inline-block h-10 w-10 rounded-full bg-cardBg border border-gradientFromHover -ml-1'
+              'inline-block h-10 w-10 rounded-full bg-cardBg border border-gradientFromHover -ml-1 '
             }
           ></div>
         );
