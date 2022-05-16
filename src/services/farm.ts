@@ -446,6 +446,12 @@ export const claimAndWithDrawReward = async (
   }
   return executeFarmMultipleTransactions(transactions);
 };
+export const get_seed_info = async (seed_id: string): Promise<any> => {
+  return refFarmViewFunction({
+    methodName: 'get_seed_info',
+    args: { seed_id },
+  });
+};
 export const classificationOfCoins = {
   stablecoin: ['USDT', 'USDC', 'DAI', 'nUSDO', 'cUSD', 'USN'],
   near_ecosystem: [

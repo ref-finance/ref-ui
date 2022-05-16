@@ -42,6 +42,7 @@ import {
   incentiveLpTokenConfig,
   defaultConfig,
   frontConfig,
+  get_seed_info,
 } from '~services/farm';
 import {
   stake,
@@ -85,7 +86,6 @@ import getConfig from '~services/config';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { scientificNotationToString } from '../../utils/numbers';
 import { getPrice } from '~services/xref';
-import { useDayVolume } from '~state/pool';
 import { get24hVolume } from '~services/indexer';
 import { PoolRPCView } from '~services/api';
 
@@ -2142,6 +2142,7 @@ function ActionModal(
   const [amount, setAmount] = useState<string>('');
   const [showTip, setShowTip] = useState<boolean>(false);
   const [showCalc, setShowCalc] = useState(false);
+  const [min_deposit, set_min_deposit] = useState('0');
   const cardWidth = isMobile() ? '90vw' : '30vw';
   const tokens = useTokens(farm?.tokenIds) || [];
   const [displayTokenData, setDisplayTokenData] = useState<Record<string, any>>(
@@ -2190,6 +2191,12 @@ function ActionModal(
       symbols: symbols.join('-'),
     });
   }, [tokens.length > 0 && tokens]);
+  useEffect(() => {
+    get_seed_info(farm.seed_id).then((result) => {
+      const { min_deposit } = result;
+      set_min_deposit(min_deposit);
+    });
+  }, []);
   function isEnded(farmsData: FarmInfo[]) {
     let ended: boolean = true;
     for (let i = 0; i < farmsData.length; i++) {
@@ -2239,7 +2246,8 @@ function ActionModal(
   }
   function stakeCheckFun(amount: string) {
     if (type == 'stake') {
-      const LIMITAOMUNT = '1000000000000000000';
+      const LIMITAOMUNT =
+        Number(min_deposit) > 0 ? min_deposit : '1000000000000000000';
       let value;
       if (new Set(STABLE_POOL_IDS || []).has(farm.lpTokenId?.toString())) {
         value = toNonDivisibleNumber(LP_STABLE_TOKEN_DECIMALS, amount);
