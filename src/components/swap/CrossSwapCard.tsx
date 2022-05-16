@@ -9,7 +9,7 @@ import React, {
 import { useLocation, useHistory } from 'react-router-dom';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
-import { useTokenBalances } from '../../state/token';
+import { useTokenBalances, useDepositableBalance } from '../../state/token';
 import { useSwap, useCrossSwap } from '../../state/swap';
 import {
   calculateExchangeRate,
@@ -67,6 +67,7 @@ import { getTokenPriceList } from '../../services/indexer';
 import { TokenCardOut, CrossSwapTokens } from '../forms/TokenAmount';
 import { CrossSwapFormWrap } from '../forms/SwapFormWrap';
 import { TriIcon, RefIcon, WannaIconDark } from '../icon/DexIcon';
+import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -386,6 +387,8 @@ export default function CrossSwapCard(props: {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
 
+  const nearBalance = useDepositableBalance('NEAR');
+
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();
 
@@ -430,14 +433,22 @@ export default function CrossSwapCard(props: {
     const tokenInId = tokenIn.id;
     const tokenOutId = tokenOut.id;
     ftGetBalance(tokenInId).then((available: string) =>
-      setTokenInBalanceFromNear(toReadableNumber(tokenIn?.decimals, available))
+      setTokenInBalanceFromNear(
+        toReadableNumber(
+          tokenIn?.decimals,
+          tokenInId === WRAP_NEAR_CONTRACT_ID ? nearBalance : available
+        )
+      )
     );
     ftGetBalance(tokenOutId).then((available: string) =>
       setTokenOutBalanceFromNear(
-        toReadableNumber(tokenOut?.decimals, available)
+        toReadableNumber(
+          tokenOut?.decimals,
+          tokenOutId === WRAP_NEAR_CONTRACT_ID ? nearBalance : available
+        )
       )
     );
-  }, [tokenIn, tokenOut, isSignedIn]);
+  }, [tokenIn, tokenOut, isSignedIn, nearBalance]);
 
   const {
     tokenOutAmount,

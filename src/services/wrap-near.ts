@@ -52,6 +52,22 @@ export const nearDeposit = async (amount: string) => {
   return executeMultipleTransactions(transactions);
 };
 
+export const nearDepositTransaction = (amount: string) => {
+  const transaction: Transaction = {
+    receiverId: WRAP_NEAR_CONTRACT_ID,
+    functionCalls: [
+      {
+        methodName: 'near_deposit',
+        args: {},
+        gas: '50000000000000',
+        amount,
+      },
+    ],
+  };
+
+  return transaction;
+};
+
 export const nearWithdraw = async (amount: string) => {
   const transactions: Transaction[] = [
     {
@@ -67,6 +83,20 @@ export const nearWithdraw = async (amount: string) => {
   ];
 
   return executeMultipleTransactions(transactions);
+};
+
+export const nearWithdrawTransaction = (amount: string) => {
+  const transaction: Transaction = {
+    receiverId: WRAP_NEAR_CONTRACT_ID,
+    functionCalls: [
+      {
+        methodName: 'near_withdraw',
+        args: { amount: utils.format.parseNearAmount(amount) },
+        amount: ONE_YOCTO_NEAR,
+      },
+    ],
+  };
+  return transaction;
 };
 
 export const wrapNear = async (amount: string) => {

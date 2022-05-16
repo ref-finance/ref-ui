@@ -40,6 +40,12 @@ import moment from 'moment';
 import { getAllTriPools } from './aurora/aurora';
 import { ALL_STABLE_POOL_IDS, isStablePool } from './near';
 import { filterBlackListPools } from './near';
+import { nearWithdrawTransaction, nearMetadata } from './wrap-near';
+import {
+  WRAP_NEAR_CONTRACT_ID,
+  wrapNear,
+  nearDepositTransaction,
+} from './wrap-near';
 const explorerType = getExplorer();
 export const DEFAULT_PAGE_LIMIT = 100;
 const getStablePoolKey = (id: string) => `STABLE_POOL_VALUE_${id}`;
@@ -299,6 +305,8 @@ export const getPoolsByTokens = async ({
     let triPools;
     if (crossSwap) {
       triPools = await getAllTriPools();
+
+      console.log(triPools, 'tripools');
     }
 
     filtered_pools = pools
@@ -396,11 +404,13 @@ export const addLiquidityToPool = async ({
   id,
   tokenAmounts,
 }: AddLiquidityToPoolOptions) => {
+  // const transactions:Transaction[] = []
+
   const amounts = tokenAmounts.map(({ token, amount }) =>
     toNonDivisibleNumber(token.decimals, amount)
   );
 
-  const depositTransactions = await getDepositTransactions({
+  const transactions = await getDepositTransactions({
     tokens: tokenAmounts.map(({ token, amount }) => token),
     amounts: tokenAmounts.map(({ token, amount }) => amount),
   });
@@ -413,22 +423,20 @@ export const addLiquidityToPool = async ({
     },
   ];
 
-  // const needDeposit = await checkTokenNeedsStorageDeposit();
-  // if (needDeposit) {
-  //   actions.unshift(
-  //     storageDepositAction({
-  //       amount: needDeposit,
-  //     })
-  //   );
-  // }
+  transactions.push({
+    receiverId: REF_FI_CONTRACT_ID,
+    functionCalls: [...actions],
+  });
 
-  return executeMultipleTransactions([
-    ...depositTransactions,
-    {
-      receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [...actions],
-    },
-  ]);
+  const wNearTokenAmount = tokenAmounts.find(
+    (TA) => TA.token.id === WRAP_NEAR_CONTRACT_ID
+  );
+
+  if (wNearTokenAmount) {
+    transactions.unshift(nearDepositTransaction(wNearTokenAmount.amount));
+  }
+
+  return executeMultipleTransactions(transactions);
 };
 
 export const predictLiquidityShares = async (
@@ -567,6 +575,17 @@ export const removeLiquidityFromPool = async ({
       receiverId: REF_FI_CONTRACT_ID,
       functionCalls: withdrawActionsFireFox,
     });
+  }
+
+  if (tokenIds.includes(WRAP_NEAR_CONTRACT_ID)) {
+    transactions.push(
+      nearWithdrawTransaction(
+        toReadableNumber(
+          nearMetadata.decimals,
+          minimumAmounts[WRAP_NEAR_CONTRACT_ID]
+        )
+      )
+    );
   }
 
   return executeMultipleTransactions(transactions);

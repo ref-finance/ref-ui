@@ -103,7 +103,10 @@ import { WarnTriangle } from '~components/icon/SwapRefresh';
 import { RefIcon } from '~components/icon/Common';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 
-import { useWalletTokenBalances } from '../../state/token';
+import {
+  useWalletTokenBalances,
+  useDepositableBalance,
+} from '../../state/token';
 import { SmallWallet } from '../../components/icon/SmallWallet';
 import { scientificNotationToString } from '../../utils/numbers';
 import { isNotStablePool } from '../../services/pool';
@@ -119,6 +122,7 @@ export const REF_FI_PRE_LIQUIDITY_ID_KEY = 'REF_FI_PRE_LIQUIDITY_ID_VALUE';
 import { TokenLinks } from '~components/tokens/Token';
 import { OutLinkIcon } from '~components/icon/Common';
 import ReactTooltip from 'react-tooltip';
+import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 interface ParamTypes {
   id: string;
 }
@@ -201,9 +205,9 @@ export function AddLiquidityModal(
   const [messageId, setMessageId] = useState<string>('add_liquidity');
   const [defaultMessage, setDefaultMessage] = useState<string>('Add Liquidity');
   const balances = useWalletTokenBalances(tokens.map((token) => token.id));
+  const nearBalance = useDepositableBalance('NEAR');
   const [error, setError] = useState<Error>();
   const intl = useIntl();
-  const history = useHistory();
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [canDeposit, setCanDeposit] = useState<boolean>(false);
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
@@ -215,6 +219,8 @@ export function AddLiquidityModal(
   const isSignedIn = globalState.isSignedIn;
 
   if (!balances) return null;
+
+  balances[WRAP_NEAR_CONTRACT_ID] = nearBalance.toString();
 
   const changeFirstTokenAmount = (amount: string) => {
     setError(null);
@@ -488,18 +494,6 @@ export function AddLiquidityModal(
                 defaultMessage="Add Liquidity"
               />
             </div>
-            {/* <p className="text-xs text-primaryText">
-              <a
-                className="underline cursor-pointer"
-                onClick={() => {
-                  window.open('/account');
-                }}
-              >
-                <FormattedMessage id="deposit"></FormattedMessage>
-              </a>
-              &nbsp;
-              <FormattedMessage id="deposit_into_ref_account" />
-            </p> */}
           </div>
           <div
             className="ml-2 cursor-pointer p-1"
@@ -667,14 +661,6 @@ export function AddLiquidityModal(
                 {modal?.token?.symbol}！
               </label>
             </div>
-            {/* <SolidButton
-              className="focus:outline-none px-3 py-1.5 text-sm"
-              onClick={() => {
-                setVisible(true);
-              }}
-            >
-              <FormattedMessage id="deposit" />
-            </SolidButton> */}
           </div>
         ) : null}
         <div className="flex justify-between text-primaryText text-sm my-6">
@@ -719,8 +705,6 @@ export function RemoveLiquidityModal(
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-
-  const { wallet } = getCurrentWallet();
 
   function submit() {
     const amountBN = new BigNumber(amount?.toString());

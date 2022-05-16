@@ -1691,6 +1691,7 @@ export function AccountPage() {
   const auroraAddress = auroraAddr(getCurrentWallet().wallet.getAccountId());
 
   const userTokens = useUserRegisteredTokensAllAndNearBalance(isSignedIn);
+
   const balances = useTokenBalances(); // inner account balance
 
   const auroaBalances = useAuroraBalancesNearMapping(auroraAddress);

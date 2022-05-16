@@ -30,7 +30,7 @@ import {
 } from '../utils/numbers';
 import { toRealSymbol } from '../utils/token';
 import getConfig from '../services/config';
-import { nearMetadata } from '../services/wrap-near';
+import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 import { Pool } from '../services/pool';
 import {
   getBatchTokenNearAcounts,
@@ -97,6 +97,7 @@ export const useTokens = (ids: string[] = [], curTokens?: TokenMetadata[]) => {
 
   return tokens;
 };
+
 export const useTriTokens = () => {
   const [triTokens, setTriTokens] = useState<TokenMetadata[]>();
   const auroraTokens = defaultTokenList.tokens;
@@ -224,7 +225,7 @@ export const useUserRegisteredTokensAllAndNearBalance = (
           })
         );
         const tokenMetadataPromise = Promise.all(
-          tokenList.map((tokenId) => ftGetTokenMetadata(tokenId))
+          tokenList.map((tokenId) => ftGetTokenMetadata(tokenId, true))
         );
         return Promise.all([tokenMetadataPromise, walletBalancePromise]);
       })
@@ -331,7 +332,10 @@ export const useTokensData = (
       for (let i = 0; i < tokens.length; i++) {
         const index = i;
         const item = tokens[index];
-        getDepositableBalance(item.id, item.decimals)
+        getDepositableBalance(
+          item.id === WRAP_NEAR_CONTRACT_ID ? 'NEAR' : item.id,
+          item.decimals
+        )
           .then((max: string) => {
             if (currentFetchId !== fetchIdRef.current) {
               throw new Error();

@@ -9,7 +9,7 @@ import React, {
 import { useLocation, useHistory } from 'react-router-dom';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
-import { useTokenBalances } from '../../state/token';
+import { useTokenBalances, useDepositableBalance } from '../../state/token';
 import { useSwap } from '../../state/swap';
 import {
   calculateExchangeRate,
@@ -41,12 +41,7 @@ import {
   SolidButton,
   ConnectToNearBtn,
 } from '../../components/button/Button';
-import {
-  BTCIDS,
-  BTC_STABLE_POOL_ID,
-  STABLE_TOKEN_IDS,
-  wallet,
-} from '../../services/near';
+import { STABLE_TOKEN_IDS, wallet } from '../../services/near';
 import SwapFormWrap from '../forms/SwapFormWrap';
 import SwapTip from '../../components/forms/SwapTip';
 import { WarnTriangle, ErrorTriangle } from '../../components/icon/SwapRefresh';
@@ -71,12 +66,9 @@ import { getPoolAllocationPercents, percentLess } from '../../utils/numbers';
 import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
 import { SWAP_MODE } from '../../pages/SwapPage';
-import {
-  isStableToken,
-  ALL_STABLE_POOL_IDS,
-  AllStableTokenIds,
-} from '../../services/near';
+import { isStableToken } from '../../services/near';
 import TokenReserves from '../stableswap/TokenReserves';
+import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -516,8 +508,6 @@ export default function SwapCard(props: {
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
 
-  const [reservesType, setReservesType] = useState<string>('USD');
-
   const [supportLedger, setSupportLedger] = useState(
     localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
   );
@@ -547,6 +537,9 @@ export default function SwapCard(props: {
   const [urlTokenIn, urlTokenOut, urlSlippageTolerance] = decodeURIComponent(
     location.hash.slice(1)
   ).split(TOKEN_URL_SEPARATOR);
+
+  const nearBalance = useDepositableBalance('NEAR');
+
   const [slippageToleranceNormal, setSlippageToleranceNormal] =
     useState<number>(
       Number(localStorage.getItem(SWAP_SLIPPAGE_KEY) || urlSlippageTolerance) ||
@@ -563,14 +556,6 @@ export default function SwapCard(props: {
   useEffect(() => {
     getTokenPriceList().then(setTokenPriceList);
   }, []);
-
-  useEffect(() => {
-    if (!tokenIn || !tokenOut) return;
-    if (BTCIDS.includes(tokenIn.id) && BTCIDS.includes(tokenOut.id))
-      setReservesType('BTC');
-    else if (!BTCIDS.includes(tokenIn.id) && !BTCIDS.includes(tokenOut.id))
-      setReservesType('USD');
-  }, [tokenIn, tokenOut]);
 
   useEffect(() => {
     if (allTokens) {
@@ -647,7 +632,10 @@ export default function SwapCard(props: {
           if (isSignedIn) {
             ftGetBalance(tokenInId).then((available: string) =>
               setTokenInBalanceFromNear(
-                toReadableNumber(tokenIn?.decimals, available)
+                toReadableNumber(
+                  tokenIn?.decimals,
+                  tokenIn.id === WRAP_NEAR_CONTRACT_ID ? nearBalance : available
+                )
               )
             );
           }
@@ -659,14 +647,19 @@ export default function SwapCard(props: {
           if (isSignedIn) {
             ftGetBalance(tokenOutId).then((available: string) =>
               setTokenOutBalanceFromNear(
-                toReadableNumber(tokenOut?.decimals, available)
+                toReadableNumber(
+                  tokenOut?.decimals,
+                  tokenOut.id === WRAP_NEAR_CONTRACT_ID
+                    ? nearBalance
+                    : available
+                )
               )
             );
           }
         }
       }
     }
-  }, [tokenIn, tokenOut, useNearBalance, isSignedIn]);
+  }, [tokenIn, tokenOut, useNearBalance, isSignedIn, nearBalance]);
 
   const slippageTolerance =
     swapMode === SWAP_MODE.NORMAL
@@ -718,7 +711,7 @@ export default function SwapCard(props: {
           swapsToDo[0].noFeeAmountOut
         );
       } else return '0';
-    } catch (err) {
+    } catch {
       return '0';
     }
   }, [tokenOutAmount, swapsToDo]);
@@ -851,22 +844,6 @@ export default function SwapCard(props: {
           }}
           tokenPriceList={tokenPriceList}
           isError={tokenIn?.id === tokenOut?.id}
-          postSelected={tokenOut}
-          onSelectPost={(token) => {
-            localStorage.setItem(
-              swapMode === SWAP_MODE.NORMAL
-                ? SWAP_OUT_KEY
-                : STABLE_SWAP_OUT_KEY,
-              token.id
-            );
-            swapMode === SWAP_MODE.NORMAL &&
-              history.replace(
-                `#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`
-              );
-            setTokenOut(token);
-            setCanSwap(false);
-            setTokenOutBalanceFromNear(token?.near?.toString());
-          }}
         />
         <div
           className="flex items-center justify-center border-t mt-12"
@@ -925,7 +902,6 @@ export default function SwapCard(props: {
           }}
           isError={tokenIn?.id === tokenOut?.id}
           tokenPriceList={tokenPriceList}
-          preSelected={tokenIn}
         />
         <DetailView
           pools={pools}
@@ -961,22 +937,8 @@ export default function SwapCard(props: {
       />
       {swapMode === SWAP_MODE.STABLE ? (
         <TokenReserves
-          tokens={AllStableTokenIds.map((id) =>
-            allTokens.find((token) => token.id === id)
-          )
-            .filter((token) => isStableToken(token.id))
-            .filter((token) => {
-              return reservesType === 'BTC'
-                ? BTCIDS.includes(token.id)
-                : !BTCIDS.includes(token.id);
-            })}
-          pools={stablePools.filter((p) => {
-            return reservesType === 'BTC'
-              ? p.id.toString() === BTC_STABLE_POOL_ID
-              : p.id.toString() !== BTC_STABLE_POOL_ID;
-          })}
-          type={reservesType}
-          setType={setReservesType}
+          tokens={allTokens.filter((token) => isStableToken(token.id))}
+          pools={stablePools}
           swapPage
         />
       ) : null}

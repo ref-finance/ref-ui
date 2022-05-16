@@ -9,7 +9,7 @@ import {
   wallet,
 } from '../services/near';
 import { ftGetStorageBalance, TokenMetadata } from '../services/ft-contract';
-import { toNonDivisibleNumber } from '../utils/numbers';
+import { toNonDivisibleNumber, toReadableNumber } from '../utils/numbers';
 import {
   ACCOUNT_MIN_STORAGE_AMOUNT,
   currentStorageBalanceOfFarm,
@@ -25,6 +25,7 @@ import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 import { utils } from 'near-api-js';
 import getConfig from '../services/config';
 import { getCurrentWallet } from '../utils/sender-wallet';
+import { nearWithdrawTransaction, nearMetadata } from './wrap-near';
 const config = getConfig();
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
 
@@ -240,5 +241,17 @@ export const withdrawAllReward = async (
     receiverId: REF_FARM_CONTRACT_ID,
     functionCalls,
   });
+
+  if (Object.keys(checkedList).includes(WRAP_NEAR_CONTRACT_ID)) {
+    transactions.push(
+      nearWithdrawTransaction(
+        toReadableNumber(
+          nearMetadata.decimals,
+          checkedList[WRAP_NEAR_CONTRACT_ID].value
+        )
+      )
+    );
+  }
+
   return executeFarmMultipleTransactions(transactions);
 };
