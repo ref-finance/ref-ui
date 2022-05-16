@@ -57,7 +57,7 @@ import {
 } from '../../state/token';
 import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 import { useTokens, getDepositableBalance } from '~state/token';
-import { scientificNotationToString } from '../../utils/numbers';
+import { scientificNotationToString, divide } from '../../utils/numbers';
 import { NewFarmInputAmount } from '~components/forms/InputAmount';
 import Alert from '~components/alert/Alert';
 import { mftGetBalance } from '~services/mft-contract';
@@ -71,6 +71,10 @@ import { CalcEle } from '~components/farm/CalcModelBooster';
 import ReactTooltip from 'react-tooltip';
 import QuestionMark from '~components/farm/QuestionMark';
 import { wallet } from '~services/near';
+import { ExternalLinkIcon } from '~components/icon/Risk';
+import { FaAngleUp, FaAngleDown } from 'react-icons/fa';
+import { useDayVolume } from '../../state/pool';
+import { getPool } from '~services/indexer';
 const ONLY_ZEROS = /^0*\.?0*$/;
 const { STABLE_POOL_IDS, FARM_LOCK_SWITCH } = getConfig();
 export default function FarmsDetail(props: {
@@ -350,6 +354,7 @@ function CommonModal(props: any) {
   const { isOpen, onRequestClose, title } = props;
   const cardWidth = isMobile() ? '90vw' : '30vw';
   const cardHeight = isMobile() ? '90vh' : '80vh';
+
   return (
     <Modal
       isOpen={isOpen}
@@ -358,10 +363,14 @@ function CommonModal(props: any) {
         overlay: {
           backdropFilter: 'blur(15px)',
           WebkitBackdropFilter: 'blur(15px)',
+          overflow: 'auto',
         },
         content: {
           outline: 'none',
-          transform: 'translate(-50%, -50%)',
+          transform:
+            title.trim() === 'add_liquidity' && !isMobile()
+              ? 'translate(-50%, -70%)'
+              : 'translate(-50%, -50%)',
         },
       }}
     >
@@ -384,6 +393,165 @@ function CommonModal(props: any) {
     </Modal>
   );
 }
+
+function DetailIcons({ tokens }: { tokens: TokenMetadata[] }) {
+  return (
+    <div className="flex items-center">
+      {tokens.map((token) => {
+        return token.icon ? (
+          <img
+            src={token.icon}
+            className="w-4 h-4 rounded-full border border-gradientFrom"
+            alt=""
+          />
+        ) : (
+          <div className="w-4 h-4 rounded-full border border-gradientFrom bg-cardBg"></div>
+        );
+      })}
+    </div>
+  );
+}
+
+function DetailSymbol({
+  tokens,
+  id,
+}: {
+  tokens: TokenMetadata[];
+  id: string | number;
+}) {
+  return (
+    <div className="text-xs text-white flex items-center">
+      <span className="pl-2">
+        {tokens.map((token) => toRealSymbol(token.symbol)).join('-')}
+      </span>
+
+      <span
+        className="cursor-pointer pl-2 py-0.5 text-gradientFrom"
+        onClick={() => window.open(`/pool/${id}`, '_blank')}
+      >
+        <ExternalLinkIcon />
+      </span>
+    </div>
+  );
+}
+
+function PoolDetailCard({
+  tokens,
+  pool,
+}: {
+  tokens: TokenMetadata[];
+  pool: Pool;
+}) {
+  const [showDetail, setShowDetail] = useState(true);
+
+  const [poolTVL, setPoolTVl] = useState<string>('');
+  const h24Volume = useDayVolume(pool.id.toString());
+
+  useEffect(() => {
+    getPool(pool.id.toString()).then((pool) => {
+      setPoolTVl(pool.tvl.toString());
+    });
+  }, []);
+
+  const DetailRow = ({
+    value,
+    valueTitle,
+    title,
+  }: {
+    value: JSX.Element | string;
+    valueTitle?: string;
+    title: JSX.Element | string;
+  }) => {
+    return (
+      <div className="flex items-center justify-between pt-4">
+        <div className="text-farmText">{title}</div>
+        <div className="text-white" title={valueTitle}>
+          {value}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="bg-cardBg rounded-2xl p-6 text-xs w-full right-0">
+      <div className="detail-header flex items-center justify-between">
+        <div className="flex items-center">
+          <DetailIcons tokens={tokens} />
+          <DetailSymbol tokens={tokens} id={pool.id} />
+        </div>
+        <div
+          className="cursor-pointer text-gradientFrom flex items-center"
+          onClick={() => setShowDetail(!showDetail)}
+        >
+          <span>
+            <FormattedMessage id="pool_stats" defaultMessage="Pool Stats" />
+          </span>
+          <span>
+            <div className="pl-1">
+              {showDetail ? <FaAngleUp /> : <FaAngleDown />}
+            </div>
+          </span>
+        </div>
+      </div>
+      {!showDetail ? null : (
+        <>
+          {' '}
+          <DetailRow
+            title={
+              <FormattedMessage
+                id="TVL"
+                defaultMessage={'TVL'}
+              ></FormattedMessage>
+            }
+            value={`$${toInternationalCurrencySystem(poolTVL || '0', 2)}`}
+            valueTitle={poolTVL}
+          />
+          <DetailRow
+            title={toRealSymbol(tokens[0].symbol)}
+            value={toInternationalCurrencySystem(
+              toReadableNumber(tokens[0].decimals, pool.supplies[tokens[0].id]),
+              2
+            )}
+            valueTitle={toReadableNumber(
+              tokens[0].decimals,
+              pool.supplies[tokens[0].id]
+            )}
+          />
+          <DetailRow
+            title={toRealSymbol(tokens[1].symbol)}
+            value={toInternationalCurrencySystem(
+              toReadableNumber(tokens[1].decimals, pool.supplies[tokens[1].id]),
+              2
+            )}
+            valueTitle={toReadableNumber(
+              tokens[1].decimals,
+              pool.supplies[tokens[1].id]
+            )}
+          />
+          <DetailRow
+            title={
+              <FormattedMessage id="h24_volume" defaultMessage="24h volume" />
+            }
+            value={
+              h24Volume ? toInternationalCurrencySystem(h24Volume, 2) : '-'
+            }
+            valueTitle={h24Volume || ''}
+          />
+          <DetailRow
+            title={
+              <FormattedMessage
+                id="Fee"
+                defaultMessage="Fee"
+              ></FormattedMessage>
+            }
+            value={`${pool.fee / 100}%`}
+          />
+        </>
+      )}
+    </div>
+  );
+}
+
 function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
   const { pool, tokens } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
@@ -405,9 +573,9 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
 
-  if (!balances) return null;
+  // if (!balances) return null;
 
-  balances[WRAP_NEAR_CONTRACT_ID] = nearBalance;
+  balances && (balances[WRAP_NEAR_CONTRACT_ID] = nearBalance);
 
   const changeFirstTokenAmount = (amount: string) => {
     setError(null);
@@ -683,12 +851,10 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
       }
     }
 
-    return (
-      <span className="flex items-center">
-        <span>{`${result}`}</span>
-        <span className="text-xs ml-1 text-farmText">{`${displayPercentShare}`}</span>
-      </span>
-    );
+    return {
+      lpTokens: result,
+      shareDisplay: displayPercentShare,
+    };
   };
 
   const getMax = function (id: string, amount: string) {
@@ -700,95 +866,121 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
   };
 
   return (
-    <div className="text-white outline-none">
-      <div className="mt-8">
-        <div className="flex justify-end items-center text-sm text-right mb-1.5 text-farmText">
-          <FormattedMessage id="balance" defaultMessage="Balance" />
-          {':'}
-          <span
-            className="ml-1"
-            title={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
-          >
-            {toPrecision(
-              toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
-              2,
-              true
-            )}
-          </span>
+    <>
+      <div className="text-white outline-none ">
+        <div className="mt-8">
+          <div className="flex justify-end items-center text-sm text-right mb-1.5 text-farmText">
+            <FormattedMessage id="balance" defaultMessage="Balance" />
+            {':'}
+            <span
+              className="ml-1"
+              title={toReadableNumber(
+                tokens[0].decimals,
+                balances?.[tokens[0].id]
+              )}
+            >
+              {toPrecision(
+                toReadableNumber(tokens[0].decimals, balances?.[tokens[0].id]),
+                2,
+                true
+              )}
+            </span>
+          </div>
+          <div className="flex items-center ">
+            <NewFarmInputAmount
+              className="w-full border border-transparent rounded"
+              max={getMax(
+                tokens[0].id,
+                toReadableNumber(tokens[0].decimals, balances?.[tokens[0].id])
+              )}
+              onChangeAmount={changeFirstTokenAmount}
+              value={firstTokenAmount}
+              tokenSymbol={toRealSymbol(tokens[0].symbol)}
+            />
+          </div>
         </div>
-        <div className="flex items-center ">
-          <NewFarmInputAmount
-            className="w-full border border-transparent rounded"
-            max={getMax(
-              tokens[0].id,
-              toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
-            )}
-            onChangeAmount={changeFirstTokenAmount}
-            value={firstTokenAmount}
-            tokenSymbol={toRealSymbol(tokens[0].symbol)}
-          />
-        </div>
-      </div>
 
-      <span className="text-3xl text-primaryText mt-4 pl-6 font-thin block relative top-1">
-        +
-      </span>
+        <div className="my-8">
+          <div className="flex justify-end items-center text-sm text-right mb-1.5 text-farmText">
+            <FormattedMessage id="balance" defaultMessage="Balance" />
+            {':'}
+            <span
+              className="ml-1"
+              title={toReadableNumber(
+                tokens[1].decimals,
+                balances?.[tokens[1].id]
+              )}
+            >
+              {toPrecision(
+                toReadableNumber(tokens[1].decimals, balances?.[tokens[1].id]),
+                2,
+                true
+              )}
+            </span>
+          </div>
+          <div className="flex items-center">
+            <NewFarmInputAmount
+              className="w-full border border-transparent rounded"
+              max={getMax(
+                tokens[1].id,
+                toReadableNumber(tokens[1].decimals, balances?.[tokens[1].id])
+              )}
+              onChangeAmount={changeSecondTokenAmount}
+              value={secondTokenAmount}
+              tokenSymbol={toRealSymbol(tokens[1].symbol)}
+            />
+          </div>
+        </div>
+        {error ? (
+          <div className="flex justify-center mb-8 ">
+            <Alert level="warn" message={error.message} />
+          </div>
+        ) : null}
+        <div className="flex justify-between flex-col bg-black bg-opacity-20 text-farmText text-sm mt-6 mb-4 border border-gradientFrom p-5 rounded-lg">
+          <div className="flex items-center justify-between">
+            <label>
+              <FormattedMessage id="lp_tokens" defaultMessage={'LP tokens'} />
+            </label>
+            <span className="text-white text-sm">
+              {canDeposit ? '-' : shareDisplay().lpTokens}
+            </span>
+          </div>
+          <div className="flex items-center justify-between pt-4">
+            <label>
+              <FormattedMessage id="Share" defaultMessage="Share" />
+            </label>
+            <span className="text-white text-sm">
+              {!shareDisplay().shareDisplay || canDeposit
+                ? '-'
+                : shareDisplay().shareDisplay}
+            </span>
+          </div>
+        </div>
 
-      <div className="mb-8">
-        <div className="flex justify-end items-center text-sm text-right mb-1.5 text-farmText">
-          <FormattedMessage id="balance" defaultMessage="Balance" />
-          {':'}
-          <span
-            className="ml-1"
-            title={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
-          >
-            {toPrecision(
-              toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
-              2,
-              true
-            )}
-          </span>
-        </div>
-        <div className="flex items-center">
-          <NewFarmInputAmount
-            className="w-full border border-transparent rounded"
-            max={getMax(
-              tokens[1].id,
-              toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
-            )}
-            onChangeAmount={changeSecondTokenAmount}
-            value={secondTokenAmount}
-            tokenSymbol={toRealSymbol(tokens[1].symbol)}
-          />
-        </div>
-      </div>
-      {error ? (
-        <div className="flex justify-center mb-8 ">
-          <Alert level="warn" message={error.message} />
-        </div>
-      ) : null}
-      <div className="flex justify-between text-primaryText text-sm mt-6 mb-4">
-        <label>
-          <FormattedMessage id="lp_tokens" defaultMessage={'LP tokens'} />
-        </label>
-        <span className="text-white text-sm">
-          {canDeposit ? '-' : shareDisplay()}
-        </span>
-      </div>
-      {canDeposit ? (
-        <div className="flex items-center rounded-md mb-6 py-3 px-4 xs:px-2 border border-warnColor text-sm">
-          <label className="text-warnColor ">
-            <FormattedMessage id="oops" defaultMessage="Oops" />!
-          </label>
-          <label className="ml-2.5 text-warnColor ">
-            <FormattedMessage id="you_do_not_have_enough" />{' '}
-            {modal?.token?.symbol}.
-          </label>
-        </div>
-      ) : null}
+        {canDeposit ? (
+          <div className="flex items-center rounded-md mb-6 py-3 px-4 xs:px-2 border border-warnColor text-sm">
+            <label className="text-warnColor ">
+              <FormattedMessage id="oops" defaultMessage="Oops" />!
+            </label>
+            <label className="ml-2.5 text-warnColor ">
+              <FormattedMessage id="you_do_not_have_enough" />{' '}
+              {modal?.token?.symbol}.
+            </label>
+          </div>
+        ) : null}
 
-      <ButtonRender />
-    </div>
+        <ButtonRender />
+      </div>
+      <div
+        className="absolute pb-20 w-full right-0"
+        style={{
+          top: '102%',
+          height: '300px',
+        }}
+      >
+        <PoolDetailCard tokens={tokens} pool={pool} />
+      </div>
+    </>
   );
 }
 function UserTotalUnClaimBlock(props: {

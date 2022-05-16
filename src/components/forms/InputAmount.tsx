@@ -170,7 +170,7 @@ export function NewFarmInputAmount({
           />
           <span className="flex items-center">
             <a
-              className={`rounded-lg text-farmText border border-smBtnBorder hover:bg-smBtnBorder items-center px-1 py-0.5 m-auto focus:outline-none text-xs `}
+              className={`rounded-lg text-farmText hover:text-gradientFrom border border-maxBorderColor hover:border-gradientFrom hover:bg-smBtnBorder items-center px-1 py-0.5 m-auto focus:outline-none text-xs `}
               style={{ lineHeight: 'unset', cursor: 'pointer' }}
               onClick={() => handleChange(max)}
             >
