@@ -88,7 +88,6 @@ import { getPrice } from '~services/xref';
 import { useDayVolume } from '~state/pool';
 
 const config = getConfig();
-const STABLE_POOL_ID = config.STABLE_POOL_ID;
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
 const XREF_TOKEN_ID = config.XREF_TOKEN_ID;
 const REF_TOKEN_ID = config.REF_TOKEN_ID;

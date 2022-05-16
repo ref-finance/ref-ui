@@ -60,8 +60,9 @@ import { useHistory, useLocation } from 'react-router-dom';
 import Alert from '~components/alert/Alert';
 import Loading, { BeatLoading } from '~components/layout/Loading';
 import { TokenMetadata } from '../../services/ft-contract';
-
-const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
+import { getPrice } from '~services/xref';
+const { STABLE_POOL_IDS, REF_TOKEN_ID, XREF_TOKEN_ID } = getConfig();
+const DECIMALS_XREF_REF_TRANSTER = 8;
 export default function FarmsHome(props: any) {
   let [user_unWithdraw_rewards, set_user_unWithdraw_rewards] = useState<
     Record<string, string>
@@ -111,11 +112,7 @@ export default function FarmsHome(props: any) {
     !isSignedIn && farmV2Status == 'my' ? 'live' : farmV2Status || 'live'
   );
   const [keyWords, setKeyWords] = useState('');
-  const [searchData, setSearchData] = useState<any>({
-    sort,
-    status,
-    keyWords,
-  });
+  const searchData = { sort, status, keyWords };
   const { getDetailData } = props;
   const location = useLocation();
   const history = useHistory();
@@ -174,6 +171,28 @@ export default function FarmsHome(props: any) {
       list_user_seeds = await list_farmer_seeds();
     }
     setTokenPriceList(tokenPriceList);
+    /** get xref price start */
+    const xrefPrice = await getPrice();
+    const xrefToRefRate = toReadableNumber(
+      DECIMALS_XREF_REF_TRANSTER,
+      xrefPrice
+    );
+    const keyList: any = Object.keys(tokenPriceList);
+    for (let i = 0; i < keyList.length; i++) {
+      const tokenPrice = tokenPriceList[keyList[i]];
+      if (keyList[i] == REF_TOKEN_ID) {
+        const price = new BigNumber(xrefToRefRate)
+          .multipliedBy(tokenPrice.price || 0)
+          .toFixed();
+        tokenPriceList[XREF_TOKEN_ID] = {
+          price,
+          symbol: 'xREF',
+          decimal: tokenPrice.decimal,
+        };
+        break;
+      }
+    }
+    /** get xref price end */
     getFarmDataList({
       list_seeds,
       list_farm,
@@ -216,8 +235,9 @@ export default function FarmsHome(props: any) {
       await Promise.all(promise_farm_meta_data);
       // get seed tvl
       const { tvl, id, shares_total_supply } = pool;
-      const DECIMALS =
-        STABLE_POOL_ID == id ? LP_STABLE_TOKEN_DECIMALS : LP_TOKEN_DECIMALS;
+      const DECIMALS = new Set(STABLE_POOL_IDS || []).has(id?.toString())
+        ? LP_STABLE_TOKEN_DECIMALS
+        : LP_TOKEN_DECIMALS;
       const seedTotalStakedAmount = toReadableNumber(
         DECIMALS,
         total_seed_amount
@@ -394,7 +414,7 @@ export default function FarmsHome(props: any) {
       const { user_seed, pool, seed_id, farmList, unclaimed } = seed;
       const isEnd = farmList[0].status == 'Ended';
       const userStaked = Object.keys(user_seed).length > 0;
-      const userUnclaimed = Object.keys(unclaimed).length > 0; // todo 接口测试 key对应的value是否会为0， 目前按照不为0处理
+      const userUnclaimed = Object.keys(unclaimed).length > 0;
       const { token_symbols } = pool;
       let condition1, condition2;
       if (status == 'my') {
@@ -633,7 +653,7 @@ export default function FarmsHome(props: any) {
                   }}
                 >
                   {value}
-                  <ArrowDown className="ml-2"></ArrowDown>
+                  <ArrowDown></ArrowDown>
                 </div>
               );
             })}
@@ -1478,25 +1498,27 @@ function WithDrawBox(props: {
         </div>
         <div className="bg-farmV2WithDrawBg py-3">
           <div className="flex items-center justify-between border border-greenColor rounded-lg mx-3 px-3.5 py-3 bg-black bg-opacity-20">
-            <span className="text-white text-sm">How to earn more?</span>
+            <span className="text-white text-sm">
+              <FormattedMessage id="how_to_earn_more"></FormattedMessage>
+            </span>
             <div className="flex items-center">
               <span className="flex items-center text-xs text-primaryText mr-2">
                 <label className="flex items-center justify-center w-4 h-4 rounded-full text-white bg-greenColor mr-1.5">
                   1
                 </label>{' '}
-                Withdraw {'>>'}
+                <FormattedMessage id="withdraw" /> {'>>'}
               </span>
               <span className="flex items-center text-xs text-primaryText mr-2">
                 <label className="flex items-center justify-center w-4 h-4 rounded-full text-white bg-greenColor mr-1.5">
                   2
                 </label>{' '}
-                Add Liquidity {'>>'}
+                <FormattedMessage id="add_liquidity" /> {'>>'}
               </span>
               <span className="flex items-center text-xs text-primaryText">
                 <label className="flex items-center justify-center w-4 h-4 rounded-full text-white bg-greenColor mr-1.5">
                   3
                 </label>
-                Stake
+                <FormattedMessage id="stake" />
               </span>
             </div>
           </div>

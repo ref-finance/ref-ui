@@ -69,7 +69,7 @@ import ReactTooltip from 'react-tooltip';
 import QuestionMark from '~components/farm/QuestionMark';
 import { wallet } from '~services/near';
 const ONLY_ZEROS = /^0*\.?0*$/;
-const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
+const { STABLE_POOL_IDS, FARM_LOCK_SWITCH } = getConfig();
 export default function FarmsDetail(props: {
   detailData: Seed;
   emptyDetailData: Function;
@@ -113,11 +113,7 @@ export default function FarmsDetail(props: {
   };
   const goPoolPage = () => {
     const poolId = pool.id;
-    if (poolId == STABLE_POOL_ID) {
-      window.open('/stableswap');
-    } else {
-      window.open(`/pool/${poolId}`);
-    }
+    window.open(`/pool/${poolId}`);
   };
   return (
     <div className={`m-auto lg:w-580px md:w-5/6 xs:w-11/12  xs:-mt-4 md:-mt-4`}>
@@ -201,18 +197,22 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
     getStakeBalance();
   }, []);
   const getStakeBalance = async () => {
-    const poolId = pool.id;
-    const b = await mftGetBalance(getMftTokenId(poolId.toString()));
-    if (STABLE_POOL_ID == poolId) {
-      setLpBalance(toReadableNumber(LP_STABLE_TOKEN_DECIMALS, b));
-    } else {
-      setLpBalance(toReadableNumber(LP_TOKEN_DECIMALS, b));
-    }
-    const isEnded = detailData.farmList[0].status == 'Ended';
-    if (isEnded || !wallet.isSignedIn()) {
+    if (!wallet.isSignedIn()) {
       setShowAddLiquidityEntry(false);
     } else {
-      setShowAddLiquidityEntry(!Number(b));
+      const poolId = pool.id;
+      const b = await mftGetBalance(getMftTokenId(poolId.toString()));
+      if (new Set(STABLE_POOL_IDS || []).has(poolId?.toString())) {
+        setLpBalance(toReadableNumber(LP_STABLE_TOKEN_DECIMALS, b));
+      } else {
+        setLpBalance(toReadableNumber(LP_TOKEN_DECIMALS, b));
+      }
+      const isEnded = detailData.farmList[0].status == 'Ended';
+      if (isEnded) {
+        setShowAddLiquidityEntry(false);
+      } else {
+        setShowAddLiquidityEntry(!Number(b));
+      }
     }
   };
   return (
@@ -270,8 +270,8 @@ function AddLiquidityEntryBar(props: {
   const history = useHistory();
   let addLiquidityButtonLoading;
   function openAddLiquidityModal() {
-    if (poolId == STABLE_POOL_ID) {
-      history.push('/stableswap', { stableTab: 'add_liquidity' });
+    if (new Set(STABLE_POOL_IDS || []).has(poolId?.toString())) {
+      history.push(`/sauce/${poolId}`);
     } else {
       setAddLiquidityModalVisible(true);
     }
@@ -307,7 +307,6 @@ function AddLiquidityEntryBar(props: {
         <GradientButton
           onClick={openAddLiquidityModal}
           color="#fff"
-          radius="8px"
           loading={addLiquidityButtonLoading}
           className={`w-36 h-8 ml-5 text-center text-base text-white focus:outline-none font-semibold `}
         >
@@ -633,7 +632,6 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
         onClick={handleClick}
         loading={buttonLoading}
         padding={'p-4'}
-        rounded={'rounded-lg'}
       >
         <div className="flex items-center justify-center w-full m-auto">
           <div>
@@ -934,8 +932,10 @@ function UserStakeBlock(props: {
   } = user_seed;
   const { shares_total_supply, tvl } = pool;
   const unClaimedTokens = useTokens(Object.keys(unclaimed || {}));
-  const DECIMALS =
-    STABLE_POOL_ID == pool.id ? LP_STABLE_TOKEN_DECIMALS : LP_TOKEN_DECIMALS;
+  const DECIMALS = new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())
+    ? LP_STABLE_TOKEN_DECIMALS
+    : LP_TOKEN_DECIMALS;
+
   const userTotalStake = toReadableNumber(
     DECIMALS,
     new BigNumber(free_amount).plus(locked_amount).toFixed()
@@ -1106,7 +1106,9 @@ function UserStakeBlock(props: {
   const isEnded = detailData.farmList[0].status == 'Ended';
   return (
     <div className="bg-cardBg rounded-2xl p-5 mt-5">
-      <div className="text-sm text-primaryText">You Staked</div>
+      <div className="text-sm text-primaryText">
+        <FormattedMessage id="you_staked" />
+      </div>
       <div className="flex justify-between items-center mt-4">
         <span className="text-xl text-white">{showLpWorth()}</span>
         <span className="text-sm text-primaryText">
@@ -1120,16 +1122,15 @@ function UserStakeBlock(props: {
           <div className="pt-5 mt-5 borde border-dashed border-dashBorderColor border-t-2 border-opacity-20">
             <div className="flex justify-between items-center bg-black bg-opacity-20 rounded-lg py-2 pl-4 pr-2 border border-greenColor">
               <span className="text-farmText text-sm">
-                You have{' '}
+                <FormattedMessage id="you_have" />{' '}
                 <label className="text-white">{displayLpBalance()}</label> LP
-                tokens
+                <FormattedMessage id="tokens_small" />
               </span>
               <GradientButton
                 onClick={() => {
                   openStakeModalVisible('init');
                 }}
                 color="#fff"
-                radius="8px"
                 className={`w-28 h-8 text-center text-sm text-white focus:outline-none`}
               >
                 <FormattedMessage id="stake"></FormattedMessage>
@@ -1139,14 +1140,13 @@ function UserStakeBlock(props: {
         )}
         {Number(userTotalStake) == 0 ? null : (
           <div className="pt-5 mt-5 borde border-dashed border-dashBorderColor border-t-2 border-opacity-20">
-            {min_locking_duration_sec == 0 ? (
+            {min_locking_duration_sec == 0 || FARM_LOCK_SWITCH == 0 ? (
               <div className="flex justify-end">
                 <GradientButton
                   onClick={() => {
                     openStakeModalVisible('free');
                   }}
                   color="#fff"
-                  radius="8px"
                   className={`w-36 h-8 text-center text-sm text-white focus:outline-none mr-3 ${
                     isEnded ? 'hidden' : ''
                   }`}
@@ -1167,7 +1167,7 @@ function UserStakeBlock(props: {
               <div className="flex items-start justify-between">
                 <div className="freeBox rounded-lg bg-boostBg w-1 flex-grow mr-3 px-3.5">
                   <div className="flex items-center justify-center bg-freeTitleBg h-6 text-white text-sm rounded-b-lg w-40 mx-auto mb-3">
-                    Ordinary Stake
+                    <FormattedMessage id="ordinary_stake" />
                   </div>
                   <div className="center h-32">
                     {Number(freeAmount) > 0 ? (
@@ -1191,7 +1191,7 @@ function UserStakeBlock(props: {
                               isEnded ? 'hidden' : ''
                             }`}
                           >
-                            {'Change to lock >'}
+                            <FormattedMessage id="change_to_lock" /> {'>'}
                           </span>
                         </div>
                       </>
@@ -1201,7 +1201,7 @@ function UserStakeBlock(props: {
                           <FreeIcon></FreeIcon>
                         </span>
                         <span className="text-sm text-primaryText">
-                          Unstaked anytime, no booster
+                          <FormattedMessage id="unstaked_anytime_no_booster" />
                         </span>
                       </div>
                     )}
@@ -1214,7 +1214,6 @@ function UserStakeBlock(props: {
                             openStakeModalVisible('free');
                           }}
                           color="#fff"
-                          radius="8px"
                           className={`w-1/2 h-8 text-center text-sm text-white focus:outline-none mr-3 ${
                             isEnded ? 'hidden' : ''
                           }`}
@@ -1241,7 +1240,6 @@ function UserStakeBlock(props: {
                             openStakeModalVisible('free');
                           }}
                           color="#fff"
-                          radius="8px"
                           className={`w-1/2 h-8 text-center text-sm text-white focus:outline-none mr-3 ${
                             isEnded ? 'hidden' : ''
                           }`}
@@ -1254,7 +1252,7 @@ function UserStakeBlock(props: {
                 </div>
                 <div className="lockBox rounded-lg bg-boostBg w-1 flex-grow px-3.5">
                   <div className="flex items-center justify-center bg-lockTitleBg h-6 text-white text-sm rounded-b-lg w-40 mx-auto mb-3">
-                    Locking Stake
+                    <FormattedMessage id="locking_stake" />
                   </div>
                   <div className="center h-32">
                     {Number(lockAmount) > 0 ? (
@@ -1286,7 +1284,7 @@ function UserStakeBlock(props: {
                           <LockIcon></LockIcon>
                         </div>
                         <p className="text-primaryText text-sm text-center">
-                          Lock your LP tokens with booster
+                          <FormattedMessage id="lock_your_lp_tokens_with_booster" />
                         </p>
                       </div>
                     )}
@@ -1299,7 +1297,6 @@ function UserStakeBlock(props: {
                             openStakeModalVisible('lock');
                           }}
                           color="#fff"
-                          radius="8px"
                           className={`w-1/2 h-8 text-center text-sm text-white focus:outline-none mr-3 ${
                             isEnded ? 'hidden' : ''
                           }`}
@@ -1334,7 +1331,6 @@ function UserStakeBlock(props: {
                             openStakeModalVisible('lock');
                           }}
                           color="#fff"
-                          radius="8px"
                           className={`w-1/2 h-8 text-center text-sm text-white focus:outline-none mr-3 ${
                             isEnded ? 'hidden' : ''
                           }`}
@@ -1403,8 +1399,10 @@ function StakeModal(props: {
     total_seed_amount,
     min_deposit,
   } = detailData;
-  const DECIMALS =
-    STABLE_POOL_ID == pool.id ? LP_STABLE_TOKEN_DECIMALS : LP_TOKEN_DECIMALS;
+  const DECIMALS = new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())
+    ? LP_STABLE_TOKEN_DECIMALS
+    : LP_TOKEN_DECIMALS;
+
   const {
     free_amount = '0',
     locked_amount = '0',
@@ -1513,15 +1511,18 @@ function StakeModal(props: {
         Number(amount) > 0 &&
         stakeType != 'free' &&
         min_locking_duration_sec > 0 &&
-        switchButton
+        FARM_LOCK_SWITCH != 0 &&
+        switchButton &&
+        selectedLockData
       )
     ) {
       setSelectedLockPrice('$ -');
       return;
     }
     // get total rewards price per day
-    const DECIMALS =
-      STABLE_POOL_ID == pool.id ? LP_STABLE_TOKEN_DECIMALS : LP_TOKEN_DECIMALS;
+    const DECIMALS = new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())
+      ? LP_STABLE_TOKEN_DECIMALS
+      : LP_TOKEN_DECIMALS;
     const totalSeedAmount = toReadableNumber(DECIMALS, total_seed_amount);
     const farms = detailData.farmList;
     let totalPrice = 0;
@@ -1573,6 +1574,7 @@ function StakeModal(props: {
       if (
         stakeType == 'free' ||
         min_locking_duration_sec == 0 ||
+        FARM_LOCK_SWITCH == 0 ||
         (stakeType == 'init' && !switchButton)
       ) {
         msg = JSON.stringify('Free');
@@ -1630,6 +1632,7 @@ function StakeModal(props: {
     new BigNumber(amount).isGreaterThan(lpBalance) ||
     (stakeType !== 'free' &&
       min_locking_duration_sec > 0 &&
+      FARM_LOCK_SWITCH != 0 &&
       switchButton &&
       !acceptSlashPolicy);
   return (
@@ -1677,10 +1680,14 @@ function StakeModal(props: {
           />
         </div>
       )}
-      {stakeType == 'free' || min_locking_duration_sec == 0 ? null : (
+      {stakeType == 'free' ||
+      min_locking_duration_sec == 0 ||
+      FARM_LOCK_SWITCH == 0 ? null : (
         <div className="boostArea">
           <div className="flex justify-between items-center mb-1.5 mt-5">
-            <p className="text-farmText text-sm">Booster & Expected reward</p>
+            <p className="text-farmText text-sm">
+              <FormattedMessage id="booster_expected_reward" />
+            </p>
             {stakeType == 'init' ? (
               <span
                 onClick={() => {
@@ -1734,7 +1741,7 @@ function StakeModal(props: {
                     </div>
                     <div className="flex justify-between items-center w-full mt-4">
                       <span className="text-farmText text-sm">
-                        Expected reward
+                        <FormattedMessage id="expected_reward" />
                       </span>
                       <span className="text-white text-sm">
                         {selectedLockPrice}
@@ -1814,7 +1821,9 @@ function StakeModal(props: {
               ) : (
                 <>
                   <div className="flex justify-between items-center mt-3.5">
-                    <span className="text-farmText text-sm">Final Booster</span>
+                    <span className="text-farmText text-sm">
+                      <FormattedMessage id="final_booster" />
+                    </span>
                     <span className="flex items-center text-white text-sm">
                       x{FinalMuti()} <LightningIcon></LightningIcon>
                     </span>
@@ -1824,15 +1833,15 @@ function StakeModal(props: {
                       Number(amount) > 0 ? '' : 'hidden'
                     }`}
                   >
-                    Existing amount{' '}
+                    <FormattedMessage id="existing_amount" />{' '}
                     <span className="text-greenColor">
                       {toPrecision(lockedAmount, 3)}
                     </span>{' '}
-                    + Append amount{' '}
+                    + <FormattedMessage id="append_amount" />{' '}
                     <span className="text-greenColor">
                       {toPrecision(amount, 3)}
                     </span>{' '}
-                    will be able to unstaked after{' '}
+                    <FormattedMessage id="will_be_able_to_unstaked_after" />{' '}
                     <span className="text-greenColor">
                       {getFinalUnLockTime()}
                     </span>
@@ -1875,7 +1884,6 @@ function StakeModal(props: {
         <GradientButton
           onClick={operationStake}
           color="#fff"
-          radius="8px"
           disabled={stakeLoading || isDisabled}
           loading={stakeLoading || isDisabled}
           btnClassName={`${isDisabled ? 'cursor-not-allowed' : ''}`}
@@ -1887,7 +1895,9 @@ function StakeModal(props: {
           />
         </GradientButton>
       </div>
-      {stakeType == 'free' || min_locking_duration_sec == 0 ? null : (
+      {stakeType == 'free' ||
+      min_locking_duration_sec == 0 ||
+      FARM_LOCK_SWITCH == 0 ? null : (
         <div
           className={`flex items-center justify-start mt-4 ${
             switchButton ? '' : 'hidden'
@@ -1911,8 +1921,7 @@ function StakeModal(props: {
                 <FormattedMessage id="accept_pay_slash_tip"></FormattedMessage>
               </label>
               <p className="text-xs text-primaryText mt-1">
-                Each seed has its own slash rate. And it will decreases linearly
-                over time until be 0 at the unlock time of this CD Account.
+                <FormattedMessage id="slash_policy_content" />
               </p>
             </div>
           </div>
@@ -1950,8 +1959,9 @@ function UnStakeModal(props: {
     unlock_timestamp,
     duration_sec,
   } = user_seed;
-  const DECIMALS =
-    STABLE_POOL_ID == pool.id ? LP_STABLE_TOKEN_DECIMALS : LP_TOKEN_DECIMALS;
+  const DECIMALS = new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())
+    ? LP_STABLE_TOKEN_DECIMALS
+    : LP_TOKEN_DECIMALS;
   const lpBalance =
     unStakeType == 'free'
       ? toReadableNumber(DECIMALS, free_amount)
@@ -2074,7 +2084,6 @@ function UnStakeModal(props: {
         <GradientButton
           onClick={operationUnStake}
           color="#fff"
-          radius="8px"
           disabled={unStakeLoading || isDisabled}
           loading={unStakeLoading || isDisabled}
           btnClassName={`${isDisabled ? 'cursor-not-allowed' : ''}`}
@@ -2104,7 +2113,8 @@ function UnStakeModal(props: {
               )}
             </span>
             <span className="text-sm text-redwarningColor">
-              I will pay {getSlashAmount()} LP token Slash.
+              <FormattedMessage id="i_will_pay" /> {getSlashAmount()}{' '}
+              <FormattedMessage id="lp_token_slash" />
             </span>
           </div>
           <div

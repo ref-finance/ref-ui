@@ -21,7 +21,7 @@ import { useTokens } from '~state/token';
 import getConfig from '~services/config';
 import { TokenMetadata, unWrapToken } from '../../services/ft-contract';
 const config = getConfig();
-const STABLE_POOL_ID = config.STABLE_POOL_ID;
+const { STABLE_POOL_IDS, FARM_LOCK_SWITCH } = config;
 
 export default function CalcModelBooster(
   props: ReactModal.Props & {
@@ -41,8 +41,9 @@ export default function CalcModelBooster(
   const pool = seed.pool;
   const { token_account_ids } = pool;
   const tokens = useTokens(token_account_ids) || [];
-  const DECIMALS =
-    STABLE_POOL_ID == pool.id ? LP_STABLE_TOKEN_DECIMALS : LP_TOKEN_DECIMALS;
+  const DECIMALS = new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())
+    ? LP_STABLE_TOKEN_DECIMALS
+    : LP_TOKEN_DECIMALS;
   useEffect(() => {
     getUserLpTokenInPool();
   }, []);
@@ -235,13 +236,16 @@ export function CalcEle(props: {
   const [dateList, setDateList] = useState<MonthData[]>([]);
   const [accountType, setAccountType] = useState('free');
   const { farmList: farms, pool, min_locking_duration_sec } = seed;
-  const DECIMALS =
-    STABLE_POOL_ID == pool.id ? LP_STABLE_TOKEN_DECIMALS : LP_TOKEN_DECIMALS;
+  const DECIMALS = new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())
+    ? LP_STABLE_TOKEN_DECIMALS
+    : LP_TOKEN_DECIMALS;
+
   const intl = useIntl();
   useEffect(() => {
     get_all_date_list();
   }, []);
   useEffect(() => {
+    if (!selecteDate) return;
     if (accountType == 'cd') {
       const rate = selecteDate.rate;
       const power = new BigNumber(rate)
@@ -333,10 +337,9 @@ export function CalcEle(props: {
     // get ROI
     if (lpTokenNum && lpTokenNum !== '0') {
       const { shares_total_supply, tvl } = pool;
-      const DECIMALS =
-        STABLE_POOL_ID == pool.id
-          ? LP_STABLE_TOKEN_DECIMALS
-          : LP_TOKEN_DECIMALS;
+      const DECIMALS = new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())
+        ? LP_STABLE_TOKEN_DECIMALS
+        : LP_TOKEN_DECIMALS;
       const totalShares = Number(
         toReadableNumber(DECIMALS, shares_total_supply)
       );
@@ -475,7 +478,7 @@ export function CalcEle(props: {
           <label className="text-sm text-farmText">
             <FormattedMessage id="stake_for"></FormattedMessage>
           </label>
-          {min_locking_duration_sec == 0 ? null : (
+          {min_locking_duration_sec == 0 || FARM_LOCK_SWITCH == 0 ? null : (
             <div className="flex items-center bg-black bg-opacity-20 rounded-2xl p-1">
               <span
                 onClick={() => {
@@ -593,17 +596,10 @@ export function LinkPool(props: { pooId: number }) {
     <div className="flex justify-center items-center">
       <Link
         title={intl.formatMessage({ id: 'view_pool' })}
-        to={
-          pooId == STABLE_POOL_ID
-            ? {
-                pathname: `/stableswap`,
-                state: { backToFarms: true },
-              }
-            : {
-                pathname: `/pool/${pooId}`,
-                state: { backToFarms: true },
-              }
-        }
+        to={{
+          pathname: `/pool/${pooId}`,
+          state: { backToFarms: true },
+        }}
         target="_blank"
         className="flex items-center"
       >

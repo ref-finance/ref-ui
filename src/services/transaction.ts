@@ -11,7 +11,6 @@ import { XREF_TOKEN_DECIMALS } from '../services/xref';
 import BigNumber from 'bignumber.js';
 import { ParserDependencies } from 'mathjs';
 const config = getConfig();
-const STABLE_POOL_ID = config.STABLE_POOL_ID;
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
 
 export const parseAction = async (

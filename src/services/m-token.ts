@@ -26,7 +26,6 @@ import { utils } from 'near-api-js';
 import getConfig from '../services/config';
 import { getCurrentWallet } from '../utils/sender-wallet';
 const config = getConfig();
-const STABLE_POOL_ID = config.STABLE_POOL_ID;
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
 
 export const LP_TOKEN_DECIMALS = 24;

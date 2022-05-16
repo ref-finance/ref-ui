@@ -599,10 +599,8 @@ export const withdrawAllReward_boost = async (
         args: {
           token_id: token_id,
           // amount: checkedList[token_id].value,
-          // unregister,
         },
         gas: '50000000000000',
-        // amount: ONE_YOCTO_NEAR,
       });
     }
   });
