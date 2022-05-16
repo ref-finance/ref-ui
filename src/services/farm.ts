@@ -815,5 +815,5 @@ export const frontConfig = {
 export const farmClassification = {
   starPool: [7],
   nearPool: [545],
-  stablePool: [79],
+  stablePool: [79, 603, 604],
 };

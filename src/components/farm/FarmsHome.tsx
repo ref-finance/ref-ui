@@ -593,8 +593,21 @@ export default function FarmsHome(props: any) {
       }`}
       style={{ minWidth: isMobileSite ? 'auto' : '31rem' }}
     >
-      <div className="title flex justify-center items-center text-3xl text-white mb-5 xs:-mt-4 md:-mt-4">
+      <div className="title flex justify-between items-center text-3xl text-white mb-5 xs:-mt-4 md:-mt-4">
         <FormattedMessage id="farms"></FormattedMessage>
+        <div className="flex items-center justify-between h-7 rounded-2xl bg-farmSbg p-0.5 w-36">
+          <span className="flex items-center justify-center rounded-2xl text-sm text-chartBg cursor-pointer w-1/2 h-full bg-farmSearch">
+            New
+          </span>
+          <span
+            onClick={() => {
+              history.push('/farms');
+            }}
+            className="flex items-center justify-center text-sm text-farmText cursor-pointer w-1/2 h-full  rounded-2xl"
+          >
+            Legacy
+          </span>
+        </div>
       </div>
       {user_unWithdraw_rewards &&
       Object.keys(user_unWithdraw_rewards).length > 0 ? (

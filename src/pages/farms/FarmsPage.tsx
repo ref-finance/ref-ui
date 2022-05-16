@@ -19,6 +19,7 @@ import {
   CoinPropertyIcon,
   SortIcon,
   NoDataIcon,
+  LightSmall,
 } from '~components/icon';
 import {
   GreenLButton,
@@ -75,7 +76,7 @@ import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import { getTokenPriceList } from '~services/indexer';
 import Countdown, { zeroPad } from 'react-countdown';
 import moment from 'moment';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaArrowCircleRight, FaRegQuestionCircle } from 'react-icons/fa';
@@ -151,6 +152,7 @@ export function FarmsPage() {
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const history = useHistory();
 
   useEffect(() => {
     loadFarmInfoList(false, isSignedIn).then();
@@ -619,8 +621,30 @@ export function FarmsPage() {
       </div>
       <div className="grid grid-cols-farmContainerOther 2xl:grid-cols-farmContainer grid-flow-col xs:grid-cols-1 xs:grid-flow-row md:grid-cols-1 md:grid-flow-row">
         <div className="text-white pl-12 xs:px-5 md:px-5">
-          <div className="text-white text-3xl h-12">
-            <FormattedMessage id="farms" defaultMessage="Farms" />
+          <div className="flex items-center justify-between -mt-3">
+            <div className="flex items-center text-white text-3xl h-12">
+              <FormattedMessage id="farms" defaultMessage="Farms" />
+            </div>
+            <div className="flex items-center justify-between h-7 rounded-2xl bg-farmSbg p-0.5 w-36">
+              <span
+                onClick={() => {
+                  history.push('/farmsBoost');
+                }}
+                className="flex items-center justify-center rounded-2xl text-sm  text-farmText cursor-pointer w-1/2 h-full"
+              >
+                New
+              </span>
+              <span className="flex items-center justify-center text-sm  text-chartBg cursor-pointer w-1/2 h-full  rounded-2xl bg-farmSearch">
+                Legacy
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between rounded-md border border-greenColor p-3 mb-3">
+            <LightSmall></LightSmall>
+            <span className="text-xs text-navHighLightText ml-2">
+              Farms <label className="text-greenColor font-bold">V2</label>{' '}
+              supports CD account, booster farming is coming soon!
+            </span>
           </div>
           <div className="rounded-2xl bg-cardBg pt-5 pb-8 relative overflow-hidden">
             <div className="flex justify-between px-5 pb-12 relative">
