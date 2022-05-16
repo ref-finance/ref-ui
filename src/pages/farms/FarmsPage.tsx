@@ -2269,6 +2269,17 @@ function ActionModal(
     }
     setAmount(amount);
   }
+  function getMinDepositAmount() {
+    const LIMITAOMUNT =
+      Number(min_deposit) > 0 ? min_deposit : '1000000000000000000';
+    let value;
+    if (new Set(STABLE_POOL_IDS || []).has(farm.lpTokenId?.toString())) {
+      value = toReadableNumber(LP_STABLE_TOKEN_DECIMALS, LIMITAOMUNT);
+    } else {
+      value = toReadableNumber(LP_TOKEN_DECIMALS, LIMITAOMUNT);
+    }
+    return value;
+  }
   return (
     <Modal {...props}>
       {showTip ? (
@@ -2352,11 +2363,8 @@ function ActionModal(
                   <Alert
                     level="warn"
                     message={
-                      new Set(STABLE_POOL_IDS || []).has(
-                        farm.lpTokenId?.toString()
-                      )
-                        ? intl.formatMessage({ id: 'more_than_stable_seed' })
-                        : intl.formatMessage({ id: 'more_than_general_seed' })
+                      intl.formatMessage({ id: 'stake_min_deposit' }) +
+                      getMinDepositAmount()
                     }
                   />
                 ) : null}

@@ -573,5 +573,6 @@ const ja = {
   click: 'クリック',
   to_recover: '回復する。',
   reward_apr: 'Rewards APR',
+  stake_min_deposit: 'Input must be greater than or equal to ',
 };
 export default Object.assign(ja, ja_in_risks_page);
