@@ -242,8 +242,8 @@ export const moreLinks: MobileMenuItem[] = [
   {
     id: 'Farms',
     label: 'Farms',
-    pattern: '/farms',
-    url: '/farms',
+    pattern: '/farmsBoost',
+    url: '/farmsBoost',
     isExternal: false,
   },
   {

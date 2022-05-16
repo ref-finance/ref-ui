@@ -3131,6 +3131,11 @@ export function CloseButton(props: any) {
     </svg>
   );
 }
+export function LightSmall() {
+  return (
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAbCAYAAAB836/YAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAHBSURBVHgBxVWLccIwDJU5BqATkA0gG7BB0w1ggrIBYQM2gE5AmSBskIQO0HQCYIDi6uMWx8Qm9Ljj3SmJ7adn2ZIdgIdA5xHoYo3v3jVqB9ohAlAJvof3EmyNuwt2cV/GqNsHNZgHeAXaBq3yMnQ+PX/oUqPN4L/QHzPRyKddUPECG5S9FDuO3D7POgJOhBqYjhIfW+QUNTE4pWhz8lX1kDvku+AyAbVEI8EDDn7hN76BhHFyvUWboEBltqzHfp69SDCQPVpuInTHRzj2KZyGcYccGbHV1SJmDotGAdIu49nbgCbkSIsMAtFp2ZOWkOVrO0q7sBN+qngF7UHZPvz5OoI9Q2gPFVMFHI3vhSDYAwydD3FJr1Y7YQvAFqyAbpV6dul2WfApkjpdg33jMFf1ofFIStYuk6LL1BxNGksdn7GbFEfUlI1bg1zk5bsjFgl3twTPkhHfE9Od1WelY6f3tdXI8sln7hekswmnF+Dk/Do0oZMJB7ns4xMUUSyd0xu4Ga9BPzHHvnW8goIK+D9yO7oBQeAMygeaovb4TNFVk6MCHyQpI++EKt7CDRGCuTypcJ+dmTY+sbCgwNzWNsI/yh/8OfNzkcjgCQAAAABJRU5ErkJggg=="></img>
+  );
+}
 export {
   ArrowDown,
   Dots,

@@ -956,7 +956,7 @@ function NavigationBar() {
             <Anchor to="/" pattern="/" name="Swap" />
             <Anchor to="/sauce" pattern="/sauce" name="Sauce" />
             <PoolsMenu />
-            <Anchor to="/farms" pattern="/farms" name="Farms" />
+            <Anchor to="/farmsBoost" pattern="/farmsBoost" name="Farms" />
             <Xref></Xref>
             <Anchor to="/risks" pattern="/risks" name="Risks" />
           </div>
