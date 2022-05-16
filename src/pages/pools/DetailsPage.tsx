@@ -475,6 +475,14 @@ export function AddLiquidityModal(
     return result;
   };
 
+  const getMax = function (id: string, max: string) {
+    return id !== WRAP_NEAR_CONTRACT_ID
+      ? max
+      : Number(max) <= 0.5
+      ? '0'
+      : String(Number(max) - 0.5);
+  };
+
   return (
     <Modal {...props}>
       <Card
@@ -530,7 +538,10 @@ export function AddLiquidityModal(
             </div>
             <InputAmount
               className="w-full border border-transparent rounded"
-              max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
+              max={getMax(
+                tokens[0].id,
+                toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+              )}
               onChangeAmount={changeFirstTokenAmount}
               value={firstTokenAmount}
             />
@@ -562,7 +573,10 @@ export function AddLiquidityModal(
             </div>
             <InputAmount
               className="w-full border border-transparent rounded"
-              max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
+              max={getMax(
+                tokens[1].id,
+                toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+              )}
               onChangeAmount={changeSecondTokenAmount}
               value={secondTokenAmount}
             />

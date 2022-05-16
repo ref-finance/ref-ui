@@ -23,6 +23,7 @@ import { ArrowDownGreen, ArrowDownWhite } from '../icon/Arrows';
 import { percentLess } from '../../utils/numbers';
 import { isMobile } from '../../utils/device';
 import { SWAP_MODE } from '../../pages/SwapPage';
+import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 
 interface TokenAmountProps {
   amount?: string;
@@ -63,6 +64,13 @@ export function HalfAndMaxAmount({
 }) {
   const halfValue = percentOfBigNumber(50, max, token?.decimals);
 
+  const curMax =
+    token?.id === WRAP_NEAR_CONTRACT_ID
+      ? Number(max) <= 0.5
+        ? '0'
+        : String(Number(max) - 0.5)
+      : max;
+
   return (
     <div className="flex items-center">
       <span
@@ -80,10 +88,10 @@ export function HalfAndMaxAmount({
 
       <span
         className={`px-2 py-1 hover:bg-black hover:bg-opacity-20 cursor-pointer rounded-3xl ${'hover:text-gradientFrom'} ${
-          amount === max ? 'text-gradientFrom' : 'text-primaryText'
+          amount === curMax ? 'text-gradientFrom' : 'text-primaryText'
         } text-xs`}
         onClick={() => {
-          onChangeAmount(max);
+          onChangeAmount(curMax);
         }}
       >
         <FormattedMessage id="max" defaultMessage="Max" />
