@@ -197,7 +197,7 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
     getStakeBalance();
   }, []);
   const getStakeBalance = async () => {
-    if (!wallet.isSignedIn()) {
+    if (!isSignedIn) {
       setShowAddLiquidityEntry(false);
     } else {
       const poolId = pool.id;
@@ -401,8 +401,6 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-
-  const { wallet } = getCurrentWallet();
 
   if (!balances) return null;
 
