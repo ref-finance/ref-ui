@@ -1748,7 +1748,7 @@ function StakeModal(props: {
     setAmount(value);
     // check
     const curValue = toNonDivisibleNumber(DECIMALS, value);
-    if (curValue && new BigNumber(curValue).isLessThan(min_deposit)) {
+    if (value && new BigNumber(curValue).isLessThan(min_deposit)) {
       setAmountAvailableCheck(false);
     } else {
       setAmountAvailableCheck(true);
@@ -1803,18 +1803,35 @@ function StakeModal(props: {
   }
   function FinalMuti() {
     if (!selectedLockData) return '';
-    let preMuti = 0;
+    let preMuti = '0';
     if (+locked_amount) {
-      preMuti = +x_locked_amount / +locked_amount;
+      preMuti = new BigNumber(x_locked_amount)
+        .dividedBy(locked_amount)
+        .toFixed();
     }
+    const pre_x_locked_amount = toReadableNumber(DECIMALS, x_locked_amount);
+    const pre_locked_amount = toReadableNumber(DECIMALS, locked_amount);
     const curMuti = selectedLockData.multiplier + 1;
-    if (curMuti > preMuti) {
+    if (+curMuti > +preMuti) {
       return toPrecision(curMuti.toString(), 2);
     } else {
-      const cur_x_locked_amount = Number(amount || 0) * curMuti;
-      const final_x =
-        (+cur_x_locked_amount + +x_locked_amount) /
-        ((+amount || 0) + +locked_amount);
+      const cur_x_locked_amount = new BigNumber(amount || 0).multipliedBy(
+        curMuti
+      );
+      const k = cur_x_locked_amount.toFixed();
+
+      const total_x_locked_amount =
+        cur_x_locked_amount.plus(pre_x_locked_amount);
+      const y = total_x_locked_amount.toFixed();
+
+      const total_locked_amount = new BigNumber(pre_locked_amount).plus(
+        +amount || 0
+      );
+      const z = total_locked_amount.toFixed();
+
+      const final_x = total_x_locked_amount
+        .dividedBy(total_locked_amount)
+        .toFixed();
       return toPrecision(final_x.toString(), 2);
     }
   }
@@ -1823,6 +1840,8 @@ function StakeModal(props: {
     !amountAvailableCheck ||
     new BigNumber(amount).isLessThanOrEqualTo(0) ||
     new BigNumber(amount).isGreaterThan(lpBalance) ||
+    (stakeType == 'freeToLock' &&
+      new BigNumber(amount).isGreaterThan(freeAmount)) ||
     (stakeType !== 'free' &&
       min_locking_duration_sec > 0 &&
       FARM_LOCK_SWITCH != 0 &&

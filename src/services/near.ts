@@ -289,21 +289,3 @@ export const refFarmBoostViewFunction = ({
     .account()
     .viewFunction(REF_FARM_BOOST_CONTRACT_ID, methodName, args);
 };
-export const refFarmBoostFunctionCall = ({
-  methodName,
-  args,
-  gas,
-  amount,
-}: RefFiFunctionCallOptions) => {
-  const { wallet, wallet_type } = getCurrentWallet();
-
-  return wallet
-    .account()
-    .functionCall(
-      REF_FARM_BOOST_CONTRACT_ID,
-      methodName,
-      args,
-      getGas(gas),
-      getAmount(amount)
-    );
-};

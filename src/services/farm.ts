@@ -5,7 +5,6 @@ import {
   Transaction,
   executeFarmMultipleTransactions,
   refFarmBoostViewFunction,
-  refFarmBoostFunctionCall,
   REF_FARM_BOOST_CONTRACT_ID,
   ONE_YOCTO_NEAR,
   REF_FI_CONTRACT_ID,
@@ -628,10 +627,18 @@ export const withdrawAllReward_boost = async (
 export const claimRewardBySeed_boost = async (
   seed_id: string
 ): Promise<any> => {
-  return refFarmBoostFunctionCall({
-    methodName: 'claim_reward_by_seed',
-    args: { seed_id: seed_id },
+  const transactions: Transaction[] = [];
+  transactions.push({
+    receiverId: REF_FARM_BOOST_CONTRACT_ID,
+    functionCalls: [
+      {
+        methodName: 'claim_reward_by_seed',
+        args: { seed_id: seed_id },
+        amount: ONE_YOCTO_NEAR,
+      },
+    ],
   });
+  return executeFarmMultipleTransactions(transactions);
 };
 export const lock_free_seed = async ({
   seed_id,
@@ -642,11 +649,18 @@ export const lock_free_seed = async ({
   duration_sec: number;
   amount: string;
 }): Promise<any> => {
-  return refFarmBoostFunctionCall({
-    methodName: 'lock_free_seed',
-    args: { seed_id, duration_sec, amount },
-    amount: ONE_YOCTO_NEAR,
+  const transactions: Transaction[] = [];
+  transactions.push({
+    receiverId: REF_FARM_BOOST_CONTRACT_ID,
+    functionCalls: [
+      {
+        methodName: 'lock_free_seed',
+        args: { seed_id, duration_sec, amount },
+        amount: ONE_YOCTO_NEAR,
+      },
+    ],
   });
+  return executeFarmMultipleTransactions(transactions);
 };
 export const force_unlock = async ({
   seed_id,
@@ -655,11 +669,18 @@ export const force_unlock = async ({
   seed_id: string;
   unlock_amount: string;
 }): Promise<any> => {
-  return refFarmBoostFunctionCall({
-    methodName: 'force_unlock',
-    args: { seed_id, unlock_amount },
-    amount: ONE_YOCTO_NEAR,
+  const transactions: Transaction[] = [];
+  transactions.push({
+    receiverId: REF_FARM_BOOST_CONTRACT_ID,
+    functionCalls: [
+      {
+        methodName: 'force_unlock',
+        args: { seed_id, unlock_amount },
+        amount: ONE_YOCTO_NEAR,
+      },
+    ],
   });
+  return executeFarmMultipleTransactions(transactions);
 };
 export const getServerTime = async () => {
   const result = await near.connection.provider
