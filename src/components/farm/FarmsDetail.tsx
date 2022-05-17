@@ -1858,9 +1858,11 @@ function StakeModal(props: {
       const final_x = total_x_locked_amount
         .dividedBy(total_locked_amount)
         .toFixed();
-      return toPrecision(final_x.toString(), 2);
+      return final_x;
+      // return toPrecision(final_x.toString(), 2);
     }
   }
+  const finalMuti = FinalMuti();
   const isDisabled =
     !amount ||
     !amountAvailableCheck ||
@@ -2062,8 +2064,12 @@ function StakeModal(props: {
                     <span className="text-farmText text-sm">
                       <FormattedMessage id="final_booster" />
                     </span>
-                    <span className="flex items-center text-white text-sm">
-                      x{FinalMuti()} <LightningIcon></LightningIcon>
+                    <span
+                      title={finalMuti}
+                      className="flex items-center text-white text-sm"
+                    >
+                      x{toPrecision(finalMuti.toString(), 2)}{' '}
+                      <LightningIcon></LightningIcon>
                     </span>
                   </div>
                   <div
