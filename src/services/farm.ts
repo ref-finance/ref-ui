@@ -634,7 +634,6 @@ export const claimRewardBySeed_boost = async (
       {
         methodName: 'claim_reward_by_seed',
         args: { seed_id: seed_id },
-        amount: ONE_YOCTO_NEAR,
       },
     ],
   });
