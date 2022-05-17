@@ -528,12 +528,19 @@ export default function CrossSwapCard(props: {
 
   const tokenOutMax = tokenOutBalanceFromNear || '0';
 
+  const curMax =
+    tokenIn?.id === WRAP_NEAR_CONTRACT_ID
+      ? Number(tokenInMax) <= 0.5
+        ? '0'
+        : String(Number(tokenInMax) - 0.5)
+      : tokenInMax;
+
   const canSubmit = requested
     ? canSwap &&
       getCurrentWallet().wallet.isSignedIn() &&
-      !ONLY_ZEROS.test(tokenInMax) &&
+      !ONLY_ZEROS.test(curMax) &&
       !ONLY_ZEROS.test(tokenInAmount) &&
-      new BigNumber(tokenInAmount).lte(new BigNumber(tokenInMax))
+      new BigNumber(tokenInAmount).lte(new BigNumber(curMax))
     : tokenIn?.id !== tokenOut?.id &&
       !loadingTrigger &&
       !ONLY_ZEROS.test(tokenInAmount);

@@ -64,13 +64,6 @@ export function HalfAndMaxAmount({
 }) {
   const halfValue = percentOfBigNumber(50, max, token?.decimals);
 
-  const curMax =
-    token?.id === WRAP_NEAR_CONTRACT_ID
-      ? Number(max) <= 0.5
-        ? '0'
-        : String(Number(max) - 0.5)
-      : max;
-
   return (
     <div className="flex items-center">
       <span
@@ -88,10 +81,10 @@ export function HalfAndMaxAmount({
 
       <span
         className={`px-2 py-1 hover:bg-black hover:bg-opacity-20 cursor-pointer rounded-3xl ${'hover:text-gradientFrom'} ${
-          amount === curMax ? 'text-gradientFrom' : 'text-primaryText'
+          amount === max ? 'text-gradientFrom' : 'text-primaryText'
         } text-xs`}
         onClick={() => {
-          onChangeAmount(curMax);
+          onChangeAmount(max);
         }}
       >
         <FormattedMessage id="max" defaultMessage="Max" />
@@ -132,6 +125,13 @@ export default function TokenAmount({
 
   const tokenPrice = tokenPriceList?.[selectedToken?.id]?.price || null;
 
+  const curMax =
+    selectedToken?.id === WRAP_NEAR_CONTRACT_ID
+      ? Number(max) <= 0.5
+        ? '0'
+        : String(Number(max) - 0.5)
+      : max;
+
   return (
     <>
       <div
@@ -147,7 +147,7 @@ export default function TokenAmount({
         {forSwap && onChangeAmount ? (
           <HalfAndMaxAmount
             token={selectedToken}
-            max={max}
+            max={curMax}
             onChangeAmount={onChangeAmount}
             amount={amount}
           />
@@ -158,7 +158,7 @@ export default function TokenAmount({
           className="w-3/5 border border-transparent rounded"
           id="inputAmount"
           name={selectedToken?.id}
-          max={max}
+          max={curMax}
           value={amount}
           onChangeAmount={onChangeAmount}
           disabled={disabled}
@@ -244,7 +244,12 @@ export function TokenCardIn({
 
   const price = tokenPriceList?.[tokenIn?.id]?.price || null;
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
-
+  const curMax =
+    tokenIn?.id === WRAP_NEAR_CONTRACT_ID
+      ? Number(max) <= 0.5
+        ? '0'
+        : String(Number(max) - 0.5)
+      : max;
   if (hidden) return null;
 
   return (
@@ -261,7 +266,7 @@ export function TokenCardIn({
         <div className="text-xs text-primaryText flex items-center">
           <HalfAndMaxAmount
             token={tokenIn}
-            max={max}
+            max={curMax}
             onChangeAmount={onChangeAmount}
             forCrossSwap
             amount={amount}
