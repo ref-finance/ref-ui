@@ -39,6 +39,7 @@ export default function CalcModel(
   const [inputType, setInputType] = useState(true);
   const tokens = useTokens(farms[0].tokenIds) || [];
   const [symbols, setSymbols] = useState('');
+  const { globalState } = useContext(WalletContext);
   useEffect(() => {
     getUserLpTokenInPool();
   }, []);
@@ -59,7 +60,6 @@ export default function CalcModel(
   }, [props.isOpen]);
   const cardWidth = isMobile() ? '90vw' : '30vw';
   async function getUserLpTokenInPool() {
-    const { globalState } = useContext(WalletContext);
     const isSignedIn = globalState.isSignedIn;
     if (isSignedIn) {
       const lpTokenId = farms[0].lpTokenId;

@@ -640,11 +640,13 @@ export function FarmsPage() {
     const promisePoolIds = poolIds.map((poolId: string) => {
       return get24hVolume(poolId);
     });
-    const resolvedResult = await Promise.all(promisePoolIds);
-    poolIds.forEach((poolId: string, index: number) => {
-      tempMap[poolId] = resolvedResult[index];
-    });
-    setDayVolumeMap(tempMap);
+    try {
+      const resolvedResult = await Promise.all(promisePoolIds);
+      poolIds.forEach((poolId: string, index: number) => {
+        tempMap[poolId] = resolvedResult[index];
+      });
+      setDayVolumeMap(tempMap);
+    } catch (error) {}
   }
   function getPoolFeeApr(dayVolume: string, pool: PoolRPCView) {
     let result = '0';
