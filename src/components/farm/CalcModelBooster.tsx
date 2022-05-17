@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { ModalClose, SwitchBtn, HandIcon, LinkIcon } from '~components/icon';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useState, useEffect, useRef } from 'react';
@@ -20,6 +20,7 @@ import { isMobile } from '~utils/device';
 import { useTokens } from '~state/token';
 import getConfig from '~services/config';
 import { TokenMetadata, unWrapToken } from '../../services/ft-contract';
+import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 const config = getConfig();
 const { STABLE_POOL_IDS, FARM_LOCK_SWITCH } = config;
 
@@ -44,6 +45,8 @@ export default function CalcModelBooster(
   const DECIMALS = new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())
     ? LP_STABLE_TOKEN_DECIMALS
     : LP_TOKEN_DECIMALS;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   useEffect(() => {
     getUserLpTokenInPool();
   }, []);
@@ -56,7 +59,7 @@ export default function CalcModelBooster(
   }, [tokens]);
   const cardWidth = isMobile() ? '90vw' : '30vw';
   async function getUserLpTokenInPool() {
-    if (wallet.isSignedIn()) {
+    if (isSignedIn) {
       const lpTokenId = pool.id.toString();
       const b = await mftGetBalance(getMftTokenId(lpTokenId));
       const num = toReadableNumber(DECIMALS, b);
