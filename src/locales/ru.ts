@@ -562,5 +562,7 @@ const ru = {
   click: 'Нажмите',
   to_recover: 'выздороветь.',
   reward_apr: 'Rewards APR',
+  price_board: 'Price board',
+  close: 'close',
 };
 export default Object.assign(ru, ru_in_risks_page);

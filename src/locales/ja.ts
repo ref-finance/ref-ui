@@ -573,5 +573,7 @@ const ja = {
   click: 'クリック',
   to_recover: '回復する。',
   reward_apr: 'Rewards APR',
+  price_board: 'Price board',
+  close: 'close',
 };
 export default Object.assign(ja, ja_in_risks_page);

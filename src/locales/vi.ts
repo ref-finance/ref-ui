@@ -571,5 +571,7 @@ const vi = {
   click: 'Nhấp chuột',
   to_recover: 'để phục hồi.',
   reward_apr: 'Rewards APR',
+  price_board: 'Price board',
+  close: 'close',
 };
 export default Object.assign(vi, vi_in_risks_page);

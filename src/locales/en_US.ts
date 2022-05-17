@@ -563,5 +563,7 @@ const en_US = {
   click: 'Click',
   to_recover: 'to recover.',
   reward_apr: 'Rewards APR',
+  price_board: 'Price board',
+  close: 'close',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

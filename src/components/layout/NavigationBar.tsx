@@ -83,6 +83,7 @@ import { getURLInfo } from './transactionTipPopUp';
 import USNBuyComponent from '~components/forms/USNBuyComponent';
 import USNPage from '~components/usn/USNPage';
 import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '../../pages/SwapPage';
+import Marquee from '~components/layout/Marquee';
 
 const config = getConfig();
 
@@ -905,7 +906,6 @@ function NavigationBar() {
 
     setHasBalanceOnRefAccount(hasRefBalanceOver);
   }, [refAccountBalances, tokensMeta, isSignedIn]);
-
   return (
     <>
       <div className="nav-wrap md:hidden xs:hidden text-center relative">
@@ -1034,6 +1034,7 @@ function NavigationBar() {
             <MoreMenu />
           </div>
         </nav>
+        {isMobile ? null : <Marquee></Marquee>}
       </div>
       <MobileNavBar
         hasBalanceOnRefAccount={hasBalanceOnRefAccount}

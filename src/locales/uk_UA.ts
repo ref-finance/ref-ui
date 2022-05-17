@@ -548,5 +548,7 @@ const uk_UA = {
   click: 'Натисніть',
   to_recover: 'для відновлення.',
   reward_apr: 'Rewards APR',
+  price_board: 'Price board',
+  close: 'close',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

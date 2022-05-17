@@ -563,5 +563,7 @@ const ko = {
   click: '딸깍 하는 소리',
   to_recover: '회복.',
   reward_apr: 'Rewards APR',
+  price_board: 'Price board',
+  close: 'close',
 };
 export default Object.assign(ko, ko_in_risks_page);

@@ -59,6 +59,7 @@ import { ConnectDot } from '../icon/CrossSwapIcons';
 import USNBuyComponent from '~components/forms/USNBuyComponent';
 import USNPage from '~components/usn/USNPage';
 import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '../../pages/SwapPage';
+import Marquee from '~components/layout/Marquee';
 
 export function MobileAnchor({
   to,
@@ -839,6 +840,7 @@ export function MobileNavBar(props: any) {
           />
         ) : null}
       </div>
+      {isMobile ? <Marquee></Marquee> : null}
     </>
   );
 }
