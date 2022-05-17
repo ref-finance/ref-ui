@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { TokenMetadata } from '~services/ft-contract';
 import { TokenBalancesView } from '~services/token';
 import { tokenPrice } from './SelectToken';
-import { multiply } from '../../utils/numbers';
+import { multiply, ONLY_ZEROS } from '../../utils/numbers';
 import { FormattedMessage } from 'react-intl';
 import { toPrecision } from '../../utils/numbers';
 
@@ -170,12 +170,17 @@ export function NewFarmInputAmount({
           />
           <span className="flex items-center">
             <a
-              className={`rounded-lg  ${
-                rest.value === max
-                  ? 'text-gradientFrom border-gradientFrom'
-                  : 'text-farmText border-maxBorderColor'
-              }  hover:text-gradientFrom border  hover:border-gradientFrom hover:bg-smBtnBorder items-center px-1 py-0.5 m-auto focus:outline-none text-xs `}
-              style={{ lineHeight: 'unset', cursor: 'pointer' }}
+              className={`rounded-lg flex items-center justify-center text-center  ${
+                rest.value === max && !ONLY_ZEROS.test(max)
+                  ? '  bg-opacity-20 bg-black hover:border hover:text-gradientFrom hover:border-gradientFrom hover:bg-none hover:bg-opacity-0'
+                  : ' border-maxBorderColor hover:text-gradientFrom border  hover:border-gradientFrom'
+              }  text-farmText  px-1 py-0.5 m-auto focus:outline-none text-xs `}
+              style={{
+                lineHeight: 'unset',
+                cursor: 'pointer',
+                width: '38px',
+                height: '22px',
+              }}
               onClick={() => handleChange(max)}
             >
               <span>Max</span>
