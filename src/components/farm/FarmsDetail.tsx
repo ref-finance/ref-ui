@@ -1461,7 +1461,12 @@ function UserStakeBlock(props: {
                           </span>
                         </CommonLine>
                         <CommonLine title="booster">
-                          <div className="flex items-center text-white text-sm">
+                          <div
+                            title={new BigNumber(xlocked_amount)
+                              .dividedBy(lockAmount)
+                              .toFixed()}
+                            className="flex items-center text-white text-sm"
+                          >
                             x{displayBooster()} <LightningIcon></LightningIcon>
                           </div>
                         </CommonLine>
@@ -1590,6 +1595,7 @@ function StakeModal(props: {
     min_locking_duration_sec,
     user_seed,
     total_seed_amount,
+    total_seed_power,
     min_deposit,
   } = detailData;
   const DECIMALS = new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())
@@ -1713,27 +1719,47 @@ function StakeModal(props: {
       return;
     }
     // get total rewards price per day
+    debugger;
+
     const DECIMALS = new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())
       ? LP_STABLE_TOKEN_DECIMALS
       : LP_TOKEN_DECIMALS;
-    const totalSeedAmount = toReadableNumber(DECIMALS, total_seed_amount);
+    const totalSeedAmountPower = toReadableNumber(DECIMALS, total_seed_power);
+    const x_amount = new BigNumber(
+      selectedLockData.multiplier + 1
+    ).multipliedBy(amount);
+    const totalStakePower = new BigNumber(x_amount)
+      .plus(totalSeedAmountPower)
+      .toString();
+    const day = selectedLockData.month * 30;
     const farms = detailData.farmList;
     let totalPrice = 0;
     farms.forEach((farm: FarmBoost) => {
       const { id, decimals } = farm.token_meta_data;
       const { daily_reward } = farm.terms;
-      const tokenPrice = tokenPriceList[id]?.price;
-      if (tokenPrice && tokenPrice != 'N/A') {
-        const tokenAmount = toReadableNumber(decimals, daily_reward);
-        totalPrice += +new BigNumber(tokenAmount)
-          .multipliedBy(tokenPrice)
+      const dailyReward = toReadableNumber(decimals, daily_reward);
+      const perDayAndLp = new BigNumber(dailyReward).dividedBy(
+        new BigNumber(totalStakePower)
+      );
+      let rewardTokenNum;
+      if (perDayAndLp.isEqualTo('0')) {
+        rewardTokenNum = new BigNumber(dailyReward).multipliedBy(day).toFixed();
+      } else {
+        rewardTokenNum = perDayAndLp
+          .multipliedBy(day)
+          .multipliedBy(x_amount)
           .toFixed();
       }
+      const priceData = tokenPriceList[id]?.price;
+      let tokenPrice = '0';
+      if (priceData) {
+        tokenPrice = new BigNumber(rewardTokenNum)
+          .multipliedBy(priceData)
+          .toString();
+      }
+      totalPrice += Number(tokenPrice);
     });
-    // get user stake pecent
-    const pecent = +amount / (+totalSeedAmount + +amount);
-    // get result price
-    const lastPrice = selectedLockData.month * 30 * totalPrice * pecent;
+    const lastPrice = totalPrice;
     let display = '';
     if (new BigNumber('0').isEqualTo(lastPrice)) {
       display = '$ -';
