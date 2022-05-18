@@ -564,5 +564,6 @@ const ru = {
   reward_apr: 'Rewards APR',
   price_board: 'Price board',
   close: 'close',
+  stake_min_deposit: 'Input must be greater than or equal to ',
 };
 export default Object.assign(ru, ru_in_risks_page);
