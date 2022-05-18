@@ -72,25 +72,37 @@ export default function Marquee() {
     }
   }, [tokenHistoryList.length]);
   useEffect(() => {
+    let intervalId: any;
     if (allTokens.length > 0) {
-      const commonBassesTokens = allTokens.filter((item) => {
-        return COMMON_BASSES.indexOf(item?.symbol) > -1;
-      });
-      const tokenIds: string[] = [];
-      commonBassesTokens.forEach((token: TokenMetadata) => {
-        tokenIds.push(token.id);
-      });
-      getListHistoryTokenPriceByIds(tokenIds.join('|')).then(
-        (result: HistoryTokenPrice[]) => {
-          setTokenHistoryList(result.concat(result));
-        }
-      );
+      getHistoryList();
+      intervalId = setInterval(() => {
+        getHistoryList();
+      }, 300000);
     }
+    return () => {
+      clearInterval(intervalId);
+    };
   }, [allTokens.length]);
-  if (tokenHistoryList.length == 0 || location.pathname.indexOf('risks') > -1)
-    return null;
+  async function getHistoryList() {
+    const commonBassesTokens = allTokens.filter((item) => {
+      return COMMON_BASSES.indexOf(item?.symbol) > -1;
+    });
+    const tokenIds: string[] = [];
+    commonBassesTokens.forEach((token: TokenMetadata) => {
+      tokenIds.push(token.id);
+    });
+    const result: HistoryTokenPrice[] = await getListHistoryTokenPriceByIds(
+      tokenIds.join('|')
+    );
+    setTokenHistoryList(result.concat(result));
+  }
+  if (tokenHistoryList.length == 0) return null;
   return (
-    <div className={'transform relative h-8 xs:-mt-6 md:-mt-6 xs:mb-6 md:mb-6'}>
+    <div
+      className={`transform relative h-8 xs:-mt-6 md:-mt-6 xs:mb-6 md:mb-6 ${
+        location.pathname.indexOf('risks') > -1 ? 'hidden' : ''
+      }`}
+    >
       <div
         onClick={switchStatus}
         className={`flex items-center absolute right-0 w-28 xs:w-auto md:w-auto h-8 bg-priceBoardColor rounded-l-full px-1.5 cursor-pointer text-primaryText hover:text-greenColor z-10`}
