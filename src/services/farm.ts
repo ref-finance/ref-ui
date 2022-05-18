@@ -525,6 +525,8 @@ export const incentiveLpTokenConfig = {
   '974': '4',
 };
 export const defaultConfig = {
+  '3364': '102',
+  '1195': '101',
   '2800': '100',
   '79': '99',
   [STABLE_POOL_USN_ID]: '98',
