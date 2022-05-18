@@ -146,7 +146,7 @@ export default function Marquee() {
                     className="box absolute"
                   >
                     <div
-                      style={{ width: '180px' }}
+                      style={{ width: '220px' }}
                       className={`flex items-center justify-center text-white rounded-md py-1 hover:bg-black hover:bg-opacity-20`}
                     >
                       <label className="text-sm text-white font-semibold">
