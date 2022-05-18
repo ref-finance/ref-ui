@@ -571,5 +571,6 @@ const vi = {
   click: 'Nhấp chuột',
   to_recover: 'để phục hồi.',
   reward_apr: 'Rewards APR',
+  stake_min_deposit: 'Input must be greater than or equal to ',
 };
 export default Object.assign(vi, vi_in_risks_page);

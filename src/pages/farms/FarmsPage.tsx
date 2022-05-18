@@ -42,6 +42,7 @@ import {
   incentiveLpTokenConfig,
   defaultConfig,
   frontConfig,
+  get_seed_info,
 } from '~services/farm';
 import {
   stake,
@@ -85,7 +86,6 @@ import getConfig from '~services/config';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { scientificNotationToString } from '../../utils/numbers';
 import { getPrice } from '~services/xref';
-import { useDayVolume } from '~state/pool';
 import { get24hVolume } from '~services/indexer';
 import { PoolRPCView } from '~services/api';
 
@@ -299,12 +299,7 @@ export function FarmsPage() {
       });
       tempFarms.forEach((arr: any) => {
         const allfarmApr = getTotalApr(arr);
-        const poolId = arr[0]?.pool?.id || '';
-        let poolApr = 0;
-        if (dayVolumeMap[poolId]) {
-          poolApr = getPoolFeeApr(dayVolumeMap[poolId], arr[0].pool);
-        }
-        arr.totalApr = +allfarmApr + poolApr;
+        arr.totalApr = +allfarmApr;
       });
 
       tempFarms.forEach((farm) => {
@@ -484,7 +479,11 @@ export function FarmsPage() {
         if (item1.front || item2.front) {
           return Number(item2.front || 0) - Number(item1.front || 0);
         }
-        return Number(item2.totalApr) - Number(item1.totalApr);
+        const item2APR =
+          Number(item2.totalApr) + Number(getPoolAprValue(item2));
+        const item1APR =
+          Number(item1.totalApr) + Number(getPoolAprValue(item1));
+        return Number(item2APR) - Number(item1APR);
       });
     } else if (sort == 'total_staked') {
       listAll.sort((item1: any, item2: any) => {
@@ -511,6 +510,14 @@ export function FarmsPage() {
     setFarms(listAll);
     setNoData(noData);
     setCommonSeedFarms(tempCommonSeedFarms || commonSeedFarms);
+  }
+  function getPoolAprValue(arr: any) {
+    const poolId = arr[0]?.pool?.id || '';
+    let poolApr = 0;
+    if (dayVolumeMap[poolId]) {
+      poolApr = getPoolFeeApr(dayVolumeMap[poolId], arr[0].pool);
+    }
+    return poolApr;
   }
   function getTotalApr(farmsData: FarmInfo[]) {
     let apr = 0;
@@ -633,11 +640,13 @@ export function FarmsPage() {
     const promisePoolIds = poolIds.map((poolId: string) => {
       return get24hVolume(poolId);
     });
-    const resolvedResult = await Promise.all(promisePoolIds);
-    poolIds.forEach((poolId: string, index: number) => {
-      tempMap[poolId] = resolvedResult[index];
-    });
-    setDayVolumeMap(tempMap);
+    try {
+      const resolvedResult = await Promise.all(promisePoolIds);
+      poolIds.forEach((poolId: string, index: number) => {
+        tempMap[poolId] = resolvedResult[index];
+      });
+      setDayVolumeMap(tempMap);
+    } catch (error) {}
   }
   function getPoolFeeApr(dayVolume: string, pool: PoolRPCView) {
     let result = '0';
@@ -2142,6 +2151,7 @@ function ActionModal(
   const [amount, setAmount] = useState<string>('');
   const [showTip, setShowTip] = useState<boolean>(false);
   const [showCalc, setShowCalc] = useState(false);
+  const [min_deposit, set_min_deposit] = useState('0');
   const cardWidth = isMobile() ? '90vw' : '30vw';
   const tokens = useTokens(farm?.tokenIds) || [];
   const [displayTokenData, setDisplayTokenData] = useState<Record<string, any>>(
@@ -2190,6 +2200,12 @@ function ActionModal(
       symbols: symbols.join('-'),
     });
   }, [tokens.length > 0 && tokens]);
+  useEffect(() => {
+    get_seed_info(farm.seed_id).then((result) => {
+      const { min_deposit } = result;
+      set_min_deposit(min_deposit);
+    });
+  }, []);
   function isEnded(farmsData: FarmInfo[]) {
     let ended: boolean = true;
     for (let i = 0; i < farmsData.length; i++) {
@@ -2239,7 +2255,8 @@ function ActionModal(
   }
   function stakeCheckFun(amount: string) {
     if (type == 'stake') {
-      const LIMITAOMUNT = '1000000000000000000';
+      const LIMITAOMUNT =
+        Number(min_deposit) > 0 ? min_deposit : '1000000000000000000';
       let value;
       if (new Set(STABLE_POOL_IDS || []).has(farm.lpTokenId?.toString())) {
         value = toNonDivisibleNumber(LP_STABLE_TOKEN_DECIMALS, amount);
@@ -2253,6 +2270,17 @@ function ActionModal(
       }
     }
     setAmount(amount);
+  }
+  function getMinDepositAmount() {
+    const LIMITAOMUNT =
+      Number(min_deposit) > 0 ? min_deposit : '1000000000000000000';
+    let value;
+    if (new Set(STABLE_POOL_IDS || []).has(farm.lpTokenId?.toString())) {
+      value = toReadableNumber(LP_STABLE_TOKEN_DECIMALS, LIMITAOMUNT);
+    } else {
+      value = toReadableNumber(LP_TOKEN_DECIMALS, LIMITAOMUNT);
+    }
+    return value;
   }
   return (
     <Modal {...props}>
@@ -2337,11 +2365,8 @@ function ActionModal(
                   <Alert
                     level="warn"
                     message={
-                      new Set(STABLE_POOL_IDS || []).has(
-                        farm.lpTokenId?.toString()
-                      )
-                        ? intl.formatMessage({ id: 'more_than_stable_seed' })
-                        : intl.formatMessage({ id: 'more_than_general_seed' })
+                      intl.formatMessage({ id: 'stake_min_deposit' }) +
+                      getMinDepositAmount()
                     }
                   />
                 ) : null}
