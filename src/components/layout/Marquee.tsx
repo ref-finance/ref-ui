@@ -56,7 +56,7 @@ export default function Marquee() {
       });
       const animationObj = anime({
         targets: xTrans,
-        duration: 25000,
+        duration: 30000,
         easing: 'linear',
         x: `-=${length}`,
         loop: true,
