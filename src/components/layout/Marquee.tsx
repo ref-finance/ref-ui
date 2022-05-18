@@ -9,14 +9,16 @@ import { getListHistoryTokenPriceByIds } from '~services/indexer';
 import { useWhitelistTokens } from '../../state/token';
 import anime from 'animejs';
 import { TokenMetadata } from '~services/ft-contract';
+import { useLocation } from 'react-router-dom';
 export default function Marquee() {
   const [showMarquee, setShowMarquee] = useState(
-    localStorage.getItem('marquee') == '1'
+    localStorage.getItem('marquee') == '0' ? false : true
   );
   const [tokenHistoryList, setTokenHistoryList] = useState<HistoryTokenPrice[]>(
     []
   );
   const [animationObj, setAnimationObj] = useState(null);
+  const location = useLocation();
   const COMMON_BASSES = [
     'USN',
     'wNEAR',
@@ -54,7 +56,7 @@ export default function Marquee() {
       });
       const animationObj = anime({
         targets: xTrans,
-        duration: 20000,
+        duration: 25000,
         easing: 'linear',
         x: `-=${length}`,
         loop: true,
@@ -81,17 +83,17 @@ export default function Marquee() {
       getListHistoryTokenPriceByIds(tokenIds.join('|')).then(
         (result: HistoryTokenPrice[]) => {
           setTokenHistoryList(result.concat(result));
-          console.log('88888888888888888', result);
         }
       );
     }
   }, [allTokens.length]);
-  if (tokenHistoryList.length == 0) return null;
+  if (tokenHistoryList.length == 0 || location.pathname.indexOf('risks') > -1)
+    return null;
   return (
-    <div className="transform relative h-8 xs:-mt-6 md:-mt-6 xs:mb-6 md:mb-6">
+    <div className={'transform relative h-8 xs:-mt-6 md:-mt-6 xs:mb-6 md:mb-6'}>
       <div
         onClick={switchStatus}
-        className="flex items-center absolute right-0 w-28 h-8 bg-priceBoardColor rounded-l-full px-1.5 cursor-pointer text-primaryText hover:text-greenColor z-10"
+        className={`flex items-center absolute right-0 w-28 xs:w-auto md:w-auto h-8 bg-priceBoardColor rounded-l-full px-1.5 cursor-pointer text-primaryText hover:text-greenColor z-10`}
       >
         <span className="flex items-center justify-center w-6 h-6 bg-black bg-opacity-30 rounded-full">
           {showMarquee ? (
@@ -100,7 +102,7 @@ export default function Marquee() {
             <PriceBoardIcon></PriceBoardIcon>
           )}
         </span>
-        <label className="text-xs ml-1.5 cursor-pointer">
+        <label className="text-xs ml-1.5 cursor-pointer xs:hidden md:hidden">
           {showMarquee ? (
             <FormattedMessage id="close"></FormattedMessage>
           ) : (
@@ -110,7 +112,7 @@ export default function Marquee() {
       </div>
       {
         <div
-          className={`mr-20 bg-cardBg h-8 guidAnimation ${
+          className={`mr-20 xs:mr-6 md:mr-6 bg-cardBg h-8 guidAnimation ${
             showMarquee ? '' : 'hidden'
           }`}
         >
@@ -136,7 +138,7 @@ export default function Marquee() {
                       className={`flex items-center justify-center text-white rounded-md py-1 hover:bg-black hover:bg-opacity-20`}
                     >
                       <label className="text-sm text-white font-semibold">
-                        {item.symbol}
+                        {item.symbol == 'near' ? 'NEAR' : item.symbol}
                       </label>
                       <label className="text-sm text-white mx-2.5">
                         ${item.price}
