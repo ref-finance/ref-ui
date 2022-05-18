@@ -10,6 +10,7 @@ import { useWhitelistTokens } from '../../state/token';
 import anime from 'animejs';
 import { TokenMetadata } from '~services/ft-contract';
 import { useLocation } from 'react-router-dom';
+import { toRealSymbol } from '~utils/token';
 export default function Marquee() {
   const [showMarquee, setShowMarquee] = useState(
     localStorage.getItem('marquee') == '0' ? false : true
@@ -150,7 +151,9 @@ export default function Marquee() {
                       className={`flex items-center justify-center text-white rounded-md py-1 hover:bg-black hover:bg-opacity-20`}
                     >
                       <label className="text-sm text-white font-semibold">
-                        {item.symbol == 'near' ? 'NEAR' : item.symbol}
+                        {toRealSymbol(
+                          item.symbol == 'near' ? 'NEAR' : item.symbol
+                        )}
                       </label>
                       <label className="text-sm text-white mx-2.5">
                         ${item.price}
