@@ -1867,7 +1867,8 @@ function StakeModal(props: {
     !amount ||
     !amountAvailableCheck ||
     new BigNumber(amount).isLessThanOrEqualTo(0) ||
-    new BigNumber(amount).isGreaterThan(lpBalance) ||
+    (stakeType !== 'freeToLock' &&
+      new BigNumber(amount).isGreaterThan(lpBalance)) ||
     (stakeType == 'freeToLock' &&
       new BigNumber(amount).isGreaterThan(freeAmount)) ||
     (stakeType !== 'free' &&
