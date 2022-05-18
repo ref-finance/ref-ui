@@ -68,7 +68,9 @@ export function HalfAndMaxAmount({
     <div className="flex items-center">
       <span
         className={`px-2 py-1 hover:bg-black hover:bg-opacity-20 cursor-pointer ${'hover:text-gradientFrom'}  rounded-3xl ${
-          amount === halfValue ? 'text-gradientFrom' : 'text-primaryText'
+          amount === halfValue && !ONLY_ZEROS.test(halfValue)
+            ? 'text-gradientFrom'
+            : 'text-primaryText'
         } text-xs`}
         onClick={() => {
           const half = percentOfBigNumber(50, max, token.decimals);
@@ -81,7 +83,9 @@ export function HalfAndMaxAmount({
 
       <span
         className={`px-2 py-1 hover:bg-black hover:bg-opacity-20 cursor-pointer rounded-3xl ${'hover:text-gradientFrom'} ${
-          amount === max ? 'text-gradientFrom' : 'text-primaryText'
+          amount === max && !ONLY_ZEROS.test(max)
+            ? 'text-gradientFrom'
+            : 'text-primaryText'
         } text-xs`}
         onClick={() => {
           onChangeAmount(max);

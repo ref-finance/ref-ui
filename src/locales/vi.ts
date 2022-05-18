@@ -565,7 +565,7 @@ const vi = {
   total_usd_value: 'Tổng giá trị đô la Mỹ',
   bitcoin_value: 'Giá trị Bitcoin',
   stable_coin_value: 'Giá trị của StableCoin',
-  pool_fee_apr: 'Pool Fee APR',
+  pool_fee_apr: 'Pool fee APR',
   ref_account_balance_tip_mobile:
     'Bạn có mã thông báo trong tài khoản REF của mình.',
   click: 'Nhấp chuột',
@@ -620,5 +620,7 @@ const vi = {
   expected_reward: 'Expected reward',
   you_have: 'You have',
   tokens_small: 'tokens',
+  reward_apr: 'Rewards APR',
+  stake_min_deposit: 'Input must be greater than or equal to ',
 };
 export default Object.assign(vi, vi_in_risks_page);

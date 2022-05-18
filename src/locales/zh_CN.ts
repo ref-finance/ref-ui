@@ -581,5 +581,7 @@ const zh_CN = {
   expected_reward: 'Expected reward',
   you_have: 'You have',
   tokens_small: 'tokens',
+  reward_apr: '奖励年化收益率',
+  stake_min_deposit: '输入的值必须大于或等于 ',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

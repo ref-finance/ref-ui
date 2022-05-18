@@ -558,7 +558,7 @@ const en_US = {
   total_usd_value: 'Total USD value',
   bitcoin_value: 'Bitcoin value',
   stable_coin_value: 'StableCoin value',
-  pool_fee_apr: 'Pool Fee APR',
+  pool_fee_apr: 'Pool fee APR',
   ref_account_balance_tip_mobile: 'You have tokens in your REF account.',
   click: 'Click',
   to_recover: 'to recover.',
@@ -612,5 +612,7 @@ const en_US = {
   expected_reward: 'Expected reward',
   you_have: 'You have',
   tokens_small: 'tokens',
+  reward_apr: 'Rewards APR',
+  stake_min_deposit: 'Input must be greater than or equal to ',
 };
 export default Object.assign(en_US, en_US_in_risks_page);
