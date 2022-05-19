@@ -196,7 +196,7 @@ export function FarmsPage() {
       return {};
     };
     let Params: [
-      Promise<Record<string, string>>,
+      any,
       Promise<Record<string, string>>,
       Promise<any>,
       Promise<Record<string, string>>,
@@ -222,14 +222,14 @@ export function FarmsPage() {
     }
 
     const resolvedParams: [
-      Record<string, string>,
+      any,
       Record<string, string>,
       any,
       Record<string, string>,
       any
     ] = await Promise.all(Params);
 
-    const stakedList: Record<string, string> = resolvedParams[0];
+    const stakedList: Record<string, string> = resolvedParams[0].stakedList;
     const tokenPriceList: any = resolvedParams[2];
     const seeds: Record<string, string> = resolvedParams[3];
     getAllPoolsDayVolume(seeds);

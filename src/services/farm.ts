@@ -37,6 +37,8 @@ import {
 import { currentStorageBalanceOfFarm_boost } from '../services/account';
 import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 import { utils } from 'near-api-js';
+import { scientificNotationToString } from '../utils/numbers';
+import Big from 'big.js';
 const config = getConfig();
 export const DEFAULT_PAGE_LIMIT = 150;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
@@ -99,13 +101,38 @@ export const getSeeds = async ({
 
 export const getStakedListByAccountId = async ({
   accountId = getCurrentWallet().wallet.getAccountId(),
-}): Promise<Record<string, string>> => {
+}) => {
   const stakedList = await refFarmViewFunction({
     methodName: 'list_user_seeds',
     args: { account_id: accountId },
   });
 
-  return stakedList;
+  const v2StakedList = await list_farmer_seeds().then((res) => {
+    Object.keys(res).forEach((seed) => {
+      res[seed] = scientificNotationToString(
+        new Big(res[seed]?.free_amount || 0)
+          .plus(new Big(res[seed]?.locked_amount || 0))
+          .toString()
+      );
+    });
+
+    return res;
+  });
+
+  const finalStakeSeedList = new Array(
+    ...new Set(Object.keys(stakedList).concat(Object.keys(v2StakedList)))
+  );
+
+  const finalStakeList = {};
+  finalStakeSeedList.forEach((seed) => {
+    finalStakeList[seed] = scientificNotationToString(
+      new BigNumber(stakedList[seed] || 0)
+        .plus(new BigNumber(v2StakedList[seed] || 0))
+        .toString()
+    );
+  });
+
+  return { finalStakeList, v2StakedList, stakedList };
 };
 
 export const getLPTokenId = (farm_id: string) => {
