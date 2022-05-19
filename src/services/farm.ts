@@ -709,6 +709,7 @@ export interface Seed {
   pool?: PoolRPCView;
   user_seed?: Record<string, any>;
   unclaimed?: Record<string, string>;
+  unclaimed_token_meta_datas?: Record<string, TokenMetadata>;
   seedTvl?: string;
   hidden?: boolean;
 }

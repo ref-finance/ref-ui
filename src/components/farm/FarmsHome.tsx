@@ -276,9 +276,22 @@ export default function FarmsHome(props: any) {
       if (user_seed) {
         unclaimed = await get_unclaimed_rewards(seed_id);
       }
+      let unclaimed_token_meta_datas = {};
+      if (unclaimed) {
+        const tokens = Object.keys(unclaimed);
+        const unclaimedTokens = tokens.map(async (tokenId: string) => {
+          const tokenMetadata = await ftGetTokenMetadata(tokenId);
+          return tokenMetadata;
+        });
+        const tempArr = await Promise.all(unclaimedTokens);
+        tempArr.forEach((token: TokenMetadata) => {
+          unclaimed_token_meta_datas[token.id] = token;
+        });
+      }
       newSeed.pool = pool;
       newSeed.user_seed = user_seed || {};
       newSeed.unclaimed = unclaimed || {};
+      newSeed.unclaimed_token_meta_datas = unclaimed_token_meta_datas;
       newSeed.seedTvl = seedTvl?.toString() || '0';
     });
     await Promise.all(promise_new_list_seeds);
@@ -1057,7 +1070,7 @@ function FarmView(props: {
                   return (
                     <label
                       key={unWrapedtoken.id}
-                      className={`h-8 w-8 rounded-full overflow-hidden border border-gradientFromHover ${
+                      className={`h-8 w-8 rounded-full overflow-hidden border border-gradientFromHover bg-cardBg ${
                         index != 0 ? '-ml-1.5' : ''
                       }`}
                     >
@@ -1114,7 +1127,7 @@ function FarmView(props: {
                   {getTotalUnclaimedRewards()}
                 </span>
                 <span
-                  className="flex items-center justify-center bg-deepBlue rounded-r-lg text-sm text-white whiteText h-8 w-20 cursor-pointer"
+                  className="flex items-center justify-center bg-deepBlue rounded-r-lg text-sm text-white h-8 w-20 cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
                     claimReward();

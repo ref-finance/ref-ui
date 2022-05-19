@@ -392,6 +392,9 @@ input[type='range']::-webkit-slider-runnable-track {
 .farmEnded img {
   filter: grayscale(100%);
 }
+.farmEnded .bg-deepBlue.text-white {
+  color: #fff;
+}
 
 .swap-wrap {
   position: absolute;

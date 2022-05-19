@@ -12,6 +12,7 @@ import {
   GoldLevel4,
   LockedIcon,
   UnLockedIcon,
+  CalcIcon,
 } from '~components/icon/FarmBoost';
 import { useHistory, useLocation } from 'react-router-dom';
 import getConfig from '../../services/config';
@@ -76,6 +77,7 @@ import { ExternalLinkIcon } from '~components/icon/Risk';
 import { FaAngleUp, FaAngleDown } from 'react-icons/fa';
 import { useDayVolume } from '../../state/pool';
 import { getPool } from '~services/indexer';
+import CalcModelBooster from '~components/farm/CalcModelBooster';
 const ONLY_ZEROS = /^0*\.?0*$/;
 const { STABLE_POOL_IDS, FARM_LOCK_SWITCH } = getConfig();
 export default function FarmsDetail(props: {
@@ -99,7 +101,7 @@ export default function FarmsDetail(props: {
       if (index == symbols.length - 1) {
         result += item === 'wNEAR' ? 'NEAR' : item;
       } else {
-        result += item === 'wNEAR' ? 'NEAR' : item + '-';
+        result += item === 'wNEAR' ? 'NEAR-' : item + '-';
       }
     });
     return result;
@@ -111,7 +113,7 @@ export default function FarmsDetail(props: {
       tokenList.push(
         <label
           key={unWrapedToken.id}
-          className={`h-11 w-11 xs:h-9 xs:w-9 md:h-9 md:w-9 rounded-full overflow-hidden border border-gradientFromHover -ml-1.5`}
+          className={`h-11 w-11 xs:h-9 xs:w-9 md:h-9 md:w-9 rounded-full overflow-hidden border border-gradientFromHover bg-cardBg -ml-1.5`}
         >
           <img src={unWrapedToken.icon} className="w-full h-full"></img>
         </label>
@@ -157,6 +159,7 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
   const isSignedIn = globalState.isSignedIn;
   const [lpBalance, setLpBalance] = useState('0');
   const [showAddLiquidityEntry, setShowAddLiquidityEntry] = useState(false);
+  const [calcVisible, setCalcVisible] = useState(false);
   const { detailData, tokenPriceList } = props;
   const pool = detailData.pool;
   function totalTvlPerWeekDisplay() {
@@ -179,7 +182,7 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
     const totalPriceDisplay =
       totalPrice == 0
         ? '-'
-        : toInternationalCurrencySystem(totalPrice.toString(), 2);
+        : '$' + toInternationalCurrencySystem(totalPrice.toString(), 2);
     return (
       <>
         <span>{totalPriceDisplay}</span>
@@ -223,20 +226,65 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
       }
     }
   };
+  function getTotalApr() {
+    const farms = detailData.farmList;
+    let apr = 0;
+    const allPendingFarms = isPending();
+    farms.forEach(function (item: FarmBoost) {
+      const pendingFarm = item.status == 'Created' || item.status == 'Pending';
+      if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
+        apr += Number(item.apr);
+      }
+    });
+    if (apr == 0) {
+      return '-';
+    } else {
+      apr = apr * 100;
+      return toPrecision(apr.toString(), 2) + '%';
+    }
+  }
+  function isPending() {
+    let pending: boolean = true;
+    const farms = detailData.farmList;
+    for (let i = 0; i < farms.length; i++) {
+      if (farms[i].status != 'Created' && farms[i].status != 'Pending') {
+        pending = false;
+        break;
+      }
+    }
+    return pending;
+  }
   return (
     <div className="mt-5">
       <div className="poolbaseInfo flex items-center justify-between">
         <div className="flex flex-col items-start bg-cardBg rounded-lg py-3.5 px-5 flex-grow mr-3.5">
-          <span className="text-farmText text-sm">
-            <FormattedMessage id="total_staked"></FormattedMessage>
-          </span>
-          <span className="text-white text-base mt-2.5">
-            {`${
-              Number(detailData.seedTvl) == 0
-                ? '-'
-                : `$${toInternationalCurrencySystem(detailData.seedTvl, 2)}`
-            }`}
-          </span>
+          <div className="flex items-center justify-between w-full">
+            <span className="text-farmText text-sm">
+              <FormattedMessage id="total_staked"></FormattedMessage>
+            </span>
+            <span className="flex items-center">
+              <CalcIcon
+                onClick={(e: any) => {
+                  e.stopPropagation();
+                  setCalcVisible(true);
+                }}
+                className="mr-1.5 cursor-pointer"
+              />
+              <label className="text-farmText text-sm">
+                <FormattedMessage id="apr"></FormattedMessage>
+              </label>
+            </span>
+          </div>
+          <div className="flex items-center justify-between w-full">
+            <span className="text-white text-base mt-2.5">
+              {`${
+                Number(detailData.seedTvl) == 0
+                  ? '-'
+                  : `$${toInternationalCurrencySystem(detailData.seedTvl, 2)}`
+              }`}
+            </span>
+            <span className="text-white text-base mt-2.5">{getTotalApr()}</span>
+          </div>
         </div>
         <div className="flex flex-col items-start bg-cardBg rounded-lg py-3.5 px-5 flex-grow">
           <span className="text-farmText text-sm">
@@ -260,6 +308,27 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
         detailData={detailData}
         tokenPriceList={tokenPriceList}
       ></UserTotalUnClaimBlock>
+      {calcVisible ? (
+        <CalcModelBooster
+          isOpen={calcVisible}
+          onRequestClose={(e) => {
+            e.stopPropagation();
+            setCalcVisible(false);
+          }}
+          seed={detailData}
+          tokenPriceList={tokenPriceList}
+          style={{
+            overlay: {
+              backdropFilter: 'blur(15px)',
+              WebkitBackdropFilter: 'blur(15px)',
+            },
+            content: {
+              outline: 'none',
+              transform: 'translate(-50%, -50%)',
+            },
+          }}
+        />
+      ) : null}
     </div>
   );
 }
@@ -308,15 +377,15 @@ function AddLiquidityEntryBar(props: {
       style={{ backgroundColor: 'rgba(29, 41, 50, 0.5)' }}
     >
       <div className="w-full bg-gradientFrom h-1.5"></div>
-      <div className="flex items-center justify-center pt-6 pb-3 px-3">
+      <div className="flex items-center justify-center pt-5 pb-3 px-3">
         <p className="text-sm text-white">
-          Get {displaySymbols()} Liquidity Provide Token (LP Tokens) first!
+          <FormattedMessage id="add_lp_tokens_tip" />
         </p>
         <GradientButton
           onClick={openAddLiquidityModal}
           color="#fff"
           loading={addLiquidityButtonLoading}
-          className={`w-36 h-8 ml-5 text-center text-base text-white focus:outline-none font-semibold `}
+          className={` flex-shrink-0 w-36 h-8 ml-5 text-center text-base text-white focus:outline-none font-semibold `}
         >
           <ButtonTextWrapper
             loading={addLiquidityButtonLoading}
@@ -990,8 +1059,7 @@ function UserTotalUnClaimBlock(props: {
 }) {
   const { detailData, tokenPriceList } = props;
   const [claimLoading, setClaimLoading] = useState(false);
-  const farms = detailData.farmList;
-  const unClaimedTokens = useTokens(Object.keys(detailData.unclaimed || {}));
+  const unClaimedTokens = Object.values(detailData.unclaimed_token_meta_datas);
   function claimReward() {
     if (claimLoading) return;
     setClaimLoading(true);
@@ -1732,7 +1800,7 @@ function StakeModal(props: {
       tokenList.push(
         <label
           key={unWrapedToken.id}
-          className={`h-8 w-8 rounded-full overflow-hidden border border-gradientFromHover ${
+          className={`h-8 w-8 rounded-full overflow-hidden border border-gradientFromHover bg-cardBg ${
             index != 0 ? '-ml-1.5' : ''
           }`}
         >
@@ -2251,6 +2319,7 @@ function UnStakeModal(props: {
       : toReadableNumber(DECIMALS, locked_amount);
   const lockStatus = new BigNumber(unlock_timestamp).isLessThan(serverTime);
   const slashRate = slash_rate / 10000;
+  const intl = useIntl();
 
   function changeAmount(value: string) {
     setAmount(value);
@@ -2307,8 +2376,7 @@ function UnStakeModal(props: {
     return result;
   }
   function showSlashTip() {
-    // const tip = intl.formatMessage({ id: 'farmRewardsCopy' });
-    const tip = 'Slash = Slash Rate * Unexpired Time * Unstaked amount';
+    const tip = intl.formatMessage({ id: 'slash_tip' });
     let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
   }
@@ -2320,10 +2388,7 @@ function UnStakeModal(props: {
   return (
     <CommonModal title={title} isOpen={isOpen} onRequestClose={onRequestClose}>
       <div className="flex flex-col mt-4 bg-black bg-opacity-20 rounded-lg p-4">
-        <div className="flex justify-between items-center mb-3">
-          <span className="text-farmText text-sm">
-            <FormattedMessage id="unstake"></FormattedMessage>
-          </span>
+        <div className="flex justify-end items-center mb-3">
           <span className="text-farmText text-sm">
             <FormattedMessage id="lp_token"></FormattedMessage>{' '}
             {toPrecision(lpBalance, 6)}
@@ -2360,7 +2425,9 @@ function UnStakeModal(props: {
             {displayStatus()}
           </div>
           <div className="flex justify-between items-center w-full">
-            <span className="text-farmText text-sm">Expired Time</span>
+            <span className="text-farmText text-sm">
+              <FormattedMessage id="end_locking_period" />
+            </span>
             <span className="text-white text-sm">{displayDate()}</span>
           </div>
         </div>
@@ -2376,7 +2443,7 @@ function UnStakeModal(props: {
         >
           <ButtonTextWrapper
             loading={unStakeLoading}
-            Text={() => <FormattedMessage id="unstake" />}
+            Text={() => <FormattedMessage id={title} />}
           />
         </GradientButton>
       </div>
@@ -2438,20 +2505,15 @@ function CommonLine(props: any) {
 function UnClaimBox(props: { detailData: Seed; tokenPriceList: any }) {
   const [showClaim, setShowClaim] = useState(false);
   const { detailData, tokenPriceList } = props;
-  const { unclaimed, farmList } = detailData;
+  const { unclaimed, unclaimed_token_meta_datas } = detailData;
   const unclaimedkeys = Object.keys(unclaimed);
-  const rewardTokenMetaMap = {};
-  farmList.forEach((farm: FarmBoost) => {
-    const token_meta_data = farm.token_meta_data;
-    rewardTokenMetaMap[token_meta_data.id] = token_meta_data;
-  });
   function switchShowClaim() {
     setShowClaim(!showClaim);
   }
   const displayTotalPrice = () => {
     let totalPrice = 0;
     unclaimedkeys.forEach((rewardId: string) => {
-      const token = rewardTokenMetaMap[rewardId];
+      const token = unclaimed_token_meta_datas[rewardId];
       const { id, decimals } = token;
       const amount = toReadableNumber(decimals, unclaimed[rewardId]);
       const tokenPrice = tokenPriceList[id].price;
@@ -2470,7 +2532,7 @@ function UnClaimBox(props: { detailData: Seed; tokenPriceList: any }) {
     return result;
   };
   const displayTokenNumber = (rewardId: string) => {
-    const meta = rewardTokenMetaMap[rewardId];
+    const meta = unclaimed_token_meta_datas[rewardId];
     const { decimals } = meta;
     const amount = toReadableNumber(decimals, unclaimed[rewardId]);
     const curUserUnclaimedReward = new BigNumber(amount).toString();
@@ -2528,7 +2590,7 @@ function UnClaimBox(props: { detailData: Seed; tokenPriceList: any }) {
               return (
                 <span className="flex items-center" key={index}>
                   <img
-                    src={rewardTokenMetaMap[rewardId]?.icon}
+                    src={unclaimed_token_meta_datas[rewardId]?.icon}
                     className="w-6 h-6 xs:w-5 xs:h-5 md:w-5 md:h-5 rounded-full border border-gradientFromHover"
                   ></img>{' '}
                   <label className="text-sm text-farmText ml-2.5">
