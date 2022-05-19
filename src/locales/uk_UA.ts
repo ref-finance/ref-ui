@@ -584,5 +584,12 @@ const uk_UA = {
   more_than_seed: 'Input must be greater than or equal to ',
   reward_apr: 'Rewards APR',
   stake_min_deposit: 'Input must be greater than or equal to ',
+  unlock: 'Unlock',
+  exit_fee: 'Exit fee',
+  end_locking_period: 'End of locking period',
+  add_lp_tokens_tip:
+    'You need LP tokens to stake into the corresponding farm. First, add liquidity to the pool to get LP tokens.',
+  slash_tip: 'Slash = Slash Rate * Unexpired Time * Unstaked amount',
+  get_lp_token_v2: 'Get LP Token',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

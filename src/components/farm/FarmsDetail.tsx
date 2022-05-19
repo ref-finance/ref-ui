@@ -142,7 +142,7 @@ export default function FarmsDetail(props: {
         </div>
         <div className="flex items-center" onClick={goPoolPage}>
           <label className="mx-2 text-sm text-primaryText hover:text-framBorder cursor-pointer">
-            <FormattedMessage id="get_lp_token"></FormattedMessage>
+            <FormattedMessage id="get_lp_token_v2"></FormattedMessage>
           </label>
           <LinkIcon></LinkIcon>
         </div>

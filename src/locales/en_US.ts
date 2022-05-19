@@ -599,7 +599,7 @@ const en_US = {
   more_than_seed: 'Input must be greater than or equal to ',
   how_to_earn_more: 'How to earn more?',
   you_staked: 'You Staked',
-  lock_your_lp_tokens_with_booster: 'Lock your LP tokens with booster',
+  lock_your_lp_tokens_with_booster: 'Lock your LP tokens for boosted rewards',
   unstaked_anytime_no_booster: 'Unstaked anytime, no booster',
   ordinary_stake: 'Ordinary Stake',
   locking_stake: 'Lock-up staking',
@@ -620,5 +620,6 @@ const en_US = {
   add_lp_tokens_tip:
     'You need LP tokens to stake into the corresponding farm. First, add liquidity to the pool to get LP tokens.',
   slash_tip: 'Slash = Slash Rate * Unexpired Time * Unstaked amount',
+  get_lp_token_v2: 'Get LP Token',
 };
 export default Object.assign(en_US, en_US_in_risks_page);
