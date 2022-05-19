@@ -602,8 +602,8 @@ const en_US = {
   lock_your_lp_tokens_with_booster: 'Lock your LP tokens with booster',
   unstaked_anytime_no_booster: 'Unstaked anytime, no booster',
   ordinary_stake: 'Ordinary Stake',
-  locking_stake: 'Locking Stake',
-  change_to_lock: 'Change to lock',
+  locking_stake: 'Lock-up staking',
+  change_to_lock: 'Change to Lock-up staking',
   booster_expected_reward: 'Booster & Expected reward',
   final_booster: 'Final Booster',
   existing_amount: 'Existing amount',
@@ -614,5 +614,7 @@ const en_US = {
   tokens_small: 'tokens',
   reward_apr: 'Rewards APR',
   stake_min_deposit: 'Input must be greater than or equal to ',
+  unlock: '🔓Unlock',
+  exit_fee: 'Exit fee',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

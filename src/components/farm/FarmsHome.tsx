@@ -91,8 +91,8 @@ export default function FarmsHome(props: any) {
   const searchRef = useRef(null);
   const refreshTime = 120000;
   const sortList = {
-    apr: intl.formatMessage({ id: 'apr' }),
     tvl: intl.formatMessage({ id: 'tvl' }),
+    apr: intl.formatMessage({ id: 'apr' }),
   };
   const statusList = isSignedIn
     ? {
@@ -107,7 +107,7 @@ export default function FarmsHome(props: any) {
     coinList[key] = intl.formatMessage({ id: key });
   });
   const farmV2Status: string = localStorage.getItem('farmV2Status');
-  let [sort, setSort] = useState('apr');
+  let [sort, setSort] = useState('tvl');
   let [status, setStatus] = useState(
     !isSignedIn && farmV2Status == 'my' ? 'live' : farmV2Status || 'live'
   );
@@ -666,7 +666,9 @@ export default function FarmsHome(props: any) {
                   }}
                 >
                   {value}
-                  <ArrowDown></ArrowDown>
+                  <span className="ml-1.5">
+                    <ArrowDown></ArrowDown>
+                  </span>
                 </div>
               );
             })}
@@ -793,6 +795,7 @@ function FarmView(props: {
     if (apr == 0) {
       return '-';
     } else {
+      apr = apr * 100;
       return toPrecision(apr.toString(), 2) + '%';
     }
   }

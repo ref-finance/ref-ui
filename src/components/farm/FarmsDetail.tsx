@@ -36,6 +36,7 @@ import {
   percent,
   formatWithCommas,
   calculateFairShare,
+  niceDecimals,
 } from '../../utils/numbers';
 import BigNumber from 'bignumber.js';
 import {
@@ -1114,8 +1115,8 @@ function UserStakeBlock(props: {
   const [stakeType, setStakeType] = useState('');
   const [unStakeType, setUnStakeType] = useState('');
   const [serverTime, setServerTime] = useState<number>();
-  const [lockButtonStatus, setLockButtonStatus] = useState(false);
-  const { pool, user_seed, unclaimed, min_locking_duration_sec } = detailData;
+  const { pool, user_seed, unclaimed, min_locking_duration_sec, slash_rate } =
+    detailData;
   const {
     free_amount = '0',
     locked_amount = '0',
@@ -1140,6 +1141,7 @@ function UserStakeBlock(props: {
   const freeAmount = toReadableNumber(DECIMALS, free_amount);
   const lockAmount = toReadableNumber(DECIMALS, locked_amount);
   const xlocked_amount = toReadableNumber(DECIMALS, x_locked_amount);
+  const slashRate = slash_rate / 10000;
   useEffect(() => {
     get_server_time();
   }, []);
@@ -1235,67 +1237,101 @@ function UserStakeBlock(props: {
     return toPrecision(rate.toString(), 2);
   }
   function displayDuration() {
-    const month = duration_sec / 2592000;
+    const durationData: {
+      pecent: number;
+      dom: string;
+    } = displayLockDuration();
+    if (!durationData) return null;
+    return (
+      <div className="flex items-center">
+        <div
+          className="rounded-lg bg-darkBg overflow-hidden"
+          style={{ width: '150px', height: '4px' }}
+        >
+          <div
+            className={`rounded-2xl h-full ${
+              durationData.pecent >= 0.8 ? 'bg-greenColor' : 'bg-lightGreyColor'
+            }`}
+            style={{ width: durationData.pecent * 100 + '%' }}
+          ></div>
+        </div>
+        <div className="flex items-center">
+          <div
+            className="text-white text-right ml-1"
+            data-class="reactTip"
+            data-for="duration_start_end_id"
+            data-place="top"
+            data-html={true}
+            data-tip={durationData.dom}
+          >
+            <QuestionMark></QuestionMark>
+            <ReactTooltip
+              id="duration_start_end_id"
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+  const displayLockDuration = (): {
+    pecent: number;
+    dom: string;
+  } => {
     if (serverTime && unlock_timestamp) {
+      const month = duration_sec / 2592000;
       // get reset time
-      const restTime_sec = new BigNumber(unlock_timestamp)
-        .minus(serverTime)
-        .dividedBy(1000000000)
-        .toNumber();
+      let restTime_sec = 0;
+      if (unlock_timestamp > serverTime) {
+        restTime_sec = new BigNumber(unlock_timestamp)
+          .minus(serverTime)
+          .dividedBy(1000000000)
+          .toNumber();
+      }
       const pecent = 1 - restTime_sec / duration_sec;
       // get start~end
       const end_sec = unlock_timestamp / 1000000000;
       const begin_sec = end_sec - duration_sec;
-      const durationDOMStr = displayLockDuration(begin_sec, end_sec);
-      return (
-        <>
-          <div className="flex items-center mb-2">
-            {`${toPrecision(
-              (pecent * 100).toString(),
-              3
-            )} % of ${month} months`}
-            <div
-              className="text-white text-right ml-1"
-              data-class="reactTip"
-              data-for="duration_start_end_id"
-              data-place="top"
-              data-html={true}
-              data-tip={durationDOMStr}
-            >
-              <QuestionMark></QuestionMark>
-              <ReactTooltip
-                id="duration_start_end_id"
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-              />
-            </div>
-          </div>
-          <div
-            className="rounded-lg bg-darkBg overflow-hidden"
-            style={{ width: '150px', height: '4px' }}
-          >
-            <div
-              className="rounded-2xl bg-lightGreyColor h-full"
-              style={{ width: pecent * 100 + '%' }}
-            ></div>
-          </div>
-        </>
-      );
+      const startDate = new Date(begin_sec * 1000).toString();
+      const endDate = new Date(end_sec * 1000).toString();
+      const startArr = startDate.split(' ');
+      const endArr = endDate.split(' ');
+      const startDisplay = `${startArr[2]} ${startArr[1]}, ${startArr[3]}`;
+      const endDisplay = `${endArr[2]} ${endArr[1]}, ${endArr[3]}`;
+      const hm = endArr[4].substring(0, 5);
+      const dom = `<div class="flex flex-col items-start">
+          <span class="text-farmText text-xs">${toPrecision(
+            (pecent * 100).toString(),
+            3
+          )} % of ${month} months</span>
+          <span class="text-farmText text-xs mt-1">${hm} ${startDisplay} - ${endDisplay}</span>
+      </div>`;
+      return {
+        dom,
+        pecent,
+      };
     }
-    return '';
-  }
-  const displayLockDuration = (begin_sec: number, end_sec: number) => {
-    const startDate = new Date(begin_sec * 1000).toString();
-    const endDate = new Date(end_sec * 1000).toString();
-    const startArr = startDate.split(' ');
-    const endArr = endDate.split(' ');
-    const startDisplay = `${startArr[2]} ${startArr[1]}, ${startArr[3]}`;
-    const endDisplay = `${endArr[2]} ${endArr[1]}, ${endArr[3]}`;
-    const hm = endArr[4].substring(0, 5);
-    return `<span class="text-farmText text-xs">${hm} ${startDisplay} - ${endDisplay}</span>`;
   };
+  function getExitFee() {
+    let result = '0';
+    if (unlock_timestamp > serverTime) {
+      const restTime_sec = new BigNumber(unlock_timestamp)
+        .minus(serverTime)
+        .dividedBy(1000000000)
+        .toNumber();
+      const slashAmount =
+        (restTime_sec / duration_sec) * slashRate * Number(lockAmount);
+      if (new BigNumber(slashAmount).isLessThan(0.001)) {
+        result = '< 0.001';
+      } else {
+        result = `${toPrecision(slashAmount.toString(), 3)}`;
+      }
+    }
+    return result;
+  }
   const isEnded = detailData.farmList[0].status == 'Ended';
   return (
     <div className="bg-cardBg rounded-2xl p-5 mt-5">
@@ -1344,7 +1380,7 @@ function UserStakeBlock(props: {
                     isEnded ? 'hidden' : ''
                   }`}
                 >
-                  <FormattedMessage id="append"></FormattedMessage>
+                  <FormattedMessage id="stake"></FormattedMessage>
                 </GradientButton>
                 <OprationButton
                   onClick={() => {
@@ -1358,10 +1394,10 @@ function UserStakeBlock(props: {
               </div>
             ) : (
               <div className="flex items-start justify-between">
-                <div className="freeBox rounded-lg bg-boostBg w-1 flex-grow mr-3 px-3.5">
-                  <div className="flex items-center justify-center bg-freeTitleBg h-6 text-white text-sm rounded-b-lg w-40 mx-auto mb-3">
+                <div className="freeBox rounded-lg bg-boostBg w-1 flex-grow mr-3 px-3.5 pt-5">
+                  {/* <div className="flex items-center justify-center bg-freeTitleBg h-6 text-white text-sm rounded-b-lg w-40 mx-auto mb-3">
                     <FormattedMessage id="ordinary_stake" />
-                  </div>
+                  </div> */}
                   <div className="center h-32">
                     {Number(freeAmount) > 0 ? (
                       <>
@@ -1373,6 +1409,11 @@ function UserStakeBlock(props: {
                         <CommonLine title="Rewards">
                           <span className="text-white text-sm">
                             {displayRewards('free')}
+                          </span>
+                        </CommonLine>
+                        <CommonLine title="stake_for">
+                          <span className="text-white text-sm">
+                            <FormattedMessage id="free" />
                           </span>
                         </CommonLine>
                         <div className="flex justify-end">
@@ -1411,7 +1452,7 @@ function UserStakeBlock(props: {
                             isEnded ? 'hidden' : ''
                           }`}
                         >
-                          <FormattedMessage id="append"></FormattedMessage>
+                          <FormattedMessage id="stake"></FormattedMessage>
                         </GradientButton>
                         <OprationButton
                           onClick={() => {
@@ -1447,7 +1488,7 @@ function UserStakeBlock(props: {
                   <div className="flex items-center justify-center bg-lockTitleBg h-6 text-white text-sm rounded-b-lg w-40 mx-auto mb-3">
                     <FormattedMessage id="locking_stake" />
                   </div>
-                  <div className="center h-32">
+                  <div className="center">
                     {Number(lockAmount) > 0 ? (
                       <div>
                         <CommonLine title="lp_tokens">
@@ -1475,6 +1516,11 @@ function UserStakeBlock(props: {
                             {displayDuration()}
                           </div>
                         </CommonLine>
+                        <CommonLine title="exit_fee">
+                          <div className="flex flex-col items-center text-white text-sm">
+                            {getExitFee()} <FormattedMessage id="lp_tokens" />
+                          </div>
+                        </CommonLine>
                       </div>
                     ) : (
                       <div className="lockEmpty flex flex-col items-center">
@@ -1499,27 +1545,19 @@ function UserStakeBlock(props: {
                             isEnded ? 'hidden' : ''
                           }`}
                         >
-                          <FormattedMessage id="append"></FormattedMessage>
+                          <FormattedMessage id="stake"></FormattedMessage>
                         </GradientButton>
                         <OprationButton
                           onClick={() => {
                             openUnStakeModalVisible('lock');
                           }}
-                          onMouseOver={() => {
-                            setLockButtonStatus(true);
-                          }}
-                          onMouseLeave={() => {
-                            setLockButtonStatus(false);
-                          }}
                           color="#fff"
-                          // unLockedbg
-                          className={`flex items-center justify-center w-28 h-8 text-center text-base text-white focus:outline-none font-semibold bg-lockedBg`}
+                          className={`flex items-center justify-center w-36 h-8 text-center text-base text-white focus:outline-none font-semibold bg-lightGreyColor`}
                         >
-                          {lockButtonStatus ? (
-                            <UnLockedIcon></UnLockedIcon>
-                          ) : (
-                            <LockedIcon></LockedIcon>
-                          )}
+                          <FormattedMessage
+                            id="unlock"
+                            defaultMessage="Unlock"
+                          />
                         </OprationButton>
                       </div>
                     ) : (
@@ -1558,7 +1596,7 @@ function UserStakeBlock(props: {
       ) : null}
       {unStakeModalVisible ? (
         <UnStakeModal
-          title="unstake"
+          title={unStakeType == 'free' ? 'unstake' : 'unlock'}
           isOpen={unStakeModalVisible}
           detailData={detailData}
           onRequestClose={closeUnStakeModalVisible}
@@ -2253,16 +2291,18 @@ function UnStakeModal(props: {
   }
   function getSlashAmount() {
     let result = '0';
-    const restTime_sec = new BigNumber(unlock_timestamp)
-      .minus(serverTime)
-      .dividedBy(1000000000)
-      .toNumber();
-    const slashAmount =
-      (restTime_sec / duration_sec) * slashRate * Number(amount);
-    if (new BigNumber(slashAmount).isLessThan(0.001)) {
-      result = '< 0.01%';
-    } else {
-      result = `${toPrecision(slashAmount.toString(), 3)}`;
+    if (unlock_timestamp > serverTime) {
+      const restTime_sec = new BigNumber(unlock_timestamp)
+        .minus(serverTime)
+        .dividedBy(1000000000)
+        .toNumber();
+      const slashAmount =
+        (restTime_sec / duration_sec) * slashRate * Number(amount);
+      if (new BigNumber(slashAmount).isLessThan(0.001)) {
+        result = '< 0.001';
+      } else {
+        result = `${toPrecision(slashAmount.toString(), 3)}`;
+      }
     }
     return result;
   }
