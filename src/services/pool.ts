@@ -38,7 +38,7 @@ import {
 } from './near';
 import moment from 'moment';
 import { getAllTriPools } from './aurora/aurora';
-import { ALL_STABLE_POOL_IDS, isStablePool } from './near';
+import { ALL_STABLE_POOL_IDS, isStablePool, isRatedPool } from './near';
 import { filterBlackListPools } from './near';
 const explorerType = getExplorer();
 export const DEFAULT_PAGE_LIMIT = 100;
@@ -79,6 +79,7 @@ export interface StablePool {
   total_fee: number;
   shares_total_supply: string;
   amp: number;
+  rates?: string[];
 }
 
 export const getPoolByToken = async (tokenId: string) => {
@@ -806,6 +807,18 @@ export const addSimpleLiquidityPool = async (
 };
 
 export const getStablePool = async (pool_id: number): Promise<StablePool> => {
+  if (isRatedPool(pool_id)) {
+    const pool_info = await refFiViewFunction({
+      methodName: 'get_rated_pool',
+      args: { pool_id },
+    });
+
+    return {
+      ...pool_info,
+      id: pool_id,
+    };
+  }
+
   const pool_info = await refFiViewFunction({
     methodName: 'get_stable_pool',
     args: { pool_id },

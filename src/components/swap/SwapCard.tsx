@@ -44,7 +44,10 @@ import {
 import {
   BTCIDS,
   BTC_STABLE_POOL_ID,
+  STABLE_POOL_TYPE,
   STABLE_TOKEN_IDS,
+  STNEARIDS,
+  STNEAR_POOL_ID,
   wallet,
 } from '../../services/near';
 import SwapFormWrap from '../forms/SwapFormWrap';
@@ -77,6 +80,8 @@ import {
   AllStableTokenIds,
 } from '../../services/near';
 import TokenReserves from '../stableswap/TokenReserves';
+import { STABLE_TOKEN_USN_IDS } from '../../services/near';
+import { IoFlower } from 'react-icons/io5';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -516,7 +521,9 @@ export default function SwapCard(props: {
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
 
-  const [reservesType, setReservesType] = useState<string>('USD');
+  const [reservesType, setReservesType] = useState<STABLE_POOL_TYPE>(
+    STABLE_POOL_TYPE.USD
+  );
 
   const [supportLedger, setSupportLedger] = useState(
     localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
@@ -567,9 +574,13 @@ export default function SwapCard(props: {
   useEffect(() => {
     if (!tokenIn || !tokenOut) return;
     if (BTCIDS.includes(tokenIn.id) && BTCIDS.includes(tokenOut.id))
-      setReservesType('BTC');
-    else if (!BTCIDS.includes(tokenIn.id) && !BTCIDS.includes(tokenOut.id))
-      setReservesType('USD');
+      setReservesType(STABLE_POOL_TYPE.BTC);
+    else if (
+      STNEARIDS.includes(tokenIn.id) &&
+      STNEARIDS.includes(tokenOut.id)
+    ) {
+      setReservesType(STABLE_POOL_TYPE.NEAR);
+    } else setReservesType(STABLE_POOL_TYPE.USD);
   }, [tokenIn, tokenOut]);
 
   useEffect(() => {
@@ -966,11 +977,30 @@ export default function SwapCard(props: {
           )
             .filter((token) => isStableToken(token.id))
             .filter((token) => {
-              return reservesType === 'BTC'
-                ? BTCIDS.includes(token.id)
-                : !BTCIDS.includes(token.id);
+              switch (reservesType) {
+                case 'BTC':
+                  return BTCIDS.includes(token.id);
+                case 'USD':
+                  return STABLE_TOKEN_IDS.concat(STABLE_TOKEN_USN_IDS)
+                    .map((id) => id.toString())
+                    .includes(token.id);
+                case 'NEAR':
+                  return STNEARIDS.includes(token.id);
+              }
             })}
           pools={stablePools.filter((p) => {
+            switch (reservesType) {
+              case 'BTC':
+                return p.id.toString() === BTC_STABLE_POOL_ID;
+              case 'NEAR':
+                return p.id.toString() === STNEAR_POOL_ID;
+              case 'USD':
+                return (
+                  p.id.toString() !== BTC_STABLE_POOL_ID &&
+                  p.id.toString() !== STNEAR_POOL_ID
+                );
+            }
+
             return reservesType === 'BTC'
               ? p.id.toString() === BTC_STABLE_POOL_ID
               : p.id.toString() !== BTC_STABLE_POOL_ID;

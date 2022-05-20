@@ -21,7 +21,11 @@ import BigNumber from 'bignumber.js';
 import { useDayVolume } from '~state/pool';
 import { scientificNotationToString } from '../../utils/numbers';
 import { get24hVolume } from '../../services/indexer';
-import { ALL_STABLE_POOL_IDS, BTC_STABLE_POOL_ID } from '../../services/near';
+import {
+  ALL_STABLE_POOL_IDS,
+  BTC_STABLE_POOL_ID,
+  STABLE_POOL_TYPE,
+} from '../../services/near';
 import getConfig from '../../services/config';
 import { currentTokensPrice } from '../../services/api';
 import {
@@ -64,6 +68,8 @@ function TokenChart({
     cUSD: 'rgba(69, 205, 133, 0.6)',
     HBTC: '#4D85F8',
     WBTC: '#ED9234',
+    STNEAR: 'rgba(160, 160, 255, 0.5)',
+    wNEAR: 'rgba(0, 198, 162, 0.5)',
   };
 
   function customLabel(props: any) {
@@ -234,6 +240,16 @@ const TypeTab = ({
       >
         BTC
       </div>
+      <div
+        className={`w-52 py-2 mb-4 text-center ${
+          type === 'NEAR' ? 'text-white bg-black bg-opacity-20' : ''
+        } rounded-2xl cursor-pointer`}
+        onClick={() => {
+          setType('NEAR');
+        }}
+      >
+        NEAR
+      </div>
     </div>
   );
 };
@@ -246,7 +262,7 @@ export default function ({
   hiddenMag,
   className,
   forPool,
-  type = 'USD',
+  type = STABLE_POOL_TYPE.USD,
   setType,
 }: {
   tokens: TokenMetadata[];
@@ -256,8 +272,8 @@ export default function ({
   hiddenChart?: boolean;
   className?: string;
   forPool?: boolean;
-  type?: string;
-  setType?: (type: string) => void;
+  type?: STABLE_POOL_TYPE;
+  setType?: (type: STABLE_POOL_TYPE) => void;
 }) {
   const [showReserves, setShowReserves] = useState<boolean>(true);
   const [chart, setChart] = useState(null);
