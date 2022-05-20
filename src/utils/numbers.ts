@@ -1,14 +1,8 @@
 import BigNumber from 'bignumber.js';
 import BN from 'bn.js';
 import * as math from 'mathjs';
-import getConfig from '../services/config';
-import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
 import { TokenMetadata } from '../services/ft-contract';
-import {
-  STABLE_POOL_ID,
-  STABLE_TOKEN_IDS,
-  isStablePool,
-} from '../services/near';
+import { isStablePool } from '../services/near';
 import { Pool, getStablePoolInfoKey } from '../services/pool';
 import { getSwappedAmount, estimateSwap } from '../services/stable-swap';
 import { EstimateSwapView } from '../services/swap';
@@ -17,9 +11,6 @@ import { sortBy } from 'lodash';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 
 const BPS_CONVERSION = 10000;
-const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
-  getConfig().STABLE_POOL_ID
-}`;
 
 const ROUNDING_OFFSETS: BN[] = [];
 const BN10 = new BN(10);
@@ -172,11 +163,17 @@ export const calculateSmartRoutingPriceImpact = (
   const isPool2StablePool = isStablePool(swapTodos[1].pool.id);
 
   const marketPrice1 = isPool1StablePool
-    ? '1'
+    ? (
+        Number(swapTodos[0].pool.rates[tokenIn.id]) /
+        Number(swapTodos[0].pool.rates[tokenOut.id])
+      ).toString()
     : calculateMarketPrice(swapTodos[0].pool, tokenIn, tokenMid);
 
   const marketPrice2 = isPool2StablePool
-    ? '1'
+    ? (
+        Number(swapTodos[1].pool.rates[tokenIn.id]) /
+        Number(swapTodos[1].pool.rates[tokenOut.id])
+      ).toString()
     : calculateMarketPrice(swapTodos[1].pool, tokenMid, tokenOut);
   const generalMarketPrice = math.evaluate(`${marketPrice1} * ${marketPrice2}`);
 
@@ -465,10 +462,17 @@ export function scientificNotationToString(strParam: string) {
   }
 }
 
-export const calcStableSwapPriceImpact = (from: string, to: string) => {
-  return math.format(percent(math.evaluate(`1 - (${to} / ${from})`), '1'), {
-    notation: 'fixed',
-  });
+export const calcStableSwapPriceImpact = (
+  from: string,
+  to: string,
+  marketPrice: string = '1'
+) => {
+  return math.format(
+    percent(math.evaluate(`${marketPrice} - (${to} / ${from})`), marketPrice),
+    {
+      notation: 'fixed',
+    }
+  );
 };
 
 export const niceDecimals = (number: string | number, precision = 2) => {
@@ -530,7 +534,11 @@ export function calculateSmartRoutesV2PriceImpact(
       return isStablePool(r[0].pool.id)
         ? calcStableSwapPriceImpact(
             readablePartialAmountIn,
-            r[0].noFeeAmountOut
+            r[0].noFeeAmountOut,
+            (
+              Number(r[0].pool.rates[tokenIn.id]) /
+              Number(r[0].pool.rates[outputToken])
+            ).toString()
           )
         : calculatePriceImpact(
             [r[0].pool],

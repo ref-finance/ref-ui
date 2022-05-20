@@ -179,7 +179,7 @@ export const useSwap = ({
       })
         .then(async (estimates) => {
           if (!estimates) throw '';
-
+          console.log(estimates);
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
             setAverageFee(estimates);
 

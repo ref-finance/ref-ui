@@ -480,7 +480,11 @@ export default function CrossSwapCard(props: {
       ) {
         return calcStableSwapPriceImpact(
           toReadableNumber(tokenIn.decimals, swapsToDo[0].totalInputAmount),
-          swapsToDo[0].noFeeAmountOut
+          swapsToDo[0].noFeeAmountOut,
+          (
+            Number(swapsToDo[0].pool.rates[tokenIn.id]) /
+            Number(swapsToDo[0].pool.rates[tokenOut.id])
+          ).toString()
         );
       } else return '0';
     } catch {

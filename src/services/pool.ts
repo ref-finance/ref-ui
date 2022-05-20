@@ -58,18 +58,9 @@ export interface Pool {
   token0_ref_price: string;
   partialAmountIn?: string;
   Dex?: string;
-}
-
-export interface StablePool {
-  id: number;
-  token_account_ids: string[];
-  decimals: number[];
-  amounts: string[];
-  c_amounts: string[];
-  total_fee: number;
-  shares_total_supply: string;
-  amp: number;
-  rates: string[];
+  rates?: {
+    [id: string]: string;
+  };
 }
 
 export interface StablePool {
@@ -415,15 +406,6 @@ export const addLiquidityToPool = async ({
       amount: LP_STORAGE_AMOUNT,
     },
   ];
-
-  // const needDeposit = await checkTokenNeedsStorageDeposit();
-  // if (needDeposit) {
-  //   actions.unshift(
-  //     storageDepositAction({
-  //       amount: needDeposit,
-  //     })
-  //   );
-  // }
 
   return executeMultipleTransactions([
     ...depositTransactions,
@@ -886,6 +868,13 @@ export const getStablePoolFromCache = async (
       JSON.stringify({ ...stablePoolInfo, update_time: moment().unix() })
     );
   }
+  stablePool.rates = stablePoolInfo.token_account_ids.reduce(
+    (acc: any, cur: any, i: number) => ({
+      ...acc,
+      [cur]: toReadableNumber(24, stablePoolInfo.rates[i]),
+    }),
+    {}
+  );
 
   return [stablePool, stablePoolInfo];
 };
