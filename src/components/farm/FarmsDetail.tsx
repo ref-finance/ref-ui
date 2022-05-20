@@ -78,6 +78,7 @@ import { FaAngleUp, FaAngleDown } from 'react-icons/fa';
 import { useDayVolume } from '../../state/pool';
 import { getPool } from '~services/indexer';
 import CalcModelBooster from '~components/farm/CalcModelBooster';
+import moment from 'moment';
 const ONLY_ZEROS = /^0*\.?0*$/;
 const { STABLE_POOL_IDS, FARM_LOCK_SWITCH } = getConfig();
 export default function FarmsDetail(props: {
@@ -142,7 +143,7 @@ export default function FarmsDetail(props: {
         </div>
         <div className="flex items-center" onClick={goPoolPage}>
           <label className="mx-2 text-sm text-primaryText hover:text-framBorder cursor-pointer">
-            <FormattedMessage id="get_lp_token_v2"></FormattedMessage>
+            <FormattedMessage id="get_lp_token"></FormattedMessage>
           </label>
           <LinkIcon></LinkIcon>
         </div>
@@ -162,6 +163,7 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
   const [calcVisible, setCalcVisible] = useState(false);
   const { detailData, tokenPriceList } = props;
   const pool = detailData.pool;
+  const intl = useIntl();
   function totalTvlPerWeekDisplay() {
     const farms = detailData.farmList;
     const rewardTokenIconMap = {};
@@ -186,23 +188,123 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
     return (
       <>
         <span>{totalPriceDisplay}</span>
-        <div className="flex items-center">
-          {Object.values(rewardTokenIconMap).map(
-            (icon: string, index: number) => {
-              return (
-                <img
-                  src={icon}
-                  key={index}
-                  className={`w-4 h-4 rounded-full border border-greenColor ${
-                    index != 0 ? '-ml-1' : ''
-                  }`}
-                ></img>
-              );
-            }
-          )}
+        <div
+          className="text-white text-right"
+          data-class="reactTip"
+          data-for={'rewardPerWeekId' + detailData?.farmList[0]?.farm_id}
+          data-place="top"
+          data-html={true}
+          data-tip={getRewardsPerWeekTip()}
+        >
+          <div className="flex items-center">
+            {Object.values(rewardTokenIconMap).map(
+              (icon: string, index: number) => {
+                return (
+                  <img
+                    src={icon}
+                    key={index}
+                    className={`w-4 h-4 rounded-full border border-greenColor ${
+                      index != 0 ? '-ml-1' : ''
+                    }`}
+                  ></img>
+                );
+              }
+            )}
+          </div>
+          <ReactTooltip
+            id={'rewardPerWeekId' + detailData?.farmList[0]?.farm_id}
+            backgroundColor="#1D2932"
+            border
+            borderColor="#7e8a93"
+            effect="solid"
+          />
         </div>
       </>
     );
+  }
+  function getRewardsPerWeekTip() {
+    const tempList: FarmBoost[] = detailData.farmList;
+    const lastList: any[] = [];
+    const pending_farms: FarmBoost[] = [];
+    const no_pending_farms: FarmBoost[] = [];
+    tempList.forEach((farm: FarmBoost) => {
+      if (farm.status == 'Created') {
+        pending_farms.push(farm);
+      } else {
+        no_pending_farms.push(farm);
+      }
+    });
+    if (pending_farms.length > 0) {
+      pending_farms.forEach((farm: FarmBoost) => {
+        const { decimals } = farm.token_meta_data;
+        const weekAmount = toReadableNumber(
+          decimals,
+          new BigNumber(farm.terms.daily_reward).multipliedBy(7).toFixed()
+        );
+        lastList.push({
+          commonRewardToken: farm.token_meta_data,
+          commonRewardTotalRewardsPerWeek: weekAmount,
+          startTime: farm.terms.start_at,
+          pending: true,
+        });
+      });
+    }
+    if (no_pending_farms.length > 0) {
+      const mergedFarms = mergeCommonRewardsFarms(
+        JSON.parse(JSON.stringify(no_pending_farms))
+      );
+      mergedFarms.forEach((farm: FarmBoost) => {
+        const { decimals } = farm.token_meta_data;
+        const weekAmount = toReadableNumber(
+          decimals,
+          new BigNumber(farm.terms.daily_reward).multipliedBy(7).toFixed()
+        );
+        lastList.push({
+          commonRewardToken: farm.token_meta_data,
+          commonRewardTotalRewardsPerWeek: weekAmount,
+        });
+      });
+    }
+    // show last display string
+    const rewards_week_txt = intl.formatMessage({ id: 'rewards_week' });
+    let result: string = `<div class="text-sm text-farmText pt-1">${rewards_week_txt}</div>`;
+    let itemHtml: string = '';
+    lastList.forEach((item: any) => {
+      const {
+        commonRewardToken,
+        commonRewardTotalRewardsPerWeek,
+        pending,
+        startTime,
+      } = item;
+      const token = unWrapToken(commonRewardToken, true);
+      const txt = intl.formatMessage({ id: 'start' });
+      if (pending) {
+        itemHtml = `<div class="flex flex-col items-end my-2">
+                      <div class="flex justify-between items-center w-full"><image class="w-5 h-5 rounded-full mr-7" style="filter: grayscale(100%)" src="${
+                        token.icon
+                      }"/>
+                      <label class="text-xs text-farmText">${formatWithCommas(
+                        commonRewardTotalRewardsPerWeek
+                      )}</label>
+                      </div>
+                      <label class="text-xs text-farmText mt-0.5">${txt}: ${moment
+          .unix(startTime)
+          .format('YYYY-MM-DD')}</label>
+                    </div>`;
+      } else {
+        itemHtml = `<div class="flex justify-between items-center h-8 my-2">
+                      <image class="w-5 h-5 rounded-full mr-7" src="${
+                        token.icon
+                      }"/>
+                      <label class="text-xs text-navHighLightText">${formatWithCommas(
+                        commonRewardTotalRewardsPerWeek
+                      )}</label>
+                    </div>`;
+      }
+
+      result += itemHtml;
+    });
+    return result;
   }
   useEffect(() => {
     getStakeBalance();
@@ -233,15 +335,83 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
     farms.forEach(function (item: FarmBoost) {
       const pendingFarm = item.status == 'Created' || item.status == 'Pending';
       if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
-        apr += Number(item.apr);
+        apr = +new BigNumber(apr).plus(item.apr).toFixed();
       }
     });
     if (apr == 0) {
       return '-';
     } else {
-      apr = apr * 100;
+      apr = +new BigNumber(apr).multipliedBy(100).toFixed();
       return toPrecision(apr.toString(), 2) + '%';
     }
+  }
+  function getAprTip() {
+    const tempList = detailData.farmList;
+    const lastList: any[] = [];
+    const pending_farms: FarmBoost[] = [];
+    const no_pending_farms: FarmBoost[] = [];
+    tempList.forEach((farm: FarmBoost) => {
+      if (farm.status == 'Created') {
+        pending_farms.push(farm);
+      } else {
+        no_pending_farms.push(farm);
+      }
+    });
+    if (pending_farms.length > 0) {
+      pending_farms.forEach((farm: FarmBoost) => {
+        lastList.push({
+          rewardToken: farm.token_meta_data,
+          apr: farm.apr,
+          startTime: farm.terms.start_at,
+          pending: true,
+        });
+      });
+    }
+    if (no_pending_farms.length > 0) {
+      const mergedFarms = mergeCommonRewardsFarms(
+        JSON.parse(JSON.stringify(no_pending_farms))
+      );
+      mergedFarms.forEach((farm: FarmBoost) => {
+        lastList.push({
+          rewardToken: farm.token_meta_data,
+          apr: new BigNumber(farm.apr || 0)
+            .multipliedBy(100)
+            .toFixed()
+            .toString(),
+        });
+      });
+    }
+    // show last display string
+    let result: string = '';
+    lastList.forEach((item: any) => {
+      const { rewardToken, apr, pending, startTime } = item;
+      const token = unWrapToken(rewardToken, true);
+      let itemHtml = '';
+      if (pending) {
+        const startDate = moment.unix(startTime).format('YYYY-MM-DD');
+        const txt = intl.formatMessage({ id: 'start' });
+        itemHtml = `<div class="flex justify-between items-center h-8">
+          <image class="w-5 h-5 rounded-full mr-7" style="filter: grayscale(100%)" src="${
+            token.icon
+          }"/>
+          <div class="flex flex-col items-end">
+            <label class="text-xs text-farmText">${
+              (apr == 0 ? '-' : formatWithCommas(apr)) + '%'
+            }</label>
+            <label class="text-xs text-farmText">${txt}: ${startDate}</label>
+          </div>
+      </div>`;
+      } else {
+        itemHtml = `<div class="flex justify-between items-center h-8">
+          <image class="w-5 h-5 rounded-full mr-7" src="${token.icon}"/>
+          <label class="text-xs text-navHighLightText">${
+            (apr == 0 ? '-' : formatWithCommas(apr)) + '%'
+          }</label>
+      </div>`;
+      }
+      result += itemHtml;
+    });
+    return result;
   }
   function isPending() {
     let pending: boolean = true;
@@ -254,10 +424,34 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
     }
     return pending;
   }
+  function mergeCommonRewardsFarms(farms: FarmBoost[]) {
+    const tempMap = {};
+    farms.forEach((farm: FarmBoost) => {
+      const { reward_token, daily_reward } = farm.terms;
+      let preMergedfarms: FarmBoost = tempMap[reward_token];
+      if (preMergedfarms) {
+        preMergedfarms.apr = new BigNumber(preMergedfarms.apr || 0)
+          .plus(farm.apr)
+          .toFixed()
+          .toString();
+        preMergedfarms.terms.daily_reward = new BigNumber(
+          preMergedfarms.terms.daily_reward
+        )
+          .plus(daily_reward)
+          .toFixed();
+      } else {
+        tempMap[reward_token] = farm;
+      }
+    });
+    return Object.values(tempMap);
+  }
   return (
     <div className="mt-5">
       <div className="poolbaseInfo flex items-center justify-between">
-        <div className="flex flex-col items-start bg-cardBg rounded-lg py-3.5 px-5 flex-grow mr-3.5">
+        <div
+          className="flex flex-col items-start justify-between bg-cardBg rounded-lg py-3.5 px-5 flex-grow mr-3.5"
+          style={{ height: '85px' }}
+        >
           <div className="flex items-center justify-between w-full">
             <span className="text-farmText text-sm">
               <FormattedMessage id="total_staked"></FormattedMessage>
@@ -276,21 +470,44 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
             </span>
           </div>
           <div className="flex items-center justify-between w-full">
-            <span className="text-white text-base mt-2.5">
+            <span className="text-white text-base">
               {`${
                 Number(detailData.seedTvl) == 0
                   ? '-'
                   : `$${toInternationalCurrencySystem(detailData.seedTvl, 2)}`
               }`}
             </span>
-            <span className="text-white text-base mt-2.5">{getTotalApr()}</span>
+            <div
+              className="text-xl text-white"
+              data-type="info"
+              data-place="top"
+              data-multiline={true}
+              data-tip={getAprTip()}
+              data-html={true}
+              data-for={'aprId' + detailData.farmList[0].farm_id}
+              data-class="reactTip"
+            >
+              <span className="text-white text-base mt-2.5">
+                {getTotalApr()}
+              </span>
+              <ReactTooltip
+                id={'aprId' + detailData.farmList[0].farm_id}
+                backgroundColor="#1D2932"
+                border
+                borderColor="#7e8a93"
+                effect="solid"
+              />
+            </div>
           </div>
         </div>
-        <div className="flex flex-col items-start bg-cardBg rounded-lg py-3.5 px-5 flex-grow">
+        <div
+          className="flex flex-col items-start  justify-between bg-cardBg rounded-lg py-3.5 px-5 flex-grow"
+          style={{ height: '85px' }}
+        >
           <span className="text-farmText text-sm">
             <FormattedMessage id="rewards_week"></FormattedMessage>
           </span>
-          <div className="flex items-center justify-between text-white text-base mt-2.5 w-full">
+          <div className="flex items-center justify-between text-white text-base w-full">
             {totalTvlPerWeekDisplay()}
           </div>
         </div>
@@ -1510,7 +1727,11 @@ function UserStakeBlock(props: {
                   </div>
                   <div className="my-3">
                     {Number(freeAmount) > 0 ? (
-                      <div className="flex justify-between">
+                      <div
+                        className={`flex ${
+                          isEnded ? 'justify-center' : 'justify-between'
+                        }`}
+                      >
                         <GradientButton
                           onClick={() => {
                             openStakeModalVisible('free');
@@ -1825,8 +2046,6 @@ function StakeModal(props: {
       return;
     }
     // get total rewards price per day
-    debugger;
-
     const DECIMALS = new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())
       ? LP_STABLE_TOKEN_DECIMALS
       : LP_TOKEN_DECIMALS;

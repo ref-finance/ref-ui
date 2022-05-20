@@ -511,7 +511,7 @@ export default function FarmsHome(props: any) {
     Object.keys(farmClassification).forEach((key: string) => {
       specified_display_classification[key] = [];
     });
-    specified_display_classification['other'] = [];
+    specified_display_classification['otherPool'] = [];
     farm_display_List.forEach((seed: Seed) => {
       const poolId = seed.pool.id;
       const farmClassificationTitle = Object.keys(farmClassification);
@@ -526,7 +526,7 @@ export default function FarmsHome(props: any) {
         }
       }
       if (!findout) {
-        specified_display_classification['other'].push(seed);
+        specified_display_classification['otherPool'].push(seed);
       }
     });
     if (status == 'live') {
@@ -714,9 +714,11 @@ export default function FarmsHome(props: any) {
               }
               if (isNoData) return null;
               return (
-                <div key={classificationTitle}>
+                <div key={classificationTitle} className="mt-10">
                   <p className="text-white text-lg mb-4">
-                    {classificationTitle}
+                    <FormattedMessage
+                      id={classificationTitle}
+                    ></FormattedMessage>
                   </p>
                   {classification_farm_list.map((seed: Seed, index: number) => {
                     return (
@@ -737,13 +739,15 @@ export default function FarmsHome(props: any) {
             }
           )}
           <div
-            className={
+            className={`mt-10 ${
               endFarmLength > 0 && showEndedFarmList && status == 'live'
                 ? ''
                 : 'hidden'
-            }
+            }`}
           >
-            <p className="text-white text-lg mb-4">ended</p>
+            <p className="text-white text-lg mb-4">
+              <FormattedMessage id="endedPool"></FormattedMessage>
+            </p>
             {farm_display_ended_List.map((seed: Seed, index: number) => {
               return (
                 <div
@@ -802,13 +806,13 @@ function FarmView(props: {
     farms.forEach(function (item: FarmBoost) {
       const pendingFarm = item.status == 'Created' || item.status == 'Pending';
       if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
-        apr += Number(item.apr);
+        apr = +new BigNumber(apr).plus(item.apr).toFixed();
       }
     });
     if (apr == 0) {
       return '-';
     } else {
-      apr = apr * 100;
+      apr = +new BigNumber(apr).multipliedBy(100).toFixed();
       return toPrecision(apr.toString(), 2) + '%';
     }
   }
@@ -868,7 +872,10 @@ function FarmView(props: {
       mergedFarms.forEach((farm: FarmBoost) => {
         lastList.push({
           rewardToken: farm.token_meta_data,
-          apr: farm.apr,
+          apr: new BigNumber(farm.apr || 0)
+            .multipliedBy(100)
+            .toFixed()
+            .toString(),
         });
       });
     }
@@ -903,6 +910,32 @@ function FarmView(props: {
       result += itemHtml;
     });
     return result;
+  }
+  function getUnClaimTip() {
+    let resultTip = '';
+    const tokens = Object.values(seed.unclaimed_token_meta_datas);
+    tokens?.forEach((token: TokenMetadata) => {
+      // total price
+      const { id, decimals, icon } = token;
+      const amount = toReadableNumber(decimals, seed.unclaimed[id] || '0');
+      // rewards number
+      let displayNum = '';
+      if (new BigNumber('0').isEqualTo(amount)) {
+        displayNum = '-';
+      } else if (new BigNumber('0.001').isGreaterThan(amount)) {
+        displayNum = '<0.001';
+      } else {
+        displayNum = new BigNumber(amount).toFixed(3, 1);
+      }
+      const itemHtml = `<div class="flex justify-between items-center h-8">
+          <image class="w-5 h-5 rounded-full mr-7" src="${icon}"/>
+          <label class="text-xs text-navHighLightText">${formatWithCommas(
+            displayNum
+          )}</label>
+        </div>`;
+      resultTip += itemHtml;
+    });
+    return resultTip;
   }
   function getRewardsPerWeekTip() {
     const tempList: FarmBoost[] = seed.farmList;
@@ -994,9 +1027,10 @@ function FarmView(props: {
       const { reward_token, daily_reward } = farm.terms;
       let preMergedfarms: FarmBoost = tempMap[reward_token];
       if (preMergedfarms) {
-        preMergedfarms.apr = (
-          Number(preMergedfarms.apr || 0) + Number(farm.apr)
-        ).toString();
+        preMergedfarms.apr = new BigNumber(preMergedfarms.apr || 0)
+          .plus(farm.apr)
+          .toFixed()
+          .toString();
         preMergedfarms.terms.daily_reward = new BigNumber(
           preMergedfarms.terms.daily_reward
         )
@@ -1123,9 +1157,27 @@ function FarmView(props: {
             </div>
             {haveUnclaimedReward() ? (
               <div className="right flex items-center">
-                <span className="flex items-center bg-black bg-opacity-20 rounded-l-lg text-sm text-greenColor h-8 px-3">
-                  {getTotalUnclaimedRewards()}
-                </span>
+                <div
+                  className="text-xl text-white"
+                  data-type="info"
+                  data-place="top"
+                  data-multiline={true}
+                  data-tip={getUnClaimTip()}
+                  data-html={true}
+                  data-for={'unclaimedId' + seed.farmList[0].farm_id}
+                  data-class="reactTip"
+                >
+                  <span className="flex items-center bg-black bg-opacity-20 rounded-l-lg text-sm text-greenColor h-8 px-3">
+                    {getTotalUnclaimedRewards()}
+                  </span>
+                  <ReactTooltip
+                    id={'unclaimedId' + seed.farmList[0].farm_id}
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    effect="solid"
+                  />
+                </div>
                 <span
                   className="flex items-center justify-center bg-deepBlue rounded-r-lg text-sm text-white h-8 w-20 cursor-pointer"
                   onClick={(e) => {
@@ -1167,7 +1219,7 @@ function FarmView(props: {
                   <FormattedMessage id="apr"></FormattedMessage>
                 </label>
               </span>
-              <span
+              <div
                 className="text-xl text-white"
                 data-type="info"
                 data-place="top"
@@ -1187,7 +1239,7 @@ function FarmView(props: {
                   borderColor="#7e8a93"
                   effect="solid"
                 />
-              </span>
+              </div>
             </div>
           </div>
         </div>
@@ -1403,7 +1455,7 @@ function WithDrawBox(props: {
           </div>
           <div
             onClick={switchDetailStatus}
-            className="flex items-center text-white text-xs border border-gradientFromHover rounded-xl cursor-pointer h-6 px-4 select-none bg-black bg-opacity-60 mt-6"
+            className="flex items-center text-white text-xs border border-gradientFromHover rounded-xl cursor-pointer h-6 px-4 select-none bg-black bg-opacity-20 mt-6"
           >
             <FormattedMessage id="details" />
             <UpArrowIcon

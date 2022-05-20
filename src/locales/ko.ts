@@ -620,6 +620,11 @@ const ko = {
   add_lp_tokens_tip:
     'You need LP tokens to stake into the corresponding farm. First, add liquidity to the pool to get LP tokens.',
   slash_tip: 'Slash = Slash Rate * Unexpired Time * Unstaked amount',
-  get_lp_token_v2: 'Get LP Token',
+  starPool: 'Star Pools',
+  nearPool: 'NEAR ecosystem Pools',
+  stablePool: 'Stablecoin Pools',
+  endedPool: 'Ended Pools',
+  otherPool: 'Other Pools',
+  ordinary: 'Ordinary',
 };
 export default Object.assign(ko, ko_in_risks_page);

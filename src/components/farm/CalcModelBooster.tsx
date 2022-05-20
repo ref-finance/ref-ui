@@ -205,7 +205,7 @@ export default function CalcModelBooster(
                 MAX
               </label>
               <span className="text-primaryText text-xs ml-2">
-                <FormattedMessage id="my_shares" />: {userLpTokenNum}
+                <FormattedMessage id="lp_Token" />: {userLpTokenNum}
               </span>
             </div>
           </div>
@@ -234,8 +234,6 @@ export function CalcEle(props: {
   const [ROI, setROI] = useState('');
   const [rewardData, setRewardData] = useState<Record<string, any>>({});
   let [lpTokenNum, setLpTokenNum] = useState(lpTokenNumAmount);
-  const [lockDateList, setLockDateList] = useState<MonthData[]>([]);
-  const [freeDateList, setFreeDateList] = useState<MonthData[]>([]);
   const [dateList, setDateList] = useState<MonthData[]>([]);
   const [accountType, setAccountType] = useState('free');
   const { farmList: farms, pool, min_locking_duration_sec } = seed;
@@ -399,70 +397,41 @@ export function CalcEle(props: {
     );
   }
   const get_all_date_list = async () => {
-    // get free date list
-    const free_month_list = [1, 3, 6, 12];
-    const free_date_list: any[] = [
-      {
-        text: `1D`,
-        m: 1 / 30,
-        day: 1,
-        rate: 1,
-      },
-    ];
-    free_month_list.forEach((m: number) => {
-      free_date_list.push({
-        text: `${m}M`,
-        m,
-        day: m * 30,
-        rate: 1,
-      });
+    // get date list
+    const month_list = [1, 3, 6, 12];
+    const date_list: MonthData[] = month_list.map((duration: number) => {
+      return {
+        text: `${duration}M`,
+        second: duration * 2592000,
+        m: duration,
+        day: duration * 30,
+      };
     });
-    setFreeDateList(free_date_list);
-    setDateList(free_date_list);
-    setSelecteDate(free_date_list[1]);
-    // get lock date list
-    const lock_month_list = [1, 3, 6, 12];
-    const lock_month_detail_list = lock_month_list.map(
-      (duration: number, index: number) => {
-        return {
-          text: `${duration}M`,
-          second: duration * 2592000,
-          m: duration,
-          day: duration * 30,
-        };
-      }
-    );
-    get_config().then((config) => {
-      const list: any = [];
-      const { min_locking_duration_sec } = seed;
-      const { maximum_locking_duration_sec, max_locking_multiplier } = config;
-      lock_month_detail_list.forEach((item: { second: number }) => {
-        if (
-          item.second >= min_locking_duration_sec &&
-          item.second <= maximum_locking_duration_sec
-        ) {
-          const locking_multiplier =
-            ((max_locking_multiplier - 10000) * item.second) /
-            (maximum_locking_duration_sec * 10000);
-          list.push({
-            ...item,
-            rate: locking_multiplier + 1,
-          });
-        }
+    if (min_locking_duration_sec == 0 || FARM_LOCK_SWITCH == 0) {
+      setDateList(date_list);
+      setSelecteDate(date_list[0]);
+    } else {
+      get_config().then((config) => {
+        const { min_locking_duration_sec } = seed;
+        const { maximum_locking_duration_sec, max_locking_multiplier } = config;
+        date_list.forEach((item: MonthData) => {
+          if (
+            item.second >= min_locking_duration_sec &&
+            item.second <= maximum_locking_duration_sec
+          ) {
+            const locking_multiplier =
+              ((max_locking_multiplier - 10000) * item.second) /
+              (maximum_locking_duration_sec * 10000);
+            item.rate = locking_multiplier + 1;
+          }
+        });
       });
-      setLockDateList(list);
-    });
+      setDateList(date_list);
+      setSelecteDate(date_list[0]);
+    }
   };
   function switchAccountType(type: string) {
-    if (type == 'free') {
-      setDateList(freeDateList);
-      setAccountType('free');
-      setSelecteDate(freeDateList[Object.keys(freeDateList)[1]]);
-    } else if (type == 'cd' && lockDateList) {
-      setDateList(lockDateList);
-      setAccountType('cd');
-      setSelecteDate(lockDateList[Object.keys(lockDateList)[0]]);
-    }
+    setAccountType(type);
   }
   function displayNum(num: string) {
     if (!num) return '-';
@@ -481,36 +450,8 @@ export function CalcEle(props: {
           <label className="text-sm text-farmText">
             <FormattedMessage id="stake_for"></FormattedMessage>
           </label>
-          {min_locking_duration_sec == 0 || FARM_LOCK_SWITCH == 0 ? null : (
-            <div className="flex items-center bg-black bg-opacity-20 rounded-2xl p-1">
-              <span
-                onClick={() => {
-                  switchAccountType('free');
-                }}
-                className={`flex items-center justify-center text-sm h-10 w-28 cursor-pointer ${
-                  accountType == 'free'
-                    ? 'bg-farmV2TabColor rounded-xl text-white'
-                    : 'text-farmText'
-                }`}
-              >
-                Free
-              </span>
-              <span
-                onClick={() => {
-                  switchAccountType('cd');
-                }}
-                className={`flex items-center justify-center  text-sm h-10 w-28 cursor-pointer ${
-                  accountType == 'cd'
-                    ? 'bg-farmV2TabColor rounded-xl text-white'
-                    : 'text-farmText'
-                }`}
-              >
-                CD account
-              </span>
-            </div>
-          )}
         </div>
-        <div className="flex items-center bg-datebg bg-opacity-40 rounded-md h-7 xs:h-6 md:h-6 mt-5">
+        <div className="flex items-center bg-datebg bg-opacity-40 rounded-md h-7 xs:h-6 md:h-6 mt-3 mb-4">
           {dateList.map((date: MonthData, index) => {
             return (
               <label
@@ -519,7 +460,7 @@ export function CalcEle(props: {
                 }}
                 className={
                   'flex items-center justify-center flex-grow text-sm rounded-md cursor-pointer h-full ' +
-                  (selecteDate.day == date.day
+                  (selecteDate?.day == date.day
                     ? 'bg-gradientFromHover text-chartBg'
                     : 'text-farmText')
                 }
@@ -530,35 +471,65 @@ export function CalcEle(props: {
             );
           })}
         </div>
-        <div className="flex justify-between items-center mt-4">
-          <label className="text-sm text-farmText">
-            <FormattedMessage id="booster"></FormattedMessage>
-          </label>
-          <label className="text-sm text-farmText">
-            x {selecteDate ? toPrecision(selecteDate.rate.toString(), 2) : '-'}
-          </label>
-        </div>
       </div>
-      <div className="mt-2">
-        <div className="flex justify-between">
-          <label className="text-sm text-farmText">
-            <FormattedMessage id="cur_apr"></FormattedMessage>
-          </label>
-          <label className="text-sm text-farmText">{ROI}</label>
-        </div>
-        <div className="flex flex-col rounded p-5 xs:px-3.5 md:px-3.5 bg-black bg-opacity-25 mt-2.5">
-          <p className="flex justify-between">
+      <div className="mt-3">
+        {min_locking_duration_sec == 0 || FARM_LOCK_SWITCH == 0 ? null : (
+          <div className="flex items-center">
+            <div className="flex items-center justify-center w-1/2">
+              <span
+                onClick={() => {
+                  switchAccountType('free');
+                }}
+                className={`flex items-center justify-center h-10 text-sm w-4/5  cursor-pointer ${
+                  accountType == 'free'
+                    ? 'border-b border-greenColor text-white'
+                    : 'text-primaryText'
+                }`}
+              >
+                <FormattedMessage id="ordinary"></FormattedMessage>
+              </span>
+            </div>
+            <div className="flex items-center justify-center w-1/2">
+              <span
+                onClick={() => {
+                  switchAccountType('cd');
+                }}
+                className={`flex items-center justify-center h-10  w-4/5 text-sm cursor-pointer ${
+                  accountType == 'cd'
+                    ? 'border-b border-greenColor text-white'
+                    : 'text-primaryText'
+                }`}
+              >
+                <FormattedMessage id="locking_stake"></FormattedMessage>
+              </span>
+            </div>
+          </div>
+        )}
+        <div className="flex flex-col rounded p-5 xs:px-3.5 md:px-3.5 bg-black bg-opacity-25">
+          <p
+            className={`flex justify-between mb-4 ${
+              accountType == 'free' ? 'hidden' : ''
+            }`}
+          >
             <label className="text-sm text-farmText mr-2">
-              <FormattedMessage id="my_shares"></FormattedMessage>
+              <FormattedMessage id="booster"></FormattedMessage>
             </label>
-            <label
-              className="text-sm text-farmText text-right break-all"
-              title={lpTokenNum}
-            >
-              {getMyShare()}
+            <label className="text-sm text-farmText text-right break-all">
+              x{' '}
+              {selecteDate?.rate?.toString()
+                ? toPrecision(selecteDate?.rate?.toString(), 2)
+                : '-'}
             </label>
           </p>
-          <p className="flex justify-between mt-5">
+          <p className="flex justify-between">
+            <label className="text-sm text-farmText mr-2">
+              <FormattedMessage id="cur_apr"></FormattedMessage>
+            </label>
+            <label className="text-sm text-farmText text-right break-all">
+              {ROI}
+            </label>
+          </p>
+          <p className="flex justify-between mt-4">
             <label className="text-sm text-farmText mr-2">
               <FormattedMessage id="value_rewards_token"></FormattedMessage>
             </label>
@@ -566,7 +537,7 @@ export function CalcEle(props: {
               {rewardData.tokenTotalPrice || '$ -'}
             </label>
           </p>
-          <div className="mt-5">
+          <div className="mt-4">
             <label className="text-sm text-farmText">
               <FormattedMessage id="reward_token"></FormattedMessage>
             </label>
@@ -695,7 +666,7 @@ function LpInput(props: {
         ></input>
       </span>
       <label className="text-sm text-farmText">
-        <FormattedMessage id="my_shares" />
+        <FormattedMessage id="lp_Token" />
       </label>
     </div>
   );
@@ -705,5 +676,6 @@ interface MonthData {
   text: string;
   m: number;
   day: number;
-  rate: number;
+  second: number;
+  rate?: number;
 }
