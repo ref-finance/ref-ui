@@ -564,5 +564,7 @@ const ko = {
   to_recover: '회복.',
   reward_apr: 'Rewards APR',
   stake_min_deposit: 'Input must be greater than or equal to ',
+  total_near_amount: 'Total NEAR amount',
+  near_value: 'NEAR Value',
 };
 export default Object.assign(ko, ko_in_risks_page);

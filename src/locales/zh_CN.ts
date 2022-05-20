@@ -533,5 +533,7 @@ const zh_CN = {
   to_recover: '来取回.',
   reward_apr: '奖励年化收益率',
   stake_min_deposit: '输入的值必须大于或等于 ',
+  total_near_amount: '所有NEAR数量',
+  near_value: 'NEAR价值',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

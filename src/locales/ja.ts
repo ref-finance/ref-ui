@@ -574,5 +574,7 @@ const ja = {
   to_recover: '回復する。',
   reward_apr: 'Rewards APR',
   stake_min_deposit: 'Input must be greater than or equal to ',
+  total_near_amount: 'Total NEAR amount',
+  near_value: 'NEAR Value',
 };
 export default Object.assign(ja, ja_in_risks_page);
