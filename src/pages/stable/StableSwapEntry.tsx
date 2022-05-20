@@ -42,6 +42,7 @@ import {
   isRatedPool,
 } from '../../services/near';
 import { STABLE_TOKEN_IDS, STABLE_TOKEN_USN_IDS } from '../../services/near';
+import { useClientMobile } from '~utils/device';
 
 export const getStablePoolDecimal = (id: string | number) => {
   if (isRatedPool(id)) return RATED_POOL_LP_TOKEN_DECIMALS;
@@ -204,6 +205,8 @@ function StablePoolCard({
   const multiMining = poolData.farmCount > 1;
   // const multiMining = false;
 
+  const mobileClientDevice = useClientMobile();
+
   return (
     <div
       className={`w-full flex flex-col relative overflow-hidden rounded-2xl mb-4
@@ -213,7 +216,13 @@ function StablePoolCard({
           : 'border border-transparent'
       }
       `}
-      onClick={() => history.push(`/sauce/${stablePool.id}`)}
+      onClick={() => {
+        if (mobileClientDevice) {
+          setChosesState(index);
+          return;
+        }
+        history.push(`/sauce/${stablePool.id}`);
+      }}
     >
       <Card
         width="w-full"
