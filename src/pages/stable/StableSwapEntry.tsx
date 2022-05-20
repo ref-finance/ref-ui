@@ -217,7 +217,7 @@ function StablePoolCard({
       }
       `}
       onClick={() => {
-        if (mobileClientDevice) {
+        if (mobileClientDevice && chosenState !== index) {
           setChosesState(index);
           return;
         }
