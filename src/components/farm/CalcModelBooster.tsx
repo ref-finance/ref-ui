@@ -21,6 +21,8 @@ import { useTokens } from '~state/token';
 import getConfig from '~services/config';
 import { TokenMetadata, unWrapToken } from '../../services/ft-contract';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import { LightningIcon } from '~components/icon/FarmBoost';
+
 const config = getConfig();
 const { STABLE_POOL_IDS, FARM_LOCK_SWITCH } = config;
 
@@ -514,12 +516,13 @@ export function CalcEle(props: {
             <label className="text-sm text-farmText mr-2">
               <FormattedMessage id="booster"></FormattedMessage>
             </label>
-            <label className="text-sm text-farmText text-right break-all">
+            <span className="flex items-center text-sm text-senderHot text-right break-all">
               x{' '}
               {selecteDate?.rate?.toString()
                 ? toPrecision(selecteDate?.rate?.toString(), 2)
-                : '-'}
-            </label>
+                : '-'}{' '}
+              <LightningIcon></LightningIcon>
+            </span>
           </p>
           <p className="flex justify-between">
             <label className="text-sm text-farmText mr-2">
