@@ -40,6 +40,9 @@ import StableTokenListUSN from './StableTokenListUSN';
 import { getURLInfo, checkAccountTip } from '../layout/transactionTipPopUp';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
+
+export const RATED_POOL_LP_TOKEN_DECIMALS = 24;
+
 const getSwapSlippageKey = (id: string | number) =>
   `REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE_${id}`;
 const ONLY_ZEROS = /^0*\.?0*$/;

@@ -40,6 +40,7 @@ import moment from 'moment';
 import { getAllTriPools } from './aurora/aurora';
 import { ALL_STABLE_POOL_IDS, isStablePool, isRatedPool } from './near';
 import { filterBlackListPools } from './near';
+import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidityUSN';
 const explorerType = getExplorer();
 export const DEFAULT_PAGE_LIMIT = 100;
 const getStablePoolKey = (id: string) => `STABLE_POOL_VALUE_${id}`;
@@ -68,6 +69,7 @@ export interface StablePool {
   total_fee: number;
   shares_total_supply: string;
   amp: number;
+  rates: string[];
 }
 
 export interface StablePool {
@@ -79,7 +81,7 @@ export interface StablePool {
   total_fee: number;
   shares_total_supply: string;
   amp: number;
-  rates?: string[];
+  rates: string[];
 }
 
 export const getPoolByToken = async (tokenId: string) => {
@@ -827,6 +829,9 @@ export const getStablePool = async (pool_id: number): Promise<StablePool> => {
   return {
     ...pool_info,
     id: pool_id,
+    rates: pool_info.c_amounts.map((i: any) =>
+      toNonDivisibleNumber(STABLE_LP_TOKEN_DECIMALS, '1')
+    ),
   };
 };
 

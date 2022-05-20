@@ -215,37 +215,43 @@ const TypeTab = ({
   setType,
   type,
 }: {
-  setType: (type: string) => void;
-  type: string;
+  setType: (type: STABLE_POOL_TYPE) => void;
+  type: STABLE_POOL_TYPE;
 }) => {
   return (
     <div className="flex items-center justify-center text-lg border-b border-gray-300 border-opacity-20 mb-10">
       <div
         className={`w-52 py-2 mb-4 text-center ${
-          type === 'USD' ? 'text-white bg-black bg-opacity-20' : ''
+          type === STABLE_POOL_TYPE.USD
+            ? 'text-white bg-black bg-opacity-20'
+            : ''
         } rounded-2xl cursor-pointer`}
         onClick={() => {
-          setType('USD');
+          setType(STABLE_POOL_TYPE.USD);
         }}
       >
         USD
       </div>
       <div
         className={`w-52 py-2 mb-4 text-center ${
-          type === 'BTC' ? 'text-white bg-black bg-opacity-20' : ''
+          type === STABLE_POOL_TYPE.BTC
+            ? 'text-white bg-black bg-opacity-20'
+            : ''
         } rounded-2xl cursor-pointer`}
         onClick={() => {
-          setType('BTC');
+          setType(STABLE_POOL_TYPE.BTC);
         }}
       >
         BTC
       </div>
       <div
         className={`w-52 py-2 mb-4 text-center ${
-          type === 'NEAR' ? 'text-white bg-black bg-opacity-20' : ''
+          type === STABLE_POOL_TYPE.NEAR
+            ? 'text-white bg-black bg-opacity-20'
+            : ''
         } rounded-2xl cursor-pointer`}
         onClick={() => {
-          setType('NEAR');
+          setType(STABLE_POOL_TYPE.NEAR);
         }}
       >
         NEAR
@@ -277,8 +283,6 @@ export default function ({
 }) {
   const [showReserves, setShowReserves] = useState<boolean>(true);
   const [chart, setChart] = useState(null);
-
-  // const [BTCValue, setBTCValue] = useState<string>('');
 
   const ids = pools.map((p) => p.id);
   const [volume, setVolume] = useState<string>();

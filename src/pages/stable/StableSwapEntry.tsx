@@ -15,6 +15,8 @@ import {
   AllStableTokenIds,
   BTC_STABLE_POOL_ID,
   BTCIDS,
+  STNEARIDS,
+  STNEAR_POOL_ID,
 } from '../../services/near';
 import BigNumber from 'bignumber.js';
 import { toReadableNumber, percent } from '../../utils/numbers';
@@ -31,6 +33,8 @@ import { Images, Symbols } from '~components/stableswap/CommonComp';
 import { FarmMiningIcon } from '~components/icon';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { useStabelPoolData } from '../../state/sauce';
+import { STABLE_POOL_TYPE } from '../../services/near';
+import { STABLE_TOKEN_IDS, STABLE_TOKEN_USN_IDS } from '../../services/near';
 
 const RenderDisplayTokensAmounts = ({
   tokens,
@@ -155,9 +159,15 @@ function StablePoolCard({
   stablePool,
   tokens,
   poolData,
+  index,
+  chosenState,
+  setChosesState,
 }: {
   stablePool: Pool;
   tokens: TokenMetadata[];
+  index: number;
+  chosenState: number;
+  setChosesState: (index: number) => void;
   poolData: {
     displayTVL: string | JSX.Element;
     coinsAmounts: { [id: string]: BigNumber };
@@ -183,12 +193,23 @@ function StablePoolCard({
   // const multiMining = false;
 
   return (
-    <div className="w-full flex flex-col relative overflow-hidden rounded-2xl">
+    <div
+      className={`w-full flex flex-col relative overflow-hidden rounded-2xl mb-4
+      ${
+        chosenState === index
+          ? 'border border-gradientFrom'
+          : 'border border-transparent'
+      }
+      `}
+      onClick={() => history.push(`/sauce/${stablePool.id}`)}
+    >
       <Card
         width="w-full"
         padding="px-6 pt-8 pb-4"
-        rounded="rounded-t-2xl xs:rounded-b-none md:rounded-b-none"
-        className="flex flex-col"
+        rounded="rounded-2xl"
+        className={`flex flex-col`}
+        onMouseEnter={() => setChosesState(index)}
+        // onMouseLeave={() => setChosesState()}
       >
         <span
           className={`${
@@ -270,62 +291,106 @@ function StablePoolCard({
             </span>
           </div>
         </div>
+        <div
+          className={`w-full  bg-cardBg flex items-center xs:justify-between pt-6 pb-2 ${
+            chosenState === index && isSignedIn ? 'block' : 'hidden'
+          }`}
+        >
+          <SolidButton
+            className="w-full text-center flex items-center justify-center py-3 mr-2 text-sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              history.push(`/sauce/${stablePool.id}`, {
+                stableTab: 'add_liquidity',
+                shares,
+                stakeList,
+                farmStake,
+                pool: stablePool,
+              });
+            }}
+          >
+            <FormattedMessage
+              id="add_liquidity"
+              defaultMessage="Add Liquidity"
+            />
+          </SolidButton>
+          <OutlineButton
+            className="w-full py-3 ml-2 text-sm h-11"
+            onClick={(e) => {
+              e.stopPropagation();
+              history.push(`/sauce/${stablePool.id}`, {
+                stableTab: 'remove_liquidity',
+                shares,
+                stakeList,
+                farmStake,
+                pool: stablePool,
+              });
+            }}
+          >
+            <FormattedMessage
+              id="remove_liquidity"
+              defaultMessage="Remove Liquidity"
+            />
+          </OutlineButton>
+        </div>
+        <div
+          className={` ${
+            isSignedIn || chosenState !== index ? 'hidden' : ''
+          } px-6 pt-6 pb-2 bg-cardBg `}
+        >
+          <ConnectToNearBtn />
+        </div>
       </Card>
-      <div
-        className={`w-full bg-liqBtn flex items-center py-4 px-6 rounded-b-2xl mb-2 ${
-          isSignedIn ? 'block' : 'hidden'
-        }`}
-      >
-        <SolidButton
-          className="w-full text-center flex items-center justify-center py-3 mr-2 text-sm"
-          onClick={() =>
-            history.push(`/sauce/${stablePool.id}`, {
-              stableTab: 'add_liquidity',
-              shares,
-              stakeList,
-              farmStake,
-              pool: stablePool,
-            })
-          }
-        >
-          <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
-        </SolidButton>
-        <OutlineButton
-          className="w-full py-3 ml-2 text-sm h-11"
-          onClick={() =>
-            history.push(`/sauce/${stablePool.id}`, {
-              stableTab: 'remove_liquidity',
-              shares,
-              stakeList,
-              farmStake,
-              pool: stablePool,
-            })
-          }
-        >
-          <FormattedMessage
-            id="remove_liquidity"
-            defaultMessage="Remove Liquidity"
-          />
-        </OutlineButton>
-      </div>
-      <div
-        className={` ${
-          isSignedIn ? 'hidden' : ''
-        } px-6 py-4 mb-2 bg-liqBtn rounded-b-2xl`}
-      >
-        <ConnectToNearBtn />
-      </div>
     </div>
   );
 }
 
+const SauceSelector = ({
+  reserveType,
+  setReserveType,
+}: {
+  reserveType: STABLE_POOL_TYPE;
+  setReserveType: (reserveType: STABLE_POOL_TYPE) => void;
+}) => {
+  const TYPES = [
+    STABLE_POOL_TYPE.USD,
+    STABLE_POOL_TYPE.BTC,
+    STABLE_POOL_TYPE.NEAR,
+  ];
+
+  return (
+    <div className="bg-cardBg rounded-2xl p-1 flex mb-4">
+      {TYPES.map((type, i) => {
+        return (
+          <div
+            className={`rounded-xl  ${
+              reserveType === TYPES[i]
+                ? 'bg-tabChosen'
+                : 'cursor-pointer text-primaryText'
+            }  text-white text-lg w-full text-center py-2`}
+            onClick={() => setReserveType(TYPES[i])}
+          >
+            {type.toString()}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 export function StableSwapPageEntry() {
   // const;
-  const [reserveType, setReserveType] = useState<string>('USD');
+  const [reserveType, setReserveType] = useState<STABLE_POOL_TYPE>(
+    STABLE_POOL_TYPE.USD
+  );
   const { poolData: pool3tokenData } = useStabelPoolData(STABLE_POOL_ID);
   const { poolData: USNPoolData } = useStabelPoolData(STABLE_POOL_USN_ID);
 
   const { poolData: BTCPoolData } = useStabelPoolData(BTC_STABLE_POOL_ID);
+
+  const { poolData: STNEARPoolData } = useStabelPoolData(STNEAR_POOL_ID);
+
+  const [chosenState, setChosesState] = useState<number>(0);
 
   // const { poolData: CUSDPoolData } = useStabelPoolData(CUSD_STABLE_POOL_ID);
 
@@ -336,12 +401,16 @@ export function StableSwapPageEntry() {
       setAllStableTokens
     );
   }, []);
+  useEffect(() => {
+    setChosesState(0);
+  }, [reserveType]);
 
   if (
     !pool3tokenData ||
     !USNPoolData ||
     !BTCPoolData ||
     // !CUSDPoolData ||
+    !STNEARPoolData ||
     !allStableTokens
   )
     return <Loading />;
@@ -351,32 +420,86 @@ export function StableSwapPageEntry() {
   const formatedBTCPoolData = formatePoolData(BTCPoolData);
   // const formatedCUSDPoolData = formatePoolData(CUSDPoolData);
 
+  const formatedSTNEARPoolData = formatePoolData(STNEARPoolData);
+
+  const displayPoolData =
+    reserveType === STABLE_POOL_TYPE.USD
+      ? [formatedPool3tokenData, formatedUSNPoolData]
+      : reserveType === STABLE_POOL_TYPE.BTC
+      ? [formatedBTCPoolData]
+      : [formatedSTNEARPoolData];
+
+  const displayPools =
+    reserveType === STABLE_POOL_TYPE.USD
+      ? [pool3tokenData, USNPoolData]
+      : reserveType === STABLE_POOL_TYPE.BTC
+      ? [BTCPoolData]
+      : [STNEARPoolData];
+
   return (
     <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2 flex flex-col">
       <div className="flex justify-center -mt-10 mb-2 ">
         <StableSwapLogo />
       </div>
+
       <span className="text-sm text-primaryText mb-6 text-center">
         <FormattedMessage
           id="sauce_note"
           defaultMessage="SAUCE is designed for liquidity pools with pegged assets, delivering optimal prices."
         />
       </span>
-      <StablePoolCard
+      <SauceSelector
+        reserveType={reserveType}
+        setReserveType={setReserveType}
+      />
+
+      {displayPoolData.map((poolData, i) => {
+        return (
+          <StablePoolCard
+            stablePool={displayPools[i].pool}
+            tokens={displayPools[i].tokens}
+            poolData={poolData}
+            index={i}
+            key={i}
+            chosenState={chosenState}
+            setChosesState={setChosesState}
+          />
+        );
+      })}
+
+      {/* <StablePoolCard
         stablePool={pool3tokenData.pool}
         tokens={pool3tokenData.tokens}
         poolData={formatedPool3tokenData}
+        index={0}
+        chosenState={chosenState}
+        setChosesState={setChosesState}
       />
       <StablePoolCard
         stablePool={USNPoolData.pool}
         tokens={USNPoolData.tokens}
         poolData={formatedUSNPoolData}
+        index={1}
+        chosenState={chosenState}
+        setChosesState={setChosesState}
       />
       <StablePoolCard
         stablePool={BTCPoolData.pool}
         tokens={BTCPoolData.tokens}
         poolData={formatedBTCPoolData}
+        index={2}
+        chosenState={chosenState}
+        setChosesState={setChosesState}
       />
+
+      <StablePoolCard
+        stablePool={STNEARPoolData.pool}
+        tokens={STNEARPoolData.tokens}
+        poolData={formatedSTNEARPoolData}
+        index={3}
+        chosenState={chosenState}
+        setChosesState={setChosesState}
+      /> */}
 
       {/* <StablePoolCard
         stablePool={CUSDPoolData.pool}
@@ -386,15 +509,23 @@ export function StableSwapPageEntry() {
 
       <TokenReserves
         tokens={allStableTokens.filter((token) => {
-          return reserveType === 'BTC'
-            ? BTCIDS.includes(token.id)
-            : !BTCIDS.includes(token.id);
+          switch (reserveType) {
+            case 'BTC':
+              return BTCIDS.includes(token.id);
+            case 'USD':
+              return STABLE_TOKEN_IDS.concat(STABLE_TOKEN_USN_IDS)
+                .map((id) => id.toString())
+                .includes(token.id);
+            case 'NEAR':
+              return STNEARIDS.includes(token.id);
+          }
         })}
         pools={
-          reserveType === 'BTC'
+          reserveType === STABLE_POOL_TYPE.BTC
             ? [BTCPoolData.pool]
-            : // : [USNPoolData.pool, pool3tokenData.pool, CUSDPoolData.pool]
-              [USNPoolData.pool, pool3tokenData.pool]
+            : reserveType === STABLE_POOL_TYPE.NEAR
+            ? [STNEARPoolData.pool]
+            : [USNPoolData.pool, pool3tokenData.pool]
         }
         hiddenMag={true}
         className="pt-6"

@@ -1000,10 +1000,6 @@ export default function SwapCard(props: {
                   p.id.toString() !== STNEAR_POOL_ID
                 );
             }
-
-            return reservesType === 'BTC'
-              ? p.id.toString() === BTC_STABLE_POOL_ID
-              : p.id.toString() !== BTC_STABLE_POOL_ID;
           })}
           type={reservesType}
           setType={setReservesType}

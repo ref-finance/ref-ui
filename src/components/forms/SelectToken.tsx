@@ -133,8 +133,6 @@ export const StableSelectToken = ({
 
   const NEARtokens = NEARTokenList.map((id) => tokens.find((t) => t.id === id));
 
-  console.log(NEARtokens);
-
   const coverUSD =
     preSelected && !USDtokens.find((token) => token.id === preSelected.id);
 
@@ -200,8 +198,6 @@ export const StableSelectToken = ({
 
   const displayList = getDisplayList(stableCoinType);
 
-  // stableCoinType === 'USD' ? USDtokens : BTCtokens;
-
   return (
     <div className="w-2/5 outline-none my-auto relative overflow-visible">
       <div
@@ -223,7 +219,7 @@ export const StableSelectToken = ({
         {selected}
       </div>
       <div
-        className={`stable-token-selector rounded-2xl flex flex-col w-54 top-12 py-3 ${
+        className={`stable-token-selector rounded-2xl flex flex-col w-56 top-12 py-3 ${
           visible ? 'block' : 'hidden'
         } absolute`}
         style={{
@@ -256,7 +252,7 @@ export const StableSelectToken = ({
             USD
           </div>
           <div
-            className={`rounded-lg w-full py-1 text-center mr-3 font-bold  px-4 mb-2 mt-1
+            className={`rounded-lg w-full py-1 text-center font-bold  px-4 mb-2 mt-1
           ${
             stableCoinType === 'BTC'
               ? 'text-BTCColor bg-black bg-opacity-20'

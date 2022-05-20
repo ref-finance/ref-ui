@@ -549,7 +549,7 @@ const uk_UA = {
   to_recover: 'для відновлення.',
   reward_apr: 'Rewards APR',
   stake_min_deposit: 'Input must be greater than or equal to ',
-  total_near_amount: 'Total NEAR amount',
-  near_value: 'NEAR Value',
+  total_near_amount: 'Загальна сума NEAR',
+  near_value: 'Значення NEAR',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);
