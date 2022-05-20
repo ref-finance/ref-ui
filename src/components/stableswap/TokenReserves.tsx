@@ -278,7 +278,7 @@ export default function ({
   const [showReserves, setShowReserves] = useState<boolean>(true);
   const [chart, setChart] = useState(null);
 
-  const [BTCValue, setBTCValue] = useState<string>('');
+  // const [BTCValue, setBTCValue] = useState<string>('');
 
   const ids = pools.map((p) => p.id);
   const [volume, setVolume] = useState<string>();
@@ -292,15 +292,26 @@ export default function ({
 
   const totalCoinsId = forPool
     ? 'tvl'
-    : type === 'BTC'
+    : type === STABLE_POOL_TYPE.BTC
     ? 'total_bitcoins'
+    : type === STABLE_POOL_TYPE.NEAR
+    ? 'total_near_amount'
     : 'total_stable_coins';
 
   const totalUSDValueId = 'total_usd_value';
 
-  const totalValueId = type === 'BTC' ? 'bitcoin_value' : 'stable_coin_value';
+  const totalValueId =
+    type === STABLE_POOL_TYPE.BTC
+      ? 'bitcoin_value'
+      : type === STABLE_POOL_TYPE.NEAR
+      ? 'near_value'
+      : 'stable_coin_value';
   const totalValueMessage =
-    type === 'BTC' ? 'Bitcoin Value' : 'StableCoin Value';
+    type === STABLE_POOL_TYPE.BTC
+      ? 'Bitcoin Value'
+      : type === STABLE_POOL_TYPE.NEAR
+      ? 'NEAR Value'
+      : 'StableCoin Value';
 
   useEffect(() => {
     if (ids) {
@@ -336,10 +347,6 @@ export default function ({
   );
 
   const intl = useIntl();
-
-  const isGettingBTCPrice =
-    (type && type === 'BTC') ||
-    (forPool && pools[0].id === Number(BTC_STABLE_POOL_ID));
 
   const calTotalStableCoins = useMemo(() => {
     try {
@@ -410,34 +417,6 @@ export default function ({
     setChart(chartContainer);
   }, [type]);
 
-  useEffect(() => {
-    if (!isGettingBTCPrice) return;
-
-    currentTokensPrice(BTCIDS.join('|')).then((res) => {
-      const parsedPrices = res.map((p: string) => (p === 'N/A' ? '0' : p));
-      const values = parsedPrices.map((p: string, i: number) => {
-        const pool = pools.find(
-          (pool) => Number(pool.id) === Number(BTC_STABLE_POOL_ID)
-        );
-        const token = tokens.find((token) => token.id === BTCIDS[i]);
-
-        const value = new BigNumber(p).times(
-          toReadableNumber(token.decimals, pool.supplies[BTCIDS[i]])
-        );
-        return scientificNotationToString(value.toString());
-      });
-
-      const totalValues = scientificNotationToString(
-        BigNumber.sum(...values).toString()
-      );
-      setBTCValue(totalValues);
-    });
-  }, [type]);
-
-  const displayTotalValue = isGettingBTCPrice
-    ? BTCValue || '0'
-    : calTotalStableCoins;
-
   return (
     <div
       className={`${
@@ -481,14 +460,14 @@ export default function ({
         </div>
         <div
           className={`text-white mt-1 ${forPool ? 'hidden' : ''}`}
-          title={toPrecision(displayTotalValue, 0)}
+          title={toPrecision(tvl?.toString() || '0', 0)}
         >
           $
-          {type === 'BTC' && !BTCValue
+          {!tvl
             ? '-'
-            : Number(displayTotalValue) < 0.001
+            : tvl < 0.001
             ? ' <0.001'
-            : toInternationalCurrencySystem(displayTotalValue, 3)}
+            : toInternationalCurrencySystem(tvl?.toString(), 3)}
         </div>
         <div className={`flex justify-center`}>{chart}</div>
         {Object.values(tokensData)
@@ -523,15 +502,13 @@ export default function ({
           <InfoLine
             title={intl.formatMessage({ id: totalUSDValueId })}
             value={
-              !BTCValue
+              !tvl
                 ? '$-'
-                : Number(displayTotalValue) < 0.001
+                : tvl < 0.001
                 ? '$<0.001'
-                : `$${
-                    toInternationalCurrencySystem(displayTotalValue, 3) || '0'
-                  }`
+                : `$${toInternationalCurrencySystem(tvl.toString(), 3) || '0'}`
             }
-            valueTitle={toPrecision(displayTotalValue, 0)}
+            valueTitle={toPrecision(tvl?.toString() || '0', 0)}
           />
         )}
         <div className={'py-0.5'}></div>
