@@ -21,7 +21,10 @@ import {
 import BigNumber from 'bignumber.js';
 import { toReadableNumber, percent } from '../../utils/numbers';
 import { ShareInFarm } from '../../components/layout/ShareInFarm';
-import { STABLE_LP_TOKEN_DECIMALS } from '../../components/stableswap/AddLiquidity';
+import {
+  STABLE_LP_TOKEN_DECIMALS,
+  RATED_POOL_LP_TOKEN_DECIMALS,
+} from '../../components/stableswap/AddLiquidity';
 import {
   toInternationalCurrencySystem,
   toPrecision,
@@ -33,8 +36,17 @@ import { Images, Symbols } from '~components/stableswap/CommonComp';
 import { FarmMiningIcon } from '~components/icon';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { useStabelPoolData } from '../../state/sauce';
-import { STABLE_POOL_TYPE } from '../../services/near';
+import {
+  STABLE_POOL_TYPE,
+  isStablePool,
+  isRatedPool,
+} from '../../services/near';
 import { STABLE_TOKEN_IDS, STABLE_TOKEN_USN_IDS } from '../../services/near';
+
+export const getStablePoolDecimal = (id: string | number) => {
+  if (isRatedPool(id)) return RATED_POOL_LP_TOKEN_DECIMALS;
+  else if (isStablePool(id)) return STABLE_LP_TOKEN_DECIMALS;
+};
 
 const RenderDisplayTokensAmounts = ({
   tokens,
@@ -114,7 +126,7 @@ export function formatePoolData({
 
   const displayMyShareAmount = isSignedIn
     ? toPrecision(
-        toReadableNumber(STABLE_LP_TOKEN_DECIMALS, parsedUsertotalShare),
+        toReadableNumber(getStablePoolDecimal(pool.id), parsedUsertotalShare),
         2,
         true
       )
@@ -378,10 +390,14 @@ const SauceSelector = ({
   );
 };
 
+const REF_SAUCE_PAGE_STABLE_CLASS_KEY = 'REF_SAUCE_PAGE_STABLE_CLASS_VALUE';
+
 export function StableSwapPageEntry() {
   // const;
   const [reserveType, setReserveType] = useState<STABLE_POOL_TYPE>(
-    STABLE_POOL_TYPE.USD
+    STABLE_POOL_TYPE[
+      localStorage.getItem(REF_SAUCE_PAGE_STABLE_CLASS_KEY)?.toString()
+    ] || STABLE_POOL_TYPE.USD
   );
   const { poolData: pool3tokenData } = useStabelPoolData(STABLE_POOL_ID);
   const { poolData: USNPoolData } = useStabelPoolData(STABLE_POOL_USN_ID);
@@ -403,6 +419,10 @@ export function StableSwapPageEntry() {
   }, []);
   useEffect(() => {
     setChosesState(0);
+    localStorage.setItem(
+      REF_SAUCE_PAGE_STABLE_CLASS_KEY,
+      reserveType.toString()
+    );
   }, [reserveType]);
 
   if (

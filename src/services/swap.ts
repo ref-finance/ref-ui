@@ -42,7 +42,6 @@ import {
   getPoolsByTokens,
   getPoolByToken,
   parsePool,
-  Pool,
   getPool,
   getStablePool,
   StablePool,
@@ -82,8 +81,9 @@ import { getCurrentWallet } from '../utils/sender-wallet';
 import { multiply, separateRoutes } from '../utils/numbers';
 import { auroraSwapTransactions } from './aurora/aurora';
 import { PoolSlippageSelector } from '../components/forms/SlippageSelector';
-import { getAllStablePoolsFromCache } from './pool';
+import { getAllStablePoolsFromCache, Pool } from './pool';
 import { PoolInfo } from '../components/layout/SwapRoutes';
+import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 
 // Big.strict = false;
@@ -169,6 +169,8 @@ const getStablePoolEstimate = ({
   stablePoolInfo: StablePool;
   stablePool: Pool;
 }) => {
+  const STABLE_LP_TOKEN_DECIMALS = getStablePoolDecimal(stablePool.id);
+
   const [amount_swapped, fee, dy] = getSwappedAmount(
     tokenIn.id,
     tokenOut.id,

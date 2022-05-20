@@ -14,6 +14,7 @@ import { getSwappedAmount, estimateSwap } from '../services/stable-swap';
 import { EstimateSwapView } from '../services/swap';
 import Big from 'big.js';
 import { sortBy } from 'lodash';
+import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 
 const BPS_CONVERSION = 10000;
 const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
@@ -208,7 +209,10 @@ export const calculateSmartRoutingPriceImpact = (
       stableOut[0] < 0
         ? '0'
         : toPrecision(scientificNotationToString(stableOut[2].toString()), 0);
-    stableOutPool2 = toReadableNumber(STABLE_LP_TOKEN_DECIMALS, stableOutPool2);
+    stableOutPool2 = toReadableNumber(
+      getStablePoolDecimal(swapTodos[1].pool.id),
+      stableOutPool2
+    );
   }
 
   const tokenOutReceived = isPool2StablePool

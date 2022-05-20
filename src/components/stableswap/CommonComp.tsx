@@ -119,6 +119,7 @@ export function SharesCard({
           shares,
           userTotalShare,
           canFarm,
+          pool,
         })}
         {canFarm > 0 ? (
           <ShareInFarmV2

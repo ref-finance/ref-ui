@@ -41,6 +41,7 @@ import _, { rearg } from 'lodash';
 import { PoolMode } from './swap';
 import { getCurrentWallet } from '../utils/sender-wallet';
 import { getStableTokenIndex } from './near';
+import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 const FEE_DIVISOR = 10000;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
 const STABLE_POOL_KEY = `STABLE_POOL_VALUE_${getConfig().STABLE_POOL_ID}`;
@@ -641,6 +642,8 @@ export const getSwappedAmount = (
   const in_token_idx = STABLE_TOKEN_INDEX[tokenInId];
   const out_token_idx = STABLE_TOKEN_INDEX[tokenOutId];
 
+  const STABLE_LP_TOKEN_DECIMALS = getStablePoolDecimal(stablePool.id);
+
   const rates = stablePool.rates.map((r) =>
     toReadableNumber(STABLE_LP_TOKEN_DECIMALS, r)
   );
@@ -699,6 +702,8 @@ export const getAddLiquidityShares = async (
 ) => {
   const amp = stablePool.amp;
   const trade_fee = stablePool.total_fee;
+
+  const STABLE_LP_TOKEN_DECIMALS = getStablePoolDecimal(pool_id);
 
   const base_old_c_amounts = stablePool.c_amounts.map((amount) =>
     toReadableNumber(STABLE_LP_TOKEN_DECIMALS, amount)
@@ -775,6 +780,9 @@ export const getRemoveLiquidityByTokens = (
   // const removed_c_amounts = amounts.map((amount) =>
   //   Number(toNonDivisibleNumber(STABLE_LP_TOKEN_DECIMALS, amount))
   // );
+
+  const STABLE_LP_TOKEN_DECIMALS = getStablePoolDecimal(stablePool.id);
+
   const pool_token_supply = Number(stablePool.shares_total_supply);
 
   const base_old_c_amounts = stablePool.c_amounts.map((amount) =>

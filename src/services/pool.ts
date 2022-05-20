@@ -40,7 +40,7 @@ import moment from 'moment';
 import { getAllTriPools } from './aurora/aurora';
 import { ALL_STABLE_POOL_IDS, isStablePool, isRatedPool } from './near';
 import { filterBlackListPools } from './near';
-import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidityUSN';
+import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
 const explorerType = getExplorer();
 export const DEFAULT_PAGE_LIMIT = 100;
 const getStablePoolKey = (id: string) => `STABLE_POOL_VALUE_${id}`;
