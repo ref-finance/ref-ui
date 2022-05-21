@@ -30,8 +30,8 @@ export const isStableToken = (id: string) => {
     STABLE_TOKEN_IDS.includes(id) ||
     STABLE_TOKEN_USN_IDS.includes(id) ||
     BTCIDS.includes(id) ||
-    STNEARIDS.includes(id)
-    // ||CUSDIDS.includes(id)
+    STNEARIDS.includes(id) ||
+    CUSDIDS.includes(id)
   );
 };
 
@@ -42,11 +42,14 @@ export const {
   CUSD_STABLE_POOL_ID,
   STNEAR_POOL_ID,
   STNEARIDS,
+  BTC_STABLE_POOL_INDEX,
+  CUSD_STABLE_POOL_INDEX,
+  STNEAR_POOL_INDEX,
 } = getExtraStablePoolConfig();
 
-// export const extraStableTokenIds = BTCIDS.concat(CUSDIDS).filter((_) => !!_);
-
-export const extraStableTokenIds = BTCIDS.concat(STNEARIDS).filter((_) => !!_);
+export const extraStableTokenIds = BTCIDS.concat(STNEARIDS)
+  .concat(CUSDIDS)
+  .filter((_) => !!_);
 
 export const isRatedPool = (id: string | number) => {
   return getExtraStablePoolConfig().RATED_POOLS_IDS.includes(id.toString());
@@ -63,7 +66,7 @@ export const ALL_STABLE_POOL_IDS = [
   STABLE_POOL_USN_ID,
   BTC_STABLE_POOL_ID,
   STNEAR_POOL_ID,
-  // CUSD_STABLE_POOL_ID,
+  CUSD_STABLE_POOL_ID,
 ]
   .filter((_) => _)
   .map((id) => id.toString());
@@ -87,12 +90,11 @@ export const getStableTokenIndex = (stable_pool_id: string | number) => {
     case STABLE_POOL_USN_ID.toString():
       return STABLE_TOKEN_USN_INDEX;
     case BTC_STABLE_POOL_ID:
-      return getExtraStablePoolConfig().BTC_STABLE_POOL_INDEX;
-
+      return BTC_STABLE_POOL_INDEX;
     case STNEAR_POOL_ID:
-      return getExtraStablePoolConfig().STNEAR_POOL_INDEX;
-    // case CUSD_STABLE_POOL_ID:
-    //   return getExtraStablePoolConfig().CUSD_STABLE_POOL_INDEX;
+      return STNEAR_POOL_INDEX;
+    case CUSD_STABLE_POOL_ID:
+      return CUSD_STABLE_POOL_INDEX;
   }
 };
 

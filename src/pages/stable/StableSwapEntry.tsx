@@ -17,6 +17,8 @@ import {
   BTCIDS,
   STNEARIDS,
   STNEAR_POOL_ID,
+  CUSD_STABLE_POOL_ID,
+  CUSDIDS,
 } from '../../services/near';
 import BigNumber from 'bignumber.js';
 import { toReadableNumber, percent } from '../../utils/numbers';
@@ -414,10 +416,9 @@ export function StableSwapPageEntry() {
   const { poolData: BTCPoolData } = useStabelPoolData(BTC_STABLE_POOL_ID);
 
   const { poolData: STNEARPoolData } = useStabelPoolData(STNEAR_POOL_ID);
+  const { poolData: CUSDPoolData } = useStabelPoolData(CUSD_STABLE_POOL_ID);
 
   const [chosenState, setChosesState] = useState<number>(0);
-
-  // const { poolData: CUSDPoolData } = useStabelPoolData(CUSD_STABLE_POOL_ID);
 
   const [allStableTokens, setAllStableTokens] = useState<TokenMetadata[]>();
 
@@ -438,7 +439,7 @@ export function StableSwapPageEntry() {
     !pool3tokenData ||
     !USNPoolData ||
     !BTCPoolData ||
-    // !CUSDPoolData ||
+    !CUSDPoolData ||
     !STNEARPoolData ||
     !allStableTokens
   )
@@ -447,20 +448,20 @@ export function StableSwapPageEntry() {
   const formatedPool3tokenData = formatePoolData(pool3tokenData);
   const formatedUSNPoolData = formatePoolData(USNPoolData);
   const formatedBTCPoolData = formatePoolData(BTCPoolData);
-  // const formatedCUSDPoolData = formatePoolData(CUSDPoolData);
+  const formatedCUSDPoolData = formatePoolData(CUSDPoolData);
 
   const formatedSTNEARPoolData = formatePoolData(STNEARPoolData);
 
   const displayPoolData =
     reserveType === STABLE_POOL_TYPE.USD
-      ? [formatedPool3tokenData, formatedUSNPoolData]
+      ? [formatedPool3tokenData, formatedUSNPoolData, formatedCUSDPoolData]
       : reserveType === STABLE_POOL_TYPE.BTC
       ? [formatedBTCPoolData]
       : [formatedSTNEARPoolData];
 
   const displayPools =
     reserveType === STABLE_POOL_TYPE.USD
-      ? [pool3tokenData, USNPoolData]
+      ? [pool3tokenData, USNPoolData, CUSDPoolData]
       : reserveType === STABLE_POOL_TYPE.BTC
       ? [BTCPoolData]
       : [STNEARPoolData];
@@ -496,46 +497,6 @@ export function StableSwapPageEntry() {
         );
       })}
 
-      {/* <StablePoolCard
-        stablePool={pool3tokenData.pool}
-        tokens={pool3tokenData.tokens}
-        poolData={formatedPool3tokenData}
-        index={0}
-        chosenState={chosenState}
-        setChosesState={setChosesState}
-      />
-      <StablePoolCard
-        stablePool={USNPoolData.pool}
-        tokens={USNPoolData.tokens}
-        poolData={formatedUSNPoolData}
-        index={1}
-        chosenState={chosenState}
-        setChosesState={setChosesState}
-      />
-      <StablePoolCard
-        stablePool={BTCPoolData.pool}
-        tokens={BTCPoolData.tokens}
-        poolData={formatedBTCPoolData}
-        index={2}
-        chosenState={chosenState}
-        setChosesState={setChosesState}
-      />
-
-      <StablePoolCard
-        stablePool={STNEARPoolData.pool}
-        tokens={STNEARPoolData.tokens}
-        poolData={formatedSTNEARPoolData}
-        index={3}
-        chosenState={chosenState}
-        setChosesState={setChosesState}
-      /> */}
-
-      {/* <StablePoolCard
-        stablePool={CUSDPoolData.pool}
-        tokens={CUSDPoolData.tokens}
-        poolData={formatedCUSDPoolData}
-      /> */}
-
       <TokenReserves
         tokens={allStableTokens.filter((token) => {
           switch (reserveType) {
@@ -543,6 +504,7 @@ export function StableSwapPageEntry() {
               return BTCIDS.includes(token.id);
             case 'USD':
               return STABLE_TOKEN_IDS.concat(STABLE_TOKEN_USN_IDS)
+                .concat(CUSDIDS)
                 .map((id) => id.toString())
                 .includes(token.id);
             case 'NEAR':
@@ -554,7 +516,7 @@ export function StableSwapPageEntry() {
             ? [BTCPoolData.pool]
             : reserveType === STABLE_POOL_TYPE.NEAR
             ? [STNEARPoolData.pool]
-            : [USNPoolData.pool, pool3tokenData.pool]
+            : [USNPoolData.pool, pool3tokenData.pool, CUSDPoolData.pool]
         }
         hiddenMag={true}
         className="pt-6"

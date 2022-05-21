@@ -44,6 +44,7 @@ import {
 import {
   BTCIDS,
   BTC_STABLE_POOL_ID,
+  CUSDIDS,
   STABLE_POOL_TYPE,
   STABLE_TOKEN_IDS,
   STNEARIDS,
@@ -986,6 +987,7 @@ export default function SwapCard(props: {
                   return BTCIDS.includes(token.id);
                 case 'USD':
                   return STABLE_TOKEN_IDS.concat(STABLE_TOKEN_USN_IDS)
+                    .concat(CUSDIDS)
                     .map((id) => id.toString())
                     .includes(token.id);
                 case 'NEAR':
