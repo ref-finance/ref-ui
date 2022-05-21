@@ -672,17 +672,17 @@ export function FarmsPage() {
             <div className="flex items-center text-white text-3xl h-12">
               <FormattedMessage id="farms" defaultMessage="Farms" />
             </div>
-            <div className="flex items-center justify-between h-7 rounded-2xl bg-farmSbg p-0.5 w-36">
+            <div className="flex items-center justify-between h-7 rounded-2xl bg-farmSbg p-0.5">
+              <span className="flex items-center justify-center text-sm  text-chartBg cursor-pointer px-2 h-full  rounded-2xl bg-farmSearch">
+                V1-Legacy
+              </span>
               <span
                 onClick={() => {
                   history.push('/farmsBoost');
                 }}
-                className="flex items-center justify-center rounded-2xl text-sm  text-farmText cursor-pointer w-1/2 h-full"
+                className="flex items-center justify-center rounded-2xl text-sm  text-farmText cursor-pointer px-3 h-full"
               >
-                New
-              </span>
-              <span className="flex items-center justify-center text-sm  text-chartBg cursor-pointer w-1/2 h-full  rounded-2xl bg-farmSearch">
-                Legacy
+                V2-New
               </span>
             </div>
           </div>

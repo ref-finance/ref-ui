@@ -6,6 +6,7 @@ import {
   FreeIcon,
   LockIcon,
   LightningIcon,
+  BigLightningIcon,
   GoldLevel1,
   GoldLevel2,
   GoldLevel3,
@@ -13,6 +14,7 @@ import {
   LockedIcon,
   UnLockedIcon,
   CalcIcon,
+  LockImgIcon,
 } from '~components/icon/FarmBoost';
 import { useHistory, useLocation } from 'react-router-dom';
 import getConfig from '../../services/config';
@@ -72,7 +74,6 @@ import { Checkbox, CheckboxSelected } from '~components/icon';
 import { CalcEle } from '~components/farm/CalcModelBooster';
 import ReactTooltip from 'react-tooltip';
 import QuestionMark from '~components/farm/QuestionMark';
-import { wallet } from '~services/near';
 import { ExternalLinkIcon } from '~components/icon/Risk';
 import { FaAngleUp, FaAngleDown } from 'react-icons/fa';
 import { useDayVolume } from '../../state/pool';
@@ -126,6 +127,10 @@ export default function FarmsDetail(props: {
     const poolId = pool.id;
     window.open(`/pool/${poolId}`);
   };
+  function isEnded() {
+    const farms = detailData.farmList;
+    return farms[0].status == 'Ended';
+  }
   return (
     <div className={`m-auto lg:w-580px md:w-5/6 xs:w-11/12  xs:-mt-4 md:-mt-4`}>
       <div className="breadCrumbs flex items-center text-farmText text-base hover:text-white">
@@ -134,12 +139,21 @@ export default function FarmsDetail(props: {
           <FormattedMessage id="farms" />
         </label>
       </div>
-      <div className="flex justify-between items-center mt-7 xs:mt-4 md:mt-4 xs:flex-col md:flex-col xs:items-start md:items-start">
+      <div
+        className={`flex justify-between items-center mt-7 xs:mt-4 md:mt-4 xs:flex-col md:flex-col xs:items-start md:items-start ${
+          isEnded() ? 'farmEnded' : ''
+        }`}
+      >
         <div className="left flex items-center h-11 ml-3">
           <span className="flex">{displayImgs()}</span>
           <span className="flex items-center cursor-pointer text-white font-bold text-xl ml-4 xs:text-sm md:text-sm">
             {displaySymbols()}
           </span>
+          {isEnded() ? (
+            <span className="text-farmText text-sm ml-2 relative top-0.5">
+              <FormattedMessage id="ended_search"></FormattedMessage>
+            </span>
+          ) : null}
         </div>
         <div className="flex items-center" onClick={goPoolPage}>
           <label className="mx-2 text-sm text-primaryText hover:text-framBorder cursor-pointer">
@@ -445,9 +459,17 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
     });
     return Object.values(tempMap);
   }
+  function isEnded() {
+    const farms = detailData.farmList;
+    return farms[0].status == 'Ended';
+  }
   return (
     <div className="mt-5">
-      <div className="poolbaseInfo flex items-center justify-between">
+      <div
+        className={`poolbaseInfo flex items-center justify-between ${
+          isEnded() ? 'farmEnded' : ''
+        }`}
+      >
         <div
           className="flex flex-col items-start justify-between bg-cardBg rounded-lg py-3.5 px-5 flex-grow mr-3.5"
           style={{ height: '85px' }}
@@ -638,7 +660,7 @@ function AddLiquidityModal(props: any) {
   );
 }
 function CommonModal(props: any) {
-  const { isOpen, onRequestClose, title } = props;
+  const { isOpen, onRequestClose, title, titleIcon } = props;
   const cardWidth = isMobile() ? '90vw' : '30vw';
   const cardHeight = isMobile() ? '90vh' : '80vh';
 
@@ -670,9 +692,12 @@ function CommonModal(props: any) {
         }}
       >
         <div className="title flex items-center justify-between">
-          <label className="text-white text-xl">
-            <FormattedMessage id={title}></FormattedMessage>
-          </label>
+          <div className="flex items-center">
+            {titleIcon ? titleIcon : null}
+            <label className="text-white text-xl">
+              <FormattedMessage id={title}></FormattedMessage>
+            </label>
+          </div>
           <ModalClose className="cursor-pointer" onClick={onRequestClose} />
         </div>
         {props.children}
@@ -1277,6 +1302,7 @@ function UserTotalUnClaimBlock(props: {
   const { detailData, tokenPriceList } = props;
   const [claimLoading, setClaimLoading] = useState(false);
   const unClaimedTokens = Object.values(detailData.unclaimed_token_meta_datas);
+  const intl = useIntl();
   function claimReward() {
     if (claimLoading) return;
     setClaimLoading(true);
@@ -1292,6 +1318,10 @@ function UserTotalUnClaimBlock(props: {
   function getTotalUnclaimedRewards() {
     let totalPrice = 0;
     let resultTip = '';
+    const tempFarms = {};
+    detailData.farmList.forEach((farm: FarmBoost) => {
+      tempFarms[farm.terms.reward_token] = true;
+    });
     unClaimedTokens?.forEach((token: TokenMetadata) => {
       // total price
       const { id, decimals, icon } = token;
@@ -1312,11 +1342,17 @@ function UserTotalUnClaimBlock(props: {
       } else {
         displayNum = new BigNumber(amount).toFixed(3, 1);
       }
-      const itemHtml = `<div class="flex justify-between items-center h-8">
-          <image class="w-5 h-5 rounded-full mr-7" src="${icon}"/>
-          <label class="text-xs text-navHighLightText">${formatWithCommas(
-            displayNum
-          )}</label>
+      const txt = intl.formatMessage({ id: 'ended_search' });
+      const itemHtml = `<div class="flex justify-between items-center h-8 active">
+          <img class="w-5 h-5 rounded-full mr-7" src="${icon}"/>
+            <div class="flex flex-col items-end text-xs text-navHighLightText">
+            ${formatWithCommas(displayNum)}
+            ${
+              tempFarms[id]
+                ? ''
+                : `<span class="text-farmText text-xs">${txt}</span>`
+            }
+          </div>
         </div>`;
       resultTip += itemHtml;
     });
@@ -1427,6 +1463,7 @@ function UserStakeBlock(props: {
   const lockAmount = toReadableNumber(DECIMALS, locked_amount);
   const xlocked_amount = toReadableNumber(DECIMALS, x_locked_amount);
   const slashRate = slash_rate / 10000;
+  const intl = useIntl();
   useEffect(() => {
     get_server_time();
   }, []);
@@ -1617,6 +1654,14 @@ function UserStakeBlock(props: {
     }
     return result;
   }
+  function getExitFeeTip() {
+    const txt = intl.formatMessage({ id: 'exit_fee_tip' });
+    return `<div class="w-54 text-left">
+    <span class="text-farmText text-xs">
+      ${txt}
+    </span>
+</div>`;
+  }
   const isEnded = detailData.farmList[0].status == 'Ended';
   return (
     <div className="bg-cardBg rounded-2xl p-5 mt-5">
@@ -1630,32 +1675,19 @@ function UserStakeBlock(props: {
         </span>
       </div>
       <div className="stakeEntryArea">
-        {Number(userTotalStake) > 0 ||
-        Number(lpBalance) == 0 ||
-        isEnded ? null : (
-          <div className="pt-5 mt-5 borde border-dashed border-dashBorderColor border-t-2 border-opacity-20">
-            <div className="flex justify-between items-center bg-black bg-opacity-20 rounded-lg py-2 pl-4 pr-2 border border-greenColor">
-              <span className="text-farmText text-sm">
-                <FormattedMessage id="you_have" />{' '}
-                <label className="text-white">{displayLpBalance()}</label> LP
-                <FormattedMessage id="tokens_small" />
-              </span>
-              <GradientButton
-                onClick={() => {
-                  openStakeModalVisible('init');
-                }}
-                color="#fff"
-                className={`w-28 h-8 text-center text-sm text-white focus:outline-none`}
-              >
-                <FormattedMessage id="stake"></FormattedMessage>
-              </GradientButton>
-            </div>
-          </div>
-        )}
-        {Number(userTotalStake) == 0 ? null : (
-          <div className="pt-5 mt-5 borde border-dashed border-dashBorderColor border-t-2 border-opacity-20">
-            {min_locking_duration_sec == 0 || FARM_LOCK_SWITCH == 0 ? (
-              <div className="flex justify-end">
+        <div className="pt-5 mt-5 borde border-dashed border-dashBorderColor border-t-2 border-opacity-20">
+          {min_locking_duration_sec == 0 || FARM_LOCK_SWITCH == 0 ? (
+            <div className="flex justify-between items-center">
+              {Number(lpBalance) == 0 || isEnded ? null : (
+                <div className="flex justify-center text-farmText text-sm">
+                  <FormattedMessage id="you_have" />{' '}
+                  <label className="text-white mx-1">
+                    {displayLpBalance()}
+                  </label>{' '}
+                  LP <FormattedMessage id="tokens_small" />
+                </div>
+              )}
+              <div className="flex justify-end flex-grow">
                 <GradientButton
                   onClick={() => {
                     openStakeModalVisible('free');
@@ -1672,18 +1704,28 @@ function UserStakeBlock(props: {
                     openUnStakeModalVisible('free');
                   }}
                   color="#fff"
-                  className={`flex items-center justify-center w-36 h-8 text-center text-base text-white focus:outline-none font-semibold bg-lightGreyColor`}
+                  className={`flex items-center justify-center w-36 h-8 text-center text-base text-white focus:outline-none font-semibold bg-lightGreyColor ${
+                    Number(freeAmount) > 0 ? '' : 'hidden'
+                  }`}
                 >
                   <FormattedMessage id="unstake" defaultMessage="Unstake" />
                 </OprationButton>
               </div>
-            ) : (
+            </div>
+          ) : (
+            <>
+              {Number(lpBalance) == 0 || isEnded ? null : (
+                <div className="flex justify-center text-farmText text-sm mb-4">
+                  <FormattedMessage id="you_have" />{' '}
+                  <label className="text-white mx-1">
+                    {displayLpBalance()}
+                  </label>{' '}
+                  LP <FormattedMessage id="tokens_small" />
+                </div>
+              )}
               <div className="flex items-start justify-between">
                 <div className="freeBox rounded-lg bg-boostBg w-1 flex-grow mr-3 px-3.5 pt-5">
-                  {/* <div className="flex items-center justify-center bg-freeTitleBg h-6 text-white text-sm rounded-b-lg w-40 mx-auto mb-3">
-                    <FormattedMessage id="ordinary_stake" />
-                  </div> */}
-                  <div className="center h-32">
+                  <div className="center">
                     {Number(freeAmount) > 0 ? (
                       <>
                         <CommonLine title="lp_tokens">
@@ -1715,7 +1757,7 @@ function UserStakeBlock(props: {
                         </div>
                       </>
                     ) : (
-                      <div className="freeEmpty flex flex-col items-center">
+                      <div className="freeEmpty flex flex-col items-center mb-12">
                         <span className="my-8">
                           <FreeIcon></FreeIcon>
                         </span>
@@ -1806,8 +1848,25 @@ function UserStakeBlock(props: {
                           </div>
                         </CommonLine>
                         <CommonLine title="exit_fee">
-                          <div className="flex flex-col items-center text-white text-sm">
+                          <div className="flex items-center text-white text-sm">
                             {getExitFee()} <FormattedMessage id="lp_tokens" />
+                            <div
+                              className="text-white text-right ml-1"
+                              data-class="reactTip"
+                              data-for="exitfeeId"
+                              data-place="top"
+                              data-html={true}
+                              data-tip={getExitFeeTip()}
+                            >
+                              <QuestionMark></QuestionMark>
+                              <ReactTooltip
+                                id="exitfeeId"
+                                backgroundColor="#1D2932"
+                                border
+                                borderColor="#7e8a93"
+                                effect="solid"
+                              />
+                            </div>
                           </div>
                         </CommonLine>
                       </div>
@@ -1843,6 +1902,7 @@ function UserStakeBlock(props: {
                           color="#fff"
                           className={`flex items-center justify-center w-36 h-8 text-center text-base text-white focus:outline-none font-semibold bg-lightGreyColor`}
                         >
+                          <LockImgIcon></LockImgIcon>
                           <FormattedMessage
                             id="unlock"
                             defaultMessage="Unlock"
@@ -1867,9 +1927,9 @@ function UserStakeBlock(props: {
                   </div>
                 </div>
               </div>
-            )}
-          </div>
-        )}
+            </>
+          )}
+        </div>
       </div>
       {stakeModalVisible ? (
         <StakeModal
@@ -1887,6 +1947,7 @@ function UserStakeBlock(props: {
         <UnStakeModal
           title={unStakeType == 'free' ? 'unstake' : 'unlock'}
           isOpen={unStakeModalVisible}
+          titleIcon={unStakeType == 'free' ? '' : <LockImgIcon />}
           detailData={detailData}
           onRequestClose={closeUnStakeModalVisible}
           unStakeType={unStakeType}
@@ -1947,8 +2008,9 @@ function StakeModal(props: {
   const [selectedLockData, setSelectedLockData] = useState<Lock>(null);
   const [selectedLockPrice, setSelectedLockPrice] = useState('');
   const [acceptSlashPolicy, setAcceptSlashPolicy] = useState<boolean>(false);
-  const [switchButton, setSwitchButton] = useState<boolean>(true);
   const [showCalc, setShowCalc] = useState(false);
+  const [ROI, setROI] = useState('');
+  const [estimatedRewards, setEstimatedRewards] = useState<any[]>();
   const intl = useIntl();
   useEffect(() => {
     if (stakeType !== 'free') {
@@ -2000,7 +2062,7 @@ function StakeModal(props: {
     }
   }, [stakeType]);
   useEffect(() => {
-    getSelectedLockPrice();
+    getSelectedLockRewardsData();
   }, [amount, selectedLockData]);
   const displaySymbols = () => {
     const symbols = pool?.token_symbols || [];
@@ -2031,18 +2093,24 @@ function StakeModal(props: {
     });
     return tokenList;
   };
-  function getSelectedLockPrice() {
+  function getSelectedLockRewardsData() {
     if (
       !(
         Number(amount) > 0 &&
         stakeType != 'free' &&
         min_locking_duration_sec > 0 &&
         FARM_LOCK_SWITCH != 0 &&
-        switchButton &&
         selectedLockData
       )
     ) {
       setSelectedLockPrice('$ -');
+      setROI('- %');
+      const tempTokenMap = {};
+      detailData.farmList.forEach((farm: FarmBoost) => {
+        const token = farm.token_meta_data;
+        tempTokenMap[token.id] = token;
+      });
+      setEstimatedRewards(Object.values(tempTokenMap));
       return;
     }
     // get total rewards price per day
@@ -2059,8 +2127,10 @@ function StakeModal(props: {
     const day = selectedLockData.month * 30;
     const farms = detailData.farmList;
     let totalPrice = 0;
+    let tokenList: any[] = [];
     farms.forEach((farm: FarmBoost) => {
-      const { id, decimals } = farm.token_meta_data;
+      const token = farm.token_meta_data;
+      const { id, decimals } = token;
       const { daily_reward } = farm.terms;
       const dailyReward = toReadableNumber(decimals, daily_reward);
       const perDayAndLp = new BigNumber(dailyReward).dividedBy(
@@ -2083,7 +2153,12 @@ function StakeModal(props: {
           .toString();
       }
       totalPrice += Number(tokenPrice);
+      tokenList.push({
+        ...token,
+        num: rewardTokenNum,
+      });
     });
+    // get total display price
     const lastPrice = totalPrice;
     let display = '';
     if (new BigNumber('0').isEqualTo(lastPrice)) {
@@ -2094,6 +2169,45 @@ function StakeModal(props: {
       display = `$${toInternationalCurrencySystem(lastPrice.toString(), 3)}`;
     }
     setSelectedLockPrice(display);
+    // get total display number / remove repeated rewards
+    const tokenMap = {};
+    tokenList.forEach((token: TokenMetadata & { num: string }) => {
+      const curToken = tokenMap[token.id];
+      if (curToken) {
+        curToken.num = Number(curToken.num) + Number(token.num);
+      } else {
+        tokenMap[token.id] = token;
+      }
+    });
+    tokenList = Object.values(tokenMap);
+    setEstimatedRewards(tokenList);
+    // get ROI
+    const { shares_total_supply, tvl } = pool;
+    const totalShares = Number(toReadableNumber(DECIMALS, shares_total_supply));
+    const shareUsd = new BigNumber(amount)
+      .multipliedBy(tvl)
+      .dividedBy(totalShares)
+      .toFixed();
+    let aprActual = new BigNumber(totalPrice)
+      .dividedBy(shareUsd)
+      .multipliedBy(100);
+    let aprDisplay;
+    if (new BigNumber('0.001').isGreaterThan(aprActual)) {
+      aprDisplay = '<0.001%';
+    } else {
+      aprDisplay = aprActual.toFixed(3, 1) + '%';
+    }
+    setROI(aprDisplay);
+  }
+  function displayNum(num: string) {
+    if (!num) return '-';
+    let resultRewardTokenNum;
+    if (new BigNumber('0.001').isGreaterThan(num)) {
+      resultRewardTokenNum = '<0.001';
+    } else {
+      resultRewardTokenNum = toInternationalCurrencySystem(num.toString(), 3);
+    }
+    return resultRewardTokenNum;
   }
   function changeAmount(value: string) {
     setAmount(value);
@@ -2118,11 +2232,10 @@ function StakeModal(props: {
       if (
         stakeType == 'free' ||
         min_locking_duration_sec == 0 ||
-        FARM_LOCK_SWITCH == 0 ||
-        (stakeType == 'init' && !switchButton)
+        FARM_LOCK_SWITCH == 0
       ) {
         msg = JSON.stringify('Free');
-      } else if (stakeType == 'lock' || (stakeType == 'init' && switchButton)) {
+      } else if (stakeType == 'lock') {
         msg = JSON.stringify({
           Lock: {
             duration_sec: selectedLockData.second,
@@ -2199,7 +2312,6 @@ function StakeModal(props: {
     (stakeType !== 'free' &&
       min_locking_duration_sec > 0 &&
       FARM_LOCK_SWITCH != 0 &&
-      switchButton &&
       !acceptSlashPolicy);
   return (
     <CommonModal title={title} isOpen={isOpen} onRequestClose={onRequestClose}>
@@ -2254,31 +2366,13 @@ function StakeModal(props: {
             <p className="text-farmText text-sm">
               <FormattedMessage id="booster_expected_reward" />
             </p>
-            {stakeType == 'init' ? (
-              <span
-                onClick={() => {
-                  setSwitchButton(!switchButton);
-                }}
-                style={{ width: '29px', height: '16px' }}
-                className={`flex items-center rounded-2xl transition-all cursor-pointer px-px ${
-                  switchButton
-                    ? 'justify-end bg-switchButtonGradientBg'
-                    : 'justify-start bg-farmSbg'
-                }`}
-              >
-                <label
-                  style={{ width: '13px', height: '13px' }}
-                  className={`rounded-full cursor-pointer bg-white ${
-                    switchButton ? 'bg-white' : 'bg-farmRound'
-                  }`}
-                ></label>
-              </span>
-            ) : null}
           </div>
-          <div className={switchButton ? '' : 'hidden'}>
-            <div className="bg-black bg-opacity-20 rounded-lg px-10 pb-14 pt-10">
+          <div>
+            <div className="bg-black bg-opacity-20 rounded-lg px-6 pb-14 pt-10">
               <div
-                className="flex items-center justify-center mb-12"
+                className={`flex items-center justify-center ${
+                  lockDataList.length == 1 ? 'mb-6' : 'mb-12'
+                }`}
                 style={{ height: '120px' }}
               >
                 <div className="text-white mr-10">{selectedLockData?.icon}</div>
@@ -2287,39 +2381,20 @@ function StakeModal(props: {
                     <span className="text-white text-3xl ml-2">
                       x{getMultiplier(selectedLockData?.multiplier)}
                     </span>
-                    <LightningIcon></LightningIcon>
+                    <BigLightningIcon></BigLightningIcon>
                   </div>
                   <span className="text-white text-lg">
                     <FormattedMessage id="Rewards"></FormattedMessage>
                   </span>
                 </div>
               </div>
-              <div className="flex items-center">
-                {lockDataList.length == 1 ? (
-                  <div className="flex flex-col w-full">
-                    <div className="flex justify-between items-center w-full">
-                      <span className="text-farmText text-sm">
-                        <FormattedMessage id="stake_for"></FormattedMessage>
-                      </span>
-                      <span className="text-white text-sm">
-                        {lockDataList[0].month} M
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center w-full mt-4">
-                      <span className="text-farmText text-sm">
-                        <FormattedMessage id="expected_reward" />
-                      </span>
-                      <span className="text-white text-sm">
-                        {selectedLockPrice}
-                      </span>
-                    </div>
-                  </div>
-                ) : (
-                  lockDataList.map((item: Lock, index: number) => {
+              {lockDataList.length == 1 ? null : (
+                <div className="flex items-center px-4">
+                  {lockDataList.map((item: Lock, index: number) => {
                     return (
                       <div
                         key={index}
-                        className={`flex items-center relative ${
+                        className={`flex items-center  mb-16 relative ${
                           index == 0
                             ? 'w-0'
                             : lockDataList.length == 2
@@ -2370,15 +2445,64 @@ function StakeModal(props: {
                         </div>
                       </div>
                     );
-                  })
-                )}
+                  })}
+                </div>
+              )}
+              <div className="flex flex-col w-full">
+                {lockDataList.length == 1 ? (
+                  <div
+                    className={`flex justify-between items-center w-full mb-3.5`}
+                  >
+                    <span className="text-farmText text-sm">
+                      <FormattedMessage id="stake_for"></FormattedMessage>
+                    </span>
+                    <span className="text-white text-sm">
+                      {selectedLockData?.month || '-'} M
+                    </span>
+                  </div>
+                ) : null}
+                <div className="flex justify-between items-center w-full">
+                  <span className="text-farmText text-sm">
+                    <FormattedMessage id="cur_apr"></FormattedMessage>
+                  </span>
+                  <span className="text-white text-sm">{ROI}</span>
+                </div>
+                <div className="flex justify-between items-center w-full mt-3.5">
+                  <span className="text-farmText text-sm">
+                    <FormattedMessage id="value_rewards_token" />
+                  </span>
+                  <span className="text-white text-sm">
+                    {selectedLockPrice}
+                  </span>
+                </div>
+                <div className="flex flex-col items-start w-full mt-3.5">
+                  <span className="text-farmText text-sm">
+                    <FormattedMessage id="reward_token"></FormattedMessage>
+                  </span>
+                  <div className="grid grid-cols-3 gap-2 mt-3 w-full">
+                    {(estimatedRewards || []).map((item: any) => {
+                      const token = unWrapToken(item, true);
+                      return (
+                        <div className="flex items-center" key={token.symbol}>
+                          <img
+                            className="w-6 h-6 xs:w-5 xs:h-5 md:w-5 md:h-5 rounded-full border border-gradientFromHover"
+                            src={token.icon}
+                          ></img>
+                          <label className="ml-2 text-sm text-farmText">
+                            {displayNum(item.num)}
+                          </label>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
             <div className="">
               {Number(lockedAmount) == 0 ? (
                 <div className="flex justify-between items-center mt-3.5">
                   <span className="text-farmText text-sm">
-                    <FormattedMessage id="unstake_time"></FormattedMessage>
+                    <FormattedMessage id="end_locking_period"></FormattedMessage>
                   </span>
                   <span className="text-white text-sm">
                     {getFinalUnLockTime()}
@@ -2422,34 +2546,35 @@ function StakeModal(props: {
           </div>
         </div>
       )}
-      <div className="flex flex-col items-center justify-center mt-5">
-        <div
-          className="flex items-center justify-center mb-4 cursor-pointer"
-          onClick={() => {
-            setShowCalc(!showCalc);
-          }}
-        >
-          <Calc></Calc>
-          <label className="text-sm text-white ml-3 mr-4  cursor-pointer">
-            <FormattedMessage id="calculate_roi"></FormattedMessage>
-          </label>
-          <label
-            className={
-              'cursor-pointer ' + (showCalc ? 'transform rotate-180' : '')
-            }
+      {stakeType == 'free' ? (
+        <div className="flex flex-col items-center justify-center mt-5">
+          <div
+            className="flex items-center justify-center mb-4 cursor-pointer"
+            onClick={() => {
+              setShowCalc(!showCalc);
+            }}
           >
-            <ArrowDownHollow></ArrowDownHollow>
-          </label>
+            <Calc></Calc>
+            <label className="text-sm text-white ml-3 mr-4  cursor-pointer">
+              <FormattedMessage id="calculate_roi"></FormattedMessage>
+            </label>
+            <label
+              className={
+                'cursor-pointer ' + (showCalc ? 'transform rotate-180' : '')
+              }
+            >
+              <ArrowDownHollow></ArrowDownHollow>
+            </label>
+          </div>
+          <div className={'w-full ' + (showCalc ? 'block' : 'hidden')}>
+            <CalcEle
+              seed={detailData}
+              tokenPriceList={tokenPriceList}
+              lpTokenNumAmount={amount}
+            ></CalcEle>
+          </div>
         </div>
-        <div className={'w-full ' + (showCalc ? 'block' : 'hidden')}>
-          <CalcEle
-            seed={detailData}
-            tokenPriceList={tokenPriceList}
-            lpTokenNumAmount={amount}
-          ></CalcEle>
-        </div>
-      </div>
-
+      ) : null}
       <div className="mt-5">
         <GradientButton
           onClick={operationStake}
@@ -2468,11 +2593,7 @@ function StakeModal(props: {
       {stakeType == 'free' ||
       min_locking_duration_sec == 0 ||
       FARM_LOCK_SWITCH == 0 ? null : (
-        <div
-          className={`flex items-center justify-start mt-4 ${
-            switchButton ? '' : 'hidden'
-          }`}
-        >
+        <div className={`flex items-center justify-start mt-4`}>
           <div className="flex items-start">
             <span
               className="mr-3 cursor-pointer mt-1"
@@ -2508,9 +2629,11 @@ function UnStakeModal(props: {
   onRequestClose: Function;
   serverTime: number;
   tokenPriceList: any;
+  titleIcon?: any;
 }) {
   const {
     title,
+    titleIcon,
     isOpen,
     onRequestClose,
     detailData,
@@ -2566,9 +2689,17 @@ function UnStakeModal(props: {
   }
   function displayStatus() {
     if (lockStatus) {
-      return <span className="text-white text-sm">expired</span>;
+      return (
+        <span className="text-white text-sm">
+          <FormattedMessage id="expired" />
+        </span>
+      );
     } else {
-      return <span className="text-redwarningColor text-sm">Not expired</span>;
+      return (
+        <span className="flex items-center text-redwarningColor text-sm">
+          <FormattedMessage id="not_expired" />
+        </span>
+      );
     }
   }
   function displayDate() {
@@ -2604,12 +2735,18 @@ function UnStakeModal(props: {
     new BigNumber(amount).isLessThanOrEqualTo(0) ||
     new BigNumber(amount).isGreaterThan(lpBalance) ||
     (unStakeType !== 'free' && !lockStatus && !acceptSlashPolicy);
+
   return (
-    <CommonModal title={title} isOpen={isOpen} onRequestClose={onRequestClose}>
+    <CommonModal
+      titleIcon={titleIcon ? titleIcon : null}
+      title={title}
+      isOpen={isOpen}
+      onRequestClose={onRequestClose}
+    >
       <div className="flex flex-col mt-4 bg-black bg-opacity-20 rounded-lg p-4">
         <div className="flex justify-end items-center mb-3">
           <span className="text-farmText text-sm">
-            <FormattedMessage id="lp_token"></FormattedMessage>{' '}
+            <FormattedMessage id="lp_token"></FormattedMessage>:{' '}
             {toPrecision(lpBalance, 6)}
           </span>
         </div>
@@ -2640,7 +2777,9 @@ function UnStakeModal(props: {
       {unStakeType == 'free' ? null : (
         <div className="mt-4">
           <div className="flex justify-between items-center w-full mb-4">
-            <span className="text-farmText text-sm">status</span>
+            <span className="text-farmText text-sm">
+              <FormattedMessage id="status" />
+            </span>
             {displayStatus()}
           </div>
           <div className="flex justify-between items-center w-full">

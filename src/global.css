@@ -395,7 +395,12 @@ input[type='range']::-webkit-slider-runnable-track {
 .farmEnded .bg-deepBlue.text-white {
   color: #fff;
 }
-
+.farmEnded .active .text-navHighLightText {
+  color: #fff;
+}
+.farmEnded .active img {
+  filter: initial;
+}
 .swap-wrap {
   position: absolute;
   width: 18px;

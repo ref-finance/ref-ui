@@ -433,7 +433,7 @@ export default function FarmsHome(props: any) {
       if (status == 'my') {
         if (userStaked) {
           const commonSeedFarmList = commonSeedFarms[seed_id] || [];
-          if (isEnd && !userUnclaimed && commonSeedFarmList.length > 1) {
+          if (commonSeedFarmList.length == 2 && isEnd) {
             condition1 = false;
           } else {
             condition1 = true;
@@ -608,17 +608,17 @@ export default function FarmsHome(props: any) {
     >
       <div className="title flex justify-between items-center text-3xl text-white mb-5 xs:-mt-4 md:-mt-4">
         <FormattedMessage id="farms"></FormattedMessage>
-        <div className="flex items-center justify-between h-7 rounded-2xl bg-farmSbg p-0.5 w-36">
-          <span className="flex items-center justify-center rounded-2xl text-sm text-chartBg cursor-pointer w-1/2 h-full bg-farmSearch">
-            New
-          </span>
+        <div className="flex items-center justify-between h-7 rounded-2xl bg-farmSbg p-0.5">
           <span
             onClick={() => {
               history.push('/farms');
             }}
-            className="flex items-center justify-center text-sm text-farmText cursor-pointer w-1/2 h-full  rounded-2xl"
+            className="flex items-center justify-center text-sm text-farmText cursor-pointer px-2 h-full  rounded-2xl"
           >
-            Legacy
+            V1-Legacy
+          </span>
+          <span className="flex items-center justify-center rounded-2xl text-sm text-chartBg cursor-pointer px-3 h-full bg-farmSearch">
+            V2-New
           </span>
         </div>
       </div>
@@ -889,7 +889,7 @@ function FarmView(props: {
         const startDate = moment.unix(startTime).format('YYYY-MM-DD');
         const txt = intl.formatMessage({ id: 'start' });
         itemHtml = `<div class="flex justify-between items-center h-8">
-          <image class="w-5 h-5 rounded-full mr-7" style="filter: grayscale(100%)" src="${
+          <img class="w-5 h-5 rounded-full mr-7" style="filter: grayscale(100%)" src="${
             token.icon
           }"/>
           <div class="flex flex-col items-end">
@@ -901,7 +901,7 @@ function FarmView(props: {
       </div>`;
       } else {
         itemHtml = `<div class="flex justify-between items-center h-8">
-          <image class="w-5 h-5 rounded-full mr-7" src="${token.icon}"/>
+          <img class="w-5 h-5 rounded-full mr-7" src="${token.icon}"/>
           <label class="text-xs text-navHighLightText">${
             (apr == 0 ? '-' : formatWithCommas(apr)) + '%'
           }</label>
@@ -913,7 +913,12 @@ function FarmView(props: {
   }
   function getUnClaimTip() {
     let resultTip = '';
-    const tokens = Object.values(seed.unclaimed_token_meta_datas);
+    const { farmList, unclaimed_token_meta_datas } = seed;
+    const tokens = Object.values(unclaimed_token_meta_datas);
+    const tempFarms = {};
+    farmList.forEach((farm: FarmBoost) => {
+      tempFarms[farm.terms.reward_token] = true;
+    });
     tokens?.forEach((token: TokenMetadata) => {
       // total price
       const { id, decimals, icon } = token;
@@ -927,11 +932,17 @@ function FarmView(props: {
       } else {
         displayNum = new BigNumber(amount).toFixed(3, 1);
       }
-      const itemHtml = `<div class="flex justify-between items-center h-8">
-          <image class="w-5 h-5 rounded-full mr-7" src="${icon}"/>
-          <label class="text-xs text-navHighLightText">${formatWithCommas(
-            displayNum
-          )}</label>
+      const txt = intl.formatMessage({ id: 'ended_search' });
+      const itemHtml = `<div class="flex justify-between items-center h-8 active">
+          <img class="w-5 h-5 rounded-full mr-7" src="${icon}"/>
+            <div class="flex flex-col items-end text-xs text-navHighLightText">
+            ${formatWithCommas(displayNum)}
+            ${
+              tempFarms[id]
+                ? ''
+                : `<span class="text-farmText text-xs">${txt}</span>`
+            }
+          </div>
         </div>`;
       resultTip += itemHtml;
     });
@@ -995,7 +1006,7 @@ function FarmView(props: {
       const txt = intl.formatMessage({ id: 'start' });
       if (pending) {
         itemHtml = `<div class="flex flex-col items-end my-2">
-                      <div class="flex justify-between items-center w-full"><image class="w-5 h-5 rounded-full mr-7" style="filter: grayscale(100%)" src="${
+                      <div class="flex justify-between items-center w-full"><img class="w-5 h-5 rounded-full mr-7" style="filter: grayscale(100%)" src="${
                         token.icon
                       }"/>
                       <label class="text-xs text-farmText">${formatWithCommas(
@@ -1008,7 +1019,7 @@ function FarmView(props: {
                     </div>`;
       } else {
         itemHtml = `<div class="flex justify-between items-center h-8 my-2">
-                      <image class="w-5 h-5 rounded-full mr-7" src="${
+                      <img class="w-5 h-5 rounded-full mr-7" src="${
                         token.icon
                       }"/>
                       <label class="text-xs text-navHighLightText">${formatWithCommas(

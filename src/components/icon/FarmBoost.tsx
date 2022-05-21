@@ -2046,3 +2046,65 @@ export const LightningIcon = function () {
     </svg>
   );
 };
+
+export const BigLightningIcon = function () {
+  return (
+    <svg
+      width="26"
+      height="34"
+      viewBox="0 0 26 34"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g filter="url(#filter0_d_390_1548)">
+        <path
+          d="M12.6055 4.01018C12.9385 4.09685 12.9915 4.67046 12.9979 5.79498L13 12.2553C13 12.7423 13 12.9857 13.1548 13.1364C13.2842 13.2602 13.4793 13.2829 13.8314 13.287H16.3149C19.5597 13.287 21.18 13.287 21.793 14.3125C22.408 15.338 21.6063 16.7101 20.003 19.4523L14.983 28.0502C14.1877 29.4121 13.7889 30.093 13.3945 29.9898C13 29.8907 13 29.1087 13 27.5427V21.7467C13 21.2598 13 21.0163 12.8452 20.8657C12.6904 20.715 12.4401 20.715 11.9396 20.715H8.6629C6.09458 20.7027 4.75209 20.6016 4.20704 19.6896C3.592 18.6641 4.39367 17.292 5.99702 14.5498L11.017 5.95179C11.8123 4.58999 12.2111 3.90702 12.6055 4.01018Z"
+          fill="#00FFD1"
+        />
+      </g>
+      <defs>
+        <filter
+          id="filter0_d_390_1548"
+          x="0"
+          y="0"
+          width="26"
+          height="34"
+          filterUnits="userSpaceOnUse"
+          colorInterpolationFilters="sRGB"
+        >
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset />
+          <feGaussianBlur stdDeviation="2" />
+          <feComposite in2="hardAlpha" operator="out" />
+          <feColorMatrix
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 1 0 0 0 0 0.82 0 0 0 0.6 0"
+          />
+          <feBlend
+            mode="normal"
+            in2="BackgroundImageFix"
+            result="effect1_dropShadow_390_1548"
+          />
+          <feBlend
+            mode="normal"
+            in="SourceGraphic"
+            in2="effect1_dropShadow_390_1548"
+            result="shape"
+          />
+        </filter>
+      </defs>
+    </svg>
+  );
+};
+
+export const LockImgIcon = function () {
+  return (
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAMeSURBVHgBhZLbS1RRFMbX2eeM5qUpJsmgC5RhF0PIxIIy8C2C/gUrYbr4lL71UI8+BElQdGFQgyRiJOwl60F6iwQpRpDIaypaTuPojHnmnDn71trbWzkzzR727PvvfOtby4D/tLv3Oxr8O/c2SiJqGAfquvaYRVIdd5ov9+d6Y2TbDIfDJvdXPDGs0mB0MgLL8SkoKrSguOwwkO37wXXsx+cqv96qrb1Ot761sgGP1jXcm485wU9vHy0NRQbaKd/RO/1jurD+TNX56pOnb5cfvND8+ftxE6/egHxtMDJcNzyTlM+7niZaW4OVW8+DwYuVL8Lh5VcfxmVbW9vZreckQzJhNxOLizA7OfGwvT00uvU8FOob/dj//sG+PTuh8tipxrzAYv+umkRsFqa/Tb2GHC3lJnuLiAtU8Pq8wKV4Yndk6EtnqKcnkgtomv7ZeGwOQPKyvMDozzF7R6l5pampaXsuYFdXV8zznBAxpJEXuBhLnigP+AKdnZ2/cwFbWloCpSX+IKUZVbNZh3193f6SgrlLtiOAUw6utwKuS4F7HvC1O2YB/uHCTYuSQHnts4WFhRUix68VOtF3V1veJNSdjTr00ZGKI9XV3Y7rQcpOISwA6TTCuADbtiEeX4Q0oyClBMsUkIwNgMFYKfdSL5MrpA4Rg/8AwecDxlMgmIOqbFTpgRQCBAKFcIAxF4S3ChRS6DMpON7HsH2bIW8C0Q/OKQ5YDjSNnSGEY5fAGcMzhmCOQPUB0DApuR4ZNbInxdDd2LBWqpmaSqlX+qc35eoVCRnN+ksgPia6E2Ji5xpGDAEGwX0wca3mKmSpeUyt9ReLsitU4WCAetRS9Bq7KjdjXSVsqCVrIil1silED9E36invcMSkcIYlhB5xNJ6jn4Jjl6sWaA9VwrgqKjMTiEkGw0QHyZqTOnypg8Aphm5of/Wx0o1rSQy9n9VDRSSmBQW+beAVKCX4ABjuCUh7AojPAqJtUOqUBSpghuKIFpMBjM5HncnRiZHZmV+m61FLWYTeoQBBOJeEqbLhKh3KZEOo1GBCaHGRxQ8cqnLXOX8ADUXCyyBMHc4AAAAASUVORK5CYII="></img>
+  );
+};

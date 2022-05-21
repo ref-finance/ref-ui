@@ -588,7 +588,7 @@ const en_US = {
   not_expired: 'Not expired',
   accept_pay_slash_tip: 'I accept to pay slash',
   i_will_pay: 'I will pay',
-  lp_token_slash: 'LP token Slash',
+  lp_token_slash: 'LP token exit fee.',
   booster_change_reason: 'Booster will change due to appending time',
   initial_booster: 'Initial Booster',
   append_timing: 'Append timing',
@@ -626,5 +626,6 @@ const en_US = {
   endedPool: 'Ended Pools',
   otherPool: 'Other Pools',
   ordinary: 'Ordinary',
+  exit_fee_tip: 'Estimated amount you would pay to break your lock-up period.',
 };
 export default Object.assign(en_US, en_US_in_risks_page);
