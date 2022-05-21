@@ -178,6 +178,8 @@ export const useSwap = ({
         supportLedger,
       })
         .then(async (estimates) => {
+          console.log('estimates', estimates);
+
           if (!estimates) throw '';
 
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
