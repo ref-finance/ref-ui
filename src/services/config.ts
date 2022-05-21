@@ -166,7 +166,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
-        BLACKLIST_POOL_IDS: [''],
+        BLACKLIST_POOL_IDS: ['494'],
       };
     case 'testnet':
       return {
@@ -319,7 +319,7 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'usdn.testnet': 0,
           'cusd.fakes.testnet': 1,
         },
-        CUSD_STABLE_POOL_ID: '608',
+        CUSD_STABLE_POOL_ID: '494',
       };
     case 'testnet':
       return {
