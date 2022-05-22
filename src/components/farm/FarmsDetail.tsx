@@ -82,6 +82,7 @@ import CalcModelBooster from '~components/farm/CalcModelBooster';
 import moment from 'moment';
 const ONLY_ZEROS = /^0*\.?0*$/;
 const { STABLE_POOL_IDS, FARM_LOCK_SWITCH } = getConfig();
+export const REF_STABLE_SWAP_TAB_KEY = 'REF_STABLE_SWAP_TAB_VALUE';
 export default function FarmsDetail(props: {
   detailData: Seed;
   emptyDetailData: Function;
@@ -410,7 +411,7 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
           }"/>
           <div class="flex flex-col items-end">
             <label class="text-xs text-farmText">${
-              (apr == 0 ? '-' : formatWithCommas(apr)) + '%'
+              (apr == 0 ? '-' : formatWithCommas(toPrecision(apr, 2))) + '%'
             }</label>
             <label class="text-xs text-farmText">${txt}: ${startDate}</label>
           </div>
@@ -419,7 +420,7 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
         itemHtml = `<div class="flex justify-between items-center h-8">
           <image class="w-5 h-5 rounded-full mr-7" src="${token.icon}"/>
           <label class="text-xs text-navHighLightText">${
-            (apr == 0 ? '-' : formatWithCommas(apr)) + '%'
+            (apr == 0 ? '-' : formatWithCommas(toPrecision(apr, 2))) + '%'
           }</label>
       </div>`;
       }
@@ -587,6 +588,7 @@ function AddLiquidityEntryBar(props: {
   let addLiquidityButtonLoading;
   function openAddLiquidityModal() {
     if (new Set(STABLE_POOL_IDS || []).has(poolId?.toString())) {
+      localStorage.setItem(REF_STABLE_SWAP_TAB_KEY, 'add_liquidity');
       history.push(`/sauce/${poolId}`);
     } else {
       setAddLiquidityModalVisible(true);
@@ -2546,6 +2548,21 @@ function StakeModal(props: {
           </div>
         </div>
       )}
+      <div className="mt-5">
+        <GradientButton
+          onClick={operationStake}
+          color="#fff"
+          disabled={stakeLoading || isDisabled}
+          loading={stakeLoading || isDisabled}
+          btnClassName={`${isDisabled ? 'cursor-not-allowed' : ''}`}
+          className={`w-full h-14 text-center text-lg text-white focus:outline-none font-semibold`}
+        >
+          <ButtonTextWrapper
+            loading={stakeLoading}
+            Text={() => <FormattedMessage id="stake" />}
+          />
+        </GradientButton>
+      </div>
       {stakeType == 'free' ? (
         <div className="flex flex-col items-center justify-center mt-5">
           <div
@@ -2575,21 +2592,6 @@ function StakeModal(props: {
           </div>
         </div>
       ) : null}
-      <div className="mt-5">
-        <GradientButton
-          onClick={operationStake}
-          color="#fff"
-          disabled={stakeLoading || isDisabled}
-          loading={stakeLoading || isDisabled}
-          btnClassName={`${isDisabled ? 'cursor-not-allowed' : ''}`}
-          className={`w-full h-14 text-center text-lg text-white focus:outline-none font-semibold`}
-        >
-          <ButtonTextWrapper
-            loading={stakeLoading}
-            Text={() => <FormattedMessage id="stake" />}
-          />
-        </GradientButton>
-      </div>
       {stakeType == 'free' ||
       min_locking_duration_sec == 0 ||
       FARM_LOCK_SWITCH == 0 ? null : (

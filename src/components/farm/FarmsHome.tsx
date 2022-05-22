@@ -269,7 +269,8 @@ export default function FarmsHome(props: any) {
           seedTvl == 0
             ? 0
             : (Number(readableNumber) * 365 * reward_token_price) / seedTvl;
-        farm.apr = toPrecision(apr.toString(), 2);
+        // farm.apr = toPrecision(apr.toString(), 2);
+        farm.apr = apr.toString();
       });
       const user_seed = list_user_seeds[seed_id];
       let unclaimed;
@@ -670,7 +671,7 @@ export default function FarmsHome(props: any) {
               const value = sortList[item];
               return (
                 <div
-                  className={`flex items-center justify-between rounded-lg text-primaryText px-3 ml-2 cursor-pointer ${
+                  className={`flex items-center justify-between rounded-lg text-primaryText px-3 py-0.5 ml-2 cursor-pointer text-xs ${
                     sort == item ? 'bg-cardBg' : 'opacity-50'
                   }`}
                   key={index}
@@ -894,7 +895,7 @@ function FarmView(props: {
           }"/>
           <div class="flex flex-col items-end">
             <label class="text-xs text-farmText">${
-              (apr == 0 ? '-' : formatWithCommas(apr)) + '%'
+              (apr == 0 ? '-' : formatWithCommas(toPrecision(apr, 2))) + '%'
             }</label>
             <label class="text-xs text-farmText">${txt}: ${startDate}</label>
           </div>
@@ -903,7 +904,7 @@ function FarmView(props: {
         itemHtml = `<div class="flex justify-between items-center h-8">
           <img class="w-5 h-5 rounded-full mr-7" src="${token.icon}"/>
           <label class="text-xs text-navHighLightText">${
-            (apr == 0 ? '-' : formatWithCommas(apr)) + '%'
+            (apr == 0 ? '-' : formatWithCommas(toPrecision(apr, 2))) + '%'
           }</label>
       </div>`;
       }
