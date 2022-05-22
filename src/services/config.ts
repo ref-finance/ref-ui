@@ -117,7 +117,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
-        BLACKLIST_POOL_IDS: [''],
+        BLACKLIST_POOL_IDS: ['3433'],
       };
     case 'pub-testnet':
       return {
@@ -279,7 +279,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
-        BLACKLIST_POOL_IDS: [''],
+        BLACKLIST_POOL_IDS: ['3433'],
       };
   }
 }
@@ -303,7 +303,7 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           usn: 0,
           'cusd.token.a11bd.near': 1,
         },
-        CUSD_STABLE_POOL_ID: '608', //TODO:
+        CUSD_STABLE_POOL_ID: '3433',
       };
     case 'development':
     case 'pub-testnet':
@@ -352,7 +352,7 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           usn: 0,
           'cusd.token.a11bd.near': 1,
         },
-        CUSD_STABLE_POOL_ID: '608', //TODO:
+        CUSD_STABLE_POOL_ID: '3433',
       };
   }
 }
