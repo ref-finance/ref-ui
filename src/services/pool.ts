@@ -41,6 +41,7 @@ import { getAllTriPools } from './aurora/aurora';
 import { ALL_STABLE_POOL_IDS, isStablePool, isRatedPool } from './near';
 import { filterBlackListPools } from './near';
 import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
+import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 const explorerType = getExplorer();
 export const DEFAULT_PAGE_LIMIT = 100;
 const getStablePoolKey = (id: string) => `STABLE_POOL_VALUE_${id}`;
@@ -871,7 +872,10 @@ export const getStablePoolFromCache = async (
   stablePool.rates = stablePoolInfo.token_account_ids.reduce(
     (acc: any, cur: any, i: number) => ({
       ...acc,
-      [cur]: toReadableNumber(24, stablePoolInfo.rates[i]),
+      [cur]: toReadableNumber(
+        getStablePoolDecimal(stablePool.id),
+        stablePoolInfo.rates[i]
+      ),
     }),
     {}
   );
