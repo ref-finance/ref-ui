@@ -46,6 +46,7 @@ import { isNotStablePool } from '../../services/pool';
 import { WalletContext, getSenderLoginRes } from '../../utils/sender-wallet';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import { useStabelPoolData } from '../../state/sauce';
+import { getStablePoolDecimal } from '~pages/stable/StableSwapEntry';
 
 function MyShares({
   shares,
@@ -83,7 +84,7 @@ function MyShares({
       <div className="pl-2 pb-1 xs:pr-0 md:pr-0 text-sm whitespace-nowrap">{`${toRoundedReadableNumber(
         {
           decimals: isStablePool(poolId)
-            ? STABLE_LP_TOKEN_DECIMALS
+            ? getStablePoolDecimal(poolId)
             : LP_TOKEN_DECIMALS,
           number: userTotalShare
             .toNumber()

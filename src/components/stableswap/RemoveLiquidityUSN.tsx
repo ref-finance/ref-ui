@@ -198,7 +198,6 @@ export function RemoveLiquidityComponentUSN(props: {
       setReceiveAmounts(['0', '0', '0']);
       return;
     }
-    // setCanSubmitByShare(false);
 
     const receiveAmounts = getRemoveLiquidityByShare(shareParam, stablePool);
 
