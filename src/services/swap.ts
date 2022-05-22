@@ -392,9 +392,11 @@ export const estimateSwap = async ({
 
     if (
       swapMode === SWAP_MODE.STABLE ||
-      new Big(hybridStableSmartOutputEstimate).gt(
-        new Big(smartRouteV2OutputEstimate)
-      )
+      new Big(
+        hybridStableSmartOutputEstimate === 'NaN'
+          ? '0'
+          : hybridStableSmartOutputEstimate
+      ).gt(new Big(smartRouteV2OutputEstimate))
     ) {
       // then hybrid route gave better answer. Use it!
 
