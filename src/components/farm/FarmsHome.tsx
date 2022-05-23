@@ -50,7 +50,7 @@ import {
   toInternationalCurrencySystem,
   formatWithCommas,
 } from '../../utils/numbers';
-import { ftGetTokenMetadata, unWrapToken } from '../../services/ft-contract';
+import { ftGetTokenMetadata } from '../../services/ft-contract';
 import { BigNumber } from 'bignumber.js';
 import { useTokens } from '~state/token';
 import { toRealSymbol } from '~utils/token';
@@ -821,7 +821,7 @@ function FarmView(props: {
     const tempMap = {};
     seed.farmList.forEach((farm: FarmBoost) => {
       const { token_meta_data } = farm;
-      const { icon, id } = unWrapToken(token_meta_data, true);
+      const { icon, id } = token_meta_data;
       tempMap[id] = icon;
     });
     return Object.entries(tempMap);
@@ -884,7 +884,7 @@ function FarmView(props: {
     let result: string = '';
     lastList.forEach((item: any) => {
       const { rewardToken, apr, pending, startTime } = item;
-      const token = unWrapToken(rewardToken, true);
+      const token = rewardToken;
       let itemHtml = '';
       if (pending) {
         const startDate = moment.unix(startTime).format('YYYY-MM-DD');
@@ -1003,7 +1003,7 @@ function FarmView(props: {
         pending,
         startTime,
       } = item;
-      const token = unWrapToken(commonRewardToken, true);
+      const token = commonRewardToken;
       const txt = intl.formatMessage({ id: 'start' });
       if (pending) {
         itemHtml = `<div class="flex flex-col items-end my-2">
@@ -1111,28 +1111,22 @@ function FarmView(props: {
             <div className="left flex items-center h-11">
               <span className="flex">
                 {tokens.map((token, index) => {
-                  const unWrapedtoken = unWrapToken(token, true);
-
                   return (
                     <label
-                      key={unWrapedtoken.id}
+                      key={token.id}
                       className={`h-8 w-8 rounded-full overflow-hidden border border-gradientFromHover bg-cardBg ${
                         index != 0 ? '-ml-1.5' : ''
                       }`}
                     >
-                      <img
-                        src={unWrapedtoken.icon}
-                        className="w-full h-full"
-                      ></img>
+                      <img src={token.icon} className="w-full h-full"></img>
                     </label>
                   );
                 })}
               </span>
               <span className="flex items-center cursor-pointer text-white font-bold text-lg ml-4 xs:text-sm md:text-sm">
                 {tokens.map((token, index) => {
-                  const { symbol } = unWrapToken(token, true);
                   const hLine = index === tokens.length - 1 ? '' : '-';
-                  return `${toRealSymbol(symbol)}${hLine}`;
+                  return `${toRealSymbol(token.symbol)}${hLine}`;
                 })}
               </span>
               <div

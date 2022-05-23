@@ -98,13 +98,13 @@ export default function FarmsDetail(props: {
     emptyDetailData();
   };
   const displaySymbols = () => {
-    const symbols = pool?.token_symbols || [];
     let result = '';
-    symbols.forEach((item: string, index: number) => {
-      if (index == symbols.length - 1) {
-        result += item === 'wNEAR' ? 'NEAR' : item;
+    pool.tokens_meta_data.forEach((token: TokenMetadata, index: number) => {
+      const { symbol } = token;
+      if (index == pool.tokens_meta_data.length - 1) {
+        result += symbol;
       } else {
-        result += item === 'wNEAR' ? 'NEAR-' : item + '-';
+        result += symbol + '-';
       }
     });
     return result;
@@ -593,18 +593,6 @@ function AddLiquidityEntryBar(props: {
     } else {
       setAddLiquidityModalVisible(true);
     }
-  }
-  function displaySymbols() {
-    const symbols = poolA?.token_symbols || [];
-    let result = '';
-    symbols.forEach((item: string, index: number) => {
-      if (index == symbols.length - 1) {
-        result += item === 'wNEAR' ? 'NEAR' : item;
-      } else {
-        result += item === 'wNEAR' ? 'NEAR' : item + '-';
-      }
-    });
-    return result;
   }
   if (!(tokens && tokens.length > 0 && pool)) {
     addLiquidityButtonLoading = true;
@@ -2067,13 +2055,13 @@ function StakeModal(props: {
     getSelectedLockRewardsData();
   }, [amount, selectedLockData]);
   const displaySymbols = () => {
-    const symbols = pool?.token_symbols || [];
     let result = '';
-    symbols.forEach((item: string, index: number) => {
-      if (index == symbols.length - 1) {
-        result += item === 'wNEAR' ? 'NEAR' : item;
+    pool.tokens_meta_data.forEach((token: TokenMetadata, index: number) => {
+      const { symbol } = token;
+      if (index == pool.tokens_meta_data.length - 1) {
+        result += symbol;
       } else {
-        result += item === 'wNEAR' ? 'NEAR' : item + '-';
+        result += symbol + '-';
       }
     });
     return result;

@@ -35,10 +35,11 @@ import {
   SENDER_WALLET_SIGNEDIN_STATE_KEY,
 } from '../utils/sender-wallet';
 import { currentStorageBalanceOfFarm_boost } from '../services/account';
-import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
+import { WRAP_NEAR_CONTRACT_ID, nearMetadata } from '../services/wrap-near';
 import { utils } from 'near-api-js';
 import { scientificNotationToString } from '../utils/numbers';
 import Big from 'big.js';
+import { nearWithdrawTransaction } from './wrap-near';
 const config = getConfig();
 export const DEFAULT_PAGE_LIMIT = 150;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
@@ -604,31 +605,18 @@ export const withdrawAllReward_boost = async (
   const token_id_list = Object.keys(checkedList);
   const ftBalancePromiseList: any[] = [];
   const functionCalls: any[] = [];
+
   token_id_list.forEach((token_id) => {
     const ftBalance = ftGetStorageBalance(token_id);
     ftBalancePromiseList.push(ftBalance);
-    if (token_id == WRAP_NEAR_CONTRACT_ID) {
-      functionCalls.push({
-        methodName: 'near_withdraw',
-        args: {
-          token_id: token_id,
-          args: {
-            amount: utils.format.parseNearAmount(checkedList[token_id].value),
-          },
-        },
-        gas: '50000000000000',
-        amount: ONE_YOCTO_NEAR,
-      });
-    } else {
-      functionCalls.push({
-        methodName: 'withdraw_reward',
-        args: {
-          token_id: token_id,
-          // amount: checkedList[token_id].value,
-        },
-        gas: '50000000000000',
-      });
-    }
+    functionCalls.push({
+      methodName: 'withdraw_reward',
+      args: {
+        token_id: token_id,
+        // amount: checkedList[token_id].value,
+      },
+      gas: '50000000000000',
+    });
   });
   const resolvedBalanceList = await Promise.all(ftBalancePromiseList);
   resolvedBalanceList.forEach((ftBalance, index) => {
@@ -649,6 +637,16 @@ export const withdrawAllReward_boost = async (
     receiverId: REF_FARM_BOOST_CONTRACT_ID,
     functionCalls,
   });
+  if (Object.keys(checkedList).includes(WRAP_NEAR_CONTRACT_ID)) {
+    transactions.push(
+      nearWithdrawTransaction(
+        toReadableNumber(
+          nearMetadata.decimals,
+          checkedList[WRAP_NEAR_CONTRACT_ID].value
+        )
+      )
+    );
+  }
   return executeFarmMultipleTransactions(transactions);
 };
 export const claimRewardBySeed_boost = async (
