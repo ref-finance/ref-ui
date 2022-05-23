@@ -110,7 +110,6 @@ export default function AddLiquidityComponentUSN(props: {
   const [defaultMessage, setDefaultMessage] = useState<string>('Add Liquidity');
   const [error, setError] = useState<Error>();
   const [canDeposit, setCanDeposit] = useState<boolean>(false);
-  const intl = useIntl();
   const [canAddLP, setCanAddLP] = useState<boolean>(false);
   const history = useHistory();
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);

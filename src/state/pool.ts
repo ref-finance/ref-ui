@@ -58,6 +58,7 @@ import {
 } from '../services/near';
 import { getCurrentWallet, WalletContext } from '../utils/sender-wallet';
 import getConfig from '../services/config';
+import { ONLY_ZEROS } from '../utils/numbers';
 import {
   getStablePoolFromCache,
   getRefPoolsByToken1ORToken2,
@@ -513,15 +514,19 @@ export const usePredictShares = ({
   const [predicedShares, setPredictedShares] = useState<string>('0');
 
   const zeroValidae = () => {
-    return tokenAmounts.some((amount) => Number(amount) > 0);
+    return tokenAmounts.every((amount) => ONLY_ZEROS.test(amount));
   };
 
   useEffect(() => {
-    if (!zeroValidae()) {
+    if (zeroValidae()) {
       setPredictedShares('0');
       return;
     }
-    getAddLiquidityShares(poolId, tokenAmounts, stablePool)
+    getAddLiquidityShares(
+      poolId,
+      tokenAmounts.map((amount) => amount || '0'),
+      stablePool
+    )
       .then(setPredictedShares)
       .catch((e) => e);
   }, [...tokenAmounts]);
