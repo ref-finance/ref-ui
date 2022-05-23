@@ -618,7 +618,7 @@ const ru = {
   end_locking_period: 'End of locking period',
   add_lp_tokens_tip:
     'You need LP tokens to stake into the corresponding farm. First, add liquidity to the pool to get LP tokens.',
-  slash_tip: 'Slash = Slash Rate * Unexpired Time * Unstaked amount',
+  slash_tip: 'Exit fee = Exit fee rate * End of locking period * Unlock amount',
   starPool: 'Star Pools',
   nearPool: 'NEAR ecosystem Pools',
   stablePool: 'Stablecoin Pools',

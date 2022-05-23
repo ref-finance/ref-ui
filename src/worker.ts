@@ -2,7 +2,7 @@ import { keyStores, Near } from 'near-api-js';
 import db, { FarmDexie } from './store/RefDatabase';
 import getConfig from './services/config';
 import { TokenMetadata } from '~services/ft-contract';
-import { Farm } from '~services/farm';
+import { Farm, Seed, FarmBoost } from '~services/farm';
 import { PoolRPCView } from '~services/api';
 import { STABLE_POOL_ID, STABLE_POOL_USN_ID } from './services/near';
 
@@ -28,6 +28,23 @@ const farmView = ({
       request_type: 'call_function',
       finality: 'final',
       account_id: config.REF_FARM_CONTRACT_ID,
+      method_name: methodName,
+      args_base64: Buffer.from(JSON.stringify(args)).toString('base64'),
+    })
+    .then(({ result }) => JSON.parse(Buffer.from(result).toString()));
+};
+const boostFarmView = ({
+  methodName,
+  args = {},
+}: {
+  methodName: string;
+  args?: object;
+}) => {
+  return near.connection.provider
+    .query({
+      request_type: 'call_function',
+      finality: 'final',
+      account_id: config.REF_FARM_BOOST_CONTRACT_ID,
       method_name: methodName,
       args_base64: Buffer.from(JSON.stringify(args)).toString('base64'),
     })
@@ -93,6 +110,49 @@ const cacheFarmPools = async () => {
     }))
   );
 };
+const get_list_seeds_info = async () => {
+  return boostFarmView({
+    methodName: 'list_seeds_info',
+  });
+};
+const get_list_seed_farms = async (seed_id: string) => {
+  return boostFarmView({
+    methodName: 'list_seed_farms',
+    args: { seed_id },
+  });
+};
+const getBoostFarms = async () => {
+  // get all seeds
+  const list_seeds = await get_list_seeds_info();
+  const promiseList: Promise<any>[] = [];
+  list_seeds.forEach((seed: Seed) => {
+    const { seed_id } = seed;
+    promiseList.push(get_list_seed_farms(seed_id));
+  });
+  // get all farms
+  const list_farm: FarmBoost[][] = await Promise.all(promiseList);
+  return list_farm;
+};
+const cacheBoostFarmPools = async () => {
+  const cacheData: FarmDexie[] = [];
+  let all: FarmBoost[] = [];
+  const allBoostFarms = await getBoostFarms();
+  allBoostFarms.forEach((arr: FarmBoost[]) => {
+    all = all.concat(arr);
+  });
+  all.forEach((farm: FarmBoost, index: number) => {
+    const farm_id = farm.farm_id;
+    cacheData.push({
+      id: index.toString(),
+      pool_id: farm_id.slice(
+        farm_id.indexOf('@') + 1,
+        farm_id.lastIndexOf('#')
+      ),
+      status: farm.status,
+    });
+  });
+  await db.boostFarms.bulkPut(cacheData);
+};
 
 run();
 
@@ -100,4 +160,5 @@ async function run() {
   // cachePools();
   cacheTokens();
   cacheFarmPools();
+  cacheBoostFarmPools();
 }

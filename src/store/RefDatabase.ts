@@ -77,11 +77,12 @@ class RefDatabase extends Dexie {
   public poolsTokens: Dexie.Table<PoolsTokens>;
   public watchList: Dexie.Table<WatchList>;
   public topPools: Dexie.Table<TopPool>;
+  public boostFarms: Dexie.Table<FarmDexie>;
 
   public constructor() {
     super('RefDatabase');
 
-    this.version(5.4).stores({
+    this.version(5.5).stores({
       pools: 'id, token1Id, token2Id, token1Supply, token2Supply, fee, shares',
       tokens: 'id, name, symbol, decimals, icon',
       farms: 'id, pool_id, status',
@@ -89,6 +90,7 @@ class RefDatabase extends Dexie {
         'id, token1Id, token2Id, token1Supply, token2Supply, fee, shares, update_time, token0_price',
       watchList: 'id, account, pool_id, update_time',
       topPools: 'id, pool_kind, update_time',
+      boostFarms: 'id, pool_id, status',
     });
 
     this.pools = this.table('pools');
@@ -97,6 +99,7 @@ class RefDatabase extends Dexie {
     this.poolsTokens = this.table('pools_tokens');
     this.watchList = this.table('watchList');
     this.topPools = this.table('topPools');
+    this.boostFarms = this.table('boostFarms');
   }
 
   public allWatchList() {
@@ -113,6 +116,9 @@ class RefDatabase extends Dexie {
 
   public allFarms() {
     return this.farms;
+  }
+  public allBoostFarms() {
+    return this.boostFarms;
   }
 
   public allPoolsTokens() {
@@ -183,6 +189,10 @@ class RefDatabase extends Dexie {
 
   public async queryFarms() {
     let farms = await this.allFarms().toArray();
+    return farms;
+  }
+  public async queryBoostFarms() {
+    let farms = await this.allBoostFarms().toArray();
     return farms;
   }
 

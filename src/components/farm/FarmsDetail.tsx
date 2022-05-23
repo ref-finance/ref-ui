@@ -53,7 +53,7 @@ import {
 import Modal from 'react-modal';
 import { usePool } from '~state/pool';
 import { ModalClose, Calc } from '~components/icon';
-import { unWrapToken, TokenMetadata } from '../../services/ft-contract';
+import { TokenMetadata } from '../../services/ft-contract';
 import { addLiquidityToPool, Pool } from '~services/pool';
 import {
   useWalletTokenBalances,
@@ -100,7 +100,7 @@ export default function FarmsDetail(props: {
   const displaySymbols = () => {
     let result = '';
     pool.tokens_meta_data.forEach((token: TokenMetadata, index: number) => {
-      const { symbol } = token;
+      const symbol = toRealSymbol(token.symbol);
       if (index == pool.tokens_meta_data.length - 1) {
         result += symbol;
       } else {
@@ -111,14 +111,13 @@ export default function FarmsDetail(props: {
   };
   const displayImgs = () => {
     const tokenList: any[] = [];
-    (tokens || []).forEach((token: any) => {
-      const unWrapedToken = unWrapToken(token);
+    (tokens || []).forEach((token: TokenMetadata) => {
       tokenList.push(
         <label
-          key={unWrapedToken.id}
+          key={token.id}
           className={`h-11 w-11 xs:h-9 xs:w-9 md:h-9 md:w-9 rounded-full overflow-hidden border border-gradientFromHover bg-cardBg -ml-1.5`}
         >
-          <img src={unWrapedToken.icon} className="w-full h-full"></img>
+          <img src={token.icon} className="w-full h-full"></img>
         </label>
       );
     });
@@ -147,7 +146,7 @@ export default function FarmsDetail(props: {
       >
         <div className="left flex items-center h-11 ml-3">
           <span className="flex">{displayImgs()}</span>
-          <span className="flex items-center cursor-pointer text-white font-bold text-xl ml-4 xs:text-sm md:text-sm">
+          <span className="flex items-center text-white font-bold text-xl ml-4 xs:text-sm md:text-sm">
             {displaySymbols()}
           </span>
           {isEnded() ? (
@@ -291,7 +290,7 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
         pending,
         startTime,
       } = item;
-      const token = unWrapToken(commonRewardToken, true);
+      const token = commonRewardToken;
       const txt = intl.formatMessage({ id: 'start' });
       if (pending) {
         itemHtml = `<div class="flex flex-col items-end my-2">
@@ -400,7 +399,7 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
     let result: string = '';
     lastList.forEach((item: any) => {
       const { rewardToken, apr, pending, startTime } = item;
-      const token = unWrapToken(rewardToken, true);
+      const token = rewardToken;
       let itemHtml = '';
       if (pending) {
         const startDate = moment.unix(startTime).format('YYYY-MM-DD');
@@ -1266,7 +1265,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
             </label>
             <label className="ml-2.5 text-warnColor ">
               <FormattedMessage id="you_do_not_have_enough" />{' '}
-              {modal?.token?.symbol}.
+              {toRealSymbol(modal?.token?.symbol)}.
             </label>
           </div>
         ) : null}
@@ -2057,7 +2056,7 @@ function StakeModal(props: {
   const displaySymbols = () => {
     let result = '';
     pool.tokens_meta_data.forEach((token: TokenMetadata, index: number) => {
-      const { symbol } = token;
+      const symbol = toRealSymbol(token.symbol);
       if (index == pool.tokens_meta_data.length - 1) {
         result += symbol;
       } else {
@@ -2068,19 +2067,20 @@ function StakeModal(props: {
   };
   const displayImgs = () => {
     const tokenList: any[] = [];
-    (pool.tokens_meta_data || []).forEach((token: any, index: number) => {
-      const unWrapedToken = unWrapToken(token);
-      tokenList.push(
-        <label
-          key={unWrapedToken.id}
-          className={`h-8 w-8 rounded-full overflow-hidden border border-gradientFromHover bg-cardBg ${
-            index != 0 ? '-ml-1.5' : ''
-          }`}
-        >
-          <img src={unWrapedToken.icon} className="w-full h-full"></img>
-        </label>
-      );
-    });
+    (pool.tokens_meta_data || []).forEach(
+      (token: TokenMetadata, index: number) => {
+        tokenList.push(
+          <label
+            key={token.id}
+            className={`h-8 w-8 rounded-full overflow-hidden border border-gradientFromHover bg-cardBg ${
+              index != 0 ? '-ml-1.5' : ''
+            }`}
+          >
+            <img src={token.icon} className="w-full h-full"></img>
+          </label>
+        );
+      }
+    );
     return tokenList;
   };
   function getSelectedLockRewardsData() {
@@ -2471,12 +2471,11 @@ function StakeModal(props: {
                   </span>
                   <div className="grid grid-cols-3 gap-2 mt-3 w-full">
                     {(estimatedRewards || []).map((item: any) => {
-                      const token = unWrapToken(item, true);
                       return (
-                        <div className="flex items-center" key={token.symbol}>
+                        <div className="flex items-center" key={item.symbol}>
                           <img
                             className="w-6 h-6 xs:w-5 xs:h-5 md:w-5 md:h-5 rounded-full border border-gradientFromHover"
-                            src={token.icon}
+                            src={item.icon}
                           ></img>
                           <label className="ml-2 text-sm text-farmText">
                             {displayNum(item.num)}
@@ -2686,7 +2685,7 @@ function UnStakeModal(props: {
       );
     } else {
       return (
-        <span className="flex items-center text-redwarningColor text-sm">
+        <span className="flex items-center text-warnColor text-sm">
           <FormattedMessage id="not_expired" />
         </span>
       );
@@ -2798,7 +2797,7 @@ function UnStakeModal(props: {
       {unStakeType == 'free' ||
       lockStatus ||
       (!lockStatus && Number(amount) == 0) ? null : (
-        <div className="flex items-center w-full justify-between rounded-md border border-redwarningColor bg-black bg-opacity-20 py-4 px-3 mt-4">
+        <div className="flex items-center w-full justify-between rounded-md border border-warnColor bg-black bg-opacity-20 py-4 px-3 mt-4">
           <div className="flex items-center">
             <span
               className="mr-2.5 cursor-pointer"
@@ -2812,7 +2811,7 @@ function UnStakeModal(props: {
                 <Checkbox></Checkbox>
               )}
             </span>
-            <span className="text-sm text-redwarningColor">
+            <span className="text-sm text-warnColor">
               <FormattedMessage id="i_will_pay" /> {getSlashAmount()}{' '}
               <FormattedMessage id="lp_token_slash" />
             </span>
