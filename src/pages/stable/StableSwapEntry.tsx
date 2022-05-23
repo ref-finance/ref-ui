@@ -223,7 +223,6 @@ function StablePoolCard({
           setChosesState(index);
           return;
         }
-        history.push(`/sauce/${stablePool.id}`);
       }}
     >
       <Card

@@ -545,7 +545,7 @@ export const usePredictRemoveShares = ({
   const [predictedRemoveShares, setPredictedRemoveShares] =
     useState<string>('0');
 
-  const zeroValidate = amounts.some((amount) => !(Number(amount) > 0));
+  const zeroValidate = amounts.every((amount) => !(Number(amount) > 0));
 
   function validate(predictedShare: string) {
     if (new BigNumber(predictedShare).isGreaterThan(new BigNumber(shares))) {
@@ -566,7 +566,10 @@ export const usePredictRemoveShares = ({
     setCanSubmitByToken(false);
 
     try {
-      const burn_shares = getRemoveLiquidityByTokens(amounts, stablePool);
+      const burn_shares = getRemoveLiquidityByTokens(
+        amounts.map((amount) => amount || '0'),
+        stablePool
+      );
 
       validate(burn_shares);
       setPredictedRemoveShares(burn_shares);
