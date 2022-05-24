@@ -215,13 +215,13 @@ export const StableSelectToken = ({
         {selected}
       </div>
       <div
-        className={`stable-token-selector rounded-2xl flex flex-col w-56 top-12 py-3 ${
+        className={`stable-token-selector blurred-container rounded-2xl flex flex-col w-56 top-12 py-3 ${
           visible ? 'block' : 'hidden'
         } absolute`}
         style={{
           background: 'rgba(58,69,77,0.6)',
-          backdropFilter: 'blur(15px)',
-          WebkitBackdropFilter: 'blur(15px)',
+          // backdropFilter: 'blur(15px)',
+          // WebkitBackdropFilter: 'blur(15px)',
           border: '1px solid #415462',
           zIndex: 999,
           right: 0,
