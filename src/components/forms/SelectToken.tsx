@@ -100,13 +100,13 @@ export const StableSelectToken = ({
   postSelected?: TokenMetadata;
   onSelectPost?: (t: TokenMetadata) => void;
 }) => {
-  // const USDTokenList = new Array(
-  //   ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS))
-  // );
-
   const USDTokenList = new Array(
-    ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS))
+    ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS))
   );
+
+  // const USDTokenList = new Array(
+  //   ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS))
+  // );
 
   const BTCTokenList = BTCIDS.map((id) => id);
 
@@ -239,7 +239,7 @@ export const StableSelectToken = ({
         <div
           className={`flex flex-col`}
           style={{
-            height: '220px',
+            height: '270px',
           }}
         >
           {displayList.map((token) => {

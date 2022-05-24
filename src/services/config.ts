@@ -101,6 +101,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '1910',
           '3020',
           '3364',
+          '3433',
         ],
         STABLE_TOKEN_IDS: [
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
@@ -117,7 +118,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
-        BLACKLIST_POOL_IDS: ['3433'],
+        BLACKLIST_POOL_IDS: [''],
       };
     case 'pub-testnet':
       return {
@@ -144,7 +145,12 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
         STABLE_POOL_ID: process.env.STABLE_POOL_ID || 218,
-        STABLE_POOL_IDS: process.env.STABLE_POOL_IDS || ['218', '356', '456'],
+        STABLE_POOL_IDS: process.env.STABLE_POOL_IDS || [
+          '218',
+          '356',
+          '456',
+          '494',
+        ],
 
         STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 356,
         STABLE_TOKEN_IDS: [
@@ -166,7 +172,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
-        BLACKLIST_POOL_IDS: ['494'],
+        BLACKLIST_POOL_IDS: [''],
       };
     case 'testnet':
       return {
@@ -193,7 +199,12 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
         STABLE_POOL_ID: process.env.STABLE_POOL_ID || 79,
-        STABLE_POOL_IDS: process.env.STABLE_POOL_IDS || ['79', '603', '604'],
+        STABLE_POOL_IDS: process.env.STABLE_POOL_IDS || [
+          '79',
+          '603',
+          '604',
+          '608',
+        ],
         USN_ID: 'usdn.testnet',
         STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 603,
         STABLE_TOKEN_IDS: [
@@ -215,7 +226,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
-        BLACKLIST_POOL_IDS: ['608'],
+        BLACKLIST_POOL_IDS: [''],
       };
     default:
       return {
@@ -263,6 +274,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '1910',
           '3020',
           '3364',
+          '3433',
         ],
         STABLE_TOKEN_IDS: [
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
@@ -279,7 +291,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
-        BLACKLIST_POOL_IDS: ['3433'],
+        BLACKLIST_POOL_IDS: [''],
       };
   }
 }

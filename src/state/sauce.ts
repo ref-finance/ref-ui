@@ -34,7 +34,7 @@ export const useStabelPoolData = (pool_id: string | number) => {
 
   const userTotalShare = BigNumber.sum(shares, farmStake);
 
-  const [poolTVL, setPoolTVL] = useState<number>();
+  const [poolTVL, setPoolTVL] = useState<number>(0);
 
   useEffect(() => {
     if (!pool) return;
@@ -59,7 +59,7 @@ export const useStabelPoolData = (pool_id: string | number) => {
   }, [pool]);
 
   useEffect(() => {
-    if (!pool || !tokens || !poolTVL) return;
+    if (!pool || !tokens) return;
     setPoolData({
       pool,
       shares,
