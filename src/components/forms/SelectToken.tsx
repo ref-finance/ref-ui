@@ -380,7 +380,7 @@ export default function SelectToken({
     setShowCommonBasses(value.length === 0);
 
     const result = tokensData.filter((token) => {
-      const symbol = token?.symbol;
+      const symbol = token?.symbol === 'NEAR' ? 'wNEAR' : token?.symbol;
       if (!symbol) return false;
       return toRealSymbol(symbol)
         .toLocaleUpperCase()
