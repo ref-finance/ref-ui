@@ -58,6 +58,7 @@ import {
 } from '../services/near';
 import { getCurrentWallet, WalletContext } from '../utils/sender-wallet';
 import getConfig from '../services/config';
+import { useFarmStake } from './farm';
 import {
   getStablePoolFromCache,
   getRefPoolsByToken1ORToken2,
@@ -648,4 +649,32 @@ export const useAllStablePools = () => {
   }, []);
 
   return stablePools;
+};
+
+export const useYourliquidity = (poolId: number) => {
+  const { pool, shares, stakeList, v2StakeList, finalStakeList } =
+    usePool(poolId);
+
+  const farmStakeV1 = useFarmStake({ poolId, stakeList });
+  const farmStakeV2 = useFarmStake({ poolId, stakeList: v2StakeList });
+  const farmStakeTotal = useFarmStake({ poolId, stakeList: finalStakeList });
+
+  const userTotalShare = BigNumber.sum(shares, farmStakeTotal);
+
+  const userTotalShareToString = userTotalShare
+    .toNumber()
+    .toLocaleString('fullwide', { useGrouping: false });
+
+  return {
+    pool,
+    shares,
+    stakeList,
+    v2StakeList,
+    finalStakeList,
+    farmStakeTotal,
+    farmStakeV1,
+    farmStakeV2,
+    userTotalShare,
+    userTotalShareToString,
+  };
 };

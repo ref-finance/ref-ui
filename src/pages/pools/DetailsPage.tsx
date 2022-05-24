@@ -1289,7 +1289,10 @@ export function TVLChart({
 export function PoolDetailsPage() {
   const { id } = useParams<ParamTypes>();
   const { state } = useLocation<LocationTypes>();
-  const { pool, shares, stakeList } = usePool(id);
+  const { pool, shares, finalStakeList: stakeList } = usePool(id);
+
+  const [farmVersion, setFarmVersion] = useState<string>('');
+
   const dayVolume = useDayVolume(id);
   const tokens = useTokens(pool?.tokenIds);
 
@@ -1337,9 +1340,10 @@ export function PoolDetailsPage() {
         setPoolTVL(pool?.tvl);
       });
     }
-    canFarm(Number(id)).then((canFarm) => {
-      setBackToFarmsButton(!!canFarm);
-      setFarmCount(canFarm);
+    canFarm(Number(id)).then(({ count, version }) => {
+      setBackToFarmsButton(!!count);
+      setFarmVersion(version);
+      setFarmCount(count);
     });
 
     getWatchListFromDb({ pool_id: id }).then((watchlist) => {
@@ -1393,7 +1397,8 @@ export function PoolDetailsPage() {
                 {backToFarmsButton ? (
                   <Link
                     to={{
-                      pathname: '/farms',
+                      pathname:
+                        farmVersion === 'V1' ? '/farms' : `/farmsBoost/${id}-r`,
                     }}
                     target="_blank"
                   >

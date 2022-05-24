@@ -376,23 +376,46 @@ export const getSharesInPool = (id: number): Promise<string> => {
   });
 };
 
-export const canFarm = async (
-  pool_id: number,
-  withEnded?: boolean
-): Promise<Number> => {
-  let farms;
-  if (!withEnded) {
-    farms = (await db.queryFarms()).filter((farm) => farm.status !== 'Ended');
-  } else {
-    farms = await db.queryFarms();
-  }
-
-  const count = farms.reduce((pre, cur) => {
-    if (Number(cur.pool_id) === pool_id) return pre + 1;
+export const getFarmsCount = (poolId: string | number, farms: any) => {
+  const count = farms.reduce((pre: number, cur: any) => {
+    if (Number(cur.pool_id) === Number(poolId)) return pre + 1;
     return pre;
   }, 0);
 
   return count;
+};
+
+export const canFarm = async (
+  pool_id: number,
+  withEnded?: boolean
+): Promise<Record<string, any>> => {
+  let farms;
+  let boostFarms;
+
+  if (!withEnded) {
+    farms = (await db.queryFarms()).filter((farm) => farm.status !== 'Ended');
+    boostFarms = (await db.queryBoostFarms()).filter(
+      (farm) => farm.status !== 'Ended'
+    );
+  } else {
+    farms = await db.queryFarms();
+    boostFarms = await db.queryBoostFarms();
+  }
+
+  const countV1 = farms.reduce((pre, cur) => {
+    if (Number(cur.pool_id) === pool_id) return pre + 1;
+    return pre;
+  }, 0);
+
+  const countV2 = boostFarms.reduce((pre, cur) => {
+    if (Number(cur.pool_id) === pool_id) return pre + 1;
+    return pre;
+  }, 0);
+
+  return {
+    count: countV2 > 0 ? countV2 : countV1,
+    version: countV2 > 0 ? 'V2' : 'V1',
+  };
 };
 
 interface AddLiquidityToPoolOptions {

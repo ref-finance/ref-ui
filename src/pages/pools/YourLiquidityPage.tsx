@@ -37,32 +37,36 @@ import { LP_TOKEN_DECIMALS } from '~services/m-token';
 import { canFarm, Pool } from '~services/pool';
 import { ftGetTokensMetadata, TokenMetadata } from '~services/ft-contract';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
-import { usePoolTVL } from '../../state/pool';
+import { usePoolTVL, useYourliquidity } from '../../state/pool';
 import { multiply, divide } from '../../utils/numbers';
 import { STABLE_POOL_USN_ID, isStablePool } from '../../services/near';
 import { STABLE_POOL_ID } from '../../services/near';
-import { isNotStablePool } from '../../services/pool';
+import { isNotStablePool, getFarmsCount } from '../../services/pool';
 import { WalletContext, getSenderLoginRes } from '../../utils/sender-wallet';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import { useStabelPoolData } from '../../state/sauce';
+import { useFarmStake, useAllFarms } from '../../state/farm';
 
 function MyShares({
   shares,
   totalShares,
   poolId,
-  stakeList = {},
   decimal,
-  supportFarm,
-  farmStake = '0',
+  supportFarmV1,
+  supportFarmV2,
+  farmStakeV1 = '0',
+  farmStakeV2 = '0',
   userTotalShare,
 }: {
   shares: string;
   totalShares: string;
   poolId?: number;
-  stakeList?: Record<string, string>;
   decimal?: number;
-  supportFarm: Number;
-  farmStake: string | number;
+  supportFarmV1: Number;
+  supportFarmV2: Number;
+  farmStakeV1: string | number;
+  farmStakeV2: string | number;
+
   userTotalShare: BigNumber;
 }) {
   if (!shares || !totalShares) return <div>-</div>;
@@ -90,7 +94,7 @@ function MyShares({
           precision: decimal || 6,
         }
       )} (${displayPercent}%)`}</div>
-      {supportFarm > 0 && (
+      {supportFarmV1 > 0 && (
         <object>
           <Link
             to={{
@@ -102,8 +106,29 @@ function MyShares({
             }}
           >
             <ShareInFarm
-              farmStake={farmStake}
+              farmStake={farmStakeV1}
               userTotalShare={userTotalShare}
+              version={'V1'}
+            />
+          </Link>
+        </object>
+      )}
+
+      {supportFarmV2 > 0 && (
+        <object>
+          <Link
+            to={{
+              pathname: '/farmsBoost',
+            }}
+            target="_blank"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            <ShareInFarm
+              farmStake={farmStakeV2}
+              userTotalShare={userTotalShare}
+              version={'V2'}
             />
           </Link>
         </object>
@@ -142,6 +167,8 @@ function AddLiquidityButton() {
 export function YourLiquidityPage() {
   const [error, setError] = useState<Error>();
   const [pools, setPools] = useState<PoolRPCView[]>();
+
+  const { v1Farm, v2Farm } = useAllFarms();
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -187,7 +214,9 @@ export function YourLiquidityPage() {
     !USNPoolData ||
     !BTCPoolData ||
     !CUSDPoolData ||
-    !tokensMeta
+    !tokensMeta ||
+    !v1Farm ||
+    !v2Farm
   )
     return <Loading />;
 
@@ -253,6 +282,8 @@ export function YourLiquidityPage() {
                       <PoolRow
                         pool={p}
                         tokens={p.tokenIds.map((id) => tokensMeta[id]) || []}
+                        supportFarmV1={getFarmsCount(p.id.toString(), v1Farm)}
+                        supportFarmV2={getFarmsCount(p.id.toString(), v2Farm)}
                       />
                     </div>
                   );
@@ -268,6 +299,8 @@ export function YourLiquidityPage() {
                       tokens={
                         pool.token_account_ids.map((id) => tokensMeta[id]) || []
                       }
+                      supportFarmV1={getFarmsCount(pool.id.toString(), v1Farm)}
+                      supportFarmV2={getFarmsCount(pool.id.toString(), v2Farm)}
                     />
                   </div>
                 ))}
@@ -291,6 +324,8 @@ export function YourLiquidityPage() {
                 pool={p}
                 key={Number(p.id)}
                 tokens={p.tokenIds.map((id) => tokensMeta[id]) || []}
+                supportFarmV1={getFarmsCount(p.id.toString(), v1Farm)}
+                supportFarmV2={getFarmsCount(p.id.toString(), v2Farm)}
               />
             );
           })}
@@ -301,6 +336,8 @@ export function YourLiquidityPage() {
                 pool={pool}
                 key={i}
                 tokens={pool.token_account_ids.map((id) => tokensMeta[id])}
+                supportFarmV1={getFarmsCount(pool.id.toString(), v1Farm)}
+                supportFarmV2={getFarmsCount(pool.id.toString(), v2Farm)}
               />
             );
           })}
@@ -314,41 +351,35 @@ export function YourLiquidityPage() {
   );
 }
 
-function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
+function PoolRow(props: {
+  pool: any;
+  tokens: TokenMetadata[];
+  supportFarmV1: number;
+  supportFarmV2: number;
+}) {
   const tokens = props.tokens;
-
-  const { pool, shares, stakeList } = usePool(props.pool.id);
 
   const poolTVL = usePoolTVL(props.pool.id);
 
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showFunding, setShowFunding] = useState(false);
-  const [supportFarm, setSupportFarm] = useState<Number>();
-  const [farmStake, setFarmStake] = useState<string | number>('0');
+  const supportFarmV1 = props.supportFarmV1;
+  const supportFarmV2 = props.supportFarmV2;
 
   const history = useHistory();
 
-  useEffect(() => {
-    canFarm(Number(props.pool.id), true).then(setSupportFarm);
-  }, [props.pool]);
+  const {
+    pool,
+    shares,
+    farmStakeV1,
+    farmStakeV2,
+    userTotalShare,
+    userTotalShareToString,
+  } = useYourliquidity(Number(props.pool.id));
 
-  useEffect(() => {
-    const seedIdList: string[] = Object.keys(stakeList);
-    let tempFarmStake: string | number = '0';
-    seedIdList.forEach((seed) => {
-      const id = Number(seed.split('@')[1]);
-      if (id == props.pool.id) {
-        tempFarmStake = BigNumber.sum(farmStake, stakeList[seed]).valueOf();
-      }
-    });
-    setFarmStake(tempFarmStake);
-  }, [stakeList]);
-
-  const userTotalShare = BigNumber.sum(shares, farmStake);
-
-  const userTotalShareToString = userTotalShare
-    .toNumber()
-    .toLocaleString('fullwide', { useGrouping: false });
+  if (Number(props.pool.id) === 603) {
+    console.log(supportFarmV1, supportFarmV2, shares, userTotalShareToString);
+  }
 
   const usdValue = useMemo(() => {
     try {
@@ -365,7 +396,7 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
     }
   }, [poolTVL, userTotalShareToString, pool]);
 
-  if (!pool) return <div />;
+  if (!pool) return null;
 
   if (!(userTotalShare.toNumber() > 0)) return null;
 
@@ -483,11 +514,12 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
             shares={shares}
             totalShares={pool.shareSupply}
             decimal={2}
-            stakeList={stakeList}
             poolId={pool.id}
-            supportFarm={supportFarm}
+            supportFarmV1={supportFarmV1}
             userTotalShare={userTotalShare}
-            farmStake={farmStake}
+            farmStakeV1={farmStakeV1}
+            farmStakeV2={farmStakeV2}
+            supportFarmV2={supportFarmV2}
           />
         </div>
 
@@ -582,10 +614,11 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
                 totalShares={pool.shareSupply}
                 decimal={2}
                 poolId={pool.id}
-                stakeList={stakeList}
-                supportFarm={supportFarm}
+                supportFarmV1={supportFarmV1}
+                supportFarmV2={supportFarmV2}
                 userTotalShare={userTotalShare}
-                farmStake={farmStake}
+                farmStakeV1={farmStakeV1}
+                farmStakeV2={farmStakeV2}
               />
             </div>
           </div>

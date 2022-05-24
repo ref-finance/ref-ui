@@ -103,22 +103,23 @@ export const getSeeds = async ({
 export const getStakedListByAccountId = async ({
   accountId = getCurrentWallet().wallet.getAccountId(),
 }) => {
-  const stakedList = await refFarmViewFunction({
-    methodName: 'list_user_seeds',
-    args: { account_id: accountId },
-  });
+  const [stakedList, v2StakedList] = await Promise.all([
+    refFarmViewFunction({
+      methodName: 'list_user_seeds',
+      args: { account_id: accountId },
+    }),
+    list_farmer_seeds().then((res) => {
+      Object.keys(res).forEach((seed) => {
+        res[seed] = scientificNotationToString(
+          new Big(res[seed]?.free_amount || 0)
+            .plus(new Big(res[seed]?.locked_amount || 0))
+            .toString()
+        );
+      });
 
-  const v2StakedList = await list_farmer_seeds().then((res) => {
-    Object.keys(res).forEach((seed) => {
-      res[seed] = scientificNotationToString(
-        new Big(res[seed]?.free_amount || 0)
-          .plus(new Big(res[seed]?.locked_amount || 0))
-          .toString()
-      );
-    });
-
-    return res;
-  });
+      return res;
+    }),
+  ]);
 
   const finalStakeSeedList = new Array(
     ...new Set(Object.keys(stakedList).concat(Object.keys(v2StakedList)))

@@ -33,7 +33,7 @@ import {
 } from '../../services/stable-swap';
 import { TokenBalancesView } from '../../services/token';
 import { usePredictRemoveShares, useRemoveLiquidity } from '../../state/pool';
-import { useCanFarm, useFarmStake } from '../../state/farm';
+import { useFarmStake } from '../../state/farm';
 import {
   percent,
   percentLess,

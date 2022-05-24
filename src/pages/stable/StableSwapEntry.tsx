@@ -83,6 +83,7 @@ export function formatePoolData({
   stakeList,
   farmCount,
   poolTVL,
+  farmVersion,
 }: {
   pool: Pool;
   userTotalShare: BigNumber;
@@ -92,6 +93,7 @@ export function formatePoolData({
   stakeList: Record<string, string>;
   farmCount: Number;
   poolTVL: number;
+  farmVersion: string;
 }) {
   const isSignedIn = getCurrentWallet().wallet.isSignedIn();
 
@@ -149,6 +151,7 @@ export function formatePoolData({
     farmStake,
     TVLtitle,
     farmCount,
+    farmVersion,
   };
 }
 
@@ -170,9 +173,10 @@ function StablePoolCard({
     farmStake: string | number;
     TVLtitle: string;
     farmCount: Number;
+    farmVersion: string;
   };
 }) {
-  const { shares, stakeList, farmStake } = poolData;
+  const { shares, stakeList, farmStake, farmVersion } = poolData;
   const history = useHistory();
 
   const { globalState } = useContext(WalletContext);
@@ -196,7 +200,13 @@ function StablePoolCard({
             !haveFarm ? 'hidden' : ''
           } pl-3 absolute -right-5 -top-8 pr-8 pt-8   rounded-2xl text-black text-xs bg-gradientFrom `}
         >
-          <Link to="/farms" target={'_blank'} className="flex items-center">
+          <Link
+            to={
+              farmVersion === 'V1' ? '/farms' : `/farmsBoost/${stablePool.id}-r`
+            }
+            target={'_blank'}
+            className="flex items-center"
+          >
             <span className="relative top-px">
               <FormattedMessage
                 id={multiMining ? 'multi_rewards' : 'farms'}

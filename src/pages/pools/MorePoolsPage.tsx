@@ -16,7 +16,6 @@ import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useTokens } from '../../state/token';
 import { TokenMetadata } from '~services/ft-contract';
-import { canFarm, Pool } from '../../services/pool';
 import { FarmButton } from '~components/button/Button';
 
 import {

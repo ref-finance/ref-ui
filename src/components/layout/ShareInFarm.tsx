@@ -13,7 +13,6 @@ import {
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FarmDot } from '../../components/icon';
 import BigNumber from 'bignumber.js';
-import { canFarm } from '~services/pool';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import { Link } from 'react-router-dom';
 import { isMobile } from '~utils/device';
@@ -22,10 +21,12 @@ export const ShareInFarm = ({
   farmStake,
   userTotalShare,
   forStable,
+  version,
 }: {
   farmStake: string | number;
   userTotalShare: BigNumber;
   forStable?: boolean;
+  version?: string;
 }) => {
   const farmShare = Number(farmStake).toLocaleString('fullwide', {
     useGrouping: false,
@@ -57,6 +58,7 @@ export const ShareInFarm = ({
         </span>
         &nbsp;
         <FormattedMessage id="in_farm" defaultMessage="in Farm" />
+        {version && <span className="ml-1">{version}</span>}
       </div>
     </div>
   );

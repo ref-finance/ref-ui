@@ -96,7 +96,7 @@ export function SharesCard({
   stakeList: Record<string, string>;
   pool: Pool;
 }) {
-  const canFarm = useCanFarm(pool.id);
+  const { farmCount, farmVersion } = useCanFarm(pool.id);
 
   const farmStake = useFarmStake({
     poolId: pool.id,
@@ -118,9 +118,9 @@ export function SharesCard({
         {shareToUserTotal({
           shares,
           userTotalShare,
-          canFarm,
+          canFarm: farmCount,
         })}
-        {canFarm > 0 ? (
+        {farmCount > 0 ? (
           <ShareInFarmV2
             farmStake={farmStake}
             userTotalShare={userTotalShare}

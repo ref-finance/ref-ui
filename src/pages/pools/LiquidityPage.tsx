@@ -166,8 +166,8 @@ function MobilePoolRow({
 
   const history = useHistory();
   useEffect(() => {
-    canFarm(pool.id).then((canFarm) => {
-      setSupportFarm(!!canFarm);
+    canFarm(pool.id).then(({ count }) => {
+      setSupportFarm(!!count);
     });
   }, [pool]);
 
@@ -551,9 +551,9 @@ function PoolRow({
   const [showLinkArrow, setShowLinkArrow] = useState(false);
 
   useEffect(() => {
-    canFarm(pool.id).then((canFarm) => {
-      setSupportFarm(!!canFarm);
-      setFarmCount(canFarm);
+    canFarm(pool.id).then(({ count }) => {
+      setSupportFarm(!!count);
+      setFarmCount(count);
     });
   }, [pool]);
 
