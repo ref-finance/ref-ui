@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import MicroModal from 'react-micro-modal';
 import { TokenMetadata } from '../../services/ft-contract';
 import { ArrowDownGreen, ArrowDownWhite } from '../icon';
-import { isMobile } from '../../utils/device';
+import { isMobile, getExplorer } from '../../utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { TokenBalancesView } from '../../services/token';
 import { IoCloseOutline } from 'react-icons/io5';
@@ -215,13 +215,14 @@ export const StableSelectToken = ({
         {selected}
       </div>
       <div
-        className={`stable-token-selector blurred-container rounded-2xl flex flex-col w-56 top-12 py-3 ${
+        className={`stable-token-selector rounded-2xl flex flex-col w-56 top-12 py-3 ${
           visible ? 'block' : 'hidden'
         } absolute`}
         style={{
-          background: 'rgba(58,69,77,0.6)',
-          // backdropFilter: 'blur(15px)',
-          // WebkitBackdropFilter: 'blur(15px)',
+          background:
+            getExplorer() === 'Firefox' ? '#323E46' : 'rgba(58,69,77,0.6)',
+          backdropFilter: 'blur(15px)',
+          WebkitBackdropFilter: 'blur(15px)',
           border: '1px solid #415462',
           zIndex: 999,
           right: 0,
