@@ -79,20 +79,10 @@ export default function AddLiquidityComponent(props: {
   pool: Pool;
   tokens: TokenMetadata[];
   balances: TokenBalancesView;
-  totalShares: string;
-  stakeList: Record<string, string>;
   stablePool: StablePool;
   changeAction?: (actionName: string) => void;
 }) {
-  const {
-    pool,
-    tokens,
-    balances,
-    totalShares,
-    stakeList,
-    stablePool,
-    changeAction,
-  } = props;
+  const { pool, tokens, balances, stablePool, changeAction } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');

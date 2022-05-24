@@ -31,7 +31,9 @@ import { OutlineButton } from '../../components/button/Button';
 import { Images, Symbols } from '~components/stableswap/CommonComp';
 import { FarmMiningIcon } from '~components/icon';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
-import { useStabelPoolData } from '../../state/sauce';
+import { useStabelPoolData, PoolData } from '../../state/sauce';
+import { useYourliquidity } from '../../state/pool';
+import { useCanFarmV1, useCanFarmV2 } from '../../state/farm';
 
 const RenderDisplayTokensAmounts = ({
   tokens,
@@ -80,21 +82,8 @@ export function formatePoolData({
   farmStake,
   tokens,
   shares,
-  stakeList,
-  farmCount,
   poolTVL,
-  farmVersion,
-}: {
-  pool: Pool;
-  userTotalShare: BigNumber;
-  farmStake: string | number;
-  tokens: TokenMetadata[];
-  shares: string;
-  stakeList: Record<string, string>;
-  farmCount: Number;
-  poolTVL: number;
-  farmVersion: string;
-}) {
+}: PoolData) {
   const isSignedIn = getCurrentWallet().wallet.isSignedIn();
 
   const tokensMap: {
@@ -130,28 +119,13 @@ export function formatePoolData({
 
   const displaySharePercent = isSignedIn ? sharePercent : '';
 
-  const displayShareInFarm = farmCount ? (
-    <ShareInFarm
-      farmStake={farmStake}
-      userTotalShare={userTotalShare}
-      forStable
-    />
-  ) : (
-    ''
-  );
-
   return {
     displayTVL,
     coinsAmounts,
     displayMyShareAmount,
     displaySharePercent,
-    displayShareInFarm,
-    shares: shares,
-    stakeList,
-    farmStake,
+    shares,
     TVLtitle,
-    farmCount,
-    farmVersion,
   };
 }
 
@@ -167,24 +141,26 @@ function StablePoolCard({
     coinsAmounts: { [id: string]: BigNumber };
     displayMyShareAmount: string | JSX.Element;
     displaySharePercent: string | JSX.Element;
-    displayShareInFarm: string | JSX.Element;
     shares: string;
-    stakeList: Record<string, string>;
-    farmStake: string | number;
     TVLtitle: string;
-    farmCount: Number;
-    farmVersion: string;
   };
 }) {
-  const { shares, stakeList, farmStake, farmVersion } = poolData;
   const history = useHistory();
+
+  const { shares, farmStakeV1, farmStakeV2, userTotalShare } = useYourliquidity(
+    stablePool.id
+  );
 
   const { globalState } = useContext(WalletContext);
 
   const isSignedIn = globalState.isSignedIn;
 
-  const haveFarm = poolData.farmCount > 0;
-  const multiMining = poolData.farmCount > 1;
+  const { farmCount: countV1 } = useCanFarmV1(stablePool.id);
+  const { farmCount: countV2 } = useCanFarmV2(stablePool.id);
+
+  const haveFarm = !!countV1 || !!countV2;
+  const multiMining = true;
+
   // const multiMining = false;
 
   return (
@@ -201,9 +177,7 @@ function StablePoolCard({
           } pl-3 absolute -right-5 -top-8 pr-8 pt-8   rounded-2xl text-black text-xs bg-gradientFrom `}
         >
           <Link
-            to={
-              farmVersion === 'V1' ? '/farms' : `/farmsBoost/${stablePool.id}-r`
-            }
+            to={countV2 ? `/farmsBoost/${stablePool.id}-r` : '/farms'}
             target={'_blank'}
             className="flex items-center"
           >
@@ -226,8 +200,6 @@ function StablePoolCard({
               pathname: `/sauce/${stablePool.id}`,
               state: {
                 shares,
-                stakeList,
-                farmStake,
                 pool: stablePool,
               },
             }}
@@ -274,9 +246,28 @@ function StablePoolCard({
                   </span>
                 </span>
 
-                <Link to={'/farms'} target="_blank">
-                  {poolData.displayShareInFarm}
-                </Link>
+                <div className="flex flex-col">
+                  {countV1 > 0 && (
+                    <Link to={'/farms'} target="_blank">
+                      <ShareInFarm
+                        farmStake={farmStakeV1}
+                        userTotalShare={userTotalShare}
+                        forStable
+                        version="V1"
+                      />
+                    </Link>
+                  )}
+                  {countV2 > 0 && (
+                    <Link to={`/farmsBoost/${stablePool.id}-r`} target="_blank">
+                      <ShareInFarm
+                        farmStake={farmStakeV2}
+                        userTotalShare={userTotalShare}
+                        forStable
+                        version="V2"
+                      />
+                    </Link>
+                  )}
+                </div>
               </div>
             </span>
           </div>
@@ -293,8 +284,6 @@ function StablePoolCard({
             history.push(`/sauce/${stablePool.id}`, {
               stableTab: 'add_liquidity',
               shares,
-              stakeList,
-              farmStake,
               pool: stablePool,
             })
           }
@@ -307,8 +296,6 @@ function StablePoolCard({
             history.push(`/sauce/${stablePool.id}`, {
               stableTab: 'remove_liquidity',
               shares,
-              stakeList,
-              farmStake,
               pool: stablePool,
             })
           }

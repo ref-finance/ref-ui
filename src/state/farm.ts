@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import BigNumber from 'bignumber.js';
-import { canFarm } from '../services/pool';
+import { canFarm, canFarmV1, canFarmV2 } from '../services/pool';
 import db from '~store/RefDatabase';
 
 export const useFarmStake = ({
@@ -33,6 +33,34 @@ export const useCanFarm = (poolId: number) => {
 
   useEffect(() => {
     canFarm(poolId).then(({ count, version }) => {
+      setFarmCount(count);
+      setFarmVersion(version);
+    });
+  }, [poolId]);
+
+  return { farmCount, farmVersion };
+};
+
+export const useCanFarmV1 = (poolId: number) => {
+  const [farmCount, setFarmCount] = useState<Number>(0);
+  const [farmVersion, setFarmVersion] = useState<string>('');
+
+  useEffect(() => {
+    canFarmV1(poolId).then(({ count, version }) => {
+      setFarmCount(count);
+      setFarmVersion(version);
+    });
+  }, [poolId]);
+
+  return { farmCount, farmVersion };
+};
+
+export const useCanFarmV2 = (poolId: number) => {
+  const [farmCount, setFarmCount] = useState<Number>(0);
+  const [farmVersion, setFarmVersion] = useState<string>('');
+
+  useEffect(() => {
+    canFarmV2(poolId).then(({ count, version }) => {
       setFarmCount(count);
       setFarmVersion(version);
     });

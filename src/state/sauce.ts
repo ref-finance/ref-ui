@@ -14,19 +14,17 @@ export interface PoolData {
   farmStake: string | number;
   farmCount: Number;
   userTotalShare: BigNumber;
-  stakeList: Record<string, string>;
   tokens: TokenMetadata[];
   poolTVL: number;
-  farmVersion: string;
 }
 
 export const useStabelPoolData = (pool_id: string | number) => {
   const [pool, setPool] = useState<Pool>();
-  const { shares, stakeList } = usePool(pool_id);
+  const { shares, finalStakeList } = usePool(pool_id);
   const { farmCount, farmVersion } = useCanFarm(Number(pool_id));
   const farmStake = useFarmStake({
     poolId: Number(pool_id),
-    stakeList,
+    stakeList: finalStakeList,
   });
 
   const [tokens, setTokens] = useState<TokenMetadata[]>();
@@ -60,19 +58,17 @@ export const useStabelPoolData = (pool_id: string | number) => {
   }, [pool]);
 
   useEffect(() => {
-    if (!pool || !tokens || !farmVersion) return;
+    if (!pool || !tokens) return;
     setPoolData({
       pool,
       shares,
       farmCount,
       farmStake,
       userTotalShare,
-      stakeList,
       tokens,
       poolTVL,
-      farmVersion,
     });
-  }, [pool, tokens, shares, stakeList, farmStake, poolTVL, farmVersion]);
+  }, [pool, tokens, shares, farmStake, poolTVL]);
 
   return { poolData };
 };

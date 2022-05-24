@@ -33,7 +33,6 @@ import {
 } from '../../services/stable-swap';
 import { TokenBalancesView } from '../../services/token';
 import { usePredictRemoveShares, useRemoveLiquidity } from '../../state/pool';
-import { useFarmStake } from '../../state/farm';
 import {
   percent,
   percentLess,
@@ -74,14 +73,13 @@ export function shareToUserTotal({
   shares,
   userTotalShare,
   pool,
-  stakeList,
-  canFarm,
+  haveFarm,
 }: {
   shares: string;
   userTotalShare: BigNumber;
   stakeList?: Record<string, string>;
   pool?: Pool;
-  canFarm?: Number;
+  haveFarm: boolean;
 }) {
   return (
     <div className="text-xs">
@@ -95,7 +93,7 @@ export function shareToUserTotal({
           : '- '}
       </span>
 
-      <span className={`text-primaryText ${canFarm == 0 ? 'hidden' : ''}`}>
+      <span className={`text-primaryText ${!haveFarm ? 'hidden' : ''}`}>
         {getCurrentWallet().wallet.isSignedIn()
           ? ` / ${toRoundedReadableNumber({
               decimals: STABLE_LP_TOKEN_DECIMALS,
@@ -115,13 +113,12 @@ export function RemoveLiquidityComponent(props: {
   balances: TokenBalancesView;
   tokens: TokenMetadata[];
   pool: Pool;
-  stakeList: Record<string, string>;
   stablePool: StablePool;
   changeAction?: (actionName: string) => void;
 }) {
   const [slippageInvalid, setSlippageInvalid] = useState(false);
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
-  const { shares, tokens, pool, stakeList, stablePool, changeAction } = props;
+  const { shares, tokens, pool, stablePool, changeAction } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');
@@ -140,11 +137,6 @@ export function RemoveLiquidityComponent(props: {
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-
-  const farmStake = useFarmStake({
-    poolId: pool.id,
-    stakeList,
-  });
 
   const byShareRangeRef = useRef(null);
 

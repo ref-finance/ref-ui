@@ -6,12 +6,13 @@ import { shareToUserTotal } from './RemoveLiquidity';
 import { Card } from '../card/Card';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import BigNumber from 'bignumber.js';
-import { useCanFarm } from '../../state/farm';
+import { useCanFarm, useCanFarmV1, useCanFarmV2 } from '../../state/farm';
 import { useFarmStake } from '../../state/farm';
-import { Pool } from '../../services/pool';
+import { Pool, canFarmV1, canFarmV2 } from '../../services/pool';
 import { Link, useHistory } from 'react-router-dom';
 import { FarmDot } from '~components/icon';
 import { ShareInFarmV2 } from '../layout/ShareInFarm';
+import { useYourliquidity } from '../../state/pool';
 
 export function BackToStablePoolList() {
   const history = useHistory();
@@ -85,23 +86,14 @@ export const Symbols = ({
   );
 };
 
-export function SharesCard({
-  shares,
-  userTotalShare,
-  stakeList,
-  pool,
-}: {
-  shares: string;
-  userTotalShare: BigNumber;
-  stakeList: Record<string, string>;
-  pool: Pool;
-}) {
-  const { farmCount, farmVersion } = useCanFarm(pool.id);
+export function SharesCard({ shares, pool }: { shares: string; pool: Pool }) {
+  const { farmCount: countV1 } = useCanFarmV1(pool.id);
 
-  const farmStake = useFarmStake({
-    poolId: pool.id,
-    stakeList,
-  });
+  const { farmCount: countV2 } = useCanFarmV2(pool.id);
+
+  const { farmStakeV1, farmStakeV2, userTotalShare } = useYourliquidity(
+    pool.id
+  );
 
   return (
     <Card
@@ -118,14 +110,26 @@ export function SharesCard({
         {shareToUserTotal({
           shares,
           userTotalShare,
-          canFarm: farmCount,
+          haveFarm: !!countV1 || !!countV2,
         })}
-        {farmCount > 0 ? (
-          <ShareInFarmV2
-            farmStake={farmStake}
-            userTotalShare={userTotalShare}
-          />
-        ) : null}
+        <div className="flex flex-col items-end">
+          {countV1 > 0 ? (
+            <ShareInFarmV2
+              farmStake={farmStakeV1}
+              userTotalShare={userTotalShare}
+              version={'V1'}
+            />
+          ) : null}
+
+          {countV2 > 0 ? (
+            <ShareInFarmV2
+              farmStake={farmStakeV2}
+              userTotalShare={userTotalShare}
+              version={'V2'}
+              poolId={pool.id}
+            />
+          ) : null}
+        </div>
       </div>
     </Card>
   );

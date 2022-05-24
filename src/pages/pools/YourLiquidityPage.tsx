@@ -377,10 +377,6 @@ function PoolRow(props: {
     userTotalShareToString,
   } = useYourliquidity(Number(props.pool.id));
 
-  if (Number(props.pool.id) === 603) {
-    console.log(supportFarmV1, supportFarmV2, shares, userTotalShareToString);
-  }
-
   const usdValue = useMemo(() => {
     try {
       if (!userTotalShareToString || typeof poolTVL !== 'number' || !pool)
@@ -603,7 +599,11 @@ function PoolRow(props: {
             ))}
           </div>
 
-          <div className="flex items justify-between border-b border-gray-700 border-opacity-70 px-6 py-2">
+          <div
+            className={`flex items justify-between border-b border-gray-700 border-opacity-70 px-6 ${
+              supportFarmV1 > 0 && supportFarmV2 > 0 ? 'pt-2 pb-4' : 'py-2'
+            }`}
+          >
             <div className="text-gray-400 text-sm">
               <FormattedMessage id="my_shares" defaultMessage="Shares" />
             </div>

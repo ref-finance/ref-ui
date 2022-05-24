@@ -81,19 +81,10 @@ export default function AddLiquidityComponentUSN(props: {
   tokens: TokenMetadata[];
   balances: TokenBalancesView;
   totalShares: string;
-  stakeList: Record<string, string>;
   stablePool: StablePool;
   changeAction?: (actionName: string) => void;
 }) {
-  const {
-    pool,
-    tokens,
-    balances,
-    totalShares,
-    stakeList,
-    stablePool,
-    changeAction,
-  } = props;
+  const { pool, tokens, balances, stablePool, changeAction } = props;
 
   const SWAP_SLIPPAGE_KEY_USN = getSwapSlippageKey(pool.id);
 

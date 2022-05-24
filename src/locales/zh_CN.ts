@@ -341,7 +341,7 @@ const zh_CN = {
   over_tip: '为了优化gas费用，您一次最多可以提取5个代币',
   no_token_tip: '没有可提取的代币',
   getToken_tip: '你可以现在认领你的奖励或质押代币！',
-  in_farm: '在农场中',
+  in_farm: '在农场',
   swap_rate_including_fee: '汇率 (已包含手续费)',
   roi_calculator: 'ROI 计算器',
   lp_staked: '流动代币质押',

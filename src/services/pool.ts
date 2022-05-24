@@ -417,6 +417,53 @@ export const canFarm = async (
     version: countV2 > 0 ? 'V2' : 'V1',
   };
 };
+export const canFarmV1 = async (
+  pool_id: number,
+  withEnded?: boolean
+): Promise<Record<string, any>> => {
+  let farms;
+
+  if (!withEnded) {
+    farms = (await db.queryFarms()).filter((farm) => farm.status !== 'Ended');
+  } else {
+    farms = await db.queryFarms();
+  }
+
+  const count = farms.reduce((pre, cur) => {
+    if (Number(cur.pool_id) === pool_id) return pre + 1;
+    return pre;
+  }, 0);
+
+  return {
+    count,
+    version: 'V1',
+  };
+};
+
+export const canFarmV2 = async (
+  pool_id: number,
+  withEnded?: boolean
+): Promise<Record<string, any>> => {
+  let boostFarms;
+
+  if (!withEnded) {
+    boostFarms = (await db.queryBoostFarms()).filter(
+      (farm) => farm.status !== 'Ended'
+    );
+  } else {
+    boostFarms = await db.queryBoostFarms();
+  }
+
+  const countV2 = boostFarms.reduce((pre, cur) => {
+    if (Number(cur.pool_id) === pool_id) return pre + 1;
+    return pre;
+  }, 0);
+
+  return {
+    count: countV2,
+    version: 'V2',
+  };
+};
 
 interface AddLiquidityToPoolOptions {
   id: number;
