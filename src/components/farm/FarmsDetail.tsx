@@ -764,7 +764,7 @@ function PoolDetailCard({
   tokens: TokenMetadata[];
   pool: Pool;
 }) {
-  const [showDetail, setShowDetail] = useState(true);
+  const [showDetail, setShowDetail] = useState(false);
 
   const [poolTVL, setPoolTVl] = useState<string>('');
   const h24Volume = useDayVolume(pool.id.toString());
