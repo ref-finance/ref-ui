@@ -268,7 +268,7 @@ export default function FarmsHome(props: any) {
         const apr =
           seedTvl == 0
             ? 0
-            : (Number(readableNumber) * 365 * reward_token_price) / seedTvl;
+            : (Number(readableNumber) * 360 * reward_token_price) / seedTvl;
         // farm.apr = toPrecision(apr.toString(), 2);
         farm.apr = apr.toString();
       });
@@ -310,6 +310,7 @@ export default function FarmsHome(props: any) {
         seed.farmList = noEndedList;
         const endedSeed = JSON.parse(JSON.stringify(seed));
         endedSeed.farmList = endedList;
+        endedSeed.endedFarmsIsSplit = true;
         ended_split_list_seeds.push(endedSeed);
       }
     });

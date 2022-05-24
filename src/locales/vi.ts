@@ -635,5 +635,9 @@ const vi = {
   otherPool: 'Other Pools',
   ordinary: 'Ordinary',
   exit_fee_tip: 'Estimated amount you would pay to break your lock-up period.',
+  forbiddenTip: 'This farm does not support this duration option',
+  unstakeTip: 'Unstaking will automatically claim your unstaked rewards.',
+  endedFarmsUnstakeTip:
+    'Unstaking will remove the stake from all active and pending farms of the same pair. ',
 };
 export default Object.assign(vi, vi_in_risks_page);

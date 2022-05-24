@@ -21,7 +21,8 @@ import { useTokens } from '~state/token';
 import getConfig from '~services/config';
 import { TokenMetadata, unWrapToken } from '../../services/ft-contract';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
-import { LightningIcon } from '~components/icon/FarmBoost';
+import { LightningIcon, ForbiddenIcon } from '~components/icon/FarmBoost';
+import ReactTooltip from 'react-tooltip';
 
 const config = getConfig();
 const { STABLE_POOL_IDS, FARM_LOCK_SWITCH } = config;
@@ -427,13 +428,21 @@ export function CalcEle(props: {
             item.rate = locking_multiplier + 1;
           }
         });
+        setDateList(date_list);
+        setSelecteDate(date_list[0]);
       });
-      setDateList(date_list);
-      setSelecteDate(date_list[0]);
     }
   };
   function switchAccountType(type: string) {
     setAccountType(type);
+    if (type == 'cd') {
+      if (!selecteDate.rate) {
+        const newSelectdate = dateList.find((date: MonthData) => {
+          if (date.rate) return date;
+        });
+        setSelecteDate(newSelectdate);
+      }
+    }
   }
   function displayNum(num: string) {
     if (!num) return '-';
@@ -444,6 +453,10 @@ export function CalcEle(props: {
       resultRewardTokenNum = toInternationalCurrencySystem(num.toString(), 3);
     }
     return resultRewardTokenNum;
+  }
+  function getForbiddenTip() {
+    const txt = intl.formatMessage({ id: 'forbiddenTip' });
+    return `<div class="text-xs text-farmText w-44 text-left">${txt}</div>`;
   }
   return (
     <div>
@@ -456,20 +469,49 @@ export function CalcEle(props: {
         <div className="flex items-center bg-datebg bg-opacity-40 rounded-md h-7 xs:h-6 md:h-6 mt-3 mb-4">
           {dateList.map((date: MonthData, index) => {
             return (
-              <label
+              <div
                 onClick={() => {
-                  changeDate(date);
+                  if (!(accountType == 'cd' && !date.rate)) {
+                    changeDate(date);
+                  }
                 }}
                 className={
-                  'flex items-center justify-center flex-grow text-sm rounded-md cursor-pointer h-full ' +
+                  `flex items-center justify-center flex-grow text-sm rounded-md h-full ${
+                    accountType == 'cd' && !date.rate
+                      ? 'cursor-not-allowed '
+                      : 'cursor-pointer '
+                  }` +
                   (selecteDate?.day == date.day
                     ? 'bg-gradientFromHover text-chartBg'
                     : 'text-farmText')
                 }
                 key={date.text}
               >
-                {date.text}
-              </label>
+                {accountType == 'cd' && !date.rate ? (
+                  <div
+                    className="text-white text-right ml-1"
+                    data-class="reactTip"
+                    data-for={`fobiddenId${index}`}
+                    data-place="top"
+                    data-html={true}
+                    data-tip={getForbiddenTip()}
+                  >
+                    <span className="flex items-center text-farmText">
+                      <ForbiddenIcon className="mr-1"></ForbiddenIcon>{' '}
+                      {date.text}
+                    </span>
+                    <ReactTooltip
+                      id={`fobiddenId${index}`}
+                      backgroundColor="#1D2932"
+                      border
+                      borderColor="#7e8a93"
+                      effect="solid"
+                    />
+                  </div>
+                ) : (
+                  <>{date.text}</>
+                )}
+              </div>
             );
           })}
         </div>

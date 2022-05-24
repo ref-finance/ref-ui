@@ -737,6 +737,7 @@ export interface Seed {
   unclaimed_token_meta_datas?: Record<string, TokenMetadata>;
   seedTvl?: string;
   hidden?: boolean;
+  endedFarmsIsSplit?: boolean;
 }
 export interface FarmBoostTerm {
   daily_reward: string;

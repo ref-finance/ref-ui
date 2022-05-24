@@ -15,6 +15,7 @@ import {
   UnLockedIcon,
   CalcIcon,
   LockImgIcon,
+  FreenWarningIcon,
 } from '~components/icon/FarmBoost';
 import { useHistory, useLocation } from 'react-router-dom';
 import getConfig from '../../services/config';
@@ -46,7 +47,6 @@ import {
   GradientButton,
   ButtonTextWrapper,
   OprationButton,
-  ConnectToNearButton,
   ConnectToNearBtn,
   SolidButton,
 } from '~components/button/Button';
@@ -534,6 +534,7 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
           </div>
         </div>
       </div>
+      <AddLoginEntryBar></AddLoginEntryBar>
       <AddLiquidityEntryBar
         detailData={detailData}
         showAddLiquidityEntry={showAddLiquidityEntry}
@@ -571,7 +572,22 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
     </div>
   );
 }
-
+function AddLoginEntryBar() {
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
+  if (isSignedIn) return null;
+  return (
+    <div
+      className="rounded-lg overflow-hidden mt-8"
+      style={{ backgroundColor: 'rgba(29, 41, 50, 0.5)' }}
+    >
+      <div className="w-full bg-gradientFrom h-1.5"></div>
+      <div className="pt-5 pb-3 px-3 w-80 m-auto">
+        <ConnectToNearBtn></ConnectToNearBtn>
+      </div>
+    </div>
+  );
+}
 function AddLiquidityEntryBar(props: {
   detailData: Seed;
   showAddLiquidityEntry: any;
@@ -672,24 +688,29 @@ function CommonModal(props: any) {
         },
       }}
     >
-      <div
-        className="px-5 xs:px-3 md:px-3 py-6 rounded-2xl bg-cardBg overflow-auto"
-        style={{
-          width: cardWidth,
-          maxHeight: cardHeight,
-          border: '1px solid rgba(0, 198, 162, 0.5)',
-        }}
-      >
-        <div className="title flex items-center justify-between">
-          <div className="flex items-center">
-            {titleIcon ? titleIcon : null}
-            <label className="text-white text-xl">
-              <FormattedMessage id={title}></FormattedMessage>
-            </label>
+      <div className="flex flex-col">
+        <div
+          className="px-5 xs:px-3 md:px-3 py-6 rounded-2xl bg-cardBg overflow-auto"
+          style={{
+            width: cardWidth,
+            maxHeight: cardHeight,
+            border: '1px solid rgba(0, 198, 162, 0.5)',
+          }}
+        >
+          <div className="title flex items-center justify-between">
+            <div className="flex items-center">
+              {titleIcon ? titleIcon : null}
+              <label className="text-white text-xl">
+                <FormattedMessage id={title}></FormattedMessage>
+              </label>
+            </div>
+            <ModalClose className="cursor-pointer" onClick={onRequestClose} />
           </div>
-          <ModalClose className="cursor-pointer" onClick={onRequestClose} />
+          {props.children}
         </div>
-        {props.children}
+        {props.subChildren ? (
+          <div style={{ width: cardWidth }}>{props.subChildren}</div>
+        ) : null}
       </div>
     </Modal>
   );
@@ -1425,6 +1446,8 @@ function UserStakeBlock(props: {
   const [stakeType, setStakeType] = useState('');
   const [unStakeType, setUnStakeType] = useState('');
   const [serverTime, setServerTime] = useState<number>();
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   const { pool, user_seed, unclaimed, min_locking_duration_sec, slash_rate } =
     detailData;
   const {
@@ -1663,7 +1686,7 @@ function UserStakeBlock(props: {
           {showLpAmount()} <FormattedMessage id="lp_tokens"></FormattedMessage>
         </span>
       </div>
-      <div className="stakeEntryArea">
+      <div className={`stakeEntryArea ${!isSignedIn ? 'hidden' : ''}`}>
         <div className="pt-5 mt-5 borde border-dashed border-dashBorderColor border-t-2 border-opacity-20">
           {min_locking_duration_sec == 0 || FARM_LOCK_SWITCH == 0 ? (
             <div className="flex justify-between items-center">
@@ -2331,7 +2354,11 @@ function StakeModal(props: {
             onClick={() => {
               changeAmount(stakeType == 'freeToLock' ? freeAmount : lpBalance);
             }}
-            className="text-xs text-farmText px-2 py-1 rounded-lg border border-maxBorderColor cursor-pointer"
+            className={`text-xs text-farmText px-1.5 py-0.5 rounded-lg border cursor-pointer hover:text-greenColor hover:border-greenColor ${
+              amount == (stakeType == 'freeToLock' ? freeAmount : lpBalance)
+                ? 'bg-black bg-opacity-20 border-black border-opacity-20'
+                : 'border-maxBorderColor'
+            }`}
           >
             Max
           </span>
@@ -2719,6 +2746,16 @@ function UnStakeModal(props: {
     let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
   }
+  function getSubChildren() {
+    return (
+      <div className="flex items-center justify-center mt-2.5">
+        <FreenWarningIcon className="mr-1.5 flex-shrink-0"></FreenWarningIcon>
+        <span className="text-sm text-farmText">
+          <FormattedMessage id="unstakeTip" />
+        </span>
+      </div>
+    );
+  }
   const isDisabled =
     !amount ||
     new BigNumber(amount).isLessThanOrEqualTo(0) ||
@@ -2731,6 +2768,7 @@ function UnStakeModal(props: {
       title={title}
       isOpen={isOpen}
       onRequestClose={onRequestClose}
+      subChildren={getSubChildren()}
     >
       <div className="flex flex-col mt-4 bg-black bg-opacity-20 rounded-lg p-4">
         <div className="flex justify-end items-center mb-3">
@@ -2752,7 +2790,11 @@ function UnStakeModal(props: {
               onClick={() => {
                 changeAmount(lpBalance);
               }}
-              className="text-xs text-farmText px-2 py-1 rounded-lg border border-maxBorderColor cursor-pointer"
+              className={`text-xs text-farmText px-1.5 py-0.5 rounded-lg border cursor-pointer hover:text-greenColor hover:border-greenColor ${
+                amount == lpBalance
+                  ? 'bg-black bg-opacity-20 border-black border-opacity-20'
+                  : 'border-maxBorderColor'
+              }`}
             >
               Max
             </span>
@@ -2779,6 +2821,11 @@ function UnStakeModal(props: {
           </div>
         </div>
       )}
+      {detailData.endedFarmsIsSplit && unStakeType == 'free' ? (
+        <div className="flex items-center justify-center text-center rounded-lg border border-greenColor text-sm text-white p-3 mt-5">
+          <FormattedMessage id="endedFarmsUnstakeTip" />
+        </div>
+      ) : null}
       <div className="mt-5">
         <GradientButton
           onClick={operationUnStake}
