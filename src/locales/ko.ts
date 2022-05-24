@@ -631,5 +631,6 @@ const ko = {
   unstakeTip: 'Unstaking will automatically claim your unstaked rewards.',
   endedFarmsUnstakeTip:
     'Unstaking will remove the stake from all active and pending farms of the same pair. ',
+  comimg: 'COMING',
 };
 export default Object.assign(ko, ko_in_risks_page);

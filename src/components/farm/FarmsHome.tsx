@@ -1104,7 +1104,7 @@ function FarmView(props: {
       >
         {isPending() ? (
           <div className="farmStatus pending status-bar">
-            <FormattedMessage id="pending" defaultMessage="PENDING" />
+            <FormattedMessage id="comimg" defaultMessage="COMING" />
           </div>
         ) : null}
         <div className="baseInfo pt-4 pl-6 pr-4 pb-3.5">

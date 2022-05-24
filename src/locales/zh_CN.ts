@@ -600,5 +600,6 @@ const zh_CN = {
   unstakeTip: 'Unstaking will automatically claim your unstaked rewards.',
   endedFarmsUnstakeTip:
     'Unstaking will remove the stake from all active and pending farms of the same pair. ',
+  comimg: 'COMING',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
