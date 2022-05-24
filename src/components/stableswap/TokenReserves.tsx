@@ -465,14 +465,14 @@ export default function ({
         </div>
         <div
           className={`text-white mt-1 ${forPool ? 'hidden' : ''}`}
-          title={toPrecision(displayTotalValue, 0)}
+          title={toPrecision(tvl?.toString() || '0', 0)}
         >
           $
-          {type === 'BTC' && !BTCValue
+          {!tvl
             ? '-'
-            : Number(displayTotalValue) < 0.001
+            : tvl < 0.001
             ? ' <0.001'
-            : toInternationalCurrencySystem(displayTotalValue, 3)}
+            : toInternationalCurrencySystem(tvl?.toString(), 3)}
         </div>
         <div className={`flex justify-center`}>{chart}</div>
         {Object.values(tokensData)

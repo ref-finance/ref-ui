@@ -10,6 +10,7 @@ import Loading from '~components/layout/Loading';
 import {
   AllStableTokenIds,
   BTC_STABLE_POOL_ID,
+  CUSD_STABLE_POOL_ID,
   wallet as webWallet,
 } from '~services/near';
 import { PoolRPCView } from '~services/api';
@@ -153,7 +154,7 @@ export function YourLiquidityPage() {
 
   const { poolData: BTCPoolData } = useStabelPoolData(BTC_STABLE_POOL_ID);
 
-  // const { poolData: CUSDPoolData } = useStabelPoolData(CUSD_STABLE_POOL_ID);
+  const { poolData: CUSDPoolData } = useStabelPoolData(CUSD_STABLE_POOL_ID);
 
   if (!senderLoginRes && !webWallet.isSignedIn()) {
     history.push('/');
@@ -185,7 +186,7 @@ export function YourLiquidityPage() {
     !pool3tokenData ||
     !USNPoolData ||
     !BTCPoolData ||
-    // !CUSDPoolData ||
+    !CUSDPoolData ||
     !tokensMeta
   )
     return <Loading />;
@@ -194,14 +195,14 @@ export function YourLiquidityPage() {
     pool3tokenData,
     USNPoolData,
     BTCPoolData,
-    // CUSDPoolData,
+    CUSDPoolData,
   ];
 
   const stablePools = [
     pool3tokenData.pool,
     USNPoolData.pool,
     BTCPoolData.pool,
-    // CUSDPoolData.pool,
+    CUSDPoolData.pool,
   ];
 
   return (
