@@ -101,6 +101,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '1910',
           '3020',
           '3364',
+          '3433',
         ],
         STABLE_TOKEN_IDS: [
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
@@ -145,7 +146,12 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
         STABLE_POOL_ID: process.env.STABLE_POOL_ID || 218,
-        STABLE_POOL_IDS: process.env.STABLE_POOL_IDS || ['218', '356', '456'],
+        STABLE_POOL_IDS: process.env.STABLE_POOL_IDS || [
+          '218',
+          '356',
+          '456',
+          '494',
+        ],
 
         STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 356,
         STABLE_TOKEN_IDS: [
@@ -197,7 +203,12 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
         STABLE_POOL_ID: process.env.STABLE_POOL_ID || 79,
-        STABLE_POOL_IDS: process.env.STABLE_POOL_IDS || ['79', '603', '604'],
+        STABLE_POOL_IDS: process.env.STABLE_POOL_IDS || [
+          '79',
+          '603',
+          '604',
+          '608',
+        ],
         USN_ID: 'usdn.testnet',
         STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 603,
         STABLE_TOKEN_IDS: [
@@ -219,7 +230,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
-        BLACKLIST_POOL_IDS: ['608'],
+        BLACKLIST_POOL_IDS: [''],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID || 'boostfarm.ref-dev.testnet',
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 1,
@@ -270,6 +281,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '1910',
           '3020',
           '3364',
+          '3433',
         ],
         STABLE_TOKEN_IDS: [
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
@@ -311,7 +323,7 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           usn: 0,
           'cusd.token.a11bd.near': 1,
         },
-        CUSD_STABLE_POOL_ID: '608', //TODO:
+        CUSD_STABLE_POOL_ID: '3433',
       };
     case 'development':
     case 'pub-testnet':
@@ -327,7 +339,7 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'usdn.testnet': 0,
           'cusd.fakes.testnet': 1,
         },
-        CUSD_STABLE_POOL_ID: '608',
+        CUSD_STABLE_POOL_ID: '494',
       };
     case 'testnet':
       return {
@@ -360,7 +372,7 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           usn: 0,
           'cusd.token.a11bd.near': 1,
         },
-        CUSD_STABLE_POOL_ID: '608', //TODO:
+        CUSD_STABLE_POOL_ID: '3433',
       };
   }
 }

@@ -15,6 +15,7 @@ import {
   AllStableTokenIds,
   BTC_STABLE_POOL_ID,
   BTCIDS,
+  CUSD_STABLE_POOL_ID,
 } from '../../services/near';
 import BigNumber from 'bignumber.js';
 import { toReadableNumber, percent } from '../../utils/numbers';
@@ -327,7 +328,7 @@ export function StableSwapPageEntry() {
 
   const { poolData: BTCPoolData } = useStabelPoolData(BTC_STABLE_POOL_ID);
 
-  // const { poolData: CUSDPoolData } = useStabelPoolData(CUSD_STABLE_POOL_ID);
+  const { poolData: CUSDPoolData } = useStabelPoolData(CUSD_STABLE_POOL_ID);
 
   const [allStableTokens, setAllStableTokens] = useState<TokenMetadata[]>();
 
@@ -341,7 +342,7 @@ export function StableSwapPageEntry() {
     !pool3tokenData ||
     !USNPoolData ||
     !BTCPoolData ||
-    // !CUSDPoolData ||
+    !CUSDPoolData ||
     !allStableTokens
   )
     return <Loading />;
@@ -349,7 +350,7 @@ export function StableSwapPageEntry() {
   const formatedPool3tokenData = formatePoolData(pool3tokenData);
   const formatedUSNPoolData = formatePoolData(USNPoolData);
   const formatedBTCPoolData = formatePoolData(BTCPoolData);
-  // const formatedCUSDPoolData = formatePoolData(CUSDPoolData);
+  const formatedCUSDPoolData = formatePoolData(CUSDPoolData);
 
   return (
     <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2 flex flex-col">
@@ -378,11 +379,11 @@ export function StableSwapPageEntry() {
         poolData={formatedBTCPoolData}
       />
 
-      {/* <StablePoolCard
+      <StablePoolCard
         stablePool={CUSDPoolData.pool}
         tokens={CUSDPoolData.tokens}
         poolData={formatedCUSDPoolData}
-      /> */}
+      />
 
       <TokenReserves
         tokens={allStableTokens.filter((token) => {
@@ -393,8 +394,7 @@ export function StableSwapPageEntry() {
         pools={
           reserveType === 'BTC'
             ? [BTCPoolData.pool]
-            : // : [USNPoolData.pool, pool3tokenData.pool, CUSDPoolData.pool]
-              [USNPoolData.pool, pool3tokenData.pool]
+            : [USNPoolData.pool, pool3tokenData.pool, CUSDPoolData.pool]
         }
         hiddenMag={true}
         className="pt-6"

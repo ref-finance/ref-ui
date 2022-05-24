@@ -396,12 +396,6 @@ function MobileLiquidityPage({
     );
   };
 
-  const [displayRows, setDisplayRows] = useState([]);
-
-  useEffect(() => {
-    setDisplayRows(pools);
-  }, []);
-
   return (
     <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:flex lg:hidden xl:hidden xs:flex">
       <div className="mx-4 mb-6 mt-3">
@@ -518,7 +512,7 @@ function MobileLiquidityPage({
           </header>
           <div className="border-b border-gray-700 border-opacity-70" />
           <div className="max-h-96 overflow-y-auto pool-list-container-mobile">
-            {displayRows?.filter(poolFilterFunc).map((pool, i) => (
+            {pools?.filter(poolFilterFunc).map((pool, i) => (
               <MobilePoolRow
                 selectCoinClass={selectCoinClass}
                 tokens={poolTokenMetas[pool.id]}
@@ -758,12 +752,6 @@ function LiquidityPage_({
     );
   };
 
-  const [displayRows, setDisplayRows] = useState([]);
-
-  useEffect(() => {
-    setDisplayRows(pools);
-  }, [pools]);
-
   return (
     <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
       <div className="mb-4 mx-8">
@@ -911,7 +899,7 @@ function LiquidityPage_({
           </header>
 
           <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
-            {displayRows?.filter(poolFilterFunc).map((pool, i) => (
+            {pools?.filter(poolFilterFunc).map((pool, i) => (
               <PoolRow
                 tokens={poolTokenMetas[pool.id]}
                 key={i}
@@ -958,7 +946,10 @@ export function LiquidityPage() {
   }, [pools, hideLowTVL]);
   const poolTokenMetas = usePoolTokens(pools);
 
-  const onSearch = useCallback(_.debounce(setTokenName, 500), []);
+  const onSearch = useCallback(
+    _.debounce(setTokenName, clientMobileDevice ? 50 : 500),
+    [clientMobileDevice]
+  );
 
   const poolsMorePoolsIds = usePoolsMorePoolIds({ pools: displayPools });
 
@@ -967,26 +958,29 @@ export function LiquidityPage() {
 
   return (
     <>
-      <LiquidityPage_
-        poolTokenMetas={poolTokenMetas}
-        tokenName={tokenName}
-        pools={displayPools}
-        poolsMorePoolsIds={poolsMorePoolsIds}
-        onHide={(isHide) => {
-          localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
-          setHideLowTVL(isHide);
-        }}
-        hideLowTVL={hideLowTVL}
-        watchPools={watchPools}
-        order={order}
-        sortBy={sortBy}
-        allPools={AllPools}
-        onOrderChange={setOrder}
-        onSortChange={setSortBy}
-        onSearch={onSearch}
-        hasMore={hasMore}
-        nextPage={nextPage}
-      />
+      {!clientMobileDevice && (
+        <LiquidityPage_
+          poolTokenMetas={poolTokenMetas}
+          tokenName={tokenName}
+          pools={displayPools}
+          poolsMorePoolsIds={poolsMorePoolsIds}
+          onHide={(isHide) => {
+            localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
+            setHideLowTVL(isHide);
+          }}
+          hideLowTVL={hideLowTVL}
+          watchPools={watchPools}
+          order={order}
+          sortBy={sortBy}
+          allPools={AllPools}
+          onOrderChange={setOrder}
+          onSortChange={setSortBy}
+          onSearch={onSearch}
+          hasMore={hasMore}
+          nextPage={nextPage}
+        />
+      )}
+
       {clientMobileDevice && (
         <MobileLiquidityPage
           poolTokenMetas={poolTokenMetas}
