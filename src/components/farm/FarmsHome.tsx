@@ -94,14 +94,10 @@ export default function FarmsHome(props: any) {
     tvl: intl.formatMessage({ id: 'tvl' }),
     apr: intl.formatMessage({ id: 'apr' }),
   };
-  const statusList = isSignedIn
-    ? {
-        live: intl.formatMessage({ id: 'all_farm' }),
-        my: intl.formatMessage({ id: 'my_farms' }),
-      }
-    : {
-        live: intl.formatMessage({ id: 'all_farm' }),
-      };
+  const statusList = {
+    live: intl.formatMessage({ id: 'all_farm' }),
+    my: intl.formatMessage({ id: 'my_farms' }),
+  };
   const coinList = { all: intl.formatMessage({ id: 'allOption' }) };
   classificationOfCoins_key.forEach((key) => {
     coinList[key] = intl.formatMessage({ id: key });

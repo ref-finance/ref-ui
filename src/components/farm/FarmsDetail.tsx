@@ -82,7 +82,6 @@ import CalcModelBooster from '~components/farm/CalcModelBooster';
 import moment from 'moment';
 const ONLY_ZEROS = /^0*\.?0*$/;
 const { STABLE_POOL_IDS, FARM_LOCK_SWITCH } = getConfig();
-export const REF_STABLE_SWAP_TAB_KEY = 'REF_STABLE_SWAP_TAB_VALUE';
 export default function FarmsDetail(props: {
   detailData: Seed;
   emptyDetailData: Function;
@@ -603,7 +602,12 @@ function AddLiquidityEntryBar(props: {
   let addLiquidityButtonLoading;
   function openAddLiquidityModal() {
     if (new Set(STABLE_POOL_IDS || []).has(poolId?.toString())) {
-      localStorage.setItem(REF_STABLE_SWAP_TAB_KEY, 'add_liquidity');
+      if (poolA.token_account_ids?.length > 2) {
+        localStorage.setItem('REF_STABLE_SWAP_TAB_VALUE', 'add_liquidity');
+      } else {
+        const key = `REF_STABLE_SWAP_TAB_VALUE_${poolId}`;
+        localStorage.setItem(key, 'add_liquidity');
+      }
       history.push(`/sauce/${poolId}`);
     } else {
       setAddLiquidityModalVisible(true);

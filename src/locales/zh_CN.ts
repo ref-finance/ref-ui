@@ -595,11 +595,11 @@ const zh_CN = {
   endedPool: 'Ended Pools',
   otherPool: 'Other Pools',
   ordinary: 'Ordinary',
-  exit_fee_tip: 'Estimated amount you would pay to break your lock-up period.',
+  exit_fee_tip: 'Estimated amount you would pay to break your lock-up period',
   forbiddenTip: 'This farm does not support this duration option',
-  unstakeTip: 'Unstaking will automatically claim your unstaked rewards.',
+  unstakeTip: 'Staking or unstaking will automatically claim your rewards.',
   endedFarmsUnstakeTip:
     'Unstaking will remove the stake from all active and pending farms of the same pair. ',
-  comimg: 'COMING',
+  comimg: 'Coming',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
