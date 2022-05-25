@@ -11,7 +11,7 @@ import anime from 'animejs';
 import { TokenMetadata } from '~services/ft-contract';
 import { useLocation } from 'react-router-dom';
 import { toRealSymbol } from '~utils/token';
-import { toPrecision } from '~utils/numbers';
+import { toPrecision, formatWithCommas } from '~utils/numbers';
 export default function Marquee() {
   const [showMarquee, setShowMarquee] = useState(
     localStorage.getItem('marquee') == '0' ? false : true
@@ -159,7 +159,14 @@ export default function Marquee() {
                       <label className="text-sm text-white mx-2.5">
                         $
                         {item?.price?.toString()
-                          ? toPrecision(item.price.toString(), 3, false, false)
+                          ? formatWithCommas(
+                              toPrecision(
+                                item.price.toString(),
+                                3,
+                                false,
+                                false
+                              )
+                            )
                           : '-'}
                       </label>
                       {}
