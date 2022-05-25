@@ -150,7 +150,6 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '356',
           '456',
           '494',
-          '568',
         ],
 
         STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 356,
@@ -205,7 +204,6 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '603',
           '604',
           '608',
-          '621',
         ],
         USN_ID: 'usdn.testnet',
         STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 603,
