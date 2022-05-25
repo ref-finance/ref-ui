@@ -917,6 +917,7 @@ function FarmView(props: {
     farmList.forEach((farm: FarmBoost) => {
       tempFarms[farm.terms.reward_token] = true;
     });
+    const isEnded = farmList[0].status == 'Ended';
     tokens?.forEach((token: TokenMetadata) => {
       // total price
       const { id, decimals, icon } = token;
@@ -936,9 +937,9 @@ function FarmView(props: {
             <div class="flex flex-col items-end text-xs text-navHighLightText">
             ${formatWithCommas(displayNum)}
             ${
-              tempFarms[id]
-                ? ''
-                : `<span class="text-farmText text-xs">${txt}</span>`
+              !isEnded && !tempFarms[id]
+                ? `<span class="text-farmText text-xs">${txt}</span>`
+                : ''
             }
           </div>
         </div>`;

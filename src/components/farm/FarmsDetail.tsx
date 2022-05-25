@@ -1336,6 +1336,7 @@ function UserTotalUnClaimBlock(props: {
     detailData.farmList.forEach((farm: FarmBoost) => {
       tempFarms[farm.terms.reward_token] = true;
     });
+    const isEnded = detailData.farmList[0].status == 'Ended';
     unClaimedTokens?.forEach((token: TokenMetadata) => {
       // total price
       const { id, decimals, icon } = token;
@@ -1362,9 +1363,9 @@ function UserTotalUnClaimBlock(props: {
             <div class="flex flex-col items-end text-xs text-navHighLightText">
             ${formatWithCommas(displayNum)}
             ${
-              tempFarms[id]
-                ? ''
-                : `<span class="text-farmText text-xs">${txt}</span>`
+              !isEnded && !tempFarms[id]
+                ? `<span class="text-farmText text-xs">${txt}</span>`
+                : ''
             }
           </div>
         </div>`;
