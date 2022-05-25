@@ -150,6 +150,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '356',
           '456',
           '494',
+          '568',
         ],
 
         STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 356,
@@ -204,6 +205,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '603',
           '604',
           '608',
+          '621',
         ],
         USN_ID: 'usdn.testnet',
         STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 603,
@@ -332,6 +334,13 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'cusd.fakes.testnet': 1,
         },
         CUSD_STABLE_POOL_ID: '494',
+        STNEAR_POOL_ID: '568',
+        STNEARIDS: ['meta-v2.pool.testnet', 'wrap.testnet'],
+        STNEAR_POOL_INDEX: {
+          'meta-v2.pool.testnet': 0,
+          'wrap.testnet': 1,
+        },
+        RATED_POOLS_IDS: ['568'],
       };
     case 'testnet':
       return {
