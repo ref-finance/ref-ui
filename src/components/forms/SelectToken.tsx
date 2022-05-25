@@ -109,6 +109,10 @@ export const StableSelectToken = ({
     ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS))
   );
 
+  // const USDTokenList = new Array(
+  //   ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS))
+  // );
+
   const BTCTokenList = BTCIDS.map((id) => id);
 
   const NEARTokenList = STNEARIDS.map((id) => id);

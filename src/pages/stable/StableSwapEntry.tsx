@@ -17,8 +17,8 @@ import {
   BTCIDS,
   STNEARIDS,
   STNEAR_POOL_ID,
-  CUSD_STABLE_POOL_ID,
   CUSDIDS,
+  CUSD_STABLE_POOL_ID,
 } from '../../services/near';
 import BigNumber from 'bignumber.js';
 import { toReadableNumber, percent } from '../../utils/numbers';
