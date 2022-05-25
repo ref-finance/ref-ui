@@ -417,7 +417,7 @@ export function StableSwapPageEntry() {
   const { poolData: STNEARPoolData } = useStabelPoolData(STNEAR_POOL_ID);
   const { poolData: CUSDPoolData } = useStabelPoolData(CUSD_STABLE_POOL_ID);
 
-  const [chosenState, setChosesState] = useState<number>(0);
+  const [chosenState, setChosesState] = useState<number>();
 
   const [allStableTokens, setAllStableTokens] = useState<TokenMetadata[]>();
 
@@ -427,7 +427,7 @@ export function StableSwapPageEntry() {
     );
   }, []);
   useEffect(() => {
-    setChosesState(0);
+    setChosesState(null);
     localStorage.setItem(
       REF_SAUCE_PAGE_STABLE_CLASS_KEY,
       reserveType.toString()
