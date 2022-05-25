@@ -218,11 +218,8 @@ function StablePoolCard({
           : 'border border-transparent'
       }
       `}
-      onClick={() => {
-        if (mobileClientDevice && chosenState !== index) {
-          setChosesState(index);
-          return;
-        }
+      onTouchEnd={() => {
+        if (chosenState !== index) setChosesState(index);
       }}
     >
       <Card
@@ -231,7 +228,7 @@ function StablePoolCard({
         rounded="rounded-2xl"
         className={`flex flex-col`}
         onMouseEnter={() => setChosesState(index)}
-        // onMouseLeave={() => setChosesState()}
+        onMouseLeave={() => setChosesState(null)}
       >
         <span
           className={`${
@@ -321,7 +318,6 @@ function StablePoolCard({
           <SolidButton
             className="w-full text-center flex items-center justify-center py-3 mr-2 text-sm"
             onClick={(e) => {
-              e.stopPropagation();
               history.push(`/sauce/${stablePool.id}`, {
                 stableTab: 'add_liquidity',
                 shares,
@@ -339,7 +335,6 @@ function StablePoolCard({
           <OutlineButton
             className="w-full py-3 ml-2 text-sm h-11"
             onClick={(e) => {
-              e.stopPropagation();
               history.push(`/sauce/${stablePool.id}`, {
                 stableTab: 'remove_liquidity',
                 shares,
