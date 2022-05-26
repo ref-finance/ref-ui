@@ -171,14 +171,15 @@ export default function Marquee() {
                       </label>
                       {}
                       {Number(item.float_ratio) >= 0 ? (
-                        <span className="flex items-center text-xs text-lightGreenColor">
+                        <span
+                          className={`flex items-center text-xs text-lightGreenColor ${
+                            Number(item.float_ratio) == 1 ? 'hidden' : ''
+                          }`}
+                        >
                           <label className="mr-0.5">{item.float_ratio}%</label>
                           <div
                             className={
-                              Number(item.float_ratio) == 0 ||
-                              Number(item.float_ratio) == 1
-                                ? 'hidden'
-                                : ''
+                              Number(item.float_ratio) == 0 ? 'hidden' : ''
                             }
                           >
                             <PriceFloatUpIcon></PriceFloatUpIcon>
