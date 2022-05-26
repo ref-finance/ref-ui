@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   percent,
   percentLess,
@@ -32,6 +32,8 @@ export const ShareInFarm = ({
     useGrouping: false,
   });
 
+  const [hover, setHovet] = useState<boolean>(false);
+
   const farmSharePercent = userTotalShare.isGreaterThan(0)
     ? percent(
         farmShare,
@@ -46,15 +48,20 @@ export const ShareInFarm = ({
 
   return (
     <div
-      className={`items-center inline-flex text-xs text-gradientFrom rounded-full py-0.5 border border-${
-        forStable ? 'gradientFrom mb-0.5' : 'transparent'
-      } hover:border-gradientFrom hover:text-gradientFrom px-2 cursor-pointer`}
-      style={{
-        width: hundredPercent ? '130px' : zeroPercent ? '125px' : '140px',
-      }}
+      className={`items-center inline-flex text-xs  rounded-full py-0.5 border  ${
+        hover
+          ? 'border-gradientFrom text-gradientFrom'
+          : 'border-transparent text-gradientFrom'
+      }  px-2 cursor-pointer`}
+      onMouseEnter={() => setHovet(true)}
+      onMouseLeave={() => setHovet(false)}
     >
       <FarmDot inFarm={Number(farmShare) > 0} className="mr-1 flex-shrink-0" />
-      <div className="self-start whitespace-nowrap w-full flex">
+      <div
+        className={`self-start whitespace-nowrap w-full flex items-center ${
+          forStable ? `${hover ? 'text-white' : 'text-primaryText'}` : ''
+        }`}
+      >
         <span
           className={`${
             hundredPercent ? 'w-9' : zeroPercent ? 'w-6' : 'w-11'
@@ -72,6 +79,12 @@ export const ShareInFarm = ({
         </span>
 
         {version && <span className={`ml-1 w-4`}>{version}</span>}
+
+        {hover && forStable && (
+          <span className="ml-0.5">
+            <HiOutlineExternalLink />
+          </span>
+        )}
       </div>
     </div>
   );
