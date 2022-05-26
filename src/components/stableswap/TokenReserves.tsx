@@ -92,7 +92,7 @@ function TokenChart({
       <g>
         <text
           x={x}
-          y={y}
+          y={y - 2}
           fill="white"
           fontSize="14px"
           textAnchor={x > cx ? 'start' : 'end'}
@@ -102,7 +102,7 @@ function TokenChart({
         </text>
         <text
           x={x}
-          y={y + 15}
+          y={y + 13}
           fill="white"
           textAnchor={x > cx ? 'start' : 'end'}
           dominantBaseline="central"
