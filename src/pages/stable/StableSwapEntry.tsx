@@ -71,7 +71,7 @@ const RenderDisplayTokensAmounts = ({
                 <img
                   src={token.icon}
                   alt=""
-                  className="w-4 h-4 boder border-gradientFrom rounded-full"
+                  className="w-4 h-4 border border-gradientFrom rounded-full"
                 />
               </span>
 
