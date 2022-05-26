@@ -482,8 +482,8 @@ export default function CrossSwapCard(props: {
           toReadableNumber(tokenIn.decimals, swapsToDo[0].totalInputAmount),
           swapsToDo[0].noFeeAmountOut,
           (
-            Number(swapsToDo[0].pool.rates[tokenIn.id]) /
-            Number(swapsToDo[0].pool.rates[tokenOut.id])
+            Number(swapsToDo[0].pool.rates[tokenOut.id]) /
+            Number(swapsToDo[0].pool.rates[tokenIn.id])
           ).toString()
         );
       } else return '0';

@@ -175,6 +175,7 @@ export const calculateSmartRoutingPriceImpact = (
         Number(swapTodos[1].pool.rates[tokenMid.id])
       ).toString()
     : calculateMarketPrice(swapTodos[1].pool, tokenMid, tokenOut);
+
   const generalMarketPrice = math.evaluate(`${marketPrice1} * ${marketPrice2}`);
 
   const tokenMidReceived = isPool1StablePool
@@ -471,11 +472,11 @@ export const calcStableSwapPriceImpact = (
   to: string,
   marketPrice: string = '1'
 ) => {
-  const newMarketPrice = math.evaluate(`${to} / ${from}`);
+  const newMarketPrice = math.evaluate(`${from} / ${to}`);
 
   return math.format(
     percent(
-      math.evaluate(`${marketPrice} - ${newMarketPrice}`),
+      math.evaluate(`${newMarketPrice} - ${marketPrice}`),
       newMarketPrice
     ),
     {
@@ -545,8 +546,8 @@ export function calculateSmartRoutesV2PriceImpact(
             readablePartialAmountIn,
             r[0].noFeeAmountOut,
             (
-              Number(r[0].pool.rates[tokenIn.id]) /
-              Number(r[0].pool.rates[outputToken])
+              Number(r[0].pool.rates[outputToken]) /
+              Number(r[0].pool.rates[tokenIn.id])
             ).toString()
           )
         : calculatePriceImpact(
