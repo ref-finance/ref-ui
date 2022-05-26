@@ -471,8 +471,13 @@ export const calcStableSwapPriceImpact = (
   to: string,
   marketPrice: string = '1'
 ) => {
+  const newMarketPrice = math.evaluate(`${to} / ${from}`);
+
   return math.format(
-    percent(math.evaluate(`${marketPrice} - (${to} / ${from})`), marketPrice),
+    percent(
+      math.evaluate(`${marketPrice} - ${newMarketPrice}`),
+      newMarketPrice
+    ),
     {
       notation: 'fixed',
     }
