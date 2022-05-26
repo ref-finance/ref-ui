@@ -19,6 +19,8 @@ import {
   STNEAR_POOL_ID,
   CUSDIDS,
   CUSD_STABLE_POOL_ID,
+  LINEAR_POOL_ID,
+  LINEARIDS,
 } from '../../services/near';
 import BigNumber from 'bignumber.js';
 import { toReadableNumber, percent } from '../../utils/numbers';
@@ -206,8 +208,6 @@ function StablePoolCard({
   const haveFarm = poolData.farmCount > 0;
   const multiMining = poolData.farmCount > 1;
   // const multiMining = false;
-
-  const mobileClientDevice = useClientMobile();
 
   return (
     <div
@@ -412,6 +412,8 @@ export function StableSwapPageEntry() {
   const { poolData: STNEARPoolData } = useStabelPoolData(STNEAR_POOL_ID);
   const { poolData: CUSDPoolData } = useStabelPoolData(CUSD_STABLE_POOL_ID);
 
+  const { poolData: LINEARPoolData } = useStabelPoolData(LINEAR_POOL_ID);
+
   const [chosenState, setChosesState] = useState<number>();
 
   const [allStableTokens, setAllStableTokens] = useState<TokenMetadata[]>();
@@ -435,6 +437,7 @@ export function StableSwapPageEntry() {
     !BTCPoolData ||
     !CUSDPoolData ||
     !STNEARPoolData ||
+    !LINEARPoolData ||
     !allStableTokens
   )
     return <Loading />;
@@ -446,19 +449,21 @@ export function StableSwapPageEntry() {
 
   const formatedSTNEARPoolData = formatePoolData(STNEARPoolData);
 
+  const formatedLINEARPoolData = formatePoolData(LINEARPoolData);
+
   const displayPoolData =
     reserveType === STABLE_POOL_TYPE.USD
       ? [formatedPool3tokenData, formatedUSNPoolData, formatedCUSDPoolData]
       : reserveType === STABLE_POOL_TYPE.BTC
       ? [formatedBTCPoolData]
-      : [formatedSTNEARPoolData];
+      : [formatedSTNEARPoolData, formatedLINEARPoolData];
 
   const displayPools =
     reserveType === STABLE_POOL_TYPE.USD
       ? [pool3tokenData, USNPoolData, CUSDPoolData]
       : reserveType === STABLE_POOL_TYPE.BTC
       ? [BTCPoolData]
-      : [STNEARPoolData];
+      : [STNEARPoolData, LINEARPoolData];
 
   return (
     <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2 flex flex-col">
@@ -502,14 +507,14 @@ export function StableSwapPageEntry() {
                 .map((id) => id.toString())
                 .includes(token.id);
             case 'NEAR':
-              return STNEARIDS.includes(token.id);
+              return STNEARIDS.concat(LINEARIDS).includes(token.id);
           }
         })}
         pools={
           reserveType === STABLE_POOL_TYPE.BTC
             ? [BTCPoolData.pool]
             : reserveType === STABLE_POOL_TYPE.NEAR
-            ? [STNEARPoolData.pool]
+            ? [STNEARPoolData.pool, LINEARPoolData.pool]
             : [USNPoolData.pool, pool3tokenData.pool, CUSDPoolData.pool]
         }
         hiddenMag={true}

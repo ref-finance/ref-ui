@@ -333,12 +333,18 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
         },
         CUSD_STABLE_POOL_ID: '494',
         STNEAR_POOL_ID: '568',
+        LINEAR_POOL_ID: '571',
         STNEARIDS: ['meta-v2.pool.testnet', 'wrap.testnet'],
+        LINEARIDS: ['linear-protocol.testnet', 'wrap.testnet'],
         STNEAR_POOL_INDEX: {
           'meta-v2.pool.testnet': 0,
           'wrap.testnet': 1,
         },
-        RATED_POOLS_IDS: ['568'],
+        LINEAR_POOL_INDEX: {
+          'linear-protocol.testnet': 0,
+          'wrap.testnet': 1,
+        },
+        RATED_POOLS_IDS: ['568', '571'],
       };
     case 'testnet':
       return {
@@ -355,12 +361,18 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
         },
         CUSD_STABLE_POOL_ID: '608',
         STNEAR_POOL_ID: '621',
+        LINEAR_POOL_ID: '622',
         STNEARIDS: ['meta-v2.pool.testnet', 'wrap.testnet'],
+        LINEARIDS: ['linear-protocol.testnet', 'wrap.testnet'],
         STNEAR_POOL_INDEX: {
           'meta-v2.pool.testnet': 0,
           'wrap.testnet': 1,
         },
-        RATED_POOLS_IDS: ['621'],
+        LINEAR_POOL_INDEX: {
+          'linear-protocol.testnet': 0,
+          'wrap.testnet': 1,
+        },
+        RATED_POOLS_IDS: ['621', '622'],
       };
     default:
       return {

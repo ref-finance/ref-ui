@@ -70,7 +70,12 @@ function TokenChart({
     WBTC: '#ED9234',
     STNEAR: 'rgba(160, 160, 255, 0.5)',
     wNEAR: 'rgba(0, 198, 162, 0.5)',
+    LINEAR: 'rgba(64, 129, 255, 0.5)',
   };
+
+  const noBorderTokens = ['wNEAR', 'LINEAR'];
+
+  const noBgTokens = ['LINEAR'];
 
   function customLabel(props: any) {
     let { cx, cy, x, y, midAngle, innerRadius, outerRadius, displayV, token } =
@@ -82,6 +87,7 @@ function TokenChart({
     if (y < cy) {
       y = y - 5;
     }
+
     return (
       <g>
         <text
@@ -103,6 +109,16 @@ function TokenChart({
         >
           {displayV}
         </text>
+        {noBorderTokens.includes(token.symbol) && (
+          <circle
+            r={16}
+            cx={x1 + 15}
+            cy={y1 + 15}
+            stroke="#00c6a2"
+            fill={'#0F1D27'}
+            strokeWidth={1}
+          />
+        )}
         <image width="30" height="30" x={x1} y={y1} xlinkHref={token.icon} />
       </g>
     );

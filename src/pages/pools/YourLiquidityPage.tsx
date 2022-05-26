@@ -11,6 +11,7 @@ import {
   AllStableTokenIds,
   BTC_STABLE_POOL_ID,
   CUSD_STABLE_POOL_ID,
+  LINEAR_POOL_ID,
   STNEAR_POOL_ID,
   wallet as webWallet,
 } from '~services/near';
@@ -160,6 +161,8 @@ export function YourLiquidityPage() {
 
   const { poolData: STNEARPoolData } = useStabelPoolData(STNEAR_POOL_ID);
 
+  const { poolData: LINEARPoolData } = useStabelPoolData(LINEAR_POOL_ID);
+
   if (!senderLoginRes && !webWallet.isSignedIn()) {
     history.push('/');
     return null;
@@ -192,6 +195,7 @@ export function YourLiquidityPage() {
     !BTCPoolData ||
     !CUSDPoolData ||
     !STNEARPoolData ||
+    !LINEARPoolData ||
     !tokensMeta
   )
     return <Loading />;
@@ -202,6 +206,7 @@ export function YourLiquidityPage() {
     BTCPoolData,
     CUSDPoolData,
     STNEARPoolData,
+    LINEARPoolData,
   ];
 
   const stablePools = [
@@ -210,6 +215,7 @@ export function YourLiquidityPage() {
     BTCPoolData.pool,
     CUSDPoolData.pool,
     STNEARPoolData.pool,
+    LINEARPoolData.pool,
   ];
 
   return (
