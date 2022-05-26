@@ -579,8 +579,8 @@ export default function SwapCard(props: {
     if (BTCIDS.includes(tokenIn.id) && BTCIDS.includes(tokenOut.id))
       setReservesType(STABLE_POOL_TYPE.BTC);
     else if (
-      STNEARIDS.includes(tokenIn.id) &&
-      STNEARIDS.includes(tokenOut.id)
+      STNEARIDS.concat(LINEARIDS).includes(tokenIn.id) &&
+      STNEARIDS.concat(LINEARIDS).includes(tokenOut.id)
     ) {
       setReservesType(STABLE_POOL_TYPE.NEAR);
     } else setReservesType(STABLE_POOL_TYPE.USD);
