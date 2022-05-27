@@ -2360,7 +2360,7 @@ function ActionModal(
                       </label>
                       <label
                         className={
-                          'cursor-pointer ' +
+                          'text-white cursor-pointer ' +
                           (showCalc ? 'transform rotate-180' : '')
                         }
                       >

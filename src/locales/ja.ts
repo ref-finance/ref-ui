@@ -614,7 +614,7 @@ const ja = {
   ordinary_stake: 'Ordinary Stake',
   locking_stake: 'Lock-up staking',
   change_to_lock: 'Change to Lock-up staking',
-  booster_expected_reward: 'Booster & Expected reward',
+  estimated_rewards: 'Estimated rewards',
   final_booster: 'Final Booster',
   existing_amount: 'Existing amount',
   append_amount: 'Append amount',

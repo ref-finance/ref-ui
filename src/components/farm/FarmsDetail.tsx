@@ -2386,14 +2386,17 @@ function StakeModal(props: {
         <div className="boostArea">
           <div className="flex justify-between items-center mb-1.5 mt-5">
             <p className="text-farmText text-sm">
-              <FormattedMessage id="booster_expected_reward" />
+              <FormattedMessage id="estimated_rewards" />
             </p>
           </div>
           <div>
-            <div className="bg-black bg-opacity-20 rounded-lg px-6 pb-14 pt-10">
+            <div className="relative bg-black bg-opacity-20 rounded-lg px-6 pb-14 pt-10">
+              <div className="absolute text-farmText text-sm top-3 left-6">
+                <FormattedMessage id="booster"></FormattedMessage>
+              </div>
               <div
                 className={`flex items-center justify-center ${
-                  lockDataList.length == 1 ? 'mb-6' : 'mb-12'
+                  lockDataList.length == 1 ? 'mb-6' : 'mb-8'
                 }`}
                 style={{ height: '120px' }}
               >
@@ -2411,64 +2414,70 @@ function StakeModal(props: {
                 </div>
               </div>
               {lockDataList.length == 1 ? null : (
-                <div className="flex items-center px-4">
-                  {lockDataList.map((item: Lock, index: number) => {
-                    return (
-                      <div
-                        key={index}
-                        className={`flex items-center  mb-16 relative ${
-                          index == 0
-                            ? 'w-0'
-                            : lockDataList.length == 2
-                            ? 'w-full'
-                            : 'w-1/' + (lockDataList.length - 1)
-                        }`}
-                      >
+                <>
+                  <div className="text-farmText text-sm mb-5">
+                    <FormattedMessage id="stake_for"></FormattedMessage>
+                  </div>
+                  <div className="flex items-center px-4">
+                    {lockDataList.map((item: Lock, index: number) => {
+                      return (
                         <div
-                          style={{ height: '5px' }}
-                          className={`rounded-lg w-full  ${
-                            selectedLockData?.month >= item.month
-                              ? 'bg-greenColor'
-                              : 'bg-darkBg'
+                          key={index}
+                          className={`flex items-center  mb-16 relative ${
+                            index == 0
+                              ? 'w-0'
+                              : lockDataList.length == 2
+                              ? 'w-full'
+                              : 'w-1/' + (lockDataList.length - 1)
                           }`}
-                        ></div>
-                        <div
-                          className={`absolute right-0 flex flex-col items-center transform translate-x-1/2 z-10`}
                         >
-                          <label
-                            className={`text-white text-sm h-5 whitespace-nowrap ${
-                              selectedLockData?.month == item.month
-                                ? 'visible'
-                                : 'invisible'
-                            }`}
-                          >
-                            {selectedLockPrice}
-                          </label>
-                          <span
-                            onClick={() => {
-                              setSelectedLockData(item);
-                            }}
-                            style={{ width: '21px', height: '21px' }}
-                            className={`rounded-full my-2 cursor-pointer ${
+                          <div
+                            style={{ height: '5px' }}
+                            className={`rounded-lg w-full  ${
                               selectedLockData?.month >= item.month
                                 ? 'bg-greenColor'
                                 : 'bg-darkBg'
-                            } `}
-                          ></span>
-                          <label
-                            className={`text-sm whitespace-nowrap ${
-                              selectedLockData?.month == item.month
-                                ? 'text-white'
-                                : 'text-farmText'
                             }`}
+                          ></div>
+                          <div
+                            className={`absolute right-0 flex flex-col items-center transform translate-x-1/2 z-10`}
                           >
-                            {item.month} M
-                          </label>
+                            {/*  todo delete */}
+                            <label
+                              className={`text-white text-sm h-5 whitespace-nowrap ${
+                                selectedLockData?.month == item.month
+                                  ? 'invisible'
+                                  : 'invisible'
+                              }`}
+                            >
+                              {selectedLockPrice}
+                            </label>
+                            <span
+                              onClick={() => {
+                                setSelectedLockData(item);
+                              }}
+                              style={{ width: '21px', height: '21px' }}
+                              className={`rounded-full my-2 cursor-pointer ${
+                                selectedLockData?.month >= item.month
+                                  ? 'bg-greenColor'
+                                  : 'bg-darkBg'
+                              } `}
+                            ></span>
+                            <label
+                              className={`text-sm whitespace-nowrap ${
+                                selectedLockData?.month == item.month
+                                  ? 'text-white'
+                                  : 'text-farmText'
+                              }`}
+                            >
+                              {item.month} M
+                            </label>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                </>
               )}
               <div className="flex flex-col w-full">
                 {lockDataList.length == 1 ? (
@@ -2591,12 +2600,13 @@ function StakeModal(props: {
             }}
           >
             <Calc></Calc>
-            <label className="text-sm text-white ml-3 mr-4  cursor-pointer">
+            <label className="text-sm text-farmText ml-3 mr-4  cursor-pointer">
               <FormattedMessage id="calculate_roi"></FormattedMessage>
             </label>
             <label
               className={
-                'cursor-pointer ' + (showCalc ? 'transform rotate-180' : '')
+                'text-farmText cursor-pointer ' +
+                (showCalc ? 'transform rotate-180' : '')
               }
             >
               <ArrowDownHollow></ArrowDownHollow>
@@ -2960,7 +2970,8 @@ function UnClaimBox(props: { detailData: Seed; tokenPriceList: any }) {
         </label>
         <label
           className={
-            'cursor-pointer ' + (showClaim ? 'transform rotate-180' : '')
+            'text-white cursor-pointer ' +
+            (showClaim ? 'transform rotate-180' : '')
           }
         >
           <ArrowDownHollow></ArrowDownHollow>
