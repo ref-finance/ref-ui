@@ -6,6 +6,7 @@ import { CloseIcon } from '../icon/Actions';
 import { isMobile } from '../../utils/device';
 import { checkTransaction } from '../../services/swap';
 import { getCurrentWallet } from '~utils/sender-wallet';
+import { ErrorTriangle } from '../icon/SwapRefresh';
 
 export enum TRANSACTION_WALLET_TYPE {
   NEAR_WALLET = 'transactionHashes',
@@ -54,20 +55,44 @@ export const getURLInfo = () => {
   };
 };
 
+export function SwapCheckIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16ZM12.5657 6.16569C12.8781 5.85327 12.8781 5.34673 12.5657 5.03431C12.2533 4.7219 11.7467 4.7219 11.4343 5.03431L7.2 9.26863L5.36569 7.43431C5.05327 7.1219 4.54673 7.1219 4.23431 7.43431C3.9219 7.74673 3.9219 8.25327 4.23431 8.56569L7.2 11.5314L12.5657 6.16569Z"
+        fill="#00FFD1"
+      />
+    </svg>
+  );
+}
+
 export const swapToast = (txHash: string) => {
   toast(
     <a
-      className="text-white w-full h-full pl-1.5"
+      className="text-white w-full h-full pl-1.5 flex items-center"
       href={`${getConfig().explorerUrl}/txns/${txHash}`}
       target="_blank"
       style={{
         lineHeight: '48px',
       }}
     >
-      <FormattedMessage
-        id="swap_successful_click_to_view"
-        defaultMessage="Swap successful. Click to view"
-      />
+      <span className="mr-2.5">
+        <SwapCheckIcon />
+      </span>
+      <span>
+        <FormattedMessage
+          id="swap_successful_click_to_view"
+          defaultMessage="Swap successful. Click to view"
+        />
+      </span>
     </a>,
     {
       autoClose: 8000,
@@ -90,23 +115,40 @@ export const swapToast = (txHash: string) => {
 export const failToast = (txHash: string, errorType?: string) => {
   toast(
     <a
-      className="text-error w-full h-full pl-1.5 py-1"
+      className="text-error w-full h-full pl-1.5 py-1 flex flex-col "
       href={`${getConfig().explorerUrl}/txns/${txHash}`}
       target="_blank"
       style={{
         lineHeight: '20px',
       }}
     >
-      <FormattedMessage
-        id="transaction_failed"
-        defaultMessage="Transaction failed"
-      />
-      {'. '}
-      <br />
-      <FormattedMessage id="Type" defaultMessage="Type" />: {` `}
-      {errorType}
-      {'. '}
-      <FormattedMessage id="click_to_view" defaultMessage="Click to view" />
+      <span className=" flex items-center">
+        <span className="mr-2.5">
+          <ErrorTriangle />
+        </span>
+
+        <span>
+          <FormattedMessage
+            id="transaction_failed"
+            defaultMessage="Transaction failed"
+          />
+          {'. '}
+        </span>
+      </span>
+
+      <span>
+        <FormattedMessage id="Type" defaultMessage="Type" />: {` `}
+        {errorType}
+        {'. '}
+        <span
+          className="underline decoration-1"
+          style={{
+            textDecorationThickness: '1px',
+          }}
+        >
+          <FormattedMessage id="click_to_view" defaultMessage="Click to view" />
+        </span>
+      </span>
     </a>,
     {
       autoClose: false,
@@ -120,6 +162,7 @@ export const failToast = (txHash: string, errorType?: string) => {
       style: {
         background: '#1D2932',
         boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
+        border: '1px solid #FF7575',
         borderRadius: '8px',
       },
     }
@@ -266,20 +309,28 @@ export const parsedTransactionSuccessValue = (res: any) => {
     return parsedData;
   }
 };
+
 export const usnBuyAndSellToast = (txHash: string) => {
   toast(
     <a
-      className="text-white w-full h-full pl-1.5"
+      className="text-white w-full h-full pl-1.5 flex items-center"
       href={`${getConfig().explorerUrl}/txns/${txHash}`}
       target="_blank"
       style={{
         lineHeight: '48px',
       }}
     >
-      <FormattedMessage
-        id="usn_successful_click_to_view"
-        defaultMessage="Swap successful. Click to view"
-      />
+      <span className="mr-2.5">
+        <SwapCheckIcon />
+      </span>
+
+      <span>
+        {' '}
+        <FormattedMessage
+          id="usn_successful_click_to_view"
+          defaultMessage="Swap successful. Click to view"
+        />
+      </span>
     </a>,
     {
       autoClose: 8000,
