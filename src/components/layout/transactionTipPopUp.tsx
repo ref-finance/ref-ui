@@ -77,21 +77,29 @@ export function SwapCheckIcon() {
 export const swapToast = (txHash: string) => {
   toast(
     <a
-      className="text-white w-full h-full pl-1.5 flex items-center"
+      className="text-white w-full h-full pl-1.5 text-sm"
       href={`${getConfig().explorerUrl}/txns/${txHash}`}
       target="_blank"
       style={{
-        lineHeight: '48px',
+        lineHeight: '40px',
       }}
     >
-      <span className="mr-2.5">
+      <span className="mr-2.5 ">
         <SwapCheckIcon />
       </span>
-      <span>
+      <span className="mr-1">
         <FormattedMessage
-          id="swap_successful_click_to_view"
-          defaultMessage="Swap successful. Click to view"
+          id="swap_successful"
+          defaultMessage="Swap successful. "
         />
+      </span>
+      <span
+        className="underline"
+        style={{
+          textDecorationThickness: '1px',
+        }}
+      >
+        <FormattedMessage id="click_to_view" defaultMessage="Click to view" />
       </span>
     </a>,
     {
@@ -107,6 +115,7 @@ export const swapToast = (txHash: string) => {
         background: '#1D2932',
         boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
         borderRadius: '8px',
+        minHeight: '0px',
       },
     }
   );
@@ -115,7 +124,7 @@ export const swapToast = (txHash: string) => {
 export const failToast = (txHash: string, errorType?: string) => {
   toast(
     <a
-      className="text-error w-full h-full pl-1.5 py-1 flex flex-col "
+      className="text-error w-full h-full pl-1.5 py-1 flex flex-col text-sm"
       href={`${getConfig().explorerUrl}/txns/${txHash}`}
       target="_blank"
       style={{
@@ -313,23 +322,29 @@ export const parsedTransactionSuccessValue = (res: any) => {
 export const usnBuyAndSellToast = (txHash: string) => {
   toast(
     <a
-      className="text-white w-full h-full pl-1.5 flex items-center"
+      className="text-white w-full h-full pl-1.5 flex flex-wrap items-center text-sm"
       href={`${getConfig().explorerUrl}/txns/${txHash}`}
       target="_blank"
       style={{
-        lineHeight: '48px',
+        lineHeight: '40px',
       }}
     >
-      <span className="mr-2.5">
+      <span className="mr-2.5 ">
         <SwapCheckIcon />
       </span>
-
-      <span>
-        {' '}
+      <span className="mr-1">
         <FormattedMessage
-          id="usn_successful_click_to_view"
-          defaultMessage="Swap successful. Click to view"
+          id="trading_successfull"
+          defaultMessage="Trading successful. "
         />
+      </span>
+      <span
+        className="underline"
+        style={{
+          textDecorationThickness: '1px',
+        }}
+      >
+        <FormattedMessage id="click_to_view" defaultMessage="Click to view" />
       </span>
     </a>,
     {
@@ -345,6 +360,7 @@ export const usnBuyAndSellToast = (txHash: string) => {
         background: '#1D2932',
         boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
         borderRadius: '8px',
+        minHeight: '0px',
       },
     }
   );

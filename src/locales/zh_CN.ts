@@ -601,5 +601,7 @@ const zh_CN = {
   endedFarmsUnstakeTip:
     'Unstaking will remove the stake from all active and pending farms of the same pair. ',
   comimg: 'Coming',
+  swap_successful: '交易成功. ',
+  trading_successfull: '交易成功. ',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

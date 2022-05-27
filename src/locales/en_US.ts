@@ -632,5 +632,7 @@ const en_US = {
   endedFarmsUnstakeTip:
     'Unstaking will remove the stake from all active and pending farms of the same pair. ',
   comimg: 'Coming',
+  swap_successful: 'Swap successful. ',
+  trading_successfull: 'Trading successful. ',
 };
 export default Object.assign(en_US, en_US_in_risks_page);
