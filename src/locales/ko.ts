@@ -563,6 +563,8 @@ const ko = {
   click: '딸깍 하는 소리',
   to_recover: '회복.',
   reward_apr: 'Rewards APR',
+  burrow_usn_tip: 'Burrow에서 USN을 빌릴 수 있습니다.',
+  borrow: '빌리다',
   stake_min_deposit: 'Input must be greater than or equal to ',
 };
 export default Object.assign(ko, ko_in_risks_page);

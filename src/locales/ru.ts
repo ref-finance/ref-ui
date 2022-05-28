@@ -562,6 +562,8 @@ const ru = {
   click: 'Нажмите',
   to_recover: 'выздороветь.',
   reward_apr: 'Rewards APR',
+  burrow_usn_tip: 'Вы можете взять USN у Burrow.',
+  borrow: 'Занимать',
   stake_min_deposit: 'Input must be greater than or equal to ',
 };
 export default Object.assign(ru, ru_in_risks_page);

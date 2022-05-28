@@ -564,5 +564,7 @@ const en_US = {
   to_recover: 'to recover.',
   reward_apr: 'Rewards APR',
   stake_min_deposit: 'Input must be greater than or equal to ',
+  borrow: 'Borrow',
+  burrow_usn_tip: 'You can borrow USN by Burrow.',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

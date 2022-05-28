@@ -81,7 +81,7 @@ import {
 } from '../../services/aurora/aurora';
 import { getURLInfo } from './transactionTipPopUp';
 import USNBuyComponent from '~components/forms/USNBuyComponent';
-import USNPage from '~components/usn/USNPage';
+import USNPage, { BorrowLinkCard } from '~components/usn/USNPage';
 import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '../../pages/SwapPage';
 
 const config = getConfig();
@@ -781,6 +781,72 @@ function MoreMenu() {
   );
 }
 
+function USNButton() {
+  const [USNButtonHover, setUSNButtonHover] = useState<boolean>(false);
+  const [showUSN, setShowUSN] = useState<boolean>(false);
+
+  const [showeBorrowCard, setShowBorrowCard] = useState(false);
+
+  return (
+    <div
+      onMouseEnter={() => setUSNButtonHover(true)}
+      onMouseLeave={() => setUSNButtonHover(false)}
+      className="relative lg:py-5 z-50"
+    >
+      <div className="mr-3">
+        <USNBuyComponent hover={USNButtonHover} />
+      </div>
+
+      {USNButtonHover ? (
+        <div className=" absolute pt-2 right-0 lg:top-14 xs:top-8 md:top-8 ">
+          <div
+            style={{
+              border: '1px solid #415462',
+              backdropFilter: 'blur(25px)',
+              WebkitBackdropFilter: 'blur(25px)',
+              background: '#323E46',
+            }}
+            onClick={() => setUSNButtonHover(false)}
+            className="py-2.5 px-1.5 text-sm  flex flex-col items-center rounded-xl z-50 text-primaryText "
+          >
+            <div
+              className="whitespace-nowrap px-4 py-2 hover:bg-black hover:bg-opacity-20 rounded-lg hover:text-white w-full cursor-pointer"
+              onClick={() => {
+                setShowBorrowCard(false);
+                setShowUSN(true);
+              }}
+            >
+              <FormattedMessage id="buy" defaultMessage="Buy" />
+            </div>
+
+            <div
+              className="whitespace-nowrap flex items-center px-4 py-2 hover:bg-black hover:bg-opacity-20 rounded-lg hover:text-white w-full cursor-pointer"
+              onClick={() => {
+                setShowBorrowCard(true);
+                setShowUSN(false);
+              }}
+            >
+              <span className="mr-1">
+                <FormattedMessage id="borrow" defaultMessage="Borrow" />
+              </span>
+              <span>
+                <HiOutlineExternalLink />
+              </span>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      <USNCard
+        showUSN={showUSN}
+        setShowUSN={setShowUSN}
+        showeBorrowCard={showeBorrowCard}
+        setShowBorrowCard={setShowBorrowCard}
+      />
+    </div>
+  );
+}
+
 function NavigationBar() {
   const [showWrapNear, setShowWrapNear] = useState(false);
   const { globalState } = useContext(WalletContext);
@@ -848,7 +914,6 @@ function NavigationBar() {
   const historyInit = useHistory();
   const setPatheState = () =>
     setPathnameState(window.location.pathname !== '/account');
-  const [showUSN, setShowUSN] = useState(false);
 
   useEffect(() => {
     const _historyWrap = function (type: any) {
@@ -961,34 +1026,7 @@ function NavigationBar() {
             <Anchor to="/risks" pattern="/risks" name="Risks" />
           </div>
           <div className="flex items-center justify-end flex-1">
-            <>
-              <div
-                className="mr-3"
-                onClick={() => {
-                  setShowUSN(true);
-                }}
-              >
-                <USNBuyComponent />
-              </div>
-              <USNPage
-                isOpen={showUSN}
-                onRequestClose={() => {
-                  setShowUSN(false);
-                }}
-                style={{
-                  overlay: {
-                    backdropFilter: 'blur(15px)',
-                    WebkitBackdropFilter: 'blur(15px)',
-                  },
-                  content: {
-                    outline: 'none',
-                    position: 'fixed',
-                    width: 550,
-                    bottom: '50%',
-                  },
-                }}
-              ></USNPage>
-            </>
+            <USNButton />
             {isSignedIn && (
               <div className="flex items-center text-white">
                 <div
@@ -1054,3 +1092,58 @@ function NavigationBar() {
   );
 }
 export default NavigationBar;
+
+export function USNCard({
+  showUSN,
+  setShowUSN,
+  showeBorrowCard,
+  setShowBorrowCard,
+}: {
+  showUSN: boolean;
+  setShowUSN: (e: boolean) => void;
+  showeBorrowCard: boolean;
+  setShowBorrowCard: (e: boolean) => void;
+}) {
+  return (
+    <>
+      <USNPage
+        isOpen={showUSN}
+        onRequestClose={() => {
+          setShowUSN(false);
+        }}
+        style={{
+          overlay: {
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
+          },
+          content: {
+            outline: 'none',
+            position: 'fixed',
+            width: isMobile() ? '98%' : 550,
+            bottom: '50%',
+          },
+        }}
+      ></USNPage>
+
+      <BorrowLinkCard
+        isOpen={showeBorrowCard}
+        onRequestClose={() => {
+          setShowBorrowCard(false);
+        }}
+        style={{
+          overlay: {
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
+          },
+          content: {
+            outline: 'none',
+            position: 'fixed',
+            width: isMobile() ? '98%' : 550,
+
+            bottom: '50%',
+          },
+        }}
+      />
+    </>
+  );
+}
