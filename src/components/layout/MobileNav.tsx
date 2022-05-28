@@ -840,12 +840,7 @@ function MobileUSNButton({
   const [btnTouched, setBtcTouched] = useState<string>('');
 
   return (
-    <div
-      className="text-primaryText"
-      onClick={() => {
-        setShow(false);
-      }}
-    >
+    <div className="text-primaryText">
       <div className="flex p-5 justify-between items-center">
         <USNBuyComponent></USNBuyComponent>
 
