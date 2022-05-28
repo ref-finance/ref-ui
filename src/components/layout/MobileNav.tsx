@@ -841,13 +841,13 @@ function MobileUSNButton({
 
   return (
     <div className="text-primaryText">
-      <div className="flex p-5 justify-between items-center">
+      <div className="flex p-5 justify-between items-center text-sm">
         <USNBuyComponent></USNBuyComponent>
 
         <div className="ml-3 w-full flex items-center">
-          <button className="pr-3 border-r-2 border-white border-opacity-10">
+          <button className="pr-2.5 border-r-2 border-white border-opacity-10">
             <div
-              className={`rounded-lg bg-black bg-opacity-20 border border-transparent px-4 py-1 ${
+              className={`rounded-lg bg-black bg-opacity-20 border border-transparent px-3 py-1 ${
                 btnTouched === 'buy'
                   ? 'border border-gradientFrom text-white'
                   : ''
@@ -868,9 +868,9 @@ function MobileUSNButton({
             </div>
           </button>
 
-          <button className="pl-3">
+          <button className="pl-2.5">
             <div
-              className={`rounded-lg bg-black bg-opacity-20 border border-transparent px-4 py-1 ${
+              className={`rounded-lg bg-black bg-opacity-20 border border-transparent px-3 py-1 ${
                 btnTouched === 'borrow'
                   ? 'border border-gradientFrom text-white'
                   : ''
