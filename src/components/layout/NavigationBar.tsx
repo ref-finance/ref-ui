@@ -815,6 +815,7 @@ function USNButton() {
               onClick={() => {
                 setShowBorrowCard(false);
                 setShowUSN(true);
+                setUSNButtonHover(false);
               }}
             >
               <FormattedMessage id="buy" defaultMessage="Buy" />
@@ -825,6 +826,7 @@ function USNButton() {
               onClick={() => {
                 setShowBorrowCard(true);
                 setShowUSN(false);
+                setUSNButtonHover(false);
               }}
             >
               <span className="mr-1">
@@ -1111,6 +1113,7 @@ export function USNCard({
         isOpen={showUSN}
         onRequestClose={() => {
           setShowUSN(false);
+          setShowBorrowCard(false);
         }}
         style={{
           overlay: {
@@ -1129,6 +1132,7 @@ export function USNCard({
       <BorrowLinkCard
         isOpen={showeBorrowCard}
         onRequestClose={() => {
+          setShowUSN(false);
           setShowBorrowCard(false);
         }}
         style={{

@@ -837,34 +837,31 @@ function MobileUSNButton({
   showeBorrowCard,
   setShowUSN,
 }: any) {
+  const [btnTouched, setBtcTouched] = useState<string>('');
+
   return (
     <div className="text-primaryText">
-      <div
-        className="flex p-5 justify-between items-center"
-        onClick={() => {
-          setShow(false);
-          setMobileWrapNear(false);
-        }}
-      >
+      <div className="flex p-5 justify-between items-center">
         <USNBuyComponent></USNBuyComponent>
 
         <div className="ml-3 w-full flex items-center">
           <button className="pr-3 border-r-2 border-white border-opacity-10">
             <div
-              className="rounded-lg bg-black bg-opacity-20 border border-transparent px-4 py-1"
+              className={`rounded-lg bg-black bg-opacity-20 border border-transparent px-4 py-1 ${
+                btnTouched === 'buy'
+                  ? 'border border-gradientFrom text-white'
+                  : ''
+              }`}
               onTouchStart={(e) => {
-                //@ts-ignore
-                e.target.setAttribute(
-                  'style',
-                  'border: 1px solid #00C6A2;color:white'
-                );
+                setBtcTouched('buy');
 
                 setShowUSN(true);
                 setShowBorrowCard(false);
               }}
               onTouchEnd={(e) => {
-                //@ts-ignore
-                e.target.setAttribute('style', 'none');
+                setBtcTouched('');
+                setShow(false);
+                setMobileWrapNear(false);
               }}
             >
               <FormattedMessage id="buy" defaultMessage="Buy" />
@@ -873,19 +870,20 @@ function MobileUSNButton({
 
           <button className="pl-3">
             <div
-              className="rounded-lg bg-black bg-opacity-20 border border-transparent px-4 py-1 "
+              className={`rounded-lg bg-black bg-opacity-20 border border-transparent px-4 py-1 ${
+                btnTouched === 'borrow'
+                  ? 'border border-gradientFrom text-white'
+                  : ''
+              }`}
               onTouchStart={(e) => {
-                //@ts-ignore
-                e.target.setAttribute(
-                  'style',
-                  'border: 1px solid #00C6A2;color:white'
-                );
+                setBtcTouched('borrow');
                 setShowUSN(false);
                 setShowBorrowCard(true);
               }}
               onTouchEnd={(e) => {
-                //@ts-ignore
-                e.target.setAttribute('style', 'none');
+                setBtcTouched('');
+                setShow(false);
+                setMobileWrapNear(false);
               }}
             >
               <FormattedMessage id="borrow" defaultMessage="Borrow" />
