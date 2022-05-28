@@ -573,6 +573,8 @@ const vi = {
   reward_apr: 'Rewards APR',
   price_board: 'Price board',
   close: 'close',
+  borrow: 'Vay',
+  burrow_usn_tip: 'Bạn có thể mượn USN của Burrow.',
   stake_min_deposit: 'Input must be greater than or equal to ',
 };
 export default Object.assign(vi, vi_in_risks_page);

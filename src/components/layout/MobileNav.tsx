@@ -54,7 +54,11 @@ const config = getConfig();
 import { isMobile } from '~utils/device';
 import { getCurrentWallet, getAccountName } from '../../utils/sender-wallet';
 import { FarmDot } from '../icon/FarmStamp';
-import { AccountTipDownByAccountID, AuroraEntry } from './NavigationBar';
+import {
+  AccountTipDownByAccountID,
+  AuroraEntry,
+  USNCard,
+} from './NavigationBar';
 import { ConnectDot } from '../icon/CrossSwapIcons';
 import USNBuyComponent from '~components/forms/USNBuyComponent';
 import USNPage from '~components/usn/USNPage';
@@ -380,7 +384,10 @@ export function MobileNavBar(props: any) {
   const isSignedIn = globalState.isSignedIn;
 
   const [showTip, setShowTip] = useState<boolean>(false);
-  const [showUSN, setShowUSN] = useState(false);
+  const [USNButtonHover, setUSNButtonHover] = useState<boolean>(false);
+  const [showUSN, setShowUSN] = useState<boolean>(false);
+
+  const [showeBorrowCard, setShowBorrowCard] = useState(false);
 
   useEffect(() => {
     setShowTip(hasBalanceOnRefAccount);
@@ -619,6 +626,7 @@ export function MobileNavBar(props: any) {
                     onClick={() => {
                       setMobileWrapNear(true);
                       setShowUSN(false);
+                      setShowBorrowCard(false);
                     }}
                   >
                     <WNEARExchngeIcon width="75" height="32" />
@@ -644,38 +652,14 @@ export function MobileNavBar(props: any) {
                   />
                 </div>
               )}
-              <div className="text-primaryText">
-                <div
-                  className="flex p-5 justify-between items-center"
-                  onClick={() => {
-                    setShowUSN(true);
-                    setShow(false);
-                    setMobileWrapNear(false);
-                  }}
-                >
-                  <USNBuyComponent></USNBuyComponent>
-                </div>
-                <USNPage
-                  isOpen={showUSN}
-                  onRequestClose={() => {
-                    setShowUSN(false);
-                  }}
-                  style={{
-                    overlay: {
-                      backdropFilter: 'blur(15px)',
-                      WebkitBackdropFilter: 'blur(15px)',
-                    },
-                    content: {
-                      outline: 'none',
-                      position: 'fixed',
-                      width: '98%',
-                      left: '1%',
-                      bottom: '50%',
-                      transform: null,
-                    },
-                  }}
-                ></USNPage>
-              </div>
+              <MobileUSNButton
+                setShow={setShow}
+                setMobileWrapNear={setMobileWrapNear}
+                showUSN={showUSN}
+                setShowBorrowCard={setShowBorrowCard}
+                showeBorrowCard={showeBorrowCard}
+                setShowUSN={setShowUSN}
+              />
               {moreLinks.map(
                 ({
                   id,
@@ -842,5 +826,79 @@ export function MobileNavBar(props: any) {
       </div>
       {isMobile ? <Marquee></Marquee> : null}
     </>
+  );
+}
+
+function MobileUSNButton({
+  setShow,
+  setMobileWrapNear,
+  showUSN,
+  setShowBorrowCard,
+  showeBorrowCard,
+  setShowUSN,
+}: any) {
+  return (
+    <div className="text-primaryText">
+      <div
+        className="flex p-5 justify-between items-center"
+        onClick={() => {
+          setShow(false);
+          setMobileWrapNear(false);
+        }}
+      >
+        <USNBuyComponent></USNBuyComponent>
+
+        <div className="ml-3 w-full flex items-center">
+          <button className="pr-3 border-r-2 border-white border-opacity-10">
+            <div
+              className="rounded-lg bg-black bg-opacity-20 border border-transparent px-4 py-1"
+              onTouchStart={(e) => {
+                //@ts-ignore
+                e.target.setAttribute(
+                  'style',
+                  'border: 1px solid #00C6A2;color:white'
+                );
+
+                setShowUSN(true);
+                setShowBorrowCard(false);
+              }}
+              onTouchEnd={(e) => {
+                //@ts-ignore
+                e.target.setAttribute('style', 'none');
+              }}
+            >
+              <FormattedMessage id="buy" defaultMessage="Buy" />
+            </div>
+          </button>
+
+          <button className="pl-3">
+            <div
+              className="rounded-lg bg-black bg-opacity-20 border border-transparent px-4 py-1 "
+              onTouchStart={(e) => {
+                //@ts-ignore
+                e.target.setAttribute(
+                  'style',
+                  'border: 1px solid #00C6A2;color:white'
+                );
+                setShowUSN(false);
+                setShowBorrowCard(true);
+              }}
+              onTouchEnd={(e) => {
+                //@ts-ignore
+                e.target.setAttribute('style', 'none');
+              }}
+            >
+              <FormattedMessage id="borrow" defaultMessage="Borrow" />
+            </div>
+          </button>
+        </div>
+      </div>
+      <USNCard
+        showUSN={showUSN}
+        setShowBorrowCard={setShowBorrowCard}
+        showeBorrowCard={showeBorrowCard}
+        setShowUSN={setShowUSN}
+      />
+    </div>
   );
 }

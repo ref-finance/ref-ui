@@ -564,6 +564,8 @@ const ru = {
   reward_apr: 'Rewards APR',
   price_board: 'Price board',
   close: 'close',
+  burrow_usn_tip: 'Вы можете взять USN у Burrow.',
+  borrow: 'Занимать',
   stake_min_deposit: 'Input must be greater than or equal to ',
 };
 export default Object.assign(ru, ru_in_risks_page);

@@ -576,5 +576,7 @@ const ja = {
   price_board: 'Price board',
   close: 'close',
   stake_min_deposit: 'Input must be greater than or equal to ',
+  borrow: '借りる',
+  burrow_usn_tip: 'USNはBurrowで借りることができます。',
 };
 export default Object.assign(ja, ja_in_risks_page);
