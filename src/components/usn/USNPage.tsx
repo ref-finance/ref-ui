@@ -37,7 +37,7 @@ export function BorrowLinkCard(props: ReactModal.Props) {
       <div className="swap w-full">
         <section className="lg:w-560px md:w-5/6 xs:w-full xs:p-2 m-auto relative">
           <div
-            className="rounded-2xl border flex items-center flex-col border-gradientFrom p-7 bg-cardBg "
+            className="rounded-2xl xs:rounded-lg md:rounded-lg border border-opacity-50 flex items-center flex-col border-gradientFrom p-7 bg-cardBg "
             style={{
               height: isMobile() ? '510px' : '500px',
             }}
