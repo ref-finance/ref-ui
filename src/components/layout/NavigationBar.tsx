@@ -807,7 +807,6 @@ function USNButton() {
               WebkitBackdropFilter: 'blur(25px)',
               background: '#323E46',
             }}
-            onClick={() => setUSNButtonHover(false)}
             className="py-2.5 px-1.5 text-sm  flex flex-col items-center rounded-xl z-50 text-primaryText "
           >
             <div

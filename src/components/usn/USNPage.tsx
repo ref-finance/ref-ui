@@ -62,7 +62,9 @@ export function BorrowLinkCard(props: ReactModal.Props) {
 
             <SolidButton
               className="flex items-center justify-center  text-xl py-3 w-4/5"
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 window.open('https://app.burrow.cash/', '_blank');
               }}
             >
