@@ -867,6 +867,8 @@ export const defaultConfig = {
 };
 
 export const frontConfig = {
+  '3020': '100',
+  '3433': '99',
   '79': '98',
 };
 export const farmClassification = {
