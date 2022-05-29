@@ -151,7 +151,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '456',
           '494',
         ],
-
+        USN_ID: 'usdn.testnet',
         STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 356,
         STABLE_TOKEN_IDS: [
           'usdt.fakes.testnet',
