@@ -385,6 +385,16 @@ export const getFarmsCount = (poolId: string | number, farms: any) => {
   return count;
 };
 
+export const getEndedFarmsCount = (poolId: string | number, farms: any) => {
+  const count = farms.reduce((pre: number, cur: any) => {
+    if (Number(cur.pool_id) === Number(poolId) && cur.status === 'Ended')
+      return pre + 1;
+    return pre;
+  }, 0);
+
+  return count;
+};
+
 export const canFarm = async (
   pool_id: number,
   withEnded?: boolean

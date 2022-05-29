@@ -41,11 +41,15 @@ import { usePoolTVL, useYourliquidity } from '../../state/pool';
 import { multiply, divide } from '../../utils/numbers';
 import { STABLE_POOL_USN_ID, isStablePool } from '../../services/near';
 import { STABLE_POOL_ID } from '../../services/near';
-import { isNotStablePool, getFarmsCount } from '../../services/pool';
+import {
+  isNotStablePool,
+  getFarmsCount,
+  getEndedFarmsCount,
+} from '../../services/pool';
 import { WalletContext, getSenderLoginRes } from '../../utils/sender-wallet';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import { useStabelPoolData } from '../../state/sauce';
-import { useFarmStake, useAllFarms } from '../../state/farm';
+import { useFarmStake, useAllFarms, useCanFarmV2 } from '../../state/farm';
 
 function MyShares({
   shares,
@@ -57,6 +61,7 @@ function MyShares({
   farmStakeV1 = '0',
   farmStakeV2 = '0',
   userTotalShare,
+  onlyEndedFarmV2,
 }: {
   shares: string;
   totalShares: string;
@@ -66,10 +71,14 @@ function MyShares({
   supportFarmV2: Number;
   farmStakeV1: string | number;
   farmStakeV2: string | number;
-
+  onlyEndedFarmV2: boolean;
   userTotalShare: BigNumber;
 }) {
   if (!shares || !totalShares) return <div>-</div>;
+
+  if (poolId == 1) {
+    console.log(supportFarmV2);
+  }
 
   let sharePercent = percent(userTotalShare.valueOf(), totalShares);
 
@@ -118,7 +127,7 @@ function MyShares({
         <object>
           <Link
             to={{
-              pathname: '/farmsBoost',
+              pathname: `/farmsBoost/${poolId}-${onlyEndedFarmV2 ? 'e' : 'r'}`,
             }}
             target="_blank"
             onClick={(e) => {
@@ -274,6 +283,14 @@ export function YourLiquidityPage() {
               </div>
               <div className="max-h-96 overflow-y-auto">
                 {stablePools.map((p) => {
+                  const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
+
+                  const supportFarmV2 = getFarmsCount(p.id.toString(), v2Farm);
+
+                  const endedFarmV2 = getEndedFarmsCount(
+                    p.id.toString(),
+                    v2Farm
+                  );
                   return (
                     <div
                       className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
@@ -282,28 +299,47 @@ export function YourLiquidityPage() {
                       <PoolRow
                         pool={p}
                         tokens={p.tokenIds.map((id) => tokensMeta[id]) || []}
-                        supportFarmV1={getFarmsCount(p.id.toString(), v1Farm)}
-                        supportFarmV2={getFarmsCount(p.id.toString(), v2Farm)}
+                        supportFarmV1={supportFarmV1}
+                        supportFarmV2={supportFarmV2}
+                        onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
                       />
                     </div>
                   );
                 })}
 
-                {pools.map((pool, i) => (
-                  <div
-                    key={i}
-                    className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
-                  >
-                    <PoolRow
-                      pool={pool}
-                      tokens={
-                        pool.token_account_ids.map((id) => tokensMeta[id]) || []
-                      }
-                      supportFarmV1={getFarmsCount(pool.id.toString(), v1Farm)}
-                      supportFarmV2={getFarmsCount(pool.id.toString(), v2Farm)}
-                    />
-                  </div>
-                ))}
+                {pools.map((pool, i) => {
+                  const supportFarmV1 = getFarmsCount(
+                    pool.id.toString(),
+                    v1Farm
+                  );
+
+                  const supportFarmV2 = getFarmsCount(
+                    pool.id.toString(),
+                    v2Farm
+                  );
+
+                  const endedFarmV2 = getEndedFarmsCount(
+                    pool.id.toString(),
+                    v2Farm
+                  );
+                  return (
+                    <div
+                      key={i}
+                      className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
+                    >
+                      <PoolRow
+                        pool={pool}
+                        tokens={
+                          pool.token_account_ids.map((id) => tokensMeta[id]) ||
+                          []
+                        }
+                        supportFarmV1={supportFarmV1}
+                        supportFarmV2={supportFarmV2}
+                        onlyEndedFarmV2={supportFarmV2 === endedFarmV2}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </section>
@@ -319,25 +355,37 @@ export function YourLiquidityPage() {
       stablePoolsData.some((pd) => Number(pd.userTotalShare) > 0) ? (
         <div className="lg:hidden">
           {stablePools.map((p) => {
+            const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
+
+            const supportFarmV2 = getFarmsCount(p.id.toString(), v2Farm);
+
+            const endedFarmV2 = getEndedFarmsCount(p.id.toString(), v2Farm);
             return (
               <PoolRow
                 pool={p}
                 key={Number(p.id)}
                 tokens={p.tokenIds.map((id) => tokensMeta[id]) || []}
-                supportFarmV1={getFarmsCount(p.id.toString(), v1Farm)}
-                supportFarmV2={getFarmsCount(p.id.toString(), v2Farm)}
+                supportFarmV1={supportFarmV1}
+                supportFarmV2={supportFarmV2}
+                onlyEndedFarmV2={supportFarmV2 === endedFarmV2}
               />
             );
           })}
 
-          {pools.map((pool, i) => {
+          {pools.map((p, i) => {
+            const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
+
+            const supportFarmV2 = getFarmsCount(p.id.toString(), v2Farm);
+
+            const endedFarmV2 = getEndedFarmsCount(p.id.toString(), v2Farm);
             return (
               <PoolRow
-                pool={pool}
+                pool={p}
                 key={i}
-                tokens={pool.token_account_ids.map((id) => tokensMeta[id])}
-                supportFarmV1={getFarmsCount(pool.id.toString(), v1Farm)}
-                supportFarmV2={getFarmsCount(pool.id.toString(), v2Farm)}
+                tokens={p.token_account_ids.map((id) => tokensMeta[id])}
+                supportFarmV1={supportFarmV1}
+                supportFarmV2={supportFarmV2}
+                onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
               />
             );
           })}
@@ -356,6 +404,7 @@ function PoolRow(props: {
   tokens: TokenMetadata[];
   supportFarmV1: number;
   supportFarmV2: number;
+  onlyEndedFarmV2: boolean;
 }) {
   const tokens = props.tokens;
 
@@ -516,6 +565,7 @@ function PoolRow(props: {
             farmStakeV1={farmStakeV1}
             farmStakeV2={farmStakeV2}
             supportFarmV2={supportFarmV2}
+            onlyEndedFarmV2={props.onlyEndedFarmV2}
           />
         </div>
 
@@ -619,6 +669,7 @@ function PoolRow(props: {
                 userTotalShare={userTotalShare}
                 farmStakeV1={farmStakeV1}
                 farmStakeV2={farmStakeV2}
+                onlyEndedFarmV2={props.onlyEndedFarmV2}
               />
             </div>
           </div>
