@@ -96,12 +96,14 @@ export const ShareInFarmV2 = ({
   forStable,
   version,
   poolId,
+  onlyEndedFarm,
 }: {
   farmStake: string | number;
   userTotalShare: BigNumber;
   forStable?: boolean;
   version?: string;
   poolId?: number;
+  onlyEndedFarm?: boolean;
 }) => {
   const farmShare = Number(farmStake).toLocaleString('fullwide', {
     useGrouping: false,
@@ -132,7 +134,11 @@ export const ShareInFarmV2 = ({
           <FormattedMessage id="in" defaultMessage="in" />
         </span>
         <Link
-          to={poolId ? `/farmsBoost/${poolId}-r` : '/farms'}
+          to={
+            poolId
+              ? `/farmsBoost/${poolId}-${onlyEndedFarm ? 'e' : 'r'}`
+              : '/farms'
+          }
           target="_blank"
           className="flex items-center cursor-pointer justify-end"
           style={{

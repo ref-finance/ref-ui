@@ -434,9 +434,16 @@ export const canFarmV1 = async (
     return pre;
   }, 0);
 
+  const endedCount = farms.reduce((pre, cur) => {
+    if (cur.status === 'Ended' && Number(cur.pool_id) === pool_id)
+      return pre + 1;
+    return pre;
+  }, 0);
+
   return {
     count,
     version: 'V1',
+    endedCount,
   };
 };
 
@@ -459,9 +466,16 @@ export const canFarmV2 = async (
     return pre;
   }, 0);
 
+  const endedCount = boostFarms.reduce((pre, cur) => {
+    if (cur.status === 'Ended' && Number(cur.pool_id) === pool_id)
+      return pre + 1;
+    return pre;
+  }, 0);
+
   return {
     count: countV2,
     version: 'V2',
+    endedCount,
   };
 };
 

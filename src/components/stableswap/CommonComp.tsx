@@ -87,9 +87,12 @@ export const Symbols = ({
 };
 
 export function SharesCard({ shares, pool }: { shares: string; pool: Pool }) {
-  const { farmCount: countV1 } = useCanFarmV1(pool.id);
+  const { farmCount: countV1 } = useCanFarmV1(pool.id, true);
 
-  const { farmCount: countV2 } = useCanFarmV2(pool.id);
+  const { farmCount: countV2, endedFarmCount: endedFarmCountV2 } = useCanFarmV2(
+    pool.id,
+    true
+  );
 
   const { farmStakeV1, farmStakeV2, userTotalShare } = useYourliquidity(
     pool.id
@@ -127,6 +130,7 @@ export function SharesCard({ shares, pool }: { shares: string; pool: Pool }) {
               userTotalShare={userTotalShare}
               version={'V2'}
               poolId={pool.id}
+              onlyEndedFarm={endedFarmCountV2 === countV2}
             />
           ) : null}
         </div>

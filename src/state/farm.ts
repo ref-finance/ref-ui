@@ -41,32 +41,38 @@ export const useCanFarm = (poolId: number) => {
   return { farmCount, farmVersion };
 };
 
-export const useCanFarmV1 = (poolId: number) => {
-  const [farmCount, setFarmCount] = useState<Number>(0);
+export const useCanFarmV1 = (poolId: number, withEnded?: boolean) => {
+  const [farmCount, setFarmCount] = useState<number>(0);
   const [farmVersion, setFarmVersion] = useState<string>('');
+  const [endedFarmCount, setEndedFarmCount] = useState<number>(0);
 
   useEffect(() => {
-    canFarmV1(poolId).then(({ count, version }) => {
+    canFarmV1(poolId, withEnded).then(({ count, version, endedCount }) => {
       setFarmCount(count);
       setFarmVersion(version);
+      setEndedFarmCount(endedCount);
     });
   }, [poolId]);
 
-  return { farmCount, farmVersion };
+  return { farmCount, farmVersion, endedFarmCount };
 };
 
-export const useCanFarmV2 = (poolId: number) => {
-  const [farmCount, setFarmCount] = useState<Number>(0);
+export const useCanFarmV2 = (poolId: number, withEnded?: boolean) => {
+  const [farmCount, setFarmCount] = useState<number>(0);
+
+  const [endedFarmCount, setEndedFarmCount] = useState<number>(0);
+
   const [farmVersion, setFarmVersion] = useState<string>('');
 
   useEffect(() => {
-    canFarmV2(poolId).then(({ count, version }) => {
+    canFarmV2(poolId, withEnded).then(({ count, version, endedCount }) => {
       setFarmCount(count);
       setFarmVersion(version);
+      setEndedFarmCount(endedCount);
     });
   }, [poolId]);
 
-  return { farmCount, farmVersion };
+  return { farmCount, farmVersion, endedFarmCount };
 };
 
 export const useAllFarms = () => {

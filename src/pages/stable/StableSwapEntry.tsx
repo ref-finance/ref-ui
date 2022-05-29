@@ -155,13 +155,23 @@ function StablePoolCard({
 
   const isSignedIn = globalState.isSignedIn;
 
-  const { farmCount: countV1 } = useCanFarmV1(stablePool.id);
-  const { farmCount: countV2 } = useCanFarmV2(stablePool.id);
+  const { farmCount: countV1, endedFarmCount: endedFarmCountV1 } = useCanFarmV1(
+    stablePool.id,
+    true
+  );
+  const { farmCount: countV2, endedFarmCount: endedFarmCountV2 } = useCanFarmV2(
+    stablePool.id,
+    true
+  );
 
   const haveFarm = !!countV1 || !!countV2;
-  const multiMining = true;
 
-  // const multiMining = false;
+  const multiMining =
+    countV2 > 0
+      ? countV2 - endedFarmCountV2 > 1
+      : countV1 - endedFarmCountV1 > 1;
+
+  const onlyEndedFarmsV2 = endedFarmCountV2 === countV2;
 
   return (
     <div className="w-full flex flex-col relative overflow-hidden rounded-2xl">
@@ -177,7 +187,11 @@ function StablePoolCard({
           } pl-3 absolute -right-5 -top-8 pr-8 pt-8   rounded-2xl text-black text-xs bg-gradientFrom `}
         >
           <Link
-            to={countV2 ? `/farmsBoost/${stablePool.id}-r` : '/farms'}
+            to={
+              countV2
+                ? `/farmsBoost/${stablePool.id}-${onlyEndedFarmsV2 ? 'e' : 'r'}`
+                : '/farms'
+            }
             target={'_blank'}
             className="flex items-center"
           >
@@ -258,7 +272,12 @@ function StablePoolCard({
                     </Link>
                   )}
                   {countV2 > 0 && (
-                    <Link to={`/farmsBoost/${stablePool.id}-r`} target="_blank">
+                    <Link
+                      to={`/farmsBoost/${stablePool.id}-${
+                        onlyEndedFarmsV2 ? 'e' : 'r'
+                      }`}
+                      target="_blank"
+                    >
                       <ShareInFarm
                         farmStake={farmStakeV2}
                         userTotalShare={userTotalShare}
