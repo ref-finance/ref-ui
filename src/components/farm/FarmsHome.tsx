@@ -897,7 +897,10 @@ function FarmView(props: {
       pending_farms.forEach((farm: FarmBoost) => {
         lastList.push({
           rewardToken: farm.token_meta_data,
-          apr: farm.apr,
+          apr: new BigNumber(farm.apr || 0)
+            .multipliedBy(100)
+            .toFixed()
+            .toString(),
           startTime: farm.terms.start_at,
           pending: true,
         });
