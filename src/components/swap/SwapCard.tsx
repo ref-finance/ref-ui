@@ -68,7 +68,7 @@ import { getTokenPriceList } from '../../services/indexer';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import { isStableToken } from '../../services/near';
 import TokenReserves from '../stableswap/TokenReserves';
-import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -84,6 +84,18 @@ export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
 
 export const SUPPORT_LEDGER_KEY = 'REF_FI_SUPPORT_LEDGER';
+
+export const unWrapTokenId = (id: string) => {
+  if (id === WRAP_NEAR_CONTRACT_ID) {
+    return 'near';
+  } else return id;
+};
+
+export const wrapTokenId = (id: string) => {
+  if (id === 'near') {
+    return WRAP_NEAR_CONTRACT_ID;
+  } else return id;
+};
 
 export function SwapDetail({
   title,
@@ -560,8 +572,10 @@ export default function SwapCard(props: {
   useEffect(() => {
     if (allTokens) {
       if (swapMode === SWAP_MODE.NORMAL) {
-        const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
-        const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
+        const rememberedIn =
+          wrapTokenId(urlTokenIn) || localStorage.getItem(SWAP_IN_KEY);
+        const rememberedOut =
+          wrapTokenId(urlTokenOut) || localStorage.getItem(SWAP_OUT_KEY);
 
         const candTokenIn =
           allTokens.find((token) => token.id === rememberedIn) || allTokens[0];
@@ -831,7 +845,9 @@ export default function SwapCard(props: {
             );
             swapMode === SWAP_MODE.NORMAL &&
               history.replace(
-                `#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`
+                `#${unWrapTokenId(
+                  token.id
+                )}${TOKEN_URL_SEPARATOR}${unWrapTokenId(tokenOut.id)}`
               );
             setTokenIn(token);
             setCanSwap(false);
@@ -870,7 +886,9 @@ export default function SwapCard(props: {
               localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
               localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
               history.replace(
-                `#${tokenOut.id}${TOKEN_URL_SEPARATOR}${tokenIn.id}`
+                `#${unWrapTokenId(
+                  tokenOut.id
+                )}${TOKEN_URL_SEPARATOR}${unWrapTokenId(tokenIn.id)}`
               );
             }}
           />
@@ -894,7 +912,9 @@ export default function SwapCard(props: {
             );
             swapMode === SWAP_MODE.NORMAL &&
               history.replace(
-                `#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`
+                `#${unWrapTokenId(
+                  tokenIn.id
+                )}${TOKEN_URL_SEPARATOR}${unWrapTokenId(token.id)}`
               );
             setTokenOut(token);
             setCanSwap(false);

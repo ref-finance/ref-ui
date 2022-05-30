@@ -67,7 +67,8 @@ import { getTokenPriceList } from '../../services/indexer';
 import { TokenCardOut, CrossSwapTokens } from '../forms/TokenAmount';
 import { CrossSwapFormWrap } from '../forms/SwapFormWrap';
 import { TriIcon, RefIcon, WannaIconDark } from '../icon/DexIcon';
-import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { unWrapTokenId, wrapTokenId } from './SwapCard';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -415,8 +416,10 @@ export default function CrossSwapCard(props: {
   }, []);
 
   useEffect(() => {
-    const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
-    const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
+    const rememberedIn =
+      wrapTokenId(urlTokenIn) || localStorage.getItem(SWAP_IN_KEY);
+    const rememberedOut =
+      wrapTokenId(urlTokenOut) || localStorage.getItem(SWAP_OUT_KEY);
 
     if (allTokens) {
       setTokenIn(
@@ -646,7 +649,11 @@ export default function CrossSwapCard(props: {
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_IN_KEY, token.id);
             setTokenIn(token);
-            history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
+            history.replace(
+              `#${unWrapTokenId(token.id)}${TOKEN_URL_SEPARATOR}${unWrapTokenId(
+                tokenOut.id
+              )}`
+            );
           }}
           amount={tokenInAmount}
           hidden={requested}
@@ -665,7 +672,9 @@ export default function CrossSwapCard(props: {
               localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
               localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
               history.replace(
-                `#${tokenOut.id}${TOKEN_URL_SEPARATOR}${tokenIn.id}`
+                `#${unWrapTokenId(
+                  tokenOut.id
+                )}${TOKEN_URL_SEPARATOR}${unWrapTokenId(tokenIn.id)}`
               );
             }}
           />
@@ -677,7 +686,11 @@ export default function CrossSwapCard(props: {
           onSelectToken={(token) => {
             setTokenOut(token);
             localStorage.setItem(SWAP_OUT_KEY, token.id);
-            history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`);
+            history.replace(
+              `#${unWrapTokenId(
+                tokenIn.id
+              )}${TOKEN_URL_SEPARATOR}${unWrapTokenId(token.id)}`
+            );
           }}
           balances={balances}
           tokenPriceList={tokenPriceList}
