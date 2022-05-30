@@ -6,15 +6,14 @@ export default function USNBuyComponent({ hover }: { hover?: boolean }) {
   return (
     <div className="flex items-end cursor-pointer">
       <div
-        className={`flex items-center text-xs  rounded-full xs:hidden ${
+        className={`flex items-center text-xs text-chartBg  rounded-full xs:hidden ${
           hover
-            ? 'bg-stableTab text-chartBg border-0'
-            : 'bg-black bg-opacity-20 text-primaryText  border border-gradientFrom'
+            ? 'bg-gradient-to-b from-senderHot to-gradientFrom'
+            : 'bg-gradientFrom'
         }      
          h-5 -mr-4 pl-2 pr-5 relative`}
         style={{
           bottom: '2px',
-          width: '50px',
         }}
       >
         <FormattedMessage id="get" defaultMessage="Get"></FormattedMessage>
