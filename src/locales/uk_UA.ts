@@ -551,7 +551,7 @@ const uk_UA = {
   price_board: 'Price board',
   close: 'close',
   borrow: 'Позичати',
-  burrow_usn_tip: 'Ви можете позичити USN від Burrow.',
+  burrow_usn_tip: 'Ви можете позичити USN на Burrow.',
   stake_min_deposit: 'Input must be greater than or equal to ',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

@@ -56,7 +56,7 @@ export function BorrowLinkCard(props: ReactModal.Props) {
             <div className="text-white text-sm text-center pb-5">
               <FormattedMessage
                 id="burrow_usn_tip"
-                defaultMessage={'You can borrow USN by Burrow.'}
+                defaultMessage={'You can borrow USN on Burrow.'}
               ></FormattedMessage>
             </div>
 

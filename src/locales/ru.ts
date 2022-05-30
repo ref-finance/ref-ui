@@ -564,7 +564,7 @@ const ru = {
   reward_apr: 'Rewards APR',
   price_board: 'Price board',
   close: 'close',
-  burrow_usn_tip: 'Вы можете взять USN у Burrow.',
+  burrow_usn_tip: 'Вы можете одолжить USN на Burrow.',
   borrow: 'Занимать',
   stake_min_deposit: 'Input must be greater than or equal to ',
 };
