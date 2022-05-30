@@ -134,7 +134,12 @@ function App() {
   // for usn start
   const isSignedIn = globalState.isSignedIn;
   useEffect(() => {
-    if (txHash && isSignedIn) {
+    if (
+      txHash &&
+      isSignedIn &&
+      pathname !== '/farms' &&
+      pathname.indexOf('farmsBoost') === -1
+    ) {
       checkTransaction(txHash)
         .then((res: any) => {
           const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;

@@ -89,6 +89,12 @@ import { scientificNotationToString } from '../../utils/numbers';
 import { getPrice } from '~services/xref';
 import { get24hVolume } from '~services/indexer';
 import { PoolRPCView } from '~services/api';
+import { checkTransaction } from '../../services/swap';
+import {
+  getURLInfo,
+  usnBuyAndSellToast,
+  swapToast,
+} from '../../components/layout/transactionTipPopUp';
 
 const config = getConfig();
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
@@ -156,6 +162,51 @@ export function FarmsPage() {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const history = useHistory();
+
+  const [popUp, setPopUp] = useState(false);
+
+  const { txHash, pathname, errorType } = getURLInfo();
+
+  useEffect(() => {
+    if (txHash && isSignedIn && pathname === '/farms' && popUp) {
+      checkTransaction(txHash)
+        .then((res: any) => {
+          const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
+
+          const isSlippageError = res.receipts_outcome.some((outcome: any) => {
+            return slippageErrorPattern.test(
+              outcome?.outcome?.status?.Failure?.ActionError?.kind
+                ?.FunctionCallError?.ExecutionError
+            );
+          });
+          const transaction = res.transaction;
+          const methodName =
+            transaction?.actions[0]?.['FunctionCall']?.method_name;
+          return {
+            isUSN: methodName == 'buy' || methodName == 'sell',
+            isSlippageError,
+            isNearWithdraw: methodName == 'near_withdraw',
+            isNearDeposit: methodName == 'near_deposit',
+          };
+        })
+        .then(({ isUSN, isSlippageError, isNearWithdraw, isNearDeposit }) => {
+          if (isUSN || isNearWithdraw || isNearDeposit) {
+            isUSN &&
+              !isSlippageError &&
+              !errorType &&
+              usnBuyAndSellToast(txHash);
+            (isNearWithdraw || isNearDeposit) &&
+              !errorType &&
+              swapToast(txHash);
+            window.history.replaceState(
+              {},
+              '',
+              window.location.origin + pathname
+            );
+          }
+        });
+    }
+  }, [txHash, isSignedIn, popUp]);
 
   useEffect(() => {
     loadFarmInfoList(false, isSignedIn).then();
@@ -337,6 +388,7 @@ export function FarmsPage() {
       }
     }
     setUnclaimedFarmsIsLoading(false);
+    setPopUp(true);
     getTokenSinglePrice(farms, rewardList, tokenPriceList);
     const [mergeFarms, commonSeedFarms] = composeFarms(farms);
     searchByCondition(mergeFarms, commonSeedFarms);

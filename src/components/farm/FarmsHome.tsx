@@ -62,6 +62,12 @@ import Loading, { BeatLoading } from '~components/layout/Loading';
 import { TokenMetadata } from '../../services/ft-contract';
 import { getPrice } from '~services/xref';
 import { get24hVolume } from '~services/indexer';
+import {
+  getURLInfo,
+  usnBuyAndSellToast,
+  swapToast,
+} from '../layout/transactionTipPopUp';
+import { checkTransaction } from '../../services/stable-swap';
 const { STABLE_POOL_IDS, REF_TOKEN_ID, XREF_TOKEN_ID } = getConfig();
 const DECIMALS_XREF_REF_TRANSTER = 8;
 export default function FarmsHome(props: any) {
@@ -78,6 +84,55 @@ export default function FarmsHome(props: any) {
     []
   );
 
+  const { globalState } = useContext(WalletContext);
+
+  const isSignedIn = globalState.isSignedIn;
+
+  const [popUp, setPopUp] = useState(false);
+
+  const { txHash, pathname, errorType } = getURLInfo();
+
+  useEffect(() => {
+    if (txHash && isSignedIn && popUp) {
+      checkTransaction(txHash)
+        .then((res: any) => {
+          const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
+
+          const isSlippageError = res.receipts_outcome.some((outcome: any) => {
+            return slippageErrorPattern.test(
+              outcome?.outcome?.status?.Failure?.ActionError?.kind
+                ?.FunctionCallError?.ExecutionError
+            );
+          });
+          const transaction = res.transaction;
+          const methodName =
+            transaction?.actions[0]?.['FunctionCall']?.method_name;
+          return {
+            isUSN: methodName == 'buy' || methodName == 'sell',
+            isSlippageError,
+            isNearWithdraw: methodName == 'near_withdraw',
+            isNearDeposit: methodName == 'near_deposit',
+          };
+        })
+        .then(({ isUSN, isSlippageError, isNearWithdraw, isNearDeposit }) => {
+          if (isUSN || isNearWithdraw || isNearDeposit) {
+            isUSN &&
+              !isSlippageError &&
+              !errorType &&
+              usnBuyAndSellToast(txHash);
+            (isNearWithdraw || isNearDeposit) &&
+              !errorType &&
+              swapToast(txHash);
+            window.history.replaceState(
+              {},
+              '',
+              window.location.origin + pathname
+            );
+          }
+        });
+    }
+  }, [txHash, isSignedIn, popUp]);
+
   const [showEndedFarmList, setShowEndedFarmList] = useState(
     localStorage.getItem('endedfarmShow') == '1' ? true : false
   );
@@ -85,8 +140,7 @@ export default function FarmsHome(props: any) {
     getUrlParams() ? false : true
   );
   const intl = useIntl();
-  const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
+
   const [noData, setNoData] = useState(false);
   const [count, setCount] = useState(0);
   const [dayVolumeMap, setDayVolumeMap] = useState({});
@@ -558,6 +612,7 @@ export default function FarmsHome(props: any) {
       setNoData(noDataLive);
     }
     setHomePageLoading(false);
+    setPopUp(true)
     set_farm_display_List(farm_display_List);
     set_farm_display_ended_List(Array.from(farm_display_ended_List));
     set_farm_classification_display_list(specified_display_classification);
