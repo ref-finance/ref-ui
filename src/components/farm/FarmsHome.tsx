@@ -203,8 +203,12 @@ export default function FarmsHome(props: any) {
   async function getAllPoolsDayVolume(list_seeds: Seed[]) {
     const tempMap = {};
     const poolIds: string[] = [];
+    const seedIds: string[] = [];
     list_seeds.forEach((seed: Seed) => {
-      poolIds.push(seed.pool.id.toString());
+      seedIds.push(seed.seed_id);
+    });
+    seedIds.forEach((seedId: string) => {
+      poolIds.push(seedId.split('@')[1]);
     });
     // get24hVolume
     const promisePoolIds = poolIds.map((poolId: string) => {
