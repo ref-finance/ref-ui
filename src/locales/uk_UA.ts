@@ -549,7 +549,7 @@ const uk_UA = {
   to_recover: 'для відновлення.',
   reward_apr: 'Rewards APR',
   price_board: 'Price board',
-  close: 'close',
+  close: 'Close',
   borrow: 'Позичати',
   burrow_usn_tip: 'Ви можете позичити USN на Burrow.',
   stake_min_deposit: 'Input must be greater than or equal to ',

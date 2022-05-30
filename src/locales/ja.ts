@@ -574,7 +574,7 @@ const ja = {
   to_recover: '回復する。',
   reward_apr: 'Rewards APR',
   price_board: 'Price board',
-  close: 'close',
+  close: 'Close',
   stake_min_deposit: 'Input must be greater than or equal to ',
   borrow: '借りる',
   burrow_usn_tip: 'あなたはBurrowでUSNを借りることができます。',
