@@ -79,6 +79,7 @@ import { FaAngleUp, FaAngleDown } from 'react-icons/fa';
 import { useDayVolume } from '../../state/pool';
 import { getPool } from '~services/indexer';
 import CalcModelBooster from '~components/farm/CalcModelBooster';
+import { get24hVolume } from '~services/indexer';
 import moment from 'moment';
 const ONLY_ZEROS = /^0*\.?0*$/;
 const { STABLE_POOL_IDS, FARM_LOCK_SWITCH } = getConfig();
@@ -174,6 +175,7 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
   const [lpBalance, setLpBalance] = useState('0');
   const [showAddLiquidityEntry, setShowAddLiquidityEntry] = useState(false);
   const [calcVisible, setCalcVisible] = useState(false);
+  const [dayVolume, setDayVolume] = useState('');
   const { detailData, tokenPriceList } = props;
   const pool = detailData.pool;
   const intl = useIntl();
@@ -321,7 +323,12 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
   }
   useEffect(() => {
     getStakeBalance();
+    getPoolFee();
   }, []);
+  async function getPoolFee() {
+    const fee = await get24hVolume(pool.id.toString());
+    setDayVolume(fee);
+  }
   const getStakeBalance = async () => {
     if (!isSignedIn) {
       setShowAddLiquidityEntry(false);
@@ -341,9 +348,13 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
       }
     }
   };
-  function getTotalApr() {
+  function getTotalApr(containPoolFee: boolean = true) {
     const farms = detailData.farmList;
     let apr = 0;
+    let day24Volume = 0;
+    if (containPoolFee) {
+      day24Volume = +getPoolFeeApr(dayVolume);
+    }
     const allPendingFarms = isPending();
     farms.forEach(function (item: FarmBoost) {
       const pendingFarm = item.status == 'Created' || item.status == 'Pending';
@@ -351,18 +362,34 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
         apr = +new BigNumber(apr).plus(item.apr).toFixed();
       }
     });
-    if (apr == 0) {
+    if (apr == 0 && day24Volume == 0) {
       return '-';
     } else {
-      apr = +new BigNumber(apr).multipliedBy(100).toFixed();
+      apr = +new BigNumber(apr).multipliedBy(100).plus(day24Volume).toFixed();
       return toPrecision(apr.toString(), 2) + '%';
     }
+  }
+  function getPoolFeeApr(dayVolume: string) {
+    let result = '0';
+    if (dayVolume) {
+      const { total_fee, tvl } = detailData.pool;
+      const revenu24h = (total_fee / 10000) * 0.8 * Number(dayVolume);
+      if (tvl > 0 && revenu24h > 0) {
+        const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
+        result = toPrecision(annualisedFeesPrct.toString(), 2);
+      }
+    }
+    return result;
   }
   function getAprTip() {
     const tempList = detailData.farmList;
     const lastList: any[] = [];
     const pending_farms: FarmBoost[] = [];
     const no_pending_farms: FarmBoost[] = [];
+    const day24Volume = getPoolFeeApr(dayVolume);
+    const totalApr = getTotalApr(false);
+    const txt1 = intl.formatMessage({ id: 'pool_fee_apr' });
+    const txt2 = intl.formatMessage({ id: 'reward_apr' });
     tempList.forEach((farm: FarmBoost) => {
       if (farm.status == 'Created') {
         pending_farms.push(farm);
@@ -399,6 +426,19 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
     }
     // show last display string
     let result: string = '';
+    result = `
+    <div class="flex items-center justify-between">
+      <span class="text-xs text-navHighLightText mr-3">${txt1}</span>
+      <span class="text-sm text-white font-bold">${
+        +day24Volume > 0 ? day24Volume + '%' : '-'
+      }</span>
+    </div>
+    <div class="flex justify-end text-white text-sm font-bold ">+</div>
+    <div class="flex items-center justify-between ">
+      <span class="text-xs text-navHighLightText mr-3">${txt2}</span>
+      <span class="text-sm text-white font-bold">${totalApr}</span>
+    </div>
+    `;
     lastList.forEach((item: any) => {
       const { rewardToken, apr, pending, startTime } = item;
       const token = rewardToken;
@@ -2321,6 +2361,11 @@ function StakeModal(props: {
       // return toPrecision(final_x.toString(), 2);
     }
   }
+  function appendTip() {
+    const tip = intl.formatMessage({ id: 'appendTip' });
+    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    return result;
+  }
   const finalMuti = FinalMuti();
   const isDisabled =
     !amount ||
@@ -2487,9 +2532,30 @@ function StakeModal(props: {
                   <div
                     className={`flex justify-between items-center w-full mb-3.5`}
                   >
-                    <span className="text-farmText text-sm">
-                      <FormattedMessage id="stake_for"></FormattedMessage>
-                    </span>
+                    <div className="flex items-center">
+                      <span className="text-farmText text-sm">
+                        <FormattedMessage id="stake_for"></FormattedMessage>
+                      </span>
+                      <div
+                        className={`text-white text-right ml-1 ${
+                          Number(locked_amount) > 0 ? '' : 'hidden'
+                        }`}
+                        data-class="reactTip"
+                        data-for={'durationId'}
+                        data-place="top"
+                        data-html={true}
+                        data-tip={appendTip()}
+                      >
+                        <QuestionMark></QuestionMark>
+                        <ReactTooltip
+                          id={'durationId'}
+                          backgroundColor="#1D2932"
+                          border
+                          borderColor="#7e8a93"
+                          effect="solid"
+                        />
+                      </div>
+                    </div>
                     <span className="text-white text-sm">
                       {selectedLockData?.month || '-'} M
                     </span>

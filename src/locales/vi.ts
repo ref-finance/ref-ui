@@ -640,6 +640,7 @@ const vi = {
   endedFarmsUnstakeTip:
     'Unstaking will remove the stake from all active and pending farms of the same pair. ',
   comimg: 'Coming',
+  appendTip: 'Cannot be earlier than current locking time',
   swap_successful: 'Hoán đổi thành công. ',
   trading_successfull: 'Giao dịch thành công. ',
 };

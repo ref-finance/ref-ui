@@ -602,6 +602,7 @@ const uk_UA = {
   endedFarmsUnstakeTip:
     'Unstaking will remove the stake from all active and pending farms of the same pair. ',
   comimg: 'Coming',
+  appendTip: 'Cannot be earlier than current locking time',
   swap_successful: 'Обмін успішно. ',
   trading_successfull: 'Торгівля успішна. ',
 };

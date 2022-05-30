@@ -642,6 +642,7 @@ const ja = {
   endedFarmsUnstakeTip:
     'Unstaking will remove the stake from all active and pending farms of the same pair. ',
   comimg: 'Coming',
+  appendTip: 'Cannot be earlier than current locking time',
   swap_successful: 'スワップが成功しました。 ',
   trading_successfull: '取引は成功しました。 ',
 };

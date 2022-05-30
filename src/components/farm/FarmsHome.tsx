@@ -612,7 +612,7 @@ export default function FarmsHome(props: any) {
       setNoData(noDataLive);
     }
     setHomePageLoading(false);
-    setPopUp(true)
+    setPopUp(true);
     set_farm_display_List(farm_display_List);
     set_farm_display_ended_List(Array.from(farm_display_ended_List));
     set_farm_classification_display_list(specified_display_classification);
@@ -886,7 +886,7 @@ function FarmView(props: {
   const history = useHistory();
   const intl = useIntl();
 
-  function getTotalApr() {
+  function getTotalApr(containPoolFee: boolean = true) {
     const farms = seed.farmList;
     let apr = 0;
     const allPendingFarms = isPending();
@@ -897,7 +897,9 @@ function FarmView(props: {
       }
     });
     let dayVolume = 0;
-    dayVolume = +getPoolFeeApr(dayVolumeMap[seed.pool.id]);
+    if (containPoolFee) {
+      dayVolume = +getPoolFeeApr(dayVolumeMap[seed.pool.id]);
+    }
     if (apr == 0 && dayVolume == 0) {
       return '-';
     } else {
@@ -938,7 +940,7 @@ function FarmView(props: {
     const pending_farms: FarmBoost[] = [];
     const no_pending_farms: FarmBoost[] = [];
     const dayVolume = getPoolFeeApr(dayVolumeMap[seed.pool.id]);
-    const totalApr = getTotalApr();
+    const totalApr = getTotalApr(false);
     const txt1 = intl.formatMessage({ id: 'pool_fee_apr' });
     const txt2 = intl.formatMessage({ id: 'reward_apr' });
     tempList.forEach((farm: FarmBoost) => {
