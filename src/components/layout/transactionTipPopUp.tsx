@@ -77,7 +77,7 @@ export function SwapCheckIcon() {
 export const swapToast = (txHash: string) => {
   toast(
     <a
-      className="text-white w-full h-full pl-1.5 text-sm"
+      className="text-white w-full h-full pl-1.5 text-sm flex flex-wrap items-center"
       href={`${getConfig().explorerUrl}/txns/${txHash}`}
       target="_blank"
       style={{
