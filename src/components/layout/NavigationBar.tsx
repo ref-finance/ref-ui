@@ -1158,6 +1158,8 @@ export function USNCard({
             position: 'fixed',
             width: isMobile() ? '98%' : 550,
             bottom: '50%',
+            left: '1%',
+            transform: null,
           },
         }}
       ></USNPage>
