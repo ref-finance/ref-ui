@@ -532,6 +532,10 @@ const zh_CN = {
   click: '点击',
   to_recover: '来取回.',
   reward_apr: '奖励年化收益率',
+  price_board: '价格面板',
+  close: '关闭',
   stake_min_deposit: '输入的值必须大于或等于 ',
+  borrow: '借',
+  burrow_usn_tip: '你可以通过Burrow来借USN.',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

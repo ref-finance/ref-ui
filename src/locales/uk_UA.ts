@@ -543,11 +543,15 @@ const uk_UA = {
   total_usd_value: 'Загальна вартість доларів США',
   bitcoin_value: 'Вартість біткойна',
   stable_coin_value: 'Вартість стейблкоіна',
-  pool_fee_apr: 'Pool fee APR',
+  pool_fee_apr: 'Pool fee APY',
   ref_account_balance_tip_mobile: 'У вашому обліковому записі REF є токени.',
   click: 'Натисніть',
   to_recover: 'для відновлення.',
   reward_apr: 'Rewards APR',
+  price_board: 'Price board',
+  close: 'close',
+  borrow: 'Позичати',
+  burrow_usn_tip: 'Ви можете позичити USN від Burrow.',
   stake_min_deposit: 'Input must be greater than or equal to ',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

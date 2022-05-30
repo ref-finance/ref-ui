@@ -1650,7 +1650,7 @@ function FarmView({
         <img
           key={id + index}
           className={
-            'h-11 w-11 rounded-full border border-gradientFromHover ' +
+            'h-11 w-11 rounded-full border border-gradientFromHover bg-cardBg ' +
             (index != 0 ? '-ml-1.5' : '')
           }
           src={icon}

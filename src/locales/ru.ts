@@ -556,12 +556,16 @@ const ru = {
   total_usd_value: 'Общая стоимость в долларах США',
   bitcoin_value: 'Стоимость биткойнов',
   stable_coin_value: 'Стоимость стейблкоина',
-  pool_fee_apr: 'Pool fee APR',
+  pool_fee_apr: 'Pool fee APY',
   ref_account_balance_tip_mobile:
     'У вас есть токены в вашей учетной записи REF.',
   click: 'Нажмите',
   to_recover: 'выздороветь.',
   reward_apr: 'Rewards APR',
+  price_board: 'Price board',
+  close: 'close',
+  burrow_usn_tip: 'Вы можете взять USN у Burrow.',
+  borrow: 'Занимать',
   stake_min_deposit: 'Input must be greater than or equal to ',
 };
 export default Object.assign(ru, ru_in_risks_page);

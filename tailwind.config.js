@@ -99,6 +99,8 @@ module.exports = {
         lightGreenColor: '#70d44b',
         tabChosen: '#4A5862',
         liqBtn: '#141D24',
+        priceBoardColor: '#172128',
+        lightRedColor: '#FF7575',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
