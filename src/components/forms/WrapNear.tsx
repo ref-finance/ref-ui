@@ -25,6 +25,7 @@ import SubmitButton from './SubmitButton';
 import TokenAmount from './TokenAmount';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { SwapExchange } from '../icon/Arrows';
+import SelectToken from './SelectToken';
 
 function WrapNear(props: ReactModal.Props) {
   const [showError, setShowError] = useState(false);
@@ -157,6 +158,7 @@ function WrapNear(props: ReactModal.Props) {
             onChangeAmount={(amount) => {
               setTokenInAmount(amount);
             }}
+            forWrap
           />
           <div
             className="flex items-center justify-center border-t mt-12 mb-3"

@@ -47,6 +47,7 @@ interface TokenAmountProps {
   preSelected?: TokenMetadata;
   postSelected?: TokenMetadata;
   onSelectPost?: (token: TokenMetadata) => void;
+  forWrap?: boolean;
 }
 
 export function HalfAndMaxAmount({
@@ -118,6 +119,7 @@ export default function TokenAmount({
   preSelected,
   postSelected,
   onSelectPost,
+  forWrap,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) =>
     toRoundedReadableNumber({
@@ -130,7 +132,7 @@ export default function TokenAmount({
   const tokenPrice = tokenPriceList?.[selectedToken?.id]?.price || null;
 
   const curMax =
-    selectedToken?.id === WRAP_NEAR_CONTRACT_ID
+    selectedToken?.id === WRAP_NEAR_CONTRACT_ID && !forWrap
       ? Number(max) <= 0.5
         ? '0'
         : String(Number(max) - 0.5)
