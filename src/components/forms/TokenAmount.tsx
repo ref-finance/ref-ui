@@ -162,7 +162,7 @@ export default function TokenAmount({
           className="w-3/5 border border-transparent rounded"
           id="inputAmount"
           name={selectedToken?.id}
-          max={curMax}
+          max={onChangeAmount ? curMax : null}
           value={amount}
           onChangeAmount={onChangeAmount}
           disabled={disabled}
