@@ -61,6 +61,7 @@ import Alert from '~components/alert/Alert';
 import Loading, { BeatLoading } from '~components/layout/Loading';
 import { TokenMetadata } from '../../services/ft-contract';
 import { getPrice } from '~services/xref';
+import { get24hVolume } from '~services/indexer';
 const { STABLE_POOL_IDS, REF_TOKEN_ID, XREF_TOKEN_ID } = getConfig();
 const DECIMALS_XREF_REF_TRANSTER = 8;
 export default function FarmsHome(props: any) {
@@ -88,6 +89,7 @@ export default function FarmsHome(props: any) {
   const isSignedIn = globalState.isSignedIn;
   const [noData, setNoData] = useState(false);
   const [count, setCount] = useState(0);
+  const [dayVolumeMap, setDayVolumeMap] = useState({});
   const searchRef = useRef(null);
   const refreshTime = 120000;
   const sortList = {
@@ -188,6 +190,7 @@ export default function FarmsHome(props: any) {
         break;
       }
     }
+    getAllPoolsDayVolume(list_seeds);
     /** get xref price end */
     getFarmDataList({
       list_seeds,
@@ -196,6 +199,24 @@ export default function FarmsHome(props: any) {
       pools,
       list_user_seeds,
     });
+  }
+  async function getAllPoolsDayVolume(list_seeds: Seed[]) {
+    const tempMap = {};
+    const poolIds: string[] = [];
+    list_seeds.forEach((seed: Seed) => {
+      poolIds.push(seed.pool.id.toString());
+    });
+    // get24hVolume
+    const promisePoolIds = poolIds.map((poolId: string) => {
+      return get24hVolume(poolId);
+    });
+    try {
+      const resolvedResult = await Promise.all(promisePoolIds);
+      poolIds.forEach((poolId: string, index: number) => {
+        tempMap[poolId] = resolvedResult[index];
+      });
+      setDayVolumeMap(tempMap);
+    } catch (error) {}
   }
   async function getFarmDataList(initData: any) {
     const { list_seeds, list_farm, tokenPriceList, pools, list_user_seeds } =
@@ -551,9 +572,15 @@ export default function FarmsHome(props: any) {
     farms.forEach(function (item: FarmBoost) {
       const pendingFarm = item.status == 'Created' || item.status == 'Pending';
       if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
-        apr += Number(item.apr);
+        apr = +new BigNumber(item.apr).plus(apr).toFixed();
       }
     });
+
+    // get pool fee apy
+    const poolApy = dayVolumeMap[seed.pool.id];
+    if (poolApy) {
+      apr = +new BigNumber(poolApy).plus(apr).toFixed();
+    }
     return apr;
   }
   function isPending(seed: Seed) {
@@ -728,6 +755,7 @@ export default function FarmsHome(props: any) {
                           seed={seed}
                           tokenPriceList={tokenPriceList}
                           getDetailData={getDetailData}
+                          dayVolumeMap={dayVolumeMap}
                         ></FarmView>
                       </div>
                     );
@@ -756,6 +784,7 @@ export default function FarmsHome(props: any) {
                     seed={seed}
                     tokenPriceList={tokenPriceList}
                     getDetailData={getDetailData}
+                    dayVolumeMap={dayVolumeMap}
                   ></FarmView>
                 </div>
               );
@@ -784,8 +813,9 @@ function FarmView(props: {
   seed: Seed;
   tokenPriceList: Record<string, any>;
   getDetailData: any;
+  dayVolumeMap: Record<string, any>;
 }) {
-  const { seed, tokenPriceList, getDetailData } = props;
+  const { seed, tokenPriceList, getDetailData, dayVolumeMap } = props;
   const { pool, seedTvl, total_seed_amount, user_seed } = seed;
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -807,10 +837,12 @@ function FarmView(props: {
         apr = +new BigNumber(apr).plus(item.apr).toFixed();
       }
     });
-    if (apr == 0) {
+    let dayVolume = 0;
+    dayVolume = +getPoolFeeApr(dayVolumeMap[seed.pool.id]);
+    if (apr == 0 && dayVolume == 0) {
       return '-';
     } else {
-      apr = +new BigNumber(apr).multipliedBy(100).toFixed();
+      apr = +new BigNumber(apr).multipliedBy(100).plus(dayVolume).toFixed();
       return toPrecision(apr.toString(), 2) + '%';
     }
   }
@@ -846,6 +878,10 @@ function FarmView(props: {
     const lastList: any[] = [];
     const pending_farms: FarmBoost[] = [];
     const no_pending_farms: FarmBoost[] = [];
+    const dayVolume = getPoolFeeApr(dayVolumeMap[seed.pool.id]);
+    const totalApr = getTotalApr();
+    const txt1 = intl.formatMessage({ id: 'pool_fee_apr' });
+    const txt2 = intl.formatMessage({ id: 'reward_apr' });
     tempList.forEach((farm: FarmBoost) => {
       if (farm.status == 'Created') {
         pending_farms.push(farm);
@@ -879,6 +915,19 @@ function FarmView(props: {
     }
     // show last display string
     let result: string = '';
+    result = `
+    <div class="flex items-center justify-between">
+      <span class="text-xs text-navHighLightText mr-3">${txt1}</span>
+      <span class="text-sm text-white font-bold">${
+        +dayVolume > 0 ? dayVolume + '%' : '-'
+      }</span>
+    </div>
+    <div class="flex justify-end text-white text-sm font-bold ">+</div>
+    <div class="flex items-center justify-between ">
+      <span class="text-xs text-navHighLightText mr-3">${txt2}</span>
+      <span class="text-sm text-white font-bold">${totalApr}</span>
+    </div>
+    `;
     lastList.forEach((item: any) => {
       const { rewardToken, apr, pending, startTime } = item;
       const token = rewardToken;
@@ -907,6 +956,18 @@ function FarmView(props: {
       }
       result += itemHtml;
     });
+    return result;
+  }
+  function getPoolFeeApr(dayVolume: string) {
+    let result = '0';
+    if (dayVolume) {
+      const { total_fee, tvl } = seed.pool;
+      const revenu24h = (total_fee / 10000) * 0.8 * Number(dayVolume);
+      if (tvl > 0 && revenu24h > 0) {
+        const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
+        result = toPrecision(annualisedFeesPrct.toString(), 2);
+      }
+    }
     return result;
   }
   function getUnClaimTip() {
