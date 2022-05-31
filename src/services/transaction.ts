@@ -83,6 +83,15 @@ export const parseAction = async (
     case 'call': {
       return await parseCall(tokenId);
     }
+    case 'force_unlock': {
+      return await forceUnlock(params);
+    }
+    case 'unlock_and_withdraw_seed': {
+      return await unlockAndWithdrawSeed(params);
+    }
+    case 'lock_free_seed': {
+      return await lockFreeSeed(params);
+    }
     default: {
       return await parseDefault();
     }
@@ -239,17 +248,24 @@ const parseMtfTransferCall = async (params: any) => {
   } catch (error) {
     params = {};
   }
-  const { amount, receiver_id, token_id } = params;
+  const { amount, receiver_id, token_id, msg } = params;
   const poolId = token_id.split(':')[1];
-  if (new Set(STABLE_POOL_IDS || []).has(poolId?.toString())) {
+  let extraData = {};
+  if (msg) {
+    const extraMsg = JSON.parse(msg.replace(/\\"/g, '"'));
+    if (extraMsg != 'Free') {
+      const duration_sec = extraMsg.Lock.duration_sec;
+      extraData['Month'] = duration_sec / 2592000 + 'M';
+    }
   }
   return {
-    Action: 'Stake',
+    Action: extraData['Month'] ? 'Lock' : 'Stake',
     Amount: new Set(STABLE_POOL_IDS || []).has(poolId?.toString())
       ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, amount)
       : toReadableNumber(24, amount),
     'Receiver Id': receiver_id,
     'Token Id': token_id,
+    ...extraData,
   };
 };
 const parseWithdrawSeed = async (params: any) => {
@@ -300,11 +316,15 @@ const parseWithdrawReward = async (params: any) => {
   }
   const { token_id, amount, unregister } = params;
   const token = await ftGetTokenMetadata(token_id);
+  const extraData = {};
+  if (amount) {
+    extraData['Amount'] = toReadableNumber(token.decimals, amount);
+    extraData['Unregister'] = unregister;
+  }
   return {
     Action: 'Withdraw Reward',
-    Amount: toReadableNumber(token.decimals, amount),
-    Unregister: unregister,
     'Token Id': token_id,
+    ...extraData,
   };
 };
 const parseNearDeposit = async () => {
@@ -477,6 +497,65 @@ const parseCall = async (tokenId: string) => {
       Action: 'Call',
     };
   }
+};
+const forceUnlock = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { seed_id, unlock_amount } = params;
+  const poolId = (seed_id || '').split('@')[1];
+  return {
+    Action: 'Force Unlock',
+    seedId: seed_id,
+    Amount: new Set(STABLE_POOL_IDS || []).has(poolId?.toString())
+      ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, unlock_amount)
+      : toReadableNumber(24, unlock_amount),
+  };
+};
+const unlockAndWithdrawSeed = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { seed_id, unlock_amount, withdraw_amount } = params;
+  const poolId = (seed_id || '').split('@')[1];
+  const extraData = {};
+  if (Number(withdraw_amount) > 0) {
+    extraData['Amount'] = new Set(STABLE_POOL_IDS || []).has(poolId?.toString())
+      ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, withdraw_amount)
+      : toReadableNumber(24, withdraw_amount);
+  }
+  if (Number(unlock_amount) > 0) {
+    extraData['Amount'] = new Set(STABLE_POOL_IDS || []).has(poolId?.toString())
+      ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, unlock_amount)
+      : toReadableNumber(24, unlock_amount);
+  }
+  return {
+    Action: Number(unlock_amount) > 0 ? 'Unlock' : 'Unstake',
+    seedId: seed_id,
+    ...extraData,
+  };
+};
+const lockFreeSeed = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { amount, seed_id, duration_sec } = params;
+  const poolId = (seed_id || '').split('@')[1];
+  const month = duration_sec / 2592000;
+  return {
+    Action: 'Lock Free Seed',
+    seedId: seed_id,
+    Amount: new Set(STABLE_POOL_IDS || []).has(poolId?.toString())
+      ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, amount)
+      : toReadableNumber(24, amount),
+    Month: month + 'M',
+  };
 };
 
 const parseDefault = async () => {

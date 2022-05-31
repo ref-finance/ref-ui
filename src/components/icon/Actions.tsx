@@ -722,6 +722,9 @@ const viewMap = {
   'Sell USN': Swap,
   'Buy USN': Swap,
   'Aurora Call': Withdraw,
+  'Force Unlock': RemoveLiquidity,
+  'Lock Free Seed': AddLiquidity,
+  Lock: AddLiquidity,
 };
 
 const blackViewMap = {
@@ -749,6 +752,9 @@ const blackViewMap = {
   'Sell USN': SwapBlack,
   'Buy USN': SwapBlack,
   'Aurora Call': WithdrawBlack,
+  'Force Unlock': RemoveLiquidityBlack,
+  'Lock Free Seed': AddLiquidityBlack,
+  Lock: AddLiquidityBlack,
 };
 
 export function mapToView(action: string, black = false): JSX.Element {
