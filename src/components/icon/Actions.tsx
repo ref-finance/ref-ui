@@ -722,7 +722,7 @@ const viewMap = {
   'Sell USN': Swap,
   'Buy USN': Swap,
   'Aurora Call': Withdraw,
-  'Force Unlock': RemoveLiquidity,
+  Unlock: RemoveLiquidity,
   'Lock Free Seed': AddLiquidity,
   Lock: AddLiquidity,
 };
@@ -752,7 +752,7 @@ const blackViewMap = {
   'Sell USN': SwapBlack,
   'Buy USN': SwapBlack,
   'Aurora Call': WithdrawBlack,
-  'Force Unlock': RemoveLiquidityBlack,
+  Unlock: RemoveLiquidityBlack,
   'Lock Free Seed': AddLiquidityBlack,
   Lock: AddLiquidityBlack,
 };

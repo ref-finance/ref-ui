@@ -507,7 +507,7 @@ const forceUnlock = async (params: any) => {
   const { seed_id, unlock_amount } = params;
   const poolId = (seed_id || '').split('@')[1];
   return {
-    Action: 'Force Unlock',
+    Action: 'Unlock',
     seedId: seed_id,
     Amount: new Set(STABLE_POOL_IDS || []).has(poolId?.toString())
       ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, unlock_amount)
