@@ -246,3 +246,19 @@ export const getLatestActions = async (): Promise<Array<ActionData>> => {
       return Promise.all(tasks);
     });
 };
+
+export const getListHistoryTokenPriceByIds = async (
+  tokenIds: string
+): Promise<any[]> => {
+  return await fetch(
+    config.indexerUrl + '/list-history-token-price-by-ids?ids=' + tokenIds,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((list) => {
+      return list;
+    });
+};

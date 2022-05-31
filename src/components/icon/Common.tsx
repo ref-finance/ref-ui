@@ -1586,6 +1586,68 @@ export function USNIcon() {
     </svg>
   );
 }
+export const PriceBoardIcon = () => {
+  return (
+    <svg
+      width="12"
+      height="7"
+      viewBox="0 0 12 7"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M1 5L4.10345 1.72727L7.2069 5L11 1"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+};
+export const PriceFloatUpIcon = () => {
+  return (
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M9.00002 1.12695L1 9"
+        stroke="currentColor"
+        strokeLinecap="round"
+      />
+      <path
+        d="M2.33398 1H9.00067V7.66668"
+        stroke="currentColor"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+};
+export const CloseRadiusIcon = () => {
+  return (
+    <svg
+      viewBox="0 0 1024 1024"
+      version="1.1"
+      xmlns="http://www.w3.org/2000/svg"
+      p-id="8709"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+      width="10"
+      height="10"
+    >
+      <defs>
+        <style type="text/css"></style>
+      </defs>
+      <path
+        d="M970.524444 174.08A85.333333 85.333333 0 0 0 849.92 53.475556L512 391.395556 174.08 53.475556A85.333333 85.333333 0 1 0 53.475556 174.08L391.395556 512 53.475556 849.92a85.333333 85.333333 0 1 0 120.604444 120.604444L512 632.604444l337.92 337.92a85.333333 85.333333 0 0 0 120.604444-120.604444L632.604444 512l337.92-337.92z"
+        p-id="8710"
+        fill="currentColor"
+      ></path>
+    </svg>
+  );
+};
 export {
   Learn_more,
   CloseBtn,

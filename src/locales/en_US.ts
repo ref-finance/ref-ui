@@ -558,7 +558,7 @@ const en_US = {
   total_usd_value: 'Total USD value',
   bitcoin_value: 'Bitcoin value',
   stable_coin_value: 'StableCoin value',
-  pool_fee_apr: 'Pool fee APR',
+  pool_fee_apr: 'Pool fee APY',
   ref_account_balance_tip_mobile: 'You have tokens in your REF account.',
   click: 'Click',
   to_recover: 'to recover.',
@@ -613,6 +613,8 @@ const en_US = {
   you_have: 'You have',
   tokens_small: 'tokens',
   reward_apr: 'Rewards APR',
+  price_board: 'Price board',
+  close: 'Close',
   stake_min_deposit: 'Input must be greater than or equal to ',
   unlock: 'Unlock',
   exit_fee: 'Exit fee',
@@ -635,5 +637,7 @@ const en_US = {
   appendTip: 'Cannot be earlier than current locking time',
   swap_successful: 'Swap successful. ',
   trading_successfull: 'Trading successful. ',
+  borrow: 'Borrow',
+  burrow_usn_tip: 'You can borrow USN on Burrow.',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

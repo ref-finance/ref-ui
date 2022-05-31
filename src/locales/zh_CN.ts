@@ -582,6 +582,8 @@ const zh_CN = {
   you_have: 'You have',
   tokens_small: 'tokens',
   reward_apr: '奖励年化收益率',
+  price_board: '价格面板',
+  close: '关闭',
   stake_min_deposit: '输入的值必须大于或等于 ',
   unlock: 'Unlock',
   exit_fee: 'Exit fee',
@@ -604,5 +606,7 @@ const zh_CN = {
   appendTip: 'Cannot be earlier than current locking time',
   swap_successful: '交易成功. ',
   trading_successfull: '交易成功. ',
+  borrow: '借',
+  burrow_usn_tip: '你可以通过Burrow来借USN.',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

@@ -121,7 +121,9 @@ module.exports = {
         lightGreyColor: '#92877D',
         dashBorderColor: '#6e7c85',
         freeTitleBg: '#404F59',
-        lockTitleBg:'#0094FF'
+        lockTitleBg:'#0094FF',
+        priceBoardColor: '#172128',
+        lightRedColor: '#FF7575',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

@@ -568,7 +568,7 @@ const ja = {
   total_usd_value: '合計米ドル値',
   bitcoin_value: 'ビットコインの価値',
   stable_coin_value: 'ステーブルコイン価値',
-  pool_fee_apr: 'Pool fee APR',
+  pool_fee_apr: 'Pool fee APY',
   ref_account_balance_tip_mobile: 'REFアカウントにトークンがあります。',
   click: 'クリック',
   to_recover: '回復する。',
@@ -623,6 +623,8 @@ const ja = {
   you_have: 'You have',
   tokens_small: 'tokens',
   reward_apr: 'Rewards APR',
+  price_board: 'Price board',
+  close: 'Close',
   stake_min_deposit: 'Input must be greater than or equal to ',
   unlock: 'Unlock',
   exit_fee: 'Exit fee',
@@ -645,5 +647,7 @@ const ja = {
   appendTip: 'Cannot be earlier than current locking time',
   swap_successful: 'スワップが成功しました。 ',
   trading_successfull: '取引は成功しました。 ',
+  borrow: '借りる',
+  burrow_usn_tip: 'あなたはBurrowでUSNを借りることができます。',
 };
 export default Object.assign(ja, ja_in_risks_page);
