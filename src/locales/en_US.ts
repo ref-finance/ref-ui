@@ -564,7 +564,7 @@ const en_US = {
   to_recover: 'to recover.',
   reward_apr: 'Rewards APR',
   price_board: 'Price board',
-  close: 'close',
+  close: 'Close',
   stake_min_deposit: 'Input must be greater than or equal to ',
   borrow: 'Borrow',
   burrow_usn_tip: 'You can borrow USN on Burrow.',

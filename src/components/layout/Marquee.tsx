@@ -22,17 +22,17 @@ export default function Marquee() {
   const [animationObj, setAnimationObj] = useState(null);
   const location = useLocation();
   const COMMON_BASSES = [
-    'USN',
     'wNEAR',
     'REF',
     'SKYWARD',
     'OCT',
     'STNEAR',
-    'USDT',
-    'USDC',
     'ETH',
-    'DAI',
     'WBTC',
+    'WOO',
+    'CELO',
+    'AURORA',
+    'LINEAR',
   ];
   const switchStatus = () => {
     const newStatus = !showMarquee;
@@ -176,7 +176,15 @@ export default function Marquee() {
                             Number(item.float_ratio) == 1 ? 'hidden' : ''
                           }`}
                         >
-                          <label className="mr-0.5">{item.float_ratio}%</label>
+                          <label
+                            className={`mr-0.5 ${
+                              Number(item.float_ratio) == 0
+                                ? 'text-primaryText'
+                                : ''
+                            }`}
+                          >
+                            {item.float_ratio}%
+                          </label>
                           <div
                             className={
                               Number(item.float_ratio) == 0 ? 'hidden' : ''

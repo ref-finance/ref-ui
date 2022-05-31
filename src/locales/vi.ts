@@ -572,7 +572,7 @@ const vi = {
   to_recover: 'để phục hồi.',
   reward_apr: 'Rewards APR',
   price_board: 'Price board',
-  close: 'close',
+  close: 'Close',
   borrow: 'Vay',
   burrow_usn_tip: 'Bạn có thể mượn USN trên Burrow.',
   stake_min_deposit: 'Input must be greater than or equal to ',

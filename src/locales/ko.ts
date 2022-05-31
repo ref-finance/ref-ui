@@ -564,7 +564,7 @@ const ko = {
   to_recover: '회복.',
   reward_apr: 'Rewards APR',
   price_board: 'Price board',
-  close: 'close',
+  close: 'Close',
   burrow_usn_tip: 'Burrow에서 USN을 빌릴 수 있습니다.',
   borrow: '빌리다',
   stake_min_deposit: 'Input must be greater than or equal to ',
