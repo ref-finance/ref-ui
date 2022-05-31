@@ -563,8 +563,12 @@ const en_US = {
   click: 'Click',
   to_recover: 'to recover.',
   reward_apr: 'Rewards APR',
+  price_board: 'Price board',
+  close: 'Close',
   stake_min_deposit: 'Input must be greater than or equal to ',
   total_near_amount: 'Total NEAR amount',
   near_value: 'NEAR Value',
+  borrow: 'Borrow',
+  burrow_usn_tip: 'You can borrow USN on Burrow.',
 };
 export default Object.assign(en_US, en_US_in_risks_page);
