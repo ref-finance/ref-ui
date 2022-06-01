@@ -349,7 +349,7 @@ export const batchWithdraw = async (tokenMap: any) => {
   });
   const ftBalanceList = await Promise.all(ftBalancePromiseList);
   ftBalanceList.forEach((ftBalance, index) => {
-    if (!ftBalance || ftBalance.total === '0') {
+    if (!ftBalance) {
       transactions.push({
         receiverId: tokenIdList[index],
         functionCalls: [
