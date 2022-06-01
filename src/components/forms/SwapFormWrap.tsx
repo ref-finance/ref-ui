@@ -164,9 +164,8 @@ export default function SwapFormWrap({
       ) : (
         <SubmitButton
           disabled={
-            // !canSubmit ||
-            // (typeof loadingTrigger !== 'undefined' && loadingTrigger)
-            false
+            !canSubmit ||
+            (typeof loadingTrigger !== 'undefined' && loadingTrigger)
           }
           label={buttonText || title}
           info={info}
