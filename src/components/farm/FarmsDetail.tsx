@@ -2463,8 +2463,27 @@ function StakeModal(props: {
               </div>
               {lockDataList.length == 1 ? null : (
                 <>
-                  <div className="text-farmText text-sm mb-5">
+                  <div className="flex items-center text-farmText text-sm mb-5">
                     <FormattedMessage id="stake_for"></FormattedMessage>
+                    <div
+                      className={`text-white text-right ml-1 ${
+                        Number(locked_amount) > 0 ? '' : 'hidden'
+                      }`}
+                      data-class="reactTip"
+                      data-for={'durationId'}
+                      data-place="top"
+                      data-html={true}
+                      data-tip={appendTip()}
+                    >
+                      <QuestionMark></QuestionMark>
+                      <ReactTooltip
+                        id={'durationId'}
+                        backgroundColor="#1D2932"
+                        border
+                        borderColor="#7e8a93"
+                        effect="solid"
+                      />
+                    </div>
                   </div>
                   <div className="flex items-center px-4">
                     {lockDataList.map((item: Lock, index: number) => {
