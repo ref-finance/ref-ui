@@ -1101,8 +1101,6 @@ SwapOptions) => {
         receiverId: tokenIn.id,
         functionCalls: tokenInActions,
       });
-
-      return executeMultipleTransactions(transactions);
     } else if (isSmartRouteV1Swap) {
       //making sure all actions get included for hybrid stable smart.
       await registerToken(tokenOut);
@@ -1151,8 +1149,6 @@ SwapOptions) => {
           },
         ],
       });
-
-      return executeMultipleTransactions(transactions);
     } else {
       //making sure all actions get included.
       await registerToken(tokenOut);
@@ -1221,9 +1217,12 @@ SwapOptions) => {
           },
         ],
       });
-
-      return executeMultipleTransactions(transactions);
     }
+
+    if (tokenOut.id !== swapsToDo[swapsToDo.length - 1].outputToken) {
+      return window.location.reload();
+    }
+    return executeMultipleTransactions(transactions);
   }
 };
 
