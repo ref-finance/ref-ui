@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: linux-latest
     steps:
-      - uses: actions/rock
+      - uses: actions/checkout@v3
       - uses: actions/upload-artifact@v3
         with:
           name: mydist
