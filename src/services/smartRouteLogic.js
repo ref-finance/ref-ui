@@ -528,8 +528,11 @@ function getBestOptInputAndOutput(routes, nodeRoutes, totalInput) {
 }
 
 function getBestOptOutput(routes, nodeRoutes, totalInput) {
-  let outputRefined = getOptOutputVecRefined(routes, nodeRoutes, totalInput)
-    .result;
+  let outputRefined = getOptOutputVecRefined(
+    routes,
+    nodeRoutes,
+    totalInput
+  ).result;
   let outputRaw = getOptOutputVec(routes, nodeRoutes, totalInput).result;
   let res1 = new Big(0);
   let res2 = new Big(0);
@@ -971,9 +974,8 @@ function getActionListFromRoutesAndAllocations(
     slippageTolerance
   );
   actions.push(...firstHopActions);
-  let middleTokenTotals = getMiddleTokenTotalsFromFirstHopActions(
-    firstHopActions
-  );
+  let middleTokenTotals =
+    getMiddleTokenTotalsFromFirstHopActions(firstHopActions);
   // console.log('first hop actions are...');
   // console.log(firstHopActions);
   let middleTokens = Object.keys(middleTokenTotals);
@@ -989,13 +991,14 @@ function getActionListFromRoutesAndAllocations(
     let middleTokenTotal = middleTokenTotals[middleToken];
     // console.log('current middle token total is...');
     // console.log(middleTokenTotal);
-    let middleTokenRoutesWithAllocations = getRoutesAndAllocationsForMiddleToken(
-      routes,
-      nodeRoutes,
-      allocations,
-      middleToken,
-      middleTokenTotal
-    );
+    let middleTokenRoutesWithAllocations =
+      getRoutesAndAllocationsForMiddleToken(
+        routes,
+        nodeRoutes,
+        allocations,
+        middleToken,
+        middleTokenTotal
+      );
     // console.log('current middle tokens routes with allocations are...');
     // console.log(middleTokenRoutesWithAllocations);
     let middleTokenRoutes = middleTokenRoutesWithAllocations.routes;
