@@ -1705,8 +1705,7 @@ export async function getSmartRouteSwapActions(
     // Need to check if expected Hop Output is > 1. If not, then cull the corresponding pool and re-calculate.
     if (new Big(expectedHopOutput).lt(new Big(1))) {
       // purge the pool and recalculate.
-      console.log(expectedHopOutput.toString());
-      console.log(`REMOVING POOL ${hops[i].pool.id} FOR ZERO RETURN`);
+
       decimalsCulledPoolIds.push(hops[i].pool.id);
       return getSmartRouteSwapActions(
         pools,
