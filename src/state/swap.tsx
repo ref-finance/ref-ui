@@ -184,6 +184,7 @@ export const useSwap = ({
             setAverageFee(estimates);
 
             if (!loadingTrigger) {
+              setSwapError(null);
               const expectedOut = (
                 await getExpectedOutputFromActions(
                   estimates,
