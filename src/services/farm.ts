@@ -129,7 +129,11 @@ export const getFarms = async ({
   farms = farms.filter((item) => {
     const { farm_id } = item;
     const arr = farm_id.split('@');
-    if (!blackFarmList.has(arr[1])) {
+    if (
+      !blackFarmList.has(arr[1]) &&
+      farm_id != 'exchange.ref-dev.testnet5#0' &&
+      farm_id != 'exchange.ref-dev.testnet5#1'
+    ) {
       return true;
     }
   });
