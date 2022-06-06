@@ -13,10 +13,21 @@ import { wnearMetadata } from '../services/wrap-near';
 import { usePoolShare } from '../state/pool';
 import { NewGradientButton } from '../components/button/Button';
 import { useHistory } from 'react-router-dom';
-import { getAccountInfo, getMetaData } from '../services/referendum';
+import {
+  getAccountInfo,
+  getVEMetaData,
+  getVEConfig,
+} from '../services/referendum';
 import { ONLY_ZEROS, toPrecision } from '../utils/numbers';
 import { VotingPowerIcon } from '~components/icon/Referendum';
 import { LOVEBoosterIcon, PowerZone } from '../components/icon/Referendum';
+import Modal from 'react-modal';
+import { CloseIcon, mapToView } from '../components/icon/Actions';
+import { Symbols } from '../components/stableswap/CommonComp';
+import { NewFarmInputAmount } from '~components/forms/InputAmount';
+import { isMobile } from '../utils/device';
+import { VEConfig } from '../services/referendum';
+import { useMultiplier } from '~state/referendum';
 
 const getPoolId = (env: string = process.env.NEAR_ENV) => {
   switch (env) {
@@ -29,6 +40,145 @@ const getPoolId = (env: string = process.env.NEAR_ENV) => {
     default:
       return 79;
   }
+};
+
+const ModalWrapper = (props: Modal.Props & { title: JSX.Element | string }) => {
+  const { isOpen, onRequestClose, title } = props;
+
+  const cardWidth = isMobile() ? '90vw' : '25vw';
+  const cardHeight = isMobile() ? '90vh' : '80vh';
+  return (
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onRequestClose}
+      style={{
+        overlay: {
+          backdropFilter: 'blur(15px)',
+          WebkitBackdropFilter: 'blur(15px)',
+          overflow: 'auto',
+        },
+        content: {
+          outline: 'none',
+        },
+      }}
+    >
+      <Card
+        width="w-full"
+        className="border border-gradientFrom border-opacity-50 flex flex-col justify-center text-white"
+        style={{
+          width: cardWidth,
+          maxHeight: cardHeight,
+        }}
+      >
+        <div className="flex items-center justify-between">
+          <span className="text-xl ">{title}</span>
+
+          <button className="pl-2 pb-1" onClick={onRequestClose}>
+            <CloseIcon width="12" height="12" />
+          </button>
+        </div>
+
+        {props.children}
+      </Card>
+    </Modal>
+  );
+};
+
+const LockPopUp = ({
+  isOpen,
+  onRequestClose,
+  tokens,
+  lpShare,
+}: {
+  isOpen: boolean;
+  onRequestClose: (e?: any) => void;
+  tokens: TokenMetadata[];
+  lpShare: string;
+}) => {
+  const [inputValue, setInputValue] = useState<string>('');
+
+  const [duration, setDuration] = useState<number>();
+
+  const [config, setConfig] = useState<VEConfig>();
+
+  useEffect(() => {
+    getVEConfig().then((res) => setConfig(res));
+  }, []);
+
+  const multiplier = useMultiplier({
+    duration: duration || 0,
+    maxMultiplier: config?.max_locking_multiplier || 20000,
+    maxDuration: config?.max_locking_duration_sec || 31104000,
+  });
+
+  console.log(multiplier);
+
+  if (!config) return null;
+
+  const Durations = () => (
+    <div className="w-full flex items-center">
+      {[2592000, 7776000, 15552000, 31104000].map((d, i, array) => {
+        const base = array[0];
+        return (
+          <button
+            key={d}
+            className={`rounded-lg  mr-2.5 hover:bg-gradientFrom  ${
+              duration === d
+                ? 'text-chartBg bg-gradientFrom'
+                : 'text-primaryText bg-black bg-opacity-20'
+            } hover:text-chartBg px-3 py-1 text-xs`}
+            onClick={() => setDuration(d)}
+          >
+            <span>
+              {d / base} &nbsp;
+              <FormattedMessage
+                id={d / base > 1 ? 'months' : 'month'}
+                defaultMessage={d / base > 1 ? 'months' : 'month'}
+              />
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+  return (
+    <ModalWrapper
+      isOpen={isOpen}
+      onRequestClose={onRequestClose}
+      title={
+        <FormattedMessage id="lock_lp_tokens" defaultMessage="Lock LP Tokens" />
+      }
+    >
+      <div className="flex flex-col text-white pt-8">
+        <div className="flex items-center justify-between pb-5">
+          <div className="flex items-center">
+            <Images tokens={tokens} size={'7'} />
+            &nbsp;
+            <Symbols withArrow={false} tokens={tokens} />
+          </div>
+          <span>{toPrecision(lpShare, 2)}</span>
+        </div>
+
+        <NewFarmInputAmount max={lpShare} onChangeAmount={setInputValue} />
+
+        <div className="text-sm text-primaryText py-5">
+          <FormattedMessage id="durations" defaultMessage="Durations" />
+        </div>
+
+        <Durations />
+
+        <div className="text-sm text-primaryText pt-7 pb-2.5 flex items-center justify-between">
+          <span>
+            <FormattedMessage id="get" defaultMessage="Get" />
+          </span>
+
+          <span className="bg-gradientFromHover rounded-md text-xs px-1 text-black">
+            {multiplier.toFixed(1)}x
+          </span>
+        </div>
+      </div>
+    </ModalWrapper>
+  );
 };
 
 const VotingPowerCard = ({ veShare }: { veShare: string }) => {
@@ -94,6 +244,8 @@ const PosterCard = ({ veShare }: { veShare: string }) => {
 
 const UserReferendumCard = ({ veShare }: { veShare: string }) => {
   const tokens = [REF_META_DATA, wnearMetadata];
+
+  const [lockPopOpen, setLockPopOpen] = useState<boolean>(false);
 
   const id = getPoolId();
 
@@ -164,6 +316,7 @@ const UserReferendumCard = ({ veShare }: { veShare: string }) => {
         <NewGradientButton
           className="w-full mr-4"
           text={<FormattedMessage id="lock" defaultMessage="Lock" />}
+          onClick={() => setLockPopOpen(true)}
         />
 
         <button
@@ -178,6 +331,13 @@ const UserReferendumCard = ({ veShare }: { veShare: string }) => {
           <FormattedMessage id="unlock" defaultMessage={'Unlock'} />
         </button>
       </div>
+
+      <LockPopUp
+        isOpen={lockPopOpen}
+        onRequestClose={() => setLockPopOpen(false)}
+        tokens={tokens}
+        lpShare={lpShare}
+      />
     </Card>
   );
 };
@@ -189,6 +349,8 @@ export const ReferendumPage = () => {
 
   useEffect(() => {
     getAccountInfo().then(setAccountInfo);
+
+    getVEMetaData().then((res) => console.log(res));
   }, []);
 
   return (
