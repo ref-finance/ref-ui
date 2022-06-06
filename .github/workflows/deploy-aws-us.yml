@@ -2,9 +2,9 @@ name: deploy-aws-us
 
 on:
   push:
-    branches: [ main ]
+    branches: [ test-cicd ]
   pull_request:
-    branches: [ main ]
+    branches: [ test-cicd ]
 
 jobs:
   build:
