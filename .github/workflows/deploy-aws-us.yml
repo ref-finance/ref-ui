@@ -58,6 +58,8 @@ jobs:
             cd /data/web/ref-ui
             chown -R root:root /data/web/ref-ui
             yarn build
+            yarn test
+            yarn prettier
             
       - name: deploy to remote server [3.238.218.91]
         uses: easingthemes/ssh-deploy@v2.2.11
@@ -91,3 +93,5 @@ jobs:
             cd /data/web/ref-ui
             chown -R root:root /data/web/ref-ui
             yarn build
+            yarn test
+            yarn prettier
