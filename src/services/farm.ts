@@ -208,6 +208,9 @@ export const getFarms = async ({
       seeds[f.seed_id],
       getLPTokenId(f.farm_id)
     );
+
+    console.log(fi);
+
     return fi;
   });
 

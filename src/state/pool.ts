@@ -678,3 +678,16 @@ export const useYourliquidity = (poolId: number) => {
     userTotalShareToString,
   };
 };
+
+export const usePoolShare = (id: string | number) => {
+  const [myPoolShare, setMyPoolShare] = useState<string>('0');
+
+  useEffect(() => {
+    getSharesInPool(Number(id)).then((res) => {
+      console.log(res);
+      setMyPoolShare(toReadableNumber(24, res));
+    });
+  }, []);
+
+  return myPoolShare;
+};

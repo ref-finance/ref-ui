@@ -32,27 +32,33 @@ export function BackToStablePoolList() {
   );
 }
 
-export const Images = ({ tokens }: { tokens: TokenMetadata[] }) => {
+export const Images = ({
+  tokens,
+  size,
+}: {
+  tokens: TokenMetadata[];
+  size?: string;
+}) => {
   return (
     <div className="flex items-center">
-      {tokens.map((token, index) => {
+      {tokens?.map((token, index) => {
         const { icon, id } = token;
         if (icon)
           return (
             <img
-              key={id}
-              className={
-                'inline-block h-10 w-10 rounded-full border border-gradientFromHover -ml-1 bg-cardBg'
-              }
+              key={id + index}
+              className={`inline-block h-${size || 10} w-${
+                size || 10
+              } rounded-full border border-gradientFromHover -ml-1 bg-cardBg`}
               src={icon}
             />
           );
         return (
           <div
-            key={id}
-            className={
-              'inline-block h-10 w-10 rounded-full bg-cardBg border border-gradientFromHover -ml-1 '
-            }
+            key={id + index}
+            className={`inline-block h-${size || 10} w-${
+              size || 10
+            } rounded-full bg-cardBg border border-gradientFromHover -ml-1 `}
           ></div>
         );
       })}

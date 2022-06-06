@@ -23,6 +23,9 @@ module.exports = {
     extend: {
       backgroundImage: (theme) => ({
         farmSearch: 'linear-gradient(106.25deg, #00FFD1 6.88%, #00BA98 81.93%)',
+        veUserCard: 'linear-gradient(270deg, #001320 0%, #1D2932 95.06%);',
+        veVotingPowerCard: 'linear-gradient(90deg, #00FFD1 0%, #009277 100%)',
+        veFarmBoostCard: 'linear-gradient(90deg, #7C47FD 0%, #34177C 100%)',
         stableTab: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
         primaryGradient: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
         buttonGradientBg: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
@@ -32,7 +35,8 @@ module.exports = {
         switchButtonGradientBg:
           'linear-gradient(90deg, #00C6A2 24.14%, #008B72 72.41%)',
         unLockedbg: 'linear-gradient(180deg, #FFB36D 0%, #D27E00 100%)',
-        boostBg: 'linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 100%)'
+        boostBg:
+          'linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 100%)',
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
@@ -117,13 +121,14 @@ module.exports = {
         lockedBg: '#323C43',
         redwarningColor: '#FF7575',
         deepBlue: '#4627FF',
-        searchBgColor:'rgba(29, 41, 50, 0.5)',
+        searchBgColor: 'rgba(29, 41, 50, 0.5)',
         lightGreyColor: '#92877D',
         dashBorderColor: '#6e7c85',
         freeTitleBg: '#404F59',
-        lockTitleBg:'#0094FF',
+        lockTitleBg: '#0094FF',
         priceBoardColor: '#172128',
         lightRedColor: '#FF7575',
+        newpurple: '#7F43FF',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
@@ -135,6 +140,7 @@ module.exports = {
         '95vw': '95vw',
         '580px': '580px',
         '560px': '560px',
+        '1024px': '1024px',
         '360px': '360px',
         '80vw': '80vw',
         '90vw': '90vw',

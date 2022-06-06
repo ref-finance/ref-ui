@@ -17,6 +17,8 @@ export const REF_ADBOARD_CONTRACT_ID = config.REF_ADBOARD_CONTRACT_ID;
 
 export const POOL_TOKEN_REFRESH_INTERVAL = config.POOL_TOKEN_REFRESH_INTERVAL;
 
+export const REF_VE_CONTRACT_ID = config.REF_VE_CONTRACT_ID;
+
 export const STABLE_TOKEN_IDS = config.STABLE_TOKEN_IDS;
 
 export const STABLE_POOL_ID = config.STABLE_POOL_ID;
@@ -152,6 +154,14 @@ export const refFiViewFunction = ({
   args,
 }: RefFiViewFunctionOptions) => {
   return wallet.account().viewFunction(REF_FI_CONTRACT_ID, methodName, args);
+};
+
+export const refVeViewFunction = ({
+  methodName,
+  args,
+}: RefFiViewFunctionOptions) => {
+  console.log(REF_VE_CONTRACT_ID);
+  return wallet.account().viewFunction(REF_VE_CONTRACT_ID, methodName, args);
 };
 
 export const refFiManyFunctionCalls = (

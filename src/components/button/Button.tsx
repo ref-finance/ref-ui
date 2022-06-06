@@ -424,3 +424,24 @@ export function ConnectToNearButton(props: any) {
     </>
   );
 }
+
+export function NewGradientButton(porps: {
+  text: string | JSX.Element;
+  onClick?: any;
+  className?: string;
+  disabled?: boolean;
+}) {
+  const { text, onClick, className, disabled } = porps;
+
+  return (
+    <button
+      className={`${className} ${
+        disabled ? 'opacity-30' : ''
+      } px-5 py-3 rounded-lg text-center bg-gradient-to-r from-gradientFromHover to-newpurple`}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      {text}
+    </button>
+  );
+}

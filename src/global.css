@@ -577,7 +577,7 @@ input[type='range']::-webkit-slider-runnable-track {
 }
 
 .valueStyle {
-  background-image: -webkit-linear-gradient(left, #00c6a2, #00c6a2, #8c78ff);
+  background-image: -webkit-linear-gradient(left, #00ffd1, #00ffd1, #8c78ff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -703,6 +703,20 @@ input[type='range']::-webkit-slider-runnable-track {
   animation: popupBox3AniMobile 0.9s 1.7s ease both;
   opacity: 0;
 }
+
+.PowerZone {
+  animation: custom-spin 8s linear infinite;
+}
+
+@keyframes custom-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes popupBox0Ani {
   0% {
     opacity: 0;
