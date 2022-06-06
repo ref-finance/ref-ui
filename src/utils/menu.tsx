@@ -257,6 +257,13 @@ export const moreLinks: MobileMenuItem[] = [
     iconElement: <XrefIcon></XrefIcon>,
   },
   {
+    id: 'Referendum',
+    label: 'Referendum',
+    pattern: '/referendum',
+    url: '/referendum',
+    isExternal: false,
+  },
+  {
     id: 'Risks',
     label: 'Risks',
     pattern: '/risks',

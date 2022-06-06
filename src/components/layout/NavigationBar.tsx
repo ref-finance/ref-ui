@@ -739,9 +739,7 @@ function MoreMenu() {
               return (
                 <div
                   key={id}
-                  className={`whitespace-nowrap ${
-                    id === 0 ? 'lg:flex lg2:hidden' : ''
-                  } text-left items-center flex justify-start hover:bg-navHighLightBg text-sm font-semibold hover:text-white
+                  className={`whitespace-nowrap text-left items-center flex justify-start hover:bg-navHighLightBg text-sm font-semibold hover:text-white
                  ${
                    (language && currentLocal === language) || isSelected
                      ? 'bg-navHighLightBg text-white'
@@ -1056,7 +1054,7 @@ function NavigationBar() {
             <PoolsMenu />
             <Anchor to="/farmsBoost" pattern="/farmsBoost" name="Farms" />
             <Xref></Xref>
-            <Anchor to="/risks" pattern="/risks" name="Risks" />
+            <Anchor to="/referendum" pattern="/referendum" name="Referendum" />
           </div>
           <div className="flex items-center justify-end flex-1">
             <USNButton />

@@ -85,6 +85,7 @@ import StableSwapPageUSN from '~pages/stable/StableSwapPageUSN';
 import { checkTransaction } from './services/swap';
 import { swapToast } from './components/layout/transactionTipPopUp';
 import { StableSwapRouter } from './pages/stable/StableSwapRouter';
+import { ReferendumPage } from './pages/ReferendumPage';
 
 Modal.defaultStyles = {
   overlay: {
@@ -274,6 +275,8 @@ function App() {
 
             <Route path="/xref" component={AutoHeight(XrefPage)} />
             <Route path="/risks" component={AutoHeight(RiskPage)} />
+            <Route path="/referendum" component={AutoHeight(ReferendumPage)} />
+
             <Route
               path="/farmsBoost/:id?"
               component={AutoHeight(FarmsBoosterPage)}
