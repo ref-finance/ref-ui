@@ -65,7 +65,7 @@ jobs:
             cd /data/web/ref-ui
             rm -rvf *
             chown -R root:root /data/web/ref-ui
-            yarn build
+            #yarn build
  
             
       - name: deploy to remote server [3.238.218.91]
@@ -99,5 +99,5 @@ jobs:
           script: |
             cd /data/web/ref-ui
             chown -R root:root /data/web/ref-ui
-            yarn build
+            #yarn build
 
