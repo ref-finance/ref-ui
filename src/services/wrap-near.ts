@@ -23,7 +23,7 @@ export const wnearMetadata: TokenMetadata = {
   name: 'wNEAR',
   symbol: 'wNEAR',
   decimals: 24,
-  icon: 'https://i.postimg.cc/DZfHgngm/w-NEAR-no-border.png',
+  icon: 'https://assets.ref.finance/images/w-NEAR-no-border.png',
 };
 
 export const nearMetadata: TokenMetadata = {
@@ -31,7 +31,7 @@ export const nearMetadata: TokenMetadata = {
   name: 'NEAR',
   symbol: 'NEAR',
   decimals: 24,
-  icon: 'https://near.org/wp-content/themes/near-19/assets/img/brand-icon.png',
+  icon: 'https://assets.ref.finance/images/brand-icon.png',
 };
 
 export const nearDeposit = async (amount: string) => {
