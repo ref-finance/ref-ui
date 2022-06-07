@@ -88,7 +88,9 @@ export const setCallbackUrl = (res: any) => {
     }
   );
 
-  window.location.href = newHref;
+  console.log(res);
+
+  // window.location.href = newHref;
 };
 
 //@ts-ignore

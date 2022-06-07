@@ -40,6 +40,7 @@ import { utils } from 'near-api-js';
 import { scientificNotationToString } from '../utils/numbers';
 import Big from 'big.js';
 import { nearWithdrawTransaction } from './wrap-near';
+import { currentStorageBalanceOfVE } from './account';
 const config = getConfig();
 export const DEFAULT_PAGE_LIMIT = 150;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
@@ -606,6 +607,21 @@ export const checkTokenNeedsStorageDeposit_boost = async () => {
   }
   return storageNeeded;
 };
+
+export const checkTokenNeedsStorageDeposit_ve = async () => {
+  let storageNeeded;
+  const balance = await currentStorageBalanceOfVE(
+    getCurrentWallet().wallet.getAccountId()
+  );
+
+  console.log(balance);
+
+  if (!balance) {
+    storageNeeded = '0.1';
+  }
+  return storageNeeded;
+};
+
 export const withdrawAllReward_boost = async (
   checkedList: Record<string, any>
 ) => {

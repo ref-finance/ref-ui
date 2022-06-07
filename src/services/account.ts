@@ -1,4 +1,5 @@
 import { storageDepositAction } from './creators/storage';
+import { refVeViewFunction } from './near';
 import {
   refFarmViewFunction,
   refFiFunctionCall,
@@ -51,6 +52,15 @@ export const currentStorageBalanceOfFarm_boost = (
   accountId: string
 ): Promise<AccountStorageView> => {
   return refFarmBoostViewFunction({
+    methodName: 'storage_balance_of',
+    args: { account_id: accountId },
+  });
+};
+
+export const currentStorageBalanceOfVE = (
+  accountId: string
+): Promise<AccountStorageView> => {
+  return refVeViewFunction({
     methodName: 'storage_balance_of',
     args: { account_id: accountId },
   });

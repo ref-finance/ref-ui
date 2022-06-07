@@ -9,6 +9,11 @@ import {
 } from './near';
 import { getCurrentWallet } from '../utils/sender-wallet';
 import { executeMultipleTransactions, REF_VE_CONTRACT_ID } from './near';
+import {
+  checkTokenNeedsStorageDeposit_boost,
+  checkTokenNeedsStorageDeposit_ve,
+} from './farm';
+import { storageDepositAction } from './creators/storage';
 interface StakeOptions {
   token_id: string;
   amount: string;
@@ -60,6 +65,14 @@ export const lockLP = async ({ token_id, amount, msg = '' }: StakeOptions) => {
       ],
     },
   ];
+
+  const neededStorage = await checkTokenNeedsStorageDeposit_ve();
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: REF_VE_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
 
   return executeMultipleTransactions(transactions);
 };
