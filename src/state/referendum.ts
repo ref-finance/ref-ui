@@ -16,7 +16,7 @@ import {
 
 const minMultiplier = 10000;
 
-export const LOVE_TOKEN_DECIMAL = 24;
+export const LOVE_TOKEN_DECIMAL = 18;
 
 export const useMultiplier = ({
   duration,

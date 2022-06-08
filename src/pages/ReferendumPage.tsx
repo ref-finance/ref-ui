@@ -11,7 +11,10 @@ import {
 import { Images } from '~components/stableswap/CommonComp';
 import { wnearMetadata } from '../services/wrap-near';
 import { usePoolShare } from '../state/pool';
-import { NewGradientButton } from '../components/button/Button';
+import {
+  NewGradientButton,
+  BorderGradientButton,
+} from '../components/button/Button';
 import { useHistory } from 'react-router-dom';
 import {
   getAccountInfo,
@@ -52,6 +55,7 @@ import {
   calcStableSwapPriceImpact,
 } from '../utils/numbers';
 import Big from 'big.js';
+import { LOVE_TOKEN_DECIMAL } from '../state/referendum';
 
 interface AccountInfo {
   duration_sec: number;
@@ -141,11 +145,13 @@ const LockPopUp = ({
   const [config, setConfig] = useState<VEConfig>();
 
   const [termsCheck, setTermsCheck] = useState<boolean>(false);
-  const preLocked = accountInfo?.unlock_timestamp;
+  const preLocked = Number(accountInfo?.unlock_timestamp) > 0;
 
   useEffect(() => {
     getVEConfig().then((res) => setConfig(res));
   }, []);
+
+  console.log(config);
 
   const balance = useLOVEbalance();
 
@@ -162,7 +168,10 @@ const LockPopUp = ({
     });
 
   const unlockTime = Number(
-    new Big(preLocked || 0).div(new Big(1000000000)).toNumber().toFixed()
+    new Big(accountInfo?.unlock_timestamp || 0)
+      .div(new Big(1000000000))
+      .toNumber()
+      .toFixed()
   );
   const leftTime = useMemo(() => {
     return unlockTime - moment().unix();
@@ -174,14 +183,14 @@ const LockPopUp = ({
     (d) => d + moment().unix() >= unlockTime
   );
 
-  if (leftTime > 0) {
+  if (leftTime > config.min_locking_duration_sec) {
     candidateDurations.unshift(leftTime);
   }
 
   const showVeAmount = !ONLY_ZEROS.test(inputValue) && duration;
 
   const currentVeAmount = toPrecision(
-    toReadableNumber(24, accountInfo?.ve_lpt_amount),
+    toReadableNumber(LOVE_TOKEN_DECIMAL, accountInfo?.ve_lpt_amount),
     2
   );
 
@@ -324,7 +333,7 @@ const LockPopUp = ({
           </div>
         </div>
 
-        {!showVeAmount ? null : (
+        {!showVeAmount || !preLocked ? null : (
           <div className="rounded-lg border text-sm border-gradientFrom px-3 py-2.5 mt-4 text-center">
             <span>
               <FormattedMessage
@@ -415,7 +424,7 @@ const UnLockPopUp = ({
   const balance = useLOVEbalance();
 
   const currentVeAmount = toPrecision(
-    toReadableNumber(24, accountInfo?.ve_lpt_amount),
+    toReadableNumber(LOVE_TOKEN_DECIMAL, accountInfo?.ve_lpt_amount),
     2
   );
 
@@ -426,9 +435,7 @@ const UnLockPopUp = ({
 
   const [toUnlockAmount, setToUnlockAmount] = useState<string>('');
 
-  console.log(toUnlockAmount);
-
-  const currentMaxUnlock = accountInfo?.lpt_amount
+  const currentMaxUnlock = preLocked
     ? new Big(balance)
         .div(
           new Big(accountInfo?.ve_lpt_amount).div(
@@ -672,17 +679,17 @@ const UserReferendumCard = ({
 
   const [lockPopOpen, setLockPopOpen] = useState<boolean>(false);
 
-  const [unLockPopOpen, setUnLockPopOpen] = useState<boolean>(true);
+  const [unLockPopOpen, setUnLockPopOpen] = useState<boolean>(false);
 
   const history = useHistory();
 
-  const preLocked = accountInfo?.unlock_timestamp;
+  const preLocked = Number(accountInfo?.unlock_timestamp) > 0;
 
-  const unlockTime = new Big(preLocked || 0)
+  const unlockTime = new Big(accountInfo?.unlock_timestamp || 0)
     .div(new Big(1000000000))
     .toNumber();
 
-  const lockTime = unlockTime - accountInfo?.duration_sec || 0;
+  const lockTime = unlockTime - (accountInfo?.duration_sec || 0);
 
   const passedTime_sec = moment().unix() - lockTime;
 
@@ -722,19 +729,36 @@ const UserReferendumCard = ({
           </span>
         </div>
 
-        <NewGradientButton
-          className="text-sm px-5 py-3 w-40"
-          text={
-            <span>
-              <FormattedMessage
-                id="get_lp_tokens"
-                defaultMessage="Get LP Tokens"
-              />{' '}
-              ↗
-            </span>
-          }
-          onClick={() => history.push(`/pool/${getPoolId()}`)}
-        />
+        {!ONLY_ZEROS.test(lpShare) ? (
+          <BorderGradientButton
+            className="text-sm px-5 py-3 w-40"
+            width="w-40"
+            text={
+              <span>
+                <FormattedMessage
+                  id="get_lp_tokens"
+                  defaultMessage="Get LP Tokens"
+                />{' '}
+                ↗
+              </span>
+            }
+            onClick={() => history.push(`/pool/${getPoolId()}`)}
+          />
+        ) : (
+          <NewGradientButton
+            className="text-sm px-5 py-3 w-40"
+            text={
+              <span>
+                <FormattedMessage
+                  id="get_lp_tokens"
+                  defaultMessage="Get LP Tokens"
+                />{' '}
+                ↗
+              </span>
+            }
+            onClick={() => history.push(`/pool/${getPoolId()}`)}
+          />
+        )}
       </div>
 
       <div className="flex items-center justify-between mt-5">
@@ -828,7 +852,7 @@ export const ReferendumPage = () => {
   useEffect(() => {
     getAccountInfo().then((info: AccountInfo) => {
       setAccountInfo(info);
-      setVeShare(toReadableNumber(24, info.ve_lpt_amount));
+      setVeShare(toReadableNumber(LOVE_TOKEN_DECIMAL, info.ve_lpt_amount));
     });
 
     getVEMetaData().then((res) => console.log(res));

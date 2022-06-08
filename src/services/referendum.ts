@@ -21,10 +21,11 @@ interface StakeOptions {
   duration: number;
 }
 export interface VEConfig {
-  lock_near_per_proposal: string;
+  lock_near_per_proposal?: string;
   max_locking_duration_sec: number;
   max_locking_multiplier: number;
   min_proposal_start_vote_offset: string;
+  min_locking_duration_sec: number;
 }
 
 export const getAccountInfo = () => {

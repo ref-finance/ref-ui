@@ -437,11 +437,38 @@ export function NewGradientButton(porps: {
     <button
       className={`${className} ${
         disabled ? 'opacity-30' : ''
-      } px-5 py-3 rounded-lg text-center bg-gradient-to-r from-gradientFromHover to-newpurple`}
+      } px-5 py-3 rounded-lg text-center bg-veGradient`}
       onClick={onClick}
       disabled={disabled}
     >
       {text}
+    </button>
+  );
+}
+
+export function BorderGradientButton(porps: {
+  text: string | JSX.Element;
+  onClick?: any;
+  className?: string;
+  disabled?: boolean;
+  width?: string;
+}) {
+  const { text, onClick, className, disabled, width } = porps;
+
+  return (
+    <button
+      className={` p-px rounded-lg text-center  bg-veGradient ${width} `}
+      onClick={onClick}
+    >
+      <button
+        disabled={disabled}
+        className={`w-full h-full rounded-lg   cursor-pointer text-center ${className}`}
+        style={{
+          backgroundColor: 'rgb(0,12,21)',
+        }}
+      >
+        {text}
+      </button>
     </button>
   );
 }
