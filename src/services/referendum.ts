@@ -18,6 +18,7 @@ interface StakeOptions {
   token_id: string;
   amount: string;
   msg?: string;
+  duration: number;
 }
 export interface VEConfig {
   lock_near_per_proposal: string;
@@ -46,7 +47,7 @@ export const getVEConfig = () => {
   });
 };
 
-export const lockLP = async ({ token_id, amount, msg = '' }: StakeOptions) => {
+export const lockLP = async ({ token_id, amount, duration }: StakeOptions) => {
   const transactions: Transaction[] = [
     {
       receiverId: REF_FI_CONTRACT_ID,
@@ -57,7 +58,7 @@ export const lockLP = async ({ token_id, amount, msg = '' }: StakeOptions) => {
             receiver_id: REF_VE_CONTRACT_ID,
             token_id,
             amount,
-            msg,
+            msg: JSON.stringify({ Lock: { duration_sec: duration } }),
           },
           amount: ONE_YOCTO_NEAR,
           gas: '180000000000000',
@@ -73,6 +74,26 @@ export const lockLP = async ({ token_id, amount, msg = '' }: StakeOptions) => {
       functionCalls: [storageDepositAction({ amount: neededStorage })],
     });
   }
+
+  return executeMultipleTransactions(transactions);
+};
+
+export const unlockLP = async ({ amount }: { amount?: string }) => {
+  const transactions: Transaction[] = [
+    {
+      receiverId: REF_VE_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'withdraw_lpt',
+          args: {
+            amount,
+          },
+          amount: ONE_YOCTO_NEAR,
+          gas: '180000000000000',
+        },
+      ],
+    },
+  ];
 
   return executeMultipleTransactions(transactions);
 };

@@ -2,12 +2,21 @@ import Big from 'big.js';
 import BigNumber from 'bignumber.js';
 import React, { useEffect, useState } from 'react';
 import {
+  TokenMetadata,
+  ftGetTokenMetadata,
+  ftGetBalance,
+} from '../services/ft-contract';
+import { REF_VE_CONTRACT_ID } from '../services/near';
+import { toNonDivisibleNumber } from '../utils/numbers';
+import {
   toReadableNumber,
   toPrecision,
   scientificNotationToString,
 } from '../utils/numbers';
 
 const minMultiplier = 10000;
+
+export const LOVE_TOKEN_DECIMAL = 24;
 
 export const useMultiplier = ({
   duration,
@@ -16,6 +25,8 @@ export const useMultiplier = ({
   amount,
   lockedAmount,
   curDuration,
+  curVEAmount,
+  loveBalance,
 }: {
   duration: number;
   maxMultiplier: number;
@@ -23,6 +34,8 @@ export const useMultiplier = ({
   amount: string;
   lockedAmount: string;
   curDuration: number;
+  curVEAmount: string;
+  loveBalance: string;
 }) => {
   try {
     const appenMultiplier = new Big(duration)
@@ -57,7 +70,17 @@ export const useMultiplier = ({
       0
     );
 
-    console.log(finalVeAmount, 'finalVeAmount');
+    const finalLoveAmount = toPrecision(
+      scientificNotationToString(
+        finalX
+          .minus(new Big(curVEAmount))
+          .plus(new Big(toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, loveBalance)))
+          .toString()
+      ),
+      0
+    );
+
+    console.log(finalLoveAmount.toString(), 'final love amount');
 
     return {
       multiplier: finalMultiplier.toNumber(),
@@ -73,11 +96,38 @@ export const useMultiplier = ({
         false,
         false
       ),
+      finalLoveAmount: toPrecision(
+        toReadableNumber(24, finalLoveAmount),
+        2,
+        false,
+        false
+      ),
     };
   } catch (error) {}
   return {
     multiplier: 1,
     finalAmount: '0',
-    appendedAmount: '0',
+    appendAmount: '0',
+    finalLoveAmount: '0',
   };
+};
+
+export const useLOVEmeta = () => {
+  const [meta, setMeta] = useState<TokenMetadata>(null);
+
+  useEffect(() => {
+    ftGetTokenMetadata(REF_VE_CONTRACT_ID).then(setMeta);
+  }, []);
+
+  return meta;
+};
+
+export const useLOVEbalance = () => {
+  const [balance, setBalance] = useState<string>('0');
+
+  useEffect(() => {
+    ftGetBalance(REF_VE_CONTRACT_ID).then(setBalance);
+  }, []);
+
+  return toReadableNumber(LOVE_TOKEN_DECIMAL, balance);
 };
