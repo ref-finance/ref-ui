@@ -9,6 +9,7 @@ import {
 import { FormattedMessage } from 'react-intl';
 import { BeatLoading } from '../../components/layout/Loading';
 import { WalletSelectorModal } from '../layout/WalletSelector';
+import { CheckedTick, UnCheckedBoxVE } from '../icon/CheckBox';
 
 export function BorderlessButton(
   props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean }
@@ -430,18 +431,34 @@ export function NewGradientButton(porps: {
   onClick?: any;
   className?: string;
   disabled?: boolean;
+  grayDisable?: boolean;
+  disableForUI?: boolean;
+  width?: string;
 }) {
-  const { text, onClick, className, disabled } = porps;
+  const {
+    text,
+    onClick,
+    className,
+    disabled,
+    grayDisable,
+    disableForUI,
+    width,
+  } = porps;
 
   return (
     <button
-      className={`${className} ${
+      className={`${
+        grayDisable ? 'opacity-30' : 'bg-veGradient'
+      } ${width} ${className}  ${
         disabled ? 'opacity-30' : ''
-      } px-5 py-3 rounded-lg text-center bg-veGradient`}
+      } px-5 py-3 rounded-lg text-center `}
       onClick={onClick}
-      disabled={disabled}
+      disabled={disableForUI ? false : disabled || grayDisable}
+      style={{
+        backgroundColor: grayDisable ? '#445867' : '',
+      }}
     >
-      {text}
+      <span>{text}</span>
     </button>
   );
 }
@@ -452,8 +469,9 @@ export function BorderGradientButton(porps: {
   className?: string;
   disabled?: boolean;
   width?: string;
+  color?: string;
 }) {
-  const { text, onClick, className, disabled, width } = porps;
+  const { text, onClick, className, disabled, width, color } = porps;
 
   return (
     <button
@@ -462,13 +480,46 @@ export function BorderGradientButton(porps: {
     >
       <button
         disabled={disabled}
-        className={`w-full h-full rounded-lg   cursor-pointer text-center ${className}`}
+        className={`w-full rounded-lg cursor-pointer text-center ${className}`}
         style={{
-          backgroundColor: 'rgb(0,12,21)',
+          backgroundColor: color || 'rgb(0,12,21)',
         }}
       >
-        {text}
+        <span className="px-0.5 py-0.5 my-px">{text}</span>
       </button>
+    </button>
+  );
+}
+
+export function CheckRadioButtonVE({
+  check,
+  setCheck,
+}: {
+  check: boolean;
+  setCheck: (e?: any) => void;
+}) {
+  return (
+    <button
+      onClick={() => {
+        if (check) {
+          setCheck(false);
+        } else setCheck(true);
+      }}
+      className="w-7 h-7 relative bottom-2 mr-2 "
+    >
+      {check ? (
+        <div
+          className="p-3"
+          style={{
+            width: '37px',
+            height: '37px',
+          }}
+        >
+          <CheckedTick />
+        </div>
+      ) : (
+        <UnCheckedBoxVE />
+      )}
     </button>
   );
 }

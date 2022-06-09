@@ -42,7 +42,8 @@ export const Images = ({
   return (
     <div className="flex items-center">
       {tokens?.map((token, index) => {
-        const { icon, id } = token;
+        const icon = token?.icon;
+        const id = token?.id;
         if (icon)
           return (
             <img
@@ -70,10 +71,12 @@ export const Symbols = ({
   withArrow,
   tokens,
   size,
+  seperator,
 }: {
   withArrow?: boolean;
   tokens: TokenMetadata[];
   size?: string;
+  seperator?: string;
 }) => {
   return (
     <div
@@ -81,10 +84,10 @@ export const Symbols = ({
         withArrow ? 'cursor-pointer' : null
       } ${size}`}
     >
-      {tokens.map((token, index) => (
-        <span key={token.id}>
-          {index ? '/' : ''}
-          {toRealSymbol(token.symbol)}
+      {tokens?.map((token, index) => (
+        <span key={token?.id}>
+          {index ? seperator || '/' : ''}
+          {toRealSymbol(token?.symbol || '')}
         </span>
       ))}
       {withArrow ? <span className="ml-1.5">{'>'}</span> : null}

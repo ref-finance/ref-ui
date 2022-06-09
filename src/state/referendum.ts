@@ -8,6 +8,13 @@ import {
 } from '../services/ft-contract';
 import { REF_VE_CONTRACT_ID } from '../services/near';
 import { toNonDivisibleNumber } from '../utils/numbers';
+import { VoteDetail, getAccountInfo } from '../services/referendum';
+import { AccountInfo } from '../pages/ReferendumPage';
+import {
+  getVEConfig,
+  getVEMetaData,
+  getVoteDetail,
+} from '../services/referendum';
 import {
   toReadableNumber,
   toPrecision,
@@ -130,4 +137,59 @@ export const useLOVEbalance = () => {
   }, []);
 
   return toReadableNumber(LOVE_TOKEN_DECIMAL, balance);
+};
+
+export interface VEMETA {
+  version: string;
+  owner_id: string;
+  operators: string[];
+  whitelisted_accounts: string[];
+  lptoken_contract_id: string;
+  lptoken_id: string;
+  lptoken_decimals: number;
+  account_count: string;
+  proposal_count: string;
+  cur_total_ve_lpt: string;
+  cur_lock_lpt: string;
+  lostfound: string;
+}
+
+export const useVEmeta = () => {
+  const [meta, setMeta] = useState<VEMETA>();
+
+  useEffect(() => {
+    getVEMetaData().then(setMeta);
+  }, []);
+
+  console.log(meta, 'meta');
+
+  return {
+    ...meta,
+    totalVE: toReadableNumber(meta?.lptoken_decimals, meta?.cur_total_ve_lpt),
+  };
+};
+
+export const useVoteDetail = () => {
+  const [detail, setDetail] = useState<VoteDetail>();
+
+  useEffect(() => {
+    getVoteDetail().then(setDetail);
+  }, []);
+  return detail;
+};
+
+export const useAccountInfo = () => {
+  const [accountInfo, setAccountInfo] = useState<AccountInfo>();
+
+  const [veShare, setVeShare] = useState<string>('0');
+
+  useEffect(() => {
+    getAccountInfo().then((info: AccountInfo) => {
+      setAccountInfo(info);
+
+      setVeShare(toReadableNumber(LOVE_TOKEN_DECIMAL, info.ve_lpt_amount));
+    });
+  }, []);
+
+  return { accountInfo, veShare, veShareRaw: accountInfo?.ve_lpt_amount };
 };

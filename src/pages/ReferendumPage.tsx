@@ -14,6 +14,7 @@ import { usePoolShare } from '../state/pool';
 import {
   NewGradientButton,
   BorderGradientButton,
+  CheckRadioButtonVE,
 } from '../components/button/Button';
 import { useHistory } from 'react-router-dom';
 import {
@@ -55,9 +56,10 @@ import {
   calcStableSwapPriceImpact,
 } from '../utils/numbers';
 import Big from 'big.js';
-import { LOVE_TOKEN_DECIMAL } from '../state/referendum';
+import { LOVE_TOKEN_DECIMAL, useAccountInfo } from '../state/referendum';
+import { ProposalTab, ProposalCard } from '../components/layout/Proposal';
 
-interface AccountInfo {
+export interface AccountInfo {
   duration_sec: number;
   lpt_amount: string;
   rewards: string[];
@@ -83,7 +85,9 @@ const getPoolId = (env: string = process.env.NEAR_ENV) => {
   }
 };
 
-const ModalWrapper = (props: Modal.Props & { title: JSX.Element | string }) => {
+export const ModalWrapper = (
+  props: Modal.Props & { title: JSX.Element | string | null }
+) => {
   const { isOpen, onRequestClose, title } = props;
 
   const cardWidth = isMobile() ? '90vw' : '423px';
@@ -365,34 +369,15 @@ const LockPopUp = ({
               token_id: ':' + getPoolId().toString(),
               amount: toNonDivisibleNumber(24, inputValue),
               duration,
+              leftTime,
             })
           }
           disabled={!termsCheck || ONLY_ZEROS.test(inputValue) || !duration}
         />
 
         <div className="pt-4 text-sm flex items-start ">
-          <button
-            onClick={() => {
-              if (termsCheck) {
-                setTermsCheck(false);
-              } else setTermsCheck(true);
-            }}
-            className="w-7 h-7 relative bottom-2 mr-2 "
-          >
-            {termsCheck ? (
-              <div
-                className="p-3"
-                style={{
-                  width: '37px',
-                  height: '37px',
-                }}
-              >
-                <CheckedTick />
-              </div>
-            ) : (
-              <UnCheckedBoxVE />
-            )}
-          </button>
+          <CheckRadioButtonVE check={termsCheck} setCheck={setTermsCheck} />
+
           <span>
             I understand and accept the terms relating to the early unlocking
             penalty
@@ -439,7 +424,7 @@ const UnLockPopUp = ({
     ? new Big(balance)
         .div(
           new Big(accountInfo?.ve_lpt_amount).div(
-            new Big(accountInfo?.lpt_amount)
+            new Big(accountInfo?.lpt_amount).div(1000000)
           )
         )
         .toNumber()
@@ -742,7 +727,7 @@ const UserReferendumCard = ({
                 ↗
               </span>
             }
-            onClick={() => history.push(`/pool/${getPoolId()}`)}
+            onClick={() => window.open(`/pool/${getPoolId()}`, '_blank')}
           />
         ) : (
           <NewGradientButton
@@ -756,7 +741,7 @@ const UserReferendumCard = ({
                 ↗
               </span>
             }
-            onClick={() => history.push(`/pool/${getPoolId()}`)}
+            onClick={() => window.open(`/pool/${getPoolId()}`, '_blank')}
           />
         )}
       </div>
@@ -808,18 +793,13 @@ const UserReferendumCard = ({
           onClick={() => setLockPopOpen(true)}
         />
 
-        <button
-          type="button"
-          className="px-5 py-3 rounded-lg w-40 flex-shrink-0"
-          style={{
-            backgroundColor: '#445867',
-            opacity: '0.3',
-          }}
-          disabled={moment().unix() < unlockTime}
+        <NewGradientButton
+          text={<FormattedMessage id="unlock" defaultMessage={'Unlock'} />}
           onClick={() => setUnLockPopOpen(true)}
-        >
-          <FormattedMessage id="unlock" defaultMessage={'Unlock'} />
-        </button>
+          className="px-5 py-3 rounded-lg w-40 flex-shrink-0"
+          grayDisable={moment().unix() < unlockTime}
+          disabled={moment().unix() < unlockTime}
+        />
       </div>
 
       <LockPopUp
@@ -842,21 +822,11 @@ const UserReferendumCard = ({
 };
 
 export const ReferendumPage = () => {
-  const [accountInfo, setAccountInfo] = useState<AccountInfo>();
   const id = getPoolId();
 
   const lpShare = usePoolShare(id);
 
-  const [veShare, setVeShare] = useState<string>('0');
-
-  useEffect(() => {
-    getAccountInfo().then((info: AccountInfo) => {
-      setAccountInfo(info);
-      setVeShare(toReadableNumber(LOVE_TOKEN_DECIMAL, info.ve_lpt_amount));
-    });
-
-    getVEMetaData().then((res) => console.log(res));
-  }, []);
+  const { veShare, accountInfo } = useAccountInfo();
 
   console.log(accountInfo);
 
@@ -876,6 +846,8 @@ export const ReferendumPage = () => {
         />
         <PosterCard veShare={veShare} lpShare={lpShare} />
       </div>
+
+      <ProposalCard />
 
       <div
         className="absolute -top-12 z-20"
