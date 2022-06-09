@@ -243,9 +243,18 @@ export function GradientButton(
     color?: string;
     btnClassName?: string;
     loading?: boolean;
+    backgroundImage?: string;
   }
 ) {
-  const { loading, disabled, className, color, btnClassName, onClick } = props;
+  const {
+    loading,
+    disabled,
+    className,
+    color,
+    btnClassName,
+    backgroundImage,
+    onClick,
+  } = props;
   return (
     <div
       className={`${className ? className : ''} ${
@@ -254,6 +263,7 @@ export function GradientButton(
       style={{
         borderRadius: '5px',
         color: color || '',
+        backgroundImage: backgroundImage || '',
       }}
     >
       <button

@@ -595,7 +595,7 @@ const ko = {
   cd_limit: 'more than 16 cd account limit',
   expired: 'Expired',
   all_5_v2: '5 tokens/time',
-  all_farm: 'All Farms',
+
   more_than_seed: 'Input must be greater than or equal to ',
   how_to_earn_more: 'How to earn more?',
   you_staked: 'You Staked',
@@ -627,7 +627,7 @@ const ko = {
   starPool: 'Star Pools',
   nearPool: 'NEAR ecosystem Pools',
   stablePool: 'Stablecoin Pools',
-  endedPool: 'Ended Pools',
+  endedFarms: 'Ended Farms',
   otherPool: 'Other Pools',
   ordinary: 'Ordinary',
   exit_fee_tip: 'Estimated amount you would pay to break your lock-up period',
@@ -637,6 +637,8 @@ const ko = {
     'Unstaking will remove the stake from all active and pending farms of the same pair. ',
   comimg: 'Coming',
   appendTip: 'Cannot be earlier than current locking time',
+  week: 'week',
+  yours: 'Yours',
   swap_successful: '스왑에 성공했습니다. ',
   trading_successfull: '거래 성공. ',
 };
