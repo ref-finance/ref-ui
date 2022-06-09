@@ -1667,7 +1667,7 @@ function UserStakeBlock(props: {
       const month = duration_sec / 2592000;
       // get reset time
       let restTime_sec = 0;
-      if (unlock_timestamp > serverTime) {
+      if (+unlock_timestamp > serverTime) {
         restTime_sec = new BigNumber(unlock_timestamp)
           .minus(serverTime)
           .dividedBy(1000000000)
@@ -1675,7 +1675,7 @@ function UserStakeBlock(props: {
       }
       const pecent = 1 - restTime_sec / duration_sec;
       // get start~end
-      const end_sec = unlock_timestamp / 1000000000;
+      const end_sec = +unlock_timestamp / 1000000000;
       const begin_sec = end_sec - duration_sec;
       const startDate = new Date(begin_sec * 1000).toString();
       const endDate = new Date(end_sec * 1000).toString();
@@ -1699,7 +1699,7 @@ function UserStakeBlock(props: {
   };
   function getExitFee() {
     let result = '0';
-    if (unlock_timestamp > serverTime) {
+    if (+unlock_timestamp > serverTime) {
       const restTime_sec = new BigNumber(unlock_timestamp)
         .minus(serverTime)
         .dividedBy(1000000000)
@@ -2823,13 +2823,13 @@ function UnStakeModal(props: {
   }
   function displayDate() {
     const endLineArr = (
-      new Date(unlock_timestamp / 1000000).toString() || ''
+      new Date(+unlock_timestamp / 1000000).toString() || ''
     ).split(' ');
     return `${endLineArr[2]} ${endLineArr[1]}, ${endLineArr[3]}`;
   }
   function getSlashAmount() {
     let result = '0';
-    if (unlock_timestamp > serverTime) {
+    if (+unlock_timestamp > serverTime) {
       const restTime_sec = new BigNumber(unlock_timestamp)
         .minus(serverTime)
         .dividedBy(1000000000)

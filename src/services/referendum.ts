@@ -84,6 +84,12 @@ export const getVEConfig = () => {
     methodName: 'get_config',
   });
 };
+export const getLoveAmount = () => {
+  return refVeViewFunction({
+    methodName: 'ft_balance_of',
+    args: { account_id: getCurrentWallet().wallet.getAccountId() },
+  });
+};
 
 export const lockLP = async ({
   token_id,

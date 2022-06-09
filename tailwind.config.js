@@ -18,6 +18,7 @@ module.exports = {
       '4xl': '0px 0px 10px 4px rgba(0, 0, 0, 0.35)',
       green: '0px 0px 2px rgba(0, 198, 162, 0.5)',
       dark: '0px 0px 10px rgba(0, 0, 0, 0.15)',
+      blue: '0px 0px 20px rgba(0, 255, 209, 0.6)'
     },
 
     extend: {
@@ -36,8 +37,8 @@ module.exports = {
         switchButtonGradientBg:
           'linear-gradient(90deg, #00C6A2 24.14%, #008B72 72.41%)',
         unLockedbg: 'linear-gradient(180deg, #FFB36D 0%, #D27E00 100%)',
-        boostBg:
-          'linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 100%)',
+        boostBg: 'linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 100%)',
+        v2boostBg:'linear-gradient(360deg, rgba(0, 19, 32, 0) 6.2%, #1D2932 100%)'
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
@@ -130,6 +131,8 @@ module.exports = {
         priceBoardColor: '#172128',
         lightRedColor: '#FF7575',
         newpurple: '#7F43FF',
+        boosBoxColor:'#1e2c36',
+        lightGreenColor:'#00FFF0'
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

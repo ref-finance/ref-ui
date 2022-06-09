@@ -119,7 +119,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
         BLACKLIST_POOL_IDS: [''],
-        FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 1,
+        FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
       };
     case 'pub-testnet':
       return {
@@ -176,7 +176,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         BLACKLIST_POOL_IDS: [''],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID || 'boostfarm.ref-dev.testnet',
-        FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 1,
+        FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
       };
     case 'testnet':
       return {
@@ -234,7 +234,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         BLACKLIST_POOL_IDS: [''],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID || 'boostfarm.ref-dev.testnet',
-        FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 1,
+        FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
       };
     default:
       return {
@@ -300,7 +300,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
         BLACKLIST_POOL_IDS: [''],
-        FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 1,
+        FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
       };
   }
 }

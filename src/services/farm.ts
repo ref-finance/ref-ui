@@ -9,6 +9,7 @@ import {
   ONE_YOCTO_NEAR,
   REF_FI_CONTRACT_ID,
   near,
+  refVeViewFunction,
 } from './near';
 import {
   toPrecision,
@@ -41,17 +42,16 @@ import { scientificNotationToString } from '../utils/numbers';
 import Big from 'big.js';
 import { nearWithdrawTransaction } from './wrap-near';
 import { currentStorageBalanceOfVE } from './account';
+
 const config = getConfig();
 export const DEFAULT_PAGE_LIMIT = 150;
-const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
-const STABLE_POOL_IDS = getConfig().STABLE_POOL_IDS;
-const STABLE_POOL_USN_ID = getConfig().STABLE_POOL_USN_ID;
+const {
+  STABLE_POOL_ID,
+  STABLE_POOL_IDS,
+  STABLE_POOL_USN_ID,
+  REF_VE_CONTRACT_ID,
+} = config;
 const expand = 6;
-export interface Seed {
-  seed_id: string;
-  amount: number;
-}
-
 export interface Farm {
   farm_id: string;
   farm_kind: string;
@@ -745,6 +745,37 @@ export const getServerTime = async () => {
   const timestamp = result?.header?.timestamp;
   return timestamp;
 };
+
+export const love_stake = async ({ amount, msg = '' }: StakeOptions) => {
+  // todo
+  const transactions: Transaction[] = [
+    {
+      receiverId: REF_VE_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'ft_transfer_call',
+          args: {
+            receiver_id: REF_FARM_BOOST_CONTRACT_ID,
+            amount,
+            msg,
+          },
+          amount: ONE_YOCTO_NEAR,
+          gas: '180000000000000',
+        },
+      ],
+    },
+  ];
+
+  const neededStorage = await checkTokenNeedsStorageDeposit_boost();
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: REF_FARM_BOOST_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+
+  return executeFarmMultipleTransactions(transactions);
+};
 export interface Seed {
   min_deposit: string;
   min_locking_duration_sec: number;
@@ -756,12 +787,13 @@ export interface Seed {
   total_seed_power: string;
   farmList?: FarmBoost[];
   pool?: PoolRPCView;
-  user_seed?: Record<string, any>;
+  user_seed?: UserSeedInfo;
   unclaimed?: Record<string, string>;
   unclaimed_token_meta_datas?: Record<string, TokenMetadata>;
   seedTvl?: string;
   hidden?: boolean;
   endedFarmsIsSplit?: boolean;
+  base?: number;
 }
 export interface FarmBoostTerm {
   daily_reward: string;
@@ -781,7 +813,7 @@ export interface FarmBoost {
   apr?: string;
 }
 interface StakeOptions {
-  token_id: string;
+  token_id?: string;
   amount: string;
   msg?: string;
 }
@@ -789,6 +821,18 @@ interface UnStakeOptions {
   seed_id: string;
   unlock_amount: string;
   withdraw_amount: string;
+}
+export interface UserSeedInfo {
+  boost_ratios: any;
+  duration_sec: number;
+  free_amount: string;
+  locked_amount: string;
+  unlock_timestamp: string;
+  x_locked_amount: string;
+}
+export interface BoostConfig {
+  affected_seeds: Record<string, number>;
+  booster_decimal: number;
 }
 // boost farm related function end
 export const get_seed_info = async (seed_id: string): Promise<any> => {
@@ -895,7 +939,6 @@ export const frontConfig = {
   '79': '98',
 };
 export const farmClassification = {
-  starPool: [7],
-  nearPool: [545],
-  stablePool: [79, 603, 604],
+  near: [7, 21],
+  eth: [605],
 };
