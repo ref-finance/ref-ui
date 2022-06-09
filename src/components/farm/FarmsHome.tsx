@@ -89,8 +89,9 @@ import {
 import { checkTransaction } from '../../services/stable-swap';
 import Modal from 'react-modal';
 import { ModalClose } from '~components/icon';
-const { STABLE_POOL_IDS, REF_TOKEN_ID, XREF_TOKEN_ID, REF_VE_CONTRACT_ID } =
-  getConfig();
+const { STABLE_POOL_IDS, REF_TOKEN_ID, XREF_TOKEN_ID } = getConfig();
+// todo 先写死后处理
+const REF_VE_CONTRACT_ID = 'dev-20220606062724-24132123771050';
 const DECIMALS_XREF_REF_TRANSTER = 8;
 export default function FarmsHome(props: any) {
   let [user_unWithdraw_rewards, set_user_unWithdraw_rewards] = useState<
@@ -281,6 +282,7 @@ export default function FarmsHome(props: any) {
     // get boost seed Config
     await getConfig();
     console.log('getConfig 获取到了');
+
     // get LoveToken balance
     if (isSignedIn) {
       const loveBalance = await getLoveAmount();
