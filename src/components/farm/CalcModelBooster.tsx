@@ -477,11 +477,12 @@ export function CalcEle(props: {
     }
   }
   function getBoostMutil() {
+    if (!boostConfig) return '';
     const { affected_seeds, booster_decimal } = boostConfig;
     const { seed_id, user_seed } = seed;
     const base = affected_seeds[seed_id];
     const hasUserStaked = Object.keys(user_seed).length;
-    if (base && hasUserStaked) {
+    if (base && hasUserStaked && loveSeed) {
       const { free_amount = 0, locked_amount = 0 } = loveSeed.user_seed || {};
       const totalStakeLoveAmount = toReadableNumber(
         booster_decimal,

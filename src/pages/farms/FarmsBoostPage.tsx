@@ -30,8 +30,6 @@ export default function FarmsBoosterPage(props: any) {
     paramId &&
     detailData &&
     tokenPriceList &&
-    loveSeed &&
-    boostConfig &&
     Object.keys(tokenPriceList).length > 0;
   const showLoading = paramId && !showDetailPage;
   return (
