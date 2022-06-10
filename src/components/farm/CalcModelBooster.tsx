@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom';
 import { getMftTokenId } from '~utils/token';
 import { Card } from '~components/card/Card';
 import { LP_TOKEN_DECIMALS, LP_STABLE_TOKEN_DECIMALS } from '~services/m-token';
-import { FarmBoost, Seed, get_config } from '~services/farm';
+import { FarmBoost, Seed, get_config, BoostConfig } from '~services/farm';
 import {
   toPrecision,
   toReadableNumber,
@@ -31,9 +31,11 @@ export default function CalcModelBooster(
   props: ReactModal.Props & {
     seed: Seed;
     tokenPriceList: Record<string, string>;
+    loveSeed?: Seed;
+    boostConfig: BoostConfig;
   }
 ) {
-  const { seed, tokenPriceList } = props;
+  const { seed, tokenPriceList, loveSeed, boostConfig } = props;
   const [usd, setUsd] = useState('');
   const [lpTokenNum, setLpTokenNum] = useState('');
   const [usdDisplay, setUsdDisplay] = useState('');
@@ -217,6 +219,8 @@ export default function CalcModelBooster(
               seed={seed}
               tokenPriceList={tokenPriceList}
               lpTokenNumAmount={lpTokenNum}
+              loveSeed={loveSeed}
+              boostConfig={boostConfig}
             ></CalcEle>
           </div>
           <div className="mt-5 xs:mt-3 md:mt-3">
@@ -231,8 +235,11 @@ export function CalcEle(props: {
   seed: Seed;
   tokenPriceList: Record<string, string>;
   lpTokenNumAmount: string;
+  loveSeed?: Seed;
+  boostConfig?: BoostConfig;
 }) {
-  const { seed, tokenPriceList, lpTokenNumAmount } = props;
+  const { seed, tokenPriceList, lpTokenNumAmount, loveSeed, boostConfig } =
+    props;
   const [selecteDate, setSelecteDate] = useState<MonthData>();
   const [ROI, setROI] = useState('');
   const [rewardData, setRewardData] = useState<Record<string, any>>({});
@@ -250,8 +257,8 @@ export function CalcEle(props: {
   }, []);
   useEffect(() => {
     if (!selecteDate) return;
-    if (accountType == 'cd') {
-      const rate = selecteDate.rate;
+    if (accountType == 'cd' || seedRadio) {
+      const rate = selecteDate.rate || seedRadio;
       const power = new BigNumber(rate)
         .multipliedBy(+lpTokenNumAmount)
         .toFixed();
@@ -458,6 +465,36 @@ export function CalcEle(props: {
     const txt = intl.formatMessage({ id: 'forbiddenTip' });
     return `<div class="text-xs text-farmText w-44 text-left">${txt}</div>`;
   }
+  function getRate() {
+    if (accountType == 'free') {
+      return `x ${toPrecision(seedRadio, 3)}`;
+    } else if (accountType == 'cd') {
+      return `${
+        selecteDate?.rate?.toString()
+          ? toPrecision(selecteDate?.rate?.toString(), 2)
+          : '-'
+      }`;
+    }
+  }
+  function getBoostMutil() {
+    const { affected_seeds, booster_decimal } = boostConfig;
+    const { seed_id, user_seed } = seed;
+    const base = affected_seeds[seed_id];
+    const hasUserStaked = Object.keys(user_seed).length;
+    if (base && hasUserStaked) {
+      const { free_amount = 0, locked_amount = 0 } = loveSeed.user_seed || {};
+      const totalStakeLoveAmount = toReadableNumber(
+        booster_decimal,
+        new BigNumber(free_amount).plus(locked_amount).toFixed()
+      );
+      const result = new BigNumber(1)
+        .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
+        .toFixed();
+      return result;
+    }
+    return '';
+  }
+  const seedRadio = getBoostMutil();
   return (
     <div>
       <div>
@@ -550,22 +587,17 @@ export function CalcEle(props: {
           </div>
         )}
         <div className="flex flex-col rounded p-5 xs:px-3.5 md:px-3.5 bg-black bg-opacity-25">
-          <p
-            className={`flex justify-between mb-4 ${
-              accountType == 'free' ? 'hidden' : ''
-            }`}
-          >
-            <label className="text-sm text-farmText mr-2">
-              <FormattedMessage id="booster"></FormattedMessage>
-            </label>
-            <span className="flex items-center text-sm text-senderHot text-right break-all">
-              x{' '}
-              {selecteDate?.rate?.toString()
-                ? toPrecision(selecteDate?.rate?.toString(), 2)
-                : '-'}{' '}
-              <LightningIcon></LightningIcon>
-            </span>
-          </p>
+          {accountType == 'cd' || seedRadio ? (
+            <p className={`flex justify-between mb-4`}>
+              <label className="text-sm text-farmText mr-2">
+                <FormattedMessage id="booster"></FormattedMessage>
+              </label>
+              <span className="flex items-center text-sm text-senderHot text-right break-all">
+                {getRate()}
+                <LightningIcon></LightningIcon>
+              </span>
+            </p>
+          ) : null}
           <p className="flex justify-between">
             <label className="text-sm text-farmText mr-2">
               <FormattedMessage id="cur_apr"></FormattedMessage>

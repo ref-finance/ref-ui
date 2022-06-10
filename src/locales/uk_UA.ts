@@ -609,6 +609,13 @@ const uk_UA = {
   appendTip: 'Cannot be earlier than current locking time',
   week: 'week',
   yours: 'Yours',
+  boost: 'Boost',
+  near: 'NEAR',
+  eth: 'ETH',
+  others: 'others',
+  stakeLove: 'Stake LOVE',
+  unstakeLove: 'Unstake LOVE',
+  get_love: 'Get LOVE',
   swap_successful: 'Обмін успішно. ',
   trading_successfull: 'Торгівля успішна. ',
 };

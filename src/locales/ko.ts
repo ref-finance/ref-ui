@@ -639,6 +639,13 @@ const ko = {
   appendTip: 'Cannot be earlier than current locking time',
   week: 'week',
   yours: 'Yours',
+  boost: 'Boost',
+  near: 'NEAR',
+  eth: 'ETH',
+  others: 'others',
+  stakeLove: 'Stake LOVE',
+  unstakeLove: 'Unstake LOVE',
+  get_love: 'Get LOVE',
   swap_successful: '스왑에 성공했습니다. ',
   trading_successfull: '거래 성공. ',
 };

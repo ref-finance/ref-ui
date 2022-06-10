@@ -942,3 +942,10 @@ export const farmClassification = {
   near: [7, 21],
   eth: [605],
 };
+export const frontConfigBoost = {
+  '269': '100',
+};
+export const defaultConfigBoost = {
+  '612': '100',
+  '120': '99',
+};

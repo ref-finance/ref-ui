@@ -647,6 +647,13 @@ const vi = {
   appendTip: 'Cannot be earlier than current locking time',
   week: 'week',
   yours: 'Yours',
+  boost: 'Boost',
+  near: 'NEAR',
+  eth: 'ETH',
+  others: 'others',
+  stakeLove: 'Stake LOVE',
+  unstakeLove: 'Unstake LOVE',
+  get_love: 'Get LOVE',
   swap_successful: 'Hoán đổi thành công. ',
   trading_successfull: 'Giao dịch thành công. ',
 };
