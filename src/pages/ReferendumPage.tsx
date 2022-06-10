@@ -83,7 +83,7 @@ const timeStampToDate = (ts: number) => {
   return moment(ts * 1000).format('YYYY-MM-DD');
 };
 
-const getPoolId = (env: string = process.env.NEAR_ENV) => {
+export const getPoolId = (env: string = process.env.NEAR_ENV) => {
   switch (env) {
     case 'pub-testnet':
       return 269;
@@ -140,18 +140,20 @@ export const ModalWrapper = (
   );
 };
 
-const LockPopUp = ({
+export const LockPopUp = ({
   isOpen,
   onRequestClose,
   tokens,
   lpShare,
   accountInfo,
+  title,
 }: {
   isOpen: boolean;
   onRequestClose: (e?: any) => void;
   tokens: TokenMetadata[];
   lpShare: string;
   accountInfo: AccountInfo;
+  title?: string;
 }) => {
   const [inputValue, setInputValue] = useState<string>('');
 
@@ -250,7 +252,10 @@ const LockPopUp = ({
         setInputValue('');
       }}
       title={
-        <FormattedMessage id="lock_lptoken" defaultMessage="Lock LPtoken" />
+        <FormattedMessage
+          id={title || 'lock_lp_tokens'}
+          defaultMessage="Lock LP Tokens"
+        />
       }
     >
       <div className="flex flex-col text-white pt-4">

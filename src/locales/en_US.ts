@@ -643,6 +643,7 @@ const en_US = {
   others: 'others',
   stakeLove: 'Stake LOVE',
   unstakeLove: 'Unstake LOVE',
+  get_love: 'Get LOVE',
   swap_successful: 'Swap successful. ',
   trading_successfull: 'Trading successful. ',
   borrow: 'Borrow',

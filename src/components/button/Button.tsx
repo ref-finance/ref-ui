@@ -631,3 +631,45 @@ export function CheckRadioButtonVE({
     </button>
   );
 }
+
+export function GreenConnectToNearBtn() {
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+
+  const [showWalletSelector, setShowWalletSelector] = useState(false);
+
+  return (
+    <>
+      <div
+        className={`flex items-center cursor-pointer w-full justify-center rounded-lg py-0.5 text-base bg-lightGreenColor ${
+          buttonLoading ? 'opacity-40' : ''
+        }`}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setButtonLoading(true);
+          setShowWalletSelector(true);
+        }}
+      >
+        <button>
+          <ButtonTextWrapper
+            loading={buttonLoading}
+            Text={() => (
+              <FormattedMessage
+                id="connect_to_near"
+                defaultMessage="Connect to NEAR"
+              />
+            )}
+          />
+        </button>
+      </div>
+      <WalletSelectorModal
+        isOpen={showWalletSelector}
+        onRequestClose={() => {
+          window.location.reload();
+          setShowWalletSelector(false);
+        }}
+        setShowWalletSelector={setShowWalletSelector}
+      />
+    </>
+  );
+}

@@ -30,6 +30,7 @@ import {
   claimRewardBySeed_boost,
   lock_free_seed,
   force_unlock,
+  BoostConfig,
 } from '~services/farm';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import {
@@ -87,8 +88,11 @@ export default function FarmsDetail(props: {
   detailData: Seed;
   emptyDetailData: Function;
   tokenPriceList: any;
+  loveSeed: Seed;
+  boostConfig: BoostConfig;
 }) {
-  const { detailData, emptyDetailData, tokenPriceList } = props;
+  const { detailData, emptyDetailData, tokenPriceList, loveSeed, boostConfig } =
+    props;
   const history = useHistory();
   const pool = detailData.pool;
   const { token_account_ids } = pool;
@@ -165,18 +169,25 @@ export default function FarmsDetail(props: {
       <StakeContainer
         detailData={detailData}
         tokenPriceList={tokenPriceList}
+        loveSeed={loveSeed}
+        boostConfig={boostConfig}
       ></StakeContainer>
     </div>
   );
 }
-function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
+function StakeContainer(props: {
+  detailData: Seed;
+  tokenPriceList: any;
+  loveSeed: Seed;
+  boostConfig: BoostConfig;
+}) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const [lpBalance, setLpBalance] = useState('0');
   const [showAddLiquidityEntry, setShowAddLiquidityEntry] = useState(false);
   const [calcVisible, setCalcVisible] = useState(false);
   const [dayVolume, setDayVolume] = useState('');
-  const { detailData, tokenPriceList } = props;
+  const { detailData, tokenPriceList, loveSeed, boostConfig } = props;
   const pool = detailData.pool;
   const intl = useIntl();
   function totalTvlPerWeekDisplay() {
@@ -585,6 +596,8 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
         detailData={detailData}
         tokenPriceList={tokenPriceList}
         lpBalance={lpBalance}
+        loveSeed={loveSeed}
+        boostConfig={boostConfig}
       ></UserStakeBlock>
       <UserTotalUnClaimBlock
         detailData={detailData}
@@ -599,6 +612,8 @@ function StakeContainer(props: { detailData: Seed; tokenPriceList: any }) {
           }}
           seed={detailData}
           tokenPriceList={tokenPriceList}
+          loveSeed={loveSeed}
+          boostConfig={boostConfig}
           style={{
             overlay: {
               backdropFilter: 'blur(15px)',
@@ -1487,8 +1502,11 @@ function UserStakeBlock(props: {
   detailData: Seed;
   tokenPriceList: any;
   lpBalance: string;
+  loveSeed: Seed;
+  boostConfig: BoostConfig;
 }) {
-  const { detailData, tokenPriceList, lpBalance } = props;
+  const { detailData, tokenPriceList, lpBalance, loveSeed, boostConfig } =
+    props;
   const [stakeModalVisible, setStakeModalVisible] = useState(false);
   const [unStakeModalVisible, setUnStakeModalVisible] = useState(false);
   const [stakeType, setStakeType] = useState('');
@@ -2001,6 +2019,8 @@ function UserStakeBlock(props: {
           stakeType={stakeType}
           serverTime={serverTime}
           tokenPriceList={tokenPriceList}
+          loveSeed={loveSeed}
+          boostConfig={boostConfig}
         ></StakeModal>
       ) : null}
       {unStakeModalVisible ? (
@@ -2027,6 +2047,8 @@ function StakeModal(props: {
   stakeType: string;
   serverTime: number;
   tokenPriceList: any;
+  loveSeed: Seed;
+  boostConfig: BoostConfig;
 }) {
   const {
     title,
@@ -2037,6 +2059,8 @@ function StakeModal(props: {
     stakeType,
     serverTime,
     tokenPriceList,
+    loveSeed,
+    boostConfig,
   } = props;
   const {
     pool,
@@ -2701,10 +2725,13 @@ function StakeModal(props: {
             </label>
           </div>
           <div className={'w-full ' + (showCalc ? 'block' : 'hidden')}>
+            {/* todo */}
             <CalcEle
               seed={detailData}
               tokenPriceList={tokenPriceList}
               lpTokenNumAmount={amount}
+              loveSeed={loveSeed}
+              boostConfig={boostConfig}
             ></CalcEle>
           </div>
         </div>
