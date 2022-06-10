@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { FormattedMessage, FormattedRelativeTime } from 'react-intl';
+import React, { useState, useEffect, useMemo, useContext } from 'react';
+import { FormattedMessage, FormattedRelativeTime, useIntl } from 'react-intl';
 import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 import { Card } from '../components/card/Card';
 import { REF_TOKEN_ID, REF_VE_CONTRACT_ID } from '../services/near';
@@ -45,7 +45,11 @@ import { isMobile } from '../utils/device';
 import { VEConfig } from '../services/referendum';
 import { useLOVEbalance, useLOVEmeta, useMultiplier } from '~state/referendum';
 import { ArrowLeftIcon } from '~components/icon/FarmBoost';
-import { LeftArrowVE, RightArrowVE } from '../components/icon/Referendum';
+import {
+  LeftArrowVE,
+  RightArrowVE,
+  VE_ICON,
+} from '../components/icon/Referendum';
 
 import moment, { duration } from 'moment';
 import { CheckedTick, ErrorTriangle, TipTriangle } from '~components/icon';
@@ -58,6 +62,13 @@ import {
 import Big from 'big.js';
 import { LOVE_TOKEN_DECIMAL, useAccountInfo } from '../state/referendum';
 import { ProposalTab, ProposalCard } from '../components/layout/Proposal';
+import { WalletContext } from '../utils/sender-wallet';
+import { scientificNotationToString } from '../utils/numbers';
+import { WarnTriangle } from '../components/icon/SwapRefresh';
+import {
+  ConnectToNearBtnGradient,
+  WithGradientButton,
+} from '../components/button/Button';
 
 export interface AccountInfo {
   duration_sec: number;
@@ -155,8 +166,6 @@ const LockPopUp = ({
     getVEConfig().then((res) => setConfig(res));
   }, []);
 
-  console.log(config);
-
   const balance = useLOVEbalance();
 
   const { multiplier, finalAmount, appendAmount, finalLoveAmount } =
@@ -241,17 +250,38 @@ const LockPopUp = ({
         setInputValue('');
       }}
       title={
-        <FormattedMessage id="lock_lp_tokens" defaultMessage="Lock LP Tokens" />
+        <FormattedMessage id="lock_lptoken" defaultMessage="Lock LPtoken" />
       }
     >
-      <div className="flex flex-col text-white pt-8">
+      <div className="flex flex-col text-white pt-4">
         <div className="flex items-center justify-between pb-5">
           <div className="flex items-center">
             <Images tokens={tokens} size={'7'} />
             &nbsp;
-            <Symbols withArrow={false} tokens={tokens} />
+            <Symbols withArrow={false} tokens={tokens} size="text-base" />
+            <button
+              className="text-gradientFrom pl-1 py-1"
+              onClick={() => window.open(`/pool/${getPoolId()}`, '_blank')}
+            >
+              ↗
+            </button>
           </div>
-          <span>{toPrecision(lpShare, 2)}</span>
+          <span>
+            {!ONLY_ZEROS.test(lpShare) ? (
+              toPrecision(lpShare, 2)
+            ) : (
+              <button
+                className="text-gradientFrom"
+                onClick={() => window.open(`/pool/${getPoolId()}`, '_blank')}
+              >
+                <FormattedMessage
+                  id="get_lptoken"
+                  defaultMessage={'Get LPtoken'}
+                />
+                &nbsp; ↗
+              </button>
+            )}
+          </span>
         </div>
 
         <NewFarmInputAmount max={lpShare} onChangeAmount={setInputValue} />
@@ -306,11 +336,20 @@ const LockPopUp = ({
                   </span>
                 </>
               ) : null}
-              <span className="text-lg">
+              <span
+                className={`text-lg ${
+                  showVeAmount ? 'text-white' : 'text-farmText'
+                } `}
+              >
                 {showVeAmount ? finalAmount : '0'}
               </span>
             </div>
-            <span className="pt-1 text-sm text-farmText">veLPT</span>
+            <span className="pt-1 text-sm text-farmText flex items-center">
+              <span className="mr-1">
+                <VE_ICON />
+              </span>
+              <span>veLPT</span>
+            </span>
           </div>
           <div className="flex flex-col w-full items-center pr-2">
             <div className="flex items-center">
@@ -324,7 +363,11 @@ const LockPopUp = ({
                   </span>
                 </>
               ) : null}
-              <span className="text-lg">
+              <span
+                className={`text-lg ${
+                  showVeAmount ? 'text-white' : 'text-farmText'
+                }`}
+              >
                 {showVeAmount ? finalLoveAmount : '0'}
               </span>
             </div>
@@ -344,12 +387,17 @@ const LockPopUp = ({
                 id="existing_amount"
                 defaultMessage={'Existing amount'}
               />{' '}
-              <span className="text-gradientFrom">{currentVeAmount}</span> +{' '}
+              <span className="text-gradientFrom">
+                {toPrecision(toReadableNumber(24, accountInfo.lpt_amount), 2)}
+              </span>{' '}
+              +{' '}
               <FormattedMessage
                 id="append_amount"
                 defaultMessage={'Append amount'}
               />{' '}
-              <span className="text-gradientFrom">{appendAmount}</span>{' '}
+              <span className="text-gradientFrom">
+                {toPrecision(inputValue, 2)}
+              </span>{' '}
               <FormattedMessage
                 id="will_be_able_to_unstake_after"
                 defaultMessage={'will be able to unstaked after'}
@@ -362,7 +410,16 @@ const LockPopUp = ({
         )}
 
         <NewGradientButton
-          text={<FormattedMessage id="lock" defaultMessage={'Lock'} />}
+          text={
+            ONLY_ZEROS.test(lpShare) ? (
+              <FormattedMessage
+                id="you_have_no_lp_share"
+                defaultMessage={'You have no LPtoken'}
+              />
+            ) : (
+              <FormattedMessage id="lock" defaultMessage={'Lock'} />
+            )
+          }
           className="mt-6 text-lg"
           onClick={() =>
             lockLP({
@@ -372,7 +429,12 @@ const LockPopUp = ({
               leftTime,
             })
           }
-          disabled={!termsCheck || ONLY_ZEROS.test(inputValue) || !duration}
+          disabled={
+            !termsCheck ||
+            ONLY_ZEROS.test(inputValue) ||
+            !duration ||
+            ONLY_ZEROS.test(lpShare)
+          }
         />
 
         <div className="pt-4 text-sm flex items-start ">
@@ -420,112 +482,163 @@ const UnLockPopUp = ({
 
   const [toUnlockAmount, setToUnlockAmount] = useState<string>('');
 
-  const currentMaxUnlock = preLocked
-    ? new Big(balance)
-        .div(
-          new Big(accountInfo?.ve_lpt_amount).div(
-            new Big(accountInfo?.lpt_amount).div(1000000)
-          )
-        )
-        .toNumber()
-        .toFixed()
-    : '0';
+  const [error, setError] = useState<Error>(null);
 
+  const multiplier = preLocked
+    ? new Big(accountInfo?.ve_lpt_amount).div(
+        new Big(accountInfo?.lpt_amount).div(1000000)
+      )
+    : new Big(1);
+
+  const currentMaxUnlock = preLocked
+    ? new Big(balance).times(multiplier)
+    : new Big('0');
+
+  const reduced = new Big(toUnlockAmount || '0').div(multiplier);
+
+  const finalve = scientificNotationToString(
+    new Big(
+      toReadableNumber(LOVE_TOKEN_DECIMAL, accountInfo?.ve_lpt_amount || '0')
+    )
+      .minus(reduced)
+      .toString()
+  );
+
+  const finalLove = scientificNotationToString(
+    new Big(balance || 0).minus(reduced).toString()
+  );
+
+  const intl = useIntl();
+  useEffect(() => {
+    if (Number(finalLove) < 0) {
+      setError(
+        new Error(
+          `You don’t have enough LOVE ${intl.formatMessage({ id: 'token' })}`
+        )
+      );
+    } else if (Number(finalve) < 0) {
+      setError(new Error(`You don’t have enough veLPT`));
+    } else setError(null);
+  }, [toUnlockAmount]);
   return (
     <ModalWrapper
       isOpen={isOpen}
       onRequestClose={onRequestClose}
       title={
         <FormattedMessage
-          id="unlock_lp_tokens"
-          defaultMessage={'Unlock LP Tokens'}
+          id="unlock_lptoken"
+          defaultMessage={'Unlock LPtoken'}
         />
       }
     >
-      <div className="flex flex-col pt-7 text-farmText text-sm">
-        <div className="flex items-start justify-between">
-          <span>
-            <FormattedMessage
-              id="currently_you_have"
-              defaultMessage={'Currently you have'}
-            />
-          </span>
-
-          <div>
-            <div>
-              <span>{currentVeAmount}</span> &nbsp; {'veLPT'}
-            </div>
-
-            <div className="pt-5">
-              <span>{currentVeAmount}</span> &nbsp; {'LOVE'}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-between items-center py-5 border-b border-white border-opacity-10">
-          <span>
-            <FormattedMessage id="unlock_time" defaultMessage={'Unlock time'} />
-          </span>
-
-          <div>
-            <span className="text-gradientFrom">
-              <FormattedMessage id="expired" defaultMessage="Expired" />
-            </span>
-            &nbsp;
-            <span>{timeStampToDate(unlockTime)}</span>
-          </div>
-        </div>
-
-        <div className="flex items-center pt-7">
+      <div className="flex flex-col pt-4 text-farmText text-sm">
+        <div className="flex items-center">
           <Images tokens={tokens} size={'7'} />
           &nbsp;
-          <Symbols withArrow={false} tokens={tokens} />
+          <Symbols withArrow={false} tokens={tokens} size="text-base" />
         </div>
 
-        <div className="flex items-center justify-end pb-3">
-          <div className="text-center flex items-center flex-col mr-11">
-            <span className="pb-1">{currentMaxUnlock}</span>
-
+        <div className="flex flex-col pb-3 pt-5">
+          <div className="text-center flex items-center  justify-between">
             <span>
-              <FormattedMessage id="current" defaultMessage="Current" />
+              <FormattedMessage id="locked" defaultMessage="Locked" />
             </span>
-          </div>
-
-          <div className="text-center flex items-center flex-col">
             <span className="pb-1">{lockedLPAmount}</span>
-
+          </div>
+          <div className="text-center flex items-center pt-4 justify-between">
             <span>
-              <FormattedMessage id="potential" defaultMessage="Potential" />
+              <FormattedMessage id="avaliable" defaultMessage="Avaliable" />
+            </span>
+            <span className="pb-1">
+              {currentMaxUnlock.gt(0)
+                ? toPrecision(
+                    scientificNotationToString(currentMaxUnlock.toString()),
+                    2
+                  )
+                : 0}
             </span>
           </div>
         </div>
 
         <NewFarmInputAmount
-          max={lockedLPAmount}
+          max={scientificNotationToString(currentMaxUnlock.toString())}
           value={toUnlockAmount}
           onChangeAmount={setToUnlockAmount}
         />
 
-        <div
-          className="mt-4 p-2  pb-4 flex border rounded-lg"
-          style={{
-            borderColor: '#2e3c45',
-            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.15)',
-            backdropFilter: 'blur(50px)',
-            WebkitBackdropFilter: 'blur(50px)',
-          }}
-        >
-          <span className="mr-2">
-            <TipTriangle h="14" w="13" c="#00C6A2" />
-          </span>
-
-          <span className="text-xs">
-            <FormattedMessage
-              id="unlock_lpt_tip"
-              defaultMessage="To unlock all the veREF to get LP token back, must insure there have the same amount of LOVE token to be burned. If not, the maximum amount is  equal to the LOVE amount, or you can swap enough LOVE token "
-            />
-          </span>
+        <div className="text-sm text-farmText pt-7 pb-2.5 flex items-center justify-between">
+          veLPT/LOVE &nbsp;
+          <FormattedMessage id="balance" defaultMessage="balance" />
         </div>
+
+        <div className="rounded-lg bg-black bg-opacity-20 pt-6 pb-5 flex items-center justify-between ">
+          <div className="flex flex-col w-full items-center pl-2 border-r border-white border-opacity-10">
+            <div className="flex items-center">
+              <span className="text-farmText text-xs">{currentVeAmount}</span>
+              {ONLY_ZEROS.test(toUnlockAmount) ? null : (
+                <>
+                  <span className="mx-3">
+                    <RightArrowVE />
+                  </span>
+                  <span
+                    className={`text-lg ${
+                      Number(finalve) >= 0 ? 'text-white' : 'text-warn'
+                    } `}
+                  >
+                    {Number(Number(finalve).toFixed(24)) === 0
+                      ? 0
+                      : toPrecision(finalve, 2, false, false)}
+                  </span>
+                </>
+              )}
+            </div>
+            <span className="pt-1 text-sm text-farmText flex items-center">
+              <span className="mr-1">
+                <VE_ICON />
+              </span>
+              <span>veLPT</span>
+            </span>
+          </div>
+          <div className="flex flex-col w-full items-center pr-2">
+            <div className="flex items-center">
+              <span className="text-farmText text-xs">
+                {toPrecision(balance, 2)}
+              </span>
+              {ONLY_ZEROS.test(toUnlockAmount) ? null : (
+                <>
+                  <span className="mx-3">
+                    <RightArrowVE />
+                  </span>
+                  <span
+                    className={`text-lg ${
+                      Number(finalLove) >= 0 ? 'text-white' : 'text-warn'
+                    } `}
+                  >
+                    {Number(Number(finalLove).toFixed(24)) === 0
+                      ? 0
+                      : toPrecision(finalLove, 2, false, false)}
+                  </span>
+                </>
+              )}
+            </div>
+            <span className="pt-1 text-sm text-farmText flex items-center">
+              <span className="mr-1">
+                <LOVE_ICON />
+              </span>
+              <span>LOVE</span>
+            </span>
+          </div>
+        </div>
+
+        {!error ? null : (
+          <div className=" text-center flex items-center justify-center pt-4">
+            <span className="mr-1.5">
+              <WarnTriangle />
+            </span>
+
+            <span className="text-warn">{error.message}</span>
+          </div>
+        )}
 
         <NewGradientButton
           text={<FormattedMessage id="unlock" defaultMessage={'Unlock'} />}
@@ -537,7 +650,8 @@ const UnLockPopUp = ({
           }}
           disabled={
             ONLY_ZEROS.test(toUnlockAmount) ||
-            new Big(toUnlockAmount).gt(lockedLPAmount)
+            new Big(toUnlockAmount).gt(lockedLPAmount) ||
+            !!error
           }
         />
       </div>
@@ -662,11 +776,13 @@ const UserReferendumCard = ({
 }) => {
   const tokens = [REF_META_DATA, wnearMetadata];
 
+  const { globalState } = useContext(WalletContext);
+
+  const isSignedIn = globalState.isSignedIn;
+
   const [lockPopOpen, setLockPopOpen] = useState<boolean>(false);
 
   const [unLockPopOpen, setUnLockPopOpen] = useState<boolean>(false);
-
-  const history = useHistory();
 
   const preLocked = Number(accountInfo?.unlock_timestamp) > 0;
 
@@ -678,13 +794,21 @@ const UserReferendumCard = ({
 
   const passedTime_sec = moment().unix() - lockTime;
 
+  const lockedLpShare = toReadableNumber(24, accountInfo?.lpt_amount || '0');
+
   return (
     <Card
       className="flex flex-col relative z-50"
       width="w-2/3"
       bgcolor="bg-veUserCard"
     >
-      <span className="pb-24 text-5xl valueStyle font-bold">
+      <div className="text-3xl font-bold mb-2">
+        <FormattedMessage
+          id="lock_your_lp_tokens"
+          defaultMessage="Lock Your LP Tokens"
+        />
+      </div>
+      <span className="pb-20 text-5xl valueStyle font-bold">
         <FormattedMessage
           id="unlock_your_defi_power"
           defaultMessage="Unlock your DeFi Power"
@@ -692,115 +816,91 @@ const UserReferendumCard = ({
       </span>
       <div className=" flex items-center text-lg">
         <Images tokens={tokens} size="6" />
-        <span className="pl-3">LP tokens</span>
+        <span className="mx-1"></span>
+        <Symbols tokens={tokens} seperator="-" size="text-lg" />
       </div>
 
-      <div className="flex items-center justify-between mt-5">
-        <div className="flex flex-col">
+      <div className="flex items-center justify-between mt-8">
+        <div className="flex flex-col w-full">
           <span
             className={`text-3xl font-bold text-gradientFromHover ${
-              ONLY_ZEROS.test(lpShare) ? 'opacity-20' : ''
+              ONLY_ZEROS.test(lpShare) || !isSignedIn ? 'opacity-20' : ''
             }`}
             title={lpShare}
           >
-            {toPrecision(lpShare, 2)}
+            {isSignedIn ? toPrecision(lpShare, 2) : '-'}
           </span>
 
-          <span className="text-sm text-farmText">
+          <span className="text-sm text-farmText pt-1">
             <FormattedMessage
               id="avaliable_to_lock"
               defaultMessage="Avaliable to lock"
             />
           </span>
         </div>
-
-        {!ONLY_ZEROS.test(lpShare) ? (
-          <BorderGradientButton
-            className="text-sm px-5 py-3 w-40"
-            width="w-40"
-            text={
-              <span>
-                <FormattedMessage
-                  id="get_lp_tokens"
-                  defaultMessage="Get LP Tokens"
-                />{' '}
-                ↗
-              </span>
-            }
-            onClick={() => window.open(`/pool/${getPoolId()}`, '_blank')}
-          />
-        ) : (
-          <NewGradientButton
-            className="text-sm px-5 py-3 w-40"
-            text={
-              <span>
-                <FormattedMessage
-                  id="get_lp_tokens"
-                  defaultMessage="Get LP Tokens"
-                />{' '}
-                ↗
-              </span>
-            }
-            onClick={() => window.open(`/pool/${getPoolId()}`, '_blank')}
-          />
-        )}
-      </div>
-
-      <div className="flex items-center justify-between mt-5">
-        <div className="flex flex-col">
+        <div className="flex flex-col w-full">
           <span
             className={`text-3xl font-bold text-gradientFromHover ${
-              ONLY_ZEROS.test(veShare) ? 'opacity-20' : ''
+              ONLY_ZEROS.test(lockedLpShare) || !isSignedIn ? 'opacity-20' : ''
             }`}
           >
-            {toPrecision(veShare, 2)}
+            {isSignedIn ? toPrecision(lockedLpShare, 2) : '-'}
           </span>
 
-          <span className="text-sm text-farmText">
+          <span className="text-sm text-farmText pt-1">
             <FormattedMessage id="locked" defaultMessage="Locked" />
           </span>
         </div>
+      </div>
 
-        {preLocked ? (
-          <div className={`flex flex-col`}>
-            <div className="w-40 rounded-lg h-2">
-              <div
-                className="w-full rounded-lg h-2 bg-veGradient"
-                style={{
-                  width: `${Math.ceil(
-                    passedTime_sec / accountInfo?.duration_sec
-                  )}%`,
-                }}
-              ></div>
-            </div>
-
-            <span className="mt-2 text-sm text-farmText">
+      {isSignedIn ? (
+        <div className="text-base flex items-center pt-8 w-full">
+          <NewGradientButton
+            className="w-full mr-4"
+            text={
               <FormattedMessage
-                id="unlock_time"
-                defaultMessage={'Unlock time'}
-              />{' '}
-              &nbsp;
-              {timeStampToDate(unlockTime)}
-            </span>
-          </div>
-        ) : null}
-      </div>
-
-      <div className="text-sm flex items-center pt-6">
-        <NewGradientButton
-          className="w-full mr-4"
-          text={<FormattedMessage id="lock" defaultMessage="Lock" />}
-          onClick={() => setLockPopOpen(true)}
-        />
-
-        <NewGradientButton
-          text={<FormattedMessage id="unlock" defaultMessage={'Unlock'} />}
-          onClick={() => setUnLockPopOpen(true)}
-          className="px-5 py-3 rounded-lg w-40 flex-shrink-0"
-          grayDisable={moment().unix() < unlockTime}
-          disabled={moment().unix() < unlockTime}
-        />
-      </div>
+                id="lock_lptoken"
+                defaultMessage="Lock LPtoken"
+              />
+            }
+            onClick={() => setLockPopOpen(true)}
+          />
+          {ONLY_ZEROS.test(veShare) ? null : moment().unix() < unlockTime ? (
+            <BorderGradientButton
+              onClick={() => setUnLockPopOpen(true)}
+              text={
+                <span>
+                  {timeStampToDate(unlockTime)}{' '}
+                  <span className="">
+                    <FormattedMessage id="unlock" defaultMessage="Unlock" />
+                  </span>
+                </span>
+              }
+              className="rounded-lg w-full px-5 py-3"
+              width="w-full"
+            />
+          ) : (
+            <WithGradientButton
+              text={
+                <span>
+                  {timeStampToDate(unlockTime)}{' '}
+                  <span className="">
+                    <FormattedMessage id="unlock" defaultMessage="Unlock" />
+                  </span>
+                </span>
+              }
+              className="rounded-lg w-full"
+              grayDisable={moment().unix() < unlockTime}
+              disabled={moment().unix() < unlockTime}
+              gradientWith={`${Math.ceil(
+                passedTime_sec / accountInfo?.duration_sec
+              )}%`}
+            />
+          )}
+        </div>
+      ) : (
+        <ConnectToNearBtnGradient className="mt-8 py-2" />
+      )}
 
       <LockPopUp
         isOpen={lockPopOpen}
@@ -832,12 +932,6 @@ export const ReferendumPage = () => {
 
   return (
     <div className="m-auto lg:w-1024px xs:w-full md:w-5/6 text-white relative">
-      <div className="m-auto text-3xl font-bold mb-1 ml-4">
-        <FormattedMessage
-          id="lock_your_lp_tokens"
-          defaultMessage="Lock Your LP Tokens"
-        />
-      </div>
       <div className="w-full flex ">
         <UserReferendumCard
           veShare={veShare}

@@ -165,7 +165,7 @@ export const useVEmeta = () => {
 
   return {
     ...meta,
-    totalVE: toReadableNumber(meta?.lptoken_decimals, meta?.cur_total_ve_lpt),
+    totalVE: toReadableNumber(LOVE_TOKEN_DECIMAL, meta?.cur_total_ve_lpt),
   };
 };
 

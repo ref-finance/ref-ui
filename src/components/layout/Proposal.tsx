@@ -24,12 +24,15 @@ import Modal from 'react-modal';
 import { Images, Symbols } from '../stableswap/CommonComp';
 import { RightArrowVE } from '../icon/Referendum';
 import { VoteFarm } from '../../services/referendum';
-import { toNonDivisibleNumber } from '../../utils/numbers';
+import { toNonDivisibleNumber, percent } from '../../utils/numbers';
 import {
   ftGetTokensMetadata,
   TokenMetadata,
   ftGetTokenMetadata,
 } from '../../services/ft-contract';
+import { PieChart, Pie, Cell, Sector, ResponsiveContainer } from 'recharts';
+import { toRealSymbol } from '../../utils/token';
+import _ from 'lodash';
 
 const REF_FI_PROPOSALTAB = 'REF_FI_PROPOSALTAB_VALUE';
 
@@ -105,16 +108,6 @@ const VotePopUp = (
           <InfoRow
             title={
               <FormattedMessage
-                id="my_voting_power"
-                defaultMessage={'My voting power'}
-              />
-            }
-            value={myPower}
-          />
-
-          <InfoRow
-            title={
-              <FormattedMessage
                 id="voting_ratio"
                 defaultMessage={'Voting ratio '}
               />
@@ -172,6 +165,257 @@ enum PROPOSAL_TAB {
 }
 const PAIR_SEPERATOR = '|';
 
+export const ProposalWrapper = (props: any & { show: boolean }) => {
+  const { show } = props;
+  return (
+    <Card
+      padding={'p-8'}
+      width="w-full"
+      className={!show ? 'hidden' : 'text-primaryText '}
+    >
+      {props.children}
+    </Card>
+  );
+};
+
+const FarmChart = ({
+  ratio,
+  size,
+}: {
+  ratio: {
+    name: string;
+    value: number;
+    pairSymbol: string;
+    tokens: TokenMetadata[];
+    allocation: string;
+    r: string;
+  }[];
+  size: number;
+}) => {
+  if (!ratio) return null;
+  const [activeIndex, setActiveIndex] = useState<number>();
+
+  const emptyVote = ratio.every((r, i) => r.value === 0);
+
+  console.log(ratio);
+
+  const ActiveLabel = () => {
+    const activeFarm = ratio[activeIndex];
+
+    return (
+      <div
+        className="rounded-lg border w-full border-gradientFrom px-3 pt-4 pb-3 flex flex-col text-base"
+        style={{
+          backgroundColor: 'rgba(26, 35, 41, 0.6)',
+        }}
+      >
+        <div className="flex items-center justify-between w-full pb-2">
+          <Images tokens={activeFarm.tokens} size="6" />
+          <Symbols
+            tokens={activeFarm.tokens}
+            seperator={'-'}
+            size="text-base"
+          />
+        </div>
+
+        <div className="flex items-center justify-between pb-2">
+          <span className="text-primaryText">
+            <FormattedMessage id="voted_veLPT" defaultMessage={'Voted veLPT'} />
+          </span>
+
+          <span className="text-white">
+            {toPrecision(
+              scientificNotationToString(activeFarm.value.toString()),
+              2,
+              true
+            )}
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between pb-2">
+          <span className="text-primaryText">
+            <FormattedMessage id="ratio" defaultMessage={'Ratio'} />
+          </span>
+
+          <span className="text-white">{activeFarm.r}</span>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <span className="text-primaryText">
+            <FormattedMessage
+              id="ref_allocation"
+              defaultMessage={'REF allocation'}
+            />
+          </span>
+
+          <span className="text-white">{activeFarm.allocation}</span>
+        </div>
+      </div>
+    );
+  };
+
+  const data = emptyVote
+    ? ratio.map((r, i) => {
+        const newr = JSON.parse(JSON.stringify(r));
+        newr.value = (1 / ratio.length) * 0.99;
+        return newr;
+      })
+    : ratio;
+
+  const color = ['#51626B', '#667A86', '#849DA8', '#B5C9CA'];
+
+  function customLabel(props: any) {
+    let {
+      cx,
+      cy,
+      x,
+      y,
+      midAngle,
+      innerRadius,
+      outerRadius,
+      percent,
+      pairSymbol,
+      index,
+    } = props;
+
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x1 = cx + radius * Math.cos(-midAngle * RADIAN) - 15;
+    const y1 = cy + radius * Math.sin(-midAngle * RADIAN) - 15;
+    if (y < cy) {
+      y = y - 30;
+    }
+
+    if (index === activeIndex) return null;
+
+    return (
+      <g>
+        <text
+          x={x}
+          y={y + 10}
+          fill="#91A2AE"
+          fontSize="14px"
+          textAnchor={x > cx ? 'start' : 'end'}
+          dominantBaseline="central"
+        >
+          {pairSymbol}
+        </text>
+        <text
+          x={x}
+          y={y + 30}
+          fill="#91A2AE"
+          textAnchor={x > cx ? 'start' : 'end'}
+          dominantBaseline="central"
+        >
+          {`${emptyVote ? '-' : (percent * 100).toFixed(0)}%`}
+        </text>
+      </g>
+    );
+  }
+
+  const renderActiveShape = (props: any) => {
+    const RADIAN = Math.PI / 180;
+    const {
+      cx,
+      cy,
+      midAngle,
+      innerRadius,
+      outerRadius,
+      startAngle,
+      endAngle,
+      fill,
+      payload,
+      percent,
+      value,
+    } = props;
+    const sin = Math.sin(-RADIAN * midAngle);
+    const cos = Math.cos(-RADIAN * midAngle);
+    const sx = cx + (outerRadius - 2) * cos;
+    const sy = cy + (outerRadius - 2) * sin;
+    const mx = cx + (outerRadius + 50) * cos;
+    const my = cy + (outerRadius + 50) * sin;
+    const ex = mx + (cos >= 0 ? 1 : -1) * 50;
+    const ey = my;
+    const textAnchor = cos >= 0 ? 'start' : 'end';
+
+    console.log(cos, 'cos');
+
+    return (
+      <g>
+        <Sector
+          cx={cx}
+          cy={cy}
+          innerRadius={0}
+          outerRadius={innerRadius}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          fill={'#00FFD1'}
+          opacity="0.1"
+        />
+        <Sector
+          cx={cx}
+          cy={cy}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          innerRadius={innerRadius - 10}
+          outerRadius={outerRadius}
+          fill={'#00FFD1'}
+          stroke={'#1D2932'}
+          strokeWidth={2}
+        />
+        <path
+          d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`}
+          stroke={'#00FFD1'}
+          fill="none"
+        />
+
+        <foreignObject
+          x={ex + (cos < 0 ? -1 : 0) * 250}
+          y={ey - 80}
+          height="160"
+          width="250"
+        >
+          <ActiveLabel />
+        </foreignObject>
+      </g>
+    );
+  };
+
+  const innerRadius = 140;
+  const outerRadius = 170;
+  return (
+    <ResponsiveContainer width={'100%'} height={600}>
+      <PieChart>
+        <Pie
+          data={data}
+          innerRadius={innerRadius}
+          outerRadius={outerRadius}
+          dataKey="value"
+          labelLine={false}
+          label={customLabel}
+          cx="50%"
+          cy="50%"
+          activeIndex={activeIndex}
+          activeShape={renderActiveShape}
+          isAnimationActive={false}
+        >
+          {data.map((entry, index) => {
+            return (
+              <Cell
+                key={`cell-${index}`}
+                fill={color[index]}
+                stroke="#1D2932"
+                strokeWidth={2}
+                onMouseMove={() => setActiveIndex(index)}
+              />
+            );
+          })}
+        </Pie>
+      </PieChart>
+    </ResponsiveContainer>
+  );
+};
+
 export const ProposalTab = ({
   className,
   curTab,
@@ -221,12 +465,15 @@ export const FarmProposal = () => {
 
   const voteDetail = useVoteDetail();
 
-  console.log(voteDetail, 'votedetail');
-
   const { accountInfo, veShare, veShareRaw } = useAccountInfo();
   const [hover, setHover] = useState<number>();
 
   const [farmProposal, setFarmProposal] = useState<Proposal>();
+
+  const startTime = Math.floor(
+    new Big(farmProposal?.start_at || 0).div(1000000).toNumber()
+  );
+
   const endTime = Math.floor(
     new Big(farmProposal?.end_at || 0).div(1000000).toNumber()
   );
@@ -408,9 +655,17 @@ export const FarmProposal = () => {
 
   useEffect(() => {
     getProposalList().then((list: Proposal[]) => {
-      const farmProposal = list.find((p) =>
+      const farmProposals = list.filter((p) =>
         Object.keys(p.kind).includes('FarmingReward')
       );
+
+      const farmProposal =
+        farmProposals.length === 1
+          ? farmProposals[0]
+          : _.maxBy(
+              farmProposals.filter((p) => Number(p.start_at) < moment().unix()),
+              (o) => Number(o.start_at)
+            );
 
       setFarmProposal(farmProposal);
     });
@@ -458,7 +713,7 @@ export const FarmProposal = () => {
     .toFixed(2);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col items-center">
       <div className="text-center text-2xl text-white">
         <FormattedMessage id="proposed" defaultMessage={'Proposed'} />{' '}
         <span>{moment().add(1, 'months').format('MMMM')}</span>{' '}
@@ -466,7 +721,7 @@ export const FarmProposal = () => {
         <FormattedMessage id="farm_reward" defaultMessage={'Farm reward'} />
       </div>
 
-      <div className="text-center relative text-sm mt-4">
+      <div className="text-center relative text-sm mt-4 w-full">
         <span>Voting period</span> <span></span> 1-{moment().daysInMonth()}{' '}
         {curMonth}
         {', '}
@@ -476,7 +731,7 @@ export const FarmProposal = () => {
         </span>
       </div>
 
-      <div className="flex mt-10">
+      <div className="flex mt-10 w-full mb-10">
         <InfoCard
           className="text-sm mr-2 w-full"
           titles={[
@@ -522,16 +777,58 @@ export const FarmProposal = () => {
               2,
               true
             )} veLPT`,
-            `${toPrecision(VEmeta.totalVE, 2, true)} veLPT`,
+            `${
+              Number(VEmeta.totalVE) === 0
+                ? '0'
+                : toPrecision(VEmeta.totalVE, 2, true, false)
+            } veLPT`,
             `${Number(supplyPercent) === 0 ? 0 : supplyPercent}%`,
           ]}
         />
       </div>
 
+      <FarmChart
+        ratio={farmProposal?.kind?.FarmingReward?.farm_list?.map((f, i) => ({
+          name: f,
+          value: Number(farmProposal.votes[i]),
+          pairSymbol: f
+            .split(PAIR_SEPERATOR)
+            .map((id) => toRealSymbol(tokens?.[id]?.symbol || ''))
+            .join('/'),
+          tokens: f.split(PAIR_SEPERATOR).map((id) => tokens?.[id]),
+
+          r: votedVE.isEqualTo(0)
+            ? '0'
+            : toPrecision(
+                scientificNotationToString(
+                  new BigNumber(farmProposal.votes[i])
+                    .div(votedVE)
+                    .times(100)
+                    .toString()
+                ),
+                1,
+                false
+              ) + '%',
+          allocation: votedVE.isEqualTo(0)
+            ? '0'
+            : toPrecision(
+                scientificNotationToString(
+                  new BigNumber(farmProposal.votes[i])
+                    .div(votedVE)
+                    .times(farmProposal.kind.FarmingReward.total_reward)
+                    .toString()
+                ),
+                0,
+                true
+              ),
+        }))}
+        size={farmProposal?.kind?.FarmingReward?.farm_list?.length}
+      />
+
       <Card
         className="w-full"
         bgcolor="bg-white bg-opacity-10"
-        padding={'px-2 pt-8 pb-4 mt-10'}
+        padding={'px-2 pt-8 pb-4'}
       >
         <div className="grid grid-cols-7 pb-4">
           <span className="col-span-3 pl-4">
@@ -569,19 +866,6 @@ export const FarmProposal = () => {
         )}
       </Card>
     </div>
-  );
-};
-
-export const ProposalWrapper = (props: any & { show: boolean }) => {
-  const { show } = props;
-  return (
-    <Card
-      padding={'p-8'}
-      width="w-full"
-      className={!show ? 'hidden' : 'text-primaryText '}
-    >
-      {props.children}
-    </Card>
   );
 };
 

@@ -170,6 +170,61 @@ export function ConnectToNearBtn() {
   );
 }
 
+export function ConnectToNearBtnGradient({
+  className,
+}: {
+  className?: string;
+}) {
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+
+  const [showWalletSelector, setShowWalletSelector] = useState(false);
+
+  return (
+    <>
+      <div
+        className={`${className} flex items-center cursor-pointer w-full justify-center rounded-full py-2 text-base bg-veGradient ${
+          buttonLoading ? 'opacity-40' : ''
+        }`}
+        style={{
+          color: '#fff',
+        }}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setButtonLoading(true);
+          setShowWalletSelector(true);
+        }}
+      >
+        {!buttonLoading && (
+          <div className="mr-3.5">
+            <UnLoginIcon />
+          </div>
+        )}
+
+        <button>
+          <ButtonTextWrapper
+            loading={buttonLoading}
+            Text={() => (
+              <FormattedMessage
+                id="connect_to_near_wallet"
+                defaultMessage="Connect to NEAR Wallet"
+              />
+            )}
+          />
+        </button>
+      </div>
+      <WalletSelectorModal
+        isOpen={showWalletSelector}
+        onRequestClose={() => {
+          window.location.reload();
+          setShowWalletSelector(false);
+        }}
+        setShowWalletSelector={setShowWalletSelector}
+      />
+    </>
+  );
+}
+
 export function SmallConnectToNearBtn() {
   return (
     <div className="flex items-center justify-center pt-2">
@@ -469,6 +524,49 @@ export function NewGradientButton(porps: {
       }}
     >
       <span>{text}</span>
+    </button>
+  );
+}
+
+export function WithGradientButton(porps: {
+  text: string | JSX.Element;
+  onClick?: any;
+  className?: string;
+  disabled?: boolean;
+  grayDisable?: boolean;
+  disableForUI?: boolean;
+  width?: string;
+  gradientWith?: string;
+}) {
+  const {
+    text,
+    onClick,
+    className,
+    disabled,
+    grayDisable,
+    disableForUI,
+    width,
+    gradientWith,
+  } = porps;
+
+  return (
+    <button
+      className={` ${width} ${className} relative px-5 py-3  ${
+        disabled ? 'opacity-30' : ''
+      }  rounded-lg text-center `}
+      onClick={onClick}
+      disabled={disableForUI ? false : disabled || grayDisable}
+      style={{
+        backgroundColor: '#445867',
+      }}
+    >
+      <div
+        className="w-full h-full left-0 top-0 rounded-lg we bg-veGradient whitespace-nowrap absolute"
+        style={{
+          width: gradientWith,
+        }}
+      ></div>
+      <span className="">{text}</span>
     </button>
   );
 }
