@@ -538,8 +538,17 @@ const ja = {
   to_recover_them: '修復',
   ref_account_tip_3:
     'REFアカウントからトークンを引き出し、自分のNEARウォレットへ送金',
+  aurora_account_tip_4:
+    'マッピングアカウントからNEARウォレットにトークンを引き出すには、選択して引き出してください',
+  pool_fee_cross_swap: 'プール/チェーン間 手数料',
+  mapping_account: '口座をマッピングする',
+  mapping_account_tip: 'マッピングアカウントにトークンがあります',
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
+  Confirm: '確認',
+  Request_for_Quote: '見積もり依頼',
+  mapping_account_explanation:
+    "A mapping address is a 'proxy address', which maps the user's NEAR account with a corresponding ETH address on Aurora.",
   buy: '買う',
   sell: '卖',
   buy_nsn: '買う USN',
@@ -552,5 +561,22 @@ const ja = {
   awesomeNear_verified_token: 'AwesomeNear検証済みトークン',
   usn_fee_tip:
     'Refによって請求されるゼロ料金、ユーザーはUSN料金のみを支払います!',
+  name: '名前',
+  diff: '差分',
+  best: '一番',
+  total_bitcoins: '総ビットコイン',
+  total_usd_value: '合計米ドル値',
+  bitcoin_value: 'ビットコインの価値',
+  stable_coin_value: 'ステーブルコイン価値',
+  pool_fee_apr: 'Pool fee APY',
+  ref_account_balance_tip_mobile: 'REFアカウントにトークンがあります。',
+  click: 'クリック',
+  to_recover: '回復する。',
+  reward_apr: 'Rewards APR',
+  price_board: 'Price board',
+  close: 'Close',
+  stake_min_deposit: 'Input must be greater than or equal to ',
+  borrow: '借りる',
+  burrow_usn_tip: 'あなたはBurrowでUSNを借りることができます。',
 };
 export default Object.assign(ja, ja_in_risks_page);

@@ -5,11 +5,8 @@ import {
   refFiViewFunction,
   REF_FI_CONTRACT_ID,
   Transaction,
-  wallet,
   RefFiFunctionCallOptions,
-  refFiManyFunctionCalls,
 } from './near';
-import BN from 'bn.js';
 import db from '../store/RefDatabase';
 import { ftGetStorageBalance, TokenMetadata } from './ft-contract';
 import {
@@ -21,8 +18,8 @@ import {
   storageDepositAction,
   storageDepositForFTAction,
 } from './creators/storage';
-import { getTopPools, _search } from '../services/indexer';
-import { parsePoolView, PoolRPCView } from './api';
+import { getTopPools } from '../services/indexer';
+import { PoolRPCView } from './api';
 import {
   checkTokenNeedsStorageDeposit,
   getDepositTransactions,
@@ -40,30 +37,15 @@ import {
   STABLE_POOL_USN_ID,
 } from './near';
 import moment from 'moment';
+import { getAllTriPools } from './aurora/aurora';
+import { ALL_STABLE_POOL_IDS, isStablePool } from './near';
+import { filterBlackListPools } from './near';
 const explorerType = getExplorer();
-
 export const DEFAULT_PAGE_LIMIT = 100;
-const STABLE_POOL_KEY = `STABLE_POOL_VALUE_${getConfig().STABLE_POOL_ID}`;
-const STABLE_POOL_USN_KEY = `STABLE_POOL_VALUE_${
-  getConfig().STABLE_POOL_USN_ID
-}`;
+const getStablePoolKey = (id: string) => `STABLE_POOL_VALUE_${id}`;
 
-const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
-  getConfig().STABLE_POOL_ID
-}`;
-const REF_FI_STABLE_POOL_USN_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
-  getConfig().STABLE_POOL_USN_ID
-}`;
-
-export const STABLE_POOL_KEYS_CACHE = {
-  [getConfig().STABLE_POOL_ID]: STABLE_POOL_KEY,
-  [getConfig().STABLE_POOL_USN_ID]: STABLE_POOL_USN_KEY,
-};
-
-export const STABLE_POOL_INFO_CACHE = {
-  [getConfig().STABLE_POOL_ID]: REF_FI_STABLE_POOL_INFO_KEY,
-  [getConfig().STABLE_POOL_USN_ID]: REF_FI_STABLE_POOL_USN_INFO_KEY,
-};
+export const getStablePoolInfoKey = (id: string) =>
+  `REF_FI_STABLE_Pool_INFO_VALUE_${id}`;
 
 export interface Pool {
   id: number;
@@ -74,6 +56,7 @@ export interface Pool {
   tvl: number;
   token0_ref_price: string;
   partialAmountIn?: string;
+  Dex?: string;
 }
 
 export interface StablePool {
@@ -280,10 +263,11 @@ interface GetPoolOptions {
   setLoadingTrigger?: (loadingTrigger: boolean) => void;
   setLoadingData?: (loading: boolean) => void;
   loadingTrigger: boolean;
+  crossSwap?: boolean;
 }
 
 export const isNotStablePool = (pool: Pool) => {
-  return !(pool.id === STABLE_POOL_ID || pool.id === STABLE_POOL_USN_ID);
+  return !isStablePool(pool.id);
 };
 
 export const getPoolsByTokens = async ({
@@ -291,6 +275,7 @@ export const getPoolsByTokens = async ({
   tokenOutId,
   setLoadingData,
   loadingTrigger,
+  crossSwap,
 }: GetPoolOptions): Promise<Pool[]> => {
   let filtered_pools;
   const [cacheForPair, cacheTimeLimit] = await db.checkPoolsByTokens(
@@ -307,20 +292,30 @@ export const getPoolsByTokens = async ({
     const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
     const pools = (
       await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
-    ).flat();
+    )
+      .flat()
+      .map((p) => ({ ...p, Dex: 'ref' }));
 
-    filtered_pools = pools.filter(isNotStablePool);
+    let triPools;
+    if (crossSwap) {
+      triPools = await getAllTriPools();
+    }
+
+    filtered_pools = pools
+      .concat(triPools || [])
+      .filter(isNotStablePool)
+      .filter(filterBlackListPools);
 
     await db.cachePoolsByTokens(filtered_pools);
     filtered_pools = filtered_pools.filter(
       (p) => p.supplies[tokenInId] && p.supplies[tokenOutId]
     );
-    await getStablePoolFromCache();
-    await getStablePoolFromCache(STABLE_POOL_USN_ID.toString());
+    await getAllStablePoolsFromCache();
   }
   setLoadingData && setLoadingData(false);
+
   // @ts-ignore
-  return filtered_pools;
+  return filtered_pools.filter((p) => crossSwap || !p?.Dex || p.Dex !== 'tri');
 };
 
 export const getRefPoolsByToken1ORToken2 = async (
@@ -477,32 +472,7 @@ export const addLiquidityToStablePool = async ({
     },
   ];
 
-  const allTokenIds =
-    id === Number(STABLE_POOL_ID)
-      ? getConfig().STABLE_TOKEN_IDS
-      : getConfig().STABLE_TOKEN_USN_IDS;
-  const balances = await Promise.all(
-    allTokenIds.map((tokenId) => getTokenBalance(tokenId))
-  );
-  let notRegisteredTokens: string[] = [];
-  for (let i = 0; i < balances.length; i++) {
-    if (Number(balances[i]) === 0) {
-      notRegisteredTokens.push(allTokenIds[i]);
-    }
-  }
-
-  if (notRegisteredTokens.length > 0 && explorerType !== ExplorerType.Firefox) {
-    actions.unshift(registerTokensAction(notRegisteredTokens));
-  }
-
   const transactions: Transaction[] = depositTransactions;
-
-  if (notRegisteredTokens.length > 0 && explorerType === ExplorerType.Firefox) {
-    transactions.push({
-      receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [registerTokensAction(notRegisteredTokens)],
-    });
-  }
 
   transactions.push({
     receiverId: REF_FI_CONTRACT_ID,
@@ -851,11 +821,11 @@ export const getStablePoolFromCache = async (
   id?: string,
   loadingTrigger?: boolean
 ) => {
-  const stable_pool_id = id || STABLE_POOL_ID;
+  const stable_pool_id = id || STABLE_POOL_ID.toString();
 
-  const pool_key = STABLE_POOL_KEYS_CACHE[stable_pool_id];
+  const pool_key = getStablePoolKey(stable_pool_id);
 
-  const info = STABLE_POOL_INFO_CACHE[stable_pool_id];
+  const info = getStablePoolInfoKey(stable_pool_id);
 
   const stablePoolCache = JSON.parse(localStorage.getItem(pool_key));
 
@@ -900,4 +870,29 @@ export const getStablePoolFromCache = async (
   }
 
   return [stablePool, stablePoolInfo];
+};
+
+export const getAllStablePoolsFromCache = async (loadingTriger?: boolean) => {
+  const res = await Promise.all(
+    ALL_STABLE_POOL_IDS.map((id) =>
+      getStablePoolFromCache(id.toString(), loadingTriger)
+    )
+  );
+
+  const allStablePoolsById = res.reduce((pre, cur, i) => {
+    return {
+      ...pre,
+      [cur[0].id]: cur,
+    };
+  }, {}) as {
+    [id: string]: [Pool, StablePool];
+  };
+  const allStablePools = Object.values(allStablePoolsById).map((p) => p[0]);
+  const allStablePoolsInfo = Object.values(allStablePoolsById).map((p) => p[1]);
+
+  return {
+    allStablePoolsById,
+    allStablePools,
+    allStablePoolsInfo,
+  };
 };

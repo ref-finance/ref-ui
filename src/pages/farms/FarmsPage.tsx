@@ -42,6 +42,7 @@ import {
   incentiveLpTokenConfig,
   defaultConfig,
   frontConfig,
+  get_seed_info,
 } from '~services/farm';
 import {
   stake,
@@ -85,6 +86,9 @@ import getConfig from '~services/config';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { scientificNotationToString } from '../../utils/numbers';
 import { getPrice } from '~services/xref';
+import { get24hVolume } from '~services/indexer';
+import { PoolRPCView } from '~services/api';
+
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
@@ -145,11 +149,12 @@ export function FarmsPage() {
   const refreshTime = 120000;
   const [count, setCount] = useState(0);
   const [commonSeedFarms, setCommonSeedFarms] = useState({});
+  const [dayVolumeMap, setDayVolumeMap] = useState({});
 
   const { wallet } = getCurrentWallet();
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   useEffect(() => {
     loadFarmInfoList(false, isSignedIn).then();
@@ -226,6 +231,7 @@ export function FarmsPage() {
     const stakedList: Record<string, string> = resolvedParams[0];
     const tokenPriceList: any = resolvedParams[2];
     const seeds: Record<string, string> = resolvedParams[3];
+    getAllPoolsDayVolume(seeds);
 
     Object.entries(resolvedParams[1]).forEach((item) => {
       const [key, v] = item;
@@ -292,8 +298,8 @@ export function FarmsPage() {
         return ele;
       });
       tempFarms.forEach((arr: any) => {
-        const totalApr = getTotalApr(arr);
-        arr.totalApr = totalApr;
+        const allfarmApr = getTotalApr(arr);
+        arr.totalApr = +allfarmApr;
       });
 
       tempFarms.forEach((farm) => {
@@ -473,7 +479,11 @@ export function FarmsPage() {
         if (item1.front || item2.front) {
           return Number(item2.front || 0) - Number(item1.front || 0);
         }
-        return Number(item2.totalApr) - Number(item1.totalApr);
+        const item2APR =
+          Number(item2.totalApr) + Number(getPoolAprValue(item2));
+        const item1APR =
+          Number(item1.totalApr) + Number(getPoolAprValue(item1));
+        return Number(item2APR) - Number(item1APR);
       });
     } else if (sort == 'total_staked') {
       listAll.sort((item1: any, item2: any) => {
@@ -500,6 +510,14 @@ export function FarmsPage() {
     setFarms(listAll);
     setNoData(noData);
     setCommonSeedFarms(tempCommonSeedFarms || commonSeedFarms);
+  }
+  function getPoolAprValue(arr: any) {
+    const poolId = arr[0]?.pool?.id || '';
+    let poolApr = 0;
+    if (dayVolumeMap[poolId]) {
+      poolApr = getPoolFeeApr(dayVolumeMap[poolId], arr[0].pool);
+    }
+    return poolApr;
   }
   function getTotalApr(farmsData: FarmInfo[]) {
     let apr = 0;
@@ -611,6 +629,37 @@ export function FarmsPage() {
     setSearchData(Object.assign({}, searchData));
     searchByCondition();
   };
+  async function getAllPoolsDayVolume(seed: any) {
+    const tempMap = {};
+    const poolIds: string[] = [];
+    const seedIds = Object.keys(seed);
+    seedIds.forEach((seedId: string) => {
+      poolIds.push(seedId.split('@')[1]);
+    });
+    // get24hVolume
+    const promisePoolIds = poolIds.map((poolId: string) => {
+      return get24hVolume(poolId);
+    });
+    try {
+      const resolvedResult = await Promise.all(promisePoolIds);
+      poolIds.forEach((poolId: string, index: number) => {
+        tempMap[poolId] = resolvedResult[index];
+      });
+      setDayVolumeMap(tempMap);
+    } catch (error) {}
+  }
+  function getPoolFeeApr(dayVolume: string, pool: PoolRPCView) {
+    let result = '0';
+    if (dayVolume) {
+      const { total_fee, tvl } = pool;
+      const revenu24h = (total_fee / 10000) * 0.8 * Number(dayVolume);
+      if (tvl > 0 && revenu24h > 0) {
+        const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
+        result = toPrecision(annualisedFeesPrct.toString(), 2);
+      }
+    }
+    return Number(result);
+  }
   return (
     <div className="xs:w-full md:w-full xs:mt-4 md:mt-4">
       <div className="w-1/3 xs:w-full md:w-full flex m-auto justify-center">
@@ -861,6 +910,7 @@ export function FarmsPage() {
                         seeds={seeds}
                         tokenPriceMap={tokenPriceMap}
                         lps={lps}
+                        dayVolumeMap={dayVolumeMap}
                       />
                     </div>
                   ))}
@@ -983,6 +1033,7 @@ function FarmView({
   seeds,
   tokenPriceMap,
   lps,
+  dayVolumeMap,
 }: {
   farmsData: FarmInfo[];
   farmData: FarmInfo;
@@ -992,6 +1043,7 @@ function FarmView({
   seeds: Record<string, string>;
   tokenPriceMap: Record<string | number, string | number>;
   lps: Record<string, FarmInfo[]>;
+  dayVolumeMap: Record<string, string>;
 }) {
   const [farmsIsLoading, setFarmsIsLoading] = useState(false);
   const [unstakeVisible, setUnstakeVisible] = useState(false);
@@ -1010,8 +1062,8 @@ function FarmView({
     Record<string | number, string | number>
   >({});
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const { wallet } = getCurrentWallet();
 
@@ -1427,13 +1479,45 @@ function FarmView({
         apr += Number(item.apr);
       }
     });
+    const dayVolume = getPoolFeeApr(dayVolumeMap[farmData.pool.id]);
+    if (+dayVolume > 0) {
+      apr += Number(dayVolume);
+    }
     return toPrecision(apr.toString(), 2);
+  }
+  function plusAllFarmApr() {
+    let apr = 0;
+    farmsData.forEach(function (item) {
+      apr += Number(item.apr);
+    });
+    if (apr == 0) {
+      return '-';
+    } else {
+      return toPrecision(apr.toString(), 2) + '%';
+    }
   }
   function getAprList() {
     let result: string = '';
     const newMergeCommonRewardFarms = JSON.parse(
       JSON.stringify(mergeCommonRewardFarms)
     );
+    const dayVolume = getPoolFeeApr(dayVolumeMap[farmData.pool.id]);
+    const totalApr = plusAllFarmApr();
+    const txt1 = intl.formatMessage({ id: 'pool_fee_apr' });
+    const txt2 = intl.formatMessage({ id: 'reward_apr' });
+    result = `
+    <div class="flex items-center justify-between">
+      <span class="text-xs text-navHighLightText mr-3">${txt1}</span>
+      <span class="text-sm text-white font-bold">${
+        +dayVolume > 0 ? dayVolume + '%' : '-'
+      }</span>
+    </div>
+    <div class="flex justify-end text-white text-sm font-bold ">+</div>
+    <div class="flex items-center justify-between ">
+      <span class="text-xs text-navHighLightText mr-3">${txt2}</span>
+      <span class="text-sm text-white font-bold">${totalApr}</span>
+    </div>
+    `;
     newMergeCommonRewardFarms.forEach(
       (
         item: FarmInfo & { diff_start_time_pending: any[]; no_pending: any[] }
@@ -1566,7 +1650,7 @@ function FarmView({
         <img
           key={id + index}
           className={
-            'h-11 w-11 rounded-full border border-gradientFromHover ' +
+            'h-11 w-11 rounded-full border border-gradientFromHover bg-cardBg ' +
             (index != 0 ? '-ml-1.5' : '')
           }
           src={icon}
@@ -1595,9 +1679,16 @@ function FarmView({
   function showCalcModel() {
     setCalcVisible(true);
   }
-  function tipOfApr() {
-    const tip = intl.formatMessage({ id: 'aprTip' });
-    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+  function getPoolFeeApr(dayVolume: string) {
+    let result = '0';
+    if (dayVolume) {
+      const { total_fee, tvl } = farmData.pool;
+      const revenu24h = (total_fee / 10000) * 0.8 * Number(dayVolume);
+      if (tvl > 0 && revenu24h > 0) {
+        const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
+        result = toPrecision(annualisedFeesPrct.toString(), 2);
+      }
+    }
     return result;
   }
   return (
@@ -1709,7 +1800,6 @@ function FarmView({
               <div
                 className="text-xl text-white"
                 data-type="info"
-                data-place="top"
                 data-multiline={true}
                 data-tip={getAprList()}
                 data-html={true}
@@ -1725,26 +1815,6 @@ function FarmView({
                   effect="solid"
                 />
               </div>
-              {/* <div
-                className="ml-2 text-sm"
-                data-type="info"
-                data-place="right"
-                data-multiline={true}
-                data-class="reactTip"
-                data-html={true}
-                data-tip={tipOfApr()}
-                data-for="aprValueId"
-              >
-                <QuestionMark />
-                <ReactTooltip
-                  className="w-20"
-                  id="aprValueId"
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
-              </div> */}
             </div>
           </div>
           <div className="my-3.5 border border-t-0 border-farmSplitLine" />
@@ -2081,6 +2151,7 @@ function ActionModal(
   const [amount, setAmount] = useState<string>('');
   const [showTip, setShowTip] = useState<boolean>(false);
   const [showCalc, setShowCalc] = useState(false);
+  const [min_deposit, set_min_deposit] = useState('0');
   const cardWidth = isMobile() ? '90vw' : '30vw';
   const tokens = useTokens(farm?.tokenIds) || [];
   const [displayTokenData, setDisplayTokenData] = useState<Record<string, any>>(
@@ -2129,6 +2200,12 @@ function ActionModal(
       symbols: symbols.join('-'),
     });
   }, [tokens.length > 0 && tokens]);
+  useEffect(() => {
+    get_seed_info(farm.seed_id).then((result) => {
+      const { min_deposit } = result;
+      set_min_deposit(min_deposit);
+    });
+  }, []);
   function isEnded(farmsData: FarmInfo[]) {
     let ended: boolean = true;
     for (let i = 0; i < farmsData.length; i++) {
@@ -2178,7 +2255,8 @@ function ActionModal(
   }
   function stakeCheckFun(amount: string) {
     if (type == 'stake') {
-      const LIMITAOMUNT = '1000000000000000000';
+      const LIMITAOMUNT =
+        Number(min_deposit) > 0 ? min_deposit : '1000000000000000000';
       let value;
       if (new Set(STABLE_POOL_IDS || []).has(farm.lpTokenId?.toString())) {
         value = toNonDivisibleNumber(LP_STABLE_TOKEN_DECIMALS, amount);
@@ -2192,6 +2270,17 @@ function ActionModal(
       }
     }
     setAmount(amount);
+  }
+  function getMinDepositAmount() {
+    const LIMITAOMUNT =
+      Number(min_deposit) > 0 ? min_deposit : '1000000000000000000';
+    let value;
+    if (new Set(STABLE_POOL_IDS || []).has(farm.lpTokenId?.toString())) {
+      value = toReadableNumber(LP_STABLE_TOKEN_DECIMALS, LIMITAOMUNT);
+    } else {
+      value = toReadableNumber(LP_TOKEN_DECIMALS, LIMITAOMUNT);
+    }
+    return value;
   }
   return (
     <Modal {...props}>
@@ -2276,11 +2365,8 @@ function ActionModal(
                   <Alert
                     level="warn"
                     message={
-                      new Set(STABLE_POOL_IDS || []).has(
-                        farm.lpTokenId?.toString()
-                      )
-                        ? intl.formatMessage({ id: 'more_than_stable_seed' })
-                        : intl.formatMessage({ id: 'more_than_general_seed' })
+                      intl.formatMessage({ id: 'stake_min_deposit' }) +
+                      getMinDepositAmount()
                     }
                   />
                 ) : null}

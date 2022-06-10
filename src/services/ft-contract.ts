@@ -65,7 +65,10 @@ export interface TokenMetadata {
   icon: string;
   ref?: number | string;
   near?: number | string;
+  aurora?: number | string;
   total?: number;
+  onRef?: boolean;
+  onTri?: boolean;
   amountLabel?: string;
   amount?: number;
   nearNonVisible?: number | string;

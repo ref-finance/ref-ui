@@ -1,47 +1,24 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Loading from '~components/layout/Loading';
-import {
-  useTokenBalances,
-  useWhitelistStableTokens,
-  useWhitelistTokens,
-} from '../../state/token';
-import SquareRadio from '~components/radio/SquareRadio';
-import StableSwap from '~components/stableswap/StableSwap';
-import AddLiquidityComponent from '~components/stableswap/AddLiquidity';
-import { usePool, useStablePool } from '~state/pool';
-import { isMobile } from '~utils/device';
-import { RemoveLiquidityComponent } from '~components/stableswap/RemoveLiquidity';
 import TokenReserves, {
   calculateTotalStableCoins,
 } from '~components/stableswap/TokenReserves';
-import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
-import getConfig from '~services/config';
 import { StableSwapLogo } from '~components/icon/StableSwap';
-import { useWalletTokenBalances } from '../../state/token';
-import { Link, useHistory, useLocation } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
-import { Pool, getStablePoolFromCache, canFarm } from '../../services/pool';
+import { Pool } from '../../services/pool';
 import { Card } from '../../components/card/Card';
-import {
-  TokenMetadata,
-  ftGetTokensMetadata,
-  ftGetTokenMetadata,
-} from '../../services/ft-contract';
-import { toRealSymbol } from '../../utils/token';
+import { TokenMetadata, ftGetTokenMetadata } from '../../services/ft-contract';
 import {
   STABLE_POOL_USN_ID,
   STABLE_POOL_ID,
-  STABLE_TOKEN_IDS,
-  STABLE_TOKEN_USN_IDS,
+  AllStableTokenIds,
+  BTC_STABLE_POOL_ID,
+  BTCIDS,
+  CUSD_STABLE_POOL_ID,
 } from '../../services/near';
-import { useFarmStake, useCanFarm } from '../../state/farm';
 import BigNumber from 'bignumber.js';
-import {
-  divide,
-  toReadableNumber,
-  percentOf,
-  percent,
-} from '../../utils/numbers';
+import { toReadableNumber, percent } from '../../utils/numbers';
 import { ShareInFarm } from '../../components/layout/ShareInFarm';
 import { STABLE_LP_TOKEN_DECIMALS } from '../../components/stableswap/AddLiquidity';
 import {
@@ -53,7 +30,8 @@ import { ConnectToNearBtn, SolidButton } from '~components/button/Button';
 import { OutlineButton } from '../../components/button/Button';
 import { Images, Symbols } from '~components/stableswap/CommonComp';
 import { FarmMiningIcon } from '~components/icon';
-import { getCurrentWallet } from '../../utils/sender-wallet';
+import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import { useStabelPoolData } from '../../state/sauce';
 
 const RenderDisplayTokensAmounts = ({
   tokens,
@@ -96,22 +74,24 @@ const RenderDisplayTokensAmounts = ({
   );
 };
 
-function formatePoolData({
+export function formatePoolData({
   pool,
   userTotalShare,
   farmStake,
   tokens,
-  share,
+  shares,
   stakeList,
   farmCount,
+  poolTVL,
 }: {
   pool: Pool;
   userTotalShare: BigNumber;
   farmStake: string | number;
   tokens: TokenMetadata[];
-  share: string;
+  shares: string;
   stakeList: Record<string, string>;
   farmCount: Number;
+  poolTVL: number;
 }) {
   const isSignedIn = getCurrentWallet().wallet.isSignedIn();
 
@@ -119,18 +99,15 @@ function formatePoolData({
     [id: string]: TokenMetadata;
   } = tokens.reduce((pre, cur) => ({ ...pre, [cur.id]: cur }), {});
 
-  const { totalCoins, coinsAmounts } = calculateTotalStableCoins(
-    [pool],
-    tokensMap
-  );
+  const { coinsAmounts } = calculateTotalStableCoins([pool], tokensMap);
 
   const parsedUsertotalShare = scientificNotationToString(
     userTotalShare.toString()
   );
 
-  const displayTVL = `$${toInternationalCurrencySystem(totalCoins, 2)}`;
+  const displayTVL = `$${toInternationalCurrencySystem(poolTVL.toString(), 2)}`;
 
-  const TVLtitle = `${toPrecision(totalCoins, 2)}`;
+  const TVLtitle = `${toPrecision(poolTVL.toString(), 2)}`;
 
   const displayMyShareAmount = isSignedIn
     ? toPrecision(
@@ -167,7 +144,7 @@ function formatePoolData({
     displayMyShareAmount,
     displaySharePercent,
     displayShareInFarm,
-    shares: share,
+    shares: shares,
     stakeList,
     farmStake,
     TVLtitle,
@@ -198,7 +175,9 @@ function StablePoolCard({
   const { shares, stakeList, farmStake } = poolData;
   const history = useHistory();
 
-  const isSignedIn = getCurrentWallet().wallet.isSignedIn();
+  const { globalState } = useContext(WalletContext);
+
+  const isSignedIn = globalState.isSignedIn;
 
   const haveFarm = poolData.farmCount > 0;
   const multiMining = poolData.farmCount > 1;
@@ -342,87 +321,36 @@ function StablePoolCard({
 }
 
 export function StableSwapPageEntry() {
-  const [pool3tokens, setPool3tokens] = useState<Pool>();
-  const [pool2tokens, setPool2tokens] = useState<Pool>();
+  // const;
+  const [reserveType, setReserveType] = useState<string>('USD');
+  const { poolData: pool3tokenData } = useStabelPoolData(STABLE_POOL_ID);
+  const { poolData: USNPoolData } = useStabelPoolData(STABLE_POOL_USN_ID);
+
+  const { poolData: BTCPoolData } = useStabelPoolData(BTC_STABLE_POOL_ID);
+
+  const { poolData: CUSDPoolData } = useStabelPoolData(CUSD_STABLE_POOL_ID);
+
   const [allStableTokens, setAllStableTokens] = useState<TokenMetadata[]>();
 
-  const { shares: shares3token, stakeList: stakeList3token } =
-    usePool(STABLE_POOL_ID);
-  const { shares: shares2token, stakeList: stakeList2token } =
-    usePool(STABLE_POOL_USN_ID);
-
-  const farmCount2token = useCanFarm(Number(STABLE_POOL_USN_ID));
-
-  const farmCount3token = useCanFarm(Number(STABLE_POOL_ID));
-
-  const farmStake3token = useFarmStake({
-    poolId: Number(STABLE_POOL_ID),
-    stakeList: stakeList3token,
-  });
-  const farmStake2token = useFarmStake({
-    poolId: Number(STABLE_POOL_USN_ID),
-    stakeList: stakeList2token,
-  });
-
-  const allStableTokensIds = new Array(
-    ...new Set(STABLE_TOKEN_IDS.concat(STABLE_TOKEN_USN_IDS))
-  );
-
   useEffect(() => {
-    Promise.all(allStableTokensIds.map((id) => ftGetTokenMetadata(id))).then(
+    Promise.all(AllStableTokenIds.map((id) => ftGetTokenMetadata(id))).then(
       setAllStableTokens
     );
   }, []);
 
-  const userTotalShare3token = BigNumber.sum(shares3token, farmStake3token);
-
-  const userTotalShare2token = BigNumber.sum(shares2token, farmStake2token);
-
-  useEffect(() => {
-    getStablePoolFromCache(STABLE_POOL_USN_ID.toString()).then((res) => {
-      setPool2tokens(res[0]);
-    });
-    getStablePoolFromCache(STABLE_POOL_ID.toString()).then((res) => {
-      setPool3tokens(res[0]);
-    });
-  }, []);
-
   if (
-    !pool3tokens ||
-    !pool2tokens ||
-    !shares2token ||
-    !shares3token ||
-    !allStableTokens ||
-    !farmStake3token ||
-    !farmStake2token
+    !pool3tokenData ||
+    !USNPoolData ||
+    !BTCPoolData ||
+    !CUSDPoolData ||
+    !allStableTokens
   )
     return <Loading />;
-  const tokens2token = STABLE_TOKEN_USN_IDS.map((id) =>
-    allStableTokens?.find((token) => token.id === id)
-  );
 
-  const tokens3token = STABLE_TOKEN_IDS.map((id) =>
-    allStableTokens?.find((token) => token.id === id)
-  );
-  const poolData2token = formatePoolData({
-    pool: pool2tokens,
-    userTotalShare: userTotalShare2token,
-    farmStake: farmStake2token,
-    tokens: tokens2token,
-    share: shares2token,
-    stakeList: stakeList2token,
-    farmCount: farmCount2token,
-  });
-
-  const poolData3token = formatePoolData({
-    pool: pool3tokens,
-    userTotalShare: userTotalShare3token,
-    farmStake: farmStake3token,
-    tokens: tokens3token,
-    share: shares3token,
-    stakeList: stakeList3token,
-    farmCount: farmCount3token,
-  });
+  const formatedPool3tokenData = formatePoolData(pool3tokenData);
+  const formatedUSNPoolData = formatePoolData(USNPoolData);
+  const formatedBTCPoolData = formatePoolData(BTCPoolData);
+  const formatedCUSDPoolData = formatePoolData(CUSDPoolData);
 
   return (
     <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2 flex flex-col">
@@ -436,21 +364,42 @@ export function StableSwapPageEntry() {
         />
       </span>
       <StablePoolCard
-        stablePool={pool3tokens}
-        tokens={tokens3token}
-        poolData={poolData3token}
+        stablePool={pool3tokenData.pool}
+        tokens={pool3tokenData.tokens}
+        poolData={formatedPool3tokenData}
       />
       <StablePoolCard
-        stablePool={pool2tokens}
-        tokens={tokens2token}
-        poolData={poolData2token}
+        stablePool={USNPoolData.pool}
+        tokens={USNPoolData.tokens}
+        poolData={formatedUSNPoolData}
+      />
+      <StablePoolCard
+        stablePool={BTCPoolData.pool}
+        tokens={BTCPoolData.tokens}
+        poolData={formatedBTCPoolData}
+      />
+
+      <StablePoolCard
+        stablePool={CUSDPoolData.pool}
+        tokens={CUSDPoolData.tokens}
+        poolData={formatedCUSDPoolData}
       />
 
       <TokenReserves
-        tokens={allStableTokens}
-        pools={[pool2tokens, pool3tokens]}
+        tokens={allStableTokens.filter((token) => {
+          return reserveType === 'BTC'
+            ? BTCIDS.includes(token.id)
+            : !BTCIDS.includes(token.id);
+        })}
+        pools={
+          reserveType === 'BTC'
+            ? [BTCPoolData.pool]
+            : [USNPoolData.pool, pool3tokenData.pool, CUSDPoolData.pool]
+        }
         hiddenMag={true}
         className="pt-6"
+        type={reserveType}
+        setType={setReserveType}
       />
     </div>
   );

@@ -529,6 +529,11 @@ const vi = {
   to_recover_them: 'để khôi phục chúng',
   ref_account_tip_3:
     'Để rút token từ Tài khoản REF của bạn vào Ví GẦN của bạn, vui lòng chọn và rút tiền',
+  aurora_account_tip_4:
+    'Để rút token từ Tài khoản Bản đồ của bạn vào Ví GẦN của bạn, vui lòng chọn và rút tiền',
+  pool_fee_cross_swap: 'Phí pool/cross-chain',
+  mapping_account: 'Lập bản đồ tài khoản',
+  mapping_account_tip: 'Bạn có (các) token trong Tài khoản Bản đồ',
   admin_sentence_1:
     'Ref Finance được quản lí bởi  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
@@ -539,6 +544,10 @@ const vi = {
     '>Tài liệu</label> của chúng tôi.',
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
+  Confirm: 'Xác nhận',
+  Request_for_Quote: 'Yêu cầu báo giá',
+  mapping_account_explanation:
+    'Địa chỉ ví mapping là một proxy address giúp kết nối đồng thời tài khoản trên NEAR với một địa chỉ ví ETH trên Aurora',
   buy: 'Mua',
   sell: 'Bán',
   buy_nsn: 'Mua USN',
@@ -549,5 +558,23 @@ const vi = {
   usn_successful_click_to_view: 'Giao dịch thành công. Nhấn để xem',
   awesomeNear_verified_token: 'token được xác nhận bởi AwesomeNear',
   usn_fee_tip: 'Không tính phí theo Ref, người dùng chỉ phải trả phí USN!',
+  name: 'Tên',
+  diff: 'Khác biệt',
+  best: 'Tốt nhất',
+  total_bitcoins: 'Tổng số Bitcoin',
+  total_usd_value: 'Tổng giá trị đô la Mỹ',
+  bitcoin_value: 'Giá trị Bitcoin',
+  stable_coin_value: 'Giá trị của StableCoin',
+  pool_fee_apr: 'Pool fee APY',
+  ref_account_balance_tip_mobile:
+    'Bạn có mã thông báo trong tài khoản REF của mình.',
+  click: 'Nhấp chuột',
+  to_recover: 'để phục hồi.',
+  reward_apr: 'Rewards APR',
+  price_board: 'Price board',
+  close: 'Close',
+  borrow: 'Vay',
+  burrow_usn_tip: 'Bạn có thể mượn USN trên Burrow.',
+  stake_min_deposit: 'Input must be greater than or equal to ',
 };
 export default Object.assign(vi, vi_in_risks_page);

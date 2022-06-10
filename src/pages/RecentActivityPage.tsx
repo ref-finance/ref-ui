@@ -32,8 +32,8 @@ function useLastActions() {
   return actions;
 }
 export function RecentActivityPage() {
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const { wallet } = getCurrentWallet();
   const history = useHistory();

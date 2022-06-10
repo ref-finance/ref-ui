@@ -4,11 +4,23 @@ import getConfig from '../../services/config';
 import { FormattedMessage } from 'react-intl';
 import { CloseIcon } from '../icon/Actions';
 import { isMobile } from '../../utils/device';
+import { checkTransaction } from '../../services/swap';
+import { getCurrentWallet } from '~utils/sender-wallet';
 
 export enum TRANSACTION_WALLET_TYPE {
   NEAR_WALLET = 'transactionHashes',
   SENDER_WALLET = 'transactionHashesSender',
 }
+
+export enum TRANSACTION_ERROR_TYPE {
+  SLIPPAGE_VIOLATION = 'Slippage Violation',
+  INVALID_PARAMS = 'Invalid Params',
+}
+
+const ERROR_PATTERN = {
+  slippageErrorPattern: /ERR_MIN_AMOUNT|slippage error/i,
+  invaliParamsErrorPattern: /invalid params/i,
+};
 
 export enum TRANSACTION_STATE {
   SUCCESS = 'success',
@@ -32,11 +44,13 @@ export const getURLInfo = () => {
   )?.split(',');
 
   return {
-    txHash: txHashes?.pop() || '',
+    txHash:
+      txHashes && txHashes.length > 0 ? txHashes[txHashes.length - 1] : '',
     pathname,
     errorType,
     signInErrorType,
     errorCode,
+    txHashes,
   };
 };
 
@@ -148,6 +162,110 @@ export const checkAccountTip = () => {
   );
 };
 
+export const checkCrossSwapTransactions = async (txHashes: string[]) => {
+  const lastTx = txHashes.pop();
+  const txDetail: any = await checkTransaction(lastTx);
+
+  if (txHashes.length > 0) {
+    // judge if aurora call
+    const isAurora = txDetail.transaction?.receiver_id === 'aurora';
+
+    const ifCall =
+      txDetail.transaction?.actions?.length === 1 &&
+      txDetail.transaction?.actions?.[0]?.FunctionCall?.method_name === 'call';
+
+    if (isAurora && ifCall) {
+      const parsedOut = parsedTransactionSuccessValue(txDetail);
+
+      const erc20FailPattern = /burn amount exceeds balance/i;
+
+      if (
+        erc20FailPattern.test(parsedOut) ||
+        (parsedOut.toString().trim().length === 14 &&
+          parsedOut.toString().trim().indexOf('|R') !== -1)
+      ) {
+        return {
+          hash: lastTx,
+          status: false,
+          errorType: 'Withdraw Failed',
+        };
+      } else {
+        const secondLastHash = txHashes.pop();
+        const secondDetail = await checkTransaction(secondLastHash);
+
+        const slippageErrprReg = /INSUFFICIENT_OUTPUT_AMOUNT/i;
+        const expiredErrorReg = /EXPIRED/i;
+
+        const parsedOutput = parsedTransactionSuccessValue(secondDetail);
+
+        if (slippageErrprReg.test(parsedOutput)) {
+          return {
+            hash: secondLastHash,
+            status: false,
+            errorType: 'Slippage Violation',
+          };
+        } else if (expiredErrorReg.test(parsedOutput)) {
+          return {
+            hash: secondLastHash,
+            status: false,
+            errorType: 'Expired',
+          };
+        } else {
+          return {
+            hash: lastTx,
+            status: true,
+          };
+        }
+      }
+    } else {
+      // normal swap judgement
+
+      const errorMessasge = getErrorMessage(txDetail);
+
+      if (errorMessasge)
+        return {
+          status: false,
+          hash: lastTx,
+          errorType: errorMessasge,
+        };
+      else {
+        return {
+          status: true,
+          hash: lastTx,
+        };
+      }
+    }
+
+    // validate if last tx is success
+  } else {
+    const errorMessasge = getErrorMessage(txDetail);
+
+    if (errorMessasge)
+      return {
+        status: false,
+        hash: lastTx,
+        errorType: errorMessasge,
+      };
+    else {
+      return {
+        status: true,
+        hash: lastTx,
+      };
+    }
+  }
+};
+
+export const parsedTransactionSuccessValue = (res: any) => {
+  const status: any = res.status;
+
+  const data: string | undefined = status.SuccessValue;
+
+  if (data) {
+    const buff = Buffer.from(data, 'base64');
+    const parsedData = buff.toString('ascii');
+    return parsedData;
+  }
+};
 export const usnBuyAndSellToast = (txHash: string) => {
   toast(
     <a
@@ -179,4 +297,28 @@ export const usnBuyAndSellToast = (txHash: string) => {
       },
     }
   );
+};
+
+export const getErrorMessage = (res: any) => {
+  const isSlippageError = res.receipts_outcome.some((outcome: any) => {
+    return ERROR_PATTERN.slippageErrorPattern.test(
+      outcome?.outcome?.status?.Failure?.ActionError?.kind?.FunctionCallError
+        ?.ExecutionError
+    );
+  });
+
+  const isInvalidAmountError = res.receipts_outcome.some((outcome: any) => {
+    return ERROR_PATTERN.invaliParamsErrorPattern.test(
+      outcome?.outcome?.status?.Failure?.ActionError?.kind?.FunctionCallError
+        ?.ExecutionError
+    );
+  });
+
+  if (isSlippageError) {
+    return TRANSACTION_ERROR_TYPE.SLIPPAGE_VIOLATION;
+  } else if (isInvalidAmountError) {
+    return TRANSACTION_ERROR_TYPE.INVALID_PARAMS;
+  } else {
+    return null;
+  }
 };

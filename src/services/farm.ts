@@ -446,6 +446,12 @@ export const claimAndWithDrawReward = async (
   }
   return executeFarmMultipleTransactions(transactions);
 };
+export const get_seed_info = async (seed_id: string): Promise<any> => {
+  return refFarmViewFunction({
+    methodName: 'get_seed_info',
+    args: { seed_id },
+  });
+};
 export const classificationOfCoins = {
   stablecoin: ['USDT', 'USDC', 'DAI', 'nUSDO', 'cUSD', 'USN'],
   near_ecosystem: [
@@ -496,6 +502,7 @@ export const classificationOfCoins = {
     '1INCH',
     'CELO',
     'cUSD',
+    'HBTC',
   ],
   gaming: ['PXT', 'sPXT', 'SHRM', 'GOLD', 'GEM', 'ELIXIR'],
   nft: ['PARAS', '1MIL'],
@@ -518,6 +525,8 @@ export const incentiveLpTokenConfig = {
   '974': '4',
 };
 export const defaultConfig = {
+  '3364': '102',
+  '1195': '101',
   '2800': '100',
   '79': '99',
   [STABLE_POOL_USN_ID]: '98',
@@ -536,5 +545,7 @@ export const defaultConfig = {
 };
 
 export const frontConfig = {
+  '3020': '100',
+  '3433': '99',
   '79': '98',
 };

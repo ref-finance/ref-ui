@@ -527,8 +527,17 @@ const ru = {
   to_recover_them: 'чтобы восстановить их',
   ref_account_tip_3:
     'Чтобы вывести токен(ы) с вашего счета REF на ваш кошелек NEAR, пожалуйста, выберите и выведите',
+  aurora_account_tip_4:
+    'Чтобы вывести токен(ы) с Вашего Картографического Счета на Ваш КОШЕЛЕК NEAR, пожалуйста, выберите и выведите',
+  pool_fee_cross_swap: 'Плата за пул/кросс-цепь',
+  mapping_account: 'Картографическая учетная запись',
+  mapping_account_tip: 'У вас есть маркер(ы) в картографической учетной записи',
   cumulative_ref_buyback: 'Cumulative REF Buyback',
   yearly_revenue_booster: 'Yearly Revenue Booster',
+  Confirm: 'Подтверждать',
+  Request_for_Quote: 'Запрос на квоту',
+  mapping_account_explanation:
+    'Mapping" адрес — это "прокси-адрес", который связывает учетную запись пользователя NEAR с соответствующим ETH-адресом на Aurora.',
   buy: 'Купить',
   sell: 'Продать',
   buy_nsn: 'Купить USN',
@@ -540,5 +549,23 @@ const ru = {
   awesomeNear_verified_token: 'AwesomeNear верифицированный токен',
   usn_fee_tip:
     'Нулевая комиссия, взимаемая Ref, пользователи платят только комиссию USN!',
+  name: 'Имя',
+  diff: 'Диф',
+  best: 'Лучший',
+  total_bitcoins: 'Всего биткойнов',
+  total_usd_value: 'Общая стоимость в долларах США',
+  bitcoin_value: 'Стоимость биткойнов',
+  stable_coin_value: 'Стоимость стейблкоина',
+  pool_fee_apr: 'Pool fee APY',
+  ref_account_balance_tip_mobile:
+    'У вас есть токены в вашей учетной записи REF.',
+  click: 'Нажмите',
+  to_recover: 'выздороветь.',
+  reward_apr: 'Rewards APR',
+  price_board: 'Price board',
+  close: 'Close',
+  burrow_usn_tip: 'Вы можете одолжить USN на Burrow.',
+  borrow: 'Занимать',
+  stake_min_deposit: 'Input must be greater than or equal to ',
 };
 export default Object.assign(ru, ru_in_risks_page);

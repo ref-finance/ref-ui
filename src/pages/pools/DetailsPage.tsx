@@ -107,7 +107,7 @@ import { useWalletTokenBalances } from '../../state/token';
 import { SmallWallet } from '../../components/icon/SmallWallet';
 import { scientificNotationToString } from '../../utils/numbers';
 import { isNotStablePool } from '../../services/pool';
-import { isStablePool } from '../../services/near';
+import { isStablePool, BLACKLIST_POOL_IDS } from '../../services/near';
 import {
   getURLInfo,
   checkAccountTip,
@@ -211,8 +211,8 @@ export function AddLiquidityModal(
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   if (!balances) return null;
 
@@ -717,8 +717,8 @@ export function RemoveLiquidityModal(
   const cardWidth = isMobile() ? '95vw' : '40vw';
   const intl = useIntl();
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const { wallet } = getCurrentWallet();
 
@@ -1304,8 +1304,8 @@ export function PoolDetailsPage() {
   const morePoolIds: string[] =
     JSON.parse(localStorage.getItem('morePoolIds')) || [];
   const [farmCount, setFarmCount] = useState<Number>(1);
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const { wallet } = getCurrentWallet();
   const intl = useIntl();
@@ -1345,6 +1345,7 @@ export function PoolDetailsPage() {
   }, []);
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
+  if (BLACKLIST_POOL_IDS.includes(pool.id.toString())) history.push('/');
   if (isStablePool(pool.id)) {
     history.push(`/sauce/${pool.id}`);
   }

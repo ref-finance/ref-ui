@@ -26,6 +26,7 @@ import {
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from './wrap-near';
 import { registerTokenAction } from './creators/token';
 import { getUserWalletTokens } from './api';
+import { extraStableTokenIds } from './near';
 import {
   getCurrentWallet,
   WALLET_TYPE,
@@ -348,7 +349,7 @@ export const batchWithdraw = async (tokenMap: any) => {
   });
   const ftBalanceList = await Promise.all(ftBalancePromiseList);
   ftBalanceList.forEach((ftBalance, index) => {
-    if (!ftBalance || ftBalance.total === '0') {
+    if (!ftBalance) {
       transactions.push({
         receiverId: tokenIdList[index],
         functionCalls: [
@@ -439,7 +440,13 @@ export const getWhitelistedTokens = async (): Promise<string[]> => {
     });
   }
 
-  return [...new Set<string>([...globalWhitelist, ...userWhitelist])];
+  return [
+    ...new Set<string>([
+      ...globalWhitelist,
+      ...userWhitelist,
+      ...extraStableTokenIds,
+    ]),
+  ];
 };
 
 export const getWhitelistedTokensAndNearTokens = async (): Promise<

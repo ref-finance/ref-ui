@@ -23,9 +23,10 @@ import { checkTransactionStatus } from '../../services/swap';
 import { decodeBase64 } from 'lzutf8';
 import { useHistory } from 'react-router-dom';
 import { getTokenPriceList } from '../../services/indexer';
+import { useRainbowWhitelistTokens } from '../../state/token';
 
 export function AddPoolPage() {
-  const tokens = useWhitelistTokens();
+  const tokens = useRainbowWhitelistTokens();
   const balances = useTokenBalances();
   const [token1, setToken1] = useState<TokenMetadata | null>(null);
   const [token2, setToken2] = useState<TokenMetadata | null>(null);
@@ -34,8 +35,8 @@ export function AddPoolPage() {
   const [errorKey, setErrorKey] = useState<string>();
   const intl = useIntl();
   const [buttonLoading, setButtonLoading] = useState(false);
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   const history = useHistory();
 
   const { txHash } = getURLInfo();

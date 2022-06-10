@@ -16,14 +16,9 @@ import {
   calculateFeeCharge,
   calculateFeePercent,
   calculateSmartRoutingPriceImpact,
-  percent,
-  percentLess,
   toPrecision,
   toReadableNumber,
-  subtraction,
-  calculatePriceImpact,
   ONLY_ZEROS,
-  percentOf,
   multiply,
   divide,
   scientificNotationToString,
@@ -46,7 +41,12 @@ import {
   SolidButton,
   ConnectToNearBtn,
 } from '../../components/button/Button';
-import { STABLE_TOKEN_IDS, wallet } from '../../services/near';
+import {
+  BTCIDS,
+  BTC_STABLE_POOL_ID,
+  STABLE_TOKEN_IDS,
+  wallet,
+} from '../../services/near';
 import SwapFormWrap from '../forms/SwapFormWrap';
 import SwapTip from '../../components/forms/SwapTip';
 import { WarnTriangle, ErrorTriangle } from '../../components/icon/SwapRefresh';
@@ -62,25 +62,20 @@ import {
   RouterIcon,
   SmartRouteV2,
 } from '../../components/layout/SwapRoutes';
-import QuestionMark, {
-  QuestionMarkStaticForParaSwap,
-} from '~components/farm/QuestionMark';
 
-import ReactTooltip from 'react-tooltip';
-import * as math from 'mathjs';
-import { HiOutlineExternalLink } from 'react-icons/hi';
 import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
 import { QuestionTip } from '../../components/layout/TipWrapper';
-import { Guide } from '../../components/layout/Guide';
-import { sortBy } from 'lodash';
-import { getCurrentWallet } from '../../utils/sender-wallet';
 import { senderWallet, WalletContext } from '../../utils/sender-wallet';
 import { SwapArrow, SwapExchange } from '../icon/Arrows';
-import { getPoolAllocationPercents } from '../../utils/numbers';
+import { getPoolAllocationPercents, percentLess } from '../../utils/numbers';
 import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
 import { SWAP_MODE } from '../../pages/SwapPage';
-import { isStableToken } from '../../services/near';
+import {
+  isStableToken,
+  ALL_STABLE_POOL_IDS,
+  AllStableTokenIds,
+} from '../../services/near';
 import TokenReserves from '../stableswap/TokenReserves';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
@@ -497,7 +492,7 @@ function DetailView({
           value={poolFeeDisplay}
         />
 
-        {isParallelSwap && pools.length > 1 && (
+        {isParallelSwap && swapsTodo && swapsTodo.length > 1 && (
           <ParallelSwapRoutesDetail
             tokenIn={tokenIn}
             tokenOut={tokenOut}
@@ -520,12 +515,16 @@ export default function SwapCard(props: {
   allTokens: TokenMetadata[];
   swapMode: SWAP_MODE;
   stablePools: Pool[];
+  tokenInAmount: string;
+  setTokenInAmount: (value: string) => void;
 }) {
-  const { allTokens, swapMode, stablePools } = props;
+  const { allTokens, swapMode, stablePools, tokenInAmount, setTokenInAmount } =
+    props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
-  const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
+
+  const [reservesType, setReservesType] = useState<string>('USD');
 
   const [supportLedger, setSupportLedger] = useState(
     localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
@@ -533,8 +532,8 @@ export default function SwapCard(props: {
 
   const [useNearBalance, setUseNearBalance] = useState<boolean>(true);
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();
@@ -572,6 +571,14 @@ export default function SwapCard(props: {
   useEffect(() => {
     getTokenPriceList().then(setTokenPriceList);
   }, []);
+
+  useEffect(() => {
+    if (!tokenIn || !tokenOut) return;
+    if (BTCIDS.includes(tokenIn.id) && BTCIDS.includes(tokenOut.id))
+      setReservesType('BTC');
+    else if (!BTCIDS.includes(tokenIn.id) && !BTCIDS.includes(tokenOut.id))
+      setReservesType('USD');
+  }, [tokenIn, tokenOut]);
 
   useEffect(() => {
     if (allTokens) {
@@ -637,7 +644,6 @@ export default function SwapCard(props: {
         )
           setReEstimateTrigger(!reEstimateTrigger);
       }
-      setTokenInAmount(toPrecision('1', 6));
     }
   }, [allTokens, swapMode]);
 
@@ -720,7 +726,7 @@ export default function SwapCard(props: {
           swapsToDo[0].noFeeAmountOut
         );
       } else return '0';
-    } catch {
+    } catch (err) {
       return '0';
     }
   }, [tokenOutAmount, swapsToDo]);
@@ -853,6 +859,22 @@ export default function SwapCard(props: {
           }}
           tokenPriceList={tokenPriceList}
           isError={tokenIn?.id === tokenOut?.id}
+          postSelected={tokenOut}
+          onSelectPost={(token) => {
+            localStorage.setItem(
+              swapMode === SWAP_MODE.NORMAL
+                ? SWAP_OUT_KEY
+                : STABLE_SWAP_OUT_KEY,
+              token.id
+            );
+            swapMode === SWAP_MODE.NORMAL &&
+              history.replace(
+                `#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`
+              );
+            setTokenOut(token);
+            setCanSwap(false);
+            setTokenOutBalanceFromNear(token?.near?.toString());
+          }}
         />
         <div
           className="flex items-center justify-center border-t mt-12"
@@ -876,6 +898,11 @@ export default function SwapCard(props: {
               );
 
               setTokenInAmount(toPrecision('1', 6));
+              localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
+              localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
+              history.replace(
+                `#${tokenOut.id}${TOKEN_URL_SEPARATOR}${tokenIn.id}`
+              );
             }}
           />
         </div>
@@ -906,6 +933,7 @@ export default function SwapCard(props: {
           }}
           isError={tokenIn?.id === tokenOut?.id}
           tokenPriceList={tokenPriceList}
+          preSelected={tokenIn}
         />
         <DetailView
           pools={pools}
@@ -941,8 +969,22 @@ export default function SwapCard(props: {
       />
       {swapMode === SWAP_MODE.STABLE ? (
         <TokenReserves
-          tokens={allTokens.filter((token) => isStableToken(token.id))}
-          pools={stablePools}
+          tokens={AllStableTokenIds.map((id) =>
+            allTokens.find((token) => token.id === id)
+          )
+            .filter((token) => isStableToken(token.id))
+            .filter((token) => {
+              return reservesType === 'BTC'
+                ? BTCIDS.includes(token.id)
+                : !BTCIDS.includes(token.id);
+            })}
+          pools={stablePools.filter((p) => {
+            return reservesType === 'BTC'
+              ? p.id.toString() === BTC_STABLE_POOL_ID
+              : p.id.toString() !== BTC_STABLE_POOL_ID;
+          })}
+          type={reservesType}
+          setType={setReservesType}
           swapPage
         />
       ) : null}

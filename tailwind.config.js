@@ -2,7 +2,7 @@ const colors = require('tailwindcss/colors');
 const defaultTheme = require('tailwindcss/defaultTheme');
 
 module.exports = {
-  purge: [],
+  purge: false,
   darkMode: false, // or 'media' or 'class'
   theme: {
     screens: {
@@ -84,6 +84,7 @@ module.exports = {
         xrefTab: '#293741',
         borderColor: '#7e8a93',
         warnColor: '#DE9450',
+        BTCColor: '#F38632',
         acccountTab: '#0F1D27',
         acccountBlock: '#293741',
         xREFColor: '#A7ABAD',
@@ -92,8 +93,14 @@ module.exports = {
         darkGreenColor: '#009A2B',
         riskTextColor: '#BEBEBE',
         senderHot: '#00FFD1',
+        auroraGreen: '#70D44B',
+        triPool: '#329DFF',
+        refPool: '#00C6A2',
+        lightGreenColor: '#70d44b',
         tabChosen: '#4A5862',
         liqBtn: '#141D24',
+        priceBoardColor: '#172128',
+        lightRedColor: '#FF7575',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

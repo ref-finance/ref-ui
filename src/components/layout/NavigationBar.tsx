@@ -32,9 +32,8 @@ import {
   SignoutIcon,
   WNEARExchngeIcon,
 } from '~components/icon/Common';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useHistory } from 'react-router-dom';
 import { wallet } from '~services/near';
-import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
 
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -56,8 +55,35 @@ import { ftGetTokensMetadata } from '../../services/ft-contract';
 import { useTokenBalances } from '../../state/token';
 import { toReadableNumber } from '../../utils/numbers';
 import { FarmDot } from '../icon/FarmStamp';
+import {
+  ConnectDot,
+  AuroraIcon,
+  HasBalance,
+  CopyIcon,
+} from '../icon/CrossSwapIcons';
+import { QuestionTip } from './TipWrapper';
+import {
+  auroraAddr,
+  useAuroraTokens,
+  batchCallWithdraw,
+} from '../../services/aurora/aurora';
+
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { isMobile, useMobile } from '../../utils/device';
+import { getAuroraConfig } from '../../services/aurora/config';
+import {
+  ETH_DECIMAL,
+  withdrawBalanceAfterTransaction,
+} from '../../services/aurora/aurora';
+import {
+  useAuroraBalances,
+  // withdrawBalanceAfterTransaction,
+} from '../../services/aurora/aurora';
+import { getURLInfo } from './transactionTipPopUp';
 import USNBuyComponent from '~components/forms/USNBuyComponent';
-import USNPage from '~components/usn/USNPage';
+import USNPage, { BorrowLinkCard } from '~components/usn/USNPage';
+import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '../../pages/SwapPage';
+import Marquee from '~components/layout/Marquee';
 
 const config = getConfig();
 
@@ -136,8 +162,8 @@ function AccountEntry({
   const history = useHistory();
   const [hover, setHover] = useState(false);
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const { wallet, wallet_type } = getCurrentWallet();
 
@@ -163,7 +189,12 @@ function AccountEntry({
       textId: 'view_account',
       selected: location.pathname == '/account',
       click: () => {
-        history.push('/account');
+        if (location.pathname == '/account') {
+          localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
+          window.location.reload();
+        } else {
+          history.push('/account?tab=ref');
+        }
       },
     },
     {
@@ -274,7 +305,7 @@ function AccountEntry({
                         {item.icon}
                       </label>
                       <label className="cursor-pointer">
-                        <FormattedMessage id={item.textId}></FormattedMessage>
+                        <FormattedMessage id={item.textId} />
                       </label>
                       <label htmlFor="" className="ml-1.5">
                         {item.textId === 'view_account' &&
@@ -312,70 +343,160 @@ function AccountEntry({
   );
 }
 
-function QuizOld() {
-  const [hoverQuiz, setHoverQuiz] = useState(false);
+export function AuroraEntry({
+  hasBalanceOnAurora,
+  extraClick,
+}: {
+  hasBalanceOnAurora?: boolean;
+  extraClick?: (e?: any) => void;
+}) {
+  const nearAccount = getCurrentWallet().wallet.getAccountId();
+  const auroraAddress = auroraAddr(nearAccount);
+
+  const isMobile = useMobile();
+
+  const [copyIconHover, setCopyIconHover] = useState<boolean>(false);
+  const [copyIconBgColor, setCopyIconBgColor] = useState<string>('black');
+
+  const [hover, setHover] = useState(false);
+
+  const displayAddr = `${auroraAddress?.substring(
+    0,
+    6
+  )}...${auroraAddress?.substring(
+    auroraAddress.length - 6,
+    auroraAddress.length
+  )}`;
+
+  useEffect(() => {
+    document.addEventListener('click', () => {
+      if (hover) setHover(false);
+    });
+    return () => document.removeEventListener('click', () => {});
+  }, [hover]);
+
   return (
     <div
-      className="relative z-20"
-      onMouseOver={() => setHoverQuiz(true)}
-      onMouseLeave={() => setHoverQuiz(false)}
+      className="lg:py-5 relative z-50 flex items-center cursor-pointer"
+      onMouseEnter={() => !isMobile && setHover(true)}
+      onMouseLeave={() => !isMobile && setHover(false)}
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        extraClick && extraClick();
+        if (!isMobile) {
+          window.open('/account?tab=aurora', '_blank');
+          return;
+        }
+        if (isMobile) {
+          if (!hasBalanceOnAurora) {
+            window.open('/account?tab=aurora', '_blank');
+          } else {
+            setHover(!hover);
+          }
+        }
+      }}
     >
-      <span className="relative inline-flex p-4">
-        <IconBubble />
-        <span className={`w-20 h-14 text-gray-800 absolute top-4 left-1`}>
-          Quiz
-        </span>
-      </span>
-      <div
-        className={`${
-          hoverQuiz ? 'block' : 'hidden'
-        } absolute top-12 -left-20 rounded-md`}
-      >
-        <Card
-          width="w-60"
-          padding="py-4"
-          rounded="rounded-md"
-          className="border border-primaryText shadow-4xl"
+      <div className="flex items-center">
+        <div
+          className={`flex items-center rounded-2xl  ${
+            hover ? 'bg-auroraGreen' : 'bg-gray-700'
+          } px-2 py-1 ml-px relative `}
         >
-          {/* <div
-            className="whitespace-nowrap text-left hover:bg-navHighLightBg text-sm font-semibold flex justify-start text-primaryText hover:text-white cursor-pointer py-4 pl-10 "
-            onClick={() =>
-              window.open('https://mzko2gfnij6.typeform.com/to/N6jSxnym')
-            }
-          >
-            <FormattedMessage id="New_ui" defaultMessage="New UI" />
-            <span className="ml-2 bg-gradientFrom px-2 flex justify-center items-center text-white text-xs rounded-full">
-              Hot
-            </span>
-            <HiOutlineExternalLink className="float-right ml-2 text-xl" />
-          </div> */}
-          <div
-            className="whitespace-nowrap text-left hover:bg-navHighLightBg text-sm font-semibold flex justify-start text-primaryText hover:text-white cursor-pointer py-4 pl-10"
-            onClick={() =>
-              window.open('https://mzko2gfnij6.typeform.com/to/EPmUetxU')
-            }
-          >
-            <FormattedMessage id="Risk" defaultMessage="Risk" />
-            <HiOutlineExternalLink className="float-right ml-2 text-xl" />
-          </div>
-        </Card>
+          <AuroraIcon hover={hover} />
+
+          {hasBalanceOnAurora ? <HasBalance hover={hover} /> : null}
+        </div>
       </div>
+      {hover ? (
+        <div
+          className=" absolute pt-2 right-0 lg:top-14 xs:top-8 md:top-8"
+          onClick={(e) => {
+            window.open('/account?tab=aurora', '_blank');
+            e.stopPropagation();
+          }}
+        >
+          <div
+            className="bg-cardBg rounded-lg border border-farmText flex flex-col overflow-hidden  z-50"
+            style={{
+              minWidth: '256px',
+            }}
+          >
+            <div className="flex items-center pl-5 pt-4">
+              <span
+                className="text-farmText text-sm"
+                style={{
+                  maxWidth: '180px',
+                }}
+              >
+                <FormattedMessage
+                  id="mapping_account"
+                  defaultMessage="Mapping Account"
+                />
+              </span>
+
+              <QuestionTip id="mapping_account_explanation" />
+
+              {hasBalanceOnAurora ? <HasBalance /> : null}
+            </div>
+
+            <div className="px-5 flex justify-between items-center py-4">
+              <span className="text-white font-bold xs:text-base md:text-base">
+                {displayAddr}
+              </span>
+
+              <CopyToClipboard text={auroraAddress}>
+                <div
+                  className={`bg-${copyIconBgColor} bg-opacity-20 rounded-lg flex items-center justify-center p-1.5 cursor-pointer`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  onMouseEnter={() => {
+                    !isMobile && setCopyIconHover(true);
+                  }}
+                  onMouseLeave={() => {
+                    !isMobile && setCopyIconHover(false);
+                  }}
+                  onMouseDown={() => !isMobile && setCopyIconBgColor('white')}
+                  onMouseUp={() => !isMobile && setCopyIconBgColor('black')}
+                  onTouchStart={() => {
+                    setCopyIconBgColor('white');
+                    setCopyIconHover(true);
+                  }}
+                  onTouchEnd={() => {
+                    setCopyIconBgColor('black');
+                    setCopyIconHover(false);
+                  }}
+                >
+                  <CopyIcon fillColor={copyIconHover ? '#00C6A2' : '#7E8A93'} />
+                </div>
+              </CopyToClipboard>
+            </div>
+
+            <Link
+              to={{
+                pathname: '/account?tab=aurora',
+              }}
+              onClick={(e) => e.stopPropagation()}
+              target="_blank"
+              className={`w-full px-3 py-1 text-xs bg-auroraGreen text-chartBg flex items-center justify-center cursor-pointer ${
+                hasBalanceOnAurora ? 'block' : 'hidden'
+              }`}
+            >
+              <span>
+                <FormattedMessage
+                  id="mapping_account_tip"
+                  defaultMessage="You have token(s) in Mapping Account"
+                />
+              </span>
+            </Link>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
-function Quiz() {
-  return (
-    <div
-      className="flex items-center justify-center cursor-pointer relative p-4"
-      onClick={() => window.open('https://form.typeform.com/to/EPmUetxU')}
-    >
-      <IconBubble />
-      <span className="absolute" style={{ transform: 'translateY(-3px)' }}>
-        <FormattedMessage id="Risk"></FormattedMessage>
-      </span>
-    </div>
-  );
-}
+
 function Xref() {
   const history = useHistory();
   const location = useLocation();
@@ -427,8 +548,8 @@ function PoolsMenu() {
   const [hover, setHover] = useState(false);
   const history = useHistory();
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const links = [
     {
@@ -460,7 +581,7 @@ function PoolsMenu() {
 
   return (
     <div
-      className="relative z-20"
+      className="relative"
       onMouseOver={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
@@ -485,12 +606,15 @@ function PoolsMenu() {
         className={`${
           hover ? 'block' : 'hidden'
         } absolute top-12 -left-20 rounded-md`}
+        style={{
+          zIndex: 999,
+        }}
       >
         <Card
           width="w-64"
           padding="py-4"
           rounded="rounded-md"
-          className="border border-primaryText shadow-4xl"
+          className="border border-primaryText shadow-4xl z-40"
         >
           {links.map((link) => {
             let isSelected = link.path === location.pathname;
@@ -506,7 +630,7 @@ function PoolsMenu() {
             return (
               <div
                 key={link.path}
-                className={`flex justify-start items-center hover:bg-navHighLightBg text-sm font-semibold  hover:text-white cursor-pointer py-4 pl-7 ${
+                className={`flex justify-start items-center hover:bg-navHighLightBg text-sm font-semibold z-40  hover:text-white cursor-pointer py-4 pl-7 ${
                   isSelected
                     ? 'text-white bg-navHighLightBg'
                     : 'text-primaryText'
@@ -658,13 +782,163 @@ function MoreMenu() {
   );
 }
 
+function USNButton() {
+  const [USNButtonHover, setUSNButtonHover] = useState<boolean>(false);
+  const [showUSN, setShowUSN] = useState<boolean>(false);
+
+  const [showeBorrowCard, setShowBorrowCard] = useState(false);
+
+  return (
+    <>
+      <div
+        onMouseEnter={() => setUSNButtonHover(true)}
+        onMouseLeave={() => setUSNButtonHover(false)}
+        className="relative lg:py-5 z-50"
+      >
+        <div className="mr-3">
+          <USNBuyComponent hover={USNButtonHover} />
+        </div>
+
+        {USNButtonHover ? (
+          <div className=" absolute pt-2 right-0 lg:top-14 xs:top-8 md:top-8 ">
+            <div
+              style={{
+                border: '1px solid #415462',
+                backdropFilter: 'blur(25px)',
+                WebkitBackdropFilter: 'blur(25px)',
+                background: '#323E46',
+              }}
+              className="py-2.5 px-1.5 text-sm  flex flex-col items-center rounded-xl z-50 text-primaryText "
+            >
+              <div
+                className="whitespace-nowrap px-4 py-2 hover:bg-black hover:bg-opacity-20 rounded-lg hover:text-white w-full cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowUSN(true);
+                  setUSNButtonHover(false);
+                }}
+              >
+                <FormattedMessage id="buy" defaultMessage="Buy" />
+              </div>
+
+              <div
+                className="whitespace-nowrap flex items-center px-4 py-2 hover:bg-black hover:bg-opacity-20 rounded-lg hover:text-white w-full cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowBorrowCard(true);
+                  setUSNButtonHover(false);
+                }}
+              >
+                <span className="mr-1">
+                  <FormattedMessage id="borrow" defaultMessage="Borrow" />
+                </span>
+                <span>
+                  <HiOutlineExternalLink />
+                </span>
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </div>
+      <USNPage
+        isOpen={showUSN}
+        onRequestClose={(e) => {
+          setShowUSN(false);
+        }}
+        style={{
+          overlay: {
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
+          },
+          content: {
+            outline: 'none',
+            position: 'fixed',
+            width: isMobile() ? '98%' : 550,
+            bottom: '50%',
+          },
+        }}
+      ></USNPage>
+
+      <BorrowLinkCard
+        isOpen={showeBorrowCard}
+        onRequestClose={(e) => {
+          setShowBorrowCard(false);
+        }}
+        style={{
+          overlay: {
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
+          },
+          content: {
+            outline: 'none',
+            position: 'fixed',
+            width: isMobile() ? '98%' : 550,
+            bottom: '50%',
+          },
+        }}
+      />
+    </>
+  );
+}
+
 function NavigationBar() {
   const [showWrapNear, setShowWrapNear] = useState(false);
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   const [showWalletSelector, setShowWalletSelector] = useState(false);
 
   const [hoverClick, setHoverClick] = useState<boolean>(false);
+
+  const auroraTokens = useAuroraTokens();
+  const auroraAddress = auroraAddr(getCurrentWallet().wallet.getAccountId());
+
+  const [withdrawDone, setWithdrawDone] = useState<any>();
+
+  const auroraBalances = useAuroraBalances(auroraAddress);
+
+  const [hasAuroraBalance, setHasAuroraBalance] = useState(false);
+
+  const { txHash } = getURLInfo();
+
+  useEffect(() => {
+    if (!auroraBalances || !isSignedIn) return;
+    const auroraAddresses = Object.keys(auroraBalances);
+
+    const amounts = Object.values(auroraBalances) as string[];
+
+    // withdrawBalanceAfterTransaction(auroraAddresses, amounts).then(
+    //   setWithdrawDone
+    // );
+
+    setWithdrawDone(false);
+  }, [auroraBalances, txHash, isSignedIn]);
+
+  useEffect(() => {
+    if (
+      !auroraBalances ||
+      !auroraTokens ||
+      !(typeof withdrawDone === 'boolean' && withdrawDone === false) ||
+      Object.keys(auroraBalances).length === 0
+    )
+      return;
+
+    const balanceOver = Object.entries(auroraBalances).some(
+      ([address, balance]) => {
+        if (!balance) return false;
+        return (
+          Number(
+            toReadableNumber(
+              address === getAuroraConfig().WETH
+                ? ETH_DECIMAL
+                : auroraTokens.tokensByAddress[address]?.decimals,
+              balance as string
+            )
+          ) > 0
+        );
+      }
+    );
+    setHasAuroraBalance(balanceOver);
+  }, [auroraTokens, auroraBalances, withdrawDone, isSignedIn]);
 
   const [tokensMeta, setTokensMeta] = useState<{}>();
 
@@ -674,7 +948,6 @@ function NavigationBar() {
   const historyInit = useHistory();
   const setPatheState = () =>
     setPathnameState(window.location.pathname !== '/account');
-  const [showUSN, setShowUSN] = useState(false);
 
   useEffect(() => {
     const _historyWrap = function (type: any) {
@@ -712,7 +985,7 @@ function NavigationBar() {
     const ids = Object.keys(refAccountBalances);
 
     ftGetTokensMetadata(ids).then(setTokensMeta);
-  }, [refAccountBalances]);
+  }, [refAccountBalances, isSignedIn]);
 
   useEffect(() => {
     if (!refAccountBalances || !tokensMeta) {
@@ -730,7 +1003,7 @@ function NavigationBar() {
     );
 
     setHasBalanceOnRefAccount(hasRefBalanceOver);
-  }, [refAccountBalances, tokensMeta]);
+  }, [refAccountBalances, tokensMeta, isSignedIn]);
   return (
     <>
       <div className="nav-wrap md:hidden xs:hidden text-center relative">
@@ -757,7 +1030,7 @@ function NavigationBar() {
             className={`${
               hoverClick ? 'font-bold' : 'font-normal'
             } underline cursor-pointer mx-1`}
-            onClick={() => window.open('/account', '_blank')}
+            onClick={() => window.open('/account?tab=ref', '_blank')}
             onMouseEnter={() => setHoverClick(true)}
             onMouseLeave={() => setHoverClick(false)}
           >
@@ -786,34 +1059,7 @@ function NavigationBar() {
             <Anchor to="/risks" pattern="/risks" name="Risks" />
           </div>
           <div className="flex items-center justify-end flex-1">
-            <>
-              <div
-                className="mr-3"
-                onClick={() => {
-                  setShowUSN(true);
-                }}
-              >
-                <USNBuyComponent />
-              </div>
-              <USNPage
-                isOpen={showUSN}
-                onRequestClose={() => {
-                  setShowUSN(false);
-                }}
-                style={{
-                  overlay: {
-                    backdropFilter: 'blur(15px)',
-                    WebkitBackdropFilter: 'blur(15px)',
-                  },
-                  content: {
-                    outline: 'none',
-                    position: 'fixed',
-                    width: 550,
-                    bottom: '50%',
-                  },
-                }}
-              ></USNPage>
-            </>
+            <USNButton />
             {isSignedIn && (
               <div className="flex items-center text-white">
                 <div
@@ -845,15 +1091,28 @@ function NavigationBar() {
               setShowWalletSelector={setShowWalletSelector}
               showWalletSelector={showWalletSelector}
             />
+            <div
+              className={
+                isSignedIn ? ' relative right-3 flex items-center' : 'hidden'
+              }
+            >
+              <ConnectDot />
+              <ConnectDot />
+
+              <AuroraEntry hasBalanceOnAurora={hasAuroraBalance} />
+            </div>
+
             <MoreMenu />
           </div>
         </nav>
+        {isMobile ? null : <Marquee></Marquee>}
       </div>
       <MobileNavBar
         hasBalanceOnRefAccount={hasBalanceOnRefAccount}
         isSignedIn={isSignedIn}
         setShowWalletSelector={setShowWalletSelector}
         showWalletSelector={showWalletSelector}
+        hasAuroraBalance={hasAuroraBalance}
       />
       <WalletSelectorModal
         setShowWalletSelector={setShowWalletSelector}
@@ -867,3 +1126,63 @@ function NavigationBar() {
   );
 }
 export default NavigationBar;
+
+export function USNCard({
+  showUSN,
+  setShowUSN,
+  showeBorrowCard,
+  setShowBorrowCard,
+}: {
+  showUSN: boolean;
+  setShowUSN: (e: boolean) => void;
+  showeBorrowCard: boolean;
+  setShowBorrowCard: (e: boolean) => void;
+}) {
+  return (
+    <>
+      <USNPage
+        isOpen={showUSN}
+        onRequestClose={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setShowUSN(false);
+          setShowBorrowCard(false);
+        }}
+        style={{
+          overlay: {
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
+          },
+          content: {
+            outline: 'none',
+            position: 'fixed',
+            width: isMobile() ? '98%' : 550,
+            bottom: '50%',
+            left: '1%',
+            transform: null,
+          },
+        }}
+      ></USNPage>
+
+      <BorrowLinkCard
+        isOpen={showeBorrowCard}
+        onRequestClose={(e) => {
+          setShowBorrowCard(false);
+        }}
+        style={{
+          overlay: {
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
+          },
+          content: {
+            outline: 'none',
+            position: 'fixed',
+            width: isMobile() ? '98%' : 550,
+
+            bottom: '50%',
+          },
+        }}
+      />
+    </>
+  );
+}
