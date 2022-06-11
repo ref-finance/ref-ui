@@ -281,7 +281,7 @@ export const usePoolsFarmCount = ({
   );
 
   const getFarms = async () => {
-    return await db.queryFarms();
+    return (await db.queryFarms()).filter((farm) => farm.status !== 'Ended');
   };
 
   useEffect(() => {
