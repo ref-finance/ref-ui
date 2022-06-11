@@ -1,4 +1,5 @@
 import React from 'react';
+import { FormattedMessage } from 'react-intl';
 
 export const LOVEBoosterIcon = () => {
   return (
@@ -410,5 +411,52 @@ export const VE_ICON = () => {
         fill="#00FFD1"
       />
     </svg>
+  );
+};
+
+export const NO_RESULT_CHART = () => {
+  return (
+    <svg
+      width="125"
+      height="125"
+      viewBox="0 0 125 125"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle
+        cx="62.5"
+        cy="62.5"
+        r="54.5"
+        stroke="url(#paint0_linear_508_37)"
+        stroke-width="16"
+      />
+      <defs>
+        <linearGradient
+          id="paint0_linear_508_37"
+          x1="62.5"
+          y1="0"
+          x2="62.5"
+          y2="125"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#849DA8" />
+          <stop offset="1" stop-color="#849DA8" stop-opacity="0" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};
+
+export const NoResultChart = () => {
+  return (
+    <div className="relative">
+      <NO_RESULT_CHART />
+      <div className="absolute right-1/2 top-1/2 text-sm text-primaryText transform translate-x-1/2 -translate-y-1/2">
+        <FormattedMessage
+          id="no_result_pending_proposal"
+          defaultMessage={'No result'}
+        />
+      </div>
+    </div>
   );
 };

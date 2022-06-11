@@ -795,9 +795,13 @@ const UserReferendumCard = ({
     .div(new Big(1000000000))
     .toNumber();
 
+  console.log(moment().unix() < unlockTime);
+
   const lockTime = unlockTime - (accountInfo?.duration_sec || 0);
 
   const passedTime_sec = moment().unix() - lockTime;
+
+  console.log(passedTime_sec, accountInfo?.duration_sec);
 
   const lockedLpShare = toReadableNumber(24, accountInfo?.lpt_amount || '0');
 
@@ -870,7 +874,7 @@ const UserReferendumCard = ({
             }
             onClick={() => setLockPopOpen(true)}
           />
-          {ONLY_ZEROS.test(veShare) ? null : moment().unix() < unlockTime ? (
+          {ONLY_ZEROS.test(veShare) ? null : moment().unix() > unlockTime ? (
             <BorderGradientButton
               onClick={() => setUnLockPopOpen(true)}
               text={
@@ -898,7 +902,7 @@ const UserReferendumCard = ({
               grayDisable={moment().unix() < unlockTime}
               disabled={moment().unix() < unlockTime}
               gradientWith={`${Math.ceil(
-                passedTime_sec / accountInfo?.duration_sec
+                (passedTime_sec / accountInfo?.duration_sec) * 100
               )}%`}
             />
           )}

@@ -578,17 +578,18 @@ export function BorderGradientButton(porps: {
   disabled?: boolean;
   width?: string;
   color?: string;
+  opacity?: string;
 }) {
-  const { text, onClick, className, disabled, width, color } = porps;
+  const { text, onClick, className, disabled, width, color, opacity } = porps;
 
   return (
     <button
-      className={` p-px rounded-lg text-center  bg-veGradient ${width} `}
+      className={` p-px rounded-lg text-center  bg-veGradient ${width} ${opacity}`}
       onClick={onClick}
     >
       <button
         disabled={disabled}
-        className={`w-full rounded-lg cursor-pointer text-center ${className}`}
+        className={`w-full rounded-lg cursor-pointer text-center ${className} py-2.5 px-4`}
         style={{
           backgroundColor: color || 'rgb(0,12,21)',
         }}

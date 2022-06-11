@@ -6,17 +6,19 @@ import { IoCloseOutline, IoWarning } from 'react-icons/io5';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import { SUPPORT_LEDGER_KEY } from '../swap/SwapCard';
 
-function SupportLedgerSwitch({
-  supportLedger,
-  setSupportLedger,
+export function CustomSwitch({
+  isOpen,
+  setIsOpen,
+  storageKey,
 }: {
-  supportLedger: boolean;
-  setSupportLedger: (e?: any) => void;
+  isOpen: boolean;
+  setIsOpen: (e?: any) => void;
+  storageKey?: string;
 }) {
   return (
     <div
-      className={`ml-4 cursor-pointer ${
-        supportLedger ? 'bg-gradientFrom' : 'bg-farmSbg'
+      className={`ml-3 cursor-pointer ${
+        isOpen ? 'bg-gradientFrom' : 'bg-farmSbg'
       }  p-0.5 flex items-center`}
       style={{
         height: '16px',
@@ -24,18 +26,18 @@ function SupportLedgerSwitch({
         borderRadius: '20px',
       }}
       onClick={() => {
-        if (supportLedger) {
-          setSupportLedger(false);
-          localStorage.removeItem(SUPPORT_LEDGER_KEY);
+        if (isOpen) {
+          setIsOpen(false);
+          localStorage.removeItem(storageKey || SUPPORT_LEDGER_KEY);
         } else {
-          setSupportLedger(true);
-          localStorage.setItem(SUPPORT_LEDGER_KEY, '1');
+          setIsOpen(true);
+          localStorage.setItem(storageKey || SUPPORT_LEDGER_KEY, '1');
         }
       }}
     >
       <div
         className={`rounded-full bg-white transition-all ${
-          supportLedger ? 'transform translate-x-3 relative left-px' : ''
+          isOpen ? 'transform translate-x-3 relative left-px' : ''
         }`}
         style={{
           width: '12px',
@@ -239,9 +241,9 @@ export default function SlippageSelectorForStable({
                   uniquenessId="supportId"
                   width="w-60"
                 />
-                <SupportLedgerSwitch
-                  supportLedger={supportLedger}
-                  setSupportLedger={setSupportLedger}
+                <CustomSwitch
+                  isOpen={supportLedger}
+                  setIsOpen={setSupportLedger}
                 />
               </div>
             )}

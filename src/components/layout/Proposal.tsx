@@ -22,7 +22,7 @@ import { BorderGradientButton } from '../button/Button';
 import { ModalWrapper } from '../../pages/ReferendumPage';
 import Modal from 'react-modal';
 import { Images, Symbols } from '../stableswap/CommonComp';
-import { RightArrowVE } from '../icon/Referendum';
+import { RightArrowVE, NoResultChart } from '../icon/Referendum';
 import { VoteFarm } from '../../services/referendum';
 import { toNonDivisibleNumber, percent } from '../../utils/numbers';
 import {
@@ -32,7 +32,11 @@ import {
 } from '../../services/ft-contract';
 import { PieChart, Pie, Cell, Sector, ResponsiveContainer } from 'recharts';
 import { toRealSymbol } from '../../utils/token';
-import _ from 'lodash';
+import _, { pad } from 'lodash';
+import { CustomSwitch } from '../forms/SlippageSelector';
+import { ArrowDownLarge } from '~components/icon';
+import { FilterIcon } from '~components/icon/PoolFilter';
+import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 
 const REF_FI_PROPOSALTAB = 'REF_FI_PROPOSALTAB_VALUE';
 
@@ -165,14 +169,96 @@ enum PROPOSAL_TAB {
 }
 const PAIR_SEPERATOR = '|';
 
-export const ProposalWrapper = (props: any & { show: boolean }) => {
-  const { show } = props;
+export const durationFomatter = (duration: moment.Duration) => {
+  return `${duration.days()}d: ${duration.hours()}h: ${duration.days()}m`;
+};
+
+function SelectUI({
+  onChange,
+  list,
+  curvalue,
+  shrink,
+  className,
+}: {
+  onChange: (e: any) => void;
+  list: string[];
+  curvalue: string;
+  shrink?: string;
+  className?: string;
+}) {
+  const [showSelectBox, setShowSelectBox] = useState(false);
+  const switchSelectBoxStatus = () => {
+    setShowSelectBox(!showSelectBox);
+  };
+  const hideSelectBox = () => {
+    setShowSelectBox(false);
+  };
+  return (
+    <div
+      className={`relative flex ${
+        shrink ? 'items-end' : 'items-center '
+      } lg:mr-5 outline-none ml-8`}
+    >
+      <span
+        onClick={switchSelectBoxStatus}
+        tabIndex={-1}
+        onBlur={hideSelectBox}
+        className={`flex items-center justify-between bg-black bg-opacity-20 w-24 h-5 rounded-md px-2.5 py-0.5  cursor-pointer text-xs outline-none ${
+          shrink ? 'xs:w-8 md:w-8' : ''
+        } ${showSelectBox ? ' text-white' : 'text-farmText'}`}
+      >
+        <label
+          className={`whitespace-nowrap ${shrink ? 'xs:hidden md:hidden' : ''}`}
+        >
+          {curvalue ? curvalue : null}
+        </label>
+        <ArrowDownLarge />
+      </span>
+      <div
+        className={`absolute z-50 top-8 right-0 bg-cardBg rounded-2xl px-2  text-sm w-28 ${
+          showSelectBox ? '' : 'hidden'
+        }`}
+        style={{
+          border: '1px solid #415462',
+        }}
+      >
+        {list.map((item: string, index) => (
+          <p
+            key={index}
+            onMouseDown={() => {
+              onChange(item);
+            }}
+            className={`flex rounded-lg items-center p-4 text-xs h-5 text-white text-opacity-40 my-2 cursor-pointer hover:bg-black hover:bg-opacity-20 hover:text-opacity-100
+            ${item == curvalue ? 'bg-black bg-opacity-20 text-opacity-100' : ''}
+            `}
+          >
+            {item}
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export const ProposalWrapper = (
+  props: any & { show: boolean; bgcolor?: string }
+) => {
+  const { show, bgcolor } = props;
   return (
     <Card
       padding={'p-8'}
       width="w-full"
+      bgcolor={bgcolor}
       className={!show ? 'hidden' : 'text-primaryText '}
     >
+      {props.children}
+    </Card>
+  );
+};
+
+export const GradientWrapper = (props: any & { padding: string }) => {
+  return (
+    <Card className="w-full" bgcolor="bg-veCardGradient" {...props}>
       {props.children}
     </Card>
   );
@@ -197,10 +283,16 @@ const FarmChart = ({
 
   const emptyVote = ratio.every((r, i) => r.value === 0);
 
-  console.log(ratio);
+  const data = emptyVote
+    ? ratio.map((r, i) => {
+        const newr = JSON.parse(JSON.stringify(r));
+        newr.value = (1 / ratio.length) * 0.99;
+        return newr;
+      })
+    : ratio.filter((r) => r.value > 0);
 
   const ActiveLabel = () => {
-    const activeFarm = ratio[activeIndex];
+    const activeFarm = data[activeIndex];
 
     return (
       <div
@@ -225,7 +317,10 @@ const FarmChart = ({
 
           <span className="text-white">
             {toPrecision(
-              scientificNotationToString(activeFarm.value.toString()),
+              toReadableNumber(
+                18,
+                scientificNotationToString(activeFarm.value.toString())
+              ),
               2,
               true
             )}
@@ -253,14 +348,6 @@ const FarmChart = ({
       </div>
     );
   };
-
-  const data = emptyVote
-    ? ratio.map((r, i) => {
-        const newr = JSON.parse(JSON.stringify(r));
-        newr.value = (1 / ratio.length) * 0.99;
-        return newr;
-      })
-    : ratio;
 
   const color = ['#51626B', '#667A86', '#849DA8', '#B5C9CA'];
 
@@ -332,9 +419,9 @@ const FarmChart = ({
     const cos = Math.cos(-RADIAN * midAngle);
     const sx = cx + (outerRadius - 2) * cos;
     const sy = cy + (outerRadius - 2) * sin;
-    const mx = cx + (outerRadius + 50) * cos;
-    const my = cy + (outerRadius + 50) * sin;
-    const ex = mx + (cos >= 0 ? 1 : -1) * 50;
+    const mx = cx + (outerRadius + 30) * cos;
+    const my = cy + (outerRadius + 30) * sin;
+    const ex = mx + (cos >= 0 ? 1 : -1) * 30;
     const ey = my;
     const textAnchor = cos >= 0 ? 'start' : 'end';
 
@@ -416,6 +503,124 @@ const FarmChart = ({
   );
 };
 
+const GovProposalItem = ({
+  status,
+  description,
+  proposal,
+}: {
+  status: 'Live' | 'Ended' | 'Pending';
+  description?: string;
+  proposal: Proposal;
+}) => {
+  const StatusIcon = () => {
+    return (
+      <div
+        className={`rounded-3xl px-2 py-1`}
+        style={{
+          color:
+            status === 'Ended'
+              ? '#73818B'
+              : status === 'Live'
+              ? '#A4FFEF'
+              : '#BD9FFF',
+          backgroundColor:
+            status === 'Ended'
+              ? 'rgba(0, 0, 0, 0.2)'
+              : status === 'Live'
+              ? 'rgba(76, 254, 222, 0.2)'
+              : 'rgba(126, 69, 255, 0.2)',
+        }}
+      >
+        {' '}
+        {<FormattedMessage id={status} defaultMessage={status} />}{' '}
+      </div>
+    );
+  };
+
+  console.log(status);
+
+  return (
+    <Card
+      className="w-full flex items-center my-2"
+      bgcolor="bg-white bg-opacity-10"
+      padding={'p-8'}
+    >
+      <div>{status === 'Pending' ? <NoResultChart /> : null}</div>
+      <div className="flex flex-col w-full ml-8">
+        <div className="w-full flex items-center   justify-between">
+          <div className="text-lg"> title </div>
+
+          <StatusIcon />
+        </div>
+
+        <div className="w-full flex items-center justify-between pb-8 pt-3">
+          <div className="flex items-center">
+            <span className="text-primaryText mr-3">
+              <FormattedMessage id="proposer" defaultMessage={'Proposter'} />
+            </span>
+
+            <span className="font-bold">{proposal.proposer}</span>
+          </div>
+
+          <span
+            className={
+              status === 'Ended'
+                ? 'hidden'
+                : `${
+                    status === 'Pending'
+                      ? 'text-primaryText'
+                      : 'text-gradientFrom'
+                  }`
+            }
+          >
+            {durationFomatter(
+              moment.duration(
+                Number(proposal.start_at) / 1000000 - moment().unix()
+              )
+            )}
+            {` left`}
+          </span>
+        </div>
+
+        <div className="w-full flex items-center justify-between">
+          <div className="flex items-center">
+            <span className="flex flex-col mr-10">
+              <span className="text-primaryText">
+                <FormattedMessage id="turn_out" defaultMessage={'Turnout'} />
+              </span>
+
+              <span>-</span>
+            </span>
+
+            <span className="flex flex-col">
+              <span className="text-primaryText">
+                <FormattedMessage
+                  id="top_answer"
+                  defaultMessage={'Top Answer'}
+                />
+              </span>
+
+              <span>-</span>
+            </span>
+          </div>
+          <div className="flex items-center">
+            <BorderGradientButton
+              text={<FormattedMessage id="detail" defaultMessage={'Detail'} />}
+              width="h-11 "
+              className="h-full"
+            />
+
+            <NewGradientButton
+              text={<FormattedMessage id="vote" defaultMessage={'Vote'} />}
+              className="ml-2.5 h-11"
+            />
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
 export const ProposalTab = ({
   className,
   curTab,
@@ -453,7 +658,7 @@ export const ProposalTab = ({
   );
 };
 
-export const FarmProposal = () => {
+export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
   const defautLeft = '0d: 0h 0m ';
 
   const [counterDown, setCounterDown] = useState<string>(defautLeft);
@@ -467,8 +672,6 @@ export const FarmProposal = () => {
 
   const { accountInfo, veShare, veShareRaw } = useAccountInfo();
   const [hover, setHover] = useState<number>();
-
-  const [farmProposal, setFarmProposal] = useState<Proposal>();
 
   const startTime = Math.floor(
     new Big(farmProposal?.start_at || 0).div(1000000).toNumber()
@@ -524,23 +727,23 @@ export const FarmProposal = () => {
     tokens,
   }: {
     className?: string;
-    voted?: boolean;
+    voted?: string;
     index: number;
     tokens: TokenMetadata[];
   }) => {
     const [votePopUpOpen, setVotePopUpOpen] = useState<boolean>(false);
-
+    console.log(voted);
     const ButtonRender = () => {
       const submit = (e: Event) => {
         !voted
           ? setVotePopUpOpen(true)
-          : ended
-          ? e.stopPropagation()
-          : cancelVote({ proposal_id: farmProposal.id });
+          : !ended && Number(voted) === index
+          ? cancelVote({ proposal_id: farmProposal.id })
+          : e.stopPropagation();
       };
 
       const text =
-        hover === index && voted ? (
+        hover === index && Number(voted) === index ? (
           <FormattedMessage id="cancel" defaultMessage={'Cancel'} />
         ) : ended ? (
           <FormattedMessage id="ended" defaultMessage={'Ended'} />
@@ -548,7 +751,7 @@ export const FarmProposal = () => {
           <FormattedMessage id="vote" defaultMessage={'Vote'} />
         );
 
-      return hover === index ? (
+      return hover === index && (!voted || Number(voted) === index) ? (
         <NewGradientButton
           onClick={submit}
           text={text}
@@ -559,7 +762,8 @@ export const FarmProposal = () => {
           onClick={submit}
           text={text}
           width="w-20 h-10"
-          className={`py-2 px-4 ${voted || ended ? 'opacity-30' : ''}`}
+          opacity={voted || ended ? 'opacity-30' : ''}
+          className={`py-2 px-4`}
           color="#323842"
         />
       );
@@ -608,7 +812,7 @@ export const FarmProposal = () => {
 
           {!voted ? null : (
             <NewGradientButton
-              className="ml-2 text-white"
+              className="ml-2 text-white text-sm px-2.5 py-1.5"
               text={
                 <FormattedMessage id="you_voted" defaultMessage={'You voted'} />
               }
@@ -654,24 +858,6 @@ export const FarmProposal = () => {
   };
 
   useEffect(() => {
-    getProposalList().then((list: Proposal[]) => {
-      const farmProposals = list.filter((p) =>
-        Object.keys(p.kind).includes('FarmingReward')
-      );
-
-      const farmProposal =
-        farmProposals.length === 1
-          ? farmProposals[0]
-          : _.maxBy(
-              farmProposals.filter((p) => Number(p.start_at) < moment().unix()),
-              (o) => Number(o.start_at)
-            );
-
-      setFarmProposal(farmProposal);
-    });
-  }, []);
-
-  useEffect(() => {
     const startTime = moment().unix();
 
     let duration = moment.duration(
@@ -707,7 +893,7 @@ export const FarmProposal = () => {
   }, [farmProposal]);
 
   const supplyPercent = votedVE
-    .dividedBy(VEmeta.totalVE || 1)
+    .dividedBy(toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, VEmeta.totalVE || '1'))
     .times(100)
     .toNumber()
     .toFixed(2);
@@ -727,7 +913,16 @@ export const FarmProposal = () => {
         {', '}
         {curYear}
         <span className="rounded-md bg-black bg-opacity-20 py-1 px-4 text-gradientFrom absolute right-0">
-          {counterDown} left
+          {ended ? (
+            <span className="text-primaryText">
+              <FormattedMessage
+                id={'voting_ende'}
+                defaultMessage="Voting Ended"
+              />
+            </span>
+          ) : (
+            `${counterDown} left`
+          )}
         </span>
       </div>
 
@@ -771,8 +966,13 @@ export const FarmProposal = () => {
           ]}
           values={[
             `${toPrecision(
-              scientificNotationToString(
-                BigNumber.sum(...(farmProposal?.votes || ['0', '0'])).toString()
+              toReadableNumber(
+                18,
+                scientificNotationToString(
+                  BigNumber.sum(
+                    ...(farmProposal?.votes || ['0', '0'])
+                  ).toString()
+                )
               ),
               2,
               true
@@ -856,10 +1056,9 @@ export const FarmProposal = () => {
                 index={id}
                 key={id}
                 tokens={pair.split(PAIR_SEPERATOR).map((id) => tokens?.[id])}
-                voted={
-                  voteDetail?.[farmProposal?.id]?.action?.VoteFarm.farm_id ===
-                  id
-                }
+                voted={voteDetail?.[
+                  farmProposal?.id
+                ]?.action?.VoteFarm?.farm_id?.toString()}
               />
             );
           }
@@ -869,16 +1068,100 @@ export const FarmProposal = () => {
   );
 };
 
+export const GovProposal = ({ proposals }: { proposals: Proposal[] }) => {
+  const VotedOnlyKey = 'REF_FI_GOV_PROPOSAL_VOTED_ONLY';
+  const [votedOnly, setVotedOnly] = useState<boolean>(
+    localStorage.getItem(VotedOnlyKey)?.toString() === '1' || false
+  );
+
+  const [state, setState] = useState<'All' | 'Live' | 'Ended' | 'Pending'>(
+    'All'
+  );
+
+  const proposalStatus = {
+    InProgress: 'Live',
+    Expired: 'Ended',
+    WarmUp: 'Pending',
+  };
+
+  return (
+    <div className="flex flex-col text-white text-sm">
+      <div className="flex items-center justify-end pb-6">
+        <span className="text-xs text-primaryText">
+          <FormattedMessage id="voted_only" defaultMessage={'Voted only'} />
+        </span>
+
+        <CustomSwitch
+          isOpen={votedOnly}
+          setIsOpen={setVotedOnly}
+          storageKey={VotedOnlyKey}
+        />
+
+        <SelectUI
+          curvalue={state}
+          list={['All', 'Live', 'Ended', 'Pending']}
+          onChange={setState}
+        />
+      </div>
+
+      <div>
+        {proposals?.map((p) => (
+          <GovProposalItem status={proposalStatus[p.status]} proposal={p} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export const ProposalCard = () => {
   const [curTab, setTab] = useState<PROPOSAL_TAB>(
     PROPOSAL_TAB[localStorage.getItem(REF_FI_PROPOSALTAB)] || PROPOSAL_TAB.FARM
   );
 
+  const [farmProposal, setFarmProposal] = useState<Proposal>();
+
+  const [proposals, setProposals] = useState<Proposal[]>();
+
+  console.log(proposals);
+
+  useEffect(() => {
+    getProposalList().then((list: Proposal[]) => {
+      setProposals(list);
+      const farmProposals = list.filter((p) =>
+        Object.keys(p.kind).includes('FarmingReward')
+      );
+
+      const farmProposal =
+        farmProposals.length === 1
+          ? farmProposals[0]
+          : _.maxBy(
+              farmProposals.filter((p) => Number(p.start_at) < moment().unix()),
+              (o) => Number(o.start_at)
+            );
+
+      setFarmProposal(farmProposal);
+    });
+  }, []);
+  useEffect(() => {
+    localStorage.setItem(REF_FI_PROPOSALTAB, curTab);
+  }, [curTab]);
+
   return (
     <div className="w-full flex flex-col items-center ">
       <ProposalTab curTab={curTab} setTab={setTab} className="mt-12 mb-4" />
       <ProposalWrapper show={curTab === PROPOSAL_TAB.FARM}>
-        <FarmProposal />
+        <FarmProposal farmProposal={farmProposal} />
+      </ProposalWrapper>
+
+      <ProposalWrapper
+        show={curTab === PROPOSAL_TAB.GOV}
+        bgcolor={'bg-veCardGradient'}
+      >
+        <GovProposal
+          proposals={proposals?.filter(
+            (p) => !Object.keys(p.kind).includes('FarmingReward')
+          )}
+        />
       </ProposalWrapper>
     </div>
   );
