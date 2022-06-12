@@ -25,7 +25,7 @@ import {
 } from '../services/ft-contract';
 import { PoolRPCView, currentTokensPrice } from '../services/api';
 import { BigNumber } from 'bignumber.js';
-import { getPoolsByIds } from '../services/indexer';
+import { getPoolsByIds, getTokenPriceList } from '../services/indexer';
 import {
   storageDepositAction,
   STORAGE_TO_REGISTER_WITH_MFT,
@@ -42,6 +42,7 @@ import { scientificNotationToString } from '../utils/numbers';
 import Big from 'big.js';
 import { nearWithdrawTransaction } from './wrap-near';
 import { currentStorageBalanceOfVE } from './account';
+import db, { TokenPrice, BoostSeeds, FarmDexie } from '../store/RefDatabase';
 
 const config = getConfig();
 export const DEFAULT_PAGE_LIMIT = 150;
@@ -209,9 +210,6 @@ export const getFarms = async ({
       seeds[f.seed_id],
       getLPTokenId(f.farm_id)
     );
-
-    console.log(fi);
-
     return fi;
   });
 
@@ -747,7 +745,6 @@ export const getServerTime = async () => {
 };
 
 export const love_stake = async ({ amount, msg = '' }: StakeOptions) => {
-  // todo
   const transactions: Transaction[] = [
     {
       receiverId: REF_VE_CONTRACT_ID,
@@ -776,6 +773,127 @@ export const love_stake = async ({ amount, msg = '' }: StakeOptions) => {
 
   return executeFarmMultipleTransactions(transactions);
 };
+export const getBoostTokenPrices = async (): Promise<
+  Record<string, TokenPrice>
+> => {
+  try {
+    let tokenPrices: Record<string, TokenPrice> = {};
+    const cacheData = await db.checkTokenPrices();
+    if (cacheData) {
+      const list: TokenPrice[] = await db.queryTokenPrices();
+      list.forEach((price: TokenPrice) => {
+        const { id, update_time, ...priceInfo } = price;
+        tokenPrices[id] = priceInfo;
+      });
+      getBoostTokenPricesFromServer();
+      console.log('缓存 price');
+    } else {
+      tokenPrices = await getBoostTokenPricesFromServer();
+    }
+    return tokenPrices;
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+};
+export const getBoostTokenPricesFromServer = async (): Promise<
+  Record<string, TokenPrice>
+> => {
+  try {
+    const tokenPrices: Record<string, TokenPrice> = await getTokenPriceList();
+    await db.cacheTokenPrices(tokenPrices);
+    console.log('接口 price');
+    return tokenPrices;
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+};
+
+export const getBoostSeeds = async (): Promise<{
+  seeds: Seed[];
+  farms: FarmBoost[][];
+  pools: PoolRPCView[];
+}> => {
+  try {
+    const seeds: Seed[] = [];
+    const farms: FarmBoost[][] = [];
+    const pools: PoolRPCView[] = [];
+    const cacheData = await db.checkBoostSeeds();
+    if (cacheData) {
+      const list: BoostSeeds[] = await db.queryBoostSeeds();
+      list.forEach((s: BoostSeeds) => {
+        const { id, update_time, ...info } = s;
+        const { seed, farmList, pool } = info;
+        seeds.push(seed);
+        farms.push(farmList);
+        if (pool) {
+          pools.push(pool);
+        }
+      });
+      console.log('缓存 seed');
+      getBoostSeedsFromServer();
+      return { seeds, farms, pools };
+    } else {
+      const result = await getBoostSeedsFromServer();
+      console.log('接口 seed');
+      return result;
+    }
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+export const getBoostSeedsFromServer = async (): Promise<{
+  seeds: Seed[];
+  farms: FarmBoost[][];
+  pools: PoolRPCView[];
+}> => {
+  try {
+    // get all seeds
+    const list_seeds = await list_seeds_info();
+    // get all farms
+    const farmsPromiseList: Promise<any>[] = [];
+    const poolIds = new Set<string>();
+    let pools: PoolRPCView[] = [];
+    list_seeds.forEach((seed: Seed) => {
+      const { seed_id } = seed;
+      if (seed_id.indexOf('@') > -1) {
+        const poolId = seed_id.substring(seed_id.indexOf('@') + 1);
+        poolIds.add(poolId);
+      }
+      farmsPromiseList.push(list_seed_farms(seed_id));
+    });
+    const list_farms: FarmBoost[][] = await Promise.all(farmsPromiseList);
+    let cacheFarms: FarmBoost[] = [];
+    list_farms.forEach((arr: FarmBoost[]) => {
+      cacheFarms = cacheFarms.concat(arr);
+    });
+    pools = await getPoolsByIds({ pool_ids: Array.from(poolIds) });
+    // cache seeds farms pools
+    const cacheSeedsFarmsPools: any[] = [];
+    list_seeds.forEach((seed: Seed, index: number) => {
+      let pool: PoolRPCView = null;
+      if (seed.seed_id.indexOf('@') > -1) {
+        const id = seed.seed_id.substring(seed.seed_id.indexOf('@') + 1);
+        pool = pools.find((p: PoolRPCView) => {
+          if (+p.id == +id) return true;
+        });
+      }
+      cacheSeedsFarmsPools.push({
+        id: seed.seed_id,
+        seed,
+        farmList: list_farms[index],
+        pool,
+      });
+    });
+    db.cacheBoostSeeds(cacheSeedsFarmsPools);
+    return { seeds: list_seeds, farms: list_farms, pools };
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
 export interface Seed {
   min_deposit: string;
   min_locking_duration_sec: number;
@@ -787,9 +905,6 @@ export interface Seed {
   total_seed_power: string;
   farmList?: FarmBoost[];
   pool?: PoolRPCView;
-  user_seed?: UserSeedInfo;
-  unclaimed?: Record<string, string>;
-  unclaimed_token_meta_datas?: Record<string, TokenMetadata>;
   seedTvl?: string;
   hidden?: boolean;
   endedFarmsIsSplit?: boolean;
@@ -944,8 +1059,4 @@ export const farmClassification = {
 };
 export const frontConfigBoost = {
   '269': '100',
-};
-export const defaultConfigBoost = {
-  '612': '100',
-  '120': '99',
 };

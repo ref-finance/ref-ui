@@ -31,6 +31,7 @@ import {
   lock_free_seed,
   force_unlock,
   BoostConfig,
+  UserSeedInfo,
 } from '~services/farm';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import {
@@ -90,9 +91,20 @@ export default function FarmsDetail(props: {
   tokenPriceList: any;
   loveSeed: Seed;
   boostConfig: BoostConfig;
+  user_seeds_map: Record<string, UserSeedInfo>;
+  user_unclaimed_token_meta_map: Record<string, any>;
+  user_unclaimed_map: Record<string, any>;
 }) {
-  const { detailData, emptyDetailData, tokenPriceList, loveSeed, boostConfig } =
-    props;
+  const {
+    detailData,
+    emptyDetailData,
+    tokenPriceList,
+    loveSeed,
+    boostConfig,
+    user_seeds_map,
+    user_unclaimed_map,
+    user_unclaimed_token_meta_map,
+  } = props;
   const history = useHistory();
   const pool = detailData.pool;
   const { token_account_ids } = pool;
@@ -171,6 +183,9 @@ export default function FarmsDetail(props: {
         tokenPriceList={tokenPriceList}
         loveSeed={loveSeed}
         boostConfig={boostConfig}
+        user_seeds_map={user_seeds_map}
+        user_unclaimed_map={user_unclaimed_map}
+        user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
       ></StakeContainer>
     </div>
   );
@@ -180,6 +195,9 @@ function StakeContainer(props: {
   tokenPriceList: any;
   loveSeed: Seed;
   boostConfig: BoostConfig;
+  user_seeds_map: Record<string, UserSeedInfo>;
+  user_unclaimed_token_meta_map: Record<string, any>;
+  user_unclaimed_map: Record<string, any>;
 }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -187,7 +205,15 @@ function StakeContainer(props: {
   const [showAddLiquidityEntry, setShowAddLiquidityEntry] = useState(false);
   const [calcVisible, setCalcVisible] = useState(false);
   const [dayVolume, setDayVolume] = useState('');
-  const { detailData, tokenPriceList, loveSeed, boostConfig } = props;
+  const {
+    detailData,
+    tokenPriceList,
+    loveSeed,
+    boostConfig,
+    user_seeds_map,
+    user_unclaimed_map,
+    user_unclaimed_token_meta_map,
+  } = props;
   const pool = detailData.pool;
   const intl = useIntl();
   function totalTvlPerWeekDisplay() {
@@ -598,10 +624,16 @@ function StakeContainer(props: {
         lpBalance={lpBalance}
         loveSeed={loveSeed}
         boostConfig={boostConfig}
+        user_seeds_map={user_seeds_map}
+        user_unclaimed_map={user_unclaimed_map}
+        user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
       ></UserStakeBlock>
       <UserTotalUnClaimBlock
         detailData={detailData}
         tokenPriceList={tokenPriceList}
+        user_seeds_map={user_seeds_map}
+        user_unclaimed_map={user_unclaimed_map}
+        user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
       ></UserTotalUnClaimBlock>
       {calcVisible ? (
         <CalcModelBooster
@@ -614,6 +646,9 @@ function StakeContainer(props: {
           tokenPriceList={tokenPriceList}
           loveSeed={loveSeed}
           boostConfig={boostConfig}
+          user_seeds_map={user_seeds_map}
+          user_unclaimed_map={user_unclaimed_map}
+          user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
           style={{
             overlay: {
               backdropFilter: 'blur(15px)',
@@ -1370,10 +1405,21 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
 function UserTotalUnClaimBlock(props: {
   detailData: Seed;
   tokenPriceList: any;
+  user_seeds_map: Record<string, UserSeedInfo>;
+  user_unclaimed_token_meta_map: Record<string, any>;
+  user_unclaimed_map: Record<string, any>;
 }) {
-  const { detailData, tokenPriceList } = props;
+  const {
+    detailData,
+    tokenPriceList,
+    user_seeds_map,
+    user_unclaimed_token_meta_map,
+    user_unclaimed_map,
+  } = props;
   const [claimLoading, setClaimLoading] = useState(false);
-  const unClaimedTokens = Object.values(detailData.unclaimed_token_meta_datas);
+  const { seed_id } = detailData;
+
+  const unClaimedTokenIds = Object.keys(user_unclaimed_map[seed_id] || {});
   const intl = useIntl();
   function claimReward() {
     if (claimLoading) return;
@@ -1395,13 +1441,12 @@ function UserTotalUnClaimBlock(props: {
       tempFarms[farm.terms.reward_token] = true;
     });
     const isEnded = detailData.farmList[0].status == 'Ended';
-    unClaimedTokens?.forEach((token: TokenMetadata) => {
+    const unclaimed = user_unclaimed_map[seed_id] || {};
+    unClaimedTokenIds?.forEach((tokenId: string) => {
+      const token: TokenMetadata = user_unclaimed_token_meta_map[tokenId];
       // total price
       const { id, decimals, icon } = token;
-      const amount = toReadableNumber(
-        decimals,
-        detailData.unclaimed[id] || '0'
-      );
+      const amount = toReadableNumber(decimals, unclaimed[id] || '0');
       const tokenPrice = tokenPriceList[id].price;
       if (tokenPrice && tokenPrice != 'N/A') {
         totalPrice += +amount * tokenPrice;
@@ -1451,7 +1496,7 @@ function UserTotalUnClaimBlock(props: {
   }
   const unclaimedRewardsData = useMemo(() => {
     return getTotalUnclaimedRewards();
-  }, [unClaimedTokens]);
+  }, [user_unclaimed_map[seed_id]]);
   return (
     <div
       className="bg-cardBg rounded-2xl p-5"
@@ -1504,9 +1549,20 @@ function UserStakeBlock(props: {
   lpBalance: string;
   loveSeed: Seed;
   boostConfig: BoostConfig;
+  user_seeds_map: Record<string, UserSeedInfo>;
+  user_unclaimed_token_meta_map: Record<string, any>;
+  user_unclaimed_map: Record<string, any>;
 }) {
-  const { detailData, tokenPriceList, lpBalance, loveSeed, boostConfig } =
-    props;
+  const {
+    detailData,
+    tokenPriceList,
+    lpBalance,
+    loveSeed,
+    boostConfig,
+    user_seeds_map,
+    user_unclaimed_token_meta_map,
+    user_unclaimed_map,
+  } = props;
   const [stakeModalVisible, setStakeModalVisible] = useState(false);
   const [unStakeModalVisible, setUnStakeModalVisible] = useState(false);
   const [stakeType, setStakeType] = useState('');
@@ -1514,17 +1570,18 @@ function UserStakeBlock(props: {
   const [serverTime, setServerTime] = useState<number>();
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-  const { pool, user_seed, unclaimed, min_locking_duration_sec, slash_rate } =
-    detailData;
+  const { pool, min_locking_duration_sec, slash_rate, seed_id } = detailData;
   const {
     free_amount = '0',
     locked_amount = '0',
     x_locked_amount = '0',
     unlock_timestamp,
     duration_sec,
-  } = user_seed;
+  } = user_seeds_map[seed_id] || {};
   const { shares_total_supply, tvl } = pool;
-  const unClaimedTokens = useTokens(Object.keys(unclaimed || {}));
+  const unClaimedTokens = useTokens(
+    Object.keys(user_unclaimed_map[seed_id] || {})
+  );
   const DECIMALS = new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())
     ? LP_STABLE_TOKEN_DECIMALS
     : LP_TOKEN_DECIMALS;
@@ -1607,10 +1664,7 @@ function UserStakeBlock(props: {
     let totalPrice = 0;
     unClaimedTokens?.forEach((token: TokenMetadata) => {
       const { id, decimals } = token;
-      const amount = toReadableNumber(
-        decimals,
-        detailData.unclaimed[id] || '0'
-      );
+      const amount = toReadableNumber(decimals, user_unclaimed_map[id] || '0');
       const tokenPrice = tokenPriceList[id].price;
       if (tokenPrice && tokenPrice != 'N/A') {
         totalPrice += +amount * tokenPrice;
@@ -2021,6 +2075,9 @@ function UserStakeBlock(props: {
           tokenPriceList={tokenPriceList}
           loveSeed={loveSeed}
           boostConfig={boostConfig}
+          user_seeds_map={user_seeds_map}
+          user_unclaimed_map={user_unclaimed_map}
+          user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
         ></StakeModal>
       ) : null}
       {unStakeModalVisible ? (
@@ -2033,6 +2090,9 @@ function UserStakeBlock(props: {
           unStakeType={unStakeType}
           serverTime={serverTime}
           tokenPriceList={tokenPriceList}
+          user_seeds_map={user_seeds_map}
+          user_unclaimed_map={user_unclaimed_map}
+          user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
         ></UnStakeModal>
       ) : null}
     </div>
@@ -2049,6 +2109,9 @@ function StakeModal(props: {
   tokenPriceList: any;
   loveSeed: Seed;
   boostConfig: BoostConfig;
+  user_seeds_map: Record<string, UserSeedInfo>;
+  user_unclaimed_token_meta_map: Record<string, any>;
+  user_unclaimed_map: Record<string, any>;
 }) {
   const {
     title,
@@ -2061,14 +2124,17 @@ function StakeModal(props: {
     tokenPriceList,
     loveSeed,
     boostConfig,
+    user_seeds_map,
+    user_unclaimed_token_meta_map,
+    user_unclaimed_map,
   } = props;
   const {
     pool,
     min_locking_duration_sec,
-    user_seed,
     total_seed_amount,
     total_seed_power,
     min_deposit,
+    seed_id,
   } = detailData;
   const DECIMALS = new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())
     ? LP_STABLE_TOKEN_DECIMALS
@@ -2080,7 +2146,7 @@ function StakeModal(props: {
     x_locked_amount = '0',
     unlock_timestamp,
     duration_sec,
-  } = user_seed;
+  } = user_seeds_map[seed_id] || {};
   const freeAmount = toReadableNumber(DECIMALS, free_amount);
   const lockedAmount = toReadableNumber(DECIMALS, locked_amount);
   const [amount, setAmount] = useState(
@@ -2115,6 +2181,7 @@ function StakeModal(props: {
         }
       );
       let restTime_sec = 0;
+      const user_seed = user_seeds_map[seed_id];
       if (user_seed.unlock_timestamp) {
         restTime_sec = new BigNumber(user_seed.unlock_timestamp)
           .minus(serverTime)
@@ -2725,13 +2792,15 @@ function StakeModal(props: {
             </label>
           </div>
           <div className={'w-full ' + (showCalc ? 'block' : 'hidden')}>
-            {/* todo */}
             <CalcEle
               seed={detailData}
               tokenPriceList={tokenPriceList}
               lpTokenNumAmount={amount}
               loveSeed={loveSeed}
               boostConfig={boostConfig}
+              user_seeds_map={user_seeds_map}
+              user_unclaimed_map={user_unclaimed_map}
+              user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
             ></CalcEle>
           </div>
         </div>
@@ -2776,6 +2845,9 @@ function UnStakeModal(props: {
   serverTime: number;
   tokenPriceList: any;
   titleIcon?: any;
+  user_seeds_map: Record<string, UserSeedInfo>;
+  user_unclaimed_token_meta_map: Record<string, any>;
+  user_unclaimed_map: Record<string, any>;
 }) {
   const {
     title,
@@ -2786,18 +2858,21 @@ function UnStakeModal(props: {
     unStakeType,
     serverTime,
     tokenPriceList,
+    user_seeds_map,
+    user_unclaimed_token_meta_map,
+    user_unclaimed_map,
   } = props;
   const [amount, setAmount] = useState('');
   const [unStakeLoading, setUnStakeLoading] = useState(false);
   const [acceptSlashPolicy, setAcceptSlashPolicy] = useState<boolean>(false);
-  const { pool, user_seed, seed_id, slash_rate, unclaimed } = detailData;
+  const { pool, seed_id, slash_rate } = detailData;
   const {
     free_amount = '0',
     locked_amount = '0',
     x_locked_amount = '0',
     unlock_timestamp,
     duration_sec,
-  } = user_seed;
+  } = user_seeds_map[seed_id] || {};
   const DECIMALS = new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())
     ? LP_STABLE_TOKEN_DECIMALS
     : LP_TOKEN_DECIMALS;
@@ -2934,6 +3009,9 @@ function UnStakeModal(props: {
       <UnClaimBox
         detailData={detailData}
         tokenPriceList={tokenPriceList}
+        user_seeds_map={user_seeds_map}
+        user_unclaimed_map={user_unclaimed_map}
+        user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
       ></UnClaimBox>
       {unStakeType == 'free' ? null : (
         <div className="mt-4">
@@ -3026,10 +3104,23 @@ function CommonLine(props: any) {
     </div>
   );
 }
-function UnClaimBox(props: { detailData: Seed; tokenPriceList: any }) {
+function UnClaimBox(props: {
+  detailData: Seed;
+  tokenPriceList: any;
+  user_seeds_map: Record<string, UserSeedInfo>;
+  user_unclaimed_token_meta_map: Record<string, any>;
+  user_unclaimed_map: Record<string, any>;
+}) {
   const [showClaim, setShowClaim] = useState(false);
-  const { detailData, tokenPriceList } = props;
-  const { unclaimed, unclaimed_token_meta_datas } = detailData;
+  const {
+    detailData,
+    tokenPriceList,
+    user_seeds_map,
+    user_unclaimed_token_meta_map,
+    user_unclaimed_map,
+  } = props;
+  const { seed_id } = detailData;
+  const unclaimed = user_unclaimed_map[seed_id] || {};
   const unclaimedkeys = Object.keys(unclaimed);
   function switchShowClaim() {
     setShowClaim(!showClaim);
@@ -3037,7 +3128,7 @@ function UnClaimBox(props: { detailData: Seed; tokenPriceList: any }) {
   const displayTotalPrice = () => {
     let totalPrice = 0;
     unclaimedkeys.forEach((rewardId: string) => {
-      const token = unclaimed_token_meta_datas[rewardId];
+      const token = user_unclaimed_token_meta_map[rewardId];
       const { id, decimals } = token;
       const amount = toReadableNumber(decimals, unclaimed[rewardId]);
       const tokenPrice = tokenPriceList[id].price;
@@ -3056,7 +3147,7 @@ function UnClaimBox(props: { detailData: Seed; tokenPriceList: any }) {
     return result;
   };
   const displayTokenNumber = (rewardId: string) => {
-    const meta = unclaimed_token_meta_datas[rewardId];
+    const meta = user_unclaimed_token_meta_map[rewardId];
     const { decimals } = meta;
     const amount = toReadableNumber(decimals, unclaimed[rewardId]);
     const curUserUnclaimedReward = new BigNumber(amount).toString();
@@ -3115,7 +3206,7 @@ function UnClaimBox(props: { detailData: Seed; tokenPriceList: any }) {
               return (
                 <span className="flex items-center" key={index}>
                   <img
-                    src={unclaimed_token_meta_datas[rewardId]?.icon}
+                    src={user_unclaimed_token_meta_map[rewardId]?.icon}
                     className="w-6 h-6 xs:w-5 xs:h-5 md:w-5 md:h-5 rounded-full border border-gradientFromHover"
                   ></img>{' '}
                   <label className="text-sm text-farmText ml-2.5">

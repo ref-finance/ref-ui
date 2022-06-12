@@ -10,7 +10,13 @@ import { Link } from 'react-router-dom';
 import { getMftTokenId } from '~utils/token';
 import { Card } from '~components/card/Card';
 import { LP_TOKEN_DECIMALS, LP_STABLE_TOKEN_DECIMALS } from '~services/m-token';
-import { FarmBoost, Seed, get_config, BoostConfig } from '~services/farm';
+import {
+  FarmBoost,
+  Seed,
+  get_config,
+  BoostConfig,
+  UserSeedInfo,
+} from '~services/farm';
 import {
   toPrecision,
   toReadableNumber,
@@ -25,7 +31,7 @@ import { LightningIcon, ForbiddenIcon } from '~components/icon/FarmBoost';
 import ReactTooltip from 'react-tooltip';
 
 const config = getConfig();
-const { STABLE_POOL_IDS, FARM_LOCK_SWITCH } = config;
+const { STABLE_POOL_IDS, FARM_LOCK_SWITCH, REF_VE_CONTRACT_ID } = config;
 
 export default function CalcModelBooster(
   props: ReactModal.Props & {
@@ -33,9 +39,20 @@ export default function CalcModelBooster(
     tokenPriceList: Record<string, string>;
     loveSeed?: Seed;
     boostConfig: BoostConfig;
+    user_seeds_map: Record<string, UserSeedInfo>;
+    user_unclaimed_token_meta_map: Record<string, any>;
+    user_unclaimed_map: Record<string, any>;
   }
 ) {
-  const { seed, tokenPriceList, loveSeed, boostConfig } = props;
+  const {
+    seed,
+    tokenPriceList,
+    loveSeed,
+    boostConfig,
+    user_seeds_map,
+    user_unclaimed_token_meta_map,
+    user_unclaimed_map,
+  } = props;
   const [usd, setUsd] = useState('');
   const [lpTokenNum, setLpTokenNum] = useState('');
   const [usdDisplay, setUsdDisplay] = useState('');
@@ -221,6 +238,9 @@ export default function CalcModelBooster(
               lpTokenNumAmount={lpTokenNum}
               loveSeed={loveSeed}
               boostConfig={boostConfig}
+              user_seeds_map={user_seeds_map}
+              user_unclaimed_map={user_unclaimed_map}
+              user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
             ></CalcEle>
           </div>
           <div className="mt-5 xs:mt-3 md:mt-3">
@@ -237,9 +257,20 @@ export function CalcEle(props: {
   lpTokenNumAmount: string;
   loveSeed?: Seed;
   boostConfig?: BoostConfig;
+  user_seeds_map: Record<string, UserSeedInfo>;
+  user_unclaimed_token_meta_map: Record<string, any>;
+  user_unclaimed_map: Record<string, any>;
 }) {
-  const { seed, tokenPriceList, lpTokenNumAmount, loveSeed, boostConfig } =
-    props;
+  const {
+    seed,
+    tokenPriceList,
+    lpTokenNumAmount,
+    loveSeed,
+    boostConfig,
+    user_seeds_map,
+    user_unclaimed_token_meta_map,
+    user_unclaimed_map,
+  } = props;
   const [selecteDate, setSelecteDate] = useState<MonthData>();
   const [ROI, setROI] = useState('');
   const [rewardData, setRewardData] = useState<Record<string, any>>({});
@@ -479,11 +510,13 @@ export function CalcEle(props: {
   function getBoostMutil() {
     if (!boostConfig) return '';
     const { affected_seeds, booster_decimal } = boostConfig;
-    const { seed_id, user_seed } = seed;
+    const { seed_id } = seed;
+    const user_seed = user_seeds_map[seed_id] || {};
+    const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
     const base = affected_seeds[seed_id];
     const hasUserStaked = Object.keys(user_seed).length;
     if (base && hasUserStaked && loveSeed) {
-      const { free_amount = 0, locked_amount = 0 } = loveSeed.user_seed || {};
+      const { free_amount = 0, locked_amount = 0 } = love_user_seed || {};
       const totalStakeLoveAmount = toReadableNumber(
         booster_decimal,
         new BigNumber(free_amount).plus(locked_amount).toFixed()

@@ -51,14 +51,13 @@ import {
   UserSeedInfo,
   unStake_boost,
   frontConfigBoost,
-  defaultConfigBoost,
+  getBoostTokenPrices,
+  getBoostSeeds,
 } from '~services/farm';
 import { getLoveAmount } from '~services/referendum';
-import { getTokenPriceList } from '~services/indexer';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import getConfig from '../../services/config';
 import { PoolRPCView } from '../../services/api';
-import { getPoolsByIds } from '../../services/indexer';
 import {
   LP_TOKEN_DECIMALS,
   LP_STABLE_TOKEN_DECIMALS,
@@ -81,7 +80,7 @@ import Alert from '~components/alert/Alert';
 import Loading, { BeatLoading } from '~components/layout/Loading';
 import { TokenMetadata, REF_META_DATA } from '../../services/ft-contract';
 import { getPrice } from '~services/xref';
-import { get24hVolume } from '~services/indexer';
+import { get24hVolume, getPoolsByIds } from '~services/indexer';
 import {
   getURLInfo,
   usnBuyAndSellToast,
@@ -97,8 +96,6 @@ import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 
 const { STABLE_POOL_IDS, REF_TOKEN_ID, XREF_TOKEN_ID, REF_VE_CONTRACT_ID } =
   getConfig();
-// todo 先写死后处理
-// const REF_VE_CONTRACT_ID = 'dev-20220606062724-24132123771050';
 const DECIMALS_XREF_REF_TRANSTER = 8;
 export default function FarmsHome(props: any) {
   let [user_unWithdraw_rewards, set_user_unWithdraw_rewards] = useState<
@@ -169,7 +166,7 @@ export default function FarmsHome(props: any) {
   const [count, setCount] = useState(0);
   const [dayVolumeMap, setDayVolumeMap] = useState({});
   const searchRef = useRef(null);
-  const refreshTime = 120000;
+  const refreshTime = 300000;
   const sortList = {
     tvl: intl.formatMessage({ id: 'tvl' }),
     apr: intl.formatMessage({ id: 'apr' }),
@@ -218,18 +215,31 @@ export default function FarmsHome(props: any) {
   const [loveUnStakeModalVisible, setLoveUnStakeModalVisible] = useState(false);
   const [showLoveTokenModalVisible, setShowLoveTokenModalVisible] =
     useState(false);
+  let [user_seeds_map, set_user_seeds_map] = useState<
+    Record<string, UserSeedInfo>
+  >({});
+  const [user_unclaimed_map, set_user_unclaimed_map] = useState<
+    Record<string, any>
+  >({});
+  const [user_unclaimed_token_meta_map, set_user_unclaimed_token_meta_map] =
+    useState<Record<string, any>>({});
+  const [globalConfigLoading, setGlobalConfigLoading] = useState<boolean>(true);
+  const [userDataLoading, setUserDataLoading] = useState<boolean>(true);
   const { getDetailData } = props;
   const location = useLocation();
   const history = useHistory();
   /** search area options end **/
   useEffect(() => {
     init();
+    getConfig();
     get_user_unWithDraw_rewards();
+    get_user_seeds_and_unClaimedRewards();
+    getLoveTokenBalance();
   }, [isSignedIn]);
-
   useEffect(() => {
     if (count > 0) {
       init();
+      console.log('定时任务走起');
     }
     const intervalId = setInterval(() => {
       setCount(count + 1);
@@ -238,67 +248,15 @@ export default function FarmsHome(props: any) {
       clearInterval(intervalId);
     };
   }, [count]);
-  async function getConfig() {
-    const config = await get_config();
-    const data = config.booster_seeds[REF_VE_CONTRACT_ID];
-    boostConfig = data;
-    setBoostConfig(data);
-  }
-  async function init() {
-    console.log('开始了');
-    let loveTokenSeedInfo: Seed;
-    // get all seeds
-    let list_seeds = await list_seeds_info();
-    console.log('list_seed 获取到了');
-    const promiseList: Promise<any>[] = [];
-    list_seeds.forEach((seed: Seed) => {
-      const { seed_id } = seed;
-      promiseList.push(list_seed_farms(seed_id));
-      if (seed_id == REF_VE_CONTRACT_ID) {
-        loveTokenSeedInfo = seed;
-      }
-    });
-    // get all farms
-    const list_farm: FarmBoost[][] = await Promise.all(promiseList);
-    // filter no farm seed
-    const new_list_seeds: any[] = [];
-    list_farm.forEach((farmList: FarmBoost[], index: number) => {
-      if (farmList?.length > 0) {
-        new_list_seeds.push({
-          ...list_seeds[index],
-          farmList,
-        });
-      }
-    });
-    list_seeds = new_list_seeds;
-    console.log('list_farm 获取到了');
-    // get all pools and prices
-    const priceAndPool = await getPricesAndPools(list_seeds);
-    console.log('price 和 pool 获取到了');
-    const [tokenPriceList, pools] = priceAndPool;
-    // get user seeds
-    let list_user_seeds = {};
-    if (isSignedIn) {
-      list_user_seeds = await list_farmer_seeds();
-      if (list_user_seeds[REF_VE_CONTRACT_ID]) {
-        loveTokenSeedInfo.user_seed = list_user_seeds[REF_VE_CONTRACT_ID];
-      }
-    }
-    loveSeed = loveTokenSeedInfo;
-    setLoveSeed(loveTokenSeedInfo);
-    console.log('list_farmer_seeds 获取到了');
-    // get boost seed Config
-    await getConfig();
-    console.log('getConfig 获取到了');
-
+  async function getLoveTokenBalance() {
     // get LoveToken balance
     if (isSignedIn) {
       const loveBalance = await getLoveAmount();
       setLoveTokenBalance(toReadableNumber(LOVE_TOKEN_DECIMAL, loveBalance));
+      console.log('love Token balance 获取到了');
     }
-    console.log('love Token balance 获取到了');
-    setTokenPriceList(tokenPriceList);
-    /** get xref price start */
+  }
+  async function getXrefPrice(tokenPriceList: Record<string, any>) {
     const xrefPrice = await getPrice();
     const xrefToRefRate = toReadableNumber(
       DECIMALS_XREF_REF_TRANSTER,
@@ -319,19 +277,120 @@ export default function FarmsHome(props: any) {
         break;
       }
     }
-    console.log('xref 获取到了');
+    setTokenPriceList(tokenPriceList);
+  }
+  async function getConfig() {
+    const config = await get_config();
+    const data = config.booster_seeds[REF_VE_CONTRACT_ID];
+    boostConfig = data;
+    setBoostConfig(data);
+    setGlobalConfigLoading(false);
+    searchByCondition();
+    console.log('getConfig 获取到了');
+  }
+  async function init() {
+    console.log('开始了');
+    let list_seeds: Seed[];
+    let list_farm: FarmBoost[][];
+    let pools: PoolRPCView[];
+    const result = await getBoostSeeds();
+    const { seeds, farms, pools: cachePools } = result;
+    list_seeds = seeds;
+    list_farm = farms;
+    pools = cachePools;
+    /*else {
+      const pool_ids = new Set<string>();
+      // get list seeds
+      list_seeds = await list_seeds_info();
+      // get list farms
+      const promiseList: Promise<any>[] = [];
+      list_seeds.forEach((seed: Seed) => {
+        const { seed_id } = seed;
+        promiseList.push(list_seed_farms(seed_id));
+        const poolId = getPoolIdBySeedId(seed_id);
+        if (poolId) {
+          pool_ids.add(poolId);
+        }
+      });
+      list_farm = await Promise.all(promiseList);
+      // get list pools
+      pools = await getPoolsByIds({pool_ids:Array.from(pool_ids)});
+      console.log('接口seed');
+    }*/
+    // get Love seed
+    list_seeds.find((seed: Seed) => {
+      if (seed.seed_id == REF_VE_CONTRACT_ID) {
+        setLoveSeed(seed);
+      }
+    });
+    // filter no farm seed
+    const new_list_seeds: any[] = [];
+    list_farm.forEach((farmList: FarmBoost[], index: number) => {
+      if (farmList?.length > 0) {
+        new_list_seeds.push({
+          ...list_seeds[index],
+          farmList,
+        });
+      }
+    });
+    list_seeds = new_list_seeds;
+    // get all token prices
+    const tokenPriceList = await getBoostTokenPrices();
+    getXrefPrice(tokenPriceList);
+    setTokenPriceList(tokenPriceList);
+    // get pool apr
     getAllPoolsDayVolume(list_seeds);
-    /** get xref price end */
     getFarmDataList({
       list_seeds,
       list_farm,
       tokenPriceList,
       pools,
-      list_user_seeds,
     });
   }
+  async function get_user_seeds_and_unClaimedRewards() {
+    if (isSignedIn) {
+      // get user seeds
+      const list_user_seeds = await list_farmer_seeds();
+      user_seeds_map = list_user_seeds;
+      set_user_seeds_map(list_user_seeds);
+      // get user unclaimed rewards
+      const userUncliamedRewards = {};
+      const seed_ids = Object.keys(list_user_seeds);
+      const request: Promise<any>[] = [];
+      seed_ids.forEach((seed_id: string) => {
+        request.push(get_unclaimed_rewards(seed_id));
+      });
+      const resolvedList = await Promise.all(request);
+      resolvedList.forEach((rewards, index) => {
+        if (rewards && Object.keys(rewards).length > 0) {
+          userUncliamedRewards[seed_ids[index]] = rewards;
+        }
+      });
+      set_user_unclaimed_map(userUncliamedRewards);
+      // get user unclaimed token meta
+      const unclaimed_token_meta_datas = {};
+      const prom_rewards = Object.values(userUncliamedRewards).map(
+        async (rewards) => {
+          const tokens = Object.keys(rewards);
+          const unclaimedTokens = tokens.map(async (tokenId: string) => {
+            const tokenMetadata = await ftGetTokenMetadata(tokenId);
+            return tokenMetadata;
+          });
+          const tempArr = await Promise.all(unclaimedTokens);
+          tempArr.forEach((token: TokenMetadata) => {
+            unclaimed_token_meta_datas[token.id] = token;
+          });
+        }
+      );
+      await Promise.all(prom_rewards);
+      set_user_unclaimed_token_meta_map(unclaimed_token_meta_datas);
+      setUserDataLoading(false);
+      console.log('list_farmer_seeds 获取到了');
+      searchByCondition();
+    }
+  }
   async function getFarmDataList(initData: any) {
-    const { list_seeds, tokenPriceList, pools, list_user_seeds } = initData;
+    const { list_seeds, tokenPriceList, pools } = initData;
     const promise_new_list_seeds = list_seeds.map(async (newSeed: Seed) => {
       const { seed_id, farmList, total_seed_amount } = newSeed;
       const poolId = getPoolIdBySeedId(seed_id);
@@ -391,29 +450,7 @@ export default function FarmsHome(props: any) {
         // farm.apr = toPrecision(apr.toString(), 2);
         farm.apr = apr.toString();
       });
-      const user_seed = list_user_seeds[seed_id];
-      let unclaimed;
-      if (user_seed) {
-        unclaimed = await get_unclaimed_rewards(seed_id);
-        console.log('get_unclaimed_rewards 获取到了');
-      }
-
-      let unclaimed_token_meta_datas = {};
-      if (unclaimed) {
-        const tokens = Object.keys(unclaimed);
-        const unclaimedTokens = tokens.map(async (tokenId: string) => {
-          const tokenMetadata = await ftGetTokenMetadata(tokenId);
-          return tokenMetadata;
-        });
-        const tempArr = await Promise.all(unclaimedTokens);
-        tempArr.forEach((token: TokenMetadata) => {
-          unclaimed_token_meta_datas[token.id] = token;
-        });
-      }
       newSeed.pool = pool;
-      newSeed.user_seed = user_seed || {};
-      newSeed.unclaimed = unclaimed || {};
-      newSeed.unclaimed_token_meta_datas = unclaimed_token_meta_datas;
       newSeed.seedTvl = seedTvl?.toString() || '0';
     });
     await Promise.all(promise_new_list_seeds);
@@ -447,7 +484,7 @@ export default function FarmsHome(props: any) {
       loveSeed,
       boostConfig,
     });
-    searchByCondition();
+    searchByCondition('main');
   }
   async function getAllPoolsDayVolume(list_seeds: Seed[]) {
     const tempMap = {};
@@ -504,6 +541,9 @@ export default function FarmsHome(props: any) {
           tokenPriceList,
           loveSeed,
           boostConfig,
+          user_seeds_map,
+          user_unclaimed_map,
+          user_unclaimed_token_meta_map,
         });
       }
     }
@@ -525,44 +565,6 @@ export default function FarmsHome(props: any) {
       set_user_unWithdraw_rewards(userRewardList);
     }
   }
-  async function getPricesAndPools(list_seeds: Record<string, any>) {
-    let pool_ids: string[] = [];
-    list_seeds.forEach((seed: Seed) => {
-      const { seed_id } = seed;
-      pool_ids.push(getPoolIdBySeedId(seed_id));
-    });
-    pool_ids = Array.from(new Set(pool_ids)).sort();
-    const cachePriceMapStr = localStorage.getItem('priceMap');
-    const cachePoolListStr = localStorage.getItem('poolList');
-    let result;
-    if (cachePriceMapStr && cachePriceMapStr) {
-      const cachePoolList = JSON.parse(cachePoolListStr);
-      const cachePriceMap = JSON.parse(cachePriceMapStr);
-      const cachePoolIds: string | number[] = [];
-      cachePoolList.forEach((pool: any) => {
-        cachePoolIds.push(pool.id);
-      });
-      const cachePoolIdStr = cachePoolIds.sort().join('');
-      const pool_ids_Str = pool_ids.join('');
-      if (cachePoolIdStr == pool_ids_Str) {
-        result = [cachePriceMap, cachePoolList];
-        getPricesAndPoolsFromServer(pool_ids);
-      } else {
-        result = await getPricesAndPoolsFromServer(pool_ids);
-      }
-    } else {
-      result = await getPricesAndPoolsFromServer(pool_ids);
-    }
-    return result;
-  }
-  async function getPricesAndPoolsFromServer(pool_ids: string[]) {
-    const requestList = [getTokenPriceList(), getPoolsByIds({ pool_ids })];
-    const result = await Promise.all(requestList);
-    const [tokenPriceList, pools] = result;
-    localStorage.setItem('priceMap', JSON.stringify(tokenPriceList));
-    localStorage.setItem('poolList', JSON.stringify(pools));
-    return result;
-  }
   function changeSort(sortKey: any) {
     searchData.sort = sortKey;
     setSort(sortKey);
@@ -574,7 +576,7 @@ export default function FarmsHome(props: any) {
     searchData.status = statusSelectOption;
     searchByCondition();
   }
-  function searchByCondition() {
+  function searchByCondition(from?: string) {
     farm_display_List = farm_display_List.sort();
     farm_display_ended_List = farm_display_ended_List.sort();
     let noDataEnd = true,
@@ -585,10 +587,10 @@ export default function FarmsHome(props: any) {
     const { status, keyWords, sort } = searchData;
     // filter
     farm_display_List.forEach((seed: Seed) => {
-      const { user_seed, pool, seed_id, farmList, unclaimed } = seed;
+      const { pool, seed_id, farmList } = seed;
       const isEnd = farmList[0].status == 'Ended';
-      const userStaked = Object.keys(user_seed).length > 0;
-      const userUnclaimed = Object.keys(unclaimed).length > 0;
+      const user_seed = user_seeds_map[seed_id];
+      const userStaked = Object.keys(user_seed || {}).length > 0;
       const { token_symbols } = pool;
       let condition1, condition2;
       if (status == 'my') {
@@ -735,13 +737,8 @@ export default function FarmsHome(props: any) {
         const item2PoolId = item2.pool.id;
         const item1Front = frontConfigBoost[item1PoolId];
         const item2Front = frontConfigBoost[item2PoolId];
-        const item1Default = defaultConfigBoost[item1PoolId];
-        const item2Default = defaultConfigBoost[item2PoolId];
         if (item1Front || item2Front) {
           return Number(item2Front || 0) - Number(item1Front || 0);
-        }
-        if (item1Default || item2Default) {
-          return Number(item2Default || 0) - Number(item1Default || 0);
         }
         const item1Apr = getTotalAprForSeed(JSON.parse(JSON.stringify(item1)));
         const item2Apr = getTotalAprForSeed(JSON.parse(JSON.stringify(item2)));
@@ -752,13 +749,8 @@ export default function FarmsHome(props: any) {
         const item2PoolId = item2.pool.id;
         const item1Front = frontConfigBoost[item1PoolId];
         const item2Front = frontConfigBoost[item2PoolId];
-        const item1Default = defaultConfigBoost[item1PoolId];
-        const item2Default = defaultConfigBoost[item2PoolId];
         if (item1Front || item2Front) {
           return Number(item2Front || 0) - Number(item1Front || 0);
-        }
-        if (item1Default || item2Default) {
-          return Number(item2Default || 0) - Number(item1Default || 0);
         }
         const item1Apr = getTotalAprForSeed(JSON.parse(JSON.stringify(item1)));
         const item2Apr = getTotalAprForSeed(JSON.parse(JSON.stringify(item2)));
@@ -770,13 +762,8 @@ export default function FarmsHome(props: any) {
         const item2PoolId = item2.pool.id;
         const item1Front = frontConfigBoost[item1PoolId];
         const item2Front = frontConfigBoost[item2PoolId];
-        const item1Default = defaultConfigBoost[item1PoolId];
-        const item2Default = defaultConfigBoost[item2PoolId];
         if (item1Front || item2Front) {
           return Number(item2Front || 0) - Number(item1Front || 0);
-        }
-        if (item1Default || item2Default) {
-          return Number(item2Default || 0) - Number(item1Default || 0);
         }
         return Number(item2.seedTvl) - Number(item1.seedTvl);
       });
@@ -785,13 +772,8 @@ export default function FarmsHome(props: any) {
         const item2PoolId = item2.pool.id;
         const item1Front = frontConfigBoost[item1PoolId];
         const item2Front = frontConfigBoost[item2PoolId];
-        const item1Default = defaultConfigBoost[item1PoolId];
-        const item2Default = defaultConfigBoost[item2PoolId];
         if (item1Front || item2Front) {
           return Number(item2Front || 0) - Number(item1Front || 0);
-        }
-        if (item1Default || item2Default) {
-          return Number(item2Default || 0) - Number(item1Default || 0);
         }
         return Number(item2.seedTvl) - Number(item1.seedTvl);
       });
@@ -801,7 +783,9 @@ export default function FarmsHome(props: any) {
     } else {
       setNoData(noDataEnd && noDataLive);
     }
-    setHomePageLoading(false);
+    if (from == 'main') {
+      setHomePageLoading(false);
+    }
     setPopUp(true);
     set_farm_display_List(farm_display_List);
     set_farm_display_ended_List(Array.from(farm_display_ended_List));
@@ -879,9 +863,10 @@ export default function FarmsHome(props: any) {
   }
   function getLoveUserStaked() {
     let loveStakedAmount = '0';
-    if (loveSeed.user_seed) {
+    const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
+    if (love_user_seed) {
       // user has staked
-      const { free_amount, locked_amount } = loveSeed.user_seed;
+      const { free_amount, locked_amount } = love_user_seed;
       const totalAmount = new BigNumber(free_amount)
         .plus(locked_amount)
         .toFixed();
@@ -904,6 +889,7 @@ export default function FarmsHome(props: any) {
       <div
         className="relative flex items-center justify-center mb-5"
         style={{
+          height: '250px',
           backgroundImage:
             'linear-gradient(270deg, #001320 0%, #1D2932 95.06%)',
         }}
@@ -911,7 +897,7 @@ export default function FarmsHome(props: any) {
         <span className="absolute left-0 top-0 h-full overflow-hidden">
           <BannerBgLeft />
         </span>
-        <div className="flex justify-between items-center lg:w-2/3 xs:w-full md:w-full pt-5 pb-3">
+        <div className="relative h-full  flex justify-between items-center lg:w-2/3 xs:w-full md:w-full pt-5 pb-3">
           <div className="lg:w-2/5 md:w-1/2">
             <div className="title flex justify-between items-center text-3xl text-white xs:-mt-4 md:-mt-4">
               <FormattedMessage id="farms"></FormattedMessage>
@@ -929,16 +915,16 @@ export default function FarmsHome(props: any) {
                 </span>
               </div>
             </div>
-            {user_unWithdraw_rewards &&
-            Object.keys(user_unWithdraw_rewards).length > 0 ? (
-              <WithDrawBox
-                userRewardList={user_unWithdraw_rewards}
-                tokenPriceList={tokenPriceList}
-                farmDisplayList={farm_display_List}
-              ></WithDrawBox>
-            ) : null}
+            {/* {user_unWithdraw_rewards &&
+            Object.keys(user_unWithdraw_rewards).length > 0 ? ( */}
+            <WithDrawBox
+              userRewardList={user_unWithdraw_rewards}
+              tokenPriceList={tokenPriceList}
+              farmDisplayList={farm_display_List}
+            ></WithDrawBox>
+            {/* ) : null} */}
           </div>
-          <div style={{ zoom: 0.5 }}>
+          <div className="absolute right-0 -top-24">
             <BoostBannerLogo></BoostBannerLogo>
           </div>
         </div>
@@ -1024,7 +1010,12 @@ export default function FarmsHome(props: any) {
             <div className="flex flex-col w-full justify-center items-center mt-20 xs:mt-8 md:mt-8">
               <NoDataIcon />
               <span className="text-farmText text-base mt-4 text-center w-48">
-                <FormattedMessage id="no_result"></FormattedMessage>
+                {(status == 'boost' && globalConfigLoading) ||
+                (status == 'my' && isSignedIn && userDataLoading) ? (
+                  'Loading ...'
+                ) : (
+                  <FormattedMessage id="no_result"></FormattedMessage>
+                )}
               </span>
             </div>
           ) : null}
@@ -1202,6 +1193,9 @@ export default function FarmsHome(props: any) {
               loveSeed={loveSeed}
               boostConfig={boostConfig}
               farm_display_List={farm_display_List}
+              user_seeds_map={user_seeds_map}
+              user_unclaimed_map={user_unclaimed_map}
+              user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
             ></LoveStakeModal>
           ) : null}
           {loveUnStakeModalVisible ? (
@@ -1214,6 +1208,9 @@ export default function FarmsHome(props: any) {
               loveSeed={loveSeed}
               boostConfig={boostConfig}
               farm_display_List={farm_display_List}
+              user_seeds_map={user_seeds_map}
+              user_unclaimed_map={user_unclaimed_map}
+              user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
             ></LoveUnStakeModal>
           ) : null}
 
@@ -1232,6 +1229,11 @@ export default function FarmsHome(props: any) {
                     dayVolumeMap={dayVolumeMap}
                     boostConfig={boostConfig}
                     loveSeed={loveSeed}
+                    user_seeds_map={user_seeds_map}
+                    user_unclaimed_map={user_unclaimed_map}
+                    user_unclaimed_token_meta_map={
+                      user_unclaimed_token_meta_map
+                    }
                   ></FarmView>
                 </div>
               );
@@ -1261,6 +1263,11 @@ export default function FarmsHome(props: any) {
                       dayVolumeMap={dayVolumeMap}
                       boostConfig={boostConfig}
                       loveSeed={loveSeed}
+                      user_seeds_map={user_seeds_map}
+                      user_unclaimed_map={user_unclaimed_map}
+                      user_unclaimed_token_meta_map={
+                        user_unclaimed_token_meta_map
+                      }
                     ></FarmView>
                   </div>
                 );
@@ -1316,12 +1323,18 @@ function LoveStakeModal(props: {
   title: string;
   boostConfig: BoostConfig;
   farm_display_List: Seed[];
+  user_seeds_map: Record<string, UserSeedInfo>;
+  user_unclaimed_token_meta_map: Record<string, any>;
+  user_unclaimed_map: Record<string, any>;
 }) {
   const {
     loveTokenBalance,
     loveSeed,
     boostConfig,
     farm_display_List,
+    user_seeds_map,
+    user_unclaimed_token_meta_map,
+    user_unclaimed_map,
     ...reset
   } = props;
   const [amount, setAmount] = useState('');
@@ -1377,7 +1390,8 @@ function LoveStakeModal(props: {
     return result;
   }
   function getCurrentMutiple(base: number) {
-    const { free_amount = 0, locked_amount = 0 } = loveSeed.user_seed || {};
+    const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
+    const { free_amount = 0, locked_amount = 0 } = love_user_seed || {};
     const lastTotalAmount = toReadableNumber(
       LOVE_TOKEN_DECIMAL,
       new BigNumber(free_amount).plus(locked_amount).toFixed()
@@ -1452,13 +1466,17 @@ function LoveStakeModal(props: {
       </div>
       {affectSeeds &&
         affectSeeds.map((seed: Seed) => {
+          const user_seed = user_seeds_map[seed.seed_id] || {};
           return (
-            <div className="flex items-center justify-between mb-2.5">
+            <div
+              className="flex items-center justify-between mb-2.5"
+              key={seed.seed_id}
+            >
               <div className="flex items-center">
                 <span className="text-white text-sm">
                   {displaySymbols(seed.pool)}
                 </span>
-                {Object.keys(seed.user_seed).length > 0 ? (
+                {Object.keys(user_seed).length > 0 ? (
                   <span className="ml-3 text-sm text-lightGreenColor bg-black bg-opacity-20 rounded-lg px-1.5 py-1">
                     Your farm
                   </span>
@@ -1466,7 +1484,7 @@ function LoveStakeModal(props: {
               </div>
               <span
                 className={`text-base ${
-                  Object.keys(seed.user_seed).length > 0
+                  Object.keys(user_seed).length > 0
                     ? 'text-lightGreenColor'
                     : 'text-farmText'
                 }`}
@@ -1500,8 +1518,19 @@ function LoveUnStakeModal(props: {
   title: string;
   boostConfig: BoostConfig;
   farm_display_List: Seed[];
+  user_seeds_map: Record<string, UserSeedInfo>;
+  user_unclaimed_token_meta_map: Record<string, any>;
+  user_unclaimed_map: Record<string, any>;
 }) {
-  const { loveSeed, boostConfig, farm_display_List, ...reset } = props;
+  const {
+    loveSeed,
+    boostConfig,
+    farm_display_List,
+    user_seeds_map,
+    user_unclaimed_token_meta_map,
+    user_unclaimed_map,
+    ...reset
+  } = props;
   const [amount, setAmount] = useState('');
   const [loveTokenBalance, setLoveTokenBalance] = useState('0');
   const [loveUnStakeLoading, setLoveUnStakeLoading] = useState(false);
@@ -1516,7 +1545,8 @@ function LoveUnStakeModal(props: {
       const affect_seed_id = itemArr[0];
       const affect_seed_base = itemArr[1];
       let temp = farm_display_List.filter((seed: Seed) => {
-        const userHasStaked = Object.keys(seed.user_seed).length > 0;
+        const user_seed = user_seeds_map[seed.seed_id] || {};
+        const userHasStaked = Object.keys(user_seed).length > 0;
         if (seed.seed_id == affect_seed_id && userHasStaked) return true;
       });
       if (temp && temp.length > 0) {
@@ -1527,9 +1557,10 @@ function LoveUnStakeModal(props: {
     });
     setYourAffectSeeds(affected_seeds_list);
     // get user staked love Token balance
-    if (loveSeed.user_seed) {
+    const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
+    if (love_user_seed) {
       // user has staked
-      const { free_amount, locked_amount } = loveSeed.user_seed;
+      const { free_amount, locked_amount } = love_user_seed || {};
       const totalAmount = new BigNumber(free_amount)
         .plus(locked_amount)
         .toFixed();
@@ -1655,7 +1686,10 @@ function LoveUnStakeModal(props: {
           </div>
           {yourAffectSeeds.map((seed: Seed) => {
             return (
-              <div className="flex items-center justify-between mb-2.5">
+              <div
+                className="flex items-center justify-between mb-2.5"
+                key={seed.seed_id}
+              >
                 <div className="flex items-center">
                   <span className="text-white text-sm">
                     {displaySymbols(seed.pool)}
@@ -1740,6 +1774,9 @@ function FarmView(props: {
   dayVolumeMap: Record<string, any>;
   boostConfig: BoostConfig;
   loveSeed: Seed;
+  user_seeds_map: Record<string, UserSeedInfo>;
+  user_unclaimed_map: Record<string, any>;
+  user_unclaimed_token_meta_map: Record<string, any>;
 }) {
   const {
     seed,
@@ -1748,15 +1785,20 @@ function FarmView(props: {
     dayVolumeMap,
     boostConfig,
     loveSeed,
+    user_seeds_map,
+    user_unclaimed_map,
+    user_unclaimed_token_meta_map,
   } = props;
-  const { pool, seedTvl, total_seed_amount, user_seed } = seed;
+  const { pool, seedTvl, total_seed_amount, seed_id } = seed;
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const [claimLoading, setClaimLoading] = useState(false);
   const [calcVisible, setCalcVisible] = useState(false);
   const [error, setError] = useState<Error>();
   const tokens = seed.pool.tokens_meta_data;
-  const unClaimedTokens = useTokens(Object.keys(seed.unclaimed || {}));
+  const unClaimedTokens = useTokens(
+    Object.keys(user_unclaimed_map[seed_id] || {})
+  );
   const history = useHistory();
   const intl = useIntl();
 
@@ -1817,7 +1859,8 @@ function FarmView(props: {
     let totalPrice = 0;
     unClaimedTokens?.forEach((token: TokenMetadata) => {
       const { id, decimals } = token;
-      const amount = toReadableNumber(decimals, seed.unclaimed[id] || '0');
+      const num = (user_unclaimed_map[seed.seed_id] || {})[id];
+      const amount = toReadableNumber(decimals, num || '0');
       const tokenPrice = tokenPriceList[id].price;
       if (tokenPrice && tokenPrice != 'N/A') {
         totalPrice += +amount * tokenPrice;
@@ -1933,17 +1976,19 @@ function FarmView(props: {
   }
   function getUnClaimTip() {
     let resultTip = '';
-    const { farmList, unclaimed_token_meta_datas } = seed;
-    const tokens = Object.values(unclaimed_token_meta_datas);
+    const { farmList, seed_id } = seed;
+    const unclaimedMap = user_unclaimed_map[seed_id] || {};
+    const tokenIds = Object.keys(unclaimedMap);
     const tempFarms = {};
     farmList.forEach((farm: FarmBoost) => {
       tempFarms[farm.terms.reward_token] = true;
     });
     const isEnded = farmList[0].status == 'Ended';
-    tokens?.forEach((token: TokenMetadata) => {
+    tokenIds?.forEach((tokenId: string) => {
+      const token: TokenMetadata = user_unclaimed_token_meta_map[tokenId] || {};
       // total price
       const { id, decimals, icon } = token;
-      const amount = toReadableNumber(decimals, seed.unclaimed[id] || '0');
+      const amount = toReadableNumber(decimals, unclaimedMap[id] || '0');
       // rewards number
       let displayNum = '';
       if (new BigNumber('0').isEqualTo(amount)) {
@@ -2090,7 +2135,7 @@ function FarmView(props: {
     return farms[0].status == 'Ended';
   }
   function haveUnclaimedReward() {
-    if (Object.keys(seed.unclaimed).length > 0) return true;
+    if (user_unclaimed_map[seed.seed_id]) return true;
   }
   function goFarmDetailPage(seed: Seed) {
     getDetailData({
@@ -2098,6 +2143,9 @@ function FarmView(props: {
       tokenPriceList,
       loveSeed,
       boostConfig,
+      user_seeds_map,
+      user_unclaimed_map,
+      user_unclaimed_token_meta_map,
     });
     const poolId = getPoolIdBySeedId(seed.seed_id);
     const status = seed.farmList[0].status == 'Ended' ? 'e' : 'r';
@@ -2118,11 +2166,13 @@ function FarmView(props: {
   function getBoostMutil() {
     if (!boostConfig) return '';
     const { affected_seeds } = boostConfig;
-    const { seed_id, user_seed } = seed;
+    const { seed_id } = seed;
+    const user_seed = user_seeds_map[seed_id] || {};
+    const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
     const base = affected_seeds[seed_id];
     const hasUserStaked = Object.keys(user_seed).length;
     if (base && hasUserStaked && loveSeed) {
-      const { free_amount = 0, locked_amount = 0 } = loveSeed.user_seed || {};
+      const { free_amount = 0, locked_amount = 0 } = love_user_seed || {};
       const totalStakeLoveAmount = toReadableNumber(
         LOVE_TOKEN_DECIMAL,
         new BigNumber(free_amount).plus(locked_amount).toFixed()
@@ -2324,6 +2374,9 @@ function FarmView(props: {
           boostConfig={boostConfig}
           loveSeed={loveSeed}
           tokenPriceList={tokenPriceList}
+          user_seeds_map={user_seeds_map}
+          user_unclaimed_map={user_unclaimed_map}
+          user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
           style={{
             overlay: {
               backdropFilter: 'blur(15px)',
@@ -2433,13 +2486,15 @@ function WithDrawBox(props: {
         </span>
         <div className="flex items-center justify-between mt-2">
           <label className="text-white text-xl font-bold">{yourReward}</label>
-          <div
-            onClick={switchDetailStatus}
-            className="flex items-center text-white text-xs cursor-pointer"
-          >
-            <FormattedMessage id="details" />
-            <UpArrowIcon className={`ml-2 transform rotate-180`} />
-          </div>
+          {Object.keys(userRewardList).length > 0 ? (
+            <div
+              onClick={switchDetailStatus}
+              className="flex items-center text-white text-xs cursor-pointer"
+            >
+              <FormattedMessage id="details" />
+              <UpArrowIcon className={`ml-2 transform rotate-180`} />
+            </div>
+          ) : null}
         </div>
       </div>
       <WithDrawModal
@@ -2822,5 +2877,8 @@ function WithDrawModal(props: {
   );
 }
 const getPoolIdBySeedId = (seed_id: string) => {
-  return seed_id.slice(seed_id.indexOf('@') + 1);
+  if (seed_id.indexOf('@') > -1) {
+    return seed_id.slice(seed_id.indexOf('@') + 1);
+  }
+  return '';
 };
