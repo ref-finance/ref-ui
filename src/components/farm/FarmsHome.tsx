@@ -2177,10 +2177,13 @@ function FarmView(props: {
         LOVE_TOKEN_DECIMAL,
         new BigNumber(free_amount).plus(locked_amount).toFixed()
       );
-      const result = new BigNumber(1)
-        .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
-        .toFixed();
-      return `x${toPrecision(result.toString(), 3)}`;
+      if (+totalStakeLoveAmount > 0) {
+        const result = new BigNumber(1)
+          .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
+          .toFixed();
+        return `x${toPrecision(result.toString(), 3)}`;
+      }
+      return '';
     }
     return '';
   }

@@ -521,10 +521,13 @@ export function CalcEle(props: {
         booster_decimal,
         new BigNumber(free_amount).plus(locked_amount).toFixed()
       );
-      const result = new BigNumber(1)
-        .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
-        .toFixed();
-      return result;
+      if (+totalStakeLoveAmount > 0) {
+        const result = new BigNumber(1)
+          .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
+          .toFixed();
+        return result;
+      }
+      return '';
     }
     return '';
   }
