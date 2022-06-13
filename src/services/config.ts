@@ -316,6 +316,19 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'cusd.token.a11bd.near': 1,
         },
         CUSD_STABLE_POOL_ID: '3433',
+        STNEAR_POOL_ID: '3514',
+        LINEAR_POOL_ID: '3515',
+        STNEARIDS: ['meta-pool.near', 'wrap.near'],
+        LINEARIDS: ['linear-protocol.near', 'wrap.near'],
+        STNEAR_POOL_INDEX: {
+          'meta-pool.near': 0,
+          'wrap.near': 1,
+        },
+        LINEAR_POOL_INDEX: {
+          'linear-protocol.near': 0,
+          'wrap.near': 1,
+        },
+        RATED_POOLS_IDS: ['3514', '3515'],
       };
     case 'development':
     case 'pub-testnet':
@@ -391,6 +404,19 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'cusd.token.a11bd.near': 1,
         },
         CUSD_STABLE_POOL_ID: '3433',
+        STNEAR_POOL_ID: '3514',
+        LINEAR_POOL_ID: '3515',
+        STNEARIDS: ['meta-pool.near', 'wrap.near'],
+        LINEARIDS: ['linear-protocol.near', 'wrap.near'],
+        STNEAR_POOL_INDEX: {
+          'meta-pool.near': 0,
+          'wrap.near': 1,
+        },
+        LINEAR_POOL_INDEX: {
+          'linear-protocol.near': 0,
+          'wrap.near': 1,
+        },
+        RATED_POOLS_IDS: ['3514', '3515'],
       };
   }
 }
