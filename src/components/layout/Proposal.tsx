@@ -189,6 +189,117 @@ export const durationFomatter = (duration: moment.Duration) => {
   return `${duration.days()}d: ${duration.hours()}h: ${duration.days()}m`;
 };
 
+const VoteChart = ({
+  options,
+  ratios,
+  forDetail,
+}: {
+  options: string[];
+  ratios: string[];
+  forDetail?: boolean;
+}) => {
+  const data = ratios.map((r, i) => {
+    return {
+      name: options[i],
+      value: Number(r),
+    };
+  });
+  // .filter((d) => d.value > 0);
+
+  if (!options || !ratios || data?.length === 0)
+    return (
+      <div className="pr-10">
+        <NoResultChart expand={forDetail ? '1.25' : ''} />
+      </div>
+    );
+
+  const [activeIndex, setActiveIndex] = useState<number>();
+
+  function customLabel(props: any) {
+    let { cx, cy, index, value, name } = props;
+
+    console.log(props);
+
+    if (index !== activeIndex) return null;
+
+    const ActiveLabel = () => {
+      return (
+        <div
+          className="pt-1 pb-2 pr-2 pl-3 flex flex-col rounded-lg bg-voteLabel text-xs"
+          style={{
+            backdropFilter: 'blur(30px)',
+            // width: '80px',
+          }}
+        >
+          <div className="flex items-center justify-between pb-1.5">
+            <div
+              className="w-2.5 h-2.5 rounded-sm mr-3 flex-shrink-0"
+              style={{
+                backgroundColor: OPTIONS_COLORS[activeIndex] || 'black',
+              }}
+            ></div>
+
+            <div>{name}</div>
+          </div>
+          <div className="self-end">{value}%</div>
+        </div>
+      );
+    };
+
+    return (
+      <g>
+        <foreignObject
+          x={cx - (forDetail ? 50 : 40)}
+          y={cy - 20}
+          width={`${name.length * 15 > 80 ? 80 : name.length * 15}%`}
+          height={100}
+        >
+          <ActiveLabel />
+        </foreignObject>
+      </g>
+    );
+  }
+
+  const innerRadius = forDetail ? 62 : 42;
+  const outerRadius = forDetail ? 80 : 60;
+  return (
+    <ResponsiveContainer
+      className={`flex items-center relative right-${forDetail ? 0 : 5}`}
+      width={161}
+      height={forDetail ? 161 : 121}
+    >
+      <PieChart>
+        <Pie
+          data={data}
+          innerRadius={innerRadius}
+          outerRadius={outerRadius}
+          dataKey="value"
+          labelLine={false}
+          cx="50%"
+          cy="50%"
+          activeIndex={activeIndex}
+          label={customLabel}
+          isAnimationActive={false}
+        >
+          {data.map((entry, index) => {
+            return (
+              <Cell
+                key={`cell-${index}`}
+                fill={OPTIONS_COLORS[options.indexOf(entry.name)]}
+                stroke="#304048"
+                strokeOpacity={10}
+                strokeWidth={2}
+                onMouseEnter={() => setActiveIndex(index)}
+                onMouseLeave={() => setActiveIndex(undefined)}
+              />
+            );
+          })}
+        </Pie>
+      </PieChart>
+    </ResponsiveContainer>
+  );
+};
+
 const OPTIONS_COLORS = [
   '#00D6AF',
   '#855DF8',
@@ -245,7 +356,7 @@ function SelectUI({
         </span>
       </span>
       <div
-        className={`absolute z-50 top-8 right-0 bg-cardBg rounded-2xl px-2  text-sm w-28 ${
+        className={`absolute z-50 top-8 right-0 bg-selectUIBg rounded-2xl px-2  text-sm w-28 ${
           showSelectBox ? '' : 'hidden'
         }`}
         style={{
@@ -541,6 +652,7 @@ const GovItemDetail = ({
   desctiption,
   turnOut,
   totalVE,
+  options,
 }: {
   show: number;
   proposal: Proposal;
@@ -549,30 +661,26 @@ const GovItemDetail = ({
   desctiption: Description;
   turnOut: string;
   totalVE: string;
+  options: string[];
 }) => {
   const intl = useIntl();
 
   const data = (
     proposal?.kind?.Common ? proposal?.votes?.slice(0, 2) : proposal?.votes
-  )
-    ?.map((v, i) => {
-      return {
-        option: proposal?.kind?.Common
-          ? i === 0
-            ? 'Yes'
-            : 'No'
-          : proposal?.kind?.Poll?.options?.[i],
-        v: toReadableNumber(LOVE_TOKEN_DECIMAL, v || '0'),
-        ratio: `${new Big(toReadableNumber(LOVE_TOKEN_DECIMAL, v || '0'))
-          .div(new Big(Number(totalVE) > 0 ? totalVE : 1))
-          .times(100)
-          .toNumber()
-          .toFixed(2)}%`,
-      };
-    })
-    .sort((a, b) => {
-      return Number(b.v) - Number(a.v);
-    });
+  )?.map((v, i) => {
+    return {
+      option: proposal?.kind?.Common
+        ? i === 0
+          ? 'Yes'
+          : 'No'
+        : proposal?.kind?.Poll?.options?.[i],
+      v: toReadableNumber(LOVE_TOKEN_DECIMAL, v || '0'),
+      ratio: `${new Big(toReadableNumber(LOVE_TOKEN_DECIMAL, v || '0'))
+        .div(new Big(Number(totalVE) > 0 ? totalVE : 1))
+        .times(100)
+        .toNumber()}`,
+    };
+  });
 
   const InfoRow = ({
     name,
@@ -678,7 +786,13 @@ const GovItemDetail = ({
           <div className="w-1/5 flex items-center justify-center">
             {proposal?.status === 'WarmUp' ? (
               <NoResultChart expand="1.25" />
-            ) : null}
+            ) : (
+              <VoteChart
+                options={data?.map((d) => d.option)}
+                ratios={data?.map((d) => d.ratio)}
+                forDetail
+              />
+            )}
           </div>
 
           <div className="w-4/5 text-primaryText flex flex-col ml-20 pb-6 ">
@@ -693,29 +807,44 @@ const GovItemDetail = ({
             </div>
 
             <div className="flex flex-col w-full text-white">
-              {data?.map((d, i) => {
-                return (
-                  <div className="grid grid-cols-10 hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-9 py-4">
-                    <span className="col-span-6 flex items-center">
-                      <div
-                        className="w-2.5 h-2.5 rounded-sm"
-                        style={{
-                          backgroundColor: OPTIONS_COLORS[i] || 'black',
-                        }}
-                      ></div>
-                      <span className="mx-2">{d.option}</span>
-                      {i === 0 ? (
-                        <span className="text-gradientFrom">Top</span>
-                      ) : null}
-                    </span>
-                    <span className="col-span-2 ">{d.ratio}</span>
+              {data
+                .sort((a, b) => {
+                  return Number(b.v) - Number(a.v);
+                })
+                ?.map((d, i) => {
+                  return (
+                    <div className="grid grid-cols-10 hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-9 py-4">
+                      <span className="col-span-6 flex items-center">
+                        <div
+                          className="w-2.5 h-2.5 rounded-sm"
+                          style={{
+                            backgroundColor:
+                              OPTIONS_COLORS[options.indexOf(d.option)] ||
+                              'black',
+                          }}
+                        ></div>
+                        <span className="mx-2">{d.option}</span>
+                        {i === 0 && proposal.status !== 'WarmUp' ? (
+                          <span
+                            className=""
+                            style={{
+                              color: OPTIONS_COLORS[options.indexOf(d.option)],
+                            }}
+                          >
+                            Top
+                          </span>
+                        ) : null}
+                      </span>
+                      <span className="col-span-2 ">
+                        {toPrecision(scientificNotationToString(d.ratio), 2)}%
+                      </span>
 
-                    <span className="col-span-2 text-right">
-                      {toPrecision(d.v, 2)}
-                    </span>
-                  </div>
-                );
-              })}
+                      <span className="col-span-2 text-right">
+                        {toPrecision(d.v, 2)}
+                      </span>
+                    </div>
+                  );
+                })}
             </div>
           </div>
         </div>
@@ -742,7 +871,7 @@ const GovProposalItem = ({
   voteDetail,
   voteHistory,
 }: {
-  status: 'Live' | 'Ended' | 'Pending';
+  status: string;
   description?: Description;
   proposal: Proposal;
   VEmeta: VEMETA;
@@ -808,7 +937,7 @@ const GovProposalItem = ({
   const ratios = (
     proposal?.kind?.Common ? proposal?.votes?.slice(0, 2) : proposal?.votes
   )?.map((v, i) => {
-    return `${new Big(toReadableNumber(LOVE_TOKEN_DECIMAL, v || '0'))
+    return `${new Big(v || '0')
       .div(new Big(Number(totalVE) > 0 ? totalVE : 1))
       .times(100)
       .toNumber()}`;
@@ -818,7 +947,7 @@ const GovProposalItem = ({
 
   const topVote = _.maxBy(proposal?.votes || [], (o) => Number(o));
 
-  const topVoteIndex = proposal?.votes?.indexOf(topVote);
+  const topVoteIndex = proposal?.votes?.indexOf(topVote) || 0;
 
   const topOption = options?.[topVoteIndex];
 
@@ -836,6 +965,7 @@ const GovProposalItem = ({
           )}
           turnOut={`${turnOut}%`}
           totalVE={toReadableNumber(LOVE_TOKEN_DECIMAL, totalVE)}
+          options={options}
         />
       ) : (
         <Card
@@ -843,7 +973,15 @@ const GovProposalItem = ({
           bgcolor="bg-white bg-opacity-10"
           padding={'p-8'}
         >
-          <div>{status === 'Pending' ? <NoResultChart /> : null}</div>
+          <div>
+            {status === 'Pending' ? (
+              <div className="pr-10">
+                <NoResultChart />
+              </div>
+            ) : (
+              <VoteChart options={options} ratios={ratios} />
+            )}
+          </div>
           <div className="flex flex-col w-full ml-8">
             <div className="w-full flex items-center   justify-between">
               <div className="text-lg"> {description.title} </div>
@@ -900,18 +1038,34 @@ const GovProposalItem = ({
                     />
                   </span>
 
-                  <span>{turnOut}%</span>
+                  <span>
+                    {proposal.status === 'WarmUp' ? '-' : `${turnOut}%`}
+                  </span>
                 </span>
 
                 <span className="flex flex-col">
-                  <span className="text-primaryText">
+                  <span className="text-primaryText flex items-center ">
                     <FormattedMessage
                       id="top_answer"
                       defaultMessage={'Top Answer'}
                     />
                   </span>
 
-                  <span>{topOption || '-'}</span>
+                  <span className="flex items-center">
+                    {proposal.status === 'WarmUp' ? null : (
+                      <div
+                        className="w-2.5 h-2.5 rounded-sm mr-3 flex-shrink-0"
+                        style={{
+                          backgroundColor:
+                            OPTIONS_COLORS[topVoteIndex] || 'black',
+                        }}
+                      ></div>
+                    )}
+
+                    <span>
+                      {proposal.status === 'WarmUp' ? '-' : topOption}
+                    </span>
+                  </span>
                 </span>
               </div>
               <div className="flex items-center">
@@ -1857,7 +2011,11 @@ export const GovProposal = ({
               VEmeta={VEmeta}
               status={proposalStatus[p.status]}
               proposal={p}
-              description={JSON.parse(p.kind.Poll.description)}
+              description={JSON.parse(
+                p.kind.Poll
+                  ? p.kind.Poll.description
+                  : p.kind.Common.description
+              )}
               showDetail={showDetail}
               setShowDetail={setShowDetail}
               voteHistory={voteHistory}

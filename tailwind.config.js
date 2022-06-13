@@ -75,6 +75,8 @@ module.exports = {
         warn: '#DEA550',
         error: '#DE5050',
         gradientFrom: '#00c6a2',
+        selectUIBg: 'rgba(58, 69, 77, 0.6)',
+        voteLabel: 'rgba(26, 35, 41, 0.6)',
         gradientTo: '#008b72',
         gradientFromHover: '#00D6AF',
         gradientToHover: '#00967B',

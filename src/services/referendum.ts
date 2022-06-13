@@ -49,7 +49,7 @@ export interface Proposal {
   end_at: string;
   participants: string;
   incetive: null | Incentive;
-  status: string;
+  status: 'WarmUp' | 'InProgress' | 'Expired';
   is_nonsense: null;
   id?: number;
 }
