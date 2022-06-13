@@ -934,8 +934,8 @@ export default function FarmsHome(props: any) {
           <BannerBgRight />
         </span>
       </div>
-      <div className="searchArea m-auto lg:w-2/3 xs:w-full md:w-full flex justify-between items-center mb-11">
-        <div className="flex justify-between items-center">
+      <div className="searchArea m-auto lg:w-2/3 xs:w-full md:w-full flex justify-between items-center mb-11 xs:flex-col md:flex-col xs:px-2 md:px-2">
+        <div className="flex justify-between items-center xs:w-full md:w-full">
           {Object.keys(statusList).map((item: string) => {
             return (
               <span
@@ -943,7 +943,7 @@ export default function FarmsHome(props: any) {
                   changeStatus(item);
                 }}
                 key={item}
-                className={`flex flex-grow justify-center mx-1 items-center h-9 px-3 rounded-lg text-sm hover:bg-cardBg cursor-pointer ${
+                className={`flex flex-grow justify-center mx-1 items-center h-9 px-3  xs:mx-0 md:mx-0 xs:px-0 md:px-0 rounded-lg text-sm hover:bg-cardBg cursor-pointer ${
                   status == item ? 'bg-cardBg text-white' : 'text-farmText'
                 }`}
               >
@@ -955,7 +955,7 @@ export default function FarmsHome(props: any) {
             );
           })}
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center  justify-between  xs:w-full md:w-full xs:mt-2 md:mt-2">
           <div
             className="flex items-center justify-between px-4 h-9 py-1 bg-searchBgColor rounded-lg mr-5"
             style={{
@@ -965,7 +965,7 @@ export default function FarmsHome(props: any) {
             <input
               ref={searchRef}
               type="text"
-              className="h-full text-sm text-white mr-3 w-48"
+              className="h-full text-sm text-white mr-3 w-48 xs:w-32 md:w-32"
               onWheel={() => searchRef.current.blur()}
               onChange={({ target }) => searchByKeyWords(target.value)}
               placeholder="Search farms by token..."
@@ -978,25 +978,27 @@ export default function FarmsHome(props: any) {
               <SearchIcon></SearchIcon>
             </span>
           </div>
-          <label className="text-farmText text-xs mr-2 whitespace-nowrap">
-            <FormattedMessage id="sort_by" defaultMessage="Sort by" />
-          </label>
-          {Object.keys(sortList).map((item, index) => {
-            const value = sortList[item];
-            return (
-              <div
-                className={`flex items-center justify-between rounded-lg h-9  px-3 py-0.5 ml-2 cursor-pointer hover:bg-cardBg text-xs ${
-                  sort == item ? 'bg-cardBg text-white' : 'text-farmText'
-                }`}
-                key={index}
-                onClick={() => {
-                  changeSort(item);
-                }}
-              >
-                {value}
-              </div>
-            );
-          })}
+          <div className="flex items-center">
+            <label className="text-farmText text-xs mr-2 whitespace-nowrap">
+              <FormattedMessage id="sort_by" defaultMessage="Sort by" />
+            </label>
+            {Object.keys(sortList).map((item, index) => {
+              const value = sortList[item];
+              return (
+                <div
+                  className={`flex items-center justify-between rounded-lg h-9  px-3 py-0.5 ml-2 cursor-pointer hover:bg-cardBg text-xs ${
+                    sort == item ? 'bg-cardBg text-white' : 'text-farmText'
+                  }`}
+                  key={index}
+                  onClick={() => {
+                    changeSort(item);
+                  }}
+                >
+                  {value}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
       {homePageLoading && getUrlParams() ? null : homePageLoading ? (
@@ -1213,7 +1215,7 @@ export default function FarmsHome(props: any) {
           ) : null}
 
           {/* boost end */}
-          <div className="farmListArea grid grid-cols-2 xs:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 m-auto lg:w-2/3 xs:w-full md:w-full">
+          <div className="farmListArea grid grid-cols-2 xs:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 m-auto lg:w-2/3 xs:px-2 md:px-2 xs:w-full md:w-full">
             {farm_display_List.map((seed: Seed, index: number) => {
               return (
                 <div
@@ -1247,7 +1249,7 @@ export default function FarmsHome(props: any) {
             <p className="text-xl m-auto lg:w-2/3 xs:w-full md:w-full text-farmText mt-5 mb-6">
               <FormattedMessage id="endedFarms"></FormattedMessage>
             </p>
-            <div className="farmListArea grid grid-cols-2 xs:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 m-auto lg:w-2/3 xs:w-full md:w-full">
+            <div className="farmListArea grid grid-cols-2 xs:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 m-auto lg:w-2/3 xs:w-full md:w-full xs:px-2 md:px-2">
               {farm_display_ended_List.map((seed: Seed, index: number) => {
                 return (
                   <div

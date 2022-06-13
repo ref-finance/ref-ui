@@ -789,6 +789,7 @@ export const getBoostTokenPrices = async (): Promise<
       console.log('缓存 price');
     } else {
       tokenPrices = await getBoostTokenPricesFromServer();
+      console.log('接口 price');
     }
     return tokenPrices;
   } catch (error) {
@@ -802,7 +803,6 @@ export const getBoostTokenPricesFromServer = async (): Promise<
   try {
     const tokenPrices: Record<string, TokenPrice> = await getTokenPriceList();
     await db.cacheTokenPrices(tokenPrices);
-    console.log('接口 price');
     return tokenPrices;
   } catch (error) {
     console.log(error);
