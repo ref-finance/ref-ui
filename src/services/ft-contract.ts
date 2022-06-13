@@ -107,7 +107,7 @@ export const ftGetTokenMetadata = async (
 
       return {
         ...metadata,
-        icon: NEAR_ICON,
+        icon: nearMetadata.icon,
         symbol: 'NEAR',
       };
     } else if (

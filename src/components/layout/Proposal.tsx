@@ -1,17 +1,13 @@
 import Big from 'big.js';
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
-import { FormattedMessage } from 'react-intl';
+import React, { useEffect, useMemo, useState } from 'react';
+import { FormattedMessage, useIntl, FormattedRelativeTime } from 'react-intl';
 import { NewGradientButton } from '~components/button/Button';
 import { cancelVote, getProposalList, Proposal } from '~services/referendum';
 import { scientificNotationToString, toPrecision } from '~utils/numbers';
 import { Card } from '../card/Card';
-import {
-  useVEmeta,
-  useVoteDetail,
-  useAccountInfo,
-} from '../../state/referendum';
+import { useVEmeta, useVoteDetail } from '../../state/referendum';
 import {
   toReadableNumber,
   toRoundedReadableNumber,
@@ -22,8 +18,17 @@ import { BorderGradientButton } from '../button/Button';
 import { ModalWrapper } from '../../pages/ReferendumPage';
 import Modal from 'react-modal';
 import { Images, Symbols } from '../stableswap/CommonComp';
-import { RightArrowVE, NoResultChart } from '../icon/Referendum';
-import { VoteFarm } from '../../services/referendum';
+import {
+  RightArrowVE,
+  NoResultChart,
+  LeftArrowVE,
+  NO_RESULT_CHART,
+} from '../icon/Referendum';
+import {
+  VoteFarm,
+  createProposal,
+  Description,
+} from '../../services/referendum';
 import { toNonDivisibleNumber, percent } from '../../utils/numbers';
 import {
   ftGetTokensMetadata,
@@ -36,7 +41,16 @@ import _, { pad } from 'lodash';
 import { CustomSwitch } from '../forms/SlippageSelector';
 import { ArrowDownLarge } from '~components/icon';
 import { FilterIcon } from '~components/icon/PoolFilter';
-import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
+import {
+  LOVE_TOKEN_DECIMAL,
+  VEMETA,
+  useVoteDetailHisroty,
+} from '../../state/referendum';
+import { getCurrentWallet } from '../../utils/sender-wallet';
+import { Item } from '../airdrop/Item';
+import { ShareInFarmV2 } from './ShareInFarm';
+import { VoteCommon, VotePoll, VoteDetail } from '../../services/referendum';
+import { useAccountInfo } from '../../state/referendum';
 
 const REF_FI_PROPOSALTAB = 'REF_FI_PROPOSALTAB_VALUE';
 
@@ -163,6 +177,8 @@ const VotePopUp = (
   );
 };
 
+const TIMESTAMP_DIVISOR = 1000000000;
+
 enum PROPOSAL_TAB {
   FARM = 'FARM',
   GOV = 'GOV',
@@ -173,18 +189,30 @@ export const durationFomatter = (duration: moment.Duration) => {
   return `${duration.days()}d: ${duration.hours()}h: ${duration.days()}m`;
 };
 
+const OPTIONS_COLORS = [
+  '#00D6AF',
+  '#855DF8',
+  '#5A6780',
+  '#8EA0CF',
+  '#57678F',
+  '#464F65',
+  '#3D455B',
+];
+
 function SelectUI({
   onChange,
   list,
   curvalue,
   shrink,
   className,
+  size,
 }: {
   onChange: (e: any) => void;
   list: string[];
   curvalue: string;
   shrink?: string;
   className?: string;
+  size?: string;
 }) {
   const [showSelectBox, setShowSelectBox] = useState(false);
   const switchSelectBoxStatus = () => {
@@ -195,24 +223,26 @@ function SelectUI({
   };
   return (
     <div
-      className={`relative flex ${
+      className={`${className} relative flex ${
         shrink ? 'items-end' : 'items-center '
-      } lg:mr-5 outline-none ml-8`}
+      } lg:mr-5 outline-none`}
     >
       <span
         onClick={switchSelectBoxStatus}
         tabIndex={-1}
         onBlur={hideSelectBox}
-        className={`flex items-center justify-between bg-black bg-opacity-20 w-24 h-5 rounded-md px-2.5 py-0.5  cursor-pointer text-xs outline-none ${
-          shrink ? 'xs:w-8 md:w-8' : ''
-        } ${showSelectBox ? ' text-white' : 'text-farmText'}`}
+        className={` flex items-center justify-between bg-black bg-opacity-20 w-24 h-5 rounded-md px-2.5 py-3  cursor-pointer ${
+          size || 'text-xs'
+        } outline-none ${shrink ? 'xs:w-8 md:w-8' : ''} text-white`}
       >
         <label
           className={`whitespace-nowrap ${shrink ? 'xs:hidden md:hidden' : ''}`}
         >
           {curvalue ? curvalue : null}
         </label>
-        <ArrowDownLarge />
+        <span className="text-primaryText">
+          <ArrowDownLarge />
+        </span>
       </span>
       <div
         className={`absolute z-50 top-8 right-0 bg-cardBg rounded-2xl px-2  text-sm w-28 ${
@@ -228,7 +258,7 @@ function SelectUI({
             onMouseDown={() => {
               onChange(item);
             }}
-            className={`flex rounded-lg items-center p-4 text-xs h-5 text-white text-opacity-40 my-2 cursor-pointer hover:bg-black hover:bg-opacity-20 hover:text-opacity-100
+            className={`flex rounded-lg items-center p-4 h-5 text-white text-opacity-40 my-2 cursor-pointer hover:bg-black hover:bg-opacity-20 hover:text-opacity-100
             ${item == curvalue ? 'bg-black bg-opacity-20 text-opacity-100' : ''}
             `}
           >
@@ -503,14 +533,223 @@ const FarmChart = ({
   );
 };
 
+const GovItemDetail = ({
+  show,
+  proposal,
+  setShow,
+  timeDuration,
+  desctiption,
+  turnOut,
+  totalVE,
+}: {
+  show: number;
+  proposal: Proposal;
+  setShow: (s: number) => void;
+  timeDuration?: JSX.Element;
+  desctiption: Description;
+  turnOut: string;
+  totalVE: string;
+}) => {
+  const intl = useIntl();
+
+  const data = (
+    proposal?.kind?.Common ? proposal?.votes?.slice(0, 2) : proposal?.votes
+  )
+    ?.map((v, i) => {
+      return {
+        option: proposal?.kind?.Common
+          ? i === 0
+            ? 'Yes'
+            : 'No'
+          : proposal?.kind?.Poll?.options?.[i],
+        v: toReadableNumber(LOVE_TOKEN_DECIMAL, v || '0'),
+        ratio: `${new Big(toReadableNumber(LOVE_TOKEN_DECIMAL, v || '0'))
+          .div(new Big(Number(totalVE) > 0 ? totalVE : 1))
+          .times(100)
+          .toNumber()
+          .toFixed(2)}%`,
+      };
+    })
+    .sort((a, b) => {
+      return Number(b.v) - Number(a.v);
+    });
+
+  const InfoRow = ({
+    name,
+    value,
+    nameClass,
+    valueClass,
+  }: {
+    name: string | JSX.Element;
+    value: string | JSX.Element;
+    nameClass?: string;
+    valueClass?: string;
+  }) => {
+    return (
+      <div className="py-2.5 flex items-center ">
+        <span className={`${nameClass} text-primaryText`}>{name}</span>
+        <span className={`${valueClass} ml-3`}>{value}</span>
+      </div>
+    );
+  };
+
+  return !show ? null : (
+    <div className="text-white text-sm ">
+      <div className="text-center relative text-xl pb-7">
+        <FormattedMessage
+          id="proposal_detail"
+          defaultMessage={'Proposal Detail'}
+        />
+
+        <button
+          className="absolute left-0 top-2 text-sm text-primaryText flex items-center"
+          onClick={() => setShow(undefined)}
+        >
+          <span className="transform scale-50">
+            {<LeftArrowVE stroke="#7E8A93" strokeWidth={2} />}
+          </span>
+          <span className="ml-1">
+            <FormattedMessage id="back" defaultMessage={'Back'} />
+          </span>
+        </button>
+
+        <span className="absolute right-1">{timeDuration}</span>
+      </div>
+
+      <Card
+        className="w-full"
+        bgcolor="bg-white bg-opacity-10 "
+        padding={'px-10 py-9'}
+      >
+        <div className="pb-4 border-b border-white border-opacity-10 px-2 pt-8 text-white text-xl mb-4">
+          {desctiption.title}
+        </div>
+
+        <InfoRow
+          name={intl.formatMessage({
+            id: 'proposer',
+            defaultMessage: 'Proposer',
+          })}
+          value={proposal.proposer}
+          valueClass={'font-bold'}
+        />
+
+        <InfoRow
+          name={intl.formatMessage({
+            id: 'voting_period',
+            defaultMessage: 'Voting Period',
+          })}
+          value={''}
+        />
+        <InfoRow
+          name={intl.formatMessage({
+            id: 'turn_out',
+            defaultMessage: 'Turnout',
+          })}
+          value={turnOut}
+        />
+        <div className="w-full relative flex items-center justify-between pb-4 border-b border-white border-opacity-10">
+          <InfoRow
+            name={intl.formatMessage({
+              id: 'total_velpt',
+              defaultMessage: 'Total veLPT',
+            })}
+            value={toPrecision(totalVE, 2)}
+          />
+
+          <button
+            className="flex items-center "
+            onClick={() => {
+              window.open(desctiption.link, '_blank');
+            }}
+          >
+            <span>
+              <FormattedMessage
+                id="forum_discussion"
+                defaultMessage={'Forum Discussion'}
+              />
+            </span>
+
+            <span className="text-gradientFrom ml-2">↗</span>
+          </button>
+        </div>
+
+        <div className="flex items-center justify-center mt-8 pb-6">
+          <div className="w-1/5 flex items-center justify-center">
+            {proposal?.status === 'WarmUp' ? (
+              <NoResultChart expand="1.25" />
+            ) : null}
+          </div>
+
+          <div className="w-4/5 text-primaryText flex flex-col ml-20 pb-6 ">
+            <div className="grid grid-cols-10 pb-5 px-6">
+              <span className="col-span-6 ">
+                <FormattedMessage id="options" defaultMessage={'Options'} />
+              </span>
+              <span className="col-span-2  ">
+                <FormattedMessage id="ratio" defaultMessage={'Ratio'} />
+              </span>
+              <span className="col-span-2 text-right">veLPT</span>
+            </div>
+
+            <div className="flex flex-col w-full text-white">
+              {data?.map((d, i) => {
+                return (
+                  <div className="grid grid-cols-10 hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-9 py-4">
+                    <span className="col-span-6 flex items-center">
+                      <div
+                        className="w-2.5 h-2.5 rounded-sm"
+                        style={{
+                          backgroundColor: OPTIONS_COLORS[i] || 'black',
+                        }}
+                      ></div>
+                      <span className="mx-2">{d.option}</span>
+                      {i === 0 ? (
+                        <span className="text-gradientFrom">Top</span>
+                      ) : null}
+                    </span>
+                    <span className="col-span-2 ">{d.ratio}</span>
+
+                    <span className="col-span-2 text-right">
+                      {toPrecision(d.v, 2)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end pt-6 border-t border-white border-opacity-10">
+          <BorderGradientButton
+            text={<FormattedMessage id="cancel" defaultMessage={'Cancel'} />}
+            color={'#192734'}
+            onClick={() => setShow(undefined)}
+          />
+        </div>
+      </Card>
+    </div>
+  );
+};
+
 const GovProposalItem = ({
   status,
   description,
   proposal,
+  VEmeta,
+  showDetail,
+  setShowDetail,
+  voteDetail,
+  voteHistory,
 }: {
   status: 'Live' | 'Ended' | 'Pending';
-  description?: string;
+  description?: Description;
   proposal: Proposal;
+  VEmeta: VEMETA;
+  showDetail: number;
+  setShowDetail: (s: number) => void;
+  voteDetail: VoteDetail;
+  voteHistory: VoteDetail;
 }) => {
   const StatusIcon = () => {
     return (
@@ -537,87 +776,195 @@ const GovProposalItem = ({
     );
   };
 
-  console.log(status);
+  const isPoll = proposal?.kind?.Poll;
+
+  const isCommon = proposal?.kind?.Common;
+
+  const voted = voteDetail?.[proposal?.id] || voteHistory?.[proposal?.id];
+
+  const [showVotePop, setShowVotePop] = useState<boolean>(false);
+
+  if (
+    typeof showDetail !== 'undefined' &&
+    showDetail !== Number(proposal?.id)
+  ) {
+    return null;
+  }
+
+  const totalVE = scientificNotationToString(
+    BigNumber.sum(...(proposal?.votes || [])).toString()
+  );
+
+  const turnOut = new Big(totalVE)
+    .div(new Big(VEmeta?.cur_total_ve_lpt || 1))
+    .times(100)
+    .toNumber()
+    .toFixed(2);
+
+  const options = proposal?.kind?.Common
+    ? ['Yes', 'No']
+    : proposal?.kind?.Poll?.options;
+
+  const ratios = (
+    proposal?.kind?.Common ? proposal?.votes?.slice(0, 2) : proposal?.votes
+  )?.map((v, i) => {
+    return `${new Big(toReadableNumber(LOVE_TOKEN_DECIMAL, v || '0'))
+      .div(new Big(Number(totalVE) > 0 ? totalVE : 1))
+      .times(100)
+      .toNumber()}`;
+  });
+
+  const ended = proposal?.status === 'Expired';
+
+  const topVote = _.maxBy(proposal?.votes || [], (o) => Number(o));
+
+  const topVoteIndex = proposal?.votes?.indexOf(topVote);
+
+  const topOption = options?.[topVoteIndex];
 
   return (
-    <Card
-      className="w-full flex items-center my-2"
-      bgcolor="bg-white bg-opacity-10"
-      padding={'p-8'}
-    >
-      <div>{status === 'Pending' ? <NoResultChart /> : null}</div>
-      <div className="flex flex-col w-full ml-8">
-        <div className="w-full flex items-center   justify-between">
-          <div className="text-lg"> title </div>
+    <>
+      {showDetail === Number(proposal?.id) ? (
+        <GovItemDetail
+          show={showDetail}
+          setShow={setShowDetail}
+          proposal={proposal}
+          desctiption={JSON.parse(
+            proposal?.kind?.Poll
+              ? proposal.kind.Poll.description
+              : proposal.kind.Common.description
+          )}
+          turnOut={`${turnOut}%`}
+          totalVE={toReadableNumber(LOVE_TOKEN_DECIMAL, totalVE)}
+        />
+      ) : (
+        <Card
+          className="w-full flex items-center my-2"
+          bgcolor="bg-white bg-opacity-10"
+          padding={'p-8'}
+        >
+          <div>{status === 'Pending' ? <NoResultChart /> : null}</div>
+          <div className="flex flex-col w-full ml-8">
+            <div className="w-full flex items-center   justify-between">
+              <div className="text-lg"> {description.title} </div>
 
-          <StatusIcon />
-        </div>
+              <StatusIcon />
+            </div>
 
-        <div className="w-full flex items-center justify-between pb-8 pt-3">
-          <div className="flex items-center">
-            <span className="text-primaryText mr-3">
-              <FormattedMessage id="proposer" defaultMessage={'Proposter'} />
-            </span>
+            <div className="w-full flex items-center justify-between pb-8 pt-3">
+              <div className="flex items-center">
+                <span className="text-primaryText mr-3">
+                  <FormattedMessage
+                    id="proposer"
+                    defaultMessage={'Proposter'}
+                  />
+                </span>
 
-            <span className="font-bold">{proposal.proposer}</span>
-          </div>
+                <span className="font-bold">{proposal.proposer}</span>
+              </div>
 
-          <span
-            className={
-              status === 'Ended'
-                ? 'hidden'
-                : `${
-                    status === 'Pending'
-                      ? 'text-primaryText'
-                      : 'text-gradientFrom'
-                  }`
-            }
-          >
-            {durationFomatter(
-              moment.duration(
-                Number(proposal.start_at) / 1000000 - moment().unix()
-              )
-            )}
-            {` left`}
-          </span>
-        </div>
-
-        <div className="w-full flex items-center justify-between">
-          <div className="flex items-center">
-            <span className="flex flex-col mr-10">
-              <span className="text-primaryText">
-                <FormattedMessage id="turn_out" defaultMessage={'Turnout'} />
+              <span
+                className={
+                  status === 'Ended'
+                    ? 'hidden'
+                    : `${
+                        status === 'Pending'
+                          ? 'text-primaryText'
+                          : 'text-gradientFrom'
+                      }`
+                }
+              >
+                {durationFomatter(
+                  moment.duration(
+                    Math.floor(
+                      Number(
+                        status === 'Pending'
+                          ? proposal.start_at
+                          : proposal.end_at
+                      ) / TIMESTAMP_DIVISOR
+                    ) - moment().unix(),
+                    'seconds'
+                  )
+                )}
+                {` left`}
               </span>
+            </div>
 
-              <span>-</span>
-            </span>
+            <div className="w-full flex items-center justify-between">
+              <div className="flex items-center">
+                <span className="flex flex-col mr-10">
+                  <span className="text-primaryText">
+                    <FormattedMessage
+                      id="turn_out"
+                      defaultMessage={'Turnout'}
+                    />
+                  </span>
 
-            <span className="flex flex-col">
-              <span className="text-primaryText">
-                <FormattedMessage
-                  id="top_answer"
-                  defaultMessage={'Top Answer'}
+                  <span>{turnOut}%</span>
+                </span>
+
+                <span className="flex flex-col">
+                  <span className="text-primaryText">
+                    <FormattedMessage
+                      id="top_answer"
+                      defaultMessage={'Top Answer'}
+                    />
+                  </span>
+
+                  <span>{topOption || '-'}</span>
+                </span>
+              </div>
+              <div className="flex items-center">
+                <BorderGradientButton
+                  text={
+                    <FormattedMessage id="detail" defaultMessage={'Detail'} />
+                  }
+                  width="h-11 "
+                  className="h-full px-5"
+                  color="#293540"
+                  onClick={() => setShowDetail(proposal.id)}
                 />
-              </span>
 
-              <span>-</span>
-            </span>
+                <NewGradientButton
+                  text={
+                    ended && voted ? (
+                      <FormattedMessage id="voted" defaultMessage={'Voted'} />
+                    ) : proposal?.status === 'InProgress' && voted ? (
+                      <FormattedMessage id="cancel" defaultMessage={'Cancel'} />
+                    ) : (
+                      <FormattedMessage id="vote" defaultMessage={'Vote'} />
+                    )
+                  }
+                  className="ml-2.5 h-11 px-6"
+                  disabled={ended}
+                  onClick={() => {
+                    if (voted) {
+                      cancelVote({
+                        proposal_id: proposal.id,
+                      });
+                    } else {
+                      setShowVotePop(true);
+                    }
+                  }}
+                />
+              </div>
+            </div>
           </div>
-          <div className="flex items-center">
-            <BorderGradientButton
-              text={<FormattedMessage id="detail" defaultMessage={'Detail'} />}
-              width="h-11 "
-              className="h-full"
-            />
-
-            <NewGradientButton
-              text={<FormattedMessage id="vote" defaultMessage={'Vote'} />}
-              className="ml-2.5 h-11"
-            />
-          </div>
-        </div>
-      </div>
-    </Card>
+          <VoteGovPopUp
+            isOpen={showVotePop}
+            title={
+              <FormattedMessage id="you_vote" defaultMessage={'You vote'} />
+            }
+            proposalTitle={description?.title}
+            onRequestClose={() => setShowVotePop(false)}
+            options={options}
+            ratios={ratios}
+            proposal={proposal}
+            totalVE={totalVE}
+          />
+        </Card>
+      )}
+    </>
   );
 };
 
@@ -658,6 +1005,125 @@ export const ProposalTab = ({
   );
 };
 
+export const VoteGovPopUp = (
+  props: Modal.Props & {
+    title: JSX.Element | string;
+    proposalTitle: string;
+    options: string[];
+    ratios: string[];
+    proposal: Proposal;
+    totalVE: string;
+  }
+) => {
+  const { title, proposalTitle, ratios, proposal, options, totalVE } = props;
+
+  const [value, setvalue] = useState<string>();
+
+  const CheckComponent = ({ checked }: { checked: boolean }) => {
+    return (
+      <div
+        className={`rounded-full w-4 h-4 flex items-center justify-center `}
+        style={{
+          backgroundColor: checked ? '#00846C' : '#304452',
+        }}
+      >
+        <div
+          className={`rounded-full w-1.5 h-1.5 ${
+            checked ? '' : 'opacity-30'
+          } bg-white`}
+        ></div>
+      </div>
+    );
+  };
+
+  const { veShare } = useAccountInfo();
+
+  const newPercent = new Big(toNonDivisibleNumber(24, veShare))
+    .plus(
+      options.indexOf(value) !== -1
+        ? new Big(proposal?.votes[options?.indexOf(value)] || 0)
+        : 0
+    )
+    .div(
+      new Big(Number(totalVE) > 0 ? totalVE : 0).plus(
+        Number(veShare) > 0 ? toNonDivisibleNumber(24, veShare) : '1'
+      )
+    )
+    .times(100);
+
+  return (
+    <ModalWrapper {...props}>
+      <div className="pt-6 pb-8">
+        <div className="pb-4">{proposalTitle}</div>
+
+        <div className="pt-6 px-7 rounded-lg bg-black bg-opacity-20">
+          {options?.map((o, i) => {
+            return (
+              <button
+                className="flex items-center justify-between pb-7 w-full"
+                onClick={() => {
+                  setvalue(o);
+                }}
+              >
+                <span className="flex items-center ">
+                  <CheckComponent checked={value === o} />
+
+                  <span className="ml-4">{o}</span>
+                </span>
+
+                <span className="flex items-center">
+                  {value === o ? (
+                    <span className="mr-2.5 text-gradientFrom">
+                      +
+                      {toPrecision(
+                        scientificNotationToString(
+                          newPercent.minus(ratios[i] || 0).toString()
+                        ),
+                        0
+                      )}
+                      %
+                    </span>
+                  ) : null}
+
+                  <span>
+                    {toPrecision(scientificNotationToString(ratios[i]), 1)}%
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="flex items-center w-full">
+        <BorderGradientButton
+          text={<FormattedMessage id="cancel" defaultMessage={'Cancel'} />}
+          width="w-1/2 h-10 mx-2"
+          className="h-full"
+          onClick={props.onRequestClose}
+        />
+
+        <NewGradientButton
+          text={<FormattedMessage id="confirm" defaultMessage={'Confirm'} />}
+          className="w-1/2 h-10 mx-2"
+          disabled={!value}
+          onClick={() => {
+            proposal?.kind?.Common
+              ? VoteCommon({
+                  proposal_id: proposal?.id,
+                  action: value === 'yes' ? 'VoteApprove' : 'VoteReject',
+                })
+              : VotePoll({
+                  proposal_id: proposal?.id,
+                  index: options.indexOf(value),
+                });
+          }}
+        />
+      </div>
+    </ModalWrapper>
+  );
+};
+
 export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
   const defautLeft = '0d: 0h 0m ';
 
@@ -674,11 +1140,11 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
   const [hover, setHover] = useState<number>();
 
   const startTime = Math.floor(
-    new Big(farmProposal?.start_at || 0).div(1000000).toNumber()
+    new Big(farmProposal?.start_at || 0).div(TIMESTAMP_DIVISOR).toNumber()
   );
 
   const endTime = Math.floor(
-    new Big(farmProposal?.end_at || 0).div(1000000).toNumber()
+    new Big(farmProposal?.end_at || 0).div(TIMESTAMP_DIVISOR).toNumber()
   );
 
   const ended = moment().unix() > endTime;
@@ -732,7 +1198,6 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
     tokens: TokenMetadata[];
   }) => {
     const [votePopUpOpen, setVotePopUpOpen] = useState<boolean>(false);
-    console.log(voted);
     const ButtonRender = () => {
       const submit = (e: Event) => {
         !voted
@@ -763,7 +1228,7 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
           text={text}
           width="w-20 h-10"
           opacity={voted || ended ? 'opacity-30' : ''}
-          className={`py-2 px-4`}
+          className={`py-1 px-4 h-full`}
           color="#323842"
         />
       );
@@ -796,6 +1261,8 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
       farmProposal?.kind?.FarmingReward?.total_reward.toString()
     );
 
+    console.log(voted, 'voted');
+
     return (
       <div
         className={`py-5 grid grid-cols-7 rounded-lg items-center ${
@@ -810,14 +1277,14 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
           <span className="pr-2.5"></span>
           <Symbols tokens={tokens} seperator={'-'} />
 
-          {!voted ? null : (
+          {voted === index.toString() ? (
             <NewGradientButton
               className="ml-2 text-white text-sm px-2.5 py-1.5"
               text={
                 <FormattedMessage id="you_voted" defaultMessage={'You voted'} />
               }
             />
-          )}
+          ) : null}
         </span>
         <span className="col-span-1 text-center">
           {toPrecision(
@@ -1068,11 +1535,260 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
   );
 };
 
-export const GovProposal = ({ proposals }: { proposals: Proposal[] }) => {
+export const CreateGovProposal = ({
+  show,
+  setShow,
+  index,
+}: {
+  show: boolean;
+  setShow: (s: boolean) => void;
+  index: number;
+}) => {
+  const [title, setTitle] = useState<string>('');
+
+  const intl = useIntl();
+
+  const [type, setType] = useState<string>('Pool');
+
+  const [options, setOptions] = useState<string[]>([]);
+
+  const [link, setLink] = useState<string>();
+
+  const [startTime, setStartTime] = useState<string>();
+  const [endTime, setEndTime] = useState<string>();
+
+  const typeList = ['Pool', 'Yes/No'];
+
+  useEffect(() => {
+    if (type === 'Yes/No') {
+      setOptions(['Yes', 'No']);
+    } else {
+      setOptions([]);
+    }
+  }, [type]);
+
+  const OptionsRender = () => {
+    const [optionValue, setOptionValue] = useState<string>('');
+
+    const [showAddOption, setShowAddOption] = useState<boolean>(false);
+
+    return (
+      <div className="flex items-center flex-wrap pt-4 pb-10">
+        {options?.map((o, i) => {
+          return (
+            <div className="flex items-center rounded-md w-28 bg-black bg-opacity-10 text-sm pl-2 pr-1 py-1 mr-4">
+              <span
+                className="rounded-full mr-2 h-2 w-2"
+                style={{
+                  backgroundColor: OPTIONS_COLORS[i],
+                }}
+              ></span>
+
+              <span className="">{o}</span>
+            </div>
+          );
+        })}
+
+        {type === 'Yes/No' ? null : (
+          <>
+            <span
+              className={
+                !showAddOption
+                  ? 'hidden'
+                  : 'flex items-center pr-1 py-1 pl-2 w-28 bg-black bg-opacity-20 text-sm mr-4 rounded-md '
+              }
+            >
+              <span
+                className="rounded-full mr-2 h-2 w-2 flex-shrink-0"
+                style={{
+                  backgroundColor: OPTIONS_COLORS[options.length || 0],
+                }}
+              ></span>
+              <input
+                value={optionValue}
+                onChange={(e) => {
+                  setOptionValue(e.target.value);
+                }}
+              />
+
+              <button
+                className="rounded-md text-lg bg-opacity-20 px-2.5 w-5 h-5 flex items-center justify-center"
+                onClick={() => {
+                  setShowAddOption(false);
+                }}
+                style={{
+                  backgroundColor: '#445867',
+                }}
+              >
+                <span>-</span>
+              </button>
+            </span>
+
+            <button
+              className=" rounded-lg text-lg bg-black bg-opacity-20 px-2.5 text-primaryText "
+              onClick={(e) => {
+                !showAddOption
+                  ? setShowAddOption(true)
+                  : optionValue?.length
+                  ? setOptions([...options, optionValue])
+                  : e.stopPropagation();
+              }}
+            >
+              +
+            </button>
+          </>
+        )}
+      </div>
+    );
+  };
+
+  return !show ? null : (
+    <div className="text-white">
+      <div className="text-center relative text-xl pb-7">
+        <FormattedMessage
+          id="create_a_proposal"
+          defaultMessage={'Create A Proposal'}
+        />
+
+        <button
+          className="absolute left-0 top-2 text-sm text-primaryText flex items-center"
+          onClick={() => setShow(false)}
+        >
+          <span className="transform scale-50">
+            {<LeftArrowVE stroke="#7E8A93" strokeWidth={2} />}
+          </span>
+          <span className="ml-1">
+            <FormattedMessage id="back" defaultMessage={'Back'} />
+          </span>
+        </button>
+      </div>
+
+      <Card
+        className="w-full"
+        bgcolor="bg-white bg-opacity-10 "
+        padding={'px-6 py-9'}
+      >
+        <div className="pb-3 border-b border-white border-opacity-10 px-2 pt-8 text-primaryText text-xl">
+          <input
+            value={title}
+            maxLength={100}
+            placeholder={intl.formatMessage({
+              id: 'proposal_title',
+              defaultMessage: 'Proposal Title',
+            })}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </div>
+
+        <div className="text-xs text-primaryText text-right pt-2.5">
+          {title?.length || 0}/100
+        </div>
+
+        <div className="flex items-center">
+          <span>
+            <FormattedMessage id="type" defaultMessage={'Type'} />
+          </span>
+
+          <SelectUI
+            curvalue={type}
+            list={typeList}
+            onChange={setType}
+            size={'text-sm'}
+            className={'ml-2'}
+          />
+        </div>
+
+        <OptionsRender />
+
+        <div className="pb-4">
+          <FormattedMessage
+            id="voting_period"
+            defaultMessage={'Voting Period'}
+          />
+          (UTC)
+        </div>
+
+        <div className="flex items-center">
+          <div className="rounded-lg bg-black bg-opacity-10 py-2 px-3"></div>{' '}
+          <span className="mx-4">-</span>
+          <div className="rounded-lg bg-black bg-opacity-10 py-2 px-3"></div>
+        </div>
+
+        <div className="pb-4 pt-10">
+          <FormattedMessage
+            id="forum_discussion"
+            defaultMessage={'Forum Discussion'}
+          />
+        </div>
+        <div className='border-b border-white border-opacity-10 pb-6 mb-6"'>
+          <div className="w-full text-sm text-primaryText px-5 bg-black bg-opacity-20 py-2 flex items-center rounded-lg ">
+            <span className="text-white mr-3">↗</span>
+
+            <input
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+              placeholder={intl.formatMessage({
+                id: 'share_forum_discussion_link_here',
+                defaultMessage: 'Share forum discussion link here',
+              })}
+              className="w-full"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end pt-6">
+          <BorderGradientButton
+            text={<FormattedMessage id="preview" defaultMessage={'Previewe'} />}
+            color={'#192734'}
+          />
+
+          <NewGradientButton
+            text={<FormattedMessage id="create" defaultMessage={'Create'} />}
+            disabled={!title || !link || options?.length < 1}
+            onClick={() => {
+              createProposal({
+                description: {
+                  title: `#${index} ${title}`,
+                  link,
+                },
+                kind: type === 'Pool' ? 'Poll' : 'Common',
+                options,
+                duration_sec: 3600, // TODO:
+              });
+            }}
+            className="ml-4"
+          />
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+export const GovProposal = ({
+  proposals,
+  setShowCreateProposal,
+  showDetail,
+  setShowDetail,
+}: {
+  proposals: Proposal[];
+  setShowCreateProposal: (s: boolean) => void;
+  showDetail: number;
+  setShowDetail: (s: number) => void;
+}) => {
   const VotedOnlyKey = 'REF_FI_GOV_PROPOSAL_VOTED_ONLY';
   const [votedOnly, setVotedOnly] = useState<boolean>(
     localStorage.getItem(VotedOnlyKey)?.toString() === '1' || false
   );
+
+  const VEmeta = useVEmeta();
+
+  const voteHistory = useVoteDetailHisroty();
+
+  const voteDetail = useVoteDetail();
+
+  console.log(voteDetail, 'vote detai');
+
+  console.log(voteHistory, 'vote history');
 
   const [state, setState] = useState<'All' | 'Live' | 'Ended' | 'Pending'>(
     'All'
@@ -1086,28 +1802,68 @@ export const GovProposal = ({ proposals }: { proposals: Proposal[] }) => {
 
   return (
     <div className="flex flex-col text-white text-sm">
-      <div className="flex items-center justify-end pb-6">
-        <span className="text-xs text-primaryText">
-          <FormattedMessage id="voted_only" defaultMessage={'Voted only'} />
-        </span>
+      {showDetail ? null : (
+        <div className="flex items-center justify-end pb-6 relative">
+          {!VEmeta?.whitelisted_accounts?.includes(
+            getCurrentWallet().wallet.getAccountId()
+          ) ? null : (
+            <div className="absolute left-0">
+              <BorderGradientButton
+                text={
+                  <FormattedMessage
+                    id="create_proposal"
+                    defaultMessage={'Create Proposal'}
+                  />
+                }
+                onClick={() => {
+                  setShowCreateProposal(true);
+                }}
+                color="#182430"
+              />
+            </div>
+          )}
 
-        <CustomSwitch
-          isOpen={votedOnly}
-          setIsOpen={setVotedOnly}
-          storageKey={VotedOnlyKey}
-        />
+          <span className="text-xs text-primaryText">
+            <FormattedMessage id="voted_only" defaultMessage={'Voted only'} />
+          </span>
 
-        <SelectUI
-          curvalue={state}
-          list={['All', 'Live', 'Ended', 'Pending']}
-          onChange={setState}
-        />
-      </div>
+          <CustomSwitch
+            isOpen={votedOnly}
+            setIsOpen={setVotedOnly}
+            storageKey={VotedOnlyKey}
+          />
 
-      <div>
-        {proposals?.map((p) => (
-          <GovProposalItem status={proposalStatus[p.status]} proposal={p} />
-        ))}
+          <SelectUI
+            curvalue={state}
+            list={['All', 'Live', 'Ended', 'Pending']}
+            onChange={setState}
+            className="ml-6"
+          />
+        </div>
+      )}
+
+      <div className="flex flex-col">
+        {proposals
+          ?.filter((p) => state === 'All' || proposalStatus[p.status] === state)
+          .filter(
+            (p) =>
+              !votedOnly ||
+              Object.keys(voteDetail)
+                .concat(Object.keys(voteHistory))
+                .includes(p.id.toString())
+          )
+          ?.map((p) => (
+            <GovProposalItem
+              VEmeta={VEmeta}
+              status={proposalStatus[p.status]}
+              proposal={p}
+              description={JSON.parse(p.kind.Poll.description)}
+              showDetail={showDetail}
+              setShowDetail={setShowDetail}
+              voteHistory={voteHistory}
+              voteDetail={voteDetail}
+            />
+          ))}
       </div>
     </div>
   );
@@ -1122,7 +1878,9 @@ export const ProposalCard = () => {
 
   const [proposals, setProposals] = useState<Proposal[]>();
 
-  console.log(proposals);
+  const [showCreateProposal, setShowCreateProposal] = useState<boolean>(false);
+
+  const [showDetail, setShowDetail] = useState<number>();
 
   useEffect(() => {
     getProposalList().then((list: Proposal[]) => {
@@ -1157,11 +1915,22 @@ export const ProposalCard = () => {
         show={curTab === PROPOSAL_TAB.GOV}
         bgcolor={'bg-veCardGradient'}
       >
-        <GovProposal
-          proposals={proposals?.filter(
-            (p) => !Object.keys(p.kind).includes('FarmingReward')
-          )}
-        />
+        {showCreateProposal ? (
+          <CreateGovProposal
+            show={showCreateProposal}
+            setShow={setShowCreateProposal}
+            index={proposals?.length || 0}
+          />
+        ) : (
+          <GovProposal
+            proposals={proposals?.filter(
+              (p) => !Object.keys(p.kind).includes('FarmingReward')
+            )}
+            setShowCreateProposal={setShowCreateProposal}
+            showDetail={showDetail}
+            setShowDetail={setShowDetail}
+          />
+        )}
       </ProposalWrapper>
     </div>
   );

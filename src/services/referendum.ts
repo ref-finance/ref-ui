@@ -14,6 +14,7 @@ import {
   checkTokenNeedsStorageDeposit_ve,
 } from './farm';
 import { storageDepositAction } from './creators/storage';
+import moment from 'moment';
 export interface LockOptions {
   token_id: string;
   amount: string;
@@ -35,7 +36,13 @@ export interface Proposal {
       farm_list: string[];
       total_reward: number;
     };
-    description?: string | string[];
+    Poll?: {
+      description?: string;
+      options?: string[];
+    };
+    Common?: {
+      description?: string;
+    };
   };
   votes: string[];
   start_at: string;
@@ -55,6 +62,11 @@ export interface VoteDetail {
       VotePoll?: { poll_id: number };
     };
   };
+}
+
+export interface Description {
+  title: string;
+  link: string;
 }
 
 export interface VEConfig {
@@ -175,6 +187,44 @@ export const cancelVote = async ({ proposal_id }: { proposal_id: number }) => {
   return executeMultipleTransactions(transactions);
 };
 
+export const createProposal = async ({
+  description,
+  duration_sec,
+  kind,
+  options,
+}: {
+  description: Description;
+  duration_sec: number;
+  kind: 'Poll' | 'Common';
+  options: string[];
+}) => {
+  const args = {
+    kind: {
+      [kind]: {
+        description: JSON.stringify(description),
+        options,
+      },
+    },
+    start_at: moment().unix() + 86520,
+    duration_sec,
+  };
+  console.log(args);
+  const transactions: Transaction[] = [
+    {
+      receiverId: REF_VE_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'create_proposal',
+          args,
+          amount: ONE_YOCTO_NEAR,
+          gas: '180000000000000',
+        },
+      ],
+    },
+  ];
+  return executeMultipleTransactions(transactions);
+};
+
 export const getProposalList = () => {
   return refVeViewFunction({
     methodName: 'list_proposals',
@@ -267,6 +317,31 @@ export const VotePoll = async ({
                 poll_id: index,
               },
             },
+          },
+          gas: '180000000000000',
+        },
+      ],
+    },
+  ];
+  return executeMultipleTransactions(transactions);
+};
+
+export const VoteCommon = async ({
+  proposal_id,
+  action,
+}: {
+  proposal_id: number;
+  action: 'VoteApprove' | 'VoteReject';
+}) => {
+  const transactions: Transaction[] = [
+    {
+      receiverId: REF_VE_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'action_proposal',
+          args: {
+            proposal_id,
+            action,
           },
           gas: '180000000000000',
         },

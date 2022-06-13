@@ -8,7 +8,11 @@ import {
 } from '../services/ft-contract';
 import { REF_VE_CONTRACT_ID } from '../services/near';
 import { toNonDivisibleNumber } from '../utils/numbers';
-import { VoteDetail, getAccountInfo } from '../services/referendum';
+import {
+  VoteDetail,
+  getAccountInfo,
+  getVoteDetailHistory,
+} from '../services/referendum';
 import { AccountInfo } from '../pages/ReferendumPage';
 import {
   getVEConfig,
@@ -176,6 +180,15 @@ export const useVoteDetail = () => {
     getVoteDetail().then(setDetail);
   }, []);
   return detail;
+};
+
+export const useVoteDetailHisroty = () => {
+  const [detailHistory, setDetailHistory] = useState<VoteDetail>();
+  useEffect(() => {
+    getVoteDetailHistory().then(setDetailHistory);
+  }, []);
+
+  return detailHistory;
 };
 
 export const useAccountInfo = () => {

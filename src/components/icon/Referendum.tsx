@@ -254,7 +254,13 @@ export const LOVE_ICON = () => {
   );
 };
 
-export const LeftArrowVE = ({ stroke }: { stroke?: string }) => {
+export const LeftArrowVE = ({
+  stroke,
+  strokeWidth,
+}: {
+  stroke?: string;
+  strokeWidth?: number;
+}) => {
   return (
     <svg
       width="27"
@@ -266,6 +272,7 @@ export const LeftArrowVE = ({ stroke }: { stroke?: string }) => {
       <path
         d="M27 9L1.37143 9M8.8 17L0.999998 9L8.8 1"
         stroke={stroke || 'black'}
+        strokeWidth={strokeWidth || 1}
       />
     </svg>
   );
@@ -414,7 +421,8 @@ export const VE_ICON = () => {
   );
 };
 
-export const NO_RESULT_CHART = () => {
+export const NO_RESULT_CHART = ({ expand }: { expand?: string }) => {
+  console.log(expand);
   return (
     <svg
       width="125"
@@ -422,6 +430,7 @@ export const NO_RESULT_CHART = () => {
       viewBox="0 0 125 125"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      transform={`scale(${expand || 1},${expand || 1})`}
     >
       <circle
         cx="62.5"
@@ -447,10 +456,10 @@ export const NO_RESULT_CHART = () => {
   );
 };
 
-export const NoResultChart = () => {
+export const NoResultChart = ({ expand }: { expand?: string }) => {
   return (
-    <div className="relative">
-      <NO_RESULT_CHART />
+    <div className={`relative`}>
+      <NO_RESULT_CHART expand={expand} />
       <div className="absolute right-1/2 top-1/2 text-sm text-primaryText transform translate-x-1/2 -translate-y-1/2">
         <FormattedMessage
           id="no_result_pending_proposal"
