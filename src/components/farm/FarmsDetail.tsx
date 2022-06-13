@@ -82,18 +82,17 @@ import { useDayVolume } from '../../state/pool';
 import { getPool } from '~services/indexer';
 import CalcModelBooster from '~components/farm/CalcModelBooster';
 import { get24hVolume } from '~services/indexer';
+import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import moment from 'moment';
 const ONLY_ZEROS = /^0*\.?0*$/;
-const { STABLE_POOL_IDS, FARM_LOCK_SWITCH } = getConfig();
+const { STABLE_POOL_IDS, FARM_LOCK_SWITCH, REF_VE_CONTRACT_ID } = getConfig();
 export default function FarmsDetail(props: {
   detailData: Seed;
   emptyDetailData: Function;
   tokenPriceList: any;
   loveSeed: Seed;
   boostConfig: BoostConfig;
-  user_seeds_map: Record<string, UserSeedInfo>;
-  user_unclaimed_token_meta_map: Record<string, any>;
-  user_unclaimed_map: Record<string, any>;
+  user_data: Record<string, any>;
 }) {
   const {
     detailData,
@@ -101,10 +100,13 @@ export default function FarmsDetail(props: {
     tokenPriceList,
     loveSeed,
     boostConfig,
-    user_seeds_map,
-    user_unclaimed_map,
-    user_unclaimed_token_meta_map,
+    user_data,
   } = props;
+  const {
+    user_seeds_map = {},
+    user_unclaimed_map = {},
+    user_unclaimed_token_meta_map = {},
+  } = user_data;
   const history = useHistory();
   const pool = detailData.pool;
   const { token_account_ids } = pool;
@@ -147,6 +149,31 @@ export default function FarmsDetail(props: {
     const farms = detailData.farmList;
     return farms[0].status == 'Ended';
   }
+  function getBoostMutil() {
+    if (!boostConfig) return '';
+    const { affected_seeds } = boostConfig;
+    const { seed_id } = detailData;
+    const user_seed = user_seeds_map[seed_id] || {};
+    const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
+    const base = affected_seeds[seed_id];
+    const hasUserStaked = Object.keys(user_seed).length;
+    if (base && hasUserStaked && loveSeed) {
+      const { free_amount = 0, locked_amount = 0 } = love_user_seed || {};
+      const totalStakeLoveAmount = toReadableNumber(
+        LOVE_TOKEN_DECIMAL,
+        new BigNumber(free_amount).plus(locked_amount).toFixed()
+      );
+      if (+totalStakeLoveAmount > 0) {
+        const result = new BigNumber(1)
+          .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
+          .toFixed();
+        return `x${toPrecision(result.toString(), 3)}`;
+      }
+      return '';
+    }
+    return '';
+  }
+  const seedToBeBoostStr = getBoostMutil();
   return (
     <div className={`m-auto lg:w-580px md:w-5/6 xs:w-11/12  xs:-mt-4 md:-mt-4`}>
       <div className="breadCrumbs flex items-center text-farmText text-base hover:text-white">
@@ -165,6 +192,11 @@ export default function FarmsDetail(props: {
           <span className="flex items-center text-white font-bold text-xl ml-4 xs:text-sm md:text-sm">
             {displaySymbols()}
           </span>
+          {seedToBeBoostStr ? (
+            <span className="rounded-lg text-xs text-black font-bold bg-lightGreenColor px-2 py-0.5 ml-2">
+              {seedToBeBoostStr}
+            </span>
+          ) : null}
           {isEnded() ? (
             <span className="text-farmText text-sm ml-2 relative top-0.5">
               <FormattedMessage id="ended_search"></FormattedMessage>
@@ -1418,8 +1450,6 @@ function UserTotalUnClaimBlock(props: {
   } = props;
   const [claimLoading, setClaimLoading] = useState(false);
   const { seed_id } = detailData;
-
-  const unClaimedTokenIds = Object.keys(user_unclaimed_map[seed_id] || {});
   const intl = useIntl();
   function claimReward() {
     if (claimLoading) return;
@@ -1442,6 +1472,7 @@ function UserTotalUnClaimBlock(props: {
     });
     const isEnded = detailData.farmList[0].status == 'Ended';
     const unclaimed = user_unclaimed_map[seed_id] || {};
+    const unClaimedTokenIds = Object.keys(unclaimed);
     unClaimedTokenIds?.forEach((tokenId: string) => {
       const token: TokenMetadata = user_unclaimed_token_meta_map[tokenId];
       // total price

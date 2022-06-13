@@ -138,6 +138,8 @@ module.exports = {
         newpurple: '#7F43FF',
         boosBoxColor: '#1e2c36',
         lightGreenColor: '#00FFF0',
+        purpleColor:'#BD9FFF',
+        lightPurpleColor:'rgba(126, 69, 255, 0.2)'
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

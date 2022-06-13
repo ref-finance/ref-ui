@@ -4,11 +4,12 @@ import getConfig from './services/config';
 import { TokenMetadata } from '~services/ft-contract';
 import { Farm, Seed, FarmBoost } from '~services/farm';
 import { PoolRPCView } from '~services/api';
-import { toPrecision } from './utils/numbers';
+import { BigNumber } from 'bignumber.js';
 import { STABLE_POOL_ID, STABLE_POOL_USN_ID } from './services/near';
 import moment from 'moment';
 
 const config = getConfig();
+const { REF_TOKEN_ID, XREF_TOKEN_ID, REF_FARM_BOOST_CONTRACT_ID } = getConfig();
 
 const MAX_PER_PAGE = 100;
 
@@ -95,32 +96,42 @@ const cacheFarmPools = async () => {
   );
 };
 /***boost start***/
-const boostFarmView = ({
+const contractView = ({
   methodName,
   args = {},
+  contract,
 }: {
   methodName: string;
   args?: object;
+  contract: string;
 }) => {
   return near.connection.provider
     .query({
       request_type: 'call_function',
       finality: 'final',
-      account_id: config.REF_FARM_BOOST_CONTRACT_ID,
+      account_id: contract,
       method_name: methodName,
       args_base64: Buffer.from(JSON.stringify(args)).toString('base64'),
     })
     .then(({ result }: any) => JSON.parse(Buffer.from(result).toString()));
 };
 const get_list_seeds_info = async () => {
-  return boostFarmView({
+  return contractView({
     methodName: 'list_seeds_info',
+    contract: REF_FARM_BOOST_CONTRACT_ID,
+  });
+};
+const getPrice = async () => {
+  return contractView({
+    methodName: 'get_virtual_price',
+    contract: XREF_TOKEN_ID,
   });
 };
 const get_list_seed_farms = async (seed_id: string) => {
-  return boostFarmView({
+  return contractView({
     methodName: 'list_seed_farms',
     args: { seed_id },
+    contract: REF_FARM_BOOST_CONTRACT_ID,
   });
 };
 const getPoolsByIds = async (pool_ids: string[]): Promise<PoolRPCView[]> => {
@@ -137,6 +148,37 @@ const getPoolsByIds = async (pool_ids: string[]): Promise<PoolRPCView[]> => {
       return [];
     });
 };
+const toReadableNumber = (decimals: number, number: string = '0'): string => {
+  if (!decimals) return number;
+
+  const wholeStr = number.substring(0, number.length - decimals) || '0';
+  const fractionStr = number
+    .substring(number.length - decimals)
+    .padStart(decimals, '0')
+    .substring(0, decimals);
+
+  return `${wholeStr}.${fractionStr}`.replace(/\.?0+$/, '');
+};
+async function getXrefPrice(tokenPriceList: Record<string, any>) {
+  const xrefPrice = await getPrice();
+  const xrefToRefRate = toReadableNumber(8, xrefPrice);
+  const keyList: any = Object.keys(tokenPriceList);
+  for (let i = 0; i < keyList.length; i++) {
+    const tokenPrice = tokenPriceList[keyList[i]];
+    if (keyList[i] == REF_TOKEN_ID) {
+      const price = new BigNumber(xrefToRefRate)
+        .multipliedBy(tokenPrice.price || 0)
+        .toFixed();
+      tokenPriceList[XREF_TOKEN_ID] = {
+        price,
+        symbol: 'xREF',
+        decimal: tokenPrice.decimal,
+      };
+      break;
+    }
+  }
+  return tokenPriceList;
+}
 const cacheBoost_Seed_Farms_Pools = async () => {
   // get all seeds
   const list_seeds = await get_list_seeds_info();
@@ -196,7 +238,8 @@ const cacheTokenPrices = async (): Promise<any> => {
     method: 'GET',
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  const tempMap = await res.json();
+  const tokenPriceList = await res.json();
+  const tempMap = await getXrefPrice(tokenPriceList);
   db.cacheTokenPrices(tempMap);
 };
 /***boost end***/

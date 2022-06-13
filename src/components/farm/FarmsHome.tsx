@@ -36,8 +36,6 @@ import CalcModelBooster from '~components/farm/CalcModelBooster';
 import {
   classificationOfCoins_key,
   farmClassification,
-  list_seeds_info,
-  list_seed_farms,
   list_farmer_seeds,
   get_unclaimed_rewards,
   get_unWithDraw_rewards,
@@ -79,7 +77,6 @@ import { useHistory, useLocation } from 'react-router-dom';
 import Alert from '~components/alert/Alert';
 import Loading, { BeatLoading } from '~components/layout/Loading';
 import { TokenMetadata, REF_META_DATA } from '../../services/ft-contract';
-import { getPrice } from '~services/xref';
 import { get24hVolume, getPoolsByIds } from '~services/indexer';
 import {
   getURLInfo,
@@ -94,10 +91,11 @@ import { wnearMetadata } from '../../services/wrap-near';
 import { usePoolShare } from '../../state/pool';
 import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 
-const { STABLE_POOL_IDS, REF_TOKEN_ID, XREF_TOKEN_ID, REF_VE_CONTRACT_ID } =
-  getConfig();
+const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID } = getConfig();
 const DECIMALS_XREF_REF_TRANSTER = 8;
 export default function FarmsHome(props: any) {
+  const { getDetailData, getDetailData_user_data, getDetailData_boost_config } =
+    props;
   let [user_unWithdraw_rewards, set_user_unWithdraw_rewards] = useState<
     Record<string, string>
   >({});
@@ -225,7 +223,6 @@ export default function FarmsHome(props: any) {
     useState<Record<string, any>>({});
   const [globalConfigLoading, setGlobalConfigLoading] = useState<boolean>(true);
   const [userDataLoading, setUserDataLoading] = useState<boolean>(true);
-  const { getDetailData } = props;
   const location = useLocation();
   const history = useHistory();
   /** search area options end **/
@@ -239,6 +236,7 @@ export default function FarmsHome(props: any) {
   useEffect(() => {
     if (count > 0) {
       init();
+      get_user_seeds_and_unClaimedRewards();
       console.log('定时任务走起');
     }
     const intervalId = setInterval(() => {
@@ -256,29 +254,6 @@ export default function FarmsHome(props: any) {
       console.log('love Token balance 获取到了');
     }
   }
-  async function getXrefPrice(tokenPriceList: Record<string, any>) {
-    const xrefPrice = await getPrice();
-    const xrefToRefRate = toReadableNumber(
-      DECIMALS_XREF_REF_TRANSTER,
-      xrefPrice
-    );
-    const keyList: any = Object.keys(tokenPriceList);
-    for (let i = 0; i < keyList.length; i++) {
-      const tokenPrice = tokenPriceList[keyList[i]];
-      if (keyList[i] == REF_TOKEN_ID) {
-        const price = new BigNumber(xrefToRefRate)
-          .multipliedBy(tokenPrice.price || 0)
-          .toFixed();
-        tokenPriceList[XREF_TOKEN_ID] = {
-          price,
-          symbol: 'xREF',
-          decimal: tokenPrice.decimal,
-        };
-        break;
-      }
-    }
-    setTokenPriceList(tokenPriceList);
-  }
   async function getConfig() {
     const config = await get_config();
     const data = config.booster_seeds[REF_VE_CONTRACT_ID];
@@ -286,6 +261,8 @@ export default function FarmsHome(props: any) {
     setBoostConfig(data);
     setGlobalConfigLoading(false);
     searchByCondition();
+    // for detail page
+    getDetailData_boost_config(data);
     console.log('getConfig 获取到了');
   }
   async function init() {
@@ -298,28 +275,10 @@ export default function FarmsHome(props: any) {
     list_seeds = seeds;
     list_farm = farms;
     pools = cachePools;
-    /*else {
-      const pool_ids = new Set<string>();
-      // get list seeds
-      list_seeds = await list_seeds_info();
-      // get list farms
-      const promiseList: Promise<any>[] = [];
-      list_seeds.forEach((seed: Seed) => {
-        const { seed_id } = seed;
-        promiseList.push(list_seed_farms(seed_id));
-        const poolId = getPoolIdBySeedId(seed_id);
-        if (poolId) {
-          pool_ids.add(poolId);
-        }
-      });
-      list_farm = await Promise.all(promiseList);
-      // get list pools
-      pools = await getPoolsByIds({pool_ids:Array.from(pool_ids)});
-      console.log('接口seed');
-    }*/
     // get Love seed
     list_seeds.find((seed: Seed) => {
       if (seed.seed_id == REF_VE_CONTRACT_ID) {
+        loveSeed = seed;
         setLoveSeed(seed);
       }
     });
@@ -336,7 +295,6 @@ export default function FarmsHome(props: any) {
     list_seeds = new_list_seeds;
     // get all token prices
     const tokenPriceList = await getBoostTokenPrices();
-    getXrefPrice(tokenPriceList);
     setTokenPriceList(tokenPriceList);
     // get pool apr
     getAllPoolsDayVolume(list_seeds);
@@ -386,6 +344,12 @@ export default function FarmsHome(props: any) {
       set_user_unclaimed_token_meta_map(unclaimed_token_meta_datas);
       setUserDataLoading(false);
       console.log('list_farmer_seeds 获取到了');
+      // for detail page
+      getDetailData_user_data({
+        user_seeds_map: list_user_seeds,
+        user_unclaimed_token_meta_map: unclaimed_token_meta_datas,
+        user_unclaimed_map: userUncliamedRewards,
+      });
       searchByCondition();
     }
   }
@@ -482,7 +446,6 @@ export default function FarmsHome(props: any) {
       tokenPriceList,
       farm_display_List,
       loveSeed,
-      boostConfig,
     });
     searchByCondition('main');
   }
@@ -512,12 +475,10 @@ export default function FarmsHome(props: any) {
     tokenPriceList,
     farm_display_List,
     loveSeed,
-    boostConfig,
   }: {
     tokenPriceList: any;
     farm_display_List: Seed[];
     loveSeed: Seed;
-    boostConfig: BoostConfig;
   }) {
     const paramStr = getUrlParams() || '';
     if (paramStr) {
@@ -540,10 +501,6 @@ export default function FarmsHome(props: any) {
           detailData: targetFarms,
           tokenPriceList,
           loveSeed,
-          boostConfig,
-          user_seeds_map,
-          user_unclaimed_map,
-          user_unclaimed_token_meta_map,
         });
       }
     }
@@ -2142,10 +2099,6 @@ function FarmView(props: {
       detailData: seed,
       tokenPriceList,
       loveSeed,
-      boostConfig,
-      user_seeds_map,
-      user_unclaimed_map,
-      user_unclaimed_token_meta_map,
     });
     const poolId = getPoolIdBySeedId(seed.seed_id);
     const status = seed.farmList[0].status == 'Ended' ? 'e' : 'r';
@@ -2269,7 +2222,7 @@ function FarmView(props: {
               {error ? <Alert level="warn" message={error.message} /> : null}
             </div>
             {isPending() ? (
-              <div className="farmStatus pending status-bar">
+              <div className="absolute left-2.5 top-2 text-purpleColor text-xs bg-lightPurpleColor rounded-3xl px-2 py-0.5">
                 <FormattedMessage id="comimg" defaultMessage="COMING" />
               </div>
             ) : null}
