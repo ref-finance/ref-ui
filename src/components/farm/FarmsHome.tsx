@@ -630,7 +630,7 @@ export default function FarmsHome(props: any) {
         } else {
           condition1 = false;
         }
-      } else if (status == 'others') {
+      } else if (status == 'others' && boostConfig) {
         // others
         const affected_seeds_keys = Object.keys(
           boostConfig?.affected_seeds || []
@@ -671,7 +671,9 @@ export default function FarmsHome(props: any) {
       const { pool, seed_id } = seed;
       const { token_symbols } = pool;
       let condition1;
-      if (status == 'boost' && boostConfig) {
+      if (status == 'live') {
+        condition1 = true;
+      } else if (status == 'boost' && boostConfig) {
         const affected_seeds_keys = Object.keys(boostConfig.affected_seeds);
         if (affected_seeds_keys.indexOf(seed_id) > -1) {
           condition1 = true;
@@ -694,7 +696,7 @@ export default function FarmsHome(props: any) {
         } else {
           condition1 = false;
         }
-      } else if (status == 'others') {
+      } else if (status == 'others' && boostConfig) {
         // others
         const affected_seeds_keys = Object.keys(
           boostConfig?.affected_seeds || []
@@ -941,10 +943,8 @@ export default function FarmsHome(props: any) {
                   changeStatus(item);
                 }}
                 key={item}
-                className={`flex flex-grow justify-center items-center h-9 px-3 rounded-lg text-sm cursor-pointer ${
-                  status == item
-                    ? 'bg-farmV2TabColor text-white'
-                    : 'text-farmText'
+                className={`flex flex-grow justify-center mx-1 items-center h-9 px-3 rounded-lg text-sm hover:bg-cardBg cursor-pointer ${
+                  status == item ? 'bg-cardBg text-white' : 'text-farmText'
                 }`}
               >
                 <label className={`mr-1 ${status == item ? '' : 'opacity-40'}`}>
@@ -985,8 +985,8 @@ export default function FarmsHome(props: any) {
             const value = sortList[item];
             return (
               <div
-                className={`flex items-center justify-between rounded-lg text-primaryText px-3 py-0.5 ml-2 cursor-pointer hover:bg-cardBg text-xs ${
-                  sort == item ? 'bg-cardBg' : 'opacity-50'
+                className={`flex items-center justify-between rounded-lg h-9  px-3 py-0.5 ml-2 cursor-pointer hover:bg-cardBg text-xs ${
+                  sort == item ? 'bg-cardBg text-white' : 'text-farmText'
                 }`}
                 key={index}
                 onClick={() => {
@@ -994,9 +994,6 @@ export default function FarmsHome(props: any) {
                 }}
               >
                 {value}
-                <span className="ml-1.5">
-                  <ArrowDown></ArrowDown>
-                </span>
               </div>
             );
           })}
@@ -1010,7 +1007,8 @@ export default function FarmsHome(props: any) {
             <div className="flex flex-col w-full justify-center items-center mt-20 xs:mt-8 md:mt-8">
               <NoDataIcon />
               <span className="text-farmText text-base mt-4 text-center w-48">
-                {(status == 'boost' && globalConfigLoading) ||
+                {((status == 'boost' || status == 'others') &&
+                  globalConfigLoading) ||
                 (status == 'my' && isSignedIn && userDataLoading) ? (
                   'Loading ...'
                 ) : (
