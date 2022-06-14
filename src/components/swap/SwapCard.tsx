@@ -518,6 +518,8 @@ export default function SwapCard(props: {
   tokenInAmount: string;
   setTokenInAmount: (value: string) => void;
 }) {
+  const reserveTypeStorageKey = 'REF_FI_RESERVE_TYPE';
+
   const { allTokens, swapMode, stablePools, tokenInAmount, setTokenInAmount } =
     props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
@@ -525,7 +527,8 @@ export default function SwapCard(props: {
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
 
   const [reservesType, setReservesType] = useState<STABLE_POOL_TYPE>(
-    STABLE_POOL_TYPE.USD
+    STABLE_POOL_TYPE[localStorage.getItem(reserveTypeStorageKey)] ||
+      STABLE_POOL_TYPE.USD
   );
 
   const [supportLedger, setSupportLedger] = useState(
@@ -576,14 +579,19 @@ export default function SwapCard(props: {
 
   useEffect(() => {
     if (!tokenIn || !tokenOut) return;
-    if (BTCIDS.includes(tokenIn.id) && BTCIDS.includes(tokenOut.id))
+    if (BTCIDS.includes(tokenIn.id) && BTCIDS.includes(tokenOut.id)) {
       setReservesType(STABLE_POOL_TYPE.BTC);
-    else if (
+      localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.BTC);
+    } else if (
       STNEARIDS.concat(LINEARIDS).includes(tokenIn.id) &&
       STNEARIDS.concat(LINEARIDS).includes(tokenOut.id)
     ) {
       setReservesType(STABLE_POOL_TYPE.NEAR);
-    } else setReservesType(STABLE_POOL_TYPE.USD);
+      localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.NEAR);
+    } else {
+      setReservesType(STABLE_POOL_TYPE.USD);
+      localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.USD);
+    }
   }, [tokenIn, tokenOut]);
 
   useEffect(() => {
