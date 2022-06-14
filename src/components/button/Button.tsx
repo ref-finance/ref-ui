@@ -633,15 +633,16 @@ export function CheckRadioButtonVE({
   );
 }
 
-export function GreenConnectToNearBtn() {
+export function GreenConnectToNearBtn(props: any) {
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+  const { className } = props;
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);
 
   return (
     <>
       <div
-        className={`flex items-center cursor-pointer w-full justify-center rounded-lg py-0.5 text-base bg-lightGreenColor ${
+        className={`flex items-center cursor-pointer w-full justify-center rounded-full py-1 text-sm text-black bg-darkGreenColor hover:bg-lightGreenColor ${className} ${
           buttonLoading ? 'opacity-40' : ''
         }`}
         onClick={(e) => {
@@ -651,13 +652,16 @@ export function GreenConnectToNearBtn() {
           setShowWalletSelector(true);
         }}
       >
+        <span className="mr-2">
+          <UnLoginIcon width="15" height="13" color="#000" />
+        </span>
         <button>
           <ButtonTextWrapper
             loading={buttonLoading}
             Text={() => (
               <FormattedMessage
-                id="connect_to_near"
-                defaultMessage="Connect to NEAR"
+                id="connect_to_wallet"
+                defaultMessage="Connect Wallet"
               />
             )}
           />

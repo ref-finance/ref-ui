@@ -2736,3 +2736,21 @@ export const BoostRightArrowIcon = function () {
     </svg>
   );
 };
+export const DirectionButton = function (props: any) {
+  const { className } = props;
+  return (
+    <div
+      className={`flex items-center justify-center w-3.5 h-3.5 rounded-full bg-farmText ${className}`}
+    >
+      <svg
+        width="8"
+        height="5"
+        viewBox="0 0 8 5"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M1 4L4 1L7 4" stroke="#172128" strokeLinecap="round" />
+      </svg>
+    </div>
+  );
+};

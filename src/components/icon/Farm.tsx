@@ -2484,11 +2484,12 @@ const Light = () => {
   );
 };
 
-const UnLoginIcon = () => {
+const UnLoginIcon = (props: any) => {
+  const { width, height, color } = props;
   return (
     <svg
-      width="27"
-      height="23"
+      width={width || '27'}
+      height={height || '23'}
       viewBox="0 0 27 23"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -2497,7 +2498,7 @@ const UnLoginIcon = () => {
         fillRule="evenodd"
         clipRule="evenodd"
         d="M4.26316 4.74654V18.4045L11.3684 13.1863L12.0789 13.7988L6.12071 22.0476C3.9069 24.0438 0 22.6932 0 19.9315V3.06842C0 0.212095 4.13563 -1.08895 6.27008 1.09588L22.7368 17.9513V4.85377L16.3421 9.51153L15.6316 8.89907L20.6994 1.19909C22.8146 -1.02619 27 0.263066 27 3.13991V19.6294C27 22.4857 22.8644 23.7868 20.7299 21.602L4.26316 4.74654Z"
-        fill="white"
+        fill={color || 'white'}
       />
     </svg>
   );

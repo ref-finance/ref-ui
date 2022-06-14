@@ -139,7 +139,8 @@ module.exports = {
         boosBoxColor: '#1e2c36',
         lightGreenColor: '#00FFF0',
         purpleColor:'#BD9FFF',
-        lightPurpleColor:'rgba(126, 69, 255, 0.2)'
+        lightPurpleColor:'rgba(126, 69, 255, 0.2)',
+        darkGreenColor:"#00CEC2",
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

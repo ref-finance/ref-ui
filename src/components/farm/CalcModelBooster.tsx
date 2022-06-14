@@ -498,7 +498,7 @@ export function CalcEle(props: {
   }
   function getRate() {
     if (accountType == 'free') {
-      return `x ${toPrecision(seedRadio, 3)}`;
+      return `x ${toPrecision(seedRadio, 2)}`;
     } else if (accountType == 'cd') {
       return `${
         selecteDate?.rate?.toString()
@@ -514,8 +514,7 @@ export function CalcEle(props: {
     const user_seed = user_seeds_map[seed_id] || {};
     const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
     const base = affected_seeds[seed_id];
-    const hasUserStaked = Object.keys(user_seed).length;
-    if (base && hasUserStaked && loveSeed) {
+    if (base && loveSeed) {
       const { free_amount = 0, locked_amount = 0 } = love_user_seed || {};
       const totalStakeLoveAmount = toReadableNumber(
         booster_decimal,

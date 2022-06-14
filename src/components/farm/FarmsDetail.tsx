@@ -157,7 +157,7 @@ export default function FarmsDetail(props: {
     const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
     const base = affected_seeds[seed_id];
     const hasUserStaked = Object.keys(user_seed).length;
-    if (base && hasUserStaked && loveSeed) {
+    if (base && loveSeed) {
       const { free_amount = 0, locked_amount = 0 } = love_user_seed || {};
       const totalStakeLoveAmount = toReadableNumber(
         LOVE_TOKEN_DECIMAL,
@@ -167,13 +167,22 @@ export default function FarmsDetail(props: {
         const result = new BigNumber(1)
           .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
           .toFixed();
-        return `x${toPrecision(result.toString(), 3)}`;
+        return (
+          <div
+            className={`rounded-lg text-xs  font-bold px-2 py-0.5 ml-2 ${
+              hasUserStaked
+                ? 'bg-lightGreenColor text-black'
+                : 'text-farmText border border-farmText'
+            }`}
+          >
+            {`x${toPrecision(result.toString(), 2)}`}
+          </div>
+        );
       }
       return '';
     }
     return '';
   }
-  const seedToBeBoostStr = getBoostMutil();
   return (
     <div className={`m-auto lg:w-580px md:w-5/6 xs:w-11/12  xs:-mt-4 md:-mt-4`}>
       <div className="breadCrumbs flex items-center text-farmText text-base hover:text-white">
@@ -183,27 +192,23 @@ export default function FarmsDetail(props: {
         </label>
       </div>
       <div
-        className={`flex justify-between items-center mt-7 xs:mt-4 md:mt-4 xs:flex-col md:flex-col xs:items-start md:items-start ${
+        className={`flex justify-between items-center mt-4 flex-wrap ${
           isEnded() ? 'farmEnded' : ''
         }`}
       >
-        <div className="left flex items-center h-11 ml-3">
+        <div className="left flex items-center h-11 ml-3 mt-3">
           <span className="flex">{displayImgs()}</span>
           <span className="flex items-center text-white font-bold text-xl ml-4 xs:text-sm md:text-sm">
             {displaySymbols()}
           </span>
-          {seedToBeBoostStr ? (
-            <span className="rounded-lg text-xs text-black font-bold bg-lightGreenColor px-2 py-0.5 ml-2">
-              {seedToBeBoostStr}
-            </span>
-          ) : null}
           {isEnded() ? (
-            <span className="text-farmText text-sm ml-2 relative top-0.5">
+            <span className="text-farmText text-sm ml-2 relative top-0.5 xs:top-0 md:xs-0">
               <FormattedMessage id="ended_search"></FormattedMessage>
             </span>
           ) : null}
+          {getBoostMutil()}
         </div>
-        <div className="flex items-center" onClick={goPoolPage}>
+        <div className="flex items-center mt-3" onClick={goPoolPage}>
           <label className="mx-2 text-sm text-primaryText hover:text-framBorder cursor-pointer">
             <FormattedMessage id="get_lp_token"></FormattedMessage>
           </label>
@@ -577,12 +582,12 @@ function StakeContainer(props: {
   return (
     <div className="mt-5">
       <div
-        className={`poolbaseInfo flex items-center justify-between ${
+        className={`poolbaseInfo flex items-center xs:flex-col md:flex-col justify-between ${
           isEnded() ? 'farmEnded' : ''
         }`}
       >
         <div
-          className="flex flex-col items-start justify-between bg-cardBg rounded-lg py-3.5 px-5 flex-grow mr-3.5"
+          className="flex flex-col items-start justify-between bg-cardBg rounded-lg py-3.5 px-5 flex-grow mr-3.5 xs:mr-0 md:mr-0  xs:w-full md:w-full"
           style={{ height: '85px' }}
         >
           <div className="flex items-center justify-between w-full">
@@ -634,7 +639,7 @@ function StakeContainer(props: {
           </div>
         </div>
         <div
-          className="flex flex-col items-start  justify-between bg-cardBg rounded-lg py-3.5 px-5 flex-grow"
+          className="flex flex-col items-start  justify-between bg-cardBg rounded-lg py-3.5 px-5 flex-grow xs:mt-4 md:mt-4 xs:w-full md:w-full"
           style={{ height: '85px' }}
         >
           <span className="text-farmText text-sm">
@@ -750,8 +755,8 @@ function AddLiquidityEntryBar(props: {
       style={{ backgroundColor: 'rgba(29, 41, 50, 0.5)' }}
     >
       <div className="w-full bg-gradientFrom h-1.5"></div>
-      <div className="flex items-center justify-center pt-5 pb-3 px-3">
-        <p className="text-sm text-white">
+      <div className="flex items-center justify-center pt-5 pb-3 px-3 xs:flex-col md:flex-col">
+        <p className="text-sm text-white xs:mb-3 md:mb-3">
           <FormattedMessage id="add_lp_tokens_tip" />
         </p>
         <GradientButton
@@ -1640,7 +1645,7 @@ function UserStakeBlock(props: {
   function showLpAmount() {
     const totalSharesBigNumber = new BigNumber(userTotalStake);
     if (totalSharesBigNumber.isEqualTo(0)) {
-      return '-';
+      return isSignedIn ? <label className="opacity-50">0.000</label> : '-';
     } else if (totalSharesBigNumber.isLessThan('0.001')) {
       return '<0.001';
     } else {
@@ -1840,9 +1845,9 @@ function UserStakeBlock(props: {
       <div className={`stakeEntryArea ${!isSignedIn ? 'hidden' : ''}`}>
         <div className="pt-5 mt-5 borde border-dashed border-dashBorderColor border-t-2 border-opacity-20">
           {min_locking_duration_sec == 0 || FARM_LOCK_SWITCH == 0 ? (
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center xs:flex-col md:flex-col">
               {Number(lpBalance) == 0 || isEnded ? null : (
-                <div className="flex justify-center text-farmText text-sm">
+                <div className="flex justify-center text-farmText text-sm xs:mb-3 md:mb-3">
                   <FormattedMessage id="you_have" />{' '}
                   <label className="text-white mx-1">
                     {displayLpBalance()}

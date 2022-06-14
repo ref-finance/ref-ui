@@ -18,6 +18,7 @@ import {
   LoveIcon,
   LoveTokenIcon,
   BoostRightArrowIcon,
+  DirectionButton,
 } from '~components/icon/FarmBoost';
 import {
   GradientButton,
@@ -104,15 +105,10 @@ export default function FarmsHome(props: any) {
   let [farm_display_ended_List, set_farm_display_ended_List] = useState<any>(
     []
   );
-
   const { globalState } = useContext(WalletContext);
-
   const isSignedIn = globalState.isSignedIn;
-
   const [popUp, setPopUp] = useState(false);
-
   const { txHash, pathname, errorType } = getURLInfo();
-
   useEffect(() => {
     if (txHash && isSignedIn && popUp) {
       checkTransaction(txHash)
@@ -223,6 +219,7 @@ export default function FarmsHome(props: any) {
     useState<Record<string, any>>({});
   const [globalConfigLoading, setGlobalConfigLoading] = useState<boolean>(true);
   const [userDataLoading, setUserDataLoading] = useState<boolean>(true);
+  const [boostInstructions, setBoostInstructions] = useState<boolean>(false);
   const location = useLocation();
   const history = useHistory();
   /** search area options end **/
@@ -411,7 +408,6 @@ export default function FarmsHome(props: any) {
           seedTvl == 0
             ? 0
             : (Number(readableNumber) * 360 * reward_token_price) / seedTvl;
-        // farm.apr = toPrecision(apr.toString(), 2);
         farm.apr = apr.toString();
       });
       newSeed.pool = pool;
@@ -832,12 +828,15 @@ export default function FarmsHome(props: any) {
       loveStakedAmount = toReadableNumber(LOVE_TOKEN_DECIMAL, totalAmount);
     }
     if (!loveStakedAmount || +loveStakedAmount == 0) {
-      return '-';
+      return isSignedIn ? <label className="opacity-50">0.000</label> : '-';
     } else if (new BigNumber(loveStakedAmount).isLessThan(0.001)) {
       return '<0.001';
     } else {
       return toPrecision(loveStakedAmount, 3);
     }
+  }
+  function switchStatus() {
+    setBoostInstructions(!boostInstructions);
   }
   const endFarmLength = useMemo(() => {
     return getFarmVisibleLength();
@@ -846,18 +845,19 @@ export default function FarmsHome(props: any) {
   return (
     <div className={`${getUrlParams() ? 'hidden' : ''}`}>
       <div
-        className="relative flex items-center justify-center mb-5 xs:flex-col md:flex-col"
+        className="relative flex items-center justify-center mb-5 xs:mb-3 md:mb-3 xs:flex-col md:flex-col xs:bg-cardBg md:bg-cardBg"
         style={{
           height: isMobileSite ? '' : '250px',
-          backgroundImage:
-            'linear-gradient(270deg, #001320 0%, #1D2932 95.06%)',
+          backgroundImage: isMobileSite
+            ? ''
+            : 'linear-gradient(270deg, #001320 0%, #1D2932 95.06%)',
         }}
       >
         <span className="absolute left-0 top-0 h-full overflow-hidden xs:hidden md:hidden">
           <BannerBgLeft />
         </span>
         <div className="relative h-full  flex justify-between items-center lg:w-2/3 xs:w-full md:w-full pt-5 pb-3 xs:pb-0 md:pb-0">
-          <div className="lg:w-2/5 md:w-1/2 xs:w-full xs:px-2 md:px-2 xs:pt-2 md:pt-2">
+          <div className="lg:w-2/5 md:w-1/2 xs:w-full xs:px-3 md:px-3 xs:pt-2 md:pt-2">
             <div className="title flex justify-between items-center text-3xl text-white xs:-mt-4 md:-mt-4">
               <FormattedMessage id="farms"></FormattedMessage>
               <div className="flex items-center justify-between h-7 rounded-2xl bg-farmSbg p-0.5">
@@ -890,7 +890,7 @@ export default function FarmsHome(props: any) {
         <span className="absolute right-0 top-0 h-full overflow-hidden xs:hidden md:hidden">
           <BannerBgRight />
         </span>
-        <div className="flex items-center justify-between w-full mt-2 lg:hidden px-2 mb-3">
+        <div className="flex items-center justify-between w-full mt-2 lg:hidden px-3 mb-3">
           <div
             className="flex items-center justify-between px-4 h-9 py-1 bg-farmSbg rounded-lg bg-opacity-50"
             style={{
@@ -917,30 +917,32 @@ export default function FarmsHome(props: any) {
             <label className="text-farmText text-xs mr-2 whitespace-nowrap xs:hidden md:hidden">
               <FormattedMessage id="sort_by" defaultMessage="Sort by" />
             </label>
-            <span className="text-farmText">
+            <span className="text-farmText mr-1">
               <SortIcon></SortIcon>
             </span>
-            {Object.keys(sortList).map((item, index) => {
-              const value = sortList[item];
-              return (
-                <div
-                  className={`flex items-center justify-between rounded-lg h-9 px-3 py-0.5 cursor-pointer text-xs ${
-                    sort == item ? 'text-white' : 'text-farmText'
-                  }`}
-                  key={index}
-                  onClick={() => {
-                    changeSort(item);
-                  }}
-                >
-                  {value}
-                </div>
-              );
-            })}
+            <div className="flex items-center bg-farmSbg bg-opacity-50 rounded-lg p-1 h-9">
+              {Object.keys(sortList).map((item, index) => {
+                const value = sortList[item];
+                return (
+                  <div
+                    className={`flex items-center justify-between rounded-lg px-2 h-full py-0.5 cursor-pointer text-xs ${
+                      sort == item ? 'bg-cardBg text-white' : 'text-farmText'
+                    }`}
+                    key={index}
+                    onClick={() => {
+                      changeSort(item);
+                    }}
+                  >
+                    {value}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
-      <div className="searchArea m-auto lg:w-2/3 xs:w-full md:w-full flex justify-between items-center mb-11 xs:flex-col md:flex-col xs:px-2 md:px-2">
-        <div className="flex justify-between items-center flex-wrap xs:w-full md:w-full xs:justify-start md:justify-start">
+      <div className="searchArea m-auto lg:w-2/3 xs:w-full md:w-full flex justify-between flex-wrap items-center mb-6 xs:mb-4 md:mb-4 xs:flex-col md:flex-col xs:px-3 md:px-3">
+        <div className="flex justify-between items-center flex-wrap mb-5 xs:mb-3 md:mb-3 xs:w-full md:w-full xs:justify-start md:justify-start">
           {Object.keys(statusList).map((item: string) => {
             return (
               <span
@@ -948,7 +950,7 @@ export default function FarmsHome(props: any) {
                   changeStatus(item);
                 }}
                 key={item}
-                className={`flex  justify-center mx-1 items-center h-9 px-3   rounded-lg text-sm hover:bg-cardBg cursor-pointer ${
+                className={`flex  justify-center mx-1 items-center h-9 px-3 xs:mb-2 md:mb-2 rounded-lg text-sm hover:bg-cardBg cursor-pointer ${
                   status == item ? 'bg-cardBg text-white' : 'text-farmText'
                 }`}
               >
@@ -960,7 +962,7 @@ export default function FarmsHome(props: any) {
             );
           })}
         </div>
-        <div className="flex items-center  justify-between xs:hidden md:hidden">
+        <div className="flex items-center  justify-between mb-5 xs:hidden md:hidden">
           <div
             className="flex items-center justify-between px-4 h-9 py-1 bg-searchBgColor rounded-lg mr-5"
             style={{
@@ -1027,77 +1029,100 @@ export default function FarmsHome(props: any) {
           {/* boost start */}
           {!loveSeed ? null : (
             <div
-              className={`grid grid-cols-2 xs:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 xs:gap-x-0 md:gap-x-0  m-auto lg:w-2/3 xs:w-full md:w-full xs:px-2 md:px-2 mb-9 ${
+              className={`grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 xs:gap-x-0 md:gap-x-0  m-auto lg:w-2/3 xs:w-full md:w-full xs:px-3 md:px-3 mb-9 ${
                 status != 'boost' || noData ? 'hidden' : ''
               }`}
             >
-              <div
-                className="flex justify-between col-span-2 rounded-2xl"
-                style={{
-                  backgroundImage:
-                    'linear-gradient(90deg, #7C47FD 0%, #34177C 100%)',
-                }}
-              >
-                <div className="flex flex-col justify-between  items-center pl-14 pb-16 pt-4">
-                  <span className="text-senderHot text-3xl xs:hidden md:hidden">
+              <div className="col-span-2 xs:col-span-1 md:col-span-1">
+                <div className="flex items-center justify-between lg:hidden">
+                  <span className="text-2xl text-lightGreenColor font-bold">
                     Farm Booster
                   </span>
-                  <span className="lg:hidden text-white text-sm mb-3">
-                    How to get farm booster?
+                  <span className="flex items-center" onClick={switchStatus}>
+                    <label
+                      className={`text-farmText text-sm mr-2 ${
+                        boostInstructions ? 'hidden' : ''
+                      }`}
+                    >
+                      How to get?
+                    </label>
+                    <DirectionButton
+                      className={
+                        boostInstructions ? 'transform rotate-180' : ''
+                      }
+                    ></DirectionButton>
                   </span>
-                  <div className="flex justify-center items-center">
-                    <div className="relative flex items-center justify-center mr-1.5">
-                      <span
-                        className="ball flex items-center justify-center bg-lightGreenColor text-sm text-priceBoardColor rounded-full"
-                        style={{ width: '22px', height: '22px' }}
-                      >
-                        1
-                      </span>
-                      <span
-                        onClick={() => {
-                          setShowLoveTokenModalVisible(true);
-                        }}
-                        className="absolute flex items-center justify-center text-sm text-lightGreenColor border border-lightGreenColor rounded-lg top-8 whitespace-nowrap px-5 py-1 cursor-pointer"
-                      >
-                        Get LOVE
-                      </span>
-                    </div>
-                    <div className="line w-24 h-px bg-lightGreenColor"></div>
-                    <div className="relative flex items-center justify-center mx-1.5">
-                      <span
-                        className="ball flex items-center justify-center bg-lightGreenColor text-sm text-priceBoardColor rounded-full"
-                        style={{ width: '22px', height: '22px' }}
-                      >
-                        2
-                      </span>
-                      <span
-                        onClick={() => {
-                          setLoveStakeModalVisible(true);
-                        }}
-                        className="absolute flex items-center justify-center text-sm text-lightGreenColor border border-lightGreenColor rounded-lg top-8 whitespace-nowrap px-5 py-1 cursor-pointer"
-                      >
-                        Stake LOVE
-                      </span>
-                    </div>
-                    <div className="line w-24 h-px bg-lightGreenColor"></div>
-                    <div className="relative flex items-center justify-center ml-1.5">
-                      <span
-                        className="ball flex items-center justify-center bg-lightGreenColor text-sm text-priceBoardColor rounded-full"
-                        style={{ width: '22px', height: '22px' }}
-                      >
-                        3
-                      </span>
-                      <span className="absolute flex items-center justify-center text-sm text-white rounded-lg top-8 whitespace-nowrap px-5 py-1 xs:hidden md:hidden">
-                        Get farm boost
-                      </span>
-                      <span className="absolute flex items-center justify-center text-sm text-white rounded-lg top-8 whitespace-nowrap px-5 py-1 lg:hidden">
-                        Farm boost
-                      </span>
+                </div>
+                <div
+                  className={`flex justify-between rounded-2xl xs:justify-center md:justify-center xs:mt-3 md:mt-3 ${
+                    !boostInstructions && isMobileSite ? 'hidden' : ''
+                  }`}
+                  style={{
+                    backgroundImage:
+                      'linear-gradient(90deg, #7C47FD 0%, #34177C 100%)',
+                  }}
+                >
+                  <div className="flex flex-col justify-between  items-center pl-14 pb-16 pt-4 xs:pl-0 md:pl-0">
+                    <span className="text-senderHot text-3xl xs:hidden md:hidden">
+                      Farm Booster
+                    </span>
+                    <span className="lg:hidden text-white text-sm mb-3">
+                      How to get farm booster?
+                    </span>
+                    <div className="flex justify-center items-center">
+                      <div className="relative flex items-center justify-center mr-1.5">
+                        <span
+                          className="ball flex items-center justify-center bg-lightGreenColor text-sm text-priceBoardColor rounded-full"
+                          style={{ width: '22px', height: '22px' }}
+                        >
+                          1
+                        </span>
+                        <span
+                          onClick={() => {
+                            setShowLoveTokenModalVisible(true);
+                          }}
+                          className="absolute xs:-left-8 md:-left-8 flex items-center justify-center text-sm text-lightGreenColor border border-lightGreenColor rounded-lg top-8 whitespace-nowrap px-5 py-1 cursor-pointer"
+                        >
+                          Get LOVE
+                        </span>
+                      </div>
+                      <div className="line w-32 h-px bg-lightGreenColor xs:w-24 md:w-24"></div>
+                      <div className="relative flex items-center justify-center mx-1.5">
+                        <span
+                          className="ball flex items-center justify-center bg-lightGreenColor text-sm text-priceBoardColor rounded-full"
+                          style={{ width: '22px', height: '22px' }}
+                        >
+                          2
+                        </span>
+                        <span
+                          onClick={() => {
+                            setLoveStakeModalVisible(true);
+                          }}
+                          className="absolute xs:-left-10 md:-left-10 flex items-center justify-center text-sm text-lightGreenColor border border-lightGreenColor rounded-lg top-8 whitespace-nowrap px-5 py-1 cursor-pointer"
+                        >
+                          Stake LOVE
+                        </span>
+                      </div>
+                      <div className="line w-32 h-px bg-lightGreenColor xs:w-24 md:w-24"></div>
+                      <div className="relative flex items-center justify-center ml-1.5">
+                        <span
+                          className="ball flex items-center justify-center bg-lightGreenColor text-sm text-priceBoardColor rounded-full"
+                          style={{ width: '22px', height: '22px' }}
+                        >
+                          3
+                        </span>
+                        <span className="absolute flex items-center justify-center text-sm text-white rounded-lg top-8 whitespace-nowrap px-5 py-1 xs:hidden md:hidden">
+                          Get farm boost
+                        </span>
+                        <span className="absolute flex items-center justify-center text-sm text-white rounded-lg top-8 whitespace-nowrap px-5 py-1 lg:hidden">
+                          Farm boost
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="xs:hidden md:hidden">
-                  <Flight></Flight>
+                  <div className="xs:hidden md:hidden">
+                    <Flight></Flight>
+                  </div>
                 </div>
               </div>
               <div
@@ -1228,7 +1253,7 @@ export default function FarmsHome(props: any) {
           ) : null}
 
           {/* boost end */}
-          <div className="farmListArea grid grid-cols-2 xs:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 m-auto lg:w-2/3 xs:px-2 md:px-2 xs:w-full md:w-full">
+          <div className="farmListArea grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 m-auto lg:w-2/3 xs:px-3 md:px-3 xs:w-full md:w-full">
             {farm_display_List.map((seed: Seed, index: number) => {
               return (
                 <div
@@ -1253,16 +1278,38 @@ export default function FarmsHome(props: any) {
             })}
           </div>
           <div
-            className={`${
-              endFarmLength > 0 && showEndedFarmList && status != 'my'
-                ? ''
-                : 'hidden'
-            }`}
+            className={`${endFarmLength > 0 && status != 'my' ? '' : 'hidden'}`}
           >
-            <p className="text-xl m-auto lg:w-2/3 xs:w-full md:w-full text-farmText mt-5 mb-6">
-              <FormattedMessage id="endedFarms"></FormattedMessage>
-            </p>
-            <div className="farmListArea grid grid-cols-2 xs:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 m-auto lg:w-2/3 xs:w-full md:w-full xs:px-2 md:px-2">
+            <div
+              className={`flex items-center ${
+                showEndedFarmList ? 'justify-between' : 'justify-end'
+              } m-auto lg:w-2/3 xs:w-full md:w-full my-10 xs:my-8 md:my-8 xs:px-3 md:px-3`}
+            >
+              <p
+                className={`text-xl text-farmText ${
+                  showEndedFarmList ? '' : 'hidden'
+                }`}
+              >
+                <FormattedMessage id="endedFarms"></FormattedMessage>
+              </p>
+              <div
+                onClick={switchEndedFarmListDisplayStatus}
+                className="flex items-center justify-center text-xs text-farmText cursor-pointer"
+              >
+                <ArrowDownIcon
+                  className={showEndedFarmList ? 'transform rotate-180' : ''}
+                ></ArrowDownIcon>
+                <a className="text-xs text-greenColor mx-1">
+                  {showEndedFarmList ? 'Hidden' : 'Show'}
+                </a>
+                the {endFarmLength} ended farms
+              </div>
+            </div>
+            <div
+              className={`farmListArea grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 m-auto lg:w-2/3 xs:w-full md:w-full xs:px-3 md:px-3 ${
+                showEndedFarmList ? '' : 'hidden'
+              }`}
+            >
               {farm_display_ended_List.map((seed: Seed, index: number) => {
                 return (
                   <div
@@ -1287,25 +1334,6 @@ export default function FarmsHome(props: any) {
               })}
             </div>
           </div>
-          {endFarmLength > 0 && status != 'my' ? (
-            <div
-              onClick={switchEndedFarmListDisplayStatus}
-              className="flex items-center justify-center text-xs text-farmText cursor-pointer"
-              style={{
-                maxWidth: '220px',
-                margin: '0 auto',
-                marginTop: '20px',
-              }}
-            >
-              <ArrowDownIcon
-                className={showEndedFarmList ? 'transform rotate-180' : ''}
-              ></ArrowDownIcon>
-              <a className="text-xs text-greenColor mx-1">
-                {showEndedFarmList ? 'Hidden' : 'Show'}
-              </a>
-              the {endFarmLength} ended farms
-            </div>
-          ) : null}
         </>
       )}
     </div>
@@ -1356,6 +1384,8 @@ function LoveStakeModal(props: {
   const [affectSeeds, setAffectSeeds] = useState<Seed[]>(null);
   const { affected_seeds } = boostConfig;
   const intl = useIntl();
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   useEffect(() => {
     const affected_seeds_list: Seed[] = [];
     const affected_seeds_values = Object.entries(affected_seeds);
@@ -1414,12 +1444,12 @@ function LoveStakeModal(props: {
       const result = new BigNumber(1)
         .plus(Math.log(+totalAmount) / Math.log(base))
         .toFixed();
-      return `x${toPrecision(result.toString(), 3)}`;
+      return `x${toPrecision(result.toString(), 2)}`;
     } else if (+lastTotalAmount > 0) {
       const result = new BigNumber(1)
         .plus(Math.log(+lastTotalAmount) / Math.log(base))
         .toFixed();
-      return `x${toPrecision(result.toString(), 3)}`;
+      return `x${toPrecision(result.toString(), 2)}`;
     } else {
       return '-';
     }
@@ -1507,20 +1537,24 @@ function LoveStakeModal(props: {
             </div>
           );
         })}
-      <GradientButton
-        onClick={loveStake}
-        color="#fff"
-        disabled={loveStakeLoading || isDisabled}
-        loading={loveStakeLoading || isDisabled}
-        btnClassName={`${isDisabled ? 'cursor-not-allowed' : ''}`}
-        className={`mt-8 w-full h-14 text-center text-lg text-white focus:outline-none font-semibold`}
-        backgroundImage="linear-gradient(270deg, #7F43FF 0%, #00C6A2 97.06%)"
-      >
-        <ButtonTextWrapper
-          loading={loveStakeLoading}
-          Text={() => <FormattedMessage id="stake" />}
-        />
-      </GradientButton>
+      {isSignedIn ? (
+        <GradientButton
+          onClick={loveStake}
+          color="#fff"
+          disabled={loveStakeLoading || isDisabled}
+          loading={loveStakeLoading || isDisabled}
+          btnClassName={`${isDisabled ? 'cursor-not-allowed' : ''}`}
+          className={`mt-8 w-full h-14 text-center text-lg text-white focus:outline-none font-semibold`}
+          backgroundImage="linear-gradient(270deg, #7F43FF 0%, #00C6A2 97.06%)"
+        >
+          <ButtonTextWrapper
+            loading={loveStakeLoading}
+            Text={() => <FormattedMessage id="stake" />}
+          />
+        </GradientButton>
+      ) : (
+        <GreenConnectToNearBtn className="h-9 mt-8 text-base"></GreenConnectToNearBtn>
+      )}
     </CommonModal>
   );
 }
@@ -1620,7 +1654,7 @@ function LoveUnStakeModal(props: {
     } else if (+amount == 0) {
       return (
         <span className="text-sm text-farmText">
-          x{toPrecision(init_radio.toString(), 3)}
+          x{toPrecision(init_radio.toString(), 2)}
         </span>
       );
     } else if (+amount > 0) {
@@ -1635,13 +1669,13 @@ function LoveUnStakeModal(props: {
       return (
         <div className="flex items-center">
           <span className="text-sm text-farmText">
-            x{toPrecision(init_radio.toString(), 3)}
+            x{toPrecision(init_radio.toString(), 2)}
           </span>
           <span className="mx-3.5">
             <BoostRightArrowIcon></BoostRightArrowIcon>
           </span>
           <span className="text-sm text-white">
-            x{toPrecision(current_radio.toString(), 3)}
+            x{toPrecision(current_radio.toString(), 2)}
           </span>
         </div>
       );
@@ -1649,7 +1683,7 @@ function LoveUnStakeModal(props: {
 
     if (+amount > 0) {
       const result = Math.log(+amount) / Math.log(base);
-      return `x${toPrecision(result.toString(), 3)}`;
+      return `x${toPrecision(result.toString(), 2)}`;
     } else {
       return '-';
     }
@@ -1749,10 +1783,7 @@ function CommonModal(props: any) {
         },
         content: {
           outline: 'none',
-          transform:
-            title.trim() === 'add_liquidity' && !isMobile()
-              ? 'translate(-50%, -70%)'
-              : 'translate(-50%, -50%)',
+          transform: 'translate(-50%, -50%)',
         },
       }}
     >
@@ -2180,7 +2211,7 @@ function FarmView(props: {
     const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
     const base = affected_seeds[seed_id];
     const hasUserStaked = Object.keys(user_seed).length;
-    if (base && hasUserStaked && loveSeed) {
+    if (base && loveSeed) {
       const { free_amount = 0, locked_amount = 0 } = love_user_seed || {};
       const totalStakeLoveAmount = toReadableNumber(
         LOVE_TOKEN_DECIMAL,
@@ -2190,13 +2221,22 @@ function FarmView(props: {
         const result = new BigNumber(1)
           .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
           .toFixed();
-        return `x${toPrecision(result.toString(), 3)}`;
+        return (
+          <div
+            className={`absolute flex items-center justify-center top-3 right-4 z-10 px-2 py-0.5  text-xs  rounded-lg font-bold ${
+              hasUserStaked
+                ? 'bg-lightGreenColor text-black'
+                : 'text-farmText border border-farmText'
+            }`}
+          >
+            {`x${toPrecision(result.toString(), 2)}`}
+          </div>
+        );
       }
       return '';
     }
     return '';
   }
-  const seedToBeBoostStr = getBoostMutil();
   return (
     <>
       <div
@@ -2225,18 +2265,22 @@ function FarmView(props: {
             );
           })}
         </div>
-        {seedToBeBoostStr ? (
-          <div className="absolute flex items-center justify-center top-3 right-4 z-10 px-2 py-0.5 bg-lightGreenColor text-xs text-black rounded-lg font-bold">
-            {seedToBeBoostStr}
-          </div>
-        ) : null}
+        {getBoostMutil()}
         <div className="boxInfo">
           <div className="relative flex flex-col items-center bg-boosBoxColor px-5 rounded-t-2xl overflow-hidden">
             <div className="flex items-center cursor-pointer text-white font-bold text-xl xs:text-sm md:text-sm mt-7">
-              {tokens.map((token, index) => {
-                const hLine = index === tokens.length - 1 ? '' : '-';
-                return `${toRealSymbol(token.symbol)}${hLine}`;
-              })}
+              {/* link for looking into */}
+              <a
+                href={`/pool/${pool.id}`}
+                onClick={() => {
+                  return false;
+                }}
+              >
+                {tokens.map((token, index) => {
+                  const hLine = index === tokens.length - 1 ? '' : '-';
+                  return `${toRealSymbol(token.symbol)}${hLine}`;
+                })}
+              </a>
             </div>
             <div
               className="text-white text-right"
@@ -2411,6 +2455,8 @@ function WithDrawBox(props: {
   farmDisplayList: Seed[];
 }) {
   const { userRewardList, tokenPriceList, farmDisplayList } = props;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   const actualRewardList = {};
   Object.entries(userRewardList).forEach(([key, value]) => {
     if (Number(value) > 0) {
@@ -2483,6 +2529,8 @@ function WithDrawBox(props: {
         totalUnWithDrawV = `$${totalUnWithDrawV}`;
       }
       setYourReward(totalUnWithDrawV);
+    } else {
+      isSignedIn ? setYourReward('$0.00') : '';
     }
   }
   function closeWithDrawBox() {

@@ -115,6 +115,7 @@ export const ModalWrapper = (
         },
         content: {
           outline: 'none',
+          transform: 'translate(-50%, -50%)',
         },
       }}
     >
