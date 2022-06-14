@@ -24,13 +24,7 @@ import {
   lockLP,
   unlockLP,
 } from '../services/referendum';
-import {
-  ONLY_ZEROS,
-  percent,
-  toPrecision,
-  divide,
-  multiply,
-} from '../utils/numbers';
+import { ONLY_ZEROS, percent, divide, multiply } from '../utils/numbers';
 import { VotingPowerIcon } from '~components/icon/Referendum';
 import {
   LOVEBoosterIcon,
@@ -43,7 +37,12 @@ import { Symbols } from '../components/stableswap/CommonComp';
 import { NewFarmInputAmount } from '~components/forms/InputAmount';
 import { isMobile } from '../utils/device';
 import { VEConfig } from '../services/referendum';
-import { useLOVEbalance, useLOVEmeta, useMultiplier } from '~state/referendum';
+import {
+  useLOVEbalance,
+  useLOVEmeta,
+  useMultiplier,
+  useUnClaimedRewardsVE,
+} from '~state/referendum';
 import { ArrowLeftIcon } from '~components/icon/FarmBoost';
 import {
   LeftArrowVE,
@@ -60,11 +59,19 @@ import {
   calcStableSwapPriceImpact,
 } from '../utils/numbers';
 import Big from 'big.js';
-import { LOVE_TOKEN_DECIMAL, useAccountInfo } from '../state/referendum';
+import {
+  LOVE_TOKEN_DECIMAL,
+  useAccountInfo,
+  UnclaimedProposal,
+} from '../state/referendum';
 import { ProposalTab, ProposalCard } from '../components/layout/Proposal';
 import { WalletContext } from '../utils/sender-wallet';
-import { scientificNotationToString } from '../utils/numbers';
+import { scientificNotationToString, toPrecision } from '../utils/numbers';
 import { WarnTriangle } from '../components/icon/SwapRefresh';
+import { useTokens, useTokenPriceList } from '../state/token';
+import { GiftIcon, RewardCheck } from '../components/icon/Referendum';
+import { toRealSymbol } from '../utils/token';
+import { FaAngleUp, FaAngleDown } from 'react-icons/fa';
 import {
   ConnectToNearBtnGradient,
   WithGradientButton,
@@ -78,6 +85,118 @@ export interface AccountInfo {
   unlock_timestamp: string;
   ve_lpt_amount: string;
 }
+
+const RewardCard = ({ rewardList }: { rewardList: Record<string, string> }) => {
+  const tokens = useTokens(Object.keys(rewardList));
+  const tokenPriceList = useTokenPriceList();
+  const [checkList, setCheckList] = useState<string[]>();
+
+  const [showDetail, setShowDetail] = useState<boolean>(false);
+
+  const RewardRow = ({ id, token }: { id: string; token: TokenMetadata }) => {
+    const price = tokenPriceList[id];
+    const total = new Big(price).times(rewardList[id]).toNumber().toFixed(3);
+    const amount = rewardList[id];
+    return (
+      <div className="flex items-center justify-between text-white text-sm pb-2.5">
+        <div className="flex items-center px-2">
+          <div
+            className={`mr-2 w-4 h-4 rounde bg-opacity-30 ${
+              checkList.indexOf(id) !== -1 ? 'bg-black' : 'bg-white'
+            } flex items-center justify-center`}
+          >
+            {checkList.indexOf(id) !== -1 ? null : <RewardCheck />}
+          </div>
+
+          {token.icon ? (
+            <img
+              src={token.icon}
+              className="rounded-full w-6 h-6 border border-gradientFrom mr-2"
+            />
+          ) : (
+            <div className="rounded-full w-6 h-6 border border-gradientFrom mr-2"></div>
+          )}
+
+          <div className="flex flex-col">
+            <span>{toRealSymbol(token.symbol)}</span>
+
+            <span className="bg-opacity-50">${amount}</span>
+          </div>
+        </div>
+
+        <div className="flex  flex-col">
+          <span>{toPrecision(amount, 2)}</span>
+
+          <span className="bg-opacity-50">${total}</span>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="px-3 pt-3 rounded-lg bg-veGradient flex flex-col w-80 fixed top-20 right-0 text-sm">
+      <div
+        className="flex items-center pb-4 relative cursor-pointer"
+        onClick={() => setShowDetail(!showDetail)}
+      >
+        <span className="mr-2">
+          <GiftIcon />
+        </span>
+
+        <span>
+          {Object.keys(rewardList).length}{' '}
+          <FormattedMessage
+            id="rewards to be withdraw"
+            defaultMessage="rewards to be withdraw"
+          />
+          !
+        </span>
+
+        <button className="pl-1 text-sm absolute right-0">
+          {showDetail ? <FaAngleUp /> : <FaAngleDown />}
+        </button>
+      </div>
+      {!showDetail ? null : (
+        <>
+          <div className="bg-balck bg-opacity-30 rounded-lg pb-4">
+            {tokens?.map((token) => {
+              return <RewardRow id={token.id} token={token} />;
+            })}
+          </div>
+
+          <div className="flex items-center justify-between pb-4">
+            <button
+              className={`mr-2  flex items-center justify-center`}
+              onClick={() => setCheckList(tokens.map((token) => token.id))}
+            >
+              <div
+                className={`mr-2 h-4 w-4 rounded bg-opacity-30 flex items-center justify-center ${
+                  tokens?.length > 0 &&
+                  tokens.every((token) => checkList.includes(token.id))
+                    ? 'bg-black'
+                    : 'bg-white'
+                }`}
+              >
+                {tokens?.length > 0 &&
+                tokens.every((token) => checkList.includes(token.id)) ? (
+                  <RewardCheck />
+                ) : null}
+              </div>
+
+              <span className="">
+                <FormattedMessage id="all" defaultMessage={'all'} />
+              </span>
+            </button>
+
+            <button className="px-5 py-1.5 bg-black bg-opacity-30 rounded-lg">
+              <FormattedMessage id="withdraw" defaultMessage={'withdraw'} />
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
 
 const timeStampToDate = (ts: number) => {
   return moment(ts * 1000).format('YYYY-MM-DD');
@@ -934,7 +1053,7 @@ const UserReferendumCard = ({
 
 export const ReferendumPage = () => {
   const id = getPoolId();
-
+  const unClaimedRewards = useUnClaimedRewardsVE();
   const lpShare = usePoolShare(id);
 
   const { veShare, accountInfo } = useAccountInfo();
@@ -960,6 +1079,11 @@ export const ReferendumPage = () => {
       >
         <PowerZone />
       </div>
+
+      {!unClaimedRewards ||
+      Object.keys(unClaimedRewards).length === 0 ? null : (
+        <RewardCard rewardList={unClaimedRewards} />
+      )}
     </div>
   );
 };

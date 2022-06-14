@@ -224,3 +224,13 @@ export const useUnclaimedProposal = () => {
 
   return record;
 };
+
+export const useUnClaimedRewardsVE = () => {
+  const [rewards, setReward] = useState<Record<string, string>>();
+
+  useEffect(() => {
+    getUnclaimedRewards().then(setReward);
+  }, []);
+
+  return rewards;
+};

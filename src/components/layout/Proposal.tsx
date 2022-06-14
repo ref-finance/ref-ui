@@ -356,8 +356,6 @@ const VoteChart = ({
     };
   });
 
-  console.log(options, ratios);
-
   if (
     !options ||
     !ratios ||
@@ -1200,7 +1198,6 @@ const GovItemDetail = ({
                       ? (0 === optionId && voted === 'VoteApprove') ||
                         (1 === optionId && voted === 'VoteReject')
                       : (voted as VoteAction)?.VotePoll?.poll_id === optionId);
-                  console.log(votedThisOption, voted);
                   return (
                     <div className="grid grid-cols-10 hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-9 py-4">
                       <span className="col-span-6 flex items-center">
@@ -2359,6 +2356,7 @@ export const CreateGovProposal = ({
             onChange={setType}
             size={'text-sm'}
             className={'ml-2'}
+            canSelect
           />
         </div>
 
@@ -2522,6 +2520,7 @@ export const GovProposal = ({
             list={['All', 'Live', 'Ended', 'Pending']}
             onChange={setState}
             className="ml-6"
+            canSelect
           />
         </div>
       )}
@@ -2529,12 +2528,12 @@ export const GovProposal = ({
       <div className="flex flex-col">
         {proposals
           ?.filter((p) => state === 'All' || proposalStatus[p.status] === state)
-          .filter(
+          ?.filter(
             (p) =>
               !votedOnly ||
-              Object.keys(voteDetail)
-                .concat(Object.keys(voteHistory))
-                .includes(p.id.toString())
+              Object.keys(voteDetail || [])
+                .concat(Object.keys(voteHistory || []))
+                ?.includes(p.id.toString())
           )
           ?.map((p) => (
             <GovProposalItem
@@ -2555,7 +2554,7 @@ export const GovProposal = ({
                 !ONLY_ZEROS.test(UnclaimedProposal?.[p?.id]?.amount)
               }
             />
-          ))}
+          )) || []}
       </div>
     </div>
   );
@@ -2615,9 +2614,11 @@ export const ProposalCard = () => {
           />
         ) : (
           <GovProposal
-            proposals={proposals?.filter(
-              (p) => !Object.keys(p.kind).includes('FarmingReward')
-            )}
+            proposals={
+              proposals?.filter(
+                (p) => !Object.keys(p.kind).includes('FarmingReward')
+              ) || []
+            }
             setShowCreateProposal={setShowCreateProposal}
             showDetail={showDetail}
             setShowDetail={setShowDetail}
