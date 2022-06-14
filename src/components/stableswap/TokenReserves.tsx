@@ -301,9 +301,9 @@ export default function ({
   const [chart, setChart] = useState(null);
 
   const ids = pools.map((p) => p.id);
-  const [volume, setVolume] = useState<string>();
+  const [volume, setVolume] = useState<string>(null);
 
-  const [tvl, setTvl] = useState<number>();
+  const [tvl, setTvl] = useState<number>(null);
 
   let utilisationDisplay;
 
@@ -332,6 +332,11 @@ export default function ({
       : type === STABLE_POOL_TYPE.NEAR
       ? 'NEAR Value'
       : 'StableCoin Value';
+
+  useEffect(() => {
+    setTvl(null);
+    setVolume(null);
+  }, [type]);
 
   useEffect(() => {
     if (ids) {
