@@ -32,7 +32,11 @@ import {
   LeftArrowVE,
   NO_RESULT_CHART,
 } from '../icon/Referendum';
-import { createProposal, Description } from '../../services/referendum';
+import {
+  createProposal,
+  Description,
+  Incentive,
+} from '../../services/referendum';
 import {
   toNonDivisibleNumber,
   percent,
@@ -46,7 +50,7 @@ import {
 } from '../../services/ft-contract';
 import { PieChart, Pie, Cell, Sector, ResponsiveContainer } from 'recharts';
 import { toRealSymbol } from '../../utils/token';
-import _, { pad } from 'lodash';
+import _, { conformsTo, pad } from 'lodash';
 import { CustomSwitch } from '../forms/SlippageSelector';
 import { ArrowDownLarge } from '~components/icon';
 import { FilterIcon } from '~components/icon/PoolFilter';
@@ -302,6 +306,7 @@ const AddBonusPopUp = (
           onChange={setCurOption}
           labelClassName="w-full text-sm py-5"
           dropDownClassName="w-full top-11 bg-selectUI"
+          canSelect={!curIncentiveToken}
         />
       </div>
 
@@ -350,9 +355,15 @@ const VoteChart = ({
       value: Number(r),
     };
   });
-  // .filter((d) => d.value > 0);
 
-  if (!options || !ratios || data?.length === 0)
+  console.log(options, ratios);
+
+  if (
+    !options ||
+    !ratios ||
+    data?.length === 0 ||
+    ratios.every((r) => Number(r) === 0)
+  )
     return (
       <div className="pr-10">
         <NoResultChart expand={forDetail ? '1.25' : ''} />
@@ -363,8 +374,6 @@ const VoteChart = ({
 
   function customLabel(props: any) {
     let { cx, cy, index, value, name } = props;
-
-    console.log(props);
 
     if (index !== activeIndex) return null;
 
@@ -465,6 +474,7 @@ function SelectUI({
   size,
   labelClassName,
   dropDownClassName,
+  canSelect,
 }: {
   onChange: (e: any) => void;
   list: string[];
@@ -474,10 +484,11 @@ function SelectUI({
   size?: string;
   labelClassName?: string;
   dropDownClassName?: string;
+  canSelect?: boolean;
 }) {
   const [showSelectBox, setShowSelectBox] = useState(false);
   const switchSelectBoxStatus = () => {
-    setShowSelectBox(!showSelectBox);
+    canSelect && setShowSelectBox(!showSelectBox);
   };
   const hideSelectBox = () => {
     setShowSelectBox(false);
@@ -906,8 +917,6 @@ const FarmChart = ({
     const ey = my;
     const textAnchor = cos >= 0 ? 'start' : 'end';
 
-    console.log(cos, 'cos');
-
     return (
       <g>
         <Sector
@@ -1185,14 +1194,13 @@ const GovItemDetail = ({
                 })
                 ?.map((d, i) => {
                   const optionId = options.indexOf(d.option);
-
                   const votedThisOption =
                     voted &&
                     (proposal?.kind?.Common
-                      ? (i === optionId && voted === 'VoteApprove') ||
-                        (i === optionId && voted === 'VoteReject')
+                      ? (0 === optionId && voted === 'VoteApprove') ||
+                        (1 === optionId && voted === 'VoteReject')
                       : (voted as VoteAction)?.VotePoll?.poll_id === optionId);
-
+                  console.log(votedThisOption, voted);
                   return (
                     <div className="grid grid-cols-10 hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-9 py-4">
                       <span className="col-span-6 flex items-center">
@@ -1354,7 +1362,11 @@ const GovProposalItem = ({
   }
 
   const totalVE = scientificNotationToString(
-    BigNumber.sum(...(proposal?.votes || [])).toString()
+    BigNumber.sum(
+      ...(proposal?.kind?.Common
+        ? proposal?.votes?.slice(0, 2)
+        : proposal?.votes || [])
+    ).toString()
   );
 
   const turnOut = new Big(totalVE)
@@ -1378,9 +1390,18 @@ const GovProposalItem = ({
 
   const ended = proposal?.status === 'Expired';
 
-  const topVote = _.maxBy(proposal?.votes || [], (o) => Number(o));
+  const topVote = _.maxBy(
+    proposal?.kind?.Common
+      ? proposal?.votes?.slice(0, 2)
+      : proposal?.votes || [],
+    (o) => Number(o)
+  );
 
-  const topVoteIndex = proposal?.votes?.indexOf(topVote) || 0;
+  const topVoteIndex =
+    (proposal?.kind?.Common
+      ? proposal?.votes?.slice(0, 2)
+      : proposal?.votes
+    )?.indexOf(topVote) || 0;
 
   const topOption = options?.[topVoteIndex];
 
@@ -1753,7 +1774,7 @@ export const VoteGovPopUp = (
             proposal?.kind?.Common
               ? VoteCommon({
                   proposal_id: proposal?.id,
-                  action: value === 'yes' ? 'VoteApprove' : 'VoteReject',
+                  action: value === 'Yes' ? 'VoteApprove' : 'VoteReject',
                 })
               : VotePoll({
                   proposal_id: proposal?.id,
@@ -1902,8 +1923,6 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
       divide(ratioNew, '100').toString(),
       farmProposal?.kind?.FarmingReward?.total_reward.toString()
     );
-
-    console.log(voted, 'voted');
 
     return (
       <div

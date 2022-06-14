@@ -801,13 +801,9 @@ const UserReferendumCard = ({
     .div(new Big(1000000000))
     .toNumber();
 
-  console.log(moment().unix() < unlockTime);
-
   const lockTime = unlockTime - (accountInfo?.duration_sec || 0);
 
   const passedTime_sec = moment().unix() - lockTime;
-
-  console.log(passedTime_sec, accountInfo?.duration_sec);
 
   const lockedLpShare = toReadableNumber(24, accountInfo?.lpt_amount || '0');
 
@@ -942,8 +938,6 @@ export const ReferendumPage = () => {
   const lpShare = usePoolShare(id);
 
   const { veShare, accountInfo } = useAccountInfo();
-
-  console.log(accountInfo);
 
   return (
     <div className="m-auto lg:w-1024px xs:w-full md:w-5/6 text-white relative">
