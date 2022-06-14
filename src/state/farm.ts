@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import BigNumber from 'bignumber.js';
 import { canFarm, canFarmV1, canFarmV2 } from '../services/pool';
-import db from '~store/RefDatabase';
+import db from '../store/RefDatabase';
 
 export const useFarmStake = ({
   poolId,

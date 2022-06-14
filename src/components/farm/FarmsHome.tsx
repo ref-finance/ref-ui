@@ -92,7 +92,6 @@ import { usePoolShare } from '../../state/pool';
 import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 
 const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID } = getConfig();
-const DECIMALS_XREF_REF_TRANSTER = 8;
 export default function FarmsHome(props: any) {
   const { getDetailData, getDetailData_user_data, getDetailData_boost_config } =
     props;
@@ -343,7 +342,7 @@ export default function FarmsHome(props: any) {
       await Promise.all(prom_rewards);
       set_user_unclaimed_token_meta_map(unclaimed_token_meta_datas);
       setUserDataLoading(false);
-      console.log('list_farmer_seeds 获取到了');
+      console.log('user data 获取到了');
       // for detail page
       getDetailData_user_data({
         user_seeds_map: list_user_seeds,
