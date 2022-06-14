@@ -29,6 +29,7 @@ import {
   CheckboxSelected,
   NoDataIcon,
   ArrowDown,
+  SortIcon,
 } from '~components/icon';
 import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
@@ -845,18 +846,18 @@ export default function FarmsHome(props: any) {
   return (
     <div className={`${getUrlParams() ? 'hidden' : ''}`}>
       <div
-        className="relative flex items-center justify-center mb-5"
+        className="relative flex items-center justify-center mb-5 xs:flex-col md:flex-col"
         style={{
-          height: '250px',
+          height: isMobileSite ? '' : '250px',
           backgroundImage:
             'linear-gradient(270deg, #001320 0%, #1D2932 95.06%)',
         }}
       >
-        <span className="absolute left-0 top-0 h-full overflow-hidden">
+        <span className="absolute left-0 top-0 h-full overflow-hidden xs:hidden md:hidden">
           <BannerBgLeft />
         </span>
-        <div className="relative h-full  flex justify-between items-center lg:w-2/3 xs:w-full md:w-full pt-5 pb-3">
-          <div className="lg:w-2/5 md:w-1/2">
+        <div className="relative h-full  flex justify-between items-center lg:w-2/3 xs:w-full md:w-full pt-5 pb-3 xs:pb-0 md:pb-0">
+          <div className="lg:w-2/5 md:w-1/2 xs:w-full xs:px-2 md:px-2 xs:pt-2 md:pt-2">
             <div className="title flex justify-between items-center text-3xl text-white xs:-mt-4 md:-mt-4">
               <FormattedMessage id="farms"></FormattedMessage>
               <div className="flex items-center justify-between h-7 rounded-2xl bg-farmSbg p-0.5">
@@ -882,16 +883,64 @@ export default function FarmsHome(props: any) {
             ></WithDrawBox>
             {/* ) : null} */}
           </div>
-          <div className="absolute right-0 -top-24">
+          <div className="absolute right-0 -top-24 xs:hidden md:hidden">
             <BoostBannerLogo></BoostBannerLogo>
           </div>
         </div>
-        <span className="absolute right-0 top-0 h-full overflow-hidden">
+        <span className="absolute right-0 top-0 h-full overflow-hidden xs:hidden md:hidden">
           <BannerBgRight />
         </span>
+        <div className="flex items-center justify-between w-full mt-2 lg:hidden px-2 mb-3">
+          <div
+            className="flex items-center justify-between px-4 h-9 py-1 bg-farmSbg rounded-lg bg-opacity-50"
+            style={{
+              border: keyWords ? '1px solid rgba(115, 129, 139, 0.5)' : '',
+            }}
+          >
+            <input
+              ref={searchRef}
+              type="text"
+              className="h-full text-sm text-white mr-3 w-40"
+              onWheel={() => searchRef.current.blur()}
+              onChange={({ target }) => searchByKeyWords(target.value)}
+              placeholder="Search farms"
+            ></input>
+            <span
+              className={`${
+                keyWords ? 'text-lightGreenColor' : 'text-farmText'
+              }`}
+            >
+              <SearchIcon></SearchIcon>
+            </span>
+          </div>
+          <div className="flex items-center">
+            <label className="text-farmText text-xs mr-2 whitespace-nowrap xs:hidden md:hidden">
+              <FormattedMessage id="sort_by" defaultMessage="Sort by" />
+            </label>
+            <span className="text-farmText">
+              <SortIcon></SortIcon>
+            </span>
+            {Object.keys(sortList).map((item, index) => {
+              const value = sortList[item];
+              return (
+                <div
+                  className={`flex items-center justify-between rounded-lg h-9 px-3 py-0.5 cursor-pointer text-xs ${
+                    sort == item ? 'text-white' : 'text-farmText'
+                  }`}
+                  key={index}
+                  onClick={() => {
+                    changeSort(item);
+                  }}
+                >
+                  {value}
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
       <div className="searchArea m-auto lg:w-2/3 xs:w-full md:w-full flex justify-between items-center mb-11 xs:flex-col md:flex-col xs:px-2 md:px-2">
-        <div className="flex justify-between items-center xs:w-full md:w-full">
+        <div className="flex justify-between items-center flex-wrap xs:w-full md:w-full xs:justify-start md:justify-start">
           {Object.keys(statusList).map((item: string) => {
             return (
               <span
@@ -899,7 +948,7 @@ export default function FarmsHome(props: any) {
                   changeStatus(item);
                 }}
                 key={item}
-                className={`flex flex-grow justify-center mx-1 items-center h-9 px-3  xs:mx-0 md:mx-0 xs:px-0 md:px-0 rounded-lg text-sm hover:bg-cardBg cursor-pointer ${
+                className={`flex  justify-center mx-1 items-center h-9 px-3   rounded-lg text-sm hover:bg-cardBg cursor-pointer ${
                   status == item ? 'bg-cardBg text-white' : 'text-farmText'
                 }`}
               >
@@ -911,7 +960,7 @@ export default function FarmsHome(props: any) {
             );
           })}
         </div>
-        <div className="flex items-center  justify-between  xs:w-full md:w-full xs:mt-2 md:mt-2">
+        <div className="flex items-center  justify-between xs:hidden md:hidden">
           <div
             className="flex items-center justify-between px-4 h-9 py-1 bg-searchBgColor rounded-lg mr-5"
             style={{
@@ -978,7 +1027,7 @@ export default function FarmsHome(props: any) {
           {/* boost start */}
           {!loveSeed ? null : (
             <div
-              className={`grid grid-cols-2 xs:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 m-auto lg:w-2/3 xs:w-full md:w-full mb-9 ${
+              className={`grid grid-cols-2 xs:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 xs:gap-x-0 md:gap-x-0  m-auto lg:w-2/3 xs:w-full md:w-full xs:px-2 md:px-2 mb-9 ${
                 status != 'boost' || noData ? 'hidden' : ''
               }`}
             >
@@ -989,8 +1038,13 @@ export default function FarmsHome(props: any) {
                     'linear-gradient(90deg, #7C47FD 0%, #34177C 100%)',
                 }}
               >
-                <div className="flex flex-col justify-between pl-14 pb-16 pt-4">
-                  <span className="text-senderHot text-3xl">Farm Booster</span>
+                <div className="flex flex-col justify-between  items-center pl-14 pb-16 pt-4">
+                  <span className="text-senderHot text-3xl xs:hidden md:hidden">
+                    Farm Booster
+                  </span>
+                  <span className="lg:hidden text-white text-sm mb-3">
+                    How to get farm booster?
+                  </span>
                   <div className="flex justify-center items-center">
                     <div className="relative flex items-center justify-center mr-1.5">
                       <span
@@ -1008,7 +1062,7 @@ export default function FarmsHome(props: any) {
                         Get LOVE
                       </span>
                     </div>
-                    <div className="line w-32 h-px bg-lightGreenColor"></div>
+                    <div className="line w-24 h-px bg-lightGreenColor"></div>
                     <div className="relative flex items-center justify-center mx-1.5">
                       <span
                         className="ball flex items-center justify-center bg-lightGreenColor text-sm text-priceBoardColor rounded-full"
@@ -1025,7 +1079,7 @@ export default function FarmsHome(props: any) {
                         Stake LOVE
                       </span>
                     </div>
-                    <div className="line w-32 h-px bg-lightGreenColor"></div>
+                    <div className="line w-24 h-px bg-lightGreenColor"></div>
                     <div className="relative flex items-center justify-center ml-1.5">
                       <span
                         className="ball flex items-center justify-center bg-lightGreenColor text-sm text-priceBoardColor rounded-full"
@@ -1033,13 +1087,16 @@ export default function FarmsHome(props: any) {
                       >
                         3
                       </span>
-                      <span className="absolute flex items-center justify-center text-sm text-white rounded-lg top-8 whitespace-nowrap px-5 py-1">
+                      <span className="absolute flex items-center justify-center text-sm text-white rounded-lg top-8 whitespace-nowrap px-5 py-1 xs:hidden md:hidden">
                         Get farm boost
+                      </span>
+                      <span className="absolute flex items-center justify-center text-sm text-white rounded-lg top-8 whitespace-nowrap px-5 py-1 lg:hidden">
+                        Farm boost
                       </span>
                     </div>
                   </div>
                 </div>
-                <div>
+                <div className="xs:hidden md:hidden">
                   <Flight></Flight>
                 </div>
               </div>
@@ -2802,11 +2859,11 @@ function WithDrawModal(props: {
             </div>
           </div>
         </div>
-        <div className="flex items-center bg-cardBg justify-between rounded-lg mt-3 px-3.5 py-3">
+        <div className="flex items-center bg-cardBg justify-between rounded-lg mt-3 px-3.5 py-3 xs:flex-col md:flex-col xs:items-start md:items-start">
           <span className="text-white text-sm">
             <FormattedMessage id="how_to_earn_more"></FormattedMessage>
           </span>
-          <div className="flex items-center">
+          <div className="flex items-center xs:mt-2 md:mt-2">
             <span className="flex items-center text-xs text-primaryText mr-2">
               <label className="flex items-center justify-center w-4 h-4 rounded-full text-white bg-greenColor mr-1.5">
                 1
