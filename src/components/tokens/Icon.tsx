@@ -45,7 +45,7 @@ export function IconLeft({
   className = '',
   token,
   label = true,
-  size = 6,
+  size = 11,
   showArrow = true,
   hover,
 }: {
@@ -65,7 +65,7 @@ export function IconLeft({
     >
       <img
         key={token.id}
-        className="mr-2 xs:ml-0 xs:mr-1 xs:relative xs:right-1 h-11 w-11 xs:h-7 xs:w-7 border rounded-full border-greenLight"
+        className={`mr-2 xs:ml-0 xs:mr-1 xs:relative xs:right-1 h-${size} w-${size} xs:h-7 xs:w-7 border rounded-full border-greenLight`}
         src={token.icon}
       />
       {label && (

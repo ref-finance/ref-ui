@@ -4,15 +4,23 @@ import moment from 'moment';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl, FormattedRelativeTime } from 'react-intl';
 import { NewGradientButton } from '~components/button/Button';
-import { cancelVote, getProposalList, Proposal } from '~services/referendum';
+import {
+  cancelVote,
+  claimRewardVE,
+  getProposalList,
+  Proposal,
+} from '~services/referendum';
 import { scientificNotationToString, toPrecision } from '~utils/numbers';
 import { Card } from '../card/Card';
-import { useVEmeta, useVoteDetail } from '../../state/referendum';
+import {
+  useVEmeta,
+  useVoteDetail,
+  useUnclaimedProposal,
+} from '../../state/referendum';
 import {
   toReadableNumber,
   toRoundedReadableNumber,
   multiply,
-  divide,
 } from '../../utils/numbers';
 import { BorderGradientButton } from '../button/Button';
 import { ModalWrapper } from '../../pages/ReferendumPage';
@@ -24,12 +32,13 @@ import {
   LeftArrowVE,
   NO_RESULT_CHART,
 } from '../icon/Referendum';
+import { createProposal, Description } from '../../services/referendum';
 import {
-  VoteFarm,
-  createProposal,
-  Description,
-} from '../../services/referendum';
-import { toNonDivisibleNumber, percent } from '../../utils/numbers';
+  toNonDivisibleNumber,
+  percent,
+  divide,
+  ONLY_ZEROS,
+} from '../../utils/numbers';
 import {
   ftGetTokensMetadata,
   TokenMetadata,
@@ -49,8 +58,28 @@ import {
 import { getCurrentWallet } from '../../utils/sender-wallet';
 import { Item } from '../airdrop/Item';
 import { ShareInFarmV2 } from './ShareInFarm';
-import { VoteCommon, VotePoll, VoteDetail } from '../../services/referendum';
+import {
+  VoteCommon,
+  VotePoll,
+  VoteDetail,
+  addBonus,
+} from '../../services/referendum';
 import { useAccountInfo } from '../../state/referendum';
+import SelectToken from '../forms/SelectToken';
+import { IconLeft } from '../tokens/Icon';
+import { REF_META_DATA, ftGetBalance } from '../../services/ft-contract';
+import {
+  useTokenPriceList,
+  useWhitelistTokens,
+  useTokenBalances,
+} from '../../state/token';
+import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { useDepositableBalance } from '../../state/token';
+import { REF_TOKEN_ID } from '../../services/near';
+import { NewFarmInputAmount } from '../forms/InputAmount';
+import { VoteAction, VoteFarm } from '../../services/referendum';
+import { VotedIcon } from '../icon/Referendum';
+import { useClientMobile, isClientMobie } from '../../utils/device';
 
 const REF_FI_PROPOSALTAB = 'REF_FI_PROPOSALTAB_VALUE';
 
@@ -173,6 +202,123 @@ const VotePopUp = (
           }}
         />
       </div>
+    </ModalWrapper>
+  );
+};
+
+const AddBonusPopUp = (
+  props: Modal.Props & {
+    title: JSX.Element | string;
+    proposal_id: number;
+    curIncentiveToken: TokenMetadata | null;
+  }
+) => {
+  const { proposal_id, curIncentiveToken } = props;
+  const [selectToken, setSelectToken] = useState<TokenMetadata>(
+    curIncentiveToken ? curIncentiveToken : REF_META_DATA
+  );
+
+  useEffect(() => {
+    if (curIncentiveToken) {
+      setSelectToken(curIncentiveToken);
+    }
+  }, [curIncentiveToken]);
+
+  const [hoverSelectToken, setHoverSelectToken] = useState<boolean>(false);
+  const tokenPriceList = useTokenPriceList();
+
+  const tokens = useWhitelistTokens();
+
+  const nearBalance = useDepositableBalance('NEAR');
+
+  const balances = useTokenBalances();
+
+  const balance = useDepositableBalance(selectToken.id || REF_TOKEN_ID);
+
+  const [value, setValue] = useState<string>('');
+
+  const [curOption, setCurOption] = useState<string>('by voter number equally');
+
+  const list = ['by voter number equally', 'by vote power equally'];
+
+  return (
+    <ModalWrapper {...props}>
+      <div className="flex items-center justify-between py-5">
+        <SelectToken
+          tokenPriceList={tokenPriceList}
+          tokens={tokens}
+          forCross
+          selected={
+            <div
+              className="flex font-semibold "
+              onMouseEnter={() => setHoverSelectToken(true)}
+              onMouseLeave={() => setHoverSelectToken(false)}
+            >
+              {selectToken ? (
+                <IconLeft
+                  token={selectToken}
+                  hover={hoverSelectToken}
+                  size="8"
+                />
+              ) : null}
+            </div>
+          }
+          onSelect={curIncentiveToken ? null : setSelectToken}
+          balances={balances}
+        />
+
+        <div className="text-xs text-primaryText flex items-center">
+          <FormattedMessage id="balance" defaultMessage={'Balance'} />: &nbsp;
+          <span>
+            {toPrecision(
+              toReadableNumber(
+                selectToken.decimals,
+
+                selectToken.id === WRAP_NEAR_CONTRACT_ID ? nearBalance : balance
+              ) || '0',
+              2
+            )}
+          </span>
+        </div>
+      </div>
+
+      <NewFarmInputAmount
+        max={toReadableNumber(
+          selectToken.decimals,
+          selectToken.id === WRAP_NEAR_CONTRACT_ID ? nearBalance : balance
+        )}
+        value={value}
+        onChangeAmount={setValue}
+      />
+
+      <div className="py-8 ">
+        <div className="text-white pb-6">
+          <FormattedMessage id="allocate" defaultMessage={'Allocate'} />
+        </div>
+
+        <SelectUI
+          curvalue={curOption}
+          list={list}
+          onChange={setCurOption}
+          labelClassName="w-full text-sm py-5"
+          dropDownClassName="w-full top-11 bg-selectUI"
+        />
+      </div>
+
+      <NewGradientButton
+        text={<FormattedMessage id="deposit" defaultMessage={'Deposit'} />}
+        className="w-full"
+        disabled={!value || !selectToken}
+        onClick={() => {
+          addBonus({
+            tokenId: selectToken.id,
+            amount: value,
+            incentive_type:
+              list.indexOf(curOption) === 0 ? 'Evenly' : 'Proportion',
+            proposal_id,
+          });
+        }}
+      />
     </ModalWrapper>
   );
 };
@@ -317,6 +463,8 @@ function SelectUI({
   shrink,
   className,
   size,
+  labelClassName,
+  dropDownClassName,
 }: {
   onChange: (e: any) => void;
   list: string[];
@@ -324,6 +472,8 @@ function SelectUI({
   shrink?: string;
   className?: string;
   size?: string;
+  labelClassName?: string;
+  dropDownClassName?: string;
 }) {
   const [showSelectBox, setShowSelectBox] = useState(false);
   const switchSelectBoxStatus = () => {
@@ -342,7 +492,7 @@ function SelectUI({
         onClick={switchSelectBoxStatus}
         tabIndex={-1}
         onBlur={hideSelectBox}
-        className={` flex items-center justify-between bg-black bg-opacity-20 w-24 h-5 rounded-md px-2.5 py-3  cursor-pointer ${
+        className={`${labelClassName} flex items-center justify-between bg-black bg-opacity-20 w-24 h-5 rounded-md px-2.5 py-3  cursor-pointer ${
           size || 'text-xs'
         } outline-none ${shrink ? 'xs:w-8 md:w-8' : ''} text-white`}
       >
@@ -356,7 +506,7 @@ function SelectUI({
         </span>
       </span>
       <div
-        className={`absolute z-50 top-8 right-0 bg-selectUIBg rounded-2xl px-2  text-sm w-28 ${
+        className={`${dropDownClassName} absolute z-50 top-8 right-0 bg-selectUI rounded-2xl px-2  text-sm w-28 ${
           showSelectBox ? '' : 'hidden'
         }`}
         style={{
@@ -402,6 +552,196 @@ export const GradientWrapper = (props: any & { padding: string }) => {
     <Card className="w-full" bgcolor="bg-veCardGradient" {...props}>
       {props.children}
     </Card>
+  );
+};
+
+export const PreviewPopUp = (
+  props: Modal.Props & {
+    title: JSX.Element | string;
+    customWidth?: string;
+    customHeight?: string;
+    timeDuration?: JSX.Element;
+    show: boolean;
+    setShow: (s: boolean) => void;
+    turnOut: string;
+    totalVE: string;
+    options: string[];
+    voted?: VoteAction | 'VoteReject' | 'VoteApprove';
+    link: string;
+    contentTitle: string;
+    type: string;
+    index: number;
+  }
+) => {
+  const {
+    title,
+    link,
+    setShow,
+    timeDuration,
+    show,
+    turnOut,
+    totalVE,
+    options,
+    voted,
+    contentTitle,
+    type,
+    index,
+  } = props;
+
+  const intl = useIntl();
+
+  const data = options.map((o, i) => {
+    return {
+      option: o,
+      v: '0',
+      ratio: `0`,
+    };
+  });
+
+  const InfoRow = ({
+    name,
+    value,
+    nameClass,
+    valueClass,
+  }: {
+    name: string | JSX.Element;
+    value: string | JSX.Element;
+    nameClass?: string;
+    valueClass?: string;
+  }) => {
+    return (
+      <div className="py-2.5 flex items-center ">
+        <span className={`${nameClass} text-primaryText`}>{name}</span>
+        <span className={`${valueClass} ml-3`}>{value}</span>
+      </div>
+    );
+  };
+
+  return (
+    <ModalWrapper {...props}>
+      <Card
+        className="w-full relative overflow-hidden mt-9"
+        bgcolor="bg-white bg-opacity-10 "
+        padding={`px-10 pb-9  `}
+      >
+        <div className="pb-4 border-b border-white border-opacity-10 px-2 pt-8 text-white text-xl mb-4">
+          {contentTitle}
+        </div>
+
+        <InfoRow
+          name={intl.formatMessage({
+            id: 'proposer',
+            defaultMessage: 'Proposer',
+          })}
+          value={getCurrentWallet().wallet.getAccountId()}
+          valueClass={'font-bold'}
+        />
+
+        <InfoRow
+          name={intl.formatMessage({
+            id: 'voting_period',
+            defaultMessage: 'Voting Period',
+          })}
+          value={''}
+        />
+        <InfoRow
+          name={intl.formatMessage({
+            id: 'turn_out',
+            defaultMessage: 'Turnout',
+          })}
+          value={turnOut}
+        />
+        <div className="w-full relative flex items-center justify-between pb-4 border-b border-white border-opacity-10">
+          <InfoRow
+            name={intl.formatMessage({
+              id: 'total_velpt',
+              defaultMessage: 'Total veLPT',
+            })}
+            value={toPrecision(totalVE, 2)}
+          />
+
+          <button
+            className="flex items-center "
+            onClick={() => {
+              window.open(link, '_blank');
+            }}
+          >
+            <span>
+              <FormattedMessage
+                id="forum_discussion"
+                defaultMessage={'Forum Discussion'}
+              />
+            </span>
+
+            <span className="text-gradientFrom ml-2">↗</span>
+          </button>
+        </div>
+
+        <div className="flex items-center justify-center mt-8 pb-6">
+          <div className="w-1/5 flex items-center justify-center">
+            <NoResultChart expand="1.25" />
+          </div>
+
+          <div className="w-4/5 text-primaryText flex flex-col ml-20 pb-6 ">
+            <div className="grid grid-cols-10 pb-5 px-6">
+              <span className="col-span-6 ">
+                <FormattedMessage id="options" defaultMessage={'Options'} />
+              </span>
+              <span className="col-span-2  ">
+                <FormattedMessage id="ratio" defaultMessage={'Ratio'} />
+              </span>
+              <span className="col-span-2 text-right">veLPT</span>
+            </div>
+
+            <div className="flex flex-col w-full text-white">
+              {data?.map((d, i) => {
+                return (
+                  <div className="grid grid-cols-10 hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-9 py-4">
+                    <span className="col-span-6 flex items-center">
+                      <div
+                        className="w-2.5 h-2.5 rounded-sm"
+                        style={{
+                          backgroundColor:
+                            OPTIONS_COLORS[options.indexOf(d.option)] ||
+                            'black',
+                        }}
+                      ></div>
+                      <span className="mx-2">{d.option}</span>
+                    </span>
+
+                    <span className="col-span-2 ">
+                      {toPrecision(scientificNotationToString(d.ratio), 2)}%
+                    </span>
+
+                    <span className="col-span-2 text-right">
+                      {toPrecision(d.v, 2)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      <div className="flex items-center justify-end pt-8">
+        <NewGradientButton
+          text={<FormattedMessage id="create" defaultMessage={'Create'} />}
+          disabled={!title || !link || options?.length < 1}
+          onClick={() => {
+            createProposal({
+              description: {
+                title: `#${index} ${contentTitle}`,
+                link,
+              },
+              duration_sec: 3600,
+              kind: type === 'Pool' ? 'Poll' : 'Common',
+              options,
+            });
+          }}
+        />
+      </div>
+    </ModalWrapper>
   );
 };
 
@@ -653,8 +993,11 @@ const GovItemDetail = ({
   turnOut,
   totalVE,
   options,
+  voted,
+  incentiveToken,
+  forPreview,
 }: {
-  show: number;
+  show?: number;
   proposal: Proposal;
   setShow: (s: number) => void;
   timeDuration?: JSX.Element;
@@ -662,6 +1005,9 @@ const GovItemDetail = ({
   turnOut: string;
   totalVE: string;
   options: string[];
+  voted: VoteAction | 'VoteReject' | 'VoteApprove';
+  incentiveToken: TokenMetadata;
+  forPreview?: boolean;
 }) => {
   const intl = useIntl();
 
@@ -702,8 +1048,12 @@ const GovItemDetail = ({
   };
 
   return !show ? null : (
-    <div className="text-white text-sm ">
-      <div className="text-center relative text-xl pb-7">
+    <div className="text-white text-sm relative">
+      <div
+        className={`${
+          forPreview ? 'hidden' : ''
+        } text-center relative text-xl pb-7`}
+      >
         <FormattedMessage
           id="proposal_detail"
           defaultMessage={'Proposal Detail'}
@@ -720,14 +1070,36 @@ const GovItemDetail = ({
             <FormattedMessage id="back" defaultMessage={'Back'} />
           </span>
         </button>
+        {proposal?.status === 'InProgress' ? (
+          <span className={'text-gradientFrom text-sm absolute right-0 top-2'}>
+            {durationFomatter(
+              moment.duration(
+                Math.floor(Number(proposal.end_at) / TIMESTAMP_DIVISOR) -
+                  moment().unix(),
+                'seconds'
+              )
+            )}
+            {` left`}
+          </span>
+        ) : null}
 
         <span className="absolute right-1">{timeDuration}</span>
       </div>
-
+      {!voted || forPreview ? null : (
+        <div
+          className={`${
+            proposal?.status === 'Expired' ? 'opacity-30' : ''
+          } absolute -right-4 top-10`}
+        >
+          <VotedIcon />
+        </div>
+      )}
       <Card
-        className="w-full"
+        className="w-full relative overflow-hidden"
         bgcolor="bg-white bg-opacity-10 "
-        padding={'px-10 py-9'}
+        padding={`px-10 pt-9 ${
+          proposal?.incentive && incentiveToken ? 'pb-12' : 'pb-9'
+        }`}
       >
         <div className="pb-4 border-b border-white border-opacity-10 px-2 pt-8 text-white text-xl mb-4">
           {desctiption.title}
@@ -812,6 +1184,15 @@ const GovItemDetail = ({
                   return Number(b.v) - Number(a.v);
                 })
                 ?.map((d, i) => {
+                  const optionId = options.indexOf(d.option);
+
+                  const votedThisOption =
+                    voted &&
+                    (proposal?.kind?.Common
+                      ? (i === optionId && voted === 'VoteApprove') ||
+                        (i === optionId && voted === 'VoteReject')
+                      : (voted as VoteAction)?.VotePoll?.poll_id === optionId);
+
                   return (
                     <div className="grid grid-cols-10 hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-9 py-4">
                       <span className="col-span-6 flex items-center">
@@ -834,7 +1215,19 @@ const GovItemDetail = ({
                             Top
                           </span>
                         ) : null}
+                        {!votedThisOption ? null : (
+                          <NewGradientButton
+                            className="ml-2 text-xs h-4 flex items-center px-3 py-3"
+                            text={
+                              <FormattedMessage
+                                id="you_voted"
+                                defaultMessage={'You voted'}
+                              />
+                            }
+                          />
+                        )}
                       </span>
+
                       <span className="col-span-2 ">
                         {toPrecision(scientificNotationToString(d.ratio), 2)}%
                       </span>
@@ -856,6 +1249,26 @@ const GovItemDetail = ({
             onClick={() => setShow(undefined)}
           />
         </div>
+        {proposal?.incentive && incentiveToken ? (
+          <div
+            className={`absolute w-full h-8 bg-veGradient bottom-0 right-0 flex items-center text-center justify-center text-white ${
+              proposal?.status === 'Expired' ? 'opacity-30' : ''
+            }`}
+          >
+            <span>
+              {`${toPrecision(
+                toReadableNumber(
+                  incentiveToken.decimals,
+                  proposal?.incentive?.incentive_amount
+                ),
+                0,
+                true
+              )} ${toRealSymbol(
+                incentiveToken.symbol
+              )} divided equally among all voters`}
+            </span>
+          </div>
+        ) : null}
       </Card>
     </div>
   );
@@ -870,6 +1283,7 @@ const GovProposalItem = ({
   setShowDetail,
   voteDetail,
   voteHistory,
+  unClaimed,
 }: {
   status: string;
   description?: Description;
@@ -879,6 +1293,7 @@ const GovProposalItem = ({
   setShowDetail: (s: number) => void;
   voteDetail: VoteDetail;
   voteHistory: VoteDetail;
+  unClaimed: boolean;
 }) => {
   const StatusIcon = () => {
     return (
@@ -909,7 +1324,25 @@ const GovProposalItem = ({
 
   const isCommon = proposal?.kind?.Common;
 
-  const voted = voteDetail?.[proposal?.id] || voteHistory?.[proposal?.id];
+  const voted = (voteDetail?.[proposal?.id]?.action ||
+    voteHistory?.[proposal?.id]?.action) as
+    | VoteAction
+    | 'VoteReject'
+    | 'VoteApprove';
+
+  const incentive = proposal?.incentive;
+
+  const [incentiveToken, setIncentiveToken] = useState<TokenMetadata>();
+
+  const [showAddBonus, setShowAddBonus] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (proposal?.incentive) {
+      ftGetTokenMetadata(proposal?.incentive?.incentive_token_id).then(
+        setIncentiveToken
+      );
+    }
+  }, [proposal?.incentive]);
 
   const [showVotePop, setShowVotePop] = useState<boolean>(false);
 
@@ -966,12 +1399,14 @@ const GovProposalItem = ({
           turnOut={`${turnOut}%`}
           totalVE={toReadableNumber(LOVE_TOKEN_DECIMAL, totalVE)}
           options={options}
+          voted={voted}
+          incentiveToken={incentiveToken}
         />
       ) : (
         <Card
-          className="w-full flex items-center my-2"
+          className="w-full flex items-center my-2 relative overflow-hidden"
           bgcolor="bg-white bg-opacity-10"
-          padding={'p-8'}
+          padding={`px-8 pt-8 pb-${proposal?.incentive ? '14' : '8'}`}
         >
           <div>
             {status === 'Pending' ? (
@@ -1085,16 +1520,27 @@ const GovProposalItem = ({
                       <FormattedMessage id="voted" defaultMessage={'Voted'} />
                     ) : proposal?.status === 'InProgress' && voted ? (
                       <FormattedMessage id="cancel" defaultMessage={'Cancel'} />
+                    ) : ended && unClaimed ? (
+                      <FormattedMessage
+                        id="claim_reward"
+                        defaultMessage={'Claim Reward'}
+                      />
                     ) : (
                       <FormattedMessage id="vote" defaultMessage={'Vote'} />
                     )
                   }
                   className="ml-2.5 h-11 px-6"
-                  disabled={ended}
+                  disabled={
+                    (ended && !unClaimed) || proposal?.status === 'WarmUp'
+                  }
                   onClick={() => {
                     if (voted) {
                       cancelVote({
                         proposal_id: proposal.id,
+                      });
+                    } else if (unClaimed && ended) {
+                      claimRewardVE({
+                        proposal_id: proposal?.id,
                       });
                     } else {
                       setShowVotePop(true);
@@ -1104,20 +1550,62 @@ const GovProposalItem = ({
               </div>
             </div>
           </div>
-          <VoteGovPopUp
-            isOpen={showVotePop}
-            title={
-              <FormattedMessage id="you_vote" defaultMessage={'You vote'} />
-            }
-            proposalTitle={description?.title}
-            onRequestClose={() => setShowVotePop(false)}
-            options={options}
-            ratios={ratios}
-            proposal={proposal}
-            totalVE={totalVE}
-          />
+          {proposal?.incentive && incentiveToken ? (
+            <div
+              className={`absolute w-full h-8 bg-veGradient bottom-0 right-0 flex items-center text-center justify-center text-white ${
+                proposal?.status === 'Expired' ? 'opacity-30' : ''
+              }`}
+            >
+              <span>
+                {`${toPrecision(
+                  toReadableNumber(
+                    incentiveToken.decimals,
+                    proposal?.incentive?.incentive_amount
+                  ),
+                  0,
+                  true
+                )} ${toRealSymbol(
+                  incentiveToken.symbol
+                )} divided equally among all voters`}
+              </span>
+              {VEmeta?.whitelisted_accounts?.includes(
+                getCurrentWallet().wallet.getAccountId()
+              ) ? (
+                <button
+                  className="flex items-center justify-center rounded-2xl px-4 py-px border border-white bg-black bg-opacity-20 absolute right-7"
+                  onClick={() => {
+                    setShowAddBonus(true);
+                  }}
+                >
+                  <span className="mr-1">+</span>
+                  <span>
+                    <FormattedMessage id="bonus" defaultMessage={'Bonus'} />
+                  </span>
+                </button>
+              ) : null}
+            </div>
+          ) : null}
         </Card>
       )}
+      <VoteGovPopUp
+        isOpen={showVotePop}
+        title={<FormattedMessage id="you_vote" defaultMessage={'You vote'} />}
+        proposalTitle={description?.title}
+        onRequestClose={() => setShowVotePop(false)}
+        options={options}
+        ratios={ratios}
+        proposal={proposal}
+        totalVE={totalVE}
+      />
+      <AddBonusPopUp
+        isOpen={showAddBonus}
+        onRequestClose={() => {
+          setShowAddBonus(false);
+        }}
+        title={<FormattedMessage id="add_bonus" defaultMessage={'Add Bonus'} />}
+        curIncentiveToken={incentiveToken}
+        proposal_id={proposal?.id}
+      />
     </>
   );
 };
@@ -1699,6 +2187,7 @@ export const CreateGovProposal = ({
   index: number;
 }) => {
   const [title, setTitle] = useState<string>('');
+  const [showPreview, setShowPreview] = useState<boolean>(false);
 
   const intl = useIntl();
 
@@ -1795,6 +2284,8 @@ export const CreateGovProposal = ({
       </div>
     );
   };
+
+  const isClientMobie = useClientMobile();
 
   return !show ? null : (
     <div className="text-white">
@@ -1894,6 +2385,7 @@ export const CreateGovProposal = ({
           <BorderGradientButton
             text={<FormattedMessage id="preview" defaultMessage={'Previewe'} />}
             color={'#192734'}
+            onClick={() => setShowPreview(true)}
           />
 
           <NewGradientButton
@@ -1914,6 +2406,27 @@ export const CreateGovProposal = ({
           />
         </div>
       </Card>
+
+      <PreviewPopUp
+        isOpen={showPreview}
+        onRequestClose={() => setShowPreview(false)}
+        index={index}
+        title={
+          <FormattedMessage
+            id="preview_your_proposal"
+            defaultMessage={'Preview your proposal'}
+          />
+        }
+        contentTitle={title}
+        customWidth={isClientMobie ? '95%' : '1000px'}
+        link={link}
+        show={showPreview}
+        setShow={setShowPreview}
+        options={options}
+        turnOut={'0.00%'}
+        totalVE={'0'}
+        type={type}
+      />
     </div>
   );
 };
@@ -1940,13 +2453,11 @@ export const GovProposal = ({
 
   const voteDetail = useVoteDetail();
 
-  console.log(voteDetail, 'vote detai');
-
-  console.log(voteHistory, 'vote history');
-
   const [state, setState] = useState<'All' | 'Live' | 'Ended' | 'Pending'>(
     'All'
   );
+
+  const UnclaimedProposal = useUnclaimedProposal();
 
   const proposalStatus = {
     InProgress: 'Live',
@@ -2020,6 +2531,10 @@ export const GovProposal = ({
               setShowDetail={setShowDetail}
               voteHistory={voteHistory}
               voteDetail={voteDetail}
+              unClaimed={
+                !!UnclaimedProposal?.[p?.id] &&
+                !ONLY_ZEROS.test(UnclaimedProposal?.[p?.id]?.amount)
+              }
             />
           ))}
       </div>

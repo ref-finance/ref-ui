@@ -12,6 +12,7 @@ import {
   VoteDetail,
   getAccountInfo,
   getVoteDetailHistory,
+  getUnclaimedRewards,
 } from '../services/referendum';
 import { AccountInfo } from '../pages/ReferendumPage';
 import {
@@ -205,4 +206,21 @@ export const useAccountInfo = () => {
   }, []);
 
   return { accountInfo, veShare, veShareRaw: accountInfo?.ve_lpt_amount };
+};
+
+export interface UnclaimedProposal {
+  [proposal_id: string]: {
+    action: any;
+    amount: string;
+  };
+}
+
+export const useUnclaimedProposal = () => {
+  const [record, setRecord] = useState<UnclaimedProposal>();
+
+  useEffect(() => {
+    getUnclaimedRewards().then(setRecord);
+  }, []);
+
+  return record;
 };

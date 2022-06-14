@@ -15,6 +15,8 @@ import {
 } from './farm';
 import { storageDepositAction } from './creators/storage';
 import moment from 'moment';
+import { ftGetTokenMetadata } from './ft-contract';
+import { toNonDivisibleNumber } from '../utils/numbers';
 export interface LockOptions {
   token_id: string;
   amount: string;
@@ -23,7 +25,7 @@ export interface LockOptions {
 }
 
 export type Incentive = {
-  incentive_type: string;
+  incentive_type: 'Evenly' | 'Proportion';
   incentive_token_id: string;
   incentive_amount: string;
   claimed_amount: string;
@@ -48,19 +50,21 @@ export interface Proposal {
   start_at: string;
   end_at: string;
   participants: string;
-  incetive: null | Incentive;
+  incentive: null | Incentive;
   status: 'WarmUp' | 'InProgress' | 'Expired';
   is_nonsense: null;
   id?: number;
 }
 
+export type VoteAction = {
+  VoteFarm?: { farm_id: number };
+  VotePoll?: { poll_id: number };
+};
+
 export interface VoteDetail {
   [id: string]: {
     amount: string;
-    action: {
-      VoteFarm?: { farm_id: number };
-      VotePoll?: { poll_id: number };
-    };
+    action: VoteAction;
   };
 }
 
@@ -113,7 +117,7 @@ export const lockLP = async ({
     leftTime === duration
       ? JSON.stringify({
           Append: {
-            append_duration_sec: 0,
+            append_duration_sec: 1,
           },
         })
       : JSON.stringify({ Lock: { duration_sec: duration } });
@@ -344,6 +348,104 @@ export const VoteCommon = async ({
             action,
           },
           gas: '180000000000000',
+        },
+      ],
+    },
+  ];
+  return executeMultipleTransactions(transactions);
+};
+
+export const addBonus = async ({
+  tokenId,
+  amount,
+  incentive_type,
+  proposal_id,
+}: {
+  tokenId: string;
+  amount: string;
+  incentive_type: 'Evenly' | 'Proportion';
+  proposal_id: number;
+}) => {
+  const tokenMeta = await ftGetTokenMetadata(tokenId);
+
+  const msg = JSON.stringify({
+    Reward: {
+      incentive_type,
+      proposal_id,
+    },
+  });
+
+  const transactions: Transaction[] = [
+    {
+      receiverId: tokenId,
+      functionCalls: [
+        {
+          methodName: 'ft_transfer_call',
+          args: {
+            receiver_id: REF_VE_CONTRACT_ID,
+            amount: toNonDivisibleNumber(tokenMeta.decimals, amount),
+            msg,
+          },
+          gas: '180000000000000',
+          amount: ONE_YOCTO_NEAR,
+        },
+      ],
+    },
+  ];
+  return executeMultipleTransactions(transactions);
+};
+
+export const claimRewardVE = async ({
+  proposal_id,
+}: {
+  proposal_id: number;
+}) => {
+  const transactions: Transaction[] = [
+    {
+      receiverId: REF_VE_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'claim_reward',
+          args: {
+            proposal_id,
+          },
+          gas: '180000000000000',
+          amount: ONE_YOCTO_NEAR,
+        },
+      ],
+    },
+  ];
+  return executeMultipleTransactions(transactions);
+};
+
+export const withdrawRewardVE = async ({ token_id }: { token_id: number }) => {
+  const transactions: Transaction[] = [
+    {
+      receiverId: REF_VE_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'withdraw_reward',
+          args: {
+            token_id,
+          },
+          gas: '180000000000000',
+          amount: ONE_YOCTO_NEAR,
+        },
+      ],
+    },
+  ];
+  return executeMultipleTransactions(transactions);
+};
+
+export const claimAndWithdrawAll = async () => {
+  const transactions: Transaction[] = [
+    {
+      receiverId: REF_VE_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'claim_and_withdraw_all',
+          gas: '180000000000000',
+          amount: ONE_YOCTO_NEAR,
         },
       ],
     },

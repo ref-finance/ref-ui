@@ -38,6 +38,7 @@ import {
 } from '../services/aurora/aurora';
 import { AllStableTokenIds } from '../services/near';
 import { defaultTokenList, getAuroraConfig } from '../services/aurora/config';
+import { getTokenPriceList } from '../services/indexer';
 import {
   WalletContext,
   getCurrentWallet,
@@ -302,6 +303,15 @@ export const getDepositableBalance = async (
   } else {
     return '';
   }
+};
+
+export const useTokenPriceList = () => {
+  const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    getTokenPriceList().then(setTokenPriceList);
+  }, []);
+  return tokenPriceList;
 };
 
 export const useTokensData = (

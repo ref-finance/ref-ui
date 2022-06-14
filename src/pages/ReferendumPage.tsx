@@ -97,14 +97,19 @@ export const getPoolId = (env: string = process.env.NEAR_ENV) => {
 };
 
 export const ModalWrapper = (
-  props: Modal.Props & { title: JSX.Element | string | null }
+  props: Modal.Props & {
+    title: JSX.Element | string | null;
+    customWidth?: string;
+    customHeight?: string;
+  }
 ) => {
-  const { isOpen, onRequestClose, title } = props;
+  const { isOpen, onRequestClose, title, customHeight, customWidth } = props;
 
   const cardWidth = isMobile() ? '90vw' : '423px';
   const cardHeight = isMobile() ? '90vh' : '80vh';
   return (
     <Modal
+      {...props}
       isOpen={isOpen}
       onRequestClose={onRequestClose}
       style={{
@@ -123,8 +128,8 @@ export const ModalWrapper = (
         width="w-full"
         className="border border-gradientFrom border-opacity-50 flex flex-col justify-center text-white"
         style={{
-          width: cardWidth,
-          maxHeight: cardHeight,
+          width: customWidth || cardWidth,
+          maxHeight: customHeight || cardHeight,
         }}
       >
         <div className="flex items-center justify-between">
