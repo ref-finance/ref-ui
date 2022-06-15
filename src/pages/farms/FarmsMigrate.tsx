@@ -213,7 +213,7 @@ function WithdrawView({
 }
 export default function FarmsMigrate() {
   debugger;
-  const [old_user_seeds, get_old_user_seeds] = useState();
+  const [user_migrate_seeds, set_user_migrate_seeds] = useState();
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const history = useHistory();
@@ -221,19 +221,23 @@ export default function FarmsMigrate() {
     history.push('/farms');
   };
   useEffect(() => {
-    get_user_seeds();
-    getRewards({});
+    if (isSignedIn) {
+      get_user_seeds();
+      get_user_claimed_rewards();
+    }
   }, []);
 
   async function get_user_seeds() {
     if (isSignedIn) {
       const result_old = await get_list_user_seeds({});
-      const resulr_new = await getBoostSeeds();
-      debugger;
-      console.log('77777777');
+      const result_new = await getBoostSeeds();
+      // debugger;
+      // console.log('77777777');
     }
   }
-  // function get_user_claimed
+  async function get_user_claimed_rewards() {
+    await getRewards({});
+  }
 
   return (
     <div className={`m-auto lg:w-580px md:w-5/6 xs:w-11/12 xs:-mt-4 md:-mt-4`}>
