@@ -110,7 +110,10 @@ const ja_in_risks_page = {
     'トランザクションを使用してコードを再展開するには、フルアクセスキーを使用してトランザクションに署名する必要があります。コントラクトにそのようなキーがない場合、コントラクトコード自体が特別にサポートされていない限り、コードを再展開することはできないので、そのようなコントラクトはロックされているとマークしています。',
   Locked_paragraph_6:
     'コントラクトアカウントに少なくとも1つのフルアクセスキーが登録されている場合、コントラクトはロックされません。',
-  audited_first_sentence: 'RefFinanceのスマートコントラクトが監査されました。',
+  audited_first_sentence:
+    'Ref Financeのスマートコントラクトは<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/audits')" +
+    '>監査</label>されています。',
   admin_first_sentence:
     'Ref Financeによる <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +

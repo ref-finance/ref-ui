@@ -112,7 +112,10 @@ const ru_in_risks_page = {
     'Для того, чтобы повторно развернуть код с помощью транзакции, транзакция должна быть подписана ключом полного доступа. Если в контракте нет такого ключа, то нет возможности повторно развернуть код, если только в самом коде контракта нет специальной поддержки, и поэтому мы отмечаем такие контракты как заблокированные.',
   Locked_paragraph_6:
     'Если в учетной записи контракта зарегистрирован хотя бы один ключ полного доступа, контракт считается не заблокированным.',
-  audited_first_sentence: 'Смарт-контракты Ref Finance прошли аудит.',
+  audited_first_sentence:
+    'Смарт-контракты Ref Finance прошли <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/audits')" +
+    '>аудит</label>.',
   admin_first_sentence:
     'Ref Finance управляется <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +

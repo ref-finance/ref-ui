@@ -74,7 +74,11 @@ export default function RiskPage() {
       <div className="mt-7">
         <ModuleTemplate title={intl.formatMessage({ id: 'audits' })}>
           <p className="text-sm text-riskTextColor mb-4">
-            <FormattedMessage id="audited_first_sentence"></FormattedMessage>
+            <span
+              dangerouslySetInnerHTML={{
+                __html: intl.formatMessage({ id: 'audited_first_sentence' }),
+              }}
+            ></span>
           </p>
           <p className="text-sm text-riskTextColor">
             <FormattedMessage id="audits_paragraph_2" />

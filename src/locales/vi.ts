@@ -111,7 +111,9 @@ const vi_in_risks_page = {
   Locked_paragraph_6:
     'Nếu có ít nhất một khóa toàn quyền truy cập được đăng ký trên tài khoản hợp đồng, hợp đồng sẽ không bị khóa.',
   audited_first_sentence:
-    'Các hợp đồng thông minh của Ref Finance đã được kiểm toán.',
+    'Các hợp đồng thông minh của Ref Finance đã được <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/audits')" +
+    '>kiểm toán</label>.',
   admin_first_sentence:
     'Ref finance được quản trị bởi <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
