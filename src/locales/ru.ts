@@ -113,9 +113,9 @@ const ru_in_risks_page = {
   Locked_paragraph_6:
     'Если в учетной записи контракта зарегистрирован хотя бы один ключ полного доступа, контракт считается не заблокированным.',
   audited_first_sentence:
-    'Смарт-контракты Ref Finance прошли аудит от <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://jitadigital.com/')" +
-    '>Jita</label>. Ref Finance планирует заняться активным поиском второго независимого аудита после завершения первого аудита.',
+    'Смарт-контракты Ref Finance прошли <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/audits')" +
+    '>аудит</label>.',
   admin_first_sentence:
     'Ref Finance управляется <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
@@ -567,5 +567,7 @@ const ru = {
   burrow_usn_tip: 'Вы можете одолжить USN на Burrow.',
   borrow: 'Занимать',
   stake_min_deposit: 'Input must be greater than or equal to ',
+  total_near_amount: 'Общая сумма NEAR',
+  near_value: 'Ценность NEAR',
 };
 export default Object.assign(ru, ru_in_risks_page);

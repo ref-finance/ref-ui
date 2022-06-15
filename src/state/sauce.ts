@@ -6,7 +6,7 @@ import BigNumber from 'bignumber.js';
 import { formatePoolData } from '../pages/stable/StableSwapEntry';
 import { TokenMetadata, ftGetTokenMetadata } from '../services/ft-contract';
 
-import { getPool } from '~services/indexer';
+import { getPool } from '../services/indexer';
 
 export interface PoolData {
   pool: Pool;
