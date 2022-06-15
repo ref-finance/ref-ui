@@ -545,7 +545,7 @@ export const RewardCheck = () => {
     >
       <path
         d="M1 3.5L3.66667 6L9 1"
-        stroke="white"
+        stroke="currentColor"
         stroke-width="2"
         stroke-linecap="round"
       />

@@ -1,7 +1,7 @@
 import Big from 'big.js';
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl, FormattedRelativeTime } from 'react-intl';
 import { NewGradientButton } from '~components/button/Button';
 import {
@@ -59,7 +59,7 @@ import {
   VEMETA,
   useVoteDetailHisroty,
 } from '../../state/referendum';
-import { getCurrentWallet } from '../../utils/sender-wallet';
+import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { Item } from '../airdrop/Item';
 import { ShareInFarmV2 } from './ShareInFarm';
 import {
@@ -2460,8 +2460,14 @@ export const GovProposal = ({
   setShowDetail: (s: number) => void;
 }) => {
   const VotedOnlyKey = 'REF_FI_GOV_PROPOSAL_VOTED_ONLY';
+
+  const { globalState } = useContext(WalletContext);
+
+  const isSignedIn = globalState.isSignedIn;
+
   const [votedOnly, setVotedOnly] = useState<boolean>(
-    localStorage.getItem(VotedOnlyKey)?.toString() === '1' || false
+    (isSignedIn && localStorage.getItem(VotedOnlyKey)?.toString() === '1') ||
+      false
   );
 
   const VEmeta = useVEmeta();
@@ -2595,6 +2601,8 @@ export const ProposalCard = () => {
     localStorage.setItem(REF_FI_PROPOSALTAB, curTab);
   }, [curTab]);
 
+  console.log(proposals);
+
   return (
     <div className="w-full flex flex-col items-center ">
       <ProposalTab curTab={curTab} setTab={setTab} className="mt-12 mb-4" />
@@ -2614,11 +2622,9 @@ export const ProposalCard = () => {
           />
         ) : (
           <GovProposal
-            proposals={
-              proposals?.filter(
-                (p) => !Object.keys(p.kind).includes('FarmingReward')
-              ) || []
-            }
+            proposals={proposals?.filter(
+              (p) => !Object.keys(p.kind).includes('FarmingReward')
+            )}
             setShowCreateProposal={setShowCreateProposal}
             showDetail={showDetail}
             setShowDetail={setShowDetail}

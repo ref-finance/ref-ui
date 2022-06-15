@@ -9,7 +9,7 @@ import {
   REF_META_DATA,
 } from '../services/ft-contract';
 import { Images } from '~components/stableswap/CommonComp';
-import { wnearMetadata } from '../services/wrap-near';
+import { wnearMetadata, unwrapedNear } from '../services/wrap-near';
 import { usePoolShare } from '../state/pool';
 import {
   NewGradientButton,
@@ -568,7 +568,14 @@ export const LockPopUp = ({
         />
 
         <div className="pt-4 text-sm flex items-start ">
-          <CheckRadioButtonVE check={termsCheck} setCheck={setTermsCheck} />
+          <button
+            className="w-4 h-4 bg-navHighLightBg flex items-center text-gradientFrom justify-center border flex-shrink-0 border-gradientFrom rounded mr-2.5"
+            onClick={() => {
+              setTermsCheck(!termsCheck);
+            }}
+          >
+            {!termsCheck ? null : <RewardCheck />}
+          </button>
 
           <span>
             I understand and accept the terms relating to the early unlocking
@@ -904,7 +911,7 @@ const UserReferendumCard = ({
   lpShare: string;
   accountInfo: AccountInfo;
 }) => {
-  const tokens = [REF_META_DATA, wnearMetadata];
+  const tokens = [REF_META_DATA, unwrapedNear];
 
   const { globalState } = useContext(WalletContext);
 
