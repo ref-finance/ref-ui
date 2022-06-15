@@ -97,10 +97,7 @@ const zh_CN_in_risks_page = {
     '要使用交易重新部署代码，必须使用完全访问密钥对交易进行签名。 如果合约上没有这样的密钥，除非合约代码本身有专门的支持，否则无法重新部署代码，因此我们将此类合约标记为已锁定。',
   Locked_paragraph_6:
     '如果合约账户上至少注册了一个完全访问密钥，则合约不会被锁定。',
-  audited_first_sentence:
-    '<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://jitadigital.com/')" +
-    '>Jita</label> 正在审核 Ref Finance 智能合约。 一旦第一次审计完成，Ref Finance 将积极寻求第二次独立审计。',
+  audited_first_sentence: 'Ref Finance 智能合约已经过审计。',
   admin_first_sentence:
     'Ref Finance 由 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +

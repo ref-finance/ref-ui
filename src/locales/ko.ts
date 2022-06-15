@@ -106,10 +106,7 @@ const ko_in_risks_page = {
     '이 코드를 트랜잭션을 통해 재배포하려면, 그 트랜잭션은 풀 액세스 키로 서명되어야 합니다. 만약 계약 내에 그런 키가 아예 없고, 계약 코드 내에 관련 지원이 따로 없다면, 이 코드는 재배포가 불가능합니다. 이 때 우리는 이 계약을 "잠김" 표시합니다 ',
   Locked_paragraph_6:
     '만약 하나라도 풀 액세스 키가 계약 계정에 등록되어 있는 경우, 그 계약은 잠기지 않습니다. ',
-  audited_first_sentence:
-    'Ref Finance의 스마트 계약들은 이 기관에서 감사 합니다:  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://jitadigital.com/')" +
-    '>Jita</label>. Ref Finance는 첫 감사가 끝난 이후, 이와 독립적인 두 번째 감사를 찾아 받을 예정입니다.',
+  audited_first_sentence: 'Ref Finance 스마트 계약이 감사되었습니다.',
   admin_first_sentence:
     'Ref Finance 는 이 사람들이 관리합니다 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +

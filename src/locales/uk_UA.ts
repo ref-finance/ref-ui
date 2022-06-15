@@ -111,10 +111,7 @@ const uk_UA_in_risks_page = {
     'Для повторного розгортання коду за deploy-code, транзакція повинна бути підписана ключем повного доступу. Якщо в контракті немає такого ключа, то немає можливості розгорнути код, якщо тільки в самому коді контракту немає спеціальної підтримки, і тому ми помічаємо такі контракти, як заблоковані.',
   Locked_paragraph_6:
     'Якщо на обліковому записі контракта зареєстровано, хоча б один ключ повного доступу, контракт не блокується.',
-  audited_first_sentence:
-    'Смарт-контракти Ref Finance пройшли аудит <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://jitadigital.com/')" +
-    '>Jita</label>. Ref Finance буде активно шукати можливості проведення другого незалежного аудиту після завершення першого.',
+  audited_first_sentence: 'Розумні контракти Ref Finance пройшли аудит.',
   admin_first_sentence:
     'Управління Ref Finance здійснюється<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +

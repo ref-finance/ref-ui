@@ -108,10 +108,8 @@ const en_US_in_risks_page = {
     'To re-deploy the code with a transaction, the transaction has to be signed with a full-access key. If there is no such key on the contract, there is no way to re-deploy the code unless there is a dedicated support in the contract code itself, and thus we mark such contracts as locked.',
   Locked_paragraph_6:
     'If there is at least one full-access key registered on the contract account, the contract is not locked.',
-  audited_first_sentence:
-    'Ref Finance smart contracts are being audited by <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://jitadigital.com/')" +
-    '>Jita</label>. Ref Finance will actively look for a second independant audit once the first audit is completed.',
+  audited_first_sentence: 'Ref Finance smart contracts have been audited.',
+
   admin_first_sentence:
     'Ref Finance is managed by the <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
