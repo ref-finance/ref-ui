@@ -65,6 +65,7 @@ import { StableSwapPageEntry } from '~pages/stable/StableSwapEntry';
 import { senderSignedInToast } from '~components/layout/senderSignInPopUp';
 import { getAllTriPools } from './services/aurora/aurora';
 import FarmsBoosterPage from './pages/farms/FarmsBoostPage';
+import FarmsMigrate from './pages/farms/FarmsMigrate';
 
 import {
   getSenderLoginRes,
@@ -281,6 +282,7 @@ function App() {
               path="/farmsBoost/:id?"
               component={AutoHeight(FarmsBoosterPage)}
             />
+            <Route path="/farmsMigrate" component={AutoHeight(FarmsMigrate)} />
             <Route path="/" component={AutoHeight(SwapPage)} />
           </Switch>
           <Footer />

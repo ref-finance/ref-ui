@@ -139,6 +139,16 @@ export const getStakedListByAccountId = async ({
   return { finalStakeList, v2StakedList, stakedList };
 };
 
+export const get_list_user_seeds = async ({
+  accountId = getCurrentWallet().wallet.getAccountId(),
+}) => {
+  const stakedList = await refFarmViewFunction({
+    methodName: 'list_user_seeds',
+    args: { account_id: accountId },
+  });
+  return stakedList;
+};
+
 export const getLPTokenId = (farm_id: string) => {
   return farm_id.slice(farm_id.indexOf('@') + 1, farm_id.lastIndexOf('#'));
 };
