@@ -1,7 +1,13 @@
 import Big from 'big.js';
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  forwardRef,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { FormattedMessage, useIntl, FormattedRelativeTime } from 'react-intl';
 import { NewGradientButton } from '~components/button/Button';
 import {
@@ -23,7 +29,7 @@ import {
   multiply,
 } from '../../utils/numbers';
 import { BorderGradientButton } from '../button/Button';
-import { ModalWrapper } from '../../pages/ReferendumPage';
+import { ModalWrapper, CalenderIcon } from '../../pages/ReferendumPage';
 import Modal from 'react-modal';
 import { Images, Symbols } from '../stableswap/CommonComp';
 import {
@@ -85,7 +91,156 @@ import { VoteAction, VoteFarm } from '../../services/referendum';
 import { VotedIcon } from '../icon/Referendum';
 import { useClientMobile, isClientMobie } from '../../utils/device';
 
+import DatePicker from 'react-datepicker';
+
+import 'react-datepicker/dist/react-datepicker.css';
+
 const REF_FI_PROPOSALTAB = 'REF_FI_PROPOSALTAB_VALUE';
+
+export const getCurUTCDate = (base?: Date) => {
+  let now = new Date();
+  if (base) now = new Date(base);
+  const utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
+
+  return utc;
+};
+
+export const addDays = (days: number, base?: Date) => {
+  const curDate = getCurUTCDate(base);
+  curDate.setDate(curDate.getDate() + days);
+
+  return curDate;
+};
+
+export const addHours = (date: Date, hours?: number) => {
+  const newDate = date;
+
+  newDate.setHours(date.getHours() + (hours | 0));
+
+  return newDate;
+};
+
+export const CustomDatePicker = ({
+  startTime,
+  setStartTime,
+  endTime,
+  setEndTime,
+  forEnd,
+  setOpenPicker,
+  openPicker,
+}: {
+  startTime: Date;
+  setStartTime: (d: Date) => void;
+  endTime?: Date;
+  setEndTime?: (d: Date) => void;
+  forEnd?: boolean;
+  openPicker?: boolean;
+  setOpenPicker: (o: boolean) => void;
+}) => {
+  const minDate = addDays(1);
+
+  const onChange = (date: Date) => {
+    if (forEnd) {
+      setEndTime(date);
+      if (isSameDay(date, startTime)) {
+        const h1 = startTime.getHours();
+
+        const h2 = date.getHours();
+
+        const m2 = date.getMinutes();
+
+        setEndTime(
+          new Date(
+            getCurUTCDate(date).setHours(
+              h1 + 1 > h2 ? h1 + 1 : h2,
+              Math.floor(m2 / 30) * 30,
+              0,
+              0
+            )
+          )
+        );
+      } else {
+        setEndTime(date);
+      }
+    } else {
+      setStartTime(date);
+    }
+  };
+
+  const isSameDay = (d1: Date, d2: Date) => {
+    return (
+      d1.getFullYear() === d2.getFullYear() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate()
+    );
+  };
+
+  const getMinTime = () => {
+    if (forEnd) {
+      if (isSameDay(startTime, endTime)) {
+        const h1 = startTime.getHours();
+
+        return new Date(getCurUTCDate().setHours(h1 + 1, 0, 0, 0));
+      } else {
+        return new Date(getCurUTCDate().setHours(0, 0, 0, 0));
+      }
+    } else {
+      if (isSameDay(startTime, minDate)) {
+        const h1 = minDate.getHours();
+
+        return new Date(getCurUTCDate().setHours(h1, 0, 0, 0));
+      } else {
+        return new Date(getCurUTCDate().setHours(0, 0, 0, 0));
+      }
+    }
+  };
+
+  const getMaxTime = () => {
+    if (!forEnd && isSameDay(startTime, endTime)) {
+      const h1 = endTime.getHours();
+      return new Date(getCurUTCDate().setHours(h1 - 1, 0, 0, 0));
+    } else {
+      return new Date(
+        getCurUTCDate().setHours(0, 0, 0, 0) + 24 * 60 * 60 * 1000 - 1
+      );
+    }
+  };
+
+  const getMinDate = () => {
+    if (forEnd) {
+      return startTime;
+    } else {
+      return minDate;
+    }
+  };
+
+  const getMaxDate = () => {
+    if (forEnd) {
+      return null;
+    }
+
+    return endTime;
+  };
+
+  return (
+    <DatePicker
+      showTimeSelect
+      selected={forEnd ? endTime : startTime}
+      onChange={onChange}
+      minDate={getMinDate()}
+      maxDate={getMaxDate()}
+      minTime={getMinTime()}
+      maxTime={getMaxTime()}
+      dateFormat="yyyy-MM-dd hh:mm:ss aa"
+      preventOpenOnFocus={true}
+      open={openPicker}
+      onClickOutside={(e) => {
+        e.stopPropagation();
+        setOpenPicker(false);
+      }}
+    />
+  );
+};
 
 const VotePopUp = (
   props: Modal.Props & {
@@ -2213,8 +2368,14 @@ export const CreateGovProposal = ({
 
   const [link, setLink] = useState<string>();
 
-  const [startTime, setStartTime] = useState<string>();
-  const [endTime, setEndTime] = useState<string>();
+  const [startTime, setStartTime] = useState<Date>(addDays(1));
+
+  const [endTime, setEndTime] = useState<Date>(addDays(7));
+
+  const [openPickerStart, setOpenPickerStart] = useState<boolean>(false);
+  const [openPickerEnd, setOpenPickerEnd] = useState<boolean>(false);
+
+  console.log(openPickerStart);
 
   const typeList = ['Pool', 'Yes/No'];
 
@@ -2371,9 +2532,46 @@ export const CreateGovProposal = ({
         </div>
 
         <div className="flex items-center">
-          <div className="rounded-lg bg-black bg-opacity-10 py-2 px-3"></div>{' '}
+          <div className="rounded-lg bg-black bg-opacity-10 py-2 px-3 flex items-center justify-between w-60 cursor-pointer">
+            <CustomDatePicker
+              startTime={startTime}
+              setStartTime={setStartTime}
+              setEndTime={setEndTime}
+              endTime={endTime}
+              openPicker={openPickerStart}
+              setOpenPicker={setOpenPickerStart}
+            />
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+
+                setOpenPickerStart(!openPickerStart);
+              }}
+            >
+              <CalenderIcon />
+            </div>
+          </div>{' '}
           <span className="mx-4">-</span>
-          <div className="rounded-lg bg-black bg-opacity-10 py-2 px-3"></div>
+          <div className="rounded-lg bg-black bg-opacity-10 py-2 px-3 flex items-center justify-between w-60 cursor-pointer">
+            <CustomDatePicker
+              startTime={startTime}
+              setStartTime={setStartTime}
+              endTime={endTime}
+              setEndTime={setEndTime}
+              forEnd
+              openPicker={openPickerEnd}
+              setOpenPicker={setOpenPickerEnd}
+            />
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+
+                setOpenPickerEnd(!openPickerEnd);
+              }}
+            >
+              <CalenderIcon />
+            </div>
+          </div>
         </div>
 
         <div className="pb-4 pt-10">
