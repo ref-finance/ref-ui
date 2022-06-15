@@ -222,13 +222,9 @@ export const calculateSmartRoutingPriceImpact = (
         tokenOut
       );
 
-  console.log(tokenInAmount, tokenOutReceived.toString(), 'tokenOutReceived');
-
   const newMarketPrice = math.evaluate(
     `${tokenInAmount} / ${tokenOutReceived}`
   );
-
-  console.log(newMarketPrice.toString(), 'newMarketPrice');
 
   const PriceImpact = percent(
     subtraction(newMarketPrice, generalMarketPrice),

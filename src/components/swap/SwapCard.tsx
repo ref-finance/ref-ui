@@ -735,7 +735,6 @@ export default function SwapCard(props: {
         swapsToDo?.length === 1 &&
         swapsToDo[0].status === PoolMode.STABLE
       ) {
-        console.log('sdadas');
         return calcStableSwapPriceImpact(
           toReadableNumber(tokenIn.decimals, swapsToDo[0].totalInputAmount),
           swapsToDo[0].noFeeAmountOut,

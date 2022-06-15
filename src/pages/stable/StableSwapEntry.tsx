@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
-import Loading from '~components/layout/Loading';
+import Loading from '../../components/layout/Loading';
 import TokenReserves, {
   calculateTotalStableCoins,
-} from '~components/stableswap/TokenReserves';
-import { StableSwapLogo } from '~components/icon/StableSwap';
+} from '../../components/stableswap/TokenReserves';
+import { StableSwapLogo } from '../../components/icon/StableSwap';
 import { Link, useHistory } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { Pool } from '../../services/pool';
@@ -34,10 +34,10 @@ import {
   toPrecision,
   scientificNotationToString,
 } from '../../utils/numbers';
-import { ConnectToNearBtn, SolidButton } from '~components/button/Button';
+import { ConnectToNearBtn, SolidButton } from '../../components/button/Button';
 import { OutlineButton } from '../../components/button/Button';
-import { Images, Symbols } from '~components/stableswap/CommonComp';
-import { FarmMiningIcon } from '~components/icon';
+import { Images, Symbols } from '../../components/stableswap/CommonComp';
+import { FarmMiningIcon } from '../../components/icon';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { useStabelPoolData } from '../../state/sauce';
 import {
