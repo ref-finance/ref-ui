@@ -735,6 +735,10 @@ export const PreviewPopUp = (
     contentTitle: string;
     type: string;
     index: number;
+    startTime: Date;
+    setStartTime: (d: Date) => void;
+    endTime: Date;
+    setEndTime: (d: Date) => void;
   }
 ) => {
   const {
@@ -750,6 +754,10 @@ export const PreviewPopUp = (
     contentTitle,
     type,
     index,
+    startTime,
+    setStartTime,
+    endTime,
+    setEndTime,
   } = props;
 
   const intl = useIntl();
@@ -806,7 +814,9 @@ export const PreviewPopUp = (
             id: 'voting_period',
             defaultMessage: 'Voting Period',
           })}
-          value={''}
+          value={`${moment(startTime).format(
+            'yyyy-MM-DD hh:mm:ss A'
+          )} - ${moment(endTime).format('yyyy-MM-DD hh:mm:ss A')} UTC`}
         />
         <InfoRow
           name={intl.formatMessage({
@@ -2632,6 +2642,10 @@ export const CreateGovProposal = ({
             defaultMessage={'Preview your proposal'}
           />
         }
+        startTime={startTime}
+        endTime={endTime}
+        setStartTime={setStartTime}
+        setEndTime={setEndTime}
         contentTitle={title}
         customWidth={isClientMobie ? '95%' : '1000px'}
         link={link}
