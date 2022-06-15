@@ -280,7 +280,8 @@ export function FarmsPage() {
       any
     ] = await Promise.all(Params);
 
-    const stakedList: Record<string, string> = resolvedParams[0].stakedList;
+    const stakedList: Record<string, string> =
+      resolvedParams[0].stakedList || {};
     const tokenPriceList: any = resolvedParams[2];
     const seeds: Record<string, string> = resolvedParams[3];
     getAllPoolsDayVolume(seeds);
