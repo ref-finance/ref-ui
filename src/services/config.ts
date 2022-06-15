@@ -116,9 +116,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
+        BLACKLIST_POOL_IDS: ['3514'],
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
-        BLACKLIST_POOL_IDS: ['3514'],
       };
     case 'pub-testnet':
       return {
@@ -289,9 +289,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
+        BLACKLIST_POOL_IDS: ['3514'],
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
-        BLACKLIST_POOL_IDS: ['3514'],
       };
   }
 }
