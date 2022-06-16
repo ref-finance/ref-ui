@@ -62,9 +62,7 @@ export default function PopUpSwiper() {
               <div
                 className="relative cursor-pointer"
                 onClick={() => {
-                  window.open(
-                    'https://medium.com/nearprotocol/decentral-bank-launches-usn-a-near-native-stablecoin-cafe1ec0c5af'
-                  );
+                  window.open('/farms');
                 }}
               >
                 <div
