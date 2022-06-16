@@ -74,7 +74,7 @@ import {
   VoteDetail,
   addBonus,
 } from '../../services/referendum';
-import { useAccountInfo } from '../../state/referendum';
+import { useAccountInfo, useVEconfig } from '../../state/referendum';
 import SelectToken from '../forms/SelectToken';
 import { IconLeft } from '../tokens/Icon';
 import { REF_META_DATA, ftGetBalance } from '../../services/ft-contract';
@@ -103,6 +103,14 @@ export const getCurUTCDate = (base?: Date) => {
   const utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
 
   return utc;
+};
+
+export const dateToUnixTimeSec = (date: Date) => {
+  const local = new Date(
+    date.getTime() - date.getTimezoneOffset() * 60000
+  ).getTime();
+
+  return Math.floor(local / 1000);
 };
 
 export const addDays = (days: number, base?: Date) => {
@@ -196,14 +204,9 @@ export const CustomDatePicker = ({
   };
 
   const getMaxTime = () => {
-    if (!forEnd && isSameDay(startTime, endTime)) {
-      const h1 = endTime.getHours();
-      return new Date(getCurUTCDate().setHours(h1 - 1, 0, 0, 0));
-    } else {
-      return new Date(
-        getCurUTCDate().setHours(0, 0, 0, 0) + 24 * 60 * 60 * 1000 - 1
-      );
-    }
+    return new Date(
+      getCurUTCDate().setHours(0, 0, 0, 0) + 24 * 60 * 60 * 1000 - 1
+    );
   };
 
   const getMinDate = () => {
@@ -214,21 +217,12 @@ export const CustomDatePicker = ({
     }
   };
 
-  const getMaxDate = () => {
-    if (forEnd) {
-      return null;
-    }
-
-    return endTime;
-  };
-
   return (
     <DatePicker
       showTimeSelect
       selected={forEnd ? endTime : startTime}
       onChange={onChange}
       minDate={getMinDate()}
-      maxDate={getMaxDate()}
       minTime={getMinTime()}
       maxTime={getMaxTime()}
       dateFormat="yyyy-MM-dd hh:mm:ss aa"
@@ -359,6 +353,7 @@ const VotePopUp = (
               index,
             });
           }}
+          beatStyling
         />
       </div>
     </ModalWrapper>
@@ -536,7 +531,6 @@ const VoteChart = ({
           className="pt-1 pb-2 pr-2 pl-3 flex flex-col rounded-lg bg-voteLabel text-xs"
           style={{
             backdropFilter: 'blur(30px)',
-            // width: '80px',
           }}
         >
           <div className="flex items-center justify-between pb-1.5">
@@ -760,6 +754,12 @@ export const PreviewPopUp = (
     setEndTime,
   } = props;
 
+  const displayLink =
+    (new RegExp('https://').test(link) || new RegExp('http://').test(link)) &&
+    link.indexOf(link) === 0
+      ? link
+      : `https://${link}`;
+
   const intl = useIntl();
 
   const data = options.map((o, i) => {
@@ -837,7 +837,7 @@ export const PreviewPopUp = (
           <button
             className="flex items-center "
             onClick={() => {
-              window.open(link, '_blank');
+              link && window.open(displayLink, '_blank');
             }}
           >
             <span>
@@ -977,7 +977,8 @@ const FarmChart = ({
                 scientificNotationToString(activeFarm.value.toString())
               ),
               2,
-              true
+              true,
+              false
             )}
           </span>
         </div>
@@ -1183,6 +1184,14 @@ const GovItemDetail = ({
 }) => {
   const intl = useIntl();
 
+  const link = desctiption.link;
+
+  const displayLink =
+    (new RegExp('https://').test(link) || new RegExp('http://').test(link)) &&
+    link.indexOf(link) === 0
+      ? link
+      : `https://${link}`;
+
   const data = (
     proposal?.kind?.Common ? proposal?.votes?.slice(0, 2) : proposal?.votes
   )?.map((v, i) => {
@@ -1312,7 +1321,7 @@ const GovItemDetail = ({
           <button
             className="flex items-center "
             onClick={() => {
-              window.open(desctiption.link, '_blank');
+              window.open(displayLink, '_blank');
             }}
           >
             <span>
@@ -1712,6 +1721,9 @@ const GovProposalItem = ({
                       <FormattedMessage id="vote" defaultMessage={'Vote'} />
                     )
                   }
+                  beatStyling={
+                    unClaimed || (proposal?.status === 'InProgress' && !!voted)
+                  }
                   className="ml-2.5 h-11 px-6"
                   disabled={
                     (ended && !unClaimed) || proposal?.status === 'WarmUp'
@@ -1943,6 +1955,7 @@ export const VoteGovPopUp = (
                   index: options.indexOf(value),
                 });
           }}
+          beatStyling
         />
       </div>
     </ModalWrapper>
@@ -1961,8 +1974,7 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
 
   const voteDetail = useVoteDetail();
 
-  const { accountInfo, veShare, veShareRaw } = useAccountInfo();
-  const [hover, setHover] = useState<number>();
+  const { veShare, veShareRaw } = useAccountInfo();
 
   const startTime = Math.floor(
     new Big(farmProposal?.start_at || 0).div(TIMESTAMP_DIVISOR).toNumber()
@@ -1973,6 +1985,9 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
   );
 
   const ended = moment().unix() > endTime;
+
+  const isPending = moment().unix() < startTime;
+
   const InfoCard = ({
     titles,
     values,
@@ -2018,46 +2033,32 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
     tokens,
   }: {
     className?: string;
-    voted?: string;
+    voted: number;
     index: number;
     tokens: TokenMetadata[];
   }) => {
     const [votePopUpOpen, setVotePopUpOpen] = useState<boolean>(false);
-    const ButtonRender = () => {
-      const submit = (e: Event) => {
-        !voted
-          ? setVotePopUpOpen(true)
-          : !ended && Number(voted) === index
-          ? cancelVote({ proposal_id: farmProposal.id })
-          : e.stopPropagation();
-      };
 
-      const text =
-        hover === index && Number(voted) === index ? (
-          <FormattedMessage id="cancel" defaultMessage={'Cancel'} />
-        ) : ended ? (
-          <FormattedMessage id="ended" defaultMessage={'Ended'} />
-        ) : (
-          <FormattedMessage id="vote" defaultMessage={'Vote'} />
-        );
-
-      return hover === index && (!voted || Number(voted) === index) ? (
-        <NewGradientButton
-          onClick={submit}
-          text={text}
-          className="w-20 py-2.5 px-4 h-10"
-        />
-      ) : (
-        <BorderGradientButton
-          onClick={submit}
-          text={text}
-          width="w-20 h-10"
-          opacity={voted || ended ? 'opacity-30' : ''}
-          className={`py-1 px-4 h-full`}
-          color="#323842"
-        />
-      );
+    const [hover, setHover] = useState<boolean>(false);
+    const submit = (e: Event) => {
+      setHover(false);
+      ended || isPending
+        ? e.stopPropagation()
+        : voted === index
+        ? cancelVote({ proposal_id: farmProposal.id })
+        : voted === undefined
+        ? setVotePopUpOpen(true)
+        : e.stopPropagation();
     };
+    const text = ended ? (
+      <FormattedMessage id="ended_ve" defaultMessage={'Ended'} />
+    ) : ONLY_ZEROS.test(veShare) && !isPending ? (
+      <FormattedMessage id="no_veLPT" defaultMessage={'No veLPT'} />
+    ) : voted === index ? (
+      <FormattedMessage id="cancel" defaultMessage={'Cancel'} />
+    ) : (
+      <FormattedMessage id="vote" defaultMessage={'Vote'} />
+    );
 
     const ratio = votedVE.isGreaterThan(0)
       ? scientificNotationToString(
@@ -2087,45 +2088,68 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
     );
 
     return (
-      <div
-        className={`py-5 grid grid-cols-7 rounded-lg items-center ${
-          hover === index ? 'bg-chartBg bg-opacity-20' : ''
-        } cursor-pointer text-white`}
-        onMouseEnter={() => setHover(index)}
-        onMouseLeave={() => setHover(null)}
-        onTouchStart={() => setHover(index)}
-      >
-        <span className="col-span-3 pl-4 flex items-center">
-          <Images tokens={tokens} size={'9'} />
-          <span className="pr-2.5"></span>
-          <Symbols tokens={tokens} seperator={'-'} />
+      <>
+        <div
+          className={`py-5 grid grid-cols-7 rounded-lg items-center ${
+            hover ? 'bg-chartBg bg-opacity-20' : ''
+          } text-white`}
+          onMouseEnter={() => setHover(true)}
+          onMouseLeave={() => setHover(false)}
+          onTouchStart={() => setHover(true)}
+        >
+          <span className="col-span-3 pl-4 flex items-center">
+            <Images tokens={tokens} size={'9'} />
+            <span className="pr-2.5"></span>
+            <Symbols tokens={tokens} seperator={'-'} />
 
-          {voted === index.toString() ? (
-            <NewGradientButton
-              className="ml-2 text-white text-sm px-2.5 py-1.5"
-              text={
-                <FormattedMessage id="you_voted" defaultMessage={'You voted'} />
-              }
-            />
-          ) : null}
-        </span>
-        <span className="col-span-1 text-center">
-          {toPrecision(
-            toReadableNumber(24, farmProposal?.votes[index]),
-            0,
-            true
-          )}
-        </span>
-        <span className="col-span-1 text-center">
-          {toPrecision(ratio, 1, false)}%
-        </span>
-        <span className="col-span-1 text-center">
-          {toPrecision(allocate, 0, true)}
-        </span>
-        <span className="col-span-1 text-center text-white text-sm">
-          <ButtonRender />
-        </span>
-
+            {voted === index ? (
+              <NewGradientButton
+                className="ml-2 text-white text-sm px-2.5 py-1.5"
+                text={
+                  <FormattedMessage
+                    id="you_voted"
+                    defaultMessage={'You voted'}
+                  />
+                }
+              />
+            ) : null}
+          </span>
+          <span className="col-span-1 text-center">
+            {toPrecision(
+              toReadableNumber(24, farmProposal?.votes[index]),
+              0,
+              true
+            )}
+          </span>
+          <span className="col-span-1 text-center">
+            {toPrecision(ratio, 1, false)}%
+          </span>
+          <span className="col-span-1 text-center">
+            {toPrecision(allocate, 0, true)}
+          </span>
+          <span className="col-span-1 text-center text-white text-sm">
+            {hover || voted === index ? (
+              <NewGradientButton
+                onClick={submit}
+                text={text}
+                className="w-20 py-2.5 px-4 h-10"
+                beatStyling={voted === index}
+                disabled={
+                  ended || isPending || (voted !== undefined && voted !== index)
+                }
+              />
+            ) : (
+              <BorderGradientButton
+                onClick={submit}
+                text={text}
+                width="w-20 h-10"
+                opacity={'opacity-30'}
+                className={`py-1 px-4 h-full`}
+                color="#2c313a"
+              />
+            )}
+          </span>
+        </div>
         <VotePopUp
           isOpen={votePopUpOpen}
           onRequestClose={() => setVotePopUpOpen(false)}
@@ -2143,7 +2167,7 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
           ratioNew={`${toPrecision(ratioNew, 1, false)}%`}
           allocationNew={toPrecision(allocateNew, 0, true)}
         />
-      </div>
+      </>
     );
   };
 
@@ -2230,7 +2254,7 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
             />,
             <FormattedMessage
               id="designatated_pools"
-              defaultMessage={'Designatated Pools'}
+              defaultMessage={'Designated Pools'}
             />,
           ]}
           values={[
@@ -2346,9 +2370,9 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
                 index={id}
                 key={id}
                 tokens={pair.split(PAIR_SEPERATOR).map((id) => tokens?.[id])}
-                voted={voteDetail?.[
-                  farmProposal?.id
-                ]?.action?.VoteFarm?.farm_id?.toString()}
+                voted={
+                  voteDetail?.[farmProposal?.id]?.action?.VoteFarm?.farm_id
+                }
               />
             );
           }
@@ -2376,6 +2400,8 @@ export const CreateGovProposal = ({
 
   const [options, setOptions] = useState<string[]>([]);
 
+  const config = useVEconfig();
+
   const [link, setLink] = useState<string>();
 
   const [startTime, setStartTime] = useState<Date>(addDays(1));
@@ -2384,8 +2410,6 @@ export const CreateGovProposal = ({
 
   const [openPickerStart, setOpenPickerStart] = useState<boolean>(false);
   const [openPickerEnd, setOpenPickerEnd] = useState<boolean>(false);
-
-  console.log(openPickerStart);
 
   const typeList = ['Pool', 'Yes/No'];
 
@@ -2608,7 +2632,7 @@ export const CreateGovProposal = ({
 
         <div className="flex items-center justify-end pt-6">
           <BorderGradientButton
-            text={<FormattedMessage id="preview" defaultMessage={'Previewe'} />}
+            text={<FormattedMessage id="preview" defaultMessage={'Preview'} />}
             color={'#192734'}
             onClick={() => setShowPreview(true)}
           />
@@ -2617,6 +2641,14 @@ export const CreateGovProposal = ({
             text={<FormattedMessage id="create" defaultMessage={'Create'} />}
             disabled={!title || !link || options?.length < 1}
             onClick={() => {
+              if (
+                moment().unix() + config.min_proposal_start_vote_offset_sec >
+                dateToUnixTimeSec(startTime)
+              ) {
+                // TODO: tip
+                return;
+              }
+
               createProposal({
                 description: {
                   title: `#${index} ${title}`,
@@ -2624,9 +2656,11 @@ export const CreateGovProposal = ({
                 },
                 kind: type === 'Pool' ? 'Poll' : 'Common',
                 options,
-                duration_sec: 3600, // TODO:
+                duration_sec:
+                  dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime),
               });
             }}
+            beatStyling
             className="ml-4"
           />
         </div>

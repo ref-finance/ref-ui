@@ -1,6 +1,6 @@
 import Big from 'big.js';
 import BigNumber from 'bignumber.js';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   TokenMetadata,
   ftGetTokenMetadata,
@@ -15,6 +15,9 @@ import {
   getUnclaimedRewards,
 } from '../services/referendum';
 import { AccountInfo } from '../pages/ReferendumPage';
+import { WalletContext } from '../utils/sender-wallet';
+import { getUnclaimedProposal, VEConfig } from '../services/referendum';
+import { useDepositableBalance } from './token';
 import {
   getVEConfig,
   getVEMetaData,
@@ -85,14 +88,16 @@ export const useMultiplier = ({
     const finalLoveAmount = toPrecision(
       scientificNotationToString(
         finalX
-          .minus(new Big(curVEAmount))
-          .plus(new Big(toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, loveBalance)))
+          .minus(new Big(curVEAmount).times(1000000))
+          .plus(
+            new Big(
+              toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, loveBalance)
+            ).times(1000000)
+          )
           .toString()
       ),
       0
     );
-
-    console.log(finalLoveAmount.toString(), 'final love amount');
 
     return {
       multiplier: finalMultiplier.toNumber(),
@@ -135,11 +140,15 @@ export const useLOVEmeta = () => {
 };
 
 export const useLOVEbalance = () => {
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   const [balance, setBalance] = useState<string>('0');
 
   useEffect(() => {
+    if (!isSignedIn) return;
+
     ftGetBalance(REF_VE_CONTRACT_ID).then(setBalance);
-  }, []);
+  }, [isSignedIn]);
 
   return toReadableNumber(LOVE_TOKEN_DECIMAL, balance);
 };
@@ -159,14 +168,21 @@ export interface VEMETA {
   lostfound: string;
 }
 
+export const useVEconfig = () => {
+  const [config, setConfig] = useState<VEConfig>();
+
+  useEffect(() => {
+    getVEConfig().then(setConfig);
+  }, []);
+  return config;
+};
+
 export const useVEmeta = () => {
   const [meta, setMeta] = useState<VEMETA>();
 
   useEffect(() => {
     getVEMetaData().then(setMeta);
   }, []);
-
-  console.log(meta, 'meta');
 
   return {
     ...meta,
@@ -176,18 +192,24 @@ export const useVEmeta = () => {
 
 export const useVoteDetail = () => {
   const [detail, setDetail] = useState<VoteDetail>();
-
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   useEffect(() => {
+    if (!isSignedIn) return;
     getVoteDetail().then(setDetail);
-  }, []);
+  }, [isSignedIn]);
   return detail;
 };
 
 export const useVoteDetailHisroty = () => {
   const [detailHistory, setDetailHistory] = useState<VoteDetail>();
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   useEffect(() => {
+    if (!isSignedIn) return;
+
     getVoteDetailHistory().then(setDetailHistory);
-  }, []);
+  }, [isSignedIn]);
 
   return detailHistory;
 };
@@ -196,14 +218,16 @@ export const useAccountInfo = () => {
   const [accountInfo, setAccountInfo] = useState<AccountInfo>();
 
   const [veShare, setVeShare] = useState<string>('0');
-
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   useEffect(() => {
+    if (!isSignedIn) return;
     getAccountInfo().then((info: AccountInfo) => {
       setAccountInfo(info);
 
       setVeShare(toReadableNumber(LOVE_TOKEN_DECIMAL, info.ve_lpt_amount));
     });
-  }, []);
+  }, [isSignedIn]);
 
   return { accountInfo, veShare, veShareRaw: accountInfo?.ve_lpt_amount };
 };
@@ -217,20 +241,26 @@ export interface UnclaimedProposal {
 
 export const useUnclaimedProposal = () => {
   const [record, setRecord] = useState<UnclaimedProposal>();
-
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   useEffect(() => {
-    getUnclaimedRewards().then(setRecord);
-  }, []);
+    if (!isSignedIn) return;
+
+    getUnclaimedProposal().then(setRecord);
+  }, [isSignedIn]);
 
   return record;
 };
 
 export const useUnClaimedRewardsVE = () => {
   const [rewards, setReward] = useState<Record<string, string>>();
-
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   useEffect(() => {
+    if (!isSignedIn) return;
+
     getUnclaimedRewards().then(setReward);
-  }, []);
+  }, [isSignedIn]);
 
   return rewards;
 };

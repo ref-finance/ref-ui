@@ -74,15 +74,14 @@ export interface Description {
 }
 
 export interface VEConfig {
-  lock_near_per_proposal?: string;
+  min_locking_duration_sec: number;
   max_locking_duration_sec: number;
   max_locking_multiplier: number;
-  min_proposal_start_vote_offset: string;
-  min_locking_duration_sec: number;
+  min_proposal_start_vote_offset_sec: number;
 }
 
 export const getAccountInfo = () => {
-  console.log(getCurrentWallet().wallet.getAccountId());
+  console.log(getCurrentWallet().wallet.getAccountId(), 'accouninfo');
   return refVeViewFunction({
     methodName: 'get_account_info',
     args: { account_id: getCurrentWallet().wallet.getAccountId() },
@@ -101,6 +100,8 @@ export const getVEConfig = () => {
   });
 };
 export const getLoveAmount = () => {
+  console.log(getCurrentWallet().wallet.getAccountId(), 'love');
+
   return refVeViewFunction({
     methodName: 'ft_balance_of',
     args: { account_id: getCurrentWallet().wallet.getAccountId() },
@@ -141,13 +142,13 @@ export const lockLP = async ({
     },
   ];
 
-  const neededStorage = await checkTokenNeedsStorageDeposit_ve();
-  if (neededStorage) {
-    transactions.unshift({
-      receiverId: REF_VE_CONTRACT_ID,
-      functionCalls: [storageDepositAction({ amount: neededStorage })],
-    });
-  }
+  // const neededStorage = await checkTokenNeedsStorageDeposit_ve();
+  // if (neededStorage) {
+  //   transactions.unshift({
+  //     receiverId: REF_VE_CONTRACT_ID,
+  //     functionCalls: [storageDepositAction({ amount: neededStorage })],
+  //   });
+  // }
 
   return executeMultipleTransactions(transactions);
 };
@@ -245,6 +246,8 @@ export const getProposal = (proposal_id: number) => {
 };
 
 export const getVoteDetail = () => {
+  console.log(getCurrentWallet().wallet.getAccountId(), 'votedetail');
+
   return refVeViewFunction({
     methodName: 'get_vote_detail',
     args: { account_id: getCurrentWallet().wallet.getAccountId() },
@@ -252,6 +255,8 @@ export const getVoteDetail = () => {
 };
 
 export const getVoteDetailHistory = () => {
+  console.log(getCurrentWallet().wallet.getAccountId(), 'votedetail his');
+
   return refVeViewFunction({
     methodName: 'get_vote_detail_history',
     args: { account_id: getCurrentWallet().wallet.getAccountId() },
@@ -259,6 +264,8 @@ export const getVoteDetailHistory = () => {
 };
 
 export const getUnclaimedProposal = () => {
+  console.log(getCurrentWallet().wallet.getAccountId(), 'un pro');
+
   return refVeViewFunction({
     methodName: 'get_unclaimed_proposal',
     args: { account_id: getCurrentWallet().wallet.getAccountId() },
@@ -266,6 +273,8 @@ export const getUnclaimedProposal = () => {
 };
 
 export const getUnclaimedRewards = () => {
+  console.log(getCurrentWallet().wallet.getAccountId(), 'un re');
+
   return refVeViewFunction({
     methodName: 'get_unclaimed_rewards',
     args: { account_id: getCurrentWallet().wallet.getAccountId() },

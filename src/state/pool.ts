@@ -681,13 +681,15 @@ export const useYourliquidity = (poolId: number) => {
 
 export const usePoolShare = (id: string | number) => {
   const [myPoolShare, setMyPoolShare] = useState<string>('0');
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   useEffect(() => {
+    if (!isSignedIn) return;
     getSharesInPool(Number(id)).then((res) => {
-      console.log(res);
       setMyPoolShare(toReadableNumber(24, res));
     });
-  }, []);
+  }, [isSignedIn]);
 
   return myPoolShare;
 };

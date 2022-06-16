@@ -1342,7 +1342,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
               )}
             </span>
           </div>
-          <div className="flex items-center ">
+          <div className="flex items-center pr-5">
             <NewFarmInputAmount
               className="w-full border border-transparent rounded"
               max={getMax(
@@ -1374,7 +1374,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
               )}
             </span>
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center pr-5">
             <NewFarmInputAmount
               className="w-full border border-transparent rounded"
               max={getMax(

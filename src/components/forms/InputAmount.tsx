@@ -127,7 +127,7 @@ export function NewFarmInputAmount({
       ref={field}
     >
       <div
-        className={`relative flex flex-col align-center bg-inputDarkBg rounded-lg pr-5 `}
+        className={`relative flex flex-col align-center bg-inputDarkBg rounded-lg `}
       >
         <div
           className={`${

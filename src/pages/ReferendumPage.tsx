@@ -18,7 +18,6 @@ import {
 } from '../components/button/Button';
 import { useHistory } from 'react-router-dom';
 import {
-  getAccountInfo,
   getVEMetaData,
   getVEConfig,
   lockLP,
@@ -72,10 +71,9 @@ import { useTokens, useTokenPriceList } from '../state/token';
 import { GiftIcon, RewardCheck } from '../components/icon/Referendum';
 import { toRealSymbol } from '../utils/token';
 import { FaAngleUp, FaAngleDown } from 'react-icons/fa';
-import {
-  ConnectToNearBtnGradient,
-  WithGradientButton,
-} from '../components/button/Button';
+import { ConnectToNearBtnGradient } from '../components/button/Button';
+import { WithGradientButton } from '../components/button/Button';
+import { useVEmeta } from '../state/referendum';
 
 export interface AccountInfo {
   duration_sec: number;
@@ -282,8 +280,6 @@ export const LockPopUp = ({
 }) => {
   const [inputValue, setInputValue] = useState<string>('');
 
-  const [duration, setDuration] = useState<number>(0);
-
   const [config, setConfig] = useState<VEConfig>();
 
   const [termsCheck, setTermsCheck] = useState<boolean>(false);
@@ -293,7 +289,39 @@ export const LockPopUp = ({
     getVEConfig().then((res) => setConfig(res));
   }, []);
 
+  console.log(config, 'config');
+
   const balance = useLOVEbalance();
+
+  const { globalState } = useContext(WalletContext);
+
+  const isSignedIn = globalState.isSignedIn;
+
+  const unlockTime = Number(
+    new Big(accountInfo?.unlock_timestamp || 0)
+      .div(new Big(1000000000))
+      .toNumber()
+      .toFixed()
+  );
+  const leftTime = useMemo(() => {
+    return unlockTime - moment().unix();
+  }, [unlockTime]);
+
+  const candidateDurations = [2592000, 7776000, 15552000, 31104000].filter(
+    (d) => d + moment().unix() >= unlockTime
+  );
+
+  if (leftTime > config?.min_locking_duration_sec) {
+    candidateDurations.unshift(leftTime);
+  }
+
+  const [duration, setDuration] = useState<number>(
+    candidateDurations?.[0] || 0
+  );
+
+  useEffect(() => {
+    setDuration(candidateDurations?.[0] || 0);
+  }, [candidateDurations?.length]);
 
   const { multiplier, finalAmount, appendAmount, finalLoveAmount } =
     useMultiplier({
@@ -306,33 +334,13 @@ export const LockPopUp = ({
       curVEAmount: accountInfo?.ve_lpt_amount || '0',
       loveBalance: balance,
     });
-
-  const unlockTime = Number(
-    new Big(accountInfo?.unlock_timestamp || 0)
-      .div(new Big(1000000000))
-      .toNumber()
-      .toFixed()
-  );
-  const leftTime = useMemo(() => {
-    return unlockTime - moment().unix();
-  }, [unlockTime]);
-
-  if (!config) return null;
-
-  const candidateDurations = [2592000, 7776000, 15552000, 31104000].filter(
-    (d) => d + moment().unix() >= unlockTime
-  );
-
-  if (leftTime > config.min_locking_duration_sec) {
-    candidateDurations.unshift(leftTime);
-  }
-
   const showVeAmount = !ONLY_ZEROS.test(inputValue) && duration;
 
   const currentVeAmount = toPrecision(
     toReadableNumber(LOVE_TOKEN_DECIMAL, accountInfo?.ve_lpt_amount),
     2
   );
+  if (!config) return null;
 
   const Durations = () => (
     <div className="w-full flex items-center pt-1.5">
@@ -390,7 +398,9 @@ export const LockPopUp = ({
             &nbsp;
             <Symbols withArrow={false} tokens={tokens} size="text-base" />
             <button
-              className="text-gradientFrom pl-1 py-1"
+              className={`${
+                ONLY_ZEROS.test(lpShare) ? 'hidden' : ''
+              } text-gradientFrom pl-1 py-1`}
               onClick={() => window.open(`/pool/${getPoolId()}`, '_blank')}
             >
               ↗
@@ -448,7 +458,7 @@ export const LockPopUp = ({
           </span>
 
           <span className="bg-gradientFromHover rounded-md text-xs px-1 text-black">
-            {showVeAmount ? multiplier.toFixed(1) + 'x' : '1.0x'}
+            {showVeAmount ? multiplier.toFixed(2) + 'x' : '1.00x'}
           </span>
         </div>
 
@@ -539,33 +549,39 @@ export const LockPopUp = ({
           </div>
         )}
 
-        <NewGradientButton
-          text={
-            ONLY_ZEROS.test(lpShare) ? (
-              <FormattedMessage
-                id="you_have_no_lp_share"
-                defaultMessage={'You have no LPtoken'}
-              />
-            ) : (
-              <FormattedMessage id="lock" defaultMessage={'Lock'} />
-            )
-          }
-          className="mt-6 text-lg"
-          onClick={() =>
-            lockLP({
-              token_id: ':' + getPoolId().toString(),
-              amount: toNonDivisibleNumber(24, inputValue),
-              duration,
-              leftTime,
-            })
-          }
-          disabled={
-            !termsCheck ||
-            ONLY_ZEROS.test(inputValue) ||
-            !duration ||
-            ONLY_ZEROS.test(lpShare)
-          }
-        />
+        {isSignedIn ? (
+          <NewGradientButton
+            text={
+              ONLY_ZEROS.test(lpShare) ? (
+                <FormattedMessage
+                  id="you_have_no_lp_share"
+                  defaultMessage={'You have no LPtoken'}
+                />
+              ) : (
+                <FormattedMessage id="lock" defaultMessage={'Lock'} />
+              )
+            }
+            beatStyling
+            className="mt-6 text-lg"
+            onClick={() =>
+              lockLP({
+                token_id: ':' + getPoolId().toString(),
+                amount: toNonDivisibleNumber(24, inputValue),
+                duration,
+                leftTime,
+              })
+            }
+            disabled={
+              !termsCheck ||
+              ONLY_ZEROS.test(inputValue) ||
+              new Big(inputValue).gt(new Big(lpShare)) ||
+              !duration ||
+              ONLY_ZEROS.test(lpShare)
+            }
+          />
+        ) : (
+          <ConnectToNearBtnGradient className="mt-6" />
+        )}
 
         <div className="pt-4 text-sm flex items-start ">
           <button
@@ -631,7 +647,7 @@ const UnLockPopUp = ({
     ? new Big(balance).div(multiplier)
     : new Big('0');
 
-  const reduced = new Big(toUnlockAmount || '0').div(multiplier);
+  const reduced = new Big(toUnlockAmount || '0').times(multiplier);
 
   const finalve = scientificNotationToString(
     new Big(
@@ -680,19 +696,23 @@ const UnLockPopUp = ({
             <span>
               <FormattedMessage id="locked" defaultMessage="Locked" />
             </span>
-            <span className="pb-1">{lockedLPAmount}</span>
+            <span className="pb-1 text-white">
+              {lockedLPAmount}
+              <span className="text-primaryText ml-2">{'LPtoken'}</span>
+            </span>
           </div>
           <div className="text-center flex items-center pt-4 justify-between">
             <span>
-              <FormattedMessage id="avaliable" defaultMessage="Avaliable" />
+              <FormattedMessage id="avaliable" defaultMessage="Available" />
             </span>
-            <span className="pb-1">
+            <span className="pb-1 text-white">
               {currentMaxUnlock.gt(0)
                 ? toPrecision(
                     scientificNotationToString(currentMaxUnlock.toString()),
                     2
                   )
                 : 0}
+              <span className="text-primaryText ml-2">{'LPtoken'}</span>
             </span>
           </div>
         </div>
@@ -703,9 +723,9 @@ const UnLockPopUp = ({
           onChangeAmount={setToUnlockAmount}
         />
 
-        <div className="text-sm text-farmText pt-7 pb-2.5 flex items-center justify-between">
+        <div className="text-sm text-farmText  py-2.5 flex items-center justify-between">
           veLPT/LOVE &nbsp;
-          <FormattedMessage id="balance" defaultMessage="balance" />
+          <FormattedMessage id="balance_lowercase" defaultMessage="balance" />
         </div>
 
         <div className="rounded-lg bg-black bg-opacity-20 pt-6 pb-5 flex items-center justify-between ">
@@ -722,9 +742,11 @@ const UnLockPopUp = ({
                       Number(finalve) >= 0 ? 'text-white' : 'text-warn'
                     } `}
                   >
-                    {Number(Number(finalve).toFixed(24)) === 0
+                    {ONLY_ZEROS.test(
+                      toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, finalve)
+                    )
                       ? 0
-                      : toPrecision(finalve, 2, false, false)}
+                      : toPrecision(finalve, 2)}
                   </span>
                 </>
               )}
@@ -751,9 +773,11 @@ const UnLockPopUp = ({
                       Number(finalLove) >= 0 ? 'text-white' : 'text-warn'
                     } `}
                   >
-                    {Number(Number(finalLove).toFixed(24)) === 0
+                    {ONLY_ZEROS.test(
+                      toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, finalLove)
+                    )
                       ? 0
-                      : toPrecision(finalLove, 2, false, false)}
+                      : toPrecision(finalLove, 2)}
                   </span>
                 </>
               )}
@@ -785,6 +809,7 @@ const UnLockPopUp = ({
               amount: toNonDivisibleNumber(24, toUnlockAmount),
             });
           }}
+          beatStyling
           disabled={
             ONLY_ZEROS.test(toUnlockAmount) ||
             new Big(toUnlockAmount).gt(lockedLPAmount) ||
@@ -877,7 +902,7 @@ const FarmBoosterCard = ({ lpShare }: { lpShare: string }) => {
       <button
         className="absolute right-4 bottom-4 font-normal text-sm"
         onClick={() => {
-          history.push('/farmsBoost');
+          window.open('/farmsBoost', '_blank');
         }}
       >
         <FormattedMessage id="go_to_farm" defaultMessage="Go to farm" />
@@ -971,11 +996,11 @@ const UserReferendumCard = ({
           <span className="text-sm text-farmText pt-1">
             <FormattedMessage
               id="avaliable_to_lock"
-              defaultMessage="Avaliable to lock"
+              defaultMessage="Available to lock"
             />
           </span>
         </div>
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col w-full ml-4">
           <span
             className={`text-3xl font-bold text-gradientFromHover ${
               ONLY_ZEROS.test(lockedLpShare) || !isSignedIn ? 'opacity-20' : ''
@@ -1065,6 +1090,10 @@ export const ReferendumPage = () => {
 
   const { veShare, accountInfo } = useAccountInfo();
 
+  const config = useVEmeta();
+
+  console.log(config, 'meta');
+
   return (
     <div className="m-auto lg:w-1024px xs:w-full md:w-5/6 text-white relative">
       <div className="w-full flex ">
@@ -1079,9 +1108,9 @@ export const ReferendumPage = () => {
       <ProposalCard />
 
       <div
-        className="absolute -top-12 z-20"
+        className="absolute -top-14 z-20"
         style={{
-          right: '40%',
+          right: '39%',
         }}
       >
         <PowerZone />

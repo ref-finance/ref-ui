@@ -891,6 +891,13 @@ input[type='range']::-webkit-slider-runnable-track {
   color: #73818b !important;
 }
 
+.react-datepicker__day--disabled,
+.react-datepicker__month-text--disabled,
+.react-datepicker__quarter-text--disabled,
+.react-datepicker__year-text--disabled {
+  opacity: 0.3;
+}
+
 .react-datepicker__day--selected {
   background: rgba(0, 0, 0, 0.2) !important;
   color: #00ffd1 !important;
@@ -898,10 +905,6 @@ input[type='range']::-webkit-slider-runnable-track {
 
 .react-datepicker__header:not(.react-datepicker__header--has-time-select) {
   border-top-right-radius: 15px !important;
-}
-
-.react-datepicker__day--disabled {
-  opacity: 30% !important;
 }
 
 .react-datepicker__time-container {
@@ -935,7 +938,7 @@ input[type='range']::-webkit-slider-runnable-track {
 }
 
 .react-datepicker__time-list-item--disabled {
-  opacity: 30% !important;
+  opacity: 0.3;
   color: #73818b !important;
 }
 

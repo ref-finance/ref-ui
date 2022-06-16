@@ -499,6 +499,7 @@ export function NewGradientButton(porps: {
   grayDisable?: boolean;
   disableForUI?: boolean;
   width?: string;
+  beatStyling?: boolean;
 }) {
   const {
     text,
@@ -508,22 +509,31 @@ export function NewGradientButton(porps: {
     grayDisable,
     disableForUI,
     width,
+    beatStyling,
   } = porps;
+
+  const [beating, setBeating] = useState<boolean>(false);
 
   return (
     <button
       className={`${
         grayDisable ? 'opacity-30' : 'bg-veGradient'
       } ${width} ${className}  ${
-        disabled ? 'opacity-30' : ''
+        disabled || beating ? 'opacity-30 cursor-not-allowed' : ''
       } px-5 py-3 rounded-lg text-center `}
-      onClick={onClick}
+      onClick={(e) => {
+        if (beatStyling) {
+          setBeating(true);
+        }
+
+        onClick(e);
+      }}
       disabled={disableForUI ? false : disabled || grayDisable}
       style={{
         backgroundColor: grayDisable ? '#445867' : '',
       }}
     >
-      <span>{text}</span>
+      <span>{beating ? <BeatLoading /> : text}</span>
     </button>
   );
 }
@@ -549,9 +559,16 @@ export function WithGradientButton(porps: {
     gradientWith,
   } = porps;
 
+  const parsedWith =
+    Number(gradientWith.substring(0, gradientWith.length - 1)) > 3
+      ? gradientWith
+      : '3%';
+
   return (
     <button
-      className={` ${width} ${className} relative px-5 py-3  ${
+      className={` ${width} ${className} ${
+        disabled || grayDisable ? 'cursor-not-allowed' : ''
+      } relative px-5 py-3  ${
         disabled ? 'opacity-30' : ''
       }  rounded-lg text-center `}
       onClick={onClick}
@@ -560,13 +577,14 @@ export function WithGradientButton(porps: {
         backgroundColor: '#445867',
       }}
     >
+      <span className="relative z-20">{text}</span>
+
       <div
         className="w-full h-full left-0 top-0 rounded-lg we bg-veGradient whitespace-nowrap absolute"
         style={{
-          width: gradientWith,
+          width: parsedWith,
         }}
       ></div>
-      <span className="">{text}</span>
     </button>
   );
 }
@@ -584,7 +602,9 @@ export function BorderGradientButton(porps: {
 
   return (
     <button
-      className={` p-px rounded-lg text-center  bg-veGradient ${width} ${opacity}`}
+      className={` p-px rounded-lg text-center ${
+        disabled ? 'cursor-not-allowed' : ''
+      }  bg-veGradient ${width} ${opacity}`}
       onClick={onClick}
     >
       <button
