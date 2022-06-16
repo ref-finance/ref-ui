@@ -94,7 +94,7 @@ export const WalletOption = ({
         height: '62px',
       }}
     >
-      {Icon}
+      <div className="">{Icon}</div>
       <div className="py-1 pl-3 w-full">
         <div className="flex items-center justify-between">
           <div className="text-base text-white flex items-center">
@@ -105,17 +105,6 @@ export const WalletOption = ({
               {')'}
             </span>
           </div>
-          {decorate ? (
-            <div
-              className="ml-1 px-0.5 text-black rounded bg-senderHot relative left-1 bottom-1"
-              style={{
-                fontSize: '10px',
-                lineHeight: '15px',
-              }}
-            >
-              Beta
-            </div>
-          ) : null}
         </div>
         <button className="text-xs text-primaryText">{officialUrl}</button>
       </div>
@@ -204,7 +193,7 @@ const SenderNotInstalledModal = (
           closeCallback={() => setShowSenderNotInstalled(false)}
         />
 
-        <div className="flex justify-center pt-10 pb-6">
+        <div className="flex justify-center pt-6">
           <SenderWalletLarge />
         </div>
 
@@ -217,7 +206,7 @@ const SenderNotInstalledModal = (
           </span>
         </div>
 
-        <div className="mx-auto text-xs pt-14 pb-4">
+        <div className="mx-auto text-xs pt-10 pb-4">
           <span>
             <FormattedMessage
               id="connect_to_dapps_with_one_click"
@@ -235,7 +224,7 @@ const SenderNotInstalledModal = (
             marginBottom: '5px',
           }}
           onClick={() => {
-            window.open('https://senderwallet.io/?origin=ref', '_blank');
+            window.open('https://sender.org/?origin=ref', '_blank');
           }}
         >
           <span>
@@ -418,7 +407,6 @@ export const WalletSelectorModal = (
             officialUrl="wallet.near.org"
             connect={() => {
               wallet.requestSignIn(REF_FARM_CONTRACT_ID);
-              // wallet.requestSignIn('aurora');
             }}
           />
 
