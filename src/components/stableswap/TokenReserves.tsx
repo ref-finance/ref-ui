@@ -21,7 +21,11 @@ import BigNumber from 'bignumber.js';
 import { useDayVolume } from '~state/pool';
 import { scientificNotationToString } from '../../utils/numbers';
 import { get24hVolume } from '../../services/indexer';
-import { ALL_STABLE_POOL_IDS, BTC_STABLE_POOL_ID } from '../../services/near';
+import {
+  ALL_STABLE_POOL_IDS,
+  BTC_STABLE_POOL_ID,
+  STABLE_POOL_TYPE,
+} from '../../services/near';
 import getConfig from '../../services/config';
 import { currentTokensPrice } from '../../services/api';
 import {
@@ -64,7 +68,14 @@ function TokenChart({
     cUSD: 'rgba(69, 205, 133, 0.6)',
     HBTC: '#4D85F8',
     WBTC: '#ED9234',
+    STNEAR: 'rgba(160, 160, 255, 0.5)',
+    wNEAR: 'rgba(0, 198, 162, 0.5)',
+    LINEAR: 'rgba(64, 129, 255, 0.5)',
   };
+
+  const noBorderTokens = ['wNEAR', 'LINEAR'];
+
+  const noBgTokens = ['LINEAR'];
 
   function customLabel(props: any) {
     let { cx, cy, x, y, midAngle, innerRadius, outerRadius, displayV, token } =
@@ -76,11 +87,12 @@ function TokenChart({
     if (y < cy) {
       y = y - 5;
     }
+
     return (
       <g>
         <text
           x={x}
-          y={y}
+          y={y - 2}
           fill="white"
           fontSize="14px"
           textAnchor={x > cx ? 'start' : 'end'}
@@ -90,13 +102,23 @@ function TokenChart({
         </text>
         <text
           x={x}
-          y={y + 15}
+          y={y + 13}
           fill="white"
           textAnchor={x > cx ? 'start' : 'end'}
           dominantBaseline="central"
         >
           {displayV}
         </text>
+        {noBorderTokens.includes(token.symbol) && (
+          <circle
+            r={16}
+            cx={x1 + 15}
+            cy={y1 + 15}
+            stroke="#00c6a2"
+            fill={'#0F1D27'}
+            strokeWidth={1}
+          />
+        )}
         <image width="30" height="30" x={x1} y={y1} xlinkHref={token.icon} />
       </g>
     );
@@ -209,30 +231,46 @@ const TypeTab = ({
   setType,
   type,
 }: {
-  setType: (type: string) => void;
-  type: string;
+  setType: (type: STABLE_POOL_TYPE) => void;
+  type: STABLE_POOL_TYPE;
 }) => {
   return (
     <div className="flex items-center justify-center text-lg border-b border-gray-300 border-opacity-20 mb-10">
       <div
         className={`w-52 py-2 mb-4 text-center ${
-          type === 'USD' ? 'text-white bg-black bg-opacity-20' : ''
+          type === STABLE_POOL_TYPE.USD
+            ? 'text-white bg-black bg-opacity-20'
+            : ''
         } rounded-2xl cursor-pointer`}
         onClick={() => {
-          setType('USD');
+          setType(STABLE_POOL_TYPE.USD);
         }}
       >
         USD
       </div>
       <div
         className={`w-52 py-2 mb-4 text-center ${
-          type === 'BTC' ? 'text-white bg-black bg-opacity-20' : ''
+          type === STABLE_POOL_TYPE.BTC
+            ? 'text-white bg-black bg-opacity-20'
+            : ''
         } rounded-2xl cursor-pointer`}
         onClick={() => {
-          setType('BTC');
+          setType(STABLE_POOL_TYPE.BTC);
         }}
       >
         BTC
+      </div>
+      <div
+        className={`w-52 py-2 mb-4 text-center ${
+          type === STABLE_POOL_TYPE.NEAR
+            ? 'text-white bg-black bg-opacity-20'
+            : ''
+        } rounded-2xl cursor-pointer`}
+        onClick={() => {
+          setType(STABLE_POOL_TYPE.NEAR);
+        }}
+      >
+        NEAR
       </div>
     </div>
   );
@@ -246,7 +284,7 @@ export default function ({
   hiddenMag,
   className,
   forPool,
-  type = 'USD',
+  type = STABLE_POOL_TYPE.USD,
   setType,
 }: {
   tokens: TokenMetadata[];
@@ -256,18 +294,16 @@ export default function ({
   hiddenChart?: boolean;
   className?: string;
   forPool?: boolean;
-  type?: string;
-  setType?: (type: string) => void;
+  type?: STABLE_POOL_TYPE;
+  setType?: (type: STABLE_POOL_TYPE) => void;
 }) {
   const [showReserves, setShowReserves] = useState<boolean>(true);
   const [chart, setChart] = useState(null);
 
-  const [BTCValue, setBTCValue] = useState<string>('');
-
   const ids = pools.map((p) => p.id);
-  const [volume, setVolume] = useState<string>();
+  const [volume, setVolume] = useState<string>(null);
 
-  const [tvl, setTvl] = useState<number>();
+  const [tvl, setTvl] = useState<number>(null);
 
   let utilisationDisplay;
 
@@ -276,15 +312,31 @@ export default function ({
 
   const totalCoinsId = forPool
     ? 'tvl'
-    : type === 'BTC'
+    : type === STABLE_POOL_TYPE.BTC
     ? 'total_bitcoins'
+    : type === STABLE_POOL_TYPE.NEAR
+    ? 'total_near_amount'
     : 'total_stable_coins';
 
   const totalUSDValueId = 'total_usd_value';
 
-  const totalValueId = type === 'BTC' ? 'bitcoin_value' : 'stable_coin_value';
+  const totalValueId =
+    type === STABLE_POOL_TYPE.BTC
+      ? 'bitcoin_value'
+      : type === STABLE_POOL_TYPE.NEAR
+      ? 'near_value'
+      : 'stable_coin_value';
   const totalValueMessage =
-    type === 'BTC' ? 'Bitcoin Value' : 'StableCoin Value';
+    type === STABLE_POOL_TYPE.BTC
+      ? 'Bitcoin Value'
+      : type === STABLE_POOL_TYPE.NEAR
+      ? 'NEAR Value'
+      : 'StableCoin Value';
+
+  useEffect(() => {
+    setTvl(null);
+    setVolume(null);
+  }, [type]);
 
   useEffect(() => {
     if (ids) {
@@ -320,10 +372,6 @@ export default function ({
   );
 
   const intl = useIntl();
-
-  const isGettingBTCPrice =
-    (type && type === 'BTC') ||
-    (forPool && pools[0].id === Number(BTC_STABLE_POOL_ID));
 
   const calTotalStableCoins = useMemo(() => {
     try {
@@ -393,34 +441,6 @@ export default function ({
     );
     setChart(chartContainer);
   }, [type]);
-
-  useEffect(() => {
-    if (!isGettingBTCPrice) return;
-
-    currentTokensPrice(BTCIDS.join('|')).then((res) => {
-      const parsedPrices = res.map((p: string) => (p === 'N/A' ? '0' : p));
-      const values = parsedPrices.map((p: string, i: number) => {
-        const pool = pools.find(
-          (pool) => Number(pool.id) === Number(BTC_STABLE_POOL_ID)
-        );
-        const token = tokens.find((token) => token.id === BTCIDS[i]);
-
-        const value = new BigNumber(p).times(
-          toReadableNumber(token.decimals, pool.supplies[BTCIDS[i]])
-        );
-        return scientificNotationToString(value.toString());
-      });
-
-      const totalValues = scientificNotationToString(
-        BigNumber.sum(...values).toString()
-      );
-      setBTCValue(totalValues);
-    });
-  }, [type]);
-
-  const displayTotalValue = isGettingBTCPrice
-    ? BTCValue || '0'
-    : calTotalStableCoins;
 
   return (
     <div
@@ -507,15 +527,13 @@ export default function ({
           <InfoLine
             title={intl.formatMessage({ id: totalUSDValueId })}
             value={
-              !BTCValue
+              !tvl
                 ? '$-'
-                : Number(displayTotalValue) < 0.001
+                : tvl < 0.001
                 ? '$<0.001'
-                : `$${
-                    toInternationalCurrencySystem(displayTotalValue, 3) || '0'
-                  }`
+                : `$${toInternationalCurrencySystem(tvl.toString(), 3) || '0'}`
             }
-            valueTitle={toPrecision(displayTotalValue, 0)}
+            valueTitle={toPrecision(tvl?.toString() || '0', 0)}
           />
         )}
         <div className={'py-0.5'}></div>

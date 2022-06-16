@@ -67,6 +67,7 @@ import SquareRadio from '../radio/SquareRadio';
 import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
 import { useTokenBalances } from '../../state/token';
 import { getURLInfo, checkAccountTip } from '../layout/transactionTipPopUp';
+import { getStablePoolDecimal } from '../../pages/stable/StableSwapEntry';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
@@ -80,7 +81,7 @@ export function shareToUserTotal({
   shares: string;
   userTotalShare: BigNumber;
   stakeList?: Record<string, string>;
-  pool?: Pool;
+  pool: Pool;
   canFarm?: Number;
 }) {
   return (
@@ -88,7 +89,7 @@ export function shareToUserTotal({
       <span className="text-white">
         {getCurrentWallet().wallet.isSignedIn()
           ? toRoundedReadableNumber({
-              decimals: STABLE_LP_TOKEN_DECIMALS,
+              decimals: getStablePoolDecimal(pool?.id),
               number: shares,
               precision: 3,
             })
@@ -98,7 +99,7 @@ export function shareToUserTotal({
       <span className={`text-primaryText ${canFarm == 0 ? 'hidden' : ''}`}>
         {getCurrentWallet().wallet.isSignedIn()
           ? ` / ${toRoundedReadableNumber({
-              decimals: STABLE_LP_TOKEN_DECIMALS,
+              decimals: getStablePoolDecimal(pool?.id),
               number: scientificNotationToString(
                 userTotalShare.toExponential()
               ),

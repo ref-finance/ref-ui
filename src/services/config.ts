@@ -69,7 +69,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         networkId: 'mainnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.near.org',
-        helperUrl: 'https://helper.mainnet.near.org',
+        helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
         indexerUrl: 'https://indexer.ref-finance.net',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
@@ -118,7 +118,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
-        BLACKLIST_POOL_IDS: ['3514', '3515'],
+        BLACKLIST_POOL_IDS: ['3514'],
       };
     case 'pub-testnet':
       return {
@@ -151,7 +151,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '456',
           '494',
         ],
-
+        USN_ID: 'usdn.testnet',
         STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 356,
         STABLE_TOKEN_IDS: [
           'usdt.fakes.testnet',
@@ -233,7 +233,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         networkId: 'mainnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.near.org',
-        helperUrl: 'https://helper.mainnet.near.org',
+        helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
         indexerUrl: 'https://indexer.ref-finance.net',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
@@ -291,7 +291,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
-        BLACKLIST_POOL_IDS: ['3514', '3515'],
+        BLACKLIST_POOL_IDS: ['3514'],
       };
   }
 }
@@ -316,6 +316,19 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'cusd.token.a11bd.near': 1,
         },
         CUSD_STABLE_POOL_ID: '3433',
+        STNEAR_POOL_ID: '3514',
+        LINEAR_POOL_ID: '3515',
+        STNEARIDS: ['meta-pool.near', 'wrap.near'],
+        LINEARIDS: ['linear-protocol.near', 'wrap.near'],
+        STNEAR_POOL_INDEX: {
+          'meta-pool.near': 0,
+          'wrap.near': 1,
+        },
+        LINEAR_POOL_INDEX: {
+          'linear-protocol.near': 0,
+          'wrap.near': 1,
+        },
+        RATED_POOLS_IDS: ['3514', '3515'],
       };
     case 'development':
     case 'pub-testnet':
@@ -332,6 +345,19 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'cusd.fakes.testnet': 1,
         },
         CUSD_STABLE_POOL_ID: '494',
+        STNEAR_POOL_ID: '568',
+        LINEAR_POOL_ID: '571',
+        STNEARIDS: ['meta-v2.pool.testnet', 'wrap.testnet'],
+        LINEARIDS: ['linear-protocol.testnet', 'wrap.testnet'],
+        STNEAR_POOL_INDEX: {
+          'meta-v2.pool.testnet': 0,
+          'wrap.testnet': 1,
+        },
+        LINEAR_POOL_INDEX: {
+          'linear-protocol.testnet': 0,
+          'wrap.testnet': 1,
+        },
+        RATED_POOLS_IDS: ['568', '571'],
       };
     case 'testnet':
       return {
@@ -347,6 +373,19 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'cusd.fakes.testnet': 1,
         },
         CUSD_STABLE_POOL_ID: '608',
+        STNEAR_POOL_ID: '621',
+        LINEAR_POOL_ID: '622',
+        STNEARIDS: ['meta-v2.pool.testnet', 'wrap.testnet'],
+        LINEARIDS: ['linear-protocol.testnet', 'wrap.testnet'],
+        STNEAR_POOL_INDEX: {
+          'meta-v2.pool.testnet': 0,
+          'wrap.testnet': 1,
+        },
+        LINEAR_POOL_INDEX: {
+          'linear-protocol.testnet': 0,
+          'wrap.testnet': 1,
+        },
+        RATED_POOLS_IDS: ['621', '622'],
       };
     default:
       return {
@@ -365,6 +404,19 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'cusd.token.a11bd.near': 1,
         },
         CUSD_STABLE_POOL_ID: '3433',
+        STNEAR_POOL_ID: '3514',
+        LINEAR_POOL_ID: '3515',
+        STNEARIDS: ['meta-pool.near', 'wrap.near'],
+        LINEARIDS: ['linear-protocol.near', 'wrap.near'],
+        STNEAR_POOL_INDEX: {
+          'meta-pool.near': 0,
+          'wrap.near': 1,
+        },
+        LINEAR_POOL_INDEX: {
+          'linear-protocol.near': 0,
+          'wrap.near': 1,
+        },
+        RATED_POOLS_IDS: ['3514', '3515'],
       };
   }
 }

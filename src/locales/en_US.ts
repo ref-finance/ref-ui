@@ -109,9 +109,10 @@ const en_US_in_risks_page = {
   Locked_paragraph_6:
     'If there is at least one full-access key registered on the contract account, the contract is not locked.',
   audited_first_sentence:
-    'Ref Finance smart contracts are being audited by <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://jitadigital.com/')" +
-    '>Jita</label>. Ref Finance will actively look for a second independant audit once the first audit is completed.',
+    'Ref Finance smart contracts have been <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/audits')" +
+    '>audited</label>.',
+
   admin_first_sentence:
     'Ref Finance is managed by the <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
@@ -556,9 +557,9 @@ const en_US = {
   usn_fee_tip: 'Zero-fee charged by Ref, users only pay USN fee!',
   total_bitcoins: 'Total Bitcoins',
   total_usd_value: 'Total USD value',
-  bitcoin_value: 'Bitcoin value',
-  stable_coin_value: 'StableCoin value',
-  pool_fee_apr: 'Pool fee APY',
+  bitcoin_value: 'Bitcoin Value',
+  stable_coin_value: 'StableCoin Value',
+  pool_fee_apr: 'Pool fee APR',
   ref_account_balance_tip_mobile: 'You have tokens in your REF account.',
   click: 'Click',
   to_recover: 'to recover.',
@@ -566,6 +567,8 @@ const en_US = {
   price_board: 'Price board',
   close: 'Close',
   stake_min_deposit: 'Input must be greater than or equal to ',
+  total_near_amount: 'Total NEAR amount',
+  near_value: 'NEAR Value',
   borrow: 'Borrow',
   burrow_usn_tip: 'You can borrow USN on Burrow.',
 };

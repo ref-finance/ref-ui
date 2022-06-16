@@ -82,7 +82,10 @@ import {
 } from './utils/sender-wallet';
 import StableSwapPageUSN from '~pages/stable/StableSwapPageUSN';
 import { checkTransaction } from './services/swap';
-import { swapToast } from './components/layout/transactionTipPopUp';
+import {
+  swapToast,
+  getErrorMessage,
+} from './components/layout/transactionTipPopUp';
 import { StableSwapRouter } from './pages/stable/StableSwapRouter';
 
 Modal.defaultStyles = {
@@ -119,10 +122,18 @@ function App() {
 
   useEffect(() => {
     if (errorType) {
-      failToast(txHash, errorType);
+      checkTransaction(txHash).then((res) => {
+        let displayErrorMessage = errorType;
+        const errorMessasge = getErrorMessage(res);
+
+        if (errorMessasge) displayErrorMessage = errorMessasge;
+
+        failToast(txHash, displayErrorMessage);
+
+        window.history.replaceState({}, '', window.location.origin + pathname);
+      });
 
       // failing toast only once
-      window.history.replaceState({}, '', window.location.origin + pathname);
     }
     if (signInErrorType) {
       senderSignedInToast(signInErrorType);

@@ -85,6 +85,7 @@ module.exports = {
         borderColor: '#7e8a93',
         warnColor: '#DE9450',
         BTCColor: '#F38632',
+        NEARBlue: '#418DFF',
         acccountTab: '#0F1D27',
         acccountBlock: '#293741',
         xREFColor: '#A7ABAD',
