@@ -658,5 +658,7 @@ const ja = {
   trading_successfull: '取引は成功しました。 ',
   borrow: '借りる',
   burrow_usn_tip: 'あなたはBurrowでUSNを借りることができます。',
+  migrate: 'Migrate',
+  go_to_new_farm: 'Go to New Farm',
 };
 export default Object.assign(ja, ja_in_risks_page);

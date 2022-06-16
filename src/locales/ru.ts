@@ -648,5 +648,7 @@ const ru = {
   swap_successful: 'Обмен успешен. ',
   trading_successfull: 'Торговля успешна. ',
   click_to_view: 'Нажмите, чтобы просмотреть',
+  migrate: 'Migrate',
+  go_to_new_farm: 'Go to New Farm',
 };
 export default Object.assign(ru, ru_in_risks_page);

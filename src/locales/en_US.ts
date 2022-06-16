@@ -648,5 +648,7 @@ const en_US = {
   trading_successfull: 'Trading successful. ',
   borrow: 'Borrow',
   burrow_usn_tip: 'You can borrow USN on Burrow.',
+  migrate: 'Migrate',
+  go_to_new_farm: 'Go to New Farm',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

@@ -648,5 +648,7 @@ const ko = {
   get_love: 'Get LOVE',
   swap_successful: '스왑에 성공했습니다. ',
   trading_successfull: '거래 성공. ',
+  migrate: 'Migrate',
+  go_to_new_farm: 'Go to New Farm',
 };
 export default Object.assign(ko, ko_in_risks_page);

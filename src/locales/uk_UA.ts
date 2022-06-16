@@ -618,5 +618,7 @@ const uk_UA = {
   get_love: 'Get LOVE',
   swap_successful: 'Обмін успішно. ',
   trading_successfull: 'Торгівля успішна. ',
+  migrate: 'Migrate',
+  go_to_new_farm: 'Go to New Farm',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

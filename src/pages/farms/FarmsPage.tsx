@@ -26,6 +26,7 @@ import {
   BorderButton,
   GradientButton,
   ButtonTextWrapper,
+  BlacklightConnectToNearBtn,
 } from '~components/button/Button';
 import {
   getFarms,
@@ -95,6 +96,7 @@ import {
   usnBuyAndSellToast,
   swapToast,
 } from '../../components/layout/transactionTipPopUp';
+import { MigrateIcon } from '~components/icon/FarmBoost';
 
 const config = getConfig();
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
@@ -714,6 +716,9 @@ export function FarmsPage() {
     }
     return Number(result);
   }
+  function goMigrate() {
+    history.push('/farmsMigrate');
+  }
   return (
     <div className="xs:w-full md:w-full xs:mt-4 md:mt-4">
       <div className="w-1/3 xs:w-full md:w-full flex m-auto justify-center">
@@ -739,12 +744,40 @@ export function FarmsPage() {
               </span>
             </div>
           </div>
-          <div className="flex items-center justify-between rounded-md border border-greenColor p-3 mb-3">
+          {/* <div className="flex items-center justify-between rounded-md border border-greenColor p-3 mb-3">
             <LightSmall></LightSmall>
             <span className="text-xs text-navHighLightText ml-2">
               Farms <label className="text-greenColor font-bold">V2</label>{' '}
               supports CD account, booster farming is coming soon!
             </span>
+          </div> */}
+          <div className="relative bg-veGradient rounded-2xl p-4 mb-4 mt-2">
+            <span className="flex items-center justify-center text-white text-lg font-bold my-2">
+              V2 NEW Farm Migration
+            </span>
+            <p className="flex items-center justify-center text-white text-sm">
+              V2 Farm will support boost farm for the LOVE token stakers.
+            </p>
+            <p className="text-white text-sm">
+              Meanwhile, the V1 farm rewards will stop at{' '}
+              <span className="font-bold">1. July,2022.</span>
+            </p>
+            <MigrateIcon
+              className="absolute -bottom-6 -left-16"
+              style={{ zoom: 0.5 }}
+            ></MigrateIcon>
+            <div className="flex justify-end">
+              {isSignedIn ? (
+                <div
+                  onClick={goMigrate}
+                  className="flex items-center h-8 w-2/3 justify-center bg-black bg-opacity-30 border border-white border-opacity-30 rounded-lg text-white text-sm cursor-pointer mt-6 mb-3"
+                >
+                  Migrate Now!
+                </div>
+              ) : (
+                <BlacklightConnectToNearBtn className="h-8 w-3/4 mt-6 mb-5" />
+              )}
+            </div>
           </div>
           <div className="rounded-2xl bg-cardBg pt-5 pb-8 relative overflow-hidden">
             <div className="flex justify-between px-5 pb-12 relative">

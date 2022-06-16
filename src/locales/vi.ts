@@ -656,5 +656,7 @@ const vi = {
   get_love: 'Get LOVE',
   swap_successful: 'Hoán đổi thành công. ',
   trading_successfull: 'Giao dịch thành công. ',
+  migrate: 'Migrate',
+  go_to_new_farm: 'Go to New Farm',
 };
 export default Object.assign(vi, vi_in_risks_page);

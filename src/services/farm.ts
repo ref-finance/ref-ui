@@ -10,13 +10,19 @@ import {
   REF_FI_CONTRACT_ID,
   near,
   refVeViewFunction,
+  REF_FARM_CONTRACT_ID,
 } from './near';
 import {
   toPrecision,
   toReadableNumber,
   toNonDivisibleNumber,
 } from '../utils/numbers';
-import { LP_TOKEN_DECIMALS } from '../services/m-token';
+import {
+  LP_TOKEN_DECIMALS,
+  LP_STABLE_TOKEN_DECIMALS,
+  checkTokenNeedsStorageDeposit,
+  FARM_STORAGE_BALANCE,
+} from '../services/m-token';
 import * as math from 'mathjs';
 import {
   ftGetTokenMetadata,
@@ -43,6 +49,7 @@ import Big from 'big.js';
 import { nearWithdrawTransaction } from './wrap-near';
 import { currentStorageBalanceOfVE } from './account';
 import db, { TokenPrice, BoostSeeds, FarmDexie } from '../store/RefDatabase';
+import { getMftTokenId } from '../utils/token';
 
 const config = getConfig();
 export const DEFAULT_PAGE_LIMIT = 150;
@@ -960,6 +967,72 @@ export interface BoostConfig {
   booster_decimal: number;
 }
 // boost farm related function end
+
+// migrate related methods start
+export const migrate_user_seed = async ({
+  seed_id,
+  amount,
+  poolId,
+  msg = '',
+}: {
+  seed_id: string;
+  amount: string;
+  poolId: string;
+  msg?: string;
+}) => {
+  // unstake
+  const transactions: Transaction[] = [
+    {
+      receiverId: REF_FARM_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'withdraw_seed',
+          args: {
+            seed_id: seed_id,
+            amount,
+            msg,
+          },
+          amount: ONE_YOCTO_NEAR,
+          gas: '200000000000000',
+        },
+      ],
+    },
+  ];
+
+  const neededStorage = await checkTokenNeedsStorageDeposit('farm');
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: REF_FARM_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: FARM_STORAGE_BALANCE })],
+    });
+  }
+  // stake
+  const neededStorage_boost = await checkTokenNeedsStorageDeposit_boost();
+  if (neededStorage_boost) {
+    transactions.push({
+      receiverId: REF_FARM_BOOST_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+  transactions.push({
+    receiverId: REF_FI_CONTRACT_ID,
+    functionCalls: [
+      {
+        methodName: 'mft_transfer_call',
+        args: {
+          receiver_id: REF_FARM_BOOST_CONTRACT_ID,
+          token_id: getMftTokenId(poolId),
+          amount,
+          msg: JSON.stringify('Free'),
+        },
+        amount: ONE_YOCTO_NEAR,
+        gas: '180000000000000',
+      },
+    ],
+  });
+  return executeFarmMultipleTransactions(transactions);
+};
+// migrate related methods end
 export const get_seed_info = async (seed_id: string): Promise<any> => {
   return refFarmViewFunction({
     methodName: 'get_seed_info',

@@ -2936,7 +2936,7 @@ function WithDrawModal(props: {
     </Modal>
   );
 }
-const getPoolIdBySeedId = (seed_id: string) => {
+export const getPoolIdBySeedId = (seed_id: string) => {
   if (seed_id.indexOf('@') > -1) {
     return seed_id.slice(seed_id.indexOf('@') + 1);
   }

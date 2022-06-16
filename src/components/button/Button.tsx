@@ -678,3 +678,48 @@ export function GreenConnectToNearBtn(props: any) {
     </>
   );
 }
+export function BlacklightConnectToNearBtn(props: any) {
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+  const { className } = props;
+
+  const [showWalletSelector, setShowWalletSelector] = useState(false);
+
+  return (
+    <>
+      <div
+        className={`flex items-center cursor-pointer justify-center rounded-full py-1 text-sm text-white bg-black bg-opacity-30 border border-white border-opacity-30 ${className} ${
+          buttonLoading ? 'opacity-40' : ''
+        }`}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setButtonLoading(true);
+          setShowWalletSelector(true);
+        }}
+      >
+        <span className="mr-2">
+          <UnLoginIcon width="15" height="13" color="#fff" />
+        </span>
+        <button>
+          <ButtonTextWrapper
+            loading={buttonLoading}
+            Text={() => (
+              <FormattedMessage
+                id="connect_to_wallet"
+                defaultMessage="Connect Wallet"
+              />
+            )}
+          />
+        </button>
+      </div>
+      <WalletSelectorModal
+        isOpen={showWalletSelector}
+        onRequestClose={() => {
+          window.location.reload();
+          setShowWalletSelector(false);
+        }}
+        setShowWalletSelector={setShowWalletSelector}
+      />
+    </>
+  );
+}
