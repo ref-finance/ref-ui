@@ -2806,7 +2806,11 @@ export const ProposalCard = () => {
               (o) => Number(o.start_at)
             );
 
-      setFarmProposal(farmProposal);
+      if (!farmProposal) {
+        setFarmProposal(farmProposals[farmProposals.length - 1]);
+      } else {
+        setFarmProposal(farmProposal);
+      }
     });
   }, []);
   useEffect(() => {
