@@ -432,7 +432,7 @@ export const WalletSelectorModal = (
             description={
               <FormattedMessage id="extension" defaultMessage="extension" />
             }
-            officialUrl="sender.org"
+            officialUrl="senderwallet.io"
             connect={() => {
               // mobile device
               if (isMobileExplorer()) {
