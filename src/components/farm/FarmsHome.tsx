@@ -19,6 +19,7 @@ import {
   LoveTokenIcon,
   BoostRightArrowIcon,
   DirectionButton,
+  BoostLoveIcon,
 } from '~components/icon/FarmBoost';
 import {
   GradientButton,
@@ -1525,15 +1526,18 @@ function LoveStakeModal(props: {
                   </span>
                 ) : null}
               </div>
-              <span
-                className={`text-base ${
+              <div
+                className={`flex items-center text-base ${
                   Object.keys(user_seed).length > 0
                     ? 'text-lightGreenColor'
                     : 'text-farmText'
                 }`}
               >
+                {Object.keys(user_seed).length > 0 ? (
+                  <BoostLoveIcon></BoostLoveIcon>
+                ) : null}
                 {getCurrentMutiple(seed.base)}
-              </span>
+              </div>
             </div>
           );
         })}

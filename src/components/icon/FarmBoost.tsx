@@ -2868,3 +2868,59 @@ export const MigrateIcon = function (props: any) {
     </svg>
   );
 };
+
+export const BoostLoveIcon = function () {
+  return (
+    <svg
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g filter="url(#filter0_d_1305_198)">
+        <path
+          d="M16 8C20.4184 8 24 11.5816 24 16C24 20.4184 20.4184 24 16 24C11.5816 24 8 20.4184 8 16C8 11.5816 11.5816 8 16 8ZM16 9.6C14.3026 9.6 12.6747 10.2743 11.4745 11.4745C10.2743 12.6747 9.6 14.3026 9.6 16C9.6 17.6974 10.2743 19.3253 11.4745 20.5255C12.6747 21.7257 14.3026 22.4 16 22.4C17.6974 22.4 19.3253 21.7257 20.5255 20.5255C21.7257 19.3253 22.4 17.6974 22.4 16C22.4 14.3026 21.7257 12.6747 20.5255 11.4745C19.3253 10.2743 17.6974 9.6 16 9.6ZM15.8512 10.9632C15.9768 10.9968 15.9968 11.2192 15.9992 11.6552L16 14.16C16 14.3488 16 14.4432 16.0584 14.5016C16.1072 14.5496 16.1808 14.5584 16.3136 14.56H17.2504C18.4744 14.56 19.0856 14.56 19.3168 14.9576C19.5488 15.3552 19.2464 15.8872 18.6416 16.9504L16.748 20.284C16.448 20.812 16.2976 21.076 16.1488 21.036C16 20.9976 16 20.6944 16 20.0872V17.84C16 17.6512 16 17.5568 15.9416 17.4984C15.8832 17.44 15.7888 17.44 15.6 17.44H14.364C13.3952 17.4352 12.8888 17.396 12.6832 17.0424C12.4512 16.6448 12.7536 16.1128 13.3584 15.0496L15.252 11.716C15.552 11.188 15.7024 10.924 15.8512 10.964V10.9632Z"
+          fill="#00FFF0"
+        />
+      </g>
+      <defs>
+        <filter
+          id="filter0_d_1305_198"
+          x="0"
+          y="0"
+          width="32"
+          height="32"
+          filterUnits="userSpaceOnUse"
+          colorInterpolationFilters="sRGB"
+        >
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset />
+          <feGaussianBlur stdDeviation="4" />
+          <feComposite in2="hardAlpha" operator="out" />
+          <feColorMatrix
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 1 0 0 0 0 0.94 0 0 0 0.6 0"
+          />
+          <feBlend
+            mode="normal"
+            in2="BackgroundImageFix"
+            result="effect1_dropShadow_1305_198"
+          />
+          <feBlend
+            mode="normal"
+            in="SourceGraphic"
+            in2="effect1_dropShadow_1305_198"
+            result="shape"
+          />
+        </filter>
+      </defs>
+    </svg>
+  );
+};
