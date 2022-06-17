@@ -1560,7 +1560,7 @@ export function ActionModel(props: any) {
     } else if (big.isLessThan('0.001')) {
       return '<0.001';
     } else {
-      return toPrecision(max, 3, true);
+      return toPrecision(max?.toString() || '0', 3, true);
     }
   };
   const onSubmit = () => {

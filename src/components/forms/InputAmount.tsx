@@ -2,7 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { TokenMetadata } from '~services/ft-contract';
 import { TokenBalancesView } from '~services/token';
 import { tokenPrice } from './SelectToken';
-import { multiply, ONLY_ZEROS } from '../../utils/numbers';
+import {
+  multiply,
+  ONLY_ZEROS,
+  toNonDivisibleNumber,
+} from '../../utils/numbers';
 import { FormattedMessage } from 'react-intl';
 import { toPrecision } from '../../utils/numbers';
 
@@ -15,6 +19,7 @@ interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   price?: string | null;
   tokenSymbol?: string | JSX.Element;
   balance?: string;
+  decimalLimit?: number;
 }
 
 export default function InputAmount({
@@ -24,6 +29,7 @@ export default function InputAmount({
   disabled = false,
   maxBorder = true,
   forSwap = false,
+  decimalLimit,
   price,
   ...rest
 }: InputAmountProps) {
@@ -34,8 +40,9 @@ export default function InputAmount({
   const [isFocus, setIsFocus] = useState<boolean>(false);
 
   const handleChange = (amount: string) => {
-    if (onChangeAmount) onChangeAmount(amount);
-
+    if (onChangeAmount) {
+      onChangeAmount(amount);
+    }
     ref.current.value = amount;
   };
 
@@ -103,6 +110,7 @@ export function NewFarmInputAmount({
   tokenSymbol,
   title,
   balance,
+  decimalLimit,
   ...rest
 }: InputAmountProps) {
   const ref = useRef<HTMLInputElement>();
@@ -112,8 +120,13 @@ export function NewFarmInputAmount({
   const [isFocus, setIsFocus] = useState<boolean>(false);
 
   const handleChange = (amount: string) => {
-    if (onChangeAmount) onChangeAmount(amount);
-
+    if (!decimalLimit) onChangeAmount(amount);
+    else
+      onChangeAmount(
+        ONLY_ZEROS.test(toNonDivisibleNumber(decimalLimit, amount))
+          ? '0'
+          : amount
+      );
     ref.current.value = amount;
   };
 

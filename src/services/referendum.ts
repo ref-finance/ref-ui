@@ -17,6 +17,7 @@ import { storageDepositAction } from './creators/storage';
 import moment from 'moment';
 import { ftGetTokenMetadata } from './ft-contract';
 import { toNonDivisibleNumber } from '../utils/numbers';
+import { WRAP_NEAR_CONTRACT_ID, nearDepositTransaction } from './wrap-near';
 export interface LockOptions {
   token_id: string;
   amount: string;
@@ -272,8 +273,13 @@ export const getUnclaimedProposal = () => {
   });
 };
 
-export const getUnclaimedRewards = () => {
-  console.log(getCurrentWallet().wallet.getAccountId(), 'un re');
+export const getUnclaimedRewards = async () => {
+  const storage_balance_of = await refVeViewFunction({
+    methodName: 'storage_balance_of',
+    args: { account_id: getCurrentWallet().wallet.getAccountId() },
+  });
+
+  if (storage_balance_of === null) return undefined;
 
   return refVeViewFunction({
     methodName: 'get_unclaimed_rewards',
@@ -401,6 +407,10 @@ export const addBonus = async ({
       ],
     },
   ];
+
+  if (tokenId === WRAP_NEAR_CONTRACT_ID) {
+    transactions.unshift(nearDepositTransaction(amount));
+  }
   return executeMultipleTransactions(transactions);
 };
 

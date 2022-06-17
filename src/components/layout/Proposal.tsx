@@ -473,6 +473,7 @@ const AddBonusPopUp = (
             proposal_id,
           });
         }}
+        beatStyling
       />
     </ModalWrapper>
   );
@@ -792,8 +793,8 @@ export const PreviewPopUp = (
   return (
     <ModalWrapper {...props}>
       <Card
-        className="w-full relative overflow-hidden mt-9"
-        bgcolor="bg-white bg-opacity-10 "
+        className="w-full relative overflow-auto mt-9"
+        bgcolor="bg-black bg-opacity-20 "
         padding={`px-10 pb-9  `}
       >
         <div className="pb-4 border-b border-white border-opacity-10 px-2 pt-8 text-white text-xl mb-4">
@@ -835,7 +836,9 @@ export const PreviewPopUp = (
           />
 
           <button
-            className="flex items-center "
+            className={`flex items-center ${
+              !link ? 'cursor-not-allowed' : ''
+            } `}
             onClick={() => {
               link && window.open(displayLink, '_blank');
             }}
@@ -852,7 +855,7 @@ export const PreviewPopUp = (
         </div>
 
         <div className="flex items-center justify-center mt-8 pb-6">
-          <div className="w-1/5 flex items-center justify-center">
+          <div className="w-1/5 flex items-center justify-center self-start pt-10">
             <NoResultChart expand="1.25" />
           </div>
 
@@ -1277,7 +1280,7 @@ const GovItemDetail = ({
       )}
       <Card
         className="w-full relative overflow-hidden"
-        bgcolor="bg-white bg-opacity-10 "
+        bgcolor="bg-black bg-opacity-20 "
         padding={`px-10 pt-9 ${
           proposal?.incentive && incentiveToken ? 'pb-12' : 'pb-9'
         }`}
@@ -1396,7 +1399,7 @@ const GovItemDetail = ({
                         ) : null}
                         {!votedThisOption ? null : (
                           <NewGradientButton
-                            className="ml-2 text-xs h-4 flex items-center px-3 py-3"
+                            className="ml-2 text-xs h-4 flex items-center px-3 py-3 "
                             text={
                               <FormattedMessage
                                 id="you_voted"
@@ -1510,6 +1513,10 @@ const GovProposalItem = ({
     | 'VoteApprove';
 
   const incentive = proposal?.incentive;
+
+  const { globalState } = useContext(WalletContext);
+
+  const isSignedIn = globalState.isSignedIn;
 
   const [incentiveToken, setIncentiveToken] = useState<TokenMetadata>();
 
@@ -1726,7 +1733,9 @@ const GovProposalItem = ({
                   }
                   className="ml-2.5 h-11 px-6"
                   disabled={
-                    (ended && !unClaimed) || proposal?.status === 'WarmUp'
+                    (ended && !unClaimed) ||
+                    proposal?.status === 'WarmUp' ||
+                    !isSignedIn
                   }
                   onClick={() => {
                     if (voted) {
@@ -2046,7 +2055,7 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
         ? e.stopPropagation()
         : voted === index
         ? cancelVote({ proposal_id: farmProposal.id })
-        : voted === undefined
+        : voted === undefined && !ONLY_ZEROS.test(veShare)
         ? setVotePopUpOpen(true)
         : e.stopPropagation();
     };
@@ -2104,7 +2113,7 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
 
             {voted === index ? (
               <NewGradientButton
-                className="ml-2 text-white text-sm px-2.5 py-1.5"
+                className="ml-2 text-white text-sm px-2.5 py-1.5 cursor-default"
                 text={
                   <FormattedMessage
                     id="you_voted"
@@ -2132,17 +2141,20 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
               <NewGradientButton
                 onClick={submit}
                 text={text}
-                className="w-20 py-2.5 px-4 h-10"
+                className="py-2.5 px-3 h-10"
                 beatStyling={voted === index}
                 disabled={
-                  ended || isPending || (voted !== undefined && voted !== index)
+                  ended ||
+                  isPending ||
+                  (voted !== undefined && voted !== index) ||
+                  ONLY_ZEROS.test(veShare)
                 }
               />
             ) : (
               <BorderGradientButton
                 onClick={submit}
                 text={text}
-                width="w-20 h-10"
+                width=" h-10"
                 opacity={'opacity-30'}
                 className={`py-1 px-4 h-full`}
                 color="#2c313a"
@@ -2230,7 +2242,7 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
           {ended ? (
             <span className="text-primaryText">
               <FormattedMessage
-                id={'voting_ende'}
+                id={'voting_ended'}
                 defaultMessage="Voting Ended"
               />
             </span>
@@ -2258,7 +2270,7 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
             />,
           ]}
           values={[
-            '0',
+            '10%',
             `${toPrecision(
               farmProposal?.kind?.FarmingReward.total_reward.toString() || '0',
               0,
@@ -2411,92 +2423,98 @@ export const CreateGovProposal = ({
   const [openPickerStart, setOpenPickerStart] = useState<boolean>(false);
   const [openPickerEnd, setOpenPickerEnd] = useState<boolean>(false);
 
+  const [require, setRequire] = useState<{
+    [pos: string]: string;
+  }>();
+
+  useEffect(() => {
+    if (startTime < endTime) {
+      setRequire({
+        ...require,
+        time: '',
+      });
+    }
+  }, [startTime, endTime]);
+
   const typeList = ['Pool', 'Yes/No'];
 
   useEffect(() => {
     if (type === 'Yes/No') {
       setOptions(['Yes', 'No']);
     } else {
-      setOptions([]);
+      setOptions(['']);
     }
   }, [type]);
 
-  const OptionsRender = () => {
-    const [optionValue, setOptionValue] = useState<string>('');
-
-    const [showAddOption, setShowAddOption] = useState<boolean>(false);
-
-    return (
-      <div className="flex items-center flex-wrap pt-4 pb-10">
-        {options?.map((o, i) => {
-          return (
-            <div className="flex items-center rounded-md w-28 bg-black bg-opacity-10 text-sm pl-2 pr-1 py-1 mr-4">
-              <span
-                className="rounded-full mr-2 h-2 w-2"
-                style={{
-                  backgroundColor: OPTIONS_COLORS[i],
-                }}
-              ></span>
-
-              <span className="">{o}</span>
-            </div>
-          );
-        })}
-
-        {type === 'Yes/No' ? null : (
-          <>
-            <span
-              className={
-                !showAddOption
-                  ? 'hidden'
-                  : 'flex items-center pr-1 py-1 pl-2 w-28 bg-black bg-opacity-20 text-sm mr-4 rounded-md '
-              }
-            >
-              <span
-                className="rounded-full mr-2 h-2 w-2 flex-shrink-0"
-                style={{
-                  backgroundColor: OPTIONS_COLORS[options.length || 0],
-                }}
-              ></span>
-              <input
-                value={optionValue}
-                onChange={(e) => {
-                  setOptionValue(e.target.value);
-                }}
-              />
-
-              <button
-                className="rounded-md text-lg bg-opacity-20 px-2.5 w-5 h-5 flex items-center justify-center"
-                onClick={() => {
-                  setShowAddOption(false);
-                }}
-                style={{
-                  backgroundColor: '#445867',
-                }}
-              >
-                <span>-</span>
-              </button>
-            </span>
-
-            <button
-              className=" rounded-lg text-lg bg-black bg-opacity-20 px-2.5 text-primaryText "
-              onClick={(e) => {
-                !showAddOption
-                  ? setShowAddOption(true)
-                  : optionValue?.length
-                  ? setOptions([...options, optionValue])
-                  : e.stopPropagation();
-              }}
-            >
-              +
-            </button>
-          </>
-        )}
-      </div>
-    );
-  };
-
   const isClientMobie = useClientMobile();
+
+  const [beating, setBeating] = useState<boolean>(false);
+
+  const validate = () => {
+    let newRequire = { ...require };
+    //
+    if (
+      moment().unix() + config.min_proposal_start_vote_offset_sec >
+      dateToUnixTimeSec(startTime)
+    ) {
+      // TODO: tip
+    }
+
+    if (startTime > endTime) {
+      newRequire = {
+        ...newRequire,
+        time: intl.formatMessage({
+          defaultMessage: 'Start time must be before end time',
+          id: 'start_time_should_be_earlier_than_end_time',
+        }),
+      };
+    }
+
+    if (!link) {
+      newRequire = {
+        ...newRequire,
+        link: intl.formatMessage({
+          defaultMessage: 'Required field',
+          id: 'required_field',
+        }),
+      };
+    }
+    if (!title) {
+      newRequire = {
+        ...newRequire,
+        title: intl.formatMessage({
+          defaultMessage: 'Required field',
+          id: 'required_field',
+        }),
+      };
+    }
+
+    if (options.length === 1 && !options[0]) {
+      newRequire = {
+        ...newRequire,
+        option: intl.formatMessage({
+          defaultMessage: 'Required field',
+          id: 'required_field',
+        }),
+      };
+    }
+
+    if (
+      moment().unix() + config.min_proposal_start_vote_offset_sec >
+        dateToUnixTimeSec(startTime) ||
+      startTime > endTime ||
+      !link ||
+      !title ||
+      (options.length === 1 && !options[0])
+    ) {
+      setRequire(newRequire);
+
+      return false;
+    }
+
+    setBeating(true);
+    return true;
+  };
 
   return !show ? null : (
     <div className="text-white">
@@ -2521,10 +2539,16 @@ export const CreateGovProposal = ({
 
       <Card
         className="w-full"
-        bgcolor="bg-white bg-opacity-10 "
+        bgcolor="bg-black bg-opacity-20 "
         padding={'px-6 py-9'}
       >
-        <div className="pb-3 border-b border-white border-opacity-10 px-2 pt-8 text-primaryText text-xl">
+        <div
+          className={`pb-3 border-b ${
+            require?.['title']
+              ? 'border-error'
+              : 'border-white border-opacity-10'
+          }  px-2 pt-8 text-primaryText text-xl`}
+        >
           <input
             value={title}
             maxLength={100}
@@ -2532,8 +2556,24 @@ export const CreateGovProposal = ({
               id: 'proposal_title',
               defaultMessage: 'Proposal Title',
             })}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => {
+              if (e.target.value) {
+                setRequire({
+                  ...require,
+                  title: '',
+                });
+              }
+              setTitle(e.target.value);
+            }}
           />
+        </div>
+
+        <div
+          className={`mx-2 pt-2 text-error text-sm ${
+            require?.['title'] ? 'block' : 'hidden'
+          } `}
+        >
+          {`${require?.['title']} !`}{' '}
         </div>
 
         <div className="text-xs text-primaryText text-right pt-2.5">
@@ -2555,7 +2595,96 @@ export const CreateGovProposal = ({
           />
         </div>
 
-        <OptionsRender />
+        <div
+          className={`flex items-center flex-wrap pt-2 ${
+            !require?.['option'] ? 'pb-10' : 'pb-2'
+          } pb-2`}
+        >
+          {options?.map((o, i) => {
+            return (
+              <>
+                {i === options.length - 1 ? (
+                  <span
+                    className={`flex items-center pr-1 py-1 pl-2 w-28 mt-2 ${
+                      require?.['option']
+                        ? 'border border-error border-opacity-30'
+                        : ''
+                    }  bg-black bg-opacity-20 text-sm mr-4 rounded-md `}
+                  >
+                    <span
+                      className="rounded-full mr-2 h-2 w-2 flex-shrink-0"
+                      style={{
+                        backgroundColor: OPTIONS_COLORS[options.length || 0],
+                      }}
+                    ></span>
+                    <input
+                      value={o}
+                      onChange={(e) => {
+                        setOptions([...options.slice(0, i), e.target.value]);
+                        e.target.focus();
+                        setRequire({
+                          ...require,
+                          option: '',
+                        });
+                      }}
+                    />
+
+                    <button
+                      className="rounded-md text-lg bg-opacity-20 px-2.5 w-5 h-5 flex items-center justify-center"
+                      onClick={() => {
+                        if (options.length > 1) {
+                          setOptions(options.slice(0, options.length - 1));
+                        }
+                      }}
+                      style={{
+                        backgroundColor: '#445867',
+                      }}
+                    >
+                      <span>-</span>
+                    </button>
+                  </span>
+                ) : (
+                  <div
+                    className={`flex items-center rounded-md w-28 bg-opacity-10 bg-black text-sm pl-2 pr-1 py-1 mr-4 mt-2`}
+                  >
+                    <span
+                      className="rounded-full mr-2 h-2 w-2"
+                      style={{
+                        backgroundColor:
+                          OPTIONS_COLORS[i % OPTIONS_COLORS.length],
+                      }}
+                    ></span>
+
+                    <span className="">{o}</span>
+                  </div>
+                )}
+              </>
+            );
+          })}
+
+          {type === 'Yes/No' ? null : (
+            <>
+              <button
+                className=" rounded-lg text-lg bg-black bg-opacity-20 px-2.5 text-primaryText mt-2"
+                onClick={(e) => {
+                  if (options[options.length - 1]) {
+                    setOptions([...options, '']);
+                  }
+                }}
+              >
+                +
+              </button>
+            </>
+          )}
+        </div>
+
+        <div
+          className={`mx-2 pt-2 pb-6 text-error text-sm ${
+            require?.['option'] ? 'block' : 'hidden'
+          } `}
+        >
+          {`${require?.['option']} !`}{' '}
+        </div>
 
         <div className="pb-4">
           <FormattedMessage
@@ -2566,7 +2695,7 @@ export const CreateGovProposal = ({
         </div>
 
         <div className="flex items-center">
-          <div className="rounded-lg bg-black bg-opacity-10 py-2 px-3 flex items-center justify-between w-60 cursor-pointer">
+          <div className="rounded-lg bg-black bg-opacity-20 py-2 px-3 flex items-center justify-between w-60 cursor-pointer">
             <CustomDatePicker
               startTime={startTime}
               setStartTime={setStartTime}
@@ -2586,7 +2715,7 @@ export const CreateGovProposal = ({
             </div>
           </div>{' '}
           <span className="mx-4">-</span>
-          <div className="rounded-lg bg-black bg-opacity-10 py-2 px-3 flex items-center justify-between w-60 cursor-pointer">
+          <div className="rounded-lg bg-black bg-opacity-20 py-2 px-3 flex items-center justify-between w-60 cursor-pointer">
             <CustomDatePicker
               startTime={startTime}
               setStartTime={setStartTime}
@@ -2608,6 +2737,14 @@ export const CreateGovProposal = ({
           </div>
         </div>
 
+        <div
+          className={`mx-2 pt-2 text-error text-sm ${
+            require?.['time'] ? 'block' : 'hidden'
+          } `}
+        >
+          {`${require?.['time']} !`}{' '}
+        </div>
+
         <div className="pb-4 pt-10">
           <FormattedMessage
             id="forum_discussion"
@@ -2615,18 +2752,38 @@ export const CreateGovProposal = ({
           />
         </div>
         <div className='border-b border-white border-opacity-10 pb-6 mb-6"'>
-          <div className="w-full text-sm text-primaryText px-5 bg-black bg-opacity-20 py-2 flex items-center rounded-lg ">
+          <div
+            className={`w-full ${
+              require?.['link'] ? 'border border-error border-opacity-30' : ''
+            } text-sm text-primaryText px-5 bg-black bg-opacity-20 py-2 flex items-center rounded-lg `}
+          >
             <span className="text-white mr-3">↗</span>
 
             <input
               value={link}
-              onChange={(e) => setLink(e.target.value)}
+              onChange={(e) => {
+                if (e.target.value) {
+                  setRequire({
+                    ...require,
+                    link: '',
+                  });
+                }
+                setLink(e.target.value);
+              }}
               placeholder={intl.formatMessage({
                 id: 'share_forum_discussion_link_here',
                 defaultMessage: 'Share forum discussion link here',
               })}
               className="w-full"
             />
+          </div>
+
+          <div
+            className={`mx-2 pt-2 text-error text-sm ${
+              require?.['link'] ? 'block' : 'hidden'
+            } `}
+          >
+            {`${require?.['link']} !`}{' '}
           </div>
         </div>
 
@@ -2639,28 +2796,21 @@ export const CreateGovProposal = ({
 
           <NewGradientButton
             text={<FormattedMessage id="create" defaultMessage={'Create'} />}
-            disabled={!title || !link || options?.length < 1}
             onClick={() => {
-              if (
-                moment().unix() + config.min_proposal_start_vote_offset_sec >
-                dateToUnixTimeSec(startTime)
-              ) {
-                // TODO: tip
-                return;
+              if (validate()) {
+                createProposal({
+                  description: {
+                    title: `#${index} ${title}`,
+                    link,
+                  },
+                  kind: type === 'Pool' ? 'Poll' : 'Common',
+                  options,
+                  duration_sec:
+                    dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime),
+                });
               }
-
-              createProposal({
-                description: {
-                  title: `#${index} ${title}`,
-                  link,
-                },
-                kind: type === 'Pool' ? 'Poll' : 'Common',
-                options,
-                duration_sec:
-                  dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime),
-              });
             }}
-            beatStyling
+            beatStyling={beating}
             className="ml-4"
           />
         </div>
@@ -2685,7 +2835,7 @@ export const CreateGovProposal = ({
         link={link}
         show={showPreview}
         setShow={setShowPreview}
-        options={options}
+        options={options.slice(0, options.length - 1)}
         turnOut={'0.00%'}
         totalVE={'0'}
         type={type}
@@ -2725,6 +2875,8 @@ export const GovProposal = ({
   const [state, setState] = useState<'All' | 'Live' | 'Ended' | 'Pending'>(
     'All'
   );
+
+  console.log(voteDetail, voteHistory);
 
   const UnclaimedProposal = useUnclaimedProposal();
 
@@ -2860,10 +3012,7 @@ export const ProposalCard = () => {
         <FarmProposal farmProposal={farmProposal} />
       </ProposalWrapper>
 
-      <ProposalWrapper
-        show={curTab === PROPOSAL_TAB.GOV}
-        bgcolor={'bg-veCardGradient'}
-      >
+      <ProposalWrapper show={curTab === PROPOSAL_TAB.GOV} bgcolor={'bg-cardBg'}>
         {showCreateProposal ? (
           <CreateGovProposal
             show={showCreateProposal}

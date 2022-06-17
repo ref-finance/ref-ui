@@ -526,7 +526,7 @@ export function NewGradientButton(porps: {
           setBeating(true);
         }
 
-        onClick(e);
+        onClick && onClick(e);
       }}
       disabled={disableForUI ? false : disabled || grayDisable}
       style={{
@@ -571,7 +571,7 @@ export function WithGradientButton(porps: {
       } relative px-5 py-3  ${
         disabled ? 'opacity-30' : ''
       }  rounded-lg text-center `}
-      onClick={onClick}
+      onClick={(e) => onClick && onClick(e)}
       disabled={disableForUI ? false : disabled || grayDisable}
       style={{
         backgroundColor: '#445867',
@@ -605,7 +605,7 @@ export function BorderGradientButton(porps: {
       className={` p-px rounded-lg text-center ${
         disabled ? 'cursor-not-allowed' : ''
       }  bg-veGradient ${width} ${opacity}`}
-      onClick={onClick}
+      onClick={(e) => onClick && onClick(e)}
     >
       <button
         disabled={disabled}

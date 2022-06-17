@@ -73,7 +73,7 @@ import { toRealSymbol } from '../utils/token';
 import { FaAngleUp, FaAngleDown } from 'react-icons/fa';
 import { ConnectToNearBtnGradient } from '../components/button/Button';
 import { WithGradientButton } from '../components/button/Button';
-import { useVEmeta } from '../state/referendum';
+import { useVEmeta, useVEconfig } from '../state/referendum';
 
 export interface AccountInfo {
   duration_sec: number;
@@ -280,16 +280,10 @@ export const LockPopUp = ({
 }) => {
   const [inputValue, setInputValue] = useState<string>('');
 
-  const [config, setConfig] = useState<VEConfig>();
+  const config = useVEconfig();
 
   const [termsCheck, setTermsCheck] = useState<boolean>(false);
   const preLocked = Number(accountInfo?.unlock_timestamp) > 0;
-
-  useEffect(() => {
-    getVEConfig().then((res) => setConfig(res));
-  }, []);
-
-  console.log(config, 'config');
 
   const balance = useLOVEbalance();
 
@@ -424,7 +418,11 @@ export const LockPopUp = ({
           </span>
         </div>
 
-        <NewFarmInputAmount max={lpShare} onChangeAmount={setInputValue} />
+        <NewFarmInputAmount
+          max={lpShare}
+          onChangeAmount={setInputValue}
+          decimalLimit={LOVE_TOKEN_DECIMAL}
+        />
 
         <div className="text-sm text-farmText py-5 pb-2.5 flex items-center justify-between">
           <span>
@@ -458,7 +456,7 @@ export const LockPopUp = ({
           </span>
 
           <span className="bg-gradientFromHover rounded-md text-xs px-1 text-black">
-            {showVeAmount ? multiplier.toFixed(2) + 'x' : '1.00x'}
+            {!showVeAmount ? '' : multiplier.toFixed(2) + 'x'}
           </span>
         </div>
 
@@ -628,10 +626,7 @@ const UnLockPopUp = ({
     2
   );
 
-  const lockedLPAmount = toPrecision(
-    toReadableNumber(24, accountInfo?.lpt_amount),
-    2
-  );
+  const lockedLPAmount = toReadableNumber(24, accountInfo?.lpt_amount);
 
   const [toUnlockAmount, setToUnlockAmount] = useState<string>('');
 
@@ -697,7 +692,7 @@ const UnLockPopUp = ({
               <FormattedMessage id="locked" defaultMessage="Locked" />
             </span>
             <span className="pb-1 text-white">
-              {lockedLPAmount}
+              {toPrecision(lockedLPAmount, 2)}
               <span className="text-primaryText ml-2">{'LPtoken'}</span>
             </span>
           </div>
@@ -983,7 +978,7 @@ const UserReferendumCard = ({
       </div>
 
       <div className="flex items-center justify-between mt-8">
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col w-1/2 mr-4">
           <span
             className={`text-3xl font-bold text-gradientFromHover ${
               ONLY_ZEROS.test(lpShare) || !isSignedIn ? 'opacity-20' : ''
@@ -1000,7 +995,7 @@ const UserReferendumCard = ({
             />
           </span>
         </div>
-        <div className="flex flex-col w-full ml-4">
+        <div className="flex flex-col w-1/2">
           <span
             className={`text-3xl font-bold text-gradientFromHover ${
               ONLY_ZEROS.test(lockedLpShare) || !isSignedIn ? 'opacity-20' : ''
@@ -1089,10 +1084,6 @@ export const ReferendumPage = () => {
   const lpShare = usePoolShare(id);
 
   const { veShare, accountInfo } = useAccountInfo();
-
-  const config = useVEmeta();
-
-  console.log(config, 'meta');
 
   return (
     <div className="m-auto lg:w-1024px xs:w-full md:w-5/6 text-white relative">

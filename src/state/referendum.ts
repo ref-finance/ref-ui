@@ -147,7 +147,7 @@ export const useLOVEbalance = () => {
   useEffect(() => {
     if (!isSignedIn) return;
 
-    ftGetBalance(REF_VE_CONTRACT_ID).then(setBalance);
+    // ftGetBalance(REF_VE_CONTRACT_ID).then(setBalance);
   }, [isSignedIn]);
 
   return toReadableNumber(LOVE_TOKEN_DECIMAL, balance);
@@ -225,7 +225,9 @@ export const useAccountInfo = () => {
     getAccountInfo().then((info: AccountInfo) => {
       setAccountInfo(info);
 
-      setVeShare(toReadableNumber(LOVE_TOKEN_DECIMAL, info.ve_lpt_amount));
+      setVeShare(
+        toReadableNumber(LOVE_TOKEN_DECIMAL, info?.ve_lpt_amount || '0')
+      );
     });
   }, [isSignedIn]);
 
