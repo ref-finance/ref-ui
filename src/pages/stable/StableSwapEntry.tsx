@@ -398,7 +398,6 @@ const SauceSelector = ({
 const REF_SAUCE_PAGE_STABLE_CLASS_KEY = 'REF_SAUCE_PAGE_STABLE_CLASS_VALUE';
 
 export function StableSwapPageEntry() {
-  // const;
   const [reserveType, setReserveType] = useState<STABLE_POOL_TYPE>(
     STABLE_POOL_TYPE[
       localStorage.getItem(REF_SAUCE_PAGE_STABLE_CLASS_KEY)?.toString()
@@ -409,7 +408,7 @@ export function StableSwapPageEntry() {
 
   const { poolData: BTCPoolData } = useStabelPoolData(BTC_STABLE_POOL_ID);
 
-  // const { poolData: STNEARPoolData } = useStabelPoolData(STNEAR_POOL_ID);
+  const { poolData: STNEARPoolData } = useStabelPoolData(STNEAR_POOL_ID);
   const { poolData: CUSDPoolData } = useStabelPoolData(CUSD_STABLE_POOL_ID);
 
   const { poolData: LINEARPoolData } = useStabelPoolData(LINEAR_POOL_ID);
@@ -436,7 +435,7 @@ export function StableSwapPageEntry() {
     !USNPoolData ||
     !BTCPoolData ||
     !CUSDPoolData ||
-    // !STNEARPoolData ||
+    !STNEARPoolData ||
     !LINEARPoolData ||
     !allStableTokens
   )
@@ -447,7 +446,7 @@ export function StableSwapPageEntry() {
   const formatedBTCPoolData = formatePoolData(BTCPoolData);
   const formatedCUSDPoolData = formatePoolData(CUSDPoolData);
 
-  // const formatedSTNEARPoolData = formatePoolData(STNEARPoolData);
+  const formatedSTNEARPoolData = formatePoolData(STNEARPoolData);
 
   const formatedLINEARPoolData = formatePoolData(LINEARPoolData);
 
@@ -456,16 +455,14 @@ export function StableSwapPageEntry() {
       ? [formatedPool3tokenData, formatedUSNPoolData, formatedCUSDPoolData]
       : reserveType === STABLE_POOL_TYPE.BTC
       ? [formatedBTCPoolData]
-      : // : [formatedSTNEARPoolData, formatedLINEARPoolData];
-        [formatedLINEARPoolData];
+      : [formatedSTNEARPoolData, formatedLINEARPoolData];
 
   const displayPools =
     reserveType === STABLE_POOL_TYPE.USD
       ? [pool3tokenData, USNPoolData, CUSDPoolData]
       : reserveType === STABLE_POOL_TYPE.BTC
       ? [BTCPoolData]
-      : // : [STNEARPoolData, LINEARPoolData];
-        [LINEARPoolData];
+      : [STNEARPoolData, LINEARPoolData];
 
   return (
     <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2 flex flex-col">
@@ -509,16 +506,14 @@ export function StableSwapPageEntry() {
                 .map((id) => id.toString())
                 .includes(token.id);
             case 'NEAR':
-              // return STNEARIDS.concat(LINEARIDS).includes(token.id);
-              return LINEARIDS.includes(token.id);
+              return STNEARIDS.concat(LINEARIDS).includes(token.id);
           }
         })}
         pools={
           reserveType === STABLE_POOL_TYPE.BTC
             ? [BTCPoolData.pool]
             : reserveType === STABLE_POOL_TYPE.NEAR
-            ? // ? [STNEARPoolData.pool, LINEARPoolData.pool]
-              [LINEARPoolData.pool]
+            ? [STNEARPoolData.pool, LINEARPoolData.pool]
             : [USNPoolData.pool, pool3tokenData.pool, CUSDPoolData.pool]
         }
         hiddenMag={true}

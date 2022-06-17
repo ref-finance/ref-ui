@@ -159,7 +159,7 @@ export function YourLiquidityPage() {
 
   const { poolData: CUSDPoolData } = useStabelPoolData(CUSD_STABLE_POOL_ID);
 
-  // const { poolData: STNEARPoolData } = useStabelPoolData(STNEAR_POOL_ID);
+  const { poolData: STNEARPoolData } = useStabelPoolData(STNEAR_POOL_ID);
 
   const { poolData: LINEARPoolData } = useStabelPoolData(LINEAR_POOL_ID);
 
@@ -194,7 +194,7 @@ export function YourLiquidityPage() {
     !USNPoolData ||
     !BTCPoolData ||
     !CUSDPoolData ||
-    // !STNEARPoolData ||
+    !STNEARPoolData ||
     !LINEARPoolData ||
     !tokensMeta
   )
@@ -205,7 +205,7 @@ export function YourLiquidityPage() {
     USNPoolData,
     BTCPoolData,
     CUSDPoolData,
-    // STNEARPoolData,
+    STNEARPoolData,
     LINEARPoolData,
   ];
 
@@ -214,7 +214,7 @@ export function YourLiquidityPage() {
     USNPoolData.pool,
     BTCPoolData.pool,
     CUSDPoolData.pool,
-    // STNEARPoolData.pool,
+    STNEARPoolData.pool,
     LINEARPoolData.pool,
   ];
 
