@@ -11,6 +11,8 @@ import {
   AllStableTokenIds,
   BTC_STABLE_POOL_ID,
   CUSD_STABLE_POOL_ID,
+  LINEAR_POOL_ID,
+  STNEAR_POOL_ID,
   wallet as webWallet,
 } from '~services/near';
 import { PoolRPCView } from '~services/api';
@@ -45,6 +47,7 @@ import { isNotStablePool } from '../../services/pool';
 import { WalletContext, getSenderLoginRes } from '../../utils/sender-wallet';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import { useStabelPoolData } from '../../state/sauce';
+import { getStablePoolDecimal } from '~pages/stable/StableSwapEntry';
 
 function MyShares({
   shares,
@@ -82,7 +85,7 @@ function MyShares({
       <div className="pl-2 pb-1 xs:pr-0 md:pr-0 text-sm whitespace-nowrap">{`${toRoundedReadableNumber(
         {
           decimals: isStablePool(poolId)
-            ? STABLE_LP_TOKEN_DECIMALS
+            ? getStablePoolDecimal(poolId)
             : LP_TOKEN_DECIMALS,
           number: userTotalShare
             .toNumber()
@@ -156,6 +159,10 @@ export function YourLiquidityPage() {
 
   const { poolData: CUSDPoolData } = useStabelPoolData(CUSD_STABLE_POOL_ID);
 
+  // const { poolData: STNEARPoolData } = useStabelPoolData(STNEAR_POOL_ID);
+
+  const { poolData: LINEARPoolData } = useStabelPoolData(LINEAR_POOL_ID);
+
   if (!senderLoginRes && !webWallet.isSignedIn()) {
     history.push('/');
     return null;
@@ -187,6 +194,8 @@ export function YourLiquidityPage() {
     !USNPoolData ||
     !BTCPoolData ||
     !CUSDPoolData ||
+    // !STNEARPoolData ||
+    !LINEARPoolData ||
     !tokensMeta
   )
     return <Loading />;
@@ -196,6 +205,8 @@ export function YourLiquidityPage() {
     USNPoolData,
     BTCPoolData,
     CUSDPoolData,
+    // STNEARPoolData,
+    LINEARPoolData,
   ];
 
   const stablePools = [
@@ -203,6 +214,8 @@ export function YourLiquidityPage() {
     USNPoolData.pool,
     BTCPoolData.pool,
     CUSDPoolData.pool,
+    // STNEARPoolData.pool,
+    LINEARPoolData.pool,
   ];
 
   return (

@@ -24,8 +24,6 @@ import { isMobile, useMobile } from '../../utils/device';
 import {
   calculateExchangeRate,
   toPrecision,
-  toReadableNumber,
-  calcStableSwapPriceImpact,
   scientificNotationToString,
   divide,
   multiply,

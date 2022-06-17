@@ -400,11 +400,15 @@ const parseAddStableLiquidity = async (params: any) => {
   tokens.forEach((token, index) => {
     tempToken[token.symbol] = toReadableNumber(token.decimals, amounts[index]);
   });
+  let DECIMALS = 24;
+  if (new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())) {
+    DECIMALS = LP_STABLE_TOKEN_DECIMALS;
+  }
   return {
     Action: 'Add Stable Liquidity',
     'Pool id': pool_id,
     ...tempToken,
-    'Min shares': toReadableNumber(LP_STABLE_TOKEN_DECIMALS, min_shares),
+    'Min shares': toReadableNumber(DECIMALS, min_shares),
   };
 };
 const parseRemoveStableLiquidity = async (params: any) => {
@@ -422,14 +426,15 @@ const parseRemoveStableLiquidity = async (params: any) => {
   tokens.forEach((token, index) => {
     tempToken[token.symbol] = toReadableNumber(token.decimals, amounts[index]);
   });
+  let DECIMALS = 24;
+  if (new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())) {
+    DECIMALS = LP_STABLE_TOKEN_DECIMALS;
+  }
   return {
     Action: 'Remove Stable Liquidity',
     'Pool id': pool_id,
     ...tempToken,
-    'Max burn shares': toReadableNumber(
-      LP_STABLE_TOKEN_DECIMALS,
-      max_burn_shares
-    ),
+    'Max burn shares': toReadableNumber(DECIMALS, max_burn_shares),
   };
 };
 const parseUnstake = async (params: any) => {

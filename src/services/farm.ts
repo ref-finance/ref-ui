@@ -30,7 +30,7 @@ import {
   SENDER_WALLET_SIGNEDIN_STATE_KEY,
 } from '../utils/sender-wallet';
 const config = getConfig();
-export const DEFAULT_PAGE_LIMIT = 150;
+export const DEFAULT_PAGE_LIMIT = 300;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
 const STABLE_POOL_IDS = getConfig().STABLE_POOL_IDS;
 const STABLE_POOL_USN_ID = getConfig().STABLE_POOL_USN_ID;
@@ -129,7 +129,11 @@ export const getFarms = async ({
   farms = farms.filter((item) => {
     const { farm_id } = item;
     const arr = farm_id.split('@');
-    if (!blackFarmList.has(arr[1])) {
+    if (
+      !blackFarmList.has(arr[1]) &&
+      farm_id != 'exchange.ref-dev.testnet5#0' &&
+      farm_id != 'exchange.ref-dev.testnet5#1'
+    ) {
       return true;
     }
   });

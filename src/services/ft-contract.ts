@@ -9,6 +9,7 @@ import metadataDefaults from '../utils/metadata';
 import { storageDepositForFTAction } from './creators/storage';
 import db from '../store/RefDatabase';
 import { getCurrentWallet, WALLET_TYPE } from '../utils/sender-wallet';
+import { WRAP_NEAR_CONTRACT_ID } from './wrap-near';
 
 export const NEAR_ICON =
   'https://near.org/wp-content/themes/near-19/assets/img/brand-icon.png';
@@ -97,7 +98,8 @@ export const ftGetTokenMetadata = async (
       metadata.id === CHEDDAR_ID ||
       metadata.id === CUCUMBER_ID ||
       metadata.id === HAPI_ID ||
-      metadata.id === WOO_ID
+      metadata.id === WOO_ID ||
+      metadata.id === WRAP_NEAR_CONTRACT_ID
     ) {
       metadata.icon = metadataDefaults[id];
     }
