@@ -30,7 +30,7 @@ export const isStableToken = (id: string) => {
     STABLE_TOKEN_IDS.includes(id) ||
     STABLE_TOKEN_USN_IDS.includes(id) ||
     BTCIDS.includes(id) ||
-    // STNEARIDS.includes(id) ||
+    STNEARIDS.includes(id) ||
     CUSDIDS.includes(id) ||
     LINEARIDS.includes(id)
   );
@@ -52,7 +52,7 @@ export const {
 } = getExtraStablePoolConfig();
 
 export const extraStableTokenIds = BTCIDS.concat(LINEARIDS)
-  // .concat(STNEARIDS)
+  .concat(STNEARIDS)
   .concat(CUSDIDS)
   .filter((_) => !!_);
 
@@ -70,7 +70,7 @@ export const ALL_STABLE_POOL_IDS = [
   STABLE_POOL_ID,
   STABLE_POOL_USN_ID,
   BTC_STABLE_POOL_ID,
-  // STNEAR_POOL_ID,
+  STNEAR_POOL_ID,
   CUSD_STABLE_POOL_ID,
   LINEAR_POOL_ID,
 ]
