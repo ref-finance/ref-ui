@@ -94,7 +94,7 @@ export const WalletOption = ({
         height: '62px',
       }}
     >
-      <div className="">{Icon}</div>
+      {Icon}
       <div className="py-1 pl-3 w-full">
         <div className="flex items-center justify-between">
           <div className="text-base text-white flex items-center">
@@ -105,6 +105,17 @@ export const WalletOption = ({
               {')'}
             </span>
           </div>
+          {decorate ? (
+            <div
+              className="ml-1 px-0.5 text-black rounded bg-senderHot relative left-1 bottom-1"
+              style={{
+                fontSize: '10px',
+                lineHeight: '15px',
+              }}
+            >
+              Beta
+            </div>
+          ) : null}
         </div>
         <button className="text-xs text-primaryText">{officialUrl}</button>
       </div>
@@ -139,7 +150,7 @@ export const WalletFooter = ({
   callback: (e?: any) => void;
 }) => {
   return (
-    <div className="mx-auto text-white text-xs mt-11 absolute bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+    <div className="mx-auto text-white text-xs mt-11 ">
       <span>{ques}</span>
       <span
         className="font-bold cursor-pointer ml-2"
@@ -176,7 +187,7 @@ const SenderNotInstalledModal = (
       }}
     >
       <Card
-        className="pt-8 px-6 pb-6 flex flex-col text-white relative"
+        className="pt-8 px-6 pb-6 flex flex-col text-white"
         width="xs:w-95vw w-360px"
         style={{
           border: '1px solid rgba(0, 198, 162, 0.5)',
@@ -193,7 +204,7 @@ const SenderNotInstalledModal = (
           closeCallback={() => setShowSenderNotInstalled(false)}
         />
 
-        <div className="flex justify-center pt-6">
+        <div className="flex justify-center pt-10 pb-6">
           <SenderWalletLarge />
         </div>
 
@@ -206,7 +217,7 @@ const SenderNotInstalledModal = (
           </span>
         </div>
 
-        <div className="mx-auto text-xs pt-10 pb-4">
+        <div className="mx-auto text-xs pt-14 pb-4">
           <span>
             <FormattedMessage
               id="connect_to_dapps_with_one_click"
@@ -224,7 +235,7 @@ const SenderNotInstalledModal = (
             marginBottom: '5px',
           }}
           onClick={() => {
-            window.open('https://sender.org/?origin=ref', '_blank');
+            window.open('https://senderwallet.io/?origin=ref', '_blank');
           }}
         >
           <span>
@@ -275,7 +286,7 @@ const ConnectingModal = (
       }}
     >
       <Card
-        className="pt-8 px-6 pb-6 flex flex-col text-white relative"
+        className="pt-8 px-6 pb-6 flex flex-col text-white"
         width="xs:w-95vw w-360px"
         style={{
           border: '1px solid rgba(0, 198, 162, 0.5)',
@@ -292,7 +303,7 @@ const ConnectingModal = (
           closeCallback={() => setShowConnecting(false)}
         />
 
-        <div className="mx-auto font-bold pt-8 pb-12 ">
+        <div className="mx-auto font-bold pt-11 pb-16 ">
           <span
             style={{
               fontSize: '20px',
@@ -303,8 +314,8 @@ const ConnectingModal = (
           </span>
         </div>
 
-        <div className="flex items-center mx-auto relative left-6">
-          <span className="">
+        <div className="flex items-center mx-auto">
+          <span>
             <RefWalletLarge />
           </span>
 
@@ -312,10 +323,10 @@ const ConnectingModal = (
             <BeatLoader size={5} color="#00C6A2" />
           </span>
 
-          <span className="relative right-4">{walletIcon}</span>
+          <span>{walletIcon}</span>
         </div>
 
-        <div className="mx-auto pt-6 mb-5 flex justify-center">
+        <div className="mx-auto pt-12 mb-4 flex justify-center">
           <span className="whitespace-nowrap">
             <FormattedMessage
               id="check_sender_wallet_extension"
@@ -372,7 +383,7 @@ export const WalletSelectorModal = (
         }}
       >
         <Card
-          className="pt-8 px-6 pb-6 flex flex-col text-white relative"
+          className="pt-8 px-6 pb-6 flex flex-col text-white"
           width="xs:w-95vw w-360px "
           style={{
             border: '1px solid rgba(0, 198, 162, 0.5)',
@@ -407,6 +418,7 @@ export const WalletSelectorModal = (
             officialUrl="wallet.near.org"
             connect={() => {
               wallet.requestSignIn(REF_FARM_CONTRACT_ID);
+              // wallet.requestSignIn('aurora');
             }}
           />
 
@@ -432,7 +444,7 @@ export const WalletSelectorModal = (
             description={
               <FormattedMessage id="extension" defaultMessage="extension" />
             }
-            officialUrl="sender.org"
+            officialUrl="senderwallet.io"
             connect={() => {
               // mobile device
               if (isMobileExplorer()) {
