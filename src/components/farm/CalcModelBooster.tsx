@@ -498,7 +498,7 @@ export function CalcEle(props: {
   }
   function getRate() {
     if (accountType == 'free') {
-      return `x ${toPrecision(seedRadio, 2)}`;
+      return `x ${toPrecision(seedRadio.toString(), 2)}`;
     } else if (accountType == 'cd') {
       return `${
         selecteDate?.rate?.toString()
@@ -521,9 +521,14 @@ export function CalcEle(props: {
         new BigNumber(free_amount).plus(locked_amount).toFixed()
       );
       if (+totalStakeLoveAmount > 0) {
-        const result = new BigNumber(1)
-          .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
-          .toFixed();
+        let result;
+        if (+totalStakeLoveAmount < 1) {
+          result = 1;
+        } else {
+          result = new BigNumber(1)
+            .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
+            .toFixed();
+        }
         return result;
       }
       return '';
