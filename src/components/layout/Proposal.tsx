@@ -94,6 +94,7 @@ import { useClientMobile, isClientMobie } from '../../utils/device';
 import DatePicker from 'react-datepicker';
 
 import 'react-datepicker/dist/react-datepicker.css';
+import { getCurrentUnixTime } from '../../services/api';
 
 const REF_FI_PROPOSALTAB = 'REF_FI_PROPOSALTAB_VALUE';
 
@@ -103,6 +104,12 @@ export const getCurUTCDate = (base?: Date) => {
   const utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
 
   return utc;
+};
+
+export const timeStampToUTC = (ts: number) => {
+  return moment(ts * 1000)
+    .utc()
+    .format('yyyy-MM-DD hh:mm:ss');
 };
 
 export const dateToUnixTimeSec = (date: Date) => {
@@ -503,7 +510,7 @@ const VoteChart = ({
   const data = ratios.map((r, i) => {
     return {
       name: options[i],
-      value: Number(r),
+      value: Math.round(Number(r) * 10) / 10,
     };
   });
 
@@ -519,35 +526,12 @@ const VoteChart = ({
       </div>
     );
 
-  const [activeIndex, setActiveIndex] = useState<number>();
+  const [activeIndex, setActiveIndex] = useState<number>(-1);
 
   function customLabel(props: any) {
     let { cx, cy, index, value, name } = props;
 
     if (index !== activeIndex) return null;
-
-    const ActiveLabel = () => {
-      return (
-        <div
-          className="pt-1 pb-2 pr-2 pl-3 flex flex-col rounded-lg bg-voteLabel text-xs"
-          style={{
-            backdropFilter: 'blur(30px)',
-          }}
-        >
-          <div className="flex items-center justify-between pb-1.5">
-            <div
-              className="w-2.5 h-2.5 rounded-sm mr-3 flex-shrink-0"
-              style={{
-                backgroundColor: OPTIONS_COLORS[activeIndex] || 'black',
-              }}
-            ></div>
-
-            <div>{name}</div>
-          </div>
-          <div className="self-end">{value}%</div>
-        </div>
-      );
-    };
 
     return (
       <g>
@@ -557,7 +541,24 @@ const VoteChart = ({
           width={`${name.length * 15 > 80 ? 80 : name.length * 15}%`}
           height={100}
         >
-          <ActiveLabel />
+          <div
+            className="pt-1 pb-2 pr-2 pl-3 flex flex-col rounded-lg bg-voteLabel text-xs"
+            style={{
+              backdropFilter: 'blur(30px)',
+            }}
+          >
+            <div className="flex items-center justify-between pb-1.5">
+              <div
+                className="w-2.5 h-2.5 rounded-sm mr-3 flex-shrink-0"
+                style={{
+                  backgroundColor: OPTIONS_COLORS[activeIndex] || 'black',
+                }}
+              ></div>
+
+              <div>{name}</div>
+            </div>
+            <div className="self-end">{value}%</div>
+          </div>
         </foreignObject>
       </g>
     );
@@ -593,7 +594,7 @@ const VoteChart = ({
                 strokeOpacity={10}
                 strokeWidth={2}
                 onMouseEnter={() => setActiveIndex(index)}
-                onMouseLeave={() => setActiveIndex(undefined)}
+                // onMouseLeave={() => setActiveIndex(-1)}
               />
             );
           })}
@@ -815,9 +816,9 @@ export const PreviewPopUp = (
             id: 'voting_period',
             defaultMessage: 'Voting Period',
           })}
-          value={`${moment(startTime).format(
-            'yyyy-MM-DD hh:mm:ss A'
-          )} - ${moment(endTime).format('yyyy-MM-DD hh:mm:ss A')} UTC`}
+          value={`${moment(startTime).format('yyyy-MM-DD hh:mm:ss')} - ${moment(
+            endTime
+          ).format('yyyy-MM-DD hh:mm:ss')} UTC`}
         />
         <InfoRow
           name={intl.formatMessage({
@@ -1073,6 +1074,7 @@ const FarmChart = ({
       payload,
       percent,
       value,
+      index,
     } = props;
     const sin = Math.sin(-RADIAN * midAngle);
     const cos = Math.cos(-RADIAN * midAngle);
@@ -1186,6 +1188,9 @@ const GovItemDetail = ({
   forPreview?: boolean;
 }) => {
   const intl = useIntl();
+
+  const startTime = Math.floor(Number(proposal?.start_at) / TIMESTAMP_DIVISOR);
+  const endTime = Math.floor(Number(proposal?.end_at) / TIMESTAMP_DIVISOR);
 
   const link = desctiption.link;
 
@@ -1303,7 +1308,9 @@ const GovItemDetail = ({
             id: 'voting_period',
             defaultMessage: 'Voting Period',
           })}
-          value={''}
+          value={`${timeStampToUTC(startTime)} - ${timeStampToUTC(
+            endTime
+          )} UTC`}
         />
         <InfoRow
           name={intl.formatMessage({
@@ -1315,7 +1322,7 @@ const GovItemDetail = ({
         <div className="w-full relative flex items-center justify-between pb-4 border-b border-white border-opacity-10">
           <InfoRow
             name={intl.formatMessage({
-              id: 'total_velpt',
+              id: 'voted_veLPT',
               defaultMessage: 'Total veLPT',
             })}
             value={toPrecision(totalVE, 2)}
@@ -1399,7 +1406,7 @@ const GovItemDetail = ({
                         ) : null}
                         {!votedThisOption ? null : (
                           <NewGradientButton
-                            className="ml-2 text-xs h-4 flex items-center px-3 py-3 "
+                            className="ml-2 text-xs h-4 flex items-center px-3 py-3 cursor-default"
                             text={
                               <FormattedMessage
                                 id="you_voted"
@@ -1566,6 +1573,8 @@ const GovProposalItem = ({
       .toNumber()}`;
   });
 
+  console.log(ratios, 'ratios');
+
   const ended = proposal?.status === 'Expired';
 
   const topVote = _.maxBy(
@@ -1605,7 +1614,7 @@ const GovProposalItem = ({
         <Card
           className="w-full flex items-center my-2 relative overflow-hidden"
           bgcolor="bg-white bg-opacity-10"
-          padding={`px-8 pt-8 pb-${proposal?.incentive ? '14' : '8'}`}
+          padding={`px-8 pt-8 pb-14`}
         >
           <div>
             {status === 'Pending' ? (
@@ -1754,41 +1763,41 @@ const GovProposalItem = ({
               </div>
             </div>
           </div>
-          {proposal?.incentive && incentiveToken ? (
-            <div
-              className={`absolute w-full h-8 bg-veGradient bottom-0 right-0 flex items-center text-center justify-center text-white ${
-                proposal?.status === 'Expired' ? 'opacity-30' : ''
-              }`}
-            >
+          <div
+            className={`absolute w-full h-8 bg-veGradient bottom-0 right-0 flex items-center text-center justify-center text-white ${
+              proposal?.status !== 'InProgress' ? 'opacity-30' : ''
+            }`}
+          >
+            {proposal?.incentive && incentiveToken ? (
               <span>
                 {`${toPrecision(
                   toReadableNumber(
-                    incentiveToken.decimals,
+                    incentiveToken?.decimals,
                     proposal?.incentive?.incentive_amount
                   ),
                   0,
                   true
                 )} ${toRealSymbol(
-                  incentiveToken.symbol
+                  incentiveToken?.symbol
                 )} divided equally among all voters`}
               </span>
-              {VEmeta?.whitelisted_accounts?.includes(
-                getCurrentWallet().wallet.getAccountId()
-              ) ? (
-                <button
-                  className="flex items-center justify-center rounded-2xl px-4 py-px border border-white bg-black bg-opacity-20 absolute right-7"
-                  onClick={() => {
-                    setShowAddBonus(true);
-                  }}
-                >
-                  <span className="mr-1">+</span>
-                  <span>
-                    <FormattedMessage id="bonus" defaultMessage={'Bonus'} />
-                  </span>
-                </button>
-              ) : null}
-            </div>
-          ) : null}
+            ) : null}
+
+            {proposal?.proposer === getCurrentWallet().wallet.getAccountId() &&
+            proposal?.status !== 'Expired' ? (
+              <button
+                className="flex items-center justify-center rounded-2xl px-4 py-px border border-white bg-black bg-opacity-20 absolute right-7"
+                onClick={() => {
+                  setShowAddBonus(true);
+                }}
+              >
+                <span className="mr-1">+</span>
+                <span>
+                  <FormattedMessage id="bonus" defaultMessage={'Bonus'} />
+                </span>
+              </button>
+            ) : null}
+          </div>
         </Card>
       )}
       <VoteGovPopUp

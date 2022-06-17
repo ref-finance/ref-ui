@@ -47,7 +47,7 @@ export const Images = ({
         if (icon)
           return (
             <img
-              key={id + index}
+              key={id || 0 + index}
               className={`inline-block h-${size || 10} w-${
                 size || 10
               } rounded-full border border-gradientFromHover -ml-1 bg-cardBg`}
@@ -56,7 +56,7 @@ export const Images = ({
           );
         return (
           <div
-            key={id + index}
+            key={id || 0 + index}
             className={`inline-block h-${size || 10} w-${
               size || 10
             } rounded-full bg-cardBg border border-gradientFromHover -ml-1 `}
@@ -85,7 +85,7 @@ export const Symbols = ({
       } ${size}`}
     >
       {tokens?.map((token, index) => (
-        <span key={token?.id}>
+        <span key={token?.id || index}>
           {index ? seperator || '/' : ''}
           {toRealSymbol(token?.symbol || '')}
         </span>
