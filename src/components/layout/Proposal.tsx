@@ -39,11 +39,7 @@ import {
   LeftArrowVE,
   NO_RESULT_CHART,
 } from '../icon/Referendum';
-import {
-  createProposal,
-  Description,
-  Incentive,
-} from '../../services/referendum';
+import { createProposal, Description } from '../../services/referendum';
 import {
   toNonDivisibleNumber,
   percent,
@@ -88,7 +84,12 @@ import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 import { useDepositableBalance } from '../../state/token';
 import { REF_TOKEN_ID } from '../../services/near';
 import { NewFarmInputAmount } from '../forms/InputAmount';
-import { VoteAction, VoteFarm } from '../../services/referendum';
+import {
+  VoteAction,
+  VoteFarm,
+  VEConfig,
+  Incentive,
+} from '../../services/referendum';
 import { VotedIcon } from '../icon/Referendum';
 import { useClientMobile, isClientMobie } from '../../utils/device';
 
@@ -110,7 +111,7 @@ export const getCurUTCDate = (base?: Date) => {
 export const timeStampToUTC = (ts: number) => {
   return moment(ts * 1000)
     .utc()
-    .format('yyyy-MM-DD hh:mm:ss');
+    .format('yyyy-MM-DD HH:mm:ss');
 };
 
 export const dateToUnixTimeSec = (date: Date) => {
@@ -126,6 +127,11 @@ export const addDays = (days: number, base?: Date) => {
   curDate.setDate(curDate.getDate() + days);
 
   return curDate;
+};
+
+export const addSeconds = (secs: number, base?: Date) => {
+  const curDate = getCurUTCDate(base);
+  return new Date(curDate.getTime() + secs * 1000);
 };
 
 export const addHours = (date: Date, hours?: number) => {
@@ -144,6 +150,7 @@ export const CustomDatePicker = ({
   forEnd,
   setOpenPicker,
   openPicker,
+  veconfig,
 }: {
   startTime: Date;
   setStartTime: (d: Date) => void;
@@ -152,8 +159,9 @@ export const CustomDatePicker = ({
   forEnd?: boolean;
   openPicker?: boolean;
   setOpenPicker: (o: boolean) => void;
+  veconfig: VEConfig;
 }) => {
-  const minDate = addDays(1);
+  const minDate = addSeconds(veconfig?.min_proposal_start_vote_offset_sec || 0);
 
   const onChange = (date: Date) => {
     if (forEnd) {
@@ -238,6 +246,7 @@ const VotePopUp = (
     allocationNew: string;
     proposal_id: number;
     index: number;
+    curVotedVe: string;
   }
 ) => {
   const {
@@ -250,6 +259,7 @@ const VotePopUp = (
     allocationOld,
     proposal_id,
     index,
+    curVotedVe,
   } = props;
 
   const InfoRow = ({
@@ -356,9 +366,10 @@ const AddBonusPopUp = (
     title: JSX.Element | string;
     proposal_id: number;
     curIncentiveToken: TokenMetadata | null;
+    curIncentive?: Incentive;
   }
 ) => {
-  const { proposal_id, curIncentiveToken } = props;
+  const { proposal_id, curIncentiveToken, curIncentive } = props;
   const [selectToken, setSelectToken] = useState<TokenMetadata>(
     curIncentiveToken ? curIncentiveToken : REF_META_DATA
   );
@@ -381,10 +392,13 @@ const AddBonusPopUp = (
   const balance = useDepositableBalance(selectToken.id || REF_TOKEN_ID);
 
   const [value, setValue] = useState<string>('');
-
-  const [curOption, setCurOption] = useState<string>('by voter number equally');
-
   const list = ['by voter number equally', 'by vote power equally'];
+
+  const [curOption, setCurOption] = useState<string>(
+    curIncentive?.incentive_type === 'Evenly' || !curIncentive?.incentive_type
+      ? list[0]
+      : list[1]
+  );
 
   const getMax = function (id: string, max: string) {
     return id !== WRAP_NEAR_CONTRACT_ID
@@ -482,8 +496,11 @@ const AddBonusPopUp = (
           addBonus({
             tokenId: selectToken.id,
             amount: value,
-            incentive_type:
-              list.indexOf(curOption) === 0 ? 'Evenly' : 'Proportion',
+            incentive_type: curIncentive
+              ? curIncentive.incentive_type
+              : list.indexOf(curOption) === 0
+              ? 'Evenly'
+              : 'Proportion',
             proposal_id,
           });
         }}
@@ -919,7 +936,8 @@ export const PreviewPopUp = (
                 title: `#${index} ${contentTitle}`,
                 link,
               },
-              duration_sec: 3600,
+              duration_sec:
+                dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime),
               kind: type === 'Poll' ? 'Poll' : 'Common',
               options,
               start: dateToUnixTimeSec(startTime),
@@ -966,6 +984,8 @@ const FarmChart = ({
         className="rounded-lg border w-full border-gradientFrom px-3 pt-4 pb-3 flex flex-col text-base"
         style={{
           backgroundColor: 'rgba(26, 35, 41, 0.6)',
+          backdropFilter: 'blur(50px)',
+          WebkitBackdropFilter: 'blur(50px)',
         }}
       >
         <div className="flex items-center justify-between w-full pb-2">
@@ -1041,8 +1061,6 @@ const FarmChart = ({
       y = y - 30;
     }
 
-    if (index === activeIndex) return null;
-
     return (
       <g>
         <text
@@ -1064,6 +1082,11 @@ const FarmChart = ({
         >
           {`${emptyVote ? '-' : (percent * 100).toFixed(0)}%`}
         </text>
+        {index === activeIndex ? (
+          <foreignObject x={cx - 120} y={cy - 100} height="160" width="250">
+            <ActiveLabel />
+          </foreignObject>
+        ) : null}
       </g>
     );
   }
@@ -1117,20 +1140,9 @@ const FarmChart = ({
           stroke={'#1D2932'}
           strokeWidth={2}
         />
-        <path
-          d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`}
-          stroke={'#00FFD1'}
-          fill="none"
-        />
-
-        <foreignObject
-          x={ex + (cos < 0 ? -1 : 0) * 250}
-          y={ey - 80}
-          height="160"
-          width="250"
-        >
+        {/* <foreignObject x={cx - 120} y={cy - 100} height="160" width="250">
           <ActiveLabel />
-        </foreignObject>
+        </foreignObject> */}
       </g>
     );
   };
@@ -1175,32 +1187,34 @@ const GovItemDetail = ({
   proposal,
   setShow,
   timeDuration,
-  desctiption,
+  description,
   turnOut,
   totalVE,
   options,
   voted,
   incentiveToken,
   forPreview,
+  veShare,
 }: {
   show?: number;
   proposal: Proposal;
   setShow: (s: number) => void;
   timeDuration?: JSX.Element;
-  desctiption: Description;
+  description: Description;
   turnOut: string;
   totalVE: string;
   options: string[];
   voted: VoteAction | 'VoteReject' | 'VoteApprove';
   incentiveToken: TokenMetadata;
   forPreview?: boolean;
+  veShare: string;
 }) => {
   const intl = useIntl();
 
   const startTime = Math.floor(Number(proposal?.start_at) / TIMESTAMP_DIVISOR);
   const endTime = Math.floor(Number(proposal?.end_at) / TIMESTAMP_DIVISOR);
 
-  const link = desctiption.link;
+  const link = description.link;
 
   const displayLink =
     (new RegExp('https://').test(link) || new RegExp('http://').test(link)) &&
@@ -1243,6 +1257,8 @@ const GovItemDetail = ({
       </div>
     );
   };
+
+  const [showVotePop, setShowVotePop] = useState<boolean>(false);
 
   return !show ? null : (
     <div className="text-white text-sm relative">
@@ -1299,7 +1315,7 @@ const GovItemDetail = ({
         }`}
       >
         <div className="pb-4 border-b border-white border-opacity-10 px-2 pt-8 text-white text-xl mb-4">
-          {desctiption.title}
+          {description.title}
         </div>
 
         <InfoRow
@@ -1440,11 +1456,39 @@ const GovItemDetail = ({
         </div>
 
         <div className="flex items-center justify-end pt-6 border-t border-white border-opacity-10">
-          <BorderGradientButton
-            text={<FormattedMessage id="cancel" defaultMessage={'Cancel'} />}
-            color={'#192734'}
-            onClick={() => setShow(undefined)}
-          />
+          {voted ? (
+            <BorderGradientButton
+              text={<FormattedMessage id="cancel" defaultMessage={'Cancel'} />}
+              color={'#192734'}
+              width="w-20"
+              padding="px-0 py-2.5"
+              onClick={() =>
+                cancelVote({
+                  proposal_id: proposal?.id,
+                })
+              }
+            />
+          ) : (
+            <NewGradientButton
+              text={
+                proposal?.status === 'InProgress' &&
+                ONLY_ZEROS.test(veShare) ? (
+                  <FormattedMessage id="no_veLPT" defaultMessage={'No veLPT'} />
+                ) : (
+                  <FormattedMessage id="vote" defaultMessage={'Vote'} />
+                )
+              }
+              onClick={() => {
+                setShowVotePop(true);
+              }}
+              padding="px-0 py-2.5"
+              disabled={
+                proposal?.status !== 'InProgress' ||
+                (proposal?.status === 'InProgress' && ONLY_ZEROS.test(veShare))
+              }
+              className="w-20"
+            />
+          )}
         </div>
         {proposal?.incentive && incentiveToken ? (
           <div
@@ -1467,6 +1511,17 @@ const GovItemDetail = ({
           </div>
         ) : null}
       </Card>
+
+      <VoteGovPopUp
+        isOpen={showVotePop}
+        title={<FormattedMessage id="you_vote" defaultMessage={'You vote'} />}
+        proposalTitle={description?.title}
+        onRequestClose={() => setShowVotePop(false)}
+        options={options}
+        ratios={data.map((d) => d.ratio)}
+        proposal={proposal}
+        totalVE={toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, totalVE)}
+      />
     </div>
   );
 };
@@ -1546,8 +1601,6 @@ const GovProposalItem = ({
 
   const { veShare } = useAccountInfo();
 
-  const isSignedIn = globalState.isSignedIn;
-
   const [incentiveToken, setIncentiveToken] = useState<TokenMetadata>();
 
   const [showAddBonus, setShowAddBonus] = useState<boolean>(false);
@@ -1620,7 +1673,7 @@ const GovProposalItem = ({
           show={showDetail}
           setShow={setShowDetail}
           proposal={proposal}
-          desctiption={JSON.parse(
+          description={JSON.parse(
             proposal?.kind?.Poll
               ? proposal.kind.Poll.description
               : proposal.kind.Common.description
@@ -1630,12 +1683,17 @@ const GovProposalItem = ({
           options={options}
           voted={voted}
           incentiveToken={incentiveToken}
+          veShare={veShare}
         />
       ) : (
         <Card
           className="w-full flex items-center my-2 relative overflow-hidden"
           bgcolor="bg-white bg-opacity-10"
-          padding={`px-8 pt-8 pb-14`}
+          padding={`px-8 pt-8 ${
+            !proposal?.status || proposal?.status === 'WarmUp'
+              ? 'pb-8'
+              : 'pb-14'
+          }`}
         >
           <div>
             {status === 'Pending' ? (
@@ -1804,43 +1862,46 @@ const GovProposalItem = ({
               </div>
             </div>
           </div>
-          <div
-            className={`absolute w-full h-8 bg-veGradient bottom-0 right-0 flex items-center text-center justify-center text-white ${
-              proposal?.status === 'Expired' ? 'opacity-30' : ''
-            }`}
-          >
-            {proposal?.incentive && incentiveToken ? (
-              <span>
-                {`${toPrecision(
-                  toReadableNumber(
-                    incentiveToken?.decimals,
-                    proposal?.incentive?.incentive_amount
-                  ),
-                  2,
-                  true
-                )} ${toRealSymbol(incentiveToken?.symbol)} ${
-                  incentive?.incentive_type === 'Proportion'
-                    ? ' divided by voting power'
-                    : 'divided equally among all voters'
-                }  `}
-              </span>
-            ) : null}
-
-            {proposal?.proposer === getCurrentWallet().wallet.getAccountId() &&
-            proposal?.status !== 'Expired' ? (
-              <button
-                className="flex items-center justify-center rounded-2xl px-4 py-px border border-white bg-black bg-opacity-20 absolute right-7"
-                onClick={() => {
-                  setShowAddBonus(true);
-                }}
-              >
-                <span className="mr-1">+</span>
+          {!proposal?.status || proposal?.status === 'WarmUp' ? null : (
+            <div
+              className={`absolute w-full h-8 bg-veGradient bottom-0 right-0 flex items-center text-center justify-center text-white ${
+                proposal?.status === 'Expired' ? 'opacity-30' : ''
+              }`}
+            >
+              {proposal?.incentive && incentiveToken ? (
                 <span>
-                  <FormattedMessage id="bonus" defaultMessage={'Bonus'} />
+                  {`${toPrecision(
+                    toReadableNumber(
+                      incentiveToken?.decimals,
+                      proposal?.incentive?.incentive_amount
+                    ),
+                    2,
+                    true
+                  )} ${toRealSymbol(incentiveToken?.symbol)} ${
+                    incentive?.incentive_type === 'Proportion'
+                      ? ' divided by voting power'
+                      : 'divided equally among all voters'
+                  }  `}
                 </span>
-              </button>
-            ) : null}
-          </div>
+              ) : null}
+
+              {proposal?.proposer ===
+                getCurrentWallet().wallet.getAccountId() &&
+              proposal?.status !== 'Expired' ? (
+                <button
+                  className="flex items-center justify-center rounded-2xl px-4 py-px border border-white bg-black bg-opacity-20 absolute right-7"
+                  onClick={() => {
+                    setShowAddBonus(true);
+                  }}
+                >
+                  <span className="mr-1">+</span>
+                  <span>
+                    <FormattedMessage id="bonus" defaultMessage={'Bonus'} />
+                  </span>
+                </button>
+              ) : null}
+            </div>
+          )}
         </Card>
       )}
       <VoteGovPopUp
@@ -1861,6 +1922,7 @@ const GovProposalItem = ({
         title={<FormattedMessage id="add_bonus" defaultMessage={'Add Bonus'} />}
         curIncentiveToken={incentiveToken}
         proposal_id={proposal?.id}
+        curIncentive={proposal?.incentive}
       />
     </>
   );
@@ -2240,8 +2302,8 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
           index={index}
           tokens={tokens}
           votedThisFarm={toPrecision(
-            toReadableNumber(24, farmProposal?.votes[index]),
-            0,
+            toReadableNumber(LOVE_TOKEN_DECIMAL, farmProposal?.votes[index]),
+            2,
             true
           )}
           myPower={toPrecision(veShare, 2, true)}
@@ -2249,6 +2311,11 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
           allocationOld={toPrecision(allocate, 0, true)}
           ratioNew={`${toPrecision(ratioNew, 1, false)}%`}
           allocationNew={toPrecision(allocateNew, 0, true)}
+          curVotedVe={toPrecision(
+            toReadableNumber(LOVE_TOKEN_DECIMAL, farmProposal?.votes[index]),
+            2,
+            true
+          )}
         />
       </>
     );
@@ -2434,10 +2501,12 @@ export const CreateGovProposal = ({
   show,
   setShow,
   index,
+  config,
 }: {
   show: boolean;
   setShow: (s: boolean) => void;
   index: number;
+  config: VEConfig;
 }) => {
   const [title, setTitle] = useState<string>('');
   const [showPreview, setShowPreview] = useState<boolean>(false);
@@ -2448,13 +2517,17 @@ export const CreateGovProposal = ({
 
   const [options, setOptions] = useState<string[]>([]);
 
-  const config = useVEconfig();
-
   const [link, setLink] = useState<string>();
 
-  const [startTime, setStartTime] = useState<Date>(addDays(1));
+  const baseStartTime = addSeconds(
+    config?.min_proposal_start_vote_offset_sec || 0
+  );
 
-  const [endTime, setEndTime] = useState<Date>(addDays(7));
+  const [startTime, setStartTime] = useState<Date>(baseStartTime);
+
+  const [endTime, setEndTime] = useState<Date>(
+    new Date(baseStartTime.getTime() + 3600 * 24 * 7 * 1000)
+  );
 
   const [openPickerStart, setOpenPickerStart] = useState<boolean>(false);
   const [openPickerEnd, setOpenPickerEnd] = useState<boolean>(false);
@@ -2492,7 +2565,7 @@ export const CreateGovProposal = ({
     let newRequire = { ...require };
     //
     if (
-      moment().unix() + config.min_proposal_start_vote_offset_sec >
+      moment().unix() + config?.min_proposal_start_vote_offset_sec >
       dateToUnixTimeSec(startTime)
     ) {
       // TODO: tip
@@ -2538,7 +2611,7 @@ export const CreateGovProposal = ({
     }
 
     if (
-      moment().unix() + config.min_proposal_start_vote_offset_sec >
+      moment().unix() + config?.min_proposal_start_vote_offset_sec >
         dateToUnixTimeSec(startTime) ||
       dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime) <= 0 ||
       !link?.trim() ||
@@ -2664,7 +2737,13 @@ export const CreateGovProposal = ({
                         setFocusedIndex(i);
                       }}
                       onChange={(e) => {
-                        setOptions([...options.slice(0, i), e.target.value]);
+                        setOptions([]);
+
+                        setOptions([
+                          ...options.slice(0, i),
+                          e.target.value,
+                          ...options.slice(i + 1, options.length),
+                        ]);
                         e.target.focus();
                         setRequire({
                           ...require,
@@ -2753,6 +2832,7 @@ export const CreateGovProposal = ({
               endTime={endTime}
               openPicker={openPickerStart}
               setOpenPicker={setOpenPickerStart}
+              veconfig={config}
             />
             <div
               onClick={(e) => {
@@ -2774,6 +2854,7 @@ export const CreateGovProposal = ({
               forEnd
               openPicker={openPickerEnd}
               setOpenPicker={setOpenPickerEnd}
+              veconfig={config}
             />
             <div
               onClick={(e) => {
@@ -3037,6 +3118,8 @@ export const ProposalCard = () => {
 
   const [showCreateProposal, setShowCreateProposal] = useState<boolean>(false);
 
+  const config = useVEconfig();
+
   const [showDetail, setShowDetail] = useState<number>();
 
   useEffect(() => {
@@ -3080,6 +3163,7 @@ export const ProposalCard = () => {
             show={showCreateProposal}
             setShow={setShowCreateProposal}
             index={proposals?.length || 0}
+            config={config}
           />
         ) : (
           <GovProposal

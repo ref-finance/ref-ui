@@ -678,10 +678,7 @@ const UnLockPopUp = ({
   lpShare: string;
   accountInfo: AccountInfo;
 }) => {
-  const preLocked = accountInfo?.unlock_timestamp;
-  const unlockTime = Number(
-    new Big(preLocked || 0).div(new Big(1000000000)).toNumber().toFixed()
-  );
+  const preLocked = Number(accountInfo?.unlock_timestamp) > 0;
 
   const balance = useLOVEbalance();
 
@@ -694,13 +691,11 @@ const UnLockPopUp = ({
 
   const [toUnlockAmount, setToUnlockAmount] = useState<string>('');
 
-  console.log(toUnlockAmount, lockedLPAmount, 'lpamount');
-
   const [error, setError] = useState<Error>(null);
 
   const multiplier = preLocked
     ? new Big(accountInfo?.ve_lpt_amount).div(
-        new Big(accountInfo?.lpt_amount).div(1000000)
+        new Big(accountInfo?.lpt_amount || 1).div(1000000)
       )
     : new Big(1);
 
