@@ -158,26 +158,6 @@ export const CustomDatePicker = ({
   const onChange = (date: Date) => {
     if (forEnd) {
       setEndTime(date);
-      if (isSameDay(date, startTime)) {
-        const h1 = startTime.getHours();
-
-        const h2 = date.getHours();
-
-        const m2 = date.getMinutes();
-
-        setEndTime(
-          new Date(
-            getCurUTCDate(date).setHours(
-              h1 + 1 > h2 ? h1 + 1 : h2,
-              Math.floor(m2 / 30) * 30,
-              0,
-              0
-            )
-          )
-        );
-      } else {
-        setEndTime(date);
-      }
     } else {
       setStartTime(date);
     }
@@ -406,6 +386,14 @@ const AddBonusPopUp = (
 
   const list = ['by voter number equally', 'by vote power equally'];
 
+  const getMax = function (id: string, max: string) {
+    return id !== WRAP_NEAR_CONTRACT_ID
+      ? max
+      : Number(max) <= 0.5
+      ? '0'
+      : String(Number(max) - 0.5);
+  };
+
   return (
     <ModalWrapper {...props}>
       <div className="flex items-center justify-between py-5">
@@ -448,10 +436,15 @@ const AddBonusPopUp = (
       </div>
 
       <NewFarmInputAmount
-        max={toReadableNumber(
-          selectToken.decimals,
-          selectToken.id === WRAP_NEAR_CONTRACT_ID ? nearBalance : balance
-        )}
+        max={
+          getMax(
+            selectToken.id,
+            toReadableNumber(
+              selectToken.decimals,
+              selectToken.id === WRAP_NEAR_CONTRACT_ID ? nearBalance : balance
+            )
+          ) || '0'
+        }
         value={value}
         onChangeAmount={setValue}
       />
@@ -500,7 +493,7 @@ const AddBonusPopUp = (
   );
 };
 
-const TIMESTAMP_DIVISOR = 1000000000;
+export const TIMESTAMP_DIVISOR = 1000000000;
 
 enum PROPOSAL_TAB {
   FARM = 'FARM',
@@ -550,20 +543,20 @@ const VoteChart = ({
     return (
       <g>
         <foreignObject
-          x={cx - (forDetail ? 50 : 40)}
+          x={cx - (forDetail ? 50 : 35)}
           y={cy - 20}
-          width={`${name.length * 15 > 80 ? 80 : name.length * 15}%`}
+          width={`${name.length * 13 > 70 ? 70 : name.length * 13}%`}
           height={100}
         >
           <div
-            className="pt-1 pb-2 pr-2 pl-3 flex flex-col rounded-lg bg-voteLabel text-xs"
+            className="pt-1 pb-2 px-1 flex flex-col rounded-lg bg-voteLabel text-xs border border-black border-opacity-10"
             style={{
               backdropFilter: 'blur(30px)',
             }}
           >
             <div className="flex items-center justify-between pb-1.5">
               <div
-                className="w-2.5 h-2.5 rounded-sm mr-3 flex-shrink-0"
+                className="w-2.5 h-2.5 rounded-sm mr-1 flex-shrink-0"
                 style={{
                   backgroundColor: OPTIONS_COLORS[activeIndex] || 'black',
                 }}
@@ -919,7 +912,7 @@ export const PreviewPopUp = (
       <div className="flex items-center justify-end pt-8">
         <NewGradientButton
           text={<FormattedMessage id="create" defaultMessage={'Create'} />}
-          disabled={!title || !link || options?.length < 1}
+          disabled={!contentTitle || !link || options?.length < 1}
           onClick={() => {
             createProposal({
               description: {
@@ -927,7 +920,7 @@ export const PreviewPopUp = (
                 link,
               },
               duration_sec: 3600,
-              kind: type === 'Pool' ? 'Poll' : 'Common',
+              kind: type === 'Poll' ? 'Poll' : 'Common',
               options,
               start: dateToUnixTimeSec(startTime),
             });
@@ -1338,7 +1331,7 @@ const GovItemDetail = ({
           <InfoRow
             name={intl.formatMessage({
               id: 'voted_veLPT',
-              defaultMessage: 'Total veLPT',
+              defaultMessage: 'Voted veLPT',
             })}
             value={toPrecision(totalVE, 2)}
           />
@@ -1740,20 +1733,10 @@ const GovProposalItem = ({
                   onClick={() => setShowDetail(proposal.id)}
                 />
 
-                {(proposal?.status === 'Expired' && !unClaimed) ||
-                (proposal?.status === 'InProgress' &&
-                  !voted &&
-                  ONLY_ZEROS.test(veShare)) ? (
+                {proposal?.status === 'Expired' && !unClaimed ? (
                   <BorderGradientButton
                     text={
-                      proposal?.status === 'InProgress' &&
-                      !voted &&
-                      ONLY_ZEROS.test(veShare) ? (
-                        <FormattedMessage
-                          id="no_veLPT"
-                          defaultMessage={'No veLPT'}
-                        />
-                      ) : !!voted ? (
+                      !!voted ? (
                         <FormattedMessage id="voted" defaultMessage={'Voted'} />
                       ) : (
                         <FormattedMessage
@@ -1781,6 +1764,12 @@ const GovProposalItem = ({
                           id="cancel"
                           defaultMessage={'Cancel'}
                         />
+                      ) : proposal?.status === 'InProgress' &&
+                        ONLY_ZEROS.test(veShare) ? (
+                        <FormattedMessage
+                          id="no_veLPT"
+                          defaultMessage={'No veLPT'}
+                        />
                       ) : (
                         <FormattedMessage id="vote" defaultMessage={'Vote'} />
                       )
@@ -1792,7 +1781,10 @@ const GovProposalItem = ({
                     className="ml-2.5 h-11 w-20"
                     padding="px-0 "
                     disabled={
-                      (ended && !unClaimed) || proposal?.status === 'WarmUp'
+                      (ended && !unClaimed) ||
+                      proposal?.status === 'WarmUp' ||
+                      (proposal?.status === 'InProgress' &&
+                        ONLY_ZEROS.test(veShare))
                     }
                     onClick={() => {
                       if (voted) {
@@ -1826,9 +1818,11 @@ const GovProposalItem = ({
                   ),
                   2,
                   true
-                )} ${toRealSymbol(
-                  incentiveToken?.symbol
-                )} divided equally among all voters`}
+                )} ${toRealSymbol(incentiveToken?.symbol)} ${
+                  incentive?.incentive_type === 'Proportion'
+                    ? ' divided by voting power'
+                    : 'divided equally among all voters'
+                }  `}
               </span>
             ) : null}
 
@@ -1942,7 +1936,7 @@ export const VoteGovPopUp = (
 
   const { veShare } = useAccountInfo();
 
-  const newPercent = new Big(toNonDivisibleNumber(24, veShare))
+  const newPercent = new Big(toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, veShare))
     .plus(
       options.indexOf(value) !== -1
         ? new Big(proposal?.votes[options?.indexOf(value)] || 0)
@@ -1950,7 +1944,9 @@ export const VoteGovPopUp = (
     )
     .div(
       new Big(Number(totalVE) > 0 ? totalVE : 0).plus(
-        Number(veShare) > 0 ? toNonDivisibleNumber(24, veShare) : '1'
+        Number(veShare) > 0
+          ? toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, veShare)
+          : '1'
       )
     )
     .times(100);
@@ -1983,7 +1979,7 @@ export const VoteGovPopUp = (
                         scientificNotationToString(
                           newPercent.minus(ratios[i] || 0).toString()
                         ),
-                        0
+                        2
                       )}
                       %
                     </span>
@@ -2081,7 +2077,7 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
   }) => {
     return (
       <div
-        className={`${className} bg-white bg-opacity-10 rounded-2xl px-6 flex flex-col`}
+        className={`${className} bg-black bg-opacity-20 rounded-2xl px-6 flex flex-col`}
       >
         {titles.map((t, i) => {
           return (
@@ -2173,7 +2169,7 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
       <>
         <div
           className={`py-5 grid grid-cols-7 rounded-lg items-center ${
-            hover ? 'bg-chartBg bg-opacity-20' : ''
+            hover ? 'bg-cardBg bg-opacity-50' : ''
           } text-white`}
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
@@ -2198,8 +2194,8 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
           </span>
           <span className="col-span-1 text-center">
             {toPrecision(
-              toReadableNumber(24, farmProposal?.votes[index]),
-              0,
+              toReadableNumber(LOVE_TOKEN_DECIMAL, farmProposal?.votes[index]),
+              2,
               true
             )}
           </span>
@@ -2232,7 +2228,7 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
                 opacity={'opacity-30'}
                 className={`py-1 h-full`}
                 padding={'px-0 py-2.5'}
-                color="#2c313a"
+                color="#182632"
               />
             )}
           </span>
@@ -2393,7 +2389,7 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
 
       <Card
         className="w-full"
-        bgcolor="bg-white bg-opacity-10"
+        bgcolor="bg-black bg-opacity-20"
         padding={'px-2 pt-8 pb-4'}
       >
         <div className="grid grid-cols-7 pb-4">
@@ -2448,7 +2444,7 @@ export const CreateGovProposal = ({
 
   const intl = useIntl();
 
-  const [type, setType] = useState<string>('Pool');
+  const [type, setType] = useState<string>('Poll');
 
   const [options, setOptions] = useState<string[]>([]);
 
@@ -2476,7 +2472,7 @@ export const CreateGovProposal = ({
     }
   }, [startTime, endTime]);
 
-  const typeList = ['Pool', 'Yes/No'];
+  const typeList = ['Poll', 'Yes/No'];
 
   useEffect(() => {
     if (type === 'Yes/No') {
@@ -2490,6 +2486,8 @@ export const CreateGovProposal = ({
 
   const [beating, setBeating] = useState<boolean>(false);
 
+  const [focuesIndex, setFocusedIndex] = useState<number>(-1);
+
   const validate = () => {
     let newRequire = { ...require };
     //
@@ -2500,7 +2498,7 @@ export const CreateGovProposal = ({
       // TODO: tip
     }
 
-    if (startTime >= endTime) {
+    if (dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime) <= 0) {
       newRequire = {
         ...newRequire,
         time: intl.formatMessage({
@@ -2510,7 +2508,7 @@ export const CreateGovProposal = ({
       };
     }
 
-    if (!link) {
+    if (!link?.trim()) {
       newRequire = {
         ...newRequire,
         link: intl.formatMessage({
@@ -2519,7 +2517,7 @@ export const CreateGovProposal = ({
         }),
       };
     }
-    if (!title) {
+    if (!title?.trim()) {
       newRequire = {
         ...newRequire,
         title: intl.formatMessage({
@@ -2529,7 +2527,7 @@ export const CreateGovProposal = ({
       };
     }
 
-    if (options.length === 1 && !options[0]) {
+    if (options.length === 1 && !options[0]?.trim()) {
       newRequire = {
         ...newRequire,
         option: intl.formatMessage({
@@ -2542,10 +2540,10 @@ export const CreateGovProposal = ({
     if (
       moment().unix() + config.min_proposal_start_vote_offset_sec >
         dateToUnixTimeSec(startTime) ||
-      startTime > endTime ||
-      !link ||
-      !title ||
-      (options.length === 1 && !options[0])
+      dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime) <= 0 ||
+      !link?.trim() ||
+      !title?.trim() ||
+      (options.length === 1 && !options[0]?.trim())
     ) {
       setRequire(newRequire);
 
@@ -2643,23 +2641,28 @@ export const CreateGovProposal = ({
           {options?.map((o, i) => {
             return (
               <>
-                {i === options.length - 1 ? (
+                {type === 'Poll' ? (
                   <span
                     className={`flex items-center pr-1 py-1 pl-2 w-28 mt-2 ${
                       require?.['option']
                         ? 'border border-error border-opacity-30'
                         : ''
-                    }  bg-black bg-opacity-20 text-sm mr-4 rounded-md `}
+                    }  bg-black ${
+                      focuesIndex === i ? 'bg-opacity-20' : 'bg-opacity-10'
+                    } text-sm mr-4 rounded-md `}
                   >
                     <span
                       className="rounded-full mr-2 h-2 w-2 flex-shrink-0"
                       style={{
                         backgroundColor:
-                          OPTIONS_COLORS[options.length - 1 || 0],
+                          OPTIONS_COLORS[i % OPTIONS_COLORS.length],
                       }}
                     ></span>
                     <input
                       value={o}
+                      onFocus={() => {
+                        setFocusedIndex(i);
+                      }}
                       onChange={(e) => {
                         setOptions([...options.slice(0, i), e.target.value]);
                         e.target.focus();
@@ -2671,10 +2674,16 @@ export const CreateGovProposal = ({
                     />
 
                     <button
-                      className="rounded-md text-lg bg-opacity-20 px-2.5 w-5 h-5 flex items-center justify-center"
+                      className={`rounded-md text-lg bg-opacity-20 px-2.5 w-5 h-5 flex items-center justify-center ${
+                        focuesIndex === i ? 'flex' : 'hidden'
+                      } `}
                       onClick={() => {
                         if (options.length > 1) {
-                          setOptions(options.slice(0, options.length - 1));
+                          setOptions(
+                            options
+                              .slice(0, i)
+                              .concat(options.slice(i + 1, options.length))
+                          );
                         }
                       }}
                       style={{
@@ -2844,7 +2853,7 @@ export const CreateGovProposal = ({
                     title: `#${index} ${title}`,
                     link,
                   },
-                  kind: type === 'Pool' ? 'Poll' : 'Common',
+                  kind: type === 'Poll' ? 'Poll' : 'Common',
                   options,
                   duration_sec:
                     dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime),
@@ -2853,10 +2862,10 @@ export const CreateGovProposal = ({
               }
             }}
             disabled={
-              startTime > endTime ||
-              !link ||
-              !title ||
-              (options.length === 1 && !options[0])
+              dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime) <= 0 ||
+              !link?.trim() ||
+              !title?.trim() ||
+              (options.length === 1 && !options[0]?.trim())
             }
             beatStyling={beating}
             className="ml-4"
