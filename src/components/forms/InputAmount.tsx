@@ -20,6 +20,8 @@ interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   tokenSymbol?: string | JSX.Element;
   balance?: string;
   decimalLimit?: number;
+  value?: string;
+  curAmount?: string;
 }
 
 export default function InputAmount({
@@ -111,6 +113,7 @@ export function NewFarmInputAmount({
   title,
   balance,
   decimalLimit,
+  curAmount,
   ...rest
 }: InputAmountProps) {
   const ref = useRef<HTMLInputElement>();
@@ -164,7 +167,7 @@ export function NewFarmInputAmount({
             max={max}
             min="0"
             onWheel={() => ref.current.blur()}
-            {...rest}
+            // {...rest}
             step="any"
             className={`xs:text-sm text-lg font-bold w-full px-5 py-4 ${
               disabled ? 'text-gray-200 placeholder-gray-200' : 'text-white'

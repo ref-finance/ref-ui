@@ -161,7 +161,9 @@ export const CustomDatePicker = ({
   setOpenPicker: (o: boolean) => void;
   veconfig: VEConfig;
 }) => {
-  const minDate = addSeconds(veconfig?.min_proposal_start_vote_offset_sec || 0);
+  const minDate = addSeconds(
+    (veconfig?.min_proposal_start_vote_offset_sec || 0) + 3600
+  );
 
   const onChange = (date: Date) => {
     if (forEnd) {
@@ -192,7 +194,18 @@ export const CustomDatePicker = ({
       if (isSameDay(startTime, minDate)) {
         const h1 = minDate.getHours();
 
-        return new Date(getCurUTCDate().setHours(h1, 0, 0, 0));
+        const m1 = minDate.getMinutes();
+
+        console.log(h1, 'h1');
+
+        return new Date(
+          getCurUTCDate().setHours(
+            m1 > 30 ? h1 + 1 : h1,
+            m1 > 30 ? 0 : 30,
+            0,
+            0
+          )
+        );
       } else {
         return new Date(getCurUTCDate().setHours(0, 0, 0, 0));
       }
@@ -904,7 +917,7 @@ export const PreviewPopUp = (
                         className="w-2.5 h-2.5 rounded-sm"
                         style={{
                           backgroundColor:
-                            OPTIONS_COLORS[options.indexOf(d.option)] ||
+                            OPTIONS_COLORS[i % OPTIONS_COLORS.length] ||
                             'black',
                         }}
                       ></div>
@@ -1418,7 +1431,7 @@ const GovItemDetail = ({
                           }}
                         ></div>
                         <span className="mx-2">{d.option}</span>
-                        {i === 0 && proposal.status !== 'WarmUp' ? (
+                        {i === 0 && !ONLY_ZEROS.test(totalVE) ? (
                           <span
                             className=""
                             style={{
@@ -1456,9 +1469,17 @@ const GovItemDetail = ({
         </div>
 
         <div className="flex items-center justify-end pt-6 border-t border-white border-opacity-10">
-          {voted ? (
+          {voted || proposal?.status === 'Expired' ? (
             <BorderGradientButton
-              text={<FormattedMessage id="cancel" defaultMessage={'Cancel'} />}
+              text={
+                voted && proposal?.status === 'InProgress' ? (
+                  <FormattedMessage id="cancel" defaultMessage={'Cancel'} />
+                ) : !voted ? (
+                  <FormattedMessage id="ended_ve" defaultMessage={'Ended'} />
+                ) : (
+                  <FormattedMessage id="voted" defaultMessage={'Voted'} />
+                )
+              }
               color={'#192734'}
               width="w-20"
               padding="px-0 py-2.5"
@@ -1467,6 +1488,7 @@ const GovItemDetail = ({
                   proposal_id: proposal?.id,
                 })
               }
+              disabled={proposal?.status === 'Expired'}
             />
           ) : (
             <NewGradientButton
@@ -1518,7 +1540,7 @@ const GovItemDetail = ({
         proposalTitle={description?.title}
         onRequestClose={() => setShowVotePop(false)}
         options={options}
-        ratios={data.map((d) => d.ratio)}
+        ratios={options.map((o) => data.find((di) => di.option === o).ratio)}
         proposal={proposal}
         totalVE={toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, totalVE)}
       />
@@ -1688,14 +1710,10 @@ const GovProposalItem = ({
       ) : (
         <Card
           className="w-full flex items-center my-2 relative overflow-hidden"
-          bgcolor="bg-white bg-opacity-10"
-          padding={`px-8 pt-8 ${
-            !proposal?.status || proposal?.status === 'WarmUp'
-              ? 'pb-8'
-              : 'pb-14'
-          }`}
+          bgcolor="bg-black bg-opacity-20"
+          padding={`px-8 pt-8 ${proposal?.kind?.Common ? 'pb-8' : 'pb-14'}`}
         >
-          <div>
+          <div className="w-1/5">
             {status === 'Pending' ? (
               <div className="pr-10">
                 <NoResultChart />
@@ -1704,9 +1722,9 @@ const GovProposalItem = ({
               <VoteChart options={options} ratios={ratios} />
             )}
           </div>
-          <div className="flex flex-col w-full ml-8">
-            <div className="w-full flex items-center   justify-between">
-              <div className="text-lg"> {description.title} </div>
+          <div className="flex flex-col w-4/5 ml-8">
+            <div className="w-full flex items-center  justify-between">
+              <span className="text-lg break-words"> {description.title} </span>
 
               <StatusIcon />
             </div>
@@ -1787,7 +1805,7 @@ const GovProposalItem = ({
                   width="h-11 w-20"
                   className="h-full"
                   padding="px-0"
-                  color="#293540"
+                  color="#182632"
                   onClick={() => setShowDetail(proposal.id)}
                 />
 
@@ -1862,7 +1880,7 @@ const GovProposalItem = ({
               </div>
             </div>
           </div>
-          {!proposal?.status || proposal?.status === 'WarmUp' ? null : (
+          {proposal?.kind?.Common ? null : (
             <div
               className={`absolute w-full h-8 bg-veGradient bottom-0 right-0 flex items-center text-center justify-center text-white ${
                 proposal?.status === 'Expired' ? 'opacity-30' : ''
@@ -2058,16 +2076,10 @@ export const VoteGovPopUp = (
       </div>
 
       <div className="flex items-center w-full">
-        <BorderGradientButton
-          text={<FormattedMessage id="cancel" defaultMessage={'Cancel'} />}
-          width="w-1/2 h-10 mx-2"
-          className="h-full"
-          onClick={props.onRequestClose}
-        />
-
         <NewGradientButton
           text={<FormattedMessage id="confirm" defaultMessage={'Confirm'} />}
-          className="w-1/2 h-10 mx-2"
+          className="w-full h-10 mx-2"
+          padding="py-2.5"
           disabled={!value}
           onClick={() => {
             proposal?.kind?.Common
@@ -2341,16 +2353,28 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
         {curMonth}
         {', '}
         {curYear}
-        <span className="rounded-md bg-black bg-opacity-20 py-1 px-4 text-gradientFrom absolute right-0">
+        <span className="rounded-3xl bg-black bg-opacity-20 py-1.5 text-xs pr-4 pl-2 text-gradientFrom absolute right-0">
           {ended ? (
             <span className="text-primaryText">
-              <FormattedMessage
-                id={'voting_ended'}
-                defaultMessage="Voting Ended"
-              />
+              <FormattedMessage id={'ended_ve'} defaultMessage="Ended" />
             </span>
           ) : (
-            `${counterDownStirng} left`
+            <div className="flex items-center">
+              <span
+                className={`rounded-3xl px-2 py-0.5 mr-2  ${
+                  farmProposal?.status === 'WarmUp'
+                    ? 'text-white bg-pendingPurple'
+                    : 'text-black bg-gradientFrom'
+                }`}
+              >
+                {farmProposal?.status === 'InProgress' ? (
+                  <FormattedMessage id="live" defaultMessage={'Live'} />
+                ) : (
+                  <FormattedMessage id="pending" defaultMessage={'Pending'} />
+                )}
+              </span>
+              <span>{counterDownStirng}</span>
+            </div>
           )}
         </span>
       </div>
@@ -2520,7 +2544,7 @@ export const CreateGovProposal = ({
   const [link, setLink] = useState<string>();
 
   const baseStartTime = addSeconds(
-    config?.min_proposal_start_vote_offset_sec || 0
+    (config?.min_proposal_start_vote_offset_sec || 0) + 3600
   );
 
   const [startTime, setStartTime] = useState<Date>(baseStartTime);
@@ -2563,13 +2587,6 @@ export const CreateGovProposal = ({
 
   const validate = () => {
     let newRequire = { ...require };
-    //
-    if (
-      moment().unix() + config?.min_proposal_start_vote_offset_sec >
-      dateToUnixTimeSec(startTime)
-    ) {
-      // TODO: tip
-    }
 
     if (dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime) <= 0) {
       newRequire = {
@@ -2611,8 +2628,6 @@ export const CreateGovProposal = ({
     }
 
     if (
-      moment().unix() + config?.min_proposal_start_vote_offset_sec >
-        dateToUnixTimeSec(startTime) ||
       dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime) <= 0 ||
       !link?.trim() ||
       !title?.trim() ||
@@ -3017,8 +3032,6 @@ export const GovProposal = ({
   const [state, setState] = useState<'All' | 'Live' | 'Ended' | 'Pending'>(
     'All'
   );
-
-  console.log(voteDetail, voteHistory);
 
   const UnclaimedProposal = useUnclaimedProposal();
 

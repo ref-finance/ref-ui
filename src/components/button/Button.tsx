@@ -613,16 +613,18 @@ export function BorderGradientButton(porps: {
       className={` p-px rounded-lg text-center ${
         disabled ? 'opacity-30 cursor-not-allowed' : ''
       }  bg-veGradient ${width} ${opacity}`}
-      onClick={(e) => onClick && onClick(e)}
     >
       <button
         disabled={disabled}
-        className={`w-full rounded-lg cursor-pointer text-center ${className} ${
+        className={`w-full ${
+          disabled ? 'cursor-not-allowed' : ''
+        } rounded-lg cursor-pointer text-center ${className} ${
           padding ? padding : 'py-2.5 px-4'
         }`}
         style={{
           backgroundColor: color || 'rgb(0,12,21)',
         }}
+        onClick={(e) => onClick && onClick(e)}
       >
         <span className="px-0.5 py-0.5 my-px">{text}</span>
       </button>

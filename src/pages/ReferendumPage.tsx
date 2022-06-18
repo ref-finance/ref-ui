@@ -94,7 +94,7 @@ export interface AccountInfo {
 
 const UnLockTip = () => {
   return (
-    <div className="px-4 py-2.5 flex items-center bg-veGradient rounded-lg text-sm ">
+    <div className="px-4 py-1.5 flex items-center justify-center bg-veGradient text-sm ">
       <span className="mr-2.5">
         <UnLockExpiredIcon />
       </span>
@@ -249,7 +249,7 @@ export const ModalWrapper = (
   const { isOpen, onRequestClose, title, customHeight, customWidth } = props;
 
   const cardWidth = isMobile() ? '90vw' : '423px';
-  const cardHeight = isMobile() ? '90vh' : '80vh';
+  const cardHeight = '95vh';
   return (
     <Modal
       {...props}
@@ -453,6 +453,7 @@ export const LockPopUp = ({
           onChangeAmount={setInputValue}
           decimalLimit={LOVE_TOKEN_DECIMAL}
           className="mt-5"
+          value={inputValue}
         />
 
         <div className="text-sm text-farmText py-5 pb-2.5 flex items-center justify-between">
@@ -518,7 +519,17 @@ export const LockPopUp = ({
 
         <div className="rounded-lg  pt-6 pb-5 flex items-center justify-between ">
           <div className="flex flex-col w-1/2 items-center border-r border-white border-opacity-10">
-            <div className="flex items-center">
+            <div
+              className="flex items-center"
+              style={{
+                transform:
+                  !showVeAmount || finalAmount.length < 17
+                    ? 'none'
+                    : `scale(${17 / finalAmount.length},${
+                        17 / finalAmount.length
+                      })`,
+              }}
+            >
               {preLocked && showVeAmount ? (
                 <>
                   <span className="text-farmText text-xs">
@@ -535,7 +546,9 @@ export const LockPopUp = ({
                   finalAmount.length < 10
                     ? 'text-lg'
                     : finalAmount.length > 14
-                    ? 'text-sm'
+                    ? finalAmount.length >= 16
+                      ? 'text-xs'
+                      : 'text-sm'
                     : 'text-base'
                 } ${showVeAmount ? 'text-white' : 'text-farmText'} `}
               >
@@ -550,7 +563,17 @@ export const LockPopUp = ({
             </span>
           </div>
           <div className="flex flex-col w-1/2 items-center">
-            <div className="flex items-center">
+            <div
+              className="flex items-center"
+              style={{
+                transform:
+                  !showVeAmount || finalLoveAmount.length < 17
+                    ? 'none'
+                    : `scale(${17 / finalLoveAmount.length},${
+                        17 / finalLoveAmount.length
+                      })`,
+              }}
+            >
               {preLocked && showVeAmount ? (
                 <>
                   <span className="text-farmText text-xs">
@@ -565,8 +588,10 @@ export const LockPopUp = ({
                 className={`${
                   finalLoveAmount.length < 10
                     ? 'text-lg'
-                    : finalLoveAmount.length > 14
-                    ? 'text-sm'
+                    : finalLoveAmount.length > 13
+                    ? finalLoveAmount.length >= 16
+                      ? 'text-xs'
+                      : 'text-sm'
                     : 'text-base'
                 } ${showVeAmount ? 'text-white' : 'text-farmText'}`}
               >
@@ -792,7 +817,18 @@ const UnLockPopUp = ({
 
         <div className="rounded-lg  pt-6 pb-5 flex items-center justify-between ">
           <div className="flex flex-col w-1/2 items-center border-r border-white border-opacity-10">
-            <div className="flex items-center">
+            <div
+              className="flex items-center"
+              style={{
+                transform:
+                  ONLY_ZEROS.test(toUnlockAmount) ||
+                  toPrecision(finalve, 2).length < 17
+                    ? 'none'
+                    : `scale(${17 / toPrecision(finalve, 2).length},${
+                        17 / toPrecision(finalve, 2).length
+                      })`,
+              }}
+            >
               <span className="text-farmText text-xs">{currentVeAmount}</span>
               {ONLY_ZEROS.test(toUnlockAmount) ? null : (
                 <>
@@ -804,7 +840,9 @@ const UnLockPopUp = ({
                       toPrecision(finalve, 2).length < 10
                         ? 'text-lg'
                         : toPrecision(finalve, 2).length > 14
-                        ? 'text-sm'
+                        ? toPrecision(finalve, 2).length >= 16
+                          ? 'text-xs'
+                          : 'text-sm'
                         : 'text-base'
                     } ${Number(finalve) >= 0 ? 'text-white' : 'text-warn'} `}
                   >
@@ -825,7 +863,18 @@ const UnLockPopUp = ({
             </span>
           </div>
           <div className="flex flex-col w-1/2 items-center ">
-            <div className="flex items-center">
+            <div
+              className="flex items-center"
+              style={{
+                transform:
+                  ONLY_ZEROS.test(toUnlockAmount) ||
+                  toPrecision(finalLove, 2).length < 17
+                    ? 'none'
+                    : `scale(${17 / toPrecision(finalLove, 2).length},${
+                        17 / toPrecision(finalLove, 2).length
+                      })`,
+              }}
+            >
               <span className="text-farmText text-xs">
                 {toPrecision(balance, 2)}
               </span>
@@ -839,9 +888,16 @@ const UnLockPopUp = ({
                       toPrecision(finalLove, 2).length < 10
                         ? 'text-lg'
                         : toPrecision(finalLove, 2).length > 14
-                        ? 'text-sm'
+                        ? toPrecision(finalLove, 2).length >= 16
+                          ? 'text-xs'
+                          : 'text-sm'
                         : 'text-base'
                     } ${Number(finalLove) >= 0 ? 'text-white' : 'text-warn'} `}
+                    style={
+                      {
+                        // transform:
+                      }
+                    }
                   >
                     {ONLY_ZEROS.test(
                       toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, finalLove)
@@ -1036,10 +1092,12 @@ const UserReferendumCard = ({
   veShare,
   lpShare,
   accountInfo,
+  allowUnlock,
 }: {
   veShare: string;
   lpShare: string;
   accountInfo: AccountInfo;
+  allowUnlock: boolean;
 }) => {
   const tokens = [REF_META_DATA, unwrapedNear];
 
@@ -1067,7 +1125,7 @@ const UserReferendumCard = ({
 
   return (
     <Card
-      className="flex flex-col relative z-50"
+      className={`flex  flex-col relative z-50 overflow-hidden`}
       width="w-2/3"
       bgcolor="bg-veUserCard"
     >
@@ -1077,7 +1135,11 @@ const UserReferendumCard = ({
           defaultMessage="Lock Your LP Tokens"
         />
       </div>
-      <span className="pb-20 text-5xl valueStyle font-bold">
+      <span
+        className={`${
+          allowUnlock ? 'pb-12' : 'pb-16'
+        } text-5xl valueStyle font-bold`}
+      >
         <FormattedMessage
           id="unlock_your_defi_power"
           defaultMessage="Unlock your DeFi Power"
@@ -1089,11 +1151,25 @@ const UserReferendumCard = ({
         <Symbols tokens={tokens} seperator="-" size="text-lg" />
       </div>
 
-      <FarmStakeTip stake={farmStakeV1} version={1} />
+      {Number(farmStakeV1) > 0 ? (
+        <div>
+          <FarmStakeTip stake={farmStakeV1} version={1} />
+        </div>
+      ) : (
+        <div className="w-full h-5"></div>
+      )}
 
-      <FarmStakeTip stake={farmStakeV2} version={2} />
+      {Number(farmStakeV2) > 0 ? (
+        <div
+          className={`${Number(farmStakeV1) === 0 ? 'relative bottom-4' : ''}`}
+        >
+          <FarmStakeTip stake={farmStakeV2} version={2} />
+        </div>
+      ) : (
+        <div className="w-full h-5"></div>
+      )}
 
-      <div className="flex items-center justify-between mt-8">
+      <div className="flex items-center justify-between mt-6 mb-2">
         <div className="flex flex-col w-1/2 mr-4">
           <div
             className={`text-3xl font-bold text-gradientFromHover ${
@@ -1130,7 +1206,7 @@ const UserReferendumCard = ({
       </div>
 
       {isSignedIn ? (
-        <div className="text-base flex items-center pt-8 w-full">
+        <div className={`text-base flex items-center pt-4 w-full `}>
           <NewGradientButton
             className={`${ONLY_ZEROS.test(veShare) ? 'w-full' : 'w-1/2'} mr-2`}
             text={
@@ -1178,6 +1254,12 @@ const UserReferendumCard = ({
         <ConnectToNearBtnGradient className="mt-8 py-2" />
       )}
 
+      {!allowUnlock ? null : (
+        <div className="absolute w-full bottom-0 right-0">
+          <UnLockTip />
+        </div>
+      )}
+
       <LockPopUp
         isOpen={lockPopOpen}
         onRequestClose={() => setLockPopOpen(false)}
@@ -1212,22 +1294,18 @@ export const ReferendumPage = () => {
       moment().unix();
 
   return (
-    <div className="m-auto lg:w-1024px xs:w-full md:w-5/6 text-white relative">
+    <div className="m-auto overflow-hidden lg:w-1024px xs:w-full md:w-5/6 text-white relative">
       <div className="w-full flex ">
         <UserReferendumCard
           veShare={veShare}
           lpShare={lpShare}
           accountInfo={accountInfo}
+          allowUnlock={allowUnlock}
         />
         <PosterCard veShare={veShare} lpShare={lpShare} />
       </div>
 
       <ProposalCard />
-      {allowUnlock ? (
-        <div className="absolute -top-14 left-1/2 transform -translate-x-1/2">
-          <UnLockTip />
-        </div>
-      ) : null}
 
       <div
         className="absolute -top-14 z-20 -left-10
