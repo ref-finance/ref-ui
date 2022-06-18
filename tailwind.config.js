@@ -42,6 +42,7 @@ module.exports = {
           'linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 100%)',
         v2boostBg:
           'linear-gradient(360deg, rgba(0, 19, 32, 0) 6.2%, #1D2932 100%)',
+        boostUpBoxBg: 'linear-gradient(0deg, #273A46 0%, #15232D 100%)'
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
@@ -137,13 +138,13 @@ module.exports = {
         priceBoardColor: '#172128',
         lightRedColor: '#FF7575',
         newpurple: '#7F43FF',
-        boosBoxColor: '#1e2c36',
         lightGreenColor: '#00FFF0',
         purpleColor: '#BD9FFF',
         lightPurpleColor: 'rgba(126, 69, 255, 0.2)',
         darkGreenColor: '#00CEC2',
         purpleColor: '#BD9FFF',
         lightPurpleColor: 'rgba(126, 69, 255, 0.2)',
+        lightBGreyColor: '#646464'
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

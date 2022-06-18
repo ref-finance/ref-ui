@@ -105,7 +105,7 @@ export const UpArrowIcon = function (props: any) {
         fillRule="evenodd"
         clipRule="evenodd"
         d="M3.75 2.24136L7.49999 5.5L7.49989 3.83338L3.75 0.5L1.87522e-07 3.83338L2.60372e-07 5.5L3.75 2.24136Z"
-        fill="white"
+        fill="currentColor"
       />
     </svg>
   );

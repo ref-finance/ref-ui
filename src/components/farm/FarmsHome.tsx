@@ -1442,14 +1442,24 @@ function LoveStakeModal(props: {
     );
     if (+amount > 0) {
       const totalAmount = new BigNumber(lastTotalAmount).plus(amount).toFixed();
-      const result = new BigNumber(1)
-        .plus(Math.log(+totalAmount) / Math.log(base))
-        .toFixed();
+      let result;
+      if (+totalAmount < 1) {
+        result = 1;
+      } else {
+        result = new BigNumber(1)
+          .plus(Math.log(+totalAmount) / Math.log(base))
+          .toFixed();
+      }
       return `x${toPrecision(result.toString(), 2)}`;
     } else if (+lastTotalAmount > 0) {
-      const result = new BigNumber(1)
-        .plus(Math.log(+lastTotalAmount) / Math.log(base))
-        .toFixed();
+      let result;
+      if (+lastTotalAmount < 1) {
+        result = 1;
+      } else {
+        result = new BigNumber(1)
+          .plus(Math.log(+lastTotalAmount) / Math.log(base))
+          .toFixed();
+      }
       return `x${toPrecision(result.toString(), 2)}`;
     } else {
       return '-';
@@ -1649,9 +1659,13 @@ function LoveUnStakeModal(props: {
     let init_radio;
     let current_radio;
     if (loveTokenBalance && +loveTokenBalance > 0) {
-      init_radio = new BigNumber(1)
-        .plus(Math.log(+loveTokenBalance) / Math.log(base))
-        .toFixed();
+      if (+loveTokenBalance < 1) {
+        init_radio = 1;
+      } else {
+        init_radio = new BigNumber(1)
+          .plus(Math.log(+loveTokenBalance) / Math.log(base))
+          .toFixed();
+      }
     }
     if (!loveTokenBalance || +loveTokenBalance == 0) {
       return <span className="text-sm text-farmText">-</span>;
@@ -1666,9 +1680,13 @@ function LoveUnStakeModal(props: {
         current_radio = 1;
       } else {
         const remain = new BigNumber(loveTokenBalance).minus(amount).toFixed();
-        current_radio = new BigNumber(1)
-          .plus(Math.log(+remain) / Math.log(base))
-          .toFixed();
+        if (+remain < 1) {
+          current_radio = 1;
+        } else {
+          current_radio = new BigNumber(1)
+            .plus(Math.log(+remain) / Math.log(base))
+            .toFixed();
+        }
       }
       return (
         <div className="flex items-center">
@@ -1683,13 +1701,6 @@ function LoveUnStakeModal(props: {
           </span>
         </div>
       );
-    }
-
-    if (+amount > 0) {
-      const result = Math.log(+amount) / Math.log(base);
-      return `x${toPrecision(result.toString(), 2)}`;
-    } else {
-      return '-';
     }
   }
   const isDisabled =
@@ -1729,7 +1740,7 @@ function LoveUnStakeModal(props: {
           </span>
         </div>
       </div>
-      {yourAffectSeeds ? (
+      {yourAffectSeeds && yourAffectSeeds.length ? (
         <>
           <div className="flex items-center justify-between mt-6 mb-4">
             <span className="text-sm text-farmText">Your boost farm</span>
@@ -2222,9 +2233,14 @@ function FarmView(props: {
         new BigNumber(free_amount).plus(locked_amount).toFixed()
       );
       if (+totalStakeLoveAmount > 0) {
-        const result = new BigNumber(1)
-          .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
-          .toFixed();
+        let result;
+        if (+totalStakeLoveAmount < 1) {
+          result = 1;
+        } else {
+          result = new BigNumber(1)
+            .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
+            .toFixed();
+        }
         return (
           <div
             className={`absolute flex items-center justify-center top-3 right-4 z-10 px-2 py-0.5  text-xs  rounded-lg font-bold ${
@@ -2271,7 +2287,7 @@ function FarmView(props: {
         </div>
         {getBoostMutil()}
         <div className="boxInfo">
-          <div className="relative flex flex-col items-center bg-boosBoxColor px-5 rounded-t-2xl overflow-hidden">
+          <div className="relative flex flex-col items-center  px-5 rounded-t-2xl overflow-hidden bg-boostUpBoxBg">
             <div className="flex items-center cursor-pointer text-white font-bold text-xl xs:text-sm md:text-sm mt-7">
               {/* link for looking into */}
               <a
@@ -2542,13 +2558,16 @@ function WithDrawBox(props: {
   }
   return (
     <div className="rounded-xl overflow-hidden mb-3.5 mt-5">
-      <div className="relative bg-veGradient px-5" style={{ height: '68px' }}>
-        <span className="text-white text-xs bg-senderHot rounded-b-lg px-3 py-0.5">
+      <div
+        className="relative bg-veGradient px-5 overflow-hidden"
+        style={{ height: '68px' }}
+      >
+        <span className="absolute top-0 left-5 text-white text-xs bg-senderHot rounded-b-lg px-3 py-0.5 whitespace-nowrap">
           <label className="text-black text-xs font-bold">
             <FormattedMessage id="claimed_Rewards"></FormattedMessage>
           </label>
         </span>
-        <div className="flex items-center justify-between mt-2">
+        <div className="flex items-center justify-between mt-7">
           <label className="text-white text-xl font-bold">{yourReward}</label>
           {Object.keys(userRewardList).length > 0 ? (
             <div
@@ -2556,7 +2575,7 @@ function WithDrawBox(props: {
               className="flex items-center text-white text-xs cursor-pointer"
             >
               <FormattedMessage id="details" />
-              <UpArrowIcon className={`ml-2 transform rotate-180`} />
+              <UpArrowIcon className={`ml-2 transform rotate-180 text-white`} />
             </div>
           ) : null}
         </div>

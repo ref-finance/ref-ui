@@ -16,6 +16,8 @@ import {
   CalcIcon,
   LockImgIcon,
   FreenWarningIcon,
+  UpArrowIcon,
+  BoostRightArrowIcon,
 } from '~components/icon/FarmBoost';
 import { useHistory, useLocation } from 'react-router-dom';
 import getConfig from '../../services/config';
@@ -164,25 +166,21 @@ export default function FarmsDetail(props: {
         new BigNumber(free_amount).plus(locked_amount).toFixed()
       );
       if (+totalStakeLoveAmount > 0) {
-        const result = new BigNumber(1)
-          .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
-          .toFixed();
-        return (
-          <div
-            className={`rounded-lg text-xs  font-bold px-2 py-0.5 ml-2 ${
-              hasUserStaked
-                ? 'bg-lightGreenColor text-black'
-                : 'text-farmText border border-farmText'
-            }`}
-          >
-            {`x${toPrecision(result.toString(), 2)}`}
-          </div>
-        );
+        let result;
+        if (+totalStakeLoveAmount < 1) {
+          result = 1;
+        } else {
+          result = new BigNumber(1)
+            .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
+            .toFixed();
+        }
+        return result;
       }
       return '';
     }
     return '';
   }
+  const radio = getBoostMutil();
   return (
     <div className={`m-auto lg:w-580px md:w-5/6 xs:w-11/12  xs:-mt-4 md:-mt-4`}>
       <div className="breadCrumbs flex items-center text-farmText text-base hover:text-white">
@@ -206,7 +204,17 @@ export default function FarmsDetail(props: {
               <FormattedMessage id="ended_search"></FormattedMessage>
             </span>
           ) : null}
-          {getBoostMutil()}
+          {radio ? (
+            <div
+              className={`rounded-lg text-xs  font-bold px-2 py-0.5 ml-2 ${
+                Object.keys(user_seeds_map[detailData.seed_id] || {}).length
+                  ? 'bg-lightGreenColor text-black'
+                  : 'text-farmText border border-farmText'
+              }`}
+            >
+              {`x${toPrecision(radio.toString(), 2)}`}
+            </div>
+          ) : null}
         </div>
         <div className="flex items-center mt-3" onClick={goPoolPage}>
           <label className="mx-2 text-sm text-primaryText hover:text-framBorder cursor-pointer">
@@ -223,6 +231,7 @@ export default function FarmsDetail(props: {
         user_seeds_map={user_seeds_map}
         user_unclaimed_map={user_unclaimed_map}
         user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
+        radio={radio}
       ></StakeContainer>
     </div>
   );
@@ -235,6 +244,7 @@ function StakeContainer(props: {
   user_seeds_map: Record<string, UserSeedInfo>;
   user_unclaimed_token_meta_map: Record<string, any>;
   user_unclaimed_map: Record<string, any>;
+  radio: string;
 }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -250,6 +260,7 @@ function StakeContainer(props: {
     user_seeds_map,
     user_unclaimed_map,
     user_unclaimed_token_meta_map,
+    radio,
   } = props;
   const pool = detailData.pool;
   const intl = useIntl();
@@ -671,6 +682,7 @@ function StakeContainer(props: {
         user_seeds_map={user_seeds_map}
         user_unclaimed_map={user_unclaimed_map}
         user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
+        radio={radio}
       ></UserTotalUnClaimBlock>
       {calcVisible ? (
         <CalcModelBooster
@@ -1445,6 +1457,7 @@ function UserTotalUnClaimBlock(props: {
   user_seeds_map: Record<string, UserSeedInfo>;
   user_unclaimed_token_meta_map: Record<string, any>;
   user_unclaimed_map: Record<string, any>;
+  radio: string;
 }) {
   const {
     detailData,
@@ -1452,8 +1465,10 @@ function UserTotalUnClaimBlock(props: {
     user_seeds_map,
     user_unclaimed_token_meta_map,
     user_unclaimed_map,
+    radio,
   } = props;
   const [claimLoading, setClaimLoading] = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
   const { seed_id } = detailData;
   const intl = useIntl();
   function claimReward() {
@@ -1472,12 +1487,14 @@ function UserTotalUnClaimBlock(props: {
     let totalPrice = 0;
     let resultTip = '';
     const tempFarms = {};
+
     detailData.farmList.forEach((farm: FarmBoost) => {
       tempFarms[farm.terms.reward_token] = true;
     });
     const isEnded = detailData.farmList[0].status == 'Ended';
     const unclaimed = user_unclaimed_map[seed_id] || {};
     const unClaimedTokenIds = Object.keys(unclaimed);
+    const tokenList: any[] = [];
     unClaimedTokenIds?.forEach((tokenId: string) => {
       const token: TokenMetadata = user_unclaimed_token_meta_map[tokenId];
       // total price
@@ -1496,6 +1513,24 @@ function UserTotalUnClaimBlock(props: {
       } else {
         displayNum = new BigNumber(amount).toFixed(3, 1);
       }
+      // before boost number
+      let beforeNum = '';
+      if (radio) {
+        const v = new BigNumber(amount).dividedBy(radio);
+        if (new BigNumber('0').isEqualTo(v)) {
+          beforeNum = '-';
+        } else if (new BigNumber('0.001').isGreaterThan(v)) {
+          beforeNum = '<0.001';
+        } else {
+          beforeNum = new BigNumber(v).toFixed(3, 1);
+        }
+      }
+      const tempTokenData = {
+        token,
+        amount: displayNum,
+        preAmount: beforeNum,
+      };
+      tokenList.push(tempTokenData);
       const txt = intl.formatMessage({ id: 'ended_search' });
       const itemHtml = `<div class="flex justify-between items-center h-8 active">
           <img class="w-5 h-5 rounded-full mr-7" src="${icon}"/>
@@ -1515,24 +1550,30 @@ function UserTotalUnClaimBlock(props: {
         worth: <label className="opacity-30">$0</label>,
         showClaimButton: false,
         tip: resultTip,
+        list: tokenList,
       };
     } else if (new BigNumber('0.01').isGreaterThan(totalPrice)) {
       return {
         worth: '<$0.01',
         showClaimButton: true,
         tip: resultTip,
+        list: tokenList,
       };
     } else {
       return {
         worth: `$${toInternationalCurrencySystem(totalPrice.toString(), 2)}`,
         showClaimButton: true,
         tip: resultTip,
+        list: tokenList,
       };
     }
   }
   const unclaimedRewardsData = useMemo(() => {
     return getTotalUnclaimedRewards();
   }, [user_unclaimed_map[seed_id]]);
+  function switchDetailButton() {
+    setShowDetail(!showDetail);
+  }
   return (
     <div
       className="bg-cardBg rounded-2xl p-5"
@@ -1542,24 +1583,39 @@ function UserTotalUnClaimBlock(props: {
         <FormattedMessage id="unclaimed_rewards"></FormattedMessage>
       </div>
       <div className="flex justify-between items-center mt-4">
-        <div
-          className="text-white text-right"
-          data-class="reactTip"
-          data-for={'unclaimedRewardId' + detailData.seed_id}
-          data-place="top"
-          data-html={true}
-          data-tip={unclaimedRewardsData.tip}
-        >
-          <span className="text-xl text-white">
-            {unclaimedRewardsData.worth}
-          </span>
-          <ReactTooltip
-            id={'unclaimedRewardId' + detailData.seed_id}
-            backgroundColor="#1D2932"
-            border
-            borderColor="#7e8a93"
-            effect="solid"
-          />
+        <div className="flex items-center">
+          <div
+            className="text-white text-right"
+            data-class="reactTip"
+            data-for={'unclaimedRewardId' + detailData.seed_id}
+            data-place="top"
+            data-html={true}
+            data-tip={unclaimedRewardsData.tip}
+          >
+            <span className="text-xl text-white">
+              {unclaimedRewardsData.worth}
+            </span>
+            <ReactTooltip
+              id={'unclaimedRewardId' + detailData.seed_id}
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+            />
+          </div>
+          {unclaimedRewardsData.showClaimButton ? (
+            <div
+              onClick={switchDetailButton}
+              className="flex items-center text-sm text-farmText bg-lightBGreyColor bg-opacity-20 rounded-full px-4 py-0.5 cursor-pointer ml-7"
+            >
+              <FormattedMessage id="detail" />
+              <UpArrowIcon
+                className={`ml-1 transform ${
+                  showDetail ? 'text-greenColor' : 'text-primaryText rotate-180'
+                }`}
+              ></UpArrowIcon>
+            </div>
+          ) : null}
         </div>
         {unclaimedRewardsData.showClaimButton ? (
           <span
@@ -1575,6 +1631,54 @@ function UserTotalUnClaimBlock(props: {
             />
           </span>
         ) : null}
+      </div>
+      <div
+        className={`grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 gap-y-4 mt-4 pt-4 ${
+          showDetail ? '' : 'hidden'
+        }`}
+        style={{
+          borderTop: '2px dashed rgba(110, 124, 133, 0.2)',
+        }}
+      >
+        {unclaimedRewardsData.list.map(
+          (
+            {
+              token,
+              amount,
+              preAmount,
+            }: { token: TokenMetadata; amount: string; preAmount: string },
+            index: number
+          ) => {
+            return (
+              <div className="flex items-center" key={index}>
+                <div className="flex items-center w-28">
+                  <img
+                    className="w-5 h-5 rounded-full border border-greenColor"
+                    src={token.icon}
+                  ></img>
+                  <span className="text-white text-sm ml-1.5">
+                    {toRealSymbol(token.symbol)}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  {preAmount ? (
+                    <>
+                      <span className="text-sm text-primaryText">
+                        {preAmount}
+                      </span>
+                      <span className="mx-3.5">
+                        <BoostRightArrowIcon></BoostRightArrowIcon>
+                      </span>
+                      <span className={`text-sm text-white`}>{amount}</span>
+                    </>
+                  ) : (
+                    <span className={`text-sm text-primaryText`}>{amount}</span>
+                  )}
+                </div>
+              </div>
+            );
+          }
+        )}
       </div>
     </div>
   );
