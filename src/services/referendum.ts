@@ -198,11 +198,13 @@ export const createProposal = async ({
   duration_sec,
   kind,
   options,
+  start,
 }: {
   description: Description;
   duration_sec: number;
   kind: 'Poll' | 'Common';
   options: string[];
+  start: number;
 }) => {
   const args = {
     kind: {
@@ -211,7 +213,7 @@ export const createProposal = async ({
         options,
       },
     },
-    start_at: moment().unix() + 86520,
+    start_at: start,
     duration_sec,
   };
   console.log(args);
@@ -382,6 +384,8 @@ export const addBonus = async ({
   proposal_id: number;
 }) => {
   const tokenMeta = await ftGetTokenMetadata(tokenId);
+
+  console.log(tokenMeta, tokenId);
 
   const msg = JSON.stringify({
     Reward: {

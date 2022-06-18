@@ -22,6 +22,7 @@ import {
   useVEmeta,
   useVoteDetail,
   useUnclaimedProposal,
+  useCounterDownVE,
 } from '../../state/referendum';
 import {
   toReadableNumber,
@@ -238,6 +239,9 @@ export const CustomDatePicker = ({
       onClickOutside={(e) => {
         e.stopPropagation();
         setOpenPicker(false);
+      }}
+      onKeyDown={(e) => {
+        e.preventDefault();
       }}
     />
   );
@@ -470,7 +474,17 @@ const AddBonusPopUp = (
       <NewGradientButton
         text={<FormattedMessage id="deposit" defaultMessage={'Deposit'} />}
         className="w-full"
-        disabled={!value || !selectToken}
+        disabled={
+          !value ||
+          !selectToken ||
+          new Big(value).gt(
+            toReadableNumber(
+              selectToken.decimals,
+
+              selectToken.id === WRAP_NEAR_CONTRACT_ID ? nearBalance : balance
+            )
+          )
+        }
         onClick={() => {
           addBonus({
             tokenId: selectToken.id,
@@ -495,7 +509,7 @@ enum PROPOSAL_TAB {
 const PAIR_SEPERATOR = '|';
 
 export const durationFomatter = (duration: moment.Duration) => {
-  return `${duration.days()}d: ${duration.hours()}h: ${duration.days()}m`;
+  return `${duration.days()}d: ${duration.hours()}h: ${duration.minutes()}m`;
 };
 
 const VoteChart = ({
@@ -646,7 +660,7 @@ function SelectUI({
     <div
       className={`${className} relative flex ${
         shrink ? 'items-end' : 'items-center '
-      } lg:mr-5 outline-none`}
+      } outline-none`}
     >
       <span
         onClick={switchSelectBoxStatus}
@@ -816,9 +830,9 @@ export const PreviewPopUp = (
             id: 'voting_period',
             defaultMessage: 'Voting Period',
           })}
-          value={`${moment(startTime).format('yyyy-MM-DD hh:mm:ss')} - ${moment(
+          value={`${moment(startTime).format('yyyy-MM-DD HH:mm:ss')} - ${moment(
             endTime
-          ).format('yyyy-MM-DD hh:mm:ss')} UTC`}
+          ).format('yyyy-MM-DD HH:mm:ss')} UTC`}
         />
         <InfoRow
           name={intl.formatMessage({
@@ -915,6 +929,7 @@ export const PreviewPopUp = (
               duration_sec: 3600,
               kind: type === 'Pool' ? 'Poll' : 'Common',
               options,
+              start: dateToUnixTimeSec(startTime),
             });
           }}
         />
@@ -1509,9 +1524,22 @@ const GovProposalItem = ({
     );
   };
 
-  const isPoll = proposal?.kind?.Poll;
+  const base = Math.floor(
+    Number(
+      proposal?.status === 'InProgress' ? proposal?.end_at : proposal?.start_at
+    ) / TIMESTAMP_DIVISOR
+  );
 
-  const isCommon = proposal?.kind?.Common;
+  const baseCounterDown = durationFomatter(
+    moment.duration(base - moment().unix(), 'seconds')
+  );
+  const [counterDownStirng, setCounterDownStirng] =
+    useState<string>(baseCounterDown);
+
+  useCounterDownVE({
+    base,
+    setCounterDownStirng,
+  });
 
   const voted = (voteDetail?.[proposal?.id]?.action ||
     voteHistory?.[proposal?.id]?.action) as
@@ -1522,6 +1550,8 @@ const GovProposalItem = ({
   const incentive = proposal?.incentive;
 
   const { globalState } = useContext(WalletContext);
+
+  const { veShare } = useAccountInfo();
 
   const isSignedIn = globalState.isSignedIn;
 
@@ -1572,8 +1602,6 @@ const GovProposalItem = ({
       .times(100)
       .toNumber()}`;
   });
-
-  console.log(ratios, 'ratios');
 
   const ended = proposal?.status === 'Expired';
 
@@ -1655,19 +1683,8 @@ const GovProposalItem = ({
                       }`
                 }
               >
-                {durationFomatter(
-                  moment.duration(
-                    Math.floor(
-                      Number(
-                        status === 'Pending'
-                          ? proposal.start_at
-                          : proposal.end_at
-                      ) / TIMESTAMP_DIVISOR
-                    ) - moment().unix(),
-                    'seconds'
-                  )
-                )}
-                {` left`}
+                {counterDownStirng}
+                {`${proposal?.status === 'WarmUp' ? ' start' : ' left'}`}
               </span>
             </div>
 
@@ -1716,56 +1733,88 @@ const GovProposalItem = ({
                   text={
                     <FormattedMessage id="detail" defaultMessage={'Detail'} />
                   }
-                  width="h-11 "
-                  className="h-full px-5"
+                  width="h-11 w-20"
+                  className="h-full"
+                  padding="px-0"
                   color="#293540"
                   onClick={() => setShowDetail(proposal.id)}
                 />
 
-                <NewGradientButton
-                  text={
-                    ended && voted ? (
-                      <FormattedMessage id="voted" defaultMessage={'Voted'} />
-                    ) : proposal?.status === 'InProgress' && voted ? (
-                      <FormattedMessage id="cancel" defaultMessage={'Cancel'} />
-                    ) : ended && unClaimed ? (
-                      <FormattedMessage
-                        id="claim_reward"
-                        defaultMessage={'Claim Reward'}
-                      />
-                    ) : (
-                      <FormattedMessage id="vote" defaultMessage={'Vote'} />
-                    )
-                  }
-                  beatStyling={
-                    unClaimed || (proposal?.status === 'InProgress' && !!voted)
-                  }
-                  className="ml-2.5 h-11 px-6"
-                  disabled={
-                    (ended && !unClaimed) ||
-                    proposal?.status === 'WarmUp' ||
-                    !isSignedIn
-                  }
-                  onClick={() => {
-                    if (voted) {
-                      cancelVote({
-                        proposal_id: proposal.id,
-                      });
-                    } else if (unClaimed && ended) {
-                      claimRewardVE({
-                        proposal_id: proposal?.id,
-                      });
-                    } else {
-                      setShowVotePop(true);
+                {(proposal?.status === 'Expired' && !unClaimed) ||
+                (proposal?.status === 'InProgress' &&
+                  !voted &&
+                  ONLY_ZEROS.test(veShare)) ? (
+                  <BorderGradientButton
+                    text={
+                      proposal?.status === 'InProgress' &&
+                      !voted &&
+                      ONLY_ZEROS.test(veShare) ? (
+                        <FormattedMessage
+                          id="no_veLPT"
+                          defaultMessage={'No veLPT'}
+                        />
+                      ) : !!voted ? (
+                        <FormattedMessage id="voted" defaultMessage={'Voted'} />
+                      ) : (
+                        <FormattedMessage
+                          id="ended_ve"
+                          defaultMessage={'Ended'}
+                        />
+                      )
                     }
-                  }}
-                />
+                    width="h-11 ml-2.5  w-20"
+                    disabled
+                    padding="px-0"
+                    className="h-full"
+                    color="#293540"
+                  />
+                ) : (
+                  <NewGradientButton
+                    text={
+                      unClaimed ? (
+                        <FormattedMessage
+                          id="claim_reward"
+                          defaultMessage={'Claim Reward'}
+                        />
+                      ) : proposal?.status === 'InProgress' && voted ? (
+                        <FormattedMessage
+                          id="cancel"
+                          defaultMessage={'Cancel'}
+                        />
+                      ) : (
+                        <FormattedMessage id="vote" defaultMessage={'Vote'} />
+                      )
+                    }
+                    beatStyling={
+                      unClaimed ||
+                      (proposal?.status === 'InProgress' && !!voted)
+                    }
+                    className="ml-2.5 h-11 w-20"
+                    padding="px-0 "
+                    disabled={
+                      (ended && !unClaimed) || proposal?.status === 'WarmUp'
+                    }
+                    onClick={() => {
+                      if (voted) {
+                        cancelVote({
+                          proposal_id: proposal.id,
+                        });
+                      } else if (unClaimed) {
+                        claimRewardVE({
+                          proposal_id: proposal?.id,
+                        });
+                      } else if (proposal?.status === 'InProgress') {
+                        setShowVotePop(true);
+                      }
+                    }}
+                  />
+                )}
               </div>
             </div>
           </div>
           <div
             className={`absolute w-full h-8 bg-veGradient bottom-0 right-0 flex items-center text-center justify-center text-white ${
-              proposal?.status !== 'InProgress' ? 'opacity-30' : ''
+              proposal?.status === 'Expired' ? 'opacity-30' : ''
             }`}
           >
             {proposal?.incentive && incentiveToken ? (
@@ -1775,7 +1824,7 @@ const GovProposalItem = ({
                     incentiveToken?.decimals,
                     proposal?.incentive?.incentive_amount
                   ),
-                  0,
+                  2,
                   true
                 )} ${toRealSymbol(
                   incentiveToken?.symbol
@@ -1981,9 +2030,24 @@ export const VoteGovPopUp = (
 };
 
 export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
-  const defautLeft = '0d: 0h 0m ';
+  const base = Math.floor(
+    Number(
+      farmProposal?.status === 'InProgress'
+        ? farmProposal?.end_at
+        : farmProposal?.start_at
+    ) / TIMESTAMP_DIVISOR
+  );
 
-  const [counterDown, setCounterDown] = useState<string>(defautLeft);
+  const baseCounterDown = durationFomatter(
+    moment.duration(base - moment().unix(), 'seconds')
+  );
+  const [counterDownStirng, setCounterDownStirng] =
+    useState<string>(baseCounterDown);
+
+  useCounterDownVE({
+    base,
+    setCounterDownStirng,
+  });
 
   const curMonth = moment().format('MMMM');
   const curYear = moment().format('y');
@@ -2150,7 +2214,8 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
               <NewGradientButton
                 onClick={submit}
                 text={text}
-                className="py-2.5 px-3 h-10"
+                className="h-10 w-20"
+                padding="px-0 py-2.5"
                 beatStyling={voted === index}
                 disabled={
                   ended ||
@@ -2163,9 +2228,10 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
               <BorderGradientButton
                 onClick={submit}
                 text={text}
-                width=" h-10"
+                width="w-20 h-10"
                 opacity={'opacity-30'}
-                className={`py-1 px-4 h-full`}
+                className={`py-1 h-full`}
+                padding={'px-0 py-2.5'}
                 color="#2c313a"
               />
             )}
@@ -2191,41 +2257,6 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
       </>
     );
   };
-
-  useEffect(() => {
-    const startTime = moment().unix();
-
-    let duration = moment.duration(
-      (endTime - startTime) * 1000,
-      'milliseconds'
-    );
-
-    if (duration.asMilliseconds() < 0) {
-      setCounterDown(defautLeft);
-    } else {
-      setCounterDown(
-        `${duration.days()}d: ${duration.hours()}h: ${duration.minutes()}m `
-      );
-    }
-
-    const interval = 60 * 1000;
-    let timer = setInterval(() => {
-      duration = moment.duration(
-        duration.asMilliseconds() - interval,
-        'milliseconds'
-      );
-
-      if (duration.asMilliseconds() < 0) {
-        setCounterDown(defautLeft);
-      } else {
-        setCounterDown(
-          `${duration.days()}d: ${duration.hours()}h: ${duration.minutes()}m `
-        );
-      }
-    }, interval);
-
-    return () => clearInterval(timer);
-  }, [farmProposal]);
 
   const supplyPercent = votedVE
     .dividedBy(toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, VEmeta.totalVE || '1'))
@@ -2256,7 +2287,7 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
               />
             </span>
           ) : (
-            `${counterDown} left`
+            `${counterDownStirng} left`
           )}
         </span>
       </div>
@@ -2469,7 +2500,7 @@ export const CreateGovProposal = ({
       // TODO: tip
     }
 
-    if (startTime > endTime) {
+    if (startTime >= endTime) {
       newRequire = {
         ...newRequire,
         time: intl.formatMessage({
@@ -2623,7 +2654,8 @@ export const CreateGovProposal = ({
                     <span
                       className="rounded-full mr-2 h-2 w-2 flex-shrink-0"
                       style={{
-                        backgroundColor: OPTIONS_COLORS[options.length || 0],
+                        backgroundColor:
+                          OPTIONS_COLORS[options.length - 1 || 0],
                       }}
                     ></span>
                     <input
@@ -2816,11 +2848,19 @@ export const CreateGovProposal = ({
                   options,
                   duration_sec:
                     dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime),
+                  start: dateToUnixTimeSec(startTime),
                 });
               }
             }}
+            disabled={
+              startTime > endTime ||
+              !link ||
+              !title ||
+              (options.length === 1 && !options[0])
+            }
             beatStyling={beating}
             className="ml-4"
+            disableForUI
           />
         </div>
       </Card>
@@ -2844,7 +2884,10 @@ export const CreateGovProposal = ({
         link={link}
         show={showPreview}
         setShow={setShowPreview}
-        options={options.slice(0, options.length - 1)}
+        options={options.slice(
+          0,
+          !!options[options.length - 1] ? options.length : options.length - 1
+        )}
         turnOut={'0.00%'}
         totalVE={'0'}
         type={type}
@@ -2948,7 +2991,8 @@ export const GovProposal = ({
                 .concat(Object.keys(voteHistory || []))
                 ?.includes(p.id.toString())
           )
-          ?.map((p) => (
+          ?.sort((a, b) => b.id - a.id)
+          .map((p) => (
             <GovProposalItem
               VEmeta={VEmeta}
               status={proposalStatus[p.status]}
@@ -3018,7 +3062,7 @@ export const ProposalCard = () => {
     <div className="w-full flex flex-col items-center ">
       <ProposalTab curTab={curTab} setTab={setTab} className="mt-12 mb-4" />
       <ProposalWrapper show={curTab === PROPOSAL_TAB.FARM}>
-        <FarmProposal farmProposal={farmProposal} />
+        {!farmProposal ? null : <FarmProposal farmProposal={farmProposal} />}
       </ProposalWrapper>
 
       <ProposalWrapper show={curTab === PROPOSAL_TAB.GOV} bgcolor={'bg-cardBg'}>

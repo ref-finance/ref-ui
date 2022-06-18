@@ -28,6 +28,8 @@ import {
   toPrecision,
   scientificNotationToString,
 } from '../utils/numbers';
+import moment from 'moment';
+import { durationFomatter } from '../components/layout/Proposal';
 
 const minMultiplier = 10000;
 
@@ -147,7 +149,7 @@ export const useLOVEbalance = () => {
   useEffect(() => {
     if (!isSignedIn) return;
 
-    // ftGetBalance(REF_VE_CONTRACT_ID).then(setBalance);
+    ftGetBalance(REF_VE_CONTRACT_ID).then(setBalance);
   }, [isSignedIn]);
 
   return toReadableNumber(LOVE_TOKEN_DECIMAL, balance);
@@ -265,4 +267,24 @@ export const useUnClaimedRewardsVE = () => {
   }, [isSignedIn]);
 
   return rewards;
+};
+
+export const useCounterDownVE = ({
+  setCounterDownStirng,
+  base,
+}: {
+  setCounterDownStirng: (s: string) => void;
+  base: number;
+}) => {
+  console.log(base, 'useCounterDownVE');
+  const interval = 60 * 1000;
+
+  useEffect(() => {
+    let timer = setInterval(() => {
+      const duration = moment.duration(base - moment().unix(), 'seconds');
+      setCounterDownStirng(durationFomatter(duration));
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, [base]);
 };

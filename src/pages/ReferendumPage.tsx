@@ -305,9 +305,9 @@ export const LockPopUp = ({
     (d) => d + moment().unix() >= unlockTime
   );
 
-  if (leftTime > config?.min_locking_duration_sec) {
-    candidateDurations.unshift(leftTime);
-  }
+  // if (leftTime > config?.min_locking_duration_sec) {
+  //   candidateDurations.unshift(leftTime);
+  // }
 
   const [duration, setDuration] = useState<number>(
     candidateDurations?.[0] || 0
@@ -444,6 +444,27 @@ export const LockPopUp = ({
                 id="ve_lock_tip"
                 defaultMessage={'Cannot be earlier than current duration'}
               />
+              {leftTime > config?.min_locking_duration_sec ? (
+                <span>
+                  {`, `}
+                  <FormattedMessage
+                    id="keep_lower"
+                    defaultMessage={'keep'}
+                  />{' '}
+                  <button
+                    className={`text-gradientFrom border-b border-transparent ${
+                      duration === leftTime
+                        ? 'border-b border-gradientFrom'
+                        : ''
+                    } hover:border-b hover:border-gradientFrom`}
+                    onClick={() => {
+                      setDuration(leftTime);
+                    }}
+                  >
+                    {timeStampToDate(unlockTime)}
+                  </button>
+                </span>
+              ) : null}
             </span>
           </div>
         ) : null}
@@ -1013,7 +1034,7 @@ const UserReferendumCard = ({
       {isSignedIn ? (
         <div className="text-base flex items-center pt-8 w-full">
           <NewGradientButton
-            className="w-full mr-4"
+            className={`${ONLY_ZEROS.test(veShare) ? 'w-full' : 'w-1/2'} mr-2`}
             text={
               <FormattedMessage
                 id="lock_lptoken"
@@ -1034,7 +1055,7 @@ const UserReferendumCard = ({
                 </span>
               }
               className="rounded-lg w-full px-5 py-3"
-              width="w-full"
+              width="w-1/2 ml-2"
             />
           ) : (
             <WithGradientButton
@@ -1046,7 +1067,7 @@ const UserReferendumCard = ({
                   </span>
                 </span>
               }
-              className="rounded-lg w-full"
+              className="rounded-lg w-1/2 ml-2"
               grayDisable={moment().unix() < unlockTime}
               disabled={moment().unix() < unlockTime}
               gradientWith={`${Math.ceil(
@@ -1099,10 +1120,8 @@ export const ReferendumPage = () => {
       <ProposalCard />
 
       <div
-        className="absolute -top-14 z-20"
-        style={{
-          right: '39%',
-        }}
+        className="absolute -top-14 z-20 -left-10
+        "
       >
         <PowerZone />
       </div>

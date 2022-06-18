@@ -500,6 +500,8 @@ export function NewGradientButton(porps: {
   disableForUI?: boolean;
   width?: string;
   beatStyling?: boolean;
+  opacity?: boolean;
+  padding?: string;
 }) {
   const {
     text,
@@ -510,17 +512,21 @@ export function NewGradientButton(porps: {
     disableForUI,
     width,
     beatStyling,
+    opacity,
+    padding,
   } = porps;
 
   const [beating, setBeating] = useState<boolean>(false);
 
   return (
     <button
-      className={`${
+      className={`  ${
         grayDisable ? 'opacity-30' : 'bg-veGradient'
       } ${width} ${className}  ${
-        disabled || beating ? 'opacity-30 cursor-not-allowed' : ''
-      } px-5 py-3 rounded-lg text-center `}
+        disabled || beating
+          ? 'opacity-30 cursor-not-allowed'
+          : 'opacity-80 hover:opacity-100'
+      } ${padding ? padding : 'px-5 py-3'} rounded-lg text-center   `}
       onClick={(e) => {
         if (beatStyling) {
           setBeating(true);
@@ -597,19 +603,23 @@ export function BorderGradientButton(porps: {
   width?: string;
   color?: string;
   opacity?: string;
+  padding?: string;
 }) {
-  const { text, onClick, className, disabled, width, color, opacity } = porps;
+  const { text, onClick, padding, className, disabled, width, color, opacity } =
+    porps;
 
   return (
     <button
       className={` p-px rounded-lg text-center ${
-        disabled ? 'cursor-not-allowed' : ''
+        disabled ? 'opacity-30 cursor-not-allowed' : ''
       }  bg-veGradient ${width} ${opacity}`}
       onClick={(e) => onClick && onClick(e)}
     >
       <button
         disabled={disabled}
-        className={`w-full rounded-lg cursor-pointer text-center ${className} py-2.5 px-4`}
+        className={`w-full rounded-lg cursor-pointer text-center ${className} ${
+          padding ? padding : 'py-2.5 px-4'
+        }`}
         style={{
           backgroundColor: color || 'rgb(0,12,21)',
         }}
