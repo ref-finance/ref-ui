@@ -934,7 +934,7 @@ export default function FarmsHome(props: any) {
             <input
               ref={searchRef}
               type="text"
-              className="h-full text-sm text-white mr-3 w-40"
+              className="h-full text-sm text-white mr-3 w-40 placeholder-white placeholder-opacity-40"
               onWheel={() => searchRef.current.blur()}
               onChange={({ target }) => searchByKeyWords(target.value)}
               placeholder="Search farms"
@@ -1034,7 +1034,7 @@ export default function FarmsHome(props: any) {
             <input
               ref={searchRef}
               type="text"
-              className="h-full text-sm text-white mr-3 w-48 xs:w-32 md:w-32"
+              className="h-full text-sm text-white mr-3 w-48 xs:w-32 md:w-32 placeholder-white placeholder-opacity-40"
               onWheel={() => searchRef.current.blur()}
               onChange={({ target }) => searchByKeyWords(target.value)}
               placeholder="Search farms by token..."
@@ -1124,8 +1124,11 @@ export default function FarmsHome(props: any) {
                       'linear-gradient(90deg, #7C47FD 0%, #34177C 100%)',
                   }}
                 >
-                  <div className="flex flex-col justify-between  items-center pl-14 pb-16 pt-4 xs:pl-0 md:pl-0">
-                    <span className="text-senderHot text-3xl xs:hidden md:hidden">
+                  <div className="flex flex-col justify-between  items-center lg:items-start pl-14 pb-16 pt-4 xs:pl-0 md:pl-0">
+                    <span
+                      className="text-senderHot xs:hidden md:hidden transform -translate-x-9"
+                      style={{ fontSize: '32px' }}
+                    >
                       Farm Booster
                     </span>
                     <span className="lg:hidden text-white text-sm mb-3">
@@ -1174,7 +1177,7 @@ export default function FarmsHome(props: any) {
                           3
                         </span>
                         <span className="absolute flex items-center justify-center text-sm text-white rounded-lg top-8 whitespace-nowrap px-5 py-1 xs:hidden md:hidden">
-                          Get farm boost
+                          Get Farm Boost
                         </span>
                         <span className="absolute flex items-center justify-center text-sm text-white rounded-lg top-8 whitespace-nowrap px-5 py-1 lg:hidden">
                           Farm boost

@@ -254,12 +254,23 @@ const parseMtfTransferCall = async (params: any) => {
   if (msg) {
     const extraMsg = JSON.parse(msg.replace(/\\"/g, '"'));
     if (extraMsg != 'Free') {
-      const duration_sec = extraMsg.Lock.duration_sec;
-      extraData['Month'] = duration_sec / 2592000 + 'M';
+      const { Lock, Append } = extraMsg;
+      if (Lock) {
+        const duration_sec = Lock.duration_sec;
+        extraData['Month'] = duration_sec / 2592000 + 'M';
+      }
+      if (Append) {
+        const duration_sec = Append.append_duration_sec;
+        if (duration_sec == 1) {
+          extraData['Second'] = duration_sec;
+        } else {
+          extraData['Month'] = duration_sec / 2592000 + 'M';
+        }
+      }
     }
   }
   return {
-    Action: extraData['Month'] ? 'Lock' : 'Stake',
+    Action: extraData['Month'] || extraData['Second'] ? 'Lock' : 'Stake',
     Amount: new Set(STABLE_POOL_IDS || []).has(poolId?.toString())
       ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, amount)
       : toReadableNumber(24, amount),
