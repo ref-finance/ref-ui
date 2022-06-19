@@ -1,7 +1,11 @@
 import React, { useEffect, useRef, useState, useContext } from 'react';
 import QuestionMark from '~components/farm/QuestionMark';
 import { Checkbox, CheckboxSelected } from '~components/icon';
-import { GradientButton, ButtonTextWrapper } from '~components/button/Button';
+import {
+  GradientButton,
+  ButtonTextWrapper,
+  GreenConnectToNearBtn,
+} from '~components/button/Button';
 import {
   getRewards,
   get_list_user_seeds,
@@ -28,6 +32,7 @@ import { BigNumber } from 'bignumber.js';
 import { getPoolIdBySeedId } from '~components/farm/FarmsHome';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { PoolRPCView } from '~services/api';
+import Loading from '~components/layout/Loading';
 export default function FarmsMigrate() {
   const [user_migrate_seeds, set_user_migrate_seeds] = useState([]);
   const [user_claimed_rewards, set_user_claimed_rewards] = useState({});
@@ -100,6 +105,9 @@ export default function FarmsMigrate() {
     Object.keys(user_claimed_rewards).length == 0 &&
     !seed_loading &&
     !rewards_loading;
+
+  if (isSignedIn && (seed_loading || rewards_loading))
+    return <Loading></Loading>;
   return (
     <div className={`m-auto lg:w-580px md:w-5/6 xs:w-11/12 xs:-mt-4 md:-mt-4`}>
       <div className="breadCrumbs flex items-center text-farmText text-base hover:text-white">
@@ -110,67 +118,78 @@ export default function FarmsMigrate() {
       </div>
       <div className="instruction flex justify-between items-center mt-10">
         <MigrateIcon className="flex-shrink-0 mr-4"></MigrateIcon>
-
-        {noData ? (
-          <div className="flex flex-col items-center">
-            <span className="text-2xl font-bold text-lightGreenColor">
-              No Farm need to Migrate
-            </span>
-            <GradientButton
-              onClick={goBoostFarmPage}
-              color="#fff"
-              className={`mt-8 px-10 h-8 text-center text-lg text-white focus:outline-none font-semibold`}
-              backgroundImage="linear-gradient(270deg, #7F43FF 0%, #00C6A2 97.06%)"
-            >
-              <ButtonTextWrapper
-                loading={false}
-                Text={() => <FormattedMessage id="go_to_new_farm" />}
-              />
-            </GradientButton>
-          </div>
+        {!isSignedIn ? (
+          <GreenConnectToNearBtn className="mt-6 ml-16"></GreenConnectToNearBtn>
         ) : (
-          <div>
-            <span className="text-2xl font-bold text-lightGreenColor">
-              V2 New Farm Migration
-            </span>
-            <p className="text-base text-white mt-4">
-              V2 Farm will support boost farm for the LOVE token stakers.
-              Meanwhile, the V1 farm rewards will stop at 1. July,2022. Please
-              migrate your farms and withdraw your rewards.
-            </p>
-          </div>
+          <>
+            {noData ? (
+              <div className="flex flex-col items-center">
+                <span className="text-2xl font-bold text-lightGreenColor">
+                  No Farm need to Migrate
+                </span>
+                <GradientButton
+                  onClick={goBoostFarmPage}
+                  color="#fff"
+                  className={`mt-8 px-10 h-8 text-center text-lg text-white focus:outline-none font-semibold`}
+                  backgroundImage="linear-gradient(270deg, #7F43FF 0%, #00C6A2 97.06%)"
+                >
+                  <ButtonTextWrapper
+                    loading={false}
+                    Text={() => <FormattedMessage id="go_to_new_farm" />}
+                  />
+                </GradientButton>
+              </div>
+            ) : (
+              <div>
+                <span className="text-2xl font-bold text-lightGreenColor">
+                  V2 New Farm Migration
+                </span>
+                <p className="text-base text-white mt-4">
+                  V2 Farm will support boost farm for the LOVE token stakers.
+                  Meanwhile, the V1 farm rewards will stop at 1. July,2022.
+                  Please migrate your farms and withdraw your rewards.
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
-      {user_migrate_seeds.length > 0 ? (
-        <div className="migratSeedBox bg-cardBg rounded-2xl p-5 mt-8">
-          {user_migrate_seeds.map((migrateSeed: MigrateSeed, index: number) => {
-            return (
-              <MigrateLineBox
-                migrateSeed={migrateSeed}
-                key={index}
-              ></MigrateLineBox>
-            );
-          })}
-        </div>
-      ) : seed_loading ? (
-        <div className="flex items-center justify-center bg-cardBg rounded-2xl p-5 mt-8 text-white text-base">
-          Loading ...
-        </div>
-      ) : null}
+      {!isSignedIn ? null : (
+        <>
+          {user_migrate_seeds.length > 0 ? (
+            <div className="migratSeedBox bg-cardBg rounded-2xl p-5 mt-8">
+              {user_migrate_seeds.map(
+                (migrateSeed: MigrateSeed, index: number) => {
+                  return (
+                    <MigrateLineBox
+                      migrateSeed={migrateSeed}
+                      key={index}
+                    ></MigrateLineBox>
+                  );
+                }
+              )}
+            </div>
+          ) : seed_loading ? (
+            <div className="flex items-center justify-center bg-cardBg rounded-2xl p-5 mt-8 text-white text-base">
+              Loading ...
+            </div>
+          ) : null}
 
-      {Object.keys(user_claimed_rewards).length > 0 &&
-      Object.keys(all_token_price_list).length ? (
-        <div className="withDrawBox bg-cardBg rounded-2xl p-5 mt-3">
-          <WithDrawBox
-            userRewardList={user_claimed_rewards}
-            tokenPriceList={all_token_price_list}
-          ></WithDrawBox>
-        </div>
-      ) : rewards_loading ? (
-        <div className="flex items-center justify-center bg-cardBg rounded-2xl p-5 mt-8 text-white text-base">
-          Loading ...
-        </div>
-      ) : null}
+          {Object.keys(user_claimed_rewards).length > 0 &&
+          Object.keys(all_token_price_list).length ? (
+            <div className="withDrawBox bg-cardBg rounded-2xl p-5 mt-3">
+              <WithDrawBox
+                userRewardList={user_claimed_rewards}
+                tokenPriceList={all_token_price_list}
+              ></WithDrawBox>
+            </div>
+          ) : rewards_loading ? (
+            <div className="flex items-center justify-center bg-cardBg rounded-2xl p-5 mt-8 text-white text-base">
+              Loading ...
+            </div>
+          ) : null}
+        </>
+      )}
     </div>
   );
 }
@@ -360,7 +379,15 @@ function WithDrawBox(props: { userRewardList: any; tokenPriceList: any }) {
   }
   async function doWithDraw() {
     setWithdrawLoading(true);
-    withdrawAllReward(checkedList);
+    const keys = Object.keys(checkedList);
+    const handleMap = {};
+    keys.map((key, index) => {
+      handleMap[key] = {
+        index,
+        value: checkedList[key],
+      };
+    });
+    withdrawAllReward(handleMap);
   }
   return (
     <div className="flex flex-col">

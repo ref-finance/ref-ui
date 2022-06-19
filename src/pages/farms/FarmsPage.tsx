@@ -96,7 +96,7 @@ import {
   usnBuyAndSellToast,
   swapToast,
 } from '../../components/layout/transactionTipPopUp';
-import { MigrateIcon } from '~components/icon/FarmBoost';
+import { MigrateIcon } from '../../components/icon/FarmBoost';
 
 const config = getConfig();
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
@@ -744,13 +744,6 @@ export function FarmsPage() {
               </span>
             </div>
           </div>
-          {/* <div className="flex items-center justify-between rounded-md border border-greenColor p-3 mb-3">
-            <LightSmall></LightSmall>
-            <span className="text-xs text-navHighLightText ml-2">
-              Farms <label className="text-greenColor font-bold">V2</label>{' '}
-              supports CD account, booster farming is coming soon!
-            </span>
-          </div> */}
           <div className="relative bg-veGradient rounded-2xl p-4 mb-4 mt-2">
             <span className="flex items-center justify-center text-white text-lg font-bold my-2">
               V2 NEW Farm Migration
