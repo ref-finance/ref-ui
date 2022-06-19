@@ -13,7 +13,7 @@ import { Pool, getStablePoolInfoKey } from '../services/pool';
 import { getSwappedAmount, estimateSwap } from '../services/stable-swap';
 import { EstimateSwapView } from '../services/swap';
 import Big from 'big.js';
-import { sortBy } from 'lodash';
+import _, { sortBy } from 'lodash';
 
 const BPS_CONVERSION = 10000;
 const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
@@ -604,3 +604,25 @@ export function getPoolAllocationPercents(pools: Pool[]) {
     return [];
   }
 }
+
+export const checkAllocations = (sum: string, allocations: string[]) => {
+  const sumNumber = new Big(sum);
+  const sumAllocations = allocations.reduce((acc, cur, i) => {
+    return acc.plus(new Big(cur));
+  }, new Big(0));
+
+  if (!sumAllocations.eq(sumNumber)) {
+    const maxNum = _.maxBy(allocations, (o) => Number(o));
+
+    const maxIndex = allocations.indexOf(maxNum);
+
+    const leftSum = sumAllocations.minus(maxNum);
+    const newMaxNum = sumNumber.minus(leftSum);
+
+    return [
+      ...allocations.slice(0, maxIndex),
+      newMaxNum.toString(),
+      ...allocations.slice(maxIndex + 1),
+    ];
+  } else return allocations;
+};

@@ -178,7 +178,7 @@ export const RewardCard = ({
               {toRealSymbol(token.symbol)}
             </span>
 
-            <span className="opacity-50">${!price ? '-' : amount}</span>
+            <span className="opacity-50">${!price ? '-' : price}</span>
           </div>
         </div>
 

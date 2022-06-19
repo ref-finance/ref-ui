@@ -110,6 +110,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { getCurrentUnixTime } from '../../services/api';
 import { useHistory, useParams } from 'react-router-dom';
+import { checkAllocations } from '../../utils/numbers';
 
 const REF_FI_PROPOSALTAB = 'REF_FI_PROPOSALTAB_VALUE';
 
@@ -555,13 +556,13 @@ const VoteChart = ({
   forDetail,
 }: {
   options: string[];
-  ratios: number[];
+  ratios: string[];
   forDetail?: boolean;
 }) => {
   const data = ratios.map((r, i) => {
     return {
       name: options[i],
-      value: Math.round(r * 100) / 100,
+      value: Math.round(Number(r) * 100) / 100,
     };
   });
 
@@ -988,6 +989,7 @@ const FarmChart = ({
     tokens: TokenMetadata[];
     allocation: string;
     r: string;
+    veLPT: string;
   }[];
   size: number;
   voted: number;
@@ -1041,15 +1043,7 @@ const FarmChart = ({
           </span>
 
           <span className="text-white">
-            {toPrecision(
-              toReadableNumber(
-                18,
-                scientificNotationToString(activeFarm.value.toString())
-              ),
-              2,
-              true,
-              false
-            )}
+            {toPrecision(activeFarm.veLPT, 2, true)}
           </span>
         </div>
 
@@ -1262,7 +1256,7 @@ const GovItemDetail = ({
       ? link
       : `https://${link}`;
 
-  const data = (
+  const dataRaw = (
     proposal?.kind?.Common ? proposal?.votes?.slice(0, 2) : proposal?.votes
   )?.map((v, i) => {
     return {
@@ -1272,11 +1266,31 @@ const GovItemDetail = ({
           : 'No'
         : proposal?.kind?.Poll?.options?.[i],
       v: toReadableNumber(LOVE_TOKEN_DECIMAL, v || '0'),
-      ratio: new Big(toReadableNumber(LOVE_TOKEN_DECIMAL, v || '0'))
-        .div(new Big(Number(totalVE) > 0 ? totalVE : 1))
-        .times(100)
-        .toNumber(),
+      ratio: toPrecision(
+        scientificNotationToString(
+          new Big(toReadableNumber(LOVE_TOKEN_DECIMAL, v || '0'))
+            .div(new Big(Number(totalVE) > 0 ? totalVE : 1))
+            .times(100)
+            .toString()
+        ),
+        2
+      ),
     };
+  });
+
+  const ratios = checkAllocations(
+    '100',
+    dataRaw?.map((d) => d.ratio)
+  );
+
+  const veLPTs = checkAllocations(
+    toPrecision(totalVE, 2),
+    dataRaw?.map((d) => toPrecision(d.v, 2))
+  );
+
+  const data = dataRaw.map((d, i) => {
+    (d.ratio = ratios[i]), (d.v = veLPTs[i]);
+    return d;
   });
 
   const InfoRow = ({
@@ -1423,7 +1437,10 @@ const GovItemDetail = ({
             ) : (
               <VoteChart
                 options={data?.map((d) => d.option)}
-                ratios={data?.map((d) => d.ratio)}
+                ratios={checkAllocations(
+                  '100',
+                  data?.map((d) => d.ratio)
+                )}
                 forDetail
               />
             )}
@@ -1489,13 +1506,9 @@ const GovItemDetail = ({
                         )}
                       </span>
 
-                      <span className="col-span-2 ">
-                        {Math.round(d.ratio * 100) / 100}%
-                      </span>
+                      <span className="col-span-2 ">{d.ratio}%</span>
 
-                      <span className="col-span-2 text-right">
-                        {toPrecision(d.v, 2)}
-                      </span>
+                      <span className="col-span-2 text-right">{d.v}</span>
                     </div>
                   );
                 })}
@@ -1612,7 +1625,10 @@ const GovItemDetail = ({
         proposalTitle={description?.title}
         onRequestClose={() => setShowVotePop(false)}
         options={data.map((d) => d.option)}
-        ratios={data.map((d) => d.ratio)}
+        ratios={checkAllocations(
+          '100',
+          data.map((d) => d.ratio)
+        )}
         proposal={proposal}
         totalVE={toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, totalVE)}
       />
@@ -1745,10 +1761,15 @@ const GovProposalItem = ({
   const ratios = (
     proposal?.kind?.Common ? proposal?.votes?.slice(0, 2) : proposal?.votes
   )?.map((v, i) => {
-    return new Big(v || '0')
-      .div(new Big(Number(totalVE) > 0 ? totalVE : 1))
-      .times(100)
-      .toNumber();
+    return toPrecision(
+      scientificNotationToString(
+        new Big(v || '0')
+          .div(new Big(Number(totalVE) > 0 ? totalVE : 1))
+          .times(100)
+          .toString()
+      ),
+      2
+    );
   });
 
   const ended = proposal?.status === 'Expired';
@@ -1800,7 +1821,10 @@ const GovProposalItem = ({
                 <NoResultChart />
               </div>
             ) : (
-              <VoteChart options={options} ratios={ratios} />
+              <VoteChart
+                options={options}
+                ratios={checkAllocations('100', ratios)}
+              />
             )}
           </div>
           <div className="flex flex-col w-4/5 ml-8">
@@ -2019,7 +2043,7 @@ const GovProposalItem = ({
         proposalTitle={description?.title}
         onRequestClose={() => setShowVotePop(false)}
         options={options}
-        ratios={ratios}
+        ratios={checkAllocations('100', ratios)}
         proposal={proposal}
         totalVE={totalVE}
       />
@@ -2079,7 +2103,7 @@ export const VoteGovPopUp = (
     title: JSX.Element | string;
     proposalTitle: string;
     options: string[];
-    ratios: number[];
+    ratios: string[];
     proposal: Proposal;
     totalVE: string;
   }
@@ -2164,13 +2188,7 @@ export const VoteGovPopUp = (
                     </span>
                   ) : null}
 
-                  <span>
-                    {toPrecision(
-                      scientificNotationToString(ratios[i].toString()),
-                      1
-                    )}
-                    %
-                  </span>
+                  <span>{ratios[i]}%</span>
                 </span>
               </button>
             );
@@ -2282,16 +2300,60 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
     ).then(setTokens);
   }, [farmProposal]);
 
+  const displayRatios = votedVE.isGreaterThan(0)
+    ? farmProposal?.votes.map((vote) =>
+        new BigNumber(vote).div(votedVE).times(100).toFixed(2)
+      )
+    : farmProposal?.kind?.FarmingReward?.farm_list?.map((_, i) => '0');
+
+  const checkedRatios = checkAllocations('100', displayRatios);
+
+  const displayVELPT = farmProposal?.votes.map((vote) =>
+    toPrecision(toReadableNumber(LOVE_TOKEN_DECIMAL, vote), 2, false)
+  );
+
+  const checkedVELPTs = checkAllocations(
+    toPrecision(
+      toReadableNumber(
+        LOVE_TOKEN_DECIMAL,
+        scientificNotationToString(votedVE.toString())
+      ),
+      2
+    ),
+    displayVELPT
+  );
+
+  const allocations = checkAllocations('100', displayRatios).map((r) => {
+    return toPrecision(
+      multiply(
+        divide(r, '100').toString(),
+        farmProposal?.kind?.FarmingReward?.total_reward.toString()
+      ),
+      0
+    );
+  });
+
+  const checkedAllocations = checkAllocations(
+    farmProposal?.kind?.FarmingReward?.total_reward.toString(),
+    allocations
+  );
+
   const FarmLine = ({
     className,
     voted,
     index,
     tokens,
+    veLPT,
+    allocate,
+    ratio,
   }: {
     className?: string;
     voted: number;
     index: number;
     tokens: TokenMetadata[];
+    veLPT: string;
+    allocate: string;
+    ratio: string;
   }) => {
     const [votePopUpOpen, setVotePopUpOpen] = useState<boolean>(false);
 
@@ -2316,26 +2378,12 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
       <FormattedMessage id="vote" defaultMessage={'Vote'} />
     );
 
-    const ratio = votedVE.isGreaterThan(0)
-      ? scientificNotationToString(
-          new BigNumber(farmProposal?.votes[index])
-            .div(votedVE)
-            .times(100)
-            .toString()
-        )
-      : '0';
-
     const ratioNew = scientificNotationToString(
       new BigNumber(farmProposal?.votes[index])
         .plus(new BigNumber(veShareRaw))
         .div(votedVE.plus(veShareRaw))
         .times(100)
         .toString()
-    );
-
-    const allocate = multiply(
-      divide(ratio, '100').toString(),
-      farmProposal?.kind?.FarmingReward?.total_reward.toString()
     );
 
     const allocateNew = multiply(
@@ -2371,15 +2419,9 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
             ) : null}
           </span>
           <span className="col-span-1 text-center">
-            {toPrecision(
-              toReadableNumber(LOVE_TOKEN_DECIMAL, farmProposal?.votes[index]),
-              2,
-              true
-            )}
+            {toPrecision(veLPT, 2, true)}
           </span>
-          <span className="col-span-1 text-center">
-            {toPrecision(ratio, 2, false)}%
-          </span>
+          <span className="col-span-1 text-center">{ratio}%</span>
           <span className="col-span-1 text-center">
             {toPrecision(allocate, 0, true)}
           </span>
@@ -2423,7 +2465,11 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
             true
           )}
           myPower={toPrecision(veShare, 2, true)}
-          ratioOld={`${toPrecision(ratio, 1, false)}%`}
+          ratioOld={`${toPrecision(
+            scientificNotationToString(ratio.toString()),
+            2,
+            false
+          )}%`}
           allocationOld={toPrecision(allocate, 0, true)}
           ratioNew={`${toPrecision(ratioNew, 1, false)}%`}
           allocationNew={toPrecision(allocateNew, 0, true)}
@@ -2554,30 +2600,9 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
             .join('/'),
           tokens: f.split(PAIR_SEPERATOR).map((id) => tokens?.[id]),
 
-          r: votedVE.isEqualTo(0)
-            ? '0'
-            : toPrecision(
-                scientificNotationToString(
-                  new BigNumber(farmProposal.votes[i])
-                    .div(votedVE)
-                    .times(100)
-                    .toString()
-                ),
-                2,
-                false
-              ) + '%',
-          allocation: votedVE.isEqualTo(0)
-            ? '0'
-            : toPrecision(
-                scientificNotationToString(
-                  new BigNumber(farmProposal.votes[i])
-                    .div(votedVE)
-                    .times(farmProposal.kind.FarmingReward.total_reward)
-                    .toString()
-                ),
-                0,
-                true
-              ),
+          r: checkedRatios[i] + '%',
+          allocation: toPrecision(checkedAllocations[i] || '0', 0, true),
+          veLPT: checkedVELPTs[i] || '0',
         }))}
         size={farmProposal?.kind?.FarmingReward?.farm_list?.length}
         voted={voteDetail?.[farmProposal?.id]?.action?.VoteFarm?.farm_id}
@@ -2617,6 +2642,9 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
                 voted={
                   voteDetail?.[farmProposal?.id]?.action?.VoteFarm?.farm_id
                 }
+                ratio={checkedRatios[id]}
+                veLPT={checkedVELPTs[id]}
+                allocate={checkedAllocations[id]}
               />
             );
           }

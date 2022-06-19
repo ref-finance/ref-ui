@@ -15,9 +15,10 @@ import {
 } from './farm';
 import { storageDepositAction } from './creators/storage';
 import moment from 'moment';
-import { ftGetTokenMetadata } from './ft-contract';
+import { ftGetTokenMetadata, ftGetStorageBalance } from './ft-contract';
 import { toNonDivisibleNumber } from '../utils/numbers';
 import { WRAP_NEAR_CONTRACT_ID, nearDepositTransaction } from './wrap-near';
+import { registerAccountOnToken } from './creators/token';
 export interface LockOptions {
   token_id: string;
   amount: string;
@@ -433,7 +434,6 @@ export const claimRewardVE = async ({
             proposal_id,
           },
           gas: '180000000000000',
-          amount: ONE_YOCTO_NEAR,
         },
       ],
     },
@@ -461,6 +461,18 @@ export const withdrawRewardVE = async ({
       ],
     };
   });
+
+  await Promise.all(
+    token_ids.map(async (id) => {
+      const tokenRegistered = await ftGetStorageBalance(id);
+      if (tokenRegistered === null) {
+        transactions.unshift({
+          receiverId: id,
+          functionCalls: [registerAccountOnToken()],
+        });
+      }
+    })
+  );
 
   return executeMultipleTransactions(transactions);
 };
