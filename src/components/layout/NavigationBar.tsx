@@ -23,6 +23,7 @@ import {
   GreenArrowIcon,
   MoreMenuIcon,
   NavLogo,
+  NavLogoSimple,
 } from '~components/icon';
 import { SmallWallet } from '~components/icon/SmallWallet';
 import {
@@ -1040,21 +1041,31 @@ function NavigationBar() {
           />
           .
         </div>
-        <nav className="flex items-center justify-between px-9 pt-6 col-span-8 ">
-          <div className="relative -top-0.5 flex-1 lg:hidden xl:block">
-            <Logo />
-          </div>
-
-          <div className="relative -top-0.5 flex-1 lg:block xs:hidden md:hidden xl:hidden">
-            <NavLogo />
-          </div>
+        <nav
+          className="flex items-center justify-between px-9 py-3 col-span-8"
+          style={{ borderBottom: '2px solid rgba(8, 97, 81, 0.39)' }}
+        >
           <div className="flex items-center">
-            <Anchor to="/" pattern="/" name="Swap" />
-            <Anchor to="/sauce" pattern="/sauce" name="Sauce" />
-            <PoolsMenu />
-            <Anchor to="/farmsBoost" pattern="/farmsBoost" name="Farms" />
-            <Xref></Xref>
-            <Anchor to="/referendum" pattern="/referendum" name="Referendum" />
+            <div className="relative -top-0.5 flex-1 xs:hidden md:hidden">
+              <NavLogoSimple
+                className="mr-12 cursor-pointer"
+                onClick={() => {
+                  window.open('https://www.ref.finance/');
+                }}
+              />
+            </div>
+            <div className="flex items-center">
+              <Anchor to="/" pattern="/" name="Swap" />
+              <Anchor to="/sauce" pattern="/sauce" name="Sauce" />
+              <PoolsMenu />
+              <Anchor to="/farmsBoost" pattern="/farmsBoost" name="Farms" />
+              <Xref></Xref>
+              <Anchor
+                to="/referendum"
+                pattern="/referendum"
+                name="Referendum"
+              />
+            </div>
           </div>
           <div className="flex items-center justify-end flex-1">
             <USNButton />

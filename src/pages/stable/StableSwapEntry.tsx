@@ -370,7 +370,7 @@ export function StableSwapPageEntry() {
 
   return (
     <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2 flex flex-col">
-      <div className="flex justify-center -mt-10 mb-2 ">
+      <div className="flex justify-center -mt-6 mb-2 ">
         <StableSwapLogo />
       </div>
       <span className="text-sm text-primaryText mb-6 text-center">
